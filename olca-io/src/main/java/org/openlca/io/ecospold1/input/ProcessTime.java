@@ -20,9 +20,9 @@ class ProcessTime {
 
 	public void map(ProcessDocumentation doc) {
 		if (timePeriod != null && doc != null) {
-			doc.setTime(timePeriod.getText());
-			doc.setValidFrom(getStartDate());
-			doc.setValidUntil(getEndDate());
+			doc.time = timePeriod.getText();
+			doc.validFrom = getStartDate();
+			doc.validUntil = getEndDate();
 		}
 	}
 

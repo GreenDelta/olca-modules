@@ -24,7 +24,7 @@ class InfoSheet {
 	private InfoSheet(Config config) {
 		this.config = config;
 		this.process = config.process;
-		this.doc = config.process.getDocumentation();
+		this.doc = config.process.documentation;
 		sheet = config.workbook.getSheet("General information");
 	}
 
@@ -42,25 +42,25 @@ class InfoSheet {
 			readQuanRef();
 			readTime();
 			readGeography();
-			doc.setTechnology(config.getString(sheet, 21, 1));
+			doc.technology = config.getString(sheet, 21, 1);
 		} catch (Exception e) {
 			log.error("failed to read information sheet", e);
 		}
 	}
 
 	private void readInfoSection() {
-		process.setRefId(config.getString(sheet, 1, 1));
-		process.setName(config.getString(sheet, 2, 1));
-		process.setDescription(config.getString(sheet, 3, 1));
+		process.refId = config.getString(sheet, 1, 1);
+		process.name = config.getString(sheet, 2, 1);
+		process.description = config.getString(sheet, 3, 1);
 		String categoryPath = config.getString(sheet, 4, 1);
-		process.setCategory(config.getCategory(categoryPath, ModelType.PROCESS));
+		process.category = config.getCategory(categoryPath, ModelType.PROCESS);
 		String version = config.getString(sheet, 5, 1);
-		process.setVersion(Version.fromString(version).getValue());
+		process.version = Version.fromString(version).getValue();
 		Date lastChange = config.getDate(sheet, 6, 1);
 		if (lastChange == null) {
-			process.setLastChange(0L);
+			process.lastChange = 0L;
 		} else {
-			process.setLastChange(lastChange.getTime());
+			process.lastChange = lastChange.getTime();
 		}
 	}
 
@@ -68,11 +68,11 @@ class InfoSheet {
 		// the outputs must be already imported
 		String qRefName = config.getString(sheet, 9, 1);
 		Exchange qRef = null;
-		for (Exchange exchange : process.getExchanges()) {
+		for (Exchange exchange : process.exchanges) {
 			if (exchange.isInput || exchange.flow == null) {
 				continue;
 			}
-			if (Objects.equals(qRefName, exchange.flow.getName())) {
+			if (Objects.equals(qRefName, exchange.flow.name)) {
 				qRef = exchange;
 				break;
 			}
@@ -80,22 +80,22 @@ class InfoSheet {
 		if (qRef == null) {
 			log.warn("could not find quantitative reference {}", qRefName);
 		} else {
-			process.setQuantitativeReference(qRef);
+			process.quantitativeReference = qRef;
 		}
 	}
 
 	private void readTime() {
-		doc.setValidFrom(config.getDate(sheet, 12, 1));
-		doc.setValidUntil(config.getDate(sheet, 13, 1));
-		doc.setTime(config.getString(sheet, 14, 1));
+		doc.validFrom = config.getDate(sheet, 12, 1);
+		doc.validUntil = config.getDate(sheet, 13, 1);
+		doc.time = config.getString(sheet, 14, 1);
 	}
 
 	private void readGeography() {
 		String code = config.getString(sheet, 17, 1);
 		if (code != null) {
-			process.setLocation(config.refData.getLocation(code));
+			process.location = config.refData.getLocation(code);
 		}
-		doc.setGeography(config.getString(sheet, 18, 1));
+		doc.geography = config.getString(sheet, 18, 1);
 	}
 
 }

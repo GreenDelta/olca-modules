@@ -41,7 +41,7 @@ class AllocationSheet {
 	}
 
 	private String getAllocationMethod() {
-		AllocationMethod method = config.process.getDefaultAllocationMethod();
+		AllocationMethod method = config.process.defaultAllocationMethod;
 		if (method == null)
 			return "none";
 		switch (method) {
@@ -70,9 +70,9 @@ class AllocationSheet {
 	}
 
 	private void writeFactors(Exchange product) {
-		Excel.cell(sheet, row, 0, product.flow.getName());
+		Excel.cell(sheet, row, 0, product.flow.name);
 		Excel.cell(sheet, row, 1, CategoryPath.getFull(
-				product.flow.getCategory()));
+				product.flow.category));
 		Excel.cell(sheet, row, 2, getFactor(product,
 				AllocationMethod.PHYSICAL));
 		Excel.cell(sheet, row, 3, getFactor(product,
@@ -87,7 +87,7 @@ class AllocationSheet {
 		config.header(sheet, row, 2, "Direction");
 		config.header(sheet, row, 3, "Amount");
 		for (int i = 0; i < outputs.size(); i++)
-			config.header(sheet, row, 4 + i, outputs.get(i).flow.getName());
+			config.header(sheet, row, 4 + i, outputs.get(i).flow.name);
 		for (Exchange flow : getNonProducts()) {
 			row++;
 			writeCausalRowInfo(flow);
@@ -101,19 +101,19 @@ class AllocationSheet {
 	private void writeCausalRowInfo(Exchange e) {
 		if(e.flow == null)
 			return;
-		Excel.cell(sheet, row, 0, e.flow.getName());
-		Excel.cell(sheet, row, 1, CategoryPath.getFull(e.flow.getCategory()));
+		Excel.cell(sheet, row, 0, e.flow.name);
+		Excel.cell(sheet, row, 1, CategoryPath.getFull(e.flow.category));
 		String direction = e.isInput ? "Input" : "Output";
 		Excel.cell(sheet, row, 2, direction);
 		String amount = Double.toString(e.amount);
 		if(e.unit != null)
-			amount += " " + e.unit.getName();
+			amount += " " + e.unit.name;
 		Excel.cell(sheet, row, 3, amount);
 	}
 
 	private List<Exchange> getProducts() {
 		List<Exchange> outputs = new ArrayList<>();
-		for (Exchange exchange : config.process.getExchanges()) {
+		for (Exchange exchange : config.process.exchanges) {
 			if (isOutputProduct(exchange))
 				outputs.add(exchange);
 		}
@@ -123,7 +123,7 @@ class AllocationSheet {
 
 	private List<Exchange> getNonProducts() {
 		List<Exchange> exchanges = new ArrayList<>();
-		for (Exchange exchange : config.process.getExchanges()) {
+		for (Exchange exchange : config.process.exchanges) {
 			if (!isOutputProduct(exchange))
 				exchanges.add(exchange);
 		}
@@ -136,23 +136,23 @@ class AllocationSheet {
 				&& exchange.flow != null
 				&& !exchange.isInput
 				&& !exchange.isAvoided
-				&& exchange.flow.getFlowType() == FlowType.PRODUCT_FLOW;
+				&& exchange.flow.flowType == FlowType.PRODUCT_FLOW;
 	}
 
 	private double getFactor(Exchange product, AllocationMethod method) {
-		for (AllocationFactor factor : config.process.getAllocationFactors()) {
+		for (AllocationFactor factor : config.process.allocationFactors) {
 			if (method == factor.method
-					&& factor.productId == product.flow.getId())
+					&& factor.productId == product.flow.id)
 				return factor.value;
 		}
 		return 1.0;
 	}
 
 	private double getCausalFactor(Exchange product, Exchange flow) {
-		for (AllocationFactor factor : config.process.getAllocationFactors()) {
+		for (AllocationFactor factor : config.process.allocationFactors) {
 			if (factor.method != AllocationMethod.CAUSAL)
 				continue;
-			if (factor.productId == product.flow.getId()
+			if (factor.productId == product.flow.id
 					&& Objects.equals(factor.exchange, flow))
 				return factor.value;
 		}
@@ -163,8 +163,8 @@ class AllocationSheet {
 		@Override
 		public int compare(Exchange e1, Exchange e2) {
 			return Strings.compare(
-					e1.flow.getName(),
-					e2.flow.getName());
+					e1.flow.name,
+					e2.flow.name);
 		}
 	}
 }

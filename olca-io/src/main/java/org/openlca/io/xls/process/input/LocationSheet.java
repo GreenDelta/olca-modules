@@ -52,12 +52,12 @@ class LocationSheet {
 			return;
 		}
 		location = new Location();
-		location.setRefId(uuid);
-		location.setCode(code);
-		location.setName(config.getString(sheet, row, 2));
-		location.setDescription(config.getString(sheet, row, 3));
-		location.setLatitude(config.getDouble(sheet, row, 4));
-		location.setLongitude(config.getDouble(sheet, row, 5));
+		location.refId = uuid;
+		location.code = code;
+		location.name = config.getString(sheet, row, 2);
+		location.description = config.getString(sheet, row, 3);
+		location.latitude = config.getDouble(sheet, row, 4);
+		location.longitude = config.getDouble(sheet, row, 5);
 		location = dao.insert(location);
 		config.refData.putLocation(code, location);
 	}

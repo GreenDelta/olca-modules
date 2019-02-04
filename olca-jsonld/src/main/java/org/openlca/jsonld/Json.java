@@ -226,14 +226,14 @@ public class Json {
 		if (d.location != null) {
 			Location loc = cache.get(Location.class, d.location);
 			if (loc != null) {
-				ref.addProperty("location", loc.getCode());
+				ref.addProperty("location", loc.code);
 			}
 		}
 		FlowProperty prop = cache.get(FlowProperty.class, d.refFlowPropertyId);
-		if (prop != null && prop.getUnitGroup() != null) {
-			Unit unit = prop.getUnitGroup().getReferenceUnit();
+		if (prop != null && prop.unitGroup != null) {
+			Unit unit = prop.unitGroup.referenceUnit;
 			if (unit != null) {
-				ref.addProperty("refUnit", unit.getName());
+				ref.addProperty("refUnit", unit.name);
 			}
 		}
 	}
@@ -248,7 +248,7 @@ public class Json {
 		if (cache != null && d.location != null) {
 			Location loc = cache.get(Location.class, d.location);
 			if (loc != null) {
-				ref.addProperty("location", loc.getCode());
+				ref.addProperty("location", loc.code);
 			}
 		}
 	}

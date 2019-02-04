@@ -34,7 +34,7 @@ public class ParameterUseSearchTest {
 	@Test
 	public void testFindNoUsage() {
 		Parameter parameter = new Parameter();
-		parameter.setName("testNoUsage");
+		parameter.name = "testNoUsage";
 		Tests.insert(parameter);
 		List<CategorizedDescriptor> models = search.findUses(Descriptors
 				.toDescriptor(parameter));
@@ -69,7 +69,7 @@ public class ParameterUseSearchTest {
 		Parameter p1 = createParameter("p1", 5d, ParameterScope.GLOBAL);
 		Parameter p2 = createParameter("p2", "5*p1", ParameterScope.PROCESS);
 		Process process = new Process();
-		process.getParameters().add(p2);
+		process.parameters.add(p2);
 		Tests.insert(p1);
 		Tests.insert(process);
 		List<CategorizedDescriptor> models = search.findUses(Descriptors
@@ -105,8 +105,8 @@ public class ParameterUseSearchTest {
 		Parameter p1 = createParameter("p1", 5d, ParameterScope.PROCESS);
 		Parameter p2 = createParameter("p2", "5*p1", ParameterScope.PROCESS);
 		Process process = new Process();
-		process.getParameters().add(p1);
-		process.getParameters().add(p2);
+		process.parameters.add(p1);
+		process.parameters.add(p2);
 		Tests.insert(p);
 		Tests.insert(process);
 		List<CategorizedDescriptor> models = search.findUses(Descriptors
@@ -171,7 +171,7 @@ public class ParameterUseSearchTest {
 	private Parameter createParameter(String name, Object value,
 			ParameterScope scope) {
 		Parameter parameter = new Parameter();
-		parameter.setName(name);
+		parameter.name = name;
 		boolean formula = value instanceof String;
 		parameter.isInputParameter = !formula;
 		if (formula)

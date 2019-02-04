@@ -54,10 +54,10 @@ public final class ReferenceAmount {
 			FlowPropertyFactor factor) {
 		double refAmount = amount;
 		if (unit != null) {
-			refAmount = refAmount * unit.getConversionFactor();
+			refAmount = refAmount * unit.conversionFactor;
 		}
 		if (factor != null) {
-			refAmount = refAmount / factor.getConversionFactor();
+			refAmount = refAmount / factor.conversionFactor;
 		}
 		return refAmount;
 	}

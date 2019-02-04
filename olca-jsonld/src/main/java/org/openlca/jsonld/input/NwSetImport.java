@@ -48,15 +48,15 @@ public class NwSetImport extends BaseEmbeddedImport<NwSet, ImpactMethod> {
 	private NwFactor mapFactor(JsonObject json) {
 		NwFactor f = new NwFactor();
 		String categoryId = Json.getRefId(json, "impactCategory");
-		f.setImpactCategory(getImpactCategory(categoryId));
-		f.setNormalisationFactor(Json.getOptionalDouble(json, "normalisationFactor"));
-		f.setWeightingFactor(Json.getOptionalDouble(json, "weightingFactor"));
+		f.impactCategory = getImpactCategory(categoryId);
+		f.normalisationFactor = Json.getOptionalDouble(json, "normalisationFactor");
+		f.weightingFactor = Json.getOptionalDouble(json, "weightingFactor");
 		return f;
 	}
 
 	private ImpactCategory getImpactCategory(String refId) {
 		for (ImpactCategory category : impactCategories)
-			if (category.getRefId().equals(refId))
+			if (category.refId.equals(refId))
 				return category;
 		return null;
 	}
@@ -67,7 +67,7 @@ public class NwSetImport extends BaseEmbeddedImport<NwSet, ImpactMethod> {
 		if (refId == null)
 			return null;
 		for (NwSet nwSet : impactMethod.nwSets) 
-			if (refId.equals(nwSet.getRefId()))
+			if (refId.equals(nwSet.refId))
 				return nwSet;
 		return null;
 	}

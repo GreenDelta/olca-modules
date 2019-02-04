@@ -25,12 +25,12 @@ public class SystemsInSystemsTests {
 		ProductSystemDao systemDao = new ProductSystemDao(db);
 
 		UnitGroup ug6939 = new UnitGroup();
-		ug6939.setRefId(UUID.randomUUID().toString());
-		ug6939.setName("Units of mass");
+		ug6939.refId = UUID.randomUUID().toString();
+		ug6939.name = "Units of mass";
 		Unit kg = new Unit();
-		kg.setName("kg");
-		kg.setConversionFactor(1.0);
-		kg.setRefId(UUID.randomUUID().toString());
+		kg.name = "kg";
+		kg.conversionFactor = 1.0;
+		kg.refId = UUID.randomUUID().toString();
 
 	}
 

@@ -33,7 +33,7 @@ class ImpactMethodExport extends AbstractExport {
 		if (method.category != null) {
 			Category category = categoryDao.getForId(method.category);
 			if (category != null)
-				line[3] = category.getRefId();
+				line[3] = category.refId;
 		}
 		return line;
 	}

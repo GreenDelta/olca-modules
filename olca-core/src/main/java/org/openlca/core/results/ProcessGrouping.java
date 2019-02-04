@@ -57,9 +57,9 @@ public class ProcessGrouping {
 		List<CategorizedDescriptor> rest = new ArrayList<>(processes);
 		for (ProcessGroup group : groups) {
 			ProcessGrouping grouping = new ProcessGrouping();
-			grouping.name = group.getName();
+			grouping.name = group.name;
 			grouping.rest = false;
-			List<CategorizedDescriptor> matches = split(group.getProcessIds(),
+			List<CategorizedDescriptor> matches = split(group.processIds,
 					rest);
 			grouping.processes.addAll(matches);
 			groupings.add(grouping);

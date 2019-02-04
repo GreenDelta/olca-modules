@@ -39,12 +39,12 @@ class Exchanges {
 		Out.put(obj, "flow", e.flow, conf, Out.REQUIRED_FIELD);
 		if (e.flow != null) {
 			JsonObject flow = obj.get("flow").getAsJsonObject();
-			Out.put(flow, "flowType", e.flow.getFlowType());
+			Out.put(flow, "flowType", e.flow.flowType);
 		}
 		Out.put(obj, "unit", e.unit, conf, Out.REQUIRED_FIELD);
 		FlowProperty property = null;
 		if (e.flowPropertyFactor != null)
-			property = e.flowPropertyFactor.getFlowProperty();
+			property = e.flowPropertyFactor.flowProperty;
 		Out.put(obj, "flowProperty", property, conf, Out.REQUIRED_FIELD);
 		Out.put(obj, "uncertainty", Uncertainties.map(e.uncertainty));
 	}

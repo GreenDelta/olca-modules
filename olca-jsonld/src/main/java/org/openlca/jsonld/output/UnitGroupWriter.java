@@ -21,18 +21,18 @@ class UnitGroupWriter extends Writer<UnitGroup> {
 		if (obj == null)
 			return null;
 		mapUnits(ug, obj);
-		Out.put(obj, "defaultFlowProperty", ug.getDefaultFlowProperty(), conf);
+		Out.put(obj, "defaultFlowProperty", ug.defaultFlowProperty, conf);
 		return obj;
 	}
 
 	private void mapUnits(UnitGroup group, JsonObject json) {
 		JsonArray units = new JsonArray();
-		for (Unit unit : group.getUnits()) {
+		for (Unit unit : group.units) {
 			JsonObject obj = new JsonObject();
 			addBasicAttributes(unit, obj);
-			if (Objects.equals(unit, group.getReferenceUnit()))
+			if (Objects.equals(unit, group.referenceUnit))
 				Out.put(obj, "referenceUnit", true);
-			Out.put(obj, "conversionFactor", unit.getConversionFactor());
+			Out.put(obj, "conversionFactor", unit.conversionFactor);
 			mapSynonyms(unit, obj);
 			units.add(obj);
 		}
@@ -40,7 +40,7 @@ class UnitGroupWriter extends Writer<UnitGroup> {
 	}
 
 	private void mapSynonyms(Unit unit, JsonObject obj) {
-		String synonyms = unit.getSynonyms();
+		String synonyms = unit.synonyms;
 		if (synonyms == null || synonyms.trim().isEmpty())
 			return;
 		JsonArray array = new JsonArray();

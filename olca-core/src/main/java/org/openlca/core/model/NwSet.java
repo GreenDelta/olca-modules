@@ -38,7 +38,7 @@ public class NwSet extends RootEntity {
 
 	public NwFactor getFactor(ImpactCategory category) {
 		for (NwFactor fac : factors) {
-			if (Objects.equals(category, fac.getImpactCategory()))
+			if (Objects.equals(category, fac.impactCategory))
 				return fac;
 		}
 		return null;

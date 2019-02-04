@@ -22,15 +22,7 @@ public abstract class AbstractEntity {
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "entity_seq")
 	@TableGenerator(name = "entity_seq", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT", pkColumnValue = "entity_seq", allocationSize = 150, table = "SEQUENCE")
-	private long id;
-
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
+	public long id;
 
 	@Override
 	public boolean equals(Object obj) {
@@ -41,19 +33,19 @@ public abstract class AbstractEntity {
 		if (!(this.getClass().isInstance(obj)))
 			return false;
 		AbstractEntity other = (AbstractEntity) obj;
-		if (this.getId() == 0L && other.getId() == 0L)
+		if (this.id == 0L && other.id == 0L)
 			return false; // we already checked this == other above
-		return this.getId() == other.getId();
+		return this.id == other.id;
 	}
 
 	@Override
 	public int hashCode() {
-		return Long.hashCode(getId());
+		return Long.hashCode(id);
 	}
 
 	@Override
 	public String toString() {
-		return "Entity [type=" + getClass().getSimpleName() + ", id=" + getId()
+		return "Entity [type=" + getClass().getSimpleName() + ", id=" + id
 				+ "]";
 	}
 

@@ -28,7 +28,7 @@ public class CurrencyReferenceSearchTest extends BaseReferenceSearchTest {
 	@Override
 	protected Currency createModel() {
 		Currency currency = new Currency();
-		currency.setCategory(insertAndAddExpected("category", new Category()));
+		currency.category = insertAndAddExpected("category", new Category());
 		currency.referenceCurrency = insertAndAddExpected("referenceCurrency",
 				new Currency());
 		currency = Tests.insert(currency);

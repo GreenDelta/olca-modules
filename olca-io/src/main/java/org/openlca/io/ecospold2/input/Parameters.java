@@ -38,8 +38,8 @@ final class Parameters {
 				continue;
 			Parameter olcaParam = new Parameter();
 			parameters.add(olcaParam);
-			olcaParam.setDescription(param.unitName);
-			olcaParam.setName(param.variableName);
+			olcaParam.description = param.unitName;
+			olcaParam.name = param.variableName;
 			setScope(param, olcaParam);
 			olcaParam.value = param.amount;
 			olcaParam.uncertainty = UncertaintyConverter.toOpenLCA(param.uncertainty, 1);
@@ -79,10 +79,10 @@ final class Parameters {
 		if (!canCreate(exchange.variableName, params))
 			return;
 		Parameter olcaParam = new Parameter();
-		olcaParam.setName(exchange.variableName);
+		olcaParam.name = exchange.variableName;
 		olcaParam.scope = ParameterScope.PROCESS;
 		olcaParam.value = exchange.amount;
-		olcaParam.setDescription(exchange.unit);
+		olcaParam.description = exchange.unit;
 		String formula = exchange.mathematicalRelation;
 		if (config.withParameterFormulas && isValid(formula, config)) {
 			olcaParam.formula = formula.trim();
@@ -101,7 +101,7 @@ final class Parameters {
 		if (!canCreate(exchange.productionVolumeVariableName, params))
 			return;
 		Parameter param = new Parameter();
-		param.setName(varName);
+		param.name = varName;
 		param.scope = ParameterScope.PROCESS;
 		param.value = amount == null ? 0d : amount;
 		if (config.withParameterFormulas && isValid(formula, config)) {
@@ -118,10 +118,10 @@ final class Parameters {
 			if (!canCreate(property.variableName, parameters))
 				continue;
 			Parameter olcaParam = new Parameter();
-			olcaParam.setName(property.variableName);
+			olcaParam.name = property.variableName;
 			olcaParam.scope = ParameterScope.PROCESS;
 			olcaParam.value = property.amount;
-			olcaParam.setDescription(property.unit);
+			olcaParam.description = property.unit;
 			String formula = property.mathematicalRelation;
 			if (config.withParameterFormulas && isValid(formula, config)) {
 				olcaParam.formula = formula.trim();
@@ -161,7 +161,7 @@ final class Parameters {
 
 	static boolean contains(String parameterName, List<Parameter> parameters) {
 		for (Parameter param : parameters) {
-			if (Strings.nullOrEqual(parameterName, param.getName()))
+			if (Strings.nullOrEqual(parameterName, param.name))
 				return true;
 		}
 		return false;

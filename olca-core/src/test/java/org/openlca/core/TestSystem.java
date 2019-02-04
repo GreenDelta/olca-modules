@@ -28,10 +28,10 @@ public class TestSystem {
 
 	private TestSystem(Process refProcess) {
 		system = new ProductSystem();
-		system.setRefId(UUID.randomUUID().toString());
-		system.setName(refProcess.getName());
+		system.refId = UUID.randomUUID().toString();
+		system.name = refProcess.name;
 		system.referenceProcess = refProcess;
-		Exchange qRef = refProcess.getQuantitativeReference();
+		Exchange qRef = refProcess.quantitativeReference;
 		system.referenceExchange = qRef;
 		system.targetAmount = qRef.amount;
 		system.targetFlowPropertyFactor = qRef.flowPropertyFactor;
@@ -44,12 +44,12 @@ public class TestSystem {
 	}
 
 	private void index(Process process) {
-		system.processes.add(process.getId());
+		system.processes.add(process.id);
 		processes.add(process);
-		for (Exchange e : process.getExchanges()) {
+		for (Exchange e : process.exchanges) {
 			if (!isProvider(e))
 				continue;
-			long flowId = e.flow.getId();
+			long flowId = e.flow.id;
 			if (providers.get(flowId) == null) {
 				providers.put(flowId, process);
 			}
@@ -61,21 +61,21 @@ public class TestSystem {
 			return this;
 		index(process);
 		for (Process p : processes) {
-			for (Exchange e : p.getExchanges()) {
+			for (Exchange e : p.exchanges) {
 				if (isProvider(e))
 					continue;
 				if (e.flow == null
-						|| e.flow.getFlowType() == FlowType.ELEMENTARY_FLOW)
+						|| e.flow.flowType == FlowType.ELEMENTARY_FLOW)
 					continue;
-				long flowId = e.flow.getId();
+				long flowId = e.flow.id;
 				Process provider = providers.get(flowId);
 				if (provider == null)
 					continue;
 				ProcessLink link = new ProcessLink();
-				link.providerId = provider.getId();
+				link.providerId = provider.id;
 				link.flowId = flowId;
-				link.processId = p.getId();
-				link.exchangeId = e.getId();
+				link.processId = p.id;
+				link.exchangeId = e.id;
 				if (!system.processLinks.contains(link)) {
 					system.processLinks.add(link);
 				}
@@ -87,7 +87,7 @@ public class TestSystem {
 	private static boolean isProvider(Exchange e) {
 		if (e == null || e.flow == null)
 			return false;
-		FlowType type = e.flow.getFlowType();
+		FlowType type = e.flow.flowType;
 		if (type == FlowType.PRODUCT_FLOW && !e.isInput)
 			return true;
 		if (type == FlowType.WASTE_FLOW && e.isInput)

@@ -28,7 +28,7 @@ public class SocialIndicatorUseSearchTest {
 	@Before
 	public void setup() {
 		indicator = new SocialIndicator();
-		indicator.setName("indicator");
+		indicator.name = "indicator";
 		indicator = new SocialIndicatorDao(database).insert(indicator);
 		search = IUseSearch.FACTORY.createFor(ModelType.SOCIAL_INDICATOR,
 				database);
@@ -60,7 +60,7 @@ public class SocialIndicatorUseSearchTest {
 
 	private Process createProcess() {
 		Process process = new Process();
-		process.setName("process");
+		process.name = "process";
 		SocialAspect aspect = new SocialAspect();
 		aspect.indicator = indicator;
 		process.socialAspects.add(aspect);

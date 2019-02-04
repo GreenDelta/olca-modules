@@ -59,19 +59,19 @@ class UnitGroupImport {
 		UnitGroup destGroup = destDao.getForId(seq.get(seq.UNIT_GROUP,
 				descriptor.refId));
 		boolean updated = false;
-		for (Unit srcUnit : srcGroup.getUnits()) {
-			Unit destUnit = destGroup.getUnit(srcUnit.getName());
+		for (Unit srcUnit : srcGroup.units) {
+			Unit destUnit = destGroup.getUnit(srcUnit.name);
 			if (!updated && destUnit != null) {
-				seq.put(seq.UNIT, srcUnit.getRefId(), destUnit.getId());
+				seq.put(seq.UNIT, srcUnit.refId, destUnit.id);
 			} else {
 				destUnit = srcUnit.clone();
-				destUnit.setRefId(srcUnit.getRefId());
-				destGroup.getUnits().add(destUnit);
+				destUnit.refId = srcUnit.refId;
+				destGroup.units.add(destUnit);
 				updated = true;
 			}
 		}
 		if (updated) {
-			destGroup.setLastChange(Calendar.getInstance().getTimeInMillis());
+			destGroup.lastChange = Calendar.getInstance().getTimeInMillis();
 			Version.incUpdate(destGroup);
 			destGroup = destDao.update(destGroup);
 			indexUnits(srcGroup, destGroup);
@@ -82,36 +82,36 @@ class UnitGroupImport {
 	private void createUnitGroup(UnitGroupDescriptor descriptor) {
 		UnitGroup srcGroup = srcDao.getForId(descriptor.id);
 		UnitGroup destGroup = srcGroup.clone();
-		destGroup.setRefId(srcGroup.getRefId());
+		destGroup.refId = srcGroup.refId;
 		switchUnitRefIds(srcGroup, destGroup);
-		destGroup.setDefaultFlowProperty(null);
-		destGroup.setCategory(refs.switchRef(srcGroup.getCategory()));
+		destGroup.defaultFlowProperty = null;
+		destGroup.category = refs.switchRef(srcGroup.category);
 		destGroup = destDao.insert(destGroup);
-		seq.put(seq.UNIT_GROUP, srcGroup.getRefId(), destGroup.getId());
+		seq.put(seq.UNIT_GROUP, srcGroup.refId, destGroup.id);
 		indexUnits(srcGroup, destGroup);
-		FlowProperty defaultProperty = srcGroup.getDefaultFlowProperty();
+		FlowProperty defaultProperty = srcGroup.defaultFlowProperty;
 		if (defaultProperty != null)
-			requirePropertyUpdate.put(defaultProperty.getRefId(), destGroup);
+			requirePropertyUpdate.put(defaultProperty.refId, destGroup);
 	}
 
 	private void switchUnitRefIds(UnitGroup srcGroup, UnitGroup destGroup) {
-		for (Unit srcUnit : srcGroup.getUnits()) {
-			Unit destUnit = destGroup.getUnit(srcUnit.getName());
+		for (Unit srcUnit : srcGroup.units) {
+			Unit destUnit = destGroup.getUnit(srcUnit.name);
 			if (destUnit == null)
 				continue;
-			destUnit.setRefId(srcUnit.getRefId());
+			destUnit.refId = srcUnit.refId;
 		}
 	}
 
 	private void indexUnits(UnitGroup srcGroup, UnitGroup destGroup) {
-		for (Unit srcUnit : srcGroup.getUnits()) {
-			Unit destUnit = destGroup.getUnit(srcUnit.getName());
+		for (Unit srcUnit : srcGroup.units) {
+			Unit destUnit = destGroup.getUnit(srcUnit.name);
 			if (destUnit == null) {
 				log.error("failed to update unit group {}, {} is missing",
 						destGroup, srcUnit);
 				continue;
 			}
-			seq.put(seq.UNIT, srcUnit.getRefId(), destUnit.getId());
+			seq.put(seq.UNIT, srcUnit.refId, destUnit.id);
 		}
 	}
 

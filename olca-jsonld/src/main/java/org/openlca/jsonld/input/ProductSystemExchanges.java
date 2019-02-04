@@ -110,8 +110,8 @@ class ProductSystemExchanges {
 		if (e == null)
 			return null;
 		String propertyRefId = Json.getRefId(json, "targetFlowProperty");
-		for (FlowPropertyFactor f : e.flow.getFlowPropertyFactors())
-			if (f.getFlowProperty().getRefId().equals(propertyRefId))
+		for (FlowPropertyFactor f : e.flow.flowPropertyFactors)
+			if (f.flowProperty.refId.equals(propertyRefId))
 				return f;
 		return null;
 	}
@@ -121,9 +121,9 @@ class ProductSystemExchanges {
 		if (f == null)
 			return null;
 		String unitRefId = Json.getRefId(json, "targetUnit");
-		UnitGroup ug = f.getFlowProperty().getUnitGroup();
-		for (Unit u : ug.getUnits())
-			if (u.getRefId().equals(unitRefId))
+		UnitGroup ug = f.flowProperty.unitGroup;
+		for (Unit u : ug.units)
+			if (u.refId.equals(unitRefId))
 				return u;
 		return null;
 	}

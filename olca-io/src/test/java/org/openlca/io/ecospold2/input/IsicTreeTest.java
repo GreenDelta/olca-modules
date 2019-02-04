@@ -36,14 +36,13 @@ public class IsicTreeTest {
 		IDatabase database = Tests.getDb();
 		CategoryDao dao = new CategoryDao(database);
 		Category cat = new Category();
-		cat.setName("0121:Growing of grapes");
+		cat.name = "0121:Growing of grapes";
 		cat.setModelType(ModelType.FLOW);
 		cat = dao.insert(cat);
 		new IsicCategoryTreeSync(database, ModelType.FLOW).run();
-		cat = dao.getForId(cat.getId());
-		Assert.assertNotNull(cat.getCategory());
-		Assert.assertEquals("012:Growing of perennial crops", cat
-				.getCategory().getName());
+		cat = dao.getForId(cat.id);
+		Assert.assertNotNull(cat.category);
+		Assert.assertEquals("012:Growing of perennial crops", cat.category.name);
 	}
 
 	@Test
@@ -52,14 +51,13 @@ public class IsicTreeTest {
 		CategoryDao dao = new CategoryDao(database);
 		Category cat = new Category();
 		String catName = "01:Crop and animal production, hunting and related service activities";
-		cat.setName(catName);
+		cat.name = catName;
 		cat.setModelType(ModelType.PROCESS);
 		cat = dao.insert(cat);
 		new IsicCategoryTreeSync(database, ModelType.PROCESS).run();
-		cat = dao.getForId(cat.getId());
-		Assert.assertNotNull(cat.getCategory());
-		Assert.assertEquals("A:Agriculture, forestry and fishing", cat
-				.getCategory().getName());
+		cat = dao.getForId(cat.id);
+		Assert.assertNotNull(cat.category);
+		Assert.assertEquals("A:Agriculture, forestry and fishing", cat.category.name);
 	}
 
 }

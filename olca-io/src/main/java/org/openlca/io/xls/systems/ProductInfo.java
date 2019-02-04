@@ -58,7 +58,7 @@ class ProductInfo implements Comparable<ProductInfo> {
 				if (p.location != null) {
 					Location loc = cache.get(Location.class, p.location);
 					if (loc != null)
-						info.processLocation = loc.getCode();
+						info.processLocation = loc.code;
 				}
 			}
 			infos.add(info);

@@ -17,7 +17,7 @@ class AdminInfoSheet {
 
 	private AdminInfoSheet(Config config) {
 		this.config = config;
-		doc = config.process.getDocumentation();
+		doc = config.process.documentation;
 		sheet = config.workbook.createSheet("Administrative information");
 	}
 
@@ -27,16 +27,16 @@ class AdminInfoSheet {
 
 	private void write() {
 		config.header(sheet, row++, 0, "Administrative information");
-		pair("Intended application", doc.getIntendedApplication());
-		pair("Data set owner", doc.getDataSetOwner());
-		pair("Data set generator", doc.getDataGenerator());
-		pair("Data set documentor", doc.getDataDocumentor());
-		pair("Publication", doc.getPublication());
-		pair("Access and use restrictions", doc.getRestrictions());
-		pair("Project", doc.getProject());
-		pair("Creation date", doc.getCreationDate());
+		pair("Intended application", doc.intendedApplication);
+		pair("Data set owner", doc.dataSetOwner);
+		pair("Data set generator", doc.dataGenerator);
+		pair("Data set documentor", doc.dataDocumentor);
+		pair("Publication", doc.publication);
+		pair("Access and use restrictions", doc.restrictions);
+		pair("Project", doc.project);
+		pair("Creation date", doc.creationDate);
 		Excel.cell(sheet, row, 0, "Copyright");
-		Excel.cell(sheet, row++, 1).setCellValue(doc.isCopyright());
+		Excel.cell(sheet, row++, 1).setCellValue(doc.copyright);
 		Excel.autoSize(sheet, 0);
 		sheet.setColumnWidth(1, 100 * 256);
 	}
@@ -47,8 +47,8 @@ class AdminInfoSheet {
 			return;
 		}
 		Excel.cell(sheet, row, 0, header);
-		Excel.cell(sheet, row, 1, entity.getName());
-		Excel.cell(sheet, row++, 2, CategoryPath.getFull(entity.getCategory()));
+		Excel.cell(sheet, row, 1, entity.name);
+		Excel.cell(sheet, row++, 2, CategoryPath.getFull(entity.category));
 	}
 
 	private void pair(String header, String value) {

@@ -23,10 +23,10 @@ class DataSetRef {
 		}
 		Ref ref = new Ref();
 		ref.version = "01.00.000";
-		ref.uuid = model.getRefId();
+		ref.uuid = model.refId;
 		setUriAndType(model, ref);
-		if (model.getName() != null) {
-			LangString.set(ref.name, model.getName(),
+		if (model.name != null) {
+			LangString.set(ref.name, model.name,
 					config.lang);
 		}
 		return ref;
@@ -54,7 +54,7 @@ class DataSetRef {
 			ref.type = DataSetType.PROCESS;
 			uri += "processes/";
 		}
-		uri += iModel.getRefId();
+		uri += iModel.refId;
 		ref.uri = uri;
 	}
 

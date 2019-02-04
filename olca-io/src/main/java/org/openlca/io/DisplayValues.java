@@ -29,8 +29,8 @@ public final class DisplayValues {
 		try {
 			FlowProperty property = cache.get(FlowProperty.class,
 					descriptor.id);
-			Unit refUnit = property.getUnitGroup().getReferenceUnit();
-			return refUnit.getName();
+			Unit refUnit = property.unitGroup.referenceUnit;
+			return refUnit.name;
 		} catch (Exception e) {
 			log.error("failed to get reference unit for flow " + flow.id,
 					e);

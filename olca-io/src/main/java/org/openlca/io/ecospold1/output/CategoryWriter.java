@@ -33,16 +33,16 @@ class CategoryWriter implements Closeable {
 	public void takeFrom(Process process) {
 		if (process == null)
 			return;
-		for (Exchange exchange : process.getExchanges()) {
+		for (Exchange exchange : process.exchanges) {
 			Flow flow = exchange.flow;
 			int type = getType(flow);
 			if (flow == null || type == -1)
 				continue;
-			org.openlca.core.model.Category category = flow.getCategory();
-			if (category == null || handled.contains(category.getId()))
+			org.openlca.core.model.Category category = flow.category;
+			if (category == null || handled.contains(category.id))
 				continue;
 			register(convert(category, type));
-			handled.add(category.getId());
+			handled.add(category.id);
 		}
 	}
 
@@ -77,18 +77,17 @@ class CategoryWriter implements Closeable {
 			org.openlca.core.model.Category category, int type) {
 		Category cat = new Category();
 		cat.setType(type);
-		if (category.getCategory() == null) {
-			cat.setName(category.getName());
-			cat.setLocalName(category.getName());
+		if (category.category == null) {
+			cat.setName(category.name);
+			cat.setLocalName(category.name);
 		} else {
-			org.openlca.core.model.Category parent = category
-					.getCategory();
-			cat.setName(parent.getName());
-			cat.setLocalName(parent.getName());
+			org.openlca.core.model.Category parent = category.category;
+			cat.setName(parent.name);
+			cat.setLocalName(parent.name);
 			SubCategory sub = new SubCategory();
 			cat.getSubCategories().add(sub);
-			sub.setName(category.getName());
-			sub.setLocalName(category.getName());
+			sub.setName(category.name);
+			sub.setLocalName(category.name);
 		}
 		return cat;
 	}
@@ -96,7 +95,7 @@ class CategoryWriter implements Closeable {
 	private int getType(Flow flow) {
 		if (flow == null)
 			return -1;
-		FlowType flowType = flow.getFlowType();
+		FlowType flowType = flow.flowType;
 		if (flowType == null)
 			return -1;
 		if (flowType == FlowType.ELEMENTARY_FLOW)

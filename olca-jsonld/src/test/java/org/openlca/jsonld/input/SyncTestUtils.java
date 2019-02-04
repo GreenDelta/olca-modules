@@ -44,7 +44,7 @@ class SyncTestUtils {
 	private static boolean validate(IDatabase db, ModelType type, Function<Reference, Boolean> isValid) {
 		Set<Long> ids = new HashSet<>();
 		for (AbstractEntity entity : Daos.base(db, type.getModelClass()).getAll()) {
-			ids.add(entity.getId());
+			ids.add(entity.id);
 		}
 		List<Reference> references = findReferences(db, type, ids);
 		for (Reference reference : references) {

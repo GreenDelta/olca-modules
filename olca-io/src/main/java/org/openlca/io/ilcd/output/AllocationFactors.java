@@ -21,14 +21,14 @@ class AllocationFactors {
 
 	public static void map(Process process,
 			Map<org.openlca.core.model.Exchange, Exchange> exchangeMap) {
-		if (exchangeMap.isEmpty() || process.getAllocationFactors().isEmpty())
+		if (exchangeMap.isEmpty() || process.allocationFactors.isEmpty())
 			return;
 		new AllocationFactors(process, exchangeMap).map();
 
 	}
 
 	private void map() {
-		for (AllocationFactor factor : process.getAllocationFactors()) {
+		for (AllocationFactor factor : process.allocationFactors) {
 			if (factor.exchange != null)
 				addCausalFactor(factor);
 			else
@@ -68,9 +68,9 @@ class AllocationFactors {
 				continue;
 			if (oExchange.flow == null)
 				continue;
-			if (oExchange.flow.getFlowType() != FlowType.PRODUCT_FLOW)
+			if (oExchange.flow.flowType != FlowType.PRODUCT_FLOW)
 				continue;
-			if (oExchange.flow.getId() == factor.productId)
+			if (oExchange.flow.id == factor.productId)
 				return exchangeMap.get(oExchange);
 		}
 		return null;

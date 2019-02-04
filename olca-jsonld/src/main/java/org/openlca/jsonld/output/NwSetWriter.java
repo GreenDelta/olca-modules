@@ -27,9 +27,9 @@ public class NwSetWriter extends Writer<NwSet> {
 		for (NwFactor f : set.factors) {
 			JsonObject obj = new JsonObject();
 			Out.put(obj, "@type", NwFactor.class.getSimpleName());
-			Out.put(obj, "impactCategory", f.getImpactCategory(), conf, Out.REQUIRED_FIELD);
-			Out.put(obj, "normalisationFactor", f.getNormalisationFactor());
-			Out.put(obj, "weightingFactor", f.getWeightingFactor());
+			Out.put(obj, "impactCategory", f.impactCategory, conf, Out.REQUIRED_FIELD);
+			Out.put(obj, "normalisationFactor", f.normalisationFactor);
+			Out.put(obj, "weightingFactor", f.weightingFactor);
 			factors.add(obj);
 		}
 		Out.put(json, "factors", factors);

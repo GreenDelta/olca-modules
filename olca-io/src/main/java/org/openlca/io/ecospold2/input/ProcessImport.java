@@ -111,20 +111,20 @@ class ProcessImport {
 	private void runImport(DataSet dataSet, String refId) {
 		Activity activity = Spold2.getActivity(dataSet);
 		Process process = new Process();
-		process.setRefId(refId);
+		process.refId = refId;
 		setMetaData(activity, process);
 		setCategory(dataSet, process);
 		if (config.withParameters)
 			handleParameters(dataSet, process);
 		createProductExchanges(dataSet, process);
-		if (process.getQuantitativeReference() == null)
+		if (process.quantitativeReference == null)
 			log.warn("could not set a quantitative reference for process {}",
 					refId);
 		createElementaryExchanges(dataSet, process);
 		process.exchangeDqSystem = dqSystem;
 		new DocImportMapper(config.db).map(dataSet, process);
 		new ProcessDao(config.db).insert(process);
-		index.putProcessId(refId, process.getId());
+		index.putProcessId(refId, process.id);
 		flushLinkQueue(process);
 	}
 
@@ -133,44 +133,44 @@ class ProcessImport {
 		List<Parameter> newGlobals = new ArrayList<>();
 		for (Parameter p : list) {
 			if (p.scope == ParameterScope.PROCESS)
-				process.getParameters().add(p);
+				process.parameters.add(p);
 			else if (p.scope == ParameterScope.GLOBAL)
 				newGlobals.add(p);
 		}
 		ParameterDao dao = new ParameterDao(config.db);
 		Map<String, Boolean> map = new HashMap<>();
 		for (Parameter p : dao.getGlobalParameters())
-			map.put(p.getName(), Boolean.TRUE);
+			map.put(p.name, Boolean.TRUE);
 		for (Parameter newGlobal : newGlobals) {
-			Boolean exists = map.get(newGlobal.getName());
+			Boolean exists = map.get(newGlobal.name);
 			if (exists == null) {
 				dao.insert(newGlobal);
-				map.put(newGlobal.getName(), Boolean.TRUE);
+				map.put(newGlobal.name, Boolean.TRUE);
 			}
 		}
 	}
 
 	private void setMetaData(Activity a, Process p) {
-		p.setName(a.name);
+		p.name = a.name;
 		ProcessType type = a.type == 2 ? ProcessType.LCI_RESULT
 				: ProcessType.UNIT_PROCESS;
-		p.setProcessType(type);
+		p.processType = type;
 		String d = Joiner.on(" ").skipNulls().join(
 				RichText.join(a.generalComment),
 				a.includedActivitiesStart,
 				a.includedActivitiesEnd,
 				RichText.join(a.allocationComment));
-		p.setDescription(d);
+		p.description = d;
 	}
 
 	private void flushLinkQueue(Process process) {
-		List<Exchange> exchanges = linkQueue.remove(process.getRefId());
-		if (exchanges == null || process.getId() == 0)
+		List<Exchange> exchanges = linkQueue.remove(process.refId);
+		if (exchanges == null || process.id == 0)
 			return;
 		try {
 			ExchangeDao dao = new ExchangeDao(config.db);
 			for (Exchange exchange : exchanges) {
-				exchange.defaultProviderId = process.getId();
+				exchange.defaultProviderId = process.id;
 				dao.update(exchange);
 			}
 		} catch (Exception e) {
@@ -212,7 +212,7 @@ class ProcessImport {
 			if (ie.activityLinkId != null)
 				addActivityLink(ie, e);
 			if (isRefFlow)
-				process.setQuantitativeReference(e);
+				process.quantitativeReference = e;
 			prices.map(ie, e);
 		}
 	}
@@ -228,10 +228,10 @@ class ProcessImport {
 
 	private Exchange createExchange(spold2.Exchange es2,
 			String flowRefId, Flow flow, Process process) {
-		if (flow == null || flow.getReferenceFlowProperty() == null)
+		if (flow == null || flow.referenceFlowProperty == null)
 			return null;
 		Unit unit = getFlowUnit(es2, flowRefId, flow);
-		Exchange e = process.exchange(flow, flow.getReferenceFlowProperty(), unit);
+		Exchange e = process.exchange(flow, flow.referenceFlowProperty, unit);
 		e.description = es2.comment;
 		if (unit == null)
 			return null;
@@ -265,13 +265,13 @@ class ProcessImport {
 			String flowRefId, Flow flow) {
 		if (!index.isMappedFlow(flowRefId))
 			return index.getUnit(original.unitId);
-		FlowProperty refProp = flow.getReferenceFlowProperty();
+		FlowProperty refProp = flow.referenceFlowProperty;
 		if (refProp == null)
 			return null;
-		UnitGroup ug = refProp.getUnitGroup();
+		UnitGroup ug = refProp.unitGroup;
 		if (ug == null)
 			return null;
-		return ug.getReferenceUnit();
+		return ug.referenceUnit;
 	}
 
 	private void mapFormula(spold2.Exchange original, Process process,
@@ -279,7 +279,7 @@ class ProcessImport {
 		String formula = null;
 		String var = original.variableName;
 		if (Strings.notEmpty(var)
-				&& Parameters.contains(var, process.getParameters())) {
+				&& Parameters.contains(var, process.parameters)) {
 			formula = var;
 		} else if (Parameters.isValid(original.mathematicalRelation, config)) {
 			formula = original.mathematicalRelation;
@@ -317,7 +317,7 @@ class ProcessImport {
 			if (category != null)
 				break;
 		}
-		process.setCategory(category);
+		process.category = category;
 	}
 
 }

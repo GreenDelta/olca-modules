@@ -22,9 +22,9 @@ public class MappingDaoTest {
 	@Before
 	public void setUp() throws Exception {
 		MappingFile mappingFile = new MappingFile();
-		mappingFile.setFileName(FILE_NAME);
+		mappingFile.fileName = FILE_NAME;
 		byte[] content = BinUtils.zip(CONTENT.getBytes("utf-8"));
-		mappingFile.setContent(content);
+		mappingFile.content = content;
 		dao.insert(mappingFile);
 	}
 
@@ -39,7 +39,7 @@ public class MappingDaoTest {
 		List<MappingFile> all = dao.getAll();
 		boolean found = false;
 		for (MappingFile file : all) {
-			if (FILE_NAME.equals(file.getFileName())) {
+			if (FILE_NAME.equals(file.fileName)) {
 				found = true;
 				break;
 			}
@@ -50,13 +50,13 @@ public class MappingDaoTest {
 	@Test
 	public void testGetForFileName() {
 		MappingFile file = dao.getForFileName(FILE_NAME);
-		Assert.assertEquals(FILE_NAME, file.getFileName());
+		Assert.assertEquals(FILE_NAME, file.fileName);
 	}
 
 	@Test
 	public void testGetContent() throws Exception {
 		MappingFile file = dao.getForFileName(FILE_NAME);
-		String t = new String(BinUtils.unzip(file.getContent()), "utf-8");
+		String t = new String(BinUtils.unzip(file.content), "utf-8");
 		Assert.assertEquals(t, CONTENT);
 	}
 

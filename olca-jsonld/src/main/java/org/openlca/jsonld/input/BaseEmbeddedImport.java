@@ -51,7 +51,7 @@ abstract class BaseEmbeddedImport<T extends AbstractEntity, P extends RootEntity
 	T map(JsonObject json, T model) {
 		if (model == null)
 			return map(json, 0l);
-		return map(json, model.getId());
+		return map(json, model.id);
 	}
 
 	abstract T map(JsonObject json, long id);

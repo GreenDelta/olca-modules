@@ -71,7 +71,7 @@ public class InfoSheet {
 
 	private static int generalInfo(CellWriter writer, Sheet sheet, int row, int col, CalculationSetup setup) {
 		ProductSystem system = setup.productSystem;
-		writer.cell(sheet, row++, col, system.getName());
+		writer.cell(sheet, row++, col, system.name);
 		writer.cell(sheet, row++, col, process(system));
 		writer.cell(sheet, row++, col, location(system));
 		writer.cell(sheet, row++, col, product(system));
@@ -112,27 +112,27 @@ public class InfoSheet {
 		Process p = system.referenceProcess;
 		if (p == null)
 			return "";
-		return p.getName();
+		return p.name;
 	}
 
 	private static String location(ProductSystem system) {
 		Process p = system.referenceProcess;
-		if (p == null || p.getLocation() == null)
+		if (p == null || p.location == null)
 			return "";
-		return p.getLocation().getName();
+		return p.location.name;
 	}
 
 	private static String product(ProductSystem system) {
 		Exchange e = system.referenceExchange;
 		if (e == null || e.flow == null)
 			return "";
-		return e.flow.getName();
+		return e.flow.name;
 	}
 
 	private static String amount(ProductSystem system) {
 		if (system.targetUnit == null)
 			return "";
-		return system.targetAmount + " " + system.targetUnit.getName();
+		return system.targetAmount + " " + system.targetUnit.name;
 	}
 
 	private static String method(CalculationSetup setup) {
@@ -176,7 +176,7 @@ public class InfoSheet {
 	private static String dqSystem(DQSystem system) {
 		if (system == null)
 			return "none";
-		return system.getName();
+		return system.name;
 	}
 
 	private static String aggregation(DQCalculationSetup setup) {

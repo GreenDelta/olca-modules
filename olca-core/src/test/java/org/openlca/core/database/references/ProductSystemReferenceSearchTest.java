@@ -26,26 +26,25 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 	@Override
 	protected ProductSystem createModel() {
 		ProductSystem system = new ProductSystem();
-		system.setCategory(insertAndAddExpected("category", new Category()));
+		system.category = insertAndAddExpected("category", new Category());
 		system.referenceProcess = createProcess();
-		system.referenceExchange = system.referenceProcess.getExchanges()
+		system.referenceExchange = system.referenceProcess.exchanges
 				.get(0);
 		system.targetFlowPropertyFactor = system.referenceExchange.flowPropertyFactor;
-		system.targetUnit = system.targetFlowPropertyFactor
-				.getFlowProperty().getUnitGroup().getUnits().get(0);
-		system.processes.add(system.referenceProcess.getId());
+		system.targetUnit = system.targetFlowPropertyFactor.flowProperty.unitGroup.units.get(0);
+		system.processes.add(system.referenceProcess.id);
 		Process p1 = insertAndAddExpected("processes", new Process());
 		Process p2 = insertAndAddExpected("processes", new Process());
 		Process p3 = insertAndAddExpected("processes", new Process());
-		system.processes.add(p1.getId());
-		system.processes.add(p2.getId());
-		system.processes.add(p3.getId());
+		system.processes.add(p1.id);
+		system.processes.add(p2.id);
+		system.processes.add(p3.id);
 		system.processLinks.add(createLink(p1, p2));
 		system.processLinks.add(createLink(p2, p3));
 		String n1 = generateName();
 		String n2 = generateName();
 		String n3 = generateName();
-		system.parameterRedefs.add(createParameterRedef(n1, p1.getId()));
+		system.parameterRedefs.add(createParameterRedef(n1, p1.id));
 		// formula with parameter to see if added as reference (unexpected)
 		system.parameterRedefs.add(createParameterRedef(n2, n3 + "*5"));
 		Parameter globalUnreferenced = createParameter(n1, "3*3", true);
@@ -66,8 +65,8 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 
 	private Exchange createExchange(Process process) {
 		Flow flow = createFlow(true);
-		FlowProperty property = flow.getFlowPropertyFactors().get(0).getFlowProperty();
-		Unit unit = property.getUnitGroup().getUnits().get(0);
+		FlowProperty property = flow.flowPropertyFactors.get(0).flowProperty;
+		Unit unit = property.unitGroup.units.get(0);
 		return process.exchange(flow, property, unit);
 	}
 
@@ -77,15 +76,15 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 		Flow flow = new Flow();
 		FlowProperty property = new FlowProperty();
 		FlowPropertyFactor factor = new FlowPropertyFactor();
-		factor.setFlowProperty(property);
+		factor.flowProperty = property;
 		UnitGroup group = new UnitGroup();
 		Unit unit = new Unit();
-		unit.setName("unit");
-		group.getUnits().add(unit);
-		property.setUnitGroup(group);
-		flow.getFlowPropertyFactors().add(factor);
+		unit.name = "unit";
+		group.units.add(unit);
+		property.unitGroup = group;
+		flow.flowPropertyFactors.add(factor);
 		group = Tests.insert(group);
-		addExpected("targetUnit", group.getUnit(unit.getName()));
+		addExpected("targetUnit", group.getUnit(unit.name));
 		property = Tests.insert(property);
 		flow = Tests.insert(flow);
 		addExpected("targetFlowPropertyFactor", flow.getFactor(property));
@@ -97,13 +96,13 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 		Flow flow = createFlow(false);
 		Exchange e1 = new Exchange();
 		e1.flow = flow;
-		p1.getExchanges().add(e1);
+		p1.exchanges.add(e1);
 		Exchange e2 = new Exchange();
 		e2.flow = flow;
-		p2.getExchanges().add(e2);
-		link.processId = p1.getId();
-		link.providerId = p2.getId();
-		link.flowId = flow.getId();
+		p2.exchanges.add(e2);
+		link.processId = p1.id;
+		link.providerId = p2.id;
+		link.flowId = flow.id;
 		addExpected("processId", p1);
 		addExpected("providerId", p2);
 		addExpected("exchangeId", e1);
@@ -125,7 +124,7 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 
 	private Parameter createParameter(String name, Object value, boolean global) {
 		Parameter parameter = new Parameter();
-		parameter.setName(name);
+		parameter.name = name;
 		boolean formula = value instanceof String;
 		parameter.isInputParameter = !formula;
 		if (formula)

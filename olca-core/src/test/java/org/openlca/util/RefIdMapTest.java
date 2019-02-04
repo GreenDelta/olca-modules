@@ -22,7 +22,7 @@ public class RefIdMapTest {
 	@Before
 	public void setUp() {
 		flow = new Flow();
-		flow.setRefId(UUID.randomUUID().toString());
+		flow.refId = UUID.randomUUID().toString();
 		flow = new FlowDao(db).insert(flow);
 	}
 
@@ -35,8 +35,8 @@ public class RefIdMapTest {
 	public void testFindRefId() {
 		RefIdMap<Long, String> idMap = RefIdMap.internalToRef(db, Flow.class,
 				Unit.class);
-		String flowRefId = idMap.get(Flow.class, flow.getId());
-		Assert.assertEquals(flowRefId, flow.getRefId());
+		String flowRefId = idMap.get(Flow.class, flow.id);
+		Assert.assertEquals(flowRefId, flow.refId);
 		Assert.assertNull(idMap.get(Unit.class, -42L));
 		Assert.assertNull(idMap.get(Source.class, -42L));
 	}
@@ -45,8 +45,8 @@ public class RefIdMapTest {
 	public void testFindInternalId() {
 		RefIdMap<String, Long> idMap = RefIdMap.refToInternal(db, Flow.class,
 				Unit.class);
-		Long flowId = idMap.get(Flow.class, flow.getRefId());
-		Assert.assertEquals(flowId.longValue(), flow.getId());
+		Long flowId = idMap.get(Flow.class, flow.refId);
+		Assert.assertEquals(flowId.longValue(), flow.id);
 		Assert.assertNull(idMap.get(Unit.class, "abc"));
 		Assert.assertNull(idMap.get(Source.class, "abc"));
 	}

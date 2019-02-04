@@ -28,12 +28,12 @@ class SocialIndicatorWriter extends Writer<SocialIndicator> {
 
 	private void mapActivityUnit(SocialIndicator i, JsonObject obj) {
 		FlowProperty quantity = i.activityQuantity;
-		if (quantity == null || quantity.getUnitGroup() == null)
+		if (quantity == null || quantity.unitGroup == null)
 			return;
-		UnitGroup group = quantity.getUnitGroup();
-		if (group == null || group.getReferenceUnit() == null)
+		UnitGroup group = quantity.unitGroup;
+		if (group == null || group.referenceUnit == null)
 			return;
-		Unit unit = group.getReferenceUnit();
+		Unit unit = group.referenceUnit;
 		Out.put(obj, "activityUnit", unit, conf);
 	}
 

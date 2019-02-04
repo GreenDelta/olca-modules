@@ -27,7 +27,7 @@ public class UnitGroupUseSearchTest {
 	@Before
 	public void setup() {
 		group = new UnitGroup();
-		group.setName("group");
+		group.name = "group";
 		group = new UnitGroupDao(database).insert(group);
 		search = IUseSearch.FACTORY.createFor(ModelType.UNIT_GROUP, database);
 	}
@@ -58,8 +58,8 @@ public class UnitGroupUseSearchTest {
 
 	private FlowProperty createFlowProperty() {
 		FlowProperty property = new FlowProperty();
-		property.setName("property");
-		property.setUnitGroup(group);
+		property.name = "property";
+		property.unitGroup = group;
 		return new FlowPropertyDao(database).insert(property);
 	}
 

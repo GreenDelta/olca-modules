@@ -19,7 +19,7 @@ public class CategoriesTest {
 		for (int i = 0; i < 10; i++) {
 			Category next = Categories.findOrAdd(db, ModelType.FLOW, path);
 			if (c != null) {
-				assertEquals(c.getId(), next.getId());
+				assertEquals(c.id, next.id);
 			} else {
 				c = next;
 			}
@@ -35,24 +35,24 @@ public class CategoriesTest {
 		for (int i = 0; i < 10; i++) {
 			Category next = Categories.findOrAdd(db, ModelType.FLOW, path);
 			if (c != null) {
-				assertEquals(c.getId(), next.getId());
+				assertEquals(c.id, next.id);
 			} else {
 				c = next;
 			}
 			Flow f = new Flow();
-			f.setCategory(c);
+			f.category = c;
 			FlowDao dao = new FlowDao(db);
 			dao.insert(f);
-			f = dao.getForId(f.getId());
-			checkCat(path, f.getCategory());
+			f = dao.getForId(f.id);
+			checkCat(path, f.category);
 		}
 	}
 
 	private void checkCat(String[] path, Category cat) {
 		Category c = cat;
 		for (int i = path.length - 1; i >= 0; i--) {
-			assertEquals(c.getName(), path[i]);
-			c = c.getCategory();
+			assertEquals(c.name, path[i]);
+			c = c.category;
 		}
 	}
 

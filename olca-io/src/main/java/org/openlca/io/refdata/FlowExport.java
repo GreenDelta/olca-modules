@@ -23,17 +23,17 @@ class FlowExport extends AbstractExport {
 
 	private Object[] createLine(Flow flow) {
 		Object[] line = new Object[8];
-		line[0] = flow.getRefId();
-		line[1] = flow.getName();
-		line[2] = flow.getDescription();
-		if (flow.getCategory() != null)
-			line[3] = flow.getCategory().getRefId();
-		if (flow.getFlowType() != null)
-			line[4] = flow.getFlowType().name();
-		line[5] = flow.getCasNumber();
-		line[6] = flow.getFormula();
-		if (flow.getReferenceFlowProperty() != null)
-			line[7] = flow.getReferenceFlowProperty().getRefId();
+		line[0] = flow.refId;
+		line[1] = flow.name;
+		line[2] = flow.description;
+		if (flow.category != null)
+			line[3] = flow.category.refId;
+		if (flow.flowType != null)
+			line[4] = flow.flowType.name();
+		line[5] = flow.casNumber;
+		line[6] = flow.formula;
+		if (flow.referenceFlowProperty != null)
+			line[7] = flow.referenceFlowProperty.refId;
 		return line;
 	}
 

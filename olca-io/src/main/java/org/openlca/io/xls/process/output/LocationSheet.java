@@ -45,12 +45,12 @@ class LocationSheet {
 	}
 
 	private void write(Location location) {
-		Excel.cell(sheet, row, 0, location.getRefId());
-		Excel.cell(sheet, row, 1, location.getCode());
-		Excel.cell(sheet, row, 2, location.getName());
-		Excel.cell(sheet, row, 3, location.getDescription());
-		Excel.cell(sheet, row, 4, location.getLatitude());
-		Excel.cell(sheet, row, 5, location.getLongitude());
+		Excel.cell(sheet, row, 0, location.refId);
+		Excel.cell(sheet, row, 1, location.code);
+		Excel.cell(sheet, row, 2, location.name);
+		Excel.cell(sheet, row, 3, location.description);
+		Excel.cell(sheet, row, 4, location.latitude);
+		Excel.cell(sheet, row, 5, location.longitude);
 	}
 
 }

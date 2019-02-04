@@ -111,15 +111,15 @@ class ExchangeFlow {
 			return false;
 		FlowProperty property = flowProperty;
 		if (property == null) {
-			property = flow.getReferenceFlowProperty();
+			property = flow.referenceFlowProperty;
 		}
 		if (property == null || flow.getFactor(property) == null)
 			return false;
-		UnitGroup group = property.getUnitGroup();
+		UnitGroup group = property.unitGroup;
 		if (group == null)
 			return false;
-		if ((unit == null || group.getUnit(unit.getName()) == null)
-				&& group.getReferenceUnit() == null)
+		if ((unit == null || group.getUnit(unit.name) == null)
+				&& group.referenceUnit == null)
 			return false;
 		return true;
 	}

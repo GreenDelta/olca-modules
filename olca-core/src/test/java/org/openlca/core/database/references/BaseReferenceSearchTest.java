@@ -39,7 +39,7 @@ public abstract class BaseReferenceSearchTest {
 	public void testNoReferences() throws InstantiationException,
 			IllegalAccessException {
 		AbstractEntity minimalModel = (AbstractEntity) getModelClass().newInstance();
-		List<Reference> references = findReferences(Collections.singleton(minimalModel.getId()));
+		List<Reference> references = findReferences(Collections.singleton(minimalModel.id));
 		Assert.assertNotNull(references);
 		Assert.assertEquals(0, references.size());
 	}
@@ -47,10 +47,10 @@ public abstract class BaseReferenceSearchTest {
 	@Test
 	public void testAllReferencesSingleModel() {
 		AbstractEntity fullModel = createModel();
-		List<Reference> references = findReferences(Collections.singleton(fullModel.getId()));
+		List<Reference> references = findReferences(Collections.singleton(fullModel.id));
 		Assert.assertNotNull(references);
 		for (Reference ref : expectedReferences) {
-			Reference reference = find(ref, references, fullModel.getId());
+			Reference reference = find(ref, references, fullModel.id);
 			String text = ref.getType().getName() + " " + ref.id + " not found";
 			Assert.assertNotNull(text, reference);
 			references.remove(reference);
@@ -67,9 +67,9 @@ public abstract class BaseReferenceSearchTest {
 		Set<Long> ids = new HashSet<>();
 		for (int i = 0; i < 3; i++) {
 			AbstractEntity fullModel = createModel();
-			referencesByOwner.put(fullModel.getId(), expectedReferences);
+			referencesByOwner.put(fullModel.id, expectedReferences);
 			expectedReferences = new ArrayList<>();
-			ids.add(fullModel.getId());
+			ids.add(fullModel.id);
 		}
 		List<Reference> references = findReferences(ids);
 		Assert.assertNotNull(references);
@@ -131,7 +131,7 @@ public abstract class BaseReferenceSearchTest {
 	protected final <T extends CategorizedEntity> T insertAndAddExpected(String property, T entity,
 			String nestedProperty, Class<? extends AbstractEntity> nestedOwnerType, long nestedOwnerId) {
 		entity = Tests.insert(entity);
-		expectedReferences.add(new Reference(property, entity.getClass(), entity.getId(), getModelClass(), 0,
+		expectedReferences.add(new Reference(property, entity.getClass(), entity.id, getModelClass(), 0,
 				nestedProperty, nestedOwnerType, nestedOwnerId, false));
 		return entity;
 	}
@@ -146,7 +146,7 @@ public abstract class BaseReferenceSearchTest {
 
 	protected final void addExpected(String property, AbstractEntity entity, String nestedProperty,
 			Class<? extends AbstractEntity> nestedOwnerType, long nestedOwnerId) {
-		expectedReferences.add(new Reference(property, entity.getClass(), entity.getId(), getModelClass(), 0,
+		expectedReferences.add(new Reference(property, entity.getClass(), entity.id, getModelClass(), 0,
 				nestedProperty, nestedOwnerType, nestedOwnerId, false));
 	}
 

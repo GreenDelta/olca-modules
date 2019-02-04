@@ -22,11 +22,11 @@ class IO {
 	static void mapMetaData(Model model, ProductSystem system) {
 		if (model == null || system == null)
 			return;
-		system.setRefId(model.getUUID());
-		system.setName(getName(model));
+		system.refId = model.getUUID();
+		system.name = getName(model);
 		Publication pub = Models.getPublication(model);
 		if (pub != null && pub.version != null) {
-			system.setVersion(Version.fromString(pub.version).getValue());
+			system.version = Version.fromString(pub.version).getValue();
 		}
 	}
 

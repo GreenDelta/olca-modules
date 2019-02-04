@@ -22,7 +22,7 @@ import com.google.common.base.Joiner;
 class Mapper {
 
 	public static void mapPerson(IPerson inPerson, Actor ioActor) {
-		ioActor.setName(inPerson.getName());
+		ioActor.name = inPerson.getName();
 		ioActor.address = inPerson.getAddress();
 		if (inPerson.getCountryCode() != null)
 			ioActor.country = inPerson.getCountryCode().value();
@@ -32,8 +32,8 @@ class Mapper {
 	}
 
 	public static void mapSource(ISource inSource, Source ioSource) {
-		ioSource.setName(inSource.getFirstAuthor());
-		ioSource.setDescription(inSource.getText());
+		ioSource.name = inSource.getFirstAuthor();
+		ioSource.description = inSource.getText();
 		ioSource.textReference = inSource.getTitle();
 		if (inSource.getYear() != null) {
 			ioSource.year = (short) inSource.getYear().getYear();
@@ -69,25 +69,25 @@ class Mapper {
 					.skipNulls()
 					.join(validation.getProofReadingDetails(),
 							validation.getOtherDetails());
-			doc.setReviewDetails(evaluation);
+			doc.reviewDetails = evaluation;
 		}
 		IRepresentativeness representativeness = dataSet
 				.getRepresentativeness();
 		if (representativeness != null)
-			doc.setSampling(representativeness.getSamplingProcedure());
+			doc.sampling = representativeness.getSamplingProcedure();
 	}
 
 	public static void mapAdminInfo(DataSet dataSet, Process process) {
-		if (process == null || process.getDocumentation() == null)
+		if (process == null || process.documentation == null)
 			return;
-		ProcessDocumentation doc = process.getDocumentation();
+		ProcessDocumentation doc = process.documentation;
 		mapDataGeneratorAndPublication(dataSet, doc);
 		IDataSetInformation info = dataSet.getDataSetInformation();
 		if (info != null && info.getTimestamp() != null) {
 			Date lastChange = info.getTimestamp().toGregorianCalendar()
 					.getTime();
-			process.setLastChange(lastChange.getTime());
-			doc.setCreationDate(lastChange);
+			process.lastChange = lastChange.getTime();
+			doc.creationDate = lastChange;
 		}
 	}
 
@@ -97,25 +97,25 @@ class Mapper {
 				.getDataGeneratorAndPublication();
 		if (gen == null)
 			return;
-		doc.setCopyright(gen.isCopyright());
+		doc.copyright = gen.isCopyright();
 		Integer restrictedTo = gen.getAccessRestrictedTo();
 		if (restrictedTo == null)
 			return;
 		switch (restrictedTo) {
 		case 0:
-			doc.setRestrictions("All information can be accessed by everybody.");
+			doc.restrictions = "All information can be accessed by everybody.";
 			break;
 		case 2:
-			doc.setRestrictions("Ecoinvent clients have access to LCI results "
-					+ "but not to unit process raw data. Members of "
-					+ "the ecoinvent quality network (ecoinvent centre) "
-					+ "have access to all information.");
+			doc.restrictions = "Ecoinvent clients have access to LCI results "
+			+ "but not to unit process raw data. Members of "
+			+ "the ecoinvent quality network (ecoinvent centre) "
+			+ "have access to all information.";
 			break;
 		case 3:
-			doc.setRestrictions("The ecoinvent administrator has full access to "
-					+ "information. Via the web only LCI results are "
-					+ "accessible (for ecoinvent clients and "
-					+ "for members of the ecoinvent centre).");
+			doc.restrictions = "The ecoinvent administrator has full access to "
+			+ "information. Via the web only LCI results are "
+			+ "accessible (for ecoinvent clients and "
+			+ "for members of the ecoinvent centre).";
 			break;
 		}
 	}

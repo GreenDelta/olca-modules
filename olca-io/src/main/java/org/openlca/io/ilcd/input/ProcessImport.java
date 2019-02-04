@@ -108,20 +108,20 @@ public class ProcessImport {
 		CategoryImport categoryImport = new CategoryImport(config,
 				ModelType.PROCESS);
 		Category category = categoryImport.run(ilcdProcess.getSortedClasses());
-		process.setCategory(category);
+		process.category = category;
 	}
 
 	private void createAndMapContent() throws ImportException {
-		process.setRefId(ilcdProcess.getId());
-		process.setName(Strings.cut(ilcdProcess.getName(), 2024));
-		process.setDescription(ilcdProcess.getComment());
+		process.refId = ilcdProcess.getId();
+		process.name = Strings.cut(ilcdProcess.getName(), 2024);
+		process.description = ilcdProcess.getComment();
 		ProcessDocumentation doc = mapDocumentation();
-		process.setDocumentation(doc);
+		process.documentation = doc;
 		ProcessParameterConversion paramConv = new ProcessParameterConversion(
 				process, config);
 		paramConv.run(ilcdProcess);
 		exchanges.map(ilcdProcess, process);
-		for (Exchange e : process.getExchanges()) {
+		for (Exchange e : process.exchanges) {
 			if (e.dqEntry == null)
 				continue;
 			process.exchangeDqSystem = new DQSystemDao(config.db)
@@ -152,22 +152,22 @@ public class ProcessImport {
 		Geography iGeography = ilcdProcess.getGeography();
 		if (iGeography == null || iGeography.location == null)
 			return;
-		doc.setGeography(LangString.getFirst(iGeography.location.description,
-				config.langs));
+		doc.geography = LangString.getFirst(iGeography.location.description,
+				config.langs);
 		if (iGeography.location.code == null)
 			return;
 		String code = iGeography.location.code;
 		Location location = Locations.getOrCreate(code, config);
-		process.setLocation(location);
+		process.location = location;
 	}
 
 	private void mapTechnology(ProcessDocumentation doc) {
 		org.openlca.ilcd.processes.Technology iTechnology = ilcdProcess
 				.getTechnology();
 		if (iTechnology != null) {
-			doc.setTechnology(LangString.getFirst(
+			doc.technology = LangString.getFirst(
 					iTechnology.description,
-					config.langs));
+					config.langs);
 		}
 	}
 
@@ -178,24 +178,24 @@ public class ProcessImport {
 			// data set owner
 			Ref ownerRef = iPublication.owner;
 			if (ownerRef != null)
-				doc.setDataSetOwner(fetchActor(ownerRef));
+				doc.dataSetOwner = fetchActor(ownerRef);
 
 			// publication
 			Ref publicationRef = iPublication.republication;
 			if (publicationRef != null)
-				doc.setPublication(fetchSource(publicationRef));
+				doc.publication = fetchSource(publicationRef);
 
 			// access and use restrictions
-			doc.setRestrictions(LangString.getFirst(
-					iPublication.accessRestrictions, config.langs));
+			doc.restrictions = LangString.getFirst(
+					iPublication.accessRestrictions, config.langs);
 
 			// version
-			process.setVersion(Version.fromString(
-					iPublication.version).getValue());
+			process.version = Version.fromString(
+					iPublication.version).getValue();
 
 			// copyright
 			if (iPublication.copyright != null) {
-				doc.setCopyright(iPublication.copyright);
+				doc.copyright = iPublication.copyright;
 			}
 
 		}
@@ -207,14 +207,14 @@ public class ProcessImport {
 			return;
 		if (iEntry.timeStamp != null) {
 			Date tStamp = iEntry.timeStamp.toGregorianCalendar().getTime();
-			doc.setCreationDate(tStamp);
+			doc.creationDate = tStamp;
 			if (tStamp != null)
-				process.setLastChange(tStamp.getTime());
+				process.lastChange = tStamp.getTime();
 		}
 		if (iEntry.documentor != null) {
 			Actor documentor = fetchActor(
 					iEntry.documentor);
-			doc.setDataDocumentor(documentor);
+			doc.dataDocumentor = documentor;
 		}
 	}
 
@@ -224,7 +224,7 @@ public class ProcessImport {
 					.getDataGenerator().contacts;
 			if (refs != null && !refs.isEmpty()) {
 				Ref generatorRef = refs.get(0);
-				doc.setDataGenerator(fetchActor(generatorRef));
+				doc.dataGenerator = fetchActor(generatorRef);
 			}
 		}
 	}
@@ -235,10 +235,10 @@ public class ProcessImport {
 					.getCommissionerAndGoal();
 			String intendedApp = LangString.getFirst(
 					comAndGoal.intendedApplications, config.langs);
-			doc.setIntendedApplication(intendedApp);
+			doc.intendedApplication = intendedApp;
 			String project = LangString.getFirst(comAndGoal.project,
 					config.langs);
-			doc.setProject(project);
+			doc.project = project;
 		}
 	}
 
@@ -246,13 +246,13 @@ public class ProcessImport {
 		if (ilcdProcess.getProcessType() != null) {
 			switch (ilcdProcess.getProcessType()) {
 			case UNIT_PROCESS_BLACK_BOX:
-				process.setProcessType(ProcessType.UNIT_PROCESS);
+				process.processType = ProcessType.UNIT_PROCESS;
 				break;
 			case UNIT_PROCESS:
-				process.setProcessType(ProcessType.UNIT_PROCESS);
+				process.processType = ProcessType.UNIT_PROCESS;
 				break;
 			default:
-				process.setProcessType(ProcessType.LCI_RESULT);
+				process.processType = ProcessType.LCI_RESULT;
 				break;
 			}
 		}
@@ -261,10 +261,10 @@ public class ProcessImport {
 			String lciPrinciple = LangString.getFirst(
 					iMethod.principleComment,
 					config.langs);
-			doc.setInventoryMethod(lciPrinciple);
-			doc.setModelingConstants(LangString.getFirst(
-					iMethod.constants, config.langs));
-			process.setDefaultAllocationMethod(getAllocation(iMethod));
+			doc.inventoryMethod = lciPrinciple;
+			doc.modelingConstants = LangString.getFirst(
+					iMethod.constants, config.langs);
+			process.defaultAllocationMethod = getAllocation(iMethod);
 		}
 	}
 
@@ -291,16 +291,16 @@ public class ProcessImport {
 		Representativeness repr = ilcdProcess.getRepresentativeness();
 		if (repr == null)
 			return;
-		doc.setCompleteness(LangString.getFirst(
-				repr.completeness, config.langs));
-		doc.setDataSelection(LangString.getFirst(
-				repr.dataSelection, config.langs));
-		doc.setDataTreatment(LangString.getFirst(
-				repr.dataTreatment, config.langs));
-		doc.setSampling(LangString.getFirst(repr.samplingProcedure,
-				config.langs));
-		doc.setDataCollectionPeriod(LangString.getFirst(
-				repr.dataCollectionPeriod, config.langs));
+		doc.completeness = LangString.getFirst(
+				repr.completeness, config.langs);
+		doc.dataSelection = LangString.getFirst(
+				repr.dataSelection, config.langs);
+		doc.dataTreatment = LangString.getFirst(
+				repr.dataTreatment, config.langs);
+		doc.sampling = LangString.getFirst(repr.samplingProcedure,
+				config.langs);
+		doc.dataCollectionPeriod = LangString.getFirst(
+				repr.dataCollectionPeriod, config.langs);
 	}
 
 	private void addSources(ProcessDocumentation doc) {
@@ -309,9 +309,9 @@ public class ProcessImport {
 			if (ref == null)
 				continue;
 			Source source = fetchSource(ref);
-			if (source == null || doc.getSources().contains(source))
+			if (source == null || doc.sources.contains(source))
 				continue;
-			doc.getSources().add(source);
+			doc.sources.add(source);
 		}
 
 	}
@@ -322,9 +322,9 @@ public class ProcessImport {
 		Review review = ilcdProcess.getReviews().get(0);
 		if (!review.reviewers.isEmpty()) {
 			Ref ref = review.reviewers.get(0);
-			doc.setReviewer(fetchActor(ref));
+			doc.reviewer = fetchActor(ref);
 		}
-		doc.setReviewDetails(LangString.getFirst(review.details, config.langs));
+		doc.reviewDetails = LangString.getFirst(review.details, config.langs);
 		String dq = DQEntry.get(review);
 		if (dq != null) {
 			DQSystem dqs = DQSystems.ilcd(config.db);
@@ -343,7 +343,7 @@ public class ProcessImport {
 			return contactImport.run(reference.uuid);
 		} catch (Exception e) {
 			log.warn("Failed to get contact {} referenced from process {}",
-					reference.uuid, process.getRefId());
+					reference.uuid, process.refId);
 			return null;
 		}
 	}
@@ -356,7 +356,7 @@ public class ProcessImport {
 			return sourceImport.run(reference.uuid);
 		} catch (Exception e) {
 			log.warn("Failed to get source {} referenced from process {}",
-					reference.uuid, process.getRefId());
+					reference.uuid, process.refId);
 			return null;
 		}
 	}
@@ -369,7 +369,7 @@ public class ProcessImport {
 			Daos.base(config.db, clazz).insert(obj);
 		} catch (Exception e) {
 			String message = String.format(
-					"Save operation failed in process %s.", process.getRefId());
+					"Save operation failed in process %s.", process.refId);
 			throw new ImportException(message, e);
 		}
 	}

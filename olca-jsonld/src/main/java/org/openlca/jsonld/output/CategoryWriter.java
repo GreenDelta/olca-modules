@@ -16,7 +16,7 @@ class CategoryWriter extends Writer<Category> {
 		if (obj == null)
 			return obj;
 		Out.put(obj, "modelType", category.getModelType(), Out.REQUIRED_FIELD);
-		Out.put(obj, "category", category.getCategory(), conf);
+		Out.put(obj, "category", category.category, conf);
 		return obj;
 	}
 }

@@ -24,7 +24,7 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 	@Override
 	protected ImpactMethod createModel() {
 		ImpactMethod method = new ImpactMethod();
-		method.setCategory(insertAndAddExpected("category", new Category()));
+		method.category = insertAndAddExpected("category", new Category());
 		String n1 = generateName();
 		String n2 = generateName();
 		String n3 = generateName();
@@ -46,13 +46,13 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 		for (ImpactCategory category : method.impactCategories)
 			for (ImpactFactor f : category.impactFactors) {
 				addExpected("flow", f.flow, "impactFactors",
-						ImpactFactor.class, f.getId());
+						ImpactFactor.class, f.id);
 				addExpected("flowPropertyFactor", f.flowPropertyFactor,
-						"impactFactors", ImpactFactor.class, f.getId());
-				addExpected("flowProperty", f.flowPropertyFactor.getFlowProperty(), "flowPropertyFactor",
-						FlowPropertyFactor.class, f.flowPropertyFactor.getId());
+						"impactFactors", ImpactFactor.class, f.id);
+				addExpected("flowProperty", f.flowPropertyFactor.flowProperty, "flowPropertyFactor",
+						FlowPropertyFactor.class, f.flowPropertyFactor.id);
 				addExpected("unit", f.unit, "impactFactors",
-						ImpactFactor.class, f.getId());
+						ImpactFactor.class, f.id);
 			}
 		return method;
 	}
@@ -67,8 +67,8 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 	private ImpactFactor createImpactFactor(Object value) {
 		ImpactFactor iFactor = new ImpactFactor();
 		Flow flow = createFlow();
-		FlowPropertyFactor factor = flow.getFlowPropertyFactors().get(0);
-		Unit unit = factor.getFlowProperty().getUnitGroup().getUnits().get(0);
+		FlowPropertyFactor factor = flow.flowPropertyFactors.get(0);
+		Unit unit = factor.flowProperty.unitGroup.units.get(0);
 		iFactor.flow = flow;
 		iFactor.flowPropertyFactor = factor;
 		iFactor.unit = unit;
@@ -84,21 +84,21 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 		Flow flow = new Flow();
 		UnitGroup group = new UnitGroup();
 		Unit unit = new Unit();
-		unit.setName("unit");
-		group.getUnits().add(unit);
+		unit.name = "unit";
+		group.units.add(unit);
 		group = Tests.insert(group);
 		FlowProperty property = new FlowProperty();
-		property.setUnitGroup(group);
+		property.unitGroup = group;
 		property = Tests.insert(property);
 		FlowPropertyFactor factor = new FlowPropertyFactor();
-		factor.setFlowProperty(property);
-		flow.getFlowPropertyFactors().add(factor);
+		factor.flowProperty = property;
+		flow.flowPropertyFactors.add(factor);
 		return Tests.insert(flow);
 	}
 
 	private Parameter createParameter(String name, Object value, boolean global) {
 		Parameter parameter = new Parameter();
-		parameter.setName(name);
+		parameter.name = name;
 		boolean formula = value instanceof String;
 		parameter.isInputParameter = !formula;
 		if (formula)

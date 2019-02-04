@@ -37,12 +37,12 @@ public class FlowPropertyUseSearchTest {
 		unused = propDao.insert(new FlowProperty());
 		used = propDao.insert(new FlowProperty());
 		unitGroup = new UnitGroup();
-		unitGroup.setDefaultFlowProperty(used);
+		unitGroup.defaultFlowProperty = used;
 		unitGroup = groupDao.insert(unitGroup);
 		flow = new Flow();
 		FlowPropertyFactor fac = new FlowPropertyFactor();
-		fac.setFlowProperty(used);
-		flow.getFlowPropertyFactors().add(fac);
+		fac.flowProperty = used;
+		flow.flowPropertyFactors.add(fac);
 		flow = flowDao.insert(flow);
 	}
 
@@ -76,9 +76,9 @@ public class FlowPropertyUseSearchTest {
 		for (BaseDescriptor d : list) {
 			if (d.type != ModelType.UNIT_GROUP) {
 				Assert.assertEquals(ModelType.FLOW, d.type);
-				Assert.assertEquals(flow.getId(), d.id);
+				Assert.assertEquals(flow.id, d.id);
 			} else {
-				Assert.assertEquals(unitGroup.getId(), d.id);
+				Assert.assertEquals(unitGroup.id, d.id);
 			}
 		}
 	}

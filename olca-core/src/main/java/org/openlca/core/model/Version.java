@@ -57,9 +57,9 @@ public class Version {
 	}
 
 	private static void inc(RootEntity entity, Consumer<Version> inc) {
-		Version v = new Version(entity.getVersion());
+		Version v = new Version(entity.version);
 		inc.accept(v);
-		entity.setVersion(v.getValue());
+		entity.version = v.getValue();
 	}
 
 	public int getMajor() {

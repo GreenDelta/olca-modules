@@ -24,8 +24,8 @@ public class CategoryTest extends AbstractZipTest {
 
 	private Category createModel(CategoryDao dao) {
 		Category category = new Category();
-		category.setName("category");
-		category.setRefId(UUID.randomUUID().toString());
+		category.name = "category";
+		category.refId = UUID.randomUUID().toString();
 		dao.insert(category);
 		return category;
 	}
@@ -36,7 +36,7 @@ public class CategoryTest extends AbstractZipTest {
 			export.write(category);
 		});
 		dao.delete(category);
-		Assert.assertFalse(dao.contains(category.getRefId()));
+		Assert.assertFalse(dao.contains(category.refId));
 	}
 
 	private void doImport(CategoryDao dao, Category category) {
@@ -44,8 +44,8 @@ public class CategoryTest extends AbstractZipTest {
 			JsonImport jImport = new JsonImport(zip, Tests.getDb());
 			jImport.run();
 		});
-		Assert.assertTrue(dao.contains(category.getRefId()));
-		Category clone = dao.getForRefId(category.getRefId());
-		Assert.assertEquals(category.getName(), clone.getName());
+		Assert.assertTrue(dao.contains(category.refId));
+		Category clone = dao.getForRefId(category.refId);
+		Assert.assertEquals(category.name, clone.name);
 	}
 }

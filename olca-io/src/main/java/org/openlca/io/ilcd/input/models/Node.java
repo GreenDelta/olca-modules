@@ -61,10 +61,10 @@ class Node {
 		if (process == null || flowID == null)
 			return null;
 		ArrayList<Exchange> matches = new ArrayList<>(1);
-		for (Exchange e : process.getExchanges()) {
+		for (Exchange e : process.exchanges) {
 			if (e.isInput != isInput || e.flow == null)
 				continue;
-			if (Objects.equals(flowID, e.flow.getRefId())) {
+			if (Objects.equals(flowID, e.flow.refId)) {
 				matches.add(e);
 			}
 		}
@@ -74,11 +74,11 @@ class Node {
 		if (matches.size() > 1) {
 			log.warn("There are multiple exchanges with flowID={} isInput={} "
 					+ "in process={}; -> we take the first for linking",
-					flowID, isInput, process.getRefId());
+					flowID, isInput, process.refId);
 			return matches.get(0);
 		}
 		log.warn("Could not find exchange with flowID={} isInput={} "
-				+ "in process={}", flowID, isInput, process.getRefId());
+				+ "in process={}", flowID, isInput, process.refId);
 		return null;
 	}
 

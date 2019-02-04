@@ -38,7 +38,7 @@ class AllocationSheet {
 			return;
 		try {
 			AllocationMethod m = getMethod(config.getString(sheet, 0, 1));
-			process.setDefaultAllocationMethod(m);
+			process.defaultAllocationMethod = m;
 			List<Exchange> products = selectProducts();
 			if (products.size() <= 1) {
 				log.trace("process is not a multi-output process "
@@ -74,24 +74,25 @@ class AllocationSheet {
 			AllocationFactor[] factors = readRowFactors(row, products);
 			if (factors == null)
 				break;
-			process.getAllocationFactors().add(factors[0]);
-			process.getAllocationFactors().add(factors[1]);
+			process.allocationFactors.add(factors[0]);
+			process.allocationFactors.add(factors[1]);
 			row++;
 		}
 	}
 
-	private AllocationFactor[] readRowFactors(int row, List<Exchange> products) {
+	private AllocationFactor[] readRowFactors(int row,
+			List<Exchange> products) {
 		String name = config.getString(sheet, row, 0);
 		Exchange product = getProduct(name, products);
 		if (product == null)
 			return null;
 		AllocationFactor[] factors = new AllocationFactor[2];
 		factors[0] = new AllocationFactor();
-		factors[0].productId = product.flow.getId();
+		factors[0].productId = product.flow.id;
 		factors[0].value = config.getDouble(sheet, row, 2);
 		factors[0].method = AllocationMethod.PHYSICAL;
 		factors[1] = new AllocationFactor();
-		factors[1].productId = product.flow.getId();
+		factors[1].productId = product.flow.id;
 		factors[1].value = config.getDouble(sheet, row, 3);
 		factors[1].method = AllocationMethod.ECONOMIC;
 		return factors;
@@ -101,7 +102,8 @@ class AllocationSheet {
 		int causalStartRow = findCausalStartRow();
 		if (causalStartRow == -1)
 			return;
-		HashMap<Integer, Long> map = getProductColumnMap(causalStartRow, products);
+		HashMap<Integer, Long> map = getProductColumnMap(causalStartRow,
+				products);
 		int row = causalStartRow + 2;
 		while (true) {
 			Exchange exchange = getFactorExchange(row);
@@ -123,7 +125,7 @@ class AllocationSheet {
 			factor.productId = productId;
 			factor.value = config.getDouble(sheet, row, col);
 			factor.exchange = exchange;
-			process.getAllocationFactors().add(factor);
+			process.allocationFactors.add(factor);
 		}
 	}
 
@@ -137,8 +139,9 @@ class AllocationSheet {
 		if (flow == null || direction == null)
 			return null;
 		boolean input = direction.equalsIgnoreCase("Input");
-		for (Exchange exchange : process.getExchanges()) {
-			if (exchange.isInput == input && Objects.equals(exchange.flow, flow))
+		for (Exchange exchange : process.exchanges) {
+			if (exchange.isInput == input
+					&& Objects.equals(exchange.flow, flow))
 				return exchange;
 		}
 		return null;
@@ -165,7 +168,7 @@ class AllocationSheet {
 			Exchange product = getProduct(name, products);
 			if (product == null)
 				break;
-			map.put(col, product.flow.getId());
+			map.put(col, product.flow.id);
 			col++;
 		}
 		return map;
@@ -173,10 +176,10 @@ class AllocationSheet {
 
 	private List<Exchange> selectProducts() {
 		List<Exchange> products = new ArrayList<>();
-		for (Exchange exchange : config.process.getExchanges()) {
+		for (Exchange exchange : config.process.exchanges) {
 			if (exchange.isInput || exchange.flow == null)
 				continue;
-			if (exchange.flow.getFlowType() == FlowType.PRODUCT_FLOW)
+			if (exchange.flow.flowType == FlowType.PRODUCT_FLOW)
 				products.add(exchange);
 		}
 		return products;
@@ -186,7 +189,7 @@ class AllocationSheet {
 		if (name == null)
 			return null;
 		for (Exchange exchange : products) {
-			String flowName = exchange.flow.getName();
+			String flowName = exchange.flow.name;
 			if (flowName == null)
 				continue;
 			if (name.equalsIgnoreCase(flowName))

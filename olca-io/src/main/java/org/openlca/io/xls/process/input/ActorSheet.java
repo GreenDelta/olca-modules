@@ -57,10 +57,10 @@ class ActorSheet {
 			return;
 		}
 		actor = new Actor();
-		actor.setRefId(uuid);
-		actor.setName(name);
-		actor.setDescription(config.getString(sheet, row, 2));
-		actor.setCategory(config.getCategory(category, ModelType.ACTOR));
+		actor.refId = uuid;
+		actor.name = name;
+		actor.description = config.getString(sheet, row, 2);
+		actor.category = config.getCategory(category, ModelType.ACTOR);
 		setAttributes(row, actor);
 		actor = dao.insert(actor);
 		config.refData.putActor(name, category, actor);
@@ -68,10 +68,10 @@ class ActorSheet {
 
 	private void setAttributes(int row, Actor actor) {
 		String version = config.getString(sheet, row, 4);
-		actor.setVersion(Version.fromString(version).getValue());
+		actor.version = Version.fromString(version).getValue();
 		Date lastChange = config.getDate(sheet, row, 5);
 		if (lastChange != null) {
-			actor.setLastChange(lastChange.getTime());
+			actor.lastChange = lastChange.getTime();
 		}
 		actor.address = config.getString(sheet, row, 6);
 		actor.city = config.getString(sheet, row, 7);

@@ -15,7 +15,7 @@ class EntitySorter implements Comparator<RootEntity> {
 			return -1;
 		if (e2 == null)
 			return 1;
-		return Strings.compare(e1.getName(), e2.getName());
+		return Strings.compare(e1.name, e2.name);
 	}
 
 }

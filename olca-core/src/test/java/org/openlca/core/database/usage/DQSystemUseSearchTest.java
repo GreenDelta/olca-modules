@@ -39,7 +39,7 @@ public class DQSystemUseSearchTest {
 
 	private DQSystem createDqSystem() {
 		DQSystem system = new DQSystem();
-		system.setName("system");
+		system.name = "system";
 		system = new DQSystemDao(database).insert(system);
 		return system;
 	}

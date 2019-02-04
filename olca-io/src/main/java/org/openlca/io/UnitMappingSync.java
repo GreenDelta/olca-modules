@@ -53,12 +53,12 @@ public class UnitMappingSync {
 			UnitGroup unitGroup) {
 		log.trace("add new unit {} to group {}", entry.unitName, unitGroup);
 		Unit unit = new Unit();
-		unit.setName(entry.unitName);
-		unit.setRefId(UUID.randomUUID().toString());
+		unit.name = entry.unitName;
+		unit.refId = UUID.randomUUID().toString();
 		double factor = entry.factor == null ? 1d : entry.factor;
-		unit.setConversionFactor(factor);
-		unitGroup.getUnits().add(unit);
-		unitGroup.setLastChange(Calendar.getInstance().getTimeInMillis());
+		unit.conversionFactor = factor;
+		unitGroup.units.add(unit);
+		unitGroup.lastChange = Calendar.getInstance().getTimeInMillis();
 		Version.incUpdate(unitGroup);
 		unitGroup = new UnitGroupDao(database).update(unitGroup);
 		entry.factor = factor;

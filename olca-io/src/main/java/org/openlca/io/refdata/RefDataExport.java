@@ -68,8 +68,8 @@ public class RefDataExport implements Runnable {
 			FileOutputStream out = new FileOutputStream(file);
 			MappingFile mappingFile = dao.getForFileName(fileName);
 			InputStream in;
-			if (mappingFile != null && mappingFile.getContent() != null) {
-				byte[] bytes = BinUtils.unzip(mappingFile.getContent());
+			if (mappingFile != null && mappingFile.content != null) {
+				byte[] bytes = BinUtils.unzip(mappingFile.content);
 				in = new ByteArrayInputStream(bytes);
 			} else {
 				in = Maps.class.getResourceAsStream(fileName);

@@ -36,8 +36,8 @@ public class SourceExport {
 
 	public Source run(org.openlca.core.model.Source source)
 			throws DataStoreException {
-		if (config.store.contains(Source.class, source.getRefId()))
-			return config.store.get(Source.class, source.getRefId());
+		if (config.store.contains(Source.class, source.refId))
+			return config.store.get(Source.class, source.refId);
 		this.source = source;
 		log.trace("Run source export with {}", source);
 		Source iSource = new Source();
@@ -64,7 +64,7 @@ public class SourceExport {
 		File dbDir = config.db.getFileStorageLocation();
 		if (dbDir == null)
 			return null;
-		String path = FileStore.getPath(ModelType.SOURCE, source.getRefId());
+		String path = FileStore.getPath(ModelType.SOURCE, source.refId);
 		File docDir = new File(dbDir, path);
 		if (!docDir.exists())
 			return null;
@@ -75,16 +75,16 @@ public class SourceExport {
 	private DataSetInfo makeDateSetInfo() {
 		log.trace("Create data set information.");
 		DataSetInfo info = new DataSetInfo();
-		info.uuid = source.getRefId();
-		LangString.set(info.name, source.getName(), config.lang);
-		if (source.getDescription() != null) {
+		info.uuid = source.refId;
+		LangString.set(info.name, source.name, config.lang);
+		if (source.description != null) {
 			LangString.set(info.description,
-					source.getDescription(), config.lang);
+					source.description, config.lang);
 		}
 		addTextReference(info);
 		CategoryConverter converter = new CategoryConverter();
 		Classification c = converter.getClassification(
-				source.getCategory());
+				source.category);
 		if (c != null)
 			info.classifications.add(c);
 		return info;
@@ -119,11 +119,11 @@ public class SourceExport {
 	private void addPublication(AdminInfo info) {
 		Publication pub = new Publication();
 		info.publication = pub;
-		pub.version = Version.asString(source.getVersion());
+		pub.version = Version.asString(source.version);
 		if (baseUri == null)
 			baseUri = "http://openlca.org/ilcd/resource/";
 		if (!baseUri.endsWith("/"))
 			baseUri += "/";
-		pub.uri = baseUri + "sources/" + source.getRefId();
+		pub.uri = baseUri + "sources/" + source.refId;
 	}
 }

@@ -81,18 +81,18 @@ public class CurrencyUseSearchTest {
 
 	private Currency createCurrency() {
 		Currency currency = new Currency();
-		currency.setName("currency");
+		currency.name = "currency";
 		new CurrencyDao(database).insert(currency);
 		return currency;
 	}
 
 	private Process createProcess(Currency currency, boolean inExchange) {
 		Process process = new Process();
-		process.setName("process");
+		process.name = "process";
 		if (inExchange) {
 			Exchange exchange = new Exchange();
 			exchange.currency = currency;
-			process.getExchanges().add(exchange);
+			process.exchanges.add(exchange);
 		} else 
 			process.currency = currency;
 		new ProcessDao(database).insert(process);

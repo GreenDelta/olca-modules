@@ -69,28 +69,28 @@ class ProcessImport {
 	private void createProcess(ProcessDescriptor descriptor) {
 		Process srcProcess = srcDao.getForId(descriptor.id);
 		Process destProcess = srcProcess.clone();
-		destProcess.setRefId(srcProcess.getRefId());
-		destProcess.setCategory(refs.switchRef(srcProcess.getCategory()));
-		destProcess.setLocation(refs.switchRef(srcProcess.getLocation()));
+		destProcess.refId = srcProcess.refId;
+		destProcess.category = refs.switchRef(srcProcess.category);
+		destProcess.location = refs.switchRef(srcProcess.location);
 		Set<Long> providerUpdates = switchExchangeRefs(destProcess);
 		switchAllocationProducts(srcProcess, destProcess);
 		switchDocRefs(destProcess);
 		switchSocialAspectRefs(destProcess);
 		switchDqSystems(destProcess);
 		destProcess = destDao.insert(destProcess);
-		seq.put(seq.PROCESS, srcProcess.getRefId(), destProcess.getId());
-		srcDestIdMap.put(srcProcess.getId(), destProcess.getId());
+		seq.put(seq.PROCESS, srcProcess.refId, destProcess.id);
+		srcDestIdMap.put(srcProcess.id, destProcess.id);
 		putProviderUpdates(providerUpdates, destProcess);
 	}
 
 	private void putProviderUpdates(Set<Long> providerUpdates,
 			Process destProcess) {
-		for (Exchange exchange : destProcess.getExchanges()) {
+		for (Exchange exchange : destProcess.exchanges) {
 			if (exchange.defaultProviderId >= 0)
 				continue;
 			// old default providers have a negative sign
 			long oldId = Math.abs(exchange.defaultProviderId);
-			oldProviderMap.put(exchange.getId(), oldId);
+			oldProviderMap.put(exchange.id, oldId);
 		}
 	}
 
@@ -101,7 +101,7 @@ class ProcessImport {
 	private Set<Long> switchExchangeRefs(Process destProcess) {
 		List<Exchange> removals = new ArrayList<>();
 		Set<Long> oldProviders = new HashSet<>();
-		for (Exchange e : destProcess.getExchanges()) {
+		for (Exchange e : destProcess.exchanges) {
 			if (!isValid(e)) {
 				removals.add(e);
 				continue;
@@ -118,7 +118,7 @@ class ProcessImport {
 		if (!removals.isEmpty()) {
 			log.warn("there where invalid exchanges in {} "
 					+ "that where removed during the import", destProcess);
-			destProcess.getExchanges().removeAll(removals);
+			destProcess.exchanges.removeAll(removals);
 		}
 		return oldProviders;
 	}
@@ -147,20 +147,20 @@ class ProcessImport {
 	private boolean isValid(Exchange exchange) {
 		return exchange.flow != null
 				&& exchange.flowPropertyFactor != null
-				&& exchange.flowPropertyFactor.getFlowProperty() != null
+				&& exchange.flowPropertyFactor.flowProperty != null
 				&& exchange.unit != null;
 	}
 
 	private void switchAllocationProducts(Process srcProcess,
 			Process destProcess) {
-		for (AllocationFactor factor : destProcess.getAllocationFactors()) {
+		for (AllocationFactor factor : destProcess.allocationFactors) {
 			long srcProductId = factor.productId;
 			String srcRefId = null;
-			for (Exchange srcExchange : srcProcess.getExchanges()) {
+			for (Exchange srcExchange : srcProcess.exchanges) {
 				if (srcExchange.flow == null)
 					continue;
-				if (srcExchange.flow.getId() == srcProductId) {
-					srcRefId = srcExchange.flow.getRefId();
+				if (srcExchange.flow.id == srcProductId) {
+					srcRefId = srcExchange.flow.refId;
 				}
 			}
 			long destProductId = seq.get(seq.FLOW, srcRefId);
@@ -169,19 +169,19 @@ class ProcessImport {
 	}
 
 	private void switchDocRefs(Process destProcess) {
-		if (destProcess.getDocumentation() == null)
+		if (destProcess.documentation == null)
 			return;
-		ProcessDocumentation doc = destProcess.getDocumentation();
-		doc.setReviewer(refs.switchRef(doc.getReviewer()));
-		doc.setDataGenerator(refs.switchRef(doc.getDataGenerator()));
-		doc.setDataDocumentor(refs.switchRef(doc.getDataDocumentor()));
-		doc.setDataSetOwner(refs.switchRef(doc.getDataSetOwner()));
-		doc.setPublication(refs.switchRef(doc.getPublication()));
+		ProcessDocumentation doc = destProcess.documentation;
+		doc.reviewer = refs.switchRef(doc.reviewer);
+		doc.dataGenerator = refs.switchRef(doc.dataGenerator);
+		doc.dataDocumentor = refs.switchRef(doc.dataDocumentor);
+		doc.dataSetOwner = refs.switchRef(doc.dataSetOwner);
+		doc.publication = refs.switchRef(doc.publication);
 		List<Source> translatedSources = new ArrayList<>();
-		for (Source source : doc.getSources())
+		for (Source source : doc.sources)
 			translatedSources.add(refs.switchRef(source));
-		doc.getSources().clear();
-		doc.getSources().addAll(translatedSources);
+		doc.sources.clear();
+		doc.sources.addAll(translatedSources);
 	}
 
 	private void switchDqSystems(Process destProcess) {

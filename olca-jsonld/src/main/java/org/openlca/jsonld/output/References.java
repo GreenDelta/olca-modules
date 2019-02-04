@@ -17,7 +17,7 @@ class References {
 		if (obj == null)
 			return null;
 		ModelType type = ModelType.forModelClass(ref.getClass());
-		if (doExportReferences(type, ref.getId(), conf, forceExport))
+		if (doExportReferences(type, ref.id, conf, forceExport))
 			conf.refFn.accept(ref);
 		return obj;
 	}

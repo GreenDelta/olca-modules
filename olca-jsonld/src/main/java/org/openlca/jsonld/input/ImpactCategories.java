@@ -65,11 +65,11 @@ class ImpactCategories {
 		if (json == null || flow == null)
 			return null;
 		String propId = Json.getRefId(json, "flowProperty");
-		for (FlowPropertyFactor fac : flow.getFlowPropertyFactors()) {
-			FlowProperty prop = fac.getFlowProperty();
+		for (FlowPropertyFactor fac : flow.flowPropertyFactors) {
+			FlowProperty prop = fac.flowProperty;
 			if (prop == null)
 				continue;
-			if (Objects.equals(propId, prop.getRefId()))
+			if (Objects.equals(propId, prop.refId))
 				return fac;
 		}
 		return null;

@@ -50,7 +50,7 @@ class Indexer {
 	private <T extends RootEntity> Map<Long, T> all(RootEntityDao<T, ?> dao) {
 		Map<Long, T> map = new HashMap<>();
 		for (T d : dao.getAll()) {
-			map.put(d.getId(), d);
+			map.put(d.id, d);
 		}
 		return map;
 	}
@@ -70,20 +70,20 @@ class Indexer {
 		e.flowType = f.flowType;
 		Location location = locations.get(f.location);
 		if (location != null) {
-			e.flowLocation = location.getCode();
+			e.flowLocation = location.code;
 		}
 		e.flowCategory = category(f.category);
 		FlowProperty fp = flowProperties.get(f.refFlowPropertyId);
 		if (fp == null)
 			return;
-		e.flowPropertyID = fp.getRefId();
-		e.flowPropertyName = fp.getName();
-		UnitGroup ug = fp.getUnitGroup();
-		if (ug == null || ug.getReferenceUnit() == null)
+		e.flowPropertyID = fp.refId;
+		e.flowPropertyName = fp.name;
+		UnitGroup ug = fp.unitGroup;
+		if (ug == null || ug.referenceUnit == null)
 			return;
-		Unit u = ug.getReferenceUnit();
-		e.unitID = u.getRefId();
-		e.unitName = u.getName();
+		Unit u = ug.referenceUnit;
+		e.unitID = u.refId;
+		e.unitName = u.name;
 	}
 
 	TechIndexEntry getTechEntry(ProcessProduct product) {
@@ -99,7 +99,7 @@ class Indexer {
 		e.processType = p.processType;
 		Location l = locations.get(p.location);
 		if (l != null) {
-			e.processLocation = l.getCode();
+			e.processLocation = l.code;
 		}
 		e.processCategory = category(p.category);
 

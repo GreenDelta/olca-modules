@@ -24,8 +24,8 @@ public class ImpactMethodTest extends AbstractZipTest {
 
 	private ImpactMethod createModel(ImpactMethodDao dao) {
 		ImpactMethod method = new ImpactMethod();
-		method.setName("method");
-		method.setRefId(UUID.randomUUID().toString());
+		method.name = "method";
+		method.refId = UUID.randomUUID().toString();
 		dao.insert(method);
 		return method;
 	}
@@ -36,7 +36,7 @@ public class ImpactMethodTest extends AbstractZipTest {
 			export.write(method);
 		});
 		dao.delete(method);
-		Assert.assertFalse(dao.contains(method.getRefId()));
+		Assert.assertFalse(dao.contains(method.refId));
 	}
 
 	private void doImport(ImpactMethodDao dao, ImpactMethod method) {
@@ -44,8 +44,8 @@ public class ImpactMethodTest extends AbstractZipTest {
 			JsonImport jImport = new JsonImport(zip, Tests.getDb());
 			jImport.run();
 		});
-		Assert.assertTrue(dao.contains(method.getRefId()));
-		ImpactMethod clone = dao.getForRefId(method.getRefId());
-		Assert.assertEquals(method.getName(), clone.getName());
+		Assert.assertTrue(dao.contains(method.refId));
+		ImpactMethod clone = dao.getForRefId(method.refId);
+		Assert.assertEquals(method.name, clone.name);
 	}
 }

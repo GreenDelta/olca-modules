@@ -62,9 +62,9 @@ public class ProjectResultExport {
 		int row = 1;
 		header(sheet, row++, 1, "Project result");
 		header(sheet, row, 1, "Name:");
-		Excel.cell(sheet, row++, 2, project.getName());
+		Excel.cell(sheet, row++, 2, project.name);
 		header(sheet, row, 1, "Description:");
-		Excel.cell(sheet, row++, 2, project.getDescription());
+		Excel.cell(sheet, row++, 2, project.description);
 		header(sheet, row, 1, "LCIA Method:");
 		if (project.impactMethodId == null)
 			Excel.cell(sheet, row++, 2, "none");
@@ -90,7 +90,7 @@ public class ProjectResultExport {
 		header(sheet, row++, 6, "Unit");
 		for (ProjectVariant variant : project.variants) {
 			Excel.cell(sheet, row, 1, variant.name);
-			Excel.cell(sheet, row, 2, variant.productSystem.getName());
+			Excel.cell(sheet, row, 2, variant.productSystem.name);
 			// TODO: take data from the variants' functional unit
 			// Excel.cell(sheet, row, 3, "Allocation method").setCellStyle(
 			// headerStyle);

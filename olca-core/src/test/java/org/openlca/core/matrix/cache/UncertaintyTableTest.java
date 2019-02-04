@@ -32,13 +32,13 @@ public class UncertaintyTableTest {
 		Uncertainty uncertainty = createUncertainty();
 		exchange.uncertainty = uncertainty;
 		Process process = new Process();
-		process.getExchanges().add(exchange);
+		process.exchanges.add(exchange);
 		ProcessDao dao = new ProcessDao(database);
 		dao.insert(process);
 		Set<Long> set = new HashSet<>();
-		set.add(process.getId());
+		set.add(process.id);
 		List<CalcExchange> exchanges = cache.getExchangeCache().get(
-				process.getId());
+				process.id);
 		checkExchange(exchanges.get(0));
 		dao.delete(process);
 	}
@@ -61,7 +61,7 @@ public class UncertaintyTableTest {
 		ImpactCategoryDao dao = new ImpactCategoryDao(database);
 		dao.insert(category);
 		List<CalcImpactFactor> factors = cache.getImpactCache().get(
-				category.getId());
+				category.id);
 		checkFactor(factors.get(0));
 		dao.delete(category);
 	}

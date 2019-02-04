@@ -26,19 +26,11 @@ import org.openlca.util.BinUtils;
 public class ProcessGroupSet extends AbstractEntity {
 
 	@Column(name = "name")
-	private String name;
+	public String name;
 
 	@Lob
 	@Column(name = "groups_blob")
 	private byte[] groupsBlob;
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
 
 	/**
 	 * Sets the groups of this set by converting it to an internal byte array
@@ -52,8 +44,8 @@ public class ProcessGroupSet extends AbstractEntity {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		BinUtils.writeInt(out, groups.size());
 		for (ProcessGroup group : groups) {
-			BinUtils.writeString(out, group.getName());
-			List<String> ids = group.getProcessIds();
+			BinUtils.writeString(out, group.name);
+			List<String> ids = group.processIds;
 			BinUtils.writeInt(out, ids.size());
 			for (String id : ids) {
 				BinUtils.writeString(out, id);
@@ -75,11 +67,11 @@ public class ProcessGroupSet extends AbstractEntity {
 			String name = BinUtils.readString(bin);
 			ProcessGroup group = new ProcessGroup();
 			groups.add(group);
-			group.setName(name);
+			group.name = name;
 			int idCount = BinUtils.readInt(bin);
 			for (int k = 0; k < idCount; k++) {
 				String id = BinUtils.readString(bin);
-				group.getProcessIds().add(id);
+				group.processIds.add(id);
 			}
 		}
 		return groups;

@@ -29,7 +29,7 @@ public class LocationUseSearchTest {
 	@Before
 	public void setup() {
 		location = new Location();
-		location.setName("location");
+		location.name = "location";
 		location = new LocationDao(database).insert(location);
 		search = IUseSearch.FACTORY.createFor(ModelType.LOCATION, database);
 	}
@@ -60,8 +60,8 @@ public class LocationUseSearchTest {
 
 	private Flow createFlow() {
 		Flow flow = new Flow();
-		flow.setName("flow");
-		flow.setLocation(location);
+		flow.name = "flow";
+		flow.location = location;
 		return new FlowDao(database).insert(flow);
 	}
 
@@ -78,8 +78,8 @@ public class LocationUseSearchTest {
 
 	private Process createProcess() {
 		Process process = new Process();
-		process.setName("process");
-		process.setLocation(location);
+		process.name = "process";
+		process.location = location;
 		return new ProcessDao(database).insert(process);
 	}
 }

@@ -28,7 +28,7 @@ public class ProductSystemUseSearchTest {
 	@Before
 	public void setup() {
 		system = new ProductSystem();
-		system.setName("process");
+		system.name = "process";
 		system = new ProductSystemDao(database).insert(system);
 		search = IUseSearch.FACTORY.createFor(ModelType.PRODUCT_SYSTEM,
 				database);
@@ -60,7 +60,7 @@ public class ProductSystemUseSearchTest {
 
 	private Project createProject() {
 		Project project = new Project();
-		project.setName("project");
+		project.name = "project";
 		ProjectVariant variant = new ProjectVariant();
 		variant.productSystem = system;
 		project.variants.add(variant);

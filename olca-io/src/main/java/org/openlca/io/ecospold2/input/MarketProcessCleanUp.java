@@ -60,12 +60,12 @@ public class MarketProcessCleanUp implements Runnable {
 	}
 
 	private Process fixSelfLoop(Process marketProcess) {
-		Exchange qRef = marketProcess.getQuantitativeReference();
+		Exchange qRef = marketProcess.quantitativeReference;
 		Exchange loopInput = null;
-		for (Exchange input : marketProcess.getExchanges()) {
+		for (Exchange input : marketProcess.exchanges) {
 			if (!input.isInput)
 				continue;
-			if (input.defaultProviderId == marketProcess.getId()) {
+			if (input.defaultProviderId == marketProcess.id) {
 				loopInput = input;
 				break;
 			}
@@ -73,7 +73,7 @@ public class MarketProcessCleanUp implements Runnable {
 		if (loopInput == null)
 			return marketProcess;
 		qRef.amount = qRef.amount - loopInput.amount;
-		marketProcess.getExchanges().remove(loopInput);
+		marketProcess.exchanges.remove(loopInput);
 		log.trace("fixed self loop in {}", marketProcess);
 		return dao.update(marketProcess);
 	}
@@ -85,8 +85,8 @@ public class MarketProcessCleanUp implements Runnable {
 			Process process = dao.getForId(id);
 			log.trace("include market processes in {}", process);
 			Exchange input = null;
-			for (Exchange exchange : process.getExchanges()) {
-				if (exchange.defaultProviderId == marketProcess.getId()) {
+			for (Exchange exchange : process.exchanges) {
+				if (exchange.defaultProviderId == marketProcess.id) {
 					input = exchange;
 					break;
 				}
@@ -97,8 +97,8 @@ public class MarketProcessCleanUp implements Runnable {
 					marketProcess);
 			if (marketExchanges.isEmpty())
 				continue;
-			process.getExchanges().addAll(marketExchanges);
-			process.getExchanges().remove(input);
+			process.exchanges.addAll(marketExchanges);
+			process.exchanges.remove(input);
 			mergeDuplicates(process);
 			dao.update(process);
 		}
@@ -106,7 +106,7 @@ public class MarketProcessCleanUp implements Runnable {
 
 	private List<Long> getWhereUsed(Process marketProcess) throws Exception {
 		String query = "select distinct f_owner from tbl_exchanges where "
-				+ "f_default_provider = " + marketProcess.getId();
+				+ "f_default_provider = " + marketProcess.id;
 		final List<Long> list = new ArrayList<>();
 		NativeSql.on(database).query(query, new QueryResultHandler() {
 			@Override
@@ -121,10 +121,10 @@ public class MarketProcessCleanUp implements Runnable {
 	private List<Exchange> getMarketExchanges(Exchange input, Process market) {
 		if (!matches(market, input))
 			return Collections.emptyList();
-		Exchange marketRef = market.getQuantitativeReference();
+		Exchange marketRef = market.quantitativeReference;
 		double factor = input.amount / marketRef.amount;
 		List<Exchange> exchanges = new ArrayList<>();
-		for (Exchange exchange : market.getExchanges()) {
+		for (Exchange exchange : market.exchanges) {
 			if (Objects.equals(exchange, marketRef))
 				continue;
 			Exchange clone = exchange.clone();
@@ -136,9 +136,9 @@ public class MarketProcessCleanUp implements Runnable {
 
 	private boolean matches(Process market, Exchange input) {
 		if (market == null || input == null
-				|| market.getQuantitativeReference() == null)
+				|| market.quantitativeReference == null)
 			return false;
-		Exchange marketRef = market.getQuantitativeReference();
+		Exchange marketRef = market.quantitativeReference;
 		return input.isInput && !marketRef.isInput
 				&& input.amount != 0
 				&& marketRef.amount != 0
@@ -147,14 +147,14 @@ public class MarketProcessCleanUp implements Runnable {
 	}
 
 	private void mergeDuplicates(Process process) {
-		List<Exchange> exchanges = process.getExchanges();
+		List<Exchange> exchanges = process.exchanges;
 		List<Exchange> duplicates = new ArrayList<>();
 		for (int i = 0; i < exchanges.size(); i++) {
-			Exchange first = process.getExchanges().get(i);
-			if (Objects.equals(first, process.getQuantitativeReference()))
+			Exchange first = process.exchanges.get(i);
+			if (Objects.equals(first, process.quantitativeReference))
 				continue;
 			for (int j = i + 1; j < exchanges.size(); j++) {
-				Exchange second = process.getExchanges().get(j);
+				Exchange second = process.exchanges.get(j);
 				if (!isDuplicate(first, second))
 					continue;
 				second.amount = first.amount
@@ -163,7 +163,7 @@ public class MarketProcessCleanUp implements Runnable {
 				duplicates.add(first);
 			}
 		}
-		process.getExchanges().removeAll(duplicates);
+		process.exchanges.removeAll(duplicates);
 	}
 
 	private boolean isDuplicate(Exchange first, Exchange second) {

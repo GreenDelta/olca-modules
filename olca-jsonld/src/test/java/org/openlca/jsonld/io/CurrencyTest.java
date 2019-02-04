@@ -24,8 +24,8 @@ public class CurrencyTest extends AbstractZipTest {
 
 	private Currency createModel(CurrencyDao dao) {
 		Currency currency = new Currency();
-		currency.setName("currency");
-		currency.setRefId(UUID.randomUUID().toString());
+		currency.name = "currency";
+		currency.refId = UUID.randomUUID().toString();
 		dao.insert(currency);
 		return currency;
 	}
@@ -36,7 +36,7 @@ public class CurrencyTest extends AbstractZipTest {
 			export.write(currency);
 		});
 		dao.delete(currency);
-		Assert.assertFalse(dao.contains(currency.getRefId()));
+		Assert.assertFalse(dao.contains(currency.refId));
 	}
 
 	private void doImport(CurrencyDao dao, Currency currency) {
@@ -44,8 +44,8 @@ public class CurrencyTest extends AbstractZipTest {
 			JsonImport jImport = new JsonImport(zip, Tests.getDb());
 			jImport.run();
 		});
-		Assert.assertTrue(dao.contains(currency.getRefId()));
-		Currency clone = dao.getForRefId(currency.getRefId());
-		Assert.assertEquals(currency.getName(), clone.getName());
+		Assert.assertTrue(dao.contains(currency.refId));
+		Currency clone = dao.getForRefId(currency.refId);
+		Assert.assertEquals(currency.name, clone.name);
 	}
 }

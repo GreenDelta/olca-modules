@@ -51,7 +51,7 @@ public class CellWriter {
 		if (p.location == null)
 			return;
 		Location loc = cache.get(Location.class, p.location);
-		String code = loc == null ? "" : loc.getCode();
+		String code = loc == null ? "" : loc.code;
 		cell(sheet, row++, col, code, false);
 	}
 

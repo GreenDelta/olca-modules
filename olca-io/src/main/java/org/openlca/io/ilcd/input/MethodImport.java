@@ -94,7 +94,7 @@ public class MethodImport {
 	private boolean hasCategory(org.openlca.core.model.ImpactMethod oMethod,
 			String categoryName) {
 		for (ImpactCategory category : oMethod.impactCategories) {
-			if (StringUtils.equalsIgnoreCase(category.getName(), categoryName))
+			if (StringUtils.equalsIgnoreCase(category.name, categoryName))
 				return true;
 		}
 		return false;
@@ -106,13 +106,13 @@ public class MethodImport {
 		String categoryUnit = getCategoryUnit(iMethod);
 		ImpactCategory category = new ImpactCategory();
 		String refId = getUUID(iMethod);
-		category.setRefId(refId != null ? refId : UUID.randomUUID().toString());
-		category.setName(categoryName);
+		category.refId = refId != null ? refId : UUID.randomUUID().toString();
+		category.name = categoryName;
 		category.referenceUnit = categoryUnit;
-		category.setDescription(getCategoryDescription(iMethod));
+		category.description = getCategoryDescription(iMethod);
 		addFactors(iMethod, category);
 		oMethod.impactCategories.add(category);
-		oMethod.setLastChange(Calendar.getInstance().getTimeInMillis());
+		oMethod.lastChange = Calendar.getInstance().getTimeInMillis();
 		Version.incUpdate(oMethod);
 		dao.update(oMethod);
 	}
@@ -139,7 +139,7 @@ public class MethodImport {
 		if (propertyId == null)
 			return null;
 		Unit unit = getReferenceUnit(propertyId);
-		return unit == null ? null : unit.getName();
+		return unit == null ? null : unit.name;
 	}
 
 	private String getExtentionUnit(LCIAMethod iMethod) {
@@ -173,9 +173,9 @@ public class MethodImport {
 	}
 
 	private Unit getReferenceUnit(FlowProperty prop) {
-		UnitGroup group = prop.getUnitGroup();
-		if (group != null && group.getReferenceUnit() != null)
-			return group.getReferenceUnit();
+		UnitGroup group = prop.unitGroup;
+		if (group != null && group.referenceUnit != null)
+			return group.referenceUnit;
 		return null;
 	}
 
@@ -226,7 +226,7 @@ public class MethodImport {
 	private Unit getRefUnit(Flow flow) {
 		if (flow == null)
 			return null;
-		FlowProperty prop = flow.getReferenceFlowProperty();
+		FlowProperty prop = flow.referenceFlowProperty;
 		return getReferenceUnit(prop);
 	}
 }

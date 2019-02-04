@@ -46,27 +46,27 @@ class UnitMap {
 			log.warn("could not apply unit mapping: unit or exchange was null");
 			return;
 		}
-		ExportRecord record = map.get(unit.getRefId());
+		ExportRecord record = map.get(unit.refId);
 		if (record != null) {
 			exchange.unit = record.name;
 			exchange.unitId = record.id;
 		} else {
 			log.warn("unit {} is not a known unit in EcoSpold 2", unit);
-			exchange.unit = unit.getName();
-			exchange.unitId = unit.getRefId();
+			exchange.unit = unit.name;
+			exchange.unitId = unit.refId;
 			addMasterEntry(unit, masterData);
 		}
 	}
 
 	private void addMasterEntry(Unit unit, UserMasterData masterData) {
 		for (spold2.Unit es2Unit : masterData.units) {
-			if (Objects.equals(unit.getRefId(), es2Unit.id))
+			if (Objects.equals(unit.refId, es2Unit.id))
 				return;
 		}
 		spold2.Unit es2Unit = new spold2.Unit();
-		es2Unit.comment = unit.getDescription();
-		es2Unit.id = unit.getRefId();
-		es2Unit.name = unit.getName();
+		es2Unit.comment = unit.description;
+		es2Unit.id = unit.refId;
+		es2Unit.name = unit.name;
 		masterData.units.add(es2Unit);
 	}
 

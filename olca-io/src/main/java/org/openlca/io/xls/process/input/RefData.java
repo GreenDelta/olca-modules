@@ -40,7 +40,7 @@ class RefData {
 	private <T extends RootEntity> void load(RootEntityDao<T, ?> dao,
 			HashMap<String, T> map) throws Exception {
 		for (T entity : dao.getAll()) {
-			map.put(entity.getName(), entity);
+			map.put(entity.name, entity);
 		}
 	}
 

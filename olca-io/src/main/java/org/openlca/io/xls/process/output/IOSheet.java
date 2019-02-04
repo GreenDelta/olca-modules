@@ -68,8 +68,8 @@ class IOSheet {
 
 	private void write(Exchange exchange) {
 		Flow flow = exchange.flow;
-		Excel.cell(sheet, row, 0, flow.getName());
-		Excel.cell(sheet, row, 1, CategoryPath.getFull(flow.getCategory()));
+		Excel.cell(sheet, row, 0, flow.name);
+		Excel.cell(sheet, row, 1, CategoryPath.getFull(flow.category));
 		Excel.cell(sheet, row, 2, getFlowProperty(exchange));
 		Excel.cell(sheet, row, 3, getUnit(exchange));
 		Excel.cell(sheet, row, 4, exchange.amount);
@@ -84,18 +84,18 @@ class IOSheet {
 		FlowPropertyFactor factor = exchange.flowPropertyFactor;
 		if (factor == null)
 			return null;
-		FlowProperty prop = factor.getFlowProperty();
-		return prop == null ? null : prop.getName();
+		FlowProperty prop = factor.flowProperty;
+		return prop == null ? null : prop.name;
 	}
 
 	private String getUnit(Exchange exchange) {
 		Unit unit = exchange.unit;
-		return unit == null ? null : unit.getName();
+		return unit == null ? null : unit.name;
 	}
 
 	private List<Exchange> getExchanges() {
 		List<Exchange> exchanges = new ArrayList<>();
-		for (Exchange exchange : config.process.getExchanges()) {
+		for (Exchange exchange : config.process.exchanges) {
 			if (exchange.isInput == forInputs)
 				exchanges.add(exchange);
 		}
@@ -104,8 +104,7 @@ class IOSheet {
 			public int compare(Exchange e1, Exchange e2) {
 				if (e1.flow == null || e2.flow == null)
 					return 0;
-				return Strings.compare(e1.flow.getName(), e2.flow
-						.getName());
+				return Strings.compare(e1.flow.name, e2.flow.name);
 			}
 		});
 		return exchanges;

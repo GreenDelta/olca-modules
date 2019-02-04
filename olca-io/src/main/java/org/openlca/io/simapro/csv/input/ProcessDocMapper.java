@@ -29,41 +29,41 @@ class ProcessDocMapper {
 	public void map(ProcessBlock block, Process process) {
 		this.block = block;
 		this.process = process;
-		if (process.getDocumentation() == null)
-			process.setDocumentation(new ProcessDocumentation());
+		if (process.documentation == null)
+			process.documentation = new ProcessDocumentation();
 		mapSources();
 		mapDocFields();
 		mapDescription();
 		if (block.getInfrastructure() != null)
-			process.setInfrastructureProcess(block.getInfrastructure());
+			process.infrastructureProcess = block.getInfrastructure();
 	}
 
 	private void mapSources() {
-		ProcessDocumentation doc = process.getDocumentation();
+		ProcessDocumentation doc = process.documentation;
 		for (LiteratureReferenceRow row : block.getLiteratureReferences()) {
 			Source source = refData.getSource(row.getName());
 			if (source == null)
 				continue;
-			doc.getSources().add(source);
+			doc.sources.add(source);
 		}
 	}
 
 	private void mapDocFields() {
-		ProcessDocumentation doc = process.getDocumentation();
+		ProcessDocumentation doc = process.documentation;
 		mapTime(doc);
 		if (block.getGeography() != null)
-			doc.setGeography(block.getGeography().getValue());
+			doc.geography = block.getGeography().getValue();
 		if (block.getTechnology() != null)
-			doc.setTechnology(block.getTechnology().getValue());
+			doc.technology = block.getTechnology().getValue();
 		if (block.getRepresentativeness() != null)
-			doc.setDataSelection(block.getRepresentativeness().getValue());
-		doc.setDataTreatment(block.getDataTreatment());
-		doc.setSampling(block.getCollectionMethod());
-		doc.setReviewDetails(block.getVerification());
+			doc.dataSelection = block.getRepresentativeness().getValue();
+		doc.dataTreatment = block.getDataTreatment();
+		doc.sampling = block.getCollectionMethod();
+		doc.reviewDetails = block.getVerification();
 		mapInventoryMethod(doc);
 		mapCompleteness(doc);
 		mapProject(doc);
-		doc.setCreationDate(block.getDate());
+		doc.creationDate = block.getDate();
 	}
 
 	private void mapInventoryMethod(ProcessDocumentation doc) {
@@ -71,14 +71,14 @@ class ProcessDocMapper {
 		t = a("Allocation rules", block.getAllocationRules(), t);
 		t = a("Multiple output allocation", block.getAllocation(), t);
 		t = a("Substitution allocation", block.getSubstitution(), t);
-		doc.setInventoryMethod(t);
+		doc.inventoryMethod = t;
 	}
 
 	private void mapCompleteness(ProcessDocumentation doc) {
 		String t = null;
 		t = a("Cut off rules", block.getCutoff(), t);
 		t = a("Capital goods", block.getCapitalGoods(), t);
-		doc.setCompleteness(t);
+		doc.completeness = t;
 	}
 
 	private void mapProject(ProcessDocumentation doc) {
@@ -88,7 +88,7 @@ class ProcessDocMapper {
 		String t = r.getName();
 		if (r.getComment() != null)
 			t += " (" + r.getComment() + ")";
-		doc.setProject(t);
+		doc.project = t;
 	}
 
 	private void mapTime(ProcessDocumentation doc) {
@@ -98,17 +98,17 @@ class ProcessDocMapper {
 		Pattern pattern = Pattern.compile("(\\d{4})-(\\d{4})");
 		Matcher m = pattern.matcher(text);
 		if (!m.matches()) {
-			doc.setTime(text);
+			doc.time = text;
 			return;
 		}
 		try {
 			int startYear = Integer.parseInt(m.group(1));
 			Calendar c = Calendar.getInstance();
 			c.set(startYear, 0, 1, 0, 0);
-			doc.setValidFrom(c.getTime());
+			doc.validFrom = c.getTime();
 			int endYear = Integer.parseInt(m.group(2));
 			c.set(endYear, 11, 31, 0, 0);
-			doc.setValidUntil(c.getTime());
+			doc.validUntil = c.getTime();
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(getClass());
 			log.error("failed to convert time", e);
@@ -123,7 +123,7 @@ class ProcessDocMapper {
 		a("Boundary with nature", block.getBoundaryWithNature(), builder);
 		a("Record", block.getRecord(), builder);
 		a("Generator", block.getGenerator(), builder);
-		process.setDescription(builder.toString());
+		process.description = builder.toString();
 	}
 
 	private void a(String label, String value, StringBuilder builder) {

@@ -18,20 +18,20 @@ public class FlowReferenceSearchTest extends BaseReferenceSearchTest {
 	@Override
 	protected Flow createModel() {
 		Flow flow = new Flow();
-		flow.setCategory(insertAndAddExpected("category", new Category()));
-		flow.setLocation(insertAndAddExpected("location", new Location()));
-		flow.getFlowPropertyFactors().add(createFlowPropertyFactor());
-		flow.getFlowPropertyFactors().add(createFlowPropertyFactor());
+		flow.category = insertAndAddExpected("category", new Category());
+		flow.location = insertAndAddExpected("location", new Location());
+		flow.flowPropertyFactors.add(createFlowPropertyFactor());
+		flow.flowPropertyFactors.add(createFlowPropertyFactor());
 		flow = Tests.insert(flow);
-		for (FlowPropertyFactor f : flow.getFlowPropertyFactors())
-			addExpected("flowProperty", f.getFlowProperty(),
-					"flowPropertyFactors", FlowPropertyFactor.class, f.getId());
+		for (FlowPropertyFactor f : flow.flowPropertyFactors)
+			addExpected("flowProperty", f.flowProperty,
+					"flowPropertyFactors", FlowPropertyFactor.class, f.id);
 		return flow;
 	}
 
 	private FlowPropertyFactor createFlowPropertyFactor() {
 		FlowPropertyFactor factor = new FlowPropertyFactor();
-		factor.setFlowProperty(Tests.insert(new FlowProperty()));
+		factor.flowProperty = Tests.insert(new FlowProperty());
 		return factor;
 	}
 

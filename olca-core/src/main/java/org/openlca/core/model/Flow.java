@@ -20,115 +20,63 @@ public class Flow extends CategorizedEntity {
 
 	@Column(name = "flow_type")
 	@Enumerated(EnumType.STRING)
-	private FlowType flowType;
+	public FlowType flowType;
 
 	@Column(name = "cas_number")
-	private String casNumber;
+	public String casNumber;
 
 	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
 	@JoinColumn(name = "f_flow")
-	private final List<FlowPropertyFactor> flowPropertyFactors = new ArrayList<>();
+	public final List<FlowPropertyFactor> flowPropertyFactors = new ArrayList<>();
 
 	@Column(name = "formula")
-	private String formula;
+	public String formula;
 
 	@Column(name = "infrastructure_flow")
-	private boolean infrastructureFlow;
+	public boolean infrastructureFlow;
 
 	@Column(name = "synonyms")
 	public String synonyms;
 
 	@OneToOne
 	@JoinColumn(name = "f_location")
-	private Location location;
+	public Location location;
 
 	@OneToOne
 	@JoinColumn(name = "f_reference_flow_property")
-	private FlowProperty referenceFlowProperty;
+	public FlowProperty referenceFlowProperty;
 
 	@Override
 	public Flow clone() {
 		Flow clone = new Flow();
 		Util.cloneRootFields(this, clone);
-		clone.setCategory(getCategory());
-		clone.setFlowType(getFlowType());
-		clone.setCasNumber(getCasNumber());
-		clone.setFormula(getFormula());
-		clone.setInfrastructureFlow(isInfrastructureFlow());
-		clone.setLocation(getLocation());
-		clone.setReferenceFlowProperty(getReferenceFlowProperty());
-		for (FlowPropertyFactor factor : getFlowPropertyFactors()) {
-			clone.getFlowPropertyFactors().add(factor.clone());
+		clone.category = category;
+		clone.flowType = flowType;
+		clone.casNumber = casNumber;
+		clone.formula = formula;
+		clone.infrastructureFlow = infrastructureFlow;
+		clone.location = location;
+		clone.referenceFlowProperty = referenceFlowProperty;
+		for (FlowPropertyFactor factor : flowPropertyFactors) {
+			clone.flowPropertyFactors.add(factor.clone());
 		}
 		clone.synonyms = synonyms;
 		return clone;
 	}
 
-	public FlowType getFlowType() {
-		return flowType;
-	}
-
-	public void setFlowType(FlowType flowType) {
-		this.flowType = flowType;
-	}
-
-	public String getCasNumber() {
-		return casNumber;
-	}
-
-	public void setCasNumber(String casNumber) {
-		this.casNumber = casNumber;
-	}
-
-	public String getFormula() {
-		return formula;
-	}
-
-	public void setFormula(String formula) {
-		this.formula = formula;
-	}
-
-	public boolean isInfrastructureFlow() {
-		return infrastructureFlow;
-	}
-
-	public void setInfrastructureFlow(boolean infrastructureFlow) {
-		this.infrastructureFlow = infrastructureFlow;
-	}
-
-	public Location getLocation() {
-		return location;
-	}
-
-	public void setLocation(Location location) {
-		this.location = location;
-	}
-
-	public FlowProperty getReferenceFlowProperty() {
-		return referenceFlowProperty;
-	}
-
-	public void setReferenceFlowProperty(FlowProperty referenceFlowProperty) {
-		this.referenceFlowProperty = referenceFlowProperty;
-	}
-
-	public List<FlowPropertyFactor> getFlowPropertyFactors() {
-		return flowPropertyFactors;
-	}
-
 	public FlowPropertyFactor getReferenceFactor() {
 		if (referenceFlowProperty == null)
 			return null;
-		for (FlowPropertyFactor f : getFlowPropertyFactors()) {
-			if (Objects.equals(referenceFlowProperty, f.getFlowProperty()))
+		for (FlowPropertyFactor f : flowPropertyFactors) {
+			if (Objects.equals(referenceFlowProperty, f.flowProperty))
 				return f;
 		}
 		return null;
 	}
 
 	public FlowPropertyFactor getFactor(FlowProperty property) {
-		for (FlowPropertyFactor f : getFlowPropertyFactors())
-			if (Objects.equals(f.getFlowProperty(), property))
+		for (FlowPropertyFactor f : flowPropertyFactors)
+			if (Objects.equals(f.flowProperty, property))
 				return f;
 		return null;
 	}

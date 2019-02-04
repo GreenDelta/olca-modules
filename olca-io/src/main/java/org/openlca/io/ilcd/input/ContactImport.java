@@ -75,13 +75,13 @@ public class ContactImport {
 		CategoryImport categoryImport = new CategoryImport(config,
 				ModelType.ACTOR);
 		Category category = categoryImport.run(ilcdContact.getSortedClasses());
-		actor.setCategory(category);
+		actor.category = category;
 	}
 
 	private void setDescriptionAttributes() {
-		actor.setRefId(ilcdContact.getId());
-		actor.setName(ilcdContact.getName());
-		actor.setDescription(ilcdContact.getComment());
+		actor.refId = ilcdContact.getId();
+		actor.name = ilcdContact.getName();
+		actor.description = ilcdContact.getComment();
 		actor.address = ilcdContact.getContactAddress();
 		if (actor.address == null) {
 			actor.address = ilcdContact.getCentralContactPoint();
@@ -94,10 +94,10 @@ public class ContactImport {
 
 	private void setVersionTime() {
 		String v = ilcdContact.getVersion();
-		actor.setVersion(Version.fromString(v).getValue());
+		actor.version = Version.fromString(v).getValue();
 		Date time = ilcdContact.getTimeStamp();
 		if (time != null)
-			actor.setLastChange(time.getTime());
+			actor.lastChange = time.getTime();
 	}
 
 	private void saveInDatabase() throws ImportException {
@@ -105,7 +105,7 @@ public class ContactImport {
 			dao.insert(actor);
 		} catch (Exception e) {
 			String message = String.format("Cannot save actor %s in database.",
-					actor.getRefId());
+					actor.refId);
 			throw new ImportException(message, e);
 		}
 	}

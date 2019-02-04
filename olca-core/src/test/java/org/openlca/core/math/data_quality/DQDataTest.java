@@ -54,8 +54,8 @@ public class DQDataTest {
 		process1 = new ProcessDao(Tests.getDb()).insert(createProcess("(1;2;3;4;5)", "(2;1;4;3;5)"));
 		process2 = new ProcessDao(Tests.getDb()).insert(createProcess("(5;4;3;2;1)", "(4;5;2;3;1)"));
 		pSystem = new ProductSystem();
-		pSystem.processes.add(process1.getId());
-		pSystem.processes.add(process2.getId());
+		pSystem.processes.add(process1.id);
+		pSystem.processes.add(process2.id);
 		pSystem = new ProductSystemDao(Tests.getDb()).insert(pSystem);
 	}
 
@@ -67,7 +67,7 @@ public class DQDataTest {
 		Exchange exchange = new Exchange();
 		exchange.dqEntry = dqEntry2;
 		exchange.flow = flow;
-		process.getExchanges().add(exchange);
+		process.exchanges.add(exchange);
 		return process;
 	}
 
@@ -79,21 +79,21 @@ public class DQDataTest {
 	@Test
 	public void test() {
 		DQCalculationSetup setup = new DQCalculationSetup();
-		setup.productSystemId = pSystem.getId();
+		setup.productSystemId = pSystem.id;
 		setup.aggregationType = AggregationType.WEIGHTED_AVERAGE;
 		setup.roundingMode = RoundingMode.HALF_UP;
 		setup.processingType = ProcessingType.EXCLUDE;
 		setup.exchangeDqSystem = dqSystem;
 		setup.processDqSystem = dqSystem;
-		DQData data = DQData.load(Tests.getDb(), setup, new long[] { flow.getId() });
-		Assert.assertEquals(dqSystem.getId(), setup.processDqSystem.getId());
-		Assert.assertEquals(dqSystem.getId(), setup.exchangeDqSystem.getId());
-		Assert.assertArrayEquals(new double[] { 1, 2, 3, 4, 5 }, data.processData.get(process1.getId()), 0);
-		Assert.assertArrayEquals(new double[] { 5, 4, 3, 2, 1 }, data.processData.get(process2.getId()), 0);
+		DQData data = DQData.load(Tests.getDb(), setup, new long[] { flow.id });
+		Assert.assertEquals(dqSystem.id, setup.processDqSystem.id);
+		Assert.assertEquals(dqSystem.id, setup.exchangeDqSystem.id);
+		Assert.assertArrayEquals(new double[] { 1, 2, 3, 4, 5 }, data.processData.get(process1.id), 0);
+		Assert.assertArrayEquals(new double[] { 5, 4, 3, 2, 1 }, data.processData.get(process2.id), 0);
 		Assert.assertArrayEquals(new double[] { 2, 1, 4, 3, 5 },
-				data.exchangeData.get(new LongPair(process1.getId(), flow.getId())), 0);
+				data.exchangeData.get(new LongPair(process1.id, flow.id)), 0);
 		Assert.assertArrayEquals(new double[] { 4, 5, 2, 3, 1 },
-				data.exchangeData.get(new LongPair(process2.getId(), flow.getId())), 0);
+				data.exchangeData.get(new LongPair(process2.id, flow.id)), 0);
 	}
 
 	@After

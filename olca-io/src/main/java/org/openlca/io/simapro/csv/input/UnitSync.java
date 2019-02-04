@@ -80,8 +80,8 @@ class UnitSync {
 						"unknown unit {}, import complete SimaPro quantity {}",
 						unit, quantity);
 				UnitGroup group = importQuantity(quantity, mapping);
-				for (Unit u : group.getUnits())
-					unknownUnits.remove(u.getName());
+				for (Unit u : group.units)
+					unknownUnits.remove(u.name);
 			}
 		}
 	}
@@ -91,21 +91,21 @@ class UnitSync {
 		String name = row.getName();
 		UnitMappingEntry refEntry = mapping.getEntry(row.getReferenceUnit());
 		double factor = row.getConversionFactor()
-				* refEntry.unit.getConversionFactor();
+				* refEntry.unit.conversionFactor;
 		Unit unit = new Unit();
-		unit.setConversionFactor(factor);
-		unit.setName(name);
-		unit.setRefId(KeyGen.get(name));
+		unit.conversionFactor = factor;
+		unit.name = name;
+		unit.refId = KeyGen.get(name);
 		UnitGroup group = refEntry.unitGroup;
-		group.getUnits().add(unit);
+		group.units.add(unit);
 		UnitGroupDao groupDao = new UnitGroupDao(database);
-		group.setLastChange(Calendar.getInstance().getTimeInMillis());
+		group.lastChange = Calendar.getInstance().getTimeInMillis();
 		Version.incUpdate(group);
 		group = groupDao.update(group);
 		log.info("added new unit {} to group {}", unit, group);
 		FlowPropertyDao propDao = new FlowPropertyDao(database);
 		FlowProperty property = propDao
-				.getForId(refEntry.flowProperty.getId());
+				.getForId(refEntry.flowProperty.id);
 		updateRefs(mapping, group, property);
 		UnitMappingEntry newEntry = new UnitMappingEntry();
 		newEntry.factor = factor;
@@ -125,7 +125,7 @@ class UnitSync {
 			if (!Objects.equals(group, entry.unitGroup)
 					|| !Objects.equals(property, entry.flowProperty))
 				continue;
-			Unit u = group.getUnit(entry.unit.getName());
+			Unit u = group.getUnit(entry.unit.name);
 			if (u == null) {
 				log.error("Could not find {} in {}", u, group);
 				continue;
@@ -142,14 +142,14 @@ class UnitSync {
 				"Units of " + quantity.getName());
 		addUnits(group, quantity);
 		group = insertLinkProperty(group, quantity.getName());
-		for (Unit unit : group.getUnits()) {
+		for (Unit unit : group.units) {
 			UnitMappingEntry entry = new UnitMappingEntry();
-			entry.flowProperty = group.getDefaultFlowProperty();
-			entry.unitName = unit.getName();
+			entry.flowProperty = group.defaultFlowProperty;
+			entry.unitName = unit.name;
 			entry.unit = unit;
-			entry.factor = unit.getConversionFactor();
+			entry.factor = unit.conversionFactor;
 			entry.unitGroup = group;
-			mapping.put(unit.getName(), entry);
+			mapping.put(unit.name, entry);
 		}
 		return group;
 	}
@@ -158,11 +158,11 @@ class UnitSync {
 		UnitGroupDao groupDao = new UnitGroupDao(database);
 		group = groupDao.insert(group);
 		FlowProperty property = create(FlowProperty.class, propertyName);
-		property.setFlowPropertyType(FlowPropertyType.PHYSICAL);
-		property.setUnitGroup(group);
+		property.flowPropertyType = FlowPropertyType.PHYSICAL;
+		property.unitGroup = group;
 		FlowPropertyDao propertyDao = new FlowPropertyDao(database);
 		property = propertyDao.insert(property);
-		group.setDefaultFlowProperty(property);
+		group.defaultFlowProperty = property;
 		groupDao.update(group);
 		return group;
 	}
@@ -172,25 +172,25 @@ class UnitSync {
 			if (!Objects.equals(row.getQuantity(), quantity.getName()))
 				continue;
 			Unit unit = create(Unit.class, row.getName());
-			unit.setConversionFactor(row.getConversionFactor());
-			unitGroup.getUnits().add(unit);
+			unit.conversionFactor = row.getConversionFactor();
+			unitGroup.units.add(unit);
 			if (Objects.equals(row.getName(), row.getReferenceUnit()))
-				unitGroup.setReferenceUnit(unit);
+				unitGroup.referenceUnit = unit;
 		}
 	}
 
 	private void createDefaultMapping(String unitName, UnitMapping mapping) {
 		Unit unit = create(Unit.class, unitName);
-		unit.setConversionFactor(1);
+		unit.conversionFactor = (double) 1;
 		UnitGroup group = create(UnitGroup.class, "Unit group for " + unitName);
-		group.getUnits().add(unit);
-		group.setReferenceUnit(unit);
+		group.units.add(unit);
+		group.referenceUnit = unit;
 		group = insertLinkProperty(group, "Property for " + unitName);
 		UnitMappingEntry e = new UnitMappingEntry();
 		e.unitGroup = group;
-		e.unit = group.getReferenceUnit();
+		e.unit = group.referenceUnit;
 		e.factor = 1d;
-		e.flowProperty = group.getDefaultFlowProperty();
+		e.flowProperty = group.defaultFlowProperty;
 		e.unitName = unitName;
 		mapping.put(unitName, e);
 	}
@@ -198,8 +198,8 @@ class UnitSync {
 	private <T extends RootEntity> T create(Class<T> clazz, String name) {
 		try {
 			T t = clazz.newInstance();
-			t.setName(name);
-			t.setRefId(UUID.randomUUID().toString());
+			t.name = name;
+			t.refId = UUID.randomUUID().toString();
 			return t;
 		} catch (Exception e) {
 			log.error("failed to create " + clazz, e);

@@ -30,7 +30,7 @@ class ProcessAdminInfo {
 
 	AdminInfo create(Process process) {
 		this.process = process;
-		this.documentation = process.getDocumentation();
+		this.documentation = process.documentation;
 		iAdminInfo = new AdminInfo();
 		createDataGenerator();
 		createDataEntry();
@@ -44,9 +44,9 @@ class ProcessAdminInfo {
 		iAdminInfo.dataEntry = dataEntry;
 		dataEntry.timeStamp = Xml.calendar(new Date());
 		dataEntry.formats.add(Refs.ilcd());
-		if (documentation.getDataDocumentor() != null) {
+		if (documentation.dataDocumentor != null) {
 			Ref ref = ExportDispatch.forwardExport(
-					documentation.getDataDocumentor(), config);
+					documentation.dataDocumentor, config);
 			if (ref != null) {
 				dataEntry.documentor = ref;
 			}
@@ -54,11 +54,11 @@ class ProcessAdminInfo {
 	}
 
 	private void createDataGenerator() {
-		if (documentation.getDataGenerator() != null) {
+		if (documentation.dataGenerator != null) {
 			DataGenerator generator = new DataGenerator();
 			iAdminInfo.dataGenerator = generator;
 			Ref ref = ExportDispatch.forwardExport(
-					documentation.getDataGenerator(), config);
+					documentation.dataGenerator, config);
 			if (ref != null)
 				generator.contacts.add(ref);
 		}
@@ -67,24 +67,24 @@ class ProcessAdminInfo {
 	private void createPublication() {
 		Publication publication = new Publication();
 		iAdminInfo.publication = publication;
-		if (process.getLastChange() != 0)
-			publication.lastRevision = Xml.calendar(process.getLastChange());
-		String version = Version.asString(process.getVersion());
+		if (process.lastChange != 0)
+			publication.lastRevision = Xml.calendar(process.lastChange);
+		String version = Version.asString(process.version);
 		publication.version = version;
-		publication.copyright = documentation.isCopyright();
+		publication.copyright = documentation.copyright;
 		mapDataSetOwner(publication);
-		if (!Strings.nullOrEmpty(documentation.getRestrictions())) {
+		if (!Strings.nullOrEmpty(documentation.restrictions)) {
 			publication.accessRestrictions.add(
-					LangString.of(documentation.getRestrictions(),
+					LangString.of(documentation.restrictions,
 							config.lang));
 		}
 		mapPublicationSource(publication);
 	}
 
 	private void mapDataSetOwner(Publication publication) {
-		if (documentation.getDataSetOwner() != null) {
+		if (documentation.dataSetOwner != null) {
 			Ref ref = ExportDispatch.forwardExport(
-					documentation.getDataSetOwner(), config);
+					documentation.dataSetOwner, config);
 			if (ref != null) {
 				publication.owner = ref;
 			}
@@ -92,7 +92,7 @@ class ProcessAdminInfo {
 	}
 
 	private void mapPublicationSource(Publication publication) {
-		Source source = documentation.getPublication();
+		Source source = documentation.publication;
 		if (source == null)
 			return;
 		Ref ref = ExportDispatch
@@ -102,19 +102,19 @@ class ProcessAdminInfo {
 	}
 
 	private void createCommissionerAndGoal() {
-		if (Strings.nullOrEmpty(documentation.getIntendedApplication())
-				&& Strings.nullOrEmpty(documentation.getProject()))
+		if (Strings.nullOrEmpty(documentation.intendedApplication)
+				&& Strings.nullOrEmpty(documentation.project))
 			return;
 		CommissionerAndGoal comAndGoal = new CommissionerAndGoal();
 		iAdminInfo.commissionerAndGoal = comAndGoal;
-		if (!Strings.nullOrEmpty(documentation.getIntendedApplication())) {
+		if (!Strings.nullOrEmpty(documentation.intendedApplication)) {
 			comAndGoal.intendedApplications.add(
-					LangString.of(documentation.getIntendedApplication(),
+					LangString.of(documentation.intendedApplication,
 							config.lang));
 		}
-		if (!Strings.nullOrEmpty(documentation.getProject())) {
+		if (!Strings.nullOrEmpty(documentation.project)) {
 			comAndGoal.project.add(
-					LangString.of(documentation.getProject(),
+					LangString.of(documentation.project,
 							config.lang));
 		}
 	}

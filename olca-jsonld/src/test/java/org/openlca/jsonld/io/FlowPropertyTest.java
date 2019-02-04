@@ -24,8 +24,8 @@ public class FlowPropertyTest extends AbstractZipTest {
 
 	private FlowProperty createModel(FlowPropertyDao dao) {
 		FlowProperty property = new FlowProperty();
-		property.setName("property");
-		property.setRefId(UUID.randomUUID().toString());
+		property.name = "property";
+		property.refId = UUID.randomUUID().toString();
 		dao.insert(property);
 		return property;
 	}
@@ -36,7 +36,7 @@ public class FlowPropertyTest extends AbstractZipTest {
 			export.write(property);
 		});
 		dao.delete(property);
-		Assert.assertFalse(dao.contains(property.getRefId()));
+		Assert.assertFalse(dao.contains(property.refId));
 	}
 
 	private void doImport(FlowPropertyDao dao, FlowProperty property) {
@@ -44,8 +44,8 @@ public class FlowPropertyTest extends AbstractZipTest {
 			JsonImport jImport = new JsonImport(zip, Tests.getDb());
 			jImport.run();
 		});
-		Assert.assertTrue(dao.contains(property.getRefId()));
-		FlowProperty clone = dao.getForRefId(property.getRefId());
-		Assert.assertEquals(property.getName(), clone.getName());
+		Assert.assertTrue(dao.contains(property.refId));
+		FlowProperty clone = dao.getForRefId(property.refId);
+		Assert.assertEquals(property.name, clone.name);
 	}
 }

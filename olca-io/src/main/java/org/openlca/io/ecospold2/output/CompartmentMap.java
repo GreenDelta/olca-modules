@@ -45,7 +45,7 @@ class CompartmentMap {
 			log.warn("could not set compartment; flow category or exchange is null");
 			return;
 		}
-		ExportRecord record = map.get(category.getRefId());
+		ExportRecord record = map.get(category.refId);
 		if (record == null) {
 			log.warn(
 					"category {} cannot be mapped to an EcoSpold 2 compartment",

@@ -26,7 +26,7 @@ public class Source extends CategorizedEntity {
 	public Source clone() {
 		Source clone = new Source();
 		Util.cloneRootFields(this, clone);
-		clone.setCategory(getCategory());
+		clone.category = category;
 		clone.url = url;
 		clone.textReference = textReference;
 		clone.year = year;

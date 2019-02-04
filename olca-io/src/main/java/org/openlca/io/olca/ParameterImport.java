@@ -31,9 +31,9 @@ class ParameterImport {
 		try {
 			Set<String> existing = getExisting();
 			for (Parameter param : sourceDao.getGlobalParameters()) {
-				if (param.getName() == null)
+				if (param.name == null)
 					continue;
-				if (existing.contains(param.getName()))
+				if (existing.contains(param.name))
 					continue;
 				Parameter c = param.clone();
 				destDao.insert(c);
@@ -46,8 +46,8 @@ class ParameterImport {
 	private Set<String> getExisting() {
 		Set<String> existing = new TreeSet<>();
 		for (Parameter param : destDao.getGlobalParameters()) {
-			if (param.getName() != null)
-				existing.add(param.getName());
+			if (param.name != null)
+				existing.add(param.name);
 		}
 		return existing;
 	}

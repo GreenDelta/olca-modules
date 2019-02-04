@@ -39,7 +39,7 @@ class GlobalParameterSync {
 			if (contains(row.getName(), globals))
 				continue;
 			Parameter param = Parameters.create(row, ParameterScope.GLOBAL);
-			added.add(param.getName());
+			added.add(param.name);
 			globals.add(param);
 		}
 		for (CalculatedParameterRow row : index.getCalculatedParameters()) {
@@ -47,7 +47,7 @@ class GlobalParameterSync {
 				continue;
 			Parameter param = Parameters.create(row, ParameterScope.GLOBAL);
 			globals.add(param);
-			added.add(param.getName());
+			added.add(param.name);
 		}
 		evalAndWrite(globals, added);
 	}
@@ -55,10 +55,10 @@ class GlobalParameterSync {
 	private void evalAndWrite(List<Parameter> globals, HashSet<String> added) {
 		FormulaInterpreter interpreter = new FormulaInterpreter();
 		for (Parameter param : globals) {
-			interpreter.bind(param.getName(), param.formula);
+			interpreter.bind(param.name, param.formula);
 		}
 		for (Parameter param : globals) {
-			if (!added.contains(param.getName()))
+			if (!added.contains(param.name))
 				continue;
 			if (!param.isInputParameter) {
 				eval(param, interpreter);
@@ -73,7 +73,7 @@ class GlobalParameterSync {
 			p.value = val;
 		} catch (Exception e) {
 			log.warn("failed to evaluate formula for global parameter "
-					+ p.getName() + ": set value to 1.0", e);
+					+ p.name + ": set value to 1.0", e);
 			p.isInputParameter = true;
 			p.value = 1.0;
 		}
@@ -92,7 +92,7 @@ class GlobalParameterSync {
 
 	private boolean contains(String paramName, List<Parameter> globals) {
 		for (Parameter global : globals) {
-			if (Strings.nullOrEqual(paramName, global.getName())) {
+			if (Strings.nullOrEqual(paramName, global.name)) {
 				log.warn("a global paramater {} already exists in the "
 						+ "database and thus was not imported", paramName);
 				return true;

@@ -12,14 +12,6 @@ public abstract class CategorizedEntity extends RootEntity {
 
 	@OneToOne
 	@JoinColumn(name = "f_category")
-	private Category category;
-
-	public Category getCategory() {
-		return category;
-	}
-
-	public void setCategory(Category category) {
-		this.category = category;
-	}
+	public Category category;
 
 }

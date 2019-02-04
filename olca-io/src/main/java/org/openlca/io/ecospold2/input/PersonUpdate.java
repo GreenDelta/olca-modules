@@ -48,14 +48,14 @@ public class PersonUpdate implements Runnable {
 	}
 
 	private void updateActor(Actor actor, Person person) {
-		actor.setName(person.name);
+		actor.name = person.name;
 		actor.address = person.address;
 		actor.email = person.email;
 		actor.telefax = person.telefax;
 		actor.telephone = person.telephone;
 		if (person.company != null)
-			actor.setDescription("company: " + person.company);
-		actor.setLastChange(Calendar.getInstance().getTimeInMillis());
+			actor.description = "company: " + person.company;
+		actor.lastChange = Calendar.getInstance().getTimeInMillis();
 		Version.incUpdate(actor);
 		dao.update(actor);
 	}

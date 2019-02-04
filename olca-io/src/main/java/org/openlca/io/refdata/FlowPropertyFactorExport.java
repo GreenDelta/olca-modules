@@ -14,7 +14,7 @@ class FlowPropertyFactorExport extends AbstractExport {
 		FlowDao dao = new FlowDao(database);
 		int count = 0;
 		for (Flow flow : dao.getAll()) {
-			for (FlowPropertyFactor factor : flow.getFlowPropertyFactors()) {
+			for (FlowPropertyFactor factor : flow.flowPropertyFactors) {
 				Object[] line = createLine(flow, factor);
 				writer.write(line);
 				count++;
@@ -25,10 +25,10 @@ class FlowPropertyFactorExport extends AbstractExport {
 
 	private Object[] createLine(Flow flow, FlowPropertyFactor factor) {
 		Object[] line = new Object[3];
-		line[0] = flow.getRefId();
-		if (factor.getFlowProperty() != null)
-			line[1] = factor.getFlowProperty().getRefId();
-		line[2] = factor.getConversionFactor();
+		line[0] = flow.refId;
+		if (factor.flowProperty != null)
+			line[1] = factor.flowProperty.refId;
+		line[2] = factor.conversionFactor;
 		return line;
 	}
 

@@ -39,10 +39,10 @@ class SourceImport {
 	private void createSource(SourceDescriptor descriptor) {
 		Source srcSource = srcDao.getForId(descriptor.id);
 		Source destSource = srcSource.clone();
-		destSource.setRefId(srcSource.getRefId());
-		destSource.setCategory(refs.switchRef(srcSource.getCategory()));
+		destSource.refId = srcSource.refId;
+		destSource.category = refs.switchRef(srcSource.category);
 		destSource = destDao.insert(destSource);
-		seq.put(seq.SOURCE, srcSource.getRefId(), destSource.getId());
+		seq.put(seq.SOURCE, srcSource.refId, destSource.id);
 	}
 
 }

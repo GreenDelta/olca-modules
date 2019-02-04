@@ -14,13 +14,13 @@ class Parameters {
 
 	static Parameter create(InputParameterRow row, ParameterScope scope) {
 		Parameter p = new Parameter();
-		p.setRefId(UUID.randomUUID().toString());
-		p.setName(row.getName());
+		p.refId = UUID.randomUUID().toString();
+		p.name = row.getName();
 		p.isInputParameter = true;
 		p.scope = scope;
 		p.value = row.getValue();
 		p.formula = Double.toString(row.getValue());
-		p.setDescription(row.getComment());
+		p.description = row.getComment();
 		p.uncertainty = Uncertainties.get(row.getValue(),
 		row.getUncertainty());
 		return p;
@@ -28,10 +28,10 @@ class Parameters {
 
 	static Parameter create(CalculatedParameterRow row, ParameterScope scope) {
 		Parameter p = new Parameter();
-		p.setRefId(UUID.randomUUID().toString());
-		p.setName(row.getName());
+		p.refId = UUID.randomUUID().toString();
+		p.name = row.getName();
 		p.scope = scope;
-		p.setDescription(row.getComment());
+		p.description = row.getComment();
 		p.isInputParameter = false;
 		String expr = row.getExpression();
 		if (expr.contains("(") && expr.contains(",")) {

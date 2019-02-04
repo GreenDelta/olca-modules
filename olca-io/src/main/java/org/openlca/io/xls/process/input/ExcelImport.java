@@ -31,7 +31,7 @@ public class ExcelImport implements Runnable {
 			Workbook workbook = WorkbookFactory.create(fis);
 			Process process = new Process();
 			ProcessDocumentation doc = new ProcessDocumentation();
-			process.setDocumentation(doc);
+			process.documentation = doc;
 			Config config = new Config(workbook, database, process);
 			readSheets(config);
 			ProcessDao dao = new ProcessDao(database);

@@ -80,7 +80,7 @@ public class ModelImport {
 		CategoryImport categoryImport = new CategoryImport(config,
 				ModelType.PRODUCT_SYSTEM);
 		Category category = categoryImport.run(ClassList.sortedList(model));
-		system.setCategory(category);
+		system.category = category;
 	}
 
 	private void mapModel(Model m) throws ImportException {
@@ -131,7 +131,7 @@ public class ModelImport {
 				mapRefProcess(pi, p);
 			}
 			addParameterRedefs(pi, p);
-			system.processes.add(p.getId());
+			system.processes.add(p.id);
 			map.put(pi.id, p);
 		}
 		linker.createLinks(config.db);
@@ -143,7 +143,7 @@ public class ModelImport {
 			if (param.name == null || param.value == null)
 				continue;
 			ParameterRedef redef = new ParameterRedef();
-			redef.contextId = p.getId();
+			redef.contextId = p.id;
 			redef.contextType = ModelType.PROCESS;
 			redef.name = param.name;
 			redef.value = param.value;
@@ -155,7 +155,7 @@ public class ModelImport {
 		if (pi == null || process == null)
 			return;
 		system.referenceProcess = process;
-		Exchange qRef = process.getQuantitativeReference();
+		Exchange qRef = process.quantitativeReference;
 		if (qRef == null)
 			return;
 		system.referenceExchange = qRef;
@@ -181,21 +181,21 @@ public class ModelImport {
 		FlowDao dao = new FlowDao(config.db);
 		Map<String, Flow> m = new HashMap<>();
 		for (Flow f : dao.getForRefIds(usedFlows)) {
-			m.put(f.getRefId(), f);
+			m.put(f.refId, f);
 		}
 		return m;
 	}
 
 	private void addLink(Process out, Process in, Flow flow,
 			Integer exchangeId) {
-		boolean isWaste = flow.getFlowType() == FlowType.WASTE_FLOW;
+		boolean isWaste = flow.flowType == FlowType.WASTE_FLOW;
 		ProcessLink link = new ProcessLink();
-		link.flowId = flow.getId();
-		link.providerId = isWaste ? in.getId() : out.getId();
-		link.processId = isWaste ? out.getId() : in.getId();
+		link.flowId = flow.id;
+		link.providerId = isWaste ? in.id : out.id;
+		link.processId = isWaste ? out.id : in.id;
 		Exchange exchange = null;
 		Process linked = isWaste ? out : in;
-		for (Exchange e : linked.getExchanges()) {
+		for (Exchange e : linked.exchanges) {
 			if (e.isInput == isWaste || !Objects.equals(flow, e.flow))
 				continue;
 			exchange = e;
@@ -205,7 +205,7 @@ public class ModelImport {
 		}
 		if (exchange == null)
 			return;
-		link.exchangeId = exchange.getId();
+		link.exchangeId = exchange.id;
 		system.processLinks.add(link);
 	}
 
@@ -219,18 +219,18 @@ public class ModelImport {
 	private Process connector(Flow inFlow, Flow outFlow) {
 		Process p = new Process();
 		connectorCount++;
-		p.setName("Connector " + connectorCount);
-		p.setRefId(UUID.randomUUID().toString());
+		p.name = "Connector " + connectorCount;
+		p.refId = UUID.randomUUID().toString();
 		Exchange input = exchange(outFlow, p, true);
 		Exchange output = exchange(inFlow, p, false);
-		if (outFlow.getFlowType() == FlowType.WASTE_FLOW) {
-			p.setQuantitativeReference(input);
+		if (outFlow.flowType == FlowType.WASTE_FLOW) {
+			p.quantitativeReference = input;
 		} else {
-			p.setQuantitativeReference(output);
+			p.quantitativeReference = output;
 		}
 		ProcessDao dao = new ProcessDao(config.db);
 		p = dao.insert(p);
-		system.processes.add(p.getId());
+		system.processes.add(p.id);
 		return p;
 	}
 
@@ -241,7 +241,7 @@ public class ModelImport {
 		e.flow = flow;
 		e.flowPropertyFactor = flow.getReferenceFactor();
 		e.unit = getRefUnit(flow);
-		p.getExchanges().add(e);
+		p.exchanges.add(e);
 		return e;
 	}
 
@@ -249,12 +249,12 @@ public class ModelImport {
 		if (flow == null)
 			return null;
 		FlowPropertyFactor fpf = flow.getReferenceFactor();
-		if (fpf == null || fpf.getFlowProperty() == null)
+		if (fpf == null || fpf.flowProperty == null)
 			return null;
-		UnitGroup ug = fpf.getFlowProperty().getUnitGroup();
+		UnitGroup ug = fpf.flowProperty.unitGroup;
 		if (ug == null)
 			return null;
-		return ug.getReferenceUnit();
+		return ug.referenceUnit;
 	}
 
 }

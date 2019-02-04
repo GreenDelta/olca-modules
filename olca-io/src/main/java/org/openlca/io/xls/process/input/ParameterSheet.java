@@ -42,7 +42,7 @@ class ParameterSheet {
 		try {
 			log.trace("read parameters");
 			readGlobals();
-			List<Parameter> params = config.process.getParameters();
+			List<Parameter> params = config.process.parameters;
 			params.addAll(readParams("Input parameters",
 					ParameterScope.PROCESS, true));
 			params.addAll(readParams("Calculated parameters",
@@ -69,10 +69,10 @@ class ParameterSheet {
 		for (Parameter p : sheetParams) {
 			boolean found = false;
 			for (Parameter global : globals) {
-				String name = global.getName();
+				String name = global.name;
 				if (name == null)
 					continue;
-				if (name.equalsIgnoreCase(p.getName())) {
+				if (name.equalsIgnoreCase(p.name)) {
 					found = true;
 					break;
 				}
@@ -104,24 +104,24 @@ class ParameterSheet {
 	private Parameter readDependentParam(int row, String name,
 			ParameterScope scope) {
 		Parameter p = new Parameter();
-		p.setName(name);
+		p.name = name;
 		p.isInputParameter = false;
 		p.scope = scope;
 		p.formula = config.getString(sheet, row, 1);
 		p.value = config.getDouble(sheet, row, 2);
-		p.setDescription(config.getString(sheet, row, 3));
+		p.description = config.getString(sheet, row, 3);
 		return p;
 	}
 
 	private Parameter readInputParam(int row, String name,
 			ParameterScope scope) {
 		Parameter p = new Parameter();
-		p.setName(name);
+		p.name = name;
 		p.isInputParameter = true;
 		p.scope = scope;
 		p.value = config.getDouble(sheet, row, 1);
 		p.uncertainty = config.getUncertainty(sheet, row, 2);
-		p.setDescription(config.getString(sheet, row, 7));
+		p.description = config.getString(sheet, row, 7);
 		return p;
 	}
 

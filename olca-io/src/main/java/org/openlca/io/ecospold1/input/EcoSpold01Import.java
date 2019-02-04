@@ -93,8 +93,8 @@ public class EcoSpold01Import implements FileImport {
 	}
 
 	/**
-	 * Runs the import with a set of files (use the respective constructor of the
-	 * setter method for the files).
+	 * Runs the import with a set of files (use the respective constructor of
+	 * the setter method for the files).
 	 */
 	public void run() {
 		if (files == null || files.length == 0)
@@ -186,7 +186,7 @@ public class EcoSpold01Import implements FileImport {
 				continue;
 			}
 			actor = new Actor();
-			actor.setRefId(id);
+			actor.refId = id;
 			Mapper.mapPerson(person, actor);
 			db.put(actor, id);
 			infos.imported(actor);
@@ -202,7 +202,7 @@ public class EcoSpold01Import implements FileImport {
 				continue;
 			}
 			oSource = new Source();
-			oSource.setRefId(id);
+			oSource.refId = id;
 			Mapper.mapSource(eSource, oSource);
 			db.put(oSource, id);
 			infos.imported(oSource);
@@ -228,9 +228,9 @@ public class EcoSpold01Import implements FileImport {
 				continue;
 			}
 			loc = new Location();
-			loc.setRefId(id);
-			loc.setName(code);
-			loc.setCode(code);
+			loc.refId = id;
+			loc.name = code;
+			loc.code = code;
 			db.put(loc, id);
 			infos.imported(loc);
 		}
@@ -246,31 +246,31 @@ public class EcoSpold01Import implements FileImport {
 		}
 
 		p = new Process();
-		p.setRefId(id);
+		p.refId = id;
 		ProcessDocumentation doc = new ProcessDocumentation();
-		p.setDocumentation(doc);
+		p.documentation = doc;
 
 		IReferenceFunction refFun = ds.getReferenceFunction();
 		if (refFun != null)
 			mapReferenceFunction(refFun, p, doc);
 
-		p.setProcessType(Mapper.getProcessType(ds));
+		p.processType = Mapper.getProcessType(ds);
 		mapTimeAndGeography(ds, p, doc);
 
 		if (ds.getTechnology() != null
 				&& ds.getTechnology().getText() != null) {
-			doc.setTechnology(Strings.cut(
-					(ds.getTechnology().getText()), 65500));
+			doc.technology = Strings.cut(
+					(ds.getTechnology().getText()), 65500);
 		}
 
 		mapExchanges(ds.getExchanges(), p);
-		if (p.getQuantitativeReference() == null)
+		if (p.quantitativeReference == null)
 			createProductFromRefFun(ds, p);
 
 		if (ds.getAllocations() != null
 				&& ds.getAllocations().size() > 0) {
 			mapAllocations(p, ds.getAllocations());
-			p.setDefaultAllocationMethod(AllocationMethod.CAUSAL);
+			p.defaultAllocationMethod = AllocationMethod.CAUSAL;
 		}
 
 		Mapper.mapModellingAndValidation(ds, doc);
@@ -291,9 +291,9 @@ public class EcoSpold01Import implements FileImport {
 			String locationCode = ds.getGeography().getLocation();
 			if (locationCode != null) {
 				String genKey = KeyGen.get(locationCode);
-				p.setLocation(db.findLocation(locationCode, genKey));
+				p.location = db.findLocation(locationCode, genKey);
 			}
-			doc.setGeography(ds.getGeography().getText());
+			doc.geography = ds.getGeography().getText();
 		}
 	}
 
@@ -305,14 +305,14 @@ public class EcoSpold01Import implements FileImport {
 				actors.put(person.getNumber(), actor);
 		}
 		if (ds.getDataGeneratorAndPublication() != null)
-			doc.setDataGenerator(actors.get(ds
-					.getDataGeneratorAndPublication().getPerson()));
+			doc.dataGenerator = actors.get(ds
+					.getDataGeneratorAndPublication().getPerson());
 		if (ds.getValidation() != null)
-			doc.setReviewer(actors.get(ds.getValidation()
-					.getProofReadingValidator()));
+			doc.reviewer = actors.get(ds.getValidation()
+					.getProofReadingValidator());
 		if (ds.getDataEntryBy() != null)
-			doc.setDataDocumentor(actors.get(ds.getDataEntryBy()
-					.getPerson()));
+			doc.dataDocumentor = actors.get(ds.getDataEntryBy()
+					.getPerson());
 	}
 
 	private void mapAllocations(Process process,
@@ -330,11 +330,11 @@ public class EcoSpold01Import implements FileImport {
 					continue;
 				}
 				AllocationFactor af = new AllocationFactor();
-				af.productId = product.flow.getId();
+				af.productId = product.flow.id;
 				af.value = factor;
 				af.method = AllocationMethod.CAUSAL;
 				af.exchange = e;
-				process.getAllocationFactors().add(af);
+				process.allocationFactors.add(af);
 			}
 		}
 	}
@@ -346,15 +346,19 @@ public class EcoSpold01Import implements FileImport {
 				log.error("Could not import flow {}", inExchange);
 				continue;
 			}
-			Exchange outExchange = ioProcess.exchange(flow.flow, flow.flowProperty, flow.unit);
+			Exchange outExchange = ioProcess.exchange(flow.flow,
+					flow.flowProperty, flow.unit);
 			outExchange.isInput = inExchange.getInputGroup() != null;
-			ExchangeAmount exchangeAmount = new ExchangeAmount(outExchange, inExchange);
+			ExchangeAmount exchangeAmount = new ExchangeAmount(outExchange,
+					inExchange);
 			outExchange.description = inExchange.getGeneralComment();
 			exchangeAmount.map(flow.conversionFactor);
 			localExchangeCache.put(inExchange.getNumber(), outExchange);
-			if (ioProcess.getQuantitativeReference() == null && inExchange.getOutputGroup() != null
-					&& (inExchange.getOutputGroup() == 0 || inExchange.getOutputGroup() == 2)) {
-				ioProcess.setQuantitativeReference(outExchange);
+			if (ioProcess.quantitativeReference == null
+					&& inExchange.getOutputGroup() != null
+					&& (inExchange.getOutputGroup() == 0
+							|| inExchange.getOutputGroup() == 2)) {
+				ioProcess.quantitativeReference = outExchange;
 			}
 		}
 	}
@@ -379,21 +383,21 @@ public class EcoSpold01Import implements FileImport {
 	private ImpactCategory mapReferenceFunction(
 			IReferenceFunction inRefFunction) {
 		ImpactCategory category = new ImpactCategory();
-		category.setRefId(UUID.randomUUID().toString());
+		category.refId = UUID.randomUUID().toString();
 		String name = inRefFunction.getSubCategory();
 		if (inRefFunction.getName() != null) {
 			name = name.concat(" - ").concat(inRefFunction.getName());
 		}
-		category.setName(name);
+		category.name = name;
 		category.referenceUnit = inRefFunction.getUnit();
 		return category;
 	}
 
 	private void mapReferenceFunction(IReferenceFunction refFun,
 			Process ioProcess, ProcessDocumentation doc) {
-		ioProcess.setName(refFun.getName());
-		ioProcess.setDescription(refFun.getGeneralComment());
-		ioProcess.setInfrastructureProcess(refFun.isInfrastructureProcess());
+		ioProcess.name = refFun.getName();
+		ioProcess.description = refFun.getGeneralComment();
+		ioProcess.infrastructureProcess = refFun.isInfrastructureProcess();
 		String topCategory = refFun.getCategory();
 		String subCategory = refFun.getSubCategory();
 		Category cat = null;
@@ -402,7 +406,7 @@ public class EcoSpold01Import implements FileImport {
 		else
 			cat = db.getPutCategory(ModelType.PROCESS, topCategory,
 					subCategory);
-		ioProcess.setCategory(cat);
+		ioProcess.category = cat;
 	}
 
 	private void createProductFromRefFun(DataSet dataSet, Process ioProcess) {
@@ -411,12 +415,13 @@ public class EcoSpold01Import implements FileImport {
 			log.warn("Could not create reference flow {}", dataSet);
 			return;
 		}
-		Exchange outExchange = ioProcess.exchange(flow.flow, flow.flowProperty, flow.unit);
+		Exchange outExchange = ioProcess.exchange(flow.flow, flow.flowProperty,
+				flow.unit);
 		outExchange.isInput = false;
 		double amount = dataSet.getReferenceFunction().getAmount()
 				* flow.conversionFactor;
 		outExchange.amount = amount;
-		ioProcess.setQuantitativeReference(outExchange);
+		ioProcess.quantitativeReference = outExchange;
 	}
 
 	private void mapSources(ProcessDocumentation doc, DataSet adapter) {
@@ -425,15 +430,15 @@ public class EcoSpold01Import implements FileImport {
 			Source s = db.findSource(source, ES1KeyGen.forSource(source));
 			if (s != null) {
 				sources.put(source.getNumber(), s);
-				doc.getSources().add(s);
+				doc.sources.add(s);
 			}
 		}
 		if (adapter.getDataGeneratorAndPublication() != null
 				&& adapter.getDataGeneratorAndPublication()
 						.getReferenceToPublishedSource() != null)
-			doc.setPublication(sources.get(adapter
+			doc.publication = sources.get(adapter
 					.getDataGeneratorAndPublication()
-					.getReferenceToPublishedSource()));
+					.getReferenceToPublishedSource());
 	}
 
 	private void impactMethod(IEcoSpold es) {
@@ -450,10 +455,10 @@ public class EcoSpold01Import implements FileImport {
 		}
 
 		method = new ImpactMethod();
-		method.setRefId(methodId);
-		method.setName(dataSet.getReferenceFunction().getCategory());
-		method.setDescription(dataSet.getReferenceFunction()
-				.getGeneralComment());
+		method.refId = methodId;
+		method.name = dataSet.getReferenceFunction().getCategory();
+		method.description = dataSet.getReferenceFunction()
+				.getGeneralComment();
 		for (IDataSet adapter : es.getDataset()) {
 			dataSet = new DataSet(adapter,
 					DataSetType.IMPACT_METHOD.getFactory());

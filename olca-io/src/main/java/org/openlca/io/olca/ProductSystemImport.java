@@ -48,8 +48,8 @@ class ProductSystemImport {
 	private void copy(ProductSystemDescriptor descriptor) {
 		ProductSystem srcSystem = srcDao.getForId(descriptor.id);
 		ProductSystem destSystem = srcSystem.clone();
-		destSystem.setRefId(srcSystem.getRefId());
-		destSystem.setCategory(refs.switchRef(srcSystem.getCategory()));
+		destSystem.refId = srcSystem.refId;
+		destSystem.category = refs.switchRef(srcSystem.category);
 		destSystem.referenceProcess = refs.switchRef(srcSystem.referenceProcess);
 		switchRefExchange(srcSystem, destSystem);
 		destSystem.targetUnit = refs.switchRef(srcSystem.targetUnit);
@@ -58,7 +58,7 @@ class ProductSystemImport {
 		ProductSystemDao destDao = new ProductSystemDao(dest);
 		ProductSystemLinks.map(source, dest, destSystem);
 		destSystem = destDao.insert(destSystem);
-		seq.put(seq.PRODUCT_SYSTEM, srcSystem.getRefId(), destSystem.getId());
+		seq.put(seq.PRODUCT_SYSTEM, srcSystem.refId, destSystem.id);
 	}
 
 	private void switchRefExchange(ProductSystem srcSystem,
@@ -68,7 +68,7 @@ class ProductSystemImport {
 		if (srcExchange == null || destProcess == null)
 			return;
 		Exchange destRefExchange = null;
-		for (Exchange destExchange : destProcess.getExchanges()) {
+		for (Exchange destExchange : destProcess.exchanges) {
 			if (sameExchange(srcExchange, destExchange)) {
 				destRefExchange = destExchange;
 				break;
@@ -86,8 +86,8 @@ class ProductSystemImport {
 		Flow destFlow = destExchange.flow;
 		return srcUnit != null && destUnit != null && srcFlow != null
 				&& destFlow != null
-				&& Strings.nullOrEqual(srcUnit.getRefId(), destUnit.getRefId())
-				&& Strings.nullOrEqual(srcFlow.getRefId(), destFlow.getRefId());
+				&& Strings.nullOrEqual(srcUnit.refId, destUnit.refId)
+				&& Strings.nullOrEqual(srcFlow.refId, destFlow.refId);
 	}
 
 	private void switchRefFlowProp(ProductSystem srcSystem,

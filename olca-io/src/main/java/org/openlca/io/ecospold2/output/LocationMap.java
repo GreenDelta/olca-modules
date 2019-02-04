@@ -47,16 +47,16 @@ class LocationMap {
 			ds.description = new ActivityDescription();
 		Geography geo = new Geography();
 		ds.description.geography = geo;
-		if (p.getDocumentation() != null)
-			geo.comment = RichText.of(p.getDocumentation().getGeography());
-		if (p.getLocation() == null)
+		if (p.documentation != null)
+			geo.comment = RichText.of(p.documentation.geography);
+		if (p.location == null)
 			setDefaultLocation(geo);
 		else
-			tryMapLocation(p.getLocation(), geo);
+			tryMapLocation(p.location, geo);
 	}
 
 	private void tryMapLocation(Location location, Geography geography) {
-		ExportRecord record = map.get(location.getRefId());
+		ExportRecord record = map.get(location.refId);
 		if (record == null) {
 			log.warn("location {} is not a valid EcoSpold 2 location; set "
 					+ "default location to GLO");

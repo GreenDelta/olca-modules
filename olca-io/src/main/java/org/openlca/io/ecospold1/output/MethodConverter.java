@@ -36,8 +36,8 @@ class MethodConverter {
 			Util.setDataSetAttributes(dataSet, method);
 			mapLCIACategory(category, dataSet);
 			IReferenceFunction refFun = dataSet.getReferenceFunction();
-			refFun.setCategory(method.getName());
-			refFun.setGeneralComment(method.getDescription());
+			refFun.setCategory(method.name);
+			refFun.setGeneralComment(method.description);
 			ecoSpold.getDataset().add(iDataSet);
 		}
 		return ecoSpold;
@@ -46,7 +46,7 @@ class MethodConverter {
 	private void mapLCIACategory(ImpactCategory category, DataSet dataSet) {
 		IReferenceFunction refFun = factory.createReferenceFunction();
 		dataSet.setReferenceFunction(refFun);
-		String subCategory = category.getName();
+		String subCategory = category.name;
 		String name = null;
 		if (subCategory.contains("-")) {
 			String[] parts = subCategory.split("-", 2);
@@ -64,11 +64,11 @@ class MethodConverter {
 	private IExchange mapLCIAFactor(ImpactFactor factor) {
 		IExchange exchange = factory.createExchange();
 		Flow flow = factor.flow;
-		exchange.setNumber((int) flow.getId());
-		Categories.map(factor.flow.getCategory(), exchange, config);
+		exchange.setNumber((int) flow.id);
+		Categories.map(factor.flow.category, exchange, config);
 		Util.mapFlowInformation(exchange, factor.flow);
-		exchange.setUnit(factor.unit.getName());
-		exchange.setName(factor.flow.getName());
+		exchange.setUnit(factor.unit.name);
+		exchange.setName(factor.flow.name);
 		exchange.setMeanValue(factor.value);
 		return exchange;
 	}

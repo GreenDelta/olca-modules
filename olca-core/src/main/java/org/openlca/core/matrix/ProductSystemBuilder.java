@@ -131,17 +131,17 @@ public class ProductSystemBuilder {
 			return null;
 		try {
 			ProductSystemDao dao = new ProductSystemDao(database);
-			if (system.getId() == 0L) {
+			if (system.id == 0L) {
 				log.trace("ID == 0 -> save as new product system");
 				return dao.insert(system);
 			}
 			log.trace("update product system tables");
-			cleanTables(system.getId());
+			cleanTables(system.id);
 			insertLinks(system);
 			insertProcesses(system);
 			log.trace("reload system");
 			database.getEntityFactory().getCache().evict(ProductSystem.class);
-			return dao.getForId(system.getId());
+			return dao.getForId(system.id);
 		} catch (Exception e) {
 			log.error("failed to update database", e);
 			return null;
@@ -167,7 +167,7 @@ public class ProductSystemBuilder {
 		NativeSql.on(database).batchInsert(stmt, links.size(),
 				(int i, PreparedStatement ps) -> {
 					ProcessLink link = links.get(i);
-					ps.setLong(1, system.getId());
+					ps.setLong(1, system.id);
 					ps.setLong(2, link.providerId);
 					ps.setLong(3, link.processId);
 					ps.setLong(4, link.flowId);
@@ -184,7 +184,7 @@ public class ProductSystemBuilder {
 				+ "f_product_system, f_process) values (?, ?)";
 		NativeSql.on(database).batchInsert(stmt, ids.length,
 				(int i, PreparedStatement ps) -> {
-					ps.setLong(1, system.getId());
+					ps.setLong(1, system.id);
 					ps.setLong(2, ids[i]);
 					return true;
 				});

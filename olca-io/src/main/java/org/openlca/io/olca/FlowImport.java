@@ -40,19 +40,18 @@ class FlowImport {
 	private void createFlow(FlowDescriptor descriptor) {
 		Flow srcFlow = sourceDao.getForId(descriptor.id);
 		Flow destFlow = srcFlow.clone();
-		destFlow.setRefId(srcFlow.getRefId());
-		destFlow.setCategory(refs.switchRef(srcFlow.getCategory()));
-		destFlow.setLocation(refs.switchRef(srcFlow.getLocation()));
+		destFlow.refId = srcFlow.refId;
+		destFlow.category = refs.switchRef(srcFlow.category);
+		destFlow.location = refs.switchRef(srcFlow.location);
 		switchFlowProperties(srcFlow, destFlow);
 		destFlow = destDao.insert(destFlow);
-		seq.put(seq.FLOW, srcFlow.getRefId(), destFlow.getId());
+		seq.put(seq.FLOW, srcFlow.refId, destFlow.id);
 	}
 
 	private void switchFlowProperties(Flow srcFlow, Flow destFlow) {
-		destFlow.setReferenceFlowProperty(refs.switchRef(srcFlow
-				.getReferenceFlowProperty()));
-		for (FlowPropertyFactor fac : destFlow.getFlowPropertyFactors()) {
-			fac.setFlowProperty(refs.switchRef(fac.getFlowProperty()));
+		destFlow.referenceFlowProperty = refs.switchRef(srcFlow.referenceFlowProperty);
+		for (FlowPropertyFactor fac : destFlow.flowPropertyFactors) {
+			fac.flowProperty = refs.switchRef(fac.flowProperty);
 		}
 	}
 

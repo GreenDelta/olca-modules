@@ -48,7 +48,7 @@ class ProcessParameterConversion {
 	private List<org.openlca.ilcd.processes.Parameter> processParams(
 			Process process) {
 		List<org.openlca.ilcd.processes.Parameter> iParameters = new ArrayList<>();
-		for (Parameter oParam : process.getParameters()) {
+		for (Parameter oParam : process.parameters) {
 			if (!valid(oParam))
 				continue;
 			org.openlca.ilcd.processes.Parameter iParam = convertParam(oParam);
@@ -60,18 +60,18 @@ class ProcessParameterConversion {
 
 	private org.openlca.ilcd.processes.Parameter convertParam(Parameter oParam) {
 		org.openlca.ilcd.processes.Parameter iParameter = new org.openlca.ilcd.processes.Parameter();
-		iParameter.name = oParam.getName();
+		iParameter.name = oParam.name;
 		iParameter.formula = oParam.formula;
 		iParameter.mean = oParam.value;
 		new UncertaintyConverter().map(oParam, iParameter);
-		if (Strings.notEmpty(oParam.getDescription())) {
-			LangString.set(iParameter.comment, oParam.getDescription(), config.lang);
+		if (Strings.notEmpty(oParam.description)) {
+			LangString.set(iParameter.comment, oParam.description, config.lang);
 		}
 		return iParameter;
 	}
 
 	private boolean valid(Parameter param) {
-		if (param == null || Strings.nullOrEmpty(param.getName()))
+		if (param == null || Strings.nullOrEmpty(param.name))
 			return false;
 		return true;
 	}

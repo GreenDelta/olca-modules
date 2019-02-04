@@ -24,8 +24,8 @@ public class UnitGroupTest extends AbstractZipTest {
 
 	private UnitGroup createModel(UnitGroupDao dao) {
 		UnitGroup group = new UnitGroup();
-		group.setName("group");
-		group.setRefId(UUID.randomUUID().toString());
+		group.name = "group";
+		group.refId = UUID.randomUUID().toString();
 		dao.insert(group);
 		return group;
 	}
@@ -36,7 +36,7 @@ public class UnitGroupTest extends AbstractZipTest {
 			export.write(group);
 		});
 		dao.delete(group);
-		Assert.assertFalse(dao.contains(group.getRefId()));
+		Assert.assertFalse(dao.contains(group.refId));
 	}
 
 	private void doImport(UnitGroupDao dao, UnitGroup group) {
@@ -44,8 +44,8 @@ public class UnitGroupTest extends AbstractZipTest {
 			JsonImport jImport = new JsonImport(zip, Tests.getDb());
 			jImport.run();
 		});
-		Assert.assertTrue(dao.contains(group.getRefId()));
-		UnitGroup clone = dao.getForRefId(group.getRefId());
-		Assert.assertEquals(group.getName(), clone.getName());
+		Assert.assertTrue(dao.contains(group.refId));
+		UnitGroup clone = dao.getForRefId(group.refId);
+		Assert.assertEquals(group.name, clone.name);
 	}
 }

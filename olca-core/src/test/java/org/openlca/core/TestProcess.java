@@ -42,10 +42,10 @@ public class TestProcess {
 			String unit) {
 		TestProcess tp = new TestProcess();
 		tp.process = new Process();
-		tp.process.setRefId(UUID.randomUUID().toString());
-		tp.process.setName(flow);
+		tp.process.refId = UUID.randomUUID().toString();
+		tp.process.name = flow;
 		tp.prodOut(flow, amount, unit);
-		tp.process.setQuantitativeReference(tp.process.getExchanges().get(0));
+		tp.process.quantitativeReference = tp.process.exchanges.get(0);
 		return tp;
 	}
 
@@ -56,10 +56,10 @@ public class TestProcess {
 			String unit) {
 		TestProcess tp = new TestProcess();
 		tp.process = new Process();
-		tp.process.setRefId(UUID.randomUUID().toString());
-		tp.process.setName(flow);
+		tp.process.refId = UUID.randomUUID().toString();
+		tp.process.name = flow;
 		tp.wasteIn(flow, amount, unit);
-		tp.process.setQuantitativeReference(tp.process.getExchanges().get(0));
+		tp.process.quantitativeReference = tp.process.exchanges.get(0);
 		return tp;
 	}
 
@@ -77,9 +77,9 @@ public class TestProcess {
 	}
 
 	public TestProcess addCosts(String flow, double amount, String currency) {
-		for (Exchange e : process.getExchanges()) {
+		for (Exchange e : process.exchanges) {
 			Flow f = e.flow;
-			if (f == null || !Strings.nullOrEqual(f.getName(), flow))
+			if (f == null || !Strings.nullOrEqual(f.name, flow))
 				continue;
 			e.currency = currency(currency);
 			e.costs = amount;
@@ -135,9 +135,9 @@ public class TestProcess {
 		AllocationFactor f = new AllocationFactor();
 		f.method = method;
 		Exchange e = findExchange(process, flow);
-		f.productId = e.flow.getId();
+		f.productId = e.flow.id;
 		f.value = factor;
-		process.getAllocationFactors().add(f);
+		process.allocationFactors.add(f);
 		return this;
 	}
 
@@ -149,19 +149,19 @@ public class TestProcess {
 		AllocationFactor f = new AllocationFactor();
 		f.method = AllocationMethod.CAUSAL;
 		Exchange e = findExchange(process, product);
-		f.productId = e.flow.getId();
+		f.productId = e.flow.id;
 		f.value = factor;
 		f.exchange = findExchange(process, flow);
-		process.getAllocationFactors().add(f);
+		process.allocationFactors.add(f);
 		return this;
 	}
 
 	public static Exchange findExchange(Process p, String flow) {
 		Exchange exchange = null;
-		for (Exchange e : p.getExchanges()) {
+		for (Exchange e : p.exchanges) {
 			if (e.flow == null)
 				continue;
-			if (Objects.equals(e.flow.getName(), flow)) {
+			if (Objects.equals(e.flow.name, flow)) {
 				exchange = e;
 				break;
 			}
@@ -172,7 +172,7 @@ public class TestProcess {
 	private Exchange prepareExchange(FlowType flowType, String flow,
 			double amount, String unit) {
 		Flow f = flow(flow, unit, flowType);
-		Exchange e = process.exchange(f, f.getReferenceFlowProperty(),
+		Exchange e = process.exchange(f, f.referenceFlowProperty,
 				unit(unit));
 		e.amount = amount;
 		return e;
@@ -185,15 +185,15 @@ public class TestProcess {
 		if (flow != null)
 			return flow;
 		flow = new Flow();
-		flow.setName(name);
-		flow.setRefId(flowId);
-		flow.setFlowType(type);
+		flow.name = name;
+		flow.refId = flowId;
+		flow.flowType = type;
 		FlowProperty property = propertyForUnit(unit);
 		FlowPropertyFactor factor = new FlowPropertyFactor();
-		factor.setFlowProperty(property);
-		factor.setConversionFactor(1);
-		flow.getFlowPropertyFactors().add(factor);
-		flow.setReferenceFlowProperty(property);
+		factor.flowProperty = property;
+		factor.conversionFactor = (double) 1;
+		flow.flowPropertyFactors.add(factor);
+		flow.referenceFlowProperty = property;
 		return dao.insert(flow);
 	}
 
@@ -204,11 +204,11 @@ public class TestProcess {
 		if (prop != null)
 			return prop;
 		prop = new FlowProperty();
-		prop.setName("Flow property for " + unit);
-		prop.setFlowPropertyType(FlowPropertyType.PHYSICAL);
-		prop.setRefId(refId);
+		prop.name = "Flow property for " + unit;
+		prop.flowPropertyType = FlowPropertyType.PHYSICAL;
+		prop.refId = refId;
 		UnitGroup group = groupForUnit(unit);
-		prop.setUnitGroup(group);
+		prop.unitGroup = group;
 		return dao.insert(prop);
 	}
 
@@ -219,7 +219,7 @@ public class TestProcess {
 		if (unit != null)
 			return unit;
 		UnitGroup group = groupForUnit(name);
-		return group.getReferenceUnit();
+		return group.referenceUnit;
 	}
 
 	private UnitGroup groupForUnit(String unit) {
@@ -229,15 +229,15 @@ public class TestProcess {
 		if (group != null)
 			return group;
 		group = new UnitGroup();
-		group.setName("Unit group of " + unit);
-		group.setRefId(groupId);
+		group.name = "Unit group of " + unit;
+		group.refId = groupId;
 		String unitId = KeyGen.get("unit", unit);
 		Unit refUnit = new Unit();
-		refUnit.setRefId(unitId);
-		refUnit.setName(unit);
-		refUnit.setConversionFactor(1.0);
-		group.getUnits().add(refUnit);
-		group.setReferenceUnit(refUnit);
+		refUnit.refId = unitId;
+		refUnit.name = unit;
+		refUnit.conversionFactor = 1.0;
+		group.units.add(refUnit);
+		group.referenceUnit = refUnit;
 		return dao.insert(group);
 	}
 
@@ -248,8 +248,8 @@ public class TestProcess {
 		if (currency != null)
 			return currency;
 		currency = new Currency();
-		currency.setRefId(currencyId);
-		currency.setName(name);
+		currency.refId = currencyId;
+		currency.name = name;
 		currency.conversionFactor = 1;
 		Currency ref = dao.getReferenceCurrency();
 		if (ref != null)

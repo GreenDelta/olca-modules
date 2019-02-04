@@ -95,10 +95,10 @@ public class BaseDaoTest {
 		testUsage(instance);
 		dao.update(instance);
 		Tests.emptyCache();
-		T alias = dao.getForId(instance.getId());
+		T alias = dao.getForId(instance.id);
 		Assert.assertEquals(alias, instance);
 		dao.delete(instance);
-		Assert.assertNull(dao.getForId(instance.getId()));
+		Assert.assertNull(dao.getForId(instance.id));
 	}
 
 	private <T extends AbstractEntity> void testUsage(T instance) {

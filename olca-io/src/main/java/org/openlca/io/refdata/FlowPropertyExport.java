@@ -23,15 +23,15 @@ class FlowPropertyExport extends AbstractExport {
 
 	private Object[] createLine(FlowProperty property) {
 		Object[] line = new Object[6];
-		line[0] = property.getRefId();
-		line[1] = property.getName();
-		line[2] = property.getDescription();
-		if (property.getCategory() != null)
-			line[3] = property.getCategory().getRefId();
-		if (property.getUnitGroup() != null)
-			line[4] = property.getUnitGroup().getRefId();
-		if (property.getFlowPropertyType() != null) {
-			int type = property.getFlowPropertyType().ordinal();
+		line[0] = property.refId;
+		line[1] = property.name;
+		line[2] = property.description;
+		if (property.category != null)
+			line[3] = property.category.refId;
+		if (property.unitGroup != null)
+			line[4] = property.unitGroup.refId;
+		if (property.flowPropertyType != null) {
+			int type = property.flowPropertyType.ordinal();
 			line[5] = type;
 		}
 		return line;

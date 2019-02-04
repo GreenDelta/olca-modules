@@ -28,21 +28,21 @@ public class ParameterTest extends AbstractZipTest {
 			export.write(p);
 		});
 		dao.delete(p);
-		Assert.assertFalse(dao.contains(p.getRefId()));
+		Assert.assertFalse(dao.contains(p.refId));
 		with(zip -> {
 			JsonImport jImport = new JsonImport(zip, Tests.getDb());
 			jImport.run();
 		});
-		Assert.assertTrue(dao.contains(p.getRefId()));
+		Assert.assertTrue(dao.contains(p.refId));
 		dao.delete(p);
 	}
 
 	@Test
 	public void testProcess() throws Exception {
 		Process process = new Process();
-		process.setRefId(UUID.randomUUID().toString());
+		process.refId = UUID.randomUUID().toString();
 		Parameter param = createParam(ParameterScope.PROCESS);
-		process.getParameters().add(param);
+		process.parameters.add(param);
 		ProcessDao dao = new ProcessDao(Tests.getDb());
 		dao.insert(process);
 		with(zip -> {
@@ -54,15 +54,15 @@ public class ParameterTest extends AbstractZipTest {
 			JsonImport jImport = new JsonImport(zip, Tests.getDb());
 			jImport.run();
 		});
-		Process clone = dao.getForRefId(process.getRefId());
-		Assert.assertEquals(param.getRefId(),
-				clone.getParameters().get(0).getRefId());
+		Process clone = dao.getForRefId(process.refId);
+		Assert.assertEquals(param.refId,
+				clone.parameters.get(0).refId);
 	}
 
 	@Test
 	public void testImpactMethod() throws Exception {
 		ImpactMethod method = new ImpactMethod();
-		method.setRefId(UUID.randomUUID().toString());
+		method.refId = UUID.randomUUID().toString();
 		Parameter param = createParam(ParameterScope.IMPACT_METHOD);
 		method.parameters.add(param);
 		ImpactMethodDao dao = new ImpactMethodDao(Tests.getDb());
@@ -76,15 +76,15 @@ public class ParameterTest extends AbstractZipTest {
 			JsonImport jImport = new JsonImport(zip, Tests.getDb());
 			jImport.run();
 		});
-		ImpactMethod clone = dao.getForRefId(method.getRefId());
-		Assert.assertEquals(param.getRefId(),
-				clone.parameters.get(0).getRefId());
+		ImpactMethod clone = dao.getForRefId(method.refId);
+		Assert.assertEquals(param.refId,
+				clone.parameters.get(0).refId);
 	}
 
 	private Parameter createParam(ParameterScope scope) {
 		Parameter param = new Parameter();
-		param.setRefId(UUID.randomUUID().toString());
-		param.setName("param");
+		param.refId = UUID.randomUUID().toString();
+		param.name = "param";
 		param.scope = scope;
 		param.value = (double) 42;
 		param.isInputParameter = false;

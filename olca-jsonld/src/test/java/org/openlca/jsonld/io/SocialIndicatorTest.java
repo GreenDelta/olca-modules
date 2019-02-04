@@ -24,8 +24,8 @@ public class SocialIndicatorTest extends AbstractZipTest {
 
 	private SocialIndicator createModel(SocialIndicatorDao dao) {
 		SocialIndicator indicator = new SocialIndicator();
-		indicator.setName("indicator");
-		indicator.setRefId(UUID.randomUUID().toString());
+		indicator.name = "indicator";
+		indicator.refId = UUID.randomUUID().toString();
 		dao.insert(indicator);
 		return indicator;
 	}
@@ -36,7 +36,7 @@ public class SocialIndicatorTest extends AbstractZipTest {
 			export.write(indicator);
 		});
 		dao.delete(indicator);
-		Assert.assertFalse(dao.contains(indicator.getRefId()));
+		Assert.assertFalse(dao.contains(indicator.refId));
 	}
 
 	private void doImport(SocialIndicatorDao dao, SocialIndicator indicator) {
@@ -44,8 +44,8 @@ public class SocialIndicatorTest extends AbstractZipTest {
 			JsonImport jImport = new JsonImport(zip, Tests.getDb());
 			jImport.run();
 		});
-		Assert.assertTrue(dao.contains(indicator.getRefId()));
-		SocialIndicator clone = dao.getForRefId(indicator.getRefId());
-		Assert.assertEquals(indicator.getName(), clone.getName());
+		Assert.assertTrue(dao.contains(indicator.refId));
+		SocialIndicator clone = dao.getForRefId(indicator.refId);
+		Assert.assertEquals(indicator.name, clone.name);
 	}
 }

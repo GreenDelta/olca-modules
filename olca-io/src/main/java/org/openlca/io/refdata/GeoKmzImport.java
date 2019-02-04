@@ -136,25 +136,25 @@ public class GeoKmzImport {
 
 	private void insert(Loc loc) {
 		Location location = new Location();
-		location.setName(loc.name);
+		location.name = loc.name;
 		if (Strings.isNullOrEmpty(loc.shortName))
-			location.setRefId(UUID.randomUUID().toString());
+			location.refId = UUID.randomUUID().toString();
 		else
-			location.setRefId(KeyGen.get(loc.shortName));
-		location.setCode(loc.shortName);
-		location.setLongitude(loc.longitude);
-		location.setLatitude(loc.latitude);
-		location.setKmz(loc.kmz);
+			location.refId = KeyGen.get(loc.shortName);
+		location.code = loc.shortName;
+		location.longitude = loc.longitude;
+		location.latitude = loc.latitude;
+		location.kmz = loc.kmz;
 		dao.insert(location);
 		log.trace("New location added {}", loc.name);
 	}
 
 	private void update(Location location, byte[] kmz) {
-		location.setKmz(kmz);
-		location.setLastChange(Calendar.getInstance().getTimeInMillis());
+		location.kmz = kmz;
+		location.lastChange = Calendar.getInstance().getTimeInMillis();
 		Version.incUpdate(location);
 		dao.update(location);
-		log.trace("KML in location {} updated", location.getName());
+		log.trace("KML in location {} updated", location.name);
 	}
 
 	private byte[] getKmz(XMLStreamReader reader) {

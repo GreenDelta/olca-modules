@@ -39,10 +39,10 @@ class FlowPropertyImport {
 	private void createFlowProperty(FlowPropertyDescriptor descriptor) {
 		FlowProperty srcProp = sourceDao.getForId(descriptor.id);
 		FlowProperty destProp = srcProp.clone();
-		destProp.setRefId(srcProp.getRefId());
-		destProp.setUnitGroup(refs.switchRef(srcProp.getUnitGroup()));
-		destProp.setCategory(refs.switchRef(srcProp.getCategory()));
+		destProp.refId = srcProp.refId;
+		destProp.unitGroup = refs.switchRef(srcProp.unitGroup);
+		destProp.category = refs.switchRef(srcProp.category);
 		destProp = destDao.insert(destProp);
-		seq.put(seq.FLOW_PROPERTY, srcProp.getRefId(), destProp.getId());
+		seq.put(seq.FLOW_PROPERTY, srcProp.refId, destProp.id);
 	}
 }

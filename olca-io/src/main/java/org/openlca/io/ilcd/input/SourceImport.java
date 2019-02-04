@@ -80,22 +80,22 @@ public class SourceImport {
 	}
 
 	private void setDescriptionAttributes() {
-		source.setRefId(ilcdSource.getId());
-		source.setName(ilcdSource.getShortName());
-		source.setDescription(ilcdSource.getComment());
+		source.refId = ilcdSource.getId();
+		source.name = ilcdSource.getShortName();
+		source.description = ilcdSource.getComment();
 		source.textReference = ilcdSource.getSourceCitation();
 		String v = ilcdSource.getVersion();
-		source.setVersion(Version.fromString(v).getValue());
+		source.version = Version.fromString(v).getValue();
 		Date time = ilcdSource.getTimeStamp();
 		if (time != null)
-			source.setLastChange(time.getTime());
+			source.lastChange = time.getTime();
 	}
 
 	private void importAndSetCategory() throws ImportException {
 		CategoryImport categoryImport = new CategoryImport(config,
 				ModelType.SOURCE);
 		Category category = categoryImport.run(ilcdSource.getSortedClasses());
-		source.setCategory(category);
+		source.category = category;
 	}
 
 	private void importExternalFile() {
@@ -114,7 +114,7 @@ public class SourceImport {
 
 	private void copyFile(File dbDir, String uri) throws Exception {
 		String fileName = new File(uri).getName();
-		String path = FileStore.getPath(ModelType.SOURCE, source.getRefId());
+		String path = FileStore.getPath(ModelType.SOURCE, source.refId);
 		File docDir = new File(dbDir, path);
 		if (!docDir.exists())
 			docDir.mkdirs();
@@ -135,7 +135,7 @@ public class SourceImport {
 			new SourceDao(config.db).insert(source);
 		} catch (Exception e) {
 			String message = String.format(
-					"Cannot save source %s in database.", source.getRefId());
+					"Cannot save source %s in database.", source.refId);
 			throw new ImportException(message, e);
 		}
 	}

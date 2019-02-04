@@ -39,8 +39,8 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		with((store) -> {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(p2);
-			assertTrue(store.contains(ModelType.PARAMETER, p1.getRefId()));
-			assertTrue(store.contains(ModelType.PARAMETER, p2.getRefId()));
+			assertTrue(store.contains(ModelType.PARAMETER, p1.refId));
+			assertTrue(store.contains(ModelType.PARAMETER, p2.refId));
 		});
 	}
 
@@ -55,10 +55,10 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		with((store) -> {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(p4);
-			assertTrue(store.contains(ModelType.PARAMETER, p1.getRefId()));
-			assertTrue(store.contains(ModelType.PARAMETER, p2.getRefId()));
-			assertFalse(store.contains(ModelType.PARAMETER, p3.getRefId()));
-			assertTrue(store.contains(ModelType.PARAMETER, p4.getRefId()));
+			assertTrue(store.contains(ModelType.PARAMETER, p1.refId));
+			assertTrue(store.contains(ModelType.PARAMETER, p2.refId));
+			assertFalse(store.contains(ModelType.PARAMETER, p3.refId));
+			assertTrue(store.contains(ModelType.PARAMETER, p4.refId));
 		});
 	}
 
@@ -75,11 +75,11 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		with((store) -> {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(process);
-			assertTrue(store.contains(ModelType.PROCESS, process.getRefId()));
-			assertFalse(store.contains(ModelType.PARAMETER, p1.getRefId()));
+			assertTrue(store.contains(ModelType.PROCESS, process.refId));
+			assertFalse(store.contains(ModelType.PARAMETER, p1.refId));
 			assertFalse(store
-					.contains(ModelType.PARAMETER, p1Intern.getRefId()));
-			assertTrue(store.contains(ModelType.PARAMETER, p2.getRefId()));
+					.contains(ModelType.PARAMETER, p1Intern.refId));
+			assertTrue(store.contains(ModelType.PARAMETER, p2.refId));
 		});
 	}
 
@@ -98,11 +98,11 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		with((store) -> {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(process);
-			assertTrue(store.contains(ModelType.PROCESS, process.getRefId()));
-			assertFalse(store.contains(ModelType.PARAMETER, p1.getRefId()));
+			assertTrue(store.contains(ModelType.PROCESS, process.refId));
+			assertFalse(store.contains(ModelType.PARAMETER, p1.refId));
 			assertFalse(store
-					.contains(ModelType.PARAMETER, p1Intern.getRefId()));
-			assertTrue(store.contains(ModelType.PARAMETER, p2.getRefId()));
+					.contains(ModelType.PARAMETER, p1Intern.refId));
+			assertTrue(store.contains(ModelType.PARAMETER, p2.refId));
 		});
 	}
 
@@ -119,13 +119,13 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		with((store) -> {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(process);
-			assertTrue(store.contains(ModelType.PROCESS, process.getRefId()));
-			assertFalse(store.contains(ModelType.PARAMETER, p1.getRefId()));
+			assertTrue(store.contains(ModelType.PROCESS, process.refId));
+			assertFalse(store.contains(ModelType.PARAMETER, p1.refId));
 			assertFalse(store
-					.contains(ModelType.PARAMETER, p1Global.getRefId()));
-			assertFalse(store.contains(ModelType.PARAMETER, p2.getRefId()));
-			assertTrue(store.contains(ModelType.PARAMETER, p3Global.getRefId()));
-			assertTrue(store.contains(ModelType.PARAMETER, p4Global.getRefId()));
+					.contains(ModelType.PARAMETER, p1Global.refId));
+			assertFalse(store.contains(ModelType.PARAMETER, p2.refId));
+			assertTrue(store.contains(ModelType.PARAMETER, p3Global.refId));
+			assertTrue(store.contains(ModelType.PARAMETER, p4Global.refId));
 		});
 	}
 
@@ -145,14 +145,14 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		with((store) -> {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(process);
-			assertTrue(store.contains(ModelType.PROCESS, process.getRefId()));
-			assertFalse(store.contains(ModelType.PARAMETER, p1.getRefId()));
+			assertTrue(store.contains(ModelType.PROCESS, process.refId));
+			assertFalse(store.contains(ModelType.PARAMETER, p1.refId));
 			assertFalse(store
-					.contains(ModelType.PARAMETER, p1Intern.getRefId()));
-			assertFalse(store.contains(ModelType.PARAMETER, p2.getRefId()));
+					.contains(ModelType.PARAMETER, p1Intern.refId));
+			assertFalse(store.contains(ModelType.PARAMETER, p2.refId));
 			assertFalse(store
-					.contains(ModelType.PARAMETER, p2Intern.getRefId()));
-			assertTrue(store.contains(ModelType.PARAMETER, p3.getRefId()));
+					.contains(ModelType.PARAMETER, p2Intern.refId));
+			assertTrue(store.contains(ModelType.PARAMETER, p3.refId));
 		});
 	}
 
@@ -170,11 +170,11 @@ public class ParameterReferencesTest extends AbstractZipTest {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(method);
 			assertTrue(store.contains(ModelType.IMPACT_METHOD,
-					method.getRefId()));
-			assertFalse(store.contains(ModelType.PARAMETER, p1.getRefId()));
+					method.refId));
+			assertFalse(store.contains(ModelType.PARAMETER, p1.refId));
 			assertFalse(store
-					.contains(ModelType.PARAMETER, p1Intern.getRefId()));
-			assertTrue(store.contains(ModelType.PARAMETER, p2.getRefId()));
+					.contains(ModelType.PARAMETER, p1Intern.refId));
+			assertTrue(store.contains(ModelType.PARAMETER, p2.refId));
 		});
 	}
 
@@ -194,11 +194,11 @@ public class ParameterReferencesTest extends AbstractZipTest {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(method);
 			assertTrue(store.contains(ModelType.IMPACT_METHOD,
-					method.getRefId()));
-			assertFalse(store.contains(ModelType.PARAMETER, p1.getRefId()));
+					method.refId));
+			assertFalse(store.contains(ModelType.PARAMETER, p1.refId));
 			assertFalse(store
-					.contains(ModelType.PARAMETER, p1Intern.getRefId()));
-			assertTrue(store.contains(ModelType.PARAMETER, p2.getRefId()));
+					.contains(ModelType.PARAMETER, p1Intern.refId));
+			assertTrue(store.contains(ModelType.PARAMETER, p2.refId));
 		});
 	}
 
@@ -217,13 +217,13 @@ public class ParameterReferencesTest extends AbstractZipTest {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(method);
 			assertTrue(store.contains(ModelType.IMPACT_METHOD,
-					method.getRefId()));
-			assertFalse(store.contains(ModelType.PARAMETER, p1.getRefId()));
+					method.refId));
+			assertFalse(store.contains(ModelType.PARAMETER, p1.refId));
 			assertFalse(store
-					.contains(ModelType.PARAMETER, p1Global.getRefId()));
-			assertFalse(store.contains(ModelType.PARAMETER, p2.getRefId()));
-			assertTrue(store.contains(ModelType.PARAMETER, p3Global.getRefId()));
-			assertTrue(store.contains(ModelType.PARAMETER, p4Global.getRefId()));
+					.contains(ModelType.PARAMETER, p1Global.refId));
+			assertFalse(store.contains(ModelType.PARAMETER, p2.refId));
+			assertTrue(store.contains(ModelType.PARAMETER, p3Global.refId));
+			assertTrue(store.contains(ModelType.PARAMETER, p4Global.refId));
 		});
 	}
 
@@ -244,14 +244,14 @@ public class ParameterReferencesTest extends AbstractZipTest {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(method);
 			assertTrue(store.contains(ModelType.IMPACT_METHOD,
-					method.getRefId()));
-			assertFalse(store.contains(ModelType.PARAMETER, p1.getRefId()));
+					method.refId));
+			assertFalse(store.contains(ModelType.PARAMETER, p1.refId));
 			assertFalse(store
-					.contains(ModelType.PARAMETER, p1Intern.getRefId()));
-			assertFalse(store.contains(ModelType.PARAMETER, p2.getRefId()));
+					.contains(ModelType.PARAMETER, p1Intern.refId));
+			assertFalse(store.contains(ModelType.PARAMETER, p2.refId));
 			assertFalse(store
-					.contains(ModelType.PARAMETER, p2Intern.getRefId()));
-			assertTrue(store.contains(ModelType.PARAMETER, p3.getRefId()));
+					.contains(ModelType.PARAMETER, p2Intern.refId));
+			assertTrue(store.contains(ModelType.PARAMETER, p3.refId));
 		});
 	}
 
@@ -266,9 +266,9 @@ public class ParameterReferencesTest extends AbstractZipTest {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(system);
 			assertTrue(store.contains(ModelType.PRODUCT_SYSTEM,
-					system.getRefId()));
-			assertTrue(store.contains(ModelType.PARAMETER, p1.getRefId()));
-			assertFalse(store.contains(ModelType.PARAMETER, p2.getRefId()));
+					system.refId));
+			assertTrue(store.contains(ModelType.PARAMETER, p1.refId));
+			assertFalse(store.contains(ModelType.PARAMETER, p2.refId));
 		});
 	}
 
@@ -282,16 +282,16 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		with((store) -> {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(project);
-			assertTrue(store.contains(ModelType.PROJECT, project.getRefId()));
-			assertTrue(store.contains(ModelType.PARAMETER, p1.getRefId()));
-			assertFalse(store.contains(ModelType.PARAMETER, p2.getRefId()));
+			assertTrue(store.contains(ModelType.PROJECT, project.refId));
+			assertTrue(store.contains(ModelType.PARAMETER, p1.refId));
+			assertFalse(store.contains(ModelType.PARAMETER, p2.refId));
 		});
 	}
 
 	private Parameter createParameter(String name, String formula,
 			ParameterScope scope, Uncertainty u) {
 		Parameter p = new Parameter();
-		p.setName(name);
+		p.name = name;
 		p.value = (double) 1;
 		if (formula != null) {
 			p.isInputParameter = false;
@@ -302,7 +302,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 			p.scope = scope;
 		else
 			p.scope = ParameterScope.GLOBAL;
-		p.setRefId(UUID.randomUUID().toString());
+		p.refId = UUID.randomUUID().toString();
 		p.uncertainty = u;
 		if (p.scope != ParameterScope.GLOBAL)
 			return p;
@@ -333,13 +333,13 @@ public class ParameterReferencesTest extends AbstractZipTest {
 
 	private Process createProcess(Exchange[] exchanges, Parameter[] parameters) {
 		Process p = new Process();
-		p.setRefId(UUID.randomUUID().toString());
+		p.refId = UUID.randomUUID().toString();
 		if (parameters != null)
 			for (Parameter param : parameters)
-				p.getParameters().add(param);
+				p.parameters.add(param);
 		if (exchanges != null)
 			for (Exchange e : exchanges)
-				p.getExchanges().add(e);
+				p.exchanges.add(e);
 		return p;
 	}
 
@@ -353,13 +353,13 @@ public class ParameterReferencesTest extends AbstractZipTest {
 	private ImpactMethod createImpactMethod(ImpactFactor[] factors,
 			Parameter[] parameters) {
 		ImpactMethod m = new ImpactMethod();
-		m.setRefId(UUID.randomUUID().toString());
+		m.refId = UUID.randomUUID().toString();
 		if (parameters != null)
 			for (Parameter p : parameters)
 				m.parameters.add(p);
 		if (factors != null) {
 			ImpactCategory c = new ImpactCategory();
-			c.setRefId(UUID.randomUUID().toString());
+			c.refId = UUID.randomUUID().toString();
 			m.impactCategories.add(c);
 			for (ImpactFactor f : factors)
 				c.impactFactors.add(f);
@@ -369,7 +369,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 
 	private ParameterRedef createRedef(Parameter p, Uncertainty u) {
 		ParameterRedef redef = new ParameterRedef();
-		redef.name = p.getName();
+		redef.name = p.name;
 		if (p.scope == ParameterScope.PROCESS)
 			redef.contextType = ModelType.PROCESS;
 		else if (p.scope == ParameterScope.IMPACT_METHOD)
@@ -383,7 +383,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 
 	private ProductSystem createSystem(ParameterRedef... redefs) {
 		ProductSystem s = new ProductSystem();
-		s.setRefId(UUID.randomUUID().toString());
+		s.refId = UUID.randomUUID().toString();
 		for (ParameterRedef redef : redefs)
 			s.parameterRedefs.add(redef);
 		return s;
@@ -391,7 +391,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 
 	private Project createProject(ParameterRedef... redefs) {
 		Project p = new Project();
-		p.setRefId(UUID.randomUUID().toString());
+		p.refId = UUID.randomUUID().toString();
 		ProjectVariant v = new ProjectVariant();
 		p.variants.add(v);
 		for (ParameterRedef redef : redefs)

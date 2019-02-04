@@ -40,8 +40,8 @@ public class DQSystems {
 	/** Creates an instance of the ecoinvent data quality system. */
 	public static DQSystem ecoinvent() {
 		DQSystem system = new DQSystem();
-		system.setName("ecoinvent data quality system");
-		system.setRefId(EI_DQS);
+		system.name = "ecoinvent data quality system";
+		system.refId = EI_DQS;
 		system.hasUncertainties = true;
 		String[] indicators = eiIndicators();
 		String[][] scores = eiScores();

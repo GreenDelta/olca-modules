@@ -57,10 +57,10 @@ class ParameterSheet {
 		writeInputHeader();
 		for (Parameter param : params) {
 			row++;
-			Excel.cell(sheet, row, 0, param.getName());
+			Excel.cell(sheet, row, 0, param.name);
 			Excel.cell(sheet, row, 1, param.value);
 			config.uncertainty(sheet, row, 2, param.uncertainty);
-			Excel.cell(sheet, row, 7, param.getDescription());
+			Excel.cell(sheet, row, 7, param.description);
 		}
 		row += 2;
 	}
@@ -80,10 +80,10 @@ class ParameterSheet {
 		writeDependentHeader();
 		for (Parameter param : params) {
 			row++;
-			Excel.cell(sheet, row, 0, param.getName());
+			Excel.cell(sheet, row, 0, param.name);
 			Excel.cell(sheet, row, 1, param.formula);
 			Excel.cell(sheet, row, 2, param.value);
-			Excel.cell(sheet, row, 3, param.getDescription());
+			Excel.cell(sheet, row, 3, param.description);
 		}
 		row += 2;
 	}
@@ -97,7 +97,7 @@ class ParameterSheet {
 
 	private List<Parameter> getInputParameters() {
 		List<Parameter> parameters = new ArrayList<>();
-		for (Parameter param : config.process.getParameters()) {
+		for (Parameter param : config.process.parameters) {
 			if (param.isInputParameter)
 				parameters.add(param);
 		}
@@ -107,7 +107,7 @@ class ParameterSheet {
 
 	private List<Parameter> getDependentParameters() {
 		List<Parameter> parameters = new ArrayList<>();
-		for (Parameter param : config.process.getParameters()) {
+		for (Parameter param : config.process.parameters) {
 			if (!param.isInputParameter)
 				parameters.add(param);
 		}
@@ -118,7 +118,7 @@ class ParameterSheet {
 	private class Sorter implements Comparator<Parameter> {
 		@Override
 		public int compare(Parameter p1, Parameter p2) {
-			return Strings.compare(p1.getName(), p2.getName());
+			return Strings.compare(p1.name, p2.name);
 		}
 	}
 

@@ -40,14 +40,14 @@ class ProcessImport extends BaseImport<Process> {
 			return null;
 		Process p = new Process();
 		In.mapAtts(json, p, id, conf);
-		p.setProcessType(getType(json));
-		p.setInfrastructureProcess(Json.getBool(json, "infrastructureProcess", false));
-		p.setDefaultAllocationMethod(Json.getEnum(json, "defaultAllocationMethod", AllocationMethod.class));
+		p.processType = getType(json);
+		p.infrastructureProcess = Json.getBool(json, "infrastructureProcess", false);
+		p.defaultAllocationMethod = Json.getEnum(json, "defaultAllocationMethod", AllocationMethod.class);
 		ProcessDocumentation doc = ProcessDocReader.read(json, conf);
-		p.setDocumentation(doc);
+		p.documentation = doc;
 		String locId = Json.getRefId(json, "location");
 		if (locId != null)
-			p.setLocation(LocationImport.run(locId, conf));
+			p.location = LocationImport.run(locId, conf);
 		String dqSystemId = Json.getRefId(json, "dqSystem");
 		if (dqSystemId != null)
 			p.dqSystem = DQSystemImport.run(dqSystemId, conf);
@@ -76,7 +76,7 @@ class ProcessImport extends BaseImport<Process> {
 		if (p.exchangeDqSystem != null)
 			// set another system, so everything all right
 			return;
-		for (Exchange e : p.getExchanges()) {
+		for (Exchange e : p.exchanges) {
 			if (e.dqEntry == null)
 				continue;
 			p.exchangeDqSystem = new DQSystemDao(conf.db.getDatabase()).insert(DQSystems.ecoinvent());
@@ -117,7 +117,7 @@ class ProcessImport extends BaseImport<Process> {
 			ParameterImport pi = new ParameterImport(refId, conf);
 			Parameter parameter = new Parameter();
 			pi.mapFields(o, parameter);
-			p.getParameters().add(parameter);
+			p.parameters.add(parameter);
 		}
 	}
 
@@ -130,20 +130,20 @@ class ProcessImport extends BaseImport<Process> {
 			if (!e.isJsonObject())
 				continue;
 			JsonObject o = e.getAsJsonObject();
-			Exchange ex = ExchangeImport.run(ModelType.PROCESS, p.getRefId(), o, conf,
-					(Process process) -> process.getExchanges());
+			Exchange ex = ExchangeImport.run(ModelType.PROCESS, p.refId, o, conf,
+					(Process process) -> process.exchanges);
 			if (ex.internalId == 0) {
 				ex.internalId = ++p.lastInternalId;
 			}
 			exchangeMap.put(ex.internalId, ex);
 			String providerRefId = Json.getRefId(o, "defaultProvider");
 			if (providerRefId != null) {
-				conf.putProviderInfo(p.getRefId(), ex.internalId, providerRefId);
+				conf.putProviderInfo(p.refId, ex.internalId, providerRefId);
 			}
-			p.getExchanges().add(ex);
+			p.exchanges.add(ex);
 			boolean isRef = Json.getBool(o, "quantitativeReference", false);
 			if (isRef)
-				p.setQuantitativeReference(ex);
+				p.quantitativeReference = ex;
 		}
 	}
 
@@ -182,7 +182,7 @@ class ProcessImport extends BaseImport<Process> {
 			JsonObject o = f.getAsJsonObject();
 			AllocationFactor factor = allocationFactor(o);
 			if (factor != null) {
-				p.getAllocationFactors().add(factor);
+				p.allocationFactors.add(factor);
 			}
 		}
 	}
@@ -193,7 +193,7 @@ class ProcessImport extends BaseImport<Process> {
 		if (product == null)
 			return null;
 		AllocationFactor factor = new AllocationFactor();
-		factor.productId = product.getId();
+		factor.productId = product.id;
 		Integer exchangeId = null;
 		JsonObject exchange = Json.getObject(json, "exchange");
 		if (exchange != null)

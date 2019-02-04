@@ -29,11 +29,11 @@ public class ImpactMethodExport {
 	public void run(ImpactMethod method) throws DataStoreException {
 		if (method == null)
 			return;
-		if (config.store.contains(LCIAMethod.class, method.getRefId()))
+		if (config.store.contains(LCIAMethod.class, method.refId))
 			return;
 		for (ImpactCategory impact : method.impactCategories) {
 			LCIAMethod lciaMethod = new LCIAMethod();
-			putAttribute("olca_method_uuid", method.getRefId(),
+			putAttribute("olca_method_uuid", method.refId,
 					lciaMethod.otherAttributes);
 			addMethodInfo(method, impact, lciaMethod);
 			addFactors(impact, lciaMethod);
@@ -47,14 +47,14 @@ public class ImpactMethodExport {
 		lciaMethod.methodInfo = info;
 		DataSetInfo dataSetInfo = new DataSetInfo();
 		info.dataSetInfo = dataSetInfo;
-		dataSetInfo.uuid = impact.getRefId();
-		dataSetInfo.methods.add(method.getName());
-		dataSetInfo.impactCategories.add(impact.getName());
+		dataSetInfo.uuid = impact.refId;
+		dataSetInfo.methods.add(method.name);
+		dataSetInfo.impactCategories.add(impact.name);
 		putAttribute("olca_category_unit", impact.referenceUnit,
 				dataSetInfo.otherAttributes);
-		if (impact.getDescription() != null)
+		if (impact.description != null)
 			LangString.set(dataSetInfo.comment,
-					impact.getDescription(), config.lang);
+					impact.description, config.lang);
 	}
 
 	private void putAttribute(String name, String value, Map<QName, String> map) {
@@ -82,10 +82,10 @@ public class ImpactMethodExport {
 		double val = factor.value;
 		Unit unit = factor.unit;
 		if (unit != null)
-			val = val / unit.getConversionFactor();
+			val = val / unit.conversionFactor;
 		FlowPropertyFactor propFactor = factor.flowPropertyFactor;
 		if (propFactor != null)
-			val = val * propFactor.getConversionFactor();
+			val = val * propFactor.conversionFactor;
 		return val;
 	}
 }

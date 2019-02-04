@@ -46,17 +46,17 @@ class UnitSheet {
 	}
 
 	private void write(Record record) {
-		Excel.cell(sheet, row, 0, record.unit.getRefId());
-		Excel.cell(sheet, row, 1, record.unit.getName());
-		Excel.cell(sheet, row, 2, record.group.getName());
-		Excel.cell(sheet, row, 3, record.unit.getDescription());
-		Excel.cell(sheet, row, 4, record.unit.getSynonyms());
-		Excel.cell(sheet, row, 5, record.unit.getConversionFactor());
+		Excel.cell(sheet, row, 0, record.unit.refId);
+		Excel.cell(sheet, row, 1, record.unit.name);
+		Excel.cell(sheet, row, 2, record.group.name);
+		Excel.cell(sheet, row, 3, record.unit.description);
+		Excel.cell(sheet, row, 4, record.unit.synonyms);
+		Excel.cell(sheet, row, 5, record.unit.conversionFactor);
 		markRefUnit(record);
 	}
 
 	private void markRefUnit(Record record) {
-		if (!Objects.equals(record.unit, record.group.getReferenceUnit()))
+		if (!Objects.equals(record.unit, record.group.referenceUnit))
 			return;
 		for (int i = 0; i < 6; i++)
 			Excel.cell(sheet, row, i).setCellStyle(config.headerStyle);
@@ -66,7 +66,7 @@ class UnitSheet {
 		UnitGroupDao dao = new UnitGroupDao(config.database);
 		List<Record> records = new ArrayList<>();
 		for (UnitGroup group : dao.getAll()) {
-			for (Unit unit : group.getUnits()) {
+			for (Unit unit : group.units) {
 				records.add(new Record(unit, group));
 			}
 		}
@@ -87,11 +87,11 @@ class UnitSheet {
 		@Override
 		public int compareTo(Record other) {
 			if (Objects.equals(this.group, other.group))
-				return Strings.compare(this.unit.getName(),
-						other.unit.getName());
+				return Strings.compare(this.unit.name,
+						other.unit.name);
 			else
-				return Strings.compare(this.group.getName(),
-						other.group.getName());
+				return Strings.compare(this.group.name,
+						other.group.name);
 		}
 	}
 }

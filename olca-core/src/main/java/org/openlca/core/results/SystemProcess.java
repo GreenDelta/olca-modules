@@ -44,9 +44,9 @@ public class SystemProcess {
 
 	private Process create(boolean withMetaData) {
 		Process p = new Process();
-		p.setName(name);
-		p.setRefId(UUID.randomUUID().toString());
-		p.setProcessType(ProcessType.LCI_RESULT);
+		p.name = name;
+		p.refId = UUID.randomUUID().toString();
+		p.processType = ProcessType.LCI_RESULT;
 		addRefFlow(p);
 		addElemFlows(p);
 		if (withMetaData)
@@ -56,10 +56,10 @@ public class SystemProcess {
 
 	private void addRefFlow(Process p) {
 		Flow product = getProduct();
-		FlowProperty property = setup.getFlowPropertyFactor().getFlowProperty();
+		FlowProperty property = setup.getFlowPropertyFactor().flowProperty;
 		Exchange qRef = p.exchange(product, property, setup.getUnit());
 		qRef.amount = setup.getAmount();
-		p.setQuantitativeReference(qRef);
+		p.quantitativeReference = qRef;
 	}
 
 	private Flow getProduct() {
@@ -90,13 +90,13 @@ public class SystemProcess {
 		for (SocialAspect sa : refProc.socialAspects)
 			p.socialAspects.add(sa.clone());
 		p.socialDqSystem = refProc.socialDqSystem;
-		p.setCategory(refProc.getCategory());
-		p.setDefaultAllocationMethod(refProc.getDefaultAllocationMethod());
-		p.setDescription(refProc.getDescription());
-		if (refProc.getDocumentation() != null)
-			p.setDocumentation(refProc.getDocumentation().clone());
-		p.setInfrastructureProcess(refProc.isInfrastructureProcess());
-		p.setLastChange(new Date().getTime());
-		p.setLocation(refProc.getLocation());
+		p.category = refProc.category;
+		p.defaultAllocationMethod = refProc.defaultAllocationMethod;
+		p.description = refProc.description;
+		if (refProc.documentation != null)
+			p.documentation = refProc.documentation.clone();
+		p.infrastructureProcess = refProc.infrastructureProcess;
+		p.lastChange = new Date().getTime();
+		p.location = refProc.location;
 	}
 }

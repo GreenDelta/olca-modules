@@ -105,9 +105,9 @@ public class Maps {
 			return null;
 		MappingFileDao dao = new MappingFileDao(database);
 		MappingFile file = dao.getForFileName(fileName);
-		if (file == null || file.getContent() == null)
+		if (file == null || file.content == null)
 			return null;
-		byte[] bytes = BinUtils.unzip(file.getContent());
+		byte[] bytes = BinUtils.unzip(file.content);
 		ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
 		return createReader(stream);
 	}
@@ -138,8 +138,8 @@ public class Maps {
 			dao.delete(oldFile);
 		byte[] bytes = IOUtils.toByteArray(stream);
 		MappingFile file = new MappingFile();
-		file.setContent(BinUtils.zip(bytes));
-		file.setFileName(fileName);
+		file.content = BinUtils.zip(bytes);
+		file.fileName = fileName;
 		dao.insert(file);
 	}
 

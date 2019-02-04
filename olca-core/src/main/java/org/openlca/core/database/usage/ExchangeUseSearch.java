@@ -41,8 +41,8 @@ public class ExchangeUseSearch {
 		Set<Long> ids = new HashSet<>();
 		Set<Long> flowIds = new HashSet<>();
 		for (Exchange exchange : exchanges) {
-			ids.add(exchange.getId());
-			flowIds.add(exchange.flow.getId());
+			ids.add(exchange.id);
+			flowIds.add(exchange.flow.id);
 		}
 		Set<Long> systemIds = new HashSet<>();
 		systemIds.addAll(Search.on(database).queryForIds(
@@ -55,8 +55,8 @@ public class ExchangeUseSearch {
 
 	private String getProductSystemQuery(Set<Long> flowIds) {
 		String query = "SELECT DISTINCT f_product_system FROM tbl_process_links "
-				+ "WHERE (f_provider = " + process.getId()
-				+ " OR f_process = " + process.getId() + ")"
+				+ "WHERE (f_provider = " + process.id
+				+ " OR f_process = " + process.id + ")"
 				+ "AND f_flow IN " + Search.asSqlList(flowIds);
 		return query;
 	}

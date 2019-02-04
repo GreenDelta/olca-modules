@@ -44,15 +44,15 @@ public class ParameterTableTest {
 		ppInp.scope = ParameterScope.PROCESS;
 		Parameter ppDep = depParameter(3);
 		ppDep.scope = ParameterScope.PROCESS;
-		process.getParameters().add(ppInp);
-		process.getParameters().add(ppDep);
+		process.parameters.add(ppInp);
+		process.parameters.add(ppDep);
 		new ProcessDao(db).insert(process);
 
 	}
 
 	private Parameter inpParameter(double val) {
 		Parameter inpParam = new Parameter();
-		inpParam.setName("inp_param");
+		inpParam.name = "inp_param";
 		inpParam.isInputParameter = true;
 		inpParam.value = val;
 		Uncertainty u1 = new Uncertainty();
@@ -65,7 +65,7 @@ public class ParameterTableTest {
 
 	private Parameter depParameter(double factor) {
 		Parameter depParam = new Parameter();
-		depParam.setName("dep_param");
+		depParam.name = "dep_param";
 		depParam.isInputParameter = false;
 		depParam.formula = factor + " * inp_param";
 		return depParam;
@@ -89,12 +89,12 @@ public class ParameterTableTest {
 	@Test
 	public void testProcessParams() throws Exception {
 		FormulaInterpreter fi = ParameterTable.interpreter(Tests.getDb(),
-				Collections.singleton(process.getId()), emptySet());
+				Collections.singleton(process.id), emptySet());
 		// global
 		assertEquals(42.0, fi.eval("inp_param"), 1e-6);
 		assertEquals(2 * 42.0, fi.eval("dep_param"), 1e-6);
 		// local
-		Scope scope = fi.getScope(process.getId());
+		Scope scope = fi.getScope(process.id);
 		assertEquals(84.0, scope.eval("inp_param"), 1e-6);
 		assertEquals(3 * 84.0, scope.eval("dep_param"), 1e-6);
 	}
@@ -112,7 +112,7 @@ public class ParameterTableTest {
 	@Test
 	public void testProcessSimulation() throws Exception {
 		ParameterTable table = ParameterTable.forSimulation(Tests.getDb(),
-				Collections.singleton(process.getId()), emptySet());
+				Collections.singleton(process.id), emptySet());
 		// global
 		FormulaInterpreter fi = table.simulate();
 		double globalIn = fi.eval("inp_param");
@@ -120,7 +120,7 @@ public class ParameterTableTest {
 		assertEquals(2 * globalIn, fi.eval("dep_param"), 1e-6);
 
 		// local
-		Scope scope = fi.getScope(process.getId());
+		Scope scope = fi.getScope(process.id);
 		double ppInp = scope.eval("inp_param");
 		assertTrue(ppInp > 9 && ppInp < 84 / 2);
 		assertEquals(3 * ppInp, scope.eval("dep_param"), 1e-6);
@@ -133,14 +133,14 @@ public class ParameterTableTest {
 		redef.value = 99;
 
 		FormulaInterpreter fi = ParameterTable.interpreter(Tests.getDb(),
-				Collections.singleton(process.getId()),
+				Collections.singleton(process.id),
 				Collections.singleton(redef));
 
 		// global
 		assertEquals(99.0, fi.eval("inp_param"), 1e-6);
 		assertEquals(2 * 99.0, fi.eval("dep_param"), 1e-6);
 		// local
-		Scope scope = fi.getScope(process.getId());
+		Scope scope = fi.getScope(process.id);
 		assertEquals(84.0, scope.eval("inp_param"), 1e-6);
 		assertEquals(3 * 84.0, scope.eval("dep_param"), 1e-6);
 	}
@@ -148,20 +148,20 @@ public class ParameterTableTest {
 	@Test
 	public void testLocalRedef() throws Exception {
 		ParameterRedef redef = new ParameterRedef();
-		redef.contextId = process.getId();
+		redef.contextId = process.id;
 		redef.contextType = ModelType.PROCESS;
 		redef.name = "inp_param";
 		redef.value = 99;
 
 		FormulaInterpreter fi = ParameterTable.interpreter(Tests.getDb(),
-				Collections.singleton(process.getId()),
+				Collections.singleton(process.id),
 				Collections.singleton(redef));
 
 		// global
 		assertEquals(42.0, fi.eval("inp_param"), 1e-6);
 		assertEquals(2 * 42.0, fi.eval("dep_param"), 1e-6);
 		// local
-		Scope scope = fi.getScope(process.getId());
+		Scope scope = fi.getScope(process.id);
 		assertEquals(99.0, scope.eval("inp_param"), 1e-6);
 		assertEquals(3 * 99.0, scope.eval("dep_param"), 1e-6);
 	}
@@ -174,7 +174,7 @@ public class ParameterTableTest {
 		redef.uncertainty = Uncertainty.uniform(1001, 2000);
 
 		ParameterTable table = ParameterTable.forSimulation(Tests.getDb(),
-				Collections.singleton(process.getId()),
+				Collections.singleton(process.id),
 				Collections.singleton(redef));
 
 		// global
@@ -184,7 +184,7 @@ public class ParameterTableTest {
 		assertEquals(2 * globalIn, fi.eval("dep_param"), 1e-6);
 
 		// local
-		Scope scope = fi.getScope(process.getId());
+		Scope scope = fi.getScope(process.id);
 		double ppInp = scope.eval("inp_param");
 		assertTrue(ppInp > 9 && ppInp < 84 / 2);
 		assertEquals(3 * ppInp, scope.eval("dep_param"), 1e-6);
@@ -193,14 +193,14 @@ public class ParameterTableTest {
 	@Test
 	public void testLocalRedefSimulation() throws Exception {
 		ParameterRedef redef = new ParameterRedef();
-		redef.contextId = process.getId();
+		redef.contextId = process.id;
 		redef.contextType = ModelType.PROCESS;
 		redef.name = "inp_param";
 		redef.value = 99;
 		redef.uncertainty = Uncertainty.uniform(1001, 2000);
 
 		ParameterTable table = ParameterTable.forSimulation(Tests.getDb(),
-				Collections.singleton(process.getId()),
+				Collections.singleton(process.id),
 				Collections.singleton(redef));
 
 		// global
@@ -210,7 +210,7 @@ public class ParameterTableTest {
 		assertEquals(2 * globalIn, fi.eval("dep_param"), 1e-6);
 
 		// local
-		Scope scope = fi.getScope(process.getId());
+		Scope scope = fi.getScope(process.id);
 		double ppInp = scope.eval("inp_param");
 		assertTrue(ppInp > 1000);
 		assertEquals(3 * ppInp, scope.eval("dep_param"), 1e-6);

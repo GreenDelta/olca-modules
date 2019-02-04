@@ -18,7 +18,7 @@ class AdminInfoSheet {
 
 	private AdminInfoSheet(Config config) {
 		this.config = config;
-		doc = config.process.getDocumentation();
+		doc = config.process.documentation;
 		sheet = config.workbook.getSheet("Administrative information");
 	}
 
@@ -32,14 +32,14 @@ class AdminInfoSheet {
 		}
 		try {
 			log.trace("read administrative information");
-			doc.setIntendedApplication(config.getString(sheet, 1, 1));
-			doc.setDataSetOwner(readActor(2));
-			doc.setDataGenerator(readActor(3));
-			doc.setDataDocumentor(readActor(4));
-			doc.setPublication(readSource(5));
-			doc.setRestrictions(config.getString(sheet, 6, 1));
-			doc.setProject(config.getString(sheet, 7, 1));
-			doc.setCreationDate(config.getDate(sheet, 8, 1));
+			doc.intendedApplication = config.getString(sheet, 1, 1);
+			doc.dataSetOwner = readActor(2);
+			doc.dataGenerator = readActor(3);
+			doc.dataDocumentor = readActor(4);
+			doc.publication = readSource(5);
+			doc.restrictions = config.getString(sheet, 6, 1);
+			doc.project = config.getString(sheet, 7, 1);
+			doc.creationDate = config.getDate(sheet, 8, 1);
 			readCopyright();
 		} catch (Exception e) {
 			log.error("failed to read administrative information", e);
@@ -68,7 +68,7 @@ class AdminInfoSheet {
 		try {
 			Cell cell = config.getCell(sheet, 9, 1);
 			if (cell != null && cell.getCellType() == Cell.CELL_TYPE_BOOLEAN) {
-				doc.setCopyright(cell.getBooleanCellValue());
+				doc.copyright = cell.getBooleanCellValue();
 			}
 		} catch (Exception e) {
 			log.error("failed to read copyright cell", e);

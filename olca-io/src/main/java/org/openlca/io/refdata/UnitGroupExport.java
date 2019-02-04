@@ -24,15 +24,15 @@ class UnitGroupExport extends AbstractExport {
 
 	private Object[] createLine(UnitGroup group) {
 		Object[] line = new Object[6];
-		line[0] = group.getRefId();
-		line[1] = group.getName();
-		line[2] = group.getDescription();
-		if (group.getCategory() != null)
-			line[3] = group.getCategory().getRefId();
-		if (group.getDefaultFlowProperty() != null)
-			line[4] = group.getDefaultFlowProperty().getRefId();
-		if (group.getReferenceUnit() != null)
-			line[5] = group.getReferenceUnit().getRefId();
+		line[0] = group.refId;
+		line[1] = group.name;
+		line[2] = group.description;
+		if (group.category != null)
+			line[3] = group.category.refId;
+		if (group.defaultFlowProperty != null)
+			line[4] = group.defaultFlowProperty.refId;
+		if (group.referenceUnit != null)
+			line[5] = group.referenceUnit.refId;
 		return line;
 	}
 }

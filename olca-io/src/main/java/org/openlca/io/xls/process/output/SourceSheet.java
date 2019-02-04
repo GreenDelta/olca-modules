@@ -50,12 +50,12 @@ class SourceSheet {
 	}
 
 	private void write(Source source) {
-		Excel.cell(sheet, row, 0, source.getRefId());
-		Excel.cell(sheet, row, 1, source.getName());
-		Excel.cell(sheet, row, 2, source.getDescription());
-		Excel.cell(sheet, row, 3, CategoryPath.getFull(source.getCategory()));
-		Excel.cell(sheet, row, 4, Version.asString(source.getVersion()));
-		config.date(sheet, row, 5, source.getLastChange());
+		Excel.cell(sheet, row, 0, source.refId);
+		Excel.cell(sheet, row, 1, source.name);
+		Excel.cell(sheet, row, 2, source.description);
+		Excel.cell(sheet, row, 3, CategoryPath.getFull(source.category));
+		Excel.cell(sheet, row, 4, Version.asString(source.version));
+		config.date(sheet, row, 5, source.lastChange);
 		Excel.cell(sheet, row, 6, source.url);
 		Excel.cell(sheet, row, 7, source.textReference);
 		if (source.year != null) {

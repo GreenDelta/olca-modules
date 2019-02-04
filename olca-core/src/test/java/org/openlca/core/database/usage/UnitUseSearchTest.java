@@ -34,12 +34,12 @@ public class UnitUseSearchTest {
 	@Before
 	public void setup() {
 		unitGroup = new UnitGroup();
-		unitGroup.setName("group");
+		unitGroup.name = "group";
 		unit = new Unit();
-		unit.setName("unit");
-		unitGroup.getUnits().add(unit);
+		unit.name = "unit";
+		unitGroup.units.add(unit);
 		unitGroup = new UnitGroupDao(database).insert(unitGroup);
-		unit = unitGroup.getUnit(unit.getName());
+		unit = unitGroup.getUnit(unit.name);
 		search = new UnitUseSearch(database);
 	}
 
@@ -67,7 +67,7 @@ public class UnitUseSearchTest {
 
 	private ImpactMethod createMethod() {
 		ImpactMethod method = new ImpactMethod();
-		method.setName("method");
+		method.name = "method";
 		ImpactFactor iFactor = new ImpactFactor();
 		iFactor.unit = unit;
 		ImpactCategory category = new ImpactCategory();
@@ -88,10 +88,10 @@ public class UnitUseSearchTest {
 
 	private Process createProcess() {
 		Process process = new Process();
-		process.setName("process");
+		process.name = "process";
 		Exchange exchange = new Exchange();
 		exchange.unit = unit;
-		process.getExchanges().add(exchange);
+		process.exchanges.add(exchange);
 		return new ProcessDao(database).insert(process);
 	}
 
@@ -107,7 +107,7 @@ public class UnitUseSearchTest {
 
 	private SocialIndicator createSocialIndicator() {
 		SocialIndicator indicator = new SocialIndicator();
-		indicator.setName("indicator");
+		indicator.name = "indicator";
 		indicator.activityUnit = unit;
 		return new SocialIndicatorDao(database).insert(indicator);
 	}

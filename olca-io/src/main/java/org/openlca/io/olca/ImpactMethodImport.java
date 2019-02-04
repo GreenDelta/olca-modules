@@ -44,8 +44,8 @@ class ImpactMethodImport {
 	private void createMethod(ImpactMethodDescriptor descriptor) {
 		ImpactMethod srcMethod = srcDao.getForId(descriptor.id);
 		ImpactMethod destMethod = srcMethod.clone();
-		destMethod.setRefId(srcMethod.getRefId());
-		destMethod.setCategory(refs.switchRef(srcMethod.getCategory()));
+		destMethod.refId = srcMethod.refId;
+		destMethod.category = refs.switchRef(srcMethod.category);
 		switchFactorReferences(destMethod);
 		// we need to set the reference IDs from the source as they are
 		// generated
@@ -53,9 +53,9 @@ class ImpactMethodImport {
 		switchImpactRefIds(srcMethod, destMethod);
 		switchNwSetRefIds(srcMethod, destMethod);
 		destMethod = destDao.insert(destMethod);
-		seq.put(seq.IMPACT_METHOD, srcMethod.getRefId(), destMethod.getId());
+		seq.put(seq.IMPACT_METHOD, srcMethod.refId, destMethod.id);
 		for (NwSet nwSet : destMethod.nwSets)
-			seq.put(seq.NW_SET, nwSet.getRefId(), nwSet.getId());
+			seq.put(seq.NW_SET, nwSet.refId, nwSet.id);
 	}
 
 	private void switchFactorReferences(ImpactMethod destMethod) {
@@ -75,7 +75,7 @@ class ImpactMethodImport {
 		for (ImpactCategory srcCat : srcMethod.impactCategories) {
 			for (ImpactCategory destCat : destMethod.impactCategories) {
 				if (areEqual(srcCat, destCat)) {
-					destCat.setRefId(srcCat.getRefId());
+					destCat.refId = srcCat.refId;
 					break;
 				}
 			}
@@ -83,11 +83,11 @@ class ImpactMethodImport {
 	}
 
 	private boolean areEqual(ImpactCategory srcCat, ImpactCategory destCat) {
-		return Strings.nullOrEqual(srcCat.getName(), destCat.getName())
+		return Strings.nullOrEqual(srcCat.name, destCat.name)
 				&& Strings.nullOrEqual(srcCat.referenceUnit,
 						destCat.referenceUnit)
-				&& Strings.nullOrEqual(srcCat.getDescription(),
-						destCat.getDescription())
+				&& Strings.nullOrEqual(srcCat.description,
+						destCat.description)
 				&& (srcCat.impactFactors.size() == destCat.impactFactors.size());
 	}
 
@@ -96,7 +96,7 @@ class ImpactMethodImport {
 		for (NwSet srcNwSet : srcMethod.nwSets) {
 			for (NwSet destNwSet : destMethod.nwSets) {
 				if (areEqual(srcNwSet, destNwSet)) {
-					destNwSet.setRefId(srcNwSet.getRefId());
+					destNwSet.refId = srcNwSet.refId;
 					break;
 				}
 			}
@@ -104,9 +104,9 @@ class ImpactMethodImport {
 	}
 
 	private boolean areEqual(NwSet srcNwSet, NwSet destNwSet) {
-		return Strings.nullOrEqual(srcNwSet.getName(), destNwSet.getName())
-				&& Strings.nullOrEqual(srcNwSet.getDescription(),
-						destNwSet.getName())
+		return Strings.nullOrEqual(srcNwSet.name, destNwSet.name)
+				&& Strings.nullOrEqual(srcNwSet.description,
+						destNwSet.name)
 				&& Strings.nullOrEqual(srcNwSet.weightedScoreUnit,
 						destNwSet.weightedScoreUnit);
 	}

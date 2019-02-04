@@ -32,11 +32,11 @@ public class SystemUseSearchTest {
 		search = IUseSearch.FACTORY.createFor(ModelType.PRODUCT_SYSTEM, db);
 		projectDao = new ProjectDao(db);
 		project = new Project();
-		project.setName("test project");
+		project.name = "test project";
 		project = projectDao.insert(project);
 		systemDao = new ProductSystemDao(db);
 		system = new ProductSystem();
-		system.setName("test system");
+		system.name = "test system";
 		system = systemDao.insert(system);
 	}
 

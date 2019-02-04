@@ -110,7 +110,7 @@ class FlowSync {
 		if (flow != null)
 			return flow;
 		flow = createProductFlow(refId, row);
-		flow.setCategory(getProductCategory(row));
+		flow.category = getProductCategory(row);
 		dao.insert(flow);
 		return flow;
 	}
@@ -123,7 +123,7 @@ class FlowSync {
 		if (flow != null)
 			return flow;
 		flow = createProductFlow(refId, row);
-		flow.setCategory(getProductCategory(type));
+		flow.category = getProductCategory(type);
 		dao.insert(flow);
 		return flow;
 	}
@@ -140,18 +140,18 @@ class FlowSync {
 		// we take the olca-flow property, because the unit name may changes
 		// in different data sets
 		return KeyGen
-				.get(row.getName(), unitEntry.flowProperty.getRefId());
+				.get(row.getName(), unitEntry.flowProperty.refId);
 	}
 
 	private Flow createProductFlow(String refId, AbstractExchangeRow row) {
 		UnitMappingEntry unitEntry = unitMapping.getEntry(row.getUnit());
 		Flow flow;
 		flow = new Flow();
-		flow.setRefId(refId);
-		flow.setName(Strings.cut(row.getName(), 250));
-		flow.setDescription(getProductDescription(row));
-		flow.setFlowType(FlowType.PRODUCT_FLOW);
-		flow.setLocation(getProductLocation(row));
+		flow.refId = refId;
+		flow.name = Strings.cut(row.getName(), 250);
+		flow.description = getProductDescription(row);
+		flow.flowType = FlowType.PRODUCT_FLOW;
+		flow.location = getProductLocation(row);
 		setFlowProperty(unitEntry, flow);
 		return flow;
 	}
@@ -211,10 +211,10 @@ class FlowSync {
 		if (flow != null)
 			return flow;
 		flow = new Flow();
-		flow.setRefId(refId);
-		flow.setName(row.getName());
-		flow.setCategory(getElementaryFlowCategory(row, type));
-		flow.setFlowType(FlowType.ELEMENTARY_FLOW);
+		flow.refId = refId;
+		flow.name = row.getName();
+		flow.category = getElementaryFlowCategory(row, type);
+		flow.flowType = FlowType.ELEMENTARY_FLOW;
 		setFlowProperty(unitEntry, flow);
 		ElementaryFlowRow flowInfo = index.getFlowInfo(row.getName(), type);
 		setFlowData(flow, flowInfo);
@@ -225,8 +225,8 @@ class FlowSync {
 	private void setFlowData(Flow flow, ElementaryFlowRow flowRow) {
 		if (flow == null || flowRow == null)
 			return;
-		flow.setCasNumber(flowRow.getCASNumber());
-		flow.setDescription(flowRow.getComment());
+		flow.casNumber = flowRow.getCASNumber();
+		flow.description = flowRow.getComment();
 		// TODO: we could parse the chemical formula, synonyms, and
 		// location from the comment string
 	}
@@ -245,10 +245,10 @@ class FlowSync {
 	}
 
 	private void setFlowProperty(UnitMappingEntry unitEntry, Flow flow) {
-		flow.setReferenceFlowProperty(unitEntry.flowProperty);
+		flow.referenceFlowProperty = unitEntry.flowProperty;
 		FlowPropertyFactor factor = new FlowPropertyFactor();
-		factor.setConversionFactor(1);
-		factor.setFlowProperty(unitEntry.flowProperty);
-		flow.getFlowPropertyFactors().add(factor);
+		factor.conversionFactor = (double) 1;
+		factor.flowProperty = unitEntry.flowProperty;
+		flow.flowPropertyFactors.add(factor);
 	}
 }

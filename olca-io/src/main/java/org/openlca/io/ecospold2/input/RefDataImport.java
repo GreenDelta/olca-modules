@@ -115,10 +115,10 @@ class RefDataImport {
 		category = categoryDao.getForRefId(refId);
 		if (category == null) {
 			category = new Category();
-			category.setDescription(classification.system);
+			category.description = classification.system;
 			category.setModelType(ModelType.PROCESS);
-			category.setName(classification.value);
-			category.setRefId(refId);
+			category.name = classification.value;
+			category.refId = refId;
 			category = categoryDao.insert(category);
 		}
 		index.putProcessCategory(refId, category);
@@ -147,10 +147,10 @@ class RefDataImport {
 		location = locationDao.getForRefId(genKey);
 		if (location == null) {
 			location = new Location();
-			location.setCode(geography.shortName);
-			location.setName(geography.shortName);
-			location.setDescription("imported via EcoSpold 02 import");
-			location.setRefId(genKey);
+			location.code = geography.shortName;
+			location.name = geography.shortName;
+			location.description = "imported via EcoSpold 02 import";
+			location.refId = genKey;
 			location = locationDao.insert(location);
 		}
 		index.putLocation(refId, location);
@@ -191,7 +191,7 @@ class RefDataImport {
 			return;
 		index.putNegativeFlow(refId, exchange.amount < 0);
 		Category category = getProductCategory(dataSet, exchange);
-		flow.setCategory(category);
+		flow.category = category;
 		flow = flowDao.update(flow);
 		index.putFlow(refId, flow);
 	}
@@ -199,16 +199,16 @@ class RefDataImport {
 	private Flow createNewProduct(IntermediateExchange exchange, String refId) {
 		Flow flow;
 		flow = new Flow();
-		flow.setRefId(refId);
-		flow.setDescription("EcoSpold 2 intermediate exchange, ID = "
-				+ exchange.flowId);
+		flow.refId = refId;
+		flow.description = "EcoSpold 2 intermediate exchange, ID = "
+		+ exchange.flowId;
 		// in ecoinvent 3 negative values indicate waste flows
 		// see also the exchange handling in the process input
 		// to be on the save side, we declare all intermediate flows as
 		// products
 		// FlowType type = exchange.getAmount() < 0 ? FlowType.WASTE_FLOW
 		// : FlowType.PRODUCT_FLOW;
-		flow.setFlowType(FlowType.PRODUCT_FLOW);
+		flow.flowType = FlowType.PRODUCT_FLOW;
 		createFlow(exchange, flow);
 		return flow;
 	}
@@ -229,11 +229,11 @@ class RefDataImport {
 			category = index.getCompartment(exchange.compartment.id);
 		}
 		flow = new Flow();
-		flow.setRefId(refId);
-		flow.setCategory(category);
-		flow.setDescription("EcoSpold 2 elementary exchange, ID = "
-				+ exchange.flowId);
-		flow.setFlowType(FlowType.ELEMENTARY_FLOW);
+		flow.refId = refId;
+		flow.category = category;
+		flow.description = "EcoSpold 2 elementary exchange, ID = "
+		+ exchange.flowId;
+		flow.flowType = FlowType.ELEMENTARY_FLOW;
 		createFlow(exchange, flow);
 	}
 
@@ -257,20 +257,20 @@ class RefDataImport {
 	}
 
 	private void createFlow(Exchange exchange, Flow flow) {
-		flow.setName(exchange.name);
+		flow.name = exchange.name;
 		FlowProperty prop = index.getFlowProperty(exchange.unitId);
 		if (prop == null) {
 			log.warn("unknown unit {}", exchange.unitId);
 			return;
 		}
 		FlowPropertyFactor fac = new FlowPropertyFactor();
-		fac.setFlowProperty(prop);
-		fac.setConversionFactor(1.0);
-		flow.getFlowPropertyFactors().add(fac);
-		flow.setReferenceFlowProperty(prop);
+		fac.flowProperty = prop;
+		fac.conversionFactor = 1.0;
+		flow.flowPropertyFactors.add(fac);
+		flow.referenceFlowProperty = prop;
 		try {
 			flow = flowDao.insert(flow);
-			index.putFlow(flow.getRefId(), flow);
+			index.putFlow(flow.refId, flow);
 		} catch (Exception e) {
 			log.error("Failed to store flow", e);
 		}

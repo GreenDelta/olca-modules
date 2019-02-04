@@ -114,7 +114,7 @@ public class Parameter extends CategorizedEntity {
 
 	@Override
 	public String toString() {
-		return "Parameter [formula=" + formula + ", name=" + getName()
+		return "Parameter [formula=" + formula + ", name=" + name
 				+ ", type=" + scope + "]";
 	}
 

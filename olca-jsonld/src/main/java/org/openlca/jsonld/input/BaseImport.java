@@ -55,10 +55,10 @@ abstract class BaseImport<T extends RootEntity> {
 			return !conf.hasVisited(modelType, refId);
 		long jsonVersion = In.getVersion(json);
 		long jsonDate = In.getLastChange(json);
-		if (jsonVersion < model.getVersion())
+		if (jsonVersion < model.version)
 			return false;
-		if (jsonVersion == model.getVersion()
-				&& jsonDate <= model.getLastChange())
+		if (jsonVersion == model.version
+				&& jsonDate <= model.lastChange)
 			return false;
 		return true;
 	}
@@ -93,7 +93,7 @@ abstract class BaseImport<T extends RootEntity> {
 	T map(JsonObject json, T model) {
 		if (model == null)
 			return map(json, 0l);
-		return map(json, model.getId());
+		return map(json, model.id);
 	}
 
 	abstract T map(JsonObject json, long id);

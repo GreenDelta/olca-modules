@@ -56,29 +56,29 @@ public class ExchangeUseSearchTest {
 	private void addExchanges() {
 		for (int i = 1; i < 4; i++) {
 			Flow flow = new Flow();
-			flow.setName("flow_" + 1);
+			flow.name = "flow_" + 1;
 			flow = new FlowDao(database).insert(flow);
 			modelStack.push(flow);
 			Exchange ep = new Exchange();
 			ep.flow = flow;
 			ep.isInput = false;
-			p.getExchanges().add(ep);
+			p.exchanges.add(ep);
 			Exchange eq = ep.clone();
 			eq.isInput = true;
-			q.getExchanges().add(eq);
+			q.exchanges.add(eq);
 		}
 	}
 
 	private void createSystem() {
 		ProductSystem system = new ProductSystem();
-		system.setName(SYS_NAME);
+		system.name = SYS_NAME;
 		system.referenceProcess = p;
-		system.referenceExchange = p.getExchanges().get(0);
-		Flow linkFlow = p.getExchanges().get(1).flow;
+		system.referenceExchange = p.exchanges.get(0);
+		Flow linkFlow = p.exchanges.get(1).flow;
 		ProcessLink link = new ProcessLink();
-		link.providerId = p.getId();
-		link.processId = q.getId();
-		link.flowId = linkFlow.getId();
+		link.providerId = p.id;
+		link.processId = q.id;
+		link.flowId = linkFlow.id;
 		system.processLinks.add(link);
 		system = new ProductSystemDao(database).insert(system);
 		modelStack.push(system);
@@ -98,7 +98,7 @@ public class ExchangeUseSearchTest {
 	@Test
 	public void testSingleFindNothing() {
 		ExchangeUseSearch search = new ExchangeUseSearch(database, p);
-		List<CategorizedDescriptor> list = search.findUses(p.getExchanges().get(2));
+		List<CategorizedDescriptor> list = search.findUses(p.exchanges.get(2));
 		Assert.assertTrue(list.isEmpty());
 	}
 
@@ -106,7 +106,7 @@ public class ExchangeUseSearchTest {
 	public void testMultiFindNothing() {
 		ExchangeUseSearch search = new ExchangeUseSearch(database, q);
 		List<Exchange> exchanges = Arrays.asList(
-				q.getExchanges().get(0), q.getExchanges().get(2));
+				q.exchanges.get(0), q.exchanges.get(2));
 		List<CategorizedDescriptor> list = search.findUses(exchanges);
 		Assert.assertTrue(list.isEmpty());
 	}
@@ -114,7 +114,7 @@ public class ExchangeUseSearchTest {
 	@Test
 	public void testFindInReference() {
 		ExchangeUseSearch search = new ExchangeUseSearch(database, p);
-		List<CategorizedDescriptor> list = search.findUses(p.getExchanges().get(0));
+		List<CategorizedDescriptor> list = search.findUses(p.exchanges.get(0));
 		Assert.assertEquals(list.get(0).name, SYS_NAME);
 		Assert.assertEquals(list.size(), 1);
 	}
@@ -122,7 +122,7 @@ public class ExchangeUseSearchTest {
 	@Test
 	public void testFindInLinks() {
 		ExchangeUseSearch search = new ExchangeUseSearch(database, p);
-		List<CategorizedDescriptor> list = search.findUses(p.getExchanges().get(1));
+		List<CategorizedDescriptor> list = search.findUses(p.exchanges.get(1));
 		Assert.assertEquals(list.get(0).name, SYS_NAME);
 		Assert.assertEquals(list.size(), 1);
 	}
@@ -130,7 +130,7 @@ public class ExchangeUseSearchTest {
 	@Test
 	public void testFindAllDistinct() {
 		ExchangeUseSearch search = new ExchangeUseSearch(database, p);
-		List<CategorizedDescriptor> list = search.findUses(p.getExchanges());
+		List<CategorizedDescriptor> list = search.findUses(p.exchanges);
 		Assert.assertEquals(list.get(0).name, SYS_NAME);
 		Assert.assertEquals(list.size(), 1);
 	}

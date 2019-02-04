@@ -145,10 +145,10 @@ public class Exchange extends AbstractEntity {
 	public static Exchange from(Flow flow) {
 		if (flow == null)
 			return from(null, null, null);
-		FlowProperty property = flow.getReferenceFlowProperty();
+		FlowProperty property = flow.referenceFlowProperty;
 		if (property == null)
 			return from(flow, null, null);
-		Unit unit = property.getUnitGroup().getReferenceUnit();
+		Unit unit = property.unitGroup.referenceUnit;
 		return from(flow, property, unit);
 
 	}

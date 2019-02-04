@@ -43,7 +43,7 @@ public class MapsTest {
 	public void testMappingFile() throws Exception {
 		MappingFileDao dao = new MappingFileDao(database);
 		MappingFile file = dao.getForFileName(FILE_NAME);
-		String t = new String(BinUtils.unzip(file.getContent()), "utf-8");
+		String t = new String(BinUtils.unzip(file.content), "utf-8");
 		Assert.assertEquals(CONTENT, t);
 	}
 

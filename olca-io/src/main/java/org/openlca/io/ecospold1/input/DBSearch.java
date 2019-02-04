@@ -140,8 +140,8 @@ class DBSearch {
 
 	private boolean sameFlowType(IExchange exchange, Flow flow) {
 		if (exchange.isElementaryFlow())
-			return flow.getFlowType() == FlowType.ELEMENTARY_FLOW;
-		return flow.getFlowType() != FlowType.ELEMENTARY_FLOW;
+			return flow.flowType == FlowType.ELEMENTARY_FLOW;
+		return flow.flowType != FlowType.ELEMENTARY_FLOW;
 	}
 
 	private boolean hasUnit(Flow flow, UnitMappingEntry mapping) {
@@ -154,11 +154,11 @@ class DBSearch {
 	private boolean sameCategory(String categoryName, String subCategoryName,
 			Flow flow) {
 		try {
-			Category category = flow.getCategory();
+			Category category = flow.category;
 			if (category == null)
 				return Strings.isNullOrEmpty(categoryName)
 						&& Strings.isNullOrEmpty(subCategoryName);
-			Category parent = category.getCategory();
+			Category parent = category.category;
 			if (parent == null)
 				return sameCategory(categoryName, category)
 						|| sameCategory(subCategoryName, category);
@@ -176,16 +176,15 @@ class DBSearch {
 			return true;
 		if (Strings.isNullOrEmpty(name) || category == null)
 			return false;
-		return StringUtils.equalsIgnoreCase(name, category.getName());
+		return StringUtils.equalsIgnoreCase(name, category.name);
 	}
 
 	private boolean sameLocation(String locationCode, Flow flow) {
 		if (locationCode == null || locationCode.equals("GLO"))
-			return flow.getLocation() == null
-					|| "GLO".equalsIgnoreCase(flow.getLocation().getCode());
-		if (flow.getLocation() == null)
+			return flow.location == null
+					|| "GLO".equalsIgnoreCase(flow.location.code);
+		if (flow.location == null)
 			return false;
-		return StringUtils.equalsIgnoreCase(locationCode, flow.getLocation()
-				.getCode());
+		return StringUtils.equalsIgnoreCase(locationCode, flow.location.code);
 	}
 }

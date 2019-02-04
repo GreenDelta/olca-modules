@@ -96,13 +96,12 @@ class FlowSheets {
 		String name = config.getString(flowSheet, row, 1);
 		String category = config.getString(flowSheet, row, 3);
 		List<Factor> factors = this.factors.get(key(name, category));
-		if (factors == null || flow.getReferenceFlowProperty() == null) {
+		if (factors == null || flow.referenceFlowProperty == null) {
 			config.refData.putFlow(name, category, flow);
 			return;
 		}
 		String refProperty = config.getString(flowSheet, row, 10);
-		if (!Objects.equals(refProperty, flow.getReferenceFlowProperty()
-				.getName())) {
+		if (!Objects.equals(refProperty, flow.referenceFlowProperty.name)) {
 			// cannot add more factors as the reference flow property is not
 			// the same
 			config.refData.putFlow(name, category, flow);
@@ -110,7 +109,7 @@ class FlowSheets {
 		}
 		boolean updated = addFactors(flow, factors);
 		if (updated) {
-			flow.setLastChange(Calendar.getInstance().getTimeInMillis());
+			flow.lastChange = Calendar.getInstance().getTimeInMillis();
 			Version.incUpdate(flow);
 			flow = dao.update(flow);
 		}
@@ -126,9 +125,9 @@ class FlowSheets {
 				continue;
 			}
 			FlowPropertyFactor f = new FlowPropertyFactor();
-			f.setFlowProperty(property);
-			f.setConversionFactor(factor.factor);
-			flow.getFlowPropertyFactors().add(f);
+			f.flowProperty = property;
+			f.conversionFactor = factor.factor;
+			flow.flowPropertyFactors.add(f);
 			updated = true;
 		}
 		return updated;
@@ -138,9 +137,9 @@ class FlowSheets {
 		String name = config.getString(flowSheet, row, 1);
 		String category = config.getString(flowSheet, row, 3);
 		Flow flow = new Flow();
-		flow.setRefId(uuid);
-		flow.setName(name);
-		flow.setCategory(config.getCategory(category, ModelType.FLOW));
+		flow.refId = uuid;
+		flow.name = name;
+		flow.category = config.getCategory(category, ModelType.FLOW);
 		setAttributes(row, flow);
 		List<Factor> factors = this.factors.get(key(name, category));
 		if (factors == null) {
@@ -154,17 +153,17 @@ class FlowSheets {
 	}
 
 	private void setAttributes(int row, Flow flow) {
-		flow.setDescription(config.getString(flowSheet, row, 2));
+		flow.description = config.getString(flowSheet, row, 2);
 		String version = config.getString(flowSheet, row, 4);
-		flow.setVersion(Version.fromString(version).getValue());
+		flow.version = Version.fromString(version).getValue();
 		Date lastChange = config.getDate(flowSheet, row, 5);
 		if (lastChange != null) {
-			flow.setLastChange(lastChange.getTime());
+			flow.lastChange = lastChange.getTime();
 		}
-		flow.setFlowType(getType(row));
-		flow.setCasNumber(config.getString(flowSheet, row, 7));
-		flow.setFormula(config.getString(flowSheet, row, 8));
-		flow.setLocation(getLocation(row));
+		flow.flowType = getType(row);
+		flow.casNumber = config.getString(flowSheet, row, 7);
+		flow.formula = config.getString(flowSheet, row, 8);
+		flow.location = getLocation(row);
 	}
 
 	private void createPropertyFactors(int row, Flow flow, List<Factor> factors) {
@@ -178,11 +177,11 @@ class FlowSheets {
 				continue;
 			}
 			FlowPropertyFactor f = new FlowPropertyFactor();
-			f.setFlowProperty(property);
-			f.setConversionFactor(factor.factor);
-			flow.getFlowPropertyFactors().add(f);
-			if (Objects.equals(refProperty, property.getName())) {
-				flow.setReferenceFlowProperty(property);
+			f.flowProperty = property;
+			f.conversionFactor = factor.factor;
+			flow.flowPropertyFactors.add(f);
+			if (Objects.equals(refProperty, property.name)) {
+				flow.referenceFlowProperty = property;
 			}
 		}
 	}

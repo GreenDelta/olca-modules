@@ -89,7 +89,7 @@ public class ILCDImportExportTest {
 		ContactImport contactImport = new ContactImport(importConfig);
 		Actor actor = contactImport.run(importConfig.store.get(Contact.class,
 				id));
-		Assert.assertEquals(id, actor.getRefId());
+		Assert.assertEquals(id, actor.refId);
 		ActorExport export = new ActorExport(exportConfig);
 		export.run(actor);
 		Assert.assertTrue(exportConfig.store.contains(Contact.class, id));
@@ -101,7 +101,7 @@ public class ILCDImportExportTest {
 		SourceImport sourceImport = new SourceImport(importConfig);
 		org.openlca.core.model.Source source = sourceImport
 				.run(importConfig.store.get(Source.class, id));
-		Assert.assertEquals(id, source.getRefId());
+		Assert.assertEquals(id, source.refId);
 		SourceExport export = new SourceExport(exportConfig);
 		export.run(source);
 		Assert.assertTrue(exportConfig.store.contains(Source.class, id));
@@ -113,7 +113,7 @@ public class ILCDImportExportTest {
 		UnitGroupImport unitImport = new UnitGroupImport(importConfig);
 		org.openlca.core.model.UnitGroup group = unitImport
 				.run(importConfig.store.get(UnitGroup.class, id));
-		Assert.assertEquals(id, group.getRefId());
+		Assert.assertEquals(id, group.refId);
 		UnitGroupExport export = new UnitGroupExport(exportConfig);
 		export.run(group);
 		Assert.assertTrue(exportConfig.store.contains(UnitGroup.class, id));
@@ -125,7 +125,7 @@ public class ILCDImportExportTest {
 		FlowPropertyImport propImport = new FlowPropertyImport(importConfig);
 		org.openlca.core.model.FlowProperty prop = propImport
 				.run(importConfig.store.get(FlowProperty.class, id));
-		Assert.assertEquals(id, prop.getRefId());
+		Assert.assertEquals(id, prop.refId);
 		FlowPropertyExport export = new FlowPropertyExport(exportConfig);
 		export.run(prop);
 		Assert.assertTrue(exportConfig.store.contains(FlowProperty.class, id));
@@ -137,7 +137,7 @@ public class ILCDImportExportTest {
 		FlowImport flowImport = new FlowImport(importConfig);
 		org.openlca.core.model.Flow flow = flowImport.run(importConfig.store
 				.get(Flow.class, id));
-		Assert.assertEquals(id, flow.getRefId());
+		Assert.assertEquals(id, flow.refId);
 		FlowExport export = new FlowExport(exportConfig);
 		export.run(flow);
 		Assert.assertTrue(exportConfig.store.contains(Flow.class, id));
@@ -150,7 +150,7 @@ public class ILCDImportExportTest {
 				new ProviderLinker());
 		org.openlca.core.model.Process process = processImport
 				.run(importConfig.store.get(Process.class, id));
-		Assert.assertEquals(id, process.getRefId());
+		Assert.assertEquals(id, process.refId);
 		ProcessExport export = new ProcessExport(exportConfig);
 		export.run(process);
 		Assert.assertTrue(exportConfig.store.contains(Process.class, id));

@@ -68,8 +68,8 @@ public class DatabaseImport implements Runnable {
 		for (String refId : requireUpdate.keySet()) {
 			UnitGroup unitGroup = requireUpdate.get(refId);
 			long propId = seq.get(seq.FLOW_PROPERTY, refId);
-			unitGroup.setDefaultFlowProperty(propertyDao.getForId(propId));
-			unitGroup.setLastChange(Calendar.getInstance().getTimeInMillis());
+			unitGroup.defaultFlowProperty = propertyDao.getForId(propId);
+			unitGroup.lastChange = Calendar.getInstance().getTimeInMillis();
 			Version.incUpdate(unitGroup);
 			unitGroupDao.update(unitGroup);
 		}

@@ -39,16 +39,16 @@ public class ProcessTest extends AbstractZipTest {
 	}
 
 	private void assertTestProcess(Process process, ProcessDao dao) {
-		Assert.assertTrue(dao.contains(process.getRefId()));
-		Process clone = dao.getForRefId(process.getRefId());
-		Assert.assertEquals(process.getName(), clone.getName());
-		Assert.assertNotEquals(process.getId(), clone.getId());
+		Assert.assertTrue(dao.contains(process.refId));
+		Process clone = dao.getForRefId(process.refId);
+		Assert.assertEquals(process.name, clone.name);
+		Assert.assertNotEquals(process.id, clone.id);
 	}
 
 	private Process createSimpleModel(ProcessDao dao) {
 		Process process = new Process();
-		process.setName("process");
-		process.setRefId(UUID.randomUUID().toString());
+		process.name = "process";
+		process.refId = UUID.randomUUID().toString();
 		dao.insert(process);
 		return process;
 	}
@@ -71,21 +71,21 @@ public class ProcessTest extends AbstractZipTest {
 		List<Process> clones = new ArrayList<>();
 		for (int i = 0; i < processes.length; i++) {
 			Process process = processes[i];
-			Assert.assertTrue(dao.contains(process.getRefId()));
-			Process clone = dao.getForRefId(process.getRefId());
-			Assert.assertEquals(process.getName(), clone.getName());
-			Assert.assertNotEquals(process.getId(), clone.getId());
+			Assert.assertTrue(dao.contains(process.refId));
+			Process clone = dao.getForRefId(process.refId);
+			Assert.assertEquals(process.name, clone.name);
+			Assert.assertNotEquals(process.id, clone.id);
 			clones.add(i, clone);
 		}
 		Exchange in = null;
-		for (Exchange e : clones.get(1).getExchanges())
+		for (Exchange e : clones.get(1).exchanges)
 			if (e.isInput)
 				in = e;
-		Assert.assertEquals(clones.get(0).getId(), in.defaultProviderId);
-		for (Exchange e : clones.get(0).getExchanges())
+		Assert.assertEquals(clones.get(0).id, in.defaultProviderId);
+		for (Exchange e : clones.get(0).exchanges)
 			if (e.isInput)
 				in = e;
-		Assert.assertEquals(clones.get(1).getId(), in.defaultProviderId);
+		Assert.assertEquals(clones.get(1).id, in.defaultProviderId);
 	}
 
 	private Process[] createCyclicModel(IDatabase db) {
@@ -103,57 +103,57 @@ public class ProcessTest extends AbstractZipTest {
 
 	private FlowProperty createFlowProperty(UnitGroup ug, FlowPropertyDao dao) {
 		FlowProperty fp = new FlowProperty();
-		fp.setName("flow property");
-		fp.setRefId(UUID.randomUUID().toString());
-		fp.setUnitGroup(ug);
+		fp.name = "flow property";
+		fp.refId = UUID.randomUUID().toString();
+		fp.unitGroup = ug;
 		return dao.insert(fp);
 	}
 
 	private UnitGroup createUnitGroup(UnitGroupDao dao) {
 		UnitGroup ug = new UnitGroup();
-		ug.setName("unit group");
-		ug.setRefId(UUID.randomUUID().toString());
+		ug.name = "unit group";
+		ug.refId = UUID.randomUUID().toString();
 		Unit u = new Unit();
-		u.setName("unit");
-		u.setRefId(UUID.randomUUID().toString());
-		ug.getUnits().add(u);
-		ug.setReferenceUnit(u);
+		u.name = "unit";
+		u.refId = UUID.randomUUID().toString();
+		ug.units.add(u);
+		ug.referenceUnit = u;
 		return dao.insert(ug);
 	}
 
 	private Flow createProduct(FlowProperty fp, FlowDao dao) {
 		Flow product = new Flow();
-		product.setName("product");
-		product.setFlowType(FlowType.PRODUCT_FLOW);
+		product.name = "product";
+		product.flowType = FlowType.PRODUCT_FLOW;
 		FlowPropertyFactor factor = new FlowPropertyFactor();
-		factor.setFlowProperty(fp);
-		product.getFlowPropertyFactors().add(factor);
-		product.setReferenceFlowProperty(factor.getFlowProperty());
+		factor.flowProperty = fp;
+		product.flowPropertyFactors.add(factor);
+		product.referenceFlowProperty = factor.flowProperty;
 		return dao.insert(product);
 	}
 
 	private Process createProcess(Flow product, ProcessDao dao) {
 		Process p = new Process();
-		p.setName("process");
-		p.setRefId(UUID.randomUUID().toString());
+		p.name = "process";
+		p.refId = UUID.randomUUID().toString();
 		Exchange out = createExchange(p, product, null);
 		out.isInput = false;
-		p.getExchanges().add(out);
-		p.setQuantitativeReference(out);
+		p.exchanges.add(out);
+		p.quantitativeReference = out;
 		return dao.insert(p);
 	}
 
 	private Exchange createExchange(Process process, Flow product, Process provider) {
 		Exchange out = process.exchange(product);
 		if (provider != null)
-			out.defaultProviderId = provider.getId();
+			out.defaultProviderId = provider.id;
 		return out;
 	}
 
 	private Process addProvider(Process p, Process provider, ProcessDao dao) {
-		Exchange in = createExchange(p, provider.getQuantitativeReference().flow, provider);
+		Exchange in = createExchange(p, provider.quantitativeReference.flow, provider);
 		in.isInput = true;
-		p.getExchanges().add(in);
+		p.exchanges.add(in);
 		return dao.update(p);
 	}
 
@@ -175,14 +175,12 @@ public class ProcessTest extends AbstractZipTest {
 
 	private void delete(Process p, IDatabase db) {
 		new ProcessDao(db).delete(p);
-		for (Exchange e : p.getExchanges())
+		for (Exchange e : p.exchanges)
 			new FlowDao(db).delete(e.flow);
-		for (Exchange e : p.getExchanges())
-			new FlowPropertyDao(db).delete(e.flowPropertyFactor
-					.getFlowProperty());
-		for (Exchange e : p.getExchanges())
-			new UnitGroupDao(db).delete(e.flowPropertyFactor
-					.getFlowProperty().getUnitGroup());
+		for (Exchange e : p.exchanges)
+			new FlowPropertyDao(db).delete(e.flowPropertyFactor.flowProperty);
+		for (Exchange e : p.exchanges)
+			new UnitGroupDao(db).delete(e.flowPropertyFactor.flowProperty.unitGroup);
 	}
 
 }

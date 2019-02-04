@@ -32,7 +32,7 @@ public class FlowUseSearchTest {
 	@Before
 	public void setup() {
 		flow = new Flow();
-		flow.setName("flow");
+		flow.name = "flow";
 		flow = new FlowDao(database).insert(flow);
 		search = IUseSearch.FACTORY.createFor(ModelType.FLOW, database);
 	}
@@ -63,7 +63,7 @@ public class FlowUseSearchTest {
 
 	private ImpactMethod createMethod() {
 		ImpactMethod method = new ImpactMethod();
-		method.setName("method");
+		method.name = "method";
 		ImpactFactor iFactor = new ImpactFactor();
 		iFactor.flow = flow;
 		ImpactCategory category = new ImpactCategory();
@@ -85,10 +85,10 @@ public class FlowUseSearchTest {
 
 	private Process createProcess() {
 		Process process = new Process();
-		process.setName("process");
+		process.name = "process";
 		Exchange exchange = new Exchange();
 		exchange.flow = flow;
-		process.getExchanges().add(exchange);
+		process.exchanges.add(exchange);
 		return new ProcessDao(database).insert(process);
 	}
 }

@@ -49,7 +49,7 @@ public class IsicCategoryTreeSync implements Runnable {
 		Category category = root.getCategory();
 		if (category == null)
 			return;
-		if (category.getId() == 0L) {
+		if (category.id == 0L) {
 			category = dao.insert(category);
 			root.setCategory(category);
 		}
@@ -57,7 +57,7 @@ public class IsicCategoryTreeSync implements Runnable {
 			if (childNode.getCategory() != null) {
 				syncWithDatabase(childNode);
 				category.getChildCategories().add(childNode.getCategory());
-				childNode.getCategory().setCategory(category);
+				childNode.getCategory().category = category;
 			}
 		}
 		category = dao.update(category);
@@ -82,17 +82,17 @@ public class IsicCategoryTreeSync implements Runnable {
 	 * Finds the ISIC node for the given category.
 	 */
 	private IsicNode findNode(Category category, IsicTree isicTree) {
-		if (!category.getName().contains(":"))
+		if (!category.name.contains(":"))
 			return null;
-		String code = category.getName().split(":")[0];
+		String code = category.name.split(":")[0];
 		return isicTree.findNode(code);
 	}
 
 	private Category createCategory(IsicNode node) {
 		Category c = new Category();
 		c.setModelType(type);
-		c.setName(node.getCode() + ":" + node.getName());
-		c.setRefId(KeyGen.get(type.name() + "/" + c.getName()));
+		c.name = node.getCode() + ":" + node.getName();
+		c.refId = KeyGen.get(type.name() + "/" + c.name);
 		return c;
 	}
 

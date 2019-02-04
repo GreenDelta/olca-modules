@@ -40,7 +40,7 @@ public class FileStore {
 		if (e == null)
 			return new File(root, "null");
 		ModelType type = ModelType.forModelClass(e.getClass());
-		return getFolder(type, e.getRefId());
+		return getFolder(type, e.refId);
 	}
 
 	public File getFolder(ModelType type, String id) {
@@ -55,7 +55,7 @@ public class FileStore {
 		if (from == null || to == null)
 			return;
 		ModelType type = ModelType.forModelClass(from.getClass());
-		copyFolder(type, from.getRefId(), to.getRefId());
+		copyFolder(type, from.refId, to.refId);
 	}
 
 	public void copyFolder(BaseDescriptor from, BaseDescriptor to) {
@@ -89,7 +89,7 @@ public class FileStore {
 		if (e == null)
 			return;
 		ModelType type = ModelType.forModelClass(e.getClass());
-		deleteFolder(type, e.getRefId());
+		deleteFolder(type, e.refId);
 	}
 
 	public void deleteFolder(ModelType type, String id) {

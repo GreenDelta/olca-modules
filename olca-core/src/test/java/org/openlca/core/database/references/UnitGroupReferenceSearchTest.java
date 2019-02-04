@@ -16,9 +16,9 @@ public class UnitGroupReferenceSearchTest extends BaseReferenceSearchTest {
 	@Override
 	protected UnitGroup createModel() {
 		UnitGroup group = new UnitGroup();
-		group.setCategory(insertAndAddExpected("category", new Category()));
-		group.setDefaultFlowProperty(insertAndAddExpected(
-				"defaultFlowProperty", new FlowProperty()));
+		group.category = insertAndAddExpected("category", new Category());
+		group.defaultFlowProperty = insertAndAddExpected(
+		"defaultFlowProperty", new FlowProperty());
 		return Tests.insert(group);
 	}
 

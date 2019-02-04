@@ -16,7 +16,7 @@ public class Datasets {
 
 	public static Dataset toDataset(CategorizedEntity entity) {
 		CategorizedDescriptor descriptor = Descriptors.toDescriptor(entity);
-		Category category = entity.getCategory();
+		Category category = entity.category;
 		return toDataset(descriptor, category);
 	}
 
@@ -29,7 +29,7 @@ public class Datasets {
 		dataset.lastChange = descriptor.lastChange;
 		ModelType categoryType = null;
 		if (category != null) {
-			dataset.categoryRefId = category.getRefId();
+			dataset.categoryRefId = category.refId;
 			categoryType = category.getModelType();
 		} else {
 			if (descriptor.type == ModelType.CATEGORY)
@@ -43,14 +43,14 @@ public class Datasets {
 	}
 
 	public static List<String> getCategories(Category category) {
-		return getCategories(Descriptors.toDescriptor(category), category.getCategory());
+		return getCategories(Descriptors.toDescriptor(category), category.category);
 	}
 
 	public static List<String> getCategories(CategorizedDescriptor entity, Category category) {
 		List<String> categories = new ArrayList<>();
 		while (category != null) {
-			categories.add(0, category.getName());
-			category = category.getCategory();
+			categories.add(0, category.name);
+			category = category.category;
 		}
 		return categories;
 	}

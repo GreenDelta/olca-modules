@@ -52,7 +52,7 @@ class ParameterRedefs {
 				return false;
 			p.contextType = ModelType.IMPACT_METHOD;
 		}
-		p.contextId = model.getId();
+		p.contextId = model.id;
 		return true;
 	}
 

@@ -16,10 +16,10 @@ public class CategoryDaoTest {
 	public void testSimple() {
 		Category category = dao.insert(create());
 		Tests.emptyCache();
-		Category alias = dao.getForId(category.getId());
-		Assert.assertEquals(category.getName(), alias.getName());
+		Category alias = dao.getForId(category.id);
+		Assert.assertEquals(category.name, alias.name);
 		dao.delete(category); // non-attached
-		alias = dao.getForId(category.getId());
+		alias = dao.getForId(category.id);
 		Assert.assertNull(alias);
 	}
 
@@ -28,16 +28,15 @@ public class CategoryDaoTest {
 		Category parent = dao.insert(create());
 		Category child = create();
 		parent.getChildCategories().add(child);
-		child.setCategory(parent);
+		child.category = parent;
 		parent = dao.update(parent);
 		child = parent.getChildCategories().get(0);
 		Tests.emptyCache();
-		Category alias = dao.getForId(parent.getId());
+		Category alias = dao.getForId(parent.id);
 		Assert.assertEquals(1, alias.getChildCategories().size());
-		Assert.assertEquals(child.getRefId(), alias.getChildCategories().get(0)
-				.getRefId());
+		Assert.assertEquals(child.refId, alias.getChildCategories().get(0).refId);
 		dao.delete(alias);
-		Assert.assertNull(dao.getForId(child.getId()));
+		Assert.assertNull(dao.getForId(child.id));
 	}
 
 	@Test
@@ -45,7 +44,7 @@ public class CategoryDaoTest {
 		Category parent = create();
 		Category child = create();
 		parent.getChildCategories().add(child);
-		child.setCategory(parent);
+		child.category = parent;
 		dao.insert(parent);
 		Tests.emptyCache();
 		List<Category> roots = dao.getRootCategories(ModelType.FLOW);
@@ -73,7 +72,7 @@ public class CategoryDaoTest {
 
 	private Category create() {
 		Category category = new Category();
-		category.setName("name");
+		category.name = "name";
 		category.setModelType(ModelType.FLOW);
 		return category;
 	}

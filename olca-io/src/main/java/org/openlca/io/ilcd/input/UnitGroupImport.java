@@ -82,7 +82,7 @@ public class UnitGroupImport {
 				ModelType.UNIT_GROUP);
 		Category category = categoryImport
 				.run(ilcdUnitGroup.getSortedClasses());
-		unitGroup.setCategory(category);
+		unitGroup.category = category;
 	}
 
 	private void createAndMapContent() throws ImportException {
@@ -100,14 +100,14 @@ public class UnitGroupImport {
 	}
 
 	private void mapDescriptionAttributes() {
-		unitGroup.setRefId(ilcdUnitGroup.getId());
-		unitGroup.setName(ilcdUnitGroup.getName());
-		unitGroup.setDescription(ilcdUnitGroup.getComment());
+		unitGroup.refId = ilcdUnitGroup.getId();
+		unitGroup.name = ilcdUnitGroup.getName();
+		unitGroup.description = ilcdUnitGroup.getComment();
 		String v = ilcdUnitGroup.getVersion();
-		unitGroup.setVersion(Version.fromString(v).getValue());
+		unitGroup.version = Version.fromString(v).getValue();
 		Date time = ilcdUnitGroup.getTimeStamp();
 		if (time != null)
-			unitGroup.setLastChange(time.getTime());
+			unitGroup.lastChange = time.getTime();
 	}
 
 	private void createUnits() {
@@ -116,10 +116,10 @@ public class UnitGroupImport {
 			if (iUnit == null)
 				continue;
 			Unit oUnit = new Unit();
-			unitGroup.getUnits().add(oUnit);
+			unitGroup.units.add(oUnit);
 			mapUnitAttributes(iUnit, oUnit);
 			if (refUnitId != null && refUnitId == iUnit.id) {
-				unitGroup.setReferenceUnit(oUnit);
+				unitGroup.referenceUnit = oUnit;
 			}
 		}
 	}
@@ -127,13 +127,13 @@ public class UnitGroupImport {
 	private void mapUnitAttributes(org.openlca.ilcd.units.Unit iUnit, Unit oUnit) {
 		UnitExtension extension = new UnitExtension(iUnit);
 		if (extension.isValid())
-			oUnit.setRefId(extension.getUnitId());
+			oUnit.refId = extension.getUnitId();
 		else
-			oUnit.setRefId(UUID.randomUUID().toString());
-		oUnit.setName(iUnit.name);
-		oUnit.setDescription(LangString.getFirst(iUnit.comment,
-				config.langs));
-		oUnit.setConversionFactor(iUnit.factor);
+			oUnit.refId = UUID.randomUUID().toString();
+		oUnit.name = iUnit.name;
+		oUnit.description = LangString.getFirst(iUnit.comment,
+		config.langs);
+		oUnit.conversionFactor = iUnit.factor;
 	}
 
 	private void saveInDatabase(UnitGroup obj) throws ImportException {
@@ -142,7 +142,7 @@ public class UnitGroupImport {
 		} catch (Exception e) {
 			String message = String.format(
 					"Save operation failed in unit group %s.",
-					unitGroup.getRefId());
+					unitGroup.refId);
 			throw new ImportException(message, e);
 		}
 	}

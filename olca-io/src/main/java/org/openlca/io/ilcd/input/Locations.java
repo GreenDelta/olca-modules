@@ -43,9 +43,9 @@ final class Locations {
 			String refId = KeyGen.get(code);
 			LocationDao dao = new LocationDao(config.db);
 			location = new Location();
-			location.setCode(code);
-			location.setRefId(refId);
-			location.setName(code);
+			location.code = code;
+			location.refId = refId;
+			location.name = code;
 			return dao.insert(location);
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(Locations.class);

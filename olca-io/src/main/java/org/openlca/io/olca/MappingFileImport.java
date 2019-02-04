@@ -30,9 +30,9 @@ class MappingFileImport {
 	}
 
 	private void syncFile(MappingFile sourceFile) {
-		if (sourceFile == null || sourceFile.getContent() == null)
+		if (sourceFile == null || sourceFile.content == null)
 			return;
-		MappingFile destFile = destDao.getForFileName(sourceFile.getFileName());
+		MappingFile destFile = destDao.getForFileName(sourceFile.fileName);
 		if (destFile != null) {
 			log.trace("the mapping file {} already exist in the database and " +
 					"was not changed", destFile);
@@ -40,8 +40,8 @@ class MappingFileImport {
 		}
 		log.trace("copy mapping file {}", sourceFile);
 		destFile = new MappingFile();
-		destFile.setContent(sourceFile.getContent());
-		destFile.setFileName(sourceFile.getFileName());
+		destFile.content = sourceFile.content;
+		destFile.fileName = sourceFile.fileName;
 		destDao.insert(destFile);
 	}
 

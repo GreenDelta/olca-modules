@@ -55,7 +55,7 @@ class ExportConfig {
 		Set<Long> set = visited.get(type);
 		if (set == null)
 			visited.put(type, set = new HashSet<>());
-		set.add(entity.getId());
+		set.add(entity.id);
 	}
 
 	boolean hasVisited(ModelType type, long id) {

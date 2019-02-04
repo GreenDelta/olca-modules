@@ -36,12 +36,12 @@ final class In {
 	static void mapAtts(JsonObject obj, RootEntity entity, long id) {
 		if (obj == null || entity == null)
 			return;
-		entity.setId(id);
-		entity.setName(Json.getString(obj, "name"));
-		entity.setDescription(Json.getString(obj, "description"));
-		entity.setRefId(Json.getString(obj, "@id"));
-		entity.setVersion(getVersion(obj));
-		entity.setLastChange(getLastChange(obj));
+		entity.id = id;
+		entity.name = Json.getString(obj, "name");
+		entity.description = Json.getString(obj, "description");
+		entity.refId = Json.getString(obj, "@id");
+		entity.version = getVersion(obj);
+		entity.lastChange = getLastChange(obj);
 	}
 
 	static void mapAtts(JsonObject obj, CategorizedEntity entity, long id,
@@ -50,15 +50,15 @@ final class In {
 			return;
 		mapAtts(obj, (RootEntity) entity, id);
 		String catId = Json.getRefId(obj, "category");
-		entity.setCategory(CategoryImport.run(catId, conf));
+		entity.category = CategoryImport.run(catId, conf);
 	}
 	
 	static boolean isNewer(JsonObject json, RootEntity model) {
 		long jsonVersion = getVersion(json);
 		long jsonDate = getLastChange(json);
-		if (jsonVersion < model.getVersion())
+		if (jsonVersion < model.version)
 			return false;
-		if (jsonVersion == model.getVersion() && jsonDate <= model.getLastChange())
+		if (jsonVersion == model.version && jsonDate <= model.lastChange)
 			return false;
 		return true;
 	}

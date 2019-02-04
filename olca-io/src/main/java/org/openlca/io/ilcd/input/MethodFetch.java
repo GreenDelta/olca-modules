@@ -68,10 +68,10 @@ final class MethodFetch {
 
 	private ImpactMethod createFromExtension(String refId) {
 		ImpactMethod method = new ImpactMethod();
-		method.setRefId(refId);
+		method.refId = refId;
 		List<String> names = getMethodNames();
 		String name = names.isEmpty() ? "LCIA Method" : names.get(0);
-		method.setName(name);
+		method.name = name;
 		dao.insert(method);
 		return method;
 	}
@@ -96,8 +96,8 @@ final class MethodFetch {
 		org.openlca.core.model.ImpactMethod method = dao.getForRefId(refId);
 		if (method == null) {
 			method = new org.openlca.core.model.ImpactMethod();
-			method.setRefId(refId);
-			method.setName(name);
+			method.refId = refId;
+			method.name = name;
 			dao.insert(method);
 		}
 		return method;

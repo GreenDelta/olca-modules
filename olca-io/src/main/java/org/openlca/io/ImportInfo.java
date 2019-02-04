@@ -72,13 +72,13 @@ public class ImportInfo {
 		}
 
 		private void put(RootEntity e, Status s) {
-			if (e == null || e.getRefId() == null)
+			if (e == null || e.refId == null)
 				return;
-			ImportInfo info = infos.get(e.getRefId());
+			ImportInfo info = infos.get(e.refId);
 			if (info != null)
 				return;
 			BaseDescriptor d = Descriptors.toDescriptor(e);
-			infos.put(e.getRefId(), new ImportInfo(d, s));
+			infos.put(e.refId, new ImportInfo(d, s));
 		}
 
 		public List<ImportInfo> get() {

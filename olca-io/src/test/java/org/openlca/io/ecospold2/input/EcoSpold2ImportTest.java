@@ -51,19 +51,19 @@ public class EcoSpold2ImportTest {
 
 	private void createUnit(String unitRefId, String propertyRefId, String name) {
 		Unit unit = new Unit();
-		unit.setName(name);
-		unit.setRefId(unitRefId);
+		unit.name = name;
+		unit.refId = unitRefId;
 		UnitGroup group = new UnitGroup();
-		group.setRefId(UUID.randomUUID().toString());
-		group.setReferenceUnit(unit);
-		group.getUnits().add(unit);
+		group.refId = UUID.randomUUID().toString();
+		group.referenceUnit = unit;
+		group.units.add(unit);
 		group = new UnitGroupDao(Tests.getDb()).insert(group);
 		FlowProperty prop = new FlowProperty();
-		prop.setUnitGroup(group);
-		prop.setName("property for " + name);
-		prop.setRefId(propertyRefId);
+		prop.unitGroup = group;
+		prop.name = "property for " + name;
+		prop.refId = propertyRefId;
 		prop = new FlowPropertyDao(Tests.getDb()).insert(prop);
-		group.setDefaultFlowProperty(prop);
+		group.defaultFlowProperty = prop;
 		group = new UnitGroupDao(Tests.getDb()).update(group);
 	}
 
@@ -85,7 +85,7 @@ public class EcoSpold2ImportTest {
 	@Test
 	public void testFormulaImported() {
 		Process process = dao.getForRefId(REF_ID);
-		String formula = process.getQuantitativeReference().amountFormula;
+		String formula = process.quantitativeReference.amountFormula;
 		Assert.assertEquals("p", formula); // a parameter p = 23 + SUM(8;2) is
 											// created
 	}
@@ -93,10 +93,10 @@ public class EcoSpold2ImportTest {
 	@Test
 	public void testParameterImported() {
 		Process process = dao.getForRefId(REF_ID);
-		List<Parameter> parameters = process.getParameters();
+		List<Parameter> parameters = process.parameters;
 		Assert.assertEquals(3, parameters.size());
 		for (Parameter parameter : parameters) {
-			String name = parameter.getName();
+			String name = parameter.name;
 			switch (name) {
 			case "vehicle_life":
 				Assert.assertEquals(23, parameter.value, 1e-16);
@@ -108,7 +108,7 @@ public class EcoSpold2ImportTest {
 				Assert.assertEquals(1, parameter.value, 1e-16);
 				break;
 			default:
-				Assert.fail("unknown parameter: " + parameter.getName());
+				Assert.fail("unknown parameter: " + parameter.name);
 				break;
 			}
 		}
@@ -117,7 +117,7 @@ public class EcoSpold2ImportTest {
 	@Test
 	public void testUncertaintyImported() {
 		Process process = dao.getForRefId(REF_ID);
-		Uncertainty uncertainty = process.getQuantitativeReference().uncertainty;
+		Uncertainty uncertainty = process.quantitativeReference.uncertainty;
 		Assert.assertEquals(UncertaintyType.LOG_NORMAL,
 				uncertainty.distributionType);
 		Assert.assertEquals(33, uncertainty.parameter1, 1e-16);

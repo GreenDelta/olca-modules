@@ -49,11 +49,11 @@ class ProjectImport extends BaseImport<Project> {
 		ImpactMethod method = ImpactMethodImport.run(methodRefId, conf);
 		if (method == null)
 			return;
-		p.impactMethodId = method.getId();
+		p.impactMethodId = method.id;
 		String nwSetRefId = Json.getRefId(json, "nwSet");
 		for (NwSet set : method.nwSets)
-			if (set.getRefId().equals(nwSetRefId)) {
-				p.nwSetId = set.getId();
+			if (set.refId.equals(nwSetRefId)) {
+				p.nwSetId = set.id;
 				break;
 			}
 	}
@@ -97,18 +97,18 @@ class ProjectImport extends BaseImport<Project> {
 		if (system.referenceExchange == null)
 			return null;
 		Flow product = system.referenceExchange.flow;
-		for (FlowPropertyFactor factor : product.getFlowPropertyFactors())
-			if (factor.getFlowProperty().getRefId().equals(propRefId))
+		for (FlowPropertyFactor factor : product.flowPropertyFactors)
+			if (factor.flowProperty.refId.equals(propRefId))
 				return factor;
 		return null;
 	}
 
 	private Unit findUnit(String refId, FlowPropertyFactor factor) {
-		UnitGroup ug = factor.getFlowProperty().getUnitGroup();
+		UnitGroup ug = factor.flowProperty.unitGroup;
 		if (ug == null)
 			return null;
-		for (Unit unit : ug.getUnits())
-			if (unit.getRefId().equals(refId))
+		for (Unit unit : ug.units)
+			if (unit.refId.equals(refId))
 				return unit;
 		return null;
 	}

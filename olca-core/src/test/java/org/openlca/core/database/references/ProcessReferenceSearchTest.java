@@ -36,8 +36,8 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 	@Override
 	protected Process createModel() {
 		Process process = new Process();
-		process.setCategory(insertAndAddExpected("category", new Category()));
-		process.setLocation(insertAndAddExpected("location", new Location()));
+		process.category = insertAndAddExpected("category", new Category());
+		process.location = insertAndAddExpected("location", new Location());
 		process.dqSystem = insertAndAddExpected("dqSystem", new DQSystem());
 		process.exchangeDqSystem = insertAndAddExpected("exchangeDqSystem", new DQSystem());
 		process.socialDqSystem = insertAndAddExpected("socialDqSystem", new DQSystem());
@@ -48,12 +48,12 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 		String n5 = generateName();
 		createExchange(process, 3d, true);
 		createExchange(process, "2*" + n4, false);
-		process.getParameters().add(createParameter(n1, 3d, false));
-		process.getParameters().add(createParameter(n2, n1 + "*2*" + n3, false));
+		process.parameters.add(createParameter(n1, 3d, false));
+		process.parameters.add(createParameter(n2, n1 + "*2*" + n3, false));
 		process.socialAspects.add(createSocialAspect());
 		process.socialAspects.add(createSocialAspect());
 		process.currency = insertAndAddExpected("currency", new Currency());
-		process.setDocumentation(createDocumentation());
+		process.documentation = createDocumentation();
 		insertAndAddExpected(n3, createParameter(n3, "5*5", true));
 		// formula with parameter to see if added as reference (unexpected)
 		insertAndAddExpected(n4, createParameter(n4, "3*" + n5, true));
@@ -63,35 +63,35 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 		globalUnreferenced = Tests.insert(globalUnreferenced);
 		globalUnreferenced2 = Tests.insert(globalUnreferenced2);
 		process = Tests.insert(process);
-		for (Exchange e : process.getExchanges()) {
-			addExpected("flow", e.flow, "exchanges", Exchange.class, e.getId());
-			addExpected("flowPropertyFactor", e.flowPropertyFactor, "exchanges", Exchange.class, e.getId());
-			addExpected("flowProperty", e.flowPropertyFactor.getFlowProperty(), "flowPropertyFactor",
-					FlowPropertyFactor.class, e.flowPropertyFactor.getId());
-			addExpected("unit", e.unit, "exchanges", Exchange.class, e.getId());
+		for (Exchange e : process.exchanges) {
+			addExpected("flow", e.flow, "exchanges", Exchange.class, e.id);
+			addExpected("flowPropertyFactor", e.flowPropertyFactor, "exchanges", Exchange.class, e.id);
+			addExpected("flowProperty", e.flowPropertyFactor.flowProperty, "flowPropertyFactor",
+					FlowPropertyFactor.class, e.flowPropertyFactor.id);
+			addExpected("unit", e.unit, "exchanges", Exchange.class, e.id);
 			Process provider = processes.get(e.defaultProviderId);
 			if (provider != null)
-				addExpected("defaultProviderId", provider, "exchanges", Exchange.class, e.getId());
+				addExpected("defaultProviderId", provider, "exchanges", Exchange.class, e.id);
 		}
 		for (SocialAspect a : process.socialAspects) {
-			addExpected("indicator", a.indicator, "socialAspects", SocialAspect.class, a.getId());
-			addExpected("source", a.source, "socialAspects", SocialAspect.class, a.getId());
+			addExpected("indicator", a.indicator, "socialAspects", SocialAspect.class, a.id);
+			addExpected("source", a.source, "socialAspects", SocialAspect.class, a.id);
 		}
-		ProcessDocumentation doc = process.getDocumentation();
-		addExpected("dataDocumentor", doc.getDataDocumentor(), "documentation", ProcessDocumentation.class, doc.getId());
-		addExpected("dataGenerator", doc.getDataGenerator(), "documentation", ProcessDocumentation.class, doc.getId());
-		addExpected("dataSetOwner", doc.getDataSetOwner(), "documentation", ProcessDocumentation.class, doc.getId());
-		addExpected("reviewer", doc.getReviewer(), "documentation", ProcessDocumentation.class, doc.getId());
-		addExpected("publication", doc.getPublication(), "documentation", ProcessDocumentation.class, doc.getId());
-		for (Source s : process.getDocumentation().getSources())
-			addExpected("sources", s, "documentation", ProcessDocumentation.class, doc.getId());
+		ProcessDocumentation doc = process.documentation;
+		addExpected("dataDocumentor", doc.dataDocumentor, "documentation", ProcessDocumentation.class, doc.id);
+		addExpected("dataGenerator", doc.dataGenerator, "documentation", ProcessDocumentation.class, doc.id);
+		addExpected("dataSetOwner", doc.dataSetOwner, "documentation", ProcessDocumentation.class, doc.id);
+		addExpected("reviewer", doc.reviewer, "documentation", ProcessDocumentation.class, doc.id);
+		addExpected("publication", doc.publication, "documentation", ProcessDocumentation.class, doc.id);
+		for (Source s : process.documentation.sources)
+			addExpected("sources", s, "documentation", ProcessDocumentation.class, doc.id);
 		return process;
 	}
 
 	private Exchange createExchange(Process process, Object value, boolean provider) {
 		Flow flow = createFlow();
-		FlowProperty property = flow.getFlowPropertyFactors().get(0).getFlowProperty();
-		Unit unit = property.getUnitGroup().getUnits().get(0);
+		FlowProperty property = flow.flowPropertyFactors.get(0).flowProperty;
+		Unit unit = property.unitGroup.units.get(0);
 		Exchange exchange = process.exchange(flow, property, unit);
 		boolean formula = value instanceof String;
 		if (formula)
@@ -100,8 +100,8 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 			exchange.amount = (double) value;
 		if (provider) {
 			Process pProcess = Tests.insert(new Process());
-			processes.put(pProcess.getId(), pProcess);
-			exchange.defaultProviderId = pProcess.getId();
+			processes.put(pProcess.id, pProcess);
+			exchange.defaultProviderId = pProcess.id;
 		}
 		return exchange;
 	}
@@ -110,15 +110,15 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 		Flow flow = new Flow();
 		UnitGroup group = new UnitGroup();
 		Unit unit = new Unit();
-		unit.setName("unit");
-		group.getUnits().add(unit);
+		unit.name = "unit";
+		group.units.add(unit);
 		group = Tests.insert(group);
 		FlowProperty property = new FlowProperty();
-		property.setUnitGroup(group);
+		property.unitGroup = group;
 		property = Tests.insert(property);
 		FlowPropertyFactor factor = new FlowPropertyFactor();
-		factor.setFlowProperty(property);
-		flow.getFlowPropertyFactors().add(factor);
+		factor.flowProperty = property;
+		flow.flowPropertyFactors.add(factor);
 		return Tests.insert(flow);
 	}
 
@@ -131,7 +131,7 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 
 	private Parameter createParameter(String name, Object value, boolean global) {
 		Parameter parameter = new Parameter();
-		parameter.setName(name);
+		parameter.name = name;
 		boolean formula = value instanceof String;
 		parameter.isInputParameter = !formula;
 		if (formula)
@@ -147,13 +147,13 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 
 	private ProcessDocumentation createDocumentation() {
 		ProcessDocumentation doc = new ProcessDocumentation();
-		doc.setDataDocumentor(Tests.insert(new Actor()));
-		doc.setDataGenerator(Tests.insert(new Actor()));
-		doc.setDataSetOwner(Tests.insert(new Actor()));
-		doc.setReviewer(Tests.insert(new Actor()));
-		doc.setPublication(Tests.insert(new Source()));
-		doc.getSources().add(Tests.insert(new Source()));
-		doc.getSources().add(Tests.insert(new Source()));
+		doc.dataDocumentor = Tests.insert(new Actor());
+		doc.dataGenerator = Tests.insert(new Actor());
+		doc.dataSetOwner = Tests.insert(new Actor());
+		doc.reviewer = Tests.insert(new Actor());
+		doc.publication = Tests.insert(new Source());
+		doc.sources.add(Tests.insert(new Source()));
+		doc.sources.add(Tests.insert(new Source()));
 		return doc;
 	}
 

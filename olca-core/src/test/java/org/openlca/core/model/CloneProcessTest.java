@@ -14,13 +14,13 @@ public class CloneProcessTest {
 		Process p1 = TestProcess.refProduct("steel", 1.0, "kg")
 				.elemOut("CO2", 2, "kg").get();
 		assertEquals(2, p1.lastInternalId);
-		for (Exchange e : p1.getExchanges()) {
+		for (Exchange e : p1.exchanges) {
 			assertTrue(e.internalId > 0);
 			assertEquals(e, p1.getExchange(e.internalId));
 		}
 		Process p2 = p1.clone();
 		assertEquals(2, p2.lastInternalId);
-		for (Exchange e : p2.getExchanges()) {
+		for (Exchange e : p2.exchanges) {
 			assertTrue(e.internalId > 0);
 			assertEquals(e, p2.getExchange(e.internalId));
 		}

@@ -71,7 +71,7 @@ class ProcessExchanges {
 				String provider = ext.getDefaultProvider();
 				if (provider != null) {
 					providerLinker.addLink(
-							process.getRefId(), e.internalId, provider);
+							process.refId, e.internalId, provider);
 				}
 			}
 			new UncertaintyConverter().map(iExchange, e);
@@ -176,20 +176,20 @@ class ProcessExchanges {
 		org.openlca.core.model.AllocationFactor f = new org.openlca.core.model.AllocationFactor();
 		f.productId = productId;
 		f.value = fraction / 100;
-		if (oExchange.flow.getId() == productId)
+		if (oExchange.flow.id == productId)
 			f.method = AllocationMethod.PHYSICAL;
 		else {
 			f.method = AllocationMethod.CAUSAL;
 			f.exchange = oExchange;
 		}
-		process.getAllocationFactors().add(f);
+		process.allocationFactors.add(f);
 	}
 
 	private Long findMappedFlowId(int iExchangeId) {
 		for (MappedPair p : mappedPairs) {
 			if (iExchangeId == p.iExchange.id) {
 				if (p.oExchange.flow != null)
-					return p.oExchange.flow.getId();
+					return p.oExchange.flow.id;
 			}
 		}
 		return null;

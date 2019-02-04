@@ -10,59 +10,27 @@ import javax.persistence.Table;
 public class Location extends CategorizedEntity {
 
 	@Column(name = "code")
-	private String code;
+	public String code;
 
 	@Column(name = "latitude")
-	private double latitude;
+	public double latitude;
 
 	@Column(name = "longitude")
-	private double longitude;
+	public double longitude;
 
 	@Lob
 	@Column(name = "kmz")
-	private byte[] kmz;
-
-	public String getCode() {
-		return code;
-	}
+	public byte[] kmz;
 
 	@Override
 	public Location clone() {
 		Location clone = new Location();
 		Util.cloneRootFields(this, clone);
-		clone.setCode(getCode());
-		clone.setLatitude(getLatitude());
-		clone.setLongitude(getLongitude());
-		clone.setKmz(getKmz());
+		clone.code = code;
+		clone.latitude = latitude;
+		clone.longitude = longitude;
+		clone.kmz = kmz;
 		return clone;
-	}
-
-	public double getLatitude() {
-		return latitude;
-	}
-
-	public double getLongitude() {
-		return longitude;
-	}
-
-	public void setCode(String code) {
-		this.code = code;
-	}
-
-	public void setLatitude(double latitude) {
-		this.latitude = latitude;
-	}
-
-	public void setLongitude(double longitude) {
-		this.longitude = longitude;
-	}
-
-	public byte[] getKmz() {
-		return kmz;
-	}
-
-	public void setKmz(byte[] kmz) {
-		this.kmz = kmz;
 	}
 
 }

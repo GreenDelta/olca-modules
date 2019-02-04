@@ -14,7 +14,7 @@ class UnitExport extends AbstractExport {
 		UnitGroupDao dao = new UnitGroupDao(database);
 		int count = 0;
 		for (UnitGroup unitGroup : dao.getAll()) {
-			for (Unit unit : unitGroup.getUnits()) {
+			for (Unit unit : unitGroup.units) {
 				Object[] line = createLine(unitGroup, unit);
 				writer.write(line);
 			}
@@ -25,12 +25,12 @@ class UnitExport extends AbstractExport {
 
 	private Object[] createLine(UnitGroup group, Unit unit) {
 		Object[] line = new Object[6];
-		line[0] = unit.getRefId();
-		line[1] = unit.getName();
-		line[2] = unit.getDescription();
-		line[3] = unit.getConversionFactor();
-		line[4] = unit.getSynonyms();
-		line[5] = group.getRefId();
+		line[0] = unit.refId;
+		line[1] = unit.name;
+		line[2] = unit.description;
+		line[3] = unit.conversionFactor;
+		line[4] = unit.synonyms;
+		line[5] = group.refId;
 		return line;
 	}
 }

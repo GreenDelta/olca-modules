@@ -45,7 +45,7 @@ class FlowInfo implements Comparable<FlowInfo> {
 				Location location = cache.get(Location.class,
 						flow.location);
 				if (location != null)
-					info.setLocation(location.getCode());
+					info.setLocation(location.code);
 			}
 			String unit = DisplayValues.referenceUnit(flow, cache);
 			info.setUnit(unit);

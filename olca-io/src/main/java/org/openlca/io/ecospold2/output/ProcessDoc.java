@@ -32,14 +32,14 @@ class ProcessDoc {
 
 	private ProcessDoc(Process process, DataSet dataSet) {
 		this.process = process;
-		this.doc = process.getDocumentation();
+		this.doc = process.documentation;
 		this.dataSet = dataSet;
 		if (dataSet.description == null)
 			dataSet.description = new ActivityDescription();
 	}
 
 	public static void map(Process process, DataSet dataSet) {
-		if (process == null || process.getDocumentation() == null
+		if (process == null || process.documentation == null
 				|| dataSet == null)
 			return;
 		new ProcessDoc(process, dataSet).map();
@@ -55,14 +55,14 @@ class ProcessDoc {
 
 	private void mapTime() {
 		Time timePeriod = new Time();
-		timePeriod.comment = RichText.of(doc.getTime());
+		timePeriod.comment = RichText.of(doc.time);
 		timePeriod.dataValid = true;
-		if (doc.getValidUntil() != null)
-			timePeriod.end = doc.getValidUntil();
+		if (doc.validUntil != null)
+			timePeriod.end = doc.validUntil;
 		else
 			timePeriod.end = new Date();
-		if (doc.getValidFrom() != null)
-			timePeriod.start = doc.getValidFrom();
+		if (doc.validFrom != null)
+			timePeriod.start = doc.validFrom;
 		else
 			timePeriod.start = new Date();
 		dataSet.description.timePeriod = timePeriod;
@@ -70,7 +70,7 @@ class ProcessDoc {
 
 	private void mapTechnology() {
 		Technology tech = new Technology();
-		tech.comment = RichText.of(doc.getTechnology());
+		tech.comment = RichText.of(doc.technology);
 		tech.level = 0;
 		dataSet.description.technology = tech;
 	}
@@ -86,8 +86,8 @@ class ProcessDoc {
 		Representativeness repri = Spold2.representativeness(dataSet);
 		repri.systemModelId = "06590a66-662a-4885-8494-ad0cf410f956";
 		repri.systemModelName = "Allocation, ecoinvent default";
-		repri.samplingProcedure = doc.getSampling();
-		repri.extrapolations = doc.getDataTreatment();
+		repri.samplingProcedure = doc.sampling;
+		repri.extrapolations = doc.dataTreatment;
 	}
 
 	private void mapAdminInfo() {
@@ -101,7 +101,7 @@ class ProcessDoc {
 	private void mapDataEntry(AdminInfo adminInfo) {
 		DataEntry dataEntryBy = new DataEntry();
 		adminInfo.dataEntry = dataEntryBy;
-		Actor dataDocumentor = doc.getDataDocumentor();
+		Actor dataDocumentor = doc.dataDocumentor;
 		if (dataDocumentor == null) {
 			dataEntryBy.isActiveAuthor = false;
 			dataEntryBy.personEmail = "no@email.com";
@@ -109,17 +109,17 @@ class ProcessDoc {
 			dataEntryBy.personName = "[Current User]";
 		} else {
 			dataEntryBy.personEmail = dataDocumentor.email;
-			dataEntryBy.personId = dataDocumentor.getRefId();
-			dataEntryBy.personName = dataDocumentor.getName();
+			dataEntryBy.personId = dataDocumentor.refId;
+			dataEntryBy.personName = dataDocumentor.name;
 		}
 	}
 
 	private void mapDataGenerator(AdminInfo adminInfo) {
 		DataGenerator generator = new DataGenerator();
 		adminInfo.dataGenerator = generator;
-		generator.isCopyrightProtected = doc.isCopyright();
+		generator.isCopyrightProtected = doc.copyright;
 		mapPublication(generator);
-		Actor actor = doc.getDataGenerator();
+		Actor actor = doc.dataGenerator;
 		if (actor == null) {
 			generator.personEmail = "no@email.com";
 			generator.personId = "788d0176-a69c-4de0-a5d3-259866b6b100";
@@ -133,9 +133,9 @@ class ProcessDoc {
 	}
 
 	private void mapPublication(DataGenerator generator) {
-		if (doc.getPublication() == null)
+		if (doc.publication == null)
 			return;
-		Source source = addSource(doc.getPublication());
+		Source source = addSource(doc.publication);
 		generator.publishedSourceId = source.id;
 		generator.publishedSourceFirstAuthor = source.firstAuthor;
 		generator.publishedSourceYear = source.year;
@@ -146,12 +146,12 @@ class ProcessDoc {
 		adminInfo.fileAttributes = atts;
 		mapVersion(atts);
 		atts.defaultLanguage = "en";
-		if (doc.getCreationDate() != null)
-			atts.creationTimestamp = doc.getCreationDate();
+		if (doc.creationDate != null)
+			atts.creationTimestamp = doc.creationDate;
 		else
 			atts.creationTimestamp = new Date();
-		if (process.getLastChange() != 0)
-			atts.lastEditTimestamp = new Date(process.getLastChange());
+		if (process.lastChange != 0)
+			atts.lastEditTimestamp = new Date(process.lastChange);
 		else
 			atts.lastEditTimestamp = new Date();
 		atts.internalSchemaVersion = "1.0";
@@ -160,7 +160,7 @@ class ProcessDoc {
 	}
 
 	private void mapVersion(FileAttributes atts) {
-		Version version = new Version(process.getVersion());
+		Version version = new Version(process.version);
 		atts.majorRelease = version.getMajor();
 		atts.majorRevision = version.getMinor();
 		atts.minorRelease = version.getUpdate();
@@ -169,13 +169,13 @@ class ProcessDoc {
 
 	private Source addSource(org.openlca.core.model.Source olcaSource) {
 		for (Source source : dataSet.masterData.sources) {
-			if (Objects.equals(olcaSource.getRefId(), source.id))
+			if (Objects.equals(olcaSource.refId, source.id))
 				return source;
 		}
 		Source source = new Source();
-		source.id = olcaSource.getRefId();
-		source.comment = olcaSource.getDescription();
-		source.firstAuthor = olcaSource.getName();
+		source.id = olcaSource.refId;
+		source.comment = olcaSource.description;
+		source.firstAuthor = olcaSource.name;
 		source.sourceType = 0;
 		source.title = olcaSource.textReference;
 		if (olcaSource.year != null)
@@ -188,17 +188,17 @@ class ProcessDoc {
 
 	private Person addPerson(Actor actor) {
 		for (Person person : dataSet.masterData.persons) {
-			if (Objects.equals(actor.getRefId(), person.id))
+			if (Objects.equals(actor.refId, person.id))
 				return person;
 		}
 		Person person = new Person();
-		person.id = actor.getRefId();
-		person.name = actor.getName();
+		person.id = actor.refId;
+		person.name = actor.name;
 		person.address = getAddress(actor);
 		String email = actor.email != null ? actor.email
 				: "no@mail.net";
 		person.email = email;
-		person.name = actor.getName();
+		person.name = actor.name;
 		person.telefax = actor.telefax;
 		person.telephone = actor.telephone;
 		person.companyId = "b35ea934-b41d-4830-b1aa-c7c678270240";

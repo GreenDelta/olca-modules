@@ -50,15 +50,15 @@ class ProjectImport {
 	private void createProject(ProjectDescriptor descriptor) {
 		Project srcProject = srcDao.getForId(descriptor.id);
 		Project destProject = srcProject.clone();
-		destProject.setRefId(srcProject.getRefId());
-		destProject.setCategory(refs.switchRef(srcProject.getCategory()));
+		destProject.refId = srcProject.refId;
+		destProject.category = refs.switchRef(srcProject.category);
 		destProject.author = refs.switchRef(srcProject.author);
 		switchImpactMethod(destProject);
 		switchNwSet(destProject);
 		for (ProjectVariant variant : destProject.variants)
 			switchVariantReferences(variant);
 		destProject = destDao.insert(destProject);
-		seq.put(seq.PROJECT, srcProject.getRefId(), destProject.getId());
+		seq.put(seq.PROJECT, srcProject.refId, destProject.id);
 	}
 
 	private void switchImpactMethod(Project destProject) {

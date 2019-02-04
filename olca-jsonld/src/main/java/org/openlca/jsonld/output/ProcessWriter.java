@@ -29,10 +29,10 @@ class ProcessWriter extends Writer<Process> {
 			return null;
 		this.process = p;
 		AllocationCleanup.on(p);
-		Out.put(obj, "processType", p.getProcessType(), Out.REQUIRED_FIELD);
-		Out.put(obj, "defaultAllocationMethod", p.getDefaultAllocationMethod());
-		Out.put(obj, "infrastructureProcess", p.isInfrastructureProcess());
-		Out.put(obj, "location", p.getLocation(), conf);
+		Out.put(obj, "processType", p.processType, Out.REQUIRED_FIELD);
+		Out.put(obj, "defaultAllocationMethod", p.defaultAllocationMethod);
+		Out.put(obj, "infrastructureProcess", p.infrastructureProcess);
+		Out.put(obj, "location", p.location, conf);
 		Out.put(obj, "processDocumentation", Documentation.create(p, conf));
 		Out.put(obj, "currency", p.currency, conf);
 		Out.put(obj, "dqSystem", p.dqSystem, conf);
@@ -50,7 +50,7 @@ class ProcessWriter extends Writer<Process> {
 
 	private void mapParameters(JsonObject json) {
 		JsonArray parameters = new JsonArray();
-		for (Parameter p : process.getParameters()) {
+		for (Parameter p : process.parameters) {
 			JsonObject obj = Writer.initJson();
 			ParameterWriter.mapAttr(obj, p);
 			parameters.add(obj);
@@ -60,12 +60,12 @@ class ProcessWriter extends Writer<Process> {
 
 	private void mapExchanges(JsonObject json) {
 		JsonArray exchanges = new JsonArray();
-		for (Exchange e : process.getExchanges()) {
+		for (Exchange e : process.exchanges) {
 			JsonObject obj = new JsonObject();
 			boolean mapped = Exchanges.map(e, obj, conf);
 			if (!mapped)
 				continue;
-			if (Objects.equals(process.getQuantitativeReference(), e))
+			if (Objects.equals(process.quantitativeReference, e))
 				Out.put(obj, "quantitativeReference", true);
 			exchanges.add(obj);
 		}
@@ -91,7 +91,7 @@ class ProcessWriter extends Writer<Process> {
 
 	private void mapAllocationFactors(JsonObject json) {
 		JsonArray factors = new JsonArray();
-		for (AllocationFactor f : process.getAllocationFactors()) {
+		for (AllocationFactor f : process.allocationFactors) {
 			JsonObject obj = new JsonObject();
 			Out.put(obj, "@type", AllocationFactor.class.getSimpleName());
 			Out.put(obj, "allocationType", f.method, Out.REQUIRED_FIELD);
@@ -106,8 +106,8 @@ class ProcessWriter extends Writer<Process> {
 	}
 
 	private Flow findProduct(long id) {
-		for (Exchange e : process.getExchanges())
-			if (e.flow.getId() == id)
+		for (Exchange e : process.exchanges)
+			if (e.flow.id == id)
 				return e.flow;
 		return null;
 	}

@@ -63,7 +63,7 @@ public class FlowImport {
 	private Flow createNew() throws ImportException {
 		flow = new Flow();
 		importAndSetCompartment();
-		if (flow.getCategory() == null)
+		if (flow.category == null)
 			importAndSetCategory();
 		createAndMapContent();
 		saveInDatabase(flow);
@@ -89,7 +89,7 @@ public class FlowImport {
 		CategoryImport categoryImport = new CategoryImport(config,
 				ModelType.FLOW);
 		Category category = categoryImport.run(ilcdFlow.getSortedClasses());
-		flow.setCategory(category);
+		flow.category = category;
 	}
 
 	private void importAndSetCompartment() throws ImportException {
@@ -97,28 +97,28 @@ public class FlowImport {
 			CompartmentImport compartmentImport = new CompartmentImport(config);
 			Category category = compartmentImport.run(ilcdFlow
 					.getSortedCompartments());
-			flow.setCategory(category);
+			flow.category = category;
 		}
 	}
 
 	private void createAndMapContent() throws ImportException {
 		validateInput();
 		setFlowType();
-		flow.setRefId(ilcdFlow.getId());
-		flow.setName(Strings.cut(ilcdFlow.getName(), 254));
-		flow.setDescription(ilcdFlow.getComment());
-		flow.setCasNumber(ilcdFlow.getCasNumber());
+		flow.refId = ilcdFlow.getId();
+		flow.name = Strings.cut(ilcdFlow.getName(), 254);
+		flow.description = ilcdFlow.getComment();
+		flow.casNumber = ilcdFlow.getCasNumber();
 		flow.synonyms = ilcdFlow.getSynonyms();
-		flow.setFormula(ilcdFlow.getSumFormula());
+		flow.formula = ilcdFlow.getSumFormula();
 		String v = ilcdFlow.getVersion();
-		flow.setVersion(Version.fromString(v).getValue());
+		flow.version = Version.fromString(v).getValue();
 		Date time = ilcdFlow.getTimeStamp();
 		if (time != null)
-			flow.setLastChange(time.getTime());
+			flow.lastChange = time.getTime();
 		addFlowProperties();
-		if (flow.getReferenceFlowProperty() == null)
+		if (flow.referenceFlowProperty == null)
 			throw new ImportException("Could not import flow "
-					+ flow.getRefId() + " because the "
+					+ flow.refId + " because the "
 					+ "reference flow property of this flow "
 					+ "could not be imported.");
 		mapLocation();
@@ -129,7 +129,7 @@ public class FlowImport {
 			return;
 		String code = LangString.getFirst(ilcdFlow.getLocation(), config.langs);
 		Location location = Locations.get(code, config);
-		flow.setLocation(location);
+		flow.location = location;
 	}
 
 	private void addFlowProperties() {
@@ -140,14 +140,14 @@ public class FlowImport {
 			if (property == null)
 				continue;
 			FlowPropertyFactor factor = new FlowPropertyFactor();
-			factor.setFlowProperty(property);
-			factor.setConversionFactor(ref.meanValue);
-			flow.getFlowPropertyFactors().add(factor);
+			factor.flowProperty = property;
+			factor.conversionFactor = ref.meanValue;
+			flow.flowPropertyFactors.add(factor);
 			Integer propId = ref.dataSetInternalID;
 			if (refPropertyId == null || propId == null)
 				continue;
 			if (refPropertyId.intValue() == propId.intValue())
-				flow.setReferenceFlowProperty(property);
+				flow.referenceFlowProperty = property;
 		}
 	}
 
@@ -165,21 +165,21 @@ public class FlowImport {
 
 	private void setFlowType() {
 		if (ilcdFlow.getFlowType() == null) {
-			flow.setFlowType(FlowType.ELEMENTARY_FLOW);
+			flow.flowType = FlowType.ELEMENTARY_FLOW;
 			return;
 		}
 		switch (ilcdFlow.getFlowType()) {
 		case ELEMENTARY_FLOW:
-			flow.setFlowType(FlowType.ELEMENTARY_FLOW);
+			flow.flowType = FlowType.ELEMENTARY_FLOW;
 			break;
 		case PRODUCT_FLOW:
-			flow.setFlowType(FlowType.PRODUCT_FLOW);
+			flow.flowType = FlowType.PRODUCT_FLOW;
 			break;
 		case WASTE_FLOW:
-			flow.setFlowType(FlowType.WASTE_FLOW);
+			flow.flowType = FlowType.WASTE_FLOW;
 			break;
 		default:
-			flow.setFlowType(FlowType.PRODUCT_FLOW);
+			flow.flowType = FlowType.PRODUCT_FLOW;
 			break;
 		}
 	}
@@ -215,7 +215,7 @@ public class FlowImport {
 			new FlowDao(config.db).insert(obj);
 		} catch (Exception e) {
 			String message = String.format("Save operation failed in flow %s.",
-					flow.getRefId());
+					flow.refId);
 			throw new ImportException(message, e);
 		}
 	}

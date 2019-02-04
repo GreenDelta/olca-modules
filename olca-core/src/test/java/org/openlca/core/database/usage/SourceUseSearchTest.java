@@ -35,13 +35,13 @@ public class SourceUseSearchTest {
 		this.search = IUseSearch.FACTORY.createFor(ModelType.SOURCE, database);
 		SourceDao sourceDao = new SourceDao(database);
 		Source source = new Source();
-		source.setName("test source");
+		source.name = "test source";
 		this.source = sourceDao.insert(source);
 		processDao = new ProcessDao(database);
 		Process process = new Process();
-		process.setName("test process");
+		process.name = "test process";
 		ProcessDocumentation doc = new ProcessDocumentation();
-		process.setDocumentation(doc);
+		process.documentation = doc;
 		this.process = processDao.insert(process);
 		dqSystemDao = new DQSystemDao(database);
 		DQSystem system = new DQSystem();
@@ -66,7 +66,7 @@ public class SourceUseSearchTest {
 
 	@Test
 	public void testFindInProcessPublication() {
-		process.getDocumentation().setPublication(source);
+		process.documentation.publication = source;
 		process = processDao.update(process);
 		List<CategorizedDescriptor> models = search.findUses(Descriptors
 				.toDescriptor(source));
@@ -76,7 +76,7 @@ public class SourceUseSearchTest {
 
 	@Test
 	public void testFindInProcessSources() {
-		process.getDocumentation().getSources().add(source);
+		process.documentation.sources.add(source);
 		process = processDao.update(process);
 		List<CategorizedDescriptor> models = search.findUses(Descriptors
 				.toDescriptor(source));

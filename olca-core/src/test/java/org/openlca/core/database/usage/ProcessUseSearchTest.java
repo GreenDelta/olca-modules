@@ -27,7 +27,7 @@ public class ProcessUseSearchTest {
 	@Before
 	public void setup() {
 		process = new Process();
-		process.setName("process");
+		process.name = "process";
 		process = new ProcessDao(database).insert(process);
 		search = IUseSearch.FACTORY.createFor(ModelType.PROCESS, database);
 	}
@@ -58,8 +58,8 @@ public class ProcessUseSearchTest {
 
 	private ProductSystem createSystem() {
 		ProductSystem system = new ProductSystem();
-		system.setName("system");
-		system.processes.add(process.getId());
+		system.name = "system";
+		system.processes.add(process.id);
 		return new ProductSystemDao(database).insert(system);
 	}
 

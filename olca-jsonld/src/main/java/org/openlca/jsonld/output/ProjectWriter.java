@@ -43,7 +43,7 @@ class ProjectWriter extends Writer<Project> {
 			Out.put(obj, "allocationMethod", v.allocationMethod);
 			FlowProperty prop = null;
 			if (v.flowPropertyFactor != null)
-				prop = v.flowPropertyFactor.getFlowProperty();
+				prop = v.flowPropertyFactor.flowProperty;
 			Out.put(obj, "flowProperty", prop, conf, Out.REQUIRED_FIELD);
 			ParameterRedefs.map(obj, v.parameterRedefs, conf.db, conf, this::createRef);
 			array.add(obj);

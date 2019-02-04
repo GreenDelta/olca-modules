@@ -82,15 +82,15 @@ public class OlcaFlowMapEntry {
 	 * entry.
 	 */
 	public boolean matches(Flow flow) {
-		if (flow == null || flow.getReferenceFlowProperty() == null)
+		if (flow == null || flow.referenceFlowProperty == null)
 			return false;
-		FlowProperty property = flow.getReferenceFlowProperty();
-		if (property.getUnitGroup() == null
-				|| property.getUnitGroup().getReferenceUnit() == null)
+		FlowProperty property = flow.referenceFlowProperty;
+		if (property.unitGroup == null
+				|| property.unitGroup.referenceUnit == null)
 			return false;
-		Unit unit = property.getUnitGroup().getReferenceUnit();
-		return Objects.equals(this.flowId, flow.getRefId())
-				&& Objects.equals(this.refPropertyId, property.getRefId())
-				&& Objects.equals(this.refUnitId, unit.getRefId());
+		Unit unit = property.unitGroup.referenceUnit;
+		return Objects.equals(this.flowId, flow.refId)
+				&& Objects.equals(this.refPropertyId, property.refId)
+				&& Objects.equals(this.refUnitId, unit.refId);
 	}
 }

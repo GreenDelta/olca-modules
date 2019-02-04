@@ -33,12 +33,12 @@ class ImpactCategoryWriter extends Writer<ImpactCategory> {
 			Out.put(obj, "flow", f.flow, conf, Out.REQUIRED_FIELD);
 			if (f.flow != null) {
 				JsonObject flow = obj.get("flow").getAsJsonObject();
-				Out.put(flow, "flowType", f.flow.getFlowType());
+				Out.put(flow, "flowType", f.flow.flowType);
 			}
 			Out.put(obj, "unit", f.unit, conf, Out.REQUIRED_FIELD);
 			FlowProperty property = null;
 			if (f.flowPropertyFactor != null)
-				property = f.flowPropertyFactor.getFlowProperty();
+				property = f.flowPropertyFactor.flowProperty;
 			Out.put(obj, "flowProperty", property, conf, Out.REQUIRED_FIELD);
 			Out.put(obj, "uncertainty", Uncertainties.map(f.uncertainty));
 			array.add(obj);

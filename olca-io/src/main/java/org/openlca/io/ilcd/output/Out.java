@@ -17,7 +17,7 @@ final class Out {
 	public static XMLGregorianCalendar getTimestamp(CategorizedEntity e) {
 		if (e == null)
 			return null;
-		long time = e.getLastChange();
+		long time = e.lastChange;
 		if (time <= 0L)
 			return null;
 		try {

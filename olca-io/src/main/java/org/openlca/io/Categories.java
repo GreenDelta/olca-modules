@@ -18,15 +18,15 @@ public final class Categories {
 	public static Category findOrAddChild(IDatabase database, Category parent,
 			String childName) {
 		for (Category child : parent.getChildCategories()) {
-			if (StringUtils.equalsIgnoreCase(child.getName(), childName))
+			if (StringUtils.equalsIgnoreCase(child.name, childName))
 				return child;
 		}
 		try {
 			Category child = new Category();
 			child.setModelType(parent.getModelType());
-			child.setName(childName);
-			child.setRefId(UUID.randomUUID().toString());
-			child.setCategory(parent);
+			child.name = childName;
+			child.refId = UUID.randomUUID().toString();
+			child.category = parent;
 			parent.getChildCategories().add(child);
 			CategoryDao dao = new CategoryDao(database);
 			dao.insert(child);
@@ -56,9 +56,9 @@ public final class Categories {
 			String name) {
 		try {
 			Category category = new Category();
-			category.setRefId(UUID.randomUUID().toString());
+			category.refId = UUID.randomUUID().toString();
 			category.setModelType(type);
-			category.setName(name);
+			category.name = name;
 			new CategoryDao(database).insert(category);
 			return category;
 		} catch (Exception e) {
@@ -80,7 +80,7 @@ public final class Categories {
 		try {
 			CategoryDao dao = new CategoryDao(database);
 			for (Category root : dao.getRootCategories(type)) {
-				if (StringUtils.equalsIgnoreCase(root.getName(), name))
+				if (StringUtils.equalsIgnoreCase(root.name, name))
 					return root;
 			}
 			return null;

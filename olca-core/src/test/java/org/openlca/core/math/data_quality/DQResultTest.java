@@ -67,14 +67,14 @@ public class DQResultTest {
 		exchange(process1, 3, "(1;2;3;4;5)", eFlow1, true);
 		exchange(process1, 4, "(5;4;3;2;1)", eFlow2, true);
 		process1.dqEntry = ref1.dqEntry;
-		process1.setQuantitativeReference(ref1);
+		process1.quantitativeReference = ref1;
 		process1 = dao.insert(process1);
 		process2 = process();
 		Exchange ref2 = exchange(process2, 1, "(5;4;3;2;1)", pFlow2, false);
 		exchange(process2, 5, "(5;4;3;2;1)", eFlow1, true);
 		exchange(process2, 6, "(1;2;3;4;5)", eFlow2, true);
 		process2.dqEntry = ref2.dqEntry;
-		process2.setQuantitativeReference(ref2);
+		process2.quantitativeReference = ref2;
 		process2 = dao.insert(process2);
 		createProductSystem();
 		createImpactMethod();
@@ -112,22 +112,22 @@ public class DQResultTest {
 
 	private void createProductSystem() {
 		system = new ProductSystem();
-		system.processes.add(process1.getId());
-		system.processes.add(process2.getId());
+		system.processes.add(process1.id);
+		system.processes.add(process2.id);
 		ProcessLink link = new ProcessLink();
-		link.flowId = pFlow2.getId();
-		link.providerId = process2.getId();
-		for (Exchange e : process1.getExchanges()) {
-			if (e.flow.getId() == pFlow2.getId())
-				link.exchangeId = e.getId();
+		link.flowId = pFlow2.id;
+		link.providerId = process2.id;
+		for (Exchange e : process1.exchanges) {
+			if (e.flow.id == pFlow2.id)
+				link.exchangeId = e.id;
 		}
-		link.processId = process1.getId();
+		link.processId = process1.id;
 		system.processLinks.add(link);
 		system.referenceProcess = process1;
-		system.referenceExchange = process1.getQuantitativeReference();
+		system.referenceExchange = process1.quantitativeReference;
 		system.targetAmount = (double) 1;
 		system.targetFlowPropertyFactor = pFlow1.getReferenceFactor();
-		system.targetUnit = unitGroup.getReferenceUnit();
+		system.targetUnit = unitGroup.referenceUnit;
 		system = new ProductSystemDao(Tests.getDb()).insert(system);
 	}
 
@@ -150,28 +150,28 @@ public class DQResultTest {
 
 	private Flow createFlow(FlowType type) {
 		Flow flow = new Flow();
-		flow.setFlowType(type);
+		flow.flowType = type;
 		FlowPropertyFactor factor = new FlowPropertyFactor();
-		factor.setConversionFactor(1d);
-		factor.setFlowProperty(property);
-		flow.getFlowPropertyFactors().add(factor);
-		flow.setReferenceFlowProperty(property);
+		factor.conversionFactor = 1d;
+		factor.flowProperty = property;
+		flow.flowPropertyFactors.add(factor);
+		flow.referenceFlowProperty = property;
 		return new FlowDao(Tests.getDb()).insert(flow);
 	}
 
 	private void createUnitGroup() {
 		unitGroup = new UnitGroup();
 		Unit unit = new Unit();
-		unit.setName("unit");
-		unit.setConversionFactor(1);
-		unitGroup.getUnits().add(unit);
-		unitGroup.setReferenceUnit(unit);
+		unit.name = "unit";
+		unit.conversionFactor = (double) 1;
+		unitGroup.units.add(unit);
+		unitGroup.referenceUnit = unit;
 		unitGroup = new UnitGroupDao(Tests.getDb()).insert(unitGroup);
 	}
 
 	private void createProperty() {
 		property = new FlowProperty();
-		property.setUnitGroup(unitGroup);
+		property.unitGroup = unitGroup;
 		property = new FlowPropertyDao(Tests.getDb()).insert(property);
 	}
 
@@ -189,7 +189,7 @@ public class DQResultTest {
 		f.value = factor;
 		f.flow = flow;
 		f.flowPropertyFactor = flow.getReferenceFactor();
-		f.unit = unitGroup.getReferenceUnit();
+		f.unit = unitGroup.referenceUnit;
 		return f;
 	}
 
@@ -204,7 +204,7 @@ public class DQResultTest {
 		setup.impactMethod = Descriptors.toDescriptor(method);
 		ContributionResult cResult = calculator.calculateContributions(setup);
 		DQCalculationSetup dqSetup = new DQCalculationSetup();
-		dqSetup.productSystemId = system.getId();
+		dqSetup.productSystemId = system.id;
 		dqSetup.aggregationType = AggregationType.WEIGHTED_AVERAGE;
 		dqSetup.roundingMode = RoundingMode.HALF_UP;
 		dqSetup.processingType = ProcessingType.EXCLUDE;

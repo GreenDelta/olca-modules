@@ -29,7 +29,7 @@ class ParameterImport extends BaseImport<Parameter> {
 
 	/** Field mappings for processes and LCIA methods. */
 	void mapFields(JsonObject json, Parameter p) {
-		In.mapAtts(json, p, p.getId());
+		In.mapAtts(json, p, p.id);
 		p.scope = Json.getEnum(json, "parameterScope", ParameterScope.class);
 		p.isInputParameter = Json.getBool(json, "inputParameter", true);
 		p.value = Json.getDouble(json, "value", 0);

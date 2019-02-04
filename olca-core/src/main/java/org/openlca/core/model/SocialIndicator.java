@@ -35,7 +35,7 @@ public class SocialIndicator extends CategorizedEntity {
 	public SocialIndicator clone() {
 		SocialIndicator clone = new SocialIndicator();
 		Util.cloneRootFields(this, clone);
-		clone.setCategory(getCategory());
+		clone.category = category;
 		clone.activityVariable = activityVariable;
 		clone.activityQuantity = activityQuantity;
 		clone.activityUnit = activityUnit;

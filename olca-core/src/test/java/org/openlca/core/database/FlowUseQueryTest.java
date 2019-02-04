@@ -22,10 +22,10 @@ public class FlowUseQueryTest {
 	@Before
 	public void setUp() throws Exception {
 		flow = new Flow();
-		flow.setName("test-flow");
+		flow.name = "test-flow";
 		dao.insert(flow);
 		process = new Process();
-		process.setName("test-process");
+		process.name = "test-process";
 		processDao.insert(process);
 	}
 
@@ -37,9 +37,9 @@ public class FlowUseQueryTest {
 
 	@Test
 	public void testNotUsed() {
-		Set<Long> providerIds = dao.getWhereOutput(flow.getId());
+		Set<Long> providerIds = dao.getWhereOutput(flow.id);
 		Assert.assertTrue(providerIds.isEmpty());
-		Set<Long> recipientIds = dao.getWhereInput(flow.getId());
+		Set<Long> recipientIds = dao.getWhereInput(flow.id);
 		Assert.assertTrue(recipientIds.isEmpty());
 	}
 
@@ -48,12 +48,12 @@ public class FlowUseQueryTest {
 		Exchange exchange = new Exchange();
 		exchange.flow = flow;
 		exchange.isInput = false;
-		process.getExchanges().add(exchange);
+		process.exchanges.add(exchange);
 		process = processDao.update(process);
-		Set<Long> providerIds = dao.getWhereOutput(flow.getId());
+		Set<Long> providerIds = dao.getWhereOutput(flow.id);
 		Assert.assertEquals(1, providerIds.size());
-		Assert.assertTrue(providerIds.contains(process.getId()));
-		Set<Long> recipientIds = dao.getWhereInput(flow.getId());
+		Assert.assertTrue(providerIds.contains(process.id));
+		Set<Long> recipientIds = dao.getWhereInput(flow.id);
 		Assert.assertTrue(recipientIds.isEmpty());
 	}
 
@@ -62,12 +62,12 @@ public class FlowUseQueryTest {
 		Exchange exchange = new Exchange();
 		exchange.flow = flow;
 		exchange.isInput = true;
-		process.getExchanges().add(exchange);
+		process.exchanges.add(exchange);
 		process = processDao.update(process);
-		Set<Long> providerIds = dao.getWhereOutput(flow.getId());
+		Set<Long> providerIds = dao.getWhereOutput(flow.id);
 		Assert.assertTrue(providerIds.isEmpty());
-		Set<Long> recipientIds = dao.getWhereInput(flow.getId());
+		Set<Long> recipientIds = dao.getWhereInput(flow.id);
 		Assert.assertEquals(1, recipientIds.size());
-		Assert.assertTrue(recipientIds.contains(process.getId()));
+		Assert.assertTrue(recipientIds.contains(process.id));
 	}
 }

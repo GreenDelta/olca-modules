@@ -78,7 +78,7 @@ class DB {
 	}
 
 	public Category getPutCategory(Category root, String parentName, String name) {
-		String key = StringUtils.join(new Object[] { root.getName(),
+		String key = StringUtils.join(new Object[] { root.name,
 				parentName, name }, "/");
 		Category category = categories.get(key);
 		if (category != null)

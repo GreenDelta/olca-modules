@@ -85,7 +85,7 @@ public class CalculationSetup {
 		if (productSystem.referenceExchange == null)
 			return refAmount;
 		Flow flow = productSystem.referenceExchange.flow;
-		if (flow != null && flow.getFlowType() == FlowType.WASTE_FLOW) {
+		if (flow != null && flow.flowType == FlowType.WASTE_FLOW) {
 			// negative reference amount for waste treatment processes
 			return -refAmount;
 		}

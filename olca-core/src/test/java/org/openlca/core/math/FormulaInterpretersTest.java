@@ -36,20 +36,20 @@ public class FormulaInterpretersTest {
 	@Before
 	public void setUp() throws Exception {
 		globalParam = new Parameter();
-		globalParam.setName("fi_tests_global");
+		globalParam.name = "fi_tests_global";
 		globalParam.isInputParameter = true;
 		globalParam.scope = ParameterScope.GLOBAL;
 		globalParam.value = (double) 32;
 		new ParameterDao(database).insert(globalParam);
 		process = new Process();
 		Parameter localParam = new Parameter();
-		localParam.setName("fi_tests_local");
+		localParam.name = "fi_tests_local";
 		localParam.formula = "fi_tests_global + 10";
 		localParam.isInputParameter = false;
 		localParam.scope = ParameterScope.PROCESS;
-		process.getParameters().add(localParam);
+		process.parameters.add(localParam);
 		process = new ProcessDao(database).insert(process);
-		Set<Long> context = Collections.singleton(process.getId());
+		Set<Long> context = Collections.singleton(process.id);
 		interpreter = ParameterTable.interpreter(database, context,
 				Collections.emptySet());
 	}
@@ -62,7 +62,7 @@ public class FormulaInterpretersTest {
 
 	@Test
 	public void testEvalLocal() throws Exception {
-		Scope scope = interpreter.getScope(process.getId());
+		Scope scope = interpreter.getScope(process.id);
 		Assert.assertEquals(42, scope.eval("fi_tests_local"), 1e-16);
 	}
 

@@ -41,11 +41,11 @@ public class Category extends CategorizedEntity {
 		Category clone = new Category();
 		Util.cloneRootFields(this, clone);
 		clone.setModelType(getModelType());
-		clone.setCategory(getCategory());
+		clone.category = category;
 		for (Category child : getChildCategories()) {
 			Category childCopy = child.clone();
 			clone.getChildCategories().add(childCopy);
-			childCopy.setCategory(clone);
+			childCopy.category = clone;
 		}
 		return clone;
 	}
@@ -53,7 +53,7 @@ public class Category extends CategorizedEntity {
 	@Override
 	public String toString() {
 		return String.format("Category {modelType=%s, refId=%s, name=%s}",
-				getModelType(), getRefId(), getName());
+				getModelType(), refId, name);
 	}
 
 }

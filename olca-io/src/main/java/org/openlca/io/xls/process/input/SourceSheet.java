@@ -58,10 +58,10 @@ class SourceSheet {
 			return;
 		}
 		source = new Source();
-		source.setRefId(uuid);
-		source.setName(name);
-		source.setDescription(config.getString(sheet, row, 2));
-		source.setCategory(config.getCategory(category, ModelType.SOURCE));
+		source.refId = uuid;
+		source.name = name;
+		source.description = config.getString(sheet, row, 2);
+		source.category = config.getCategory(category, ModelType.SOURCE);
 		setAttributes(row, source);
 		source = dao.insert(source);
 		config.refData.putSource(name, category, source);
@@ -69,10 +69,10 @@ class SourceSheet {
 
 	private void setAttributes(int row, Source source) {
 		String version = config.getString(sheet, row, 4);
-		source.setVersion(Version.fromString(version).getValue());
+		source.version = Version.fromString(version).getValue();
 		Date lastChange = config.getDate(sheet, row, 5);
 		if (lastChange != null) {
-			source.setLastChange(lastChange.getTime());
+			source.lastChange = lastChange.getTime();
 		}
 		source.url = config.getString(sheet, row, 6);
 		source.textReference = config.getString(sheet, row, 7);

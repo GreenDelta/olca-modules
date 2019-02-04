@@ -41,7 +41,7 @@ public class SystemExport {
 
 	public void exportTo(File dir) throws IOException {
 		loadData();
-		File subDir = new File(dir, conf.getSystem().getName().trim());
+		File subDir = new File(dir, conf.getSystem().name.trim());
 		if (!subDir.exists())
 			subDir.mkdirs();
 		createElementaryWorkbook(subDir);
@@ -97,7 +97,7 @@ public class SystemExport {
 		currentRow = writeHeaderInformation(sheet, currentRow++, subTitle);
 		currentRow = writeSoftwareInformation(sheet, currentRow++);
 
-		String name = conf.getSystem().getName();
+		String name = conf.getSystem().name;
 		int processes = conf.getSystem().processes.size();
 		int products = inventory.techIndex.size();
 		int flows = inventory.flowIndex.size();
@@ -144,7 +144,7 @@ public class SystemExport {
 		currentRow = writeHeaderInformation(sheet, currentRow++, subTitle);
 		currentRow = writeSoftwareInformation(sheet, currentRow++);
 
-		String name = conf.getSystem().getName();
+		String name = conf.getSystem().name;
 		int processes = conf.getSystem().processes.size();
 		int products = inventory.techIndex.size();
 		String dimensions = products + "x" + products;
@@ -169,7 +169,7 @@ public class SystemExport {
 		row = writeSoftwareInformation(sheet, row);
 		row++;
 
-		String name = conf.getSystem().getName();
+		String name = conf.getSystem().name;
 		String method = conf.getImpactMethod().name;
 		int categories = impactTable.impactIndex.size();
 		int factors = impactTable.flowIndex.size();

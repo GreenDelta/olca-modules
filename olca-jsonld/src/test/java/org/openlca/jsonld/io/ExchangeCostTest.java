@@ -36,27 +36,27 @@ public class ExchangeCostTest extends AbstractZipTest {
 	}
 
 	private void checkImport(Process originalProc) {
-		Process importedProc = processDao.getForRefId(originalProc.getRefId());
-		Exchange original = originalProc.getExchanges().get(0);
-		Exchange imported = importedProc.getExchanges().get(0);
+		Process importedProc = processDao.getForRefId(originalProc.refId);
+		Exchange original = originalProc.exchanges.get(0);
+		Exchange imported = importedProc.exchanges.get(0);
 		Assert.assertEquals(original.costs, imported.costs);
 
 	}
 
 	private void delete(Currency currency, Process process) {
-		Assert.assertTrue(currencyDao.contains(currency.getRefId()));
+		Assert.assertTrue(currencyDao.contains(currency.refId));
 		currencyDao.delete(currency);
-		Assert.assertFalse(currencyDao.contains(currency.getRefId()));
-		Assert.assertTrue(processDao.contains(process.getRefId()));
+		Assert.assertFalse(currencyDao.contains(currency.refId));
+		Assert.assertTrue(processDao.contains(process.refId));
 		processDao.delete(process);
-		Assert.assertFalse(processDao.contains(process.getRefId()));
+		Assert.assertFalse(processDao.contains(process.refId));
 	}
 
 	private Process createProcess(Currency currency) {
 		Process process = new Process();
-		process.setRefId(UUID.randomUUID().toString());
+		process.refId = UUID.randomUUID().toString();
 		Exchange exchange = new Exchange();
-		process.getExchanges().add(exchange);
+		process.exchanges.add(exchange);
 		exchange.currency = currency;
 		exchange.costFormula = "21 + 21";
 		exchange.costs = 42d;
@@ -66,7 +66,7 @@ public class ExchangeCostTest extends AbstractZipTest {
 
 	private Currency createCurrency() {
 		Currency currency = new Currency();
-		currency.setRefId(UUID.randomUUID().toString());
+		currency.refId = UUID.randomUUID().toString();
 		currency.code = "USD";
 		currency.conversionFactor = 1.0;
 		currency.referenceCurrency = currency;

@@ -50,8 +50,8 @@ class ProcessParameterConversion {
 			scope = ParameterScope.GLOBAL;
 		Parameter param = new Parameter();
 		param.scope = scope;
-		param.setName(iParameter.name);
-		param.setDescription(LangString.getFirst(iParameter.comment, config.langs));
+		param.name = iParameter.name;
+		param.description = LangString.getFirst(iParameter.comment, config.langs);
 		Double mean = iParameter.mean;
 		if (mean != null)
 			param.value = mean;
@@ -91,14 +91,14 @@ class ProcessParameterConversion {
 
 	private void addOrInsert(Parameter param) {
 		if (param.scope == ParameterScope.PROCESS) {
-			olcaProcess.getParameters().add(param);
+			olcaProcess.parameters.add(param);
 			return;
 		}
 		try {
 			List<Parameter> params = dao.getGlobalParameters();
 			boolean contains = false;
 			for (Parameter dbParam : params) {
-				if (Strings.nullOrEqual(param.getName(), dbParam.getName())) {
+				if (Strings.nullOrEqual(param.name, dbParam.name)) {
 					contains = true;
 					break;
 				}

@@ -14,36 +14,20 @@ import javax.persistence.Table;
 public class FlowProperty extends CategorizedEntity {
 
 	@Column(name = "flow_property_type")
-	private FlowPropertyType flowPropertyType;
+	public FlowPropertyType flowPropertyType;
 
 	@OneToOne
 	@JoinColumn(name = "f_unit_group")
-	private UnitGroup unitGroup;
+	public UnitGroup unitGroup;
 
 	@Override
 	public FlowProperty clone() {
 		FlowProperty clone = new FlowProperty();
 		Util.cloneRootFields(this, clone);
-		clone.setCategory(getCategory());
-		clone.setUnitGroup(getUnitGroup());
-		clone.setFlowPropertyType(getFlowPropertyType());
+		clone.category = category;
+		clone.unitGroup = unitGroup;
+		clone.flowPropertyType = flowPropertyType;
 		return clone;
-	}
-
-	public FlowPropertyType getFlowPropertyType() {
-		return flowPropertyType;
-	}
-
-	public void setFlowPropertyType(FlowPropertyType flowPropertyType) {
-		this.flowPropertyType = flowPropertyType;
-	}
-
-	public UnitGroup getUnitGroup() {
-		return unitGroup;
-	}
-
-	public void setUnitGroup(UnitGroup unitGroup) {
-		this.unitGroup = unitGroup;
 	}
 
 }

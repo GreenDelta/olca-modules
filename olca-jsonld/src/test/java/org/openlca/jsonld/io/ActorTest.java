@@ -24,8 +24,8 @@ public class ActorTest extends AbstractZipTest {
 
 	private Actor createModel(ActorDao dao) {
 		Actor actor = new Actor();
-		actor.setName("actor");
-		actor.setRefId(UUID.randomUUID().toString());
+		actor.name = "actor";
+		actor.refId = UUID.randomUUID().toString();
 		dao.insert(actor);
 		return actor;
 	}
@@ -36,7 +36,7 @@ public class ActorTest extends AbstractZipTest {
 			export.write(actor);
 		});
 		dao.delete(actor);
-		Assert.assertFalse(dao.contains(actor.getRefId()));
+		Assert.assertFalse(dao.contains(actor.refId));
 	}
 
 	private void doImport(ActorDao dao, Actor actor) {
@@ -44,8 +44,8 @@ public class ActorTest extends AbstractZipTest {
 			JsonImport jImport = new JsonImport(zip, Tests.getDb());
 			jImport.run();
 		});
-		Assert.assertTrue(dao.contains(actor.getRefId()));
-		Actor clone = dao.getForRefId(actor.getRefId());
-		Assert.assertEquals(actor.getName(), clone.getName());
+		Assert.assertTrue(dao.contains(actor.refId));
+		Actor clone = dao.getForRefId(actor.refId);
+		Assert.assertEquals(actor.name, clone.name);
 	}
 }

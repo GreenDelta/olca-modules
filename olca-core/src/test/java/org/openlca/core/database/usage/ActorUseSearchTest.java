@@ -44,7 +44,7 @@ public class ActorUseSearchTest {
 	public void testFindInProjects() {
 		Actor actor = createActor();
 		Project project = new Project();
-		project.setName("project");
+		project.name = "project";
 		project.author = actor;
 		new ProjectDao(database).insert(project);
 		List<CategorizedDescriptor> results = search.findUses(Descriptors
@@ -58,7 +58,7 @@ public class ActorUseSearchTest {
 
 	private Actor createActor() {
 		Actor actor = new Actor();
-		actor.setName("actor");
+		actor.name = "actor";
 		new ActorDao(database).insert(actor);
 		return actor;
 	}
@@ -79,12 +79,12 @@ public class ActorUseSearchTest {
 	private Process createProcess(Actor actor) {
 		ProcessDocumentation documentation = new ProcessDocumentation();
 		Process process = new Process();
-		process.setName("process");
-		process.setDocumentation(documentation);
-		process.getDocumentation().setReviewer(actor);
-		process.getDocumentation().setDataSetOwner(actor);
-		process.getDocumentation().setDataGenerator(actor);
-		process.getDocumentation().setDataDocumentor(actor);
+		process.name = "process";
+		process.documentation = documentation;
+		process.documentation.reviewer = actor;
+		process.documentation.dataSetOwner = actor;
+		process.documentation.dataGenerator = actor;
+		process.documentation.dataDocumentor = actor;
 		new ProcessDao(database).insert(process);
 		return process;
 	}

@@ -23,7 +23,7 @@ public class AllocationCleanup {
 
 	private List<Exchange> getProducts() {
 		List<Exchange> products = new ArrayList<>();
-		for (Exchange exchange : process.getExchanges()) {
+		for (Exchange exchange : process.exchanges) {
 			if (!isProduct(exchange))
 				continue;
 			products.add(exchange);
@@ -34,26 +34,26 @@ public class AllocationCleanup {
 	private boolean isProduct(Exchange exchange) {
 		if (exchange.flow == null)
 			return false;
-		if (exchange.isInput && exchange.flow.getFlowType() == FlowType.WASTE_FLOW)
+		if (exchange.isInput && exchange.flow.flowType == FlowType.WASTE_FLOW)
 			return true;
-		if (!exchange.isInput && exchange.flow.getFlowType() == FlowType.PRODUCT_FLOW)
+		if (!exchange.isInput && exchange.flow.flowType == FlowType.PRODUCT_FLOW)
 			return true;
 		return false;
 	}
 
 	private boolean isQuantitativeReference(Exchange exchange) {
-		return exchange.equals(process.getQuantitativeReference());
+		return exchange.equals(process.quantitativeReference);
 	}
 
 	private void run() {
 		List<Exchange> products = getProducts();
 		if (products.size() < 2) {
-			process.getAllocationFactors().clear();
+			process.allocationFactors.clear();
 			return;
 		}
 		removeInvalid();
-		if (process.getAllocationFactors().isEmpty()) {
-			checkFactors(process.getQuantitativeReference());
+		if (process.allocationFactors.isEmpty()) {
+			checkFactors(process.quantitativeReference);
 		}
 		for (Exchange product : products) {
 			checkFactors(product);
@@ -62,12 +62,12 @@ public class AllocationCleanup {
 
 	private void checkFactors(Exchange product) {
 		double defaultValue = 0;
-		if (process.getAllocationFactors().isEmpty() && isQuantitativeReference(product)) {
+		if (process.allocationFactors.isEmpty() && isQuantitativeReference(product)) {
 			defaultValue = 1; // initialize quant. ref. with 1
 		}
 		checkFactor(product, AllocationMethod.PHYSICAL, defaultValue);
 		checkFactor(product, AllocationMethod.ECONOMIC, defaultValue);
-		for (Exchange exchange : process.getExchanges()) {
+		for (Exchange exchange : process.exchanges) {
 			if (isProduct(exchange))
 				continue;
 			checkFactor(product, exchange, defaultValue);
@@ -75,10 +75,10 @@ public class AllocationCleanup {
 	}
 
 	private void removeInvalid() {
-		for (AllocationFactor factor : new ArrayList<>(process.getAllocationFactors())) {
+		for (AllocationFactor factor : new ArrayList<>(process.allocationFactors)) {
 			if (isValid(factor))
 				continue;
-			process.getAllocationFactors().remove(factor);
+			process.allocationFactors.remove(factor);
 		}
 	}
 
@@ -89,23 +89,23 @@ public class AllocationCleanup {
 			return false;
 		if (factor.method == AllocationMethod.CAUSAL && factor.exchange == null)
 			return false;
-		if (factor.method == AllocationMethod.CAUSAL && !hasExchangeFor(factor.exchange.getId()))
+		if (factor.method == AllocationMethod.CAUSAL && !hasExchangeFor(factor.exchange.id))
 			return false;
 		return true;
 	}
 
 	private boolean hasExchangeFor(long id) {
-		for (Exchange exchange : process.getExchanges())
-			if (exchange.getId() == id)
+		for (Exchange exchange : process.exchanges)
+			if (exchange.id == id)
 				return true;
 		return false;
 	}
 
 	private boolean hasExchangeWithFlow(long id) {
-		for (Exchange exchange : process.getExchanges()) {
+		for (Exchange exchange : process.exchanges) {
 			if (exchange.flow == null)
 				continue;
-			if (exchange.flow.getId() == id)
+			if (exchange.flow.id == id)
 				return true;
 		}
 		return false;
@@ -125,19 +125,19 @@ public class AllocationCleanup {
 			return;
 		factor = new AllocationFactor();
 		factor.method = type;
-		factor.productId = product.flow.getId();
+		factor.productId = product.flow.id;
 		factor.exchange = exchange;
 		factor.value = defaultValue;
-		process.getAllocationFactors().add(factor);
+		process.allocationFactors.add(factor);
 	}
 
 	private AllocationFactor findFactorFor(Exchange product, Exchange exchange, AllocationMethod type) {
 		if (type == AllocationMethod.CAUSAL && exchange == null)
 			return null;
-		for (AllocationFactor factor : process.getAllocationFactors()) {
+		for (AllocationFactor factor : process.allocationFactors) {
 			if (factor.method != type)
 				continue;
-			if (product.flow == null || factor.productId != product.flow.getId())
+			if (product.flow == null || factor.productId != product.flow.id)
 				continue;
 			if (exchange != null && !factor.exchange.equals(exchange))
 				continue;

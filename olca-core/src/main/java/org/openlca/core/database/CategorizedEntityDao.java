@@ -25,7 +25,7 @@ public class CategorizedEntityDao<T extends CategorizedEntity, V extends Categor
 		if (category.isPresent()) {
 			sql += " where f_category = ?";
 			List<Object[]> results = selectAll(sql, getDescriptorFields(),
-					Collections.singletonList((Object) category.get().getId()));
+					Collections.singletonList((Object) category.get().id));
 			return createDescriptors(results);
 		} else {
 			sql += " where f_category is null";

@@ -18,18 +18,18 @@ class LocationWriter extends Writer<Location> {
 		JsonObject obj = super.write(location);
 		if (obj == null)
 			return null;
-		Out.put(obj, "code", location.getCode());
-		Out.put(obj, "latitude", location.getLatitude());
-		Out.put(obj, "longitude", location.getLongitude());
+		Out.put(obj, "code", location.code);
+		Out.put(obj, "latitude", location.latitude);
+		Out.put(obj, "longitude", location.longitude);
 		mapGeometry(location, obj);
 		return obj;
 	}
 
 	private void mapGeometry(Location location, JsonObject obj) {
-		if (location.getKmz() == null)
+		if (location.kmz == null)
 			return;
 		try {
-			byte[] bin = BinUtils.unzip(location.getKmz());
+			byte[] bin = BinUtils.unzip(location.kmz);
 			String kml = new String(bin, "utf-8");
 			JsonObject geoJson = Kml2GeoJson.convert(kml);
 			Out.put(obj, "geometry", geoJson);

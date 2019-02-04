@@ -38,7 +38,7 @@ class UnitGroupImport extends BaseImport<UnitGroup> {
 		if (propId == null)
 			return g;
 		FlowProperty prop = FlowPropertyImport.run(propId, conf);
-		g.setDefaultFlowProperty(prop);
+		g.defaultFlowProperty = prop;
 		return conf.db.update(g);
 	}
 
@@ -50,11 +50,11 @@ class UnitGroupImport extends BaseImport<UnitGroup> {
 			if (!e.isJsonObject())
 				continue;
 			JsonObject obj = e.getAsJsonObject();
-			Unit unit = UnitImport.run(g.getRefId(), obj, conf);
+			Unit unit = UnitImport.run(g.refId, obj, conf);
 			boolean refUnit = Json.getBool(obj, "referenceUnit", false);
 			if (refUnit)
-				g.setReferenceUnit(unit);
-			g.getUnits().add(unit);
+				g.referenceUnit = unit;
+			g.units.add(unit);
 		}
 	}
 

@@ -31,21 +31,21 @@ class ProcessTime {
 		TimeExtension extension = new TimeExtension(ilcdTime);
 		mapStartDate(extension, doc);
 		mapEndDate(extension, doc);
-		doc.setTime(LangString.getFirst(ilcdTime.description, config.langs));
+		doc.time = LangString.getFirst(ilcdTime.description, config.langs);
 	}
 
 	private void mapStartDate(TimeExtension extension, ProcessDocumentation doc) {
 		Date startDate = extension.getStartDate();
 		if (startDate == null)
 			startDate = date(ilcdTime.referenceYear);
-		doc.setValidFrom(startDate);
+		doc.validFrom = startDate;
 	}
 
 	private void mapEndDate(TimeExtension extension, ProcessDocumentation doc) {
 		Date endDate = extension.getEndDate();
 		if (endDate == null)
 			endDate = date(ilcdTime.validUntil);
-		doc.setValidUntil(endDate);
+		doc.validUntil = endDate;
 	}
 
 	private Date date(Integer bigInt) {

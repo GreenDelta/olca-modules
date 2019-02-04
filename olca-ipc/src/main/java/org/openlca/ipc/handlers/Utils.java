@@ -58,19 +58,21 @@ class Utils {
 	}
 
 	String getUnit(FlowDescriptor flow, EntityCache cache) {
-		FlowProperty prop = cache.get(FlowProperty.class, flow.refFlowPropertyId);
-		if (prop == null || prop.getUnitGroup() == null)
+		FlowProperty prop = cache.get(FlowProperty.class,
+				flow.refFlowPropertyId);
+		if (prop == null || prop.unitGroup == null)
 			return null;
-		Unit unit = prop.getUnitGroup().getReferenceUnit();
+		Unit unit = prop.unitGroup.referenceUnit;
 		if (unit == null)
 			return null;
-		return unit.getName();
+		return unit.name;
 	}
 
 	@SuppressWarnings("unchecked")
-	<T1 extends RootEntity, T2 extends BaseDescriptor> List<ContributionItem<T2>> toDescriptorContributions(List<ContributionItem<T1>> items) {
+	<T1 extends RootEntity, T2 extends BaseDescriptor> List<ContributionItem<T2>> toDescriptorContributions(
+			List<ContributionItem<T1>> items) {
 		List<ContributionItem<T2>> contributions = new ArrayList<>();
-		items.forEach(i-> {
+		items.forEach(i -> {
 			ContributionItem<T2> item = new ContributionItem<>();
 			item.item = (T2) Descriptors.toDescriptor(i.item);
 			item.amount = i.amount;
@@ -80,7 +82,7 @@ class Utils {
 		});
 		return contributions;
 	}
-	
+
 	RpcResponse handle1(RpcRequest req, ResultHandler1 handler) {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("No parameter given", req);
@@ -97,7 +99,8 @@ class Utils {
 		FullResult result = getFullResult(json);
 		FlowDescriptor flow = get(result.flowIndex, json, "flow");
 		if (flow == null)
-			return Responses.invalidParams("Missing or invalid flow parameter", req);
+			return Responses.invalidParams("Missing or invalid flow parameter",
+					req);
 		EntityCache cache = EntityCache.create(ctx.db);
 		return Responses.ok(handler.handle(result, flow, cache), req);
 	}
@@ -109,10 +112,12 @@ class Utils {
 		FullResult result = getFullResult(json);
 		FlowDescriptor flow = get(result.flowIndex, json, "flow");
 		if (flow == null)
-			return Responses.invalidParams("Missing or invalid flow parameter", req);
+			return Responses.invalidParams("Missing or invalid flow parameter",
+					req);
 		LocationDescriptor location = get(ModelType.LOCATION, json);
 		if (location == null)
-			return Responses.invalidParams("Missing or invalid location parameter", req);
+			return Responses.invalidParams(
+					"Missing or invalid location parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
 		return Responses.ok(handler.handle(result, flow, location, cache), req);
 	}
@@ -122,9 +127,11 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		FullResult result = getFullResult(json);
-		ImpactCategoryDescriptor impact = get(result.impactIndex, json, "impactCategory");
+		ImpactCategoryDescriptor impact = get(result.impactIndex, json,
+				"impactCategory");
 		if (impact == null)
-			return Responses.invalidParams("Missing or invalid impact category parameter", req);
+			return Responses.invalidParams(
+					"Missing or invalid impact category parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
 		return Responses.ok(handler.handle(result, impact, cache), req);
 	}
@@ -134,14 +141,19 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		FullResult result = getFullResult(json);
-		ImpactCategoryDescriptor impact = get(result.impactIndex, json, "impactCategory");
+		ImpactCategoryDescriptor impact = get(result.impactIndex, json,
+				"impactCategory");
 		if (impact == null)
-			return Responses.invalidParams("Missing or invalid impact category parameter", req);
-		ProcessDescriptor process = get(ModelType.PROCESS, json, result.techIndex.getProcessIds());
+			return Responses.invalidParams(
+					"Missing or invalid impact category parameter", req);
+		ProcessDescriptor process = get(ModelType.PROCESS, json,
+				result.techIndex.getProcessIds());
 		if (process == null)
-			return Responses.invalidParams("Missing or invalid process parameter", req);
+			return Responses
+					.invalidParams("Missing or invalid process parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
-		return Responses.ok(handler.handle(result, impact, process, cache), req);
+		return Responses.ok(handler.handle(result, impact, process, cache),
+				req);
 	}
 
 	RpcResponse handle6(RpcRequest req, ResultHandler6 handler) {
@@ -149,14 +161,18 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		FullResult result = getFullResult(json);
-		ImpactCategoryDescriptor impact = get(result.impactIndex, json, "impactCategory");
+		ImpactCategoryDescriptor impact = get(result.impactIndex, json,
+				"impactCategory");
 		if (impact == null)
-			return Responses.invalidParams("Missing or invalid impact category parameter", req);
+			return Responses.invalidParams(
+					"Missing or invalid impact category parameter", req);
 		LocationDescriptor location = get(ModelType.LOCATION, json);
 		if (location == null)
-			return Responses.invalidParams("Missing or invalid location parameter", req);
+			return Responses.invalidParams(
+					"Missing or invalid location parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
-		return Responses.ok(handler.handle(result, impact, location, cache), req);
+		return Responses.ok(handler.handle(result, impact, location, cache),
+				req);
 	}
 
 	RpcResponse handle7(RpcRequest req, ResultHandler7 handler) {
@@ -164,32 +180,41 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		FullResult result = getFullResult(json);
-		ImpactCategoryDescriptor impact = get(result.impactIndex, json, "impactCategory");
+		ImpactCategoryDescriptor impact = get(result.impactIndex, json,
+				"impactCategory");
 		if (impact == null)
-			return Responses.invalidParams("Missing or invalid impact category parameter", req);
+			return Responses.invalidParams(
+					"Missing or invalid impact category parameter", req);
 		LocationDescriptor location = get(ModelType.LOCATION, json);
 		if (location == null)
-			return Responses.invalidParams("Missing or invalid location parameter", req);
-		ProcessDescriptor process = get(ModelType.PROCESS, json, result.techIndex.getProcessIds());
+			return Responses.invalidParams(
+					"Missing or invalid location parameter", req);
+		ProcessDescriptor process = get(ModelType.PROCESS, json,
+				result.techIndex.getProcessIds());
 		if (process == null)
-			return Responses.invalidParams("Missing or invalid process parameter", req);
+			return Responses
+					.invalidParams("Missing or invalid process parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
-		return Responses.ok(handler.handle(result, impact, location, process, cache), req);
+		return Responses.ok(
+				handler.handle(result, impact, location, process, cache), req);
 	}
-	
+
 	RpcResponse handle8(RpcRequest req, ResultHandler8 handler) {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		FullResult result = getFullResult(json);
-		ProcessDescriptor process = get(ModelType.PROCESS, json, result.techIndex.getProcessIds());
+		ProcessDescriptor process = get(ModelType.PROCESS, json,
+				result.techIndex.getProcessIds());
 		if (process == null)
-			return Responses.invalidParams("Missing or invalid process parameter", req);
+			return Responses
+					.invalidParams("Missing or invalid process parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
 		return Responses.ok(handler.handle(result, process, cache), req);
 	}
 
-	private <T extends BaseDescriptor> T get(DIndex<T> index, JsonObject json, String field) {
+	private <T extends BaseDescriptor> T get(DIndex<T> index, JsonObject json,
+			String field) {
 		String flowID = Json.getRefId(json, field);
 		if (flowID == null)
 			return null;
@@ -199,16 +224,19 @@ class Utils {
 		return null;
 	}
 
-	private <T extends CategorizedDescriptor> T get(ModelType type, JsonObject json) {
+	private <T extends CategorizedDescriptor> T get(ModelType type,
+			JsonObject json) {
 		return get(type, json, null);
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends CategorizedDescriptor> T get(ModelType type, JsonObject json, Set<Long> allowed) {
+	private <T extends CategorizedDescriptor> T get(ModelType type,
+			JsonObject json, Set<Long> allowed) {
 		String flowID = Json.getRefId(json, type.name().toLowerCase());
 		if (flowID == null)
 			return null;
-		T descriptor = (T) Daos.categorized(ctx.db, type).getDescriptorForRefId(flowID);
+		T descriptor = (T) Daos.categorized(ctx.db, type)
+				.getDescriptorForRefId(flowID);
 		if (allowed != null && !allowed.contains(descriptor.id))
 			return null;
 		return descriptor;
@@ -222,48 +250,55 @@ class Utils {
 
 	interface ResultHandler2 {
 
-		JsonElement handle(ContributionResult result, FlowDescriptor flow, EntityCache cache);
+		JsonElement handle(ContributionResult result, FlowDescriptor flow,
+				EntityCache cache);
 
 	}
 
 	interface ResultHandler3 {
 
-		JsonElement handle(ContributionResult result, FlowDescriptor flow, LocationDescriptor location,
+		JsonElement handle(ContributionResult result, FlowDescriptor flow,
+				LocationDescriptor location,
 				EntityCache cache);
 
 	}
 
 	interface ResultHandler4 {
 
-		JsonElement handle(ContributionResult result, ImpactCategoryDescriptor impact, EntityCache cache);
+		JsonElement handle(ContributionResult result,
+				ImpactCategoryDescriptor impact, EntityCache cache);
 
 	}
 
 	interface ResultHandler5 {
 
-		JsonElement handle(ContributionResult result, ImpactCategoryDescriptor impact, ProcessDescriptor process,
+		JsonElement handle(ContributionResult result,
+				ImpactCategoryDescriptor impact, ProcessDescriptor process,
 				EntityCache cache);
 
 	}
 
 	interface ResultHandler6 {
 
-		JsonElement handle(ContributionResult result, ImpactCategoryDescriptor impact, LocationDescriptor location,
+		JsonElement handle(ContributionResult result,
+				ImpactCategoryDescriptor impact, LocationDescriptor location,
 				EntityCache cache);
 
 	}
 
 	interface ResultHandler7 {
 
-		JsonElement handle(ContributionResult result, ImpactCategoryDescriptor impact, LocationDescriptor location,
+		JsonElement handle(ContributionResult result,
+				ImpactCategoryDescriptor impact, LocationDescriptor location,
 				ProcessDescriptor process, EntityCache cache);
 
 	}
-	
+
 	interface ResultHandler8 {
 
-		JsonElement handle(FullResult result, ProcessDescriptor process, EntityCache cache);
-		
+		JsonElement handle(FullResult result, ProcessDescriptor process,
+				EntityCache cache);
+
 	}
-	
+
 }

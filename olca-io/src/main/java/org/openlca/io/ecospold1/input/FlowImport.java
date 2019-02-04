@@ -63,8 +63,8 @@ class FlowImport {
 		if (db != null)
 			return cache(flowKey, db);
 		Flow flow = new Flow();
-		flow.setRefId(flowKey);
-		flow.setName(exchange.getName());
+		flow.refId = flowKey;
+		flow.name = exchange.getName();
 		mapExchangeData(exchange, flow);
 		String unit = exchange.getUnit();
 		FlowBucket created = createFlow(flowKey, flow, unit);
@@ -84,8 +84,8 @@ class FlowImport {
 			return cache(flowKey, db);
 		IReferenceFunction refFun = dataSet.getReferenceFunction();
 		Flow flow = new Flow();
-		flow.setRefId(flowKey);
-		flow.setName(refFun.getName());
+		flow.refId = flowKey;
+		flow.name = refFun.getName();
 		mapDataSetData(dataSet, flow);
 		String unit = refFun.getUnit();
 		FlowBucket created = createFlow(flowKey, flow, unit);
@@ -124,7 +124,7 @@ class FlowImport {
 		FlowBucket bucket = new FlowBucket();
 		bucket.conversionFactor = entry.conversionFactor;
 		bucket.flow = flow;
-		bucket.flowProperty = flow.getReferenceFlowProperty();
+		bucket.flowProperty = flow.referenceFlowProperty;
 		Unit unit = getReferenceUnit(bucket.flowProperty);
 		bucket.unit = unit;
 		if (!bucket.isValid()) {
@@ -137,10 +137,10 @@ class FlowImport {
 	private Unit getReferenceUnit(FlowProperty flowProperty) {
 		if (flowProperty == null)
 			return null;
-		UnitGroup group = flowProperty.getUnitGroup();
+		UnitGroup group = flowProperty.unitGroup;
 		if (group == null)
 			return null;
-		return group.getReferenceUnit();
+		return group.referenceUnit;
 	}
 
 	private FlowBucket getDbFlow(String flowKey, IExchange inExchange) {
@@ -163,38 +163,38 @@ class FlowImport {
 	}
 
 	private void mapExchangeData(IExchange inExchange, Flow flow) {
-		flow.setCasNumber(inExchange.getCASNumber());
-		flow.setFormula(inExchange.getFormula());
+		flow.casNumber = inExchange.getCASNumber();
+		flow.formula = inExchange.getFormula();
 		if (inExchange.isInfrastructureProcess() != null)
-			flow.setInfrastructureFlow(inExchange.isInfrastructureProcess());
+			flow.infrastructureFlow = inExchange.isInfrastructureProcess();
 		Category flowCategory = db.getPutCategory(ModelType.FLOW,
 				inExchange.getCategory(), inExchange.getSubCategory());
 		if (flowCategory != null)
-			flow.setCategory(flowCategory);
+			flow.category = flowCategory;
 		String locationCode = inExchange.getLocation();
 		if (locationCode != null) {
 			String locKey = KeyGen.get(locationCode);
-			flow.setLocation(db.findLocation(locationCode, locKey));
+			flow.location = db.findLocation(locationCode, locKey);
 		}
 		FlowType flowType = Mapper.getFlowType(inExchange);
-		flow.setFlowType(flowType);
+		flow.flowType = flowType;
 	}
 
 	private void mapDataSetData(DataSet dataset, Flow flow) {
 		IReferenceFunction refFun = dataset.getReferenceFunction();
-		flow.setCasNumber(refFun.getCASNumber());
-		flow.setFormula(refFun.getFormula());
+		flow.casNumber = refFun.getCASNumber();
+		flow.formula = refFun.getFormula();
 		Category flowCategory = db.getPutCategory(ModelType.FLOW,
 				refFun.getCategory(), refFun.getSubCategory());
 		if (flowCategory != null)
-			flow.setCategory(flowCategory);
+			flow.category = flowCategory;
 		if (dataset.getGeography() != null
 				&& dataset.getGeography().getLocation() != null) {
 			String code = dataset.getGeography().getLocation();
 			String locKey = KeyGen.get(code);
-			flow.setLocation(db.findLocation(code, locKey));
+			flow.location = db.findLocation(code, locKey);
 		}
-		flow.setFlowType(FlowType.PRODUCT_FLOW);
+		flow.flowType = FlowType.PRODUCT_FLOW;
 	}
 
 	/** Creates a new flow and inserts it in the database. */
@@ -202,11 +202,11 @@ class FlowImport {
 		UnitMappingEntry entry = unitMapping.getEntry(unit);
 		if (entry == null || !entry.isValid())
 			return null;
-		flow.setReferenceFlowProperty(entry.flowProperty);
+		flow.referenceFlowProperty = entry.flowProperty;
 		FlowPropertyFactor factor = new FlowPropertyFactor();
-		factor.setFlowProperty(entry.flowProperty);
-		factor.setConversionFactor(1.0);
-		flow.getFlowPropertyFactors().add(factor);
+		factor.flowProperty = entry.flowProperty;
+		factor.conversionFactor = 1.0;
+		flow.flowPropertyFactors.add(factor);
 		db.put(flow, flowKey);
 		return createBucket(flow, unit);
 	}

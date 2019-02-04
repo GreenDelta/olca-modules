@@ -32,10 +32,10 @@ public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 	@Override
 	protected Project createModel() {
 		Project project = new Project();
-		project.setCategory(insertAndAddExpected("category", new Category()));
+		project.category = insertAndAddExpected("category", new Category());
 		project.author = insertAndAddExpected("author", new Actor());
 		project.impactMethodId = insertAndAddExpected("impactMethodId",
-		new ImpactMethod()).getId();
+		new ImpactMethod()).id;
 		String n1 = generateName();
 		String n2 = generateName();
 		String n3 = generateName();
@@ -50,12 +50,12 @@ public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 				createProjectVariant(n1, n2, n3, project.impactMethodId));
 		project = Tests.insert(project);
 		for (ProjectVariant v : project.variants) {
-			addExpected("productSystem", v.productSystem, "variants", ProjectVariant.class, v.getId());
-			addExpected("unit", v.unit, "variants", ProjectVariant.class, v.getId());
-			addExpected("flowPropertyFactor", v.flowPropertyFactor, "variants", ProjectVariant.class, v.getId());
+			addExpected("productSystem", v.productSystem, "variants", ProjectVariant.class, v.id);
+			addExpected("unit", v.unit, "variants", ProjectVariant.class, v.id);
+			addExpected("flowPropertyFactor", v.flowPropertyFactor, "variants", ProjectVariant.class, v.id);
 			for (ParameterRedef p : v.parameterRedefs) {
 				if (p.contextType == null) {
-					addExpected(p.name, parameters.get(p.name), "variants", ProjectVariant.class, v.getId());
+					addExpected(p.name, parameters.get(p.name), "variants", ProjectVariant.class, v.id);
 				}
 			}
 		}
@@ -71,17 +71,17 @@ public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 		variant.parameterRedefs.add(
 				createParameterRedef(p2Name, p3Name + "*5"));
 		FlowPropertyFactor factor = new FlowPropertyFactor();
-		factor.setFlowProperty(Tests.insert(new FlowProperty()));
+		factor.flowProperty = Tests.insert(new FlowProperty());
 		variant.flowPropertyFactor = factor;
 		UnitGroup unitGroup = new UnitGroup();
 		Unit unit = new Unit();
-		unit.setName("unit");
-		unitGroup.getUnits().add(unit);
+		unit.name = "unit";
+		unitGroup.units.add(unit);
 		unitGroup = Tests.insert(unitGroup);
-		unit = unitGroup.getUnit(unit.getName());
+		unit = unitGroup.getUnit(unit.name);
 		variant.unit = unit;
 		Flow flow = new Flow();
-		flow.getFlowPropertyFactors().add(factor);
+		flow.flowPropertyFactors.add(factor);
 		// don't add flow to expected references, just for persisting the factor
 		flow = Tests.insert(flow);
 		return variant;
@@ -105,7 +105,7 @@ public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 
 	private Parameter createParameter(String name, Object value, boolean global) {
 		Parameter parameter = new Parameter();
-		parameter.setName(name);
+		parameter.name = name;
 		boolean formula = value instanceof String;
 		parameter.isInputParameter = !formula;
 		if (formula)

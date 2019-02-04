@@ -34,7 +34,7 @@ class Util {
 
 	static void setDataSetAttributes(DataSet dataSet, RootEntity model) {
 		if (model != null)
-			dataSet.setNumber((int) model.getId());
+			dataSet.setNumber((int) model.id);
 		dataSet.setGenerator("openLCA");
 		dataSet.setTimestamp(Xml.calendar(new Date()));
 		// setting a link to the categories file results in an error in the
@@ -43,17 +43,17 @@ class Util {
 	}
 
 	static void mapFlowInformation(IExchange exchange, Flow flow) {
-		exchange.setCASNumber(flow.getCasNumber());
-		exchange.setFormula(flow.getFormula());
-		exchange.setInfrastructureProcess(flow.isInfrastructureFlow());
-		if (flow.getLocation() != null) {
-			if (flow.getLocation().getCode() != null) {
-				exchange.setLocation(flow.getLocation().getCode());
-			} else if (flow.getLocation().getName() != null) {
-				exchange.setLocation(flow.getLocation().getName());
+		exchange.setCASNumber(flow.casNumber);
+		exchange.setFormula(flow.formula);
+		exchange.setInfrastructureProcess(flow.infrastructureFlow);
+		if (flow.location != null) {
+			if (flow.location.code != null) {
+				exchange.setLocation(flow.location.code);
+			} else if (flow.location.name != null) {
+				exchange.setLocation(flow.location.name);
 			}
 		}
-		exchange.setInfrastructureProcess(flow.isInfrastructureFlow());
+		exchange.setInfrastructureProcess(flow.infrastructureFlow);
 	}
 
 }

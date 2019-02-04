@@ -39,12 +39,12 @@ class SocialIndicatorImport {
 	private void createSocialIndicator(SocialIndicatorDescriptor descriptor) {
 		SocialIndicator src = srcDao.getForId(descriptor.id);
 		SocialIndicator dest = src.clone();
-		dest.setRefId(src.getRefId());
-		dest.setCategory(refs.switchRef(src.getCategory()));
+		dest.refId = src.refId;
+		dest.category = refs.switchRef(src.category);
 		dest.activityQuantity = refs.switchRef(src.activityQuantity);
 		dest.activityUnit = refs.switchRef(src.activityUnit);
 		dest = destDao.insert(dest);
-		seq.put(seq.ACTOR, src.getRefId(), dest.getId());
+		seq.put(seq.ACTOR, src.refId, dest.id);
 	}
 
 }

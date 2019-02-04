@@ -59,9 +59,9 @@ class ProcessHandler {
 		}
 		log.trace("import process {}", refId);
 		process = new Process();
-		process.setRefId(refId);
-		process.setDefaultAllocationMethod(AllocationMethod.PHYSICAL);
-		process.setDocumentation(new ProcessDocumentation());
+		process.refId = refId;
+		process.defaultAllocationMethod = AllocationMethod.PHYSICAL;
+		process.documentation = new ProcessDocumentation();
 		this.process = process;
 		this.block = block;
 		mapData();
@@ -89,31 +89,31 @@ class ProcessHandler {
 
 	private void mapName() {
 		if (block.getName() != null) {
-			process.setName(block.getName());
+			process.name = block.getName();
 			return;
 		}
 		Flow refFlow = getRefFlow();
 		if (refFlow != null) {
-			process.setName(refFlow.getName());
+			process.name = refFlow.name;
 			return;
 		}
-		process.setName(block.getIdentifier());
+		process.name = block.getIdentifier();
 	}
 
 	private void mapLocation() {
 		Flow refFlow = getRefFlow();
 		if (refFlow == null)
 			return;
-		process.setLocation(refFlow.getLocation());
+		process.location = refFlow.location;
 	}
 
 	private void mapAllocation() {
 		for (ProductOutputRow output : block.getProducts()) {
 			double value = output.getAllocation() / 100d;
-			long productId = refData.getProduct(output.getName()).getId();
+			long productId = refData.getProduct(output.getName()).id;
 			addFactor(AllocationMethod.PHYSICAL, productId, value);
 			addFactor(AllocationMethod.ECONOMIC, productId, value);
-			for (Exchange e : process.getExchanges()) {
+			for (Exchange e : process.exchanges) {
 				if (!isOutputProduct(e)) {
 					addCausalFactor(productId, e, value);
 				}
@@ -124,7 +124,7 @@ class ProcessHandler {
 	private boolean isOutputProduct(Exchange e) {
 		return e != null && e.flow != null
 				&& !e.isInput && !e.isAvoided
-				&& e.flow.getFlowType() == FlowType.PRODUCT_FLOW;
+				&& e.flow.flowType == FlowType.PRODUCT_FLOW;
 	}
 
 	private void addFactor(AllocationMethod method, long productId,
@@ -133,7 +133,7 @@ class ProcessHandler {
 		f.method = method;
 		f.value = value;
 		f.productId = productId;
-		process.getAllocationFactors().add(f);
+		process.allocationFactors.add(f);
 	}
 
 	private void addCausalFactor(long productId, Exchange e, double value) {
@@ -142,7 +142,7 @@ class ProcessHandler {
 		f.value = value;
 		f.productId = productId;
 		f.exchange = e;
-		process.getAllocationFactors().add(f);
+		process.allocationFactors.add(f);
 	}
 
 	private Flow getRefFlow() {
@@ -162,13 +162,13 @@ class ProcessHandler {
 		for (ProductOutputRow row : block.getProducts()) {
 			Exchange e = createProductOutput(process, row, scope);
 			if (first && e != null) {
-				process.setQuantitativeReference(e);
+				process.quantitativeReference = e;
 				first = false;
 			}
 		}
 		if (block.getWasteTreatment() != null) {
 			Exchange e = createProductOutput(process, block.getWasteTreatment(), scope);
-			process.setQuantitativeReference(e);
+			process.quantitativeReference = e;
 		}
 	}
 
@@ -281,15 +281,15 @@ class ProcessHandler {
 		String[] path = categoryPath.split("\\\\");
 		Category category = Categories.findOrAdd(database, ModelType.PROCESS,
 				path);
-		process.setCategory(category);
+		process.category = category;
 	}
 
 	private void mapType() {
 		org.openlca.simapro.csv.model.enums.ProcessType type = block
 				.getProcessType();
 		if (type == org.openlca.simapro.csv.model.enums.ProcessType.SYSTEM)
-			process.setProcessType(ProcessType.LCI_RESULT);
+			process.processType = ProcessType.LCI_RESULT;
 		else
-			process.setProcessType(ProcessType.UNIT_PROCESS);
+			process.processType = ProcessType.UNIT_PROCESS;
 	}
 }

@@ -85,7 +85,7 @@ public class EcoSpold2Export implements Runnable {
 		for (ProcessDescriptor descriptor : descriptors) {
 			ProcessDao dao = new ProcessDao(database);
 			Process process = dao.getForId(descriptor.id);
-			ProcessDocumentation doc = process.getDocumentation();
+			ProcessDocumentation doc = process.documentation;
 			if (process == null || doc == null) {
 				log.warn("no process entity or documentation for {} found",
 						descriptor);
@@ -106,8 +106,8 @@ public class EcoSpold2Export implements Runnable {
 		mapExchanges(process, dataSet);
 		mapParameters(process, dataSet);
 		MasterData.writeIndexEntry(dataSet);
-		String fileName = process.getRefId() == null ? UUID.randomUUID()
-				.toString() : process.getRefId();
+		String fileName = process.refId == null ? UUID.randomUUID()
+				.toString() : process.refId;
 		File file = new File(activityDir, fileName + ".spold");
 		EcoSpold2.write(dataSet, file);
 	}
@@ -120,25 +120,25 @@ public class EcoSpold2Export implements Runnable {
 		String nameId = UUID.randomUUID().toString();
 		activity.activityNameId = nameId;
 		activityName.id = nameId;
-		String name = Strings.cut(process.getName(), 120);
+		String name = Strings.cut(process.name, 120);
 		activity.name = name;
 		activityName.name = name;
-		activity.id = process.getRefId();
-		int type = process.getProcessType() == ProcessType.LCI_RESULT ? 2 : 1;
+		activity.id = process.refId;
+		int type = process.processType == ProcessType.LCI_RESULT ? 2 : 1;
 		activity.type = type;
 		activity.specialActivityType = 0; // default
-		activity.generalComment = RichText.of(process.getDescription());
+		activity.generalComment = RichText.of(process.description);
 	}
 
 	private void mapExchanges(Process process, DataSet ds) {
 		if (ds.flowData == null)
 			ds.flowData = new FlowData();
-		for (Exchange exchange : process.getExchanges()) {
+		for (Exchange exchange : process.exchanges) {
 			if (!isValid(exchange))
 				continue;
 			Flow flow = exchange.flow;
 			UserMasterData masterData = ds.masterData;
-			if (flow.getFlowType() == FlowType.ELEMENTARY_FLOW) {
+			if (flow.flowType == FlowType.ELEMENTARY_FLOW) {
 				ElementaryExchange e = createElemExchange(exchange, masterData);
 				ds.flowData.elementaryExchanges.add(e);
 			} else {
@@ -166,10 +166,10 @@ public class EcoSpold2Export implements Runnable {
 		else
 			e2Ex.outputGroup = 4;
 		Flow flow = exchange.flow;
-		e2Ex.flowId = flow.getRefId();
-		e2Ex.formula = flow.getFormula();
+		e2Ex.flowId = flow.refId;
+		e2Ex.formula = flow.formula;
 		mapExchangeData(exchange, e2Ex);
-		compartmentMap.apply(flow.getCategory(), e2Ex);
+		compartmentMap.apply(flow.category, e2Ex);
 		unitMap.apply(exchange.unit, e2Ex, masterData);
 		MasterData.writeElemFlow(e2Ex, masterData);
 		return e2Ex;
@@ -181,14 +181,14 @@ public class EcoSpold2Export implements Runnable {
 		if (exchange.isInput)
 			e2Ex.inputGroup = 5;
 		else {
-			if (Objects.equals(exchange, process.getQuantitativeReference()))
+			if (Objects.equals(exchange, process.quantitativeReference))
 				e2Ex.outputGroup = 0;
-			else if (exchange.flow.getFlowType() == FlowType.WASTE_FLOW)
+			else if (exchange.flow.flowType == FlowType.WASTE_FLOW)
 				e2Ex.outputGroup = 3;
 			else
 				e2Ex.outputGroup = 2;
 		}
-		e2Ex.flowId = exchange.flow.getRefId();
+		e2Ex.flowId = exchange.flow.refId;
 		ProcessDescriptor provider = getDefaultProvider(exchange);
 		if (provider != null)
 			e2Ex.activityLinkId = provider.refId;
@@ -207,12 +207,12 @@ public class EcoSpold2Export implements Runnable {
 
 	private void mapExchangeData(Exchange exchange,
 			spold2.Exchange e2Exchange) {
-		e2Exchange.name = Strings.cut(exchange.flow.getName(), 120);
-		e2Exchange.id = new UUID(exchange.getId(), 0L).toString();
+		e2Exchange.name = Strings.cut(exchange.flow.name, 120);
+		e2Exchange.id = new UUID(exchange.id, 0L).toString();
 		e2Exchange.amount = exchange.amount;
 		e2Exchange.mathematicalRelation = exchange.amountFormula;
 		e2Exchange.comment = exchange.description;
-		e2Exchange.casNumber = exchange.flow.getCasNumber();
+		e2Exchange.casNumber = exchange.flow.casNumber;
 		e2Exchange.uncertainty = UncertaintyConverter.fromOpenLCA(exchange.uncertainty);
 	}
 
@@ -220,15 +220,15 @@ public class EcoSpold2Export implements Runnable {
 		if (ds.flowData == null)
 			ds.flowData = new FlowData();
 		List<Parameter> parameters = new ArrayList<>();
-		parameters.addAll(process.getParameters());
+		parameters.addAll(process.parameters);
 		ParameterDao dao = new ParameterDao(database);
 		parameters.addAll(dao.getGlobalParameters());
 		for (Parameter param : parameters) {
 			spold2.Parameter e2Param = new spold2.Parameter();
-			e2Param.name = param.getName();
-			e2Param.id = new UUID(param.getId(), 0L).toString();
+			e2Param.name = param.name;
+			e2Param.id = new UUID(param.id, 0L).toString();
 			e2Param.amount = param.value;
-			e2Param.variableName = param.getName();
+			e2Param.variableName = param.name;
 			e2Param.mathematicalRelation = param.formula;
 			e2Param.isCalculatedAmount = !param.isInputParameter;
 			if (param.scope != null)

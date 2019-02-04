@@ -59,7 +59,7 @@ class CategoryImport implements Runnable {
 			if (destChild == null) {
 				destChild = copy(srcChild);
 				destCat.getChildCategories().add(destChild);
-				destChild.setCategory(destCat);
+				destChild.category = destCat;
 			}
 			synchCategories(srcChild, destChild);
 		}
@@ -67,7 +67,7 @@ class CategoryImport implements Runnable {
 
 	private Category find(Category srcCat, List<Category> destCategories) {
 		for (Category destCat : destCategories) {
-			if (Strings.nullOrEqual(srcCat.getName(), destCat.getName())) {
+			if (Strings.nullOrEqual(srcCat.name, destCat.name)) {
 				return destCat;
 			}
 		}
@@ -80,9 +80,9 @@ class CategoryImport implements Runnable {
 	 */
 	private Category copy(Category srcCat) {
 		Category copy = new Category();
-		copy.setDescription(srcCat.getDescription());
-		copy.setName(srcCat.getName());
-		copy.setRefId(srcCat.getRefId());
+		copy.description = srcCat.description;
+		copy.name = srcCat.name;
+		copy.refId = srcCat.refId;
 		copy.setModelType(srcCat.getModelType());
 		return copy;
 	}
@@ -90,7 +90,7 @@ class CategoryImport implements Runnable {
 	private void index(Category srcRoot, Category destRoot) {
 		if (srcRoot == null || destRoot == null)
 			return;
-		seq.put(seq.CATEGORY, srcRoot.getRefId(), destRoot.getId());
+		seq.put(seq.CATEGORY, srcRoot.refId, destRoot.id);
 		for (Category srcChild : srcRoot.getChildCategories()) {
 			Category destChild = find(srcChild, destRoot.getChildCategories());
 			index(srcChild, destChild);

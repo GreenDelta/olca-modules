@@ -18,51 +18,51 @@ class ProcessCopy {
 
 	private void copyFields(Process origin, Process copy) {
 		copy.lastInternalId = origin.lastInternalId;
-		copy.setDefaultAllocationMethod(origin.getDefaultAllocationMethod());
-		copy.setCategory(origin.getCategory());
-		copy.setLocation(origin.getLocation());
-		copy.setProcessType(origin.getProcessType());
-		copy.setInfrastructureProcess(origin.isInfrastructureProcess());
+		copy.defaultAllocationMethod = origin.defaultAllocationMethod;
+		copy.category = origin.category;
+		copy.location = origin.location;
+		copy.processType = origin.processType;
+		copy.infrastructureProcess = origin.infrastructureProcess;
 		copy.currency = origin.currency;
 		copy.dqEntry = origin.dqEntry;
 		copy.dqSystem = origin.dqSystem;
 		copy.exchangeDqSystem = origin.exchangeDqSystem;
 		copy.socialDqSystem = origin.socialDqSystem;
-		if (origin.getDocumentation() != null)
-			copy.setDocumentation(origin.getDocumentation().clone());
+		if (origin.documentation != null)
+			copy.documentation = origin.documentation.clone();
 	}
 
 	private void copyExchanges(Process origin, Process copy) {
-		for (Exchange exchange : origin.getExchanges()) {
+		for (Exchange exchange : origin.exchanges) {
 			Exchange clone = exchange.clone();
-			copy.getExchanges().add(clone);
-			if (exchange.equals(origin.getQuantitativeReference()))
-				copy.setQuantitativeReference(clone);
+			copy.exchanges.add(clone);
+			if (exchange.equals(origin.quantitativeReference))
+				copy.quantitativeReference = clone;
 		}
 	}
 
 	private void copyParameters(Process origin, Process copy) {
-		for (Parameter parameter : origin.getParameters()) {
+		for (Parameter parameter : origin.parameters) {
 			Parameter p = parameter.clone();
-			copy.getParameters().add(p);
+			copy.parameters.add(p);
 		}
 	}
 
 	private void copyAllocationFactors(Process origin, Process copy) {
-		for (AllocationFactor factor : origin.getAllocationFactors()) {
+		for (AllocationFactor factor : origin.allocationFactors) {
 			AllocationFactor clone = factor.clone();
 			// not that the cloned factor has a reference to an exchange of
 			// the original process
 			Exchange copyExchange = findExchange(clone.exchange, copy);
 			clone.exchange = copyExchange;
-			copy.getAllocationFactors().add(clone);
+			copy.allocationFactors.add(clone);
 		}
 	}
 
 	private Exchange findExchange(Exchange origin, Process processCopy) {
 		if (origin == null)
 			return null;
-		for (Exchange copy : processCopy.getExchanges()) {
+		for (Exchange copy : processCopy.exchanges) {
 			boolean equal = origin.isInput == copy.isInput
 					&& Objects.equals(origin.flow, copy.flow)
 					&& origin.amount == copy.amount

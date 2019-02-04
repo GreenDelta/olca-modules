@@ -32,15 +32,15 @@ class FlowImport extends BaseImport<Flow> {
 
 	private void mapFlowAtts(JsonObject json, Flow flow) {
 		String catId = Json.getRefId(json, "category");
-		flow.setCategory(CategoryImport.run(catId, conf));
-		flow.setFlowType(Json.getEnum(json, "flowType", FlowType.class));
-		flow.setCasNumber(Json.getString(json, "cas"));
+		flow.category = CategoryImport.run(catId, conf);
+		flow.flowType = Json.getEnum(json, "flowType", FlowType.class);
+		flow.casNumber = Json.getString(json, "cas");
 		flow.synonyms = Json.getString(json, "synonyms");
-		flow.setFormula(Json.getString(json, "formula"));
-		flow.setInfrastructureFlow(Json.getBool(json, "infrastructureFlow", false));
+		flow.formula = Json.getString(json, "formula");
+		flow.infrastructureFlow = Json.getBool(json, "infrastructureFlow", false);
 		String locId = Json.getRefId(json, "location");
 		if (locId != null)
-			flow.setLocation(LocationImport.run(locId, conf));
+			flow.location = LocationImport.run(locId, conf);
 	}
 
 	private void addFactors(JsonObject json, Flow flow) {
@@ -51,11 +51,11 @@ class FlowImport extends BaseImport<Flow> {
 			if (!e.isJsonObject())
 				continue;
 			JsonObject fObj = e.getAsJsonObject();
-			FlowPropertyFactor f = FlowPropertyFactorImport.run(flow.getRefId(), fObj, conf);
-			flow.getFlowPropertyFactors().add(f);
+			FlowPropertyFactor f = FlowPropertyFactorImport.run(flow.refId, fObj, conf);
+			flow.flowPropertyFactors.add(f);
 			boolean isRef = Json.getBool(fObj, "referenceFlowProperty", false);
 			if (isRef)
-				flow.setReferenceFlowProperty(f.getFlowProperty());
+				flow.referenceFlowProperty = f.flowProperty;
 		}
 	}
 }

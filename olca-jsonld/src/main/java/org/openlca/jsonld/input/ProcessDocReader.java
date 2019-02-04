@@ -30,12 +30,12 @@ class ProcessDocReader {
 			return doc;
 		json = elem.getAsJsonObject();
 		mapSimpleFields(doc);
-		doc.setReviewer(actor("reviewer"));
-		doc.setDataDocumentor(actor("dataDocumentor"));
-		doc.setDataGenerator(actor("dataGenerator"));
-		doc.setDataSetOwner(actor("dataSetOwner"));
+		doc.reviewer = actor("reviewer");
+		doc.dataDocumentor = actor("dataDocumentor");
+		doc.dataGenerator = actor("dataGenerator");
+		doc.dataSetOwner = actor("dataSetOwner");
 		String pupId = Json.getRefId(json, "publication");
-		doc.setPublication(SourceImport.run(pupId, conf));
+		doc.publication = SourceImport.run(pupId, conf);
 		addSources(doc);
 		return doc;
 	}
@@ -46,26 +46,26 @@ class ProcessDocReader {
 	}
 
 	private void mapSimpleFields(ProcessDocumentation doc) {
-		doc.setTime(Json.getString(json, "timeDescription"));
-		doc.setTechnology(Json.getString(json, "technologyDescription"));
-		doc.setDataCollectionPeriod(Json.getString(json,
-				"dataCollectionDescription"));
-		doc.setCompleteness(Json.getString(json, "completenessDescription"));
-		doc.setDataSelection(Json.getString(json, "dataSelectionDescription"));
-		doc.setReviewDetails(Json.getString(json, "reviewDetails"));
-		doc.setDataTreatment(Json.getString(json, "dataTreatmentDescription"));
-		doc.setInventoryMethod(Json.getString(json, "inventoryMethodDescription"));
-		doc.setModelingConstants(Json.getString(json,
-				"modelingConstantsDescription"));
-		doc.setSampling(Json.getString(json, "samplingDescription"));
-		doc.setRestrictions(Json.getString(json, "restrictionsDescription"));
-		doc.setIntendedApplication(Json.getString(json, "intendedApplication"));
-		doc.setProject(Json.getString(json, "projectDescription"));
-		doc.setGeography(Json.getString(json, "geographyDescription"));
-		doc.setCopyright(Json.getBool(json, "copyright", false));
-		doc.setValidFrom(Json.getDate(json, "validFrom"));
-		doc.setValidUntil(Json.getDate(json, "validUntil"));
-		doc.setCreationDate(Json.getDate(json, "creationDate"));
+		doc.time = Json.getString(json, "timeDescription");
+		doc.technology = Json.getString(json, "technologyDescription");
+		doc.dataCollectionPeriod = Json.getString(json,
+		"dataCollectionDescription");
+		doc.completeness = Json.getString(json, "completenessDescription");
+		doc.dataSelection = Json.getString(json, "dataSelectionDescription");
+		doc.reviewDetails = Json.getString(json, "reviewDetails");
+		doc.dataTreatment = Json.getString(json, "dataTreatmentDescription");
+		doc.inventoryMethod = Json.getString(json, "inventoryMethodDescription");
+		doc.modelingConstants = Json.getString(json,
+		"modelingConstantsDescription");
+		doc.sampling = Json.getString(json, "samplingDescription");
+		doc.restrictions = Json.getString(json, "restrictionsDescription");
+		doc.intendedApplication = Json.getString(json, "intendedApplication");
+		doc.project = Json.getString(json, "projectDescription");
+		doc.geography = Json.getString(json, "geographyDescription");
+		doc.copyright = Json.getBool(json, "copyright", false);
+		doc.validFrom = Json.getDate(json, "validFrom");
+		doc.validUntil = Json.getDate(json, "validUntil");
+		doc.creationDate = Json.getDate(json, "creationDate");
 	}
 
 	private void addSources(ProcessDocumentation doc) {
@@ -78,7 +78,7 @@ class ProcessDocReader {
 			String refId = Json.getString(e.getAsJsonObject(), "@id");
 			Source source = SourceImport.run(refId, conf);
 			if (source != null)
-				doc.getSources().add(source);
+				doc.sources.add(source);
 		}
 	}
 }

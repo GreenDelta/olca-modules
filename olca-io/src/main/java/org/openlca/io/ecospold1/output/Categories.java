@@ -11,17 +11,17 @@ final class Categories {
 	}
 
 	static void map(Flow flow, IReferenceFunction refFun, ExportConfig config) {
-		Category category = flow.getCategory();
+		Category category = flow.category;
 		if (category != null) {
-			if (category.getCategory() == null) {
-				refFun.setCategory(category.getName());
-				refFun.setLocalCategory(category.getName());
+			if (category.category == null) {
+				refFun.setCategory(category.name);
+				refFun.setLocalCategory(category.name);
 			} else {
-				Category parent = category.getCategory();
-				refFun.setCategory(parent.getName());
-				refFun.setLocalCategory(parent.getName());
-				refFun.setSubCategory(category.getName());
-				refFun.setLocalSubCategory(category.getName());
+				Category parent = category.category;
+				refFun.setCategory(parent.name);
+				refFun.setLocalCategory(parent.name);
+				refFun.setSubCategory(category.name);
+				refFun.setLocalSubCategory(category.name);
 			}
 		}
 		if (config.isCreateDefaults())
@@ -41,15 +41,15 @@ final class Categories {
 
 	static void map(Category category, IExchange exchange, ExportConfig config) {
 		if (category != null) {
-			if (category.getCategory() == null) {
-				exchange.setCategory(category.getName());
-				exchange.setLocalCategory(category.getName());
+			if (category.category == null) {
+				exchange.setCategory(category.name);
+				exchange.setLocalCategory(category.name);
 			} else {
-				Category parent = category.getCategory();
-				exchange.setCategory(parent.getName());
-				exchange.setLocalCategory(parent.getName());
-				exchange.setSubCategory(category.getName());
-				exchange.setLocalSubCategory(category.getName());
+				Category parent = category.category;
+				exchange.setCategory(parent.name);
+				exchange.setLocalCategory(parent.name);
+				exchange.setSubCategory(category.name);
+				exchange.setLocalSubCategory(category.name);
 			}
 		}
 		if (config.isCreateDefaults())

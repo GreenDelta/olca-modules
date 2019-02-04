@@ -27,7 +27,7 @@ public class CategoryReferenceSearchTest extends BaseReferenceSearchTest {
 	@Override
 	protected Category createModel() {
 		Category category = new Category();
-		category.setCategory(insertAndAddExpected("category", new Category()));
+		category.category = insertAndAddExpected("category", new Category());
 		category = Tests.insert(category);
 		categories.add(category);
 		return category;

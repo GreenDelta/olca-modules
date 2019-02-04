@@ -25,18 +25,18 @@ public class ProcessesTest {
 
 		ProcessDao dao = new ProcessDao(db);
 		Process p1 = new Process();
-		p1.setName("cow milking");
+		p1.name = "cow milking";
 		dao.insert(p1);
-		assertEquals(p1.getId(), query.get().id);
+		assertEquals(p1.id, query.get().id);
 
 		Location loc = new Location();
-		loc.setCode("CH");
+		loc.code = "CH";
 		Daos.base(db, Location.class).insert(loc);
 		Process p2 = new Process();
-		p2.setName("cow milking");
-		p2.setLocation(loc);
+		p2.name = "cow milking";
+		p2.location = loc;
 		dao.insert(p2);
-		assertEquals(p2.getId(), query.get().id);
+		assertEquals(p2.id, query.get().id);
 
 		Daos.base(db, Location.class).delete(loc);
 		for (Process p : dao.getForName("cow milking")) {

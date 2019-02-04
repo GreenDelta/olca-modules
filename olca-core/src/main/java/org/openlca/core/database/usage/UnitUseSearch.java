@@ -28,7 +28,7 @@ public class UnitUseSearch {
 		// only exchange, impact factor and social indicator are relevant,
 		// because all others can only refer to units that are used in one of
 		// them
-		Set<Long> ids = Collections.singleton(unit.getId());
+		Set<Long> ids = Collections.singleton(unit.id);
 		List<CategorizedDescriptor> results = new ArrayList<>();
 		Set<Long> categoryIds = Search.on(database).queryForIds(
 				"f_impact_category", "tbl_impact_factors", ids, "f_unit");

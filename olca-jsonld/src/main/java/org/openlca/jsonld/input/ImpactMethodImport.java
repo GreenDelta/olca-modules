@@ -60,7 +60,7 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 				continue;
 			String nwSetId = Json.getString(e.getAsJsonObject(), "@id");
 			JsonObject nwSetJson = conf.store.get(ModelType.NW_SET, nwSetId);
-			NwSet set = NwSetImport.run(m.getRefId(), m.impactCategories, nwSetJson, conf);
+			NwSet set = NwSetImport.run(m.refId, m.impactCategories, nwSetJson, conf);
 			if (set != null)
 				m.nwSets.add(set);
 		}

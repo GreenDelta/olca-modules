@@ -48,7 +48,7 @@ abstract class AbstractCategoryImport<C> {
 			return null;
 		String cName = getName(c);
 		for (Category root : roots) {
-			if (StringUtils.equalsIgnoreCase(root.getName(), cName))
+			if (StringUtils.equalsIgnoreCase(root.name, cName))
 				return root;
 		}
 		return null;
@@ -83,15 +83,15 @@ abstract class AbstractCategoryImport<C> {
 
 	private boolean equals(Category category, C ilcdCategory) {
 		String name = getName(ilcdCategory);
-		return category.getName() != null
-				&& category.getName().equalsIgnoreCase(name);
+		return category.name != null
+				&& category.name.equalsIgnoreCase(name);
 	}
 
 	private Category createAndSave(Category parentCategory, C ilcdCategory)
 			throws ImportException {
 		try {
 			Category newCategory = createNew(ilcdCategory);
-			newCategory.setCategory(parentCategory);
+			newCategory.category = parentCategory;
 			parentCategory.getChildCategories().add(newCategory);
 			dao.insert(newCategory);
 			dao.update(parentCategory);
@@ -105,9 +105,9 @@ abstract class AbstractCategoryImport<C> {
 	private Category createNew(C ilcdCategory) {
 		Category category = new Category();
 		category.setModelType(modelType);
-		category.setRefId(UUID.randomUUID().toString());
+		category.refId = UUID.randomUUID().toString();
 		String name = getName(ilcdCategory);
-		category.setName(name);
+		category.name = name;
 		return category;
 	}
 }

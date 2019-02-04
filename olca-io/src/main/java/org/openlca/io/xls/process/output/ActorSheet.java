@@ -55,12 +55,12 @@ class ActorSheet {
 	}
 
 	private void write(Actor actor) {
-		Excel.cell(sheet, row, 0, actor.getRefId());
-		Excel.cell(sheet, row, 1, actor.getName());
-		Excel.cell(sheet, row, 2, actor.getDescription());
-		Excel.cell(sheet, row, 3, CategoryPath.getFull(actor.getCategory()));
-		Excel.cell(sheet, row, 4, Version.asString(actor.getVersion()));
-		config.date(sheet, row, 5, actor.getLastChange());
+		Excel.cell(sheet, row, 0, actor.refId);
+		Excel.cell(sheet, row, 1, actor.name);
+		Excel.cell(sheet, row, 2, actor.description);
+		Excel.cell(sheet, row, 3, CategoryPath.getFull(actor.category));
+		Excel.cell(sheet, row, 4, Version.asString(actor.version));
+		config.date(sheet, row, 5, actor.lastChange);
 		Excel.cell(sheet, row, 6, actor.address);
 		Excel.cell(sheet, row, 7, actor.city);
 		Excel.cell(sheet, row, 8, actor.zipCode);

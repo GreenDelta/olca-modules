@@ -73,7 +73,7 @@ class RefSwitcher {
 	Unit switchRef(Unit srcUnit) {
 		if (srcUnit == null)
 			return null;
-		long id = seq.get(seq.UNIT, srcUnit.getRefId());
+		long id = seq.get(seq.UNIT, srcUnit.refId);
 		if (id == 0)
 			return null;
 		UnitDao dao = new UnitDao(dest);
@@ -98,14 +98,14 @@ class RefSwitcher {
 	FlowPropertyFactor switchRef(FlowPropertyFactor srcFactor, Flow destFlow) {
 		if (srcFactor == null || destFlow == null)
 			return null;
-		FlowProperty srcProp = srcFactor.getFlowProperty();
+		FlowProperty srcProp = srcFactor.flowProperty;
 		if (srcProp == null)
 			return null;
-		long propId = seq.get(seq.FLOW_PROPERTY, srcProp.getRefId());
-		for (FlowPropertyFactor fac : destFlow.getFlowPropertyFactors()) {
-			if (fac.getFlowProperty() == null)
+		long propId = seq.get(seq.FLOW_PROPERTY, srcProp.refId);
+		for (FlowPropertyFactor fac : destFlow.flowPropertyFactors) {
+			if (fac.flowProperty == null)
 				continue;
-			if (propId == fac.getFlowProperty().getId())
+			if (propId == fac.flowProperty.id)
 				return fac;
 		}
 		return null;
@@ -134,7 +134,7 @@ class RefSwitcher {
 	private <T extends RootEntity> T switchRef(int type, RootEntityDao<T, ?> dao, T srcEntity) {
 		if (srcEntity == null)
 			return null;
-		long id = seq.get(type, srcEntity.getRefId());
+		long id = seq.get(type, srcEntity.refId);
 		if (id == 0)
 			return null;
 		return dao.getForId(id);

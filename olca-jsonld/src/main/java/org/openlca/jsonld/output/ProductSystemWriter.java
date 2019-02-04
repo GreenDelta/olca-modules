@@ -49,7 +49,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		Out.put(obj, "referenceExchange", eObj, Out.REQUIRED_FIELD);
 		FlowProperty property = null;
 		if (system.targetFlowPropertyFactor != null)
-			property = system.targetFlowPropertyFactor.getFlowProperty();
+			property = system.targetFlowPropertyFactor.flowProperty;
 		Out.put(obj, "targetFlowProperty", property, conf, Out.REQUIRED_FIELD);
 		Out.put(obj, "targetUnit", system.targetUnit, conf, Out.REQUIRED_FIELD);
 		Out.put(obj, "targetAmount", system.targetAmount);
@@ -100,7 +100,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		List<Exchange> exchanges = exchangeDao.getForIds(exchangeIds);
 		Map<Long, Exchange> exchangeMap = new HashMap<>();
 		for (Exchange e : exchanges) {
-			exchangeMap.put(e.getId(), e);
+			exchangeMap.put(e.id, e);
 		}
 		return exchangeMap;
 	}
@@ -147,7 +147,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		Out.put(obj, "internalId", e.internalId);
 		if (e.flow == null)
 			return obj;
-		Out.put(obj, "name", e.flow.getName());
+		Out.put(obj, "name", e.flow.name);
 		return obj;
 	}
 

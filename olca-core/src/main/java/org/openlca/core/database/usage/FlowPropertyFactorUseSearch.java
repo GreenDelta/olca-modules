@@ -43,16 +43,16 @@ public class FlowPropertyFactorUseSearch {
 	private String getImpactCategoryQuery(FlowPropertyFactor factor) {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT DISTINCT f_impact_category FROM tbl_impact_factors");
-		query.append(" WHERE f_flow = " + flow.getId());
-		query.append(" AND f_flow_property_factor = " + factor.getId());
+		query.append(" WHERE f_flow = " + flow.id);
+		query.append(" AND f_flow_property_factor = " + factor.id);
 		return query.toString();
 	}
 
 	private String getProcessQuery(FlowPropertyFactor factor) {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT DISTINCT f_owner FROM tbl_exchanges");
-		query.append(" WHERE f_flow = " + flow.getId());
-		query.append(" AND f_flow_property_factor = " + factor.getId());
+		query.append(" WHERE f_flow = " + flow.id);
+		query.append(" AND f_flow_property_factor = " + factor.id);
 		return query.toString();
 	}
 

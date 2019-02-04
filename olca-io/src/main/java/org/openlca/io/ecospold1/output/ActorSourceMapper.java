@@ -20,7 +20,7 @@ final class ActorSourceMapper {
 	int map(Actor actor, DataSet dataset) {
 		if (actor == null)
 			return -1;
-		int id = (int) actor.getId();
+		int id = (int) actor.id;
 		for (IPerson p : dataset.getPersons()) {
 			if (p.getNumber() == id)
 				return id;
@@ -28,7 +28,7 @@ final class ActorSourceMapper {
 		IPerson person = factory.createPerson();
 		person.setNumber(id);
 		person.setCompanyCode("unknown");
-		person.setName(actor.getName());
+		person.setName(actor.name);
 		person.setAddress(actor.address);
 		person.setCountryCode(factory.getCountryCode(actor.country));
 		person.setEmail(actor.email);
@@ -53,15 +53,15 @@ final class ActorSourceMapper {
 	int map(Source inSource, DataSet dataset) {
 		if (inSource == null)
 			return -1;
-		int id = (int) inSource.getId();
+		int id = (int) inSource.id;
 		for (ISource s : dataset.getSources()) {
 			if (s.getNumber() == id)
 				return id;
 		}
 		ISource source = factory.createSource();
 		source.setNumber(id);
-		source.setFirstAuthor(inSource.getName());
-		source.setText(inSource.getDescription());
+		source.setFirstAuthor(inSource.name);
+		source.setText(inSource.description);
 		source.setTitle(inSource.textReference);
 		source.setYear(Util.toXml(inSource.year));
 		source.setPlaceOfPublications("unknown");

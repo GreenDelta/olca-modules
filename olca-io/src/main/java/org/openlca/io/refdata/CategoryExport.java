@@ -25,13 +25,13 @@ class CategoryExport extends AbstractExport {
 
 	private Object[] createLine(Category category) {
 		Object[] line = new Object[5];
-		line[0] = category.getRefId();
-		line[1] = category.getName();
-		line[2] = category.getDescription();
+		line[0] = category.refId;
+		line[1] = category.name;
+		line[2] = category.description;
 		if (category.getModelType() != null)
 			line[3] = category.getModelType().name();
-		if (category.getCategory() != null)
-			line[4] = category.getCategory().getRefId();
+		if (category.category != null)
+			line[4] = category.category.refId;
 		return line;
 	}
 

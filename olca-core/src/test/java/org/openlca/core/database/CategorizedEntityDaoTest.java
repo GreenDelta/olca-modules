@@ -62,7 +62,7 @@ public class CategorizedEntityDaoTest {
 
 	private <T extends CategorizedEntity> void testGetForRefId(
 			CategorizedEntityDao<T, ?> dao, T instance) {
-		T clone = dao.getForRefId(instance.getRefId());
+		T clone = dao.getForRefId(instance.refId);
 		assertEquals(instance, clone);
 		assertNull(dao.getForRefId(UUID.randomUUID().toString()));
 	}
@@ -71,7 +71,7 @@ public class CategorizedEntityDaoTest {
 			CategorizedEntityDao<T, V> dao, T instance) {
 		Category cat = null;
 		List<V> descriptors = dao.getDescriptors(Optional.ofNullable(cat));
-		BaseDescriptor descriptor = ListUtils.findDescriptor(instance.getId(),
+		BaseDescriptor descriptor = ListUtils.findDescriptor(instance.id,
 				descriptors);
 		Assert.assertNotNull(descriptor);
 	}
@@ -79,12 +79,12 @@ public class CategorizedEntityDaoTest {
 	private <T extends CategorizedEntity, V extends CategorizedDescriptor> Category addCategory(
 			Class<T> clazz, CategorizedEntityDao<T, V> dao, T instance) {
 		Category category = new Category();
-		category.setRefId(UUID.randomUUID().toString());
-		category.setName("test_category");
+		category.refId = UUID.randomUUID().toString();
+		category.name = "test_category";
 		category.setModelType(ModelType.forModelClass(clazz));
 		CategoryDao catDao = new CategoryDao(Tests.getDb());
 		catDao.insert(category);
-		instance.setCategory(category);
+		instance.category = category;
 		dao.update(instance);
 		return category;
 	}
@@ -92,7 +92,7 @@ public class CategorizedEntityDaoTest {
 	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void testGetDescriptorsForCategory(
 			CategorizedEntityDao<T, V> dao, T instance, Category category) {
 		List<V> descriptors = dao.getDescriptors(Optional.ofNullable(category));
-		BaseDescriptor descriptor = ListUtils.findDescriptor(instance.getId(),
+		BaseDescriptor descriptor = ListUtils.findDescriptor(instance.id,
 				descriptors);
 		Assert.assertNotNull(descriptor);
 		new CategoryDao(Tests.getDb()).delete(category);
@@ -101,9 +101,9 @@ public class CategorizedEntityDaoTest {
 	private <T extends CategorizedEntity> T makeNew(Class<T> clazz)
 			throws Exception {
 		T instance = clazz.newInstance();
-		instance.setDescription("descriptiom");
-		instance.setName("name");
-		instance.setRefId(UUID.randomUUID().toString());
+		instance.description = "descriptiom";
+		instance.name = "name";
+		instance.refId = UUID.randomUUID().toString();
 		return instance;
 	}
 

@@ -14,34 +14,18 @@ import javax.persistence.Table;
 public class FlowPropertyFactor extends AbstractEntity {
 
 	@Column(name = "conversion_factor")
-	private double conversionFactor = 1d;
+	public double conversionFactor = 1d;
 
 	@OneToOne
 	@JoinColumn(name = "f_flow_property")
-	private FlowProperty flowProperty;
+	public FlowProperty flowProperty;
 
 	@Override
 	public FlowPropertyFactor clone() {
 		final FlowPropertyFactor factor = new FlowPropertyFactor();
-		factor.setConversionFactor(getConversionFactor());
-		factor.setFlowProperty(getFlowProperty());
+		factor.conversionFactor = conversionFactor;
+		factor.flowProperty = flowProperty;
 		return factor;
-	}
-
-	public double getConversionFactor() {
-		return conversionFactor;
-	}
-
-	public void setConversionFactor(double conversionFactor) {
-		this.conversionFactor = conversionFactor;
-	}
-
-	public FlowProperty getFlowProperty() {
-		return flowProperty;
-	}
-
-	public void setFlowProperty(FlowProperty flowProperty) {
-		this.flowProperty = flowProperty;
 	}
 
 }

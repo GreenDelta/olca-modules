@@ -31,7 +31,7 @@ public class UnitMapping {
 		UnitMapping mapping = new UnitMapping();
 		try {
 			for (UnitGroup group : new UnitGroupDao(database).getAll()) {
-				FlowProperty prop = group.getDefaultFlowProperty();
+				FlowProperty prop = group.defaultFlowProperty;
 				if (prop == null)
 					prop = findProperty(database, group);
 				if (prop == null) {
@@ -48,11 +48,11 @@ public class UnitMapping {
 
 	private static void registerUnits(UnitGroup group, FlowProperty prop,
 			UnitMapping mapping) {
-		for (Unit unit : group.getUnits()) {
+		for (Unit unit : group.units) {
 			List<String> names = getNames(unit);
 			for (String name : names) {
 				UnitMappingEntry entry = new UnitMappingEntry();
-				entry.factor = unit.getConversionFactor();
+				entry.factor = unit.conversionFactor;
 				entry.flowProperty = prop;
 				entry.unit = unit;
 				entry.unitGroup = group;
@@ -65,7 +65,7 @@ public class UnitMapping {
 	private static FlowProperty findProperty(IDatabase database, UnitGroup group) {
 		FlowPropertyDao dao = new FlowPropertyDao(database);
 		for (FlowProperty prop : dao.getAll()) {
-			if (Objects.equals(group, prop.getUnitGroup()))
+			if (Objects.equals(group, prop.unitGroup))
 				return prop;
 		}
 		return null;
@@ -79,11 +79,11 @@ public class UnitMapping {
 		if (unit == null)
 			return Collections.emptyList();
 		List<String> names = new ArrayList<>();
-		if (unit.getName() != null)
-			names.add(unit.getName());
-		if (unit.getSynonyms() == null || unit.getSynonyms().isEmpty())
+		if (unit.name != null)
+			names.add(unit.name);
+		if (unit.synonyms == null || unit.synonyms.isEmpty())
 			return names;
-		for (String synonym : unit.getSynonyms().split(";"))
+		for (String synonym : unit.synonyms.split(";"))
 			names.add(synonym.trim());
 		return names;
 	}

@@ -58,12 +58,12 @@ public class ParameterReferences {
 		if (!conf.exportReferences)
 			return;
 		Set<String> names = new HashSet<>();
-		for (Exchange e : p.getExchanges()) {
+		for (Exchange e : p.exchanges) {
 			names.addAll(getVariables(e.amountFormula));
 			names.addAll(getUncercaintyVariables(e.uncertainty));
 		}
-		names.addAll(getParameterVariables(p.getParameters()));
-		filterLocal(names, p.getParameters());
+		names.addAll(getParameterVariables(p.parameters));
+		filterLocal(names, p.parameters);
 		writeParameters(names, conf);
 	}
 
@@ -82,7 +82,7 @@ public class ParameterReferences {
 	private static boolean isInParameters(String name,
 			List<Parameter> parameters) {
 		for (Parameter p : parameters)
-			if (p.getName().equals(name))
+			if (p.name.equals(name))
 				return true;
 		return false;
 	}
@@ -143,7 +143,7 @@ public class ParameterReferences {
 			Parameter p = loadParameter(name, dao);
 			if (p == null || conf.refFn == null)
 				continue;
-			if (conf.hasVisited(ModelType.PARAMETER, p.getId()))
+			if (conf.hasVisited(ModelType.PARAMETER, p.id))
 				continue;
 			conf.refFn.accept(p);
 			writeReferencedParameters(p, conf);

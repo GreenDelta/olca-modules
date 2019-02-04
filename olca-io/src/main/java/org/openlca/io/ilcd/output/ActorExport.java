@@ -28,8 +28,8 @@ public class ActorExport {
 	}
 
 	public Contact run(Actor actor) throws DataStoreException {
-		if (config.store.contains(Contact.class, actor.getRefId()))
-			return config.store.get(Contact.class, actor.getRefId());
+		if (config.store.contains(Contact.class, actor.refId))
+			return config.store.get(Contact.class, actor.refId);
 		this.actor = actor;
 		Contact contact = new Contact();
 		contact.version = "1.1";
@@ -44,16 +44,16 @@ public class ActorExport {
 
 	private DataSetInfo makeDataSetInfo() {
 		DataSetInfo info = new DataSetInfo();
-		info.uuid = actor.getRefId();
-		LangString.set(info.name, actor.getName(), config.lang);
+		info.uuid = actor.refId;
+		LangString.set(info.name, actor.name, config.lang);
 		info.email = actor.email;
 		info.telefax = actor.telefax;
 		info.telephone = actor.telephone;
 		info.wwwAddress = actor.website;
 		addAddress(info);
-		if (actor.getDescription() != null) {
+		if (actor.description != null) {
 			LangString.set(info.description,
-					actor.getDescription(), config.lang);
+					actor.description, config.lang);
 		}
 		addClassification(info);
 		return info;
@@ -72,11 +72,11 @@ public class ActorExport {
 	}
 
 	private void addClassification(DataSetInfo dataSetInfo) {
-		if (actor.getCategory() == null)
+		if (actor.category == null)
 			return;
 		CategoryConverter converter = new CategoryConverter();
 		Classification classification = converter.getClassification(
-				actor.getCategory());
+				actor.category);
 		if (classification != null) {
 			dataSetInfo.classifications.add(classification);
 		}
@@ -95,11 +95,11 @@ public class ActorExport {
 	private void addPublication(AdminInfo info) {
 		Publication pub = new Publication();
 		info.publication = pub;
-		pub.version = Version.asString(actor.getVersion());
+		pub.version = Version.asString(actor.version);
 		if (baseUri == null)
 			baseUri = "http://openlca.org/ilcd/resource/";
 		if (!baseUri.endsWith("/"))
 			baseUri += "/";
-		pub.uri = baseUri + "contacts/" + actor.getRefId();
+		pub.uri = baseUri + "contacts/" + actor.refId;
 	}
 }

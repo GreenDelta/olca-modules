@@ -80,7 +80,7 @@ public class FlowPropertyImport {
 		CategoryImport categoryImport = new CategoryImport(config,
 				ModelType.FLOW_PROPERTY);
 		Category category = categoryImport.run(ilcdProperty.getSortedClasses());
-		property.setCategory(category);
+		property.category = category;
 	}
 
 	private void createAndMapContent() throws ImportException {
@@ -98,15 +98,15 @@ public class FlowPropertyImport {
 	}
 
 	private void mapDescriptionAttributes() {
-		property.setFlowPropertyType(FlowPropertyType.PHYSICAL); // default
-		property.setRefId(ilcdProperty.getId());
-		property.setName(ilcdProperty.getName());
-		property.setDescription(ilcdProperty.getComment());
+		property.flowPropertyType = FlowPropertyType.PHYSICAL; // default
+		property.refId = ilcdProperty.getId();
+		property.name = ilcdProperty.getName();
+		property.description = ilcdProperty.getComment();
 		String v = ilcdProperty.getVersion();
-		property.setVersion(Version.fromString(v).getValue());
+		property.version = Version.fromString(v).getValue();
 		Date time = ilcdProperty.getTimeStamp();
 		if (time != null)
-			property.setLastChange(time.getTime());
+			property.lastChange = time.getTime();
 	}
 
 	private void createUnitGroupReference() throws ImportException {
@@ -114,7 +114,7 @@ public class FlowPropertyImport {
 		if (unitGroupRef != null) {
 			UnitGroupImport unitGroupImport = new UnitGroupImport(config);
 			UnitGroup unitGroup = unitGroupImport.run(unitGroupRef.uuid);
-			property.setUnitGroup(unitGroup);
+			property.unitGroup = unitGroup;
 		}
 	}
 
@@ -124,7 +124,7 @@ public class FlowPropertyImport {
 		} catch (Exception e) {
 			String message = String.format(
 					"Save operation failed in flow property %s.",
-					property.getRefId());
+					property.refId);
 			throw new ImportException(message, e);
 		}
 	}

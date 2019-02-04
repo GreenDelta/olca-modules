@@ -42,7 +42,7 @@ public class ExcelExport implements Runnable {
 			ProcessDao dao = new ProcessDao(db);
 			for (ProcessDescriptor d : descriptors) {
 				Process p = dao.getForId(d.id);
-				if (p == null || p.getDocumentation() == null) {
+				if (p == null || p.documentation == null) {
 					log.warn("process {} was null or has no documentation: "
 							+ "not exported", d);
 					continue;
@@ -70,8 +70,8 @@ public class ExcelExport implements Runnable {
 		if (!file.exists()) {
 			file.mkdirs();
 		}
-		String name = p.getRefId() + "_"
-				+ Version.asString(p.getVersion()) + ".xlsx";
+		String name = p.refId + "_"
+				+ Version.asString(p.version) + ".xlsx";
 		return new File(file, name);
 	}
 

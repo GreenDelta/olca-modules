@@ -20,15 +20,15 @@ public class DerbyDatabaseTest {
 	public void testDumpMemoryDB() throws Exception {
 		DerbyDatabase db = DerbyDatabase.createInMemory();
 		Actor a = new Actor();
-		a.setName("The Donald");
+		a.name = "The Donald";
 		a = new ActorDao(db).insert(a);
-		long id = a.getId();
+		long id = a.id;
 		Path path = Files.createTempDirectory("_olca_test_");
 		db.dump(path.toString());
 		db.close();
 		db = DerbyDatabase.restoreInMemory(path.toString());
 		a = new ActorDao(db).getForId(id);
-		assertEquals("The Donald", a.getName());
+		assertEquals("The Donald", a.name);
 		db.close();
 		Dirs.delete(path);
 	}

@@ -165,8 +165,8 @@ class Db {
 		UnitGroup g = put(new UnitGroupDao(db), unitGroup, unitGroupIds);
 		if (g == null)
 			return null;
-		for (Unit unit : g.getUnits())
-			unitIds.put(unit.getRefId(), unit.getId());
+		for (Unit unit : g.units)
+			unitIds.put(unit.refId, unit.id);
 		return g;
 	}
 
@@ -176,10 +176,10 @@ class Db {
 		CategoryDao dao = new CategoryDao(db);
 		Category cat = dao.update(category);
 		for (Category child : cat.getChildCategories()) {
-			String refId = child.getRefId();
+			String refId = child.refId;
 			if (categoryIds.containsKey(refId))
 				continue;
-			categoryIds.put(refId, child.getId());
+			categoryIds.put(refId, child.id);
 		}
 		return cat;
 	}
@@ -195,20 +195,20 @@ class Db {
 		T entity = dao.getForRefId(refId);
 		if (entity == null)
 			return null;
-		idCache.put(refId, entity.getId());
+		idCache.put(refId, entity.id);
 		return entity;
 	}
 
 	private <T extends RootEntity> T put(RootEntityDao<T, ?> dao, T entity, Map<String, Long> idCache) {
 		if (entity == null)
 			return null;
-		if (entity.getId() == 0L)
+		if (entity.id == 0L)
 			entity = dao.insert(entity);
 		else {
-			dao.detach(dao.getForId(entity.getId()));
+			dao.detach(dao.getForId(entity.id));
 			entity = dao.update(entity);
 		}
-		idCache.put(entity.getRefId(), entity.getId());
+		idCache.put(entity.refId, entity.id);
 		return entity;
 	}
 }

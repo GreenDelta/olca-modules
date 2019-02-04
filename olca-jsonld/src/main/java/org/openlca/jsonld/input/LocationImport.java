@@ -26,15 +26,15 @@ class LocationImport extends BaseImport<Location> {
 			return null;
 		Location loc = new Location();
 		In.mapAtts(json, loc, id, conf);
-		loc.setCode(Json.getString(json, "code"));
+		loc.code = Json.getString(json, "code");
 		double latitude = Json.getDouble(json, "latitude", 0);
 		double longitude = Json.getDouble(json, "longitude", 0);
-		loc.setLatitude(latitude);
-		loc.setLongitude(longitude);
+		loc.latitude = latitude;
+		loc.longitude = longitude;
 		if (!addGeometry(json, loc)) {
 			if (latitude != 0d || longitude != 0d) {
 				String kml = Geometries.pointToKml(latitude, longitude);
-				loc.setKmz(Geometries.kmlToKmz(kml));
+				loc.kmz = Geometries.kmlToKmz(kml);
 			}
 		}
 		loc = conf.db.put(loc);
@@ -48,7 +48,7 @@ class LocationImport extends BaseImport<Location> {
 				return false;
 			String kml = GeoJson2Kml.convert(geoJson);
 			byte[] kmz = BinUtils.zip(kml.getBytes("utf-8"));
-			loc.setKmz(kmz);
+			loc.kmz = kmz;
 			return true;
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(getClass());

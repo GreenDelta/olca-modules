@@ -55,11 +55,11 @@ public class JsonExport {
 		if (entity == null)
 			return;
 		ModelType type = ModelType.forModelClass(entity.getClass());
-		if (type == null || entity.getRefId() == null) {
+		if (type == null || entity.refId == null) {
 			warn(cb, "no refId, or type is unknown", entity);
 			return;
 		}
-		if (conf.hasVisited(type, entity.getId()))
+		if (conf.hasVisited(type, entity.id))
 			return;
 		Writer<T> writer = getWriter(entity, conf);
 		if (writer == null) {
@@ -100,7 +100,7 @@ public class JsonExport {
 			return;
 		try {
 			Path dbDir = dir.toPath();
-			Copy copy = new Copy(entity.getRefId(), type, dbDir);
+			Copy copy = new Copy(entity.refId, type, dbDir);
 			Files.walkFileTree(dir.toPath(), copy);
 		} catch (Exception e) {
 			cb.apply(Message.error("failed to copy external files", e), entity);

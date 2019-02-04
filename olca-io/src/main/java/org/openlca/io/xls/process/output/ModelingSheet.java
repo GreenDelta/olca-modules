@@ -17,7 +17,7 @@ class ModelingSheet {
 
 	private ModelingSheet(Config config) {
 		this.config = config;
-		doc = config.process.getDocumentation();
+		doc = config.process.documentation;
 		sheet = config.workbook.createSheet("Modeling and validation");
 	}
 
@@ -39,33 +39,33 @@ class ModelingSheet {
 
 	private void writeModelingSection() {
 		config.header(sheet, row++, 0, "Modeling and validation");
-		String type = config.process.getProcessType() == ProcessType.LCI_RESULT ?
+		String type = config.process.processType == ProcessType.LCI_RESULT ?
 				"LCI result" : "Unit process";
 		pair("Process type", type);
-		pair("LCI method", doc.getInventoryMethod());
-		pair("Modeling constants", doc.getModelingConstants());
-		pair("Data completeness", doc.getCompleteness());
-		pair("Data selection", doc.getDataSelection());
-		pair("Data treatment", doc.getDataTreatment());
+		pair("LCI method", doc.inventoryMethod);
+		pair("Modeling constants", doc.modelingConstants);
+		pair("Data completeness", doc.completeness);
+		pair("Data selection", doc.dataSelection);
+		pair("Data treatment", doc.dataTreatment);
 	}
 
 	private void writeDataSourceSection() {
 		config.header(sheet, row++, 0, "Data source information");
-		pair("Sampling procedure", doc.getSampling());
-		pair("Data collection period", doc.getDataCollectionPeriod());
+		pair("Sampling procedure", doc.sampling);
+		pair("Data collection period", doc.dataCollectionPeriod);
 	}
 
 	private void writeReviewSection() {
 		config.header(sheet, row++, 0, "Process evaluation and validation");
-		pair("Reviewer", doc.getReviewer());
-		pair("Review details", doc.getReviewDetails());
+		pair("Reviewer", doc.reviewer);
+		pair("Review details", doc.reviewDetails);
 	}
 
 	private void writeSources() {
 		config.header(sheet, row++, 0, "Sources");
-		for (Source source : doc.getSources()) {
-			Excel.cell(sheet, row, 0, source.getName());
-			Excel.cell(sheet, row++, 1, CategoryPath.getFull(source.getCategory()));
+		for (Source source : doc.sources) {
+			Excel.cell(sheet, row, 0, source.name);
+			Excel.cell(sheet, row++, 1, CategoryPath.getFull(source.category));
 		}
 	}
 
@@ -75,8 +75,8 @@ class ModelingSheet {
 			return;
 		}
 		Excel.cell(sheet, row, 0, header);
-		Excel.cell(sheet, row, 1, entity.getName());
-		Excel.cell(sheet, row++, 2, CategoryPath.getFull(entity.getCategory()));
+		Excel.cell(sheet, row, 1, entity.name);
+		Excel.cell(sheet, row++, 2, CategoryPath.getFull(entity.category));
 	}
 
 	private void pair(String header, String value) {

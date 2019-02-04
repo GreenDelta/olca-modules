@@ -22,7 +22,7 @@ class InfoSheet {
 	private InfoSheet(Config config) {
 		this.config = config;
 		process = config.process;
-		doc = config.process.getDocumentation();
+		doc = config.process.documentation;
 		sheet = config.workbook.createSheet("General information");
 	}
 
@@ -46,44 +46,44 @@ class InfoSheet {
 
 	private void infoSection() {
 		config.header(sheet, row++, 0, "General information");
-		writePair("UUID", process.getRefId());
-		writePair("Name", process.getName());
-		writePair("Description", process.getDescription());
-		writePair("Category", CategoryPath.getFull(process.getCategory()));
-		writePair("Version", Version.asString(process.getVersion()));
+		writePair("UUID", process.refId);
+		writePair("Name", process.name);
+		writePair("Description", process.description);
+		writePair("Category", CategoryPath.getFull(process.category));
+		writePair("Version", Version.asString(process.version));
 		Excel.cell(sheet, row, 0, "Last change");
-		config.date(sheet, row++, 1, process.getLastChange());
+		config.date(sheet, row++, 1, process.lastChange);
 	}
 
 	private void qRefSection() {
 		config.header(sheet, row++, 0, "Quantitative reference");
 		String qRefName = null;
-		Exchange qRef = process.getQuantitativeReference();
+		Exchange qRef = process.quantitativeReference;
 		if (qRef != null && qRef.flow != null)
-			qRefName = qRef.flow.getName();
+			qRefName = qRef.flow.name;
 		writePair("Quantitative reference", qRefName);
 	}
 
 	private void timeSection() {
 		config.header(sheet, row++, 0, "Time");
-		writePair("Valid from", doc.getValidFrom());
-		writePair("Valid until", doc.getValidUntil());
-		writePair("Description", doc.getTime());
+		writePair("Valid from", doc.validFrom);
+		writePair("Valid until", doc.validUntil);
+		writePair("Description", doc.time);
 	}
 
 	private void geoSection() {
 		config.header(sheet, row++, 0, "Geography");
 		Excel.cell(sheet, row, 0, "Location");
-		Location loc = process.getLocation();
+		Location loc = process.location;
 		if (loc != null)
-			Excel.cell(sheet, row, 1, loc.getCode());
+			Excel.cell(sheet, row, 1, loc.code);
 		row++;
-		writePair("Description", doc.getGeography());
+		writePair("Description", doc.geography);
 	}
 
 	private void techSection() {
 		config.header(sheet, row++, 0, "Technology");
-		writePair("Description", doc.getTechnology());
+		writePair("Description", doc.technology);
 	}
 
 	private void writePair(String header, String value) {

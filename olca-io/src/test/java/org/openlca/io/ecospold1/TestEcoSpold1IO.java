@@ -39,7 +39,7 @@ public class TestEcoSpold1IO {
 		export.close();
 		dao.delete(process);
 		File esDir = new File(dir, "EcoSpold01");
-		File file = new File(esDir, "process_" + process.getRefId() + ".xml");
+		File file = new File(esDir, "process_" + process.refId + ".xml");
 		Assert.assertTrue(file.exists());
 		file.delete();
 	}

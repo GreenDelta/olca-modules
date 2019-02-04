@@ -111,11 +111,11 @@ public class Descriptors {
 			return null;
 		ProcessDescriptor descriptor = new ProcessDescriptor();
 		setBaseValues(process, descriptor);
-		if (process.getLocation() != null)
-			descriptor.location = process.getLocation().getId();
-		if (process.getQuantitativeReference() != null)
-			descriptor.quantitativeReference = process.getQuantitativeReference().getId();
-		descriptor.processType = process.getProcessType();
+		if (process.location != null)
+			descriptor.location = process.location.id;
+		if (process.quantitativeReference != null)
+			descriptor.quantitativeReference = process.quantitativeReference.id;
+		descriptor.processType = process.processType;
 		return descriptor;
 	}
 
@@ -124,12 +124,12 @@ public class Descriptors {
 			return null;
 		FlowDescriptor descriptor = new FlowDescriptor();
 		setBaseValues(flow, descriptor);
-		if (flow.getLocation() != null)
-			descriptor.location = flow.getLocation().getId();
-		FlowProperty refProp = flow.getReferenceFlowProperty();
+		if (flow.location != null)
+			descriptor.location = flow.location.id;
+		FlowProperty refProp = flow.referenceFlowProperty;
 		if (refProp != null)
-			descriptor.refFlowPropertyId = refProp.getId();
-		descriptor.flowType = flow.getFlowType();
+			descriptor.refFlowPropertyId = refProp.id;
+		descriptor.flowType = flow.flowType;
 		return descriptor;
 	}
 
@@ -233,17 +233,17 @@ public class Descriptors {
 
 	private static void setBaseValues(CategorizedEntity entity, CategorizedDescriptor descriptor) {
 		setBaseValues((RootEntity) entity, descriptor);
-		if (entity.getCategory() != null)
-			descriptor.category = entity.getCategory().getId();
+		if (entity.category != null)
+			descriptor.category = entity.category.id;
 	}
 
 	private static void setBaseValues(RootEntity entity, BaseDescriptor descriptor) {
-		descriptor.refId = entity.getRefId();
-		descriptor.description = entity.getDescription();
-		descriptor.id = entity.getId();
-		descriptor.name = entity.getName();
-		descriptor.lastChange = entity.getLastChange();
-		descriptor.version = entity.getVersion();
+		descriptor.refId = entity.refId;
+		descriptor.description = entity.description;
+		descriptor.id = entity.id;
+		descriptor.name = entity.name;
+		descriptor.lastChange = entity.lastChange;
+		descriptor.version = entity.version;
 	}
 
 	private static CategorizedDescriptor createUnknownDescriptor(CategorizedEntity entity) {

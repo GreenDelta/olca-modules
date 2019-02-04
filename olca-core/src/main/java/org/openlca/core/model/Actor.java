@@ -40,7 +40,7 @@ public class Actor extends CategorizedEntity {
 		Actor clone = new Actor();
 		Util.cloneRootFields(this, clone);
 		clone.address = address;
-		clone.setCategory(getCategory());
+		clone.category = category;
 		clone.city = city;
 		clone.country = country;
 		clone.email = email;

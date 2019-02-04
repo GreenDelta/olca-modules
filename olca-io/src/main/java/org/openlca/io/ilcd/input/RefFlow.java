@@ -49,7 +49,7 @@ class RefFlow {
 		if (e == null) {
 			e = find(map.keySet());
 		}
-		oProcess.setQuantitativeReference(e);
+		oProcess.quantitativeReference = e;
 	}
 
 	private Exchange find(Iterable<Integer> ids) {
@@ -77,7 +77,7 @@ class RefFlow {
 	private boolean isProvider(Exchange e) {
 		if (e == null || e.flow == null)
 			return false;
-		FlowType type = e.flow.getFlowType();
+		FlowType type = e.flow.flowType;
 		if (type == FlowType.ELEMENTARY_FLOW)
 			return false;
 		return (e.isInput && type == FlowType.WASTE_FLOW)

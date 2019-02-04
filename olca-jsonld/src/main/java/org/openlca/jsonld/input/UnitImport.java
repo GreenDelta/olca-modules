@@ -27,7 +27,7 @@ class UnitImport extends BaseEmbeddedImport<Unit, UnitGroup> {
 	Unit map(JsonObject json, long id) {
 		Unit u = new Unit();
 		In.mapAtts(json, u, id);
-		u.setConversionFactor(Json.getDouble(json, "conversionFactor", 1.0));
+		u.conversionFactor = Json.getDouble(json, "conversionFactor", 1.0);
 		addSynonyms(u, json);
 		return u;
 	}
@@ -43,7 +43,7 @@ class UnitImport extends BaseEmbeddedImport<Unit, UnitGroup> {
 			synonyms.add(e.getAsString());
 		}
 		String synStr = Joiner.on(';').join(synonyms);
-		unit.setSynonyms(synStr);
+		unit.synonyms = synStr;
 	}
 
 	@Override

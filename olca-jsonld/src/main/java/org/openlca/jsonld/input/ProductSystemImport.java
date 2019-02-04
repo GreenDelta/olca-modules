@@ -48,7 +48,7 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 			String refId = Json.getString(ref, "@id");
 			Process p = ProcessImport.run(refId, conf);
 			if (p != null)
-				s.processes.add(p.getId());
+				s.processes.add(p.id);
 		}
 	}
 
@@ -91,7 +91,7 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 			if (model == null)
 				continue;
 			p.contextType = ModelType.PROCESS;
-			p.contextId = model.getId();
+			p.contextId = model.id;
 			s.parameterRedefs.add(p);
 		}
 	}
@@ -103,7 +103,7 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 			return;
 		for (JsonElement element : array) {
 			JsonObject ref = element.getAsJsonObject();
-			Exchange ex = ExchangeImport.run(ModelType.PRODUCT_SYSTEM, s.getRefId(), ref, conf,
+			Exchange ex = ExchangeImport.run(ModelType.PRODUCT_SYSTEM, s.refId, ref, conf,
 					(ProductSystem system) -> system.inventory);
 			s.inventory.add(ex);
 		}

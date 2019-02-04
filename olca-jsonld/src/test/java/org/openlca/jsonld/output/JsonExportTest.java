@@ -21,22 +21,22 @@ public class JsonExportTest {
 	@Test
 	public void testToString() {
 		Actor actor = new Actor();
-		actor.setRefId(UUID.randomUUID().toString());
-		actor.setName("actor");
+		actor.refId = UUID.randomUUID().toString();
+		actor.name = "actor";
 		JsonObject obj = JsonExport.toJson(actor);
-		Assert.assertEquals(actor.getRefId(), obj.get("@id").getAsString());
-		Assert.assertEquals(actor.getName(), obj.get("name").getAsString());
+		Assert.assertEquals(actor.refId, obj.get("@id").getAsString());
+		Assert.assertEquals(actor.name, obj.get("name").getAsString());
 	}
 
 	@Test
 	public void testWriteActor() throws Exception {
 		Actor actor = new Actor();
-		actor.setRefId(UUID.randomUUID().toString());
-		actor.setName("actor");
+		actor.refId = UUID.randomUUID().toString();
+		actor.name = "actor";
 		Category cat = new Category();
-		cat.setRefId(UUID.randomUUID().toString());
-		cat.setName("category");
-		actor.setCategory(cat);
+		cat.refId = UUID.randomUUID().toString();
+		cat.name = "category";
+		actor.category = cat;
 		Path tempdir = Files.createTempDirectory("_olca_tests_");
 		Path zip = tempdir.resolve("test.zip");
 		ZipStore store = ZipStore.open(zip.toFile());
@@ -46,8 +46,8 @@ public class JsonExportTest {
 			count.incrementAndGet();
 		});
 		Assert.assertEquals(2, count.get());
-		Assert.assertTrue(store.contains(ModelType.ACTOR, actor.getRefId()));
-		Assert.assertTrue(store.contains(ModelType.CATEGORY, cat.getRefId()));
+		Assert.assertTrue(store.contains(ModelType.ACTOR, actor.refId));
+		Assert.assertTrue(store.contains(ModelType.CATEGORY, cat.refId));
 		store.close();
 		Dirs.delete(tempdir);
 	}

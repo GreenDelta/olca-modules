@@ -13,11 +13,11 @@ class Util {
 	static void cloneRootFields(RootEntity from, RootEntity to) {
 		if (from == null || to == null)
 			return;
-		to.setRefId((UUID.randomUUID().toString()));
-		to.setName(from.getName());
-		to.setDescription(from.getDescription());
-		to.setVersion(from.getVersion());
-		to.setLastChange(from.getLastChange());
+		to.refId = (UUID.randomUUID().toString());
+		to.name = from.name;
+		to.description = from.description;
+		to.version = from.version;
+		to.lastChange = from.lastChange;
 	}
 
 }

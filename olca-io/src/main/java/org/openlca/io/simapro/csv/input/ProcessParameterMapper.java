@@ -31,7 +31,7 @@ class ProcessParameterMapper {
 	private FormulaInterpreter initInterpreter(ParameterDao dao) {
 		FormulaInterpreter interpreter = new FormulaInterpreter();
 		for (Parameter parameter : dao.getGlobalParameters()) {
-			interpreter.bind(parameter.getName(),
+			interpreter.bind(parameter.name,
 					Double.toString(parameter.value));
 		}
 		return interpreter;
@@ -48,13 +48,13 @@ class ProcessParameterMapper {
 		Scope scope = interpreter.createScope(scopeId);
 		for (InputParameterRow row : block.getInputParameters()) {
 			Parameter p = Parameters.create(row, ParameterScope.PROCESS);
-			process.getParameters().add(p);
-			scope.bind(p.getName(), Double.toString(p.value));
+			process.parameters.add(p);
+			scope.bind(p.name, Double.toString(p.value));
 		}
 		for (CalculatedParameterRow row : block.getCalculatedParameters()) {
 			Parameter p = Parameters.create(row, ParameterScope.PROCESS);
-			process.getParameters().add(p);
-			scope.bind(p.getName(), p.formula);
+			process.parameters.add(p);
+			scope.bind(p.name, p.formula);
 		}
 		evalProcessParameters(scopeId);
 		this.process = null;
@@ -63,11 +63,11 @@ class ProcessParameterMapper {
 
 	private void evalProcessParameters(long scopeId) {
 		Scope scope = interpreter.getScope(scopeId);
-		for (Parameter param : process.getParameters()) {
+		for (Parameter param : process.parameters) {
 			if (param.isInputParameter)
 				continue;
 			try {
-				double val = scope.eval(param.getName());
+				double val = scope.eval(param.name);
 				param.value = val;
 			} catch (Exception e) {
 				log.error("failed to evaluate process parameter " + param
@@ -75,7 +75,7 @@ class ProcessParameterMapper {
 				param.formula = null;
 				param.value = (double) 1;
 				param.isInputParameter = true;
-				scope.bind(param.getName(), "1");
+				scope.bind(param.name, "1");
 			}
 		}
 	}

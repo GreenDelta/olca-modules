@@ -54,7 +54,7 @@ public class Project extends CategorizedEntity {
 		Project clone = new Project();
 		Util.cloneRootFields(this, clone);
 		clone.author = author;
-		clone.setCategory(getCategory());
+		clone.category = category;
 		clone.creationDate = creationDate;
 		clone.functionalUnit = functionalUnit;
 		clone.goal = goal;

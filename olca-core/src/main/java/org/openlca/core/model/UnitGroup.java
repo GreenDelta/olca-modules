@@ -26,29 +26,29 @@ public class UnitGroup extends CategorizedEntity {
 
 	@OneToOne
 	@JoinColumn(name = "f_default_flow_property")
-	private FlowProperty defaultFlowProperty;
+	public FlowProperty defaultFlowProperty;
 
 	@OneToOne
 	@JoinColumn(name = "f_reference_unit")
-	private Unit referenceUnit;
+	public Unit referenceUnit;
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_unit_group")
-	private final List<Unit> units = new ArrayList<>();
+	public final List<Unit> units = new ArrayList<>();
 
 	@Override
 	public UnitGroup clone() {
 		UnitGroup clone = new UnitGroup();
 		Util.cloneRootFields(this, clone);
-		clone.setCategory(getCategory());
-		clone.setDefaultFlowProperty(getDefaultFlowProperty());
-		Unit refUnit = getReferenceUnit();
-		for (Unit unit : getUnits()) {
+		clone.category = category;
+		clone.defaultFlowProperty = defaultFlowProperty;
+		Unit refUnit = referenceUnit;
+		for (Unit unit : units) {
 			final boolean isRef = Objects.equals(refUnit, unit);
 			final Unit copy = unit.clone();
-			clone.getUnits().add(copy);
+			clone.units.add(copy);
 			if (isRef) {
-				clone.setReferenceUnit(copy);
+				clone.referenceUnit = copy;
 			}
 		}
 		return clone;
@@ -59,9 +59,9 @@ public class UnitGroup extends CategorizedEntity {
 	 */
 	public Unit getUnit(String name) {
 		for (Unit unit : units) {
-			if (unit.getName().equals(name))
+			if (unit.name.equals(name))
 				return unit;
-			String synonyms = unit.getSynonyms();
+			String synonyms = unit.synonyms;
 			if (synonyms == null)
 				continue;
 			for (String syn : synonyms.split(";")) {
@@ -70,26 +70,6 @@ public class UnitGroup extends CategorizedEntity {
 			}
 		}
 		return null;
-	}
-
-	public FlowProperty getDefaultFlowProperty() {
-		return defaultFlowProperty;
-	}
-
-	public void setDefaultFlowProperty(FlowProperty defaultFlowProperty) {
-		this.defaultFlowProperty = defaultFlowProperty;
-	}
-
-	public Unit getReferenceUnit() {
-		return referenceUnit;
-	}
-
-	public void setReferenceUnit(Unit referenceUnit) {
-		this.referenceUnit = referenceUnit;
-	}
-
-	public List<Unit> getUnits() {
-		return units;
 	}
 
 }

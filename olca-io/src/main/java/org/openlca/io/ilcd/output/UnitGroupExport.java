@@ -34,8 +34,8 @@ public class UnitGroupExport {
 
 	public UnitGroup run(org.openlca.core.model.UnitGroup unitGroup)
 			throws DataStoreException {
-		if (config.store.contains(UnitGroup.class, unitGroup.getRefId()))
-			return config.store.get(UnitGroup.class, unitGroup.getRefId());
+		if (config.store.contains(UnitGroup.class, unitGroup.refId))
+			return config.store.get(UnitGroup.class, unitGroup.refId);
 		this.unitGroup = unitGroup;
 		UnitGroup iUnitGroup = new UnitGroup();
 		iUnitGroup.version = "1.1";
@@ -52,15 +52,15 @@ public class UnitGroupExport {
 
 	private DataSetInfo makeDataSetInfo() {
 		DataSetInfo dataSetInfo = new DataSetInfo();
-		dataSetInfo.uuid = unitGroup.getRefId();
-		LangString.set(dataSetInfo.name, unitGroup.getName(),
+		dataSetInfo.uuid = unitGroup.refId;
+		LangString.set(dataSetInfo.name, unitGroup.name,
 				config.lang);
-		if (unitGroup.getDescription() != null)
+		if (unitGroup.description != null)
 			LangString.set(dataSetInfo.generalComment,
-					unitGroup.getDescription(), config.lang);
+					unitGroup.description, config.lang);
 		CategoryConverter converter = new CategoryConverter();
 		Classification c = converter.getClassification(
-				unitGroup.getCategory());
+				unitGroup.category);
 		if (c != null)
 			dataSetInfo.classifications.add(c);
 		return dataSetInfo;
@@ -68,16 +68,16 @@ public class UnitGroupExport {
 
 	private QuantitativeReference makeQRef() {
 		QuantitativeReference qRef = new QuantitativeReference();
-		if (unitGroup.getReferenceUnit() != null)
+		if (unitGroup.referenceUnit != null)
 			qRef.referenceUnit = 0;
 		return qRef;
 	}
 
 	private void makeUnits(UnitGroup iUnitGroup) {
-		Unit refUnit = unitGroup.getReferenceUnit();
+		Unit refUnit = unitGroup.referenceUnit;
 		List<org.openlca.ilcd.units.Unit> units = UnitGroups.units(iUnitGroup);
 		int pos = 1;
-		for (Unit unit : unitGroup.getUnits()) {
+		for (Unit unit : unitGroup.units) {
 			org.openlca.ilcd.units.Unit iUnit = makeUnit(unit);
 			if (unit.equals(refUnit))
 				iUnit.id = 0;
@@ -89,14 +89,14 @@ public class UnitGroupExport {
 
 	private org.openlca.ilcd.units.Unit makeUnit(Unit unit) {
 		org.openlca.ilcd.units.Unit iUnit = new org.openlca.ilcd.units.Unit();
-		iUnit.factor = unit.getConversionFactor();
-		iUnit.name = unit.getName();
-		if (unit.getDescription() != null) {
+		iUnit.factor = unit.conversionFactor;
+		iUnit.name = unit.name;
+		if (unit.description != null) {
 			LangString.set(iUnit.comment,
-					unit.getDescription(), config.lang);
+					unit.description, config.lang);
 		}
 		UnitExtension unitExtension = new UnitExtension(iUnit);
-		unitExtension.setUnitId(unit.getRefId());
+		unitExtension.setUnitId(unit.refId);
 		return iUnit;
 	}
 
@@ -113,11 +113,11 @@ public class UnitGroupExport {
 	private void addPublication(AdminInfo info) {
 		Publication pub = new Publication();
 		info.publication = pub;
-		pub.version = Version.asString(unitGroup.getVersion());
+		pub.version = Version.asString(unitGroup.version);
 		if (baseUri == null)
 			baseUri = "http://openlca.org/ilcd/resource/";
 		if (!baseUri.endsWith("/"))
 			baseUri += "/";
-		pub.uri = baseUri + "unitgroups/" + unitGroup.getRefId();
+		pub.uri = baseUri + "unitgroups/" + unitGroup.refId;
 	}
 }

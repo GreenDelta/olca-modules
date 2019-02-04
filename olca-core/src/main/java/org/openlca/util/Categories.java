@@ -28,11 +28,11 @@ public class Categories {
 		List<String> path = new ArrayList<>();
 		Category c = category;
 		while (c != null) {
-			String item = c.getName();
+			String item = c.name;
 			if (item == null)
 				item = "";
 			path.add(0, item.trim());
-			c = c.getCategory();
+			c = c.category;
 		}
 		return path;
 	}

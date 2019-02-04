@@ -35,7 +35,7 @@ abstract class ExchangeImport<P extends RootEntity> extends BaseEmbeddedImport<E
 	@Override
 	Exchange map(JsonObject json, long id) {
 		Exchange e = new Exchange();
-		e.setId(id);
+		e.id = id;
 		addAttributes(json, e);
 		addCostEntries(json, e, conf);
 		addExchangeRefs(json, e, conf);
@@ -72,11 +72,11 @@ abstract class ExchangeImport<P extends RootEntity> extends BaseEmbeddedImport<E
 			return;
 		String propId = Json.getRefId(json, "flowProperty");
 		if (propId != null) {
-			for (FlowPropertyFactor f : flow.getFlowPropertyFactors()) {
-				FlowProperty prop = f.getFlowProperty();
+			for (FlowPropertyFactor f : flow.flowPropertyFactors) {
+				FlowProperty prop = f.flowProperty;
 				if (prop == null)
 					continue;
-				if (Objects.equals(propId, prop.getRefId())) {
+				if (Objects.equals(propId, prop.refId)) {
 					e.flowPropertyFactor = f;
 					break;
 				}
@@ -88,7 +88,7 @@ abstract class ExchangeImport<P extends RootEntity> extends BaseEmbeddedImport<E
 		if (unitId != null) {
 			e.unit = conf.db.get(ModelType.UNIT, unitId);
 		} else if (e.flowPropertyFactor != null) {
-			e.unit = e.flowPropertyFactor.getFlowProperty().getUnitGroup().getReferenceUnit();
+			e.unit = e.flowPropertyFactor.flowProperty.unitGroup.referenceUnit;
 		}
 	}
 

@@ -31,11 +31,11 @@ public class ImpactMethodUseSearchTest {
 		search = IUseSearch.FACTORY.createFor(ModelType.IMPACT_METHOD, db);
 		projectDao = new ProjectDao(db);
 		project = new Project();
-		project.setName("test project");
+		project.name = "test project";
 		project = projectDao.insert(project);
 		impactDao = new ImpactMethodDao(db);
 		method = new ImpactMethod();
-		method.setName("test method");
+		method.name = "test method";
 		method = impactDao.insert(method);
 	}
 
@@ -55,7 +55,7 @@ public class ImpactMethodUseSearchTest {
 
 	@Test
 	public void testFindInProject() {
-		project.impactMethodId = method.getId();
+		project.impactMethodId = method.id;
 		project = projectDao.update(project);
 		ImpactMethodDescriptor d = Descriptors.toDescriptor(method);
 		List<CategorizedDescriptor> descriptors = search.findUses(d);

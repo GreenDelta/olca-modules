@@ -24,8 +24,8 @@ public class SourceTest extends AbstractZipTest {
 
 	private Source createModel(SourceDao dao) {
 		Source source = new Source();
-		source.setName("Source");
-		source.setRefId(UUID.randomUUID().toString());
+		source.name = "Source";
+		source.refId = UUID.randomUUID().toString();
 		dao.insert(source);
 		return source;
 	}
@@ -36,7 +36,7 @@ public class SourceTest extends AbstractZipTest {
 			export.write(source);
 		});
 		dao.delete(source);
-		Assert.assertFalse(dao.contains(source.getRefId()));
+		Assert.assertFalse(dao.contains(source.refId));
 	}
 
 	private void doImport(SourceDao dao, Source source) {
@@ -44,8 +44,8 @@ public class SourceTest extends AbstractZipTest {
 			JsonImport jImport = new JsonImport(zip, Tests.getDb());
 			jImport.run();
 		});
-		Assert.assertTrue(dao.contains(source.getRefId()));
-		Source clone = dao.getForRefId(source.getRefId());
-		Assert.assertEquals(source.getName(), clone.getName());
+		Assert.assertTrue(dao.contains(source.refId));
+		Source clone = dao.getForRefId(source.refId);
+		Assert.assertEquals(source.name, clone.name);
 	}
 }

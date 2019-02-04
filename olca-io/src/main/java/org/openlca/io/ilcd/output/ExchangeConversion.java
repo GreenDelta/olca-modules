@@ -33,7 +33,7 @@ class ExchangeConversion {
 	public void run(org.openlca.ilcd.processes.Process iProcess) {
 		this.iProcess = iProcess;
 		Map<Exchange, org.openlca.ilcd.processes.Exchange> map = new HashMap<>();
-		for (Exchange oExchange : process.getExchanges()) {
+		for (Exchange oExchange : process.exchanges) {
 			org.openlca.ilcd.processes.Exchange iExchange = mapExchange(
 					oExchange);
 			map.put(oExchange, iExchange);
@@ -68,10 +68,9 @@ class ExchangeConversion {
 
 	private double getRefAmount(Exchange oExchange) {
 		double propFactor = oExchange.flowPropertyFactor != null
-				? oExchange.flowPropertyFactor.getConversionFactor()
+				? oExchange.flowPropertyFactor.conversionFactor
 				: 1;
-		double unitFactor = oExchange.unit != null ? oExchange.unit
-				.getConversionFactor() : 1;
+		double unitFactor = oExchange.unit != null ? oExchange.unit.conversionFactor : 1;
 		return oExchange.amount * propFactor * unitFactor;
 	}
 
@@ -93,13 +92,13 @@ class ExchangeConversion {
 			ext.setFormula(oExchange.amountFormula);
 		}
 		if (oExchange.unit != null) {
-			ext.setUnitId(oExchange.unit.getRefId());
+			ext.setUnitId(oExchange.unit.refId);
 		}
 		if (oExchange.flowPropertyFactor != null) {
 			FlowPropertyFactor propFactor = oExchange.flowPropertyFactor;
-			FlowProperty prop = propFactor.getFlowProperty();
+			FlowProperty prop = propFactor.flowProperty;
 			if (prop != null) {
-				ext.setPropertyId(prop.getRefId());
+				ext.setPropertyId(prop.refId);
 			}
 		}
 	}

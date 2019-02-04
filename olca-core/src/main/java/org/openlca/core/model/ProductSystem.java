@@ -68,17 +68,17 @@ public class ProductSystem extends CategorizedEntity {
 	 */
 	public static ProductSystem from(Process p) {
 		ProductSystem system = new ProductSystem();
-		system.setRefId(UUID.randomUUID().toString());
+		system.refId = UUID.randomUUID().toString();
 		if (p == null)
 			return system;
-		system.setName(p.getName());
-		system.processes.add(p.getId());
+		system.name = p.name;
+		system.processes.add(p.id);
 		system.referenceProcess = p;
-		Exchange qRef = p.getQuantitativeReference();
+		Exchange qRef = p.quantitativeReference;
 		system.referenceExchange = qRef;
 		if (qRef == null || qRef.flow == null)
 			return system;
-		FlowType type = qRef.flow.getFlowType();
+		FlowType type = qRef.flow.flowType;
 		if (qRef.isInput && type != FlowType.WASTE_FLOW)
 			return system;
 		if (!qRef.isInput && type != FlowType.PRODUCT_FLOW)
@@ -93,7 +93,7 @@ public class ProductSystem extends CategorizedEntity {
 	public ProductSystem clone() {
 		ProductSystem clone = new ProductSystem();
 		Util.cloneRootFields(this, clone);
-		clone.setCategory(getCategory());
+		clone.category = category;
 		clone.referenceExchange = referenceExchange;
 		clone.referenceProcess = referenceProcess;
 		clone.targetAmount = targetAmount;

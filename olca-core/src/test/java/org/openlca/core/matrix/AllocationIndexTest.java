@@ -23,8 +23,7 @@ public class AllocationIndexTest {
 	public void setup() {
 		process = TestProcess
 				.refProduct("p1", 1.0, "kg")
-				.with(p -> p
-						.setDefaultAllocationMethod(AllocationMethod.CAUSAL))
+				.with(p -> p.defaultAllocationMethod = AllocationMethod.CAUSAL)
 				.prodOut("p2", 1.0, "kg")
 				.wasteIn("w", 1.0, "kg")
 				.elemOut("CO2", 4.0, "kg")
@@ -90,7 +89,7 @@ public class AllocationIndexTest {
 			assertEquals(
 					1.0,
 					idx.get(product(p),
-							TestProcess.findExchange(process, p).getId()),
+							TestProcess.findExchange(process, p).id),
 					1e-16);
 		}
 	}
@@ -137,7 +136,7 @@ public class AllocationIndexTest {
 	private double factor(AllocationIndex idx, String product) {
 		return idx.get(
 				product(product),
-				TestProcess.findExchange(process, "CO2").getId());
+				TestProcess.findExchange(process, "CO2").id);
 	}
 
 	private ProcessProduct product(String name) {

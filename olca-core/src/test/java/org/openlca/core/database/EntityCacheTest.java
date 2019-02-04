@@ -43,7 +43,7 @@ public class EntityCacheTest {
 	@Test
 	public void testSingleEntity() throws Exception {
 		Actor actor = new Actor();
-		actor.setName("test#actor");
+		actor.name = "test#actor";
 		new ActorDao(database).insert(actor);
 		checkEntity(actor);
 		new ActorDao(database).delete(actor);
@@ -54,7 +54,7 @@ public class EntityCacheTest {
 		List<Actor> actors = new ArrayList<>();
 		for (int i = 0; i < 100; i++) {
 			Actor actor = new Actor();
-			actor.setName("test#actor " + i);
+			actor.name = "test#actor " + i;
 			new ActorDao(database).insert(actor);
 			actors.add(actor);
 		}
@@ -68,13 +68,13 @@ public class EntityCacheTest {
 	public void testRefresh() throws Exception {
 		ActorDao dao = new ActorDao(database);
 		Actor actor = new Actor();
-		actor.setName("test#actor");
+		actor.name = "test#actor";
 		dao.insert(actor);
 		checkEntity(actor);
-		actor.setName("butterkuchen");
+		actor.name = "butterkuchen";
 		dao.update(actor);
-		cache.refresh(Actor.class, actor.getId());
-		cache.refresh(ActorDescriptor.class, actor.getId());
+		cache.refresh(Actor.class, actor.id);
+		cache.refresh(ActorDescriptor.class, actor.id);
 		checkEntity(actor);
 	}
 
@@ -82,13 +82,13 @@ public class EntityCacheTest {
 	public void testInvalidate() throws Exception {
 		ActorDao dao = new ActorDao(database);
 		Actor actor = new Actor();
-		actor.setName("test#actor");
+		actor.name = "test#actor";
 		dao.insert(actor);
 		checkEntity(actor);
-		actor.setName("butterkuchen");
+		actor.name = "butterkuchen";
 		dao.update(actor);
-		cache.invalidate(Actor.class, actor.getId());
-		cache.invalidate(ActorDescriptor.class, actor.getId());
+		cache.invalidate(Actor.class, actor.id);
+		cache.invalidate(ActorDescriptor.class, actor.id);
 		checkEntity(actor);
 	}
 
@@ -96,10 +96,10 @@ public class EntityCacheTest {
 	public void testInvalidateAll() throws Exception {
 		ActorDao dao = new ActorDao(database);
 		Actor actor = new Actor();
-		actor.setName("test#actor");
+		actor.name = "test#actor";
 		dao.insert(actor);
 		checkEntity(actor);
-		actor.setName("butterkuchen");
+		actor.name = "butterkuchen";
 		dao.update(actor);
 		cache.invalidateAll();
 		checkEntity(actor);
@@ -109,28 +109,28 @@ public class EntityCacheTest {
 	public void testInvalidateAllForIds() throws Exception {
 		ActorDao dao = new ActorDao(database);
 		Actor actor = new Actor();
-		actor.setName("test#actor");
+		actor.name = "test#actor";
 		dao.insert(actor);
 		checkEntity(actor);
-		actor.setName("butterkuchen");
+		actor.name = "butterkuchen";
 		dao.update(actor);
-		cache.invalidateAll(Actor.class, Arrays.asList(actor.getId()));
-		cache.invalidateAll(ActorDescriptor.class, Arrays.asList(actor.getId()));
+		cache.invalidateAll(Actor.class, Arrays.asList(actor.id));
+		cache.invalidateAll(ActorDescriptor.class, Arrays.asList(actor.id));
 		checkEntity(actor);
 	}
 
 	private void checkEntity(Actor actor) throws Exception {
-		Actor alias = cache.get(Actor.class, actor.getId());
+		Actor alias = cache.get(Actor.class, actor.id);
 		Assert.assertEquals(actor, alias);
-		Assert.assertEquals(actor.getName(), alias.getName());
+		Assert.assertEquals(actor.name, alias.name);
 		ActorDescriptor descriptor = cache.get(ActorDescriptor.class,
-				actor.getId());
-		Assert.assertEquals(actor.getName(), descriptor.name);
-		Assert.assertEquals(actor.getId(), descriptor.id);
+				actor.id);
+		Assert.assertEquals(actor.name, descriptor.name);
+		Assert.assertEquals(actor.id, descriptor.id);
 		Assert.assertTrue(cache.getAll(Actor.class,
-				Arrays.asList(actor.getId())).containsValue(actor));
+				Arrays.asList(actor.id)).containsValue(actor));
 		Assert.assertTrue(cache.getAll(ActorDescriptor.class,
-				Arrays.asList(actor.getId())).containsValue(descriptor));
+				Arrays.asList(actor.id)).containsValue(descriptor));
 	}
 
 }

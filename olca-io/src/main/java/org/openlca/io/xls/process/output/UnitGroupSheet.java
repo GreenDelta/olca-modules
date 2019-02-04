@@ -49,15 +49,15 @@ class UnitGroupSheet {
 	}
 
 	private void write(UnitGroup group) {
-		Excel.cell(sheet, row, 0, group.getRefId());
-		Excel.cell(sheet, row, 1, group.getName());
-		Excel.cell(sheet, row, 2, group.getDescription());
-		Excel.cell(sheet, row, 3, CategoryPath.getFull(group.getCategory()));
-		if (group.getReferenceUnit() != null)
-			Excel.cell(sheet, row, 4, group.getReferenceUnit().getName());
-		if (group.getDefaultFlowProperty() != null)
-			Excel.cell(sheet, row, 5, group.getDefaultFlowProperty().getName());
-		Excel.cell(sheet, row, 6, Version.asString(group.getVersion()));
-		config.date(sheet, row, 7, group.getLastChange());
+		Excel.cell(sheet, row, 0, group.refId);
+		Excel.cell(sheet, row, 1, group.name);
+		Excel.cell(sheet, row, 2, group.description);
+		Excel.cell(sheet, row, 3, CategoryPath.getFull(group.category));
+		if (group.referenceUnit != null)
+			Excel.cell(sheet, row, 4, group.referenceUnit.name);
+		if (group.defaultFlowProperty != null)
+			Excel.cell(sheet, row, 5, group.defaultFlowProperty.name);
+		Excel.cell(sheet, row, 6, Version.asString(group.version));
+		config.date(sheet, row, 7, group.lastChange);
 	}
 }

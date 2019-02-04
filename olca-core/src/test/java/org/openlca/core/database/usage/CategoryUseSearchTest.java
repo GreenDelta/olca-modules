@@ -41,8 +41,8 @@ public class CategoryUseSearchTest {
 	public void testFindInModel() {
 		Category category = createCategory();
 		Project project = new Project();
-		project.setName("project");
-		project.setCategory(category);
+		project.name = "project";
+		project.category = category;
 		new ProjectDao(database).insert(project);
 		List<CategorizedDescriptor> results = search.findUses(Descriptors
 				.toDescriptor(category));
@@ -55,7 +55,7 @@ public class CategoryUseSearchTest {
 
 	private Category createCategory() {
 		Category category = new Category();
-		category.setName("category");
+		category.name = "category";
 		category.setModelType(ModelType.PROCESS);
 		return new CategoryDao(database).insert(category);
 	}
@@ -64,7 +64,7 @@ public class CategoryUseSearchTest {
 	public void testFindInCategory() {
 		Category category = createCategory();
 		Category parent = createCategory();
-		parent.setCategory(category);
+		parent.category = category;
 		new CategoryDao(database).update(parent);
 		List<CategorizedDescriptor> results = search.findUses(Descriptors
 				.toDescriptor(category));

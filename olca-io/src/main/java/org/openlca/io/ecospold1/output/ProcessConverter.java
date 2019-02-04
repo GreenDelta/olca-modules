@@ -60,7 +60,7 @@ class ProcessConverter {
 	}
 
 	private void mapDocumentation(DataSet dataSet) {
-		ProcessDocumentation doc = process.getDocumentation();
+		ProcessDocumentation doc = process.documentation;
 		if (doc == null)
 			return;
 		mapDataSetInformation(doc, dataSet);
@@ -79,20 +79,20 @@ class ProcessConverter {
 		info.setImpactAssessmentResult(false);
 		info.setLanguageCode(factory.getLanguageCode("en"));
 		info.setLocalLanguageCode(factory.getLanguageCode("en"));
-		if (process.getLastChange() != 0)
-			info.setTimestamp(Xml.calendar(process.getLastChange()));
-		else if (doc.getCreationDate() != null)
-			info.setTimestamp(Xml.calendar(doc.getCreationDate()));
+		if (process.lastChange != 0)
+			info.setTimestamp(Xml.calendar(process.lastChange));
+		else if (doc.creationDate != null)
+			info.setTimestamp(Xml.calendar(doc.creationDate));
 		else
 			info.setTimestamp(Xml.calendar(new Date()));
 		info.setType(getProcessType());
-		Version version = new Version(process.getVersion());
+		Version version = new Version(process.version);
 		info.setVersion(version.getMajor());
 		info.setInternalVersion(version.getMinor());
 	}
 
 	private int getProcessType() {
-		if (process.getProcessType() == ProcessType.LCI_RESULT)
+		if (process.processType == ProcessType.LCI_RESULT)
 			return 2;
 		if (isMultiOutput())
 			return 5;
@@ -103,11 +103,11 @@ class ProcessConverter {
 	private void mapGeography(ProcessDocumentation doc, DataSet dataSet) {
 		IGeography geography = factory.createGeography();
 		dataSet.setGeography(geography);
-		Location location = process.getLocation();
+		Location location = process.location;
 		if (location != null)
-			geography.setLocation(location.getCode());
-		if (doc.getGeography() != null)
-			geography.setText(doc.getGeography());
+			geography.setLocation(location.code);
+		if (doc.geography != null)
+			geography.setText(doc.geography);
 		if (!config.isCreateDefaults())
 			return;
 		if (geography.getLocation() == null)
@@ -117,31 +117,31 @@ class ProcessConverter {
 	private void mapModelingAndValidation(ProcessDocumentation doc,
 			DataSet dataSet) {
 		mapValidation(doc, dataSet);
-		for (Source source : doc.getSources())
+		for (Source source : doc.sources)
 			actorSourceMapper.map(source, dataSet);
-		if (doc.getSampling() == null)
+		if (doc.sampling == null)
 			return;
 		IRepresentativeness repr = dataSet.getRepresentativeness();
 		if (repr == null) {
 			repr = factory.createRepresentativeness();
 			dataSet.setRepresentativeness(repr);
 		}
-		repr.setSamplingProcedure(doc.getSampling());
+		repr.setSamplingProcedure(doc.sampling);
 	}
 
 	private void mapValidation(ProcessDocumentation doc, DataSet dataSet) {
-		if (doc.getReviewer() == null)
+		if (doc.reviewer == null)
 			return;
 		IValidation validation = dataSet.getValidation();
 		if (validation == null) {
 			validation = factory.createValidation();
 			dataSet.setValidation(validation);
 		}
-		int reviewer = actorSourceMapper.map(doc.getReviewer(), dataSet);
+		int reviewer = actorSourceMapper.map(doc.reviewer, dataSet);
 		if (reviewer > 0)
 			validation.setProofReadingValidator(reviewer);
-		if (doc.getReviewDetails() != null)
-			validation.setProofReadingDetails(doc.getReviewDetails());
+		if (doc.reviewDetails != null)
+			validation.setProofReadingDetails(doc.reviewDetails);
 		else
 			validation.setProofReadingDetails("none");
 	}
@@ -153,24 +153,24 @@ class ProcessConverter {
 			generator = factory.createDataGeneratorAndPublication();
 			dataset.setDataGeneratorAndPublication(generator);
 		}
-		generator.setCopyright(doc.isCopyright());
+		generator.setCopyright(doc.copyright);
 		generator.setAccessRestrictedTo(0);
 		generator.setDataPublishedIn(0);
-		if (doc.getDataGenerator() != null) {
-			int n = actorSourceMapper.map(doc.getDataGenerator(), dataset);
+		if (doc.dataGenerator != null) {
+			int n = actorSourceMapper.map(doc.dataGenerator, dataset);
 			generator.setPerson(n);
 		}
 		mapEntryBy(doc, dataset);
-		if (doc.getPublication() != null) {
-			int source = actorSourceMapper.map(doc.getPublication(), dataset);
+		if (doc.publication != null) {
+			int source = actorSourceMapper.map(doc.publication, dataset);
 			generator.setReferenceToPublishedSource(source);
 		}
 	}
 
 	private void mapEntryBy(ProcessDocumentation doc, DataSet dataset) {
-		if (doc.getDataDocumentor() == null)
+		if (doc.dataDocumentor == null)
 			return;
-		int n = actorSourceMapper.map(doc.getDataDocumentor(), dataset);
+		int n = actorSourceMapper.map(doc.dataDocumentor, dataset);
 		IDataEntryBy entryBy = dataset.getDataEntryBy();
 		if (entryBy == null) {
 			entryBy = factory.createDataEntryBy();
@@ -181,18 +181,18 @@ class ProcessConverter {
 
 	private void mapTechnology(ProcessDocumentation doc, DataSet dataset) {
 		ITechnology technology = factory.createTechnology();
-		technology.setText(doc.getTechnology());
+		technology.setText(doc.technology);
 		dataset.setTechnology(technology);
 	}
 
 	private void mapTime(ProcessDocumentation doc, DataSet dataset) {
 		ITimePeriod time = factory.createTimePeriod();
 		time.setDataValidForEntirePeriod(true);
-		if (doc.getValidFrom() != null)
-			time.setStartDate(Xml.calendar(doc.getValidFrom()));
-		if (doc.getValidUntil() != null)
-			time.setEndDate(Xml.calendar(doc.getValidUntil()));
-		time.setText(doc.getTime());
+		if (doc.validFrom != null)
+			time.setStartDate(Xml.calendar(doc.validFrom));
+		if (doc.validUntil != null)
+			time.setEndDate(Xml.calendar(doc.validUntil));
+		time.setText(doc.time);
 		dataset.setTimePeriod(time);
 		if (!config.isCreateDefaults())
 			return;
@@ -204,18 +204,18 @@ class ProcessConverter {
 
 	private boolean isMultiOutput() {
 		int count = 0;
-		for (Exchange e : process.getExchanges()) {
+		for (Exchange e : process.exchanges) {
 			if (e.isInput || e.flow == null)
 				continue;
-			if (e.flow.getFlowType() == FlowType.PRODUCT_FLOW)
+			if (e.flow.flowType == FlowType.PRODUCT_FLOW)
 				count++;
 		}
 		return count > 1;
 	}
 
 	private void mapExchanges(DataSet dataSet) {
-		Exchange qRef = process.getQuantitativeReference();
-		for (Exchange exchange : process.getExchanges()) {
+		Exchange qRef = process.quantitativeReference;
+		for (Exchange exchange : process.exchanges) {
 			IExchange iExchange = mapExchange(exchange);
 			dataSet.getExchanges().add(iExchange);
 			if (Objects.equals(exchange, qRef)) {
@@ -229,11 +229,11 @@ class ProcessConverter {
 		iExchange.setOutputGroup(0);
 		IReferenceFunction refFun = mapQuantitativeReference(exchange);
 		dataSet.setReferenceFunction(refFun);
-		refFun.setGeneralComment(process.getDescription());
-		refFun.setInfrastructureProcess(process.isInfrastructureProcess());
-		Location location = process.getLocation();
+		refFun.setGeneralComment(process.description);
+		refFun.setInfrastructureProcess(process.infrastructureProcess);
+		Location location = process.location;
 		if (location != null)
-			iExchange.setLocation(location.getCode());
+			iExchange.setLocation(location.code);
 		else if (config.isCreateDefaults())
 			iExchange.setLocation("GLO");
 	}
@@ -241,12 +241,12 @@ class ProcessConverter {
 	private IReferenceFunction mapQuantitativeReference(Exchange exchange) {
 		IReferenceFunction refFun = factory.createReferenceFunction();
 		Flow flow = exchange.flow;
-		refFun.setCASNumber(flow.getCasNumber());
-		refFun.setFormula(flow.getFormula());
-		refFun.setName(exchange.flow.getName());
+		refFun.setCASNumber(flow.casNumber);
+		refFun.setFormula(flow.formula);
+		refFun.setName(exchange.flow.name);
 		refFun.setLocalName(refFun.getName());
-		refFun.setUnit(exchange.unit.getName());
-		refFun.setInfrastructureProcess(flow.isInfrastructureFlow());
+		refFun.setUnit(exchange.unit.name);
+		refFun.setInfrastructureProcess(flow.infrastructureFlow);
 		refFun.setAmount(exchange.amount);
 		Categories.map(flow, refFun, config);
 		refFun.setLocalCategory(refFun.getCategory());
@@ -257,17 +257,17 @@ class ProcessConverter {
 	private IExchange mapExchange(Exchange inExchange) {
 		IExchange exchange = factory.createExchange();
 		Flow flow = inExchange.flow;
-		exchange.setNumber((int) flow.getId());
-		exchange.setName(inExchange.flow.getName());
+		exchange.setNumber((int) flow.id);
+		exchange.setName(inExchange.flow.name);
 		if (inExchange.isInput) {
-			exchange.setInputGroup(mapFlowType(flow.getFlowType(), true));
+			exchange.setInputGroup(mapFlowType(flow.flowType, true));
 		} else {
-			exchange.setOutputGroup(mapFlowType(flow.getFlowType(), false));
+			exchange.setOutputGroup(mapFlowType(flow.flowType, false));
 		}
-		Categories.map(flow.getCategory(), exchange, config);
+		Categories.map(flow.category, exchange, config);
 		Util.mapFlowInformation(exchange, inExchange.flow);
 		if (inExchange.unit != null) {
-			exchange.setUnit(inExchange.unit.getName());
+			exchange.setUnit(inExchange.unit.name);
 		}
 		if (inExchange.uncertainty == null) {
 			exchange.setMeanValue(inExchange.amount);

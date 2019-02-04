@@ -44,7 +44,7 @@ public class ParameterDao extends
 		List<Object> parameters = new ArrayList<>();
 		if (category.isPresent()) {
 			sql += " where f_category = ?";
-			parameters.add(category.get().getId());
+			parameters.add(category.get().id);
 		} else {
 			sql += " where f_category is null";
 		}

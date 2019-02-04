@@ -9,20 +9,8 @@ import java.util.List;
  */
 public class ProcessGroup implements Comparable<ProcessGroup> {
 
-	private String name;
-	private List<String> processIds = new ArrayList<>();
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public List<String> getProcessIds() {
-		return processIds;
-	}
+	public String name;
+	public final List<String> processIds = new ArrayList<>();
 
 	@Override
 	public int compareTo(ProcessGroup o) {

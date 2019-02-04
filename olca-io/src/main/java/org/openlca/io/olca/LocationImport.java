@@ -24,12 +24,12 @@ class LocationImport {
 		log.trace("import locations");
 		try {
 			for (Location srcLoc : srcDao.getAll()) {
-				if (seq.contains(seq.LOCATION, srcLoc.getRefId()))
+				if (seq.contains(seq.LOCATION, srcLoc.refId))
 					continue;
 				Location destLoc = srcLoc.clone();
-				destLoc.setRefId(srcLoc.getRefId());
+				destLoc.refId = srcLoc.refId;
 				destLoc = destDao.insert(destLoc);
-				seq.put(seq.LOCATION, srcLoc.getRefId(), destLoc.getId());
+				seq.put(seq.LOCATION, srcLoc.refId, destLoc.id);
 			}
 		} catch (Exception e) {
 			log.error("failed to import locations", e);

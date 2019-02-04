@@ -54,10 +54,10 @@ class SourceSync {
 
 	private Source create(String refId, LiteratureReferenceBlock block) {
 		Source source = new Source();
-		source.setRefId(refId);
-		source.setName(block.getName());
-		source.setCategory(getCategory(block));
-		source.setDescription(block.getDescription());
+		source.refId = refId;
+		source.name = block.getName();
+		source.category = getCategory(block);
+		source.description = block.getDescription();
 		source.textReference = block.getDocumentationLink();
 		new SourceDao(database).insert(source);
 		return source;

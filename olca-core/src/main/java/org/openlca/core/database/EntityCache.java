@@ -208,7 +208,7 @@ public class EntityCache {
 			List<?> entities = dao.getForIds(new HashSet<>(ids));
 			for (Object obj : entities) {
 				AbstractEntity entity = (AbstractEntity) obj;
-				result.put(Key.get(clazz, entity.getId()), entity);
+				result.put(Key.get(clazz, entity.id), entity);
 			}
 		}
 

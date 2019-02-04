@@ -19,25 +19,25 @@ class FlowWriter extends Writer<Flow> {
 		JsonObject obj = super.write(flow);
 		if (obj == null)
 			return null;
-		Out.put(obj, "flowType", flow.getFlowType(), Out.REQUIRED_FIELD);
-		Out.put(obj, "cas", flow.getCasNumber());
-		Out.put(obj, "formula", flow.getFormula());
+		Out.put(obj, "flowType", flow.flowType, Out.REQUIRED_FIELD);
+		Out.put(obj, "cas", flow.casNumber);
+		Out.put(obj, "formula", flow.formula);
 		Out.put(obj, "synonyms", flow.synonyms);
-		Out.put(obj, "infrastructureFlow", flow.isInfrastructureFlow());
-		Out.put(obj, "location", flow.getLocation(), conf);
+		Out.put(obj, "infrastructureFlow", flow.infrastructureFlow);
+		Out.put(obj, "location", flow.location, conf);
 		addFactors(flow, obj);
 		return obj;
 	}
 
 	private void addFactors(Flow flow, JsonObject obj) {
 		JsonArray factorArray = new JsonArray();
-		for (FlowPropertyFactor fac : flow.getFlowPropertyFactors()) {
+		for (FlowPropertyFactor fac : flow.flowPropertyFactors) {
 			JsonObject facObj = new JsonObject();
 			Out.put(facObj, "@type", FlowPropertyFactor.class.getSimpleName());
 			if (Objects.equals(fac, flow.getReferenceFactor()))
 				Out.put(facObj, "referenceFlowProperty", true);
-			Out.put(facObj, "flowProperty", fac.getFlowProperty(), conf, Out.REQUIRED_FIELD);
-			Out.put(facObj, "conversionFactor", fac.getConversionFactor());
+			Out.put(facObj, "flowProperty", fac.flowProperty, conf, Out.REQUIRED_FIELD);
+			Out.put(facObj, "conversionFactor", fac.conversionFactor);
 			factorArray.add(facObj);
 		}
 		Out.put(obj, "flowProperties", factorArray);

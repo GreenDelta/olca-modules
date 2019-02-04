@@ -26,7 +26,7 @@ class Writer<T extends RootEntity> {
 			return obj;
 		if (entity instanceof CategorizedEntity) {
 			CategorizedEntity ce = (CategorizedEntity) entity;
-			Out.put(obj, "category", ce.getCategory(), conf);
+			Out.put(obj, "category", ce.category, conf);
 		}
 		return obj;
 	}
@@ -40,13 +40,13 @@ class Writer<T extends RootEntity> {
 	static void addBasicAttributes(RootEntity entity, JsonObject obj) {
 		String type = entity.getClass().getSimpleName();
 		Out.put(obj, "@type", type);
-		Out.put(obj, "@id", entity.getRefId(), Out.REQUIRED_FIELD);
-		Out.put(obj, "name", entity.getName());
-		Out.put(obj, "description", entity.getDescription());
-		Out.put(obj, "version", Version.asString(entity.getVersion()));
+		Out.put(obj, "@id", entity.refId, Out.REQUIRED_FIELD);
+		Out.put(obj, "name", entity.name);
+		Out.put(obj, "description", entity.description);
+		Out.put(obj, "version", Version.asString(entity.version));
 		String lastChange = null;
-		if (entity.getLastChange() != 0)
-			lastChange = Dates.toString(entity.getLastChange());
+		if (entity.lastChange != 0)
+			lastChange = Dates.toString(entity.lastChange);
 		Out.put(obj, "lastChange", lastChange);
 	}
 

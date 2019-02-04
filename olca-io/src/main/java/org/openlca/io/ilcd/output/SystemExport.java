@@ -54,8 +54,8 @@ public class SystemExport {
 	public Model run(ProductSystem system) throws DataStoreException {
 		if (system == null)
 			return null;
-		if (config.store.contains(Model.class, system.getRefId()))
-			return config.store.get(Model.class, system.getRefId());
+		if (config.store.contains(Model.class, system.refId))
+			return config.store.get(Model.class, system.refId);
 		this.system = system;
 		log.trace("Run product system export with {}", system);
 		loadMaps();
@@ -99,24 +99,24 @@ public class SystemExport {
 		model.version = "1.1";
 		model.locations = "../ILCDLocations.xml";
 		DataSetInfo info = Models.dataSetInfo(model);
-		info.uuid = system.getRefId();
+		info.uuid = system.refId;
 		ModelName name = Models.modelName(model);
-		name.name.add(LangString.of(system.getName(), config.lang));
-		if (system.getDescription() != null) {
+		name.name.add(LangString.of(system.name, config.lang));
+		if (system.description != null) {
 			info.comment
-					.add(LangString.of(system.getDescription(), config.lang));
+					.add(LangString.of(system.description, config.lang));
 		}
 		CategoryConverter conv = new CategoryConverter();
-		Classification c = conv.getClassification(system.getCategory());
+		Classification c = conv.getClassification(system.category);
 		if (c != null)
 			Models.classifications(model).add(c);
 		if (system.referenceProcess != null) {
-			long refId = system.referenceProcess.getId();
+			long refId = system.referenceProcess.id;
 			QuantitativeReference qRef = Models.quantitativeReference(model);
 			qRef.refProcess = processIDs.getOrDefault(refId, -1);
 		}
 		Models.publication(model).version = Version
-				.asString(system.getVersion());
+				.asString(system.version);
 		model.modelling = new Modelling();
 		return model;
 	}

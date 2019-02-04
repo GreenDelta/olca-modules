@@ -43,7 +43,7 @@ class FlowSheets {
 		for (Flow flow : flows) {
 			flowRow++;
 			write(flow);
-			for (FlowPropertyFactor factor : flow.getFlowPropertyFactors()) {
+			for (FlowPropertyFactor factor : flow.flowPropertyFactors) {
 				factorRow++;
 				writeFactor(flow, factor);
 			}
@@ -67,26 +67,26 @@ class FlowSheets {
 	}
 
 	private void write(Flow flow) {
-		Excel.cell(flowSheet, flowRow, 0, flow.getRefId());
-		Excel.cell(flowSheet, flowRow, 1, flow.getName());
-		Excel.cell(flowSheet, flowRow, 2, flow.getDescription());
-		Excel.cell(flowSheet, flowRow, 3, CategoryPath.getFull(flow.getCategory()));
-		Excel.cell(flowSheet, flowRow, 4, Version.asString(flow.getVersion()));
-		config.date(flowSheet, flowRow, 5, flow.getLastChange());
+		Excel.cell(flowSheet, flowRow, 0, flow.refId);
+		Excel.cell(flowSheet, flowRow, 1, flow.name);
+		Excel.cell(flowSheet, flowRow, 2, flow.description);
+		Excel.cell(flowSheet, flowRow, 3, CategoryPath.getFull(flow.category));
+		Excel.cell(flowSheet, flowRow, 4, Version.asString(flow.version));
+		config.date(flowSheet, flowRow, 5, flow.lastChange);
 		Excel.cell(flowSheet, flowRow, 6, getType(flow));
-		Excel.cell(flowSheet, flowRow, 7, flow.getCasNumber());
-		Excel.cell(flowSheet, flowRow, 8, flow.getFormula());
-		if (flow.getLocation() != null)
-			Excel.cell(flowSheet, flowRow, 9, flow.getLocation().getName());
-		if (flow.getReferenceFlowProperty() != null)
+		Excel.cell(flowSheet, flowRow, 7, flow.casNumber);
+		Excel.cell(flowSheet, flowRow, 8, flow.formula);
+		if (flow.location != null)
+			Excel.cell(flowSheet, flowRow, 9, flow.location.name);
+		if (flow.referenceFlowProperty != null)
 			Excel.cell(flowSheet, flowRow, 10,
-					flow.getReferenceFlowProperty().getName());
+					flow.referenceFlowProperty.name);
 	}
 
 	private String getType(Flow flow) {
-		if (flow.getFlowType() == null)
+		if (flow.flowType == null)
 			return "Elementary flow";
-		switch (flow.getFlowType()) {
+		switch (flow.flowType) {
 			case ELEMENTARY_FLOW:
 				return "Elementary flow";
 			case PRODUCT_FLOW:
@@ -107,16 +107,16 @@ class FlowSheets {
 	}
 
 	private void writeFactor(Flow flow, FlowPropertyFactor factor) {
-		Excel.cell(factorSheet, factorRow, 0, flow.getName());
-		Excel.cell(factorSheet, factorRow, 1, CategoryPath.getFull(flow.getCategory()));
-		FlowProperty prop = factor.getFlowProperty();
+		Excel.cell(factorSheet, factorRow, 0, flow.name);
+		Excel.cell(factorSheet, factorRow, 1, CategoryPath.getFull(flow.category));
+		FlowProperty prop = factor.flowProperty;
 		if (prop != null)
-			Excel.cell(factorSheet, factorRow, 2, prop.getName());
-		Excel.cell(factorSheet, factorRow, 3, factor.getConversionFactor());
-		if (prop == null || prop.getUnitGroup() == null)
+			Excel.cell(factorSheet, factorRow, 2, prop.name);
+		Excel.cell(factorSheet, factorRow, 3, factor.conversionFactor);
+		if (prop == null || prop.unitGroup == null)
 			return;
-		Unit refUnit = prop.getUnitGroup().getReferenceUnit();
+		Unit refUnit = prop.unitGroup.referenceUnit;
 		if (refUnit != null)
-			Excel.cell(factorSheet, factorRow, 4, refUnit.getName());
+			Excel.cell(factorSheet, factorRow, 4, refUnit.name);
 	}
 }

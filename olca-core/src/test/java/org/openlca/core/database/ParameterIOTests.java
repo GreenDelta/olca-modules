@@ -20,16 +20,16 @@ public class ParameterIOTests {
 	@Test
 	public void testGlobalParameters() {
 		Parameter param = new Parameter();
-		param.setRefId(UUID.randomUUID().toString());
-		param.setDescription("test parameter");
+		param.refId = UUID.randomUUID().toString();
+		param.description = "test parameter";
 		param.isInputParameter = true;
 		param.scope = ParameterScope.GLOBAL;
-		param.setName("p_342637");
+		param.name = "p_342637";
 		param.value = (double) 42;
 		parameterDao.insert(param);
 		Tests.emptyCache();
-		Parameter alias = parameterDao.getForId(param.getId());
-		Assert.assertEquals("p_342637", alias.getName());
+		Parameter alias = parameterDao.getForId(param.id);
+		Assert.assertEquals("p_342637", alias.name);
 		Assert.assertTrue(parameterDao.getGlobalParameters().contains(alias));
 		parameterDao.delete(alias);
 	}
@@ -37,21 +37,21 @@ public class ParameterIOTests {
 	@Test
 	public void testProcessParameters() {
 		Process process = new Process();
-		process.setName("test-proc");
+		process.name = "test-proc";
 		Parameter param = new Parameter();
-		param.setRefId(UUID.randomUUID().toString());
-		param.setDescription("test parameter");
+		param.refId = UUID.randomUUID().toString();
+		param.description = "test parameter";
 		param.isInputParameter = true;
 		param.scope = ParameterScope.PROCESS;
-		param.setName("p_734564");
+		param.name = "p_734564";
 		param.value = (double) 42;
 		param.uncertainty = Uncertainty.normal(42, 2);
-		process.getParameters().add(param);
+		process.parameters.add(param);
 		ProcessDao dao = new ProcessDao(database);
 		dao.insert(process);
 		Tests.emptyCache();
-		dao.getForId(process.getId());
-		Assert.assertTrue(process.getParameters().get(0).value == 42);
+		dao.getForId(process.id);
+		Assert.assertTrue(process.parameters.get(0).value == 42);
 		Assert.assertTrue(parameterDao.getAll().contains(param));
 		Assert.assertFalse(parameterDao.getGlobalParameters().contains(param));
 		dao.delete(process);
@@ -61,7 +61,7 @@ public class ParameterIOTests {
 	@Test
 	public void testSystemParameterRedef() {
 		ProductSystem system = new ProductSystem();
-		system.setName("test system");
+		system.name = "test system";
 		ParameterRedef redef = new ParameterRedef();
 		redef.name = "a";
 		redef.contextId = 123L;
@@ -71,7 +71,7 @@ public class ParameterIOTests {
 		ProductSystemDao dao = new ProductSystemDao(database);
 		dao.insert(system);
 		Tests.emptyCache();
-		ProductSystem alias = dao.getForId(system.getId());
+		ProductSystem alias = dao.getForId(system.id);
 		Assert.assertTrue(
 				alias.parameterRedefs.get(0).contextId == 123L);
 		dao.delete(system);

@@ -50,17 +50,17 @@ class FlowPropertySheet {
 	}
 
 	private void write(FlowProperty property) {
-		Excel.cell(sheet, row, 0, property.getRefId());
-		Excel.cell(sheet, row, 1, property.getName());
-		Excel.cell(sheet, row, 2, property.getDescription());
-		Excel.cell(sheet, row, 3, CategoryPath.getFull(property.getCategory()));
-		if(property.getUnitGroup() != null)
-			Excel.cell(sheet, row, 4, property.getUnitGroup().getName());
-		String type = property.getFlowPropertyType() == FlowPropertyType.ECONOMIC ?
+		Excel.cell(sheet, row, 0, property.refId);
+		Excel.cell(sheet, row, 1, property.name);
+		Excel.cell(sheet, row, 2, property.description);
+		Excel.cell(sheet, row, 3, CategoryPath.getFull(property.category));
+		if(property.unitGroup != null)
+			Excel.cell(sheet, row, 4, property.unitGroup.name);
+		String type = property.flowPropertyType == FlowPropertyType.ECONOMIC ?
 				"Economic" : "Physical";
 		Excel.cell(sheet, row, 5, type);
-		Excel.cell(sheet, row, 6, Version.asString(property.getVersion()));
-		config.date(sheet, row, 7, property.getLastChange());
+		Excel.cell(sheet, row, 6, Version.asString(property.version));
+		config.date(sheet, row, 7, property.lastChange);
 	}
 
 }

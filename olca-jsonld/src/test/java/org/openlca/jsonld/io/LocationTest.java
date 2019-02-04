@@ -24,8 +24,8 @@ public class LocationTest extends AbstractZipTest {
 
 	private Location createModel(LocationDao dao) {
 		Location location = new Location();
-		location.setName("location");
-		location.setRefId(UUID.randomUUID().toString());
+		location.name = "location";
+		location.refId = UUID.randomUUID().toString();
 		dao.insert(location);
 		return location;
 	}
@@ -36,7 +36,7 @@ public class LocationTest extends AbstractZipTest {
 			export.write(location);
 		});
 		dao.delete(location);
-		Assert.assertFalse(dao.contains(location.getRefId()));
+		Assert.assertFalse(dao.contains(location.refId));
 	}
 
 	private void doImport(LocationDao dao, Location location) {
@@ -44,8 +44,8 @@ public class LocationTest extends AbstractZipTest {
 			JsonImport jImport = new JsonImport(zip, Tests.getDb());
 			jImport.run();
 		});
-		Assert.assertTrue(dao.contains(location.getRefId()));
-		Location clone = dao.getForRefId(location.getRefId());
-		Assert.assertEquals(location.getName(), clone.getName());
+		Assert.assertTrue(dao.contains(location.refId));
+		Location clone = dao.getForRefId(location.refId);
+		Assert.assertEquals(location.name, clone.name);
 	}
 }

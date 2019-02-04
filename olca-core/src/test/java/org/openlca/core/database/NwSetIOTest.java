@@ -29,18 +29,18 @@ public class NwSetIOTest {
 		ImpactMethod method = new ImpactMethod();
 		for (int i = 0; i < NWSET_COUNT; i++) {
 			NwSet set = new NwSet();
-			set.setName("nwset_" + i);
+			set.name = "nwset_" + i;
 			method.nwSets.add(set);
 		}
 		for (int i = 0; i < CATEGORY_COUNT; i++) {
 			ImpactCategory category = new ImpactCategory();
-			category.setName("category_" + i);
+			category.name = "category_" + i;
 			method.impactCategories.add(category);
 			for (NwSet set : method.nwSets) {
 				NwFactor factor = new NwFactor();
-				factor.setWeightingFactor(FACTOR);
-				factor.setImpactCategory(category);
-				factor.setNormalisationFactor(FACTOR);
+				factor.weightingFactor = FACTOR;
+				factor.impactCategory = category;
+				factor.normalisationFactor = FACTOR;
 				set.factors.add(factor);
 			}
 		}
@@ -56,16 +56,16 @@ public class NwSetIOTest {
 
 	@Test
 	public void testModel() {
-		ImpactMethod method = new ImpactMethodDao(db).getForId(this.method.getId());
+		ImpactMethod method = new ImpactMethodDao(db).getForId(this.method.id);
 		Assert.assertEquals(CATEGORY_COUNT, method.impactCategories.size());
 		Assert.assertEquals(NWSET_COUNT, method.nwSets.size());
 		for(NwSet nwSet : method.nwSets) {
 			Assert.assertEquals(CATEGORY_COUNT, nwSet.factors.size());
 			for(NwFactor f : nwSet.factors) {
-				Assert.assertEquals(f.getNormalisationFactor(), FACTOR, 1e-20);
-				Assert.assertEquals(f.getWeightingFactor(), FACTOR, 1e-20);
+				Assert.assertEquals(f.normalisationFactor, FACTOR, 1e-20);
+				Assert.assertEquals(f.weightingFactor, FACTOR, 1e-20);
 				Assert.assertTrue(method.impactCategories.contains(
-						f.getImpactCategory()));
+						f.impactCategory));
 			}
 		}
 	}
@@ -75,7 +75,7 @@ public class NwSetIOTest {
 		NwSetDao dao = new NwSetDao(db);
 		List<NwSetDescriptor> all =  dao.getDescriptors();
 		List<NwSetDescriptor> forMethod = dao.getDescriptorsForMethod(
-				method.getId());
+				method.id);
 		Assert.assertEquals(NWSET_COUNT, forMethod.size());
 		Assert.assertTrue(all.size() >= forMethod.size());
 		Assert.assertTrue(all.containsAll(forMethod));
@@ -84,12 +84,12 @@ public class NwSetIOTest {
 	@Test
 	public void testNwSetTable() {
 		for(NwSet nwSet : method.nwSets) {
-			NwSetTable table = NwSetTable.build(db, nwSet.getId());
+			NwSetTable table = NwSetTable.build(db, nwSet.id);
 			for(ImpactCategory impact : method.impactCategories) {
 				Assert.assertEquals(FACTOR, table.getNormalisationFactor(
-						impact.getId()), 1e-20);
+						impact.id), 1e-20);
 				Assert.assertEquals(FACTOR, table.getWeightingFactor(
-						impact.getId()), 1e-20);
+						impact.id), 1e-20);
 			}
 		}
 	}

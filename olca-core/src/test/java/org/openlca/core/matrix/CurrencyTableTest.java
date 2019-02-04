@@ -17,8 +17,8 @@ public class CurrencyTableTest {
 		usd.referenceCurrency = eur;
 		dao.update(usd);
 		CurrencyTable table = CurrencyTable.create(Tests.getDb());
-		Assert.assertEquals(1.0, table.getFactor(eur.getId()), 1e-10);
-		Assert.assertEquals(0.88, table.getFactor(usd.getId()), 1e-10);
+		Assert.assertEquals(1.0, table.getFactor(eur.id), 1e-10);
+		Assert.assertEquals(0.88, table.getFactor(usd.id), 1e-10);
 	}
 
 	private Currency make(String code, double factor) {

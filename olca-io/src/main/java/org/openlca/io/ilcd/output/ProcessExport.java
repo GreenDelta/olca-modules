@@ -49,11 +49,11 @@ public class ProcessExport {
 
 	public Process run(org.openlca.core.model.Process process)
 			throws DataStoreException {
-		if (config.store.contains(Process.class, process.getRefId()))
-			return config.store.get(Process.class, process.getRefId());
+		if (config.store.contains(Process.class, process.refId))
+			return config.store.get(Process.class, process.refId);
 		log.trace("Run process export with {}", process);
 		this.process = process;
-		this.doc = process.getDocumentation();
+		this.doc = process.documentation;
 		ProcessBuilder builder = ProcessBuilder.makeProcess()
 				.with(makeLciMethod())
 				.withAdminInfo(makeAdminInformation())
@@ -64,7 +64,7 @@ public class ProcessExport {
 				.withReviews(makeReviews())
 				.withTechnology(makeTechnology())
 				.withTime(makeTime());
-		Exchange qRef = process.getQuantitativeReference();
+		Exchange qRef = process.quantitativeReference;
 		if (qRef != null) {
 			builder.withReferenceFlowId(qRef.internalId);
 		}
@@ -77,21 +77,21 @@ public class ProcessExport {
 	private DataSetInfo makeDataSetInfo() {
 		log.trace("Create data set info.");
 		DataSetInfo dataSetInfo = new DataSetInfo();
-		dataSetInfo.uuid = process.getRefId();
+		dataSetInfo.uuid = process.refId;
 		ProcessName processName = new ProcessName();
 		dataSetInfo.name = processName;
-		s(processName.name, process.getName());
-		s(dataSetInfo.comment, process.getDescription());
+		s(processName.name, process.name);
+		s(dataSetInfo.comment, process.description);
 		addClassification(dataSetInfo);
 		return dataSetInfo;
 	}
 
 	private void addClassification(DataSetInfo dataSetInfo) {
 		log.trace("Add classification");
-		if (process.getCategory() != null) {
+		if (process.category != null) {
 			CategoryConverter converter = new CategoryConverter();
 			Classification c = converter.getClassification(
-					process.getCategory());
+					process.category);
 			if (c != null)
 				dataSetInfo.classifications.add(c);
 		}
@@ -109,15 +109,15 @@ public class ProcessExport {
 		if (doc == null)
 			return;
 		TimeExtension extension = new TimeExtension(iTime);
-		if (doc.getValidFrom() != null) {
-			iTime.referenceYear = getYear(doc.getValidFrom());
-			extension.setStartDate(doc.getValidFrom());
+		if (doc.validFrom != null) {
+			iTime.referenceYear = getYear(doc.validFrom);
+			extension.setStartDate(doc.validFrom);
 		}
-		if (doc.getValidUntil() != null) {
-			iTime.validUntil = getYear(doc.getValidUntil());
-			extension.setEndDate(doc.getValidUntil());
+		if (doc.validUntil != null) {
+			iTime.validUntil = getYear(doc.validUntil);
+			extension.setEndDate(doc.validUntil);
 		}
-		s(iTime.description, doc.getTime());
+		s(iTime.description, doc.time);
 	}
 
 	private Integer getYear(Date date) {
@@ -132,23 +132,23 @@ public class ProcessExport {
 		log.trace("Create process geography.");
 		if (doc == null)
 			return null;
-		if (process.getLocation() == null && doc.getGeography() == null)
+		if (process.location == null && doc.geography == null)
 			return null;
 		Geography geography = new Geography();
 		org.openlca.ilcd.processes.Location iLoc = new org.openlca.ilcd.processes.Location();
 		geography.location = iLoc;
-		if (process.getLocation() != null) {
-			Location oLoc = process.getLocation();
-			iLoc.code = oLoc.getCode();
+		if (process.location != null) {
+			Location oLoc = process.location;
+			iLoc.code = oLoc.code;
 			// do not write (0.0, 0.0) locations; these are the default
 			// location coordinates in openLCA but probably never a valid
 			// process location, right?
-			if (!(oLoc.getLatitude() == 0.0 && oLoc.getLongitude() == 0.0)) {
-				String pos = oLoc.getLatitude() + ";" + oLoc.getLongitude();
+			if (!(oLoc.latitude == 0.0 && oLoc.longitude == 0.0)) {
+				String pos = oLoc.latitude + ";" + oLoc.longitude;
 				iLoc.latitudeAndLongitude = pos;
 			}
 		}
-		s(iLoc.description, doc.getGeography());
+		s(iLoc.description, doc.geography);
 		return geography;
 	}
 
@@ -158,10 +158,10 @@ public class ProcessExport {
 			return null;
 
 		org.openlca.ilcd.processes.Technology iTechnology = null;
-		if (Strings.notEmpty(doc.getTechnology())) {
+		if (Strings.notEmpty(doc.technology)) {
 			iTechnology = new org.openlca.ilcd.processes.Technology();
 			s(iTechnology.description,
-					doc.getTechnology());
+					doc.technology);
 		}
 		return iTechnology;
 	}
@@ -176,8 +176,8 @@ public class ProcessExport {
 	private Method makeLciMethod() {
 		log.trace("Create process LCI method.");
 		Method iMethod = new Method();
-		if (process.getProcessType() != null) {
-			if (process.getProcessType() == ProcessType.UNIT_PROCESS) {
+		if (process.processType != null) {
+			if (process.processType == ProcessType.UNIT_PROCESS) {
 				iMethod.processType = org.openlca.ilcd.commons.ProcessType.UNIT_PROCESS_BLACK_BOX;
 			} else {
 				iMethod.processType = org.openlca.ilcd.commons.ProcessType.LCI_RESULT;
@@ -188,9 +188,9 @@ public class ProcessExport {
 
 		if (doc != null) {
 			s(iMethod.principleComment,
-					doc.getInventoryMethod());
+					doc.inventoryMethod);
 			s(iMethod.constants,
-					doc.getModelingConstants());
+					doc.modelingConstants);
 		}
 
 		ModellingApproach allocation = getAllocationMethod();
@@ -201,9 +201,9 @@ public class ProcessExport {
 	}
 
 	private ModellingApproach getAllocationMethod() {
-		if (process.getDefaultAllocationMethod() == null)
+		if (process.defaultAllocationMethod == null)
 			return null;
-		switch (process.getDefaultAllocationMethod()) {
+		switch (process.defaultAllocationMethod) {
 		case CAUSAL:
 			return ModellingApproach.ALLOCATION_OTHER_EXPLICIT_ASSIGNMENT;
 		case ECONOMIC:
@@ -221,21 +221,21 @@ public class ProcessExport {
 			return null;
 		Representativeness iRepri = new Representativeness();
 
-		s(iRepri.completeness, doc.getCompleteness());
+		s(iRepri.completeness, doc.completeness);
 		s(iRepri.completenessComment, "None.");
-		s(iRepri.dataSelection, doc.getDataSelection());
+		s(iRepri.dataSelection, doc.dataSelection);
 		s(iRepri.dataSelectionComment, "None.");
-		s(iRepri.dataTreatment, doc.getDataTreatment());
+		s(iRepri.dataTreatment, doc.dataTreatment);
 
-		for (Source source : doc.getSources()) {
+		for (Source source : doc.sources) {
 			Ref ref = ExportDispatch.forwardExport(
 					source, config);
 			if (ref != null)
 				iRepri.sources.add(ref);
 		}
 
-		s(iRepri.samplingProcedure, doc.getSampling());
-		s(iRepri.dataCollectionPeriod, doc.getDataCollectionPeriod());
+		s(iRepri.samplingProcedure, doc.sampling);
+		s(iRepri.dataCollectionPeriod, doc.dataCollectionPeriod);
 
 		return iRepri;
 	}
@@ -245,18 +245,18 @@ public class ProcessExport {
 		List<Review> reviews = new ArrayList<>();
 		if (doc == null)
 			return reviews;
-		if (doc.getReviewer() == null && doc.getReviewDetails() == null)
+		if (doc.reviewer == null && doc.reviewDetails == null)
 			return reviews;
 		Review review = new Review();
 		reviews.add(review);
 		review.type = ReviewType.NOT_REVIEWED;
-		if (doc.getReviewer() != null) {
+		if (doc.reviewer != null) {
 			Ref ref = ExportDispatch.forwardExport(
-					doc.getReviewer(), config);
+					doc.reviewer, config);
 			if (ref != null)
 				review.reviewers.add(ref);
 		}
-		s(review.details, doc.getReviewDetails());
+		s(review.details, doc.reviewDetails);
 		return reviews;
 	}
 

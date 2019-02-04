@@ -34,8 +34,8 @@ public class ParameterDaoTest {
 
 	private void insertParameter(ParameterDao dao, String name) {
 		Parameter p = new Parameter();
-		p.setName(name);
-		p.setRefId(UUID.randomUUID().toString());
+		p.name = name;
+		p.refId = UUID.randomUUID().toString();
 		p.scope = ParameterScope.GLOBAL;
 		dao.insert(p);
 	}

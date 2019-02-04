@@ -35,12 +35,12 @@ public class FlowPropertyFactorUseSearchTest {
 	@Before
 	public void setup() {
 		flow = new Flow();
-		flow.setName("flow");
+		flow.name = "flow";
 		property = new FlowProperty();
-		property.setName("property");
+		property.name = "property";
 		factor = new FlowPropertyFactor();
-		factor.setFlowProperty(property);
-		flow.getFlowPropertyFactors().add(factor);
+		factor.flowProperty = property;
+		flow.flowPropertyFactors.add(factor);
 		property = new FlowPropertyDao(database).insert(property);
 		flow = new FlowDao(database).insert(flow);
 		factor = flow.getFactor(property);
@@ -72,7 +72,7 @@ public class FlowPropertyFactorUseSearchTest {
 
 	private ImpactMethod createMethod() {
 		ImpactMethod method = new ImpactMethod();
-		method.setName("method");
+		method.name = "method";
 		ImpactFactor iFactor = new ImpactFactor();
 		iFactor.flow = flow;
 		iFactor.flowPropertyFactor = factor;
@@ -94,11 +94,11 @@ public class FlowPropertyFactorUseSearchTest {
 
 	private Process createProcess() {
 		Process process = new Process();
-		process.setName("process");
+		process.name = "process";
 		Exchange exchange = new Exchange();
 		exchange.flow = flow;
 		exchange.flowPropertyFactor = factor;
-		process.getExchanges().add(exchange);
+		process.exchanges.add(exchange);
 		return new ProcessDao(database).insert(process);
 	}
 }

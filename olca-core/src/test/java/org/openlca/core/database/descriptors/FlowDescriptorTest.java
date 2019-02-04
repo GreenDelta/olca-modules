@@ -25,7 +25,7 @@ public class FlowDescriptorTest {
 		property = new FlowProperty();
 		property = new FlowPropertyDao(database).insert(property);
 		flow = new Flow();
-		flow.setReferenceFlowProperty(property);
+		flow.referenceFlowProperty = property;
 		flow = flowDao.insert(flow);
 	}
 
@@ -37,8 +37,8 @@ public class FlowDescriptorTest {
 
 	@Test
 	public void testGetRefFlowPropertyId() throws Exception {
-		FlowDescriptor descriptor = flowDao.getDescriptor(flow.getId());
-		Assert.assertEquals(property.getId(), descriptor.refFlowPropertyId);
+		FlowDescriptor descriptor = flowDao.getDescriptor(flow.id);
+		Assert.assertEquals(property.id, descriptor.refFlowPropertyId);
 	}
 
 }

@@ -30,13 +30,13 @@ class CurrencyImport {
 			Currency refCurrency = sourceDao.getReferenceCurrency();
 			if (refCurrency == null)
 				return;
-			if (!seq.contains(seq.CURRENCY, refCurrency.getRefId())) {
+			if (!seq.contains(seq.CURRENCY, refCurrency.refId)) {
 				copy(refCurrency);
 			}
 			for (Currency srcCurrency : sourceDao.getAll()) {
 				if (Objects.equal(refCurrency, srcCurrency))
 					continue;
-				if (seq.contains(seq.CURRENCY, srcCurrency.getRefId()))
+				if (seq.contains(seq.CURRENCY, srcCurrency.refId))
 					continue;
 				copy(srcCurrency);
 			}
@@ -54,7 +54,7 @@ class CurrencyImport {
 					srcCurrency.referenceCurrency);
 		}
 		destCurrency = destDao.insert(destCurrency);
-		seq.put(seq.CURRENCY, srcCurrency.getRefId(), destCurrency.getId());
+		seq.put(seq.CURRENCY, srcCurrency.refId, destCurrency.id);
 	}
 
 }

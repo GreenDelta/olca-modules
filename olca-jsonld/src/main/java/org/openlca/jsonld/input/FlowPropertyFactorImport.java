@@ -21,11 +21,11 @@ class FlowPropertyFactorImport extends BaseEmbeddedImport<FlowPropertyFactor, Fl
 	@Override
 	FlowPropertyFactor map(JsonObject json, long id) {
 		FlowPropertyFactor f = new FlowPropertyFactor();
-		f.setId(id);
+		f.id = id;
 		String propId = Json.getRefId(json, "flowProperty");
 		FlowProperty property = FlowPropertyImport.run(propId, conf);
-		f.setFlowProperty(property);
-		f.setConversionFactor(Json.getDouble(json, "conversionFactor", 1.0));
+		f.flowProperty = property;
+		f.conversionFactor = Json.getDouble(json, "conversionFactor", 1.0);
 		return f;
 	}
 
@@ -34,8 +34,8 @@ class FlowPropertyFactorImport extends BaseEmbeddedImport<FlowPropertyFactor, Fl
 		String propertyRefId = Json.getRefId(json, "flowProperty");
 		if (propertyRefId == null)
 			return null;
-		for (FlowPropertyFactor factor : flow.getFlowPropertyFactors())
-			if (factor.getFlowProperty() != null && propertyRefId.equals(factor.getFlowProperty().getRefId()))
+		for (FlowPropertyFactor factor : flow.flowPropertyFactors)
+			if (factor.flowProperty != null && propertyRefId.equals(factor.flowProperty.refId))
 				return factor;
 		return null;
 	}

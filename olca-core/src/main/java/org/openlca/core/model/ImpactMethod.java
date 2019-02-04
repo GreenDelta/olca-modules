@@ -45,7 +45,7 @@ public class ImpactMethod extends CategorizedEntity {
 	public ImpactMethod clone() {
 		ImpactMethod clone = new ImpactMethod();
 		Util.cloneRootFields(this, clone);
-		clone.setCategory(getCategory());
+		clone.category = category;
 		HashMap<ImpactCategory, ImpactCategory> impactMap = new HashMap<>();
 		for (ImpactCategory origCat : impactCategories) {
 			ImpactCategory clonedCat = origCat.clone();
@@ -64,9 +64,8 @@ public class ImpactMethod extends CategorizedEntity {
 			NwSet clonedSet = nwSet.clone();
 			clone.nwSets.add(clonedSet);
 			for (NwFactor factor : clonedSet.factors) {
-				ImpactCategory clonedCat = impactMap.get(factor
-						.getImpactCategory());
-				factor.setImpactCategory(clonedCat);
+				ImpactCategory clonedCat = impactMap.get(factor.impactCategory);
+				factor.impactCategory = clonedCat;
 			}
 		}
 	}

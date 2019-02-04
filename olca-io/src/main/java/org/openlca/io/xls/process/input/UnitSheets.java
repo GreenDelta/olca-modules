@@ -86,16 +86,16 @@ class UnitSheets {
 	private UnitGroup createUnitGroup(UnitGroupRecord record) {
 		UnitGroup group = new UnitGroup();
 		HashMap<String, Unit> units = getUnits(record.name);
-		group.getUnits().addAll(units.values());
-		group.setRefId(record.uuid);
-		group.setName(record.name);
-		group.setDescription(record.description);
-		group.setCategory(config.getCategory(record.category,
-				ModelType.UNIT_GROUP));
-		group.setReferenceUnit(units.get(record.refUnit));
-		group.setVersion(Version.fromString(record.version).getValue());
+		group.units.addAll(units.values());
+		group.refId = record.uuid;
+		group.name = record.name;
+		group.description = record.description;
+		group.category = config.getCategory(record.category,
+		ModelType.UNIT_GROUP);
+		group.referenceUnit = units.get(record.refUnit);
+		group.version = Version.fromString(record.version).getValue();
 		if (record.lastChange != null) {
-			group.setLastChange(record.lastChange.getTime());
+			group.lastChange = record.lastChange.getTime();
 		}
 		groupDao.insert(group);
 		return group;
@@ -103,12 +103,12 @@ class UnitSheets {
 
 	private UnitGroup syncUnitGroup(UnitGroup unitGroup, UnitGroupRecord record) {
 		HashMap<String, Unit> sheetUnits = getUnits(record.name);
-		Unit refUnit = unitGroup.getReferenceUnit();
+		Unit refUnit = unitGroup.referenceUnit;
 		boolean canAdd = refUnit != null
-				&& Objects.equals(refUnit.getName(), record.refUnit);
+				&& Objects.equals(refUnit.name, record.refUnit);
 		boolean updated = false;
 		for (Unit sheetUnit : sheetUnits.values()) {
-			Unit realUnit = unitGroup.getUnit(sheetUnit.getName());
+			Unit realUnit = unitGroup.getUnit(sheetUnit.name);
 			if (realUnit != null) {
 				continue;
 			}
@@ -119,11 +119,11 @@ class UnitSheets {
 						unitGroup);
 				continue;
 			}
-			unitGroup.getUnits().add(sheetUnit);
+			unitGroup.units.add(sheetUnit);
 			updated = true;
 		}
 		if (updated) {
-			unitGroup.setLastChange(Calendar.getInstance().getTimeInMillis());
+			unitGroup.lastChange = Calendar.getInstance().getTimeInMillis();
 			Version.incUpdate(unitGroup);
 			unitGroup = groupDao.update(unitGroup);
 		}
@@ -145,19 +145,19 @@ class UnitSheets {
 
 	private FlowProperty createProperty(PropertyRecord record) {
 		FlowProperty property = new FlowProperty();
-		property.setRefId(record.uuid);
-		property.setName(record.name);
-		property.setDescription(record.description);
-		property.setCategory(config.getCategory(record.category,
-				ModelType.FLOW_PROPERTY));
+		property.refId = record.uuid;
+		property.name = record.name;
+		property.description = record.description;
+		property.category = config.getCategory(record.category,
+		ModelType.FLOW_PROPERTY);
 		if (Objects.equals(record.type, "Economic")) {
-			property.setFlowPropertyType(FlowPropertyType.ECONOMIC);
+			property.flowPropertyType = FlowPropertyType.ECONOMIC;
 		} else {
-			property.setFlowPropertyType(FlowPropertyType.PHYSICAL);
+			property.flowPropertyType = FlowPropertyType.PHYSICAL;
 		}
-		property.setVersion(Version.fromString(record.version).getValue());
+		property.version = Version.fromString(record.version).getValue();
 		if (record.lastChange != null) {
-			property.setLastChange(record.lastChange.getTime());
+			property.lastChange = record.lastChange.getTime();
 		}
 		propertyDao.insert(property);
 		return property;
@@ -170,11 +170,11 @@ class UnitSheets {
 				continue;
 			}
 			Unit unit = new Unit();
-			unit.setConversionFactor(record.conversionFactor);
-			unit.setDescription(record.description);
-			unit.setRefId(record.uuid);
-			unit.setName(record.name);
-			unit.setSynonyms(record.synonyms);
+			unit.conversionFactor = record.conversionFactor;
+			unit.description = record.description;
+			unit.refId = record.uuid;
+			unit.name = record.name;
+			unit.synonyms = record.synonyms;
 			units.put(record.name, unit);
 		}
 		return units;
@@ -189,7 +189,7 @@ class UnitSheets {
 				log.error("no unit group {} found for property {}",
 						record.unitGroup, property);
 			}
-			property.setUnitGroup(group);
+			property.unitGroup = group;
 			syncedProperties.add(propertyDao.update(property));
 		}
 	}
@@ -199,7 +199,7 @@ class UnitSheets {
 			return null;
 		}
 		for (UnitGroup group : syncedUnitGroups) {
-			if (Objects.equals(name, group.getName())) {
+			if (Objects.equals(name, group.name)) {
 				return group;
 			}
 		}
@@ -219,7 +219,7 @@ class UnitSheets {
 			if (property == null) {
 				continue;
 			}
-			group.setDefaultFlowProperty(property);
+			group.defaultFlowProperty = property;
 			syncedUnitGroups.add(groupDao.update(group));
 		}
 	}
@@ -229,7 +229,7 @@ class UnitSheets {
 			return null;
 		}
 		for (FlowProperty property : syncedProperties) {
-			if (Objects.equals(name, property.getName())) {
+			if (Objects.equals(name, property.name)) {
 				return property;
 			}
 		}

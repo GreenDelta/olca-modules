@@ -23,12 +23,12 @@ class LocationExport extends AbstractExport {
 
 	private Object[] createLine(Location location) {
 		Object[] line = new Object[6];
-		line[0] = location.getRefId();
-		line[1] = location.getName();
-		line[2] = location.getDescription();
-		line[3] = location.getCode();
-		line[4] = location.getLatitude();
-		line[5] = location.getLongitude();
+		line[0] = location.refId;
+		line[1] = location.name;
+		line[2] = location.description;
+		line[3] = location.code;
+		line[4] = location.latitude;
+		line[5] = location.longitude;
 		return line;
 	}
 

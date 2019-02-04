@@ -28,25 +28,25 @@ public class FlowTest extends AbstractZipTest {
 	@Test
 	public void testWithLocation() throws Exception {
 		Location loc = new Location();
-		loc.setCode("ABC");
-		loc.setRefId(UUID.randomUUID().toString());
+		loc.code = "ABC";
+		loc.refId = UUID.randomUUID().toString();
 		LocationDao locDao = new LocationDao(Tests.getDb());
 		loc = locDao.insert(loc);
 		Flow flow = createModel();
-		flow.setLocation(loc);
+		flow.location = loc;
 		flow = dao.insert(flow);
 		exportAndDelete(flow, dao);
 		doImport(dao, flow);
-		Flow clone = dao.getForRefId(flow.getRefId());
-		Assert.assertEquals("ABC", clone.getLocation().getCode());
+		Flow clone = dao.getForRefId(flow.refId);
+		Assert.assertEquals("ABC", clone.location.code);
 		dao.delete(clone);
 		locDao.delete(loc);
 	}
 
 	private Flow createModel() {
 		Flow flow = new Flow();
-		flow.setName("flow");
-		flow.setRefId(UUID.randomUUID().toString());
+		flow.name = "flow";
+		flow.refId = UUID.randomUUID().toString();
 		return flow;
 	}
 
@@ -56,7 +56,7 @@ public class FlowTest extends AbstractZipTest {
 			export.write(flow);
 		});
 		dao.delete(flow);
-		Assert.assertFalse(dao.contains(flow.getRefId()));
+		Assert.assertFalse(dao.contains(flow.refId));
 	}
 
 	private void doImport(FlowDao dao, Flow flow) {
@@ -64,8 +64,8 @@ public class FlowTest extends AbstractZipTest {
 			JsonImport jImport = new JsonImport(zip, Tests.getDb());
 			jImport.run();
 		});
-		Assert.assertTrue(dao.contains(flow.getRefId()));
-		Flow clone = dao.getForRefId(flow.getRefId());
-		Assert.assertEquals(flow.getName(), clone.getName());
+		Assert.assertTrue(dao.contains(flow.refId));
+		Flow clone = dao.getForRefId(flow.refId);
+		Assert.assertEquals(flow.name, clone.name);
 	}
 }

@@ -31,8 +31,8 @@ public class FlowPropertyExport {
 
 	public FlowProperty run(org.openlca.core.model.FlowProperty property)
 			throws DataStoreException {
-		if (config.store.contains(FlowProperty.class, property.getRefId()))
-			return config.store.get(FlowProperty.class, property.getRefId());
+		if (config.store.contains(FlowProperty.class, property.refId))
+			return config.store.get(FlowProperty.class, property.refId);
 		this.flowProperty = property;
 		FlowProperty iProperty = new FlowProperty();
 		iProperty.version = "1.1";
@@ -48,16 +48,16 @@ public class FlowPropertyExport {
 
 	private DataSetInfo makeDataSetInfo() {
 		DataSetInfo dataSetInfo = new DataSetInfo();
-		dataSetInfo.uuid = flowProperty.getRefId();
-		LangString.set(dataSetInfo.name, flowProperty.getName(),
+		dataSetInfo.uuid = flowProperty.refId;
+		LangString.set(dataSetInfo.name, flowProperty.name,
 				config.lang);
-		if (flowProperty.getDescription() != null) {
+		if (flowProperty.description != null) {
 			LangString.set(dataSetInfo.generalComment,
-					flowProperty.getDescription(), config.lang);
+					flowProperty.description, config.lang);
 		}
 		CategoryConverter converter = new CategoryConverter();
 		Classification c = converter.getClassification(
-				flowProperty.getCategory());
+				flowProperty.category);
 		if (c != null)
 			dataSetInfo.classifications.add(c);
 		return dataSetInfo;
@@ -65,7 +65,7 @@ public class FlowPropertyExport {
 
 	private QuantitativeReference makeUnitGroupRef() {
 		QuantitativeReference qRef = new QuantitativeReference();
-		UnitGroup unitGroup = flowProperty.getUnitGroup();
+		UnitGroup unitGroup = flowProperty.unitGroup;
 		Ref ref = ExportDispatch.forwardExport(unitGroup,
 				config);
 		qRef.unitGroup = ref;
@@ -85,12 +85,12 @@ public class FlowPropertyExport {
 	private void addPublication(AdminInfo info) {
 		Publication pub = new Publication();
 		info.publication = pub;
-		pub.version = Version.asString(flowProperty.getVersion());
+		pub.version = Version.asString(flowProperty.version);
 		if (baseUri == null)
 			baseUri = "http://openlca.org/ilcd/resource/";
 		if (!baseUri.endsWith("/"))
 			baseUri += "/";
-		pub.uri = baseUri + "flowproperties/" + flowProperty.getRefId();
+		pub.uri = baseUri + "flowproperties/" + flowProperty.refId;
 	}
 
 }

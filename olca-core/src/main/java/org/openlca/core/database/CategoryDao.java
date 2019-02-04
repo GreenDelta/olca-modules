@@ -58,8 +58,8 @@ public class CategoryDao
 	@Override
 	// see update(category)
 	public Category insert(Category category) {
-		category.setRefId(Categories.createRefId(category));
-		Category existing = getForRefId(category.getRefId());
+		category.refId = Categories.createRefId(category);
+		Category existing = getForRefId(category.refId);
 		if (existing != null) {
 			mergeChildren(existing, category);
 			return update(existing);
@@ -72,14 +72,14 @@ public class CategoryDao
 	// be generated depending on the category path. This way, we can treat the
 	// category model as a normal entity and still compare categories by path
 	public Category update(Category category) {
-		String refId = category.getRefId();
+		String refId = category.refId;
 		String newRefId = Categories.createRefId(category);
 		Category forRefId = getForRefId(newRefId);
-		boolean isNew = category.getId() == 0l;
+		boolean isNew = category.id == 0l;
 		if (!Objects.equals(refId, newRefId) && !isNew)
 			getDatabase().notifyDelete(Descriptors.toDescriptor(category));
 		if (Objects.equals(refId, newRefId) || forRefId == null) {
-			category.setRefId(newRefId);
+			category.refId = newRefId;
 			category = super.update(category);
 			for (Category child : category.getChildCategories())
 				update(child);
@@ -101,7 +101,7 @@ public class CategoryDao
 		for (Category child : from.getChildCategories()) {
 			if (contains(into.getChildCategories(), child))
 				continue;
-			child.setCategory(into);
+			child.category = into;
 			into.getChildCategories().add(child);
 		}
 	}

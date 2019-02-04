@@ -9,39 +9,23 @@ import javax.persistence.Table;
 public class Unit extends RootEntity {
 
 	@Column(name = "conversion_factor")
-	private double conversionFactor = 1d;
+	public double conversionFactor = 1d;
 
 	@Column(name = "synonyms")
-	private String synonyms;
-
-	public double getConversionFactor() {
-		return conversionFactor;
-	}
+	public String synonyms;
 
 	@Override
 	public Unit clone() {
 		Unit unit = new Unit();
 		Util.cloneRootFields(this, unit);
-		unit.setConversionFactor(getConversionFactor());
-		unit.setSynonyms(getSynonyms());
+		unit.conversionFactor = conversionFactor;
+		unit.synonyms = synonyms;
 		return unit;
-	}
-
-	public String getSynonyms() {
-		return synonyms;
-	}
-
-	public void setSynonyms(String synonyms) {
-		this.synonyms = synonyms;
-	}
-
-	public void setConversionFactor(double conversionFactor) {
-		this.conversionFactor = conversionFactor;
 	}
 
 	@Override
 	public String toString() {
-		return "Unit [id=" + getId() + ", name=" + getName() + "]";
+		return "Unit [id=" + id + ", name=" + name + "]";
 	}
 
 }

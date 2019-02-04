@@ -33,14 +33,14 @@ class CategoryConverter {
 		Stack<Category> stack = new Stack<>();
 		stack.push(category);
 		while (isNonRoot(category)) {
-			stack.push(category.getCategory());
-			category = category.getCategory();
+			stack.push(category.category);
+			category = category.category;
 		}
 		return stack;
 	}
 
 	private boolean isNonRoot(Category category) {
-		return category.getCategory() != null;
+		return category.category != null;
 	}
 
 	private void makeClasses(Classification classification,
@@ -50,9 +50,9 @@ class CategoryConverter {
 		while (!stack.isEmpty()) {
 			category = stack.pop();
 			org.openlca.ilcd.commons.Category clazz = new org.openlca.ilcd.commons.Category();
-			clazz.classId = category.getRefId();
+			clazz.classId = category.refId;
 			clazz.level = level;
-			clazz.value = category.getName();
+			clazz.value = category.name;
 			classification.categories.add(clazz);
 			level++;
 		}
@@ -65,9 +65,9 @@ class CategoryConverter {
 			category = stack.pop();
 			Compartment c = new Compartment();
 			list.compartments.add(c);
-			c.catId = category.getRefId();
+			c.catId = category.refId;
 			c.level = level;
-			c.value = category.getName();
+			c.value = category.name;
 			level++;
 		}
 	}

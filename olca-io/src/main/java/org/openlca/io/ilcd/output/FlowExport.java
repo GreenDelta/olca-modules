@@ -38,8 +38,8 @@ public class FlowExport {
 	}
 
 	public Flow run(org.openlca.core.model.Flow flow) throws DataStoreException {
-		if (config.store.contains(Flow.class, flow.getRefId()))
-			return config.store.get(Flow.class, flow.getRefId());
+		if (config.store.contains(Flow.class, flow.refId))
+			return config.store.get(Flow.class, flow.refId);
 		this.flow = flow;
 		Flow iFlow = new Flow();
 		iFlow.version = "1.1";
@@ -60,16 +60,16 @@ public class FlowExport {
 
 	private DataSetInfo makeDataSetInfo() {
 		DataSetInfo info = new DataSetInfo();
-		info.uuid = flow.getRefId();
+		info.uuid = flow.refId;
 		FlowName flowName = new FlowName();
 		info.name = flowName;
-		LangString.set(flowName.baseName, flow.getName(),
+		LangString.set(flowName.baseName, flow.name,
 				config.lang);
-		if (flow.getDescription() != null)
+		if (flow.description != null)
 			LangString.set(info.generalComment,
-					flow.getDescription(), config.lang);
-		info.casNumber = flow.getCasNumber();
-		info.sumFormula = flow.getFormula();
+					flow.description, config.lang);
+		info.casNumber = flow.casNumber;
+		info.sumFormula = flow.formula;
 		if (flow.synonyms != null)
 			LangString.set(info.synonyms, flow.synonyms,
 					config.lang);
@@ -81,13 +81,12 @@ public class FlowExport {
 		CategoryConverter converter = new CategoryConverter();
 		FlowCategoryInfo info = new FlowCategoryInfo();
 		dataSetInfo.classificationInformation = info;
-		if (flow.getFlowType() == org.openlca.core.model.FlowType.ELEMENTARY_FLOW) {
+		if (flow.flowType == org.openlca.core.model.FlowType.ELEMENTARY_FLOW) {
 			CompartmentList categorization = converter
-					.getElementaryFlowCategory(flow.getCategory());
+					.getElementaryFlowCategory(flow.category);
 			info.compartmentLists.add(categorization);
 		} else {
-			Classification classification = converter.getClassification(flow
-					.getCategory());
+			Classification classification = converter.getClassification(flow.category);
 			info.classifications.add(classification);
 		}
 	}
@@ -97,12 +96,12 @@ public class FlowExport {
 	 * data set internal ID of 0, the others 1++.
 	 */
 	private void makeFlowProperties(List<FlowPropertyRef> refs) {
-		FlowProperty referenceProperty = flow.getReferenceFlowProperty();
+		FlowProperty referenceProperty = flow.referenceFlowProperty;
 		int pos = 1;
-		for (FlowPropertyFactor factor : flow.getFlowPropertyFactors()) {
+		for (FlowPropertyFactor factor : flow.flowPropertyFactors) {
 			FlowPropertyRef propRef = new FlowPropertyRef();
 			refs.add(propRef);
-			FlowProperty property = factor.getFlowProperty();
+			FlowProperty property = factor.flowProperty;
 			Ref ref = ExportDispatch.forwardExport(property,
 					config);
 			propRef.flowProperty = ref;
@@ -110,15 +109,14 @@ public class FlowExport {
 				propRef.dataSetInternalID = 0;
 			else
 				propRef.dataSetInternalID = pos++;
-			propRef.meanValue = factor.getConversionFactor();
+			propRef.meanValue = factor.conversionFactor;
 		}
 	}
 
 	private void addLocation(org.openlca.ilcd.flows.Flow iFlow) {
-		if (flow != null && flow.getLocation() != null) {
+		if (flow != null && flow.location != null) {
 			Geography geography = new Geography();
-			LangString.set(geography.location, flow.getLocation()
-					.getCode(), config.lang);
+			LangString.set(geography.location, flow.location.code, config.lang);
 			iFlow.flowInfo.geography = geography;
 		}
 	}
@@ -136,12 +134,12 @@ public class FlowExport {
 	private void addPublication(AdminInfo info) {
 		Publication pub = new Publication();
 		info.publication = pub;
-		pub.version = Version.asString(flow.getVersion());
+		pub.version = Version.asString(flow.version);
 		if (baseUri == null)
 			baseUri = "http://openlca.org/ilcd/resource/";
 		if (!baseUri.endsWith("/"))
 			baseUri += "/";
-		pub.uri = baseUri + "flows/" + flow.getRefId();
+		pub.uri = baseUri + "flows/" + flow.refId;
 	}
 
 	private Modelling makeModellingInfo() {
@@ -153,9 +151,9 @@ public class FlowExport {
 	}
 
 	private FlowType getFlowType() {
-		if (flow.getFlowType() == null)
+		if (flow.flowType == null)
 			return FlowType.OTHER_FLOW;
-		switch (flow.getFlowType()) {
+		switch (flow.flowType) {
 		case ELEMENTARY_FLOW:
 			return FlowType.ELEMENTARY_FLOW;
 		case PRODUCT_FLOW:

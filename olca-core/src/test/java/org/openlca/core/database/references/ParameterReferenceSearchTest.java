@@ -19,7 +19,7 @@ public class ParameterReferenceSearchTest extends BaseReferenceSearchTest {
 		String n2 = generateName();
 		String n3 = generateName();
 		Parameter parameter = createParameter(n1, "3*" + n3);
-		parameter.setCategory(insertAndAddExpected("category", new Category()));
+		parameter.category = insertAndAddExpected("category", new Category());
 		insertAndAddExpected(n3, createParameter(n3, 5d));
 		Parameter globalUnreferenced = createParameter(n2, "3*3");
 		// must be inserted manually
@@ -29,7 +29,7 @@ public class ParameterReferenceSearchTest extends BaseReferenceSearchTest {
 
 	private Parameter createParameter(String name, Object value) {
 		Parameter parameter = new Parameter();
-		parameter.setName(name);
+		parameter.name = name;
 		boolean formula = value instanceof String;
 		parameter.isInputParameter = !formula;
 		if (formula)

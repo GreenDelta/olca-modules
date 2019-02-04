@@ -15,11 +15,11 @@ public class CategoryPath {
 	public static String getFull(Category category) {
 		if (category == null)
 			return "";
-		String path = category.getName();
-		Category parent = category.getCategory();
+		String path = category.name;
+		Category parent = category.category;
 		while (parent != null) {
-			path = parent.getName() + "/" + path;
-			parent = parent.getCategory();
+			path = parent.name + "/" + path;
+			parent = parent.category;
 		}
 		return path;
 	}
@@ -30,10 +30,10 @@ public class CategoryPath {
 	public static String getShort(Category category) {
 		if (category == null)
 			return "";
-		if (category.getCategory() == null)
-			return category.getName();
-		String shortPath = category.getCategory().getName() + "/"
-				+ category.getName();
+		if (category.category == null)
+			return category.name;
+		String shortPath = category.category.name + "/"
+				+ category.name;
 		return Strings.cut(shortPath, 75);
 	}
 

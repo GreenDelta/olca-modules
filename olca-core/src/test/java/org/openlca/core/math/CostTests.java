@@ -96,11 +96,11 @@ public class CostTests {
 				.elemIn("water", 1, "m3")
 				.get();
 		long exchangeId = -1;
-		for (Exchange e : p1.getExchanges()) {
-			if (e.flow.getName().equals("p1") && e.isInput) {
+		for (Exchange e : p1.exchanges) {
+			if (e.flow.name.equals("p1") && e.isInput) {
 				e.costs = 0.4d;
-				e.currency = p1.getQuantitativeReference().currency;
-				exchangeId = e.getId();
+				e.currency = p1.quantitativeReference.currency;
+				exchangeId = e.id;
 				break;
 			}
 		}
@@ -109,9 +109,9 @@ public class CostTests {
 		ProductSystem system = TestSystem.of(p1).get();
 		// add a link to the process itself
 		ProcessLink selfLink = new ProcessLink();
-		selfLink.flowId = p1.getQuantitativeReference().flow.getId();
-		selfLink.providerId = p1.getId();
-		selfLink.processId = p1.getId();
+		selfLink.flowId = p1.quantitativeReference.flow.id;
+		selfLink.providerId = p1.id;
+		selfLink.processId = p1.id;
 		selfLink.exchangeId = exchangeId;
 		system.processLinks.add(selfLink);
 		system = Tests.update(system);

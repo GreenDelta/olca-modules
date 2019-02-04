@@ -71,10 +71,10 @@ public class MultiKmlImport {
 		if (dao.contains(refId))
 			return;
 		Location location = new Location();
-		location.setName(name);
-		location.setCode(code);
-		location.setRefId(refId);
-		location.setKmz(BinUtils.zip(kml.getBytes("utf-8")));
+		location.name = name;
+		location.code = code;
+		location.refId = refId;
+		location.kmz = BinUtils.zip(kml.getBytes("utf-8"));
 		dao.insert(location);
 	}
 

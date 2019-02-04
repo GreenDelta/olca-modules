@@ -28,7 +28,7 @@ public class Processes {
 			String locationCode = fullName.substring(splitIdx + 3).trim();
 			LocationDao dao = new LocationDao(db);
 			for (Location loc : dao.getAll()) {
-				if (Strings.nullOrEqual(loc.getCode(), locationCode)) {
+				if (Strings.nullOrEqual(loc.code, locationCode)) {
 					location = loc;
 					break;
 				}
@@ -64,6 +64,6 @@ public class Processes {
 			return loc == null;
 		if (loc == null)
 			return d.location == null;
-		return d.location.longValue() == loc.getId();
+		return d.location.longValue() == loc.id;
 	}
 }

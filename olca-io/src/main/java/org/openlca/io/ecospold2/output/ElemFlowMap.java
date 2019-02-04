@@ -87,7 +87,7 @@ class ElemFlowMap {
 					olca);
 			return null;
 		}
-		ExportRecord record = map.get(olca.flow.getRefId());
+		ExportRecord record = map.get(olca.flow.refId);
 		if (record == null || !isValid(record, olca)) {
 			log.warn(
 					"elementary flow {} cannot be mapped to an ecoinvent flow",
@@ -101,10 +101,10 @@ class ElemFlowMap {
 		return record != null
 				&& olca != null
 				&& olca.flowPropertyFactor != null
-				&& olca.flowPropertyFactor.getFlowProperty() != null
-				&& Objects.equals(record.olcaPropertyId, olca.flowPropertyFactor.getFlowProperty().getRefId())
+				&& olca.flowPropertyFactor.flowProperty != null
+				&& Objects.equals(record.olcaPropertyId, olca.flowPropertyFactor.flowProperty.refId)
 				&& olca.unit != null
-				&& Objects.equals(record.olcaUnitId, olca.unit.getRefId());
+				&& Objects.equals(record.olcaUnitId, olca.unit.refId);
 	}
 
 	private ElementaryExchange createExchange(Exchange olca, ExportRecord record) {
@@ -113,7 +113,7 @@ class ElemFlowMap {
 			exchange.inputGroup = 4;
 		else
 			exchange.outputGroup = 4;
-		exchange.id = new UUID(olca.getId(), 0L).toString();
+		exchange.id = new UUID(olca.id, 0L).toString();
 		exchange.flowId = record.id;
 		exchange.name = Strings.cut(record.name, 120);
 		exchange.compartment = createCompartment(record);
