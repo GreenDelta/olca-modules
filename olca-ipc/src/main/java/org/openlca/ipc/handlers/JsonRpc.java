@@ -1,6 +1,14 @@
 package org.openlca.ipc.handlers;
 
+import java.util.Collection;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 import org.openlca.core.database.EntityCache;
+import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.results.ContributionItem;
 import org.openlca.core.results.FlowResult;
 import org.openlca.core.results.ImpactResult;
 import org.openlca.core.results.SimpleResult;
@@ -23,23 +31,13 @@ class JsonRpc {
 		if (r == null)
 			return obj;
 		obj.addProperty("@type", r.getClass().getSimpleName());
-		JsonArray flowResults = new JsonArray();
-		obj.add("flowResults", flowResults);
-		for (FlowResult flowResult : r.getTotalFlowResults()) {
-			JsonObject item = JsonRpc.encode(flowResult, cache);
-			if (item != null) {
-				flowResults.add(item);
-			}
-		}
+		obj.add("flows", encode(r.getFlows(), cache));
+		obj.add("processes", encode(r.getProcesses(), cache));
+		obj.add("flowResults", encode(r.getTotalFlowResults(), result -> encode(result, cache)));
 		if (!r.hasImpactResults())
 			return obj;
-		JsonArray impactResults = new JsonArray();
-		obj.add("impactResults", impactResults);
-		for (ImpactResult impact : r.getTotalImpactResults()) {
-			JsonObject item = JsonRpc.encode(impact, cache);
-			if (item != null)
-				impactResults.add(item);
-		}
+		obj.add("impacts", encode(r.getImpacts(), cache));
+		obj.add("impactResults", encode(r.getTotalImpactResults(), result -> encode(result, cache)));
 		return obj;
 	}
 
@@ -63,4 +61,54 @@ class JsonRpc {
 		obj.addProperty("value", r.value);
 		return obj;
 	}
+
+	static <T extends BaseDescriptor> JsonArray encode(Collection<ContributionItem<T>> l, EntityCache cache, Consumer<JsonObject> modifier) {
+		if (l == null)
+			return null;
+		return encode(l, contribution -> encode(contribution, cache, modifier));		
+	}
+
+	static <T extends BaseDescriptor> JsonObject encode(ContributionItem<T> i, EntityCache cache, Consumer<JsonObject> modifier) {
+		if (i == null)
+			return null;
+		JsonObject obj = new JsonObject();
+		obj.addProperty("@type", "ContributionItem");
+		obj.add("item", Json.asRef(i.item, cache));
+		obj.addProperty("amount", i.amount);
+		obj.addProperty("share", i.share);
+		obj.addProperty("rest", i.rest);
+		modifier.accept(obj);
+		return obj;
+	}
+
+	static JsonArray encode(double[] totalRequirements, TechIndex index, EntityCache cache) {
+		JsonArray items = new JsonArray();
+		for (int i = 0; i < totalRequirements.length; i++) {
+			if (totalRequirements[i] == 0)
+				continue;
+			ProcessProduct product = index.getProviderAt(i);
+			JsonObject obj = new JsonObject();
+			obj.add("process", Json.asRef(product.process, cache));
+			obj.add("product", Json.asRef(product.flow, cache));
+			obj.addProperty("amount", totalRequirements[i]);
+			items.add(obj);
+		}
+		return items;
+	}
+	
+	static JsonArray encode(Collection<? extends BaseDescriptor> descriptors, EntityCache cache) {
+		return encode(descriptors, d -> Json.asRef(d, cache));
+	}
+
+	static <T> JsonArray encode(Collection<T> l, Function<T, JsonObject> encoder) {
+		JsonArray array = new JsonArray();
+		for (T t : l) {
+			JsonObject item = encoder.apply(t);
+			if (item != null) {
+				array.add(item);
+			}
+		}
+		return array;
+	}
+
 }
