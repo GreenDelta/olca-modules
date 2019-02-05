@@ -10,7 +10,9 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -41,6 +43,27 @@ public class ImpactMethod extends CategorizedEntity {
 	@Column(name = "parameter_mean")
 	public ParameterMean parameterMean;
 
+	/**
+	 * The original author of the method.
+	 */
+	@OneToOne
+	@JoinColumn(name = "f_author")
+	public Actor author;
+
+	/**
+	 * The person/organization that adapted/converted the method into this
+	 * machine readable format.
+	 */
+	@OneToOne
+	@JoinColumn(name = "f_generator")
+	public Actor generator;
+
+	@OneToMany
+	@JoinTable(name = "tbl_source_links", joinColumns = {
+			@JoinColumn(name = "f_owner") }, inverseJoinColumns = {
+					@JoinColumn(name = "f_source") })
+	public final List<Source> sources = new ArrayList<>();
+
 	@Override
 	public ImpactMethod clone() {
 		ImpactMethod clone = new ImpactMethod();
@@ -52,8 +75,14 @@ public class ImpactMethod extends CategorizedEntity {
 			impactMap.put(origCat, clonedCat);
 			clone.impactCategories.add(clonedCat);
 		}
-		for (Parameter parameter : parameters)
-			clone.parameters.add(parameter.clone());
+		for (Parameter p : parameters) {
+			clone.parameters.add(p.clone());
+		}
+		clone.author = author;
+		clone.generator = generator;
+		for (Source source : sources) {
+			clone.sources.add(source);
+		}
 		cloneNwSets(clone, impactMap);
 		return clone;
 	}

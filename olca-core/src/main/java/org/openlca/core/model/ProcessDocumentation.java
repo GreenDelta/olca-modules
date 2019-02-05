@@ -76,8 +76,8 @@ public class ProcessDocumentation extends AbstractEntity implements Cloneable {
 	public String sampling;
 
 	@OneToMany
-	@JoinTable(name = "tbl_process_sources", joinColumns = {
-			@JoinColumn(name = "f_process_doc") }, inverseJoinColumns = {
+	@JoinTable(name = "tbl_source_links", joinColumns = {
+			@JoinColumn(name = "f_owner") }, inverseJoinColumns = {
 					@JoinColumn(name = "f_source") })
 	public final List<Source> sources = new ArrayList<>();
 
@@ -119,6 +119,9 @@ public class ProcessDocumentation extends AbstractEntity implements Cloneable {
 	@Column(name = "geography")
 	public String geography;
 
+	@Column(name = "preceding_dataset")
+	public String precedingDataSet;
+
 	@Override
 	public ProcessDocumentation clone() {
 		ProcessDocumentation clone = new ProcessDocumentation();
@@ -150,8 +153,8 @@ public class ProcessDocumentation extends AbstractEntity implements Cloneable {
 		clone.intendedApplication = intendedApplication;
 		clone.project = project;
 		clone.publication = publication;
-
 		clone.geography = geography;
+		clone.precedingDataSet = precedingDataSet;
 
 		return clone;
 	}

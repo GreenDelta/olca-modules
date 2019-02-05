@@ -12,7 +12,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 @Entity
 @Table(name = "tbl_project_variants")
@@ -44,12 +43,11 @@ public class ProjectVariant extends AbstractEntity {
 	@JoinColumn(name = "f_owner")
 	public final List<ParameterRedef> parameterRedefs = new ArrayList<>();
 
-	// TODO: add this to the database schema when we are sure to keep this
 	/**
 	 * Indicates that this variant is disabled. When it is disabled it is not
 	 * considered in the result calculation.
 	 */
-	@Transient
+	@Column(name = "is_disabled")
 	public boolean isDisabled;
 
 	@Override
