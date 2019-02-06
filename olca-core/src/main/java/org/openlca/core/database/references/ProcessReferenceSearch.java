@@ -25,42 +25,57 @@ import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
-public class ProcessReferenceSearch extends BaseParametrizedReferenceSearch<ProcessDescriptor> {
+public class ProcessReferenceSearch
+		extends BaseParametrizedReferenceSearch<ProcessDescriptor> {
 
 	private final static Ref[] references = {
 			new Ref(Category.class, "category", "f_category", true),
 			new Ref(Location.class, "location", "f_location", true),
 			new Ref(Currency.class, "currency", "f_currency", true),
 			new Ref(DQSystem.class, "dqSystem", "f_dq_system", true),
-			new Ref(DQSystem.class, "exchangeDqSystem", "f_exchange_dq_system", true),
-			new Ref(DQSystem.class, "socialDqSystem", "f_social_dq_system", true),
-			new Ref(ProcessDocumentation.class, "documentation", "f_process_doc", true)
+			new Ref(DQSystem.class, "exchangeDqSystem", "f_exchange_dq_system",
+					true),
+			new Ref(DQSystem.class, "socialDqSystem", "f_social_dq_system",
+					true),
+			new Ref(ProcessDocumentation.class, "documentation",
+					"f_process_doc", true)
 	};
 	private final static Ref[] exchangeReferences = {
 			new Ref(Flow.class, "flow", Exchange.class, "exchanges", "f_flow"),
-			new Ref(FlowPropertyFactor.class, "flowPropertyFactor", Exchange.class, "exchanges",
+			new Ref(FlowPropertyFactor.class, "flowPropertyFactor",
+					Exchange.class, "exchanges",
 					"f_flow_property_factor"),
 			new Ref(Unit.class, "unit", Exchange.class, "exchanges", "f_unit"),
-			new Ref(Process.class, "defaultProviderId", Exchange.class, "exchanges", "f_default_provider", true, true)
+			new Ref(Process.class, "defaultProviderId", Exchange.class,
+					"exchanges", "f_default_provider", true, true)
 	};
 	private final static Ref[] factorReferences = {
-			new Ref(FlowProperty.class, "flowProperty", FlowPropertyFactor.class, "flowPropertyFactor",
+			new Ref(FlowProperty.class, "flowProperty",
+					FlowPropertyFactor.class, "flowPropertyFactor",
 					"f_flow_property")
 	};
 	private final static Ref[] socialAspectReferences = {
-			new Ref(SocialIndicator.class, "indicator", SocialAspect.class, "socialAspects", "f_indicator", false),
-			new Ref(Source.class, "source", SocialAspect.class, "socialAspects", "f_source", true)
+			new Ref(SocialIndicator.class, "indicator", SocialAspect.class,
+					"socialAspects", "f_indicator", false),
+			new Ref(Source.class, "source", SocialAspect.class, "socialAspects",
+					"f_source", true)
 	};
 	private final static Ref[] documentationReferences = {
-			new Ref(Actor.class, "reviewer", ProcessDocumentation.class, "documentation", "f_reviewer", true),
-			new Ref(Actor.class, "dataDocumentor", ProcessDocumentation.class, "documentation", "f_data_documentor",
+			new Ref(Actor.class, "reviewer", ProcessDocumentation.class,
+					"documentation", "f_reviewer", true),
+			new Ref(Actor.class, "dataDocumentor", ProcessDocumentation.class,
+					"documentation", "f_data_documentor",
 					true),
-			new Ref(Actor.class, "dataGenerator", ProcessDocumentation.class, "documentation", "f_data_generator", true),
-			new Ref(Actor.class, "dataSetOwner", ProcessDocumentation.class, "documentation", "f_dataset_owner", true),
-			new Ref(Source.class, "publication", ProcessDocumentation.class, "documentation", "f_publication", true)
+			new Ref(Actor.class, "dataGenerator", ProcessDocumentation.class,
+					"documentation", "f_data_generator", true),
+			new Ref(Actor.class, "dataSetOwner", ProcessDocumentation.class,
+					"documentation", "f_dataset_owner", true),
+			new Ref(Source.class, "publication", ProcessDocumentation.class,
+					"documentation", "f_publication", true)
 	};
 	private final static Ref[] sourceReferences = {
-			new Ref(Source.class, "sources", ProcessDocumentation.class, "documentation", "f_source", true)
+			new Ref(Source.class, "sources", ProcessDocumentation.class,
+					"documentation", "f_source", true)
 	};
 
 	public ProcessReferenceSearch(IDatabase database, boolean includeOptional) {
@@ -73,7 +88,8 @@ public class ProcessReferenceSearch extends BaseParametrizedReferenceSearch<Proc
 				references);
 		List<Reference> results = new ArrayList<>();
 		results.addAll(filter(CategorizedEntity.class, mixed));
-		Map<Long, Long> docIds = toIdMap(filter(ProcessDocumentation.class, mixed));
+		Map<Long, Long> docIds = toIdMap(
+				filter(ProcessDocumentation.class, mixed));
 		results.addAll(findExchangeReferences(ids));
 		results.addAll(findSocialAspectReferences(ids));
 		results.addAll(findDocumentationReferences(docIds));
@@ -83,8 +99,10 @@ public class ProcessReferenceSearch extends BaseParametrizedReferenceSearch<Proc
 
 	private List<Reference> findExchangeReferences(Set<Long> ids) {
 		Map<Long, Long> exchanges = toIdMap(findReferences("tbl_exchanges",
-				"f_owner", ids, new Ref[] { new Ref(Exchange.class, "id", "id") }));
-		List<Reference> references = findReferences("tbl_exchanges", "id", exchanges.keySet(),
+				"f_owner", ids,
+				new Ref[] { new Ref(Exchange.class, "id", "id") }));
+		List<Reference> references = findReferences("tbl_exchanges", "id",
+				exchanges.keySet(),
 				exchanges, exchangeReferences);
 		List<Reference> factors = new ArrayList<>();
 		for (Reference ref : references) {
@@ -93,14 +111,16 @@ public class ProcessReferenceSearch extends BaseParametrizedReferenceSearch<Proc
 			factors.add(ref);
 		}
 		Map<Long, Long> factorIds = toIdMap(factors);
-		references.addAll(findReferences("tbl_flow_property_factors", "id", factorIds.keySet(), factorIds,
+		references.addAll(findReferences("tbl_flow_property_factors", "id",
+				factorIds.keySet(), factorIds,
 				factorReferences));
 		return references;
 	}
 
 	private List<Reference> findSocialAspectReferences(Set<Long> ids) {
 		Map<Long, Long> aspects = toIdMap(findReferences("tbl_social_aspects",
-				"f_process", ids, new Ref[] { new Ref(SocialAspect.class, "id", "id") }));
+				"f_process", ids,
+				new Ref[] { new Ref(SocialAspect.class, "id", "id") }));
 		return findReferences("tbl_social_aspects", "id", aspects.keySet(),
 				aspects, socialAspectReferences);
 	}
@@ -109,15 +129,15 @@ public class ProcessReferenceSearch extends BaseParametrizedReferenceSearch<Proc
 		List<Reference> results = new ArrayList<>();
 		results.addAll(findReferences("tbl_process_docs", "id", map.keySet(),
 				map, documentationReferences));
-		results.addAll(findReferences("tbl_process_sources", "f_process_doc",
+		results.addAll(findReferences("tbl_source_links", "f_owner",
 				map.keySet(), map, sourceReferences));
 		return results;
 	}
 
 	private Map<Long, Set<String>> getExchangeFormulas(Set<Long> ids) {
 		List<String> queries = Search.createQueries(
-				"SELECT f_owner, lower(resulting_amount_formula), lower(cost_formula) FROM tbl_exchanges"
-				, "WHERE f_owner IN", ids);
+				"SELECT f_owner, lower(resulting_amount_formula), lower(cost_formula) FROM tbl_exchanges",
+				"WHERE f_owner IN", ids);
 		Map<Long, Set<String>> formulas = new HashMap<>();
 		for (String query : queries) {
 			Search.on(database, null).query(query.toString(), (result) -> {
