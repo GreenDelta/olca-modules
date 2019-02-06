@@ -1,6 +1,7 @@
 package org.openlca.core.matrix;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +9,7 @@ import org.openlca.core.matrix.cache.FlowTable;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +20,7 @@ import gnu.trove.map.hash.TLongByteHashMap;
  * The row index $\mathit{Idx}_B$ of the intervention matrix $\mathbf{B}$. It
  * maps the (elementary) flows $\mathit{F}$ of the processes in the product
  * system to the $k$ rows of $\mathbf{B}$.
- * 
+ *
  * $$\mathit{Idx}_B: \mathit{F} \mapsto [0 \dots k-1]$$
  */
 public class FlowIndex extends DIndex<FlowDescriptor> {
@@ -88,6 +90,8 @@ public class FlowIndex extends DIndex<FlowDescriptor> {
 			Map<Long, List<CalcExchange>> map = loadExchanges();
 			for (Long processId : techIndex.getProcessIds()) {
 				List<CalcExchange> exchanges = map.get(processId);
+				if (exchanges == null)
+					continue;
 				for (CalcExchange e : exchanges) {
 					if (index.contains(e.flowId))
 						continue; // already indexed as flow
@@ -115,8 +119,18 @@ public class FlowIndex extends DIndex<FlowDescriptor> {
 
 		private Map<Long, List<CalcExchange>> loadExchanges() {
 			try {
+				// TODO: the cache loader throws an exception when we ask for
+				// process IDs that do not exist; this we have to filter out
+				// product system IDs here
+				HashSet<Long> processIds = new HashSet<>();
+				techIndex.each((i, p) -> {
+					if (p.process != null
+							&& p.process.type == ModelType.PROCESS) {
+						processIds.add(p.process.id);
+					}
+				});
 				Map<Long, List<CalcExchange>> map = cache.getExchangeCache()
-						.getAll(techIndex.getProcessIds());
+						.getAll(processIds);
 				return map;
 			} catch (Exception e) {
 				log.error("failed to load exchanges from cache", e);

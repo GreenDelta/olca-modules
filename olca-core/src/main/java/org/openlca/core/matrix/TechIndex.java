@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
@@ -17,7 +18,7 @@ import org.openlca.core.model.descriptors.CategorizedDescriptor;
  * sub-systems, these systems are handled like processes and are also mapped as
  * pair with their quantitative reference flow to that index (and also their
  * processes etc.).
- * 
+ *
  * $$\mathit{Idx}_A: \mathit{P} \mapsto [0 \dots n-1]$$
  */
 public class TechIndex {
@@ -55,9 +56,8 @@ public class TechIndex {
 	/**
 	 * Creates a new technosphere index of a product system.
 	 *
-	 * @param refFlow
-	 *            the reference product-output or waste-input as (processId,
-	 *            flowId) pair.
+	 * @param refFlow the reference product-output or waste-input as (processId,
+	 *                flowId) pair.
 	 */
 	public TechIndex(ProcessProduct refFlow) {
 		put(refFlow);
@@ -120,6 +120,12 @@ public class TechIndex {
 	 */
 	public boolean contains(long processID, long flowID) {
 		return getProvider(processID, flowID) != null;
+	}
+
+	public void each(IndexConsumer<ProcessProduct> fn) {
+		for (int i = 0; i < providers.size(); i++) {
+			fn.accept(i, providers.get(i));
+		}
 	}
 
 	public ProcessProduct getProvider(long processID, long flowID) {
@@ -187,12 +193,10 @@ public class TechIndex {
 	/**
 	 * Adds a process link to this index.
 	 *
-	 * @param exchange
-	 *            The linked product-input or waste-output as (processId,
-	 *            exchangeId) pair.
-	 * @param provider
-	 *            The product-output or waste-input (provider) as (processId,
-	 *            flowId) pair.
+	 * @param exchange The linked product-input or waste-output as (processId,
+	 *                 exchangeId) pair.
+	 * @param provider The product-output or waste-input (provider) as
+	 *                 (processId, flowId) pair.
 	 */
 	public void putLink(LongPair exchange, ProcessProduct provider) {
 		if (links.containsKey(exchange))
