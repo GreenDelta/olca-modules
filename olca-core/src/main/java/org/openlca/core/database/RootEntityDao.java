@@ -18,6 +18,8 @@ import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.util.Strings;
 
+import gnu.trove.map.hash.TLongObjectHashMap;
+
 public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor> extends BaseDao<T> {
 
 	private Class<V> descriptorType;
@@ -103,6 +105,18 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor> exten
 		String sql = getDescriptorQuery();
 		List<Object[]> results = selectAll(sql, getDescriptorFields(), Collections.emptyList());
 		return createDescriptors(results);
+	}
+
+	/**
+	 * Returns all descriptors of the DAO type in a map which is indexed by
+	 * the IDs of the respective descriptors.
+	 */
+	public TLongObjectHashMap<V> descriptorMap() {
+		TLongObjectHashMap<V> m = new TLongObjectHashMap<>();
+		for (V d : getDescriptors()) {
+			m.put(d.id, d);
+		}
+		return m;
 	}
 
 	protected final String getDescriptorQuery() {

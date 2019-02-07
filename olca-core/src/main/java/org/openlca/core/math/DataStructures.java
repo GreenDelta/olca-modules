@@ -1,7 +1,10 @@
 package org.openlca.core.math;
 
+import java.util.ArrayDeque;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,6 +32,9 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
 
+import gnu.trove.map.hash.TLongObjectHashMap;
+import gnu.trove.set.hash.TLongHashSet;
+
 /**
  * Provides helper methods for creating matrix-like data structures that can be
  * used in calculations (but also exports, validations, etc.).
@@ -43,36 +49,63 @@ public class DataStructures {
 	 */
 	public static TechIndex createProductIndex(
 			ProductSystem system, IDatabase db) {
+
+		// initialize the TechIndex with the reference flow
 		Exchange refExchange = system.referenceExchange;
 		ProcessProduct refFlow = ProcessProduct.of(
 				system.referenceProcess, refExchange.flow);
 		TechIndex index = new TechIndex(refFlow);
 		index.setDemand(ReferenceAmount.get(system));
 
-		// TODO: trove maps?
-		Map<Long, ProductSystemDescriptor> systems = new ProductSystemDao(db)
-				.getDescriptors().stream()
-				.collect(Collectors.toMap(d -> d.id, d -> d));
-		Map<Long, ProcessDescriptor> processes = new ProcessDao(db)
-				.getDescriptors().stream()
-				.collect(Collectors.toMap(d -> d.id, d -> d));
-		Map<Long, FlowDescriptor> flows = new FlowDao(db)
-				.getDescriptors().stream()
-				.collect(Collectors.toMap(d -> d.id, d -> d));
-		for (ProcessLink link : system.processLinks) {
-			CategorizedDescriptor p = processes.get(link.providerId);
-			if (p == null) {
-				p = systems.get(link.providerId);
+		// initialize the fast descriptor maps
+		ProductSystemDao sysDao = new ProductSystemDao(db);
+		TLongObjectHashMap<ProductSystemDescriptor> systems = sysDao
+				.descriptorMap();
+		TLongObjectHashMap<ProcessDescriptor> processes = new ProcessDao(
+				db).descriptorMap();
+		TLongObjectHashMap<FlowDescriptor> flows = new FlowDao(
+				db).descriptorMap();
+
+		// the link queue may then contain links of sub-systems
+		Queue<List<ProcessLink>> queue = new ArrayDeque<>();
+		TLongHashSet handledSystems = new TLongHashSet();
+		handledSystems.add(system.id);
+		queue.add(system.processLinks);
+
+		while (!queue.isEmpty()) {
+			List<ProcessLink> links = queue.poll();
+			for (ProcessLink link : links) {
+				CategorizedDescriptor p = processes.get(link.providerId);
+				if (p == null) {
+					p = systems.get(link.providerId);
+					if (p == null)
+						continue;
+					ProductSystem sub = sysDao.getForId(p.id);
+
+					if (sub != null && !handledSystems.contains(sub.id)) {
+						// add the sub-system to the tech-index
+						handledSystems.add(sub.id);
+						if (sub.referenceProcess != null
+								&& sub.referenceExchange.flow != null) {
+							ProcessProduct subRef = ProcessProduct.of(
+									sub.referenceProcess,
+									sub.referenceExchange.flow);
+							index.put(subRef);
+							queue.add(sub.processLinks);
+						}
+					}
+				}
+				FlowDescriptor flow = flows.get(link.flowId);
+				if (flow == null)
+					continue;
+
+				// the tech-index checks for duplicates of products and links
+				ProcessProduct provider = ProcessProduct.of(p, flow);
+				index.put(provider);
+				LongPair exchange = new LongPair(link.processId,
+						link.exchangeId);
+				index.putLink(exchange, provider);
 			}
-			if (p == null)
-				continue;
-			FlowDescriptor flow = flows.get(link.flowId);
-			if (flow == null)
-				continue;
-			ProcessProduct provider = ProcessProduct.of(p, flow);
-			index.put(provider);
-			LongPair exchange = new LongPair(link.processId, link.exchangeId);
-			index.putLink(exchange, provider);
 		}
 		return index;
 	}
