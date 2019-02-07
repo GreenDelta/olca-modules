@@ -1,11 +1,17 @@
 package org.openlca.core.matrix;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
+import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.ModelType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,22 +48,41 @@ class InventoryBuilder {
 	}
 
 	private Inventory createInventory() {
-		Inventory inventory = new Inventory();
-		inventory.allocationMethod = allocationMethod;
-		inventory.flowIndex = flowIndex;
-		inventory.interventionMatrix = interventionMatrix;
-		inventory.techIndex = techIndex;
-		inventory.technologyMatrix = technologyMatrix;
+		Inventory inv = new Inventory();
+		inv.allocationMethod = allocationMethod;
+		inv.flowIndex = flowIndex;
+		inv.interventionMatrix = interventionMatrix;
+		inv.techIndex = techIndex;
+		inv.technologyMatrix = technologyMatrix;
 		fillMatrices();
-		return inventory;
+		return inv;
 	}
 
 	private void fillMatrices() {
 		try {
+
+			// TODO: the cache loader throws an exception when we ask for
+			// process IDs that do not exist; this we have to filter out
+			// product system IDs here; see also FlowIndex
+			HashSet<Long> processIds = new HashSet<>();
+			ArrayList<ProcessProduct> systemLinks = new ArrayList<>();
+			techIndex.each((i, p) -> {
+				if (p.process == null)
+					return;
+				if (p.process.type == ModelType.PROCESS) {
+					processIds.add(p.process.id);
+				} else {
+					systemLinks.add(p);
+				}
+			});
+
 			Map<Long, List<CalcExchange>> map = cache.getExchangeCache()
-					.getAll(techIndex.getProcessIds());
+					.getAll(processIds);
+
 			for (Long processID : techIndex.getProcessIds()) {
 				List<CalcExchange> exchanges = map.get(processID);
+				if (exchanges == null)
+					continue;
 				List<ProcessProduct> providers = techIndex
 						.getProviders(processID);
 				for (ProcessProduct provider : providers) {
@@ -66,6 +91,72 @@ class InventoryBuilder {
 					}
 				}
 			}
+
+			// now put the entries of the sub-system links into the technosphere
+			// matrix
+			for (ProcessProduct sysLink : systemLinks) {
+
+				// select the ID of the reference exchange
+				String query = "select f_reference_exchange from "
+						+ "tbl_product_systems where id = "
+						+ sysLink.process.id;
+				AtomicLong qref = new AtomicLong();
+				NativeSql.on(cache.getDatabase()).query(query, r -> {
+					qref.set(r.getLong(1));
+					return false;
+				});
+
+				// select the process+flow of that exchange
+				AtomicReference<ProcessProduct> procRef = new AtomicReference<>();
+				query = "select f_owner, f_flow from tbl_exchanges where id = "
+						+ qref.get();
+				NativeSql.on(cache.getDatabase()).query(query, r -> {
+					long processId = r.getLong(1);
+					long flowId = r.getLong(2);
+					ProcessProduct p = techIndex.getProvider(processId, flowId);
+					procRef.set(p);
+					return false;
+				});
+
+				ProcessProduct procLink = procRef.get();
+				if (procLink == null) {
+					// TODO: log this as an error
+					continue;
+				}
+
+				int sysIdx = techIndex.getIndex(sysLink);
+				int procIdx = techIndex.getIndex(procLink);
+				if (sysIdx < 0 || procIdx < 0) {
+					// TODO: log this as an error
+					continue;
+				}
+
+				ExchangeCell procCell = technologyMatrix.getEntry(
+						procIdx, procIdx);
+				if (procCell == null || procCell.exchange == null) {
+					// TODO: log this as an error
+					continue;
+				}
+				double val = procCell.getMatrixValue();
+				if (procCell.exchange.isInput) {
+					val = -val;
+				}
+
+				CalcExchange sysEx = new CalcExchange();
+				sysEx.isInput = procCell.exchange.isInput;
+				sysEx.conversionFactor = 1.0;
+				sysEx.amount = val;
+				technologyMatrix.setEntry(
+						sysIdx, sysIdx, new ExchangeCell(sysEx));
+
+				CalcExchange procEx = new CalcExchange();
+				procEx.isInput = !procCell.exchange.isInput;
+				procEx.conversionFactor = 1.0;
+				procEx.amount = val;
+				technologyMatrix.setEntry(
+						procIdx, sysIdx, new ExchangeCell(procEx));
+			}
+
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(getClass());
 			log.error("failed to load exchanges from cache", e);
