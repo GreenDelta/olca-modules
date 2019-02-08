@@ -76,19 +76,19 @@ public class InventoryHandler {
 		});
 	}
 
-	@Rpc("get/total_requirements")
+	@Rpc("get/inventory/total_requirements")
 	public RpcResponse getTotalRequirements(RpcRequest req) {
 		return utils.handle1(req, (result, cache) -> {
 			return JsonRpc.encode(result.totalRequirements, result.techIndex, cache);
 		});
 	}
 
-	@Rpc("get/process_results/inputs")
+	@Rpc("get/inventory/process_results/inputs")
 	public RpcResponse getProcessResultsInputs(RpcRequest req) {
 		return getProcessResults(req, true);
 	}
 
-	@Rpc("get/process_results/outputs")
+	@Rpc("get/inventory/process_results/outputs")
 	public RpcResponse getProcessResultsOutputs(RpcRequest req) {
 		return getProcessResults(req, false);
 	}

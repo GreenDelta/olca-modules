@@ -128,7 +128,7 @@ public class ImpactHandler {
 		});
 	}
 
-	@Rpc("get/process_results/impacts")
+	@Rpc("get/impacts/process_results")
 	public RpcResponse getProcessResultsImpacts(RpcRequest req) {
 		return utils.handle8(req, (result, process, cache) -> {
 			JsonArray contributions = new JsonArray();
