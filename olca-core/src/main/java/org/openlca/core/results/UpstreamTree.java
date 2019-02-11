@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.FlowDescriptor;
 
 /**
  * Maps the upstream results of the product system graph to a tree where the
@@ -34,7 +35,7 @@ public class UpstreamTree {
 		root.scaling = 1.0;
 		root.provider = r.techIndex.getRefFlow();
 		root.index = r.techIndex.getIndex(root.provider);
-		root.result = u[root.index];
+		root.result = adopt(u[root.index]);
 		intensityRow = new double[u.length];
 		if (r.loopFactor == 1) {
 			for (int i = 0; i < intensityRow.length; i++) {
@@ -66,12 +67,22 @@ public class UpstreamTree {
 			child.scaling = -val / refVal;
 			child.index = row;
 			child.provider = r.techIndex.getProviderAt(row);
-			child.result = intensityRow[row] * refVal * child.scaling;
+			child.result = adopt(intensityRow[row] * refVal * child.scaling);
 			parent.childs.add(child);
 		}
 		Collections.sort(parent.childs,
 				(n1, n2) -> Double.compare(n2.result, n1.result));
 		return parent.childs;
+	}
+
+	/**
+	 * When the reference of this upstream tree is an input tree we have to
+	 * switch the sign of it.
+	 */
+	private double adopt(double value) {
+		return ref instanceof FlowDescriptor
+				? r.adopt((FlowDescriptor) ref, value)
+				: value;
 	}
 
 }
