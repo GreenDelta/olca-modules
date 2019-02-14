@@ -10,9 +10,12 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.ContributionItem;
 import org.openlca.core.results.FlowResult;
 import org.openlca.core.results.LocationContribution;
+import org.openlca.core.results.UpstreamNode;
+import org.openlca.core.results.UpstreamTree;
 import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
+import org.openlca.ipc.handlers.Upstream.StringPair;
 
 import com.google.gson.JsonArray;
 
@@ -114,6 +117,19 @@ public class InventoryHandler {
 				}));
 			});
 			return contributions;
+		});
+	}
+
+	@Rpc("get/inventory/upstream")
+	public RpcResponse getUpstream(RpcRequest req) {
+		return utils.handle9(req, (result, flow, cache) -> {
+			List<StringPair> products = utils.parseProducts(req);
+			UpstreamTree tree = result.getTree(flow);
+			List<UpstreamNode> results = Upstream.calculate(tree, products);
+			return JsonRpc.encode(results, tree, cache, json -> {
+				json.addProperty("unit", utils.getUnit(flow, cache));
+				json.add("upstream", json.remove("amount"));
+			});
 		});
 	}
 

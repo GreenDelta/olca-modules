@@ -12,6 +12,8 @@ import org.openlca.core.results.ContributionItem;
 import org.openlca.core.results.FlowResult;
 import org.openlca.core.results.ImpactResult;
 import org.openlca.core.results.SimpleResult;
+import org.openlca.core.results.UpstreamNode;
+import org.openlca.core.results.UpstreamTree;
 import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
@@ -65,18 +67,41 @@ class JsonRpc {
 	static <T extends BaseDescriptor> JsonArray encode(Collection<ContributionItem<T>> l, EntityCache cache, Consumer<JsonObject> modifier) {
 		if (l == null)
 			return null;
-		return encode(l, contribution -> encode(contribution, cache, modifier));		
+		return encode(l, contribution -> encode(contribution, cache, modifier));
 	}
 
-	static <T extends BaseDescriptor> JsonObject encode(ContributionItem<T> i, EntityCache cache, Consumer<JsonObject> modifier) {
+	static <T extends BaseDescriptor> JsonObject encode(ContributionItem<T> i, EntityCache cache,
+			Consumer<JsonObject> modifier) {
 		if (i == null)
 			return null;
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@type", "ContributionItem");
-		obj.add("item", Json.asRef(i.item, cache));
+		obj.add("item", Json.asRef((BaseDescriptor) i.item, cache));
 		obj.addProperty("amount", i.amount);
 		obj.addProperty("share", i.share);
 		obj.addProperty("rest", i.rest);
+		modifier.accept(obj);
+		return obj;
+	}
+
+	static <T extends BaseDescriptor> JsonArray encode(Collection<UpstreamNode> l, UpstreamTree tree, EntityCache cache, Consumer<JsonObject> modifier) {
+		if (l == null)
+			return null;
+		return encode(l, node -> encode(node, tree.root.result, cache, json -> {
+			json.addProperty("hasChildren", !tree.childs(node).isEmpty());
+			modifier.accept(json);
+		}));
+	}
+	
+	static <T> JsonObject encode(UpstreamNode n, double total, EntityCache cache, Consumer<JsonObject> modifier) {
+		if (n == null)
+			return null;
+		JsonObject obj = new JsonObject();
+		obj.addProperty("@type", "ContributionItem");
+		obj.add("item", Json.asRef(n.provider.flow, cache));
+		obj.add("owner", Json.asRef(n.provider.process, cache));
+		obj.addProperty("amount", n.result);
+		obj.addProperty("share", n.result / total);
 		modifier.accept(obj);
 		return obj;
 	}
@@ -95,7 +120,7 @@ class JsonRpc {
 		}
 		return items;
 	}
-	
+
 	static JsonArray encode(Collection<? extends BaseDescriptor> descriptors, EntityCache cache) {
 		return encode(descriptors, d -> Json.asRef(d, cache));
 	}
