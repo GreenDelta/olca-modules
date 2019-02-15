@@ -19,6 +19,7 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.results.BaseResult;
 import org.openlca.core.results.ContributionItem;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
@@ -41,7 +42,7 @@ class Utils {
 		this.ctx = context;
 	}
 
-	<T> T getResult(JsonObject json) {
+	<T extends BaseResult> T getResult(JsonObject json) {
 		String resultID = Json.getString(json, "resultId");
 		if (resultID == null)
 			throw new IllegalArgumentException("No result ID");
@@ -85,7 +86,7 @@ class Utils {
 		return contributions;
 	}
 
-	RpcResponse handle1(RpcRequest req, ResultHandler1 handler) {
+	RpcResponse simple(RpcRequest req, Simple handler) {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
@@ -94,7 +95,16 @@ class Utils {
 		return Responses.ok(handler.handle(result, cache), req);
 	}
 
-	RpcResponse handle2(RpcRequest req, ResultHandler2 handler) {
+	RpcResponse contribution(RpcRequest req, Contribution handler) {
+		if (req == null || req.params == null || !req.params.isJsonObject())
+			return Responses.invalidParams("No parameter given", req);
+		JsonObject json = req.params.getAsJsonObject();
+		ContributionResult result = getResult(json);
+		EntityCache cache = EntityCache.create(ctx.db);
+		return Responses.ok(handler.handle(result, cache), req);
+	}
+
+	RpcResponse contributionFlow(RpcRequest req, ContributionFlow handler) {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
@@ -106,7 +116,7 @@ class Utils {
 		return Responses.ok(handler.handle(result, flow, cache), req);
 	}
 
-	RpcResponse handle3(RpcRequest req, ResultHandler3 handler) {
+	RpcResponse contributionFlowLocation(RpcRequest req, ContributionFlowLocation handler) {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
@@ -121,7 +131,7 @@ class Utils {
 		return Responses.ok(handler.handle(result, flow, location, cache), req);
 	}
 
-	RpcResponse handle4(RpcRequest req, ResultHandler4 handler) {
+	RpcResponse contributionImpact(RpcRequest req, ContributionImpact handler) {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
@@ -133,7 +143,7 @@ class Utils {
 		return Responses.ok(handler.handle(result, impact, cache), req);
 	}
 
-	RpcResponse handle5(RpcRequest req, ResultHandler5 handler) {
+	RpcResponse contributionImpactProcess(RpcRequest req, ContributionImpactProcess handler) {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
@@ -148,7 +158,7 @@ class Utils {
 		return Responses.ok(handler.handle(result, impact, process, cache), req);
 	}
 
-	RpcResponse handle6(RpcRequest req, ResultHandler6 handler) {
+	RpcResponse contributionImpactLocation(RpcRequest req, ContributionImpactLocation handler) {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
@@ -163,7 +173,7 @@ class Utils {
 		return Responses.ok(handler.handle(result, impact, location, cache), req);
 	}
 
-	RpcResponse handle7(RpcRequest req, ResultHandler7 handler) {
+	RpcResponse contributionImpactLocationProcess(RpcRequest req, ContributionImpactLocationProcess handler) {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
@@ -181,19 +191,16 @@ class Utils {
 		return Responses.ok(handler.handle(result, impact, location, process, cache), req);
 	}
 
-	RpcResponse handle8(RpcRequest req, ResultHandler8 handler) {
+	RpcResponse full(RpcRequest req, Full handler) {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		FullResult result = getResult(json);
-		ProcessDescriptor process = get(ModelType.PROCESS, json, result.techIndex.getProcessIds());
-		if (process == null)
-			return Responses.invalidParams("Missing or invalid process parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
-		return Responses.ok(handler.handle(result, process, cache), req);
+		return Responses.ok(handler.handle(result, cache), req);
 	}
 
-	RpcResponse handle9(RpcRequest req, ResultHandler9 handler) {
+	RpcResponse fullFlow(RpcRequest req, FullFlow handler) {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
@@ -205,7 +212,19 @@ class Utils {
 		return Responses.ok(handler.handle(result, flow, cache), req);
 	}
 
-	RpcResponse handle10(RpcRequest req, ResultHandler10 handler) {
+	RpcResponse fullProcess(RpcRequest req, FullProcess handler) {
+		if (req == null || req.params == null || !req.params.isJsonObject())
+			return Responses.invalidParams("No parameter given", req);
+		JsonObject json = req.params.getAsJsonObject();
+		FullResult result = getResult(json);
+		ProcessDescriptor process = get(ModelType.PROCESS, json, result.techIndex.getProcessIds());
+		if (process == null)
+			return Responses.invalidParams("Missing or invalid process parameter", req);
+		EntityCache cache = EntityCache.create(ctx.db);
+		return Responses.ok(handler.handle(result, process, cache), req);
+	}
+
+	RpcResponse fullImpact(RpcRequest req, FullImpact handler) {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
@@ -241,7 +260,7 @@ class Utils {
 			return null;
 		return descriptor;
 	}
-	
+
 	List<StringPair> parseProducts(RpcRequest req) {
 		JsonObject json = req.params.getAsJsonObject();
 		if (!json.has("path") || !json.get("path").isJsonArray())
@@ -253,72 +272,84 @@ class Utils {
 				continue;
 			String entry = element.getAsString();
 			String[] ids = entry.split("/");
-			if (ids.length != 2) 
+			if (ids.length != 2)
 				continue;
 			products.add(new StringPair(ids[0], ids[1]));
 		}
 		return products;
 	}
 
-	interface ResultHandler1 {
+	interface Simple {
 
 		JsonElement handle(SimpleResult result, EntityCache cache);
 
 	}
 
-	interface ResultHandler2 {
+	interface Contribution {
+
+		JsonElement handle(ContributionResult result, EntityCache cache);
+
+	}
+
+	interface ContributionFlow {
 
 		JsonElement handle(ContributionResult result, FlowDescriptor flow, EntityCache cache);
 
 	}
 
-	interface ResultHandler3 {
+	interface ContributionFlowLocation {
 
 		JsonElement handle(ContributionResult result, FlowDescriptor flow, LocationDescriptor location,
 				EntityCache cache);
 
 	}
 
-	interface ResultHandler4 {
+	interface ContributionImpact {
 
 		JsonElement handle(ContributionResult result, ImpactCategoryDescriptor impact, EntityCache cache);
 
 	}
 
-	interface ResultHandler5 {
+	interface ContributionImpactProcess {
 
 		JsonElement handle(ContributionResult result, ImpactCategoryDescriptor impact, ProcessDescriptor process,
 				EntityCache cache);
 
 	}
 
-	interface ResultHandler6 {
+	interface ContributionImpactLocation {
 
 		JsonElement handle(ContributionResult result, ImpactCategoryDescriptor impact, LocationDescriptor location,
 				EntityCache cache);
 
 	}
 
-	interface ResultHandler7 {
+	interface ContributionImpactLocationProcess {
 
 		JsonElement handle(ContributionResult result, ImpactCategoryDescriptor impact, LocationDescriptor location,
 				ProcessDescriptor process, EntityCache cache);
 
 	}
+	
+	interface Full {
 
-	interface ResultHandler8 {
-
-		JsonElement handle(FullResult result, ProcessDescriptor process, EntityCache cache);
+		JsonElement handle(FullResult result, EntityCache cache);
 
 	}
 
-	interface ResultHandler9 {
+	interface FullFlow {
 
 		JsonElement handle(FullResult result, FlowDescriptor flow, EntityCache cache);
 
 	}
 
-	interface ResultHandler10 {
+	interface FullProcess {
+
+		JsonElement handle(FullResult result, ProcessDescriptor process, EntityCache cache);
+
+	}
+
+	interface FullImpact {
 
 		JsonElement handle(FullResult result, ImpactCategoryDescriptor impact, EntityCache cache);
 

@@ -101,12 +101,12 @@ class JsonRpc {
 		obj.add("item", Json.asRef(n.provider.flow, cache));
 		obj.add("owner", Json.asRef(n.provider.process, cache));
 		obj.addProperty("amount", n.result);
-		obj.addProperty("share", n.result / total);
+		obj.addProperty("share", total != 0 ? n.result / total : 0);
 		modifier.accept(obj);
 		return obj;
 	}
 
-	static JsonArray encode(double[] totalRequirements, TechIndex index, EntityCache cache) {
+	static JsonArray encode(double[] totalRequirements, double[] costs, TechIndex index, EntityCache cache) {
 		JsonArray items = new JsonArray();
 		for (int i = 0; i < totalRequirements.length; i++) {
 			if (totalRequirements[i] == 0)
@@ -116,6 +116,9 @@ class JsonRpc {
 			obj.add("process", Json.asRef(product.process, cache));
 			obj.add("product", Json.asRef(product.flow, cache));
 			obj.addProperty("amount", totalRequirements[i]);
+			if (costs != null) {
+				obj.addProperty("costs", costs[i]);
+			}
 			items.add(obj);
 		}
 		return items;

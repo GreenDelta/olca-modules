@@ -33,7 +33,7 @@ public class ImpactHandler {
 
 	@Rpc("get/impacts")
 	public RpcResponse getImpacts(RpcRequest req) {
-		return utils.handle1(req, (result, cache) -> {
+		return utils.simple(req, (result, cache) -> {
 			List<ImpactResult> impacts = result.getTotalImpactResults();
 			return JsonRpc.encode(impacts, r -> JsonRpc.encode(r, cache));
 		});
@@ -41,7 +41,7 @@ public class ImpactHandler {
 
 	@Rpc("get/impacts/contributions/flows")
 	public RpcResponse getFlowContributions(RpcRequest req) {
-		return utils.handle4(req, (result, impact, cache) -> {
+		return utils.contributionImpact(req, (result, impact, cache) -> {
 			double total = result.getTotalImpactResult(impact);
 			List<ContributionItem<FlowDescriptor>> contributions = new ArrayList<>();
 			result.getFlows().forEach(flow -> {
@@ -59,7 +59,7 @@ public class ImpactHandler {
 
 	@Rpc("get/impacts/contributions/process/flows")
 	public RpcResponse getFlowContributionsForProcess(RpcRequest req) {
-		return utils.handle5(req, (result, impact, process, cache) -> {
+		return utils.contributionImpactProcess(req, (result, impact, process, cache) -> {
 			double total = result.getDirectImpactResult(process, impact);
 			List<ContributionItem<FlowDescriptor>> contributions = new ArrayList<>();
 			result.getFlows().forEach(flow -> {
@@ -77,7 +77,7 @@ public class ImpactHandler {
 
 	@Rpc("get/impacts/contributions/location/flows")
 	public RpcResponse getFlowContributionsForLocation(RpcRequest req) {
-		return utils.handle6(req, (result, impact, location, cache) -> {
+		return utils.contributionImpactLocation(req, (result, impact, location, cache) -> {
 			List<ContributionItem<ProcessDescriptor>> contributions = new ArrayList<>();
 			// TODO
 			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", impact.referenceUnit));
@@ -86,7 +86,7 @@ public class ImpactHandler {
 
 	@Rpc("get/impacts/contributions/location/process/flows")
 	public RpcResponse getFlowContributionsForLocationAndProcess(RpcRequest req) {
-		return utils.handle7(req, (result, impact, location, process, cache) -> {
+		return utils.contributionImpactLocationProcess(req, (result, impact, location, process, cache) -> {
 			List<ContributionItem<ProcessDescriptor>> contributions = new ArrayList<>();
 			// TODO
 			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", impact.referenceUnit));
@@ -95,7 +95,7 @@ public class ImpactHandler {
 
 	@Rpc("get/impacts/contributions/processes")
 	public RpcResponse getProcessContributions(RpcRequest req) {
-		return utils.handle4(req, (result, impact, cache) -> {
+		return utils.contributionImpact(req, (result, impact, cache) -> {
 			double total = result.getTotalImpactResult(impact);
 			Map<String, ContributionItem<CategorizedDescriptor>> contributions = new HashMap<>();
 			result.getProcesses().forEach(process -> {
@@ -114,7 +114,7 @@ public class ImpactHandler {
 
 	@Rpc("get/impacts/contributions/location/processes")
 	public RpcResponse getProcessContributionsForLocation(RpcRequest req) {
-		return utils.handle6(req, (result, impact, location, cache) -> {
+		return utils.contributionImpactLocation(req, (result, impact, location, cache) -> {
 			List<ContributionItem<ProcessDescriptor>> contributions = new ArrayList<>();
 			// TODO
 			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", impact.referenceUnit));
@@ -123,7 +123,7 @@ public class ImpactHandler {
 
 	@Rpc("get/impacts/contributions/locations")
 	public RpcResponse getLocationContributions(RpcRequest req) {
-		return utils.handle4(req, (result, impact, cache) -> {
+		return utils.contributionImpact(req, (result, impact, cache) -> {
 			LocationContribution calculator = new LocationContribution(result, cache);
 			List<ContributionItem<LocationDescriptor>> contributions = utils
 					.toDescriptorContributions(calculator.calculate(impact).contributions);
@@ -133,7 +133,7 @@ public class ImpactHandler {
 
 	@Rpc("get/impacts/process_results")
 	public RpcResponse getProcessResultsImpacts(RpcRequest req) {
-		return utils.handle8(req, (result, process, cache) -> {
+		return utils.fullProcess(req, (result, process, cache) -> {
 			JsonArray contributions = new JsonArray();
 			result.getImpacts().forEach(impact -> {
 				double total = result.getTotalImpactResult(impact);
@@ -156,7 +156,7 @@ public class ImpactHandler {
 	
 	@Rpc("get/impacts/upstream")
 	public RpcResponse getUpstream(RpcRequest req) {
-		return utils.handle10(req, (result, impact, cache) -> {
+		return utils.fullImpact(req, (result, impact, cache) -> {
 			List<StringPair> products = utils.parseProducts(req);
 			UpstreamTree tree = result.getTree(impact);
 			List<UpstreamNode> results = Upstream.calculate(tree, products);

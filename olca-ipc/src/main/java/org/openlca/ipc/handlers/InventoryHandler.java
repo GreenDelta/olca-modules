@@ -38,7 +38,7 @@ public class InventoryHandler {
 	}
 
 	private RpcResponse getInventory(RpcRequest req, boolean input) {
-		return utils.handle1(req, (result, cache) -> {
+		return utils.simple(req, (result, cache) -> {
 			List<FlowResult> data = new ArrayList<>();
 			result.getTotalFlowResults().forEach(r -> {
 				if (r.input == input) {
@@ -51,16 +51,17 @@ public class InventoryHandler {
 
 	@Rpc("get/inventory/contributions/processes")
 	public RpcResponse getProcessContributions(RpcRequest req) {
-		return utils.handle2(req, (result, flow, cache) -> {
+		return utils.contributionFlow(req, (result, flow, cache) -> {
 			List<ContributionItem<CategorizedDescriptor>> contributions = result
 					.getProcessContributions(flow).contributions;
-			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", utils.getUnit(flow, cache)));
+			String unit = utils.getUnit(flow, cache);
+			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", unit));
 		});
 	}
 
 	@Rpc("get/inventory/contributions/locations")
 	public RpcResponse getLocationContributions(RpcRequest req) {
-		return utils.handle2(req, (result, flow, cache) -> {
+		return utils.contributionFlow(req, (result, flow, cache) -> {
 			LocationContribution calculator = new LocationContribution(result, cache);
 			List<ContributionItem<LocationDescriptor>> contributions = utils
 					.toDescriptorContributions(calculator.calculate(flow).contributions);
@@ -71,7 +72,7 @@ public class InventoryHandler {
 
 	@Rpc("get/inventory/contributions/location/processes")
 	public RpcResponse getProcessContributionsForLocation(RpcRequest req) {
-		return utils.handle3(req, (result, flow, location, cache) -> {
+		return utils.contributionFlowLocation(req, (result, flow, location, cache) -> {
 			List<ContributionItem<ProcessDescriptor>> contributions = new ArrayList<>();
 			// TODO
 			String unit = utils.getUnit(flow, cache);
@@ -81,8 +82,8 @@ public class InventoryHandler {
 
 	@Rpc("get/inventory/total_requirements")
 	public RpcResponse getTotalRequirements(RpcRequest req) {
-		return utils.handle1(req, (result, cache) -> {
-			return JsonRpc.encode(result.totalRequirements, result.techIndex, cache);
+		return utils.contribution(req, (result, cache) -> {
+			return JsonRpc.encode(result.totalRequirements, null, result.techIndex, cache);
 		});
 	}
 
@@ -97,7 +98,7 @@ public class InventoryHandler {
 	}
 
 	private RpcResponse getProcessResults(RpcRequest req, boolean input) {
-		return utils.handle8(req, (result, process, cache) -> {
+		return utils.fullProcess(req, (result, process, cache) -> {
 			JsonArray contributions = new JsonArray();
 			result.getFlows().forEach(flow -> {
 				if (result.isInput(flow) != input)
@@ -111,8 +112,9 @@ public class InventoryHandler {
 				c.share = c.amount / total;
 				if (c.amount == 0)
 					return;
+				String unit = utils.getUnit(flow, cache);
 				contributions.add(JsonRpc.encode(c, cache, json -> {
-					json.addProperty("unit", utils.getUnit(flow, cache));
+					json.addProperty("unit", unit);
 					json.addProperty("upstream", result.getUpstreamFlowResult(process, flow));
 				}));
 			});
@@ -122,12 +124,13 @@ public class InventoryHandler {
 
 	@Rpc("get/inventory/upstream")
 	public RpcResponse getUpstream(RpcRequest req) {
-		return utils.handle9(req, (result, flow, cache) -> {
+		return utils.fullFlow(req, (result, flow, cache) -> {
 			List<StringPair> products = utils.parseProducts(req);
 			UpstreamTree tree = result.getTree(flow);
 			List<UpstreamNode> results = Upstream.calculate(tree, products);
+			String unit = utils.getUnit(flow, cache);
 			return JsonRpc.encode(results, tree, cache, json -> {
-				json.addProperty("unit", utils.getUnit(flow, cache));
+				json.addProperty("unit", unit);
 				json.add("upstream", json.remove("amount"));
 			});
 		});
