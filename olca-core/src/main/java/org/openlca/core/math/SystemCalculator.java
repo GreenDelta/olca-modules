@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.openlca.core.database.FlowDao;
+import org.openlca.core.database.ImpactMethodDao;
+import org.openlca.core.database.NwSetDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
@@ -13,18 +15,23 @@ import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Project;
+import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
+import org.openlca.core.model.descriptors.NwSetDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
+import org.openlca.core.results.ProjectResult;
 import org.openlca.core.results.SimpleResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Calculates the results of a calculation setup. The same calculator can be
- * used for the calculation of different setups. The product system of the setup
- * may contain sub-systems. The calculator does not check if there are obvious
+ * Calculates the results of a calculation setup or project. The same calculator
+ * can be used for different setups. The product systems of the setups may
+ * contain sub-systems. The calculator does not check if there are obvious
  * errors like sub-system cycles etc.
  */
 public class SystemCalculator {
@@ -51,6 +58,45 @@ public class SystemCalculator {
 	public FullResult calculateFull(CalculationSetup setup) {
 		log.trace("calculate product system - full result");
 		return calculator(setup).calculateFull();
+	}
+
+	public ProjectResult calculate(Project project) {
+		ProjectResult result = new ProjectResult();
+		if (project == null)
+			return result;
+
+		// load the LCIA method and NW set
+		ImpactMethodDescriptor method = null;
+		if (project.impactMethodId != null) {
+			ImpactMethodDao dao = new ImpactMethodDao(
+					mcache.getDatabase());
+			method = dao.getDescriptor(project.impactMethodId);
+		}
+		NwSetDescriptor nwSet = null;
+		if (project.nwSetId != null) {
+			NwSetDao dao = new NwSetDao(mcache.getDatabase());
+			nwSet = dao.getDescriptor(project.nwSetId);
+		}
+
+		// calculate the project variants
+		for (ProjectVariant v : project.variants) {
+			if (v.isDisabled)
+				continue;
+			CalculationSetup setup = new CalculationSetup(
+					CalculationType.CONTRIBUTION_ANALYSIS,
+					v.productSystem);
+			setup.setUnit(v.unit);
+			setup.setFlowPropertyFactor(v.flowPropertyFactor);
+			setup.setAmount(v.amount);
+			setup.allocationMethod = v.allocationMethod;
+			setup.impactMethod = method;
+			setup.nwSet = nwSet;
+			setup.parameterRedefs.addAll(v.parameterRedefs);
+			setup.withCosts = true;
+			ContributionResult cr = calculateContributions(setup);
+			result.addResult(v, cr);
+		}
+		return result;
 	}
 
 	private LcaCalculator calculator(CalculationSetup setup) {

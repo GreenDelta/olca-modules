@@ -10,6 +10,11 @@ import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.SimpleResult;
 
+/**
+ * This calculator does the low level matrix based LCA-calculation. Typically,
+ * you do not want to use this directly but a more high level calculator where
+ * you can directly throw in a calculation setup or project.
+ */
 public class LcaCalculator {
 
 	private final IMatrixSolver solver;

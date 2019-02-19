@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openlca.core.database.EntityCache;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -19,11 +18,6 @@ import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 public class ProjectResult implements IResult {
 
 	private HashMap<ProjectVariant, ContributionResult> results = new HashMap<>();
-	public final EntityCache cache;
-
-	public ProjectResult(EntityCache cache) {
-		this.cache = cache;
-	}
 
 	public void addResult(ProjectVariant variant, ContributionResult result) {
 		results.put(variant, result);

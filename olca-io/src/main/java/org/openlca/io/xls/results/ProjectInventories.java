@@ -81,11 +81,11 @@ class ProjectInventories {
 		int col = 1;
 		Excel.cell(sheet, row, col++, flow.refId);
 		Excel.cell(sheet, row, col++, flow.name);
-		CategoryPair flowCat = CategoryPair.create(flow, result.cache);
+		CategoryPair flowCat = CategoryPair.create(flow, cache);
 		Excel.cell(sheet, row, col++, flowCat.getCategory());
 		Excel.cell(sheet, row, col++, flowCat.getSubCategory());
 		Excel.cell(sheet, row, col++,
-				DisplayValues.referenceUnit(flow, result.cache));
+				DisplayValues.referenceUnit(flow, cache));
 	}
 
 	private void writeHeader(int row) {
