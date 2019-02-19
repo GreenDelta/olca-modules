@@ -8,6 +8,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.ipc.handlers.CacheHandler;
 import org.openlca.ipc.handlers.Calculator;
+import org.openlca.ipc.handlers.CostHandler;
 import org.openlca.ipc.handlers.ExportHandler;
 import org.openlca.ipc.handlers.HandlerContext;
 import org.openlca.ipc.handlers.ImpactHandler;
@@ -39,6 +40,7 @@ public class Server extends NanoHTTPD {
 		register(new Calculator(context));
 		register(new InventoryHandler(context));
 		register(new ImpactHandler(context));
+		register(new CostHandler(context));
 		register(new CacheHandler(cache));
 		register(new RuntimeHandler(context));
 		register(new ExportHandler(context));
