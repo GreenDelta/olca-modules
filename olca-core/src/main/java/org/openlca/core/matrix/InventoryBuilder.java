@@ -26,9 +26,9 @@ class InventoryBuilder {
 	private ExchangeMatrix technologyMatrix;
 	private ExchangeMatrix interventionMatrix;
 
-	InventoryBuilder(MatrixCache matrixCache, TechIndex techIndex,
+	InventoryBuilder(MatrixCache mcache, TechIndex techIndex,
 			AllocationMethod allocationMethod) {
-		this.cache = matrixCache;
+		this.cache = mcache;
 		this.techIndex = techIndex;
 		this.allocationMethod = allocationMethod;
 	}

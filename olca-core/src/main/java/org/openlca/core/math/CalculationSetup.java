@@ -35,9 +35,14 @@ public class CalculationSetup {
 	private FlowPropertyFactor flowPropertyFactor;
 	private Double amount;
 
-	public CalculationSetup(CalculationType type, ProductSystem productSystem) {
+	/**
+	 * Creates a new calculation setup for the given type and product system. It
+	 * does not add the parameter redefinitions of the product system to this
+	 * setup. Thus, you need to do this in a separate step.
+	 */
+	public CalculationSetup(CalculationType type, ProductSystem system) {
 		this.type = type;
-		this.productSystem = productSystem;
+		this.productSystem = system;
 	}
 
 	/**
@@ -48,6 +53,10 @@ public class CalculationSetup {
 		this.unit = unit;
 	}
 
+	/**
+	 * Get the unit of the quantitative reference of the product system. By
+	 * default this is the reference unit of the underlying product system.
+	 */
 	public Unit getUnit() {
 		if (unit != null)
 			return unit;

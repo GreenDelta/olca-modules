@@ -16,10 +16,10 @@ public class Inventory {
 	public ExchangeMatrix interventionMatrix;
 	public AllocationMethod allocationMethod;
 
-	public static Inventory build(MatrixCache matrixCache,
-			TechIndex productIndex, AllocationMethod allocationMethod) {
-		return new InventoryBuilder(matrixCache, productIndex, allocationMethod)
-				.build();
+	public static Inventory build(MatrixCache mcache,
+			TechIndex techIndex, AllocationMethod allocation) {
+		return new InventoryBuilder(
+				mcache, techIndex, allocation).build();
 	}
 
 	public boolean isEmpty() {
