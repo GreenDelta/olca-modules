@@ -1,12 +1,8 @@
 package org.openlca.core.math;
 
-import java.util.ArrayDeque;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
@@ -15,6 +11,7 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.CostVector;
 import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
+import org.openlca.core.matrix.InventoryBuilder;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
@@ -30,10 +27,10 @@ import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
+import org.openlca.core.results.SimpleResult;
 import org.openlca.expressions.FormulaInterpreter;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
-import gnu.trove.set.hash.TLongHashSet;
 
 /**
  * Provides helper methods for creating matrix-like data structures that can be
@@ -66,83 +63,66 @@ public class DataStructures {
 		TLongObjectHashMap<FlowDescriptor> flows = new FlowDao(
 				db).descriptorMap();
 
-		// the link queue may then contain links of sub-systems
-		Queue<List<ProcessLink>> queue = new ArrayDeque<>();
-		TLongHashSet handledSystems = new TLongHashSet();
-		handledSystems.add(system.id);
-		queue.add(system.processLinks);
-
-		while (!queue.isEmpty()) {
-			List<ProcessLink> links = queue.poll();
-			for (ProcessLink link : links) {
-				CategorizedDescriptor p = processes.get(link.providerId);
-				if (p == null) {
-					p = systems.get(link.providerId);
-					if (p == null)
-						continue;
-					ProductSystem sub = sysDao.getForId(p.id);
-
-					if (sub != null && !handledSystems.contains(sub.id)) {
-						// add the sub-system to the tech-index
-						handledSystems.add(sub.id);
-						if (sub.referenceProcess != null
-								&& sub.referenceExchange.flow != null) {
-							ProcessProduct subRef = ProcessProduct.of(
-									sub.referenceProcess,
-									sub.referenceExchange.flow);
-							index.put(subRef);
-							queue.add(sub.processLinks);
-						}
-					}
-				}
-				FlowDescriptor flow = flows.get(link.flowId);
-				if (flow == null)
+		for (ProcessLink link : system.processLinks) {
+			CategorizedDescriptor p = processes.get(link.providerId);
+			if (p == null) {
+				p = systems.get(link.providerId);
+				if (p == null)
 					continue;
-
-				// the tech-index checks for duplicates of products and links
-				ProcessProduct provider = ProcessProduct.of(p, flow);
-				index.put(provider);
-				LongPair exchange = new LongPair(link.processId,
-						link.exchangeId);
-				index.putLink(exchange, provider);
 			}
+			FlowDescriptor flow = flows.get(link.flowId);
+			if (flow == null)
+				continue;
+
+			// the tech-index checks for duplicates of products and links
+			ProcessProduct provider = ProcessProduct.of(p, flow);
+			index.put(provider);
+			LongPair exchange = new LongPair(link.processId,
+					link.exchangeId);
+			index.putLink(exchange, provider);
 		}
 		return index;
 	}
 
-	public static Inventory createInventory(ProductSystem system,
-			MatrixCache cache) {
-		TechIndex index = createProductIndex(system, cache.getDatabase());
-		AllocationMethod method = AllocationMethod.USE_DEFAULT;
-		return Inventory.build(cache, index, method);
+	public static Inventory inventory(
+			ProductSystem system,
+			AllocationMethod allocationMethod,
+			MatrixCache cache,
+			Map<ProcessProduct, SimpleResult> subResults) {
+		CalculationSetup setup = new CalculationSetup(
+				CalculationType.SIMPLE_CALCULATION, system);
+		setup.parameterRedefs.addAll(system.parameterRedefs);
+		setup.allocationMethod = allocationMethod;
+		return inventory(setup, cache, subResults);
 	}
 
-	public static Inventory createInventory(ProductSystem system,
-			AllocationMethod allocationMethod, MatrixCache cache) {
-		TechIndex index = createProductIndex(system, cache.getDatabase());
-		return Inventory.build(cache, index, allocationMethod);
-	}
-
-	public static Inventory createInventory(
-			CalculationSetup setup, MatrixCache cache) {
-		ProductSystem system = setup.productSystem;
-		AllocationMethod method = setup.allocationMethod;
-		if (method == null)
-			method = AllocationMethod.NONE;
-		TechIndex productIndex = createProductIndex(system,
-				cache.getDatabase());
-		productIndex.setDemand(ReferenceAmount.get(setup));
-		return Inventory.build(cache, productIndex, method);
+	public static Inventory inventory(
+			CalculationSetup setup,
+			MatrixCache cache,
+			Map<ProcessProduct, SimpleResult> subResults) {
+		TechIndex index = createProductIndex(
+				setup.productSystem, cache.getDatabase());
+		index.setDemand(ReferenceAmount.get(setup));
+		AllocationMethod am = setup.allocationMethod == null
+				? AllocationMethod.NONE
+				: setup.allocationMethod;
+		InventoryBuilder builder = new InventoryBuilder(cache, index, am);
+		if (subResults != null && !subResults.isEmpty()) {
+			builder.addSubSystemResults(subResults);
+		}
+		return builder.build();
 	}
 
 	/**
 	 * Create the matrix data for the calculation of the given setup.
 	 */
-	public static MatrixData matrixData(CalculationSetup setup,
-			IMatrixSolver solver, MatrixCache mcache) {
+	public static MatrixData matrixData(
+			CalculationSetup setup,
+			IMatrixSolver solver,
+			MatrixCache mcache,
+			Map<ProcessProduct, SimpleResult> subResults) {
 		IDatabase db = mcache.getDatabase();
-		Inventory inventory = createInventory(
-				setup, mcache);
+		Inventory inventory = inventory(setup, mcache, subResults);
 		FormulaInterpreter interpreter = interpreter(
 				db, setup, inventory.techIndex);
 		MatrixData data = inventory.createMatrix(
@@ -162,7 +142,8 @@ public class DataStructures {
 		return data;
 	}
 
-	public static Set<Long> parameterContexts(CalculationSetup setup,
+	public static Set<Long> parameterContexts(
+			CalculationSetup setup,
 			TechIndex techIndex) {
 		HashSet<Long> set = new HashSet<>();
 		if (setup != null && setup.impactMethod != null) {

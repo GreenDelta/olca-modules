@@ -1,6 +1,5 @@
 package org.openlca.core.matrix;
 
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.expressions.FormulaInterpreter;
@@ -15,12 +14,6 @@ public class Inventory {
 	public ExchangeMatrix technologyMatrix;
 	public ExchangeMatrix interventionMatrix;
 	public AllocationMethod allocationMethod;
-
-	public static Inventory build(MatrixCache mcache,
-			TechIndex techIndex, AllocationMethod allocation) {
-		return new InventoryBuilder(
-				mcache, techIndex, allocation).build();
-	}
 
 	public boolean isEmpty() {
 		return techIndex == null || techIndex.size() == 0

@@ -1,7 +1,9 @@
-package org.openlca.core.matrix.solvers;
+package examples;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
+import java.util.Collections;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
@@ -11,14 +13,22 @@ import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.cache.MatrixCache;
+import org.openlca.core.matrix.solvers.DenseSolver;
+import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.results.FullResult;
+import org.openlca.eigen.NativeLibrary;
 
 public class Benchmark {
 
 	public static void main(String[] args) {
-		TestSession.loadLib();
+		if (NativeLibrary.isLoaded())
+			return;
+		String tempDirPath = System.getProperty("java.io.tmpdir");
+		File tmpDir = new File(tempDirPath);
+		NativeLibrary.loadFromDir(tmpDir);
 
 		IMatrixSolver solver = new DenseSolver();
 
@@ -30,7 +40,11 @@ public class Benchmark {
 				"jdbc:mysql://localhost:3306/openlca_ei3_pre", "root", "");
 		MatrixCache cache = MatrixCache.createEager(db);
 		ProductSystem system = new ProductSystemDao(db).getForId(654886);
-		Inventory inventory = DataStructures.createInventory(system, cache);
+		Inventory inventory = DataStructures.inventory(
+				system,
+				AllocationMethod.USE_DEFAULT,
+				cache,
+				Collections.emptyMap());
 		MatrixData data = inventory.createMatrix(solver);
 		LcaCalculator calculator = new LcaCalculator(solver, data);
 

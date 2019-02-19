@@ -22,10 +22,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Calculates the results of a calculation setup with a product system. The same
- * calculater can be used for the calculation of different setups. The product
- * system may contain sub-systems. The calculator does not check if there are
- * obvious errors like sub-system cycles etc.
+ * Calculates the results of a calculation setup. The same calculator can be
+ * used for the calculation of different setups. The product system of the setup
+ * may contain sub-systems. The calculator does not check if there are obvious
+ * errors like sub-system cycles etc.
  */
 public class SystemCalculator {
 
@@ -40,26 +40,25 @@ public class SystemCalculator {
 
 	public SimpleResult calculateSimple(CalculationSetup setup) {
 		log.trace("calculate product system - simple result");
-		MatrixData data = DataStructures.matrixData(
-				setup, solver, mcache);
-		LcaCalculator calc = new LcaCalculator(solver, data);
-		return calc.calculateSimple();
+		return calculator(setup).calculateSimple();
 	}
 
 	public ContributionResult calculateContributions(CalculationSetup setup) {
 		log.trace("calculate product system - contribution result");
-		MatrixData data = DataStructures.matrixData(
-				setup, solver, mcache);
-		LcaCalculator calc = new LcaCalculator(solver, data);
-		return calc.calculateContributions();
+		return calculator(setup).calculateContributions();
 	}
 
 	public FullResult calculateFull(CalculationSetup setup) {
 		log.trace("calculate product system - full result");
+		return calculator(setup).calculateFull();
+	}
+
+	private LcaCalculator calculator(CalculationSetup setup) {
+		Map<ProcessProduct, SimpleResult> subResults = calculateSubSystems(
+				setup);
 		MatrixData data = DataStructures.matrixData(
-				setup, solver, mcache);
-		LcaCalculator calc = new LcaCalculator(solver, data);
-		return calc.calculateFull();
+				setup, solver, mcache, subResults);
+		return new LcaCalculator(solver, data);
 	}
 
 	/**

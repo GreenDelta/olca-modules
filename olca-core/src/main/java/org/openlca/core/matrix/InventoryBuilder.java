@@ -1,162 +1,156 @@
 package org.openlca.core.matrix;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
-import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.results.SimpleResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class InventoryBuilder {
+public class InventoryBuilder {
 
 	private final MatrixCache cache;
 	private final TechIndex techIndex;
 	private final AllocationMethod allocationMethod;
+
+	/** Optional sub-system results of the product system. */
+	private Map<ProcessProduct, SimpleResult> subResults;
 
 	private FlowIndex flowIndex;
 	private AllocationIndex allocationIndex;
 	private ExchangeMatrix technologyMatrix;
 	private ExchangeMatrix interventionMatrix;
 
-	InventoryBuilder(MatrixCache mcache, TechIndex techIndex,
+	public InventoryBuilder(
+			MatrixCache mcache,
+			TechIndex techIndex,
 			AllocationMethod allocationMethod) {
 		this.cache = mcache;
 		this.techIndex = techIndex;
 		this.allocationMethod = allocationMethod;
 	}
 
-	Inventory build() {
+	/** Add sub-system results to the inventory model. */
+	public void addSubSystemResults(
+			Map<ProcessProduct, SimpleResult> subResults) {
+		this.subResults = subResults;
+	}
+
+	public Inventory build() {
 		if (allocationMethod != null
 				&& allocationMethod != AllocationMethod.NONE) {
 			allocationIndex = AllocationIndex.create(
 					cache.getDatabase(), techIndex, allocationMethod);
 		}
+
+		// build the index of elementary flows; when the system has sub-systems
+		// we may have to extend the flow index with elementary flows that
+		// only occur in the sub-system
 		flowIndex = FlowIndex.build(cache, techIndex, allocationMethod);
+		if (subResults != null) {
+			for (SimpleResult sub : subResults.values()) {
+				if (sub.flowIndex == null)
+					continue;
+				sub.flowIndex.each(f -> {
+					if (!flowIndex.contains(f)) {
+						if (sub.isInput(f)) {
+							flowIndex.putInput(f);
+						} else {
+							flowIndex.putOutput(f);
+						}
+					}
+				});
+			}
+		}
+
+		// allocate and fill the matrices
 		technologyMatrix = new ExchangeMatrix(techIndex.size(),
 				techIndex.size());
 		interventionMatrix = new ExchangeMatrix(flowIndex.size(),
 				techIndex.size());
-		return createInventory();
-	}
+		fillMatrices();
 
-	private Inventory createInventory() {
+		// return the inventory
 		Inventory inv = new Inventory();
 		inv.allocationMethod = allocationMethod;
 		inv.flowIndex = flowIndex;
 		inv.interventionMatrix = interventionMatrix;
 		inv.techIndex = techIndex;
 		inv.technologyMatrix = technologyMatrix;
-		fillMatrices();
 		return inv;
 	}
 
 	private void fillMatrices() {
 		try {
 
-			// TODO: the cache loader throws an exception when we ask for
-			// process IDs that do not exist; this we have to filter out
+			// the cache loader throws an exception when we ask for
+			// process IDs that do not exist; thus we have to filter out
 			// product system IDs here; see also FlowIndex
 			HashSet<Long> processIds = new HashSet<>();
-			ArrayList<ProcessProduct> systemLinks = new ArrayList<>();
+			HashSet<ProcessProduct> subSystems = new HashSet<>();
 			techIndex.each((i, p) -> {
 				if (p.process == null)
 					return;
 				if (p.process.type == ModelType.PROCESS) {
 					processIds.add(p.process.id);
 				} else {
-					systemLinks.add(p);
+					subSystems.add(p);
 				}
 			});
 
+			// fill the matrices with process data
 			Map<Long, List<CalcExchange>> map = cache.getExchangeCache()
 					.getAll(processIds);
-
 			for (Long processID : techIndex.getProcessIds()) {
 				List<CalcExchange> exchanges = map.get(processID);
 				if (exchanges == null)
 					continue;
-				List<ProcessProduct> providers = techIndex
+				List<ProcessProduct> products = techIndex
 						.getProviders(processID);
-				for (ProcessProduct provider : providers) {
-					for (CalcExchange exchange : exchanges) {
-						putExchangeValue(provider, exchange);
+				for (ProcessProduct product : products) {
+					for (CalcExchange e : exchanges) {
+						putExchangeValue(product, e);
 					}
 				}
 			}
 
-			// now put the entries of the sub-system links into the technosphere
-			// matrix
-			for (ProcessProduct sysLink : systemLinks) {
+			// now put the entries of the sub-system into the matrices
+			if (subSystems.isEmpty())
+				return;
+			for (ProcessProduct sub : subSystems) {
 
-				// select the ID of the reference exchange
-				String query = "select f_reference_exchange from "
-						+ "tbl_product_systems where id = "
-						+ sysLink.process.id;
-				AtomicLong qref = new AtomicLong();
-				NativeSql.on(cache.getDatabase()).query(query, r -> {
-					qref.set(r.getLong(1));
-					return false;
+				int col = techIndex.getIndex(sub);
+				SimpleResult r = subResults.get(sub);
+
+				// add the link in the technology matrix
+				CalcExchange e = new CalcExchange();
+				ExchangeCell techCell = new ExchangeCell(e);
+				technologyMatrix.setEntry(col, col, techCell);
+				e.conversionFactor = 1.0;
+				e.flowId = sub.flowId();
+				e.isInput = sub.flow.flowType == FlowType.WASTE_FLOW;
+				if (r == null) {
+					e.amount = 1.0;
+					continue;
+				}
+				e.amount = r.techIndex.getDemand();
+
+				// add the LCI result
+				r.flowIndex.each(f -> {
+					CalcExchange ee = new CalcExchange();
+					ee.amount = r.getTotalFlowResult(f);
+					ee.conversionFactor = 1.0;
+					ee.flowId = f.id;
+					ee.isInput = r.isInput(f);
+					interventionMatrix.setEntry(
+							flowIndex.of(f), col, new ExchangeCell(ee));
 				});
-
-				// select the process+flow of that exchange
-				AtomicReference<ProcessProduct> procRef = new AtomicReference<>();
-				query = "select f_owner, f_flow from tbl_exchanges where id = "
-						+ qref.get();
-				NativeSql.on(cache.getDatabase()).query(query, r -> {
-					long processId = r.getLong(1);
-					long flowId = r.getLong(2);
-					ProcessProduct p = techIndex.getProvider(processId, flowId);
-					procRef.set(p);
-					return false;
-				});
-
-				ProcessProduct procLink = procRef.get();
-				if (procLink == null) {
-					// TODO: log this as an error
-					continue;
-				}
-
-				int sysIdx = techIndex.getIndex(sysLink);
-				int procIdx = techIndex.getIndex(procLink);
-				if (sysIdx < 0 || procIdx < 0) {
-					// TODO: log this as an error
-					continue;
-				}
-
-				ExchangeCell procCell = technologyMatrix.getEntry(
-						procIdx, procIdx);
-				if (procCell == null || procCell.exchange == null) {
-					// TODO: log this as an error
-					continue;
-				}
-				double val = procCell.getMatrixValue();
-				if (procCell.exchange.isInput) {
-					val = -val;
-				}
-
-				CalcExchange sysEx = new CalcExchange();
-				sysEx.isInput = procCell.exchange.isInput;
-				sysEx.conversionFactor = 1.0;
-				sysEx.amount = val;
-				technologyMatrix.setEntry(
-						sysIdx, sysIdx, new ExchangeCell(sysEx));
-
-				CalcExchange procEx = new CalcExchange();
-				procEx.isInput = !procCell.exchange.isInput;
-				procEx.conversionFactor = 1.0;
-				procEx.amount = val;
-				technologyMatrix.setEntry(
-						procIdx, sysIdx, new ExchangeCell(procEx));
 			}
-
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(getClass());
 			log.error("failed to load exchanges from cache", e);

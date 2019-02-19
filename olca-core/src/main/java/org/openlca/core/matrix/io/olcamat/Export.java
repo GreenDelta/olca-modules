@@ -1,6 +1,7 @@
 package org.openlca.core.matrix.io.olcamat;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.DataStructures;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.Inventory;
+import org.openlca.core.matrix.InventoryBuilder;
 import org.openlca.core.matrix.LinkingConfig;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.MatrixData;
@@ -21,7 +23,6 @@ import org.openlca.core.matrix.solvers.DenseSolver;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ProcessType;
-import org.openlca.expressions.FormulaInterpreter;
 
 /**
  * Exports a matrix into the openLCA matrix (=olcamat) format.The olcamat format
@@ -76,16 +77,15 @@ public class Export implements Runnable {
 			techIndex.put(products.get(i));
 		}
 		dbLinks(techIndex);
-		Inventory inv = Inventory.build(cache,
-				techIndex, AllocationMethod.USE_DEFAULT);
+		InventoryBuilder builder = new InventoryBuilder(
+				cache, techIndex, AllocationMethod.USE_DEFAULT);
+		Inventory inv = builder.build();
 		return inv.createMatrix(solver);
 	}
 
 	private MatrixData setupInventory() {
-		Inventory inventory = DataStructures.createInventory(setup, cache);
-		FormulaInterpreter interpreter = DataStructures.interpreter(
-				db, setup, inventory.techIndex);
-		return inventory.createMatrix(solver, interpreter);
+		return DataStructures.matrixData(
+				setup, solver, cache, Collections.emptyMap());
 	}
 
 	private void dbLinks(TechIndex idx) throws Exception {

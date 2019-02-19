@@ -52,8 +52,11 @@ public class SystemExport {
 
 	private void loadData() {
 		log.trace("load matrix data");
-		inventory = DataStructures.createInventory(conf.getSystem(),
-				conf.getAllocationMethod(), conf.getMatrixCache());
+		inventory = DataStructures.inventory(
+				conf.getSystem(),
+				conf.getAllocationMethod(),
+				conf.getMatrixCache(),
+				Collections.emptyMap());
 		if (conf.getImpactMethod() != null) {
 			impactTable = ImpactTable.build(conf.getMatrixCache(), conf
 					.getImpactMethod().id, inventory.flowIndex);

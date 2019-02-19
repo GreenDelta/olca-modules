@@ -1,5 +1,6 @@
 package org.openlca.geo;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
@@ -41,7 +42,9 @@ public class RegionalizedCalculator {
 	public RegionalizedResult calculate(IDatabase db, MatrixCache cache,
 			RegionalizationSetup regioSetup) {
 		try {
-			Inventory inventory = DataStructures.createInventory(setup, cache);
+			// TODO: sub-systems are currently not supported
+			Inventory inventory = DataStructures.inventory(
+					setup, cache, Collections.emptyMap());
 			if (regioSetup == null)
 				regioSetup = RegionalizationSetup.create(
 						db, setup.impactMethod, inventory.techIndex);
@@ -52,6 +55,7 @@ public class RegionalizedCalculator {
 					db, setup, inventory.techIndex);
 
 			MatrixData m = inventory.createMatrix(solver, interpreter);
+
 			ImpactTable impactTable = ImpactTable.build(cache,
 					setup.impactMethod.id, inventory.flowIndex);
 

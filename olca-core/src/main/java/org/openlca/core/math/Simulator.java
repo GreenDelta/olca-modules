@@ -1,5 +1,7 @@
 package org.openlca.core.math;
 
+import java.util.Collections;
+
 import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.MatrixData;
@@ -101,7 +103,8 @@ public class Simulator {
 
 	private void setUp() {
 		log.trace("set up inventory");
-		inventory = DataStructures.createInventory(setup, cache);
+		inventory = DataStructures.inventory(
+				setup, cache, Collections.emptyMap());
 		parameterTable = ParameterTable.forSimulation(cache.getDatabase(),
 				DataStructures.parameterContexts(setup, inventory.techIndex),
 				setup.parameterRedefs);

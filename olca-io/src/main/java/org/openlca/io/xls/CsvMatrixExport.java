@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collections;
 import java.util.HashMap;
 
 import org.openlca.core.database.EntityCache;
@@ -13,6 +14,7 @@ import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.io.CategoryPair;
 import org.openlca.io.DisplayValues;
@@ -46,8 +48,11 @@ public class CsvMatrixExport implements Runnable {
 			return;
 		}
 		log.trace("Build inventory matrix");
-		Inventory inventory = DataStructures.createInventory(
-				data.getProductSystem(), data.getMatrixCache());
+		Inventory inventory = DataStructures.inventory(
+				data.getProductSystem(),
+				AllocationMethod.NONE,
+				data.getMatrixCache(),
+				Collections.emptyMap());
 		log.trace("Write technology matrix");
 		writeTechFile(inventory);
 		log.trace("Write intervention matrix");
