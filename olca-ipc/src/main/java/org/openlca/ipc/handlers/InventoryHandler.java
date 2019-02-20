@@ -41,7 +41,7 @@ public class InventoryHandler {
 		return utils.simple(req, (result, cache) -> {
 			List<FlowResult> data = new ArrayList<>();
 			result.getTotalFlowResults().forEach(r -> {
-				if (r.input == input) {
+				if (r.input == input && r.value != 0) {
 					data.add(r);
 				}
 			});
@@ -54,6 +54,7 @@ public class InventoryHandler {
 		return utils.contributionFlow(req, (result, flow, cache) -> {
 			List<ContributionItem<CategorizedDescriptor>> contributions = result
 					.getProcessContributions(flow).contributions;
+			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
 			String unit = utils.getUnit(flow, cache);
 			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", unit));
 		});
@@ -64,7 +65,8 @@ public class InventoryHandler {
 		return utils.contributionFlow(req, (result, flow, cache) -> {
 			LocationContribution calculator = new LocationContribution(result, cache);
 			List<ContributionItem<LocationDescriptor>> contributions = utils
-					.toDescriptorContributions(calculator.calculate(flow).contributions);
+					.toDescriptors(calculator.calculate(flow).contributions);
+			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
 			String unit = utils.getUnit(flow, cache);
 			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", unit));
 		});
@@ -73,8 +75,16 @@ public class InventoryHandler {
 	@Rpc("get/inventory/contributions/location/processes")
 	public RpcResponse getProcessContributionsForLocation(RpcRequest req) {
 		return utils.contributionFlowLocation(req, (result, flow, location, cache) -> {
-			List<ContributionItem<ProcessDescriptor>> contributions = new ArrayList<>();
-			// TODO
+			List<ContributionItem<CategorizedDescriptor>> contributions = result
+					.getProcessContributions(flow).contributions;
+			contributions = utils.filter(contributions, contribution -> {
+				if (contribution.item instanceof ProcessDescriptor) {
+					if (((ProcessDescriptor) contribution.item).location != location.id) {
+						return false;
+					}
+				}
+				return contribution.amount != 0;
+			});
 			String unit = utils.getUnit(flow, cache);
 			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", unit));
 		});

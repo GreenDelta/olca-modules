@@ -3,6 +3,7 @@ package org.openlca.ipc.handlers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.EntityCache;
@@ -72,7 +73,7 @@ class Utils {
 	}
 
 	@SuppressWarnings("unchecked")
-	<T1 extends RootEntity, T2 extends BaseDescriptor> List<ContributionItem<T2>> toDescriptorContributions(
+	<T1 extends RootEntity, T2 extends BaseDescriptor> List<ContributionItem<T2>> toDescriptors(
 			List<ContributionItem<T1>> items) {
 		List<ContributionItem<T2>> contributions = new ArrayList<>();
 		items.forEach(i -> {
@@ -279,6 +280,16 @@ class Utils {
 		return products;
 	}
 
+	<T> List<T> filter(List<T> list, Function<T, Boolean> predicate) {
+		List<T> filtered = new ArrayList<>();
+		for (T element : list) {
+			if (predicate.apply(element)) {
+				filtered.add(element);
+			}
+		}
+		return filtered;
+	}
+	
 	interface Simple {
 
 		JsonElement handle(SimpleResult result, EntityCache cache);

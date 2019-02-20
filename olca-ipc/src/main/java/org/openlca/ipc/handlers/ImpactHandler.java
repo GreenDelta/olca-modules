@@ -35,6 +35,7 @@ public class ImpactHandler {
 	public RpcResponse getImpacts(RpcRequest req) {
 		return utils.simple(req, (result, cache) -> {
 			List<ImpactResult> impacts = result.getTotalImpactResults();
+			impacts = utils.filter(impacts, impact -> impact.value != 0);
 			return JsonRpc.encode(impacts, r -> JsonRpc.encode(r, cache));
 		});
 	}
@@ -80,6 +81,7 @@ public class ImpactHandler {
 		return utils.contributionImpactLocation(req, (result, impact, location, cache) -> {
 			List<ContributionItem<ProcessDescriptor>> contributions = new ArrayList<>();
 			// TODO
+			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
 			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", impact.referenceUnit));
 		});
 	}
@@ -89,6 +91,7 @@ public class ImpactHandler {
 		return utils.contributionImpactLocationProcess(req, (result, impact, location, process, cache) -> {
 			List<ContributionItem<ProcessDescriptor>> contributions = new ArrayList<>();
 			// TODO
+			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
 			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", impact.referenceUnit));
 		});
 	}
@@ -117,6 +120,7 @@ public class ImpactHandler {
 		return utils.contributionImpactLocation(req, (result, impact, location, cache) -> {
 			List<ContributionItem<ProcessDescriptor>> contributions = new ArrayList<>();
 			// TODO
+			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
 			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", impact.referenceUnit));
 		});
 	}
@@ -126,7 +130,8 @@ public class ImpactHandler {
 		return utils.contributionImpact(req, (result, impact, cache) -> {
 			LocationContribution calculator = new LocationContribution(result, cache);
 			List<ContributionItem<LocationDescriptor>> contributions = utils
-					.toDescriptorContributions(calculator.calculate(impact).contributions);
+					.toDescriptors(calculator.calculate(impact).contributions);
+			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
 			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", impact.referenceUnit));
 		});
 	}
