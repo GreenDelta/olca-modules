@@ -49,22 +49,22 @@ public class ExchangeTable {
 
 	private static String query() {
 		return "SELECT"
-				+ /* 1 */ " id"
-				+ /* 2 */ " f_owner"
-				+ /* 3 */ " f_flow"
-				+ /* 4 */ " f_flow_property_factor"
-				+ /* 5 */ " f_unit"
-				+ /* 6 */ " resulting_amount_value"
-				+ /* 7 */ " resulting_amount_formula"
-				+ /* 8 */ " is_input"
-				+ /* 9 */ " avoided_product"
-				+ /* 10 */ " f_default_provider"
-				+ /* 11 */ " cost_value"
-				+ /* 12 */ " cost_formula"
-				+ /* 13 */ " f_currency"
-				+ /* 14 */ " distribution_type"
-				+ /* 15 */ " parameter1_value"
-				+ /* 16 */ " parameter2_value"
+				+ /* 1 */ " id,"
+				+ /* 2 */ " f_owner,"
+				+ /* 3 */ " f_flow,"
+				+ /* 4 */ " f_flow_property_factor,"
+				+ /* 5 */ " f_unit,"
+				+ /* 6 */ " resulting_amount_value,"
+				+ /* 7 */ " resulting_amount_formula,"
+				+ /* 8 */ " is_input,"
+				+ /* 9 */ " avoided_product,"
+				+ /* 10 */ " f_default_provider,"
+				+ /* 11 */ " cost_value,"
+				+ /* 12 */ " cost_formula,"
+				+ /* 13 */ " f_currency,"
+				+ /* 14 */ " distribution_type,"
+				+ /* 15 */ " parameter1_value,"
+				+ /* 16 */ " parameter2_value,"
 				+ /* 17 */ " parameter3_value"
 				+ " FROM tbl_exchanges";
 	}
@@ -73,7 +73,7 @@ public class ExchangeTable {
 		CalcExchange e = new CalcExchange();
 		e.exchangeId = r.getLong(1);
 		e.processId = owner;
-		e.flowId = r.getLong("3");
+		e.flowId = r.getLong(3);
 		e.flowType = flows.type(e.flowId);
 		double factor = getConversionFactor(r);
 		e.conversionFactor = factor;
