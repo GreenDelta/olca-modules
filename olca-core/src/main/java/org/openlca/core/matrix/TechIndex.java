@@ -9,6 +9,8 @@ import java.util.Set;
 
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 
+import gnu.trove.map.hash.TLongObjectHashMap;
+
 /**
  * The index $\mathit{Idx}_A$ of the technology matrix $\mathbf{A}$ of a product
  * system. It maps the process-product pairs (or process-waste pairs)
@@ -40,10 +42,10 @@ public class TechIndex {
 	private final HashMap<LongPair, ProcessProduct> links = new HashMap<>();
 
 	/**
-	 * Maps the process IDs to the list of product-outputs and waste-inputs
-	 * provided by the respective process.
+	 * Maps the IDs of the processes and product systems to the list of
+	 * product-outputs and waste-inputs provided by these respectively.
 	 */
-	private final HashMap<Long, List<ProcessProduct>> processProviders = new HashMap<>();
+	private final TLongObjectHashMap<List<ProcessProduct>> processProviders = new TLongObjectHashMap<>();
 
 	/**
 	 * The demand value of the reference flow of the product system described by
@@ -55,8 +57,9 @@ public class TechIndex {
 	/**
 	 * Creates a new technosphere index of a product system.
 	 *
-	 * @param refFlow the reference product-output or waste-input as (processId,
-	 *                flowId) pair.
+	 * @param refFlow
+	 *            the reference product-output or waste-input as (processId,
+	 *            flowId) pair.
 	 */
 	public TechIndex(ProcessProduct refFlow) {
 		put(refFlow);
@@ -106,14 +109,6 @@ public class TechIndex {
 	}
 
 	/**
-	 * Returns true if the given provider (product-output or waste-input) is
-	 * contained in this index.
-	 */
-	public boolean contains(ProcessProduct provider) {
-		return index.containsKey(provider);
-	}
-
-	/**
 	 * Returns true when there is a product in this index with a process and
 	 * flow of the given IDs.
 	 */
@@ -143,7 +138,7 @@ public class TechIndex {
 	 * Does nothing if it is already contained in this index.
 	 */
 	public void put(ProcessProduct provider) {
-		if (contains(provider))
+		if (index.containsKey(provider))
 			return;
 		int idx = index.size();
 		index.put(provider, idx);
@@ -190,12 +185,22 @@ public class TechIndex {
 	}
 
 	/**
+	 * Returns true when there is a process or product system with the given ID
+	 * part of this index.
+	 */
+	public boolean isProvider(long processID) {
+		return processProviders.containsKey(processID);
+	}
+
+	/**
 	 * Adds a process link to this index.
 	 *
-	 * @param exchange The linked product-input or waste-output as (processId,
-	 *                 exchangeId) pair.
-	 * @param provider The product-output or waste-input (provider) as
-	 *                 (processId, flowId) pair.
+	 * @param exchange
+	 *            The linked product-input or waste-output as (processId,
+	 *            exchangeId) pair.
+	 * @param provider
+	 *            The product-output or waste-input (provider) as (processId,
+	 *            flowId) pair.
 	 */
 	public void putLink(LongPair exchange, ProcessProduct provider) {
 		if (links.containsKey(exchange))

@@ -1,8 +1,5 @@
 package org.openlca.core.matrix.cache;
 
-import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TLongDoubleHashMap;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -10,6 +7,9 @@ import java.sql.Statement;
 import org.openlca.core.database.IDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TLongDoubleHashMap;
 
 /**
  * A table that contains the conversion factors for units and flow property
@@ -59,8 +59,8 @@ public class ConversionTable {
 		String query = "select id, conversion_factor from " + table;
 		ResultSet set = statement.executeQuery(query);
 		while (set.next()) {
-			long id = set.getLong("id");
-			double factor = set.getDouble("conversion_factor");
+			long id = set.getLong(1);
+			double factor = set.getDouble(2);
 			map.put(id, factor);
 		}
 		statement.close();

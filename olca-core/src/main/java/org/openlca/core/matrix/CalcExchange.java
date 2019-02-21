@@ -16,9 +16,15 @@ public class CalcExchange {
 	public double parameter1;
 	public double parameter2;
 	public double parameter3;
+
+	// TODO: do we need formulas for uncertainty parameters?
+	@Deprecated
 	public String parameter1Formula;
+	@Deprecated
 	public String parameter2Formula;
+	@Deprecated
 	public String parameter3Formula;
+
 	public FlowType flowType;
 
 	/** 0 if the exchange has no default provider. */
@@ -49,4 +55,5 @@ public class CalcExchange {
 			return false;
 		}
 	}
+
 }
