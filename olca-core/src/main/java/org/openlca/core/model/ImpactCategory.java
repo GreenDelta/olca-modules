@@ -38,8 +38,10 @@ public class ImpactCategory extends RootEntity {
 	}
 
 	public ImpactFactor getFactor(String refId) {
+		if (refId == null)
+			return null;
 		for (ImpactFactor factor : impactFactors)
-			if (factor.flow != null && factor.flow.refId.equals(refId))
+			if (factor.flow != null && refId.equals(factor.flow.refId))
 				return factor;
 		return null;
 	}
