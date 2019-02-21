@@ -7,19 +7,34 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.UncertaintyType;
+
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 public class ExchangeTable {
 
 	private final IDatabase db;
 	private final ConversionTable conversions;
-	// TODO we should replace this with just a id->type map
-	private final FlowTable flows;
+	private final TLongObjectHashMap<FlowType> flowTypes;
 
 	public ExchangeTable(IDatabase db) {
 		this.db = db;
 		conversions = ConversionTable.create(db);
-		flows = FlowTable.create(db);
+		flowTypes = new TLongObjectHashMap<>();
+		try {
+			String query = "SELECT id, flow_type FROM tbl_flows";
+			NativeSql.on(db).query(query, r -> {
+				long flowID = r.getLong(1);
+				String typeStr = r.getString(2);
+				if (typeStr != null) {
+					flowTypes.put(flowID, FlowType.valueOf(typeStr));
+				}
+				return true;
+			});
+		} catch (Exception e) {
+			throw new RuntimeException("failed to load flow types", e);
+		}
 	}
 
 	/**
@@ -27,8 +42,14 @@ public class ExchangeTable {
 	 * index.
 	 */
 	public void each(TechIndex techIndex, Consumer<CalcExchange> fn) {
+		String sql = query();
+		if (techIndex.size() < 1000) {
+			// avoid full table scans in LCI databases
+			sql += " where f_owner in " + CacheUtil.asSql(
+					techIndex.getProcessIds());
+		}
 		try {
-			NativeSql.on(db).query(query(), r -> {
+			NativeSql.on(db).query(sql, r -> {
 				long owner = r.getLong(2);
 				if (techIndex.isProvider(owner)) {
 					try {
@@ -74,7 +95,7 @@ public class ExchangeTable {
 		e.exchangeId = r.getLong(1);
 		e.processId = owner;
 		e.flowId = r.getLong(3);
-		e.flowType = flows.type(e.flowId);
+		e.flowType = flowTypes.get(e.flowId);
 		double factor = getConversionFactor(r);
 		e.conversionFactor = factor;
 		e.amount = r.getDouble(6);
