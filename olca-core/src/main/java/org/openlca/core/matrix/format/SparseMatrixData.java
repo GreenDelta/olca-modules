@@ -26,7 +26,7 @@ public class SparseMatrixData implements Serializable {
 	/**
 	 * Copies the data from the given matrix to a new instance of this class.
 	 */
-	public SparseMatrixData(HashMatrix matrix) {
+	public SparseMatrixData(HashPointMatrix matrix) {
 		final TIntArrayList rowList = new TIntArrayList();
 		final TIntArrayList colList = new TIntArrayList();
 		final TDoubleArrayList valList = new TDoubleArrayList();

@@ -13,8 +13,8 @@ public final class MatrixConverter {
 		int cols = m.columns();
 		DenseMatrix d = new DenseMatrix(rows, cols);
 
-		if (m instanceof HashMatrix) {
-			HashMatrix s = (HashMatrix) m;
+		if (m instanceof HashPointMatrix) {
+			HashPointMatrix s = (HashPointMatrix) m;
 			s.iterate((row, col, val) -> d.set(row, col, val));
 			return d;
 		}
@@ -28,13 +28,13 @@ public final class MatrixConverter {
 		return d;
 	}
 
-	public static HashMatrix hashSparse(IMatrix matrix) {
-		if (matrix instanceof HashMatrix)
-			return (HashMatrix) matrix;
+	public static HashPointMatrix hashSparse(IMatrix matrix) {
+		if (matrix instanceof HashPointMatrix)
+			return (HashPointMatrix) matrix;
 
 		int rows = matrix.rows();
 		int cols = matrix.columns();
-		HashMatrix sparse = new HashMatrix(rows, cols);
+		HashPointMatrix sparse = new HashPointMatrix(rows, cols);
 
 		for (int col = 0; col < cols; col++) {
 			for (int row = 0; row < rows; row++) {

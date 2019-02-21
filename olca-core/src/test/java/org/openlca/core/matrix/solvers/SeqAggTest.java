@@ -2,17 +2,17 @@ package org.openlca.core.matrix.solvers;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.core.matrix.format.HashMatrix;
+import org.openlca.core.matrix.format.HashPointMatrix;
 
 public class SeqAggTest {
 
 	@Test
 	public void testSimpleSystem() {
-		HashMatrix a = new HashMatrix(new double[][] {
+		HashPointMatrix a = new HashPointMatrix(new double[][] {
 				{ 2., -5., 0., 0., 0. }, { 0., 1., -2., 0., 0. },
 				{ 0., 0., 1., 0., -6. }, { 0., 0., -1., 4., 0. },
 				{ 0., 0., 0., 0., 1. }, });
-		HashMatrix b = new HashMatrix(new double[][] { { 3, 2, 1, 1, 3 },
+		HashPointMatrix b = new HashPointMatrix(new double[][] { { 3, 2, 1, 1, 3 },
 				{ 1, 2, 2, 1, 1 } });
 		SeqAgg seqAgg = new SeqAgg(a, b, 4, 1);
 		double[] g = seqAgg.solve();
@@ -21,10 +21,10 @@ public class SeqAggTest {
 
 	@Test
 	public void testLoopSystem() {
-		HashMatrix a = new HashMatrix(
+		HashPointMatrix a = new HashPointMatrix(
 				new double[][] { { 4., -2., 0., 0. }, { 0., 1., -0.1, -2. },
 						{ 0., -1., 2., 0. }, { 0., 0., 0., 1. } });
-		HashMatrix b = new HashMatrix(new double[][] { { 2., 3., 2., 1. },
+		HashPointMatrix b = new HashPointMatrix(new double[][] { { 2., 3., 2., 1. },
 				{ 3., 1., 2., 1., } });
 		SeqAgg seqAgg = new SeqAgg(a, b, 3, 1);
 		double[] g = seqAgg.solve();

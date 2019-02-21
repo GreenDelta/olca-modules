@@ -4,7 +4,7 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openlca.core.matrix.format.CompressedRowMatrix;
-import org.openlca.core.matrix.format.HashMatrix;
+import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.SparseMatrixData;
 import org.openlca.eigen.Eigen;
 
@@ -16,7 +16,7 @@ public class EigenTest {
 
 	@Test
 	public void testSparseLu() {
-		HashMatrix a = new HashMatrix(2, 2);
+		HashPointMatrix a = new HashPointMatrix(2, 2);
 		a.set(0, 0, 1);
 		a.set(1, 0, -2);
 		a.set(1, 1, 1);
@@ -32,7 +32,7 @@ public class EigenTest {
 	@Test
 	@Ignore
 	public void testBicgstab() {
-		HashMatrix a = new HashMatrix(2, 2);
+		HashPointMatrix a = new HashPointMatrix(2, 2);
 		a.set(0, 0, 1);
 		a.set(1, 0, -2);
 		a.set(1, 1, 1);
@@ -48,7 +48,7 @@ public class EigenTest {
 	@Test
 	@Ignore
 	public void testBicgstabInvert() {
-		HashMatrix a = new HashMatrix(2, 2);
+		HashPointMatrix a = new HashPointMatrix(2, 2);
 		a.set(0, 0, 1);
 		a.set(1, 0, -2);
 		a.set(1, 1, 1);
@@ -60,7 +60,7 @@ public class EigenTest {
 
 	@Test
 	public void testSparseLuInvert() {
-		HashMatrix a = new HashMatrix(2, 2);
+		HashPointMatrix a = new HashPointMatrix(2, 2);
 		a.set(0, 0, 1);
 		a.set(1, 0, -2);
 		a.set(1, 1, 1);

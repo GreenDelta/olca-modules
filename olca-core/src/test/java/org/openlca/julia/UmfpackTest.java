@@ -6,7 +6,7 @@ import static org.junit.Assume.assumeTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openlca.core.matrix.format.HashMatrix;
+import org.openlca.core.matrix.format.HashPointMatrix;
 
 public class UmfpackTest {
 
@@ -38,7 +38,7 @@ public class UmfpackTest {
 
 	@Test
 	public void testSolveMatrix() {
-		HashMatrix m = new HashMatrix(new double[][] {
+		HashPointMatrix m = new HashPointMatrix(new double[][] {
 				{ 2.0, 3.0, 0.0, 0.0, 0.0 },
 				{ 3.0, 0.0, 4.0, 0.0, 6.0 },
 				{ 0.0, -1.0, -3.0, 2.0, 0.0 },
@@ -53,7 +53,7 @@ public class UmfpackTest {
 
 	@Test
 	public void testFactorizeMatrix() {
-		HashMatrix m = new HashMatrix(new double[][] {
+		HashPointMatrix m = new HashPointMatrix(new double[][] {
 				{ 2.0, 3.0, 0.0, 0.0, 0.0 },
 				{ 3.0, 0.0, 4.0, 0.0, 6.0 },
 				{ 0.0, -1.0, -3.0, 2.0, 0.0 },

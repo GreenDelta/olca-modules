@@ -65,7 +65,7 @@ public class CompressedRowMatrixTest {
 	public void testCompressSparseHashMatrix() {
 		int n = (int) (150 * Math.random() + 1);
 		log.trace("test a {} x {} matrix", n, n);
-		HashMatrix hashMatrix = new HashMatrix(n, n);
+		HashPointMatrix hashMatrix = new HashPointMatrix(n, n);
 		for (int i = 0; i < n; i++)
 			hashMatrix.set(i, i, 1);
 		CompressedRowMatrix m = hashMatrix.compress();

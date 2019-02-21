@@ -1,6 +1,6 @@
 package org.openlca.core.matrix.solvers;
 
-import org.openlca.core.matrix.format.HashMatrix;
+import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.IMatrix;
 
 public class SequentialSolver implements IMatrixSolver {
@@ -68,7 +68,7 @@ public class SequentialSolver implements IMatrixSolver {
 
 	@Override
 	public IMatrix matrix(int rows, int columns) {
-		return new HashMatrix(rows, columns);
+		return new HashPointMatrix(rows, columns);
 	}
 
 }

@@ -1,7 +1,7 @@
 package org.openlca.julia;
 
 import org.openlca.core.matrix.format.DenseMatrix;
-import org.openlca.core.matrix.format.HashMatrix;
+import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.format.MatrixConverter;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
@@ -16,7 +16,7 @@ public class JuliaSolver implements IMatrixSolver {
 	@Override
 	public IMatrix matrix(int rows, int cols, double density) {
 		if (density < 0.25)
-			return new HashMatrix(rows, cols);
+			return new HashPointMatrix(rows, cols);
 		else
 			return new DenseMatrix(rows, cols);
 	}
@@ -33,8 +33,8 @@ public class JuliaSolver implements IMatrixSolver {
 
 	@Override
 	public double[] multiply(IMatrix m, double[] x) {
-		if (m instanceof HashMatrix) {
-			HashMatrix s = (HashMatrix) m;
+		if (m instanceof HashPointMatrix) {
+			HashPointMatrix s = (HashPointMatrix) m;
 			return s.multiply(x);
 		}
 		DenseMatrix a = MatrixConverter.dense(m);
@@ -69,8 +69,8 @@ public class JuliaSolver implements IMatrixSolver {
 
 	@Override
 	public void scaleColumns(IMatrix m, double[] v) {
-		if (m instanceof HashMatrix) {
-			HashMatrix s = (HashMatrix) m;
+		if (m instanceof HashPointMatrix) {
+			HashPointMatrix s = (HashPointMatrix) m;
 			s.scaleColumns(v);
 			return;
 		}

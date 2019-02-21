@@ -11,21 +11,21 @@ import gnu.trove.map.hash.TIntObjectHashMap;
  * project to store the data. Filling this matrix is fast with relatively low
  * memory consumption.
  */
-public class HashMatrix implements IMatrix {
+public class HashPointMatrix implements IMatrix {
 
 	private final int rows;
 	private final int cols;
 
 	private final TIntObjectHashMap<TIntDoubleHashMap> data;
 
-	public HashMatrix(int rows, int cols) {
+	public HashPointMatrix(int rows, int cols) {
 		this.rows = rows;
 		this.cols = cols;
 		data = new TIntObjectHashMap<>(Constants.DEFAULT_CAPACITY,
 				Constants.DEFAULT_LOAD_FACTOR, -1);
 	}
 
-	public HashMatrix(double[][] values) {
+	public HashPointMatrix(double[][] values) {
 		rows = values.length;
 		int cols = 1;
 		for (int row = 0; row < rows; row++)
@@ -98,8 +98,8 @@ public class HashMatrix implements IMatrix {
 	}
 
 	@Override
-	public HashMatrix copy() {
-		HashMatrix copy = new HashMatrix(rows, cols);
+	public HashPointMatrix copy() {
+		HashPointMatrix copy = new HashPointMatrix(rows, cols);
 		iterate((row, col, val) -> copy.set(row, col, val));
 		return copy;
 	}

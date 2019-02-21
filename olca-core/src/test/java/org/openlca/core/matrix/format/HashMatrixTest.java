@@ -8,7 +8,7 @@ public class HashMatrixTest {
 
 	@Test
 	public void testMultiply() {
-		HashMatrix m = new HashMatrix(new double[][] {
+		HashPointMatrix m = new HashPointMatrix(new double[][] {
 				{ 1, 2, 3 },
 				{ 4, 5, 6 }
 		});
@@ -18,7 +18,7 @@ public class HashMatrixTest {
 
 	@Test
 	public void testScaleColumns() {
-		HashMatrix m = new HashMatrix(new double[][] {
+		HashPointMatrix m = new HashPointMatrix(new double[][] {
 				{ 1, 2, 3 },
 				{ 4, 5, 6 }
 		});
