@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.cache.ExchangeTable;
-import org.openlca.core.matrix.cache.MatrixCache;
+import org.openlca.core.matrix.cache.FlowTable;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
@@ -16,10 +16,10 @@ import org.slf4j.LoggerFactory;
 
 public class InventoryBuilder2 {
 
-	private final MatrixCache mcache;
 	private final IDatabase db;
 	private final TechIndex techIndex;
 	private final AllocationMethod allocationMethod;
+	private final FlowTable flows;
 
 	/** Optional sub-system results of the product system. */
 	private Map<ProcessProduct, SimpleResult> subResults;
@@ -30,13 +30,13 @@ public class InventoryBuilder2 {
 	private ExchangeMatrix interventionMatrix;
 
 	public InventoryBuilder2(
-		MatrixCache mcache,
+			IDatabase db,
 			TechIndex techIndex,
 			AllocationMethod allocationMethod) {
-		this.mcache = mcache;
-		this.db = mcache.getDatabase();
+		this.db = db;
 		this.techIndex = techIndex;
 		this.allocationMethod = allocationMethod;
+		this.flows = FlowTable.create(db);
 	}
 
 	/** Add sub-system results to the inventory model. */
@@ -52,10 +52,10 @@ public class InventoryBuilder2 {
 					db, techIndex, allocationMethod);
 		}
 
-		// build the index of elementary flows; when the system has sub-systems
-		// we may have to extend the flow index with elementary flows that
-		// only occur in the sub-system
-		flowIndex = FlowIndex.build(mcache, techIndex, allocationMethod);
+		// create the index of elementary flows; when the system has sub-systems
+		// we add the flows of the sub-systems to the index; note that there
+		// can be elementary flows that only occur in a sub-system
+		flowIndex = new FlowIndex();
 		if (subResults != null) {
 			for (SimpleResult sub : subResults.values()) {
 				if (sub.flowIndex == null)
@@ -91,22 +91,6 @@ public class InventoryBuilder2 {
 
 	private void fillMatrices() {
 		try {
-
-			// the cache loader throws an exception when we ask for
-			// process IDs that do not exist; thus we have to filter out
-			// product system IDs here; see also FlowIndex
-			HashSet<Long> processIds = new HashSet<>();
-			HashSet<ProcessProduct> subSystems = new HashSet<>();
-			techIndex.each((i, p) -> {
-				if (p.process == null)
-					return;
-				if (p.process.type == ModelType.PROCESS) {
-					processIds.add(p.process.id);
-				} else {
-					subSystems.add(p);
-				}
-			});
-
 			// fill the matrices with process data
 			ExchangeTable exchanges = new ExchangeTable(db);
 			exchanges.each(techIndex, exchange -> {
@@ -118,6 +102,14 @@ public class InventoryBuilder2 {
 			});
 
 			// now put the entries of the sub-system into the matrices
+			HashSet<ProcessProduct> subSystems = new HashSet<>();
+			techIndex.each((i, p) -> {
+				if (p.process == null)
+					return;
+				if (p.process.type == ModelType.PRODUCT_SYSTEM) {
+					subSystems.add(p);
+				}
+			});
 			if (subSystems.isEmpty())
 				return;
 			for (ProcessProduct sub : subSystems) {
@@ -197,6 +189,13 @@ public class InventoryBuilder2 {
 
 	private void addIntervention(ProcessProduct provider, CalcExchange e) {
 		int row = flowIndex.of(e.flowId);
+		if (row < 0) {
+			if (e.isInput) {
+				flowIndex.putInput(flows.get(e.flowId));
+			} else {
+				flowIndex.putOutput(flows.get(e.flowId));
+			}
+		}
 		add(row, provider, interventionMatrix, e);
 	}
 

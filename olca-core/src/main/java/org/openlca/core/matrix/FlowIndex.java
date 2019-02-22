@@ -67,6 +67,7 @@ public class FlowIndex extends DIndex<FlowDescriptor> {
 	 * that are not contained in the product index will be added to the flow
 	 * index (except if they are allocated co-products).
 	 */
+	@Deprecated
 	private static class Builder {
 
 		private Logger log = LoggerFactory.getLogger(getClass());
