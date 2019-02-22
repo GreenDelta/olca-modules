@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.cache.ExchangeTable;
 import org.openlca.core.matrix.cache.FlowTable;
 import org.openlca.core.model.AllocationMethod;
@@ -16,9 +15,8 @@ import org.slf4j.LoggerFactory;
 
 public class InventoryBuilder2 {
 
-	private final IDatabase db;
+	private final InventoryConfig conf;
 	private final TechIndex techIndex;
-	private final AllocationMethod allocationMethod;
 	private final FlowTable flows;
 
 	/** Optional sub-system results of the product system. */
@@ -29,14 +27,10 @@ public class InventoryBuilder2 {
 	private ExchangeMatrix technologyMatrix;
 	private ExchangeMatrix interventionMatrix;
 
-	public InventoryBuilder2(
-			IDatabase db,
-			TechIndex techIndex,
-			AllocationMethod allocationMethod) {
-		this.db = db;
-		this.techIndex = techIndex;
-		this.allocationMethod = allocationMethod;
-		this.flows = FlowTable.create(db);
+	public InventoryBuilder2(InventoryConfig conf) {
+		this.conf = conf;
+		this.techIndex = conf.techIndex;
+		this.flows = FlowTable.create(conf.db);
 	}
 
 	/** Add sub-system results to the inventory model. */
@@ -46,10 +40,10 @@ public class InventoryBuilder2 {
 	}
 
 	public Inventory build() {
-		if (allocationMethod != null
-				&& allocationMethod != AllocationMethod.NONE) {
+		if (conf.allocationMethod != null
+				&& conf.allocationMethod != AllocationMethod.NONE) {
 			allocationIndex = AllocationIndex.create(
-					db, techIndex, allocationMethod);
+					conf.db, techIndex, conf.allocationMethod);
 		}
 
 		// create the index of elementary flows; when the system has sub-systems
@@ -81,7 +75,7 @@ public class InventoryBuilder2 {
 
 		// return the inventory
 		Inventory inv = new Inventory();
-		inv.allocationMethod = allocationMethod;
+		inv.allocationMethod = conf.allocationMethod;
 		inv.flowIndex = flowIndex;
 		inv.interventionMatrix = interventionMatrix;
 		inv.techIndex = techIndex;
@@ -92,7 +86,7 @@ public class InventoryBuilder2 {
 	private void fillMatrices() {
 		try {
 			// fill the matrices with process data
-			ExchangeTable exchanges = new ExchangeTable(db);
+			ExchangeTable exchanges = new ExchangeTable(conf.db);
 			exchanges.each(techIndex, exchange -> {
 				List<ProcessProduct> products = techIndex
 						.getProviders(exchange.processId);
@@ -173,8 +167,8 @@ public class InventoryBuilder2 {
 			return;
 		}
 
-		if (allocationMethod == null
-				|| allocationMethod == AllocationMethod.NONE) {
+		if (conf.allocationMethod == null
+				|| conf.allocationMethod == AllocationMethod.NONE) {
 			// non allocated output products or waste inputs
 			addIntervention(provider, e);
 		}
