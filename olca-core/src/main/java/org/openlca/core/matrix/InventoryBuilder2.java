@@ -2,7 +2,6 @@ package org.openlca.core.matrix;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import org.openlca.core.matrix.cache.ExchangeTable;
 import org.openlca.core.matrix.cache.FlowTable;
@@ -19,24 +18,23 @@ public class InventoryBuilder2 {
 	private final TechIndex techIndex;
 	private final FlowTable flows;
 
-	/** Optional sub-system results of the product system. */
-	private Map<ProcessProduct, SimpleResult> subResults;
-
 	private FlowIndex flowIndex;
 	private AllocationIndex allocationIndex;
 	private ExchangeMatrix technologyMatrix;
 	private ExchangeMatrix interventionMatrix;
 
+	// TODO: this will go into the matrix data
+	private UMatrix techUncerts;
+	private UMatrix enviUncerts;
+
 	public InventoryBuilder2(InventoryConfig conf) {
 		this.conf = conf;
 		this.techIndex = conf.techIndex;
 		this.flows = FlowTable.create(conf.db);
-	}
-
-	/** Add sub-system results to the inventory model. */
-	public void addSubSystemResults(
-			Map<ProcessProduct, SimpleResult> subResults) {
-		this.subResults = subResults;
+		if (conf.withUncertainties) {
+			techUncerts = new UMatrix();
+			enviUncerts = new UMatrix();
+		}
 	}
 
 	public Inventory build() {
@@ -50,8 +48,8 @@ public class InventoryBuilder2 {
 		// we add the flows of the sub-systems to the index; note that there
 		// can be elementary flows that only occur in a sub-system
 		flowIndex = new FlowIndex();
-		if (subResults != null) {
-			for (SimpleResult sub : subResults.values()) {
+		if (conf.subResults != null) {
+			for (SimpleResult sub : conf.subResults.values()) {
 				if (sub.flowIndex == null)
 					continue;
 				sub.flowIndex.each(f -> {
@@ -109,7 +107,7 @@ public class InventoryBuilder2 {
 			for (ProcessProduct sub : subSystems) {
 
 				int col = techIndex.getIndex(sub);
-				SimpleResult r = subResults.get(sub);
+				SimpleResult r = conf.subResults.get(sub);
 
 				// add the link in the technology matrix
 				CalcExchange e = new CalcExchange();

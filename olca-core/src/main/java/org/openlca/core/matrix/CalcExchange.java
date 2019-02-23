@@ -2,6 +2,7 @@ package org.openlca.core.matrix;
 
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.UncertaintyType;
+import org.openlca.expressions.FormulaInterpreter;
 
 public class CalcExchange {
 
@@ -9,9 +10,11 @@ public class CalcExchange {
 	public long flowId;
 	public long exchangeId;
 	public boolean isInput;
+
 	public double conversionFactor;
 	public double amount;
 	public String amountFormula;
+
 	public UncertaintyType uncertaintyType;
 	public double parameter1;
 	public double parameter2;
@@ -54,6 +57,17 @@ public class CalcExchange {
 			// this should never happen
 			return false;
 		}
+	}
+
+	public double matrixValue(
+			FormulaInterpreter interpreter,
+			double allocationFactor) {
+
+		double a = amount;
+
+		// TODO: move logic from `ExchangeCell` here
+
+		return a;
 	}
 
 }

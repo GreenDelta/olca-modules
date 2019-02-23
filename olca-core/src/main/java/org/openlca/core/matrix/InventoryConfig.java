@@ -17,6 +17,8 @@ public class InventoryConfig {
 
 	public boolean withUncertainties;
 	public AllocationMethod allocationMethod;
+
+	/** Optional sub-system results of the product system. */
 	public Map<ProcessProduct, SimpleResult> subResults;
 	public FormulaInterpreter interpreter;
 
