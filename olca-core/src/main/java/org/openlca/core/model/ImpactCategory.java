@@ -20,7 +20,7 @@ public class ImpactCategory extends RootEntity {
 
 	@Column(name = "reference_unit")
 	public String referenceUnit;
-
+	
 	@Override
 	public ImpactCategory clone() {
 		ImpactCategory clone = new ImpactCategory();
@@ -31,4 +31,22 @@ public class ImpactCategory extends RootEntity {
 		return clone;
 	}
 
+	public ImpactFactor getFactor(Flow flow) {
+		if (flow == null)
+			return null;
+		for (ImpactFactor factor : impactFactors)
+			if (flow.equals(factor.flow))
+				return factor;
+		return null;
+	}
+
+	public ImpactFactor getFactor(String refId) {
+		if (refId == null)
+			return null;
+		for (ImpactFactor factor : impactFactors)
+			if (factor.flow != null && refId.equals(factor.flow.refId))
+				return factor;
+		return null;
+	}
+	
 }
