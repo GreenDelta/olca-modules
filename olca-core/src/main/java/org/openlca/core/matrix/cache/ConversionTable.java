@@ -26,20 +26,26 @@ public class ConversionTable {
 			Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, 0L, 1d);
 	private TLongDoubleHashMap propertyFactors = new TLongDoubleHashMap(
 			Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, 0L, 1d);
+	private TLongDoubleHashMap currencyFactors = new TLongDoubleHashMap(
+			Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, 0L, 1d);
 
-	public static ConversionTable create(IDatabase database) {
-		ConversionTable table = new ConversionTable(database);
+	public static ConversionTable create(IDatabase db) {
+		ConversionTable table = new ConversionTable(db);
 		table.init();
 		return table;
 	}
 
-	private ConversionTable(IDatabase database) {
-		this.database = database;
+	private ConversionTable(IDatabase db) {
+		this.database = db;
 	}
 
+	// TODO: when we remove the matrix cache, we can also remove this
+	// reload function.
+	@Deprecated
 	public void reload() {
 		unitFactors.clear();
 		propertyFactors.clear();
+		currencyFactors.clear();
 		init();
 	}
 
@@ -47,13 +53,16 @@ public class ConversionTable {
 		try (Connection con = database.createConnection()) {
 			loadFactors(con, "tbl_units", unitFactors);
 			loadFactors(con, "tbl_flow_property_factors", propertyFactors);
+			loadFactors(con, "tbl_currencies", currencyFactors);
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(getClass());
 			log.error("failed to initialize conversion table", e);
 		}
 	}
 
-	private void loadFactors(Connection con, String table,
+	private void loadFactors(
+			Connection con,
+			String table,
 			TLongDoubleHashMap map) throws Exception {
 		Statement statement = con.createStatement();
 		String query = "select id, conversion_factor from " + table;
@@ -81,5 +90,13 @@ public class ConversionTable {
 	 */
 	public double getPropertyFactor(long flowPropertyFactorId) {
 		return propertyFactors.get(flowPropertyFactorId);
+	}
+
+	/**
+	 * Get the conversion factor of the currency with the given ID to the
+	 * reference currency in the database.
+	 */
+	public double getCurrencyFactor(long currencyID) {
+		return currencyFactors.get(currencyID);
 	}
 }

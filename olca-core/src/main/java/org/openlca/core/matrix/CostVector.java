@@ -1,6 +1,7 @@
 package org.openlca.core.matrix;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.matrix.cache.ConversionTable;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 
@@ -30,13 +31,13 @@ public final class CostVector {
 	private static class Builder {
 
 		private Inventory inventory;
-		private CurrencyTable currencyTable;
+		private ConversionTable currencyTable;
 
 		private double[] values;
 
 		private Builder(Inventory inventory, IDatabase db) {
 			this.inventory = inventory;
-			this.currencyTable = CurrencyTable.create(db);
+			this.currencyTable = ConversionTable.create(db);
 		}
 
 		private double[] build() {
@@ -56,7 +57,8 @@ public final class CostVector {
 				if (val == 0 || cell.exchange == null) {
 					return;
 				}
-				val = currencyTable.getFactor(cell.exchange.currency) * val;
+				val = currencyTable.getCurrencyFactor(cell.exchange.currency)
+						* val;
 				values[col] += val;
 			});
 		}

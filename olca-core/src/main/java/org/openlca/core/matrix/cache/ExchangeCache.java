@@ -113,9 +113,6 @@ class ExchangeCache {
 				e.parameter1 = r.getDouble("parameter1_value");
 				e.parameter2 = r.getDouble("parameter2_value");
 				e.parameter3 = r.getDouble("parameter3_value");
-				e.parameter1Formula = r.getString("parameter1_formula");
-				e.parameter2Formula = r.getString("parameter2_formula");
-				e.parameter3Formula = r.getString("parameter3_formula");
 			}
 			return e;
 		}

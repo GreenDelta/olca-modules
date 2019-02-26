@@ -4,9 +4,11 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.BaseDao;
+import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.UnitGroupDao;
+import org.openlca.core.model.Currency;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Unit;
@@ -61,5 +63,32 @@ public class ConversionTableTest {
 		Assert.assertEquals(1d, table.getPropertyFactor(factor1.id), 1e-16);
 		Assert.assertEquals(0.42, table.getPropertyFactor(factor2.id), 1e-16);
 		dao.delete(flow);
+	}
+
+	@Test
+	public void testGetCurrencyFactor() {
+		CurrencyDao dao = new CurrencyDao(database);
+		Currency eur = make("EUR", 1.0);
+		Currency usd = make("USD", 0.88);
+		usd.referenceCurrency = eur;
+		dao.update(usd);
+		ConversionTable table = ConversionTable.create(Tests.getDb());
+		Assert.assertEquals(1.0, table.getCurrencyFactor(eur.id), 1e-10);
+		Assert.assertEquals(0.88, table.getCurrencyFactor(usd.id), 1e-10);
+
+		// the default factor should be 1.0
+		Assert.assertEquals(1.0, table.getCurrencyFactor(-42L), 1e-10);
+
+		dao.delete(usd);
+		dao.delete(eur);
+	}
+
+	private Currency make(String code, double factor) {
+		CurrencyDao dao = new CurrencyDao(database);
+		Currency c = new Currency();
+		c.code = code;
+		c.conversionFactor = factor;
+		c.referenceCurrency = c;
+		return dao.insert(c);
 	}
 }
