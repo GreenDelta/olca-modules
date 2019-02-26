@@ -1,8 +1,12 @@
 package org.openlca.core.matrix;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openlca.core.math.NumberGenerator;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.UncertaintyType;
+import org.openlca.expressions.FormulaInterpreter;
 
 import gnu.trove.impl.Constants;
 import gnu.trove.iterator.TIntObjectIterator;
@@ -23,12 +27,33 @@ public class UMatrix {
 	}
 
 	/**
-	 * Set the given cell at the given position. null-values are ignored, so you
-	 * cannot delete an existing value with this method.
+	 * Add the given Exchange to the uncertainty matrix. It is only added when
+	 * it has an uncertainty distribution or formulas assigned. Thus, you should
+	 * call this function for every exchange when building the inventory
+	 * matrices as this function will decide whether an exchange should be
+	 * added.
 	 */
-	public void set(int row, int col, UCell val) {
-		if (val == null)
+	public void add(int row, int col, CalcExchange e, double allocationFactor) {
+		if (e == null)
 			return;
+
+		// decide whether we should add the exchange
+		// NO! -> we could have the case where multiple exchanges are mapped to
+		// the same matrix cell and not all exchanges have an uncertainty
+		// distribution (or formula assigned)
+		/*
+		 * boolean considerCosts = withCosts && e.costFormula != null; if
+		 * (!hasUncertainty && !considerCosts && e.amountFormula == null)
+		 * return;
+		 */
+
+		// clear the formula when there is an uncertainty distribution
+		// assigned -> we cannot have both
+		if (e.hasUncertainty() && e.amountFormula != null) {
+			e.amountFormula = null;
+		}
+
+		// select the cell
 		TIntObjectHashMap<UCell> rowm = data.get(row);
 		if (rowm == null) {
 			rowm = new TIntObjectHashMap<>(
@@ -37,13 +62,24 @@ public class UMatrix {
 					-1);
 			data.put(row, rowm);
 		}
-		rowm.put(col, val);
+		UCell cell = rowm.get(col);
+
+		if (cell == null) {
+			cell = new UCell(e, allocationFactor);
+			rowm.put(col, cell);
+		} else {
+			if (cell.overlay == null) {
+				cell.overlay = new ArrayList<>(1);
+			}
+			cell.overlay.add(
+					new UCell(e, allocationFactor));
+		}
 	}
 
 	/**
 	 * Generates new values and sets them to the given matrix.
 	 */
-	public void generate(IMatrix m) {
+	public void generate(IMatrix m, FormulaInterpreter interpreter) {
 		TIntObjectIterator<TIntObjectHashMap<UCell>> rows = data.iterator();
 		while (rows.hasNext()) {
 			rows.advance();
@@ -53,76 +89,70 @@ public class UMatrix {
 				cols.advance();
 				int col = cols.key();
 				UCell cell = cols.value();
-				m.set(row, col, cell.next());
+				m.set(row, col, cell.next(interpreter));
 			}
 		}
 	}
 
-	/**
-	 * UCell is a single cell in an uncertainty matrix.
-	 */
-	public static class UCell {
+	// A single cell in the matrix
+	private static class UCell {
 
-		/** The first parameter of the uncertainty distribution. */
-		public double param1;
+		final CalcExchange exchange;
+		final double allocationFactor;
 
-		/** The second parameter of the uncertainty distribution. */
-		public double param2;
-
-		/**
-		 * The third parameter of the uncertainty distribution; may not be used.
-		 */
-		public double param3;
-
-		/**
-		 * An optional conversion factor that is applied after a new value is
-		 * generated.
-		 */
-		public double factor = 1.0;
-
-		/** When true, the sign of the generated value is changed. */
-		public boolean swapSign;
-
-		/** The uncertainty distribution type of this cell. */
-		public UncertaintyType type;
+		// possible other distritbutions that are mapped to the same matrix
+		// cell.
+		List<UCell> overlay;
 
 		/*
 		 * TODO: we have to think about stateless functions here; also with a
 		 * shared instance of Random; see also this issue:
 		 * https://github.com/GreenDelta/olca-app/issues/62
 		 */
-		private NumberGenerator gen;
+		private final NumberGenerator gen;
 
-		/** Generate the next number of */
-		public double next() {
-			if (gen == null) {
-				gen = generator();
-			}
-			double val = gen.next() * factor;
-			if (val == 0)
-				return 0;
-			return swapSign ? -val : val;
+		UCell(CalcExchange e, double allocationFactor) {
+			this.exchange = e;
+			this.allocationFactor = allocationFactor;
+			gen = e.hasUncertainty()
+				? generator(e)
+				: null;
 		}
 
-		private NumberGenerator generator() {
-			if (type == null) {
-				return NumberGenerator.discrete(param1);
+		public double next(FormulaInterpreter interpreter) {
+			if (gen != null) {
+				exchange.amount = gen.next();
 			}
-			switch (type) {
+			double a = exchange.matrixValue(
+				interpreter, allocationFactor);
+			if (overlay != null) {
+				for (UCell u : overlay) {
+					a += u.next(interpreter);
+				}
+			}
+			return a;
+		}
+
+		private static NumberGenerator generator(CalcExchange e) {
+			UncertaintyType t = e.uncertaintyType;
+			if (t == null) {
+				return NumberGenerator.discrete(e.amount);
+			}
+			switch (t) {
 			case LOG_NORMAL:
 				return NumberGenerator.logNormal(
-						param1, param2);
+						e.parameter1, e.parameter2);
 			case NORMAL:
 				return NumberGenerator.normal(
-						param1, param2);
+						e.parameter1, e.parameter2);
 			case TRIANGLE:
 				return NumberGenerator.triangular(
-						param1, param2, param3);
+						e.parameter1, e.parameter2, e.parameter3);
 			case UNIFORM:
 				return NumberGenerator.uniform(
-						param1, param2);
+						e.parameter1, e.parameter2);
 			default:
-				return NumberGenerator.discrete(param1);
+				return NumberGenerator.discrete(e.amount);
 			}
 		}
 	}

@@ -62,6 +62,14 @@ public class CalcExchange {
 		}
 	}
 
+	/**
+	 * Returns true when the exchange has an uncertainty distribution assigned.
+	 */
+	public boolean hasUncertainty() {
+		return uncertaintyType != null
+				&& uncertaintyType != UncertaintyType.NONE;
+	}
+
 	public double matrixValue(
 			FormulaInterpreter interpreter,
 			double allocationFactor) {
@@ -95,9 +103,8 @@ public class CalcExchange {
 	}
 
 	public double costValue(
-		FormulaInterpreter interpreter,
-			double allocationFactor	) {
-
+			FormulaInterpreter interpreter,
+			double allocationFactor) {
 
 		double c = costValue;
 		if (costFormula != null && interpreter != null) {
