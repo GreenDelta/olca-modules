@@ -16,6 +16,7 @@ public class InventoryConfig {
 	public final TechIndex techIndex;
 
 	public boolean withUncertainties;
+	public boolean withCosts;
 	public AllocationMethod allocationMethod;
 
 	/** Optional sub-system results of the product system. */

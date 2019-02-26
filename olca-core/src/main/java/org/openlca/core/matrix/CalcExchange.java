@@ -3,6 +3,9 @@ package org.openlca.core.matrix;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.expressions.FormulaInterpreter;
+import org.openlca.expressions.Scope;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CalcExchange {
 
@@ -64,10 +67,59 @@ public class CalcExchange {
 			double allocationFactor) {
 
 		double a = amount;
+		if (amountFormula != null && interpreter != null) {
+			try {
+				Scope scope = interpreter.getScope(processId);
+				if (scope == null) {
+					scope = interpreter.getGlobalScope();
+				}
+				a = scope.eval(amountFormula);
+			} catch (Exception e) {
+				Logger log = LoggerFactory.getLogger(getClass());
+				log.error("Formula evaluation failed, exchange "
+						+ exchangeId, e);
+			}
+		}
 
-		// TODO: move logic from `ExchangeCell` here
-
-		return a;
+		a *= (conversionFactor * allocationFactor);
+		if (!isAvoided) {
+			return isInput ? -a : a;
+		} else {
+			// avoided product or waste flows
+			if (flowType == FlowType.PRODUCT_FLOW)
+				return a;
+			if (flowType == FlowType.WASTE_FLOW)
+				return -a;
+			return isInput ? -a : a;
+		}
 	}
 
+	public double costValue(
+		FormulaInterpreter interpreter,
+			double allocationFactor	) {
+
+
+		double c = costValue;
+		if (costFormula != null && interpreter != null) {
+			try {
+				Scope scope = interpreter.getScope(processId);
+				if (scope == null) {
+					scope = interpreter.getGlobalScope();
+				}
+				c = scope.eval(costFormula);
+			} catch (Exception e) {
+				Logger log = LoggerFactory.getLogger(getClass());
+				log.error("Formula evaluation for costs failed, exchange "
+						+ exchangeId, e);
+			}
+		}
+
+		// TODO: include the conversion factor here
+		c *= allocationFactor;
+		if (flowType == FlowType.PRODUCT_FLOW && !isInput)
+			return -c; // product outputs -> revenues
+		if (flowType == FlowType.WASTE_FLOW && isInput)
+			return -c; // waste inputs -> revenues
+		return c;
+	}
 }
