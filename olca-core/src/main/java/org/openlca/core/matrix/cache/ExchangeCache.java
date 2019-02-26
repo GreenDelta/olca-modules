@@ -104,9 +104,16 @@ class ExchangeCache {
 			e.isInput = r.getBoolean("is_input");
 			e.defaultProviderId = r.getLong("f_default_provider");
 			e.isAvoided = r.getBoolean("avoided_product");
-			e.costValue = r.getDouble("cost_value");
-			e.costFormula = r.getString("cost_formula");
-			e.currency = r.getLong("f_currency");
+
+			// costs
+			long currency = r.getLong("f_currency");
+			if (!r.wasNull()) {
+				e.costValue = r.getDouble("cost_value");
+				e.costFormula = r.getString("cost_formula");
+				e.currencyFactor = conversionTable.getCurrencyFactor(currency);
+			}
+
+			// uncertainties
 			int uncertaintyType = r.getInt("distribution_type");
 			if (!r.wasNull()) {
 				e.uncertaintyType = UncertaintyType.values()[uncertaintyType];

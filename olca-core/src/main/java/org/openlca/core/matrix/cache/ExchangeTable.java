@@ -103,9 +103,16 @@ public class ExchangeTable {
 		e.isInput = r.getBoolean(8);
 		e.isAvoided = r.getBoolean(9);
 		e.defaultProviderId = r.getLong(10);
-		e.costValue = r.getDouble(11);
-		e.costFormula = r.getString(12);
-		e.currency = r.getLong(13);
+
+		// costs
+		long currency = r.getLong(13);
+		if (!r.wasNull()) {
+			e.costValue = r.getDouble(11);
+			e.costFormula = r.getString(12);
+			e.currencyFactor = conversions.getCurrencyFactor(currency);
+		}
+
+		// uncertainties
 		int uncertaintyType = r.getInt(14);
 		if (!r.wasNull()) {
 			e.uncertaintyType = UncertaintyType.values()[uncertaintyType];

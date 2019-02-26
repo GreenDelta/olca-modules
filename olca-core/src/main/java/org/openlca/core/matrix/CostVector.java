@@ -57,8 +57,7 @@ public final class CostVector {
 				if (val == 0 || cell.exchange == null) {
 					return;
 				}
-				val = currencyTable.getCurrencyFactor(cell.exchange.currency)
-						* val;
+				val = cell.exchange.currencyFactor * val;
 				values[col] += val;
 			});
 		}

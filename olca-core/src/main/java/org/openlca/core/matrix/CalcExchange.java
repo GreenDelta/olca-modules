@@ -38,8 +38,14 @@ public class CalcExchange {
 	public boolean isAvoided;
 
 	public double costValue;
+
+	/**
+	 * A conversion factor for converting the costs value into the reference
+	 * currency of the database.
+	 */
+	public double currencyFactor;
+
 	public String costFormula;
-	public long currency;
 
 	/**
 	 * Returns true when this exchange can be allocated to a product output or
@@ -121,8 +127,7 @@ public class CalcExchange {
 			}
 		}
 
-		// TODO: include the conversion factor here
-		c *= allocationFactor;
+		c *= (allocationFactor * currencyFactor);
 		if (flowType == FlowType.PRODUCT_FLOW && !isInput)
 			return -c; // product outputs -> revenues
 		if (flowType == FlowType.WASTE_FLOW && isInput)

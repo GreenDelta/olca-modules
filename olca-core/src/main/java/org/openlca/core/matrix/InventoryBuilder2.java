@@ -22,11 +22,11 @@ public class InventoryBuilder2 {
 	private FlowIndex flowIndex;
 	private AllocationIndex allocationIndex;
 
-	// TODO: this will also go into the matrix data
 	private MatrixBuilder techBuilder;
 	private MatrixBuilder enviBuilder;
 	private UMatrix techUncerts;
 	private UMatrix enviUncerts;
+	private double[] costs;
 
 	public InventoryBuilder2(InventoryConfig conf) {
 		this.conf = conf;
@@ -37,6 +37,9 @@ public class InventoryBuilder2 {
 		if (conf.withUncertainties) {
 			techUncerts = new UMatrix();
 			enviUncerts = new UMatrix();
+		}
+		if (conf.withCosts) {
+			costs = new double[conf.techIndex.size()];
 		}
 	}
 
@@ -76,7 +79,6 @@ public class InventoryBuilder2 {
 		data.enviIndex = flowIndex;
 		data.techMatrix = techBuilder.finish();
 		data.enviMatrix = enviBuilder.finish();
-		// TODO: costs
 		// TODO: uncertainties
 		return data;
 	}
@@ -128,6 +130,11 @@ public class InventoryBuilder2 {
 					}
 					enviBuilder.add(flowIndex.of(f), col, b);
 				});
+
+				// add costs
+				if (conf.withCosts) {
+					costs[col] = r.totalCosts;
+				}
 			}
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(getClass());
@@ -200,5 +207,9 @@ public class InventoryBuilder2 {
 		}
 		matrix.add(row, col, exchange.matrixValue(
 				conf.interpreter, allocationFactor));
+		if (conf.withCosts) {
+			costs[col] += exchange.costValue(
+					conf.interpreter, allocationFactor);
+		}
 	}
 }
