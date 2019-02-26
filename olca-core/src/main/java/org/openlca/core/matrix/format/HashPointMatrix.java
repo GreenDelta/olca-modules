@@ -10,19 +10,28 @@ import gnu.trove.map.hash.TIntObjectHashMap;
  * A sparse matrix implementation that uses primitive hash maps from the Trove
  * project to store the data. Filling this matrix is fast with relatively low
  * memory consumption.
+ *
+ * Note that you have to make sure to set the respective row and column size
+ * when there are empty rows or columns.
  */
 public class HashPointMatrix implements IMatrix {
 
-	private final int rows;
-	private final int cols;
+	public int rows;
+	public int cols;
 
 	private final TIntObjectHashMap<TIntDoubleHashMap> data;
 
+	public HashPointMatrix() {
+		data = new TIntObjectHashMap<>(
+				Constants.DEFAULT_CAPACITY,
+				Constants.DEFAULT_LOAD_FACTOR,
+				-1);
+	}
+
 	public HashPointMatrix(int rows, int cols) {
+		this();
 		this.rows = rows;
 		this.cols = cols;
-		data = new TIntObjectHashMap<>(Constants.DEFAULT_CAPACITY,
-				Constants.DEFAULT_LOAD_FACTOR, -1);
 	}
 
 	public HashPointMatrix(double[][] values) {
@@ -55,10 +64,22 @@ public class HashPointMatrix implements IMatrix {
 		// do nothing if val = 0 *and* when there is no value to overwrite
 		if (val == 0 && !hasEntry(row, col))
 			return;
+
+		// ensure matrix size
+		if (row >= rows) {
+			rows = row + 1;
+		}
+		if (col >= cols) {
+			cols = col + 1;
+		}
+
 		TIntDoubleHashMap rowMap = data.get(row);
 		if (rowMap == null) {
-			rowMap = new TIntDoubleHashMap(Constants.DEFAULT_CAPACITY,
-					Constants.DEFAULT_LOAD_FACTOR, -1, 0);
+			rowMap = new TIntDoubleHashMap(
+					Constants.DEFAULT_CAPACITY,
+					Constants.DEFAULT_LOAD_FACTOR,
+					-1,
+					0);
 			data.put(row, rowMap);
 		}
 		rowMap.put(col, val);
@@ -71,6 +92,12 @@ public class HashPointMatrix implements IMatrix {
 		return rowMap.get(col) != 0;
 	}
 
+	public void clear() {
+		data.clear();
+		rows = 0;
+		cols = 0;
+	}
+
 	@Override
 	public double get(int row, int col) {
 		TIntDoubleHashMap rowMap = data.get(row);
@@ -81,6 +108,7 @@ public class HashPointMatrix implements IMatrix {
 
 	@Override
 	public double[] getColumn(int i) {
+		// TODO: use iterators
 		double[] column = new double[rows];
 		for (int row = 0; row < rows; row++) {
 			column[row] = get(row, i);
@@ -90,6 +118,7 @@ public class HashPointMatrix implements IMatrix {
 
 	@Override
 	public double[] getRow(int i) {
+		// TODO: use iterators
 		double[] row = new double[cols];
 		for (int col = 0; col < cols; col++) {
 			row[col] = get(i, col);
@@ -99,7 +128,9 @@ public class HashPointMatrix implements IMatrix {
 
 	@Override
 	public HashPointMatrix copy() {
-		HashPointMatrix copy = new HashPointMatrix(rows, cols);
+		HashPointMatrix copy = new HashPointMatrix();
+		copy.rows = rows;
+		copy.cols = cols;
 		iterate((row, col, val) -> copy.set(row, col, val));
 		return copy;
 	}

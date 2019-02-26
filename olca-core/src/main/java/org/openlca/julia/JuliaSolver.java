@@ -15,7 +15,7 @@ public class JuliaSolver implements IMatrixSolver {
 
 	@Override
 	public IMatrix matrix(int rows, int cols, double density) {
-		if (density < 0.25)
+		if (density < 0.4)
 			return new HashPointMatrix(rows, cols);
 		else
 			return new DenseMatrix(rows, cols);
