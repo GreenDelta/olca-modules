@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.openlca.core.matrix.cache.ExchangeTable;
 import org.openlca.core.matrix.cache.FlowTable;
+import org.openlca.core.matrix.format.MatrixBuilder;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
@@ -20,10 +21,10 @@ public class InventoryBuilder2 {
 
 	private FlowIndex flowIndex;
 	private AllocationIndex allocationIndex;
-	private ExchangeMatrix technologyMatrix;
-	private ExchangeMatrix interventionMatrix;
 
-	// TODO: this will go into the matrix data
+	// TODO: this will also go into the matrix data
+	private MatrixBuilder techBuilder;
+	private MatrixBuilder enviBuilder;
 	private UMatrix techUncerts;
 	private UMatrix enviUncerts;
 
@@ -31,13 +32,15 @@ public class InventoryBuilder2 {
 		this.conf = conf;
 		this.techIndex = conf.techIndex;
 		this.flows = FlowTable.create(conf.db);
+		techBuilder = new MatrixBuilder();
+		enviBuilder = new MatrixBuilder();
 		if (conf.withUncertainties) {
 			techUncerts = new UMatrix();
 			enviUncerts = new UMatrix();
 		}
 	}
 
-	public Inventory build() {
+	public MatrixData build() {
 		if (conf.allocationMethod != null
 				&& conf.allocationMethod != AllocationMethod.NONE) {
 			allocationIndex = AllocationIndex.create(
@@ -64,21 +67,18 @@ public class InventoryBuilder2 {
 			}
 		}
 
-		// allocate and fill the matrices
-		technologyMatrix = new ExchangeMatrix(techIndex.size(),
-				techIndex.size());
-		interventionMatrix = new ExchangeMatrix(flowIndex.size(),
-				techIndex.size());
+		// fill the matrices
 		fillMatrices();
 
-		// return the inventory
-		Inventory inv = new Inventory();
-		inv.allocationMethod = conf.allocationMethod;
-		inv.flowIndex = flowIndex;
-		inv.interventionMatrix = interventionMatrix;
-		inv.techIndex = techIndex;
-		inv.technologyMatrix = technologyMatrix;
-		return inv;
+		// return the matrix data
+		MatrixData data = new MatrixData();
+		data.techIndex = techIndex;
+		data.enviIndex = flowIndex;
+		data.techMatrix = techBuilder.finish();
+		data.enviMatrix = enviBuilder.finish();
+		// TODO: costs
+		// TODO: uncertainties
+		return data;
 	}
 
 	private void fillMatrices() {
@@ -108,29 +108,25 @@ public class InventoryBuilder2 {
 
 				int col = techIndex.getIndex(sub);
 				SimpleResult r = conf.subResults.get(sub);
-
-				// add the link in the technology matrix
-				CalcExchange e = new CalcExchange();
-				ExchangeCell techCell = new ExchangeCell(e);
-				technologyMatrix.setEntry(col, col, techCell);
-				e.conversionFactor = 1.0;
-				e.flowId = sub.flowId();
-				e.isInput = sub.flow.flowType == FlowType.WASTE_FLOW;
 				if (r == null) {
-					e.amount = 1.0;
+					// TODO: log this error
 					continue;
 				}
-				e.amount = r.techIndex.getDemand();
+
+				// add the link in the technology matrix
+				double a = r.techIndex.getDemand();
+				if (sub.flow.flowType == FlowType.WASTE_FLOW) {
+					a = -a;
+				}
+				techBuilder.add(col, col, a);
 
 				// add the LCI result
 				r.flowIndex.each(f -> {
-					CalcExchange ee = new CalcExchange();
-					ee.amount = r.getTotalFlowResult(f);
-					ee.conversionFactor = 1.0;
-					ee.flowId = f.id;
-					ee.isInput = r.isInput(f);
-					interventionMatrix.setEntry(
-							flowIndex.of(f), col, new ExchangeCell(ee));
+					double b = r.getTotalFlowResult(f);
+					if (r.isInput(f)) {
+						b = -b;
+					}
+					enviBuilder.add(flowIndex.of(f), col, b);
 				});
 			}
 		} catch (Exception e) {
@@ -161,7 +157,7 @@ public class InventoryBuilder2 {
 		if (provider.equals(e.processId, e.flowId)) {
 			// the reference product or waste flow
 			int idx = techIndex.getIndex(provider);
-			add(idx, provider, technologyMatrix, e);
+			add(idx, provider, techBuilder, e);
 			return;
 		}
 
@@ -176,7 +172,7 @@ public class InventoryBuilder2 {
 		LongPair exchange = LongPair.of(e.processId, e.exchangeId);
 		ProcessProduct provider = techIndex.getLinkedProvider(exchange);
 		int row = techIndex.getIndex(provider);
-		add(row, product, technologyMatrix, e);
+		add(row, product, techBuilder, e);
 	}
 
 	private void addIntervention(ProcessProduct provider, CalcExchange e) {
@@ -188,84 +184,21 @@ public class InventoryBuilder2 {
 				flowIndex.putOutput(flows.get(e.flowId));
 			}
 		}
-		add(row, provider, interventionMatrix, e);
+		add(row, provider, enviBuilder, e);
 	}
 
-	private void add(int row, ProcessProduct provider, ExchangeMatrix matrix,
+	private void add(int row, ProcessProduct provider, MatrixBuilder matrix,
 			CalcExchange exchange) {
 		int col = techIndex.getIndex(provider);
 		if (row < 0 || col < 0)
 			return;
-		ExchangeCell existingCell = matrix.getEntry(row, col);
-		if (existingCell != null) {
-			// self loops or double entries
-			exchange = mergeExchanges(existingCell, exchange);
-		}
-		ExchangeCell cell = new ExchangeCell(exchange);
+
+		double allocationFactor = 1.0;
 		if (allocationIndex != null && exchange.isAllocatable()) {
-			cell.allocationFactor = allocationIndex.get(
+			allocationFactor = allocationIndex.get(
 					provider, exchange.exchangeId);
 		}
-		matrix.setEntry(row, col, cell);
-	}
-
-	private CalcExchange mergeExchanges(ExchangeCell existingCell,
-			CalcExchange addExchange) {
-		// a possible allocation factor is handled outside of this function
-		CalcExchange exExchange = existingCell.exchange;
-		double existingVal = getMergeValue(exExchange);
-		double addVal = getMergeValue(addExchange);
-		double val = existingVal + addVal;
-		CalcExchange newExchange = new CalcExchange();
-		newExchange.isInput = val < 0;
-		newExchange.conversionFactor = 1;
-		newExchange.flowId = addExchange.flowId;
-		newExchange.flowType = addExchange.flowType;
-		newExchange.processId = addExchange.processId;
-		newExchange.amount = Math.abs(val);
-		if (exExchange.amountFormula != null
-				&& addExchange.amountFormula != null) {
-			newExchange.amountFormula = "abs( " + getMergeFormula(exExchange)
-					+ " + " + getMergeFormula(addExchange) + ")";
-		}
-		newExchange.costValue = getMergeCosts(exExchange, addExchange);
-		// TODO: adding up uncertainty information (with formulas!) is not yet
-		// handled
-		return newExchange;
-	}
-
-	private double getMergeValue(CalcExchange e) {
-		double v = e.amount * e.conversionFactor;
-		if (e.isInput && !e.isAvoided)
-			return -v;
-		else
-			return v;
-	}
-
-	private String getMergeFormula(CalcExchange e) {
-		String f;
-		if (e.amountFormula == null)
-			f = Double.toString(e.amount);
-		else
-			f = "(" + e.amountFormula + ")";
-		if (e.conversionFactor != 1)
-			f += " * " + e.conversionFactor;
-		if (e.isInput && !e.isAvoided)
-			f = "( -1 * (" + f + "))";
-		return f;
-	}
-
-	private double getMergeCosts(CalcExchange e1, CalcExchange e2) {
-		if (e1.costValue == 0)
-			return e2.costValue;
-		if (e2.costValue == 0)
-			return e1.costValue;
-		// TODO: this would be rarely the case but if the same flow in a single
-		// process is given in different currencies with different conversion
-		// the following would be not correct.
-		double v1 = e1.isInput ? e1.costValue : -e1.costValue;
-		double v2 = e2.isInput ? e2.costValue : -e2.costValue;
-		// TODO: cost formulas
-		return Math.abs(v1 + v2);
+		matrix.add(row, col, exchange.matrixValue(
+				conf.interpreter, allocationFactor));
 	}
 }

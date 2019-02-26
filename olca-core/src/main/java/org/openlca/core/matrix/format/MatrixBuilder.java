@@ -3,6 +3,14 @@ package org.openlca.core.matrix.format;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This is matrix builder that allows you to create a matrix just by filling the
+ * values and which can switch efficiently between a sparse and dense
+ * representation during this filling process. It does this by allocation a
+ * growing dense matrix block and fast array copying if the fill rate exceeds a
+ * specific value. See https://github.com/msrocka/blockm for further
+ * information.
+ */
 public class MatrixBuilder {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
@@ -38,7 +46,10 @@ public class MatrixBuilder {
 		}
 	}
 
-	public void put(int row, int col, double val) {
+	/**
+	 * Set the cell (row, col) to the given value.
+	 */
+	public void set(int row, int col, double val) {
 		if (val == 0 || row < 0 || col < 0)
 			return;
 		if (row < denseRows && col < denseCols) {
@@ -56,6 +67,26 @@ public class MatrixBuilder {
 				mapDense();
 			}
 		}
+	}
+
+	/**
+	 * Let $v$ be the current value at the cell $a_{row, col}. This function
+	 * adds the given value $w$ to $a_{row, col} so that:
+	 *
+	 * $$a_{row, col} = v + w$$
+	 *
+	 * Where $v = 0$ When there is no value at $a_{row, col}.
+	 */
+	public void add(int row, int col, double w) {
+		if (w == 0 || row < 0 || col < 0)
+			return;
+		double v = 0;
+		if (row < denseRows && col < denseCols) {
+			v = dense.get(row, col);
+		} else {
+			v = sparse.get(row, col);
+		}
+		set(row, col, v + w);
 	}
 
 	public IMatrix finish() {
