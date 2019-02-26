@@ -72,6 +72,10 @@ public class InventoryBuilder2 {
 
 		// fill the matrices
 		fillMatrices();
+		int n = techIndex.size();
+		int m = flowIndex.size();
+		techBuilder.minSize(n, n);
+		enviBuilder.minSize(m, n);
 
 		// return the matrix data
 		MatrixData data = new MatrixData();

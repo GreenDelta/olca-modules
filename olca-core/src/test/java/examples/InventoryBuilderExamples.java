@@ -19,6 +19,7 @@ import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.julia.Julia;
 import org.openlca.julia.JuliaSolver;
@@ -37,15 +38,15 @@ public class InventoryBuilderExamples {
 		CalculationSetup setup = new CalculationSetup(
 				CalculationType.CONTRIBUTION_ANALYSIS, system);
 		setup.impactMethod = new ImpactMethodDao(db).getDescriptorForRefId(
-			"44f7066c-33fd-49d2-86ec-2b94677bf6d0");
+				"44f7066c-33fd-49d2-86ec-2b94677bf6d0");
 		Julia.loadFromDir(new File("./olca-core/julia/libs"));
 		IMatrixSolver solver = new JuliaSolver();
 		SystemCalculator calc = new SystemCalculator(
-			MatrixCache.createLazy(db), solver);
+				MatrixCache.createLazy(db), solver);
 		ContributionResult r = calc.calculateContributions(setup);
-		for (FlowDescriptor flow : r.getFlows()) {
-			System.out.println(flow.refId + "\t" +
-					flow.name + "\t" + r.getTotalFlowResult(flow));
+		for (ImpactCategoryDescriptor impact : r.getImpacts()) {
+			System.out.println(impact.refId + "\t" +
+					impact.name + "\t" + r.getTotalImpactResult(impact));
 		}
 	}
 }
