@@ -3,16 +3,19 @@ package examples;
 import java.io.File;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.DataStructures;
 import org.openlca.core.math.LcaCalculator;
+import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.InventoryBuilder2;
 import org.openlca.core.matrix.InventoryConfig;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -33,18 +36,13 @@ public class InventoryBuilderExamples {
 
 		CalculationSetup setup = new CalculationSetup(
 				CalculationType.CONTRIBUTION_ANALYSIS, system);
-		TechIndex idx = DataStructures.createProductIndex(system, db);
-		InventoryConfig conf = new InventoryConfig(db, idx);
-		conf.interpreter = DataStructures.interpreter(db, setup, idx);
-		InventoryBuilder2 builder = new InventoryBuilder2(conf);
-		MatrixData data = builder.build();
-
+		setup.impactMethod = new ImpactMethodDao(db).getDescriptorForRefId(
+			"44f7066c-33fd-49d2-86ec-2b94677bf6d0");
 		Julia.loadFromDir(new File("./olca-core/julia/libs"));
 		IMatrixSolver solver = new JuliaSolver();
-
-		LcaCalculator calc = new LcaCalculator(solver, data);
-		ContributionResult r = calc.calculateContributions();
-
+		SystemCalculator calc = new SystemCalculator(
+			MatrixCache.createLazy(db), solver);
+		ContributionResult r = calc.calculateContributions(setup);
 		for (FlowDescriptor flow : r.getFlows()) {
 			System.out.println(flow.refId + "\t" +
 					flow.name + "\t" + r.getTotalFlowResult(flow));

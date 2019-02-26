@@ -8,10 +8,11 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.matrix.CostVector;
 import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.InventoryBuilder;
+import org.openlca.core.matrix.InventoryBuilder2;
+import org.openlca.core.matrix.InventoryConfig;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
@@ -121,23 +122,26 @@ public class DataStructures {
 			IMatrixSolver solver,
 			MatrixCache mcache,
 			Map<ProcessProduct, SimpleResult> subResults) {
+
 		IDatabase db = mcache.getDatabase();
-		Inventory inventory = inventory(setup, mcache, subResults);
+		TechIndex techIndex = createProductIndex(setup.productSystem, db);
 		FormulaInterpreter interpreter = interpreter(
-				db, setup, inventory.techIndex);
-		MatrixData data = inventory.createMatrix(
-				solver, interpreter);
+				db, setup, techIndex);
+
+		InventoryConfig conf = new InventoryConfig(db, techIndex);
+		conf.allocationMethod = setup.allocationMethod;
+		conf.interpreter = interpreter;
+		conf.subResults = subResults;
+		conf.withCosts = setup.withCosts;
+		InventoryBuilder2 builder = new InventoryBuilder2(conf);
+
+		MatrixData data = builder.build();
 		if (setup.impactMethod != null) {
 			ImpactTable impacts = ImpactTable.build(
-					mcache, setup.impactMethod.id,
-					inventory.flowIndex);
+					mcache, setup.impactMethod.id, data.enviIndex);
 			data.impactMatrix = impacts.createMatrix(
 					solver, interpreter);
 			data.impactIndex = impacts.impactIndex;
-		}
-		if (setup.withCosts) {
-			data.costVector = CostVector.build(
-					inventory, db);
 		}
 		return data;
 	}
