@@ -106,13 +106,13 @@ public class ProductSystemBuilder {
 			if (provider == null)
 				continue;
 			system.processes.add(provider.id());
-			system.processes.add(exchange.getFirst());
-			long exchangeId = exchange.getSecond();
+			system.processes.add(exchange.first);
+			long exchangeId = exchange.second;
 			if (linkIds.add(exchangeId)) {
 				ProcessLink link = new ProcessLink();
 				link.exchangeId = exchangeId;
 				link.flowId = provider.flowId();
-				link.processId = exchange.getFirst();
+				link.processId = exchange.first;
 				link.providerId = provider.id();
 				system.processLinks.add(link);
 			}

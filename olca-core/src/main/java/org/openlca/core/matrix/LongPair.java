@@ -8,8 +8,8 @@ package org.openlca.core.matrix;
  */
 public class LongPair implements Comparable<LongPair> {
 
-	private long first;
-	private long second;
+	public long first;
+	public long second;
 
 	public LongPair(long first, long second) {
 		this.first = first;
@@ -20,17 +20,10 @@ public class LongPair implements Comparable<LongPair> {
 		return new LongPair(first, second);
 	}
 
-	public long getFirst() {
-		return first;
-	}
-
-	public long getSecond() {
-		return second;
-	}
-
 	@Override
 	public String toString() {
-		return "LongPair[first=" + first + ", second=" + second + "]";
+		return "LongPair[first=" + first
+				+ ", second=" + second + "]";
 	}
 
 	@Override
