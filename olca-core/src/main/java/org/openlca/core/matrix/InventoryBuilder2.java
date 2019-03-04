@@ -190,9 +190,9 @@ public class InventoryBuilder2 {
 		int row = flowIndex.of(e.flowId);
 		if (row < 0) {
 			if (e.isInput) {
-				flowIndex.putInput(flows.get(e.flowId));
+				row = flowIndex.putInput(flows.get(e.flowId));
 			} else {
-				flowIndex.putOutput(flows.get(e.flowId));
+				row = flowIndex.putOutput(flows.get(e.flowId));
 			}
 		}
 		add(row, provider, enviBuilder, e);
