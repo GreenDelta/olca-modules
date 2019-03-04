@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.slf4j.Logger;
@@ -54,5 +55,26 @@ public class FlowTable {
 	/** Get the IDs of all flows in this table. */
 	public long[] getFlowIds() {
 		return map.keys();
+	}
+
+	/**
+	 * Get a map with all `ID -> FlowType` pairs from the database.
+	 */
+	public static TLongObjectHashMap<FlowType> getTypes(IDatabase db) {
+		TLongObjectHashMap<FlowType> types = new TLongObjectHashMap<>();
+		try {
+			String query = "SELECT id, flow_type FROM tbl_flows";
+			NativeSql.on(db).query(query, r -> {
+				long flowID = r.getLong(1);
+				String typeStr = r.getString(2);
+				if (typeStr != null) {
+					types.put(flowID, FlowType.valueOf(typeStr));
+				}
+				return true;
+			});
+		} catch (Exception e) {
+			throw new RuntimeException("failed to load flow types", e);
+		}
+		return types;
 	}
 }

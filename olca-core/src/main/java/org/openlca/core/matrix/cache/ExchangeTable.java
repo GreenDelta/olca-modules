@@ -21,20 +21,7 @@ public class ExchangeTable {
 	public ExchangeTable(IDatabase db) {
 		this.db = db;
 		conversions = ConversionTable.create(db);
-		flowTypes = new TLongObjectHashMap<>();
-		try {
-			String query = "SELECT id, flow_type FROM tbl_flows";
-			NativeSql.on(db).query(query, r -> {
-				long flowID = r.getLong(1);
-				String typeStr = r.getString(2);
-				if (typeStr != null) {
-					flowTypes.put(flowID, FlowType.valueOf(typeStr));
-				}
-				return true;
-			});
-		} catch (Exception e) {
-			throw new RuntimeException("failed to load flow types", e);
-		}
+		flowTypes = FlowTable.getTypes(db);
 	}
 
 	/**
