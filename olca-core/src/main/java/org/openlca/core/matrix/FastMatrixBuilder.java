@@ -1,29 +1,20 @@
 package org.openlca.core.matrix;
 
-import java.io.File;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.DataStructures;
-import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.math.ReferenceAmount;
 import org.openlca.core.matrix.cache.ExchangeTable;
 import org.openlca.core.matrix.cache.FlowTable;
 import org.openlca.core.matrix.format.MatrixBuilder;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
-import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.FullResult;
 import org.openlca.expressions.FormulaInterpreter;
-import org.openlca.julia.Julia;
-import org.openlca.julia.JuliaSolver;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 
@@ -90,13 +81,26 @@ public class FastMatrixBuilder {
 		int m = flowIndex.size();
 		techBuilder.minSize(n, n);
 		enviBuilder.minSize(m, n);
+
 		MatrixData data = new MatrixData();
 		data.techIndex = techIndex;
 		data.enviIndex = flowIndex;
 		data.techMatrix = techBuilder.finish();
 		data.enviMatrix = enviBuilder.finish();
 
-		// TODO: LCIA matrices
+		// add LCIA matrices
+		// TODO: we should first remove the solver
+		// dependency from the ImpactTable before
+		// supporting LCIA methods here...
+		// if (setup.impactMethod != null) {
+		// ImpactTable impacts = ImpactTable.build(
+		// MatrixCache.createLazy(db),
+		// setup.impactMethod.id,
+		// flowIndex);
+		// data.impactMatrix = impacts.createMatrix(
+		// new JuliaSolver(), interpreter);
+		// data.impactIndex = impacts.impactIndex;
+		// }
 
 		return data;
 	}
@@ -120,8 +124,6 @@ public class FastMatrixBuilder {
 			add(idx, provider, techBuilder, e);
 			return;
 		}
-
-		// TODO: other things should not happen here?
 	}
 
 	private void addProcessLink(ProcessProduct product, CalcExchange e) {
@@ -176,7 +178,6 @@ public class FastMatrixBuilder {
 	}
 
 	private TechIndex buildTechIndex() {
-		// TODO: check for null-pointers
 		ProcessProduct qref = ProcessProduct.of(
 				setup.productSystem.referenceProcess,
 				setup.productSystem.referenceExchange.flow);
@@ -209,42 +210,4 @@ public class FastMatrixBuilder {
 		}
 		return idx;
 	}
-
-	public static void main(String[] args) {
-		System.out.println("load ps");
-		String workspace = "C:/Users/ms/openLCA-data-1.4";
-		String dbPath = workspace
-				+ "/databases/zimple";
-		IDatabase db = new DerbyDatabase(new File(dbPath));
-		ProductSystem system = new ProductSystemDao(db).getForRefId(
-				"8a42a5d5-7244-4692-a735-067eeedbc710");
-		CalculationSetup setup = new CalculationSetup(
-				CalculationType.CONTRIBUTION_ANALYSIS, system);
-
-		System.out.println("build it");
-		long start = System.currentTimeMillis();
-
-		FastMatrixBuilder builder = new FastMatrixBuilder(db, setup);
-		MatrixData data = builder.build();
-
-		long end = System.currentTimeMillis();
-		double time = (end - start) / 1000.0;
-		System.out.println("matrix build took " + time + " secs");
-
-		// now the full result calculation
-		start = System.currentTimeMillis();
-		String juliaLibPath = "C:\\Users\\ms\\Projects\\openLCA\\eclipse";
-		Julia.loadFromDir(new File(juliaLibPath));
-		JuliaSolver solver = new JuliaSolver();
-		LcaCalculator calc = new LcaCalculator(solver, data);
-		FullResult r = calc.calculateFull();
-		end = System.currentTimeMillis();
-		time = (end - start) / 1000.0;
-		System.out.println("calculation took " + time + " secs");
-
-		System.out.println("done; flow count = " + r.flowIndex.size());
-		System.out.println(r.totalFlowResults[0]);
-
-	}
-
 }
