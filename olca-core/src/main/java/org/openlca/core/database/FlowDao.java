@@ -19,9 +19,8 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 
 	@Override
 	protected String[] getDescriptorFields() {
-		return new String[] { "id", "ref_id", "name", "description", "version",
-				"last_change", "f_category", "flow_type", "f_location",
-				"f_reference_flow_property" };
+		return new String[] { "id", "ref_id", "name", "description", "version", "last_change", "f_category",
+				"flow_type", "f_location", "f_reference_flow_property" };
 	}
 
 	@Override
@@ -87,17 +86,23 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 
 	public void replace(long oldId, long newId, boolean excludeExchangesWithProviders) {
 		try {
-			String statement = null;
+			String factorQuery = "SELECT id FROM tbl_flow_property_factors " + "WHERE f_flow_property = "
+					+ "(SELECT f_flow_property FROM tbl_flow_property_factors WHERE id = tbl_exchanges.f_flow_property_factor) "
+					+ "AND f_flow = " + newId;
+			String query = "UPDATE tbl_exchanges SET f_flow = " + newId + ", f_flow_property_factor = (" + factorQuery
+					+ "), f_default_provider = null WHERE f_flow = " + oldId;
 			if (excludeExchangesWithProviders) {
-				statement = "UPDATE tbl_exchanges SET f_flow = " + newId + " "
-						+ "WHERE f_flow = " + oldId + " AND f_default_provider IS NULL";
-			} else {
-				statement = "UPDATE tbl_exchanges SET f_flow = " + newId + ", f_default_provider = null "
-						+ "WHERE f_flow = " + oldId;
+				query += " AND f_default_provider IS NULL";
 			}
-			NativeSql.on(database).runUpdate(statement);
-			statement = "UPDATE tbl_impact_factors SET f_flow = " + newId + " WHERE f_flow = " + oldId;
-			NativeSql.on(database).runUpdate(statement);
+			System.out.println(query);
+			NativeSql.on(database).runUpdate(query);
+			factorQuery = "SELECT id FROM tbl_flow_property_factors " + "WHERE f_flow_property = "
+					+ "(SELECT f_flow_property FROM tbl_flow_property_factors WHERE id = tbl_impact_factors.f_flow_property_factor) "
+					+ "AND f_flow = " + newId;
+			query = "UPDATE tbl_impact_factors SET f_flow = " + newId + ", f_flow_property_factor = (" + factorQuery
+					+ ") WHERE f_flow = " + oldId;
+			System.out.println(query);
+			NativeSql.on(database).runUpdate(query);
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "failed to replace flow " + oldId + " with " + newId, e);
 		}
@@ -105,8 +110,8 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 
 	private Set<Long> getProcessIdsWhereUsed(long flowId, boolean input) {
 		Set<Long> ids = new HashSet<>();
-		String query = "SELECT f_owner FROM tbl_exchanges WHERE f_flow = "
-				+ flowId + " AND is_input = " + (input ? 1 : 0);
+		String query = "SELECT f_owner FROM tbl_exchanges WHERE f_flow = " + flowId + " AND is_input = "
+				+ (input ? 1 : 0);
 		try {
 			NativeSql.on(database).query(query, (rs) -> {
 				ids.add(rs.getLong("f_owner"));
