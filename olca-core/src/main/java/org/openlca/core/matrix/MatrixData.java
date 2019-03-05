@@ -2,6 +2,7 @@ package org.openlca.core.matrix;
 
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.expressions.FormulaInterpreter;
 
 /**
  * Contains the matrices of that are input of a calculation.
@@ -50,4 +51,28 @@ public class MatrixData {
 	 * scaled with the respective scaling factors in the result calculation.
 	 */
 	public double[] costVector;
+
+	/**
+	 * Contains the uncertainty distributions of the entries in the technology
+	 * matrix. This field is only used (not null) for uncertainty calculations.
+	 */
+	public UMatrix techUncertainties;
+
+	/**
+	 * Contains the uncertainty distributions of the entries in the intervention
+	 * matrix. This field is only used (not null) for uncertainty calculations.
+	 */
+	public UMatrix enviUncertainties;
+
+	// TODO uncertainty distributions of LCIA factors etc.
+
+	public void simulate(FormulaInterpreter interpreter) {
+		if (techMatrix != null && techUncertainties != null) {
+			techUncertainties.generate(techMatrix, interpreter);
+		}
+		if (enviMatrix != null && enviUncertainties != null) {
+			enviUncertainties.generate(enviMatrix, interpreter);
+		}
+		// TODO: generate values for LCIA factors
+	}
 }

@@ -130,9 +130,9 @@ public class DIndex<D extends BaseDescriptor> {
 	/**
 	 * Calls the given function for each descriptor in this index.
 	 */
-	public void each(Consumer<D> fn) {
-		for (D d : content) {
-			fn.accept(d);
+	public void each(IndexConsumer<D> fn) {
+		for (int i = 0; i < content.size(); i++) {
+			fn.accept(i, content.get(i));
 		}
 	}
 

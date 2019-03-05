@@ -83,7 +83,8 @@ public class InventoryBuilder2 {
 		data.enviIndex = flowIndex;
 		data.techMatrix = techBuilder.finish();
 		data.enviMatrix = enviBuilder.finish();
-		// TODO: uncertainties
+		data.techUncertainties = techUncerts;
+		data.enviUncertainties = enviUncerts;
 		return data;
 	}
 
@@ -200,6 +201,7 @@ public class InventoryBuilder2 {
 
 	private void add(int row, ProcessProduct provider, MatrixBuilder matrix,
 			CalcExchange exchange) {
+
 		int col = techIndex.getIndex(provider);
 		if (row < 0 || col < 0)
 			return;
@@ -209,11 +211,23 @@ public class InventoryBuilder2 {
 			allocationFactor = allocationIndex.get(
 					provider, exchange.exchangeId);
 		}
-		matrix.add(row, col, exchange.matrixValue(
-				conf.interpreter, allocationFactor));
+
+		double value = exchange.matrixValue(
+				conf.interpreter, allocationFactor);
+		matrix.add(row, col, value);
+
 		if (conf.withCosts) {
 			costs[col] += exchange.costValue(
 					conf.interpreter, allocationFactor);
+		}
+
+		if (conf.withUncertainties) {
+			if (matrix == techBuilder) {
+				techUncerts.add(row, col, exchange, allocationFactor);
+			}
+			if (matrix == enviBuilder) {
+				enviUncerts.add(row, col, exchange, allocationFactor);
+			}
 		}
 	}
 }

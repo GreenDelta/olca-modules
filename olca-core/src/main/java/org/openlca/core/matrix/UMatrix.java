@@ -89,7 +89,7 @@ public class UMatrix {
 				cols.advance();
 				int col = cols.key();
 				UCell cell = cols.value();
-				m.set(row, col, cell.next(interpreter));
+				m.set(row, col, cell.generate(interpreter));
 			}
 		}
 	}
@@ -100,7 +100,7 @@ public class UMatrix {
 		final CalcExchange exchange;
 		final double allocationFactor;
 
-		// possible other distritbutions that are mapped to the same matrix
+		// possible other distributions that are mapped to the same matrix
 		// cell.
 		List<UCell> overlay;
 
@@ -115,19 +115,19 @@ public class UMatrix {
 			this.exchange = e;
 			this.allocationFactor = allocationFactor;
 			gen = e.hasUncertainty()
-				? generator(e)
-				: null;
+					? generator(e)
+					: null;
 		}
 
-		public double next(FormulaInterpreter interpreter) {
+		public double generate(FormulaInterpreter interpreter) {
 			if (gen != null) {
 				exchange.amount = gen.next();
 			}
 			double a = exchange.matrixValue(
-				interpreter, allocationFactor);
+					interpreter, allocationFactor);
 			if (overlay != null) {
 				for (UCell u : overlay) {
-					a += u.next(interpreter);
+					a += u.generate(interpreter);
 				}
 			}
 			return a;
