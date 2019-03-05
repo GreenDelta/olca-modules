@@ -45,6 +45,15 @@ public class FastMatrixBuilder {
 	private MatrixBuilder enviBuilder;
 	private double[] costs;
 
+	/**
+	 * A map that assigns the IDs of products and waste flows to their
+	 * respective providers. This map is initialized lazily when there are no
+	 * default providers on product inputs or waste outputs. In this case, this
+	 * matrix builder only works correctly when each product (waste) is only
+	 * produced (treated) by a single process in the database.
+	 */
+	private TLongObjectHashMap<ProcessProduct> providers;
+
 	public FastMatrixBuilder(IDatabase db, CalculationSetup setup) {
 		this.db = db;
 		this.setup = setup;
@@ -116,8 +125,21 @@ public class FastMatrixBuilder {
 	}
 
 	private void addProcessLink(ProcessProduct product, CalcExchange e) {
-		LongPair exchange = LongPair.of(e.processId, e.exchangeId);
-		ProcessProduct provider = techIndex.getLinkedProvider(exchange);
+		ProcessProduct provider = null;
+		if (e.defaultProviderId > 0) {
+			provider = techIndex.getProvider(e.defaultProviderId, e.flowId);
+		}
+		if (provider == null) {
+			if (providers == null) {
+				providers = new TLongObjectHashMap<>();
+				techIndex.each((i, pp) -> {
+					providers.put(pp.flowId(), pp);
+				});
+			}
+			provider = providers.get(e.flowId);
+		}
+		if (provider == null)
+			return;
 		int row = techIndex.getIndex(provider);
 		add(row, product, techBuilder, e);
 	}
@@ -190,12 +212,12 @@ public class FastMatrixBuilder {
 
 	public static void main(String[] args) {
 		System.out.println("load ps");
-		String workspace = "C:/Users/Besitzer/openLCA-data-1.4";
+		String workspace = "C:/Users/ms/openLCA-data-1.4";
 		String dbPath = workspace
-				+ "/databases/exiobase3_monetary_20181212";
+				+ "/databases/zimple";
 		IDatabase db = new DerbyDatabase(new File(dbPath));
 		ProductSystem system = new ProductSystemDao(db).getForRefId(
-				"7313d6a1-3782-4566-92cd-875a82d92326");
+				"8a42a5d5-7244-4692-a735-067eeedbc710");
 		CalculationSetup setup = new CalculationSetup(
 				CalculationType.CONTRIBUTION_ANALYSIS, system);
 
@@ -211,7 +233,7 @@ public class FastMatrixBuilder {
 
 		// now the full result calculation
 		start = System.currentTimeMillis();
-		String juliaLibPath = "C:/Users/Besitzer/Projects/openlca/eclipse";
+		String juliaLibPath = "C:\\Users\\ms\\Projects\\openLCA\\eclipse";
 		Julia.loadFromDir(new File(juliaLibPath));
 		JuliaSolver solver = new JuliaSolver();
 		LcaCalculator calc = new LcaCalculator(solver, data);
@@ -221,6 +243,7 @@ public class FastMatrixBuilder {
 		System.out.println("calculation took " + time + " secs");
 
 		System.out.println("done; flow count = " + r.flowIndex.size());
+		System.out.println(r.totalFlowResults[0]);
 
 	}
 
