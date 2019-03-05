@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.ImpactTable;
@@ -49,7 +50,7 @@ import org.openlca.util.TopoSort;
  * calculation have to be done only once for each simulation step for each
  * product system $s_i \in S$.
  */
-class SimulationGraph {
+public class SimulationGraph {
 
 	/**
 	 * A node contains the data for the simulation of a single product (sub-)
@@ -161,6 +162,26 @@ class SimulationGraph {
 				continue;
 			g.nodes.add(g.nodeIndex.get(id));
 		}
+
+		// for the sub-system links we have to set the values in the
+		// technology matrices
+		Consumer<Node> subLinkFn = (Node node) -> {
+			for (ProcessProduct pp : node.subSystems()) {
+				Node subNode = g.nodeIndex.get(pp.id());
+				if (subNode == null)
+					continue;
+				int idx = node.data.techIndex.getIndex(pp);
+				if (idx < 0)
+					continue;
+				node.data.techMatrix.set(
+						idx, idx, subNode.data.techIndex.getDemand());
+			}
+		};
+		for (Node node : g.nodes) {
+			subLinkFn.accept(node);
+		}
+		subLinkFn.accept(g.root);
+
 		return g;
 	}
 

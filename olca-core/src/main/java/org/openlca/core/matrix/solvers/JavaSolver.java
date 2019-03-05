@@ -47,12 +47,16 @@ public class JavaSolver implements IMatrixSolver {
 		return new JavaMatrix(c);
 	}
 
-	private RealMatrix unwrap(IMatrix matrix) {
-		if (!(matrix instanceof JavaMatrix))
-			throw new IllegalArgumentException("unsupported matrix type: "
-					+ matrix);
-		JavaMatrix javaMatrix = (JavaMatrix) matrix;
-		return javaMatrix.getRealMatrix();
+	private RealMatrix unwrap(IMatrix m) {
+		if (m instanceof JavaMatrix)
+			return ((JavaMatrix) m).getRealMatrix();
+		RealMatrix rm = new Array2DRowRealMatrix(
+				m.rows(), m.columns());
+		for (int row = 0; row < m.rows(); row++) {
+			for (int col = 0; col < m.columns(); col++) {
+				rm.setEntry(row, col, m.get(row, col));
+			}
+		}
+		return rm;
 	}
-
 }

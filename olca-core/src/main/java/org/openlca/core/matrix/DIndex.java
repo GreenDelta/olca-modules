@@ -3,7 +3,6 @@ package org.openlca.core.matrix;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import org.openlca.core.model.descriptors.BaseDescriptor;
 

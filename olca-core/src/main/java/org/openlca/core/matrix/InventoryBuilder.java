@@ -56,7 +56,7 @@ public class InventoryBuilder {
 			for (SimpleResult sub : subResults.values()) {
 				if (sub.flowIndex == null)
 					continue;
-				sub.flowIndex.each(f -> {
+				sub.flowIndex.each((i, f) -> {
 					if (!flowIndex.contains(f)) {
 						if (sub.isInput(f)) {
 							flowIndex.putInput(f);
@@ -141,7 +141,7 @@ public class InventoryBuilder {
 				e.amount = r.techIndex.getDemand();
 
 				// add the LCI result
-				r.flowIndex.each(f -> {
+				r.flowIndex.each((i, f) -> {
 					CalcExchange ee = new CalcExchange();
 					ee.amount = r.getTotalFlowResult(f);
 					ee.conversionFactor = 1.0;

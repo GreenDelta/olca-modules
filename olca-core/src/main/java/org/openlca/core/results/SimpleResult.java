@@ -108,7 +108,7 @@ public class SimpleResult extends BaseResult {
 	 */
 	public List<FlowResult> getTotalFlowResults() {
 		List<FlowResult> results = new ArrayList<>();
-		flowIndex.each(d -> {
+		flowIndex.each((i, d) -> {
 			FlowResult r = new FlowResult();
 			r.flow = d;
 			r.input = flowIndex.isInput(d);
@@ -136,7 +136,7 @@ public class SimpleResult extends BaseResult {
 		List<ImpactResult> results = new ArrayList<>();
 		if (!hasImpactResults())
 			return results;
-		impactIndex.each(d -> {
+		impactIndex.each((i, d) -> {
 			ImpactResult r = new ImpactResult();
 			r.impactCategory = d;
 			r.value = getTotalImpactResult(d);

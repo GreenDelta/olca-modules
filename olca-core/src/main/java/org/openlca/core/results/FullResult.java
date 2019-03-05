@@ -117,7 +117,7 @@ public class FullResult extends ContributionResult {
 	public List<FlowResult> getUpstreamFlowResults(
 			CategorizedDescriptor process) {
 		List<FlowResult> results = new ArrayList<>();
-		flowIndex.each(flow -> {
+		flowIndex.each((i, flow) -> {
 			FlowResult r = new FlowResult();
 			r.flow = flow;
 			r.input = flowIndex.isInput(flow);
@@ -165,7 +165,7 @@ public class FullResult extends ContributionResult {
 		List<ImpactResult> results = new ArrayList<>();
 		if (!hasImpactResults())
 			return results;
-		impactIndex.each(impact -> {
+		impactIndex.each((i, impact) -> {
 			ImpactResult r = new ImpactResult();
 			r.impactCategory = impact;
 			r.value = getUpstreamImpactResult(process, impact);

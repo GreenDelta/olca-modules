@@ -103,7 +103,7 @@ public class ContributionResult extends SimpleResult {
 	public List<FlowResult> getFlowContributions(
 			CategorizedDescriptor process) {
 		List<FlowResult> results = new ArrayList<>();
-		flowIndex.each(flow -> {
+		flowIndex.each((i, flow) -> {
 			FlowResult r = new FlowResult();
 			r.flow = flow;
 			r.input = flowIndex.isInput(flow.id);
@@ -159,7 +159,7 @@ public class ContributionResult extends SimpleResult {
 	public List<ImpactResult> getImpactContributions(
 			CategoryDescriptor process) {
 		List<ImpactResult> results = new ArrayList<>();
-		impactIndex.each(impact -> {
+		impactIndex.each((i, impact) -> {
 			ImpactResult r = new ImpactResult();
 			r.impactCategory = impact;
 			r.value = getDirectImpactResult(process, impact);
@@ -235,7 +235,7 @@ public class ContributionResult extends SimpleResult {
 	public List<FlowResult> getFlowContributions(
 			ImpactCategoryDescriptor impact) {
 		List<FlowResult> results = new ArrayList<>();
-		flowIndex.each(flow -> {
+		flowIndex.each((i, flow) -> {
 			FlowResult r = new FlowResult();
 			r.flow = flow;
 			r.input = flowIndex.isInput(flow);

@@ -70,7 +70,7 @@ public class SystemProcess {
 	}
 
 	private void addElemFlows(Process p) {
-		result.flowIndex.each(d -> {
+		result.flowIndex.each((i, d) -> {
 			double amount = result.getTotalFlowResult(d);
 			if (amount == 0)
 				return;

@@ -58,7 +58,7 @@ public class InventoryBuilder2 {
 			for (SimpleResult sub : conf.subResults.values()) {
 				if (sub.flowIndex == null)
 					continue;
-				sub.flowIndex.each(f -> {
+				sub.flowIndex.each((i, f) -> {
 					if (!flowIndex.contains(f)) {
 						if (sub.isInput(f)) {
 							flowIndex.putInput(f);
@@ -128,7 +128,7 @@ public class InventoryBuilder2 {
 				techBuilder.add(col, col, a);
 
 				// add the LCI result
-				r.flowIndex.each(f -> {
+				r.flowIndex.each((i, f) -> {
 					double b = r.getTotalFlowResult(f);
 					if (r.isInput(f)) {
 						b = -b;
