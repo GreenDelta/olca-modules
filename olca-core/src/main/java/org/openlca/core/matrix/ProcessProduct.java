@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -49,6 +50,18 @@ public class ProcessProduct {
 			Process process,
 			Flow flow) {
 		return of(Descriptors.toDescriptor(process),
+				Descriptors.toDescriptor(flow));
+	}
+
+	/**
+	 * Creates a product where the given product system is the provider and the
+	 * reference flow of the system the product.
+	 */
+	public static ProcessProduct of(ProductSystem system) {
+		Flow flow = system.referenceExchange != null
+				? system.referenceExchange.flow
+				: null;
+		return of(Descriptors.toDescriptor(system),
 				Descriptors.toDescriptor(flow));
 	}
 

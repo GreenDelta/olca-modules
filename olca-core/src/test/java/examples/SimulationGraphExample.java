@@ -17,8 +17,7 @@ import org.openlca.core.results.SimpleResult;
 public class SimulationGraphExample {
 
 	public static void main(String[] args) {
-
-		String workspace = "C:/Users/Besitzer/openLCA-data-1.4";
+		String workspace = "C:/Users/ms/openLCA-data-1.4";
 		String dbPath = workspace
 				+ "/databases/zabtest";
 		IDatabase db = new DerbyDatabase(new File(dbPath));
