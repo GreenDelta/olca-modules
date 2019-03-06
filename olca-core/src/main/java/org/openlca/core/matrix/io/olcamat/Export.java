@@ -9,8 +9,8 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.DataStructures;
 import org.openlca.core.matrix.CalcExchange;
-import org.openlca.core.matrix.Inventory;
-import org.openlca.core.matrix.InventoryBuilder;
+import org.openlca.core.matrix.InventoryBuilder2;
+import org.openlca.core.matrix.InventoryConfig;
 import org.openlca.core.matrix.LinkingConfig;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.MatrixData;
@@ -77,10 +77,11 @@ public class Export implements Runnable {
 			techIndex.put(products.get(i));
 		}
 		dbLinks(techIndex);
-		InventoryBuilder builder = new InventoryBuilder(
-				cache, techIndex, AllocationMethod.USE_DEFAULT);
-		Inventory inv = builder.build();
-		return inv.createMatrix(solver);
+		InventoryConfig config = new InventoryConfig(db, techIndex);
+		config.allocationMethod = AllocationMethod.USE_DEFAULT;
+		config.interpreter = DataStructures.interpreter(db, setup, techIndex);
+		InventoryBuilder2 builder = new InventoryBuilder2(config);
+		return builder.build();
 	}
 
 	private MatrixData setupInventory() {

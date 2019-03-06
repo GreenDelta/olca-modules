@@ -49,6 +49,7 @@ public class MatrixData {
 	 * process-products. Unscaled means that these net-costs are related to the
 	 * (allocated) product amount in the respective process. The vector is then
 	 * scaled with the respective scaling factors in the result calculation.
+	 * This vector is only available when LCC calculation should be done.
 	 */
 	public double[] costVector;
 

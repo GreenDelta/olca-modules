@@ -10,7 +10,6 @@ import org.openlca.core.math.DataStructures;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.CostVector;
 import org.openlca.core.matrix.ImpactTable;
-import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.cache.MatrixCache;
@@ -43,25 +42,23 @@ public class RegionalizedCalculator {
 			RegionalizationSetup regioSetup) {
 		try {
 			// TODO: sub-systems are currently not supported
-			Inventory inventory = DataStructures.inventory(
-					setup, cache, Collections.emptyMap());
+			MatrixData m = DataStructures.matrixData(
+					setup, solver, cache, Collections.emptyMap());
 			if (regioSetup == null)
 				regioSetup = RegionalizationSetup.create(
-						db, setup.impactMethod, inventory.techIndex);
+						db, setup.impactMethod, m.techIndex);
 			if (!regioSetup.canCalculate)
 				return null;
 
 			FormulaInterpreter interpreter = DataStructures.interpreter(
-					db, setup, inventory.techIndex);
-
-			MatrixData m = inventory.createMatrix(solver, interpreter);
+					db, setup, m.techIndex);
 
 			ImpactTable impactTable = ImpactTable.build(cache,
-					setup.impactMethod.id, inventory.flowIndex);
+					setup.impactMethod.id, m.enviIndex);
 
 			FullResult r = new FullResult();
-			r.flowIndex = inventory.flowIndex;
-			r.techIndex = inventory.techIndex;
+			r.flowIndex = m.enviIndex;
+			r.techIndex = m.techIndex;
 			r.impactIndex = impactTable.impactIndex;
 
 			// direct LCI results
@@ -107,10 +104,10 @@ public class RegionalizedCalculator {
 			r.totalImpactResults = r.upstreamImpactResults.getColumn(refIdx);
 
 			// add LCC results
-			if (setup.withCosts) {
+			if (m.costVector != null) {
 
 				// direct LCC
-				double[] costValues = CostVector.build(inventory, db);
+				double[] costValues = m.costVector;
 				double[] directCosts = new double[costValues.length];
 				for (int i = 0; i < r.scalingVector.length; i++) {
 					directCosts[i] = costValues[i] * r.scalingVector[i];

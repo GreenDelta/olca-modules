@@ -26,7 +26,7 @@ public class Inventory {
 		return createMatrix(solver, null);
 	}
 
-	public MatrixData createMatrix(IMatrixSolver solver,
+	private MatrixData createMatrix(IMatrixSolver solver,
 			FormulaInterpreter interpreter) {
 		evalFormulas(interpreter);
 		MatrixData data = new MatrixData();
