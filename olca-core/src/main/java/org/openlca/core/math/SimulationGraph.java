@@ -210,7 +210,7 @@ public class SimulationGraph {
 					ProductSystemDao dao = new ProductSystemDao(db);
 					ProductSystem sub = dao.getForId(system);
 					_setup = new CalculationSetup(
-							CalculationType.SIMPLE_CALCULATION, sub);
+							CalculationType.MONTE_CARLO_SIMULATION, sub);
 					_setup.parameterRedefs.addAll(sub.parameterRedefs);
 					_setup.withCosts = setup.withCosts;
 					_setup.allocationMethod = setup.allocationMethod;

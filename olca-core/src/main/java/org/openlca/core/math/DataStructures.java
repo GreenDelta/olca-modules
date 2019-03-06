@@ -133,6 +133,7 @@ public class DataStructures {
 		conf.interpreter = interpreter;
 		conf.subResults = subResults;
 		conf.withCosts = setup.withCosts;
+		conf.withUncertainties = setup.type == CalculationType.MONTE_CARLO_SIMULATION;
 		InventoryBuilder2 builder = new InventoryBuilder2(conf);
 
 		MatrixData data = builder.build();
