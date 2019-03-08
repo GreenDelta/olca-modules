@@ -91,7 +91,7 @@ public class RegionalizedCalculator {
 			solver.scaleColumns(r.directImpactResults, r.scalingVector);
 
 			// upstream & total results
-			r.loopFactor = baseCalc.getLoopFactor(
+			r.loopFactor = LcaCalculator.getLoopFactor(
 					m.techMatrix, r.scalingVector, r.techIndex);
 			double[] demands = baseCalc.getRealDemands(
 					r.totalRequirements, r.loopFactor);

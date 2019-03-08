@@ -10,6 +10,6 @@
 **/apidocs/
 **/target/
 **/bin/
-derby.log
+*.log
 
 *.*~

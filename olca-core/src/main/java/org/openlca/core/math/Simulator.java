@@ -13,16 +13,21 @@ import java.util.Set;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProductSystemDao;
+import org.openlca.core.matrix.DIndex;
+import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
+import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.core.results.SimulationResult;
 import org.openlca.expressions.FormulaInterpreter;
@@ -58,6 +63,13 @@ import org.slf4j.LoggerFactory;
  * product system $s_i \in S$.
  */
 public class Simulator {
+
+	/**
+	 * A set of products for which upstream and direct contributions should be
+	 * tracked during the simulation. These products must be part of the
+	 * TechIndex.
+	 */
+	public final Set<ProcessProduct> pinnedProducts = new HashSet<>();
 
 	private final IMatrixSolver solver;
 
@@ -106,15 +118,20 @@ public class Simulator {
 	public SimulationResult getResult() {
 		if (result != null)
 			return result;
-		result = new SimulationResult();
-		if (root != null) {
-			result.flowIndex = root.data.enviIndex;
-			result.techIndex = root.data.techIndex;
-			if (root.impactTable != null) {
-				result.impactIndex = root.impactTable.impactIndex;
-			}
-		}
+		result = new SimulationResult(root.data);
 		return result;
+	}
+
+	public TechIndex getTechIndex() {
+		return root.data.techIndex;
+	}
+
+	public FlowIndex getEnviIndex() {
+		return root.data.enviIndex;
+	}
+
+	public DIndex<ImpactCategoryDescriptor> getImpactIndex() {
+		return root.data.impactIndex;
 	}
 
 	/**
@@ -126,6 +143,8 @@ public class Simulator {
 	 */
 	public SimpleResult nextRun() {
 		try {
+
+			// generate the numbers and calculate the overall result
 			for (Node sub : subNodes) {
 				generateData(sub);
 				LcaCalculator calc = new LcaCalculator(solver, sub.data);
@@ -136,6 +155,45 @@ public class Simulator {
 			SimpleResult sr = calc.calculateSimple();
 			SimulationResult r = getResult();
 			r.append(sr);
+
+			// calculate results of possible pinned products
+			for (ProcessProduct pinned : pinnedProducts) {
+				int idx = sr.techIndex.getIndex(pinned);
+				if (idx < 0)
+					continue;
+
+				// A, B, C, s, t are the standard symbols
+				// in LCA calculations
+				IMatrix A = root.data.techMatrix;
+				IMatrix B = root.data.enviMatrix;
+				IMatrix C = root.data.impactMatrix;
+				double[] s = sr.scalingVector;
+
+				// direct contributions
+				SimpleResult direct = new SimpleResult();
+				double si = s[idx];
+				direct.totalFlowResults = B.getColumn(idx);
+				for (int row = 0; row < sr.flowIndex.size(); row++) {
+					direct.totalFlowResults[row] *= si;
+				}
+				if (C != null) {
+					direct.totalImpactResults = solver.multiply(
+							C, direct.totalFlowResults);
+				}
+
+				// upstream contributions
+				SimpleResult upstream = new SimpleResult();
+				double fi = si * A.get(idx, idx);
+				double loopFactor = LcaCalculator.getLoopFactor(
+						A, s, sr.techIndex);
+				fi *= loopFactor;
+				double[] su = solver.solve(A, idx, fi);
+				upstream.totalFlowResults = solver.multiply(B, su);
+				if (C != null) {
+					upstream.totalImpactResults = solver.multiply(
+							C, upstream.totalFlowResults);
+				}
+			}
 			return sr;
 		} catch (Throwable e) {
 			Logger log = LoggerFactory.getLogger(this.getClass());

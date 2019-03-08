@@ -178,7 +178,8 @@ public class LcaCalculator {
 		return tr;
 	}
 
-	public double getLoopFactor(IMatrix A, double[] s, TechIndex techIndex) {
+	public static double getLoopFactor(
+			IMatrix A, double[] s, TechIndex techIndex) {
 		int i = techIndex.getIndex(techIndex.getRefFlow());
 		double t = A.get(i, i) * s[i];
 		double f = techIndex.getDemand();
