@@ -57,7 +57,7 @@ public class Calculator {
 					"No product system found for @id=" + systemID, req);
 		CalculationSetup setup = buildSetup(json, system);
 		log.info("Create simulator for system {}", systemID);
-		Simulator simulator = new Simulator(setup,
+		Simulator simulator = Simulator.create(setup,
 				MatrixCache.createEager(db), context.solver);
 		String id = UUID.randomUUID().toString();
 		JsonObject obj = new JsonObject();
@@ -113,7 +113,7 @@ public class Calculator {
 		log.info("Calculate product system {}", systemID);
 		return calculate(req, setup);
 	}
-	
+
 	private CalculationSetup buildSetup(JsonObject json, ProductSystem system) {
 		CalculationType type = Json.getEnum(json, "calculationType",
 				CalculationType.class);
@@ -137,7 +137,7 @@ public class Calculator {
 		parameters(json, setup);
 		return setup;
 	}
-	
+
 	private void parameters(JsonObject json, CalculationSetup setup) {
 		JsonArray array = Json.getArray(json, "parameterRedefs");
 		if (array == null)
@@ -180,7 +180,7 @@ public class Calculator {
 		}
 		return null;
 	}
-	
+
 	private RpcResponse calculate(RpcRequest req, CalculationSetup setup) {
 		try {
 			SystemCalculator calc = new SystemCalculator(

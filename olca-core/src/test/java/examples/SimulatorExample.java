@@ -8,7 +8,6 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.CalculationType;
-import org.openlca.core.math.SimulationGraph;
 import org.openlca.core.math.Simulator;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.ProductSystem;
@@ -48,11 +47,8 @@ public class SimulatorExample {
 		Julia.loadFromDir(new File(juliaLibPath));
 		JuliaSolver solver = new JuliaSolver();
 
-		// Simulator simulator = new Simulator(
-		// setup, MatrixCache.createEager(db), solver);
-
-		SimulationGraph simulator = SimulationGraph.build(
-				MatrixCache.createLazy(db), setup, solver);
+		Simulator simulator = Simulator.create(
+				setup, MatrixCache.createLazy(db), solver);
 
 		double min = 0;
 		double max = 0;
