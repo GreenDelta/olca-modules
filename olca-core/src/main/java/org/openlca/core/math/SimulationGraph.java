@@ -2,6 +2,7 @@ package org.openlca.core.math;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,10 +21,14 @@ import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.SimpleResult;
+import org.openlca.core.results.SimulationResult;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.util.TopoSort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * When running the Monte Carlo simulation on a product system $s_r$ that has a
@@ -78,6 +83,8 @@ public class SimulationGraph {
 	 */
 	private final Map<Long, Node> nodeIndex = new HashMap<>();
 
+	private SimulationResult result;
+
 	private SimulationGraph(IMatrixSolver solver) {
 		this.solver = solver;
 	}
@@ -91,15 +98,53 @@ public class SimulationGraph {
 		return g;
 	}
 
-	public SimpleResult nextRun() {
-		for (Node sub : subNodes) {
-			generateData(sub);
-			LcaCalculator calc = new LcaCalculator(solver, sub.data);
-			sub.lastResult = calc.calculateSimple();
+	/**
+	 * Get the result of the simulation.
+	 */
+	public SimulationResult getResult() {
+		if (result != null)
+			return result;
+		result = new SimulationResult();
+		if (root != null) {
+			result.flowIndex = root.data.enviIndex;
+			result.techIndex = root.data.techIndex;
+			if (root.impactTable != null) {
+				result.impactIndex = root.impactTable.impactIndex;
+			}
 		}
-		generateData(root);
-		LcaCalculator calc = new LcaCalculator(solver, root.data);
-		return calc.calculateSimple();
+		return result;
+	}
+
+	/**
+	 * Generates random numbers and calculates the product system. Returns the
+	 * simulation result if the calculation in this run finished without errors,
+	 * otherwise `null` is returned (e.g. when the resulting matrix was
+	 * singular). The returned result is appended to the result of the simulator
+	 * (which you get via `getResult()`, so it does not need to be cached.
+	 */
+	public SimpleResult nextRun() {
+		try {
+			for (Node sub : subNodes) {
+				generateData(sub);
+				LcaCalculator calc = new LcaCalculator(solver, sub.data);
+				sub.lastResult = calc.calculateSimple();
+			}
+			generateData(root);
+			LcaCalculator calc = new LcaCalculator(solver, root.data);
+			SimpleResult sr = calc.calculateSimple();
+			SimulationResult r = getResult();
+			if (sr.totalFlowResults != null) {
+				r.appendFlowResults(sr.totalFlowResults);
+			}
+			if (sr.totalImpactResults != null) {
+				r.appendImpactResults(sr.totalImpactResults);
+			}
+			return sr;
+		} catch (Throwable e) {
+			Logger log = LoggerFactory.getLogger(this.getClass());
+			log.trace("simulation run failed", e);
+			return null;
+		}
 	}
 
 	private void generateData(Node node) {
@@ -134,28 +179,45 @@ public class SimulationGraph {
 	}
 
 	private void init(MatrixCache mcache, CalculationSetup setup) {
+		IDatabase db = mcache.getDatabase();
+		long rootID = setup.productSystem.id;
+
+		// check whether the root system has sub-system links;
+		// only when this is true we need to collect and order
+		// the sub-system relations
+		boolean hasSubSystems = false;
+		for (ProcessLink link : setup.productSystem.processLinks) {
+			if (link.isSystemLink) {
+				hasSubSystems = true;
+				break;
+			}
+		}
+		if (!hasSubSystems) {
+			root = new Node(setup, mcache, Collections.emptyMap());
+			nodeIndex.put(root.systemID, root);
+			return;
+		}
+
+		// systems contains the IDs of all product systems;
+		// with this we can quickly check if an ID is an
+		// ID of a product system
+		HashSet<Long> systems = new HashSet<>();
+		String sql = "select id from tbl_product_systems";
 		try {
-			IDatabase db = mcache.getDatabase();
-			long rootID = setup.productSystem.id;
-
-			// TODO: check whether the root system has sub-system links,
-			// and and only in this case we need to collect and order
-			// the sub-system relations
-
-			// systems contains the IDs of all product systems;
-			// with this we can quickly check if an ID is an
-			// ID of a product system
-			HashSet<Long> systems = new HashSet<>();
-			String sql = "select id from tbl_product_systems";
 			NativeSql.on(db).query(sql, r -> {
 				systems.add(r.getLong(1));
 				return true;
 			});
+		} catch (Exception e) {
+			throw new RuntimeException(
+					"failed to collect product system IDs", e);
+		}
 
-			// allRels contains the sub-system relations of each product system
-			// in the database as: hostSystemID -> (subSystemID, hostSystemID)*
-			Map<Long, List<LongPair>> allRels = new HashMap<>();
-			sql = "select f_product_system, f_provider from tbl_process_links";
+		// allRels contains the sub-system relations of each product system
+		// in the database as: hostSystemID -> (subSystemID, hostSystemID)*
+		Map<Long, List<LongPair>> allRels = new HashMap<>();
+		sql = "select f_product_system, f_provider from tbl_process_links";
+		try {
 			NativeSql.on(db).query(sql, r -> {
 				long provider = r.getLong(2);
 				if (!systems.contains(provider))
@@ -169,94 +231,92 @@ public class SimulationGraph {
 				rels.add(LongPair.of(provider, system));
 				return true;
 			});
-
-			// now collect the sub-system relations that we need to consider
-			HashSet<LongPair> sysRels = new HashSet<>();
-			Queue<Long> queue = new ArrayDeque<>();
-			queue.add(rootID);
-			HashSet<Long> handled = new HashSet<>();
-			handled.add(rootID);
-			while (!queue.isEmpty()) {
-				long nextID = queue.poll();
-				List<LongPair> rels = allRels.get(nextID);
-				if (rels == null)
-					continue;
-				sysRels.addAll(rels);
-				for (LongPair rel : rels) {
-					long subSystem = rel.first;
-					if (handled.contains(subSystem))
-						continue;
-					queue.add(subSystem);
-					handled.add(subSystem);
-				}
-			}
-
-			// now we can initialize the nodes in topological order
-			List<Long> order = TopoSort.of(sysRels);
-			if (order == null)
-				throw new RuntimeException(
-						"there are sub-system cycles in the product system");
-
-			// now, we initialize the nodes in topological order
-			Map<ProcessProduct, SimpleResult> subResults = new HashMap<>();
-			for (long system : order) {
-
-				CalculationSetup _setup = null;
-				if (system == rootID) {
-					_setup = setup;
-				} else {
-					// create node for LCI and LCC data simulation
-					// do *not* copy the LCIA method here
-					ProductSystemDao dao = new ProductSystemDao(db);
-					ProductSystem sub = dao.getForId(system);
-					_setup = new CalculationSetup(
-							CalculationType.MONTE_CARLO_SIMULATION, sub);
-					_setup.parameterRedefs.addAll(sub.parameterRedefs);
-					_setup.withCosts = setup.withCosts;
-					_setup.allocationMethod = setup.allocationMethod;
-				}
-
-				Node node = new Node(_setup, mcache, subResults);
-				nodeIndex.put(system, node);
-				if (system == rootID) {
-					root = node;
-				} else {
-					subNodes.add(node);
-
-					// for the sub-nodes we need to initialize an empty
-					// result so that the respective host-systems will
-					// be initialized with the correct matrix shapes (
-					// e.g. flows that only occure in a sub-system
-					// need a row in the respective host-systems)
-					SimpleResult r = new SimpleResult();
-					r.techIndex = node.data.techIndex;
-					r.flowIndex = node.data.enviIndex;
-					r.totalFlowResults = new double[r.flowIndex.size()];
-					node.lastResult = r;
-					subResults.put(node.product, r);
-				}
-			}
-
-			// finally, we add the sub-system links to the nodes so
-			// the we do not need to collect them in the simulation
-			for (Node node : nodeIndex.values()) {
-				List<LongPair> subRels = allRels.get(node.systemID);
-				if (subRels == null || subRels.isEmpty())
-					continue;
-				node.subSystems = new HashSet<>();
-				for (LongPair rel : subRels) {
-					Node subNode = nodeIndex.get(rel.first);
-					if (subNode == null)
-						continue;
-					node.subSystems.add(subNode.product);
-				}
-			}
-
 		} catch (Exception e) {
 			throw new RuntimeException(
-					"building the simulation graph failed", e);
+					"failed to collect sub-system relations", e);
 		}
 
+		// now collect the sub-system relations that we need to consider
+		HashSet<LongPair> sysRels = new HashSet<>();
+		Queue<Long> queue = new ArrayDeque<>();
+		queue.add(rootID);
+		HashSet<Long> handled = new HashSet<>();
+		handled.add(rootID);
+		while (!queue.isEmpty()) {
+			long nextID = queue.poll();
+			List<LongPair> rels = allRels.get(nextID);
+			if (rels == null)
+				continue;
+			sysRels.addAll(rels);
+			for (LongPair rel : rels) {
+				long subSystem = rel.first;
+				if (handled.contains(subSystem))
+					continue;
+				queue.add(subSystem);
+				handled.add(subSystem);
+			}
+		}
+
+		// now we can initialize the nodes in topological order
+		List<Long> order = TopoSort.of(sysRels);
+		if (order == null)
+			throw new RuntimeException(
+					"there are sub-system cycles in the product system");
+
+		// now, we initialize the nodes in topological order
+		Map<ProcessProduct, SimpleResult> subResults = new HashMap<>();
+		for (long system : order) {
+
+			CalculationSetup _setup = null;
+			if (system == rootID) {
+				_setup = setup;
+			} else {
+				// create node for LCI and LCC data simulation
+				// do *not* copy the LCIA method here
+				ProductSystemDao dao = new ProductSystemDao(db);
+				ProductSystem sub = dao.getForId(system);
+				_setup = new CalculationSetup(
+						CalculationType.MONTE_CARLO_SIMULATION, sub);
+				_setup.parameterRedefs.addAll(sub.parameterRedefs);
+				_setup.withCosts = setup.withCosts;
+				_setup.allocationMethod = setup.allocationMethod;
+			}
+
+			Node node = new Node(_setup, mcache, subResults);
+			nodeIndex.put(system, node);
+			if (system == rootID) {
+				root = node;
+			} else {
+				subNodes.add(node);
+
+				// for the sub-nodes we need to initialize an empty
+				// result so that the respective host-systems will
+				// be initialized with the correct matrix shapes (
+				// e.g. flows that only occure in a sub-system
+				// need a row in the respective host-systems)
+				SimpleResult r = new SimpleResult();
+				r.techIndex = node.data.techIndex;
+				r.flowIndex = node.data.enviIndex;
+				r.totalFlowResults = new double[r.flowIndex.size()];
+				node.lastResult = r;
+				subResults.put(node.product, r);
+			}
+		}
+
+		// finally, we add the sub-system links to the nodes so
+		// the we do not need to collect them in the simulation
+		for (Node node : nodeIndex.values()) {
+			List<LongPair> subRels = allRels.get(node.systemID);
+			if (subRels == null || subRels.isEmpty())
+				continue;
+			node.subSystems = new HashSet<>();
+			for (LongPair rel : subRels) {
+				Node subNode = nodeIndex.get(rel.first);
+				if (subNode == null)
+					continue;
+				node.subSystems.add(subNode.product);
+			}
+		}
 	}
 
 	/**

@@ -50,6 +50,8 @@ public class SimulationResult extends BaseResult {
 	}
 
 	private void appendResults(double[] vector, List<Double>[] results) {
+		if (vector == null || results == null)
+			return;
 		for (int i = 0; i < vector.length; i++) {
 			List<Double> list = results[i];
 			if (list == null) {
