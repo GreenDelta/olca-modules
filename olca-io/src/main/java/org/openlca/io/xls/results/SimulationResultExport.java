@@ -76,7 +76,7 @@ public class SimulationResultExport {
 				.impacts(result.getImpacts());
 		for (ImpactCategoryDescriptor impact : impacts) {
 			writer.impactRow(sheet, row, 1, impact);
-			List<Double> values = result.getImpactResults(impact);
+			double[] values = result.getAll(impact);
 			writeValues(sheet, row, IMPACT_HEADER.length + 1, values);
 			row++;
 		}
@@ -119,7 +119,7 @@ public class SimulationResultExport {
 			if (idx.isInput(flow.id) != forInputs)
 				continue;
 			writer.flowRow(sheet, row, 1, flow);
-			List<Double> values = result.getFlowResults(flow);
+			double[] values = result.getAll(flow);
 			writeValues(sheet, row, FLOW_HEADER.length + 1, values);
 			row++;
 		}
@@ -155,7 +155,7 @@ public class SimulationResultExport {
 	}
 
 	private void writeValues(Sheet sheet, int row, int startCol,
-			List<Double> values) {
+			double[] values) {
 		if (values == null)
 			return;
 		int col = startCol;
@@ -167,8 +167,9 @@ public class SimulationResultExport {
 		Excel.cell(sheet, row, col++, stat.getMedian());
 		Excel.cell(sheet, row, col++, stat.getPercentileValue(5));
 		Excel.cell(sheet, row, col++, stat.getPercentileValue(95));
-		for (int i = 0; i < values.size(); i++)
-			Excel.cell(sheet, row, col++, values.get(i).doubleValue());
+		for (int i = 0; i < values.length; i++) {
+			Excel.cell(sheet, row, col++, values[i]);
+		}
 	}
 
 }

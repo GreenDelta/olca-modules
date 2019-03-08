@@ -1,26 +1,24 @@
 package org.openlca.core.results;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.Arrays;
 
 /**
  * Calculates statistic parameters for a set of numbers.
  */
 public class SimulationStatistics {
 
-	private List<Double> values;
+	private double[] values;
 	private int intervalCount;
 	private int[] frequencies;
 
-	public SimulationStatistics(List<Double> values, int intervalCount) {
-		if (values == null || values.isEmpty()) {
-			this.values = new ArrayList<>();
-			this.values.add(0d);
+	public SimulationStatistics(double[] values, int intervalCount) {
+		if (values == null) {
+			this.values = new double[0];
 		} else {
-			this.values = new ArrayList<>(values);
+			this.values = new double[values.length];
+			System.arraycopy(values, 0, this.values, 0, values.length);
 		}
-		Collections.sort(this.values);
+		Arrays.sort(this.values);
 		this.intervalCount = intervalCount < 1 ? 1 : intervalCount;
 		calculateFrequencyTable();
 	}
@@ -51,23 +49,29 @@ public class SimulationStatistics {
 	}
 
 	public double getMaximum() {
-		return values.get(values.size() - 1);
+		if (values.length == 0)
+			return 0;
+		return values[values.length - 1];
 	}
 
 	public double getMinimum() {
-		return values.get(0);
+		if (values.length == 0)
+			return 0;
+		return values[0];
 	}
 
 	public int getCount() {
-		return values.size();
+		return values.length;
 	}
 
 	public double getMean() {
+		if (values.length == 0)
+			return 0;
 		double sum = 0;
 		for (double v : values) {
 			sum += v;
 		}
-		return sum / values.size();
+		return sum / values.length;
 	}
 
 	/**
@@ -77,10 +81,12 @@ public class SimulationStatistics {
 	 *            the percentage value (0..100)
 	 */
 	public double getPercentileValue(int percentile) {
-		int index = percentile * values.size() / 100;
+		if (values.length == 0)
+			return 0;
+		int index = percentile * values.length / 100;
 		if (index == 0 || 1 == (index % 2))
-			return values.get(index);
-		return (values.get(index) + values.get(index - 1)) / 2;
+			return values[index];
+		return (values[index] + values[index - 1]) / 2;
 	}
 
 	public double getMedian() {
@@ -88,20 +94,20 @@ public class SimulationStatistics {
 		if (size == 0)
 			return 0;
 		if (1 == (size % 2))
-			return values.get(size / 2);
+			return values[size / 2];
 		int upper = size / 2;
 		int lower = upper - 1;
-		return (values.get(upper) + values.get(lower)) / 2d;
+		return (values[upper] + values[lower]) / 2d;
 	}
 
 	public double getStandardDeviation() {
-		if (values.size() < 2)
+		if (values.length < 2)
 			return 0d;
 		double mean = getMean();
 		double sd = 0d;
 		for (double val : values)
 			sd += Math.pow(val - mean, 2);
-		sd /= values.size() - 1;
+		sd /= values.length - 1;
 		return Math.sqrt(sd);
 	}
 

@@ -135,12 +135,7 @@ public class Simulator {
 			LcaCalculator calc = new LcaCalculator(solver, root.data);
 			SimpleResult sr = calc.calculateSimple();
 			SimulationResult r = getResult();
-			if (sr.totalFlowResults != null) {
-				r.appendFlowResults(sr.totalFlowResults);
-			}
-			if (sr.totalImpactResults != null) {
-				r.appendImpactResults(sr.totalImpactResults);
-			}
+			r.append(sr);
 			return sr;
 		} catch (Throwable e) {
 			Logger log = LoggerFactory.getLogger(this.getClass());

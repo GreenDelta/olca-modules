@@ -1,9 +1,7 @@
 package org.openlca.core.results;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -16,78 +14,77 @@ import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
  */
 public class SimulationResult extends BaseResult {
 
-	private List<Double>[] flowResults;
-	private List<Double>[] impactResults;
+	private final List<double[]> flowResults = new ArrayList<>();
+	private final List<double[]> impactResults = new ArrayList<>();
 
-	public List<Double>[] getFlowResults() {
-		return flowResults;
-	}
-
-	public void setFlowResults(List<Double>[] flowResults) {
-		this.flowResults = flowResults;
-	}
-
-	public List<Double>[] getImpactResults() {
-		return impactResults;
-	}
-
-	public void setImpactResults(List<Double>[] impactResults) {
-		this.impactResults = impactResults;
-	}
-
-	@SuppressWarnings("unchecked")
-	public void appendFlowResults(double[] vector) {
-		if (flowResults == null)
-			flowResults = new List[flowIndex.size()];
-		appendResults(vector, flowResults);
-	}
-
-	@SuppressWarnings("unchecked")
-	public void appendImpactResults(double[] vector) {
-		if (impactResults == null)
-			impactResults = new List[impactIndex.size()];
-		appendResults(vector, impactResults);
-	}
-
-	private void appendResults(double[] vector, List<Double>[] results) {
-		if (vector == null || results == null)
+	public void append(SimpleResult r) {
+		if (r == null)
 			return;
-		for (int i = 0; i < vector.length; i++) {
-			List<Double> list = results[i];
-			if (list == null) {
-				list = new ArrayList<>();
-				results[i] = list;
-			}
-			list.add(vector[i]);
+		if (r.totalFlowResults != null) {
+			flowResults.add(r.totalFlowResults);
+		}
+		if (r.totalImpactResults != null) {
+			impactResults.add(r.totalImpactResults);
 		}
 	}
 
-	public List<Double> getFlowResults(FlowDescriptor flow) {
-		int idx = flowIndex.of(flow);
-		if (idx < 0)
-			return Collections.emptyList();
-		return flowResults[idx].stream()
-				.map(v -> adopt(flow, v))
-				.collect(Collectors.toList());
+	/**
+	 * Get the result of the given flow in the iteration i (zero based).
+	 */
+	public double get(FlowDescriptor flow, int i) {
+		if (flowIndex == null)
+			return 0;
+		int arrayIdx = flowIndex.of(flow);
+		return adopt(flow, val(flowResults, i, arrayIdx));
 	}
 
-	public List<Double> getImpactResults(ImpactCategoryDescriptor impact) {
+	/**
+	 * Get all simulation results of the given flow.
+	 */
+	public double[] getAll(FlowDescriptor flow) {
+		double[] vals = new double[flowResults.size()];
+		for (int i = 0; i < flowResults.size(); i++) {
+			vals[i] = get(flow, i);
+		}
+		return vals;
+	}
+
+	/**
+	 * Get the result of the given LCIA category in the iteration i (zero
+	 * based).
+	 */
+	public double get(ImpactCategoryDescriptor impact, int i) {
 		if (impactIndex == null)
-			return Collections.emptyList();
-		int idx = impactIndex.of(impact);
-		if (idx < 0)
-			return Collections.emptyList();
-		return impactResults[idx];
+			return 0;
+		int arrayIdx = impactIndex.of(impact);
+		return val(impactResults, i, arrayIdx);
+	}
+
+	/**
+	 * Get all simulation results of the given LCIA category.
+	 */
+	public double[] getAll(ImpactCategoryDescriptor impact) {
+		double[] vals = new double[impactResults.size()];
+		for (int i = 0; i < impactResults.size(); i++) {
+			vals[i] = get(impact, i);
+		}
+		return vals;
 	}
 
 	public int getNumberOfRuns() {
-		if (flowResults == null || flowResults.length == 0)
+		return flowResults.size();
+	}
+
+	private double val(List<double[]> list, int listIdx, int arrayIdx) {
+		if (list == null
+				|| listIdx < 0
+				|| arrayIdx < 0
+				|| list.size() <= listIdx)
 			return 0;
-		List<Double> first = flowResults[0];
-		if (first == null)
+		double[] vec = list.get(listIdx);
+		if (vec == null || vec.length <= arrayIdx)
 			return 0;
-		else
-			return first.size();
+		return vec[arrayIdx];
 	}
 
 	// TODO: no LCC for Monte Carlo simulations ?
