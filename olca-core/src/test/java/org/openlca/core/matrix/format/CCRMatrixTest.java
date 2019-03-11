@@ -58,12 +58,54 @@ public class CCRMatrixTest {
 		}
 	}
 
+	@Test
+	public void testMatrix() {
+		double[][] data = {
+				{ 2, 3, 0, 0, 0 },
+				{ 3, 0, 4, 0, 6 },
+				{ 0, -1, -3, 2, 0, },
+				{ 0, 0, 1, 0, 0 },
+				{ 0, 4, 2, 0, 1, },
+		};
+		HashPointMatrix hpm = new HashPointMatrix(data);
+
+		CCRMatrix ccr = CCRMatrix.of(hpm);
+
+		// test fields
+		assertEquals(5, ccr.rows);
+		assertEquals(5, ccr.columns);
+		assertArrayEquals(
+				v(2., 3., 3., -1., 4., 4., -3., 1., 2., 2., 6., 1.),
+				ccr.values, 1e-10);
+		assertArrayEquals(
+				v(0, 1, 0, 2, 4, 1, 2, 3, 4, 2, 1, 4),
+				ccr.rowIndices);
+		assertArrayEquals(
+				v(0, 2, 5, 9, 10, 12),
+				ccr.columnPointers);
+
+		// test get
+		for (int r = 0; r < 5; r++) {
+			double[] row = new double[5];
+			for (int c = 0; c < 5; c++) {
+				row[c] = ccr.get(r, c);
+			}
+			assertArrayEquals(data[r], row, 1e-10);
+		}
+
+		// test get row/column
+		for (int i = 0; i < 5; i++) {
+			assertArrayEquals(hpm.getRow(i), ccr.getRow(i), 1e-10);
+			assertArrayEquals(hpm.getColumn(i), ccr.getColumn(i), 1e-10);
+		}
+	}
+
 	private double[] v(double... vals) {
 		return vals;
 	}
+
 	private int[] v(int... vals) {
 		return vals;
 	}
-
 
 }

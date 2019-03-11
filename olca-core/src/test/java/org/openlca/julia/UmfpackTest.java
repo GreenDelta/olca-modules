@@ -6,6 +6,7 @@ import static org.junit.Assume.assumeTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openlca.core.matrix.format.CCRMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 
 public class UmfpackTest {
@@ -44,7 +45,7 @@ public class UmfpackTest {
 				{ 0.0, -1.0, -3.0, 2.0, 0.0 },
 				{ 0.0, 0.0, 1.0, 0.0, 0.0 },
 				{ 0.0, 4.0, 2.0, 0.0, 1.0 } });
-		UmfMatrix uMatrix = UmfMatrix.from(m);
+		CCRMatrix uMatrix = CCRMatrix.of(m);
 		double[] demand = { 8., 45., -3., 3., 19. };
 		double[] x = Umfpack.solve(uMatrix, demand);
 		assertArrayEquals(
@@ -59,7 +60,7 @@ public class UmfpackTest {
 				{ 0.0, -1.0, -3.0, 2.0, 0.0 },
 				{ 0.0, 0.0, 1.0, 0.0, 0.0 },
 				{ 0.0, 4.0, 2.0, 0.0, 1.0 } });
-		UmfMatrix uMatrix = UmfMatrix.from(m);
+		CCRMatrix uMatrix = CCRMatrix.of(m);
 		UmfFactorizedMatrix factorizedM = Umfpack.factorize(uMatrix);
 
 		double[] demand = { 8., 45., -3., 3., 19. };
