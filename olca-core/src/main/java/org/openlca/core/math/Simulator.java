@@ -193,6 +193,8 @@ public class Simulator {
 					upstream.totalImpactResults = solver.multiply(
 							C, upstream.totalFlowResults);
 				}
+
+				r.append(pinned, direct, upstream);
 			}
 			return sr;
 		} catch (Throwable e) {
