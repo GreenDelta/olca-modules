@@ -47,7 +47,8 @@ public class CompressedRowMatrix implements IMatrix {
 	@Override
 	public double get(int row, int col) {
 		int idxStart = rowPointers[row];
-		int idxEnd = row == (rows - 1) ? columnIndices.length
+		int idxEnd = row == (rows - 1)
+				? columnIndices.length
 				: rowPointers[row + 1];
 		for (int idx = idxStart; idx < idxEnd; idx++) {
 			int column = columnIndices[idx];
@@ -61,7 +62,8 @@ public class CompressedRowMatrix implements IMatrix {
 	public double[] getRow(int row) {
 		double[] rowValues = new double[columns];
 		int idxStart = rowPointers[row];
-		int idxEnd = row == (rows - 1) ? columnIndices.length
+		int idxEnd = row == (rows - 1)
+				? columnIndices.length
 				: rowPointers[row + 1];
 		for (int idx = idxStart; idx < idxEnd; idx++) {
 			int column = columnIndices[idx];
