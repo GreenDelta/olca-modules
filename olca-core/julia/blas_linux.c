@@ -73,8 +73,20 @@ JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_mmult(
     int64_t rowsA_64 = (int64_t)rowsA;
     int64_t colsB_64 = (int64_t)colsB;
     int64_t k_64 = (int64_t)k;
-    dgemm_64_(&trans, &trans, &rowsA_64, &colsB_64, &k_64, &alpha, aPtr,
-              &rowsA_64, bPtr, &k_64, &beta, cPtr, &rowsA_64);
+    dgemm_64_(
+        &trans,
+        &trans,
+        &rowsA_64,
+        &colsB_64,
+        &k_64,
+        &alpha,
+        aPtr,
+        &rowsA_64,
+        bPtr,
+        &k_64,
+        &beta,
+        cPtr,
+        &rowsA_64);
 
     (*env)->ReleaseDoubleArrayElements(env, a, aPtr, 0);
     (*env)->ReleaseDoubleArrayElements(env, b, bPtr, 0);

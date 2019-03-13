@@ -1,21 +1,21 @@
 package org.openlca.util;
 
 import java.io.File;
+import java.util.Locale;
 
 /**
  * Constants for some operating systems which are retrieved from the system
- * property "os.name". See http://lopica.sourceforge.net/os.html for a list of
- * OS names in Java.
+ * property "os.name".
  */
 public enum OS {
 
-	Linux("Linux"),
+	LINUX("Linux"),
 
-	Mac("Mac OS"),
+	MAC("macOS"),
 
-	Windows("Windows"),
+	WINDOWS("Windows"),
 
-	Unknown("Unknown");
+	OTHER("Other");
 
 	private final String name;
 
@@ -23,17 +23,23 @@ public enum OS {
 		this.name = name;
 	}
 
-	public static OS getCurrent() {
-		String name = System.getProperty("os.name");
-		OS os = null;
-		int i = 0;
-		OS[] vals = values();
-		while (os == null && i < vals.length) {
-			if (name != null && name.startsWith(vals[i].name))
-				os = vals[i];
-			i++;
+	private static OS detected = null;
+
+	public static OS get() {
+		if (detected != null)
+			return detected;
+		String os = System.getProperty("os.name", "generic")
+				.toLowerCase(Locale.ENGLISH);
+		if (os.contains("mac") || os.contains("darwin")) {
+			detected = MAC;
+		} else if (os.contains("windows")) {
+			detected = WINDOWS;
+		} else if (os.contains("linux")) {
+			detected = LINUX;
+		} else {
+			detected = OTHER;
 		}
-		return os != null ? os : Unknown;
+		return detected;
 	}
 
 	public static File getTempDir() {

@@ -1,11 +1,9 @@
 package org.openlca.julia;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.openlca.util.OS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,18 +13,20 @@ import org.slf4j.LoggerFactory;
  */
 public final class Julia {
 
-	private static AtomicBoolean _loaded = new AtomicBoolean(false);
-	private static Set<JuliaModule> loadedModules = Collections
-			.synchronizedSet(new HashSet<JuliaModule>());
+	private enum LinkOption {
+		NONE, BLAS, ALL
+	}
+
+	private static final AtomicBoolean _loaded = new AtomicBoolean(false);
+	private static final AtomicBoolean _withUmfpack = new AtomicBoolean(false);
 
 	/** Returns true if the Julia libraries with openLCA bindings are loaded. */
 	public static boolean isLoaded() {
 		return _loaded.get();
 	}
 
-	/** Returns true if the given julia module is loaded and can be used. */
-	public static boolean isLoaded(JuliaModule module) {
-		return loadedModules.contains(module);
+	public static boolean isWithUmfpack() {
+		return _withUmfpack.get();
 	}
 
 	/**
@@ -55,7 +55,7 @@ public final class Julia {
 	public static boolean loadFromDir(File dir) {
 		Logger log = LoggerFactory.getLogger(Julia.class);
 		log.info("Try to load Julia libs and bindings from {}", dir);
-		if (isLoaded()) {
+		if (_loaded.get()) {
 			log.info("Julia libs already loaded; do nothing");
 			return true;
 		}
@@ -63,25 +63,99 @@ public final class Julia {
 			log.warn("{} does not contain the Julia libraries", dir);
 			return false;
 		}
-		try {
-			for (JuliaModule module : JuliaModule.values()) {
-				File file = new File(dir, module.libName());
-				if (!file.exists()) {
-					log.info("Library {} is missing; " +
-							"Julia bindings for {} not loaded", file, module);
-					continue;
+		synchronized (_loaded) {
+			if (_loaded.get())
+				return true;
+			try {
+				LinkOption opt = linkOption(dir);
+				if (opt == null || opt == LinkOption.NONE) {
+					log.info("No native libraries found");
+					return false;
 				}
-				log.info("load module {} with library {}", module, file);
-				System.load(file.getAbsolutePath());
-				loadedModules.add(module);
+				for (String lib : libs(opt)) {
+					File f = new File(dir, lib);
+					System.load(f.getAbsolutePath());
+				}
+				_loaded.set(true);
+				if (opt == LinkOption.ALL) {
+					_withUmfpack.set(true);
+					log.info("Math libraries loaded with UMFPACK support.");
+				} else {
+					log.info("Math libraries loaded without UMFPACK support.");
+				}
+				return true;
+			} catch (Error e) {
+				log.error("Failed to load Julia libs from " + dir, e);
+				return false;
 			}
-			_loaded.set(true);
-			log.info("Julia bindings loaded");
-			return true;
-		} catch (Error e) {
-			log.error("Failed to load Julia libs from " + dir, e);
-			return false;
 		}
+	}
+
+	private static String[] libs(LinkOption opt) {
+		if (opt == null || opt == LinkOption.NONE)
+			return null;
+
+		OS os = OS.get();
+
+		if (os == OS.WINDOWS) {
+			if (opt == LinkOption.ALL) {
+				return new String[] {
+						"olcar_withumf.dll"
+				};
+			} else {
+				return new String[] {
+						"olcar.dll"
+				};
+			}
+		}
+
+		if (os == OS.LINUX) {
+			if (opt == LinkOption.ALL) {
+				return new String[] {
+						"libolcar_withumf.so"
+				};
+			} else {
+				return new String[] {
+						"libolcar.so"
+				};
+			}
+		}
+
+		if (os == OS.MAC) {
+			if (opt == LinkOption.ALL) {
+				return new String[] {
+						"libumfpack.dylib",
+						"libolcar_withumf.dylib"
+				};
+			} else {
+				return new String[] {
+						"libolcar.dylib"
+				};
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Searches for the library which can be linked. When there are multiple
+	 * link options it chooses the one with more functions.
+	 */
+	private static LinkOption linkOption(File dir) {
+		if (dir == null || !dir.exists())
+			return LinkOption.NONE;
+		LinkOption opt = LinkOption.NONE;
+		for (File f : dir.listFiles()) {
+			if (!f.isFile())
+				continue;
+			if (f.getName().contains("olcar_withumf")) {
+				return LinkOption.ALL;
+			}
+			if (f.getName().contains("olcar")) {
+				opt = LinkOption.BLAS;
+				continue;
+			}
+		}
+		return opt;
 	}
 
 	// BLAS
@@ -89,13 +163,19 @@ public final class Julia {
 	/**
 	 * Matrix-matrix multiplication: C := A * B
 	 *
-	 * @param rowsA [in] number of rows of matrix A
-	 * @param colsB [in] number of columns of matrix B
-	 * @param k     [in] number of columns of matrix A and number of rows of
-	 *              matrix B
-	 * @param a     [in] matrix A (size = rowsA*k)
-	 * @param b     [in] matrix B (size = k * colsB)
-	 * @param c     [out] matrix C (size = rowsA * colsB)
+	 * @param rowsA
+	 *            [in] number of rows of matrix A
+	 * @param colsB
+	 *            [in] number of columns of matrix B
+	 * @param k
+	 *            [in] number of columns of matrix A and number of rows of
+	 *            matrix B
+	 * @param a
+	 *            [in] matrix A (size = rowsA*k)
+	 * @param b
+	 *            [in] matrix B (size = k * colsB)
+	 * @param c
+	 *            [out] matrix C (size = rowsA * colsB)
 	 */
 	public static native void mmult(int rowsA, int colsB, int k,
 			double[] a, double[] b, double[] c);
@@ -103,11 +183,16 @@ public final class Julia {
 	/**
 	 * Matrix-vector multiplication: y:= A * x
 	 *
-	 * @param rowsA [in] rows of matrix A
-	 * @param colsA [in] columns of matrix A
-	 * @param a     [in] the matrix A
-	 * @param x     [in] the vector x
-	 * @param y     [out] the resulting vector y
+	 * @param rowsA
+	 *            [in] rows of matrix A
+	 * @param colsA
+	 *            [in] columns of matrix A
+	 * @param a
+	 *            [in] the matrix A
+	 * @param x
+	 *            [in] the vector x
+	 * @param y
+	 *            [out] the resulting vector y
 	 */
 	public static native void mvmult(int rowsA, int colsA,
 			double[] a, double[] x, double[] y);
@@ -118,12 +203,16 @@ public final class Julia {
 	 * Solves a system of linear equations A * X = B for general matrices. It
 	 * calls the LAPACK DGESV routine.
 	 *
-	 * @param n    [in] the dimension of the matrix A (n = rows = columns of A)
-	 * @param nrhs [in] the number of columns of the matrix B
-	 * @param a    [io] on entry the matrix A, on exit the LU factorization of A
-	 *             (size = n * n)
-	 * @param b    [io] on entry the matrix B, on exit the solution of the
-	 *             equation (size = n * bColums)
+	 * @param n
+	 *            [in] the dimension of the matrix A (n = rows = columns of A)
+	 * @param nrhs
+	 *            [in] the number of columns of the matrix B
+	 * @param a
+	 *            [io] on entry the matrix A, on exit the LU factorization of A
+	 *            (size = n * n)
+	 * @param b
+	 *            [io] on entry the matrix B, on exit the solution of the
+	 *            equation (size = n * bColums)
 	 * @return the LAPACK return code
 	 */
 	public static native int solve(int n, int nrhs, double[] a, double[] b);
@@ -131,9 +220,11 @@ public final class Julia {
 	/**
 	 * Inverts the given matrix.
 	 *
-	 * @param n [in] the dimension of the matrix (n = rows = columns)
-	 * @param a [io] on entry: the matrix to be inverted, on exit: the inverse
-	 *          (size = n * n)
+	 * @param n
+	 *            [in] the dimension of the matrix (n = rows = columns)
+	 * @param a
+	 *            [io] on entry: the matrix to be inverted, on exit: the inverse
+	 *            (size = n * n)
 	 * @return the LAPACK return code
 	 */
 	public static native int invert(int n, double[] a);

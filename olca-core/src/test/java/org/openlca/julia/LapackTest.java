@@ -19,7 +19,7 @@ public class LapackTest {
 	public void assumeLibsLoaded() {
 		// run the tests in this class only if the Julia libraries could be
 		// loaded
-		assumeTrue(Julia.isLoaded(JuliaModule.OPEN_BLAS));
+		assumeTrue(Julia.isLoaded());
 	}
 
 	@Test
