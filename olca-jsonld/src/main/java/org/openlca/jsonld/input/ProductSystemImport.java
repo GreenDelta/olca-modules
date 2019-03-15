@@ -1,11 +1,17 @@
 package org.openlca.jsonld.input;
 
+import java.io.File;
+
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.Json;
+import org.openlca.jsonld.ZipStore;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -28,14 +34,16 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 		ProductSystem s = new ProductSystem();
 		In.mapAtts(json, s, id, conf);
 		String processRefId = Json.getRefId(json, "referenceProcess");
-		if (processRefId != null)
+		if (processRefId != null) {
 			s.referenceProcess = ProcessImport.run(processRefId, conf);
+		}
+
 		s.targetAmount = Json.getDouble(json, "targetAmount", 1d);
 		addProcesses(json, s);
 		addParameters(json, s);
 		addInventory(json, s);
 		importLinkRefs(json, s);
-		ProductSystemExchanges.map(json, conf, s);
+		ProductSystemLinks.map(json, conf, s);
 		return conf.db.put(s);
 	}
 
@@ -43,12 +51,29 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 		JsonArray array = Json.getArray(json, "processes");
 		if (array == null || array.size() == 0)
 			return;
-		for (JsonElement element : array) {
-			JsonObject ref = element.getAsJsonObject();
-			String refId = Json.getString(ref, "@id");
-			Process p = ProcessImport.run(refId, conf);
-			if (p != null)
-				s.processes.add(p.id);
+		for (JsonElement e : array) {
+			if (e.isJsonObject()) {
+				addProcess(s, e.getAsJsonObject());
+			}
+		}
+	}
+
+	private void addProcess(ProductSystem s, JsonObject ref) {
+		if (ref == null)
+			return;
+		String refId = Json.getString(ref, "@id");
+		String type = Json.getString(ref, "@type");
+		RootEntity p = null;
+		if ("ProductSystem".equals(type)) {
+			p = ProductSystemImport.run(refId, conf);
+		} else {
+			p = ProcessImport.run(refId, conf);
+			if (p == null) {
+				p = ProductSystemImport.run(refId, conf);
+			}
+		}
+		if (p != null) {
+			s.processes.add(p.id);
 		}
 	}
 
@@ -58,12 +83,10 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 			return;
 		for (JsonElement element : array) {
 			JsonObject obj = element.getAsJsonObject();
-			String providerRefId = Json.getRefId(obj, "provider");
-			ProcessImport.run(providerRefId, conf);
-			String processRefId = Json.getRefId(obj, "process");
-			ProcessImport.run(processRefId, conf);
 			String flowRefId = Json.getRefId(obj, "flow");
 			FlowImport.run(flowRefId, conf);
+			addProcess(s, Json.getObject(obj, "provider"));
+			addProcess(s, Json.getObject(obj, "process"));
 		}
 	}
 
@@ -77,7 +100,7 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 			p.name = Json.getString(ref, "name");
 			p.value = Json.getDouble(ref, "value", 0);
 			p.uncertainty = Uncertainties.read(Json
-			.getObject(ref, "uncertainty"));
+					.getObject(ref, "uncertainty"));
 			JsonObject context = Json.getObject(ref, "context");
 			if (context == null) {
 				s.parameterRedefs.add(p);
@@ -103,10 +126,27 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 			return;
 		for (JsonElement element : array) {
 			JsonObject ref = element.getAsJsonObject();
-			Exchange ex = ExchangeImport.run(ModelType.PRODUCT_SYSTEM, s.refId, ref, conf,
+			Exchange ex = ExchangeImport.run(ModelType.PRODUCT_SYSTEM, s.refId,
+					ref, conf,
 					(ProductSystem system) -> system.inventory);
 			s.inventory.add(ex);
 		}
 	}
-	
+
+	public static void main(String[] args) {
+		String workspace = "C:/Users/Besitzer/openLCA-data-1.4";
+
+		String dbPath = workspace + "/databases/zempty";
+		IDatabase db = new DerbyDatabase(new File(dbPath));
+
+		try {
+			ZipStore zip = ZipStore
+					.open(new File("C:/Users/Besitzer/Desktop/sysinsys.zip"));
+			JsonImport imp = new JsonImport(zip, db);
+			imp.run();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 }

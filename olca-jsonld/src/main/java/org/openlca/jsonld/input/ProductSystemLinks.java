@@ -1,6 +1,5 @@
 package org.openlca.jsonld.input;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,38 +29,50 @@ import com.google.gson.JsonObject;
  * called at the end of a product system import when all the referenced data are
  * already imported.
  */
-class ProductSystemExchanges {
+class ProductSystemLinks {
 
-	private final Logger log = LoggerFactory.getLogger(ProductSystemExchanges.class);
+	private final Logger log = LoggerFactory
+			.getLogger(ProductSystemLinks.class);
+
 	private final IDatabase db;
 	private final RefIdMap<String, Long> refIds;
+
+	/**
+	 * A map of maps (processID, internalID) -> exchangeID that maps the
+	 * internal IDs of exchanges used in the JSON-LD to the exchangeIDs of the
+	 * database.
+	 */
 	private final Map<Long, Map<Integer, Long>> exchangeIds;
 
-	private ProductSystemExchanges(ImportConfig conf) {
+	private ProductSystemLinks(ImportConfig conf) {
 		db = conf.db.getDatabase();
-		refIds = RefIdMap.refToInternal(db, Process.class, Flow.class, Unit.class);
+		refIds = RefIdMap.refToInternal(
+				db, ProductSystem.class, Process.class,
+				Flow.class, Unit.class);
 		exchangeIds = new HashMap<>();
 		try {
-			NativeSql.on(db).query("SELECT f_owner, id, internal_id FROM tbl_exchanges", this::putExchangeId);
+			// TODO: this currently add *ALL* exchanges from the database
+			// to the ID map but we could reduce this to add only exchanges
+			// that can be linked (product inputs and waste outputs)
+			String sql = "SELECT f_owner, id, internal_id FROM tbl_exchanges";
+			NativeSql.on(db).query(sql, rs -> {
+				long process = rs.getLong(1);
+				long exchange = rs.getLong(2);
+				int internalId = rs.getInt(3);
+				Map<Integer, Long> ofProcess = exchangeIds.get(process);
+				if (ofProcess == null) {
+					exchangeIds.put(process, ofProcess = new HashMap<>());
+				}
+				ofProcess.put(internalId, exchange);
+				return true;
+			});
 		} catch (SQLException e) {
 			log.error("Error loading exchange ids", e);
 		}
 	}
 
-	private boolean putExchangeId(ResultSet rs) throws SQLException {
-		long processId = rs.getLong("f_owner");
-		long exchangeId = rs.getLong("id");
-		int internalId = rs.getInt("internal_id");
-		Map<Integer, Long> ofProcess = exchangeIds.get(processId);
-		if (ofProcess == null) {
-			exchangeIds.put(processId, ofProcess = new HashMap<>());
-		}
-		ofProcess.put(internalId, exchangeId);
-		return true;
-	}
-
 	static void map(JsonObject json, ImportConfig conf, ProductSystem system) {
-		new ProductSystemExchanges(conf).map(json, system);
+		new ProductSystemLinks(conf).map(json, system);
 	}
 
 	private void map(JsonObject json, ProductSystem system) {
@@ -74,21 +85,26 @@ class ProductSystemExchanges {
 		for (JsonElement element : array) {
 			JsonObject obj = element.getAsJsonObject();
 			ProcessLink link = new ProcessLink();
-			link.providerId = getId(obj, "provider", Process.class);
+			link.isSystemLink = Json.getBool(obj, "isSystemLink", false);
+			if (link.isSystemLink) {
+				link.providerId = getId(obj, "provider", ProductSystem.class);
+			} else {
+				link.providerId = getId(obj, "provider", Process.class);
+			}
 			link.processId = getId(obj, "process", Process.class);
 			link.flowId = getId(obj, "flow", Flow.class);
 			JsonObject exchange = Json.getObject(obj, "exchange");
 			int internalId = Json.getInt(exchange, "internalId", 0);
 			link.exchangeId = findExchangeId(link.processId, internalId);
-			if (valid(link)) {
+
+			// add the link when it is valid
+			if (link.providerId != 0
+					&& link.processId != 0
+					&& link.flowId != 0
+					&& link.exchangeId != 0) {
 				system.processLinks.add(link);
 			}
 		}
-	}
-
-	private boolean valid(ProcessLink link) {
-		return link.providerId != 0 && link.processId != 0
-				&& link.flowId != 0 && link.exchangeId != 0;
 	}
 
 	private void setReferenceExchange(JsonObject json, ProductSystem system) {

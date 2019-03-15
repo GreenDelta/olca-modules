@@ -1,32 +1,36 @@
 package org.openlca.jsonld.output;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
-import org.openlca.core.database.ExchangeDao;
 import org.openlca.core.database.FlowDao;
+import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.model.descriptors.ProductSystemDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
+import gnu.trove.map.hash.TLongLongHashMap;
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 class ProductSystemWriter extends Writer<ProductSystem> {
 
 	private ProcessDao processDao;
 	private FlowDao flowDao;
-	private ExchangeDao exchangeDao;
 	private ProductSystem system;
 
 	ProductSystemWriter(ExportConfig conf) {
@@ -34,7 +38,6 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		if (conf.db != null) {
 			processDao = new ProcessDao(conf.db);
 			flowDao = new FlowDao(conf.db);
-			exchangeDao = new ExchangeDao(conf.db);
 		}
 	}
 
@@ -43,10 +46,23 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		JsonObject obj = super.write(system);
 		if (obj == null)
 			return null;
+
 		this.system = system;
-		Out.put(obj, "referenceProcess", system.referenceProcess, conf, Out.REQUIRED_FIELD);
-		JsonObject eObj = mapExchange(system.referenceExchange);
-		Out.put(obj, "referenceExchange", eObj, Out.REQUIRED_FIELD);
+		TLongLongHashMap exchangeIDs = exchangeIDs(system);
+
+		Out.put(obj, "referenceProcess", system.referenceProcess,
+				conf, Out.REQUIRED_FIELD);
+
+		// the reference exchange
+		if (system.referenceExchange != null) {
+			JsonObject eObj = new JsonObject();
+			Out.put(eObj, "@type", "Exchange");
+			Out.put(eObj, "internalId", exchangeIDs.get(
+					system.referenceExchange.id));
+			Out.put(obj, "referenceExchange", eObj,
+					Out.REQUIRED_FIELD);
+		}
+
 		FlowProperty property = null;
 		if (system.targetFlowPropertyFactor != null)
 			property = system.targetFlowPropertyFactor.flowProperty;
@@ -56,53 +72,40 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		putInventory(obj, system.inventory);
 		if (conf.db == null)
 			return obj;
-		Map<Long, ProcessDescriptor> processMap = mapProcesses(obj);
-		mapLinks(obj, processMap);
+
+		Map<Long, CategorizedDescriptor> processMap = mapProcesses(obj);
+		mapLinks(obj, processMap, exchangeIDs);
 		ParameterRedefs.map(obj, system.parameterRedefs, conf.db, conf,
 				(type, id) -> References.create(processMap.get(id), conf));
 		ParameterReferences.writeReferencedParameters(system, conf);
 		return obj;
 	}
 
-	private void mapLinks(JsonObject json, Map<Long, ProcessDescriptor> processMap) {
+	private void mapLinks(JsonObject json,
+			Map<Long, CategorizedDescriptor> processMap,
+			TLongLongHashMap exchangeIDs) {
 		JsonArray links = new JsonArray();
-		Map<Long, FlowDescriptor> flowMap = getFlows();
-		Stack<ProcessLink> remaining = new Stack<>();
-		remaining.addAll(system.processLinks);
-		while (!remaining.isEmpty()) {
-			List<ProcessLink> next = new ArrayList<>();
-			while (!remaining.isEmpty() && next.size() < 1000) {
-				next.add(remaining.pop());
-			}
-			Map<Long, Exchange> exchangeMap = getExchanges(next);
-			for (ProcessLink link : next) {
-				JsonObject obj = new JsonObject();
-				Out.put(obj, "@type", "ProcessLink");
-				JsonObject provider = References.create(processMap.get(link.providerId), conf);
-				Out.put(obj, "provider", provider, Out.REQUIRED_FIELD);
-				Out.put(obj, "flow", References.create(flowMap.get(link.flowId), conf), Out.REQUIRED_FIELD);
-				JsonObject process = References.create(processMap.get(link.processId), conf);
-				Out.put(obj, "process", process, Out.REQUIRED_FIELD);
-				Exchange e = exchangeMap.get(link.exchangeId);
-				JsonObject exchange = mapExchange(e);
-				Out.put(obj, "exchange", exchange, Out.REQUIRED_FIELD);
-				links.add(obj);
-			}
+		Map<Long, FlowDescriptor> flows = getFlows();
+		for (ProcessLink link : system.processLinks) {
+			JsonObject obj = new JsonObject();
+			Out.put(obj, "@type", "ProcessLink");
+			JsonObject provider = References
+					.create(processMap.get(link.providerId), conf);
+			Out.put(obj, "provider", provider, Out.REQUIRED_FIELD);
+			Out.put(obj, "isSystemLink", link.isSystemLink);
+			Out.put(obj, "flow",
+					References.create(flows.get(link.flowId), conf),
+					Out.REQUIRED_FIELD);
+			JsonObject process = References
+					.create(processMap.get(link.processId), conf);
+			Out.put(obj, "process", process, Out.REQUIRED_FIELD);
+			JsonObject eObj = new JsonObject();
+			Out.put(eObj, "@type", "Exchange");
+			Out.put(eObj, "internalId", exchangeIDs.get(link.exchangeId));
+			Out.put(obj, "exchange", eObj, Out.REQUIRED_FIELD);
+			links.add(obj);
 		}
 		Out.put(json, "processLinks", links);
-	}
-
-	private Map<Long, Exchange> getExchanges(List<ProcessLink> links) {
-		Set<Long> exchangeIds = new HashSet<>();
-		for (ProcessLink link : links) {
-			exchangeIds.add(link.exchangeId);
-		}
-		List<Exchange> exchanges = exchangeDao.getForIds(exchangeIds);
-		Map<Long, Exchange> exchangeMap = new HashMap<>();
-		for (Exchange e : exchanges) {
-			exchangeMap.put(e.id, e);
-		}
-		return exchangeMap;
 	}
 
 	private Map<Long, FlowDescriptor> getFlows() {
@@ -118,37 +121,62 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		return flowMap;
 	}
 
-	private Map<Long, ProcessDescriptor> mapProcesses(JsonObject json) {
-		JsonArray processes = new JsonArray();
-		Set<Long> pIds = new HashSet<>(system.processes);
-		List<ProcessDescriptor> descriptors = processDao.getDescriptors(pIds);
-		Map<Long, ProcessDescriptor> map = new HashMap<>();
-		for (ProcessDescriptor descriptor : descriptors) {
-			map.put(descriptor.id, descriptor);
+	private Map<Long, CategorizedDescriptor> mapProcesses(JsonObject json) {
+		TLongObjectHashMap<ProcessDescriptor> processes = processDao
+				.descriptorMap();
+		TLongObjectHashMap<ProductSystemDescriptor> systems = new ProductSystemDao(
+				conf.db).descriptorMap();
+		Map<Long, CategorizedDescriptor> map = new HashMap<>();
+		JsonArray array = new JsonArray();
+		for (Long id : system.processes) {
+			CategorizedDescriptor d = processes.get(id);
+			if (d == null) {
+				d = systems.get(id);
+			}
+			if (d == null)
+				continue;
+			map.put(id, d);
 			JsonObject ref = null;
 			if (conf.exportReferences) {
-				ref = References.create(ModelType.PROCESS, descriptor.id, conf, false);
+				ref = References.create(d.type, d.id, conf, false);
 			} else {
-				ref = References.create(descriptor, conf);
+				ref = References.create(d, conf);
 			}
 			if (ref == null)
 				continue;
-			processes.add(ref);
+			array.add(ref);
 		}
-		Out.put(json, "processes", processes);
+		Out.put(json, "processes", array);
 		return map;
 	}
 
-	private JsonObject mapExchange(Exchange e) {
-		if (e == null)
-			return null;
-		JsonObject obj = new JsonObject();
-		Out.put(obj, "@type", "Exchange");
-		Out.put(obj, "internalId", e.internalId);
-		if (e.flow == null)
-			return obj;
-		Out.put(obj, "name", e.flow.name);
-		return obj;
+	/**
+	 * Creates a map exchangeID -> internalID of the exchanges used in the
+	 * product system links.
+	 */
+	private TLongLongHashMap exchangeIDs(ProductSystem system) {
+		TLongLongHashMap m = new TLongLongHashMap();
+		if (system.referenceExchange != null) {
+			m.put(system.referenceExchange.id, -1);
+		}
+		for (ProcessLink link : system.processLinks) {
+			m.put(link.exchangeId, -1L);
+		}
+		try {
+			String sql = "select id, internal_id from tbl_exchanges";
+			NativeSql.on(conf.db).query(sql, r -> {
+				long id = r.getLong(1);
+				long internal = r.getLong(2);
+				if (m.containsKey(id)) {
+					m.put(id, internal);
+				}
+				return true;
+			});
+		} catch (Exception e) {
+			Logger log = LoggerFactory.getLogger(getClass());
+			log.error("Failed to query exchange IDs", e);
+		}
+		return m;
 	}
 
 	private void putInventory(JsonObject obj, List<Exchange> inventory) {
