@@ -52,8 +52,15 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 	}
 
 	public Set<Long> getUsed() {
+		Set<Long> all = new HashSet<>();
+		all.addAll(getUsedIn("tbl_exchanges"));
+		all.addAll(getUsedIn("tbl_impact_factors"));
+		return all;
+	}
+	
+	private Set<Long> getUsedIn(String table) {
 		Set<Long> ids = new HashSet<>();
-		String query = "SELECT DISTINCT f_flow FROM tbl_exchanges";
+		String query = "SELECT DISTINCT f_flow FROM " + table;
 		try {
 			NativeSql.on(database).query(query, (rs) -> {
 				ids.add(rs.getLong("f_flow"));
@@ -84,24 +91,37 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 		}
 	}
 
-	public void replace(long oldId, long newId, boolean excludeExchangesWithProviders) {
+	public void replaceExchangeFlowsWithoutProviders(long oldId, long newId) {
+		replaceExchangeFlows(oldId, newId, true);
+	}
+
+	public void replaceExchangeFlows(long oldId, long newId) {
+		replaceExchangeFlows(oldId, newId, false);
+	}
+
+	private void replaceExchangeFlows(long oldId, long newId, boolean excludeExchangesWithProviders) {
 		try {
-			String factorQuery = "SELECT id FROM tbl_flow_property_factors " + "WHERE f_flow_property = "
-					+ "(SELECT f_flow_property FROM tbl_flow_property_factors WHERE id = tbl_exchanges.f_flow_property_factor) "
+			String subquery = "SELECT id FROM tbl_flow_property_factors WHERE " +
+					"f_flow_property = (SELECT f_flow_property FROM tbl_flow_property_factors WHERE id = tbl_exchanges.f_flow_property_factor) "
 					+ "AND f_flow = " + newId;
-			String query = "UPDATE tbl_exchanges SET f_flow = " + newId + ", f_flow_property_factor = (" + factorQuery
+			String query = "UPDATE tbl_exchanges SET f_flow = " + newId + ", f_flow_property_factor = (" + subquery
 					+ "), f_default_provider = null WHERE f_flow = " + oldId;
 			if (excludeExchangesWithProviders) {
 				query += " AND f_default_provider IS NULL";
 			}
-			System.out.println(query);
 			NativeSql.on(database).runUpdate(query);
-			factorQuery = "SELECT id FROM tbl_flow_property_factors " + "WHERE f_flow_property = "
-					+ "(SELECT f_flow_property FROM tbl_flow_property_factors WHERE id = tbl_impact_factors.f_flow_property_factor) "
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "failed to replace flow " + oldId + " with " + newId, e);
+		}
+	}
+
+	public void replaceImpactFlows(long oldId, long newId) {
+		try {
+			String subquery = "SELECT id FROM tbl_flow_property_factors WHERE "
+					+ "f_flow_property = (SELECT f_flow_property FROM tbl_flow_property_factors WHERE id = tbl_impact_factors.f_flow_property_factor) "
 					+ "AND f_flow = " + newId;
-			query = "UPDATE tbl_impact_factors SET f_flow = " + newId + ", f_flow_property_factor = (" + factorQuery
+			String query = "UPDATE tbl_impact_factors SET f_flow = " + newId + ", f_flow_property_factor = (" + subquery
 					+ ") WHERE f_flow = " + oldId;
-			System.out.println(query);
 			NativeSql.on(database).runUpdate(query);
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "failed to replace flow " + oldId + " with " + newId, e);
