@@ -3,6 +3,7 @@ package org.openlca.io.xls.results;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.List;
+import java.util.function.BiFunction;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -12,8 +13,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.SimulationResult;
 import org.openlca.core.results.Statistics;
 import org.openlca.io.xls.Excel;
@@ -47,31 +51,45 @@ public class SimulationResultExport {
 	 * Runs the result export. The given file should be an xlsx file.
 	 */
 	public void run(File file) throws Exception {
-		Workbook workbook = createWorkbook();
-		writer = new CellWriter(cache, workbook);
-		InfoSheet.write(workbook, writer, setup, null, "Simulation result");
-		writeInventorySheet(workbook);
-		if (result.hasImpactResults())
-			writeImpactSheet(workbook);
+		useStreaming = result.getNumberOfRuns() > 150;
+		log.trace("create workbook, using streaming: {}", useStreaming);
+		Workbook wb = useStreaming
+				? new SXSSFWorkbook(-1)
+				: new XSSFWorkbook();
+		writer = new CellWriter(cache, wb);
+
+		// total LCI & LCIA results
+		InfoSheet.write(wb, writer, setup, null, "Simulation result");
+		writeInventorySheet(wb);
+		if (result.hasImpactResults()) {
+			writeImpactSheet(wb);
+		}
+
+		// pinned contributions
+		int pcount = 0;
+		for (ProcessProduct pp : result.getPinnedProducts()) {
+			pcount++;
+			Sheet psheet = wb.createSheet("Contributions " + pcount);
+			fillContributions(pp, psheet);
+			flushSheet(psheet);
+		}
+
 		try (FileOutputStream fos = new FileOutputStream(file)) {
-			workbook.write(fos);
+			wb.write(fos);
 		}
 		log.trace("result written to file {}", file);
 	}
 
-	private Workbook createWorkbook() {
-		useStreaming = result.getNumberOfRuns() > 150;
-		log.trace("create workbook, using streaming: {}", useStreaming);
-		if (useStreaming)
-			return new SXSSFWorkbook(-1);
-		else
-			return new XSSFWorkbook();
-	}
-
-	private void writeImpactSheet(Workbook workbook) {
-		Sheet sheet = workbook.createSheet("Impact Assessment");
+	private void writeImpactSheet(Workbook wb) {
+		Sheet sheet = wb.createSheet("Impact Assessment");
 		row = 0;
-		writerImpactHeader(sheet);
+
+		row++;
+		writer.headerRow(sheet, row, 1, IMPACT_HEADER);
+		int nextCol = IMPACT_HEADER.length + 1;
+		writeValueHeaders(sheet, row, nextCol);
+		row++;
+
 		List<ImpactCategoryDescriptor> impacts = Sort
 				.impacts(result.getImpacts());
 		for (ImpactCategoryDescriptor impact : impacts) {
@@ -84,8 +102,8 @@ public class SimulationResultExport {
 			sheet.autoSizeColumn(i);
 	}
 
-	private void writeInventorySheet(Workbook workbook) {
-		Sheet sheet = workbook.createSheet("Inventory");
+	private void writeInventorySheet(Workbook wb) {
+		Sheet sheet = wb.createSheet("Inventory");
 		row = 0;
 		List<FlowDescriptor> flows = Sort.flows(result.getFlows(), cache);
 		writeInventorySection(flows, true, sheet);
@@ -97,23 +115,17 @@ public class SimulationResultExport {
 		flushSheet(sheet);
 	}
 
-	private void flushSheet(Sheet sheet) {
-		if (!useStreaming)
-			return;
-		if (!(sheet instanceof SXSSFSheet))
-			return;
-		SXSSFSheet s = (SXSSFSheet) sheet;
-		try {
-			log.trace("flush rows of sheet {}", sheet.getSheetName());
-			s.flushRows();
-		} catch (Exception e) {
-			log.error("failed to flush rows of streamed sheet", e);
-		}
-	}
-
 	private void writeInventorySection(List<FlowDescriptor> flows,
 			boolean forInputs, Sheet sheet) {
-		writeInventoryHeader(sheet, forInputs);
+		row++;
+		String section = forInputs ? "Inputs" : "Outputs";
+		writer.cell(sheet, row, 1, section, true);
+		row++;
+		writer.headerRow(sheet, row, 1, FLOW_HEADER);
+		int nextCol = FLOW_HEADER.length + 1;
+		writeValueHeaders(sheet, row, nextCol);
+		row++;
+
 		FlowIndex idx = result.flowIndex;
 		for (FlowDescriptor flow : flows) {
 			if (idx.isInput(flow.id) != forInputs)
@@ -125,22 +137,100 @@ public class SimulationResultExport {
 		}
 	}
 
-	private void writeInventoryHeader(Sheet sheet, boolean inputs) {
+	private void fillContributions(ProcessProduct pp, Sheet sheet) {
+		row = 0;
+
+		String label = "Contributions of: ";
+		if (pp.process != null) {
+			label += pp.process.name;
+			if (pp.process instanceof ProcessDescriptor) {
+				ProcessDescriptor p = (ProcessDescriptor) pp.process;
+				if (p.location != null) {
+					Location loc = cache.get(Location.class, p.location);
+					if (loc != null) {
+						label += " - " + loc.code;
+					}
+				}
+			}
+		}
+		if (pp.flow != null) {
+			label += " | " + pp.flow.name;
+			if (pp.flow.location != null) {
+				Location loc = cache.get(Location.class, pp.flow.location);
+				if (loc != null) {
+					label += " - " + loc.code;
+				}
+			}
+		}
+
+		writer.headerRow(sheet, row, 1, label);
 		row++;
-		String section = inputs ? "Inputs" : "Outputs";
-		writer.cell(sheet, row, 1, section, true);
 		row++;
-		writer.headerRow(sheet, row, 1, FLOW_HEADER);
-		int nextCol = FLOW_HEADER.length + 1;
-		writeValueHeaders(sheet, row, nextCol);
-		row++;
+
+		if (result.hasImpactResults()) {
+
+			List<ImpactCategoryDescriptor> impacts = Sort
+					.impacts(result.getImpacts());
+
+			writer.headerRow(sheet, row++, 1, "Direct LCIA contributions");
+			writer.headerRow(sheet, row, 1, IMPACT_HEADER);
+			int valCol = IMPACT_HEADER.length + 1;
+			writeValueHeaders(sheet, row++, valCol);
+			for (ImpactCategoryDescriptor impact : impacts) {
+				writer.impactRow(sheet, row, 1, impact);
+				double[] values = result.getAllDirect(pp, impact);
+				writeValues(sheet, row, IMPACT_HEADER.length + 1, values);
+				row++;
+			}
+			row++;
+
+			writer.headerRow(sheet, row++, 1, "Upstream LCIA contributions");
+			writer.headerRow(sheet, row, 1, IMPACT_HEADER);
+			writeValueHeaders(sheet, row++, valCol);
+			for (ImpactCategoryDescriptor impact : impacts) {
+				writer.impactRow(sheet, row, 1, impact);
+				double[] values = result.getAllUpstream(pp, impact);
+				writeValues(sheet, row, IMPACT_HEADER.length + 1, values);
+				row++;
+			}
+			row++;
+		}
+
+		List<FlowDescriptor> flows = Sort.flows(result.getFlows(), cache);
+
+		writer.headerRow(sheet, row++, 1, "Direct LCI contributions - Inputs");
+		writeFlowContributions(flows, pp, true, result::getAllDirect, sheet);
+
+		writer.headerRow(sheet, row++, 1, "Direct LCI contributions - Outputs");
+		writeFlowContributions(flows, pp, false, result::getAllDirect, sheet);
+
+		writer.headerRow(sheet, row++, 1,
+				"Upstream LCI contributions - Inputs");
+		writeFlowContributions(flows, pp, true, result::getAllUpstream, sheet);
+
+		writer.headerRow(sheet, row++, 1,
+				"Upstream LCI contributions - Outputs");
+		writeFlowContributions(flows, pp, false, result::getAllUpstream, sheet);
+
 	}
 
-	private void writerImpactHeader(Sheet sheet) {
-		row++;
-		writer.headerRow(sheet, row, 1, IMPACT_HEADER);
-		int nextCol = IMPACT_HEADER.length + 1;
-		writeValueHeaders(sheet, row, nextCol);
+	private void writeFlowContributions(
+			List<FlowDescriptor> flows,
+			ProcessProduct pp,
+			boolean forInputs,
+			BiFunction<ProcessProduct, FlowDescriptor, double[]> fn,
+			Sheet sheet) {
+		writer.headerRow(sheet, row, 1, FLOW_HEADER);
+		int valCol = FLOW_HEADER.length + 1;
+		writeValueHeaders(sheet, row++, valCol);
+		for (FlowDescriptor flow : flows) {
+			if (result.flowIndex.isInput(flow.id) != forInputs)
+				continue;
+			writer.flowRow(sheet, row, 1, flow);
+			double[] values = fn.apply(pp, flow);
+			writeValues(sheet, row, valCol, values);
+			row++;
+		}
 		row++;
 	}
 
@@ -169,6 +259,20 @@ public class SimulationResultExport {
 		Excel.cell(sheet, row, col++, stats.getPercentileValue(95));
 		for (int i = 0; i < values.length; i++) {
 			Excel.cell(sheet, row, col++, values[i]);
+		}
+	}
+
+	private void flushSheet(Sheet sheet) {
+		if (!useStreaming)
+			return;
+		if (!(sheet instanceof SXSSFSheet))
+			return;
+		SXSSFSheet s = (SXSSFSheet) sheet;
+		try {
+			log.trace("flush rows of sheet {}", sheet.getSheetName());
+			s.flushRows();
+		} catch (Exception e) {
+			log.error("failed to flush rows of streamed sheet", e);
 		}
 	}
 

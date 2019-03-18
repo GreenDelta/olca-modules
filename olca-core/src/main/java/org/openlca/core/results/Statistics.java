@@ -103,12 +103,16 @@ public class Statistics {
 			this.mean = sum / this.count;
 
 			// standard deviation
-			double sd = 0d;
-			for (double v : vals) {
-				sd += Math.pow(v - this.mean, 2);
+			if (vals.length < 2) {
+				this.standardDeviation = 0;
+			} else {
+				double sd = 0d;
+				for (double v : vals) {
+					sd += Math.pow(v - this.mean, 2);
+				}
+				sd /= vals.length - 1;
+				this.standardDeviation = Math.sqrt(sd);
 			}
-			sd /= vals.length - 1;
-			this.standardDeviation = Math.sqrt(sd);
 
 			// median
 			if (1 == (this.count % 2)) {
