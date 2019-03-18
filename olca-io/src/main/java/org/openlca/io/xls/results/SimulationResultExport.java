@@ -15,7 +15,7 @@ import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.SimulationResult;
-import org.openlca.core.results.SimulationStatistics;
+import org.openlca.core.results.Statistics;
 import org.openlca.io.xls.Excel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -159,14 +159,14 @@ public class SimulationResultExport {
 		if (values == null)
 			return;
 		int col = startCol;
-		SimulationStatistics stat = new SimulationStatistics(values, 100);
-		Excel.cell(sheet, row, col++, stat.getMean());
-		Excel.cell(sheet, row, col++, stat.getStandardDeviation());
-		Excel.cell(sheet, row, col++, stat.getMinimum());
-		Excel.cell(sheet, row, col++, stat.getMaximum());
-		Excel.cell(sheet, row, col++, stat.getMedian());
-		Excel.cell(sheet, row, col++, stat.getPercentileValue(5));
-		Excel.cell(sheet, row, col++, stat.getPercentileValue(95));
+		Statistics stats = Statistics.of(values);
+		Excel.cell(sheet, row, col++, stats.mean);
+		Excel.cell(sheet, row, col++, stats.standardDeviation);
+		Excel.cell(sheet, row, col++, stats.min);
+		Excel.cell(sheet, row, col++, stats.max);
+		Excel.cell(sheet, row, col++, stats.median);
+		Excel.cell(sheet, row, col++, stats.getPercentileValue(5));
+		Excel.cell(sheet, row, col++, stats.getPercentileValue(95));
 		for (int i = 0; i < values.length; i++) {
 			Excel.cell(sheet, row, col++, values[i]);
 		}

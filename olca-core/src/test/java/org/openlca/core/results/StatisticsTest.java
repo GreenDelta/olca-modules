@@ -3,55 +3,61 @@ package org.openlca.core.results;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+import org.openlca.core.results.Statistics.Histogram;
 
 public class StatisticsTest {
 
 	@Test
 	public void testEmptyStatistics() {
-		SimulationStatistics statistics = SimulationStatistics.empty();
+		Statistics stats = Statistics.empty();
 		// has a 0 value
-		assertEquals(0, statistics.getMaximalAbsoluteFrequency());
-		assertEquals(0, statistics.getCount());
-		assertEquals(0, statistics.getPercentileValue(5), 1e-16);
-		assertEquals(0, statistics.getPercentileValue(95), 1e-16);
-		assertEquals(0, statistics.getAbsoluteFrequency(5));
-		assertEquals(0, statistics.getAbsoluteFrequency(95));
-		assertEquals(0, statistics.getMaximum(), 1e-16);
-		assertEquals(0, statistics.getMean(), 1e-16);
-		assertEquals(0, statistics.getMedian(), 1e-16);
-		assertEquals(0, statistics.getMinimum(), 1e-16);
-		assertEquals(0, statistics.getRange(), 1e-16);
-		assertEquals(0, statistics.getStandardDeviation(), 1e-16);
+		assertEquals(0, stats.count);
+		assertEquals(0, stats.getPercentileValue(5), 1e-16);
+		assertEquals(0, stats.getPercentileValue(95), 1e-16);
+		assertEquals(0, stats.max, 1e-16);
+		assertEquals(0, stats.mean, 1e-16);
+		assertEquals(0, stats.median, 1e-16);
+		assertEquals(0, stats.min, 1e-16);
+		assertEquals(0, stats.range, 1e-16);
+		assertEquals(0, stats.standardDeviation, 1e-16);
+
+		Histogram hist = Statistics.hist(null, 100);
+		assertEquals(0, hist.getMaxAbsoluteFrequency());
+		assertEquals(0, hist.getAbsoluteFrequency(5));
+		assertEquals(0, hist.getAbsoluteFrequency(95));
+
 	}
 
 	@Test
 	public void testSimpleStatistics() {
-		SimulationStatistics statistics = new SimulationStatistics(
-				new double[] { 1d, 2d, 3d }, 3);
-		// has a 0 value
-		assertEquals(1, statistics.getMaximalAbsoluteFrequency());
-		assertEquals(3, statistics.getCount());
-		assertEquals(1, statistics.getPercentileValue(5), 1e-16);
-		assertEquals(2.5, statistics.getPercentileValue(95), 1e-16);
-		assertEquals(1, statistics.getAbsoluteFrequency(0));
-		assertEquals(1, statistics.getAbsoluteFrequency(1));
-		assertEquals(1, statistics.getAbsoluteFrequency(2));
-		assertEquals(0, statistics.getAbsoluteFrequency(3));
-		assertEquals(3, statistics.getMaximum(), 1e-16);
-		assertEquals(2, statistics.getMean(), 1e-16);
-		assertEquals(2, statistics.getMedian(), 1e-16);
-		assertEquals(1, statistics.getMinimum(), 1e-16);
-		assertEquals(2, statistics.getRange(), 1e-16);
-		assertEquals(1, statistics.getStandardDeviation(), 1e-16);
+		Statistics stats = Statistics.of(
+				new double[] { 1d, 2d, 3d });
+		assertEquals(3, stats.count);
+		assertEquals(1, stats.getPercentileValue(5), 1e-16);
+		assertEquals(2.5, stats.getPercentileValue(95), 1e-16);
+		assertEquals(3, stats.max, 1e-16);
+		assertEquals(2, stats.mean, 1e-16);
+		assertEquals(2, stats.median, 1e-16);
+		assertEquals(1, stats.min, 1e-16);
+		assertEquals(2, stats.range, 1e-16);
+		assertEquals(1, stats.standardDeviation, 1e-16);
+
+		Histogram hist = Statistics.hist(new double[] { 1d, 2d, 3d }, 3);
+		assertEquals(1, hist.getMaxAbsoluteFrequency());
+		assertEquals(1, hist.getAbsoluteFrequency(0));
+		assertEquals(1, hist.getAbsoluteFrequency(1));
+		assertEquals(1, hist.getAbsoluteFrequency(2));
+		assertEquals(0, hist.getAbsoluteFrequency(3));
+
 	}
 
 	@Test
 	public void testZeroValues() {
-		SimulationStatistics statistics = new SimulationStatistics(
-				new double[] { 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d }, 10);
-		assertEquals(0d, statistics.getMean(), 1e-16);
-		assertEquals(0d, statistics.getMinimum(), 1e-16);
-		assertEquals(0d, statistics.getMaximum(), 1e-16);
-		assertEquals(0d, statistics.getStandardDeviation(), 1e-16);
+		Statistics stats = Statistics.of(
+				new double[] { 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d });
+		assertEquals(0d, stats.mean, 1e-16);
+		assertEquals(0d, stats.min, 1e-16);
+		assertEquals(0d, stats.max, 1e-16);
+		assertEquals(0d, stats.standardDeviation, 1e-16);
 	}
 }
