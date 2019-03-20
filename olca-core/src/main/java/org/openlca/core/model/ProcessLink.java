@@ -5,7 +5,10 @@ import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
-/** A process link is a connection between two processes in a product system. */
+/**
+ * A process link is a connection between a provider (which can be a process or
+ * product system) and a process in a product system.
+ */
 @Embeddable
 public class ProcessLink implements Cloneable {
 
@@ -17,9 +20,9 @@ public class ProcessLink implements Cloneable {
 	public long flowId;
 
 	/**
-	 * ID of the process that is an provider of a product (has a product output)
-	 * or a waste treatment (has a waste input). The pair (providerId, flowId)
-	 * is used to index the matrices in the calculation.
+	 * ID of the process or product system that is an provider of a product (has
+	 * a product output) or a waste treatment (has a waste input). The pair
+	 * (providerId, flowId) is used to index the matrices in the calculation.
 	 */
 	@Column(name = "f_provider")
 	public long providerId;

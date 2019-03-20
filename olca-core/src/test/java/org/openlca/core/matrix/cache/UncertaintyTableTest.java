@@ -43,13 +43,10 @@ public class UncertaintyTableTest {
 		dao.delete(process);
 	}
 
-	private void checkExchange(CalcExchange exchange) {
-		Assert.assertEquals(1, exchange.parameter1, 1e-16);
-		Assert.assertEquals(2, exchange.parameter2, 1e-16);
-		Assert.assertEquals(3, exchange.parameter3, 1e-16);
-		Assert.assertEquals("0.5 * 2", exchange.parameter1Formula);
-		Assert.assertEquals("4 / 2", exchange.parameter2Formula);
-		Assert.assertEquals("4 / 2", exchange.parameter3Formula);
+	private void checkExchange(CalcExchange e) {
+		Assert.assertEquals(1, e.parameter1, 1e-16);
+		Assert.assertEquals(2, e.parameter2, 1e-16);
+		Assert.assertEquals(3, e.parameter3, 1e-16);
 	}
 
 	@Test

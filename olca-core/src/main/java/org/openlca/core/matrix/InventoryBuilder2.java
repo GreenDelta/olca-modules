@@ -85,6 +85,7 @@ public class InventoryBuilder2 {
 		data.enviMatrix = enviBuilder.finish();
 		data.techUncertainties = techUncerts;
 		data.enviUncertainties = enviUncerts;
+		data.costVector = costs;
 		return data;
 	}
 

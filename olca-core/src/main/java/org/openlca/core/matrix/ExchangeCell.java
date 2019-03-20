@@ -39,18 +39,6 @@ class ExchangeCell {
 			double v = scope.eval(exchange.amountFormula);
 			exchange.amount = v;
 		}
-		if (exchange.parameter1Formula != null) {
-			double v = scope.eval(exchange.parameter1Formula);
-			exchange.parameter1 = v;
-		}
-		if (exchange.parameter2Formula != null) {
-			double v = scope.eval(exchange.parameter2Formula);
-			exchange.parameter2 = v;
-		}
-		if (exchange.parameter3Formula != null) {
-			double v = scope.eval(exchange.parameter3Formula);
-			exchange.parameter3 = v;
-		}
 		if (exchange.costFormula != null) {
 			double v = scope.eval(exchange.costFormula);
 			exchange.costValue = v;

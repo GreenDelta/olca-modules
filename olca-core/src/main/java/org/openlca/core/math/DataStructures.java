@@ -22,6 +22,7 @@ import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
@@ -53,7 +54,19 @@ public class DataStructures {
 		ProcessProduct refFlow = ProcessProduct.of(
 				system.referenceProcess, refExchange.flow);
 		TechIndex index = new TechIndex(refFlow);
-		index.setDemand(ReferenceAmount.get(system));
+
+		// set the final demand value which is negative
+		// when we have a waste flow as reference flow
+		double demand = ReferenceAmount.get(system);
+		FlowType ftype = system.referenceExchange == null
+				? null
+				: system.referenceExchange.flow == null
+						? null
+						: system.referenceExchange.flow.flowType;
+		if (ftype == FlowType.WASTE_FLOW) {
+			demand = -demand;
+		}
+		index.setDemand(demand);
 
 		// initialize the fast descriptor maps
 		ProductSystemDao sysDao = new ProductSystemDao(db);
