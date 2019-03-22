@@ -6,6 +6,7 @@ import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
@@ -52,12 +53,12 @@ public class ZipStore implements EntityStore {
 	public void putContext() {
 		put(CONTEXT_PATH, Context.write(Schema.URI));
 	}
-	
+
 	@Override
 	public void putMetaInfo(JsonObject info) {
 		put(META_INFO_PATH, info);
 	}
-	
+
 	@Override
 	public void putBin(ModelType type, String refId, String filename,
 			byte[] data) {
@@ -89,7 +90,7 @@ public class ZipStore implements EntityStore {
 	}
 
 	private void put(String path, JsonObject object) {
-		if (object == null) 
+		if (object == null)
 			return;
 		try {
 			String json = new Gson().toJson(object);
@@ -206,6 +207,34 @@ public class ZipStore implements EntityStore {
 	@Override
 	public void close() throws IOException {
 		zip.close();
+	}
+
+	/**
+	 * Returns the paths of the files that are located under the given folder.
+	 * The returned paths are absolute to the root of the underlying zip file.
+	 * Thus, you can get the content of such a path `p` by using the method
+	 * `get(p)`.
+	 */
+	public List<String> getFiles(String folder) {
+		if (folder == null)
+			return Collections.emptyList();
+		Path dir = zip.getPath(folder);
+		if (!Files.exists(dir))
+			return Collections.emptyList();
+		List<String> paths = new ArrayList<>();
+		try {
+			Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
+				@Override
+				public FileVisitResult visitFile(Path file,
+					BasicFileAttributes attrs) throws IOException {
+					paths.add(file.toAbsolutePath().toString());
+					return FileVisitResult.CONTINUE;
+				}
+			});
+		} catch (Exception e) {
+			log.error("failed collect files from " + folder, e);
+		}
+		return paths;
 	}
 
 	private class RefIdCollector extends SimpleFileVisitor<Path> {
