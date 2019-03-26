@@ -41,6 +41,9 @@ class CategoryImport extends BaseImport<Category> {
 		return model;
 	}
 
+	/**
+	 * @see BaseImport#get(String)
+	 */
 	@Override
 	protected Category get(String refId) {
 		if (conf.db.categoryRefIdMapping.containsKey(refId))

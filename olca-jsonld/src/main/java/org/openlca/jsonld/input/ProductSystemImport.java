@@ -1,9 +1,5 @@
 package org.openlca.jsonld.input;
 
-import java.io.File;
-
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedef;
@@ -11,7 +7,6 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.Json;
-import org.openlca.jsonld.ZipStore;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -132,21 +127,4 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 			s.inventory.add(ex);
 		}
 	}
-
-	public static void main(String[] args) {
-		String workspace = "C:/Users/Besitzer/openLCA-data-1.4";
-
-		String dbPath = workspace + "/databases/zempty";
-		IDatabase db = new DerbyDatabase(new File(dbPath));
-
-		try {
-			ZipStore zip = ZipStore
-					.open(new File("C:/Users/Besitzer/Desktop/sysinsys.zip"));
-			JsonImport imp = new JsonImport(zip, db);
-			imp.run();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 }

@@ -7,6 +7,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.jsonld.Json;
@@ -15,13 +16,33 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-class ImpactCategories {
+class ImpactCategoryImport extends
+		BaseEmbeddedImport<ImpactCategory, ImpactMethod> {
 
-	static ImpactCategory map(JsonObject json, ImportConfig conf) {
-		if (json == null || conf == null)
+	ImpactCategoryImport(String methodID, ImportConfig conf) {
+		super(ModelType.IMPACT_METHOD, methodID, conf);
+	}
+
+	@Override
+	ImpactCategory getPersisted(ImpactMethod method, JsonObject json) {
+		if (method == null)
+			return null;
+		String refId = Json.getString(json, "@id");
+		if (refId == null)
+			return null;
+		for (ImpactCategory cat : method.impactCategories) {
+			if (refId.equals(cat.refId))
+				return cat;
+		}
+		return null;
+	}
+
+	@Override
+	ImpactCategory map(JsonObject json, long id) {
+		if (json == null)
 			return null;
 		ImpactCategory cat = new ImpactCategory();
-		In.mapAtts(json, cat, 0);
+		In.mapAtts(json, cat, id);
 		cat.referenceUnit = Json.getString(json, "referenceUnitName");
 		JsonArray factors = Json.getArray(json, "impactFactors");
 		if (factors == null || factors.size() == 0)
@@ -37,7 +58,7 @@ class ImpactCategories {
 		return cat;
 	}
 
-	private static ImpactFactor mapFactor(JsonObject json, ImportConfig conf) {
+	private ImpactFactor mapFactor(JsonObject json, ImportConfig conf) {
 		if (json == null || conf == null)
 			return null;
 		ImpactFactor factor = new ImpactFactor();
@@ -60,7 +81,7 @@ class ImpactCategories {
 		return factor;
 	}
 
-	private static FlowPropertyFactor getPropertyFactor(JsonObject json,
+	private FlowPropertyFactor getPropertyFactor(JsonObject json,
 			Flow flow) {
 		if (json == null || flow == null)
 			return null;
@@ -74,5 +95,4 @@ class ImpactCategories {
 		}
 		return null;
 	}
-
 }

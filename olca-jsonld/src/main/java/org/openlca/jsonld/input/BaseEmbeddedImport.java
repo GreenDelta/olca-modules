@@ -8,6 +8,17 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
+/**
+ * The template for importing embedded things like exchanges in processes or
+ * units in unit groups. The main problem that is solved here is to decide
+ * whether such an embedded thing needs to be created or updated. In case of an
+ * update, we try to keep the IDs stable to not break things in the database.
+ *
+ * @param <T>
+ *            the type of the embedded thing, e.g. an Exchange
+ * @param <P>
+ *            the type where it is embedded, e.g. a Process
+ */
 abstract class BaseEmbeddedImport<T extends AbstractEntity, P extends RootEntity> {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
@@ -29,7 +40,8 @@ abstract class BaseEmbeddedImport<T extends AbstractEntity, P extends RootEntity
 				if (!doImport(model, json))
 					return model;
 			}
-			return map(json, model);
+			long id = model == null ? 0L : model.id;
+			return map(json, id);
 		} catch (Exception e) {
 			log.error("failed to import embedded object", e);
 			return null;
@@ -48,14 +60,15 @@ abstract class BaseEmbeddedImport<T extends AbstractEntity, P extends RootEntity
 		return In.isNewer(json, (RootEntity) model);
 	}
 
-	T map(JsonObject json, T model) {
-		if (model == null)
-			return map(json, 0l);
-		return map(json, model.id);
-	}
-
+	/**
+	 * Create the embedded object and assign the given ID.
+	 */
 	abstract T map(JsonObject json, long id);
 
+	/**
+	 * Get the embedded object from the given model using the information in the
+	 * given JSON data.
+	 */
 	abstract T getPersisted(P parent, JsonObject json);
 
 }

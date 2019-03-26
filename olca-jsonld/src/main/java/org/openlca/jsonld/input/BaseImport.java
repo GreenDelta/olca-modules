@@ -63,6 +63,12 @@ abstract class BaseImport<T extends RootEntity> {
 		return true;
 	}
 
+	/**
+	 * This method is overwritten in the `CategoryImport` as the reference ID for
+	 * categories may change in the import: the reference ID of a category in
+	 * openLCA is calculated from the category type and path. There is a mapping
+	 * between the JSON-LD IDs and the reference IDs in the database for categories.
+	 */
 	protected T get(String refId) {
 		return conf.db.get(modelType, refId);
 	}

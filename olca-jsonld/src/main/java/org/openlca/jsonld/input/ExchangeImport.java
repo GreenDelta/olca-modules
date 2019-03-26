@@ -21,12 +21,21 @@ abstract class ExchangeImport<P extends RootEntity> extends BaseEmbeddedImport<E
 		super(parentType, parentRefId, conf);
 	}
 
-	static <AP extends RootEntity> Exchange run(ModelType parentType, String parentRefId, JsonObject json,
+	static <AP extends RootEntity> Exchange run(ModelType parentType,
+			String parentRefId, JsonObject json,
 			ImportConfig conf, Function<AP, List<Exchange>> getExchanges) {
 		return new ExchangeImport<AP>(parentType, parentRefId, conf) {
 
 			Exchange getPersisted(AP parent, JsonObject json) {
-				return find(getExchanges.apply(parent), json);
+				List<Exchange> exchanges = getExchanges.apply(parent);
+				if (exchanges == null)
+					return null;
+				int internalId = Json.getInt(json, "internalId", -1);
+				for (Exchange exchange : exchanges) {
+					if (exchange.internalId == internalId)
+						return exchange;
+				}
+				return null;
 			}
 
 		}.run(json);
@@ -90,14 +99,6 @@ abstract class ExchangeImport<P extends RootEntity> extends BaseEmbeddedImport<E
 		} else if (e.flowPropertyFactor != null) {
 			e.unit = e.flowPropertyFactor.flowProperty.unitGroup.referenceUnit;
 		}
-	}
-
-	Exchange find(List<Exchange> exchanges, JsonObject json) {
-		int internalId = Json.getInt(json, "internalId", -1);
-		for (Exchange exchange : exchanges)
-			if (exchange.internalId == internalId)
-				return exchange;
-		return null;
 	}
 
 }
