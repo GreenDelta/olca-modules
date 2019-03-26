@@ -85,6 +85,9 @@ public class JsonImport implements Runnable {
 		case IMPACT_METHOD:
 			ImpactMethodImport.run(id, conf);
 			break;
+		case IMPACT_CATEGORY:
+			ImpactCategoryImport.run(id, conf);
+			break;
 		case SOCIAL_INDICATOR:
 			SocialIndicatorImport.run(id, conf);
 			break;
@@ -174,7 +177,8 @@ public class JsonImport implements Runnable {
 		}
 	}
 
-	private void setProviders(ImportConfig conf, Set<Long> ids, Map<String, Long> refIdToId, Map<Long, String> idToRefId)
+	private void setProviders(ImportConfig conf, Set<Long> ids, Map<String, Long> refIdToId,
+			Map<Long, String> idToRefId)
 			throws SQLException {
 		log.debug("Setting next " + ids.size() + " providers");
 		Connection con = database.createConnection();
