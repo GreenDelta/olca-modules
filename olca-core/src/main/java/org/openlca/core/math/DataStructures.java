@@ -98,6 +98,7 @@ public class DataStructures {
 		return index;
 	}
 
+	@Deprecated
 	public static Inventory inventory(
 			ProductSystem system,
 			AllocationMethod allocationMethod,
@@ -110,7 +111,7 @@ public class DataStructures {
 		return inventory(setup, cache, subResults);
 	}
 
-	public static Inventory inventory(
+	private static Inventory inventory(
 			CalculationSetup setup,
 			MatrixCache cache,
 			Map<ProcessProduct, SimpleResult> subResults) {

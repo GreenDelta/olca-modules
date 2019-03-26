@@ -1,25 +1,27 @@
 package org.openlca.io.xls;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Collections;
-import java.util.HashMap;
-
 import org.openlca.core.database.EntityCache;
+import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.DataStructures;
-import org.openlca.core.matrix.ExchangeMatrix;
 import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.matrix.Inventory;
+import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.io.CategoryPair;
 import org.openlca.io.DisplayValues;
+import org.openlca.julia.JuliaSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.Writer;
+import java.util.Collections;
+import java.util.HashMap;
 
 /**
  * Writes a product system as matrices into CSV files.
@@ -28,51 +30,58 @@ public class CsvMatrixExport implements Runnable {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private EntityCache cache;
-	private CsvMatrixExportData data;
+	private CsvMatrixExportConfig conf;
 	private String separator;
 	private String point;
 	private HashMap<Long, String> categoryCache = new HashMap<>();
 
-	public CsvMatrixExport(CsvMatrixExportData data) {
-		this.data = data;
-		cache = data.getEntityCache();
-		separator = data.getColumnSeperator();
-		point = data.getDecimalSeparator();
+	public CsvMatrixExport(CsvMatrixExportConfig conf) {
+		this.conf = conf;
+		cache = conf.getEntityCache();
+		separator = conf.columnSeperator;
+		point = conf.decimalSeparator;
 	}
 
 	@Override
 	public void run() {
 		log.trace("Run matrix export");
-		if (data == null || !data.valid()) {
-			log.error("Invalid export data {}", data);
+		if (conf == null || !conf.valid()) {
+			log.error("Invalid export data {}", conf);
 			return;
 		}
-		log.trace("Build inventory matrix");
-		Inventory inventory = DataStructures.inventory(
-				data.getProductSystem(),
-				AllocationMethod.NONE,
-				data.getMatrixCache(),
-				Collections.emptyMap());
-		log.trace("Write technology matrix");
-		writeTechFile(inventory);
-		log.trace("Write intervention matrix");
-		writeEnviFile(inventory);
-		log.trace("Export done");
-	}
 
-	private void writeTechFile(Inventory inventory) {
-		try (FileWriter writer = new FileWriter(data.getTechnologyFile());
+		log.trace("Build inventory matrix");
+		CalculationSetup setup = new CalculationSetup(
+				CalculationType.SIMPLE_CALCULATION, conf.productSystem);
+		setup.parameterRedefs.addAll(conf.productSystem.parameterRedefs);
+		setup.allocationMethod = AllocationMethod.NONE;
+		MatrixData data = DataStructures.matrixData(
+				setup, new JuliaSolver(),
+				conf.getMatrixCache(), Collections.emptyMap());
+
+		log.trace("Write technology matrix");
+		try (FileWriter writer = new FileWriter(conf.technologyFile);
 				BufferedWriter buffer = new BufferedWriter(writer)) {
-			writeTechMatrix(inventory, buffer);
+			writeTechMatrix(data, buffer);
 		} catch (Exception e) {
 			log.error("Failed to write technology matrix", e);
 		}
+
+		log.trace("Write intervention matrix");
+		try (FileWriter writer = new FileWriter(conf.interventionFile);
+				BufferedWriter buffer = new BufferedWriter(writer)) {
+			writeEnviMatrix(data, buffer);
+		} catch (Exception e) {
+			log.error("Failed to write intervention matrix", e);
+		}
+
+		log.trace("Export done");
 	}
 
-	private void writeTechMatrix(Inventory inventory, BufferedWriter buffer)
+	private void writeTechMatrix(MatrixData data, BufferedWriter buffer)
 			throws Exception {
-		ExchangeMatrix techMatrix = inventory.technologyMatrix;
-		TechIndex techIndex = inventory.techIndex;
+		IMatrix techMatrix = data.techMatrix;
+		TechIndex techIndex = data.techIndex;
 		int size = techIndex.size();
 		for (int row = 0; row < size; row++) {
 			ProcessProduct product = techIndex.getProviderAt(row);
@@ -82,7 +91,7 @@ public class CsvMatrixExport implements Runnable {
 			writeCategory(flow, buffer);
 			sep(buffer);
 			for (int col = 0; col < size; col++) {
-				double val = techMatrix.getValue(row, col);
+				double val = techMatrix.get(row, col);
 				writeValue(val, buffer);
 				sep(buffer, col, size);
 			}
@@ -90,23 +99,14 @@ public class CsvMatrixExport implements Runnable {
 		}
 	}
 
-	private void writeEnviFile(Inventory inventory) {
-		try (FileWriter writer = new FileWriter(data.getInterventionFile());
-				BufferedWriter buffer = new BufferedWriter(writer)) {
-			writeEnviMatrix(inventory, buffer);
-		} catch (Exception e) {
-			log.error("Failed to write intervention matrix", e);
-		}
-	}
-
-	private void writeEnviMatrix(Inventory inventory, BufferedWriter buffer)
+	private void writeEnviMatrix(MatrixData data, BufferedWriter buffer)
 			throws Exception {
-		TechIndex techIndex = inventory.techIndex;
-		FlowIndex flowIndex = inventory.flowIndex;
+		TechIndex techIndex = data.techIndex;
+		FlowIndex flowIndex = data.enviIndex;
 		int rows = flowIndex.size();
 		int columns = techIndex.size();
 		writeEnviMatrixHeader(buffer, techIndex);
-		ExchangeMatrix matrix = inventory.interventionMatrix;
+		IMatrix matrix = data.enviMatrix;
 		for (int row = 0; row < rows; row++) {
 			FlowDescriptor flow = flowIndex.at(row);
 			writeName(flow, buffer);
@@ -114,17 +114,16 @@ public class CsvMatrixExport implements Runnable {
 			writeCategory(flow, buffer);
 			sep(buffer);
 			for (int col = 0; col < columns; col++) {
-				double val = matrix.getValue(row, col);
+				double val = matrix.get(row, col);
 				writeValue(val, buffer);
 				sep(buffer, col, columns);
 			}
 			buffer.newLine();
 		}
-
 	}
 
 	private void writeEnviMatrixHeader(BufferedWriter buffer,
-			TechIndex techIndex) throws Exception, IOException {
+			TechIndex techIndex) throws Exception {
 		sep(buffer);
 		sep(buffer);
 		int columns = techIndex.size();
@@ -146,8 +145,7 @@ public class CsvMatrixExport implements Runnable {
 		buffer.newLine();
 	}
 
-	private void writeName(FlowDescriptor flow, Writer buffer)
-			throws Exception {
+	private void writeName(FlowDescriptor flow, Writer buffer) {
 		if (flow == null)
 			return;
 		String name = flow.name;
@@ -157,14 +155,14 @@ public class CsvMatrixExport implements Runnable {
 			quote(name, buffer);
 		} catch (Exception e) {
 			log.error("Failed to load ref-unit", e);
-			return;
 		}
 	}
 
 	private void writeValue(double d, Writer buffer) throws Exception {
 		String number = Double.toString(d);
-		if (!point.equals("."))
+		if (!point.equals(".")) {
 			number = number.replace(".", point);
+		}
 		buffer.write(number);
 	}
 
@@ -195,5 +193,4 @@ public class CsvMatrixExport implements Runnable {
 		}
 		quote(catPath, buffer);
 	}
-
 }

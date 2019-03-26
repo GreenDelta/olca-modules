@@ -13,16 +13,19 @@ import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.DataStructures;
 import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.matrix.ImpactTable;
-import org.openlca.core.matrix.Inventory;
+import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.io.xls.Excel;
+import org.openlca.julia.JuliaSolver;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +34,7 @@ public class SystemExport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	private Inventory inventory;
-	private ImpactTable impactTable;
+	private MatrixData data;
 	private SystemExportConfig conf;
 
 	public SystemExport(SystemExportConfig config) {
@@ -40,26 +42,24 @@ public class SystemExport {
 	}
 
 	public void exportTo(File dir) throws IOException {
-		loadData();
-		File subDir = new File(dir, conf.getSystem().name.trim());
+		CalculationSetup setup = new CalculationSetup(
+				CalculationType.SIMPLE_CALCULATION, conf.system);
+		setup.parameterRedefs.addAll(conf.system.parameterRedefs);
+		setup.allocationMethod = conf.allocationMethod;
+		setup.impactMethod = conf.impactMethod;
+
+		// the Julia solver that we pass here is just for creating the matrices
+		data = DataStructures.matrixData(
+				setup, new JuliaSolver(), conf.getMatrixCache(),
+				Collections.emptyMap());
+
+		File subDir = new File(dir, conf.system.name.trim());
 		if (!subDir.exists())
 			subDir.mkdirs();
 		createElementaryWorkbook(subDir);
 		createProductWorkbook(subDir);
-		if (impactTable != null)
+		if (data.impactMatrix != null) {
 			createImpactWorkbook(subDir);
-	}
-
-	private void loadData() {
-		log.trace("load matrix data");
-		inventory = DataStructures.inventory(
-				conf.getSystem(),
-				conf.getAllocationMethod(),
-				conf.getMatrixCache(),
-				Collections.emptyMap());
-		if (conf.getImpactMethod() != null) {
-			impactTable = ImpactTable.build(conf.getMatrixCache(), conf
-					.getImpactMethod().id, inventory.flowIndex);
 		}
 	}
 
@@ -67,7 +67,7 @@ public class SystemExport {
 		log.trace("create workbook with elementary flows");
 		Workbook elementaryWorkbook = new XSSFWorkbook();
 		createElementaryCoverSheet(elementaryWorkbook,
-				conf.getAllocationMethod());
+				conf.allocationMethod);
 		createElementarySheet(elementaryWorkbook);
 		writeToFile(elementaryWorkbook,
 				new File(subDir, FILE_NAMES.ELEMENTARY));
@@ -76,7 +76,7 @@ public class SystemExport {
 	private void createProductWorkbook(File subDir) throws IOException {
 		log.trace("create workbook with product flows");
 		Workbook productWorkbook = new XSSFWorkbook();
-		createProductCoverSheet(productWorkbook, conf.getAllocationMethod());
+		createProductCoverSheet(productWorkbook, conf.allocationMethod);
 		createProductSheet(productWorkbook);
 		writeToFile(productWorkbook, new File(subDir, FILE_NAMES.PRODUCT));
 	}
@@ -100,10 +100,10 @@ public class SystemExport {
 		currentRow = writeHeaderInformation(sheet, currentRow++, subTitle);
 		currentRow = writeSoftwareInformation(sheet, currentRow++);
 
-		String name = conf.getSystem().name;
-		int processes = conf.getSystem().processes.size();
-		int products = inventory.techIndex.size();
-		int flows = inventory.flowIndex.size();
+		String name = conf.system.name;
+		int processes = conf.system.processes.size();
+		int products = data.techIndex.size();
+		int flows = data.enviIndex.size();
 		String dimensions = flows + "x" + products;
 
 		currentRow = line(sheet, currentRow, "Product system:", name);
@@ -147,9 +147,9 @@ public class SystemExport {
 		currentRow = writeHeaderInformation(sheet, currentRow++, subTitle);
 		currentRow = writeSoftwareInformation(sheet, currentRow++);
 
-		String name = conf.getSystem().name;
-		int processes = conf.getSystem().processes.size();
-		int products = inventory.techIndex.size();
+		String name = conf.system.name;
+		int processes = conf.system.processes.size();
+		int products = data.techIndex.size();
 		String dimensions = products + "x" + products;
 
 		currentRow = line(sheet, currentRow, "Product system:", name);
@@ -172,10 +172,10 @@ public class SystemExport {
 		row = writeSoftwareInformation(sheet, row);
 		row++;
 
-		String name = conf.getSystem().name;
-		String method = conf.getImpactMethod().name;
-		int categories = impactTable.impactIndex.size();
-		int factors = impactTable.flowIndex.size();
+		String name = conf.system.name;
+		String method = conf.impactMethod.name;
+		int categories = data.impactIndex.size();
+		int factors = data.enviIndex.size();
 		String dimensions = factors + "x" + categories;
 
 		row = line(sheet, row, "Product system:", name);
@@ -202,8 +202,8 @@ public class SystemExport {
 
 	private int writeSoftwareInformation(Sheet sheet, int row) {
 		row = line(sheet, row, "Software:", "openLCA");
-		row = line(sheet, row, "Version:", conf.getOlcaVersion());
-		row = line(sheet, row, "Database:", conf.getDatabase().getName());
+		row = line(sheet, row, "Version:", conf.olcaVersion);
+		row = line(sheet, row, "Database:", conf.database.getName());
 		return row;
 	}
 
@@ -254,8 +254,8 @@ public class SystemExport {
 		List<ImpactCategoryDescriptor> sortedCategories = mapImpactCategoryIndices(
 				header, impactIndex);
 		for (ImpactCategoryDescriptor category : sortedCategories) {
-			headerEntries.add(new ImpactCategoryHeaderEntry(conf
-					.getImpactMethod().name, category));
+			headerEntries.add(new ImpactCategoryHeaderEntry(
+					conf.impactMethod.name, category));
 		}
 		header.setEntries(headerEntries
 				.toArray(new IExcelHeaderEntry[headerEntries.size()]));
@@ -263,24 +263,22 @@ public class SystemExport {
 	}
 
 	private void createElementarySheet(Workbook workbook) {
-		ExcelHeader columnHeader = createProductHeader(inventory.techIndex);
-		ExcelHeader rowHeader = createFlowHeader(inventory.flowIndex);
+		ExcelHeader columnHeader = createProductHeader(data.techIndex);
+		ExcelHeader rowHeader = createFlowHeader(data.enviIndex);
 		MatrixExcelExport export = new MatrixExcelExport();
 		export.setColumnHeader(columnHeader);
 		export.setRowHeader(rowHeader);
-		export.setMatrix(inventory.interventionMatrix.createRealMatrix(
-				conf.getSolver()));
+		export.setMatrix(data.enviMatrix);
 		export.writeTo(workbook);
 	}
 
 	private void createProductSheet(Workbook workbook) {
-		ExcelHeader columnHeader = createProductHeader(inventory.techIndex);
-		ExcelHeader rowHeader = createProductHeader(inventory.techIndex);
+		ExcelHeader columnHeader = createProductHeader(data.techIndex);
+		ExcelHeader rowHeader = createProductHeader(data.techIndex);
 		MatrixExcelExport export = new MatrixExcelExport();
 		export.setColumnHeader(columnHeader);
 		export.setRowHeader(rowHeader);
-		export.setMatrix(inventory.technologyMatrix.createRealMatrix(
-				conf.getSolver()));
+		export.setMatrix(data.techMatrix);
 		Sheet sheet = export.writeTo(workbook);
 		int columnOffSet = rowHeader.getHeaderSize() + 1;
 		for (int i = 0; i < columnHeader.getHeaderSize(); i++) {
@@ -290,13 +288,12 @@ public class SystemExport {
 
 	private void createImpactMethodSheet(Workbook workbook) {
 		ExcelHeader columnHeader = createImpactCategoryHeader(
-				impactTable.impactIndex);
-		ExcelHeader rowHeader = createFlowHeader(impactTable.flowIndex);
+				data.impactIndex);
+		ExcelHeader rowHeader = createFlowHeader(data.enviIndex);
 		MatrixExcelExport export = new MatrixExcelExport();
 		export.setColumnHeader(columnHeader);
 		export.setRowHeader(rowHeader);
-		export.setMatrix(transpose(impactTable.factorMatrix
-				.createRealMatrix(conf.getSolver())));
+		export.setMatrix(transpose(data.impactMatrix));
 		export.writeTo(workbook);
 	}
 
@@ -339,7 +336,7 @@ public class SystemExport {
 	}
 
 	private IMatrix transpose(IMatrix matrix) {
-		IMatrix result = conf.getSolver().matrix(
+		IMatrix result = new DenseMatrix(
 				matrix.columns(), matrix.rows());
 		for (int row = 0; row < matrix.rows(); row++) {
 			for (int column = 0; column < matrix.columns(); column++) {
