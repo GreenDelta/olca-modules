@@ -75,6 +75,7 @@ public final class Julia {
 				for (String lib : libs(opt)) {
 					File f = new File(dir, lib);
 					System.load(f.getAbsolutePath());
+					log.info("loaded native library {}", f);
 				}
 				_loaded.set(true);
 				if (opt == LinkOption.ALL) {
@@ -124,11 +125,25 @@ public final class Julia {
 		if (os == OS.MAC) {
 			if (opt == LinkOption.ALL) {
 				return new String[] {
+						"libgcc_s.1.dylib",
+						"libquadmath.0.dylib",
+						"libgfortran.4.dylib",
+						"libopenblas64_.dylib",
+						"libsuitesparseconfig.dylib",
+						"libamd.dylib",
+						"libcamd.dylib",
+						"libcolamd.dylib",
+						"libccolamd.dylib",
+						"libcholmod.dylib",
 						"libumfpack.dylib",
 						"libolcar_withumf.dylib"
 				};
 			} else {
 				return new String[] {
+						"libgcc_s.1.dylib",
+						"libquadmath.0.dylib",
+						"libgfortran.4.dylib",
+						"libopenblas64_.dylib",
 						"libolcar.dylib"
 				};
 			}
