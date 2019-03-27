@@ -112,6 +112,10 @@ public class InventoryBuilder2 {
 			});
 			if (subSystems.isEmpty())
 				return;
+
+			// use the MatrixBuiler.set method here because there may
+			// are stored LCI results that were mapped to the respective
+			// columns
 			for (ProcessProduct sub : subSystems) {
 
 				int col = techIndex.getIndex(sub);
@@ -126,7 +130,7 @@ public class InventoryBuilder2 {
 				if (sub.flow.flowType == FlowType.WASTE_FLOW) {
 					a = -a;
 				}
-				techBuilder.add(col, col, a);
+				techBuilder.set(col, col, a);
 
 				// add the LCI result
 				r.flowIndex.each((i, f) -> {
@@ -134,7 +138,7 @@ public class InventoryBuilder2 {
 					if (r.isInput(f)) {
 						b = -b;
 					}
-					enviBuilder.add(flowIndex.of(f), col, b);
+					enviBuilder.set(flowIndex.of(f), col, b);
 				});
 
 				// add costs
