@@ -35,7 +35,10 @@ public class ProcessDao extends CategorizedEntityDao<Process, ProcessDescriptor>
 		if (queryResult == null)
 			return null;
 		ProcessDescriptor d = super.createDescriptor(queryResult);
-		d.processType = ProcessType.valueOf((String) queryResult[7]);
+		Object type = queryResult[7];
+		if (type instanceof String) {
+			d.processType = ProcessType.valueOf((String) type);
+		}
 		d.infrastructureProcess = (Integer) queryResult[8] == 1;
 		d.location = (Long) queryResult[9];
 		d.quantitativeReference = (Long) queryResult[10];
