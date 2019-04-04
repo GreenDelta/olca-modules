@@ -127,9 +127,6 @@ public class InventoryBuilder2 {
 
 				// add the link in the technology matrix
 				double a = r.techIndex.getDemand();
-				if (sub.flow.flowType == FlowType.WASTE_FLOW) {
-					a = -a;
-				}
 				techBuilder.set(col, col, a);
 
 				// add the LCI result
