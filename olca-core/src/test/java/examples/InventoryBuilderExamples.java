@@ -11,7 +11,7 @@ import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.DataStructures;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.math.SystemCalculator;
-import org.openlca.core.matrix.InventoryBuilder2;
+import org.openlca.core.matrix.InventoryBuilder;
 import org.openlca.core.matrix.InventoryConfig;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;

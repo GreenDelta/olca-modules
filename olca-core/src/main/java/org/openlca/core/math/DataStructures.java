@@ -9,9 +9,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.ImpactTable;
-import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.InventoryBuilder;
-import org.openlca.core.matrix.InventoryBuilder2;
 import org.openlca.core.matrix.InventoryConfig;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.MatrixData;
@@ -20,7 +18,6 @@ import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
-import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessLink;
@@ -98,36 +95,6 @@ public class DataStructures {
 		return index;
 	}
 
-	@Deprecated
-	public static Inventory inventory(
-			ProductSystem system,
-			AllocationMethod allocationMethod,
-			MatrixCache cache,
-			Map<ProcessProduct, SimpleResult> subResults) {
-		CalculationSetup setup = new CalculationSetup(
-				CalculationType.SIMPLE_CALCULATION, system);
-		setup.parameterRedefs.addAll(system.parameterRedefs);
-		setup.allocationMethod = allocationMethod;
-		return inventory(setup, cache, subResults);
-	}
-
-	private static Inventory inventory(
-			CalculationSetup setup,
-			MatrixCache cache,
-			Map<ProcessProduct, SimpleResult> subResults) {
-		TechIndex index = createProductIndex(
-				setup.productSystem, cache.getDatabase());
-		index.setDemand(ReferenceAmount.get(setup));
-		AllocationMethod am = setup.allocationMethod == null
-				? AllocationMethod.NONE
-				: setup.allocationMethod;
-		InventoryBuilder builder = new InventoryBuilder(cache, index, am);
-		if (subResults != null && !subResults.isEmpty()) {
-			builder.addSubSystemResults(subResults);
-		}
-		return builder.build();
-	}
-
 	/**
 	 * Create the matrix data for the calculation of the given setup.
 	 */
@@ -148,7 +115,7 @@ public class DataStructures {
 		conf.subResults = subResults;
 		conf.withCosts = setup.withCosts;
 		conf.withUncertainties = setup.type == CalculationType.MONTE_CARLO_SIMULATION;
-		InventoryBuilder2 builder = new InventoryBuilder2(conf);
+		InventoryBuilder builder = new InventoryBuilder(conf);
 
 		MatrixData data = builder.build();
 		if (setup.impactMethod != null) {

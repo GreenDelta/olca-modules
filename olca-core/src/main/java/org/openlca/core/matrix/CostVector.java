@@ -1,7 +1,5 @@
 package org.openlca.core.matrix;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.cache.ConversionTable;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 
@@ -11,11 +9,13 @@ import org.openlca.core.matrix.solvers.IMatrixSolver;
  * amount in the respective process. The vector is then scaled with the
  * respective scaling factors in the result calculation.
  */
+@Deprecated
 public final class CostVector {
 
 	private CostVector() {
 	}
 
+	@Deprecated
 	public static IMatrix asMatrix(IMatrixSolver solver, double[] values) {
 		IMatrix m = solver.matrix(1, values.length);
 		for (int col = 0; col < values.length; col++) {
@@ -24,42 +24,4 @@ public final class CostVector {
 		return m;
 	}
 
-	public static double[] build(Inventory inventory, IDatabase db) {
-		return new Builder(inventory, db).build();
-	}
-
-	private static class Builder {
-
-		private Inventory inventory;
-		private ConversionTable currencyTable;
-
-		private double[] values;
-
-		private Builder(Inventory inventory, IDatabase db) {
-			this.inventory = inventory;
-			this.currencyTable = ConversionTable.create(db);
-		}
-
-		private double[] build() {
-			if (inventory == null || inventory.techIndex == null)
-				return new double[0];
-			values = new double[inventory.techIndex.size()];
-			scan(inventory.technologyMatrix);
-			scan(inventory.interventionMatrix);
-			return values;
-		}
-
-		private void scan(ExchangeMatrix matrix) {
-			if (matrix == null)
-				return;
-			matrix.iterate((row, col, cell) -> {
-				double val = cell.getCostValue();
-				if (val == 0 || cell.exchange == null) {
-					return;
-				}
-				val = cell.exchange.currencyFactor * val;
-				values[col] += val;
-			});
-		}
-	}
 }
