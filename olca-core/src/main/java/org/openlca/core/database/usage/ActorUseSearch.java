@@ -23,11 +23,11 @@ public class ActorUseSearch extends BaseUseSearch<ActorDescriptor> {
 	public List<CategorizedDescriptor> findUses(Set<Long> ids) {
 		List<CategorizedDescriptor> results = new ArrayList<>();
 		results.addAll(queryFor(ModelType.PROJECT, ids, "f_author"));
+		results.addAll(queryFor(ModelType.IMPACT_METHOD, ids, "f_author"));
+		results.addAll(queryFor(ModelType.IMPACT_METHOD, ids, "f_generator"));
 		Set<Long> processDocIds = queryForIds("id", "tbl_process_docs", ids,
-				"f_reviewer", "f_dataset_owner", "f_data_generator",
-				"f_data_documentor");
-		results.addAll(queryFor(ModelType.PROCESS, processDocIds,
-				"f_process_doc"));
+				"f_reviewer", "f_dataset_owner", "f_data_generator", "f_data_documentor");
+		results.addAll(queryFor(ModelType.PROCESS, processDocIds, "f_process_doc"));
 		return results;
 	}
 

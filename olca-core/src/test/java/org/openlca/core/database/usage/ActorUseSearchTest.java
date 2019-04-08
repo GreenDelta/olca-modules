@@ -8,9 +8,11 @@ import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProjectDao;
 import org.openlca.core.model.Actor;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
@@ -59,8 +61,7 @@ public class ActorUseSearchTest {
 	private Actor createActor() {
 		Actor actor = new Actor();
 		actor.name = "actor";
-		new ActorDao(database).insert(actor);
-		return actor;
+		return new ActorDao(database).insert(actor);
 	}
 
 	@Test
@@ -85,7 +86,34 @@ public class ActorUseSearchTest {
 		process.documentation.dataSetOwner = actor;
 		process.documentation.dataGenerator = actor;
 		process.documentation.dataDocumentor = actor;
-		new ProcessDao(database).insert(process);
-		return process;
+		return new ProcessDao(database).insert(process);
 	}
+
+	@Test
+	public void testFindInMethods() {
+		Actor author = createActor();
+		ImpactMethod method = new ImpactMethod();
+		method.name = "method";
+		method.author = author;
+		method = new ImpactMethodDao(database).insert(method);
+		List<CategorizedDescriptor> results = search.findUses(Descriptors.toDescriptor(author));
+		BaseDescriptor expected = Descriptors.toDescriptor(method);
+		Assert.assertEquals(1, results.size());
+		Assert.assertEquals(expected, results.get(0));
+		new ImpactMethodDao(database).delete(method);
+		new ActorDao(database).delete(author);
+
+		Actor generator = createActor();
+		method = new ImpactMethod();
+		method.name = "method";
+		method.generator = generator;
+		method = new ImpactMethodDao(database).insert(method);
+		results = search.findUses(Descriptors.toDescriptor(generator));
+		expected = Descriptors.toDescriptor(method);
+		Assert.assertEquals(1, results.size());
+		Assert.assertEquals(expected, results.get(0));
+		new ImpactMethodDao(database).delete(method);
+		new ActorDao(database).delete(generator);
+	}
+
 }

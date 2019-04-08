@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -22,6 +23,8 @@ public class ImpactMethodReferenceSearch extends BaseParametrizedReferenceSearch
 
 	private final static Ref[] references = {
 			new Ref(Category.class, "category", "f_category", true),
+			new Ref(Actor.class, "author", "f_author", true),
+			new Ref(Actor.class, "generator", "f_generator", true)
 	};
 	private final static Ref[] categoryReferences = {
 			new Ref(ImpactCategory.class, "id", "id")
