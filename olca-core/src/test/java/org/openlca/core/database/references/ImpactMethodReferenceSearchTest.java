@@ -11,6 +11,7 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
+import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 
@@ -42,6 +43,8 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 		globalUnreferenced2 = Tests.insert(globalUnreferenced2);
 		method.impactCategories.add(createImpactCategory(n4));
 		method.impactCategories.add(createImpactCategory(n4));
+		method.sources.add(Tests.insert(new Source()));
+		method.sources.add(Tests.insert(new Source()));
 		method = Tests.insert(method);
 		for (ImpactCategory category : method.impactCategories)
 			for (ImpactFactor f : category.impactFactors) {
@@ -54,6 +57,8 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 				addExpected("unit", f.unit, "impactFactors",
 						ImpactFactor.class, f.id);
 			}
+		for (Source s : method.sources)
+			addExpected("sources", s);
 		return method;
 	}
 

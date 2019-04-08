@@ -14,6 +14,7 @@ import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 
@@ -33,6 +34,10 @@ public class ImpactMethodReferenceSearch extends BaseParametrizedReferenceSearch
 	private final static Ref[] propertyFactorReferences = {
 			new Ref(FlowProperty.class, "flowProperty", FlowPropertyFactor.class, "flowPropertyFactor", "f_flow_property")
 	};
+	private final static Ref[] sourceReferences = {
+			new Ref(Source.class, "sources", "f_source", true)
+	};
+
 
 	public ImpactMethodReferenceSearch(IDatabase database, boolean includeOptional) {
 		super(database, ImpactMethod.class, includeOptional);
@@ -44,22 +49,19 @@ public class ImpactMethodReferenceSearch extends BaseParametrizedReferenceSearch
 		results.addAll(findReferences("tbl_impact_methods", "id", ids, references));
 		results.addAll(findFactorReferences(ids));
 		results.addAll(findParameters(ids, getFactorFormulas(ids)));
+		results.addAll(findReferences("tbl_source_links", "f_owner", ids, sourceReferences));
 		return results;
 	}
 
 	private List<Reference> findFactorReferences(Set<Long> ids) {
 		List<Reference> results = new ArrayList<>();
-		Map<Long, Long> categories = toIdMap(findReferences(
-				"tbl_impact_categories", "f_impact_method", ids,
-				categoryReferences));
-		Map<Long, Long> factors = toIdMap(findReferences(
-				"tbl_impact_factors", "f_impact_category", categories.keySet(),
+		Map<Long, Long> categories = toIdMap(findReferences("tbl_impact_categories", "f_impact_method", ids, categoryReferences));
+		Map<Long, Long> factors = toIdMap(findReferences("tbl_impact_factors", "f_impact_category", categories.keySet(),
 				new Ref[] { new Ref(ImpactFactor.class, "id", "id") }));
 		Map<Long, Long> map = new HashMap<>();
 		for (Long factor : factors.keySet())
 			map.put(factor, categories.get(factors.get(factor)));
-		results.addAll(findReferences("tbl_impact_factors", "id", map.keySet(),
-				map, factorReferences));
+		results.addAll(findReferences("tbl_impact_factors", "id", map.keySet(), map, factorReferences));
 		List<Reference> propertyFactors = new ArrayList<>();
 		for (Reference ref : results) {
 			if (ref.getType() != FlowPropertyFactor.class)
@@ -67,8 +69,7 @@ public class ImpactMethodReferenceSearch extends BaseParametrizedReferenceSearch
 			propertyFactors.add(ref);
 		}
 		Map<Long, Long> factorIds = toIdMap(propertyFactors);
-		results.addAll(findReferences("tbl_flow_property_factors", "id", factorIds.keySet(), factorIds,
-				propertyFactorReferences));
+		results.addAll(findReferences("tbl_flow_property_factors", "id", factorIds.keySet(), factorIds, propertyFactorReferences));
 		return results;
 	}
 
