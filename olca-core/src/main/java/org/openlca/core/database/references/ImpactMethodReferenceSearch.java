@@ -27,13 +27,11 @@ public class ImpactMethodReferenceSearch extends BaseParametrizedReferenceSearch
 	};
 	private final static Ref[] factorReferences = {
 			new Ref(Flow.class, "flow", ImpactFactor.class, "impactFactors", "f_flow"),
-			new Ref(FlowPropertyFactor.class, "flowPropertyFactor", ImpactFactor.class, "impactFactors",
-					"f_flow_property_factor"),
+			new Ref(FlowPropertyFactor.class, "flowPropertyFactor", ImpactFactor.class, "impactFactors", "f_flow_property_factor"),
 			new Ref(Unit.class, "unit", ImpactFactor.class, "impactFactors", "f_unit")
 	};
 	private final static Ref[] propertyFactorReferences = {
-			new Ref(FlowProperty.class, "flowProperty", FlowPropertyFactor.class, "flowPropertyFactor",
-					"f_flow_property")
+			new Ref(FlowProperty.class, "flowProperty", FlowPropertyFactor.class, "flowPropertyFactor", "f_flow_property")
 	};
 
 	public ImpactMethodReferenceSearch(IDatabase database, boolean includeOptional) {
@@ -43,8 +41,7 @@ public class ImpactMethodReferenceSearch extends BaseParametrizedReferenceSearch
 	@Override
 	public List<Reference> findReferences(Set<Long> ids) {
 		List<Reference> results = new ArrayList<>();
-		results.addAll(findReferences("tbl_impact_methods", "id", ids,
-				references));
+		results.addAll(findReferences("tbl_impact_methods", "id", ids, references));
 		results.addAll(findFactorReferences(ids));
 		results.addAll(findParameters(ids, getFactorFormulas(ids)));
 		return results;

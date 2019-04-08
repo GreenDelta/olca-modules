@@ -23,15 +23,11 @@ public class SourceUseSearch extends BaseUseSearch<SourceDescriptor> {
 	@Override
 	public List<CategorizedDescriptor> findUses(Set<Long> ids) {
 		Set<Long> processDocIds = new HashSet<>();
-		processDocIds.addAll(
-				queryForIds("id", "tbl_process_docs", ids, "f_publication"));
-		processDocIds.addAll(
-				queryForIds("f_owner", "tbl_source_links", ids, "f_source"));
+		processDocIds.addAll(queryForIds("id", "tbl_process_docs", ids, "f_publication"));
+		processDocIds.addAll(queryForIds("f_owner", "tbl_source_links", ids, "f_source"));
 		Set<CategorizedDescriptor> result = new HashSet<>();
-		result.addAll(
-				queryFor(ModelType.PROCESS, processDocIds, "f_process_doc"));
-		result.addAll(
-				queryFor(ModelType.DQ_SYSTEM, ids, "f_source"));
+		result.addAll(queryFor(ModelType.PROCESS, processDocIds, "f_process_doc"));
+		result.addAll(queryFor(ModelType.DQ_SYSTEM, ids, "f_source"));
 		return new ArrayList<>(result);
 	}
 }
