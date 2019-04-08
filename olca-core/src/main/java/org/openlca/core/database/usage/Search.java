@@ -91,6 +91,11 @@ class Search {
 		return ids;
 	}
 
+	
+	protected Set<Long> getIds(String table) {
+		return queryForIds("SELECT id FROM " + table);
+	}
+	
 	private String createQuery(String idField, String table, Set<Long> toFind,
 			String... fields) {
 		StringBuilder query = new StringBuilder();

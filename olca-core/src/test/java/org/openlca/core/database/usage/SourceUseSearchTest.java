@@ -9,9 +9,11 @@ import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.DQSystemDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.model.DQSystem;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
@@ -26,7 +28,9 @@ public class SourceUseSearchTest {
 	private IUseSearch<SourceDescriptor> search;
 	private Source source;
 	private Process process;
+	private ImpactMethod method;
 	private ProcessDao processDao;
+	private ImpactMethodDao methodDao;
 	private DQSystem dqSystem;
 	private DQSystemDao dqSystemDao;
 
@@ -43,6 +47,10 @@ public class SourceUseSearchTest {
 		ProcessDocumentation doc = new ProcessDocumentation();
 		process.documentation = doc;
 		this.process = processDao.insert(process);
+		methodDao = new ImpactMethodDao(database);
+		ImpactMethod method = new ImpactMethod();
+		method.name = "test method";
+		this.method = methodDao.insert(method);
 		dqSystemDao = new DQSystemDao(database);
 		DQSystem system = new DQSystem();
 		this.dqSystem = dqSystemDao.insert(system);
@@ -84,6 +92,16 @@ public class SourceUseSearchTest {
 		Assert.assertEquals(Descriptors.toDescriptor(process), models.get(0));
 	}
 
+	@Test
+	public void testFindInMethodSources() {
+		method.sources.add(source);
+		method = methodDao.update(method);
+		List<CategorizedDescriptor> models = search.findUses(Descriptors
+				.toDescriptor(source));
+		Assert.assertEquals(1, models.size());
+		Assert.assertEquals(Descriptors.toDescriptor(method), models.get(0));
+	}
+	
 	@Test
 	public void testFindInDQSystem() {
 		dqSystem.source = source;

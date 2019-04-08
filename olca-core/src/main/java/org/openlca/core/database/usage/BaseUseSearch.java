@@ -60,6 +60,10 @@ abstract class BaseUseSearch<T extends CategorizedDescriptor> implements
 			Set<Long> ids) {
 		return Search.on(database).loadDescriptors(type, ids);
 	}
+	
+	protected Set<Long> getIds(String table) {
+		return Search.on(database).getIds(table);
+	}
 
 	private Set<Long> toIdSet(List<? extends CategorizedDescriptor> descriptors) {
 		Set<Long> ids = new HashSet<>();
