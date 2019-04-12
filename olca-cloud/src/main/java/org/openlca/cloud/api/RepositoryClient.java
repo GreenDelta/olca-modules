@@ -3,7 +3,6 @@ package org.openlca.cloud.api;
 import java.io.File;
 import java.net.ConnectException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +12,7 @@ import java.util.function.Consumer;
 import org.openlca.cloud.model.Announcement;
 import org.openlca.cloud.model.Comment;
 import org.openlca.cloud.model.Comments;
+import org.openlca.cloud.model.LibraryRestriction;
 import org.openlca.cloud.model.data.Commit;
 import org.openlca.cloud.model.data.Dataset;
 import org.openlca.cloud.model.data.FetchRequestData;
@@ -151,16 +151,17 @@ public class RepositoryClient {
 		return result;
 	}
 
-	public Map<Dataset, String> performLibraryCheck(Set<Dataset> datasets) throws WebRequestException {
-		Map<Dataset, String> result = executeLoggedIn(() -> {
+	public List<LibraryRestriction> performLibraryCheck(Set<Dataset> datasets) throws WebRequestException {
+		List<LibraryRestriction> result = executeLoggedIn(() -> {
 			LibraryCheckInvocation invocation = new LibraryCheckInvocation();
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
+			invocation.repositoryId = config.repositoryId;
 			invocation.datasets = datasets;
 			return invocation.execute();
 		});
 		if (result == null)
-			return new HashMap<>();
+			return new ArrayList<>();
 		return result;
 	}
 
