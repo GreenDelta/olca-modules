@@ -74,7 +74,7 @@ class LibraryCheckInvocation {
 		}
 	}
 
-	// support for collaboration server <= 1.1.2
+	// support for collaboration server <= 1.1.0
 	private List<LibraryRestriction> legacyMapResults(Map<String, String> result) {
 		Map<String, Dataset> map = new HashMap<>();
 		for (Dataset dataset : datasets)
