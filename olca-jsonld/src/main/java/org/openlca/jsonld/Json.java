@@ -219,7 +219,7 @@ public class Json {
 		if (ref == null || d == null)
 			return;
 		if (d.flowType != null) {
-			ref.addProperty("flowType", d.flowType.name());
+			ref.addProperty("flowType", Enums.getLabel(d.flowType));
 		}
 		if (cache == null)
 			return;
@@ -243,7 +243,7 @@ public class Json {
 		if (ref == null || d == null)
 			return;
 		if (d.processType != null) {
-			ref.addProperty("processType", d.processType.name());
+			ref.addProperty("processType", Enums.getLabel(d.processType));
 		}
 		if (cache != null && d.location != null) {
 			Location loc = cache.get(Location.class, d.location);
