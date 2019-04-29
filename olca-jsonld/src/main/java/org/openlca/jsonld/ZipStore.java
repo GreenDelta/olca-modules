@@ -6,7 +6,6 @@ import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
@@ -226,7 +225,7 @@ public class ZipStore implements EntityStore {
 			Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
 				@Override
 				public FileVisitResult visitFile(Path file,
-					BasicFileAttributes attrs) throws IOException {
+						BasicFileAttributes attrs) throws IOException {
 					paths.add(file.toAbsolutePath().toString());
 					return FileVisitResult.CONTINUE;
 				}
