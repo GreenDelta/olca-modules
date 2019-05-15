@@ -16,7 +16,6 @@ import org.openlca.ilcd.flows.DataSetInfo;
 import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.flows.FlowCategoryInfo;
 import org.openlca.ilcd.flows.FlowInfo;
-import org.openlca.ilcd.flows.FlowName;
 import org.openlca.ilcd.flows.Geography;
 import org.openlca.ilcd.flows.LCIMethod;
 import org.openlca.ilcd.flows.Modelling;
@@ -24,8 +23,8 @@ import org.openlca.ilcd.flows.QuantitativeReference;
 
 public class FlowBag implements IBag<Flow> {
 
-	private Flow flow;
-	private String[] langs;
+	public final Flow flow;
+	public final String[] langs;
 
 	public FlowBag(Flow flow, String... langs) {
 		this.flow = flow;
@@ -40,17 +39,6 @@ public class FlowBag implements IBag<Flow> {
 	@Override
 	public String getId() {
 		return flow == null ? null : flow.getUUID();
-	}
-
-	public String getName() {
-		DataSetInfo info = getDataSetInformation();
-		if (info != null) {
-			FlowName flowName = info.name;
-			if (flowName != null) {
-				return LangString.getFirst(flowName.baseName, langs);
-			}
-		}
-		return null;
 	}
 
 	public String getCasNumber() {
@@ -133,7 +121,8 @@ public class FlowBag implements IBag<Flow> {
 				CompartmentList categorization = categorizations.get(0);
 				List<Compartment> categories = categorization.compartments;
 				if (categories != null && categories.size() > 0) {
-					Collections.sort(categories, (c1, c2) -> c1.level - c2.level);
+					Collections.sort(categories,
+							(c1, c2) -> c1.level - c2.level);
 					return categories;
 				}
 			}
@@ -145,12 +134,6 @@ public class FlowBag implements IBag<Flow> {
 		if (flow.flowInfo != null)
 			return flow.flowInfo.dataSetInfo;
 		return null;
-	}
-
-	public String getVersion() {
-		if (flow == null)
-			return null;
-		return flow.getVersion();
 	}
 
 	public Date getTimeStamp() {

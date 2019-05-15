@@ -1,10 +1,12 @@
 package org.openlca.ilcd.util;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.FlowType;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.flows.AdminInfo;
 import org.openlca.ilcd.flows.DataEntry;
@@ -97,6 +99,30 @@ public final class Flows {
 		if (dsi == null)
 			return null;
 		return dsi.name;
+	}
+
+	public static String getFullName(Flow f, String... langs) {
+		FlowName fn = getFlowName(f);
+		if (fn == null)
+			return null;
+		StringBuilder name = new StringBuilder();
+		Arrays.asList(
+				fn.baseName,
+				fn.flowProperties,
+				fn.mixAndLocationTypes,
+				fn.treatmentStandardsRoutes).forEach(list -> {
+					String text = LangString.getFirst(list, langs);
+					if (text == null)
+						return;
+					text = text.trim();
+					if (text.isEmpty())
+						return;
+					if (name.length() > 0) {
+						name.append("; ");
+					}
+					name.append(text);
+				});
+		return name.toString();
 	}
 
 	public static FlowName flowName(Flow f) {

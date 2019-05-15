@@ -93,7 +93,8 @@ public class FlowImport {
 	}
 
 	private void importAndSetCompartment() throws ImportException {
-		if (ilcdFlow.getFlowType() == org.openlca.ilcd.commons.FlowType.ELEMENTARY_FLOW) {
+		if (ilcdFlow
+				.getFlowType() == org.openlca.ilcd.commons.FlowType.ELEMENTARY_FLOW) {
 			CompartmentImport compartmentImport = new CompartmentImport(config);
 			Category category = compartmentImport.run(ilcdFlow
 					.getSortedCompartments());
@@ -105,13 +106,14 @@ public class FlowImport {
 		validateInput();
 		setFlowType();
 		flow.refId = ilcdFlow.getId();
-		flow.name = Strings.cut(ilcdFlow.getName(), 254);
+		flow.name = Strings.cut(
+				Flows.getFullName(ilcdFlow.flow, ilcdFlow.langs), 2048);
 		flow.description = ilcdFlow.getComment();
 		flow.casNumber = ilcdFlow.getCasNumber();
 		flow.synonyms = ilcdFlow.getSynonyms();
 		flow.formula = ilcdFlow.getSumFormula();
-		String v = ilcdFlow.getVersion();
-		flow.version = Version.fromString(v).getValue();
+		flow.version = Version.fromString(
+				ilcdFlow.flow.version).getValue();
 		Date time = ilcdFlow.getTimeStamp();
 		if (time != null)
 			flow.lastChange = time.getTime();
@@ -134,7 +136,8 @@ public class FlowImport {
 
 	private void addFlowProperties() {
 		Integer refPropertyId = ilcdFlow.getReferenceFlowPropertyId();
-		List<FlowPropertyRef> refs = Flows.getFlowProperties(ilcdFlow.getValue());
+		List<FlowPropertyRef> refs = Flows
+				.getFlowProperties(ilcdFlow.getValue());
 		for (FlowPropertyRef ref : refs) {
 			FlowProperty property = importProperty(ref);
 			if (property == null)
@@ -187,7 +190,8 @@ public class FlowImport {
 	private void validateInput() throws ImportException {
 		Integer internalId = ilcdFlow.getReferenceFlowPropertyId();
 		Ref propRef = null;
-		for (FlowPropertyRef prop : Flows.getFlowProperties(ilcdFlow.getValue())) {
+		for (FlowPropertyRef prop : Flows
+				.getFlowProperties(ilcdFlow.getValue())) {
 			Integer propId = prop.dataSetInternalID;
 			if (propId == null || internalId == null)
 				continue;

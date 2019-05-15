@@ -78,13 +78,14 @@ public class LangString implements Serializable {
 	 * language code. The language codes are checked from left to right. If
 	 * there is no string with the given code in the list, the value of the
 	 * first language string will be returned. If the given list is empty, null
-	 * will be returned.
+	 * will be returned. If no language code is given it prefers English ("en").
 	 */
 	public static String getFirst(List<LangString> list, String... langs) {
 		if (list == null || list.isEmpty())
 			return null;
-		if (langs == null)
-			return list.get(0).value;
+		if (langs == null || langs.length == 0) {
+			langs = new String[] { "en" };
+		}
 		for (String lang : langs) {
 			LangString s = get(list, lang);
 			if (s != null)

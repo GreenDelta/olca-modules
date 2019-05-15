@@ -37,7 +37,7 @@ public class FlowBagTest {
 
 	@Test
 	public void testGetName() {
-		assertEquals("glycidol", bag.getName());
+		assertEquals("glycidol", Flows.getFullName(bag.flow, bag.langs));
 	}
 
 	@Test
@@ -71,12 +71,14 @@ public class FlowBagTest {
 		List<FlowPropertyRef> props = Flows.getFlowProperties(bag.getValue());
 		assertTrue(props.size() == 1);
 		FlowPropertyRef ref = props.get(0);
-		assertEquals("93a60a56-a3c8-11da-a746-0800200b9a66", ref.flowProperty.uuid);
+		assertEquals("93a60a56-a3c8-11da-a746-0800200b9a66",
+				ref.flowProperty.uuid);
 	}
 
 	@Test
 	public void testGetSortedClasses() {
-		List<org.openlca.ilcd.commons.Category> classes = bag.getSortedClasses();
+		List<org.openlca.ilcd.commons.Category> classes = bag
+				.getSortedClasses();
 		assertTrue(classes.isEmpty());
 	}
 
