@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.openlca.ilcd.commons.FlowType;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.flows.AdminInfo;
 import org.openlca.ilcd.flows.Compartment;
@@ -17,9 +16,6 @@ import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.flows.FlowCategoryInfo;
 import org.openlca.ilcd.flows.FlowInfo;
 import org.openlca.ilcd.flows.Geography;
-import org.openlca.ilcd.flows.LCIMethod;
-import org.openlca.ilcd.flows.Modelling;
-import org.openlca.ilcd.flows.QuantitativeReference;
 
 public class FlowBag implements IBag<Flow> {
 
@@ -59,27 +55,6 @@ public class FlowBag implements IBag<Flow> {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
 			return LangString.getFirst(info.generalComment, langs);
-		return null;
-	}
-
-	public Integer getReferenceFlowPropertyId() {
-		FlowInfo info = flow.flowInfo;
-		if (info != null) {
-			QuantitativeReference qRef = info.quantitativeReference;
-			if (qRef != null && qRef.referenceFlowProperty != null) {
-				return qRef.referenceFlowProperty.intValue();
-			}
-		}
-		return null;
-	}
-
-	public FlowType getFlowType() {
-		Modelling mav = flow.modelling;
-		if (mav != null) {
-			LCIMethod method = mav.lciMethod;
-			if (method != null)
-				return method.flowType;
-		}
 		return null;
 	}
 

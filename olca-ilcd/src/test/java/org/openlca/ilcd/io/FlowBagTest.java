@@ -52,12 +52,13 @@ public class FlowBagTest {
 
 	@Test
 	public void testGetReferenceFlowPropertyId() {
-		assertEquals(Integer.valueOf(0), bag.getReferenceFlowPropertyId());
+		assertEquals(Integer.valueOf(0),
+				Flows.getQuantitativeReference(bag.flow).referenceFlowProperty);
 	}
 
 	@Test
 	public void testGetFlowType() {
-		assertEquals(FlowType.ELEMENTARY_FLOW, bag.getFlowType());
+		assertEquals(FlowType.ELEMENTARY_FLOW, Flows.getType(bag.flow));
 	}
 
 	@Test

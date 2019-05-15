@@ -146,6 +146,15 @@ public final class Flows {
 		return fi.quantitativeReference;
 	}
 
+	/**
+	 * Returns the data set internal ID of the reference flow property of the
+	 * given flow or null if it is not defined.
+	 */
+	public static Integer getReferenceFlowPropertyID(Flow f) {
+		QuantitativeReference qref = getQuantitativeReference(f);
+		return qref == null ? null : qref.referenceFlowProperty;
+	}
+
 	public static Geography getGeography(Flow f) {
 		FlowInfo fi = getFlowInfo(f);
 		if (fi == null)
@@ -225,6 +234,19 @@ public final class Flows {
 		if (f.flowPropertyList == null)
 			f.flowPropertyList = new FlowPropertyList();
 		return f.flowPropertyList.flowProperties;
+	}
+
+	public static FlowPropertyRef getReferenceFlowProperty(Flow f) {
+		Integer qref = getReferenceFlowPropertyID(f);
+		if (qref == null)
+			return null;
+		for (FlowPropertyRef ref : getFlowProperties(f)) {
+			if (ref.dataSetInternalID == null)
+				continue;
+			if (ref.dataSetInternalID.intValue() == qref.intValue())
+				return ref;
+		}
+		return null;
 	}
 
 }
