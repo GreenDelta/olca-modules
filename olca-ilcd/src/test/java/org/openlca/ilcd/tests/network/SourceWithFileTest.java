@@ -11,7 +11,6 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.SampleSource;
-import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.io.SodaClient;
 import org.openlca.ilcd.sources.FileRef;
 import org.openlca.ilcd.sources.Source;
@@ -55,7 +54,7 @@ public class SourceWithFileTest {
 		Assert.assertArrayEquals(content, contentFromServer);
 	}
 
-	@Test(expected = DataStoreException.class)
+	@Test(expected = Exception.class)
 	public void testNoFile() throws Exception {
 		Assume.assumeTrue(Network.isAppAlive());
 		client.getExternalDocument(UUID.randomUUID().toString(),

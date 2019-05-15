@@ -9,7 +9,6 @@ import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
-import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.sources.AdminInfo;
 import org.openlca.ilcd.sources.DataSetInfo;
 import org.openlca.ilcd.sources.FileRef;
@@ -34,8 +33,7 @@ public class SourceExport {
 		this.baseUri = baseUri;
 	}
 
-	public Source run(org.openlca.core.model.Source source)
-			throws DataStoreException {
+	public Source run(org.openlca.core.model.Source source) {
 		if (config.store.contains(Source.class, source.refId))
 			return config.store.get(Source.class, source.refId);
 		this.source = source;

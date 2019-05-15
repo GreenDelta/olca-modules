@@ -8,7 +8,6 @@ import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
-import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.units.AdminInfo;
 import org.openlca.ilcd.units.DataSetInfo;
 import org.openlca.ilcd.units.QuantitativeReference;
@@ -32,8 +31,7 @@ public class UnitGroupExport {
 		this.baseUri = baseUri;
 	}
 
-	public UnitGroup run(org.openlca.core.model.UnitGroup unitGroup)
-			throws DataStoreException {
+	public UnitGroup run(org.openlca.core.model.UnitGroup unitGroup) {
 		if (config.store.contains(UnitGroup.class, unitGroup.refId))
 			return config.store.get(UnitGroup.class, unitGroup.refId);
 		this.unitGroup = unitGroup;

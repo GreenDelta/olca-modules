@@ -11,7 +11,6 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Unit;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Ref;
-import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.methods.DataSetInfo;
 import org.openlca.ilcd.methods.Factor;
 import org.openlca.ilcd.methods.FactorList;
@@ -26,7 +25,7 @@ public class ImpactMethodExport {
 		this.config = config;
 	}
 
-	public void run(ImpactMethod method) throws DataStoreException {
+	public void run(ImpactMethod method) {
 		if (method == null)
 			return;
 		if (config.store.contains(LCIAMethod.class, method.refId))
@@ -57,7 +56,8 @@ public class ImpactMethodExport {
 					impact.description, config.lang);
 	}
 
-	private void putAttribute(String name, String value, Map<QName, String> map) {
+	private void putAttribute(String name, String value,
+			Map<QName, String> map) {
 		if (name == null || value == null || map == null)
 			return;
 		QName qName = new QName("http://openlca.org/ilcd-extensions", name);

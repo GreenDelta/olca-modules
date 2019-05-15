@@ -17,7 +17,6 @@ import org.openlca.ilcd.commons.ModellingApproach;
 import org.openlca.ilcd.commons.ModellingPrinciple;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.ReviewType;
-import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.processes.AdminInfo;
 import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Geography;
@@ -47,8 +46,7 @@ public class ProcessExport {
 		this.config = config;
 	}
 
-	public Process run(org.openlca.core.model.Process process)
-			throws DataStoreException {
+	public Process run(org.openlca.core.model.Process process) {
 		if (config.store.contains(Process.class, process.refId))
 			return config.store.get(Process.class, process.refId);
 		log.trace("Run process export with {}", process);
