@@ -17,7 +17,7 @@ public class MemDataStore implements DataStore {
 	private final HashMap<Class<?>, HashMap<String, Object>> content = new HashMap<>();
 
 	@Override
-	public <T> T get(Class<T> type, String id) {
+	public <T extends IDataSet> T get(Class<T> type, String id) {
 		HashMap<String, Object> map = content.get(type);
 		if (map == null)
 			return null;
@@ -69,7 +69,7 @@ public class MemDataStore implements DataStore {
 	}
 
 	@Override
-	public <T> boolean delete(Class<T> type, String id) {
+	public <T extends IDataSet> boolean delete(Class<T> type, String id) {
 		HashMap<String, Object> map = content.get(type);
 		if (map == null)
 			return false;
@@ -79,7 +79,7 @@ public class MemDataStore implements DataStore {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T> Iterator<T> iterator(Class<T> type) {
+	public <T extends IDataSet> Iterator<T> iterator(Class<T> type) {
 		if (type == null)
 			return Collections.emptyIterator();
 		HashMap<String, Object> map = content.get(type);
@@ -89,7 +89,7 @@ public class MemDataStore implements DataStore {
 	}
 
 	@Override
-	public <T> boolean contains(Class<T> type, String id) {
+	public <T extends IDataSet> boolean contains(Class<T> type, String id) {
 		HashMap<String, Object> map = content.get(type);
 		if (map == null)
 			return false;

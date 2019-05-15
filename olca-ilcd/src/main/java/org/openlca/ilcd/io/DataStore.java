@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 public interface DataStore extends Closeable {
 
-	<T> T get(Class<T> type, String id);
+	<T extends IDataSet> T get(Class<T> type, String id);
 
 	InputStream getExternalDocument(String sourceId, String fileName);
 
@@ -21,11 +21,11 @@ public interface DataStore extends Closeable {
 
 	void put(Source source, File[] files);
 
-	<T> boolean delete(Class<T> type, String id);
+	<T extends IDataSet> boolean delete(Class<T> type, String id);
 
-	<T> Iterator<T> iterator(Class<T> type);
+	<T extends IDataSet> Iterator<T> iterator(Class<T> type);
 
-	<T> boolean contains(Class<T> type, String id);
+	<T extends IDataSet> boolean contains(Class<T> type, String id);
 
 	default <T extends IDataSet> void each(Class<T> type, Consumer<T> fn) {
 		try {

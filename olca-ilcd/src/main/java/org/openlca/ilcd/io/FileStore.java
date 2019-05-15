@@ -59,7 +59,7 @@ public class FileStore implements DataStore {
 	}
 
 	@Override
-	public <T> T get(Class<T> type, String id) {
+	public <T extends IDataSet> T get(Class<T> type, String id) {
 		log.trace("Get {} for id {} from file", type, id);
 		try {
 			File file = getFile(type, id);
@@ -141,7 +141,7 @@ public class FileStore implements DataStore {
 	}
 
 	@Override
-	public <T> boolean delete(Class<T> type, String id) {
+	public <T extends IDataSet> boolean delete(Class<T> type, String id) {
 		log.trace("Delete file if exists for class {} with id {}", type, id);
 		File file = getFile(type, id);
 		if (file == null)
@@ -154,13 +154,13 @@ public class FileStore implements DataStore {
 	}
 
 	@Override
-	public <T> Iterator<T> iterator(Class<T> type) {
+	public <T extends IDataSet> Iterator<T> iterator(Class<T> type) {
 		File folder = getFolder(type);
 		return new FileIterator<>(type, folder);
 	}
 
 	@Override
-	public <T> boolean contains(Class<T> type, String id) {
+	public <T extends IDataSet> boolean contains(Class<T> type, String id) {
 		log.trace("Contains file for class {} with id {}", type, id);
 		File file = getFile(type, id);
 		boolean contains = file != null && file.exists();

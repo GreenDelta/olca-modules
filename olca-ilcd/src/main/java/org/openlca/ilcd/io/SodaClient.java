@@ -107,7 +107,7 @@ public class SodaClient implements DataStore {
 	}
 
 	@Override
-	public <T> T get(Class<T> type, String id) {
+	public <T extends IDataSet> T get(Class<T> type, String id) {
 		checkConnection();
 		WebResource r = resource(Dir.get(type), id).queryParam("format", "xml");
 		log.info("Get resource: {}", r.getURI());
@@ -196,19 +196,19 @@ public class SodaClient implements DataStore {
 	}
 
 	@Override
-	public <T> boolean delete(Class<T> type, String id) {
+	public <T extends IDataSet> boolean delete(Class<T> type, String id) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public <T> Iterator<T> iterator(Class<T> type) {
+	public <T extends IDataSet> Iterator<T> iterator(Class<T> type) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public <T> boolean contains(Class<T> type, String id) {
+	public <T extends IDataSet> boolean contains(Class<T> type, String id) {
 		checkConnection();
 		WebResource r = resource(Dir.get(type), id)
 				.queryParam("format", "xml");

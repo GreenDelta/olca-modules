@@ -12,6 +12,7 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flows.Flow;
@@ -53,7 +54,7 @@ public class NetworkGetTest {
 	}
 
 	@Test
-	public void testGetProcess() throws Exception {
+	public void testGetProcess() {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = "76d6aaa4-37e2-40b2-994c-03292b600074";
 		Process process = client.get(Process.class, id);
@@ -62,7 +63,7 @@ public class NetworkGetTest {
 	}
 
 	@Test
-	public void testGetFlow() throws Exception {
+	public void testGetFlow() {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = "0d7a3ad1-6556-11dd-ad8b-0800200c9a66";
 		Flow flow = client.get(Flow.class, id);
@@ -71,7 +72,7 @@ public class NetworkGetTest {
 	}
 
 	@Test
-	public void testGetFlowProperty() throws Exception {
+	public void testGetFlowProperty() {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = "93a60a56-a3c8-14da-a746-0800200c9a66";
 		FlowProperty property = client.get(FlowProperty.class, id);
@@ -80,7 +81,7 @@ public class NetworkGetTest {
 	}
 
 	@Test
-	public void testGetUnitGroup() throws Exception {
+	public void testGetUnitGroup() {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = "59f191d6-5dd3-4553-af88-1a32accfe308";
 		UnitGroup group = client.get(UnitGroup.class, id);
@@ -89,7 +90,7 @@ public class NetworkGetTest {
 	}
 
 	@Test
-	public void testGetContact() throws Exception {
+	public void testGetContact() {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = "177ca340-ffa2-11da-92e3-0800200c9a66";
 		Contact contact = client.get(Contact.class, id);
@@ -98,7 +99,7 @@ public class NetworkGetTest {
 	}
 
 	@Test
-	public void testGetSource() throws Exception {
+	public void testGetSource() {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = "2c699413-f88b-4cb5-a56d-98cb4068472f";
 		Source source = client.get(Source.class, id);
@@ -106,7 +107,7 @@ public class NetworkGetTest {
 		testContains(Source.class, id);
 	}
 
-	private void testContains(Class<?> type, String id) throws Exception {
+	private void testContains(Class<? extends IDataSet> type, String id) {
 		assertTrue(client.contains(type, id));
 		assertFalse(client.contains(type, UUID.randomUUID().toString()));
 	}

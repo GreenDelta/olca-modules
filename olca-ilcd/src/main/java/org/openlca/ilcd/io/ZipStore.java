@@ -85,7 +85,7 @@ public class ZipStore implements DataStore {
 	}
 
 	@Override
-	public <T> T get(Class<T> type, String id) {
+	public <T extends IDataSet> T get(Class<T> type, String id) {
 		log.trace("Get {} for id {} from zip", type, id);
 		Path entry = findEntry(Dir.get(type), id);
 		if (entry == null)
@@ -157,7 +157,7 @@ public class ZipStore implements DataStore {
 	}
 
 	@Override
-	public <T> boolean delete(Class<T> type, String id) {
+	public <T extends IDataSet> boolean delete(Class<T> type, String id) {
 		throw new UnsupportedOperationException("delete in zips not supported");
 	}
 
@@ -193,13 +193,13 @@ public class ZipStore implements DataStore {
 	}
 
 	@Override
-	public <T> Iterator<T> iterator(Class<T> type) {
+	public <T extends IDataSet> Iterator<T> iterator(Class<T> type) {
 		log.trace("create iterator for type {}", type);
 		return new ZipEntryIterator<>(this, type);
 	}
 
 	@Override
-	public <T> boolean contains(Class<T> type, String id) {
+	public <T extends IDataSet> boolean contains(Class<T> type, String id) {
 		Set<String> ids = addedContent.get(type);
 		if (ids != null && ids.contains(id))
 			return true;
