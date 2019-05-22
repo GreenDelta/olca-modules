@@ -6,9 +6,9 @@ import java.io.InputStream;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.flowproperties.FlowProperty;
+import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.FlowPropertyBag;
 
 public class FlowPropertyBagTest {
@@ -36,10 +36,10 @@ public class FlowPropertyBagTest {
 	}
 
 	@Test
-	public void testGetClasses() {
-		Category clazz = bag.getSortedClasses().get(0);
-		assertEquals(0, clazz.level);
-		assertEquals("Technical flow properties", clazz.value.trim());
+	public void testCategoryPath() {
+		String[] path = Categories.getPath(bag.getValue());
+		assertEquals(path.length, 1);
+		assertEquals("Technical flow properties", path[0]);
 	}
 
 	@Test

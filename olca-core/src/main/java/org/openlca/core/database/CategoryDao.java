@@ -169,7 +169,7 @@ public class CategoryDao
 	/**
 	 * Creates the categories for the segments of the given path that do not yet
 	 * exist and returns the category of the last segment. If the given path is
-	 * empty, null is returned.
+	 * empty or null, null is returned.
 	 */
 	public Category sync(ModelType type, String... path) {
 		if (path == null || path.length == 0)
@@ -202,11 +202,18 @@ public class CategoryDao
 			category.version = Version.valueOf(0, 0, 1);
 			category.category = parent;
 			category.refId = Categories.createRefId(category);
-			if (parent != null) {
-				parent.childCategories.add(category);
-				update(parent);
-			} else {
+			if (parent == null) {
 				category = insert(category);
+			} else {
+				parent.childCategories.add(category);
+				parent = update(parent);
+				// need to find the category now that is in sync with JPA
+				for (Category child : parent.childCategories) {
+					if (Objects.equals(child.refId, category.refId)) {
+						category = child;
+						break;
+					}
+				}
 			}
 			parent = category;
 			next = category.childCategories;

@@ -14,7 +14,7 @@ public class ClassListTest {
 	public void testRead() {
 		InputStream is = getClass().getResourceAsStream(
 				"/org/openlca/ilcd/io/sdk_sample_process.xml");
-		List<Classification> list = ClassList.read(is);
+		List<Classification> list = Categories.read(is);
 		assertEquals(2, list.size());
 		assertEquals("ILCD", list.get(0).name);
 		assertEquals(2, list.get(0).categories.size());

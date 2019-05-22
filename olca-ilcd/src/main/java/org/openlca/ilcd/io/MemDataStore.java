@@ -82,10 +82,11 @@ public class MemDataStore implements DataStore {
 	public <T extends IDataSet> Iterator<T> iterator(Class<T> type) {
 		if (type == null)
 			return Collections.emptyIterator();
-		HashMap<String, Object> map = content.get(type);
+		HashMap<String, ?> map = content.get(type);
 		if (map == null)
 			return Collections.emptyIterator();
-		return (Iterator<T>) map.values().iterator();
+		return map.values().stream()
+				.map(obj -> (T) obj).iterator();
 	}
 
 	@Override

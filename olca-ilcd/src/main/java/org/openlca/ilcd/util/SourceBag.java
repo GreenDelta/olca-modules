@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.sources.AdminInfo;
@@ -54,10 +53,6 @@ public class SourceBag implements IBag<Source> {
 		if (info != null)
 			return info.citation;
 		return null;
-	}
-
-	public List<Category> getSortedClasses() {
-		return ClassList.sortedList(source);
 	}
 
 	public List<String> getExternalFileURIs() {

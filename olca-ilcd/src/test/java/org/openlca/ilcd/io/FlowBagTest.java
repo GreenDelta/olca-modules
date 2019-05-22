@@ -10,9 +10,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.commons.FlowType;
 import org.openlca.ilcd.commons.LangString;
-import org.openlca.ilcd.flows.Compartment;
 import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.flows.FlowPropertyRef;
+import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.FlowBag;
 import org.openlca.ilcd.util.Flows;
 
@@ -77,20 +77,13 @@ public class FlowBagTest {
 	}
 
 	@Test
-	public void testGetSortedClasses() {
-		List<org.openlca.ilcd.commons.Category> classes = bag
-				.getSortedClasses();
-		assertTrue(classes.isEmpty());
-	}
-
-	@Test
-	public void testGetSortedCompartments() {
-		List<Compartment> categories = bag.getSortedCompartments();
-		assertTrue(categories.size() == 3);
-		assertEquals("Emissions", categories.get(0).value.trim());
-		assertEquals("Emissions to air", categories.get(1).value.trim());
+	public void testCategoryPath() {
+		String[] path = Categories.getPath(bag.getValue());
+		assertEquals(path.length, 3);
+		assertEquals("Emissions", path[0]);
+		assertEquals("Emissions to air", path[1]);
 		assertEquals("Emissions to lower stratosphere and upper troposphere",
-				categories.get(2).value.trim());
+				path[2]);
 	}
 
 }

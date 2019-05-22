@@ -3,13 +3,14 @@ package org.openlca.io.ilcd.input;
 import java.util.Date;
 import java.util.UUID;
 
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.UnitGroupDao;
-import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.LangString;
+import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.UnitExtension;
 import org.openlca.ilcd.util.UnitGroupBag;
 
@@ -57,8 +58,12 @@ public class UnitGroupImport {
 
 	private UnitGroup createNew() throws ImportException {
 		unitGroup = new UnitGroup();
-		importAndSetCategory();
-		createAndMapContent();
+		String[] cpath = Categories.getPath(ilcdUnitGroup.getValue());
+		unitGroup.category = new CategoryDao(config.db)
+				.sync(ModelType.UNIT_GROUP, cpath);
+		validateInput();
+		mapDescriptionAttributes();
+		createUnits();
 		saveInDatabase(unitGroup);
 		return unitGroup;
 	}
@@ -75,20 +80,6 @@ public class UnitGroupImport {
 		} catch (Exception e) {
 			throw new ImportException(e.getMessage(), e);
 		}
-	}
-
-	private void importAndSetCategory() throws ImportException {
-		CategoryImport categoryImport = new CategoryImport(config,
-				ModelType.UNIT_GROUP);
-		Category category = categoryImport
-				.run(ilcdUnitGroup.getSortedClasses());
-		unitGroup.category = category;
-	}
-
-	private void createAndMapContent() throws ImportException {
-		validateInput();
-		mapDescriptionAttributes();
-		createUnits();
 	}
 
 	private void validateInput() throws ImportException {
@@ -124,7 +115,8 @@ public class UnitGroupImport {
 		}
 	}
 
-	private void mapUnitAttributes(org.openlca.ilcd.units.Unit iUnit, Unit oUnit) {
+	private void mapUnitAttributes(org.openlca.ilcd.units.Unit iUnit,
+			Unit oUnit) {
 		UnitExtension extension = new UnitExtension(iUnit);
 		if (extension.isValid())
 			oUnit.refId = extension.getUnitId();
@@ -132,7 +124,7 @@ public class UnitGroupImport {
 			oUnit.refId = UUID.randomUUID().toString();
 		oUnit.name = iUnit.name;
 		oUnit.description = LangString.getFirst(iUnit.comment,
-		config.langs);
+				config.langs);
 		oUnit.conversionFactor = iUnit.factor;
 	}
 

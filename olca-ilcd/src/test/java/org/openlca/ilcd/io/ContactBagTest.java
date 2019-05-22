@@ -1,15 +1,13 @@
 package org.openlca.ilcd.io;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.contacts.Contact;
+import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.ContactBag;
 
 public class ContactBagTest {
@@ -42,10 +40,10 @@ public class ContactBagTest {
 	}
 
 	@Test
-	public void testGetSortedClasses() {
-		List<Category> classes = bag.getSortedClasses();
-		assertTrue(classes.size() == 1);
-		assertEquals("Working groups within organisation", classes.get(0).value);
+	public void testCategoryPath() {
+		String[] path = Categories.getPath(bag.getValue());
+		assertEquals(path.length, 1);
+		assertEquals("Working groups within organisation", path[0]);
 	}
 
 	@Test

@@ -3,7 +3,6 @@ package org.openlca.ilcd.util;
 import java.util.Collections;
 import java.util.List;
 
-import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.ProcessType;
@@ -82,10 +81,6 @@ public class ProcessBag implements IBag<Process> {
 		if (info != null)
 			return LangString.getFirst(info.synonyms, langs);
 		return null;
-	}
-
-	public List<Category> getSortedClasses() {
-		return ClassList.sortedList(process);
 	}
 
 	public String getComment() {

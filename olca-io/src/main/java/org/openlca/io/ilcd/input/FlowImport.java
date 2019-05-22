@@ -3,8 +3,8 @@ package org.openlca.io.ilcd.input;
 import java.util.Date;
 import java.util.List;
 
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowDao;
-import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
@@ -15,6 +15,7 @@ import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.flows.FlowPropertyRef;
+import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.FlowBag;
 import org.openlca.ilcd.util.Flows;
 import org.openlca.util.Strings;
@@ -62,7 +63,9 @@ public class FlowImport {
 
 	private Flow createNew() throws ImportException {
 		flow = new Flow();
-		importCategory();
+		String[] cpath = Categories.getPath(ilcdFlow.flow);
+		flow.category = new CategoryDao(config.db)
+				.sync(ModelType.FLOW, cpath);
 		createAndMapContent();
 		saveInDatabase(flow);
 		return flow;
@@ -80,20 +83,6 @@ public class FlowImport {
 			return iFlow;
 		} catch (Exception e) {
 			throw new ImportException(e.getMessage(), e);
-		}
-	}
-
-	private void importCategory() throws ImportException {
-		org.openlca.ilcd.commons.FlowType t = Flows.getType(ilcdFlow.flow);
-		if (t == org.openlca.ilcd.commons.FlowType.ELEMENTARY_FLOW) {
-			CompartmentImport imp = new CompartmentImport(config);
-			Category category = imp.run(ilcdFlow.getSortedCompartments());
-			flow.category = category;
-		}
-		if (flow.category == null) {
-			CategoryImport imp = new CategoryImport(config, ModelType.FLOW);
-			Category category = imp.run(ilcdFlow.getSortedClasses());
-			flow.category = category;
 		}
 	}
 

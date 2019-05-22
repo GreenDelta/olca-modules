@@ -3,11 +3,12 @@ package org.openlca.io.ilcd.input;
 import java.util.Date;
 
 import org.openlca.core.database.ActorDao;
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.contacts.Contact;
+import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.ContactBag;
 
 public class ContactImport {
@@ -51,7 +52,9 @@ public class ContactImport {
 
 	private Actor createNew() throws ImportException {
 		actor = new Actor();
-		importAndSetCategory();
+		String[] cpath = Categories.getPath(ilcdContact.getValue());
+		actor.category = new CategoryDao(config.db)
+				.sync(ModelType.ACTOR, cpath);
 		setDescriptionAttributes();
 		setVersionTime();
 		saveInDatabase();
@@ -69,13 +72,6 @@ public class ContactImport {
 		} catch (Exception e) {
 			throw new ImportException(e.getMessage(), e);
 		}
-	}
-
-	private void importAndSetCategory() throws ImportException {
-		CategoryImport categoryImport = new CategoryImport(config,
-				ModelType.ACTOR);
-		Category category = categoryImport.run(ilcdContact.getSortedClasses());
-		actor.category = category;
 	}
 
 	private void setDescriptionAttributes() {

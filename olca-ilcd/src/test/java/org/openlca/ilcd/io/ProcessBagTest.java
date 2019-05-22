@@ -8,12 +8,12 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.ProcessType;
 import org.openlca.ilcd.commons.Time;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.processes.Geography;
 import org.openlca.ilcd.processes.Process;
+import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.ProcessBag;
 
 public class ProcessBagTest {
@@ -52,11 +52,11 @@ public class ProcessBagTest {
 	}
 
 	@Test
-	public void testGetSortedClasses() {
-		List<Category> classes = bag.getSortedClasses();
-		assertTrue(classes.size() == 2);
-		assertEquals("Materials production", classes.get(0).value);
-		assertEquals("Plastics", classes.get(1).value);
+	public void testCategoryPath() {
+		String[] path = Categories.getPath(bag.getValue());
+		assertEquals(path.length, 2);
+		assertEquals("Materials production", path[0]);
+		assertEquals("Plastics", path[1]);
 	}
 
 	@Test

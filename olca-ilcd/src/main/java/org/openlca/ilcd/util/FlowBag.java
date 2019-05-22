@@ -8,12 +8,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.flows.AdminInfo;
-import org.openlca.ilcd.flows.Compartment;
-import org.openlca.ilcd.flows.CompartmentList;
 import org.openlca.ilcd.flows.DataEntry;
 import org.openlca.ilcd.flows.DataSetInfo;
 import org.openlca.ilcd.flows.Flow;
-import org.openlca.ilcd.flows.FlowCategoryInfo;
 import org.openlca.ilcd.flows.FlowInfo;
 import org.openlca.ilcd.flows.Geography;
 
@@ -58,19 +55,6 @@ public class FlowBag implements IBag<Flow> {
 		return null;
 	}
 
-	public List<org.openlca.ilcd.commons.Category> getSortedClasses() {
-		return ClassList.sortedList(flow);
-	}
-
-	public List<Compartment> getSortedCompartments() {
-		DataSetInfo info = getDataSetInformation();
-		if (info != null) {
-			FlowCategoryInfo categoryInfo = info.classificationInformation;
-			return getCompartments(categoryInfo);
-		}
-		return Collections.emptyList();
-	}
-
 	public List<LangString> getLocation() {
 		FlowInfo info = flow.flowInfo;
 		if (info == null)
@@ -87,22 +71,6 @@ public class FlowBag implements IBag<Flow> {
 		if (info == null)
 			return null;
 		return LangString.getFirst(info.synonyms, langs);
-	}
-
-	private List<Compartment> getCompartments(FlowCategoryInfo categoryInfo) {
-		if (categoryInfo != null) {
-			List<CompartmentList> categorizations = categoryInfo.compartmentLists;
-			if (categorizations != null && categorizations.size() > 0) {
-				CompartmentList categorization = categorizations.get(0);
-				List<Compartment> categories = categorization.compartments;
-				if (categories != null && categories.size() > 0) {
-					Collections.sort(categories,
-							(c1, c2) -> c1.level - c2.level);
-					return categories;
-				}
-			}
-		}
-		return Collections.emptyList();
 	}
 
 	private DataSetInfo getDataSetInformation() {

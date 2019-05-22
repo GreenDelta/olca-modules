@@ -59,6 +59,16 @@ public class CategoryDaoTest {
 	}
 
 	@Test
+	public void testSyncEmpty() {
+		// it should never crash
+		assertNull(dao.sync(ModelType.ACTOR, (String[]) null));
+		assertNull(dao.sync(ModelType.ACTOR, (String) null, (String) null));
+		assertNull(dao.sync(ModelType.ACTOR, ""));
+		assertNull(dao.sync(ModelType.ACTOR, "", ""));
+		assertNull(dao.sync(ModelType.ACTOR, "", null, ""));
+	}
+
+	@Test
 	public void testFindRoot() {
 		Category parent = create();
 		Category child = create();

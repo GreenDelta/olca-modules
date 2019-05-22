@@ -6,12 +6,13 @@ import java.nio.file.Files;
 import java.util.Date;
 import java.util.List;
 
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.database.SourceDao;
-import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
+import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.SourceBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +58,9 @@ public class SourceImport {
 
 	private Source createNew() throws ImportException {
 		source = new Source();
-		importAndSetCategory();
+		String[] cpath = Categories.getPath(ilcdSource.getValue());
+		source.category = new CategoryDao(config.db)
+				.sync(ModelType.SOURCE, cpath);
 		setDescriptionAttributes();
 		importExternalFile();
 		saveInDatabase();
@@ -89,13 +92,6 @@ public class SourceImport {
 		Date time = ilcdSource.getTimeStamp();
 		if (time != null)
 			source.lastChange = time.getTime();
-	}
-
-	private void importAndSetCategory() throws ImportException {
-		CategoryImport categoryImport = new CategoryImport(config,
-				ModelType.SOURCE);
-		Category category = categoryImport.run(ilcdSource.getSortedClasses());
-		source.category = category;
 	}
 
 	private void importExternalFile() {
