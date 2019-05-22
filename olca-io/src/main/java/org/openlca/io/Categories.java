@@ -11,8 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A helper class for the import, export, and display of categories.
+ * @deprecated There is a CategoryDao.sync function that simply takes a path of
+ *             strings... the machinery in this class is not necessary.
  */
+@Deprecated
 public final class Categories {
 
 	public static Category findOrAddChild(IDatabase database, Category parent,
