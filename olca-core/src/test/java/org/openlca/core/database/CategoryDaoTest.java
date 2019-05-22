@@ -1,5 +1,9 @@
 package org.openlca.core.database;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import java.util.List;
 
 import org.junit.Assert;
@@ -17,7 +21,7 @@ public class CategoryDaoTest {
 		Category category = dao.insert(create());
 		Tests.emptyCache();
 		Category alias = dao.getForId(category.id);
-		Assert.assertEquals(category.name, alias.name);
+		assertEquals(category.name, alias.name);
 		dao.delete(category); // non-attached
 		alias = dao.getForId(category.id);
 		Assert.assertNull(alias);
@@ -33,10 +37,25 @@ public class CategoryDaoTest {
 		child = parent.childCategories.get(0);
 		Tests.emptyCache();
 		Category alias = dao.getForId(parent.id);
-		Assert.assertEquals(1, alias.childCategories.size());
-		Assert.assertEquals(child.refId, alias.childCategories.get(0).refId);
+		assertEquals(1, alias.childCategories.size());
+		assertEquals(child.refId, alias.childCategories.get(0).refId);
 		dao.delete(alias);
 		Assert.assertNull(dao.getForId(child.id));
+	}
+
+	@Test
+	public void testSync() {
+		dao.sync(ModelType.ACTOR, "some", "actor");
+		Category c = dao.sync(ModelType.ACTOR, "some", "actor", "category");
+		assertEquals("category", c.name);
+		assertNotNull(c.refId);
+		assertEquals("actor", c.category.name);
+		assertNotNull(c.category.refId);
+		assertEquals(c.category.childCategories.size(), 1);
+		assertEquals("some", c.category.category.name);
+		assertNotNull(c.category.category.refId);
+		assertEquals(c.category.category.childCategories.size(), 1);
+		assertNull(c.category.category.category);
 	}
 
 	@Test
