@@ -1,92 +1,83 @@
 package org.openlca.io.maps;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.Flow;
+import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.supercsv.cellprocessor.ParseDouble;
 
-/**
- * Maps (elementary) flow IDs of a data exchange format to the IDs of the
- * openLCA reference flows. The maps are directly stored as recourses in this
- * package in the following format:
- * 
- * "<external UUID>";"<openLCA ref. UUID>";<conversion factor>
- * 
- */
-public class FlowMap {
+public class FlowMap extends BaseDescriptor {
 
-	private Logger log = LoggerFactory.getLogger(this.getClass());
-	private final HashMap<String, FlowMapEntry> map = new HashMap<>();
-	private final HashMap<String, Flow> cache = new HashMap<>();
+	/** Description of the source system. */
+	public BaseDescriptor source;
 
-	public FlowMap(String map, IDatabase db) {
-		init(map, db);
-	}
+	/** Description of the target system. */
+	public BaseDescriptor target;
 
-	public FlowMap(Iterable<FlowMapEntry> entries) {
-		if (entries != null) {
-			entries.forEach(e -> {
-				if (e != null) {
-					map.put(e.externalFlowID, e);
+	public final List<FlowMapEntry> entries = new ArrayList<>();
+
+	private Map<String, FlowMapEntry> index;
+
+	/**
+	 * Get the mapping entry for the source flow with the given ID.
+	 */
+	public FlowMapEntry getEntry(String sourceFlowID) {
+		if (index == null) {
+			index = new HashMap<>();
+			for (FlowMapEntry e : entries) {
+				String sid = e.sourceFlowID();
+				if (sid != null) {
+					index.put(sid, e);
 				}
-			});
+			}
 		}
-	}
-
-	/** Caches a flow for the given id. */
-	public void cache(String id, Flow flow) {
-		cache.put(id, flow);
+		return index.get(sourceFlowID);
 	}
 
 	/**
-	 * Returns the cached flow for the given ID, or null if no such flow is
-	 * cached.
+	 * Reads the flow map with the given identifier from this package or the
+	 * given database.
+	 * 
+	 * @deprecated we should remove implicit mappings that are loaded from this
+	 *             package and also loading mappings from the database
 	 */
-	public Flow getCached(String id) {
-		return cache.get(id);
-	}
-
-	private void init(String map, IDatabase db) {
+	@Deprecated
+	public static FlowMap of(String map, IDatabase db) {
+		Logger log = LoggerFactory.getLogger(FlowMap.class);
 		log.trace("Initialize flow assignment map {}.", map);
+		FlowMap m = new FlowMap();
+		m.name = map;
 		try {
 			HashSet<String> dbIDs = new HashSet<>();
 			new FlowDao(db).getDescriptors().stream()
 					.forEach(d -> dbIDs.add(d.refId));
-			Maps.readAll(map, db, null, null, new ParseDouble())
-					.forEach(r -> createEntry(r, dbIDs));
+			Maps.readAll(map, db, null, null, new ParseDouble()).forEach(r -> {
+				String sourceID = Maps.getString(r, 0);
+				String targetID = Maps.getString(r, 1);
+				if (targetID == null || !dbIDs.contains(targetID))
+					return;
+				FlowMapEntry e = new FlowMapEntry();
+				e.sourceFlow = new FlowRef();
+				e.sourceFlow.flow = new FlowDescriptor();
+				e.sourceFlow.flow.refId = sourceID;
+				e.targetFlow = new FlowRef();
+				e.targetFlow.flow = new FlowDescriptor();
+				e.targetFlow.flow.refId = targetID;
+				e.factor = Maps.getDouble(r, 2);
+				m.entries.add(e);
+			});
 		} catch (Exception e) {
 			log.error("Error while reading mapping file", e);
 		}
-	}
-
-	private void createEntry(List<Object> csvRow, HashSet<String> dbIDs) {
-		String refID = Maps.getString(csvRow, 1);
-		if (refID == null || !dbIDs.contains(refID))
-			return;
-		FlowMapEntry entry = new FlowMapEntry();
-		entry.externalFlowID = Maps.getString(csvRow, 0);
-		entry.referenceFlowID = refID;
-		double factor = Maps.getDouble(csvRow, 2);
-		entry.conversionFactor = factor;
-		map.put(entry.externalFlowID, entry);
-	}
-
-	public FlowMapEntry getEntry(String externalID) {
-		return map.get(externalID);
-	}
-
-	/** Get the conversion factor for the external key, default value is 1.0. */
-	public double getFactor(String externalKey) {
-		FlowMapEntry entry = getEntry(externalKey);
-		if (entry == null)
-			return 1.0;
-		return entry.conversionFactor;
+		return m;
 	}
 
 }

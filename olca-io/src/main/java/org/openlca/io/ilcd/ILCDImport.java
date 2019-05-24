@@ -177,7 +177,7 @@ public class ILCDImport implements FileImport {
 		FlowDao dao = new FlowDao(config.db);
 		// TODO: we should cache the flow for later but
 		// we cannot do this currently: see ExchangeFlow
-		return dao.getForRefId(me.referenceFlowID) != null;
+		return dao.getForRefId(me.targetFlowID()) != null;
 	}
 
 	private void tryImportProcesses() {

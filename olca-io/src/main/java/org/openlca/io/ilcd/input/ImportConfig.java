@@ -1,8 +1,10 @@
 package org.openlca.io.ilcd.input;
 
 import java.io.File;
+import java.util.HashMap;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.Flow;
 import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.io.ZipStore;
 import org.openlca.io.maps.FlowMap;
@@ -19,6 +21,7 @@ public class ImportConfig {
 	public boolean importFlows;
 	public String[] langs = { "en" };
 
+	HashMap<String, Flow> flowCache = new HashMap<>();
 	private FlowMap flowMap;
 
 	public ImportConfig(File zip, IDatabase database) {
@@ -39,7 +42,7 @@ public class ImportConfig {
 
 	public FlowMap getFlowMap() {
 		if (flowMap == null) {
-			flowMap = new FlowMap(Maps.ILCD_FLOW_IMPORT, db);
+			flowMap = FlowMap.of(Maps.ILCD_FLOW_IMPORT, db);
 		}
 		return flowMap;
 	}

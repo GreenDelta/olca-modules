@@ -16,10 +16,9 @@ import org.openlca.ilcd.processes.AllocationFactor;
 import org.openlca.ilcd.util.ExchangeExtension;
 import org.openlca.ilcd.util.ProcessBag;
 import org.openlca.io.maps.FlowMapEntry;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Strings;
 
 /**
  * Maps the inputs and outputs of an ILCD process to an openLCA process.
@@ -117,7 +116,7 @@ class ProcessExchanges {
 			oExchange.amountFormula = formula;
 			return;
 		}
-		if (Strings.isNullOrEmpty(iExchange.variable))
+		if (Strings.nullOrEmpty(iExchange.variable))
 			return;
 		double amount = iExchange.meanAmount;
 		String meanAmountStr = Double.toString(amount);
@@ -127,13 +126,13 @@ class ProcessExchanges {
 		oExchange.amountFormula = formula;
 	}
 
-	private void applyConversionFactor(Exchange e, FlowMapEntry mapEntry) {
-		if (mapEntry == null || mapEntry.conversionFactor == 1.0)
+	private void applyConversionFactor(Exchange e, FlowMapEntry entry) {
+		if (entry == null || entry.factor == 1.0)
 			return;
-		e.amount *= mapEntry.conversionFactor;
-		if (e.amountFormula != null) {
+		e.amount *= entry.factor;
+		if (Strings.notEmpty(e.amountFormula)) {
 			e.amountFormula = "(" + e.amountFormula + ") * "
-					+ mapEntry.conversionFactor;
+					+ entry.factor;
 		}
 	}
 

@@ -1,27 +1,50 @@
 package org.openlca.io.maps;
 
 /**
- * Describes a mapping between a reference flow in the openLCA database and an
- * external flow (e.g. in an ILCD data set that is imported).
+ * A FlowMapEntry describes a single mapping between two flows.
  */
 public class FlowMapEntry {
 
-	/**
-	 * The (UU)ID of the reference flow in the openLCA database.
-	 */
-	public String referenceFlowID;
+	/** Describes a flow of the source system of a conversion. */
+	public FlowRef sourceFlow;
+
+	/** Describes the corresponding flow of the target system. */
+	public FlowRef targetFlow;
 
 	/**
-	 * The (UU)ID of the flow in the external data source.
+	 * An optional conversion factor which is applied to the amounts of the
+	 * source flow to convert them into the corresponding amounts of the target
+	 * flow (in the respective flow properties and units); defaults to 1.0
 	 */
-	public String externalFlowID;
-	public double conversionFactor = 1d;
+	public double factor = 1.0;
 
-	@Override
-	public String toString() {
-		return "FlowMapEntry [referenceFlowID=" + referenceFlowID
-				+ ", externalFlowID=" + externalFlowID
-				+ ", conversionFactor=" + conversionFactor + "]";
+	/**
+	 * Describes a synchronization result of this flow mapping with a database.
+	 */
+	public Status status;
+
+	/**
+	 * Swap the source and target flow reference in this entry and inverts the
+	 * conversion factor.
+	 */
+	public void swap() {
+		FlowRef s = sourceFlow;
+		sourceFlow = targetFlow;
+		targetFlow = s;
+		if (factor != 0 && factor != 1.0) {
+			factor = 1 / factor;
+		}
 	}
 
+	public String sourceFlowID() {
+		if (sourceFlow == null || sourceFlow.flow == null)
+			return null;
+		return sourceFlow.flow.refId;
+	}
+
+	public String targetFlowID() {
+		if (targetFlow == null || targetFlow.flow == null)
+			return null;
+		return targetFlow.flow.refId;
+	}
 }

@@ -156,22 +156,17 @@ class RefDataImport {
 		index.putLocation(refId, location);
 	}
 
-	private void compartment(Compartment compartment) {
-		if (compartment == null || compartment.id == null
-				|| compartment.subCompartment == null
-				|| compartment.compartment == null)
+	private void compartment(Compartment comp) {
+		if (comp == null || comp.id == null
+				|| comp.subCompartment == null
+				|| comp.compartment == null)
 			return;
-		String refId = compartment.id;
+		String refId = comp.id;
 		Category category = index.getCompartment(refId);
 		if (category != null)
 			return;
-		category = categoryDao.getForRefId(refId);
-		if (category == null) {
-			Category parent = Categories.findOrCreateRoot(config.db,
-					ModelType.FLOW, compartment.compartment);
-			category = Categories.findOrAddChild(config.db, parent,
-					compartment.subCompartment);
-		}
+		category = categoryDao.sync(
+				ModelType.FLOW, comp.compartment, comp.subCompartment);
 		index.putCompartment(refId, category);
 	}
 
@@ -201,7 +196,7 @@ class RefDataImport {
 		flow = new Flow();
 		flow.refId = refId;
 		flow.description = "EcoSpold 2 intermediate exchange, ID = "
-		+ exchange.flowId;
+				+ exchange.flowId;
 		// in ecoinvent 3 negative values indicate waste flows
 		// see also the exchange handling in the process input
 		// to be on the save side, we declare all intermediate flows as
@@ -232,7 +227,7 @@ class RefDataImport {
 		flow.refId = refId;
 		flow.category = category;
 		flow.description = "EcoSpold 2 elementary exchange, ID = "
-		+ exchange.flowId;
+				+ exchange.flowId;
 		flow.flowType = FlowType.ELEMENTARY_FLOW;
 		createFlow(exchange, flow);
 	}
@@ -249,10 +244,10 @@ class RefDataImport {
 		FlowMapEntry entry = config.getFlowMap().getEntry(extId);
 		if (entry == null)
 			return null;
-		flow = flowDao.getForRefId(entry.referenceFlowID);
+		flow = flowDao.getForRefId(entry.targetFlowID());
 		if (flow == null)
 			return null;
-		index.putMappedFlow(extId, entry.conversionFactor);
+		index.putMappedFlow(extId, entry.factor);
 		return flow;
 	}
 
@@ -277,8 +272,8 @@ class RefDataImport {
 	}
 
 	/**
-	 * Returns only a value if the given exchange is the reference product of the
-	 * data set.
+	 * Returns only a value if the given exchange is the reference product of
+	 * the data set.
 	 */
 	private Category getProductCategory(DataSet dataSet,
 			IntermediateExchange e) {

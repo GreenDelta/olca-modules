@@ -220,7 +220,7 @@ public class MethodImport {
 		if (entry == null)
 			return null;
 		FlowDao dao = new FlowDao(config.db);
-		return dao.getForRefId(entry.referenceFlowID);
+		return dao.getForRefId(entry.targetFlowID());
 	}
 
 	private Unit getRefUnit(Flow flow) {
