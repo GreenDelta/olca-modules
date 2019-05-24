@@ -75,7 +75,7 @@ public class Strings {
 
 	/**
 	 * Returns true if the string is not null or empty, means that it contains
-	 * other characters that white-spaces.
+	 * other characters than white-spaces.
 	 */
 	public static boolean notEmpty(String val) {
 		if (val == null)

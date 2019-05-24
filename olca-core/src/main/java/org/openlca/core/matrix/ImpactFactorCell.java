@@ -4,6 +4,7 @@ import org.openlca.core.math.NumberGenerator;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.Scope;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +18,8 @@ class ImpactFactorCell {
 	private final CalcImpactFactor factor;
 	private NumberGenerator generator;
 
-	ImpactFactorCell(CalcImpactFactor factor, long methodId, boolean inputFlow) {
+	ImpactFactorCell(CalcImpactFactor factor, long methodId,
+			boolean inputFlow) {
 		this.factor = factor;
 		this.methodId = methodId;
 		this.inputFlow = inputFlow;
@@ -26,33 +28,19 @@ class ImpactFactorCell {
 	void eval(FormulaInterpreter interpreter) {
 		if (interpreter == null)
 			return;
+		if (Strings.nullOrEmpty(factor.getAmountFormula()))
+			return;
+
 		try {
 			Scope scope = interpreter.getScope(methodId);
-			if (scope == null)
+			if (scope == null) {
 				scope = interpreter.getGlobalScope();
-			tryEval(scope);
+			}
+			double v = scope.eval(factor.getAmountFormula());
+			factor.setAmount(v);
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(getClass());
 			log.error("Formula evaluation failed, impact factor " + factor, e);
-		}
-	}
-
-	private void tryEval(Scope scope) throws Exception {
-		if (factor.getAmountFormula() != null) {
-			double v = scope.eval(factor.getAmountFormula());
-			factor.setAmount(v);
-		}
-		if (factor.getParameter1Formula() != null) {
-			double v = scope.eval(factor.getParameter1Formula());
-			factor.setParameter1(v);
-		}
-		if (factor.getParameter2Formula() != null) {
-			double v = scope.eval(factor.getParameter2Formula());
-			factor.setParameter2(v);
-		}
-		if (factor.getParameter3Formula() != null) {
-			double v = scope.eval(factor.getParameter3Formula());
-			factor.setParameter3(v);
 		}
 	}
 

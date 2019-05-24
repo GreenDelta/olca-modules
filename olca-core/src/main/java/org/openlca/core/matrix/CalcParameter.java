@@ -16,8 +16,4 @@ class CalcParameter {
 	public double parameter1;
 	public double parameter2;
 	public double parameter3;
-	public String parameter1Formula;
-	public String parameter2Formula;
-	public String parameter3Formula;
-
 }

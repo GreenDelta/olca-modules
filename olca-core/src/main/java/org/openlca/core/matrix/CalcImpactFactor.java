@@ -9,13 +9,11 @@ public class CalcImpactFactor {
 	private double conversionFactor;
 	private double amount;
 	private String amountFormula;
+
 	private UncertaintyType uncertaintyType;
 	private double parameter1;
 	private double parameter2;
 	private double parameter3;
-	private String parameter1Formula;
-	private String parameter2Formula;
-	private String parameter3Formula;
 
 	public long getImactCategoryId() {
 		return imactCategoryId;
@@ -89,27 +87,4 @@ public class CalcImpactFactor {
 		this.amountFormula = amountFormula;
 	}
 
-	public String getParameter1Formula() {
-		return parameter1Formula;
-	}
-
-	public void setParameter1Formula(String parameter1Formula) {
-		this.parameter1Formula = parameter1Formula;
-	}
-
-	public String getParameter2Formula() {
-		return parameter2Formula;
-	}
-
-	public void setParameter2Formula(String parameter2Formula) {
-		this.parameter2Formula = parameter2Formula;
-	}
-
-	public String getParameter3Formula() {
-		return parameter3Formula;
-	}
-
-	public void setParameter3Formula(String parameter3Formula) {
-		this.parameter3Formula = parameter3Formula;
-	}
 }

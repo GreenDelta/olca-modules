@@ -34,7 +34,8 @@ public class ImpactFactorCache {
 		private IDatabase database;
 		private ConversionTable conversionTable;
 
-		public FactorLoader(IDatabase database, ConversionTable conversionTable) {
+		public FactorLoader(IDatabase database,
+				ConversionTable conversionTable) {
 			this.database = database;
 			this.conversionTable = conversionTable;
 		}
@@ -99,9 +100,6 @@ public class ImpactFactorCache {
 				f.setParameter1(r.getDouble("parameter1_value"));
 				f.setParameter2(r.getDouble("parameter2_value"));
 				f.setParameter3(r.getDouble("parameter3_value"));
-				f.setParameter1Formula(r.getString("parameter1_formula"));
-				f.setParameter2Formula(r.getString("parameter2_formula"));
-				f.setParameter3Formula(r.getString("parameter3_formula"));
 			}
 			return f;
 		}

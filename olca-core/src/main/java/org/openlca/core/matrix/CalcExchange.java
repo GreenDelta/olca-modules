@@ -4,6 +4,7 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.Scope;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +74,7 @@ public class CalcExchange {
 			double allocationFactor) {
 
 		double a = amount;
-		if (amountFormula != null && interpreter != null) {
+		if (Strings.notEmpty(amountFormula) && interpreter != null) {
 			try {
 				Scope scope = interpreter.getScope(processId);
 				if (scope == null) {
