@@ -64,9 +64,9 @@ public class UncertaintyTableTest {
 	}
 
 	private void checkFactor(CalcImpactFactor factor) {
-		Assert.assertEquals(1, factor.getParameter1(), 1e-16);
-		Assert.assertEquals(2, factor.getParameter2(), 1e-16);
-		Assert.assertEquals(3, factor.getParameter3(), 1e-16);
+		Assert.assertEquals(1, factor.parameter1, 1e-16);
+		Assert.assertEquals(2, factor.parameter2, 1e-16);
+		Assert.assertEquals(3, factor.parameter3, 1e-16);
 	}
 
 	private Uncertainty createUncertainty() {

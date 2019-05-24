@@ -115,7 +115,7 @@ public class ImpactTable {
 				if (factors == null)
 					continue;
 				for (CalcImpactFactor factor : factors) {
-					long flowId = factor.getFlowId();
+					long flowId = factor.flowId;
 					int col = flowIndex.of(flowId);
 					if (col < 0)
 						continue;

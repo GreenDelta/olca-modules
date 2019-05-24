@@ -75,7 +75,7 @@ public class ImpactFactorCache {
 				while (result.next()) {
 					CalcImpactFactor factor = nextFactor(result);
 					CacheUtil.addListEntry(map, factor,
-							factor.getImactCategoryId());
+							factor.imactCategoryId);
 				}
 				result.close();
 				statement.close();
@@ -89,17 +89,17 @@ public class ImpactFactorCache {
 
 		private CalcImpactFactor nextFactor(ResultSet r) throws Exception {
 			CalcImpactFactor f = new CalcImpactFactor();
-			f.setImactCategoryId(r.getLong("f_impact_category"));
-			f.setAmount(r.getDouble("value"));
-			f.setAmountFormula(r.getString("formula"));
-			f.setConversionFactor(getConversionFactor(r));
-			f.setFlowId(r.getLong("f_flow"));
+			f.imactCategoryId = r.getLong("f_impact_category");
+			f.amount = r.getDouble("value");
+			f.formula = r.getString("formula");
+			f.conversionFactor = getConversionFactor(r);
+			f.flowId = r.getLong("f_flow");
 			int uncertaintyType = r.getInt("distribution_type");
 			if (!r.wasNull()) {
-				f.setUncertaintyType(UncertaintyType.values()[uncertaintyType]);
-				f.setParameter1(r.getDouble("parameter1_value"));
-				f.setParameter2(r.getDouble("parameter2_value"));
-				f.setParameter3(r.getDouble("parameter3_value"));
+				f.uncertaintyType = UncertaintyType.values()[uncertaintyType];
+				f.parameter1 = r.getDouble("parameter1_value");
+				f.parameter2 = r.getDouble("parameter2_value");
+				f.parameter3 = r.getDouble("parameter3_value");
 			}
 			return f;
 		}

@@ -28,7 +28,7 @@ class ImpactFactorCell {
 	void eval(FormulaInterpreter interpreter) {
 		if (interpreter == null)
 			return;
-		if (Strings.nullOrEmpty(factor.getAmountFormula()))
+		if (Strings.nullOrEmpty(factor.formula))
 			return;
 
 		try {
@@ -36,8 +36,8 @@ class ImpactFactorCell {
 			if (scope == null) {
 				scope = interpreter.getGlobalScope();
 			}
-			double v = scope.eval(factor.getAmountFormula());
-			factor.setAmount(v);
+			double v = scope.eval(factor.formula);
+			factor.amount = v;
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(getClass());
 			log.error("Formula evaluation failed, impact factor " + factor, e);
@@ -47,17 +47,17 @@ class ImpactFactorCell {
 	double getMatrixValue() {
 		if (factor == null)
 			return 0;
-		double amount = factor.getAmount() * factor.getConversionFactor();
+		double amount = factor.amount * factor.conversionFactor;
 		return inputFlow ? -amount : amount;
 	}
 
 	double getNextSimulationValue() {
-		UncertaintyType type = factor.getUncertaintyType();
+		UncertaintyType type = factor.uncertaintyType;
 		if (type == null || type == UncertaintyType.NONE)
 			return getMatrixValue();
 		if (generator == null)
 			generator = createGenerator(type);
-		double amount = generator.next() * factor.getConversionFactor();
+		double amount = generator.next() * factor.conversionFactor;
 		return inputFlow ? -amount : amount;
 	}
 
@@ -65,18 +65,18 @@ class ImpactFactorCell {
 		final CalcImpactFactor f = factor;
 		switch (type) {
 		case LOG_NORMAL:
-			return NumberGenerator.logNormal(f.getParameter1(),
-					f.getParameter2());
+			return NumberGenerator.logNormal(f.parameter1,
+					f.parameter2);
 		case NORMAL:
-			return NumberGenerator.normal(f.getParameter1(), f.getParameter2());
+			return NumberGenerator.normal(f.parameter1, f.parameter2);
 		case TRIANGLE:
-			return NumberGenerator.triangular(f.getParameter1(),
-					f.getParameter2(), f.getParameter3());
+			return NumberGenerator.triangular(f.parameter1,
+					f.parameter2, f.parameter3);
 		case UNIFORM:
 			return NumberGenerator
-					.uniform(f.getParameter1(), f.getParameter2());
+					.uniform(f.parameter1, f.parameter2);
 		default:
-			return NumberGenerator.discrete(f.getAmount());
+			return NumberGenerator.discrete(f.amount);
 		}
 	}
 
