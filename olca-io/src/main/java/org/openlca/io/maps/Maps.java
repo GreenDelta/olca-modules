@@ -2,10 +2,13 @@ package org.openlca.io.maps;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.IOUtils;
@@ -14,6 +17,9 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.MappingFileDao;
 import org.openlca.core.model.MappingFile;
 import org.openlca.util.BinUtils;
+import org.openlca.util.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.prefs.CsvPreference;
@@ -143,43 +149,91 @@ public class Maps {
 		dao.insert(file);
 	}
 
-	public static String getString(List<Object> values, int i) {
+	public static String getString(List<?> values, int i) {
 		if (values == null || i >= values.size())
 			return null;
 		Object val = values.get(i);
 		if (val == null)
 			return null;
-		else
-			return val.toString();
+		return val.toString();
 	}
 
-	public static Double getOptionalDouble(List<Object> values, int i) {
+	public static Double getOptionalDouble(List<?> values, int i) {
 		if (values == null || i >= values.size())
 			return null;
 		Object val = values.get(i);
 		if (val instanceof Number)
 			return ((Number) val).doubleValue();
-		else
-			return null;
+		if (val instanceof String) {
+			if (Strings.nullOrEmpty((String) val))
+				return null;
+			try {
+				return Double.parseDouble((String) val);
+			} catch (Exception e) {
+				Logger log = LoggerFactory.getLogger(Maps.class);
+				log.error("{} is not a number; default to null", val);
+				return null;
+			}
+		}
+		return null;
 	}
 
-	public static double getDouble(List<Object> values, int i) {
+	public static double getDouble(List<?> values, int i) {
 		if (values == null || i >= values.size())
 			return 0;
 		Object val = values.get(i);
 		if (val instanceof Number)
 			return ((Number) val).doubleValue();
-		else
-			return 0;
+		if (val instanceof String) {
+			try {
+				return Double.parseDouble((String) val);
+			} catch (Exception e) {
+				Logger log = LoggerFactory.getLogger(Maps.class);
+				log.error("{} is not a number; default to 0.0", val);
+				return 0;
+			}
+		}
+		return 0;
 	}
 
-	public static int getInt(List<Object> values, int i) {
+	public static int getInt(List<?> values, int i) {
 		if (values == null || i >= values.size())
 			return 0;
 		Object val = values.get(i);
 		if (val instanceof Number)
 			return ((Number) val).intValue();
-		else
-			return 0;
+		if (val instanceof String) {
+			try {
+				return Integer.parseInt((String) val);
+			} catch (Exception e) {
+				Logger log = LoggerFactory.getLogger(Maps.class);
+				log.error("{} is not a number; default to 0", val);
+				return 0;
+			}
+		}
+		return 0;
+	}
+
+	/**
+	 * Iterates over each row in the given mapping file.
+	 */
+	public static void each(File file, Consumer<List<String>> fn) {
+		CsvPreference prefs = new CsvPreference.Builder(
+				'"', ';', "\n").build();
+		try (InputStream is = new FileInputStream(file);
+				BOMInputStream bom = new BOMInputStream(
+						is, false, ByteOrderMark.UTF_8);
+				InputStreamReader r = new InputStreamReader(bom, "utf-8");
+				BufferedReader buf = new BufferedReader(r);
+				CsvListReader reader = new CsvListReader(buf, prefs)) {
+			List<String> row;
+			while ((row = reader.read()) != null) {
+				if (row.isEmpty())
+					continue;
+				fn.accept(row);
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

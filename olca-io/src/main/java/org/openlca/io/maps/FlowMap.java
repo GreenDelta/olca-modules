@@ -1,5 +1,6 @@
 package org.openlca.io.maps;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,6 +11,10 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.model.descriptors.UnitDescriptor;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.supercsv.cellprocessor.ParseDouble;
@@ -80,4 +85,78 @@ public class FlowMap extends BaseDescriptor {
 		return m;
 	}
 
+	public static FlowMap fromCsv(File file) {
+		FlowMap fm = new FlowMap();
+		Maps.each(file, row -> {
+
+			FlowMapEntry e = new FlowMapEntry();
+			fm.entries.add(e);
+			e.factor = Maps.getDouble(row, 2);
+
+			// source flow
+			String sid = Maps.getString(row, 0);
+			if (Strings.notEmpty(sid)) {
+				e.sourceFlow = new FlowRef();
+				e.sourceFlow.flow = new FlowDescriptor();
+				e.sourceFlow.flow.refId = sid;
+				e.sourceFlow.flow.name = Maps.getString(row, 3);
+				e.sourceFlow.categoryPath = Maps.getString(row, 4);
+				// TODO: location: think about the descriptor fields
+
+				// flow property
+				String sprop = Maps.getString(row, 9);
+				if (Strings.notEmpty(sprop)) {
+					e.sourceFlow.property = new FlowPropertyDescriptor();
+					e.sourceFlow.property.refId = sprop;
+					e.sourceFlow.property.name = Maps.getString(row, 10);
+				}
+
+				// unit
+				String sunit = Maps.getString(row, 13);
+				if (Strings.notEmpty(sunit)) {
+					e.sourceFlow.unit = new UnitDescriptor();
+					e.sourceFlow.unit.refId = sunit;
+					e.sourceFlow.unit.name = Maps.getString(row, 14);
+				}
+			}
+
+			// target flow
+			String tid = Maps.getString(row, 1);
+			if (Strings.notEmpty(tid)) {
+				e.targetFlow = new FlowRef();
+				e.targetFlow.flow = new FlowDescriptor();
+				e.targetFlow.flow.refId = tid;
+				e.targetFlow.flow.name = Maps.getString(row, 6);
+				e.targetFlow.categoryPath = Maps.getString(row, 7);
+				// TODO: location: think about the descriptor fields
+
+				// flow property
+				String tprop = Maps.getString(row, 11);
+				if (Strings.notEmpty(tprop)) {
+					e.targetFlow.property = new FlowPropertyDescriptor();
+					e.targetFlow.property.refId = tprop;
+					e.targetFlow.property.name = Maps.getString(row, 12);
+				}
+
+				// unit
+				String tunit = Maps.getString(row, 15);
+				if (Strings.notEmpty(tunit)) {
+					e.targetFlow.unit = new UnitDescriptor();
+					e.targetFlow.unit.refId = tunit;
+					e.targetFlow.unit.name = Maps.getString(row, 16);
+				}
+
+				// provider
+				String prov = Maps.getString(row, 17);
+				if (Strings.notEmpty(prov)) {
+					e.targetFlow.provider = new ProcessDescriptor();
+					e.targetFlow.provider.refId = prov;
+					e.targetFlow.provider.name = Maps.getString(row, 18);
+					// TODO: category, location: think about the descriptor
+					// fields
+				}
+			}
+		});
+		return fm;
+	}
 }
