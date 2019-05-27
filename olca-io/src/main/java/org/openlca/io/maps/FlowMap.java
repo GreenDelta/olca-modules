@@ -159,4 +159,70 @@ public class FlowMap extends BaseDescriptor {
 		});
 		return fm;
 	}
+
+	public static void toCsv(FlowMap fm, File file) {
+		if (fm == null || file == null)
+			return;
+		Maps.write(file, fm.entries.stream().map(e -> {
+			Object[] row = new Object[21];
+			row[2] = e.factor;
+
+			// source flow
+			FlowRef s = e.sourceFlow;
+			if (s != null) {
+
+				// flow
+				if (s.flow != null) {
+					row[0] = s.flow.refId;
+					row[3] = s.flow.name;
+					row[4] = s.categoryPath;
+					// TODO: location code
+				}
+
+				// flow property
+				if (s.property != null) {
+					row[9] = s.property.refId;
+					row[10] = s.property.name;
+				}
+
+				// unit
+				if (s.unit != null) {
+					row[13] = s.unit.refId;
+					row[14] = s.unit.name;
+				}
+			}
+
+			// target flow
+			FlowRef t = e.targetFlow;
+			if (t != null) {
+
+				// flow
+				if (t.flow != null) {
+					row[1] = t.flow.refId;
+					row[6] = t.flow.name;
+					row[7] = t.categoryPath;
+					// TODO: location code
+				}
+
+				// flow property
+				if (t.property != null) {
+					row[11] = t.property.refId;
+					row[12] = t.property.name;
+				}
+
+				// unit
+				if (t.unit != null) {
+					row[15] = t.unit.refId;
+					row[16] = t.unit.name;
+				}
+
+				if (t.provider != null) {
+					row[17] = t.provider.refId;
+					row[18] = t.provider.name;
+					// TODO: category & location
+				}
+			}
+			return row;
+		}));
+	}
 }

@@ -1,14 +1,19 @@
 package org.openlca.io.maps;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.IOUtils;
@@ -22,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvListReader;
+import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 
 /**
@@ -218,6 +224,8 @@ public class Maps {
 	 * Iterates over each row in the given mapping file.
 	 */
 	public static void each(File file, Consumer<List<String>> fn) {
+		if (file == null)
+			return;
 		CsvPreference prefs = new CsvPreference.Builder(
 				'"', ';', "\n").build();
 		try (InputStream is = new FileInputStream(file);
@@ -232,6 +240,31 @@ public class Maps {
 					continue;
 				fn.accept(row);
 			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static void write(File file, Stream<Object[]> rows) {
+		if (file == null || rows == null)
+			return;
+		CsvPreference prefs = new CsvPreference.Builder(
+				'"', ';', "\n").build();
+		try (OutputStream os = new FileOutputStream(file);
+				OutputStreamWriter w = new OutputStreamWriter(os, "utf-8");
+				BufferedWriter buf = new BufferedWriter(w);
+				CsvListWriter writer = new CsvListWriter(w, prefs)) {
+			rows.forEach(row -> {
+				if (row == null)
+					return;
+				try {
+					writer.write(row);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			});
+		} catch (RuntimeException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
