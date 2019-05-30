@@ -23,8 +23,15 @@ public class FlowRef {
 	 */
 	public FlowDescriptor flow;
 
-	/** An optional category path of the flow. */
-	public String categoryPath;
+	/**
+	 * An optional category path of the flow.
+	 */
+	public String flowCategory;
+
+	/**
+	 * An optional location code. of the flow.
+	 */
+	public String flowLocation;
 
 	/**
 	 * An optional reference to a property (= quantity) of the flow. When this
@@ -43,6 +50,16 @@ public class FlowRef {
 	 * describes a (target) product or waste flow.
 	 */
 	public ProcessDescriptor provider;
+
+	/**
+	 * An location code of the provider process.
+	 */
+	public String providerLocation;
+
+	/**
+	 * An optional category path of the provider process.
+	 */
+	public String providerCategory;
 
 	/**
 	 * Creates an unique identifier of this flow reference which is a

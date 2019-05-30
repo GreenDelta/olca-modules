@@ -9,15 +9,21 @@ import java.util.Map;
 
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.UnitDescriptor;
+import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.supercsv.cellprocessor.ParseDouble;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public class FlowMap extends BaseDescriptor {
 
@@ -87,6 +93,9 @@ public class FlowMap extends BaseDescriptor {
 
 	public static FlowMap fromCsv(File file) {
 		FlowMap fm = new FlowMap();
+		if (file == null)
+			return fm;
+		fm.name = file.getName();
 		Maps.each(file, row -> {
 
 			FlowMapEntry e = new FlowMapEntry();
@@ -100,8 +109,8 @@ public class FlowMap extends BaseDescriptor {
 				e.sourceFlow.flow = new FlowDescriptor();
 				e.sourceFlow.flow.refId = sid;
 				e.sourceFlow.flow.name = Maps.getString(row, 3);
-				e.sourceFlow.categoryPath = Maps.getString(row, 4);
-				// TODO: location: think about the descriptor fields
+				e.sourceFlow.flowCategory = Maps.getString(row, 4);
+				e.sourceFlow.flowLocation = Maps.getString(row, 5);
 
 				// flow property
 				String sprop = Maps.getString(row, 9);
@@ -127,8 +136,8 @@ public class FlowMap extends BaseDescriptor {
 				e.targetFlow.flow = new FlowDescriptor();
 				e.targetFlow.flow.refId = tid;
 				e.targetFlow.flow.name = Maps.getString(row, 6);
-				e.targetFlow.categoryPath = Maps.getString(row, 7);
-				// TODO: location: think about the descriptor fields
+				e.targetFlow.flowCategory = Maps.getString(row, 7);
+				e.targetFlow.flowLocation = Maps.getString(row, 8);
 
 				// flow property
 				String tprop = Maps.getString(row, 11);
@@ -152,8 +161,8 @@ public class FlowMap extends BaseDescriptor {
 					e.targetFlow.provider = new ProcessDescriptor();
 					e.targetFlow.provider.refId = prov;
 					e.targetFlow.provider.name = Maps.getString(row, 18);
-					// TODO: category, location: think about the descriptor
-					// fields
+					e.targetFlow.providerCategory = Maps.getString(row, 19);
+					e.targetFlow.providerLocation = Maps.getString(row, 20);
 				}
 			}
 		});
@@ -175,8 +184,8 @@ public class FlowMap extends BaseDescriptor {
 				if (s.flow != null) {
 					row[0] = s.flow.refId;
 					row[3] = s.flow.name;
-					row[4] = s.categoryPath;
-					// TODO: location code
+					row[4] = s.flowCategory;
+					row[5] = s.flowLocation;
 				}
 
 				// flow property
@@ -200,8 +209,8 @@ public class FlowMap extends BaseDescriptor {
 				if (t.flow != null) {
 					row[1] = t.flow.refId;
 					row[6] = t.flow.name;
-					row[7] = t.categoryPath;
-					// TODO: location code
+					row[7] = t.flowCategory;
+					row[8] = t.flowLocation;
 				}
 
 				// flow property
@@ -219,10 +228,99 @@ public class FlowMap extends BaseDescriptor {
 				if (t.provider != null) {
 					row[17] = t.provider.refId;
 					row[18] = t.provider.name;
-					// TODO: category & location
+					row[19] = t.providerCategory;
+					row[20] = t.providerLocation;
 				}
 			}
 			return row;
 		}));
+	}
+
+	public static FlowMap fromJson(JsonObject obj) {
+		FlowMap map = new FlowMap();
+		map.name = Json.getString(obj, "name");
+		map.description = Json.getString(obj, "name");
+
+		map.source = new BaseDescriptor();
+		mapDescriptor(Json.getObject(obj, "source"), map.source);
+		map.target = new BaseDescriptor();
+		mapDescriptor(Json.getObject(obj, "target"), map.target);
+
+		JsonArray array = Json.getArray(obj, "mappings");
+		if (array != null) {
+			for (JsonElement e : array) {
+				if (!e.isJsonObject())
+					continue;
+				JsonObject eObj = e.getAsJsonObject();
+				FlowMapEntry entry = new FlowMapEntry();
+				entry.sourceFlow = asFlowRef(
+						Json.getObject(eObj, "from"));
+				entry.targetFlow = asFlowRef(
+						Json.getObject(eObj, "to"));
+				entry.factor = Json.getDouble(
+						eObj, "conversionFactor", 1.0);
+				map.entries.add(entry);
+			}
+		}
+		return map;
+	}
+
+	private static FlowRef asFlowRef(JsonObject obj) {
+		if (obj == null)
+			return null;
+		FlowRef ref = new FlowRef();
+		ref.flow = new FlowDescriptor();
+		JsonObject flowObj = Json.getObject(obj, "flow");
+		if (flowObj == null)
+			return null;
+
+		mapDescriptor(flowObj, ref.flow);
+		ref.flowCategory = categoryPath(flowObj);
+
+		JsonObject fp = Json.getObject(obj, "flowProperty");
+		if (fp != null) {
+			ref.property = new BaseDescriptor();
+			mapDescriptor(fp, ref.property);
+		}
+		JsonObject u = Json.getObject(obj, "unit");
+		if (u != null) {
+			ref.unit = new BaseDescriptor();
+			mapDescriptor(u, ref.unit);
+		}
+
+		return ref;
+	}
+
+	private static void mapDescriptor(JsonObject obj, BaseDescriptor d) {
+		if (obj == null || d == null)
+			return;
+		d.name = Json.getString(obj, "name");
+		d.description = Json.getString(obj, "description");
+		d.refId = Json.getString(obj, "@id");
+		if (d instanceof FlowDescriptor) {
+			FlowDescriptor fd = (FlowDescriptor) d;
+			fd.flowType = Json.getEnum(obj, "flowType", FlowType.class);
+			if (fd.flowType == null) {
+				fd.flowType = FlowType.ELEMENTARY_FLOW;
+			}
+		}
+	}
+
+	private static String categoryPath(JsonObject obj) {
+		if (obj == null)
+			return null;
+		JsonArray array = Json.getArray(obj, "categoryPath");
+		if (array == null)
+			return null;
+		StringBuilder path = new StringBuilder();
+		for (JsonElement elem : array) {
+			if (!elem.isJsonPrimitive())
+				continue;
+			if (path.length() > 0) {
+				path.append(" / ");
+			}
+			path.append(elem.getAsString());
+		}
+		return path.toString();
 	}
 }
