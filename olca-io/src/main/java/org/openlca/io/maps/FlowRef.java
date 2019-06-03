@@ -143,4 +143,57 @@ public class FlowRef {
 		return true;
 	}
 
+	@Override
+	public FlowRef clone() {
+		FlowRef clone = new FlowRef();
+		clone.flow = copy(flow);
+		clone.flowCategory = flowCategory;
+		clone.flowLocation = flowLocation;
+		clone.property = copy(property);
+		clone.unit = copy(unit);
+		clone.provider = copy(provider);
+		clone.providerLocation = providerLocation;
+		clone.providerCategory = providerCategory;
+		return clone;
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T extends BaseDescriptor> T copy(T d) {
+		if (d == null)
+			return null;
+		try {
+			T clone = (T) d.getClass().newInstance();
+			clone.description = d.description;
+			clone.id = d.id;
+			clone.lastChange = d.lastChange;
+			clone.name = d.name;
+			clone.refId = d.refId;
+			clone.type = d.type;
+			clone.version = d.version;
+
+			if (d instanceof FlowDescriptor) {
+				FlowDescriptor fd = (FlowDescriptor) d;
+				FlowDescriptor fclone = (FlowDescriptor) clone;
+				fclone.category = fd.category;
+				fclone.flowType = fd.flowType;
+				fclone.location = fd.location;
+				fclone.refFlowPropertyId = fd.refFlowPropertyId;
+			}
+
+			if (d instanceof ProcessDescriptor) {
+				ProcessDescriptor pd = (ProcessDescriptor) d;
+				ProcessDescriptor pclone = (ProcessDescriptor) clone;
+				pclone.category = pd.category;
+				pclone.infrastructureProcess = pd.infrastructureProcess;
+				pclone.location = pd.location;
+				pclone.processType = pd.processType;
+				pclone.quantitativeReference = pd.quantitativeReference;
+			}
+
+			return clone;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 }

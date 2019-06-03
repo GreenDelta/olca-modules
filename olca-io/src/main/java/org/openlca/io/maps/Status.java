@@ -45,4 +45,9 @@ public class Status {
 	public boolean isError() {
 		return type == ERROR;
 	}
+
+	@Override
+	public Status clone() {
+		return new Status(type, message);
+	}
 }

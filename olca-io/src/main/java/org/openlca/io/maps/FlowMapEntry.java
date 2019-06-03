@@ -47,4 +47,20 @@ public class FlowMapEntry {
 			return null;
 		return targetFlow.flow.refId;
 	}
+
+	@Override
+	public FlowMapEntry clone() {
+		FlowMapEntry clone = new FlowMapEntry();
+		clone.factor = factor;
+		if (sourceFlow != null) {
+			clone.sourceFlow = sourceFlow.clone();
+		}
+		if (targetFlow != null) {
+			clone.targetFlow = targetFlow.clone();
+		}
+		if (status != null) {
+			clone.status = status.clone();
+		}
+		return clone;
+	}
 }
