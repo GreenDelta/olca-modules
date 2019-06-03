@@ -39,6 +39,24 @@ public class Strings {
 		}
 	}
 
+	public static String cutLeft(String s, int len) {
+		if (s == null || len <= 0)
+			return "";
+
+		String str = s.trim();
+		if (str.length() <= len)
+			return str;
+
+		switch (len) {
+		case 1:
+			return ".";
+		case 2:
+			return "..";
+		default:
+			return "...".concat(str.substring(str.length() - len + 3));
+		}
+	}
+
 	public static String[] readLines(InputStream is) throws IOException {
 		if (is == null)
 			return new String[0];
