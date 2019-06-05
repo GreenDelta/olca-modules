@@ -19,11 +19,6 @@ public class FlowMapEntry {
 	public double factor = 1.0;
 
 	/**
-	 * Describes a synchronization result of this flow mapping with a database.
-	 */
-	public Status status;
-
-	/**
 	 * Swap the source and target flow reference in this entry and inverts the
 	 * conversion factor.
 	 */
@@ -57,9 +52,6 @@ public class FlowMapEntry {
 		}
 		if (targetFlow != null) {
 			clone.targetFlow = targetFlow.clone();
-		}
-		if (status != null) {
-			clone.status = status.clone();
 		}
 		return clone;
 	}
