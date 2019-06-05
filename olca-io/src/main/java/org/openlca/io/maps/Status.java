@@ -13,7 +13,7 @@ public class Status {
 	public final int type;
 	public final String message;
 
-	private Status(int type, String message) {
+	public Status(int type, String message) {
 		this.type = type;
 		this.message = message;
 	}
