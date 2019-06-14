@@ -1,11 +1,11 @@
 package org.openlca.io.xls;
 
+import java.io.File;
+
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.ProductSystem;
-
-import java.io.File;
 
 public class CsvMatrixExportConfig {
 
@@ -42,7 +42,7 @@ public class CsvMatrixExportConfig {
 	}
 
 	boolean valid() {
-		return matrixCache != null && productSystem != null
+		return db != null && productSystem != null
 				&& technologyFile != null && interventionFile != null
 				&& decimalSeparator != null && columnSeperator != null;
 	}
