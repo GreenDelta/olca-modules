@@ -34,6 +34,9 @@ public class FastMatrixExportExample {
 			CalculationSetup setup = new CalculationSetup(
 					CalculationType.CONTRIBUTION_ANALYSIS, system);
 			setup.allocationMethod = AllocationMethod.USE_DEFAULT;
+
+			// the LCIA method for which we export the characterization
+			// factors of the indicators
 			setup.impactMethod = new ImpactMethodDao(db).getDescriptorForRefId(
 					"207ffac9-aaa8-401d-ac90-874defd3751a");
 
@@ -52,7 +55,7 @@ public class FastMatrixExportExample {
 			FastMatrixBuilder builder = new FastMatrixBuilder(db, setup);
 			MatrixData data = builder.build();
 			outFolder.mkdirs();
-			CsvOut.write(data, outFolder);
+			CsvOut.write(data, db, outFolder);
 
 		} catch (Exception e) {
 			e.printStackTrace();
