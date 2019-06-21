@@ -18,7 +18,10 @@ import org.slf4j.LoggerFactory;
  * The provider linker is used for collecting provider links during the import
  * and creating the links after the import is finished. TODO: maybe we should
  * move this later to the core package and re-use this also in the JSON-LD
- * export... but this currently only works with Derby
+ * export... but this currently only works with Derby. Also note that this
+ * currently does not check and assure that the given provider indeed provides
+ * the flow of the respective exchange (however, wrong providers should not
+ * taken into account in the openLCA linking algorithms).
  */
 public class ProviderLinker {
 
@@ -31,7 +34,7 @@ public class ProviderLinker {
 		/** The process internal ID of the exchange. */
 		final int exchange;
 
-		/** The reference ID of the exchange. */
+		/** The reference ID of the provider process. */
 		final String provider;
 
 		Link(String process, int exchange, String provider) {

@@ -3,8 +3,10 @@ package org.openlca.io.ilcd.input;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.io.maps.FlowMap;
@@ -23,15 +25,30 @@ class ExchangeFlow {
 	FlowProperty flowProperty;
 	Unit unit;
 
-	public ExchangeFlow(Exchange ilcdExchange) {
+	ExchangeFlow(Exchange ilcdExchange) {
 		this.ilcdExchange = ilcdExchange;
 	}
 
-	public boolean isMapped() {
+	boolean isMapped() {
 		return mapEntry != null;
 	}
 
-	public void findOrImport(ImportConfig config) {
+	/**
+	 * Returns a possible provider for the flow when the flow is a mapped flow
+	 * and there is a provider specified for that flow.
+	 */
+	ProcessDescriptor getMappedProvider() {
+		if (flow == null
+				|| flow.flowType == FlowType.ELEMENTARY_FLOW)
+			return null;
+		if (mapEntry == null)
+			return null;
+		if (mapEntry.targetFlow == null)
+			return null;
+		return mapEntry.targetFlow.provider;
+	}
+
+	void findOrImport(ImportConfig config) {
 		this.config = config;
 		Ref ref = ilcdExchange.flow;
 		if (ref == null) {

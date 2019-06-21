@@ -55,10 +55,21 @@ class ProcessExchanges {
 			}
 
 			Exchange e = init(iExchange, flow, process);
+
 			// we take the internal IDs from ILCD
 			e.internalId = iExchange.id;
 			maxID = Math.max(maxID, e.internalId);
 
+			// add a possible mapped provider
+			if (flow.getMappedProvider() != null) {
+				String provider = flow.getMappedProvider().refId;
+				if (provider != null) {
+					providerLinker.addLink(
+							process.refId, e.internalId, provider);
+				}
+			}
+
+			// add data from a possible openLCA extension
 			if (ext.isValid()) {
 				e.dqEntry = ext.getPedigreeUncertainty();
 				e.baseUncertainty = ext.getBaseUncertainty();
@@ -68,7 +79,8 @@ class ProcessExchanges {
 					e.isAvoided = true;
 				}
 				String provider = ext.getDefaultProvider();
-				if (provider != null) {
+				if (provider != null
+						&& flow.getMappedProvider() == null) {
 					providerLinker.addLink(
 							process.refId, e.internalId, provider);
 				}
