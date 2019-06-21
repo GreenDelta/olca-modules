@@ -16,7 +16,6 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Unit;
-import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.methods.DataSetInfo;
@@ -173,60 +172,68 @@ public class MethodImport {
 	}
 
 	private Unit getReferenceUnit(FlowProperty prop) {
-		UnitGroup group = prop.unitGroup;
-		if (group != null && group.referenceUnit != null)
-			return group.referenceUnit;
-		return null;
+		if (prop == null)
+			return null;
+		return prop.unitGroup != null
+				? prop.unitGroup.referenceUnit
+				: null;
 	}
 
 	private void addFactors(LCIAMethod iMethod, ImpactCategory category) {
 		FactorList list = iMethod.characterisationFactors;
 		if (list == null)
 			return;
+		int errors = 0;
 		for (Factor factor : list.factors) {
 			try {
-				addFactor(category, factor);
+				if (factor.flow == null) {
+					errors++;
+					continue;
+				}
+				String flowId = factor.flow.uuid;
+
+				// first, try to get the flow from a mapping
+				Flow flow = null;
+				boolean mapped = false;
+				FlowMapEntry e = config.getFlowMap().getEntry(flowId);
+				if (e != null) {
+					flow = new FlowDao(config.db).getForRefId(
+							e.targetFlowID());
+					if (flow != null) {
+						mapped = true;
+					}
+				}
+
+				// otherwise, get the flow from the database or import it
+				if (flow == null) {
+					flow = new FlowImport(config).run(flowId);
+				}
+				if (flow == null) {
+					log.trace("Could not import flow {}", flowId);
+					errors++;
+					continue;
+				}
+
+				ImpactFactor f = new ImpactFactor();
+				f.flow = flow;
+				f.flowPropertyFactor = flow.getReferenceFactor();
+				f.unit = getReferenceUnit(flow.referenceFlowProperty);
+				f.value = factor.meanValue;
+				if (mapped && e.factor != 1.0 & e.factor != 0.0) {
+					// apply the conversion factor from the mapping
+					f.value /= e.factor;
+				}
+				category.impactFactors.add(f);
 			} catch (Exception e) {
-				log.warn("Failed to add factor " + factor, e);
+				log.trace("Failed to add factor " + factor, e);
+				errors++;
 			}
+		} // for
+
+		if (errors > 0) {
+			log.warn("there were flow errors in {} factors of LCIA category {}",
+					errors, category.name);
 		}
 	}
 
-	private void addFactor(ImpactCategory category, Factor factor)
-			throws Exception {
-		String flowId = factor.flow.uuid;
-		Flow flow = getFlow(flowId);
-		if (flow == null) {
-			log.warn("Could not import flow {}", flowId);
-			return;
-		}
-		ImpactFactor oFactor = new ImpactFactor();
-		oFactor.flow = flow;
-		oFactor.flowPropertyFactor = flow.getReferenceFactor();
-		oFactor.unit = getRefUnit(flow);
-		oFactor.value = factor.meanValue;
-		category.impactFactors.add(oFactor);
-	}
-
-	private Flow getFlow(String flowId) throws Exception {
-		Flow flow = getMappedFlow(flowId);
-		if (flow != null)
-			return flow;
-		return new FlowImport(config).run(flowId);
-	}
-
-	private Flow getMappedFlow(String flowId) {
-		FlowMapEntry entry = config.getFlowMap().getEntry(flowId);
-		if (entry == null)
-			return null;
-		FlowDao dao = new FlowDao(config.db);
-		return dao.getForRefId(entry.targetFlowID());
-	}
-
-	private Unit getRefUnit(Flow flow) {
-		if (flow == null)
-			return null;
-		FlowProperty prop = flow.referenceFlowProperty;
-		return getReferenceUnit(prop);
-	}
 }
