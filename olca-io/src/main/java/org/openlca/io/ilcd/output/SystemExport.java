@@ -20,7 +20,6 @@ import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Ref;
-import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.models.Connection;
 import org.openlca.ilcd.models.DataSetInfo;
 import org.openlca.ilcd.models.DownstreamLink;
@@ -51,7 +50,7 @@ public class SystemExport {
 		this.config = config;
 	}
 
-	public Model run(ProductSystem system) throws DataStoreException {
+	public Model run(ProductSystem system) {
 		if (system == null)
 			return null;
 		if (config.store.contains(Model.class, system.refId))
@@ -121,7 +120,7 @@ public class SystemExport {
 		return model;
 	}
 
-	private void mapLinks(Model model) throws DataStoreException {
+	private void mapLinks(Model model) {
 		Technology tech = Models.technology(model);
 		Map<Long, ProcessInstance> instances = new HashMap<>();
 		for (Long id : system.processes) {
@@ -145,8 +144,7 @@ public class SystemExport {
 		}
 	}
 
-	private ProcessInstance initProcessInstance(long id)
-			throws DataStoreException {
+	private ProcessInstance initProcessInstance(long id) {
 		ProcessInstance pi = new ProcessInstance();
 		pi.id = processIDs.getOrDefault(id, -1);
 		ProcessDescriptor d = processes.get(id);

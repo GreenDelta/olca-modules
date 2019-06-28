@@ -10,7 +10,6 @@ import org.openlca.ilcd.contacts.AdminInfo;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.contacts.ContactInfo;
 import org.openlca.ilcd.contacts.DataSetInfo;
-import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.util.Refs;
 
 public class ActorExport {
@@ -27,7 +26,7 @@ public class ActorExport {
 		this.baseUri = baseUri;
 	}
 
-	public Contact run(Actor actor) throws DataStoreException {
+	public Contact run(Actor actor) {
 		if (config.store.contains(Contact.class, actor.refId))
 			return config.store.get(Contact.class, actor.refId);
 		this.actor = actor;

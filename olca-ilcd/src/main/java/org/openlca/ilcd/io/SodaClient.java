@@ -51,14 +51,14 @@ public class SodaClient implements DataStore {
 		this.con = con;
 	}
 
-	public void connect() throws DataStoreException {
+	public void connect() {
 		log.info("Create ILCD network connection {}", con);
 		client = Client.create();
 		authenticate();
 		isConnected = true;
 	}
 
-	private void authenticate() throws DataStoreException {
+	private void authenticate() {
 		if (con.user == null || con.user.trim().isEmpty()
 				|| con.password == null || con.password.trim().isEmpty()) {
 			log.info("no user or password -> anonymous access");
@@ -75,7 +75,7 @@ public class SodaClient implements DataStore {
 		}
 	}
 
-	public AuthInfo getAuthentication() throws DataStoreException {
+	public AuthInfo getAuthentication() {
 		checkConnection();
 		log.trace("Get authentication information.");
 		WebResource r = resource("authenticate", "status");
@@ -85,23 +85,21 @@ public class SodaClient implements DataStore {
 		return authInfo;
 	}
 
-	public DataStockList getDataStockList() throws DataStoreException {
+	public DataStockList getDataStockList() {
 		checkConnection();
 		log.trace("get data stock list: /datastocks");
 		WebResource r = resource("datastocks");
 		return cookies(r).get(DataStockList.class);
 	}
 
-	public CategorySystemList getCategorySystemList()
-			throws DataStoreException {
+	public CategorySystemList getCategorySystemList() {
 		checkConnection();
 		log.trace("get category system list: /categorySystems");
 		WebResource r = resource("categorySystems");
 		return cookies(r).get(CategorySystemList.class);
 	}
 
-	public CategorySystem getCategorySystem(String name)
-			throws DataStoreException {
+	public CategorySystem getCategorySystem(String name) {
 		checkConnection();
 		log.trace("get category system list: /categorySystems/{}", name);
 		WebResource r = resource("categorySystems", name);
@@ -109,7 +107,7 @@ public class SodaClient implements DataStore {
 	}
 
 	@Override
-	public <T> T get(Class<T> type, String id) throws DataStoreException {
+	public <T extends IDataSet> T get(Class<T> type, String id) {
 		checkConnection();
 		WebResource r = resource(Dir.get(type), id).queryParam("format", "xml");
 		log.info("Get resource: {}", r.getURI());
@@ -118,13 +116,13 @@ public class SodaClient implements DataStore {
 		try {
 			return binder.fromStream(type, response.getEntityInputStream());
 		} catch (Exception e) {
-			throw new DataStoreException("Failed to load resource " + id
+			throw new RuntimeException("Failed to load resource " + id
 					+ " of type " + type, e);
 		}
 	}
 
 	@Override
-	public void put(IDataSet ds) throws DataStoreException {
+	public void put(IDataSet ds) {
 		checkConnection();
 		WebResource r = resource(Dir.get(ds.getClass()));
 		log.info("Publish resource: {}/{}", r.getURI(), ds.getUUID());
@@ -139,13 +137,12 @@ public class SodaClient implements DataStore {
 			eval(response);
 			log.trace("Server response: {}", fetchMessage(response));
 		} catch (Exception e) {
-			throw new DataStoreException("Failed to upload data set + " + ds +
-					":  " + e.getMessage(), e);
+			throw new RuntimeException("Failed to upload data set + " + ds, e);
 		}
 	}
 
 	@Override
-	public void put(Source source, File[] files) throws DataStoreException {
+	public void put(Source source, File[] files) {
 		checkConnection();
 		log.info("Publish source with files {}", source);
 		try {
@@ -167,8 +164,7 @@ public class SodaClient implements DataStore {
 			eval(resp);
 			log.trace("Server response: {}", fetchMessage(resp));
 		} catch (Exception e) {
-			throw new DataStoreException("Failed to upload source with file: "
-					+ e.getMessage(), e);
+			throw new RuntimeException("Failed to upload source with file", e);
 		}
 	}
 
@@ -186,8 +182,7 @@ public class SodaClient implements DataStore {
 		}
 	}
 
-	public InputStream getExternalDocument(String sourceId, String fileName)
-			throws DataStoreException {
+	public InputStream getExternalDocument(String sourceId, String fileName) {
 		checkConnection();
 		WebResource r = resource("sources", sourceId, fileName);
 		log.info("Get external document {} for source {}", fileName, sourceId);
@@ -195,26 +190,25 @@ public class SodaClient implements DataStore {
 			return cookies(r).type(MediaType.APPLICATION_OCTET_STREAM).get(
 					InputStream.class);
 		} catch (Exception e) {
-			throw new DataStoreException("Failed to get file " + fileName +
-					"for source " + sourceId + ": " + e.getMessage(), e);
+			throw new RuntimeException("Failed to get file " + fileName +
+					"for source " + sourceId, e);
 		}
 	}
 
 	@Override
-	public <T> boolean delete(Class<T> type, String id) {
+	public <T extends IDataSet> boolean delete(Class<T> type, String id) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public <T> Iterator<T> iterator(Class<T> type) {
+	public <T extends IDataSet> Iterator<T> iterator(Class<T> type) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public <T> boolean contains(Class<T> type, String id)
-			throws DataStoreException {
+	public <T extends IDataSet> boolean contains(Class<T> type, String id) {
 		checkConnection();
 		WebResource r = resource(Dir.get(type), id)
 				.queryParam("format", "xml");
@@ -225,7 +219,7 @@ public class SodaClient implements DataStore {
 	}
 
 	/** Includes also the version in the check. */
-	public boolean contains(Ref ref) throws DataStoreException {
+	public boolean contains(Ref ref) {
 		if (ref == null || ref.type == null || ref.uuid == null)
 			return false;
 		checkConnection();
@@ -297,21 +291,21 @@ public class SodaClient implements DataStore {
 		return b;
 	}
 
-	private void checkConnection() throws DataStoreException {
+	private void checkConnection() {
 		if (!isConnected) {
 			connect();
 		}
 	}
 
-	private void eval(ClientResponse response) throws DataStoreException {
-		if (response == null)
-			throw new DataStoreException("Client response is NULL.");
-		Status status = Status.fromStatusCode(response.getStatus());
+	private void eval(ClientResponse resp) {
+		if (resp == null)
+			throw new IllegalArgumentException("Client response is NULL.");
+		Status status = Status.fromStatusCode(resp.getStatus());
 		Family family = status.getFamily();
 		if (family == Family.CLIENT_ERROR || family == Family.SERVER_ERROR) {
 			String message = status.getReasonPhrase() + ": "
-					+ fetchMessage(response);
-			throw new DataStoreException(message);
+					+ fetchMessage(resp);
+			throw new RuntimeException(message);
 		}
 	}
 

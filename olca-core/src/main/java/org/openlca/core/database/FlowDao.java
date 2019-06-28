@@ -19,7 +19,8 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 
 	@Override
 	protected String[] getDescriptorFields() {
-		return new String[] { "id", "ref_id", "name", "description", "version", "last_change", "f_category",
+		return new String[] { "id", "ref_id", "name", "description", "version",
+				"last_change", "f_category",
 				"flow_type", "f_location", "f_reference_flow_property" };
 	}
 
@@ -51,33 +52,35 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 		return getProcessIdsWhereUsed(flowId, true);
 	}
 
+	/**
+	 * Get the IDs of all flows that are used in exchanges or LCIA factors.
+	 */
 	public Set<Long> getUsed() {
-		Set<Long> all = new HashSet<>();
-		all.addAll(getUsedIn("tbl_exchanges"));
-		all.addAll(getUsedIn("tbl_impact_factors"));
-		return all;
-	}
-	
-	private Set<Long> getUsedIn(String table) {
 		Set<Long> ids = new HashSet<>();
-		String query = "SELECT DISTINCT f_flow FROM " + table;
-		try {
-			NativeSql.on(database).query(query, (rs) -> {
-				ids.add(rs.getLong("f_flow"));
-				return true;
-			});
-			return ids;
-		} catch (Exception e) {
-			DatabaseException.logAndThrow(log, "failed to load used flows", e);
-			return Collections.emptySet();
+		String[] tables = { "tbl_exchanges", "tbl_impact_factors" };
+		for (String table : tables) {
+			String query = "SELECT DISTINCT f_flow FROM " + table;
+			try {
+				NativeSql.on(database).query(query, (rs) -> {
+					ids.add(rs.getLong(1));
+					return true;
+				});
+			} catch (Exception e) {
+				DatabaseException.logAndThrow(log, "failed to load used flows",
+						e);
+				return Collections.emptySet();
+			}
 		}
+		return ids;
 	}
 
 	public Set<Long> getReplacementCandidates(long flowId, FlowType type) {
 		Set<Long> ids = new HashSet<>();
 		String query = "SELECT DISTINCT f_flow FROM tbl_flow_property_factors WHERE f_flow_property IN "
-				+ "(SELECT f_flow_property FROM tbl_flow_property_factors WHERE f_flow = " + flowId + ") "
-				+ "AND f_flow IN (SELECT DISTINCT id FROM tbl_flows WHERE flow_type = '" + type.name() + "')";
+				+ "(SELECT f_flow_property FROM tbl_flow_property_factors WHERE f_flow = "
+				+ flowId + ") "
+				+ "AND f_flow IN (SELECT DISTINCT id FROM tbl_flows WHERE flow_type = '"
+				+ type.name() + "')";
 		try {
 			NativeSql.on(database).query(query, (rs) -> {
 				ids.add(rs.getLong("f_flow"));
@@ -86,7 +89,9 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 			ids.remove(flowId);
 			return ids;
 		} catch (Exception e) {
-			DatabaseException.logAndThrow(log, "failed to load replacement candidate flows for " + flowId, e);
+			DatabaseException.logAndThrow(log,
+					"failed to load replacement candidate flows for " + flowId,
+					e);
 			return Collections.emptySet();
 		}
 	}
@@ -99,19 +104,23 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 		replaceExchangeFlows(oldId, newId, false);
 	}
 
-	private void replaceExchangeFlows(long oldId, long newId, boolean excludeExchangesWithProviders) {
+	private void replaceExchangeFlows(long oldId, long newId,
+			boolean excludeExchangesWithProviders) {
 		try {
-			String subquery = "SELECT id FROM tbl_flow_property_factors WHERE " +
+			String subquery = "SELECT id FROM tbl_flow_property_factors WHERE "
+					+
 					"f_flow_property = (SELECT f_flow_property FROM tbl_flow_property_factors WHERE id = tbl_exchanges.f_flow_property_factor) "
 					+ "AND f_flow = " + newId;
-			String query = "UPDATE tbl_exchanges SET f_flow = " + newId + ", f_flow_property_factor = (" + subquery
+			String query = "UPDATE tbl_exchanges SET f_flow = " + newId
+					+ ", f_flow_property_factor = (" + subquery
 					+ "), f_default_provider = null WHERE f_flow = " + oldId;
 			if (excludeExchangesWithProviders) {
 				query += " AND f_default_provider IS NULL";
 			}
 			NativeSql.on(database).runUpdate(query);
 		} catch (Exception e) {
-			DatabaseException.logAndThrow(log, "failed to replace flow " + oldId + " with " + newId, e);
+			DatabaseException.logAndThrow(log,
+					"failed to replace flow " + oldId + " with " + newId, e);
 		}
 	}
 
@@ -120,17 +129,20 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 			String subquery = "SELECT id FROM tbl_flow_property_factors WHERE "
 					+ "f_flow_property = (SELECT f_flow_property FROM tbl_flow_property_factors WHERE id = tbl_impact_factors.f_flow_property_factor) "
 					+ "AND f_flow = " + newId;
-			String query = "UPDATE tbl_impact_factors SET f_flow = " + newId + ", f_flow_property_factor = (" + subquery
+			String query = "UPDATE tbl_impact_factors SET f_flow = " + newId
+					+ ", f_flow_property_factor = (" + subquery
 					+ ") WHERE f_flow = " + oldId;
 			NativeSql.on(database).runUpdate(query);
 		} catch (Exception e) {
-			DatabaseException.logAndThrow(log, "failed to replace flow " + oldId + " with " + newId, e);
+			DatabaseException.logAndThrow(log,
+					"failed to replace flow " + oldId + " with " + newId, e);
 		}
 	}
 
 	private Set<Long> getProcessIdsWhereUsed(long flowId, boolean input) {
 		Set<Long> ids = new HashSet<>();
-		String query = "SELECT f_owner FROM tbl_exchanges WHERE f_flow = " + flowId + " AND is_input = "
+		String query = "SELECT f_owner FROM tbl_exchanges WHERE f_flow = "
+				+ flowId + " AND is_input = "
 				+ (input ? 1 : 0);
 		try {
 			NativeSql.on(database).query(query, (rs) -> {
@@ -139,7 +151,8 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 			});
 			return ids;
 		} catch (Exception e) {
-			DatabaseException.logAndThrow(log, "failed to load processes for flow " + flowId, e);
+			DatabaseException.logAndThrow(log,
+					"failed to load processes for flow " + flowId, e);
 			return Collections.emptySet();
 		}
 	}
@@ -157,7 +170,8 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 		query.append("SELECT id, f_reference_flow_property FROM tbl_flows ");
 		query.append("WHERE id IN " + asSqlList(ids));
 		query.append(" AND f_reference_flow_property IN ");
-		query.append("(SELECT f_flow_property FROM tbl_flow_property_factors WHERE tbl_flows.id = f_flow)");
+		query.append(
+				"(SELECT f_flow_property FROM tbl_flow_property_factors WHERE tbl_flows.id = f_flow)");
 		Map<Long, Boolean> result = new HashMap<>();
 		for (long id : ids)
 			result.put(id, false);

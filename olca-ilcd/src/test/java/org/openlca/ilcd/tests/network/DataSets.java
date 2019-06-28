@@ -3,7 +3,6 @@ package org.openlca.ilcd.tests.network;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flows.Flow;
-import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.io.SodaClient;
 import org.openlca.ilcd.io.XmlBinder;
 import org.openlca.ilcd.processes.Process;
@@ -39,7 +38,8 @@ class DataSets {
 	}
 
 	private static void putFlowProperty(SodaClient client) throws Exception {
-		FlowProperty flowProperty = load(FlowProperty.class, "flowproperty.xml");
+		FlowProperty flowProperty = load(FlowProperty.class,
+				"flowproperty.xml");
 		FlowPropertyBag bag = new FlowPropertyBag(flowProperty, "en");
 		if (!client.contains(FlowProperty.class, bag.getId()))
 			client.put(flowProperty);
@@ -66,8 +66,7 @@ class DataSets {
 			client.put(source);
 	}
 
-	private static void putUnitGroup(SodaClient client) throws Exception,
-			DataStoreException {
+	private static void putUnitGroup(SodaClient client) throws Exception {
 		UnitGroup group = load(UnitGroup.class, "unit.xml");
 		UnitGroupBag bag = new UnitGroupBag(group, "en");
 		if (!client.contains(UnitGroup.class, bag.getId()))

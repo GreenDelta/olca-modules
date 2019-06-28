@@ -3,13 +3,13 @@ package org.openlca.io.ilcd.input;
 import java.util.Date;
 import java.util.List;
 
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.DQSystemDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationMethod;
-import org.openlca.core.model.Category;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Location;
@@ -29,6 +29,7 @@ import org.openlca.ilcd.processes.Method;
 import org.openlca.ilcd.processes.Publication;
 import org.openlca.ilcd.processes.Representativeness;
 import org.openlca.ilcd.processes.Review;
+import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.ProcessBag;
 import org.openlca.util.DQSystems;
 import org.openlca.util.Strings;
@@ -80,7 +81,9 @@ public class ProcessImport {
 	private Process createNew() throws ImportException {
 		try {
 			process = new Process();
-			importAndSetCategory();
+			String[] cpath = Categories.getPath(ilcdProcess.getValue());
+			process.category = new CategoryDao(config.db)
+					.sync(ModelType.PROCESS, cpath);
 			createAndMapContent();
 			saveInDatabase(process);
 			return process;
@@ -102,13 +105,6 @@ public class ProcessImport {
 		} catch (Exception e) {
 			throw new ImportException(e.getMessage(), e);
 		}
-	}
-
-	private void importAndSetCategory() throws ImportException {
-		CategoryImport categoryImport = new CategoryImport(config,
-				ModelType.PROCESS);
-		Category category = categoryImport.run(ilcdProcess.getSortedClasses());
-		process.category = category;
 	}
 
 	private void createAndMapContent() throws ImportException {

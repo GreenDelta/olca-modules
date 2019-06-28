@@ -12,7 +12,6 @@ import org.openlca.ilcd.flowproperties.DataSetInfo;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flowproperties.FlowPropertyInfo;
 import org.openlca.ilcd.flowproperties.QuantitativeReference;
-import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.util.Refs;
 
 public class FlowPropertyExport {
@@ -29,8 +28,7 @@ public class FlowPropertyExport {
 		this.baseUri = baseUri;
 	}
 
-	public FlowProperty run(org.openlca.core.model.FlowProperty property)
-			throws DataStoreException {
+	public FlowProperty run(org.openlca.core.model.FlowProperty property) {
 		if (config.store.contains(FlowProperty.class, property.refId))
 			return config.store.get(FlowProperty.class, property.refId);
 		this.flowProperty = property;

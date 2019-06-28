@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.units.AdminInfo;
@@ -54,10 +53,6 @@ public class UnitGroupBag implements IBag<UnitGroup> {
 		if (info != null)
 			return LangString.getFirst(info.generalComment, langs);
 		return null;
-	}
-
-	public List<Category> getSortedClasses() {
-		return ClassList.sortedList(unitGroup);
 	}
 
 	private DataSetInfo getDataSetInformation() {

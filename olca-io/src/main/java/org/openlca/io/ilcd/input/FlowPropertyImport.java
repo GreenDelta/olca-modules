@@ -2,14 +2,15 @@ package org.openlca.io.ilcd.input;
 
 import java.util.Date;
 
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowPropertyDao;
-import org.openlca.core.model.Category;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyType;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.Ref;
+import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.FlowPropertyBag;
 
 public class FlowPropertyImport {
@@ -36,12 +37,14 @@ public class FlowPropertyImport {
 		FlowProperty property = findExisting(propertyId);
 		if (property != null)
 			return property;
-		org.openlca.ilcd.flowproperties.FlowProperty iProp = tryGetFlowProperty(propertyId);
+		org.openlca.ilcd.flowproperties.FlowProperty iProp = tryGetFlowProperty(
+				propertyId);
 		ilcdProperty = new FlowPropertyBag(iProp, config.langs);
 		return createNew();
 	}
 
-	private FlowProperty findExisting(String propertyId) throws ImportException {
+	private FlowProperty findExisting(String propertyId)
+			throws ImportException {
 		try {
 			FlowPropertyDao dao = new FlowPropertyDao(config.db);
 			return dao.getForRefId(propertyId);
@@ -54,7 +57,9 @@ public class FlowPropertyImport {
 
 	private FlowProperty createNew() throws ImportException {
 		property = new FlowProperty();
-		importAndSetCategory();
+		String[] cpath = Categories.getPath(ilcdProperty.getValue());
+		property.category = new CategoryDao(config.db)
+				.sync(ModelType.FLOW_PROPERTY, cpath);
 		createAndMapContent();
 		saveInDatabase(property);
 		return property;
@@ -74,13 +79,6 @@ public class FlowPropertyImport {
 		} catch (Exception e) {
 			throw new ImportException(e.getMessage(), e);
 		}
-	}
-
-	private void importAndSetCategory() throws ImportException {
-		CategoryImport categoryImport = new CategoryImport(config,
-				ModelType.FLOW_PROPERTY);
-		Category category = categoryImport.run(ilcdProperty.getSortedClasses());
-		property.category = category;
 	}
 
 	private void createAndMapContent() throws ImportException {

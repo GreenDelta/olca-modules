@@ -85,7 +85,7 @@ public class ZipStore implements DataStore {
 	}
 
 	@Override
-	public <T> T get(Class<T> type, String id) throws DataStoreException {
+	public <T extends IDataSet> T get(Class<T> type, String id) {
 		log.trace("Get {} for id {} from zip", type, id);
 		Path entry = findEntry(Dir.get(type), id);
 		if (entry == null)
@@ -94,7 +94,7 @@ public class ZipStore implements DataStore {
 	}
 
 	@Override
-	public void put(IDataSet ds) throws DataStoreException {
+	public void put(IDataSet ds) {
 		log.trace("Store {} in zip.", ds);
 		if (ds == null)
 			return;
@@ -116,13 +116,12 @@ public class ZipStore implements DataStore {
 			}
 			ids.add(ds.getUUID());
 		} catch (Exception e) {
-			throw new DataStoreException("Could not add file  " + entryName, e);
+			throw new RuntimeException("Could not add file  " + entryName, e);
 		}
 	}
 
 	@Override
-	public void put(Source source, File[] files)
-			throws DataStoreException {
+	public void put(Source source, File[] files) {
 		log.trace("Store source {} with digital files", source);
 		put(source);
 		if (files == null || files.length == 0)
@@ -132,20 +131,20 @@ public class ZipStore implements DataStore {
 			if (parent != null && !Files.exists(parent))
 				Files.createDirectories(parent);
 			for (File file : files) {
-				Path entry = zip.getPath("ILCD/external_docs/" + file.getName());
+				Path entry = zip
+						.getPath("ILCD/external_docs/" + file.getName());
 				Files.copy(file.toPath(), entry,
 						StandardCopyOption.REPLACE_EXISTING);
 				List<Path> list = getEntries("external_docs");
 				list.add(entry);
 			}
 		} catch (Exception e) {
-			throw new DataStoreException("Could not store digital files", e);
+			throw new RuntimeException("Could not store digital files", e);
 		}
 	}
 
 	@Override
-	public InputStream getExternalDocument(String sourceId, String file)
-			throws DataStoreException {
+	public InputStream getExternalDocument(String sourceId, String file) {
 		log.trace("Get external document {}", file);
 		Path entry = findEntry("external_docs", file);
 		if (entry == null)
@@ -153,23 +152,22 @@ public class ZipStore implements DataStore {
 		try {
 			return Files.newInputStream(entry);
 		} catch (Exception e) {
-			throw new DataStoreException("failed to open file " + file, e);
+			throw new RuntimeException("failed to open file " + file, e);
 		}
 	}
 
 	@Override
-	public <T> boolean delete(Class<T> type, String id)
-			throws DataStoreException {
+	public <T extends IDataSet> boolean delete(Class<T> type, String id) {
 		throw new UnsupportedOperationException("delete in zips not supported");
 	}
 
-	<T> T unmarshal(Class<T> type, Path entry) throws DataStoreException {
+	<T> T unmarshal(Class<T> type, Path entry) {
 		try {
 			InputStream is = Files.newInputStream(entry);
 			T t = binder.fromStream(type, is);
 			return t;
 		} catch (Exception e) {
-			throw new DataStoreException("Cannot load " + type + " from entry "
+			throw new RuntimeException("Cannot load " + type + " from entry "
 					+ entry, e);
 		}
 	}
@@ -195,14 +193,13 @@ public class ZipStore implements DataStore {
 	}
 
 	@Override
-	public <T> Iterator<T> iterator(Class<T> type) throws DataStoreException {
+	public <T extends IDataSet> Iterator<T> iterator(Class<T> type) {
 		log.trace("create iterator for type {}", type);
 		return new ZipEntryIterator<>(this, type);
 	}
 
 	@Override
-	public <T> boolean contains(Class<T> type, String id)
-			throws DataStoreException {
+	public <T extends IDataSet> boolean contains(Class<T> type, String id) {
 		Set<String> ids = addedContent.get(type);
 		if (ids != null && ids.contains(id))
 			return true;
@@ -218,7 +215,7 @@ public class ZipStore implements DataStore {
 	}
 
 	@Override
-	public void close() throws DataStoreException {
+	public void close() {
 		log.trace("close zip store");
 		if (entries == null)
 			return;
@@ -226,7 +223,7 @@ public class ZipStore implements DataStore {
 		try {
 			zip.close();
 		} catch (Exception e) {
-			throw new DataStoreException("Could not close ZipStore", e);
+			throw new RuntimeException("Could not close ZipStore", e);
 		}
 	}
 

@@ -1,10 +1,12 @@
 package org.openlca.ilcd.util;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.FlowType;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.flows.AdminInfo;
 import org.openlca.ilcd.flows.DataEntry;
@@ -99,6 +101,30 @@ public final class Flows {
 		return dsi.name;
 	}
 
+	public static String getFullName(Flow f, String... langs) {
+		FlowName fn = getFlowName(f);
+		if (fn == null)
+			return null;
+		StringBuilder name = new StringBuilder();
+		Arrays.asList(
+				fn.baseName,
+				fn.flowProperties,
+				fn.mixAndLocationTypes,
+				fn.treatmentStandardsRoutes).forEach(list -> {
+					String text = LangString.getFirst(list, langs);
+					if (text == null)
+						return;
+					text = text.trim();
+					if (text.isEmpty())
+						return;
+					if (name.length() > 0) {
+						name.append("; ");
+					}
+					name.append(text);
+				});
+		return name.toString();
+	}
+
 	public static FlowName flowName(Flow f) {
 		DataSetInfo dsi = dataSetInfo(f);
 		if (dsi.name == null)
@@ -118,6 +144,15 @@ public final class Flows {
 		if (fi.quantitativeReference == null)
 			fi.quantitativeReference = new QuantitativeReference();
 		return fi.quantitativeReference;
+	}
+
+	/**
+	 * Returns the data set internal ID of the reference flow property of the
+	 * given flow or null if it is not defined.
+	 */
+	public static Integer getReferenceFlowPropertyID(Flow f) {
+		QuantitativeReference qref = getQuantitativeReference(f);
+		return qref == null ? null : qref.referenceFlowProperty;
 	}
 
 	public static Geography getGeography(Flow f) {
@@ -199,6 +234,19 @@ public final class Flows {
 		if (f.flowPropertyList == null)
 			f.flowPropertyList = new FlowPropertyList();
 		return f.flowPropertyList.flowProperties;
+	}
+
+	public static FlowPropertyRef getReferenceFlowProperty(Flow f) {
+		Integer qref = getReferenceFlowPropertyID(f);
+		if (qref == null)
+			return null;
+		for (FlowPropertyRef ref : getFlowProperties(f)) {
+			if (ref.dataSetInternalID == null)
+				continue;
+			if (ref.dataSetInternalID.intValue() == qref.intValue())
+				return ref;
+		}
+		return null;
 	}
 
 }

@@ -4,6 +4,7 @@ import org.openlca.core.math.NumberGenerator;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.Scope;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +18,8 @@ class ImpactFactorCell {
 	private final CalcImpactFactor factor;
 	private NumberGenerator generator;
 
-	ImpactFactorCell(CalcImpactFactor factor, long methodId, boolean inputFlow) {
+	ImpactFactorCell(CalcImpactFactor factor, long methodId,
+			boolean inputFlow) {
 		this.factor = factor;
 		this.methodId = methodId;
 		this.inputFlow = inputFlow;
@@ -26,50 +28,36 @@ class ImpactFactorCell {
 	void eval(FormulaInterpreter interpreter) {
 		if (interpreter == null)
 			return;
+		if (Strings.nullOrEmpty(factor.formula))
+			return;
+
 		try {
 			Scope scope = interpreter.getScope(methodId);
-			if (scope == null)
+			if (scope == null) {
 				scope = interpreter.getGlobalScope();
-			tryEval(scope);
+			}
+			double v = scope.eval(factor.formula);
+			factor.amount = v;
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(getClass());
 			log.error("Formula evaluation failed, impact factor " + factor, e);
 		}
 	}
 
-	private void tryEval(Scope scope) throws Exception {
-		if (factor.getAmountFormula() != null) {
-			double v = scope.eval(factor.getAmountFormula());
-			factor.setAmount(v);
-		}
-		if (factor.getParameter1Formula() != null) {
-			double v = scope.eval(factor.getParameter1Formula());
-			factor.setParameter1(v);
-		}
-		if (factor.getParameter2Formula() != null) {
-			double v = scope.eval(factor.getParameter2Formula());
-			factor.setParameter2(v);
-		}
-		if (factor.getParameter3Formula() != null) {
-			double v = scope.eval(factor.getParameter3Formula());
-			factor.setParameter3(v);
-		}
-	}
-
 	double getMatrixValue() {
 		if (factor == null)
 			return 0;
-		double amount = factor.getAmount() * factor.getConversionFactor();
+		double amount = factor.amount * factor.conversionFactor;
 		return inputFlow ? -amount : amount;
 	}
 
 	double getNextSimulationValue() {
-		UncertaintyType type = factor.getUncertaintyType();
+		UncertaintyType type = factor.uncertaintyType;
 		if (type == null || type == UncertaintyType.NONE)
 			return getMatrixValue();
 		if (generator == null)
 			generator = createGenerator(type);
-		double amount = generator.next() * factor.getConversionFactor();
+		double amount = generator.next() * factor.conversionFactor;
 		return inputFlow ? -amount : amount;
 	}
 
@@ -77,18 +65,18 @@ class ImpactFactorCell {
 		final CalcImpactFactor f = factor;
 		switch (type) {
 		case LOG_NORMAL:
-			return NumberGenerator.logNormal(f.getParameter1(),
-					f.getParameter2());
+			return NumberGenerator.logNormal(f.parameter1,
+					f.parameter2);
 		case NORMAL:
-			return NumberGenerator.normal(f.getParameter1(), f.getParameter2());
+			return NumberGenerator.normal(f.parameter1, f.parameter2);
 		case TRIANGLE:
-			return NumberGenerator.triangular(f.getParameter1(),
-					f.getParameter2(), f.getParameter3());
+			return NumberGenerator.triangular(f.parameter1,
+					f.parameter2, f.parameter3);
 		case UNIFORM:
 			return NumberGenerator
-					.uniform(f.getParameter1(), f.getParameter2());
+					.uniform(f.parameter1, f.parameter2);
 		default:
-			return NumberGenerator.discrete(f.getAmount());
+			return NumberGenerator.discrete(f.amount);
 		}
 	}
 

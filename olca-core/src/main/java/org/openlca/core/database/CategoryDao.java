@@ -3,6 +3,7 @@ package org.openlca.core.database;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.util.Categories;
+import org.openlca.util.Strings;
 
 public class CategoryDao
 		extends CategorizedEntityDao<Category, CategoryDescriptor> {
@@ -38,7 +40,8 @@ public class CategoryDao
 	protected CategoryDescriptor createDescriptor(Object[] queryResult) {
 		CategoryDescriptor descriptor = super.createDescriptor(queryResult);
 		if (queryResult[7] instanceof String)
-			descriptor.categoryType = ModelType.valueOf((String) queryResult[7]);
+			descriptor.categoryType = ModelType
+					.valueOf((String) queryResult[7]);
 		return descriptor;
 	}
 
@@ -67,15 +70,15 @@ public class CategoryDao
 		return super.insert(category);
 	}
 
-	@Override
 	// categories should be identified by their path, therefore the refID will
 	// be generated depending on the category path. This way, we can treat the
 	// category model as a normal entity and still compare categories by path
+	@Override
 	public Category update(Category category) {
 		String refId = category.refId;
 		String newRefId = Categories.createRefId(category);
 		Category forRefId = getForRefId(newRefId);
-		boolean isNew = category.id == 0l;
+		boolean isNew = category.id == 0L;
 		if (!Objects.equals(refId, newRefId) && !isNew)
 			getDatabase().notifyDelete(Descriptors.toDescriptor(category));
 		if (Objects.equals(refId, newRefId) || forRefId == null) {
@@ -161,6 +164,61 @@ public class CategoryDao
 		if (type == null || !type.isCategorized())
 			return new ArrayList<>();
 		return Daos.categorized(getDatabase(), type).getDescriptors(category);
+	}
+
+	/**
+	 * Creates the categories for the segments of the given path that do not yet
+	 * exist and returns the category of the last segment. If the given path is
+	 * empty or null, null is returned.
+	 */
+	public Category sync(ModelType type, String... path) {
+		if (path == null || path.length == 0)
+			return null;
+		Category parent = null;
+		List<Category> next = getRootCategories(type);
+		for (int i = 0; i < path.length; i++) {
+			String segment = path[i];
+			if (Strings.nullOrEmpty(segment))
+				continue;
+			segment = segment.trim();
+			if (segment.isEmpty())
+				continue;
+			Category category = null;
+			for (Category c : next) {
+				if (segment.equalsIgnoreCase(c.name)) {
+					category = c;
+					break;
+				}
+			}
+			if (category != null) {
+				parent = category;
+				next = category.childCategories;
+				continue;
+			}
+			category = new Category();
+			category.name = segment;
+			category.lastChange = new Date().getTime();
+			category.modelType = type;
+			category.version = Version.valueOf(0, 0, 1);
+			category.category = parent;
+			category.refId = Categories.createRefId(category);
+			if (parent == null) {
+				category = insert(category);
+			} else {
+				parent.childCategories.add(category);
+				parent = update(parent);
+				// need to find the category now that is in sync with JPA
+				for (Category child : parent.childCategories) {
+					if (Objects.equals(child.refId, category.refId)) {
+						category = child;
+						break;
+					}
+				}
+			}
+			parent = category;
+			next = category.childCategories;
+		}
+		return parent;
 	}
 
 }

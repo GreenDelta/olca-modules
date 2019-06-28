@@ -1,11 +1,9 @@
 package org.openlca.ilcd.util;
 
 import java.util.Date;
-import java.util.List;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.contacts.AdminInfo;
@@ -44,10 +42,6 @@ public class ContactBag implements IBag<Contact> {
 		if (info != null)
 			return LangString.getFirst(info.name, langs);
 		return null;
-	}
-
-	public List<Category> getSortedClasses() {
-		return ClassList.sortedList(contact);
 	}
 
 	public String getContactAddress() {

@@ -41,7 +41,7 @@ public class FileStore implements DataStore {
 		}
 	}
 
-	public void prepareFolder() throws DataStoreException {
+	public void prepareFolder() {
 		log.trace("Prepare ILCD folder {}", rootDir);
 		ILCDFolder folder = new ILCDFolder(rootDir);
 		try {
@@ -50,7 +50,7 @@ public class FileStore implements DataStore {
 			String message = "Cannot create ILCD folder "
 					+ rootDir.getAbsolutePath();
 			log.error(message, e);
-			throw new DataStoreException(message);
+			throw new RuntimeException(message);
 		}
 	}
 
@@ -59,7 +59,7 @@ public class FileStore implements DataStore {
 	}
 
 	@Override
-	public <T> T get(Class<T> type, String id) throws DataStoreException {
+	public <T extends IDataSet> T get(Class<T> type, String id) {
 		log.trace("Get {} for id {} from file", type, id);
 		try {
 			File file = getFile(type, id);
@@ -72,13 +72,12 @@ public class FileStore implements DataStore {
 		} catch (Exception e) {
 			String message = "Cannot unmarshal file.";
 			log.error(message, e);
-			throw new DataStoreException(message);
+			throw new RuntimeException(message);
 		}
 	}
 
 	@Override
-	public InputStream getExternalDocument(String sourceId, String fileName)
-			throws DataStoreException {
+	public InputStream getExternalDocument(String sourceId, String fileName) {
 		log.trace("Get external document {} for source {}", fileName, sourceId);
 		try {
 			File docDir = new File(rootDir, "external_docs");
@@ -88,7 +87,7 @@ public class FileStore implements DataStore {
 			else
 				return new FileInputStream(file);
 		} catch (Exception e) {
-			throw new DataStoreException("failed to open file " + fileName, e);
+			throw new RuntimeException("failed to open file " + fileName, e);
 		}
 	}
 
@@ -107,7 +106,7 @@ public class FileStore implements DataStore {
 	}
 
 	@Override
-	public void put(IDataSet ds) throws DataStoreException {
+	public void put(IDataSet ds) {
 		if (ds == null)
 			return;
 		log.trace("Store {} in file.", ds);
@@ -117,12 +116,11 @@ public class FileStore implements DataStore {
 		} catch (Exception e) {
 			String message = "Cannot store in file";
 			log.error(message, e);
-			throw new DataStoreException(message);
+			throw new RuntimeException(message);
 		}
 	}
 
-	public void put(Source source, File[] files)
-			throws DataStoreException {
+	public void put(Source source, File[] files) {
 		log.trace("Store source {} with files", source);
 		put(source);
 		if (files == null || files.length == 0)
@@ -138,13 +136,12 @@ public class FileStore implements DataStore {
 		} catch (Exception e) {
 			String message = "Cannot store source files";
 			log.error(message, e);
-			throw new DataStoreException(message);
+			throw new RuntimeException(message);
 		}
 	}
 
 	@Override
-	public <T> boolean delete(Class<T> type, String id)
-			throws DataStoreException {
+	public <T extends IDataSet> boolean delete(Class<T> type, String id) {
 		log.trace("Delete file if exists for class {} with id {}", type, id);
 		File file = getFile(type, id);
 		if (file == null)
@@ -157,14 +154,13 @@ public class FileStore implements DataStore {
 	}
 
 	@Override
-	public <T> Iterator<T> iterator(Class<T> type) throws DataStoreException {
+	public <T extends IDataSet> Iterator<T> iterator(Class<T> type) {
 		File folder = getFolder(type);
 		return new FileIterator<>(type, folder);
 	}
 
 	@Override
-	public <T> boolean contains(Class<T> type, String id)
-			throws DataStoreException {
+	public <T extends IDataSet> boolean contains(Class<T> type, String id) {
 		log.trace("Contains file for class {} with id {}", type, id);
 		File file = getFile(type, id);
 		boolean contains = file != null && file.exists();
@@ -260,7 +256,8 @@ public class FileStore implements DataStore {
 				XmlBinder binder = new XmlBinder();
 				return binder.fromFile(type, file);
 			} catch (Exception e) {
-				throw new RuntimeException("failed to load unmarshal XML file", e);
+				throw new RuntimeException("failed to load unmarshal XML file",
+						e);
 			}
 		}
 	}

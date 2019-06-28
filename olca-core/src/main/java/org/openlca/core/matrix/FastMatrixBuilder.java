@@ -10,11 +10,13 @@ import org.openlca.core.math.DataStructures;
 import org.openlca.core.math.ReferenceAmount;
 import org.openlca.core.matrix.cache.ExchangeTable;
 import org.openlca.core.matrix.cache.FlowTable;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.format.MatrixBuilder;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
+import org.openlca.julia.JuliaSolver;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 
@@ -89,18 +91,17 @@ public class FastMatrixBuilder {
 		data.enviMatrix = enviBuilder.finish();
 
 		// add LCIA matrices
-		// TODO: we should first remove the solver
-		// dependency from the ImpactTable before
-		// supporting LCIA methods here...
-		// if (setup.impactMethod != null) {
-		// ImpactTable impacts = ImpactTable.build(
-		// MatrixCache.createLazy(db),
-		// setup.impactMethod.id,
-		// flowIndex);
-		// data.impactMatrix = impacts.createMatrix(
-		// new JuliaSolver(), interpreter);
-		// data.impactIndex = impacts.impactIndex;
-		// }
+		// TODO: we should remove the solver
+		// dependency from the ImpactTable
+		if (setup.impactMethod != null) {
+			ImpactTable impacts = ImpactTable.build(
+					MatrixCache.createLazy(db),
+					setup.impactMethod.id,
+					flowIndex);
+			data.impactMatrix = impacts.createMatrix(
+					new JuliaSolver(), interpreter);
+			data.impactIndex = impacts.impactIndex;
+		}
 
 		return data;
 	}

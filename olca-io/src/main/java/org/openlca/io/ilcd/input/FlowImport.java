@@ -3,8 +3,8 @@ package org.openlca.io.ilcd.input;
 import java.util.Date;
 import java.util.List;
 
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowDao;
-import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
@@ -15,6 +15,7 @@ import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.flows.FlowPropertyRef;
+import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.FlowBag;
 import org.openlca.ilcd.util.Flows;
 import org.openlca.util.Strings;
@@ -62,9 +63,9 @@ public class FlowImport {
 
 	private Flow createNew() throws ImportException {
 		flow = new Flow();
-		importAndSetCompartment();
-		if (flow.category == null)
-			importAndSetCategory();
+		String[] cpath = Categories.getPath(ilcdFlow.flow);
+		flow.category = new CategoryDao(config.db)
+				.sync(ModelType.FLOW, cpath);
 		createAndMapContent();
 		saveInDatabase(flow);
 		return flow;
@@ -85,33 +86,18 @@ public class FlowImport {
 		}
 	}
 
-	private void importAndSetCategory() throws ImportException {
-		CategoryImport categoryImport = new CategoryImport(config,
-				ModelType.FLOW);
-		Category category = categoryImport.run(ilcdFlow.getSortedClasses());
-		flow.category = category;
-	}
-
-	private void importAndSetCompartment() throws ImportException {
-		if (ilcdFlow.getFlowType() == org.openlca.ilcd.commons.FlowType.ELEMENTARY_FLOW) {
-			CompartmentImport compartmentImport = new CompartmentImport(config);
-			Category category = compartmentImport.run(ilcdFlow
-					.getSortedCompartments());
-			flow.category = category;
-		}
-	}
-
 	private void createAndMapContent() throws ImportException {
 		validateInput();
 		setFlowType();
 		flow.refId = ilcdFlow.getId();
-		flow.name = Strings.cut(ilcdFlow.getName(), 254);
+		flow.name = Strings.cut(
+				Flows.getFullName(ilcdFlow.flow, ilcdFlow.langs), 2048);
 		flow.description = ilcdFlow.getComment();
 		flow.casNumber = ilcdFlow.getCasNumber();
 		flow.synonyms = ilcdFlow.getSynonyms();
 		flow.formula = ilcdFlow.getSumFormula();
-		String v = ilcdFlow.getVersion();
-		flow.version = Version.fromString(v).getValue();
+		flow.version = Version.fromString(
+				ilcdFlow.flow.version).getValue();
 		Date time = ilcdFlow.getTimeStamp();
 		if (time != null)
 			flow.lastChange = time.getTime();
@@ -133,8 +119,9 @@ public class FlowImport {
 	}
 
 	private void addFlowProperties() {
-		Integer refPropertyId = ilcdFlow.getReferenceFlowPropertyId();
-		List<FlowPropertyRef> refs = Flows.getFlowProperties(ilcdFlow.getValue());
+		Integer refID = Flows.getReferenceFlowPropertyID(ilcdFlow.flow);
+		List<FlowPropertyRef> refs = Flows
+				.getFlowProperties(ilcdFlow.flow);
 		for (FlowPropertyRef ref : refs) {
 			FlowProperty property = importProperty(ref);
 			if (property == null)
@@ -143,10 +130,10 @@ public class FlowImport {
 			factor.flowProperty = property;
 			factor.conversionFactor = ref.meanValue;
 			flow.flowPropertyFactors.add(factor);
-			Integer propId = ref.dataSetInternalID;
-			if (refPropertyId == null || propId == null)
+			Integer propID = ref.dataSetInternalID;
+			if (refID == null || propID == null)
 				continue;
-			if (refPropertyId.intValue() == propId.intValue())
+			if (refID.intValue() == propID.intValue())
 				flow.referenceFlowProperty = property;
 		}
 	}
@@ -164,11 +151,12 @@ public class FlowImport {
 	}
 
 	private void setFlowType() {
-		if (ilcdFlow.getFlowType() == null) {
+		org.openlca.ilcd.commons.FlowType t = Flows.getType(ilcdFlow.flow);
+		if (t == null) {
 			flow.flowType = FlowType.ELEMENTARY_FLOW;
 			return;
 		}
-		switch (ilcdFlow.getFlowType()) {
+		switch (t) {
 		case ELEMENTARY_FLOW:
 			flow.flowType = FlowType.ELEMENTARY_FLOW;
 			break;
@@ -185,22 +173,13 @@ public class FlowImport {
 	}
 
 	private void validateInput() throws ImportException {
-		Integer internalId = ilcdFlow.getReferenceFlowPropertyId();
-		Ref propRef = null;
-		for (FlowPropertyRef prop : Flows.getFlowProperties(ilcdFlow.getValue())) {
-			Integer propId = prop.dataSetInternalID;
-			if (propId == null || internalId == null)
-				continue;
-			if (propId.intValue() == internalId.intValue()) {
-				propRef = prop.flowProperty;
-				break;
-			}
-		}
-		if (internalId == null || propRef == null) {
+		FlowPropertyRef refProp = Flows.getReferenceFlowProperty(ilcdFlow.flow);
+		if (refProp == null || refProp.flowProperty == null) {
 			String message = "Invalid flow data set: no ref. flow property, flow "
 					+ ilcdFlow.getId();
 			throw new ImportException(message);
 		}
+		Ref propRef = refProp.flowProperty;
 		if (propRef.uri != null) {
 			if (!propRef.uri.contains(propRef.uuid)) {
 				String message = "Flow data set {} -> reference to flow"

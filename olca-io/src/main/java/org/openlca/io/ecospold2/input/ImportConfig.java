@@ -21,14 +21,14 @@ public class ImportConfig {
 	public boolean withParameters = true;
 
 	/**
-	 * If true, parameter formulas are imported ((in ecoinvent 3 there are a lot of
-	 * parameters that cannot be evaluated in openLCA).
+	 * If true, parameter formulas are imported ((in ecoinvent 3 there are a lot
+	 * of parameters that cannot be evaluated in openLCA).
 	 */
 	public boolean withParameterFormulas = true;
 
 	/**
-	 * If true, formulas that contain functions that are not available in openLCA
-	 * are filtered.
+	 * If true, formulas that contain functions that are not available in
+	 * openLCA are filtered.
 	 */
 	public boolean checkFormulas = false;
 
@@ -42,7 +42,7 @@ public class ImportConfig {
 
 	public FlowMap getFlowMap() {
 		if (flowMap == null) {
-			flowMap = new FlowMap(Maps.ES2_FLOW_IMPORT, db);
+			flowMap = FlowMap.of(Maps.ES2_FLOW_IMPORT, db);
 		}
 		return flowMap;
 	}

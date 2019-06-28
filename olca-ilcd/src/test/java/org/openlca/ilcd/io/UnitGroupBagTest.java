@@ -8,9 +8,9 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.units.Unit;
 import org.openlca.ilcd.units.UnitGroup;
+import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.UnitGroupBag;
 import org.openlca.ilcd.util.UnitGroups;
 
@@ -61,10 +61,10 @@ public class UnitGroupBagTest {
 	}
 
 	@Test
-	public void testGetClasses() {
-		Category clazz = bag.getSortedClasses().get(0);
-		assertEquals(0, clazz.level);
-		assertEquals("Technical unit groups", clazz.value.trim());
+	public void testCategoryPath() {
+		String[] path = Categories.getPath(bag.getValue());
+		assertEquals(path.length, 1);
+		assertEquals("Technical unit groups", path[0]);
 	}
 
 }

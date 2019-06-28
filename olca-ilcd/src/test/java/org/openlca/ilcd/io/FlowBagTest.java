@@ -10,9 +10,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.commons.FlowType;
 import org.openlca.ilcd.commons.LangString;
-import org.openlca.ilcd.flows.Compartment;
 import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.flows.FlowPropertyRef;
+import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.FlowBag;
 import org.openlca.ilcd.util.Flows;
 
@@ -37,7 +37,7 @@ public class FlowBagTest {
 
 	@Test
 	public void testGetName() {
-		assertEquals("glycidol", bag.getName());
+		assertEquals("glycidol", Flows.getFullName(bag.flow, bag.langs));
 	}
 
 	@Test
@@ -52,12 +52,13 @@ public class FlowBagTest {
 
 	@Test
 	public void testGetReferenceFlowPropertyId() {
-		assertEquals(Integer.valueOf(0), bag.getReferenceFlowPropertyId());
+		assertEquals(Integer.valueOf(0),
+				Flows.getQuantitativeReference(bag.flow).referenceFlowProperty);
 	}
 
 	@Test
 	public void testGetFlowType() {
-		assertEquals(FlowType.ELEMENTARY_FLOW, bag.getFlowType());
+		assertEquals(FlowType.ELEMENTARY_FLOW, Flows.getType(bag.flow));
 	}
 
 	@Test
@@ -71,23 +72,18 @@ public class FlowBagTest {
 		List<FlowPropertyRef> props = Flows.getFlowProperties(bag.getValue());
 		assertTrue(props.size() == 1);
 		FlowPropertyRef ref = props.get(0);
-		assertEquals("93a60a56-a3c8-11da-a746-0800200b9a66", ref.flowProperty.uuid);
+		assertEquals("93a60a56-a3c8-11da-a746-0800200b9a66",
+				ref.flowProperty.uuid);
 	}
 
 	@Test
-	public void testGetSortedClasses() {
-		List<org.openlca.ilcd.commons.Category> classes = bag.getSortedClasses();
-		assertTrue(classes.isEmpty());
-	}
-
-	@Test
-	public void testGetSortedCompartments() {
-		List<Compartment> categories = bag.getSortedCompartments();
-		assertTrue(categories.size() == 3);
-		assertEquals("Emissions", categories.get(0).value.trim());
-		assertEquals("Emissions to air", categories.get(1).value.trim());
+	public void testCategoryPath() {
+		String[] path = Categories.getPath(bag.getValue());
+		assertEquals(path.length, 3);
+		assertEquals("Emissions", path[0]);
+		assertEquals("Emissions to air", path[1]);
 		assertEquals("Emissions to lower stratosphere and upper troposphere",
-				categories.get(2).value.trim());
+				path[2]);
 	}
 
 }

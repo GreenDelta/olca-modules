@@ -51,13 +51,13 @@ public class CsvMatrixExample {
 		File exportDir = new File("target/data");
 		MatrixData data = DataStructures.matrixData(
 				setup, solver, mcache, Collections.emptyMap());
-		CsvOut.write(data, exportDir);
+		CsvOut.write(data, db, exportDir);
 
 		// calculate and export the result
 		LcaCalculator calc = new LcaCalculator(
 				solver, data);
 		FullResult r = calc.calculateFull();
-		CsvOut.write(r, exportDir);
+		CsvOut.write(r, db, exportDir);
 	}
 
 }

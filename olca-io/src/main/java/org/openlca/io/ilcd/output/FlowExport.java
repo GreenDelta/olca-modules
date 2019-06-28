@@ -23,7 +23,6 @@ import org.openlca.ilcd.flows.Geography;
 import org.openlca.ilcd.flows.LCIMethod;
 import org.openlca.ilcd.flows.Modelling;
 import org.openlca.ilcd.flows.QuantitativeReference;
-import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.util.Flows;
 import org.openlca.ilcd.util.Refs;
 
@@ -37,7 +36,7 @@ public class FlowExport {
 		this.config = config;
 	}
 
-	public Flow run(org.openlca.core.model.Flow flow) throws DataStoreException {
+	public Flow run(org.openlca.core.model.Flow flow) {
 		if (config.store.contains(Flow.class, flow.refId))
 			return config.store.get(Flow.class, flow.refId);
 		this.flow = flow;
@@ -86,7 +85,8 @@ public class FlowExport {
 					.getElementaryFlowCategory(flow.category);
 			info.compartmentLists.add(categorization);
 		} else {
-			Classification classification = converter.getClassification(flow.category);
+			Classification classification = converter
+					.getClassification(flow.category);
 			info.classifications.add(classification);
 		}
 	}

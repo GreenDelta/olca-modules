@@ -7,10 +7,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
@@ -29,9 +29,8 @@ import org.openlca.ilcd.models.Parameter;
 import org.openlca.ilcd.models.ProcessInstance;
 import org.openlca.ilcd.models.QuantitativeReference;
 import org.openlca.ilcd.models.Technology;
-import org.openlca.ilcd.util.ClassList;
+import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.Models;
-import org.openlca.io.ilcd.input.CategoryImport;
 import org.openlca.io.ilcd.input.ImportConfig;
 import org.openlca.io.ilcd.input.ImportException;
 import org.openlca.io.ilcd.input.ProcessImport;
@@ -63,7 +62,9 @@ public class ModelImport {
 			if (Strings.nullOrEqual("openLCA", origin)) {
 				system = new ProductSystem();
 				IO.mapMetaData(model, system);
-				mapCategory(model);
+				String[] cpath = Categories.getPath(model);
+				system.category = new CategoryDao(config.db)
+						.sync(ModelType.PRODUCT_SYSTEM, cpath);
 				mapModel(model);
 				return dao.insert(system);
 			} else {
@@ -74,13 +75,6 @@ public class ModelImport {
 		} catch (Exception e) {
 			throw new ImportException("Failed to get/create product system", e);
 		}
-	}
-
-	private void mapCategory(Model model) throws ImportException {
-		CategoryImport categoryImport = new CategoryImport(config,
-				ModelType.PRODUCT_SYSTEM);
-		Category category = categoryImport.run(ClassList.sortedList(model));
-		system.category = category;
 	}
 
 	private void mapModel(Model m) throws ImportException {

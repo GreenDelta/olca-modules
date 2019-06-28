@@ -17,7 +17,7 @@ public class MemDataStore implements DataStore {
 	private final HashMap<Class<?>, HashMap<String, Object>> content = new HashMap<>();
 
 	@Override
-	public <T> T get(Class<T> type, String id) throws DataStoreException {
+	public <T extends IDataSet> T get(Class<T> type, String id) {
 		HashMap<String, Object> map = content.get(type);
 		if (map == null)
 			return null;
@@ -28,7 +28,7 @@ public class MemDataStore implements DataStore {
 	}
 
 	@Override
-	public void put(IDataSet ds) throws DataStoreException {
+	public void put(IDataSet ds) {
 		if (ds == null)
 			return;
 		Class<?> clazz = ds.getClass();
@@ -41,8 +41,7 @@ public class MemDataStore implements DataStore {
 	}
 
 	@Override
-	public void put(Source source, File[] files)
-			throws DataStoreException {
+	public void put(Source source, File[] files) {
 		put(source);
 		HashMap<String, Object> map = content.get(File.class);
 		if (map == null) {
@@ -54,8 +53,7 @@ public class MemDataStore implements DataStore {
 	}
 
 	@Override
-	public InputStream getExternalDocument(String sourceId, String fileName)
-			throws DataStoreException {
+	public InputStream getExternalDocument(String sourceId, String fileName) {
 		HashMap<String, Object> map = content.get(File.class);
 		if (map == null)
 			return null;
@@ -66,13 +64,12 @@ public class MemDataStore implements DataStore {
 			else
 				return new FileInputStream(file);
 		} catch (Exception e) {
-			throw new DataStoreException("Could not open file " + fileName, e);
+			throw new RuntimeException("Could not open file " + fileName, e);
 		}
 	}
 
 	@Override
-	public <T> boolean delete(Class<T> type, String id)
-			throws DataStoreException {
+	public <T extends IDataSet> boolean delete(Class<T> type, String id) {
 		HashMap<String, Object> map = content.get(type);
 		if (map == null)
 			return false;
@@ -82,18 +79,18 @@ public class MemDataStore implements DataStore {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T> Iterator<T> iterator(Class<T> type) throws DataStoreException {
+	public <T extends IDataSet> Iterator<T> iterator(Class<T> type) {
 		if (type == null)
 			return Collections.emptyIterator();
-		HashMap<String, Object> map = content.get(type);
+		HashMap<String, ?> map = content.get(type);
 		if (map == null)
 			return Collections.emptyIterator();
-		return (Iterator<T>) map.values().iterator();
+		return map.values().stream()
+				.map(obj -> (T) obj).iterator();
 	}
 
 	@Override
-	public <T> boolean contains(Class<T> type, String id)
-			throws DataStoreException {
+	public <T extends IDataSet> boolean contains(Class<T> type, String id) {
 		HashMap<String, Object> map = content.get(type);
 		if (map == null)
 			return false;

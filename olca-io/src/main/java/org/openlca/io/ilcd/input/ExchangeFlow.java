@@ -3,8 +3,10 @@ package org.openlca.io.ilcd.input;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.io.maps.FlowMap;
@@ -23,15 +25,30 @@ class ExchangeFlow {
 	FlowProperty flowProperty;
 	Unit unit;
 
-	public ExchangeFlow(Exchange ilcdExchange) {
+	ExchangeFlow(Exchange ilcdExchange) {
 		this.ilcdExchange = ilcdExchange;
 	}
 
-	public boolean isMapped() {
+	boolean isMapped() {
 		return mapEntry != null;
 	}
 
-	public void findOrImport(ImportConfig config) {
+	/**
+	 * Returns a possible provider for the flow when the flow is a mapped flow
+	 * and there is a provider specified for that flow.
+	 */
+	ProcessDescriptor getMappedProvider() {
+		if (flow == null
+				|| flow.flowType == FlowType.ELEMENTARY_FLOW)
+			return null;
+		if (mapEntry == null)
+			return null;
+		if (mapEntry.targetFlow == null)
+			return null;
+		return mapEntry.targetFlow.provider;
+	}
+
+	void findOrImport(ImportConfig config) {
 		this.config = config;
 		Ref ref = ilcdExchange.flow;
 		if (ref == null) {
@@ -46,28 +63,20 @@ class ExchangeFlow {
 	}
 
 	private Flow fetch(String uuid) {
-		Flow flow = fetchFromCache(uuid);
+		Flow flow = config.flowCache.get(uuid);
 		if (flow != null)
 			return flow;
 		flow = fetchFromDatabase(uuid);
-		if (flow != null)
-			return cache(uuid, flow);
+		if (flow != null) {
+			config.flowCache.put(uuid, flow);
+			return flow;
+		}
 		flow = fetchFromFlowMap(uuid);
 		if (flow != null)
 			return flow; // do not cache mapped flows! -> TODO: but we should!
 		flow = fetchFromImport(uuid);
-		return cache(uuid, flow);
-	}
-
-	private Flow cache(String id, Flow flow) {
-		FlowMap flowMap = config.getFlowMap();
-		flowMap.cache(id, flow);
+		config.flowCache.put(uuid, flow);
 		return flow;
-	}
-
-	private Flow fetchFromCache(String uuid) {
-		FlowMap flowMap = config.getFlowMap();
-		return flowMap.getCached(uuid);
 	}
 
 	private Flow fetchFromDatabase(String flowId) {
@@ -85,10 +94,10 @@ class ExchangeFlow {
 		FlowMapEntry e = flowMap.getEntry(flowId);
 		if (e == null)
 			return null;
-		String mappedID = e.referenceFlowID;
-		Flow f = fetchFromCache(mappedID);
+		String targetID = e.targetFlowID();
+		Flow f = config.flowCache.get(targetID);
 		if (f == null) {
-			f = fetchFromDatabase(mappedID);
+			f = fetchFromDatabase(targetID);
 		}
 		if (f != null) {
 			mapEntry = e;
