@@ -9,7 +9,9 @@ public enum Resource {
 
 	CURRENT_SCHEMA_DERBY("current_schema_derby.sql"),
 
-	CURRENT_SCHEMA_MYSQL("current_schema_mysql.sql");
+	CURRENT_SCHEMA_MYSQL("current_schema_mysql.sql"),
+
+	CURRENT_SCHEMA_POSTGRESQL("current_schema_postgres.sql");
 
 	private final String file;
 

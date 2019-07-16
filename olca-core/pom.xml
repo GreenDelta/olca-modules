@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.openlca</groupId>
 		<artifactId>olca-modules</artifactId>
-		<version>1.9.0</version>
+		<version>1.9.1</version>
 	</parent>
 	<artifactId>olca-core</artifactId>
 	<packaging>jar</packaging>
@@ -34,6 +34,12 @@
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derby</artifactId>
 			<version>10.14.2.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.2.6</version>
 		</dependency>
 
 		<dependency>
