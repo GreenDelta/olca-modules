@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -14,6 +15,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import org.openlca.core.model.converters.BooleanToIntegerConverter;
 
 /**
  * Contains the general documentation fields of a process that are not used for
@@ -86,6 +88,7 @@ public class ProcessDocumentation extends AbstractEntity implements Cloneable {
 	public String restrictions;
 
 	@Column(name = "copyright")
+	@Convert(converter = BooleanToIntegerConverter.class)
 	public boolean copyright;
 
 	@Temporal(value = TemporalType.TIMESTAMP)

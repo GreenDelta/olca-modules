@@ -1,11 +1,13 @@
 package org.openlca.core.model;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import org.openlca.core.model.converters.BooleanToIntegerConverter;
 
 /**
  * Exchanges are representing the inputs and outputs of flows in processes.
@@ -21,12 +23,14 @@ public class Exchange extends AbstractEntity {
 	 * calculation.
 	 */
 	@Column(name = "avoided_product")
+	@Convert(converter = BooleanToIntegerConverter.class)
 	public boolean isAvoided;
 
 	/**
 	 * Indicates whether the exchange is an input (= true) or output (= false).
 	 */
 	@Column(name = "is_input")
+	@Convert(converter = BooleanToIntegerConverter.class)
 	public boolean isInput;
 
 	/**

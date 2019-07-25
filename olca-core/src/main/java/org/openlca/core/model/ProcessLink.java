@@ -3,7 +3,9 @@ package org.openlca.core.model;
 import java.util.Objects;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Embeddable;
+import org.openlca.core.model.converters.BooleanToIntegerConverter;
 
 /**
  * A process link is a connection between a provider (which can be a process or
@@ -44,6 +46,7 @@ public class ProcessLink implements Cloneable {
 	 * When true, the provider of this link is a product system.
 	 */
 	@Column(name = "is_system_link")
+	@Convert(converter = BooleanToIntegerConverter.class)
 	public boolean isSystemLink;
 
 	@Override

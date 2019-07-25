@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -12,6 +13,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import org.openlca.core.model.converters.BooleanToIntegerConverter;
 
 @Entity
 @Table(name = "tbl_project_variants")
@@ -48,6 +50,7 @@ public class ProjectVariant extends AbstractEntity {
 	 * considered in the result calculation.
 	 */
 	@Column(name = "is_disabled")
+	@Convert(converter = BooleanToIntegerConverter.class)
 	public boolean isDisabled;
 
 	@Override

@@ -5,18 +5,18 @@ import com.zaxxer.hikari.HikariDataSource;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
-import javax.persistence.EntityManager;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import org.eclipse.persistence.config.EntityManagerProperties;
+import org.eclipse.persistence.config.TargetDatabase;
 import org.eclipse.persistence.jpa.PersistenceProvider;
 import org.openlca.core.database.DatabaseException;
 import org.openlca.core.database.DbUtils;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.Notifiable;
 import org.openlca.core.database.internal.Resource;
 import org.openlca.core.database.internal.ScriptRunner;
@@ -29,53 +29,44 @@ import org.slf4j.LoggerFactory;
  */
 public class PostgreSQLDatabase extends Notifiable implements IDatabase {
 
-	private Logger log = LoggerFactory.getLogger(this.getClass());
+	private static Logger log = LoggerFactory.getLogger(PostgreSQLDatabase.class);
 	private EntityManagerFactory entityFactory;
-	private String host;
-	private String port;
-	private String dbName;
-	private String user;
-	private String password;
-	private String url;
+	private PostgreSQLConnParams connParams;
 	private HikariDataSource connectionPool;
 	private final String persistenceUnit;
 	private File fileStorageLocation;
 
-	public PostgreSQLDatabase(String host, String port, String dbName, String user, String password)
-		throws DatabaseException {
-		this(host, port, dbName, user, password, "openLCA");
+	private boolean autoCommit = false;
+
+	public PostgreSQLDatabase(PostgreSQLConnParams params) throws DatabaseException {
+		this(params, "openLCA");
 	}
 
-	public PostgreSQLDatabase(String host, String port, String dbName, String user, String password,
-		String persistenceUnit) throws DatabaseException {
+	public PostgreSQLDatabase(PostgreSQLConnParams connParams, String persistenceUnit)
+		throws DatabaseException {
 		this.persistenceUnit = persistenceUnit;
-		this.host = host;
-		this.port = port;
-		this.dbName = dbName;
-		this.user = user;
-		this.password = password;
-		this.url = getJdbcUrl();
+		this.connParams = connParams;
 		connect();
 	}
 
-	public String getJdbcUrl() {
-		return buildJdbcUrl(this.host, this.port, this.dbName);
-	}
-
-	public static String buildJdbcUrl(String host, String port, String dbName) {
-		return String.format("jdbc:postgresql://%s:%s/%s", host, port, dbName);
-	}
-
 	private void connect() throws DatabaseException {
-		log.trace("Connect to database postgres: {} @ {}", user, url);
+		log.trace("Connect to database postgres: {} @ {}", connParams.getUser(),
+			connParams.getJdbcUrl());
 		Map<Object, Object> map = new HashMap<>();
-		map.put("javax.persistence.jdbc.url", url);
-		map.put("javax.persistence.jdbc.user", user);
-		map.put("javax.persistence.jdbc.password", password);
-		map.put("javax.persistence.jdbc.driver", "org.postgresql.Driver");
+		map.put(EntityManagerProperties.JDBC_URL, connParams.getJdbcUrl());
+		map.put(EntityManagerProperties.JDBC_USER, connParams.getUser());
+		map.put(EntityManagerProperties.JDBC_PASSWORD, connParams.getPassword());
+		map.put(EntityManagerProperties.JDBC_DRIVER, "org.postgresql.Driver");
+
+		// Uncomment bellow to get postgres schema
+		// map.put(PersistenceUnitProperties.DDL_GENERATION, PersistenceUnitProperties.CREATE_ONLY);
+		// map.put(PersistenceUnitProperties.DDL_GENERATION_MODE, PersistenceUnitProperties.DDL_SQL_SCRIPT_GENERATION);
+		// map.put(PersistenceUnitProperties.CREATE_JDBC_DDL_FILE, "create.sql");
+		// map.put(PersistenceUnitProperties.DEPLOY_ON_STARTUP, "true");
+		// map.put(PersistenceUnitProperties.APP_LOCATION, "/tmp");
 
 		map.put("eclipselink.classloader", getClass().getClassLoader());
-		map.put("eclipselink.target-database", "PostgreSQL");
+		map.put("eclipselink.target-database", TargetDatabase.PostgreSQL);
 		log.trace("Connection to jpa {}", map);
 
 		entityFactory = new PersistenceProvider().createEntityManagerFactory(persistenceUnit, map);
@@ -90,9 +81,10 @@ public class PostgreSQLDatabase extends Notifiable implements IDatabase {
 	private void initConnectionPool() throws DatabaseException {
 		try {
 			HikariConfig config = new HikariConfig();
-			config.setJdbcUrl(url);
-			config.setUsername(user);
-			config.setPassword(password);
+			config.setJdbcUrl(connParams.getJdbcUrl());
+			config.setUsername(connParams.getUser());
+			config.setPassword(connParams.getPassword());
+			config.setAutoCommit(autoCommit);
 			connectionPool = new HikariDataSource(config);
 		} catch (Exception e) {
 			log.error("failed to initialize connection pool", e);
@@ -100,57 +92,113 @@ public class PostgreSQLDatabase extends Notifiable implements IDatabase {
 		}
 	}
 
-	public static void createDatabase(String host, String port, String dbName, String user,
-		String password) throws Exception {
-		Logger log = LoggerFactory.getLogger(PostgreSQLDatabase.class);
-		String url = buildJdbcUrl(host, port, "postgres");
+	public static PostgreSQLDatabase createDatabase(PostgreSQLConnParams connParams)
+		throws Exception {
+		PostgreSQLConnParams postgresDbParams = connParams.clone().setDbName("postgres");
+		PostgreSQLDatabase postgresDb = new PostgreSQLDatabase(postgresDbParams);
+		postgresDb.setAutoCommit(true);
 
+		if (!DbUtils.isValidName(connParams.getDbName())) {
+			throw new Exception(String.format(
+				"Invalid database name '%s'. See https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS",
+				connParams.getDbName()));
+		}
 		try {
-			log.debug("Connecting to database {} ...", url);
-			Connection conn = DriverManager.getConnection(url, user, password);
-			if (databaseExists(conn, dbName)) {
-				log.debug("Database {} found. Continuing...", dbName);
-				return;
+			log.trace("Connecting to database {} ...", postgresDbParams.getDbName());
+
+			if (databaseExists(connParams)) {
+				log.trace("Database {} found. Continuing...", connParams.getDbName());
+				return new PostgreSQLDatabase(connParams);
 			}
 
-			log.debug("Creating database {}...", dbName);
-			Statement stmt = conn.createStatement();
-
-			stmt.executeUpdate("CREATE DATABASE " + dbName);
-			log.debug("Database {} created successfully", dbName);
+			String statement = "CREATE DATABASE " + connParams.getDbName();
+			log.trace("run update statement {}", statement);
+			Connection con = postgresDb.createConnection();
+			Statement stmt = con.createStatement();
+			stmt.executeUpdate(statement);
 			stmt.close();
+			log.trace("Database {} created successfully", connParams.getDbName());
 
-			log.debug("Importing schema for database {}...", dbName);
-			ScriptRunner runner = new ScriptRunner(
-				new PostgreSQLDatabase(host, port, dbName, user, password));
+			log.trace("Importing schema for database {}...", connParams.getDbName());
+			ScriptRunner runner = new ScriptRunner(new PostgreSQLDatabase(connParams));
 			runner.run(Resource.CURRENT_SCHEMA_POSTGRESQL.getStream(), "utf-8");
-			log.debug("Schema imported for database {}", dbName);
-
-			conn.close();
+			log.trace("Schema imported for database {}", connParams.getDbName());
 
 		} catch (Exception e) {
 			log.error("Failed to create database", e);
 			throw e;
 		}
+
+		postgresDb.close();
+		return new PostgreSQLDatabase(connParams);
 	}
 
-	private static boolean databaseExists(Connection con, String dbName) throws SQLException {
-		Logger log = LoggerFactory.getLogger(PostgreSQLDatabase.class);
-		log.debug("Checking if database exists {}", dbName);
-		String query = String.format("SELECT 1 as result FROM pg_database WHERE datname='%s'", dbName);
+	public static void dropDatabase(PostgreSQLConnParams connParams) throws Exception {
+		PostgreSQLConnParams postgresDbParams = connParams.clone().setDbName("postgres");
+		PostgreSQLDatabase postgresDb = new PostgreSQLDatabase(postgresDbParams);
+		postgresDb.setAutoCommit(true);
 
-		try (Statement stmt = con.createStatement()) {
+		if (!DbUtils.isValidName(connParams.getDbName())) {
+			throw new Exception(String.format(
+				"Invalid database name '%s'. See https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS",
+				connParams.getDbName()));
+		}
+		log.trace("dropping database {}...", connParams.getDbName());
 
-			ResultSet rs = stmt.executeQuery(query);
-			while (rs.next()) {
-				int result = rs.getInt("result");
-				return result == 1;
-			}
-		} catch (SQLException e) {
-			log.error("Failed to check if database exists", e);
+		StringBuilder killConnectionsSb = new StringBuilder();
+		killConnectionsSb.append("SELECT pg_terminate_backend (pg_stat_activity.pid)");
+		killConnectionsSb.append(" FROM pg_stat_activity");
+		killConnectionsSb.append(" WHERE");
+		killConnectionsSb.append(" pid <> pg_backend_pid()");
+		killConnectionsSb.append(" AND datname = '");
+		killConnectionsSb.append(connParams.getDbName());
+		killConnectionsSb.append("'");
+
+		try {
+			NativeSql.on(postgresDb).query(killConnectionsSb.toString(), (entry) -> true);
+		} catch (Exception e) {
+			log.error("Error while terminating connections for " + connParams.getDbName(), e);
 			throw e;
 		}
-		return false;
+
+
+
+		try {
+			String statement = "DROP DATABASE IF EXISTS " + connParams.getDbName();
+			log.trace("run update statement {}", statement);
+			Connection con = postgresDb.createConnection();
+			Statement stmt = con.createStatement();
+			stmt.executeUpdate(statement);
+			stmt.close();
+			log.trace("Database {} dropped successfully", connParams.getDbName());
+		} catch (Exception e) {
+			log.error("Error while terminating connections for " + connParams.getDbName(), e);
+			throw e;
+		}
+		postgresDb.close();
+	}
+
+	public static boolean databaseExists(PostgreSQLConnParams connParams) throws Exception {
+		log.trace("Checking if database exists {}", connParams);
+
+		PostgreSQLConnParams postgresDbParams = connParams.clone().setDbName("postgres");
+		IDatabase postgresDb = new PostgreSQLDatabase(postgresDbParams);
+
+		String query = String
+			.format("SELECT 1 as count FROM pg_database WHERE datname='%s'", connParams.getDbName());
+		AtomicBoolean databaseExists = new AtomicBoolean(false);
+		try {
+			NativeSql.on(postgresDb).query(query, (entry) -> {
+				databaseExists.set(entry.getInt("count") == 1);
+				return true;
+			});
+		} catch (Exception e) {
+			log.error("Error while checking if database " + connParams.getDbName() + " exists", e);
+			throw e;
+		}
+
+		postgresDb.close();
+		return databaseExists.get();
 	}
 
 	@Override
@@ -169,15 +217,16 @@ public class PostgreSQLDatabase extends Notifiable implements IDatabase {
 
 	@Override
 	public Connection createConnection() {
-		log.trace("create connection postgres: {} @ {}", user, url);
+		log.trace("create connection postgres: {} @ {}", connParams.getUser(), connParams.getJdbcUrl());
 		try {
 			if (connectionPool != null) {
 				Connection con = connectionPool.getConnection();
-				con.setAutoCommit(false);
+				con.setAutoCommit(autoCommit);
 				return con;
 			} else {
-				log.warn("no connection pool set up for {}", url);
-				return DriverManager.getConnection(url, user, password);
+				log.warn("no connection pool set up for {}", connParams.getJdbcUrl());
+				return DriverManager
+					.getConnection(connParams.getJdbcUrl(), connParams.getUser(), connParams.getPassword());
 			}
 		} catch (Exception e) {
 			log.error("Failed to create database connection", e);
@@ -187,7 +236,7 @@ public class PostgreSQLDatabase extends Notifiable implements IDatabase {
 
 	@Override
 	public void close() {
-		log.trace("close database postgres: {} @ {}", user, url);
+		log.trace("close database postgres: {} @ {}", connParams.getUser(), connParams.getJdbcUrl());
 		try {
 			if (entityFactory != null && entityFactory.isOpen()) {
 				entityFactory.close();
@@ -203,9 +252,14 @@ public class PostgreSQLDatabase extends Notifiable implements IDatabase {
 		}
 	}
 
+	public PostgreSQLDatabase setAutoCommit(boolean autoCommit) {
+		this.autoCommit = autoCommit;
+		return this;
+	}
+
 	@Override
 	public String getName() {
-		return dbName;
+		return connParams.getDbName();
 	}
 
 	@Override

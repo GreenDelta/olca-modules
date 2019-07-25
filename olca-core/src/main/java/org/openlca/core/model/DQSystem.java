@@ -5,18 +5,21 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import org.openlca.core.model.converters.BooleanToIntegerConverter;
 
 @Entity
 @Table(name = "tbl_dq_systems")
 public class DQSystem extends CategorizedEntity {
 
 	@Column(name = "has_uncertainties")
+	@Convert(converter = BooleanToIntegerConverter.class)
 	public boolean hasUncertainties;
 
 	@OneToOne

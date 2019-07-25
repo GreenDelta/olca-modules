@@ -1,12 +1,14 @@
 package org.openlca.core.model;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
 
+import org.openlca.core.model.converters.BooleanToIntegerConverter;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.InterpreterException;
 
@@ -35,6 +37,7 @@ public class Parameter extends CategorizedEntity {
 	 * Indicates whether the parameter is an input parameter.
 	 */
 	@Column(name = "is_input_param")
+	@Convert(converter = BooleanToIntegerConverter.class)
 	public boolean isInputParameter;
 
 	/**

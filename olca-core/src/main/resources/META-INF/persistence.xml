@@ -6,6 +6,11 @@
 
 	<persistence-unit name="openLCA" transaction-type="RESOURCE_LOCAL">
 		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+
+		<!-- Converters -->
+		<class>org.openlca.core.model.converters.BooleanToIntegerConverter</class>
+
+		<!-- Models -->
 		<class>org.openlca.core.model.Actor</class>
 		<class>org.openlca.core.model.AllocationFactor</class>
 		<class>org.openlca.core.model.Category</class>

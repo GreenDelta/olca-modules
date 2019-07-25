@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -13,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import org.openlca.core.model.converters.BooleanToIntegerConverter;
 
 @Entity
 @Table(name = "tbl_flows")
@@ -33,6 +35,7 @@ public class Flow extends CategorizedEntity {
 	public String formula;
 
 	@Column(name = "infrastructure_flow")
+	@Convert(converter = BooleanToIntegerConverter.class)
 	public boolean infrastructureFlow;
 
 	@Column(name = "synonyms")
