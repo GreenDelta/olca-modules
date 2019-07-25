@@ -314,11 +314,8 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 	}
 
 	protected EntityManager createManager() {
-		log.trace("createManager getDatabase {}", getDatabase());
-		log.trace("createManager getDatabase().getEntityFactory() {}", getDatabase().getEntityFactory());
-		log.trace("createManager getDatabase().getEntityFactory().createEntityManager() {}", getDatabase().getEntityFactory().createEntityManager());
-
-		EntityManager em = getDatabase().getEntityFactory().createEntityManager();
+		EntityManager em = getDatabase().getEntityFactory()
+				.createEntityManager();
 		return em;
 	}
 

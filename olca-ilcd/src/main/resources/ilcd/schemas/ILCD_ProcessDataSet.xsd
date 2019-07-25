@@ -751,7 +751,7 @@ also available at http://lca.jrc.ec.europa.eu/eplca/doc/ILCD_format_and_editor_l
                <xs:appinfo>
                   <ilcd:element id="1-3-16-59" name="samplingProcedure"/>
                   <ilcd:display-name>Sampling procedure</ilcd:display-name>
-                  <ilcd:iso-field-id>1.1.9.0</ilcd:iso-field-id>
+                  <ilcd:iso-field-id>1.1.9.1</ilcd:iso-field-id>
                   <ilcd:iso-field-name>Sampling procedure</ilcd:iso-field-name>
                   <ilcd:field-motivation>r</ilcd:field-motivation>
                   <ilcd:field-requirement>o</ilcd:field-requirement>

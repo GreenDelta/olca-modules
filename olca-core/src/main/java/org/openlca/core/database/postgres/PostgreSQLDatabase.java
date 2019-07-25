@@ -58,7 +58,7 @@ public class PostgreSQLDatabase extends Notifiable implements IDatabase {
 		map.put(EntityManagerProperties.JDBC_PASSWORD, connParams.getPassword());
 		map.put(EntityManagerProperties.JDBC_DRIVER, "org.postgresql.Driver");
 
-		// Uncomment bellow to get postgres schema
+		// Uncomment bellow to generate postgres schema
 		// map.put(PersistenceUnitProperties.DDL_GENERATION, PersistenceUnitProperties.CREATE_ONLY);
 		// map.put(PersistenceUnitProperties.DDL_GENERATION_MODE, PersistenceUnitProperties.DDL_SQL_SCRIPT_GENERATION);
 		// map.put(PersistenceUnitProperties.CREATE_JDBC_DDL_FILE, "create.sql");
