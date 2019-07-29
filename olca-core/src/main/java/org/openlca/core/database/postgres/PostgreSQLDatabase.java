@@ -162,8 +162,6 @@ public class PostgreSQLDatabase extends Notifiable implements IDatabase {
 			throw e;
 		}
 
-
-
 		try {
 			String statement = "DROP DATABASE IF EXISTS " + connParams.getDbName();
 			log.trace("run update statement {}", statement);
