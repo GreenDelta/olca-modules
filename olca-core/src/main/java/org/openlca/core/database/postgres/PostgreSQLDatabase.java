@@ -85,6 +85,7 @@ public class PostgreSQLDatabase extends Notifiable implements IDatabase {
 			config.setUsername(connParams.getUser());
 			config.setPassword(connParams.getPassword());
 			config.setAutoCommit(autoCommit);
+			config.setDriverClassName(org.postgresql.Driver.class.getCanonicalName());
 			connectionPool = new HikariDataSource(config);
 		} catch (Exception e) {
 			log.error("failed to initialize connection pool", e);
