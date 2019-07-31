@@ -27,22 +27,22 @@ import org.slf4j.LoggerFactory;
  * IDatabase implementation for Postgres database. The URL schema is "jdbc:postgresql://" [host] ":"
  * [port] "/" [database]
  */
-public class PostgreSQLDatabase extends Notifiable implements IDatabase {
+public class PostgresDatabase extends Notifiable implements IDatabase {
 
-	private static Logger log = LoggerFactory.getLogger(PostgreSQLDatabase.class);
+	private static Logger log = LoggerFactory.getLogger(PostgresDatabase.class);
 	private EntityManagerFactory entityFactory;
-	private PostgreSQLConnParams connParams;
+	private PostgresConnParams connParams;
 	private HikariDataSource connectionPool;
 	private final String persistenceUnit;
 	private File fileStorageLocation;
 
 	private boolean autoCommit = false;
 
-	public PostgreSQLDatabase(PostgreSQLConnParams params) throws DatabaseException {
+	public PostgresDatabase(PostgresConnParams params) throws DatabaseException {
 		this(params, "openLCA");
 	}
 
-	public PostgreSQLDatabase(PostgreSQLConnParams connParams, String persistenceUnit)
+	public PostgresDatabase(PostgresConnParams connParams, String persistenceUnit)
 		throws DatabaseException {
 		this.persistenceUnit = persistenceUnit;
 		this.connParams = connParams;
@@ -93,10 +93,10 @@ public class PostgreSQLDatabase extends Notifiable implements IDatabase {
 		}
 	}
 
-	public static PostgreSQLDatabase createDatabase(PostgreSQLConnParams connParams)
+	public static PostgresDatabase createDatabase(PostgresConnParams connParams)
 		throws Exception {
-		PostgreSQLConnParams postgresDbParams = connParams.clone().setDbName("postgres");
-		PostgreSQLDatabase postgresDb = new PostgreSQLDatabase(postgresDbParams);
+		PostgresConnParams postgresDbParams = connParams.clone().setDbName("postgres");
+		PostgresDatabase postgresDb = new PostgresDatabase(postgresDbParams);
 		postgresDb.setAutoCommit(true);
 
 		if (!DbUtils.isValidName(connParams.getDbName())) {
@@ -109,7 +109,7 @@ public class PostgreSQLDatabase extends Notifiable implements IDatabase {
 
 			if (databaseExists(connParams)) {
 				log.trace("Database {} found. Continuing...", connParams.getDbName());
-				return new PostgreSQLDatabase(connParams);
+				return new PostgresDatabase(connParams);
 			}
 
 			String statement = "CREATE DATABASE " + connParams.getDbName();
@@ -121,7 +121,7 @@ public class PostgreSQLDatabase extends Notifiable implements IDatabase {
 			log.trace("Database {} created successfully", connParams.getDbName());
 
 			log.trace("Importing schema for database {}...", connParams.getDbName());
-			ScriptRunner runner = new ScriptRunner(new PostgreSQLDatabase(connParams));
+			ScriptRunner runner = new ScriptRunner(new PostgresDatabase(connParams));
 			runner.run(Resource.CURRENT_SCHEMA_POSTGRESQL.getStream(), "utf-8");
 			log.trace("Schema imported for database {}", connParams.getDbName());
 
@@ -131,12 +131,12 @@ public class PostgreSQLDatabase extends Notifiable implements IDatabase {
 		}
 
 		postgresDb.close();
-		return new PostgreSQLDatabase(connParams);
+		return new PostgresDatabase(connParams);
 	}
 
-	public static void dropDatabase(PostgreSQLConnParams connParams) throws Exception {
-		PostgreSQLConnParams postgresDbParams = connParams.clone().setDbName("postgres");
-		PostgreSQLDatabase postgresDb = new PostgreSQLDatabase(postgresDbParams);
+	public static void dropDatabase(PostgresConnParams connParams) throws Exception {
+		PostgresConnParams postgresDbParams = connParams.clone().setDbName("postgres");
+		PostgresDatabase postgresDb = new PostgresDatabase(postgresDbParams);
 		postgresDb.setAutoCommit(true);
 
 		if (!DbUtils.isValidName(connParams.getDbName())) {
@@ -177,11 +177,11 @@ public class PostgreSQLDatabase extends Notifiable implements IDatabase {
 		postgresDb.close();
 	}
 
-	public static boolean databaseExists(PostgreSQLConnParams connParams) throws Exception {
+	public static boolean databaseExists(PostgresConnParams connParams) throws Exception {
 		log.trace("Checking if database exists {}", connParams);
 
-		PostgreSQLConnParams postgresDbParams = connParams.clone().setDbName("postgres");
-		IDatabase postgresDb = new PostgreSQLDatabase(postgresDbParams);
+		PostgresConnParams postgresDbParams = connParams.clone().setDbName("postgres");
+		IDatabase postgresDb = new PostgresDatabase(postgresDbParams);
 
 		String query = String
 			.format("SELECT 1 as count FROM pg_database WHERE datname='%s'", connParams.getDbName());
@@ -251,7 +251,7 @@ public class PostgreSQLDatabase extends Notifiable implements IDatabase {
 		}
 	}
 
-	public PostgreSQLDatabase setAutoCommit(boolean autoCommit) {
+	public PostgresDatabase setAutoCommit(boolean autoCommit) {
 		this.autoCommit = autoCommit;
 		return this;
 	}
