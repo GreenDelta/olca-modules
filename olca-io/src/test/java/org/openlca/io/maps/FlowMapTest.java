@@ -1,6 +1,7 @@
 package org.openlca.io.maps;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -36,6 +37,8 @@ public class FlowMapTest {
 		assertEquals("3f7e0b7e-aefd-4efd-a946-7bdad142fd50",
 				e.targetFlow.flow.refId);
 		assertEquals(1000.0, e.factor, 1e-16);
+		assertNull(e.sourceFlow.status);
+		assertNull(e.targetFlow.status);
 	}
 
 }

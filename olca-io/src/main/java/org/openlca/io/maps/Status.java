@@ -1,5 +1,7 @@
 package org.openlca.io.maps;
 
+import java.util.Objects;
+
 /**
  * Status describes the state a mapping entry or flow reference can have when
  * when synchronized or applied on a database.
@@ -49,5 +51,61 @@ public class Status {
 	@Override
 	public Status clone() {
 		return new Status(type, message);
+	}
+
+	@Override
+	public String toString() {
+		String s = "";
+		switch (type) {
+		case OK:
+			s += "ok: ";
+			break;
+		case WARNING:
+			s += "warning: ";
+			break;
+		case ERROR:
+			s += "error: ";
+			break;
+		default:
+			break;
+		}
+		return s + message;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (obj == this)
+			return true;
+		if (!(obj instanceof Status))
+			return false;
+		Status other = (Status) obj;
+		if (this.type != other.type)
+			return false;
+		return Objects.equals(this.message, other.message);
+	}
+
+	/**
+	 * Returns the status from the given string. Note that the status is null
+	 * when the given string is null or empty.
+	 */
+	static Status fromString(String s) {
+		if (s == null)
+			return null;
+		String t = s.trim();
+		if (t.length() == 0)
+			return null;
+		int type = OK;
+		if (t.startsWith("ok:")) {
+			t = t.substring(3).trim();
+		} else if (t.startsWith("warning:")) {
+			type = WARNING;
+			t = t.substring(8).trim();
+		} else if (t.startsWith("error:")) {
+			type = ERROR;
+			t = t.substring(6).trim();
+		}
+		return new Status(type, t);
 	}
 }
