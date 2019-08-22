@@ -121,11 +121,12 @@ public class FlowMap extends BaseDescriptor {
 				}
 
 				// unit
-				String sunit = Maps.getString(row, 13);
-				if (Strings.notEmpty(sunit)) {
+				String sunitID = Maps.getString(row, 13);
+				String sunitName = Maps.getString(row, 14);
+				if (Strings.notEmpty(sunitID) || Strings.notEmpty(sunitName)) {
 					e.sourceFlow.unit = new UnitDescriptor();
-					e.sourceFlow.unit.refId = sunit;
-					e.sourceFlow.unit.name = Maps.getString(row, 14);
+					e.sourceFlow.unit.refId = sunitID;
+					e.sourceFlow.unit.name = sunitName;
 				}
 
 				// status
@@ -154,11 +155,12 @@ public class FlowMap extends BaseDescriptor {
 				}
 
 				// unit
-				String tunit = Maps.getString(row, 15);
-				if (Strings.notEmpty(tunit)) {
+				String tunitID = Maps.getString(row, 15);
+				String tunitName = Maps.getString(row, 16);
+				if (Strings.notEmpty(tunitID) || Strings.notEmpty(tunitName)) {
 					e.targetFlow.unit = new UnitDescriptor();
-					e.targetFlow.unit.refId = tunit;
-					e.targetFlow.unit.name = Maps.getString(row, 16);
+					e.targetFlow.unit.refId = tunitID;
+					e.targetFlow.unit.name = tunitName;
 				}
 
 				// provider
