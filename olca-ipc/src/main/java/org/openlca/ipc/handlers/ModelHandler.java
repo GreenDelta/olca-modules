@@ -3,8 +3,17 @@ package org.openlca.ipc.handlers;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ProcessDao;
+import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.RootEntityDao;
+import org.openlca.core.matrix.LinkingConfig;
+import org.openlca.core.matrix.LinkingConfig.DefaultProviders;
+import org.openlca.core.matrix.ProductSystemBuilder;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Process;
+import org.openlca.core.model.ProcessType;
+import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.ipc.Responses;
@@ -17,6 +26,7 @@ import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
 import org.openlca.jsonld.output.JsonExport;
 
+import com.google.common.base.Strings;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -124,6 +134,42 @@ public class ModelHandler {
 		} catch (Exception e) {
 			return Responses.serverError(e, req);
 		}
+	}
+
+	@Rpc("create/product_system")
+	public RpcResponse createProductSystem(RpcRequest req) {
+		if (req.params == null || !req.params.isJsonObject())
+			return Responses.invalidParams("params must be an object with valid processId", req);
+		JsonObject obj = req.params.getAsJsonObject();
+		if (!obj.has("processId") || !obj.get("processId").isJsonPrimitive())
+			return Responses.invalidParams("params must be an object with valid processId", req);
+		String processId = obj.get("processId").getAsString();
+		if (Strings.isNullOrEmpty(processId))
+			return Responses.invalidParams("params must be an object with valid processId", req);
+		Process refProcess = new ProcessDao(db).getForRefId(processId);
+		if (refProcess == null)
+			return Responses.invalidParams("No process found for ref id " + processId, req);
+		ProductSystem system = ProductSystem.from(refProcess);
+		system = new ProductSystemDao(db).insert(system);
+		LinkingConfig config = new LinkingConfig();
+		config.preferredType = ProcessType.UNIT_PROCESS;
+		if (obj.has("preferredType") && obj.get("preferredType").getAsString().toLowerCase().equals("lci_result")) {
+			config.preferredType = ProcessType.LCI_RESULT;
+		}
+		config.providerLinking = DefaultProviders.PREFER;
+		if (obj.has("providerLinking")) {
+			if (obj.get("providerLinking").getAsString().toLowerCase().equals("ignore")) {
+				config.providerLinking = DefaultProviders.IGNORE;				
+			} else if (obj.get("providerLinking").getAsString().toLowerCase().equals("only")) {
+				config.providerLinking = DefaultProviders.ONLY;								
+			}
+		}
+		ProductSystemBuilder builder = new ProductSystemBuilder(MatrixCache.createLazy(db), config);
+		builder.autoComplete(system);
+		system = builder.saveUpdates(system);
+		JsonObject res = new JsonObject();
+		res.addProperty("@id", system.refId);
+		return Responses.ok(res, req);
 	}
 
 	private RpcResponse saveModel(RpcRequest req, UpdateMode mode) {

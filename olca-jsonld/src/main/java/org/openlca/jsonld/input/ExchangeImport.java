@@ -10,6 +10,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonElement;
@@ -97,7 +98,17 @@ abstract class ExchangeImport<P extends RootEntity> extends BaseEmbeddedImport<E
 		if (unitId != null) {
 			e.unit = conf.db.get(ModelType.UNIT, unitId);
 		} else if (e.flowPropertyFactor != null) {
-			e.unit = e.flowPropertyFactor.flowProperty.unitGroup.referenceUnit;
+			JsonObject unit = Json.getObject(json, "unit");
+			UnitGroup unitGroup = e.flowPropertyFactor.flowProperty.unitGroup;
+			if (unit != null) {
+				String unitName = Json.getString(unit, "name");
+				if (unitName != null) {
+					e.unit = unitGroup.getUnit(unitName);
+				}
+			}
+			if (e.unit == null) {
+				e.unit = unitGroup.referenceUnit;
+			}
 		}
 	}
 
