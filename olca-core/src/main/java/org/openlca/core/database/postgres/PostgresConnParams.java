@@ -7,18 +7,18 @@ public class PostgresConnParams implements Cloneable{
 	private String user;
 	private String password;
 	
-	
+	public PostgresConnParams() {
+	}
 
 	public PostgresConnParams(String host, String port, String dbName, String user, String password) {
-    super();
-    this.host = host;
-    this.port = port;
-    this.dbName = dbName;
-    this.user = user;
-    this.password = password;
-  }
+      this.host = host;
+      this.port = port;
+      this.dbName = dbName;
+      this.user = user;
+      this.password = password;
+    }
 
-  public String getHost() {
+    public String getHost() {
 		return host;
 	}
 

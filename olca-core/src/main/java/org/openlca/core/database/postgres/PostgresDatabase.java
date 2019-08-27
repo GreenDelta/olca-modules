@@ -193,6 +193,7 @@ public class PostgresDatabase extends Notifiable implements IDatabase {
 			});
 		} catch (Exception e) {
 			log.error("Error while checking if database " + connParams.getDbName() + " exists", e);
+	        postgresDb.close();
 			throw e;
 		}
 
