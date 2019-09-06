@@ -56,7 +56,7 @@ class Utils {
 	@SuppressWarnings("unchecked")
 	private <T> T getResult(String id) {
 		CachedResult<?> result = (CachedResult<?>) ctx.cache.get(id);
-		if (result.setup.type == CalculationType.SIMPLE_CALCULATION
+		if (result == null || result.setup.type == CalculationType.SIMPLE_CALCULATION
 				|| result.setup.type == CalculationType.MONTE_CARLO_SIMULATION)
 			return null;
 		return (T) result.result;

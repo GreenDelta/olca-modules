@@ -26,7 +26,8 @@ class SocialIndicatorImport {
 	public void run() {
 		log.trace("import social indicators");
 		try {
-			for (SocialIndicatorDescriptor descriptor : srcDao.getDescriptors()) {
+			for (SocialIndicatorDescriptor descriptor : srcDao
+					.getDescriptors()) {
 				if (seq.contains(seq.SOCIAL_INDICATOR, descriptor.refId))
 					continue;
 				createSocialIndicator(descriptor);
@@ -44,7 +45,7 @@ class SocialIndicatorImport {
 		dest.activityQuantity = refs.switchRef(src.activityQuantity);
 		dest.activityUnit = refs.switchRef(src.activityUnit);
 		dest = destDao.insert(dest);
-		seq.put(seq.ACTOR, src.refId, dest.id);
+		seq.put(seq.SOCIAL_INDICATOR, src.refId, dest.id);
 	}
 
 }

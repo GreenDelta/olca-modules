@@ -121,11 +121,18 @@ public class FlowMap extends BaseDescriptor {
 				}
 
 				// unit
-				String sunit = Maps.getString(row, 13);
-				if (Strings.notEmpty(sunit)) {
+				String sunitID = Maps.getString(row, 13);
+				String sunitName = Maps.getString(row, 14);
+				if (Strings.notEmpty(sunitID) || Strings.notEmpty(sunitName)) {
 					e.sourceFlow.unit = new UnitDescriptor();
-					e.sourceFlow.unit.refId = sunit;
-					e.sourceFlow.unit.name = Maps.getString(row, 14);
+					e.sourceFlow.unit.refId = sunitID;
+					e.sourceFlow.unit.name = sunitName;
+				}
+
+				// status
+				String sstatus = Maps.getString(row, 21);
+				if (Strings.notEmpty(sstatus)) {
+					e.sourceFlow.status = Status.fromString(sstatus);
 				}
 			}
 
@@ -148,11 +155,12 @@ public class FlowMap extends BaseDescriptor {
 				}
 
 				// unit
-				String tunit = Maps.getString(row, 15);
-				if (Strings.notEmpty(tunit)) {
+				String tunitID = Maps.getString(row, 15);
+				String tunitName = Maps.getString(row, 16);
+				if (Strings.notEmpty(tunitID) || Strings.notEmpty(tunitName)) {
 					e.targetFlow.unit = new UnitDescriptor();
-					e.targetFlow.unit.refId = tunit;
-					e.targetFlow.unit.name = Maps.getString(row, 16);
+					e.targetFlow.unit.refId = tunitID;
+					e.targetFlow.unit.name = tunitName;
 				}
 
 				// provider
@@ -164,6 +172,12 @@ public class FlowMap extends BaseDescriptor {
 					e.targetFlow.providerCategory = Maps.getString(row, 19);
 					e.targetFlow.providerLocation = Maps.getString(row, 20);
 				}
+
+				// status
+				String tstatus = Maps.getString(row, 22);
+				if (Strings.notEmpty(tstatus)) {
+					e.targetFlow.status = Status.fromString(tstatus);
+				}
 			}
 		});
 		return fm;
@@ -173,7 +187,7 @@ public class FlowMap extends BaseDescriptor {
 		if (fm == null || file == null)
 			return;
 		Maps.write(file, fm.entries.stream().map(e -> {
-			Object[] row = new Object[21];
+			Object[] row = new Object[23];
 			row[2] = e.factor;
 
 			// source flow
@@ -199,6 +213,12 @@ public class FlowMap extends BaseDescriptor {
 					row[13] = s.unit.refId;
 					row[14] = s.unit.name;
 				}
+
+				// status
+				if (s.status != null) {
+					row[21] = s.status.toString();
+				}
+
 			}
 
 			// target flow
@@ -225,11 +245,17 @@ public class FlowMap extends BaseDescriptor {
 					row[16] = t.unit.name;
 				}
 
+				// provider
 				if (t.provider != null) {
 					row[17] = t.provider.refId;
 					row[18] = t.provider.name;
 					row[19] = t.providerCategory;
 					row[20] = t.providerLocation;
+				}
+
+				// status
+				if (t.status != null) {
+					row[22] = t.status.toString();
 				}
 			}
 			return row;
