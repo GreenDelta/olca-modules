@@ -12,7 +12,7 @@ import org.openlca.core.database.mysql.MySQLDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DbUtil {
+class DbUtil {
 
 	private final int TYPE_DERBY = 0;
 	private final int TYPE_MYSQL = 1;
@@ -31,7 +31,7 @@ public class DbUtil {
 	}
 
 	/** Get the database type for storing long text values. */
-	public String getTextType() {
+	String getTextType() {
 		switch (dbType) {
 		case TYPE_DERBY:
 			return "CLOB(64 K)";
@@ -42,7 +42,7 @@ public class DbUtil {
 		}
 	}
 
-	public String getBlobType() {
+	String getBlobType() {
 		switch (dbType) {
 		case TYPE_DERBY:
 			return "BLOB(16 M)";
@@ -56,12 +56,16 @@ public class DbUtil {
 	/**
 	 * Deletes the table with the given name from the database if it exists.
 	 */
-	public void dropTable(String tableName) throws Exception {
-		log.trace("Try to drop table {}", tableName);
-		if (!tableExists(tableName)) {
-			log.trace("Table {} does not exist", tableName);
-		} else {
-			NativeSql.on(database).runUpdate("DROP TABLE " + tableName);
+	void dropTable(String table) {
+		if (!tableExists(table)) {
+			log.trace("Table {} does not exist", table);
+			return;
+		}
+		log.info("drop table {}", table);
+		try {
+			NativeSql.on(database).runUpdate("DROP TABLE " + table);
+		} catch (Exception e) {
+			throw new RuntimeException("failed to drop table: " + table, e);
 		}
 	}
 
@@ -69,30 +73,36 @@ public class DbUtil {
 	 * Checks if a table with the given name exists in the database. If not it is
 	 * created using the given table definition.
 	 */
-	public void createTable(String table, String tableDef) throws Exception {
-		log.trace("Check if table {} exists", table);
-		if (tableExists(table))
+	void createTable(String table, String tableDef) {
+		if (tableExists(table)) {
 			log.trace("table exists");
-		else {
-			log.info("create table {}", table);
+			return;
+		}
+		log.info("create table {}", table);
+		try {
 			NativeSql.on(database).runUpdate(tableDef);
+		} catch (Exception e) {
+			throw new RuntimeException("failed to create table: " + table, e);
 		}
 	}
 
 	/**
 	 * Returns true if a table with the given name exits.
 	 */
-	public boolean tableExists(String tableName) throws Exception {
+	boolean tableExists(String table) {
 		try (Connection con = database.createConnection()) {
-			DatabaseMetaData metaData = con.getMetaData();
-			try (ResultSet rs = metaData.getTables(null, null, "%", null)) {
+			DatabaseMetaData meta = con.getMetaData();
+			try (ResultSet rs = meta.getTables(null, null, "%", null)) {
 				while (rs.next()) {
-					String otherName = rs.getString(3);
-					if (tableName.equalsIgnoreCase(otherName))
+					String other = rs.getString(3);
+					if (table.equalsIgnoreCase(other))
 						return true;
 				}
 				return false;
 			}
+		} catch (Exception e) {
+			throw new RuntimeException(
+					"failed to check if table exists: " + table, e);
 		}
 	}
 
@@ -103,7 +113,7 @@ public class DbUtil {
 	 * data type), nothing is done and `false` is returned. Otherwise the column is
 	 * added and `true` is returned.
 	 */
-	public boolean createColumn(String table, String definition) {
+	boolean createColumn(String table, String definition) {
 		if (table == null || definition == null)
 			return false;
 
@@ -121,10 +131,10 @@ public class DbUtil {
 		}
 
 		try {
-		log.info("add column {} to {}", column, table);
+			log.info("add column {} to {}", column, table);
 			String stmt = "ALTER TABLE " + table + " ADD COLUMN " + definition;
-		NativeSql.on(database).runUpdate(stmt);
-		return true;
+			NativeSql.on(database).runUpdate(stmt);
+			return true;
 		} catch (Exception e) {
 			throw new RuntimeException(
 					"failed to add column " + table + "." + column, e);
@@ -132,20 +142,25 @@ public class DbUtil {
 	}
 
 	/** Deletes the given column from the given table if it exists. */
-	public boolean dropColumn(String table, String column) throws Exception {
-		log.trace("drop column {} in table {}", column, table);
+	boolean dropColumn(String table, String column) {
 		if (!columnExists(table, column))
 			return false;
+		log.info("drop column {} in table {}", column, table);
 		String stmt = "ALTER TABLE " + table + " DROP COLUMN " + column;
-		NativeSql.on(database).runUpdate(stmt);
-		return true;
+		try {
+			NativeSql.on(database).runUpdate(stmt);
+			return true;
+		} catch (Exception e) {
+			throw new RuntimeException(
+					"failed to drop column " + table + "." + column, e);
+		}
 	}
 
 	/**
 	 * Returns true if a column with the given name exists in the table with the
 	 * given name.
 	 */
-	public boolean columnExists(String table, String column) {
+	boolean columnExists(String table, String column) {
 		try (Connection con = database.createConnection()) {
 			DatabaseMetaData metaData = con.getMetaData();
 			try (ResultSet rs = metaData.getColumns(null, null, "%", "%")) {
@@ -168,7 +183,7 @@ public class DbUtil {
 	 * column (name + data type, e.g. `formula VARCHAR(1000)`) must be given. If the
 	 * old column does not exist the new column is created if necessary.
 	 */
-	public void renameColumn(String table, String column, String definition) {
+	void renameColumn(String table, String column, String definition) {
 
 		String newCol;
 		try {
@@ -200,7 +215,7 @@ public class DbUtil {
 		}
 	}
 
-	public void setVersion(int v) throws SQLException {
+	void setVersion(int v) throws SQLException {
 		NativeSql.on(database).runUpdate(
 				"UPDATE openlca_version SET version = " + v);
 	}

@@ -75,7 +75,7 @@ public class UpgradeChainTest {
 		u.dropTable("tbl_mapping_files");
 		u.dropColumn("tbl_actors", "version");
 
-		Upgrades.runUpgrades(db);
+		Upgrades.on(db);
 
 		// check Upgrade3
 		assertTrue(u.tableExists("tbl_nw_sets"));

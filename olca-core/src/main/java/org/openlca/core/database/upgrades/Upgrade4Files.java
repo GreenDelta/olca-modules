@@ -27,7 +27,7 @@ class Upgrade4Files {
 		this.db = db;
 	}
 
-	public static void apply(IDatabase db) throws Exception {
+	public static void apply(IDatabase db) {
 		if (db == null)
 			return;
 		File root = db.getFileStorageLocation();
@@ -36,14 +36,14 @@ class Upgrade4Files {
 		new Upgrade4Files(root, db).exec();
 	}
 
-	private void exec() throws Exception {
+	private void exec() {
 		log.info("update file store {} of database {}", root, db);
 		copyShapeFiles();
 		copyLayoutFiles();
 		copySourceDocs();
 	}
 
-	private void copyShapeFiles() throws Exception {
+	private void copyShapeFiles() {
 		File shapeFileDir = new File(root, "shapefiles");
 		if (!shapeFileDir.exists())
 			return;
@@ -56,13 +56,12 @@ class Upgrade4Files {
 				targetDir.mkdirs();
 			for (File source : sourceDir.listFiles()) {
 				File target = new File(targetDir, source.getName());
-				if (!target.exists())
-					Files.copy(source.toPath(), target.toPath());
+				copyFile(source, target);
 			}
 		}
 	}
 
-	private void copyLayoutFiles() throws Exception {
+	private void copyLayoutFiles() {
 		File layoutDir = new File(root, "layouts");
 		if (!layoutDir.exists())
 			return;
@@ -72,13 +71,11 @@ class Upgrade4Files {
 			File dir = store.getFolder(ModelType.PRODUCT_SYSTEM, id);
 			if (!dir.exists())
 				dir.mkdirs();
-			File target = new File(dir, "layout.json");
-			if (!target.exists())
-				Files.copy(file.toPath(), target.toPath());
+			copyFile(file, new File(dir, "layout.json"));
 		}
 	}
 
-	private void copySourceDocs() throws Exception {
+	private void copySourceDocs() {
 		File docDir = new File(root, "external_docs");
 		if (!docDir.exists())
 			return;
@@ -90,30 +87,43 @@ class Upgrade4Files {
 				continue;
 			for (String id : sourceIds) {
 				File dir = store.getFolder(ModelType.SOURCE, id);
-				if (!dir.exists())
+				if (!dir.exists()) {
 					dir.mkdirs();
-				File target = new File(dir, name);
-				if (!target.exists())
-					Files.copy(file.toPath(), target.toPath());
+				}
+				copyFile(file, new File(dir, name));
 			}
 		}
 	}
 
-	private Map<String, List<String>> getSourceDocs() throws Exception {
-		Map<String, List<String>> map = new HashMap<>();
-		String query = "select ref_id, external_file from tbl_sources";
-		NativeSql.on(db).query(query, r -> {
-			String id = r.getString(1);
-			String file = r.getString(2);
-			List<String> list = map.get(file);
-			if (list == null) {
-				list = new ArrayList<>();
-				map.put(file, list);
-			}
-			list.add(id);
-			return true;
-		});
-		return map;
+	private void copyFile(File source, File target) {
+		if (target.exists())
+			return;
+		try {
+			Files.copy(source.toPath(), target.toPath());
+		} catch (Exception e) {
+			throw new RuntimeException(
+					"failed to copy " + source + " to " + target, e);
+		}
 	}
 
+	private Map<String, List<String>> getSourceDocs() {
+		Map<String, List<String>> map = new HashMap<>();
+		String query = "select ref_id, external_file from tbl_sources";
+		try {
+			NativeSql.on(db).query(query, r -> {
+				String id = r.getString(1);
+				String file = r.getString(2);
+				List<String> list = map.get(file);
+				if (list == null) {
+					list = new ArrayList<>();
+					map.put(file, list);
+				}
+				list.add(id);
+				return true;
+			});
+			return map;
+		} catch (Exception e) {
+			throw new RuntimeException("failed to get source docs " + query, e);
+		}
+	}
 }

@@ -17,7 +17,7 @@ class Upgrade6 implements IUpgrade {
 	}
 
 	@Override
-	public void exec(IDatabase db) throws Exception {
+	public void exec(IDatabase db) {
 		DbUtil u = new DbUtil(db);
 		
 		u.createTable("tbl_dq_systems",

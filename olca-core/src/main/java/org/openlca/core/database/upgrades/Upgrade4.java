@@ -29,7 +29,7 @@ public class Upgrade4 implements IUpgrade {
 	}
 
 	@Override
-	public void exec(IDatabase database) throws Exception {
+	public void exec(IDatabase database) {
 		this.database = database;
 		this.util = new DbUtil(database);
 		if (util.columnExists("tbl_processes", "kmz")) {
@@ -53,24 +53,24 @@ public class Upgrade4 implements IUpgrade {
 	 * In the new version there is no process specific KML anymore. We convert
 	 * existing KML data to own locations.
 	 */
-	private void convertProcessKmzData() throws SQLException {
-		try (Connection con = database.createConnection()) {
-			String updateSql = "UPDATE tbl_processes " + "SET f_location = ? "
-					+ "WHERE id = ?";
-			PreparedStatement updateStmt = con.prepareStatement(updateSql);
-			String insertSql = "INSERT INTO tbl_locations(id, name, description, ref_id, kmz) "
-					+ "VALUES (?, ?, ?, ?, ?)";
-			PreparedStatement insertStmt = con.prepareStatement(insertSql);
+	private void convertProcessKmzData() {
+		String updateSql = "UPDATE tbl_processes SET f_location = ? WHERE id = ?";
+		String insertSql = "INSERT INTO tbl_locations(id, name, description, ref_id, kmz) "
+				+ "VALUES (?, ?, ?, ?, ?)";
+		try (Connection con = database.createConnection();
+				PreparedStatement updateStmt = con.prepareStatement(updateSql);
+				PreparedStatement insertStmt = con.prepareStatement(insertSql);) {
+			KmzResultHandler handler = new KmzResultHandler(
+					updateStmt, insertStmt);
+			handler.currentId = getSequenceId(con);
 			String query = "SELECT id, ref_id, name, kmz "
 					+ "FROM tbl_processes " + "WHERE kmz is not null";
-			KmzResultHandler handler = new KmzResultHandler(updateStmt,
-					insertStmt);
-			handler.currentId = getSequenceId(con);
 			NativeSql.on(database).query(query, handler);
 			updateSequenceId(con, handler.currentId);
-			insertStmt.close();
-			updateStmt.close();
 			con.commit();
+		} catch (Exception e) {
+			throw new RuntimeException(
+					"failed to move process KML data to new locations", e);
 		}
 	}
 
@@ -97,60 +97,80 @@ public class Upgrade4 implements IUpgrade {
 	 * The fields version and last_change moved to the RootEntity class. Also
 	 * parameters are now root entities.
 	 */
-	private void addVersionFields() throws Exception {
+	private void addVersionFields() {
 		String[] tables = { "tbl_categories", "tbl_impact_categories",
 				"tbl_locations", "tbl_nw_sets", "tbl_parameters", "tbl_units" };
 		for (String table : tables) {
 			util.createColumn(table, "version BIGINT");
 			util.createColumn(table, "last_change BIGINT");
 		}
+
+		// set reference IDs on parameters
 		util.createColumn("tbl_parameters", "ref_id VARCHAR(36)");
 		List<String> updates = new ArrayList<>();
-		NativeSql.on(database).query(
-				"select id from tbl_parameters",
-				(r) -> {
-					long id = r.getLong(1);
-					String update = "update tbl_parameters set ref_id = '"
-							+ UUID.randomUUID().toString() + "' where id = "
-							+ id;
-					updates.add(update);
-					return true;
-				});
-		NativeSql.on(database).batchUpdate(updates);
+		try {
+			NativeSql.on(database).query("select id from tbl_parameters", (r) -> {
+				long id = r.getLong(1);
+				String update = "update tbl_parameters set ref_id = '"
+						+ UUID.randomUUID().toString() + "' where id = "
+						+ id;
+				updates.add(update);
+				return true;
+			});
+			NativeSql.on(database).batchUpdate(updates);
+		} catch (Exception e) {
+			throw new RuntimeException(
+					"failed to set reference IDs in parameters", e);
+		}
 	}
 
-	private void createCurrencyTable() throws Exception {
+	private void createCurrencyTable() {
 		util.createTable("tbl_currencies",
-				"CREATE TABLE tbl_currencies ( " + "id BIGINT NOT NULL, "
-						+ "name VARCHAR(255), " + "ref_id VARCHAR(36), "
-						+ "version BIGINT, " + "last_change BIGINT, "
-						+ "f_category BIGINT, " + "description CLOB(64 K), "
-						+ "code VARCHAR(255), " + "conversion_factor DOUBLE, "
+				"CREATE TABLE tbl_currencies ( "
+						+ "id BIGINT NOT NULL, "
+						+ "name VARCHAR(255), "
+						+ "ref_id VARCHAR(36), "
+						+ "version BIGINT, "
+						+ "last_change BIGINT, "
+						+ "f_category BIGINT, "
+						+ "description CLOB(64 K), "
+						+ "code VARCHAR(255), "
+						+ "conversion_factor DOUBLE, "
 						+ "f_reference_currency BIGINT, "
 						+ "PRIMARY KEY (id)) ");
 	}
 
-	private void createSocialTables() throws Exception {
+	private void createSocialTables() {
 		String indicators = "CREATE TABLE tbl_social_indicators ( "
-				+ "id BIGINT NOT NULL, " + "ref_id VARCHAR(36), "
-				+ "name VARCHAR(255), " + "version BIGINT, "
-				+ "last_change BIGINT, " + "f_category BIGINT, "
+				+ "id BIGINT NOT NULL, "
+				+ "ref_id VARCHAR(36), "
+				+ "name VARCHAR(255), "
+				+ "version BIGINT, "
+				+ "last_change BIGINT, "
+				+ "f_category BIGINT, "
 				+ "description CLOB(64 K), "
 				+ "activity_variable VARCHAR(255), "
-				+ "f_activity_quantity BIGINT, " + "f_activity_unit BIGINT, "
+				+ "f_activity_quantity BIGINT, "
+				+ "f_activity_unit BIGINT, "
 				+ "unit_of_measurement VARCHAR(255), "
-				+ "evaluation_scheme CLOB(64 K), " + "PRIMARY KEY (id)) ";
+				+ "evaluation_scheme CLOB(64 K), "
+				+ "PRIMARY KEY (id)) ";
 		util.createTable("tbl_social_indicators", indicators);
 		String aspects = "CREATE TABLE tbl_social_aspects ( "
-				+ "id BIGINT NOT NULL, " + "f_process BIGINT, "
-				+ "f_indicator BIGINT, " + "activity_value DOUBLE, "
-				+ "raw_amount VARCHAR(255), " + "risk_level VARCHAR(255), "
-				+ "comment CLOB(64 K), " + "f_source BIGINT, "
-				+ "quality VARCHAR(255), " + "PRIMARY KEY (id)) ";
+				+ "id BIGINT NOT NULL, "
+				+ "f_process BIGINT, "
+				+ "f_indicator BIGINT, "
+				+ "activity_value DOUBLE, "
+				+ "raw_amount VARCHAR(255), "
+				+ "risk_level VARCHAR(255), "
+				+ "comment CLOB(64 K), "
+				+ "f_source BIGINT, "
+				+ "quality VARCHAR(255), "
+				+ "PRIMARY KEY (id)) ";
 		util.createTable("tbl_social_aspects", aspects);
 	}
 
-	private void createCostColumns() throws Exception {
+	private void createCostColumns() {
 		util.createColumn("tbl_processes", "f_currency BIGINT");
 		util.createColumn("tbl_exchanges", "cost_value DOUBLE");
 		util.createColumn("tbl_exchanges", "cost_formula VARCHAR(1000)");

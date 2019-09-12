@@ -23,6 +23,6 @@ interface IUpgrade {
 	/**
 	 * Executes the update on the given database.
 	 */
-	void exec(IDatabase database) throws Exception;
+	void exec(IDatabase database);
 
 }

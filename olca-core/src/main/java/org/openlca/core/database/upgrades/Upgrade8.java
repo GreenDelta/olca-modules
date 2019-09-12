@@ -20,7 +20,7 @@ class Upgrade8 implements IUpgrade {
 	}
 
 	@Override
-	public void exec(IDatabase db) throws Exception {
+	public void exec(IDatabase db) {
 		DbUtil u = new DbUtil(db);
 
 		u.createColumn("tbl_process_links", "is_system_link SMALLINT default 0");
@@ -64,6 +64,9 @@ class Upgrade8 implements IUpgrade {
 			}
 			batch.executeBatch();
 			con.commit();
+		} catch (Exception e) {
+			throw new RuntimeException(
+					"failed to copy process sources to tbl_source_links", e);
 		}
 	}
 }

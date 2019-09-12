@@ -30,7 +30,7 @@ class Upgrade5 implements IUpgrade {
 	}
 
 	@Override
-	public void exec(IDatabase db) throws Exception {
+	public void exec(IDatabase db) {
 		DbUtil u = new DbUtil(db);
 		u.renameColumn("tbl_sources", "doi", "url VARCHAR(255)");
 		u.renameColumn("tbl_process_links", "f_recipient", "f_process BIGINT");
@@ -38,32 +38,34 @@ class Upgrade5 implements IUpgrade {
 		updateLinks(db);
 	}
 
-	private void updateLinks(IDatabase db) throws Exception {
+	private void updateLinks(IDatabase db) {
 		TObjectLongHashMap<LongPair> idx = inputIdx(db);
-		Connection con = db.createConnection();
-		con.setAutoCommit(false);
-		Statement query = con.createStatement();
-		query.setCursorName("UPDATE_LINKS");
-		ResultSet cursor = query.executeQuery(
-				"SELECT f_process, f_flow FROM tbl_process_links "
-						+ "FOR UPDATE of f_exchange");
-		PreparedStatement update = con.prepareStatement(
-				"UPDATE tbl_process_links SET f_exchange = ? " +
-						"WHERE CURRENT OF UPDATE_LINKS");
-		while (cursor.next()) {
-			long processId = cursor.getLong(1);
-			long flowId = cursor.getLong(2);
-			long exchangeId = idx.get(LongPair.of(processId, flowId));
-			if (exchangeId > 0) {
-				update.setLong(1, exchangeId);
-				update.executeUpdate();
+		try (Connection con = db.createConnection()) {
+			con.setAutoCommit(false);
+			Statement query = con.createStatement();
+			query.setCursorName("UPDATE_LINKS");
+			ResultSet cursor = query.executeQuery(
+					"SELECT f_process, f_flow FROM tbl_process_links "
+							+ "FOR UPDATE of f_exchange");
+			PreparedStatement update = con.prepareStatement(
+					"UPDATE tbl_process_links SET f_exchange = ? " +
+							"WHERE CURRENT OF UPDATE_LINKS");
+			while (cursor.next()) {
+				long processId = cursor.getLong(1);
+				long flowId = cursor.getLong(2);
+				long exchangeId = idx.get(LongPair.of(processId, flowId));
+				if (exchangeId > 0) {
+					update.setLong(1, exchangeId);
+					update.executeUpdate();
+				}
 			}
+			cursor.close();
+			query.close();
+			update.close();
+			con.commit();
+		} catch (Exception e) {
+			throw new RuntimeException("failed to upgrade process links", e);
 		}
-		cursor.close();
-		query.close();
-		update.close();
-		con.commit();
-		con.close();
 	}
 
 	private TObjectLongHashMap<LongPair> inputIdx(IDatabase db) {

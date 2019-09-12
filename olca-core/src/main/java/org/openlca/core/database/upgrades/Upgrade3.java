@@ -26,7 +26,7 @@ class Upgrade3 implements IUpgrade {
 	}
 
 	@Override
-	public void exec(IDatabase database) throws Exception {
+	public void exec(IDatabase database) {
 		this.database = database;
 		this.util = new DbUtil(database);
 		createNwSetTable();
@@ -37,7 +37,7 @@ class Upgrade3 implements IUpgrade {
 		addVersionColumns();
 	}
 
-	private void changeSimpleColumns() throws Exception {
+	private void changeSimpleColumns() {
 		util.createColumn("tbl_sources", "external_file VARCHAR(255)");
 		util.createColumn("tbl_parameters", "external_source VARCHAR(255)");
 		util.createColumn("tbl_parameters", "source_type VARCHAR(255)");
@@ -48,51 +48,53 @@ class Upgrade3 implements IUpgrade {
 		util.dropColumn("tbl_process_docs", "version");
 	}
 
-	private void updateMappingTable() throws Exception {
+	private void updateMappingTable() {
 		util.dropTable("tbl_mappings");
 		String tableDef;
 		if (database instanceof DerbyDatabase) {
 			tableDef = "CREATE TABLE tbl_mapping_files ("
-					  	+ "id BIGINT NOT NULL, "
-					  	+ "file_name VARCHAR(255), "
-					  	+ "content BLOB(16 M), "
-					  	+ "PRIMARY KEY (id))";
+					+ "id BIGINT NOT NULL, "
+					+ "file_name VARCHAR(255), "
+					+ "content BLOB(16 M), "
+					+ "PRIMARY KEY (id))";
 		} else {
 			tableDef = "CREATE TABLE tbl_mapping_files ("
-					  	+ "id BIGINT NOT NULL, "
-					  	+ "file_name VARCHAR(255), "
-					  	+ "content MEDIUMBLOB, "
-					  	+ "PRIMARY KEY (id))";
+					+ "id BIGINT NOT NULL, "
+					+ "file_name VARCHAR(255), "
+					+ "content MEDIUMBLOB, "
+					+ "PRIMARY KEY (id))";
 		}
 		util.createTable("tbl_mapping_files", tableDef);
 	}
 
-	private void createNwSetTable() throws Exception {
-		String tableDef = "CREATE TABLE tbl_nw_sets (" 
+	private void createNwSetTable() {
+		String tableDef = "CREATE TABLE tbl_nw_sets ("
 				+ "id BIGINT NOT NULL, "
-				+ "ref_id VARCHAR(36), " 
-				+ "description " + util.getTextType() + ", " 
+				+ "ref_id VARCHAR(36), "
+				+ "description " + util.getTextType() + ", "
 				+ "name VARCHAR(255), "
 				+ "reference_system VARCHAR(255), "
 				+ "f_impact_method BIGINT,  "
-				+ "weighted_score_unit VARCHAR(255), " 
+				+ "weighted_score_unit VARCHAR(255), "
 				+ "PRIMARY KEY (id))";
 		util.createTable("tbl_nw_sets", tableDef);
 		copyNwSetTable();
 		util.dropTable("tbl_normalisation_weighting_sets");
 	}
 
-	private void copyNwSetTable() throws Exception {
+	private void copyNwSetTable() {
 		if (!util.tableExists("tbl_normalisation_weighting_sets"))
 			return;
 		String query = "select * from tbl_normalisation_weighting_sets";
-		NativeSql.on(database).query(query, new NativeSql.QueryResultHandler() {
-			@Override
-			public boolean nextResult(ResultSet result) throws SQLException {
+		try {
+			NativeSql.on(database).query(query, (result) -> {
 				copyNwSet(result);
 				return true;
-			}
-		});
+			});
+		} catch (Exception e) {
+			throw new RuntimeException(
+					"failed to copy table: tbl_normalisation_weighting_sets", e);
+		}
 	}
 
 	private void copyNwSet(final ResultSet result) throws SQLException {
@@ -113,7 +115,7 @@ class Upgrade3 implements IUpgrade {
 				});
 	}
 
-	private void createNwFactorTable() throws Exception {
+	private void createNwFactorTable() {
 		String tableDef = "CREATE TABLE tbl_nw_factors ("
 				+ " id BIGINT NOT NULL," + " weighting_factor DOUBLE,"
 				+ " normalisation_factor DOUBLE,"
@@ -124,17 +126,19 @@ class Upgrade3 implements IUpgrade {
 		util.dropTable("tbl_normalisation_weighting_factors");
 	}
 
-	private void copyNwFactorTable() throws Exception {
+	private void copyNwFactorTable() {
 		if (!util.tableExists("tbl_normalisation_weighting_factors"))
 			return;
 		String query = "select * from tbl_normalisation_weighting_factors";
-		NativeSql.on(database).query(query, new NativeSql.QueryResultHandler() {
-			@Override
-			public boolean nextResult(ResultSet result) throws SQLException {
+		try {
+			NativeSql.on(database).query(query, (result) -> {
 				copyNwFactor(result);
 				return true;
-			}
-		});
+			});
+		} catch (Exception e) {
+			throw new RuntimeException(
+					"failed to copy table: tbl_normalisation_weighting_factors", e);
+		}
 	}
 
 	private void copyNwFactor(final ResultSet result) throws SQLException {
@@ -170,23 +174,27 @@ class Upgrade3 implements IUpgrade {
 	}
 
 	/**
-	 * Changes in parameter redefinitions: It is now allowed to redefine process
-	 * and LCIA method parameters.
+	 * Changes in parameter redefinitions: It is now allowed to redefine process and
+	 * LCIA method parameters.
 	 */
-	private void updateParameterRedefs() throws Exception {
+	private void updateParameterRedefs() {
 		util.renameColumn("tbl_parameter_redefs",
 				"f_process", "f_context BIGINT");
-		if (!util.columnExists("tbl_parameter_redefs", "context_type")) {
-			util.createColumn("tbl_parameter_redefs",
-					"context_type VARCHAR(255)");
+		if (util.columnExists("tbl_parameter_redefs", "context_type"))
+			return;
+		util.createColumn("tbl_parameter_redefs", "context_type VARCHAR(255)");
+		try {
 			NativeSql.on(database).runUpdate(
 					"update tbl_parameter_redefs "
 							+ "set context_type = 'PROCESS' "
 							+ "where f_context is not null");
+		} catch (Exception e) {
+			throw new RuntimeException(
+					"failed to update tbl_parameter_redefs", e);
 		}
 	}
 
-	private void addVersionColumns() throws Exception {
+	private void addVersionColumns() {
 		String[] tables = { "tbl_actors", "tbl_sources", "tbl_unit_groups",
 				"tbl_flow_properties", "tbl_flows", "tbl_processes",
 				"tbl_product_systems", "tbl_impact_methods", "tbl_projects" };

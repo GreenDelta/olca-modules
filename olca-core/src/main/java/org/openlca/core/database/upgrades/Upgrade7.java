@@ -21,7 +21,7 @@ class Upgrade7 implements IUpgrade {
 	}
 
 	@Override
-	public void exec(IDatabase db) throws Exception {
+	public void exec(IDatabase db) {
 		DbUtil u = new DbUtil(db);
 
 		// add a new column for storing parameter aggregation
@@ -55,6 +55,9 @@ class Upgrade7 implements IUpgrade {
 				rs.updateRow();
 			}
 			con.commit();
+		} catch (Exception e) {
+			throw new RuntimeException(
+					"failed to set internal IDs in exchanges", e);
 		}
 
 		// set last internal IDs in processes
@@ -71,6 +74,9 @@ class Upgrade7 implements IUpgrade {
 				rs.updateRow();
 			}
 			con.commit();
+		} catch (Exception e) {
+			throw new RuntimeException(
+					"failed to set last internal IDs in processes", e);
 		}
 	}
 }

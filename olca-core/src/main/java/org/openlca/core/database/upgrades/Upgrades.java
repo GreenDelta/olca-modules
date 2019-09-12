@@ -25,7 +25,7 @@ public class Upgrades {
 	private Upgrades() {
 	}
 
-	public static void runUpgrades(IDatabase database) throws Exception {
+	public static void on(IDatabase database) throws Exception {
 		Upgrades upgrades = new Upgrades();
 		upgrades.run(database);
 	}
