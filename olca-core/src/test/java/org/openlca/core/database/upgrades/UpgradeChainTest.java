@@ -36,6 +36,17 @@ public class UpgradeChainTest {
 		// to see that each upgrade was executed; also note
 		// that the rollbacks are done in reverse order
 
+		// roll back Upgrade6
+		u.dropTable("tbl_dq_systems");
+		u.dropTable("tbl_dq_indicators");
+		u.dropTable("tbl_dq_scores");
+		u.dropColumn("tbl_exchanges", "dq_entry");
+
+		// roll back Upgrade5
+		u.renameColumn("tbl_sources", "url", "doi VARCHAR(255)");
+		u.dropColumn("tbl_process_links", "f_process");
+		u.dropColumn("tbl_process_links", "f_exchange");
+
 		// roll back Upgrade4
 		u.dropColumn("tbl_exchanges", "f_currency");
 		u.dropColumn("tbl_exchanges", "cost_value");
@@ -62,6 +73,18 @@ public class UpgradeChainTest {
 		assertTrue(u.columnExists("tbl_exchanges", "f_currency"));
 		assertTrue(u.columnExists("tbl_exchanges", "cost_value"));
 		assertTrue(u.columnExists("tbl_categories", "f_category"));
+
+		// check Upgrade5
+		assertTrue(u.columnExists("tbl_sources", "url"));
+		assertTrue(u.columnExists("tbl_process_links", "f_process"));
+		assertTrue(u.columnExists("tbl_process_links", "f_exchange"));
+
+		// check Upgrade6
+		assertTrue(u.tableExists("tbl_dq_systems"));
+		assertTrue(u.tableExists("tbl_dq_indicators"));
+		assertTrue(u.tableExists("tbl_dq_scores"));
+		assertTrue(u.columnExists("tbl_exchanges", "dq_entry"));
+
 	}
 
 }

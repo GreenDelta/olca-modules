@@ -13,7 +13,10 @@ public class Upgrades {
 
 	private final IUpgrade[] upgrades = {
 			new Upgrade3(),
-			new Upgrade4()	};
+			new Upgrade4(),
+			new Upgrade5(),
+			new Upgrade6(),
+	};
 
 	private Logger log = LoggerFactory.getLogger(Upgrades.class);
 	
