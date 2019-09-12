@@ -3,7 +3,6 @@ package org.openlca.core.database.upgrades;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
@@ -215,9 +214,14 @@ class DbUtil {
 		}
 	}
 
-	void setVersion(int v) throws SQLException {
-		NativeSql.on(database).runUpdate(
-				"UPDATE openlca_version SET version = " + v);
+	static void setVersion(IDatabase db, int v) {
+		try {
+			NativeSql.on(db).runUpdate(
+					"UPDATE openlca_version SET version = " + v);
+		} catch (Exception e) {
+			throw new RuntimeException(
+					"failed to set database version to " + v, e);
+		}
 	}
 
 }

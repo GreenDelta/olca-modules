@@ -32,7 +32,7 @@ public class UpgradeChainTest {
 	public void test() throws Exception {
 
 		DbUtil u = new DbUtil(db);
-		u.setVersion(1);
+		DbUtil.setVersion(db, 1);
 
 		// these rollbacks are not complete; we just want
 		// to see that each upgrade was executed; also note

@@ -13,7 +13,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.NativeSql.QueryResultHandler;
 
-public class Upgrade4 implements IUpgrade {
+class Upgrade4 implements IUpgrade {
 
 	private IDatabase database;
 	private DbUtil util;

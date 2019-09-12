@@ -1,7 +1,6 @@
 package org.openlca.core.database.upgrades;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.NativeSql;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,33 +24,29 @@ public class Upgrades {
 	private Upgrades() {
 	}
 
-	public static void on(IDatabase database) throws Exception {
+	public static void on(IDatabase dbDatabase) throws Exception {
 		Upgrades upgrades = new Upgrades();
-		upgrades.run(database);
+		upgrades.run(dbDatabase);
 	}
 
-	private void run(IDatabase database) throws Exception {
-		IUpgrade nextUpgrade = null;
-		while ((nextUpgrade = findNextUpgrade(database)) != null) {
+	private void run(IDatabase db) {
+		IUpgrade next = null;
+		while ((next = findNextUpgrade(db)) != null) {
 			log.info("execute update from v({}) to v{}",
-					nextUpgrade.getInitialVersions(),
-					nextUpgrade.getEndVersion());
-			nextUpgrade.exec(database);
-			updateVersion(nextUpgrade.getEndVersion(), database);
+					next.getInitialVersions(),
+					next.getEndVersion());
+			next.exec(db);
+			DbUtil.setVersion(db, next.getEndVersion());
 		}
 		log.debug("no more upgrades");
 	}
 
-	private void updateVersion(int version, IDatabase database) throws Exception {
-		NativeSql.on(database).runUpdate(
-				"update openlca_version set version = " + version);
-	}
 
-	private IUpgrade findNextUpgrade(IDatabase database) {
-		int version = database.getVersion();
+	private IUpgrade findNextUpgrade(IDatabase db) {
+		int version = db.getVersion();
 		for (IUpgrade upgrade : upgrades) {
-			for (int upgradeVersion : upgrade.getInitialVersions()) {
-				if (upgradeVersion == version)
+			for (int v : upgrade.getInitialVersions()) {
+				if (v == version)
 					return upgrade;
 			}
 		}
