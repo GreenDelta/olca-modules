@@ -36,6 +36,11 @@ public class UpgradeChainTest {
 		// to see that each upgrade was executed; also note
 		// that the rollbacks are done in reverse order
 
+		// roll back Upgrade7
+		u.dropColumn("tbl_impact_methods", "parameter_mean");
+		u.dropColumn("tbl_processes", "last_internal_id");
+		u.dropColumn("tbl_exchanges", "internal_id");
+
 		// roll back Upgrade6
 		u.dropTable("tbl_dq_systems");
 		u.dropTable("tbl_dq_indicators");
@@ -84,6 +89,11 @@ public class UpgradeChainTest {
 		assertTrue(u.tableExists("tbl_dq_indicators"));
 		assertTrue(u.tableExists("tbl_dq_scores"));
 		assertTrue(u.columnExists("tbl_exchanges", "dq_entry"));
+
+		// check Upgrade7
+		assertTrue(u.columnExists("tbl_impact_methods", "parameter_mean"));
+		assertTrue(u.columnExists("tbl_processes", "last_internal_id"));
+		assertTrue(u.columnExists("tbl_exchanges", "internal_id"));
 
 	}
 
