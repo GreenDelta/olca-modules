@@ -38,18 +38,12 @@ class Upgrade3 implements IUpgrade {
 	}
 
 	private void changeSimpleColumns() throws Exception {
-		util.createColumn("tbl_sources", "external_file",
-				"external_file VARCHAR(255)");
-		util.createColumn("tbl_parameters", "external_source",
-				"external_source VARCHAR(255)");
-		util.createColumn("tbl_parameters", "source_type",
-				"source_type VARCHAR(255)");
-		util.createColumn("tbl_impact_factors", "formula",
-				"formula VARCHAR(1000)");
-		util.createColumn("tbl_processes", "kmz",
-				"kmz " + util.getBlobType());
-		util.createColumn("tbl_locations", "kmz",
-				"kmz " + util.getBlobType());
+		util.createColumn("tbl_sources", "external_file VARCHAR(255)");
+		util.createColumn("tbl_parameters", "external_source VARCHAR(255)");
+		util.createColumn("tbl_parameters", "source_type VARCHAR(255)");
+		util.createColumn("tbl_impact_factors", "formula VARCHAR(1000)");
+		util.createColumn("tbl_processes", "kmz " + util.getBlobType());
+		util.createColumn("tbl_locations", "kmz " + util.getBlobType());
 		util.dropColumn("tbl_process_docs", "last_change");
 		util.dropColumn("tbl_process_docs", "version");
 	}
@@ -58,27 +52,22 @@ class Upgrade3 implements IUpgrade {
 		util.dropTable("tbl_mappings");
 		String tableDef;
 		if (database instanceof DerbyDatabase) {
-			//@formatter:off
 			tableDef = "CREATE TABLE tbl_mapping_files ("
 					  	+ "id BIGINT NOT NULL, "
 					  	+ "file_name VARCHAR(255), "
 					  	+ "content BLOB(16 M), "
 					  	+ "PRIMARY KEY (id))";
-			//@formatter:on
 		} else {
-			//@formatter:off
 			tableDef = "CREATE TABLE tbl_mapping_files ("
 					  	+ "id BIGINT NOT NULL, "
 					  	+ "file_name VARCHAR(255), "
 					  	+ "content MEDIUMBLOB, "
 					  	+ "PRIMARY KEY (id))";
-			//@formatter:on
 		}
 		util.createTable("tbl_mapping_files", tableDef);
 	}
 
 	private void createNwSetTable() throws Exception {
-		// @formatter:off
 		String tableDef = "CREATE TABLE tbl_nw_sets (" 
 				+ "id BIGINT NOT NULL, "
 				+ "ref_id VARCHAR(36), " 
@@ -88,7 +77,6 @@ class Upgrade3 implements IUpgrade {
 				+ "f_impact_method BIGINT,  "
 				+ "weighted_score_unit VARCHAR(255), " 
 				+ "PRIMARY KEY (id))";
-		// @formatter:on
 		util.createTable("tbl_nw_sets", tableDef);
 		copyNwSetTable();
 		util.dropTable("tbl_normalisation_weighting_sets");
@@ -186,10 +174,10 @@ class Upgrade3 implements IUpgrade {
 	 * and LCIA method parameters.
 	 */
 	private void updateParameterRedefs() throws Exception {
-		util.renameColumn("tbl_parameter_redefs", "f_process", "f_context",
-				"BIGINT");
+		util.renameColumn("tbl_parameter_redefs",
+				"f_process", "f_context BIGINT");
 		if (!util.columnExists("tbl_parameter_redefs", "context_type")) {
-			util.createColumn("tbl_parameter_redefs", "context_type",
+			util.createColumn("tbl_parameter_redefs",
 					"context_type VARCHAR(255)");
 			NativeSql.on(database).runUpdate(
 					"update tbl_parameter_redefs "
@@ -203,8 +191,8 @@ class Upgrade3 implements IUpgrade {
 				"tbl_flow_properties", "tbl_flows", "tbl_processes",
 				"tbl_product_systems", "tbl_impact_methods", "tbl_projects" };
 		for (String table : tables) {
-			util.createColumn(table, "version", "version BIGINT");
-			util.createColumn(table, "last_change", "last_change BIGINT");
+			util.createColumn(table, "version BIGINT");
+			util.createColumn(table, "last_change BIGINT");
 		}
 	}
 

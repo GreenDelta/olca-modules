@@ -40,15 +40,12 @@ public class Upgrade4 implements IUpgrade {
 		createSocialTables();
 		createCurrencyTable();
 		createCostColumns();
-		util.createColumn("tbl_locations", "f_category",
+		util.createColumn("tbl_locations", "f_category BIGINT");
+		util.createColumn("tbl_parameters", "f_category BIGINT");
+		util.renameColumn("tbl_categories", "f_parent_category",
 				"f_category BIGINT");
-		util.createColumn("tbl_parameters", "f_category",
-				"f_category BIGINT");
-		util.renameColumn("tbl_categories", "f_parent_category", "f_category",
-				"BIGINT");
-		util.createColumn("tbl_exchanges", "description", "description "
-				+ util.getTextType());
-		util.createColumn("tbl_flows", "synonyms", "synonyms VARCHAR(32672)");
+		util.createColumn("tbl_exchanges", "description " + util.getTextType());
+		util.createColumn("tbl_flows", "synonyms VARCHAR(32672)");
 		Upgrade4Files.apply(database);
 	}
 
@@ -104,10 +101,10 @@ public class Upgrade4 implements IUpgrade {
 		String[] tables = { "tbl_categories", "tbl_impact_categories",
 				"tbl_locations", "tbl_nw_sets", "tbl_parameters", "tbl_units" };
 		for (String table : tables) {
-			util.createColumn(table, "version", "version BIGINT");
-			util.createColumn(table, "last_change", "last_change BIGINT");
+			util.createColumn(table, "version BIGINT");
+			util.createColumn(table, "last_change BIGINT");
 		}
-		util.createColumn("tbl_parameters", "ref_id", "ref_id VARCHAR(36)");
+		util.createColumn("tbl_parameters", "ref_id VARCHAR(36)");
 		List<String> updates = new ArrayList<>();
 		NativeSql.on(database).query(
 				"select id from tbl_parameters",
@@ -154,14 +151,10 @@ public class Upgrade4 implements IUpgrade {
 	}
 
 	private void createCostColumns() throws Exception {
-		util.createColumn("tbl_processes", "f_currency",
-				"f_currency BIGINT");
-		util.createColumn("tbl_exchanges", "cost_value",
-				"cost_value DOUBLE");
-		util.createColumn("tbl_exchanges", "cost_formula",
-				"cost_formula VARCHAR(1000)");
-		util.createColumn("tbl_exchanges", "f_currency",
-				"f_currency BIGINT");
+		util.createColumn("tbl_processes", "f_currency BIGINT");
+		util.createColumn("tbl_exchanges", "cost_value DOUBLE");
+		util.createColumn("tbl_exchanges", "cost_formula VARCHAR(1000)");
+		util.createColumn("tbl_exchanges", "f_currency BIGINT");
 	}
 
 	private class KmzResultHandler implements QueryResultHandler {
@@ -177,13 +170,17 @@ public class Upgrade4 implements IUpgrade {
 		}
 
 		@Override
-		public boolean nextResult(ResultSet result) throws SQLException {
-			long id = result.getLong("id");
-			String name = result.getString("name");
-			String refId = result.getString("ref_id");
-			byte[] kmz = result.getBytes("kmz");
-			long locationId = insertLocation(createName(name),
-					createDescription(name, refId), kmz);
+		public boolean nextResult(ResultSet r) throws SQLException {
+			long id = r.getLong("id");
+			String name = r.getString("name");
+			String refId = r.getString("ref_id");
+			byte[] kmz = r.getBytes("kmz");
+			String description = "Location was specified in process "
+					+ name + " (" + refId + ")";
+			String locName = "Location of process " + name;
+			if (locName.length() > 255)
+				locName = locName.substring(0, 255);
+			long locationId = insertLocation(locName, description, kmz);
 			updateProcess(id, locationId);
 			return true;
 		}
@@ -205,18 +202,5 @@ public class Upgrade4 implements IUpgrade {
 			processUpdateStatement.setLong(2, processId);
 			processUpdateStatement.executeUpdate();
 		}
-
-		private String createName(String name) {
-			String locationName = "Location of process " + name;
-			if (locationName.length() > 255)
-				locationName = locationName.substring(0, 255);
-			return locationName;
-		}
-
-		private String createDescription(String name, String refId) {
-			return "Location was specified in process " + name + " (" + refId
-					+ ")";
-		}
 	}
-
 }

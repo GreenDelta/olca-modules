@@ -66,8 +66,8 @@ public class DbUtil {
 	}
 
 	/**
-	 * Checks if a table with the given name exists in the database. If not it
-	 * is created using the given table definition.
+	 * Checks if a table with the given name exists in the database. If not it is
+	 * created using the given table definition.
 	 */
 	public void createTable(String table, String tableDef) throws Exception {
 		log.trace("Check if table {} exists", table);
@@ -97,19 +97,38 @@ public class DbUtil {
 	}
 
 	/**
-	 * Checks if a column with the given name exists in the table with the given
-	 * name. If not, it is created using the given column definition.
+	 * Create a column with the given definition in the given table. The column
+	 * definition must contain the name and type of the column, like `formula
+	 * VARCHAR(1000)`. If the column already exists in the table (also with another
+	 * data type), nothing is done and `false` is returned. Otherwise the column is
+	 * added and `true` is returned.
 	 */
-	public boolean createColumn(String table, String column, String columnDef) throws Exception {
-		log.trace("Check if column {} exists in {}", column, table);
+	public boolean createColumn(String table, String definition) {
+		if (table == null || definition == null)
+			return false;
+
+		String column;
+		try {
+			column = definition.split(" ")[0].trim();
+		} catch (Exception e) {
+			throw new IllegalArgumentException(
+					"invalid column definition " + definition);
+		}
+
 		if (columnExists(table, column)) {
-			log.trace("column exists");
+			log.debug("column {}.{} already exists", table, column);
 			return false;
 		}
+
+		try {
 		log.info("add column {} to {}", column, table);
-		String stmt = "ALTER TABLE " + table + " ADD COLUMN " + columnDef;
+			String stmt = "ALTER TABLE " + table + " ADD COLUMN " + definition;
 		NativeSql.on(database).runUpdate(stmt);
 		return true;
+		} catch (Exception e) {
+			throw new RuntimeException(
+					"failed to add column " + table + "." + column, e);
+		}
 	}
 
 	/** Deletes the given column from the given table if it exists. */
@@ -123,42 +142,67 @@ public class DbUtil {
 	}
 
 	/**
-	 * Returns true if the column with the given name exists in the table with
-	 * the given name.
+	 * Returns true if a column with the given name exists in the table with the
+	 * given name.
 	 */
-	public boolean columnExists(String tableName, String columnName) throws Exception {
+	public boolean columnExists(String table, String column) {
 		try (Connection con = database.createConnection()) {
 			DatabaseMetaData metaData = con.getMetaData();
 			try (ResultSet rs = metaData.getColumns(null, null, "%", "%")) {
 				while (rs.next()) {
-					String tName = rs.getString(3);
-					String cName = rs.getString(4);
-					if (tName.equalsIgnoreCase(tableName) && cName.equalsIgnoreCase(columnName))
+					String t = rs.getString(3);
+					String c = rs.getString(4);
+					if (t.equalsIgnoreCase(table) && c.equalsIgnoreCase(column))
 						return true;
 				}
 				return false;
 			}
+		} catch (Exception e) {
+			throw new RuntimeException(
+					"failed to search for column " + table + "." + column, e);
 		}
 	}
 
-	public void renameColumn(String table, String oldName, String newName, String dataType) throws Exception {
-		if (columnExists(table, newName))
-			return;
-		log.trace("rename column {}.{} to {}", table, oldName, newName);
-		if (!columnExists(table, oldName)) {
-			log.error("column {}.{} does not exists", table, oldName);
+	/**
+	 * Rename the given column in the given table. A full definition of the new
+	 * column (name + data type, e.g. `formula VARCHAR(1000)`) must be given. If the
+	 * old column does not exist the new column is created if necessary.
+	 */
+	public void renameColumn(String table, String column, String definition) {
+
+		String newCol;
+		try {
+			newCol = definition.split(" ")[0];
+		} catch (Exception e) {
+			throw new IllegalArgumentException(
+					"invalid column definition " + definition);
+		}
+
+		if (columnExists(table, newCol)) {
+			log.debug("column {}.{} already exists", table, newCol);
 			return;
 		}
-		String query = null;
-		if (database instanceof DerbyDatabase)
-			query = "RENAME COLUMN " + table + "." + oldName + " TO " + newName;
-		else
-			query = "ALTER TABLE " + table + " CHANGE " + oldName + " " + newName + " " + dataType;
-		NativeSql.on(database).runUpdate(query);
+		if (!columnExists(table, column)) {
+			log.warn("column {}.{} does not exists for renaming", table, column);
+			createColumn(table, definition);
+			return;
+		}
+
+		log.info("rename column {}.{} to {}.{}", table, column, table, newCol);
+		String query = database instanceof DerbyDatabase
+				? "RENAME COLUMN " + table + "." + column + " TO " + newCol
+				: "ALTER TABLE " + table + " CHANGE " + column
+						+ " " + definition;
+		try {
+			NativeSql.on(database).runUpdate(query);
+		} catch (Exception e) {
+			throw new RuntimeException("failed to rename column: " + query, e);
+		}
 	}
 
 	public void setVersion(int v) throws SQLException {
-		NativeSql.on(database).runUpdate("UPDATE openlca_version SET version = " + v);
+		NativeSql.on(database).runUpdate(
+				"UPDATE openlca_version SET version = " + v);
 	}
 
 }

@@ -16,12 +16,9 @@ public class Upgrades {
 			new Upgrade4()	};
 
 	private Logger log = LoggerFactory.getLogger(Upgrades.class);
-	// This way of upgrading the database was removed in version 1.6.0, but is still kept for downwards compatibility
-	public static final int FINAL_UPGRADE = 4;
 	
 	private Upgrades() {
 	}
-
 
 	public static void runUpgrades(IDatabase database) throws Exception {
 		Upgrades upgrades = new Upgrades();
@@ -31,7 +28,8 @@ public class Upgrades {
 	private void run(IDatabase database) throws Exception {
 		IUpgrade nextUpgrade = null;
 		while ((nextUpgrade = findNextUpgrade(database)) != null) {
-			log.trace("execute update from v({}) to v{}", nextUpgrade.getInitialVersions(),
+			log.trace("execute update from v({}) to v{}",
+					nextUpgrade.getInitialVersions(),
 					nextUpgrade.getEndVersion());
 			nextUpgrade.exec(database);
 			updateVersion(nextUpgrade.getEndVersion(), database);
@@ -40,7 +38,8 @@ public class Upgrades {
 	}
 
 	private void updateVersion(int version, IDatabase database) throws Exception {
-		NativeSql.on(database).runUpdate("update openlca_version set version = " + version);
+		NativeSql.on(database).runUpdate(
+				"update openlca_version set version = " + version);
 	}
 
 	private IUpgrade findNextUpgrade(IDatabase database) {

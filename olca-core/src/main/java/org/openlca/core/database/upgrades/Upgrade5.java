@@ -31,12 +31,10 @@ class Upgrade5 implements IUpgrade {
 
 	@Override
 	public void exec(IDatabase db) throws Exception {
-		DbUtil util = new DbUtil(db);
-		util.renameColumn("tbl_sources", "doi", "url", "VARCHAR(255)");
-		util.renameColumn("tbl_process_links", "f_recipient",
-				"f_process", "BIGINT");
-		util.createColumn("tbl_process_links", "f_exchange",
-				"f_exchange BIGINT");
+		DbUtil u = new DbUtil(db);
+		u.renameColumn("tbl_sources", "doi", "url VARCHAR(255)");
+		u.renameColumn("tbl_process_links", "f_recipient", "f_process BIGINT");
+		u.createColumn("tbl_process_links", "f_exchange BIGINT");
 		updateLinks(db);
 	}
 
