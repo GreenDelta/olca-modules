@@ -1,5 +1,6 @@
 package org.openlca.core.database.upgrades;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.nio.file.Files;
@@ -7,6 +8,7 @@ import java.nio.file.Files;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.util.Dirs;
 
@@ -35,6 +37,14 @@ public class UpgradeChainTest {
 		// these rollbacks are not complete; we just want
 		// to see that each upgrade was executed; also note
 		// that the rollbacks are done in reverse order
+
+		// roll back Upgrade8
+		u.dropColumn("tbl_process_links", "is_system_link");
+		u.dropColumn("tbl_impact_methods", "f_author");
+		u.dropColumn("tbl_impact_methods", "f_generator");
+		u.dropColumn("tbl_process_docs", "preceding_dataset");
+		u.dropColumn("tbl_project_variants", "is_disabled");
+		u.dropTable("tbl_source_links");
 
 		// roll back Upgrade7
 		u.dropColumn("tbl_impact_methods", "parameter_mean");
@@ -95,6 +105,16 @@ public class UpgradeChainTest {
 		assertTrue(u.columnExists("tbl_processes", "last_internal_id"));
 		assertTrue(u.columnExists("tbl_exchanges", "internal_id"));
 
+		// check Upgrade8
+		assertTrue(u.columnExists("tbl_process_links", "is_system_link"));
+		assertTrue(u.columnExists("tbl_impact_methods", "f_author"));
+		assertTrue(u.columnExists("tbl_impact_methods", "f_generator"));
+		assertTrue(u.columnExists("tbl_process_docs", "preceding_dataset"));
+		assertTrue(u.columnExists("tbl_project_variants", "is_disabled"));
+		assertTrue(u.tableExists("tbl_source_links"));
+
+		// finally, check that we now have the current database version
+		assertEquals(IDatabase.CURRENT_VERSION, db.getVersion());
 	}
 
 }

@@ -17,6 +17,7 @@ public class Upgrades {
 			new Upgrade5(),
 			new Upgrade6(),
 			new Upgrade7(),
+			new Upgrade8(),
 	};
 
 	private Logger log = LoggerFactory.getLogger(Upgrades.class);
@@ -32,13 +33,13 @@ public class Upgrades {
 	private void run(IDatabase database) throws Exception {
 		IUpgrade nextUpgrade = null;
 		while ((nextUpgrade = findNextUpgrade(database)) != null) {
-			log.trace("execute update from v({}) to v{}",
+			log.info("execute update from v({}) to v{}",
 					nextUpgrade.getInitialVersions(),
 					nextUpgrade.getEndVersion());
 			nextUpgrade.exec(database);
 			updateVersion(nextUpgrade.getEndVersion(), database);
 		}
-		log.trace("no more upgrades");
+		log.debug("no more upgrades");
 	}
 
 	private void updateVersion(int version, IDatabase database) throws Exception {
