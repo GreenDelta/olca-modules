@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.io.ecospold2.input.KMLImport;
 import org.openlca.io.maps.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,6 +89,6 @@ public class RefDataImport implements Runnable {
 			return;
 		}
 		log.trace("import KML data from {}", kmlFile);
-		new GeoKmzImport(kmlFile, database).run();
+		new KMLImport(kmlFile, database).run();
 	}
 }
