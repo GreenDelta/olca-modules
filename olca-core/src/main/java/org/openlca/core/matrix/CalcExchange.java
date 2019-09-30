@@ -106,7 +106,7 @@ public class CalcExchange {
 			double allocationFactor) {
 
 		double c = costValue;
-		if (costFormula != null && interpreter != null) {
+		if (Strings.notEmpty(costFormula) && interpreter != null) {
 			try {
 				Scope scope = interpreter.getScope(processId);
 				if (scope == null) {
