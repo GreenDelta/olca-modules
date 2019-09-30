@@ -96,18 +96,12 @@ public class CellWriter {
 				false);
 	}
 
-	public int dataQuality(Sheet sheet, int row, int col, double[] quality,
-			RoundingMode rounding, int scores) {
-		return dataQuality(sheet, row, col, quality, rounding, scores, false);
-	}
-
 	/**
 	 * Writes the given data quality information into the given row, starting
 	 * with column col
 	 */
-	private int dataQuality(Sheet sheet, int row, int col, double[] quality,
-			RoundingMode rounding, int scores,
-			boolean bold) {
+	public int dataQuality(Sheet sheet, int row, int col, double[] quality,
+			RoundingMode rounding, int scores) {
 		if (scores == 0 || quality == null)
 			return col;
 		for (int i = 0; i < quality.length; i++) {
@@ -118,7 +112,7 @@ public class CellWriter {
 					? Math.ceil(value)
 					: Math.round(value));
 			Color color = DQColors.get(score, scores);
-			cell(sheet, row, col + i, Integer.toString(score), color, bold);
+			cell(sheet, row, col + i, Integer.toString(score), color, false);
 		}
 		return col + quality.length;
 	}

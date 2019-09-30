@@ -55,7 +55,7 @@ class InventorySheet {
 		int row = 2;
 		col = writer.headerRow(sheet, row, col, ResultExport.FLOW_HEADER);
 		writer.cell(sheet, row, col++, "Result", true);
-		if (dqResult == null || dqResult.setup.exchangeDqSystem == null)
+		if (!withDQ())
 			return col + 1;
 		col = writer.dataQualityHeader(sheet, row, col,
 				dqResult.setup.exchangeDqSystem);
@@ -69,7 +69,7 @@ class InventorySheet {
 			double value = result.getTotalFlowResult(flow);
 			writer.flowRow(sheet, row, col, flow);
 			writer.cell(sheet, row, resultStartCol + col, value);
-			if (dqResult == null) {
+			if (!withDQ()) {
 				row++;
 				continue;
 			}
@@ -79,6 +79,12 @@ class InventorySheet {
 			writer.dataQuality(sheet, row++, resultStartCol + col + 1, quality,
 					rounding, scores);
 		}
+	}
+
+	private boolean withDQ() {
+		return dqResult != null
+				&& dqResult.setup != null
+				&& dqResult.setup.exchangeDqSystem != null;
 	}
 
 }
