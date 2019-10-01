@@ -1,6 +1,5 @@
 package org.openlca.io.xls.results.system;
 
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,20 +63,18 @@ class InventorySheet {
 
 	private void data(int col, List<FlowDescriptor> flows) {
 		int row = 3;
-		int resultStartCol = ResultExport.FLOW_HEADER.length;
+		int startCol = ResultExport.FLOW_HEADER.length;
 		for (FlowDescriptor flow : flows) {
 			double value = result.getTotalFlowResult(flow);
 			writer.flowRow(sheet, row, col, flow);
-			writer.cell(sheet, row, resultStartCol + col, value);
+			writer.cell(sheet, row, startCol + col, value);
 			if (!withDQ()) {
 				row++;
 				continue;
 			}
-			RoundingMode rounding = dqResult.setup.roundingMode;
-			int scores = dqResult.setup.exchangeDqSystem.getScoreCount();
-			double[] quality = dqResult.get(flow);
-			writer.dataQuality(sheet, row++, resultStartCol + col + 1, quality,
-					rounding, scores);
+			writer.dataQuality(sheet, row++, startCol + col + 1,
+					dqResult.get(flow),
+					dqResult.setup.exchangeDqSystem);
 		}
 	}
 

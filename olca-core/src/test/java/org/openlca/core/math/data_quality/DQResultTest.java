@@ -125,7 +125,7 @@ public class DQResultTest {
 		system.processLinks.add(link);
 		system.referenceProcess = process1;
 		system.referenceExchange = process1.quantitativeReference;
-		system.targetAmount = (double) 1;
+		system.targetAmount = 1;
 		system.targetFlowPropertyFactor = pFlow1.getReferenceFactor();
 		system.targetUnit = unitGroup.referenceUnit;
 		system = new ProductSystemDao(Tests.getDb()).insert(system);
@@ -163,7 +163,7 @@ public class DQResultTest {
 		unitGroup = new UnitGroup();
 		Unit unit = new Unit();
 		unit.name = "unit";
-		unit.conversionFactor = (double) 1;
+		unit.conversionFactor = 1;
 		unitGroup.units.add(unit);
 		unitGroup.referenceUnit = unit;
 		unitGroup = new UnitGroupDao(Tests.getDb()).insert(unitGroup);
@@ -216,52 +216,47 @@ public class DQResultTest {
 	}
 
 	private void checkResults(DQResult result, ImpactCategory impact) {
-		Assert.assertArrayEquals(a(4, 4, 3, 2, 2), getResult(result, eFlow1),
-				0.5);
-		Assert.assertArrayEquals(a(2, 3, 3, 4, 4), getResult(result, eFlow2),
-				0.5);
-		Assert.assertArrayEquals(a(2, 3, 3, 3, 4), getResult(result, impact),
-				0.5);
+		Assert.assertArrayEquals(a(4, 4, 3, 2, 2), getResult(result, eFlow1));
+		Assert.assertArrayEquals(a(2, 3, 3, 4, 4), getResult(result, eFlow2));
+		Assert.assertArrayEquals(a(2, 3, 3, 3, 4), getResult(result, impact));
 		Assert.assertArrayEquals(a(1, 2, 3, 4, 5),
-				getResult(result, process1, eFlow1), 0.5);
+				getResult(result, process1, eFlow1));
 		Assert.assertArrayEquals(a(5, 4, 3, 2, 1),
-				getResult(result, process2, eFlow1), 0.5);
+				getResult(result, process2, eFlow1));
 		Assert.assertArrayEquals(a(5, 4, 3, 2, 1),
-				getResult(result, process1, eFlow2), 0.5);
+				getResult(result, process1, eFlow2));
 		Assert.assertArrayEquals(a(1, 2, 3, 4, 5),
-				getResult(result, process2, eFlow2), 0.5);
+				getResult(result, process2, eFlow2));
 		Assert.assertArrayEquals(a(4, 4, 3, 2, 2),
-				getResult(result, process1, impact), 0.5);
+				getResult(result, process1, impact));
 		Assert.assertArrayEquals(a(2, 2, 3, 4, 4),
-				getResult(result, process2, impact), 0.5);
-		Assert.assertArrayEquals(a(1, 2, 3, 4, 5), getResult(result, process1),
-				0.5);
-		Assert.assertArrayEquals(a(5, 4, 3, 2, 1), getResult(result, process2),
-				0.5);
+				getResult(result, process2, impact));
+		Assert.assertArrayEquals(a(1, 2, 3, 4, 5), getResult(result, process1));
+		Assert.assertArrayEquals(a(5, 4, 3, 2, 1), getResult(result, process2));
 	}
 
-	private double[] a(double... vals) {
+	private int[] a(int... vals) {
 		return vals;
 	}
 
-	private double[] getResult(DQResult result, Flow flow) {
+	private int[] getResult(DQResult result, Flow flow) {
 		return result.get(Descriptors.toDescriptor(flow));
 	}
 
-	private double[] getResult(DQResult result, Process process) {
+	private int[] getResult(DQResult result, Process process) {
 		return result.get(Descriptors.toDescriptor(process));
 	}
 
-	private double[] getResult(DQResult result, ImpactCategory impact) {
+	private int[] getResult(DQResult result, ImpactCategory impact) {
 		return result.get(Descriptors.toDescriptor(impact));
 	}
 
-	private double[] getResult(DQResult result, Process process, Flow flow) {
+	private int[] getResult(DQResult result, Process process, Flow flow) {
 		return result.get(Descriptors.toDescriptor(process),
 				Descriptors.toDescriptor(flow));
 	}
 
-	private double[] getResult(DQResult result, Process process,
+	private int[] getResult(DQResult result, Process process,
 			ImpactCategory impact) {
 		return result.get(Descriptors.toDescriptor(process),
 				Descriptors.toDescriptor(impact));

@@ -1,6 +1,5 @@
 package org.openlca.io.xls.results.system;
 
-import java.math.RoundingMode;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Sheet;
@@ -49,20 +48,18 @@ class ImpactSheet {
 
 	private void data() {
 		int row = 2;
-		int resultStartCol = ResultExport.IMPACT_HEADER.length + 1;
+		int startCol = ResultExport.IMPACT_HEADER.length + 1;
 		for (ImpactCategoryDescriptor impact : impacts) {
 			double value = result.getTotalImpactResult(impact);
 			writer.impactRow(sheet, row, 1, impact);
-			writer.cell(sheet, row, resultStartCol, value);
-			if (dqResult == null) {
+			writer.cell(sheet, row, startCol, value);
+			if (dqResult == null || dqResult.setup == null) {
 				row++;
 				continue;
 			}
-			RoundingMode rounding = dqResult.setup.roundingMode;
-			int scores = dqResult.setup.exchangeDqSystem.getScoreCount();
-			double[] quality = dqResult.get(impact);
-			writer.dataQuality(sheet, row++, resultStartCol + 1, quality,
-					rounding, scores);
+			writer.dataQuality(sheet, row++, startCol + 1,
+					dqResult.get(impact),
+					dqResult.setup.exchangeDqSystem);
 		}
 	}
 

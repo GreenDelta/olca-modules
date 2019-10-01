@@ -81,7 +81,8 @@ public class DQSystem extends CategorizedEntity {
 
 	/**
 	 * Get the (possible custom) label of the score $j$ which is $j$ by default.
-	 * Note that the indices for indicators and scores are 1-based.
+	 * Note that the indices for indicators and scores are 1-based. Also, the
+	 * returned value is null if the given score is not defined in this system.
 	 */
 	public String getScoreLabel(int j) {
 		if (indicators == null || indicators.isEmpty())

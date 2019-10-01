@@ -1,7 +1,6 @@
 package org.openlca.io.xls.results;
 
 import java.awt.Color;
-import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -100,21 +99,26 @@ public class CellWriter {
 	 * Writes the given data quality information into the given row, starting
 	 * with column col
 	 */
-	public int dataQuality(Sheet sheet, int row, int col, double[] quality,
-			RoundingMode rounding, int scores) {
-		if (scores == 0 || quality == null)
+	public int dataQuality(Sheet sheet, int row, int col,
+			int[] result, DQSystem system) {
+		if (result == null || system == null)
 			return col;
-		for (int i = 0; i < quality.length; i++) {
-			double value = quality[i];
-			if (value == 0d)
+		int n = system.getScoreCount();
+		if (n == 0)
+			return col;
+		for (int i = 0; i < result.length; i++) {
+			int score = result[i];
+			if (score <= 0)
 				continue;
-			int score = (int) (rounding == RoundingMode.CEILING
-					? Math.ceil(value)
-					: Math.round(value));
-			Color color = DQColors.get(score, scores);
-			cell(sheet, row, col + i, Integer.toString(score), color, false);
+			if (score > n) {
+				score = n;
+			}
+			Color color = DQColors.get(score, n);
+			String label = system.getScoreLabel(score);
+			label = label == null ? "" : label;
+			cell(sheet, row, col + i, label, color, false);
 		}
-		return col + quality.length;
+		return col + result.length;
 	}
 
 	/**

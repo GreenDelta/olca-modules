@@ -1,52 +1,58 @@
 package org.openlca.core.math.data_quality;
 
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.LongPair;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.results.ContributionResult;
 
 public class DQResult {
 
 	public final DQCalculationSetup setup;
 	public final DQStatistics statistics;
-	private Map<Long, double[]> processValues = new HashMap<>();
-	private Map<Long, double[]> flowValues = new HashMap<>();
-	private Map<Long, double[]> impactValues = new HashMap<>();
-	private Map<LongPair, double[]> flowValuesPerProcess = new HashMap<>();
-	private Map<LongPair, double[]> impactValuesPerFlow = new HashMap<>();
-	private Map<LongPair, double[]> impactValuesPerProcess = new HashMap<>();
+	private Map<Long, int[]> processValues = new HashMap<>();
+	private Map<Long, int[]> flowValues = new HashMap<>();
+	private Map<Long, int[]> impactValues = new HashMap<>();
+	private Map<LongPair, int[]> flowValuesPerProcess = new HashMap<>();
+	private Map<LongPair, int[]> impactValuesPerFlow = new HashMap<>();
+	private Map<LongPair, int[]> impactValuesPerProcess = new HashMap<>();
 
-	public double[] get(CategorizedDescriptor process) {
+	public int[] get(CategorizedDescriptor process) {
 		return processValues.get(process.id);
 	}
 
-	public double[] get(FlowDescriptor flow) {
+	public int[] get(FlowDescriptor flow) {
 		return flowValues.get(flow.id);
 	}
 
-	public double[] get(ImpactCategoryDescriptor impact) {
+	public int[] get(ImpactCategoryDescriptor impact) {
 		return impactValues.get(impact.id);
 	}
 
-	public double[] get(CategorizedDescriptor process, FlowDescriptor flow) {
+	public int[] get(CategorizedDescriptor process, FlowDescriptor flow) {
 		return flowValuesPerProcess
 				.get(new LongPair(process.id, flow.id));
 	}
 
-	public double[] get(CategorizedDescriptor process,
+	public int[] get(CategorizedDescriptor process,
 			ImpactCategoryDescriptor impact) {
 		return impactValuesPerProcess
 				.get(new LongPair(process.id, impact.id));
 	}
 
-	public double[] get(FlowDescriptor flow, ImpactCategoryDescriptor impact) {
+	public int[] get(FlowDescriptor flow, ImpactCategoryDescriptor impact) {
 		return impactValuesPerFlow
 				.get(new LongPair(flow.id, impact.id));
+	}
+
+	private DQResult(DQCalculationSetup setup, DQStatistics statistics) {
+		this.setup = setup;
+		this.statistics = statistics;
 	}
 
 	public static DQResult calculate(IDatabase db, ContributionResult result,
@@ -59,27 +65,38 @@ public class DQResult {
 			return null;
 		DQData data = DQData.load(db, setup, result.flowIndex.ids());
 		DQResult dqResult = new DQResult(setup, data.statistics);
+		RoundingMode rmode = setup.roundingMode;
 		if (setup.processDqSystem != null) {
-			dqResult.processValues = data.processData;
+			dqResult.processValues = iv(data.processData, rmode);
 		}
 		if (setup.exchangeDqSystem == null)
 			return dqResult;
-		dqResult.flowValuesPerProcess = data.exchangeData;
+		dqResult.flowValuesPerProcess = iv(data.exchangeData, rmode);
 		if (setup.aggregationType == AggregationType.NONE)
 			return dqResult;
-		DQCalculator calculator = new DQCalculator(result, data, setup);
-		calculator.calculate();
-		dqResult.flowValues = calculator.getFlowValues();
-		dqResult.impactValuesPerFlow = calculator.getImpactPerFlowValues();
-		dqResult.impactValues = calculator.getImpactValues();
-		dqResult.impactValuesPerProcess = calculator
-				.getImpactPerProcessValues();
+		DQCalculator calc = new DQCalculator(result, data, setup);
+		calc.calculate();
+		dqResult.flowValues = iv(calc.getFlowValues(), rmode);
+		dqResult.impactValuesPerFlow = iv(calc.getImpactPerFlowValues(), rmode);
+		dqResult.impactValues = iv(calc.getImpactValues(), rmode);
+		dqResult.impactValuesPerProcess = iv(calc.getImpactPerProcessValues(), rmode);
 		return dqResult;
 	}
 
-	private DQResult(DQCalculationSetup setup, DQStatistics statistics) {
-		this.setup = setup;
-		this.statistics = statistics;
+	private static <K> Map<K, int[]> iv(Map<K, double[]> m, RoundingMode rmode) {
+		Map<K, int[]> im = new HashMap<K, int[]>();
+		m.forEach((key, vals) -> {
+			if (key == null || vals == null)
+				return;
+			int[] ivals = new int[vals.length];
+			for (int i = 0; i < vals.length; i++) {
+				ivals[i] = (int) (rmode == RoundingMode.CEILING
+						? Math.ceil(vals[i])
+						: Math.round(vals[i]));
+			}
+			im.put(key, ivals);
+		});
+		return im;
 	}
 
 }

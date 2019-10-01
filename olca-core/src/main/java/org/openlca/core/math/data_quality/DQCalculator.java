@@ -22,7 +22,7 @@ class DQCalculator {
 	private final DQData data;
 	private final DQCalculationSetup setup;
 
-	public DQCalculator(ContributionResult result, DQData data,
+	DQCalculator(ContributionResult result, DQData data,
 			DQCalculationSetup setup) {
 		this.result = result;
 		this.data = data;
