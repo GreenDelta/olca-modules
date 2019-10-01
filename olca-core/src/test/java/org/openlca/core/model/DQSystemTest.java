@@ -18,6 +18,7 @@ public class DQSystemTest {
 			for (int j = 1; j <= 5; j++) {
 				DQScore score = new DQScore();
 				score.position = j;
+				score.label = new String(new char[] { (char) (64 + j) });
 				indicator.scores.add(score);
 			}
 		}
@@ -77,6 +78,18 @@ public class DQSystemTest {
 		String s = " (3; 7; 5; -1; 0) ";
 		int[] result = system.toValues(s);
 		Assert.assertArrayEquals(new int[] { 3, 0, 5, 0, 0 }, result);
+	}
+
+	@Test
+	public void testApplyScoreLabels() {
+		Assert.assertEquals("", system.applyScoreLabels(null));
+		Assert.assertEquals("", system.applyScoreLabels(""));
+		Assert.assertEquals("(A; B; C; D; E)",
+				system.applyScoreLabels("(1;2;3;4;5)"));
+		Assert.assertEquals("(E; D; C; B; A)",
+				system.applyScoreLabels("(5;4;3;2;1)"));
+		Assert.assertEquals("(E; n.a.; C; B; n.a.)",
+				system.applyScoreLabels("(5;n.a.;3;2;n.a.)"));
 	}
 
 }
