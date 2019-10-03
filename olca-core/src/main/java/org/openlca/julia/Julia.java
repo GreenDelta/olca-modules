@@ -113,11 +113,26 @@ public final class Julia {
 		if (os == OS.LINUX) {
 			if (opt == LinkOption.ALL) {
 				return new String[] {
-						"libolcar_withumf.so"
+						"libgcc_s.so.1",
+						"libsuitesparseconfig.so.5",
+						"libccolamd.so.2",
+						"libamd.so.2",
+						"libcamd.so.2",
+						"libcolamd.so.2",
+						"libquadmath.so.0",
+						"libgfortran.so.4",
+						"libopenblas64_.so.0",
+						"libcholmod.so.3",
+						"libumfpack.so.5",
+						"libolcar_withumf.so",
 				};
 			} else {
 				return new String[] {
-						"libolcar.so"
+						"libgcc_s.so.1",
+						"libquadmath.so.0",
+						"libgfortran.so.4",
+						"libopenblas64_.so.0",
+						"libolcar.so",
 				};
 			}
 		}
@@ -178,19 +193,13 @@ public final class Julia {
 	/**
 	 * Matrix-matrix multiplication: C := A * B
 	 *
-	 * @param rowsA
-	 *            [in] number of rows of matrix A
-	 * @param colsB
-	 *            [in] number of columns of matrix B
-	 * @param k
-	 *            [in] number of columns of matrix A and number of rows of
-	 *            matrix B
-	 * @param a
-	 *            [in] matrix A (size = rowsA*k)
-	 * @param b
-	 *            [in] matrix B (size = k * colsB)
-	 * @param c
-	 *            [out] matrix C (size = rowsA * colsB)
+	 * @param rowsA [in] number of rows of matrix A
+	 * @param colsB [in] number of columns of matrix B
+	 * @param k     [in] number of columns of matrix A and number of rows of
+	 *              matrix B
+	 * @param a     [in] matrix A (size = rowsA*k)
+	 * @param b     [in] matrix B (size = k * colsB)
+	 * @param c     [out] matrix C (size = rowsA * colsB)
 	 */
 	public static native void mmult(int rowsA, int colsB, int k,
 			double[] a, double[] b, double[] c);
@@ -198,16 +207,11 @@ public final class Julia {
 	/**
 	 * Matrix-vector multiplication: y:= A * x
 	 *
-	 * @param rowsA
-	 *            [in] rows of matrix A
-	 * @param colsA
-	 *            [in] columns of matrix A
-	 * @param a
-	 *            [in] the matrix A
-	 * @param x
-	 *            [in] the vector x
-	 * @param y
-	 *            [out] the resulting vector y
+	 * @param rowsA [in] rows of matrix A
+	 * @param colsA [in] columns of matrix A
+	 * @param a     [in] the matrix A
+	 * @param x     [in] the vector x
+	 * @param y     [out] the resulting vector y
 	 */
 	public static native void mvmult(int rowsA, int colsA,
 			double[] a, double[] x, double[] y);
@@ -218,16 +222,12 @@ public final class Julia {
 	 * Solves a system of linear equations A * X = B for general matrices. It
 	 * calls the LAPACK DGESV routine.
 	 *
-	 * @param n
-	 *            [in] the dimension of the matrix A (n = rows = columns of A)
-	 * @param nrhs
-	 *            [in] the number of columns of the matrix B
-	 * @param a
-	 *            [io] on entry the matrix A, on exit the LU factorization of A
-	 *            (size = n * n)
-	 * @param b
-	 *            [io] on entry the matrix B, on exit the solution of the
-	 *            equation (size = n * bColums)
+	 * @param n    [in] the dimension of the matrix A (n = rows = columns of A)
+	 * @param nrhs [in] the number of columns of the matrix B
+	 * @param a    [io] on entry the matrix A, on exit the LU factorization of A
+	 *             (size = n * n)
+	 * @param b    [io] on entry the matrix B, on exit the solution of the
+	 *             equation (size = n * bColums)
 	 * @return the LAPACK return code
 	 */
 	public static native int solve(int n, int nrhs, double[] a, double[] b);
@@ -235,11 +235,9 @@ public final class Julia {
 	/**
 	 * Inverts the given matrix.
 	 *
-	 * @param n
-	 *            [in] the dimension of the matrix (n = rows = columns)
-	 * @param a
-	 *            [io] on entry: the matrix to be inverted, on exit: the inverse
-	 *            (size = n * n)
+	 * @param n [in] the dimension of the matrix (n = rows = columns)
+	 * @param a [io] on entry: the matrix to be inverted, on exit: the inverse
+	 *          (size = n * n)
 	 * @return the LAPACK return code
 	 */
 	public static native int invert(int n, double[] a);
