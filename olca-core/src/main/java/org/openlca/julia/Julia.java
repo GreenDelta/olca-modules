@@ -30,8 +30,8 @@ public final class Julia {
 	}
 
 	/**
-	 * Loads the libraries from a folder specified by the "OLCA_JULIA"
-	 * environment variable.
+	 * Loads the libraries from a folder specified by the "OLCA_JULIA" environment
+	 * variable.
 	 */
 	public static boolean load() {
 		if (isLoaded())
@@ -48,9 +48,9 @@ public final class Julia {
 	}
 
 	/**
-	 * Loads the Julia libraries and openLCA bindings from the given folder.
-	 * Returns true if the libraries could be loaded (at least there should be a
-	 * `libjolca` library in the folder that could be loaded).
+	 * Loads the Julia libraries and openLCA bindings from the given folder. Returns
+	 * true if the libraries could be loaded (at least there should be a `libjolca`
+	 * library in the folder that could be loaded).
 	 */
 	public static boolean loadFromDir(File dir) {
 		Logger log = LoggerFactory.getLogger(Julia.class);
@@ -142,24 +142,24 @@ public final class Julia {
 				return new String[] {
 						"libgcc_s.1.dylib",
 						"libquadmath.0.dylib",
-						"libgfortran.4.dylib",
-						"libopenblas64_.dylib",
-						"libsuitesparseconfig.dylib",
-						"libamd.dylib",
-						"libcamd.dylib",
-						"libcolamd.dylib",
-						"libccolamd.dylib",
-						"libcholmod.dylib",
-						"libumfpack.dylib",
-						"libolcar_withumf.dylib"
+						"libgfortran.5.dylib",
+						"libopenblas64_.0.3.5.dylib",
+						"libsuitesparseconfig.5.4.0.dylib",
+						"libamd.2.4.6.dylib",
+						"libccolamd.2.9.6.dylib",
+						"libcamd.2.4.6.dylib",
+						"libcolamd.2.9.6.dylib",
+						"libcholmod.3.0.13.dylib",
+						"libumfpack.5.7.8.dylib",
+						"libolcar_withumf.dylib",
 				};
 			} else {
 				return new String[] {
 						"libgcc_s.1.dylib",
 						"libquadmath.0.dylib",
-						"libgfortran.4.dylib",
-						"libopenblas64_.dylib",
-						"libolcar.dylib"
+						"libgfortran.5.dylib",
+						"libopenblas64_.0.3.5.dylib",
+						"libolcar.dylib",
 				};
 			}
 		}
@@ -167,8 +167,8 @@ public final class Julia {
 	}
 
 	/**
-	 * Searches for the library which can be linked. When there are multiple
-	 * link options it chooses the one with more functions.
+	 * Searches for the library which can be linked. When there are multiple link
+	 * options it chooses the one with more functions.
 	 */
 	private static LinkOption linkOption(File dir) {
 		if (dir == null || !dir.exists())
@@ -195,8 +195,8 @@ public final class Julia {
 	 *
 	 * @param rowsA [in] number of rows of matrix A
 	 * @param colsB [in] number of columns of matrix B
-	 * @param k     [in] number of columns of matrix A and number of rows of
-	 *              matrix B
+	 * @param k     [in] number of columns of matrix A and number of rows of matrix
+	 *              B
 	 * @param a     [in] matrix A (size = rowsA*k)
 	 * @param b     [in] matrix B (size = k * colsB)
 	 * @param c     [out] matrix C (size = rowsA * colsB)
@@ -219,15 +219,15 @@ public final class Julia {
 	// LAPACK
 
 	/**
-	 * Solves a system of linear equations A * X = B for general matrices. It
-	 * calls the LAPACK DGESV routine.
+	 * Solves a system of linear equations A * X = B for general matrices. It calls
+	 * the LAPACK DGESV routine.
 	 *
 	 * @param n    [in] the dimension of the matrix A (n = rows = columns of A)
 	 * @param nrhs [in] the number of columns of the matrix B
 	 * @param a    [io] on entry the matrix A, on exit the LU factorization of A
 	 *             (size = n * n)
-	 * @param b    [io] on entry the matrix B, on exit the solution of the
-	 *             equation (size = n * bColums)
+	 * @param b    [io] on entry the matrix B, on exit the solution of the equation
+	 *             (size = n * bColums)
 	 * @return the LAPACK return code
 	 */
 	public static native int solve(int n, int nrhs, double[] a, double[] b);
@@ -236,8 +236,8 @@ public final class Julia {
 	 * Inverts the given matrix.
 	 *
 	 * @param n [in] the dimension of the matrix (n = rows = columns)
-	 * @param a [io] on entry: the matrix to be inverted, on exit: the inverse
-	 *          (size = n * n)
+	 * @param a [io] on entry: the matrix to be inverted, on exit: the inverse (size
+	 *          = n * n)
 	 * @return the LAPACK return code
 	 */
 	public static native int invert(int n, double[] a);
