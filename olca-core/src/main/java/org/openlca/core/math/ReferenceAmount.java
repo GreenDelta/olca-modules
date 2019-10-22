@@ -28,18 +28,6 @@ public final class ReferenceAmount {
 	}
 
 	/**
-	 * Get the reference amount of the reference flow / quantitative reference
-	 * of the given calculation setup.
-	 */
-	public static double get(CalculationSetup setup) {
-		if (setup == null)
-			return 0;
-		return get(setup.getAmount(),
-				setup.getUnit(),
-				setup.getFlowPropertyFactor());
-	}
-
-	/**
 	 * Get the reference amount of the given exchange.
 	 */
 	public static double get(Exchange e) {
@@ -50,7 +38,7 @@ public final class ReferenceAmount {
 				e.flowPropertyFactor);
 	}
 
-	private static double get(double amount, Unit unit,
+	public static double get(double amount, Unit unit,
 			FlowPropertyFactor factor) {
 		double refAmount = amount;
 		if (unit != null) {

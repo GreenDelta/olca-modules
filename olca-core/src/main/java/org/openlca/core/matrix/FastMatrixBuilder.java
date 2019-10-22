@@ -7,7 +7,6 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.DataStructures;
-import org.openlca.core.math.ReferenceAmount;
 import org.openlca.core.matrix.cache.ExchangeTable;
 import org.openlca.core.matrix.cache.FlowTable;
 import org.openlca.core.matrix.cache.MatrixCache;
@@ -183,7 +182,7 @@ public class FastMatrixBuilder {
 				setup.productSystem.referenceProcess,
 				setup.productSystem.referenceExchange.flow);
 		TechIndex idx = new TechIndex(qref);
-		idx.setDemand(ReferenceAmount.get(setup));
+		idx.setDemand(setup.getDemandValue());
 
 		TLongObjectHashMap<ProcessDescriptor> processes = new ProcessDao(
 				db).descriptorMap();

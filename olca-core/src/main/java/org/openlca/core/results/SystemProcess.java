@@ -8,7 +8,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.SocialAspect;
@@ -56,9 +55,8 @@ public class SystemProcess {
 
 	private void addRefFlow(Process p) {
 		Flow product = getProduct();
-		FlowProperty property = setup.getFlowPropertyFactor().flowProperty;
-		Exchange qRef = p.exchange(product, property, setup.getUnit());
-		qRef.amount = setup.getAmount();
+		Exchange qRef = p.exchange(product);
+		qRef.amount = Math.abs(setup.getDemandValue());
 		p.quantitativeReference = qRef;
 	}
 
