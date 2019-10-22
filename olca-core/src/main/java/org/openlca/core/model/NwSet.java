@@ -29,10 +29,10 @@ public class NwSet extends RootEntity {
 	public NwSet clone() {
 		NwSet clone = new NwSet();
 		Util.cloneRootFields(this, clone);
-		final String weightedScoreUnit1 = weightedScoreUnit;
-		clone.weightedScoreUnit = weightedScoreUnit1;
-		for (NwFactor factor : factors)
+		clone.weightedScoreUnit = weightedScoreUnit;
+		for (NwFactor factor : factors) {
 			clone.factors.add(factor.clone());
+		}
 		return clone;
 	}
 

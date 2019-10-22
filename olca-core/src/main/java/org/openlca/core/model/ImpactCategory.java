@@ -12,7 +12,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "tbl_impact_categories")
-public class ImpactCategory extends RootEntity {
+public class ImpactCategory extends CategorizedEntity {
 
 	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
 	@JoinColumn(name = "f_impact_category")
@@ -25,9 +25,11 @@ public class ImpactCategory extends RootEntity {
 	public ImpactCategory clone() {
 		ImpactCategory clone = new ImpactCategory();
 		Util.cloneRootFields(this, clone);
+		clone.category = category;
 		clone.referenceUnit = referenceUnit;
-		for (ImpactFactor f : impactFactors)
+		for (ImpactFactor f : impactFactors) {
 			clone.impactFactors.add(f.clone());
+		}
 		return clone;
 	}
 

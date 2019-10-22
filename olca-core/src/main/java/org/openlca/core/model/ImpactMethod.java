@@ -1,7 +1,6 @@
 package org.openlca.core.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -19,8 +18,10 @@ import javax.persistence.Table;
 @Table(name = "tbl_impact_methods")
 public class ImpactMethod extends CategorizedEntity {
 
-	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
-	@JoinColumn(name = "f_impact_method")
+	@OneToMany
+	@JoinTable(name = "tbl_impact_links", joinColumns = {
+			@JoinColumn(name = "f_impact_method") }, inverseJoinColumns = {
+					@JoinColumn(name = "f_impact_category") })
 	public final List<ImpactCategory> impactCategories = new ArrayList<>();
 
 	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
@@ -69,11 +70,8 @@ public class ImpactMethod extends CategorizedEntity {
 		ImpactMethod clone = new ImpactMethod();
 		Util.cloneRootFields(this, clone);
 		clone.category = category;
-		HashMap<ImpactCategory, ImpactCategory> impactMap = new HashMap<>();
-		for (ImpactCategory origCat : impactCategories) {
-			ImpactCategory clonedCat = origCat.clone();
-			impactMap.put(origCat, clonedCat);
-			clone.impactCategories.add(clonedCat);
+		for (ImpactCategory i : impactCategories) {
+			clone.impactCategories.add(i);
 		}
 		for (Parameter p : parameters) {
 			clone.parameters.add(p.clone());
@@ -83,21 +81,12 @@ public class ImpactMethod extends CategorizedEntity {
 		for (Source source : sources) {
 			clone.sources.add(source);
 		}
-		cloneNwSets(clone, impactMap);
+		for (NwSet nwSet : nwSets) {
+			clone.nwSets.add(nwSet.clone());
+		}
 		return clone;
 	}
 
-	private void cloneNwSets(ImpactMethod clone,
-			HashMap<ImpactCategory, ImpactCategory> impactMap) {
-		for (NwSet nwSet : nwSets) {
-			NwSet clonedSet = nwSet.clone();
-			clone.nwSets.add(clonedSet);
-			for (NwFactor factor : clonedSet.factors) {
-				ImpactCategory clonedCat = impactMap.get(factor.impactCategory);
-				factor.impactCategory = clonedCat;
-			}
-		}
-	}
 
 	/**
 	 * See the field ImpactMethod.parameterMean for more information.
