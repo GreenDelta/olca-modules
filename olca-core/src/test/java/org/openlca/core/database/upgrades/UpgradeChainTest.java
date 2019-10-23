@@ -41,6 +41,7 @@ public class UpgradeChainTest {
 		// roll back Upgrade9
 		u.dropTable("tbl_impact_links");
 		u.createColumn("tbl_impact_categories", "f_impact_method BIGINT");
+		u.dropColumn("tbl_impact_categories", "f_category");
 
 		// roll back Upgrade8
 		u.dropColumn("tbl_process_links", "is_system_link");
@@ -119,6 +120,7 @@ public class UpgradeChainTest {
 
 		// check Upgrade9
 		assertTrue(u.tableExists("tbl_impact_links"));
+		assertTrue(u.columnExists("tbl_impact_categories", "f_category"));
 
 		// finally, check that we now have the current database version
 		assertEquals(IDatabase.CURRENT_VERSION, db.getVersion());

@@ -18,10 +18,10 @@ class Upgrade9 implements IUpgrade {
 	@Override
 	public void exec(IDatabase db) {
 		DbUtil u = new DbUtil(db);
+		u.createColumn("tbl_impact_categories", "f_category BIGINT");
 
 		if (u.tableExists("tbl_impact_links"))
 			return;
-
 		u.createTable("tbl_impact_links",
 				"CREATE TABLE tbl_impact_links (" +
 						" f_impact_method    BIGINT," +

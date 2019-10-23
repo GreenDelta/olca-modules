@@ -10,6 +10,8 @@ import org.openlca.core.Tests;
 import org.openlca.core.database.DQSystemDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
@@ -82,17 +84,20 @@ public class DQResultTest {
 
 	@After
 	public void shutdown() {
-		new ImpactMethodDao(Tests.getDb()).delete(method);
-		new ProductSystemDao(Tests.getDb()).delete(system);
-		new ProcessDao(Tests.getDb()).delete(process1);
-		new ProcessDao(Tests.getDb()).delete(process2);
-		new DQSystemDao(Tests.getDb()).delete(dqSystem);
-		new FlowDao(Tests.getDb()).delete(pFlow1);
-		new FlowDao(Tests.getDb()).delete(pFlow2);
-		new FlowDao(Tests.getDb()).delete(eFlow1);
-		new FlowDao(Tests.getDb()).delete(eFlow2);
-		new FlowPropertyDao(Tests.getDb()).delete(property);
-		new UnitGroupDao(Tests.getDb()).delete(unitGroup);
+		IDatabase db = Tests.getDb();
+		new ImpactMethodDao(db).delete(method);
+		method.impactCategories
+				.forEach(i -> new ImpactCategoryDao(db).delete(i));
+		new ProductSystemDao(db).delete(system);
+		new ProcessDao(db).delete(process1);
+		new ProcessDao(db).delete(process2);
+		new DQSystemDao(db).delete(dqSystem);
+		new FlowDao(db).delete(pFlow1);
+		new FlowDao(db).delete(pFlow2);
+		new FlowDao(db).delete(eFlow1);
+		new FlowDao(db).delete(eFlow2);
+		new FlowPropertyDao(db).delete(property);
+		new UnitGroupDao(db).delete(unitGroup);
 	}
 
 	private void createDQSystem() {
@@ -176,10 +181,11 @@ public class DQResultTest {
 	}
 
 	private void createImpactMethod() {
-		method = new ImpactMethod();
 		ImpactCategory c = new ImpactCategory();
 		c.impactFactors.add(createFactor(2, eFlow1));
 		c.impactFactors.add(createFactor(8, eFlow2));
+		c = new ImpactCategoryDao(Tests.getDb()).insert(c);
+		method = new ImpactMethod();
 		method.impactCategories.add(c);
 		method = new ImpactMethodDao(Tests.getDb()).insert(method);
 	}
