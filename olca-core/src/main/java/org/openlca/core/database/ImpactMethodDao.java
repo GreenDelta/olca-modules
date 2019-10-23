@@ -3,6 +3,7 @@ package org.openlca.core.database;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -18,42 +19,42 @@ public class ImpactMethodDao extends
 	}
 
 	public List<ImpactCategoryDescriptor> getCategoryDescriptors(long methodId) {
-		return getCategoryDescriptors("id", methodId);
+		return getCategoryDescriptors("m.id = " + methodId);
 	}
 
 	public List<ImpactCategoryDescriptor> getCategoryDescriptors(String methodId) {
-		return getCategoryDescriptors("refId", methodId);
+		if (methodId == null)
+			return Collections.emptyList();
+		return getImpactCategories("m.ref_id = '" + methodId + "'");
 	}
 
-	// TODO!!
-	private List<ImpactCategoryDescriptor> getCategoryDescriptors(String idField, Object methodId) {
+	private List<ImpactCategoryDescriptor> getImpactCategories(
+			String whereClause) {
+		String sql = "select " +
+				"  ic.id,            " +
+				"  ic.ref_id,        " +
+				"  ic.name,          " +
+				"  ic.description,   " +
+				"  ic.version,       " +
+				"  ic.last_change,   " +
+				"  ic.f_category,    " +
+				"  ic.reference_unit " +
+				"from tbl_impact_categories ic     " +
+				"inner join tbl_impact_links link  " +
+				"on ic.id = link.f_impact_category " +
+				"inner join tbl_impact_methods m   " +
+				"on m.id = link.f_impact_method    " +
+				"where " + whereClause;
 		try {
-			String jpql = "select cat.id, cat.refId, cat.name, cat.referenceUnit, "
-					+ "cat.description, cat.version, cat.lastChange from "
-					+ "ImpactMethod m join m.impactCategories "
-					+ "cat where m." + idField + " = :methodId ";
-			List<Object[]> vals = Query.on(getDatabase()).getAll(
-					Object[].class, jpql,
-					Collections.singletonMap("methodId", methodId));
-			List<ImpactCategoryDescriptor> list = new ArrayList<>();
-			for (Object[] val : vals) {
-				ImpactCategoryDescriptor d = new ImpactCategoryDescriptor();
-				d.id = (Long) val[0];
-				d.refId = (String) val[1];
-				d.name = (String) val[2];
-				d.referenceUnit = (String) val[3];
-				d.description = (String) val[4];
-				if (val[5] != null)
-					d.version = (long) val[5];
-				if (val[6] != null)
-					d.lastChange = (long) val[6];
-				list.add(d);
-			}
-			return list;
+			ImpactCategoryDao cdao = new ImpactCategoryDao(database);
+			List<Object[]> list = selectAll(sql,
+					cdao.getDescriptorFields(), Collections.emptyList());
+			return list.stream()
+					.map(obj -> cdao.createDescriptor(obj))
+					.collect(Collectors.toList());
 		} catch (Exception e) {
-			DatabaseException.logAndThrow(log,
-					"Failed to load impact category descriptors", e);
-			return Collections.emptyList();
+			throw new RuntimeException(
+					"failed to get method indicators: " + sql, e);
 		}
 	}
 

@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
-import org.openlca.core.database.ImpactCategoryDao;
+import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
@@ -46,7 +46,7 @@ public class ImpactTable {
 		if (factorMatrix == null)
 			return null;
 		evalFormulas(interpreter);
-		return (IMatrix) factorMatrix.createRealMatrix(solver);
+		return factorMatrix.createRealMatrix(solver);
 	}
 
 	/**
@@ -90,8 +90,8 @@ public class ImpactTable {
 		ImpactTable build() {
 			log.trace("Build impact factor matrix for method {}", methodId);
 			DIndex<ImpactCategoryDescriptor> impacts = new DIndex<>();
-			ImpactCategoryDao dao = new ImpactCategoryDao(cache.getDatabase());
-			impacts.putAll(dao.getMethodImpacts(methodId));
+			ImpactMethodDao dao = new ImpactMethodDao(cache.getDatabase());
+			impacts.putAll(dao.getCategoryDescriptors(methodId));
 			if (impacts.isEmpty() || flowIndex.isEmpty())
 				return null;
 			ImpactTable table = new ImpactTable();
