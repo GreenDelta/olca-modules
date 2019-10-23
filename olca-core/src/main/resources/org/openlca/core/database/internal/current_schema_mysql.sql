@@ -394,6 +394,12 @@ CREATE TABLE tbl_impact_methods (
 );
 
 
+CREATE TABLE tbl_impact_links (
+    f_impact_method    BIGINT,
+    f_impact_category  BIGINT
+);
+
+
 CREATE TABLE tbl_impact_categories (
 
 	id BIGINT NOT NULL,

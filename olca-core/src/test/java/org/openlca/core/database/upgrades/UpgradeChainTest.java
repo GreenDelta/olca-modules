@@ -38,6 +38,10 @@ public class UpgradeChainTest {
 		// to see that each upgrade was executed; also note
 		// that the rollbacks are done in reverse order
 
+		// roll back Upgrade9
+		u.dropTable("tbl_impact_links");
+		u.createColumn("tbl_impact_categories", "f_impact_method BIGINT");
+
 		// roll back Upgrade8
 		u.dropColumn("tbl_process_links", "is_system_link");
 		u.dropColumn("tbl_impact_methods", "f_author");
@@ -112,6 +116,9 @@ public class UpgradeChainTest {
 		assertTrue(u.columnExists("tbl_process_docs", "preceding_dataset"));
 		assertTrue(u.columnExists("tbl_project_variants", "is_disabled"));
 		assertTrue(u.tableExists("tbl_source_links"));
+
+		// check Upgrade9
+		assertTrue(u.tableExists("tbl_impact_links"));
 
 		// finally, check that we now have the current database version
 		assertEquals(IDatabase.CURRENT_VERSION, db.getVersion());
