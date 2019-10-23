@@ -19,7 +19,7 @@ public class ImpactMethodDao extends
 	}
 
 	public List<ImpactCategoryDescriptor> getCategoryDescriptors(long methodId) {
-		return getCategoryDescriptors("m.id = " + methodId);
+		return getImpactCategories("m.id = " + methodId);
 	}
 
 	public List<ImpactCategoryDescriptor> getCategoryDescriptors(String methodId) {
