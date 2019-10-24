@@ -10,7 +10,7 @@ import org.openlca.core.Tests;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ImpactMethodDao;
+import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -18,7 +18,6 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
-import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
@@ -61,25 +60,19 @@ public class FlowPropertyFactorUseSearchTest {
 	}
 
 	@Test
-	public void testFindInImpactMethods() {
-		ImpactMethod method = createMethod();
-		List<CategorizedDescriptor> results = search.findUses(factor);
-		new ImpactMethodDao(database).delete(method);
-		BaseDescriptor expected = Descriptors.toDescriptor(method);
-		Assert.assertEquals(1, results.size());
-		Assert.assertEquals(expected, results.get(0));
-	}
-
-	private ImpactMethod createMethod() {
-		ImpactMethod method = new ImpactMethod();
-		method.name = "method";
+	public void testFindInImpactCategory() {
 		ImpactFactor iFactor = new ImpactFactor();
 		iFactor.flow = flow;
 		iFactor.flowPropertyFactor = factor;
 		ImpactCategory category = new ImpactCategory();
 		category.impactFactors.add(iFactor);
-		method.impactCategories.add(category);
-		return new ImpactMethodDao(database).insert(method);
+		ImpactCategoryDao dao = new ImpactCategoryDao(database);
+		dao.insert(category);
+		List<CategorizedDescriptor> results = search.findUses(factor);
+		dao.delete(category);
+		Assert.assertEquals(1, results.size());
+		BaseDescriptor expected = Descriptors.toDescriptor(category);
+		Assert.assertEquals(expected, results.get(0));
 	}
 
 	@Test

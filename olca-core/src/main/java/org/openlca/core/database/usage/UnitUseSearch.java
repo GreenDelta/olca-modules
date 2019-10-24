@@ -30,10 +30,8 @@ public class UnitUseSearch {
 		// them
 		Set<Long> ids = Collections.singleton(unit.id);
 		List<CategorizedDescriptor> results = new ArrayList<>();
-		Set<Long> categoryIds = Search.on(database).queryForIds(
-				"f_impact_category", "tbl_impact_factors", ids, "f_unit");
-		results.addAll(Search.on(database).queryFor(ModelType.IMPACT_METHOD,
-				"f_impact_method", "tbl_impact_categories", categoryIds, "id"));
+		results.addAll(Search.on(database).queryFor(ModelType.IMPACT_CATEGORY,
+				"f_impact_category", "tbl_impact_factors", ids, "f_unit"));
 		results.addAll(Search.on(database).queryFor(ModelType.PROCESS,
 				"f_owner", "tbl_exchanges", ids, "f_unit"));
 		results.addAll(Search.on(database).queryFor(ModelType.SOCIAL_INDICATOR,

@@ -66,7 +66,7 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 		ImpactCategory category = new ImpactCategory();
 		category.impactFactors.add(createImpactFactor(3d));
 		category.impactFactors.add(createImpactFactor("2*" + p4Name));
-		return category;
+		return Tests.insert(category);
 	}
 
 	private ImpactFactor createImpactFactor(Object value) {

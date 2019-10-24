@@ -8,14 +8,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ImpactMethodDao;
+import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
-import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Unit;
@@ -56,24 +55,17 @@ public class UnitUseSearchTest {
 	}
 
 	@Test
-	public void testFindInImpactMethods() {
-		ImpactMethod method = createMethod();
-		List<CategorizedDescriptor> results = search.findUses(unit);
-		new ImpactMethodDao(database).delete(method);
-		BaseDescriptor expected = Descriptors.toDescriptor(method);
-		Assert.assertEquals(1, results.size());
-		Assert.assertEquals(expected, results.get(0));
-	}
-
-	private ImpactMethod createMethod() {
-		ImpactMethod method = new ImpactMethod();
-		method.name = "method";
+	public void testFindInImpactCategores() {
 		ImpactFactor iFactor = new ImpactFactor();
 		iFactor.unit = unit;
 		ImpactCategory category = new ImpactCategory();
 		category.impactFactors.add(iFactor);
-		method.impactCategories.add(category);
-		return new ImpactMethodDao(database).insert(method);
+		new ImpactCategoryDao(database).insert(category);
+		List<CategorizedDescriptor> results = search.findUses(unit);
+		new ImpactCategoryDao(database).delete(category);
+		BaseDescriptor expected = Descriptors.toDescriptor(category);
+		Assert.assertEquals(1, results.size());
+		Assert.assertEquals(expected, results.get(0));
 	}
 
 	@Test
