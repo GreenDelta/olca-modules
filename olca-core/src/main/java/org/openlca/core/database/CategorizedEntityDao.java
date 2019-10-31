@@ -57,6 +57,7 @@ public class CategorizedEntityDao<T extends CategorizedEntity, V extends Categor
 		long lastChange = System.currentTimeMillis();
 		model.version = version;
 		model.lastChange = lastChange;
+		model.category = category.isPresent() ? category.get().id : null;
 		String jpql = "update " + entityType.getSimpleName()
 				+ " e set e.category = :category, e.version = :version, e.lastChange = :lastChange where e.id = :id";
 		EntityManager em = createManager();
@@ -76,6 +77,7 @@ public class CategorizedEntityDao<T extends CategorizedEntity, V extends Categor
 		} finally {
 			em.close();
 		}
+		database.notifyUpdate(model);
 		return model;
 	}
 
