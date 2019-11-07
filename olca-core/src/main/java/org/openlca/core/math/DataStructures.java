@@ -106,6 +106,7 @@ public class DataStructures {
 
 		IDatabase db = mcache.getDatabase();
 		TechIndex techIndex = createProductIndex(setup.productSystem, db);
+		techIndex.setDemand(setup.getDemandValue());
 		FormulaInterpreter interpreter = interpreter(
 				db, setup, techIndex);
 
