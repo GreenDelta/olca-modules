@@ -9,6 +9,7 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.NwSetDao;
 import org.openlca.core.database.ProductSystemDao;
+import org.openlca.core.matrix.FastMatrixBuilder;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.cache.MatrixCache;
@@ -100,10 +101,13 @@ public class SystemCalculator {
 	}
 
 	private LcaCalculator calculator(CalculationSetup setup) {
-		Map<ProcessProduct, SimpleResult> subResults = calculateSubSystems(
-				setup);
-		MatrixData data = DataStructures.matrixData(
-				setup, solver, mcache, subResults);
+		MatrixData data;
+		if (setup.productSystem.withoutNetwork) {
+			data = new FastMatrixBuilder(mcache.getDatabase(), setup).build();
+		} else {
+			Map<ProcessProduct, SimpleResult> subs = calculateSubSystems(setup);
+			data = DataStructures.matrixData(setup, solver, mcache, subs);
+		}
 		return new LcaCalculator(solver, data);
 	}
 
