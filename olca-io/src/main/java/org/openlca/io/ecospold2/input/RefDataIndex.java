@@ -49,12 +49,20 @@ class RefDataIndex {
 		units.put(key, unit);
 	}
 
-	public FlowProperty getFlowProperty(String key) {
-		return flowProperties.get(key);
+	/**
+	 * Get the flow property for the given unit ID (note that EcoSpold 2 does
+	 * not have the concept of flow properties).
+	 */
+	public FlowProperty getFlowProperty(String unitID) {
+		return flowProperties.get(unitID);
 	}
 
-	public void putFlowProperty(String key, FlowProperty property) {
-		flowProperties.put(key, property);
+	/**
+	 * Register the given flow property for the given unit ID (note that
+	 * EcoSpold 2 does not have the concept of flow properties).
+	 */
+	public void putFlowProperty(String unitID, FlowProperty property) {
+		flowProperties.put(unitID, property);
 	}
 
 	public Category getCompartment(String key) {
