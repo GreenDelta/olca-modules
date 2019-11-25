@@ -50,4 +50,24 @@ final class RefId {
 		return KeyGen.get(activity.id, productID, systemID, type);
 	}
 
+	/**
+	 * Generates the ID of the provider process for the given input product of
+	 * the recipient process. See the `forProcess` method for details of the ID
+	 * generation. The same rules apply here: we search for a provider of the
+	 * same type and in the same system model.
+	 */
+	public static String linkID(DataSet recipient, IntermediateExchange input) {
+		if (recipient == null || input == null)
+			return KeyGen.NULL_UUID;
+		String activityID = input.activityLinkId;
+		String productID = input.flowId;
+		Representativeness repri = Spold2.getRepresentativeness(recipient);
+		String systemID = repri != null && repri.systemModelId != null
+				? repri.systemModelId
+				: KeyGen.NULL_UUID;
+		Activity a = Spold2.getActivity(recipient);
+		String type = a != null && a.type == 2 ? "S" : "U";
+		return KeyGen.get(activityID, productID, systemID, type);
+	}
+
 }

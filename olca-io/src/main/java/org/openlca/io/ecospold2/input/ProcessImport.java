@@ -21,7 +21,6 @@ import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.openlca.util.DQSystems;
-import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -223,7 +222,7 @@ class ProcessImport {
 				e.isAvoided = true;
 			}
 			if (ie.activityLinkId != null) {
-				addActivityLink(ie, e);
+				addActivityLink(ds, ie, e);
 			}
 			if (isRefFlow) {
 				p.quantitativeReference = e;
@@ -314,10 +313,9 @@ class ProcessImport {
 			exchange.amountFormula = factor + " * (" + formula + ")";
 	}
 
-	private void addActivityLink(IntermediateExchange e, Exchange exchange) {
-		String providerId = e.activityLinkId;
-		String flowId = e.flowId;
-		String refId = KeyGen.get(providerId, flowId);
+	private void addActivityLink(DataSet ds, IntermediateExchange input,
+			Exchange exchange) {
+		String refId = RefId.linkID(ds, input);
 		Long processId = index.getProcessId(refId);
 		if (processId != null) {
 			exchange.defaultProviderId = processId;
