@@ -119,6 +119,13 @@ public class ProcessDocumentation extends AbstractEntity implements Cloneable {
 	@Column(name = "geography")
 	public String geography;
 
+	/**
+	 * Contains an identifier of the preceding process data set from which this
+	 * process was derived. In case of a data set imported from an EcoSpold 2
+	 * file this could be the original activity ID for example (which is not
+	 * unique between different data sets in ecoinvent) for example. Also, there
+	 * is a corresponding field in the ILCD data exchange format.
+	 */
 	@Column(name = "preceding_dataset")
 	public String precedingDataSet;
 

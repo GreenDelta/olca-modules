@@ -34,6 +34,7 @@ import spold2.DataSet;
 import spold2.ElementaryExchange;
 import spold2.IntermediateExchange;
 import spold2.PedigreeMatrix;
+import spold2.Representativeness;
 import spold2.RichText;
 import spold2.Spold2;
 
@@ -69,14 +70,14 @@ class ProcessImport {
 		}
 	}
 
-	private void checkImport(DataSet dataSet) {
-		if (!valid(dataSet)) {
+	private void checkImport(DataSet ds) {
+		if (!valid(ds)) {
 			log.warn("invalid data set -> not imported");
 			return;
 		}
-		Activity activity = Spold2.getActivity(dataSet);
+		Activity activity = Spold2.getActivity(ds);
 		try {
-			String refId = RefId.forProcess(dataSet);
+			String refId = RefId.forProcess(ds);
 			boolean contains = dao.contains(refId);
 			if (contains) {
 				log.trace("process {} is already in the database",
@@ -84,7 +85,7 @@ class ProcessImport {
 				return;
 			}
 			log.trace("import process {}", activity.name);
-			runImport(dataSet, refId);
+			runImport(ds, refId);
 		} catch (Exception e) {
 			log.error("Failed to import process", e);
 		}
@@ -100,7 +101,8 @@ class ProcessImport {
 				continue;
 			if (techFlow.outputGroup != 0)
 				continue;
-			if (techFlow.amount == 0)
+			if (techFlow.amount == null ||
+					techFlow.amount == 0)
 				continue;
 			refFlow = techFlow;
 			break;
@@ -108,24 +110,47 @@ class ProcessImport {
 		return refFlow != null;
 	}
 
-	private void runImport(DataSet dataSet, String refId) {
-		Activity activity = Spold2.getActivity(dataSet);
-		Process process = new Process();
-		process.refId = refId;
-		setMetaData(activity, process);
-		setCategory(dataSet, process);
-		if (config.withParameters)
-			handleParameters(dataSet, process);
-		createProductExchanges(dataSet, process);
-		if (process.quantitativeReference == null)
-			log.warn("could not set a quantitative reference for process {}",
-					refId);
-		createElementaryExchanges(dataSet, process);
-		process.exchangeDqSystem = dqSystem;
-		new DocImportMapper(config.db).map(dataSet, process);
-		new ProcessDao(config.db).insert(process);
-		index.putProcessId(refId, process.id);
-		flushLinkQueue(process);
+	private void runImport(DataSet ds, String refId) {
+		Activity activity = Spold2.getActivity(ds);
+		Process p = new Process();
+
+		// map meta data
+		p.refId = refId;
+		p.name = getProcessName(ds);
+		ProcessType type = activity.type == 2
+				? ProcessType.LCI_RESULT
+				: ProcessType.UNIT_PROCESS;
+		p.processType = type;
+		String d = Joiner.on(" ").skipNulls().join(
+				RichText.join(activity.generalComment),
+				activity.includedActivitiesStart,
+				activity.includedActivitiesEnd,
+				RichText.join(activity.allocationComment));
+		p.description = d;
+
+
+		// map the process category
+		Category category = null;
+		for (Classification clazz : Spold2.getClassifications(ds)) {
+			category = index.getProcessCategory(clazz.id);
+			if (category != null)
+				break;
+		}
+		p.category = category;
+
+		if (config.withParameters) {
+			handleParameters(ds, p);
+		}
+
+		// create inputs and outputs
+		createProductExchanges(ds, p);
+		createElementaryExchanges(ds, p);
+
+		p.exchangeDqSystem = dqSystem;
+		new DocImportMapper(config.db).map(ds, p);
+		new ProcessDao(config.db).insert(p);
+		index.putProcessId(refId, p.id);
+		flushLinkQueue(p);
 	}
 
 	private void handleParameters(DataSet dataSet, Process process) {
@@ -148,19 +173,6 @@ class ProcessImport {
 				map.put(newGlobal.name, Boolean.TRUE);
 			}
 		}
-	}
-
-	private void setMetaData(Activity a, Process p) {
-		p.name = a.name;
-		ProcessType type = a.type == 2 ? ProcessType.LCI_RESULT
-				: ProcessType.UNIT_PROCESS;
-		p.processType = type;
-		String d = Joiner.on(" ").skipNulls().join(
-				RichText.join(a.generalComment),
-				a.includedActivitiesStart,
-				a.includedActivitiesEnd,
-				RichText.join(a.allocationComment));
-		p.description = d;
 	}
 
 	private void flushLinkQueue(Process process) {
@@ -192,28 +204,35 @@ class ProcessImport {
 		}
 	}
 
-	private void createProductExchanges(DataSet ds, Process process) {
+	private void createProductExchanges(DataSet ds, Process p) {
 		for (IntermediateExchange ie : Spold2.getProducts(ds)) {
-			boolean isRefFlow = ie.outputGroup != null
-					&& ie.outputGroup == 0;
 			if (ie.amount == 0 && config.skipNullExchanges)
 				continue;
+			boolean isRefFlow = ie.outputGroup != null
+					&& ie.outputGroup == 0;
 			String refId = ie.flowId;
 			Flow flow = index.getFlow(refId);
 			if (flow == null) {
 				log.warn("could not get flow for {}", refId);
 				continue;
 			}
-			Exchange e = createExchange(ie, refId, flow, process);
+			Exchange e = createExchange(ie, refId, flow, p);
 			if (e == null)
 				continue;
-			if (isAvoidedProduct(refId, e))
+			if (isAvoidedProduct(refId, e)) {
 				e.isAvoided = true;
-			if (ie.activityLinkId != null)
+			}
+			if (ie.activityLinkId != null) {
 				addActivityLink(ie, e);
-			if (isRefFlow)
-				process.quantitativeReference = e;
+			}
+			if (isRefFlow) {
+				p.quantitativeReference = e;
+			}
 			prices.map(ie, e);
+		}
+		if (p.quantitativeReference == null) {
+			log.warn("could not set a quantitative"
+					+ " reference for process {}", p.refId);
 		}
 	}
 
@@ -245,8 +264,9 @@ class ProcessImport {
 		}
 		e.amount = amount * f;
 		e.uncertainty = UncertaintyConverter.toOpenLCA(es2.uncertainty, f);
-		if (config.withParameters && config.withParameterFormulas)
+		if (config.withParameters && config.withParameterFormulas) {
 			mapFormula(es2, process, e, f);
+		}
 		e.dqEntry = getPedigreeMatrix(es2);
 		return e;
 	}
@@ -257,7 +277,8 @@ class ProcessImport {
 		PedigreeMatrix pm = es2.uncertainty.pedigreeMatrix;
 		if (pm == null)
 			return null;
-		return dqSystem.toString(pm.reliability, pm.completeness, pm.temporalCorrelation,
+		return dqSystem.toString(pm.reliability, pm.completeness,
+				pm.temporalCorrelation,
 				pm.geographicalCorrelation, pm.technologyCorrelation);
 	}
 
@@ -310,14 +331,56 @@ class ProcessImport {
 		exchanges.add(exchange);
 	}
 
-	private void setCategory(DataSet ds, Process process) {
-		Category category = null;
-		for (Classification clazz : Spold2.getClassifications(ds)) {
-			category = index.getProcessCategory(clazz.id);
-			if (category != null)
-				break;
+
+	/**
+	 * The name of the process has the following pattern:
+	 * 
+	 * <process name> | <product name> | <system model>, <process type>
+	 * 
+	 * Where <system model> is a mnemonic like "APOS" or "Cutoff" and the
+	 * process type is "U" when it is a unit process or "S" when it is a LCI
+	 * result
+	 */
+	private String getProcessName(DataSet ds) {
+
+		// the process and ref. product name
+		Activity a = Spold2.getActivity(ds);
+		String name = a != null ? a.name : "?";
+		IntermediateExchange qRef = Spold2.getReferenceProduct(ds);
+		if (qRef != null && qRef.name != null) {
+			name += " | " + qRef.name;
 		}
-		process.category = category;
+		
+		// we try to infer a short name for the system model here
+		// because the short name is part of the master data which
+		// is not always available (or can be found) when importing
+		// a data set
+		String model = null;
+		Representativeness repri = Spold2.getRepresentativeness(ds);
+		if (repri.systemModelName != null) {
+			String sys = repri.systemModelName.toLowerCase();
+			if (sys.contains("consequential")) {
+				model = "Consequential";
+			} else if ( sys.contains("apos") ||
+					sys.contains("allocation at the point of substitution")) {
+				model = "APOS";
+			} else if (sys.contains("cut-off") || sys.contains("cutoff")) {
+				model = "Cutoff";
+			} else if (sys.contains("legacy")) {
+				model = "Legacy";
+			} else {
+				model = repri.systemModelName;
+			}
+		}
+		if (model != null) {
+			name += " | " + model;
+		}
+
+		// the process type
+		String type = a != null && a.type == 2 ? "S" : "U";
+		name += ", " + type;
+		
+		return name;
 	}
 
 }

@@ -2,8 +2,10 @@ package org.openlca.io.ecospold2.input;
 
 import org.openlca.util.KeyGen;
 
+import spold2.Activity;
 import spold2.DataSet;
 import spold2.IntermediateExchange;
+import spold2.Representativeness;
 import spold2.Spold2;
 
 /**
@@ -15,22 +17,37 @@ final class RefId {
 	}
 
 	/**
-	 * Returns the combination of activity-ID and reference product-ID (in this
-	 * order) as UUID.
+	 * We generate a UUID for the resulting process in openLCA from the
+	 * following components:
+	 * 
+	 * <ol>
+	 * <li>the activity ID
+	 * <li>the ID of the reference flow (the product output with an amount > 0)
+	 * <li>the ID of the system model
+	 * <li>the process type ("U" for unit processes, "S" for LCI results)
+	 * </ol>
 	 */
 	public static String forProcess(DataSet ds) {
-		if (Spold2.getActivity(ds) == null)
+		Activity activity = Spold2.getActivity(ds);
+		if (activity == null)
 			return KeyGen.NULL_UUID;
-		String productId = null;
-		for (IntermediateExchange exchange : Spold2.getProducts(ds)) {
-			if (exchange.outputGroup == null)
-				continue;
-			if (exchange.outputGroup == 0 && exchange.amount != 0) {
-				productId = exchange.flowId;
-				break;
-			}
-		}
-		return KeyGen.get(Spold2.getActivity(ds).id, productId);
+
+		// product ID
+		IntermediateExchange qRef = Spold2.getReferenceProduct(ds);
+		String productID = qRef != null && qRef.flowId != null
+				? qRef.flowId
+				: KeyGen.NULL_UUID;
+
+		// system model ID
+		Representativeness repri = Spold2.getRepresentativeness(ds);
+		String systemID = repri != null && repri.systemModelId != null
+				? repri.systemModelId
+				: KeyGen.NULL_UUID;
+
+		// process type
+		String type = activity.type == 2 ? "S" : "U";
+
+		return KeyGen.get(activity.id, productID, systemID, type);
 	}
 
 }
