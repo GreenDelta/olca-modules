@@ -21,14 +21,15 @@ public class IsicCategoryTreeSync implements Runnable {
 	private CategoryDao dao;
 	private ModelType type;
 
-	public IsicCategoryTreeSync(IDatabase database, ModelType type) {
-		this.dao = new CategoryDao(database);
+	public IsicCategoryTreeSync(IDatabase db, ModelType type) {
+		this.dao = new CategoryDao(db);
 		this.type = type;
 	}
 
 	@Override
 	public void run() {
-		IsicTree isicTree = IsicTree.fromFile(getClass().getResourceAsStream(
+		IsicTree isicTree = IsicTree.fromFile(
+				getClass().getResourceAsStream(
 				"isic_codes_rev4.txt"));
 		List<Category> roots = dao.getRootCategories(type);
 		List<IsicNode> assignedNodes = new ArrayList<>();
@@ -36,7 +37,7 @@ public class IsicCategoryTreeSync implements Runnable {
 			IsicNode node = findNode(root, isicTree);
 			if (node == null)
 				continue;
-			node.setCategory(root);
+			node.category = root;
 			assignedNodes.add(node);
 		}
 		for (IsicNode assignedNode : assignedNodes)
@@ -46,35 +47,35 @@ public class IsicCategoryTreeSync implements Runnable {
 	}
 
 	private void syncWithDatabase(IsicNode root) {
-		Category category = root.getCategory();
+		Category category = root.category;
 		if (category == null)
 			return;
 		if (category.id == 0L) {
 			category = dao.insert(category);
-			root.setCategory(category);
+			root.category = category;
 		}
-		for (IsicNode childNode : root.getChilds()) {
-			if (childNode.getCategory() != null) {
+		for (IsicNode childNode : root.childs) {
+			if (childNode.category != null) {
 				syncWithDatabase(childNode);
-				category.childCategories.add(childNode.getCategory());
-				childNode.getCategory().category = category;
+				category.childCategories.add(childNode.category);
+				childNode.category.category = category;
 			}
 		}
 		category = dao.update(category);
-		root.setCategory(category);
+		root.category = category;
 	}
 
 	private void syncPath(IsicNode node) {
-		if (node.getParent() == null)
+		if (node.parent == null)
 			return;
-		IsicNode parent = node.getParent();
+		IsicNode parent = node.parent;
 		while (parent != null) {
-			Category parentCategory = parent.getCategory();
+			Category parentCategory = parent.category;
 			if (parentCategory == null) {
 				parentCategory = createCategory(parent);
-				parent.setCategory(parentCategory);
+				parent.category = parentCategory;
 			}
-			parent = parent.getParent();
+			parent = parent.parent;
 		}
 	}
 
@@ -91,7 +92,7 @@ public class IsicCategoryTreeSync implements Runnable {
 	private Category createCategory(IsicNode node) {
 		Category c = new Category();
 		c.modelType = type;
-		c.name = node.getCode() + ":" + node.getName();
+		c.name = node.code + ":" + node.name;
 		c.refId = KeyGen.get(type.name() + "/" + c.name);
 		return c;
 	}

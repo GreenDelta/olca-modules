@@ -2,6 +2,7 @@ package org.openlca.io.ecospold2.input;
 
 import java.io.File;
 
+import org.openlca.core.model.ModelType;
 import org.openlca.io.FileImport;
 import org.openlca.io.ImportEvent;
 import org.slf4j.Logger;
@@ -51,6 +52,10 @@ public class EcoSpold2Import implements FileImport {
 		log.trace("run import with: {}", config);
 		RefDataIndex index = importRefData(files);
 		importProcesses(files, index);
+
+		// expand ISIC category trees
+		new IsicCategoryTreeSync(config.db, ModelType.FLOW).run();
+		new IsicCategoryTreeSync(config.db, ModelType.PROCESS).run();
 	}
 
 	private RefDataIndex importRefData(File[] files) {

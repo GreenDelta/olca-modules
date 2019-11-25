@@ -24,11 +24,10 @@ public class IsicTreeTest {
 	public void testFindNode() {
 		IsicNode node = tree.findNode("9492");
 		Assert.assertEquals("Activities of political organizations",
-				node.getName());
-		Assert.assertEquals("949", node.getParent().getCode());
-		Assert.assertEquals("94", node.getParent().getParent().getCode());
-		Assert.assertEquals("S", node.getParent().getParent().getParent()
-				.getCode());
+				node.name);
+		Assert.assertEquals("949", node.parent.code);
+		Assert.assertEquals("94", node.parent.parent.code);
+		Assert.assertEquals("S", node.parent.parent.parent.code);
 	}
 
 	@Test
