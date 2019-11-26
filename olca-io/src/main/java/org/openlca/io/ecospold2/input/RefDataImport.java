@@ -184,13 +184,13 @@ class RefDataImport {
 			if (flow != null)
 				index.putFlow(refId, flow);
 		}
-		if (flow == null)
+		if (flow == null) {
 			flow = createNewProduct(exchange, refId);
+		}
 		Integer og = exchange.outputGroup;
 		boolean isRef = og != null && og == 0;
 		if (!isRef)
 			return;
-		index.putNegativeFlow(refId, exchange.amount < 0);
 		Category category = getProductCategory(dataSet, exchange);
 		flow.category = category;
 		flow = flowDao.update(flow);

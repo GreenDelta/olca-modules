@@ -49,7 +49,7 @@ class ProcessImport {
 	/** Exchanges that wait for a default provider: provider-id -> exchanges. */
 	private final HashMap<String, List<Exchange>> linkQueue = new HashMap<>();
 
-	public ProcessImport(RefDataIndex index, ImportConfig config) {
+	ProcessImport(RefDataIndex index, ImportConfig config) {
 		this.index = index;
 		this.config = config;
 		dao = new ProcessDao(config.db);
@@ -57,13 +57,13 @@ class ProcessImport {
 		dqSystem = DQSystems.ecoinvent(config.db);
 	}
 
-	public void importDataSet(DataSet dataSet) {
+	void importDataSet(DataSet ds) {
 		try {
-			if (dataSet == null) {
+			if (ds == null) {
 				log.warn("not an EcoSpold data set");
 				return;
 			}
-			checkImport(dataSet);
+			checkImport(ds);
 		} catch (Exception e) {
 			log.error("Failed to import EcoSpold 2 process", e);
 		}
@@ -328,7 +328,6 @@ class ProcessImport {
 		}
 		exchanges.add(exchange);
 	}
-
 
 	/**
 	 * The name of the process has the following pattern:

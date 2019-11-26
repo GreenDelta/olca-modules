@@ -60,28 +60,28 @@ public class EcoSpold2Import implements FileImport {
 
 	private RefDataIndex importRefData(File[] files) {
 		log.trace("import reference data");
-		RefDataImport refDataImport = new RefDataImport(config);
+		RefDataImport imp = new RefDataImport(config);
 		if (eventBus != null)
 			eventBus.post(new ImportEvent("reference data"));
-		try (DataSetIterator iterator = new DataSetIterator(files)) {
-			while (!canceled && iterator.hasNext()) {
-				DataSet dataSet = iterator.next();
-				refDataImport.importDataSet(dataSet);
+		try (DataSetIterator it = new DataSetIterator(files)) {
+			while (!canceled && it.hasNext()) {
+				DataSet ds = it.next();
+				imp.importDataSet(ds);
 			}
 		} catch (Exception e) {
 			log.error("reference data import failed", e);
 		}
-		return refDataImport.getIndex();
+		return imp.getIndex();
 	}
 
 	private void importProcesses(File[] files, RefDataIndex index) {
 		log.trace("import processes");
-		ProcessImport processImport = new ProcessImport(index, config);
-		try (DataSetIterator iterator = new DataSetIterator(files)) {
-			while (!canceled && iterator.hasNext()) {
-				DataSet dataSet = iterator.next();
-				fireEvent(dataSet);
-				processImport.importDataSet(dataSet);
+		ProcessImport imp = new ProcessImport(index, config);
+		try (DataSetIterator it = new DataSetIterator(files)) {
+			while (!canceled && it.hasNext()) {
+				DataSet ds = it.next();
+				fireEvent(ds);
+				imp.importDataSet(ds);
 			}
 		} catch (Exception e) {
 			log.error("process import failed", e);
