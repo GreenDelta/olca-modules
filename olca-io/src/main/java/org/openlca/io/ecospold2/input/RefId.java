@@ -5,7 +5,6 @@ import org.openlca.util.KeyGen;
 import spold2.Activity;
 import spold2.DataSet;
 import spold2.IntermediateExchange;
-import spold2.Representativeness;
 import spold2.Spold2;
 
 /**
@@ -38,16 +37,16 @@ final class RefId {
 				? qRef.flowId
 				: KeyGen.NULL_UUID;
 
-		// system model ID
-		Representativeness repri = Spold2.getRepresentativeness(ds);
-		String systemID = repri != null && repri.systemModelId != null
-				? repri.systemModelId
-				: KeyGen.NULL_UUID;
+//		// system model ID
+//		Representativeness repri = Spold2.getRepresentativeness(ds);
+//		String systemID = repri != null && repri.systemModelId != null
+//				? repri.systemModelId
+//				: KeyGen.NULL_UUID;
+//
+//		// process type
+//		String type = activity.type == 2 ? "S" : "U";
 
-		// process type
-		String type = activity.type == 2 ? "S" : "U";
-
-		return KeyGen.get(activity.id, productID, systemID, type);
+		return KeyGen.get(activity.id, productID /* , systemID, type */);
 	}
 
 	/**
@@ -61,13 +60,13 @@ final class RefId {
 			return KeyGen.NULL_UUID;
 		String activityID = input.activityLinkId;
 		String productID = input.flowId;
-		Representativeness repri = Spold2.getRepresentativeness(recipient);
-		String systemID = repri != null && repri.systemModelId != null
-				? repri.systemModelId
-				: KeyGen.NULL_UUID;
-		Activity a = Spold2.getActivity(recipient);
-		String type = a != null && a.type == 2 ? "S" : "U";
-		return KeyGen.get(activityID, productID, systemID, type);
+//		Representativeness repri = Spold2.getRepresentativeness(recipient);
+//		String systemID = repri != null && repri.systemModelId != null
+//				? repri.systemModelId
+//				: KeyGen.NULL_UUID;
+//		Activity a = Spold2.getActivity(recipient);
+//		String type = a != null && a.type == 2 ? "S" : "U";
+		return KeyGen.get(activityID, productID /* , systemID, type */);
 	}
 
 }
