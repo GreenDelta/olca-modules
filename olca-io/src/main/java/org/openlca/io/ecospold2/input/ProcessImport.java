@@ -222,7 +222,7 @@ class ProcessImport {
 				e.isAvoided = true;
 			}
 			if (ie.activityLinkId != null) {
-				addActivityLink(ds, ie, e);
+				addActivityLink(ie, e);
 			}
 			if (isRefFlow) {
 				p.quantitativeReference = e;
@@ -313,9 +313,9 @@ class ProcessImport {
 			exchange.amountFormula = factor + " * (" + formula + ")";
 	}
 
-	private void addActivityLink(DataSet ds, IntermediateExchange input,
+	private void addActivityLink(IntermediateExchange input,
 			Exchange exchange) {
-		String refId = RefId.linkID(ds, input);
+		String refId = RefId.linkID(input);
 		Long processId = index.getProcessId(refId);
 		if (processId != null) {
 			exchange.defaultProviderId = processId;
