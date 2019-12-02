@@ -1,5 +1,7 @@
 package org.openlca.core.matrix.io.npy;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -11,6 +13,13 @@ class Header {
 	String dtype;
 	boolean fortranOrder;
 	int[] shape;
+
+	/**
+	 * Contains the number of bytes from the beginning of the file to the
+	 * position where the data section starts. The offset includes the magic
+	 * string, the version fields, the header length, and the header.
+	 */
+	int dataOffset;
 
 	@Override
 	public String toString() {
@@ -29,6 +38,15 @@ class Header {
 		}
 		b.append("), }");
 		return b.toString();
+	}
+
+	static Header read(File file) {
+		try (FileInputStream fis = new FileInputStream(file)) {
+			return read(fis);
+		} catch (IOException e) {
+			throw new RuntimeException(
+					"failed to read header from " + file, e);
+		}
 	}
 
 	static Header read(InputStream in) {
@@ -69,8 +87,9 @@ class Header {
 			// read the header string; hoping everything is ASCII
 			bytes = new byte[headerLength];
 			in.read(bytes);
-			String header = new String(bytes);
-			return parse(header);
+			Header header = parse(new String(bytes));
+			header.dataOffset = headerLength + 10;
+			return header;
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to read header", e);
 		}
