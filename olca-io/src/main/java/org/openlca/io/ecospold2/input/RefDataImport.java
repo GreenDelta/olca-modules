@@ -191,8 +191,7 @@ class RefDataImport {
 		boolean isRef = og != null && og == 0;
 		if (!isRef)
 			return;
-		Category category = getProductCategory(dataSet, exchange);
-		flow.category = category;
+		flow.category = getProductCategory(dataSet, exchange);
 		flow = flowDao.update(flow);
 		index.putFlow(refId, flow);
 	}
