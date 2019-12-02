@@ -16,7 +16,7 @@ public final class Npy {
 	public static void save(File file, IMatrix matrix) {
 		if (file == null || matrix == null)
 			return;
-
+		new DenseWriter(file, matrix).run();
 	}
 
 }

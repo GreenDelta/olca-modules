@@ -1,5 +1,6 @@
 package org.openlca.core.matrix.io.npy;
 
+import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.IMatrix;
 
 import java.io.File;
@@ -9,12 +10,12 @@ import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
-class DefaultWriter {
+class DenseWriter {
 
 	private final File file;
 	private final IMatrix matrix;
 
-	DefaultWriter(File file, IMatrix matrix) {
+	DenseWriter(File file, IMatrix matrix) {
 		this.file = file;
 		this.matrix = matrix;
 	}
@@ -66,13 +67,19 @@ class DefaultWriter {
 			buf.put((byte)'\n');
 
 			// write the matrix data
-			for (int col = 0; col < matrix.columns(); col++) {
-				for (int row = 0; row < matrix.rows(); row++) {
-					buf.putDouble(matrix.get(row, col));
+			if (matrix instanceof DenseMatrix) {
+				DenseMatrix dmatrix = (DenseMatrix)matrix;
+				buf.asDoubleBuffer().put(dmatrix.getData());
+			} else {
+				for (int col = 0; col < matrix.columns(); col++) {
+					for (int row = 0; row < matrix.rows(); row++) {
+						buf.putDouble(matrix.get(row, col));
+					}
 				}
 			}
 		} catch (IOException e) {
 			throw new RuntimeException("failed to write matrix to " + file, e);
 		}
 	}
+
 }
