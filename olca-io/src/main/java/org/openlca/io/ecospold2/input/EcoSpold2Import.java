@@ -46,7 +46,7 @@ public class EcoSpold2Import implements FileImport {
 	@Override
 	public void run() {
 		if (files == null) {
-			log.trace("files is null, nothing to do");
+			log.info("files is null, nothing to do");
 			return;
 		}
 		log.trace("run import with: {}", config);
@@ -54,8 +54,13 @@ public class EcoSpold2Import implements FileImport {
 		importProcesses(files, index);
 
 		// expand ISIC category trees
+		log.info("expand ISIC categories");
 		new IsicCategoryTreeSync(config.db, ModelType.FLOW).run();
 		new IsicCategoryTreeSync(config.db, ModelType.PROCESS).run();
+
+		log.info("swap waste flows");
+		new WasteFlowSync(config.db).run();
+		config.db.getEntityFactory().getCache().evictAll();
 	}
 
 	private RefDataIndex importRefData(File[] files) {

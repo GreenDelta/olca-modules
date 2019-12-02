@@ -1,10 +1,5 @@
 package org.openlca.io.ecospold2.input;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.NativeSql;
-import org.openlca.core.database.derby.DerbyDatabase;
-
-import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -12,16 +7,19 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
+
 /**
  * In ecoinvent 3.3, waste flows are intermediate exchanges with a negative
  * amount and an opposite direction than the real flow (waste treatment
- * processes have waste as outputs and waste producing processes as inputs
- * in ecoinvent).
+ * processes have waste as outputs and waste producing processes as inputs in
+ * ecoinvent).
  * <p>
  * WasteFlowSync first identifies possible waste flows as product flows that
- * have only negative values in the inputs and outputs. It then changes the
- * flow types of these flows as well as the flow directions and amount values
- * in the exchanges accordingly.
+ * have only negative values in the inputs and outputs. It then changes the flow
+ * types of these flows as well as the flow directions and amount values in the
+ * exchanges accordingly.
  */
 public class WasteFlowSync implements Runnable {
 
@@ -58,8 +56,8 @@ public class WasteFlowSync implements Runnable {
 	}
 
 	/**
-	 * Returns the IDs of the given product flows that we can identify as
-	 * waste flows, i.e. they have always negative values.
+	 * Returns the IDs of the given product flows that we can identify as waste
+	 * flows, i.e. they have always negative values.
 	 */
 	private Set<Long> getWasteFlows(Set<Long> products) {
 		String sql = "SELECT f_flow, resulting_amount_value FROM tbl_exchanges";
@@ -95,10 +93,10 @@ public class WasteFlowSync implements Runnable {
 	private void updateFlowTypes(Set<Long> wastes) {
 		String sql = "SELECT id, flow_type FROM tbl_flows";
 		try (Connection con = db.createConnection();
-			 Statement stmt = con.createStatement(
-					 ResultSet.TYPE_SCROLL_SENSITIVE,
-					 ResultSet.CONCUR_UPDATABLE);
-			 ResultSet rs = stmt.executeQuery(sql)) {
+				Statement stmt = con.createStatement(
+						ResultSet.TYPE_SCROLL_SENSITIVE,
+						ResultSet.CONCUR_UPDATABLE);
+				ResultSet rs = stmt.executeQuery(sql)) {
 			while (rs.next()) {
 				long flowID = rs.getLong(1);
 				if (!wastes.contains(flowID))
@@ -117,10 +115,10 @@ public class WasteFlowSync implements Runnable {
 		String sql = "SELECT f_flow, is_input, resulting_amount_value " +
 				"FROM tbl_exchanges";
 		try (Connection con = db.createConnection();
-			 Statement stmt = con.createStatement(
-					 ResultSet.TYPE_SCROLL_SENSITIVE,
-					 ResultSet.CONCUR_UPDATABLE);
-			 ResultSet rs = stmt.executeQuery(sql)) {
+				Statement stmt = con.createStatement(
+						ResultSet.TYPE_SCROLL_SENSITIVE,
+						ResultSet.CONCUR_UPDATABLE);
+				ResultSet rs = stmt.executeQuery(sql)) {
 			while (rs.next()) {
 				long flowID = rs.getLong(1);
 				if (!wastes.contains(flowID))
@@ -137,7 +135,4 @@ public class WasteFlowSync implements Runnable {
 					"failed to swap waste flow exchanges", e);
 		}
 	}
-
-
-
 }
