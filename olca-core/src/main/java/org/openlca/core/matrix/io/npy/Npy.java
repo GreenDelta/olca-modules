@@ -19,7 +19,7 @@ public final class Npy {
 			throw new IllegalArgumentException(
 					"invalid header shape " + header + ": " + file);
 		}
-		if ("<f8".equals(header.dtype)) {
+		if (!"<f8".equals(header.dtype)) {
 			throw new IllegalArgumentException(
 					"unknown data type: " + header.dtype + ": " + file);
 		}
