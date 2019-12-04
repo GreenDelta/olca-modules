@@ -1,23 +1,14 @@
 package spold2;
 
-import java.io.InputStream;
-import java.util.List;
-import java.util.logging.Logger;
-
 import org.junit.Assert;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 
-import spold2.Activity;
-import spold2.Classification;
-import spold2.DataSet;
-import spold2.EcoSpold2;
-import spold2.ElementaryExchange;
-import spold2.Geography;
-import spold2.IntermediateExchange;
-import spold2.Technology;
+import java.io.InputStream;
+import java.util.List;
+import java.util.logging.Logger;
 
 @RunWith(Theories.class)
 public class ReaderTest {
@@ -95,6 +86,6 @@ public class ReaderTest {
 	private DataSet read(String file) throws Exception {
 		log.info("parse file " + file);
 		InputStream stream = getClass().getResourceAsStream(file);
-		return EcoSpold2.read(stream);
+		return EcoSpold2.read(stream).activity();
 	}
 }

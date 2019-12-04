@@ -1,8 +1,8 @@
 package spold2;
 
-import java.io.File;
-
 import org.junit.Test;
+
+import java.io.File;
 
 public class IOTest {
 
@@ -12,7 +12,7 @@ public class IOTest {
 	@Test
 	public void testDataSetIO() throws Exception {
 		DataSet dataSet = EcoSpold2.read(IOTest.class
-				.getResourceAsStream("sample_ecospold2.xml"));
+				.getResourceAsStream("sample_ecospold2.xml")).activity();
 		File file = new File(System.getProperty("java.io.tmpdir")
 				+ "/_es2_test_file.xml");
 		System.out.println("written to file: " + file);
