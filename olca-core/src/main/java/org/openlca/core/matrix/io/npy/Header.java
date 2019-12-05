@@ -9,10 +9,16 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
-class Header {
-	String dtype;
-	boolean fortranOrder;
-	int[] shape;
+/**
+ * The header information of an NPY file.
+ *
+ * see https://numpy.org/devdocs/reference/generated/numpy.lib.format.html
+ */
+public class Header {
+
+	public String dtype;
+	public boolean fortranOrder;
+	public int[] shape;
 
 	/**
 	 * Contains the number of bytes from the beginning of the file to the
@@ -40,7 +46,7 @@ class Header {
 		return b.toString();
 	}
 
-	static Header read(File file) {
+	public static Header read(File file) {
 		try (FileInputStream fis = new FileInputStream(file)) {
 			return read(fis);
 		} catch (IOException e) {
@@ -49,7 +55,7 @@ class Header {
 		}
 	}
 
-	static Header read(InputStream in) {
+	public static Header read(InputStream in) {
 		try {
 			// The first 6 bytes are a magic string: exactly \x93NUMPY.
 			byte[] bytes = new byte[6];
