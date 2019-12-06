@@ -68,4 +68,30 @@ public class DenseMatrix implements IMatrix {
 		return copy;
 	}
 
+	@Override
+	public String toString() {
+		if (rows > 10 || columns > 10)
+			return "DenseMatrix{rows=" + rows + ", columns=" + columns + '}';
+		StringBuilder b = new StringBuilder("[");
+		for (int row = 0; row < rows; row++) {
+			if (row > 0) {
+				b.append(" ");
+			}
+			for (int col = 0; col < columns; col++) {
+				double val = get(row, col);
+				if (val >= 0.1 && val < 100) {
+					b.append(String.format(" %.2f ", val));
+				} else {
+					b.append(String.format(" %.2e ", val));
+				}
+			}
+			if (row < (rows - 1)) {
+				b.append(";\n");
+			}
+			else {
+				b.append(']');
+			}
+		}
+		return b.toString();
+	}
 }

@@ -32,5 +32,4 @@ public final class Npy {
 			return;
 		new DenseWriter(file, matrix).run();
 	}
-
 }

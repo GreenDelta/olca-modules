@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
+import java.nio.DoubleBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
@@ -29,7 +30,18 @@ class DenseReader {
 					FileChannel.MapMode.READ_ONLY, header.dataOffset,
 					(rows * cols * 8));
 			buf.order(ByteOrder.LITTLE_ENDIAN);
-			buf.asDoubleBuffer().get(matrix.getData());
+			if (header.fortranOrder) {
+				// if we are in fortran order, we can directly
+				// map the data into memory
+				buf.asDoubleBuffer().get(matrix.getData());
+			} else {
+				DoubleBuffer dbuf = buf.asDoubleBuffer();
+				for (int row = 0; row < rows; row++) {
+					for (int col = 0; col < cols; col++) {
+						matrix.set(row, col, dbuf.get());
+					}
+				}
+			}
 			return matrix;
 		} catch (IOException e) {
 			throw new RuntimeException("failed to read from " + file, e);
