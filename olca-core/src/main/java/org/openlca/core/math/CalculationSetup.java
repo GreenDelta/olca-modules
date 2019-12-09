@@ -87,10 +87,17 @@ public class CalculationSetup {
 		this.amount = amount;
 	}
 
+	/** Get the target amount in the unit of this calculation setup. */
+	public double getAmount() {
+		return amount != null
+				? amount
+				: productSystem.targetAmount;
+	}
+
 	/**
-	 * Get the value for the demand vector for the quantitative reference
-	 * defined by this calculation setup. Note that this value is negative for
-	 * waste treatment systems.
+	 * Get the value for the demand vector for the quantitative reference defined by
+	 * this calculation setup. Note that this value is negative for waste treatment
+	 * systems and that it is given in the reference unit of the reference flow.
 	 */
 	public double getDemandValue() {
 		double a = amount != null
