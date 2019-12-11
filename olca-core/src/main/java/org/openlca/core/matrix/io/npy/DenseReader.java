@@ -42,6 +42,12 @@ class DenseReader {
 					}
 				}
 			}
+			buf.force();
+
+			// there is no way to close the buffer here
+			// see: https://github.com/GreenDelta/olca-modules/issues/17
+			// System.gc();
+
 			return matrix;
 		} catch (IOException e) {
 			throw new RuntimeException("failed to read from " + file, e);
