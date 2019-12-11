@@ -23,7 +23,6 @@ public final class Npy {
 			throw new IllegalArgumentException(
 					"unknown data type: " + header.dtype + ": " + file);
 		}
-		// TODO: handle C order ...
 		return new DenseReader(file, header).run();
 	}
 

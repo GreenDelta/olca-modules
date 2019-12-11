@@ -5,7 +5,6 @@ import org.openlca.core.matrix.format.DenseMatrix;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -29,7 +28,7 @@ class DenseReader {
 			MappedByteBuffer buf = channel.map(
 					FileChannel.MapMode.READ_ONLY, header.dataOffset,
 					(rows * cols * 8));
-			buf.order(ByteOrder.LITTLE_ENDIAN);
+			buf.order(header.getByteOrder());
 			if (header.fortranOrder) {
 				// if we are in fortran order, we can directly
 				// map the data into memory

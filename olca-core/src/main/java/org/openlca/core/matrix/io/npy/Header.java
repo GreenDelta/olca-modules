@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteOrder;
 
 /**
  * The header information of an NPY file.
@@ -59,4 +60,19 @@ public class Header {
 		return HeaderReader.parse(s);
 	}
 
+	public DType getDType() {
+		return DType.fromString(dtype);
+	}
+
+	/**
+	 * Try to derive the byte order from the Numpy dtype of this
+	 * header; otherwise returns little endian order by default.
+	 */
+	public ByteOrder getByteOrder() {
+		if (dtype == null)
+			return ByteOrder.LITTLE_ENDIAN;
+		if (dtype.startsWith(">"))
+			return ByteOrder.BIG_ENDIAN;
+		return ByteOrder.LITTLE_ENDIAN;
+	}
 }
