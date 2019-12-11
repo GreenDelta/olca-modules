@@ -4,14 +4,14 @@ import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.IMatrix;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 /**
  * A NPZ file is just a zip file of NPY files. In SciPy, sparse matrices can
@@ -46,32 +46,6 @@ public final class Npz {
 
 		} catch (IOException e) {
 			throw new RuntimeException("failed to read zip: " + file, e);
-		}
-	}
-
-	/**
-	 * Returns a list with the entries of the given NPZ file. As an NPZ file
-	 * is just a zip file of NPY files this gives the names of the NPY files
-	 * in the zip.
-	 */
-	public static List<String> entries(File file) {
-		try (ZipFile zip = new ZipFile(file)) {
-			List<String> names = new ArrayList<>();
-			Enumeration<? extends ZipEntry> entries = zip.entries();
-			while (entries.hasMoreElements()) {
-				ZipEntry e = entries.nextElement();
-				names.add(e.getName());
-
-				// TODO: this is currently just for testing
-				System.out.println(e.getName());
-				try (InputStream in = zip.getInputStream(e);
-					 BufferedInputStream buf = new BufferedInputStream(in)) {
-					System.out.println(Header.read(buf));
-				}
-			}
-			return names;
-		} catch (IOException e) {
-			throw new RuntimeException("Failed to read NPZ file " + file, e);
 		}
 	}
 
@@ -132,6 +106,28 @@ public final class Npz {
 		}
 		return new BufferedInputStream(zip.getInputStream(e));
 	}
+
+	public static void save(File file, CSCMatrix m) {
+		if (file == null || m == null)
+			return;
+		try (FileOutputStream out = new FileOutputStream(file);
+			 BufferedOutputStream buffer = new BufferedOutputStream(out);
+			 ZipOutputStream zip = new ZipOutputStream(buffer)) {
+			zip.setLevel(ZipOutputStream.STORED);
+
+			// shape
+			ZipEntry shape = new ZipEntry("shape.npy");
+			zip.putNextEntry(shape);
+			Npy.write(zip, new int[]{m.rows, m.columns});
+			zip.closeEntry();
+
+
+
+		} catch (IOException e) {
+			throw new RuntimeException("failed to create zip: " + file, e);
+		}
+	}
+
 
 	public static void main(String[] args) {
 		String path = "/Users/ms/Downloads/csc.npz";

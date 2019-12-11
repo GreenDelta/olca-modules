@@ -9,6 +9,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 
 class DenseWriter {
 
@@ -28,7 +29,8 @@ class DenseWriter {
 			head.dtype = "<f8";
 			head.shape = new int[]{matrix.rows(), matrix.columns()};
 			head.fortranOrder = true;
-			byte[] headerBytes = (head.toString()).getBytes("ascii");
+			byte[] headerBytes = (head.toString()).getBytes(
+					StandardCharsets.US_ASCII);
 
 			// see https://docs.scipy.org/doc/numpy-1.14.2/neps/npy-format.html
 			// 6 bytes: “x93NUMPY”

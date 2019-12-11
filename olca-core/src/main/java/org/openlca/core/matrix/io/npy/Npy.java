@@ -6,7 +6,9 @@ import org.openlca.core.matrix.format.IMatrix;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * Supports reading and writing dense matrices and vectors from NPY files. NPY
@@ -135,5 +137,35 @@ public final class Npy {
 			buf.position(0);
 		}
 		return v;
+	}
+
+	/**
+	 * Writes the given vector including its header to the given output stream.
+	 */
+	static void write(OutputStream out, int[] v) throws IOException {
+		Header h = new Header();
+		h.shape = new int[v.length];
+		h.dtype = "<i4";
+		h.fortranOrder = false;
+		h.write(out);
+		ByteBuffer buff = ByteBuffer.allocate(v.length * 4);
+		buff.order(ByteOrder.LITTLE_ENDIAN);
+		buff.asIntBuffer().put(v);
+		out.write(buff.array());
+	}
+
+	/**
+	 * Writes the given vector including its header to the given output stream.
+	 */
+	static void write(OutputStream out, double[] v) throws IOException {
+		Header h = new Header();
+		h.shape = new int[v.length];
+		h.dtype = "<f8";
+		h.fortranOrder = false;
+		h.write(out);
+		ByteBuffer buff = ByteBuffer.allocate(v.length * 8);
+		buff.order(ByteOrder.LITTLE_ENDIAN);
+		buff.asDoubleBuffer().put(v);
+		out.write(buff.array());
 	}
 }
