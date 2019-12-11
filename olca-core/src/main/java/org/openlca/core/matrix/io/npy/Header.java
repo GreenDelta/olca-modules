@@ -1,5 +1,6 @@
 package org.openlca.core.matrix.io.npy;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -8,7 +9,7 @@ import java.nio.ByteOrder;
 
 /**
  * The header information of an NPY file.
- *
+ * <p>
  * see https://numpy.org/devdocs/reference/generated/numpy.lib.format.html
  */
 public class Header {
@@ -44,14 +45,20 @@ public class Header {
 	}
 
 	public static Header read(File file) {
-		try (FileInputStream fis = new FileInputStream(file)) {
-			return read(fis);
+		try (FileInputStream fis = new FileInputStream(file);
+			 BufferedInputStream buf = new BufferedInputStream(fis, 16)) {
+			return read(buf);
 		} catch (IOException e) {
 			throw new RuntimeException(
 					"failed to read header from " + file, e);
 		}
 	}
 
+	/**
+	 * Read the header information from an NPY file. It will not close the
+	 * given stream and the position of the stream will be directly after the
+	 * header so that it can be used for further reading.
+	 */
 	public static Header read(InputStream stream) {
 		return HeaderReader.read(stream);
 	}

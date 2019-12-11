@@ -1,6 +1,5 @@
 package org.openlca.core.matrix.io.npy;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -16,10 +15,12 @@ import java.util.List;
 class HeaderReader {
 
 	/**
-	 * Read the header information from an NPY file.
+	 * Read the header information from an NPY file. It will not close the
+	 * given stream and the position of the stream will be directly after the
+	 * header so that it can be used for further reading.
 	 */
-	static Header read(InputStream stream) {
-		try (BufferedInputStream in = new BufferedInputStream(stream, 16)) {
+	static Header read(InputStream in) {
+		try {
 			// The first 6 bytes are a magic string: exactly \x93NUMPY.
 			byte[] bytes = new byte[6];
 			int n = in.read(bytes);
