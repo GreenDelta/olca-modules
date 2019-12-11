@@ -95,13 +95,48 @@ public final class Npz {
 		}
 	}
 
-	private static CSCMatrix readCSC(ZipFile zip) {
-		return null;
+	private static CSCMatrix readCSC(ZipFile zip) throws IOException {
+		int[] shape;
+		try (InputStream buff = buff(zip, "shape.npy")) {
+			shape = Npy.readIntVector(buff);
+		}
+		if (shape.length < 2) {
+			throw new IllegalStateException("shape is < 2");
+		}
+		double[] values;
+		try (InputStream buff = buff(zip, "data.npy")) {
+			values = Npy.readVector(buff);
+		}
+		int[] columnPointers;
+		try (InputStream buff = buff(zip, "indptr.npy")) {
+			columnPointers = Npy.readIntVector(buff);
+		}
+		int[] rowIndices;
+		try (InputStream buff = buff(zip, "indices.npy")) {
+			rowIndices = Npy.readIntVector(buff);
+		}
+		return new CSCMatrix(shape[0], shape[1], values,
+				columnPointers, rowIndices);
+	}
+
+	/**
+	 * Returns a buffered input stream of the entry with the given name. An
+	 * {@link IllegalStateException} is thrown when there is no such entry in
+	 * the zip file.
+	 */
+	private static InputStream buff(ZipFile zip, String name) throws IOException {
+		ZipEntry e = zip.getEntry(name);
+		if (e == null) {
+			throw new IllegalStateException(
+					"the zip file " + zip + " does not contain an entry " + name);
+		}
+		return new BufferedInputStream(zip.getInputStream(e));
 	}
 
 	public static void main(String[] args) {
 		String path = "/Users/ms/Downloads/csc.npz";
-		System.out.println(Npz.load(new File(path)));
+		IMatrix m = Npz.load(new File(path));
+		System.out.println(m.rows() + " * " + m.columns());
 	}
 
 }

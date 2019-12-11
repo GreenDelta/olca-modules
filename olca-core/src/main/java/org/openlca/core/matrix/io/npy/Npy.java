@@ -62,7 +62,7 @@ public final class Npy {
 	 * must be a NPY file where the position of the stream is the first byte in
 	 * that file (the header is read within this method).
 	 */
-	double[] readVector(InputStream stream) throws IOException {
+	static double[] readVector(InputStream stream) throws IOException {
 		Header h = Header.read(stream);
 
 		// check the length
@@ -90,7 +90,7 @@ public final class Npy {
 			if (stream.read(bytes) != dsize)
 				break;
 			v[i] = buf.getDouble();
-			buf.reset();
+			buf.position(0);
 		}
 		return v;
 	}
@@ -132,7 +132,7 @@ public final class Npy {
 			if (stream.read(bytes) != dsize)
 				break;
 			v[i] = buf.getInt();
-			buf.reset();
+			buf.position(0);
 		}
 		return v;
 	}
