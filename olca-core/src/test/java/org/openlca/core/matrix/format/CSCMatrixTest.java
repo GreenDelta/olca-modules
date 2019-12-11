@@ -1,11 +1,11 @@
 package org.openlca.core.matrix.format;
 
+import org.junit.Test;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
-
-public class CCRMatrixTest {
+public class CSCMatrixTest {
 
 	@Test
 	public void testDiagonal() {
@@ -13,7 +13,7 @@ public class CCRMatrixTest {
 		m.set(0, 0, 1.0);
 		m.set(1, 1, 2.0);
 		m.set(2, 2, 3.0);
-		CCRMatrix ccr = CCRMatrix.of(m);
+		CSCMatrix ccr = CSCMatrix.of(m);
 
 		// test fields
 		assertEquals(3, ccr.rows);
@@ -69,7 +69,7 @@ public class CCRMatrixTest {
 		};
 		HashPointMatrix hpm = new HashPointMatrix(data);
 
-		CCRMatrix ccr = CCRMatrix.of(hpm);
+		CSCMatrix ccr = CSCMatrix.of(hpm);
 
 		// test fields
 		assertEquals(5, ccr.rows);

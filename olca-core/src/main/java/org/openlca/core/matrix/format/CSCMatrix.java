@@ -1,41 +1,58 @@
 package org.openlca.core.matrix.format;
 
-import java.util.Arrays;
-
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 
-/**
- * Implements a compressed-column representation of a sparse matrix. Note that
- * this format is not editable. Calling `set(row, col, val)` will throw an
- * exception.
- */
-public class CCRMatrix implements IMatrix {
+import java.util.Arrays;
 
-	/** The total number of rows. */
+/**
+ * Implements a compressed-column representation of a sparse matrix (CSC =
+ * compressed sparse column). Note that this format is not editable. Calling
+ * `set(row, col, val)` will throw an exception.
+ */
+public class CSCMatrix implements IMatrix {
+
+	/**
+	 * The total number of rows.
+	 */
 	public final int rows;
 
-	/** The total number of columns. */
+	/**
+	 * The total number of columns.
+	 */
 	public final int columns;
 
-	/** The vector with non-zero entries $A.val$. */
+	/**
+	 * The vector with non-zero entries $A.val$.
+	 */
 	public final double[] values;
 
 	/**
 	 * The column pointers $A.c$ that indicate where each column begins. The
-	 * last component of $A.c$ contains $\text{nnz}(A)$ where
+	 * last component of $A.c$ contains $\text{nnz}(A) + 1$ where
 	 * $\text{nnz}(A)$ is the number of non-zero entries in A.
 	 */
 	public final int[] columnPointers;
 
-	/** The row indices $A.r$ of the non-zero entries $A.val$. */
+	/**
+	 * The row indices $A.r$ of the non-zero entries $A.val$.
+	 */
 	public final int[] rowIndices;
 
-	private CCRMatrix(IMatrix other) {
-		if (other instanceof CCRMatrix) {
+	public CSCMatrix(int rows, int cols, double[] values,
+					 int[] columnPointers, int[] rowIndices) {
+		this.rows = rows;
+		this.columns = cols;
+		this.values = values;
+		this.columnPointers = columnPointers;
+		this.rowIndices = rowIndices;
+	}
+
+	private CSCMatrix(IMatrix other) {
+		if (other instanceof CSCMatrix) {
 
 			// copy a CCR matrix
-			CCRMatrix ccr = (CCRMatrix) other;
+			CSCMatrix ccr = (CSCMatrix) other;
 			this.rows = ccr.rows;
 			this.columns = ccr.columns;
 			this.values = Arrays.copyOf(ccr.values, ccr.values.length);
@@ -76,11 +93,11 @@ public class CCRMatrix implements IMatrix {
 		}
 	}
 
-	public static CCRMatrix of(IMatrix other) {
+	public static CSCMatrix of(IMatrix other) {
 		if (other == null) {
-			return new CCRMatrix(new HashPointMatrix());
+			return new CSCMatrix(new HashPointMatrix());
 		}
-		return new CCRMatrix(other);
+		return new CSCMatrix(other);
 	}
 
 	@Override
@@ -90,7 +107,7 @@ public class CCRMatrix implements IMatrix {
 
 	@Override
 	public IMatrix copy() {
-		return new CCRMatrix(this);
+		return new CSCMatrix(this);
 	}
 
 	@Override

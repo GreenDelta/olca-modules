@@ -1,5 +1,6 @@
 package org.openlca.core.matrix.io.npy;
 
+import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.IMatrix;
 
 import java.io.BufferedInputStream;
@@ -21,7 +22,7 @@ import java.util.zip.ZipFile;
  *     <li>CSC matrices (compressed sparse column matrices)</li>
  *     <li>TODO other ...</li>
  * </ul>
- *
+ * <p>
  * see https://docs.scipy.org/doc/scipy/reference/sparse.html
  */
 public final class Npz {
@@ -30,8 +31,22 @@ public final class Npz {
 	}
 
 	public static IMatrix load(File file) {
-		// TODO not yet implemented
-		return null;
+		try (ZipFile zip = new ZipFile(file)) {
+			String format = getFormat(zip);
+			if (format == null)
+				throw new IllegalArgumentException(
+						"unsupported NPZ file; no format entry");
+			switch (format) {
+				case "csc":
+					return readCSC(zip);
+				default:
+					throw new IllegalArgumentException(
+							"unsupported format: " + format);
+			}
+
+		} catch (IOException e) {
+			throw new RuntimeException("failed to read zip: " + file, e);
+		}
 	}
 
 	/**
@@ -60,33 +75,33 @@ public final class Npz {
 		}
 	}
 
-	public static String getFormat(File file) {
-		try (ZipFile zip = new ZipFile(file)) {
-			ZipEntry ze = zip.getEntry("format.npy");
-			if (ze == null)
-				return "unknown";
-			try (InputStream in = zip.getInputStream(ze);
-				 BufferedInputStream buf = new BufferedInputStream(in, 16)) {
-				Header h = Header.read(buf);
-				if (h.dtype == null || !h.dtype.contains("S"))
-					return "unknown";
-				// "S" means null-terminated string
-				// there should be only a few bytes that indicate the format
-				StringBuilder f = new StringBuilder();
-				int next;
-				while ((next = buf.read()) > 0) {
-					f.append((char) next);
-				}
-				return f.toString();
+	private static String getFormat(ZipFile zip) throws IOException {
+		ZipEntry ze = zip.getEntry("format.npy");
+		if (ze == null)
+			return null;
+		try (InputStream in = zip.getInputStream(ze);
+			 BufferedInputStream buf = new BufferedInputStream(in, 16)) {
+			Header h = Header.read(buf);
+			if (h.dtype == null || !h.dtype.contains("S"))
+				return null;
+			// "S" means null-terminated string
+			// there should be only a few bytes that indicate the format
+			StringBuilder f = new StringBuilder();
+			int next;
+			while ((next = buf.read()) > 0) {
+				f.append((char) next);
 			}
-		} catch (IOException e) {
-			throw new RuntimeException("Failed to read NPZ file " + file, e);
+			return f.toString();
 		}
+	}
+
+	private static CSCMatrix readCSC(ZipFile zip) {
+		return null;
 	}
 
 	public static void main(String[] args) {
 		String path = "/Users/ms/Downloads/csc.npz";
-		System.out.println(Npz.getFormat(new File(path)));
+		System.out.println(Npz.load(new File(path)));
 	}
 
 }

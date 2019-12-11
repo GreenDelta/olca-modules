@@ -43,4 +43,20 @@ public enum DType {
 			return Int64;
 		return UNKNOWN;
 	}
+
+	/**
+	 * Returns the number of bytes that are used to store an instance of the
+	 * respective data type.
+	 */
+	public int size() {
+		switch (this) {
+			case Float64:
+			case Int64:
+				return 8;
+			case Int32:
+				return 4;
+			default:
+				return -1;
+		}
+	}
 }

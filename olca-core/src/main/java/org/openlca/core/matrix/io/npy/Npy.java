@@ -4,13 +4,15 @@ import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.IMatrix;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 /**
  * Supports reading and writing dense matrices and vectors from NPY files. NPY
  * is a fast binary storage format for n-dimensional arrays used in NumPy. We
  * only support a subset of this format here.
- *
+ * <p>
  * See https://numpy.org/devdocs/reference/generated/numpy.lib.format.html
  */
 public final class Npy {
@@ -55,17 +57,83 @@ public final class Npy {
 		return null;
 	}
 
-	double[] readFloatVector(InputStream stream) {
-		//
-		return null;
+	/**
+	 * Reads a vector of floating point numbers from the given stream which
+	 * must be a NPY file where the position of the stream is the first byte in
+	 * that file (the header is read within this method).
+	 */
+	double[] readVector(InputStream stream) throws IOException {
+		Header h = Header.read(stream);
+
+		// check the length
+		if (h.shape == null || h.shape.length == 0)
+			return new double[0];
+		int len = h.shape[0];
+		if (len <= 0)
+			return new double[0];
+
+		// check the data type
+		DType dtype = h.getDType();
+		if (dtype != DType.Float64)
+			throw new IllegalArgumentException(
+					"not a supported floating point type " + dtype);
+
+		// allocate resources
+		int dsize = dtype.size();
+		byte[] bytes = new byte[dsize];
+		ByteBuffer buf = ByteBuffer.wrap(bytes);
+		buf.order(h.getByteOrder());
+		double[] v = new double[len];
+
+		// read the vector
+		for (int i = 0; i < len; i++) {
+			if (stream.read(bytes) != dsize)
+				break;
+			v[i] = buf.getDouble();
+			buf.reset();
+		}
+		return v;
 	}
 
 	public static void save(File file, double[] vector) {
 		// TODO not yet implemented
 	}
 
-	static int[] readIntVector(InputStream stream) {
-		// TODO not yet implemented
-		return null;
+	/**
+	 * Reads an integer vector from the given stream which must be a NPY file
+	 * where the position of the stream is the first byte in that file (the
+	 * header is read within this method).
+	 */
+	static int[] readIntVector(InputStream stream) throws IOException {
+		Header h = Header.read(stream);
+
+		// check the length
+		if (h.shape == null || h.shape.length == 0)
+			return new int[0];
+		int len = h.shape[0];
+		if (len <= 0)
+			return new int[0];
+
+		// check the data type
+		DType dtype = h.getDType();
+		if (dtype != DType.Int32 && dtype != DType.Int64)
+			throw new IllegalArgumentException(
+					"not a supported integer type " + dtype);
+
+		// allocate resources
+		int dsize = dtype.size();
+		byte[] bytes = new byte[dsize];
+		ByteBuffer buf = ByteBuffer.wrap(bytes);
+		buf.order(h.getByteOrder());
+		int[] v = new int[len];
+
+		// read the vector
+		for (int i = 0; i < len; i++) {
+			if (stream.read(bytes) != dsize)
+				break;
+			v[i] = buf.getInt();
+			buf.reset();
+		}
+		return v;
 	}
 }
