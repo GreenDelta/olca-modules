@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -115,24 +117,51 @@ public final class Npz {
 			 ZipOutputStream zip = new ZipOutputStream(buffer)) {
 			zip.setLevel(ZipOutputStream.STORED);
 
+			// row indices
+			zip.putNextEntry(new ZipEntry("indices.npy"));
+			Npy.write(zip, m.rowIndices);
+			zip.closeEntry();
+
+			// column pointers
+			zip.putNextEntry(new ZipEntry("indptr.npy"));
+			Npy.write(zip, m.columnPointers);
+			zip.closeEntry();
+
+			// format
+			zip.putNextEntry(new ZipEntry("format.npy"));
+			writeFormat(zip, "csc");
+			zip.closeEntry();
+
 			// shape
-			ZipEntry shape = new ZipEntry("shape.npy");
-			zip.putNextEntry(shape);
+			zip.putNextEntry(new ZipEntry("shape.npy"));
 			Npy.write(zip, new int[]{m.rows, m.columns});
 			zip.closeEntry();
 
-
+			// values
+			zip.putNextEntry(new ZipEntry("data.npy"));
+			Npy.write(zip, m.values);
+			zip.closeEntry();
 
 		} catch (IOException e) {
 			throw new RuntimeException("failed to create zip: " + file, e);
 		}
 	}
 
+	private static void writeFormat(OutputStream out, String format)
+			throws IOException {
+		byte[] formatBytes = format.getBytes(StandardCharsets.US_ASCII);
+		Header h = new Header();
+		h.dtype = "|S" + formatBytes.length;
+		h.write(out);
+		out.write(formatBytes);
+		out.write((byte) 0);
+	}
 
 	public static void main(String[] args) {
 		String path = "/Users/ms/Downloads/csc.npz";
-		IMatrix m = Npz.load(new File(path));
+		CSCMatrix m = (CSCMatrix) Npz.load(new File(path));
 		System.out.println(m.rows() + " * " + m.columns());
+		Npz.save(new File("/Users/ms/Downloads/csc_j.npz"), m);
 	}
 
 }
