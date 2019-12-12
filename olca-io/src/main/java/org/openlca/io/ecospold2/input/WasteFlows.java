@@ -2,6 +2,8 @@ package org.openlca.io.ecospold2.input;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
+import org.openlca.core.model.UncertaintyType;
+import org.openlca.util.Strings;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -124,25 +126,71 @@ public class WasteFlows {
 		}
 	}
 
+	/**
+	 * Inverts the amount values and directions of the exchanges for the given
+	 * flows. Note that we also need to invert formulas and parameters from
+	 * possible uncertainty distributions. Cost values should remain the same.
+	 */
 	private void invertExchanges(Set<Long> wastes) {
-		String sql = "SELECT f_flow, " + // 1
-				"is_input, " + // 2
-				"resulting_amount_value, " +  // 3
-				"" +
+
+		String sql = "SELECT " +
+				/* 1 */ "f_flow, " +
+				/* 2 */ "is_input, " +
+				/* 3 */ "resulting_amount_value, " +
+				/* 4 */ "resulting_amount_formula, " +
+				/* 5 */ "distribution_type, " +
+				/* 6 */ "parameter1_value, " +
+				/* 7 */ "parameter2_value, " +
+				/* 8 */ "parameter3_value " +
 				"FROM tbl_exchanges";
+
 		try (Connection con = db.createConnection();
 			 Statement stmt = con.createStatement(
 					 ResultSet.TYPE_SCROLL_SENSITIVE,
 					 ResultSet.CONCUR_UPDATABLE);
 			 ResultSet rs = stmt.executeQuery(sql)) {
+
 			while (rs.next()) {
 				long flowID = rs.getLong(1);
 				if (!wastes.contains(flowID))
 					continue;
+
+				// is_input
 				boolean isInput = rs.getBoolean(2);
-				double amount = rs.getDouble(3);
 				rs.updateBoolean(2, !isInput);
-				rs.updateDouble(3, Math.abs(amount));
+
+				// amount
+				double amount = rs.getDouble(3);
+				if (amount != 0.0) {
+					rs.updateDouble(3, -amount);
+				}
+
+				// formula
+				String formula = rs.getString(4);
+				if (Strings.notEmpty(formula)) {
+					rs.updateString(4, invertFormula(formula));
+				}
+
+				// uncertainty
+				int utype = rs.getInt(5);
+				if (!rs.wasNull()) {
+					UncertaintyType u = UncertaintyType.values()[utype];
+					switch (u) {
+						case NORMAL:
+						case LOG_NORMAL:
+							rs.updateDouble(6, -rs.getDouble(6));
+							break;
+						case UNIFORM:
+							rs.updateDouble(6, -rs.getDouble(6));
+							rs.updateDouble(7, -rs.getDouble(7));
+							break;
+						case TRIANGLE:
+							rs.updateDouble(6, -rs.getDouble(6));
+							rs.updateDouble(7, -rs.getDouble(7));
+							rs.updateDouble(8, -rs.getDouble(8));
+							break;
+					}
+				}
 				rs.updateRow();
 			}
 			con.commit();
@@ -150,5 +198,14 @@ public class WasteFlows {
 			throw new RuntimeException(
 					"failed to swap waste flow exchanges", e);
 		}
+	}
+
+	private String invertFormula(String formula) {
+		// we try to be a bit smart here so that the inversion of an inverted
+		// formula returns the original formula
+		if (formula.startsWith("-1 * (") && formula.endsWith(")")) {
+			return formula.substring(6, formula.length() - 1);
+		}
+		return "-1 * (" + formula + ")";
 	}
 }
