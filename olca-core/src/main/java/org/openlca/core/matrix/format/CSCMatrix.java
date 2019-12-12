@@ -29,8 +29,7 @@ public class CSCMatrix implements IMatrix {
 
 	/**
 	 * The column pointers $A.c$ that indicate where each column begins. The
-	 * last component of $A.c$ contains $\text{nnz}(A) + 1$ where
-	 * $\text{nnz}(A)$ is the number of non-zero entries in A.
+	 * last component of $A.c$ contains the number of non-zero entries $nz(A)$.
 	 */
 	public final int[] columnPointers;
 
@@ -40,7 +39,7 @@ public class CSCMatrix implements IMatrix {
 	public final int[] rowIndices;
 
 	public CSCMatrix(int rows, int cols, double[] values,
-					 int[] columnPointers, int[] rowIndices) {
+	                 int[] columnPointers, int[] rowIndices) {
 		this.rows = rows;
 		this.columns = cols;
 		this.values = values;
@@ -48,56 +47,53 @@ public class CSCMatrix implements IMatrix {
 		this.rowIndices = rowIndices;
 	}
 
-	private CSCMatrix(IMatrix other) {
-		if (other instanceof CSCMatrix) {
+	/**
+	 * Creates a compressed sparse column representation of the given matrix.
+	 */
+	public static CSCMatrix of(IMatrix m) {
+		if (m == null)
+			throw new NullPointerException("the given matrix is null");
 
+		if (m instanceof CSCMatrix) {
 			// copy a CCR matrix
-			CSCMatrix ccr = (CSCMatrix) other;
-			this.rows = ccr.rows;
-			this.columns = ccr.columns;
-			this.values = Arrays.copyOf(ccr.values, ccr.values.length);
-			this.columnPointers = Arrays.copyOf(
-					ccr.columnPointers, ccr.columnPointers.length);
-			this.rowIndices = Arrays.copyOf(
-					ccr.rowIndices, ccr.rowIndices.length);
-		} else {
+			CSCMatrix csc = (CSCMatrix) m;
+			double[] values = Arrays.copyOf(
+					csc.values, csc.values.length);
+			int[] columnPointers = Arrays.copyOf(
+					csc.columnPointers, csc.columnPointers.length);
+			int[] rowIndices = Arrays.copyOf(
+					csc.rowIndices, csc.rowIndices.length);
+			return new CSCMatrix(csc.rows, csc.columns,
+					values, columnPointers, rowIndices);
+		}
 
-			// compress another matrix format
-			this.rows = other.rows();
-			this.columns = other.columns();
-			this.columnPointers = new int[other.columns() + 1];
-			TDoubleArrayList values = new TDoubleArrayList(other.rows());
-			TIntArrayList rowIndices = new TIntArrayList(other.rows());
-			int i = 0;
-			for (int col = 0; col < this.columns; col++) {
-				boolean foundEntry = false;
-				for (int row = 0; row < this.rows; row++) {
-					double val = other.get(row, col);
-					if (val == 0)
-						continue;
-					values.add(val);
-					rowIndices.add(row);
-					if (!foundEntry) {
-						this.columnPointers[col] = i;
-						foundEntry = true;
-					}
-					i++;
-				}
+		// compress another matrix format
+		int[] columnPointers = new int[m.columns() + 1];
+		TDoubleArrayList values = new TDoubleArrayList(m.rows());
+		TIntArrayList rowIndices = new TIntArrayList(m.rows());
+		int i = 0;
+		for (int col = 0; col < m.columns(); col++) {
+			boolean foundEntry = false;
+			for (int row = 0; row < m.rows(); row++) {
+				double val = m.get(row, col);
+				if (val == 0)
+					continue;
+				values.add(val);
+				rowIndices.add(row);
 				if (!foundEntry) {
-					this.columnPointers[col] = i;
+					columnPointers[col] = i;
+					foundEntry = true;
 				}
+				i++;
 			}
-			this.values = values.toArray();
-			this.rowIndices = rowIndices.toArray();
-			this.columnPointers[this.columns] = this.values.length;
+			if (!foundEntry) {
+				columnPointers[col] = i;
+			}
 		}
-	}
+		columnPointers[m.columns()] = values.size();
 
-	public static CSCMatrix of(IMatrix other) {
-		if (other == null) {
-			return new CSCMatrix(new HashPointMatrix());
-		}
-		return new CSCMatrix(other);
+		return new CSCMatrix(m.rows(), m.columns(),
+				values.toArray(), columnPointers, rowIndices.toArray());
 	}
 
 	@Override
@@ -107,7 +103,7 @@ public class CSCMatrix implements IMatrix {
 
 	@Override
 	public IMatrix copy() {
-		return new CSCMatrix(this);
+		return CSCMatrix.of(this);
 	}
 
 	@Override
