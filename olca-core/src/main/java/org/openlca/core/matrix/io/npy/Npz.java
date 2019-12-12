@@ -156,12 +156,4 @@ public final class Npz {
 		out.write(formatBytes);
 		out.write((byte) 0);
 	}
-
-	public static void main(String[] args) {
-		String path = "/Users/ms/Downloads/csc.npz";
-		CSCMatrix m = (CSCMatrix) Npz.load(new File(path));
-		System.out.println(m.rows() + " * " + m.columns());
-		Npz.save(new File("/Users/ms/Downloads/csc_j.npz"), m);
-	}
-
 }

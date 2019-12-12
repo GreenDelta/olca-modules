@@ -144,7 +144,7 @@ public final class Npy {
 	 */
 	static void write(OutputStream out, int[] v) throws IOException {
 		Header h = new Header();
-		h.shape = new int[v.length];
+		h.shape = new int[]{v.length};
 		h.dtype = "<i4";
 		h.fortranOrder = false;
 		h.write(out);
@@ -159,7 +159,7 @@ public final class Npy {
 	 */
 	static void write(OutputStream out, double[] v) throws IOException {
 		Header h = new Header();
-		h.shape = new int[v.length];
+		h.shape = new int[]{v.length};
 		h.dtype = "<f8";
 		h.fortranOrder = false;
 		h.write(out);
