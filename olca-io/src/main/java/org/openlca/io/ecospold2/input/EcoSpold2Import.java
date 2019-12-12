@@ -1,16 +1,14 @@
 package org.openlca.io.ecospold2.input;
 
-import java.io.File;
-
+import com.google.common.eventbus.EventBus;
 import org.openlca.core.model.ModelType;
 import org.openlca.io.FileImport;
 import org.openlca.io.ImportEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.eventbus.EventBus;
-
 import spold2.DataSet;
+
+import java.io.File;
 
 /**
  * The import of data sets in the EcoSpold v2 format. The import expects a set
@@ -59,7 +57,7 @@ public class EcoSpold2Import implements FileImport {
 		new IsicCategoryTreeSync(config.db, ModelType.PROCESS).run();
 
 		log.info("swap waste flows");
-		new WasteFlowSync(config.db).run();
+		WasteFlows.map(config.db);
 		config.db.getEntityFactory().getCache().evictAll();
 	}
 
