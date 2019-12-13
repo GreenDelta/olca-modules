@@ -1,16 +1,16 @@
 package org.openlca.io.ecospold2.input;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.NativeSql;
-import org.openlca.core.model.UncertaintyType;
-import org.openlca.util.Strings;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
+import org.openlca.core.model.UncertaintyType;
+import org.openlca.util.Strings;
 
 /**
  * In ecoinvent 3.x, a waste flow is an intermediate exchange with a negative
@@ -189,6 +189,8 @@ public class WasteFlows {
 							rs.updateDouble(7, -rs.getDouble(7));
 							rs.updateDouble(8, -rs.getDouble(8));
 							break;
+					default:
+						break;
 					}
 				}
 				rs.updateRow();
