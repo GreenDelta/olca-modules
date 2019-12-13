@@ -105,6 +105,11 @@ public final class Julia {
 				};
 			} else {
 				return new String[] {
+						"libwinpthread-1.dll",
+						"libgcc_s_seh-1.dll",
+						"libquadmath-0.dll",
+						"libgfortran-3.dll",
+						"libopenblas64_.dll",
 						"olcar.dll"
 				};
 			}

@@ -3,6 +3,8 @@ package org.openlca.core.matrix.io.npy;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.matrix.format.DenseMatrix;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -22,6 +24,11 @@ public class NpyTest {
 		Assert.assertEquals(m.rows(), copy.rows());
 		Assert.assertEquals(m.columns(), copy.columns());
 		Assert.assertArrayEquals(m.getData(), copy.getData(), 1e-10);
-		file.delete();
+		if (!file.delete()) {
+			// see https://github.com/GreenDelta/olca-modules/issues/17
+			Logger log = LoggerFactory.getLogger(getClass());
+			log.warn("failed to delete test file {}", file);
+			file.deleteOnExit();
+		}
 	}
 }
