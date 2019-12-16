@@ -95,27 +95,17 @@ public class Header {
 	 */
 	void write(OutputStream out) {
 		try {
-			AtomicReference<ByteBuffer> ref = new AtomicReference<>();
-			write(headerLen -> {
-				ByteBuffer buffer = ByteBuffer.allocate(headerLen);
-				buffer.order(ByteOrder.LITTLE_ENDIAN);
-				ref.set(buffer);
-				return buffer;
-			});
-			out.write(ref.get().array());
+			ByteBuffer buffer = toByteBuffer();
+			out.write(buffer.array());
 		} catch (Exception e) {
 			throw new RuntimeException("failed to write header " + this, e);
 		}
 	}
 
 	/**
-	 * Writes this header to the byte buffer returned by the given function. The
-	 * required size for the header (including padding etc.) will be passed to
-	 * that function which must return a ByteBuffer with at least that size.
-	 * Also, the byte order of that buffer must be little endian order as we
-	 * write all of our data in that order.
+	 * Writes this header to a byte buffer and returns it.
 	 */
-	void write(BufferAllocator allocator) throws IOException {
+	ByteBuffer toByteBuffer() {
 		byte[] headerBytes = (this.toString()).getBytes(
 				StandardCharsets.US_ASCII);
 
@@ -134,7 +124,8 @@ public class Header {
 		}
 
 		// get the byte buffer
-		ByteBuffer buf = allocator.allocate(unpadded + padding);
+		ByteBuffer buf = ByteBuffer.allocate(unpadded + padding);
+		buf.order(ByteOrder.LITTLE_ENDIAN);
 
 		// magic
 		buf.put((byte) 0x93);
@@ -152,5 +143,7 @@ public class Header {
 			buf.put((byte) ' ');
 		}
 		buf.put((byte) '\n');
+		buf.flip();
+		return buf;
 	}
 }

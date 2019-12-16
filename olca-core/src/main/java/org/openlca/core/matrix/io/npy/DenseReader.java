@@ -33,6 +33,7 @@ class DenseReader {
 				// if we are in fortran order, we can directly
 				// map the data into memory
 				buf.asDoubleBuffer().get(matrix.getData());
+
 			} else {
 				DoubleBuffer dbuf = buf.asDoubleBuffer();
 				for (int row = 0; row < rows; row++) {

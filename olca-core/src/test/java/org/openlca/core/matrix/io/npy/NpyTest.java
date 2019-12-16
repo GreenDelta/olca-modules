@@ -20,7 +20,7 @@ public class NpyTest {
 		});
 		File file = Files.createTempFile("__olca_npy_test_", ".npy").toFile();
 		Npy.save(file, m);
-		DenseMatrix copy = (DenseMatrix)Npy.load(file);
+		DenseMatrix copy = Npy.load(file);
 		Assert.assertEquals(m.rows(), copy.rows());
 		Assert.assertEquals(m.columns(), copy.columns());
 		Assert.assertArrayEquals(m.getData(), copy.getData(), 1e-10);
