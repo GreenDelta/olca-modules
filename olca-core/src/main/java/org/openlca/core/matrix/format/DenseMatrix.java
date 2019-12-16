@@ -6,9 +6,9 @@ package org.openlca.core.matrix.format;
  */
 public class DenseMatrix implements IMatrix {
 
-	final double[] data;
-	final int rows;
-	final int columns;
+	public final double[] data;
+	public final int rows;
+	public final int columns;
 
 	public DenseMatrix(int rows, int columns) {
 		this.rows = rows;
@@ -16,6 +16,10 @@ public class DenseMatrix implements IMatrix {
 		data = new double[rows * columns];
 	}
 
+	/**
+	 * @deprecated just use the `data` field
+	 */
+	@Deprecated
 	public double[] getData() {
 		return data;
 	}

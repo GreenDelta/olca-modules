@@ -20,15 +20,19 @@ public class NpyTest {
 		});
 		File file = Files.createTempFile("__olca_npy_test_", ".npy").toFile();
 		Npy.save(file, m);
+		System.out.println(file.getAbsolutePath());
 		DenseMatrix copy = Npy.load(file);
 		Assert.assertEquals(m.rows(), copy.rows());
 		Assert.assertEquals(m.columns(), copy.columns());
-		Assert.assertArrayEquals(m.getData(), copy.getData(), 1e-10);
+		Assert.assertArrayEquals(m.data, copy.data, 1e-10);
+
+		/*
 		if (!file.delete()) {
 			// see https://github.com/GreenDelta/olca-modules/issues/17
 			Logger log = LoggerFactory.getLogger(getClass());
 			log.warn("failed to delete test file {}", file);
 			file.deleteOnExit();
 		}
+		*/
 	}
 }

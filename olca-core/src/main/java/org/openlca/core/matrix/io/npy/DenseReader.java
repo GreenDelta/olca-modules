@@ -5,6 +5,8 @@ import org.openlca.core.matrix.format.DenseMatrix;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -23,30 +25,40 @@ class DenseReader {
 		int rows = header.shape[0];
 		int cols = header.shape[1];
 		DenseMatrix matrix = new DenseMatrix(rows, cols);
-		try (RandomAccessFile f = new RandomAccessFile(file, "rw");
+		try (RandomAccessFile f = new RandomAccessFile(file, "r");
 			 FileChannel channel = f.getChannel()) {
-			MappedByteBuffer buf = channel.map(
-					FileChannel.MapMode.READ_ONLY, header.dataOffset,
-					(rows * cols * 8));
-			buf.order(header.getByteOrder());
+			f.seek(header.dataOffset);
+
 			if (header.fortranOrder) {
-				// if we are in fortran order, we can directly
-				// map the data into memory
-				buf.asDoubleBuffer().get(matrix.getData());
+
+				// read data in column-major order
+				ByteBuffer buffer = ByteBuffer.allocate(rows * 8);
+				buffer.order(ByteOrder.LITTLE_ENDIAN);
+				int i = 0;
+				for (int col = 0; col < cols; col++) {
+					channel.read(buffer);
+					buffer.flip();
+					for (int row = 0; row < rows; row++) {
+						matrix.data[i] = buffer.getDouble();
+						i++;
+					}
+					buffer.clear();
+				}
 
 			} else {
-				DoubleBuffer dbuf = buf.asDoubleBuffer();
+
+				// read the data in row major order
+				ByteBuffer buffer = ByteBuffer.allocate(cols * 8);
+				buffer.order(ByteOrder.LITTLE_ENDIAN);
 				for (int row = 0; row < rows; row++) {
+					channel.read(buffer);
+					buffer.flip();
 					for (int col = 0; col < cols; col++) {
-						matrix.set(row, col, dbuf.get());
+						matrix.set(row, col, buffer.getDouble());
 					}
+					buffer.clear();
 				}
 			}
-			buf.force();
-
-			// there is no way to close the buffer here
-			// see: https://github.com/GreenDelta/olca-modules/issues/17
-			// System.gc();
 
 			return matrix;
 		} catch (IOException e) {
