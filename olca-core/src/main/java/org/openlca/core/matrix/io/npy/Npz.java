@@ -35,20 +35,23 @@ public final class Npz {
 	public static IMatrix load(File file) {
 		try (ZipFile zip = new ZipFile(file)) {
 			String format = getFormat(zip);
-			if (format == null)
+			if (format == null) {
 				throw new IllegalArgumentException(
 						"unsupported NPZ file; no format entry");
-			switch (format) {
-				case "csc":
-					return readCSC(zip);
-				default:
-					throw new IllegalArgumentException(
-							"unsupported format: " + format);
 			}
-
+			if (format.equals("csc")) {
+				return readCSC(zip);
+			}
+			throw new IllegalArgumentException(
+					"unsupported format: " + format);
 		} catch (IOException e) {
 			throw new RuntimeException("failed to read zip: " + file, e);
 		}
+	}
+
+	public static double[] loadColumn(File file, int column) {
+		IMatrix matrix = load(file);
+		return matrix.getColumn(column);
 	}
 
 	private static String getFormat(ZipFile zip) throws IOException {
