@@ -4,8 +4,12 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.matrix.format.DenseMatrix;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.nio.ByteOrder;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 
 public class HeaderTest {
@@ -20,6 +24,21 @@ public class HeaderTest {
 		Assert.assertArrayEquals(new int[]{2}, h.shape);
 		Assert.assertFalse(h.fortranOrder);
 		Assert.assertEquals(s, h.toString());
+	}
+
+	@Test
+	public void testReadFromChannel() throws Exception {
+		String s = "{'descr': '<f8', 'fortran_order': False, 'shape': (2,), }";
+		Header h = Header.read(s);
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		h.write(bout);
+		ByteArrayInputStream bin = new ByteArrayInputStream(bout.toByteArray());
+		ReadableByteChannel channel = Channels.newChannel(bin);
+		Header h2 = HeaderReader.read(channel);
+		Assert.assertEquals(h.toString(), h2.toString());
+		bout.close();
+		bin.close();
+		channel.close();
 	}
 
 	@Test

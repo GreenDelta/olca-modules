@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,47 @@ import java.util.List;
  * https://github.com/fhs/NPZ.jl/blob/master/src/NPZ.jl
  */
 class HeaderReader {
+
+	static Header read(ReadableByteChannel channel) throws IOException {
+
+		// read the first 10 bytes into a buffer
+		ByteBuffer buffer = ByteBuffer.allocate(10);
+		buffer.order(ByteOrder.LITTLE_ENDIAN);
+		if (channel.read(buffer) < 10) {
+			throw new IllegalArgumentException("Invalid header.");
+		}
+		buffer.flip();
+
+		byte[] bytes = buffer.array();
+
+		// check: the first 6 bytes are a magic string: exactly \x93NUMPY.
+		String numpy = new String(bytes, 1, 5);
+		if (!numpy.equals("NUMPY")) {
+			throw new IllegalArgumentException("Not a npy file.");
+		}
+
+		// check the version
+		if (bytes[6] != ((byte) 1)) {
+			throw new IllegalArgumentException(
+					"Only version 1 files are supported.");
+		}
+
+		// read the header length
+		buffer.position(8);
+		int headerLength = buffer.getShort() & 0xffff;
+
+		// read and parse the header
+		buffer = ByteBuffer.allocate(headerLength);
+		if (channel.read(buffer) != headerLength) {
+			throw new IllegalStateException(
+					"Failed to read the defined header length of "
+							+ headerLength + " bytes.");
+		}
+		bytes = buffer.array();
+		Header header = parse(new String(bytes));
+		header.dataOffset = headerLength + 10;
+		return header;
+	}
 
 	/**
 	 * Read the header information from an NPY file. It will not close the
