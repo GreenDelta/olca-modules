@@ -32,6 +32,14 @@ public final class Npy {
 	}
 
 	/**
+	 * Loads a single column from a NPY file that contains a dense
+	 * matrix.
+	 */
+	public static double[] loadColumn(File file, int column) {
+		return DenseReader.readColumn(file, column);
+	}
+
+	/**
 	 * Saves the given matrix as dense matrix in column-major order to the
 	 * given file.
 	 */
