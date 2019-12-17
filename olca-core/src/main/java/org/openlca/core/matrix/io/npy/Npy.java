@@ -28,20 +28,7 @@ public final class Npy {
 	 * floating point numbers are supported.
 	 */
 	public static DenseMatrix load(File file) {
-		Header header = Header.read(file);
-		int[] shape = header.shape;
-		if (shape == null
-				|| shape.length != 2
-				|| shape[0] < 1
-				|| shape[1] < 1) {
-			throw new IllegalArgumentException(
-					"invalid header shape " + header + ": " + file);
-		}
-		if (header.getDType() != DType.Float64) {
-			throw new IllegalArgumentException(
-					"unsupported data type: " + header.dtype + ": " + file);
-		}
-		return new DenseReader(file, header).run();
+		return DenseReader.read(file);
 	}
 
 	/**
