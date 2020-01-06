@@ -101,7 +101,19 @@ public final class Julia {
 		if (os == OS.WINDOWS) {
 			if (opt == LinkOption.ALL) {
 				return new String[] {
-						"olcar_withumf.dll"
+						"libsuitesparseconfig.dll",
+						"libamd.dll",
+						"libcamd.dll",
+						"libccolamd.dll",
+						"libcolamd.dll",
+						"libwinpthread-1.dll",
+						"libgcc_s_seh-1.dll",
+						"libquadmath-0.dll",
+						"libgfortran-4.dll",
+						"libopenblas64_.dll",
+						"libcholmod.dll",
+						"libumfpack.dll",
+						"olcar_withumf.dll",
 				};
 			} else {
 				return new String[] {
