@@ -6,9 +6,9 @@ package org.openlca.core.matrix.format;
  */
 public class DenseMatrix implements IMatrix {
 
-	final double[] data;
-	final int rows;
-	final int columns;
+	public final double[] data;
+	public final int rows;
+	public final int columns;
 
 	public DenseMatrix(int rows, int columns) {
 		this.rows = rows;
@@ -16,6 +16,10 @@ public class DenseMatrix implements IMatrix {
 		data = new double[rows * columns];
 	}
 
+	/**
+	 * @deprecated just use the `data` field
+	 */
+	@Deprecated
 	public double[] getData() {
 		return data;
 	}
@@ -68,4 +72,30 @@ public class DenseMatrix implements IMatrix {
 		return copy;
 	}
 
+	@Override
+	public String toString() {
+		if (rows > 10 || columns > 10)
+			return "DenseMatrix{rows=" + rows + ", columns=" + columns + '}';
+		StringBuilder b = new StringBuilder("[");
+		for (int row = 0; row < rows; row++) {
+			if (row > 0) {
+				b.append(" ");
+			}
+			for (int col = 0; col < columns; col++) {
+				double val = get(row, col);
+				if (val >= 0.1 && val < 100) {
+					b.append(String.format(" %.2f ", val));
+				} else {
+					b.append(String.format(" %.2e ", val));
+				}
+			}
+			if (row < (rows - 1)) {
+				b.append(";\n");
+			}
+			else {
+				b.append(']');
+			}
+		}
+		return b.toString();
+	}
 }

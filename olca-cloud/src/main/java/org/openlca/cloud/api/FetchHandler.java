@@ -38,6 +38,7 @@ class FetchHandler {
 	private final IDatabase database;
 	private final Map<Dataset, JsonObject> mergedData;
 	private final FetchNotifier fetchNotifier;
+	private int toImport;
 
 	FetchHandler(IDatabase database, Map<Dataset, JsonObject> mergedData, FetchNotifier fetchNotifier) {
 		this.database = database;
@@ -47,13 +48,14 @@ class FetchHandler {
 
 	String handleResponse(InputStream input) {
 		File file = null;
+		toImport = 0;
 		try (ModelStreamReader reader = new ModelStreamReader(input)) {
 			String commitId = reader.readNextPartAsString();
 			List<Dataset> toDelete = new ArrayList<>();
 			file = Files.createTempFile("olca", ".zip").toFile();
 			file.delete();
 			EntityStore store = ZipStore.open(file);
-			int toImport = putMergedData(store);
+			putMergedData(store);
 			if (fetchNotifier != null) {
 				fetchNotifier.beginTask(TaskType.FETCH, reader.getTotal());
 			}
@@ -61,8 +63,6 @@ class FetchHandler {
 				Dataset delete = handleNext(reader, store);
 				if (delete != null) {
 					toDelete.add(delete);
-				} else {
-					toImport++;
 				}
 				if (fetchNotifier != null) {
 					fetchNotifier.worked();
@@ -110,28 +110,36 @@ class FetchHandler {
 	}
 
 	private Dataset handleNext(ModelStreamReader reader, EntityStore store) throws IOException {
+		// we need to call all "readXXX" methods, so the stream does not get
+		// interrupted (or better: so that the cursor is not misplaced)
 		Dataset dataset = reader.readNextPartAsDataset();
+		boolean exists = dataset != null && store.contains(dataset.type, dataset.refId);
 		byte[] data = reader.readNextPart();
 		data = BinUtils.gunzip(data);
 		if (data.length == 0)
-			return dataset;
-		store.put(ModelPath.get(dataset.type, dataset.refId), data);
+			return !exists ? dataset : null;
+		if (!exists) {
+			toImport++;
+			store.put(ModelPath.get(dataset.type, dataset.refId), data);
+		}
 		int noOfFiles = reader.readNextInt();
 		if (noOfFiles == 0)
 			return null;
 		int count = 0;
 		while (count++ < noOfFiles) {
 			String path = reader.readNextPartAsString();
-			data = BinUtils.gunzip(reader.readNextPart());
-			store.putBin(dataset.type, dataset.refId, path, data);
+			byte[] bytes = reader.readNextPart();
+			data = BinUtils.gunzip(bytes);
+			if (!exists) {
+				store.putBin(dataset.type, dataset.refId, path, data);
+			}
 		}
 		return null;
 	}
 
-	private int putMergedData(EntityStore store) {
+	private void putMergedData(EntityStore store) {
 		if (mergedData == null)
-			return 0;
-		int toImport = 0;
+			return;
 		for (Entry<Dataset, JsonObject> entry : mergedData.entrySet()) {
 			JsonObject json = entry.getValue();
 			if (json == null)
@@ -143,7 +151,6 @@ class FetchHandler {
 				putReferences(json, "nwSets", ModelType.NW_SET, store);
 			}
 		}
-		return toImport;
 	}
 
 	private void putReferences(JsonObject json, String field, ModelType type, EntityStore store) {

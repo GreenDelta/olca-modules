@@ -3,6 +3,8 @@ package org.openlca.io.ecospold2.input;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Date;
+import java.util.Objects;
 
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowDao;
@@ -10,14 +12,18 @@ import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.UnitDao;
+import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.core.model.FlowPropertyType;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
+import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.Version;
 import org.openlca.io.Categories;
 import org.openlca.io.maps.FlowMapEntry;
 import org.openlca.util.KeyGen;
@@ -67,7 +73,7 @@ class RefDataImport {
 	private void loadUnitMaps(IDatabase database) throws Exception {
 		InputStream is = getClass().getResourceAsStream("ei3_unit_map.csv");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-		String line = null;
+		String line;
 		while ((line = reader.readLine()) != null) {
 			String[] args = line.split(",");
 			String eiUnitKey = args[0];
@@ -104,24 +110,24 @@ class RefDataImport {
 		}
 	}
 
-	private void classification(DataSet dataSet) {
-		Classification classification = findClassification(dataSet);
+	private void classification(DataSet ds) {
+		Classification classification = findClassification(ds);
 		if (classification == null || classification.id == null)
 			return;
 		String refId = classification.id;
-		Category category = index.getProcessCategory(refId);
-		if (category != null)
+		Category c = index.getProcessCategory(refId);
+		if (c != null)
 			return;
-		category = categoryDao.getForRefId(refId);
-		if (category == null) {
-			category = new Category();
-			category.description = classification.system;
-			category.modelType = ModelType.PROCESS;
-			category.name = classification.value;
-			category.refId = refId;
-			category = categoryDao.insert(category);
+		c = categoryDao.getForRefId(refId);
+		if (c == null) {
+			c = new Category();
+			c.description = classification.system;
+			c.modelType = ModelType.PROCESS;
+			c.name = classification.value;
+			c.refId = refId;
+			c = categoryDao.insert(c);
 		}
-		index.putProcessCategory(refId, category);
+		index.putProcessCategory(refId, c);
 	}
 
 	private Classification findClassification(DataSet ds) {
@@ -178,15 +184,14 @@ class RefDataImport {
 			if (flow != null)
 				index.putFlow(refId, flow);
 		}
-		if (flow == null)
+		if (flow == null) {
 			flow = createNewProduct(exchange, refId);
+		}
 		Integer og = exchange.outputGroup;
 		boolean isRef = og != null && og == 0;
 		if (!isRef)
 			return;
-		index.putNegativeFlow(refId, exchange.amount < 0);
-		Category category = getProductCategory(dataSet, exchange);
-		flow.category = category;
+		flow.category = getProductCategory(dataSet, exchange);
 		flow = flowDao.update(flow);
 		index.putFlow(refId, flow);
 	}
@@ -255,8 +260,11 @@ class RefDataImport {
 		flow.name = exchange.name;
 		FlowProperty prop = index.getFlowProperty(exchange.unitId);
 		if (prop == null) {
-			log.warn("unknown unit {}", exchange.unitId);
-			return;
+			prop = syncUnit(exchange.unitId, exchange.unit);
+			if (prop == null) {
+				log.warn("failed to create unit {}", exchange.unit);
+				return;
+			}
 		}
 		FlowPropertyFactor fac = new FlowPropertyFactor();
 		fac.flowProperty = prop;
@@ -286,5 +294,101 @@ class RefDataImport {
 		Category cat = Categories.findOrCreateRoot(config.db, ModelType.FLOW,
 				clazz.value);
 		return cat;
+	}
+
+	/**
+	 * For units that are not found in the mapping file, we try to find the
+	 * corresponding unit and flow property pair from the database. First, we
+	 * check if their is a unit with the given ID defined. If this is not the
+	 * case we search for a unit with the given name (or synonym). When we find
+	 * such a unit, we try to find also the default flow property and when there
+	 * is no such flow property some other flow property with that unit in the
+	 * corresponding unit group. If we cannot find something we create the flow
+	 * property, unit group, and unit if necessary.
+	 */
+	private FlowProperty syncUnit(String refID, String name) {
+
+		// search for the unit
+		Unit unit = null;
+		UnitGroup group = null;
+		boolean byID = false;
+		for (UnitGroup ug : new UnitGroupDao(config.db).getAll()) {
+			for (Unit u : ug.units) {
+				if (Objects.equals(u.refId, refID)) {
+					unit = u;
+					group = ug;
+					byID = true;
+					break;
+				}
+				if (Objects.equals(u.name, name)) {
+					if (unit != null) {
+						log.warn("There are multiple possible" +
+								" definitions for unit {} in the database",
+								name);
+					}
+					unit = u;
+					group = ug;
+				}
+			}
+			if (byID) {
+				break;
+			}
+		}
+
+		// create the unit and unit group if necessary
+		if (unit != null) {
+			log.info("mapped unit '{}' id='{}' by {}",
+					name, refID, byID ? "ID" : "name");
+		} else {
+			log.info("create new unit {}", name);
+
+			unit = new Unit();
+			unit.name = name;
+			unit.refId = refID;
+			unit.conversionFactor = 1.0;
+			unit.lastChange = new Date().getTime();
+			unit.version = Version.valueOf(1, 0, 0);
+
+			group = new UnitGroup();
+			group.name = "Unit group for " + name;
+			group.refId = KeyGen.get(ModelType.UNIT_GROUP.name(), refID);
+			group.referenceUnit = unit;
+			group.units.add(unit);
+			group.lastChange = new Date().getTime();
+			group.version = Version.valueOf(1, 0, 0);
+			group = new UnitGroupDao(config.db).insert(group);
+			unit = group.referenceUnit; // JPA synced
+		}
+
+		// try to find a matching flow property
+		FlowProperty prop = group.defaultFlowProperty;
+		FlowPropertyDao propDao = new FlowPropertyDao(config.db);
+		if (prop == null) {
+			for (FlowProperty fp : propDao.getAll()) {
+				if (Objects.equals(fp.unitGroup, group)) {
+					prop = fp;
+					break;
+				}
+			}
+		}
+
+		// create a new flow property if this is necessary
+		if (prop == null) {
+			prop = new FlowProperty();
+			prop.name = "Flow property for " + name;
+			prop.refId = KeyGen.get(ModelType.FLOW_PROPERTY.name(), refID);
+			prop.unitGroup = group;
+			prop.flowPropertyType = FlowPropertyType.PHYSICAL;
+			prop.lastChange = new Date().getTime();
+			prop.version = Version.valueOf(1, 0, 0);
+			prop = propDao.insert(prop);
+			group.defaultFlowProperty = prop;
+			group = new UnitGroupDao(config.db).update(group);
+			unit = group.referenceUnit; // JPA synced
+		}
+
+		index.putFlowProperty(refID, prop);
+		index.putUnit(refID, unit);
+		return prop;
 	}
 }

@@ -2,6 +2,7 @@ package org.openlca.util;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,22 +14,23 @@ import org.slf4j.LoggerFactory;
 
 public class Formula {
 	
-	private static final Logger log = LoggerFactory.getLogger(Formula.class);
-	
 	public static Set<String> getVariables(String formula) {
-		Set<String> params = new HashSet<>();
-		if (formula == null || formula.isEmpty())
-			return params;
-		Reader reader = new StringReader(formula.toLowerCase());
-		FormulaParser parser = new FormulaParser(reader);
+		if (Strings.nullOrEmpty(formula))
+			return Collections.emptySet();
+		Set<String> vars = new HashSet<>();
 		try {
+			Reader reader = new StringReader(formula.toLowerCase());
+			FormulaParser parser = new FormulaParser(reader);
 			parser.parse();
+			for (VariableFunction f : parser.getVariables()) {
+				vars.add(f.getVariableName());
+			}
+			return vars;
 		} catch (ParseException e) {
-			log.warn("unexpected error in formula parsing", e);
+			Logger log = LoggerFactory.getLogger(Formula.class);
+			log.warn("Failed to parse formula " + formula, e);
+			return Collections.emptySet();
 		}
-		for (VariableFunction f : parser.getVariables())
-			params.add(f.getVariableName());
-		return params;
 	}
 
 }

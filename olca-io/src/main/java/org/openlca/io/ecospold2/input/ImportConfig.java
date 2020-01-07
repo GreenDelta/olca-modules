@@ -2,7 +2,6 @@ package org.openlca.io.ecospold2.input;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.io.maps.FlowMap;
-import org.openlca.io.maps.Maps;
 
 /**
  * Import configuration for EcoSpold 02 data sets.
@@ -42,7 +41,8 @@ public class ImportConfig {
 
 	public FlowMap getFlowMap() {
 		if (flowMap == null) {
-			flowMap = FlowMap.of(Maps.ES2_FLOW_IMPORT, db);
+			// flowMap = FlowMap.of(Maps.ES2_FLOW_IMPORT, db);
+			flowMap = new FlowMap();
 		}
 		return flowMap;
 	}

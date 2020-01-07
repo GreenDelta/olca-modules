@@ -14,6 +14,7 @@ import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import spold2.Activity;
 import spold2.AdminInfo;
 import spold2.DataEntry;
 import spold2.DataGenerator;
@@ -48,6 +49,10 @@ class DocImportMapper {
 		this.process = process;
 		this.doc = new ProcessDocumentation();
 		process.documentation = doc;
+		Activity a = Spold2.getActivity(ds);
+		if (a != null) {
+			doc.precedingDataSet = a.id;
+		}
 		mapTechnology(ds);
 		mapGeography(Spold2.getGeography(ds));
 		mapTime(Spold2.getTime(ds));

@@ -10,9 +10,16 @@ public class FileReference implements Serializable {
 	public String refId;
 	public ModelType type;
 
+	public static FileReference from(ModelType type, String refId) {
+		FileReference ref = new FileReference();
+		ref.type = type;
+		ref.refId = refId;
+		return ref;
+	}
+	
 	@Override
 	public int hashCode() {
-		return (type.name() + "_" + refId).hashCode();
+		return toId().hashCode();
 	}
 
 	@Override
@@ -32,4 +39,8 @@ public class FileReference implements Serializable {
 		return getClass().getName() + " - refId: " + refId + ", type: " + type.name();
 	}
 
+	public String toId() {
+		return type.name().toString() + refId;
+	}
+	
 }

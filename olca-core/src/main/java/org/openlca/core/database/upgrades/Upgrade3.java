@@ -97,21 +97,17 @@ class Upgrade3 implements IUpgrade {
 		}
 	}
 
-	private void copyNwSet(final ResultSet result) throws SQLException {
+	private void copyNwSet(ResultSet result) throws SQLException {
 		String stmt = "insert into tbl_nw_sets (id, ref_id, name, "
 				+ "f_impact_method, weighted_score_unit) values (?, ?, ?, ?, ?)";
 		NativeSql.on(database).batchInsert(stmt, 1,
-				new NativeSql.BatchInsertHandler() {
-					@Override
-					public boolean addBatch(int i, PreparedStatement stmt)
-							throws SQLException {
-						stmt.setLong(1, result.getLong("id"));
-						stmt.setString(2, UUID.randomUUID().toString());
-						stmt.setString(3, result.getString("reference_system"));
-						stmt.setLong(4, result.getLong("f_impact_method"));
-						stmt.setString(5, result.getString("unit"));
-						return true;
-					}
+				(int i, PreparedStatement ps) -> {
+					ps.setLong(1, result.getLong("id"));
+					ps.setString(2, UUID.randomUUID().toString());
+					ps.setString(3, result.getString("reference_system"));
+					ps.setLong(4, result.getLong("f_impact_method"));
+					ps.setString(5, result.getString("unit"));
+					return true;
 				});
 	}
 
@@ -141,18 +137,14 @@ class Upgrade3 implements IUpgrade {
 		}
 	}
 
-	private void copyNwFactor(final ResultSet result) throws SQLException {
+	private void copyNwFactor(ResultSet result) throws SQLException {
 		String stmt = "insert into tbl_nw_factors(id, weighting_factor, "
 				+ "normalisation_factor, f_impact_category, f_nw_set) "
 				+ "values (?, ?, ?, ?, ?)";
 		NativeSql.on(database).batchInsert(stmt, 1,
-				new NativeSql.BatchInsertHandler() {
-					@Override
-					public boolean addBatch(int i, PreparedStatement stmt)
-							throws SQLException {
-						prepareFactorRecord(result, stmt);
-						return true;
-					}
+				(int i, PreparedStatement ps) -> {
+					prepareFactorRecord(result, ps);
+					return true;
 				});
 	}
 

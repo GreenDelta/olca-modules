@@ -15,10 +15,23 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "tbl_product_systems")
 public class ProductSystem extends CategorizedEntity {
+
+	/**
+	 * TODO: This is currently an experimental feature and indicates that the
+	 * product system does not store the supply chain network of the reference
+	 * process but is rather a calculation setup. When calculating such a
+	 * product system we directly take the product and waste flows between the
+	 * processes to build the network/matrices for the calculation. Note that
+	 * this field is currently not stored in the database. In a later stage we
+	 * may support this as a specific product system type directly in openLCA.
+	 */
+	@Transient
+	public boolean withoutNetwork = false;
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_owner")

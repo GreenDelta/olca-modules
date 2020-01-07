@@ -22,12 +22,8 @@ import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.util.Formula;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ParameterReferences {
-
-	private final static Logger log = LoggerFactory.getLogger(ParameterReferences.class);
 
 	public static void writeReferencedParameters(Project p, ExportConfig conf) {
 		if (!conf.exportReferences)
@@ -59,7 +55,8 @@ public class ParameterReferences {
 			return;
 		Set<String> names = new HashSet<>();
 		for (Exchange e : p.exchanges) {
-			names.addAll(getVariables(e.amountFormula));
+			names.addAll(Formula.getVariables(e.amountFormula));
+			names.addAll(Formula.getVariables(e.costFormula));
 			names.addAll(getUncercaintyVariables(e.uncertainty));
 		}
 		names.addAll(getParameterVariables(p.parameters));
@@ -73,40 +70,48 @@ public class ParameterReferences {
 			// no formulas in input parameters
 			if (param.isInputParameter)
 				continue;
-			names.addAll(getVariables(param.formula));
+			names.addAll(Formula.getVariables(param.formula));
 			names.addAll(getUncercaintyVariables(param.uncertainty));
 		}
 		return names;
 	}
 
-	private static boolean isInParameters(String name,
-			List<Parameter> parameters) {
-		for (Parameter p : parameters)
-			if (p.name.equals(name))
-				return true;
-		return false;
-	}
+
 
 	public static void writeReferencedParameters(ImpactMethod m,
 			ExportConfig conf) {
 		if (!conf.exportReferences)
 			return;
 		Set<String> names = new HashSet<>();
-		for (ImpactCategory c : m.impactCategories)
+		for (ImpactCategory c : m.impactCategories) {
 			for (ImpactFactor f : c.impactFactors) {
-				names.addAll(getVariables(f.formula));
+				names.addAll(Formula.getVariables(f.formula));
 				names.addAll(getUncercaintyVariables(f.uncertainty));
 			}
+		}
 		names.addAll(getParameterVariables(m.parameters));
 		filterLocal(names, m.parameters);
 		writeParameters(names, conf);
 	}
 
+	/**
+	 * Removes the parameters from the names that are already defined in the
+	 * given parameter list.
+	 */
 	private static void filterLocal(Set<String> names,
 			List<Parameter> parameters) {
-		for (String name : new HashSet<>(names))
-			if (isInParameters(name, parameters))
-				names.remove(name);
+		HashSet<String> removals = new HashSet<>();
+		for (String name : new HashSet<>(names)) {
+			for (Parameter param : parameters) {
+				if (param.name == null)
+					continue;
+				if (param.name.equalsIgnoreCase(name)) {
+					removals.add(name);
+					break;
+				}
+			}
+		}
+		names.removeAll(removals);
 	}
 
 	private static Set<String> getUncercaintyVariables(Uncertainty u) {
@@ -117,10 +122,10 @@ public class ParameterReferences {
 			return names;
 		if (u.distributionType == UncertaintyType.NONE)
 			return names;
-		names.addAll(getVariables(u.formula1));
-		names.addAll(getVariables(u.formula2));
+		names.addAll(Formula.getVariables(u.formula1));
+		names.addAll(Formula.getVariables(u.formula2));
 		if (u.distributionType == UncertaintyType.TRIANGLE)
-			names.addAll(getVariables(u.formula3));
+			names.addAll(Formula.getVariables(u.formula3));
 		return names;
 	}
 
@@ -130,7 +135,7 @@ public class ParameterReferences {
 		Set<String> names = new HashSet<>();
 		if (p.isInputParameter)
 			return;
-		names.addAll(getVariables(p.formula));
+		names.addAll(Formula.getVariables(p.formula));
 		names.addAll(getUncercaintyVariables(p.uncertainty));
 		writeParameters(names, conf);
 	}
@@ -151,20 +156,11 @@ public class ParameterReferences {
 	}
 
 	private static Parameter loadParameter(String name, ParameterDao dao) {
-		String jpql = "SELECT p FROM Parameter p WHERE p.scope = :scope AND LOWER(p.name) = :name";
+		String jpql = "SELECT p FROM Parameter p WHERE "
+				+ "p.scope = :scope AND LOWER(p.name) = :name";
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put("name", name);
 		parameters.put("scope", ParameterScope.GLOBAL);
 		return dao.getFirst(jpql, parameters);
 	}
-	
-	private static Set<String> getVariables(String formula) {
-		try {
-			return Formula.getVariables(formula);
-		} catch (Throwable t) {
-			log.warn("Failed parsing formula " + formula, t);
-			return new HashSet<>();
-		}
-	}
-
 }

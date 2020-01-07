@@ -1,15 +1,14 @@
 package org.openlca.io.ecospold2.input;
 
-import java.io.File;
-
+import com.google.common.eventbus.EventBus;
+import org.openlca.core.model.ModelType;
 import org.openlca.io.FileImport;
 import org.openlca.io.ImportEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.eventbus.EventBus;
-
 import spold2.DataSet;
+
+import java.io.File;
 
 /**
  * The import of data sets in the EcoSpold v2 format. The import expects a set
@@ -45,38 +44,47 @@ public class EcoSpold2Import implements FileImport {
 	@Override
 	public void run() {
 		if (files == null) {
-			log.trace("files is null, nothing to do");
+			log.info("files is null, nothing to do");
 			return;
 		}
 		log.trace("run import with: {}", config);
 		RefDataIndex index = importRefData(files);
 		importProcesses(files, index);
+
+		// expand ISIC category trees
+		log.info("expand ISIC categories");
+		new IsicCategoryTreeSync(config.db, ModelType.FLOW).run();
+		new IsicCategoryTreeSync(config.db, ModelType.PROCESS).run();
+
+		log.info("swap waste flows");
+		WasteFlows.map(config.db);
+		config.db.getEntityFactory().getCache().evictAll();
 	}
 
 	private RefDataIndex importRefData(File[] files) {
 		log.trace("import reference data");
-		RefDataImport refDataImport = new RefDataImport(config);
+		RefDataImport imp = new RefDataImport(config);
 		if (eventBus != null)
 			eventBus.post(new ImportEvent("reference data"));
-		try (DataSetIterator iterator = new DataSetIterator(files)) {
-			while (!canceled && iterator.hasNext()) {
-				DataSet dataSet = iterator.next();
-				refDataImport.importDataSet(dataSet);
+		try (DataSetIterator it = new DataSetIterator(files)) {
+			while (!canceled && it.hasNext()) {
+				DataSet ds = it.next();
+				imp.importDataSet(ds);
 			}
 		} catch (Exception e) {
 			log.error("reference data import failed", e);
 		}
-		return refDataImport.getIndex();
+		return imp.getIndex();
 	}
 
 	private void importProcesses(File[] files, RefDataIndex index) {
 		log.trace("import processes");
-		ProcessImport processImport = new ProcessImport(index, config);
-		try (DataSetIterator iterator = new DataSetIterator(files)) {
-			while (!canceled && iterator.hasNext()) {
-				DataSet dataSet = iterator.next();
-				fireEvent(dataSet);
-				processImport.importDataSet(dataSet);
+		ProcessImport imp = new ProcessImport(index, config);
+		try (DataSetIterator it = new DataSetIterator(files)) {
+			while (!canceled && it.hasNext()) {
+				DataSet ds = it.next();
+				fireEvent(ds);
+				imp.importDataSet(ds);
 			}
 		} catch (Exception e) {
 			log.error("process import failed", e);

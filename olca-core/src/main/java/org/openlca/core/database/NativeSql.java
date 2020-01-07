@@ -23,55 +23,40 @@ public final class NativeSql {
 		this.database = database;
 	}
 
-	public int getCount(String query) throws SQLException {
+	public void query(String query, QueryResultHandler handler) throws SQLException {
 		log.trace("execute query {}", query);
 		try (Connection con = database.createConnection();
 				Statement stmt = con.createStatement();
 				ResultSet result = stmt.executeQuery(query)) {
-			if (result.next())
-				return result.getInt(1);
-		}
-		return 0;
-	}
-
-	public void query(String query, QueryResultHandler handler) throws SQLException {
-		log.trace("execute query {}", query);
-		try (Connection con = database.createConnection()) {
-			Statement stmt = con.createStatement();
-			ResultSet result = stmt.executeQuery(query);
 			while (result.next()) {
 				boolean b = handler.nextResult(result);
 				if (!b)
 					break;
 			}
-			result.close();
-			stmt.close();
 		}
 	}
 
 	public void runUpdate(String statement) throws SQLException {
 		log.trace("run update statement {}", statement);
-		try (Connection con = database.createConnection()) {
-			Statement stmt = con.createStatement();
+		try (Connection con = database.createConnection();
+				Statement stmt = con.createStatement()) {
 			stmt.executeUpdate(statement);
 			con.commit();
-			stmt.close();
 			log.trace("update done");
 		}
 	}
 
-	public void batchInsert(String preparedStatement, int size,
-			BatchInsertHandler fn) throws SQLException {
-		log.trace("execute batch insert {}", preparedStatement);
+	public void batchInsert(String sql, int size, BatchInsertHandler fn)
+			throws SQLException {
+		log.trace("execute batch insert {}", sql);
 		if (size <= 0) {
 			log.trace("size {} <= 0; nothing to do", size);
 			return;
 		}
-		try (Connection con = database.createConnection()) {
-			PreparedStatement ps = con.prepareStatement(preparedStatement);
+		try (Connection con = database.createConnection();
+				PreparedStatement ps = con.prepareStatement(sql)) {
 			insertRows(size, fn, ps);
 			con.commit();
-			ps.close();
 			log.trace("inserts done");
 		}
 	}
@@ -96,8 +81,8 @@ public final class NativeSql {
 
 	public void batchUpdate(Iterable<String> statements) throws SQLException {
 		log.trace("execute batch update");
-		try (Connection con = database.createConnection()) {
-			Statement stmt = con.createStatement();
+		try (Connection con = database.createConnection();
+				Statement stmt = con.createStatement()) {
 			int batchSize = 0;
 			for (String statement : statements) {
 				stmt.addBatch(statement);
@@ -110,7 +95,6 @@ public final class NativeSql {
 			int[] s = stmt.executeBatch();
 			log.trace("{} statements executed", s.length);
 			con.commit();
-			stmt.close();
 		}
 	}
 
