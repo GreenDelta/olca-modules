@@ -3,6 +3,7 @@ package org.openlca.jsonld.output;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
+import org.openlca.core.model.Parameter;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -19,7 +20,10 @@ class ImpactCategoryWriter extends Writer<ImpactCategory> {
 		if (obj == null)
 			return null;
 		Out.put(obj, "referenceUnitName", category.referenceUnit);
+		Out.put(obj, "parameterMean", category.parameterMean);
 		mapImpactFactors(category, obj);
+		mapParameters(obj, category);
+		ParameterReferences.writeReferencedParameters(category, conf);
 		return obj;
 	}
 
@@ -44,5 +48,16 @@ class ImpactCategoryWriter extends Writer<ImpactCategory> {
 			array.add(obj);
 		}
 		Out.put(json, "impactFactors", array);
+	}
+
+	private void mapParameters(JsonObject json, ImpactCategory impact) {
+		JsonArray parameters = new JsonArray();
+		for (Parameter p : impact.parameters) {
+			JsonObject obj = Writer.initJson();
+			ParameterWriter.mapAttr(obj, p);
+			parameters.add(obj);
+		}
+		Out.put(json, "parameters", parameters);
+
 	}
 }

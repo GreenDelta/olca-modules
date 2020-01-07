@@ -9,7 +9,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.core.model.ImpactMethod.ParameterMean;
+import org.openlca.core.model.ImpactCategory.ParameterMean;
 import org.openlca.geo.Tests;
 import org.openlca.geo.kml.KmlFeature;
 

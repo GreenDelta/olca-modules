@@ -39,6 +39,7 @@ class Upgrade9 implements IUpgrade {
 
 		u.createColumn("tbl_impact_categories", "parameter_mean VARCHAR(255)");
 		// TODO: copy parameters to each LCIA category from the method
+		// also, update the parameter scope of these (and in parameter redefinitions?)
 
 	}
 }

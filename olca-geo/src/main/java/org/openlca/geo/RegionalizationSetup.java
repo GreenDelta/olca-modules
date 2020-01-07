@@ -11,7 +11,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.matrix.TechIndex;
-import org.openlca.core.model.ImpactMethod.ParameterMean;
+import org.openlca.core.model.ImpactCategory.ParameterMean;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.geo.kml.IKmlLoader;

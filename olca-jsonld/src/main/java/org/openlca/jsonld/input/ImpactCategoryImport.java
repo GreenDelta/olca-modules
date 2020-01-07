@@ -11,9 +11,11 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactCategory.ParameterMean;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -117,6 +119,8 @@ class ImpactCategoryImport extends
 		ImpactCategory cat = new ImpactCategory();
 		In.mapAtts(json, cat, id);
 		cat.referenceUnit = Json.getString(json, "referenceUnitName");
+		cat.parameterMean = Json.getEnum(json, "parameterMean", ParameterMean.class);
+		mapParameters(json, cat);
 		JsonArray factors = Json.getArray(json, "impactFactors");
 		if (factors == null || factors.size() == 0)
 			return cat;
@@ -201,5 +205,21 @@ class ImpactCategoryImport extends
 				return fac;
 		}
 		return null;
+	}
+
+	private void mapParameters(JsonObject json, ImpactCategory impact) {
+		JsonArray parameters = Json.getArray(json, "parameters");
+		if (parameters == null || parameters.size() == 0)
+			return;
+		for (JsonElement e : parameters) {
+			if (!e.isJsonObject())
+				continue;
+			JsonObject o = e.getAsJsonObject();
+			String refId = Json.getString(o, "@id");
+			ParameterImport pi = new ParameterImport(refId, conf);
+			Parameter parameter = new Parameter();
+			pi.mapFields(o, parameter);
+			impact.parameters.add(parameter);
+		}
 	}
 }

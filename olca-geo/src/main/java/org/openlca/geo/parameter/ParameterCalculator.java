@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.geotools.data.DataStore;
-import org.openlca.core.model.ImpactMethod.ParameterMean;
+import org.openlca.core.model.ImpactCategory.ParameterMean;
 import org.openlca.core.model.Parameter;
 import org.openlca.geo.kml.FeatureType;
 import org.openlca.geo.kml.KmlFeature;

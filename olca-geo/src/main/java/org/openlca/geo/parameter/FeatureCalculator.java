@@ -11,8 +11,7 @@ import org.geotools.data.DataStore;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
-import org.openlca.core.model.ImpactMethod;
-import org.openlca.core.model.ImpactMethod.ParameterMean;
+import org.openlca.core.model.ImpactCategory.ParameterMean;
 import org.openlca.geo.kml.FeatureType;
 import org.openlca.geo.kml.KmlFeature;
 import org.slf4j.Logger;
@@ -27,7 +26,7 @@ class FeatureCalculator {
 
 	private final DataStore dataStore;
 	private final Map<String, Double> defaults;
-	private final ImpactMethod.ParameterMean meanFn;
+	private final ParameterMean meanFn;
 
 	public FeatureCalculator(DataStore dataStore,
 			Map<String, Double> defaults, ParameterMean meanFn) {

@@ -10,7 +10,6 @@ import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
-import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
@@ -78,19 +77,17 @@ public class ParameterReferences {
 
 
 
-	public static void writeReferencedParameters(ImpactMethod m,
+	public static void writeReferencedParameters(ImpactCategory impact,
 			ExportConfig conf) {
 		if (!conf.exportReferences)
 			return;
 		Set<String> names = new HashSet<>();
-		for (ImpactCategory c : m.impactCategories) {
-			for (ImpactFactor f : c.impactFactors) {
-				names.addAll(Formula.getVariables(f.formula));
-				names.addAll(getUncercaintyVariables(f.uncertainty));
-			}
+		for (ImpactFactor f : impact.impactFactors) {
+			names.addAll(Formula.getVariables(f.formula));
+			names.addAll(getUncercaintyVariables(f.uncertainty));
 		}
-		names.addAll(getParameterVariables(m.parameters));
-		filterLocal(names, m.parameters);
+		names.addAll(getParameterVariables(impact.parameters));
+		filterLocal(names, impact.parameters);
 		writeParameters(names, conf);
 	}
 

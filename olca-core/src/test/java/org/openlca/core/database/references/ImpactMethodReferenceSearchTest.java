@@ -27,12 +27,12 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 		ImpactMethod method = new ImpactMethod();
 		method.category = insertAndAddExpected("category", new Category());
 		String n1 = generateName();
-		String n2 = generateName();
+		// String n2 = generateName();
 		String n3 = generateName();
 		String n4 = generateName();
 		String n5 = generateName();
-		method.parameters.add(createParameter(n1, 3d, false));
-		method.parameters.add(createParameter(n2, n1 + "*2*" + n3, false));
+		// method.parameters.add(createParameter(n1, 3d, false));
+		// method.parameters.add(createParameter(n2, n1 + "*2*" + n3, false));
 		insertAndAddExpected(n3, createParameter(n3, "5*5", true));
 		// formula with parameter to see if added as reference (unexpected)
 		insertAndAddExpected(n4, createParameter(n4, "3*" + n5, true));

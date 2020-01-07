@@ -2,10 +2,8 @@ package org.openlca.jsonld.input;
 
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
-import org.openlca.core.model.ImpactMethod.ParameterMean;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.NwSet;
-import org.openlca.core.model.Parameter;
 import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
@@ -31,8 +29,6 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 		// first map categories, nw sets will reference them
 		mapCategories(json, m);
 		mapNwSets(json, m);
-		mapParameters(json, m);
-		m.parameterMean = Json.getEnum(json, "parameterMean", ParameterMean.class);
 		return conf.db.put(m);
 	}
 
@@ -72,19 +68,5 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 		}
 	}
 
-	private void mapParameters(JsonObject json, ImpactMethod method) {
-		JsonArray parameters = Json.getArray(json, "parameters");
-		if (parameters == null || parameters.size() == 0)
-			return;
-		for (JsonElement e : parameters) {
-			if (!e.isJsonObject())
-				continue;
-			JsonObject o = e.getAsJsonObject();
-			String refId = Json.getString(o, "@id");
-			ParameterImport pi = new ParameterImport(refId, conf);
-			Parameter parameter = new Parameter();
-			pi.mapFields(o, parameter);
-			method.parameters.add(parameter);
-		}
-	}
+
 }
