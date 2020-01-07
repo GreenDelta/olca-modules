@@ -15,4 +15,12 @@ public class CalcImpactFactor {
 	public double parameter2;
 	public double parameter3;
 
+	/**
+	 * Returns true when this LCIA factor has an uncertainty distribution
+	 * assigned.
+	 */
+	public boolean hasUncertainty() {
+		return uncertaintyType != null
+				&& uncertaintyType != UncertaintyType.NONE;
+	}
 }
