@@ -36,5 +36,9 @@ class Upgrade9 implements IUpgrade {
 			throw new RuntimeException("failed to copy impact links", e);
 		}
 		// TODO: parameters + regionalization
+
+		u.createColumn("tbl_impact_categories", "parameter_mean VARCHAR(255)");
+		// TODO: copy parameters to each LCIA category from the method
+
 	}
 }

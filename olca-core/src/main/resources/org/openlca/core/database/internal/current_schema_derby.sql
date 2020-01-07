@@ -387,7 +387,6 @@ CREATE TABLE tbl_impact_methods (
     f_category      BIGINT,
     description     CLOB(64 K),
 
-    parameter_mean  VARCHAR(255),
     f_author        BIGINT,
     f_generator     BIGINT,
 
@@ -407,6 +406,7 @@ CREATE TABLE tbl_impact_categories (
     description       CLOB(64 K),
 
     reference_unit    VARCHAR(255),
+    parameter_mean    VARCHAR(255),
 
     PRIMARY KEY (id)
 
