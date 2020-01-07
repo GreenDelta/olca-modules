@@ -1,6 +1,7 @@
 package org.openlca.core.matrix;
 
 import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.uncertainties.UMatrix;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
 
