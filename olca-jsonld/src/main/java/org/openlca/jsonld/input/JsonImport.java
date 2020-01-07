@@ -134,6 +134,8 @@ public class JsonImport implements Runnable {
 			CurrencyImport.run(currId, conf);
 		for (String flowId : store.getRefIds(ModelType.FLOW))
 			FlowImport.run(flowId, conf);
+		for (String id : store.getRefIds(ModelType.IMPACT_CATEGORY))
+			ImpactCategoryImport.run(id, conf);
 		for (String methodId : store.getRefIds(ModelType.IMPACT_METHOD))
 			ImpactMethodImport.run(methodId, conf);
 		for (String indicatorId : store.getRefIds(ModelType.SOCIAL_INDICATOR))

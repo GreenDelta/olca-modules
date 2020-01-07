@@ -201,9 +201,9 @@ public class ParameterUsageTree {
 							ProcessDescriptor.class);
 					paramNode = child(root, int64(r, 1),
 							ParameterDescriptor.class);
-				} else if (scope == ParameterScope.IMPACT_METHOD) {
+				} else if (scope == ParameterScope.IMPACT_CATEGORY) {
 					Node root = context(int64(r, 5),
-							ImpactMethodDescriptor.class);
+							ImpactCategoryDescriptor.class);
 					paramNode = child(root, int64(r, 1),
 							ParameterDescriptor.class);
 				}

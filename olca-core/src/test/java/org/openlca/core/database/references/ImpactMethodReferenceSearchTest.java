@@ -101,6 +101,8 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 		return Tests.insert(flow);
 	}
 
+	// TODO: LCIA method parameters moved down to LCIA categories but the
+	// reference search tests were not updated yet.
 	private Parameter createParameter(String name, Object value, boolean global) {
 		Parameter parameter = new Parameter();
 		parameter.name = name;
@@ -113,7 +115,7 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 		if (global)
 			parameter.scope = ParameterScope.GLOBAL;
 		else
-			parameter.scope = ParameterScope.IMPACT_METHOD;
+			parameter.scope = ParameterScope.IMPACT_CATEGORY;
 		return parameter;
 	}
 
