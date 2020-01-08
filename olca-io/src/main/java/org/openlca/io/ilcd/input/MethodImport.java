@@ -1,12 +1,11 @@
 package org.openlca.io.ilcd.input;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
-import javax.xml.namespace.QName;
-
-import org.apache.commons.lang3.StringUtils;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ImpactMethodDao;
@@ -18,31 +17,32 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.LangString;
+import org.openlca.ilcd.methods.DataEntry;
 import org.openlca.ilcd.methods.DataSetInfo;
 import org.openlca.ilcd.methods.Factor;
 import org.openlca.ilcd.methods.FactorList;
 import org.openlca.ilcd.methods.LCIAMethod;
 import org.openlca.ilcd.methods.MethodInfo;
+import org.openlca.ilcd.methods.Publication;
 import org.openlca.ilcd.methods.QuantitativeReference;
+import org.openlca.ilcd.util.Methods;
 import org.openlca.io.maps.FlowMapEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Imports an ILCD impact method data set. Note that the ILCD data sets contain
- * impact categories and not methods. Thus, this import searches for matching
- * impact methods and appends the ILCD data set as impact category to these
- * methods.
+ * Imports an ILCD LCIA data set. Note that the ILCD LCIA data sets contain
+ * impact categories and not methods. This import tries to find or create
+ * matching LCIA methods and adds the resulting LCIA category to these methods.
  */
 public class MethodImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private final ImportConfig config;
-	private ImpactMethodDao dao;
 
 	public MethodImport(ImportConfig config) {
 		this.config = config;
-		this.dao = new ImpactMethodDao(config.db);
+
 	}
 
 	public void run(LCIAMethod iMethod) {
@@ -50,12 +50,26 @@ public class MethodImport {
 			return;
 		if (exists(iMethod))
 			return;
-		String categoryName = getCategoryName(iMethod);
-		if (categoryName == null)
-			return;
-		for (ImpactMethod oMethod : MethodFetch.getOrCreate(iMethod, config)) {
-			if (!hasCategory(oMethod, categoryName))
-				addCategory(oMethod, categoryName, iMethod);
+		ImpactCategory indicator = makeCategory(iMethod);
+
+		// add the indicator to possible LCIA methods
+		for (ImpactMethod oMethod : MethodFetch.get(iMethod, config)) {
+
+			// add the indicator only if it does not exist yet in the method
+			boolean exists = false;
+			for (ImpactCategory other : oMethod.impactCategories) {
+				if (Objects.equals(indicator.refId, other.refId)) {
+					exists = true;
+					break;
+				}
+			}
+			if (exists)
+				continue;
+
+			oMethod.impactCategories.add(indicator);
+			Version.incUpdate(oMethod);
+			oMethod.lastChange = Calendar.getInstance().getTimeInMillis();
+			new ImpactMethodDao(config.db).update(oMethod);
 		}
 	}
 
@@ -79,41 +93,59 @@ public class MethodImport {
 		}
 	}
 
-	private String getCategoryName(LCIAMethod iMethod) {
+	private ImpactCategory makeCategory(LCIAMethod iMethod) {
+
+		ImpactCategory impact = new ImpactCategory();
+		String refId = getUUID(iMethod);
+		impact.refId = refId != null ? refId : UUID.randomUUID().toString();
+		impact.name = getName(iMethod);
+		impact.description = getDescription(iMethod);
+		impact.referenceUnit = getReferenceUnit(iMethod);
+
+		// timestamp
+		DataEntry de = Methods.getDataEntry(iMethod);
+		if (de != null && de.timeStamp != null) {
+			impact.lastChange = de.timeStamp
+					.toGregorianCalendar().getTimeInMillis();
+		} else {
+			impact.lastChange = new Date().getTime();
+		}
+
+		// version
+		Publication pub = Methods.getPublication(iMethod);
+		if (pub != null && pub.version != null) {
+			impact.version = Version.fromString(pub.version).getValue();
+		}
+
+		// add LCIA factors and save it
+		addFactors(iMethod, impact);
+		ImpactCategoryDao dao = new ImpactCategoryDao(config.db);
+		return dao.insert(impact);
+	}
+
+	private String getName(LCIAMethod iMethod) {
 		MethodInfo info = iMethod.methodInfo;
 		if (info == null || info.dataSetInfo == null)
 			return null;
 		DataSetInfo dataInfo = info.dataSetInfo;
-		List<String> categoryNames = dataInfo.impactCategories;
-		if (categoryNames == null || categoryNames.isEmpty())
-			return null;
-		return categoryNames.get(0);
-	}
 
-	private boolean hasCategory(org.openlca.core.model.ImpactMethod oMethod,
-			String categoryName) {
-		for (ImpactCategory category : oMethod.impactCategories) {
-			if (StringUtils.equalsIgnoreCase(category.name, categoryName))
-				return true;
+		// try to find a name
+		String name = LangString.getFirst(dataInfo.name, config.langs);
+		if (name == null) {
+			List<String> names = dataInfo.impactCategories;
+			if (!names.isEmpty()) {
+				name = names.get(0);
+			}
 		}
-		return false;
-	}
+		if (name == null) {
+			name = "?";
+		}
 
-	private void addCategory(org.openlca.core.model.ImpactMethod oMethod,
-			String categoryName, LCIAMethod iMethod) {
-		log.trace("Add category {} to {}", categoryName, oMethod);
-		String categoryUnit = getCategoryUnit(iMethod);
-		ImpactCategory category = new ImpactCategory();
-		String refId = getUUID(iMethod);
-		category.refId = refId != null ? refId : UUID.randomUUID().toString();
-		category.name = categoryName;
-		category.referenceUnit = categoryUnit;
-		category.description = getCategoryDescription(iMethod);
-		addFactors(iMethod, category);
-		oMethod.impactCategories.add(category);
-		oMethod.lastChange = Calendar.getInstance().getTimeInMillis();
-		Version.incUpdate(oMethod);
-		dao.update(oMethod);
+		// add the reference year to the name if present
+		if (info.time != null && info.time.referenceYear != null) {
+			name += ", " + info.time.referenceYear.toString();
+		}
+		return name;
 	}
 
 	private String getUUID(LCIAMethod iMethod) {
@@ -124,59 +156,22 @@ public class MethodImport {
 		return dataInfo.uuid;
 	}
 
-	private String getCategoryUnit(LCIAMethod iMethod) {
-		String extensionUnit = getExtentionUnit(iMethod);
-		if (extensionUnit != null)
-			return extensionUnit;
+	private String getReferenceUnit(LCIAMethod iMethod) {
 		MethodInfo info = iMethod.methodInfo;
 		if (info == null || info.quantitativeReference == null)
 			return null;
 		QuantitativeReference qRef = info.quantitativeReference;
 		if (qRef.quantity == null)
 			return null;
-		String propertyId = qRef.quantity.uuid;
-		if (propertyId == null)
-			return null;
-		Unit unit = getReferenceUnit(propertyId);
-		return unit == null ? null : unit.name;
+		return LangString.getFirst(qRef.quantity.name, config.langs);
 	}
 
-	private String getExtentionUnit(LCIAMethod iMethod) {
+	private String getDescription(LCIAMethod iMethod) {
 		MethodInfo info = iMethod.methodInfo;
 		if (info == null || info.dataSetInfo == null)
 			return null;
-		DataSetInfo dataInfo = info.dataSetInfo;
-		QName extName = new QName("http://openlca.org/ilcd-extensions",
-				"olca_category_unit");
-		return dataInfo.otherAttributes.get(extName);
-	}
-
-	private String getCategoryDescription(LCIAMethod iMethod) {
-		MethodInfo info = iMethod.methodInfo;
-		if (info == null || info.dataSetInfo == null)
-			return null;
-		return LangString.getFirst(info.dataSetInfo.comment,
-				config.langs);
-	}
-
-	private Unit getReferenceUnit(String propertyId) {
-		try {
-			FlowPropertyImport propertyImport = new FlowPropertyImport(config);
-			FlowProperty prop = propertyImport.run(propertyId);
-			if (prop == null)
-				return null;
-			return getReferenceUnit(prop);
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
-	private Unit getReferenceUnit(FlowProperty prop) {
-		if (prop == null)
-			return null;
-		return prop.unitGroup != null
-				? prop.unitGroup.referenceUnit
-				: null;
+		return LangString.getFirst(
+				info.dataSetInfo.comment, config.langs);
 	}
 
 	private void addFactors(LCIAMethod iMethod, ImpactCategory category) {
@@ -234,6 +229,14 @@ public class MethodImport {
 			log.warn("there were flow errors in {} factors of LCIA category {}",
 					errors, category.name);
 		}
+	}
+
+	private Unit getReferenceUnit(FlowProperty prop) {
+		if (prop == null)
+			return null;
+		return prop.unitGroup != null
+				? prop.unitGroup.referenceUnit
+				: null;
 	}
 
 }
