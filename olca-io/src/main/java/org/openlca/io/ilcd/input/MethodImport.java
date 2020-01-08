@@ -192,8 +192,7 @@ public class MethodImport {
 				boolean mapped = false;
 				FlowMapEntry e = config.getFlowMap().getEntry(flowId);
 				if (e != null) {
-					flow = new FlowDao(config.db).getForRefId(
-							e.targetFlowID());
+					flow = getFlow(e.targetFlowID(), false);
 					if (flow != null) {
 						mapped = true;
 					}
@@ -201,7 +200,7 @@ public class MethodImport {
 
 				// otherwise, get the flow from the database or import it
 				if (flow == null) {
-					flow = new FlowImport(config).run(flowId);
+					flow = getFlow(flowId, true);
 				}
 				if (flow == null) {
 					log.trace("Could not import flow {}", flowId);
@@ -237,6 +236,34 @@ public class MethodImport {
 		return prop.unitGroup != null
 				? prop.unitGroup.referenceUnit
 				: null;
+	}
+
+	private Flow getFlow(String uuid, boolean canImport) {
+
+		// check the cache
+		Flow flow = config.flowCache.get(uuid);
+		if (flow != null)
+			return flow;
+
+		// check the database
+		FlowDao dao = new FlowDao(config.db);
+		flow = dao.getForRefId(uuid);
+		if (flow != null) {
+			config.flowCache.put(uuid, flow);
+			return flow;
+		}
+
+		// run the import
+		if (canImport) {
+			try {
+				flow = new FlowImport(config).run(uuid);
+				config.flowCache.put(uuid, flow);
+				return flow;
+			} catch (Exception e) {
+				log.error("failed to import flow " + uuid, e);
+			}
+		}
+		return	null;
 	}
 
 }
