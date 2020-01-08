@@ -64,6 +64,9 @@ public class Flow extends CategorizedEntity {
 		return clone;
 	}
 
+	/**
+	 * Get the flow property factor of the reference flow property of this flow.
+	 */
 	public FlowPropertyFactor getReferenceFactor() {
 		if (referenceFlowProperty == null)
 			return null;
@@ -72,6 +75,19 @@ public class Flow extends CategorizedEntity {
 				return f;
 		}
 		return null;
+	}
+
+	/**
+	 * Returns the reference unit of this flow. More specifically, it returns the
+	 * reference unit of the unit group of the reference flow property of this flow.
+	 * In openLCA, results of a flow are always calculated in its reference unit.
+	 */
+	public Unit getReferenceUnit() {
+		if (referenceFlowProperty == null)
+			return null;
+		if (referenceFlowProperty.unitGroup == null)
+			return null;
+		return referenceFlowProperty.unitGroup.referenceUnit;
 	}
 
 	public FlowPropertyFactor getFactor(FlowProperty property) {
