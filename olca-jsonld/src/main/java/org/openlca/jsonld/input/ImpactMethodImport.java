@@ -40,13 +40,7 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 			if (!e.isJsonObject())
 				continue;
 			String catId = Json.getString(e.getAsJsonObject(), "@id");
-			JsonObject catJson = conf.store.get(ModelType.IMPACT_CATEGORY, catId);
-			ImpactCategory category = new ImpactCategoryImport(
-					m.refId, conf).run(catJson);
-			if (category == null) {
-				// the category can be null when it is not in the JSON store
-				category = conf.db.get(ModelType.IMPACT_CATEGORY, catId);
-			}
+			ImpactCategory category = ImpactCategoryImport.run(catId, conf);
 			if (category != null) {
 				m.impactCategories.add(category);
 			}

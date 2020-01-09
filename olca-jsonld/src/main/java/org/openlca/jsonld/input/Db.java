@@ -1,8 +1,5 @@
 package org.openlca.jsonld.input;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.CurrencyDao;
@@ -29,6 +26,7 @@ import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
@@ -41,6 +39,9 @@ import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
+
+import java.util.HashMap;
+import java.util.Map;
 
 class Db {
 
@@ -62,7 +63,7 @@ class Db {
 	private Map<String, Long> currencyIds = new HashMap<>();
 	private Map<String, Long> systemIds = new HashMap<>();
 	private Map<String, Long> projectIds = new HashMap<>();
-	public Map<String, String> categoryRefIdMapping = new HashMap<String, String>();
+	public Map<String, String> categoryRefIdMapping = new HashMap<>();
 
 	private IDatabase db;
 
@@ -134,6 +135,8 @@ class Db {
 			return (T) put(new ProcessDao(db), (Process) entity, processIds);
 		case FLOW:
 			return (T) put(new FlowDao(db), (Flow) entity, flowIds);
+		case IMPACT_CATEGORY:
+			return (T) put(new ImpactCategoryDao(db), (ImpactCategory) entity, impactCategoryIds);
 		case IMPACT_METHOD:
 			return (T) put(new ImpactMethodDao(db), (ImpactMethod) entity, methodIds);
 		case SOCIAL_INDICATOR:
