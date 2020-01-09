@@ -60,9 +60,9 @@ public class FlowUseSearchTest {
 		List<CategorizedDescriptor> results = search.findUses(
 				Descriptors.toDescriptor(flow));
 		dao.delete(ic);
-		BaseDescriptor expected = Descriptors.toDescriptor(ic);
 		Assert.assertEquals(1, results.size());
-		Assert.assertEquals(expected, results.get(0));
+		Assert.assertEquals(
+				Descriptors.toDescriptor(ic), results.get(0));
 	}
 
 
