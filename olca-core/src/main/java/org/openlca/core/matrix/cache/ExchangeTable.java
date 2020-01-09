@@ -86,7 +86,7 @@ public class ExchangeTable {
 		double factor = getConversionFactor(r);
 		e.conversionFactor = factor;
 		e.amount = r.getDouble(6);
-		e.amountFormula = r.getString(7);
+		e.formula = r.getString(7);
 		e.isInput = r.getBoolean(8);
 		e.isAvoided = r.getBoolean(9);
 		e.defaultProviderId = r.getLong(10);
