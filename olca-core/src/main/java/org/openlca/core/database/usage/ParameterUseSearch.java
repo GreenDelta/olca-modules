@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 
-	private final static Logger log = LoggerFactory.getLogger(ParameterUseSearch.class);
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
 
 	public ParameterUseSearch(IDatabase database) {
