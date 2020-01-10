@@ -2,23 +2,22 @@ package org.openlca.core.matrix;
 
 import java.util.List;
 
+import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.DataStructures;
 import org.openlca.core.matrix.cache.ExchangeTable;
 import org.openlca.core.matrix.cache.FlowTable;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.format.MatrixBuilder;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
-import org.openlca.julia.JuliaSolver;
-
-import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
  * A fast matrix builder that skips the product system linking layer ...
@@ -92,19 +91,31 @@ public class FastMatrixBuilder {
 		data.costVector = costs;
 
 		// add LCIA matrices
-		// TODO: we should remove the solver
-		// dependency from the ImpactTable
 		if (setup.impactMethod != null) {
-			ImpactTable impacts = ImpactTable.build(
-					MatrixCache.createLazy(db),
-					setup.impactMethod.id,
-					flowIndex);
-			data.impactMatrix = impacts.createMatrix(
-					new JuliaSolver(), interpreter);
-			data.impactIndex = impacts.impactIndex;
+			addImpacts(data);
 		}
 
 		return data;
+	}
+
+	private void addImpacts(MatrixData data) {
+		if(flowIndex.isEmpty())
+			return;
+
+		// load the LCIA category index
+		ImpactMethodDao dao = new ImpactMethodDao(db);
+		List<ImpactCategoryDescriptor> indicators = dao.getCategoryDescriptors(
+				setup.impactMethod.id);
+		if (indicators.isEmpty())
+			return;
+		DIndex<ImpactCategoryDescriptor> impactIndex = new DIndex<>();
+		impactIndex.putAll(indicators);
+
+		// build the matrix
+		ImpactBuilder.ImpactData idata = new ImpactBuilder(db)
+				.build(flowIndex, impactIndex, interpreter);
+		data.impactIndex = impactIndex;
+		data.impactMatrix = idata.impactMatrix;
 	}
 
 	private void putExchangeValue(ProcessProduct provider, CalcExchange e) {

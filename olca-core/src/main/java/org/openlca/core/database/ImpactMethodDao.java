@@ -50,7 +50,7 @@ public class ImpactMethodDao extends
 			List<Object[]> list = selectAll(sql,
 					cdao.getDescriptorFields(), Collections.emptyList());
 			return list.stream()
-					.map(obj -> cdao.createDescriptor(obj))
+					.map(cdao::createDescriptor)
 					.collect(Collectors.toList());
 		} catch (Exception e) {
 			throw new RuntimeException(

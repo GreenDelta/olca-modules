@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.ImpactTable;
@@ -130,14 +131,16 @@ public class DataStructures {
 
 	public static FormulaInterpreter interpreter(IDatabase db,
 			CalculationSetup setup, TechIndex techIndex) {
-		// collect the process and LCIA method IDs; these
+		// collect the process and LCIA category IDs; these
 		// are the possible contexts of local parameters
 		HashSet<Long> contexts = new HashSet<>();
-		if (setup != null && setup.impactMethod != null) {
-			contexts.add(setup.impactMethod.id);
-		}
 		if (techIndex != null) {
 			contexts.addAll(techIndex.getProcessIds());
+		}
+		if (setup.impactMethod != null) {
+			ImpactMethodDao dao = new ImpactMethodDao(db);
+			dao.getCategoryDescriptors(setup.impactMethod.id).forEach(
+					d -> contexts.add(d.id));
 		}
 		return ParameterTable.interpreter(
 				db, contexts, setup.parameterRedefs);
