@@ -49,9 +49,7 @@ public class TestSystem {
 			if (!isProvider(e))
 				continue;
 			long flowId = e.flow.id;
-			if (providers.get(flowId) == null) {
-				providers.put(flowId, process);
-			}
+			providers.putIfAbsent(flowId, process);
 		}
 	}
 
@@ -89,9 +87,7 @@ public class TestSystem {
 		FlowType type = e.flow.flowType;
 		if (type == FlowType.PRODUCT_FLOW && !e.isInput)
 			return true;
-		if (type == FlowType.WASTE_FLOW && e.isInput)
-			return true;
-		return false;
+		return type == FlowType.WASTE_FLOW && e.isInput;
 	}
 
 	public ProductSystem get() {
