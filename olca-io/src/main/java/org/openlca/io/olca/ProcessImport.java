@@ -6,12 +6,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import gnu.trove.iterator.TLongLongIterator;
+import gnu.trove.list.array.TLongArrayList;
+import gnu.trove.map.hash.TLongLongHashMap;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.SocialAspect;
@@ -19,10 +21,6 @@ import org.openlca.core.model.Source;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gnu.trove.iterator.TLongLongIterator;
-import gnu.trove.list.array.TLongArrayList;
-import gnu.trove.map.hash.TLongLongHashMap;
 
 class ProcessImport {
 
@@ -106,11 +104,9 @@ class ProcessImport {
 				continue;
 			}
 			checkSetProvider(e, oldProviders);
-			Flow destFlow = refs.switchRef(e.flow);
-			final Flow flow = destFlow;
-			e.flow = flow;
+			e.flow = refs.switchRef(e.flow);
 			e.flowPropertyFactor = refs.switchRef(
-					e.flowPropertyFactor, destFlow);
+					e.flowPropertyFactor, e.flow);
 			e.unit = refs.switchRef(e.unit);
 			e.currency = refs.switchRef(e.currency);
 		}
@@ -162,8 +158,7 @@ class ProcessImport {
 					srcRefId = srcExchange.flow.refId;
 				}
 			}
-			long destProductId = seq.get(seq.FLOW, srcRefId);
-			factor.productId = destProductId;
+			factor.productId = seq.get(seq.FLOW, srcRefId);
 		}
 	}
 
