@@ -12,7 +12,6 @@ import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.Simulator;
 import org.openlca.core.math.SystemCalculator;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.BaseDescriptor;
@@ -57,8 +56,7 @@ public class Calculator {
 					"No product system found for @id=" + systemID, req);
 		CalculationSetup setup = buildSetup(json, system);
 		log.info("Create simulator for system {}", systemID);
-		Simulator simulator = Simulator.create(setup,
-				MatrixCache.createEager(db), context.solver);
+		Simulator simulator = Simulator.create(setup, db, context.solver);
 		String id = UUID.randomUUID().toString();
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@id", id);
@@ -183,8 +181,7 @@ public class Calculator {
 
 	private RpcResponse calculate(RpcRequest req, CalculationSetup setup) {
 		try {
-			SystemCalculator calc = new SystemCalculator(
-					MatrixCache.createEager(db), context.solver);
+			SystemCalculator calc = new SystemCalculator(db, context.solver);
 			SimpleResult r = null;
 			switch (setup.type) {
 			case CONTRIBUTION_ANALYSIS:

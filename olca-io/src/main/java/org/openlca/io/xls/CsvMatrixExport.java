@@ -1,5 +1,11 @@
 package org.openlca.io.xls;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.Writer;
+import java.util.Collections;
+import java.util.HashMap;
+
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.CalculationType;
@@ -16,12 +22,6 @@ import org.openlca.io.DisplayValues;
 import org.openlca.julia.JuliaSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.Writer;
-import java.util.Collections;
-import java.util.HashMap;
 
 /**
  * Writes a product system as matrices into CSV files.
@@ -57,7 +57,7 @@ public class CsvMatrixExport implements Runnable {
 		setup.allocationMethod = AllocationMethod.NONE;
 		MatrixData data = DataStructures.matrixData(
 				setup, new JuliaSolver(),
-				conf.getMatrixCache(), Collections.emptyMap());
+				conf.db, Collections.emptyMap());
 
 		log.trace("Write technology matrix");
 		try (FileWriter writer = new FileWriter(conf.technologyFile);

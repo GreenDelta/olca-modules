@@ -13,7 +13,6 @@ import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.DataStructures;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.solvers.DenseSolver;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.AllocationMethod;
@@ -39,13 +38,12 @@ public class Benchmark {
 		// "root", "");
 		IDatabase db = new MySQLDatabase(
 				"jdbc:mysql://localhost:3306/openlca_ei3_pre", "root", "");
-		MatrixCache cache = MatrixCache.createEager(db);
 		ProductSystem system = new ProductSystemDao(db).getForId(654886);
 		CalculationSetup setup = new CalculationSetup(
 				CalculationType.UPSTREAM_ANALYSIS, system);
 		setup.allocationMethod = AllocationMethod.USE_DEFAULT;
 		MatrixData data = DataStructures.matrixData(
-				setup, solver, cache, Collections.emptyMap());
+				setup, solver, db, Collections.emptyMap());
 		LcaCalculator calculator = new LcaCalculator(solver, data);
 
 		System.out.println("Inventory ready. Type enter to start!");

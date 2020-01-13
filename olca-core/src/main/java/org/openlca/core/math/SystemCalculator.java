@@ -6,13 +6,13 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.openlca.core.database.FlowDao;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.NwSetDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.FastMatrixBuilder;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
@@ -38,11 +38,11 @@ import org.slf4j.LoggerFactory;
 public class SystemCalculator {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	private final MatrixCache mcache;
+	private final IDatabase db;
 	private final IMatrixSolver solver;
 
-	public SystemCalculator(MatrixCache cache, IMatrixSolver solver) {
-		this.mcache = cache;
+	public SystemCalculator(IDatabase db, IMatrixSolver solver) {
+		this.db = db;
 		this.solver = solver;
 	}
 
@@ -69,13 +69,12 @@ public class SystemCalculator {
 		// load the LCIA method and NW set
 		ImpactMethodDescriptor method = null;
 		if (project.impactMethodId != null) {
-			ImpactMethodDao dao = new ImpactMethodDao(
-					mcache.getDatabase());
+			ImpactMethodDao dao = new ImpactMethodDao(db);
 			method = dao.getDescriptor(project.impactMethodId);
 		}
 		NwSetDescriptor nwSet = null;
 		if (project.nwSetId != null) {
-			NwSetDao dao = new NwSetDao(mcache.getDatabase());
+			NwSetDao dao = new NwSetDao(db);
 			nwSet = dao.getDescriptor(project.nwSetId);
 		}
 
@@ -103,10 +102,10 @@ public class SystemCalculator {
 	private LcaCalculator calculator(CalculationSetup setup) {
 		MatrixData data;
 		if (setup.productSystem.withoutNetwork) {
-			data = new FastMatrixBuilder(mcache.getDatabase(), setup).build();
+			data = new FastMatrixBuilder(db, setup).build();
 		} else {
 			Map<ProcessProduct, SimpleResult> subs = calculateSubSystems(setup);
-			data = DataStructures.matrixData(setup, solver, mcache, subs);
+			data = DataStructures.matrixData(setup, solver, db, subs);
 		}
 		return new LcaCalculator(solver, data);
 	}
@@ -122,8 +121,8 @@ public class SystemCalculator {
 
 		// collect the sub-systems
 		HashSet<ProcessProduct> subSystems = new HashSet<>();
-		ProductSystemDao sysDao = new ProductSystemDao(mcache.getDatabase());
-		FlowDao flowDao = new FlowDao(mcache.getDatabase());
+		ProductSystemDao sysDao = new ProductSystemDao(db);
+		FlowDao flowDao = new FlowDao(db);
 		for (ProcessLink link : setup.productSystem.processLinks) {
 			if (!link.isSystemLink)
 				continue;

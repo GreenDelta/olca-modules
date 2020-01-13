@@ -57,7 +57,7 @@ public class ProductSystemInMemoryCalculationExample {
 		// load the native library and calculate the result
 		NativeLibrary.loadFromDir(new File(workspace));
 		SystemCalculator calc = new SystemCalculator(
-				mcache, new DenseSolver());
+				db, new DenseSolver());
 		SimpleResult r = calc.calculateSimple(setup);
 
 		// print the LCIA results

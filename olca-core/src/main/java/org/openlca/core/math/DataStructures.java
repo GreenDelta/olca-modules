@@ -8,7 +8,9 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.matrix.ImpactTable;
+import org.openlca.core.matrix.DIndex;
+import org.openlca.core.matrix.ImpactBuilder;
+import org.openlca.core.matrix.ImpactBuilder.ImpactData;
 import org.openlca.core.matrix.InventoryBuilder;
 import org.openlca.core.matrix.InventoryConfig;
 import org.openlca.core.matrix.LongPair;
@@ -16,7 +18,6 @@ import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowType;
@@ -24,6 +25,7 @@ import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.core.results.SimpleResult;
@@ -101,10 +103,9 @@ public class DataStructures {
 	public static MatrixData matrixData(
 			CalculationSetup setup,
 			IMatrixSolver solver,
-			MatrixCache mcache,
+			IDatabase db,
 			Map<ProcessProduct, SimpleResult> subResults) {
 
-		IDatabase db = mcache.getDatabase();
 		TechIndex techIndex = createProductIndex(setup.productSystem, db);
 		techIndex.setDemand(setup.getDemandValue());
 		FormulaInterpreter interpreter = interpreter(
@@ -117,15 +118,24 @@ public class DataStructures {
 		conf.withCosts = setup.withCosts;
 		conf.withUncertainties = setup.type == CalculationType.MONTE_CARLO_SIMULATION;
 		InventoryBuilder builder = new InventoryBuilder(conf);
-
 		MatrixData data = builder.build();
+		
+		// add the LCIA matrix structures
 		if (setup.impactMethod != null) {
-			ImpactTable impacts = ImpactTable.build(
-					mcache, setup.impactMethod.id, data.enviIndex);
-			data.impactMatrix = impacts.createMatrix(
-					solver, interpreter);
-			data.impactIndex = impacts.impactIndex;
+			DIndex<ImpactCategoryDescriptor> impactIdx = new DIndex<>();
+			new ImpactMethodDao(db).getCategoryDescriptors(
+					setup.impactMethod.id).forEach(d -> impactIdx.put(d));
+			if (!impactIdx.isEmpty()) {
+				ImpactBuilder ib = new ImpactBuilder(db);
+				ib.withUncertainties(conf.withUncertainties);
+				ImpactData idata = ib.build(
+						data.enviIndex, impactIdx, interpreter);
+				data.impactMatrix = idata.impactMatrix;
+				data.impactIndex = impactIdx;
+				data.impactUncertainties = idata.impactUncertainties;
+			}
 		}
+
 		return data;
 	}
 

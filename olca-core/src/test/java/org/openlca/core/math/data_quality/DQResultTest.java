@@ -19,7 +19,6 @@ import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.SystemCalculator;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQScore;
 import org.openlca.core.model.DQSystem;
@@ -202,7 +201,7 @@ public class DQResultTest {
 	@Test
 	public void test() {
 		SystemCalculator calculator = new SystemCalculator(
-				MatrixCache.createEager(Tests.getDb()),
+				Tests.getDb(),
 				Tests.getDefaultSolver());
 		CalculationSetup setup = new CalculationSetup(
 				CalculationType.CONTRIBUTION_ANALYSIS, system);

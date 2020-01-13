@@ -11,17 +11,16 @@ import java.util.Queue;
 import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.ModelType;
@@ -105,10 +104,10 @@ public class Simulator {
 
 	public static Simulator create(
 			CalculationSetup setup,
-			MatrixCache mcache,
+			IDatabase db,
 			IMatrixSolver solver) {
 		Simulator g = new Simulator(solver);
-		g.init(mcache, setup);
+		g.init(db, setup);
 		return g;
 	}
 
@@ -229,14 +228,9 @@ public class Simulator {
 				});
 			}
 		}
-
-		if (node.impactTable != null) {
-			node.impactTable.simulate(node.data.impactMatrix, fi);
-		}
 	}
 
-	private void init(MatrixCache mcache, CalculationSetup setup) {
-		IDatabase db = mcache.getDatabase();
+	private void init(IDatabase db, CalculationSetup setup) {
 		long rootID = setup.productSystem.id;
 
 		// check whether the root system has sub-system links;
@@ -250,7 +244,7 @@ public class Simulator {
 			}
 		}
 		if (!hasSubSystems) {
-			root = new Node(setup, mcache, Collections.emptyMap());
+			root = new Node(setup, db, Collections.emptyMap());
 			nodeIndex.put(root.systemID, root);
 			return;
 		}
@@ -339,7 +333,7 @@ public class Simulator {
 				_setup.allocationMethod = setup.allocationMethod;
 			}
 
-			Node node = new Node(_setup, mcache, subResults);
+			Node node = new Node(_setup, db, subResults);
 			nodeIndex.put(system, node);
 			if (system == rootID) {
 				root = node;
@@ -386,19 +380,16 @@ public class Simulator {
 		final MatrixData data;
 		final ParameterTable parameters;
 
-		// TODO: in later versions this should go into the MatrixData
-		final ImpactTable impactTable;
-
 		Set<ProcessProduct> subSystems;
 		SimpleResult lastResult;
 
-		Node(CalculationSetup setup, MatrixCache mcache,
+		Node(CalculationSetup setup, IDatabase db,
 				Map<ProcessProduct, SimpleResult> subResults) {
 
 			systemID = setup.productSystem.id;
 			product = ProcessProduct.of(setup.productSystem);
 			data = DataStructures.matrixData(
-					setup, solver, mcache, subResults);
+					setup, solver, db, subResults);
 
 			// parameters
 			HashSet<Long> paramContexts = new HashSet<>();
@@ -409,17 +400,12 @@ public class Simulator {
 				}
 			});
 			if (setup.impactMethod != null) {
-				paramContexts.add(setup.impactMethod.id);
+				new ImpactMethodDao(db).getCategoryDescriptors(
+						setup.impactMethod.id)
+						.forEach(d -> paramContexts.add(d.id));
 			}
 			parameters = ParameterTable.forSimulation(
-					mcache.getDatabase(), paramContexts, setup.parameterRedefs);
-
-			// LCIA factors
-			// TODO: see above
-			impactTable = setup.impactMethod != null
-					? ImpactTable.build(
-							mcache, setup.impactMethod.id, data.enviIndex)
-					: null;
+					db, paramContexts, setup.parameterRedefs);
 		}
 	}
 

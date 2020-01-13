@@ -66,7 +66,12 @@ public class MatrixData {
 	 */
 	public UMatrix enviUncertainties;
 
-	// TODO uncertainty distributions of LCIA factors etc.
+	/**
+	 * Contains the uncertainty distributions of the entries in the matrix with LCIA
+	 * characterization factors. This field is only used (not null) for uncertainty
+	 * calculations.
+	 */
+	public UMatrix impactUncertainties;
 
 	public void simulate(FormulaInterpreter interpreter) {
 		if (techMatrix != null && techUncertainties != null) {
@@ -75,6 +80,8 @@ public class MatrixData {
 		if (enviMatrix != null && enviUncertainties != null) {
 			enviUncertainties.generate(enviMatrix, interpreter);
 		}
-		// TODO: generate values for LCIA factors
+		if (impactMatrix != null && impactUncertainties != null) {
+			impactUncertainties.generate(impactMatrix, interpreter);
+		}
 	}
 }

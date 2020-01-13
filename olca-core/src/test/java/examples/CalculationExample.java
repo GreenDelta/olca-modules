@@ -9,7 +9,6 @@ import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.SystemCalculator;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.solvers.DenseSolver;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -34,8 +33,7 @@ public class CalculationExample {
 
 		NativeLibrary.loadFromDir(
 				new File("C:/Users/ms/openLCA-data-1.4"));
-		SystemCalculator calc = new SystemCalculator(
-				MatrixCache.createEager(db), new DenseSolver());
+		SystemCalculator calc = new SystemCalculator(db, new DenseSolver());
 		FullResult r = calc.calculateFull(setup);
 		FlowDescriptor flow = r.flowIndex.at(0);
 		System.out.println(

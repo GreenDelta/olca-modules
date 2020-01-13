@@ -9,7 +9,6 @@ import org.junit.Test;
 import org.openlca.core.TestProcess;
 import org.openlca.core.TestSystem;
 import org.openlca.core.Tests;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Project;
@@ -43,8 +42,7 @@ public class ProjectCalculationTest {
 		project.variants.add(var2);
 
 		SystemCalculator calc = new SystemCalculator(
-				MatrixCache.createLazy(Tests.getDb()),
-				new JavaSolver());
+				Tests.getDb(), new JavaSolver());
 		ProjectResult r = calc.calculate(project);
 		Set<FlowDescriptor> flows = r.getFlows();
 		assertEquals(2, flows.size());

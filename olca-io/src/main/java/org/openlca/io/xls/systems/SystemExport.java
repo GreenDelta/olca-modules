@@ -50,7 +50,7 @@ public class SystemExport {
 
 		// the Julia solver that we pass here is just for creating the matrices
 		data = DataStructures.matrixData(
-				setup, new JuliaSolver(), conf.getMatrixCache(),
+				setup, new JuliaSolver(), conf.database,
 				Collections.emptyMap());
 
 		File subDir = new File(dir, conf.system.name.trim());

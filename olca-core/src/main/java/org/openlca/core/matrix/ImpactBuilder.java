@@ -59,6 +59,7 @@ public class ImpactBuilder {
 					return true;
 
 				CalcImpactFactor f = new CalcImpactFactor();
+				f.isInput = flowIndex.isInput(flowID);
 				f.imactCategoryId = impactID;
 				f.flowId = flowID;
 				f.amount = r.getDouble(3);

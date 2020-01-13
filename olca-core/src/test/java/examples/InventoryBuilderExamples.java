@@ -8,17 +8,9 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.CalculationType;
-import org.openlca.core.math.DataStructures;
-import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.math.SystemCalculator;
-import org.openlca.core.matrix.InventoryBuilder;
-import org.openlca.core.matrix.InventoryConfig;
-import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.TechIndex;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.julia.Julia;
@@ -41,8 +33,7 @@ public class InventoryBuilderExamples {
 				"44f7066c-33fd-49d2-86ec-2b94677bf6d0");
 		Julia.loadFromDir(new File("./olca-core/julia/libs"));
 		IMatrixSolver solver = new JuliaSolver();
-		SystemCalculator calc = new SystemCalculator(
-				MatrixCache.createLazy(db), solver);
+		SystemCalculator calc = new SystemCalculator(db, solver);
 		ContributionResult r = calc.calculateContributions(setup);
 		for (ImpactCategoryDescriptor impact : r.getImpacts()) {
 			System.out.println(impact.refId + "\t" +

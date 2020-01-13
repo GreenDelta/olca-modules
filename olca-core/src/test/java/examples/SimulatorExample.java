@@ -9,7 +9,6 @@ import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.Simulator;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
@@ -47,8 +46,7 @@ public class SimulatorExample {
 		Julia.loadFromDir(new File(juliaLibPath));
 		JuliaSolver solver = new JuliaSolver();
 
-		Simulator simulator = Simulator.create(
-				setup, MatrixCache.createLazy(db), solver);
+		Simulator simulator = Simulator.create(setup, db, solver);
 
 		double min = 0;
 		double max = 0;

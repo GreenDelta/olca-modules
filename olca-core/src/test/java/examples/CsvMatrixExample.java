@@ -11,7 +11,6 @@ import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.DataStructures;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.io.CsvOut;
 import org.openlca.core.matrix.solvers.DenseSolver;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
@@ -47,10 +46,9 @@ public class CsvMatrixExample {
 		IMatrixSolver solver = new DenseSolver();
 
 		// create and export the matrix data
-		MatrixCache mcache = MatrixCache.createEager(db);
 		File exportDir = new File("target/data");
 		MatrixData data = DataStructures.matrixData(
-				setup, solver, mcache, Collections.emptyMap());
+				setup, solver, db, Collections.emptyMap());
 		CsvOut.write(data, db, exportDir);
 
 		// calculate and export the result
