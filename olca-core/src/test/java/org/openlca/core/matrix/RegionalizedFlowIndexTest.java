@@ -53,7 +53,6 @@ public class RegionalizedFlowIndexTest {
 		}
 	}
 
-
 	private FlowDescriptor randFlow() {
 		FlowDescriptor flow = new FlowDescriptor();
 		flow.id = nextID++;
@@ -67,5 +66,4 @@ public class RegionalizedFlowIndexTest {
 		loc.name = "Location " + loc.id;
 		return loc;
 	}
-
 }
