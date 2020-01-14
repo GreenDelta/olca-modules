@@ -1,4 +1,4 @@
-package org.openlca.core.matrix;
+package org.openlca.geo;
 
 import org.junit.Assert;
 import org.junit.Test;

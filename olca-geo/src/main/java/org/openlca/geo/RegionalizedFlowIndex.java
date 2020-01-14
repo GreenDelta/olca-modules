@@ -1,7 +1,8 @@
-package org.openlca.core.matrix;
+package org.openlca.geo;
 
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TLongByteHashMap;
+import org.openlca.core.matrix.LongPair;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 
