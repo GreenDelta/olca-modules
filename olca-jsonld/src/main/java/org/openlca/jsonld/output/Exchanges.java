@@ -17,7 +17,7 @@ class Exchanges {
 		Out.put(obj, "input", e.isInput);
 		Out.put(obj, "baseUncertainty", e.baseUncertainty);
 		Out.put(obj, "amount", e.amount);
-		Out.put(obj, "amountFormula", e.amountFormula);
+		Out.put(obj, "amountFormula", e.formula);
 		Out.put(obj, "dqEntry", e.dqEntry);
 		Out.put(obj, "description", e.description);
 		Out.put(obj, "costFormula", e.costFormula);

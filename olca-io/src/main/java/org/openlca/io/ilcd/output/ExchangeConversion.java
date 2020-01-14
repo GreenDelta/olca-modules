@@ -58,7 +58,7 @@ class ExchangeConversion {
 		iExchange.resultingAmount = resultingAmount;
 		mapExtensions(oExchange, iExchange);
 		new UncertaintyConverter().map(oExchange, iExchange);
-		if (oExchange.amountFormula != null) {
+		if (oExchange.formula != null) {
 			mapParameter(oExchange, iExchange);
 		} else {
 			iExchange.meanAmount = resultingAmount;
@@ -88,8 +88,8 @@ class ExchangeConversion {
 		ext.setAmount(oExchange.amount);
 		ext.setBaseUncertainty(oExchange.baseUncertainty);
 		ext.setPedigreeUncertainty(oExchange.dqEntry);
-		if (oExchange.amountFormula != null) {
-			ext.setFormula(oExchange.amountFormula);
+		if (oExchange.formula != null) {
+			ext.setFormula(oExchange.formula);
 		}
 		if (oExchange.unit != null) {
 			ext.setUnitId(oExchange.unit.refId);
@@ -125,7 +125,7 @@ class ExchangeConversion {
 		iExchange.variable = paramName;
 		iExchange.meanAmount = 1d;
 		Parameter parameter = new Parameter();
-		parameter.formula = oExchange.amountFormula;
+		parameter.formula = oExchange.formula;
 		parameter.mean = oExchange.amount;
 		parameter.name = paramName;
 		addParameter(parameter);

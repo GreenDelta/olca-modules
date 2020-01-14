@@ -120,9 +120,9 @@ class ElemFlowMap {
 		exchange.unit = record.unitName;
 		exchange.unitId = record.unitId;
 		exchange.amount = record.conversionFactor * olca.amount;
-		if (olca.amountFormula != null) {
+		if (olca.formula != null) {
 			exchange.mathematicalRelation = record.conversionFactor + " * ("
-			+ olca.amountFormula + ")";
+			+ olca.formula + ")";
 		}
 		// TODO: convert uncertainty information
 		return exchange;

@@ -18,8 +18,9 @@ class Upgrade9 implements IUpgrade {
 	@Override
 	public void exec(IDatabase db) {
 		DbUtil u = new DbUtil(db);
-		u.createColumn("tbl_impact_categories", "f_category BIGINT");
 
+		// make LCIA categories stand-alone entities
+		u.createColumn("tbl_impact_categories", "f_category BIGINT");
 		if (u.tableExists("tbl_impact_links"))
 			return;
 		u.createTable("tbl_impact_links",
@@ -35,11 +36,15 @@ class Upgrade9 implements IUpgrade {
 		} catch (Exception e) {
 			throw new RuntimeException("failed to copy impact links", e);
 		}
-		// TODO: parameters + regionalization
 
+		// TODO: parameters
 		u.createColumn("tbl_impact_categories", "parameter_mean VARCHAR(255)");
 		// TODO: copy parameters to each LCIA category from the method
 		// also, update the parameter scope of these (and in parameter redefinitions?)
+
+		// support regionalization of exchanges and characterization factors
+		u.createColumn("tbl_exchanges", "f_location BIGINT");
+		u.createColumn("tbl_impact_factors", "f_location BIGINT");
 
 	}
 }

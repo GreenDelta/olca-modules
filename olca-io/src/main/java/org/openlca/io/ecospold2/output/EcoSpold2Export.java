@@ -80,7 +80,7 @@ public class EcoSpold2Export implements Runnable {
 		if (!activityDir.exists())
 			activityDir.mkdirs();
 	}
-	
+
 	private void exportProcesses() throws Exception {
 		for (ProcessDescriptor descriptor : descriptors) {
 			ProcessDao dao = new ProcessDao(database);
@@ -210,7 +210,7 @@ public class EcoSpold2Export implements Runnable {
 		e2Exchange.name = Strings.cut(exchange.flow.name, 120);
 		e2Exchange.id = new UUID(exchange.id, 0L).toString();
 		e2Exchange.amount = exchange.amount;
-		e2Exchange.mathematicalRelation = exchange.amountFormula;
+		e2Exchange.mathematicalRelation = exchange.formula;
 		e2Exchange.comment = exchange.description;
 		e2Exchange.casNumber = exchange.flow.casNumber;
 		e2Exchange.uncertainty = UncertaintyConverter.fromOpenLCA(exchange.uncertainty);

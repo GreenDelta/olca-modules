@@ -295,6 +295,7 @@ CREATE TABLE tbl_exchanges (
     resulting_amount_formula  VARCHAR(1000),
     avoided_product           SMALLINT default 0,
     f_default_provider        BIGINT,
+    f_location                BIGINT,
     description               CLOB(64 K),
 
     cost_value                DOUBLE,
@@ -421,21 +422,22 @@ CREATE TABLE tbl_impact_links (
 
 CREATE TABLE tbl_impact_factors (
 
-    id BIGINT NOT NULL,
-    f_impact_category BIGINT,
-    f_flow BIGINT,
+    id BIGINT              NOT NULL,
+    f_impact_category      BIGINT,
+    f_flow                 BIGINT,
     f_flow_property_factor BIGINT,
-    f_unit BIGINT,
-    value DOUBLE,
-    formula VARCHAR(1000),
+    f_unit                 BIGINT,
+    value                  DOUBLE,
+    formula                VARCHAR(1000),
+    f_location             BIGINT,
 
-    distribution_type INTEGER default 0,
-    parameter1_value DOUBLE,
-    parameter1_formula VARCHAR(1000),
-    parameter2_value DOUBLE,
-    parameter2_formula VARCHAR(1000),
-    parameter3_value DOUBLE,
-    parameter3_formula VARCHAR(1000),
+    distribution_type      INTEGER default 0,
+    parameter1_value       DOUBLE,
+    parameter1_formula     VARCHAR(1000),
+    parameter2_value       DOUBLE,
+    parameter2_formula     VARCHAR(1000),
+    parameter3_value       DOUBLE,
+    parameter3_formula     VARCHAR(1000),
 
     PRIMARY KEY (id)
 

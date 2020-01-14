@@ -1,16 +1,16 @@
 package org.openlca.core.database.upgrades;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.nio.file.Files;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.util.Dirs;
+
+import java.nio.file.Files;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class UpgradeChainTest {
 
@@ -42,6 +42,8 @@ public class UpgradeChainTest {
 		u.dropTable("tbl_impact_links");
 		u.createColumn("tbl_impact_categories", "f_impact_method BIGINT");
 		u.dropColumn("tbl_impact_categories", "f_category");
+		u.dropColumn("tbl_exchanges", "f_location");
+		u.dropColumn("tbl_impact_factors", "f_location");
 
 		// roll back Upgrade8
 		u.dropColumn("tbl_process_links", "is_system_link");
@@ -121,6 +123,8 @@ public class UpgradeChainTest {
 		// check Upgrade9
 		assertTrue(u.tableExists("tbl_impact_links"));
 		assertTrue(u.columnExists("tbl_impact_categories", "f_category"));
+		assertTrue(u.columnExists("tbl_exchanges", "f_location"));
+		assertTrue(u.columnExists("tbl_impact_factors", "f_location"));
 
 		// finally, check that we now have the current database version
 		assertEquals(IDatabase.CURRENT_VERSION, db.getVersion());

@@ -30,7 +30,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 	public void clearDb() {
 		Tests.clearDb();
 	}
-	
+
 	@Test
 	public void testParameter() {
 		Parameter p1 = createParameter("p1", "2*2", null, null);
@@ -314,7 +314,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 
 	private Exchange createExchange(String formula, Uncertainty u) {
 		Exchange e = new Exchange();
-		e.amountFormula = formula;
+		e.formula = formula;
 		e.uncertainty = u;
 		return e;
 	}

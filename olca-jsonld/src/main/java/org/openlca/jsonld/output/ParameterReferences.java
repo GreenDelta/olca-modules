@@ -54,7 +54,7 @@ public class ParameterReferences {
 			return;
 		Set<String> names = new HashSet<>();
 		for (Exchange e : p.exchanges) {
-			names.addAll(Formula.getVariables(e.amountFormula));
+			names.addAll(Formula.getVariables(e.formula));
 			names.addAll(Formula.getVariables(e.costFormula));
 			names.addAll(getUncercaintyVariables(e.uncertainty));
 		}

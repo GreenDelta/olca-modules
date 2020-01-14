@@ -125,7 +125,7 @@ class ProcessExchanges {
 			Exchange oExchange) {
 		String formula = ext != null ? ext.getFormula() : null;
 		if (formula != null) {
-			oExchange.amountFormula = formula;
+			oExchange.formula = formula;
 			return;
 		}
 		if (Strings.nullOrEmpty(iExchange.variable))
@@ -135,15 +135,15 @@ class ProcessExchanges {
 		String parameter = iExchange.variable;
 		formula = amount == 1.0 ? parameter
 				: meanAmountStr + " * " + parameter + "";
-		oExchange.amountFormula = formula;
+		oExchange.formula = formula;
 	}
 
 	private void applyConversionFactor(Exchange e, FlowMapEntry entry) {
 		if (entry == null || entry.factor == 1.0)
 			return;
 		e.amount *= entry.factor;
-		if (Strings.notEmpty(e.amountFormula)) {
-			e.amountFormula = "(" + e.amountFormula + ") * "
+		if (Strings.notEmpty(e.formula)) {
+			e.formula = "(" + e.formula + ") * "
 					+ entry.factor;
 		}
 	}

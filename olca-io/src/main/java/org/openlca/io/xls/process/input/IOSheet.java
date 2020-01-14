@@ -80,7 +80,7 @@ class IOSheet {
 		exchange.amount = config.getDouble(sheet, row, 4);
 		String formula = config.getString(sheet, row, 5);
 		if (!Strings.nullOrEmpty(formula)) {
-			exchange.amountFormula = formula;
+			exchange.formula = formula;
 		}
 		String description = config.getString(sheet, row, 6);
 		if (!Strings.nullOrEmpty(description)) {
