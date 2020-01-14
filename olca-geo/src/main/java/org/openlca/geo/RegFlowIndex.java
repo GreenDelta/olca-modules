@@ -12,7 +12,7 @@ import java.util.HashMap;
 /**
  * A flow index that supports regionalization.
  */
-public final class RegionalizedFlowIndex {
+public final class RegFlowIndex {
 
 	private final HashMap<LongPair, Integer> index = new HashMap<>();
 	private final ArrayList<FlowDescriptor> flows = new ArrayList<>();
@@ -22,6 +22,10 @@ public final class RegionalizedFlowIndex {
 			Constants.DEFAULT_LOAD_FACTOR,
 			-1L,        // no entry key
 			(byte) 0);  // no entry value
+
+	public int size() {
+		return index.size();
+	}
 
 	/**
 	 * Returns the flow at the given matrix index.

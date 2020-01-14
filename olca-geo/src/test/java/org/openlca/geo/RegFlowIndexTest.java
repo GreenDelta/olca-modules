@@ -8,13 +8,13 @@ import org.openlca.core.model.descriptors.LocationDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RegionalizedFlowIndexTest {
+public class RegFlowIndexTest {
 
 	private long nextID = 1L;
 
 	@Test
 	public void testIt() {
-		RegionalizedFlowIndex idx = new RegionalizedFlowIndex();
+		RegFlowIndex idx = new RegFlowIndex();
 		List<FlowDescriptor> flows = new ArrayList<>();
 		List<LocationDescriptor> locations = new ArrayList<>();
 		List<Boolean> isInput = new ArrayList<>();
