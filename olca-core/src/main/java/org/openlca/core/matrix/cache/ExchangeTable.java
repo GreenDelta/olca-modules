@@ -73,7 +73,8 @@ public class ExchangeTable {
 				+ /* 14 */ " distribution_type,"
 				+ /* 15 */ " parameter1_value,"
 				+ /* 16 */ " parameter2_value,"
-				+ /* 17 */ " parameter3_value"
+				+ /* 17 */ " parameter3_value,"
+				+ /* 18 */ " f_location"
 				+ " FROM tbl_exchanges";
 	}
 
@@ -83,13 +84,13 @@ public class ExchangeTable {
 		e.processId = owner;
 		e.flowId = r.getLong(3);
 		e.flowType = flowTypes.get(e.flowId);
-		double factor = getConversionFactor(r);
-		e.conversionFactor = factor;
+		e.conversionFactor = getConversionFactor(r);
 		e.amount = r.getDouble(6);
 		e.formula = r.getString(7);
 		e.isInput = r.getBoolean(8);
 		e.isAvoided = r.getBoolean(9);
 		e.defaultProviderId = r.getLong(10);
+		e.locationId = r.getLong(18);
 
 		// costs
 		long currency = r.getLong(13);

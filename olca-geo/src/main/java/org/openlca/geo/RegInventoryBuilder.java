@@ -3,6 +3,8 @@ package org.openlca.geo;
 import java.util.HashSet;
 import java.util.List;
 
+import gnu.trove.map.hash.TLongObjectHashMap;
+import org.openlca.core.database.LocationDao;
 import org.openlca.core.matrix.AllocationIndex;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.InventoryConfig;
@@ -18,6 +20,8 @@ import org.openlca.core.matrix.uncertainties.UMatrix;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.results.SimpleResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +31,7 @@ public class RegInventoryBuilder {
 	private final InventoryConfig conf;
 	private final TechIndex techIndex;
 	private final FlowTable flows;
+	private final TLongObjectHashMap<LocationDescriptor> locations;
 
 	private RegFlowIndex flowIndex;
 	private AllocationIndex allocationIndex;
@@ -41,6 +46,8 @@ public class RegInventoryBuilder {
 		this.conf = conf;
 		this.techIndex = conf.techIndex;
 		this.flows = FlowTable.create(conf.db);
+		this.locations = new LocationDao(conf.db).descriptorMap();
+
 		techBuilder = new MatrixBuilder();
 		enviBuilder = new MatrixBuilder();
 		if (conf.withUncertainties) {
@@ -202,12 +209,16 @@ public class RegInventoryBuilder {
 	}
 
 	private void addIntervention(ProcessProduct provider, CalcExchange e) {
-		int row = flowIndex.of(e.flowId);
+		int row = flowIndex.of(e.flowId, e.locationId);
 		if (row < 0) {
+			FlowDescriptor flow = flows.get(e.flowId);
+			LocationDescriptor loc = locations.get(e.locationId);
+			if (flow == null || loc == null)
+				return;
 			if (e.isInput) {
-				row = flowIndex.putInput(flows.get(e.flowId));
+				row = flowIndex.putInput(flow, loc);
 			} else {
-				row = flowIndex.putOutput(flows.get(e.flowId));
+				row = flowIndex.putOutput(flow, loc);
 			}
 		}
 		add(row, provider, enviBuilder, e);

@@ -28,6 +28,10 @@ public class CalcExchange {
 
 	/** 0 if the exchange has no default provider. */
 	public long defaultProviderId;
+
+	/** 0 if the exchange has no location assigned. */
+	public long locationId;
+
 	public boolean isAvoided;
 
 	public double costValue;

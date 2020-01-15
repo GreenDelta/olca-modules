@@ -58,6 +58,12 @@ public class ImpactBuilder {
 				if (!flowIndex.contains(flowID))
 					return true;
 
+				// skip regionalized characterization
+				// factors
+				long locationID = r.getLong(11);
+				if (locationID > 0)
+					return true;
+
 				CalcImpactFactor f = new CalcImpactFactor();
 				f.isInput = flowIndex.isInput(flowID);
 				f.imactCategoryId = impactID;
@@ -107,7 +113,8 @@ public class ImpactBuilder {
 				+ /* 7 */ " distribution_type,"
 				+ /* 8 */ " parameter1_value,"
 				+ /* 9 */ " parameter2_value,"
-				+ /* 10 */ " parameter3_value"
+				+ /* 10 */ " parameter3_value,"
+				+ /* 11 */ " f_location"
 				+ " FROM tbl_impact_factors";
 	}
 
