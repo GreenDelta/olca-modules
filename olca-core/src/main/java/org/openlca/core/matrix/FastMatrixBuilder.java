@@ -85,7 +85,7 @@ public class FastMatrixBuilder {
 
 		MatrixData data = new MatrixData();
 		data.techIndex = techIndex;
-		data.enviIndex = flowIndex;
+		data.flowIndex = flowIndex;
 		data.techMatrix = techBuilder.finish();
 		data.enviMatrix = enviBuilder.finish();
 		data.costVector = costs;

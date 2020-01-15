@@ -79,7 +79,7 @@ public class ProcessProduct {
 				&& Objects.equals(this.flow, other.flow);
 	}
 
-	boolean equals(long id, long flowId) {
+	public boolean equals(long id, long flowId) {
 		return id == id() && flowId == flowId();
 	}
 

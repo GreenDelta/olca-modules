@@ -102,7 +102,7 @@ public class CsvMatrixExport implements Runnable {
 	private void writeEnviMatrix(MatrixData data, BufferedWriter buffer)
 			throws Exception {
 		TechIndex techIndex = data.techIndex;
-		FlowIndex flowIndex = data.enviIndex;
+		FlowIndex flowIndex = data.flowIndex;
 		int rows = flowIndex.size();
 		int columns = techIndex.size();
 		writeEnviMatrixHeader(buffer, techIndex);

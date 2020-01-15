@@ -103,7 +103,7 @@ public class SystemExport {
 		String name = conf.system.name;
 		int processes = conf.system.processes.size();
 		int products = data.techIndex.size();
-		int flows = data.enviIndex.size();
+		int flows = data.flowIndex.size();
 		String dimensions = flows + "x" + products;
 
 		currentRow = line(sheet, currentRow, "Product system:", name);
@@ -175,7 +175,7 @@ public class SystemExport {
 		String name = conf.system.name;
 		String method = conf.impactMethod.name;
 		int categories = data.impactIndex.size();
-		int factors = data.enviIndex.size();
+		int factors = data.flowIndex.size();
 		String dimensions = factors + "x" + categories;
 
 		row = line(sheet, row, "Product system:", name);
@@ -264,7 +264,7 @@ public class SystemExport {
 
 	private void createElementarySheet(Workbook workbook) {
 		ExcelHeader columnHeader = createProductHeader(data.techIndex);
-		ExcelHeader rowHeader = createFlowHeader(data.enviIndex);
+		ExcelHeader rowHeader = createFlowHeader(data.flowIndex);
 		MatrixExcelExport export = new MatrixExcelExport();
 		export.setColumnHeader(columnHeader);
 		export.setRowHeader(rowHeader);
@@ -289,7 +289,7 @@ public class SystemExport {
 	private void createImpactMethodSheet(Workbook workbook) {
 		ExcelHeader columnHeader = createImpactCategoryHeader(
 				data.impactIndex);
-		ExcelHeader rowHeader = createFlowHeader(data.enviIndex);
+		ExcelHeader rowHeader = createFlowHeader(data.flowIndex);
 		MatrixExcelExport export = new MatrixExcelExport();
 		export.setColumnHeader(columnHeader);
 		export.setRowHeader(rowHeader);

@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A `Simulator` runs Monte-Carlo simulations with a given calculation setup.
- * 
+ *
  * When running the Monte Carlo simulation on a product system $s_r$ that has a
  * sub-system (which again can have sub-systems etc.) we need to first run the
  * number generation and calculation for that sub-system and integrate these
@@ -126,7 +126,7 @@ public class Simulator {
 	}
 
 	public FlowIndex getEnviIndex() {
-		return root.data.enviIndex;
+		return root.data.flowIndex;
 	}
 
 	public DIndex<ImpactCategoryDescriptor> getImpactIndex() {
@@ -221,7 +221,7 @@ public class Simulator {
 					continue;
 				sub.lastResult.flowIndex.each((subIdx, flow) -> {
 					double val = sub.lastResult.totalFlowResults[subIdx];
-					int row = node.data.enviIndex.of(flow);
+					int row = node.data.flowIndex.of(flow);
 					if (row >= 0) {
 						node.data.enviMatrix.set(row, col, val);
 					}
@@ -347,7 +347,7 @@ public class Simulator {
 				// need a row in the respective host-systems)
 				SimpleResult r = new SimpleResult();
 				r.techIndex = node.data.techIndex;
-				r.flowIndex = node.data.enviIndex;
+				r.flowIndex = node.data.flowIndex;
 				r.totalFlowResults = new double[r.flowIndex.size()];
 				node.lastResult = r;
 				subResults.put(node.product, r);

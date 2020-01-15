@@ -25,7 +25,7 @@ public class SimulationResult extends BaseResult {
 
 	public SimulationResult(MatrixData data) {
 		this.techIndex = data.techIndex;
-		this.flowIndex = data.enviIndex;
+		this.flowIndex = data.flowIndex;
 		this.impactIndex = data.impactIndex;
 	}
 

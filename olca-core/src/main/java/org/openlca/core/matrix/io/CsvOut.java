@@ -57,7 +57,7 @@ public final class CsvOut {
 			folder.mkdirs();
 		}
 		write(data.techIndex, db, new File(folder, "indexA.csv"));
-		write(data.enviIndex, db, new File(folder, "indexB.csv"));
+		write(data.flowIndex, db, new File(folder, "indexB.csv"));
 		write(data.impactIndex, new File(folder, "indexC.csv"));
 
 		write(data.techMatrix, new File(folder, "A.csv"));

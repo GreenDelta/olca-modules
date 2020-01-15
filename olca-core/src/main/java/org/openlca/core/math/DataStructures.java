@@ -119,7 +119,7 @@ public class DataStructures {
 		conf.withUncertainties = setup.type == CalculationType.MONTE_CARLO_SIMULATION;
 		InventoryBuilder builder = new InventoryBuilder(conf);
 		MatrixData data = builder.build();
-		
+
 		// add the LCIA matrix structures
 		if (setup.impactMethod != null) {
 			DIndex<ImpactCategoryDescriptor> impactIdx = new DIndex<>();
@@ -129,7 +129,7 @@ public class DataStructures {
 				ImpactBuilder ib = new ImpactBuilder(db);
 				ib.withUncertainties(conf.withUncertainties);
 				ImpactData idata = ib.build(
-						data.enviIndex, impactIdx, interpreter);
+						data.flowIndex, impactIdx, interpreter);
 				data.impactMatrix = idata.impactMatrix;
 				data.impactIndex = impactIdx;
 				data.impactUncertainties = idata.impactUncertainties;

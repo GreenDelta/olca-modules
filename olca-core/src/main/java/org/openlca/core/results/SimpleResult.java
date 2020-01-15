@@ -7,6 +7,7 @@ import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.LocationDescriptor;
 
 /**
  * The simplest kind of result of a calculated product system. This result type
@@ -18,9 +19,9 @@ public class SimpleResult extends BaseResult {
 	/**
 	 * The scaling vector $\mathbf{s}$ which is calculated by solving the
 	 * equation
-	 * 
+	 *
 	 * $$\mathbf{A} \ \mathbf{s} = \mathbf{f}$$
-	 * 
+	 *
 	 * where $\mathbf{A}$ is the technology matrix and $\mathbf{f}$ the final
 	 * demand vector of the product system.
 	 */
@@ -34,16 +35,16 @@ public class SimpleResult extends BaseResult {
 	 * $\mathbf{A}$ and the total requirements can be calculated by the
 	 * following equation where $\mathbf{s}$ is the scaling vector ($\odot$
 	 * denotes element-wise multiplication):
-	 * 
+	 *
 	 * $$\mathbf{t} = \text{diag}(\mathbf{A}) \odot \mathbf{s}$$
 	 */
 	public double[] totalRequirements;
 
 	/**
 	 * The inventory result $\mathbf{g}$ of a product system:
-	 * 
+	 *
 	 * $$\mathbf{g} = \mathbf{B} \ \mathbf{s}$$
-	 * 
+	 *
 	 * Where $\mathbf{B}$ is the intervention matrix and $\mathbf{s}$ the
 	 * scaling vector. Note that inputs have negative values in this vector.
 	 */
@@ -51,9 +52,9 @@ public class SimpleResult extends BaseResult {
 
 	/**
 	 * The LCIA result $\mathbf{h}$ of a product system:
-	 * 
+	 *
 	 * $$\mathbf{h} = \mathbf{C} \ \mathbf{g}$$
-	 * 
+	 *
 	 * Where $\mathbf{C}$ is a flow * LCIA category matrix with the
 	 * characterization factors and $\mathbf{g}$ the inventory result.
 	 */
@@ -61,9 +62,9 @@ public class SimpleResult extends BaseResult {
 
 	/**
 	 * The total net-costs $k_t$ of the LCC result:
-	 * 
+	 *
 	 * $$k_t = \mathbf{k} \cdot \mathbf{s}$$
-	 * 
+	 *
 	 * Where $\mathbf{k}_j$ are the net-costs of process $j$ and $\mathbf{s}_j$
 	 * is the scaling factor of that process.
 	 */
@@ -98,6 +99,16 @@ public class SimpleResult extends BaseResult {
 	 */
 	public double getTotalFlowResult(FlowDescriptor flow) {
 		int idx = flowIndex.of(flow);
+		if (idx < 0 || idx >= totalFlowResults.length)
+			return 0;
+		return adopt(flow, totalFlowResults[idx]);
+	}
+
+	public double getTotalFlowResult(
+			FlowDescriptor flow, LocationDescriptor location) {
+		if (regFlowIndex == null)
+			return getTotalFlowResult(flow);
+		int idx = regFlowIndex.of(flow, location);
 		if (idx < 0 || idx >= totalFlowResults.length)
 			return 0;
 		return adopt(flow, totalFlowResults[idx]);

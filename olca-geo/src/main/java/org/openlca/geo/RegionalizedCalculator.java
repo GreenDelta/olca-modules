@@ -54,10 +54,10 @@ public class RegionalizedCalculator {
 					db, setup, m.techIndex);
 
 			ImpactTable impactTable = ImpactTable.build(cache,
-					setup.impactMethod.id, m.enviIndex);
+					setup.impactMethod.id, m.flowIndex);
 
 			FullResult r = new FullResult();
-			r.flowIndex = m.enviIndex;
+			r.flowIndex = m.flowIndex;
 			r.techIndex = m.techIndex;
 			r.impactIndex = impactTable.impactIndex;
 

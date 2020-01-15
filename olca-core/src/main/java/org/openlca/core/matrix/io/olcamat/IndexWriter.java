@@ -43,7 +43,7 @@ class IndexWriter {
 	}
 
 	private void writeEnviIndex() throws Exception {
-		FlowIndex enviIndex = data.enviIndex;
+		FlowIndex enviIndex = data.flowIndex;
 		List<String> rows = new ArrayList<>(enviIndex.size() + 1);
 		rows.add(Csv.enviIndexHeader());
 		for (int i = 0; i < enviIndex.size(); i++) {

@@ -21,7 +21,14 @@ public class MatrixData {
 	 * The matrix index of the environmental/elementary flows (i.e. the row
 	 * index of the intervention matrix; the column index of the impact matrix).
 	 */
-	public FlowIndex enviIndex;
+	public FlowIndex flowIndex;
+
+	/**
+	 * A regionalized flow index in case of a regionalized calculation. The
+	 * flow index must be null if a regionalized flow index is set and the
+	 * other way around.
+	 */
+	public RegFlowIndex regFlowIndex;
 
 	/**
 	 * The matrix index of the LCIA categories (i.e. the row index of the impact

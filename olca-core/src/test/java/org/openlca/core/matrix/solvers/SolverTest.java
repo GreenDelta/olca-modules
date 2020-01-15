@@ -65,7 +65,7 @@ public class SolverTest {
 		enviIndex.putInput(flow(2));
 		enviIndex.putOutput(flow(3));
 		enviIndex.putOutput(flow(4));
-		data.enviIndex = enviIndex;
+		data.flowIndex = enviIndex;
 
 		IMatrix techMatrix = solver.matrix(1, 1);
 		techMatrix.set(0, 0, 1);

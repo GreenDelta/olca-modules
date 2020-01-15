@@ -1,5 +1,8 @@
 package org.openlca.core.matrix;
 
+import java.util.HashSet;
+import java.util.List;
+
 import org.openlca.core.matrix.cache.ExchangeTable;
 import org.openlca.core.matrix.cache.FlowTable;
 import org.openlca.core.matrix.format.MatrixBuilder;
@@ -10,9 +13,6 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.results.SimpleResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashSet;
-import java.util.List;
 
 public class InventoryBuilder {
 
@@ -81,7 +81,7 @@ public class InventoryBuilder {
 		// return the matrix data
 		MatrixData data = new MatrixData();
 		data.techIndex = techIndex;
-		data.enviIndex = flowIndex;
+		data.flowIndex = flowIndex;
 		data.techMatrix = techBuilder.finish();
 		data.enviMatrix = enviBuilder.finish();
 		data.techUncertainties = techUncerts;

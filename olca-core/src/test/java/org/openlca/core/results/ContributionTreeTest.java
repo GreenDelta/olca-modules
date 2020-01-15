@@ -29,7 +29,7 @@ public class ContributionTreeTest {
 		FlowDescriptor outFlow = new FlowDescriptor();
 		outFlow.id = (long) 4;
 		enviIndex.putOutput(outFlow);
-		data.enviIndex = enviIndex;
+		data.flowIndex = enviIndex;
 
 		data.techMatrix = Tests.getDefaultSolver().matrix(3, 3);
 		data.techMatrix.setValues(new double[][] {
