@@ -7,10 +7,12 @@ import java.util.stream.Collectors;
 import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.matrix.RegFlowIndex;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.LocationDescriptor;
 
 /**
  * `BaseResult` is a common (abstract) super class of different result
@@ -27,7 +29,7 @@ public abstract class BaseResult implements IResult {
 	 * systems are handled like processes and are also mapped as pair with their
 	 * quantitative reference flow to that index (and also their processes
 	 * etc.).
-	 * 
+	 * <p>
 	 * $$\mathit{Idx}_A: \mathit{P} \mapsto [0 \dots n-1]$$
 	 */
 	public TechIndex techIndex;
@@ -36,7 +38,7 @@ public abstract class BaseResult implements IResult {
 	 * The row index $\mathit{Idx}_B$ of the intervention matrix $\mathbf{B}$.
 	 * It maps the (elementary) flows $\mathit{F}$ of the processes in the
 	 * product system to the $k$ rows of $\mathbf{B}$.
-	 * 
+	 * <p>
 	 * $$\mathit{Idx}_B: \mathit{F} \mapsto [0 \dots k-1]$$
 	 */
 	public FlowIndex flowIndex;
@@ -45,10 +47,17 @@ public abstract class BaseResult implements IResult {
 	 * The row index $\mathit{Idx}_C$ of the matrix with the characterization
 	 * factors $\mathbf{C}$. It maps the LCIA categories $\mathit{C}$ to the $l$
 	 * rows of $\mathbf{C}$.
-	 * 
+	 * <p>
 	 * $$\mathit{Idx}_C: \mathit{C} \mapsto [0 \dots l-1]$$
 	 */
 	public DIndex<ImpactCategoryDescriptor> impactIndex;
+
+	/**
+	 * A regionalized flow index in case of a regionalized calculation. If the
+	 * regionalized flow index is not null the flow index must be null and the
+	 * other way around.
+	 */
+	public RegFlowIndex regFlowIndex;
 
 	@Override
 	public boolean hasImpactResults() {
@@ -57,21 +66,26 @@ public abstract class BaseResult implements IResult {
 
 	@Override
 	public boolean hasFlowResults() {
-		return flowIndex != null && !flowIndex.isEmpty();
+		if (flowIndex != null) {
+			return !flowIndex.isEmpty();
+		}
+		return regFlowIndex != null && !regFlowIndex.isEmpty();
 	}
 
 	@Override
 	public boolean isInput(FlowDescriptor flow) {
-		if (flowIndex == null)
-			return false;
-		return flowIndex.isInput(flow);
+		if (flowIndex != null)
+			return flowIndex.isInput(flow);
+		return regFlowIndex != null && regFlowIndex.isInput(flow);
 	}
 
 	@Override
 	public Set<FlowDescriptor> getFlows() {
-		if (flowIndex == null)
-			return Collections.emptySet();
-		return flowIndex.content();
+		if (flowIndex != null)
+			return flowIndex.content();
+		if (regFlowIndex != null)
+			return regFlowIndex.getFlows();
+		return Collections.emptySet();
 	}
 
 	@Override
@@ -79,6 +93,20 @@ public abstract class BaseResult implements IResult {
 		if (impactIndex == null)
 			return Collections.emptySet();
 		return impactIndex.content();
+	}
+
+	/**
+	 * If this result is regionalized this method returns the descriptors of
+	 * the different locations in this result.
+	 */
+	public Set<LocationDescriptor> getLocations() {
+		if (regFlowIndex != null)
+			return regFlowIndex.getLocations();
+		return Collections.emptySet();
+	}
+
+	public boolean isRegionalized() {
+		return regFlowIndex != null;
 	}
 
 	/**
@@ -100,7 +128,9 @@ public abstract class BaseResult implements IResult {
 				.collect(Collectors.toSet());
 	}
 
-	/** Switches the sign for input-flows. */
+	/**
+	 * Switches the sign for input-flows.
+	 */
 	double adopt(FlowDescriptor flow, double value) {
 		if (value == 0)
 			return 0; // avoid -0 in the results

@@ -4,6 +4,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.CalcImpactFactor;
 import org.openlca.core.matrix.DIndex;
+import org.openlca.core.matrix.RegFlowIndex;
 import org.openlca.core.matrix.cache.ConversionTable;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.format.MatrixBuilder;

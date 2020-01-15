@@ -1,13 +1,14 @@
-package org.openlca.geo;
-
-import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TLongByteHashMap;
-import org.openlca.core.matrix.LongPair;
-import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.LocationDescriptor;
+package org.openlca.core.matrix;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TLongByteHashMap;
+import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.LocationDescriptor;
 
 /**
  * A flow index that supports regionalization.
@@ -25,6 +26,10 @@ public final class RegFlowIndex {
 
 	public int size() {
 		return index.size();
+	}
+
+	public boolean isEmpty() {
+		return index.isEmpty();
 	}
 
 	/**
@@ -89,7 +94,7 @@ public final class RegFlowIndex {
 	}
 
 	private int put(FlowDescriptor flow, LocationDescriptor location,
-	                boolean isInput) {
+					boolean isInput) {
 		if (flow == null || location == null)
 			return -1;
 		LongPair p = LongPair.of(flow.id, location.id);
@@ -115,4 +120,25 @@ public final class RegFlowIndex {
 	public boolean isInput(long flowId) {
 		return input.get(flowId) == (byte) 1;
 	}
+
+	public void each(Consumer fn) {
+		for (int i = 0; i < flows.size(); i++) {
+			fn.accept(i, flows.get(i), locations.get(i));
+		}
+	}
+
+	public Set<FlowDescriptor> getFlows() {
+		return new HashSet<>(flows);
+	}
+
+	public Set<LocationDescriptor> getLocations() {
+		return new HashSet<>(locations);
+	}
+
+	@FunctionalInterface
+	public interface Consumer {
+		void accept(int index, FlowDescriptor flow,
+					LocationDescriptor location);
+	}
+
 }

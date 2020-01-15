@@ -1,12 +1,12 @@
-package org.openlca.geo;
+package org.openlca.core.matrix;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class RegFlowIndexTest {
 
