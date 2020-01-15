@@ -274,11 +274,8 @@ public class Simulator {
 				if (!systems.contains(provider))
 					return true;
 				long system = r.getLong(1);
-				List<LongPair> rels = allRels.get(system);
-				if (rels == null) {
-					rels = new ArrayList<>();
-					allRels.put(system, rels);
-				}
+				List<LongPair> rels = allRels.computeIfAbsent(
+						system, k -> new ArrayList<>());
 				rels.add(LongPair.of(provider, system));
 				return true;
 			});
@@ -318,7 +315,7 @@ public class Simulator {
 		Map<ProcessProduct, SimpleResult> subResults = new HashMap<>();
 		for (long system : order) {
 
-			CalculationSetup _setup = null;
+			CalculationSetup _setup;
 			if (system == rootID) {
 				_setup = setup;
 			} else {
@@ -374,7 +371,7 @@ public class Simulator {
 	 * A node contains the data for the simulation of a single product (sub-)
 	 * system.
 	 */
-	private class Node {
+	private static class Node {
 		final long systemID;
 		final ProcessProduct product;
 		final MatrixData data;
@@ -389,7 +386,7 @@ public class Simulator {
 			systemID = setup.productSystem.id;
 			product = ProcessProduct.of(setup.productSystem);
 			data = DataStructures.matrixData(
-					setup, solver, db, subResults);
+					setup, db, subResults);
 
 			// parameters
 			HashSet<Long> paramContexts = new HashSet<>();

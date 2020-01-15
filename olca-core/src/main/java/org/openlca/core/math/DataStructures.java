@@ -3,6 +3,7 @@ package org.openlca.core.math;
 import java.util.HashSet;
 import java.util.Map;
 
+import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
@@ -18,7 +19,6 @@ import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
-import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessLink;
@@ -30,8 +30,6 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.expressions.FormulaInterpreter;
-
-import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
  * Provides helper methods for creating matrix-like data structures that can be
@@ -102,7 +100,6 @@ public class DataStructures {
 	 */
 	public static MatrixData matrixData(
 			CalculationSetup setup,
-			IMatrixSolver solver,
 			IDatabase db,
 			Map<ProcessProduct, SimpleResult> subResults) {
 
@@ -124,7 +121,7 @@ public class DataStructures {
 		if (setup.impactMethod != null) {
 			DIndex<ImpactCategoryDescriptor> impactIdx = new DIndex<>();
 			new ImpactMethodDao(db).getCategoryDescriptors(
-					setup.impactMethod.id).forEach(d -> impactIdx.put(d));
+					setup.impactMethod.id).forEach(impactIdx::put);
 			if (!impactIdx.isEmpty()) {
 				ImpactBuilder ib = new ImpactBuilder(db);
 				ib.withUncertainties(conf.withUncertainties);
