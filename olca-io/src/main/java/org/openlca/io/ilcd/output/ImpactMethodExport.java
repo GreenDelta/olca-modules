@@ -1,21 +1,19 @@
 package org.openlca.io.ilcd.output;
 
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Unit;
 import org.openlca.ilcd.commons.LangString;
-import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.methods.DataSetInfo;
 import org.openlca.ilcd.methods.Factor;
 import org.openlca.ilcd.methods.FactorList;
 import org.openlca.ilcd.methods.LCIAMethod;
 import org.openlca.ilcd.methods.MethodInfo;
+
+import javax.xml.namespace.QName;
+import java.util.Map;
 
 public class ImpactMethodExport {
 
@@ -67,14 +65,16 @@ public class ImpactMethodExport {
 	private void addFactors(ImpactCategory impact, LCIAMethod lciaMethod) {
 		FactorList list = new FactorList();
 		lciaMethod.characterisationFactors = list;
-		for (ImpactFactor olcaFactor : impact.impactFactors) {
-			Factor ilcdFactor = new Factor();
-			list.factors.add(ilcdFactor);
+		for (ImpactFactor oFactor : impact.impactFactors) {
+			Factor iFactor = new Factor();
+			list.factors.add(iFactor);
 			// TODO: uncertainty values + formulas
-			ilcdFactor.meanValue = getRefAmount(olcaFactor);
-			Ref ref = ExportDispatch.forwardExport(
-					olcaFactor.flow, config);
-			ilcdFactor.flow = ref;
+			iFactor.meanValue = getRefAmount(oFactor);
+			iFactor.flow = ExportDispatch.forwardExport(
+					oFactor.flow, config);
+			if (oFactor.location != null) {
+				iFactor.location = oFactor.location.code;
+			}
 		}
 	}
 

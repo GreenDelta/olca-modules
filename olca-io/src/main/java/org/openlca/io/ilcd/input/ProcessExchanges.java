@@ -84,14 +84,21 @@ class ProcessExchanges {
 							process.refId, e.internalId, provider);
 				}
 			}
+
+			// uncertainty; formula; location
 			new UncertaintyConverter().map(iExchange, e);
 			mapFormula(iExchange, ext, e);
 			if (flow.isMapped()) {
 				applyConversionFactor(e, flow.mapEntry);
 			}
+			if (Strings.notEmpty(iExchange.location)) {
+				e.location = Locations.getOrCreate(iExchange.location, config);
+			}
 
 			mappedPairs.add(new MappedPair(e, iExchange));
-		}
+
+		} // for each exchange
+
 		process.lastInternalId = maxID;
 		mapAllocation(process);
 		RefFlow.map(iProcess, process, mappedPairs.stream().collect(

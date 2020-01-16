@@ -21,6 +21,7 @@ import org.openlca.ilcd.methods.Publication;
 import org.openlca.ilcd.methods.QuantitativeReference;
 import org.openlca.ilcd.util.Methods;
 import org.openlca.io.maps.FlowMapEntry;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -218,7 +219,7 @@ public class MethodImport {
 					// apply the conversion factor from the mapping
 					f.value /= e.factor;
 				}
-				if (factor.location != null) {
+				if (Strings.notEmpty(factor.location)) {
 					f.location = Locations.getOrCreate(
 							factor.location, config);
 				}
