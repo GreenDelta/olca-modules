@@ -127,10 +127,8 @@ class ExchangeFlow {
 		UnitGroup group = property.unitGroup;
 		if (group == null)
 			return false;
-		if ((unit == null || group.getUnit(unit.name) == null)
-				&& group.referenceUnit == null)
-			return false;
-		return true;
+		return (unit != null && group.getUnit(unit.name) != null)
+				|| group.referenceUnit != null;
 	}
 
 	@Override

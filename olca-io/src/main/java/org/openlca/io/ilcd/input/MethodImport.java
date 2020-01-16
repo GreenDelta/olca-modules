@@ -1,11 +1,5 @@
 package org.openlca.io.ilcd.input;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ImpactMethodDao;
@@ -29,6 +23,12 @@ import org.openlca.ilcd.util.Methods;
 import org.openlca.io.maps.FlowMapEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Imports an ILCD LCIA data set. Note that the ILCD LCIA data sets contain
@@ -120,6 +120,7 @@ public class MethodImport {
 		// add LCIA factors and save it
 		addFactors(iMethod, impact);
 		ImpactCategoryDao dao = new ImpactCategoryDao(config.db);
+
 		return dao.insert(impact);
 	}
 
@@ -217,6 +218,11 @@ public class MethodImport {
 					// apply the conversion factor from the mapping
 					f.value /= e.factor;
 				}
+				if (factor.location != null) {
+					f.location = Locations.getOrCreate(
+							factor.location, config);
+				}
+
 				category.impactFactors.add(f);
 			} catch (Exception e) {
 				log.trace("Failed to add factor " + factor, e);

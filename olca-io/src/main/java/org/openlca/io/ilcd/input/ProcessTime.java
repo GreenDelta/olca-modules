@@ -1,11 +1,11 @@
 package org.openlca.io.ilcd.input;
 
-import java.util.Calendar;
-import java.util.Date;
-
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.util.TimeExtension;
+
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Converts an ILCD process time to an openLCA process time.
@@ -51,10 +51,9 @@ class ProcessTime {
 	private Date date(Integer bigInt) {
 		if (bigInt == null)
 			return null;
-		int year = bigInt.intValue();
 		Calendar calendar = Calendar.getInstance();
 		calendar.clear();
-		calendar.set(Calendar.YEAR, year);
+		calendar.set(Calendar.YEAR, bigInt);
 		return calendar.getTime();
 	}
 

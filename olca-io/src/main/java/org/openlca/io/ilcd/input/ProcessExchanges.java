@@ -1,14 +1,9 @@
 package org.openlca.io.ilcd.input;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.UnitDao;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.commons.LangString;
@@ -20,16 +15,20 @@ import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Maps the inputs and outputs of an ILCD process to an openLCA process.
  */
 class ProcessExchanges {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private ImportConfig config;
-	private List<MappedPair> mappedPairs = new ArrayList<>();
 
-	private ProviderLinker providerLinker = new ProviderLinker();
+	private final ImportConfig config;
+	private final ProviderLinker providerLinker;
+	private List<MappedPair> mappedPairs = new ArrayList<>();
 
 	ProcessExchanges(ImportConfig config, ProviderLinker providerLinker) {
 		this.config = config;
@@ -102,13 +101,10 @@ class ProcessExchanges {
 	}
 
 	private Exchange init(org.openlca.ilcd.processes.Exchange iExchange,
-			ExchangeFlow flow, Process process) {
-		Exchange e = null;
-		if (flow.flowProperty != null && flow.unit != null) {
-			e = process.exchange(flow.flow, flow.flowProperty, flow.unit);
-		} else {
-			e = process.exchange(flow.flow);
-		}
+	                      ExchangeFlow flow, Process process) {
+		Exchange e = flow.flowProperty != null && flow.unit != null
+				? process.exchange(flow.flow, flow.flowProperty, flow.unit)
+				: process.exchange(flow.flow);
 		e.isInput = iExchange.direction == ExchangeDirection.INPUT;
 		e.description = LangString.getFirst(iExchange.comment, config.langs);
 		// set the default value for the exchange which may is overwritten
@@ -155,9 +151,7 @@ class ProcessExchanges {
 			UnitDao unitDao = new UnitDao(config.db);
 			flow.unit = unitDao.getForRefId(ext.getUnitId());
 			FlowPropertyDao propDao = new FlowPropertyDao(config.db);
-			FlowProperty property = propDao
-					.getForRefId(ext.getPropertyId());
-			flow.flowProperty = property;
+			flow.flowProperty = propDao.getForRefId(ext.getPropertyId());
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(this.getClass());
 			log.error("Cannot get flow property or unit from database", e);
@@ -180,7 +174,7 @@ class ProcessExchanges {
 	}
 
 	private void createAllocationFactor(MappedPair p, long productId,
-			double fraction, Process process) {
+	                                    double fraction, Process process) {
 		Exchange oExchange = p.oExchange;
 		if (oExchange.flow == null)
 			return;
@@ -206,12 +200,12 @@ class ProcessExchanges {
 		return null;
 	}
 
-	private class MappedPair {
+	private static class MappedPair {
 		Exchange oExchange;
 		org.openlca.ilcd.processes.Exchange iExchange;
 
 		MappedPair(Exchange oExchange,
-				org.openlca.ilcd.processes.Exchange iExchange) {
+		           org.openlca.ilcd.processes.Exchange iExchange) {
 			this.oExchange = oExchange;
 			this.iExchange = iExchange;
 		}

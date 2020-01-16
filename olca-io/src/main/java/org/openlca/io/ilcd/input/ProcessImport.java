@@ -1,8 +1,5 @@
 package org.openlca.io.ilcd.input;
 
-import java.util.Date;
-import java.util.List;
-
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.DQSystemDao;
 import org.openlca.core.database.Daos;
@@ -12,7 +9,6 @@ import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
@@ -35,6 +31,9 @@ import org.openlca.util.DQSystems;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Date;
+import java.util.List;
 
 public class ProcessImport {
 
@@ -94,25 +93,20 @@ public class ProcessImport {
 
 	private org.openlca.ilcd.processes.Process tryGetProcess(String processId)
 			throws ImportException {
-		try {
-			org.openlca.ilcd.processes.Process iProcess = config.store.get(
-					org.openlca.ilcd.processes.Process.class, processId);
-			if (iProcess == null) {
-				throw new ImportException("No ILCD process for ID " + processId
-						+ " found");
-			}
-			return iProcess;
-		} catch (Exception e) {
-			throw new ImportException(e.getMessage(), e);
+		org.openlca.ilcd.processes.Process iProcess = config.store.get(
+				org.openlca.ilcd.processes.Process.class, processId);
+		if (iProcess == null) {
+			throw new ImportException(
+					"No ILCD process for ID " + processId + " found");
 		}
+		return iProcess;
 	}
 
-	private void createAndMapContent() throws ImportException {
+	private void createAndMapContent() {
 		process.refId = ilcdProcess.getId();
 		process.name = Strings.cut(ilcdProcess.getName(), 2024);
 		process.description = ilcdProcess.getComment();
-		ProcessDocumentation doc = mapDocumentation();
-		process.documentation = doc;
+		process.documentation = mapDocumentation();
 		ProcessParameterConversion paramConv = new ProcessParameterConversion(
 				process, config);
 		paramConv.run(ilcdProcess);
@@ -126,10 +120,9 @@ public class ProcessImport {
 		}
 	}
 
-	private ProcessDocumentation mapDocumentation() throws ImportException {
+	private ProcessDocumentation mapDocumentation() {
 		ProcessDocumentation doc = new ProcessDocumentation();
-		ProcessTime processTime = new ProcessTime(ilcdProcess.getTime(),
-				config);
+		ProcessTime processTime = new ProcessTime(ilcdProcess.getTime(), config);
 		processTime.map(doc);
 		mapGeography(doc);
 		mapTechnology(doc);
@@ -144,17 +137,16 @@ public class ProcessImport {
 		return doc;
 	}
 
-	private void mapGeography(ProcessDocumentation doc) throws ImportException {
+	private void mapGeography(ProcessDocumentation doc) {
 		Geography iGeography = ilcdProcess.getGeography();
 		if (iGeography == null || iGeography.location == null)
 			return;
-		doc.geography = LangString.getFirst(iGeography.location.description,
-				config.langs);
+		doc.geography = LangString.getFirst(
+				iGeography.location.description, config.langs);
 		if (iGeography.location.code == null)
 			return;
 		String code = iGeography.location.code;
-		Location location = Locations.getOrCreate(code, config);
-		process.location = location;
+		process.location = Locations.getOrCreate(code, config);
 	}
 
 	private void mapTechnology(ProcessDocumentation doc) {
@@ -204,21 +196,17 @@ public class ProcessImport {
 		if (iEntry.timeStamp != null) {
 			Date tStamp = iEntry.timeStamp.toGregorianCalendar().getTime();
 			doc.creationDate = tStamp;
-			if (tStamp != null)
-				process.lastChange = tStamp.getTime();
+			process.lastChange = tStamp.getTime();
 		}
 		if (iEntry.documentor != null) {
-			Actor documentor = fetchActor(
-					iEntry.documentor);
-			doc.dataDocumentor = documentor;
+			doc.dataDocumentor = fetchActor(iEntry.documentor);
 		}
 	}
 
 	private void mapDataGenerator(ProcessDocumentation doc) {
 		if (ilcdProcess.getDataGenerator() != null) {
-			List<Ref> refs = ilcdProcess
-					.getDataGenerator().contacts;
-			if (refs != null && !refs.isEmpty()) {
+			List<Ref> refs = ilcdProcess.getDataGenerator().contacts;
+			if (!refs.isEmpty()) {
 				Ref generatorRef = refs.get(0);
 				doc.dataGenerator = fetchActor(generatorRef);
 			}
@@ -229,35 +217,29 @@ public class ProcessImport {
 		if (ilcdProcess.getCommissionerAndGoal() != null) {
 			CommissionerAndGoal comAndGoal = ilcdProcess
 					.getCommissionerAndGoal();
-			String intendedApp = LangString.getFirst(
+			doc.intendedApplication = LangString.getFirst(
 					comAndGoal.intendedApplications, config.langs);
-			doc.intendedApplication = intendedApp;
-			String project = LangString.getFirst(comAndGoal.project,
-					config.langs);
-			doc.project = project;
+			doc.project = LangString.getFirst(
+					comAndGoal.project, config.langs);
 		}
 	}
 
 	private void mapLciMethod(ProcessDocumentation doc) {
 		if (ilcdProcess.getProcessType() != null) {
 			switch (ilcdProcess.getProcessType()) {
-			case UNIT_PROCESS_BLACK_BOX:
-				process.processType = ProcessType.UNIT_PROCESS;
-				break;
-			case UNIT_PROCESS:
-				process.processType = ProcessType.UNIT_PROCESS;
-				break;
-			default:
-				process.processType = ProcessType.LCI_RESULT;
-				break;
+				case UNIT_PROCESS_BLACK_BOX:
+				case UNIT_PROCESS:
+					process.processType = ProcessType.UNIT_PROCESS;
+					break;
+				default:
+					process.processType = ProcessType.LCI_RESULT;
+					break;
 			}
 		}
 		Method iMethod = ilcdProcess.getLciMethod();
 		if (iMethod != null) {
-			String lciPrinciple = LangString.getFirst(
-					iMethod.principleComment,
-					config.langs);
-			doc.inventoryMethod = lciPrinciple;
+			doc.inventoryMethod = LangString.getFirst(
+					iMethod.principleComment, config.langs);
 			doc.modelingConstants = LangString.getFirst(
 					iMethod.constants, config.langs);
 			process.defaultAllocationMethod = getAllocation(iMethod);
@@ -266,18 +248,18 @@ public class ProcessImport {
 
 	private AllocationMethod getAllocation(Method iMethod) {
 		List<ModellingApproach> approaches = iMethod.approaches;
-		if (approaches == null || approaches.isEmpty())
+		if (approaches.isEmpty())
 			return null;
 		for (ModellingApproach app : approaches) {
 			switch (app) {
-			case ALLOCATION_OTHER_EXPLICIT_ASSIGNMENT:
-				return AllocationMethod.CAUSAL;
-			case ALLOCATION_MARKET_VALUE:
-				return AllocationMethod.ECONOMIC;
-			case ALLOCATION_PHYSICAL_CAUSALITY:
-				return AllocationMethod.PHYSICAL;
-			default:
-				continue;
+				case ALLOCATION_OTHER_EXPLICIT_ASSIGNMENT:
+					return AllocationMethod.CAUSAL;
+				case ALLOCATION_MARKET_VALUE:
+					return AllocationMethod.ECONOMIC;
+				case ALLOCATION_PHYSICAL_CAUSALITY:
+					return AllocationMethod.PHYSICAL;
+				default:
+					break;
 			}
 		}
 		return null;
