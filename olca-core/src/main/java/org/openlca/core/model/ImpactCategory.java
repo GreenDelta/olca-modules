@@ -73,9 +73,26 @@ public class ImpactCategory extends CategorizedEntity {
 	}
 
 	/**
+	 * Adds a new characterization factor for the given flow initialized with a
+	 * value of 1.0. The unit and flow property are initialized with the
+	 * respective reference values of the flow.
+	 */
+	public ImpactFactor addFactor(Flow flow) {
+		ImpactFactor f = new ImpactFactor();
+		impactFactors.add(f);
+		f.value = 1.0;
+		if (flow == null)
+			return f;
+		f.flow = flow;
+		f.flowPropertyFactor = flow.getReferenceFactor();
+		f.unit = flow.getReferenceUnit();
+		return f;
+	}
+
+	/**
 	 * See the field ImpactMethod.parameterMean for more information.
 	 */
-	public static enum ParameterMean {
+	public enum ParameterMean {
 
 		ARITHMETIC_MEAN,
 

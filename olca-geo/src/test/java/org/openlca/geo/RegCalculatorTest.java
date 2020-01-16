@@ -1,14 +1,31 @@
 package org.openlca.geo;
 
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactCategoryDao;
+import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.LocationDao;
+import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.UnitGroupDao;
+import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.math.CalculationType;
+import org.openlca.core.matrix.solvers.JavaSolver;
+import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactFactor;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.Process;
+import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.results.SimpleResult;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +33,60 @@ import java.util.UUID;
 public class RegCalculatorTest {
 
 	private IDatabase db = Tests.getDb();
+
+	@After
+	public void tearDown() {
+		Tests.clearDb();
+	}
+
+
+	@Test
+	public void testRegionalizedCalculation() {
+
+		Flow nox = flow("NOx", "mg");
+		Location loc1 = location("L1");
+		Location loc2 = location("L2");
+
+		// create the process
+		Process p = new Process();
+		p.name = "transport, bus";
+		Exchange refFlow = p.exchange(flow("transport, bus", "p*km"));
+		p.quantitativeReference = refFlow;
+		Exchange e1 = p.exchange(nox);
+		e1.amount = 5;
+		e1.location = loc1;
+		Exchange e2 = p.exchange(nox);
+		e2.amount = 10;
+		e2.location = loc2;
+		p = new ProcessDao(db).insert(p);
+
+		// create the LCIA category & method
+		ImpactCategory impact = new ImpactCategory();
+		impact.name = "human tox";
+		ImpactFactor i1 = impact.addFactor(nox);
+		i1.value = 0.5; // the default factor
+		ImpactFactor i2 = impact.addFactor(nox);
+		i2.location = loc1;
+		i2.value = 0.1;
+		ImpactFactor i3 = impact.addFactor(nox);
+		i3.location = loc2;
+		i3.value = 0.9;
+		impact = new ImpactCategoryDao(db).insert(impact);
+		ImpactMethod method = new ImpactMethod();
+		method.impactCategories.add(impact);
+		method = new ImpactMethodDao(db).insert(method);
+
+		// create the product system and calculation setup
+		CalculationSetup setup = new CalculationSetup(
+				CalculationType.CONTRIBUTION_ANALYSIS, ProductSystem.from(p));
+		setup.impactMethod = Descriptors.toDescriptor(method);
+		RegCalculator calculator = new RegCalculator(db, new JavaSolver());
+
+		SimpleResult r = calculator.calculateSimple(setup);
+		Assert.assertTrue(r.isRegionalized());
+
+	}
+
 
 	private Flow flow(String name, String unit) {
 		FlowDao dao = new FlowDao(db);
@@ -62,5 +133,4 @@ public class RegCalculatorTest {
 		loc.name = code;
 		return dao.insert(loc);
 	}
-
 }
