@@ -1,10 +1,5 @@
 package examples;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
-import java.util.Collections;
-
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.mysql.MySQLDatabase;
@@ -20,6 +15,11 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.results.FullResult;
 import org.openlca.eigen.NativeLibrary;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStreamReader;
+import java.util.Collections;
 
 public class Benchmark {
 
@@ -43,7 +43,7 @@ public class Benchmark {
 				CalculationType.UPSTREAM_ANALYSIS, system);
 		setup.allocationMethod = AllocationMethod.USE_DEFAULT;
 		MatrixData data = DataStructures.matrixData(
-				setup, solver, db, Collections.emptyMap());
+				setup, db, Collections.emptyMap());
 		LcaCalculator calculator = new LcaCalculator(solver, data);
 
 		System.out.println("Inventory ready. Type enter to start!");

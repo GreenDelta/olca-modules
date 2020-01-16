@@ -1,19 +1,18 @@
 package org.openlca.core.model;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * A set of {@link Unit} objects which are directly convertible into each other
- * (e.g. units of mass: kg, g, mg...). A unit set has a reference unit with the
+ * (e.g. units of mass: kg, g, mg...). A unit group has a reference unit with the
  * conversion factor 1.0. The respective conversion factor of the other units is
  * defined by the equation: f = [uRef] / [u] (with f: the conversion factor of
  * the respective unit, [uRef] the equivalent amount in the reference unit, [u]
@@ -42,12 +41,10 @@ public class UnitGroup extends CategorizedEntity {
 		Util.cloneRootFields(this, clone);
 		clone.category = category;
 		clone.defaultFlowProperty = defaultFlowProperty;
-		Unit refUnit = referenceUnit;
 		for (Unit unit : units) {
-			final boolean isRef = Objects.equals(refUnit, unit);
-			final Unit copy = unit.clone();
+			Unit copy = unit.clone();
 			clone.units.add(copy);
-			if (isRef) {
+			if (Objects.equals(referenceUnit, unit)) {
 				clone.referenceUnit = copy;
 			}
 		}
@@ -58,18 +55,46 @@ public class UnitGroup extends CategorizedEntity {
 	 * Returns the unit with the specified name or synonym from this group.
 	 */
 	public Unit getUnit(String name) {
-		for (Unit unit : units) {
-			if (unit.name.equals(name))
-				return unit;
-			String synonyms = unit.synonyms;
+		// first we only search in the name fields because this is faster
+		for (Unit u : units) {
+			if (Objects.equals(u.name, name))
+				return u;
+		}
+		// then we search in synonyms
+		if (name == null)
+			return null;
+		for (Unit u : units) {
+			String synonyms = u.synonyms;
 			if (synonyms == null)
 				continue;
 			for (String syn : synonyms.split(";")) {
-				if (syn.trim().equals(name.trim()))
-					return unit;
+				if (syn.trim().equals(name))
+					return u;
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Creates a unit with the given name and adds it as reference unit (with
+	 * a conversion factor of 1.0) to this unit group.
+	 */
+	public Unit addReferenceUnit(String name) {
+		Unit unit = addUnit(name, 1.0);
+		referenceUnit = unit;
+		return unit;
+	}
+
+	/**
+	 * Creates a unit with the given name and adds it with the given conversion
+	 * factor to this unit group.
+	 */
+	public Unit addUnit(String name, double conversionFactor) {
+		Unit unit = new Unit();
+		unit.name = name;
+		unit.conversionFactor = conversionFactor;
+		units.add(unit);
+		return unit;
 	}
 
 }

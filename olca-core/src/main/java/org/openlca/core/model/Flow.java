@@ -1,9 +1,5 @@
 package org.openlca.core.model;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +9,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "tbl_flows")
@@ -78,6 +77,27 @@ public class Flow extends CategorizedEntity {
 	}
 
 	/**
+	 * Adds the given flow property as the reference flow property with a
+	 * conversion factor of 1.0 to this flow.
+	 */
+	public FlowPropertyFactor addReferenceFactor(FlowProperty prop) {
+		FlowPropertyFactor f = addFactor(prop, 1.0);
+		referenceFlowProperty = prop;
+		return f;
+	}
+
+	/**
+	 * Adds a conversion factor with the given flow property to this flow.
+	 */
+	public FlowPropertyFactor addFactor(FlowProperty prop, double factor) {
+		FlowPropertyFactor f = new FlowPropertyFactor();
+		f.flowProperty = prop;
+		f.conversionFactor = factor;
+		flowPropertyFactors.add(f);
+		return f;
+	}
+
+	/**
 	 * Returns the reference unit of this flow. More specifically, it returns the
 	 * reference unit of the unit group of the reference flow property of this flow.
 	 * In openLCA, results of a flow are always calculated in its reference unit.
@@ -90,10 +110,15 @@ public class Flow extends CategorizedEntity {
 		return referenceFlowProperty.unitGroup.referenceUnit;
 	}
 
+	/**
+	 * Get the conversion factor for the given flow property from this flow.
+	 */
 	public FlowPropertyFactor getFactor(FlowProperty property) {
-		for (FlowPropertyFactor f : flowPropertyFactors)
-			if (Objects.equals(f.flowProperty, property))
+		for (FlowPropertyFactor f : flowPropertyFactors) {
+			if (Objects.equals(f.flowProperty, property)) {
 				return f;
+			}
+		}
 		return null;
 	}
 

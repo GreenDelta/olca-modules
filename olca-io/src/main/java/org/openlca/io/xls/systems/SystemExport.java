@@ -25,7 +25,6 @@ import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.io.xls.Excel;
-import org.openlca.julia.JuliaSolver;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,8 +49,7 @@ public class SystemExport {
 
 		// the Julia solver that we pass here is just for creating the matrices
 		data = DataStructures.matrixData(
-				setup, new JuliaSolver(), conf.database,
-				Collections.emptyMap());
+				setup, conf.database, Collections.emptyMap());
 
 		File subDir = new File(dir, conf.system.name.trim());
 		if (!subDir.exists())

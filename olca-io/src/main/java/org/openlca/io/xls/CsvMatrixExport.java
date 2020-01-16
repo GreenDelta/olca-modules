@@ -19,7 +19,6 @@ import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.io.CategoryPair;
 import org.openlca.io.DisplayValues;
-import org.openlca.julia.JuliaSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,8 +55,7 @@ public class CsvMatrixExport implements Runnable {
 		setup.parameterRedefs.addAll(conf.productSystem.parameterRedefs);
 		setup.allocationMethod = AllocationMethod.NONE;
 		MatrixData data = DataStructures.matrixData(
-				setup, new JuliaSolver(),
-				conf.db, Collections.emptyMap());
+				setup, conf.db, Collections.emptyMap());
 
 		log.trace("Write technology matrix");
 		try (FileWriter writer = new FileWriter(conf.technologyFile);

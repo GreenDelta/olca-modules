@@ -48,7 +48,7 @@ public class CsvMatrixExample {
 		// create and export the matrix data
 		File exportDir = new File("target/data");
 		MatrixData data = DataStructures.matrixData(
-				setup, solver, db, Collections.emptyMap());
+				setup, db, Collections.emptyMap());
 		CsvOut.write(data, db, exportDir);
 
 		// calculate and export the result

@@ -43,7 +43,7 @@ public class RegionalizedCalculator {
 		try {
 			// TODO: sub-systems are currently not supported
 			MatrixData m = DataStructures.matrixData(
-					setup, solver, db, Collections.emptyMap());
+					setup, db, Collections.emptyMap());
 			if (regioSetup == null)
 				regioSetup = RegionalizationSetup.create(
 						db, setup.impactMethod, m.techIndex);

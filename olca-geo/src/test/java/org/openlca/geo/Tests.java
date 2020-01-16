@@ -1,26 +1,62 @@
 package org.openlca.geo;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
+import com.vividsolutions.jts.geom.Geometry;
 import org.apache.commons.io.IOUtils;
 import org.geotools.geometry.jts.GeometryBuilder;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
+import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.geo.parameter.ShapeFileFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vividsolutions.jts.geom.Geometry;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public class Tests {
 
 	private static ShapeFileFolder repository;
+	private static IDatabase db;
 
 	private Tests() {
+	}
+
+	public static IDatabase getDb() {
+		if (db == null) {
+			db = DerbyDatabase.createInMemory();
+		}
+		return db;
+	}
+
+	public static void clearDb() {
+		try {
+			IDatabase db = getDb();
+			List<String> tables = new ArrayList<>();
+			// type = T means user table
+			String sql = "SELECT TABLENAME FROM SYS.SYSTABLES WHERE TABLETYPE = 'T'";
+			NativeSql.on(db).query(sql, r -> {
+				tables.add(r.getString(1));
+				return true;
+			});
+			for (String table : tables) {
+				if (table.equalsIgnoreCase("SEQUENCE"))
+					continue;
+				if (table.equalsIgnoreCase("OPENLCA_VERSION"))
+					continue;
+				NativeSql.on(db).runUpdate("DELETE FROM " + table);
+			}
+			NativeSql.on(db).runUpdate("UPDATE SEQUENCE SET SEQ_COUNT = 0");
+			db.getEntityFactory().getCache().evictAll();
+		} catch (Exception e) {
+			throw new RuntimeException("failed to clear database", e);
+		}
 	}
 
 	public static String getKml(String file) {
