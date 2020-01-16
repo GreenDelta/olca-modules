@@ -1,11 +1,5 @@
 package org.openlca.core.model;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -16,6 +10,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "tbl_product_systems")
@@ -90,11 +89,6 @@ public class ProductSystem extends CategorizedEntity {
 		Exchange qRef = p.quantitativeReference;
 		system.referenceExchange = qRef;
 		if (qRef == null || qRef.flow == null)
-			return system;
-		FlowType type = qRef.flow.flowType;
-		if (qRef.isInput && type != FlowType.WASTE_FLOW)
-			return system;
-		if (!qRef.isInput && type != FlowType.PRODUCT_FLOW)
 			return system;
 		system.targetAmount = qRef.amount;
 		system.targetUnit = qRef.unit;

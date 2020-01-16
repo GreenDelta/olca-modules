@@ -1,9 +1,5 @@
 package org.openlca.core.results;
 
-import java.util.Collections;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.ProcessProduct;
@@ -13,6 +9,10 @@ import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
+
+import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * `BaseResult` is a common (abstract) super class of different result
@@ -134,7 +134,11 @@ public abstract class BaseResult implements IResult {
 	double adopt(FlowDescriptor flow, double value) {
 		if (value == 0)
 			return 0; // avoid -0 in the results
-		return flowIndex.isInput(flow) ? -value : value;
+		if (flowIndex != null)
+			return flowIndex.isInput(flow) ? -value : value;
+		if (regFlowIndex != null)
+			return regFlowIndex.isInput(flow) ? -value : value;
+		return value;
 	}
 
 }

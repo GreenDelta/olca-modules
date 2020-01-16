@@ -17,6 +17,7 @@ import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
@@ -43,14 +44,15 @@ public class RegCalculatorTest {
 	@Test
 	public void testRegionalizedCalculation() {
 
-		Flow nox = flow("NOx", "mg");
+		Flow nox = flow("NOx", "mg", FlowType.ELEMENTARY_FLOW);
 		Location loc1 = location("L1");
 		Location loc2 = location("L2");
 
 		// create the process
 		Process p = new Process();
 		p.name = "transport, bus";
-		Exchange refFlow = p.exchange(flow("transport, bus", "p*km"));
+		Exchange refFlow = p.exchange(flow(
+				"transport, bus", "p*km", FlowType.PRODUCT_FLOW));
 		p.quantitativeReference = refFlow;
 		Exchange e1 = p.exchange(nox);
 		e1.amount = 5;
@@ -84,11 +86,14 @@ public class RegCalculatorTest {
 
 		SimpleResult r = calculator.calculateSimple(setup);
 		Assert.assertTrue(r.isRegionalized());
-
+		Assert.assertEquals(5, r.getTotalFlowResult(
+				Descriptors.toDescriptor(nox), Descriptors.toDescriptor(loc1)), 1e-10);
+		Assert.assertEquals(10, r.getTotalFlowResult(
+				Descriptors.toDescriptor(nox), Descriptors.toDescriptor(loc2)), 1e-10);
 	}
 
 
-	private Flow flow(String name, String unit) {
+	private Flow flow(String name, String unit, FlowType type) {
 		FlowDao dao = new FlowDao(db);
 		List<Flow> flows = dao.getForName(name);
 		if (!flows.isEmpty())
@@ -96,6 +101,7 @@ public class RegCalculatorTest {
 		Flow flow = new Flow();
 		flow.name = name;
 		flow.refId = UUID.randomUUID().toString();
+		flow.flowType = type;
 		flow.addReferenceFactor(property(unit));
 		return dao.insert(flow);
 	}
