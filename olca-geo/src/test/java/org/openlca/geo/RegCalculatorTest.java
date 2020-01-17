@@ -2,6 +2,7 @@ package org.openlca.geo;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
@@ -10,6 +11,7 @@ import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.CalculationType;
@@ -23,6 +25,7 @@ import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptors;
@@ -30,16 +33,104 @@ import org.openlca.core.results.SimpleResult;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
+/**
+ * We test different aspects of regionalized models here.
+ * Our test model has two connected processes `p1` and `p2`
+ * where `p1` is the reference process of the model with
+ * an input of 2 units of `p2`:
+ *
+ * <code>
+ * A = [ 1.0  0.0 ; -2.0  1.0 ]
+ * f = [ 1.0 ; 0.0 ]
+ * s = A \ f   # = [ 1 ; 2 ]
+ * </code>
+ * <p>
+ * Process `p1` has emissions of 2 units of a flow `e1` and
+ * process `p2` has emissions of 2 units of a flow `e2`. Also,
+ * we define two locations `loc1` and `loc2` and a regionalized
+ * LCIA method with the following factors:
+ *
+ * <code>
+ * e1 loc1 7.0
+ * e1 loc2 5.0
+ * e1 ____ 3.0
+ * e2 loc1 3.5
+ * e2 loc2 5.5
+ * e2 ____ 7.5
+ * </code>
+ * <p>
+ * Then we assign different combinations where we assign the
+ * locations to the processes and exchanges and compare the
+ * calculated results.
+ */
 public class RegCalculatorTest {
 
 	private IDatabase db = Tests.getDb();
+
+	private Process p1;
+	private Process p2;
+	private Flow e1;
+	private Flow e2;
+	private Location loc1;
+	private Location loc2;
+	private ProductSystem sys;
+
+	@Before
+	public void setup() {
+		loc1 = location("L1");
+		loc2 = location("L2");
+		e1 = flow("e1", "kg", FlowType.ELEMENTARY_FLOW);
+		e2 = flow("e2", "kg", FlowType.ELEMENTARY_FLOW);
+
+		// process p2
+		p2 = new Process();
+		Flow pp2 = flow("p2", "kg", FlowType.PRODUCT_FLOW);
+		with(p2.exchange(pp2), e -> {
+			p2.quantitativeReference = e;
+			e.isInput = false;
+		});
+		with(p2.exchange(e2), e -> {
+			e.isInput = false;
+			e.amount = 2.0;
+		});
+		p2 = new ProcessDao(db).insert(p2);
+
+		// process p1
+		p1 = new Process();
+		Flow pp1 = flow("p1", "kg", FlowType.PRODUCT_FLOW);
+		with(p1.exchange(pp1), e -> {
+			p1.quantitativeReference = e;
+			e.isInput = false;
+		});
+		with(p1.exchange(pp2), e -> {
+			e.isInput = true;
+			e.amount = 2.0;
+		});
+		with(p1.exchange(e1), e -> {
+			e.isInput = false;
+			e.amount = 2.0;
+		});
+		p1 = new ProcessDao(db).insert(p1);
+
+		// create the product system
+		sys = ProductSystem.from(p1);
+		sys.processes.add(p2.id);
+		ProcessLink link = new ProcessLink();
+		link.providerId = p2.id;
+		link.processId = p1.id;
+		link.flowId = pp2.id;
+		link.exchangeId = exchange(p1, pp2).id;
+		sys.processLinks.add(link);
+		sys = new ProductSystemDao(db).insert(sys);
+
+	}
 
 	@After
 	public void tearDown() {
 		Tests.clearDb();
 	}
-
 
 	@Test
 	public void testRegionalizedCalculation() {
@@ -138,5 +229,18 @@ public class RegCalculatorTest {
 		loc.code = code;
 		loc.name = code;
 		return dao.insert(loc);
+	}
+
+	private Exchange exchange(Process p, Flow f) {
+		return p.exchanges.stream()
+				.filter(e -> f.equals(e.flow))
+				.findFirst()
+				.get();
+	}
+
+	private <T> void with(T t, Consumer<T> fn) {
+		if (t != null) {
+			fn.accept(t);
+		}
 	}
 }
