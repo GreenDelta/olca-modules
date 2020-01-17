@@ -1,12 +1,12 @@
 package org.openlca.core.matrix;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class RegFlowIndexTest {
 
@@ -50,6 +50,43 @@ public class RegFlowIndexTest {
 			Assert.assertTrue(idx.contains(flow, loc));
 			Assert.assertEquals(isInput.get(i), idx.isInput(flow.id));
 			Assert.assertEquals(isInput.get(i), idx.isInput(flow));
+		}
+	}
+
+	@Test
+	public void testNonRegFlows() {
+
+		RegFlowIndex idx = new RegFlowIndex();
+
+		// add 500 flows with location and 500 without
+		boolean isInput = true;
+		for (int i = 0; i < 1000; i++) {
+			if (i % 5 == 0) {
+				isInput = !isInput;
+			}
+			if (i % 2 == 0) {
+				int _i = isInput
+						? idx.putInput(randFlow())
+						: idx.putOutput(randFlow());
+				Assert.assertEquals(i, _i);
+			} else {
+				int _i = isInput
+						? idx.putInput(randFlow(), randLocation())
+						: idx.putOutput(randFlow(), randLocation());
+				Assert.assertEquals(i, _i);
+			}
+		}
+
+		// check the index
+		Assert.assertEquals(1000, idx.getFlows().size());
+		Assert.assertEquals(500, idx.getLocations().size());
+		for (int i = 0; i < 1000; i++) {
+			Assert.assertNotNull(idx.flowAt(i));
+			if (i % 2 == 0) {
+				Assert.assertNull(idx.locationAt(i));
+			} else {
+				Assert.assertNotNull(idx.locationAt(i));
+			}
 		}
 	}
 
