@@ -1,13 +1,15 @@
 package org.openlca.core.results;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import gnu.trove.iterator.TIntIterator;
+import gnu.trove.list.TIntList;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The simplest kind of result of a calculated product system. This result type
@@ -19,9 +21,9 @@ public class SimpleResult extends BaseResult {
 	/**
 	 * The scaling vector $\mathbf{s}$ which is calculated by solving the
 	 * equation
-	 *
+	 * <p>
 	 * $$\mathbf{A} \ \mathbf{s} = \mathbf{f}$$
-	 *
+	 * <p>
 	 * where $\mathbf{A}$ is the technology matrix and $\mathbf{f}$ the final
 	 * demand vector of the product system.
 	 */
@@ -35,16 +37,16 @@ public class SimpleResult extends BaseResult {
 	 * $\mathbf{A}$ and the total requirements can be calculated by the
 	 * following equation where $\mathbf{s}$ is the scaling vector ($\odot$
 	 * denotes element-wise multiplication):
-	 *
+	 * <p>
 	 * $$\mathbf{t} = \text{diag}(\mathbf{A}) \odot \mathbf{s}$$
 	 */
 	public double[] totalRequirements;
 
 	/**
 	 * The inventory result $\mathbf{g}$ of a product system:
-	 *
+	 * <p>
 	 * $$\mathbf{g} = \mathbf{B} \ \mathbf{s}$$
-	 *
+	 * <p>
 	 * Where $\mathbf{B}$ is the intervention matrix and $\mathbf{s}$ the
 	 * scaling vector. Note that inputs have negative values in this vector.
 	 */
@@ -52,9 +54,9 @@ public class SimpleResult extends BaseResult {
 
 	/**
 	 * The LCIA result $\mathbf{h}$ of a product system:
-	 *
+	 * <p>
 	 * $$\mathbf{h} = \mathbf{C} \ \mathbf{g}$$
-	 *
+	 * <p>
 	 * Where $\mathbf{C}$ is a flow * LCIA category matrix with the
 	 * characterization factors and $\mathbf{g}$ the inventory result.
 	 */
@@ -62,9 +64,9 @@ public class SimpleResult extends BaseResult {
 
 	/**
 	 * The total net-costs $k_t$ of the LCC result:
-	 *
+	 * <p>
 	 * $$k_t = \mathbf{k} \cdot \mathbf{s}$$
-	 *
+	 * <p>
 	 * Where $\mathbf{k}_j$ are the net-costs of process $j$ and $\mathbf{s}_j$
 	 * is the scaling factor of that process.
 	 */
@@ -98,10 +100,21 @@ public class SimpleResult extends BaseResult {
 	 * Get the total inventory result $\mathbf{g}_i$ of the given flow $i$.
 	 */
 	public double getTotalFlowResult(FlowDescriptor flow) {
-		int idx = flowIndex.of(flow);
-		if (idx < 0 || idx >= totalFlowResults.length)
+		if (flowIndex != null) {
+			int idx = flowIndex.of(flow);
+			if (idx < 0 || idx >= totalFlowResults.length)
+				return 0;
+			return adopt(flow, totalFlowResults[idx]);
+		}
+		if (regFlowIndex == null)
 			return 0;
-		return adopt(flow, totalFlowResults[idx]);
+		double total = 0.0;
+		TIntList pos = regFlowIndex.getPositions(flow);
+		TIntIterator it = pos.iterator();
+		while(it.hasNext()) {
+			total += totalFlowResults[it.next()];
+		}
+		return adopt(flow, total);
 	}
 
 	public double getTotalFlowResult(
@@ -119,11 +132,24 @@ public class SimpleResult extends BaseResult {
 	 */
 	public List<FlowResult> getTotalFlowResults() {
 		List<FlowResult> results = new ArrayList<>();
-		flowIndex.each((i, d) -> {
+		if (flowIndex != null) {
+			flowIndex.each((i, d) -> {
+				FlowResult r = new FlowResult();
+				r.flow = d;
+				r.input = flowIndex.isInput(d);
+				r.value = getTotalFlowResult(d);
+				results.add(r);
+			});
+			return results;
+		}
+		if (regFlowIndex == null)
+			return results;
+		regFlowIndex.each((i, flow, loc) -> {
 			FlowResult r = new FlowResult();
-			r.flow = d;
-			r.input = flowIndex.isInput(d);
-			r.value = getTotalFlowResult(d);
+			r.flow = flow;
+			r.location = loc;
+			r.input = regFlowIndex.isInput(flow);
+			r.value = adopt(r.input, totalFlowResults[i]);
 			results.add(r);
 		});
 		return results;

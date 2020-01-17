@@ -132,13 +132,19 @@ public abstract class BaseResult implements IResult {
 	 * Switches the sign for input-flows.
 	 */
 	double adopt(FlowDescriptor flow, double value) {
+		if (flowIndex != null)
+			return adopt(flowIndex.isInput(flow), value);
+		if (regFlowIndex != null)
+			return adopt(regFlowIndex.isInput(flow), value);
+		return value;
+	}
+
+	double adopt(boolean isInput, double value) {
+		if (!isInput)
+			return value;
 		if (value == 0)
 			return 0; // avoid -0 in the results
-		if (flowIndex != null)
-			return flowIndex.isInput(flow) ? -value : value;
-		if (regFlowIndex != null)
-			return regFlowIndex.isInput(flow) ? -value : value;
-		return value;
+		return -value;
 	}
 
 }
