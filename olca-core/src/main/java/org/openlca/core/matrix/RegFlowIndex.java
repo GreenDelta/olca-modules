@@ -1,7 +1,10 @@
 package org.openlca.core.matrix;
 
 import gnu.trove.impl.Constants;
+import gnu.trove.list.TIntList;
+import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TLongByteHashMap;
+import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 
@@ -20,8 +23,9 @@ public final class RegFlowIndex {
 	private final HashMap<LongPair, Integer> index = new HashMap<>();
 	private final ArrayList<FlowDescriptor> flows = new ArrayList<>();
 
-	/** Contains the location at index i. The value may be null if the
-	 flow at this location is not regionalized.
+	/**
+	 * Contains the location at index i. The value may be null if the
+	 * flow at this location is not regionalized.
 	 */
 	private final ArrayList<LocationDescriptor> locations = new ArrayList<>();
 
@@ -30,6 +34,8 @@ public final class RegFlowIndex {
 			Constants.DEFAULT_LOAD_FACTOR,
 			-1L,        // no entry key
 			(byte) 0);  // no entry value
+
+	TLongObjectHashMap<TIntArrayList> flowPos = new TLongObjectHashMap<>();
 
 	public int size() {
 		return index.size();
@@ -143,6 +149,17 @@ public final class RegFlowIndex {
 		if (isInput) {
 			input.put(flow.id, (byte) 1);
 		}
+		TIntArrayList pos = flowPos.get(flow.id);
+		if (pos == null) {
+			// -1 is our `no-entry` value as only
+			// values >= 0 are correct matrix
+			// indices. 10 is the default
+			// capacity
+			pos = new TIntArrayList(
+					Constants.DEFAULT_CAPACITY, -1);
+			flowPos.put(flow.id, pos);
+		}
+		pos.add(idx);
 		return idx;
 	}
 
@@ -170,6 +187,20 @@ public final class RegFlowIndex {
 		return locations.stream()
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
+	}
+
+	/**
+	 * A flow can occur multiple times in this index with different
+	 * locations. This method returns all of these positions where
+	 * the given flow occurs. Note that for performance reasons this
+	 * method returns a live list which you should never modify
+	 * outside of the flow index.
+	 */
+	public TIntList getPositions(FlowDescriptor flow) {
+		if (flow == null)
+			return new TIntArrayList(0, -1);
+		TIntArrayList pos = flowPos.get(flow.id);
+		return pos != null ? pos : new TIntArrayList(0, -1);
 	}
 
 	@FunctionalInterface

@@ -1,8 +1,5 @@
 package org.openlca.geo;
 
-import java.util.HashSet;
-import java.util.List;
-
 import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.matrix.AllocationIndex;
@@ -25,6 +22,9 @@ import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.results.SimpleResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashSet;
+import java.util.List;
 
 public class RegInventoryBuilder {
 
@@ -213,7 +213,7 @@ public class RegInventoryBuilder {
 		if (row < 0) {
 			FlowDescriptor flow = flows.get(e.flowId);
 			LocationDescriptor loc = locations.get(e.locationId);
-			if (flow == null || loc == null)
+			if (flow == null)
 				return;
 			if (e.isInput) {
 				row = flowIndex.putInput(flow, loc);

@@ -1,5 +1,6 @@
 package org.openlca.core.matrix;
 
+import gnu.trove.list.TIntList;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -40,8 +41,10 @@ public class RegFlowIndexTest {
 		// check the index
 		for (int i = 0; i < 10_000; i++) {
 			FlowDescriptor flow = idx.flowAt(i);
+			Assert.assertNotNull(flow);
 			Assert.assertEquals(flows.get(i), flow);
 			LocationDescriptor loc = idx.locationAt(i);
+			Assert.assertNotNull(loc);
 			Assert.assertEquals(locations.get(i), loc);
 
 			Assert.assertEquals(i, idx.of(flow.id, loc.id));
@@ -86,6 +89,36 @@ public class RegFlowIndexTest {
 				Assert.assertNull(idx.locationAt(i));
 			} else {
 				Assert.assertNotNull(idx.locationAt(i));
+			}
+		}
+	}
+
+	@Test
+	public void testFlowPositions() {
+		RegFlowIndex idx = new RegFlowIndex();
+		FlowDescriptor f1 = randFlow();
+		FlowDescriptor f2 = randFlow();
+		for (int i = 0; i < 100; i++) {
+			int j;
+			if (i % 2 == 0) {
+				j = idx.putInput(f1, randLocation());
+			} else {
+				j = idx.putOutput(f2, randLocation());
+			}
+			Assert.assertEquals(i, j);
+		}
+
+		TIntList pos1 = idx.getPositions(f1);
+		TIntList pos2 = idx.getPositions(f2);
+		Assert.assertEquals(50, pos1.size());
+		Assert.assertEquals(50, pos2.size());
+		for (int i = 0; i < 100; i++) {
+			if (i % 2 == 0) {
+				Assert.assertTrue(
+						pos1.contains(i) && !pos2.contains(i));
+			} else {
+				Assert.assertTrue(
+						!pos1.contains(i) && pos2.contains(i));
 			}
 		}
 	}

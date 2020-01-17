@@ -1,14 +1,14 @@
 package org.openlca.core.results;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The `ContributionResult` extends the `SimpleResult` type. It also contains
@@ -213,7 +213,7 @@ public class ContributionResult extends SimpleResult {
 		return Contributions.calculate(
 				getProcesses(),
 				totalCosts,
-				d -> getDirectCostResult(d));
+				this::getDirectCostResult);
 	}
 
 	/**
