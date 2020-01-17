@@ -15,6 +15,7 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.CalculationType;
+import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -29,8 +30,13 @@ import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.LocationDescriptor;
+import org.openlca.core.results.FullResult;
 import org.openlca.core.results.SimpleResult;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -76,6 +82,8 @@ public class RegCalculatorTest {
 	private Location loc1;
 	private Location loc2;
 	private ProductSystem sys;
+	private ImpactCategory impact;
+	private ImpactMethod method;
 
 	@Before
 	public void setup() {
@@ -125,11 +133,60 @@ public class RegCalculatorTest {
 		sys.processLinks.add(link);
 		sys = new ProductSystemDao(db).insert(sys);
 
+		// create the LCIA method
+		impact = new ImpactCategory();
+		Object[][] factors = new Object[][] {
+				{e1, loc1, 7.0},
+				{e1, loc2, 5.0},
+				{e1, null, 3.0},
+				{e2, loc1, 3.5},
+				{e2, loc2, 5.5},
+				{e2, null, 7.5},
+		};
+		Arrays.stream(factors).forEach(row -> {
+			ImpactFactor f = impact.addFactor((Flow) row[0]);
+			f.location = (Location) row[1];
+			f.value = (Double) row[2];
+		});
+		impact = new ImpactCategoryDao(db).insert(impact);
+		method = new ImpactMethod();
+		method.impactCategories.add(impact);
+		method = new ImpactMethodDao(db).insert(method);
+
 	}
 
 	@After
 	public void tearDown() {
 		Tests.clearDb();
+	}
+
+	@Test
+	public void checkNormalCalculation() {
+		CalculationSetup setup = calcSetup();
+		SystemCalculator calc = new SystemCalculator(db, new JavaSolver());
+		FullResult r = calc.calculateFull(setup);
+		Assert.assertEquals(2.0, r.getTotalFlowResult(des(e1)), 1e-10);
+		Assert.assertEquals(4.0, r.getTotalFlowResult(des(e2)), 1e-10);
+		Assert.assertEquals(36.0, r.getTotalImpactResult(des(impact)), 1e-10);
+	}
+
+	@Test
+	public void checkNoLocations() {
+		CalculationSetup setup = calcSetup();
+		RegCalculator calc = new RegCalculator(db, new JavaSolver());
+		FullResult r = calc.calculateFull(setup);
+		Assert.assertEquals(2.0, r.getTotalFlowResult(des(e1)), 1e-10);
+		Assert.assertEquals(4.0, r.getTotalFlowResult(des(e2)), 1e-10);
+		Assert.assertEquals(36.0, r.getTotalImpactResult(des(impact)), 1e-10);
+	}
+
+	private CalculationSetup calcSetup() {
+		// reload the product system to get the updates
+		sys = new ProductSystemDao(db).getForId(sys.id);
+		CalculationSetup setup = new CalculationSetup(
+				CalculationType.CONTRIBUTION_ANALYSIS, sys);
+		setup.impactMethod = Descriptors.toDescriptor(method);
+		return setup;
 	}
 
 	@Test
@@ -235,12 +292,24 @@ public class RegCalculatorTest {
 		return p.exchanges.stream()
 				.filter(e -> f.equals(e.flow))
 				.findFirst()
-				.get();
+				.orElse(null);
 	}
 
 	private <T> void with(T t, Consumer<T> fn) {
 		if (t != null) {
 			fn.accept(t);
 		}
+	}
+
+	private FlowDescriptor des(Flow flow) {
+		return Descriptors.toDescriptor(flow);
+	}
+
+	private LocationDescriptor des(Location loc) {
+		return Descriptors.toDescriptor(loc);
+	}
+
+	private ImpactCategoryDescriptor des(ImpactCategory imp) {
+		return Descriptors.toDescriptor(imp);
 	}
 }
