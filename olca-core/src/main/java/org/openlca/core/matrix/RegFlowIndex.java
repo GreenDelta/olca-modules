@@ -1,14 +1,16 @@
 package org.openlca.core.matrix;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TLongByteHashMap;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A flow index that supports regionalization.
@@ -17,7 +19,12 @@ public final class RegFlowIndex {
 
 	private final HashMap<LongPair, Integer> index = new HashMap<>();
 	private final ArrayList<FlowDescriptor> flows = new ArrayList<>();
+
+	/** Contains the location at index i. The value may be null if the
+	 flow at this location is not regionalized.
+	 */
 	private final ArrayList<LocationDescriptor> locations = new ArrayList<>();
+
 	private final TLongByteHashMap input = new TLongByteHashMap(
 			Constants.DEFAULT_CAPACITY,
 			Constants.DEFAULT_LOAD_FACTOR,
@@ -43,7 +50,8 @@ public final class RegFlowIndex {
 
 	/**
 	 * Only for regionalized models: returns the location of the given matrix
-	 * index.
+	 * index. Note that the returned value is `null` when the flow at the
+	 * index is not regionalized.
 	 */
 	public LocationDescriptor locationAt(int i) {
 		if (i < 0 || i > locations.size())
@@ -51,16 +59,26 @@ public final class RegFlowIndex {
 		return locations.get(i);
 	}
 
+	public int of(FlowDescriptor flow) {
+		return of(flow, null);
+	}
+
 	/**
 	 * Returns the matrix index of the given flow and location pair.
 	 */
 	public int of(FlowDescriptor flow, LocationDescriptor location) {
-		if (flow == null || location == null)
+		if (flow == null)
 			return -1;
-		LongPair p = LongPair.of(flow.id, location.id);
+		long locID = location == null ? 0L : location.id;
+		LongPair p = LongPair.of(flow.id, locID);
 		Integer i = index.get(p);
 		return i == null ? -1 : i;
 	}
+
+	public int of(long flowID) {
+		return of(flowID, 0L);
+	}
+
 
 	/**
 	 * Returns the matrix index of the given flow and location pair.
@@ -71,11 +89,19 @@ public final class RegFlowIndex {
 		return i == null ? -1 : i;
 	}
 
+	public boolean contains(FlowDescriptor flow) {
+		return of(flow) >= 0;
+	}
+
 	/**
 	 * Returns true when the given flow and location is contained in this index.
 	 */
 	public boolean contains(FlowDescriptor flow, LocationDescriptor location) {
 		return of(flow, location) >= 0;
+	}
+
+	public boolean contains(long flowID) {
+		return of(flowID) >= 0;
 	}
 
 	/**
@@ -85,8 +111,16 @@ public final class RegFlowIndex {
 		return of(flowID, locationID) >= 0;
 	}
 
+	public int putInput(FlowDescriptor flow) {
+		return put(flow, null, true);
+	}
+
 	public int putInput(FlowDescriptor flow, LocationDescriptor location) {
 		return put(flow, location, true);
+	}
+
+	public int putOutput(FlowDescriptor flow) {
+		return put(flow, null, false);
 	}
 
 	public int putOutput(FlowDescriptor flow, LocationDescriptor location) {
@@ -94,10 +128,11 @@ public final class RegFlowIndex {
 	}
 
 	private int put(FlowDescriptor flow, LocationDescriptor location,
-					boolean isInput) {
-		if (flow == null || location == null)
+	                boolean isInput) {
+		if (flow == null)
 			return -1;
-		LongPair p = LongPair.of(flow.id, location.id);
+		long locID = location == null ? 0L : location.id;
+		LongPair p = LongPair.of(flow.id, locID);
 		Integer i = index.get(p);
 		if (i != null)
 			return i;
@@ -132,13 +167,15 @@ public final class RegFlowIndex {
 	}
 
 	public Set<LocationDescriptor> getLocations() {
-		return new HashSet<>(locations);
+		return locations.stream()
+				.filter(Objects::nonNull)
+				.collect(Collectors.toSet());
 	}
 
 	@FunctionalInterface
 	public interface Consumer {
 		void accept(int index, FlowDescriptor flow,
-					LocationDescriptor location);
+		            LocationDescriptor location);
 	}
 
 }
