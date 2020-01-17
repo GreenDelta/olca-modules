@@ -16,6 +16,7 @@ import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.SystemCalculator;
+import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -135,7 +136,7 @@ public class RegCalculatorTest {
 
 		// create the LCIA method
 		impact = new ImpactCategory();
-		Object[][] factors = new Object[][] {
+		Object[][] factors = new Object[][]{
 				{e1, loc1, 7.0},
 				{e1, loc2, 5.0},
 				{e1, null, 3.0},
@@ -165,9 +166,38 @@ public class RegCalculatorTest {
 		CalculationSetup setup = calcSetup();
 		SystemCalculator calc = new SystemCalculator(db, new JavaSolver());
 		FullResult r = calc.calculateFull(setup);
-		Assert.assertEquals(2.0, r.getTotalFlowResult(des(e1)), 1e-10);
-		Assert.assertEquals(4.0, r.getTotalFlowResult(des(e2)), 1e-10);
-		Assert.assertEquals(36.0, r.getTotalImpactResult(des(impact)), 1e-10);
+
+		// total results
+		checkTotalFlowResults(r, new Object[][]{
+				{e1, 2.0},
+				{e2, 4.0},
+		});
+		checkTotalImpactResult(r, 36.0);
+
+		// direct contributions
+		checkDirectFlowResults(r, new Object[][] {
+				{p1, e1, 2.0},
+				{p1, e2, 0.0},
+				{p2, e1, 0.0},
+				{p2, e2, 4.0},
+		});
+		checkDirectImpactResults(r, new Object[][]{
+				{p1, 6.0},
+				{p2, 30.0},
+		});
+
+		// upstream contributions
+		checkUpstreamFlowResults(r, new Object[][] {
+				{p1, e1, 2.0},
+				{p1, e2, 4.0},
+				{p2, e1, 0.0},
+				{p2, e2, 4.0},
+		});
+		checkUpstreamImpactResults(r, new Object[][]{
+				{p1, 36.0},
+				{p2, 30.0},
+		});
+
 	}
 
 	@Test
@@ -175,9 +205,85 @@ public class RegCalculatorTest {
 		CalculationSetup setup = calcSetup();
 		RegCalculator calc = new RegCalculator(db, new JavaSolver());
 		FullResult r = calc.calculateFull(setup);
-		Assert.assertEquals(2.0, r.getTotalFlowResult(des(e1)), 1e-10);
-		Assert.assertEquals(4.0, r.getTotalFlowResult(des(e2)), 1e-10);
-		Assert.assertEquals(36.0, r.getTotalImpactResult(des(impact)), 1e-10);
+
+		// total results
+		checkTotalFlowResults(r, new Object[][]{
+				{e1, 2.0},
+				{e2, 4.0},
+		});
+		checkTotalImpactResult(r, 36.0);
+
+		// direct contributions
+		checkDirectFlowResults(r, new Object[][] {
+				{p1, e1, 2.0},
+				{p1, e2, 0.0},
+				{p2, e1, 0.0},
+				{p2, e2, 4.0},
+		});
+		checkDirectImpactResults(r, new Object[][]{
+				{p1, 6.0},
+				{p2, 30.0},
+		});
+
+		// upstream contributions
+		checkUpstreamFlowResults(r, new Object[][] {
+				{p1, e1, 2.0},
+				{p1, e2, 4.0},
+				{p2, e1, 0.0},
+				{p2, e2, 4.0},
+		});
+		checkUpstreamImpactResults(r, new Object[][]{
+				{p1, 36.0},
+				{p2, 30.0},
+		});
+	}
+
+	private void checkTotalImpactResult(FullResult r, double val) {
+		Assert.assertEquals(val, r.getTotalImpactResult(des(impact)), 1e-10);
+	}
+
+	private void checkTotalFlowResults(FullResult r, Object[][] defs) {
+		Arrays.stream(defs).forEach(row -> {
+			double v = r.getTotalFlowResult(des((Flow) row[0]));
+			Assert.assertEquals((Double) row[1], v, 1e-10);
+		});
+	}
+
+	private void checkDirectFlowResults(FullResult r, Object[][] defs) {
+		Arrays.stream(defs).forEach(row -> {
+			double v = r.getDirectFlowResult(
+					product((Process) row[0]), des((Flow) row[1]));
+			Assert.assertEquals((Double) row[2], v, 1e-10);
+		});
+	}
+
+	private void checkUpstreamFlowResults(FullResult r, Object[][] defs) {
+		Arrays.stream(defs).forEach(row -> {
+			double v = r.getUpstreamFlowResult(
+					product((Process) row[0]), des((Flow) row[1]));
+			Assert.assertEquals((Double) row[2], v, 1e-10);
+		});
+	}
+
+	private void checkDirectImpactResults(FullResult r, Object[][] defs) {
+		for(Object[] row : defs) {
+			double v = r.getDirectImpactResult(
+					product((Process) row[0]), des(impact));
+			Assert.assertEquals((Double) row[1], v, 1e-10);
+		}
+	}
+
+	private void checkUpstreamImpactResults(FullResult r, Object[][] defs) {
+		for(Object[] row : defs) {
+			double v = r.getUpstreamImpactResult(
+					product((Process) row[0]), des(impact));
+			Assert.assertEquals((Double) row[1], v, 1e-10);
+		}
+	}
+
+	private ProcessProduct product(Process p) {
+		Flow pp = p.quantitativeReference.flow;
+		return ProcessProduct.of(p, pp);
 	}
 
 	private CalculationSetup calcSetup() {
