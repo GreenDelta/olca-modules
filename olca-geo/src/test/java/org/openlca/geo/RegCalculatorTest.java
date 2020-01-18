@@ -175,7 +175,7 @@ public class RegCalculatorTest {
 		checkTotalImpactResult(r, 36.0);
 
 		// direct contributions
-		checkDirectFlowResults(r, new Object[][] {
+		checkDirectFlowResults(r, new Object[][]{
 				{p1, e1, 2.0},
 				{p1, e2, 0.0},
 				{p2, e1, 0.0},
@@ -187,7 +187,7 @@ public class RegCalculatorTest {
 		});
 
 		// upstream contributions
-		checkUpstreamFlowResults(r, new Object[][] {
+		checkUpstreamFlowResults(r, new Object[][]{
 				{p1, e1, 2.0},
 				{p1, e2, 4.0},
 				{p2, e1, 0.0},
@@ -214,7 +214,7 @@ public class RegCalculatorTest {
 		checkTotalImpactResult(r, 36.0);
 
 		// direct contributions
-		checkDirectFlowResults(r, new Object[][] {
+		checkDirectFlowResults(r, new Object[][]{
 				{p1, e1, 2.0},
 				{p1, e2, 0.0},
 				{p2, e1, 0.0},
@@ -226,7 +226,7 @@ public class RegCalculatorTest {
 		});
 
 		// upstream contributions
-		checkUpstreamFlowResults(r, new Object[][] {
+		checkUpstreamFlowResults(r, new Object[][]{
 				{p1, e1, 2.0},
 				{p1, e2, 4.0},
 				{p2, e1, 0.0},
@@ -243,30 +243,30 @@ public class RegCalculatorTest {
 	}
 
 	private void checkTotalFlowResults(FullResult r, Object[][] defs) {
-		Arrays.stream(defs).forEach(row -> {
+		for (Object[] row : defs) {
 			double v = r.getTotalFlowResult(des((Flow) row[0]));
 			Assert.assertEquals((Double) row[1], v, 1e-10);
-		});
+		}
 	}
 
 	private void checkDirectFlowResults(FullResult r, Object[][] defs) {
-		Arrays.stream(defs).forEach(row -> {
+		for (Object[] row : defs) {
 			double v = r.getDirectFlowResult(
 					product((Process) row[0]), des((Flow) row[1]));
 			Assert.assertEquals((Double) row[2], v, 1e-10);
-		});
+		}
 	}
 
 	private void checkUpstreamFlowResults(FullResult r, Object[][] defs) {
-		Arrays.stream(defs).forEach(row -> {
+		for (Object[] row : defs) {
 			double v = r.getUpstreamFlowResult(
 					product((Process) row[0]), des((Flow) row[1]));
 			Assert.assertEquals((Double) row[2], v, 1e-10);
-		});
+		}
 	}
 
 	private void checkDirectImpactResults(FullResult r, Object[][] defs) {
-		for(Object[] row : defs) {
+		for (Object[] row : defs) {
 			double v = r.getDirectImpactResult(
 					product((Process) row[0]), des(impact));
 			Assert.assertEquals((Double) row[1], v, 1e-10);
@@ -274,7 +274,7 @@ public class RegCalculatorTest {
 	}
 
 	private void checkUpstreamImpactResults(FullResult r, Object[][] defs) {
-		for(Object[] row : defs) {
+		for (Object[] row : defs) {
 			double v = r.getUpstreamImpactResult(
 					product((Process) row[0]), des(impact));
 			Assert.assertEquals((Double) row[1], v, 1e-10);
