@@ -9,13 +9,13 @@ import org.openlca.core.model.descriptors.LocationDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RegFlowIndexTest {
+public class FlowIndexTest {
 
 	private long nextID = 1L;
 
 	@Test
 	public void testIt() {
-		RegFlowIndex idx = new RegFlowIndex();
+		FlowIndex2 idx = FlowIndex2.createRegionalized();
 		List<FlowDescriptor> flows = new ArrayList<>();
 		List<LocationDescriptor> locations = new ArrayList<>();
 		List<Boolean> isInput = new ArrayList<>();
@@ -40,26 +40,25 @@ public class RegFlowIndexTest {
 
 		// check the index
 		for (int i = 0; i < 10_000; i++) {
-			FlowDescriptor flow = idx.flowAt(i);
-			Assert.assertNotNull(flow);
-			Assert.assertEquals(flows.get(i), flow);
-			LocationDescriptor loc = idx.locationAt(i);
-			Assert.assertNotNull(loc);
-			Assert.assertEquals(locations.get(i), loc);
+			IndexFlow iflow = idx.at(i);
+			Assert.assertNotNull(iflow);
+			Assert.assertEquals(i, iflow.index);
+			Assert.assertEquals(flows.get(i), iflow.flow);
+			Assert.assertNotNull(iflow.location);
+			Assert.assertEquals(locations.get(i), iflow.location);
 
-			Assert.assertEquals(i, idx.of(flow.id, loc.id));
-			Assert.assertEquals(i, idx.of(flow, loc));
-			Assert.assertTrue(idx.contains(flow.id, loc.id));
-			Assert.assertTrue(idx.contains(flow, loc));
-			Assert.assertEquals(isInput.get(i), idx.isInput(flow.id));
-			Assert.assertEquals(isInput.get(i), idx.isInput(flow));
+			Assert.assertEquals(i, idx.of(iflow.flow.id, iflow.location.id));
+			Assert.assertEquals(i, idx.of(iflow.flow, iflow.location));
+			Assert.assertTrue(idx.contains(iflow.flow.id, iflow.location.id));
+			Assert.assertTrue(idx.contains(iflow.flow, iflow.location));
+			Assert.assertEquals(isInput.get(i), iflow.isInput);
 		}
 	}
 
 	@Test
 	public void testNonRegFlows() {
 
-		RegFlowIndex idx = new RegFlowIndex();
+		FlowIndex2 idx = FlowIndex2.createRegionalized();
 
 		// add 500 flows with location and 500 without
 		boolean isInput = true;
@@ -81,14 +80,14 @@ public class RegFlowIndexTest {
 		}
 
 		// check the index
-		Assert.assertEquals(1000, idx.getFlows().size());
-		Assert.assertEquals(500, idx.getLocations().size());
+		Assert.assertEquals(1000, idx.flows().size());
 		for (int i = 0; i < 1000; i++) {
-			Assert.assertNotNull(idx.flowAt(i));
+			IndexFlow iflow = idx.at(i);
+			Assert.assertNotNull(iflow);
 			if (i % 2 == 0) {
-				Assert.assertNull(idx.locationAt(i));
+				Assert.assertNull(iflow.location);
 			} else {
-				Assert.assertNotNull(idx.locationAt(i));
+				Assert.assertNotNull(iflow.location);
 			}
 		}
 	}
