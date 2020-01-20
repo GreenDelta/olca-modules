@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.openlca.core.matrix.IndexFlow;
+import org.openlca.core.matrix.LongPair;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 /**
@@ -34,10 +34,16 @@ public class ProjectResult implements IResult {
 	}
 
 	public double getTotalFlowResult(ProjectVariant variant, IndexFlow flow) {
-		ContributionResult result = results.get(variant);
-		if (result == null)
+		// in each variant the flow can be at a different location
+		// in the respective flow index
+		ContributionResult r = results.get(variant);
+		if (r == null || r.flowIndex == null)
 			return 0;
-		return result.getTotalFlowResult(flow);
+		int idx = r.flowIndex.of(flow.flow, flow.location);
+		if (idx < 0)
+			return 0;
+		IndexFlow mapped = r.flowIndex.at(idx);
+		return r.getTotalFlowResult(mapped);
 	}
 
 	public List<FlowResult> getTotalFlowResults(ProjectVariant variant) {
@@ -48,8 +54,8 @@ public class ProjectResult implements IResult {
 	}
 
 	public ContributionSet<ProjectVariant> getContributions(IndexFlow flow) {
-		return Contributions.calculate(getVariants(),
-				variant -> getTotalFlowResult(variant, flow));
+		return Contributions.calculate(
+				getVariants(), variant -> getTotalFlowResult(variant, flow));
 	}
 
 	public double getTotalImpactResult(ProjectVariant variant,
@@ -104,23 +110,29 @@ public class ProjectResult implements IResult {
 
 	@Override
 	public List<IndexFlow> getFlows() {
-		Set<IndexFlow> flows = new HashSet<>();
-		for (ContributionResult result : results.values()) {
-			flows.addAll(result.getFlows());
+		// a project result is a multi-flow index result.
+		// we use the flow and location descriptors to
+		// locate values in the respective sub-results
+		HashSet<LongPair> handled = new HashSet<>();
+		ArrayList<IndexFlow> flows = new ArrayList<>();
+		for (ContributionResult sub : results.values()) {
+			if (sub.flowIndex == null)
+				continue;
+			sub.flowIndex.each(f -> {
+				if (f.flow == null)
+					return;
+				long flowID = f.flow.id;
+				long locID = f.location != null
+						? f.location.id
+						: 0L;
+				LongPair key = LongPair.of(flowID, locID);
+				if (handled.contains(key))
+					return;
+				flows.add(f);
+				handled.add(key);
+			});
 		}
-		return new ArrayList<IndexFlow>(flows);
-	}
-
-	@Override
-	public boolean isInput(FlowDescriptor flow) {
-		if (flow == null)
-			return false;
-
-		for (ContributionResult r : results.values()) {
-			if (r.flowIndex.contains(flow))
-				return r.flowIndex.isInput(flow);
-		}
-		return false;
+		return flows;
 	}
 
 	@Override

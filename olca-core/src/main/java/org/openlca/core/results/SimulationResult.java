@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -79,7 +80,7 @@ public class SimulationResult extends BaseResult {
 	/**
 	 * Get the result of the given flow in the iteration i (zero based).
 	 */
-	public double get(FlowDescriptor flow, int i) {
+	public double get(IndexFlow flow, int i) {
 		if (flowIndex == null)
 			return 0;
 		int arrayIdx = flowIndex.of(flow);
