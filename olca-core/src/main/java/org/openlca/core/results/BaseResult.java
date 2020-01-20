@@ -68,7 +68,6 @@ public abstract class BaseResult implements IResult {
 		ArrayList<IndexFlow> list = new ArrayList<>(flowIndex.size());
 		flowIndex.each(list::add);
 		return list;
-
 	}
 
 	@Override

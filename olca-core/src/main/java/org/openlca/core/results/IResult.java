@@ -5,7 +5,6 @@ import java.util.Set;
 
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 /**
@@ -40,13 +39,6 @@ public interface IResult {
 	 */
 
 	List<IndexFlow> getFlows();
-
-	/**
-	 * Returns true when the given flow is handled as an input flow in the
-	 * inventory model.
-	 */
-	// TODO: do we still need this?
-	boolean isInput(FlowDescriptor flow);
 
 	/**
 	 * Get the LCIA categories of the LCIA result.

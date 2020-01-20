@@ -1,11 +1,13 @@
 package org.openlca.core.results;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -31,8 +33,7 @@ public class ProjectResult implements IResult {
 		return results.get(variant);
 	}
 
-	public double getTotalFlowResult(ProjectVariant variant,
-			FlowDescriptor flow) {
+	public double getTotalFlowResult(ProjectVariant variant, IndexFlow flow) {
 		ContributionResult result = results.get(variant);
 		if (result == null)
 			return 0;
@@ -46,8 +47,7 @@ public class ProjectResult implements IResult {
 		return result.getTotalFlowResults();
 	}
 
-	public ContributionSet<ProjectVariant> getContributions(
-			FlowDescriptor flow) {
+	public ContributionSet<ProjectVariant> getContributions(IndexFlow flow) {
 		return Contributions.calculate(getVariants(),
 				variant -> getTotalFlowResult(variant, flow));
 	}
@@ -103,12 +103,12 @@ public class ProjectResult implements IResult {
 	}
 
 	@Override
-	public Set<FlowDescriptor> getFlows() {
-		Set<FlowDescriptor> flows = new HashSet<>();
+	public List<IndexFlow> getFlows() {
+		Set<IndexFlow> flows = new HashSet<>();
 		for (ContributionResult result : results.values()) {
 			flows.addAll(result.getFlows());
 		}
-		return flows;
+		return new ArrayList<IndexFlow>(flows);
 	}
 
 	@Override

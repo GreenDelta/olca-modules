@@ -3,6 +3,7 @@ package org.openlca.core.results;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.ProcessLink;
@@ -89,8 +90,10 @@ public class FullResult extends ContributionResult {
 	 */
 	public double getUpstreamFlowResult(
 			ProcessProduct product,
-			FlowDescriptor flow) {
-		int row = flowIndex.of(flow);
+			IndexFlow flow) {
+		if (product == null || flow == null)
+			return 0;
+		int row = flow.index;
 		int col = techIndex.getIndex(product);
 		return adopt(flow, getValue(upstreamFlowResults, row, col));
 	}
@@ -102,7 +105,7 @@ public class FullResult extends ContributionResult {
 	 */
 	public double getUpstreamFlowResult(
 			CategorizedDescriptor process,
-			FlowDescriptor flow) {
+			IndexFlow flow) {
 		double total = 0;
 		for (ProcessProduct p : techIndex.getProviders(process)) {
 			total += getUpstreamFlowResult(p, flow);
@@ -117,12 +120,9 @@ public class FullResult extends ContributionResult {
 	public List<FlowResult> getUpstreamFlowResults(
 			CategorizedDescriptor process) {
 		List<FlowResult> results = new ArrayList<>();
-		flowIndex.each((i, flow) -> {
-			FlowResult r = new FlowResult();
-			r.flow = flow;
-			r.input = flowIndex.isInput(flow);
-			r.value = getUpstreamFlowResult(process, flow);
-			results.add(r);
+		flowIndex.each(flow -> {
+			double value = getUpstreamFlowResult(process, flow);
+			results.add(new FlowResult(flow, value));
 		});
 		return results;
 	}

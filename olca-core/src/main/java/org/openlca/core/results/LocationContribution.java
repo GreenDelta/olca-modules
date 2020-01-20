@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.database.EntityCache;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
@@ -49,7 +49,7 @@ public class LocationContribution {
 	}
 
 	/** Calculates contributions to an inventory flow. */
-	public ContributionSet<Location> calculate(FlowDescriptor flow) {
+	public ContributionSet<Location> calculate(IndexFlow flow) {
 		if (flow == null || result == null)
 			return ContributionSet.empty();
 		double total = result.getTotalFlowResult(flow);

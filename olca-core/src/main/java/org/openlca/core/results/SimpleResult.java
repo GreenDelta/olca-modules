@@ -1,6 +1,7 @@
 package org.openlca.core.results;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.matrix.IndexFlow;
@@ -110,27 +111,11 @@ public class SimpleResult extends BaseResult {
 	 * Returns the flow results of the inventory result $\mathbf{g}$.
 	 */
 	public List<FlowResult> getTotalFlowResults() {
-		List<FlowResult> results = new ArrayList<>();
-		if (flowIndex != null) {
-			flowIndex.each((i, d) -> {
-				FlowResult r = new FlowResult();
-				r.flow = d;
-				r.input = flowIndex.isInput(d);
-				r.value = getTotalFlowResult(d);
-				results.add(r);
-			});
-			return results;
-		}
-		if (regFlowIndex == null)
-			return results;
-		regFlowIndex.each((i, flow, loc) -> {
-			FlowResult r = new FlowResult();
-			r.flow = flow;
-			r.location = loc;
-			r.input = regFlowIndex.isInput(flow);
-			r.value = adopt(r.input, totalFlowResults[i]);
-			results.add(r);
-		});
+		if (flowIndex == null)
+			return Collections.emptyList();
+		List<FlowResult> results = new ArrayList<>(flowIndex.size());
+		flowIndex.each(f -> results.add(
+				new FlowResult(f, getTotalFlowResult(f))));
 		return results;
 	}
 

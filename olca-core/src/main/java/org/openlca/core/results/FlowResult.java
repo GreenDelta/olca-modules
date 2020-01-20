@@ -1,5 +1,6 @@
 package org.openlca.core.results;
 
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 
@@ -15,5 +16,15 @@ public class FlowResult {
 
 	public boolean input;
 	public double value;
+
+	public FlowResult() {
+	}
+
+	public FlowResult(IndexFlow flow, double value) {
+		this.flow = flow.flow;
+		this.location = flow.location;
+		this.input = flow.isInput;
+		this.value = value;
+	}
 
 }
