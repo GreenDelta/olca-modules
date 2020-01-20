@@ -1,18 +1,18 @@
 package org.openlca.core.results;
 
-import org.openlca.core.matrix.DIndex;
-import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.matrix.RegFlowIndex;
-import org.openlca.core.matrix.TechIndex;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.model.descriptors.LocationDescriptor;
-
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.openlca.core.matrix.DIndex;
+import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.IndexFlow;
+import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 /**
  * `BaseResult` is a common (abstract) super class of different result
@@ -22,22 +22,21 @@ import java.util.stream.Collectors;
 public abstract class BaseResult implements IResult {
 
 	/**
-	 * The index $\mathit{Idx}_A$ of the technology matrix $\mathbf{A}$. It maps
-	 * the process-product pairs (or process-waste pairs) $\mathit{P}$ of the
-	 * product system to the respective $n$ rows and columns of $\mathbf{A}$. If
-	 * the product system contains other product systems as sub-systems, these
-	 * systems are handled like processes and are also mapped as pair with their
-	 * quantitative reference flow to that index (and also their processes
-	 * etc.).
+	 * The index $\mathit{Idx}_A$ of the technology matrix $\mathbf{A}$. It maps the
+	 * process-product pairs (or process-waste pairs) $\mathit{P}$ of the product
+	 * system to the respective $n$ rows and columns of $\mathbf{A}$. If the product
+	 * system contains other product systems as sub-systems, these systems are
+	 * handled like processes and are also mapped as pair with their quantitative
+	 * reference flow to that index (and also their processes etc.).
 	 * <p>
 	 * $$\mathit{Idx}_A: \mathit{P} \mapsto [0 \dots n-1]$$
 	 */
 	public TechIndex techIndex;
 
 	/**
-	 * The row index $\mathit{Idx}_B$ of the intervention matrix $\mathbf{B}$.
-	 * It maps the (elementary) flows $\mathit{F}$ of the processes in the
-	 * product system to the $k$ rows of $\mathbf{B}$.
+	 * The row index $\mathit{Idx}_B$ of the intervention matrix $\mathbf{B}$. It
+	 * maps the (elementary) flows $\mathit{F}$ of the processes in the product
+	 * system to the $k$ rows of $\mathbf{B}$.
 	 * <p>
 	 * $$\mathit{Idx}_B: \mathit{F} \mapsto [0 \dots k-1]$$
 	 */
@@ -52,13 +51,6 @@ public abstract class BaseResult implements IResult {
 	 */
 	public DIndex<ImpactCategoryDescriptor> impactIndex;
 
-	/**
-	 * A regionalized flow index in case of a regionalized calculation. If the
-	 * regionalized flow index is not null the flow index must be null and the
-	 * other way around.
-	 */
-	public RegFlowIndex regFlowIndex;
-
 	@Override
 	public boolean hasImpactResults() {
 		return impactIndex != null && !impactIndex.isEmpty();
@@ -66,26 +58,17 @@ public abstract class BaseResult implements IResult {
 
 	@Override
 	public boolean hasFlowResults() {
-		if (flowIndex != null) {
-			return !flowIndex.isEmpty();
-		}
-		return regFlowIndex != null && !regFlowIndex.isEmpty();
+		return flowIndex != null && !flowIndex.isEmpty();
 	}
 
 	@Override
-	public boolean isInput(FlowDescriptor flow) {
-		if (flowIndex != null)
-			return flowIndex.isInput(flow);
-		return regFlowIndex != null && regFlowIndex.isInput(flow);
-	}
+	public List<IndexFlow> getFlows() {
+		if (flowIndex == null)
+			return Collections.emptyList();
+		ArrayList<IndexFlow> list = new ArrayList<>(flowIndex.size());
+		flowIndex.each(list::add);
+		return list;
 
-	@Override
-	public Set<FlowDescriptor> getFlows() {
-		if (flowIndex != null)
-			return flowIndex.content();
-		if (regFlowIndex != null)
-			return regFlowIndex.getFlows();
-		return Collections.emptySet();
 	}
 
 	@Override
@@ -96,24 +79,10 @@ public abstract class BaseResult implements IResult {
 	}
 
 	/**
-	 * If this result is regionalized this method returns the descriptors of
-	 * the different locations in this result.
-	 */
-	public Set<LocationDescriptor> getLocations() {
-		if (regFlowIndex != null)
-			return regFlowIndex.getLocations();
-		return Collections.emptySet();
-	}
-
-	public boolean isRegionalized() {
-		return regFlowIndex != null;
-	}
-
-	/**
-	 * Get the process-product pairs (or process-waste pairs) $\mathit{P}$ of
-	 * the product system. If the product system contains other product systems
-	 * as sub-systems, these systems are handled like processes and are also
-	 * included as pairs with their quantitative reference flow.
+	 * Get the process-product pairs (or process-waste pairs) $\mathit{P}$ of the
+	 * product system. If the product system contains other product systems as
+	 * sub-systems, these systems are handled like processes and are also included
+	 * as pairs with their quantitative reference flow.
 	 */
 	public Set<ProcessProduct> getProviders() {
 		if (techIndex == null)
@@ -131,20 +100,11 @@ public abstract class BaseResult implements IResult {
 	/**
 	 * Switches the sign for input-flows.
 	 */
-	double adopt(FlowDescriptor flow, double value) {
-		if (flowIndex != null)
-			return adopt(flowIndex.isInput(flow), value);
-		if (regFlowIndex != null)
-			return adopt(regFlowIndex.isInput(flow), value);
-		return value;
-	}
-
-	double adopt(boolean isInput, double value) {
-		if (!isInput)
+	double adopt(IndexFlow flow, double value) {
+		if (flow == null || !flow.isInput)
 			return value;
-		if (value == 0)
-			return 0; // avoid -0 in the results
-		return -value;
+		// avoid -0 in the results
+		return value == 0 ? 0 : -value;
 	}
 
 }

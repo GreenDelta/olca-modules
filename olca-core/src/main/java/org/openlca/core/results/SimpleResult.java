@@ -1,15 +1,12 @@
 package org.openlca.core.results;
 
-import gnu.trove.iterator.TIntIterator;
-import gnu.trove.list.TIntList;
-import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.model.descriptors.LocationDescriptor;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.openlca.core.matrix.IndexFlow;
+import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 /**
  * The simplest kind of result of a calculated product system. This result type
@@ -99,29 +96,11 @@ public class SimpleResult extends BaseResult {
 	/**
 	 * Get the total inventory result $\mathbf{g}_i$ of the given flow $i$.
 	 */
-	public double getTotalFlowResult(FlowDescriptor flow) {
-		if (flowIndex != null) {
-			int idx = flowIndex.of(flow);
-			if (idx < 0 || idx >= totalFlowResults.length)
-				return 0;
-			return adopt(flow, totalFlowResults[idx]);
-		}
-		if (regFlowIndex == null)
+	// TODO: better just rename it to getTotalResult
+	public double getTotalFlowResult(IndexFlow flow) {
+		if (flow == null)
 			return 0;
-		double total = 0.0;
-		TIntList pos = regFlowIndex.getPositions(flow);
-		TIntIterator it = pos.iterator();
-		while(it.hasNext()) {
-			total += totalFlowResults[it.next()];
-		}
-		return adopt(flow, total);
-	}
-
-	public double getTotalFlowResult(
-			FlowDescriptor flow, LocationDescriptor location) {
-		if (regFlowIndex == null)
-			return getTotalFlowResult(flow);
-		int idx = regFlowIndex.of(flow, location);
+		int idx = flow.index;
 		if (idx < 0 || idx >= totalFlowResults.length)
 			return 0;
 		return adopt(flow, totalFlowResults[idx]);

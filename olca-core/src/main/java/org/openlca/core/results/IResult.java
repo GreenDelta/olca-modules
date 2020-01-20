@@ -1,7 +1,9 @@
 package org.openlca.core.results;
 
+import java.util.List;
 import java.util.Set;
 
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -36,12 +38,14 @@ public interface IResult {
 	/**
 	 * Get the (elementary) flows of the inventory model.
 	 */
-	Set<FlowDescriptor> getFlows();
+
+	List<IndexFlow> getFlows();
 
 	/**
 	 * Returns true when the given flow is handled as an input flow in the
 	 * inventory model.
 	 */
+	// TODO: do we still need this?
 	boolean isInput(FlowDescriptor flow);
 
 	/**
