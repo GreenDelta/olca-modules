@@ -68,15 +68,15 @@ public class SystemProcess {
 	}
 
 	private void addElemFlows(Process p) {
-		result.flowIndex.each((i, d) -> {
-			double amount = result.getTotalFlowResult(d);
-			if (amount == 0)
+		result.flowIndex.each(f -> {
+			double amount = result.getTotalFlowResult(f);
+			if (amount == 0 || f.flow == null)
 				return;
-			Flow flow = flowDao.getForId(d.id);
+			Flow flow = flowDao.getForId(f.flow.id);
 			if (flow == null)
 				return;
 			Exchange e = p.exchange(flow);
-			e.isInput = result.flowIndex.isInput(d);
+			e.isInput = f.isInput;
 			e.amount = amount;
 		});
 	}

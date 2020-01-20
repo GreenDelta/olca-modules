@@ -219,9 +219,9 @@ public class Simulator {
 				int col = node.data.techIndex.getIndex(subLink);
 				if (col < 0)
 					continue;
-				sub.lastResult.flowIndex.each((subIdx, flow) -> {
-					double val = sub.lastResult.totalFlowResults[subIdx];
-					int row = node.data.flowIndex.of(flow);
+				sub.lastResult.flowIndex.each(f -> {
+					double val = sub.lastResult.totalFlowResults[f.index];
+					int row = node.data.flowIndex.of(f.flow, f.location);
 					if (row >= 0) {
 						node.data.enviMatrix.set(row, col, val);
 					}
