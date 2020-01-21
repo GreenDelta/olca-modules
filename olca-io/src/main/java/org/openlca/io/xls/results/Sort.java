@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.openlca.core.database.EntityCache;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -59,14 +60,16 @@ public class Sort {
 		return list;
 	}
 
-	public static List<FlowDescriptor> flows(Collection<FlowDescriptor> flows,
-			EntityCache cache) {
+	public static List<IndexFlow> flows(
+			Collection<IndexFlow> flows, EntityCache cache) {
 		if (flows == null)
 			return Collections.emptyList();
-		ArrayList<FlowDescriptor> sorted = new ArrayList<>(flows);
-		Collections.sort(sorted, new FlowSorter(cache));
+		ArrayList<IndexFlow> sorted = new ArrayList<>(flows);
+		FlowSorter sorter = new FlowSorter(cache);
+		Collections.sort(sorted, (f1, f2) -> sorter.compare(f1.flow, f2.flow));
 		return sorted;
 	}
+
 
 	private static class FlowSorter implements Comparator<FlowDescriptor> {
 
@@ -79,6 +82,8 @@ public class Sort {
 
 		@Override
 		public int compare(FlowDescriptor o1, FlowDescriptor o2) {
+			if (o1 == null || o2 == null)
+				return 0;
 			CategoryPair cat1 = flowCategory(o1);
 			CategoryPair cat2 = flowCategory(o2);
 			int c = cat1.compareTo(cat2);

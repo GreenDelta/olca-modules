@@ -5,17 +5,16 @@ import java.util.List;
 import java.util.Set;
 
 import org.openlca.core.database.EntityCache;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.io.xls.results.Sort;
 
 class Util {
 
-	static List<FlowDescriptor> flows(SimpleResult result, EntityCache cache) {
-		Set<FlowDescriptor> set = result.getFlows();
-		return Sort.flows(set, cache);
+	static List<IndexFlow> flows(SimpleResult result, EntityCache cache) {
+		return Sort.flows(result.getFlows(), cache);
 	}
 
 	static List<CategorizedDescriptor> processes(SimpleResult result) {

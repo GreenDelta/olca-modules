@@ -10,8 +10,8 @@ import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.data_quality.DQCalculationSetup;
 import org.openlca.core.math.data_quality.DQResult;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
@@ -39,7 +39,7 @@ public class ResultExport implements Runnable {
 
 	private boolean success;
 	List<CategorizedDescriptor> processes;
-	List<FlowDescriptor> flows;
+	List<IndexFlow> flows;
 	List<ImpactCategoryDescriptor> impacts;
 	Workbook workbook;
 	CellWriter writer;
@@ -56,6 +56,7 @@ public class ResultExport implements Runnable {
 		this.dqResult = dqResult;
 	}
 
+	@Override
 	public void run() {
 		try {
 			prepare();

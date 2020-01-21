@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.openlca.core.database.EntityCache;
@@ -31,7 +30,7 @@ class FlowInfo implements Comparable<FlowInfo> {
 	public static List<FlowInfo> getAll(SystemExportConfig conf,
 			FlowIndex index) {
 		EntityCache cache = conf.getEntityCache();
-		Set<FlowDescriptor> flows = getFlowDescriptors(cache, index);
+		Set<FlowDescriptor> flows = getFlowDescriptors(index);
 		List<FlowInfo> infos = new ArrayList<>();
 		for (FlowDescriptor flow : flows) {
 			CategoryPair catPair = CategoryPair.create(flow, cache);
@@ -54,17 +53,15 @@ class FlowInfo implements Comparable<FlowInfo> {
 		return infos;
 	}
 
-	private static Set<FlowDescriptor> getFlowDescriptors(EntityCache cache,
-			FlowIndex index) {
+	private static Set<FlowDescriptor> getFlowDescriptors(FlowIndex index) {
 		if (index == null)
 			return Collections.emptySet();
-		List<Long> ids = new ArrayList<>(index.size());
-		for (long id : index.ids())
-			ids.add(id);
-		Map<Long, FlowDescriptor> values = cache.getAll(FlowDescriptor.class,
-				ids);
 		HashSet<FlowDescriptor> descriptors = new HashSet<>();
-		descriptors.addAll(values.values());
+		index.each((i, f) -> {
+			if (f.flow != null) {
+				descriptors.add(f.flow);
+			}
+		});
 		return descriptors;
 	}
 

@@ -5,7 +5,7 @@ import java.util.List;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.results.ContributionItem;
@@ -37,7 +37,7 @@ class ProjectInventories {
 
 	private void run() {
 		List<ProjectVariant> variants = Sort.variants(result.getVariants());
-		List<FlowDescriptor> flows = Sort.flows(result.getFlows(), cache);
+		List<IndexFlow> flows = Sort.flows(result.getFlows(), cache);
 		if (variants.isEmpty() || flows.isEmpty())
 			return;
 		int row = 1;
@@ -49,7 +49,7 @@ class ProjectInventories {
 	}
 
 	private int writeRows(int row, List<ProjectVariant> variants,
-			List<FlowDescriptor> flows, boolean inputs) {
+			List<IndexFlow> flows, boolean inputs) {
 		header(sheet, row, 1, inputs ? "Inputs" : "Outputs");
 		for (int i = 0; i < variants.size(); i++) {
 			int col = i + 6;
@@ -57,11 +57,10 @@ class ProjectInventories {
 		}
 		row++;
 		writeHeader(row++);
-		FlowIndex index = result.getResult(variants.get(0)).flowIndex;
-		for (FlowDescriptor flow : flows) {
-			if (inputs != index.isInput(flow.id))
+		for (IndexFlow flow : flows) {
+			if (flow.isInput)
 				continue;
-			writeInfo(flow, row);
+			writeInfo(flow.flow, row);
 			ContributionSet<ProjectVariant> contributions = result
 					.getContributions(flow);
 			for (int i = 0; i < variants.size(); i++) {

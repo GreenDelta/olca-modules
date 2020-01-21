@@ -12,10 +12,9 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.Location;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.SimulationResult;
@@ -105,7 +104,7 @@ public class SimulationResultExport {
 	private void writeInventorySheet(Workbook wb) {
 		Sheet sheet = wb.createSheet("Inventory");
 		row = 0;
-		List<FlowDescriptor> flows = Sort.flows(result.getFlows(), cache);
+		List<IndexFlow> flows = Sort.flows(result.getFlows(), cache);
 		writeInventorySection(flows, true, sheet);
 		writeInventorySection(flows, false, sheet);
 		if (!useStreaming) {
@@ -115,7 +114,7 @@ public class SimulationResultExport {
 		flushSheet(sheet);
 	}
 
-	private void writeInventorySection(List<FlowDescriptor> flows,
+	private void writeInventorySection(List<IndexFlow> flows,
 			boolean forInputs, Sheet sheet) {
 		row++;
 		String section = forInputs ? "Inputs" : "Outputs";
@@ -126,11 +125,10 @@ public class SimulationResultExport {
 		writeValueHeaders(sheet, row, nextCol);
 		row++;
 
-		FlowIndex idx = result.flowIndex;
-		for (FlowDescriptor flow : flows) {
-			if (idx.isInput(flow.id) != forInputs)
+		for (IndexFlow flow : flows) {
+			if (flow.isInput != forInputs)
 				continue;
-			writer.flowRow(sheet, row, 1, flow);
+			writer.flowRow(sheet, row, 1, flow.flow);
 			double[] values = result.getAll(flow);
 			writeValues(sheet, row, FLOW_HEADER.length + 1, values);
 			row++;
@@ -196,7 +194,7 @@ public class SimulationResultExport {
 			row++;
 		}
 
-		List<FlowDescriptor> flows = Sort.flows(result.getFlows(), cache);
+		List<IndexFlow> flows = Sort.flows(result.getFlows(), cache);
 
 		writer.headerRow(sheet, row++, 1, "Direct LCI contributions - Inputs");
 		writeFlowContributions(flows, pp, true, result::getAllDirect, sheet);
@@ -215,18 +213,18 @@ public class SimulationResultExport {
 	}
 
 	private void writeFlowContributions(
-			List<FlowDescriptor> flows,
+			List<IndexFlow> flows,
 			ProcessProduct pp,
 			boolean forInputs,
-			BiFunction<ProcessProduct, FlowDescriptor, double[]> fn,
+			BiFunction<ProcessProduct, IndexFlow, double[]> fn,
 			Sheet sheet) {
 		writer.headerRow(sheet, row, 1, FLOW_HEADER);
 		int valCol = FLOW_HEADER.length + 1;
 		writeValueHeaders(sheet, row++, valCol);
-		for (FlowDescriptor flow : flows) {
-			if (result.flowIndex.isInput(flow.id) != forInputs)
+		for (IndexFlow flow : flows) {
+			if (flow.isInput != forInputs)
 				continue;
-			writer.flowRow(sheet, row, 1, flow);
+			writer.flowRow(sheet, row, 1, flow.flow);
 			double[] values = fn.apply(pp, flow);
 			writeValues(sheet, row, valCol, values);
 			row++;
