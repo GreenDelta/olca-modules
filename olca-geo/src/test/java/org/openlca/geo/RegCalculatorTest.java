@@ -56,12 +56,12 @@ import org.openlca.core.results.FullResult;
  * `loc2` and a regionalized LCIA method with the following factors:
  *
  * <code>
- * e1 loc1 7.0
- * e1 loc2 5.0
+ * e1 loc1 9.0
+ * e1 loc2 6.0
  * e1 ____ 3.0
- * e2 loc1 3.5
- * e2 loc2 5.5
- * e2 ____ 7.5
+ * e2 loc1 6.0
+ * e2 loc2 4.0
+ * e2 ____ 2.0
  * </code>
  * <p>
  * Then we assign different combinations where we assign the locations to the
@@ -192,7 +192,6 @@ public class RegCalculatorTest {
 				{ p1, 14.0 },
 				{ p2, 8.0 },
 		});
-
 	}
 
 	@Test

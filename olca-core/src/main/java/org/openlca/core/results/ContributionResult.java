@@ -238,6 +238,28 @@ public class ContributionResult extends SimpleResult {
 		return results;
 	}
 
+	/**
+	 * Get the characterization factor for the given flow (and location in case of a
+	 * regionalized result).
+	 */
+	public double getImpactFactor(ImpactCategoryDescriptor impact,
+			IndexFlow flow) {
+		if (impact == null || flow == null)
+			return 0;
+		int row = impactIndex.of(impact);
+		int col = flowIndex.of(flow);
+		double value = getValue(impactFactors, row, col);
+		if (!flow.isInput)
+			return value;
+
+		// characterization factors for input flows are negative in the
+		// matrix. A simple abs() is not correct because the original
+		// characterization factor maybe was already negative (-(-(f))).
+		if (value == 0)
+			return 0; // avoid -0
+		return -value;
+	}
+
 	double getValue(IMatrix matrix, int row, int col) {
 		if (matrix == null)
 			return 0d;
