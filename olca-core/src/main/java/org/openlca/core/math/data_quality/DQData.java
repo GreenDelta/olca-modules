@@ -20,7 +20,8 @@ class DQData {
 	DQStatistics statistics = new DQStatistics();
 	private Set<Long> relevantFlowIds = new HashSet<>();
 
-	public static DQData load(IDatabase db, DQCalculationSetup setup, long[] relevantFlowIds) {
+	public static DQData load(IDatabase db, DQCalculationSetup setup,
+			long[] relevantFlowIds) {
 		DQData data = new DQData();
 		for (long id : relevantFlowIds) {
 			data.relevantFlowIds.add(id);
@@ -35,7 +36,6 @@ class DQData {
 	}
 
 	private DQData() {
-		// hide constructor
 	}
 
 	private void loadProcessEntries(IDatabase db, DQCalculationSetup setup) {

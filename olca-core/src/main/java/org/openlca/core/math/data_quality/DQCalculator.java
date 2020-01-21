@@ -9,7 +9,6 @@ import java.util.Map;
 import org.openlca.core.math.data_quality.Aggregation.AggregationValue;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.results.ContributionResult;
 
 class DQCalculator {
@@ -31,23 +30,24 @@ class DQCalculator {
 
 	void calculate() {
 		for (CategorizedDescriptor process : result.getProcesses()) {
-			for (FlowDescriptor flow : result.getFlows()) {
-				addValues(process, flow);
-			}
+			if (result.flowIndex == null)
+				continue;
+			result.flowIndex.each((i, f) -> {
+				if (f.flow == null)
+					return;
+				double[] dqValues = data.exchangeData.get(
+						LongPair.of(process.id, f.flow.id));
+				double flowVal = Math.abs(
+						result.getDirectFlowResult(process, f));
+				BigDecimal flowResult = new BigDecimal(flowVal);
+				if (dqValues == null || flowResult.equals(BigDecimal.ZERO))
+					return;
+				addValue(flowAggregations, f.flow.id, flowResult, dqValues);
+				if (!result.hasImpactResults())
+					return;
+				addImpactValues(process.id, f.flow.id, flowResult, dqValues);
+			});
 		}
-	}
-
-	private void addValues(CategorizedDescriptor process, FlowDescriptor flow) {
-		double[] dqValues = data.exchangeData.get(
-				LongPair.of(process.id, flow.id));
-		double flowVal = Math.abs(result.getDirectFlowResult(process, flow));
-		BigDecimal flowResult = new BigDecimal(flowVal);
-		if (dqValues == null || flowResult.equals(BigDecimal.ZERO))
-			return;
-		addValue(flowAggregations, flow.id, flowResult, dqValues);
-		if (!result.hasImpactResults())
-			return;
-		addImpactValues(process.id, flow.id, flowResult, dqValues);
 	}
 
 	private void addImpactValues(long processId, long flowId,

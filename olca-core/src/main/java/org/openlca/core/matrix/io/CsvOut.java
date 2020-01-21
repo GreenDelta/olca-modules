@@ -217,7 +217,7 @@ public final class CsvOut {
 			writeln(w, line(header));
 			String[] mask = new String[header.length];
 			for (int i = 0; i < idx.size(); i++) {
-				FlowDescriptor flow = idx.at(i);
+				FlowDescriptor flow = idx.at(i).flow;
 				mask[0] = Integer.toString(i);
 				mask[1] = flow.refId;
 				mask[2] = flow.name;
