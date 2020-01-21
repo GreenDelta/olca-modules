@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.openlca.core.matrix.IndexFlow;
-import org.openlca.core.matrix.LongPair;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -34,16 +33,10 @@ public class ProjectResult implements IResult {
 	}
 
 	public double getTotalFlowResult(ProjectVariant variant, IndexFlow flow) {
-		// in each variant the flow can be at a different location
-		// in the respective flow index
 		ContributionResult r = results.get(variant);
-		if (r == null || r.flowIndex == null)
+		if (r == null)
 			return 0;
-		int idx = r.flowIndex.of(flow.flow, flow.location);
-		if (idx < 0)
-			return 0;
-		IndexFlow mapped = r.flowIndex.at(idx);
-		return r.getTotalFlowResult(mapped);
+		return r.getTotalFlowResult(flow);
 	}
 
 	public List<FlowResult> getTotalFlowResults(ProjectVariant variant) {
@@ -110,29 +103,14 @@ public class ProjectResult implements IResult {
 
 	@Override
 	public List<IndexFlow> getFlows() {
-		// a project result is a multi-flow index result.
-		// we use the flow and location descriptors to
-		// locate values in the respective sub-results
-		HashSet<LongPair> handled = new HashSet<>();
-		ArrayList<IndexFlow> flows = new ArrayList<>();
+		HashSet<IndexFlow> flows = new HashSet<>();
 		for (ContributionResult sub : results.values()) {
 			if (sub.flowIndex == null)
 				continue;
-			sub.flowIndex.each(f -> {
-				if (f.flow == null)
-					return;
-				long flowID = f.flow.id;
-				long locID = f.location != null
-						? f.location.id
-						: 0L;
-				LongPair key = LongPair.of(flowID, locID);
-				if (handled.contains(key))
-					return;
-				flows.add(f);
-				handled.add(key);
-			});
+			sub.flowIndex.each((i, flow) -> flows.add(flow));
 		}
-		return flows;
+		return new ArrayList<>(flows);
+
 	}
 
 	@Override

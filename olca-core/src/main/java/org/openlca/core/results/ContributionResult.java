@@ -74,7 +74,7 @@ public class ContributionResult extends SimpleResult {
 	public double getDirectFlowResult(ProcessProduct product, IndexFlow flow) {
 		if (!hasFlowResults())
 			return 0;
-		int row = flow.index;
+		int row = flowIndex.of(flow);
 		int col = techIndex.getIndex(product);
 		return adopt(flow, getValue(directFlowResults, row, col));
 	}
@@ -100,9 +100,9 @@ public class ContributionResult extends SimpleResult {
 	public List<FlowResult> getFlowContributions(
 			CategorizedDescriptor process) {
 		List<FlowResult> results = new ArrayList<>();
-		flowIndex.each(iflow -> {
-			double value = getDirectFlowResult(process, iflow);
-			results.add(new FlowResult(iflow, value));
+		flowIndex.each((i, flow) -> {
+			double value = getDirectFlowResult(process, flow);
+			results.add(new FlowResult(flow, value));
 		});
 		return results;
 	}
@@ -221,7 +221,7 @@ public class ContributionResult extends SimpleResult {
 		if (impact == null || flow == null)
 			return 0;
 		int row = impactIndex.of(impact);
-		int col = flow.index;
+		int col = flowIndex.of(flow);
 		return getValue(directFlowImpacts, row, col);
 	}
 
@@ -231,9 +231,9 @@ public class ContributionResult extends SimpleResult {
 	public List<FlowResult> getFlowContributions(
 			ImpactCategoryDescriptor impact) {
 		List<FlowResult> results = new ArrayList<>();
-		flowIndex.each(iflow -> {
-			double value = getDirectFlowImpact(iflow, impact);
-			results.add(new FlowResult(iflow, value));
+		flowIndex.each((i, flow) -> {
+			double value = getDirectFlowImpact(flow, impact);
+			results.add(new FlowResult(flow, value));
 		});
 		return results;
 	}

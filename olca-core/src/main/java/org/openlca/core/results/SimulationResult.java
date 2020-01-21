@@ -82,7 +82,7 @@ public class SimulationResult extends BaseResult {
 	public double get(IndexFlow flow, int i) {
 		if (flowIndex == null)
 			return 0;
-		int arrayIdx = flow.index;
+		int arrayIdx = flowIndex.of(flow);
 		return adopt(flow, val(flowResults, i, arrayIdx));
 	}
 
@@ -95,7 +95,7 @@ public class SimulationResult extends BaseResult {
 		PinnedContributions pc = pinned.get(product);
 		if (pc == null || flowIndex == null)
 			return 0;
-		int arrayIdx = flow.index;
+		int arrayIdx = flowIndex.of(flow);
 		return adopt(flow, val(pc.directLCI, i, arrayIdx));
 	}
 
@@ -121,7 +121,7 @@ public class SimulationResult extends BaseResult {
 		PinnedContributions pc = pinned.get(product);
 		if (pc == null || flowIndex == null)
 			return 0;
-		int arrayIdx = flow.index;
+		int arrayIdx = flowIndex.of(flow);
 		return adopt(flow, val(pc.upstreamLCI, i, arrayIdx));
 	}
 

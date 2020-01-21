@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
@@ -61,6 +60,12 @@ public final class FlowIndex {
 		if (i < 0 || i >= flows.size())
 			return null;
 		return flows.get(i);
+	}
+
+	public int of(IndexFlow flow) {
+		if (flow == null)
+			return -1;
+		return of(flow.flow, flow.location);
 	}
 
 	public int of(FlowDescriptor flow) {
@@ -150,7 +155,7 @@ public final class FlowIndex {
 
 		// create and add the index flow
 		IndexFlow f = new IndexFlow();
-		f.index = idx;
+		// f.index = idx;
 		f.flow = flow;
 		f.location = isRegionalized ? location : null;
 		f.isInput = isInput;
@@ -158,11 +163,11 @@ public final class FlowIndex {
 		return idx;
 	}
 
-	public void each(Consumer<IndexFlow> fn) {
+	public void each(IndexConsumer<IndexFlow> fn) {
 		if (fn == null)
 			return;
-		for (IndexFlow f : flows) {
-			fn.accept(f);
+		for (int i = 0; i < flows.size(); i++) {
+			fn.accept(i, flows.get(i));
 		}
 	}
 

@@ -1,5 +1,7 @@
 package org.openlca.core.matrix;
 
+import java.util.Objects;
+
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 
@@ -8,10 +10,14 @@ import org.openlca.core.model.descriptors.LocationDescriptor;
  */
 public class IndexFlow {
 
-	/**
+	/*
+	 * TODO: we may add this later to improve performance for single flow index
+	 * results.
+	 * 
+	 * 
 	 * The matrix index to which this flow information is mapped.
 	 */
-	public int index;
+	// public int index;
 
 	/**
 	 * The flow that is mapped to the matrix index.
@@ -36,11 +42,16 @@ public class IndexFlow {
 		if (o == null || getClass() != o.getClass())
 			return false;
 		IndexFlow other = (IndexFlow) o;
-		return index == other.index;
+		return Objects.equals(flow, other.flow)
+				&& Objects.equals(location, other.location);
 	}
 
 	@Override
 	public int hashCode() {
-		return index;
+		if (flow == null)
+			return super.hashCode();
+		if (location == null)
+			return (int) flow.id;
+		return LongPair.hash(flow.id, location.id);
 	}
 }

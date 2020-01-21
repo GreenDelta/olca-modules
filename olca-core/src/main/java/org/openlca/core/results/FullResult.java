@@ -88,12 +88,10 @@ public class FullResult extends ContributionResult {
 	 * Get the upstream contribution of the given process-product pair $j$ to
 	 * the inventory result of elementary flow $i$: $\mathbf{U}[i,j]$.
 	 */
-	public double getUpstreamFlowResult(
-			ProcessProduct product,
-			IndexFlow flow) {
-		if (product == null || flow == null)
+	public double getUpstreamFlowResult(ProcessProduct product, IndexFlow flow) {
+		if (techIndex == null || flowIndex == null)
 			return 0;
-		int row = flow.index;
+		int row = flowIndex.of(flow);
 		int col = techIndex.getIndex(product);
 		return adopt(flow, getValue(upstreamFlowResults, row, col));
 	}
@@ -103,8 +101,7 @@ public class FullResult extends ContributionResult {
 	 * result of elementary flow $i$. When the process has multiple products it
 	 * is the sum of the contributions of all of these process-product pairs.
 	 */
-	public double getUpstreamFlowResult(
-			CategorizedDescriptor process,
+	public double getUpstreamFlowResult(CategorizedDescriptor process,
 			IndexFlow flow) {
 		double total = 0;
 		for (ProcessProduct p : techIndex.getProviders(process)) {
@@ -120,7 +117,7 @@ public class FullResult extends ContributionResult {
 	public List<FlowResult> getUpstreamFlowResults(
 			CategorizedDescriptor process) {
 		List<FlowResult> results = new ArrayList<>();
-		flowIndex.each(flow -> {
+		flowIndex.each((i, flow) -> {
 			double value = getUpstreamFlowResult(process, flow);
 			results.add(new FlowResult(flow, value));
 		});

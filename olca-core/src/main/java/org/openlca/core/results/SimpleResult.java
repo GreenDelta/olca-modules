@@ -99,9 +99,9 @@ public class SimpleResult extends BaseResult {
 	 */
 	// TODO: better just rename it to getTotalResult
 	public double getTotalFlowResult(IndexFlow flow) {
-		if (flow == null)
+		if (flowIndex == null)
 			return 0;
-		int idx = flow.index;
+		int idx = flowIndex.of(flow);
 		if (idx < 0 || idx >= totalFlowResults.length)
 			return 0;
 		return adopt(flow, totalFlowResults[idx]);
@@ -114,7 +114,7 @@ public class SimpleResult extends BaseResult {
 		if (flowIndex == null)
 			return Collections.emptyList();
 		List<FlowResult> results = new ArrayList<>(flowIndex.size());
-		flowIndex.each(f -> results.add(
+		flowIndex.each((i, f) -> results.add(
 				new FlowResult(f, getTotalFlowResult(f))));
 		return results;
 	}
