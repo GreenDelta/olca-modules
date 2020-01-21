@@ -3,10 +3,9 @@ package org.openlca.io.xls.results.system;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Sheet;
-import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.io.xls.results.CellWriter;
 
-abstract class ContributionSheet<C extends BaseDescriptor, R extends BaseDescriptor> {
+abstract class ContributionSheet<C, R> {
 
 	private final CellWriter writer;
 	private final String[] colHeaders;

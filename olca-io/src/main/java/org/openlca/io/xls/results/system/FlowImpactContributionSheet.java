@@ -4,13 +4,13 @@ import java.util.List;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.io.xls.results.CellWriter;
 
 class FlowImpactContributionSheet
-		extends ContributionSheet<FlowDescriptor, ImpactCategoryDescriptor> {
+		extends ContributionSheet<IndexFlow, ImpactCategoryDescriptor> {
 
 	private final CellWriter writer;
 	private final ContributionResult result;
@@ -29,7 +29,7 @@ class FlowImpactContributionSheet
 		this.result = result;
 	}
 
-	private void write(Workbook workbook, List<FlowDescriptor> flows,
+	private void write(Workbook workbook, List<IndexFlow> flows,
 			List<ImpactCategoryDescriptor> impacts) {
 		Sheet sheet = workbook.createSheet("Flow impact contributions");
 		header(sheet);
@@ -38,13 +38,12 @@ class FlowImpactContributionSheet
 	}
 
 	@Override
-	protected double getValue(FlowDescriptor flow,
-			ImpactCategoryDescriptor impact) {
+	protected double getValue(IndexFlow flow, ImpactCategoryDescriptor impact) {
 		return result.getDirectFlowImpact(flow, impact);
 	}
 
 	@Override
-	protected void subHeaderCol(FlowDescriptor flow, Sheet sheet, int col) {
+	protected void subHeaderCol(IndexFlow flow, Sheet sheet, int col) {
 		writer.flowCol(sheet, 1, col, flow);
 	}
 

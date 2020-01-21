@@ -1,10 +1,12 @@
 package org.openlca.geo;
 
+import java.sql.ResultSet;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.CalcImpactFactor;
 import org.openlca.core.matrix.DIndex;
-import org.openlca.core.matrix.RegFlowIndex;
+import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.cache.ConversionTable;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.format.MatrixBuilder;
@@ -12,8 +14,6 @@ import org.openlca.core.matrix.uncertainties.UMatrix;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
-
-import java.sql.ResultSet;
 
 /**
  * Same as ImpactBuilder but with a regionalized flow index.
@@ -36,12 +36,12 @@ public class RegImpactBuilder {
 	}
 
 	public RegImpactData build(
-			RegFlowIndex flowIndex,
+			FlowIndex flowIndex,
 			DIndex<ImpactCategoryDescriptor> impactIndex,
 			FormulaInterpreter interpreter) {
 
 		RegImpactData data = new RegImpactData();
-		data.enviIndex = flowIndex;
+		data.flowIndex = flowIndex;
 		data.impactIndex = impactIndex;
 
 		// allocate matrices
@@ -63,7 +63,7 @@ public class RegImpactBuilder {
 					return true;
 
 				CalcImpactFactor f = new CalcImpactFactor();
-				f.isInput = flowIndex.isInput(flowID);
+				f.isInput = flowIndex.isInput(flowID, locationID);
 				f.imactCategoryId = impactID;
 				f.flowId = flowID;
 				f.amount = r.getDouble(3);
@@ -133,7 +133,7 @@ public class RegImpactBuilder {
 	 * MatrixData class for the meaning of these fields.
 	 */
 	public static class RegImpactData {
-		public RegFlowIndex enviIndex;
+		public FlowIndex flowIndex;
 		public DIndex<ImpactCategoryDescriptor> impactIndex;
 		public IMatrix impactMatrix;
 		public UMatrix impactUncertainties;

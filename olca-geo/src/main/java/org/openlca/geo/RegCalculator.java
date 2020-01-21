@@ -137,7 +137,7 @@ public class RegCalculator {
 				RegImpactBuilder ib = new RegImpactBuilder(db);
 				ib.withUncertainties(conf.withUncertainties);
 				RegImpactBuilder.RegImpactData idata = ib.build(
-						data.regFlowIndex, impactIdx, interpreter);
+						data.flowIndex, impactIdx, interpreter);
 				data.impactMatrix = idata.impactMatrix;
 				data.impactIndex = impactIdx;
 				data.impactUncertainties = idata.impactUncertainties;

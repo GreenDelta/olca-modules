@@ -1,12 +1,12 @@
 package org.openlca.io.xls.results.system;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.math.data_quality.DQResult;
-import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.io.xls.results.CellWriter;
 
@@ -16,7 +16,7 @@ class InventorySheet {
 	private final Workbook workbook;
 	private final SimpleResult result;
 	private final DQResult dqResult;
-	private final List<FlowDescriptor> flows;
+	private final List<IndexFlow> flows;
 	private Sheet sheet;
 
 	static void write(ResultExport export) {
@@ -39,14 +39,10 @@ class InventorySheet {
 		data(col, filterByInputType(false));
 	}
 
-	private List<FlowDescriptor> filterByInputType(boolean input) {
-		List<FlowDescriptor> filtered = new ArrayList<>();
-		for (FlowDescriptor flow : flows) {
-			if (result.isInput(flow) != input)
-				continue;
-			filtered.add(flow);
-		}
-		return filtered;
+	private List<IndexFlow> filterByInputType(boolean input) {
+		return flows.stream()
+				.filter(f -> f.isInput == input)
+				.collect(Collectors.toList());
 	}
 
 	private int header(int col, boolean input) {
@@ -61,10 +57,10 @@ class InventorySheet {
 		return col + 1;
 	}
 
-	private void data(int col, List<FlowDescriptor> flows) {
+	private void data(int col, List<IndexFlow> flows) {
 		int row = 3;
 		int startCol = ResultExport.FLOW_HEADER.length;
-		for (FlowDescriptor flow : flows) {
+		for (IndexFlow flow : flows) {
 			double value = result.getTotalFlowResult(flow);
 			writer.flowRow(sheet, row, col, flow);
 			writer.cell(sheet, row, startCol + col, value);
@@ -73,7 +69,7 @@ class InventorySheet {
 				continue;
 			}
 			writer.dataQuality(sheet, row++, startCol + col + 1,
-					dqResult.get(flow),
+					dqResult.get(flow.flow),
 					dqResult.setup.exchangeDqSystem);
 		}
 	}

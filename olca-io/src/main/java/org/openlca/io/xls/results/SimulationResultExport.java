@@ -128,7 +128,7 @@ public class SimulationResultExport {
 		for (IndexFlow flow : flows) {
 			if (flow.isInput != forInputs)
 				continue;
-			writer.flowRow(sheet, row, 1, flow.flow);
+			writer.flowRow(sheet, row, 1, flow);
 			double[] values = result.getAll(flow);
 			writeValues(sheet, row, FLOW_HEADER.length + 1, values);
 			row++;
@@ -224,7 +224,7 @@ public class SimulationResultExport {
 		for (IndexFlow flow : flows) {
 			if (flow.isInput != forInputs)
 				continue;
-			writer.flowRow(sheet, row, 1, flow.flow);
+			writer.flowRow(sheet, row, 1, flow);
 			double[] values = fn.apply(pp, flow);
 			writeValues(sheet, row, valCol, values);
 			row++;

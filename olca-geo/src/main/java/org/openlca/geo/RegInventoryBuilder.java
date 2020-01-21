@@ -1,14 +1,16 @@
 package org.openlca.geo;
 
-import gnu.trove.map.hash.TLongObjectHashMap;
+import java.util.HashSet;
+import java.util.List;
+
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.matrix.AllocationIndex;
 import org.openlca.core.matrix.CalcExchange;
+import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.InventoryConfig;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.matrix.RegFlowIndex;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.ExchangeTable;
 import org.openlca.core.matrix.cache.FlowTable;
@@ -23,8 +25,7 @@ import org.openlca.core.results.SimpleResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
-import java.util.List;
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 public class RegInventoryBuilder {
 
@@ -33,7 +34,7 @@ public class RegInventoryBuilder {
 	private final FlowTable flows;
 	private final TLongObjectHashMap<LocationDescriptor> locations;
 
-	private RegFlowIndex flowIndex;
+	private FlowIndex flowIndex;
 	private AllocationIndex allocationIndex;
 
 	private MatrixBuilder techBuilder;
@@ -69,17 +70,17 @@ public class RegInventoryBuilder {
 		// create the index of elementary flows; when the system has sub-systems
 		// we add the flows of the sub-systems to the index; note that there
 		// can be elementary flows that only occur in a sub-system
-		flowIndex = new RegFlowIndex();
+		flowIndex = FlowIndex.createRegionalized();
 		if (conf.subResults != null) {
 			for (SimpleResult sub : conf.subResults.values()) {
-				if (sub.regFlowIndex == null)
+				if (sub.flowIndex == null)
 					continue;
-				sub.regFlowIndex.each((i, flow, location) -> {
-					if (!flowIndex.contains(flow, location)) {
-						if (sub.isInput(flow)) {
-							flowIndex.putInput(flow, location);
+				sub.flowIndex.each((i, f) -> {
+					if (!flowIndex.contains(f)) {
+						if (f.isInput) {
+							flowIndex.putInput(f.flow, f.location);
 						} else {
-							flowIndex.putOutput(flow, location);
+							flowIndex.putOutput(f.flow, f.location);
 						}
 					}
 				});
@@ -96,7 +97,7 @@ public class RegInventoryBuilder {
 		// return the matrix data
 		MatrixData data = new MatrixData();
 		data.techIndex = techIndex;
-		data.regFlowIndex = flowIndex;
+		data.flowIndex = flowIndex;
 		data.techMatrix = techBuilder.finish();
 		data.enviMatrix = enviBuilder.finish();
 		data.techUncertainties = techUncerts;
@@ -146,14 +147,13 @@ public class RegInventoryBuilder {
 				techBuilder.set(col, col, a);
 
 				// add the LCI result
-				if (r.regFlowIndex != null) {
-					r.regFlowIndex.each((i, flow, location) -> {
-						double b = r.getTotalFlowResult(flow, location);
-						if (r.isInput(flow)) {
+				if (r.flowIndex != null) {
+					r.flowIndex.each((i, f) -> {
+						double b = r.getTotalFlowResult(f);
+						if (f.isInput) {
 							b = -b;
 						}
-						enviBuilder.set(
-								flowIndex.of(flow, location), col, b);
+						enviBuilder.set(flowIndex.of(f), col, b);
 					});
 				}
 

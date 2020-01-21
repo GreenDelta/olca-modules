@@ -1,5 +1,10 @@
 package org.openlca.geo;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Consumer;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,6 +21,7 @@ import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.SystemCalculator;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.Exchange;
@@ -35,18 +41,11 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.results.FullResult;
-import org.openlca.core.results.SimpleResult;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Consumer;
 
 /**
- * We test different aspects of regionalized models here.
- * Our test model has two connected processes `p1` and `p2`
- * where `p1` is the reference process of the model with
- * an input of 2 units of `p2`:
+ * We test different aspects of regionalized models here. Our test model has two
+ * connected processes `p1` and `p2` where `p1` is the reference process of the
+ * model with an input of 2 units of `p2`:
  *
  * <code>
  * A = [ 1.0  0.0 ; -2.0  1.0 ]
@@ -54,10 +53,9 @@ import java.util.function.Consumer;
  * s = A \ f   # = [ 1 ; 2 ]
  * </code>
  * <p>
- * Process `p1` has emissions of 2 units of a flow `e1` and
- * process `p2` has emissions of 2 units of a flow `e2`. Also,
- * we define two locations `loc1` and `loc2` and a regionalized
- * LCIA method with the following factors:
+ * Process `p1` has emissions of 2 units of a flow `e1` and process `p2` has
+ * emissions of 2 units of a flow `e2`. Also, we define two locations `loc1` and
+ * `loc2` and a regionalized LCIA method with the following factors:
  *
  * <code>
  * e1 loc1 7.0
@@ -68,9 +66,8 @@ import java.util.function.Consumer;
  * e2 ____ 7.5
  * </code>
  * <p>
- * Then we assign different combinations where we assign the
- * locations to the processes and exchanges and compare the
- * calculated results.
+ * Then we assign different combinations where we assign the locations to the
+ * processes and exchanges and compare the calculated results.
  */
 public class RegCalculatorTest {
 
@@ -136,13 +133,13 @@ public class RegCalculatorTest {
 
 		// create the LCIA method
 		impact = new ImpactCategory();
-		Object[][] factors = new Object[][]{
-				{e1, loc1, 7.0},
-				{e1, loc2, 5.0},
-				{e1, null, 3.0},
-				{e2, loc1, 3.5},
-				{e2, loc2, 5.5},
-				{e2, null, 7.5},
+		Object[][] factors = new Object[][] {
+				{ e1, loc1, 7.0 },
+				{ e1, loc2, 5.0 },
+				{ e1, null, 3.0 },
+				{ e2, loc1, 3.5 },
+				{ e2, loc2, 5.5 },
+				{ e2, null, 7.5 },
 		};
 		Arrays.stream(factors).forEach(row -> {
 			ImpactFactor f = impact.addFactor((Flow) row[0]);
@@ -168,34 +165,34 @@ public class RegCalculatorTest {
 		FullResult r = calc.calculateFull(setup);
 
 		// total results
-		checkTotalFlowResults(r, new Object[][]{
-				{e1, 2.0},
-				{e2, 4.0},
+		checkTotalFlowResults(r, new Object[][] {
+				{ e1, 2.0 },
+				{ e2, 4.0 },
 		});
 		checkTotalImpactResult(r, 36.0);
 
 		// direct contributions
-		checkDirectFlowResults(r, new Object[][]{
-				{p1, e1, 2.0},
-				{p1, e2, 0.0},
-				{p2, e1, 0.0},
-				{p2, e2, 4.0},
+		checkDirectFlowResults(r, new Object[][] {
+				{ p1, e1, 2.0 },
+				{ p1, e2, 0.0 },
+				{ p2, e1, 0.0 },
+				{ p2, e2, 4.0 },
 		});
-		checkDirectImpactResults(r, new Object[][]{
-				{p1, 6.0},
-				{p2, 30.0},
+		checkDirectImpactResults(r, new Object[][] {
+				{ p1, 6.0 },
+				{ p2, 30.0 },
 		});
 
 		// upstream contributions
-		checkUpstreamFlowResults(r, new Object[][]{
-				{p1, e1, 2.0},
-				{p1, e2, 4.0},
-				{p2, e1, 0.0},
-				{p2, e2, 4.0},
+		checkUpstreamFlowResults(r, new Object[][] {
+				{ p1, e1, 2.0 },
+				{ p1, e2, 4.0 },
+				{ p2, e1, 0.0 },
+				{ p2, e2, 4.0 },
 		});
-		checkUpstreamImpactResults(r, new Object[][]{
-				{p1, 36.0},
-				{p2, 30.0},
+		checkUpstreamImpactResults(r, new Object[][] {
+				{ p1, 36.0 },
+				{ p2, 30.0 },
 		});
 
 	}
@@ -207,62 +204,112 @@ public class RegCalculatorTest {
 		FullResult r = calc.calculateFull(setup);
 
 		// total results
-		checkTotalFlowResults(r, new Object[][]{
-				{e1, 2.0},
-				{e2, 4.0},
+		checkTotalFlowResults(r, new Object[][] {
+				{ e1, 2.0 },
+				{ e2, 4.0 },
 		});
 		checkTotalImpactResult(r, 36.0);
 
 		// direct contributions
-		checkDirectFlowResults(r, new Object[][]{
-				{p1, e1, 2.0},
-				{p1, e2, 0.0},
-				{p2, e1, 0.0},
-				{p2, e2, 4.0},
+		checkDirectFlowResults(r, new Object[][] {
+				{ p1, e1, 2.0 },
+				{ p1, e2, 0.0 },
+				{ p2, e1, 0.0 },
+				{ p2, e2, 4.0 },
 		});
-		checkDirectImpactResults(r, new Object[][]{
-				{p1, 6.0},
-				{p2, 30.0},
+		checkDirectImpactResults(r, new Object[][] {
+				{ p1, 6.0 },
+				{ p2, 30.0 },
 		});
 
 		// upstream contributions
-		checkUpstreamFlowResults(r, new Object[][]{
-				{p1, e1, 2.0},
-				{p1, e2, 4.0},
-				{p2, e1, 0.0},
-				{p2, e2, 4.0},
+		checkUpstreamFlowResults(r, new Object[][] {
+				{ p1, e1, 2.0 },
+				{ p1, e2, 4.0 },
+				{ p2, e1, 0.0 },
+				{ p2, e2, 4.0 },
 		});
-		checkUpstreamImpactResults(r, new Object[][]{
-				{p1, 36.0},
-				{p2, 30.0},
+		checkUpstreamImpactResults(r, new Object[][] {
+				{ p1, 36.0 },
+				{ p2, 30.0 },
 		});
 	}
 
-	private void checkTotalImpactResult(FullResult r, double val) {
-		Assert.assertEquals(val, r.getTotalImpactResult(des(impact)), 1e-10);
-	}
-
+	/** Checks a sequence of (Flow, Double) values. */
 	private void checkTotalFlowResults(FullResult r, Object[][] defs) {
 		for (Object[] row : defs) {
-			double v = r.getTotalFlowResult(des((Flow) row[0]));
+			Flow flow = (Flow) row[0];
+			int flowIdx = r.flowIndex.of(flow.id);
+			IndexFlow iFlow = r.flowIndex.at(flowIdx);
+			double v = r.getTotalFlowResult(iFlow);
 			Assert.assertEquals((Double) row[1], v, 1e-10);
 		}
 	}
 
-	private void checkDirectFlowResults(FullResult r, Object[][] defs) {
+	/** Checks a sequence of (Flow, Location, Double) values. */
+	private void checkRegTotalFlowResults(FullResult r, Object[][] defs) {
 		for (Object[] row : defs) {
-			double v = r.getDirectFlowResult(
-					product((Process) row[0]), des((Flow) row[1]));
+			Flow flow = (Flow) row[0];
+			Location loc = (Location) row[1];
+			int flowIdx = r.flowIndex.of(flow.id, loc.id);
+			IndexFlow iFlow = r.flowIndex.at(flowIdx);
+			double v = r.getTotalFlowResult(iFlow);
 			Assert.assertEquals((Double) row[2], v, 1e-10);
 		}
 	}
 
-	private void checkUpstreamFlowResults(FullResult r, Object[][] defs) {
+	/** Checks a sequence of (Process, Flow, Double) values. */
+	private void checkDirectFlowResults(FullResult r, Object[][] defs) {
 		for (Object[] row : defs) {
-			double v = r.getUpstreamFlowResult(
-					product((Process) row[0]), des((Flow) row[1]));
+			Flow flow = (Flow) row[1];
+			int flowIdx = r.flowIndex.of(flow.id);
+			IndexFlow iFlow = r.flowIndex.at(flowIdx);
+			double v = r.getDirectFlowResult(
+					product((Process) row[0]), iFlow);
 			Assert.assertEquals((Double) row[2], v, 1e-10);
 		}
+	}
+
+	/** Checks a sequence of (Process, Flow, Location, Double) values. */
+	private void checkRegDirectFlowResults(FullResult r, Object[][] defs) {
+		for (Object[] row : defs) {
+			Flow flow = (Flow) row[1];
+			Location loc = (Location) row[2];
+			int flowIdx = r.flowIndex.of(flow.id, loc.id);
+			IndexFlow iFlow = r.flowIndex.at(flowIdx);
+			double v = r.getDirectFlowResult(
+					product((Process) row[0]), iFlow);
+			Assert.assertEquals((Double) row[3], v, 1e-10);
+		}
+	}
+
+	/** Checks a sequence of (Process, Flow, Double) values. */
+	private void checkUpstreamFlowResults(FullResult r, Object[][] defs) {
+		for (Object[] row : defs) {
+			Flow flow = (Flow) row[1];
+			int flowIdx = r.flowIndex.of(flow.id);
+			IndexFlow iFlow = r.flowIndex.at(flowIdx);
+			double v = r.getUpstreamFlowResult(
+					product((Process) row[0]), iFlow);
+			Assert.assertEquals((Double) row[2], v, 1e-10);
+		}
+	}
+
+	/** Checks a sequence of (Process, Flow, Location, Double) values. */
+	private void checkRegUpstreamFlowResults(FullResult r, Object[][] defs) {
+		for (Object[] row : defs) {
+			Flow flow = (Flow) row[1];
+			Location loc = (Location) row[2];
+			int flowIdx = r.flowIndex.of(flow.id, loc.id);
+			IndexFlow iFlow = r.flowIndex.at(flowIdx);
+			double v = r.getUpstreamFlowResult(
+					product((Process) row[0]), iFlow);
+			Assert.assertEquals((Double) row[3], v, 1e-10);
+		}
+	}
+
+	private void checkTotalImpactResult(FullResult r, double val) {
+		Assert.assertEquals(val, r.getTotalImpactResult(des(impact)), 1e-10);
 	}
 
 	private void checkDirectImpactResults(FullResult r, Object[][] defs) {
@@ -338,14 +385,13 @@ public class RegCalculatorTest {
 		setup.impactMethod = Descriptors.toDescriptor(method);
 		RegCalculator calculator = new RegCalculator(db, new JavaSolver());
 
-		SimpleResult r = calculator.calculateSimple(setup);
-		Assert.assertTrue(r.isRegionalized());
-		Assert.assertEquals(5, r.getTotalFlowResult(
-				Descriptors.toDescriptor(nox), Descriptors.toDescriptor(loc1)), 1e-10);
-		Assert.assertEquals(10, r.getTotalFlowResult(
-				Descriptors.toDescriptor(nox), Descriptors.toDescriptor(loc2)), 1e-10);
+		FullResult r = calculator.calculateFull(setup);
+		Assert.assertTrue(r.flowIndex.isRegionalized);
+		checkRegTotalFlowResults(r, new Object[][] {
+				{ nox, loc1, 5.0 },
+				{ nox, loc2, 10.0 },
+		});
 	}
-
 
 	private Flow flow(String name, String unit, FlowType type) {
 		FlowDao dao = new FlowDao(db);

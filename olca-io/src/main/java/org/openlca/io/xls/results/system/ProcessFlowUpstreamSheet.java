@@ -4,13 +4,13 @@ import java.util.List;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.results.FullResult;
 import org.openlca.io.xls.results.CellWriter;
 
 class ProcessFlowUpstreamSheet
-		extends ContributionSheet<CategorizedDescriptor, FlowDescriptor> {
+		extends ContributionSheet<CategorizedDescriptor, IndexFlow> {
 
 	private final CellWriter writer;
 	private final FullResult result;
@@ -28,7 +28,7 @@ class ProcessFlowUpstreamSheet
 	}
 
 	private void write(Workbook workbook, List<CategorizedDescriptor> processes,
-			List<FlowDescriptor> flows) {
+			List<IndexFlow> flows) {
 		Sheet sheet = workbook.createSheet("Process upstream flows");
 		header(sheet);
 		subHeaders(sheet, processes, flows);
@@ -36,8 +36,7 @@ class ProcessFlowUpstreamSheet
 	}
 
 	@Override
-	protected double getValue(CategorizedDescriptor process,
-			FlowDescriptor flow) {
+	protected double getValue(CategorizedDescriptor process, IndexFlow flow) {
 		return result.getUpstreamFlowResult(process, flow);
 	}
 
@@ -48,8 +47,7 @@ class ProcessFlowUpstreamSheet
 	}
 
 	@Override
-	protected void subHeaderRow(FlowDescriptor flow, Sheet sheet,
-			int row) {
+	protected void subHeaderRow(IndexFlow flow, Sheet sheet, int row) {
 		writer.flowRow(sheet, row, 1, flow);
 	}
 }

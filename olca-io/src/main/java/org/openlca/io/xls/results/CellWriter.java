@@ -10,6 +10,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.database.EntityCache;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Location;
@@ -69,30 +70,29 @@ public class CellWriter {
 	 * Writes the given flow information into the given row, starting in column
 	 * col
 	 */
-	public void flowRow(Sheet sheet, int row, int col, FlowDescriptor flow) {
+	public void flowRow(Sheet sheet, int row, int col, IndexFlow flow) {
 		flow(sheet, row, col, flow, true);
 	}
 
 	/**
 	 * Writes the given flow information into the given col, starting in row row
 	 */
-	public void flowCol(Sheet sheet, int row, int col, FlowDescriptor flow) {
+	public void flowCol(Sheet sheet, int row, int col, IndexFlow flow) {
 		flow(sheet, row, col, flow, false);
 	}
 
-	private void flow(Sheet sheet, int row, int col, FlowDescriptor flow,
-			boolean isRow) {
-		cell(sheet, isRow ? row : row++, !isRow ? col : col++, flow.refId,
-				false);
-		cell(sheet, isRow ? row : row++, !isRow ? col : col++, flow.name,
-				false);
-		CategoryPair flowCat = CategoryPair.create(flow, cache);
+	private void flow(Sheet sheet, int row, int col, IndexFlow flow, boolean isRow) {
+		if (flow == null || flow.flow == null)
+			return;
+		FlowDescriptor f = flow.flow;
+		cell(sheet, isRow ? row : row++, !isRow ? col : col++, f.refId, false);
+		cell(sheet, isRow ? row : row++, !isRow ? col : col++, f.name, false);
+		CategoryPair flowCat = CategoryPair.create(f, cache);
 		cell(sheet, isRow ? row : row++, !isRow ? col : col++,
 				flowCat.getCategory(), false);
 		cell(sheet, isRow ? row : row++, !isRow ? col : col++,
 				flowCat.getSubCategory(), false);
-		cell(sheet, isRow ? row : row++, !isRow ? col : col++, flowUnit(flow),
-				false);
+		cell(sheet, isRow ? row : row++, !isRow ? col : col++, flowUnit(f), false);
 	}
 
 	/**
