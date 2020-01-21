@@ -65,12 +65,12 @@ public class ImpactBuilder {
 					return true;
 
 				CalcImpactFactor f = new CalcImpactFactor();
-				f.isInput = flowIndex.isInput(flowID);
 				f.imactCategoryId = impactID;
 				f.flowId = flowID;
 				f.amount = r.getDouble(3);
 				f.formula = r.getString(4);
 				f.conversionFactor = getConversionFactor(r);
+				f.isInput = flowIndex.isInput(flowID);
 
 				// set the matrix value
 				int row = impactIndex.of(impactID);

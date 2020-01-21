@@ -1,13 +1,12 @@
 package org.openlca.core.matrix;
 
-import gnu.trove.list.TIntList;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class FlowIndexTest {
 
@@ -15,7 +14,7 @@ public class FlowIndexTest {
 
 	@Test
 	public void testIt() {
-		FlowIndex2 idx = FlowIndex2.createRegionalized();
+		FlowIndex idx = FlowIndex.createRegionalized();
 		List<FlowDescriptor> flows = new ArrayList<>();
 		List<LocationDescriptor> locations = new ArrayList<>();
 		List<Boolean> isInput = new ArrayList<>();
@@ -42,7 +41,7 @@ public class FlowIndexTest {
 		for (int i = 0; i < 10_000; i++) {
 			IndexFlow iflow = idx.at(i);
 			Assert.assertNotNull(iflow);
-			Assert.assertEquals(i, iflow.index);
+			Assert.assertEquals(i, idx.of(iflow));
 			Assert.assertEquals(flows.get(i), iflow.flow);
 			Assert.assertNotNull(iflow.location);
 			Assert.assertEquals(locations.get(i), iflow.location);
@@ -58,7 +57,7 @@ public class FlowIndexTest {
 	@Test
 	public void testNonRegFlows() {
 
-		FlowIndex2 idx = FlowIndex2.createRegionalized();
+		FlowIndex idx = FlowIndex.createRegionalized();
 
 		// add 500 flows with location and 500 without
 		boolean isInput = true;
@@ -88,36 +87,6 @@ public class FlowIndexTest {
 				Assert.assertNull(iflow.location);
 			} else {
 				Assert.assertNotNull(iflow.location);
-			}
-		}
-	}
-
-	@Test
-	public void testFlowPositions() {
-		RegFlowIndex idx = new RegFlowIndex();
-		FlowDescriptor f1 = randFlow();
-		FlowDescriptor f2 = randFlow();
-		for (int i = 0; i < 100; i++) {
-			int j;
-			if (i % 2 == 0) {
-				j = idx.putInput(f1, randLocation());
-			} else {
-				j = idx.putOutput(f2, randLocation());
-			}
-			Assert.assertEquals(i, j);
-		}
-
-		TIntList pos1 = idx.getPositions(f1);
-		TIntList pos2 = idx.getPositions(f2);
-		Assert.assertEquals(50, pos1.size());
-		Assert.assertEquals(50, pos2.size());
-		for (int i = 0; i < 100; i++) {
-			if (i % 2 == 0) {
-				Assert.assertTrue(
-						pos1.contains(i) && !pos2.contains(i));
-			} else {
-				Assert.assertTrue(
-						!pos1.contains(i) && pos2.contains(i));
 			}
 		}
 	}

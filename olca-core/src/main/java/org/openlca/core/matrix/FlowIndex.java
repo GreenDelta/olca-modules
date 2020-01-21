@@ -98,6 +98,10 @@ public final class FlowIndex {
 		return index.get(flowID);
 	}
 
+	public boolean contains(IndexFlow flow) {
+		return of(flow) >= 0;
+	}
+
 	public boolean contains(FlowDescriptor flow) {
 		return of(flow) >= 0;
 	}
@@ -174,4 +178,26 @@ public final class FlowIndex {
 	public Set<IndexFlow> flows() {
 		return new HashSet<>(flows);
 	}
+
+	public boolean isInput(long flowID) {
+		if (isRegionalized)
+			return isInput(flowID, 0L);
+		int i = index.get(flowID);
+		if (i < 0)
+			return false;
+		IndexFlow flow = flows.get(i);
+		return flow.isInput;
+	}
+
+	public boolean isInput(long flowID, long locationID) {
+		if (!isRegionalized)
+			return isInput(flowID);
+		LongPair key = LongPair.of(flowID, locationID);
+		Integer i = regIndex.get(key);
+		if (i == null)
+			return false;
+		IndexFlow flow = flows.get(i);
+		return flow.isInput;
+	}
+
 }

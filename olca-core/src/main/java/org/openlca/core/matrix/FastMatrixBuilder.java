@@ -2,7 +2,6 @@ package org.openlca.core.matrix;
 
 import java.util.List;
 
-import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.NativeSql;
@@ -18,6 +17,8 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
+
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
  * A fast matrix builder that skips the product system linking layer ...
@@ -54,7 +55,7 @@ public class FastMatrixBuilder {
 
 	public MatrixData build() {
 		techIndex = buildTechIndex();
-		flowIndex = new FlowIndex();
+		flowIndex = FlowIndex.create();
 		interpreter = DataStructures.interpreter(
 				db, setup, techIndex);
 		techBuilder = new MatrixBuilder();

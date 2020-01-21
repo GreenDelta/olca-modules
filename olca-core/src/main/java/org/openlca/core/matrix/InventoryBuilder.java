@@ -54,17 +54,19 @@ public class InventoryBuilder {
 		// create the index of elementary flows; when the system has sub-systems
 		// we add the flows of the sub-systems to the index; note that there
 		// can be elementary flows that only occur in a sub-system
-		flowIndex = new FlowIndex();
+		flowIndex = FlowIndex.create();
 		if (conf.subResults != null) {
 			for (SimpleResult sub : conf.subResults.values()) {
 				if (sub.flowIndex == null)
 					continue;
 				sub.flowIndex.each((i, f) -> {
 					if (!flowIndex.contains(f)) {
-						if (sub.isInput(f)) {
-							flowIndex.putInput(f);
+						// TODO: later add locations when we
+						// support regionalization here
+						if (f.isInput) {
+							flowIndex.putInput(f.flow);
 						} else {
-							flowIndex.putOutput(f);
+							flowIndex.putOutput(f.flow);
 						}
 					}
 				});
@@ -133,7 +135,7 @@ public class InventoryBuilder {
 				// add the LCI result
 				r.flowIndex.each((i, f) -> {
 					double b = r.getTotalFlowResult(f);
-					if (r.isInput(f)) {
+					if (f.isInput) {
 						b = -b;
 					}
 					enviBuilder.set(flowIndex.of(f), col, b);

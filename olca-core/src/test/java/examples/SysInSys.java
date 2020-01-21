@@ -8,10 +8,10 @@ import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.Simulator;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.results.SimpleResult;
 
 /**
@@ -37,9 +37,8 @@ public class SysInSys {
 
 		SimpleResult r = sim.nextRun();
 
-		FlowDescriptor flow = r.flowIndex.at(0);
-		System.out.println(flow.name + "  -> " +
-				r.getTotalFlowResult(flow));
+		IndexFlow f = r.flowIndex.at(0);
+		System.out.println(f.flow.name + "  -> " + r.getTotalFlowResult(f));
 
 	}
 

@@ -2,18 +2,18 @@ package org.openlca.core.math;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Set;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
 import org.openlca.core.TestProcess;
 import org.openlca.core.TestSystem;
 import org.openlca.core.Tests;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.results.ProjectResult;
 
 public class ProjectCalculationTest {
@@ -44,14 +44,14 @@ public class ProjectCalculationTest {
 		SystemCalculator calc = new SystemCalculator(
 				Tests.getDb(), new JavaSolver());
 		ProjectResult r = calc.calculate(project);
-		Set<FlowDescriptor> flows = r.getFlows();
+		List<IndexFlow> flows = r.getFlows();
 		assertEquals(2, flows.size());
 
 		AtomicInteger icount = new AtomicInteger(0);
-		for (FlowDescriptor flow : flows) {
-			r.getContributions(flow).contributions.forEach(item -> {
+		for (IndexFlow f : flows) {
+			r.getContributions(f).contributions.forEach(item -> {
 				icount.incrementAndGet();
-				switch (flow.name) {
+				switch (f.flow.name) {
 				case "e1":
 					assertEquals(1.0, item.amount, 1e-10);
 					break;

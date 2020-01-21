@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 
@@ -80,9 +81,15 @@ public class UpstreamTree {
 	 * switch the sign of it.
 	 */
 	private double adopt(double value) {
-		return ref instanceof FlowDescriptor
-				? r.adopt((FlowDescriptor) ref, value)
-				: value;
+		if (!(ref instanceof FlowDescriptor))
+			return value;
+		if (value == 0)
+			return 0; // avoid -0
+		int idx = r.flowIndex.of((FlowDescriptor) ref);
+		if (idx < 0)
+			return value;
+		IndexFlow flow = r.flowIndex.at(idx);
+		return flow.isInput ? -value : value;
 	}
 
 }

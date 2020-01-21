@@ -29,7 +29,7 @@ public class ImpactBuilderExample {
 		// !Note that this is just an example. It sets all flows to output
 		// flows. Normally, the flow direction would be determined from
 		// the inventory
-		FlowIndex flowIndex = new FlowIndex();
+		FlowIndex flowIndex = FlowIndex.create();
 		new FlowDao(db).getDescriptors().forEach(d -> {
 			if (d.flowType == FlowType.ELEMENTARY_FLOW) {
 				flowIndex.putOutput(d);

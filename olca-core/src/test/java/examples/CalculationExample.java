@@ -9,9 +9,9 @@ import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.SystemCalculator;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.solvers.DenseSolver;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.results.FullResult;
@@ -35,15 +35,11 @@ public class CalculationExample {
 				new File("C:/Users/ms/openLCA-data-1.4"));
 		SystemCalculator calc = new SystemCalculator(db, new DenseSolver());
 		FullResult r = calc.calculateFull(setup);
-		FlowDescriptor flow = r.flowIndex.at(0);
-		System.out.println(
-				flow.name + "  -> " +
-						r.getTotalFlowResult(flow));
+		IndexFlow f = r.flowIndex.at(0);
+		System.out.println(f.flow.name + "  -> " + r.getTotalFlowResult(f));
 
 		ImpactCategoryDescriptor impact = r.impactIndex.at(0);
-		System.out.println(
-				impact.name + "  -> " +
-						r.getTotalImpactResult(impact));
+		System.out.println(impact.name + "  -> " + r.getTotalImpactResult(impact));
 	}
 
 }
