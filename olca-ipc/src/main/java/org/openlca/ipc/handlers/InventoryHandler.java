@@ -55,7 +55,7 @@ public class InventoryHandler {
 			List<ContributionItem<CategorizedDescriptor>> contributions = result
 					.getProcessContributions(flow).contributions;
 			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
-			String unit = utils.getUnit(flow, cache);
+			String unit = utils.getUnit(flow.flow, cache);
 			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", unit));
 		});
 	}
@@ -67,7 +67,7 @@ public class InventoryHandler {
 			List<ContributionItem<LocationDescriptor>> contributions = utils
 					.toDescriptors(calculator.calculate(flow).contributions);
 			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
-			String unit = utils.getUnit(flow, cache);
+			String unit = utils.getUnit(flow.flow, cache);
 			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", unit));
 		});
 	}
@@ -85,7 +85,7 @@ public class InventoryHandler {
 				}
 				return contribution.amount != 0;
 			});
-			String unit = utils.getUnit(flow, cache);
+			String unit = utils.getUnit(flow.flow, cache);
 			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", unit));
 		});
 	}
@@ -110,24 +110,26 @@ public class InventoryHandler {
 	private RpcResponse getProcessResults(RpcRequest req, boolean input) {
 		return utils.fullProcess(req, (result, process, cache) -> {
 			JsonArray contributions = new JsonArray();
-			result.getFlows().forEach(flow -> {
-				if (result.isInput(flow) != input)
+			result.flowIndex.each((i, f) -> {
+				if (f.isInput != input)
 					return;
-				double total = result.getTotalFlowResult(flow);
+				double total = result.getTotalFlowResult(f);
 				if (total == 0)
 					return;
 				ContributionItem<FlowDescriptor> c = new ContributionItem<>();
-				c.item = flow;
-				c.amount = result.getDirectFlowResult(process, flow);
+				c.item = f.flow;
+				c.amount = result.getDirectFlowResult(process, f);
 				c.share = c.amount / total;
 				if (c.amount == 0)
 					return;
-				String unit = utils.getUnit(flow, cache);
+				String unit = utils.getUnit(f.flow, cache);
 				contributions.add(JsonRpc.encode(c, cache, json -> {
 					json.addProperty("unit", unit);
-					json.addProperty("upstream", result.getUpstreamFlowResult(process, flow));
+					json.addProperty("upstream",
+							result.getUpstreamFlowResult(process, f));
 				}));
 			});
+
 			return contributions;
 		});
 	}

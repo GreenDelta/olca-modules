@@ -9,6 +9,8 @@ import org.openlca.core.database.Daos;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.CalculationType;
 import org.openlca.core.matrix.DIndex;
+import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
@@ -63,6 +65,8 @@ class Utils {
 	}
 
 	String getUnit(FlowDescriptor flow, EntityCache cache) {
+		if (flow == null)
+			return null;
 		FlowProperty prop = cache.get(FlowProperty.class, flow.refFlowPropertyId);
 		if (prop == null || prop.unitGroup == null)
 			return null;
@@ -110,7 +114,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		FlowDescriptor flow = get(result.flowIndex, json, "flow");
+		IndexFlow flow = get(result.flowIndex, json, "flow");
 		if (flow == null)
 			return Responses.invalidParams("Missing or invalid flow parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
@@ -122,8 +126,8 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		FlowDescriptor flow = get(result.flowIndex, json, "flow");
-		if (flow == null)
+		IndexFlow flow = get(result.flowIndex, json, "flow");
+		if (flow == null || flow.flow == null)
 			return Responses.invalidParams("Missing or invalid flow parameter", req);
 		LocationDescriptor location = get(ModelType.LOCATION, json);
 		if (location == null)
@@ -206,11 +210,11 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		FullResult result = getResult(json);
-		FlowDescriptor flow = get(result.flowIndex, json, "flow");
-		if (flow == null)
+		IndexFlow flow = get(result.flowIndex, json, "flow");
+		if (flow == null || flow.flow == null)
 			return Responses.invalidParams("Missing or invalid flow parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
-		return Responses.ok(handler.handle(result, flow, cache), req);
+		return Responses.ok(handler.handle(result, flow.flow, cache), req);
 	}
 
 	RpcResponse fullProcess(RpcRequest req, FullProcess handler) {
@@ -237,13 +241,33 @@ class Utils {
 		return Responses.ok(handler.handle(result, impact, cache), req);
 	}
 
-	private <T extends BaseDescriptor> T get(DIndex<T> index, JsonObject json, String field) {
-		String flowID = Json.getRefId(json, field);
-		if (flowID == null)
+	private <T extends BaseDescriptor> T get(
+			DIndex<T> index, JsonObject json, String field) {
+		if (index == null)
 			return null;
-		for (T descriptor : index.content())
-			if (flowID.equals(descriptor.refId))
-				return descriptor;
+		String refID = Json.getRefId(json, field);
+		if (refID == null)
+			return null;
+		for (T d : index.content()) {
+			if (refID.equals(d.refId))
+				return d;
+		}
+		return null;
+	}
+
+	private IndexFlow get(FlowIndex idx, JsonObject json,
+			String field) {
+		if (idx == null)
+			return null;
+		String refID = Json.getRefId(json, field);
+		if (refID == null)
+			return null;
+		for (IndexFlow f : idx.flows()) {
+			if (f.flow == null)
+				continue;
+			if (refID.equals(f.flow.refId))
+				return f;
+		}
 		return null;
 	}
 
@@ -304,13 +328,13 @@ class Utils {
 
 	interface ContributionFlow {
 
-		JsonElement handle(ContributionResult result, FlowDescriptor flow, EntityCache cache);
+		JsonElement handle(ContributionResult result, IndexFlow flow, EntityCache cache);
 
 	}
 
 	interface ContributionFlowLocation {
 
-		JsonElement handle(ContributionResult result, FlowDescriptor flow, LocationDescriptor location,
+		JsonElement handle(ContributionResult result, IndexFlow flow, LocationDescriptor location,
 				EntityCache cache);
 
 	}

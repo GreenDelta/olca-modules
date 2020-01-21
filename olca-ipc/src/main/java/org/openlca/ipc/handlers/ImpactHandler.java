@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -45,16 +46,18 @@ public class ImpactHandler {
 		return utils.contributionImpact(req, (result, impact, cache) -> {
 			double total = result.getTotalImpactResult(impact);
 			List<ContributionItem<FlowDescriptor>> contributions = new ArrayList<>();
-			result.getFlows().forEach(flow -> {
+			// TODO: regionalization
+			result.flowIndex.each((i, f) -> {
 				ContributionItem<FlowDescriptor> c = new ContributionItem<>();
-				c.item = flow;
-				c.amount = result.getDirectFlowImpact(flow, impact);
+				c.item = f.flow;
+				c.amount = result.getDirectFlowImpact(f, impact);
 				c.share = c.amount / total;
 				if (c.amount == 0)
 					return;
 				contributions.add(c);
 			});
-			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", impact.referenceUnit));
+			return JsonRpc.encode(contributions, cache,
+					json -> json.addProperty("unit", impact.referenceUnit));
 		});
 	}
 
@@ -63,16 +66,19 @@ public class ImpactHandler {
 		return utils.contributionImpactProcess(req, (result, impact, process, cache) -> {
 			double total = result.getDirectImpactResult(process, impact);
 			List<ContributionItem<FlowDescriptor>> contributions = new ArrayList<>();
-			result.getFlows().forEach(flow -> {
+			// TODO: regionalization
+			result.flowIndex.each((i, f) -> {
 				ContributionItem<FlowDescriptor> c = new ContributionItem<>();
-				c.item = flow;
-				c.amount = result.getDirectFlowResult(process, flow) * getImpactFactor(result, impact, flow);
+				c.item = f.flow;
+				c.amount = result.getDirectFlowResult(process, f)
+						* getImpactFactor(result, impact, f);
 				c.share = c.amount / total;
 				if (c.amount == 0)
 					return;
 				contributions.add(c);
 			});
-			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", impact.referenceUnit));
+			return JsonRpc.encode(contributions, cache,
+					json -> json.addProperty("unit", impact.referenceUnit));
 		});
 	}
 
@@ -172,11 +178,14 @@ public class ImpactHandler {
 		});
 	}
 
-	private double getImpactFactor(ContributionResult result, ImpactCategoryDescriptor impact, FlowDescriptor flow) {
+	private double getImpactFactor(ContributionResult result,
+			ImpactCategoryDescriptor impact, IndexFlow flow) {
 		int row = result.impactIndex.of(impact);
 		int col = result.flowIndex.of(flow);
 		double value = result.impactFactors.get(row, col);
-		if (result.isInput(flow)) {
+		if (value == 0)
+			return 0; // avoid -0
+		if (flow.isInput) {
 			// characterization factors for input flows are negative in the
 			// matrix. A simple abs() is not correct because the original
 			// characterization factor maybe was already negative (-(-(f))).

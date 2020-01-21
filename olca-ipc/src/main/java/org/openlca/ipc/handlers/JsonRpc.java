@@ -3,6 +3,7 @@ package org.openlca.ipc.handlers;
 import java.util.Collection;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.ProcessProduct;
@@ -33,7 +34,11 @@ class JsonRpc {
 		if (r == null)
 			return obj;
 		obj.addProperty("@type", r.getClass().getSimpleName());
-		obj.add("flows", encode(r.getFlows(), cache));
+		obj.add("flows", encode(
+				r.getFlows().stream()
+						.map(f -> f.flow)
+						.collect(Collectors.toSet()),
+				cache));
 		obj.add("processes", encode(r.getProcesses(), cache));
 		obj.add("flowResults", encode(r.getTotalFlowResults(), result -> encode(result, cache)));
 		if (!r.hasImpactResults())
@@ -76,7 +81,7 @@ class JsonRpc {
 			return null;
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@type", "ContributionItem");
-		obj.add("item", Json.asRef((BaseDescriptor) i.item, cache));
+		obj.add("item", Json.asRef(i.item, cache));
 		obj.addProperty("amount", i.amount);
 		obj.addProperty("share", i.share);
 		obj.addProperty("rest", i.rest);
