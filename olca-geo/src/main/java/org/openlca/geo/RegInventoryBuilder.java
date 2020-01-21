@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.openlca.core.database.LocationDao;
+import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.AllocationIndex;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.FlowIndex;
@@ -33,6 +34,7 @@ public class RegInventoryBuilder {
 	private final TechIndex techIndex;
 	private final FlowTable flows;
 	private final TLongObjectHashMap<LocationDescriptor> locations;
+	private final TLongObjectHashMap<LocationDescriptor> processLocations;
 
 	private FlowIndex flowIndex;
 	private AllocationIndex allocationIndex;
@@ -47,8 +49,28 @@ public class RegInventoryBuilder {
 		this.conf = conf;
 		this.techIndex = conf.techIndex;
 		this.flows = FlowTable.create(conf.db);
-		this.locations = new LocationDao(conf.db).descriptorMap();
 
+		// TODO: if regionalized
+		this.locations = new LocationDao(conf.db).descriptorMap();
+		// collect process locations
+		this.processLocations = new TLongObjectHashMap<>();
+		String query = "select id, f_location from tbl_processes";
+		try {
+			NativeSql.on(conf.db).query(query, r -> {
+				long procID = r.getLong(1);
+				long locID = r.getLong(2);
+				LocationDescriptor loc = locations.get(locID);
+				if (loc != null) {
+					processLocations.put(procID, loc);
+				}
+				return true;
+			});
+		} catch (Exception e) {
+			throw new RuntimeException(
+					"failed to query process locations " + query, e);
+		}
+
+		// initialize matrices
 		techBuilder = new MatrixBuilder();
 		enviBuilder = new MatrixBuilder();
 		if (conf.withUncertainties) {
@@ -212,20 +234,38 @@ public class RegInventoryBuilder {
 		int row = flowIndex.of(e.flowId, e.locationId);
 		if (row < 0) {
 			FlowDescriptor flow = flows.get(e.flowId);
-			LocationDescriptor loc = locations.get(e.locationId);
 			if (flow == null)
 				return;
-			if (e.isInput) {
-				row = flowIndex.putInput(flow, loc);
+
+			if (!flowIndex.isRegionalized) {
+				if (e.isInput) {
+					row = flowIndex.putInput(flow);
+				} else {
+					row = flowIndex.putOutput(flow);
+				}
 			} else {
-				row = flowIndex.putOutput(flow, loc);
+
+				// create a regionalized flow; the location
+				// maybe null
+				LocationDescriptor loc = null;
+				if (e.locationId > 0) {
+					loc = locations.get(e.locationId);
+				}
+				if (loc == null) {
+					loc = processLocations.get(provider.id());
+				}
+				if (e.isInput) {
+					row = flowIndex.putInput(flow, loc);
+				} else {
+					row = flowIndex.putOutput(flow, loc);
+				}
 			}
 		}
 		add(row, provider, enviBuilder, e);
 	}
 
 	private void add(int row, ProcessProduct provider, MatrixBuilder matrix,
-					 CalcExchange exchange) {
+			CalcExchange exchange) {
 
 		int col = techIndex.getIndex(provider);
 		if (row < 0 || col < 0)

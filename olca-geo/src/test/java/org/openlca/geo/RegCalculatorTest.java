@@ -37,9 +37,7 @@ import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptors;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.results.FullResult;
 
 /**
@@ -134,12 +132,12 @@ public class RegCalculatorTest {
 		// create the LCIA method
 		impact = new ImpactCategory();
 		Object[][] factors = new Object[][] {
-				{ e1, loc1, 7.0 },
-				{ e1, loc2, 5.0 },
+				{ e1, loc1, 9.0 },
+				{ e1, loc2, 6.0 },
 				{ e1, null, 3.0 },
-				{ e2, loc1, 3.5 },
-				{ e2, loc2, 5.5 },
-				{ e2, null, 7.5 },
+				{ e2, loc1, 6.0 },
+				{ e2, loc2, 4.0 },
+				{ e2, null, 2.0 },
 		};
 		Arrays.stream(factors).forEach(row -> {
 			ImpactFactor f = impact.addFactor((Flow) row[0]);
@@ -169,7 +167,7 @@ public class RegCalculatorTest {
 				{ e1, 2.0 },
 				{ e2, 4.0 },
 		});
-		checkTotalImpactResult(r, 36.0);
+		checkTotalImpactResult(r, 14.0);
 
 		// direct contributions
 		checkDirectFlowResults(r, new Object[][] {
@@ -179,8 +177,8 @@ public class RegCalculatorTest {
 				{ p2, e2, 4.0 },
 		});
 		checkDirectImpactResults(r, new Object[][] {
-				{ p1, 6.0 },
-				{ p2, 30.0 },
+				{ p1, 2 * 3.0 },
+				{ p2, 4 * 2.0 },
 		});
 
 		// upstream contributions
@@ -191,8 +189,8 @@ public class RegCalculatorTest {
 				{ p2, e2, 4.0 },
 		});
 		checkUpstreamImpactResults(r, new Object[][] {
-				{ p1, 36.0 },
-				{ p2, 30.0 },
+				{ p1, 14.0 },
+				{ p2, 8.0 },
 		});
 
 	}
@@ -208,7 +206,7 @@ public class RegCalculatorTest {
 				{ e1, 2.0 },
 				{ e2, 4.0 },
 		});
-		checkTotalImpactResult(r, 36.0);
+		checkTotalImpactResult(r, 14.0);
 
 		// direct contributions
 		checkDirectFlowResults(r, new Object[][] {
@@ -218,8 +216,8 @@ public class RegCalculatorTest {
 				{ p2, e2, 4.0 },
 		});
 		checkDirectImpactResults(r, new Object[][] {
-				{ p1, 6.0 },
-				{ p2, 30.0 },
+				{ p1, 2 * 3.0 },
+				{ p2, 4 * 2.0 },
 		});
 
 		// upstream contributions
@@ -230,8 +228,73 @@ public class RegCalculatorTest {
 				{ p2, e2, 4.0 },
 		});
 		checkUpstreamImpactResults(r, new Object[][] {
-				{ p1, 36.0 },
-				{ p2, 30.0 },
+				{ p1, 14.0 },
+				{ p2, 8.0 },
+		});
+	}
+
+	/**
+	 * If no location is specified on a elementary flow, the process location is
+	 * taken by default for that flow if available.
+	 */
+	@Test
+	public void testProcessLocations() {
+		p1 = setLoc(p1, loc1);
+		p2 = setLoc(p2, loc2);
+
+		CalculationSetup setup = calcSetup();
+		RegCalculator calc = new RegCalculator(db, new JavaSolver());
+		FullResult r = calc.calculateFull(setup);
+
+		checkRegTotalFlowResults(r, new Object[][] {
+				{ e1, loc1, 2.0 },
+				{ e1, loc2, 0.0 },
+				{ e1, null, 0.0 },
+				{ e2, loc1, 0.0 },
+				{ e2, loc2, 4.0 },
+				{ e2, null, 0.0 },
+		});
+
+		checkTotalImpactResult(r, 2 * 9.0 + 4 * 4.0);
+
+		checkRegDirectFlowResults(r, new Object[][] {
+				{ p1, e1, loc1, 2.0 },
+				{ p1, e1, loc2, 0.0 },
+				{ p1, e1, null, 0.0 },
+				{ p1, e2, loc1, 0.0 },
+				{ p1, e2, loc2, 0.0 },
+				{ p1, e2, null, 0.0 },
+				{ p2, e1, loc1, 0.0 },
+				{ p2, e1, loc2, 0.0 },
+				{ p2, e1, null, 0.0 },
+				{ p2, e2, loc1, 0.0 },
+				{ p2, e2, loc2, 4.0 },
+				{ p2, e2, null, 0.0 },
+		});
+
+		checkDirectImpactResults(r, new Object[][] {
+				{ p1, 2.0 * 9.0 },
+				{ p2, 4.0 * 4.0 },
+		});
+
+		checkRegUpstreamFlowResults(r, new Object[][] {
+				{ p1, e1, loc1, 2.0 },
+				{ p1, e1, loc2, 0.0 },
+				{ p1, e1, null, 0.0 },
+				{ p1, e2, loc1, 0.0 },
+				{ p1, e2, loc2, 4.0 },
+				{ p1, e2, null, 0.0 },
+				{ p2, e1, loc1, 0.0 },
+				{ p2, e1, loc2, 0.0 },
+				{ p2, e1, null, 0.0 },
+				{ p2, e2, loc1, 0.0 },
+				{ p2, e2, loc2, 4.0 },
+				{ p2, e2, null, 0.0 },
+		});
+
+		checkUpstreamImpactResults(r, new Object[][] {
+				{ p1, 2 * 9.0 + 4 * 4.0 },
+				{ p2, 4.0 * 4.0 },
 		});
 	}
 
@@ -251,7 +314,7 @@ public class RegCalculatorTest {
 		for (Object[] row : defs) {
 			Flow flow = (Flow) row[0];
 			Location loc = (Location) row[1];
-			int flowIdx = r.flowIndex.of(flow.id, loc.id);
+			int flowIdx = r.flowIndex.of(flow.id, loc != null ? loc.id : 0L);
 			IndexFlow iFlow = r.flowIndex.at(flowIdx);
 			double v = r.getTotalFlowResult(iFlow);
 			Assert.assertEquals((Double) row[2], v, 1e-10);
@@ -275,7 +338,7 @@ public class RegCalculatorTest {
 		for (Object[] row : defs) {
 			Flow flow = (Flow) row[1];
 			Location loc = (Location) row[2];
-			int flowIdx = r.flowIndex.of(flow.id, loc.id);
+			int flowIdx = r.flowIndex.of(flow.id, loc != null ? loc.id : 0L);
 			IndexFlow iFlow = r.flowIndex.at(flowIdx);
 			double v = r.getDirectFlowResult(
 					product((Process) row[0]), iFlow);
@@ -300,7 +363,7 @@ public class RegCalculatorTest {
 		for (Object[] row : defs) {
 			Flow flow = (Flow) row[1];
 			Location loc = (Location) row[2];
-			int flowIdx = r.flowIndex.of(flow.id, loc.id);
+			int flowIdx = r.flowIndex.of(flow.id, loc != null ? loc.id : 0L);
 			IndexFlow iFlow = r.flowIndex.at(flowIdx);
 			double v = r.getUpstreamFlowResult(
 					product((Process) row[0]), iFlow);
@@ -453,15 +516,12 @@ public class RegCalculatorTest {
 		}
 	}
 
-	private FlowDescriptor des(Flow flow) {
-		return Descriptors.toDescriptor(flow);
-	}
-
-	private LocationDescriptor des(Location loc) {
-		return Descriptors.toDescriptor(loc);
-	}
-
 	private ImpactCategoryDescriptor des(ImpactCategory imp) {
 		return Descriptors.toDescriptor(imp);
+	}
+
+	private Process setLoc(Process p, Location loc) {
+		p.location = loc;
+		return new ProcessDao(db).update(p);
 	}
 }
