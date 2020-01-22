@@ -18,7 +18,6 @@ import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.Descriptors;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -64,10 +63,11 @@ class Utils {
 		return (T) result.result;
 	}
 
-	String getUnit(FlowDescriptor flow, EntityCache cache) {
-		if (flow == null)
+	String getUnit(IndexFlow flow, EntityCache cache) {
+		if (flow == null || flow.flow == null)
 			return null;
-		FlowProperty prop = cache.get(FlowProperty.class, flow.refFlowPropertyId);
+		FlowProperty prop = cache.get(
+				FlowProperty.class, flow.flow.refFlowPropertyId);
 		if (prop == null || prop.unitGroup == null)
 			return null;
 		Unit unit = prop.unitGroup.referenceUnit;
@@ -214,7 +214,7 @@ class Utils {
 		if (flow == null || flow.flow == null)
 			return Responses.invalidParams("Missing or invalid flow parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
-		return Responses.ok(handler.handle(result, flow.flow, cache), req);
+		return Responses.ok(handler.handle(result, flow, cache), req);
 	}
 
 	RpcResponse fullProcess(RpcRequest req, FullProcess handler) {
@@ -374,7 +374,7 @@ class Utils {
 
 	interface FullFlow {
 
-		JsonElement handle(FullResult result, FlowDescriptor flow, EntityCache cache);
+		JsonElement handle(FullResult result, IndexFlow flow, EntityCache cache);
 
 	}
 

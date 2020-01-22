@@ -5,8 +5,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.matrix.IndexFlow;
-import org.openlca.core.model.descriptors.BaseDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 
 /**
  * Maps the upstream results of the product system graph to a tree where the
@@ -20,7 +18,7 @@ public class UpstreamTree {
 	 * An optional reference to a model (e.g. flow or LCIA category) to which
 	 * the upstream tree is related.
 	 */
-	public final BaseDescriptor ref;
+	public final Object ref;
 
 	private final double[] intensityRow;
 	private final FullResult r;
@@ -29,7 +27,7 @@ public class UpstreamTree {
 		this(null, r, u);
 	}
 
-	public UpstreamTree(BaseDescriptor ref, FullResult r, double[] u) {
+	public UpstreamTree(Object ref, FullResult r, double[] u) {
 		this.ref = ref;
 		this.r = r;
 		root = new UpstreamNode();
@@ -81,15 +79,9 @@ public class UpstreamTree {
 	 * switch the sign of it.
 	 */
 	private double adopt(double value) {
-		if (!(ref instanceof FlowDescriptor))
+		if (!(ref instanceof IndexFlow))
 			return value;
-		if (value == 0)
-			return 0; // avoid -0
-		int idx = r.flowIndex.of((FlowDescriptor) ref);
-		if (idx < 0)
-			return value;
-		IndexFlow flow = r.flowIndex.at(idx);
-		return flow.isInput ? -value : value;
+		return r.adopt((IndexFlow) ref, value);
 	}
 
 }

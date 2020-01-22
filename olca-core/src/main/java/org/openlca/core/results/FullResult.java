@@ -8,7 +8,6 @@ import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 /**
@@ -222,7 +221,7 @@ public class FullResult extends ContributionResult {
 	/**
 	 * Calculate the upstream tree for the given flow.
 	 */
-	public UpstreamTree getTree(FlowDescriptor flow) {
+	public UpstreamTree getTree(IndexFlow flow) {
 		int i = flowIndex.of(flow);
 		double[] u = upstreamFlowResults.getRow(i);
 		return new UpstreamTree(flow, this, u);

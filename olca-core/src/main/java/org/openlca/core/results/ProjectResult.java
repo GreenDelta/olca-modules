@@ -119,5 +119,4 @@ public class ProjectResult implements IResult {
 		}
 		return impacts;
 	}
-
 }

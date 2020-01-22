@@ -55,7 +55,7 @@ public class InventoryHandler {
 			List<ContributionItem<CategorizedDescriptor>> contributions = result
 					.getProcessContributions(flow).contributions;
 			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
-			String unit = utils.getUnit(flow.flow, cache);
+			String unit = utils.getUnit(flow, cache);
 			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", unit));
 		});
 	}
@@ -67,7 +67,7 @@ public class InventoryHandler {
 			List<ContributionItem<LocationDescriptor>> contributions = utils
 					.toDescriptors(calculator.calculate(flow).contributions);
 			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
-			String unit = utils.getUnit(flow.flow, cache);
+			String unit = utils.getUnit(flow, cache);
 			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", unit));
 		});
 	}
@@ -85,7 +85,7 @@ public class InventoryHandler {
 				}
 				return contribution.amount != 0;
 			});
-			String unit = utils.getUnit(flow.flow, cache);
+			String unit = utils.getUnit(flow, cache);
 			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", unit));
 		});
 	}
@@ -122,7 +122,7 @@ public class InventoryHandler {
 				c.share = c.amount / total;
 				if (c.amount == 0)
 					return;
-				String unit = utils.getUnit(f.flow, cache);
+				String unit = utils.getUnit(f, cache);
 				contributions.add(JsonRpc.encode(c, cache, json -> {
 					json.addProperty("unit", unit);
 					json.addProperty("upstream",
