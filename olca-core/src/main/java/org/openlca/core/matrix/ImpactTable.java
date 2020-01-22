@@ -119,7 +119,8 @@ public class ImpactTable {
 					int col = flowIndex.of(flowId);
 					if (col < 0)
 						continue;
-					boolean input = flowIndex.isInput(flowId);
+					IndexFlow ifFlow = flowIndex.at(col);
+					boolean input = ifFlow.isInput;
 					ImpactFactorCell cell = new ImpactFactorCell(factor,
 							methodId,
 							input);

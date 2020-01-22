@@ -1,6 +1,5 @@
 package org.openlca.core.results;
 
-import java.util.List;
 import java.util.Set;
 
 import org.openlca.core.matrix.IndexFlow;
@@ -38,7 +37,7 @@ public interface IResult {
 	 * Get the (elementary) flows of the inventory model.
 	 */
 
-	List<IndexFlow> getFlows();
+	Set<IndexFlow> getFlows();
 
 	/**
 	 * Get the LCIA categories of the LCIA result.

@@ -175,6 +175,9 @@ public final class FlowIndex {
 		}
 	}
 
+	/**
+	 * Creates a new set with the flows of this index.
+	 */
 	public Set<IndexFlow> flows() {
 		return new HashSet<>(flows);
 	}

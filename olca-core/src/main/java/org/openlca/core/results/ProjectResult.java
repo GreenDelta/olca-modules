@@ -1,6 +1,5 @@
 package org.openlca.core.results;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -102,15 +101,12 @@ public class ProjectResult implements IResult {
 	}
 
 	@Override
-	public List<IndexFlow> getFlows() {
+	public Set<IndexFlow> getFlows() {
 		HashSet<IndexFlow> flows = new HashSet<>();
 		for (ContributionResult sub : results.values()) {
-			if (sub.flowIndex == null)
-				continue;
-			sub.flowIndex.each((i, flow) -> flows.add(flow));
+			flows.addAll(sub.getFlows());
 		}
-		return new ArrayList<>(flows);
-
+		return flows;
 	}
 
 	@Override

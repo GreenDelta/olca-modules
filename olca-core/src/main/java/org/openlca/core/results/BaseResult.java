@@ -1,8 +1,6 @@
 package org.openlca.core.results;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -62,19 +60,17 @@ public abstract class BaseResult implements IResult {
 	}
 
 	@Override
-	public List<IndexFlow> getFlows() {
-		if (flowIndex == null)
-			return Collections.emptyList();
-		ArrayList<IndexFlow> list = new ArrayList<>(flowIndex.size());
-		flowIndex.each(list::add);
-		return list;
+	public Set<IndexFlow> getFlows() {
+		return flowIndex == null
+				? Collections.emptySet()
+				: flowIndex.flows();
 	}
 
 	@Override
 	public Set<ImpactCategoryDescriptor> getImpacts() {
-		if (impactIndex == null)
-			return Collections.emptySet();
-		return impactIndex.content();
+		return impactIndex == null
+				? Collections.emptySet()
+				: impactIndex.content();
 	}
 
 	/**
@@ -84,9 +80,9 @@ public abstract class BaseResult implements IResult {
 	 * as pairs with their quantitative reference flow.
 	 */
 	public Set<ProcessProduct> getProviders() {
-		if (techIndex == null)
-			return Collections.emptySet();
-		return techIndex.content();
+		return techIndex == null
+				? Collections.emptySet()
+				: techIndex.content();
 	}
 
 	@Override
