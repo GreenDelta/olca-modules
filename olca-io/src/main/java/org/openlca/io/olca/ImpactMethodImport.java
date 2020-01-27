@@ -106,7 +106,7 @@ class ImpactMethodImport {
 	private boolean areEqual(NwSet srcNwSet, NwSet destNwSet) {
 		return Strings.nullOrEqual(srcNwSet.name, destNwSet.name)
 				&& Strings.nullOrEqual(srcNwSet.description,
-						destNwSet.name)
+						destNwSet.description)
 				&& Strings.nullOrEqual(srcNwSet.weightedScoreUnit,
 						destNwSet.weightedScoreUnit);
 	}
