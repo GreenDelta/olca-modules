@@ -37,10 +37,6 @@ final class Coordinates {
 		return p;
 	}
 
-	static List<Point> readLine(JsonElement elem) {
-		return readPoints(elem);
-	}
-
 	static List<Point> readPoints(JsonElement elem) {
 		if (elem == null || !elem.isJsonArray())
 			return Collections.emptyList();
@@ -63,8 +59,16 @@ final class Coordinates {
 		return array;
 	}
 
-
-
-
-
+	static JsonArray writePoints(List<Point> points) {
+		JsonArray array = new JsonArray();
+		if (points == null)
+			return array;
+		for (Point p : points) {
+			JsonArray pa = writePoint(p);
+			if (pa != null) {
+				array.add(pa);
+			}
+		}
+		return  array;
+	}
 }

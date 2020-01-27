@@ -5,6 +5,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -45,9 +46,10 @@ public final class GeoJSON {
 				return FeatureCollection.fromJson(obj);
 			case "Feature":
 				return FeatureCollection.of(Feature.fromJson(obj));
-
 			case "Point":
 				return FeatureCollection.of(Point.fromJson(obj));
+			case "MultiPoint":
+				return FeatureCollection.of(MultiPoint.fromJson(obj));
 			default:
 				throw new IllegalStateException(
 						"unknown GeoJSON type: " + type);
@@ -55,26 +57,44 @@ public final class GeoJSON {
 	}
 
 	public static void write(FeatureCollection coll, File file) {
-
+		try (Writer w = Files.newBufferedWriter(
+				file.toPath(), StandardCharsets.UTF_8)) {
+			write(coll, w);
+		} catch (Exception e) {
+			throw new RuntimeException("failed to write " + file, e);
+		}
 	}
 
 	public static void write(Feature feature, File file) {
-
+		try (Writer w = Files.newBufferedWriter(
+				file.toPath(), StandardCharsets.UTF_8)) {
+			write(feature, w);
+		} catch (Exception e) {
+			throw new RuntimeException("failed to write " + file, e);
+		}
 	}
 
 	public static void write(Geometry geometry, File file) {
-
+		try (Writer w = Files.newBufferedWriter(
+				file.toPath(), StandardCharsets.UTF_8)) {
+			write(geometry, w);
+		} catch (Exception e) {
+			throw new RuntimeException("failed to write " + file, e);
+		}
 	}
 
 	public static void write(FeatureCollection coll, Writer writer) {
-
+		// TODO
 	}
 
 	public static void write(Feature feature, Writer writer) {
-
+		// TODO
 	}
 
 	public static void write(Geometry geometry, Writer writer) {
-
+		if (geometry == null)
+			return;
+		JsonObject obj = geometry.toJson();
+		new Gson().toJson(obj, writer);
 	}
 }
