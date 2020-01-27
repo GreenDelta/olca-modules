@@ -54,44 +54,55 @@ public final class GeoJSON {
 	}
 
 	public static void write(FeatureCollection coll, File file) {
-		try (Writer w = Files.newBufferedWriter(
-				file.toPath(), StandardCharsets.UTF_8)) {
-			write(coll, w);
-		} catch (Exception e) {
-			throw new RuntimeException("failed to write " + file, e);
-		}
+		if (coll == null || file == null)
+			return;
+		write(coll.toJson(), file);
 	}
 
 	public static void write(Feature feature, File file) {
-		try (Writer w = Files.newBufferedWriter(
-				file.toPath(), StandardCharsets.UTF_8)) {
-			write(feature, w);
-		} catch (Exception e) {
-			throw new RuntimeException("failed to write " + file, e);
-		}
+		if (feature == null || file == null)
+			return;
+		write(feature.toJson(), file);
 	}
 
 	public static void write(Geometry geometry, File file) {
+		if (geometry == null || file == null)
+			return;
+		write(geometry.toJson(), file);
+	}
+
+	private static void write(JsonObject obj, File file) {
+		if (obj == null || file == null)
+			return;
 		try (Writer w = Files.newBufferedWriter(
 				file.toPath(), StandardCharsets.UTF_8)) {
-			write(geometry, w);
+			write(obj, w);
 		} catch (Exception e) {
 			throw new RuntimeException("failed to write " + file, e);
 		}
 	}
 
 	public static void write(FeatureCollection coll, Writer writer) {
-		// TODO
+		if (coll == null || writer == null)
+			return;
+		write(coll.toJson(), writer);
 	}
 
 	public static void write(Feature feature, Writer writer) {
-		// TODO
+		if (feature == null || writer == null)
+			return;
+		write(feature.toJson(), writer);
 	}
 
 	public static void write(Geometry geometry, Writer writer) {
 		if (geometry == null)
 			return;
-		JsonObject obj = geometry.toJson();
+		write(geometry.toJson(), writer);
+	}
+
+	private static void write(JsonObject obj, Writer writer) {
+		if (obj == null || writer == null)
+			return;
 		new Gson().toJson(obj, writer);
 	}
 
