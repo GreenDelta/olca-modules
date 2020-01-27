@@ -44,21 +44,12 @@ public final class GeoJSON {
 				return FeatureCollection.fromJson(obj);
 			case "Feature":
 				return FeatureCollection.of(Feature.fromJson(obj));
-			case "Point":
-				return FeatureCollection.of(Point.fromJson(obj));
-			case "MultiPoint":
-				return FeatureCollection.of(MultiPoint.fromJson(obj));
-			case "LineString":
-				return FeatureCollection.of(LineString.fromJson(obj));
-			case "MultiLineString":
-				return FeatureCollection.of(MultiLineString.fromJson(obj));
-			case "Polygon":
-				return FeatureCollection.of(Polygon.fromJson(obj));
-			case "MultiPolygon":
-				return FeatureCollection.of(MultiPolygon.fromJson(obj));
 			default:
-				throw new IllegalStateException(
-						"unknown GeoJSON type: " + type);
+				Geometry geom = readGeometry(obj);
+				if (geom == null)
+					throw new IllegalStateException(
+							"unknown Geometry type: " + type);
+				return FeatureCollection.of(geom);
 		}
 	}
 
@@ -102,5 +93,32 @@ public final class GeoJSON {
 			return;
 		JsonObject obj = geometry.toJson();
 		new Gson().toJson(obj, writer);
+	}
+
+	static Geometry readGeometry(JsonObject obj) {
+		if (obj == null)
+			return null;
+		JsonElement typeElem = obj.get("type");
+		if (typeElem == null || !typeElem.isJsonPrimitive())
+			return null;
+		String type = typeElem.getAsString();
+		switch (type) {
+			case "Point":
+				return Point.fromJson(obj);
+			case "MultiPoint":
+				return MultiPoint.fromJson(obj);
+			case "LineString":
+				return LineString.fromJson(obj);
+			case "MultiLineString":
+				return MultiLineString.fromJson(obj);
+			case "Polygon":
+				return Polygon.fromJson(obj);
+			case "MultiPolygon":
+				return MultiPolygon.fromJson(obj);
+			case "GeometryCollection":
+				return GeometryCollection.fromJson(obj);
+			default:
+				return null;
+		}
 	}
 }
