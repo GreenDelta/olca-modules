@@ -15,9 +15,8 @@ public final class Point extends Geometry {
 	public double y;
 
 	static Point fromJson(JsonObject obj) {
-		Point p = Coordinates.readPoint(
+		return Coordinates.readPoint(
 				obj.get("coordinates"));
-		return p != null ? p : new Point();
 	}
 
 	@Override

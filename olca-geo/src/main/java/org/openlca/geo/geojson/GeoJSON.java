@@ -50,6 +50,10 @@ public final class GeoJSON {
 				return FeatureCollection.of(Point.fromJson(obj));
 			case "MultiPoint":
 				return FeatureCollection.of(MultiPoint.fromJson(obj));
+			case "LineString":
+				return FeatureCollection.of(LineString.fromJson(obj));
+			case "MultiLineString":
+				return FeatureCollection.of(MultiLineString.fromJson(obj));
 			default:
 				throw new IllegalStateException(
 						"unknown GeoJSON type: " + type);

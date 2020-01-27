@@ -26,12 +26,12 @@ final class Coordinates {
 	}
 
 	static Point readPoint(JsonElement elem) {
+		Point p = new Point();
 		if (elem == null || !elem.isJsonArray())
-			return null;
+			return p;
 		JsonArray array = elem.getAsJsonArray();
 		if (array.size() < 2)
-			return null;
-		Point p = new Point();
+			return p;
 		p.x = readCoordinate(array.get(0));
 		p.y = readCoordinate(array.get(1));
 		return p;
@@ -43,17 +43,30 @@ final class Coordinates {
 		List<Point> points = new ArrayList<>();
 		for (JsonElement e : elem.getAsJsonArray()) {
 			Point point = readPoint(e);
-			if (e != null) {
-				points.add(point);
-			}
+			points.add(point);
 		}
 		return points;
 	}
 
+	static LineString readLine(JsonElement elem) {
+		List<Point> points = readPoints(elem);
+		return new LineString(points);
+	}
+
+	static List<LineString> readLines(JsonElement elem) {
+		if (elem == null || !elem.isJsonArray())
+			return Collections.emptyList();
+		List<LineString> lines = new ArrayList<>();
+		for (JsonElement e : elem.getAsJsonArray()) {
+			lines.add(readLine(e));
+		}
+		return lines;
+	}
+
 	static JsonArray writePoint(Point point) {
-		if (point == null)
-			return null;
 		JsonArray array = new JsonArray();
+		if (point == null)
+			return array;
 		array.add(new JsonPrimitive(point.x));
 		array.add(new JsonPrimitive(point.y));
 		return array;
@@ -65,10 +78,24 @@ final class Coordinates {
 			return array;
 		for (Point p : points) {
 			JsonArray pa = writePoint(p);
-			if (pa != null) {
-				array.add(pa);
-			}
+			array.add(pa);
 		}
-		return  array;
+		return array;
+	}
+
+	static JsonArray writeLine(LineString line) {
+		if (line == null)
+			return new JsonArray();
+		return writePoints(line.points);
+	}
+
+	static JsonArray writeLines(List<LineString> lines) {
+		JsonArray array = new JsonArray();
+		if (lines == null)
+			return array;
+		for (LineString line : lines) {
+			array.add(writeLine(line));
+		}
+		return array;
 	}
 }
