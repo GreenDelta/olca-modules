@@ -63,6 +63,21 @@ final class Coordinates {
 		return lines;
 	}
 
+	static Polygon readPolygon(JsonElement elem) {
+		List<LineString> rings = readLines(elem);
+		return new Polygon(rings);
+	}
+
+	static List<Polygon> readPolygons(JsonElement elem) {
+		if (elem == null || !elem.isJsonArray())
+			return Collections.emptyList();
+		List<Polygon> polygons = new ArrayList<>();
+		for (JsonElement e : elem.getAsJsonArray()) {
+			polygons.add(readPolygon(e));
+		}
+		return polygons;
+	}
+
 	static JsonArray writePoint(Point point) {
 		JsonArray array = new JsonArray();
 		if (point == null)
@@ -95,6 +110,22 @@ final class Coordinates {
 			return array;
 		for (LineString line : lines) {
 			array.add(writeLine(line));
+		}
+		return array;
+	}
+
+	static JsonArray writePolygon(Polygon polygon) {
+		if (polygon == null)
+			return new JsonArray();
+		return writeLines(polygon.rings);
+	}
+
+	static JsonArray writePolygons(List<Polygon> polygons) {
+		JsonArray array = new JsonArray();
+		if (polygons == null)
+			return array;
+		for (Polygon polygon : polygons) {
+			array.add(writePolygon(polygon));
 		}
 		return array;
 	}

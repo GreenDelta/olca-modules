@@ -5,10 +5,8 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -54,6 +52,10 @@ public final class GeoJSON {
 				return FeatureCollection.of(LineString.fromJson(obj));
 			case "MultiLineString":
 				return FeatureCollection.of(MultiLineString.fromJson(obj));
+			case "Polygon":
+				return FeatureCollection.of(Polygon.fromJson(obj));
+			case "MultiPolygon":
+				return FeatureCollection.of(MultiPolygon.fromJson(obj));
 			default:
 				throw new IllegalStateException(
 						"unknown GeoJSON type: " + type);
