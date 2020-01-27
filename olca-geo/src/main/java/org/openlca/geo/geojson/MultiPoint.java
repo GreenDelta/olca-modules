@@ -1,4 +1,4 @@
 package org.openlca.geo.geojson;
 
-public class MultiPoint extends Geometry {
+public final class MultiPoint extends Geometry {
 }

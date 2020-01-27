@@ -2,7 +2,9 @@ package org.openlca.geo.geojson;
 
 import java.util.Map;
 
-public class Feature {
+import com.google.gson.JsonObject;
+
+public final class Feature {
 
 	public Geometry geometry;
 
@@ -12,5 +14,11 @@ public class Feature {
 	 * strings when de-/serializing a feature.
 	 */
 	public Map<String, Object> properties;
+
+	static Feature fromJson(JsonObject obj) {
+		Feature f = new Feature();
+
+		return f;
+	}
 
 }

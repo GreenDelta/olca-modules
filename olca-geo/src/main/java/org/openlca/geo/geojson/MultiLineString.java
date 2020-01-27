@@ -1,4 +1,4 @@
 package org.openlca.geo.geojson;
 
-public class MultiLineString extends Geometry {
+public final class MultiLineString extends Geometry {
 }

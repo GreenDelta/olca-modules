@@ -1,4 +1,4 @@
 package org.openlca.geo.geojson;
 
-public class Polygon extends Geometry {
+public final class Polygon extends Geometry {
 }

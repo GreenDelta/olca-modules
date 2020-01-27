@@ -1,4 +1,4 @@
 package org.openlca.geo.geojson;
 
-public class MultiPolygon extends Geometry {
+public final class MultiPolygon extends Geometry {
 }

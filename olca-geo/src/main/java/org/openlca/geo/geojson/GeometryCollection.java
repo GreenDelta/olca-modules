@@ -1,4 +1,4 @@
 package org.openlca.geo.geojson;
 
-public class GeometryCollection extends Geometry {
+public final class GeometryCollection extends Geometry {
 }
