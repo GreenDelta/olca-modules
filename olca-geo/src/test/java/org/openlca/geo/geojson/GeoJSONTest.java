@@ -60,8 +60,53 @@ public class GeoJSONTest {
 		};
 		Point point = (Point) readGeometry("point.geojson");
 		check.accept(point);
-		point = writeRead(point);
-		check.accept(point);
+		check.accept(writeRead(point));
+	}
+
+	@Test
+	public void testLineString() {
+		Consumer<LineString> check = (line) -> {
+			Assert.assertEquals(3, line.points.size());
+			double[][] points = {
+					{13.26, 52.52},
+					{13.27, 52.51},
+					{13.28, 52.51},
+			};
+			for (int i = 0; i < points.length; i++) {
+				Assert.assertEquals(
+						points[i][0], line.points.get(i).x, 1e-10);
+				Assert.assertEquals(
+						points[i][1], line.points.get(i).y, 1e-10);
+			}
+		};
+		LineString line = (LineString) readGeometry(
+				"linestring.geojson");
+		check.accept(line);
+		check.accept(writeRead(line));
+	}
+
+	@Test
+	public void testPolygon() {
+		Consumer<Polygon> check = (polygon) -> {
+			LineString ext = polygon.rings.get(0);
+			Assert.assertEquals(4, ext.points.size());
+			double[][] points = {
+					{13.30, 52.52},
+					{13.25, 52.50},
+					{13.29, 52.51},
+					{13.30, 52.52},
+			};
+			for (int i = 0; i < points.length; i++) {
+				Assert.assertEquals(
+						points[i][0], ext.points.get(i).x, 1e-10);
+				Assert.assertEquals(
+						points[i][1], ext.points.get(i).y, 1e-10);
+			}
+		};
+		Polygon polygon = (Polygon) readGeometry(
+				"polygon.geojson");
+		check.accept(polygon);
+		check.accept(writeRead(polygon));
 	}
 
 	private Geometry readGeometry(String file) {
