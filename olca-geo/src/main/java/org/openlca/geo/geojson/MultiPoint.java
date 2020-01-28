@@ -31,4 +31,18 @@ public final class MultiPoint extends Geometry {
 				Coordinates.writePoints(points));
 		return obj;
 	}
+
+	@Override
+	public MultiPoint clone() {
+		MultiPoint c = new MultiPoint();
+		if (points == null)
+			return c;
+		for (Point point : points) {
+			if (point == null)
+				continue;
+			c.points.add(point.clone());
+		}
+		return c;
+	}
+
 }

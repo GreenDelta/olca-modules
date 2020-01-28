@@ -27,4 +27,12 @@ public final class Point extends Geometry {
 				Coordinates.writePoint(this));
 		return obj;
 	}
+
+	@Override
+	public Point clone() {
+		Point clone = new Point();
+		clone.x = x;
+		clone.y = y;
+		return clone;
+	}
 }

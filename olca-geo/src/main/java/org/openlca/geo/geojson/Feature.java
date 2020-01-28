@@ -8,7 +8,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-public final class Feature {
+public final class Feature implements Cloneable {
 
 	public Geometry geometry;
 
@@ -62,5 +62,18 @@ public final class Feature {
 		}
 		return obj;
 	}
+
+	@Override
+	public Feature clone() {
+		Feature c = new Feature();
+		if (geometry != null) {
+			c.geometry = geometry.clone();
+		}
+		if (properties != null) {
+			c.properties = new HashMap<>(properties);
+		}
+		return c;
+	}
+
 
 }

@@ -35,4 +35,18 @@ public final class Polygon extends Geometry {
 				Coordinates.writePolygon(this));
 		return obj;
 	}
+
+	@Override
+	public Polygon clone() {
+		Polygon c = new Polygon();
+		if (rings == null)
+			return c;
+		for (LineString ring : rings) {
+			if (ring == null)
+				continue;
+			c.rings.add(ring.clone());
+		}
+		return c;
+	}
+
 }
