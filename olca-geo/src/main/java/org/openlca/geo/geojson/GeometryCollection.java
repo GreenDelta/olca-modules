@@ -41,4 +41,15 @@ public final class GeometryCollection extends Geometry {
 		obj.add("geometries", array);
 		return obj;
 	}
+
+	@Override
+	public GeometryCollection clone() {
+		GeometryCollection c = new GeometryCollection();
+		for (Geometry g : geometries) {
+			if (g == null)
+				continue;
+			c.geometries.add(g.clone());
+		}
+		return c;
+	}
 }

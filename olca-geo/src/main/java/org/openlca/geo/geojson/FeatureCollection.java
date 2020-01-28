@@ -7,7 +7,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-public final class FeatureCollection {
+public final class FeatureCollection implements Cloneable {
 
 	public final List<Feature> features = new ArrayList<>();
 
@@ -56,4 +56,16 @@ public final class FeatureCollection {
 		obj.add("features", array);
 		return obj;
 	}
+
+	@Override
+	public FeatureCollection clone() {
+		FeatureCollection c = new FeatureCollection();
+		for (Feature f : features) {
+			if (f == null)
+				continue;
+			c.features.add(f.clone());
+		}
+		return c;
+	}
+
 }

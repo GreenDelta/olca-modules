@@ -31,4 +31,18 @@ public final class MultiLineString extends Geometry {
 				Coordinates.writeLines(lineStrings));
 		return obj;
 	}
+
+	@Override
+	public MultiLineString clone() {
+		MultiLineString c = new MultiLineString();
+		if (lineStrings == null)
+			return c;
+		for (LineString line : lineStrings) {
+			if (line == null)
+				continue;
+			c.lineStrings.add(line.clone());
+		}
+		return c;
+	}
+
 }

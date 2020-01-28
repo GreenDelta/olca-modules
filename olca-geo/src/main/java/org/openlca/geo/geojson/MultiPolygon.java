@@ -31,4 +31,17 @@ public final class MultiPolygon extends Geometry {
 				Coordinates.writePolygons(polygons));
 		return obj;
 	}
+
+	@Override
+	public MultiPolygon clone() {
+		MultiPolygon c = new MultiPolygon();
+		if (polygons == null)
+			return c;
+		for (Polygon polygon : polygons) {
+			if (polygon == null)
+				continue;
+			c.polygons.add(polygon.clone());
+		}
+		return c;
+	}
 }

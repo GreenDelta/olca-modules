@@ -31,4 +31,17 @@ public final class LineString extends Geometry {
 		return obj;
 	}
 
+	@Override
+	public LineString clone() {
+		if (points == null || points.isEmpty())
+			return new LineString();
+		List<Point> cPoints = new ArrayList<>();
+		for (Point p : points) {
+			if (p == null)
+				continue;
+			cPoints.add(p.clone());
+		}
+		return new LineString(cPoints);
+	}
+
 }
