@@ -1,6 +1,6 @@
 package org.openlca.core.results;
 
-import java.util.Set;
+import java.util.List;
 
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
@@ -31,17 +31,19 @@ public interface IResult {
 	 * system contains other product systems, these sub-systems are also handled
 	 * like processes and returned.
 	 */
-	Set<CategorizedDescriptor> getProcesses();
+	List<CategorizedDescriptor> getProcesses();
 
 	/**
-	 * Get the (elementary) flows of the inventory model.
+	 * Returns the list of flows that are mapped to the row index of the
+	 * intervention matrix. Typically, these are the elementary flows of the LCA
+	 * model. The returned list is part of the result and should be never modified
+	 * but reordering via sorting is allowed.
 	 */
-
-	Set<IndexFlow> getFlows();
+	List<IndexFlow> getFlows();
 
 	/**
 	 * Get the LCIA categories of the LCIA result.
 	 */
-	Set<ImpactCategoryDescriptor> getImpacts();
+	List<ImpactCategoryDescriptor> getImpacts();
 
 }

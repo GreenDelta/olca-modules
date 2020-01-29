@@ -1,8 +1,8 @@
 package org.openlca.core.results;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.List;
 
 import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.FlowIndex;
@@ -11,6 +11,8 @@ import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+
+import gnu.trove.set.hash.TLongHashSet;
 
 /**
  * `BaseResult` is a common (abstract) super class of different result
@@ -49,6 +51,12 @@ public abstract class BaseResult implements IResult {
 	 */
 	public DIndex<ImpactCategoryDescriptor> impactIndex;
 
+	// cached descriptor lists which are initialized lazily
+	private ArrayList<IndexFlow> _flows;
+	private ArrayList<ImpactCategoryDescriptor> _impacts;
+	private ArrayList<ProcessProduct> _products;
+	private ArrayList<CategorizedDescriptor> _processes;
+
 	@Override
 	public boolean hasImpactResults() {
 		return impactIndex != null && !impactIndex.isEmpty();
@@ -60,17 +68,25 @@ public abstract class BaseResult implements IResult {
 	}
 
 	@Override
-	public Set<IndexFlow> getFlows() {
-		return flowIndex == null
-				? Collections.emptySet()
-				: flowIndex.flows();
+	public final List<IndexFlow> getFlows() {
+		if (_flows != null)
+			return _flows;
+		if (flowIndex == null)
+			return Collections.emptyList();
+		_flows = new ArrayList<>();
+		flowIndex.each(_flows::add);
+		return _flows;
 	}
 
 	@Override
-	public Set<ImpactCategoryDescriptor> getImpacts() {
-		return impactIndex == null
-				? Collections.emptySet()
-				: impactIndex.content();
+	public final List<ImpactCategoryDescriptor> getImpacts() {
+		if (_impacts != null)
+			return _impacts;
+		if (impactIndex == null)
+			return Collections.emptyList();
+		_impacts = new ArrayList<>();
+		_impacts.addAll(impactIndex.content());
+		return _impacts;
 	}
 
 	/**
@@ -79,17 +95,32 @@ public abstract class BaseResult implements IResult {
 	 * sub-systems, these systems are handled like processes and are also included
 	 * as pairs with their quantitative reference flow.
 	 */
-	public Set<ProcessProduct> getProviders() {
-		return techIndex == null
-				? Collections.emptySet()
-				: techIndex.content();
+	public final List<ProcessProduct> getProviders() {
+		if (_products != null)
+			return _products;
+		if (techIndex == null)
+			return Collections.emptyList();
+		_products = new ArrayList<>();
+		_products.addAll(techIndex.content());
+		return _products;
 	}
 
 	@Override
-	public Set<CategorizedDescriptor> getProcesses() {
-		return getProviders().stream()
-				.map(p -> p.process)
-				.collect(Collectors.toSet());
+	public final List<CategorizedDescriptor> getProcesses() {
+		if (_processes != null)
+			return _processes;
+		if (techIndex == null)
+			return Collections.emptyList();
+		_processes = new ArrayList<>();
+		TLongHashSet handled = new TLongHashSet();
+		for (ProcessProduct product : getProviders()) {
+			CategorizedDescriptor process = product.process;
+			if (process == null || handled.contains(process.id))
+				continue;
+			_processes.add(process);
+			handled.add(process.id);
+		}
+		return _processes;
 	}
 
 	/**
