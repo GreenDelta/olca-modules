@@ -14,6 +14,7 @@ import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.DataStructures;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.DIndex;
+import org.openlca.core.matrix.InventoryBuilder;
 import org.openlca.core.matrix.InventoryConfig;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
@@ -124,8 +125,9 @@ public class RegCalculator {
 		conf.interpreter = interpreter;
 		conf.subResults = subResults;
 		conf.withCosts = setup.withCosts;
+		conf.withRegionalization = true;
 		conf.withUncertainties = setup.type == CalculationType.MONTE_CARLO_SIMULATION;
-		RegInventoryBuilder builder = new RegInventoryBuilder(conf);
+		InventoryBuilder builder = new InventoryBuilder(conf);
 		MatrixData data = builder.build();
 
 		// add the LCIA matrix structures

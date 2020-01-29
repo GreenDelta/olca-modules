@@ -23,6 +23,7 @@ public class CalculationSetup {
 
 	public ImpactMethodDescriptor impactMethod;
 	public boolean withCosts = false;
+	public boolean withRegionalization = false;
 	public NwSetDescriptor nwSet;
 	public AllocationMethod allocationMethod = AllocationMethod.NONE;
 	public final List<ParameterRedef> parameterRedefs = new ArrayList<>();

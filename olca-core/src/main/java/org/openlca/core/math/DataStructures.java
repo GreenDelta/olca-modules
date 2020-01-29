@@ -3,7 +3,6 @@ package org.openlca.core.math;
 import java.util.HashSet;
 import java.util.Map;
 
-import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
@@ -30,6 +29,8 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.expressions.FormulaInterpreter;
+
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
  * Provides helper methods for creating matrix-like data structures that can be
@@ -113,6 +114,7 @@ public class DataStructures {
 		conf.interpreter = interpreter;
 		conf.subResults = subResults;
 		conf.withCosts = setup.withCosts;
+		conf.withRegionalization = setup.withRegionalization;
 		conf.withUncertainties = setup.type == CalculationType.MONTE_CARLO_SIMULATION;
 		InventoryBuilder builder = new InventoryBuilder(conf);
 		MatrixData data = builder.build();
