@@ -2,7 +2,6 @@ package org.openlca.io.xls.results.system;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.List;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -10,9 +9,6 @@ import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.data_quality.DQCalculationSetup;
 import org.openlca.core.math.data_quality.DQResult;
-import org.openlca.core.matrix.IndexFlow;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.SimpleResult;
@@ -38,9 +34,6 @@ public class ResultExport implements Runnable {
 	DQResult dqResult;
 
 	private boolean success;
-	List<CategorizedDescriptor> processes;
-	List<IndexFlow> flows;
-	List<ImpactCategoryDescriptor> impacts;
 	Workbook workbook;
 	CellWriter writer;
 
@@ -59,7 +52,8 @@ public class ResultExport implements Runnable {
 	@Override
 	public void run() {
 		try {
-			prepare();
+			workbook = new SXSSFWorkbook(-1);
+			writer = new CellWriter(cache, workbook);
 			DQCalculationSetup dqSetup = dqResult != null
 					? dqResult.setup
 					: null;
@@ -99,15 +93,6 @@ public class ResultExport implements Runnable {
 		if (r.hasImpactResults()) {
 			ProcessImpactUpstreamSheet.write(this, r);
 		}
-	}
-
-	private void prepare() {
-		processes = Util.processes(result);
-		flows = Util.flows(result, cache);
-		impacts = Util.impacts(result);
-		// no default flushing (see Excel.cell)!
-		workbook = new SXSSFWorkbook(-1);
-		writer = new CellWriter(cache, workbook);
 	}
 
 	public boolean doneWithSuccess() {

@@ -1,7 +1,5 @@
 package org.openlca.io.xls.results.system;
 
-import java.util.List;
-
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.matrix.IndexFlow;
@@ -13,11 +11,11 @@ class ProcessFlowContributionSheet
 		extends ContributionSheet<CategorizedDescriptor, IndexFlow> {
 
 	private final CellWriter writer;
-	private final ContributionResult result;
+	private final ContributionResult r;
 
-	static void write(ResultExport export, ContributionResult result) {
-		new ProcessFlowContributionSheet(export, result)
-				.write(export.workbook, export.processes, export.flows);
+	static void write(ResultExport export, ContributionResult r) {
+		new ProcessFlowContributionSheet(export, r)
+				.write(export.workbook);
 	}
 
 	private ProcessFlowContributionSheet(ResultExport export,
@@ -25,20 +23,19 @@ class ProcessFlowContributionSheet
 		super(export.writer, ResultExport.PROCESS_HEADER,
 				ResultExport.FLOW_HEADER);
 		this.writer = export.writer;
-		this.result = result;
+		this.r = result;
 	}
 
-	private void write(Workbook workbook,
-			List<CategorizedDescriptor> processes, List<IndexFlow> flows) {
+	private void write(Workbook workbook) {
 		Sheet sheet = workbook.createSheet("Process flow contributions");
 		header(sheet);
-		subHeaders(sheet, processes, flows);
-		data(sheet, processes, flows);
+		subHeaders(sheet, r.getProcesses(), r.getFlows());
+		data(sheet, r.getProcesses(), r.getFlows());
 	}
 
 	@Override
 	protected double getValue(CategorizedDescriptor process, IndexFlow flow) {
-		return result.getDirectFlowResult(process, flow);
+		return r.getDirectFlowResult(process, flow);
 	}
 
 	@Override

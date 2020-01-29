@@ -2,7 +2,7 @@ package org.openlca.core.math;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Set;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class ProjectCalculationTest {
 		SystemCalculator calc = new SystemCalculator(
 				Tests.getDb(), new JavaSolver());
 		ProjectResult r = calc.calculate(project);
-		Set<IndexFlow> flows = r.getFlows();
+		List<IndexFlow> flows = r.getFlows();
 		assertEquals(2, flows.size());
 
 		AtomicInteger icount = new AtomicInteger(0);

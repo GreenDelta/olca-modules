@@ -1,7 +1,5 @@
 package org.openlca.io.xls.results.system;
 
-import java.util.List;
-
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.math.data_quality.DQResult;
@@ -15,7 +13,6 @@ class ImpactSheet {
 	private final Workbook workbook;
 	private final SimpleResult result;
 	private final DQResult dqResult;
-	private final List<ImpactCategoryDescriptor> impacts;
 	private Sheet sheet;
 
 	static void write(ResultExport export) {
@@ -27,7 +24,6 @@ class ImpactSheet {
 		this.workbook = export.workbook;
 		this.result = export.result;
 		this.dqResult = export.dqResult;
-		this.impacts = export.impacts;
 	}
 
 	private void write() {
@@ -49,7 +45,7 @@ class ImpactSheet {
 	private void data() {
 		int row = 2;
 		int startCol = ResultExport.IMPACT_HEADER.length + 1;
-		for (ImpactCategoryDescriptor impact : impacts) {
+		for (ImpactCategoryDescriptor impact : result.getImpacts()) {
 			double value = result.getTotalImpactResult(impact);
 			writer.impactRow(sheet, row, 1, impact);
 			writer.cell(sheet, row, startCol, value);

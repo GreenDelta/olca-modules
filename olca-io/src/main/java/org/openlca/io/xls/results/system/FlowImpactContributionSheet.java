@@ -1,7 +1,5 @@
 package org.openlca.io.xls.results.system;
 
-import java.util.List;
-
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.matrix.IndexFlow;
@@ -13,12 +11,12 @@ class FlowImpactContributionSheet
 		extends ContributionSheet<IndexFlow, ImpactCategoryDescriptor> {
 
 	private final CellWriter writer;
-	private final ContributionResult result;
+	private final ContributionResult r;
 
 	static void write(ResultExport export,
 			ContributionResult result) {
 		new FlowImpactContributionSheet(export, result)
-				.write(export.workbook, export.flows, export.impacts);
+				.write(export.workbook);
 	}
 
 	private FlowImpactContributionSheet(ResultExport export,
@@ -26,20 +24,19 @@ class FlowImpactContributionSheet
 		super(export.writer, ResultExport.FLOW_HEADER,
 				ResultExport.IMPACT_HEADER);
 		this.writer = export.writer;
-		this.result = result;
+		this.r = result;
 	}
 
-	private void write(Workbook workbook, List<IndexFlow> flows,
-			List<ImpactCategoryDescriptor> impacts) {
-		Sheet sheet = workbook.createSheet("Flow impact contributions");
+	private void write(Workbook wb) {
+		Sheet sheet = wb.createSheet("Flow impact contributions");
 		header(sheet);
-		subHeaders(sheet, flows, impacts);
-		data(sheet, flows, impacts);
+		subHeaders(sheet, r.getFlows(), r.getImpacts());
+		data(sheet, r.getFlows(), r.getImpacts());
 	}
 
 	@Override
 	protected double getValue(IndexFlow flow, ImpactCategoryDescriptor impact) {
-		return result.getDirectFlowImpact(flow, impact);
+		return r.getDirectFlowImpact(flow, impact);
 	}
 
 	@Override

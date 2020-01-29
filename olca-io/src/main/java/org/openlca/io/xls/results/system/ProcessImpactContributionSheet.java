@@ -1,7 +1,5 @@
 package org.openlca.io.xls.results.system;
 
-import java.util.List;
-
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
@@ -14,33 +12,32 @@ class ProcessImpactContributionSheet
 		ContributionSheet<CategorizedDescriptor, ImpactCategoryDescriptor> {
 
 	private final CellWriter writer;
-	private final ContributionResult result;
+	private final ContributionResult r;
 
-	static void write(ResultExport export, ContributionResult result) {
-		new ProcessImpactContributionSheet(export, result)
-				.write(export.workbook, export.processes, export.impacts);
+	static void write(ResultExport export, ContributionResult r) {
+		new ProcessImpactContributionSheet(export, r)
+				.write(export.workbook);
 	}
 
 	private ProcessImpactContributionSheet(ResultExport export,
-			ContributionResult result) {
+			ContributionResult r) {
 		super(export.writer, ResultExport.PROCESS_HEADER,
 				ResultExport.IMPACT_HEADER);
 		this.writer = export.writer;
-		this.result = result;
+		this.r = r;
 	}
 
-	private void write(Workbook workbook, List<CategorizedDescriptor> processes,
-			List<ImpactCategoryDescriptor> impacts) {
-		Sheet sheet = workbook.createSheet("Process impact contributions");
+	private void write(Workbook wb) {
+		Sheet sheet = wb.createSheet("Process impact contributions");
 		header(sheet);
-		subHeaders(sheet, processes, impacts);
-		data(sheet, processes, impacts);
+		subHeaders(sheet, r.getProcesses(), r.getImpacts());
+		data(sheet, r.getProcesses(), r.getImpacts());
 	}
 
 	@Override
 	protected double getValue(CategorizedDescriptor process,
 			ImpactCategoryDescriptor impact) {
-		return result.getDirectImpactResult(process, impact);
+		return r.getDirectImpactResult(process, impact);
 	}
 
 	@Override

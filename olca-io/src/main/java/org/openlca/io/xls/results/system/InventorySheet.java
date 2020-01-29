@@ -16,7 +16,6 @@ class InventorySheet {
 	private final Workbook workbook;
 	private final SimpleResult result;
 	private final DQResult dqResult;
-	private final List<IndexFlow> flows;
 	private Sheet sheet;
 
 	static void write(ResultExport export) {
@@ -28,7 +27,6 @@ class InventorySheet {
 		this.workbook = export.workbook;
 		this.result = export.result;
 		this.dqResult = export.dqResult;
-		this.flows = export.flows;
 	}
 
 	private void write() {
@@ -40,7 +38,7 @@ class InventorySheet {
 	}
 
 	private List<IndexFlow> filterByInputType(boolean input) {
-		return flows.stream()
+		return result.getFlows().stream()
 				.filter(f -> f.isInput == input)
 				.collect(Collectors.toList());
 	}
