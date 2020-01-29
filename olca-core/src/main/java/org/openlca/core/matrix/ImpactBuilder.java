@@ -39,7 +39,7 @@ public class ImpactBuilder {
 			FormulaInterpreter interpreter) {
 
 		ImpactData data = new ImpactData();
-		data.enviIndex = flowIndex;
+		data.flowIndex = flowIndex;
 		data.impactIndex = impactIndex;
 
 		// allocate matrices
@@ -53,16 +53,23 @@ public class ImpactBuilder {
 
 				long impactID = r.getLong(1);
 				long flowID = r.getLong(2);
+				long locationID = r.getLong(11);
+
 				if (!impactIndex.contains(impactID))
 					return true;
-				if (!flowIndex.contains(flowID))
+				if (locationID > 0 && !flowIndex.isRegionalized) {
+					// skip regionalized factors in non-
+					// regionalized calculations
+					return true;
+				}
+
+				// skip flows that are not part of the index
+				boolean containsFlow = flowIndex.isRegionalized
+						? flowIndex.contains(flowID, locationID)
+						: flowIndex.contains(flowID);
+				if (!containsFlow)
 					return true;
 
-				// skip regionalized characterization
-				// factors
-				long locationID = r.getLong(11);
-				if (locationID > 0)
-					return true;
 
 				CalcImpactFactor f = new CalcImpactFactor();
 				f.imactCategoryId = impactID;
@@ -70,11 +77,15 @@ public class ImpactBuilder {
 				f.amount = r.getDouble(3);
 				f.formula = r.getString(4);
 				f.conversionFactor = getConversionFactor(r);
-				f.isInput = flowIndex.isInput(flowID);
+				f.isInput = flowIndex.isRegionalized
+						? flowIndex.isInput(flowID, locationID)
+						: flowIndex.isInput(flowID);
 
 				// set the matrix value
 				int row = impactIndex.of(impactID);
-				int col = flowIndex.of(flowID);
+				int col = flowIndex.isRegionalized
+						? flowIndex.of(flowID, locationID)
+						: flowIndex.of(flowID);
 				matrix.set(row, col, f.matrixValue(interpreter));
 
 				// set possible uncertainties
@@ -135,7 +146,7 @@ public class ImpactBuilder {
 	 * MatrixData class for the meaning of these fields.
 	 */
 	public static class ImpactData {
-		public FlowIndex enviIndex;
+		public FlowIndex flowIndex;
 		public DIndex<ImpactCategoryDescriptor> impactIndex;
 		public IMatrix impactMatrix;
 		public UMatrix impactUncertainties;

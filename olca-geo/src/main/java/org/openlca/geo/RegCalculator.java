@@ -14,6 +14,7 @@ import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.DataStructures;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.DIndex;
+import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.InventoryBuilder;
 import org.openlca.core.matrix.InventoryConfig;
 import org.openlca.core.matrix.MatrixData;
@@ -136,9 +137,9 @@ public class RegCalculator {
 			new ImpactMethodDao(db).getCategoryDescriptors(
 					setup.impactMethod.id).forEach(impactIdx::put);
 			if (!impactIdx.isEmpty()) {
-				RegImpactBuilder ib = new RegImpactBuilder(db);
+				ImpactBuilder ib = new ImpactBuilder(db);
 				ib.withUncertainties(conf.withUncertainties);
-				RegImpactBuilder.RegImpactData idata = ib.build(
+				ImpactBuilder.ImpactData idata = ib.build(
 						data.flowIndex, impactIdx, interpreter);
 				data.impactMatrix = idata.impactMatrix;
 				data.impactIndex = impactIdx;
