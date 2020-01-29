@@ -89,9 +89,7 @@ public class SimulationResultExport {
 		writeValueHeaders(sheet, row, nextCol);
 		row++;
 
-		List<ImpactCategoryDescriptor> impacts = Sort
-				.impacts(result.getImpacts());
-		for (ImpactCategoryDescriptor impact : impacts) {
+		for (ImpactCategoryDescriptor impact : result.getImpacts()) {
 			writer.impactRow(sheet, row, 1, impact);
 			double[] values = result.getAll(impact);
 			writeValues(sheet, row, IMPACT_HEADER.length + 1, values);
@@ -104,7 +102,7 @@ public class SimulationResultExport {
 	private void writeInventorySheet(Workbook wb) {
 		Sheet sheet = wb.createSheet("Inventory");
 		row = 0;
-		List<IndexFlow> flows = Sort.flows(result.getFlows(), cache);
+		List<IndexFlow> flows = result.getFlows();
 		writeInventorySection(flows, true, sheet);
 		writeInventorySection(flows, false, sheet);
 		if (!useStreaming) {
@@ -167,14 +165,11 @@ public class SimulationResultExport {
 
 		if (result.hasImpactResults()) {
 
-			List<ImpactCategoryDescriptor> impacts = Sort
-					.impacts(result.getImpacts());
-
 			writer.headerRow(sheet, row++, 1, "Direct LCIA contributions");
 			writer.headerRow(sheet, row, 1, IMPACT_HEADER);
 			int valCol = IMPACT_HEADER.length + 1;
 			writeValueHeaders(sheet, row++, valCol);
-			for (ImpactCategoryDescriptor impact : impacts) {
+			for (ImpactCategoryDescriptor impact : result.getImpacts()) {
 				writer.impactRow(sheet, row, 1, impact);
 				double[] values = result.getAllDirect(pp, impact);
 				writeValues(sheet, row, IMPACT_HEADER.length + 1, values);
@@ -185,7 +180,7 @@ public class SimulationResultExport {
 			writer.headerRow(sheet, row++, 1, "Upstream LCIA contributions");
 			writer.headerRow(sheet, row, 1, IMPACT_HEADER);
 			writeValueHeaders(sheet, row++, valCol);
-			for (ImpactCategoryDescriptor impact : impacts) {
+			for (ImpactCategoryDescriptor impact : result.getImpacts()) {
 				writer.impactRow(sheet, row, 1, impact);
 				double[] values = result.getAllUpstream(pp, impact);
 				writeValues(sheet, row, IMPACT_HEADER.length + 1, values);
@@ -194,7 +189,7 @@ public class SimulationResultExport {
 			row++;
 		}
 
-		List<IndexFlow> flows = Sort.flows(result.getFlows(), cache);
+		List<IndexFlow> flows = result.getFlows();
 
 		writer.headerRow(sheet, row++, 1, "Direct LCI contributions - Inputs");
 		writeFlowContributions(flows, pp, true, result::getAllDirect, sheet);

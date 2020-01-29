@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.ProjectVariant;
@@ -20,19 +19,26 @@ import gnu.trove.set.hash.TLongHashSet;
  */
 public class ProjectResult implements IResult {
 
-	private HashMap<ProjectVariant, ContributionResult> results = new HashMap<>();
+	private final HashMap<ProjectVariant, ContributionResult> results = new HashMap<>();
 
 	// cached descriptor lists which are initialized lazily
 	private ArrayList<IndexFlow> _flows;
 	private ArrayList<ImpactCategoryDescriptor> _impacts;
 	private ArrayList<CategorizedDescriptor> _processes;
+	private ArrayList<ProjectVariant> _variants;
 	
 	public void addResult(ProjectVariant variant, ContributionResult result) {
 		results.put(variant, result);
 	}
 
-	public Set<ProjectVariant> getVariants() {
-		return results.keySet();
+	public List<ProjectVariant> getVariants() {
+		if (_variants != null)
+			return _variants;
+		if (results.isEmpty())
+			return Collections.emptyList();
+		_variants = new ArrayList<>();
+		_variants.addAll(results.keySet());
+		return _variants;
 	}
 
 	public ContributionResult getResult(ProjectVariant variant) {

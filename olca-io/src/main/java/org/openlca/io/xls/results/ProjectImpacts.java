@@ -30,24 +30,20 @@ class ProjectImpacts {
 	}
 
 	private void run() {
-		List<ProjectVariant> variants = Sort.variants(result.getVariants());
-		List<ImpactCategoryDescriptor> impacts = Sort
-				.impacts(result.getImpacts());
 		int row = 1;
 		header(sheet, row++, 1, "LCIA Results");
-		writeRows(row, variants, impacts);
+		writeRows(row, result.getVariants());
 		Excel.autoSize(sheet, 1, 4);
 	}
 
-	private int writeRows(int row, List<ProjectVariant> variants,
-			List<ImpactCategoryDescriptor> impacts) {
+	private int writeRows(int row, List<ProjectVariant> variants) {
 		for (int i = 0; i < variants.size(); i++) {
 			int col = i + 4;
 			header(sheet, row, col, variants.get(i).name);
 		}
 		row++;
 		writeHeader(row++);
-		for (ImpactCategoryDescriptor impact : impacts) {
+		for (ImpactCategoryDescriptor impact : result.getImpacts()) {
 			writeInfo(row, impact);
 			ContributionSet<ProjectVariant> contributions = result
 					.getContributions(impact);
