@@ -1,4 +1,4 @@
-package org.openlca.geo;
+package org.openlca.core.math;
 
 import java.util.Arrays;
 import java.util.List;
@@ -9,6 +9,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openlca.core.Tests;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
@@ -18,9 +19,6 @@ import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.UnitGroupDao;
-import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.CalculationType;
-import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.solvers.JavaSolver;
@@ -67,7 +65,7 @@ import org.openlca.core.results.FullResult;
  * Then we assign different combinations where we assign the locations to the
  * processes and exchanges and compare the calculated results.
  */
-public class RegCalculatorTest {
+public class RegionalizedCalculationTest {
 
 	private IDatabase db = Tests.getDb();
 
@@ -197,7 +195,8 @@ public class RegCalculatorTest {
 	@Test
 	public void checkNoLocations() {
 		CalculationSetup setup = calcSetup();
-		RegCalculator calc = new RegCalculator(db, new JavaSolver());
+		SystemCalculator calc = new SystemCalculator(
+				db, new JavaSolver());
 		FullResult r = calc.calculateFull(setup);
 
 		// total results
@@ -242,7 +241,8 @@ public class RegCalculatorTest {
 		p2 = setLoc(p2, loc2);
 
 		CalculationSetup setup = calcSetup();
-		RegCalculator calc = new RegCalculator(db, new JavaSolver());
+		setup.withRegionalization = true;
+		SystemCalculator calc = new SystemCalculator(db, new JavaSolver());
 		FullResult r = calc.calculateFull(setup);
 
 		checkRegTotalFlowResults(r, new Object[][] {
@@ -444,8 +444,9 @@ public class RegCalculatorTest {
 		// create the product system and calculation setup
 		CalculationSetup setup = new CalculationSetup(
 				CalculationType.CONTRIBUTION_ANALYSIS, ProductSystem.from(p));
+		setup.withRegionalization = true;
 		setup.impactMethod = Descriptors.toDescriptor(method);
-		RegCalculator calculator = new RegCalculator(db, new JavaSolver());
+		SystemCalculator calculator = new SystemCalculator(db, new JavaSolver());
 
 		FullResult r = calculator.calculateFull(setup);
 		Assert.assertTrue(r.flowIndex.isRegionalized);
