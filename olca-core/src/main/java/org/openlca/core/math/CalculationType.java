@@ -27,14 +27,6 @@ public enum CalculationType {
 	UPSTREAM_ANALYSIS,
 
 	/**
-	 * A regionalized calculation is a contribution analysis but with an LCIA
-	 * method that supports regionalized characterization factors (via region
-	 * specific parameters in formulas) and a product system with processes that
-	 * have geographic information assigned (point, line, or polygon shapes).
-	 */
-	REGIONALIZED_CALCULATION,
-
-	/**
 	 * A Monte Carlo simulation generates for each run, of a given number of a
 	 * given number of iterations, random values according to the uncertainty
 	 * distributions of process inputs/outputs, parameters, characterization

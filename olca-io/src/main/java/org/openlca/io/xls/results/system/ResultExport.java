@@ -107,8 +107,6 @@ public class ResultExport implements Runnable {
 			return "Contribution analysis";
 		case MONTE_CARLO_SIMULATION:
 			return "Monte Carlo simulation";
-		case REGIONALIZED_CALCULATION:
-			return "Regionalized LCIA calculation";
 		case SIMPLE_CALCULATION:
 			return "Simple calculation";
 		default:
