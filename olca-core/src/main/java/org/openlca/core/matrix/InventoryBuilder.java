@@ -40,13 +40,10 @@ public class InventoryBuilder {
 		this.conf = conf;
 		this.techIndex = conf.techIndex;
 		this.flows = FlowTable.create(conf.db);
-
-		// collect the locations in case of a
-		// regionalized setup
 		if (!conf.withRegionalization) {
 			locations = null;
 		} else {
-			this.locations = new LocationDao(conf.db).descriptorMap();
+			locations = new LocationDao(conf.db).descriptorMap();
 		}
 
 		techBuilder = new MatrixBuilder();

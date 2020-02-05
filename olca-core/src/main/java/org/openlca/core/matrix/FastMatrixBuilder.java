@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
+import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.math.CalculationSetup;
@@ -15,6 +16,7 @@ import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
 
@@ -38,6 +40,9 @@ public class FastMatrixBuilder {
 	private MatrixBuilder enviBuilder;
 	private double[] costs;
 
+	// only used when a regionalized inventory is build
+	private final TLongObjectHashMap<LocationDescriptor> locations;
+
 	/**
 	 * A map that assigns the IDs of products and waste flows to their
 	 * respective providers. This map is initialized lazily when there are no
@@ -51,6 +56,11 @@ public class FastMatrixBuilder {
 		this.db = db;
 		this.setup = setup;
 		this.flows = FlowTable.create(db);
+		if (!setup.withRegionalization) {
+			locations = null;
+		} else {
+			locations = new LocationDao(db).descriptorMap();
+		}
 	}
 
 	public MatrixData build() {
@@ -161,14 +171,7 @@ public class FastMatrixBuilder {
 	}
 
 	private void addIntervention(ProcessProduct provider, CalcExchange e) {
-		int row = flowIndex.of(e.flowId);
-		if (row < 0) {
-			if (e.isInput) {
-				row = flowIndex.putInput(flows.get(e.flowId));
-			} else {
-				row = flowIndex.putOutput(flows.get(e.flowId));
-			}
-		}
+		int row = flowIndex.register(provider, e, flows, locations);
 		add(row, provider, enviBuilder, e);
 	}
 
