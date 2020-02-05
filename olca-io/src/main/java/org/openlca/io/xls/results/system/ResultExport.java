@@ -100,18 +100,10 @@ public class ResultExport implements Runnable {
 	}
 
 	private String getType() {
-		if (setup.type == null)
-			return "?";
-		switch (setup.type) {
-		case CONTRIBUTION_ANALYSIS:
-			return "Contribution analysis";
-		case MONTE_CARLO_SIMULATION:
-			return "Monte Carlo simulation";
-		case SIMPLE_CALCULATION:
-			return "Simple calculation";
-		default:
-			return "?";
-		}
+		if (result instanceof ContributionResult)
+			return "Contribution result";
+		if (result instanceof FullResult)
+			return "Analysis result";
+		return "Simple result";
 	}
-
 }

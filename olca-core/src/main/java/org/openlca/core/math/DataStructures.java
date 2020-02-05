@@ -115,7 +115,7 @@ public class DataStructures {
 		conf.subResults = subResults;
 		conf.withCosts = setup.withCosts;
 		conf.withRegionalization = setup.withRegionalization;
-		conf.withUncertainties = setup.type == CalculationType.MONTE_CARLO_SIMULATION;
+		conf.withUncertainties = setup.withUncertainties;
 		InventoryBuilder builder = new InventoryBuilder(conf);
 		MatrixData data = builder.build();
 

@@ -109,10 +109,6 @@ public class Calculator {
 					"No product system found for @id=" + systemID, req);
 		CalculationSetup setup = buildSetup(json, system);
 		log.info("Calculate product system {}", systemID);
-		return calculate(req, setup);
-	}
-
-	private CalculationSetup buildSetup(JsonObject json, ProductSystem system) {
 		CalculationType type = Json.getEnum(json, "calculationType",
 				CalculationType.class);
 		if (type == null) {
@@ -120,7 +116,11 @@ public class Calculator {
 			log.info("No calculation type defined; " +
 					"calculate contributions as default");
 		}
-		CalculationSetup setup = new CalculationSetup(type, system);
+		return calculate(req, setup, type);
+	}
+
+	private CalculationSetup buildSetup(JsonObject json, ProductSystem system) {
+		CalculationSetup setup = new CalculationSetup(system);
 		String methodID = Json.getRefId(json, "impactMethod");
 		if (methodID != null) {
 			setup.impactMethod = new ImpactMethodDao(db)
@@ -179,11 +179,12 @@ public class Calculator {
 		return null;
 	}
 
-	private RpcResponse calculate(RpcRequest req, CalculationSetup setup) {
+	private RpcResponse calculate(RpcRequest req, CalculationSetup setup,
+			CalculationType type) {
 		try {
 			SystemCalculator calc = new SystemCalculator(db, context.solver);
 			SimpleResult r = null;
-			switch (setup.type) {
+			switch (type) {
 			case CONTRIBUTION_ANALYSIS:
 				r = calc.calculateContributions(setup);
 				break;
@@ -197,7 +198,7 @@ public class Calculator {
 				break;
 			}
 			if (r == null) {
-				return Responses.error(501, "Calculation method " + setup.type
+				return Responses.error(501, "Calculation method " + type
 						+ "is not yet implemented", req);
 			}
 			String id = UUID.randomUUID().toString();

@@ -7,7 +7,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.DataStructures;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.MatrixData;
@@ -35,8 +34,7 @@ public class CsvMatrixExample {
 		// create the calculation setup
 		ProductSystem system = new ProductSystemDao(db).getForRefId(
 				"2c46bdcc-9798-4e78-868c-020ff7b7fd74");
-		CalculationSetup setup = new CalculationSetup(
-				CalculationType.CONTRIBUTION_ANALYSIS, system);
+		CalculationSetup setup = new CalculationSetup(system);
 		// setup.impactMethod = new ImpactMethodDao(db)
 		// .getDescriptorForRefId(
 		// "207ffac9-aaa8-401d-ac90-874defd3751a");

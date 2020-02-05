@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowType;
@@ -96,8 +95,7 @@ public class TestSystem {
 	}
 
 	public static FullResult calculate(ProductSystem system) {
-		CalculationSetup setup = new CalculationSetup(
-				CalculationType.UPSTREAM_ANALYSIS, system);
+		CalculationSetup setup = new CalculationSetup(system);
 		setup.withCosts = true;
 		return calculate(setup);
 	}
@@ -111,8 +109,7 @@ public class TestSystem {
 
 	public static ContributionResult contributions(
 			ProductSystem system) {
-		CalculationSetup setup = new CalculationSetup(
-				CalculationType.CONTRIBUTION_ANALYSIS, system);
+		CalculationSetup setup = new CalculationSetup(system);
 		setup.withCosts = true;
 		SystemCalculator calc = new SystemCalculator(
 				Tests.getDb(),

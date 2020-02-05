@@ -398,8 +398,7 @@ public class RegionalizedCalculationTest {
 	private CalculationSetup calcSetup() {
 		// reload the product system to get the updates
 		sys = new ProductSystemDao(db).getForId(sys.id);
-		CalculationSetup setup = new CalculationSetup(
-				CalculationType.CONTRIBUTION_ANALYSIS, sys);
+		CalculationSetup setup = new CalculationSetup(sys);
 		setup.impactMethod = Descriptors.toDescriptor(method);
 		return setup;
 	}
@@ -442,8 +441,7 @@ public class RegionalizedCalculationTest {
 		method = new ImpactMethodDao(db).insert(method);
 
 		// create the product system and calculation setup
-		CalculationSetup setup = new CalculationSetup(
-				CalculationType.CONTRIBUTION_ANALYSIS, ProductSystem.from(p));
+		CalculationSetup setup = new CalculationSetup(ProductSystem.from(p));
 		setup.withRegionalization = true;
 		setup.impactMethod = Descriptors.toDescriptor(method);
 		SystemCalculator calculator = new SystemCalculator(db, new JavaSolver());

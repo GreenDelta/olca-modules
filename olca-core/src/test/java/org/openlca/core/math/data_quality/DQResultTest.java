@@ -17,7 +17,6 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQScore;
@@ -203,8 +202,7 @@ public class DQResultTest {
 		SystemCalculator calculator = new SystemCalculator(
 				Tests.getDb(),
 				Tests.getDefaultSolver());
-		CalculationSetup setup = new CalculationSetup(
-				CalculationType.CONTRIBUTION_ANALYSIS, system);
+		CalculationSetup setup = new CalculationSetup(system);
 		setup.setAmount(1);
 		setup.impactMethod = Descriptors.toDescriptor(method);
 		ContributionResult cResult = calculator.calculateContributions(setup);

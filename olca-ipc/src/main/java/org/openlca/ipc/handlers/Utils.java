@@ -7,7 +7,6 @@ import java.util.function.Function;
 
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.math.CalculationType;
 import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.IndexFlow;
@@ -57,8 +56,7 @@ class Utils {
 	@SuppressWarnings("unchecked")
 	private <T> T getResult(String id) {
 		CachedResult<?> result = (CachedResult<?>) ctx.cache.get(id);
-		if (result == null || result.setup.type == CalculationType.SIMPLE_CALCULATION
-				|| result.setup.type == CalculationType.MONTE_CARLO_SIMULATION)
+		if (result == null)
 			return null;
 		return (T) result.result;
 	}

@@ -7,7 +7,6 @@ import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.CalculationType;
 import org.openlca.core.matrix.FastMatrixBuilder;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.io.CsvOut;
@@ -31,8 +30,7 @@ public class FastMatrixExportExample {
 			// for all processes in the database.
 			ProductSystem system = new ProductSystemDao(db).getForRefId(
 					"53f9b9db-139f-4617-bf2b-8fc715b3cd16");
-			CalculationSetup setup = new CalculationSetup(
-					CalculationType.CONTRIBUTION_ANALYSIS, system);
+			CalculationSetup setup = new CalculationSetup(system);
 			setup.allocationMethod = AllocationMethod.USE_DEFAULT;
 
 			// the LCIA method for which we export the characterization

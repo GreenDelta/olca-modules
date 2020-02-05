@@ -323,8 +323,8 @@ public class Simulator {
 				// do *not* copy the LCIA method here
 				ProductSystemDao dao = new ProductSystemDao(db);
 				ProductSystem sub = dao.getForId(system);
-				_setup = new CalculationSetup(
-						CalculationType.MONTE_CARLO_SIMULATION, sub);
+				_setup = new CalculationSetup(sub);
+				_setup.withUncertainties = true;
 				_setup.parameterRedefs.addAll(sub.parameterRedefs);
 				_setup.withCosts = setup.withCosts;
 				_setup.allocationMethod = setup.allocationMethod;

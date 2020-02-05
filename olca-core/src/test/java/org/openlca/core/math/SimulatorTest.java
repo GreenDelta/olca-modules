@@ -34,8 +34,8 @@ public class SimulatorTest {
 						.get());
 
 		// create the simulator
-		CalculationSetup setup = new CalculationSetup(
-				CalculationType.MONTE_CARLO_SIMULATION, s);
+		CalculationSetup setup = new CalculationSetup(s);
+		setup.withUncertainties = true;
 		setup.impactMethod = Descriptors.toDescriptor(m);
 		Simulator simulator = Simulator.create(
 				setup, Tests.getDb(), new JavaSolver());

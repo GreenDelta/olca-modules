@@ -6,7 +6,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.Simulator;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
@@ -27,8 +26,8 @@ public class SysInSys {
 				"b53db562-1584-4c4c-bc6f-989f77348c8d");
 
 		IMatrixSolver solver = new JavaSolver();
-		CalculationSetup setup = new CalculationSetup(
-				CalculationType.MONTE_CARLO_SIMULATION, system);
+		CalculationSetup setup = new CalculationSetup(system);
+		setup.withUncertainties = true;
 
 		Simulator sim = Simulator.create(setup, db, solver);
 		sim.getTechIndex().each((i, pp) -> {

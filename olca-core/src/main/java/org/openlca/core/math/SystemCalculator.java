@@ -82,9 +82,7 @@ public class SystemCalculator {
 		for (ProjectVariant v : project.variants) {
 			if (v.isDisabled)
 				continue;
-			CalculationSetup setup = new CalculationSetup(
-					CalculationType.CONTRIBUTION_ANALYSIS,
-					v.productSystem);
+			CalculationSetup setup = new CalculationSetup(v.productSystem);
 			setup.setUnit(v.unit);
 			setup.setFlowPropertyFactor(v.flowPropertyFactor);
 			setup.setAmount(v.amount);
@@ -93,6 +91,7 @@ public class SystemCalculator {
 			setup.nwSet = nwSet;
 			setup.parameterRedefs.addAll(v.parameterRedefs);
 			setup.withCosts = true;
+			// TODO: how to handle regionalization here?
 			ContributionResult cr = calculateContributions(setup);
 			result.addResult(v, cr);
 		}
@@ -143,9 +142,11 @@ public class SystemCalculator {
 			ProductSystem sys = sysDao.getForId(pp.id());
 			if (sys == null)
 				continue;
-			CalculationSetup subSetup = new CalculationSetup(setup.type, sys);
+			CalculationSetup subSetup = new CalculationSetup(sys);
 			subSetup.parameterRedefs.addAll(sys.parameterRedefs);
 			subSetup.withCosts = setup.withCosts;
+			subSetup.withUncertainties = setup.withUncertainties;
+			subSetup.withRegionalization = setup.withRegionalization;
 			subSetup.allocationMethod = setup.allocationMethod;
 			SimpleResult r = calculateSimple(subSetup);
 			map.put(pp, r);

@@ -14,7 +14,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.DataStructures;
 import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.FlowIndex;
@@ -41,8 +40,7 @@ public class SystemExport {
 	}
 
 	public void exportTo(File dir) throws IOException {
-		CalculationSetup setup = new CalculationSetup(
-				CalculationType.SIMPLE_CALCULATION, conf.system);
+		CalculationSetup setup = new CalculationSetup(conf.system);
 		setup.parameterRedefs.addAll(conf.system.parameterRedefs);
 		setup.allocationMethod = conf.allocationMethod;
 		setup.impactMethod = conf.impactMethod;

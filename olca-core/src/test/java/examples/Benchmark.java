@@ -9,7 +9,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.mysql.MySQLDatabase;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.DataStructures;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.IndexFlow;
@@ -39,8 +38,7 @@ public class Benchmark {
 		IDatabase db = new MySQLDatabase(
 				"jdbc:mysql://localhost:3306/openlca_ei3_pre", "root", "");
 		ProductSystem system = new ProductSystemDao(db).getForId(654886);
-		CalculationSetup setup = new CalculationSetup(
-				CalculationType.UPSTREAM_ANALYSIS, system);
+		CalculationSetup setup = new CalculationSetup(system);
 		setup.allocationMethod = AllocationMethod.USE_DEFAULT;
 		MatrixData data = DataStructures.matrixData(
 				setup, db, Collections.emptyMap());

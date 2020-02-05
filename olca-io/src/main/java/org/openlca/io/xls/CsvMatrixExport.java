@@ -8,7 +8,6 @@ import java.util.HashMap;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.DataStructures;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
@@ -50,8 +49,7 @@ public class CsvMatrixExport implements Runnable {
 		}
 
 		log.trace("Build inventory matrix");
-		CalculationSetup setup = new CalculationSetup(
-				CalculationType.SIMPLE_CALCULATION, conf.productSystem);
+		CalculationSetup setup = new CalculationSetup(conf.productSystem);
 		setup.parameterRedefs.addAll(conf.productSystem.parameterRedefs);
 		setup.allocationMethod = AllocationMethod.NONE;
 		MatrixData data = DataStructures.matrixData(

@@ -67,8 +67,7 @@ public class AllocationTest {
 
 	private void checkIt(AllocationMethod method, Process p) {
 		ProductSystem system = TestSystem.of(p).get();
-		CalculationSetup setup = new CalculationSetup(
-				CalculationType.UPSTREAM_ANALYSIS, system);
+		CalculationSetup setup = new CalculationSetup(system);
 		setup.allocationMethod = method;
 		FullResult r = TestSystem.calculate(setup);
 		assertEquals(1, r.flowIndex.size());
