@@ -5,11 +5,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.openlca.core.matrix.cache.FlowTable;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TLongIntHashMap;
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
  * The row index $\mathit{Idx}_B$ of the intervention matrix $\mathbf{B}$. It
@@ -116,6 +119,77 @@ public final class FlowIndex {
 
 	public boolean contains(long flowID, long locationID) {
 		return of(flowID, locationID) >= 0;
+	}
+
+	/**
+	 * Adds all flows of the given index to this index.
+	 */
+	public void putAll(FlowIndex other) {
+		if (other == null || other == this)
+			return;
+		other.each((i, f) -> {
+			if (contains(f))
+				return;
+			if (isRegionalized) {
+				if (f.isInput) {
+					putInput(f.flow, f.location);
+				} else {
+					putOutput(f.flow, f.location);
+				}
+			} else {
+				if (f.isInput) {
+					putInput(f.flow);
+				} else {
+					putOutput(f.flow);
+				}
+			}
+		});
+	}
+
+	/**
+	 * This method should be only called from inventory builders to index flows.
+	 * Only when this index is not regionalized, it is save to pass a null value for
+	 * the locations into this method.
+	 */
+	public int register(
+			ProcessProduct product,
+			CalcExchange e,
+			FlowTable flows,
+			TLongObjectHashMap<LocationDescriptor> locations) {
+
+		int i = isRegionalized
+				? of(e.flowId, e.locationId)
+				: of(e.flowId);
+		if (i >= 0)
+			return i;
+		FlowDescriptor flow = flows.get(e.flowId);
+		if (flow == null)
+			return -1;
+
+		if (!isRegionalized) {
+			return e.isInput
+					? putInput(flow)
+					: putOutput(flow);
+		}
+
+		// take the location from the exchange
+		// if the exchange does not have a location
+		// the take it from the flow.
+		LocationDescriptor loc = null;
+		if (e.locationId > 0) {
+			loc = locations.get(e.locationId);
+		}
+		if (loc == null) {
+			if (product.process instanceof ProcessDescriptor) {
+				ProcessDescriptor d = (ProcessDescriptor) product.process;
+				if (d.location != null) {
+					loc = locations.get(d.location);
+				}
+			}
+		}
+		return e.isInput
+				? putInput(flow, loc)
+				: putOutput(flow, loc);
 	}
 
 	public int putInput(FlowDescriptor flow) {

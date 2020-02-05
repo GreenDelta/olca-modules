@@ -55,7 +55,9 @@ public class FastMatrixBuilder {
 
 	public MatrixData build() {
 		techIndex = buildTechIndex();
-		flowIndex = FlowIndex.create();
+		flowIndex = setup.withRegionalization
+				? FlowIndex.createRegionalized()
+				: FlowIndex.create();
 		interpreter = DataStructures.interpreter(
 				db, setup, techIndex);
 		techBuilder = new MatrixBuilder();

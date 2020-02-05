@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.openlca.core.database.LocationDao;
-import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.cache.ExchangeTable;
 import org.openlca.core.matrix.cache.FlowTable;
 import org.openlca.core.matrix.format.MatrixBuilder;
@@ -12,7 +11,6 @@ import org.openlca.core.matrix.uncertainties.UMatrix;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.results.SimpleResult;
 import org.slf4j.Logger;
@@ -28,7 +26,6 @@ public class InventoryBuilder {
 
 	// only used when a regionalized inventory is build
 	private final TLongObjectHashMap<LocationDescriptor> locations;
-	private final TLongObjectHashMap<LocationDescriptor> processLocations;
 
 	private FlowIndex flowIndex;
 	private AllocationIndex allocationIndex;
@@ -48,25 +45,8 @@ public class InventoryBuilder {
 		// regionalized setup
 		if (!conf.withRegionalization) {
 			locations = null;
-			processLocations = null;
 		} else {
 			this.locations = new LocationDao(conf.db).descriptorMap();
-			this.processLocations = new TLongObjectHashMap<>();
-			String query = "select id, f_location from tbl_processes";
-			try {
-				NativeSql.on(conf.db).query(query, r -> {
-					long procID = r.getLong(1);
-					long locID = r.getLong(2);
-					LocationDescriptor loc = locations.get(locID);
-					if (loc != null) {
-						processLocations.put(procID, loc);
-					}
-					return true;
-				});
-			} catch (Exception e) {
-				throw new RuntimeException(
-						"failed to query process locations " + query, e);
-			}
 		}
 
 		techBuilder = new MatrixBuilder();
@@ -95,27 +75,7 @@ public class InventoryBuilder {
 				: FlowIndex.create();
 		if (conf.subResults != null) {
 			for (SimpleResult sub : conf.subResults.values()) {
-				if (sub.flowIndex == null)
-					continue;
-				sub.flowIndex.each((i, f) -> {
-					if (!flowIndex.contains(f)) {
-
-						if (conf.withRegionalization) {
-							if (f.isInput) {
-								flowIndex.putInput(f.flow, f.location);
-							} else {
-								flowIndex.putOutput(f.flow, f.location);
-							}
-						} else {
-							if (f.isInput) {
-								flowIndex.putInput(f.flow);
-							} else {
-								flowIndex.putOutput(f.flow);
-							}
-						}
-
-					}
-				});
+				flowIndex.putAll(sub.flowIndex);
 			}
 		}
 
@@ -241,38 +201,7 @@ public class InventoryBuilder {
 	}
 
 	private void addIntervention(ProcessProduct provider, CalcExchange e) {
-		int row = flowIndex.isRegionalized
-				? flowIndex.of(e.flowId, e.locationId)
-				: flowIndex.of(e.flowId);
-		if (row < 0) {
-			FlowDescriptor flow = flows.get(e.flowId);
-			if (flow == null)
-				return;
-
-			if (!flowIndex.isRegionalized) {
-				if (e.isInput) {
-					row = flowIndex.putInput(flow);
-				} else {
-					row = flowIndex.putOutput(flow);
-				}
-			} else {
-
-				// create a regionalized flow; the location
-				// maybe null
-				LocationDescriptor loc = null;
-				if (e.locationId > 0) {
-					loc = locations.get(e.locationId);
-				}
-				if (loc == null) {
-					loc = processLocations.get(provider.id());
-				}
-				if (e.isInput) {
-					row = flowIndex.putInput(flow, loc);
-				} else {
-					row = flowIndex.putOutput(flow, loc);
-				}
-			}
-		}
+		int row = flowIndex.register(provider, e, flows, locations);
 		add(row, provider, enviBuilder, e);
 	}
 

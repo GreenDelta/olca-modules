@@ -19,7 +19,9 @@ import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.UnitGroupDao;
+import org.openlca.core.matrix.FastMatrixBuilder;
 import org.openlca.core.matrix.IndexFlow;
+import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.Exchange;
@@ -239,11 +241,27 @@ public class RegionalizedCalculationTest {
 	public void testProcessLocations() {
 		p1 = setLoc(p1, loc1);
 		p2 = setLoc(p2, loc2);
-
 		CalculationSetup setup = calcSetup();
 		setup.withRegionalization = true;
 		SystemCalculator calc = new SystemCalculator(db, new JavaSolver());
 		FullResult r = calc.calculateFull(setup);
+		checkRegionalizedResults(r);
+	}
+
+	@Test
+	public void testFastMatrixBuilderProcesssLocations() {
+		p1 = setLoc(p1, loc1);
+		p2 = setLoc(p2, loc2);
+		CalculationSetup setup = calcSetup();
+		setup.withRegionalization = true;
+		FastMatrixBuilder builder = new FastMatrixBuilder(db, setup);
+		MatrixData data = builder.build();
+		LcaCalculator calculator = new LcaCalculator(new JavaSolver(), data);
+		FullResult r = calculator.calculateFull();
+		checkRegionalizedResults(r);
+	}
+
+	private void checkRegionalizedResults(FullResult r) {
 
 		checkRegTotalFlowResults(r, new Object[][] {
 				{ e1, loc1, 2.0 },
