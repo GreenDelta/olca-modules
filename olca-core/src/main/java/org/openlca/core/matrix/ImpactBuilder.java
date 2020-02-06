@@ -205,6 +205,7 @@ public final class ImpactBuilder {
 				CalcImpactFactor factor = defaults[row].get(flowID);
 				if (factor == null)
 					continue;
+				factor.isInput = f.isInput;
 				matrix.set(row, col, factor.matrixValue(interpreter));
 				if (uncertainties != null) {
 					uncertainties.add(row, col, factor);
