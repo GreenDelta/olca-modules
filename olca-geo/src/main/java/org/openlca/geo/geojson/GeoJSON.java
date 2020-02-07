@@ -6,6 +6,9 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -30,6 +33,29 @@ public final class GeoJSON {
 		} catch (Exception e) {
 			throw new RuntimeException("failed to read " + file, e);
 		}
+	}
+
+	public static FeatureCollection fromKryo(byte[] data) {
+		if (data == null)
+			return null;
+		Kryo kryo = new Kryo();
+		kryo.setRegistrationRequired(false);
+		Input input = new Input(data);
+		Object obj = kryo.readClassAndObject(input);
+		return obj instanceof FeatureCollection
+				? (FeatureCollection) obj
+				: null;
+	}
+
+	public static byte[] toKryo(FeatureCollection coll) {
+		if (coll == null)
+			return null;
+		Kryo kryo = new Kryo();
+		kryo.setRegistrationRequired(false);
+		Output output = new Output(1024, -1);
+		kryo.writeClassAndObject(output, coll);
+		output.close();
+		return output.getBuffer();
 	}
 
 	public static FeatureCollection read(Reader reader) {
