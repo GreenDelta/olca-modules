@@ -34,6 +34,16 @@ public class MessagePackTest {
 	}
 
 	@Test
+	public void testEmptyFeature() {
+		FeatureCollection coll = new FeatureCollection();
+		coll.features.add(new Feature());
+		FeatureCollection clone = MsgPack.unpack(MsgPack.pack(coll));
+		Assert.assertNotSame(coll, clone);
+		Assert.assertEquals(1, clone.features.size());
+		Assert.assertNull(clone.features.get(0).geometry);
+	}
+
+	@Test
 	public void testPackMap() throws IOException {
 		MessageBufferPacker packer = MessagePack.newDefaultBufferPacker();
 		packer.packMapHeader(2);

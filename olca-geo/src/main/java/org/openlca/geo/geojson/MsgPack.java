@@ -7,6 +7,7 @@ import org.msgpack.core.MessageBufferPacker;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageUnpacker;
+import org.msgpack.value.ArrayValue;
 import org.msgpack.value.MapValue;
 import org.msgpack.value.Value;
 
@@ -35,9 +36,27 @@ public class MsgPack {
 
 	private static void packFeature(
 			Feature f, MessagePacker packer) throws IOException {
+		if (f == null) {
+			packer.packNil();
+			return;
+		}
+		// TODO: we currently do not support properties
+		packer.packMapHeader(2);
 		packer.packString("type");
 		packer.packString("Feature");
+		packer.packString("geometry");
+		packGeometry(f.geometry, packer);
 	}
+
+	private static void packGeometry(
+			Geometry g, MessagePacker packer) throws IOException {
+		if (g == null) {
+			packer.packNil();
+			return;
+		}
+
+	}
+
 
 	static void packPoint(Point p, MessagePacker packer) {
 		try {
@@ -73,11 +92,26 @@ public class MsgPack {
 				Value value = entry.getValue();
 				if (!value.isArrayValue())
 					break;
+				ArrayValue array = value.asArrayValue();
+				for (int i = 0; i < array.size(); i++) {
+					Feature feature = unpackFeature(array.get(i));
+					if (feature != null) {
+						coll.features.add(feature);
+					}
+				}
 			}
 			return coll;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	private static Feature unpackFeature(Value value) {
+		if (value == null || !value.isMapValue())
+			return null;
+		Feature feature = new Feature();
+
+		return feature;
 	}
 
 	static Point unpackPoint(MessageUnpacker unpacker) {
