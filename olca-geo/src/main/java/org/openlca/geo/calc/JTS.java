@@ -1,4 +1,4 @@
-package org.openlca.geo.jts;
+package org.openlca.geo.calc;
 
 import org.openlca.geo.geojson.GeometryCollection;
 import org.openlca.geo.geojson.LineString;
@@ -17,12 +17,12 @@ import com.vividsolutions.jts.geom.LinearRing;
  * Contains conversion methods for creating JTS geometries from GeoJSON and
  * converting them back to GeoJSON.
  */
-public class JTS {
+class JTS {
 
 	/**
 	 * Creates a JTS geometry from the given GeoJSON geometry.
 	 */
-	public static Geometry fromGeoJSON(org.openlca.geo.geojson.Geometry g) {
+	static Geometry fromGeoJSON(org.openlca.geo.geojson.Geometry g) {
 		if (g == null)
 			return null;
 		GeometryFactory gen = new GeometryFactory();
@@ -113,7 +113,7 @@ public class JTS {
 	/**
 	 * Converts the given JTS geometry to a GeoJSON geometry.
 	 */
-	public static org.openlca.geo.geojson.Geometry toGeoJSON(Geometry g) {
+	static org.openlca.geo.geojson.Geometry toGeoJSON(Geometry g) {
 		if (g == null)
 			return null;
 
@@ -194,7 +194,7 @@ public class JTS {
 		Polygon polygon = new Polygon();
 		LineString exterior = toLineString(jts.getExteriorRing());
 		polygon.rings.add(exterior);
-		for (int i = 0; i < jts.getNumInteriorRing()) {
+		for (int i = 0; i < jts.getNumInteriorRing(); i++) {
 			LineString interior = toLineString(jts.getInteriorRingN(i));
 			if (interior != null) {
 				polygon.rings.add(interior);
@@ -204,12 +204,24 @@ public class JTS {
 	}
 
 	private static MultiPolygon toMultiPolygon(Geometry g) {
-		MultiPolygon gg = new MultiPolygon();
-		return gg;
+		MultiPolygon mp = new MultiPolygon();
+		for (int i = 0; i < g.getNumGeometries(); i++) {
+			org.openlca.geo.geojson.Geometry p = toGeoJSON(g.getGeometryN(i));
+			if (p instanceof Polygon) {
+				mp.polygons.add((Polygon) p);
+			}
+		}
+		return mp;
 	}
 
 	private static GeometryCollection toGeometryCollection(Geometry g) {
-		GeometryCollection gg = new GeometryCollection();
-		return gg;
+		GeometryCollection gc = new GeometryCollection();
+		for (int i = 0; i < g.getNumGeometries(); i++) {
+			org.openlca.geo.geojson.Geometry gg = toGeoJSON(g.getGeometryN(i));
+			if (gg != null) {
+				gc.geometries.add(gg);
+			}
+		}
+		return gc;
 	}
 }
