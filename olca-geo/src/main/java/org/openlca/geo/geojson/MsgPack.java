@@ -64,49 +64,57 @@ public class MsgPack {
 		if (g instanceof Point) {
 			packer.packString("Point");
 			packer.packString("coordinates");
-			packPoint((Point) g);
+			packPoint((Point) g, packer);
 			return;
 		}
 
 		if (g instanceof MultiPoint) {
 			packer.packString("MultiPoint");
 			packer.packString("coordinates");
-			// TODO: pack details
+			packPoints(((MultiPoint) g).points, packer);
 			return;
 		}
 
 		if (g instanceof LineString) {
 			packer.packString("LineString");
 			packer.packString("coordinates");
-			// TODO: pack details
+			packPoints(((LineString) g).points, packer);
 			return;
 		}
 
 		if (g instanceof MultiLineString) {
 			packer.packString("MultiLineString");
 			packer.packString("coordinates");
-			// TODO: pack details
+			packLines(((MultiLineString) g).lineStrings, packer);
 			return;
 		}
 
 		if (g instanceof Polygon) {
 			packer.packString("Polygon");
 			packer.packString("coordinates");
-			// TODO: pack details
+			packLines(((Polygon) g).rings, packer);
 			return;
 		}
 
 		if (g instanceof MultiPolygon) {
 			packer.packString("MultiPolygon");
 			packer.packString("coordinates");
-			// TODO: pack details
+			List<Polygon> polygons = ((MultiPolygon) g).polygons;
+			packer.packArrayHeader(polygons.size());
+			for (Polygon p : polygons) {
+				packLines(p.rings, packer);
+			}
 			return;
 		}
 
 		if (g instanceof GeometryCollection) {
 			packer.packString("GeometryCollection");
-			packer.packString("coordinates");
-			// TODO: pack details
+			packer.packString("geometries");
+			GeometryCollection coll = (GeometryCollection) g;
+			packer.packArrayHeader(coll.geometries.size());
+			for (Geometry gg : coll.geometries) {
+				packGeometry(gg, packer);
+			}
 			return;
 		}
 
@@ -115,9 +123,31 @@ public class MsgPack {
 		packer.packNil();
 	}
 
+	private static void packPoint(
+			Point point, MessagePacker packer) throws IOException {
+		if (point == null) {
+			packer.packNil();
+			return;
+		}
+		packer.packArrayHeader(2);
+		packer.packDouble(point.x);
+		packer.packDouble(point.y);
+	}
+
 	private static void packPoints(
 			List<Point> points, MessagePacker packer) throws IOException {
+		packer.packArrayHeader(points.size());
+		for (Point p : points) {
+			packPoint(p, packer);
+		}
+	}
 
+	private static void packLines(
+			List<LineString> lines, MessagePacker packer) throws IOException {
+		packer.packArrayHeader(lines.size());
+		for (LineString line : lines) {
+			packPoints(line.points, packer);
+		}
 	}
 
 	public static FeatureCollection unpack(byte[] data) {

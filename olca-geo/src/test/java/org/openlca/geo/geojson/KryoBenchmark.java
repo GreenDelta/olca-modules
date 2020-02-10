@@ -34,6 +34,14 @@ public class KryoBenchmark {
 		System.out.print("JSON; benchmark ...");
 		t = (int) json(coll, ITERATIONS);
 		System.out.println("  took " + t + " ms");
+
+		System.out.print("MsgPack; warm up ...");
+		t = (int) msgPack(coll, ITERATIONS);
+		System.out.println("  took " + t + " ms");
+
+		System.out.print("MsgPack; benchmark ...");
+		t = (int) msgPack(coll, ITERATIONS);
+		System.out.println("  took " + t + " ms");
 	}
 
 	private static double json(FeatureCollection coll, int iterations) {
@@ -57,6 +65,19 @@ public class KryoBenchmark {
 		for (int i = 0; i < iterations; i++) {
 			byte[] data = GeoJSON.toKryo(coll);
 			FeatureCollection r = GeoJSON.fromKryo(data);
+			if (((MultiPoint) r.features.get(0).geometry).points.size() != SIZE) {
+				throw new RuntimeException("invalid result");
+			}
+		}
+		long time = System.nanoTime() - start;
+		return time / 1e6;
+	}
+
+	private static double msgPack(FeatureCollection coll, int iterations) {
+		long start = System.nanoTime();
+		for (int i = 0; i < iterations; i++) {
+			byte[] data = MsgPack.pack(coll);
+			FeatureCollection r = MsgPack.unpack(data);
 			if (((MultiPoint) r.features.get(0).geometry).points.size() != SIZE) {
 				throw new RuntimeException("invalid result");
 			}
