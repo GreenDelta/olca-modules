@@ -1,6 +1,11 @@
 package org.openlca.geo.geojson;
 
+import java.io.IOException;
+
 import com.google.gson.JsonObject;
+import org.msgpack.core.MessageFormat;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.core.MessageUnpacker;
 
 public final class Point extends Geometry {
 
@@ -51,4 +56,18 @@ public final class Point extends Geometry {
 				", y=" + y +
 				'}';
 	}
+
+	void pack(MessagePacker packer) {
+		try {
+			packer.packString("type");
+			packer.packString("Point");
+			packer.packString("coordinates");
+			packer.packArrayHeader(2);
+			packer.packDouble(x);
+			packer.packDouble(y);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
+
