@@ -58,9 +58,67 @@ public class MsgPack {
 			return;
 		}
 
+		packer.packMapHeader(2);
+		packer.packString("type");
+
+		if (g instanceof Point) {
+			packer.packString("Point");
+			packer.packString("coordinates");
+			packPoint((Point) g);
+			return;
+		}
+
+		if (g instanceof MultiPoint) {
+			packer.packString("MultiPoint");
+			packer.packString("coordinates");
+			// TODO: pack details
+			return;
+		}
+
+		if (g instanceof LineString) {
+			packer.packString("LineString");
+			packer.packString("coordinates");
+			// TODO: pack details
+			return;
+		}
+
+		if (g instanceof MultiLineString) {
+			packer.packString("MultiLineString");
+			packer.packString("coordinates");
+			// TODO: pack details
+			return;
+		}
+
+		if (g instanceof Polygon) {
+			packer.packString("Polygon");
+			packer.packString("coordinates");
+			// TODO: pack details
+			return;
+		}
+
+		if (g instanceof MultiPolygon) {
+			packer.packString("MultiPolygon");
+			packer.packString("coordinates");
+			// TODO: pack details
+			return;
+		}
+
+		if (g instanceof GeometryCollection) {
+			packer.packString("GeometryCollection");
+			packer.packString("coordinates");
+			// TODO: pack details
+			return;
+		}
+
+		packer.packString("UNKNOWN");
+		packer.packString("coordinates");
+		packer.packNil();
 	}
 
+	private static void packPoints(
+			List<Point> points, MessagePacker packer) throws IOException {
 
+	}
 
 	public static FeatureCollection unpack(byte[] data) {
 		if (data == null)
