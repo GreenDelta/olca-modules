@@ -3,6 +3,7 @@ package org.openlca.geo.geojson;
 import java.io.IOException;
 import java.util.Map;
 
+import org.geotools.util.MapEntry;
 import org.msgpack.core.MessageBufferPacker;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
@@ -82,23 +83,18 @@ public class MsgPack {
 			Value root = unpacker.unpackValue();
 			if (!root.isMapValue())
 				return coll;
-			MapValue map = root.asMapValue();
-			for (Map.Entry<Value, Value> entry : map.entrySet()) {
-				Value keyValue = entry.getKey();
-				if (!keyValue.isStringValue())
+			Value features = getField("features", root.asMapValue());
+			if (features == null || !features.isArrayValue())
+				return coll;
+			ArrayValue array = features.asArrayValue();
+			for (int i = 0; i < array.size(); i++) {
+				Value featureVal = array.get(i);
+				if (featureVal == null || !featureVal.isMapValue())
 					continue;
-				if (!"features".equals(keyValue.toString()))
-					continue;
-				Value value = entry.getValue();
-				if (!value.isArrayValue())
-					break;
-				ArrayValue array = value.asArrayValue();
-				for (int i = 0; i < array.size(); i++) {
-					Feature feature = unpackFeature(array.get(i));
-					if (feature != null) {
-						coll.features.add(feature);
-					}
-				}
+				Feature feature = new Feature();
+				feature.geometry = unpackGeometry(
+						getField("geometry", featureVal.asMapValue()));
+				coll.features.add(feature);
 			}
 			return coll;
 		} catch (IOException e) {
@@ -106,12 +102,99 @@ public class MsgPack {
 		}
 	}
 
-	private static Feature unpackFeature(Value value) {
+	private static Geometry unpackGeometry(Value value) {
 		if (value == null || !value.isMapValue())
 			return null;
-		Feature feature = new Feature();
+		MapValue map = value.asMapValue();
+		Value typeVal = getField("type", map);
+		if (typeVal == null || !typeVal.isStringValue())
+			return null;
 
-		return feature;
+		switch (typeVal.toString()) {
+			case "Point":
+				return unpackPoint(map);
+			case "MultiPoint":
+				return unpackMultiPoint(map);
+			case "LineString":
+				return unpackLineString(map);
+			case "MultiLineString":
+				return unpackMultiLineString(map);
+			case "Polygon":
+				return unpackPolygon(map);
+			case "MultiPolygon":
+				return unpackMultiPolygon(map);
+			case "GeometryCollection":
+				return unpackGeometryCollection(map);
+			default:
+				return null;
+		}
+
+	}
+
+	private static Point unpackPoint(MapValue value) {
+		if (value == null)
+			return null;
+		Point point = new Point();
+		return point;
+	}
+
+	private static MultiPoint unpackMultiPoint(MapValue value) {
+		if (value == null)
+			return null;
+		MultiPoint g = new MultiPoint();
+		return g;
+	}
+
+	private static LineString unpackLineString(MapValue value) {
+		if (value == null)
+			return null;
+		LineString g = new LineString();
+		return g;
+	}
+
+	private static MultiLineString unpackMultiLineString(MapValue value) {
+		if (value == null)
+			return null;
+		MultiLineString g = new MultiLineString();
+		return g;
+	}
+
+	private static Polygon unpackPolygon(MapValue value) {
+		if (value == null)
+			return null;
+		Polygon g = new Polygon();
+		return g;
+	}
+
+	private static MultiPolygon unpackMultiPolygon(MapValue value) {
+		if (value == null)
+			return null;
+		MultiPolygon g = new MultiPolygon();
+		return g;
+	}
+
+	private static GeometryCollection unpackGeometryCollection(MapValue value) {
+		if (value == null)
+			return null;
+		GeometryCollection g = new GeometryCollection();
+		return g;
+	}
+
+	private static ArrayValue unpackCoordinates(Value geometry) {
+		return null;
+	}
+
+	private static Value getField(String key, MapValue value) {
+		if (value == null)
+			return null;
+		for (Map.Entry<Value, Value> e : value.entrySet()) {
+			Value keyVal = e.getKey();
+			if (!keyVal.isStringValue())
+				continue;
+			if (key.equals(keyVal.toString()))
+				return e.getValue();
+		}
+		return null;
 	}
 
 	static Point unpackPoint(MessageUnpacker unpacker) {
