@@ -1,9 +1,11 @@
 package org.openlca.geo.geojson;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
-import org.geotools.util.MapEntry;
 import org.msgpack.core.MessageBufferPacker;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
@@ -59,18 +61,6 @@ public class MsgPack {
 	}
 
 
-	static void packPoint(Point p, MessagePacker packer) {
-		try {
-			packer.packString("type");
-			packer.packString("Point");
-			packer.packString("coordinates");
-			packer.packArrayHeader(2);
-			packer.packDouble(p.x);
-			packer.packDouble(p.y);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
 
 	public static FeatureCollection unpack(byte[] data) {
 		if (data == null)
@@ -109,10 +99,9 @@ public class MsgPack {
 		Value typeVal = getField("type", map);
 		if (typeVal == null || !typeVal.isStringValue())
 			return null;
-
 		switch (typeVal.toString()) {
 			case "Point":
-				return unpackPoint(map);
+				return unpackPoint(unpackCoordinates(map));
 			case "MultiPoint":
 				return unpackMultiPoint(map);
 			case "LineString":
@@ -128,60 +117,124 @@ public class MsgPack {
 			default:
 				return null;
 		}
-
 	}
 
-	private static Point unpackPoint(MapValue value) {
-		if (value == null)
+	private static Point unpackPoint(ArrayValue coordinates) {
+		if (coordinates == null || coordinates.size() < 2)
 			return null;
-		Point point = new Point();
-		return point;
+		Point p = new Point();
+		Value xVal = coordinates.get(0);
+		if (xVal != null && xVal.isNumberValue()) {
+			p.x = xVal.asNumberValue().toDouble();
+		}
+		Value yVal = coordinates.get(1);
+		if (yVal != null && yVal.isNumberValue()) {
+			p.y = yVal.asNumberValue().toDouble();
+		}
+		return p;
+	}
+
+	private static List<Point> unpackPoints(ArrayValue coordinates) {
+		if (coordinates == null)
+			return Collections.emptyList();
+		List<Point> points = new ArrayList<>(coordinates.size());
+		for (int i = 0; i < coordinates.size(); i++) {
+			Value vi = coordinates.get(i);
+			if (vi == null || !vi.isArrayValue())
+				continue;
+			Point p = unpackPoint(vi.asArrayValue());
+			if (p != null) {
+				points.add(p);
+			}
+		}
+		return points;
 	}
 
 	private static MultiPoint unpackMultiPoint(MapValue value) {
-		if (value == null)
+		ArrayValue coordinates = unpackCoordinates(value);
+		if (coordinates == null)
 			return null;
-		MultiPoint g = new MultiPoint();
-		return g;
+		List<Point> points = unpackPoints(coordinates);
+		return new MultiPoint(points);
 	}
 
 	private static LineString unpackLineString(MapValue value) {
-		if (value == null)
+		ArrayValue coordinates = unpackCoordinates(value);
+		if (coordinates == null)
 			return null;
-		LineString g = new LineString();
-		return g;
+		List<Point> points = unpackPoints(coordinates);
+		return new LineString(points);
+	}
+
+	private static List<LineString> unpackLineStrings(ArrayValue coordinates) {
+		if (coordinates == null)
+			return Collections.emptyList();
+		List<LineString> lines = new ArrayList<>(coordinates.size());
+		for (int i = 0; i < coordinates.size(); i++) {
+			Value vi = coordinates.get(i);
+			if (vi == null || !vi.isArrayValue())
+				continue;
+			List<Point> points = unpackPoints(vi.asArrayValue());
+			lines.add(new LineString(points));
+		}
+		return lines;
 	}
 
 	private static MultiLineString unpackMultiLineString(MapValue value) {
-		if (value == null)
+		ArrayValue coordinates = unpackCoordinates(value);
+		if (coordinates == null)
 			return null;
-		MultiLineString g = new MultiLineString();
-		return g;
+		List<LineString> lines = unpackLineStrings(coordinates);
+		return new MultiLineString(lines);
 	}
 
 	private static Polygon unpackPolygon(MapValue value) {
-		if (value == null)
+		ArrayValue coordinates = unpackCoordinates(value);
+		if (coordinates == null)
 			return null;
-		Polygon g = new Polygon();
-		return g;
+		List<LineString> rings = unpackLineStrings(coordinates);
+		return new Polygon(rings);
 	}
 
 	private static MultiPolygon unpackMultiPolygon(MapValue value) {
-		if (value == null)
+		ArrayValue coordinates = unpackCoordinates(value);
+		if (coordinates == null)
 			return null;
-		MultiPolygon g = new MultiPolygon();
-		return g;
+		List<Polygon> polygons = new ArrayList<>(coordinates.size());
+		for (int i = 0; i < coordinates.size(); i++) {
+			Value vi = coordinates.get(i);
+			if (vi == null || !vi.isArrayValue())
+				continue;
+			List<LineString> rings = unpackLineStrings(vi.asArrayValue());
+			if (rings.size() > 0) {
+				polygons.add(new Polygon(rings));
+			}
+		}
+		return new MultiPolygon(polygons);
 	}
 
-	private static GeometryCollection unpackGeometryCollection(MapValue value) {
-		if (value == null)
+	private static GeometryCollection unpackGeometryCollection(MapValue map) {
+		if (map == null)
 			return null;
-		GeometryCollection g = new GeometryCollection();
-		return g;
+		GeometryCollection coll = new GeometryCollection();
+		Value geomsVal = getField("geometries", map);
+		if (geomsVal == null || !geomsVal.isArrayValue())
+			return coll;
+		ArrayValue geometries = geomsVal.asArrayValue();
+		for (int i = 0; i < geometries.size(); i++) {
+			Geometry g = unpackGeometry(geometries.get(i));
+			if (g != null) {
+				coll.geometries.add(g);
+			}
+		}
+		return coll;
 	}
 
-	private static ArrayValue unpackCoordinates(Value geometry) {
-		return null;
+	private static ArrayValue unpackCoordinates(MapValue geometry) {
+		Value v = getField("coordinates", geometry);
+		if (v == null || !v.isArrayValue())
+			return null;
+		return v.asArrayValue();
 	}
 
 	private static Value getField(String key, MapValue value) {
@@ -195,31 +248,6 @@ public class MsgPack {
 				return e.getValue();
 		}
 		return null;
-	}
-
-	static Point unpackPoint(MessageUnpacker unpacker) {
-		Point p = new Point();
-		try {
-			System.out.println(unpacker.unpackString());
-			System.out.println(unpacker.unpackString());
-
-			System.out.println(unpacker.unpackString()); // "coordinates"
-			int n = unpacker.unpackArrayHeader();
-			if (n > 0) {
-				p.x = unpacker.unpackDouble();
-			}
-			if (n > 1) {
-				p.y = unpacker.unpackDouble();
-			}
-			if (n > 2) {
-				for (int i = 2; i < n; i++) {
-					unpacker.unpackDouble();
-				}
-			}
-			return p;
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 }
