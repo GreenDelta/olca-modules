@@ -33,11 +33,66 @@ public class ProcessWriter {
 					 fout, "windows-1252");
 			 BufferedWriter buffer = new BufferedWriter(writer)) {
 			writerHeader(buffer);
+			for (ProcessDescriptor p : processes) {
+				writeProcess(buffer, p);
+			}
 		} catch (Exception e) {
 			throw e instanceof RuntimeException
 					? (RuntimeException) e
 					: new RuntimeException(e);
 		}
+	}
+
+	private void writeProcess(BufferedWriter w, ProcessDescriptor p) {
+		if (p == null)
+			return;
+
+		r(w, "Process");
+		r(w, "");
+
+		r(w, "Category type");
+		r(w, "material");
+		r(w, "");
+
+		r(w, "Process identifier");
+		r(w, "Standard" + String.format("%015d", p.id));
+		r(w, "");
+
+		r(w, "Type");
+		r(w, "System");
+		r(w, "");
+
+		r(w, "Process name");
+		r(w, p.name);
+		r(w, "");
+
+		r(w, "Status");
+		r(w, "");
+		r(w, "");
+
+		// these sections all get an `Unspecified` value
+		String[] uSections = {
+				"Time period",
+				"Geography",
+				"Technology",
+				"Representativeness",
+				"Multiple output allocation",
+				"Substitution allocation",
+				"Cut off rules",
+				"Capital goods",
+				"Boundary with nature",
+		};
+		for (String uSection : uSections) {
+			r(w, uSection);
+			r(w, "Unspecified");
+			r(w, "");
+		}
+
+
+
+		r(w, "Time period");
+		r(w, "Unspecified");
+		r(w, "");
 	}
 
 	public void writerHeader(BufferedWriter w) {
@@ -52,7 +107,7 @@ public class ProcessWriter {
 		// time
 		String time = new SimpleDateFormat("HH:mm:ss")
 				.format(new Date());
-		r(w, "{Time: "+ time + "}");
+		r(w, "{Time: " + time + "}");
 
 		r(w, "{Project: " + db.getName() + "}");
 		r(w, "{CSV Format version: 7.0.0}");
