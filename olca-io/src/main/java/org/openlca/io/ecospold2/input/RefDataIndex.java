@@ -21,7 +21,6 @@ class RefDataIndex {
 	private Map<String, Unit> units = new HashMap<>();
 	private Map<String, FlowProperty> flowProperties = new HashMap<>();
 	private Map<String, Flow> flows = new HashMap<>();
-	private Map<String, Boolean> negativeFlow = new HashMap<>();
 	private Map<String, Boolean> mappedFlow = new HashMap<>();
 	private Map<String, Double> flowFactor = new HashMap<>();
 
@@ -49,12 +48,20 @@ class RefDataIndex {
 		units.put(key, unit);
 	}
 
-	public FlowProperty getFlowProperty(String key) {
-		return flowProperties.get(key);
+	/**
+	 * Get the flow property for the given unit ID (note that EcoSpold 2 does
+	 * not have the concept of flow properties).
+	 */
+	public FlowProperty getFlowProperty(String unitID) {
+		return flowProperties.get(unitID);
 	}
 
-	public void putFlowProperty(String key, FlowProperty property) {
-		flowProperties.put(key, property);
+	/**
+	 * Register the given flow property for the given unit ID (note that
+	 * EcoSpold 2 does not have the concept of flow properties).
+	 */
+	public void putFlowProperty(String unitID, FlowProperty property) {
+		flowProperties.put(unitID, property);
 	}
 
 	public Category getCompartment(String key) {
@@ -71,22 +78,6 @@ class RefDataIndex {
 
 	public void putFlow(String key, Flow flow) {
 		flows.put(key, flow);
-	}
-
-	/**
-	 * Set to true if the product or waste flow with the given key is used with
-	 * a negative value in the reference output of a respective activity. This
-	 * can be an indicator for waste flows (negative values) and avoided
-	 * products (sign in an product input is different than in the reference
-	 * product flow of the linked activity).
-	 */
-	public void putNegativeFlow(String key, boolean val) {
-		negativeFlow.put(key, val);
-	}
-
-	public boolean isNegativeFlow(String key) {
-		Boolean val = negativeFlow.get(key);
-		return val == null ? false : val;
 	}
 
 	public void putProcessId(String key, long id) {

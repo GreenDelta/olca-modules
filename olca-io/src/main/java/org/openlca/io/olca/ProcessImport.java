@@ -1,11 +1,6 @@
 package org.openlca.io.olca;
 
-import gnu.trove.iterator.TLongLongIterator;
-import gnu.trove.list.array.TLongArrayList;
-import gnu.trove.map.hash.TLongLongHashMap;
-
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +19,10 @@ import org.openlca.core.model.Source;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gnu.trove.iterator.TLongLongIterator;
+import gnu.trove.list.array.TLongArrayList;
+import gnu.trove.map.hash.TLongLongHashMap;
 
 class ProcessImport {
 
@@ -111,7 +110,7 @@ class ProcessImport {
 			final Flow flow = destFlow;
 			e.flow = flow;
 			e.flowPropertyFactor = refs.switchRef(
-			e.flowPropertyFactor, destFlow);
+					e.flowPropertyFactor, destFlow);
 			e.unit = refs.switchRef(e.unit);
 			e.currency = refs.switchRef(e.currency);
 		}
@@ -186,7 +185,8 @@ class ProcessImport {
 
 	private void switchDqSystems(Process destProcess) {
 		destProcess.dqSystem = refs.switchRef(destProcess.dqSystem);
-		destProcess.exchangeDqSystem = refs.switchRef(destProcess.exchangeDqSystem);
+		destProcess.exchangeDqSystem = refs
+				.switchRef(destProcess.exchangeDqSystem);
 		destProcess.socialDqSystem = refs.switchRef(destProcess.socialDqSystem);
 	}
 
@@ -211,14 +211,10 @@ class ProcessImport {
 		String stmt = "update tbl_exchanges set f_default_provider = ? where id = ?";
 		try {
 			NativeSql.on(dest).batchInsert(stmt, exchangeIds.size(),
-					new NativeSql.BatchInsertHandler() {
-						@Override
-						public boolean addBatch(int i, PreparedStatement stmt)
-								throws SQLException {
-							stmt.setLong(1, providerIds.get(i));
-							stmt.setLong(2, exchangeIds.get(i));
-							return true;
-						}
+					(int i, PreparedStatement ps) -> {
+						ps.setLong(1, providerIds.get(i));
+						ps.setLong(2, exchangeIds.get(i));
+						return true;
 					});
 		} catch (Exception e) {
 			log.error("failed to update default provider", e);

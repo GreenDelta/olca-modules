@@ -1,6 +1,6 @@
 package org.openlca.julia;
 
-import org.openlca.core.matrix.format.CCRMatrix;
+import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.IMatrix;
@@ -25,7 +25,7 @@ public class JuliaSolver implements IMatrixSolver {
 	@Override
 	public double[] solve(IMatrix a, int idx, double d) {
 		if (a instanceof HashPointMatrix && Julia.isWithUmfpack()) {
-			CCRMatrix ccr = CCRMatrix.of(a);
+			CSCMatrix ccr = CSCMatrix.of(a);
 			double[] f = new double[ccr.rows];
 			f[idx] = d;
 			double[] b = new double[ccr.rows];

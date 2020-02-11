@@ -1,11 +1,11 @@
 package org.openlca.core.matrix.format;
 
+import org.junit.Test;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
-
-public class CCRMatrixTest {
+public class CSCMatrixTest {
 
 	@Test
 	public void testDiagonal() {
@@ -13,7 +13,7 @@ public class CCRMatrixTest {
 		m.set(0, 0, 1.0);
 		m.set(1, 1, 2.0);
 		m.set(2, 2, 3.0);
-		CCRMatrix ccr = CCRMatrix.of(m);
+		CSCMatrix ccr = CSCMatrix.of(m);
 
 		// test fields
 		assertEquals(3, ccr.rows);
@@ -69,34 +69,34 @@ public class CCRMatrixTest {
 		};
 		HashPointMatrix hpm = new HashPointMatrix(data);
 
-		CCRMatrix ccr = CCRMatrix.of(hpm);
+		CSCMatrix csc = CSCMatrix.of(hpm);
 
 		// test fields
-		assertEquals(5, ccr.rows);
-		assertEquals(5, ccr.columns);
+		assertEquals(5, csc.rows);
+		assertEquals(5, csc.columns);
 		assertArrayEquals(
 				v(2., 3., 3., -1., 4., 4., -3., 1., 2., 2., 6., 1.),
-				ccr.values, 1e-10);
+				csc.values, 1e-10);
 		assertArrayEquals(
 				v(0, 1, 0, 2, 4, 1, 2, 3, 4, 2, 1, 4),
-				ccr.rowIndices);
+				csc.rowIndices);
 		assertArrayEquals(
 				v(0, 2, 5, 9, 10, 12),
-				ccr.columnPointers);
+				csc.columnPointers);
 
 		// test get
 		for (int r = 0; r < 5; r++) {
 			double[] row = new double[5];
 			for (int c = 0; c < 5; c++) {
-				row[c] = ccr.get(r, c);
+				row[c] = csc.get(r, c);
 			}
 			assertArrayEquals(data[r], row, 1e-10);
 		}
 
 		// test get row/column
 		for (int i = 0; i < 5; i++) {
-			assertArrayEquals(hpm.getRow(i), ccr.getRow(i), 1e-10);
-			assertArrayEquals(hpm.getColumn(i), ccr.getColumn(i), 1e-10);
+			assertArrayEquals(hpm.getRow(i), csc.getRow(i), 1e-10);
+			assertArrayEquals(hpm.getColumn(i), csc.getColumn(i), 1e-10);
 		}
 	}
 

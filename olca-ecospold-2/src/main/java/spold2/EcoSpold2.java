@@ -1,15 +1,19 @@
 package spold2;
 
+import javax.xml.bind.JAXB;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import javax.xml.bind.JAXB;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
+/**
+ * An EcoSpold 2 data set can contain an activity data set (aka process), a
+ * child activity data set (an activity data set that extends another data set),
+ * or even an LCIA method data set.
+ */
 @XmlRootElement(name = "ecoSpold")
 public class EcoSpold2 {
 
@@ -19,8 +23,10 @@ public class EcoSpold2 {
 	@XmlElement(name = "childActivityDataset")
 	public DataSet childDataSet;
 
-	/** Reads an activity data set from an EcoSpold 02 file. */
-	public static DataSet read(File file) {
+	@XmlElement(name = "impactMethod")
+	public ImpactMethod impactMethod;
+
+	public static EcoSpold2 read(File file) {
 		try (FileInputStream stream = new FileInputStream(file)) {
 			return read(stream);
 		} catch (Exception e) {
@@ -29,11 +35,9 @@ public class EcoSpold2 {
 		}
 	}
 
-	/** Reads an activity data set from an EcoSpold 02 file. */
-	public static DataSet read(InputStream is) {
+	public static EcoSpold2 read(InputStream is) {
 		try {
-			EcoSpold2 spold = JAXB.unmarshal(is, EcoSpold2.class);
-			return spold.dataSet != null ? spold.dataSet : spold.childDataSet;
+			return JAXB.unmarshal(is, EcoSpold2.class);
 		} catch (Exception e) {
 			String m = "failed to read EcoSpold 2 document";
 			throw new RuntimeException(m, e);
@@ -61,6 +65,15 @@ public class EcoSpold2 {
 			String m = "failed to write data set";
 			throw new RuntimeException(m, e);
 		}
+	}
+
+	/**
+	 * Returns the activity data set (process) of the EcoSpold 2 file. Note
+	 * that this can return null when the file contains an LCIA method and not
+	 * an activity.
+	 */
+	public DataSet activity() {
+		return dataSet != null ? dataSet : childDataSet;
 	}
 
 }

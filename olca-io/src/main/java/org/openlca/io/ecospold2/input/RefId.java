@@ -2,6 +2,7 @@ package org.openlca.io.ecospold2.input;
 
 import org.openlca.util.KeyGen;
 
+import spold2.Activity;
 import spold2.DataSet;
 import spold2.IntermediateExchange;
 import spold2.Spold2;
@@ -15,22 +16,34 @@ final class RefId {
 	}
 
 	/**
-	 * Returns the combination of activity-ID and reference product-ID (in this
-	 * order) as UUID.
+	 * We generate a UUID for the resulting process in openLCA from the activity
+	 * ID and the ID of the reference flow (the product output with an amount >
+	 * 0).
 	 */
 	public static String forProcess(DataSet ds) {
-		if (Spold2.getActivity(ds) == null)
+		Activity activity = Spold2.getActivity(ds);
+		if (activity == null)
 			return KeyGen.NULL_UUID;
-		String productId = null;
-		for (IntermediateExchange exchange : Spold2.getProducts(ds)) {
-			if (exchange.outputGroup == null)
-				continue;
-			if (exchange.outputGroup == 0 && exchange.amount != 0) {
-				productId = exchange.flowId;
-				break;
-			}
-		}
-		return KeyGen.get(Spold2.getActivity(ds).id, productId);
+
+		// product ID
+		IntermediateExchange qRef = Spold2.getReferenceProduct(ds);
+		String productID = qRef != null && qRef.flowId != null
+				? qRef.flowId
+				: KeyGen.NULL_UUID;
+
+		return KeyGen.get(activity.id, productID);
+	}
+
+	/**
+	 * Generates the ID of the provider process (= the linked activity) for the
+	 * given product input.
+	 */
+	public static String linkID(IntermediateExchange input) {
+		if (input == null)
+			return KeyGen.NULL_UUID;
+		String activityID = input.activityLinkId;
+		String productID = input.flowId;
+		return KeyGen.get(activityID, productID);
 	}
 
 }

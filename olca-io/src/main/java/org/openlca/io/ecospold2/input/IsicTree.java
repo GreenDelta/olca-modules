@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.openlca.core.model.Category;
 import org.slf4j.Logger;
@@ -99,37 +100,11 @@ class IsicTree {
 
 	static class IsicNode {
 
-		private String code;
-		private String name;
-		private IsicNode parent;
-		private List<IsicNode> childs = new ArrayList<>();
-		private Category category;
-
-		/** Set the corresponding openLCA category */
-		void setCategory(Category category) {
-			this.category = category;
-		}
-
-		/** Set the corresponding openLCA category */
-		Category getCategory() {
-			return category;
-		}
-
-		public IsicNode getParent() {
-			return parent;
-		}
-
-		public List<IsicNode> getChilds() {
-			return childs;
-		}
-
-		public String getCode() {
-			return code;
-		}
-
-		public String getName() {
-			return name;
-		}
+		public String code;
+		public String name;
+		public IsicNode parent;
+		public final List<IsicNode> childs = new ArrayList<>();
+		public Category category;
 
 		@Override
 		public String toString() {
@@ -138,10 +113,7 @@ class IsicTree {
 
 		@Override
 		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((code == null) ? 0 : code.hashCode());
-			return result;
+			return Objects.hash(code);
 		}
 
 		@Override
