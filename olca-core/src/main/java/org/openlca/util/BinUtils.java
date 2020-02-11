@@ -1,8 +1,10 @@
 package org.openlca.util;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
@@ -83,8 +85,8 @@ public class BinUtils {
 		ByteArrayInputStream bin = new ByteArrayInputStream(bytes);
 		byte[] result = null;
 		try (GZIPInputStream gzip = new GZIPInputStream(bin);
-		     ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
-			byte[] buffer = new byte[1024];
+				ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
+			byte[] buffer = new byte[4096];
 			int count = -1;
 			while ((count = gzip.read(buffer)) >= 0)
 				bout.write(buffer, 0, count);
@@ -94,8 +96,8 @@ public class BinUtils {
 	}
 
 	/**
-	 * Compresses the given byte array using the standard Java deflater (which
-	 * uses the zlib compression library internally).
+	 * Compresses the given byte array using the standard Java deflater (which uses
+	 * the zlib compression library internally).
 	 */
 	public static byte[] zip(byte[] bytes) throws IOException {
 		if (bytes == null)
@@ -106,7 +108,7 @@ public class BinUtils {
 		deflater.setInput(bytes);
 		ByteArrayOutputStream out = new ByteArrayOutputStream(bytes.length);
 		deflater.finish();
-		byte[] buffer = new byte[1024];
+		byte[] buffer = new byte[4096];
 		while (!deflater.finished()) {
 			int count = deflater.deflate(buffer);
 			out.write(buffer, 0, count);
@@ -127,13 +129,28 @@ public class BinUtils {
 		Inflater inflater = new Inflater();
 		inflater.setInput(bytes);
 		ByteArrayOutputStream out = new ByteArrayOutputStream(bytes.length);
-		byte[] buffer = new byte[1024];
+		byte[] buffer = new byte[4096];
 		while (!inflater.finished()) {
 			int count = inflater.inflate(buffer);
 			out.write(buffer, 0, count);
 		}
 		out.close();
 		return out.toByteArray();
+	}
+
+	public static byte[] read(InputStream input) throws IOException {
+		if (input == null)
+			return null;
+		BufferedInputStream bin = input instanceof BufferedInputStream
+				? (BufferedInputStream) input
+				: new BufferedInputStream(input);
+		byte[] buf = new byte[4096];
+		ByteArrayOutputStream bout = new ByteArrayOutputStream(4096);
+		int n = 0;
+		while ((n = bin.read(buf)) > 0) {
+			bout.write(buf, 0, n);
+		}
+		return bout.toByteArray();
 	}
 
 }
