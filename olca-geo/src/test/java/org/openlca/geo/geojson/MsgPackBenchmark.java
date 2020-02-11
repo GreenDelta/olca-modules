@@ -3,7 +3,7 @@ package org.openlca.geo.geojson;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-public class KryoBenchmark {
+public class MsgPackBenchmark {
 
 	private static final int SIZE = 1000;
 	private static final int ITERATIONS = 50_000;
@@ -19,12 +19,12 @@ public class KryoBenchmark {
 		}
 		FeatureCollection coll = FeatureCollection.of(multiPoint);
 
-		System.out.print("Kryo; warm up ...");
-		int t = (int) kryo(coll, ITERATIONS);
+		System.out.print("MsgPack; warm up ...");
+		int t = (int) msgPack(coll, ITERATIONS);
 		System.out.println("  took " + t + " ms");
 
-		System.out.print("Kryo; benchmark ...");
-		t = (int) kryo(coll, ITERATIONS);
+		System.out.print("MsgPack; benchmark ...");
+		t = (int) msgPack(coll, ITERATIONS);
 		System.out.println("  took " + t + " ms");
 
 		System.out.print("JSON; warm up ...");
@@ -33,14 +33,6 @@ public class KryoBenchmark {
 
 		System.out.print("JSON; benchmark ...");
 		t = (int) json(coll, ITERATIONS);
-		System.out.println("  took " + t + " ms");
-
-		System.out.print("MsgPack; warm up ...");
-		t = (int) msgPack(coll, ITERATIONS);
-		System.out.println("  took " + t + " ms");
-
-		System.out.print("MsgPack; benchmark ...");
-		t = (int) msgPack(coll, ITERATIONS);
 		System.out.println("  took " + t + " ms");
 	}
 
@@ -52,19 +44,6 @@ public class KryoBenchmark {
 			writer.flush();
 			StringReader reader = new StringReader(writer.toString());
 			FeatureCollection r = GeoJSON.read(reader);
-			if (((MultiPoint) r.features.get(0).geometry).points.size() != SIZE) {
-				throw new RuntimeException("invalid result");
-			}
-		}
-		long time = System.nanoTime() - start;
-		return time / 1e6;
-	}
-
-	private static double kryo(FeatureCollection coll, int iterations) {
-		long start = System.nanoTime();
-		for (int i = 0; i < iterations; i++) {
-			byte[] data = GeoJSON.toKryo(coll);
-			FeatureCollection r = GeoJSON.fromKryo(data);
 			if (((MultiPoint) r.features.get(0).geometry).points.size() != SIZE) {
 				throw new RuntimeException("invalid result");
 			}
