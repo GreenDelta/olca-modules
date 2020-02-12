@@ -11,6 +11,8 @@ import java.util.Date;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.model.Process;
+import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 /**
@@ -33,8 +35,10 @@ public class ProcessWriter {
 					 fout, "windows-1252");
 			 BufferedWriter buffer = new BufferedWriter(writer)) {
 			writerHeader(buffer);
+			ProcessDao dao = new ProcessDao(db);
 			for (ProcessDescriptor p : processes) {
-				writeProcess(buffer, p);
+				Process process = dao.getForId(p.id);
+				writeProcess(buffer, process);
 			}
 		} catch (Exception e) {
 			throw e instanceof RuntimeException
@@ -43,7 +47,14 @@ public class ProcessWriter {
 		}
 	}
 
-	private void writeProcess(BufferedWriter w, ProcessDescriptor p) {
+	private void writeProcess(BufferedWriter w, Process p) {
+		writeProcessDoc(w, p);
+
+		r(w, "End");
+		r(w, "");
+	}
+
+	private void writeProcessDoc(BufferedWriter w, Process p) {
 		if (p == null)
 			return;
 
@@ -59,11 +70,13 @@ public class ProcessWriter {
 		r(w, "");
 
 		r(w, "Type");
-		r(w, "System");
+		r(w, p.processType == ProcessType.UNIT_PROCESS
+				? "Unit process"
+				: "System");
 		r(w, "");
 
 		r(w, "Process name");
-		r(w, p.name);
+		r(w, unsep(p.name));
 		r(w, "");
 
 		r(w, "Status");
@@ -88,15 +101,40 @@ public class ProcessWriter {
 			r(w, "");
 		}
 
+		r(w, "Infrastructure");
+		r(w, "No");
+		r(w, "");
 
+		r(w, "Date");
+		r(w, new SimpleDateFormat("dd.MM.yyyy")
+				.format(new Date()));
+		r(w, "");
 
-		r(w, "Time period");
-		r(w, "Unspecified");
+		// we keep the following sections empty
+		String[] eSections = {
+				"Record",
+				"Generator",
+				"External documents",
+				"Literature references",
+				"Collection method",
+				"Data treatment",
+				"Verification",
+				"Comment",
+				"Allocation rules",
+		};
+		for (String s : eSections) {
+			r(w, s);
+			r(w, "");
+			r(w, "");
+		}
+
+		r(w, "System description");
+		r(w, ";");
 		r(w, "");
 	}
 
 	public void writerHeader(BufferedWriter w) {
-		r(w, "{SimaPro 8.0}");
+		r(w, "{SimaPro 8.5.0.0}");
 		r(w, "{processes}");
 
 		// date
@@ -110,7 +148,7 @@ public class ProcessWriter {
 		r(w, "{Time: " + time + "}");
 
 		r(w, "{Project: " + db.getName() + "}");
-		r(w, "{CSV Format version: 7.0.0}");
+		r(w, "{CSV Format version: 8.0.5}");
 		r(w, "{CSV separator: Semicolon}");
 		r(w, "{Decimal separator: .}");
 		r(w, "{Date separator: .}");
@@ -127,9 +165,15 @@ public class ProcessWriter {
 		}
 	}
 
+	private String unsep(String s) {
+		if (s == null)
+			return "";
+		return s.replace(';', ',');
+	}
+
 	public static void main(String[] args) {
-		String dbPath = "C:/Users/ms/Downloads/Database_to_convert";
-		String target = "C:/Users/ms/Downloads/OUT.CSV";
+		String dbPath = "C:/Users/Win10/Downloads/sp/Database_to_convert";
+		String target = "C:/Users/Win10/Downloads/sp/OUT.CSV";
 		try {
 			IDatabase db = new DerbyDatabase(new File(dbPath));
 			ProcessWriter writer = new ProcessWriter(db);
