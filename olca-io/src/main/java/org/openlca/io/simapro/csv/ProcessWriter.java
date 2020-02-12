@@ -5,10 +5,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,6 +42,8 @@ public class ProcessWriter {
 	private final Map<Unit, SimaProUnit> units = new HashMap<>();
 	private final Map<Category, Compartment> compartments = new HashMap<>();
 	private final Map<Flow, Compartment> flowCompartments = new HashMap<>();
+	private final Set<Flow> inputProducts = new HashSet<>();
+	private final Set<Flow> outputProducts = new HashSet<>();
 
 	public ProcessWriter(IDatabase db) {
 		this.db = db;
@@ -61,6 +65,7 @@ public class ProcessWriter {
 				classifyElemFlows(process);
 				writeProcess(buffer, process);
 			}
+			writeDummies(buffer);
 			writeQuantities(buffer);
 			writeReferenceFlows(buffer);
 			writeGlobalParameters(buffer);
@@ -68,6 +73,23 @@ public class ProcessWriter {
 			throw e instanceof RuntimeException
 					? (RuntimeException) e
 					: new RuntimeException(e);
+		}
+	}
+
+	private void writeDummies(BufferedWriter w) {
+		for (Flow inputProduct : inputProducts) {
+			if (outputProducts.contains(inputProduct))
+				continue;
+			Process p = new Process();
+			p.name = "Dummy: " + inputProduct.name;
+			p.id = inputProduct.id;
+			p.category = new Category();
+			p.category.name = "Dummy processes";
+			Exchange qRef = p.exchange(inputProduct);
+			qRef.amount = 1.0;
+			p.quantitativeReference = qRef;
+			qRef.isInput = inputProduct.flowType == FlowType.WASTE_FLOW;
+			writeProcess(w, p);
 		}
 	}
 
@@ -135,9 +157,47 @@ public class ProcessWriter {
 		r(w, "");
 	}
 
+	@SuppressWarnings("unchecked")
 	private void writeReferenceFlows(BufferedWriter w) {
+
+		// order flows by their type
+		int n = ElementaryFlowType.values().length;
+		List<Flow>[] buckets = new List[n];
+		for (int i = 0; i < n; i++) {
+			buckets[i] = new ArrayList<>();
+		}
+		for (Map.Entry<Flow, Compartment> e : flowCompartments.entrySet()) {
+			ElementaryFlowType type = e.getValue().type;
+			buckets[type.ordinal()].add(e.getKey());
+		}
+
+		// write the flow information
 		for (ElementaryFlowType type : ElementaryFlowType.values()) {
 			r(w, type.getReferenceHeader());
+
+			// duplicate names are not allowed here
+			HashSet<String> handledNames = new HashSet<>();
+			for (Flow flow : buckets[type.ordinal()]) {
+
+				if (handledNames.contains(flow.name))
+					continue;
+				handledNames.add(flow.name);
+
+				Unit refUnit = null;
+				if (flow.referenceFlowProperty != null) {
+					if (flow.referenceFlowProperty.unitGroup != null) {
+						refUnit = flow.referenceFlowProperty.unitGroup.referenceUnit;
+					}
+				}
+				// TODO:
+				if (refUnit == null || refUnit.name != "kg")
+					continue;
+				r(w, unsep(
+						flow.name),
+						unit(refUnit),
+						flow.casNumber != null ? flow.casNumber : "",
+						"");
+			}
 			r(w, "");
 			r(w, "End");
 			r(w, "");
@@ -167,8 +227,9 @@ public class ProcessWriter {
 		for (Exchange e : p.exchanges) {
 			if (!isProductOutput(e))
 				continue;
+			outputProducts.add(e.flow);
 			r(w, unsep(e.flow.name),
-					unit(e),
+					unit(e.unit),
 					Double.toString(e.amount),
 					"100",
 					"not defined",
@@ -214,8 +275,9 @@ public class ProcessWriter {
 		for (Exchange e : p.exchanges) {
 			if (!isProductInput(e))
 				continue;
+			inputProducts.add(e.flow);
 			r(w, unsep(e.flow.name),
-					unit(e),
+					unit(e.unit),
 					Double.toString(e.amount),
 					"Undefined",
 					"0",
@@ -241,7 +303,7 @@ public class ProcessWriter {
 				continue;
 			r(w, unsep(e.flow.name),
 					comp.sub.getValue(),
-					unit(e),
+					unit(e.unit),
 					Double.toString(e.amount),
 					"Undefined",
 					"0",
@@ -367,30 +429,30 @@ public class ProcessWriter {
 				|| (ft == FlowType.WASTE_FLOW && !e.isInput);
 	}
 
-	private String unit(Exchange e) {
-		if (e == null || e.unit == null)
+	private String unit(Unit u) {
+		if (u == null)
 			return SimaProUnit.kg.symbol;
-		SimaProUnit unit = units.get(e.unit);
+		SimaProUnit unit = units.get(u);
 		if (unit != null)
 			return unit.symbol;
-		unit = SimaProUnit.find(e.unit.name);
+		unit = SimaProUnit.find(u.name);
 		if (unit != null) {
-			units.put(e.unit, unit);
+			units.put(u, unit);
 			return unit.symbol;
 		}
-		if (e.unit.synonyms != null) {
-			for (String syn : e.unit.synonyms.split(";")) {
+		if (u.synonyms != null) {
+			for (String syn : u.synonyms.split(";")) {
 				unit = SimaProUnit.find(syn);
 				if (unit != null) {
-					units.put(e.unit, unit);
+					units.put(u, unit);
 					return unit.symbol;
 				}
 			}
 		}
 		Logger log = LoggerFactory.getLogger(getClass());
 		log.warn("No corresponding SimaPro unit" +
-				" for '{}' found; fall back to 'kg'", e.unit.name);
-		units.put(e.unit, SimaProUnit.kg);
+				" for '{}' found; fall back to 'kg'", u.name);
+		units.put(u, SimaProUnit.kg);
 		return SimaProUnit.kg.symbol;
 	}
 
