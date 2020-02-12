@@ -19,12 +19,14 @@ import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
+import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
+import org.openlca.simapro.csv.model.enums.SubCompartment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +37,9 @@ public class ProcessWriter {
 
 	private final IDatabase db;
 
-	private Map<Unit, SimaProUnit> units = new HashMap<>();
+	private final Map<Unit, SimaProUnit> units = new HashMap<>();
+	private final Map<Category, Compartment> compartments = new HashMap<>();
+	private final Map<Flow, Compartment> flowCompartments = new HashMap<>();
 
 	public ProcessWriter(IDatabase db) {
 		this.db = db;
@@ -52,6 +56,9 @@ public class ProcessWriter {
 			ProcessDao dao = new ProcessDao(db);
 			for (ProcessDescriptor p : processes) {
 				Process process = dao.getForId(p.id);
+				if (process == null)
+					continue;
+				classifyElemFlows(process);
 				writeProcess(buffer, process);
 			}
 			writeQuantities(buffer);
@@ -61,6 +68,27 @@ public class ProcessWriter {
 			throw e instanceof RuntimeException
 					? (RuntimeException) e
 					: new RuntimeException(e);
+		}
+	}
+
+	private void classifyElemFlows(Process p) {
+		for (Exchange e : p.exchanges) {
+			if (e.flow == null
+					|| e.flow.flowType != FlowType.ELEMENTARY_FLOW)
+				continue;
+			Compartment c = flowCompartments.get(e.flow);
+			if (c != null)
+				continue;
+			c = compartments.computeIfAbsent(
+					e.flow.category, Compartment::of);
+			if (c == null) {
+				Logger log = LoggerFactory.getLogger(getClass());
+				log.warn("could not assign compartment to flow {};" +
+						" took default air/unspecified", e.flow);
+				c = Compartment.of(ElementaryFlowType.EMISSIONS_TO_AIR,
+						SubCompartment.UNSPECIFIED);
+			}
+			flowCompartments.put(e.flow, c);
 		}
 	}
 
@@ -118,7 +146,7 @@ public class ProcessWriter {
 	}
 
 	private void writeGlobalParameters(BufferedWriter w) {
-		String [] sections = {
+		String[] sections = {
 				"Database Input parameters",
 				"Database Calculated parameters",
 				"Project Input parameters",
@@ -149,9 +177,11 @@ public class ProcessWriter {
 		}
 		r(w, "");
 
+		r(w, "Avoided products");
+		r(w, "");
+
+		writeElemExchanges(w, p, ElementaryFlowType.RESOURCES);
 		String[] sections = {
-				"Avoided products",
-				"Resources",
 				"Materials/fuels",
 				"Electricity/heat",
 				"Emissions to air",
@@ -175,10 +205,33 @@ public class ProcessWriter {
 		r(w, "");
 	}
 
-	private void writeProcessDoc(BufferedWriter w, Process p) {
-		if (p == null)
-			return;
+	private void writeElemExchanges(
+			BufferedWriter w, Process p, ElementaryFlowType type) {
+		r(w, type.getExchangeHeader());
+		for (Exchange e : p.exchanges) {
+			if (e.flow == null
+					|| e.flow.flowType != FlowType.ELEMENTARY_FLOW)
+				continue;
+			// TODO: fix this
+			if (!"kg".equals(e.unit.name))
+				continue;
+			Compartment comp = flowCompartments.get(e.flow);
+			if (comp == null || comp.type != type)
+				continue;
+			r(w, unsep(e.flow.name),
+					comp.sub.getValue(),
+					unit(e),
+					Double.toString(e.amount),
+					"Undefined",
+					"0",
+					"0",
+					"0",
+					"");
+		}
+		r(w, "");
+	}
 
+	private void writeProcessDoc(BufferedWriter w, Process p) {
 		r(w, "Process");
 		r(w, "");
 
