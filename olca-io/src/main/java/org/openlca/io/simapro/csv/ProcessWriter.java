@@ -181,27 +181,48 @@ public class ProcessWriter {
 		r(w, "");
 
 		writeElemExchanges(w, p, ElementaryFlowType.RESOURCES);
+		writeProductInputs(w, p);
+
+		r(w, "Electricity/heat");
+		r(w, "");
+
+		writeElemExchanges(w, p, ElementaryFlowType.EMISSIONS_TO_AIR);
+		writeElemExchanges(w, p, ElementaryFlowType.EMISSIONS_TO_WATER);
+		writeElemExchanges(w, p, ElementaryFlowType.EMISSIONS_TO_SOIL);
+		writeElemExchanges(w, p, ElementaryFlowType.FINAL_WASTE_FLOWS);
+		writeElemExchanges(w, p, ElementaryFlowType.NON_MATERIAL_EMISSIONS);
+		writeElemExchanges(w, p, ElementaryFlowType.SOCIAL_ISSUES);
+		writeElemExchanges(w, p, ElementaryFlowType.ECONOMIC_ISSUES);
+
 		String[] sections = {
-				"Materials/fuels",
-				"Electricity/heat",
-				"Emissions to air",
-				"Emissions to water",
-				"Emissions to soil",
-				"Final waste flows",
-				"Non material emissions",
-				"Social issues",
-				"Economic issues",
 				"Waste to treatment",
 				"Input parameters",
 				"Calculated parameters",
 		};
-
 		for (String s : sections) {
 			r(w, s);
 			r(w, "");
 		}
 
 		r(w, "End");
+		r(w, "");
+	}
+
+	private void writeProductInputs(
+			BufferedWriter w, Process p) {
+		r(w, "Materials/fuels");
+		for (Exchange e : p.exchanges) {
+			if (!isProductInput(e))
+				continue;
+			r(w, unsep(e.flow.name),
+					unit(e),
+					Double.toString(e.amount),
+					"Undefined",
+					"0",
+					"0",
+					"0",
+					"");
+		}
 		r(w, "");
 	}
 
@@ -336,6 +357,14 @@ public class ProcessWriter {
 		FlowType ft = e.flow.flowType;
 		return (ft == FlowType.PRODUCT_FLOW && !e.isInput)
 				|| (ft == FlowType.WASTE_FLOW && e.isInput);
+	}
+
+	private boolean isProductInput(Exchange e) {
+		if (e == null || e.flow == null || e.isAvoided)
+			return false;
+		FlowType ft = e.flow.flowType;
+		return (ft == FlowType.PRODUCT_FLOW && e.isInput)
+				|| (ft == FlowType.WASTE_FLOW && !e.isInput);
 	}
 
 	private String unit(Exchange e) {
