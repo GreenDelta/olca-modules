@@ -24,6 +24,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,6 @@ import org.slf4j.LoggerFactory;
 public class ProcessWriter {
 
 	private final IDatabase db;
-	private BufferedWriter buffer;
 
 	private Map<Unit, SimaProUnit> units = new HashMap<>();
 
@@ -55,6 +55,8 @@ public class ProcessWriter {
 				writeProcess(buffer, process);
 			}
 			writeQuantities(buffer);
+			writeReferenceFlows(buffer);
+			writeGlobalParameters(buffer);
 		} catch (Exception e) {
 			throw e instanceof RuntimeException
 					? (RuntimeException) e
@@ -103,7 +105,31 @@ public class ProcessWriter {
 		r(w, "End");
 		r(w, "");
 		r(w, "");
+	}
 
+	private void writeReferenceFlows(BufferedWriter w) {
+		for (ElementaryFlowType type : ElementaryFlowType.values()) {
+			r(w, type.getReferenceHeader());
+			r(w, "");
+			r(w, "End");
+			r(w, "");
+			r(w, "");
+		}
+	}
+
+	private void writeGlobalParameters(BufferedWriter w) {
+		String [] sections = {
+				"Database Input parameters",
+				"Database Calculated parameters",
+				"Project Input parameters",
+				"Project Calculated parameters",
+		};
+		for (String s : sections) {
+			r(w, s);
+			r(w, "");
+			r(w, "End");
+			r(w, "");
+		}
 	}
 
 	private void writeProcess(BufferedWriter w, Process p) {
@@ -321,7 +347,7 @@ public class ProcessWriter {
 	}
 
 	public static void main(String[] args) {
-		String dbPath = "C:/Users/Win10/Downloads/sp/Database_to_convert";
+		String dbPath = "C:\\Users\\Win10\\openLCA-data-1.4\\databases\\database_to_convert";
 		String target = "C:/Users/Win10/Downloads/sp/OUT.CSV";
 		try {
 			IDatabase db = new DerbyDatabase(new File(dbPath));
