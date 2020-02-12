@@ -7,13 +7,25 @@ import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.Category;
+import org.openlca.core.model.Exchange;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
+import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Writes a set of processes to a SimaPro CSV file.
@@ -22,6 +34,8 @@ public class ProcessWriter {
 
 	private final IDatabase db;
 	private BufferedWriter buffer;
+
+	private Map<Unit, SimaProUnit> units = new HashMap<>();
 
 	public ProcessWriter(IDatabase db) {
 		this.db = db;
@@ -40,6 +54,7 @@ public class ProcessWriter {
 				Process process = dao.getForId(p.id);
 				writeProcess(buffer, process);
 			}
+			writeQuantities(buffer);
 		} catch (Exception e) {
 			throw e instanceof RuntimeException
 					? (RuntimeException) e
@@ -47,8 +62,88 @@ public class ProcessWriter {
 		}
 	}
 
+	private void writeQuantities(BufferedWriter w) {
+
+		// we always write at least the kilogram data
+		// into the quantity sections
+		SimaProUnit kg = SimaProUnit.kg;
+
+		// quantities
+		Set<String> quantities = units.values().stream()
+				.map(u -> u.quantity)
+				.collect(Collectors.toSet());
+		r(w, "Quantities");
+		if (!quantities.contains(kg.quantity)) {
+			r(w, kg.quantity, "Yes");
+		}
+		for (String q : quantities) {
+			r(w, q, "Yes");
+		}
+		r(w, "");
+		r(w, "End");
+		r(w, "");
+		r(w, "");
+
+		// units
+		Set<SimaProUnit> us = new HashSet<>(units.values());
+		r(w, "Units");
+		if (!us.contains(kg)) {
+			r(w, kg.symbol,
+					kg.quantity,
+					Double.toString(kg.factor),
+					kg.refUnit);
+		}
+		for (SimaProUnit u : us) {
+			r(w, u.symbol,
+					u.quantity,
+					Double.toString(u.factor),
+					u.refUnit);
+		}
+		r(w, "");
+		r(w, "End");
+		r(w, "");
+		r(w, "");
+
+	}
+
 	private void writeProcess(BufferedWriter w, Process p) {
 		writeProcessDoc(w, p);
+
+		r(w, "Products");
+		for (Exchange e : p.exchanges) {
+			if (!isProductOutput(e))
+				continue;
+			r(w, unsep(e.flow.name),
+					unit(e),
+					Double.toString(e.amount),
+					"100",
+					"not defined",
+					category(e.flow),
+					"");
+		}
+		r(w, "");
+
+		String[] sections = {
+				"Avoided products",
+				"Resources",
+				"Materials/fuels",
+				"Electricity/heat",
+				"Emissions to air",
+				"Emissions to water",
+				"Emissions to soil",
+				"Final waste flows",
+				"Non material emissions",
+				"Social issues",
+				"Economic issues",
+				"Waste to treatment",
+				"Input parameters",
+				"Calculated parameters",
+		};
+
+		for (String s : sections) {
+			r(w, s);
+			r(w, "");
+		}
 
 		r(w, "End");
 		r(w, "");
@@ -156,9 +251,63 @@ public class ProcessWriter {
 		r(w, "");
 	}
 
-	private void r(BufferedWriter w, String s) {
+	private boolean isProductOutput(Exchange e) {
+		if (e == null || e.flow == null || e.isAvoided)
+			return false;
+		FlowType ft = e.flow.flowType;
+		return (ft == FlowType.PRODUCT_FLOW && !e.isInput)
+				|| (ft == FlowType.WASTE_FLOW && e.isInput);
+	}
+
+	private String unit(Exchange e) {
+		if (e == null || e.unit == null)
+			return SimaProUnit.kg.symbol;
+		SimaProUnit unit = units.get(e.unit);
+		if (unit != null)
+			return unit.symbol;
+		unit = SimaProUnit.find(e.unit.name);
+		if (unit != null) {
+			units.put(e.unit, unit);
+			return unit.symbol;
+		}
+		if (e.unit.synonyms != null) {
+			for (String syn : e.unit.synonyms.split(";")) {
+				unit = SimaProUnit.find(syn);
+				if (unit != null) {
+					units.put(e.unit, unit);
+					return unit.symbol;
+				}
+			}
+		}
+		Logger log = LoggerFactory.getLogger(getClass());
+		log.warn("No corresponding SimaPro unit" +
+				" for '{}' found; fall back to 'kg'", e.unit.name);
+		units.put(e.unit, SimaProUnit.kg);
+		return SimaProUnit.kg.symbol;
+	}
+
+	private String category(CategorizedEntity e) {
+		if (e == null)
+			return "";
+		StringBuilder path = null;
+		Category c = e.category;
+		while (c != null) {
+			if (path == null) {
+				path = new StringBuilder(c.name);
+			} else {
+				path.insert(0, c.name + '\\');
+			}
+			c = c.category;
+		}
+		return path == null ? "" : path.toString();
+	}
+
+	private void r(BufferedWriter w, String... s) {
+		String row = s.length == 1
+				? s[0]
+				: String.join(";", s);
 		try {
-			w.write(s);
+			w.write(row);
 			w.write("\r\n"); // write Windows line endings
 		} catch (Exception e) {
 			throw new RuntimeException(e);
