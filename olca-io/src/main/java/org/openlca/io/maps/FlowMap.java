@@ -343,7 +343,7 @@ public class FlowMap extends BaseDescriptor {
 			if (!elem.isJsonPrimitive())
 				continue;
 			if (path.length() > 0) {
-				path.append(" / ");
+				path.append("/");
 			}
 			path.append(elem.getAsString());
 		}
