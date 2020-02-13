@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
@@ -33,7 +32,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Writes a set of processes to a SimaPro CSV file.
+ * Writes a set of processes to a SimaPro CSV file. It is not an official export
+ * that is exposed to the openLCA user interface as there are too many edge
+ * cases to get a file that is finally accepted by SimaPro. The idea of this
+ * class is to provide a basic export that handles most of the common cases.
  */
 public class ProcessWriter {
 
@@ -53,9 +55,9 @@ public class ProcessWriter {
 		if (processes == null || file == null)
 			return;
 		try (FileOutputStream fout = new FileOutputStream(file);
-			 OutputStreamWriter writer = new OutputStreamWriter(
-					 fout, "windows-1252");
-			 BufferedWriter buffer = new BufferedWriter(writer)) {
+				OutputStreamWriter writer = new OutputStreamWriter(
+						fout, "windows-1252");
+				BufferedWriter buffer = new BufferedWriter(writer)) {
 			writerHeader(buffer);
 			ProcessDao dao = new ProcessDao(db);
 			for (ProcessDescriptor p : processes) {
@@ -178,10 +180,12 @@ public class ProcessWriter {
 			// duplicate names are not allowed here
 			HashSet<String> handledNames = new HashSet<>();
 			for (Flow flow : buckets[type.ordinal()]) {
-
-				if (handledNames.contains(flow.name))
+				if (flow.name == null)
 					continue;
-				handledNames.add(flow.name);
+				String id = flow.name.trim().toLowerCase();
+				if (handledNames.contains(id))
+					continue;
+				handledNames.add(id);
 
 				Unit refUnit = null;
 				if (flow.referenceFlowProperty != null) {
@@ -189,11 +193,7 @@ public class ProcessWriter {
 						refUnit = flow.referenceFlowProperty.unitGroup.referenceUnit;
 					}
 				}
-				// TODO:
-				if (refUnit == null || refUnit.name != "kg")
-					continue;
-				r(w, unsep(
-						flow.name),
+				r(w, unsep(flow.name),
 						unit(refUnit),
 						flow.casNumber != null ? flow.casNumber : "",
 						"");
@@ -294,9 +294,6 @@ public class ProcessWriter {
 		for (Exchange e : p.exchanges) {
 			if (e.flow == null
 					|| e.flow.flowType != FlowType.ELEMENTARY_FLOW)
-				continue;
-			// TODO: fix this
-			if (!"kg".equals(e.unit.name))
 				continue;
 			Compartment comp = flowCompartments.get(e.flow);
 			if (comp == null || comp.type != type)
@@ -489,20 +486,4 @@ public class ProcessWriter {
 			return "";
 		return s.replace(';', ',');
 	}
-
-	public static void main(String[] args) {
-		String dbPath = "C:\\Users\\Win10\\openLCA-data-1.4\\databases\\database_to_convert";
-		String target = "C:/Users/Win10/Downloads/sp/OUT.CSV";
-		try {
-			IDatabase db = new DerbyDatabase(new File(dbPath));
-			ProcessWriter writer = new ProcessWriter(db);
-			ProcessDao dao = new ProcessDao(db);
-			writer.write(dao.getDescriptors(), new File(target));
-
-			db.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 }

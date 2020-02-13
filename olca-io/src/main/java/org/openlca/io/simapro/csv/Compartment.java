@@ -178,6 +178,11 @@ class Compartment {
 			return Compartment.of(type, SubCompartment.UNSPECIFIED);
 		}
 
+		if (match(path, "land")) {
+			return Compartment.of(ElementaryFlowType.RESOURCES,
+					SubCompartment.RAW_MATERIAL_LAND);
+		}
+
 		return null;
 	}
 
