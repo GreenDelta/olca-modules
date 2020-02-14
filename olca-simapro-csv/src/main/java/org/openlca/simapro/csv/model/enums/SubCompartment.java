@@ -46,11 +46,11 @@ public enum SubCompartment {
 
 	WATERBORNE_RIVER_LONG_TERM("river, long-term"),
 
-	UNSPECIFIED("unspecified");
+	UNSPECIFIED("");
 
 	private String value;
 
-	private SubCompartment(String value) {
+	SubCompartment(String value) {
 		this.value = value;
 	}
 
