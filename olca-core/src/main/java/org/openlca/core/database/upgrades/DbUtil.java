@@ -3,6 +3,7 @@ package org.openlca.core.database.upgrades;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
@@ -221,6 +222,37 @@ class DbUtil {
 		} catch (Exception e) {
 			throw new RuntimeException(
 					"failed to set database version to " + v, e);
+		}
+	}
+
+	/**
+	 * Get the last ID that was stored in the database.
+	 */
+	static long getLastID(IDatabase db) {
+		AtomicLong seq = new AtomicLong(0L);
+		String query = "select seq_count from sequence";
+		try {
+			NativeSql.on(db).query(query, result -> {
+				seq.set(result.getLong(1));
+				return false;
+			});
+		} catch (Exception e) {
+			throw new RuntimeException(
+					"failed to get last ID from " + db, e);
+		}
+		return seq.get();
+	}
+
+	/**
+	 * Set the last ID that was stored in the database.
+	 */
+	static void setLastID(IDatabase db, long id) {
+		String sql = "UPDATE sequence SET SEQ_COUNT = " + id;
+		try {
+			NativeSql.on(db).runUpdate(sql);
+		} catch (Exception e) {
+			throw new RuntimeException(
+					"failed to updated last ID in " + db, e);
 		}
 	}
 

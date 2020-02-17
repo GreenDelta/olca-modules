@@ -1,5 +1,9 @@
 package org.openlca.core.database.upgrades;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 
@@ -39,8 +43,29 @@ class Upgrade9 implements IUpgrade {
 
 		// TODO: parameters
 		u.createColumn("tbl_impact_categories", "parameter_mean VARCHAR(255)");
-		// TODO: copy parameters to each LCIA category from the method
-		// also, update the parameter scope of these (and in parameter redefinitions?)
+
+		try {
+
+			// collect the LCIA method -> LCIA category relations
+			HashMap<Long, List<Long>> methodImpacts = new HashMap<>();
+			NativeSql.on(db).query(
+					"select f_impact_method, f_impact_category", r -> {
+						long methodID = r.getLong(1);
+						long impactID = r.getLong(2);
+						List<Long> impacts = methodImpacts.computeIfAbsent(
+								methodID, id -> new ArrayList<>());
+						impacts.add(impactID);
+						return true;
+					});
+
+			// TODO: copy parameters to each LCIA category from the method
+			// also, update the parameter scope of these (and in parameter redefinitions?)
+
+		} catch (Exception e) {
+			throw new RuntimeException("failed to create LCIA parameters", e);
+		}
+
+
 
 		// support regionalization of exchanges and characterization factors
 		u.createColumn("tbl_exchanges", "f_location BIGINT");
