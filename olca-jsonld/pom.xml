@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.openlca</groupId>
 		<artifactId>olca-modules</artifactId>
-		<version>1.9.0</version>
+		<version>2.0.0</version>
 	</parent>
 	<artifactId>olca-jsonld</artifactId>
 	<packaging>jar</packaging>
