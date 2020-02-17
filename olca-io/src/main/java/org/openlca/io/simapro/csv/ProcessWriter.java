@@ -26,6 +26,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.io.maps.FlowMap;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.SubCompartment;
 import org.slf4j.Logger;
@@ -40,6 +41,7 @@ import org.slf4j.LoggerFactory;
 public class ProcessWriter {
 
 	private final IDatabase db;
+	private FlowMap flowMap;
 
 	private final Map<Unit, SimaProUnit> units = new HashMap<>();
 	private final Map<Category, Compartment> compartments = new HashMap<>();
@@ -49,6 +51,10 @@ public class ProcessWriter {
 
 	public ProcessWriter(IDatabase db) {
 		this.db = db;
+	}
+
+	public void setFlowMap(FlowMap flowMap) {
+		this.flowMap = flowMap;
 	}
 
 	public void write(Collection<ProcessDescriptor> processes, File file) {
@@ -95,14 +101,22 @@ public class ProcessWriter {
 		}
 	}
 
+	/**
+	 * Classifies elementary flows into compartments.
+	 */
 	private void classifyElemFlows(Process p) {
 		for (Exchange e : p.exchanges) {
 			if (e.flow == null
 					|| e.flow.flowType != FlowType.ELEMENTARY_FLOW)
 				continue;
+
+			// 1) the flow was already classified
 			Compartment c = flowCompartments.get(e.flow);
 			if (c != null)
 				continue;
+
+			// 2) we have a mapped flow
+
 			c = compartments.computeIfAbsent(
 					e.flow.category, Compartment::of);
 			if (c == null) {
