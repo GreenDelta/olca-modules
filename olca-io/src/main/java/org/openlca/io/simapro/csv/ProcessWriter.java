@@ -523,6 +523,11 @@ public class ProcessWriter {
 		SimaProUnit unit = units.get(u);
 		if (unit != null)
 			return unit.symbol;
+		unit = SimaProUnit.find(u);
+		if (unit != null) {
+			units.put(u, unit);
+			return unit.symbol;
+		}
 		Logger log = LoggerFactory.getLogger(getClass());
 		log.warn("No corresponding SimaPro unit" +
 				" for '{}' found; fall back to 'kg'", u);
@@ -561,7 +566,7 @@ public class ProcessWriter {
 	private String unsep(String s) {
 		if (s == null)
 			return "";
-		return s.replace(';', ',');
+		return s.replace(';', ',').replace('\n', ' ');
 	}
 
 	private FlowMapEntry mappedFlow(Flow flow) {
