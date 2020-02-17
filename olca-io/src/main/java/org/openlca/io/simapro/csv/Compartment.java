@@ -4,6 +4,8 @@ import org.openlca.core.model.Category;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.SubCompartment;
 
+import com.google.common.base.Strings;
+
 class Compartment {
 
 	ElementaryFlowType type;
@@ -21,10 +23,14 @@ class Compartment {
 			return null;
 		String[] parts = path.split("/");
 		int n = parts.length;
-		if (parts.length > 1) {
+		if (n == 1) {
+			Compartment c = find(parts[0], null);
+			if (c != null)
+				return c;
+		} else if (n > 1) {
 			String sub = parts[n - 1];
 			String comp = parts[n - 2];
-			Compartment c = find(comp.trim(), sub.trim());
+			Compartment c = find(comp, sub);
 			if (c != null)
 				return c;
 		}
@@ -32,16 +38,20 @@ class Compartment {
 	}
 
 	static Compartment of(Category category) {
-		if (category == null)
+		if (category == null || category.name == null)
 			return null;
 
 		// try to directly identify the compartment
 		// from the last two category names
-		if (category.category != null) {
+		if (category.category == null) {
+			Compartment c = find(category.name, null);
+			if (c != null)
+				return c;
+		} else {
 			String comp = category.category.name;
 			String sub = category.name;
 			if (comp != null && sub != null) {
-				Compartment c = find(comp.trim(), sub.trim());
+				Compartment c = find(comp, sub);
 				if (c != null)
 					return c;
 			}
@@ -223,20 +233,26 @@ class Compartment {
 	 * sub-compartment name.
 	 */
 	private static Compartment find(String compartment, String subCompartment) {
+		if (compartment == null)
+			return null;
 		ElementaryFlowType type = null;
+		String name = compartment.trim();
 		for (ElementaryFlowType t : ElementaryFlowType.values()) {
-			if (t.getReferenceHeader().equalsIgnoreCase(compartment)
-					|| t.getExchangeHeader().equalsIgnoreCase(compartment)) {
+			if (t.getReferenceHeader().equalsIgnoreCase(name)
+					|| t.getExchangeHeader().equalsIgnoreCase(name)) {
 				type = t;
 				break;
 			}
 		}
 		if (type == null)
 			return null;
+		if (Strings.isNullOrEmpty(subCompartment))
+			return Compartment.of(type, SubCompartment.UNSPECIFIED);
 
 		SubCompartment sub = null;
+		name = subCompartment.trim();
 		for (SubCompartment s : SubCompartment.values()) {
-			if (s.getValue().equalsIgnoreCase(subCompartment)) {
+			if (s.getValue().equalsIgnoreCase(name)) {
 				sub = s;
 				break;
 			}

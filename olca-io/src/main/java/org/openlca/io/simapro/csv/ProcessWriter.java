@@ -342,7 +342,7 @@ public class ProcessWriter {
 			if (comp == null || comp.type != type)
 				continue;
 
-			FlowMapEntry mapEntry = flowMap.getEntry(e.flow.refId);
+			FlowMapEntry mapEntry = mappedFlow(e.flow);
 			if (mapEntry == null) {
 				// we have an unmapped flow
 				r(w, unsep(e.flow.name),
