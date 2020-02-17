@@ -246,7 +246,8 @@ class Compartment {
 		}
 		if (type == null)
 			return null;
-		if (Strings.isNullOrEmpty(subCompartment))
+		if (Strings.isNullOrEmpty(subCompartment)
+				|| "unspecified".equalsIgnoreCase(subCompartment))
 			return Compartment.of(type, SubCompartment.UNSPECIFIED);
 
 		SubCompartment sub = null;
