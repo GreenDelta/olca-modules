@@ -26,6 +26,9 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.io.maps.FlowMap;
+import org.openlca.io.maps.FlowMapEntry;
+import org.openlca.io.maps.FlowRef;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.SubCompartment;
 import org.slf4j.Logger;
@@ -40,8 +43,9 @@ import org.slf4j.LoggerFactory;
 public class ProcessWriter {
 
 	private final IDatabase db;
+	private FlowMap flowMap;
 
-	private final Map<Unit, SimaProUnit> units = new HashMap<>();
+	private final Map<String, SimaProUnit> units = new HashMap<>();
 	private final Map<Category, Compartment> compartments = new HashMap<>();
 	private final Map<Flow, Compartment> flowCompartments = new HashMap<>();
 	private final Set<Flow> inputProducts = new HashSet<>();
@@ -51,13 +55,17 @@ public class ProcessWriter {
 		this.db = db;
 	}
 
+	public void setFlowMap(FlowMap flowMap) {
+		this.flowMap = flowMap;
+	}
+
 	public void write(Collection<ProcessDescriptor> processes, File file) {
 		if (processes == null || file == null)
 			return;
 		try (FileOutputStream fout = new FileOutputStream(file);
-				OutputStreamWriter writer = new OutputStreamWriter(
-						fout, "windows-1252");
-				BufferedWriter buffer = new BufferedWriter(writer)) {
+			 OutputStreamWriter writer = new OutputStreamWriter(
+					 fout, "windows-1252");
+			 BufferedWriter buffer = new BufferedWriter(writer)) {
 			writerHeader(buffer);
 			ProcessDao dao = new ProcessDao(db);
 			for (ProcessDescriptor p : processes) {
@@ -95,14 +103,31 @@ public class ProcessWriter {
 		}
 	}
 
+	/**
+	 * Classifies elementary flows into compartments.
+	 */
 	private void classifyElemFlows(Process p) {
 		for (Exchange e : p.exchanges) {
 			if (e.flow == null
 					|| e.flow.flowType != FlowType.ELEMENTARY_FLOW)
 				continue;
+
+			// 1) the flow was already classified
 			Compartment c = flowCompartments.get(e.flow);
 			if (c != null)
 				continue;
+
+			// 2) check if we have a mapped flow
+			FlowMapEntry mapEntry = mappedFlow(e.flow);
+			if (mapEntry != null) {
+				c = Compartment.of(mapEntry.targetFlow.flowCategory);
+				if (c != null) {
+					flowCompartments.put(e.flow, c);
+					continue;
+				}
+			}
+
+			// 3) get the compartment from the category path
 			c = compartments.computeIfAbsent(
 					e.flow.category, Compartment::of);
 			if (c == null) {
@@ -180,21 +205,39 @@ public class ProcessWriter {
 			// duplicate names are not allowed here
 			HashSet<String> handledNames = new HashSet<>();
 			for (Flow flow : buckets[type.ordinal()]) {
-				if (flow.name == null)
+
+				String name;
+				String unit = null;
+
+				FlowMapEntry mapEntry = mappedFlow(flow);
+				if (mapEntry != null) {
+					// handle mapped flows
+					name = mapEntry.targetFlow.flow.name;
+					if (mapEntry.targetFlow.unit != null) {
+						unit = unit(mapEntry.targetFlow.unit.name);
+					}
+				} else {
+					// handle unmapped flows
+					name = flow.name;
+					Unit refUnit = null;
+					if (flow.referenceFlowProperty != null) {
+						if (flow.referenceFlowProperty.unitGroup != null) {
+							refUnit = flow.referenceFlowProperty.unitGroup.referenceUnit;
+						}
+					}
+					unit = unit(refUnit);
+				}
+
+				if (name == null || unit == null)
 					continue;
-				String id = flow.name.trim().toLowerCase();
+
+				String id = name.trim().toLowerCase();
 				if (handledNames.contains(id))
 					continue;
 				handledNames.add(id);
 
-				Unit refUnit = null;
-				if (flow.referenceFlowProperty != null) {
-					if (flow.referenceFlowProperty.unitGroup != null) {
-						refUnit = flow.referenceFlowProperty.unitGroup.referenceUnit;
-					}
-				}
-				r(w, unsep(flow.name),
-						unit(refUnit),
+				r(w, unsep(name),
+						unit,
 						flow.casNumber != null ? flow.casNumber : "",
 						"");
 			}
@@ -298,10 +341,31 @@ public class ProcessWriter {
 			Compartment comp = flowCompartments.get(e.flow);
 			if (comp == null || comp.type != type)
 				continue;
-			r(w, unsep(e.flow.name),
+
+			FlowMapEntry mapEntry = mappedFlow(e.flow);
+			if (mapEntry == null) {
+				// we have an unmapped flow
+				r(w, unsep(e.flow.name),
+						comp.sub.getValue(),
+						unit(e.unit),
+						Double.toString(e.amount),
+						"Undefined",
+						"0",
+						"0",
+						"0",
+						"");
+				continue;
+			}
+
+			// handle a mapped flow
+			FlowRef target = mapEntry.targetFlow;
+			String unit = target.unit != null
+					? unit(target.unit.name)
+					: SimaProUnit.kg.symbol;
+			r(w, unsep(target.flow.name),
 					comp.sub.getValue(),
-					unit(e.unit),
-					Double.toString(e.amount),
+					unit,
+					Double.toString(e.amount * mapEntry.factor),
 					"Undefined",
 					"0",
 					"0",
@@ -429,19 +493,19 @@ public class ProcessWriter {
 	private String unit(Unit u) {
 		if (u == null)
 			return SimaProUnit.kg.symbol;
-		SimaProUnit unit = units.get(u);
+		SimaProUnit unit = units.get(u.name);
 		if (unit != null)
 			return unit.symbol;
 		unit = SimaProUnit.find(u.name);
 		if (unit != null) {
-			units.put(u, unit);
+			units.put(u.name, unit);
 			return unit.symbol;
 		}
 		if (u.synonyms != null) {
 			for (String syn : u.synonyms.split(";")) {
 				unit = SimaProUnit.find(syn);
 				if (unit != null) {
-					units.put(u, unit);
+					units.put(u.name, unit);
 					return unit.symbol;
 				}
 			}
@@ -449,6 +513,24 @@ public class ProcessWriter {
 		Logger log = LoggerFactory.getLogger(getClass());
 		log.warn("No corresponding SimaPro unit" +
 				" for '{}' found; fall back to 'kg'", u.name);
+		units.put(u.name, SimaProUnit.kg);
+		return SimaProUnit.kg.symbol;
+	}
+
+	private String unit(String u) {
+		if (u == null)
+			return SimaProUnit.kg.symbol;
+		SimaProUnit unit = units.get(u);
+		if (unit != null)
+			return unit.symbol;
+		unit = SimaProUnit.find(u);
+		if (unit != null) {
+			units.put(u, unit);
+			return unit.symbol;
+		}
+		Logger log = LoggerFactory.getLogger(getClass());
+		log.warn("No corresponding SimaPro unit" +
+				" for '{}' found; fall back to 'kg'", u);
 		units.put(u, SimaProUnit.kg);
 		return SimaProUnit.kg.symbol;
 	}
@@ -484,6 +566,12 @@ public class ProcessWriter {
 	private String unsep(String s) {
 		if (s == null)
 			return "";
-		return s.replace(';', ',');
+		return s.replace(';', ',').replace('\n', ' ');
+	}
+
+	private FlowMapEntry mappedFlow(Flow flow) {
+		if (flowMap == null || flow == null)
+			return null;
+		return flowMap.getEntry(flow.refId);
 	}
 }
