@@ -11,7 +11,7 @@ public final class FeatureCollection implements Cloneable {
 
 	public final List<Feature> features = new ArrayList<>();
 
-	static FeatureCollection of(Feature f) {
+	public static FeatureCollection of(Feature f) {
 		FeatureCollection coll = new FeatureCollection();
 		if (f != null) {
 			coll.features.add(f);
@@ -19,7 +19,7 @@ public final class FeatureCollection implements Cloneable {
 		return coll;
 	}
 
-	static FeatureCollection of(Geometry g) {
+	public static FeatureCollection of(Geometry g) {
 		FeatureCollection coll = new FeatureCollection();
 		if (g != null) {
 			Feature f = new Feature();
