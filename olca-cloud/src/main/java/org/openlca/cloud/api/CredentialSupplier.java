@@ -6,8 +6,6 @@ public class CredentialSupplier {
 
 	public final String username;
 	final String password;
-	// Method to call if token is required, if no callback is specified a
-	// TokenRequiredException will be thrown when a token is required
 	private Supplier<Integer> tokenSupplier;
 
 	public CredentialSupplier(String username, String password) {
@@ -20,6 +18,8 @@ public class CredentialSupplier {
 	}
 
 	Integer getToken() {
+		if (tokenSupplier == null)
+			return null;
 		return tokenSupplier.get();
 	}
 
