@@ -80,6 +80,7 @@ CREATE TABLE tbl_locations (
     latitude DOUBLE,
     code VARCHAR(255),
     kmz BLOB(16 M),
+    geodata BLOB(32 M),
 
     PRIMARY KEY (id)
 );

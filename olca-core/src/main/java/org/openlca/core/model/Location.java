@@ -18,9 +18,23 @@ public class Location extends CategorizedEntity {
 	@Column(name = "longitude")
 	public double longitude;
 
+	/**
+	 * @deprecated we will switch to GeoJSON instead
+	 */
 	@Lob
 	@Column(name = "kmz")
+	@Deprecated
 	public byte[] kmz;
+
+	/**
+	 * Contains the geographic data of this location in a binary format.
+	 * Currently we convert GeoJSON to MessagePack and then compress this via
+	 * gzip when writing this information and the other way around when reading
+	 * it.
+	 */
+	@Lob
+	@Column(name = "geodata")
+	public byte[] geodata;
 
 	@Override
 	public Location clone() {
@@ -30,6 +44,7 @@ public class Location extends CategorizedEntity {
 		clone.latitude = latitude;
 		clone.longitude = longitude;
 		clone.kmz = kmz;
+		clone.geodata = geodata;
 		return clone;
 	}
 

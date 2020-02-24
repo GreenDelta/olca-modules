@@ -30,8 +30,19 @@ class Upgrade9 implements IUpgrade {
 
 		// make LCIA categories stand-alone entities
 		u.createColumn("tbl_impact_categories", "f_category BIGINT");
-		if (u.tableExists("tbl_impact_links"))
+
+		// support regionalization of exchanges and characterization factors
+		u.createColumn("tbl_exchanges", "f_location BIGINT");
+		u.createColumn("tbl_impact_factors", "f_location BIGINT");
+
+		// new column for GeoJSON data
+		u.createColumn("tbl_locations", "geodata BLOB(32 M)");
+
+		if (u.tableExists("tbl_impact_links")) {
+			// if the table tbl_impact_links already exists we assume
+			// that the update was already executed
 			return;
+		}
 		u.createTable("tbl_impact_links",
 				"CREATE TABLE tbl_impact_links (" +
 						" f_impact_method    BIGINT," +
@@ -49,11 +60,6 @@ class Upgrade9 implements IUpgrade {
 		// parameters
 		u.createColumn("tbl_impact_categories", "parameter_mean VARCHAR(255)");
 		moveImpactParameters(db);
-
-		// support regionalization of exchanges and characterization factors
-		u.createColumn("tbl_exchanges", "f_location BIGINT");
-		u.createColumn("tbl_impact_factors", "f_location BIGINT");
-
 	}
 
 	private void moveImpactParameters(IDatabase db) {
