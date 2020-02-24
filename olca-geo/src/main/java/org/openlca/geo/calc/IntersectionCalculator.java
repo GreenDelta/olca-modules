@@ -90,6 +90,63 @@ public class IntersectionCalculator {
 	}
 
 	/**
+	 * Calculates the intersection shares of the geometries in F with the given
+	 * geometry g. Only the non-zero relative shares are returned: (0, 1]. The
+	 * calculation of the share is based on the maximum dimension of the
+	 * resulting geometries of the intersection, which is:
+	 * <ol>
+	 *     <li>area, for dimension = 2</li>
+	 *     <li>length, for dimension = 1</li>
+	 *     <li>number of geometries, for dimension = 0</li>
+	 * </ol>
+	 */
+	public List<Pair<Feature, Double>> shares(Geometry g) {
+		List<Pair<Feature, com.vividsolutions.jts.geom.Geometry>> s = jts(g)
+				.collect(Collectors.toList());
+
+		// get the maximum dimension
+		int maxDim = s.stream().reduce(0,
+				(dim, p) -> Math.max(dim, p.second.getDimension()),
+				Math::max
+		);
+
+		// calculate the shares
+		List<Pair<Feature, Double>> shares = s
+				.parallelStream()
+				.map(p -> {
+					double a = 0;
+					switch (maxDim) {
+						case 0:
+							a = p.second.getNumGeometries();
+							break;
+						case 1:
+							a = p.second.getLength();
+							break;
+						case 2:
+							a = p.second.getArea();
+							break;
+					}
+					return Pair.of(p.first, a);
+				})
+				.filter(p -> p.second != null && p.second > 0)
+				.collect(Collectors.toList());
+
+		if (shares.isEmpty())
+			return shares;
+
+		// calculate the relative shares; above we made sure that
+		// the total amount is > 0
+		double total = 0;
+		for (Pair<Feature, Double> p : shares) {
+			total = Math.max(total, p.second);
+		}
+		for (Pair<Feature, Double> p : shares) {
+			p.second = p.second / total;
+		}
+		return shares;
+	}
+
+	/**
 	 * Calculates the intersection geometries based on JTS geometries and
 	 * returns the non-empty intersections.
 	 */
