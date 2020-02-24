@@ -12,6 +12,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Contains conversion methods for creating JTS geometries from GeoJSON and
@@ -52,6 +54,9 @@ class JTS {
 			return gen.createGeometryCollection(geoms);
 		}
 
+		Logger log = LoggerFactory.getLogger(JTS.class);
+		log.warn("did not know how to convert geometry "
+				+ g + "; returned null");
 		return null;
 	}
 
@@ -137,6 +142,10 @@ class JTS {
 
 		if (g instanceof com.vividsolutions.jts.geom.GeometryCollection)
 			return toGeometryCollection(g);
+
+		Logger log = LoggerFactory.getLogger(JTS.class);
+		log.warn("did not know how to convert geometry "
+				+ g + "; returned null");
 
 		return null;
 	}
