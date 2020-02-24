@@ -1,8 +1,10 @@
 package org.openlca.geo.calc;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.openlca.geo.geojson.Feature;
 import org.openlca.geo.geojson.FeatureCollection;
@@ -82,25 +84,34 @@ public class IntersectionCalculator {
 	 * with the given geometry.
 	 */
 	public List<Pair<Feature, Geometry>> calculate(Geometry g) {
+		return jts(g).map(p -> Pair.of(p.first, JTS.toGeoJSON(p.second)))
+				.filter(p -> p.second != null)
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Calculates the intersection geometries based on JTS geometries and
+	 * returns the non-empty intersections.
+	 */
+	private Stream<Pair<Feature, com.vividsolutions.jts.geom.Geometry>> jts(
+			Geometry g) {
 		if (g == null)
-			return Collections.emptyList();
-		com.vividsolutions.jts.geom.Geometry jts = JTS.fromGeoJSON(g);
-		if (jts == null)
-			return Collections.emptyList();
-		List<Pair<Feature, Geometry>> intersections = new ArrayList<>();
-		for (int i = 0; i < features.length; i++) {
-			com.vividsolutions.jts.geom.Geometry is = geometries[i].intersection(jts);
-			if (is == null || is.isEmpty())
-				continue;
-			Geometry ig = JTS.toGeoJSON(is);
-			if (ig == null)
-				continue;
-			if (projection != null) {
-				projection.unproject(ig);
-			}
-			intersections.add(Pair.of(features[i], ig));
+			return Stream.empty();
+		com.vividsolutions.jts.geom.Geometry jts;
+		if (projection == null) {
+			jts = JTS.fromGeoJSON(g);
+		} else {
+			Geometry clone = g.clone();
+			projection.project(clone);
+			jts = JTS.fromGeoJSON(clone);
 		}
-		return intersections;
+		if (jts == null)
+			return Stream.empty();
+		return IntStream.range(0, features.length)
+				.parallel()
+				.mapToObj(i -> Pair.of(
+						features[i], geometries[i].intersection(jts)))
+				.filter(p -> p.second != null && !p.second.isEmpty());
 	}
 
 }

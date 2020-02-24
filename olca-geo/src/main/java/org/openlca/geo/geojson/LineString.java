@@ -9,7 +9,7 @@ public final class LineString extends Geometry {
 
 	public final List<Point> points;
 
-	LineString(List<Point> points) {
+	public LineString(List<Point> points) {
 		this.points = points;
 	}
 

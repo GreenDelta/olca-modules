@@ -9,7 +9,7 @@ public final class MultiPoint extends Geometry {
 
 	public final List<Point> points;
 
-	MultiPoint(List<Point> points) {
+	public MultiPoint(List<Point> points) {
 		this.points = points;
 	}
 
