@@ -21,7 +21,7 @@ import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.BaseResult;
-import org.openlca.core.results.ContributionItem;
+import org.openlca.core.results.Contribution;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.SimpleResult;
@@ -75,14 +75,14 @@ class Utils {
 	}
 
 	@SuppressWarnings("unchecked")
-	<T1 extends RootEntity, T2 extends BaseDescriptor> List<ContributionItem<T2>> toDescriptors(
-			List<ContributionItem<T1>> items) {
-		List<ContributionItem<T2>> contributions = new ArrayList<>();
+	<T1 extends RootEntity, T2 extends BaseDescriptor> List<Contribution<T2>> toDescriptors(
+			List<Contribution<T1>> items) {
+		List<Contribution<T2>> contributions = new ArrayList<>();
 		items.forEach(i -> {
-			ContributionItem<T2> item = new ContributionItem<>();
+			Contribution<T2> item = new Contribution<>();
 			item.item = (T2) Descriptors.toDescriptor(i.item);
 			item.amount = i.amount;
-			item.rest = i.rest;
+			item.isRest = i.isRest;
 			item.share = i.share;
 			contributions.add(item);
 		});
@@ -98,7 +98,7 @@ class Utils {
 		return Responses.ok(handler.handle(result, cache), req);
 	}
 
-	RpcResponse contribution(RpcRequest req, Contribution handler) {
+	RpcResponse contribution(RpcRequest req, ContributionHandler handler) {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
@@ -318,7 +318,7 @@ class Utils {
 
 	}
 
-	interface Contribution {
+	interface ContributionHandler {
 
 		JsonElement handle(ContributionResult result, EntityCache cache);
 

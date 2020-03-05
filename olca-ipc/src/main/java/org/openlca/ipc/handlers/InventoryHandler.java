@@ -7,7 +7,7 @@ import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.ContributionItem;
+import org.openlca.core.results.Contribution;
 import org.openlca.core.results.FlowResult;
 import org.openlca.core.results.LocationContribution;
 import org.openlca.core.results.UpstreamNode;
@@ -52,7 +52,7 @@ public class InventoryHandler {
 	@Rpc("get/inventory/contributions/processes")
 	public RpcResponse getProcessContributions(RpcRequest req) {
 		return utils.contributionFlow(req, (result, flow, cache) -> {
-			List<ContributionItem<CategorizedDescriptor>> contributions = result
+			List<Contribution<CategorizedDescriptor>> contributions = result
 					.getProcessContributions(flow).contributions;
 			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
 			String unit = utils.getUnit(flow, cache);
@@ -64,7 +64,7 @@ public class InventoryHandler {
 	public RpcResponse getLocationContributions(RpcRequest req) {
 		return utils.contributionFlow(req, (result, flow, cache) -> {
 			LocationContribution calculator = new LocationContribution(result, cache);
-			List<ContributionItem<LocationDescriptor>> contributions = utils
+			List<Contribution<LocationDescriptor>> contributions = utils
 					.toDescriptors(calculator.calculate(flow).contributions);
 			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
 			String unit = utils.getUnit(flow, cache);
@@ -75,7 +75,7 @@ public class InventoryHandler {
 	@Rpc("get/inventory/contributions/location/processes")
 	public RpcResponse getProcessContributionsForLocation(RpcRequest req) {
 		return utils.contributionFlowLocation(req, (result, flow, location, cache) -> {
-			List<ContributionItem<CategorizedDescriptor>> contributions = result
+			List<Contribution<CategorizedDescriptor>> contributions = result
 					.getProcessContributions(flow).contributions;
 			contributions = utils.filter(contributions, contribution -> {
 				if (contribution.item instanceof ProcessDescriptor) {
@@ -116,7 +116,7 @@ public class InventoryHandler {
 				double total = result.getTotalFlowResult(f);
 				if (total == 0)
 					return;
-				ContributionItem<FlowDescriptor> c = new ContributionItem<>();
+				Contribution<FlowDescriptor> c = new Contribution<>();
 				c.item = f.flow;
 				c.amount = result.getDirectFlowResult(process, f);
 				c.share = c.amount / total;

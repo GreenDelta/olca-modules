@@ -8,7 +8,7 @@ import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.results.ContributionItem;
+import org.openlca.core.results.Contribution;
 import org.openlca.core.results.ContributionSet;
 import org.openlca.core.results.ProjectResult;
 import org.openlca.io.CategoryPair;
@@ -66,7 +66,7 @@ class ProjectInventories {
 			for (int i = 0; i < variants.size(); i++) {
 				int col = i + 6;
 				ProjectVariant variant = variants.get(i);
-				ContributionItem<?> c = contributions.getContribution(variant);
+				Contribution<?> c = contributions.getContribution(variant);
 				if (c == null)
 					continue;
 				Excel.cell(sheet, row, col, c.amount);

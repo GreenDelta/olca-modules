@@ -9,7 +9,7 @@ import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.descriptors.BaseDescriptor;
-import org.openlca.core.results.ContributionItem;
+import org.openlca.core.results.Contribution;
 import org.openlca.core.results.FlowResult;
 import org.openlca.core.results.ImpactResult;
 import org.openlca.core.results.SimpleResult;
@@ -69,13 +69,13 @@ class JsonRpc {
 		return obj;
 	}
 
-	static <T extends BaseDescriptor> JsonArray encode(Collection<ContributionItem<T>> l, EntityCache cache, Consumer<JsonObject> modifier) {
+	static <T extends BaseDescriptor> JsonArray encode(Collection<Contribution<T>> l, EntityCache cache, Consumer<JsonObject> modifier) {
 		if (l == null)
 			return null;
 		return encode(l, contribution -> encode(contribution, cache, modifier));
 	}
 
-	static <T extends BaseDescriptor> JsonObject encode(ContributionItem<T> i, EntityCache cache,
+	static <T extends BaseDescriptor> JsonObject encode(Contribution<T> i, EntityCache cache,
 			Consumer<JsonObject> modifier) {
 		if (i == null)
 			return null;
@@ -84,7 +84,7 @@ class JsonRpc {
 		obj.add("item", Json.asRef(i.item, cache));
 		obj.addProperty("amount", i.amount);
 		obj.addProperty("share", i.share);
-		obj.addProperty("rest", i.rest);
+		obj.addProperty("rest", i.isRest);
 		modifier.accept(obj);
 		return obj;
 	}

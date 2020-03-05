@@ -12,7 +12,7 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.ContributionItem;
+import org.openlca.core.results.Contribution;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.ContributionSet;
 import org.openlca.core.results.FullResult;
@@ -43,7 +43,7 @@ public class CostTests {
 		ContributionSet<CategorizedDescriptor> set = r
 				.getProcessCostContributions();
 		Assert.assertTrue(set.contributions.size() == 1);
-		ContributionItem<CategorizedDescriptor> item = set.contributions.get(0);
+		Contribution<CategorizedDescriptor> item = set.contributions.get(0);
 		Assert.assertEquals(3, item.amount, 1e-10);
 		Assert.assertEquals(1, item.share, 1e-10);
 	}

@@ -6,7 +6,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.results.ContributionItem;
+import org.openlca.core.results.Contribution;
 import org.openlca.core.results.ContributionSet;
 import org.openlca.core.results.ProjectResult;
 import org.openlca.io.xls.Excel;
@@ -50,7 +50,7 @@ class ProjectImpacts {
 			for (int i = 0; i < variants.size(); i++) {
 				int col = i + 4;
 				ProjectVariant variant = variants.get(i);
-				ContributionItem<?> c = contributions.getContribution(variant);
+				Contribution<?> c = contributions.getContribution(variant);
 				if (c == null)
 					continue;
 				Excel.cell(sheet, row, col, c.amount);

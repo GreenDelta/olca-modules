@@ -7,12 +7,16 @@ import java.util.Objects;
 
 /**
  * A set of contributions to an overall result.
+ * 
+ * @deprecated This class just wraps a list of contributions and thus is not
+ *             very useful.
  */
+@Deprecated
 public class ContributionSet<T> {
 
-	public final List<ContributionItem<T>> contributions = new ArrayList<>();
+	public final List<Contribution<T>> contributions = new ArrayList<>();
 
-	public ContributionSet(List<ContributionItem<T>> contributions) {
+	public ContributionSet(List<Contribution<T>> contributions) {
 		this.contributions.addAll(contributions);
 	}
 
@@ -22,8 +26,8 @@ public class ContributionSet<T> {
 		return set;
 	}
 
-	public ContributionItem<T> getContribution(T item) {
-		for (ContributionItem<T> contribution : contributions) {
+	public Contribution<T> getContribution(T item) {
+		for (Contribution<T> contribution : contributions) {
 			if (Objects.equals(item, contribution.item))
 				return contribution;
 		}
