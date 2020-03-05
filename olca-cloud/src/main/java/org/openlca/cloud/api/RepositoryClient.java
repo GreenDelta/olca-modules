@@ -247,6 +247,15 @@ public class RepositoryClient {
 		return sync(null);
 	}
 
+	public List<String> listRepositories() throws WebRequestException {
+		return executeLoggedIn(() -> {
+			ListRepositoriesInvocation invocation = new ListRepositoriesInvocation();
+			invocation.baseUrl = config.baseUrl;
+			invocation.sessionId = sessionId;
+			return invocation.execute();
+		});
+	}
+
 	public Set<FetchRequestData> sync(String untilCommitId) throws WebRequestException {
 		Set<FetchRequestData> result = executeLoggedIn(() -> {
 			FetchRequestInvocation invocation = new FetchRequestInvocation();
