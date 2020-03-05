@@ -17,10 +17,11 @@ public class ContributionsTest {
 		Set<Location> items = new HashSet<>();
 		items.add(loc);
 		items.add(null);
-		ContributionSet<Location> set = Contributions.calculate(items, 2, l -> {
-			return 1;
-		});
-		Contribution<?> item = set.getContribution(null);
+		List<Contribution<Location>> set = Contributions.calculate(
+				items, 2, l -> {
+					return 1;
+				});
+		Contribution<?> item = Contributions.get(set, null);
 		Assert.assertNull(item.item);
 		Assert.assertEquals(1, item.amount, 1e-27);
 		Assert.assertEquals(0.5, item.share, 1e-27);
@@ -61,7 +62,7 @@ public class ContributionsTest {
 		List<Contribution<String>> items = new ArrayList<>();
 		for (int i = 1; i < 6; i++) {
 			Contribution<String> item = new Contribution<>();
-			item.amount = (double) (i % 3);
+			item.amount = i % 3;
 			item.item = "item_" + i;
 			items.add(item);
 		}

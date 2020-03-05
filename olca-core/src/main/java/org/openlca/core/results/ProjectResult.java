@@ -59,7 +59,7 @@ public class ProjectResult implements IResult {
 		return result.getTotalFlowResults();
 	}
 
-	public ContributionSet<ProjectVariant> getContributions(IndexFlow flow) {
+	public List<Contribution<ProjectVariant>> getContributions(IndexFlow flow) {
 		return Contributions.calculate(
 				getVariants(), variant -> getTotalFlowResult(variant, flow));
 	}
@@ -72,7 +72,7 @@ public class ProjectResult implements IResult {
 		return result.getTotalImpactResult(impact);
 	}
 
-	public ContributionSet<ProjectVariant> getContributions(
+	public List<Contribution<ProjectVariant>> getContributions(
 			ImpactCategoryDescriptor impact) {
 		return Contributions.calculate(getVariants(),
 				variant -> getTotalImpactResult(variant, impact));

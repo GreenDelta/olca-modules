@@ -5,11 +5,23 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.ToDoubleFunction;
 
 public final class Contributions {
 
 	private Contributions() {
+	}
+
+	public static <T> Contribution<T> get(
+			List<Contribution<T>> contributions, T item) {
+		if (contributions == null)
+			return null;
+		for (Contribution<T> c : contributions) {
+			if (Objects.equals(c.item, item))
+				return c;
+		}
+		return null;
 	}
 
 	/**
@@ -25,7 +37,7 @@ public final class Contributions {
 	 * </code> An contribution item is set as the "rest" item
 	 * (contributionItem.isRest = true) if the item in the collection is null).
 	 */
-	public static <T> ContributionSet<T> calculate(Collection<T> items,
+	public static <T> List<Contribution<T>> calculate(Collection<T> items,
 			double totalAmount, ToDoubleFunction<T> fn) {
 		List<Contribution<T>> contributions = new ArrayList<>();
 		double total = Math.abs(totalAmount);
@@ -39,10 +51,10 @@ public final class Contributions {
 				contribution.share = val / total;
 			contributions.add(contribution);
 		}
-		return new ContributionSet<>(contributions);
+		return contributions;
 	}
 
-	public static <T> ContributionSet<T> calculate(Collection<T> items,
+	public static <T> List<Contribution<T>> calculate(Collection<T> items,
 			ToDoubleFunction<T> fn) {
 		List<Contribution<T>> contributions = new ArrayList<>();
 		for (T item : items) {
@@ -54,7 +66,7 @@ public final class Contributions {
 			contributions.add(contribution);
 		}
 		calculateShares(contributions);
-		return new ContributionSet<>(contributions);
+		return contributions;
 	}
 
 	/**
@@ -67,7 +79,7 @@ public final class Contributions {
 		double refVal = Math.abs(getRefValue(contributions));
 		for (Contribution<?> c : contributions) {
 			if (refVal == 0)
-				c.share = (double) 0;
+				c.share = 0;
 			else
 				c.share = c.amount / refVal;
 		}

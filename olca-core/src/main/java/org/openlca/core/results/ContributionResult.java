@@ -111,7 +111,7 @@ public class ContributionResult extends SimpleResult {
 	 * Get the direct contributions of the processes in the system to the inventory
 	 * result of the given flow.
 	 */
-	public ContributionSet<CategorizedDescriptor> getProcessContributions(
+	public List<Contribution<CategorizedDescriptor>> getProcessContributions(
 			IndexFlow flow) {
 		return Contributions.calculate(
 				getProcesses(),
@@ -166,7 +166,7 @@ public class ContributionResult extends SimpleResult {
 	 * Get the direct contributions of the processes in the system to the LCIA
 	 * result of the given LCIA category.
 	 */
-	public ContributionSet<CategorizedDescriptor> getProcessContributions(
+	public List<Contribution<CategorizedDescriptor>> getProcessContributions(
 			ImpactCategoryDescriptor impact) {
 		return Contributions.calculate(
 				getProcesses(),
@@ -203,7 +203,7 @@ public class ContributionResult extends SimpleResult {
 	/**
 	 * Get the direct contributions of all processes to the LCC result.
 	 */
-	public ContributionSet<CategorizedDescriptor> getProcessCostContributions() {
+	public List<Contribution<CategorizedDescriptor>> getProcessCostContributions() {
 		return Contributions.calculate(
 				getProcesses(),
 				totalCosts,

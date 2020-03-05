@@ -7,7 +7,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.Contribution;
-import org.openlca.core.results.ContributionSet;
+import org.openlca.core.results.Contributions;
 import org.openlca.core.results.ProjectResult;
 import org.openlca.io.xls.Excel;
 
@@ -45,12 +45,12 @@ class ProjectImpacts {
 		writeHeader(row++);
 		for (ImpactCategoryDescriptor impact : result.getImpacts()) {
 			writeInfo(row, impact);
-			ContributionSet<ProjectVariant> contributions = result
+			List<Contribution<ProjectVariant>> contributions = result
 					.getContributions(impact);
 			for (int i = 0; i < variants.size(); i++) {
 				int col = i + 4;
 				ProjectVariant variant = variants.get(i);
-				Contribution<?> c = contributions.getContribution(variant);
+				Contribution<?> c = Contributions.get(contributions, variant);
 				if (c == null)
 					continue;
 				Excel.cell(sheet, row, col, c.amount);

@@ -9,7 +9,7 @@ import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.results.Contribution;
-import org.openlca.core.results.ContributionSet;
+import org.openlca.core.results.Contributions;
 import org.openlca.core.results.ProjectResult;
 import org.openlca.io.CategoryPair;
 import org.openlca.io.DisplayValues;
@@ -61,12 +61,12 @@ class ProjectInventories {
 			if (flow.isInput)
 				continue;
 			writeInfo(flow.flow, row);
-			ContributionSet<ProjectVariant> contributions = result
+			List<Contribution<ProjectVariant>> contributions = result
 					.getContributions(flow);
 			for (int i = 0; i < variants.size(); i++) {
 				int col = i + 6;
 				ProjectVariant variant = variants.get(i);
-				Contribution<?> c = contributions.getContribution(variant);
+				Contribution<?> c = Contributions.get(contributions, variant);
 				if (c == null)
 					continue;
 				Excel.cell(sheet, row, col, c.amount);

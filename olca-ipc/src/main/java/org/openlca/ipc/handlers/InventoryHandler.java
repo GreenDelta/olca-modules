@@ -53,7 +53,7 @@ public class InventoryHandler {
 	public RpcResponse getProcessContributions(RpcRequest req) {
 		return utils.contributionFlow(req, (result, flow, cache) -> {
 			List<Contribution<CategorizedDescriptor>> contributions = result
-					.getProcessContributions(flow).contributions;
+					.getProcessContributions(flow);
 			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
 			String unit = utils.getUnit(flow, cache);
 			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", unit));
@@ -65,7 +65,7 @@ public class InventoryHandler {
 		return utils.contributionFlow(req, (result, flow, cache) -> {
 			LocationContribution calculator = new LocationContribution(result, cache);
 			List<Contribution<LocationDescriptor>> contributions = utils
-					.toDescriptors(calculator.calculate(flow).contributions);
+					.toDescriptors(calculator.calculate(flow));
 			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
 			String unit = utils.getUnit(flow, cache);
 			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", unit));
@@ -76,7 +76,7 @@ public class InventoryHandler {
 	public RpcResponse getProcessContributionsForLocation(RpcRequest req) {
 		return utils.contributionFlowLocation(req, (result, flow, location, cache) -> {
 			List<Contribution<CategorizedDescriptor>> contributions = result
-					.getProcessContributions(flow).contributions;
+					.getProcessContributions(flow);
 			contributions = utils.filter(contributions, contribution -> {
 				if (contribution.item instanceof ProcessDescriptor) {
 					if (((ProcessDescriptor) contribution.item).location != location.id) {

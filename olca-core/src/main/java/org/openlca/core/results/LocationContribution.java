@@ -1,6 +1,7 @@
 package org.openlca.core.results;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,9 +50,9 @@ public class LocationContribution {
 	}
 
 	/** Calculates contributions to an inventory flow. */
-	public ContributionSet<Location> calculate(IndexFlow flow) {
+	public List<Contribution<Location>> calculate(IndexFlow flow) {
 		if (flow == null || result == null)
-			return ContributionSet.empty();
+			return Collections.emptyList();
 		double total = result.getTotalFlowResult(flow);
 		return Contributions.calculate(index.keySet(), total, location -> {
 			double amount = 0;
@@ -63,10 +64,10 @@ public class LocationContribution {
 	}
 
 	/** Calculates contributions to an impact category. */
-	public ContributionSet<Location> calculate(
+	public List<Contribution<Location>> calculate(
 			ImpactCategoryDescriptor impact) {
 		if (impact == null || result == null)
-			return ContributionSet.empty();
+			return Collections.emptyList();
 		double total = result.getTotalImpactResult(impact);
 		return Contributions.calculate(index.keySet(), total, location -> {
 			double amount = 0;
@@ -78,9 +79,9 @@ public class LocationContribution {
 	}
 
 	/** Calculates added values aggregated by location. */
-	public ContributionSet<Location> addedValues() {
+	public List<Contribution<Location>> addedValues() {
 		if (result == null)
-			return ContributionSet.empty();
+			return Collections.emptyList();
 		double total = result.totalCosts;
 		total = total == 0 ? 0 : -total;
 		return Contributions.calculate(index.keySet(), total, location -> {
@@ -95,9 +96,9 @@ public class LocationContribution {
 	}
 
 	/** Calculates net-costs aggregated by location. */
-	public ContributionSet<Location> netCosts() {
+	public List<Contribution<Location>> netCosts() {
 		if (result == null)
-			return ContributionSet.empty();
+			return Collections.emptyList();
 		double total = result.totalCosts;
 		return Contributions.calculate(index.keySet(), total, location -> {
 			double amount = 0;

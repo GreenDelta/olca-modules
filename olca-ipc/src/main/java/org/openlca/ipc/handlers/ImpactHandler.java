@@ -136,7 +136,7 @@ public class ImpactHandler {
 		return utils.contributionImpact(req, (result, impact, cache) -> {
 			LocationContribution calculator = new LocationContribution(result, cache);
 			List<Contribution<LocationDescriptor>> contributions = utils
-					.toDescriptors(calculator.calculate(impact).contributions);
+					.toDescriptors(calculator.calculate(impact));
 			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
 			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", impact.referenceUnit));
 		});

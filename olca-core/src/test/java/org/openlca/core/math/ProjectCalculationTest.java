@@ -49,7 +49,7 @@ public class ProjectCalculationTest {
 
 		AtomicInteger icount = new AtomicInteger(0);
 		for (IndexFlow f : flows) {
-			r.getContributions(f).contributions.forEach(item -> {
+			r.getContributions(f).forEach(item -> {
 				icount.incrementAndGet();
 				switch (f.flow.name) {
 				case "e1":
