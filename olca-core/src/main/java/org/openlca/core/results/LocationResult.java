@@ -1,21 +1,28 @@
 package org.openlca.core.results;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.google.common.util.concurrent.AtomicDouble;
-import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+
+import com.google.common.util.concurrent.AtomicDouble;
+
+import gnu.trove.map.hash.TLongObjectHashMap;
+import org.openlca.util.Pair;
 
 /**
  * Calculates the contributions of the locations to a result.
@@ -29,6 +36,10 @@ public class LocationResult {
 	public LocationResult(ContributionResult result, IDatabase db) {
 		this.result = result;
 		this.db = db;
+	}
+
+	public List<Node> getNodes(FlowDescriptor flow, double cutoff) {
+		return Collections.emptyList();
 	}
 
 	/**
@@ -188,6 +199,65 @@ public class LocationResult {
 		loc = new LocationDao(db).getForId(id);
 		cache.put(id, loc);
 		return loc;
+	}
+
+	public static class Node {
+		public final Contribution<CategorizedDescriptor> ref;
+		public final List<Contribution<CategorizedDescriptor>> contributions;
+
+		private Node(CategorizedDescriptor item) {
+			this.ref = new Contribution<>();
+			this.ref.item = item;
+			this.contributions = new ArrayList<>();
+		}
+
+		private static Node of(CategorizedDescriptor e, double amount) {
+			Node n = new Node(e);
+			n.ref.amount = amount;
+			return n;
+		}
+
+		private static Node of(CategorizedEntity e, double amount) {
+			return of(Descriptors.toDescriptor(e), amount);
+		}
+
+		private long id() {
+			return ref.item.id;
+		}
+	}
+
+	/**
+	 * Builds a contribution tree from a fast hash map based tree:
+	 * <code>
+	 * hash map: node id -> (node, (hash map : node id -> (node, (hash map ...))))
+	 * </code>
+	 */
+	private static class NodeBuilder<T extends Pair<Node, TLongObjectHashMap<T>>> {
+
+		TLongObjectHashMap<T> index = new TLongObjectHashMap<>();
+
+		@SuppressWarnings("unchecked")
+		void add(Node... path) {
+			TLongObjectHashMap<T> level = index;
+			for (int i = 0; i < path.length; i++) {
+				Node n = path[i];
+				T bucket = level.get(n.id());
+				if (bucket == null) {
+					bucket = (T) new Pair<Node, TLongObjectHashMap<T>>();
+					bucket.first = n;
+					level.put(n.id(), bucket);
+				} else {
+					bucket.first.ref.amount += n.ref.amount;
+				}
+				if (i < path.length - 1) {
+					level = bucket.second;
+					if (level == null) {
+						level = new TLongObjectHashMap<>();
+						bucket.second = level;
+					}
+				}
+			}
+		}
 	}
 
 }
