@@ -9,7 +9,7 @@ import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.Contribution;
 import org.openlca.core.results.FlowResult;
-import org.openlca.core.results.LocationContribution;
+import org.openlca.core.results.LocationResult;
 import org.openlca.core.results.UpstreamNode;
 import org.openlca.core.results.UpstreamTree;
 import org.openlca.ipc.Rpc;
@@ -63,12 +63,13 @@ public class InventoryHandler {
 	@Rpc("get/inventory/contributions/locations")
 	public RpcResponse getLocationContributions(RpcRequest req) {
 		return utils.contributionFlow(req, (result, flow, cache) -> {
-			LocationContribution calculator = new LocationContribution(result, cache);
-			List<Contribution<LocationDescriptor>> contributions = utils
-					.toDescriptors(calculator.calculate(flow));
-			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
+			LocationResult r = new LocationResult(result, cache.db);
+			List<Contribution<LocationDescriptor>> cons = utils
+					.toDescriptors(r.getContributions(flow.flow));
+			cons = utils.filter(cons, c -> c.amount != 0);
 			String unit = utils.getUnit(flow, cache);
-			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", unit));
+			return JsonRpc.encode(cons, cache,
+					json -> json.addProperty("unit", unit));
 		});
 	}
 

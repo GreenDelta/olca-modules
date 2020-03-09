@@ -13,7 +13,6 @@ import org.openlca.core.database.LocationDao;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.Location;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -21,19 +20,19 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 /**
  * Calculates the contributions of the locations to a result.
  */
-public class LocationContribution {
+public class LocationResult {
 
 	private final IDatabase db;
 	private final ContributionResult result;
 	private final TLongObjectHashMap<Location> cache = new TLongObjectHashMap<>();
 
-	public LocationContribution(ContributionResult result, IDatabase db) {
+	public LocationResult(ContributionResult result, IDatabase db) {
 		this.result = result;
 		this.db = db;
 	}
 
 	/**
-	 * Calculates contributions by location to the given inventory flow.
+	 * Calculates location contributions to the given inventory flow.
 	 */
 	public List<Contribution<Location>> getContributions(FlowDescriptor flow) {
 		if (flow == null || result == null)
@@ -81,7 +80,7 @@ public class LocationContribution {
 	}
 
 	/**
-	 * Calculates contributions to an impact category.
+	 * Calculates location contributions to the given LCIA category.
 	 */
 	public List<Contribution<Location>> getContributions(
 			ImpactCategoryDescriptor impact) {
@@ -123,39 +122,39 @@ public class LocationContribution {
 	}
 
 	/**
-	 * Calculates added values aggregated by location.
+	 * Calculates location contributions to the total added value.
 	 */
-	public List<Contribution<Location>> addedValues() {
+	public List<Contribution<Location>> getAddedValueContributions() {
 		if (result == null)
 			return Collections.emptyList();
+		HashMap<Location, Double> cons = new HashMap<>();
+		result.techIndex.each((i, product) -> {
+			Location loc = getLocation(product);
+			double costs = result.getDirectCostResult(product);
+			double v = costs == 0 ? 0 : -costs;
+			cons.compute(loc,
+					(_loc, oldVal) -> oldVal == null ? v : oldVal + v);
+		});
 		double total = result.totalCosts;
 		total = total == 0 ? 0 : -total;
-
-		return Contributions.calculate(index.keySet(), total, location -> {
-			double amount = 0;
-			for (CategorizedDescriptor p : index.get(location)) {
-				double r = result.getDirectCostResult(p);
-				r = r == 0 ? 0 : -r;
-				amount += r;
-			}
-			return amount;
-		});
+		return asContributions(cons, total);
 	}
 
 	/**
-	 * Calculates net-costs aggregated by location.
+	 * Calculates location contributions to the total net-costs.
 	 */
-	public List<Contribution<Location>> netCosts() {
+	public List<Contribution<Location>> getNetCostsContributions() {
 		if (result == null)
 			return Collections.emptyList();
-		double total = result.totalCosts;
-		return Contributions.calculate(index.keySet(), total, location -> {
-			double amount = 0;
-			for (CategorizedDescriptor p : index.get(location)) {
-				amount += result.getDirectCostResult(p);
-			}
-			return amount;
+		HashMap<Location, Double> cons = new HashMap<>();
+		result.techIndex.each((i, product) -> {
+			Location loc = getLocation(product);
+			double v = result.getDirectCostResult(product);
+			cons.compute(loc,
+					(_loc, oldVal) -> oldVal == null ? v : oldVal + v);
 		});
+		double total = result.totalCosts;
+		return asContributions(cons, total);
 	}
 
 	private List<Contribution<Location>> asContributions(
@@ -164,7 +163,11 @@ public class LocationContribution {
 			Contribution<Location> c = new Contribution<>();
 			c.amount = e.getValue() == null ? 0 : e.getValue();
 			c.item = e.getKey();
-			c.share = total == 0 ? 0 : c.amount / total;
+			if (total != 0) {
+				c.share = c.amount / total;
+			} else {
+				c.share = c.amount < 0 ? -1 : 1;
+			}
 			return c;
 		}).collect(Collectors.toList());
 	}

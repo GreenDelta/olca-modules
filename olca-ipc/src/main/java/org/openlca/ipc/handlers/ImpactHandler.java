@@ -14,7 +14,7 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.Contribution;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.ImpactResult;
-import org.openlca.core.results.LocationContribution;
+import org.openlca.core.results.LocationResult;
 import org.openlca.core.results.UpstreamNode;
 import org.openlca.core.results.UpstreamTree;
 import org.openlca.ipc.Rpc;
@@ -134,9 +134,9 @@ public class ImpactHandler {
 	@Rpc("get/impacts/contributions/locations")
 	public RpcResponse getLocationContributions(RpcRequest req) {
 		return utils.contributionImpact(req, (result, impact, cache) -> {
-			LocationContribution calculator = new LocationContribution(result, cache);
+			LocationResult r = new LocationResult(result, cache.db);
 			List<Contribution<LocationDescriptor>> contributions = utils
-					.toDescriptors(calculator.calculate(impact));
+					.toDescriptors(r.getContributions(impact));
 			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
 			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", impact.referenceUnit));
 		});
