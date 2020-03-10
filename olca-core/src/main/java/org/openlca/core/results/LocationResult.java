@@ -38,7 +38,8 @@ public class LocationResult {
 		this.db = db;
 	}
 
-	public List<Node> getNodes(FlowDescriptor flow, double cutoff) {
+	public Node getContributionTree(FlowDescriptor flow, double cutoff) {
+
 		return Collections.emptyList();
 	}
 
@@ -202,18 +203,18 @@ public class LocationResult {
 	}
 
 	public static class Node {
-		public final Contribution<CategorizedDescriptor> ref;
-		public final List<Contribution<CategorizedDescriptor>> contributions;
+		public final Contribution<CategorizedDescriptor> contribution;
+		public final List<Node> childs;
 
 		private Node(CategorizedDescriptor item) {
-			this.ref = new Contribution<>();
-			this.ref.item = item;
-			this.contributions = new ArrayList<>();
+			this.contribution = new Contribution<>();
+			this.contribution.item = item;
+			this.childs = new ArrayList<>();
 		}
 
 		private static Node of(CategorizedDescriptor e, double amount) {
 			Node n = new Node(e);
-			n.ref.amount = amount;
+			n.contribution.amount = amount;
 			return n;
 		}
 
@@ -222,7 +223,7 @@ public class LocationResult {
 		}
 
 		private long id() {
-			return ref.item.id;
+			return contribution.item.id;
 		}
 	}
 
@@ -247,7 +248,7 @@ public class LocationResult {
 					bucket.first = n;
 					level.put(n.id(), bucket);
 				} else {
-					bucket.first.ref.amount += n.ref.amount;
+					bucket.first.contribution.amount += n.contribution.amount;
 				}
 				if (i < path.length - 1) {
 					level = bucket.second;
@@ -257,6 +258,29 @@ public class LocationResult {
 					}
 				}
 			}
+		}
+
+		List<Node> finish() {
+			List<Node> nodes = new ArrayList<>(index.size());
+			index.forEachValue(pair -> {
+				nodes.add(pair.first);
+				addChilds(pair);
+				return true;
+			});
+			return nodes;
+		}
+
+		private void addChilds(T entry) {
+			Node parent = entry.first;
+			TLongObjectHashMap<T> childs = entry.second;
+			if (parent == null || childs == null)
+				return;
+			childs.forEachValue(pair -> {
+				Node child = pair.first;
+				parent.childs.add(child);
+				addChilds(pair);
+				return true;
+			});
 		}
 	}
 
