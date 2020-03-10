@@ -38,9 +38,30 @@ public class LocationResult {
 		this.db = db;
 	}
 
-	public Node getContributionTree(FlowDescriptor flow, double cutoff) {
+	public Contribution<FlowDescriptor> getContributionTree(FlowDescriptor flow) {
+		Contribution<FlowDescriptor> root = Contribution.of(flow);
 
-		return Collections.emptyList();
+		if (!result.flowIndex.isRegionalized) {
+			// non-regionalized calculation;
+			// the flow is mapped to a single row
+			// we take the locations from the processes
+			// in the columns
+			int idx = result.flowIndex.of(flow);
+			IndexFlow iFlow = result.flowIndex.at(idx);
+			if (iFlow == null)
+				return root;
+			TreeBuilder<?> builder = new TreeBuilder<>();
+			result.techIndex.each((i, product) -> {
+				Location loc = getLocation(product);
+				double v = result.getDirectFlowResult(product, iFlow);
+				builder.add(v, loc, product.process);
+			});
+			double total = result.getTotalFlowResult(iFlow);
+			root.amount = total;
+			root.childs = builder.finish();
+		}
+
+		return root;
 	}
 
 	/**
@@ -202,84 +223,54 @@ public class LocationResult {
 		return loc;
 	}
 
-	public static class Node {
-		public final Contribution<CategorizedDescriptor> contribution;
-		public final List<Node> childs;
+	private static class TreeBuilder<T extends Pair<Contribution<?>, HashMap<Object, T>>> {
 
-		private Node(CategorizedDescriptor item) {
-			this.contribution = new Contribution<>();
-			this.contribution.item = item;
-			this.childs = new ArrayList<>();
-		}
-
-		private static Node of(CategorizedDescriptor e, double amount) {
-			Node n = new Node(e);
-			n.contribution.amount = amount;
-			return n;
-		}
-
-		private static Node of(CategorizedEntity e, double amount) {
-			return of(Descriptors.toDescriptor(e), amount);
-		}
-
-		private long id() {
-			return contribution.item.id;
-		}
-	}
-
-	/**
-	 * Builds a contribution tree from a fast hash map based tree:
-	 * <code>
-	 * hash map: node id -> (node, (hash map : node id -> (node, (hash map ...))))
-	 * </code>
-	 */
-	private static class NodeBuilder<T extends Pair<Node, TLongObjectHashMap<T>>> {
-
-		TLongObjectHashMap<T> index = new TLongObjectHashMap<>();
+		HashMap<Object, T> tree = new HashMap<>();
 
 		@SuppressWarnings("unchecked")
-		void add(Node... path) {
-			TLongObjectHashMap<T> level = index;
+		void add(double amount, Object ... path) {
+			HashMap<Object, T> level = tree;
 			for (int i = 0; i < path.length; i++) {
-				Node n = path[i];
-				T bucket = level.get(n.id());
-				if (bucket == null) {
-					bucket = (T) new Pair<Node, TLongObjectHashMap<T>>();
-					bucket.first = n;
-					level.put(n.id(), bucket);
+				Object key = path[i];
+				T pair = level.get(key);
+				if (pair == null) {
+					pair = (T) new Pair<Contribution<?>, HashMap<Object, T>>();
+					pair.first = Contribution.of(key, amount);
+					level.put(key, pair);
 				} else {
-					bucket.first.contribution.amount += n.contribution.amount;
+					pair.first.amount += amount;
 				}
-				if (i < path.length - 1) {
-					level = bucket.second;
-					if (level == null) {
-						level = new TLongObjectHashMap<>();
-						bucket.second = level;
+				if (i < (path.length - 1)) {
+					if (pair.second == null) {
+						pair.second = new HashMap<>();
 					}
+					level = pair.second;
 				}
 			}
 		}
 
-		List<Node> finish() {
-			List<Node> nodes = new ArrayList<>(index.size());
-			index.forEachValue(pair -> {
-				nodes.add(pair.first);
+		List<Contribution<?>> finish() {
+			List<Contribution<?>> list = new ArrayList<>(tree.size());
+			tree.values().forEach(pair -> {
+				Contribution<?> c = pair.first;
+				list.add(c);
 				addChilds(pair);
-				return true;
 			});
-			return nodes;
+			return list;
 		}
 
 		private void addChilds(T entry) {
-			Node parent = entry.first;
-			TLongObjectHashMap<T> childs = entry.second;
+			Contribution<?> parent = entry.first;
+			HashMap<?, T> childs = entry.second;
 			if (parent == null || childs == null)
 				return;
-			childs.forEachValue(pair -> {
-				Node child = pair.first;
+			childs.values().forEach(pair -> {
+				Contribution<?> child = pair.first;
+				if (parent.childs == null) {
+					parent.childs = new ArrayList<>();
+				}
 				parent.childs.add(child);
 				addChilds(pair);
-				return true;
 			});
 		}
 	}

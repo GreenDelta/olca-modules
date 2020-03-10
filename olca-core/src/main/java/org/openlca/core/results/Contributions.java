@@ -61,8 +61,7 @@ public final class Contributions {
 			Contribution<T> contribution = new Contribution<>();
 			contribution.isRest = item == null;
 			contribution.item = item;
-			double val = fn.applyAsDouble(item);
-			contribution.amount = val;
+			contribution.amount = fn.applyAsDouble(item);
 			contributions.add(contribution);
 		}
 		calculateShares(contributions);
@@ -100,11 +99,11 @@ public final class Contributions {
 	}
 
 	public static <T> void sortAscending(List<Contribution<T>> items) {
-		Collections.sort(items, new Sorter(true));
+		items.sort(new Sorter(true));
 	}
 
 	public static <T> void sortDescending(List<Contribution<T>> items) {
-		Collections.sort(items, new Sorter(false));
+		items.sort(new Sorter(false));
 	}
 
 	/**
