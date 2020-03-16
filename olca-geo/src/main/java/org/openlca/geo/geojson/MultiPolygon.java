@@ -17,14 +17,14 @@ public final class MultiPolygon extends Geometry {
 		this(new ArrayList<>());
 	}
 
-	static MultiPolygon fromJson(JsonObject obj) {
+	public static MultiPolygon fromJson(JsonObject obj) {
 		List<Polygon> polygons = Coordinates.readPolygons(
 				obj.get("coordinates"));
 		return new MultiPolygon(polygons);
 	}
 
 	@Override
-	JsonObject toJson() {
+	public JsonObject toJson() {
 		JsonObject obj = new JsonObject();
 		obj.addProperty("type", "MultiPolygon");
 		obj.add("coordinates",

@@ -19,7 +19,7 @@ public final class Feature implements Cloneable {
 	 */
 	public Map<String, Object> properties;
 
-	static Feature fromJson(JsonObject obj) {
+	public static Feature fromJson(JsonObject obj) {
 		Feature f = new Feature();
 		JsonElement geoElem = obj.get("geometry");
 		if (geoElem != null && geoElem.isJsonObject()) {
@@ -50,7 +50,7 @@ public final class Feature implements Cloneable {
 		return f;
 	}
 
-	JsonObject toJson() {
+	public JsonObject toJson() {
 		JsonObject obj = new JsonObject();
 		obj.addProperty("type", "Feature");
 		if (geometry != null) {

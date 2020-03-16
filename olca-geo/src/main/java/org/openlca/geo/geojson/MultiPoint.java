@@ -17,14 +17,14 @@ public final class MultiPoint extends Geometry {
 		this(new ArrayList<>());
 	}
 
-	static MultiPoint fromJson(JsonObject obj) {
+	public static MultiPoint fromJson(JsonObject obj) {
 		List<Point> points = Coordinates.readPoints(
 				obj.get("coordinates"));
 		return new MultiPoint(points);
 	}
 
 	@Override
-	JsonObject toJson() {
+	public JsonObject toJson() {
 		JsonObject obj = new JsonObject();
 		obj.addProperty("type", "MultiPoint");
 		obj.add("coordinates",

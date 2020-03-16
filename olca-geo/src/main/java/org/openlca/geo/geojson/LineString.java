@@ -17,13 +17,13 @@ public final class LineString extends Geometry {
 		this(new ArrayList<>());
 	}
 
-	static LineString fromJson(JsonObject obj) {
+	public static LineString fromJson(JsonObject obj) {
 		return Coordinates.readLine(
 				obj.get("coordinates"));
 	}
 
 	@Override
-	JsonObject toJson() {
+	public JsonObject toJson() {
 		JsonObject obj = new JsonObject();
 		obj.addProperty("type", "LineString");
 		obj.add("coordinates",

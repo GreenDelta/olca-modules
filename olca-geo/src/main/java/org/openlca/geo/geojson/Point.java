@@ -22,13 +22,13 @@ public final class Point extends Geometry {
 		this.y = y;
 	}
 
-	static Point fromJson(JsonObject obj) {
+	public static Point fromJson(JsonObject obj) {
 		return Coordinates.readPoint(
 				obj.get("coordinates"));
 	}
 
 	@Override
-	JsonObject toJson() {
+	public JsonObject toJson() {
 		JsonObject obj = new JsonObject();
 		obj.addProperty("type", "Point");
 		obj.add("coordinates",
