@@ -63,4 +63,14 @@ public class MessagePackTest {
 			Assert.assertEquals(i, (int) p.y);
 		}
 	}
+
+	@Test
+	public void testGz() {
+		Point point = new Point(42, 24);
+		byte[] data = MsgPack.packgz(FeatureCollection.of(point));
+		FeatureCollection coll = MsgPack.unpackgz(data);
+		Point clone = (Point) coll.features.get(0).geometry;
+		Assert.assertEquals(point.x, clone.x, 1e-16);
+		Assert.assertEquals(point.y, clone.y, 1e-16);
+	}
 }

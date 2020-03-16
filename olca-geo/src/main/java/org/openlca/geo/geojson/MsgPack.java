@@ -13,10 +13,42 @@ import org.msgpack.core.MessageUnpacker;
 import org.msgpack.value.ArrayValue;
 import org.msgpack.value.MapValue;
 import org.msgpack.value.Value;
+import org.openlca.util.BinUtils;
 
 public class MsgPack {
 
 	private MsgPack() {
+	}
+
+	/**
+	 * Converts the given feature collection into the message pack format and
+	 * compresses it with gzip. This is the format that we use for storing
+	 * geographic data of locations in an openLCA database.
+	 */
+	public static byte[] packgz(FeatureCollection coll) {
+		if (coll == null)
+			return null;
+		try {
+			byte[] data = MsgPack.pack(coll);
+			return BinUtils.gzip(data);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * First, decompresses the given data using gzip and then parses the result as
+	 * message pack format.
+	 */
+	public static FeatureCollection unpackgz(byte[] data) {
+		if (data == null || data.length == 0)
+			return null;
+		try {
+			byte[] raw = BinUtils.gunzip(data);
+			return MsgPack.unpack(raw);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public static byte[] pack(FeatureCollection coll) {
