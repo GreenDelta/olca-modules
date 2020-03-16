@@ -1,6 +1,5 @@
 package org.openlca.core.results;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -11,10 +10,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Location;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -22,7 +18,6 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 import com.google.common.util.concurrent.AtomicDouble;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
-import org.openlca.util.Pair;
 
 /**
  * Calculates the contributions of the locations to a result.
@@ -36,32 +31,6 @@ public class LocationResult {
 	public LocationResult(ContributionResult result, IDatabase db) {
 		this.result = result;
 		this.db = db;
-	}
-
-	public Contribution<FlowDescriptor> getContributionTree(FlowDescriptor flow) {
-		Contribution<FlowDescriptor> root = Contribution.of(flow);
-
-		if (!result.flowIndex.isRegionalized) {
-			// non-regionalized calculation;
-			// the flow is mapped to a single row
-			// we take the locations from the processes
-			// in the columns
-			int idx = result.flowIndex.of(flow);
-			IndexFlow iFlow = result.flowIndex.at(idx);
-			if (iFlow == null)
-				return root;
-			TreeBuilder<?> builder = new TreeBuilder<>();
-			result.techIndex.each((i, product) -> {
-				Location loc = getLocation(product);
-				double v = result.getDirectFlowResult(product, iFlow);
-				builder.add(v, loc, product.process);
-			});
-			double total = result.getTotalFlowResult(iFlow);
-			root.amount = total;
-			root.childs = builder.finish();
-		}
-
-		return root;
 	}
 
 	/**
@@ -221,58 +190,6 @@ public class LocationResult {
 		loc = new LocationDao(db).getForId(id);
 		cache.put(id, loc);
 		return loc;
-	}
-
-	private static class TreeBuilder<T extends Pair<Contribution<?>, HashMap<Object, T>>> {
-
-		HashMap<Object, T> tree = new HashMap<>();
-
-		@SuppressWarnings("unchecked")
-		void add(double amount, Object ... path) {
-			HashMap<Object, T> level = tree;
-			for (int i = 0; i < path.length; i++) {
-				Object key = path[i];
-				T pair = level.get(key);
-				if (pair == null) {
-					pair = (T) new Pair<Contribution<?>, HashMap<Object, T>>();
-					pair.first = Contribution.of(key, amount);
-					level.put(key, pair);
-				} else {
-					pair.first.amount += amount;
-				}
-				if (i < (path.length - 1)) {
-					if (pair.second == null) {
-						pair.second = new HashMap<>();
-					}
-					level = pair.second;
-				}
-			}
-		}
-
-		List<Contribution<?>> finish() {
-			List<Contribution<?>> list = new ArrayList<>(tree.size());
-			tree.values().forEach(pair -> {
-				Contribution<?> c = pair.first;
-				list.add(c);
-				addChilds(pair);
-			});
-			return list;
-		}
-
-		private void addChilds(T entry) {
-			Contribution<?> parent = entry.first;
-			HashMap<?, T> childs = entry.second;
-			if (parent == null || childs == null)
-				return;
-			childs.values().forEach(pair -> {
-				Contribution<?> child = pair.first;
-				if (parent.childs == null) {
-					parent.childs = new ArrayList<>();
-				}
-				parent.childs.add(child);
-				addChilds(pair);
-			});
-		}
 	}
 
 }
