@@ -28,13 +28,13 @@ public class IntersectionCalculator {
 	/**
 	 * The JTS geometries that we use for intersection calculations.
 	 */
-	private final com.vividsolutions.jts.geom.Geometry[] geometries;
+	private final org.locationtech.jts.geom.Geometry[] geometries;
 
 	private final Projection projection;
 
 	private IntersectionCalculator(
 			Feature[] features,
-			com.vividsolutions.jts.geom.Geometry[] geometries,
+			org.locationtech.jts.geom.Geometry[] geometries,
 			Projection projection) {
 		this.features = features;
 		this.geometries = geometries;
@@ -50,14 +50,14 @@ public class IntersectionCalculator {
 		if (coll == null) {
 			return new IntersectionCalculator(
 					new Feature[0],
-					new com.vividsolutions.jts.geom.Geometry[0],
+					new org.locationtech.jts.geom.Geometry[0],
 					projection);
 		}
 
 		// we make sure that there is always a corresponding JTS geometry
 		// for a feature.
 		List<Feature> features = new ArrayList<>();
-		List<com.vividsolutions.jts.geom.Geometry> geometries = new ArrayList<>();
+		List<org.locationtech.jts.geom.Geometry> geometries = new ArrayList<>();
 		for (Feature feature : coll.features) {
 			if (feature.geometry == null)
 				continue;
@@ -66,7 +66,7 @@ public class IntersectionCalculator {
 				g = g.clone();
 				projection.project(g);
 			}
-			com.vividsolutions.jts.geom.Geometry jts = JTS.fromGeoJSON(g);
+			org.locationtech.jts.geom.Geometry jts = JTS.fromGeoJSON(g);
 			if (jts == null)
 				continue;
 			features.add(feature);
@@ -75,7 +75,7 @@ public class IntersectionCalculator {
 
 		return new IntersectionCalculator(
 				features.toArray(new Feature[0]),
-				geometries.toArray(new com.vividsolutions.jts.geom.Geometry[0]),
+				geometries.toArray(new org.locationtech.jts.geom.Geometry[0]),
 				projection);
 	}
 
@@ -101,7 +101,7 @@ public class IntersectionCalculator {
 	 * </ol>
 	 */
 	public List<Pair<Feature, Double>> shares(Geometry g) {
-		List<Pair<Feature, com.vividsolutions.jts.geom.Geometry>> s = jts(g)
+		List<Pair<Feature, org.locationtech.jts.geom.Geometry>> s = jts(g)
 				.collect(Collectors.toList());
 
 		// get the maximum dimension
@@ -150,11 +150,11 @@ public class IntersectionCalculator {
 	 * Calculates the intersection geometries based on JTS geometries and
 	 * returns the non-empty intersections.
 	 */
-	private Stream<Pair<Feature, com.vividsolutions.jts.geom.Geometry>> jts(
+	private Stream<Pair<Feature, org.locationtech.jts.geom.Geometry>> jts(
 			Geometry g) {
 		if (g == null)
 			return Stream.empty();
-		com.vividsolutions.jts.geom.Geometry jts;
+		org.locationtech.jts.geom.Geometry jts;
 		if (projection == null) {
 			jts = JTS.fromGeoJSON(g);
 		} else {

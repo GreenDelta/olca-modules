@@ -1,5 +1,9 @@
 package org.openlca.geo.calc;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LinearRing;
 import org.openlca.geo.geojson.GeometryCollection;
 import org.openlca.geo.geojson.LineString;
 import org.openlca.geo.geojson.MultiLineString;
@@ -7,11 +11,6 @@ import org.openlca.geo.geojson.MultiPoint;
 import org.openlca.geo.geojson.MultiPolygon;
 import org.openlca.geo.geojson.Point;
 import org.openlca.geo.geojson.Polygon;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LinearRing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,10 +68,10 @@ class JTS {
 		Coordinate[] coordinates = mp.points.stream()
 				.map(p -> new Coordinate(p.x, p.y))
 				.toArray(Coordinate[]::new);
-		return gen.createMultiPoint(coordinates);
+		return gen.createMultiPointFromCoords(coordinates);
 	}
 
-	private static com.vividsolutions.jts.geom.LineString fromLineString(
+	private static org.locationtech.jts.geom.LineString fromLineString(
 			LineString line, GeometryFactory gen) {
 		Coordinate[] coordinates = line.points.stream()
 				.map(p -> new Coordinate(p.x, p.y))
@@ -82,13 +81,13 @@ class JTS {
 
 	private static Geometry fromMultiLineString(
 			MultiLineString ml, GeometryFactory gen) {
-		com.vividsolutions.jts.geom.LineString[] lines = ml.lineStrings.stream()
+		org.locationtech.jts.geom.LineString[] lines = ml.lineStrings.stream()
 				.map(line -> fromLineString(line, gen))
-				.toArray(com.vividsolutions.jts.geom.LineString[]::new);
+				.toArray(org.locationtech.jts.geom.LineString[]::new);
 		return gen.createMultiLineString(lines);
 	}
 
-	private static com.vividsolutions.jts.geom.Polygon fromPolygon(
+	private static org.locationtech.jts.geom.Polygon fromPolygon(
 			Polygon p, GeometryFactory gen) {
 		if (p.rings.isEmpty())
 			return null;
@@ -112,7 +111,7 @@ class JTS {
 		return gen.createMultiPolygon(mp.polygons
 				.stream()
 				.map(p -> fromPolygon(p, gen))
-				.toArray(com.vividsolutions.jts.geom.Polygon[]::new));
+				.toArray(org.locationtech.jts.geom.Polygon[]::new));
 	}
 
 	/**
@@ -122,25 +121,25 @@ class JTS {
 		if (g == null)
 			return null;
 
-		if (g instanceof com.vividsolutions.jts.geom.Point)
+		if (g instanceof org.locationtech.jts.geom.Point)
 			return toPoint(g.getCoordinate());
 
-		if (g instanceof com.vividsolutions.jts.geom.MultiPoint)
+		if (g instanceof org.locationtech.jts.geom.MultiPoint)
 			return toMultiPoint(g);
 
-		if (g instanceof com.vividsolutions.jts.geom.LineString)
-			return toLineString((com.vividsolutions.jts.geom.LineString) g);
+		if (g instanceof org.locationtech.jts.geom.LineString)
+			return toLineString((org.locationtech.jts.geom.LineString) g);
 
-		if (g instanceof com.vividsolutions.jts.geom.MultiLineString)
+		if (g instanceof org.locationtech.jts.geom.MultiLineString)
 			return toMultiLineString(g);
 
-		if (g instanceof com.vividsolutions.jts.geom.Polygon)
-			return toPolygon((com.vividsolutions.jts.geom.Polygon) g);
+		if (g instanceof org.locationtech.jts.geom.Polygon)
+			return toPolygon((org.locationtech.jts.geom.Polygon) g);
 
-		if (g instanceof com.vividsolutions.jts.geom.MultiPolygon)
+		if (g instanceof org.locationtech.jts.geom.MultiPolygon)
 			return toMultiPolygon(g);
 
-		if (g instanceof com.vividsolutions.jts.geom.GeometryCollection)
+		if (g instanceof org.locationtech.jts.geom.GeometryCollection)
 			return toGeometryCollection(g);
 
 		Logger log = LoggerFactory.getLogger(JTS.class);
@@ -174,7 +173,7 @@ class JTS {
 	}
 
 	private static LineString toLineString(
-			com.vividsolutions.jts.geom.LineString jts) {
+			org.locationtech.jts.geom.LineString jts) {
 		Coordinate[] coords = jts.getCoordinates();
 		if (coords == null)
 			return null;
@@ -199,7 +198,7 @@ class JTS {
 		return mls;
 	}
 
-	private static Polygon toPolygon(com.vividsolutions.jts.geom.Polygon jts) {
+	private static Polygon toPolygon(org.locationtech.jts.geom.Polygon jts) {
 		Polygon polygon = new Polygon();
 		LineString exterior = toLineString(jts.getExteriorRing());
 		polygon.rings.add(exterior);

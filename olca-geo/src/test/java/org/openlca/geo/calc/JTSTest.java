@@ -2,9 +2,9 @@ package org.openlca.geo.calc;
 
 import java.util.Arrays;
 
-import com.vividsolutions.jts.geom.Geometry;
 import org.junit.Assert;
 import org.junit.Test;
+import org.locationtech.jts.geom.Geometry;
 import org.openlca.geo.geojson.LineString;
 import org.openlca.geo.geojson.MultiPoint;
 import org.openlca.geo.geojson.Point;

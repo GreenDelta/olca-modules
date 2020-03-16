@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.PrecisionModel;
-import com.vividsolutions.jts.precision.GeometryPrecisionReducer;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.PrecisionModel;
+import org.locationtech.jts.precision.GeometryPrecisionReducer;
 import org.openlca.geo.geojson.Feature;
 import org.openlca.geo.geojson.FeatureCollection;
 import org.slf4j.LoggerFactory;
