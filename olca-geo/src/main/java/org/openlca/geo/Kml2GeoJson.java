@@ -1,4 +1,4 @@
-package org.openlca.jsonld.output;
+package org.openlca.geo;
 
 import java.io.StringReader;
 import java.util.Scanner;

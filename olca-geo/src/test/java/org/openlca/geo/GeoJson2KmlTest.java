@@ -1,4 +1,4 @@
-package org.openlca.jsonld.input;
+package org.openlca.geo;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
