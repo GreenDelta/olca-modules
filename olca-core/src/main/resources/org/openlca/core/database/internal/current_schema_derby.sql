@@ -68,19 +68,18 @@ CREATE INDEX idx_actor_ref_id ON tbl_actors(ref_id);
 
 CREATE TABLE tbl_locations (
 
-    id BIGINT NOT NULL,
-    ref_id VARCHAR(36),
-    name VARCHAR(2048),
+    id          BIGINT NOT NULL,
+    ref_id      VARCHAR(36),
+    name        VARCHAR(2048),
     description CLOB(64 K),
-    version BIGINT,
+    version     BIGINT,
     last_change BIGINT,
-    f_category BIGINT,
+    f_category  BIGINT,
 
     longitude DOUBLE,
-    latitude DOUBLE,
-    code VARCHAR(255),
-    kmz BLOB(16 M),
-    geodata BLOB(32 M),
+    latitude  DOUBLE,
+    code      VARCHAR(255),
+    geodata   BLOB(32 M),
 
     PRIMARY KEY (id)
 );
@@ -478,28 +477,26 @@ CREATE TABLE tbl_nw_factors (
 
 CREATE TABLE tbl_parameters (
 
-    id BIGINT NOT NULL,
-    ref_id VARCHAR(36),
-    name VARCHAR(2048),
+    id          BIGINT NOT NULL,
+    ref_id      VARCHAR(36),
+    name        VARCHAR(2048),
     description CLOB(64 K),
-    version BIGINT,
+    version     BIGINT,
     last_change BIGINT,
-    f_category BIGINT,
+    f_category  BIGINT,
 
     is_input_param SMALLINT default 0,
-    f_owner BIGINT,
-    scope VARCHAR(255),
-    value DOUBLE,
-    formula VARCHAR(1000),
-    external_source VARCHAR(255),
-    source_type VARCHAR(255),
+    f_owner        BIGINT,
+    scope          VARCHAR(255),
+    value          DOUBLE,
+    formula        VARCHAR(1000),
 
-    distribution_type INTEGER default 0,
-    parameter1_value DOUBLE,
+    distribution_type  INTEGER default 0,
+    parameter1_value   DOUBLE,
     parameter1_formula VARCHAR(1000),
-    parameter2_value DOUBLE,
+    parameter2_value   DOUBLE,
     parameter2_formula VARCHAR(1000),
-    parameter3_value DOUBLE,
+    parameter3_value   DOUBLE,
     parameter3_formula VARCHAR(1000),
 
     PRIMARY KEY (id)

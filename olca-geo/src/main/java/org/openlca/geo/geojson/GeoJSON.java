@@ -35,6 +35,10 @@ public final class GeoJSON {
 	public static FeatureCollection read(Reader reader) {
 		Gson gson = new Gson();
 		JsonObject obj = gson.fromJson(reader, JsonObject.class);
+		return read(obj);
+	}
+
+	public static FeatureCollection read(JsonObject obj) {
 		JsonElement typeElem = obj.get("type");
 		if (typeElem == null || !typeElem.isJsonPrimitive())
 			throw new IllegalStateException("no valid type element found");

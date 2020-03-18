@@ -1,7 +1,9 @@
 package org.openlca.jsonld.output;
 
 import org.openlca.core.model.Location;
-import org.openlca.util.BinUtils;
+import org.openlca.geo.geojson.Feature;
+import org.openlca.geo.geojson.FeatureCollection;
+import org.openlca.geo.geojson.MsgPack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,13 +28,16 @@ class LocationWriter extends Writer<Location> {
 	}
 
 	private void mapGeometry(Location location, JsonObject obj) {
-		if (location.kmz == null)
+		if (location.geodata == null)
 			return;
 		try {
-			byte[] bin = BinUtils.unzip(location.kmz);
-			String kml = new String(bin, "utf-8");
-			JsonObject geoJson = Kml2GeoJson.convert(kml);
-			Out.put(obj, "geometry", geoJson);
+			FeatureCollection coll = MsgPack.unpackgz(location.geodata);
+			if (coll == null)
+				return;
+			Feature f = coll.first();
+			if (f == null || f.geometry == null)
+				return;
+			Out.put(obj, "geometry", f.geometry.toJson());
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(getClass());
 			log.error("failed to convert KML to GeoJSON", e);
