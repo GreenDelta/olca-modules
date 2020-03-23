@@ -17,6 +17,11 @@ public class Contribution<T> {
 	public double amount;
 
 	/**
+	 * The unit of the absolute amount value.
+	 */
+	public String unit;
+
+	/**
 	 * The relative share of the contribution.
 	 */
 	public double share;
