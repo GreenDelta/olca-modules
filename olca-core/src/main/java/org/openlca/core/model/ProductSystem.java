@@ -1,5 +1,11 @@
 package org.openlca.core.model;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -10,11 +16,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @Table(name = "tbl_product_systems")
@@ -70,7 +71,10 @@ public class ProductSystem extends CategorizedEntity {
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_owner")
-	public List<Exchange> inventory = new ArrayList<>();
+	public final List<Exchange> inventory = new ArrayList<>();
+
+	@Transient
+	public final List<Scenario> scenarios = new ArrayList<>();
 
 	/**
 	 * Initializes a product system from the given process. Note that this
