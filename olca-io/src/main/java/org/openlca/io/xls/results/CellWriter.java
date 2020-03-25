@@ -13,6 +13,8 @@ import org.openlca.core.database.EntityCache;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.NwFactor;
+import org.openlca.core.model.NwSet;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -58,11 +60,23 @@ public class CellWriter {
 	 * Writes the impact category information into the given row, starting in
 	 * column col
 	 */
-	public void impactRow(Sheet sheet, int row, int col,
-			ImpactCategoryDescriptor impact) {
+	public int impactRow(Sheet sheet, int row, int col, ImpactCategoryDescriptor impact) {
 		cell(sheet, row, col++, impact.refId, false);
 		cell(sheet, row, col++, impact.name, false);
 		cell(sheet, row, col++, impact.referenceUnit, false);
+		return col;
+	}
+
+	public int impactNwRow(Sheet sheet, int row, int col, ImpactCategoryDescriptor impact, double value, NwSet nwSet) {
+		NwFactor nwFactor = nwSet.getFactor(impact);
+		if (nwFactor == null)
+			return col;
+		double normalizedValue = value * (nwFactor.normalisationFactor == null ? 0 : nwFactor.normalisationFactor);
+		double weightedValue = normalizedValue * (nwFactor.weightingFactor == null ? 0 : nwFactor.weightingFactor);
+		cell(sheet, row, col++, normalizedValue, false);
+		cell(sheet, row, col++, weightedValue, false);
+		cell(sheet, row, col++, nwSet.weightedScoreUnit, false);
+		return col;
 	}
 
 	/**

@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.openlca.core.database.EntityCache;
+import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.model.NwSet;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -29,6 +31,12 @@ class Util {
 			return Collections.emptyList();
 		Set<ImpactCategoryDescriptor> set = result.getImpacts();
 		return Sort.impacts(set);
+	}
+	
+	static NwSet nwSet(CalculationSetup setup, EntityCache cache) {
+		if (setup.nwSet == null)
+			return null;
+		return cache.get(NwSet.class, setup.nwSet.id);
 	}
 
 }
