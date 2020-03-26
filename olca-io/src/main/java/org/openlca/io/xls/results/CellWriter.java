@@ -71,7 +71,8 @@ public class CellWriter {
 		NwFactor nwFactor = nwSet.getFactor(impact);
 		if (nwFactor == null)
 			return col;
-		double normalizedValue = value * (nwFactor.normalisationFactor == null ? 0 : nwFactor.normalisationFactor);
+		double normalizedValue = value * (nwFactor.normalisationFactor == null || nwFactor.normalisationFactor == 0 ? 0
+				: 1 / nwFactor.normalisationFactor);
 		double weightedValue = normalizedValue * (nwFactor.weightingFactor == null ? 0 : nwFactor.weightingFactor);
 		cell(sheet, row, col++, normalizedValue, false);
 		cell(sheet, row, col++, weightedValue, false);
