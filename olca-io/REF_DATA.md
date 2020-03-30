@@ -19,23 +19,22 @@ Columns:
 
 0. reference ID (UUID, required)
 1. name (string, required)
-2. description (string, optional) 
+2. description (string, optional)
 3. code (string, required)
 4. latitude (double, required)
 5. longitude (double, required)
 
 Categories
 ----------
-File:       `categories.csv`      
+File:       `categories.csv`
 Columns:
 
 0. reference ID (UUID; required)
 1. name (string; required)
 2. description (string; optional)
-3. model type of the category (enumeration: "PROJECT", "PRODUCT_SYSTEM", 
+3. model type of the category (enumeration: "PROJECT", "PRODUCT_SYSTEM",
    "IMPACT_METHOD", "PROCESS", "FLOW", "FLOW_PROPERTY", "UNIT_GROUP"; required)
 4. reference ID of the parent category (UUID, optional)
-
 
 Units
 -----
@@ -91,7 +90,7 @@ Columns:
 7. reference flow property (UUID, required)
 
 
-Flow property factors 
+Flow property factors
 ---------------------
 (relations between flows and flow properties)
 File:       `flow_property_factors.csv`
@@ -105,9 +104,9 @@ Columns:
 Currencies
 ----------
 Every currency must have a link to a reference currency. The reference currency
-has a link to itself. For a correct import, currently the reference currency 
+has a link to itself. For a correct import, currently the reference currency
 must be the first line of the file.
-  
+
 File:       `currencies.csv`
 Columns:
 
@@ -186,12 +185,12 @@ KML for locations
 -----------------
 File:		`Geographies.xml`
 
-The reference data import supports the import of geometries for locations. The 
+The reference data import supports the import of geometries for locations. The
 supported file format is the same as for the ecoinvent 3 database (see
-http://www.ecoinvent.org/data-providers/how-to-submit-data/ecospold2). The 
+http://www.ecoinvent.org/data-providers/how-to-submit-data/ecospold2). The
 locations are mapped via the respective location code. So in principle you just
 need to copy the `Geographies.xml` file from ecoinvent 3 to the reference data
-folder and the KML data from this file will be imported. 
+folder and the KML data from this file will be imported.
 
 
 Default mappings
@@ -244,7 +243,7 @@ assumed that the conversion factor is related to the reference flow property
 and unit of the respective flows as defined in the respective systems.
 
 Finally, it is possible to link a flow `t` in exchanges to a provider process
-during an import when it is a product or waste flow. 
+during an import when it is a product or waste flow.
 
 ```
 # required columns
@@ -285,7 +284,7 @@ during an import when it is a product or waste flow.
 EcoSpold 1
 ==========
 
-* units are mapped by name (see default unit mapping) 
+* units are mapped by name (see default unit mapping)
 * locations are mapped by the location code (name-based UUID)
 
 
@@ -403,7 +402,7 @@ File: `ilcd_flow_map.csv`
 SimaPro CSV
 ===========
 
-* units are mapped by name (see default unit mapping) 
+* units are mapped by name (see default unit mapping)
 
 
 SimaPro CSV: Compartment import mapping

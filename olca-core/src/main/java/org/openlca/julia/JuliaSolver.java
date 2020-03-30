@@ -42,7 +42,7 @@ public class JuliaSolver implements IMatrixSolver {
 		DenseMatrix lu = A == a ? A.copy() : A;
 		double[] b = new double[A.rows()];
 		b[idx] = d;
-		Julia.solve(A.columns(), 1, lu.getData(), b);
+		Julia.solve(A.columns(), 1, lu.data, b);
 		return b;
 	}
 
@@ -54,7 +54,7 @@ public class JuliaSolver implements IMatrixSolver {
 		}
 		DenseMatrix a = MatrixConverter.dense(m);
 		double[] y = new double[m.rows()];
-		Julia.mvmult(m.rows(), m.columns(), a.getData(), x, y);
+		Julia.mvmult(m.rows(), m.columns(), a.data, x, y);
 		return y;
 	}
 
@@ -62,7 +62,7 @@ public class JuliaSolver implements IMatrixSolver {
 	public DenseMatrix invert(IMatrix a) {
 		DenseMatrix _a = MatrixConverter.dense(a);
 		DenseMatrix i = _a == a ? _a.copy() : _a;
-		Julia.invert(_a.columns(), i.getData());
+		Julia.invert(_a.columns(), i.data);
 		return i;
 	}
 
@@ -74,11 +74,11 @@ public class JuliaSolver implements IMatrixSolver {
 		int colsB = _b.columns();
 		int k = _a.columns();
 		DenseMatrix c = new DenseMatrix(rowsA, colsB);
-		if (colsB == 1)
-			Julia.mvmult(rowsA, k, _a.getData(), _b.getData(), c.getData());
-		else
-			Julia.mmult(rowsA, colsB, k, _a.getData(), _b.getData(),
-					c.getData());
+		if (colsB == 1) {
+			Julia.mvmult(rowsA, k, _a.data, _b.data, c.data);
+		} else {
+			Julia.mmult(rowsA, colsB, k, _a.data, _b.data, c.data);
+		}
 		return c;
 	}
 

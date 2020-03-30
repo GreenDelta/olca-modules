@@ -3,7 +3,6 @@ package org.openlca.expressions;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.openlca.expressions.FormulaInterpreter;
 
 public class ETest {
 

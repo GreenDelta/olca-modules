@@ -22,7 +22,7 @@ public class DenseSolver implements IMatrixSolver {
 		DenseMatrix lu = A.copy();
 		double[] b = new double[a.rows()];
 		b[idx] = d;
-		Lapack.dSolve(A.columns(), 1, lu.getData(), b);
+		Lapack.dSolve(A.columns(), 1, lu.data, b);
 		return b;
 	}
 
@@ -30,8 +30,7 @@ public class DenseSolver implements IMatrixSolver {
 	public double[] multiply(IMatrix m, double[] x) {
 		DenseMatrix a = MatrixConverter.dense(m);
 		double[] y = new double[m.rows()];
-		Blas.dMVmult(m.rows(), m.columns(), a.getData(),
-				x, y);
+		Blas.dMVmult(m.rows(), m.columns(), a.data, x, y);
 		return y;
 	}
 
@@ -39,7 +38,7 @@ public class DenseSolver implements IMatrixSolver {
 	public DenseMatrix invert(IMatrix a) {
 		DenseMatrix _a = MatrixConverter.dense(a);
 		DenseMatrix i = _a.copy();
-		Lapack.dInvert(_a.columns(), i.getData());
+		Lapack.dInvert(_a.columns(), i.data);
 		return i;
 	}
 
@@ -51,11 +50,11 @@ public class DenseSolver implements IMatrixSolver {
 		int colsB = _b.columns();
 		int k = _a.columns();
 		DenseMatrix c = new DenseMatrix(rowsA, colsB);
-		if (colsB == 1)
-			Blas.dMVmult(rowsA, k, _a.getData(), _b.getData(), c.getData());
-		else
-			Blas.dMmult(rowsA, colsB, k, _a.getData(), _b.getData(),
-					c.getData());
+		if (colsB == 1) {
+			Blas.dMVmult(rowsA, k, _a.data, _b.data, c.data);
+		} else {
+			Blas.dMmult(rowsA, colsB, k, _a.data, _b.data, c.data);
+		}
 		return c;
 	}
 

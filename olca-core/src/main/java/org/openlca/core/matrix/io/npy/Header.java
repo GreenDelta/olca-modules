@@ -9,8 +9,6 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.IntFunction;
 
 /**
  * The header information of an NPY file.
