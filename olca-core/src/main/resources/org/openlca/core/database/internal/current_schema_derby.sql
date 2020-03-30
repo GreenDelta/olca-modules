@@ -378,6 +378,18 @@ CREATE TABLE tbl_process_links (
 CREATE INDEX idx_process_link_system ON tbl_process_links(f_product_system);
 
 
+CREATE TABLE tbl_scenarios (
+
+    id                BIGINT NOT NULL,
+    name              VARCHAR(2048),
+    description       CLOB(64 K),
+    is_baseline       SMALLINT default 0,
+    f_product_system  BIGINT
+
+);
+CREATE INDEX idx_scenario_system ON tbl_scenarios(f_product_system);
+
+
 CREATE TABLE tbl_impact_methods (
 
     id              BIGINT NOT NULL,
@@ -506,19 +518,20 @@ CREATE INDEX idx_parameter_category ON tbl_parameters(f_category);
 
 CREATE TABLE tbl_parameter_redefs (
 
-    id BIGINT NOT NULL,
-    name VARCHAR(2048),
-    f_owner BIGINT,
-    f_context BIGINT,
-    context_type VARCHAR(255),
-    value DOUBLE,
+    id            BIGINT NOT NULL,
+    name          VARCHAR(2048),
+    description   CLOB(64 K),
+    f_owner       BIGINT,
+    f_context     BIGINT,
+    context_type  VARCHAR(255),
+    value         DOUBLE,
 
-    distribution_type INTEGER default 0,
-    parameter1_value DOUBLE,
+    distribution_type  INTEGER default 0,
+    parameter1_value   DOUBLE,
     parameter1_formula VARCHAR(1000),
-    parameter2_value DOUBLE,
+    parameter2_value   DOUBLE,
     parameter2_formula VARCHAR(1000),
-    parameter3_value DOUBLE,
+    parameter3_value   DOUBLE,
     parameter3_formula VARCHAR(1000),
 
     PRIMARY KEY (id)

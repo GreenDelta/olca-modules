@@ -73,7 +73,8 @@ public class ProductSystem extends CategorizedEntity {
 	@JoinColumn(name = "f_owner")
 	public final List<Exchange> inventory = new ArrayList<>();
 
-	@Transient
+	@JoinColumn(name = "f_product_system")
+	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
 	public final List<Scenario> scenarios = new ArrayList<>();
 
 	/**
@@ -109,12 +110,18 @@ public class ProductSystem extends CategorizedEntity {
 		clone.referenceProcess = referenceProcess;
 		clone.targetAmount = targetAmount;
 		clone.processes.addAll(processes);
-		for (ProcessLink processLink : processLinks)
-			clone.processLinks.add(processLink.clone());
-		for (ParameterRedef redef : parameterRedefs)
-			clone.parameterRedefs.add(redef.clone());
-		for (Exchange exchange : inventory)
+		for (ProcessLink link : processLinks) {
+			clone.processLinks.add(link.clone());
+		}
+		for (ParameterRedef p : parameterRedefs) {
+			clone.parameterRedefs.add(p.clone());
+		}
+		for (Scenario s : scenarios) {
+			clone.scenarios.add(s.clone());
+		}
+		for (Exchange exchange : inventory) {
 			clone.inventory.add(exchange.clone());
+		}
 		clone.targetFlowPropertyFactor = targetFlowPropertyFactor;
 		clone.targetUnit = targetUnit;
 		return clone;

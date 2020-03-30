@@ -23,6 +23,9 @@ public class ParameterRedef extends AbstractEntity {
 	@Column(name = "name")
 	public String name;
 
+	@Column(name = "description")
+	public String description;
+
 	/**
 	 * The ID of the process or LCIA method for which the redefinition is valid.
 	 * If the context ID is null it is a redefinition of a global parameter.
@@ -49,11 +52,13 @@ public class ParameterRedef extends AbstractEntity {
 	public ParameterRedef clone() {
 		ParameterRedef clone = new ParameterRedef();
 		clone.name = name;
+		clone.description = description;
 		clone.contextId = contextId;
 		clone.contextType = contextType;
 		clone.value = value;
-		if (uncertainty != null)
+		if (uncertainty != null) {
 			clone.uncertainty = uncertainty.clone();
+		}
 		return clone;
 	}
 }

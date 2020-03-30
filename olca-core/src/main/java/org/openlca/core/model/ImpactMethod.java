@@ -25,8 +25,6 @@ public class ImpactMethod extends CategorizedEntity {
 	@JoinColumn(name = "f_impact_method")
 	public final List<NwSet> nwSets = new ArrayList<>();
 
-
-
 	/**
 	 * The original author of the method.
 	 */
