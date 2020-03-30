@@ -1,10 +1,10 @@
 package org.openlca.jsonld.output;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Exchange;
@@ -13,7 +13,6 @@ import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
-import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
@@ -24,92 +23,114 @@ import org.openlca.util.Formula;
 
 public class ParameterReferences {
 
-	public static void writeReferencedParameters(Project p, ExportConfig conf) {
-		if (!conf.exportReferences)
+	/**
+	 * Export redefined global parameters if necessary.
+	 */
+	public static void syncGlobals(Project p, ExportConfig conf) {
+		if (skipSync(conf))
 			return;
 		Set<String> names = new HashSet<>();
 		for (ProjectVariant v : p.variants)
-			names.addAll(getRedefVariables(v.parameterRedefs));
-		writeParameters(names, conf);
+			names.addAll(getGlobals(v.parameterRedefs));
+		writeGlobals(names, conf);
 	}
 
-	public static void writeReferencedParameters(ProductSystem s,
-			ExportConfig conf) {
-		if (!conf.exportReferences)
+	/**
+	 * Export redefined global parameters if necessary.
+	 */
+	public static void syncGlobals(ProductSystem s, ExportConfig conf) {
+		if (skipSync(conf))
 			return;
-		Set<String> names = getRedefVariables(s.parameterRedefs);
-		writeParameters(names, conf);
+		Set<String> names = getGlobals(s.parameterRedefs);
+		writeGlobals(names, conf);
 	}
 
-	private static Set<String> getRedefVariables(List<ParameterRedef> redefs) {
-		Set<String> names = new HashSet<>();
-		for (ParameterRedef redef : redefs)
-			if (redef.contextType == null)
-				names.add(redef.name);
-		return names;
+	/**
+	 * Get the names of global parameters from the given redefinitions.
+	 */
+	private static Set<String> getGlobals(List<ParameterRedef> redefs) {
+		return redefs.stream()
+				.filter(p -> p.name != null && p.contextId == null)
+				.map(p -> p.name)
+				.collect(Collectors.toSet());
 	}
 
-	public static void writeReferencedParameters(Process p, ExportConfig conf) {
-		if (!conf.exportReferences)
+	/**
+	 * Exports global parameters that are referenced from the formulas in the given
+	 * process if necessary.
+	 */
+	public static void syncGlobals(Process p, ExportConfig conf) {
+		if (skipSync(conf))
 			return;
 		Set<String> names = new HashSet<>();
 		for (Exchange e : p.exchanges) {
 			names.addAll(Formula.getVariables(e.formula));
 			names.addAll(Formula.getVariables(e.costFormula));
-			names.addAll(getUncercaintyVariables(e.uncertainty));
+			names.addAll(getFormulaVariables(e.uncertainty));
 		}
-		names.addAll(getParameterVariables(p.parameters));
+		names.addAll(getFormulaVariables(p.parameters));
 		filterLocal(names, p.parameters);
-		writeParameters(names, conf);
+		writeGlobals(names, conf);
 	}
 
-	private static Set<String> getParameterVariables(List<Parameter> parameters) {
-		Set<String> names = new HashSet<>();
-		for (Parameter param : parameters) {
-			// no formulas in input parameters
-			if (param.isInputParameter)
-				continue;
-			names.addAll(Formula.getVariables(param.formula));
-			names.addAll(getUncercaintyVariables(param.uncertainty));
-		}
-		return names;
-	}
-
-	public static void writeReferencedParameters(ImpactCategory impact,
-			ExportConfig conf) {
-		if (!conf.exportReferences)
+	/**
+	 * Exports global parameters that are referenced from the formulas in the given
+	 * impact category if necessary.
+	 */
+	public static void syncGlobals(ImpactCategory impact, ExportConfig conf) {
+		if (skipSync(conf))
 			return;
 		Set<String> names = new HashSet<>();
 		for (ImpactFactor f : impact.impactFactors) {
 			names.addAll(Formula.getVariables(f.formula));
-			names.addAll(getUncercaintyVariables(f.uncertainty));
+			names.addAll(getFormulaVariables(f.uncertainty));
 		}
-		names.addAll(getParameterVariables(impact.parameters));
+		names.addAll(getFormulaVariables(impact.parameters));
 		filterLocal(names, impact.parameters);
-		writeParameters(names, conf);
+		writeGlobals(names, conf);
 	}
 
 	/**
-	 * Removes the parameters from the names that are already defined in the
-	 * given parameter list.
+	 * Exports global parameters that are referenced from the formula of the given
+	 * parameter if necessary.
 	 */
-	private static void filterLocal(Set<String> names,
-			List<Parameter> parameters) {
-		HashSet<String> removals = new HashSet<>();
-		for (String name : new HashSet<>(names)) {
-			for (Parameter param : parameters) {
-				if (param.name == null)
-					continue;
-				if (param.name.equalsIgnoreCase(name)) {
-					removals.add(name);
-					break;
-				}
-			}
-		}
-		names.removeAll(removals);
+	public static void syncGlobals(Parameter p, ExportConfig conf) {
+		if (skipSync(conf))
+			return;
+		Set<String> names = new HashSet<>();
+		if (p.isInputParameter)
+			return;
+		names.addAll(Formula.getVariables(p.formula));
+		names.addAll(getFormulaVariables(p.uncertainty));
+		writeGlobals(names, conf);
 	}
 
-	private static Set<String> getUncercaintyVariables(Uncertainty u) {
+	private static Set<String> getFormulaVariables(List<Parameter> params) {
+		Set<String> names = new HashSet<>();
+		for (Parameter param : params) {
+			// no formulas in input parameters
+			if (param.isInputParameter)
+				continue;
+			names.addAll(Formula.getVariables(param.formula));
+			names.addAll(getFormulaVariables(param.uncertainty));
+		}
+		return names;
+	}
+
+	/**
+	 * Removes the parameters from the names that are already defined in the given
+	 * parameter list.
+	 */
+	private static void filterLocal(Set<String> names, List<Parameter> locals) {
+		Set<String> localNames = locals.stream()
+				.filter(p -> p.name != null)
+				.map(p -> p.name.trim().toLowerCase())
+				.collect(Collectors.toSet());
+		names.removeIf(name -> localNames.contains(
+				name.trim().toLowerCase()));
+	}
+
+	private static Set<String> getFormulaVariables(Uncertainty u) {
 		Set<String> names = new HashSet<>();
 		if (u == null)
 			return names;
@@ -124,38 +145,36 @@ public class ParameterReferences {
 		return names;
 	}
 
-	public static void writeReferencedParameters(Parameter p, ExportConfig conf) {
-		if (conf.db == null || conf.refFn == null)
+	private static void writeGlobals(Set<String> names, ExportConfig conf) {
+		if (names.isEmpty())
 			return;
-		Set<String> names = new HashSet<>();
-		if (p.isInputParameter)
-			return;
-		names.addAll(Formula.getVariables(p.formula));
-		names.addAll(getUncercaintyVariables(p.uncertainty));
-		writeParameters(names, conf);
-	}
 
-	private static void writeParameters(Set<String> names, ExportConfig conf) {
-		if (names.isEmpty() || conf.db == null)
-			return;
-		ParameterDao dao = new ParameterDao(conf.db);
+		// load all global parameters
+		Map<String, Parameter> globals = new ParameterDao(conf.db)
+				.getGlobalParameters()
+				.stream()
+				.filter(p -> p.name != null)
+				.collect(Collectors.toMap(
+						p -> p.name.trim().toLowerCase(),
+						p -> p));
+
 		for (String name : names) {
-			Parameter p = loadParameter(name, dao);
-			if (p == null || conf.refFn == null)
+			Parameter g = globals.get(name.trim().toLowerCase());
+			if (g == null)
 				continue;
-			if (conf.hasVisited(ModelType.PARAMETER, p.id))
+			if (conf.hasVisited(ModelType.PARAMETER, g.id))
 				continue;
-			conf.refFn.accept(p);
-			writeReferencedParameters(p, conf);
+			conf.refFn.accept(g);
+			// the global parameter could have again a formula
+			// that contains references to other global parameters.
+			syncGlobals(g, conf);
 		}
 	}
 
-	private static Parameter loadParameter(String name, ParameterDao dao) {
-		String jpql = "SELECT p FROM Parameter p WHERE "
-				+ "p.scope = :scope AND LOWER(p.name) = :name";
-		Map<String, Object> parameters = new HashMap<>();
-		parameters.put("name", name);
-		parameters.put("scope", ParameterScope.GLOBAL);
-		return dao.getFirst(jpql, parameters);
+	private static boolean skipSync(ExportConfig conf) {
+		return conf == null
+				|| !conf.exportReferences
+				|| conf.refFn == null
+				|| conf.db == null;
 	}
 }

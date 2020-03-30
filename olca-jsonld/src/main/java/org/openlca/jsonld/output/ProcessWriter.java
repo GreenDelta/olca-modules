@@ -44,7 +44,7 @@ class ProcessWriter extends Writer<Process> {
 		mapExchanges(obj);
 		mapSocialAspects(obj);
 		mapAllocationFactors(obj);
-		ParameterReferences.writeReferencedParameters(p, conf);
+		ParameterReferences.syncGlobals(p, conf);
 		return obj;
 	}
 

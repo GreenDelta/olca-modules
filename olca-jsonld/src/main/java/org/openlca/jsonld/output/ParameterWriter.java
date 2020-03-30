@@ -16,7 +16,7 @@ class ParameterWriter extends Writer<Parameter> {
 		if (obj == null)
 			return null;
 		mapAttr(obj, param);
-		ParameterReferences.writeReferencedParameters(param, conf);
+		ParameterReferences.syncGlobals(param, conf);
 		return obj;
 	}
 

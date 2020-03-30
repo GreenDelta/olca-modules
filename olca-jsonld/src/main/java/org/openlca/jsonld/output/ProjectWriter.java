@@ -27,7 +27,7 @@ class ProjectWriter extends Writer<Project> {
 		Out.put(obj, "impactMethod", createRef(ModelType.IMPACT_METHOD, p.impactMethodId));
 		Out.put(obj, "nwSet", createRef(ModelType.NW_SET, p.nwSetId));
 		mapVariants(obj, p);
-		ParameterReferences.writeReferencedParameters(p, conf);
+		ParameterReferences.syncGlobals(p, conf);
 		return obj;
 	}
 
@@ -35,6 +35,7 @@ class ProjectWriter extends Writer<Project> {
 		JsonArray array = new JsonArray();
 		for (ProjectVariant v : p.variants) {
 			JsonObject obj = new JsonObject();
+			array.add(obj);
 			Out.put(obj, "@type", ProjectVariant.class.getSimpleName());
 			Out.put(obj, "name", v.name);
 			Out.put(obj, "productSystem", v.productSystem, conf, Out.REQUIRED_FIELD);
@@ -42,11 +43,14 @@ class ProjectWriter extends Writer<Project> {
 			Out.put(obj, "unit", v.unit, conf, Out.REQUIRED_FIELD);
 			Out.put(obj, "allocationMethod", v.allocationMethod);
 			FlowProperty prop = null;
-			if (v.flowPropertyFactor != null)
+			if (v.flowPropertyFactor != null) {
 				prop = v.flowPropertyFactor.flowProperty;
+			}
 			Out.put(obj, "flowProperty", prop, conf, Out.REQUIRED_FIELD);
-			ParameterRedefs.map(obj, v.parameterRedefs, conf, this::createRef);
-			array.add(obj);
+			if (!v.parameterRedefs.isEmpty()) {
+				JsonArray redefs = ParameterRedefs.map(v.parameterRedefs, conf);
+				Out.put(obj, "parameterRedefs", redefs);
+			}
 		}
 		Out.put(json, "variants", array);
 	}

@@ -75,9 +75,14 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 
 		Map<Long, CategorizedDescriptor> processMap = mapProcesses(obj);
 		mapLinks(obj, processMap, exchangeIDs);
-		ParameterRedefs.map(obj, system.parameterRedefs, conf,
-				(type, id) -> References.create(processMap.get(id), conf));
-		ParameterReferences.writeReferencedParameters(system, conf);
+
+		// map the parameter redefinitions
+		if (!system.parameterRedefs.isEmpty()) {
+			JsonArray redefs = ParameterRedefs.map(system.parameterRedefs, conf);
+			Out.put(obj, "parameterRedefs", redefs);
+			ParameterReferences.syncGlobals(system, conf);
+		}
+
 		return obj;
 	}
 
