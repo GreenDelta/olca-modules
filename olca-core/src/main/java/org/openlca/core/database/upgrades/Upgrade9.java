@@ -28,15 +28,30 @@ class Upgrade9 implements IUpgrade {
 	public void exec(IDatabase db) {
 		DbUtil u = new DbUtil(db);
 
-		// make LCIA categories stand-alone entities
-		u.createColumn("tbl_impact_categories", "f_category BIGINT");
-
-		// support regionalization of exchanges and characterization factors
+		// new regionalization features
 		u.createColumn("tbl_exchanges", "f_location BIGINT");
 		u.createColumn("tbl_impact_factors", "f_location BIGINT");
-
-		// new column for GeoJSON data
 		u.createColumn("tbl_locations", "geodata BLOB(32 M)");
+
+		addScenarios(u);
+		addStandaloneImpactCategories(db);
+	}
+
+	private void addScenarios(DbUtil u) {
+		u.createTable("tbl_scenarios",
+			"CREATE TABLE tbl_scenarios ("
+				+ " id BIGINT NOT NULL,"
+				+ " name VARCHAR(2048),"
+				+ " description CLOB(64 K),"
+				+ " is_baseline SMALLINT default 0,"
+				+ " f_product_system BIGINT)");
+		u.createColumn("tbl_parameter_redefs", "description CLOB(64 K)");
+	}
+
+	private void addStandaloneImpactCategories(IDatabase db) {
+		DbUtil u = new DbUtil(db);
+		// make LCIA categories stand-alone entities
+		u.createColumn("tbl_impact_categories", "f_category BIGINT");
 
 		if (u.tableExists("tbl_impact_links")) {
 			// if the table tbl_impact_links already exists we assume

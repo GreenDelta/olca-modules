@@ -39,6 +39,8 @@ public class UpgradeChainTest {
 		// that the rollbacks are done in reverse order
 
 		// roll back Upgrade9
+		u.dropTable("tbl_scenarios");
+		u.dropColumn("tbl_parameter_redefs", "description");
 		u.dropTable("tbl_impact_links");
 		u.createColumn("tbl_impact_categories", "f_impact_method BIGINT");
 		u.dropColumn("tbl_impact_categories", "f_category");
@@ -122,6 +124,8 @@ public class UpgradeChainTest {
 		assertTrue(u.tableExists("tbl_source_links"));
 
 		// check Upgrade9
+		assertTrue(u.tableExists("tbl_scenarios"));
+		assertTrue(u.columnExists("tbl_parameter_redefs", "description"));
 		assertTrue(u.tableExists("tbl_impact_links"));
 		assertTrue(u.columnExists("tbl_impact_categories", "f_category"));
 		assertTrue(u.columnExists("tbl_exchanges", "f_location"));
