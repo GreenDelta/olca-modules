@@ -17,7 +17,7 @@ import com.google.gson.JsonObject;
 class ParameterRedefs {
 
 	static void map(JsonObject json, List<ParameterRedef> redefs,
-			IDatabase database, ExportConfig conf, RefLoader loader) {
+			ExportConfig conf) {
 		JsonArray array = new JsonArray();
 		for (ParameterRedef p : redefs) {
 			JsonObject obj = new JsonObject();
@@ -28,7 +28,7 @@ class ParameterRedefs {
 			Out.put(obj, "context",
 					loader.load(p.contextType, p.contextId));
 			if (p.contextId == null && conf.db != null) {
-				Parameter global = loadParameter(database, p.name);
+				Parameter global = loadParameter(conf.db, p.name);
 				if (conf.exportReferences && conf.refFn != null)
 					conf.refFn.accept(global);
 			}
@@ -43,12 +43,6 @@ class ParameterRedefs {
 		parameters.put("name", name);
 		parameters.put("scope", ParameterScope.GLOBAL);
 		return new ParameterDao(database).getFirst(jpql, parameters);
-	}
-
-	static interface RefLoader {
-
-		JsonObject load(ModelType type, Long id);
-
 	}
 
 }

@@ -45,7 +45,7 @@ class ProjectWriter extends Writer<Project> {
 			if (v.flowPropertyFactor != null)
 				prop = v.flowPropertyFactor.flowProperty;
 			Out.put(obj, "flowProperty", prop, conf, Out.REQUIRED_FIELD);
-			ParameterRedefs.map(obj, v.parameterRedefs, conf.db, conf, this::createRef);
+			ParameterRedefs.map(obj, v.parameterRedefs, conf, this::createRef);
 			array.add(obj);
 		}
 		Out.put(json, "variants", array);
