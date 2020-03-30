@@ -14,6 +14,7 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Scenario;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -69,12 +70,9 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		Out.put(obj, "targetFlowProperty", property, conf, Out.REQUIRED_FIELD);
 		Out.put(obj, "targetUnit", system.targetUnit, conf, Out.REQUIRED_FIELD);
 		Out.put(obj, "targetAmount", system.targetAmount);
-		putInventory(obj, system.inventory);
-		if (conf.db == null)
-			return obj;
 
-		Map<Long, CategorizedDescriptor> processMap = mapProcesses(obj);
-		mapLinks(obj, processMap, exchangeIDs);
+		putInventory(obj, system.inventory);
+		putScenarios(obj, system.scenarios);
 
 		// map the parameter redefinitions
 		if (!system.parameterRedefs.isEmpty()) {
@@ -83,6 +81,10 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 			GlobalParameters.sync(system, conf);
 		}
 
+		if (conf.db == null)
+			return obj;
+		Map<Long, CategorizedDescriptor> processMap = mapProcesses(obj);
+		mapLinks(obj, processMap, exchangeIDs);
 		return obj;
 	}
 
@@ -196,6 +198,24 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 			inv.add(eObj);
 		}
 		Out.put(obj, "inventory", inv);
+	}
+
+	private void putScenarios(JsonObject obj, List<Scenario> scenarios) {
+		if (scenarios.isEmpty())
+			return;
+		JsonArray array = new JsonArray();
+		Out.put(obj, "scenarios", array);
+		for (Scenario s : scenarios) {
+			JsonObject scenario = new JsonObject();
+			array.add(scenario);
+			Out.put(scenario, "name", s.name);
+			Out.put(scenario, "description", s.description);
+			Out.put(scenario, "isBaseline", s.isBaseline);
+			if (s.parameters.isEmpty())
+				continue;
+			JsonArray params = ParameterRedefs.map(s.parameters, conf);
+			Out.put(scenario, "parameters", params);
+		}
 	}
 
 	@Override

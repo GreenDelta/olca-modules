@@ -17,6 +17,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
+import org.openlca.core.model.Scenario;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.util.Formula;
@@ -49,7 +50,11 @@ class GlobalParameters {
 	public static void sync(ProductSystem s, ExportConfig conf) {
 		if (skipSync(conf))
 			return;
-		Set<String> names = getGlobals(s.parameterRedefs);
+		Set<String> names = new HashSet<>();
+		names.addAll(getGlobals(s.parameterRedefs));
+		for (Scenario scenario : s.scenarios) {
+			names.addAll(getGlobals(scenario.parameters));
+		}
 		writeGlobals(names, conf);
 	}
 
