@@ -75,8 +75,6 @@ public class ParameterReferences {
 		return names;
 	}
 
-
-
 	public static void writeReferencedParameters(ImpactCategory impact,
 			ExportConfig conf) {
 		if (!conf.exportReferences)
