@@ -75,10 +75,10 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		putScenarios(obj, system.scenarios);
 
 		// map the parameter redefinitions
+		GlobalParameters.sync(system, conf);
 		if (!system.parameterRedefs.isEmpty()) {
 			JsonArray redefs = ParameterRedefs.map(system.parameterRedefs, conf);
 			Out.put(obj, "parameterRedefs", redefs);
-			GlobalParameters.sync(system, conf);
 		}
 
 		if (conf.db == null)
@@ -204,7 +204,6 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		if (scenarios.isEmpty())
 			return;
 		JsonArray array = new JsonArray();
-		Out.put(obj, "scenarios", array);
 		for (Scenario s : scenarios) {
 			JsonObject scenario = new JsonObject();
 			array.add(scenario);
@@ -216,6 +215,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 			JsonArray params = ParameterRedefs.map(s.parameters, conf);
 			Out.put(scenario, "parameters", params);
 		}
+		Out.put(obj, "scenarios", array);
 	}
 
 	@Override
