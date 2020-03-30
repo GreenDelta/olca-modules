@@ -27,7 +27,7 @@ class ProjectWriter extends Writer<Project> {
 		Out.put(obj, "impactMethod", createRef(ModelType.IMPACT_METHOD, p.impactMethodId));
 		Out.put(obj, "nwSet", createRef(ModelType.NW_SET, p.nwSetId));
 		mapVariants(obj, p);
-		ParameterReferences.syncGlobals(p, conf);
+		GlobalParameters.sync(p, conf);
 		return obj;
 	}
 

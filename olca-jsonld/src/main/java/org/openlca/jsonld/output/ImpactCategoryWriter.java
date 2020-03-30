@@ -23,7 +23,7 @@ class ImpactCategoryWriter extends Writer<ImpactCategory> {
 		Out.put(obj, "parameterMean", category.parameterMean);
 		mapImpactFactors(category, obj);
 		mapParameters(obj, category);
-		ParameterReferences.syncGlobals(category, conf);
+		GlobalParameters.sync(category, conf);
 		return obj;
 	}
 

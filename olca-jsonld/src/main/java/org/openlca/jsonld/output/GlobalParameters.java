@@ -21,12 +21,20 @@ import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.util.Formula;
 
-public class ParameterReferences {
+/**
+ * When global parameters are used in formulas or parameter redifinitions, we
+ * need to export them too and this is what the utility functions in this class
+ * do.
+ */
+class GlobalParameters {
+
+	private GlobalParameters() {
+	}
 
 	/**
 	 * Export redefined global parameters if necessary.
 	 */
-	public static void syncGlobals(Project p, ExportConfig conf) {
+	public static void sync(Project p, ExportConfig conf) {
 		if (skipSync(conf))
 			return;
 		Set<String> names = new HashSet<>();
@@ -38,7 +46,7 @@ public class ParameterReferences {
 	/**
 	 * Export redefined global parameters if necessary.
 	 */
-	public static void syncGlobals(ProductSystem s, ExportConfig conf) {
+	public static void sync(ProductSystem s, ExportConfig conf) {
 		if (skipSync(conf))
 			return;
 		Set<String> names = getGlobals(s.parameterRedefs);
@@ -59,7 +67,7 @@ public class ParameterReferences {
 	 * Exports global parameters that are referenced from the formulas in the given
 	 * process if necessary.
 	 */
-	public static void syncGlobals(Process p, ExportConfig conf) {
+	public static void sync(Process p, ExportConfig conf) {
 		if (skipSync(conf))
 			return;
 		Set<String> names = new HashSet<>();
@@ -69,7 +77,7 @@ public class ParameterReferences {
 			names.addAll(getFormulaVariables(e.uncertainty));
 		}
 		names.addAll(getFormulaVariables(p.parameters));
-		filterLocal(names, p.parameters);
+		filterLocals(names, p.parameters);
 		writeGlobals(names, conf);
 	}
 
@@ -77,7 +85,7 @@ public class ParameterReferences {
 	 * Exports global parameters that are referenced from the formulas in the given
 	 * impact category if necessary.
 	 */
-	public static void syncGlobals(ImpactCategory impact, ExportConfig conf) {
+	public static void sync(ImpactCategory impact, ExportConfig conf) {
 		if (skipSync(conf))
 			return;
 		Set<String> names = new HashSet<>();
@@ -86,7 +94,7 @@ public class ParameterReferences {
 			names.addAll(getFormulaVariables(f.uncertainty));
 		}
 		names.addAll(getFormulaVariables(impact.parameters));
-		filterLocal(names, impact.parameters);
+		filterLocals(names, impact.parameters);
 		writeGlobals(names, conf);
 	}
 
@@ -94,7 +102,7 @@ public class ParameterReferences {
 	 * Exports global parameters that are referenced from the formula of the given
 	 * parameter if necessary.
 	 */
-	public static void syncGlobals(Parameter p, ExportConfig conf) {
+	public static void sync(Parameter p, ExportConfig conf) {
 		if (skipSync(conf))
 			return;
 		Set<String> names = new HashSet<>();
@@ -121,7 +129,7 @@ public class ParameterReferences {
 	 * Removes the parameters from the names that are already defined in the given
 	 * parameter list.
 	 */
-	private static void filterLocal(Set<String> names, List<Parameter> locals) {
+	private static void filterLocals(Set<String> names, List<Parameter> locals) {
 		Set<String> localNames = locals.stream()
 				.filter(p -> p.name != null)
 				.map(p -> p.name.trim().toLowerCase())
@@ -167,7 +175,7 @@ public class ParameterReferences {
 			conf.refFn.accept(g);
 			// the global parameter could have again a formula
 			// that contains references to other global parameters.
-			syncGlobals(g, conf);
+			sync(g, conf);
 		}
 	}
 

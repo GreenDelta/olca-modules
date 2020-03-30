@@ -80,7 +80,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		if (!system.parameterRedefs.isEmpty()) {
 			JsonArray redefs = ParameterRedefs.map(system.parameterRedefs, conf);
 			Out.put(obj, "parameterRedefs", redefs);
-			ParameterReferences.syncGlobals(system, conf);
+			GlobalParameters.sync(system, conf);
 		}
 
 		return obj;
