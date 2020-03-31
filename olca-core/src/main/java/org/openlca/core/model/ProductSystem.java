@@ -38,7 +38,8 @@ public class ProductSystem extends CategorizedEntity {
 	public final List<ParameterRedef> parameterRedefs = new ArrayList<>();
 
 	@ElementCollection
-	@CollectionTable(name = "tbl_process_links", joinColumns = @JoinColumn(name = "f_product_system"))
+	@CollectionTable(name = "tbl_process_links",
+			joinColumns = @JoinColumn(name = "f_product_system"))
 	public final List<ProcessLink> processLinks = new ArrayList<>();
 
 	@OneToOne
@@ -75,7 +76,7 @@ public class ProductSystem extends CategorizedEntity {
 
 	@JoinColumn(name = "f_product_system")
 	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
-	public final List<Scenario> scenarios = new ArrayList<>();
+	public final List<ParameterRedefSet> parameterSets = new ArrayList<>();
 
 	/**
 	 * Initializes a product system from the given process. Note that this
@@ -116,8 +117,8 @@ public class ProductSystem extends CategorizedEntity {
 		for (ParameterRedef p : parameterRedefs) {
 			clone.parameterRedefs.add(p.clone());
 		}
-		for (Scenario s : scenarios) {
-			clone.scenarios.add(s.clone());
+		for (ParameterRedefSet s : parameterSets) {
+			clone.parameterSets.add(s.clone());
 		}
 		for (Exchange exchange : inventory) {
 			clone.inventory.add(exchange.clone());

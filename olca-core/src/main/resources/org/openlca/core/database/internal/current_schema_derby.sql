@@ -378,7 +378,7 @@ CREATE TABLE tbl_process_links (
 CREATE INDEX idx_process_link_system ON tbl_process_links(f_product_system);
 
 
-CREATE TABLE tbl_scenarios (
+CREATE TABLE tbl_parameter_redef_sets (
 
     id                BIGINT NOT NULL,
     name              VARCHAR(2048),
@@ -387,7 +387,7 @@ CREATE TABLE tbl_scenarios (
     f_product_system  BIGINT
 
 );
-CREATE INDEX idx_scenario_system ON tbl_scenarios(f_product_system);
+CREATE INDEX idx_parameter_redef_set_system ON tbl_parameter_redef_sets(f_product_system);
 
 
 CREATE TABLE tbl_impact_methods (

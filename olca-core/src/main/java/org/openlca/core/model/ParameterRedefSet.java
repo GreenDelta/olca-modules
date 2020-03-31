@@ -11,12 +11,12 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 /**
- * A scenario is basically just a set of parameter redefinitions with a name
- * and an optional description that is attached to a product system.
+ * An instance of this class is just a set of parameter redefinitions with a
+ * name and an optional description that is attached to a product system.
  */
 @Entity
-@Table(name = "tbl_scenarios")
-public class Scenario extends AbstractEntity {
+@Table(name = "tbl_parameter_redef_sets")
+public class ParameterRedefSet extends AbstractEntity {
 
 	@Column(name = "name")
 	public String name;
@@ -32,8 +32,8 @@ public class Scenario extends AbstractEntity {
 	public final List<ParameterRedef> parameters = new ArrayList<>();
 
 	@Override
-	public Scenario clone() {
-		Scenario clone = new Scenario();
+	public ParameterRedefSet clone() {
+		ParameterRedefSet clone = new ParameterRedefSet();
 		clone.name = name;
 		clone.description = description;
 		clone.isBaseline = isBaseline;

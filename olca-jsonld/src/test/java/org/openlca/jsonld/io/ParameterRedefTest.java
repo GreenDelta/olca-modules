@@ -12,7 +12,7 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.Scenario;
+import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.jsonld.AbstractZipTest;
 import org.openlca.jsonld.Tests;
 import org.openlca.jsonld.input.JsonImport;
@@ -74,17 +74,17 @@ public class ParameterRedefTest extends AbstractZipTest {
 	}
 
 	@Test
-	public void testInScenario() {
+	public void testInParameterRedefSet() {
 
 		// create the model
 		ProductSystemDao dao = new ProductSystemDao(db);
 		ProductSystem sys = new ProductSystem();
 		sys.refId = UUID.randomUUID().toString();
-		Scenario scenario = new Scenario();
-		sys.scenarios.add(scenario);
-		scenario.isBaseline = true;
-		scenario.name = "Baseline";
-		scenario.parameters.add(redef);
+		ParameterRedefSet paramSet = new ParameterRedefSet();
+		sys.parameterSets.add(paramSet);
+		paramSet.isBaseline = true;
+		paramSet.name = "Baseline";
+		paramSet.parameters.add(redef);
 		dao.insert(sys);
 
 		// write and clear DB
@@ -96,7 +96,7 @@ public class ParameterRedefTest extends AbstractZipTest {
 		// import and check
 		with(zip -> new JsonImport(zip, db).run());
 		ProductSystem sys2 = dao.getForRefId(sys.refId);
-		Assert.assertEquals("R", sys2.scenarios.get(0).parameters.get(0).name);
+		Assert.assertEquals("R", sys2.parameterSets.get(0).parameters.get(0).name);
 		Parameter p = paramDao.getForRefId(globalParam.refId);
 		Assert.assertEquals("R", p.name);
 	}

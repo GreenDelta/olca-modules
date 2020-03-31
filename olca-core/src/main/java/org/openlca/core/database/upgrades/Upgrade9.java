@@ -33,13 +33,13 @@ class Upgrade9 implements IUpgrade {
 		u.createColumn("tbl_impact_factors", "f_location BIGINT");
 		u.createColumn("tbl_locations", "geodata BLOB(32 M)");
 
-		addScenarios(u);
+		addParameterSets(u);
 		addStandaloneImpactCategories(db);
 	}
 
-	private void addScenarios(DbUtil u) {
-		u.createTable("tbl_scenarios",
-			"CREATE TABLE tbl_scenarios ("
+	private void addParameterSets(DbUtil u) {
+		u.createTable("tbl_parameter_redef_sets",
+				"CREATE TABLE tbl_parameter_redef_sets ("
 				+ " id BIGINT NOT NULL,"
 				+ " name VARCHAR(2048),"
 				+ " description CLOB(64 K),"

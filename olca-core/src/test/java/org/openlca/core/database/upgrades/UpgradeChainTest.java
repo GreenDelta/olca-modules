@@ -1,5 +1,8 @@
 package org.openlca.core.database.upgrades;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.nio.file.Files;
 
 import org.junit.After;
@@ -8,9 +11,6 @@ import org.junit.Test;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.util.Dirs;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class UpgradeChainTest {
 
@@ -39,7 +39,7 @@ public class UpgradeChainTest {
 		// that the rollbacks are done in reverse order
 
 		// roll back Upgrade9
-		u.dropTable("tbl_scenarios");
+		u.dropTable("tbl_parameter_redef_sets");
 		u.dropColumn("tbl_parameter_redefs", "description");
 		u.dropTable("tbl_impact_links");
 		u.createColumn("tbl_impact_categories", "f_impact_method BIGINT");
@@ -124,7 +124,7 @@ public class UpgradeChainTest {
 		assertTrue(u.tableExists("tbl_source_links"));
 
 		// check Upgrade9
-		assertTrue(u.tableExists("tbl_scenarios"));
+		assertTrue(u.tableExists("tbl_parameter_redef_sets"));
 		assertTrue(u.columnExists("tbl_parameter_redefs", "description"));
 		assertTrue(u.tableExists("tbl_impact_links"));
 		assertTrue(u.columnExists("tbl_impact_categories", "f_category"));

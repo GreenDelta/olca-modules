@@ -12,9 +12,9 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.Scenario;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -72,7 +72,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		Out.put(obj, "targetAmount", system.targetAmount);
 
 		putInventory(obj, system.inventory);
-		putScenarios(obj, system.scenarios);
+		putParameterSets(obj, system.parameterSets);
 
 		// map the parameter redefinitions
 		GlobalParameters.sync(system, conf);
@@ -200,22 +200,22 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		Out.put(obj, "inventory", inv);
 	}
 
-	private void putScenarios(JsonObject obj, List<Scenario> scenarios) {
-		if (scenarios.isEmpty())
+	private void putParameterSets(JsonObject obj, List<ParameterRedefSet> sets) {
+		if (sets.isEmpty())
 			return;
 		JsonArray array = new JsonArray();
-		for (Scenario s : scenarios) {
-			JsonObject scenario = new JsonObject();
-			array.add(scenario);
-			Out.put(scenario, "name", s.name);
-			Out.put(scenario, "description", s.description);
-			Out.put(scenario, "isBaseline", s.isBaseline);
+		for (ParameterRedefSet s : sets) {
+			JsonObject paramSet = new JsonObject();
+			array.add(paramSet);
+			Out.put(paramSet, "name", s.name);
+			Out.put(paramSet, "description", s.description);
+			Out.put(paramSet, "isBaseline", s.isBaseline);
 			if (s.parameters.isEmpty())
 				continue;
 			JsonArray params = ParameterRedefs.map(s.parameters, conf);
-			Out.put(scenario, "parameters", params);
+			Out.put(paramSet, "parameters", params);
 		}
-		Out.put(obj, "scenarios", array);
+		Out.put(obj, "parameterSets", array);
 	}
 
 	@Override

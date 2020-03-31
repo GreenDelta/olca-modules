@@ -2,9 +2,9 @@ package org.openlca.jsonld.input;
 
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.Scenario;
 import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
@@ -35,7 +35,7 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 		s.targetAmount = Json.getDouble(json, "targetAmount", 1d);
 		addProcesses(json, s);
 		addInventory(json, s);
-		addScenarios(json, s);
+		addParameterSets(json, s);
 		importLinkRefs(json, s);
 		ProductSystemLinks.map(json, conf, s);
 
@@ -105,22 +105,22 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 		}
 	}
 
-	private void addScenarios(JsonObject json, ProductSystem s) {
-		JsonArray array = Json.getArray(json, "scenarios");
+	private void addParameterSets(JsonObject json, ProductSystem sys) {
+		JsonArray array = Json.getArray(json, "parameterSets");
 		if (array == null || array.size() == 0)
 			return;
 		for (JsonElement elem : array) {
 			if (!elem.isJsonObject())
 				continue;
 			JsonObject obj = elem.getAsJsonObject();
-			Scenario scenario = new Scenario();
-			s.scenarios.add(scenario);
-			scenario.name = Json.getString(obj, "name");
-			scenario.description = Json.getString(obj, "description");
-			scenario.isBaseline = Json.getBool(obj, "isBaseline", false);
+			ParameterRedefSet s = new ParameterRedefSet();
+			sys.parameterSets.add(s);
+			s.name = Json.getString(obj, "name");
+			s.description = Json.getString(obj, "description");
+			s.isBaseline = Json.getBool(obj, "isBaseline", false);
 			JsonArray redefs = Json.getArray(obj, "parameters");
 			if (redefs != null && redefs.size() > 0) {
-				scenario.parameters.addAll(
+				s.parameters.addAll(
 						ParameterRedefs.read(redefs, conf));
 			}
 		}
