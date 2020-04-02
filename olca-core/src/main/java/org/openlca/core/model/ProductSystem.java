@@ -33,6 +33,10 @@ public class ProductSystem extends CategorizedEntity {
 	@Transient
 	public boolean withoutNetwork = false;
 
+	/**
+	 * @deprecated parameter redefinitions are now organized in parameter sets
+	 */
+	@Deprecated
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_owner")
 	public final List<ParameterRedef> parameterRedefs = new ArrayList<>();

@@ -13,17 +13,17 @@ import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
+import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
-import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.util.Formula;
 
 /**
- * When global parameters are used in formulas or parameter redifinitions, we
+ * When global parameters are used in formulas or parameter redefinitions, we
  * need to export them too and this is what the utility functions in this class
  * do.
  */

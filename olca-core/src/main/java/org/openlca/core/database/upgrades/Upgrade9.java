@@ -1,7 +1,9 @@
 package org.openlca.core.database.upgrades;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,11 +14,15 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 
+import gnu.trove.iterator.TLongLongIterator;
+import gnu.trove.map.hash.TLongLongHashMap;
+import gnu.trove.set.hash.TLongHashSet;
+
 class Upgrade9 implements IUpgrade {
 
 	@Override
 	public int[] getInitialVersions() {
-		return new int[]{8};
+		return new int[] { 8 };
 	}
 
 	@Override
@@ -38,14 +44,75 @@ class Upgrade9 implements IUpgrade {
 	}
 
 	private void addParameterSets(DbUtil u) {
+		if (u.tableExists("tbl_parameter_redef_sets"))
+			return;
+
 		u.createTable("tbl_parameter_redef_sets",
 				"CREATE TABLE tbl_parameter_redef_sets ("
-				+ " id BIGINT NOT NULL,"
-				+ " name VARCHAR(2048),"
-				+ " description CLOB(64 K),"
-				+ " is_baseline SMALLINT default 0,"
-				+ " f_product_system BIGINT)");
+						+ " id BIGINT NOT NULL,"
+						+ " name VARCHAR(2048),"
+						+ " description CLOB(64 K),"
+						+ " is_baseline SMALLINT default 0,"
+						+ " f_product_system BIGINT)");
 		u.createColumn("tbl_parameter_redefs", "description CLOB(64 K)");
+
+
+		// move parameter redefinitions that were attached
+		// to a product system into a baseline parameter set
+		// of that product system
+		AtomicLong seq = new AtomicLong(u.getLastID() + 5);
+		try {
+
+			// 1) collect the product system IDs
+			TLongHashSet systemIDs = new TLongHashSet();
+			String sql = "select id from tbl_product_systems";
+			NativeSql.on(u.db).query(sql, r -> {
+				systemIDs.add(r.getLong(1));
+				return true;
+			});
+
+			// 2) move possible parameter redefinitions into parameter sets
+			TLongLongHashMap systemSets = new TLongLongHashMap();
+			sql = "select f_owner from tbl_parameter_redefs";
+			try (Connection con = u.db.createConnection();
+					Statement stmt = con.createStatement(
+							ResultSet.TYPE_SCROLL_SENSITIVE,
+							ResultSet.CONCUR_UPDATABLE);
+					ResultSet rs = stmt.executeQuery(sql)) {
+				while (rs.next()) {
+					long owner = rs.getLong(1);
+					if (!systemIDs.contains(owner))
+						continue;
+					long paramSet = systemSets.get(owner);
+					if (paramSet == 0) {
+						paramSet = seq.incrementAndGet();
+						systemSets.put(owner, paramSet);
+					}
+					rs.updateLong(1, paramSet);
+					rs.updateRow();
+				}
+				con.commit();
+			}
+
+			// 3) create the allocated parameter sets
+			TLongLongIterator it = systemSets.iterator();
+			while (it.hasNext()) {
+				it.advance();
+				long systemID = it.key();
+				long setID = it.value();
+				String stmt = "insert into tbl_parameter_redef_sets "
+						+ "(id, name, is_baseline, f_product_system) "
+						+ "values (" + setID + ", 'Baseline', 1, "
+						+ systemID + ")";
+				NativeSql.on(u.db).runUpdate(stmt);
+			}
+
+			// finally update the ID sequence
+			u.setLastID(seq.get() + 1);
+
+		} catch (Exception e) {
+			throw new RuntimeException("failed create parameter sets", e);
+		}
 	}
 
 	private void addStandaloneImpactCategories(IDatabase db) {
@@ -78,7 +145,8 @@ class Upgrade9 implements IUpgrade {
 	}
 
 	private void moveImpactParameters(IDatabase db) {
-		AtomicLong nextID = new AtomicLong(DbUtil.getLastID(db) + 5L);
+		DbUtil u = new DbUtil(db);
+		AtomicLong nextID = new AtomicLong(u.getLastID() + 5L);
 		try {
 			// collect the LCIA method -> LCIA category relations
 			HashMap<Long, List<Long>> methodImpacts = new HashMap<>();
@@ -164,7 +232,7 @@ class Upgrade9 implements IUpgrade {
 		} catch (SQLException e) {
 			throw new RuntimeException("failed to upgrade LCIA parameters", e);
 		} finally {
-			DbUtil.setLastID(db, nextID.get() + 5L);
+			u.setLastID(nextID.get() + 5L);
 		}
 	}
 

@@ -18,13 +18,13 @@ class DbUtil {
 	private final int TYPE_MYSQL = 1;
 
 	private final int dbType;
-	private IDatabase database;
+	final IDatabase db;
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	public DbUtil(IDatabase database) {
-		this.database = database;
-		if (database instanceof MySQLDatabase)
+	public DbUtil(IDatabase db) {
+		this.db = db;
+		if (db instanceof MySQLDatabase)
 			dbType = TYPE_MYSQL;
 		else
 			dbType = TYPE_DERBY;
@@ -63,7 +63,7 @@ class DbUtil {
 		}
 		log.info("drop table {}", table);
 		try {
-			NativeSql.on(database).runUpdate("DROP TABLE " + table);
+			NativeSql.on(db).runUpdate("DROP TABLE " + table);
 		} catch (Exception e) {
 			throw new RuntimeException("failed to drop table: " + table, e);
 		}
@@ -80,7 +80,7 @@ class DbUtil {
 		}
 		log.info("create table {}", table);
 		try {
-			NativeSql.on(database).runUpdate(tableDef);
+			NativeSql.on(db).runUpdate(tableDef);
 		} catch (Exception e) {
 			throw new RuntimeException("failed to create table: " + table, e);
 		}
@@ -90,7 +90,7 @@ class DbUtil {
 	 * Returns true if a table with the given name exits.
 	 */
 	boolean tableExists(String table) {
-		try (Connection con = database.createConnection()) {
+		try (Connection con = db.createConnection()) {
 			DatabaseMetaData meta = con.getMetaData();
 			try (ResultSet rs = meta.getTables(null, null, "%", null)) {
 				while (rs.next()) {
@@ -133,7 +133,7 @@ class DbUtil {
 		try {
 			log.info("add column {} to {}", column, table);
 			String stmt = "ALTER TABLE " + table + " ADD COLUMN " + definition;
-			NativeSql.on(database).runUpdate(stmt);
+			NativeSql.on(db).runUpdate(stmt);
 			return true;
 		} catch (Exception e) {
 			throw new RuntimeException(
@@ -148,7 +148,7 @@ class DbUtil {
 		log.info("drop column {} in table {}", column, table);
 		String stmt = "ALTER TABLE " + table + " DROP COLUMN " + column;
 		try {
-			NativeSql.on(database).runUpdate(stmt);
+			NativeSql.on(db).runUpdate(stmt);
 			return true;
 		} catch (Exception e) {
 			throw new RuntimeException(
@@ -161,7 +161,7 @@ class DbUtil {
 	 * given name.
 	 */
 	boolean columnExists(String table, String column) {
-		try (Connection con = database.createConnection()) {
+		try (Connection con = db.createConnection()) {
 			DatabaseMetaData metaData = con.getMetaData();
 			try (ResultSet rs = metaData.getColumns(null, null, "%", "%")) {
 				while (rs.next()) {
@@ -204,12 +204,12 @@ class DbUtil {
 		}
 
 		log.info("rename column {}.{} to {}.{}", table, column, table, newCol);
-		String query = database instanceof DerbyDatabase
+		String query = db instanceof DerbyDatabase
 				? "RENAME COLUMN " + table + "." + column + " TO " + newCol
 				: "ALTER TABLE " + table + " CHANGE " + column
 						+ " " + definition;
 		try {
-			NativeSql.on(database).runUpdate(query);
+			NativeSql.on(db).runUpdate(query);
 		} catch (Exception e) {
 			throw new RuntimeException("failed to rename column: " + query, e);
 		}
@@ -228,7 +228,7 @@ class DbUtil {
 	/**
 	 * Get the last ID that was stored in the database.
 	 */
-	static long getLastID(IDatabase db) {
+	long getLastID() {
 		AtomicLong seq = new AtomicLong(0L);
 		String query = "select seq_count from sequence";
 		try {
@@ -246,7 +246,7 @@ class DbUtil {
 	/**
 	 * Set the last ID that was stored in the database.
 	 */
-	static void setLastID(IDatabase db, long id) {
+	void setLastID(long id) {
 		String sql = "UPDATE sequence SET SEQ_COUNT = " + id;
 		try {
 			NativeSql.on(db).runUpdate(sql);
