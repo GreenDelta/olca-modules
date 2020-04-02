@@ -325,7 +325,8 @@ public class Simulator {
 				ProductSystem sub = dao.getForId(system);
 				_setup = new CalculationSetup(sub);
 				_setup.withUncertainties = true;
-				_setup.parameterRedefs.addAll(sub.parameterRedefs);
+				_setup.parameterRedefs.addAll(setup.parameterRedefs);
+				ParameterRedefs.addTo(_setup, sub);
 				_setup.withCosts = setup.withCosts;
 				_setup.allocationMethod = setup.allocationMethod;
 			}

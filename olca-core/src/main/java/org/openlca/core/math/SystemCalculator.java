@@ -139,11 +139,12 @@ public class SystemCalculator {
 		// calculate the LCI results of the sub-systems
 		HashMap<ProcessProduct, SimpleResult> map = new HashMap<>();
 		for (ProcessProduct pp : subSystems) {
-			ProductSystem sys = sysDao.getForId(pp.id());
-			if (sys == null)
+			ProductSystem subSys = sysDao.getForId(pp.id());
+			if (subSys == null)
 				continue;
-			CalculationSetup subSetup = new CalculationSetup(sys);
-			subSetup.parameterRedefs.addAll(sys.parameterRedefs);
+			CalculationSetup subSetup = new CalculationSetup(subSys);
+			subSetup.parameterRedefs.addAll(setup.parameterRedefs);
+			ParameterRedefs.addTo(subSetup, subSys);
 			subSetup.withCosts = setup.withCosts;
 			subSetup.withUncertainties = setup.withUncertainties;
 			subSetup.withRegionalization = setup.withRegionalization;
