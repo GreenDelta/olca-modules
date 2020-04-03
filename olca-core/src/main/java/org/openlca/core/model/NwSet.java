@@ -11,6 +11,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+
 /**
  * Normalization and weighting set.
  */
@@ -37,10 +39,16 @@ public class NwSet extends RootEntity {
 	}
 
 	public NwFactor getFactor(ImpactCategory category) {
-		for (NwFactor fac : factors) {
+		for (NwFactor fac : factors)
 			if (Objects.equals(category, fac.impactCategory))
 				return fac;
-		}
+		return null;
+	}
+
+	public NwFactor getFactor(ImpactCategoryDescriptor category) {
+		for (NwFactor fac : factors)
+			if (category.id == fac.impactCategory.id)
+				return fac;
 		return null;
 	}
 }

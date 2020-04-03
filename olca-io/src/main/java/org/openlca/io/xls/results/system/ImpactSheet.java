@@ -3,6 +3,7 @@ package org.openlca.io.xls.results.system;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.math.data_quality.DQResult;
+import org.openlca.core.model.NwSet;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.io.xls.results.CellWriter;
@@ -13,6 +14,7 @@ class ImpactSheet {
 	private final Workbook workbook;
 	private final SimpleResult result;
 	private final DQResult dqResult;
+	private final NwSet nwSet;
 	private Sheet sheet;
 
 	static void write(ResultExport export) {
@@ -24,6 +26,7 @@ class ImpactSheet {
 		this.workbook = export.workbook;
 		this.result = export.result;
 		this.dqResult = export.dqResult;
+		this.nwSet = export.nwSet;
 	}
 
 	private void write() {
@@ -35,11 +38,13 @@ class ImpactSheet {
 	private void header() {
 		int row = 1;
 		int col = writer.headerRow(sheet, row, 1, ResultExport.IMPACT_HEADER);
-		writer.cell(sheet, row, col++, "Result", true);
+		writer.headerRow(sheet, row, col++, "Result");
+		if (nwSet != null) {
+			col = writer.headerRow(sheet, row, col, ResultExport.IMPACT_NW_HEADER);
+		}
 		if (dqResult == null || dqResult.setup.exchangeDqSystem == null)
 			return;
-		writer.dataQualityHeader(sheet, row, col,
-				dqResult.setup.exchangeDqSystem);
+		writer.dataQualityHeader(sheet, row, col, dqResult.setup.exchangeDqSystem);
 	}
 
 	private void data() {
@@ -47,13 +52,16 @@ class ImpactSheet {
 		int startCol = ResultExport.IMPACT_HEADER.length + 1;
 		for (ImpactCategoryDescriptor impact : result.getImpacts()) {
 			double value = result.getTotalImpactResult(impact);
-			writer.impactRow(sheet, row, 1, impact);
-			writer.cell(sheet, row, startCol, value);
+			int col = writer.impactRow(sheet, row, 1, impact);
+			writer.cell(sheet, row, col++, value);
+			if (nwSet != null) {
+				col = writer.impactNwRow(sheet, row, col, impact, value, nwSet);
+			}
 			if (dqResult == null || dqResult.setup == null) {
 				row++;
 				continue;
 			}
-			writer.dataQuality(sheet, row++, startCol + 1,
+			writer.dataQuality(sheet, row++, col + 1,
 					dqResult.get(impact),
 					dqResult.setup.exchangeDqSystem);
 		}

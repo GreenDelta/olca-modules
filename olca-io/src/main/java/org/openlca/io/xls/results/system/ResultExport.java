@@ -9,6 +9,10 @@ import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.data_quality.DQCalculationSetup;
 import org.openlca.core.math.data_quality.DQResult;
+import org.openlca.core.model.NwSet;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.SimpleResult;
@@ -20,12 +24,10 @@ import org.slf4j.LoggerFactory;
 public class ResultExport implements Runnable {
 
 	private final Logger log = LoggerFactory.getLogger(ResultExport.class);
-	static final String[] FLOW_HEADER = { "Flow UUID", "Flow", "Category",
-			"Sub-category", "Unit" };
-	static final String[] PROCESS_HEADER = { "Process UUID", "Process",
-			"Location" };
-	static final String[] IMPACT_HEADER = { "Impact category UUID",
-			"Impact category", "Reference unit" };
+	static final String[] FLOW_HEADER = { "Flow UUID", "Flow", "Category", "Sub-category", "Unit" };
+	static final String[] PROCESS_HEADER = { "Process UUID", "Process", "Location" };
+	static final String[] IMPACT_HEADER = { "Impact category UUID", "Impact category", "Reference unit" };
+	static final String[] IMPACT_NW_HEADER = { "Normalized", "Weighted", "Single score unit" };
 
 	private final File file;
 	final CalculationSetup setup;
@@ -34,6 +36,10 @@ public class ResultExport implements Runnable {
 	DQResult dqResult;
 
 	private boolean success;
+	List<CategorizedDescriptor> processes;
+	List<FlowDescriptor> flows;
+	List<ImpactCategoryDescriptor> impacts;
+	NwSet nwSet;
 	Workbook workbook;
 	CellWriter writer;
 
@@ -93,6 +99,16 @@ public class ResultExport implements Runnable {
 		if (r.hasImpactResults()) {
 			ProcessImpactUpstreamSheet.write(this, r);
 		}
+	}
+
+	private void prepare() {
+		processes = Util.processes(result);
+		flows = Util.flows(result, cache);
+		impacts = Util.impacts(result);
+		nwSet = Util.nwSet(setup, cache);
+		// no default flushing (see Excel.cell)!
+		workbook = new SXSSFWorkbook(-1);
+		writer = new CellWriter(cache, workbook);
 	}
 
 	public boolean doneWithSuccess() {
