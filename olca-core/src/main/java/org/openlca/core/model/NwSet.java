@@ -31,8 +31,7 @@ public class NwSet extends RootEntity {
 	public NwSet clone() {
 		NwSet clone = new NwSet();
 		Util.cloneRootFields(this, clone);
-		String weightedScoreUnit1 = weightedScoreUnit;
-		clone.weightedScoreUnit = weightedScoreUnit1;
+		clone.weightedScoreUnit = weightedScoreUnit;
 		for (NwFactor factor : factors) {
 			clone.factors.add(factor.clone());
 		}
