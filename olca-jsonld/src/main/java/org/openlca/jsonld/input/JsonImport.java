@@ -146,7 +146,6 @@ public class JsonImport implements Runnable {
 			ProjectImport.run(projectId, conf);
 		try {
 			setProviders(conf);
-			database.getEntityFactory().getCache().evictAll();
 		} catch (SQLException e) {
 			log.error("Error setting providers", e);
 		}
@@ -168,6 +167,8 @@ public class JsonImport implements Runnable {
 				continue;
 			owners.add(refIdToId.get(refId));
 		}
+		if (owners.isEmpty())
+			return;
 		Set<Long> next = new HashSet<>();
 		while (!owners.isEmpty()) {
 			next.add(owners.pop());
@@ -175,6 +176,7 @@ public class JsonImport implements Runnable {
 				setProviders(conf, next, refIdToId, idToRefId);
 			}
 		}
+		database.getEntityFactory().getCache().evictAll();
 	}
 
 	private void setProviders(ImportConfig conf, Set<Long> ids, Map<String, Long> refIdToId,

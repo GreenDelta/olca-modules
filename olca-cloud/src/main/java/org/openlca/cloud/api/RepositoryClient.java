@@ -1,6 +1,7 @@
 package org.openlca.cloud.api;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -28,7 +29,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 public class RepositoryClient {
 
 	private static final Logger log = LoggerFactory.getLogger(RepositoryClient.class);
-	public static final String API_VERSION = "1.1.0";
+	public static final String API_VERSION = "1.3.0";
 	private final RepositoryConfig config;
 	private String sessionId;
 
@@ -246,6 +247,15 @@ public class RepositoryClient {
 		return sync(null);
 	}
 
+	public List<String> listRepositories() throws WebRequestException {
+		return executeLoggedIn(() -> {
+			ListRepositoriesInvocation invocation = new ListRepositoriesInvocation();
+			invocation.baseUrl = config.baseUrl;
+			invocation.sessionId = sessionId;
+			return invocation.execute();
+		});
+	}
+
 	public Set<FetchRequestData> sync(String untilCommitId) throws WebRequestException {
 		Set<FetchRequestData> result = executeLoggedIn(() -> {
 			FetchRequestInvocation invocation = new FetchRequestInvocation();
@@ -335,12 +345,22 @@ public class RepositoryClient {
 			return invocation.execute();
 		});
 	}
-	
+
 	public Announcement getAnnouncement() throws WebRequestException {
 		return executeLoggedIn(() -> {
 			AnnouncementInvocation invocation = new AnnouncementInvocation();
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
+			return invocation.execute();
+		});
+	}
+
+	public InputStream export() throws WebRequestException {
+		return executeLoggedIn(() -> {
+			ExportRepositoryInvocation invocation = new ExportRepositoryInvocation();
+			invocation.baseUrl = config.baseUrl;
+			invocation.sessionId = sessionId;
+			invocation.repositoryId = config.repositoryId;
 			return invocation.execute();
 		});
 	}
