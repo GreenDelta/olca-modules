@@ -49,7 +49,6 @@ class ImpactSheet {
 
 	private void data() {
 		int row = 2;
-		int startCol = ResultExport.IMPACT_HEADER.length + 1;
 		for (ImpactCategoryDescriptor impact : result.getImpacts()) {
 			double value = result.getTotalImpactResult(impact);
 			int col = writer.impactRow(sheet, row, 1, impact);

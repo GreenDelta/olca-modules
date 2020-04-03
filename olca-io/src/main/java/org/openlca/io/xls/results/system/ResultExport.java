@@ -10,9 +10,6 @@ import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.data_quality.DQCalculationSetup;
 import org.openlca.core.math.data_quality.DQResult;
 import org.openlca.core.model.NwSet;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.SimpleResult;
@@ -36,9 +33,6 @@ public class ResultExport implements Runnable {
 	DQResult dqResult;
 
 	private boolean success;
-	List<CategorizedDescriptor> processes;
-	List<FlowDescriptor> flows;
-	List<ImpactCategoryDescriptor> impacts;
 	NwSet nwSet;
 	Workbook workbook;
 	CellWriter writer;
@@ -49,6 +43,9 @@ public class ResultExport implements Runnable {
 		this.result = result;
 		this.file = file;
 		this.cache = cache;
+		if (setup.nwSet != null) {
+			this.nwSet = cache.get(NwSet.class, setup.nwSet.id);
+		}
 	}
 
 	public void setDQResult(DQResult dqResult) {
@@ -99,16 +96,6 @@ public class ResultExport implements Runnable {
 		if (r.hasImpactResults()) {
 			ProcessImpactUpstreamSheet.write(this, r);
 		}
-	}
-
-	private void prepare() {
-		processes = Util.processes(result);
-		flows = Util.flows(result, cache);
-		impacts = Util.impacts(result);
-		nwSet = Util.nwSet(setup, cache);
-		// no default flushing (see Excel.cell)!
-		workbook = new SXSSFWorkbook(-1);
-		writer = new CellWriter(cache, workbook);
 	}
 
 	public boolean doneWithSuccess() {
