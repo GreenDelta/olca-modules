@@ -18,13 +18,13 @@ import org.openlca.util.BinUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-public class CommitStream extends ModelStream {
+public class CommitStream extends ModelStream<Dataset> {
 
 	private final IDatabase db;
 	private final Gson gson = new Gson();
 	
 	public CommitStream(IDatabase db, String commitMessage, Set<Dataset> datasets, Consumer<Dataset> callback) {
-		super(commitMessage, datasets, callback);
+		super(commitMessage, datasets.iterator(), datasets.size(), callback);
 		this.db = db;
 	}
 

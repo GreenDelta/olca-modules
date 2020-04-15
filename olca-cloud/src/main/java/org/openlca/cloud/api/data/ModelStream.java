@@ -11,7 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 
-public abstract class ModelStream extends InputStream {
+public abstract class ModelStream<T extends Dataset> extends InputStream {
 
 	private static final Logger log = LoggerFactory.getLogger(CommitStream.class);
 	public static final Charset CHARSET = Charset.forName("utf-8");
@@ -35,42 +35,43 @@ public abstract class ModelStream extends InputStream {
 	// Reading and converting is expected to be faster than
 	// reading the data (and streaming it to the server), so the bufferQueue is
 	// only used to parallelize reading/converting and streaming
-	private final BlockingQueue<byte[]> bufferQueue = new ArrayBlockingQueue<>(1);
+	private final BlockingQueue<byte[]> bufferQueue = new ArrayBlockingQueue<>(10);
 	// Used to identify which is the current dataset in the bufferQueue
-	private final Queue<Dataset> datasetQueue = new LinkedList<>();
-	private final Consumer<Dataset> callback;
+	private final Queue<T> datasetQueue = new LinkedList<>();
+	private final Consumer<T> callback;
+	private final int total;
+	private int count;
 	private byte[] buffer = new byte[0];
 	private int position = 0;
-	private boolean doneAdding = false;
 
-	protected ModelStream(String message, Collection<Dataset> datasets) {
-		this(message, datasets, null);
+	protected ModelStream(String message, Iterator<T> datasets, int total) {
+		this(message, datasets, total, null);
 	}
 
-	protected ModelStream(String message, Collection<Dataset> datasets, Consumer<Dataset> callback) {
+	protected ModelStream(String message, Iterator<T> datasets, int total, Consumer<T> callback) {
 		this.callback = callback;
 		byte[] messageBytes = message.getBytes(CHARSET);
 		buffer = new byte[4 + 4 + messageBytes.length];
-		addTo(buffer, 0, asByteArray(datasets.size()));
+		addTo(buffer, 0, asByteArray(total));
 		addTo(buffer, 4, asByteArray(messageBytes.length));
 		addTo(buffer, 8, messageBytes);
-		if (datasets.isEmpty()) {
-			doneAdding = true;
-		} else {
-			new Thread(() -> addAll(datasets)).start();
+		this.total = total;
+		if (total > 0) {
+			new Thread(() -> addAll(datasets)).start();			
 		}
 	}
 
 	@Override
 	public final int read() throws IOException {
 		if (position == buffer.length) {
-			if (doneAdding && bufferQueue.isEmpty())
+			if (total == count && bufferQueue.isEmpty())
 				return -1;
 			try {
 				if (callback != null && !datasetQueue.isEmpty()) {
 					callback.accept(datasetQueue.poll());
 				}
 				buffer = bufferQueue.take();
+				count++;
 			} catch (InterruptedException e) {
 				throw new IOException(e);
 			}
@@ -79,8 +80,9 @@ public abstract class ModelStream extends InputStream {
 		return buffer[position++] & 0xff;
 	}
 
-	private void addAll(Collection<Dataset> all) {
-		for (Dataset dataset : all) {
+	private void addAll(Iterator<T> all) {
+		while (all.hasNext()) {
+			T dataset = all.next();
 			try {
 				byte[] dsJson = gson.toJson(dataset).getBytes(CHARSET);
 				dsJson = BinUtils.gzip(dsJson);
@@ -95,12 +97,11 @@ public abstract class ModelStream extends InputStream {
 				log.error("Error adding model to stream", e);
 			}
 		}
-		doneAdding = true;
 	}
 
-	protected abstract byte[] getData(Dataset dataset) throws IOException;
+	protected abstract byte[] getData(T dataset) throws IOException;
 
-	private List<BinaryFile> getBinaryFiles(Dataset dataset) throws IOException {
+	private List<BinaryFile> getBinaryFiles(T dataset) throws IOException {
 		File dir = getBinaryFilesLocation(dataset);
 		if (dir == null || !dir.exists() || dir.list() == null)
 			return new ArrayList<>(0);
@@ -109,7 +110,7 @@ public abstract class ModelStream extends InputStream {
 		return read.result;
 	}
 
-	protected abstract File getBinaryFilesLocation(Dataset dataset);
+	protected abstract File getBinaryFilesLocation(T dataset);
 
 	private byte[] buildBuffer(byte[] dsJson, byte[] json, List<BinaryFile> binaryData) throws IOException {
 		byte[] buffer = new byte[getLength(dsJson, json, binaryData)];
