@@ -15,7 +15,7 @@ public enum LicenseType {
 	 * 
 	 */
 	@XmlEnumValue("Free of charge for all users and uses")
-	FREE_OF_CHARGE_FOR_ALL_USERS_AND_USES("Free of charge for all users and uses"),
+	ALL_FREE("Free of charge for all users and uses"),
 
 	/**
 	 * This data set can be accessed free of charge for certain user types, such
@@ -27,7 +27,7 @@ public enum LicenseType {
 	 * 
 	 */
 	@XmlEnumValue("Free of charge for some user types or use types")
-	FREE_OF_CHARGE_FOR_SOME_USER_TYPES_OR_USE_TYPES("Free of charge for some user types or use types"),
+	SOME_FREE("Free of charge for some user types or use types"),
 
 	/**
 	 * Data set is accessible free of charge only for members. Membership itself
@@ -38,7 +38,7 @@ public enum LicenseType {
 	 * 
 	 */
 	@XmlEnumValue("Free of charge for members only")
-	FREE_OF_CHARGE_FOR_MEMBERS_ONLY("Free of charge for members only"),
+	MEMBERS_ONLY("Free of charge for members only"),
 
 	/**
 	 * Data set is accessible for a license fee. This can be a fee per data set,

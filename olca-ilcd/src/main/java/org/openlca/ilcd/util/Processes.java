@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import org.openlca.ilcd.commons.CommissionerAndGoal;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.Time;
 import org.openlca.ilcd.processes.AdminInfo;
@@ -46,112 +47,112 @@ public final class Processes {
 	}
 
 	public static DataSetInfo getDataSetInfo(Process p) {
-		ProcessInfo pi = getProcessInfo(p);
-		if (pi == null)
+		var info = getProcessInfo(p);
+		if (info == null)
 			return null;
-		return pi.dataSetInfo;
+		return info.dataSetInfo;
 	}
 
 	public static DataSetInfo dataSetInfo(Process p) {
-		ProcessInfo pi = processInfo(p);
-		if (pi.dataSetInfo == null)
-			pi.dataSetInfo = new DataSetInfo();
-		return pi.dataSetInfo;
+		var info = processInfo(p);
+		if (info.dataSetInfo == null)
+			info.dataSetInfo = new DataSetInfo();
+		return info.dataSetInfo;
 	}
 
 	public static ProcessName getProcessName(Process p) {
-		DataSetInfo dsi = getDataSetInfo(p);
-		if (dsi == null)
+		var info = getDataSetInfo(p);
+		if (info == null)
 			return null;
-		return dsi.name;
+		return info.name;
 	}
 
 	public static ProcessName processName(Process p) {
-		DataSetInfo dsi = dataSetInfo(p);
-		if (dsi.name == null)
-			dsi.name = new ProcessName();
-		return dsi.name;
+		var info = dataSetInfo(p);
+		if (info.name == null)
+			info.name = new ProcessName();
+		return info.name;
 	}
 
 	public static Geography getGeography(Process p) {
-		ProcessInfo pi = getProcessInfo(p);
-		if (pi == null)
+		var info = getProcessInfo(p);
+		if (info == null)
 			return null;
-		return pi.geography;
+		return info.geography;
 	}
 
 	public static Geography geography(Process p) {
-		ProcessInfo pi = processInfo(p);
-		if (pi.geography == null)
-			pi.geography = new Geography();
-		return pi.geography;
+		var info = processInfo(p);
+		if (info.geography == null)
+			info.geography = new Geography();
+		return info.geography;
 	}
 
 	public static Location getLocation(Process p) {
-		Geography g = getGeography(p);
-		if (g == null)
+		var geo = getGeography(p);
+		if (geo == null)
 			return null;
-		return g.location;
+		return geo.location;
 	}
 
 	public static Location location(Process p) {
-		Geography g = geography(p);
-		if (g.location == null)
-			g.location = new Location();
-		return g.location;
+		var geo = geography(p);
+		if (geo.location == null)
+			geo.location = new Location();
+		return geo.location;
 	}
 
 	public static QuantitativeReference getQuantitativeReference(Process p) {
-		ProcessInfo pi = getProcessInfo(p);
-		if (pi == null)
+		var info = getProcessInfo(p);
+		if (info == null)
 			return null;
-		return pi.quantitativeReference;
+		return info.quantitativeReference;
 	}
 
 	public static QuantitativeReference quantitativeReference(Process p) {
-		ProcessInfo pi = processInfo(p);
-		if (pi.quantitativeReference == null)
-			pi.quantitativeReference = new QuantitativeReference();
-		return pi.quantitativeReference;
+		var info = processInfo(p);
+		if (info.quantitativeReference == null)
+			info.quantitativeReference = new QuantitativeReference();
+		return info.quantitativeReference;
 	}
 
 	public static Technology getTechnology(Process p) {
-		ProcessInfo pi = getProcessInfo(p);
-		if (pi == null)
+		var info = getProcessInfo(p);
+		if (info == null)
 			return null;
-		return pi.technology;
+		return info.technology;
 	}
 
 	public static Technology technology(Process p) {
-		ProcessInfo pi = processInfo(p);
-		if (pi.technology == null)
-			pi.technology = new Technology();
-		return pi.technology;
+		var info = processInfo(p);
+		if (info.technology == null)
+			info.technology = new Technology();
+		return info.technology;
 	}
 
 	public static Time getTime(Process p) {
-		ProcessInfo pi = getProcessInfo(p);
-		if (pi == null)
+		var info = getProcessInfo(p);
+		if (info == null)
 			return null;
-		return pi.time;
+		return info.time;
 	}
 
 	public static Time time(Process p) {
-		ProcessInfo pi = processInfo(p);
-		if (pi.time == null)
-			pi.time = new Time();
-		return pi.time;
+		var info = processInfo(p);
+		if (info.time == null)
+			info.time = new Time();
+		return info.time;
 	}
 
 	public static List<Parameter> getParameters(Process p) {
-		ProcessInfo info = getProcessInfo(p);
+		var info = getProcessInfo(p);
 		if (info == null || info.parameters == null)
 			return Collections.emptyList();
 		return info.parameters.parameters;
 	}
 
 	public static List<Parameter> parameters(Process p) {
-		ProcessInfo info = processInfo(p);
+		var info = processInfo(p);
 		if (info.parameters == null) {
 			info.parameters = new ParameterSection();
 		}
@@ -171,45 +172,45 @@ public final class Processes {
 	}
 
 	public static Method getMethod(Process p) {
-		Modelling m = getModelling(p);
-		if (m == null)
+		var modelling = getModelling(p);
+		if (modelling == null)
 			return null;
-		return m.method;
+		return modelling.method;
 	}
 
 	public static Method method(Process p) {
-		Modelling m = modelling(p);
-		if (m.method == null)
-			m.method = new Method();
-		return m.method;
+		var modelling = modelling(p);
+		if (modelling.method == null)
+			modelling.method = new Method();
+		return modelling.method;
 	}
 
 	public static Representativeness getRepresentativeness(Process p) {
-		Modelling m = getModelling(p);
-		if (m == null)
+		var modelling = getModelling(p);
+		if (modelling == null)
 			return null;
-		return m.representativeness;
+		return modelling.representativeness;
 	}
 
 	public static Representativeness representativeness(Process p) {
-		Modelling m = modelling(p);
-		if (m.representativeness == null)
-			m.representativeness = new Representativeness();
-		return m.representativeness;
+		var modelling = modelling(p);
+		if (modelling.representativeness == null)
+			modelling.representativeness = new Representativeness();
+		return modelling.representativeness;
 	}
 
 	public static Validation getValidation(Process p) {
-		Modelling m = getModelling(p);
-		if (m == null)
+		var modelling = getModelling(p);
+		if (modelling == null)
 			return null;
-		return m.validation;
+		return modelling.validation;
 	}
 
 	public static Validation validation(Process p) {
-		Modelling m = modelling(p);
-		if (m.validation == null)
-			m.validation = new Validation();
-		return m.validation;
+		var modelling = modelling(p);
+		if (modelling.validation == null)
+			modelling.validation = new Validation();
+		return modelling.validation;
 	}
 
 	public static AdminInfo getAdminInfo(Process p) {
@@ -219,30 +220,47 @@ public final class Processes {
 	}
 
 	public static AdminInfo adminInfo(Process p) {
-		if (p.adminInfo == null)
+		if (p.adminInfo == null) {
 			p.adminInfo = new AdminInfo();
+		}
 		return p.adminInfo;
 	}
 
+	public static CommissionerAndGoal getCommissionerAndGoal(Process p) {
+		var info = getAdminInfo(p);
+		return info == null
+				? null
+				: info.commissionerAndGoal;
+	}
+
+	public static CommissionerAndGoal commissionerAndGoal(Process p) {
+		var info = adminInfo(p);
+		if (info.commissionerAndGoal == null) {
+			info.commissionerAndGoal = new CommissionerAndGoal();
+		}
+		return info.commissionerAndGoal;
+	}
+
 	public static Publication getPublication(Process p) {
-		AdminInfo ai = getAdminInfo(p);
-		if (ai == null)
+		var info = getAdminInfo(p);
+		if (info == null)
 			return null;
-		return ai.publication;
+		return info.publication;
 	}
 
 	public static Publication publication(Process p) {
-		AdminInfo ai = adminInfo(p);
-		if (ai.publication == null)
-			ai.publication = new Publication();
-		return ai.publication;
+		var info = adminInfo(p);
+		if (info.publication == null) {
+			info.publication = new Publication();
+		}
+		return info.publication;
 	}
 
 	public static DataEntry getDataEntry(Process p) {
-		AdminInfo ai = getAdminInfo(p);
-		if (ai == null)
-			return null;
-		return ai.dataEntry;
+		var info = getAdminInfo(p);
+		return info == null
+				? null
+				: info.dataEntry;
 	}
 
 	public static DataEntry dataEntry(Process p) {
