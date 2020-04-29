@@ -1,4 +1,4 @@
-package org.openlca.formula.ast;
+package org.openlca.formula;
 
 import org.junit.Assert;
 import org.junit.Test;

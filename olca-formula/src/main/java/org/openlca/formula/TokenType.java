@@ -1,9 +1,9 @@
-package org.openlca.formula.ast;
+package org.openlca.formula;
 
 /**
  * The token types that our lexer produces.
  */
-public enum TokenType {
+enum TokenType {
 
 	/**
 	 * A decimal number.

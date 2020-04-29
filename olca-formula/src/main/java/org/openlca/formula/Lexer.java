@@ -1,4 +1,4 @@
-package org.openlca.formula.ast;
+package org.openlca.formula;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,22 +7,22 @@ import java.util.function.Supplier;
 interface State extends Supplier<State> {
 }
 
-public class Lexer {
+class Lexer {
 
 	private final String input;
 	private final List<Token> tokens = new ArrayList<>();
 	private int start = 0;
 	private int pos = 0;
 
-	public Lexer(String input) {
+	Lexer(String input) {
 		this.input = input;
 	}
 
-	public static List<Token> lex(String input) {
+	static List<Token> lex(String input) {
 		return new Lexer(input).lex();
 	}
 
-	public List<Token> lex() {
+	List<Token> lex() {
 		if (input == null)
 			return tokens;
 		State state = this::lexText;
