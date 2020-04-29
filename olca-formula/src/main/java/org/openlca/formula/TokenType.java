@@ -13,7 +13,7 @@ enum TokenType {
 	/**
 	 * An identifier: a variable or function name.
 	 */
-	INDENTIFIER,
+	IDENTIFIER,
 
 	/**
 	 * Opening parenthesis: '('

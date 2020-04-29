@@ -20,4 +20,51 @@ public class LexerTest {
 		Assert.assertEquals(tokens.get(1).type, TokenType.PAREN_CLOSE);
 		Assert.assertTrue(tokens.get(2).isEOF());
 	}
+
+	@Test
+	public void testLexIdentifiers() {
+		String[] ids = {
+			"a",
+            "abcdefghijklmnopqrstuvwxyz",
+            "abcdefghijklmnopqrstuvwxyz".toUpperCase(),
+            "a0123456789",
+		};
+		for (var id : ids) {
+			var tokens = Lexer.lex(id);
+			Assert.assertEquals(2, tokens.size());
+			Assert.assertEquals(tokens.get(0).type, TokenType.IDENTIFIER);
+			Assert.assertEquals(tokens.get(0).value, id.trim());
+			Assert.assertTrue(tokens.get(1).isEOF());
+		}
+	}
+
+	@Test
+	public void testLexOperators() {
+		String[] ops = {
+			"+",
+            "-",
+            "*",
+            "/",
+            "^",
+            ">",
+            "<",
+            "=",
+            ">=",
+            "<=",
+            "==",
+            "&",
+            "|",
+            "&&",
+            "||",
+		};
+		for (var op : ops) {
+			var tokens = Lexer.lex(op);
+			Assert.assertEquals(2, tokens.size());
+			Assert.assertEquals(tokens.get(0).type, TokenType.OPERATOR);
+			Assert.assertEquals(tokens.get(0).value, op.trim());
+			Assert.assertTrue(tokens.get(1).isEOF());
+		}
+	}
+
+
 }

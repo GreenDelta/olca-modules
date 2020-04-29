@@ -42,7 +42,7 @@ class Lexer {
 			if (Character.isJavaIdentifierStart(next))
 				return this::lexIdentifier;
 
-			if (isOperator(next))
+			if (isOperatorPart(next))
 				return this::lexOperator;
 
 			if (next == '(') {
@@ -70,15 +70,53 @@ class Lexer {
 	}
 
 	private State lexNumber() {
-		return null;
+		acceptDigits();
+
+		if (acceptOneOf('.')) {
+			if (!acceptDigits()) {
+				tokens.add(Token.error(
+					"no digits after decimal separator @" + start));
+				return null;
+			}
+		}
+
+		if (acceptOneOf('e', 'E')) {
+			acceptOneOf('+', '-');
+			if (!acceptDigits()) {
+				tokens.add(Token.error(
+					"no digits after exponential separator @" + start));
+				return null;
+			}
+		}
+
+		emit(TokenType.NUMBER);
+		return this::lexText;
 	}
 
 	private State lexIdentifier() {
-		return null;
+		while (this.hasNext()) {
+			var next = this.peek();
+			if (Character.isJavaIdentifierPart(next)) {
+				pos++;
+				continue;
+			}
+			break;
+		}
+		emit(TokenType.IDENTIFIER);
+		return this::lexText;
 	}
 
 	private State lexOperator() {
-		return null;
+		while (this.hasNext()) {
+			var next = this.peek();
+			if (isOperatorPart(next)) {
+				pos++;
+				continue;
+			}
+			break;
+		}
+		emit(TokenType.OPERATOR);
+		return this::lexText;
 	}
 
 	private void emit(TokenType type) {
@@ -92,6 +130,41 @@ class Lexer {
 		start = pos;
 	}
 
+	/**
+	 * Moves the reading position forward by one if the next character is one of the
+	 * given characters. Returns true if this was the case.
+	 */
+	private boolean acceptOneOf(char... cs) {
+		if (!hasNext())
+			return false;
+		char next = peek();
+		for (char c : cs) {
+			if (c == next) {
+				pos++;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Moves the reading position forward if next characters are a sequence of
+	 * digits. Returns true there was at least one digit as next character.
+	 */
+	private boolean acceptDigits() {
+		var found = false;
+		while (hasNext()) {
+			char next = this.peek();
+			if (Character.isDigit(next)) {
+				pos++;
+				found = true;
+				continue;
+			}
+			break;
+		}
+		return found;
+	}
+
 	private boolean hasNext() {
 		return pos < input.length();
 	}
@@ -100,7 +173,7 @@ class Lexer {
 		return input.charAt(pos);
 	}
 
-	private boolean isOperator(char c) {
+	private boolean isOperatorPart(char c) {
 		return c == '+'
 				|| c == '-'
 				|| c == '*'
@@ -110,6 +183,7 @@ class Lexer {
 				|| c == '<'
 				|| c == '>'
 				|| c == '&'
-				|| c == '|';
+				|| c == '|'
+				|| c == '!';
 	}
 }
