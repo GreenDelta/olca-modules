@@ -1,13 +1,11 @@
 package org.openlca.jsonld.input;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import java.util.Objects;
+
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.ImpactCategory.ParameterMean;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
@@ -15,7 +13,9 @@ import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.Json;
 
-import java.util.Objects;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 
@@ -34,7 +34,6 @@ class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 		ImpactCategory cat = new ImpactCategory();
 		In.mapAtts(json, cat, id);
 		cat.referenceUnit = Json.getString(json, "referenceUnitName");
-		cat.parameterMean = Json.getEnum(json, "parameterMean", ParameterMean.class);
 		mapParameters(json, cat);
 		JsonArray factors = Json.getArray(json, "impactFactors");
 		if (factors == null || factors.size() == 0)

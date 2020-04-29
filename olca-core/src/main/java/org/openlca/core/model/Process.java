@@ -15,7 +15,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "tbl_processes")
-public class Process extends CategorizedEntity {
+public class Process extends ParameterizedEntity {
 
 	@Column(name = "default_allocation_method")
 	@Enumerated(EnumType.STRING)
@@ -32,10 +32,6 @@ public class Process extends CategorizedEntity {
 	@OneToOne
 	@JoinColumn(name = "f_location")
 	public Location location;
-
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "f_owner")
-	public final List<Parameter> parameters = new ArrayList<>();
 
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_process_doc")

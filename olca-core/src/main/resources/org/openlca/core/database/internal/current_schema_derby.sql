@@ -419,7 +419,6 @@ CREATE TABLE tbl_impact_categories (
     description       CLOB(64 K),
 
     reference_unit    VARCHAR(255),
-    parameter_mean    VARCHAR(255),
 
     PRIMARY KEY (id)
 

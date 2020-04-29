@@ -20,7 +20,6 @@ class ImpactCategoryWriter extends Writer<ImpactCategory> {
 		if (obj == null)
 			return null;
 		Out.put(obj, "referenceUnitName", category.referenceUnit);
-		Out.put(obj, "parameterMean", category.parameterMean);
 		mapImpactFactors(category, obj);
 		mapParameters(obj, category);
 		GlobalParameters.sync(category, conf);
