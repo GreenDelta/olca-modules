@@ -61,7 +61,8 @@ class Lexer {
 			}
 
 			if (Character.isWhitespace(next)) {
-				this.pos++;
+				pos++;
+				start = pos;
 				continue;
 			}
 		}
