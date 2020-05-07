@@ -1,7 +1,6 @@
 package org.openlca.jsonld;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -10,11 +9,17 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import org.openlca.core.model.ModelType;
+import org.openlca.jsonld.output.Context;
 import org.openlca.util.Strings;
 
 /**
@@ -29,18 +34,52 @@ public class FileStore implements EntityStore {
 	 */
 	public final File root;
 
+	private boolean allowCustomNames;
+
 	public FileStore(File root) {
 		this.root = root;
 	}
 
+	/**
+	 * When setting this to true the file names of the data sets do not have to
+	 * follow the pattern `<ref. ID>.json` but just need a JSON extension. This is
+	 * ok for a small number of files but can lead to serious performace problems
+	 * when there is a large number of files in the folder because in order to get
+	 * the reference ID of a data set, it then needs to first parse its content.
+	 */
+	public FileStore withCustomNames(boolean b) {
+		this.allowCustomNames = b;
+		return this;
+	}
+
+	@Override
+	public void close() throws IOException {
+	}
+
 	@Override
 	public void putContext() {
-		// TODO Auto-generated method stub
+		put("context.json", Context.write(Schema.URI));
+	}
+
+	@Override
+	public JsonObject getContext() {
+		return Context.write(Schema.URI);
 	}
 
 	@Override
 	public void putMetaInfo(JsonObject info) {
-		// TODO Auto-generated method stub
+		put("meta.json", info);
+	}
+
+	@Override
+	public void put(ModelType type, JsonObject object) {
+		if (type == null || object == null)
+			return;
+		var id = Json.getString(object, "@id");
+		if (id == null)
+			return;
+		var path = ModelPath.get(type) + "/" + id + ".json";
+		put(path, object);
 	}
 
 	@Override
@@ -83,13 +122,8 @@ public class FileStore implements EntityStore {
 
 	@Override
 	public boolean contains(ModelType type, String refId) {
-		if (type == null || refId == null)
-			return false;
-		var dir = new File(root, ModelPath.get(type));
-		if (!dir.exists())
-			return false;
-		var file = new File(dir, refId + ".json");
-		return file.exists();
+		var file = find(type, refId);
+		return file.isPresent();
 	}
 
 	@Override
@@ -109,15 +143,69 @@ public class FileStore implements EntityStore {
 
 	@Override
 	public JsonObject get(ModelType type, String refId) {
-		if (type == null || refId == null)
-			return null;
+		var file = find(type, refId);
+		return file.isPresent()
+				? readObject(file.get())
+				: null;
+	}
+
+	@Override
+	public List<String> getRefIds(ModelType type) {
+		if (type == null)
+			return Collections.emptyList();
 		var dir = new File(root, ModelPath.get(type));
 		if (!dir.exists())
-			return null;
-		var file = new File(dir, refId + ".json");
-		return file.exists()
-				? readObject(file)
-				: null;
+			return Collections.emptyList();
+
+		if (!allowCustomNames)
+			return Arrays.stream(dir.list())
+					.filter(f -> f.endsWith(".json"))
+					.map(f -> f.substring(0, f.length() - 5))
+					.collect(Collectors.toList());
+
+		return Arrays.stream(dir.listFiles())
+				.parallel()
+				.filter(file -> file.getName().endsWith(".json"))
+				.map(file -> readObject(file))
+				.map(json -> Json.getString(json, "@id"))
+				.filter(id -> id != null)
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<String> getBinFiles(ModelType type, String refId) {
+		var modelPath = ModelPath.getBin(type, refId);
+		var dir = new File(root, modelPath);
+		return !dir.exists()
+				? Collections.emptyList()
+				: Arrays.stream(dir.list())
+						.map(file -> modelPath + "/" + file)
+						.collect(Collectors.toList());
+	}
+
+	private Optional<File> find(ModelType type, String refID) {
+		if (type == null || refID == null)
+			return Optional.empty();
+		var dir = new File(root, ModelPath.get(type));
+		if (!dir.exists())
+			return Optional.empty();
+
+		if (!allowCustomNames) {
+			var file = new File(dir, refID + ".json");
+			return file.exists()
+					? Optional.of(file)
+					: Optional.empty();
+		}
+
+		return Arrays.stream(dir.listFiles())
+				.parallel()
+				.filter(file -> file.getName().endsWith(".json"))
+				.filter(file -> {
+					var json = readObject(file);
+					var id = Json.getString(json, "@id");
+					return id != null && id.equals(refID);
+				})
+				.findAny();
 	}
 
 	private JsonObject readObject(File file) {
