@@ -56,33 +56,6 @@ public class Parameter extends CategorizedEntity {
 	@Embedded
 	public Uncertainty uncertainty;
 
-	/**
-	 * Returns true if the given name is a valid identifier for a parameter. We
-	 * allow the same rules as for Java identifiers.
-	 */
-	public static boolean isValidName(String name) {
-		if (name == null)
-			return false;
-		String id = name.trim();
-		if (id.isEmpty())
-			return false;
-		for (int i = 0; i < id.length(); i++) {
-			char c = id.charAt(i);
-			if (i == 0 && !Character.isLetter(c))
-				return false;
-			if (i > 0 && !Character.isJavaIdentifierPart(c))
-				return false;
-		}
-		FormulaInterpreter interpreter = new FormulaInterpreter();
-		interpreter.bind(name, "1");
-		try {
-			interpreter.eval(name);
-		} catch (InterpreterException e) {
-			return false;
-		}
-		return true;
-	}
-
 	@Override
 	public Parameter clone() {
 		Parameter clone = new Parameter();
