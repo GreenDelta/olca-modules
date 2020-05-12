@@ -8,6 +8,8 @@ import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Exchange;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
@@ -100,6 +102,45 @@ public class ParameterRenameTest {
 		// should **not** be renamed in process 2
 		e2 = reload(p2).exchanges.get(0);
 		Assert.assertEquals("2 * param", e2.formula);
+
+		drop(p1);
+		drop(p2);
+		drop(global);
+	}
+
+	@Test
+	public void testImpactFormulas() {
+		var global = global("param");
+
+		// no local parameter in impact 1
+		var i1 = new ImpactCategory();
+		var f1 = new ImpactFactor();
+		f1.formula = "2 * param";
+		i1.impactFactors.add(f1);
+		put(i1);
+
+		// local parameter in impact 2
+		var i2 = new ImpactCategory();
+		local(i2, "param");
+		var f2 = new ImpactFactor();
+		f2.formula = "2 * param";
+		i2.impactFactors.add(f2);
+		put(i2);
+
+		global = Parameters.rename(db, global, "global_param");
+		Assert.assertEquals("global_param", global.name);
+
+		// should be renamed in impact 1
+		f1 = reload(i1).impactFactors.get(0);
+		Assert.assertEquals("2 * global_param", f1.formula);
+
+		// should **not** be renamed in impact 2
+		f2 = reload(i2).impactFactors.get(0);
+		Assert.assertEquals("2 * param", f2.formula);
+
+		drop(i1);
+		drop(i2);
+		drop(global);
 	}
 
 	private Parameter global(String name) {
@@ -116,6 +157,15 @@ public class ParameterRenameTest {
 		param.name = name;
 		param.scope = ParameterScope.PROCESS;
 		process.parameters.add(param);
+		return param;
+	}
+
+	private Parameter local(ImpactCategory impact, String name) {
+		var param = new Parameter();
+		param.isInputParameter = true;
+		param.name = name;
+		param.scope = ParameterScope.IMPACT_CATEGORY;
+		impact.parameters.add(param);
 		return param;
 	}
 

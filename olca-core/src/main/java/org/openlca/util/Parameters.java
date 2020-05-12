@@ -114,6 +114,11 @@ public class Parameters {
 				" tbl_exchanges where resulting_amount_formula is not null";
 		NativeSql.on(db).updateRows(sql, formulaUpdate);
 
+		// rename unbound variables in impact factor formulas
+		sql = "select f_impact_category, formula from tbl_impact_factors" +
+				" where formula is not null";
+		NativeSql.on(db).updateRows(sql, formulaUpdate);
+
 		db.clearCache();
 
 		// finally, update the parameter
