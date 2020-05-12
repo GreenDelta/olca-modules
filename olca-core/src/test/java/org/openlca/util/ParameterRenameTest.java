@@ -7,6 +7,7 @@ import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
+import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
@@ -68,6 +69,37 @@ public class ParameterRenameTest {
 		drop(process1);
 		drop(process2);
 		drop(global);
+	}
+
+	@Test
+	public void testExchangeFormulas() {
+		var global = global("param");
+
+		// no local parameter in process 1
+		var p1 = new Process();
+		var e1 = new Exchange();
+		e1.formula = "2 * param";
+		p1.exchanges.add(e1);
+		put(p1);
+
+		// local parameter in process 2
+		var p2 = new Process();
+		local(p2, "param");
+		var e2 = new Exchange();
+		e2.formula = "2 * param";
+		p2.exchanges.add(e2);
+		put(p2);
+
+		global = Parameters.rename(db, global, "global_param");
+		Assert.assertEquals("global_param", global.name);
+
+		// should be renamed in process 1
+		e1 = reload(p1).exchanges.get(0);
+		Assert.assertEquals("2 * global_param", e1.formula);
+
+		// should **not** be renamed in process 2
+		e2 = reload(p2).exchanges.get(0);
+		Assert.assertEquals("2 * param", e2.formula);
 	}
 
 	private Parameter global(String name) {

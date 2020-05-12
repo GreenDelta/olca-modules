@@ -90,10 +90,7 @@ public class Parameters {
 			return true;
 		});
 
-		// rename unbound variables in parameter formulas
-		sql = "select f_owner, formula from tbl_parameters" +
-				" where formula is not null";
-		NativeSql.on(db).updateRows(sql, r -> {
+		NativeSql.QueryResultHandler formulaUpdate = r -> {
 			long owner = r.getLong(1);
 			if (owner != 0 && localOwners.contains(owner))
 				return true;
@@ -105,7 +102,17 @@ public class Parameters {
 			r.updateString(2, formula);
 			r.updateRow();
 			return true;
-		});
+		};
+
+		// rename unbound variables in parameter formulas
+		sql = "select f_owner, formula from tbl_parameters" +
+				" where formula is not null";
+		NativeSql.on(db).updateRows(sql, formulaUpdate);
+
+		// rename unbound variables in exchange formulas
+		sql = "select f_owner, resulting_amount_formula from" +
+				" tbl_exchanges where resulting_amount_formula is not null";
+		NativeSql.on(db).updateRows(sql, formulaUpdate);
 
 		db.clearCache();
 
