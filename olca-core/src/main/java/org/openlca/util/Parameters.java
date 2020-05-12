@@ -72,7 +72,9 @@ public class Parameters {
 			return new ParameterDao(db).update(param);
 		}
 
-		//
+		// collect the IDs of processes and impact categories where
+		// a local parameter with the same name is defined
+
 
 		// finally, update the parameter
 		param.name = name;
