@@ -1,6 +1,5 @@
 package org.openlca.core.database.usage;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,12 +16,9 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class Search {
 
-	private final static Logger log = LoggerFactory.getLogger(Search.class);
 	private final static Map<ModelType, String> tableNames = new HashMap<>();
 	private IDatabase database;
 
@@ -80,22 +76,17 @@ class Search {
 
 	Set<Long> queryForIds(String query) {
 		Set<Long> ids = new HashSet<>();
-		try {
-			NativeSql.on(database).query(query, (result) -> {
-				ids.add(result.getLong(1));
-				return result.next();
-			});
-		} catch (SQLException e) {
-			log.error("Error executing native query '" + query + "'");
-		}
+		NativeSql.on(database).query(query, (result) -> {
+			ids.add(result.getLong(1));
+			return result.next();
+		});
 		return ids;
 	}
 
-	
 	protected Set<Long> getIds(String table) {
 		return queryForIds("SELECT id FROM " + table);
 	}
-	
+
 	private String createQuery(String idField, String table, Set<Long> toFind,
 			String... fields) {
 		StringBuilder query = new StringBuilder();

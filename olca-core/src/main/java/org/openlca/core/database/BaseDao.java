@@ -66,16 +66,11 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT id FROM " + table);
 		query.append(" WHERE id IN " + asSqlList(ids));
-		try {
-			NativeSql.on(database).query(query.toString(), (entry) -> {
-				long id = entry.getLong(1);
-				result.put(id, true);
-				return true;
-			});
-		} catch (SQLException e) {
-			String type = entityType.getSimpleName();
-			log.error("Error checking existings of ids for type " + type, e);
-		}
+		NativeSql.on(database).query(query.toString(), (entry) -> {
+			long id = entry.getLong(1);
+			result.put(id, true);
+			return true;
+		});
 		return result;
 	}
 
@@ -208,7 +203,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 
 	// Executes the query method chunked, (for methods with List return value)
 	protected <X, Y> List<Y> executeChunked(Set<X> set,
-			Function<Set<X>, List<Y>> queryMethod) {
+											Function<Set<X>, List<Y>> queryMethod) {
 		List<Set<X>> split = split(set);
 		List<Y> all = new ArrayList<>();
 		for (Set<X> s : split) {
@@ -219,7 +214,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 
 	// Executes the query method chunked, (for methods with Map return value)
 	protected <X, Y> Map<X, Y> executeChunked2(Set<X> set,
-			Function<Set<X>, Map<X, Y>> queryMethod) {
+											   Function<Set<X>, Map<X, Y>> queryMethod) {
 		List<Set<X>> split = split(set);
 		Map<X, Y> all = new HashMap<>();
 		for (Set<X> s : split) {
@@ -324,7 +319,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 	}
 
 	protected List<Object[]> selectAll(String sql, String[] fields,
-			List<Object> parameters) {
+									   List<Object> parameters) {
 		try (Connection conn = getDatabase().createConnection()) {
 			List<Object[]> results = execute(sql, fields, parameters, conn,
 					false);
@@ -337,7 +332,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 	}
 
 	protected Object[] selectFirst(String sql, String[] fields,
-			List<Object> parameters) {
+								   List<Object> parameters) {
 		try (Connection conn = getDatabase().createConnection()) {
 			List<Object[]> results = execute(sql, fields, parameters, conn,
 					true);
@@ -352,7 +347,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 	}
 
 	private List<Object[]> execute(String sql, String[] fields,
-			List<Object> parameters, Connection conn, boolean single)
+								   List<Object> parameters, Connection conn, boolean single)
 			throws SQLException {
 		List<Object[]> results = new ArrayList<>();
 		PreparedStatement statement = conn.prepareStatement(sql);

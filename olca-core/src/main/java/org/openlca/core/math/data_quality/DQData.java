@@ -1,6 +1,5 @@
 package org.openlca.core.math.data_quality;
 
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -42,23 +41,19 @@ class DQData {
 		String query = "SELECT id, dq_entry FROM tbl_processes";
 		query += " INNER JOIN tbl_product_system_processes ON tbl_processes.id = tbl_product_system_processes.f_process ";
 		query += " WHERE tbl_product_system_processes.f_product_system = " + setup.productSystemId;
-		try {
-			NativeSql.on(db).query(query.toString(), (res) -> {
-				long processId = res.getLong("id");
-				String dqEntry = res.getString("dq_entry");
-				int[] values = setup.processDqSystem.toValues(dqEntry);
-				processData.put(processId, toDouble(values));
-				increaseCounter(statistics.processCounts, 0);
-				for (int i = 0; i < values.length; i++) {
-					if (values[i] == 0)
-						continue;
-					increaseCounter(statistics.processCounts, i + 1);
-				}
-				return true;
-			});
-		} catch (SQLException e) {
-			log.error("Error loading process data quality entries", e);
-		}
+		NativeSql.on(db).query(query.toString(), (res) -> {
+			long processId = res.getLong("id");
+			String dqEntry = res.getString("dq_entry");
+			int[] values = setup.processDqSystem.toValues(dqEntry);
+			processData.put(processId, toDouble(values));
+			increaseCounter(statistics.processCounts, 0);
+			for (int i = 0; i < values.length; i++) {
+				if (values[i] == 0)
+					continue;
+				increaseCounter(statistics.processCounts, i + 1);
+			}
+			return true;
+		});
 	}
 
 	private <T> void increaseCounter(Map<T, Integer> map, T key) {
@@ -73,28 +68,24 @@ class DQData {
 		String query = "SELECT f_owner, f_flow, dq_entry FROM tbl_exchanges";
 		query += " INNER JOIN tbl_product_system_processes ON tbl_exchanges.f_owner = tbl_product_system_processes.f_process ";
 		query += " WHERE tbl_product_system_processes.f_product_system = " + setup.productSystemId;
-		try {
-			NativeSql.on(db).query(query.toString(), (res) -> {
-				long processId = res.getLong("f_owner");
-				long flowId = res.getLong("f_flow");
-				if (!relevantFlowIds.contains(flowId))
-					return true;
-				String dqEntry = res.getString("dq_entry");
-				int[] values = setup.exchangeDqSystem.toValues(dqEntry);
-				exchangeData.put(new LongPair(processId, flowId), toDouble(values));
-				increaseCounter(getMap(statistics.exchangeCounts, 0l), 0);
-				increaseCounter(getMap(statistics.exchangeCounts, processId), 0);
-				for (int i = 0; i < values.length; i++) {
-					if (values[i] == 0)
-						continue;
-					increaseCounter(getMap(statistics.exchangeCounts, 0l), i + 1);
-					increaseCounter(getMap(statistics.exchangeCounts, processId), i + 1);
-				}
+		NativeSql.on(db).query(query.toString(), (res) -> {
+			long processId = res.getLong("f_owner");
+			long flowId = res.getLong("f_flow");
+			if (!relevantFlowIds.contains(flowId))
 				return true;
-			});
-		} catch (SQLException e) {
-			log.error("Error loading process data quality entries", e);
-		}
+			String dqEntry = res.getString("dq_entry");
+			int[] values = setup.exchangeDqSystem.toValues(dqEntry);
+			exchangeData.put(new LongPair(processId, flowId), toDouble(values));
+			increaseCounter(getMap(statistics.exchangeCounts, 0l), 0);
+			increaseCounter(getMap(statistics.exchangeCounts, processId), 0);
+			for (int i = 0; i < values.length; i++) {
+				if (values[i] == 0)
+					continue;
+				increaseCounter(getMap(statistics.exchangeCounts, 0l), i + 1);
+				increaseCounter(getMap(statistics.exchangeCounts, processId), i + 1);
+			}
+			return true;
+		});
 	}
 
 	private Map<Integer, Integer> getMap(Map<Long, Map<Integer, Integer>> map, long id) {

@@ -1,6 +1,5 @@
 package org.openlca.core.database;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -127,19 +126,10 @@ public class CategoryDao
 			long lastChange = System.currentTimeMillis();
 			descriptor.version = version;
 			descriptor.lastChange = lastChange;
-			try {
-				String update = "UPDATE " + getTable(descriptor.type)
-						+ " SET version = " + version + ", last_change = "
-						+ lastChange
-						+ " WHERE id = " + descriptor.id;
-				NativeSql.on(database).runUpdate(update);
-			} catch (SQLException e) {
-				log.error("Error updating "
-						+ descriptor.type.getModelClass()
-								.getSimpleName()
-						+ " "
-						+ descriptor.id, e);
-			}
+			String update = "UPDATE " + getTable(descriptor.type)
+					+ " SET version = " + version + ", last_change = "
+					+ lastChange + " WHERE id = " + descriptor.id;
+			NativeSql.on(database).runUpdate(update);
 			database.notifyUpdate(descriptor);
 		}
 	}

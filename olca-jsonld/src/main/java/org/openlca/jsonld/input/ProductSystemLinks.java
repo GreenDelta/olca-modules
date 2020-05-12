@@ -1,6 +1,5 @@
 package org.openlca.jsonld.input;
 
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,8 +15,6 @@ import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.Json;
 import org.openlca.util.RefIdMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -31,16 +28,12 @@ import com.google.gson.JsonObject;
  */
 class ProductSystemLinks {
 
-	private final Logger log = LoggerFactory
-			.getLogger(ProductSystemLinks.class);
-
 	private final IDatabase db;
 	private final RefIdMap<String, Long> refIds;
 
 	/**
-	 * A map of maps (processID, internalID) -> exchangeID that maps the
-	 * internal IDs of exchanges used in the JSON-LD to the exchangeIDs of the
-	 * database.
+	 * A map of maps (processID, internalID) -> exchangeID that maps the internal
+	 * IDs of exchanges used in the JSON-LD to the exchangeIDs of the database.
 	 */
 	private final Map<Long, Map<Integer, Long>> exchangeIds;
 
@@ -50,25 +43,21 @@ class ProductSystemLinks {
 				db, ProductSystem.class, Process.class,
 				Flow.class, Unit.class);
 		exchangeIds = new HashMap<>();
-		try {
-			// TODO: this currently add *ALL* exchanges from the database
-			// to the ID map but we could reduce this to add only exchanges
-			// that can be linked (product inputs and waste outputs)
-			String sql = "SELECT f_owner, id, internal_id FROM tbl_exchanges";
-			NativeSql.on(db).query(sql, rs -> {
-				long process = rs.getLong(1);
-				long exchange = rs.getLong(2);
-				int internalId = rs.getInt(3);
-				Map<Integer, Long> ofProcess = exchangeIds.get(process);
-				if (ofProcess == null) {
-					exchangeIds.put(process, ofProcess = new HashMap<>());
-				}
-				ofProcess.put(internalId, exchange);
-				return true;
-			});
-		} catch (SQLException e) {
-			log.error("Error loading exchange ids", e);
-		}
+		// TODO: this currently add *ALL* exchanges from the database
+		// to the ID map but we could reduce this to add only exchanges
+		// that can be linked (product inputs and waste outputs)
+		String sql = "SELECT f_owner, id, internal_id FROM tbl_exchanges";
+		NativeSql.on(db).query(sql, rs -> {
+			long process = rs.getLong(1);
+			long exchange = rs.getLong(2);
+			int internalId = rs.getInt(3);
+			Map<Integer, Long> ofProcess = exchangeIds.get(process);
+			if (ofProcess == null) {
+				exchangeIds.put(process, ofProcess = new HashMap<>());
+			}
+			ofProcess.put(internalId, exchange);
+			return true;
+		});
 	}
 
 	static void map(JsonObject json, ImportConfig conf, ProductSystem system) {

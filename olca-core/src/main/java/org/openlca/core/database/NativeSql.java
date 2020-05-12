@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 public final class NativeSql {
 
-	private Logger log = LoggerFactory.getLogger(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private final int MAX_BATCH_SIZE = 1000;
 	private final IDatabase database;
 
@@ -23,7 +23,7 @@ public final class NativeSql {
 		this.database = database;
 	}
 
-	public void query(String query, QueryResultHandler handler) throws SQLException {
+	public void query(String query, QueryResultHandler handler) {
 		log.trace("execute query {}", query);
 		try (Connection con = database.createConnection();
 				Statement stmt = con.createStatement();
@@ -33,16 +33,41 @@ public final class NativeSql {
 				if (!b)
 					break;
 			}
+		} catch (SQLException e) {
+			throw new RuntimeException("query failed: " + query, e);
 		}
 	}
 
-	public void runUpdate(String statement) throws SQLException {
-		log.trace("run update statement {}", statement);
+	/**
+	 * Creates an updateable cursor for the given query.
+	 */
+	public void updateRows(String query, QueryResultHandler handler) {
+		log.trace("execute update {}", query);
+		try (Connection con = database.createConnection();
+			 Statement stmt = con.createStatement(
+					 ResultSet.TYPE_SCROLL_SENSITIVE,
+					 ResultSet.CONCUR_UPDATABLE);
+			 ResultSet rs = stmt.executeQuery(query)) {
+			while (rs.next()) {
+				boolean b = handler.nextResult(rs);
+				if (!b)
+					break;
+			}
+			con.commit();
+		} catch (SQLException e) {
+			throw new RuntimeException("update failed: " + query, e);
+		}
+	}
+
+	public void runUpdate(String sql) {
+		log.trace("run update statement {}", sql);
 		try (Connection con = database.createConnection();
 				Statement stmt = con.createStatement()) {
-			stmt.executeUpdate(statement);
+			stmt.executeUpdate(sql);
 			con.commit();
 			log.trace("update done");
+		} catch (SQLException e) {
+			throw new RuntimeException("update failed: " + sql, e);
 		}
 	}
 

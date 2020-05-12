@@ -1,6 +1,5 @@
 package org.openlca.core.database.usage;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -67,39 +66,31 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 		String query = "SELECT count(id) FROM tbl_parameters WHERE f_owner = "
 				+ ref.ownerId + " AND lower(name) = '" + ref.name.toLowerCase() + "'";
 		Set<Boolean> value = new HashSet<>();
-		try {
-			NativeSql.on(database).query(query, (result) -> {
-				value.add(result.getInt(1) != 0);
-				return false;
-			});
-		} catch (SQLException e) {
-			log.error("Error while loading parameters", e);
-		}
+		NativeSql.on(database).query(query, (result) -> {
+			value.add(result.getInt(1) != 0);
+			return false;
+		});
 		return value.contains(true);
 	}
 
 	private List<ParameterRef> findReferencing(Set<String> names) {
 		String query = "SELECT scope, lower(formula), id, f_owner FROM tbl_parameters";
 		List<ParameterRef> refs = new ArrayList<>();
-		try {
-			NativeSql.on(database).query(query, (result) -> {
-				ParameterScope scope = getScope(result.getString(1));
-				String formula = result.getString(2);
-				long id = result.getLong(3);
-				long ownerId = result.getLong(4);
-				try {
-					Set<String> variables = Formula.getVariables(formula);
-					for (String name : names)
-						if (variables.contains(name))
-							refs.add(new ParameterRef(id, ownerId, name, scope));
-				} catch (Throwable e) {
-					log.warn("Failed parsing formula " + formula + " of parameter in model " + ownerId, e);
-				}
-				return true;
-			});
-		} catch (SQLException e) {
-			log.error("Error while loading parameters", e);
-		}
+		NativeSql.on(database).query(query, (result) -> {
+			ParameterScope scope = getScope(result.getString(1));
+			String formula = result.getString(2);
+			long id = result.getLong(3);
+			long ownerId = result.getLong(4);
+			try {
+				Set<String> variables = Formula.getVariables(formula);
+				for (String name : names)
+					if (variables.contains(name))
+						refs.add(new ParameterRef(id, ownerId, name, scope));
+			} catch (Throwable e) {
+				log.warn("Failed parsing formula " + formula + " of parameter in model " + ownerId, e);
+			}
+			return true;
+		});
 		refs.addAll(findInExchanges(names));
 		return refs;
 	}
@@ -115,14 +106,10 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 				+ "context_type IS NULL AND lower(name) IN "
 				+ Search.asSqlList(names.toArray());
 		Set<Long> ids = new HashSet<>();
-		try {
-			NativeSql.on(database).query(query, (result) -> {
-				ids.add(result.getLong(1));
-				return true;
-			});
-		} catch (SQLException e) {
-			log.error("Error while loading parameter redefs by name", e);
-		}
+		NativeSql.on(database).query(query, (result) -> {
+			ids.add(result.getLong(1));
+			return true;
+		});
 		List<CategorizedDescriptor> results = new ArrayList<>();
 		results.addAll(loadDescriptors(ModelType.PRODUCT_SYSTEM, ids));
 		Set<Long> projectIds = queryForIds("f_project", "tbl_project_variants", ids, "id");
@@ -133,18 +120,14 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 	private List<ParameterRef> findInExchanges(Set<String> names) {
 		String query = "SELECT lower(resulting_amount_formula), lower(cost_formula), f_owner FROM tbl_exchanges";
 		List<ParameterRef> refs = new ArrayList<>();
-		try {
-			NativeSql.on(database).query(query, (result) -> {
-				String amountFormula = result.getString(1);
-				String costFormula = result.getString(2);
-				long ownerId = result.getLong(3);
-				refs.addAll(findInFormula(names, ownerId, amountFormula));
-				refs.addAll(findInFormula(names, ownerId, costFormula));
-				return true;
-			});
-		} catch (SQLException e) {
-			log.error("Error while loading parameters", e);
-		}
+		NativeSql.on(database).query(query, (result) -> {
+			String amountFormula = result.getString(1);
+			String costFormula = result.getString(2);
+			long ownerId = result.getLong(3);
+			refs.addAll(findInFormula(names, ownerId, amountFormula));
+			refs.addAll(findInFormula(names, ownerId, costFormula));
+			return true;
+		});
 		return refs;
 	}
 
@@ -163,22 +146,18 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 		}
 		return refs;
 	}
-	
+
 	private Set<String> getParameterNames(Set<Long> ids) {
 		if (ids.isEmpty())
 			return new HashSet<>();
 		String query = "SELECT lower(name) FROM tbl_parameters WHERE id IN " + Search.asSqlList(ids);
 		Set<String> names = new HashSet<>();
-		try {
-			NativeSql.on(database).query(query, (result) -> {
-				String name = result.getString(1);
-				if (name != null)
-					names.add(name);
-				return true;
-			});
-		} catch (SQLException e) {
-			log.error("Error while loading names of parameters", e);
-		}
+		NativeSql.on(database).query(query, (result) -> {
+			String name = result.getString(1);
+			if (name != null)
+				names.add(name);
+			return true;
+		});
 		return names;
 	}
 
