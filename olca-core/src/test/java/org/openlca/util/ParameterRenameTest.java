@@ -19,6 +19,8 @@ import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Project;
+import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.RootEntity;
 
 public class ParameterRenameTest {
@@ -193,6 +195,55 @@ public class ParameterRenameTest {
 		Assert.assertEquals("param", localRedef.name);
 
 		drop(system);
+		drop(process);
+		drop(global);
+	}
+
+	@Test
+	public void testProjectVariantRedefs() {
+		var global = global("param");
+
+		var process = new Process();
+		local(process, "param");
+		put(process);
+
+		var project = new Project();
+		var variant = new ProjectVariant();
+		project.variants.add(variant);
+
+		var globalRedef = new ParameterRedef();
+		globalRedef.name = "param";
+		variant.parameterRedefs.add(globalRedef);
+
+		var localRedef = new ParameterRedef();
+		localRedef.name = "param";
+		localRedef.contextId = process.id;
+		localRedef.contextType = ModelType.PROCESS;
+		variant.parameterRedefs.add(localRedef);
+
+		put(project);
+
+		global = Parameters.rename(db, global, "global_param");
+		Assert.assertEquals("global_param", global.name);
+
+		project = reload(project);
+		globalRedef = project.variants.get(0)
+				.parameterRedefs.stream()
+				.filter(r -> r.contextId == null)
+				.findFirst()
+				.orElse(null);
+		Assert.assertNotNull(globalRedef);
+		Assert.assertEquals("global_param", globalRedef.name);
+
+		localRedef = project.variants.get(0)
+				.parameterRedefs.stream()
+				.filter(r -> Objects.equals(r.contextId, process.id))
+				.findFirst()
+				.orElse(null);
+		Assert.assertNotNull(localRedef);
+		Assert.assertEquals("param", localRedef.name);
+
+		drop(project);
 		drop(process);
 		drop(global);
 	}
