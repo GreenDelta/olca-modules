@@ -1,5 +1,7 @@
 package org.openlca.util;
 
+import java.util.Objects;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
@@ -10,9 +12,13 @@ import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
+import org.openlca.core.model.ParameterRedef;
+import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.RootEntity;
 
 public class ParameterRenameTest {
@@ -140,6 +146,54 @@ public class ParameterRenameTest {
 
 		drop(i1);
 		drop(i2);
+		drop(global);
+	}
+
+	@Test
+	public void testProductSystemRedefs() {
+		var global = global("param");
+
+		var process = new Process();
+		local(process, "param");
+		put(process);
+
+		var system = new ProductSystem();
+		var paramSet = new ParameterRedefSet();
+		system.parameterSets.add(paramSet);
+
+		var globalRedef = new ParameterRedef();
+		globalRedef.name = "param";
+		paramSet.parameters.add(globalRedef);
+
+		var localRedef = new ParameterRedef();
+		localRedef.name = "param";
+		localRedef.contextId = process.id;
+		localRedef.contextType = ModelType.PROCESS;
+		paramSet.parameters.add(localRedef);
+
+		put(system);
+
+		global = Parameters.rename(db, global, "global_param");
+		Assert.assertEquals("global_param", global.name);
+
+		globalRedef = reload(system).parameterSets.get(0)
+				.parameters.stream()
+				.filter(r -> r.contextId == null)
+				.findFirst()
+				.orElse(null);
+		Assert.assertNotNull(globalRedef);
+		Assert.assertEquals("global_param", globalRedef.name);
+
+		localRedef = reload(system).parameterSets.get(0)
+				.parameters.stream()
+				.filter(r -> Objects.equals(r.contextId, process.id))
+				.findFirst()
+				.orElse(null);
+		Assert.assertNotNull(localRedef);
+		Assert.assertEquals("param", localRedef.name);
+
+		drop(system);
+		drop(process);
 		drop(global);
 	}
 

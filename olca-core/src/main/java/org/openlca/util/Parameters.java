@@ -90,6 +90,8 @@ public class Parameters {
 			return true;
 		});
 
+		var updatedOwners = new TLongHashSet();
+
 		NativeSql.QueryResultHandler formulaUpdate = r -> {
 			long owner = r.getLong(1);
 			if (owner != 0 && localOwners.contains(owner))
@@ -101,6 +103,7 @@ public class Parameters {
 					formula, param.name, name);
 			r.updateString(2, formula);
 			r.updateRow();
+			updatedOwners.add(owner);
 			return true;
 		};
 
@@ -118,6 +121,25 @@ public class Parameters {
 		sql = "select f_impact_category, formula from tbl_impact_factors" +
 				" where formula is not null";
 		NativeSql.on(db).updateRows(sql, formulaUpdate);
+
+		// rename redefinitions of global parameters
+		sql = "select f_owner, name, f_context from tbl_parameter_redefs";
+		NativeSql.on(db).updateRows(sql, r -> {
+			long context = r.getLong(3);
+			if (context > 0L)
+				return true;
+			long owner = r.getLong(1);
+			var n = r.getString(2);
+			if (!eq(n, param.name))
+				return  true;
+			r.updateString(2, name);
+			r.updateRow();
+			updatedOwners.add(owner);
+			return true;
+		});
+
+		// TODO: update version numbers and last change dates of
+		// updated entities
 
 		db.clearCache();
 
