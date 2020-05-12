@@ -28,6 +28,10 @@ public class ParameterRenameTest {
 	@Test
 	public void testParameterFormulas() {
 		var global = global("param");
+		var globalDep = global("dep");
+		globalDep.isInputParameter = false;
+		globalDep.formula = "2 / param";
+		put(globalDep);
 
 		var process1 = new Process();
 		var dep1 = local(process1, "dep");
@@ -44,6 +48,10 @@ public class ParameterRenameTest {
 
 		global = Parameters.rename(db, global, "global_param");
 		Assert.assertEquals("global_param", global.name);
+
+		// should be renamed in global parameter formula
+		globalDep = reload(globalDep);
+		Assert.assertEquals("2 / global_param", globalDep.formula);
 
 		// should be renamed in process 1
 		dep1 = reload(process1).parameters.get(0);
@@ -82,7 +90,11 @@ public class ParameterRenameTest {
 	@SuppressWarnings("unchecked")
 	private <T extends RootEntity> void put(T e) {
 		var dao = (BaseDao<T>) Daos.base(db, e.getClass());
-		dao.insert(e);
+		if (e.id == 0) {
+			dao.insert(e);
+		} else {
+			dao.update(e);
+		}
 	}
 
 	@SuppressWarnings("unchecked")

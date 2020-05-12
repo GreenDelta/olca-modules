@@ -97,7 +97,7 @@ public class Parameters {
 			long owner = r.getLong(1);
 			if (owner != 0 && localOwners.contains(owner))
 				return true;
-			String formula = r.getString(1);
+			String formula = r.getString(2);
 			if (!hasVariable(formula, param.name))
 				return true;
 			formula = Formulas.renameVariable(
@@ -106,6 +106,8 @@ public class Parameters {
 			r.updateRow();
 			return true;
 		});
+
+		db.clearCache();
 
 		// finally, update the parameter
 		param.name = name;

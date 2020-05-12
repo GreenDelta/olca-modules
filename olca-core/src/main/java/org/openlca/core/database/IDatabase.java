@@ -43,4 +43,18 @@ public interface IDatabase extends Closeable, INotifiable {
 	 */
 	File getFileStorageLocation();
 
+	/**
+	 * Clears the cache of the entity manager of this database. You should
+	 * always call this method when you modified the database (via native SQL
+	 * queries) outside of the entity manager.
+	 */
+	default void clearCache() {
+		var emf = getEntityFactory();
+		if (emf == null)
+			return;
+		var cache = emf.getCache();
+		if (cache != null) {
+			cache.evictAll();
+		}
+	}
 }
