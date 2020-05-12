@@ -65,16 +65,22 @@ public class ParameterRenameTest {
 		Assert.assertEquals("2 / global_param", globalDep.formula);
 
 		// should be renamed in process 1
-		dep1 = reload(process1).parameters.get(0);
+		process1 = reload(process1);
+		dep1 = process1.parameters.get(0);
 		Assert.assertEquals("2 * global_param", dep1.formula);
+		Assert.assertTrue(process1.version > 0L);
+		Assert.assertTrue(process1.lastChange > 0L);
 
 		// should be still the same in process 2
-		dep2 = reload(process2).parameters.stream()
+		process2 = reload(process2);
+		dep2 = process2.parameters.stream()
 				.filter(p -> !p.isInputParameter)
 				.findFirst()
 				.orElse(null);
 		Assert.assertNotNull(dep2);
 		Assert.assertEquals("2 * param", dep2.formula);
+		Assert.assertEquals(process2.version, 0L);
+		Assert.assertEquals(process2.lastChange, 0L);
 
 		drop(process1);
 		drop(process2);
@@ -104,12 +110,18 @@ public class ParameterRenameTest {
 		Assert.assertEquals("global_param", global.name);
 
 		// should be renamed in process 1
-		e1 = reload(p1).exchanges.get(0);
+		p1 = reload(p1);
+		e1 = p1.exchanges.get(0);
 		Assert.assertEquals("2 * global_param", e1.formula);
+		Assert.assertTrue(p1.version > 0L);
+		Assert.assertTrue(p1.lastChange > 0L);
 
 		// should **not** be renamed in process 2
-		e2 = reload(p2).exchanges.get(0);
+		p2 = reload(p2);
+		e2 = p2.exchanges.get(0);
 		Assert.assertEquals("2 * param", e2.formula);
+		Assert.assertEquals(p2.version, 0L);
+		Assert.assertEquals(p2.lastChange, 0L);
 
 		drop(p1);
 		drop(p2);
@@ -139,12 +151,18 @@ public class ParameterRenameTest {
 		Assert.assertEquals("global_param", global.name);
 
 		// should be renamed in impact 1
-		f1 = reload(i1).impactFactors.get(0);
+		i1 = reload(i1);
+		f1 = i1.impactFactors.get(0);
 		Assert.assertEquals("2 * global_param", f1.formula);
+		Assert.assertTrue(i1.version > 0L);
+		Assert.assertTrue(i1.lastChange > 0L);
 
 		// should **not** be renamed in impact 2
-		f2 = reload(i2).impactFactors.get(0);
+		i2 = reload(i2);
+		f2 = i2.impactFactors.get(0);
 		Assert.assertEquals("2 * param", f2.formula);
+		Assert.assertTrue(i2.version  == 0L);
+		Assert.assertTrue(i2.lastChange == 0L);
 
 		drop(i1);
 		drop(i2);

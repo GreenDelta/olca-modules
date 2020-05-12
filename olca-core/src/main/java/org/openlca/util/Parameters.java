@@ -6,6 +6,7 @@ import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ParameterDao;
+import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Version;
@@ -131,15 +132,19 @@ public class Parameters {
 			long owner = r.getLong(1);
 			var n = r.getString(2);
 			if (!eq(n, param.name))
-				return  true;
+				return true;
 			r.updateString(2, name);
 			r.updateRow();
 			updatedOwners.add(owner);
 			return true;
 		});
 
-		// TODO: update version numbers and last change dates of
-		// updated entities
+		// update version numbers and last change dates
+		// of the updated entities
+		incVersions(updatedOwners, "tbl_processes", db);
+		incVersions(updatedOwners, "tbl_impact_categories", db);
+
+
 
 		db.clearCache();
 
@@ -168,5 +173,27 @@ public class Parameters {
 		return Formulas.getVariables(formula)
 				.stream()
 				.anyMatch(v -> eq(v, variable));
+	}
+
+	/**
+	 * Increment the versions and last change dates of the entities in the
+	 * given table with an ID of the given ID set.
+	 */
+	private static void incVersions(TLongHashSet ids, String table, IDatabase db) {
+		if (ids.isEmpty())
+			return;
+		String sql = "select id, version, last_change from " + table;
+		long date = new Date().getTime();
+		NativeSql.on(db).updateRows(sql, r -> {
+			long id = r.getLong(1);
+			if (!ids.contains(id))
+				return true;
+			var v = new Version(r.getLong(2));
+			v.incUpdate();
+			r.updateLong(2, v.getValue());
+			r.updateLong(3, date);
+			r.updateRow();
+			return true;
+		});
 	}
 }
