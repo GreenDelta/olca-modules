@@ -6,7 +6,6 @@ import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ParameterDao;
-import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Version;
@@ -144,7 +143,30 @@ public class Parameters {
 		incVersions(updatedOwners, "tbl_processes", db);
 		incVersions(updatedOwners, "tbl_impact_categories", db);
 
+		// find product systems with updated parameter sets
+		// and projects with updated variants
+		NativeSql.QueryResultHandler swapOwner = (r) -> {
+			long i = r.getLong(2);
+			if (updatedOwners.contains(i)) {
+				updatedOwners.remove(i);
+				updatedOwners.add(r.getLong(1));
+			}
+			return true;
+		};
+		sql = "select sys.id as sysid, params.id as paramid" +
+				" from tbl_product_systems sys inner join" +
+				" tbl_parameter_redef_sets params on" +
+				" params.f_product_system = sys.id";
+		NativeSql.on(db).query(sql, swapOwner);
 
+		sql = "select proj.id as projid, var.id as varid" +
+				" from tbl_projects proj inner join" +
+				" tbl_project_variants var on" +
+				" var.f_project = proj.id";
+		NativeSql.on(db).query(sql, swapOwner);
+
+		incVersions(updatedOwners, "tbl_product_systems", db);
+		incVersions(updatedOwners, "tbl_projects", db);
 
 		db.clearCache();
 

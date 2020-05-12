@@ -161,8 +161,8 @@ public class ParameterRenameTest {
 		i2 = reload(i2);
 		f2 = i2.impactFactors.get(0);
 		Assert.assertEquals("2 * param", f2.formula);
-		Assert.assertTrue(i2.version  == 0L);
-		Assert.assertTrue(i2.lastChange == 0L);
+		Assert.assertEquals(0L, i2.version);
+		Assert.assertEquals(0L, i2.lastChange);
 
 		drop(i1);
 		drop(i2);
@@ -196,7 +196,9 @@ public class ParameterRenameTest {
 		global = Parameters.rename(db, global, "global_param");
 		Assert.assertEquals("global_param", global.name);
 
-		globalRedef = reload(system).parameterSets.get(0)
+		system = reload(system);
+
+		globalRedef = system.parameterSets.get(0)
 				.parameters.stream()
 				.filter(r -> r.contextId == null)
 				.findFirst()
@@ -204,13 +206,16 @@ public class ParameterRenameTest {
 		Assert.assertNotNull(globalRedef);
 		Assert.assertEquals("global_param", globalRedef.name);
 
-		localRedef = reload(system).parameterSets.get(0)
+		localRedef = system.parameterSets.get(0)
 				.parameters.stream()
 				.filter(r -> Objects.equals(r.contextId, process.id))
 				.findFirst()
 				.orElse(null);
 		Assert.assertNotNull(localRedef);
 		Assert.assertEquals("param", localRedef.name);
+
+		Assert.assertTrue(system.version > 0);
+		Assert.assertTrue(system.lastChange > 0);
 
 		drop(system);
 		drop(process);
@@ -245,6 +250,7 @@ public class ParameterRenameTest {
 		Assert.assertEquals("global_param", global.name);
 
 		project = reload(project);
+
 		globalRedef = project.variants.get(0)
 				.parameterRedefs.stream()
 				.filter(r -> r.contextId == null)
@@ -260,6 +266,9 @@ public class ParameterRenameTest {
 				.orElse(null);
 		Assert.assertNotNull(localRedef);
 		Assert.assertEquals("param", localRedef.name);
+
+		Assert.assertTrue(project.version > 0);
+		Assert.assertTrue(project.lastChange > 0);
 
 		drop(project);
 		drop(process);
