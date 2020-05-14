@@ -1,20 +1,19 @@
 package org.openlca.expressions;
 
-import java.io.Reader;
 import java.io.StringReader;
 import java.util.HashMap;
 
 /**
  * A scope contains bindings of variable names to expressions. Each scope has a
  * reference to a parent scope except of the global scope. An expression can be
- * evaluated in a scope. If the
- * 
+ * evaluated in a scope.
+ *
  */
 public final class Scope {
 
 	private final Scope parent;
-	private final HashMap<String, Integer> evaluationCalls = new HashMap<>();
 	private final HashMap<String, Variable> variables = new HashMap<>();
+	private final HashMap<String, Integer> evaluationCalls = new HashMap<>();
 
 	Scope() {
 		this(null);
@@ -25,16 +24,25 @@ public final class Scope {
 	}
 
 	/**
-	 * Creates a new binding of a variable name to an expression in this scope.
+	 * Binds the given variable to the given value in this scope.
 	 */
-	public void bind(String variableName, String expression) {
-		if (variableName == null || expression == null)
+	public void bind(String variable, double value) {
+		if (variable == null)
 			return;
-		String symbol = variableName.toLowerCase().trim();
-		Variable var = new Variable();
-		var.name = symbol;
-		var.expression = expression;
-		variables.put(symbol, var);
+		var symbol = variable.toLowerCase().trim();
+		var v = new Variable(symbol, value);
+		variables.put(symbol, v);
+	}
+
+	/**
+	 * Binds the given variable to the given expression in this scope.
+	 */
+	public void bind(String variable, String expression) {
+		if (variable == null || expression == null)
+			return;
+		var symbol = variable.toLowerCase().trim();
+		var v = new Variable(symbol, expression);
+		variables.put(symbol, v);
 	}
 
 	/**
@@ -50,10 +58,12 @@ public final class Scope {
 	 */
 	public double eval(String expression) throws InterpreterException {
 		// reset the evaluation calls and values for variables
-		for (String var : evaluationCalls.keySet())
-			evaluationCalls.put(var, 0);
-		for (Variable variable : variables.values())
-			variable.value = null;
+		evaluationCalls.clear();
+		for (Variable variable : variables.values()) {
+			if (variable.expression != null) {
+				variable.value = null;
+			}
+		}
 		try {
 			return tryEval(expression);
 		} catch (Throwable e) {
@@ -63,34 +73,33 @@ public final class Scope {
 	}
 
 	private double tryEval(String expression) throws Exception {
-		Reader reader = new StringReader(expression.toLowerCase());
-		FormulaParser parser = new FormulaParser(reader);
+		var reader = new StringReader(expression.toLowerCase());
+		var parser = new FormulaParser(reader);
 		parser.parse();
-		Expression e = parser.getExpression();
+		var e = parser.getExpression();
 		e.check();
-		Object result = e.evaluate(this);
-		if (!(result instanceof Double))
-			throw new InterpreterException("The given expression " + expression
-					+ " does not evaluate to a number.");
-		return ((Double) result);
+		var result = e.evaluate(this);
+		if (result instanceof Double)
+			return (Double) result;
+		throw new InterpreterException("The expression " + expression
+				+ " does not evaluate to a number.");
 	}
 
 	public Object resolveVariable(String name) throws InterpreterException {
-		Variable var = variables.get(name);
-		if (var != null) {
+		if (name == null)
+			return null;
+		var symbol = name.trim().toLowerCase();
+		var v = variables.get(symbol);
+		if (v != null) {
 			// variable is bound in this scope
-			if (var.isEvaluated())
-				return var.value;
-			else
-				return eval(var);
-		} else {
-			// search in parent scope or constants
-			if (parent == null)
-				return Constants.get(name);
-			else {
-				return parent.resolveVariable(name);
-			}
+			return v.isEvaluated()
+					? v.value
+					: eval(v);
 		}
+		// search in parent scope or constants
+		return parent != null
+				? parent.resolveVariable(symbol)
+				: Constants.get(name);
 	}
 
 	private Object eval(Variable var) throws InterpreterException {
@@ -111,9 +120,21 @@ public final class Scope {
 
 	private class Variable {
 
-		private String name;
-		private String expression;
+		final String name;
+		final String expression;
+
 		private Double value;
+
+		Variable(String name, String expression) {
+			this.name = name;
+			this.expression = expression;
+		}
+
+		Variable(String name, double value) {
+			this.name = name;
+			this.value = value;
+			this.expression = null;
+		}
 
 		public boolean isEvaluated() {
 			return value != null;

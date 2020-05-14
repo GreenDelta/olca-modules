@@ -12,8 +12,8 @@ public class FormulaInterpreter {
 	}
 
 	/**
-	 * Removes all local scopes and all variable bindings of the global scope
-	 * from this interpreter.
+	 * Removes all local scopes and all variable bindings of the global scope from
+	 * this interpreter.
 	 */
 	public void clear() {
 		globalScope.clear();
@@ -22,20 +22,25 @@ public class FormulaInterpreter {
 
 	/**
 	 * Evaluates the given expression in the global scope of the interpreter.
-	 * This is equivalent to
-	 * <code>interpreter.getGlobalScope().eval(expression)</code>.
 	 */
 	public double eval(String expression) throws InterpreterException {
 		return globalScope.eval(expression);
 	}
 
 	/**
-	 * Binds the given variable name to the given expression in the global scope
-	 * of the interpreter. This is equivalent to
-	 * <code>interpreter.getGlobalScope().bind(variableName, expression)</code>.
+	 * Binds the given variable to the given expression in the global scope of the
+	 * interpreter.
 	 */
-	public void bind(String variableName, String expression) {
-		getGlobalScope().bind(variableName, expression);
+	public void bind(String variable, String expression) {
+		getGlobalScope().bind(variable, expression);
+	}
+
+	/**
+	 * Binds the given variable to the given value in the global scope of the
+	 * interpreter.
+	 */
+	public void bind(String variable, double value) {
+		getGlobalScope().bind(variable, value);
 	}
 
 	/** Returns the global scope of the interpreter. */
