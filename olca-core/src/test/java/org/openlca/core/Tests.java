@@ -89,7 +89,7 @@ public class Tests {
 				NativeSql.on(db).runUpdate("DELETE FROM " + table);
 			}
 			NativeSql.on(db).runUpdate("UPDATE SEQUENCE SET SEQ_COUNT = 0");
-			db.getEntityFactory().getCache().evictAll();
+			db.clearCache();
 		} catch (Exception e) {
 			throw new RuntimeException("failed to clear database", e);
 		}

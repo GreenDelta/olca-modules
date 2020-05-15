@@ -32,10 +32,36 @@ import org.slf4j.LoggerFactory;
  */
 public class ParameterUsageTree {
 
+	public final String param;
+	public final List<Node> nodes = new ArrayList<>();
+
+	public ParameterUsageTree(String param) {
+		this.param = param;
+	}
+
+	public static ParameterUsageTree build(String param, IDatabase db) {
+		ParameterUsageTree tree = new ParameterUsageTree(param);
+		if (Strings.nullOrEmpty(param))
+			return tree;
+		Search search = new Search(param.trim(), db);
+		tree.nodes.addAll(search.doIt());
+		return tree;
+	}
+
+	public boolean isEmpty() {
+		return nodes.isEmpty();
+	}
+
+	public enum UsageType {
+		DEFINITION,
+		REDEFINITION,
+		FORMULA,
+	}
+
 	public static class Node implements Comparable<Node> {
 
 		public BaseDescriptor context;
-		public String type;
+		public UsageType type;
 		public String formula;
 		public Node parent;
 		public final List<Node> childs = new ArrayList<>();
@@ -72,36 +98,20 @@ public class ParameterUsageTree {
 			if (type == null)
 				return -1;
 			switch (type) {
-			case PARAMETER:
-				return 0;
-			case PROJECT:
-				return 1;
-			case PRODUCT_SYSTEM:
-				return 2;
-			case PROCESS:
-				return 3;
-			case IMPACT_CATEGORY:
-				return 4;
-			default:
-				return 99;
+				case PARAMETER:
+					return 0;
+				case PROJECT:
+					return 1;
+				case PRODUCT_SYSTEM:
+					return 2;
+				case PROCESS:
+					return 3;
+				case IMPACT_CATEGORY:
+					return 4;
+				default:
+					return 99;
 			}
 		}
-	}
-
-	public final String param;
-	public final List<Node> nodes = new ArrayList<>();
-
-	public ParameterUsageTree(String param) {
-		this.param = param;
-	}
-
-	public static ParameterUsageTree build(String param, IDatabase db) {
-		ParameterUsageTree tree = new ParameterUsageTree(param);
-		if (Strings.nullOrEmpty(param))
-			return tree;
-		Search search = new Search(param.trim(), db);
-		tree.nodes.addAll(search.doIt());
-		return tree;
 	}
 
 	private static class Search {
@@ -125,9 +135,8 @@ public class ParameterUsageTree {
 			systemRedefs();
 			projectRedefs();
 			List<Node> roots = new ArrayList<>();
-			contexts.forEach((clazz, map) -> {
-				roots.addAll(map.values());
-			});
+			contexts.forEach(
+					(clazz, map) -> roots.addAll(map.values()));
 			sortRec(roots);
 			return roots;
 		}
@@ -147,10 +156,14 @@ public class ParameterUsageTree {
 					+ " WHERE resulting_amount_formula IS NOT NULL";
 			query(sql, r -> {
 				String formula = string(r, 3);
-				if (!matchesFormula(formula))
+				if (!matches(formula))
 					return;
-				Node pNode = context(int64(r, 1), ProcessDescriptor.class);
-				pNode.add(flowRef(int64(r, 2), "exchange formula", formula));
+				var parent = context(int64(r, 1), ProcessDescriptor.class);
+				var child = new Node();
+				child.context = cache.get(FlowDescriptor.class, int64(r, 2));
+				child.type = UsageType.FORMULA;
+				child.formula = formula;
+				parent.add(child);
 			});
 		}
 
@@ -164,12 +177,15 @@ public class ParameterUsageTree {
 					"  WHERE fac.formula IS NOT NULL";
 			query(sql, r -> {
 				String formula = string(r, 3);
-				if (!matchesFormula(formula))
+				if (!matches(formula))
 					return;
-				Node node = context(int64(r, 1),
+				var parent = context(int64(r, 1),
 						ImpactCategoryDescriptor.class);
-				node.add(flowRef(int64(r, 2),
-						"characterization value", formula));
+				var child = new Node();
+				child.context = cache.get(FlowDescriptor.class, int64(r, 2));
+				child.type = UsageType.FORMULA;
+				child.formula = formula;
+				parent.add(child);
 			});
 		}
 
@@ -182,9 +198,9 @@ public class ParameterUsageTree {
 					return;
 				ParameterScope scope = ParameterScope.valueOf(scopeStr);
 				String name = string(r, 2);
-				boolean nameMatch = matchesFormula(name);
+				boolean nameMatch = matches(name);
 				String formula = string(r, 6);
-				boolean formulaMatch = matchesFormula(formula);
+				boolean formulaMatch = matches(formula);
 				if (!nameMatch && !formulaMatch)
 					return;
 
@@ -209,9 +225,9 @@ public class ParameterUsageTree {
 					return;
 
 				if (nameMatch) {
-					paramNode.type = "parameter definition";
+					paramNode.type = UsageType.DEFINITION;
 				} else {
-					paramNode.type = "parameter formula";
+					paramNode.type = UsageType.FORMULA;
 					paramNode.formula = formula;
 				}
 			});
@@ -224,7 +240,7 @@ public class ParameterUsageTree {
 					+ "redef.f_owner = owner.id";
 			query(sql, r -> {
 				String name = string(r, 1);
-				if (!matchesFormula(name))
+				if (!matches(name))
 					return;
 				Node root = context(int64(r, 2), ProductSystemDescriptor.class);
 
@@ -239,14 +255,14 @@ public class ParameterUsageTree {
 					Node child = new Node();
 					child.context = new ParameterDescriptor();
 					child.context.name = name;
-					child.type = "parameter redefinition";
+					child.type = UsageType.REDEFINITION;
 					child.formula = name;
 					root.add(child);
 					return;
 				}
 
 				Node child = child(root, int64(r, 3), redefContext);
-				child.type = "parameter redefinition";
+				child.type = UsageType.REDEFINITION;
 				child.formula = name;
 			});
 		}
@@ -260,13 +276,13 @@ public class ParameterUsageTree {
 					" ON var.f_project = proj.id";
 			query(sql, r -> {
 				String name = string(r, 1);
-				if (!matchesFormula(name))
+				if (!matches(name))
 					return;
 				Node root = context(int64(r, 2), ProjectDescriptor.class);
 				Node child = new Node();
 				child.context = new ParameterDescriptor();
 				child.context.name = name;
-				child.type = "parameter redefinition";
+				child.type = UsageType.REDEFINITION;
 				child.formula = name;
 				root.add(child);
 			});
@@ -300,7 +316,7 @@ public class ParameterUsageTree {
 			}
 		}
 
-		private boolean matchesFormula(String formula) {
+		private boolean matches(String formula) {
 			if (formula == null)
 				return false;
 			String f = formula.trim();
@@ -319,11 +335,8 @@ public class ParameterUsageTree {
 		}
 
 		private Node context(long id, Class<? extends BaseDescriptor> clazz) {
-			Map<Long, Node> nodes = contexts.get(clazz);
-			if (nodes == null) {
-				nodes = new HashMap<>();
-				contexts.put(clazz, nodes);
-			}
+			Map<Long, Node> nodes = contexts.computeIfAbsent(
+					clazz, k -> new HashMap<>());
 			Node node = nodes.get(id);
 			if (node != null)
 				return node;
@@ -334,7 +347,7 @@ public class ParameterUsageTree {
 		}
 
 		private Node child(Node root, long id,
-				Class<? extends BaseDescriptor> clazz) {
+						   Class<? extends BaseDescriptor> clazz) {
 			for (Node c : root.childs) {
 				if (c.context != null && c.context.id == id)
 					return c;
@@ -345,26 +358,22 @@ public class ParameterUsageTree {
 			return c;
 		}
 
-		private Node flowRef(long flowID, String type, String formula) {
-			Node node = new Node();
-			node.context = cache.get(FlowDescriptor.class, flowID);
-			node.type = type;
-			node.formula = formula;
-			return node;
-		}
-
-		/** We only return types that can have local parameters here. */
+		/**
+		 * We only return types that can have local parameters here.
+		 */
 		private Class<? extends BaseDescriptor> toDescriptorType(ModelType t) {
 			if (t == null)
 				return null;
 			switch (t) {
-			case IMPACT_METHOD:
-				return ImpactMethodDescriptor.class;
-			case PROCESS:
-				return ProcessDescriptor.class;
-			default:
-				return null;
+				case IMPACT_METHOD:
+					return ImpactMethodDescriptor.class;
+				case PROCESS:
+					return ProcessDescriptor.class;
+				default:
+					return null;
 			}
 		}
 	}
+
+
 }
