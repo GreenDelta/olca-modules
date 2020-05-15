@@ -5,23 +5,24 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
+import org.openlca.core.database.ProductSystemDao;
+import org.openlca.core.database.ProjectDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterScope;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.model.descriptors.ParameterDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.model.descriptors.ProductSystemDescriptor;
-import org.openlca.core.model.descriptors.ProjectDescriptor;
 import org.openlca.util.Formula;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -60,17 +61,52 @@ public class ParameterUsageTree {
 
 	public static class Node implements Comparable<Node> {
 
-		public BaseDescriptor context;
-		public UsageType type;
-		public String formula;
+		public final long id;
+		public final String name;
+		public final BaseDescriptor model;
+
+		public UsageType usageType;
+		public String usage;
+
 		public Node parent;
 		public final List<Node> childs = new ArrayList<>();
 
-		private void add(Node child) {
+		Node(long id, String name) {
+			this.id = id;
+			this.name = name;
+			this.model = null;
+		}
+
+		Node(RootEntity e) {
+			this(Descriptors.toDescriptor(e));
+		}
+
+		Node(BaseDescriptor model) {
+			this.id = model.id;
+			this.name = model.name;
+			this.model = model;
+		}
+
+		Node of(UsageType type, String usage) {
+			this.usageType = type;
+			this.usage = usage;
+			return this;
+		}
+
+		private Node add(Node child) {
 			if (child == null)
-				return;
+				return null;
 			child.parent = this;
 			childs.add(child);
+			return this;
+		}
+
+		private Node addIfAbsent(long id, Supplier<Node> fn) {
+			for (var child : childs) {
+				if (child.id == id)
+					return child;
+			}
+			return add(fn.get());
 		}
 
 		public Node root() {
@@ -80,17 +116,18 @@ public class ParameterUsageTree {
 		}
 
 		@Override
-		public int compareTo(Node o) {
-			if (o == null)
+		public int compareTo(Node other) {
+			if (other == null)
 				return 1;
-			if (context == null || o.context == null)
-				return 0;
-			int o1 = typeOrder(context.type);
-			int o2 = typeOrder(o.context.type);
+			if (this.model == null && other.model == null)
+				return Strings.compare(this.name, other.name);
+			if (this.model == null || other.model == null)
+				return this.model == null ? 1 : -1;
+			int o1 = typeOrder(this.model.type);
+			int o2 = typeOrder(other.model.type);
 			if (o1 == o2)
 				return Strings.compare(
-						context.name,
-						o.context.name);
+						this.name, other.name);
 			return o1 - o2;
 		}
 
@@ -108,6 +145,8 @@ public class ParameterUsageTree {
 					return 3;
 				case IMPACT_CATEGORY:
 					return 4;
+				case FLOW:
+					return 5;
 				default:
 					return 99;
 			}
@@ -120,7 +159,7 @@ public class ParameterUsageTree {
 		private final IDatabase db;
 		private final EntityCache cache;
 
-		private final Map<Class<?>, Map<Long, Node>> contexts = new HashMap<>();
+		private final HashMap<Long, Node> roots = new HashMap<>();
 
 		Search(String param, IDatabase db) {
 			this.param = param;
@@ -134,9 +173,7 @@ public class ParameterUsageTree {
 			parameters();
 			systemRedefs();
 			projectRedefs();
-			List<Node> roots = new ArrayList<>();
-			contexts.forEach(
-					(clazz, map) -> roots.addAll(map.values()));
+			var roots = new ArrayList<>(this.roots.values());
 			sortRec(roots);
 			return roots;
 		}
@@ -158,12 +195,11 @@ public class ParameterUsageTree {
 				String formula = string(r, 3);
 				if (!matches(formula))
 					return;
-				var parent = context(int64(r, 1), ProcessDescriptor.class);
-				var child = new Node();
-				child.context = cache.get(FlowDescriptor.class, int64(r, 2));
-				child.type = UsageType.FORMULA;
-				child.formula = formula;
-				parent.add(child);
+				var root = root(int64(r, 1), ProcessDescriptor.class);
+				var flow = cache.get(FlowDescriptor.class, int64(r, 2));
+				if (root == null || flow == null)
+					return;
+				root.add(new Node(flow).of(UsageType.FORMULA, formula));
 			});
 		}
 
@@ -179,13 +215,11 @@ public class ParameterUsageTree {
 				String formula = string(r, 3);
 				if (!matches(formula))
 					return;
-				var parent = context(int64(r, 1),
-						ImpactCategoryDescriptor.class);
-				var child = new Node();
-				child.context = cache.get(FlowDescriptor.class, int64(r, 2));
-				child.type = UsageType.FORMULA;
-				child.formula = formula;
-				parent.add(child);
+				var root = root(int64(r, 1), ImpactCategoryDescriptor.class);
+				var flow = cache.get(FlowDescriptor.class, int64(r, 2));
+				if (root == null || flow == null)
+					return;
+				root.add(new Node(flow).of(UsageType.FORMULA, formula));
 			});
 		}
 
@@ -207,16 +241,13 @@ public class ParameterUsageTree {
 				Node paramNode = null;
 
 				if (scope == ParameterScope.GLOBAL) {
-					paramNode = context(int64(r, 1),
-							ParameterDescriptor.class);
+					paramNode = root(int64(r, 1), ParameterDescriptor.class);
 				} else if (scope == ParameterScope.PROCESS) {
-					Node root = context(int64(r, 5),
-							ProcessDescriptor.class);
+					var root = root(int64(r, 5), ProcessDescriptor.class);
 					paramNode = child(root, int64(r, 1),
 							ParameterDescriptor.class);
 				} else if (scope == ParameterScope.IMPACT_CATEGORY) {
-					Node root = context(int64(r, 5),
-							ImpactCategoryDescriptor.class);
+					var root = root(int64(r, 5), ImpactCategoryDescriptor.class);
 					paramNode = child(root, int64(r, 1),
 							ParameterDescriptor.class);
 				}
@@ -225,67 +256,47 @@ public class ParameterUsageTree {
 					return;
 
 				if (nameMatch) {
-					paramNode.type = UsageType.DEFINITION;
+					paramNode.of(UsageType.DEFINITION, name);
 				} else {
-					paramNode.type = UsageType.FORMULA;
-					paramNode.formula = formula;
+					paramNode.of(UsageType.FORMULA, formula);
 				}
 			});
 		}
 
 		private void systemRedefs() {
-			String sql = "SELECT redef.name, redef.f_owner, redef.f_context, "
-					+ "redef.context_type FROM tbl_parameter_redefs redef "
-					+ "INNER JOIN tbl_product_systems owner ON "
-					+ "redef.f_owner = owner.id";
-			query(sql, r -> {
-				String name = string(r, 1);
-				if (!matches(name))
-					return;
-				Node root = context(int64(r, 2), ProductSystemDescriptor.class);
-
-				Class<? extends BaseDescriptor> redefContext = null;
-				String ctxt = string(r, 4);
-				if (ctxt != null) {
-					redefContext = toDescriptorType(
-							ModelType.valueOf(ctxt));
+			for (var system : new ProductSystemDao(db).getAll()) {
+				for (var paramset : system.parameterSets) {
+					for (var redef : paramset.parameters) {
+						if (!matches(redef.name))
+							continue;
+						var root = roots.computeIfAbsent(
+								system.id, _i -> new Node(system));
+						var inner = root.addIfAbsent(
+								paramset.id, () -> new Node(paramset.id, paramset.name));
+						var leaf = new Node(redef.id, redef.name)
+								.of(UsageType.REDEFINITION, redef.name);
+						inner.add(leaf);
+					}
 				}
-
-				if (redefContext == null) {
-					Node child = new Node();
-					child.context = new ParameterDescriptor();
-					child.context.name = name;
-					child.type = UsageType.REDEFINITION;
-					child.formula = name;
-					root.add(child);
-					return;
-				}
-
-				Node child = child(root, int64(r, 3), redefContext);
-				child.type = UsageType.REDEFINITION;
-				child.formula = name;
-			});
+			}
 		}
 
 		private void projectRedefs() {
-			String sql = "SELECT DISTINCT redef.name, proj.id" +
-					" FROM tbl_parameter_redefs redef" +
-					" INNER JOIN tbl_project_variants var ON" +
-					" redef.f_owner = var.id" +
-					" INNER JOIN tbl_projects proj" +
-					" ON var.f_project = proj.id";
-			query(sql, r -> {
-				String name = string(r, 1);
-				if (!matches(name))
-					return;
-				Node root = context(int64(r, 2), ProjectDescriptor.class);
-				Node child = new Node();
-				child.context = new ParameterDescriptor();
-				child.context.name = name;
-				child.type = UsageType.REDEFINITION;
-				child.formula = name;
-				root.add(child);
-			});
+			for (var project : new ProjectDao(db).getAll()) {
+				for (var variant : project.variants) {
+					for (var redef : variant.parameterRedefs) {
+						if (!matches(redef.name))
+							continue;
+						var root = roots.computeIfAbsent(
+								project.id, _i -> new Node(project));
+						var inner = root.addIfAbsent(
+								variant.id, () -> new Node(variant.id, variant.name));
+						var leaf = new Node(redef.id, redef.name)
+								.of(UsageType.REDEFINITION, redef.name);
+						inner.add(leaf);
+					}
+				}
+			}
 		}
 
 		private void query(String sql, Consumer<ResultSet> fn) {
@@ -334,46 +345,22 @@ public class ParameterUsageTree {
 			return false;
 		}
 
-		private Node context(long id, Class<? extends BaseDescriptor> clazz) {
-			Map<Long, Node> nodes = contexts.computeIfAbsent(
-					clazz, k -> new HashMap<>());
-			Node node = nodes.get(id);
-			if (node != null)
-				return node;
-			node = new Node();
-			node.context = cache.get(clazz, id);
-			nodes.put(id, node);
-			return node;
-		}
-
-		private Node child(Node root, long id,
-						   Class<? extends BaseDescriptor> clazz) {
-			for (Node c : root.childs) {
-				if (c.context != null && c.context.id == id)
-					return c;
-			}
-			Node c = new Node();
-			c.context = cache.get(clazz, id);
-			root.add(c);
-			return c;
-		}
-
-		/**
-		 * We only return types that can have local parameters here.
-		 */
-		private Class<? extends BaseDescriptor> toDescriptorType(ModelType t) {
-			if (t == null)
-				return null;
-			switch (t) {
-				case IMPACT_METHOD:
-					return ImpactMethodDescriptor.class;
-				case PROCESS:
-					return ProcessDescriptor.class;
-				default:
+		private Node root(long id, Class<? extends BaseDescriptor> clazz) {
+			return roots.computeIfAbsent(id, _id -> {
+				var model = cache.get(clazz, id);
+				if (model == null)
 					return null;
-			}
+				return new Node(model);
+			});
+		}
+
+		private Node child(Node parent, long id, Class<? extends BaseDescriptor> clazz) {
+			return parent.addIfAbsent(id, () -> {
+				var model = cache.get(clazz, id);
+				if (model == null)
+					return null;
+				return new Node(model);
+			});
 		}
 	}
-
-
 }

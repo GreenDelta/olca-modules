@@ -69,22 +69,25 @@ public class ParameterUsageTreeTest {
 	public void findGlobalsByName() {
 		var tree = ParameterUsageTree.build("param", db);
 
-		var dep = findRoot("global_dep_param", tree);
-		Assert.assertTrue(dep.isPresent());
-		Assert.assertEquals(UsageType.FORMULA, dep.get().type);
+		var dep = find(tree, "global_dep_param");
+		Assert.assertNotNull(dep);
+		Assert.assertEquals(UsageType.FORMULA, dep.usageType);
 
-		var global = findRoot("param", tree);
-		Assert.assertTrue(global.isPresent());
-		Assert.assertEquals(UsageType.DEFINITION, global.get().type);
+		var global = find(tree, "param");
+		Assert.assertNotNull(global);
+		Assert.assertEquals(UsageType.DEFINITION, global.usageType);
 	}
 
-	private Optional<Node> findRoot(String name, ParameterUsageTree tree) {
-		return tree.nodes.stream()
-				.filter(n -> {
-					if (n.context == null)
-						return false;
-					return name.equals(n.context.name);
-				}).findAny();
+	private Node find(ParameterUsageTree tree, String...names) {
+		var stream = tree.nodes.stream();
+		Optional<Node> node = Optional.empty();
+		for (var name : names) {
+			node = stream.filter(n -> name.equals(n.name)).findAny();
+			if (node.isEmpty())
+				return null;
+			stream = node.get().childs.stream();
+		}
+		return node.orElse(null);
 	}
 
 	@Test
@@ -113,8 +116,8 @@ public class ParameterUsageTreeTest {
 
 		ParameterUsageTree tree = ParameterUsageTree.build(
 				"param", db);
-		Arrays.asList(impact, flow, param).forEach(
-				e -> Tests.delete(e));
+		Arrays.asList(impact, flow, param)
+				.forEach(Tests::delete);
 
 		// there should be now a parameter definition node
 		// and an LCIA category node in the tree
@@ -124,10 +127,10 @@ public class ParameterUsageTreeTest {
 		boolean found = false;
 		ImpactCategoryDescriptor d = Descriptors.toDescriptor(impact);
 		for (ParameterUsageTree.Node node : tree.nodes) {
-			if (Objects.equals(d, node.context)) {
+			if (Objects.equals(d, node.model)) {
 				found = true;
 				assertEquals(Descriptors.toDescriptor(flow),
-						node.childs.get(0).context);
+						node.childs.get(0).model);
 			}
 		}
 		assertTrue(found);
