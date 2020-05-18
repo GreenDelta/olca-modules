@@ -9,15 +9,19 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import gnu.trove.map.hash.TLongLongHashMap;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
+import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.ProjectDao;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -34,19 +38,45 @@ import org.slf4j.LoggerFactory;
 public class ParameterUsageTree {
 
 	public final String param;
-	public final List<Node> nodes = new ArrayList<>();
+	public final List<Node> nodes;
 
-	public ParameterUsageTree(String param) {
+	private ParameterUsageTree(String param, List<Node> nodes) {
 		this.param = param;
+		this.nodes = nodes;
 	}
 
-	public static ParameterUsageTree build(String param, IDatabase db) {
-		ParameterUsageTree tree = new ParameterUsageTree(param);
-		if (Strings.nullOrEmpty(param))
-			return tree;
-		Search search = new Search(param.trim(), db);
-		tree.nodes.addAll(search.doIt());
-		return tree;
+	private static ParameterUsageTree empty() {
+		return new ParameterUsageTree("", Collections.emptyList());
+	}
+
+	/**
+	 * Calculates a usage tree for a parameter with the given name. This
+	 * returns all places in the database where this parameter is used,
+	 * including the global and local definitions of that parameter itself.
+	 * Note that this is more a search of the parameter name than a real
+	 * usage tree of a parameter as there can be multiple parameters with
+	 * the same name defined in the database.
+	 */
+	public static ParameterUsageTree of(String param, IDatabase db) {
+		if (Strings.nullOrEmpty(param) || db == null)
+			return empty();
+		return new Search(param.trim(), db).doIt();
+	}
+
+	/**
+	 * Calculates the usage tree of the given global parameter.
+	 */
+	public static ParameterUsageTree of(Parameter globalParam, IDatabase db) {
+		return of(globalParam, null, db);
+	}
+
+	public static ParameterUsageTree of(
+			Parameter param, CategorizedDescriptor owner, IDatabase db) {
+		if (param == null
+				|| Strings.nullOrEmpty(param.name)
+				|| db == null)
+			return empty();
+		return new Search(param, owner, db).doIt();
 	}
 
 	public boolean isEmpty() {
@@ -155,19 +185,31 @@ public class ParameterUsageTree {
 
 	private static class Search {
 
-		private final String param;
+		private final String name;
 		private final IDatabase db;
 		private final EntityCache cache;
+
+		// optional parameter context
+		private Parameter param;
+		private CategorizedDescriptor owner;
 
 		private final HashMap<Long, Node> roots = new HashMap<>();
 
 		Search(String param, IDatabase db) {
-			this.param = param;
+			this.name = param == null ? "" : param;
 			this.db = db;
+			this.param = null;
+			this.owner = null;
 			this.cache = EntityCache.create(db);
 		}
 
-		List<Node> doIt() {
+		Search(Parameter param, CategorizedDescriptor owner, IDatabase db) {
+			this(param.name, db);
+			this.param = param;
+			this.owner = owner;
+		}
+
+		ParameterUsageTree doIt() {
 			exchanges();
 			impacts();
 			parameters();
@@ -175,7 +217,7 @@ public class ParameterUsageTree {
 			projectRedefs();
 			var roots = new ArrayList<>(this.roots.values());
 			sortRec(roots);
-			return roots;
+			return new ParameterUsageTree(name, roots);
 		}
 
 		private void sortRec(List<Node> nodes) {
@@ -224,43 +266,47 @@ public class ParameterUsageTree {
 		}
 
 		private void parameters() {
-			String sql = "SELECT id, name, is_input_param, scope, "
-					+ "f_owner, formula FROM tbl_parameters";
-			query(sql, r -> {
-				String scopeStr = string(r, 4);
-				if (scopeStr == null)
-					return;
-				ParameterScope scope = ParameterScope.valueOf(scopeStr);
-				String name = string(r, 2);
-				boolean nameMatch = matches(name);
-				String formula = string(r, 6);
-				boolean formulaMatch = matches(formula);
-				if (!nameMatch && !formulaMatch)
-					return;
 
-				Node paramNode = null;
-
-				if (scope == ParameterScope.GLOBAL) {
-					paramNode = root(int64(r, 1), ParameterDescriptor.class);
-				} else if (scope == ParameterScope.PROCESS) {
-					var root = root(int64(r, 5), ProcessDescriptor.class);
-					paramNode = child(root, int64(r, 1),
-							ParameterDescriptor.class);
-				} else if (scope == ParameterScope.IMPACT_CATEGORY) {
-					var root = root(int64(r, 5), ImpactCategoryDescriptor.class);
-					paramNode = child(root, int64(r, 1),
-							ParameterDescriptor.class);
+			var sql = "select id, f_owner from tbl_parameters";
+			var owners = new TLongLongHashMap();
+			NativeSql.on(db).query(sql, r -> {
+				long id = r.getLong(1);
+				long owner = r.getLong(2);
+				if (!r.wasNull() && owner > 0L) {
+					owners.put(id, owner);
 				}
-
-				if (paramNode == null)
-					return;
-
-				if (nameMatch) {
-					paramNode.of(UsageType.DEFINITION, name);
-				} else {
-					paramNode.of(UsageType.FORMULA, formula);
-				}
+				return true;
 			});
+
+			for (var param : new ParameterDao(db).getAll()) {
+
+				var nameMatch = matches(param.name);
+				var formulaMatch = !nameMatch
+						&& !param.isInputParameter
+						&& matches(param.formula);
+				if (!nameMatch && !formulaMatch)
+					continue;
+
+				var node = nameMatch
+						? new Node(param).of(UsageType.DEFINITION, param.name)
+						: new Node(param).of(UsageType.FORMULA, param.formula);
+
+				if (param.scope == ParameterScope.PROCESS) {
+					var owner = owners.get(param.id);
+					var root = root(owner, ProcessDescriptor.class);
+					if (root != null) {
+						root.add(node);
+					}
+				} else if (param.scope == ParameterScope.IMPACT_CATEGORY) {
+					var owner = owners.get(param.id);
+					var root = root(owner, ImpactCategoryDescriptor.class);
+					if (root != null) {
+						root.add(node);
+					}
+				} else {
+					roots.put(param.id, node);
+				}
+			}
 		}
 
 		private void systemRedefs() {
@@ -331,12 +377,12 @@ public class ParameterUsageTree {
 			if (formula == null)
 				return false;
 			String f = formula.trim();
-			if (f.equalsIgnoreCase(param))
+			if (f.equalsIgnoreCase(name))
 				return true;
 			try {
 				Set<String> vars = Formula.getVariables(f);
 				for (String var : vars) {
-					if (var.equalsIgnoreCase(param))
+					if (var.equalsIgnoreCase(name))
 						return true;
 				}
 			} catch (Error e) {

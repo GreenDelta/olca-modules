@@ -17,11 +17,13 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ParameterDao;
+import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.database.usage.ParameterUsageTree.Node;
@@ -31,6 +33,7 @@ public class ParameterUsageTreeTest {
 
 	private final IDatabase db = Tests.getDb();
 	private Parameter global;
+	private Process process;
 
 	@Before
 	public void setup() {
@@ -50,6 +53,27 @@ public class ParameterUsageTreeTest {
 		globalDep.formula = "param / pi";
 		Tests.insert(globalDep);
 
+		var flow = new Flow();
+		flow.name = "flow";
+		Tests.insert(flow);
+
+		// local process parameter
+		process = new Process();
+		process.name = "process";
+		var processParam = new Parameter();
+		processParam.name = "param";
+		processParam.isInputParameter = true;
+		processParam.scope = ParameterScope.PROCESS;
+		process.parameters.add(processParam);
+		var processDepParam = new Parameter();
+		processDepParam.name = "process_dep_param";
+		processDepParam.formula = "21 * param";
+		processDepParam.scope = ParameterScope.PROCESS;
+		process.parameters.add(processDepParam);
+		var exchange = process.exchange(flow);
+		exchange.formula = "sin(param)";
+		Tests.insert(process);
+
 	}
 
 	@After
@@ -59,7 +83,7 @@ public class ParameterUsageTreeTest {
 
 	@Test
 	public void testEmpty() {
-		ParameterUsageTree tree = ParameterUsageTree.build(
+		ParameterUsageTree tree = ParameterUsageTree.of(
 				"this_param_does_not_exist", Tests.getDb());
 		assertEquals("this_param_does_not_exist", tree.param);
 		assertTrue(tree.nodes.isEmpty());
@@ -67,7 +91,7 @@ public class ParameterUsageTreeTest {
 
 	@Test
 	public void findGlobalsByName() {
-		var tree = ParameterUsageTree.build("param", db);
+		var tree = ParameterUsageTree.of("param", db);
 
 		var dep = find(tree, "global_dep_param");
 		Assert.assertNotNull(dep);
@@ -76,6 +100,41 @@ public class ParameterUsageTreeTest {
 		var global = find(tree, "param");
 		Assert.assertNotNull(global);
 		Assert.assertEquals(UsageType.DEFINITION, global.usageType);
+	}
+
+	@Test
+	public void findProcessParametersByName() {
+		var tree = ParameterUsageTree.of("param", db);
+
+		var def = find(tree, "process", "param");
+		Assert.assertNotNull(def);
+		Assert.assertEquals(UsageType.DEFINITION, def.usageType);
+
+		var dep = find(tree, "process", "process_dep_param");
+		Assert.assertNotNull(dep);
+		Assert.assertEquals(UsageType.FORMULA, dep.usageType);
+	}
+
+	@Test
+	public void findProcessContext() {
+		var param = process.parameters.stream()
+				.filter(p -> "param".equals(p.name))
+				.findFirst()
+				.orElse(null);
+		var tree = ParameterUsageTree.of(
+				param, Descriptors.toDescriptor(process), db);
+
+		// process parameters
+		var def = find(tree, "process", "param");
+		Assert.assertNull(def); // No definition
+
+		var dep = find(tree, "process", "process_dep_param");
+		Assert.assertNotNull(dep);
+		Assert.assertEquals(UsageType.FORMULA, dep.usageType);
+
+		// exclude others
+		Assert.assertNull(find(tree, "param"));
+		Assert.assertNull(find(tree, "global_dep_param"));
 	}
 
 	private Node find(ParameterUsageTree tree, String...names) {
@@ -114,8 +173,7 @@ public class ParameterUsageTreeTest {
 		impact.impactFactors.add(i);
 		new ImpactCategoryDao(db).insert(impact);
 
-		ParameterUsageTree tree = ParameterUsageTree.build(
-				"param", db);
+		ParameterUsageTree tree = ParameterUsageTree.of("param", db);
 		Arrays.asList(impact, flow, param)
 				.forEach(Tests::delete);
 
