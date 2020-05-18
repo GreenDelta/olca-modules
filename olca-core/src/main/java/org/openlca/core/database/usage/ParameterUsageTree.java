@@ -267,6 +267,7 @@ public class ParameterUsageTree {
 
 		private void parameters() {
 
+			// collect the parameter owners: id -> owner id
 			var sql = "select id, f_owner from tbl_parameters";
 			var owners = new TLongLongHashMap();
 			NativeSql.on(db).query(sql, r -> {
@@ -277,6 +278,27 @@ public class ParameterUsageTree {
 				}
 				return true;
 			});
+
+			if (owner != null) {
+				// search only in formulas of local parameters
+				for (var p : new ParameterDao(db).getAll()) {
+					long ownerID = owners.get(p.id);
+					if (ownerID != owner.id
+						|| p.isInputParameter
+						|| !matches(p.formula))
+						continue;
+					roots.computeIfAbsent(owner.id, id -> new Node(owner))
+						.add(new Node(p).of(UsageType.FORMULA, p.formula));
+				}
+				return;
+			}
+
+			if (param != null) {
+				// search only in global formulas and in local
+				// formulas where there is no definition of a
+				// parameter with the same name
+			}
+
 
 			for (var param : new ParameterDao(db).getAll()) {
 

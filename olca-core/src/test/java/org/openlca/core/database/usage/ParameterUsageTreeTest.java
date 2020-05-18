@@ -34,6 +34,7 @@ public class ParameterUsageTreeTest {
 	private final IDatabase db = Tests.getDb();
 	private Parameter global;
 	private Process process;
+	private ImpactCategory impact;
 
 	@Before
 	public void setup() {
@@ -103,6 +104,24 @@ public class ParameterUsageTreeTest {
 	}
 
 	@Test
+	public void findGlobalContext() {
+		var tree = ParameterUsageTree.of(global, db);
+
+		// no global definition
+		Assert.assertNull(find(tree, "param"));
+
+		// global dependent parameter
+		var dep = find(tree, "global_dep_param");
+		Assert.assertNotNull(dep);
+		Assert.assertEquals(UsageType.FORMULA, dep.usageType);
+
+		// no local parameters
+		Assert.assertNull(find(tree, "process", "param"));
+		Assert.assertNull(find(tree, "process", "process_dep_param"));
+		Assert.assertNull(find(tree, "process", "flow"));
+	}
+
+	@Test
 	public void findProcessParametersByName() {
 		var tree = ParameterUsageTree.of("param", db);
 
@@ -131,6 +150,10 @@ public class ParameterUsageTreeTest {
 		var dep = find(tree, "process", "process_dep_param");
 		Assert.assertNotNull(dep);
 		Assert.assertEquals(UsageType.FORMULA, dep.usageType);
+
+		var exchange = find(tree, "process", "flow");
+		Assert.assertNotNull(exchange);
+		Assert.assertEquals(UsageType.FORMULA, exchange.usageType);
 
 		// exclude others
 		Assert.assertNull(find(tree, "param"));
