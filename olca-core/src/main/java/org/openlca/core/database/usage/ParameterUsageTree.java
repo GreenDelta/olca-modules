@@ -17,6 +17,7 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.ProjectDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
+import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
@@ -252,9 +253,15 @@ public class ParameterUsageTree {
 					+ "resulting_amount_formula FROM tbl_exchanges "
 					+ " WHERE resulting_amount_formula IS NOT NULL";
 			NativeSql.on(db).query(sql, r -> {
-				String formula = r.getString(3);
+				var formula = r.getString(3);
 				if (!matches(formula))
 					return true;
+				long ownerID = r.getLong(1);
+				if (owner != null && owner.id != ownerID)
+					return true;
+				if (param != null && hasLocalDef.contains(ownerID))
+					return true;
+
 				var root = root(r.getLong(1), ProcessDescriptor.class);
 				var flow = cache.get(FlowDescriptor.class, r.getLong(2));
 				if (root == null || flow == null)
@@ -276,6 +283,12 @@ public class ParameterUsageTree {
 				String formula = r.getString(3);
 				if (!matches(formula))
 					return true;
+				long ownerID = r.getLong(1);
+				if (owner != null && owner.id != ownerID)
+					return true;
+				if (param != null && hasLocalDef.contains(ownerID))
+					return true;
+
 				var root = root(r.getLong(1), ImpactCategoryDescriptor.class);
 				var flow = cache.get(FlowDescriptor.class, r.getLong(2));
 				if (root == null || flow == null)
@@ -358,7 +371,7 @@ public class ParameterUsageTree {
 			for (var system : new ProductSystemDao(db).getAll()) {
 				for (var paramset : system.parameterSets) {
 					for (var redef : paramset.parameters) {
-						if (!matches(redef.name))
+						if (!matches(redef))
 							continue;
 						var root = roots.computeIfAbsent(
 								system.id, _i -> new Node(system));
@@ -376,7 +389,7 @@ public class ParameterUsageTree {
 			for (var project : new ProjectDao(db).getAll()) {
 				for (var variant : project.variants) {
 					for (var redef : variant.parameterRedefs) {
-						if (!matches(redef.name))
+						if (!matches(redef))
 							continue;
 						var root = roots.computeIfAbsent(
 								project.id, _i -> new Node(project));
@@ -408,7 +421,20 @@ public class ParameterUsageTree {
 			return false;
 		}
 
+		private boolean matches(ParameterRedef redef) {
+			if (!matches(redef.name))
+				return false;
+			if (owner != null)
+				return redef.contextId != null
+						&& redef.contextId == owner.id;
+			if (param != null)
+				return redef.contextId == null;
+			return true;
+		}
+
 		private Node root(long id, Class<? extends BaseDescriptor> clazz) {
+			if (owner != null && owner.id == id)
+				return roots.computeIfAbsent(id, _id -> new Node(owner));
 			return roots.computeIfAbsent(id, _id -> {
 				var model = cache.get(clazz, id);
 				if (model == null)
