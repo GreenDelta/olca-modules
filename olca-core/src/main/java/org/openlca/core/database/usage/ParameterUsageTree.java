@@ -1,15 +1,14 @@
 package org.openlca.core.database.usage;
 
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import gnu.trove.map.hash.TLongLongHashMap;
+import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
@@ -18,19 +17,15 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.ProjectDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
-import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.model.descriptors.ParameterDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.util.Formula;
 import org.openlca.util.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Calculates the usage tree for a parameter.
@@ -195,6 +190,15 @@ public class ParameterUsageTree {
 
 		private final HashMap<Long, Node> roots = new HashMap<>();
 
+		/**
+		 * This is only needed when we search for the usages of a global
+		 * parameter. This set then contains the IDs of the entities that
+		 * have a local parameter with the same name defined. Formulas that
+		 * are local to these entities should be then excluded from the usage
+		 * tree.
+		 */
+		private final TLongHashSet hasLocalDef = new TLongHashSet();
+
 		Search(String param, IDatabase db) {
 			this.name = param == null ? "" : param;
 			this.db = db;
@@ -207,6 +211,20 @@ public class ParameterUsageTree {
 			this(param.name, db);
 			this.param = param;
 			this.owner = owner;
+
+			if (owner == null) {
+				var sql = "select f_owner, name from tbl_parameters";
+				NativeSql.on(db).query(sql, r -> {
+					long ownerID = r.getLong(1);
+					if (r.wasNull() || ownerID <= 0)
+						return true;
+					var name = r.getString(2);
+					if (matches(name)) {
+						hasLocalDef.add(ownerID);
+					}
+					return true;
+				});
+			}
 		}
 
 		ParameterUsageTree doIt() {
@@ -233,15 +251,16 @@ public class ParameterUsageTree {
 			String sql = "SELECT f_owner, f_flow, "
 					+ "resulting_amount_formula FROM tbl_exchanges "
 					+ " WHERE resulting_amount_formula IS NOT NULL";
-			query(sql, r -> {
-				String formula = string(r, 3);
+			NativeSql.on(db).query(sql, r -> {
+				String formula = r.getString(3);
 				if (!matches(formula))
-					return;
-				var root = root(int64(r, 1), ProcessDescriptor.class);
-				var flow = cache.get(FlowDescriptor.class, int64(r, 2));
+					return true;
+				var root = root(r.getLong(1), ProcessDescriptor.class);
+				var flow = cache.get(FlowDescriptor.class, r.getLong(2));
 				if (root == null || flow == null)
-					return;
+					return true;
 				root.add(new Node(flow).of(UsageType.FORMULA, formula));
+				return true;
 			});
 		}
 
@@ -253,15 +272,16 @@ public class ParameterUsageTree {
 					"  INNER JOIN tbl_impact_categories cat" +
 					"  ON fac.f_impact_category = cat.id" +
 					"  WHERE fac.formula IS NOT NULL";
-			query(sql, r -> {
-				String formula = string(r, 3);
+			NativeSql.on(db).query(sql, r -> {
+				String formula = r.getString(3);
 				if (!matches(formula))
-					return;
-				var root = root(int64(r, 1), ImpactCategoryDescriptor.class);
-				var flow = cache.get(FlowDescriptor.class, int64(r, 2));
+					return true;
+				var root = root(r.getLong(1), ImpactCategoryDescriptor.class);
+				var flow = cache.get(FlowDescriptor.class, r.getLong(2));
 				if (root == null || flow == null)
-					return;
+					return true;
 				root.add(new Node(flow).of(UsageType.FORMULA, formula));
+				return true;
 			});
 		}
 
@@ -284,49 +304,52 @@ public class ParameterUsageTree {
 				for (var p : new ParameterDao(db).getAll()) {
 					long ownerID = owners.get(p.id);
 					if (ownerID != owner.id
-						|| p.isInputParameter
-						|| !matches(p.formula))
+							|| p.isInputParameter
+							|| !matches(p.formula))
 						continue;
 					roots.computeIfAbsent(owner.id, id -> new Node(owner))
-						.add(new Node(p).of(UsageType.FORMULA, p.formula));
+							.add(new Node(p).of(UsageType.FORMULA, p.formula));
 				}
 				return;
 			}
 
 			if (param != null) {
 				// search only in global formulas and in local
-				// formulas where there is no definition of a
-				// parameter with the same name
+				// formulas where there is no local definition
+				// of a parameter with the same name
+				for (var p : new ParameterDao(db).getAll()) {
+					long ownerID = owners.get(p.id);
+					if (hasLocalDef.contains(ownerID)
+							|| !matches(p.formula))
+						continue;
+					var node = new Node(p).of(UsageType.FORMULA, p.formula);
+					var root = parent(p, ownerID);
+					if (root != null) {
+						root.add(node);
+					} else {
+						roots.put(p.id, node);
+					}
+				}
+				return;
 			}
 
-
-			for (var param : new ParameterDao(db).getAll()) {
-
-				var nameMatch = matches(param.name);
+			// search via all text matches
+			for (var p : new ParameterDao(db).getAll()) {
+				var nameMatch = matches(p.name);
 				var formulaMatch = !nameMatch
-						&& !param.isInputParameter
-						&& matches(param.formula);
+						&& !p.isInputParameter
+						&& matches(p.formula);
 				if (!nameMatch && !formulaMatch)
 					continue;
 
 				var node = nameMatch
-						? new Node(param).of(UsageType.DEFINITION, param.name)
-						: new Node(param).of(UsageType.FORMULA, param.formula);
-
-				if (param.scope == ParameterScope.PROCESS) {
-					var owner = owners.get(param.id);
-					var root = root(owner, ProcessDescriptor.class);
-					if (root != null) {
-						root.add(node);
-					}
-				} else if (param.scope == ParameterScope.IMPACT_CATEGORY) {
-					var owner = owners.get(param.id);
-					var root = root(owner, ImpactCategoryDescriptor.class);
-					if (root != null) {
-						root.add(node);
-					}
+						? new Node(p).of(UsageType.DEFINITION, p.name)
+						: new Node(p).of(UsageType.FORMULA, p.formula);
+				var root = parent(p, owners.get(p.id));
+				if (root != null) {
+					root.add(node);
 				} else {
-					roots.put(param.id, node);
+					roots.put(p.id, node);
 				}
 			}
 		}
@@ -367,34 +390,6 @@ public class ParameterUsageTree {
 			}
 		}
 
-		private void query(String sql, Consumer<ResultSet> fn) {
-			try {
-				NativeSql.on(db).query(sql, r -> {
-					fn.accept(r);
-					return true;
-				});
-			} catch (Exception e) {
-				Logger log = LoggerFactory.getLogger(Search.class);
-				log.error("error in query " + sql, e);
-			}
-		}
-
-		private long int64(ResultSet r, int column) {
-			try {
-				return r.getLong(column);
-			} catch (Exception e) {
-				return 0L;
-			}
-		}
-
-		private String string(ResultSet r, int column) {
-			try {
-				return r.getString(column);
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
 		private boolean matches(String formula) {
 			if (formula == null)
 				return false;
@@ -422,13 +417,17 @@ public class ParameterUsageTree {
 			});
 		}
 
-		private Node child(Node parent, long id, Class<? extends BaseDescriptor> clazz) {
-			return parent.addIfAbsent(id, () -> {
-				var model = cache.get(clazz, id);
-				if (model == null)
+		private Node parent(Parameter param, long ownerID) {
+			if (param.scope == null)
+				return null;
+			switch (param.scope) {
+				case PROCESS:
+					return root(ownerID, ProcessDescriptor.class);
+				case IMPACT_CATEGORY:
+					return root(ownerID, ImpactCategoryDescriptor.class);
+				default:
 					return null;
-				return new Node(model);
-			});
+			}
 		}
 	}
 }
