@@ -5,7 +5,8 @@ import java.util.HashMap;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.AllocationMethod;
-import org.slf4j.Logger;
+import org.openlca.expressions.FormulaInterpreter;
+import org.openlca.util.Strings;
 import org.slf4j.LoggerFactory;
 
 import gnu.trove.impl.Constants;
@@ -146,6 +147,41 @@ public class AllocationIndex {
 			return true;
 		});
 		return methods;
+	}
+
+	private static class Factor {
+		double amount;
+		boolean evaluated;
+		String formula;
+
+		static Factor of(String formula, double amount) {
+			var factor = new Factor();
+			factor.amount = amount;
+			if (Strings.nullOrEmpty(formula)) {
+				factor.evaluated = true;
+			} else {
+				factor.formula = formula;
+				factor.evaluated = false;
+			}
+			return factor;
+		}
+
+		double get(FormulaInterpreter interpreter) {
+			if (evaluated)
+				return amount;
+			if (interpreter == null)
+				return amount;
+			try {
+				amount = interpreter.eval(formula);
+			} catch (Exception e) {
+				var log = LoggerFactory.getLogger(getClass());
+				log.error("failed to evaluate formula of allocation factor: "
+						+ formula);
+			}
+			evaluated = true;
+			return amount;
+		}
+
 	}
 
 }
