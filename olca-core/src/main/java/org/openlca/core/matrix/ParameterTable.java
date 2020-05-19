@@ -14,11 +14,9 @@ import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.Scope;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gnu.trove.impl.Constants;
-import gnu.trove.iterator.TLongObjectIterator;
 import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
@@ -34,7 +32,7 @@ public class ParameterTable {
 	 */
 	private TLongObjectHashMap<Map<String, NumberGenerator>> numberGens;
 
-	private FormulaInterpreter interpreter = new FormulaInterpreter();
+	private final FormulaInterpreter interpreter = new FormulaInterpreter();
 
 	private ParameterTable() {
 	}
@@ -46,11 +44,11 @@ public class ParameterTable {
 	 */
 	public static FormulaInterpreter interpreter(IDatabase db,
 			Set<Long> contexts, Collection<ParameterRedef> redefs) {
-		ParameterTable table = new ParameterTable();
+		var table = new ParameterTable();
 		try {
 			table.scan(db, contexts);
 		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(ParameterTable.class);
+			var log = LoggerFactory.getLogger(ParameterTable.class);
 			log.error("Failed to scan parameter table", e);
 		}
 		table.bindRedefs(redefs);
@@ -63,7 +61,7 @@ public class ParameterTable {
 	 */
 	public static ParameterTable forSimulation(IDatabase db,
 			Set<Long> contexts, Collection<ParameterRedef> redefs) {
-		ParameterTable table = new ParameterTable();
+		var table = new ParameterTable();
 		table.numberGens = new TLongObjectHashMap<>(
 				Constants.DEFAULT_CAPACITY,
 				Constants.DEFAULT_LOAD_FACTOR,
@@ -71,7 +69,7 @@ public class ParameterTable {
 		try {
 			table.scan(db, contexts);
 		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(ParameterTable.class);
+			var log = LoggerFactory.getLogger(ParameterTable.class);
 			log.error("Failed to scan parameter table", e);
 		}
 		table.bindRedefs(redefs);
@@ -86,20 +84,19 @@ public class ParameterTable {
 	public FormulaInterpreter simulate() {
 		if (numberGens == null)
 			return interpreter;
-		TLongObjectIterator<Map<String, NumberGenerator>> it = numberGens
-				.iterator();
+		var it = numberGens.iterator();
 		while (it.hasNext()) {
 			it.advance();
 			long context = it.key();
-			Map<String, NumberGenerator> gens = it.value();
-			Scope scope = context == 0
+			var generators = it.value();
+			var scope = context == 0
 					? interpreter.getGlobalScope()
 					: interpreter.getScope(context);
-			if (gens == null || scope == null)
+			if (generators == null || scope == null)
 				continue;
-			gens.forEach((name, gen) -> {
+			generators.forEach((name, gen) -> {
 				if (gen != null) {
-					scope.bind(name, Double.toString(gen.next()));
+					scope.bind(name, gen.next());
 				}
 			});
 		}
@@ -109,7 +106,7 @@ public class ParameterTable {
 	private void bindRedefs(Collection<ParameterRedef> redefs) {
 		if (redefs == null)
 			return;
-		for (ParameterRedef redef : redefs) {
+		for (var redef : redefs) {
 			Scope scope;
 			if (redef.contextId == null) {
 				scope = interpreter.getGlobalScope();
@@ -119,27 +116,27 @@ public class ParameterTable {
 					scope = interpreter.createScope(redef.contextId);
 				}
 			}
-			scope.bind(redef.name, Double.toString(redef.value));
+			scope.bind(redef.name, redef.value);
 			if (numberGens == null)
 				continue;
 			long context = redef.contextId != null ? redef.contextId : 0L;
-			Map<String, NumberGenerator> genmap = numberGens.get(context);
-			if (genmap == null) {
+			var generators = numberGens.get(context);
+			if (generators == null) {
 				if (redef.uncertainty == null)
 					continue;
-				genmap = new HashMap<>();
-				numberGens.put(context, genmap);
+				generators = new HashMap<>();
+				numberGens.put(context, generators);
 			}
 			if (redef.uncertainty == null
 					|| redef.uncertainty.distributionType == UncertaintyType.NONE) {
-				genmap.remove(redef.name);
+				generators.remove(redef.name);
 				continue;
 			}
-			genmap.put(redef.name, redef.uncertainty.generator());
+			generators.put(redef.name, redef.uncertainty.generator());
 		}
 	}
 
-	private void scan(IDatabase db, Set<Long> contexts) throws Exception {
+	private void scan(IDatabase db, Set<Long> contexts) {
 		String sql = "select scope, f_owner, name, is_input_param, "
 				+ "value, formula";
 		if (numberGens != null) {
@@ -148,30 +145,30 @@ public class ParameterTable {
 		}
 		sql += " from tbl_parameters";
 		NativeSql.on(db).query(sql, r -> {
-			ParameterScope pscope = pscope(r.getString(1));
+			var pscope = pscope(r.getString(1));
 			long owner = r.getLong(2);
 			if (pscope == ParameterScope.GLOBAL) {
 				owner = 0L;
 			} else if (!contexts.contains(owner)) {
 				return true;
 			}
-			Scope scope = scope(pscope, owner);
-			String name = r.getString(3);
+			var scope = scope(pscope, owner);
+			var name = r.getString(3);
 			boolean isInput = r.getBoolean(4);
 			if (isInput) {
-				scope.bind(name, Double.toString(r.getDouble(5)));
+				scope.bind(name, r.getDouble(5));
 			} else {
 				scope.bind(name, r.getString(6));
 			}
 			if (numberGens != null) {
-				NumberGenerator gen = numberGen(r);
-				if (gen != null) {
-					Map<String, NumberGenerator> m = numberGens.get(owner);
+				var generator = numberGen(r);
+				if (generator != null) {
+					var m = numberGens.get(owner);
 					if (m == null) {
 						m = new HashMap<>();
 						numberGens.put(owner, m);
 					}
-					m.put(name, gen);
+					m.put(name, generator);
 				}
 			}
 			return true;

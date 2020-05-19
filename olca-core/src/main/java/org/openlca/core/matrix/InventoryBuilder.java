@@ -30,8 +30,8 @@ public class InventoryBuilder {
 	private FlowIndex flowIndex;
 	private AllocationIndex allocationIndex;
 
-	private MatrixBuilder techBuilder;
-	private MatrixBuilder enviBuilder;
+	private final MatrixBuilder techBuilder;
+	private final MatrixBuilder enviBuilder;
 	private UMatrix techUncerts;
 	private UMatrix enviUncerts;
 	private double[] costs;

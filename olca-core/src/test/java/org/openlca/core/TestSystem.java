@@ -101,7 +101,7 @@ public class TestSystem {
 	}
 
 	public static FullResult calculate(CalculationSetup setup) {
-		SystemCalculator calc = new SystemCalculator(
+		var calc = new SystemCalculator(
 				Tests.getDb(),
 				Tests.getDefaultSolver());
 		return calc.calculateFull(setup);
