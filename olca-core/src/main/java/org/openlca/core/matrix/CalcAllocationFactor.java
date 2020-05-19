@@ -10,7 +10,11 @@ public class CalcAllocationFactor {
 	private boolean evaluated;
 	private String formula;
 
-	private CalcAllocationFactor(){
+	private CalcAllocationFactor() {
+	}
+
+	public static CalcAllocationFactor of(double amount) {
+		return of(null, amount);
 	}
 
 	public static CalcAllocationFactor of(String formula, double amount) {
@@ -25,6 +29,12 @@ public class CalcAllocationFactor {
 		return factor;
 	}
 
+	/**
+	 * Get the value of the allocation factor. If no formula is bound to the factor,
+	 * simply the value of the factor is returned. Otherwise, the value of the
+	 * evaluated formula is returned. The formula is only evaluated once and the
+	 * value of that evaluation is cached when calling this method.
+	 */
 	public double get(FormulaInterpreter interpreter) {
 		if (evaluated)
 			return amount;
@@ -39,5 +49,16 @@ public class CalcAllocationFactor {
 		}
 		evaluated = true;
 		return amount;
+	}
+
+	/**
+	 * If the allocation factor is bound to a formula, this formula is always
+	 * evaluated. No cached value is returned in contrast to the `get` method.
+	 */
+	public double force(FormulaInterpreter interpreter) {
+		if (formula == null)
+			return amount;
+		evaluated = false;
+		return get(interpreter);
 	}
 }

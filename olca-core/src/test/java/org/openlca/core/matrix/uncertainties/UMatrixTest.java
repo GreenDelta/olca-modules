@@ -2,6 +2,7 @@ package org.openlca.core.matrix.uncertainties;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.matrix.CalcAllocationFactor;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.model.FlowType;
@@ -14,7 +15,7 @@ public class UMatrixTest {
 	public void testSimpleExchange() {
 		CalcExchange e = baseExchange();
 		UMatrix u = new UMatrix();
-		u.add(42, 42, e, 1.0);
+		u.add(42, 42, e);
 		HashPointMatrix m = new HashPointMatrix(100, 100);
 		u.generate(m, new FormulaInterpreter());
 		Assert.assertEquals(42.0, m.get(42, 42), 1e-16);
@@ -27,7 +28,7 @@ public class UMatrixTest {
 		e.parameter2 = 20;
 		e.uncertaintyType = UncertaintyType.UNIFORM;
 		UMatrix u = new UMatrix();
-		u.add(42, 42, e, 1.0);
+		u.add(42, 42, e);
 		HashPointMatrix m = new HashPointMatrix(100, 100);
 		for (int i = 0; i < 10; i++) {
 			u.generate(m, new FormulaInterpreter());
@@ -47,8 +48,8 @@ public class UMatrixTest {
 		e2.parameter2 = 20;
 		e2.uncertaintyType = UncertaintyType.UNIFORM;
 		UMatrix u = new UMatrix();
-		u.add(42, 42, e1, 1.0);
-		u.add(42, 42, e2, 1.0);
+		u.add(42, 42, e1);
+		u.add(42, 42, e2);
 		HashPointMatrix m = new HashPointMatrix(100, 100);
 		for (int i = 0; i < 10; i++) {
 			u.generate(m, new FormulaInterpreter());
@@ -68,8 +69,8 @@ public class UMatrixTest {
 		e2.parameter2 = 20;
 		e2.uncertaintyType = UncertaintyType.UNIFORM;
 		UMatrix u = new UMatrix();
-		u.add(42, 42, e1, 0.5);
-		u.add(42, 42, e2, 0.5);
+		u.add(42, 42, e1, CalcAllocationFactor.of(0.5));
+		u.add(42, 42, e2, CalcAllocationFactor.of(0.5));
 		HashPointMatrix m = new HashPointMatrix(100, 100);
 		for (int i = 0; i < 10; i++) {
 			u.generate(m, new FormulaInterpreter());
