@@ -16,9 +16,8 @@ import gnu.trove.map.hash.TLongObjectHashMap;
  * An instances of this class provides fast access to the allocation factors
  * related to the products of a product system. It maps a product $p$ and an
  * exchange of flow $i$ to the respective allocation factor $\lambda_{p,i}$:
- * 
+ * <p>
  * $$Idx_{Alloc}: (p, i) \mapsto \lambda_{p,i}$$
- * 
  */
 public class AllocationIndex {
 
@@ -40,13 +39,13 @@ public class AllocationIndex {
 	 */
 	public static AllocationIndex create(
 			IDatabase db, TechIndex techIndex, AllocationMethod method) {
-		AllocationIndex idx = new AllocationIndex();
+		var idx = new AllocationIndex();
 		if (method == null || method == AllocationMethod.NONE)
 			return idx;
 		try {
 			idx.build(db, techIndex, method);
 		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(AllocationIndex.class);
+			var log = LoggerFactory.getLogger(AllocationIndex.class);
 			log.error("Failed to load allocation index", e);
 		}
 		return idx;
@@ -66,24 +65,22 @@ public class AllocationIndex {
 		if (product == null)
 			return 1.0;
 		if (factors != null) {
-			Double f = factors.get(product);
-			if (f != null)
-				return f;
+			var factor = factors.get(product);
+			if (factor != null)
+				return factor;
 		}
 		if (causalFactors == null)
 			return 1.0;
-		TLongDoubleHashMap m = causalFactors.get(product);
-		if (m == null)
-			return 1.0;
-		return m.get(exchangeID);
+		var causals = causalFactors.get(product);
+		return causals != null
+				? causals.get(exchangeID)
+				: 1;
 	}
 
-	private void build(IDatabase db, TechIndex techIndex,
-			AllocationMethod method) throws Exception {
+	private void build(IDatabase db, TechIndex techIndex, AllocationMethod method) {
 
 		// load process specific default allocation methods if required
-		final TLongObjectHashMap<AllocationMethod> defMethods;
-		defMethods = method == AllocationMethod.USE_DEFAULT
+		var defMethods = method == AllocationMethod.USE_DEFAULT
 				? loadDefaultMethods(db)
 				: null;
 
@@ -102,8 +99,8 @@ public class AllocationIndex {
 				return true;
 
 			// get the related product
-			long flowID = r.getLong(3);
-			ProcessProduct product = techIndex.getProvider(processID, flowID);
+			long productID = r.getLong(3);
+			var product = techIndex.getProvider(processID, productID);
 			if (product == null)
 				return true;
 
@@ -122,34 +119,33 @@ public class AllocationIndex {
 			if (causalFactors == null) {
 				causalFactors = new HashMap<>();
 			}
-			TLongDoubleHashMap map = causalFactors.get(product);
-			if (map == null) {
+			var causals = causalFactors.get(product);
+			if (causals == null) {
 				// 1.0 is the default value -> means no allocation
-				map = new TLongDoubleHashMap(
+				causals = new TLongDoubleHashMap(
 						Constants.DEFAULT_CAPACITY,
 						Constants.DEFAULT_LOAD_FACTOR,
 						Constants.DEFAULT_LONG_NO_ENTRY_VALUE,
 						1d);
-				causalFactors.put(product, map);
+				causalFactors.put(product, causals);
 			}
-			map.put(exchangeID, factor);
+			causals.put(exchangeID, factor);
 			return true;
 		});
 	}
 
-	private TLongObjectHashMap<AllocationMethod> loadDefaultMethods(
-			IDatabase db) throws Exception {
-		TLongObjectHashMap<AllocationMethod> m = new TLongObjectHashMap<>();
+	private TLongObjectHashMap<AllocationMethod> loadDefaultMethods(IDatabase db) {
+		var methods = new TLongObjectHashMap<AllocationMethod>();
 		String sql = "select id, default_allocation_method from tbl_processes";
 		NativeSql.on(db).query(sql, r -> {
 			long id = r.getLong(1);
 			String method = r.getString(2);
 			if (method != null) {
-				m.put(id, AllocationMethod.valueOf(method));
+				methods.put(id, AllocationMethod.valueOf(method));
 			}
 			return true;
 		});
-		return m;
+		return methods;
 	}
 
 }
