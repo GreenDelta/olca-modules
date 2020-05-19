@@ -11,12 +11,14 @@ import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.Parameter;
+import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.util.Strings;
 
 public class TestProcess {
 
-	private IDatabase db = Tests.getDb();
+	private final IDatabase db = Tests.getDb();
 	private Process process;
 
 	private TestProcess() {
@@ -129,17 +131,44 @@ public class TestProcess {
 	}
 
 	/**
+	 * Adds an economic or physical allocation factor with a formula for the
+	 * given flow and method to the process. Use this method *after* the
+	 * exchanges are added.
+	 */
+	public TestProcess alloc(String flow, AllocationMethod method, String formula) {
+		AllocationFactor f = new AllocationFactor();
+		f.method = method;
+		Exchange e = findExchange(process, flow);
+		f.productId = e.flow.id;
+		f.formula = formula;
+		process.allocationFactors.add(f);
+		return this;
+	}
+
+	/**
 	 * Adds a causal allocation factor for the given product and flow. Use this
 	 * method *after* the exchanges are added.
 	 */
 	public TestProcess alloc(String product, String flow, double factor) {
-		AllocationFactor f = new AllocationFactor();
+		var f = new AllocationFactor();
 		f.method = AllocationMethod.CAUSAL;
-		Exchange e = findExchange(process, product);
-		f.productId = e.flow.id;
+		f.productId = findExchange(process, product).id;
 		f.value = factor;
 		f.exchange = findExchange(process, flow);
 		process.allocationFactors.add(f);
+		return this;
+	}
+
+	/**
+	 * Adds an input parameter to the process.
+	 */
+	public TestProcess param(String name, double value) {
+		var p = new Parameter();
+		p.scope = ParameterScope.PROCESS;
+		p.name = name;
+		p.isInputParameter = true;
+		p.value = value;
+		process.parameters.add(p);
 		return this;
 	}
 
