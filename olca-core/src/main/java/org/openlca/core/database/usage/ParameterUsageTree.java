@@ -7,19 +7,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import gnu.trove.map.hash.TLongLongHashMap;
-import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.ProjectDao;
+import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
-import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -27,6 +24,9 @@ import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.util.Formula;
 import org.openlca.util.Strings;
+
+import gnu.trove.map.hash.TLongLongHashMap;
+import gnu.trove.set.hash.TLongHashSet;
 
 /**
  * Calculates the usage tree for a parameter.
@@ -46,12 +46,11 @@ public class ParameterUsageTree {
 	}
 
 	/**
-	 * Calculates a usage tree for a parameter with the given name. This
-	 * returns all places in the database where this parameter is used,
-	 * including the global and local definitions of that parameter itself.
-	 * Note that this is more a search of the parameter name than a real
-	 * usage tree of a parameter as there can be multiple parameters with
-	 * the same name defined in the database.
+	 * Calculates a usage tree for a parameter with the given name. This returns all
+	 * places in the database where this parameter is used, including the global and
+	 * local definitions of that parameter itself. Note that this is more a search
+	 * of the parameter name than a real usage tree of a parameter as there can be
+	 * multiple parameters with the same name defined in the database.
 	 */
 	public static ParameterUsageTree of(String param, IDatabase db) {
 		if (Strings.nullOrEmpty(param) || db == null)
@@ -89,7 +88,7 @@ public class ParameterUsageTree {
 
 		public final long id;
 		public final String name;
-		public final BaseDescriptor model;
+		public final CategorizedDescriptor model;
 
 		public UsageType usageType;
 		public String usage;
@@ -103,11 +102,11 @@ public class ParameterUsageTree {
 			this.model = null;
 		}
 
-		Node(RootEntity e) {
+		Node(CategorizedEntity e) {
 			this(Descriptors.toDescriptor(e));
 		}
 
-		Node(BaseDescriptor model) {
+		Node(CategorizedDescriptor model) {
 			this.id = model.id;
 			this.name = model.name;
 			this.model = model;
@@ -161,20 +160,20 @@ public class ParameterUsageTree {
 			if (type == null)
 				return -1;
 			switch (type) {
-				case PARAMETER:
-					return 0;
-				case PROJECT:
-					return 1;
-				case PRODUCT_SYSTEM:
-					return 2;
-				case PROCESS:
-					return 3;
-				case IMPACT_CATEGORY:
-					return 4;
-				case FLOW:
-					return 5;
-				default:
-					return 99;
+			case PARAMETER:
+				return 0;
+			case PROJECT:
+				return 1;
+			case PRODUCT_SYSTEM:
+				return 2;
+			case PROCESS:
+				return 3;
+			case IMPACT_CATEGORY:
+				return 4;
+			case FLOW:
+				return 5;
+			default:
+				return 99;
 			}
 		}
 	}
@@ -192,11 +191,10 @@ public class ParameterUsageTree {
 		private final HashMap<Long, Node> roots = new HashMap<>();
 
 		/**
-		 * This is only needed when we search for the usages of a global
-		 * parameter. This set then contains the IDs of the entities that
-		 * have a local parameter with the same name defined. Formulas that
-		 * are local to these entities should be then excluded from the usage
-		 * tree.
+		 * This is only needed when we search for the usages of a global parameter. This
+		 * set then contains the IDs of the entities that have a local parameter with
+		 * the same name defined. Formulas that are local to these entities should be
+		 * then excluded from the usage tree.
 		 */
 		private final TLongHashSet hasLocalDef = new TLongHashSet();
 
@@ -432,7 +430,7 @@ public class ParameterUsageTree {
 			return true;
 		}
 
-		private Node root(long id, Class<? extends BaseDescriptor> clazz) {
+		private Node root(long id, Class<? extends CategorizedDescriptor> clazz) {
 			if (owner != null && owner.id == id)
 				return roots.computeIfAbsent(id, _id -> new Node(owner));
 			return roots.computeIfAbsent(id, _id -> {
@@ -447,12 +445,12 @@ public class ParameterUsageTree {
 			if (param.scope == null)
 				return null;
 			switch (param.scope) {
-				case PROCESS:
-					return root(ownerID, ProcessDescriptor.class);
-				case IMPACT_CATEGORY:
-					return root(ownerID, ImpactCategoryDescriptor.class);
-				default:
-					return null;
+			case PROCESS:
+				return root(ownerID, ProcessDescriptor.class);
+			case IMPACT_CATEGORY:
+				return root(ownerID, ImpactCategoryDescriptor.class);
+			default:
+				return null;
 			}
 		}
 	}
