@@ -1,7 +1,6 @@
 package org.openlca.core.math;
 
 import java.util.Collections;
-import java.util.Set;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -17,11 +16,10 @@ import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.InterpreterException;
-import org.openlca.expressions.Scope;
 
-public class FormulaInterpretersTest {
+public class FormulaInterpreterTest {
 
-	private IDatabase database = Tests.getDb();
+	private IDatabase db = Tests.getDb();
 	private Parameter globalParam;
 	private Process process;
 	private FormulaInterpreter interpreter;
@@ -39,8 +37,9 @@ public class FormulaInterpretersTest {
 		globalParam.name = "fi_tests_global";
 		globalParam.isInputParameter = true;
 		globalParam.scope = ParameterScope.GLOBAL;
-		globalParam.value = (double) 32;
-		new ParameterDao(database).insert(globalParam);
+		globalParam.value = 32;
+		new ParameterDao(db).insert(globalParam);
+		
 		process = new Process();
 		Parameter localParam = new Parameter();
 		localParam.name = "fi_tests_local";
@@ -48,21 +47,23 @@ public class FormulaInterpretersTest {
 		localParam.isInputParameter = false;
 		localParam.scope = ParameterScope.PROCESS;
 		process.parameters.add(localParam);
-		process = new ProcessDao(database).insert(process);
-		Set<Long> context = Collections.singleton(process.id);
-		interpreter = ParameterTable.interpreter(database, context,
+		
+		process = new ProcessDao(db).insert(process);
+		interpreter = ParameterTable.interpreter(
+				db, 
+				Collections.singleton(process.id),
 				Collections.emptySet());
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		new ParameterDao(database).delete(globalParam);
-		new ProcessDao(database).delete(process);
+		new ParameterDao(db).delete(globalParam);
+		new ProcessDao(db).delete(process);
 	}
 
 	@Test
 	public void testEvalLocal() throws Exception {
-		Scope scope = interpreter.getScope(process.id);
+		var scope = interpreter.getScope(process.id).get();
 		Assert.assertEquals(42, scope.eval("fi_tests_local"), 1e-16);
 	}
 

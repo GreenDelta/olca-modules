@@ -119,7 +119,7 @@ public class AllocationIndex {
 
 			// index the factor
 			var factor = CalcAllocationFactor.of(
-					r.getString(6), r.getDouble(5));
+					processID, r.getString(6), r.getDouble(5));
 			if (_method != AllocationMethod.CAUSAL) {
 				if (factors == null) {
 					factors = new HashMap<>();

@@ -13,7 +13,6 @@ import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.expressions.FormulaInterpreter;
-import org.openlca.expressions.Scope;
 import org.slf4j.LoggerFactory;
 
 import gnu.trove.impl.Constants;
@@ -27,8 +26,8 @@ public class ParameterTable {
 
 	/**
 	 * The number generators in case the parameter table is build with
-	 * uncertainties. Maps: parameter scope -> parameter name -> number
-	 * generator. The global scope is indicated by a key of 0L.
+	 * uncertainties. Maps: parameter scope -> parameter name -> number generator.
+	 * The global scope is indicated by a key of 0L.
 	 */
 	private TLongObjectHashMap<Map<String, NumberGenerator>> numberGens;
 
@@ -39,8 +38,8 @@ public class ParameterTable {
 
 	/**
 	 * Builds a formula interpreter for the global parameters and the local
-	 * parameters of the given contexts (processes or LCIA methods). It also
-	 * applies the given parameter redefinitions.
+	 * parameters of the given contexts (processes or LCIA methods). It also applies
+	 * the given parameter redefinitions.
 	 */
 	public static FormulaInterpreter interpreter(IDatabase db,
 			Set<Long> contexts, Collection<ParameterRedef> redefs) {
@@ -77,8 +76,8 @@ public class ParameterTable {
 	}
 
 	/**
-	 * Calculates new random values for the parameters in this table that have
-	 * an uncertainty distribution assigned. It re-binds the values of theses
+	 * Calculates new random values for the parameters in this table that have an
+	 * uncertainty distribution assigned. It re-binds the values of theses
 	 * parameters in the underlying interpreter with the generated values.
 	 */
 	public FormulaInterpreter simulate() {
@@ -91,7 +90,7 @@ public class ParameterTable {
 			var generators = it.value();
 			var scope = context == 0
 					? interpreter.getGlobalScope()
-					: interpreter.getScope(context);
+					: interpreter.getScopeOrGlobal(context);
 			if (generators == null || scope == null)
 				continue;
 			generators.forEach((name, gen) -> {
@@ -107,18 +106,13 @@ public class ParameterTable {
 		if (redefs == null)
 			return;
 		for (var redef : redefs) {
-			Scope scope;
-			if (redef.contextId == null) {
-				scope = interpreter.getGlobalScope();
-			} else {
-				scope = interpreter.getScope(redef.contextId);
-				if (scope == null) {
-					scope = interpreter.createScope(redef.contextId);
-				}
-			}
+			var scope = redef.contextId == null
+					? interpreter.getGlobalScope()
+					: interpreter.getScopeOrGlobal(redef.contextId);
 			scope.bind(redef.name, redef.value);
 			if (numberGens == null)
 				continue;
+
 			long context = redef.contextId != null ? redef.contextId : 0L;
 			var generators = numberGens.get(context);
 			if (generators == null) {
@@ -145,14 +139,25 @@ public class ParameterTable {
 		}
 		sql += " from tbl_parameters";
 		NativeSql.on(db).query(sql, r -> {
-			var pscope = pscope(r.getString(1));
+
+			// parse the parameter scope
+			var _str = r.getString(1);
+			var paramScope = _str == null
+					? ParameterScope.GLOBAL
+					: ParameterScope.valueOf(_str);
+
+			// load the scope
 			long owner = r.getLong(2);
-			if (pscope == ParameterScope.GLOBAL) {
+			if (paramScope == ParameterScope.GLOBAL) {
 				owner = 0L;
 			} else if (!contexts.contains(owner)) {
 				return true;
 			}
-			var scope = scope(pscope, owner);
+			var scope = owner == 0
+					? interpreter.getGlobalScope()
+					: interpreter.getScopeOrGlobal(owner);
+
+			// bind the parameter value or formula
 			var name = r.getString(3);
 			boolean isInput = r.getBoolean(4);
 			if (isInput) {
@@ -160,6 +165,8 @@ public class ParameterTable {
 			} else {
 				scope.bind(name, r.getString(6));
 			}
+
+			// bind a possible number generator
 			if (numberGens != null) {
 				var generator = numberGen(r);
 				if (generator != null) {
@@ -173,22 +180,6 @@ public class ParameterTable {
 			}
 			return true;
 		});
-	}
-
-	private ParameterScope pscope(String scopeStr) {
-		if (scopeStr == null)
-			return ParameterScope.GLOBAL;
-		return ParameterScope.valueOf(scopeStr);
-	}
-
-	private Scope scope(ParameterScope pscope, long owner) {
-		if (pscope == ParameterScope.GLOBAL)
-			return interpreter.getGlobalScope();
-		Scope scope = interpreter.getScope(owner);
-		if (scope == null) {
-			scope = interpreter.createScope(owner);
-		}
-		return scope;
 	}
 
 	private NumberGenerator numberGen(ResultSet r) {

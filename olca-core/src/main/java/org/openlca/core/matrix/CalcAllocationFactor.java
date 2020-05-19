@@ -6,19 +6,23 @@ import org.slf4j.LoggerFactory;
 
 public class CalcAllocationFactor {
 
+	private final long processID;
+
 	private double amount;
 	private boolean evaluated;
 	private String formula;
 
-	private CalcAllocationFactor() {
+	private CalcAllocationFactor(long processID) {
+		this.processID = processID;
 	}
 
-	public static CalcAllocationFactor of(double amount) {
-		return of(null, amount);
+	public static CalcAllocationFactor of(long processID, double amount) {
+		return of(processID, null, amount);
 	}
 
-	public static CalcAllocationFactor of(String formula, double amount) {
-		var factor = new CalcAllocationFactor();
+	public static CalcAllocationFactor of(
+			long processID, String formula, double amount) {
+		var factor = new CalcAllocationFactor(processID);
 		factor.amount = amount;
 		if (Strings.nullOrEmpty(formula)) {
 			factor.evaluated = true;
@@ -41,6 +45,7 @@ public class CalcAllocationFactor {
 		if (interpreter == null)
 			return amount;
 		try {
+			var scope = interpreter.getScope(processID);
 			amount = interpreter.eval(formula);
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(getClass());

@@ -1,6 +1,7 @@
 package org.openlca.expressions;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 public class FormulaInterpreter {
 
@@ -66,8 +67,21 @@ public class FormulaInterpreter {
 	}
 
 	/** Returns the scope with the given ID or null if no such scope is defined. */
-	public Scope getScope(long id) {
-		return scopes.get(id);
+	public Optional<Scope> getScope(long id) {
+		var scope = scopes.get(id);
+		return scope == null
+				? Optional.empty()
+				: Optional.of(scope);
+	}
+
+	/**
+	 * Get the scope for the given ID or the global scope if no such scope exists.
+	 */
+	public Scope getScopeOrGlobal(long id) {
+		var scope = scopes.get(id);
+		return scope != null
+				? scope
+				: globalScope;
 	}
 
 }
