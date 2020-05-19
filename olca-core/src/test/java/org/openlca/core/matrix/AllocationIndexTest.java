@@ -13,6 +13,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
+import org.openlca.expressions.FormulaInterpreter;
 
 public class AllocationIndexTest {
 
@@ -47,11 +48,12 @@ public class AllocationIndexTest {
 
 	@Test
 	public void testDefaultFactor() {
-		AllocationIndex idx = index(AllocationMethod.CAUSAL);
+		var idx = index(AllocationMethod.CAUSAL);
+		var fi = new FormulaInterpreter();
 		// there is no exchange with an ID -999; we should get always 1.0
-		assertEquals(1.0, idx.get(product("p1"), -999), 1e-16);
-		assertEquals(1.0, idx.get(product("p2"), -999), 1e-16);
-		assertEquals(1.0, idx.get(product("w"), -999), 1e-16);
+		assertEquals(1.0, idx.get(product("p1"), -999, fi), 1e-16);
+		assertEquals(1.0, idx.get(product("p2"), -999, fi), 1e-16);
+		assertEquals(1.0, idx.get(product("w"), -999, fi), 1e-16);
 	}
 
 	@Test
@@ -74,23 +76,21 @@ public class AllocationIndexTest {
 	}
 
 	/**
-	 * This test fails if enabled. The caller of `AllocationIndex.get` has to
-	 * ensure that the method is only called with exchanges that can be
-	 * allocated to a product or waste flow (product inputs, waste outputs, or
-	 * elementary flows).
+	 * This test fails if enabled. The caller of `AllocationIndex.get` has to ensure
+	 * that the method is only called with exchanges that can be allocated to a
+	 * product or waste flow (product inputs, waste outputs, or elementary flows).
 	 */
 	@Test
 	@Ignore
 	public void testProductFactors() {
-		AllocationIndex idx = index(AllocationMethod.PHYSICAL);
+		var idx = index(AllocationMethod.PHYSICAL);
+		var fi = new FormulaInterpreter();
 		// the allocation factors of the product / waste flows should default to
 		// 1
+
 		for (String p : Arrays.asList("p1", "p2", "w")) {
-			assertEquals(
-					1.0,
-					idx.get(product(p),
-							TestProcess.findExchange(process, p).id),
-					1e-16);
+			long exchangeID = TestProcess.findExchange(process, p).id;
+			assertEquals(1.0, idx.get(product(p), exchangeID, fi), 1e-16);
 		}
 	}
 
@@ -134,9 +134,9 @@ public class AllocationIndexTest {
 	}
 
 	private double factor(AllocationIndex idx, String product) {
-		return idx.get(
-				product(product),
-				TestProcess.findExchange(process, "CO2").id);
+		var fi = new FormulaInterpreter();
+		var exchangeID = TestProcess.findExchange(process, "CO2").id;
+		return idx.get(product(product), exchangeID, fi);
 	}
 
 	private ProcessProduct product(String name) {

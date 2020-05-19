@@ -6,11 +6,8 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.expressions.FormulaInterpreter;
-import org.openlca.util.Strings;
 import org.slf4j.LoggerFactory;
 
-import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TLongDoubleHashMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
@@ -26,13 +23,13 @@ public class AllocationIndex {
 	 * Used for physical and economic allocation: directly stores the allocation
 	 * factors for the given process-products.
 	 */
-	private HashMap<ProcessProduct, Double> factors;
+	private HashMap<ProcessProduct, CalcAllocationFactor> factors;
 
 	/**
-	 * Used for causal allocation: stores the relation process-product ->
-	 * exchange -> allocation factor.
+	 * Used for causal allocation: stores the relation process-product -> exchange
+	 * -> allocation factor.
 	 */
-	private HashMap<ProcessProduct, TLongDoubleHashMap> causalFactors;
+	private HashMap<ProcessProduct, TLongObjectHashMap<CalcAllocationFactor>> causalFactors;
 
 	/**
 	 * Creates a new allocation index for the given database, product index, and
@@ -56,25 +53,29 @@ public class AllocationIndex {
 	}
 
 	/**
-	 * Returns the allocation factor $\lambda_{p,i}$ for the given product $p$
-	 * and (ID of the exchange with the) flow $i$. **It is very important** that
-	 * this method is only called with exchanges that can be allocated to a
-	 * product output or waste input, which are: product inputs, waste outputs,
-	 * or elementary flows.
+	 * Returns the allocation factor $\lambda_{p,i}$ for the given product $p$ and
+	 * (ID of the exchange with the) flow $i$. **It is very important** that this
+	 * method is only called with exchanges that can be allocated to a product
+	 * output or waste input, which are: product inputs, waste outputs, or
+	 * elementary flows.
 	 */
-	public double get(ProcessProduct product, long exchangeID) {
+	public double get(ProcessProduct product, long exchangeID, 
+			FormulaInterpreter interpreter) {
 		if (product == null)
 			return 1.0;
 		if (factors != null) {
 			var factor = factors.get(product);
 			if (factor != null)
-				return factor;
+				return factor.get(interpreter);
 		}
 		if (causalFactors == null)
 			return 1.0;
 		var causals = causalFactors.get(product);
-		return causals != null
-				? causals.get(exchangeID)
+		if (causals == null)
+			return 1.0;
+		var factor = causals.get(exchangeID);
+		return factor != null
+				? factor.get(interpreter)
 				: 1;
 	}
 
@@ -82,11 +83,18 @@ public class AllocationIndex {
 
 		// load process specific default allocation methods if required
 		var defMethods = method == AllocationMethod.USE_DEFAULT
-				? loadDefaultMethods(db)
+				? defaultMethods(db)
 				: null;
 
-		String sql = "SELECT allocation_type, f_process, f_product, value, "
-				+ "f_exchange FROM tbl_allocation_factors";
+		String sql = "SELECT " +
+		/* 1 */ "allocation_type, " +
+		/* 2 */ "f_process, " +
+		/* 3 */ "f_product, " +
+		/* 4 */ "f_exchange, " +
+		/* 5 */ "value, " +
+		/* 6 */ "formula " +
+				"FROM tbl_allocation_factors";
+
 		NativeSql.on(db).query(sql, r -> {
 			long processID = r.getLong(2);
 
@@ -106,7 +114,8 @@ public class AllocationIndex {
 				return true;
 
 			// index the factor
-			double factor = r.getDouble(4);
+			var factor = CalcAllocationFactor.of(
+					r.getString(6), r.getDouble(5));
 			if (_method != AllocationMethod.CAUSAL) {
 				if (factors == null) {
 					factors = new HashMap<>();
@@ -122,12 +131,7 @@ public class AllocationIndex {
 			}
 			var causals = causalFactors.get(product);
 			if (causals == null) {
-				// 1.0 is the default value -> means no allocation
-				causals = new TLongDoubleHashMap(
-						Constants.DEFAULT_CAPACITY,
-						Constants.DEFAULT_LOAD_FACTOR,
-						Constants.DEFAULT_LONG_NO_ENTRY_VALUE,
-						1d);
+				causals = new TLongObjectHashMap<>();
 				causalFactors.put(product, causals);
 			}
 			causals.put(exchangeID, factor);
@@ -135,7 +139,7 @@ public class AllocationIndex {
 		});
 	}
 
-	private TLongObjectHashMap<AllocationMethod> loadDefaultMethods(IDatabase db) {
+	private TLongObjectHashMap<AllocationMethod> defaultMethods(IDatabase db) {
 		var methods = new TLongObjectHashMap<AllocationMethod>();
 		String sql = "select id, default_allocation_method from tbl_processes";
 		NativeSql.on(db).query(sql, r -> {
@@ -147,41 +151,6 @@ public class AllocationIndex {
 			return true;
 		});
 		return methods;
-	}
-
-	private static class Factor {
-		double amount;
-		boolean evaluated;
-		String formula;
-
-		static Factor of(String formula, double amount) {
-			var factor = new Factor();
-			factor.amount = amount;
-			if (Strings.nullOrEmpty(formula)) {
-				factor.evaluated = true;
-			} else {
-				factor.formula = formula;
-				factor.evaluated = false;
-			}
-			return factor;
-		}
-
-		double get(FormulaInterpreter interpreter) {
-			if (evaluated)
-				return amount;
-			if (interpreter == null)
-				return amount;
-			try {
-				amount = interpreter.eval(formula);
-			} catch (Exception e) {
-				var log = LoggerFactory.getLogger(getClass());
-				log.error("failed to evaluate formula of allocation factor: "
-						+ formula);
-			}
-			evaluated = true;
-			return amount;
-		}
-
 	}
 
 }

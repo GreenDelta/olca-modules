@@ -184,7 +184,7 @@ public class FastMatrixBuilder {
 		double allocationFactor = 1.0;
 		if (allocationIndex != null && exchange.isAllocatable()) {
 			allocationFactor = allocationIndex.get(
-					provider, exchange.exchangeId);
+					provider, exchange.exchangeId, interpreter);
 		}
 		matrix.add(row, col, exchange.matrixValue(
 				interpreter, allocationFactor));

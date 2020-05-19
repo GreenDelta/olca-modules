@@ -212,7 +212,7 @@ public class InventoryBuilder {
 		double allocationFactor = 1.0;
 		if (allocationIndex != null && exchange.isAllocatable()) {
 			allocationFactor = allocationIndex.get(
-					provider, exchange.exchangeId);
+					provider, exchange.exchangeId, conf.interpreter);
 		}
 
 		double value = exchange.matrixValue(
