@@ -41,7 +41,7 @@ public class ParameterUsageTree {
 		this.nodes = nodes;
 	}
 
-	private static ParameterUsageTree empty() {
+	public static ParameterUsageTree empty() {
 		return new ParameterUsageTree("", Collections.emptyList());
 	}
 

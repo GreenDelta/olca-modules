@@ -19,21 +19,21 @@ import javax.persistence.Table;
  * multi-functional process $u$ into a value $m_{i,j}$ for each product output
  * or waste input $j$ by applying an allocation factor $\lambda_{j}$
  * respectively:
- * 
+ *
  * $$m_{i,j} = \lambda_{j} \ m_{i,u}$$
- * 
+ *
  * In openLCA, allocation factors for different allocation methods (physical,
  * economic, causal allocation) can be stored for a process. While physical and
  * economic allocation factors of a product $j$ are the same for all product
  * inputs, waste outputs, or elementary flows $i$, they can be different for
  * each flow $i$ in case of causal allocation (so $\lambda_{i,j}$ in this case).
- * 
+ *
  * Furthermore, the value of an allocation factor is between 0 and 1, and the
  * sum off all allocation factors related to each product $j$ (and flow $i$ in
  * case of causal allocation) is 1:
- * 
+ *
  * $$0 \leq \lambda_{(i,)j} \leq 1 \ \text{and} \ \sum_j{\lambda_{(i,)j}} = 1$$
- * 
+ *
  */
 @Entity
 @Table(name = "tbl_allocation_factors")
@@ -63,6 +63,12 @@ public class AllocationFactor extends AbstractEntity implements Cloneable {
 	public double value;
 
 	/**
+	 * The value of an allocation factor can be also calculated via a formula.
+	 */
+	@Column(name = "formula")
+	public String formula;
+
+	/**
 	 * If the factor is a causal allocation factor this field contains a
 	 * reference to the exchange with flow $i$ to which the allocation factor is
 	 * related. Note that there can be multiple exchanges with the same flow $i$
@@ -74,11 +80,12 @@ public class AllocationFactor extends AbstractEntity implements Cloneable {
 
 	@Override
 	public AllocationFactor clone() {
-		AllocationFactor clone = new AllocationFactor();
+		var clone = new AllocationFactor();
 		clone.productId = productId;
 		clone.method = method;
 		clone.exchange = exchange;
 		clone.value = value;
+		clone.formula = formula;
 		return clone;
 	}
 
