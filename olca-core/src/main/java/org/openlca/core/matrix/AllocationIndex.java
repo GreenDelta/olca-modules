@@ -53,30 +53,34 @@ public class AllocationIndex {
 	}
 
 	/**
-	 * Returns the allocation factor $\lambda_{p,i}$ for the given product $p$ and
-	 * (ID of the exchange with the) flow $i$. **It is very important** that this
-	 * method is only called with exchanges that can be allocated to a product
-	 * output or waste input, which are: product inputs, waste outputs, or
-	 * elementary flows.
+	 * Returns the value of the allocation factor $\lambda_{p,i}$ for the given
+	 * product $p$ and (ID of the exchange with the) flow $i$. **It is very
+	 * important** that this method is only called with exchanges that can be
+	 * allocated to a product output or waste input, which are: product inputs,
+	 * waste outputs, or elementary flows.
 	 */
-	public double get(ProcessProduct product, long exchangeID, 
+	public double get(ProcessProduct product, long exchangeID,
 			FormulaInterpreter interpreter) {
-		if (product == null)
-			return 1.0;
-		if (factors != null) {
-			var factor = factors.get(product);
-			if (factor != null)
-				return factor.get(interpreter);
-		}
-		if (causalFactors == null)
-			return 1.0;
-		var causals = causalFactors.get(product);
-		if (causals == null)
-			return 1.0;
-		var factor = causals.get(exchangeID);
+		var factor = getFactor(product, exchangeID);
 		return factor != null
 				? factor.get(interpreter)
 				: 1;
+	}
+
+	public CalcAllocationFactor getFactor(ProcessProduct product, long exchangeID) {
+		if (product == null)
+			return null;
+		if (factors != null) {
+			var factor = factors.get(product);
+			if (factor != null)
+				return factor;
+		}
+		if (causalFactors == null)
+			return null;
+		var causals = causalFactors.get(product);
+		return causals == null
+				? null
+				: causals.get(exchangeID);
 	}
 
 	private void build(IDatabase db, TechIndex techIndex, AllocationMethod method) {
@@ -125,7 +129,7 @@ public class AllocationIndex {
 			}
 
 			// causal allocation factors
-			long exchangeID = r.getLong(5);
+			long exchangeID = r.getLong(4);
 			if (causalFactors == null) {
 				causalFactors = new HashMap<>();
 			}

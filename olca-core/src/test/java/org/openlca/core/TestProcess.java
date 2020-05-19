@@ -118,8 +118,7 @@ public class TestProcess {
 	 * Adds an economic or physical allocation factor for the given flow and
 	 * method to the process. Use this method *after* the exchanges are added.
 	 */
-	public TestProcess alloc(String flow, AllocationMethod method,
-			double factor) {
+	public TestProcess alloc(String flow, AllocationMethod method, double factor) {
 		AllocationFactor f = new AllocationFactor();
 		f.method = method;
 		Exchange e = findExchange(process, flow);
