@@ -19,52 +19,53 @@ import org.openlca.expressions.InterpreterException;
 
 public class FormulaInterpreterTest {
 
-	private IDatabase db = Tests.getDb();
+	private final IDatabase db = Tests.getDb();
 	private Parameter globalParam;
 	private Process process;
 	private FormulaInterpreter interpreter;
 
 	/**
 	 * sets the following parameters:
-	 * 
+	 *
 	 * fi_tests_global = 32
-	 * 
+	 *
 	 * fi_tests_local = fi_tests_global + 10
 	 */
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		globalParam = new Parameter();
 		globalParam.name = "fi_tests_global";
 		globalParam.isInputParameter = true;
 		globalParam.scope = ParameterScope.GLOBAL;
 		globalParam.value = 32;
 		new ParameterDao(db).insert(globalParam);
-		
+
 		process = new Process();
-		Parameter localParam = new Parameter();
+		var localParam = new Parameter();
 		localParam.name = "fi_tests_local";
 		localParam.formula = "fi_tests_global + 10";
 		localParam.isInputParameter = false;
 		localParam.scope = ParameterScope.PROCESS;
 		process.parameters.add(localParam);
-		
+
 		process = new ProcessDao(db).insert(process);
 		interpreter = ParameterTable.interpreter(
-				db, 
+				db,
 				Collections.singleton(process.id),
 				Collections.emptySet());
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		new ParameterDao(db).delete(globalParam);
 		new ProcessDao(db).delete(process);
 	}
 
 	@Test
 	public void testEvalLocal() throws Exception {
-		var scope = interpreter.getScope(process.id).get();
-		Assert.assertEquals(42, scope.eval("fi_tests_local"), 1e-16);
+		var scope = interpreter.getScope(process.id);
+		Assert.assertTrue(scope.isPresent());
+		Assert.assertEquals(42, scope.get().eval("fi_tests_local"), 1e-16);
 	}
 
 	@Test

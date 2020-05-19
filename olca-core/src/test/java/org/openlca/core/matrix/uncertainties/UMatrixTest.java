@@ -69,8 +69,8 @@ public class UMatrixTest {
 		e2.parameter2 = 20;
 		e2.uncertaintyType = UncertaintyType.UNIFORM;
 		UMatrix u = new UMatrix();
-		u.add(42, 42, e1, CalcAllocationFactor.of(0.5));
-		u.add(42, 42, e2, CalcAllocationFactor.of(0.5));
+		u.add(42, 42, e1, CalcAllocationFactor.of(0L, 0.5));
+		u.add(42, 42, e2, CalcAllocationFactor.of(0L, 0.5));
 		HashPointMatrix m = new HashPointMatrix(100, 100);
 		for (int i = 0; i < 10; i++) {
 			u.generate(m, new FormulaInterpreter());

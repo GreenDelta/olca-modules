@@ -155,7 +155,7 @@ public class ParameterTable {
 			}
 			var scope = owner == 0
 					? interpreter.getGlobalScope()
-					: interpreter.getScopeOrGlobal(owner);
+					: interpreter.getOrCreate(owner);
 
 			// bind the parameter value or formula
 			var name = r.getString(3);

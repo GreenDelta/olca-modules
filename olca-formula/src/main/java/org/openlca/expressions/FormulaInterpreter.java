@@ -53,17 +53,19 @@ public class FormulaInterpreter {
 	public Scope createScope(long id) {
 		return createScope(id, globalScope);
 	}
+	
+	public Scope getOrCreate(long id) {
+		var scope = scopes.get(id);
+		return scope == null
+				? createScope(id)
+				: scope;
+	}
 
 	/** Creates a new scope with the given ID in the parent scope. */
 	public Scope createScope(long id, Scope parent) {
 		Scope scope = new Scope(parent);
 		scopes.put(id, scope);
 		return scope;
-	}
-
-	/** Returns true if the interpreter has a scope with the given ID. */
-	public boolean hasScope(long id) {
-		return scopes.containsKey(id);
 	}
 
 	/** Returns the scope with the given ID or null if no such scope is defined. */
