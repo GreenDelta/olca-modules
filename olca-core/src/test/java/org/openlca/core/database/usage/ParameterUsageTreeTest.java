@@ -2,6 +2,8 @@ package org.openlca.core.database.usage;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -26,7 +28,6 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.Descriptors;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.database.usage.ParameterUsageTree.Node;
 import org.openlca.core.database.usage.ParameterUsageTree.UsageType;
 
@@ -96,12 +97,12 @@ public class ParameterUsageTreeTest {
 		var tree = ParameterUsageTree.of("param", db);
 
 		var dep = find(tree, "global_dep_param");
-		Assert.assertNotNull(dep);
-		Assert.assertEquals(UsageType.FORMULA, dep.usageType);
+		assertNotNull(dep);
+		assertEquals(UsageType.FORMULA, dep.usageType);
 
 		var global = find(tree, "param");
-		Assert.assertNotNull(global);
-		Assert.assertEquals(UsageType.DEFINITION, global.usageType);
+		assertNotNull(global);
+		assertEquals(UsageType.DEFINITION, global.usageType);
 	}
 
 	@Test
@@ -109,17 +110,17 @@ public class ParameterUsageTreeTest {
 		var tree = ParameterUsageTree.of(global, db);
 
 		// no global definition
-		Assert.assertNull(find(tree, "param"));
+		assertNull(find(tree, "param"));
 
 		// global dependent parameter
 		var dep = find(tree, "global_dep_param");
-		Assert.assertNotNull(dep);
-		Assert.assertEquals(UsageType.FORMULA, dep.usageType);
+		assertNotNull(dep);
+		assertEquals(UsageType.FORMULA, dep.usageType);
 
 		// no local parameters
-		Assert.assertNull(find(tree, "process", "param"));
-		Assert.assertNull(find(tree, "process", "process_dep_param"));
-		Assert.assertNull(find(tree, "process", "flow"));
+		assertNull(find(tree, "process", "param"));
+		assertNull(find(tree, "process", "process_dep_param"));
+		assertNull(find(tree, "process", "flow"));
 	}
 
 	@Test
@@ -127,12 +128,12 @@ public class ParameterUsageTreeTest {
 		var tree = ParameterUsageTree.of("param", db);
 
 		var def = find(tree, "process", "param");
-		Assert.assertNotNull(def);
-		Assert.assertEquals(UsageType.DEFINITION, def.usageType);
+		assertNotNull(def);
+		assertEquals(UsageType.DEFINITION, def.usageType);
 
 		var dep = find(tree, "process", "process_dep_param");
-		Assert.assertNotNull(dep);
-		Assert.assertEquals(UsageType.FORMULA, dep.usageType);
+		assertNotNull(dep);
+		assertEquals(UsageType.FORMULA, dep.usageType);
 	}
 
 	@Test
@@ -146,30 +147,24 @@ public class ParameterUsageTreeTest {
 
 		// process parameters
 		var def = find(tree, "process", "param");
-		Assert.assertNull(def); // No definition
+		assertNull(def); // No definition
 
 		var dep = find(tree, "process", "process_dep_param");
-		Assert.assertNotNull(dep);
-		Assert.assertEquals(UsageType.FORMULA, dep.usageType);
+		assertNotNull(dep);
+		assertEquals(UsageType.FORMULA, dep.usageType);
 
 		var exchange = find(tree, "process", "flow");
-		Assert.assertNotNull(exchange);
-		Assert.assertEquals(UsageType.FORMULA, exchange.usageType);
+		assertNotNull(exchange);
+		assertEquals(UsageType.FORMULA, exchange.usageType);
 
 		// exclude others
-		Assert.assertNull(find(tree, "param"));
-		Assert.assertNull(find(tree, "global_dep_param"));
+		assertNull(find(tree, "param"));
+		assertNull(find(tree, "global_dep_param"));
 	}
 
 	@Test
 	public void testFindInAllocationFactors() {
-		var global = new Parameter();
-		global.scope = ParameterScope.GLOBAL;
-		global.name = "param";
-		global.value = 42;
-		global.isInputParameter = true;
-		global = Tests.insert(global);
-
+		var global = global("param");
 		var process = TestProcess
 				.refProduct("prod", 1, "kg")
 				.prodIn("prod2", 0.5, "kg")
@@ -179,12 +174,76 @@ public class ParameterUsageTreeTest {
 
 		var tree = ParameterUsageTree.of(global, db);
 		var alloc = find(tree, process.name, "*");
-		Assert.assertNotNull(alloc);
-		Assert.assertEquals(UsageType.FORMULA, alloc.usageType);
-		Assert.assertEquals("1 / param", alloc.usage);
+		assertNotNull(alloc);
+		assertEquals(UsageType.FORMULA, alloc.usageType);
+		assertEquals("1 / param", alloc.usage);
 	}
 
+	@Test
+	public void testFindLocalInAllocationFactors() {
+		var global = global("param");
+		var process = TestProcess
+				.refProduct("prod", 1, "kg")
+				.param("param", 42)
+				.prodIn("prod2", 0.5, "kg")
+				.elemOut("CO2", 1.0, "kg")
+				.alloc("prod", AllocationMethod.PHYSICAL, "1 / param")
+				.get();
 
+		// search for global should not have a result
+		var globalTree = ParameterUsageTree.of(global, db);
+		var alloc = find(globalTree, process.name, "*");
+		assertNull(alloc);
+
+		var local = process.parameters.get(0);
+		var localTree = ParameterUsageTree.of(
+				local, Descriptors.toDescriptor(process), db);
+		alloc = find(localTree, process.name, "*");
+		assertNotNull(alloc);
+		assertEquals(UsageType.FORMULA, alloc.usageType);
+		assertEquals("1 / param", alloc.usage);
+	}
+
+	@Test
+	public void testImpactFactor() {
+		global("param");
+
+		var flow = new Flow();
+		flow.name = "CH4";
+		new FlowDao(db).insert(flow);
+
+		var impact = new ImpactCategory();
+		impact.name = "GWP";
+		var factor = new ImpactFactor();
+		factor.flow = flow;
+		factor.value = 24.0;
+		factor.formula = "2 * param";
+		impact.impactFactors.add(factor);
+		new ImpactCategoryDao(db).insert(impact);
+
+		// find the factor node
+		var tree = ParameterUsageTree.of("param", db);
+		var node = find(tree, "GWP", "CH4");
+		assertNotNull(node);
+		assertEquals(Descriptors.toDescriptor(flow), node.model);
+		assertEquals(UsageType.FORMULA, node.usageType);
+		assertEquals("2 * param", node.usage);
+
+		// find the global parameter definition
+		node = find(tree, "param");
+		assertNotNull(node);
+		assertEquals(Descriptors.toDescriptor(global), node.model);
+		assertEquals(UsageType.DEFINITION, node.usageType);
+	}
+
+	private Parameter global(String name) {
+		var param = new Parameter();
+		param.name = "param";
+		param.isInputParameter = true;
+		param.value = 42;
+		param.scope = ParameterScope.GLOBAL;
+		return new ParameterDao(db).insert(param);
+	}
 
 	private Node find(ParameterUsageTree tree, String...names) {
 		var stream = tree.nodes.stream();
@@ -199,51 +258,5 @@ public class ParameterUsageTreeTest {
 		}
 		return node.orElse(null);
 	}
-
-	@Test
-	public void testImpactFactor() {
-		IDatabase db = Tests.getDb();
-
-		Parameter param = new Parameter();
-		param.name = "param";
-		param.isInputParameter = true;
-		param.value = 12.0;
-		param.scope = ParameterScope.GLOBAL;
-		new ParameterDao(db).insert(param);
-
-		Flow flow = new Flow();
-		flow.name = "CH4";
-		new FlowDao(db).insert(flow);
-
-		ImpactCategory impact = new ImpactCategory();
-		impact.name = "GWP";
-		ImpactFactor i = new ImpactFactor();
-		i.flow = flow;
-		i.value = 24.0;
-		i.formula = "2 * param";
-		impact.impactFactors.add(i);
-		new ImpactCategoryDao(db).insert(impact);
-
-		ParameterUsageTree tree = ParameterUsageTree.of("param", db);
-		Arrays.asList(impact, flow, param)
-				.forEach(Tests::delete);
-
-		// there should be now a parameter definition node
-		// and an LCIA category node in the tree
-		assertFalse(tree.nodes.isEmpty());
-		assertEquals("param", tree.param);
-
-		boolean found = false;
-		ImpactCategoryDescriptor d = Descriptors.toDescriptor(impact);
-		for (ParameterUsageTree.Node node : tree.nodes) {
-			if (Objects.equals(d, node.model)) {
-				found = true;
-				assertEquals(Descriptors.toDescriptor(flow),
-						node.childs.get(0).model);
-			}
-		}
-		assertTrue(found);
-	}
-
 
 }

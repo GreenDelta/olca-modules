@@ -17,6 +17,7 @@ import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
+import org.openlca.core.model.ParameterizedEntity;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.FlowDescriptor;
