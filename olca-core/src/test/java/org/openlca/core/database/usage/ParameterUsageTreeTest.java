@@ -12,11 +12,13 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openlca.core.TestProcess;
 import org.openlca.core.Tests;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ParameterDao;
+import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
@@ -159,11 +161,38 @@ public class ParameterUsageTreeTest {
 		Assert.assertNull(find(tree, "global_dep_param"));
 	}
 
+	@Test
+	public void testFindInAllocationFactors() {
+		var global = new Parameter();
+		global.scope = ParameterScope.GLOBAL;
+		global.name = "param";
+		global.value = 42;
+		global.isInputParameter = true;
+		global = Tests.insert(global);
+
+		var process = TestProcess
+				.refProduct("prod", 1, "kg")
+				.prodIn("prod2", 0.5, "kg")
+				.elemOut("CO2", 1.0, "kg")
+				.alloc("prod", AllocationMethod.PHYSICAL, "1 / param")
+				.get();
+
+		var tree = ParameterUsageTree.of(global, db);
+		var alloc = find(tree, process.name, "*");
+		Assert.assertNotNull(alloc);
+		Assert.assertEquals(UsageType.FORMULA, alloc.usageType);
+		Assert.assertEquals("1 / param", alloc.usage);
+	}
+
+
+
 	private Node find(ParameterUsageTree tree, String...names) {
 		var stream = tree.nodes.stream();
 		Optional<Node> node = Optional.empty();
 		for (var name : names) {
-			node = stream.filter(n -> name.equals(n.name)).findAny();
+			node = name.equals("*")
+					? stream.findAny()
+					: stream.filter(n -> name.equals(n.name)).findAny();
 			if (node.isEmpty())
 				return null;
 			stream = node.get().childs.stream();

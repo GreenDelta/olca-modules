@@ -160,20 +160,20 @@ public class ParameterUsageTree {
 			if (type == null)
 				return -1;
 			switch (type) {
-			case PARAMETER:
-				return 0;
-			case PROJECT:
-				return 1;
-			case PRODUCT_SYSTEM:
-				return 2;
-			case PROCESS:
-				return 3;
-			case IMPACT_CATEGORY:
-				return 4;
-			case FLOW:
-				return 5;
-			default:
-				return 99;
+				case PARAMETER:
+					return 0;
+				case PROJECT:
+					return 1;
+				case PRODUCT_SYSTEM:
+					return 2;
+				case PROCESS:
+					return 3;
+				case IMPACT_CATEGORY:
+					return 4;
+				case FLOW:
+					return 5;
+				default:
+					return 99;
 			}
 		}
 	}
@@ -228,6 +228,7 @@ public class ParameterUsageTree {
 
 		ParameterUsageTree doIt() {
 			exchanges();
+			allocationFactors();
 			impacts();
 			parameters();
 			systemRedefs();
@@ -255,16 +256,33 @@ public class ParameterUsageTree {
 				if (!matches(formula))
 					return true;
 				long ownerID = r.getLong(1);
-				if (owner != null && owner.id != ownerID)
+				if (skipOwner(ownerID))
 					return true;
-				if (param != null && hasLocalDef.contains(ownerID))
-					return true;
-
-				var root = root(r.getLong(1), ProcessDescriptor.class);
+				var root = root(ownerID, ProcessDescriptor.class);
 				var flow = cache.get(FlowDescriptor.class, r.getLong(2));
 				if (root == null || flow == null)
 					return true;
 				root.add(new Node(flow).of(UsageType.FORMULA, formula));
+				return true;
+			});
+		}
+
+		private void allocationFactors() {
+			var sql = "SELECT id, f_process, formula FROM " +
+					"tbl_allocation_factors WHERE formula IS NOT NULL";
+			NativeSql.on(db).query(sql, r -> {
+				var formula = r.getString(3);
+				if (!matches(formula))
+					return true;
+				long ownerID = r.getLong(2);
+				if (skipOwner(ownerID))
+					return true;
+				var root = root(ownerID, ProcessDescriptor.class);
+				if (root == null)
+					return true;
+				var child = new Node(r.getLong(1), "allocation factor")
+						.of(UsageType.FORMULA, formula);
+				root.add(child);
 				return true;
 			});
 		}
@@ -282,18 +300,27 @@ public class ParameterUsageTree {
 				if (!matches(formula))
 					return true;
 				long ownerID = r.getLong(1);
-				if (owner != null && owner.id != ownerID)
+				if (skipOwner(ownerID))
 					return true;
-				if (param != null && hasLocalDef.contains(ownerID))
-					return true;
-
-				var root = root(r.getLong(1), ImpactCategoryDescriptor.class);
+				var root = root(ownerID, ImpactCategoryDescriptor.class);
 				var flow = cache.get(FlowDescriptor.class, r.getLong(2));
 				if (root == null || flow == null)
 					return true;
 				root.add(new Node(flow).of(UsageType.FORMULA, formula));
 				return true;
 			});
+		}
+
+		private boolean skipOwner(long ownerID) {
+			// if an owner is set, the ID must match, otherwise skip it
+			if (owner != null)
+				return ownerID != owner.id;
+			// no owner but parameter means global parameter
+			// skip formulas when the owner has a local parameter
+			// with the same name
+			if (param != null)
+				return hasLocalDef.contains(ownerID);
+			return false;
 		}
 
 		private void parameters() {
@@ -445,12 +472,12 @@ public class ParameterUsageTree {
 			if (param.scope == null)
 				return null;
 			switch (param.scope) {
-			case PROCESS:
-				return root(ownerID, ProcessDescriptor.class);
-			case IMPACT_CATEGORY:
-				return root(ownerID, ImpactCategoryDescriptor.class);
-			default:
-				return null;
+				case PROCESS:
+					return root(ownerID, ProcessDescriptor.class);
+				case IMPACT_CATEGORY:
+					return root(ownerID, ImpactCategoryDescriptor.class);
+				default:
+					return null;
 			}
 		}
 	}
