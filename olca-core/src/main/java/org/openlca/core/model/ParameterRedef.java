@@ -50,7 +50,7 @@ public class ParameterRedef extends AbstractEntity {
 
 	@Override
 	public ParameterRedef clone() {
-		ParameterRedef clone = new ParameterRedef();
+		var clone = new ParameterRedef();
 		clone.name = name;
 		clone.description = description;
 		clone.contextId = contextId;
