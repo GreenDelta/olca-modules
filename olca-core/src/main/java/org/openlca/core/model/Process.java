@@ -2,6 +2,7 @@ package org.openlca.core.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -21,7 +22,7 @@ public class Process extends ParameterizedEntity {
 	@Enumerated(EnumType.STRING)
 	public AllocationMethod defaultAllocationMethod;
 
-	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
+	@OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
 	@JoinColumn(name = "f_process")
 	public final List<AllocationFactor> allocationFactors = new ArrayList<>();
 
@@ -77,20 +78,30 @@ public class Process extends ParameterizedEntity {
 	@JoinColumn(name = "f_social_dq_system")
 	public DQSystem socialDqSystem;
 
+	public static Process of(String name, Flow refFlow) {
+		var process = new Process();
+		process.name = name;
+		process.refId = UUID.randomUUID().toString();
+		process.quantitativeReference = refFlow.flowType == FlowType.WASTE_FLOW
+				? process.input(refFlow, 1.0)
+				: process.output(refFlow, 1.0);
+		return process;
+	}
+
 	@Override
 	public Process clone() {
 		return new ProcessCopy().create(this);
 	}
 
-	public Exchange exchange(Flow flow) {
-		return add(Exchange.from(flow));
+	public Exchange input(Flow flow, double amount) {
+		return add(Exchange.input(flow, amount));
 	}
 
-	public Exchange exchange(Flow flow, FlowProperty property, Unit unit) {
-		return add(Exchange.from(flow, property, unit));
+	public Exchange output(Flow flow, double amount) {
+		return add(Exchange.output(flow, amount));
 	}
 
-	private Exchange add(Exchange exchange) {
+	public Exchange add(Exchange exchange) {
 		exchange.internalId = ++lastInternalId;
 		exchanges.add(exchange);
 		return exchange;

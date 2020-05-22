@@ -95,6 +95,17 @@ public class Parameters {
 	}
 
 	/**
+	 * Rename the given parameter of the given owner. This will rename it in all formulas
+	 * of the owner **and** in redefinitions of this parameter in projects and product
+	 * systems. The updated owner will be returned.
+	 */
+	public static ParameterizedEntity rename(
+			IDatabase db, ParameterizedEntity owner, Parameter param, String name) {
+		// TODO
+		return null;
+	}
+
+	/**
 	 * Renames the given global parameter in the database. Renaming the parameter
 	 * means that it is also renamed in all places where it is used: formulas
 	 * of exchanges, impact factors, other parameters, and parameter redefinitions.
@@ -102,8 +113,6 @@ public class Parameters {
 	 * are not changed.
 	 */
 	public static Parameter rename(IDatabase db, Parameter param, String name) {
-		if (db == null || param == null)
-			throw new NullPointerException("database or parameter is NULL");
 		if (param.scope != ParameterScope.GLOBAL) {
 			throw new IllegalArgumentException(
 					param + " is not defined in the global scope");

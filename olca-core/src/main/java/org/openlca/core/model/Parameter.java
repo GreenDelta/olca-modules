@@ -1,14 +1,13 @@
 package org.openlca.core.model;
 
+import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
-
-import org.openlca.expressions.FormulaInterpreter;
-import org.openlca.expressions.InterpreterException;
 
 /**
  * In openLCA, parameters can be defined in different scopes: global, process,
@@ -56,9 +55,36 @@ public class Parameter extends CategorizedEntity {
 	@Embedded
 	public Uncertainty uncertainty;
 
+	/**
+	 * Creates a new global input parameter.
+	 */
+	public static Parameter global(String name, double value) {
+		var param = new Parameter();
+		param.name = name;
+		param.refId = UUID.randomUUID().toString();
+		param.value = value;
+		param.isInputParameter = true;
+		param.scope = ParameterScope.GLOBAL;
+		return param;
+	}
+
+	/**
+	 * Creates a new global calculated / dependent parameter.
+	 */
+	public static Parameter global(String name, double value, String formula) {
+		var param = new Parameter();
+		param.name = name;
+		param.refId = UUID.randomUUID().toString();
+		param.value = value;
+		param.formula = formula;
+		param.isInputParameter = false;
+		param.scope = ParameterScope.GLOBAL;
+		return param;
+	}
+
 	@Override
 	public Parameter clone() {
-		Parameter clone = new Parameter();
+		var clone = new Parameter();
 		Util.cloneRootFields(this, clone);
 		clone.formula = formula;
 		clone.isInputParameter = isInputParameter;

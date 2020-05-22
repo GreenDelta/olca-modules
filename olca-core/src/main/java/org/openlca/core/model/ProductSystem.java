@@ -88,17 +88,15 @@ public class ProductSystem extends CategorizedEntity {
 	 * quantitative reference of the system from the quantitative reference of
 	 * the given process which needs to be a product output or waste input.
 	 */
-	public static ProductSystem from(Process p) {
+	public static ProductSystem of(Process p) {
 		ProductSystem system = new ProductSystem();
 		system.refId = UUID.randomUUID().toString();
-		if (p == null)
-			return system;
 		system.name = p.name;
 		system.processes.add(p.id);
 		system.referenceProcess = p;
 		Exchange qRef = p.quantitativeReference;
 		system.referenceExchange = qRef;
-		if (qRef == null || qRef.flow == null)
+		if (qRef == null)
 			return system;
 		system.targetAmount = qRef.amount;
 		system.targetUnit = qRef.unit;

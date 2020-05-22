@@ -62,6 +62,5 @@ public class ParametersTest {
 		Assert.assertTrue(
 				owners.contains(Descriptors.toDescriptor(project)));
 		Tests.clearDb();
-
 	}
 }
