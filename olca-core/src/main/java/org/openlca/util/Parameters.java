@@ -122,6 +122,11 @@ public class Parameters {
 				" where formula is not null";
 		NativeSql.on(db).updateRows(sql, formulaUpdate);
 
+		// rename unbound variables in formulas of allocation factors
+		sql = "select f_process, formula from tbl_allocation_factors" +
+				" where formula is not null";
+		NativeSql.on(db).updateRows(sql, formulaUpdate);
+
 		// rename redefinitions of global parameters
 		sql = "select f_owner, name, f_context from tbl_parameter_redefs";
 		NativeSql.on(db).updateRows(sql, r -> {

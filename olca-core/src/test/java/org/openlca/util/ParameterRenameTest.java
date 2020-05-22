@@ -4,11 +4,13 @@ import java.util.Objects;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.TestProcess;
 import org.openlca.core.Tests;
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
+import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
@@ -167,6 +169,34 @@ public class ParameterRenameTest {
 		drop(i1);
 		drop(i2);
 		drop(global);
+	}
+
+	@Test
+	public void testAllocationFactors() {
+		var global = global("global_param");
+		var process = TestProcess
+				.refProduct("p1", 1, "kg")
+				.param("local_param", 33)
+				.prodOut("p2", 1, "kg")
+				.alloc("p1", AllocationMethod.PHYSICAL, "2 * global_param")
+				.alloc("p2", AllocationMethod.ECONOMIC, "2 * local_param")
+				.get();
+		Parameters.rename(db, global, "glob_p");
+		process = reload(process);
+
+		var renamed = process.allocationFactors.stream()
+				.filter(af -> af.method == AllocationMethod.PHYSICAL)
+				.map(af -> af.formula)
+				.findFirst()
+				.orElse(null);
+		Assert.assertEquals("2 * glob_p", renamed);
+
+		var stillSame = process.allocationFactors.stream()
+				.filter(af -> af.method == AllocationMethod.ECONOMIC)
+				.map(af -> af.formula)
+				.findFirst()
+				.orElse(null);
+		Assert.assertEquals("2 * local_param", stillSame);
 	}
 
 	@Test
