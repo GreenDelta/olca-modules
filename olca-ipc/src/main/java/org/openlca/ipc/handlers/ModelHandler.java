@@ -149,7 +149,7 @@ public class ModelHandler {
 		Process refProcess = new ProcessDao(db).getForRefId(processId);
 		if (refProcess == null)
 			return Responses.invalidParams("No process found for ref id " + processId, req);
-		ProductSystem system = ProductSystem.from(refProcess);
+		ProductSystem system = ProductSystem.of(refProcess);
 		system = new ProductSystemDao(db).insert(system);
 		LinkingConfig config = new LinkingConfig();
 		config.preferredType = ProcessType.UNIT_PROCESS;

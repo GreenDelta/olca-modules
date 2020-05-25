@@ -249,12 +249,8 @@ class ProcessImport {
 		if (flow == null || flow.referenceFlowProperty == null)
 			return null;
 		Unit unit = getFlowUnit(es2, flowRefId, flow);
-		Exchange e = process.exchange(flow, flow.referenceFlowProperty, unit);
+		var e = process.add(Exchange.of(flow, flow.referenceFlowProperty, unit));
 		e.description = es2.comment;
-		if (unit == null)
-			return null;
-		final Unit unit1 = unit;
-		e.unit = unit1;
 		e.isInput = es2.inputGroup != null;
 		double amount = es2.amount;
 		double f = 1;

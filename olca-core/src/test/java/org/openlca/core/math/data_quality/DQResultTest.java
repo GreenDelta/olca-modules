@@ -8,9 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.DQSystemDao;
-import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProcessDao;
@@ -24,7 +22,6 @@ import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
@@ -53,12 +50,14 @@ public class DQResultTest {
 
 	@Before
 	public void setup() {
-		createUnitGroup();
-		createProperty();
-		pFlow1 = createFlow(FlowType.PRODUCT_FLOW);
-		pFlow2 = createFlow(FlowType.PRODUCT_FLOW);
-		eFlow1 = createFlow(FlowType.ELEMENTARY_FLOW);
-		eFlow2 = createFlow(FlowType.ELEMENTARY_FLOW);
+		unitGroup = Tests.insert(UnitGroup.of("Mass units", Unit.of("kg")));
+		property = Tests.insert(FlowProperty.of("Mass", unitGroup));
+
+		pFlow1 = Tests.insert(Flow.of("product 1", FlowType.PRODUCT_FLOW, property));
+		pFlow2 = Tests.insert(Flow.of("product 2", FlowType.PRODUCT_FLOW, property));
+		eFlow1 = Tests.insert(Flow.of("elem 1", FlowType.ELEMENTARY_FLOW, property));
+		eFlow2 = Tests.insert(Flow.of("elem 2", FlowType.ELEMENTARY_FLOW, property));
+
 		createDQSystem();
 		ProcessDao dao = new ProcessDao(Tests.getDb());
 		process1 = process();
@@ -82,20 +81,7 @@ public class DQResultTest {
 
 	@After
 	public void shutdown() {
-		IDatabase db = Tests.getDb();
-		new ImpactMethodDao(db).delete(method);
-		method.impactCategories
-				.forEach(i -> new ImpactCategoryDao(db).delete(i));
-		new ProductSystemDao(db).delete(system);
-		new ProcessDao(db).delete(process1);
-		new ProcessDao(db).delete(process2);
-		new DQSystemDao(db).delete(dqSystem);
-		new FlowDao(db).delete(pFlow1);
-		new FlowDao(db).delete(pFlow2);
-		new FlowDao(db).delete(eFlow1);
-		new FlowDao(db).delete(eFlow2);
-		new FlowPropertyDao(db).delete(property);
-		new UnitGroupDao(db).delete(unitGroup);
+		Tests.clearDb();
 	}
 
 	private void createDQSystem() {
@@ -144,38 +130,11 @@ public class DQResultTest {
 
 	private Exchange exchange(Process p, double amount, String dqEntry,
 			Flow flow, boolean input) {
-		Exchange e = p.exchange(flow);
+		Exchange e = input
+				? p.input(flow, amount)
+				: p.output(flow, amount);
 		e.dqEntry = dqEntry;
-		e.isInput = input;
-		e.amount = amount;
 		return e;
-	}
-
-	private Flow createFlow(FlowType type) {
-		Flow flow = new Flow();
-		flow.flowType = type;
-		FlowPropertyFactor factor = new FlowPropertyFactor();
-		factor.conversionFactor = 1d;
-		factor.flowProperty = property;
-		flow.flowPropertyFactors.add(factor);
-		flow.referenceFlowProperty = property;
-		return new FlowDao(Tests.getDb()).insert(flow);
-	}
-
-	private void createUnitGroup() {
-		unitGroup = new UnitGroup();
-		Unit unit = new Unit();
-		unit.name = "unit";
-		unit.conversionFactor = 1;
-		unitGroup.units.add(unit);
-		unitGroup.referenceUnit = unit;
-		unitGroup = new UnitGroupDao(Tests.getDb()).insert(unitGroup);
-	}
-
-	private void createProperty() {
-		property = new FlowProperty();
-		property.unitGroup = unitGroup;
-		property = new FlowPropertyDao(Tests.getDb()).insert(property);
 	}
 
 	private void createImpactMethod() {

@@ -239,12 +239,12 @@ class ProcessHandler {
 		Exchange e = null;
 		UnitMappingEntry entry = refData.getUnitMapping().getEntry(row.getUnit());
 		if (refUnit || entry == null) {
-			e = process.exchange(flow);
+			e = process.add(Exchange.of(flow));
 			if (!refUnit && entry == null) {
 				log.error("unknown unit {}; could not set exchange unit, setting ref unit", row.getUnit());
 			}
 		} else {
-			e = process.exchange(flow, entry.flowProperty, entry.unit);
+			e = process.add(Exchange.of(flow, entry.flowProperty, entry.unit));
 		}
 		e.description = row.getComment();
 		setAmount(e, row.getAmount(), scopeId);

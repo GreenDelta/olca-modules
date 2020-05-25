@@ -1,5 +1,9 @@
 package org.openlca.io.ilcd.input;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.UnitDao;
 import org.openlca.core.model.AllocationMethod;
@@ -14,10 +18,6 @@ import org.openlca.io.maps.FlowMapEntry;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Maps the inputs and outputs of an ILCD process to an openLCA process.
@@ -109,9 +109,9 @@ class ProcessExchanges {
 
 	private Exchange init(org.openlca.ilcd.processes.Exchange iExchange,
 	                      ExchangeFlow flow, Process process) {
-		Exchange e = flow.flowProperty != null && flow.unit != null
-				? process.exchange(flow.flow, flow.flowProperty, flow.unit)
-				: process.exchange(flow.flow);
+		var e = flow.flowProperty != null && flow.unit != null
+				? process.add(Exchange.of(flow.flow, flow.flowProperty, flow.unit))
+				: process.add(Exchange.of(flow.flow));
 		e.isInput = iExchange.direction == ExchangeDirection.INPUT;
 		e.description = LangString.getFirst(iExchange.comment, config.langs);
 		// set the default value for the exchange which may is overwritten

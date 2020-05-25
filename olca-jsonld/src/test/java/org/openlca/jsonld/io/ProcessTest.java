@@ -144,7 +144,7 @@ public class ProcessTest extends AbstractZipTest {
 	}
 
 	private Exchange createExchange(Process process, Flow product, Process provider) {
-		Exchange out = process.exchange(product);
+		Exchange out = process.add(Exchange.of(product));
 		if (provider != null)
 			out.defaultProviderId = provider.id;
 		return out;
