@@ -6,8 +6,8 @@ import java.util.UUID;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.SocialAspect;
@@ -54,17 +54,15 @@ public class SystemProcess {
 	}
 
 	private void addRefFlow(Process p) {
-		Flow product = getProduct();
-		Exchange qRef = p.exchange(product);
-		qRef.amount = Math.abs(setup.getDemandValue());
-		p.quantitativeReference = qRef;
-	}
-
-	private Flow getProduct() {
 		if (setup == null || setup.productSystem == null)
-			return null;
-		Exchange ref = setup.productSystem.referenceExchange;
-		return ref == null ? null : ref.flow;
+			return;
+		var ref = setup.productSystem.referenceExchange;
+		if (ref == null || ref.flow == null)
+			return;
+		double amount = Math.abs(setup.getDemandValue());
+		p.quantitativeReference = ref.flow.flowType == FlowType.WASTE_FLOW
+				? p.input(ref.flow, amount)
+				: p.output(ref.flow, amount);
 	}
 
 	private void addElemFlows(Process p) {
@@ -75,9 +73,11 @@ public class SystemProcess {
 			Flow flow = flowDao.getForId(f.flow.id);
 			if (flow == null)
 				return;
-			Exchange e = p.exchange(flow);
-			e.isInput = f.isInput;
-			e.amount = amount;
+			if (f.isInput) {
+				p.input(flow, amount);
+			} else {
+				p.output(flow, amount);
+			}
 		});
 	}
 

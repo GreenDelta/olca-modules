@@ -29,7 +29,7 @@ public class TestProcess {
 	 * reference.
 	 */
 	public static TestProcess refProduct(String flow, double amount,
-			String unit) {
+										 String unit) {
 		TestProcess tp = new TestProcess();
 		tp.process = new Process();
 		tp.process.refId = UUID.randomUUID().toString();
@@ -43,7 +43,7 @@ public class TestProcess {
 	 * Creates a process with the given waste input as quantitative reference.
 	 */
 	public static TestProcess refWaste(String flow, double amount,
-			String unit) {
+									   String unit) {
 		TestProcess tp = new TestProcess();
 		tp.process = new Process();
 		tp.process.refId = UUID.randomUUID().toString();
@@ -79,40 +79,38 @@ public class TestProcess {
 	}
 
 	public TestProcess prodOut(String flow, double amount, String unit) {
-		Exchange e = prepareExchange(FlowType.PRODUCT_FLOW, flow, amount, unit);
-		e.isInput = false;
+		var f = TestData.flow(flow, unit, FlowType.PRODUCT_FLOW);
+		process.output(f, amount);
 		return this;
 	}
 
 	public TestProcess prodIn(String flow, double amount, String unit) {
-		Exchange e = prepareExchange(FlowType.PRODUCT_FLOW, flow, amount, unit);
-		e.isInput = true;
+		var f = TestData.flow(flow, unit, FlowType.PRODUCT_FLOW);
+		process.input(f, amount);
 		return this;
 	}
 
 	public TestProcess elemOut(String flow, double amount, String unit) {
-		Exchange e = prepareExchange(FlowType.ELEMENTARY_FLOW, flow, amount,
-				unit);
-		e.isInput = false;
+		var f = TestData.flow(flow, unit, FlowType.ELEMENTARY_FLOW);
+		process.output(f, amount);
 		return this;
 	}
 
 	public TestProcess elemIn(String flow, double amount, String unit) {
-		Exchange e = prepareExchange(FlowType.ELEMENTARY_FLOW, flow, amount,
-				unit);
-		e.isInput = true;
+		var f = TestData.flow(flow, unit, FlowType.ELEMENTARY_FLOW);
+		process.input(f, amount);
 		return this;
 	}
 
 	public TestProcess wasteOut(String flow, double amount, String unit) {
-		Exchange e = prepareExchange(FlowType.WASTE_FLOW, flow, amount, unit);
-		e.isInput = false;
+		var f = TestData.flow(flow, unit, FlowType.WASTE_FLOW);
+		process.output(f, amount);
 		return this;
 	}
 
 	public TestProcess wasteIn(String flow, double amount, String unit) {
-		Exchange e = prepareExchange(FlowType.WASTE_FLOW, flow, amount, unit);
-		e.isInput = true;
+		var f = TestData.flow(flow, unit, FlowType.WASTE_FLOW);
+		process.input(f, amount);
 		return this;
 	}
 
@@ -184,14 +182,4 @@ public class TestProcess {
 		}
 		return exchange;
 	}
-
-	private Exchange prepareExchange(FlowType flowType, String flow,
-			double amount, String unit) {
-		Flow f = TestData.flow(flow, unit, flowType);
-		Exchange e = process.exchange(
-				f, f.referenceFlowProperty, TestData.unit(unit));
-		e.amount = amount;
-		return e;
-	}
-
 }

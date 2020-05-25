@@ -1,17 +1,13 @@
 package org.openlca.core.database.usage;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.TestProcess;
@@ -20,6 +16,8 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ParameterDao;
+import org.openlca.core.database.usage.ParameterUsageTree.Node;
+import org.openlca.core.database.usage.ParameterUsageTree.UsageType;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ImpactCategory;
@@ -28,8 +26,6 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.Descriptors;
-import org.openlca.core.database.usage.ParameterUsageTree.Node;
-import org.openlca.core.database.usage.ParameterUsageTree.UsageType;
 
 public class ParameterUsageTreeTest {
 
@@ -73,7 +69,7 @@ public class ParameterUsageTreeTest {
 		processDepParam.formula = "21 * param";
 		processDepParam.scope = ParameterScope.PROCESS;
 		process.parameters.add(processDepParam);
-		var exchange = process.exchange(flow);
+		var exchange = process.output(flow, 1.0);
 		exchange.formula = "sin(param)";
 		Tests.insert(process);
 
@@ -258,5 +254,4 @@ public class ParameterUsageTreeTest {
 		}
 		return node.orElse(null);
 	}
-
 }

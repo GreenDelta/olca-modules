@@ -1,5 +1,8 @@
 package org.openlca.core.database.references;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openlca.core.Tests;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
@@ -20,9 +23,6 @@ import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 
@@ -90,9 +90,7 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 
 	private Exchange createExchange(Process process, Object value, boolean provider) {
 		Flow flow = createFlow();
-		FlowProperty property = flow.flowPropertyFactors.get(0).flowProperty;
-		Unit unit = property.unitGroup.units.get(0);
-		Exchange exchange = process.exchange(flow, property, unit);
+		Exchange exchange = process.output(flow, 1);
 		boolean formula = value instanceof String;
 		if (formula)
 			exchange.formula = value.toString();
@@ -107,19 +105,12 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 	}
 
 	private Flow createFlow() {
-		Flow flow = new Flow();
-		UnitGroup group = new UnitGroup();
-		Unit unit = new Unit();
-		unit.name = "unit";
-		group.units.add(unit);
-		group = Tests.insert(group);
-		FlowProperty property = new FlowProperty();
-		property.unitGroup = group;
-		property = Tests.insert(property);
-		FlowPropertyFactor factor = new FlowPropertyFactor();
-		factor.flowProperty = property;
-		flow.flowPropertyFactors.add(factor);
-		return Tests.insert(flow);
+		var massUnits = Tests.insert(
+				UnitGroup.of("Units of mass", Unit.of("kg")));
+		var mass = Tests.insert(
+				FlowProperty.of("Mass", massUnits));
+		return Tests.insert(
+				Flow.product("a product", mass));
 	}
 
 	private SocialAspect createSocialAspect() {
