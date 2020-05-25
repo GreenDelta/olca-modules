@@ -3,15 +3,19 @@ package org.openlca.util;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ParameterDao;
+import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.ProjectDao;
+import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.ParameterizedEntity;
@@ -98,10 +102,40 @@ public class Parameters {
 	/**
 	 * Rename the given parameter of the given owner. This will rename it in all formulas
 	 * of the owner **and** in redefinitions of this parameter in projects and product
-	 * systems. The updated owner will be returned.
+	 * systems. This will update the owner in the database and return the updated
+	 * instance.
 	 */
 	public static ParameterizedEntity rename(
 			IDatabase db, ParameterizedEntity owner, Parameter param, String name) {
+
+		// rename in parameter redefinitions
+		var sql = "select f_owner, name, f_context from tbl_parameter_redefs";
+		var redefOwners = new TLongHashSet();
+		NativeSql.on(db).updateRows(sql, r -> {
+			long context = r.getLong(3);
+			if (context != owner.id)
+				return true;
+			long redefOwner = r.getLong(1);
+			var n = r.getString(2);
+			if (!eq(n, param.name))
+				return true;
+			r.updateString(2, name);
+			r.updateRow();
+			redefOwners.add(redefOwner);
+			return true;
+		});
+		swapRedefOwners(db, redefOwners);
+		incVersions(redefOwners, "tbl_product_systems", db);
+		incVersions(redefOwners, "tbl_projects", db);
+
+		// rename in local parameter formulas
+		for (var p : owner.parameters) {
+			if (Objects.equals(param, p) || p.isInputParameter)
+				continue;
+			p.formula = Formulas.renameVariable(p.formula, param.name, name);
+		}
+
+		// rename in other process formulas
 		if (owner instanceof Process) {
 			var process = (Process) owner;
 			for (var e : process.exchanges) {
@@ -109,9 +143,34 @@ public class Parameters {
 					e.formula = Formulas.renameVariable(e.formula, param.name, name);
 				}
 			}
+			for (var af : process.allocationFactors) {
+				if (af.formula != null) {
+					af.formula = Formulas.renameVariable(af.formula, param.name, name);
+				}
+			}
+			var dao = new ProcessDao(db);
+			return process.id == 0
+					? dao.insert(process)
+					: dao.update(process);
 		}
 
-		return null;
+		// rename in impact formulas
+		if (owner instanceof ImpactCategory) {
+			var impact = (ImpactCategory) owner;
+			for (var f : impact.impactFactors) {
+				if (f.formula != null) {
+					f.formula = Formulas.renameVariable(f.formula, param.name, name);
+				}
+			}
+
+			var dao = new ImpactCategoryDao(db);
+			return impact.id == 0
+					? dao.insert(impact)
+					: dao.update(impact);
+		}
+
+		throw new IllegalArgumentException(
+				"unknown parameterized entity type: " + owner);
 	}
 
 	/**
