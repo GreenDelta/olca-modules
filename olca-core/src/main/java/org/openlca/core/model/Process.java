@@ -85,6 +85,7 @@ public class Process extends ParameterizedEntity {
 		process.quantitativeReference = refFlow.flowType == FlowType.WASTE_FLOW
 				? process.input(refFlow, 1.0)
 				: process.output(refFlow, 1.0);
+		process.processType = ProcessType.UNIT_PROCESS;
 		return process;
 	}
 
