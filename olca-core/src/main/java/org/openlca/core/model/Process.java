@@ -114,4 +114,8 @@ public class Process extends ParameterizedEntity {
 		return null;
 	}
 
+	@Override
+	protected final ParameterScope parameterScope() {
+		return ParameterScope.PROCESS;
+	}
 }

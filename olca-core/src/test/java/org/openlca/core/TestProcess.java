@@ -161,12 +161,12 @@ public class TestProcess {
 	 * Adds an input parameter to the process.
 	 */
 	public TestProcess param(String name, double value) {
-		var p = new Parameter();
-		p.scope = ParameterScope.PROCESS;
-		p.name = name;
-		p.isInputParameter = true;
-		p.value = value;
-		process.parameters.add(p);
+		process.parameter(name, value);
+		return this;
+	}
+
+	public TestProcess param(String name, String formula) {
+		process.parameter(name, formula);
 		return this;
 	}
 

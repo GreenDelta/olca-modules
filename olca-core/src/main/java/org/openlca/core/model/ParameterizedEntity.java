@@ -2,6 +2,7 @@ package org.openlca.core.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.JoinColumn;
@@ -25,4 +26,34 @@ public abstract class ParameterizedEntity extends CategorizedEntity {
 	@JoinColumn(name = "f_owner")
 	public final List<Parameter> parameters = new ArrayList<>();
 
+	/**
+	 * Adds an input parameter with the given name and value to this process.
+	 */
+	public Parameter parameter(String name, double value) {
+		var param = new Parameter();
+		param.name = name;
+		param.refId = UUID.randomUUID().toString();
+		param.scope = parameterScope();
+		param.isInputParameter = true;
+		param.value = value;
+		parameters.add(param);
+		return param;
+	}
+
+	/**
+	 * Adds a calculated parameter with the given name and formula to this
+	 * process.
+	 */
+	public Parameter parameter(String name, String formula) {
+		var param = new Parameter();
+		param.name = name;
+		param.refId = UUID.randomUUID().toString();
+		param.scope = parameterScope();
+		param.isInputParameter = false;
+		param.formula = formula;
+		parameters.add(param);
+		return param;
+	}
+
+	protected abstract ParameterScope parameterScope();
 }

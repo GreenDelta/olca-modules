@@ -1,13 +1,11 @@
 package org.openlca.util;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.NativeSql;
@@ -25,6 +23,8 @@ import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.InterpreterException;
 import org.openlca.formula.Formulas;
+
+import gnu.trove.set.hash.TLongHashSet;
 
 public class Parameters {
 
@@ -61,16 +61,60 @@ public class Parameters {
 	}
 
 	/**
-	 * Find the entities in the database where the parameter of the given
-	 * owner is redefined. In the user interface this can be used as a check
-	 * if a the renaming of a local parameter will change other entities
-	 * (projects or product systems) where this parameter is redefined.
+	 * Returns true if the given parameter of the given owner is used in formulas of
+	 * the owner or in parameter redefinitions in the database. The formulas of the
+	 * owner are checked in the given object and not in the database.
+	 */
+	public static boolean isUsed(
+			Parameter param, ParameterizedEntity owner, IDatabase db) {
+
+		// search in parameter redefinitions
+		var redefOwners = findRedefOwners(param, owner, db);
+		if (!redefOwners.isEmpty())
+			return true;
+
+		// search in formulas of other parameters
+		for (var p : owner.parameters) {
+			if (Objects.equals(param, p) || p.isInputParameter)
+				continue;
+			if (hasVariable(p.formula, param.name))
+				return true;
+		}
+
+		// search in process formulas
+		if (owner instanceof Process) {
+			var process = (Process) owner;
+			for (var e : process.exchanges) {
+				if (hasVariable(e.formula, param.name))
+					return true;
+			}
+			for (var af : process.allocationFactors) {
+				if (hasVariable(af.formula, param.name))
+					return true;
+			}
+			return false;
+		}
+
+		// search in impact formulas
+		if (owner instanceof ImpactCategory) {
+			var impact = (ImpactCategory) owner;
+			for (var factor : impact.impactFactors) {
+				if (hasVariable(factor.formula, param.name))
+					return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Find the entities in the database where the parameter of the given owner is
+	 * redefined. In the user interface this can be used as a check if a the
+	 * renaming of a local parameter will change other entities (projects or product
+	 * systems) where this parameter is redefined.
 	 */
 	public static List<CategorizedDescriptor> findRedefOwners(
-			ParameterizedEntity owner, Parameter param, IDatabase db) {
-
-		if (owner == null || param == null || db == null)
-			return Collections.emptyList();
+			Parameter param, ParameterizedEntity owner, IDatabase db) {
 
 		var sql = "select f_owner, name, f_context from tbl_parameter_redefs";
 		var redefOwners = new TLongHashSet();
@@ -100,13 +144,14 @@ public class Parameters {
 	}
 
 	/**
-	 * Rename the given parameter of the given owner. This will rename it in all formulas
-	 * of the owner **and** in redefinitions of this parameter in projects and product
-	 * systems. This will update the owner in the database and return the updated
-	 * instance.
+	 * Rename the given parameter of the given owner. This will rename it in all
+	 * formulas of the owner **and** in redefinitions of this parameter in projects
+	 * and product systems. This will update the owner in the database and return
+	 * the updated instance.
 	 */
-	public static ParameterizedEntity rename(
-			IDatabase db, ParameterizedEntity owner, Parameter param, String name) {
+	@SuppressWarnings("unchecked")
+	public static <T extends ParameterizedEntity> T rename(
+			Parameter param, T owner, IDatabase db, String name) {
 
 		// rename in parameter redefinitions
 		var sql = "select f_owner, name, f_context from tbl_parameter_redefs";
@@ -149,9 +194,9 @@ public class Parameters {
 				}
 			}
 			var dao = new ProcessDao(db);
-			return process.id == 0
+			return (T) (process.id == 0
 					? dao.insert(process)
-					: dao.update(process);
+					: dao.update(process));
 		}
 
 		// rename in impact formulas
@@ -164,9 +209,9 @@ public class Parameters {
 			}
 
 			var dao = new ImpactCategoryDao(db);
-			return impact.id == 0
+			return (T) (impact.id == 0
 					? dao.insert(impact)
-					: dao.update(impact);
+					: dao.update(impact));
 		}
 
 		throw new IllegalArgumentException(
@@ -175,8 +220,8 @@ public class Parameters {
 
 	/**
 	 * Renames the given global parameter in the database. Renaming the parameter
-	 * means that it is also renamed in all places where it is used: formulas
-	 * of exchanges, impact factors, other parameters, and parameter redefinitions.
+	 * means that it is also renamed in all places where it is used: formulas of
+	 * exchanges, impact factors, other parameters, and parameter redefinitions.
 	 * Formulas of which are in the scope of a local parameter with the same name
 	 * are not changed.
 	 */
@@ -288,10 +333,10 @@ public class Parameters {
 	}
 
 	/**
-	 * Parameter redefinitions are used in inner objects (project variants
-	 * or parameter sets) of root entities (projects or product systems).
-	 * This utility function replaces the IDs of these inner objects with
-	 * the IDs of the corresponding root entities in the given set of IDs.
+	 * Parameter redefinitions are used in inner objects (project variants or
+	 * parameter sets) of root entities (projects or product systems). This utility
+	 * function replaces the IDs of these inner objects with the IDs of the
+	 * corresponding root entities in the given set of IDs.
 	 */
 	private static void swapRedefOwners(IDatabase db, TLongHashSet owners) {
 		if (owners.isEmpty())
@@ -342,8 +387,8 @@ public class Parameters {
 	}
 
 	/**
-	 * Increment the versions and last change dates of the entities in the
-	 * given table with an ID of the given ID set.
+	 * Increment the versions and last change dates of the entities in the given
+	 * table with an ID of the given ID set.
 	 */
 	private static void incVersions(TLongHashSet ids, String table, IDatabase db) {
 		if (ids.isEmpty())

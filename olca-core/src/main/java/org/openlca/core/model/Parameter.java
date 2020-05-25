@@ -71,11 +71,10 @@ public class Parameter extends CategorizedEntity {
 	/**
 	 * Creates a new global calculated / dependent parameter.
 	 */
-	public static Parameter global(String name, double value, String formula) {
+	public static Parameter global(String name, String formula) {
 		var param = new Parameter();
 		param.name = name;
 		param.refId = UUID.randomUUID().toString();
-		param.value = value;
 		param.formula = formula;
 		param.isInputParameter = false;
 		param.scope = ParameterScope.GLOBAL;

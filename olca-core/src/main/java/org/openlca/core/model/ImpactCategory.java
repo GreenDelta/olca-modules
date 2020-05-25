@@ -55,19 +55,24 @@ public class ImpactCategory extends ParameterizedEntity {
 	}
 
 	/**
-	 * Adds a new characterization factor for the given flow initialized with a
-	 * value of 1.0. The unit and flow property are initialized with the
-	 * respective reference values of the flow.
+	 * Adds a new characterization factor for the given flow and value. The unit
+	 * and flow property are initialized with the respective reference values of
+	 * the flow.
 	 */
-	public ImpactFactor addFactor(Flow flow) {
+	public ImpactFactor factor(Flow flow, double value) {
 		ImpactFactor f = new ImpactFactor();
 		impactFactors.add(f);
-		f.value = 1.0;
+		f.value = value;
 		if (flow == null)
 			return f;
 		f.flow = flow;
 		f.flowPropertyFactor = flow.getReferenceFactor();
 		f.unit = flow.getReferenceUnit();
 		return f;
+	}
+
+	@Override
+	protected final ParameterScope parameterScope() {
+		return ParameterScope.IMPACT_CATEGORY;
 	}
 }

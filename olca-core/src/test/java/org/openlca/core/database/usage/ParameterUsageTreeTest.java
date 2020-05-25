@@ -151,6 +151,19 @@ public class ParameterUsageTreeTest {
 	}
 
 	@Test
+	public void testNoLocalUsage() {
+		var process = TestProcess
+				.refProduct("product", 1, "kg")
+				.param("param", 42)
+				.get();
+		var tree = ParameterUsageTree.of(
+				process.parameters.get(0),
+				Descriptors.toDescriptor(process),
+				db);
+		assertTrue(tree.isEmpty());
+	}
+
+	@Test
 	public void testFindInAllocationFactors() {
 		var global = Tests.insert(Parameter.global("param", 42));
 		var process = TestProcess
@@ -225,7 +238,7 @@ public class ParameterUsageTreeTest {
 	}
 
 
-	private Node find(ParameterUsageTree tree, String...names) {
+	private Node find(ParameterUsageTree tree, String... names) {
 		var stream = tree.nodes.stream();
 		Optional<Node> node = Optional.empty();
 		for (var name : names) {

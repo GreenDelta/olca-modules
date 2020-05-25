@@ -27,7 +27,6 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
@@ -126,9 +125,8 @@ public class RegionalizedCalculationTest {
 				{e2, null, 2.0},
 		};
 		Arrays.stream(factors).forEach(row -> {
-			ImpactFactor f = impact.addFactor((Flow) row[0]);
+			var f = impact.factor((Flow) row[0], (Double) row[2]);
 			f.location = (Location) row[1];
-			f.value = (Double) row[2];
 		});
 		impact = new ImpactCategoryDao(db).insert(impact);
 		method = new ImpactMethod();
@@ -480,18 +478,13 @@ public class RegionalizedCalculationTest {
 		p = new ProcessDao(db).insert(p);
 
 		// create the LCIA category & method
-		ImpactCategory impact = new ImpactCategory();
+		var impact = new ImpactCategory();
 		impact.name = "human tox";
-		ImpactFactor i1 = impact.addFactor(nox);
-		i1.value = 0.5; // the default factor
-		ImpactFactor i2 = impact.addFactor(nox);
-		i2.location = loc1;
-		i2.value = 0.1;
-		ImpactFactor i3 = impact.addFactor(nox);
-		i3.location = loc2;
-		i3.value = 0.9;
+		impact.factor(nox, 0.5);
+		impact.factor(nox, 0.1).location = loc1;
+		impact.factor(nox, 0.9).location = loc2;
 		impact = new ImpactCategoryDao(db).insert(impact);
-		ImpactMethod method = new ImpactMethod();
+		var method = new ImpactMethod();
 		method.impactCategories.add(impact);
 		method = new ImpactMethodDao(db).insert(method);
 

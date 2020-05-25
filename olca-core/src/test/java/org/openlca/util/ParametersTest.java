@@ -37,7 +37,7 @@ public class ParametersTest {
 
 		// should not find something
 		var owners = Parameters.findRedefOwners(
-				process, param, db);
+				param, process, db);
 		Assert.assertTrue(owners.isEmpty());
 
 		// add parameter redefs
@@ -55,7 +55,7 @@ public class ParametersTest {
 
 		// should find something
 		owners = Parameters.findRedefOwners(
-				process, param, db);
+				param, process, db);
 		Assert.assertEquals(2, owners.size());
 		Assert.assertTrue(
 				owners.contains(Descriptors.toDescriptor(system)));

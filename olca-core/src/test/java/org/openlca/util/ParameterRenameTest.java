@@ -1,24 +1,26 @@
 package org.openlca.util;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.TestData;
 import org.openlca.core.TestProcess;
 import org.openlca.core.Tests;
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ParameterDao;
+import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ParameterRedefSet;
-import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
@@ -31,7 +33,7 @@ public class ParameterRenameTest {
 
 	@Test
 	public void testRenameUnused() {
-		var param = global("global_unused");
+		var param = Tests.insert(Parameter.global("global_unused", 42));
 		var renamed = Parameters.rename(db, param, "unused_global");
 		Assert.assertEquals(param, renamed);
 		Assert.assertEquals("unused_global", renamed.name);
@@ -40,23 +42,16 @@ public class ParameterRenameTest {
 
 	@Test
 	public void testParameterFormulas() {
-		var global = global("param");
-		var globalDep = global("dep");
-		globalDep.isInputParameter = false;
-		globalDep.formula = "2 / param";
-		put(globalDep);
+		var global = Tests.insert(Parameter.global("param", 42));
+		var globalDep = Tests.insert(Parameter.global("dep", "2 / param"));
 
 		var process1 = new Process();
-		var dep1 = local(process1, "dep");
-		dep1.isInputParameter = false;
-		dep1.formula = "2 * param";
+		process1.parameter("dep", "2 * param");
 		put(process1);
 
 		var process2 = new Process();
-		local(process2, "param");
-		var dep2 = local(process2, "dep");
-		dep2.isInputParameter = false;
-		dep2.formula = "2 * param";
+		process2.parameter("param", 42);
+		process2.parameter("dep", "2 * param");
 		put(process2);
 
 		global = Parameters.rename(db, global, "global_param");
@@ -68,14 +63,14 @@ public class ParameterRenameTest {
 
 		// should be renamed in process 1
 		process1 = reload(process1);
-		dep1 = process1.parameters.get(0);
+		var dep1 = process1.parameters.get(0);
 		Assert.assertEquals("2 * global_param", dep1.formula);
 		Assert.assertTrue(process1.version > 0L);
 		Assert.assertTrue(process1.lastChange > 0L);
 
 		// should be still the same in process 2
 		process2 = reload(process2);
-		dep2 = process2.parameters.stream()
+		var dep2 = process2.parameters.stream()
 				.filter(p -> !p.isInputParameter)
 				.findFirst()
 				.orElse(null);
@@ -91,21 +86,21 @@ public class ParameterRenameTest {
 
 	@Test
 	public void testExchangeFormulas() {
-		var global = global("param");
+		var global = Tests.insert(Parameter.global("param", 42));
 
 		// no local parameter in process 1
 		var p1 = new Process();
 		var e1 = new Exchange();
 		e1.formula = "2 * param";
-		p1.exchanges.add(e1);
+		p1.add(e1);
 		put(p1);
 
 		// local parameter in process 2
 		var p2 = new Process();
-		local(p2, "param");
+		p2.parameter("param", 42);
 		var e2 = new Exchange();
 		e2.formula = "2 * param";
-		p2.exchanges.add(e2);
+		p2.add(e2);
 		put(p2);
 
 		global = Parameters.rename(db, global, "global_param");
@@ -132,7 +127,7 @@ public class ParameterRenameTest {
 
 	@Test
 	public void testImpactFormulas() {
-		var global = global("param");
+		var global = Tests.insert(Parameter.global("param", 42));
 
 		// no local parameter in impact 1
 		var i1 = new ImpactCategory();
@@ -143,7 +138,7 @@ public class ParameterRenameTest {
 
 		// local parameter in impact 2
 		var i2 = new ImpactCategory();
-		local(i2, "param");
+		i2.parameter("param", 42);
 		var f2 = new ImpactFactor();
 		f2.formula = "2 * param";
 		i2.impactFactors.add(f2);
@@ -173,7 +168,7 @@ public class ParameterRenameTest {
 
 	@Test
 	public void testAllocationFactors() {
-		var global = global("global_param");
+		var global = Tests.insert(Parameter.global("global_param", 42));
 		var process = TestProcess
 				.refProduct("p1", 1, "kg")
 				.param("local_param", 33)
@@ -201,10 +196,10 @@ public class ParameterRenameTest {
 
 	@Test
 	public void testProductSystemRedefs() {
-		var global = global("param");
+		var global = Tests.insert(Parameter.global("param", 42));
 
 		var process = new Process();
-		local(process, "param");
+		process.parameter("param", 42);
 		put(process);
 
 		var system = new ProductSystem();
@@ -254,10 +249,10 @@ public class ParameterRenameTest {
 
 	@Test
 	public void testProjectVariantRedefs() {
-		var global = global("param");
+		var global = Tests.insert(Parameter.global("param", 42));
 
 		var process = new Process();
-		local(process, "param");
+		process.parameter("param", 42);
 		put(process);
 
 		var project = new Project();
@@ -305,30 +300,27 @@ public class ParameterRenameTest {
 		drop(global);
 	}
 
-	private Parameter global(String name) {
-		var param = new Parameter();
-		param.isInputParameter = true;
-		param.name = name;
-		param.scope = ParameterScope.GLOBAL;
-		return new ParameterDao(db).insert(param);
-	}
+	@Test
+	public void testRenameInProcess() {
+		var product = TestData.flow("product", "kg", FlowType.PRODUCT_FLOW);
+		var process = Process.of("process", product);
+		var param = process.parameter("param", 42);
+		process.quantitativeReference.formula = "2 * param";
+		process.parameter("dep", "2 * param");
+		var af = new AllocationFactor();
+		af.formula = "2 * param";
+		process.allocationFactors.add(af);
+		Tests.insert(process);
 
-	private Parameter local(Process process, String name) {
-		var param = new Parameter();
-		param.isInputParameter = true;
-		param.name = name;
-		param.scope = ParameterScope.PROCESS;
-		process.parameters.add(param);
-		return param;
-	}
-
-	private Parameter local(ImpactCategory impact, String name) {
-		var param = new Parameter();
-		param.isInputParameter = true;
-		param.name = name;
-		param.scope = ParameterScope.IMPACT_CATEGORY;
-		impact.parameters.add(param);
-		return param;
+		process = Parameters.rename(param, process, db, "new_param");
+		var dep = process.parameters.stream()
+				.filter(p -> !p.isInputParameter)
+				.findFirst();
+		Assert.assertTrue(dep.isPresent());
+		List.of(dep.get().formula,
+				process.exchanges.get(0).formula,
+				process.allocationFactors.get(0).formula)
+				.forEach(formula -> Assert.assertEquals("2 * new_param", formula));
 	}
 
 	@SuppressWarnings("unchecked")
