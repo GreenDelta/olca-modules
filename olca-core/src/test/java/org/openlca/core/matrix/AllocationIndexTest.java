@@ -17,7 +17,7 @@ import org.openlca.expressions.FormulaInterpreter;
 
 public class AllocationIndexTest {
 
-	private IDatabase db = Tests.getDb();
+	private final IDatabase db = Tests.getDb();
 	private Process process;
 
 	@Before
@@ -96,7 +96,7 @@ public class AllocationIndexTest {
 
 	@Test
 	public void testDefault() {
-		AllocationIndex idx = index(AllocationMethod.USE_DEFAULT);
+		var idx = index(AllocationMethod.USE_DEFAULT);
 		assertEquals(0.3, factor(idx, "p1"), 1e-16);
 		assertEquals(0.2, factor(idx, "p2"), 1e-16);
 		assertEquals(0.5, factor(idx, "w"), 1e-16);
@@ -104,7 +104,7 @@ public class AllocationIndexTest {
 
 	@Test
 	public void testCausal() {
-		AllocationIndex idx = index(AllocationMethod.CAUSAL);
+		var idx = index(AllocationMethod.CAUSAL);
 		assertEquals(0.3, factor(idx, "p1"), 1e-16);
 		assertEquals(0.2, factor(idx, "p2"), 1e-16);
 		assertEquals(0.5, factor(idx, "w"), 1e-16);
@@ -112,7 +112,7 @@ public class AllocationIndexTest {
 
 	@Test
 	public void testPhysical() {
-		AllocationIndex idx = index(AllocationMethod.PHYSICAL);
+		var idx = index(AllocationMethod.PHYSICAL);
 		assertEquals(0.4, factor(idx, "p1"), 1e-16);
 		assertEquals(0.4, factor(idx, "p2"), 1e-16);
 		assertEquals(0.2, factor(idx, "w"), 1e-16);
@@ -120,7 +120,7 @@ public class AllocationIndexTest {
 
 	@Test
 	public void testEconomic() {
-		AllocationIndex idx = index(AllocationMethod.ECONOMIC);
+		var idx = index(AllocationMethod.ECONOMIC);
 		assertEquals(0.1, factor(idx, "p1"), 1e-16);
 		assertEquals(0.3, factor(idx, "p2"), 1e-16);
 		assertEquals(0.6, factor(idx, "w"), 1e-16);

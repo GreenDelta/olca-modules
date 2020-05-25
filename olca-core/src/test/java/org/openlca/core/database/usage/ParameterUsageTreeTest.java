@@ -15,7 +15,6 @@ import org.openlca.core.Tests;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
-import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.usage.ParameterUsageTree.Node;
 import org.openlca.core.database.usage.ParameterUsageTree.UsageType;
 import org.openlca.core.model.AllocationMethod;
@@ -30,19 +29,12 @@ import org.openlca.core.model.descriptors.Descriptors;
 public class ParameterUsageTreeTest {
 
 	private final IDatabase db = Tests.getDb();
-	private Parameter global;
 	private Process process;
 	private ImpactCategory impact;
 
 	@Before
 	public void setup() {
 		Tests.clearDb();
-
-		global = new Parameter();
-		global.name = "param";
-		global.isInputParameter = true;
-		global.scope = ParameterScope.GLOBAL;
-		Tests.insert(global);
 
 		// a dependent global parameter
 		var globalDep = new Parameter();
@@ -90,12 +82,11 @@ public class ParameterUsageTreeTest {
 
 	@Test
 	public void findGlobalsByName() {
+		Tests.insert(Parameter.global("param", 42));
 		var tree = ParameterUsageTree.of("param", db);
-
 		var dep = find(tree, "global_dep_param");
 		assertNotNull(dep);
 		assertEquals(UsageType.FORMULA, dep.usageType);
-
 		var global = find(tree, "param");
 		assertNotNull(global);
 		assertEquals(UsageType.DEFINITION, global.usageType);
@@ -103,6 +94,7 @@ public class ParameterUsageTreeTest {
 
 	@Test
 	public void findGlobalContext() {
+		var global = Tests.insert(Parameter.global("param", 42));
 		var tree = ParameterUsageTree.of(global, db);
 
 		// no global definition
@@ -160,7 +152,7 @@ public class ParameterUsageTreeTest {
 
 	@Test
 	public void testFindInAllocationFactors() {
-		var global = global("param");
+		var global = Tests.insert(Parameter.global("param", 42));
 		var process = TestProcess
 				.refProduct("prod", 1, "kg")
 				.prodIn("prod2", 0.5, "kg")
@@ -177,7 +169,7 @@ public class ParameterUsageTreeTest {
 
 	@Test
 	public void testFindLocalInAllocationFactors() {
-		var global = global("param");
+		var global = Tests.insert(Parameter.global("param", 42));
 		var process = TestProcess
 				.refProduct("prod", 1, "kg")
 				.param("param", 42)
@@ -202,7 +194,7 @@ public class ParameterUsageTreeTest {
 
 	@Test
 	public void testImpactFactor() {
-		global("param");
+		var global = Tests.insert(Parameter.global("param", 42));
 
 		var flow = new Flow();
 		flow.name = "CH4";
@@ -232,14 +224,6 @@ public class ParameterUsageTreeTest {
 		assertEquals(UsageType.DEFINITION, node.usageType);
 	}
 
-	private Parameter global(String name) {
-		var param = new Parameter();
-		param.name = "param";
-		param.isInputParameter = true;
-		param.value = 42;
-		param.scope = ParameterScope.GLOBAL;
-		return new ParameterDao(db).insert(param);
-	}
 
 	private Node find(ParameterUsageTree tree, String...names) {
 		var stream = tree.nodes.stream();

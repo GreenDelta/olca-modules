@@ -15,6 +15,7 @@ import org.openlca.core.database.ProjectDao;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.ParameterizedEntity;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
@@ -101,7 +102,15 @@ public class Parameters {
 	 */
 	public static ParameterizedEntity rename(
 			IDatabase db, ParameterizedEntity owner, Parameter param, String name) {
-		// TODO
+		if (owner instanceof Process) {
+			var process = (Process) owner;
+			for (var e : process.exchanges) {
+				if (e.formula != null) {
+					e.formula = Formulas.renameVariable(e.formula, param.name, name);
+				}
+			}
+		}
+
 		return null;
 	}
 

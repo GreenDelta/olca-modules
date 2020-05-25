@@ -150,7 +150,7 @@ public class TestProcess {
 	public TestProcess alloc(String product, String flow, double factor) {
 		var f = new AllocationFactor();
 		f.method = AllocationMethod.CAUSAL;
-		f.productId = findExchange(process, product).id;
+		f.productId = findExchange(process, product).flow.id;
 		f.value = factor;
 		f.exchange = findExchange(process, flow);
 		process.allocationFactors.add(f);
