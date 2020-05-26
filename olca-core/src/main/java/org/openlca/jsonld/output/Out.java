@@ -1,7 +1,6 @@
 package org.openlca.jsonld.output;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 import org.openlca.core.model.RootEntity;
