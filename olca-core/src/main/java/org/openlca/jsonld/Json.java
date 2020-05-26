@@ -124,7 +124,10 @@ public class Json {
 	}
 
 	public static Date getDate(JsonObject obj, String property) {
-		var str = getString(obj, property);
+		return parseDate(getString(obj, property));
+	}
+
+	public static Date parseDate(String str) {
 		if (str == null)
 			return null;
 		try {
