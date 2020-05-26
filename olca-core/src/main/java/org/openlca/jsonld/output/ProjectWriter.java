@@ -7,6 +7,7 @@ import org.openlca.core.model.ProjectVariant;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.openlca.jsonld.Json;
 
 class ProjectWriter extends Writer<Project> {
 
@@ -19,10 +20,10 @@ class ProjectWriter extends Writer<Project> {
 		JsonObject obj = super.write(p);
 		if (obj == null)
 			return null;
-		Out.put(obj, "creationDate", p.creationDate);
+		Json.put(obj, "creationDate", p.creationDate);
 		Out.put(obj, "functionalUnit", p.functionalUnit);
 		Out.put(obj, "goal", p.goal);
-		Out.put(obj, "lastModificationDate", p.lastModificationDate);
+		Json.put(obj, "lastModificationDate", p.lastModificationDate);
 		Out.put(obj, "author", p.author, conf);
 		Out.put(obj, "impactMethod", createRef(ModelType.IMPACT_METHOD, p.impactMethodId));
 		Out.put(obj, "nwSet", createRef(ModelType.NW_SET, p.nwSetId));

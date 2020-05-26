@@ -55,7 +55,7 @@ abstract class ExchangeImport<P extends RootEntity> extends BaseEmbeddedImport<E
 	private void addAttributes(JsonObject json, Exchange e) {
 		e.isAvoided = Json.getBool(json, "avoidedProduct", false);
 		e.isInput = Json.getBool(json, "input", false);
-		e.baseUncertainty = Json.getOptionalDouble(json, "baseUncertainty");
+		e.baseUncertainty = Json.getDouble(json, "baseUncertainty").orElse(null);
 		e.amount = Json.getDouble(json, "amount", 0);
 		e.formula = Json.getString(json, "amountFormula");
 		e.dqEntry = Json.getString(json, "dqEntry");
@@ -69,7 +69,7 @@ abstract class ExchangeImport<P extends RootEntity> extends BaseEmbeddedImport<E
 
 	private void addCostEntries(JsonObject json, Exchange e, ImportConfig conf) {
 		e.costFormula = Json.getString(json, "costFormula");
-		e.costs = Json.getOptionalDouble(json, "costValue");
+		e.costs = Json.getDouble(json, "costValue").orElse(null);
 		String currencyId = Json.getRefId(json, "currency");
 		if (currencyId != null)
 			e.currency = CurrencyImport.run(currencyId, conf);

@@ -40,37 +40,24 @@ public final class Uncertainties {
 	}
 
 	private static void mapUniform(JsonObject json, Uncertainty u) {
-		u.parameter1 = Json.getOptionalDouble(json, "minimum");
-		u.parameter2 = Json.getOptionalDouble(json, "maximum");
-		// TODO: set formulas (when parameter import ready)
-		// u.setParameter1Formula(In.getString(json, "minimumFormula"));
-		// u.setParameter2Formula(In.getString(json, "maximumFormula"));
+		u.parameter1 = Json.getDouble(json, "minimum").orElse(null);
+		u.parameter2 = Json.getDouble(json, "maximum").orElse(null);
 	}
 
 	private static void mapTriangle(JsonObject json, Uncertainty u) {
-		u.parameter1 = Json.getOptionalDouble(json, "minimum");
-		u.parameter2 = Json.getOptionalDouble(json, "mode");
-		u.parameter3 = Json.getOptionalDouble(json, "maximum");
-		// TODO: set formulas (when parameter import ready)
-		// u.setParameter1Formula(In.getString(json, "minimumFormula"));
-		// u.setParameter2Formula(In.getString(json, "modeFormula"));
-		// u.setParameter3Formula(In.getString(json, "maximumFormula"));
+		u.parameter1 = Json.getDouble(json, "minimum").orElse(null);
+		u.parameter2 = Json.getDouble(json, "mode").orElse(null);
+		u.parameter3 = Json.getDouble(json, "maximum").orElse(null);
 	}
 
 	private static void mapNormal(JsonObject json, Uncertainty u) {
-		u.parameter1 = Json.getOptionalDouble(json, "mean");
-		u.parameter2 = Json.getOptionalDouble(json, "sd");
-		// TODO: set formulas (when parameter import ready)
-		// u.setParameter1Formula(In.getString(json, "meanFormula"));
-		// u.setParameter2Formula(In.getString(json, "sdFormula"));
+		u.parameter1 = Json.getDouble(json, "mean").orElse(null);
+		u.parameter2 = Json.getDouble(json, "sd").orElse(null);
 	}
 
 	private static void mapLogNormal(JsonObject json, Uncertainty u) {
-		u.parameter1 = Json.getOptionalDouble(json, "geomMean");
-		u.parameter2 = Json.getOptionalDouble(json, "geomSd");
-		// TODO: set formulas (when parameter import ready)
-		// u.setParameter1Formula(In.getString(json, "geomMeanFormula"));
-		// u.setParameter2Formula(In.getString(json, "geomSdFormula"));
+		u.parameter1 = Json.getDouble(json, "geomMean").orElse(null);
+		u.parameter2 = Json.getDouble(json, "geomSd").orElse(null);
 	}
 
 }

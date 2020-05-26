@@ -16,7 +16,7 @@ import com.google.gson.JsonObject;
 public class NwSetImport extends BaseEmbeddedImport<NwSet, ImpactMethod> {
 
 	private final List<ImpactCategory> impactCategories;
-	
+
 	private NwSetImport(String impactMethodRefId, List<ImpactCategory> impactCategories, ImportConfig conf) {
 		super(ModelType.IMPACT_METHOD, impactMethodRefId, conf);
 		this.impactCategories = impactCategories;
@@ -49,8 +49,10 @@ public class NwSetImport extends BaseEmbeddedImport<NwSet, ImpactMethod> {
 		NwFactor f = new NwFactor();
 		String categoryId = Json.getRefId(json, "impactCategory");
 		f.impactCategory = getImpactCategory(categoryId);
-		f.normalisationFactor = Json.getOptionalDouble(json, "normalisationFactor");
-		f.weightingFactor = Json.getOptionalDouble(json, "weightingFactor");
+		f.normalisationFactor = Json.getDouble(json, "normalisationFactor")
+				.orElse(null);
+		f.weightingFactor = Json.getDouble(json, "weightingFactor")
+				.orElse(null);
 		return f;
 	}
 
@@ -66,7 +68,7 @@ public class NwSetImport extends BaseEmbeddedImport<NwSet, ImpactMethod> {
 		String refId = Json.getString(json, "@id");
 		if (refId == null)
 			return null;
-		for (NwSet nwSet : impactMethod.nwSets) 
+		for (NwSet nwSet : impactMethod.nwSets)
 			if (refId.equals(nwSet.refId))
 				return nwSet;
 		return null;

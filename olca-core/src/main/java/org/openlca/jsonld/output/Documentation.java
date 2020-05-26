@@ -1,9 +1,14 @@
 package org.openlca.jsonld.output;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 
 import com.google.gson.JsonObject;
+import org.openlca.jsonld.Json;
 
 class Documentation {
 
@@ -36,12 +41,27 @@ class Documentation {
 		Out.put(o, "samplingDescription", d.sampling);
 		Out.put(o, "restrictionsDescription", d.restrictions);
 		Out.put(o, "copyright", d.copyright);
-		Out.put(o, "validFrom", d.validFrom, Out.DATE_ONLY);
-		Out.put(o, "validUntil", d.validUntil, Out.DATE_ONLY);
-		Out.put(o, "creationDate", d.creationDate);
 		Out.put(o, "intendedApplication", d.intendedApplication);
 		Out.put(o, "projectDescription", d.project);
 		Out.put(o, "geographyDescription", d.geography);
+
+		// time stamps
+		if (d.creationDate != null) {
+			Json.put(o, "creationDate", d.creationDate);
+		}
+		if (d.validFrom != null) {
+			Out.put(o, "validFrom", date(d.validFrom));
+		}
+		if (d.validUntil != null) {
+			Out.put(o, "validUntil", date(d.validUntil));
+		}
 	}
 
+	private static String date(Date date) {
+		if (date == null)
+			return null;
+		var instant = date.toInstant();
+		var local = LocalDate.ofInstant(instant, ZoneId.systemDefault());
+		return local.toString();
+	}
 }

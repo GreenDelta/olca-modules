@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.openlca.core.model.RootEntity;
-import org.openlca.jsonld.Dates;
 import org.openlca.jsonld.Enums;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +17,6 @@ class Out {
 
 	static final int FORCE_EXPORT = 2;
 	static final int REQUIRED_FIELD = 4;
-	static final int DATE_ONLY = 8;
 	private static final Logger log = LoggerFactory.getLogger(Out.class);
 	private static final boolean WRITE_NULL_VALUES = false;
 	private static final boolean WRITE_EMPTY_COLLECTIONS = false;
@@ -112,20 +110,6 @@ class Out {
 		if (!checkValidInput(json, property, value, flags))
 			return;
 		json.addProperty(property, value);
-	}
-
-	static void put(JsonObject json, String property, Date value) {
-		put(json, property, value, 0);
-	}
-
-	static void put(JsonObject json, String property, Date value, int flags) {
-		if (!checkValidInput(json, property, value, flags))
-			return;
-		if (is(flags, DATE_ONLY)) {
-			json.addProperty(property, Dates.toDate(value));						
-		} else {
-			json.addProperty(property, Dates.toDateTime(value));			
-		}
 	}
 
 	private static boolean checkValidInput(JsonObject json, String property, Object value, int flags) {

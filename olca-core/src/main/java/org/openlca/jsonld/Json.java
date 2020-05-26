@@ -1,7 +1,13 @@
 package org.openlca.jsonld;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.model.Category;
@@ -21,6 +27,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility functions for reading and writing Json data.
@@ -76,8 +83,7 @@ public class Json {
 	}
 
 	/** Return the int value of the given property. */
-	public static int getInt(JsonObject obj,
-			String property, int defaultVal) {
+	public static int getInt(JsonObject obj, String property, int defaultVal) {
 		if (obj == null || property == null)
 			return defaultVal;
 		JsonElement elem = obj.get(property);
@@ -87,14 +93,23 @@ public class Json {
 			return elem.getAsInt();
 	}
 
-	public static Double getOptionalDouble(JsonObject obj, String property) {
+	/**
+	 * Writes the given date as ISO 8601 string to the given JSON object.
+	 */
+	public static void put(JsonObject json, String property, Date date) {
+		if (date == null)
+			return;
+		var str = date.toInstant().toString();
+		put(json, property, str);
+	}
+
+	public static Optional<Double> getDouble(JsonObject obj, String property) {
 		if (obj == null || property == null)
-			return null;
+			return Optional.empty();
 		JsonElement elem = obj.get(property);
-		if (elem == null || !elem.isJsonPrimitive())
-			return null;
-		else
-			return elem.getAsDouble();
+		return elem == null || !elem.isJsonPrimitive()
+			? Optional.empty()
+			: Optional.of(elem.getAsDouble());
 	}
 
 	public static boolean getBool(JsonObject obj,
@@ -109,8 +124,34 @@ public class Json {
 	}
 
 	public static Date getDate(JsonObject obj, String property) {
-		String xmlString = getString(obj, property);
-		return Dates.parse(xmlString);
+		var str = getString(obj, property);
+		if (str == null)
+			return null;
+		try {
+			if (str.length() < 18) {
+				// try to parse date strings like "2015-05-23"
+				if (str.length() > 10) {
+					// in older versions may have a zone offset
+					// like "2015-05-23+02:00"
+					str = str.substring(0, 10);
+				}
+				var date = LocalDate.parse(str);
+				var seconds = date.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC);
+				return Date.from(Instant.ofEpochSecond(seconds));
+			}
+			if (str.endsWith("Z")) {
+				// assume UTC time input
+				var instant = Instant.parse(str);
+				return Date.from(instant);
+			}
+			// assume offset time
+			var offset = OffsetDateTime.parse(str);
+			return Date.from(offset.toInstant());
+		} catch (Exception e) {
+			var log = LoggerFactory.getLogger(Json.class);
+			log.error("failed to parse date / time: " + str, e);
+			return null;
+		}
 	}
 
 	public static <T extends Enum<T>> T getEnum(JsonObject obj,
@@ -182,7 +223,7 @@ public class Json {
 			return null;
 		JsonObject obj = asRef(d, cache);
 		if (obj == null)
-			return obj;
+			return null;
 		put(obj, "description", d.description);
 		put(obj, "version", Version.asString(d.version));
 		return obj;
