@@ -22,14 +22,14 @@ class ParameterImport extends BaseImport<Parameter> {
 		if (json == null)
 			return null;
 		Parameter p = new Parameter();
-		In.mapAtts(json, p, id, conf);
+		In.mapAtts(json, p, id, conf); // TODO <- mapAtts
 		mapFields(json, p);
 		return conf.db.put(p);
 	}
 
-	/** Field mappings for processes and LCIA methods. */
-	void mapFields(JsonObject json, Parameter p) {
-		In.mapAtts(json, p, p.id);
+	/** Field mappings for processes and LCIA categories. */
+	static void mapFields(JsonObject json, Parameter p) {
+		In.mapAtts(json, p, p.id); // TODO <- mapAtts
 		p.scope = Json.getEnum(json, "parameterScope", ParameterScope.class);
 		p.isInputParameter = Json.getBool(json, "inputParameter", true);
 		p.value = Json.getDouble(json, "value", 0);

@@ -36,15 +36,15 @@ class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 		cat.referenceUnit = Json.getString(json, "referenceUnitName");
 		mapParameters(json, cat);
 		JsonArray factors = Json.getArray(json, "impactFactors");
-		if (factors == null || factors.size() == 0)
-			return cat;
-		for (JsonElement e : factors) {
-			if (!e.isJsonObject())
-				continue;
-			ImpactFactor factor = mapFactor(e.getAsJsonObject(), conf);
-			if (factor == null)
-				continue;
-			cat.impactFactors.add(factor);
+		if (factors != null) {
+			for (var e : factors) {
+				if (!e.isJsonObject())
+					continue;
+				var factor = mapFactor(e.getAsJsonObject(), conf);
+				if (factor == null)
+					continue;
+				cat.impactFactors.add(factor);
+			}
 		}
 		return conf.db.put(cat);
 	}
@@ -122,17 +122,15 @@ class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 	}
 
 	private void mapParameters(JsonObject json, ImpactCategory impact) {
-		JsonArray parameters = Json.getArray(json, "parameters");
+		var parameters = Json.getArray(json, "parameters");
 		if (parameters == null || parameters.size() == 0)
 			return;
-		for (JsonElement e : parameters) {
+		for (var e : parameters) {
 			if (!e.isJsonObject())
 				continue;
-			JsonObject o = e.getAsJsonObject();
-			String refId = Json.getString(o, "@id");
-			ParameterImport pi = new ParameterImport(refId, conf);
-			Parameter parameter = new Parameter();
-			pi.mapFields(o, parameter);
+			var o = e.getAsJsonObject();
+			var parameter = new Parameter();
+			ParameterImport.mapFields(o, parameter);
 			impact.parameters.add(parameter);
 		}
 	}

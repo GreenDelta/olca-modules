@@ -41,7 +41,7 @@ import com.google.gson.JsonObject;
  */
 public class JsonExport {
 
-	private ExportConfig conf;
+	private final ExportConfig conf;
 
 	public JsonExport(IDatabase database, EntityStore store) {
 		conf = ExportConfig.create(database, store);
@@ -67,9 +67,7 @@ public class JsonExport {
 			return;
 		}
 		try {
-			conf.refFn = ref -> {
-				write(ref, cb);
-			};
+			conf.refFn = ref -> write(ref, cb);
 			JsonObject obj = writer.write(entity);
 			conf.store.put(type, obj);
 			if (writer.isExportExternalFiles())
@@ -128,39 +126,39 @@ public class JsonExport {
 		if (entity == null)
 			return null;
 		if (entity instanceof Actor)
-			return Writer.class.cast(new ActorWriter(conf));
+			return (Writer<T>) new ActorWriter(conf);
 		if (entity instanceof Category)
-			return Writer.class.cast(new CategoryWriter(conf));
+			return (Writer<T>) new CategoryWriter(conf);
 		if (entity instanceof Currency)
-			return Writer.class.cast(new CurrencyWriter(conf));
+			return (Writer<T>) new CurrencyWriter(conf);
 		if (entity instanceof FlowProperty)
-			return Writer.class.cast(new FlowPropertyWriter(conf));
+			return (Writer<T>) new FlowPropertyWriter(conf);
 		if (entity instanceof Flow)
-			return Writer.class.cast(new FlowWriter(conf));
+			return (Writer<T>) new FlowWriter(conf);
 		if (entity instanceof NwSet)
-			return Writer.class.cast(new NwSetWriter(conf));
+			return (Writer<T>) new NwSetWriter(conf);
 		if (entity instanceof ImpactCategory)
-			return Writer.class.cast(new ImpactCategoryWriter(conf));
+			return (Writer<T>) new ImpactCategoryWriter(conf);
 		if (entity instanceof ImpactMethod)
-			return Writer.class.cast(new ImpactMethodWriter(conf));
+			return (Writer<T>) new ImpactMethodWriter(conf);
 		if (entity instanceof Location)
-			return Writer.class.cast(new LocationWriter(conf));
+			return (Writer<T>) new LocationWriter(conf);
 		if (entity instanceof Parameter)
-			return Writer.class.cast(new ParameterWriter(conf));
+			return (Writer<T>) new ParameterWriter(conf);
 		if (entity instanceof Process)
-			return Writer.class.cast(new ProcessWriter(conf));
+			return (Writer<T>) new ProcessWriter(conf);
 		if (entity instanceof Source)
-			return Writer.class.cast(new SourceWriter(conf));
+			return (Writer<T>) new SourceWriter(conf);
 		if (entity instanceof UnitGroup)
-			return Writer.class.cast(new UnitGroupWriter(conf));
+			return (Writer<T>) new UnitGroupWriter(conf);
 		if (entity instanceof SocialIndicator)
-			return Writer.class.cast(new SocialIndicatorWriter(conf));
+			return (Writer<T>) new SocialIndicatorWriter(conf);
 		if (entity instanceof ProductSystem)
-			return Writer.class.cast(new ProductSystemWriter(conf));
+			return (Writer<T>) new ProductSystemWriter(conf);
 		if (entity instanceof Project)
-			return Writer.class.cast(new ProjectWriter(conf));
+			return (Writer<T>) new ProjectWriter(conf);
 		if (entity instanceof DQSystem)
-			return Writer.class.cast(new DQSystemWriter(conf));
+			return (Writer<T>) new DQSystemWriter(conf);
 		return null;
 	}
 
@@ -180,9 +178,9 @@ public class JsonExport {
 
 	private class Copy extends SimpleFileVisitor<Path> {
 
-		private String refId;
-		private ModelType type;
-		private Path dbDir;
+		private final String refId;
+		private final ModelType type;
+		private final Path dbDir;
 
 		Copy(String refId, ModelType type, Path dbDir) {
 			this.refId = refId;

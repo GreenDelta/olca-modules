@@ -57,6 +57,5 @@ class ImpactCategoryWriter extends Writer<ImpactCategory> {
 			parameters.add(obj);
 		}
 		Out.put(json, "parameters", parameters);
-
 	}
 }
