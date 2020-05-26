@@ -75,7 +75,6 @@
 		<module>olca-ilcd</module>
 		<module>olca-io</module>
 		<module>olca-ipc</module>
-		<module>olca-jsonld</module>
 		<module>olca-simapro-csv</module>
 	</modules>
 
