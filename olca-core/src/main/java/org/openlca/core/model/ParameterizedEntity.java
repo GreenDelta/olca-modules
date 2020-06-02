@@ -55,5 +55,8 @@ public abstract class ParameterizedEntity extends CategorizedEntity {
 		return param;
 	}
 
-	protected abstract ParameterScope parameterScope();
+	/**
+	 * Get the type of the parameter scope of this entity.
+	 */
+	public abstract ParameterScope parameterScope();
 }
