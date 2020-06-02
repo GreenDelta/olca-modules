@@ -16,13 +16,16 @@ import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.UnitDao;
+import org.openlca.core.database.UnitGroupDao;
+import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.model.Exchange;
+import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Unit;
+import org.openlca.core.model.UnitGroup;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
 import org.openlca.jsonld.Json;
@@ -59,6 +62,7 @@ public class HSCSim {
 
 		private final IDatabase db;
 		private final FlowMap map;
+		private UnitMapping units;
 
 		Import(IDatabase db, FlowMap map) {
 			this.db = db;
@@ -76,7 +80,7 @@ public class HSCSim {
 			if (inputs != null) {
 				addExchanges(process, inputs, true);
 			}
-			var outputs  = Json.getArray(obj, "output_streams");
+			var outputs = Json.getArray(obj, "output_streams");
 			if (outputs != null) {
 				addExchanges(process, outputs, false);
 			}
@@ -129,6 +133,14 @@ public class HSCSim {
 
 		private Optional<Exchange> exchange(JsonObject stream) {
 			var id = flowKey(stream);
+			var flowDao = new FlowDao(db);
+
+			// create an exchange from an existing flow
+			var flow = flowDao.getForRefId(id);
+			if (flow != null)
+				return Optional.of(fromExisting(flow, unit(stream)));
+
+			// create an exchange from a mapped flow
 			var mapEntry = map.getEntry(id);
 			if (mapEntry != null) {
 				var e = fromMapped(mapEntry);
@@ -136,7 +148,17 @@ public class HSCSim {
 					return e;
 			}
 
-			return Optional.empty(); // TODO
+			// create a new product exchange
+			var u = mappedUnit(stream);
+			var name = Json.getString(stream, "name");
+			if (name == null)
+				return Optional.empty();
+			flow = flowDao.insert(
+					Flow.product(name, u.flowProperty));
+			var exchange = Exchange.of(
+					flow, u.flowProperty, u.unit);
+			exchange.amount = 1.0;
+			return Optional.of(exchange);
 		}
 
 		private String flowKey(JsonObject stream) {
@@ -183,5 +205,67 @@ public class HSCSim {
 			exchange.amount = fme.factor;
 			return Optional.empty();
 		}
+
+		private Exchange fromExisting(Flow flow, String unit) {
+			FlowProperty prop = null;
+			Unit u = null;
+			for (var f : flow.flowPropertyFactors) {
+				if (f.flowProperty == null
+						|| f.flowProperty.unitGroup == null)
+					continue;
+				u = f.flowProperty.unitGroup.getUnit(unit);
+				if (u != null) {
+					prop = f.flowProperty;
+					break;
+				}
+			}
+			var exchange = prop == null
+					? Exchange.of(flow)
+					: Exchange.of(flow, prop, u);
+			exchange.amount = 1.0;
+			return exchange;
+		}
+
+		private String unit(JsonObject stream) {
+			var unit = Json.getString(stream, "unit");
+			if (unit == null)
+				return "unit";
+			unit = unit.trim();
+			return unit.endsWith("/h")
+					? unit.substring(0, unit.length() - 2)
+					: unit + "h";
+		}
+
+		private UnitMappingEntry mappedUnit(JsonObject stream) {
+			if (units == null) {
+				units = UnitMapping.createDefault(db);
+			}
+			var symbol = unit(stream);
+			var entry = units.getEntry(symbol);
+			if (entry != null)
+				return entry;
+			// create a default unit group and flow property
+			// for the unknown unit
+			var unit = Unit.of(symbol);
+			var group = new UnitGroupDao(db).insert(
+					UnitGroup.of("Unit " + symbol, unit));
+			var flowProp = new FlowPropertyDao(db).insert(
+					FlowProperty.of("Quantity of " + symbol, group));
+			entry = new UnitMappingEntry();
+			entry.factor = 1.0;
+			entry.flowProperty = flowProp;
+			entry.unit = group.referenceUnit;
+			entry.unitGroup = group;
+			entry.unitName = symbol;
+			units.put(symbol, entry);
+			return entry;
+		}
+	}
+
+	public static void main(String[] args) {
+		var dbPath = "C:\\Users\\Win10\\openLCA-data-1.4\\databases\\sim2";
+		var db = new DerbyDatabase(new File(dbPath));
+		var filePath = "C:/Users/Win10/Downloads/json_example_ms.json";
+		HSCSim.importProcess(db, new File(filePath), FlowMap.empty());
 	}
 }
