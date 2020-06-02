@@ -2,8 +2,6 @@ package org.openlca.core.math;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
-import java.util.function.Consumer;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -29,12 +27,12 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -93,35 +91,20 @@ public class RegionalizedCalculationTest {
 		// process p2
 		p2 = new Process();
 		Flow pp2 = flow("p2", "kg", FlowType.PRODUCT_FLOW);
-		with(p2.exchange(pp2), e -> {
-			p2.quantitativeReference = e;
-			e.isInput = false;
-		});
-		with(p2.exchange(e2), e -> {
-			e.isInput = false;
-			e.amount = 2.0;
-		});
+		p2.quantitativeReference = p2.output(pp2, 1);
+		p2.output(e2, 2.0);
 		p2 = new ProcessDao(db).insert(p2);
 
 		// process p1
 		p1 = new Process();
 		Flow pp1 = flow("p1", "kg", FlowType.PRODUCT_FLOW);
-		with(p1.exchange(pp1), e -> {
-			p1.quantitativeReference = e;
-			e.isInput = false;
-		});
-		with(p1.exchange(pp2), e -> {
-			e.isInput = true;
-			e.amount = 2.0;
-		});
-		with(p1.exchange(e1), e -> {
-			e.isInput = false;
-			e.amount = 2.0;
-		});
+		p1.quantitativeReference = p1.output(pp1, 1.0);
+		p1.input(pp2, 2.0);
+		p1.output(e1, 2.0);
 		p1 = new ProcessDao(db).insert(p1);
 
 		// create the product system
-		sys = ProductSystem.from(p1);
+		sys = ProductSystem.of(p1);
 		sys.processes.add(p2.id);
 		ProcessLink link = new ProcessLink();
 		link.providerId = p2.id;
@@ -142,9 +125,8 @@ public class RegionalizedCalculationTest {
 				{e2, null, 2.0},
 		};
 		Arrays.stream(factors).forEach(row -> {
-			ImpactFactor f = impact.addFactor((Flow) row[0]);
+			var f = impact.factor((Flow) row[0], (Double) row[2]);
 			f.location = (Location) row[1];
-			f.value = (Double) row[2];
 		});
 		impact = new ImpactCategoryDao(db).insert(impact);
 		method = new ImpactMethod();
@@ -487,34 +469,27 @@ public class RegionalizedCalculationTest {
 		// create the process
 		Process p = new Process();
 		p.name = "transport, bus";
-		p.quantitativeReference = p.exchange(flow(
-				"transport, bus", "p*km", FlowType.PRODUCT_FLOW));
-		Exchange e1 = p.exchange(nox);
-		e1.amount = 5;
+		p.quantitativeReference = p.output(flow(
+				"transport, bus", "p*km", FlowType.PRODUCT_FLOW), 1);
+		Exchange e1 = p.output(nox, 5);
 		e1.location = loc1;
-		Exchange e2 = p.exchange(nox);
-		e2.amount = 10;
+		Exchange e2 = p.output(nox, 10);
 		e2.location = loc2;
 		p = new ProcessDao(db).insert(p);
 
 		// create the LCIA category & method
-		ImpactCategory impact = new ImpactCategory();
+		var impact = new ImpactCategory();
 		impact.name = "human tox";
-		ImpactFactor i1 = impact.addFactor(nox);
-		i1.value = 0.5; // the default factor
-		ImpactFactor i2 = impact.addFactor(nox);
-		i2.location = loc1;
-		i2.value = 0.1;
-		ImpactFactor i3 = impact.addFactor(nox);
-		i3.location = loc2;
-		i3.value = 0.9;
+		impact.factor(nox, 0.5);
+		impact.factor(nox, 0.1).location = loc1;
+		impact.factor(nox, 0.9).location = loc2;
 		impact = new ImpactCategoryDao(db).insert(impact);
-		ImpactMethod method = new ImpactMethod();
+		var method = new ImpactMethod();
 		method.impactCategories.add(impact);
 		method = new ImpactMethodDao(db).insert(method);
 
 		// create the product system and calculation setup
-		CalculationSetup setup = new CalculationSetup(ProductSystem.from(p));
+		CalculationSetup setup = new CalculationSetup(ProductSystem.of(p));
 		setup.withRegionalization = true;
 		setup.impactMethod = Descriptors.toDescriptor(method);
 		SystemCalculator calculator = new SystemCalculator(db, new JavaSolver());
@@ -532,11 +507,8 @@ public class RegionalizedCalculationTest {
 		List<Flow> flows = dao.getForName(name);
 		if (!flows.isEmpty())
 			return flows.get(0);
-		Flow flow = new Flow();
-		flow.name = name;
-		flow.refId = UUID.randomUUID().toString();
-		flow.flowType = type;
-		flow.addReferenceFactor(property(unit));
+		var property = property(unit);
+		Flow flow = Flow.of(name, type, property);
 		return dao.insert(flow);
 	}
 
@@ -552,13 +524,11 @@ public class RegionalizedCalculationTest {
 	}
 
 	private UnitGroup unitGroup(String unit) {
-		UnitGroupDao dao = new UnitGroupDao(db);
-		List<UnitGroup> groups = dao.getForName(unit);
+		var dao = new UnitGroupDao(db);
+		var groups = dao.getForName(unit);
 		if (!groups.isEmpty())
 			return groups.get(0);
-		UnitGroup group = new UnitGroup();
-		group.name = unit;
-		group.addReferenceUnit(unit);
+		var group = UnitGroup.of(unit, Unit.of(unit));
 		return dao.insert(group);
 	}
 
@@ -579,12 +549,6 @@ public class RegionalizedCalculationTest {
 				.filter(e -> f.equals(e.flow))
 				.findFirst()
 				.orElse(null);
-	}
-
-	private <T> void with(T t, Consumer<T> fn) {
-		if (t != null) {
-			fn.accept(t);
-		}
 	}
 
 	private ImpactCategoryDescriptor des(ImpactCategory imp) {

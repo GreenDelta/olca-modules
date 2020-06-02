@@ -39,6 +39,9 @@ class Upgrade9 implements IUpgrade {
 		u.createColumn("tbl_impact_factors", "f_location BIGINT");
 		u.createColumn("tbl_locations", "geodata BLOB(32 M)");
 
+		// dynamic allocation factors
+		u.createColumn("tbl_allocation_factors", "formula VARCHAR(1000)");
+
 		addParameterSets(u);
 		addStandaloneImpactCategories(db);
 	}

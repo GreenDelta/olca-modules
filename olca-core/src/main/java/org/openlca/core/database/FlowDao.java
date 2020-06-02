@@ -1,6 +1,5 @@
 package org.openlca.core.database;
 
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -184,14 +183,10 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 		Map<Long, Boolean> result = new HashMap<>();
 		for (long id : ids)
 			result.put(id, false);
-		try {
-			NativeSql.on(database).query(query.toString(), (res) -> {
-				result.put(res.getLong(1), res.getLong(2) != 0l);
-				return true;
-			});
-		} catch (SQLException e) {
-			log.error("Error checking for reference factor existence", e);
-		}
+		NativeSql.on(database).query(query.toString(), (res) -> {
+			result.put(res.getLong(1), res.getLong(2) != 0l);
+			return true;
+		});
 		return result;
 	}
 

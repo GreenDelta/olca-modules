@@ -96,6 +96,7 @@ public class EcoSpold01Import implements FileImport {
 	 * Runs the import with a set of files (use the respective constructor of
 	 * the setter method for the files).
 	 */
+	@Override
 	public void run() {
 		if (files == null || files.length == 0)
 			return;
@@ -346,8 +347,8 @@ public class EcoSpold01Import implements FileImport {
 				log.error("Could not import flow {}", inExchange);
 				continue;
 			}
-			Exchange outExchange = ioProcess.exchange(flow.flow,
-					flow.flowProperty, flow.unit);
+			Exchange outExchange = ioProcess.add(Exchange.of(flow.flow,
+					flow.flowProperty, flow.unit));
 			outExchange.isInput = inExchange.getInputGroup() != null;
 			ExchangeAmount exchangeAmount = new ExchangeAmount(outExchange,
 					inExchange);
@@ -415,8 +416,8 @@ public class EcoSpold01Import implements FileImport {
 			log.warn("Could not create reference flow {}", dataSet);
 			return;
 		}
-		Exchange outExchange = ioProcess.exchange(flow.flow, flow.flowProperty,
-				flow.unit);
+		Exchange outExchange = ioProcess.add(
+				Exchange.of(flow.flow, flow.flowProperty, flow.unit));
 		outExchange.isInput = false;
 		double amount = dataSet.getReferenceFunction().getAmount()
 				* flow.conversionFactor;

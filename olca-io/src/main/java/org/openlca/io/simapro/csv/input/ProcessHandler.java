@@ -1,10 +1,10 @@
 package org.openlca.io.simapro.csv.input;
 
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
-import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
@@ -13,7 +13,6 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Uncertainty;
-import org.openlca.io.Categories;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.MapFactor;
 import org.openlca.simapro.csv.model.AbstractExchangeRow;
@@ -240,12 +239,12 @@ class ProcessHandler {
 		Exchange e = null;
 		UnitMappingEntry entry = refData.getUnitMapping().getEntry(row.getUnit());
 		if (refUnit || entry == null) {
-			e = process.exchange(flow);
+			e = process.add(Exchange.of(flow));
 			if (!refUnit && entry == null) {
 				log.error("unknown unit {}; could not set exchange unit, setting ref unit", row.getUnit());
 			}
 		} else {
-			e = process.exchange(flow, entry.flowProperty, entry.unit);
+			e = process.add(Exchange.of(flow, entry.flowProperty, entry.unit));
 		}
 		e.description = row.getComment();
 		setAmount(e, row.getAmount(), scopeId);
@@ -256,7 +255,7 @@ class ProcessHandler {
 
 	private void setAmount(Exchange e, String amount, long scope) {
 		if (Strings.nullOrEmpty(amount)) {
-			e.amount = (double) 0;
+			e.amount = 0;
 			return;
 		}
 		try {
@@ -276,20 +275,26 @@ class ProcessHandler {
 			categoryPath = row.getCategory();
 		} else if (block.getWasteTreatment() != null)
 			categoryPath = block.getWasteTreatment().getCategory();
-		if (categoryPath == null)
+		if (Strings.nullOrEmpty(categoryPath))
 			return;
-		String[] path = categoryPath.split("\\\\");
-		Category category = Categories.findOrAdd(database, ModelType.PROCESS,
-				path);
-		process.category = category;
+		var path = categoryPath.split("\\\\");
+		process.category = new CategoryDao(database)
+				.sync(ModelType.PROCESS, path);
 	}
 
 	private void mapType() {
-		org.openlca.simapro.csv.model.enums.ProcessType type = block
-				.getProcessType();
-		if (type == org.openlca.simapro.csv.model.enums.ProcessType.SYSTEM)
-			process.processType = ProcessType.LCI_RESULT;
-		else
+		var type = block.getProcessType();
+		if (type == null) {
 			process.processType = ProcessType.UNIT_PROCESS;
+			return;
+		}
+		switch (type) {
+		case SYSTEM:
+			process.processType = ProcessType.LCI_RESULT;
+			break;
+		default:
+			process.processType = ProcessType.UNIT_PROCESS;
+			break;
+		}
 	}
 }

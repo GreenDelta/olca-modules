@@ -11,12 +11,14 @@ import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.Parameter;
+import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.util.Strings;
 
 public class TestProcess {
 
-	private IDatabase db = Tests.getDb();
+	private final IDatabase db = Tests.getDb();
 	private Process process;
 
 	private TestProcess() {
@@ -27,7 +29,7 @@ public class TestProcess {
 	 * reference.
 	 */
 	public static TestProcess refProduct(String flow, double amount,
-			String unit) {
+										 String unit) {
 		TestProcess tp = new TestProcess();
 		tp.process = new Process();
 		tp.process.refId = UUID.randomUUID().toString();
@@ -41,7 +43,7 @@ public class TestProcess {
 	 * Creates a process with the given waste input as quantitative reference.
 	 */
 	public static TestProcess refWaste(String flow, double amount,
-			String unit) {
+									   String unit) {
 		TestProcess tp = new TestProcess();
 		tp.process = new Process();
 		tp.process.refId = UUID.randomUUID().toString();
@@ -77,40 +79,38 @@ public class TestProcess {
 	}
 
 	public TestProcess prodOut(String flow, double amount, String unit) {
-		Exchange e = prepareExchange(FlowType.PRODUCT_FLOW, flow, amount, unit);
-		e.isInput = false;
+		var f = TestData.flow(flow, unit, FlowType.PRODUCT_FLOW);
+		process.output(f, amount);
 		return this;
 	}
 
 	public TestProcess prodIn(String flow, double amount, String unit) {
-		Exchange e = prepareExchange(FlowType.PRODUCT_FLOW, flow, amount, unit);
-		e.isInput = true;
+		var f = TestData.flow(flow, unit, FlowType.PRODUCT_FLOW);
+		process.input(f, amount);
 		return this;
 	}
 
 	public TestProcess elemOut(String flow, double amount, String unit) {
-		Exchange e = prepareExchange(FlowType.ELEMENTARY_FLOW, flow, amount,
-				unit);
-		e.isInput = false;
+		var f = TestData.flow(flow, unit, FlowType.ELEMENTARY_FLOW);
+		process.output(f, amount);
 		return this;
 	}
 
 	public TestProcess elemIn(String flow, double amount, String unit) {
-		Exchange e = prepareExchange(FlowType.ELEMENTARY_FLOW, flow, amount,
-				unit);
-		e.isInput = true;
+		var f = TestData.flow(flow, unit, FlowType.ELEMENTARY_FLOW);
+		process.input(f, amount);
 		return this;
 	}
 
 	public TestProcess wasteOut(String flow, double amount, String unit) {
-		Exchange e = prepareExchange(FlowType.WASTE_FLOW, flow, amount, unit);
-		e.isInput = false;
+		var f = TestData.flow(flow, unit, FlowType.WASTE_FLOW);
+		process.output(f, amount);
 		return this;
 	}
 
 	public TestProcess wasteIn(String flow, double amount, String unit) {
-		Exchange e = prepareExchange(FlowType.WASTE_FLOW, flow, amount, unit);
-		e.isInput = true;
+		var f = TestData.flow(flow, unit, FlowType.WASTE_FLOW);
+		process.input(f, amount);
 		return this;
 	}
 
@@ -118,8 +118,7 @@ public class TestProcess {
 	 * Adds an economic or physical allocation factor for the given flow and
 	 * method to the process. Use this method *after* the exchanges are added.
 	 */
-	public TestProcess alloc(String flow, AllocationMethod method,
-			double factor) {
+	public TestProcess alloc(String flow, AllocationMethod method, double factor) {
 		AllocationFactor f = new AllocationFactor();
 		f.method = method;
 		Exchange e = findExchange(process, flow);
@@ -130,17 +129,44 @@ public class TestProcess {
 	}
 
 	/**
+	 * Adds an economic or physical allocation factor with a formula for the
+	 * given flow and method to the process. Use this method *after* the
+	 * exchanges are added.
+	 */
+	public TestProcess alloc(String flow, AllocationMethod method, String formula) {
+		AllocationFactor f = new AllocationFactor();
+		f.method = method;
+		Exchange e = findExchange(process, flow);
+		f.productId = e.flow.id;
+		f.formula = formula;
+		process.allocationFactors.add(f);
+		return this;
+	}
+
+	/**
 	 * Adds a causal allocation factor for the given product and flow. Use this
 	 * method *after* the exchanges are added.
 	 */
 	public TestProcess alloc(String product, String flow, double factor) {
-		AllocationFactor f = new AllocationFactor();
+		var f = new AllocationFactor();
 		f.method = AllocationMethod.CAUSAL;
-		Exchange e = findExchange(process, product);
-		f.productId = e.flow.id;
+		f.productId = findExchange(process, product).flow.id;
 		f.value = factor;
 		f.exchange = findExchange(process, flow);
 		process.allocationFactors.add(f);
+		return this;
+	}
+
+	/**
+	 * Adds an input parameter to the process.
+	 */
+	public TestProcess param(String name, double value) {
+		process.parameter(name, value);
+		return this;
+	}
+
+	public TestProcess param(String name, String formula) {
+		process.parameter(name, formula);
 		return this;
 	}
 
@@ -156,14 +182,4 @@ public class TestProcess {
 		}
 		return exchange;
 	}
-
-	private Exchange prepareExchange(FlowType flowType, String flow,
-			double amount, String unit) {
-		Flow f = TestData.flow(flow, unit, flowType);
-		Exchange e = process.exchange(
-				f, f.referenceFlowProperty, TestData.unit(unit));
-		e.amount = amount;
-		return e;
-	}
-
 }

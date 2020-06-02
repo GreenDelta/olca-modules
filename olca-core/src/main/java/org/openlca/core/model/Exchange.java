@@ -125,6 +125,38 @@ public class Exchange extends AbstractEntity {
 				+ ", unit=" + unit + "]";
 	}
 
+	public static Exchange input(Flow flow, double amount) {
+		var e = of(flow);
+		e.amount = amount;
+		e.isInput = true;
+		return e;
+	}
+
+	public static Exchange output(Flow flow, double amount) {
+		var e = of(flow);
+		e.amount = amount;
+		e.isInput = false;
+		return e;
+	}
+
+	public static Exchange of(Flow flow) {
+		var e = new Exchange();
+		e.flow = flow;
+		e.unit = flow.getReferenceUnit();
+		e.flowPropertyFactor = flow.getReferenceFactor();
+		e.amount = 1.0;
+		return e;
+	}
+
+	public static Exchange of(Flow flow, FlowProperty property, Unit unit) {
+		var e = new Exchange();
+		e.flow = flow;
+		e.unit = unit;
+		e.flowPropertyFactor = flow.getFactor(property);
+		e.amount = 1;
+		return e;
+	}
+
 	@Override
 	public Exchange clone() {
 		Exchange clone = new Exchange();
@@ -148,28 +180,4 @@ public class Exchange extends AbstractEntity {
 		clone.location = location;
 		return clone;
 	}
-
-	public static Exchange from(Flow flow) {
-		if (flow == null)
-			return from(null, null, null);
-		FlowProperty property = flow.referenceFlowProperty;
-		if (property == null)
-			return from(flow, null, null);
-		Unit unit = property.unitGroup.referenceUnit;
-		return from(flow, property, unit);
-
-	}
-
-	public static Exchange from(Flow flow, FlowProperty property, Unit unit) {
-		Exchange exchange = new Exchange();
-		exchange.flow = flow;
-		if (flow != null && property != null) {
-			exchange.flowPropertyFactor = flow.getFactor(property);
-		}
-		exchange.unit = unit;
-		exchange.amount = 1;
-		exchange.isInput = false;
-		return exchange;
-	}
-
 }

@@ -1,14 +1,13 @@
 package org.openlca.core.model;
 
+import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
-
-import org.openlca.expressions.FormulaInterpreter;
-import org.openlca.expressions.InterpreterException;
 
 /**
  * In openLCA, parameters can be defined in different scopes: global, process,
@@ -57,35 +56,34 @@ public class Parameter extends CategorizedEntity {
 	public Uncertainty uncertainty;
 
 	/**
-	 * Returns true if the given name is a valid identifier for a parameter. We
-	 * allow the same rules as for Java identifiers.
+	 * Creates a new global input parameter.
 	 */
-	public static boolean isValidName(String name) {
-		if (name == null)
-			return false;
-		String id = name.trim();
-		if (id.isEmpty())
-			return false;
-		for (int i = 0; i < id.length(); i++) {
-			char c = id.charAt(i);
-			if (i == 0 && !Character.isLetter(c))
-				return false;
-			if (i > 0 && !Character.isJavaIdentifierPart(c))
-				return false;
-		}
-		FormulaInterpreter interpreter = new FormulaInterpreter();
-		interpreter.bind(name, "1");
-		try {
-			interpreter.eval(name);
-		} catch (InterpreterException e) {
-			return false;
-		}
-		return true;
+	public static Parameter global(String name, double value) {
+		var param = new Parameter();
+		param.name = name;
+		param.refId = UUID.randomUUID().toString();
+		param.value = value;
+		param.isInputParameter = true;
+		param.scope = ParameterScope.GLOBAL;
+		return param;
+	}
+
+	/**
+	 * Creates a new global calculated / dependent parameter.
+	 */
+	public static Parameter global(String name, String formula) {
+		var param = new Parameter();
+		param.name = name;
+		param.refId = UUID.randomUUID().toString();
+		param.formula = formula;
+		param.isInputParameter = false;
+		param.scope = ParameterScope.GLOBAL;
+		return param;
 	}
 
 	@Override
 	public Parameter clone() {
-		Parameter clone = new Parameter();
+		var clone = new Parameter();
 		Util.cloneRootFields(this, clone);
 		clone.formula = formula;
 		clone.isInputParameter = isInputParameter;

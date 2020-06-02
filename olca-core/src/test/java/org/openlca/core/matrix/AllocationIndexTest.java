@@ -13,10 +13,11 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
+import org.openlca.expressions.FormulaInterpreter;
 
 public class AllocationIndexTest {
 
-	private IDatabase db = Tests.getDb();
+	private final IDatabase db = Tests.getDb();
 	private Process process;
 
 	@Before
@@ -47,11 +48,12 @@ public class AllocationIndexTest {
 
 	@Test
 	public void testDefaultFactor() {
-		AllocationIndex idx = index(AllocationMethod.CAUSAL);
+		var idx = index(AllocationMethod.CAUSAL);
+		var fi = new FormulaInterpreter();
 		// there is no exchange with an ID -999; we should get always 1.0
-		assertEquals(1.0, idx.get(product("p1"), -999), 1e-16);
-		assertEquals(1.0, idx.get(product("p2"), -999), 1e-16);
-		assertEquals(1.0, idx.get(product("w"), -999), 1e-16);
+		assertEquals(1.0, idx.get(product("p1"), -999, fi), 1e-16);
+		assertEquals(1.0, idx.get(product("p2"), -999, fi), 1e-16);
+		assertEquals(1.0, idx.get(product("w"), -999, fi), 1e-16);
 	}
 
 	@Test
@@ -74,29 +76,27 @@ public class AllocationIndexTest {
 	}
 
 	/**
-	 * This test fails if enabled. The caller of `AllocationIndex.get` has to
-	 * ensure that the method is only called with exchanges that can be
-	 * allocated to a product or waste flow (product inputs, waste outputs, or
-	 * elementary flows).
+	 * This test fails if enabled. The caller of `AllocationIndex.get` has to ensure
+	 * that the method is only called with exchanges that can be allocated to a
+	 * product or waste flow (product inputs, waste outputs, or elementary flows).
 	 */
 	@Test
 	@Ignore
 	public void testProductFactors() {
-		AllocationIndex idx = index(AllocationMethod.PHYSICAL);
+		var idx = index(AllocationMethod.PHYSICAL);
+		var fi = new FormulaInterpreter();
 		// the allocation factors of the product / waste flows should default to
 		// 1
+
 		for (String p : Arrays.asList("p1", "p2", "w")) {
-			assertEquals(
-					1.0,
-					idx.get(product(p),
-							TestProcess.findExchange(process, p).id),
-					1e-16);
+			long exchangeID = TestProcess.findExchange(process, p).id;
+			assertEquals(1.0, idx.get(product(p), exchangeID, fi), 1e-16);
 		}
 	}
 
 	@Test
 	public void testDefault() {
-		AllocationIndex idx = index(AllocationMethod.USE_DEFAULT);
+		var idx = index(AllocationMethod.USE_DEFAULT);
 		assertEquals(0.3, factor(idx, "p1"), 1e-16);
 		assertEquals(0.2, factor(idx, "p2"), 1e-16);
 		assertEquals(0.5, factor(idx, "w"), 1e-16);
@@ -104,7 +104,7 @@ public class AllocationIndexTest {
 
 	@Test
 	public void testCausal() {
-		AllocationIndex idx = index(AllocationMethod.CAUSAL);
+		var idx = index(AllocationMethod.CAUSAL);
 		assertEquals(0.3, factor(idx, "p1"), 1e-16);
 		assertEquals(0.2, factor(idx, "p2"), 1e-16);
 		assertEquals(0.5, factor(idx, "w"), 1e-16);
@@ -112,7 +112,7 @@ public class AllocationIndexTest {
 
 	@Test
 	public void testPhysical() {
-		AllocationIndex idx = index(AllocationMethod.PHYSICAL);
+		var idx = index(AllocationMethod.PHYSICAL);
 		assertEquals(0.4, factor(idx, "p1"), 1e-16);
 		assertEquals(0.4, factor(idx, "p2"), 1e-16);
 		assertEquals(0.2, factor(idx, "w"), 1e-16);
@@ -120,7 +120,7 @@ public class AllocationIndexTest {
 
 	@Test
 	public void testEconomic() {
-		AllocationIndex idx = index(AllocationMethod.ECONOMIC);
+		var idx = index(AllocationMethod.ECONOMIC);
 		assertEquals(0.1, factor(idx, "p1"), 1e-16);
 		assertEquals(0.3, factor(idx, "p2"), 1e-16);
 		assertEquals(0.6, factor(idx, "w"), 1e-16);
@@ -134,9 +134,9 @@ public class AllocationIndexTest {
 	}
 
 	private double factor(AllocationIndex idx, String product) {
-		return idx.get(
-				product(product),
-				TestProcess.findExchange(process, "CO2").id);
+		var fi = new FormulaInterpreter();
+		var exchangeID = TestProcess.findExchange(process, "CO2").id;
+		return idx.get(product(product), exchangeID, fi);
 	}
 
 	private ProcessProduct product(String name) {

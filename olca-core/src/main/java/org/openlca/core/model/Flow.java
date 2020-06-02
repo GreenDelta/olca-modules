@@ -1,5 +1,10 @@
 package org.openlca.core.model;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,9 +14,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Table(name = "tbl_flows")
@@ -45,6 +47,31 @@ public class Flow extends CategorizedEntity {
 	@JoinColumn(name = "f_reference_flow_property")
 	public FlowProperty referenceFlowProperty;
 
+	public static Flow product(String name, FlowProperty property) {
+		return of(name, FlowType.PRODUCT_FLOW, property);
+	}
+
+	public static Flow waste(String name, FlowProperty property) {
+		return of(name, FlowType.WASTE_FLOW, property);
+	}
+
+	public static Flow elementary(String name, FlowProperty property) {
+		return of(name, FlowType.ELEMENTARY_FLOW, property);
+	}
+
+	public static Flow of(String name, FlowType type, FlowProperty property) {
+		var flow = new Flow();
+		flow.name = name;
+		flow.refId = UUID.randomUUID().toString();
+		flow.flowType = type;
+		flow.referenceFlowProperty = property;
+		var factor = new FlowPropertyFactor();
+		factor.conversionFactor = 1.0;
+		factor.flowProperty = property;
+		flow.flowPropertyFactors.add(factor);
+		return flow;
+	}
+
 	@Override
 	public Flow clone() {
 		Flow clone = new Flow();
@@ -77,19 +104,9 @@ public class Flow extends CategorizedEntity {
 	}
 
 	/**
-	 * Adds the given flow property as the reference flow property with a
-	 * conversion factor of 1.0 to this flow.
-	 */
-	public FlowPropertyFactor addReferenceFactor(FlowProperty prop) {
-		FlowPropertyFactor f = addFactor(prop, 1.0);
-		referenceFlowProperty = prop;
-		return f;
-	}
-
-	/**
 	 * Adds a conversion factor with the given flow property to this flow.
 	 */
-	public FlowPropertyFactor addFactor(FlowProperty prop, double factor) {
+	public FlowPropertyFactor property(FlowProperty prop, double factor) {
 		FlowPropertyFactor f = new FlowPropertyFactor();
 		f.flowProperty = prop;
 		f.conversionFactor = factor;

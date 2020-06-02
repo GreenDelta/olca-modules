@@ -75,7 +75,7 @@ class IOSheet {
 		if (unit == null) {
 			return refDataError(row, "unit: " + unitName);
 		}
-		Exchange exchange = config.process.exchange(flow, property, unit);
+		var exchange = config.process.add(Exchange.of(flow, property, unit));
 		exchange.isInput = forInputs;
 		exchange.amount = config.getDouble(sheet, row, 4);
 		String formula = config.getString(sheet, row, 5);

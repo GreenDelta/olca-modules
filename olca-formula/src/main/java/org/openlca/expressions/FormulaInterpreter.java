@@ -1,6 +1,7 @@
 package org.openlca.expressions;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 public class FormulaInterpreter {
 
@@ -12,8 +13,8 @@ public class FormulaInterpreter {
 	}
 
 	/**
-	 * Removes all local scopes and all variable bindings of the global scope
-	 * from this interpreter.
+	 * Removes all local scopes and all variable bindings of the global scope from
+	 * this interpreter.
 	 */
 	public void clear() {
 		globalScope.clear();
@@ -22,20 +23,25 @@ public class FormulaInterpreter {
 
 	/**
 	 * Evaluates the given expression in the global scope of the interpreter.
-	 * This is equivalent to
-	 * <code>interpreter.getGlobalScope().eval(expression)</code>.
 	 */
 	public double eval(String expression) throws InterpreterException {
 		return globalScope.eval(expression);
 	}
 
 	/**
-	 * Binds the given variable name to the given expression in the global scope
-	 * of the interpreter. This is equivalent to
-	 * <code>interpreter.getGlobalScope().bind(variableName, expression)</code>.
+	 * Binds the given variable to the given expression in the global scope of the
+	 * interpreter.
 	 */
-	public void bind(String variableName, String expression) {
-		getGlobalScope().bind(variableName, expression);
+	public void bind(String variable, String expression) {
+		getGlobalScope().bind(variable, expression);
+	}
+
+	/**
+	 * Binds the given variable to the given value in the global scope of the
+	 * interpreter.
+	 */
+	public void bind(String variable, double value) {
+		getGlobalScope().bind(variable, value);
 	}
 
 	/** Returns the global scope of the interpreter. */
@@ -47,6 +53,13 @@ public class FormulaInterpreter {
 	public Scope createScope(long id) {
 		return createScope(id, globalScope);
 	}
+	
+	public Scope getOrCreate(long id) {
+		var scope = scopes.get(id);
+		return scope == null
+				? createScope(id)
+				: scope;
+	}
 
 	/** Creates a new scope with the given ID in the parent scope. */
 	public Scope createScope(long id, Scope parent) {
@@ -55,14 +68,22 @@ public class FormulaInterpreter {
 		return scope;
 	}
 
-	/** Returns true if the interpreter has a scope with the given ID. */
-	public boolean hasScope(long id) {
-		return scopes.containsKey(id);
+	/** Returns the scope with the given ID or null if no such scope is defined. */
+	public Optional<Scope> getScope(long id) {
+		var scope = scopes.get(id);
+		return scope == null
+				? Optional.empty()
+				: Optional.of(scope);
 	}
 
-	/** Returns the scope with the given ID or null if no such scope is defined. */
-	public Scope getScope(long id) {
-		return scopes.get(id);
+	/**
+	 * Get the scope for the given ID or the global scope if no such scope exists.
+	 */
+	public Scope getScopeOrGlobal(long id) {
+		var scope = scopes.get(id);
+		return scope != null
+				? scope
+				: globalScope;
 	}
 
 }

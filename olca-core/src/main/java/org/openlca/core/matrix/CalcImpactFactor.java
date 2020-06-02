@@ -2,9 +2,7 @@ package org.openlca.core.matrix;
 
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.expressions.FormulaInterpreter;
-import org.openlca.expressions.Scope;
 import org.openlca.util.Strings;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CalcImpactFactor {
@@ -43,13 +41,10 @@ public class CalcImpactFactor {
 		double a = amount;
 		if (Strings.notEmpty(formula) && interpreter != null) {
 			try {
-				Scope scope = interpreter.getScope(imactCategoryId);
-				if (scope == null) {
-					scope = interpreter.getGlobalScope();
-				}
+				var scope = interpreter.getScopeOrGlobal(imactCategoryId);
 				a = scope.eval(formula);
 			} catch (Exception e) {
-				Logger log = LoggerFactory.getLogger(getClass());
+				var log = LoggerFactory.getLogger(getClass());
 				log.error("Formula evaluation failed for" +
 						" LCIA factor with formula: " + formula, e);
 			}

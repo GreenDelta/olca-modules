@@ -1,14 +1,15 @@
 package org.openlca.core.matrix.uncertainties;
 
-import gnu.trove.impl.Constants;
-import gnu.trove.iterator.TIntObjectIterator;
-import gnu.trove.map.hash.TIntObjectHashMap;
+import java.util.ArrayList;
+
+import org.openlca.core.matrix.CalcAllocationFactor;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.CalcImpactFactor;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.expressions.FormulaInterpreter;
 
-import java.util.ArrayList;
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 /**
  * An UMatrix is a matrix with uncertainty distributions.
@@ -34,24 +35,27 @@ public class UMatrix {
 			i.formula = null;
 		}
 
-		TIntObjectHashMap<UCell> rowm = getRow(row);
+		var rowm = getRow(row);
 		rowm.put(col, new UImpactCell(i));
 	}
 
+	public void add(int row, int col, CalcExchange e) {
+		add(row, col, e, null);
+	}
+
 	/**
-	 * Add the given exchange to the uncertainty matrix. This function should
-	 * be called for every exchange of the corresponding inventory. Note that
-	 * adding multiple exchanges to the same matrix cell is absolutely valid
-	 * here (also with different uncertainties, allocation factors, etc.).
+	 * Add the given exchange to the uncertainty matrix. This function should be
+	 * called for every exchange of the corresponding inventory. Note that adding
+	 * multiple exchanges to the same matrix cell is absolutely valid here (also
+	 * with different uncertainties, allocation factors, etc.).
 	 */
-	public void add(int row, int col, CalcExchange e, double allocationFactor) {
+	public void add(int row, int col, CalcExchange e, CalcAllocationFactor af) {
 		if (e == null)
 			return;
 
 		/*
 		 * boolean considerCosts = withCosts && e.costFormula != null; if
-		 * (!hasUncertainty && !considerCosts && e.amountFormula == null)
-		 * return;
+		 * (!hasUncertainty && !considerCosts && e.amountFormula == null) return;
 		 */
 
 		// clear the formula when there is an uncertainty distribution
@@ -61,26 +65,26 @@ public class UMatrix {
 		}
 
 		// select the cell
-		TIntObjectHashMap<UCell> rowm = getRow(row);
-		UCell cell = rowm.get(col);
+		var rowm = getRow(row);
+		var cell = rowm.get(col);
 
 		// no exchange at the given cell yet
 		if (!(cell instanceof UExchangeCell)) {
-			cell = new UExchangeCell(e, allocationFactor);
+			cell = new UExchangeCell(e, af);
 			rowm.put(col, cell);
 			return;
 		}
 
 		// at least 2 exchanges that are mapped to the same cell
-		UExchangeCell ecell = (UExchangeCell) cell;
+		var ecell = (UExchangeCell) cell;
 		if (ecell.overlay == null) {
 			ecell.overlay = new ArrayList<>(1);
 		}
-		ecell.overlay.add(new UExchangeCell(e, allocationFactor));
+		ecell.overlay.add(new UExchangeCell(e, af));
 	}
 
 	private TIntObjectHashMap<UCell> getRow(int row) {
-		TIntObjectHashMap<UCell> rowm = data.get(row);
+		var rowm = data.get(row);
 		if (rowm == null) {
 			rowm = new TIntObjectHashMap<>(
 					Constants.DEFAULT_CAPACITY,
@@ -95,15 +99,15 @@ public class UMatrix {
 	 * Generates new values and sets them to the given matrix.
 	 */
 	public void generate(IMatrix m, FormulaInterpreter interpreter) {
-		TIntObjectIterator<TIntObjectHashMap<UCell>> rows = data.iterator();
+		var rows = data.iterator();
 		while (rows.hasNext()) {
 			rows.advance();
 			int row = rows.key();
-			TIntObjectIterator<UCell> cols = rows.value().iterator();
+			var cols = rows.value().iterator();
 			while (cols.hasNext()) {
 				cols.advance();
 				int col = cols.key();
-				UCell cell = cols.value();
+				var cell = cols.value();
 				m.set(row, col, cell.next(interpreter));
 			}
 		}

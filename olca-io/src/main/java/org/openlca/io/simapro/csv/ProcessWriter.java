@@ -63,9 +63,9 @@ public class ProcessWriter {
 		if (processes == null || file == null)
 			return;
 		try (FileOutputStream fout = new FileOutputStream(file);
-			 OutputStreamWriter writer = new OutputStreamWriter(
-					 fout, "windows-1252");
-			 BufferedWriter buffer = new BufferedWriter(writer)) {
+				OutputStreamWriter writer = new OutputStreamWriter(
+						fout, "windows-1252");
+				BufferedWriter buffer = new BufferedWriter(writer)) {
 			writerHeader(buffer);
 			ProcessDao dao = new ProcessDao(db);
 			for (ProcessDescriptor p : processes) {
@@ -87,18 +87,13 @@ public class ProcessWriter {
 	}
 
 	private void writeDummies(BufferedWriter w) {
-		for (Flow inputProduct : inputProducts) {
-			if (outputProducts.contains(inputProduct))
+		for (Flow flow : inputProducts) {
+			if (outputProducts.contains(flow))
 				continue;
-			Process p = new Process();
-			p.name = "Dummy: " + inputProduct.name;
-			p.id = inputProduct.id;
+			Process p = Process.of("Dummy: " + flow.name, flow);
+			p.id = flow.id;
 			p.category = new Category();
 			p.category.name = "Dummy processes";
-			Exchange qRef = p.exchange(inputProduct);
-			qRef.amount = 1.0;
-			p.quantitativeReference = qRef;
-			qRef.isInput = inputProduct.flowType == FlowType.WASTE_FLOW;
 			writeProcess(w, p);
 		}
 	}

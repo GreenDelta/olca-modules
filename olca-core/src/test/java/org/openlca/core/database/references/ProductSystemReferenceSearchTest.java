@@ -28,8 +28,7 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 		ProductSystem system = new ProductSystem();
 		system.category = insertAndAddExpected("category", new Category());
 		system.referenceProcess = createProcess();
-		system.referenceExchange = system.referenceProcess.exchanges
-				.get(0);
+		system.referenceExchange = system.referenceProcess.exchanges.get(0);
 		system.targetFlowPropertyFactor = system.referenceExchange.flowPropertyFactor;
 		system.targetUnit = system.targetFlowPropertyFactor.flowProperty.unitGroup.units.get(0);
 		system.processes.add(system.referenceProcess.id);
@@ -65,9 +64,7 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 
 	private Exchange createExchange(Process process) {
 		Flow flow = createFlow(true);
-		FlowProperty property = flow.flowPropertyFactors.get(0).flowProperty;
-		Unit unit = property.unitGroup.units.get(0);
-		return process.exchange(flow, property, unit);
+		return process.output(flow, 1.0);
 	}
 
 	private Flow createFlow(boolean reference) {

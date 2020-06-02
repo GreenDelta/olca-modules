@@ -121,14 +121,10 @@ public class ProcessDao extends CategorizedEntityDao<Process, ProcessDescriptor>
 		Map<Long, Boolean> result = new HashMap<>();
 		for (long id : ids)
 			result.put(id, false);
-		try {
-			NativeSql.on(database).query(query.toString(), (res) -> {
-				result.put(res.getLong(1), res.getLong(2) != 0l);
-				return true;
-			});
-		} catch (SQLException e) {
-			log.error("Error checking for quantitative reference existence", e);
-		}
+		NativeSql.on(database).query(query.toString(), (res) -> {
+			result.put(res.getLong(1), res.getLong(2) != 0l);
+			return true;
+		});
 		return result;
 	}
 }

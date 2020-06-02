@@ -1,14 +1,16 @@
 package org.openlca.core.model;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 /**
  * A set of {@link Unit} objects which are directly convertible into each other
@@ -34,6 +36,17 @@ public class UnitGroup extends CategorizedEntity {
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_unit_group")
 	public final List<Unit> units = new ArrayList<>();
+
+	/**
+	 * Creates a new unit group with the given name and reference unit.
+	 */
+	public static UnitGroup of(String name, Unit refUnit) {
+		var group = new UnitGroup();
+		group.name = name;
+		group.refId = UUID.randomUUID().toString();
+		group.units.add(refUnit);
+		return group;
+	}
 
 	@Override
 	public UnitGroup clone() {
@@ -74,27 +87,4 @@ public class UnitGroup extends CategorizedEntity {
 		}
 		return null;
 	}
-
-	/**
-	 * Creates a unit with the given name and adds it as reference unit (with
-	 * a conversion factor of 1.0) to this unit group.
-	 */
-	public Unit addReferenceUnit(String name) {
-		Unit unit = addUnit(name, 1.0);
-		referenceUnit = unit;
-		return unit;
-	}
-
-	/**
-	 * Creates a unit with the given name and adds it with the given conversion
-	 * factor to this unit group.
-	 */
-	public Unit addUnit(String name, double conversionFactor) {
-		Unit unit = new Unit();
-		unit.name = name;
-		unit.conversionFactor = conversionFactor;
-		units.add(unit);
-		return unit;
-	}
-
 }

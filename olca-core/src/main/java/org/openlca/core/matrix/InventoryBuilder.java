@@ -30,8 +30,8 @@ public class InventoryBuilder {
 	private FlowIndex flowIndex;
 	private AllocationIndex allocationIndex;
 
-	private MatrixBuilder techBuilder;
-	private MatrixBuilder enviBuilder;
+	private final MatrixBuilder techBuilder;
+	private final MatrixBuilder enviBuilder;
 	private UMatrix techUncerts;
 	private UMatrix enviUncerts;
 	private double[] costs;
@@ -209,19 +209,18 @@ public class InventoryBuilder {
 		if (row < 0 || col < 0)
 			return;
 
-		double allocationFactor = 1.0;
-		if (allocationIndex != null && exchange.isAllocatable()) {
-			allocationFactor = allocationIndex.get(
-					provider, exchange.exchangeId);
-		}
+		var allocationFactor = allocationIndex != null && exchange.isAllocatable()
+				? allocationIndex.getFactor(provider, exchange.exchangeId)
+				: null;
+		var af = allocationFactor != null
+				? allocationFactor.get(conf.interpreter)
+				: 1;
 
-		double value = exchange.matrixValue(
-				conf.interpreter, allocationFactor);
+		double value = exchange.matrixValue(conf.interpreter, af);
 		matrix.add(row, col, value);
 
 		if (conf.withCosts) {
-			costs[col] += exchange.costValue(
-					conf.interpreter, allocationFactor);
+			costs[col] += exchange.costValue(conf.interpreter, af);
 		}
 
 		if (conf.withUncertainties) {

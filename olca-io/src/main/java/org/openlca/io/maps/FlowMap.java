@@ -37,14 +37,18 @@ public class FlowMap extends BaseDescriptor {
 
 	private Map<String, FlowMapEntry> index;
 
+	public static FlowMap empty() {
+		return new FlowMap();
+	}
+
 	/**
 	 * Get the mapping entry for the source flow with the given ID.
 	 */
 	public FlowMapEntry getEntry(String sourceFlowID) {
 		if (index == null) {
 			index = new HashMap<>();
-			for (FlowMapEntry e : entries) {
-				String sid = e.sourceFlowID();
+			for (var e : entries) {
+				var sid = e.sourceFlowID();
 				if (sid != null) {
 					index.put(sid, e);
 				}
@@ -56,7 +60,7 @@ public class FlowMap extends BaseDescriptor {
 	/**
 	 * Reads the flow map with the given identifier from this package or the
 	 * given database.
-	 * 
+	 *
 	 * @deprecated we should remove implicit mappings that are loaded from this
 	 *             package and also loading mappings from the database
 	 */
@@ -67,9 +71,8 @@ public class FlowMap extends BaseDescriptor {
 		FlowMap m = new FlowMap();
 		m.name = map;
 		try {
-			HashSet<String> dbIDs = new HashSet<>();
-			new FlowDao(db).getDescriptors().stream()
-					.forEach(d -> dbIDs.add(d.refId));
+			var dbIDs = new HashSet<>();
+			new FlowDao(db).getDescriptors().forEach(d -> dbIDs.add(d.refId));
 			Maps.readAll(map, db, null, null, new ParseDouble()).forEach(r -> {
 				String sourceID = Maps.getString(r, 0);
 				String targetID = Maps.getString(r, 1);

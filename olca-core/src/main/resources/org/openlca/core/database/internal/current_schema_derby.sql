@@ -322,12 +322,13 @@ CREATE INDEX idx_exchange_flow ON tbl_exchanges(f_flow);
 
 CREATE TABLE tbl_allocation_factors (
 
-    id BIGINT NOT NULL,
-    allocation_type VARCHAR(255),
-    value DOUBLE,
-    f_process BIGINT,
-    f_product BIGINT,
-    f_exchange BIGINT,
+    id BIGINT        NOT NULL,
+    allocation_type  VARCHAR(255),
+    value            DOUBLE,
+    formula          VARCHAR(1000),
+    f_process        BIGINT,
+    f_product        BIGINT,
+    f_exchange       BIGINT,
 
     PRIMARY KEY (id)
 
@@ -419,7 +420,6 @@ CREATE TABLE tbl_impact_categories (
     description       CLOB(64 K),
 
     reference_unit    VARCHAR(255),
-    parameter_mean    VARCHAR(255),
 
     PRIMARY KEY (id)
 

@@ -48,7 +48,7 @@ public class ProductSystemBuilder {
 	public ProductSystem build(Process process) {
 		if (process == null)
 			return null;
-		ProductSystem system = ProductSystem.from(process);
+		ProductSystem system = ProductSystem.of(process);
 		autoComplete(system);
 		return system;
 	}

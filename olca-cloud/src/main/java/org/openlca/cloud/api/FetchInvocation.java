@@ -1,6 +1,5 @@
 package org.openlca.cloud.api;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -15,8 +14,6 @@ import org.openlca.cloud.util.WebRequests.Type;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 import com.sun.jersey.api.client.ClientResponse;
@@ -51,9 +48,8 @@ class FetchInvocation {
 	 * Retrieves all changed data sets since the last fetch
 	 * 
 	 * @return The latest commit id
-	 * @throws WebRequestException
-	 *             If user is out of sync or has no access to the specified
-	 *             repository
+	 * @throws WebRequestException If user is out of sync or has no access to the
+	 *                             specified repository
 	 */
 	String execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
@@ -75,25 +71,20 @@ class FetchInvocation {
 	}
 
 	private void clearDatabase() {
-		try {
-			List<String> tables = new ArrayList<>();
-			NativeSql.on(database).query("SELECT TABLENAME FROM SYS.SYSTABLES WHERE TABLETYPE = 'T'", (rs) -> {
-				tables.add(rs.getString(1));
-				return true;
-			});
-			for (String table : tables) {
-				if (table.toUpperCase().equals("SEQUENCE"))
-					continue;
-				if (table.toUpperCase().equals("OPENLCA_VERSION"))
-					continue;
-				NativeSql.on(database).runUpdate("DELETE FROM " + table);
-			}
-			NativeSql.on(database).runUpdate("UPDATE SEQUENCE SET SEQ_COUNT = 0");
-			database.getEntityFactory().getCache().evictAll();
-		} catch (SQLException e) {
-			Logger log = LoggerFactory.getLogger(getClass());
-			log.error("calling `clearDatabase` failed", e);
+		List<String> tables = new ArrayList<>();
+		NativeSql.on(database).query("SELECT TABLENAME FROM SYS.SYSTABLES WHERE TABLETYPE = 'T'", (rs) -> {
+			tables.add(rs.getString(1));
+			return true;
+		});
+		for (String table : tables) {
+			if (table.toUpperCase().equals("SEQUENCE"))
+				continue;
+			if (table.toUpperCase().equals("OPENLCA_VERSION"))
+				continue;
+			NativeSql.on(database).runUpdate("DELETE FROM " + table);
 		}
+		NativeSql.on(database).runUpdate("UPDATE SEQUENCE SET SEQ_COUNT = 0");
+		database.getEntityFactory().getCache().evictAll();
 	}
 
 }

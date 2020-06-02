@@ -21,7 +21,6 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.expressions.FormulaInterpreter;
-import org.openlca.expressions.Scope;
 
 public class ParameterTableTest {
 
@@ -94,16 +93,17 @@ public class ParameterTableTest {
 		assertEquals(42.0, fi.eval("inp_param"), 1e-6);
 		assertEquals(2 * 42.0, fi.eval("dep_param"), 1e-6);
 		// local
-		Scope scope = fi.getScope(process.id);
-		assertEquals(84.0, scope.eval("inp_param"), 1e-6);
-		assertEquals(3 * 84.0, scope.eval("dep_param"), 1e-6);
+		var scope = fi.getScope(process.id);
+		assertTrue(scope.isPresent());
+		assertEquals(84.0, scope.get().eval("inp_param"), 1e-6);
+		assertEquals(3 * 84.0, scope.get().eval("dep_param"), 1e-6);
 	}
 
 	@Test
 	public void testSimulation() throws Exception {
-		ParameterTable table = ParameterTable.forSimulation(
+		var table = ParameterTable.forSimulation(
 				Tests.getDb(), emptySet(), emptySet());
-		FormulaInterpreter fi = table.simulate();
+		var fi = table.simulate();
 		double globalIn = fi.eval("inp_param");
 		assertTrue(globalIn > 9 && globalIn < 22);
 		assertEquals(2 * globalIn, fi.eval("dep_param"), 1e-6);
@@ -113,17 +113,19 @@ public class ParameterTableTest {
 	public void testProcessSimulation() throws Exception {
 		ParameterTable table = ParameterTable.forSimulation(Tests.getDb(),
 				Collections.singleton(process.id), emptySet());
+
 		// global
-		FormulaInterpreter fi = table.simulate();
+		var fi = table.simulate();
 		double globalIn = fi.eval("inp_param");
 		assertTrue(globalIn > 9 && globalIn < 22);
 		assertEquals(2 * globalIn, fi.eval("dep_param"), 1e-6);
 
 		// local
-		Scope scope = fi.getScope(process.id);
-		double ppInp = scope.eval("inp_param");
-		assertTrue(ppInp > 9 && ppInp < 84 / 2);
-		assertEquals(3 * ppInp, scope.eval("dep_param"), 1e-6);
+		var scope = fi.getScope(process.id);
+		assertTrue(scope.isPresent());
+		double ppInp = scope.get().eval("inp_param");
+		assertTrue(ppInp > 9 && ppInp < 84. / 2.);
+		assertEquals(3 * ppInp, scope.get().eval("dep_param"), 1e-6);
 	}
 
 	@Test
@@ -132,87 +134,95 @@ public class ParameterTableTest {
 		redef.name = "inp_param";
 		redef.value = 99;
 
-		FormulaInterpreter fi = ParameterTable.interpreter(Tests.getDb(),
+		var fi = ParameterTable.interpreter(
+				Tests.getDb(),
 				Collections.singleton(process.id),
 				Collections.singleton(redef));
 
 		// global
 		assertEquals(99.0, fi.eval("inp_param"), 1e-6);
 		assertEquals(2 * 99.0, fi.eval("dep_param"), 1e-6);
+
 		// local
-		Scope scope = fi.getScope(process.id);
-		assertEquals(84.0, scope.eval("inp_param"), 1e-6);
-		assertEquals(3 * 84.0, scope.eval("dep_param"), 1e-6);
+		var scope = fi.getScope(process.id);
+		assertTrue(scope.isPresent());
+		assertEquals(84.0, scope.get().eval("inp_param"), 1e-6);
+		assertEquals(3 * 84.0, scope.get().eval("dep_param"), 1e-6);
 	}
 
 	@Test
 	public void testLocalRedef() throws Exception {
-		ParameterRedef redef = new ParameterRedef();
+		var redef = new ParameterRedef();
 		redef.contextId = process.id;
 		redef.contextType = ModelType.PROCESS;
 		redef.name = "inp_param";
 		redef.value = 99;
 
-		FormulaInterpreter fi = ParameterTable.interpreter(Tests.getDb(),
+		var fi = ParameterTable.interpreter(Tests.getDb(),
 				Collections.singleton(process.id),
 				Collections.singleton(redef));
 
 		// global
 		assertEquals(42.0, fi.eval("inp_param"), 1e-6);
 		assertEquals(2 * 42.0, fi.eval("dep_param"), 1e-6);
+
 		// local
-		Scope scope = fi.getScope(process.id);
-		assertEquals(99.0, scope.eval("inp_param"), 1e-6);
-		assertEquals(3 * 99.0, scope.eval("dep_param"), 1e-6);
+		var scope = fi.getScope(process.id);
+		assertTrue(scope.isPresent());
+		assertEquals(99.0, scope.get().eval("inp_param"), 1e-6);
+		assertEquals(3 * 99.0, scope.get().eval("dep_param"), 1e-6);
 	}
 
 	@Test
 	public void testGlobalRedefSimulation() throws Exception {
-		ParameterRedef redef = new ParameterRedef();
+		var redef = new ParameterRedef();
 		redef.name = "inp_param";
 		redef.value = 99;
 		redef.uncertainty = Uncertainty.uniform(1001, 2000);
 
-		ParameterTable table = ParameterTable.forSimulation(Tests.getDb(),
+		var table = ParameterTable.forSimulation(Tests.getDb(),
 				Collections.singleton(process.id),
 				Collections.singleton(redef));
 
 		// global
-		FormulaInterpreter fi = table.simulate();
+		var fi = table.simulate();
 		double globalIn = fi.eval("inp_param");
 		assertTrue(globalIn > 1000);
 		assertEquals(2 * globalIn, fi.eval("dep_param"), 1e-6);
 
 		// local
-		Scope scope = fi.getScope(process.id);
-		double ppInp = scope.eval("inp_param");
-		assertTrue(ppInp > 9 && ppInp < 84 / 2);
-		assertEquals(3 * ppInp, scope.eval("dep_param"), 1e-6);
+		var scope = fi.getScope(process.id);
+		assertTrue(scope.isPresent());
+		double ppInp = scope.get().eval("inp_param");
+		assertTrue(ppInp > 9 && ppInp < 84. / 2.);
+		assertEquals(3 * ppInp, scope.get().eval("dep_param"), 1e-6);
 	}
 
 	@Test
 	public void testLocalRedefSimulation() throws Exception {
-		ParameterRedef redef = new ParameterRedef();
+		var redef = new ParameterRedef();
 		redef.contextId = process.id;
 		redef.contextType = ModelType.PROCESS;
 		redef.name = "inp_param";
 		redef.value = 99;
 		redef.uncertainty = Uncertainty.uniform(1001, 2000);
 
-		ParameterTable table = ParameterTable.forSimulation(Tests.getDb(),
+		var table = ParameterTable.forSimulation(
+				Tests.getDb(),
 				Collections.singleton(process.id),
 				Collections.singleton(redef));
+		var fi = table.simulate();
 
 		// global
-		FormulaInterpreter fi = table.simulate();
 		double globalIn = fi.eval("inp_param");
 		assertTrue(globalIn > 9 && globalIn < 22);
 		assertEquals(2 * globalIn, fi.eval("dep_param"), 1e-6);
 
 		// local
-		Scope scope = fi.getScope(process.id);
-		double ppInp = scope.eval("inp_param");
+		var scope = fi.getScope(process.id);
+		assertTrue(scope.isPresent());
+		double ppInp = scope.get().eval("inp_param");
 		assertTrue(ppInp > 1000);
-		assertEquals(3 * ppInp, scope.eval("dep_param"), 1e-6);
+		assertEquals(3 * ppInp, scope.get().eval("dep_param"), 1e-6);
 	}
 }

@@ -3,29 +3,34 @@ package org.openlca.core.matrix.uncertainties;
 import java.util.List;
 
 import org.openlca.core.math.NumberGenerator;
+import org.openlca.core.matrix.CalcAllocationFactor;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.expressions.FormulaInterpreter;
 
 class UExchangeCell implements UCell {
-	
+
 	private final CalcExchange exchange;
-	private final double allocationFactor;
+	private final CalcAllocationFactor allocationFactor;
 
 	// possible other distributions that are mapped to the same matrix
 	// cell.
 	List<UCell> overlay;
 
 	/*
-	 * TODO: we have to think about stateless functions here; also with a
-	 * shared instance of Random; see also this issue:
+	 * TODO: we have to think about stateless functions here; also with a shared
+	 * instance of Random; see also this issue:
 	 * https://github.com/GreenDelta/olca-app/issues/62
 	 */
 	private final NumberGenerator gen;
 
-	UExchangeCell(CalcExchange e, double allocationFactor) {
+	UExchangeCell(CalcExchange e) {
+		this(e, null);
+	}
+
+	UExchangeCell(CalcExchange e, CalcAllocationFactor f) {
 		this.exchange = e;
-		this.allocationFactor = allocationFactor;
+		this.allocationFactor = f;
 		gen = e.hasUncertainty()
 				? generator(e)
 				: null;
@@ -36,14 +41,16 @@ class UExchangeCell implements UCell {
 		if (gen != null) {
 			exchange.amount = gen.next();
 		}
-		double a = exchange.matrixValue(
-				interpreter, allocationFactor);
+		double af = allocationFactor != null
+				? allocationFactor.force(interpreter)
+				: 1;
+		double amount = exchange.matrixValue(interpreter, af);
 		if (overlay != null) {
 			for (UCell u : overlay) {
-				a += u.next(interpreter);
+				amount += u.next(interpreter);
 			}
 		}
-		return a;
+		return amount;
 	}
 
 	private static NumberGenerator generator(CalcExchange e) {

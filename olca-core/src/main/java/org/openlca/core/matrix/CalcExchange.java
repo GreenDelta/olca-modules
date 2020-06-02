@@ -3,7 +3,6 @@ package org.openlca.core.matrix;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.expressions.FormulaInterpreter;
-import org.openlca.expressions.Scope;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,10 +79,7 @@ public class CalcExchange {
 		double a = amount;
 		if (Strings.notEmpty(formula) && interpreter != null) {
 			try {
-				Scope scope = interpreter.getScope(processId);
-				if (scope == null) {
-					scope = interpreter.getGlobalScope();
-				}
+				var scope = interpreter.getScopeOrGlobal(processId);
 				a = scope.eval(formula);
 			} catch (Exception e) {
 				Logger log = LoggerFactory.getLogger(getClass());
@@ -110,10 +106,7 @@ public class CalcExchange {
 		double c = costValue;
 		if (Strings.notEmpty(costFormula) && interpreter != null) {
 			try {
-				Scope scope = interpreter.getScope(processId);
-				if (scope == null) {
-					scope = interpreter.getGlobalScope();
-				}
+				var scope = interpreter.getScopeOrGlobal(processId);
 				c = scope.eval(costFormula);
 			} catch (Exception e) {
 				Logger log = LoggerFactory.getLogger(getClass());

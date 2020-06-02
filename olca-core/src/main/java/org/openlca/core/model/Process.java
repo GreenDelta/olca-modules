@@ -2,6 +2,7 @@ package org.openlca.core.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -15,13 +16,13 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "tbl_processes")
-public class Process extends CategorizedEntity {
+public class Process extends ParameterizedEntity {
 
 	@Column(name = "default_allocation_method")
 	@Enumerated(EnumType.STRING)
 	public AllocationMethod defaultAllocationMethod;
 
-	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
+	@OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
 	@JoinColumn(name = "f_process")
 	public final List<AllocationFactor> allocationFactors = new ArrayList<>();
 
@@ -32,10 +33,6 @@ public class Process extends CategorizedEntity {
 	@OneToOne
 	@JoinColumn(name = "f_location")
 	public Location location;
-
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "f_owner")
-	public final List<Parameter> parameters = new ArrayList<>();
 
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_process_doc")
@@ -81,20 +78,31 @@ public class Process extends CategorizedEntity {
 	@JoinColumn(name = "f_social_dq_system")
 	public DQSystem socialDqSystem;
 
+	public static Process of(String name, Flow refFlow) {
+		var process = new Process();
+		process.name = name;
+		process.refId = UUID.randomUUID().toString();
+		process.quantitativeReference = refFlow.flowType == FlowType.WASTE_FLOW
+				? process.input(refFlow, 1.0)
+				: process.output(refFlow, 1.0);
+		process.processType = ProcessType.UNIT_PROCESS;
+		return process;
+	}
+
 	@Override
 	public Process clone() {
 		return new ProcessCopy().create(this);
 	}
 
-	public Exchange exchange(Flow flow) {
-		return add(Exchange.from(flow));
+	public Exchange input(Flow flow, double amount) {
+		return add(Exchange.input(flow, amount));
 	}
 
-	public Exchange exchange(Flow flow, FlowProperty property, Unit unit) {
-		return add(Exchange.from(flow, property, unit));
+	public Exchange output(Flow flow, double amount) {
+		return add(Exchange.output(flow, amount));
 	}
 
-	private Exchange add(Exchange exchange) {
+	public Exchange add(Exchange exchange) {
 		exchange.internalId = ++lastInternalId;
 		exchanges.add(exchange);
 		return exchange;
@@ -107,4 +115,8 @@ public class Process extends CategorizedEntity {
 		return null;
 	}
 
+	@Override
+	public final ParameterScope parameterScope() {
+		return ParameterScope.PROCESS;
+	}
 }

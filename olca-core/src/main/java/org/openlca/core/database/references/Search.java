@@ -1,6 +1,5 @@
 package org.openlca.core.database.references;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,12 +31,7 @@ class Search {
 	}
 
 	List<Reference> findReferences(String table, String idField, Set<Long> ids,
-			Ref[] refs, boolean includeOptional) {
-		return findReferences(table, idField, ids, null, refs, includeOptional);
-	}
-
-	List<Reference> findReferences(String table, String idField, Set<Long> ids,
-			Map<Long, Long> idToOwnerId, Ref[] refs, boolean includeOptional) {
+								   Map<Long, Long> idToOwnerId, Ref[] refs, boolean includeOptional) {
 		if (ids.isEmpty())
 			return new ArrayList<>();
 		List<Reference> references = new ArrayList<Reference>();
@@ -63,24 +57,20 @@ class Search {
 	}
 
 	private Reference createReference(Ref ref, long id, long ownerId,
-			long nestedOwnerId) {
+									  long nestedOwnerId) {
 		return new Reference(ref.property, ref.type, id, type, ownerId,
 				ref.nestedProperty, ref.nestedType, nestedOwnerId, ref.optional);
 	}
 
 	void query(String query, Consumer<ResultSetWrapper> handler) {
-		try {
-			NativeSql.on(database).query(query, (resultSet) -> {
-				handler.accept(new ResultSetWrapper(resultSet));
-				return true;
-			});
-		} catch (SQLException e) {
-			log.error("Error executing native query '" + query + "'", e);
-		}
+		NativeSql.on(database).query(query, rs -> {
+			handler.accept(new ResultSetWrapper(rs));
+			return true;
+		});
 	}
 
 	private List<String> createQueries(String table, String idField, Set<Long> ids,
-			Ref[] references) {
+									   Ref[] references) {
 		List<String> queries = new ArrayList<>();
 		StringBuilder subquery = new StringBuilder();
 		subquery.append("SELECT DISTINCT " + idField);

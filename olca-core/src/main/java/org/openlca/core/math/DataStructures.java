@@ -10,7 +10,6 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.ImpactBuilder;
-import org.openlca.core.matrix.ImpactBuilder.ImpactData;
 import org.openlca.core.matrix.InventoryBuilder;
 import org.openlca.core.matrix.InventoryConfig;
 import org.openlca.core.matrix.LongPair;
@@ -104,34 +103,33 @@ public class DataStructures {
 			IDatabase db,
 			Map<ProcessProduct, SimpleResult> subResults) {
 
-		TechIndex techIndex = createProductIndex(setup.productSystem, db);
+		var techIndex = createProductIndex(setup.productSystem, db);
 		techIndex.setDemand(setup.getDemandValue());
-		FormulaInterpreter interpreter = interpreter(
-				db, setup, techIndex);
+		var interpreter = interpreter(db, setup, techIndex);
 
-		InventoryConfig conf = new InventoryConfig(db, techIndex);
+		var conf = new InventoryConfig(db, techIndex);
 		conf.allocationMethod = setup.allocationMethod;
 		conf.interpreter = interpreter;
 		conf.subResults = subResults;
 		conf.withCosts = setup.withCosts;
 		conf.withRegionalization = setup.withRegionalization;
 		conf.withUncertainties = setup.withUncertainties;
-		InventoryBuilder builder = new InventoryBuilder(conf);
-		MatrixData data = builder.build();
+		var builder = new InventoryBuilder(conf);
+		var data = builder.build();
 
 		// add the LCIA matrix structures
 		if (setup.impactMethod != null) {
-			DIndex<ImpactCategoryDescriptor> impactIdx = new DIndex<>();
+			var impactIdx = new DIndex<ImpactCategoryDescriptor>();
 			new ImpactMethodDao(db).getCategoryDescriptors(
 					setup.impactMethod.id).forEach(impactIdx::put);
 			if (!impactIdx.isEmpty()) {
-				ImpactBuilder ib = new ImpactBuilder(db);
-				ib.withUncertainties(conf.withUncertainties);
-				ImpactData idata = ib.build(
+				var impactBuilder = new ImpactBuilder(db);
+				impactBuilder.withUncertainties(conf.withUncertainties);
+				var impactData = impactBuilder.build(
 						data.flowIndex, impactIdx, interpreter);
-				data.impactMatrix = idata.impactMatrix;
+				data.impactMatrix = impactData.impactMatrix;
 				data.impactIndex = impactIdx;
-				data.impactUncertainties = idata.impactUncertainties;
+				data.impactUncertainties = impactData.impactUncertainties;
 			}
 		}
 
