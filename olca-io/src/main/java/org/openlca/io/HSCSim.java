@@ -11,12 +11,18 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.openlca.core.database.CategoryDao;
+import org.openlca.core.database.FlowDao;
+import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.database.UnitDao;
 import org.openlca.core.model.Exchange;
+import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
+import org.openlca.core.model.Unit;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
 import org.openlca.jsonld.Json;
@@ -139,10 +145,42 @@ public class HSCSim {
 			return KeyGen.get("hsc", "stream", name, unit);
 		}
 
+		/**
+		 * Creates an exchange from a mapped flow.
+		 */
 		private Optional<Exchange> fromMapped(FlowMapEntry fme) {
-			if (fme == null || fme.targetFlow == null)
+			if (fme == null
+					|| fme.targetFlow == null
+					|| fme.targetFlow.flow == null)
 				return Optional.empty();
 
+			var flow = new FlowDao(db).getForRefId(
+					fme.targetFlow.flow.refId);
+			if (flow == null)
+				return Optional.empty();
+
+			// get the flow property
+			FlowProperty property = null;
+			if (fme.targetFlow.property != null) {
+				property = new FlowPropertyDao(db).getForRefId(
+						fme.targetFlow.property.refId);
+			}
+			if (property == null) {
+				property = flow.referenceFlowProperty;
+			}
+
+			// get the unit
+			Unit unit = null;
+			if (fme.targetFlow.unit != null) {
+				unit = new UnitDao(db).getForRefId(
+						fme.targetFlow.unit.refId);
+			}
+			if (unit == null) {
+				unit = flow.getReferenceUnit();
+			}
+
+			var exchange = Exchange.of(flow, property, unit);
+			exchange.amount = fme.factor;
 			return Optional.empty();
 		}
 	}
