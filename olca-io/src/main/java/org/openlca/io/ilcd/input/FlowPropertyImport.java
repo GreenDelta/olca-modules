@@ -1,17 +1,16 @@
 package org.openlca.io.ilcd.input;
 
-import java.util.Date;
-
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyType;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.FlowPropertyBag;
+
+import java.util.Date;
 
 public class FlowPropertyImport {
 
@@ -111,8 +110,7 @@ public class FlowPropertyImport {
 		Ref unitGroupRef = ilcdProperty.getUnitGroupReference();
 		if (unitGroupRef != null) {
 			UnitGroupImport unitGroupImport = new UnitGroupImport(config);
-			UnitGroup unitGroup = unitGroupImport.run(unitGroupRef.uuid);
-			property.unitGroup = unitGroup;
+			property.unitGroup = unitGroupImport.run(unitGroupRef.uuid);
 		}
 	}
 

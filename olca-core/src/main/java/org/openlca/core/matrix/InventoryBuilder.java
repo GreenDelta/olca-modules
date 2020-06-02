@@ -1,5 +1,9 @@
 package org.openlca.core.matrix;
 
+import java.util.HashSet;
+import java.util.List;
+
+import org.openlca.core.database.LocationDao;
 import org.openlca.core.matrix.cache.ExchangeTable;
 import org.openlca.core.matrix.cache.FlowTable;
 import org.openlca.core.matrix.format.MatrixBuilder;
@@ -7,18 +11,21 @@ import org.openlca.core.matrix.uncertainties.UMatrix;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.results.SimpleResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
-import java.util.List;
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 public class InventoryBuilder {
 
 	private final InventoryConfig conf;
 	private final TechIndex techIndex;
 	private final FlowTable flows;
+
+	// only used when a regionalized inventory is build
+	private final TLongObjectHashMap<LocationDescriptor> locations;
 
 	private FlowIndex flowIndex;
 	private AllocationIndex allocationIndex;
@@ -33,6 +40,12 @@ public class InventoryBuilder {
 		this.conf = conf;
 		this.techIndex = conf.techIndex;
 		this.flows = FlowTable.create(conf.db);
+		if (!conf.withRegionalization) {
+			locations = null;
+		} else {
+			locations = new LocationDao(conf.db).descriptorMap();
+		}
+
 		techBuilder = new MatrixBuilder();
 		enviBuilder = new MatrixBuilder();
 		if (conf.withUncertainties) {
@@ -54,20 +67,12 @@ public class InventoryBuilder {
 		// create the index of elementary flows; when the system has sub-systems
 		// we add the flows of the sub-systems to the index; note that there
 		// can be elementary flows that only occur in a sub-system
-		flowIndex = new FlowIndex();
+		flowIndex = conf.withRegionalization
+				? FlowIndex.createRegionalized()
+				: FlowIndex.create();
 		if (conf.subResults != null) {
 			for (SimpleResult sub : conf.subResults.values()) {
-				if (sub.flowIndex == null)
-					continue;
-				sub.flowIndex.each((i, f) -> {
-					if (!flowIndex.contains(f)) {
-						if (sub.isInput(f)) {
-							flowIndex.putInput(f);
-						} else {
-							flowIndex.putOutput(f);
-						}
-					}
-				});
+				flowIndex.putAll(sub.flowIndex);
 			}
 		}
 
@@ -81,7 +86,7 @@ public class InventoryBuilder {
 		// return the matrix data
 		MatrixData data = new MatrixData();
 		data.techIndex = techIndex;
-		data.enviIndex = flowIndex;
+		data.flowIndex = flowIndex;
 		data.techMatrix = techBuilder.finish();
 		data.enviMatrix = enviBuilder.finish();
 		data.techUncertainties = techUncerts;
@@ -131,13 +136,15 @@ public class InventoryBuilder {
 				techBuilder.set(col, col, a);
 
 				// add the LCI result
-				r.flowIndex.each((i, f) -> {
-					double b = r.getTotalFlowResult(f);
-					if (r.isInput(f)) {
-						b = -b;
-					}
-					enviBuilder.set(flowIndex.of(f), col, b);
-				});
+				if (r.flowIndex != null) {
+					r.flowIndex.each((i, f) -> {
+						double b = r.getTotalFlowResult(f);
+						if (f.isInput) {
+							b = -b;
+						}
+						enviBuilder.set(flowIndex.of(f), col, b);
+					});
+				}
 
 				// add costs
 				if (conf.withCosts) {
@@ -191,14 +198,7 @@ public class InventoryBuilder {
 	}
 
 	private void addIntervention(ProcessProduct provider, CalcExchange e) {
-		int row = flowIndex.of(e.flowId);
-		if (row < 0) {
-			if (e.isInput) {
-				row = flowIndex.putInput(flows.get(e.flowId));
-			} else {
-				row = flowIndex.putOutput(flows.get(e.flowId));
-			}
-		}
+		int row = flowIndex.register(provider, e, flows, locations);
 		add(row, provider, enviBuilder, e);
 	}
 

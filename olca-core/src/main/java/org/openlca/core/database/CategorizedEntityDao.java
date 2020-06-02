@@ -45,8 +45,14 @@ public class CategorizedEntityDao<T extends CategorizedEntity, V extends Categor
 
 	@Override
 	protected String[] getDescriptorFields() {
-		return new String[] { "id", "ref_id", "name", "description", "version",
-				"last_change", "f_category" };
+		return new String[] {
+				"id",
+				"ref_id",
+				"name",
+				"description",
+				"version",
+				"last_change",
+				"f_category" };
 	}
 
 	public CategorizedDescriptor updateCategory(CategorizedDescriptor model,

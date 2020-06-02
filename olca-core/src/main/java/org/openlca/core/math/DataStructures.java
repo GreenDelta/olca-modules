@@ -5,9 +5,12 @@ import java.util.Map;
 
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.matrix.ImpactTable;
+import org.openlca.core.matrix.DIndex;
+import org.openlca.core.matrix.ImpactBuilder;
+import org.openlca.core.matrix.ImpactBuilder.ImpactData;
 import org.openlca.core.matrix.InventoryBuilder;
 import org.openlca.core.matrix.InventoryConfig;
 import org.openlca.core.matrix.LongPair;
@@ -15,14 +18,13 @@ import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
-import org.openlca.core.matrix.cache.MatrixCache;
-import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.core.results.SimpleResult;
@@ -99,11 +101,9 @@ public class DataStructures {
 	 */
 	public static MatrixData matrixData(
 			CalculationSetup setup,
-			IMatrixSolver solver,
-			MatrixCache mcache,
+			IDatabase db,
 			Map<ProcessProduct, SimpleResult> subResults) {
 
-		IDatabase db = mcache.getDatabase();
 		TechIndex techIndex = createProductIndex(setup.productSystem, db);
 		techIndex.setDemand(setup.getDemandValue());
 		FormulaInterpreter interpreter = interpreter(
@@ -114,30 +114,42 @@ public class DataStructures {
 		conf.interpreter = interpreter;
 		conf.subResults = subResults;
 		conf.withCosts = setup.withCosts;
-		conf.withUncertainties = setup.type == CalculationType.MONTE_CARLO_SIMULATION;
+		conf.withRegionalization = setup.withRegionalization;
+		conf.withUncertainties = setup.withUncertainties;
 		InventoryBuilder builder = new InventoryBuilder(conf);
-
 		MatrixData data = builder.build();
+
+		// add the LCIA matrix structures
 		if (setup.impactMethod != null) {
-			ImpactTable impacts = ImpactTable.build(
-					mcache, setup.impactMethod.id, data.enviIndex);
-			data.impactMatrix = impacts.createMatrix(
-					solver, interpreter);
-			data.impactIndex = impacts.impactIndex;
+			DIndex<ImpactCategoryDescriptor> impactIdx = new DIndex<>();
+			new ImpactMethodDao(db).getCategoryDescriptors(
+					setup.impactMethod.id).forEach(impactIdx::put);
+			if (!impactIdx.isEmpty()) {
+				ImpactBuilder ib = new ImpactBuilder(db);
+				ib.withUncertainties(conf.withUncertainties);
+				ImpactData idata = ib.build(
+						data.flowIndex, impactIdx, interpreter);
+				data.impactMatrix = idata.impactMatrix;
+				data.impactIndex = impactIdx;
+				data.impactUncertainties = idata.impactUncertainties;
+			}
 		}
+
 		return data;
 	}
 
 	public static FormulaInterpreter interpreter(IDatabase db,
 			CalculationSetup setup, TechIndex techIndex) {
-		// collect the process and LCIA method IDs; these
+		// collect the process and LCIA category IDs; these
 		// are the possible contexts of local parameters
 		HashSet<Long> contexts = new HashSet<>();
-		if (setup != null && setup.impactMethod != null) {
-			contexts.add(setup.impactMethod.id);
-		}
 		if (techIndex != null) {
 			contexts.addAll(techIndex.getProcessIds());
+		}
+		if (setup.impactMethod != null) {
+			ImpactMethodDao dao = new ImpactMethodDao(db);
+			dao.getCategoryDescriptors(setup.impactMethod.id).forEach(
+					d -> contexts.add(d.id));
 		}
 		return ParameterTable.interpreter(
 				db, contexts, setup.parameterRedefs);

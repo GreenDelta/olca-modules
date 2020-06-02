@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
@@ -43,11 +44,12 @@ class IndexWriter {
 	}
 
 	private void writeEnviIndex() throws Exception {
-		FlowIndex enviIndex = data.enviIndex;
+		FlowIndex enviIndex = data.flowIndex;
 		List<String> rows = new ArrayList<>(enviIndex.size() + 1);
 		rows.add(Csv.enviIndexHeader());
 		for (int i = 0; i < enviIndex.size(); i++) {
-			EnviIndexEntry e = indexer.getEnviEntry(enviIndex.idAt(i));
+			IndexFlow f = enviIndex.at(i);
+			EnviIndexEntry e = indexer.getEnviEntry(f.flow.id);
 			e.index = i;
 			rows.add(e.toCsv());
 		}

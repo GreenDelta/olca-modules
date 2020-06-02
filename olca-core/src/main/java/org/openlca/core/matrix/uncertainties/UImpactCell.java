@@ -5,12 +5,6 @@ import org.openlca.core.matrix.CalcImpactFactor;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.expressions.FormulaInterpreter;
 
-/*
- * TODO: this cannot be used yet because we need an
- *  implementation of `matrixValue` for CalcImpactFactor
- * but for this it would be good to first make LCIA categories
- * stand-alone entities.
- */
 class UImpactCell implements UCell {
 
 	private final CalcImpactFactor factor;
@@ -28,7 +22,7 @@ class UImpactCell implements UCell {
 		if (gen != null) {
 			factor.amount = gen.next();
 		}
-		return 0;
+		return factor.matrixValue(interpreter);
 	}
 
 	private static NumberGenerator generator(CalcImpactFactor e) {

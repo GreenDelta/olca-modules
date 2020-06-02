@@ -28,11 +28,18 @@ public class LongPair implements Comparable<LongPair> {
 
 	@Override
 	public int hashCode() {
+		return hash(first, second);
+	}
+
+	public static int hash(long first, long second) {
 		long h = first * 79 + second;
 		int hash = (int) ((h >> 32) ^ h);
 		return hash;
 	}
 
+	/**
+	 * Returns true if the given values are exactly the same as those of this pair.
+	 */
 	public boolean equals(long first, long second) {
 		return this.first == first && this.second == second;
 	}
@@ -53,18 +60,10 @@ public class LongPair implements Comparable<LongPair> {
 	public int compareTo(LongPair other) {
 		if (other == null)
 			return 1;
-		int c = compare(this.first, other.first);
+		int c = Long.compare(this.first, other.first);
 		if (c != 0)
 			return c;
-		return compare(this.second, other.second);
-	}
-
-	private int compare(long long1, long long2) {
-		if (long1 < long2)
-			return -1;
-		if (long1 > long2)
-			return 1;
-		return 0;
+		return Long.compare(this.second, other.second);
 	}
 
 }

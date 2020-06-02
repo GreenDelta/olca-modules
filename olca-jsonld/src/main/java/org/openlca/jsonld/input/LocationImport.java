@@ -2,9 +2,10 @@ package org.openlca.jsonld.input;
 
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
+import org.openlca.geo.geojson.FeatureCollection;
+import org.openlca.geo.geojson.GeoJSON;
+import org.openlca.geo.geojson.MsgPack;
 import org.openlca.jsonld.Json;
-import org.openlca.util.BinUtils;
-import org.openlca.util.Geometries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,29 +32,19 @@ class LocationImport extends BaseImport<Location> {
 		double longitude = Json.getDouble(json, "longitude", 0);
 		loc.latitude = latitude;
 		loc.longitude = longitude;
-		if (!addGeometry(json, loc)) {
-			if (latitude != 0d || longitude != 0d) {
-				String kml = Geometries.pointToKml(latitude, longitude);
-				loc.kmz = Geometries.kmlToKmz(kml);
+		JsonObject geometry = Json.getObject(json, "geometry");
+		if (geometry != null) {
+			try {
+				FeatureCollection coll = GeoJSON.read(geometry);
+				if (coll != null) {
+					loc.geodata = MsgPack.packgz(coll);
+				}
+			} catch (Exception e) {
+				Logger log = LoggerFactory.getLogger(getClass());
+				log.error("Failed to read geometry data from " + loc, e);
 			}
 		}
 		loc = conf.db.put(loc);
 		return loc;
-	}
-
-	private boolean addGeometry(JsonObject json, Location loc) {
-		try {
-			JsonObject geoJson = Json.getObject(json, "geometry");
-			if (geoJson == null)
-				return false;
-			String kml = GeoJson2Kml.convert(geoJson);
-			byte[] kmz = BinUtils.zip(kml.getBytes("utf-8"));
-			loc.kmz = kmz;
-			return true;
-		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(getClass());
-			log.error("failed to convert GeoJson", e);
-			return false;
-		}
 	}
 }

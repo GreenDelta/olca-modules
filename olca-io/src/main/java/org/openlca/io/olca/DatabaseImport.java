@@ -82,6 +82,7 @@ public class DatabaseImport implements Runnable {
 		new DQSystemImport(source, dest, seq).run();
 		new ProcessImport(source, dest, seq).run();
 		new ProductSystemImport(source, dest, seq).run();
+		new ImpactCategoryImport(source, dest, seq).run();
 		new ImpactMethodImport(source, dest, seq).run();
 		new ProjectImport(source, dest, seq).run();
 	}

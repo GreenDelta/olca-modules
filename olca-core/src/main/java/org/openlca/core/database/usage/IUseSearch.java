@@ -46,6 +46,8 @@ public interface IUseSearch<T extends CategorizedDescriptor> {
 				return (IUseSearch<T>) new ProductSystemUseSearch(db);
 			case LOCATION:
 				return (IUseSearch<T>) new LocationUseSearch(db);
+			case IMPACT_CATEGORY:
+				return (IUseSearch<T>) new ImpactCategoryUseSearch(db);
 			case IMPACT_METHOD:
 				return (IUseSearch<T>) new ImpactMethodUseSearch(db);
 			case CURRENCY:

@@ -7,6 +7,7 @@ import org.openlca.core.database.DQSystemDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
@@ -23,6 +24,7 @@ import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
@@ -131,7 +133,13 @@ class RefSwitcher {
 		return switchRef(seq.DQ_SYSTEM, new DQSystemDao(dest), srcSystem);
 	}
 
-	private <T extends RootEntity> T switchRef(int type, RootEntityDao<T, ?> dao, T srcEntity) {
+	ImpactCategory switchRef(ImpactCategory srcImpact) {
+		return switchRef(seq.IMPACT_CATEGORY,
+				new ImpactCategoryDao(dest), srcImpact);
+	}
+
+	private <T extends RootEntity> T switchRef(int type, RootEntityDao<T, ?> dao,
+											   T srcEntity) {
 		if (srcEntity == null)
 			return null;
 		long id = seq.get(type, srcEntity.refId);

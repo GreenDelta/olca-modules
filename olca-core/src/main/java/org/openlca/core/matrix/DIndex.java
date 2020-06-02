@@ -1,13 +1,12 @@
 package org.openlca.core.matrix;
 
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TLongIntHashMap;
+import org.openlca.core.model.descriptors.BaseDescriptor;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.openlca.core.model.descriptors.BaseDescriptor;
-
-import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TLongIntHashMap;
 
 /**
  * Maps a set of descriptors to an ordinal, zero-based index of type int. This

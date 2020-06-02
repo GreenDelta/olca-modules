@@ -28,7 +28,7 @@ public class LcaCalculator {
 	public SimpleResult calculateSimple() {
 
 		SimpleResult result = new SimpleResult();
-		result.flowIndex = data.enviIndex;
+		result.flowIndex = data.flowIndex;
 		result.techIndex = data.techIndex;
 
 		IMatrix techMatrix = data.techMatrix;
@@ -55,7 +55,7 @@ public class LcaCalculator {
 	public ContributionResult calculateContributions() {
 
 		ContributionResult result = new ContributionResult();
-		result.flowIndex = data.enviIndex;
+		result.flowIndex = data.flowIndex;
 		result.techIndex = data.techIndex;
 
 		IMatrix techMatrix = data.techMatrix;
@@ -86,7 +86,7 @@ public class LcaCalculator {
 	public FullResult calculateFull() {
 
 		FullResult result = new FullResult();
-		result.flowIndex = data.enviIndex;
+		result.flowIndex = data.flowIndex;
 		result.techIndex = data.techIndex;
 
 		TechIndex productIdx = data.techIndex;

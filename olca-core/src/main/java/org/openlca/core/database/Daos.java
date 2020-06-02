@@ -33,15 +33,14 @@ public class Daos {
 		return new BaseDao<>(clazz, database);
 	}
 
-	public static RootEntityDao<? extends RootEntity, ? extends BaseDescriptor> root(IDatabase database, ModelType type) {
+	public static RootEntityDao<? extends RootEntity, ? extends BaseDescriptor> root(
+			IDatabase database, ModelType type) {
 		if (database == null)
 			return null;
 		if (type == null)
 			return null;
 		if (type.isCategorized())
 			return categorized(database, type);
-		if (type == ModelType.IMPACT_CATEGORY)
-			return new ImpactCategoryDao(database);
 		if (type == ModelType.NW_SET)
 			return new NwSetDao(database);
 		if (type == ModelType.UNIT)
@@ -49,7 +48,8 @@ public class Daos {
 		return null;
 	}
 
-	public static CategorizedEntityDao<? extends CategorizedEntity, ? extends CategorizedDescriptor> categorized(IDatabase database, ModelType type) {
+	public static CategorizedEntityDao<? extends CategorizedEntity, ? extends CategorizedDescriptor> categorized(
+			IDatabase database, ModelType type) {
 		if (database == null)
 			return null;
 		if (type == null)
@@ -71,6 +71,8 @@ public class Daos {
 			return new FlowPropertyDao(database);
 		case IMPACT_METHOD:
 			return new ImpactMethodDao(database);
+		case IMPACT_CATEGORY:
+			return new ImpactCategoryDao(database);
 		case LOCATION:
 			return new LocationDao(database);
 		case PARAMETER:

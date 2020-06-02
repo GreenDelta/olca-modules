@@ -22,7 +22,7 @@ CREATE TABLE openlca_version (
     version SMALLINT
 
 );
-INSERT INTO openlca_version (version) VALUES (8);
+INSERT INTO openlca_version (version) VALUES (9);
 
 
 CREATE TABLE tbl_categories (
@@ -68,18 +68,18 @@ CREATE INDEX idx_actor_ref_id ON tbl_actors(ref_id);
 
 CREATE TABLE tbl_locations (
 
-    id BIGINT NOT NULL,
-    ref_id VARCHAR(36),
-    name VARCHAR(2048),
+    id          BIGINT NOT NULL,
+    ref_id      VARCHAR(36),
+    name        VARCHAR(2048),
     description CLOB(64 K),
-    version BIGINT,
+    version     BIGINT,
     last_change BIGINT,
-    f_category BIGINT,
+    f_category  BIGINT,
 
     longitude DOUBLE,
-    latitude DOUBLE,
-    code VARCHAR(255),
-    kmz BLOB(16 M),
+    latitude  DOUBLE,
+    code      VARCHAR(255),
+    geodata   BLOB(32 M),
 
     PRIMARY KEY (id)
 );
@@ -295,6 +295,7 @@ CREATE TABLE tbl_exchanges (
     resulting_amount_formula  VARCHAR(1000),
     avoided_product           SMALLINT default 0,
     f_default_provider        BIGINT,
+    f_location                BIGINT,
     description               CLOB(64 K),
 
     cost_value                DOUBLE,
@@ -377,6 +378,18 @@ CREATE TABLE tbl_process_links (
 CREATE INDEX idx_process_link_system ON tbl_process_links(f_product_system);
 
 
+CREATE TABLE tbl_parameter_redef_sets (
+
+    id                BIGINT NOT NULL,
+    name              VARCHAR(2048),
+    description       CLOB(64 K),
+    is_baseline       SMALLINT default 0,
+    f_product_system  BIGINT
+
+);
+CREATE INDEX idx_parameter_redef_set_system ON tbl_parameter_redef_sets(f_product_system);
+
+
 CREATE TABLE tbl_impact_methods (
 
     id              BIGINT NOT NULL,
@@ -387,7 +400,6 @@ CREATE TABLE tbl_impact_methods (
     f_category      BIGINT,
     description     CLOB(64 K),
 
-    parameter_mean  VARCHAR(255),
     f_author        BIGINT,
     f_generator     BIGINT,
 
@@ -398,38 +410,46 @@ CREATE TABLE tbl_impact_methods (
 
 CREATE TABLE tbl_impact_categories (
 
-    id BIGINT NOT NULL,
-    ref_id VARCHAR(36),
-    name VARCHAR(2048),
-    description CLOB(64 K),
-    version BIGINT,
-    last_change BIGINT,
+    id                BIGINT NOT NULL,
+    ref_id            VARCHAR(36),
+    name              VARCHAR(2048),
+    version           BIGINT,
+    last_change       BIGINT,
+    f_category        BIGINT,
+    description       CLOB(64 K),
 
-    reference_unit VARCHAR(255),
-    f_impact_method BIGINT,
+    reference_unit    VARCHAR(255),
+    parameter_mean    VARCHAR(255),
 
     PRIMARY KEY (id)
 
 );
 
 
+CREATE TABLE tbl_impact_links (
+    f_impact_method    BIGINT,
+    f_impact_category  BIGINT
+);
+
+
 CREATE TABLE tbl_impact_factors (
 
-    id BIGINT NOT NULL,
-    f_impact_category BIGINT,
-    f_flow BIGINT,
+    id BIGINT              NOT NULL,
+    f_impact_category      BIGINT,
+    f_flow                 BIGINT,
     f_flow_property_factor BIGINT,
-    f_unit BIGINT,
-    value DOUBLE,
-    formula VARCHAR(1000),
+    f_unit                 BIGINT,
+    value                  DOUBLE,
+    formula                VARCHAR(1000),
+    f_location             BIGINT,
 
-    distribution_type INTEGER default 0,
-    parameter1_value DOUBLE,
-    parameter1_formula VARCHAR(1000),
-    parameter2_value DOUBLE,
-    parameter2_formula VARCHAR(1000),
-    parameter3_value DOUBLE,
-    parameter3_formula VARCHAR(1000),
+    distribution_type      INTEGER default 0,
+    parameter1_value       DOUBLE,
+    parameter1_formula     VARCHAR(1000),
+    parameter2_value       DOUBLE,
+    parameter2_formula     VARCHAR(1000),
+    parameter3_value       DOUBLE,
+    parameter3_formula     VARCHAR(1000),
 
     PRIMARY KEY (id)
 
@@ -469,28 +489,26 @@ CREATE TABLE tbl_nw_factors (
 
 CREATE TABLE tbl_parameters (
 
-    id BIGINT NOT NULL,
-    ref_id VARCHAR(36),
-    name VARCHAR(2048),
+    id          BIGINT NOT NULL,
+    ref_id      VARCHAR(36),
+    name        VARCHAR(2048),
     description CLOB(64 K),
-    version BIGINT,
+    version     BIGINT,
     last_change BIGINT,
-    f_category BIGINT,
+    f_category  BIGINT,
 
     is_input_param SMALLINT default 0,
-    f_owner BIGINT,
-    scope VARCHAR(255),
-    value DOUBLE,
-    formula VARCHAR(1000),
-    external_source VARCHAR(255),
-    source_type VARCHAR(255),
+    f_owner        BIGINT,
+    scope          VARCHAR(255),
+    value          DOUBLE,
+    formula        VARCHAR(1000),
 
-    distribution_type INTEGER default 0,
-    parameter1_value DOUBLE,
+    distribution_type  INTEGER default 0,
+    parameter1_value   DOUBLE,
     parameter1_formula VARCHAR(1000),
-    parameter2_value DOUBLE,
+    parameter2_value   DOUBLE,
     parameter2_formula VARCHAR(1000),
-    parameter3_value DOUBLE,
+    parameter3_value   DOUBLE,
     parameter3_formula VARCHAR(1000),
 
     PRIMARY KEY (id)
@@ -500,19 +518,20 @@ CREATE INDEX idx_parameter_category ON tbl_parameters(f_category);
 
 CREATE TABLE tbl_parameter_redefs (
 
-    id BIGINT NOT NULL,
-    name VARCHAR(2048),
-    f_owner BIGINT,
-    f_context BIGINT,
-    context_type VARCHAR(255),
-    value DOUBLE,
+    id            BIGINT NOT NULL,
+    name          VARCHAR(2048),
+    description   CLOB(64 K),
+    f_owner       BIGINT,
+    f_context     BIGINT,
+    context_type  VARCHAR(255),
+    value         DOUBLE,
 
-    distribution_type INTEGER default 0,
-    parameter1_value DOUBLE,
+    distribution_type  INTEGER default 0,
+    parameter1_value   DOUBLE,
     parameter1_formula VARCHAR(1000),
-    parameter2_value DOUBLE,
+    parameter2_value   DOUBLE,
     parameter2_formula VARCHAR(1000),
-    parameter3_value DOUBLE,
+    parameter3_value   DOUBLE,
     parameter3_formula VARCHAR(1000),
 
     PRIMARY KEY (id)

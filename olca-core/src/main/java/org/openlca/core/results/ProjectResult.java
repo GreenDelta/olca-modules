@@ -1,15 +1,17 @@
 package org.openlca.core.results;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+
+import gnu.trove.set.hash.TLongHashSet;
 
 /**
  * A project result is a wrapper for the inventory results of the respective
@@ -17,26 +19,37 @@ import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
  */
 public class ProjectResult implements IResult {
 
-	private HashMap<ProjectVariant, ContributionResult> results = new HashMap<>();
+	private final HashMap<ProjectVariant, ContributionResult> results = new HashMap<>();
 
+	// cached descriptor lists which are initialized lazily
+	private ArrayList<IndexFlow> _flows;
+	private ArrayList<ImpactCategoryDescriptor> _impacts;
+	private ArrayList<CategorizedDescriptor> _processes;
+	private ArrayList<ProjectVariant> _variants;
+	
 	public void addResult(ProjectVariant variant, ContributionResult result) {
 		results.put(variant, result);
 	}
 
-	public Set<ProjectVariant> getVariants() {
-		return results.keySet();
+	public List<ProjectVariant> getVariants() {
+		if (_variants != null)
+			return _variants;
+		if (results.isEmpty())
+			return Collections.emptyList();
+		_variants = new ArrayList<>();
+		_variants.addAll(results.keySet());
+		return _variants;
 	}
 
 	public ContributionResult getResult(ProjectVariant variant) {
 		return results.get(variant);
 	}
 
-	public double getTotalFlowResult(ProjectVariant variant,
-			FlowDescriptor flow) {
-		ContributionResult result = results.get(variant);
-		if (result == null)
+	public double getTotalFlowResult(ProjectVariant variant, IndexFlow flow) {
+		ContributionResult r = results.get(variant);
+		if (r == null)
 			return 0;
-		return result.getTotalFlowResult(flow);
+		return r.getTotalFlowResult(flow);
 	}
 
 	public List<FlowResult> getTotalFlowResults(ProjectVariant variant) {
@@ -46,10 +59,9 @@ public class ProjectResult implements IResult {
 		return result.getTotalFlowResults();
 	}
 
-	public ContributionSet<ProjectVariant> getContributions(
-			FlowDescriptor flow) {
-		return Contributions.calculate(getVariants(),
-				variant -> getTotalFlowResult(variant, flow));
+	public List<Contribution<ProjectVariant>> getContributions(IndexFlow flow) {
+		return Contributions.calculate(
+				getVariants(), variant -> getTotalFlowResult(variant, flow));
 	}
 
 	public double getTotalImpactResult(ProjectVariant variant,
@@ -60,7 +72,7 @@ public class ProjectResult implements IResult {
 		return result.getTotalImpactResult(impact);
 	}
 
-	public ContributionSet<ProjectVariant> getContributions(
+	public List<Contribution<ProjectVariant>> getContributions(
 			ImpactCategoryDescriptor impact) {
 		return Contributions.calculate(getVariants(),
 				variant -> getTotalImpactResult(variant, impact));
@@ -94,44 +106,53 @@ public class ProjectResult implements IResult {
 	}
 
 	@Override
-	public Set<CategorizedDescriptor> getProcesses() {
-		Set<CategorizedDescriptor> processes = new HashSet<>();
+	public final List<CategorizedDescriptor> getProcesses() {
+		if (_processes != null)
+			return _processes;
+		_processes = new ArrayList<>();
+		TLongHashSet handled = new TLongHashSet();
 		for (ContributionResult result : results.values()) {
-			processes.addAll(result.getProcesses());
-		}
-		return processes;
-	}
-
-	@Override
-	public Set<FlowDescriptor> getFlows() {
-		Set<FlowDescriptor> flows = new HashSet<>();
-		for (ContributionResult result : results.values()) {
-			flows.addAll(result.getFlows());
-		}
-		return flows;
-	}
-
-	@Override
-	public boolean isInput(FlowDescriptor flow) {
-		if (flow == null)
-			return false;
-
-		for (ContributionResult r : results.values()) {
-			if (r.flowIndex.contains(flow))
-				return r.flowIndex.isInput(flow);
-		}
-		return false;
-	}
-
-	@Override
-	public Set<ImpactCategoryDescriptor> getImpacts() {
-		Set<ImpactCategoryDescriptor> impacts = new HashSet<>();
-		for (ContributionResult r : results.values()) {
-			if (r.hasImpactResults()) {
-				impacts.addAll(r.getImpacts());
+			for (CategorizedDescriptor p : result.getProcesses()) {
+				if (handled.contains(p.id))
+					continue;
+				_processes.add(p);
+				handled.add(p.id);
 			}
 		}
-		return impacts;
+		return _processes;
 	}
 
+	@Override
+	public List<IndexFlow> getFlows() {
+		if (_flows != null)
+			return _flows;
+		HashSet<IndexFlow> flows = new HashSet<>();
+		for (ContributionResult r : results.values()) {
+			for (IndexFlow f : r.getFlows()) {
+				flows.add(f);
+			}
+		}
+		_flows = new ArrayList<>();
+		_flows.addAll(flows);
+		return _flows;
+	}
+
+	@Override
+	public List<ImpactCategoryDescriptor> getImpacts() {
+		if (_impacts != null)
+			return _impacts;
+		_impacts = new ArrayList<>();
+		TLongHashSet handled = new TLongHashSet();
+		for (ContributionResult r : results.values()) {
+			if (!r.hasImpactResults())
+				continue;
+			for (ImpactCategoryDescriptor impact : r.getImpacts()) {
+				if (handled.contains(impact.id))
+					continue;
+				_impacts.add(impact);
+				handled.add(impact.id);
+			}
+		}
+		return _impacts;
+	}
 }

@@ -25,11 +25,11 @@ public class ContributionTreeTest {
 		techIndex.putLink(LongPair.of(1, 3), provider(3, 3));
 		data.techIndex = techIndex;
 
-		FlowIndex enviIndex = new FlowIndex();
+		FlowIndex enviIndex = FlowIndex.create();
 		FlowDescriptor outFlow = new FlowDescriptor();
-		outFlow.id = (long) 4;
+		outFlow.id = 4;
 		enviIndex.putOutput(outFlow);
-		data.enviIndex = enviIndex;
+		data.flowIndex = enviIndex;
 
 		data.techMatrix = Tests.getDefaultSolver().matrix(3, 3);
 		data.techMatrix.setValues(new double[][] {
@@ -40,15 +40,12 @@ public class ContributionTreeTest {
 		data.enviMatrix.setValues(new double[][] {
 				{ 0, 0.5, 0.5 } });
 
-		FullResult result = new LcaCalculator(Tests.getDefaultSolver(), data)
-				.calculateFull();
-		FlowDescriptor flow = new FlowDescriptor();
-		flow.id = (long) 4;
-
-		Assert.assertEquals(1.0, result.getTotalFlowResult(flow), 1e-16);
-
-		UpstreamTree tree = new UpstreamTree(result,
-				result.upstreamFlowResults.getRow(0));
+		// calculate and check the result
+		FullResult r = new LcaCalculator(
+				Tests.getDefaultSolver(), data).calculateFull();
+		Assert.assertEquals(1.0, r.getTotalFlowResult(enviIndex.at(0)), 1e-16);
+		UpstreamTree tree = new UpstreamTree(r,
+				r.upstreamFlowResults.getRow(0));
 		Assert.assertEquals(2, tree.childs(tree.root).size());
 		Assert.assertEquals(1.0, tree.root.result, 1e-16);
 		Assert.assertEquals(0.5, tree.childs(tree.root).get(0).result, 1e-16);

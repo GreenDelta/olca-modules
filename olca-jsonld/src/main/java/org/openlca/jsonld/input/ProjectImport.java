@@ -87,7 +87,14 @@ class ProjectImport extends BaseImport<Project> {
 			v.amount = Json.getDouble(obj, "amount", 0);
 			v.allocationMethod = Json.getEnum(obj, "allocationMethod",
 			AllocationMethod.class);
-			ParameterRedefs.addParameters(obj, v.parameterRedefs, conf);
+
+			// parameter redefinitions
+			JsonArray redefs = Json.getArray(obj, "parameterRedefs");
+			if (redefs != null && redefs.size() > 0) {
+				v.parameterRedefs.addAll(
+					ParameterRedefs.read(redefs, conf));
+			}
+
 			p.variants.add(v);
 		}
 	}

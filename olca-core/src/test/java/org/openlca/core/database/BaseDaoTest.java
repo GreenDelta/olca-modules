@@ -80,7 +80,7 @@ public class BaseDaoTest {
 			try {
 				testCrud(clazz);
 			} catch (Exception e) {
-				throw new Exception("CRUD functions faild for " + clazz, e);
+				throw new Exception("CRUD functions failed for " + clazz, e);
 			}
 		}
 	}

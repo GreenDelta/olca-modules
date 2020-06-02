@@ -86,7 +86,8 @@ public class Export implements Runnable {
 
 	private MatrixData setupInventory() {
 		return DataStructures.matrixData(
-				setup, solver, cache, Collections.emptyMap());
+				setup, cache.getDatabase(),
+				Collections.emptyMap());
 	}
 
 	private void dbLinks(TechIndex idx) throws Exception {

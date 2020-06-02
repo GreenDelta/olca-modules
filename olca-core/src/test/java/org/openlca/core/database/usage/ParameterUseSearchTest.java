@@ -7,7 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
@@ -82,19 +82,20 @@ public class ParameterUseSearchTest {
 	}
 
 	@Test
-	public void testFindInImpactMethod() {
-		Parameter p1 = createParameter("p1", 5d, ParameterScope.GLOBAL);
+	public void testFindInImpactCategory() {
+		Parameter p1 = createParameter("p1", 5d,
+				ParameterScope.GLOBAL);
 		Parameter p2 = createParameter("p2", "5*p1",
-				ParameterScope.IMPACT_METHOD);
-		ImpactMethod method = new ImpactMethod();
-		method.parameters.add(p2);
+				ParameterScope.IMPACT_CATEGORY);
+		ImpactCategory impact = new ImpactCategory();
+		impact.parameters.add(p2);
 		Tests.insert(p1);
-		Tests.insert(method);
+		Tests.insert(impact);
 		List<CategorizedDescriptor> models = search.findUses(Descriptors
 				.toDescriptor(p1));
 		Tests.delete(p1);
-		Tests.delete(method);
-		BaseDescriptor expected = Descriptors.toDescriptor(method);
+		Tests.delete(impact);
+		BaseDescriptor expected = Descriptors.toDescriptor(impact);
 		Assert.assertEquals(1, models.size());
 		Assert.assertEquals(expected, models.get(0));
 	}
@@ -117,20 +118,20 @@ public class ParameterUseSearchTest {
 	}
 
 	@Test
-	public void testFindNotInImpactMethod() {
+	public void testFindNotInImpactCategory() {
 		Parameter p = createParameter("p1", 5d, ParameterScope.GLOBAL);
-		Parameter p1 = createParameter("p1", 5d, ParameterScope.IMPACT_METHOD);
+		Parameter p1 = createParameter("p1", 5d, ParameterScope.IMPACT_CATEGORY);
 		Parameter p2 = createParameter("p2", "5*p1",
-				ParameterScope.IMPACT_METHOD);
-		ImpactMethod method = new ImpactMethod();
-		method.parameters.add(p1);
-		method.parameters.add(p2);
+				ParameterScope.IMPACT_CATEGORY);
+		ImpactCategory impact = new ImpactCategory();
+		impact.parameters.add(p1);
+		impact.parameters.add(p2);
 		Tests.insert(p);
-		Tests.insert(method);
+		Tests.insert(impact);
 		List<CategorizedDescriptor> models = search.findUses(Descriptors
 				.toDescriptor(p));
 		Tests.delete(p);
-		Tests.delete(method);
+		Tests.delete(impact);
 		Assert.assertEquals(0, models.size());
 	}
 

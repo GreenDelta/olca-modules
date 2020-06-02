@@ -14,13 +14,21 @@ public final class Point extends Geometry {
 	 */
 	public double y;
 
-	static Point fromJson(JsonObject obj) {
+	public Point() {
+	}
+
+	public Point(double x, double y) {
+		this.x = x;
+		this.y = y;
+	}
+
+	public static Point fromJson(JsonObject obj) {
 		return Coordinates.readPoint(
 				obj.get("coordinates"));
 	}
 
 	@Override
-	JsonObject toJson() {
+	public JsonObject toJson() {
 		JsonObject obj = new JsonObject();
 		obj.addProperty("type", "Point");
 		obj.add("coordinates",
@@ -35,4 +43,13 @@ public final class Point extends Geometry {
 		clone.y = y;
 		return clone;
 	}
+
+	@Override
+	public String toString() {
+		return "Point{" +
+				"x=" + x +
+				", y=" + y +
+				'}';
+	}
 }
+

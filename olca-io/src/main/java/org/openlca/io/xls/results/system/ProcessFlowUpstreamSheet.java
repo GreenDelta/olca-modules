@@ -1,44 +1,40 @@
 package org.openlca.io.xls.results.system;
 
-import java.util.List;
-
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.results.FullResult;
 import org.openlca.io.xls.results.CellWriter;
 
 class ProcessFlowUpstreamSheet
-		extends ContributionSheet<CategorizedDescriptor, FlowDescriptor> {
+		extends ContributionSheet<CategorizedDescriptor, IndexFlow> {
 
 	private final CellWriter writer;
-	private final FullResult result;
+	private final FullResult r;
 
-	static void write(ResultExport export, FullResult result) {
-		new ProcessFlowUpstreamSheet(export, result)
-				.write(export.workbook, export.processes, export.flows);
+	static void write(ResultExport export, FullResult r) {
+		new ProcessFlowUpstreamSheet(export, r)
+				.write(export.workbook);
 	}
 
-	private ProcessFlowUpstreamSheet(ResultExport export, FullResult result) {
+	private ProcessFlowUpstreamSheet(ResultExport export, FullResult r) {
 		super(export.writer, ResultExport.PROCESS_HEADER,
 				ResultExport.FLOW_HEADER);
 		this.writer = export.writer;
-		this.result = result;
+		this.r = r;
 	}
 
-	private void write(Workbook workbook, List<CategorizedDescriptor> processes,
-			List<FlowDescriptor> flows) {
+	private void write(Workbook workbook) {
 		Sheet sheet = workbook.createSheet("Process upstream flows");
 		header(sheet);
-		subHeaders(sheet, processes, flows);
-		data(sheet, processes, flows);
+		subHeaders(sheet, r.getProcesses(), r.getFlows());
+		data(sheet, r.getProcesses(), r.getFlows());
 	}
 
 	@Override
-	protected double getValue(CategorizedDescriptor process,
-			FlowDescriptor flow) {
-		return result.getUpstreamFlowResult(process, flow);
+	protected double getValue(CategorizedDescriptor process, IndexFlow flow) {
+		return r.getUpstreamFlowResult(process, flow);
 	}
 
 	@Override
@@ -48,8 +44,7 @@ class ProcessFlowUpstreamSheet
 	}
 
 	@Override
-	protected void subHeaderRow(FlowDescriptor flow, Sheet sheet,
-			int row) {
+	protected void subHeaderRow(IndexFlow flow, Sheet sheet, int row) {
 		writer.flowRow(sheet, row, 1, flow);
 	}
 }

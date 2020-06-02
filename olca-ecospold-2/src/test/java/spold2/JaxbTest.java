@@ -13,12 +13,6 @@ import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 
-import spold2.Activity;
-import spold2.Classification;
-import spold2.DataSet;
-import spold2.EcoSpold2;
-import spold2.RichText;
-
 @RunWith(Theories.class)
 public class JaxbTest {
 

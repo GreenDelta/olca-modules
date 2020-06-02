@@ -3,12 +3,13 @@ package org.openlca.ipc.handlers;
 import java.util.Collection;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.descriptors.BaseDescriptor;
-import org.openlca.core.results.ContributionItem;
+import org.openlca.core.results.Contribution;
 import org.openlca.core.results.FlowResult;
 import org.openlca.core.results.ImpactResult;
 import org.openlca.core.results.SimpleResult;
@@ -33,7 +34,11 @@ class JsonRpc {
 		if (r == null)
 			return obj;
 		obj.addProperty("@type", r.getClass().getSimpleName());
-		obj.add("flows", encode(r.getFlows(), cache));
+		obj.add("flows", encode(
+				r.getFlows().stream()
+						.map(f -> f.flow)
+						.collect(Collectors.toSet()),
+				cache));
 		obj.add("processes", encode(r.getProcesses(), cache));
 		obj.add("flowResults", encode(r.getTotalFlowResults(), result -> encode(result, cache)));
 		if (!r.hasImpactResults())
@@ -64,22 +69,22 @@ class JsonRpc {
 		return obj;
 	}
 
-	static <T extends BaseDescriptor> JsonArray encode(Collection<ContributionItem<T>> l, EntityCache cache, Consumer<JsonObject> modifier) {
+	static <T extends BaseDescriptor> JsonArray encode(Collection<Contribution<T>> l, EntityCache cache, Consumer<JsonObject> modifier) {
 		if (l == null)
 			return null;
 		return encode(l, contribution -> encode(contribution, cache, modifier));
 	}
 
-	static <T extends BaseDescriptor> JsonObject encode(ContributionItem<T> i, EntityCache cache,
+	static <T extends BaseDescriptor> JsonObject encode(Contribution<T> i, EntityCache cache,
 			Consumer<JsonObject> modifier) {
 		if (i == null)
 			return null;
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@type", "ContributionItem");
-		obj.add("item", Json.asRef((BaseDescriptor) i.item, cache));
+		obj.add("item", Json.asRef(i.item, cache));
 		obj.addProperty("amount", i.amount);
 		obj.addProperty("share", i.share);
-		obj.addProperty("rest", i.rest);
+		obj.addProperty("rest", i.isRest);
 		modifier.accept(obj);
 		return obj;
 	}

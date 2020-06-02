@@ -79,7 +79,7 @@ public class Exchange extends AbstractEntity {
 	 * formula should be always stored in the amount field.
 	 */
 	@Column(name = "resulting_amount_formula")
-	public String amountFormula;
+	public String formula;
 
 	/**
 	 * An optional base uncertainty of the data quality entry (= Pedigree matrix
@@ -113,17 +113,23 @@ public class Exchange extends AbstractEntity {
 	@JoinColumn(name = "f_currency")
 	public Currency currency;
 
+	@OneToOne
+	@JoinColumn(name = "f_location")
+	public Location location;
+
 	@Override
 	public String toString() {
-		return "Exchange [flow=" + flow + ", input=" + isInput + ",amount="
-				+ amount + ", unit=" + unit + "]";
+		return "Exchange [flow=" + flow
+				+ ", input=" + isInput
+				+ ",amount=" + amount
+				+ ", unit=" + unit + "]";
 	}
 
 	@Override
 	public Exchange clone() {
 		Exchange clone = new Exchange();
 		clone.internalId = internalId;
-		clone.amountFormula = amountFormula;
+		clone.formula = formula;
 		clone.amount = amount;
 		clone.isAvoided = isAvoided;
 		clone.baseUncertainty = baseUncertainty;
@@ -139,6 +145,7 @@ public class Exchange extends AbstractEntity {
 		clone.costFormula = costFormula;
 		clone.currency = currency;
 		clone.description = description;
+		clone.location = location;
 		return clone;
 	}
 

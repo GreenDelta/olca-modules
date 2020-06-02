@@ -7,9 +7,7 @@ import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.Simulator;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
@@ -26,8 +24,8 @@ public class SimulatorExample {
 		IDatabase db = new DerbyDatabase(new File(dbPath));
 		ProductSystem system = new ProductSystemDao(db).getForRefId(
 				"53f9b9db-139f-4617-bf2b-8fc715b3cd16");
-		CalculationSetup setup = new CalculationSetup(
-				CalculationType.MONTE_CARLO_SIMULATION, system);
+		CalculationSetup setup = new CalculationSetup(system);
+		setup.withUncertainties = true;
 
 		ImpactMethodDao idao = new ImpactMethodDao(db);
 		ImpactMethodDescriptor method = idao.getDescriptorForRefId(
@@ -47,8 +45,7 @@ public class SimulatorExample {
 		Julia.loadFromDir(new File(juliaLibPath));
 		JuliaSolver solver = new JuliaSolver();
 
-		Simulator simulator = Simulator.create(
-				setup, MatrixCache.createLazy(db), solver);
+		Simulator simulator = Simulator.create(setup, db, solver);
 
 		double min = 0;
 		double max = 0;

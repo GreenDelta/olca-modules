@@ -3,15 +3,21 @@ package org.openlca.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @deprecated we do not use KML anymore
+ */
+@Deprecated
 public class Geometries {
 
 	private static final String POINT_KML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://earth.google.com/kml/2.1\"><Folder><Placemark><Point><coordinates>#{longitude},#{latitude}</coordinates></Point></Placemark></Folder></kml>";
 
+	@Deprecated
 	public static String pointToKml(double latitude, double longitude) {
 		String kml = replace(POINT_KML, "latitude", latitude);
 		return replace(kml, "longitude", longitude);
 	}
 
+	@Deprecated
 	public static byte[] kmlToKmz(String kml) {
 		if (kml == null)
 			return null;

@@ -1,11 +1,5 @@
 package org.openlca.io.ilcd.input;
 
-import java.io.File;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.util.Date;
-import java.util.List;
-
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.database.SourceDao;
@@ -16,6 +10,13 @@ import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.SourceBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.util.Date;
+import java.util.List;
 
 public class SourceImport {
 
@@ -112,8 +113,11 @@ public class SourceImport {
 		String fileName = new File(uri).getName();
 		String path = FileStore.getPath(ModelType.SOURCE, source.refId);
 		File docDir = new File(dbDir, path);
-		if (!docDir.exists())
-			docDir.mkdirs();
+		if (!docDir.exists()) {
+			if (!docDir.mkdirs()) {
+				throw new IOException("failed to create " + docDir);
+			}
+		}
 		File dbFile = new File(docDir, fileName);
 		if (dbFile.exists())
 			return;

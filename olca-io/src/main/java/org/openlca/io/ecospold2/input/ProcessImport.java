@@ -308,9 +308,9 @@ class ProcessImport {
 			return;
 		formula = formula.trim();
 		if (factor == 1.0)
-			exchange.amountFormula = formula;
+			exchange.formula = formula;
 		else
-			exchange.amountFormula = factor + " * (" + formula + ")";
+			exchange.formula = factor + " * (" + formula + ")";
 	}
 
 	private void addActivityLink(IntermediateExchange input,
@@ -331,9 +331,9 @@ class ProcessImport {
 
 	/**
 	 * The name of the process has the following pattern:
-	 * 
+	 *
 	 * <process name> | <product name> | <system model>, <process type>
-	 * 
+	 *
 	 * Where <system model> is a mnemonic like "APOS" or "Cutoff" and the
 	 * process type is "U" when it is a unit process or "S" when it is a LCI
 	 * result
@@ -347,7 +347,7 @@ class ProcessImport {
 		if (qRef != null && qRef.name != null) {
 			name += " | " + qRef.name;
 		}
-		
+
 		// we try to infer a short name for the system model here
 		// because the short name is part of the master data which
 		// is not always available (or can be found) when importing
@@ -376,7 +376,7 @@ class ProcessImport {
 		// the process type
 		String type = a != null && a.type == 2 ? "S" : "U";
 		name += ", " + type;
-		
+
 		return name;
 	}
 

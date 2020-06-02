@@ -32,6 +32,10 @@ public class ImpactFactor extends AbstractEntity implements Cloneable {
 	@Embedded
 	public Uncertainty uncertainty;
 
+	@OneToOne
+	@JoinColumn(name = "f_location")
+	public Location location;
+
 	@Override
 	public ImpactFactor clone() {
 		ImpactFactor clone = new ImpactFactor();
@@ -40,8 +44,10 @@ public class ImpactFactor extends AbstractEntity implements Cloneable {
 		clone.unit = unit;
 		clone.value = value;
 		clone.formula = formula;
-		if (uncertainty != null)
+		if (uncertainty != null) {
 			clone.uncertainty = uncertainty.clone();
+		}
+		clone.location = location;
 		return clone;
 	}
 

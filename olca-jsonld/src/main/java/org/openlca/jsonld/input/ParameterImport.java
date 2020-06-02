@@ -34,8 +34,6 @@ class ParameterImport extends BaseImport<Parameter> {
 		p.isInputParameter = Json.getBool(json, "inputParameter", true);
 		p.value = Json.getDouble(json, "value", 0);
 		p.formula = Json.getString(json, "formula");
-		p.externalSource = Json.getString(json, "externalSource");
-		p.sourceType = Json.getString(json, "sourceType");
 		p.uncertainty = Uncertainties.read(Json.getObject(json, "uncertainty"));
 	}
 

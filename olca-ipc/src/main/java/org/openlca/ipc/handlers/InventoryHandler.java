@@ -7,9 +7,9 @@ import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.ContributionItem;
+import org.openlca.core.results.Contribution;
 import org.openlca.core.results.FlowResult;
-import org.openlca.core.results.LocationContribution;
+import org.openlca.core.results.LocationResult;
 import org.openlca.core.results.UpstreamNode;
 import org.openlca.core.results.UpstreamTree;
 import org.openlca.ipc.Rpc;
@@ -52,8 +52,8 @@ public class InventoryHandler {
 	@Rpc("get/inventory/contributions/processes")
 	public RpcResponse getProcessContributions(RpcRequest req) {
 		return utils.contributionFlow(req, (result, flow, cache) -> {
-			List<ContributionItem<CategorizedDescriptor>> contributions = result
-					.getProcessContributions(flow).contributions;
+			List<Contribution<CategorizedDescriptor>> contributions = result
+					.getProcessContributions(flow);
 			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
 			String unit = utils.getUnit(flow, cache);
 			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", unit));
@@ -63,20 +63,21 @@ public class InventoryHandler {
 	@Rpc("get/inventory/contributions/locations")
 	public RpcResponse getLocationContributions(RpcRequest req) {
 		return utils.contributionFlow(req, (result, flow, cache) -> {
-			LocationContribution calculator = new LocationContribution(result, cache);
-			List<ContributionItem<LocationDescriptor>> contributions = utils
-					.toDescriptors(calculator.calculate(flow).contributions);
-			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
+			LocationResult r = new LocationResult(result, cache.db);
+			List<Contribution<LocationDescriptor>> cons = utils
+					.toDescriptors(r.getContributions(flow.flow));
+			cons = utils.filter(cons, c -> c.amount != 0);
 			String unit = utils.getUnit(flow, cache);
-			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", unit));
+			return JsonRpc.encode(cons, cache,
+					json -> json.addProperty("unit", unit));
 		});
 	}
 
 	@Rpc("get/inventory/contributions/location/processes")
 	public RpcResponse getProcessContributionsForLocation(RpcRequest req) {
 		return utils.contributionFlowLocation(req, (result, flow, location, cache) -> {
-			List<ContributionItem<CategorizedDescriptor>> contributions = result
-					.getProcessContributions(flow).contributions;
+			List<Contribution<CategorizedDescriptor>> contributions = result
+					.getProcessContributions(flow);
 			contributions = utils.filter(contributions, contribution -> {
 				if (contribution.item instanceof ProcessDescriptor) {
 					if (((ProcessDescriptor) contribution.item).location != location.id) {
@@ -110,24 +111,26 @@ public class InventoryHandler {
 	private RpcResponse getProcessResults(RpcRequest req, boolean input) {
 		return utils.fullProcess(req, (result, process, cache) -> {
 			JsonArray contributions = new JsonArray();
-			result.getFlows().forEach(flow -> {
-				if (result.isInput(flow) != input)
+			result.flowIndex.each((i, f) -> {
+				if (f.isInput != input)
 					return;
-				double total = result.getTotalFlowResult(flow);
+				double total = result.getTotalFlowResult(f);
 				if (total == 0)
 					return;
-				ContributionItem<FlowDescriptor> c = new ContributionItem<>();
-				c.item = flow;
-				c.amount = result.getDirectFlowResult(process, flow);
+				Contribution<FlowDescriptor> c = new Contribution<>();
+				c.item = f.flow;
+				c.amount = result.getDirectFlowResult(process, f);
 				c.share = c.amount / total;
 				if (c.amount == 0)
 					return;
-				String unit = utils.getUnit(flow, cache);
+				String unit = utils.getUnit(f, cache);
 				contributions.add(JsonRpc.encode(c, cache, json -> {
 					json.addProperty("unit", unit);
-					json.addProperty("upstream", result.getUpstreamFlowResult(process, flow));
+					json.addProperty("upstream",
+							result.getUpstreamFlowResult(process, f));
 				}));
 			});
+
 			return contributions;
 		});
 	}

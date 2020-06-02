@@ -80,7 +80,7 @@ public class ParameterUsageTree {
 				return 2;
 			case PROCESS:
 				return 3;
-			case IMPACT_METHOD:
+			case IMPACT_CATEGORY:
 				return 4;
 			default:
 				return 99;
@@ -155,23 +155,20 @@ public class ParameterUsageTree {
 		}
 
 		private void impacts() {
-			String sql = "SELECT met.id AS method, cat.id AS CATEGORY," +
-					"  fac.f_flow AS flow, fac.formula AS FORMULA" +
+			String sql = "SELECT cat.id AS category," +
+					"  fac.f_flow AS flow," +
+					"  fac.formula AS FORMULA" +
 					"  FROM tbl_impact_factors fac" +
 					"  INNER JOIN tbl_impact_categories cat" +
 					"  ON fac.f_impact_category = cat.id" +
-					"  INNER JOIN tbl_impact_methods met" +
-					"  ON cat.f_impact_method = met.id" +
 					"  WHERE fac.formula IS NOT NULL";
 			query(sql, r -> {
-				String formula = string(r, 4);
+				String formula = string(r, 3);
 				if (!matchesFormula(formula))
 					return;
-				Node metNode = context(int64(r, 1),
-						ImpactMethodDescriptor.class);
-				Node catNode = child(metNode, int64(r, 2),
+				Node node = context(int64(r, 1),
 						ImpactCategoryDescriptor.class);
-				catNode.add(flowRef(int64(r, 3),
+				node.add(flowRef(int64(r, 2),
 						"characterization value", formula));
 			});
 		}
@@ -201,9 +198,9 @@ public class ParameterUsageTree {
 							ProcessDescriptor.class);
 					paramNode = child(root, int64(r, 1),
 							ParameterDescriptor.class);
-				} else if (scope == ParameterScope.IMPACT_METHOD) {
+				} else if (scope == ParameterScope.IMPACT_CATEGORY) {
 					Node root = context(int64(r, 5),
-							ImpactMethodDescriptor.class);
+							ImpactCategoryDescriptor.class);
 					paramNode = child(root, int64(r, 1),
 							ParameterDescriptor.class);
 				}

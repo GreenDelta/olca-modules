@@ -1,8 +1,5 @@
 package org.openlca.core.database.references;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.openlca.core.Tests;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
@@ -23,6 +20,9 @@ import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 
@@ -95,7 +95,7 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 		Exchange exchange = process.exchange(flow, property, unit);
 		boolean formula = value instanceof String;
 		if (formula)
-			exchange.amountFormula = value.toString();
+			exchange.formula = value.toString();
 		else
 			exchange.amount = (double) value;
 		if (provider) {

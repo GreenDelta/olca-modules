@@ -16,14 +16,6 @@ public class DenseMatrix implements IMatrix {
 		data = new double[rows * columns];
 	}
 
-	/**
-	 * @deprecated just use the `data` field
-	 */
-	@Deprecated
-	public double[] getData() {
-		return data;
-	}
-
 	@Override
 	public int rows() {
 		return rows;

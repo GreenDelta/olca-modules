@@ -1,5 +1,14 @@
 package org.openlca.core.matrix.cache;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.matrix.CalcExchange;
+import org.openlca.core.model.UncertaintyType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -8,16 +17,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.CalcExchange;
-import org.openlca.core.model.UncertaintyType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 
 class ExchangeCache {
 
@@ -95,7 +94,7 @@ class ExchangeCache {
 			CalcExchange e = new CalcExchange();
 			e.processId = r.getLong("f_owner");
 			e.amount = r.getDouble("resulting_amount_value");
-			e.amountFormula = r.getString("resulting_amount_formula");
+			e.formula = r.getString("resulting_amount_formula");
 			double factor = getConversionFactor(r);
 			e.conversionFactor = factor;
 			e.exchangeId = r.getLong("id");

@@ -12,7 +12,6 @@ import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
-import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
@@ -31,7 +30,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 	public void clearDb() {
 		Tests.clearDb();
 	}
-	
+
 	@Test
 	public void testParameter() {
 		Parameter p1 = createParameter("p1", "2*2", null, null);
@@ -164,16 +163,14 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		Parameter p2 = createParameter("p2", null, null, null);
 		ImpactFactor f1 = createImpactFactor("2*p1", null);
 		ImpactFactor f2 = createImpactFactor("2*p2", null);
-		ImpactMethod method = createImpactMethod(new ImpactFactor[] { f1, f2 },
-				new Parameter[] { p1Intern });
+		ImpactCategory impact = createImpactCategory(
+				new ImpactFactor[] { f1, f2 }, new Parameter[] { p1Intern });
 		with((store) -> {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
-			export.write(method);
-			assertTrue(store.contains(ModelType.IMPACT_METHOD,
-					method.refId));
+			export.write(impact);
+			assertTrue(store.contains(ModelType.IMPACT_CATEGORY, impact.refId));
 			assertFalse(store.contains(ModelType.PARAMETER, p1.refId));
-			assertFalse(store
-					.contains(ModelType.PARAMETER, p1Intern.refId));
+			assertFalse(store.contains(ModelType.PARAMETER, p1Intern.refId));
 			assertTrue(store.contains(ModelType.PARAMETER, p2.refId));
 		});
 	}
@@ -188,16 +185,14 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		Uncertainty u2 = createUncertainty("p1", "2*p1", "3*p2");
 		ImpactFactor f1 = createImpactFactor("2", u1);
 		ImpactFactor f2 = createImpactFactor("2", u2);
-		ImpactMethod method = createImpactMethod(new ImpactFactor[] { f1, f2 },
-				new Parameter[] { p1Intern });
+		ImpactCategory impact = createImpactCategory(
+				new ImpactFactor[] { f1, f2 }, new Parameter[] { p1Intern });
 		with((store) -> {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
-			export.write(method);
-			assertTrue(store.contains(ModelType.IMPACT_METHOD,
-					method.refId));
+			export.write(impact);
+			assertTrue(store.contains(ModelType.IMPACT_CATEGORY, impact.refId));
 			assertFalse(store.contains(ModelType.PARAMETER, p1.refId));
-			assertFalse(store
-					.contains(ModelType.PARAMETER, p1Intern.refId));
+			assertFalse(store.contains(ModelType.PARAMETER, p1Intern.refId));
 			assertTrue(store.contains(ModelType.PARAMETER, p2.refId));
 		});
 	}
@@ -205,22 +200,18 @@ public class ParameterReferencesTest extends AbstractZipTest {
 	@Test
 	public void testImpactMethodParameter() {
 		Parameter p1Global = createParameter("p1", "2*2", null, null);
-		Parameter p1 = createParameter("p1", "2*2", ParameterScope.PROCESS,
-				null);
-		Parameter p2 = createParameter("p2", "2*p1*p3", ParameterScope.PROCESS,
-				null);
+		Parameter p1 = createParameter("p1", "2*2", ParameterScope.PROCESS, null);
+		Parameter p2 = createParameter("p2", "2*p1*p3", ParameterScope.PROCESS, null);
 		Parameter p3Global = createParameter("p3", "2*p4", null, null);
 		Parameter p4Global = createParameter("p4", "2", null, null);
-		ImpactMethod method = createImpactMethod(null,
-				new Parameter[] { p1, p2 });
+		ImpactCategory impact = createImpactCategory(
+				null, new Parameter[] { p1, p2 });
 		with((store) -> {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
-			export.write(method);
-			assertTrue(store.contains(ModelType.IMPACT_METHOD,
-					method.refId));
+			export.write(impact);
+			assertTrue(store.contains(ModelType.IMPACT_CATEGORY, impact.refId));
 			assertFalse(store.contains(ModelType.PARAMETER, p1.refId));
-			assertFalse(store
-					.contains(ModelType.PARAMETER, p1Global.refId));
+			assertFalse(store.contains(ModelType.PARAMETER, p1Global.refId));
 			assertFalse(store.contains(ModelType.PARAMETER, p2.refId));
 			assertTrue(store.contains(ModelType.PARAMETER, p3Global.refId));
 			assertTrue(store.contains(ModelType.PARAMETER, p4Global.refId));
@@ -228,7 +219,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 	}
 
 	@Test
-	public void testImpactMethodParameterUncertainty() {
+	public void testImpactCategoryParameterUncertainty() {
 		Uncertainty u1 = createUncertainty("1", "p2", "p3");
 		Uncertainty u2 = createUncertainty("p1", "2", "3");
 		Parameter p1 = createParameter("p1", null, null, null);
@@ -238,19 +229,16 @@ public class ParameterReferencesTest extends AbstractZipTest {
 				ParameterScope.PROCESS, u1);
 		Parameter p2Intern = createParameter("p2", "2*2",
 				ParameterScope.PROCESS, u2);
-		ImpactMethod method = createImpactMethod(null, new Parameter[] {
+		ImpactCategory impact = createImpactCategory(null, new Parameter[] {
 				p1Intern, p2Intern });
 		with((store) -> {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
-			export.write(method);
-			assertTrue(store.contains(ModelType.IMPACT_METHOD,
-					method.refId));
+			export.write(impact);
+			assertTrue(store.contains(ModelType.IMPACT_CATEGORY, impact.refId));
 			assertFalse(store.contains(ModelType.PARAMETER, p1.refId));
-			assertFalse(store
-					.contains(ModelType.PARAMETER, p1Intern.refId));
+			assertFalse(store.contains(ModelType.PARAMETER, p1Intern.refId));
 			assertFalse(store.contains(ModelType.PARAMETER, p2.refId));
-			assertFalse(store
-					.contains(ModelType.PARAMETER, p2Intern.refId));
+			assertFalse(store.contains(ModelType.PARAMETER, p2Intern.refId));
 			assertTrue(store.contains(ModelType.PARAMETER, p3.refId));
 		});
 	}
@@ -292,7 +280,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 			ParameterScope scope, Uncertainty u) {
 		Parameter p = new Parameter();
 		p.name = name;
-		p.value = (double) 1;
+		p.value = 1;
 		if (formula != null) {
 			p.isInputParameter = false;
 			p.formula = formula;
@@ -326,7 +314,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 
 	private Exchange createExchange(String formula, Uncertainty u) {
 		Exchange e = new Exchange();
-		e.amountFormula = formula;
+		e.formula = formula;
 		e.uncertainty = u;
 		return e;
 	}
@@ -350,21 +338,20 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		return f;
 	}
 
-	private ImpactMethod createImpactMethod(ImpactFactor[] factors,
+	private ImpactCategory createImpactCategory(ImpactFactor[] factors,
 			Parameter[] parameters) {
-		ImpactMethod m = new ImpactMethod();
-		m.refId = UUID.randomUUID().toString();
-		if (parameters != null)
+		ImpactCategory c = new ImpactCategory();
+		c.refId = UUID.randomUUID().toString();
+		if (parameters != null) {
 			for (Parameter p : parameters)
-				m.parameters.add(p);
-		if (factors != null) {
-			ImpactCategory c = new ImpactCategory();
-			c.refId = UUID.randomUUID().toString();
-			m.impactCategories.add(c);
-			for (ImpactFactor f : factors)
-				c.impactFactors.add(f);
+				c.parameters.add(p);
 		}
-		return m;
+		if (factors != null) {
+			for (ImpactFactor f : factors) {
+				c.impactFactors.add(f);
+			}
+		}
+		return c;
 	}
 
 	private ParameterRedef createRedef(Parameter p, Uncertainty u) {
@@ -372,11 +359,11 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		redef.name = p.name;
 		if (p.scope == ParameterScope.PROCESS)
 			redef.contextType = ModelType.PROCESS;
-		else if (p.scope == ParameterScope.IMPACT_METHOD)
-			redef.contextType = ModelType.IMPACT_METHOD;
+		else if (p.scope == ParameterScope.IMPACT_CATEGORY)
+			redef.contextType = ModelType.IMPACT_CATEGORY;
 		if (p.scope != ParameterScope.GLOBAL)
 			redef.contextId = 1l;
-		redef.value = (double) 1;
+		redef.value = 1;
 		redef.uncertainty = u;
 		return redef;
 	}

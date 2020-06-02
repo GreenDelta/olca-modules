@@ -19,9 +19,18 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 
 	@Override
 	protected String[] getDescriptorFields() {
-		return new String[] { "id", "ref_id", "name", "description", "version",
-				"last_change", "f_category",
-				"flow_type", "f_location", "f_reference_flow_property" };
+		return new String[] {
+				"id",
+				"ref_id",
+				"name",
+				"description",
+				"version",
+				"last_change",
+				"f_category",
+				"flow_type",
+				"f_location",
+				"f_reference_flow_property"
+		};
 	}
 
 	@Override

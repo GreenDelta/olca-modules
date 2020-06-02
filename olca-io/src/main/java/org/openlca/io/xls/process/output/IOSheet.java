@@ -73,7 +73,7 @@ class IOSheet {
 		Excel.cell(sheet, row, 2, getFlowProperty(exchange));
 		Excel.cell(sheet, row, 3, getUnit(exchange));
 		Excel.cell(sheet, row, 4, exchange.amount);
-		Excel.cell(sheet, row, 5, exchange.amountFormula);
+		Excel.cell(sheet, row, 5, exchange.formula);
 		Excel.cell(sheet, row, 6, exchange.description);
 		config.uncertainty(sheet, row, 7, exchange.uncertainty);
 		if (!forInputs)

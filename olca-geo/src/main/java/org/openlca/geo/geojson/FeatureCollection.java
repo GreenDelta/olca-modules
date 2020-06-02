@@ -11,7 +11,7 @@ public final class FeatureCollection implements Cloneable {
 
 	public final List<Feature> features = new ArrayList<>();
 
-	static FeatureCollection of(Feature f) {
+	public static FeatureCollection of(Feature f) {
 		FeatureCollection coll = new FeatureCollection();
 		if (f != null) {
 			coll.features.add(f);
@@ -19,7 +19,7 @@ public final class FeatureCollection implements Cloneable {
 		return coll;
 	}
 
-	static FeatureCollection of(Geometry g) {
+	public static FeatureCollection of(Geometry g) {
 		FeatureCollection coll = new FeatureCollection();
 		if (g != null) {
 			Feature f = new Feature();
@@ -29,7 +29,7 @@ public final class FeatureCollection implements Cloneable {
 		return coll;
 	}
 
-	static FeatureCollection fromJson(JsonObject obj) {
+	public static FeatureCollection fromJson(JsonObject obj) {
 		FeatureCollection coll = new FeatureCollection();
 		JsonElement elem = obj.get("features");
 		if (elem == null || !elem.isJsonArray())
@@ -44,7 +44,7 @@ public final class FeatureCollection implements Cloneable {
 		return coll;
 	}
 
-	JsonObject toJson() {
+	public JsonObject toJson() {
 		JsonObject obj = new JsonObject();
 		obj.addProperty("type", "FeatureCollection");
 		JsonArray array = new JsonArray();
@@ -55,6 +55,10 @@ public final class FeatureCollection implements Cloneable {
 		}
 		obj.add("features", array);
 		return obj;
+	}
+
+	public Feature first() {
+		return features.isEmpty() ? null : features.get(0);
 	}
 
 	@Override

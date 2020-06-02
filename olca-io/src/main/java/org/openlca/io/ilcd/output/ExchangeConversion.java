@@ -1,8 +1,5 @@
 package org.openlca.io.ilcd.output;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowProperty;
@@ -18,6 +15,9 @@ import org.openlca.ilcd.processes.ProcessInfo;
 import org.openlca.ilcd.util.ExchangeExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 class ExchangeConversion {
 
@@ -58,10 +58,13 @@ class ExchangeConversion {
 		iExchange.resultingAmount = resultingAmount;
 		mapExtensions(oExchange, iExchange);
 		new UncertaintyConverter().map(oExchange, iExchange);
-		if (oExchange.amountFormula != null) {
+		if (oExchange.formula != null) {
 			mapParameter(oExchange, iExchange);
 		} else {
 			iExchange.meanAmount = resultingAmount;
+		}
+		if (oExchange.location != null) {
+			iExchange.location = oExchange.location.code;
 		}
 		return iExchange;
 	}
@@ -88,8 +91,8 @@ class ExchangeConversion {
 		ext.setAmount(oExchange.amount);
 		ext.setBaseUncertainty(oExchange.baseUncertainty);
 		ext.setPedigreeUncertainty(oExchange.dqEntry);
-		if (oExchange.amountFormula != null) {
-			ext.setFormula(oExchange.amountFormula);
+		if (oExchange.formula != null) {
+			ext.setFormula(oExchange.formula);
 		}
 		if (oExchange.unit != null) {
 			ext.setUnitId(oExchange.unit.refId);
@@ -125,7 +128,7 @@ class ExchangeConversion {
 		iExchange.variable = paramName;
 		iExchange.meanAmount = 1d;
 		Parameter parameter = new Parameter();
-		parameter.formula = oExchange.amountFormula;
+		parameter.formula = oExchange.formula;
 		parameter.mean = oExchange.amount;
 		parameter.name = paramName;
 		addParameter(parameter);

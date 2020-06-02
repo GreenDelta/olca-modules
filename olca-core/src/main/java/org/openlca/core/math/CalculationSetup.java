@@ -19,15 +19,26 @@ import org.openlca.core.model.descriptors.NwSetDescriptor;
 public class CalculationSetup {
 
 	public final ProductSystem productSystem;
-	public final CalculationType type;
 
 	public ImpactMethodDescriptor impactMethod;
 	public boolean withCosts = false;
+	public boolean withRegionalization = false;
+
+	/**
+	 * Indicates whether the calculation matrices should be created with associated
+	 * uncertainty distributions. Typically, this is only required for running Monte
+	 * Carlo simulations.
+	 */
+	public boolean withUncertainties = false;
+
 	public NwSetDescriptor nwSet;
 	public AllocationMethod allocationMethod = AllocationMethod.NONE;
 	public final List<ParameterRedef> parameterRedefs = new ArrayList<>();
 
-	/** Only valid for Monte Carlo Simulations */
+	/**
+	 * Only valid for Monte Carlo Simulations (also, withUncertainties needs to be
+	 * true in this case).
+	 */
 	public int numberOfRuns = -1;
 
 	// properties with default values from the product system
@@ -40,8 +51,7 @@ public class CalculationSetup {
 	 * does not add the parameter redefinitions of the product system to this
 	 * setup. Thus, you need to do this in a separate step.
 	 */
-	public CalculationSetup(CalculationType type, ProductSystem system) {
-		this.type = type;
+	public CalculationSetup(ProductSystem system) {
 		this.productSystem = system;
 	}
 

@@ -32,9 +32,11 @@ public class NwSetIOTest {
 			set.name = "nwset_" + i;
 			method.nwSets.add(set);
 		}
+		ImpactCategoryDao cdao = new ImpactCategoryDao(db);
 		for (int i = 0; i < CATEGORY_COUNT; i++) {
 			ImpactCategory category = new ImpactCategory();
 			category.name = "category_" + i;
+			category = cdao.insert(category);
 			method.impactCategories.add(category);
 			for (NwSet set : method.nwSets) {
 				NwFactor factor = new NwFactor();

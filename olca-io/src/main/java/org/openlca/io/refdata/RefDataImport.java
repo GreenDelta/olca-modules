@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.io.ecospold2.input.KMLImport;
 import org.openlca.io.maps.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +42,6 @@ public class RefDataImport implements Runnable {
 			seq.write();
 			database.getEntityFactory().getCache().evictAll();
 			importMappingFiles();
-			importKmlFile();
 		} catch (Exception e) {
 			log.error("Reference data import failed", e);
 		}
@@ -82,13 +80,4 @@ public class RefDataImport implements Runnable {
 		}
 	}
 
-	private void importKmlFile() {
-		File kmlFile = new File(dir, "Geographies.xml");
-		if (!kmlFile.exists()) {
-			log.trace("{} does not exist; no KML import", kmlFile);
-			return;
-		}
-		log.trace("import KML data from {}", kmlFile);
-		new KMLImport(kmlFile, database).run();
-	}
 }

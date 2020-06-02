@@ -6,10 +6,10 @@ import org.junit.Test;
 import org.openlca.core.TestProcess;
 import org.openlca.core.TestSystem;
 import org.openlca.core.Tests;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.results.FullResult;
 
 public class SelfLoopAnalysisTest {
@@ -31,7 +31,7 @@ public class SelfLoopAnalysisTest {
 				.elemOut("f2", 1, "kg")
 				.get();
 		ProductSystem system = TestSystem.of(p1).link(p2).get();
-		system.targetAmount = (double) 2;
+		system.targetAmount = 2;
 		system = Tests.update(system);
 		result = TestSystem.calculate(system);
 	}
@@ -76,9 +76,9 @@ public class SelfLoopAnalysisTest {
 				process(processName), flow(flowName));
 	}
 
-	private FlowDescriptor flow(String name) {
-		for (FlowDescriptor f : result.flowIndex.content()) {
-			if (name.equals(f.name))
+	private IndexFlow flow(String name) {
+		for (IndexFlow f : result.flowIndex.flows()) {
+			if (name.equals(f.flow.name))
 				return f;
 		}
 		return null;

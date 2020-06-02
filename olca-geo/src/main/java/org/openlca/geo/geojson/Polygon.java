@@ -22,13 +22,13 @@ public final class Polygon extends Geometry {
 		this(new ArrayList<>());
 	}
 
-	static Polygon fromJson(JsonObject obj) {
+	public static Polygon fromJson(JsonObject obj) {
 		return Coordinates.readPolygon(
 				obj.get("coordinates"));
 	}
 
 	@Override
-	JsonObject toJson() {
+	public JsonObject toJson() {
 		JsonObject obj = new JsonObject();
 		obj.addProperty("type", "Polygon");
 		obj.add("coordinates",

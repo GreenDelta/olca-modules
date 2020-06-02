@@ -1,8 +1,13 @@
 package org.openlca.io.xls;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.Writer;
+import java.util.Collections;
+import java.util.HashMap;
+
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.DataStructures;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
@@ -13,15 +18,8 @@ import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.io.CategoryPair;
 import org.openlca.io.DisplayValues;
-import org.openlca.julia.JuliaSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.Writer;
-import java.util.Collections;
-import java.util.HashMap;
 
 /**
  * Writes a product system as matrices into CSV files.
@@ -51,13 +49,11 @@ public class CsvMatrixExport implements Runnable {
 		}
 
 		log.trace("Build inventory matrix");
-		CalculationSetup setup = new CalculationSetup(
-				CalculationType.SIMPLE_CALCULATION, conf.productSystem);
+		CalculationSetup setup = new CalculationSetup(conf.productSystem);
 		setup.parameterRedefs.addAll(conf.productSystem.parameterRedefs);
 		setup.allocationMethod = AllocationMethod.NONE;
 		MatrixData data = DataStructures.matrixData(
-				setup, new JuliaSolver(),
-				conf.getMatrixCache(), Collections.emptyMap());
+				setup, conf.db, Collections.emptyMap());
 
 		log.trace("Write technology matrix");
 		try (FileWriter writer = new FileWriter(conf.technologyFile);
@@ -102,13 +98,13 @@ public class CsvMatrixExport implements Runnable {
 	private void writeEnviMatrix(MatrixData data, BufferedWriter buffer)
 			throws Exception {
 		TechIndex techIndex = data.techIndex;
-		FlowIndex flowIndex = data.enviIndex;
+		FlowIndex flowIndex = data.flowIndex;
 		int rows = flowIndex.size();
 		int columns = techIndex.size();
 		writeEnviMatrixHeader(buffer, techIndex);
 		IMatrix matrix = data.enviMatrix;
 		for (int row = 0; row < rows; row++) {
-			FlowDescriptor flow = flowIndex.at(row);
+			FlowDescriptor flow = flowIndex.at(row).flow;
 			writeName(flow, buffer);
 			sep(buffer);
 			writeCategory(flow, buffer);

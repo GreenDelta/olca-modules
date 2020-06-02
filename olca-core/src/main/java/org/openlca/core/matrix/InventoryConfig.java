@@ -17,6 +17,7 @@ public class InventoryConfig {
 
 	public boolean withUncertainties;
 	public boolean withCosts;
+	public boolean withRegionalization;
 	public AllocationMethod allocationMethod;
 
 	/** Optional sub-system results of the product system. */

@@ -221,9 +221,9 @@ class ProcessHandler {
 			return null;
 		double f = mappedFlow.getFactor();
 		e.amount = f * e.amount;
-		if (e.amountFormula != null) {
-			String formula = f + " * ( " + e.amountFormula + " )";
-			e.amountFormula = formula;
+		if (e.formula != null) {
+			String formula = f + " * ( " + e.formula + " )";
+			e.formula = formula;
 		}
 		if (e.uncertainty != null) {
 			e.uncertainty.scale(f);
@@ -265,7 +265,7 @@ class ProcessHandler {
 		} catch (Exception ex) {
 			double val = parameterMapper.eval(amount, scope);
 			e.amount = val;
-			e.amountFormula = amount;
+			e.formula = amount;
 		}
 	}
 

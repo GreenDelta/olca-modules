@@ -1,7 +1,5 @@
 package org.openlca.io.ilcd.output;
 
-import java.util.Date;
-
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Source;
@@ -17,11 +15,13 @@ import org.openlca.ilcd.util.Refs;
 import org.openlca.io.Xml;
 import org.openlca.util.Strings;
 
+import java.util.Date;
+
 class ProcessAdminInfo {
 
 	private final ExportConfig config;
 	private Process process;
-	private ProcessDocumentation documentation;
+	private ProcessDocumentation doc;
 	private AdminInfo iAdminInfo;
 
 	ProcessAdminInfo(ExportConfig config) {
@@ -30,8 +30,10 @@ class ProcessAdminInfo {
 
 	AdminInfo create(Process process) {
 		this.process = process;
-		this.documentation = process.documentation;
+		this.doc = process.documentation;
 		iAdminInfo = new AdminInfo();
+		if (doc == null)
+			return iAdminInfo;
 		createDataGenerator();
 		createDataEntry();
 		createPublication();
@@ -44,9 +46,9 @@ class ProcessAdminInfo {
 		iAdminInfo.dataEntry = dataEntry;
 		dataEntry.timeStamp = Xml.calendar(new Date());
 		dataEntry.formats.add(Refs.ilcd());
-		if (documentation.dataDocumentor != null) {
+		if (doc.dataDocumentor != null) {
 			Ref ref = ExportDispatch.forwardExport(
-					documentation.dataDocumentor, config);
+					doc.dataDocumentor, config);
 			if (ref != null) {
 				dataEntry.documentor = ref;
 			}
@@ -54,37 +56,36 @@ class ProcessAdminInfo {
 	}
 
 	private void createDataGenerator() {
-		if (documentation.dataGenerator != null) {
+		if (doc.dataGenerator != null) {
 			DataGenerator generator = new DataGenerator();
 			iAdminInfo.dataGenerator = generator;
 			Ref ref = ExportDispatch.forwardExport(
-					documentation.dataGenerator, config);
+					doc.dataGenerator, config);
 			if (ref != null)
 				generator.contacts.add(ref);
 		}
 	}
 
 	private void createPublication() {
-		Publication publication = new Publication();
-		iAdminInfo.publication = publication;
+		Publication pub = new Publication();
+		iAdminInfo.publication = pub;
 		if (process.lastChange != 0)
-			publication.lastRevision = Xml.calendar(process.lastChange);
-		String version = Version.asString(process.version);
-		publication.version = version;
-		publication.copyright = documentation.copyright;
-		mapDataSetOwner(publication);
-		if (!Strings.nullOrEmpty(documentation.restrictions)) {
-			publication.accessRestrictions.add(
-					LangString.of(documentation.restrictions,
+			pub.lastRevision = Xml.calendar(process.lastChange);
+		pub.version = Version.asString(process.version);
+		pub.copyright = doc.copyright;
+		mapDataSetOwner(pub);
+		if (!Strings.nullOrEmpty(doc.restrictions)) {
+			pub.accessRestrictions.add(
+					LangString.of(doc.restrictions,
 							config.lang));
 		}
-		mapPublicationSource(publication);
+		mapPublicationSource(pub);
 	}
 
 	private void mapDataSetOwner(Publication publication) {
-		if (documentation.dataSetOwner != null) {
+		if (doc.dataSetOwner != null) {
 			Ref ref = ExportDispatch.forwardExport(
-					documentation.dataSetOwner, config);
+					doc.dataSetOwner, config);
 			if (ref != null) {
 				publication.owner = ref;
 			}
@@ -92,7 +93,7 @@ class ProcessAdminInfo {
 	}
 
 	private void mapPublicationSource(Publication publication) {
-		Source source = documentation.publication;
+		Source source = doc.publication;
 		if (source == null)
 			return;
 		Ref ref = ExportDispatch
@@ -102,19 +103,19 @@ class ProcessAdminInfo {
 	}
 
 	private void createCommissionerAndGoal() {
-		if (Strings.nullOrEmpty(documentation.intendedApplication)
-				&& Strings.nullOrEmpty(documentation.project))
+		if (Strings.nullOrEmpty(doc.intendedApplication)
+				&& Strings.nullOrEmpty(doc.project))
 			return;
 		CommissionerAndGoal comAndGoal = new CommissionerAndGoal();
 		iAdminInfo.commissionerAndGoal = comAndGoal;
-		if (!Strings.nullOrEmpty(documentation.intendedApplication)) {
+		if (!Strings.nullOrEmpty(doc.intendedApplication)) {
 			comAndGoal.intendedApplications.add(
-					LangString.of(documentation.intendedApplication,
+					LangString.of(doc.intendedApplication,
 							config.lang));
 		}
-		if (!Strings.nullOrEmpty(documentation.project)) {
+		if (!Strings.nullOrEmpty(doc.project)) {
 			comAndGoal.project.add(
-					LangString.of(documentation.project,
+					LangString.of(doc.project,
 							config.lang));
 		}
 	}

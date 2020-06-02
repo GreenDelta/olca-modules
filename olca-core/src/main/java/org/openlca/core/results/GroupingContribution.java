@@ -1,9 +1,10 @@
 package org.openlca.core.results;
 
+import java.util.Collections;
 import java.util.List;
 
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 /**
@@ -22,10 +23,10 @@ public class GroupingContribution {
 	}
 
 	/** Calculates contributions to an inventory flow. */
-	public ContributionSet<ProcessGrouping> calculate(
-			final FlowDescriptor flow) {
+	public List<Contribution<ProcessGrouping>> calculate(
+			IndexFlow flow) {
 		if (result == null || groupings == null)
-			return ContributionSet.empty();
+			return Collections.emptyList();
 		double total = result.getTotalFlowResult(flow);
 		return Contributions.calculate(groupings, total, grouping -> {
 			double amount = 0;
@@ -37,10 +38,10 @@ public class GroupingContribution {
 	}
 
 	/** Calculates contributions to an impact assessment method. */
-	public ContributionSet<ProcessGrouping> calculate(
+	public List<Contribution<ProcessGrouping>> calculate(
 			final ImpactCategoryDescriptor impact) {
 		if (result == null || groupings == null)
-			return ContributionSet.empty();
+			return Collections.emptyList();
 		double total = result.getTotalImpactResult(impact);
 		return Contributions.calculate(groupings, total, grouping -> {
 			double amount = 0;

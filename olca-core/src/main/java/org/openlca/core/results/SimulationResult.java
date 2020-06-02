@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 /**
@@ -25,7 +25,7 @@ public class SimulationResult extends BaseResult {
 
 	public SimulationResult(MatrixData data) {
 		this.techIndex = data.techIndex;
-		this.flowIndex = data.enviIndex;
+		this.flowIndex = data.flowIndex;
 		this.impactIndex = data.impactIndex;
 	}
 
@@ -79,7 +79,7 @@ public class SimulationResult extends BaseResult {
 	/**
 	 * Get the result of the given flow in the iteration i (zero based).
 	 */
-	public double get(FlowDescriptor flow, int i) {
+	public double get(IndexFlow flow, int i) {
 		if (flowIndex == null)
 			return 0;
 		int arrayIdx = flowIndex.of(flow);
@@ -91,7 +91,7 @@ public class SimulationResult extends BaseResult {
 	 * iteration i (zero based).
 	 */
 	public double getDirect(ProcessProduct product,
-			FlowDescriptor flow, int i) {
+			IndexFlow flow, int i) {
 		PinnedContributions pc = pinned.get(product);
 		if (pc == null || flowIndex == null)
 			return 0;
@@ -103,7 +103,7 @@ public class SimulationResult extends BaseResult {
 	 * Get the direct contribution of the given product to the given flow for
 	 * all iterations.
 	 */
-	public double[] getAllDirect(ProcessProduct product, FlowDescriptor flow) {
+	public double[] getAllDirect(ProcessProduct product, IndexFlow flow) {
 		int count = getNumberOfRuns();
 		double[] vals = new double[count];
 		for (int i = 0; i < count; i++) {
@@ -117,7 +117,7 @@ public class SimulationResult extends BaseResult {
 	 * the iteration i (zero based).
 	 */
 	public double getUpstream(ProcessProduct product,
-			FlowDescriptor flow, int i) {
+			IndexFlow flow, int i) {
 		PinnedContributions pc = pinned.get(product);
 		if (pc == null || flowIndex == null)
 			return 0;
@@ -130,7 +130,7 @@ public class SimulationResult extends BaseResult {
 	 * all iterations.
 	 */
 	public double[] getAllUpstream(ProcessProduct product,
-			FlowDescriptor flow) {
+			IndexFlow flow) {
 		int count = getNumberOfRuns();
 		double[] vals = new double[count];
 		for (int i = 0; i < count; i++) {
@@ -142,7 +142,7 @@ public class SimulationResult extends BaseResult {
 	/**
 	 * Get all simulation results of the given flow.
 	 */
-	public double[] getAll(FlowDescriptor flow) {
+	public double[] getAll(IndexFlow flow) {
 		double[] vals = new double[flowResults.size()];
 		for (int i = 0; i < flowResults.size(); i++) {
 			vals[i] = get(flow, i);

@@ -28,8 +28,6 @@ public class Descriptors {
 			return null;
 		if (entity instanceof CategorizedEntity)
 			return toDescriptor((CategorizedEntity) entity);
-		if (entity instanceof ImpactCategory)
-			return toDescriptor((ImpactCategory) entity);
 		if (entity instanceof NwSet)
 			return toDescriptor((NwSet) entity);
 		if (entity instanceof Unit)
@@ -42,6 +40,8 @@ public class Descriptors {
 			return null;
 		if (entity instanceof Project)
 			return toDescriptor((Project) entity);
+		if (entity instanceof ImpactCategory)
+			return toDescriptor((ImpactCategory) entity);
 		if (entity instanceof ImpactMethod)
 			return toDescriptor((ImpactMethod) entity);
 		if (entity instanceof ProductSystem)
@@ -205,13 +205,13 @@ public class Descriptors {
 		return d;
 	}
 
-	public static ImpactCategoryDescriptor toDescriptor(ImpactCategory impactCategory) {
-		if (impactCategory == null)
+	public static ImpactCategoryDescriptor toDescriptor(ImpactCategory impact) {
+		if (impact == null)
 			return null;
-		ImpactCategoryDescriptor descriptor = new ImpactCategoryDescriptor();
-		setBaseValues(impactCategory, descriptor);
-		descriptor.referenceUnit = impactCategory.referenceUnit;
-		return descriptor;
+		ImpactCategoryDescriptor d = new ImpactCategoryDescriptor();
+		setBaseValues(impact, d);
+		d.referenceUnit = impact.referenceUnit;
+		return d;
 	}
 
 	public static NwSetDescriptor toDescriptor(NwSet nwSet) {

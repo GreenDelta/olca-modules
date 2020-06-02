@@ -9,13 +9,12 @@ import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ImpactMethodDao;
+import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
-import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.BaseDescriptor;
@@ -51,26 +50,21 @@ public class FlowUseSearchTest {
 	}
 
 	@Test
-	public void testFindInImpactMethods() {
-		ImpactMethod method = createMethod();
-		List<CategorizedDescriptor> results = search.findUses(Descriptors
-				.toDescriptor(flow));
-		new ImpactMethodDao(database).delete(method);
-		BaseDescriptor expected = Descriptors.toDescriptor(method);
-		Assert.assertEquals(1, results.size());
-		Assert.assertEquals(expected, results.get(0));
-	}
-
-	private ImpactMethod createMethod() {
-		ImpactMethod method = new ImpactMethod();
-		method.name = "method";
+	public void testFindInImpactCategories() {
 		ImpactFactor iFactor = new ImpactFactor();
 		iFactor.flow = flow;
-		ImpactCategory category = new ImpactCategory();
-		category.impactFactors.add(iFactor);
-		method.impactCategories.add(category);
-		return new ImpactMethodDao(database).insert(method);
+		ImpactCategory ic = new ImpactCategory();
+		ic.impactFactors.add(iFactor);
+		ImpactCategoryDao dao = new ImpactCategoryDao(database);
+		dao.insert(ic);
+		List<CategorizedDescriptor> results = search.findUses(
+				Descriptors.toDescriptor(flow));
+		dao.delete(ic);
+		Assert.assertEquals(1, results.size());
+		Assert.assertEquals(
+				Descriptors.toDescriptor(ic), results.get(0));
 	}
+
 
 	@Test
 	public void testFindInProcesses() {

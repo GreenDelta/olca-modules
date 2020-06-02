@@ -1,16 +1,18 @@
 package org.openlca.core.results;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.List;
 
 import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+
+import gnu.trove.set.hash.TLongHashSet;
 
 /**
  * `BaseResult` is a common (abstract) super class of different result
@@ -20,23 +22,22 @@ import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 public abstract class BaseResult implements IResult {
 
 	/**
-	 * The index $\mathit{Idx}_A$ of the technology matrix $\mathbf{A}$. It maps
-	 * the process-product pairs (or process-waste pairs) $\mathit{P}$ of the
-	 * product system to the respective $n$ rows and columns of $\mathbf{A}$. If
-	 * the product system contains other product systems as sub-systems, these
-	 * systems are handled like processes and are also mapped as pair with their
-	 * quantitative reference flow to that index (and also their processes
-	 * etc.).
-	 * 
+	 * The index $\mathit{Idx}_A$ of the technology matrix $\mathbf{A}$. It maps the
+	 * process-product pairs (or process-waste pairs) $\mathit{P}$ of the product
+	 * system to the respective $n$ rows and columns of $\mathbf{A}$. If the product
+	 * system contains other product systems as sub-systems, these systems are
+	 * handled like processes and are also mapped as pair with their quantitative
+	 * reference flow to that index (and also their processes etc.).
+	 * <p>
 	 * $$\mathit{Idx}_A: \mathit{P} \mapsto [0 \dots n-1]$$
 	 */
 	public TechIndex techIndex;
 
 	/**
-	 * The row index $\mathit{Idx}_B$ of the intervention matrix $\mathbf{B}$.
-	 * It maps the (elementary) flows $\mathit{F}$ of the processes in the
-	 * product system to the $k$ rows of $\mathbf{B}$.
-	 * 
+	 * The row index $\mathit{Idx}_B$ of the intervention matrix $\mathbf{B}$. It
+	 * maps the (elementary) flows $\mathit{F}$ of the processes in the product
+	 * system to the $k$ rows of $\mathbf{B}$.
+	 * <p>
 	 * $$\mathit{Idx}_B: \mathit{F} \mapsto [0 \dots k-1]$$
 	 */
 	public FlowIndex flowIndex;
@@ -45,10 +46,16 @@ public abstract class BaseResult implements IResult {
 	 * The row index $\mathit{Idx}_C$ of the matrix with the characterization
 	 * factors $\mathbf{C}$. It maps the LCIA categories $\mathit{C}$ to the $l$
 	 * rows of $\mathbf{C}$.
-	 * 
+	 * <p>
 	 * $$\mathit{Idx}_C: \mathit{C} \mapsto [0 \dots l-1]$$
 	 */
 	public DIndex<ImpactCategoryDescriptor> impactIndex;
+
+	// cached descriptor lists which are initialized lazily
+	private ArrayList<IndexFlow> _flows;
+	private ArrayList<ImpactCategoryDescriptor> _impacts;
+	private ArrayList<ProcessProduct> _products;
+	private ArrayList<CategorizedDescriptor> _processes;
 
 	@Override
 	public boolean hasImpactResults() {
@@ -61,50 +68,69 @@ public abstract class BaseResult implements IResult {
 	}
 
 	@Override
-	public boolean isInput(FlowDescriptor flow) {
+	public final List<IndexFlow> getFlows() {
+		if (_flows != null)
+			return _flows;
 		if (flowIndex == null)
-			return false;
-		return flowIndex.isInput(flow);
+			return Collections.emptyList();
+		_flows = new ArrayList<>();
+		flowIndex.each(_flows::add);
+		return _flows;
 	}
 
 	@Override
-	public Set<FlowDescriptor> getFlows() {
-		if (flowIndex == null)
-			return Collections.emptySet();
-		return flowIndex.content();
-	}
-
-	@Override
-	public Set<ImpactCategoryDescriptor> getImpacts() {
+	public final List<ImpactCategoryDescriptor> getImpacts() {
+		if (_impacts != null)
+			return _impacts;
 		if (impactIndex == null)
-			return Collections.emptySet();
-		return impactIndex.content();
+			return Collections.emptyList();
+		_impacts = new ArrayList<>();
+		_impacts.addAll(impactIndex.content());
+		return _impacts;
 	}
 
 	/**
-	 * Get the process-product pairs (or process-waste pairs) $\mathit{P}$ of
-	 * the product system. If the product system contains other product systems
-	 * as sub-systems, these systems are handled like processes and are also
-	 * included as pairs with their quantitative reference flow.
+	 * Get the process-product pairs (or process-waste pairs) $\mathit{P}$ of the
+	 * product system. If the product system contains other product systems as
+	 * sub-systems, these systems are handled like processes and are also included
+	 * as pairs with their quantitative reference flow.
 	 */
-	public Set<ProcessProduct> getProviders() {
+	public final List<ProcessProduct> getProviders() {
+		if (_products != null)
+			return _products;
 		if (techIndex == null)
-			return Collections.emptySet();
-		return techIndex.content();
+			return Collections.emptyList();
+		_products = new ArrayList<>();
+		_products.addAll(techIndex.content());
+		return _products;
 	}
 
 	@Override
-	public Set<CategorizedDescriptor> getProcesses() {
-		return getProviders().stream()
-				.map(p -> p.process)
-				.collect(Collectors.toSet());
+	public final List<CategorizedDescriptor> getProcesses() {
+		if (_processes != null)
+			return _processes;
+		if (techIndex == null)
+			return Collections.emptyList();
+		_processes = new ArrayList<>();
+		TLongHashSet handled = new TLongHashSet();
+		for (ProcessProduct product : getProviders()) {
+			CategorizedDescriptor process = product.process;
+			if (process == null || handled.contains(process.id))
+				continue;
+			_processes.add(process);
+			handled.add(process.id);
+		}
+		return _processes;
 	}
 
-	/** Switches the sign for input-flows. */
-	double adopt(FlowDescriptor flow, double value) {
-		if (value == 0)
-			return 0; // avoid -0 in the results
-		return flowIndex.isInput(flow) ? -value : value;
+	/**
+	 * Switches the sign for input-flows.
+	 */
+	double adopt(IndexFlow flow, double value) {
+		if (flow == null || !flow.isInput)
+			return value;
+		// avoid -0 in the results
+		return value == 0 ? 0 : -value;
 	}
 
 }

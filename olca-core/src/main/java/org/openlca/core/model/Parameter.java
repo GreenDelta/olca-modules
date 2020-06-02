@@ -57,20 +57,6 @@ public class Parameter extends CategorizedEntity {
 	public Uncertainty uncertainty;
 
 	/**
-	 * A reference to an external source of the parameter (e.g. a shape file in
-	 * a regionalized LCIA method).
-	 */
-	@Column(name = "external_source")
-	public String externalSource;
-
-	/**
-	 * If the parameter has an external source the type of this source can be
-	 * specified in this field.
-	 */
-	@Column(name = "source_type")
-	public String sourceType;
-
-	/**
 	 * Returns true if the given name is a valid identifier for a parameter. We
 	 * allow the same rules as for Java identifiers.
 	 */
@@ -107,8 +93,6 @@ public class Parameter extends CategorizedEntity {
 		if (uncertainty != null)
 			clone.uncertainty = uncertainty.clone();
 		clone.value = value;
-		clone.externalSource = externalSource;
-		clone.sourceType = sourceType;
 		return clone;
 	}
 

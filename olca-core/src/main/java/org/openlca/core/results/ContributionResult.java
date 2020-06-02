@@ -3,11 +3,11 @@ package org.openlca.core.results;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 /**
@@ -30,27 +30,25 @@ public class ContributionResult extends SimpleResult {
 
 	/**
 	 * A LCIA category * process-product matrix that contains the direct
-	 * contributions of the processes to the LCIA result. This can be calculated
-	 * by a matrix-matrix multiplication of the direct inventory contributions
-	 * $\mathbf{G}$ with the matrix with the characterization factors
-	 * $\mathbf{C}$:
+	 * contributions of the processes to the LCIA result. This can be calculated by
+	 * a matrix-matrix multiplication of the direct inventory contributions
+	 * $\mathbf{G}$ with the matrix with the characterization factors $\mathbf{C}$:
 	 *
 	 * $$\mathbf{H} = \mathbf{C} \ \mathbf{G}$$
 	 */
 	public IMatrix directImpactResults;
 
 	/**
-	 * Contains the direct contributions $\mathbf{k}_s$ of the process-product
-	 * pairs to the total net-costs ($\odot$ denotes element-wise
-	 * multiplication):
+	 * Contains the direct contributions $\mathbf{k}_s$ of the process-product pairs
+	 * to the total net-costs ($\odot$ denotes element-wise multiplication):
 	 *
 	 * $$\mathbf{k}_s = \mathbf{k} \odot \mathbf{s}$$
 	 */
 	public double[] directCostResults;
 
 	/**
-	 * A LCIA category * flow matrix that contains the direct contributions of
-	 * the elementary flows to the LCIA result. This matrix can be calculated by
+	 * A LCIA category * flow matrix that contains the direct contributions of the
+	 * elementary flows to the LCIA result. This matrix can be calculated by
 	 * column-wise scaling of the matrix with the characterization factors
 	 * $\mathbf{C}$ with the inventory result $\mathbf{g}$:
 	 *
@@ -59,8 +57,8 @@ public class ContributionResult extends SimpleResult {
 	public IMatrix directFlowImpacts;
 
 	/**
-	 * A LCIA category * flow matrix $\mathbf{C}$ the contains the
-	 * characterization factors.
+	 * A LCIA category * flow matrix $\mathbf{C}$ the contains the characterization
+	 * factors.
 	 */
 	public IMatrix impactFactors;
 
@@ -73,8 +71,7 @@ public class ContributionResult extends SimpleResult {
 	 * Get the direct contribution of the given process-product pair $j$ to the
 	 * inventory result of elementary flow $i$: $\mathbf{G}[i,j]$.
 	 */
-	public double getDirectFlowResult(ProcessProduct product,
-			FlowDescriptor flow) {
+	public double getDirectFlowResult(ProcessProduct product, IndexFlow flow) {
 		if (!hasFlowResults())
 			return 0;
 		int row = flowIndex.of(flow);
@@ -83,12 +80,12 @@ public class ContributionResult extends SimpleResult {
 	}
 
 	/**
-	 * Get the direct contribution of the given process $j$ to the inventory
-	 * result of elementary flow $i$. When the process has multiple products it
-	 * is the sum of the contributions of all of these process-product pairs.
+	 * Get the direct contribution of the given process $j$ to the inventory result
+	 * of elementary flow $i$. When the process has multiple products it is the sum
+	 * of the contributions of all of these process-product pairs.
 	 */
 	public double getDirectFlowResult(CategorizedDescriptor process,
-			FlowDescriptor flow) {
+			IndexFlow flow) {
 		double total = 0;
 		for (ProcessProduct p : techIndex.getProviders(process)) {
 			total += getDirectFlowResult(p, flow);
@@ -97,28 +94,25 @@ public class ContributionResult extends SimpleResult {
 	}
 
 	/**
-	 * Get the direct contributions of the given process $j$ to the inventory
-	 * result of all elementary flows in the product system.
+	 * Get the direct contributions of the given process $j$ to the inventory result
+	 * of all elementary flows in the product system.
 	 */
 	public List<FlowResult> getFlowContributions(
 			CategorizedDescriptor process) {
 		List<FlowResult> results = new ArrayList<>();
 		flowIndex.each((i, flow) -> {
-			FlowResult r = new FlowResult();
-			r.flow = flow;
-			r.input = flowIndex.isInput(flow.id);
-			r.value = getDirectFlowResult(process, flow);
-			results.add(r);
+			double value = getDirectFlowResult(process, flow);
+			results.add(new FlowResult(flow, value));
 		});
 		return results;
 	}
 
 	/**
-	 * Get the direct contributions of the processes in the system to the
-	 * inventory result of the given flow.
+	 * Get the direct contributions of the processes in the system to the inventory
+	 * result of the given flow.
 	 */
-	public ContributionSet<CategorizedDescriptor> getProcessContributions(
-			FlowDescriptor flow) {
+	public List<Contribution<CategorizedDescriptor>> getProcessContributions(
+			IndexFlow flow) {
 		return Contributions.calculate(
 				getProcesses(),
 				getTotalFlowResult(flow),
@@ -126,8 +120,8 @@ public class ContributionResult extends SimpleResult {
 	}
 
 	/**
-	 * Get the direct contribution of the given process-product pair $j$ to the
-	 * LCIA category result $j$: $\mathbf{D}[i,j]$.
+	 * Get the direct contribution of the given process-product pair $j$ to the LCIA
+	 * category result $j$: $\mathbf{D}[i,j]$.
 	 */
 	public double getDirectImpactResult(ProcessProduct product,
 			ImpactCategoryDescriptor impact) {
@@ -153,8 +147,8 @@ public class ContributionResult extends SimpleResult {
 	}
 
 	/**
-	 * Get the direct contributions of the given process $j$ to the LCIA
-	 * category results.
+	 * Get the direct contributions of the given process $j$ to the LCIA category
+	 * results.
 	 */
 	public List<ImpactResult> getImpactContributions(
 			CategoryDescriptor process) {
@@ -172,7 +166,7 @@ public class ContributionResult extends SimpleResult {
 	 * Get the direct contributions of the processes in the system to the LCIA
 	 * result of the given LCIA category.
 	 */
-	public ContributionSet<CategorizedDescriptor> getProcessContributions(
+	public List<Contribution<CategorizedDescriptor>> getProcessContributions(
 			ImpactCategoryDescriptor impact) {
 		return Contributions.calculate(
 				getProcesses(),
@@ -181,8 +175,8 @@ public class ContributionResult extends SimpleResult {
 	}
 
 	/**
-	 * Get the direct contribution of the given process-product pair $j$ to the
-	 * LCC result: $\mathbf{k}_s[j]$.
+	 * Get the direct contribution of the given process-product pair $j$ to the LCC
+	 * result: $\mathbf{k}_s[j]$.
 	 */
 	public double getDirectCostResult(ProcessProduct product) {
 		if (!hasCostResults())
@@ -194,9 +188,9 @@ public class ContributionResult extends SimpleResult {
 	}
 
 	/**
-	 * Get the direct contribution of the given process $j$ to the LCC result.
-	 * When the process has multiple products it is the sum of the contributions
-	 * of all of these process-product pairs.
+	 * Get the direct contribution of the given process $j$ to the LCC result. When
+	 * the process has multiple products it is the sum of the contributions of all
+	 * of these process-product pairs.
 	 */
 	public double getDirectCostResult(CategorizedDescriptor process) {
 		double total = 0;
@@ -209,20 +203,22 @@ public class ContributionResult extends SimpleResult {
 	/**
 	 * Get the direct contributions of all processes to the LCC result.
 	 */
-	public ContributionSet<CategorizedDescriptor> getProcessCostContributions() {
+	public List<Contribution<CategorizedDescriptor>> getProcessCostContributions() {
 		return Contributions.calculate(
 				getProcesses(),
 				totalCosts,
-				d -> getDirectCostResult(d));
+				this::getDirectCostResult);
 	}
 
 	/**
-	 * Get the direct contribution of the given elementary flow to the LCIA
-	 * result of the given LCIA category.
+	 * Get the direct contribution of the given elementary flow to the LCIA result
+	 * of the given LCIA category.
 	 */
-	public double getDirectFlowImpact(FlowDescriptor flow,
+	public double getDirectFlowImpact(IndexFlow flow,
 			ImpactCategoryDescriptor impact) {
 		if (!hasImpactResults())
+			return 0;
+		if (impact == null || flow == null)
 			return 0;
 		int row = impactIndex.of(impact);
 		int col = flowIndex.of(flow);
@@ -236,13 +232,32 @@ public class ContributionResult extends SimpleResult {
 			ImpactCategoryDescriptor impact) {
 		List<FlowResult> results = new ArrayList<>();
 		flowIndex.each((i, flow) -> {
-			FlowResult r = new FlowResult();
-			r.flow = flow;
-			r.input = flowIndex.isInput(flow);
-			r.value = getDirectFlowImpact(flow, impact);
-			results.add(r);
+			double value = getDirectFlowImpact(flow, impact);
+			results.add(new FlowResult(flow, value));
 		});
 		return results;
+	}
+
+	/**
+	 * Get the characterization factor for the given flow (and location in case of a
+	 * regionalized result).
+	 */
+	public double getImpactFactor(ImpactCategoryDescriptor impact,
+			IndexFlow flow) {
+		if (impact == null || flow == null)
+			return 0;
+		int row = impactIndex.of(impact);
+		int col = flowIndex.of(flow);
+		double value = getValue(impactFactors, row, col);
+		if (!flow.isInput)
+			return value;
+
+		// characterization factors for input flows are negative in the
+		// matrix. A simple abs() is not correct because the original
+		// characterization factor maybe was already negative (-(-(f))).
+		if (value == 0)
+			return 0; // avoid -0
+		return -value;
 	}
 
 	double getValue(IMatrix matrix, int row, int col) {

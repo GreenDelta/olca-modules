@@ -2,7 +2,6 @@ package org.openlca.io.xls.results.system;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.List;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -11,9 +10,6 @@ import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.data_quality.DQCalculationSetup;
 import org.openlca.core.math.data_quality.DQResult;
 import org.openlca.core.model.NwSet;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.SimpleResult;
@@ -37,9 +33,6 @@ public class ResultExport implements Runnable {
 	DQResult dqResult;
 
 	private boolean success;
-	List<CategorizedDescriptor> processes;
-	List<FlowDescriptor> flows;
-	List<ImpactCategoryDescriptor> impacts;
 	NwSet nwSet;
 	Workbook workbook;
 	CellWriter writer;
@@ -50,15 +43,20 @@ public class ResultExport implements Runnable {
 		this.result = result;
 		this.file = file;
 		this.cache = cache;
+		if (setup.nwSet != null) {
+			this.nwSet = cache.get(NwSet.class, setup.nwSet.id);
+		}
 	}
 
 	public void setDQResult(DQResult dqResult) {
 		this.dqResult = dqResult;
 	}
 
+	@Override
 	public void run() {
 		try {
-			prepare();
+			workbook = new SXSSFWorkbook(-1);
+			writer = new CellWriter(cache, workbook);
 			DQCalculationSetup dqSetup = dqResult != null
 					? dqResult.setup
 					: null;
@@ -100,35 +98,15 @@ public class ResultExport implements Runnable {
 		}
 	}
 
-	private void prepare() {
-		processes = Util.processes(result);
-		flows = Util.flows(result, cache);
-		impacts = Util.impacts(result);
-		nwSet = Util.nwSet(setup, cache);
-		// no default flushing (see Excel.cell)!
-		workbook = new SXSSFWorkbook(-1);
-		writer = new CellWriter(cache, workbook);
-	}
-
 	public boolean doneWithSuccess() {
 		return success;
 	}
 
 	private String getType() {
-		if (setup.type == null)
-			return "?";
-		switch (setup.type) {
-		case CONTRIBUTION_ANALYSIS:
-			return "Contribution analysis";
-		case MONTE_CARLO_SIMULATION:
-			return "Monte Carlo simulation";
-		case REGIONALIZED_CALCULATION:
-			return "Regionalized LCIA calculation";
-		case SIMPLE_CALCULATION:
-			return "Simple calculation";
-		default:
-			return "?";
-		}
+		if (result instanceof ContributionResult)
+			return "Contribution result";
+		if (result instanceof FullResult)
+			return "Analysis result";
+		return "Simple result";
 	}
-
 }

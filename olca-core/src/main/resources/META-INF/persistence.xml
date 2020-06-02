@@ -29,6 +29,7 @@
 		<class>org.openlca.core.model.ProductSystem</class>
 		<class>org.openlca.core.model.Project</class>
 		<class>org.openlca.core.model.ProjectVariant</class>
+		<class>org.openlca.core.model.ParameterRedefSet</class>
 		<class>org.openlca.core.model.SocialAspect</class>
 		<class>org.openlca.core.model.Source</class>
 		<class>org.openlca.core.model.Unit</class>

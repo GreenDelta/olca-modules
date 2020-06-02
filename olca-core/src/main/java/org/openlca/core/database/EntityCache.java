@@ -45,15 +45,17 @@ import com.google.common.collect.Multimap;
  */
 public class EntityCache {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	public final IDatabase db;
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	private LoadingCache<Key, Object> cache;
 
-	public static EntityCache create(IDatabase database) {
-		return new EntityCache(database);
+	public static EntityCache create(IDatabase db) {
+		return new EntityCache(db);
 	}
 
-	private EntityCache(IDatabase database) {
-		cache = CacheBuilder.newBuilder().build(new Loader(database));
+	private EntityCache(IDatabase db) {
+		this.db = db;
+		cache = CacheBuilder.newBuilder().build(new Loader(db));
 	}
 
 	public <T> T get(Class<T> clazz, long id) {

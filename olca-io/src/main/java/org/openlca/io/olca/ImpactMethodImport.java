@@ -1,11 +1,13 @@
 package org.openlca.io.olca;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
-import org.openlca.core.model.Flow;
 import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.NwFactor;
 import org.openlca.core.model.NwSet;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.util.Strings;
@@ -41,60 +43,43 @@ class ImpactMethodImport {
 		}
 	}
 
-	private void createMethod(ImpactMethodDescriptor descriptor) {
-		ImpactMethod srcMethod = srcDao.getForId(descriptor.id);
-		ImpactMethod destMethod = srcMethod.clone();
-		destMethod.refId = srcMethod.refId;
-		destMethod.category = refs.switchRef(srcMethod.category);
-		switchFactorReferences(destMethod);
-		// we need to set the reference IDs from the source as they are
-		// generated
-		// new in the clone method.
-		switchImpactRefIds(srcMethod, destMethod);
-		switchNwSetRefIds(srcMethod, destMethod);
-		destMethod = destDao.insert(destMethod);
-		seq.put(seq.IMPACT_METHOD, srcMethod.refId, destMethod.id);
-		for (NwSet nwSet : destMethod.nwSets)
+	private void createMethod(ImpactMethodDescriptor d) {
+		ImpactMethod src = srcDao.getForId(d.id);
+		ImpactMethod dest = src.clone();
+		dest.refId = src.refId;
+		dest.category = refs.switchRef(src.category);
+		switchImpacts(dest);
+		switchNwSets(src, dest);
+		dest = destDao.insert(dest);
+		seq.put(seq.IMPACT_METHOD, src.refId, dest.id);
+		for (NwSet nwSet : dest.nwSets) {
 			seq.put(seq.NW_SET, nwSet.refId, nwSet.id);
-	}
-
-	private void switchFactorReferences(ImpactMethod destMethod) {
-		for (ImpactCategory category : destMethod.impactCategories) {
-			for (ImpactFactor factor : category.impactFactors) {
-				factor.flow = refs.switchRef(factor.flow);
-				factor.unit = refs.switchRef(factor.unit);
-				Flow destFlow = factor.flow; // already switched
-				factor.flowPropertyFactor = refs.switchRef(
-				factor.flowPropertyFactor, destFlow);
-			}
 		}
 	}
 
-	private void switchImpactRefIds(ImpactMethod srcMethod,
-			ImpactMethod destMethod) {
-		for (ImpactCategory srcCat : srcMethod.impactCategories) {
-			for (ImpactCategory destCat : destMethod.impactCategories) {
-				if (areEqual(srcCat, destCat)) {
-					destCat.refId = srcCat.refId;
-					break;
-				}
+
+	private void switchImpacts(ImpactMethod dest) {
+		List<ImpactCategory> switched = new ArrayList<>(
+				dest.impactCategories.size());
+		for (ImpactCategory srcCat : dest.impactCategories) {
+			ImpactCategory destCat = refs.switchRef(srcCat);
+			if (destCat != null) {
+				switched.add(destCat);
 			}
 		}
+		dest.impactCategories.clear();
+		dest.impactCategories.addAll(switched);
 	}
 
-	private boolean areEqual(ImpactCategory srcCat, ImpactCategory destCat) {
-		return Strings.nullOrEqual(srcCat.name, destCat.name)
-				&& Strings.nullOrEqual(srcCat.referenceUnit,
-						destCat.referenceUnit)
-				&& Strings.nullOrEqual(srcCat.description,
-						destCat.description)
-				&& (srcCat.impactFactors.size() == destCat.impactFactors.size());
-	}
-
-	private void switchNwSetRefIds(ImpactMethod srcMethod,
-			ImpactMethod destMethod) {
-		for (NwSet srcNwSet : srcMethod.nwSets) {
-			for (NwSet destNwSet : destMethod.nwSets) {
+	private void switchNwSets(
+			ImpactMethod srcMethod, ImpactMethod destMethod) {
+		for (NwSet destNwSet : destMethod.nwSets) {
+			for (NwFactor f : destNwSet.factors) {
+				f.impactCategory = refs.switchRef(f.impactCategory);
+			}
+			for (NwSet srcNwSet : srcMethod.nwSets) {
+				// we need to set the reference IDs from the source as they are
+				// generated new in the clone method.
 				if (areEqual(srcNwSet, destNwSet)) {
 					destNwSet.refId = srcNwSet.refId;
 					break;
@@ -108,7 +93,7 @@ class ImpactMethodImport {
 				&& Strings.nullOrEqual(srcNwSet.description,
 						destNwSet.description)
 				&& Strings.nullOrEqual(srcNwSet.weightedScoreUnit,
-						destNwSet.weightedScoreUnit);
+				destNwSet.weightedScoreUnit);
 	}
 
 }

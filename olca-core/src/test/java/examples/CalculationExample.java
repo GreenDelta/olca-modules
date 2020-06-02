@@ -7,12 +7,10 @@ import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.SystemCalculator;
-import org.openlca.core.matrix.cache.MatrixCache;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.solvers.DenseSolver;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.results.FullResult;
@@ -28,24 +26,18 @@ public class CalculationExample {
 				"7d1cbce0-b5b3-47ba-95b5-014ab3c7f569");
 		ImpactMethodDescriptor method = new ImpactMethodDao(db)
 				.getDescriptorForRefId("207ffac9-aaa8-401d-ac90-874defd3751a");
-		CalculationSetup setup = new CalculationSetup(
-				CalculationType.CONTRIBUTION_ANALYSIS, system);
+		CalculationSetup setup = new CalculationSetup(system);
 		setup.impactMethod = method;
 
 		NativeLibrary.loadFromDir(
 				new File("C:/Users/ms/openLCA-data-1.4"));
-		SystemCalculator calc = new SystemCalculator(
-				MatrixCache.createEager(db), new DenseSolver());
+		SystemCalculator calc = new SystemCalculator(db, new DenseSolver());
 		FullResult r = calc.calculateFull(setup);
-		FlowDescriptor flow = r.flowIndex.at(0);
-		System.out.println(
-				flow.name + "  -> " +
-						r.getTotalFlowResult(flow));
+		IndexFlow f = r.flowIndex.at(0);
+		System.out.println(f.flow.name + "  -> " + r.getTotalFlowResult(f));
 
 		ImpactCategoryDescriptor impact = r.impactIndex.at(0);
-		System.out.println(
-				impact.name + "  -> " +
-						r.getTotalImpactResult(impact));
+		System.out.println(impact.name + "  -> " + r.getTotalImpactResult(impact));
 	}
 
 }

@@ -1,113 +1,30 @@
 package org.openlca.jsonld.input;
 
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ImpactCategoryDao;
-import org.openlca.core.database.ImpactMethodDao;
-import org.openlca.core.database.NativeSql;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactCategory.ParameterMean;
 import org.openlca.core.model.ImpactFactor;
-import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.jsonld.Json;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import java.util.Objects;
 
-class ImpactCategoryImport extends
-		BaseEmbeddedImport<ImpactCategory, ImpactMethod> {
+class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 
-	/**
-	 * This is an experimental feature. LCIA categories are not yet stand-alone
-	 * objects in openLCA but attached to LCIA methods. However, in our JSON-LD
-	 * format they are not stored within the LCIA method data sets. Thus, when we
-	 * want to update a LCIA category, e.g. over the IPC server, we want to directly
-	 * call the update on an LCIA category object which then should update the
-	 * respective LCIA method. Note that this function needs to be changed when we
-	 * move to stand-alone LCIA categories in openLCA.
-	 */
-	public static void run(String impactCategoryID, ImportConfig conf) {
-		if (impactCategoryID == null || conf == null)
-			return;
-		JsonObject json = conf.store.get(
-				ModelType.IMPACT_CATEGORY, impactCategoryID);
-		if (json == null)
-			return;
-
-		IDatabase db = conf.db.getDatabase();
-		ImpactCategoryDao catDao = new ImpactCategoryDao(db);
-
-		// check whether the LCIA category is already attached to an LCIA method
-		AtomicReference<String> methodIDRef = new AtomicReference<>();
-		ImpactCategoryDescriptor des = catDao.getDescriptorForRefId(impactCategoryID);
-		if (des != null) {
-			String sql = "select m.ref_id from tbl_impact_categories c inner "
-					+ "join tbl_impact_methods m on c.f_impact_method = m.id where "
-					+ "c.id = " + des.id;
-			try {
-				NativeSql.on(db).query(sql, r -> {
-					methodIDRef.set(r.getString(1));
-					return false;
-				});
-			} catch (Exception e) {
-				Logger log = LoggerFactory.getLogger(ImpactCategoryImport.class);
-				log.error("Failed to get LCIA method", e);
-			}
-		}
-
-		// the import should also work when there is no method
-		String methodID = methodIDRef.get();
-		ImpactCategoryImport imp = new ImpactCategoryImport(
-				methodID, conf);
-		ImpactCategory impact = imp.run(json);
-		if (impact == null)
-			return;
-
-		if (methodID != null) {
-			ImpactMethodDao dao = new ImpactMethodDao(db);
-			ImpactMethod method = dao.getForRefId(methodID);
-			ImpactCategory old = imp.getPersisted(method, json);
-			if (old != null) {
-				method.impactCategories.remove(old);
-			}
-			method.impactCategories.add(impact);
-			dao.update(method);
-		} else {
-			if (impact.id == 0L) {
-				catDao.insert(impact);
-			} else {
-				catDao.update(impact);
-			}
-		}
+	private ImpactCategoryImport(String refID, ImportConfig conf) {
+		super(ModelType.IMPACT_CATEGORY, refID, conf);
 	}
 
-	ImpactCategoryImport(String methodID, ImportConfig conf) {
-		super(ModelType.IMPACT_METHOD, methodID, conf);
-	}
-
-	@Override
-	ImpactCategory getPersisted(ImpactMethod method, JsonObject json) {
-		if (method == null)
-			return null;
-		String refId = Json.getString(json, "@id");
-		if (refId == null)
-			return null;
-		for (ImpactCategory cat : method.impactCategories) {
-			if (refId.equals(cat.refId))
-				return cat;
-		}
-		return null;
+	static ImpactCategory run (String refID, ImportConfig conf) {
+		return new ImpactCategoryImport(refID, conf).run();
 	}
 
 	@Override
@@ -117,6 +34,8 @@ class ImpactCategoryImport extends
 		ImpactCategory cat = new ImpactCategory();
 		In.mapAtts(json, cat, id);
 		cat.referenceUnit = Json.getString(json, "referenceUnitName");
+		cat.parameterMean = Json.getEnum(json, "parameterMean", ParameterMean.class);
+		mapParameters(json, cat);
 		JsonArray factors = Json.getArray(json, "impactFactors");
 		if (factors == null || factors.size() == 0)
 			return cat;
@@ -128,7 +47,7 @@ class ImpactCategoryImport extends
 				continue;
 			cat.impactFactors.add(factor);
 		}
-		return cat;
+		return conf.db.put(cat);
 	}
 
 	private ImpactFactor mapFactor(JsonObject json, ImportConfig conf) {
@@ -201,5 +120,21 @@ class ImpactCategoryImport extends
 				return fac;
 		}
 		return null;
+	}
+
+	private void mapParameters(JsonObject json, ImpactCategory impact) {
+		JsonArray parameters = Json.getArray(json, "parameters");
+		if (parameters == null || parameters.size() == 0)
+			return;
+		for (JsonElement e : parameters) {
+			if (!e.isJsonObject())
+				continue;
+			JsonObject o = e.getAsJsonObject();
+			String refId = Json.getString(o, "@id");
+			ParameterImport pi = new ParameterImport(refId, conf);
+			Parameter parameter = new Parameter();
+			pi.mapFields(o, parameter);
+			impact.parameters.add(parameter);
+		}
 	}
 }

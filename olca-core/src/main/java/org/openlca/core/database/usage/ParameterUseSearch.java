@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 
-	private final static Logger log = LoggerFactory.getLogger(ParameterUseSearch.class);
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
 
 	public ParameterUseSearch(IDatabase database) {
@@ -46,20 +46,20 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 		List<ParameterRef> refs = findReferencing(names);
 		Set<Long> globals = new HashSet<>();
 		Set<Long> processes = new HashSet<>();
-		Set<Long> methods = new HashSet<>();
+		Set<Long> impacts = new HashSet<>();
 		for (ParameterRef ref : refs) {
 			if (ref.ownerId == 0l)
 				globals.add(ref.id);
 			else if (!hasDefinedLocalParameter(ref)) {
 				if (ref.scope == ParameterScope.PROCESS)
 					processes.add(ref.ownerId);
-				else if (ref.scope == ParameterScope.IMPACT_METHOD)
-					methods.add(ref.ownerId);
+				else if (ref.scope == ParameterScope.IMPACT_CATEGORY)
+					impacts.add(ref.ownerId);
 			}
 		}
 		results.addAll(loadDescriptors(ModelType.PARAMETER, globals));
 		results.addAll(loadDescriptors(ModelType.PROCESS, processes));
-		results.addAll(loadDescriptors(ModelType.IMPACT_METHOD, methods));
+		results.addAll(loadDescriptors(ModelType.IMPACT_CATEGORY, impacts));
 		return results;
 	}
 

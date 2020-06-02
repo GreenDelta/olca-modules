@@ -57,7 +57,7 @@ public final class CsvOut {
 			folder.mkdirs();
 		}
 		write(data.techIndex, db, new File(folder, "indexA.csv"));
-		write(data.enviIndex, db, new File(folder, "indexB.csv"));
+		write(data.flowIndex, db, new File(folder, "indexB.csv"));
 		write(data.impactIndex, new File(folder, "indexC.csv"));
 
 		write(data.techMatrix, new File(folder, "A.csv"));
@@ -217,7 +217,7 @@ public final class CsvOut {
 			writeln(w, line(header));
 			String[] mask = new String[header.length];
 			for (int i = 0; i < idx.size(); i++) {
-				FlowDescriptor flow = idx.at(i);
+				FlowDescriptor flow = idx.at(i).flow;
 				mask[0] = Integer.toString(i);
 				mask[1] = flow.refId;
 				mask[2] = flow.name;

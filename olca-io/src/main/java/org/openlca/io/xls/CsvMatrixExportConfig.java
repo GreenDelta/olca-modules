@@ -4,7 +4,6 @@ import java.io.File;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.ProductSystem;
 
 public class CsvMatrixExportConfig {
@@ -17,7 +16,6 @@ public class CsvMatrixExportConfig {
 	public String decimalSeparator = ".";
 	public String columnSeperator = ",";
 
-	private MatrixCache matrixCache;
 	private EntityCache cache;
 
 	public CsvMatrixExportConfig(
@@ -25,13 +23,6 @@ public class CsvMatrixExportConfig {
 			IDatabase db) {
 		this.productSystem = productSystem;
 		this.db = db;
-	}
-
-	MatrixCache getMatrixCache() {
-		if (matrixCache == null) {
-			matrixCache = MatrixCache.createLazy(db);
-		}
-		return matrixCache;
 	}
 
 	EntityCache getEntityCache() {

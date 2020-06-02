@@ -6,7 +6,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.FastMatrixBuilder;
 import org.openlca.core.matrix.MatrixData;
@@ -25,8 +24,7 @@ public class FastMatrixBuilderTest {
 		IDatabase db = new DerbyDatabase(new File(dbPath));
 		ProductSystem system = new ProductSystemDao(db).getForRefId(
 				"8a42a5d5-7244-4692-a735-067eeedbc710");
-		CalculationSetup setup = new CalculationSetup(
-				CalculationType.CONTRIBUTION_ANALYSIS, system);
+		CalculationSetup setup = new CalculationSetup(system);
 
 		System.out.println("build it");
 		long start = System.currentTimeMillis();

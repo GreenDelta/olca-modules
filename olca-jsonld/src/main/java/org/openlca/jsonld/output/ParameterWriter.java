@@ -16,7 +16,7 @@ class ParameterWriter extends Writer<Parameter> {
 		if (obj == null)
 			return null;
 		mapAttr(obj, param);
-		ParameterReferences.writeReferencedParameters(param, conf);
+		GlobalParameters.sync(param, conf);
 		return obj;
 	}
 
@@ -26,8 +26,6 @@ class ParameterWriter extends Writer<Parameter> {
 		Out.put(json, "inputParameter", param.isInputParameter);
 		Out.put(json, "value", param.value);
 		Out.put(json, "formula", param.formula);
-		Out.put(json, "externalSource", param.externalSource);
-		Out.put(json, "sourceType", param.sourceType);
 		Out.put(json, "uncertainty", Uncertainties.map(param.uncertainty));
 	}
 

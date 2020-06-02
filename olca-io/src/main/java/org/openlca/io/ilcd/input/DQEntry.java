@@ -19,16 +19,16 @@ class DQEntry {
 				continue;
 			entry[pos] = val(dqi.value);
 		}
-		String s = "(";
+		StringBuilder s = new StringBuilder("(");
 		for (int i = 0; i < entry.length; i++) {
 			String e = entry[i];
 			if (e == null) {
-				s += "n.a.";
+				s.append("n.a.");
 			} else {
-				s += e;
+				s.append(e);
 			}
 			if (i < (entry.length - 1)) {
-				s += ";";
+				s.append(";");
 			}
 		}
 		return s + ")";

@@ -14,7 +14,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.DataStructures;
 import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.FlowIndex;
@@ -25,7 +24,6 @@ import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.io.xls.Excel;
-import org.openlca.julia.JuliaSolver;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,16 +40,14 @@ public class SystemExport {
 	}
 
 	public void exportTo(File dir) throws IOException {
-		CalculationSetup setup = new CalculationSetup(
-				CalculationType.SIMPLE_CALCULATION, conf.system);
+		CalculationSetup setup = new CalculationSetup(conf.system);
 		setup.parameterRedefs.addAll(conf.system.parameterRedefs);
 		setup.allocationMethod = conf.allocationMethod;
 		setup.impactMethod = conf.impactMethod;
 
 		// the Julia solver that we pass here is just for creating the matrices
 		data = DataStructures.matrixData(
-				setup, new JuliaSolver(), conf.getMatrixCache(),
-				Collections.emptyMap());
+				setup, conf.database, Collections.emptyMap());
 
 		File subDir = new File(dir, conf.system.name.trim());
 		if (!subDir.exists())
@@ -103,7 +99,7 @@ public class SystemExport {
 		String name = conf.system.name;
 		int processes = conf.system.processes.size();
 		int products = data.techIndex.size();
-		int flows = data.enviIndex.size();
+		int flows = data.flowIndex.size();
 		String dimensions = flows + "x" + products;
 
 		currentRow = line(sheet, currentRow, "Product system:", name);
@@ -175,7 +171,7 @@ public class SystemExport {
 		String name = conf.system.name;
 		String method = conf.impactMethod.name;
 		int categories = data.impactIndex.size();
-		int factors = data.enviIndex.size();
+		int factors = data.flowIndex.size();
 		String dimensions = factors + "x" + categories;
 
 		row = line(sheet, row, "Product system:", name);
@@ -264,7 +260,7 @@ public class SystemExport {
 
 	private void createElementarySheet(Workbook workbook) {
 		ExcelHeader columnHeader = createProductHeader(data.techIndex);
-		ExcelHeader rowHeader = createFlowHeader(data.enviIndex);
+		ExcelHeader rowHeader = createFlowHeader(data.flowIndex);
 		MatrixExcelExport export = new MatrixExcelExport();
 		export.setColumnHeader(columnHeader);
 		export.setRowHeader(rowHeader);
@@ -289,7 +285,7 @@ public class SystemExport {
 	private void createImpactMethodSheet(Workbook workbook) {
 		ExcelHeader columnHeader = createImpactCategoryHeader(
 				data.impactIndex);
-		ExcelHeader rowHeader = createFlowHeader(data.enviIndex);
+		ExcelHeader rowHeader = createFlowHeader(data.flowIndex);
 		MatrixExcelExport export = new MatrixExcelExport();
 		export.setColumnHeader(columnHeader);
 		export.setRowHeader(rowHeader);

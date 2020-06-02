@@ -80,6 +80,7 @@ CREATE TABLE tbl_locations (
 	latitude DOUBLE,
 	code VARCHAR(255),
     kmz MEDIUMBLOB,
+    geodata MEDIUMBLOB,
 
 	PRIMARY KEY (id)
 );
@@ -394,17 +395,23 @@ CREATE TABLE tbl_impact_methods (
 );
 
 
+CREATE TABLE tbl_impact_links (
+    f_impact_method    BIGINT,
+    f_impact_category  BIGINT
+);
+
+
 CREATE TABLE tbl_impact_categories (
 
-	id BIGINT NOT NULL,
-	ref_id VARCHAR(36),
-	name VARCHAR(2048),
-	description TEXT,
-	version BIGINT,
-	last_change BIGINT,
+	id              BIGINT NOT NULL,
+	ref_id          VARCHAR(36),
+	name            VARCHAR(2048),
+	version         BIGINT,
+	last_change     BIGINT,
+    f_category        BIGINT,
+	description     TEXT,
 
-	reference_unit VARCHAR(255),
-	f_impact_method BIGINT,
+	reference_unit  VARCHAR(255),
 
 	PRIMARY KEY (id)
 

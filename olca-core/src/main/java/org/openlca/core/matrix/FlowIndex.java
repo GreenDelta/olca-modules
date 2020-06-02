@@ -1,20 +1,18 @@
 package org.openlca.core.matrix;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import org.openlca.core.matrix.cache.FlowTable;
-import org.openlca.core.matrix.cache.MatrixCache;
-import org.openlca.core.model.AllocationMethod;
-import org.openlca.core.model.FlowType;
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.openlca.core.model.descriptors.LocationDescriptor;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 
-import gnu.trove.map.hash.TLongByteHashMap;
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TLongIntHashMap;
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
  * The row index $\mathit{Idx}_B$ of the intervention matrix $\mathbf{B}$. It
@@ -23,131 +21,260 @@ import gnu.trove.map.hash.TLongByteHashMap;
  *
  * $$\mathit{Idx}_B: \mathit{F} \mapsto [0 \dots k-1]$$
  */
-public class FlowIndex extends DIndex<FlowDescriptor> {
+public final class FlowIndex {
 
-	private TLongByteHashMap inputs = new TLongByteHashMap();
+	public final boolean isRegionalized;
+	private final TLongIntHashMap index;
+	private final HashMap<LongPair, Integer> regIndex;
+	private final ArrayList<IndexFlow> flows = new ArrayList<>();
 
-	// TODO: when we use blockm, we can build the flow index together
-	// with the inventory matrices in a single table scan -> no matrix
-	// cache is needed then anymore
-	public static FlowIndex build(
-			MatrixCache cache,
-			TechIndex productIndex,
-			AllocationMethod allocationMethod) {
-		return new Builder(cache, productIndex, allocationMethod).build();
+	private FlowIndex(boolean isRegionalized) {
+		this.isRegionalized = isRegionalized;
+		if (isRegionalized) {
+			index = null;
+			regIndex = new HashMap<>();
+		} else {
+			index = new TLongIntHashMap(
+					Constants.DEFAULT_CAPACITY,
+					Constants.DEFAULT_LOAD_FACTOR,
+					-1L, // no entry key
+					-1); // no entry value
+			regIndex = null;
+		}
 	}
 
-	public int putInput(FlowDescriptor flow) {
+	public static FlowIndex create() {
+		return new FlowIndex(false);
+	}
+
+	public static FlowIndex createRegionalized() {
+		return new FlowIndex(true);
+	}
+
+	public int size() {
+		return flows.size();
+	}
+
+	public boolean isEmpty() {
+		return flows.isEmpty();
+	}
+
+	public IndexFlow at(int i) {
+		if (i < 0 || i >= flows.size())
+			return null;
+		return flows.get(i);
+	}
+
+	public int of(IndexFlow flow) {
 		if (flow == null)
 			return -1;
-		inputs.put(flow.id, (byte) 1);
-		return put(flow);
+		return of(flow.flow, flow.location);
 	}
 
-	public int putOutput(FlowDescriptor flow) {
+	public int of(FlowDescriptor flow) {
 		if (flow == null)
 			return -1;
-		inputs.put(flow.id, (byte) 0);
-		return put(flow);
+		if (isRegionalized)
+			return of(flow.id, 0L);
+		return index.get(flow.id);
 	}
 
-	public boolean isInput(FlowDescriptor flow) {
+	public int of(FlowDescriptor flow, LocationDescriptor loc) {
 		if (flow == null)
-			return false;
-		return isInput(flow.id);
+			return -1;
+		if (isRegionalized)
+			return of(flow.id, loc != null ? loc.id : 0L);
+		return index.get(flow.id);
 	}
 
-	public boolean isInput(long flowId) {
-		byte input = inputs.get(flowId);
-		return input == 1;
+	public int of(long flowID) {
+		if (isRegionalized)
+			return of(flowID, 0L);
+		return index.get(flowID);
+	}
+
+	public int of(long flowID, long locationID) {
+		if (isRegionalized) {
+			Integer idx = regIndex.get(LongPair.of(flowID, locationID));
+			return idx == null ? -1 : idx;
+		}
+		return index.get(flowID);
+	}
+
+	public boolean contains(IndexFlow flow) {
+		return of(flow) >= 0;
+	}
+
+	public boolean contains(FlowDescriptor flow) {
+		return of(flow) >= 0;
+	}
+
+	public boolean contains(FlowDescriptor flow, LocationDescriptor location) {
+		return of(flow, location) >= 0;
+	}
+
+	public boolean contains(long flowID) {
+		return of(flowID) >= 0;
+	}
+
+	public boolean contains(long flowID, long locationID) {
+		return of(flowID, locationID) >= 0;
 	}
 
 	/**
-	 * Builds a flow index from a product index and exchange table. All flows
-	 * that are not contained in the product index will be added to the flow
-	 * index (except if they are allocated co-products).
+	 * Adds all flows of the given index to this index.
 	 */
-	@Deprecated
-	private static class Builder {
-
-		private Logger log = LoggerFactory.getLogger(getClass());
-
-		private final MatrixCache cache;
-		private final TechIndex techIndex;
-		private final AllocationMethod allocationMethod;
-		private final FlowTable flows;
-
-		Builder(MatrixCache cache,
-				TechIndex techIndex,
-				AllocationMethod allocationMethod) {
-			this.allocationMethod = allocationMethod;
-			this.cache = cache;
-			this.techIndex = techIndex;
-			flows = FlowTable.create(cache.getDatabase());
-		}
-
-		FlowIndex build() {
-			FlowIndex index = new FlowIndex();
-			Map<Long, List<CalcExchange>> map = loadExchanges();
-			for (Long processId : techIndex.getProcessIds()) {
-				List<CalcExchange> exchanges = map.get(processId);
-				if (exchanges == null)
-					continue;
-				for (CalcExchange e : exchanges) {
-					if (index.contains(e.flowId))
-						continue; // already indexed as flow
-					if (techIndex.contains(e.processId, e.flowId))
-						continue; // the exchange is an output product
-					if (techIndex
-							.isLinked(LongPair.of(e.processId, e.exchangeId)))
-						continue; // the exchange is a linked exchange
-					if (e.flowType == FlowType.ELEMENTARY_FLOW)
-						indexFlow(e, index);
-					if (e.flowType == FlowType.PRODUCT_FLOW && e.isInput)
-						indexFlow(e, index); // unlinked product inputs
-					if (e.flowType == FlowType.WASTE_FLOW && !e.isInput)
-						indexFlow(e, index); // unlinked waste outputs
-					else if (allocationMethod == null
-							|| allocationMethod == AllocationMethod.NONE)
-						indexFlow(e, index); // non-allocated co-product or
-												// waste
-												// treatment -> handle
-												// like elementary flow
+	public void putAll(FlowIndex other) {
+		if (other == null || other == this)
+			return;
+		other.each((i, f) -> {
+			if (contains(f))
+				return;
+			if (isRegionalized) {
+				if (f.isInput) {
+					putInput(f.flow, f.location);
+				} else {
+					putOutput(f.flow, f.location);
+				}
+			} else {
+				if (f.isInput) {
+					putInput(f.flow);
+				} else {
+					putOutput(f.flow);
 				}
 			}
-			return index;
-		}
-
-		private Map<Long, List<CalcExchange>> loadExchanges() {
-			try {
-				// TODO: the cache loader throws an exception when we ask for
-				// process IDs that do not exist; this we have to filter out
-				// product system IDs here
-				HashSet<Long> processIds = new HashSet<>();
-				techIndex.each((i, p) -> {
-					if (p.process != null
-							&& p.process.type == ModelType.PROCESS) {
-						processIds.add(p.process.id);
-					}
-				});
-				Map<Long, List<CalcExchange>> map = cache.getExchangeCache()
-						.getAll(processIds);
-				return map;
-			} catch (Exception e) {
-				log.error("failed to load exchanges from cache", e);
-				return Collections.emptyMap();
-			}
-		}
-
-		private void indexFlow(CalcExchange e, FlowIndex index) {
-			if (index.contains(e.flowId))
-				return;
-			if (e.isInput) {
-				index.putInput(flows.get(e.flowId));
-			} else {
-				index.putOutput(flows.get(e.flowId));
-			}
-		}
-
+		});
 	}
+
+	/**
+	 * This method should be only called from inventory builders to index flows.
+	 * Only when this index is not regionalized, it is save to pass a null value for
+	 * the locations into this method.
+	 */
+	public int register(
+			ProcessProduct product,
+			CalcExchange e,
+			FlowTable flows,
+			TLongObjectHashMap<LocationDescriptor> locations) {
+
+		int i = isRegionalized
+				? of(e.flowId, e.locationId)
+				: of(e.flowId);
+		if (i >= 0)
+			return i;
+		FlowDescriptor flow = flows.get(e.flowId);
+		if (flow == null)
+			return -1;
+
+		if (!isRegionalized) {
+			return e.isInput
+					? putInput(flow)
+					: putOutput(flow);
+		}
+
+		// take the location from the exchange
+		// if the exchange does not have a location
+		// the take it from the flow.
+		LocationDescriptor loc = null;
+		if (e.locationId > 0) {
+			loc = locations.get(e.locationId);
+		}
+		if (loc == null) {
+			if (product.process instanceof ProcessDescriptor) {
+				ProcessDescriptor d = (ProcessDescriptor) product.process;
+				if (d.location != null) {
+					loc = locations.get(d.location);
+				}
+			}
+		}
+		return e.isInput
+				? putInput(flow, loc)
+				: putOutput(flow, loc);
+	}
+
+	public int putInput(FlowDescriptor flow) {
+		return put(flow, null, true);
+	}
+
+	public int putInput(FlowDescriptor flow, LocationDescriptor location) {
+		return put(flow, location, true);
+	}
+
+	public int putOutput(FlowDescriptor flow) {
+		return put(flow, null, false);
+	}
+
+	public int putOutput(FlowDescriptor flow, LocationDescriptor location) {
+		return put(flow, location, false);
+	}
+
+	private int put(FlowDescriptor flow,
+			LocationDescriptor location,
+			boolean isInput) {
+		if (flow == null)
+			return -1;
+
+		int idx = flows.size();
+
+		// check if the flow should be added
+		if (isRegionalized) {
+			long locID = location == null ? 0L : location.id;
+			LongPair p = LongPair.of(flow.id, locID);
+			Integer i = regIndex.get(p);
+			if (i != null)
+				return i;
+			regIndex.put(p, idx);
+		} else {
+			int i = index.get(flow.id);
+			if (i > -1)
+				return i;
+			index.put(flow.id, idx);
+		}
+
+		// create and add the index flow
+		IndexFlow f = new IndexFlow();
+		// f.index = idx;
+		f.flow = flow;
+		f.location = isRegionalized ? location : null;
+		f.isInput = isInput;
+		flows.add(f);
+		return idx;
+	}
+
+	public void each(IndexConsumer<IndexFlow> fn) {
+		if (fn == null)
+			return;
+		for (int i = 0; i < flows.size(); i++) {
+			fn.accept(i, flows.get(i));
+		}
+	}
+
+	/**
+	 * Creates a new set with the flows of this index.
+	 */
+	public Set<IndexFlow> flows() {
+		return new HashSet<>(flows);
+	}
+
+	public boolean isInput(long flowID) {
+		if (isRegionalized)
+			return isInput(flowID, 0L);
+		int i = index.get(flowID);
+		if (i < 0)
+			return false;
+		IndexFlow flow = flows.get(i);
+		return flow.isInput;
+	}
+
+	public boolean isInput(long flowID, long locationID) {
+		if (!isRegionalized)
+			return isInput(flowID);
+		LongPair key = LongPair.of(flowID, locationID);
+		Integer i = regIndex.get(key);
+		if (i == null)
+			return false;
+		IndexFlow flow = flows.get(i);
+		return flow.isInput;
+	}
+
 }

@@ -12,6 +12,7 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
@@ -69,15 +70,21 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		Out.put(obj, "targetFlowProperty", property, conf, Out.REQUIRED_FIELD);
 		Out.put(obj, "targetUnit", system.targetUnit, conf, Out.REQUIRED_FIELD);
 		Out.put(obj, "targetAmount", system.targetAmount);
+
 		putInventory(obj, system.inventory);
+		putParameterSets(obj, system.parameterSets);
+
+		// map the parameter redefinitions
+		GlobalParameters.sync(system, conf);
+		if (!system.parameterRedefs.isEmpty()) {
+			JsonArray redefs = ParameterRedefs.map(system.parameterRedefs, conf);
+			Out.put(obj, "parameterRedefs", redefs);
+		}
+
 		if (conf.db == null)
 			return obj;
-
 		Map<Long, CategorizedDescriptor> processMap = mapProcesses(obj);
 		mapLinks(obj, processMap, exchangeIDs);
-		ParameterRedefs.map(obj, system.parameterRedefs, conf.db, conf,
-				(type, id) -> References.create(processMap.get(id), conf));
-		ParameterReferences.writeReferencedParameters(system, conf);
 		return obj;
 	}
 
@@ -191,6 +198,24 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 			inv.add(eObj);
 		}
 		Out.put(obj, "inventory", inv);
+	}
+
+	private void putParameterSets(JsonObject obj, List<ParameterRedefSet> sets) {
+		if (sets.isEmpty())
+			return;
+		JsonArray array = new JsonArray();
+		for (ParameterRedefSet s : sets) {
+			JsonObject paramSet = new JsonObject();
+			array.add(paramSet);
+			Out.put(paramSet, "name", s.name);
+			Out.put(paramSet, "description", s.description);
+			Out.put(paramSet, "isBaseline", s.isBaseline);
+			if (s.parameters.isEmpty())
+				continue;
+			JsonArray params = ParameterRedefs.map(s.parameters, conf);
+			Out.put(paramSet, "parameters", params);
+		}
+		Out.put(obj, "parameterSets", array);
 	}
 
 	@Override

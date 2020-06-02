@@ -5,11 +5,23 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.ToDoubleFunction;
 
 public final class Contributions {
 
 	private Contributions() {
+	}
+
+	public static <T> Contribution<T> get(
+			List<Contribution<T>> contributions, T item) {
+		if (contributions == null)
+			return null;
+		for (Contribution<T> c : contributions) {
+			if (Objects.equals(c.item, item))
+				return c;
+		}
+		return null;
 	}
 
 	/**
@@ -25,13 +37,13 @@ public final class Contributions {
 	 * </code> An contribution item is set as the "rest" item
 	 * (contributionItem.isRest = true) if the item in the collection is null).
 	 */
-	public static <T> ContributionSet<T> calculate(Collection<T> items,
+	public static <T> List<Contribution<T>> calculate(Collection<T> items,
 			double totalAmount, ToDoubleFunction<T> fn) {
-		List<ContributionItem<T>> contributions = new ArrayList<>();
+		List<Contribution<T>> contributions = new ArrayList<>();
 		double total = Math.abs(totalAmount);
 		for (T item : items) {
-			ContributionItem<T> contribution = new ContributionItem<>();
-			contribution.rest = item == null;
+			Contribution<T> contribution = new Contribution<>();
+			contribution.isRest = item == null;
 			contribution.item = item;
 			double val = fn.applyAsDouble(item);
 			contribution.amount = val;
@@ -39,47 +51,46 @@ public final class Contributions {
 				contribution.share = val / total;
 			contributions.add(contribution);
 		}
-		return new ContributionSet<>(contributions);
+		return contributions;
 	}
 
-	public static <T> ContributionSet<T> calculate(Collection<T> items,
+	public static <T> List<Contribution<T>> calculate(Collection<T> items,
 			ToDoubleFunction<T> fn) {
-		List<ContributionItem<T>> contributions = new ArrayList<>();
+		List<Contribution<T>> contributions = new ArrayList<>();
 		for (T item : items) {
-			ContributionItem<T> contribution = new ContributionItem<>();
-			contribution.rest = item == null;
+			Contribution<T> contribution = new Contribution<>();
+			contribution.isRest = item == null;
 			contribution.item = item;
-			double val = fn.applyAsDouble(item);
-			contribution.amount = val;
+			contribution.amount = fn.applyAsDouble(item);
 			contributions.add(contribution);
 		}
 		calculateShares(contributions);
-		return new ContributionSet<>(contributions);
+		return contributions;
 	}
 
 	/**
 	 * Calculates the relative shares of the given contribution items.
 	 */
 	public static void calculateShares(
-			List<? extends ContributionItem<?>> contributions) {
+			List<? extends Contribution<?>> contributions) {
 		if (contributions == null || contributions.isEmpty())
 			return;
 		double refVal = Math.abs(getRefValue(contributions));
-		for (ContributionItem<?> c : contributions) {
+		for (Contribution<?> c : contributions) {
 			if (refVal == 0)
-				c.share = (double) 0;
+				c.share = 0;
 			else
 				c.share = c.amount / refVal;
 		}
 	}
 
 	private static double getRefValue(
-			List<? extends ContributionItem<?>> contributions) {
-		ContributionItem<?> first = contributions.get(0);
+			List<? extends Contribution<?>> contributions) {
+		Contribution<?> first = contributions.get(0);
 		double max = first.amount;
 		double min = max;
 		for (int i = 1; i < contributions.size(); i++) {
-			ContributionItem<?> next = contributions.get(i);
+			Contribution<?> next = contributions.get(i);
 			double nextVal = next.amount;
 			max = Math.max(max, nextVal);
 			min = Math.min(min, nextVal);
@@ -87,12 +98,12 @@ public final class Contributions {
 		return Math.max(Math.abs(max), Math.abs(min));
 	}
 
-	public static <T> void sortAscending(List<ContributionItem<T>> items) {
-		Collections.sort(items, new Sorter(true));
+	public static <T> void sortAscending(List<Contribution<T>> items) {
+		items.sort(new Sorter(true));
 	}
 
-	public static <T> void sortDescending(List<ContributionItem<T>> items) {
-		Collections.sort(items, new Sorter(false));
+	public static <T> void sortDescending(List<Contribution<T>> items) {
+		items.sort(new Sorter(false));
 	}
 
 	/**
@@ -102,18 +113,18 @@ public final class Contributions {
 	 * which gets the sum of the items not in the list. Thus the returned list
 	 * has <code>maxItems</code> entries.
 	 */
-	public static <T> List<ContributionItem<T>> topWithRest(
-			List<ContributionItem<T>> items, int maxItems) {
+	public static <T> List<Contribution<T>> topWithRest(
+			List<Contribution<T>> items, int maxItems) {
 		if (items == null)
 			return Collections.emptyList();
 		sortDescending(items);
 		if (items.size() <= maxItems)
 			return items;
-		List<ContributionItem<T>> list = new ArrayList<>();
-		ContributionItem<T> restItem = new ContributionItem<>();
-		restItem.rest = true;
+		List<Contribution<T>> list = new ArrayList<>();
+		Contribution<T> restItem = new Contribution<>();
+		restItem.isRest = true;
 		for (int i = 0; i < items.size(); i++) {
-			ContributionItem<T> item = items.get(i);
+			Contribution<T> item = items.get(i);
 			if (i < (maxItems - 1))
 				list.add(item);
 			else {
@@ -125,7 +136,7 @@ public final class Contributions {
 		return list;
 	}
 
-	private static class Sorter implements Comparator<ContributionItem<?>> {
+	private static class Sorter implements Comparator<Contribution<?>> {
 
 		private final boolean ascending;
 
@@ -134,12 +145,12 @@ public final class Contributions {
 		}
 
 		@Override
-		public int compare(ContributionItem<?> o1, ContributionItem<?> o2) {
+		public int compare(Contribution<?> o1, Contribution<?> o2) {
 			if (o1 == null || o2 == null)
 				return 0;
-			if (o1.rest)
+			if (o1.isRest)
 				return 1;
-			if (o2.rest)
+			if (o2.isRest)
 				return -1;
 			if (ascending)
 				return Double.compare(o1.amount, o2.amount);

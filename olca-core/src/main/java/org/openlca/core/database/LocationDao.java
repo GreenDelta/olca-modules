@@ -10,13 +10,35 @@ import org.openlca.core.model.descriptors.LocationDescriptor;
 public class LocationDao
 		extends CategorizedEntityDao<Location, LocationDescriptor> {
 
-	public LocationDao(IDatabase database) {
-		super(Location.class, LocationDescriptor.class, database);
+	public LocationDao(IDatabase db) {
+		super(Location.class, LocationDescriptor.class, db);
+	}
+
+	@Override
+	protected String[] getDescriptorFields() {
+		return new String[] {
+				"id",
+				"ref_id",
+				"name",
+				"description",
+				"version",
+				"last_change",
+				"f_category",
+				"code" };
+	}
+
+	@Override
+	protected LocationDescriptor createDescriptor(Object[] values) {
+		if (values == null)
+			return null;
+		LocationDescriptor d = super.createDescriptor(values);
+		d.code = (String) values[7];
+		return d;
 	}
 
 	/**
-	 * Get the location codes from the database in a map: location id ->
-	 * location code.
+	 * Get the location codes from the database in a map: location id -> location
+	 * code.
 	 */
 	public Map<Long, String> getCodes() {
 		if (database == null)

@@ -17,7 +17,7 @@ public class CalcExchange {
 
 	public double conversionFactor;
 	public double amount;
-	public String amountFormula;
+	public String formula;
 
 	public UncertaintyType uncertaintyType;
 	public double parameter1;
@@ -28,6 +28,10 @@ public class CalcExchange {
 
 	/** 0 if the exchange has no default provider. */
 	public long defaultProviderId;
+
+	/** 0 if the exchange has no location assigned. */
+	public long locationId;
+
 	public boolean isAvoided;
 
 	public double costValue;
@@ -74,13 +78,13 @@ public class CalcExchange {
 			double allocationFactor) {
 
 		double a = amount;
-		if (Strings.notEmpty(amountFormula) && interpreter != null) {
+		if (Strings.notEmpty(formula) && interpreter != null) {
 			try {
 				Scope scope = interpreter.getScope(processId);
 				if (scope == null) {
 					scope = interpreter.getGlobalScope();
 				}
-				a = scope.eval(amountFormula);
+				a = scope.eval(formula);
 			} catch (Exception e) {
 				Logger log = LoggerFactory.getLogger(getClass());
 				log.error("Formula evaluation failed, exchange "

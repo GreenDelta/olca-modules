@@ -17,14 +17,14 @@ public final class MultiLineString extends Geometry {
 		this(new ArrayList<>());
 	}
 
-	static MultiLineString fromJson(JsonObject obj) {
+	public static MultiLineString fromJson(JsonObject obj) {
 		List<LineString> lines = Coordinates.readLines(
 				obj.get("coordinates"));
 		return new MultiLineString(lines);
 	}
 
 	@Override
-	JsonObject toJson() {
+	public JsonObject toJson() {
 		JsonObject obj = new JsonObject();
 		obj.addProperty("type", "MultiLineString");
 		obj.add("coordinates",

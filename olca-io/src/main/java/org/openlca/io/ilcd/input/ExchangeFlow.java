@@ -18,15 +18,15 @@ class ExchangeFlow {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private ImportConfig config;
-	private Exchange ilcdExchange;
+	private Exchange iExchange;
 
 	Flow flow;
 	FlowMapEntry mapEntry;
 	FlowProperty flowProperty;
 	Unit unit;
 
-	ExchangeFlow(Exchange ilcdExchange) {
-		this.ilcdExchange = ilcdExchange;
+	ExchangeFlow(Exchange iExchange) {
+		this.iExchange = iExchange;
 	}
 
 	boolean isMapped() {
@@ -50,9 +50,9 @@ class ExchangeFlow {
 
 	void findOrImport(ImportConfig config) {
 		this.config = config;
-		Ref ref = ilcdExchange.flow;
+		Ref ref = iExchange.flow;
 		if (ref == null) {
-			log.warn("ILCD exchange without flow ID: {}", ilcdExchange);
+			log.warn("ILCD exchange without flow ID: {}", iExchange);
 			return;
 		}
 		try {
@@ -66,14 +66,19 @@ class ExchangeFlow {
 		Flow flow = config.flowCache.get(uuid);
 		if (flow != null)
 			return flow;
+		flow = fetchFromFlowMap(uuid);
+		if (flow != null) {
+			// the flow is not cached here because
+			// the UUID of the mapped flow may is
+			// different and the mapping entry
+			// needs to be initialized, see below.
+			return flow;
+		}
 		flow = fetchFromDatabase(uuid);
 		if (flow != null) {
 			config.flowCache.put(uuid, flow);
 			return flow;
 		}
-		flow = fetchFromFlowMap(uuid);
-		if (flow != null)
-			return flow; // do not cache mapped flows! -> TODO: but we should!
 		flow = fetchFromImport(uuid);
 		config.flowCache.put(uuid, flow);
 		return flow;
@@ -98,6 +103,7 @@ class ExchangeFlow {
 		Flow f = config.flowCache.get(targetID);
 		if (f == null) {
 			f = fetchFromDatabase(targetID);
+			config.flowCache.put(targetID, f);
 		}
 		if (f != null) {
 			mapEntry = e;
@@ -127,10 +133,8 @@ class ExchangeFlow {
 		UnitGroup group = property.unitGroup;
 		if (group == null)
 			return false;
-		if ((unit == null || group.getUnit(unit.name) == null)
-				&& group.referenceUnit == null)
-			return false;
-		return true;
+		return (unit != null && group.getUnit(unit.name) != null)
+				|| group.referenceUnit != null;
 	}
 
 	@Override

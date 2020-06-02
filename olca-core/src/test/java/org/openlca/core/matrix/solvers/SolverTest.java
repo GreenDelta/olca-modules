@@ -50,9 +50,9 @@ public class SolverTest {
 		MatrixData data = new MatrixData();
 
 		FlowDescriptor flow = new FlowDescriptor();
-		flow.id = (long) 1;
+		flow.id = 1;
 		ProcessDescriptor process = new ProcessDescriptor();
-		process.id = (long) 1;
+		process.id = 1;
 		ProcessProduct provider = ProcessProduct.of(process, flow);
 
 		TechIndex techIndex = new TechIndex(provider);
@@ -60,12 +60,12 @@ public class SolverTest {
 		techIndex.setDemand(1d);
 		data.techIndex = techIndex;
 
-		FlowIndex enviIndex = new FlowIndex();
+		FlowIndex enviIndex = FlowIndex.create();
 		enviIndex.putInput(flow(1));
 		enviIndex.putInput(flow(2));
 		enviIndex.putOutput(flow(3));
 		enviIndex.putOutput(flow(4));
-		data.enviIndex = enviIndex;
+		data.flowIndex = enviIndex;
 
 		IMatrix techMatrix = solver.matrix(1, 1);
 		techMatrix.set(0, 0, 1);
@@ -105,7 +105,7 @@ public class SolverTest {
 
 	private FlowDescriptor flow(int id) {
 		FlowDescriptor flow = new FlowDescriptor();
-		flow.id = (long) id;
+		flow.id = id;
 		return flow;
 	}
 

@@ -6,13 +6,13 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.openlca.core.database.FlowDao;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.NwSetDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.FastMatrixBuilder;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
@@ -38,11 +38,11 @@ import org.slf4j.LoggerFactory;
 public class SystemCalculator {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	private final MatrixCache mcache;
+	private final IDatabase db;
 	private final IMatrixSolver solver;
 
-	public SystemCalculator(MatrixCache cache, IMatrixSolver solver) {
-		this.mcache = cache;
+	public SystemCalculator(IDatabase db, IMatrixSolver solver) {
+		this.db = db;
 		this.solver = solver;
 	}
 
@@ -69,13 +69,12 @@ public class SystemCalculator {
 		// load the LCIA method and NW set
 		ImpactMethodDescriptor method = null;
 		if (project.impactMethodId != null) {
-			ImpactMethodDao dao = new ImpactMethodDao(
-					mcache.getDatabase());
+			ImpactMethodDao dao = new ImpactMethodDao(db);
 			method = dao.getDescriptor(project.impactMethodId);
 		}
 		NwSetDescriptor nwSet = null;
 		if (project.nwSetId != null) {
-			NwSetDao dao = new NwSetDao(mcache.getDatabase());
+			NwSetDao dao = new NwSetDao(db);
 			nwSet = dao.getDescriptor(project.nwSetId);
 		}
 
@@ -83,9 +82,7 @@ public class SystemCalculator {
 		for (ProjectVariant v : project.variants) {
 			if (v.isDisabled)
 				continue;
-			CalculationSetup setup = new CalculationSetup(
-					CalculationType.CONTRIBUTION_ANALYSIS,
-					v.productSystem);
+			CalculationSetup setup = new CalculationSetup(v.productSystem);
 			setup.setUnit(v.unit);
 			setup.setFlowPropertyFactor(v.flowPropertyFactor);
 			setup.setAmount(v.amount);
@@ -94,6 +91,7 @@ public class SystemCalculator {
 			setup.nwSet = nwSet;
 			setup.parameterRedefs.addAll(v.parameterRedefs);
 			setup.withCosts = true;
+			// TODO: how to handle regionalization here?
 			ContributionResult cr = calculateContributions(setup);
 			result.addResult(v, cr);
 		}
@@ -103,10 +101,10 @@ public class SystemCalculator {
 	private LcaCalculator calculator(CalculationSetup setup) {
 		MatrixData data;
 		if (setup.productSystem.withoutNetwork) {
-			data = new FastMatrixBuilder(mcache.getDatabase(), setup).build();
+			data = new FastMatrixBuilder(db, setup).build();
 		} else {
 			Map<ProcessProduct, SimpleResult> subs = calculateSubSystems(setup);
-			data = DataStructures.matrixData(setup, solver, mcache, subs);
+			data = DataStructures.matrixData(setup, db, subs);
 		}
 		return new LcaCalculator(solver, data);
 	}
@@ -122,8 +120,8 @@ public class SystemCalculator {
 
 		// collect the sub-systems
 		HashSet<ProcessProduct> subSystems = new HashSet<>();
-		ProductSystemDao sysDao = new ProductSystemDao(mcache.getDatabase());
-		FlowDao flowDao = new FlowDao(mcache.getDatabase());
+		ProductSystemDao sysDao = new ProductSystemDao(db);
+		FlowDao flowDao = new FlowDao(db);
 		for (ProcessLink link : setup.productSystem.processLinks) {
 			if (!link.isSystemLink)
 				continue;
@@ -141,12 +139,15 @@ public class SystemCalculator {
 		// calculate the LCI results of the sub-systems
 		HashMap<ProcessProduct, SimpleResult> map = new HashMap<>();
 		for (ProcessProduct pp : subSystems) {
-			ProductSystem sys = sysDao.getForId(pp.id());
-			if (sys == null)
+			ProductSystem subSys = sysDao.getForId(pp.id());
+			if (subSys == null)
 				continue;
-			CalculationSetup subSetup = new CalculationSetup(setup.type, sys);
-			subSetup.parameterRedefs.addAll(sys.parameterRedefs);
+			CalculationSetup subSetup = new CalculationSetup(subSys);
+			subSetup.parameterRedefs.addAll(setup.parameterRedefs);
+			ParameterRedefs.addTo(subSetup, subSys);
 			subSetup.withCosts = setup.withCosts;
+			subSetup.withUncertainties = setup.withUncertainties;
+			subSetup.withRegionalization = setup.withRegionalization;
 			subSetup.allocationMethod = setup.allocationMethod;
 			SimpleResult r = calculateSimple(subSetup);
 			map.put(pp, r);

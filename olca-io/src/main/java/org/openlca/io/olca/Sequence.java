@@ -10,6 +10,7 @@ import org.openlca.core.database.DQSystemDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.NwSetDao;
@@ -46,17 +47,18 @@ class Sequence {
 	int CURRENCY = 8;
 	int PROCESS = 9;
 	int PRODUCT_SYSTEM = 10;
-	int IMPACT_METHOD = 11;
-	int NW_SET = 12;
-	int PROJECT = 13;
-	int DQ_SYSTEM = 14;
-	int SOCIAL_INDICATOR = 15;
-	
+	int IMPACT_CATEGORY = 11;
+	int IMPACT_METHOD = 12;
+	int NW_SET = 13;
+	int PROJECT = 14;
+	int DQ_SYSTEM = 15;
+	int SOCIAL_INDICATOR = 16;
+
 	private final HashMap<String, Long>[] sequences;
 
 	@SuppressWarnings("unchecked")
 	public Sequence(IDatabase database) {
-		sequences = new HashMap[16];
+		sequences = new HashMap[17];
 		for (int i = 0; i < sequences.length; i++)
 			sequences[i] = new HashMap<>();
 		init(database);
@@ -74,6 +76,7 @@ class Sequence {
 		index(CURRENCY, new CurrencyDao(db));
 		index(PROCESS, new ProcessDao(db));
 		index(PRODUCT_SYSTEM, new ProductSystemDao(db));
+		index(IMPACT_CATEGORY, new ImpactCategoryDao(db));
 		index(IMPACT_METHOD, new ImpactMethodDao(db));
 		index(NW_SET, new NwSetDao(db));
 		index(PROJECT, new ProjectDao(db));

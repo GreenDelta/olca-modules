@@ -1,14 +1,14 @@
 package org.openlca.core.matrix.uncertainties;
 
-import java.util.ArrayList;
-
-import org.openlca.core.matrix.CalcExchange;
-import org.openlca.core.matrix.format.IMatrix;
-import org.openlca.expressions.FormulaInterpreter;
-
 import gnu.trove.impl.Constants;
 import gnu.trove.iterator.TIntObjectIterator;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import org.openlca.core.matrix.CalcExchange;
+import org.openlca.core.matrix.CalcImpactFactor;
+import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.expressions.FormulaInterpreter;
+
+import java.util.ArrayList;
 
 /**
  * An UMatrix is a matrix with uncertainty distributions.
@@ -22,6 +22,20 @@ public class UMatrix {
 				Constants.DEFAULT_CAPACITY,
 				Constants.DEFAULT_LOAD_FACTOR,
 				-1);
+	}
+
+	public void add(int row, int col, CalcImpactFactor i) {
+		if (i == null)
+			return;
+
+		// clear the formula when there is an uncertainty distribution
+		// assigned -> we cannot have both
+		if (i.hasUncertainty() && i.formula != null) {
+			i.formula = null;
+		}
+
+		TIntObjectHashMap<UCell> rowm = getRow(row);
+		rowm.put(col, new UImpactCell(i));
 	}
 
 	/**
@@ -42,19 +56,12 @@ public class UMatrix {
 
 		// clear the formula when there is an uncertainty distribution
 		// assigned -> we cannot have both
-		if (e.hasUncertainty() && e.amountFormula != null) {
-			e.amountFormula = null;
+		if (e.hasUncertainty() && e.formula != null) {
+			e.formula = null;
 		}
 
 		// select the cell
-		TIntObjectHashMap<UCell> rowm = data.get(row);
-		if (rowm == null) {
-			rowm = new TIntObjectHashMap<>(
-					Constants.DEFAULT_CAPACITY,
-					Constants.DEFAULT_LOAD_FACTOR,
-					-1);
-			data.put(row, rowm);
-		}
+		TIntObjectHashMap<UCell> rowm = getRow(row);
 		UCell cell = rowm.get(col);
 
 		// no exchange at the given cell yet
@@ -70,6 +77,18 @@ public class UMatrix {
 			ecell.overlay = new ArrayList<>(1);
 		}
 		ecell.overlay.add(new UExchangeCell(e, allocationFactor));
+	}
+
+	private TIntObjectHashMap<UCell> getRow(int row) {
+		TIntObjectHashMap<UCell> rowm = data.get(row);
+		if (rowm == null) {
+			rowm = new TIntObjectHashMap<>(
+					Constants.DEFAULT_CAPACITY,
+					Constants.DEFAULT_LOAD_FACTOR,
+					-1);
+			data.put(row, rowm);
+		}
+		return rowm;
 	}
 
 	/**

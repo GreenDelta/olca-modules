@@ -3,7 +3,6 @@ package org.openlca.expressions;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.openlca.expressions.FormulaInterpreter;
 
 public class NumberTest {
 

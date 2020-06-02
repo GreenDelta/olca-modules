@@ -3,11 +3,11 @@ package org.openlca.core.results;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 /**
@@ -87,9 +87,9 @@ public class FullResult extends ContributionResult {
 	 * Get the upstream contribution of the given process-product pair $j$ to
 	 * the inventory result of elementary flow $i$: $\mathbf{U}[i,j]$.
 	 */
-	public double getUpstreamFlowResult(
-			ProcessProduct product,
-			FlowDescriptor flow) {
+	public double getUpstreamFlowResult(ProcessProduct product, IndexFlow flow) {
+		if (techIndex == null || flowIndex == null)
+			return 0;
 		int row = flowIndex.of(flow);
 		int col = techIndex.getIndex(product);
 		return adopt(flow, getValue(upstreamFlowResults, row, col));
@@ -100,9 +100,8 @@ public class FullResult extends ContributionResult {
 	 * result of elementary flow $i$. When the process has multiple products it
 	 * is the sum of the contributions of all of these process-product pairs.
 	 */
-	public double getUpstreamFlowResult(
-			CategorizedDescriptor process,
-			FlowDescriptor flow) {
+	public double getUpstreamFlowResult(CategorizedDescriptor process,
+			IndexFlow flow) {
 		double total = 0;
 		for (ProcessProduct p : techIndex.getProviders(process)) {
 			total += getUpstreamFlowResult(p, flow);
@@ -118,11 +117,8 @@ public class FullResult extends ContributionResult {
 			CategorizedDescriptor process) {
 		List<FlowResult> results = new ArrayList<>();
 		flowIndex.each((i, flow) -> {
-			FlowResult r = new FlowResult();
-			r.flow = flow;
-			r.input = flowIndex.isInput(flow);
-			r.value = getUpstreamFlowResult(process, flow);
-			results.add(r);
+			double value = getUpstreamFlowResult(process, flow);
+			results.add(new FlowResult(flow, value));
 		});
 		return results;
 	}
@@ -225,7 +221,7 @@ public class FullResult extends ContributionResult {
 	/**
 	 * Calculate the upstream tree for the given flow.
 	 */
-	public UpstreamTree getTree(FlowDescriptor flow) {
+	public UpstreamTree getTree(IndexFlow flow) {
 		int i = flowIndex.of(flow);
 		double[] u = upstreamFlowResults.getRow(i);
 		return new UpstreamTree(flow, this, u);

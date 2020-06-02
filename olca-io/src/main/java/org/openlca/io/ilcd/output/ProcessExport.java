@@ -1,11 +1,5 @@
 package org.openlca.io.ilcd.output;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ProcessDocumentation;
@@ -17,11 +11,10 @@ import org.openlca.ilcd.commons.ModellingApproach;
 import org.openlca.ilcd.commons.ModellingPrinciple;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.ReviewType;
-import org.openlca.ilcd.processes.AdminInfo;
+import org.openlca.ilcd.commons.Time;
 import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Geography;
 import org.openlca.ilcd.processes.Method;
-import org.openlca.ilcd.processes.Parameter;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.ProcessName;
 import org.openlca.ilcd.processes.Representativeness;
@@ -31,6 +24,12 @@ import org.openlca.ilcd.util.TimeExtension;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 /**
  * The export of an openLCA process to an ILCD process data set.
@@ -46,28 +45,30 @@ public class ProcessExport {
 		this.config = config;
 	}
 
-	public Process run(org.openlca.core.model.Process process) {
-		if (config.store.contains(Process.class, process.refId))
-			return config.store.get(Process.class, process.refId);
-		log.trace("Run process export with {}", process);
-		this.process = process;
-		this.doc = process.documentation;
+	public Process run(org.openlca.core.model.Process p) {
+		if (config.store.contains(Process.class, p.refId))
+			return config.store.get(Process.class, p.refId);
+		log.trace("Run process export with {}", p);
+		this.process = p;
+		this.doc = p.documentation;
+
 		ProcessBuilder builder = ProcessBuilder.makeProcess()
 				.with(makeLciMethod())
-				.withAdminInfo(makeAdminInformation())
+				.withAdminInfo(new ProcessAdminInfo(config).create(p))
 				.withDataSetInfo(makeDataSetInfo())
 				.withGeography(makeGeography())
-				.withParameters(makeParameters())
+				.withParameters(new ProcessParameterConversion(config).run(p))
 				.withRepresentativeness(makeRepresentativeness())
 				.withReviews(makeReviews())
 				.withTechnology(makeTechnology())
 				.withTime(makeTime());
-		Exchange qRef = process.quantitativeReference;
+
+		Exchange qRef = p.quantitativeReference;
 		if (qRef != null) {
 			builder.withReferenceFlowId(qRef.internalId);
 		}
 		Process iProcess = builder.getProcess();
-		new ExchangeConversion(process, config).run(iProcess);
+		new ExchangeConversion(p, config).run(iProcess);
 		config.store.put(iProcess);
 		return iProcess;
 	}
@@ -97,15 +98,9 @@ public class ProcessExport {
 
 	private org.openlca.ilcd.commons.Time makeTime() {
 		log.trace("Create process time.");
-		org.openlca.ilcd.commons.Time iTime = new org.openlca.ilcd.commons.Time();
-		mapTime(iTime);
-		return iTime;
-	}
-
-	private void mapTime(org.openlca.ilcd.commons.Time iTime) {
-		log.trace("Map process time.");
+		Time iTime = new Time();
 		if (doc == null)
-			return;
+			return iTime;
 		TimeExtension extension = new TimeExtension(iTime);
 		if (doc.validFrom != null) {
 			iTime.referenceYear = getYear(doc.validFrom);
@@ -116,6 +111,7 @@ public class ProcessExport {
 			extension.setEndDate(doc.validUntil);
 		}
 		s(iTime.description, doc.time);
+		return iTime;
 	}
 
 	private Integer getYear(Date date) {
@@ -142,8 +138,7 @@ public class ProcessExport {
 			// location coordinates in openLCA but probably never a valid
 			// process location, right?
 			if (!(oLoc.latitude == 0.0 && oLoc.longitude == 0.0)) {
-				String pos = oLoc.latitude + ";" + oLoc.longitude;
-				iLoc.latitudeAndLongitude = pos;
+				iLoc.latitudeAndLongitude = oLoc.latitude + ";" + oLoc.longitude;
 			}
 		}
 		s(iLoc.description, doc.geography);
@@ -162,13 +157,6 @@ public class ProcessExport {
 					doc.technology);
 		}
 		return iTechnology;
-	}
-
-	private List<Parameter> makeParameters() {
-		log.trace("Create process parameters.");
-		ProcessParameterConversion conv = new ProcessParameterConversion(
-				config);
-		return conv.run(process);
 	}
 
 	private Method makeLciMethod() {
@@ -256,15 +244,6 @@ public class ProcessExport {
 		}
 		s(review.details, doc.reviewDetails);
 		return reviews;
-	}
-
-	private AdminInfo makeAdminInformation() {
-		log.trace("Create process administrative information.");
-		if (doc == null)
-			return null;
-		ProcessAdminInfo processAdminInfo = new ProcessAdminInfo(config);
-		AdminInfo iAdminInfo = processAdminInfo.create(process);
-		return iAdminInfo;
 	}
 
 	private void s(List<LangString> list, String val) {

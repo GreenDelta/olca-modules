@@ -1,15 +1,11 @@
 package org.openlca.io.ilcd.input;
 
-import java.util.Date;
-import java.util.List;
-
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
-import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.LangString;
@@ -21,6 +17,9 @@ import org.openlca.ilcd.util.Flows;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Date;
+import java.util.List;
 
 public class FlowImport {
 
@@ -114,8 +113,7 @@ public class FlowImport {
 		if (ilcdFlow == null || flow == null)
 			return;
 		String code = LangString.getFirst(ilcdFlow.getLocation(), config.langs);
-		Location location = Locations.get(code, config);
-		flow.location = location;
+		flow.location = Locations.get(code, config);
 	}
 
 	private void addFlowProperties() {
@@ -157,18 +155,15 @@ public class FlowImport {
 			return;
 		}
 		switch (t) {
-		case ELEMENTARY_FLOW:
-			flow.flowType = FlowType.ELEMENTARY_FLOW;
-			break;
-		case PRODUCT_FLOW:
-			flow.flowType = FlowType.PRODUCT_FLOW;
-			break;
-		case WASTE_FLOW:
-			flow.flowType = FlowType.WASTE_FLOW;
-			break;
-		default:
-			flow.flowType = FlowType.PRODUCT_FLOW;
-			break;
+			case ELEMENTARY_FLOW:
+				flow.flowType = FlowType.ELEMENTARY_FLOW;
+				break;
+			case WASTE_FLOW:
+				flow.flowType = FlowType.WASTE_FLOW;
+				break;
+			default:
+				flow.flowType = FlowType.PRODUCT_FLOW;
+				break;
 		}
 	}
 

@@ -11,7 +11,7 @@ public final class GeometryCollection extends Geometry {
 
 	public final List<Geometry> geometries = new ArrayList<>();
 
-	static GeometryCollection fromJson(JsonObject obj) {
+	public static GeometryCollection fromJson(JsonObject obj) {
 		GeometryCollection coll = new GeometryCollection();
 		JsonElement elem = obj.get("geometries");
 		if (elem == null || !elem.isJsonArray())
@@ -29,7 +29,7 @@ public final class GeometryCollection extends Geometry {
 	}
 
 	@Override
-	JsonObject toJson() {
+	public JsonObject toJson() {
 		JsonObject obj = new JsonObject();
 		obj.addProperty("type", "GeometryCollection");
 		JsonArray array = new JsonArray();

@@ -5,10 +5,10 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.openlca.core.TestProcess;
 import org.openlca.core.TestSystem;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.results.FullResult;
 
 public class AllocationTest {
@@ -67,12 +67,11 @@ public class AllocationTest {
 
 	private void checkIt(AllocationMethod method, Process p) {
 		ProductSystem system = TestSystem.of(p).get();
-		CalculationSetup setup = new CalculationSetup(
-				CalculationType.UPSTREAM_ANALYSIS, system);
+		CalculationSetup setup = new CalculationSetup(system);
 		setup.allocationMethod = method;
 		FullResult r = TestSystem.calculate(setup);
 		assertEquals(1, r.flowIndex.size());
-		FlowDescriptor co2 = r.flowIndex.at(0);
+		IndexFlow co2 = r.flowIndex.at(0);
 		assertEquals(0.5, r.getTotalFlowResult(co2), 1e-16);
 	}
 

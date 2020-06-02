@@ -38,6 +38,16 @@ public class UpgradeChainTest {
 		// to see that each upgrade was executed; also note
 		// that the rollbacks are done in reverse order
 
+		// roll back Upgrade9
+		u.dropTable("tbl_parameter_redef_sets");
+		u.dropColumn("tbl_parameter_redefs", "description");
+		u.dropTable("tbl_impact_links");
+		u.createColumn("tbl_impact_categories", "f_impact_method BIGINT");
+		u.dropColumn("tbl_impact_categories", "f_category");
+		u.dropColumn("tbl_exchanges", "f_location");
+		u.dropColumn("tbl_impact_factors", "f_location");
+		u.dropColumn("tbl_locations", "geodata");
+
 		// roll back Upgrade8
 		u.dropColumn("tbl_process_links", "is_system_link");
 		u.dropColumn("tbl_impact_methods", "f_author");
@@ -112,6 +122,15 @@ public class UpgradeChainTest {
 		assertTrue(u.columnExists("tbl_process_docs", "preceding_dataset"));
 		assertTrue(u.columnExists("tbl_project_variants", "is_disabled"));
 		assertTrue(u.tableExists("tbl_source_links"));
+
+		// check Upgrade9
+		assertTrue(u.tableExists("tbl_parameter_redef_sets"));
+		assertTrue(u.columnExists("tbl_parameter_redefs", "description"));
+		assertTrue(u.tableExists("tbl_impact_links"));
+		assertTrue(u.columnExists("tbl_impact_categories", "f_category"));
+		assertTrue(u.columnExists("tbl_exchanges", "f_location"));
+		assertTrue(u.columnExists("tbl_impact_factors", "f_location"));
+		assertTrue(u.columnExists("tbl_locations", "geodata"));
 
 		// finally, check that we now have the current database version
 		assertEquals(IDatabase.CURRENT_VERSION, db.getVersion());

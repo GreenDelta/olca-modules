@@ -3,20 +3,22 @@ package org.openlca.core.matrix;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactMethodDao;
+import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.DataStructures;
 import org.openlca.core.matrix.cache.ExchangeTable;
 import org.openlca.core.matrix.cache.FlowTable;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.format.MatrixBuilder;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
-import org.openlca.julia.JuliaSolver;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 
@@ -38,6 +40,9 @@ public class FastMatrixBuilder {
 	private MatrixBuilder enviBuilder;
 	private double[] costs;
 
+	// only used when a regionalized inventory is build
+	private final TLongObjectHashMap<LocationDescriptor> locations;
+
 	/**
 	 * A map that assigns the IDs of products and waste flows to their
 	 * respective providers. This map is initialized lazily when there are no
@@ -51,11 +56,18 @@ public class FastMatrixBuilder {
 		this.db = db;
 		this.setup = setup;
 		this.flows = FlowTable.create(db);
+		if (!setup.withRegionalization) {
+			locations = null;
+		} else {
+			locations = new LocationDao(db).descriptorMap();
+		}
 	}
 
 	public MatrixData build() {
 		techIndex = buildTechIndex();
-		flowIndex = new FlowIndex();
+		flowIndex = setup.withRegionalization
+				? FlowIndex.createRegionalized()
+				: FlowIndex.create();
 		interpreter = DataStructures.interpreter(
 				db, setup, techIndex);
 		techBuilder = new MatrixBuilder();
@@ -86,25 +98,37 @@ public class FastMatrixBuilder {
 
 		MatrixData data = new MatrixData();
 		data.techIndex = techIndex;
-		data.enviIndex = flowIndex;
+		data.flowIndex = flowIndex;
 		data.techMatrix = techBuilder.finish();
 		data.enviMatrix = enviBuilder.finish();
 		data.costVector = costs;
 
 		// add LCIA matrices
-		// TODO: we should remove the solver
-		// dependency from the ImpactTable
 		if (setup.impactMethod != null) {
-			ImpactTable impacts = ImpactTable.build(
-					MatrixCache.createLazy(db),
-					setup.impactMethod.id,
-					flowIndex);
-			data.impactMatrix = impacts.createMatrix(
-					new JuliaSolver(), interpreter);
-			data.impactIndex = impacts.impactIndex;
+			addImpacts(data);
 		}
 
 		return data;
+	}
+
+	private void addImpacts(MatrixData data) {
+		if(flowIndex.isEmpty())
+			return;
+
+		// load the LCIA category index
+		ImpactMethodDao dao = new ImpactMethodDao(db);
+		List<ImpactCategoryDescriptor> indicators = dao.getCategoryDescriptors(
+				setup.impactMethod.id);
+		if (indicators.isEmpty())
+			return;
+		DIndex<ImpactCategoryDescriptor> impactIndex = new DIndex<>();
+		impactIndex.putAll(indicators);
+
+		// build the matrix
+		ImpactBuilder.ImpactData idata = new ImpactBuilder(db)
+				.build(flowIndex, impactIndex, interpreter);
+		data.impactIndex = impactIndex;
+		data.impactMatrix = idata.impactMatrix;
 	}
 
 	private void putExchangeValue(ProcessProduct provider, CalcExchange e) {
@@ -147,14 +171,7 @@ public class FastMatrixBuilder {
 	}
 
 	private void addIntervention(ProcessProduct provider, CalcExchange e) {
-		int row = flowIndex.of(e.flowId);
-		if (row < 0) {
-			if (e.isInput) {
-				row = flowIndex.putInput(flows.get(e.flowId));
-			} else {
-				row = flowIndex.putOutput(flows.get(e.flowId));
-			}
-		}
+		int row = flowIndex.register(provider, e, flows, locations);
 		add(row, provider, enviBuilder, e);
 	}
 

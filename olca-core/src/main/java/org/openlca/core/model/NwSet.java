@@ -20,8 +20,8 @@ import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 @Table(name = "tbl_nw_sets")
 public class NwSet extends RootEntity {
 
-	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
 	@JoinColumn(name = "f_nw_set")
+	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
 	public final List<NwFactor> factors = new ArrayList<>();
 
 	@Column(name = "weighted_score_unit")

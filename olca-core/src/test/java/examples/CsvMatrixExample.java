@@ -7,11 +7,9 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.DataStructures;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.io.CsvOut;
 import org.openlca.core.matrix.solvers.DenseSolver;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
@@ -36,8 +34,7 @@ public class CsvMatrixExample {
 		// create the calculation setup
 		ProductSystem system = new ProductSystemDao(db).getForRefId(
 				"2c46bdcc-9798-4e78-868c-020ff7b7fd74");
-		CalculationSetup setup = new CalculationSetup(
-				CalculationType.CONTRIBUTION_ANALYSIS, system);
+		CalculationSetup setup = new CalculationSetup(system);
 		// setup.impactMethod = new ImpactMethodDao(db)
 		// .getDescriptorForRefId(
 		// "207ffac9-aaa8-401d-ac90-874defd3751a");
@@ -47,10 +44,9 @@ public class CsvMatrixExample {
 		IMatrixSolver solver = new DenseSolver();
 
 		// create and export the matrix data
-		MatrixCache mcache = MatrixCache.createEager(db);
 		File exportDir = new File("target/data");
 		MatrixData data = DataStructures.matrixData(
-				setup, solver, mcache, Collections.emptyMap());
+				setup, db, Collections.emptyMap());
 		CsvOut.write(data, db, exportDir);
 
 		// calculate and export the result

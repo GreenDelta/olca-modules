@@ -1,7 +1,5 @@
 package org.openlca.io.xls.results.system;
 
-import java.util.List;
-
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
@@ -13,32 +11,31 @@ class ProcessImpactUpstreamSheet extends
 		ContributionSheet<CategorizedDescriptor, ImpactCategoryDescriptor> {
 
 	private final CellWriter writer;
-	private final FullResult result;
+	private final FullResult r;
 
-	static void write(ResultExport export, FullResult result) {
-		new ProcessImpactUpstreamSheet(export, result)
-				.write(export.workbook, export.processes, export.impacts);
+	static void write(ResultExport export, FullResult r) {
+		new ProcessImpactUpstreamSheet(export, r)
+				.write(export.workbook);
 	}
 
-	private ProcessImpactUpstreamSheet(ResultExport export, FullResult result) {
+	private ProcessImpactUpstreamSheet(ResultExport export, FullResult r) {
 		super(export.writer, ResultExport.PROCESS_HEADER,
 				ResultExport.FLOW_HEADER);
 		this.writer = export.writer;
-		this.result = result;
+		this.r = r;
 	}
 
-	private void write(Workbook workbook, List<CategorizedDescriptor> processes,
-			List<ImpactCategoryDescriptor> impacts) {
-		Sheet sheet = workbook.createSheet("Process upstream impacts");
+	private void write(Workbook wb) {
+		Sheet sheet = wb.createSheet("Process upstream impacts");
 		header(sheet);
-		subHeaders(sheet, processes, impacts);
-		data(sheet, processes, impacts);
+		subHeaders(sheet, r.getProcesses(), r.getImpacts());
+		data(sheet, r.getProcesses(), r.getImpacts());
 	}
 
 	@Override
 	protected double getValue(CategorizedDescriptor process,
 			ImpactCategoryDescriptor impact) {
-		return result.getUpstreamImpactResult(process, impact);
+		return r.getUpstreamImpactResult(process, impact);
 	}
 
 	@Override

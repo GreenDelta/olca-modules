@@ -11,6 +11,8 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.ContributionResult;
 
+import gnu.trove.set.hash.TLongHashSet;
+
 public class DQResult {
 
 	public final DQCalculationSetup setup;
@@ -63,7 +65,19 @@ public class DQResult {
 				|| setup.aggregationType == null
 				|| setup.productSystemId == 0l)
 			return null;
-		DQData data = DQData.load(db, setup, result.flowIndex.ids());
+
+		// load the data quality data
+		TLongHashSet flowIDs = new TLongHashSet();
+		if (result.flowIndex != null) {
+			result.flowIndex.each((i, f) -> {
+				if (f.flow != null) {
+					flowIDs.add(f.flow.id);
+				}
+			});
+		}
+		DQData data = DQData.load(db, setup, flowIDs.toArray());
+
+		// create the result
 		DQResult dqResult = new DQResult(setup, data.statistics);
 		RoundingMode rmode = setup.roundingMode;
 		if (setup.processDqSystem != null) {

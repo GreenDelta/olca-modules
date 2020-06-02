@@ -2,8 +2,7 @@ package org.openlca.jsonld.input;
 
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.ParameterRedef;
-import org.openlca.core.model.Process;
+import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.Json;
@@ -35,10 +34,18 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 
 		s.targetAmount = Json.getDouble(json, "targetAmount", 1d);
 		addProcesses(json, s);
-		addParameters(json, s);
 		addInventory(json, s);
+		addParameterSets(json, s);
 		importLinkRefs(json, s);
 		ProductSystemLinks.map(json, conf, s);
+
+		// add parameter redefinitions
+		JsonArray redefs = Json.getArray(json, "parameterRedefs");
+		if (redefs != null) {
+			s.parameterRedefs.addAll(
+					ParameterRedefs.read(redefs, conf));
+		}
+
 		return conf.db.put(s);
 	}
 
@@ -85,37 +92,7 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 		}
 	}
 
-	private void addParameters(JsonObject json, ProductSystem s) {
-		JsonArray array = Json.getArray(json, "parameterRedefs");
-		if (array == null || array.size() == 0)
-			return;
-		for (JsonElement element : array) {
-			JsonObject ref = element.getAsJsonObject();
-			ParameterRedef p = new ParameterRedef();
-			p.name = Json.getString(ref, "name");
-			p.value = Json.getDouble(ref, "value", 0);
-			p.uncertainty = Uncertainties.read(Json
-					.getObject(ref, "uncertainty"));
-			JsonObject context = Json.getObject(ref, "context");
-			if (context == null) {
-				s.parameterRedefs.add(p);
-				continue;
-			}
-			String type = Json.getString(context, "@type");
-			if (!Process.class.getSimpleName().equals(type))
-				continue;
-			String refId = Json.getString(context, "@id");
-			Process model = ProcessImport.run(refId, conf);
-			if (model == null)
-				continue;
-			p.contextType = ModelType.PROCESS;
-			p.contextId = model.id;
-			s.parameterRedefs.add(p);
-		}
-	}
-
 	private void addInventory(JsonObject json, ProductSystem s) {
-		s.inventory.clear();
 		JsonArray array = Json.getArray(json, "inventory");
 		if (array == null || array.size() == 0)
 			return;
@@ -125,6 +102,27 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 					ref, conf,
 					(ProductSystem system) -> system.inventory);
 			s.inventory.add(ex);
+		}
+	}
+
+	private void addParameterSets(JsonObject json, ProductSystem sys) {
+		JsonArray array = Json.getArray(json, "parameterSets");
+		if (array == null || array.size() == 0)
+			return;
+		for (JsonElement elem : array) {
+			if (!elem.isJsonObject())
+				continue;
+			JsonObject obj = elem.getAsJsonObject();
+			ParameterRedefSet s = new ParameterRedefSet();
+			sys.parameterSets.add(s);
+			s.name = Json.getString(obj, "name");
+			s.description = Json.getString(obj, "description");
+			s.isBaseline = Json.getBool(obj, "isBaseline", false);
+			JsonArray redefs = Json.getArray(obj, "parameters");
+			if (redefs != null && redefs.size() > 0) {
+				s.parameters.addAll(
+						ParameterRedefs.read(redefs, conf));
+			}
 		}
 	}
 }

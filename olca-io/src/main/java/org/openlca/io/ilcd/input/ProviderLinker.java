@@ -1,5 +1,10 @@
 package org.openlca.io.ilcd.input;
 
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,11 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.NativeSql;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The provider linker is used for collecting provider links during the import
@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 public class ProviderLinker {
 
 	/** Describes a provider link. */
-	private class Link {
+	private static class Link {
 
 		/** The reference ID of the process. */
 		final String process;
@@ -149,11 +149,8 @@ public class ProviderLinker {
 				}
 				continue;
 			}
-			Map<Integer, Long> imap = map.get(processID);
-			if (imap == null) {
-				imap = new HashMap<Integer, Long>();
-				map.put(processID, imap);
-			}
+			Map<Integer, Long> imap = map.computeIfAbsent(
+					processID, k -> new HashMap<>());
 			imap.put(link.exchange, providerID);
 		}
 		return map;

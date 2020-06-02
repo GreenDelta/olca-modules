@@ -8,9 +8,7 @@ import java.util.UUID;
 
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.SystemCalculator;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
@@ -50,9 +48,7 @@ public class TestSystem {
 			if (!isProvider(e))
 				continue;
 			long flowId = e.flow.id;
-			if (providers.get(flowId) == null) {
-				providers.put(flowId, process);
-			}
+			providers.putIfAbsent(flowId, process);
 		}
 	}
 
@@ -90,9 +86,7 @@ public class TestSystem {
 		FlowType type = e.flow.flowType;
 		if (type == FlowType.PRODUCT_FLOW && !e.isInput)
 			return true;
-		if (type == FlowType.WASTE_FLOW && e.isInput)
-			return true;
-		return false;
+		return type == FlowType.WASTE_FLOW && e.isInput;
 	}
 
 	public ProductSystem get() {
@@ -101,26 +95,24 @@ public class TestSystem {
 	}
 
 	public static FullResult calculate(ProductSystem system) {
-		CalculationSetup setup = new CalculationSetup(
-				CalculationType.UPSTREAM_ANALYSIS, system);
+		CalculationSetup setup = new CalculationSetup(system);
 		setup.withCosts = true;
 		return calculate(setup);
 	}
 
 	public static FullResult calculate(CalculationSetup setup) {
 		SystemCalculator calc = new SystemCalculator(
-				MatrixCache.createEager(Tests.getDb()),
+				Tests.getDb(),
 				Tests.getDefaultSolver());
 		return calc.calculateFull(setup);
 	}
 
 	public static ContributionResult contributions(
 			ProductSystem system) {
-		CalculationSetup setup = new CalculationSetup(
-				CalculationType.CONTRIBUTION_ANALYSIS, system);
+		CalculationSetup setup = new CalculationSetup(system);
 		setup.withCosts = true;
 		SystemCalculator calc = new SystemCalculator(
-				MatrixCache.createEager(Tests.getDb()),
+				Tests.getDb(),
 				Tests.getDefaultSolver());
 		return calc.calculateContributions(setup);
 	}

@@ -33,12 +33,17 @@ public class ProductSystem extends CategorizedEntity {
 	@Transient
 	public boolean withoutNetwork = false;
 
+	/**
+	 * @deprecated parameter redefinitions are now organized in parameter sets
+	 */
+	@Deprecated
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_owner")
 	public final List<ParameterRedef> parameterRedefs = new ArrayList<>();
 
 	@ElementCollection
-	@CollectionTable(name = "tbl_process_links", joinColumns = @JoinColumn(name = "f_product_system"))
+	@CollectionTable(name = "tbl_process_links",
+			joinColumns = @JoinColumn(name = "f_product_system"))
 	public final List<ProcessLink> processLinks = new ArrayList<>();
 
 	@OneToOne
@@ -71,7 +76,11 @@ public class ProductSystem extends CategorizedEntity {
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_owner")
-	public List<Exchange> inventory = new ArrayList<>();
+	public final List<Exchange> inventory = new ArrayList<>();
+
+	@JoinColumn(name = "f_product_system")
+	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
+	public final List<ParameterRedefSet> parameterSets = new ArrayList<>();
 
 	/**
 	 * Initializes a product system from the given process. Note that this
@@ -91,11 +100,6 @@ public class ProductSystem extends CategorizedEntity {
 		system.referenceExchange = qRef;
 		if (qRef == null || qRef.flow == null)
 			return system;
-		FlowType type = qRef.flow.flowType;
-		if (qRef.isInput && type != FlowType.WASTE_FLOW)
-			return system;
-		if (!qRef.isInput && type != FlowType.PRODUCT_FLOW)
-			return system;
 		system.targetAmount = qRef.amount;
 		system.targetUnit = qRef.unit;
 		system.targetFlowPropertyFactor = qRef.flowPropertyFactor;
@@ -111,12 +115,18 @@ public class ProductSystem extends CategorizedEntity {
 		clone.referenceProcess = referenceProcess;
 		clone.targetAmount = targetAmount;
 		clone.processes.addAll(processes);
-		for (ProcessLink processLink : processLinks)
-			clone.processLinks.add(processLink.clone());
-		for (ParameterRedef redef : parameterRedefs)
-			clone.parameterRedefs.add(redef.clone());
-		for (Exchange exchange : inventory)
+		for (ProcessLink link : processLinks) {
+			clone.processLinks.add(link.clone());
+		}
+		for (ParameterRedef p : parameterRedefs) {
+			clone.parameterRedefs.add(p.clone());
+		}
+		for (ParameterRedefSet s : parameterSets) {
+			clone.parameterSets.add(s.clone());
+		}
+		for (Exchange exchange : inventory) {
 			clone.inventory.add(exchange.clone());
+		}
 		clone.targetFlowPropertyFactor = targetFlowPropertyFactor;
 		clone.targetUnit = targetUnit;
 		return clone;
