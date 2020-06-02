@@ -8,16 +8,19 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
 import org.openlca.jsonld.Json;
+import org.openlca.util.KeyGen;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -59,28 +62,17 @@ public class HSCSim {
 		Optional<Process> of(JsonObject obj) {
 			if (obj == null)
 				return Optional.empty();
-
-			// TODO: correct the property names
-			var sheet = Json.getObject(obj, "HSCSimFlowSheet");
+			var sheet = Json.getObject(obj, "HSCSimFlowsheet");
 			if (sheet == null)
 				return Optional.empty();
-
 			var process = initProcess(sheet);
-			var streams = Json.getArray(obj, "streams");
-			if (streams != null) {
-				for (var elem : streams) {
-					if (!elem.isJsonObject())
-						continue;
-					var stream = elem.getAsJsonObject();
-					var amount = Json.getDouble(stream, "amount");
-					if (amount.isEmpty())
-						continue;
-					var flow = mapFlow(stream);
-					if (flow.isEmpty())
-						continue;
-
-					// TODO: var exchange = Exchange.of(flowEntry.)
-				}
+			var inputs = Json.getArray(obj, "input_streams");
+			if (inputs != null) {
+				addExchanges(process, inputs, true);
+			}
+			var outputs  = Json.getArray(obj, "output_streams");
+			if (outputs != null) {
+				addExchanges(process, outputs, false);
 			}
 			return Optional.of(new ProcessDao(db).insert(process));
 		}
@@ -88,16 +80,70 @@ public class HSCSim {
 		private Process initProcess(JsonObject sheet) {
 			var process = new Process();
 			process.refId = UUID.randomUUID().toString();
-			process.name = Json.getString(sheet, "name"); // TODO
-			process.description  = Json.getString(sheet, "description"); // TODO
+			var info = Json.getObject(sheet, "info");
+			if (info != null) {
+				process.name = Json.getString(info, "processname");
+			}
 			process.processType = ProcessType.LCI_RESULT;
 			process.category = new CategoryDao(db)
-					.sync(ModelType.PROCESS, "HSC Flow Sheets"); // TODO
+					.sync(ModelType.PROCESS, "HSC Flow Sheets");
 			return process;
 		}
 
-		private Optional<FlowMapEntry> mapFlow(JsonObject stream) {
+		private void addExchanges(
+				Process process, JsonArray streams, boolean asInputs) {
+			if (streams == null)
+				return;
+			for (var elem : streams) {
+				if (!elem.isJsonObject())
+					continue;
+				var stream = elem.getAsJsonObject();
+				var amount = Json.getDouble(stream, "amount");
+				if (amount.isEmpty())
+					continue;
+				var e = exchange(stream);
+				if (e.isEmpty())
+					continue;
+				var exchange = e.get();
+
+				// the exchange.amount field contains a possible
+				// conversion factor
+				exchange.amount *= amount.get();
+				exchange.isInput = asInputs;
+
+				// set the quantitative reference
+				var type = Json.getString(stream, "type");
+				if (type != null && type.equals("main product")) {
+					process.quantitativeReference = exchange;
+				}
+
+				process.add(exchange);
+			}
+		}
+
+		private Optional<Exchange> exchange(JsonObject stream) {
+			var id = flowKey(stream);
+			var mapEntry = map.getEntry(id);
+			if (mapEntry != null) {
+				var e = fromMapped(mapEntry);
+				if (e.isPresent())
+					return e;
+			}
+
 			return Optional.empty(); // TODO
+		}
+
+		private String flowKey(JsonObject stream) {
+			var name = Json.getString(stream, "name");
+			var unit = Json.getString(stream, "unit");
+			return KeyGen.get("hsc", "stream", name, unit);
+		}
+
+		private Optional<Exchange> fromMapped(FlowMapEntry fme) {
+			if (fme == null || fme.targetFlow == null)
+				return Optional.empty();
+
+			return Optional.empty();
 		}
 	}
 }

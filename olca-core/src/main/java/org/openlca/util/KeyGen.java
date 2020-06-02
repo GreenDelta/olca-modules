@@ -1,14 +1,15 @@
 package org.openlca.util;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.UUID;
 
 /**
  * Generates a UUID version 3 for a given set of names.
- * 
+ *
  * Note that the generated key is case insensitive and that leading and trailing
  * white-spaces are ignored.
- * 
+ *
  */
 public class KeyGen {
 
@@ -19,7 +20,8 @@ public class KeyGen {
 			return UUID.nameUUIDFromBytes(new byte[0]).toString();
 		String path = toPath(names);
 		try {
-			return UUID.nameUUIDFromBytes(path.getBytes("UTF-8")).toString();
+			var bytes = path.getBytes(StandardCharsets.UTF_8);
+			return UUID.nameUUIDFromBytes(bytes).toString();
 		} catch (Exception e) {
 			throw new RuntimeException("Key generation failed", e);
 		}
@@ -34,8 +36,6 @@ public class KeyGen {
 			if (i < (names.length - 1))
 				builder.append('/');
 		}
-		String path = builder.toString().toLowerCase(Locale.US);
-		return path;
+		return builder.toString().toLowerCase(Locale.US);
 	}
-
 }
