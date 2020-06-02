@@ -1,10 +1,4 @@
 language: java
 
-addons:
-  apt:
-    packages:
-      - gfortran
-      - libgfortran3
-
 jdk:
-  - openjdk8
+  - openjdk14
