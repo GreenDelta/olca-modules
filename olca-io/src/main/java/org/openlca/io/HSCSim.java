@@ -76,11 +76,11 @@ public class HSCSim {
 			if (sheet == null)
 				return Optional.empty();
 			var process = initProcess(sheet);
-			var inputs = Json.getArray(obj, "input_streams");
+			var inputs = Json.getArray(sheet, "input_streams");
 			if (inputs != null) {
 				addExchanges(process, inputs, true);
 			}
-			var outputs = Json.getArray(obj, "output_streams");
+			var outputs = Json.getArray(sheet, "output_streams");
 			if (outputs != null) {
 				addExchanges(process, outputs, false);
 			}
@@ -108,7 +108,7 @@ public class HSCSim {
 				if (!elem.isJsonObject())
 					continue;
 				var stream = elem.getAsJsonObject();
-				var amount = Json.getDouble(stream, "amount");
+				var amount = Json.getDouble(stream, "value");
 				if (amount.isEmpty())
 					continue;
 				var e = exchange(stream);
@@ -260,12 +260,5 @@ public class HSCSim {
 			units.put(symbol, entry);
 			return entry;
 		}
-	}
-
-	public static void main(String[] args) {
-		var dbPath = "C:\\Users\\Win10\\openLCA-data-1.4\\databases\\sim2";
-		var db = new DerbyDatabase(new File(dbPath));
-		var filePath = "C:/Users/Win10/Downloads/json_example_ms.json";
-		HSCSim.importProcess(db, new File(filePath), FlowMap.empty());
 	}
 }
