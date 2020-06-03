@@ -1,5 +1,6 @@
 package org.openlca.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -13,6 +14,32 @@ import java.nio.file.attribute.BasicFileAttributes;
  * A simple utility class for directory operations.
  */
 public final class Dirs {
+
+	/**
+	 * Returns true if and only if the given file is an empty folder.
+	 */
+	public static boolean isEmpty(File file) {
+		if (file == null)
+			return false;
+		return isEmpty(file.toPath());
+	}
+
+	/**
+	 * Returns true if and only if the given path points to an empty folder.
+	 */
+	public static boolean isEmpty(Path path) {
+		if (path == null)
+			return false;
+		if (!Files.isDirectory(path) || !Files.exists(path))
+			return false;
+		try {
+			return !Files.newDirectoryStream(path)
+					.iterator()
+					.hasNext();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	/**
 	 * Creates a directory if it not yet exists.
@@ -29,7 +56,7 @@ public final class Dirs {
 			return;
 		try {
 			Files.createDirectories(dir);
-		} catch (Exception e) {
+		} catch (IOException e) {
 			throw new RuntimeException("failed to create directories " + dir, e);
 		}
 	}
@@ -98,7 +125,7 @@ public final class Dirs {
 		copy(from, to);
 		delete(from);
 	}
-	
+
 	/**
 	 * Determines the size of the content of a directory recursively.
 	 */
@@ -117,7 +144,7 @@ public final class Dirs {
 	private static class Size extends SimpleFileVisitor<Path> {
 
 		private long size;
-		
+
 		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
 			size += attrs.size();
 			return FileVisitResult.CONTINUE;
@@ -137,8 +164,8 @@ public final class Dirs {
 
 	private static class Copy extends SimpleFileVisitor<Path> {
 
-		private Path from;
-		private Path to;
+		private final Path from;
+		private final Path to;
 
 		public Copy(Path from, Path to) {
 			this.from = from;
