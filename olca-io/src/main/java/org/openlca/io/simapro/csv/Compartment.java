@@ -78,6 +78,13 @@ class Compartment {
 		// find compartments for the path
 		// try to match more specific first
 
+		// social flows
+		if (match(path, "social")) {
+			return Compartment.of(
+					ElementaryFlowType.SOCIAL_ISSUES, 
+					SubCompartment.UNSPECIFIED);
+		}
+		
 		// resources
 		if (match(path, "resource")) {
 			ElementaryFlowType type = ElementaryFlowType.RESOURCES;

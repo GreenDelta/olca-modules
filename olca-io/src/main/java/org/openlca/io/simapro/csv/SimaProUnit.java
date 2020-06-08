@@ -27,7 +27,7 @@ public enum SimaProUnit {
 	GPt("GPt", 1000000000, "Pt", "Indicator", null),
 	ha_a("ha a", 10000, "m2a", "Land use", null),
 	ha("ha", 10000, "m2", "Area", null),
-	hr("hr", 3600, "s", "Time", null),
+	hr("hr", 3600, "s", "Time", new String[] { "hour", "h" }),
 	inch("inch", 0.0254, "m", "Length", null),
 	J("J", 0.000001, "MJ", "Energy", null),
 	kBq("kBq", 1000, "Bq", "Radioactivity", null),
@@ -115,10 +115,10 @@ public enum SimaProUnit {
 	private final String[] synonyms;
 
 	SimaProUnit(String symbol,
-				double factor,
-				String refUnit,
-				String quantity,
-				String[] synonyms) {
+			double factor,
+			String refUnit,
+			String quantity,
+			String[] synonyms) {
 		this.symbol = symbol;
 		this.factor = factor;
 		this.refUnit = refUnit;
