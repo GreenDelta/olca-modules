@@ -98,6 +98,17 @@ public final class Dirs {
 		}
 	}
 
+	public static void delete(File dir) {
+		if (dir == null || !dir.exists())
+			return;
+		if (!dir.isDirectory()) {
+			if (!dir.delete()) {
+				dir.deleteOnExit();
+			}
+		}
+		delete(dir.toPath());
+	}
+
 	/**
 	 * Deletes a directory recursively.
 	 */

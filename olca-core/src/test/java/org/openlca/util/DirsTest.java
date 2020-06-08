@@ -29,4 +29,14 @@ public class DirsTest {
 		Assert.assertTrue(Dirs.isEmpty(path.toFile()));
 		Dirs.delete(path);
 	}
+
+	@Test
+	public void testDelete() throws Exception {
+		var dir = Files.createTempDirectory("_olca_tests").toFile();
+		var file = new File(dir, "test.txt");
+		Files.writeString(file.toPath(), "a test");
+		Dirs.delete(dir);
+		Assert.assertFalse(file.exists());
+		Assert.assertFalse(dir.exists());
+	}
 }
