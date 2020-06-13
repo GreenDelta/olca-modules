@@ -77,7 +77,7 @@ class ProcessHandler {
 		mapLocation();
 		mapCategory();
 		mapType();
-		new ProcessDocMapper(database, refData).map(block, process);
+		new ProcessDocMapper(refData).map(block, process);
 		parameterMapper = new ProcessParameterMapper(database);
 		long scope = parameterMapper.map(block, process);
 		mapProductOutputs(process, scope);
@@ -166,8 +166,8 @@ class ProcessHandler {
 			}
 		}
 		if (block.getWasteTreatment() != null) {
-			Exchange e = createProductOutput(process, block.getWasteTreatment(), scope);
-			process.quantitativeReference = e;
+			process.quantitativeReference = createProductOutput(
+					process, block.getWasteTreatment(), scope);
 		}
 	}
 

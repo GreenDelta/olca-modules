@@ -23,7 +23,7 @@ public class SimaProCSV {
 
 	private final File file;
 	private final Object handler;
-	private HashMap<Class<?>, List<Method>> methodHandlers = new HashMap<>();
+	private final HashMap<Class<?>, List<Method>> methodHandlers = new HashMap<>();
 
 	private SimaProCSV(File file, Object handler) {
 		this.file = file;
@@ -44,9 +44,9 @@ public class SimaProCSV {
 			return;
 		}
 		CsvConfig config = readConfig(file);
-		try (BlockReader reader = new BlockReader(file);
-				ModelReader modelReader = createModelReader(reader, config)) {
-			Object model = null;
+		try (var reader = new BlockReader(file);
+				var modelReader = createModelReader(reader, config)) {
+			Object model;
 			while ((model = modelReader.read()) != null) {
 				handleModel(model);
 			}
@@ -76,11 +76,8 @@ public class SimaProCSV {
 			method.setAccessible(true);
 			for (Class<?> paramType : paramTypes) {
 				log.trace("register method {} for type {}", method, paramType);
-				List<Method> handlers = methodHandlers.get(paramType);
-				if (handlers == null) {
-					handlers = new ArrayList<>();
-					methodHandlers.put(paramType, handlers);
-				}
+				var handlers = methodHandlers.computeIfAbsent(
+						paramType, k -> new ArrayList<>());
 				handlers.add(method);
 			}
 		}

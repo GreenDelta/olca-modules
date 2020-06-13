@@ -4,7 +4,6 @@ import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Source;
@@ -17,12 +16,12 @@ import org.slf4j.LoggerFactory;
 
 class ProcessDocMapper {
 
-	private RefData refData;
+	private final RefData refData;
 
 	private ProcessBlock block;
 	private Process process;
 
-	public ProcessDocMapper(IDatabase database, RefData refData) {
+	public ProcessDocMapper(RefData refData) {
 		this.refData = refData;
 	}
 
@@ -67,16 +66,14 @@ class ProcessDocMapper {
 	}
 
 	private void mapInventoryMethod(ProcessDocumentation doc) {
-		String t = null;
-		t = a("Allocation rules", block.getAllocationRules(), t);
+		var t = a("Allocation rules", block.getAllocationRules(), (String) null);
 		t = a("Multiple output allocation", block.getAllocation(), t);
 		t = a("Substitution allocation", block.getSubstitution(), t);
 		doc.inventoryMethod = t;
 	}
 
 	private void mapCompleteness(ProcessDocumentation doc) {
-		String t = null;
-		t = a("Cut off rules", block.getCutoff(), t);
+		String t = a("Cut off rules", block.getCutoff(), (String) null);
 		t = a("Capital goods", block.getCapitalGoods(), t);
 		doc.completeness = t;
 	}
@@ -104,10 +101,10 @@ class ProcessDocMapper {
 		try {
 			int startYear = Integer.parseInt(m.group(1));
 			Calendar c = Calendar.getInstance();
-			c.set(startYear, 0, 1, 0, 0);
+			c.set(startYear, Calendar.JANUARY, 1, 0, 0);
 			doc.validFrom = c.getTime();
 			int endYear = Integer.parseInt(m.group(2));
-			c.set(endYear, 11, 31, 0, 0);
+			c.set(endYear, Calendar.DECEMBER, 31, 0, 0);
 			doc.validUntil = c.getTime();
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(getClass());
@@ -135,19 +132,17 @@ class ProcessDocMapper {
 	private String a(String label, String value, String field) {
 		if (value == null)
 			return field;
-		if (field == null)
-			return label + ": " + value + "\n";
-		else
-			return field + label + ": " + value + "\n";
+		return field == null
+			? label + ": " + value + "\n"
+			: field + label + ": " + value + "\n";
 	}
 
-	private String a(String label, ValueEnum venum, String field) {
-		if (venum == null)
+	private String a(String label, ValueEnum val, String field) {
+		if (val == null)
 			return field;
-		if (field == null)
-			return label + ": " + venum.getValue() + "\n";
-		else
-			return field + label + ": " + venum.getValue() + "\n";
+		return field == null
+			? label + ": " + val.getValue() + "\n"
+			: field + label + ": " + val.getValue() + "\n";
 	}
 
 	private void a(String label, ValueEnum venum, StringBuilder builder) {
