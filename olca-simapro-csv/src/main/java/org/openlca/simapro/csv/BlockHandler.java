@@ -1,8 +1,10 @@
 package org.openlca.simapro.csv;
 
 import org.openlca.simapro.csv.model.process.ProcessBlock;
+import org.openlca.simapro.csv.model.refdata.CalculatedParameterBlock;
 import org.openlca.simapro.csv.model.refdata.IElementaryFlowBlock;
 import org.openlca.simapro.csv.model.refdata.IParameterBlock;
+import org.openlca.simapro.csv.model.refdata.InputParameterBlock;
 import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
 import org.openlca.simapro.csv.model.refdata.QuantityBlock;
 import org.openlca.simapro.csv.model.refdata.UnitBlock;
@@ -20,9 +22,15 @@ public abstract class BlockHandler {
 	}
 
 	/**
-	 * Handles global input or calculated parameters.
+	 * Handles global (database or project) input parameters.
 	 */
-	public void parameters(IParameterBlock block) {
+	public void inputParameters(InputParameterBlock block) {
+	}
+
+	/**
+	 * Handles global (database or project) calculated parameters.
+	 */
+	public void calculatedParameters(CalculatedParameterBlock block) {
 	}
 
 	public void process(ProcessBlock block) {
