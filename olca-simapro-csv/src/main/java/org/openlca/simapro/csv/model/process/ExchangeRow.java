@@ -1,4 +1,7 @@
-package org.openlca.simapro.csv.model;
+package org.openlca.simapro.csv.model.process;
+
+import org.openlca.simapro.csv.model.IDataRow;
+import org.openlca.simapro.csv.model.Uncertainty;
 
 /**
  * Defines the common fields of a SimaPro exchange.

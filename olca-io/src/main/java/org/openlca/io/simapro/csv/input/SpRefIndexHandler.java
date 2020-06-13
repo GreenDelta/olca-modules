@@ -1,10 +1,10 @@
 package org.openlca.io.simapro.csv.input;
 
-import org.openlca.simapro.csv.model.ExchangeRow;
 import org.openlca.simapro.csv.model.annotations.BlockHandler;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ProductType;
 import org.openlca.simapro.csv.model.process.ElementaryExchangeRow;
+import org.openlca.simapro.csv.model.process.ExchangeRow;
 import org.openlca.simapro.csv.model.process.ProcessBlock;
 import org.openlca.simapro.csv.model.process.ProductExchangeRow;
 import org.openlca.simapro.csv.model.process.ProductOutputRow;

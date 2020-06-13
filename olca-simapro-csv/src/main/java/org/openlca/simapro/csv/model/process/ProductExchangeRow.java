@@ -2,7 +2,6 @@ package org.openlca.simapro.csv.model.process;
 
 import org.openlca.simapro.csv.CsvConfig;
 import org.openlca.simapro.csv.CsvUtils;
-import org.openlca.simapro.csv.model.ExchangeRow;
 import org.openlca.simapro.csv.model.Uncertainty;
 
 public class ProductExchangeRow extends ExchangeRow {
