@@ -50,7 +50,7 @@ class ProcessHandler {
 
 	@BlockHandler
 	public void handleProcess(ProcessBlock block) {
-		String refId = KeyGen.get(block.getIdentifier());
+		String refId = KeyGen.get(block.identifier);
 		Process process = dao.getForRefId(refId);
 		if (process != null) {
 			log.warn("a process with the identifier {} is already in the "
@@ -87,8 +87,8 @@ class ProcessHandler {
 	}
 
 	private void mapName() {
-		if (block.getName() != null) {
-			process.name = block.getName();
+		if (block.name != null) {
+			process.name = block.name;
 			return;
 		}
 		Flow refFlow = getRefFlow();
@@ -96,7 +96,7 @@ class ProcessHandler {
 			process.name = refFlow.name;
 			return;
 		}
-		process.name = block.getIdentifier();
+		process.name = block.identifier;
 	}
 
 	private void mapLocation() {
@@ -107,7 +107,7 @@ class ProcessHandler {
 	}
 
 	private void mapAllocation() {
-		for (ProductOutputRow output : block.getProducts()) {
+		for (ProductOutputRow output : block.products) {
 			double value = output.getAllocation() / 100d;
 			long productId = refData.getProduct(output.getName()).id;
 			addFactor(AllocationMethod.PHYSICAL, productId, value);
@@ -145,29 +145,29 @@ class ProcessHandler {
 	}
 
 	private Flow getRefFlow() {
-		if (!block.getProducts().isEmpty()) {
-			ProductOutputRow refRow = block.getProducts().get(0);
+		if (!block.products.isEmpty()) {
+			ProductOutputRow refRow = block.products.get(0);
 			Flow flow = refData.getProduct(refRow.getName());
 			if (flow != null)
 				return flow;
 		}
-		if (block.getWasteTreatment() != null)
-			return refData.getProduct(block.getWasteTreatment().getName());
+		if (block.wasteTreatment != null)
+			return refData.getProduct(block.wasteTreatment.getName());
 		return null;
 	}
 
 	private void mapProductOutputs(Process process, long scope) {
 		boolean first = true;
-		for (ProductOutputRow row : block.getProducts()) {
+		for (ProductOutputRow row : block.products) {
 			Exchange e = createProductOutput(process, row, scope);
 			if (first && e != null) {
 				process.quantitativeReference = e;
 				first = false;
 			}
 		}
-		if (block.getWasteTreatment() != null) {
+		if (block.wasteTreatment != null) {
 			process.quantitativeReference = createProductOutput(
-					process, block.getWasteTreatment(), scope);
+					process, block.wasteTreatment, scope);
 		}
 	}
 
@@ -195,7 +195,7 @@ class ProcessHandler {
 			for (ElementaryExchangeRow row : block
 					.getElementaryExchangeRows(type)) {
 				String key = KeyGen.get(row.getName(),
-						type.getExchangeHeader(), row.getSubCompartment(),
+						type.getExchangeHeader(), row.subCompartment,
 						row.getUnit());
 				MapFactor<Flow> factor = refData.getMappedFlow(key);
 				Exchange e;
@@ -270,11 +270,11 @@ class ProcessHandler {
 
 	private void mapCategory() {
 		String categoryPath = null;
-		if (!block.getProducts().isEmpty()) {
-			ProductOutputRow row = block.getProducts().get(0);
+		if (!block.products.isEmpty()) {
+			ProductOutputRow row = block.products.get(0);
 			categoryPath = row.getCategory();
-		} else if (block.getWasteTreatment() != null)
-			categoryPath = block.getWasteTreatment().getCategory();
+		} else if (block.wasteTreatment != null)
+			categoryPath = block.wasteTreatment.getCategory();
 		if (Strings.nullOrEmpty(categoryPath))
 			return;
 		var path = categoryPath.split("\\\\");
@@ -283,7 +283,7 @@ class ProcessHandler {
 	}
 
 	private void mapType() {
-		var type = block.getProcessType();
+		var type = block.processType;
 		if (type == null) {
 			process.processType = ProcessType.UNIT_PROCESS;
 			return;

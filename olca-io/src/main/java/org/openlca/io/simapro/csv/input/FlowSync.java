@@ -64,7 +64,7 @@ class FlowSync {
 	private void syncElemFlow(ElementaryExchangeRow row,
 			ElementaryFlowType type, RefData refData) {
 		String key = KeyGen.get(row.getName(), type.getExchangeHeader(),
-				row.getSubCompartment(), row.getUnit());
+				row.subCompartment, row.getUnit());
 		MapFactor<Flow> mappedFlow = getMappedFlow(key);
 		if (mappedFlow != null)
 			refData.putMappedFlow(key, mappedFlow);
@@ -236,7 +236,7 @@ class FlowSync {
 		if (exchangeRow == null || type == null)
 			return null;
 		String[] path;
-		String subCompartment = exchangeRow.getSubCompartment();
+		String subCompartment = exchangeRow.subCompartment;
 		if (subCompartment != null && !subCompartment.isEmpty())
 			path = new String[] { type.getExchangeHeader(), subCompartment };
 		else

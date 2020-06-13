@@ -33,14 +33,14 @@ class ProcessDocMapper {
 		mapSources();
 		mapDocFields();
 		mapDescription();
-		if (block.getInfrastructure() != null)
-			process.infrastructureProcess = block.getInfrastructure();
+		if (block.infrastructure != null)
+			process.infrastructureProcess = block.infrastructure;
 	}
 
 	private void mapSources() {
 		ProcessDocumentation doc = process.documentation;
-		for (LiteratureReferenceRow row : block.getLiteratureReferences()) {
-			Source source = refData.getSource(row.getName());
+		for (LiteratureReferenceRow row : block.literatureReferences) {
+			Source source = refData.getSource(row.name);
 			if (source == null)
 				continue;
 			doc.sources.add(source);
@@ -50,36 +50,36 @@ class ProcessDocMapper {
 	private void mapDocFields() {
 		ProcessDocumentation doc = process.documentation;
 		mapTime(doc);
-		if (block.getGeography() != null)
-			doc.geography = block.getGeography().getValue();
-		if (block.getTechnology() != null)
-			doc.technology = block.getTechnology().getValue();
-		if (block.getRepresentativeness() != null)
-			doc.dataSelection = block.getRepresentativeness().getValue();
-		doc.dataTreatment = block.getDataTreatment();
-		doc.sampling = block.getCollectionMethod();
-		doc.reviewDetails = block.getVerification();
+		if (block.geography != null)
+			doc.geography = block.geography.getValue();
+		if (block.technology != null)
+			doc.technology = block.technology.getValue();
+		if (block.representativeness != null)
+			doc.dataSelection = block.representativeness.getValue();
+		doc.dataTreatment = block.dataTreatment;
+		doc.sampling = block.collectionMethod;
+		doc.reviewDetails = block.verification;
 		mapInventoryMethod(doc);
 		mapCompleteness(doc);
 		mapProject(doc);
-		doc.creationDate = block.getDate();
+		doc.creationDate = block.date;
 	}
 
 	private void mapInventoryMethod(ProcessDocumentation doc) {
-		var t = a("Allocation rules", block.getAllocationRules(), (String) null);
-		t = a("Multiple output allocation", block.getAllocation(), t);
-		t = a("Substitution allocation", block.getSubstitution(), t);
+		var t = a("Allocation rules", block.allocationRules, (String) null);
+		t = a("Multiple output allocation", block.allocation, t);
+		t = a("Substitution allocation", block.substitution, t);
 		doc.inventoryMethod = t;
 	}
 
 	private void mapCompleteness(ProcessDocumentation doc) {
-		String t = a("Cut off rules", block.getCutoff(), (String) null);
-		t = a("Capital goods", block.getCapitalGoods(), t);
+		String t = a("Cut off rules", block.cutoff, (String) null);
+		t = a("Capital goods", block.capitalGoods, t);
 		doc.completeness = t;
 	}
 
 	private void mapProject(ProcessDocumentation doc) {
-		SystemDescriptionRow r = block.getSystemDescription();
+		SystemDescriptionRow r = block.systemDescription;
 		if (r == null || r.getName() == null)
 			return;
 		String t = r.getName();
@@ -89,9 +89,9 @@ class ProcessDocMapper {
 	}
 
 	private void mapTime(ProcessDocumentation doc) {
-		if (block.getTime() == null)
+		if (block.time == null)
 			return;
-		String text = block.getTime().getValue();
+		String text = block.time.getValue();
 		Pattern pattern = Pattern.compile("(\\d{4})-(\\d{4})");
 		Matcher m = pattern.matcher(text);
 		if (!m.matches()) {
@@ -114,12 +114,12 @@ class ProcessDocMapper {
 
 	private void mapDescription() {
 		StringBuilder builder = new StringBuilder();
-		if (block.getComment() != null)
-			builder.append(block.getComment());
-		a("Status", block.getStatus(), builder);
-		a("Boundary with nature", block.getBoundaryWithNature(), builder);
-		a("Record", block.getRecord(), builder);
-		a("Generator", block.getGenerator(), builder);
+		if (block.comment != null)
+			builder.append(block.comment);
+		a("Status", block.status, builder);
+		a("Boundary with nature", block.boundaryWithNature, builder);
+		a("Record", block.record, builder);
+		a("Generator", block.generator, builder);
 		process.description = builder.toString();
 	}
 

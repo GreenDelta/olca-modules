@@ -7,21 +7,13 @@ import org.openlca.simapro.csv.model.Uncertainty;
 
 public class ElementaryExchangeRow extends AbstractExchangeRow {
 
-	private String subCompartment;
-
-	public String getSubCompartment() {
-		return subCompartment;
-	}
-
-	public void setSubCompartment(String subCompartment) {
-		this.subCompartment = subCompartment;
-	}
+	public String subCompartment;
 
 	@Override
 	public void fill(String line, CsvConfig config) {
 		String[] columns = CsvUtils.split(line, config);
 		setName(CsvUtils.get(columns, 0));
-		setSubCompartment(CsvUtils.get(columns, 1));
+		this.subCompartment = CsvUtils.get(columns, 1);
 		setUnit(CsvUtils.get(columns, 2));
 		setAmount(CsvUtils.formatNumber(CsvUtils.get(columns, 3)));
 		Uncertainty uncertainty = Uncertainty.fromCsv(columns, 4);

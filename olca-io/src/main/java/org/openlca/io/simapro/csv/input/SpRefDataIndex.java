@@ -150,7 +150,7 @@ class SpRefDataIndex {
 			elemFlows.put(type, map);
 		}
 		String key = KeyGen.get(row.getName(), type.getExchangeHeader(),
-				row.getSubCompartment(), row.getUnit());
+				row.subCompartment, row.getUnit());
 		map.put(key, row);
 	}
 

@@ -18,7 +18,7 @@ public class ElementaryExchangeRowTest {
 		ElementaryExchangeRow exchange = new ElementaryExchangeRow();
 		exchange.fill(line, config);
 		assertEquals("Methane, fossil", exchange.getName());
-		assertEquals("high. pop.", exchange.getSubCompartment());
+		assertEquals("high. pop.", exchange.subCompartment);
 		assertEquals("kg", exchange.getUnit());
 		assertEquals("0.00011855", exchange.getAmount());
 		assertEquals(DistributionType.LOG_NORMAL, exchange
@@ -30,7 +30,7 @@ public class ElementaryExchangeRowTest {
 	public void testToCsv() {
 		ElementaryExchangeRow exchange = new ElementaryExchangeRow();
 		exchange.setName("Methane, fossil");
-		exchange.setSubCompartment("high. pop.");
+		exchange.subCompartment = "high. pop.";
 		exchange.setUnit("kg");
 		String line = exchange.toCsv(config);
 		Assert.assertTrue(line.startsWith("Methane, fossil;high. pop.;kg;"));

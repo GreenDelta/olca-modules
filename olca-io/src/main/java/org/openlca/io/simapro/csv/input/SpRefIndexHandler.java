@@ -103,10 +103,10 @@ class SpRefIndexHandler {
 
 	@BlockHandler
 	public void handleProcesses(ProcessBlock block) {
-		for (ProductOutputRow row : block.getProducts())
+		for (ProductOutputRow row : block.products)
 			indexProduct(row);
-		if (block.getWasteTreatment() != null)
-			indexProduct(block.getWasteTreatment());
+		if (block.wasteTreatment != null)
+			indexProduct(block.wasteTreatment);
 		for (ProductType type : ProductType.values()) {
 			for (ProductExchangeRow row : block.getProductExchanges(type)) {
 				indexProduct(row);

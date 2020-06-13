@@ -6,24 +6,8 @@ import org.openlca.simapro.csv.model.IDataRow;
 
 public class LiteratureReferenceRow implements IDataRow {
 
-	private String name;
-	private String comment;
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public String getComment() {
-		return comment;
-	}
-
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
+	public String name;
+	public String comment;
 
 	@Override
 	public void fill(String line, CsvConfig config) {
