@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 
-public interface IElementaryFlowBlock {
+public interface ElementaryFlowBlock {
 
-	ElementaryFlowType getFlowType();
+	ElementaryFlowType type();
 
-	List<ElementaryFlowRow> getFlows();
+	List<ElementaryFlowRow> rows();
 
 }

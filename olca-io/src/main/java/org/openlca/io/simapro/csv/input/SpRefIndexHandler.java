@@ -15,7 +15,7 @@ import org.openlca.simapro.csv.model.refdata.DatabaseInputParameterBlock;
 import org.openlca.simapro.csv.model.refdata.EconomicIssueBlock;
 import org.openlca.simapro.csv.model.refdata.ElementaryFlowRow;
 import org.openlca.simapro.csv.model.refdata.FinalWasteFlowBlock;
-import org.openlca.simapro.csv.model.refdata.IElementaryFlowBlock;
+import org.openlca.simapro.csv.model.refdata.ElementaryFlowBlock;
 import org.openlca.simapro.csv.model.refdata.InputParameterBlock;
 import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
 import org.openlca.simapro.csv.model.refdata.NonMaterialEmissionBlock;
@@ -68,9 +68,9 @@ class SpRefIndexHandler {
 			NonMaterialEmissionBlock.class, RawMaterialBlock.class,
 			SocialIssueBlock.class, SoilEmissionBlock.class,
 			WaterEmissionBlock.class })
-	public void handleElementaryFlows(IElementaryFlowBlock block) {
-		for (ElementaryFlowRow row : block.getFlows()) {
-			index.put(row, block.getFlowType());
+	public void handleElementaryFlows(ElementaryFlowBlock block) {
+		for (ElementaryFlowRow row : block.rows()) {
+			index.put(row, block.type());
 		}
 	}
 

@@ -8,18 +8,18 @@ import org.openlca.simapro.csv.model.annotations.BlockRows;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 
 @BlockModel("Airborne emissions")
-public class AirEmissionBlock implements IElementaryFlowBlock {
+public class AirEmissionBlock implements ElementaryFlowBlock {
 
 	@BlockRows
 	private List<ElementaryFlowRow> flows = new ArrayList<>();
 
 	@Override
-	public List<ElementaryFlowRow> getFlows() {
+	public List<ElementaryFlowRow> rows() {
 		return flows;
 	}
 
 	@Override
-	public ElementaryFlowType getFlowType() {
+	public ElementaryFlowType type() {
 		return ElementaryFlowType.EMISSIONS_TO_AIR;
 	}
 

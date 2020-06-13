@@ -27,7 +27,7 @@ public class ElementaryFlowTest {
 		reader.close();
 		AirEmissionBlock model = new BlockUnmarshaller(CsvConfig.getDefault())
 				.unmarshall(block, AirEmissionBlock.class);
-		List<ElementaryFlowRow> flows = model.getFlows();
+		List<ElementaryFlowRow> flows = model.rows();
 		Assert.assertEquals(2, flows.size());
 		Assert.assertEquals("1-Butanol", flows.get(0).name);
 		Assert.assertEquals("000109-67-1", flows.get(1).casNumber);

@@ -2,7 +2,7 @@ package org.openlca.simapro.csv;
 
 import org.openlca.simapro.csv.model.process.ProcessBlock;
 import org.openlca.simapro.csv.model.refdata.CalculatedParameterBlock;
-import org.openlca.simapro.csv.model.refdata.IElementaryFlowBlock;
+import org.openlca.simapro.csv.model.refdata.ElementaryFlowBlock;
 import org.openlca.simapro.csv.model.refdata.InputParameterBlock;
 import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
 import org.openlca.simapro.csv.model.refdata.QuantityBlock;
@@ -14,7 +14,7 @@ import org.openlca.simapro.csv.model.refdata.UnitBlock;
  */
 public abstract class BlockHandler {
 
-	public void elementaryFlows(IElementaryFlowBlock block) {
+	public void elementaryFlows(ElementaryFlowBlock block) {
 	}
 
 	public void literature(LiteratureReferenceBlock block) {

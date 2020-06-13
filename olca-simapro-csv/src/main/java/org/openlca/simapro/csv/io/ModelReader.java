@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 public class ModelReader implements Closeable {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final BlockReader blockReader;
 	private final BlockUnmarshaller unmarshaller;
@@ -37,13 +37,13 @@ public class ModelReader implements Closeable {
 				blockTypes.put(blockModel.value(), clazz);
 			} else {
 				log.warn("could not register class {}, it is not annotated with "
-						+ "@BlockModel");
+						+ "@BlockModel", clazz);
 			}
 		}
 	}
 
 	public Object read() throws Exception {
-		Block block = null;
+		Block block;
 		Object model = null;
 		while ((block = blockReader.read()) != null) {
 			model = tryGetModel(block);
