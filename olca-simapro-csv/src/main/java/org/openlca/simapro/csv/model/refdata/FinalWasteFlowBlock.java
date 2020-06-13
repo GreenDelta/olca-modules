@@ -11,7 +11,7 @@ import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 public class FinalWasteFlowBlock implements IElementaryFlowBlock {
 
 	@BlockRows
-	private List<ElementaryFlowRow> flows = new ArrayList<>();
+	private final List<ElementaryFlowRow> flows = new ArrayList<>();
 
 	@Override
 	public List<ElementaryFlowRow> getFlows() {

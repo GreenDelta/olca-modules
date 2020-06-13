@@ -1,26 +1,10 @@
 package org.openlca.simapro.csv.model.process;
 
-import org.openlca.simapro.csv.model.AbstractExchangeRow;
+import org.openlca.simapro.csv.model.ExchangeRow;
 
-public abstract class RefProductRow extends AbstractExchangeRow {
+public abstract class RefProductRow extends ExchangeRow {
 
-	private String wasteType;
-	private String category;
-
-	public String getWasteType() {
-		return wasteType;
-	}
-
-	public String getCategory() {
-		return category;
-	}
-
-	public void setWasteType(String wasteType) {
-		this.wasteType = wasteType;
-	}
-
-	public void setCategory(String category) {
-		this.category = category;
-	}
+	public String wasteType;
+	public String category;
 
 }

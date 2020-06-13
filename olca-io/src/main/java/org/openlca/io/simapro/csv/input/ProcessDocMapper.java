@@ -80,11 +80,11 @@ class ProcessDocMapper {
 
 	private void mapProject(ProcessDocumentation doc) {
 		SystemDescriptionRow r = block.systemDescription;
-		if (r == null || r.getName() == null)
+		if (r == null || r.name == null)
 			return;
-		String t = r.getName();
-		if (r.getComment() != null)
-			t += " (" + r.getComment() + ")";
+		String t = r.name;
+		if (r.comment != null)
+			t += " (" + r.comment + ")";
 		doc.project = t;
 	}
 

@@ -34,17 +34,17 @@ public class SystemDescriptionBlockTest {
 	@Test
 	public void testReadBlock() throws Exception {
 		SystemDescriptionBlock block = (SystemDescriptionBlock) reader.read();
-		assertEquals("system name", block.getName());
-		assertEquals("Others", block.getCategory());
-		assertEquals("text for description", block.getDescription());
-		assertEquals("text for sub-systems", block.getSubSystems());
-		assertEquals("text for cut-off rules", block.getCutOffRules());
-		assertEquals("text for energy model", block.getEnergyModel());
-		assertEquals("text for transport model", block.getTransportModel());
-		assertEquals("text for waste model", block.getWasteModel());
-		assertEquals("text for other assumptions", block.getOtherAssumptions());
-		assertEquals("text for other information", block.getOtherInformation());
-		assertEquals("text for allocation rules", block.getAllocationRules());
+		assertEquals("system name", block.name);
+		assertEquals("Others", block.category);
+		assertEquals("text for description", block.description);
+		assertEquals("text for sub-systems", block.subSystems);
+		assertEquals("text for cut-off rules", block.cutOffRules);
+		assertEquals("text for energy model", block.energyModel);
+		assertEquals("text for transport model", block.transportModel);
+		assertEquals("text for waste model", block.wasteModel);
+		assertEquals("text for other assumptions", block.otherAssumptions);
+		assertEquals("text for other information", block.otherInformation);
+		assertEquals("text for allocation rules", block.allocationRules);
 	}
 
 }

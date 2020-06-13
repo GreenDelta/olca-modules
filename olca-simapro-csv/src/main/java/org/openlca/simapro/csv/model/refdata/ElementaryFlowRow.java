@@ -6,42 +6,10 @@ import org.openlca.simapro.csv.model.IDataRow;
 
 public class ElementaryFlowRow implements IDataRow {
 
-	private String name;
-	private String referenceUnit;
-	private String casNumber;
-	private String comment;
-
-	public String getComment() {
-		return comment;
-	}
-
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
-
-	public String getCASNumber() {
-		return casNumber;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public String getReferenceUnit() {
-		return referenceUnit;
-	}
-
-	public void setCASNumber(String casNumber) {
-		this.casNumber = casNumber;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public void setReferenceUnit(String referenceUnit) {
-		this.referenceUnit = referenceUnit;
-	}
+	public String name;
+	public String referenceUnit;
+	public String casNumber;
+	public String comment;
 
 	@Override
 	public void fill(String line, CsvConfig config) {

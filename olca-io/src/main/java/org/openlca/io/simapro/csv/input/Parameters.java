@@ -15,25 +15,25 @@ class Parameters {
 	static Parameter create(InputParameterRow row, ParameterScope scope) {
 		Parameter p = new Parameter();
 		p.refId = UUID.randomUUID().toString();
-		p.name = row.getName();
+		p.name = row.name;
 		p.isInputParameter = true;
 		p.scope = scope;
-		p.value = row.getValue();
-		p.formula = Double.toString(row.getValue());
-		p.description = row.getComment();
-		p.uncertainty = Uncertainties.get(row.getValue(),
-		row.getUncertainty());
+		p.value = row.value;
+		p.formula = Double.toString(row.value);
+		p.description = row.comment;
+		p.uncertainty = Uncertainties.get(row.value,
+		row.uncertainty);
 		return p;
 	}
 
 	static Parameter create(CalculatedParameterRow row, ParameterScope scope) {
 		Parameter p = new Parameter();
 		p.refId = UUID.randomUUID().toString();
-		p.name = row.getName();
+		p.name = row.name;
 		p.scope = scope;
-		p.description = row.getComment();
+		p.description = row.comment;
 		p.isInputParameter = false;
-		String expr = row.getExpression();
+		String expr = row.expression;
 		if (expr.contains("(") && expr.contains(",")) {
 			// openLCA uses semicolons as parameter separators in functions
 			// but SimaPro uses commas here; However, this will fail anyhow

@@ -29,10 +29,10 @@ public class UnitBlockTest {
 		reader.close();
 		UnitBlock model = new BlockUnmarshaller(config).unmarshall(block,
 				UnitBlock.class);
-		List<UnitRow> rows = model.getUnits();
+		List<UnitRow> rows = model.units;
 		Assert.assertEquals(3, rows.size());
-		Assert.assertEquals("kg", rows.get(0).getName());
-		Assert.assertEquals(1000, rows.get(2).getConversionFactor(), 1e-16);
+		Assert.assertEquals("kg", rows.get(0).name);
+		Assert.assertEquals(1000, rows.get(2).conversionFactor, 1e-16);
 	}
 
 	@Test
@@ -40,19 +40,19 @@ public class UnitBlockTest {
 		String line = "mile;Length;1609,35;m";
 		UnitRow unit = new UnitRow();
 		unit.fill(line, config);
-		Assert.assertEquals("mile", unit.getName());
-		Assert.assertEquals("Length", unit.getQuantity());
-		Assert.assertEquals(1609.35, unit.getConversionFactor(), 1e-16);
-		Assert.assertEquals("m", unit.getReferenceUnit());
+		Assert.assertEquals("mile", unit.name);
+		Assert.assertEquals("Length", unit.quantity);
+		Assert.assertEquals(1609.35, unit.conversionFactor, 1e-16);
+		Assert.assertEquals("m", unit.referenceUnit);
 	}
 
 	@Test
 	public void testWriteLine() {
 		UnitRow unit = new UnitRow();
-		unit.setName("mile");
-		unit.setQuantity("Length");
-		unit.setConversionFactor(1609.35);
-		unit.setReferenceUnit("m");
+		unit.name = "mile";
+		unit.quantity = "Length";
+		unit.conversionFactor = 1609.35;
+		unit.referenceUnit = "m";
 		Assert.assertEquals("mile;Length;1609.35;m", unit.toLine(config));
 	}
 

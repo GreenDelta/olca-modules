@@ -40,11 +40,11 @@ public class LiteratureReferenceBlockTest {
 				CsvConfig.getDefault());
 		LiteratureReferenceBlock reference = unmarshaller.unmarshall(block,
 				LiteratureReferenceBlock.class);
-		Assert.assertEquals("Ecoinvent 3", reference.getName());
+		Assert.assertEquals("Ecoinvent 3", reference.name);
 		Assert.assertEquals("http://www.ecoinvent.org",
-				reference.getDocumentationLink());
-		Assert.assertEquals("Ecoinvent", reference.getCategory());
-		Assert.assertNull(reference.getDescription());
+				reference.documentationLink);
+		Assert.assertEquals("Ecoinvent", reference.category);
+		Assert.assertNull(reference.description);
 	}
 
 }

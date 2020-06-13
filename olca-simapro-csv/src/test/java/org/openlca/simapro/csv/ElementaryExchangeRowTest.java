@@ -17,21 +17,20 @@ public class ElementaryExchangeRowTest {
 				+ "2,3802;0;0;(4,5,5,5,5,na)(4,5,na,na,na,na), Estimation";
 		ElementaryExchangeRow exchange = new ElementaryExchangeRow();
 		exchange.fill(line, config);
-		assertEquals("Methane, fossil", exchange.getName());
+		assertEquals("Methane, fossil", exchange.name);
 		assertEquals("high. pop.", exchange.subCompartment);
-		assertEquals("kg", exchange.getUnit());
-		assertEquals("0.00011855", exchange.getAmount());
-		assertEquals(DistributionType.LOG_NORMAL, exchange
-				.getUncertaintyDistribution().getType());
-		assertEquals("(4,5,5,5,5,na)", exchange.getPedigreeUncertainty());
+		assertEquals("kg", exchange.unit);
+		assertEquals("0.00011855", exchange.amount);
+		assertEquals(DistributionType.LOG_NORMAL, exchange.uncertaintyDistribution.getType());
+		assertEquals("(4,5,5,5,5,na)", exchange.pedigreeUncertainty);
 	}
 
 	@Test
 	public void testToCsv() {
 		ElementaryExchangeRow exchange = new ElementaryExchangeRow();
-		exchange.setName("Methane, fossil");
+		exchange.name = "Methane, fossil";
 		exchange.subCompartment = "high. pop.";
-		exchange.setUnit("kg");
+		exchange.unit = "kg";
 		String line = exchange.toCsv(config);
 		Assert.assertTrue(line.startsWith("Methane, fossil;high. pop.;kg;"));
 	}

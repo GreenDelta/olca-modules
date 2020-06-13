@@ -17,7 +17,7 @@ import org.openlca.io.UnitMapping;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.MapFactor;
 import org.openlca.io.maps.OlcaFlowMapEntry;
-import org.openlca.simapro.csv.model.AbstractExchangeRow;
+import org.openlca.simapro.csv.model.ExchangeRow;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ProductType;
 import org.openlca.simapro.csv.model.process.ElementaryExchangeRow;
@@ -50,7 +50,7 @@ class FlowSync {
 	public void run(RefData refData) {
 		log.trace("synchronize flows with database");
 		try {
-			for (AbstractExchangeRow row : index.getProducts())
+			for (ExchangeRow row : index.getProducts())
 				syncProduct(row, refData);
 			for (ElementaryFlowType type : ElementaryFlowType.values()) {
 				for (ElementaryExchangeRow row : index.getElementaryFlows(type))
@@ -63,8 +63,8 @@ class FlowSync {
 
 	private void syncElemFlow(ElementaryExchangeRow row,
 			ElementaryFlowType type, RefData refData) {
-		String key = KeyGen.get(row.getName(), type.getExchangeHeader(),
-				row.subCompartment, row.getUnit());
+		String key = KeyGen.get(row.name, type.getExchangeHeader(),
+				row.subCompartment, row.unit);
 		MapFactor<Flow> mappedFlow = getMappedFlow(key);
 		if (mappedFlow != null)
 			refData.putMappedFlow(key, mappedFlow);
@@ -90,15 +90,15 @@ class FlowSync {
 		}
 	}
 
-	private void syncProduct(AbstractExchangeRow row, RefData refData) {
+	private void syncProduct(ExchangeRow row, RefData refData) {
 		if (row instanceof RefProductRow) {
 			Flow flow = getProductFlow((RefProductRow) row);
-			refData.putProduct(row.getName(), flow);
+			refData.putProduct(row.name, flow);
 		} else if (row instanceof ProductExchangeRow) {
 			ProductExchangeRow pRow = (ProductExchangeRow) row;
 			ProductType type = index.getProductType(pRow);
 			Flow flow = getProductFlow(pRow, type);
-			refData.putProduct(row.getName(), flow);
+			refData.putProduct(row.name, flow);
 		}
 	}
 
@@ -131,24 +131,24 @@ class FlowSync {
 	/**
 	 * Returns null if no unit / property pair could be found.
 	 */
-	private String getProductRefId(AbstractExchangeRow row) {
-		UnitMappingEntry unitEntry = unitMapping.getEntry(row.getUnit());
+	private String getProductRefId(ExchangeRow row) {
+		UnitMappingEntry unitEntry = unitMapping.getEntry(row.unit);
 		if (unitEntry == null) {
-			log.error("could not find unit {} in database", row.getUnit());
+			log.error("could not find unit {} in database", row.unit);
 			return null;
 		}
 		// we take the olca-flow property, because the unit name may changes
 		// in different data sets
 		return KeyGen
-				.get(row.getName(), unitEntry.flowProperty.refId);
+				.get(row.name, unitEntry.flowProperty.refId);
 	}
 
-	private Flow createProductFlow(String refId, AbstractExchangeRow row) {
-		UnitMappingEntry unitEntry = unitMapping.getEntry(row.getUnit());
+	private Flow createProductFlow(String refId, ExchangeRow row) {
+		UnitMappingEntry unitEntry = unitMapping.getEntry(row.unit);
 		Flow flow;
 		flow = new Flow();
 		flow.refId = refId;
-		flow.name = Strings.cut(row.getName(), 250);
+		flow.name = Strings.cut(row.name, 250);
 		flow.description = getProductDescription(row);
 		flow.flowType = FlowType.PRODUCT_FLOW;
 		flow.location = getProductLocation(row);
@@ -156,17 +156,17 @@ class FlowSync {
 		return flow;
 	}
 
-	private String getProductDescription(AbstractExchangeRow row) {
+	private String getProductDescription(ExchangeRow row) {
 		if (row == null)
 			return null;
 		String description = "Imported from SimaPro";
-		if (row.getComment() != null)
-			description += "\n" + row.getComment();
+		if (row.comment != null)
+			description += "\n" + row.comment;
 		if (!(row instanceof RefProductRow))
 			return description;
 		RefProductRow refRow = (RefProductRow) row;
-		if (refRow.getWasteType() != null)
-			description += "\nWaste type: " + refRow.getWasteType();
+		if (refRow.wasteType != null)
+			description += "\nWaste type: " + refRow.wasteType;
 		return description;
 	}
 
@@ -178,18 +178,18 @@ class FlowSync {
 	}
 
 	private Category getProductCategory(RefProductRow row) {
-		if (row.getCategory() == null)
+		if (row.category == null)
 			return null;
-		String[] path = row.getCategory().split("\\\\");
+		String[] path = row.category.split("\\\\");
 		return Categories.findOrAdd(database, ModelType.FLOW, path);
 	}
 
-	private Location getProductLocation(AbstractExchangeRow row) {
-		if (row.getName() == null)
+	private Location getProductLocation(ExchangeRow row) {
+		if (row.name == null)
 			return null;
 		// get a 2 letter or 3 letter location code from the product name
 		String codePattern = "\\{(([A-Z]{2})|([A-Z]{3}))\\}";
-		Matcher matcher = Pattern.compile(codePattern).matcher(row.getName());
+		Matcher matcher = Pattern.compile(codePattern).matcher(row.name);
 		if (!matcher.find())
 			return null;
 		String code = matcher.group();
@@ -201,7 +201,7 @@ class FlowSync {
 
 	private Flow getElementaryFlow(ElementaryExchangeRow row,
 			ElementaryFlowType type, String refId) {
-		String unit = row.getUnit();
+		String unit = row.unit;
 		UnitMappingEntry unitEntry = unitMapping.getEntry(unit);
 		if (unitEntry == null) {
 			log.error("could not find unit {} in database", unit);
@@ -212,11 +212,11 @@ class FlowSync {
 			return flow;
 		flow = new Flow();
 		flow.refId = refId;
-		flow.name = row.getName();
+		flow.name = row.name;
 		flow.category = getElementaryFlowCategory(row, type);
 		flow.flowType = FlowType.ELEMENTARY_FLOW;
 		setFlowProperty(unitEntry, flow);
-		ElementaryFlowRow flowInfo = index.getFlowInfo(row.getName(), type);
+		ElementaryFlowRow flowInfo = index.getFlowInfo(row.name, type);
 		setFlowData(flow, flowInfo);
 		dao.insert(flow);
 		return flow;
@@ -225,8 +225,8 @@ class FlowSync {
 	private void setFlowData(Flow flow, ElementaryFlowRow flowRow) {
 		if (flow == null || flowRow == null)
 			return;
-		flow.casNumber = flowRow.getCASNumber();
-		flow.description = flowRow.getComment();
+		flow.casNumber = flowRow.casNumber;
+		flow.description = flowRow.comment;
 		// TODO: we could parse the chemical formula, synonyms, and
 		// location from the comment string
 	}

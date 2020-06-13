@@ -17,19 +17,18 @@ public class ProductExchangeRowTest {
 		input.fill(line, config);
 		Assert.assertEquals(
 				"Transport, freight train {RoW}| market for | Alloc Def, U",
-				input.getName());
-		Assert.assertEquals("tkm", input.getUnit());
-		Assert.assertEquals("0.124620979212666", input.getAmount());
-		Assert.assertEquals(DistributionType.LOG_NORMAL, input
-				.getUncertaintyDistribution().getType());
-		Assert.assertEquals("(1,1,4,5,4,na)", input.getPedigreeUncertainty());
+				input.name);
+		Assert.assertEquals("tkm", input.unit);
+		Assert.assertEquals("0.124620979212666", input.amount);
+		Assert.assertEquals(DistributionType.LOG_NORMAL, input.uncertaintyDistribution.getType());
+		Assert.assertEquals("(1,1,4,5,4,na)", input.pedigreeUncertainty);
 	}
 
 	@Test
 	public void testToCsv() {
 		ProductExchangeRow input = new ProductExchangeRow();
-		input.setName("test name");
-		input.setUnit("kg");
+		input.name = "test name";
+		input.unit = "kg";
 		Assert.assertTrue(input.toCsv(config).startsWith("test name;kg"));
 	}
 

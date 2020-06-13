@@ -36,14 +36,14 @@ class GlobalParameterSync {
 		List<Parameter> globals = loadGlobals();
 		HashSet<String> added = new HashSet<>();
 		for (InputParameterRow row : index.getInputParameters()) {
-			if (contains(row.getName(), globals))
+			if (contains(row.name, globals))
 				continue;
 			Parameter param = Parameters.create(row, ParameterScope.GLOBAL);
 			added.add(param.name);
 			globals.add(param);
 		}
 		for (CalculatedParameterRow row : index.getCalculatedParameters()) {
-			if (contains(row.getName(), globals))
+			if (contains(row.name, globals))
 				continue;
 			Parameter param = Parameters.create(row, ParameterScope.GLOBAL);
 			globals.add(param);

@@ -75,46 +75,40 @@ public class ProcessBlockTest {
 
 	@Test
 	public void testElementaryExchanges() {
-		assertEquals("Acids", block.resources.get(0).getName());
-		assertEquals("(+-)-Citronellol", block.emissionsToAir.get(0)
-				.getName());
-		assertEquals("(1r,4r)-(+)-Camphor", block.emissionsToWater.get(0)
-				.getName());
-		assertEquals("1'-Acetoxysafrole", block.emissionsToSoil.get(0)
-				.getName());
-		assertEquals("Asbestos", block.finalWasteFlows.get(0).getName());
+		assertEquals("Acids", block.resources.get(0).name);
+		assertEquals("(+-)-Citronellol", block.emissionsToAir.get(0).name);
+		assertEquals("(1r,4r)-(+)-Camphor", block.emissionsToWater.get(0).name);
+		assertEquals("1'-Acetoxysafrole", block.emissionsToSoil.get(0).name);
+		assertEquals("Asbestos", block.finalWasteFlows.get(0).name);
 		assertEquals("Noise from bus km", block.nonMaterialEmissions
-				.get(0).getName());
+		.get(0).name);
 		assertEquals("venting of argon, crude, liquid", block.socialIssues
-				.get(0).getName());
-		assertEquals("Sample economic issue", block.economicIssues.get(0)
-				.getName());
+		.get(0).name);
+		assertEquals("Sample economic issue", block.economicIssues.get(0).name);
 	}
 
 	@Test
 	public void testProductRow() {
 		assertEquals(1, block.products.size());
-		assertEquals("my product", block.products.get(0).getName());
+		assertEquals("my product", block.products.get(0).name);
 	}
 
 	@Test
 	public void testProductExchanges() {
 		for (ProductType productType : ProductType.values())
 			assertEquals(1, block.getProductExchanges(productType).size());
-		assertEquals("Wool, at field/US", block.avoidedProducts.get(0)
-				.getName());
-		assertEquals("Soy oil, refined, at plant/kg/RNA", block.materialsAndFuels.get(0).getName());
-		assertEquals("Electricity, biomass, at power plant/US", block.electricityAndHeat.get(0).getName());
-		assertEquals("Dummy, Disposal, msw, to sanitary landfill/kg/GLO", block.wasteToTreatment.get(0).getName());
+		assertEquals("Wool, at field/US", block.avoidedProducts.get(0).name);
+		assertEquals("Soy oil, refined, at plant/kg/RNA", block.materialsAndFuels.get(0).name);
+		assertEquals("Electricity, biomass, at power plant/US", block.electricityAndHeat.get(0).name);
+		assertEquals("Dummy, Disposal, msw, to sanitary landfill/kg/GLO", block.wasteToTreatment.get(0).name);
 	}
 
 	@Test
 	public void testParameters() {
 		assertEquals(1, block.calculatedParameters.size());
 		assertEquals(1, block.inputParameters.size());
-		assertEquals("calc_param", block.calculatedParameters.get(0)
-				.getName());
-		assertEquals("input_param", block.inputParameters.get(0).getName());
+		assertEquals("calc_param", block.calculatedParameters.get(0).name);
+		assertEquals("input_param", block.inputParameters.get(0).name);
 	}
 
 	@Test
@@ -134,7 +128,6 @@ public class ProcessBlockTest {
 
 	@Test
 	public void testSystemDescription() {
-		assertEquals("U.S. LCI Database", block.systemDescription
-				.getName());
+		assertEquals("U.S. LCI Database", block.systemDescription.name);
 	}
 }

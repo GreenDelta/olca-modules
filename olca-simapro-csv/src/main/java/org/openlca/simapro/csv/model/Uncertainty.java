@@ -34,10 +34,10 @@ import org.openlca.simapro.csv.model.enums.DistributionType;
  */
 public class Uncertainty {
 
-	private DistributionType type;
-	private Double param1;
-	private Double param2;
-	private Double param3;
+	public DistributionType type;
+	public Double param1;
+	public Double param2;
+	public Double param3;
 
 	public static Uncertainty normal(double doubledSD) {
 		Uncertainty distribution = new Uncertainty();

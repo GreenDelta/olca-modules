@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openlca.simapro.csv.model.AbstractExchangeRow;
+import org.openlca.simapro.csv.model.ExchangeRow;
 import org.openlca.simapro.csv.model.CalculatedParameterRow;
 import org.openlca.simapro.csv.model.InputParameterRow;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
@@ -34,14 +34,14 @@ class SpRefDataIndex {
 	private HashMap<String, ElementaryFlowRow> elemFlowInfos = new HashMap<>();
 	private List<InputParameterRow> inputParameters = new ArrayList<>();
 	private List<CalculatedParameterRow> calculatedParameters = new ArrayList<>();
-	private HashMap<String, AbstractExchangeRow> products = new HashMap<>();
+	private HashMap<String, ExchangeRow> products = new HashMap<>();
 	private HashMap<String, ProductType> productTypes = new HashMap<>();
 	private HashMap<ElementaryFlowType, HashMap<String, ElementaryExchangeRow>> elemFlows = new HashMap<>();
 
 	public void put(QuantityRow quantity) {
 		if (quantity == null)
 			return;
-		quantities.put(quantity.getName(), quantity);
+		quantities.put(quantity.name, quantity);
 	}
 
 	public QuantityRow getQuantity(String name) {
@@ -51,7 +51,7 @@ class SpRefDataIndex {
 	public void put(UnitRow unitRow) {
 		if (unitRow == null)
 			return;
-		String name = unitRow.getName();
+		String name = unitRow.name;
 		unitRows.put(name, unitRow);
 	}
 
@@ -75,7 +75,7 @@ class SpRefDataIndex {
 	public void put(LiteratureReferenceBlock reference) {
 		if (reference == null)
 			return;
-		literatureReferences.put(reference.getName(), reference);
+		literatureReferences.put(reference.name, reference);
 	}
 
 	public Collection<LiteratureReferenceBlock> getLiteratureReferences() {
@@ -86,7 +86,7 @@ class SpRefDataIndex {
 		if (elemFlowRow == null || type == null)
 			return;
 		String key = KeyGen
-				.get(elemFlowRow.getName(), type.getExchangeHeader());
+				.get(elemFlowRow.name, type.getExchangeHeader());
 		elemFlowInfos.put(key, elemFlowRow);
 	}
 
@@ -115,30 +115,30 @@ class SpRefDataIndex {
 		return calculatedParameters;
 	}
 
-	public void putProduct(AbstractExchangeRow row) {
+	public void putProduct(ExchangeRow row) {
 		if (row == null)
 			return;
-		String key = row.getName();
-		AbstractExchangeRow existingRow = products.get(key);
+		String key = row.name;
+		ExchangeRow existingRow = products.get(key);
 		// favour reference product rows
 		if (existingRow == null || (row instanceof RefProductRow))
-			products.put(row.getName(), row);
+			products.put(row.name, row);
 	}
 
-	public Collection<AbstractExchangeRow> getProducts() {
+	public Collection<ExchangeRow> getProducts() {
 		return products.values();
 	}
 
 	public void putProductType(ProductExchangeRow row, ProductType type) {
 		if (row == null || type == null)
 			return;
-		productTypes.put(row.getName(), type);
+		productTypes.put(row.name, type);
 	}
 
 	public ProductType getProductType(ProductExchangeRow row) {
 		if (row == null)
 			return null;
-		return productTypes.get(row.getName());
+		return productTypes.get(row.name);
 	}
 
 	public void putElemFlow(ElementaryExchangeRow row, ElementaryFlowType type) {
@@ -149,8 +149,8 @@ class SpRefDataIndex {
 			map = new HashMap<>();
 			elemFlows.put(type, map);
 		}
-		String key = KeyGen.get(row.getName(), type.getExchangeHeader(),
-				row.subCompartment, row.getUnit());
+		String key = KeyGen.get(row.name, type.getExchangeHeader(),
+				row.subCompartment, row.unit);
 		map.put(key, row);
 	}
 

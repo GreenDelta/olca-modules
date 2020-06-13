@@ -66,7 +66,7 @@ class UnitSync {
 			String unit = unknownUnits.remove(0);
 			UnitRow row = index.getUnitRow(unit);
 			if (row != null
-					&& mapping.getEntry(row.getReferenceUnit()) != null) {
+					&& mapping.getEntry(row.referenceUnit) != null) {
 				addUnit(row, mapping);
 				continue;
 			}
@@ -88,9 +88,9 @@ class UnitSync {
 
 	/** Add a new unit to an existing unit group. */
 	private void addUnit(UnitRow row, UnitMapping mapping) {
-		String name = row.getName();
-		UnitMappingEntry refEntry = mapping.getEntry(row.getReferenceUnit());
-		double factor = row.getConversionFactor()
+		String name = row.name;
+		UnitMappingEntry refEntry = mapping.getEntry(row.referenceUnit);
+		double factor = row.conversionFactor
 				* refEntry.unit.conversionFactor;
 		Unit unit = new Unit();
 		unit.conversionFactor = factor;
@@ -139,9 +139,9 @@ class UnitSync {
 	private UnitGroup importQuantity(QuantityRow quantity,
 			UnitMapping mapping) {
 		UnitGroup group = create(UnitGroup.class,
-				"Units of " + quantity.getName());
+				"Units of " + quantity.name);
 		addUnits(group, quantity);
-		group = insertLinkProperty(group, quantity.getName());
+		group = insertLinkProperty(group, quantity.name);
 		for (Unit unit : group.units) {
 			UnitMappingEntry entry = new UnitMappingEntry();
 			entry.flowProperty = group.defaultFlowProperty;
@@ -169,12 +169,12 @@ class UnitSync {
 
 	private void addUnits(UnitGroup unitGroup, QuantityRow quantity) {
 		for (UnitRow row : index.getUnitRows()) {
-			if (!Objects.equals(row.getQuantity(), quantity.getName()))
+			if (!Objects.equals(row.quantity, quantity.name))
 				continue;
-			Unit unit = create(Unit.class, row.getName());
-			unit.conversionFactor = row.getConversionFactor();
+			Unit unit = create(Unit.class, row.name);
+			unit.conversionFactor = row.conversionFactor;
 			unitGroup.units.add(unit);
-			if (Objects.equals(row.getName(), row.getReferenceUnit()))
+			if (Objects.equals(row.name, row.referenceUnit))
 				unitGroup.referenceUnit = unit;
 		}
 	}
@@ -211,6 +211,6 @@ class UnitSync {
 		UnitRow row = index.getUnitRow(unitName);
 		if (row == null)
 			return null;
-		return index.getQuantity(row.getQuantity());
+		return index.getQuantity(row.quantity);
 	}
 }

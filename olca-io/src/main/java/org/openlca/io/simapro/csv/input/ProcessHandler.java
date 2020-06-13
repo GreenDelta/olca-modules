@@ -15,7 +15,7 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.MapFactor;
-import org.openlca.simapro.csv.model.AbstractExchangeRow;
+import org.openlca.simapro.csv.model.ExchangeRow;
 import org.openlca.simapro.csv.model.annotations.BlockHandler;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ProductType;
@@ -108,8 +108,8 @@ class ProcessHandler {
 
 	private void mapAllocation() {
 		for (ProductOutputRow output : block.products) {
-			double value = output.getAllocation() / 100d;
-			long productId = refData.getProduct(output.getName()).id;
+			double value = output.allocation / 100d;
+			long productId = refData.getProduct(output.name).id;
 			addFactor(AllocationMethod.PHYSICAL, productId, value);
 			addFactor(AllocationMethod.ECONOMIC, productId, value);
 			for (Exchange e : process.exchanges) {
@@ -147,12 +147,12 @@ class ProcessHandler {
 	private Flow getRefFlow() {
 		if (!block.products.isEmpty()) {
 			ProductOutputRow refRow = block.products.get(0);
-			Flow flow = refData.getProduct(refRow.getName());
+			Flow flow = refData.getProduct(refRow.name);
 			if (flow != null)
 				return flow;
 		}
 		if (block.wasteTreatment != null)
-			return refData.getProduct(block.wasteTreatment.getName());
+			return refData.getProduct(block.wasteTreatment.name);
 		return null;
 	}
 
@@ -172,14 +172,14 @@ class ProcessHandler {
 	}
 
 	private Exchange createProductOutput(Process process, RefProductRow row, long scope) {
-		Flow flow = refData.getProduct(row.getName());
+		Flow flow = refData.getProduct(row.name);
 		return initExchange(row, scope, flow, process, false);
 	}
 
 	private void mapProductInputs(Process process, long scope) {
 		for (ProductType type : ProductType.values()) {
 			for (ProductExchangeRow row : block.getProductExchanges(type)) {
-				Flow flow = refData.getProduct(row.getName());
+				Flow flow = refData.getProduct(row.name);
 				Exchange e = initExchange(row, scope, flow, process, false);
 				if (e == null)
 					continue;
@@ -194,9 +194,9 @@ class ProcessHandler {
 			boolean isInput = type == ElementaryFlowType.RESOURCES;
 			for (ElementaryExchangeRow row : block
 					.getElementaryExchangeRows(type)) {
-				String key = KeyGen.get(row.getName(),
+				String key = KeyGen.get(row.name,
 						type.getExchangeHeader(), row.subCompartment,
-						row.getUnit());
+						row.unit);
 				MapFactor<Flow> factor = refData.getMappedFlow(key);
 				Exchange e;
 				if (factor != null) {
@@ -230,25 +230,25 @@ class ProcessHandler {
 		return e;
 	}
 
-	private Exchange initExchange(AbstractExchangeRow row, long scopeId,
+	private Exchange initExchange(ExchangeRow row, long scopeId,
 			Flow flow, Process process, boolean refUnit) {
 		if (flow == null) {
 			log.error("could not create exchange as there was now flow found " + "for {}", row);
 			return null;
 		}
 		Exchange e = null;
-		UnitMappingEntry entry = refData.getUnitMapping().getEntry(row.getUnit());
+		UnitMappingEntry entry = refData.getUnitMapping().getEntry(row.unit);
 		if (refUnit || entry == null) {
 			e = process.add(Exchange.of(flow));
 			if (!refUnit && entry == null) {
-				log.error("unknown unit {}; could not set exchange unit, setting ref unit", row.getUnit());
+				log.error("unknown unit {}; could not set exchange unit, setting ref unit", row.unit);
 			}
 		} else {
 			e = process.add(Exchange.of(flow, entry.flowProperty, entry.unit));
 		}
-		e.description = row.getComment();
-		setAmount(e, row.getAmount(), scopeId);
-		Uncertainty uncertainty = Uncertainties.get(e.amount, row.getUncertaintyDistribution());
+		e.description = row.comment;
+		setAmount(e, row.amount, scopeId);
+		Uncertainty uncertainty = Uncertainties.get(e.amount, row.uncertaintyDistribution);
 		e.uncertainty = uncertainty;
 		return e;
 	}
@@ -272,9 +272,9 @@ class ProcessHandler {
 		String categoryPath = null;
 		if (!block.products.isEmpty()) {
 			ProductOutputRow row = block.products.get(0);
-			categoryPath = row.getCategory();
+			categoryPath = row.category;
 		} else if (block.wasteTreatment != null)
-			categoryPath = block.wasteTreatment.getCategory();
+			categoryPath = block.wasteTreatment.category;
 		if (Strings.nullOrEmpty(categoryPath))
 			return;
 		var path = categoryPath.split("\\\\");

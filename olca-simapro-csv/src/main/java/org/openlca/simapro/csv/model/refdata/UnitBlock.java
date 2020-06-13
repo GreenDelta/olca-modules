@@ -10,10 +10,6 @@ import org.openlca.simapro.csv.model.annotations.BlockRows;
 public class UnitBlock {
 
 	@BlockRows
-	private List<UnitRow> units = new ArrayList<>();
-
-	public List<UnitRow> getUnits() {
-		return units;
-	}
+	public final List<UnitRow> units = new ArrayList<>();
 
 }

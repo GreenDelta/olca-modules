@@ -34,7 +34,7 @@ class SourceSync {
 				if (source == null)
 					log.warn("could not synchronize {} with DB", block);
 				else
-					refData.putSource(block.getName(), source);
+					refData.putSource(block.name, source);
 			}
 		} catch (Exception e) {
 			log.error("failed to synchronize sources with database");
@@ -44,7 +44,7 @@ class SourceSync {
 	private Source sync(LiteratureReferenceBlock block) {
 		if (block == null)
 			return null;
-		String refId = KeyGen.get(block.getName(), block.getCategory());
+		String refId = KeyGen.get(block.name, block.category);
 		Source source = dao.getForRefId(refId);
 		if (source != null)
 			return source;
@@ -55,18 +55,18 @@ class SourceSync {
 	private Source create(String refId, LiteratureReferenceBlock block) {
 		Source source = new Source();
 		source.refId = refId;
-		source.name = block.getName();
+		source.name = block.name;
 		source.category = getCategory(block);
-		source.description = block.getDescription();
-		source.textReference = block.getDocumentationLink();
+		source.description = block.description;
+		source.textReference = block.documentationLink;
 		new SourceDao(database).insert(source);
 		return source;
 	}
 
 	private Category getCategory(LiteratureReferenceBlock block) {
-		if (block.getCategory() == null)
+		if (block.category == null)
 			return null;
 		return Categories.findOrAdd(database, ModelType.SOURCE,
-				new String[] { block.getCategory() });
+				new String[] { block.category });
 	}
 }

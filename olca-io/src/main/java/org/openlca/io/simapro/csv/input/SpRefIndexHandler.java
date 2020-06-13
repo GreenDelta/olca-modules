@@ -2,7 +2,7 @@ package org.openlca.io.simapro.csv.input;
 
 import java.util.List;
 
-import org.openlca.simapro.csv.model.AbstractExchangeRow;
+import org.openlca.simapro.csv.model.ExchangeRow;
 import org.openlca.simapro.csv.model.CalculatedParameterRow;
 import org.openlca.simapro.csv.model.InputParameterRow;
 import org.openlca.simapro.csv.model.annotations.BlockHandler;
@@ -56,7 +56,7 @@ class SpRefIndexHandler {
 
 	@BlockHandler
 	public void handleUnits(UnitBlock block) {
-		for (UnitRow unitRow : block.getUnits()) {
+		for (UnitRow unitRow : block.units) {
 			index.put(unitRow);
 		}
 	}
@@ -122,12 +122,12 @@ class SpRefIndexHandler {
 
 	private void indexElemFlow(ElementaryExchangeRow row,
 			ElementaryFlowType type) {
-		index.putUsedUnit(row.getUnit());
+		index.putUsedUnit(row.unit);
 		index.putElemFlow(row, type);
 	}
 
-	private void indexProduct(AbstractExchangeRow row) {
-		index.putUsedUnit(row.getUnit());
+	private void indexProduct(ExchangeRow row) {
+		index.putUsedUnit(row.unit);
 		index.putProduct(row);
 	}
 

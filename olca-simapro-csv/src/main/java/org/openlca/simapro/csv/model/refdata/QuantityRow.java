@@ -6,24 +6,8 @@ import org.openlca.simapro.csv.model.IDataRow;
 
 public class QuantityRow implements IDataRow {
 
-	private boolean withDimension = true;
-	private String name;
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public boolean isWithDimension() {
-		return withDimension;
-	}
-
-	public void setWithDimension(boolean withDimension) {
-		this.withDimension = withDimension;
-	}
+	public String name;
+	public boolean withDimension = true;
 
 	public String toLine(CsvConfig config) {
 		return CsvUtils.getJoiner(config).join(name,

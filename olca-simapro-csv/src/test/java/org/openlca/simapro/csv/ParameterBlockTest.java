@@ -39,7 +39,7 @@ public class ParameterBlockTest {
 		DatabaseCalculatedParameterBlock block = (DatabaseCalculatedParameterBlock) modelReader
 				.read();
 		assertEquals(1, block.getParameters().size());
-		assertEquals("db_calc_param", block.getParameters().get(0).getName());
+		assertEquals("db_calc_param", block.getParameters().get(0).name);
 		modelReader.close();
 	}
 
@@ -50,7 +50,7 @@ public class ParameterBlockTest {
 		DatabaseInputParameterBlock block = (DatabaseInputParameterBlock) modelReader
 				.read();
 		assertEquals(1, block.getParameters().size());
-		assertEquals("db_input_param", block.getParameters().get(0).getName());
+		assertEquals("db_input_param", block.getParameters().get(0).name);
 		modelReader.close();
 	}
 
@@ -61,7 +61,7 @@ public class ParameterBlockTest {
 		ProjectCalculatedParameterBlock block = (ProjectCalculatedParameterBlock) modelReader
 				.read();
 		assertEquals(1, block.getParameters().size());
-		assertEquals("proj_calc_param", block.getParameters().get(0).getName());
+		assertEquals("proj_calc_param", block.getParameters().get(0).name);
 		modelReader.close();
 	}
 
@@ -72,7 +72,7 @@ public class ParameterBlockTest {
 		ProjectInputParameterBlock block = (ProjectInputParameterBlock) modelReader
 				.read();
 		assertEquals(1, block.getParameters().size());
-		assertEquals("proj_input_param", block.getParameters().get(0).getName());
+		assertEquals("proj_input_param", block.getParameters().get(0).name);
 		modelReader.close();
 	}
 }

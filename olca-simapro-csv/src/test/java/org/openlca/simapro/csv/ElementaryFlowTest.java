@@ -29,7 +29,7 @@ public class ElementaryFlowTest {
 				.unmarshall(block, AirEmissionBlock.class);
 		List<ElementaryFlowRow> flows = model.getFlows();
 		Assert.assertEquals(2, flows.size());
-		Assert.assertEquals("1-Butanol", flows.get(0).getName());
-		Assert.assertEquals("000109-67-1", flows.get(1).getCASNumber());
+		Assert.assertEquals("1-Butanol", flows.get(0).name);
+		Assert.assertEquals("000109-67-1", flows.get(1).casNumber);
 	}
 }

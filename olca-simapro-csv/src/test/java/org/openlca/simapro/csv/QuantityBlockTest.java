@@ -33,8 +33,8 @@ public class QuantityBlockTest {
 		modelReader.close();
 		List<QuantityRow> quantities = model.getQuantities();
 		Assert.assertEquals(2, quantities.size());
-		Assert.assertEquals("Mass", quantities.get(0).getName());
-		Assert.assertEquals("Length", quantities.get(1).getName());
+		Assert.assertEquals("Mass", quantities.get(0).name);
+		Assert.assertEquals("Length", quantities.get(1).name);
 	}
 
 	@Test
@@ -42,15 +42,15 @@ public class QuantityBlockTest {
 		String line = "Mass;Yes";
 		QuantityRow quantity = new QuantityRow();
 		quantity.fill(line, CsvConfig.getDefault());
-		assertEquals("Mass", quantity.getName());
-		assertTrue(quantity.isWithDimension());
+		assertEquals("Mass", quantity.name);
+		assertTrue(quantity.withDimension);
 	}
 
 	@Test
 	public void testToLine() {
 		QuantityRow quantity = new QuantityRow();
-		quantity.setName("Mass");
-		quantity.setWithDimension(true);
+		quantity.name = "Mass";
+		quantity.withDimension = true;
 		assertEquals("Mass;Yes", quantity.toLine(CsvConfig.getDefault()));
 	}
 

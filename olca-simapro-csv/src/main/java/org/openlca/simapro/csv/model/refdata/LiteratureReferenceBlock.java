@@ -7,48 +7,16 @@ import org.openlca.simapro.csv.model.annotations.SectionValue;
 public class LiteratureReferenceBlock {
 
 	@SectionValue("Name")
-	private String name;
+	public String name;
 
 	@SectionValue("Documentation link")
-	private String documentationLink;
+	public String documentationLink;
 
 	@SectionValue("Category")
-	private String category;
+	public String category;
 
 	@SectionValue("Description")
-	private String description;
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getDocumentationLink() {
-		return documentationLink;
-	}
-
-	public void setDocumentationLink(String documentationLink) {
-		this.documentationLink = documentationLink;
-	}
-
-	public String getCategory() {
-		return category;
-	}
-
-	public void setCategory(String category) {
-		this.category = category;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
+	public String description;
 
 	@Override
 	public String toString() {
