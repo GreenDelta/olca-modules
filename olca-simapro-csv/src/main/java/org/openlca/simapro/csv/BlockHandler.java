@@ -3,7 +3,6 @@ package org.openlca.simapro.csv;
 import org.openlca.simapro.csv.model.process.ProcessBlock;
 import org.openlca.simapro.csv.model.refdata.CalculatedParameterBlock;
 import org.openlca.simapro.csv.model.refdata.IElementaryFlowBlock;
-import org.openlca.simapro.csv.model.refdata.IParameterBlock;
 import org.openlca.simapro.csv.model.refdata.InputParameterBlock;
 import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
 import org.openlca.simapro.csv.model.refdata.QuantityBlock;

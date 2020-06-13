@@ -9,17 +9,18 @@ import org.openlca.simapro.csv.model.annotations.BlockRows;
 import org.openlca.simapro.csv.model.enums.ParameterType;
 
 @BlockModel("Project Calculated parameters")
-public class ProjectCalculatedParameterBlock implements IParameterBlock {
+public class ProjectCalculatedParameterBlock implements CalculatedParameterBlock {
 
 	@BlockRows
 	private List<CalculatedParameterRow> parameters = new ArrayList<>();
 
 	@Override
-	public ParameterType getParameterType() {
+	public ParameterType type() {
 		return ParameterType.PROJECT;
 	}
 
-	public List<CalculatedParameterRow> getParameters() {
+	@Override
+	public List<CalculatedParameterRow> rows() {
 		return parameters;
 	}
 

@@ -9,17 +9,18 @@ import org.openlca.simapro.csv.model.annotations.BlockRows;
 import org.openlca.simapro.csv.model.enums.ParameterType;
 
 @BlockModel("Database Input parameters")
-public class DatabaseInputParameterBlock implements IParameterBlock {
+public class DatabaseInputParameterBlock implements InputParameterBlock {
 
 	@BlockRows
 	private List<InputParameterRow> parameters = new ArrayList<>();
 
 	@Override
-	public ParameterType getParameterType() {
+	public ParameterType type() {
 		return ParameterType.DATABASE;
 	}
 
-	public List<InputParameterRow> getParameters() {
+	@Override
+	public List<InputParameterRow> rows() {
 		return parameters;
 	}
 

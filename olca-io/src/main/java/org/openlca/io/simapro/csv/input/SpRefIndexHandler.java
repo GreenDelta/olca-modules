@@ -1,10 +1,6 @@
 package org.openlca.io.simapro.csv.input;
 
-import java.util.List;
-
 import org.openlca.simapro.csv.model.ExchangeRow;
-import org.openlca.simapro.csv.model.CalculatedParameterRow;
-import org.openlca.simapro.csv.model.InputParameterRow;
 import org.openlca.simapro.csv.model.annotations.BlockHandler;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ProductType;
@@ -13,13 +9,14 @@ import org.openlca.simapro.csv.model.process.ProcessBlock;
 import org.openlca.simapro.csv.model.process.ProductExchangeRow;
 import org.openlca.simapro.csv.model.process.ProductOutputRow;
 import org.openlca.simapro.csv.model.refdata.AirEmissionBlock;
+import org.openlca.simapro.csv.model.refdata.CalculatedParameterBlock;
 import org.openlca.simapro.csv.model.refdata.DatabaseCalculatedParameterBlock;
 import org.openlca.simapro.csv.model.refdata.DatabaseInputParameterBlock;
 import org.openlca.simapro.csv.model.refdata.EconomicIssueBlock;
 import org.openlca.simapro.csv.model.refdata.ElementaryFlowRow;
 import org.openlca.simapro.csv.model.refdata.FinalWasteFlowBlock;
 import org.openlca.simapro.csv.model.refdata.IElementaryFlowBlock;
-import org.openlca.simapro.csv.model.refdata.IParameterBlock;
+import org.openlca.simapro.csv.model.refdata.InputParameterBlock;
 import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
 import org.openlca.simapro.csv.model.refdata.NonMaterialEmissionBlock;
 import org.openlca.simapro.csv.model.refdata.ProjectCalculatedParameterBlock;
@@ -77,28 +74,18 @@ class SpRefIndexHandler {
 		}
 	}
 
-	@BlockHandler(subTypes = { DatabaseInputParameterBlock.class,
+	@BlockHandler(subTypes = {
+			DatabaseInputParameterBlock.class,
 			ProjectInputParameterBlock.class })
-	public void handleInputParameters(IParameterBlock block) {
-		List<InputParameterRow> params = null;
-		if (block instanceof DatabaseInputParameterBlock)
-			params = ((DatabaseInputParameterBlock) block).getParameters();
-		else if (block instanceof ProjectInputParameterBlock)
-			params = ((ProjectInputParameterBlock) block).getParameters();
-		if (params != null)
-			index.putInputParameters(params);
+	public void handleInputParameters(InputParameterBlock block) {
+		index.putInputParameters(block.rows());
 	}
 
-	@BlockHandler(subTypes = { DatabaseCalculatedParameterBlock.class,
+	@BlockHandler(subTypes = {
+			DatabaseCalculatedParameterBlock.class,
 			ProjectCalculatedParameterBlock.class })
-	public void handleCalculatedParameters(IParameterBlock block) {
-		List<CalculatedParameterRow> params = null;
-		if (block instanceof DatabaseCalculatedParameterBlock)
-			params = ((DatabaseCalculatedParameterBlock) block).getParameters();
-		else if (block instanceof ProjectCalculatedParameterBlock)
-			params = ((ProjectCalculatedParameterBlock) block).getParameters();
-		if (params != null)
-			index.putCalculatedParameters(params);
+	public void handleCalculatedParameters(CalculatedParameterBlock block) {
+		index.putCalculatedParameters(block.rows());
 	}
 
 	@BlockHandler
