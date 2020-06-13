@@ -12,7 +12,7 @@ import com.google.common.eventbus.EventBus;
 
 public class SimaProCsvImport implements FileImport {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	private boolean canceled = false;
 	private final IDatabase database;
 	private final File[] files;

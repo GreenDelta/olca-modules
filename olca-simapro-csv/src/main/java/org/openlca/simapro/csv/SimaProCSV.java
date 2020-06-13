@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 public class SimaProCSV {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final File file;
 	private final Object handler;
@@ -93,7 +93,7 @@ public class SimaProCSV {
 		BlockHandler blockHandler = method.getAnnotation(BlockHandler.class);
 		List<Class<?>> result = new ArrayList<>();
 		Class<?>[] subTypes = blockHandler.subTypes();
-		if (subTypes == null || subTypes.length == 0) {
+		if (subTypes.length == 0) {
 			if (!paramType.isAnnotationPresent(BlockModel.class))
 				logInvalidMethod(method);
 			else
