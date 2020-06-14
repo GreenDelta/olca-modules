@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 public class BlockReader implements Closeable {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final BufferedReader buffer;
 
@@ -48,7 +48,7 @@ public class BlockReader implements Closeable {
 		Block block = null;
 		Section section = null;
 		boolean inSections = false;
-		String line = null;
+		String line;
 		while ((line = buffer.readLine()) != null) {
 			line = line.trim().replace((char) 127, '\n');
 			if (line.startsWith("{") && line.endsWith("}"))
@@ -60,7 +60,7 @@ public class BlockReader implements Closeable {
 			if (!line.isEmpty() && block == null) {
 				log.trace("read next block {}", line);
 				block = new Block(line);
-			} else if (line.isEmpty() && block != null) {
+			} else if (line.isEmpty()) {
 				section = null;
 				inSections = true;
 			} else {

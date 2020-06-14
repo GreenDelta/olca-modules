@@ -19,7 +19,7 @@ public class CsvUtils {
 	}
 
 	public static Joiner getJoiner(CsvConfig config) {
-		return Joiner.on(config.getSeparator()).useForNull("");
+		return Joiner.on(config.separator).useForNull("");
 	}
 
 	public static String getPedigreeUncertainty(String comment) {
@@ -38,7 +38,7 @@ public class CsvUtils {
 	public static String[] split(String line, CsvConfig config) {
 		if (line == null)
 			return new String[0];
-		if (config == null || config.getSeparator() == 0)
+		if (config == null || config.separator == 0)
 			return new String[] { line };
 		return _split(line, config);
 	}
@@ -49,7 +49,7 @@ public class CsvUtils {
 		boolean inString = false;
 		boolean lastWasDelimiter = false;
 		for (char next : line.toCharArray()) {
-			if (next == config.getDelimiter()) {
+			if (next == config.delimiter) {
 				inString = !inString;
 				if (!lastWasDelimiter) {
 					lastWasDelimiter = true;
@@ -57,7 +57,7 @@ public class CsvUtils {
 				}
 			}
 			lastWasDelimiter = false;
-			if (next == config.getSeparator() && !inString) {
+			if (next == config.separator && !inString) {
 				lines.add(current);
 				current = "";
 				continue;
@@ -65,7 +65,7 @@ public class CsvUtils {
 			current += next;
 		}
 		lines.add(current);
-		return lines.toArray(new String[lines.size()]);
+		return lines.toArray(new String[0]);
 	}
 
 	public static String get(String[] columns, int col) {

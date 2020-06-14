@@ -216,12 +216,12 @@ public class BlockUnmarshaller {
 	}
 
 	private void setDateValue(Field field, String val) throws Exception {
-		if (config.getDateFormat() == null) {
+		if (config.dateFormat == null) {
 			log.warn("no date-format given in CSV configuration; cannot set "
 					+ "date values");
 			return;
 		}
-		SimpleDateFormat format = new SimpleDateFormat(config.getDateFormat());
+		SimpleDateFormat format = new SimpleDateFormat(config.dateFormat);
 		Date date = format.parse(val);
 		field.set(model, date);
 	}

@@ -113,8 +113,7 @@ public class ProcessBlockTest {
 
 	@Test
 	public void testOtherEntries() {
-		SimpleDateFormat format = new SimpleDateFormat(CsvConfig.getDefault()
-				.getDateFormat());
+		SimpleDateFormat format = new SimpleDateFormat(CsvConfig.getDefault().dateFormat);
 		String dateString = format.format(block.date);
 		assertEquals("24.02.2014", dateString);
 		assertEquals(false, block.infrastructure);

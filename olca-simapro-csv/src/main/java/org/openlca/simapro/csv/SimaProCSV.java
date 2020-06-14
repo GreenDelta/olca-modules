@@ -6,12 +6,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 import org.openlca.simapro.csv.io.BlockReader;
-import org.openlca.simapro.csv.io.FileHeaderReader;
 import org.openlca.simapro.csv.io.ModelReader;
-import org.openlca.simapro.csv.model.FileHeader;
 import org.openlca.simapro.csv.model.annotations.BlockHandler;
 import org.openlca.simapro.csv.model.annotations.BlockModel;
 import org.slf4j.Logger;
@@ -43,7 +40,7 @@ public class SimaProCSV {
 			log.warn("no method handlers registerred, do nothing");
 			return;
 		}
-		CsvConfig config = readConfig(file);
+		var config = CsvConfig.of(file);
 		try (var reader = new BlockReader(file);
 				var modelReader = createModelReader(reader, config)) {
 			Object model;
@@ -127,22 +124,4 @@ public class SimaProCSV {
 			method.invoke(handler, model);
 		}
 	}
-
-	private CsvConfig readConfig(File file) {
-		CsvConfig config = CsvConfig.getDefault();
-		try {
-			FileHeaderReader reader = new FileHeaderReader(file);
-			FileHeader header = reader.read();
-			if (header.getShortDateFormat() != null)
-				config.setDateFormat(header.getShortDateFormat());
-			if (Objects.equals("Semicolon", header.getCsvSeparator()))
-				config.setSeparator(';');
-			else if (Objects.equals("Comma", header.getCsvSeparator()))
-				config.setSeparator(',');
-		} catch (Exception e) {
-			log.error("failed to read header CSV entries from " + file, e);
-		}
-		return config;
-	}
-
 }
