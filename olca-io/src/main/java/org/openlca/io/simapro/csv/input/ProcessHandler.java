@@ -7,12 +7,10 @@ import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
-import org.openlca.core.model.Uncertainty;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.MapFactor;
 import org.openlca.simapro.csv.model.annotations.BlockHandler;
@@ -24,18 +22,20 @@ import org.openlca.simapro.csv.model.process.ProcessBlock;
 import org.openlca.simapro.csv.model.process.ProductExchangeRow;
 import org.openlca.simapro.csv.model.process.ProductOutputRow;
 import org.openlca.simapro.csv.model.process.RefProductRow;
+import org.openlca.util.Exchanges;
 import org.openlca.util.KeyGen;
+import org.openlca.util.Processes;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class ProcessHandler {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private IDatabase database;
-	private RefData refData;
-	private ProcessDao dao;
+	private final IDatabase database;
+	private final RefData refData;
+	private final ProcessDao dao;
 
 	// currently mapped process and process block
 	private Process process;
@@ -107,41 +107,43 @@ class ProcessHandler {
 	}
 
 	private void mapAllocation() {
-		for (ProductOutputRow output : block.products) {
-			double value = output.allocation / 100d;
-			long productId = refData.getProduct(output.name).id;
-			addFactor(AllocationMethod.PHYSICAL, productId, value);
-			addFactor(AllocationMethod.ECONOMIC, productId, value);
-			for (Exchange e : process.exchanges) {
-				if (!isOutputProduct(e)) {
-					addCausalFactor(productId, e, value);
+		if (!Processes.isMultiFunctional(process))
+			return;
+		for (var output : block.products) {
+
+			// prepare the template of the factor
+			var f = new AllocationFactor();
+			f.productId = refData.getProduct(output.name).id;
+			try {
+				f.value = Double.parseDouble(output.allocation);
+			} catch (Exception _e){
+				if (Strings.nullOrEmpty(output.allocation)) {
+					f.value = 1.0;
+				} else {
+					f.formula = output.allocation;
 				}
 			}
+
+			// add the physical factor
+			var physical = f.clone();
+			physical.method = AllocationMethod.PHYSICAL;
+			process.allocationFactors.add(physical);
+
+			// add the economic factor
+			var economic = f.clone();
+			economic.method = AllocationMethod.ECONOMIC;
+			process.allocationFactors.add(economic);
+
+			// add causal factors
+			for (Exchange e : process.exchanges) {
+				if (Exchanges.isProviderFlow(e))
+					continue;
+				var causal = f.clone();
+				f.method = AllocationMethod.CAUSAL;
+				f.exchange = e;
+				process.allocationFactors.add(causal);
+			}
 		}
-	}
-
-	private boolean isOutputProduct(Exchange e) {
-		return e != null && e.flow != null
-				&& !e.isInput && !e.isAvoided
-				&& e.flow.flowType == FlowType.PRODUCT_FLOW;
-	}
-
-	private void addFactor(AllocationMethod method, long productId,
-			double value) {
-		AllocationFactor f = new AllocationFactor();
-		f.method = method;
-		f.value = value;
-		f.productId = productId;
-		process.allocationFactors.add(f);
-	}
-
-	private void addCausalFactor(long productId, Exchange e, double value) {
-		AllocationFactor f = new AllocationFactor();
-		f.method = AllocationMethod.CAUSAL;
-		f.value = value;
-		f.productId = productId;
-		f.exchange = e;
-		process.allocationFactors.add(f);
 	}
 
 	private Flow getRefFlow() {
@@ -213,7 +215,7 @@ class ProcessHandler {
 	}
 
 	private Exchange initMappedExchange(MapFactor<Flow> mappedFlow,
-			ElementaryExchangeRow row, Process process, long scope) {
+										ElementaryExchangeRow row, Process process, long scope) {
 		Flow flow = mappedFlow.getEntity();
 		Exchange e = initExchange(row, scope, flow, process, true);
 		if (e == null)
@@ -221,8 +223,7 @@ class ProcessHandler {
 		double f = mappedFlow.getFactor();
 		e.amount = f * e.amount;
 		if (e.formula != null) {
-			String formula = f + " * ( " + e.formula + " )";
-			e.formula = formula;
+			e.formula = f + " * ( " + e.formula + " )";
 		}
 		if (e.uncertainty != null) {
 			e.uncertainty.scale(f);
@@ -231,16 +232,16 @@ class ProcessHandler {
 	}
 
 	private Exchange initExchange(ExchangeRow row, long scopeId,
-			Flow flow, Process process, boolean refUnit) {
+								  Flow flow, Process process, boolean refUnit) {
 		if (flow == null) {
 			log.error("could not create exchange as there was now flow found " + "for {}", row);
 			return null;
 		}
-		Exchange e = null;
+		Exchange e;
 		UnitMappingEntry entry = refData.getUnitMapping().getEntry(row.unit);
 		if (refUnit || entry == null) {
 			e = process.add(Exchange.of(flow));
-			if (!refUnit && entry == null) {
+			if (!refUnit) {
 				log.error("unknown unit {}; could not set exchange unit, setting ref unit", row.unit);
 			}
 		} else {
@@ -248,8 +249,7 @@ class ProcessHandler {
 		}
 		e.description = row.comment;
 		setAmount(e, row.amount, scopeId);
-		Uncertainty uncertainty = Uncertainties.get(e.amount, row.uncertaintyDistribution);
-		e.uncertainty = uncertainty;
+		e.uncertainty = Uncertainties.get(e.amount, row.uncertaintyDistribution);
 		return e;
 	}
 
@@ -259,11 +259,9 @@ class ProcessHandler {
 			return;
 		}
 		try {
-			double val = Double.parseDouble(amount);
-			e.amount = val;
+			e.amount = Double.parseDouble(amount);
 		} catch (Exception ex) {
-			double val = parameterMapper.eval(amount, scope);
-			e.amount = val;
+			e.amount = parameterMapper.eval(amount, scope);
 			e.formula = amount;
 		}
 	}
@@ -288,13 +286,9 @@ class ProcessHandler {
 			process.processType = ProcessType.UNIT_PROCESS;
 			return;
 		}
-		switch (type) {
-		case SYSTEM:
-			process.processType = ProcessType.LCI_RESULT;
-			break;
-		default:
-			process.processType = ProcessType.UNIT_PROCESS;
-			break;
-		}
+		process.processType =
+				type == org.openlca.simapro.csv.model.enums.ProcessType.SYSTEM
+						? ProcessType.LCI_RESULT
+						: ProcessType.UNIT_PROCESS;
 	}
 }

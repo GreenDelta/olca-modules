@@ -3,12 +3,32 @@ package org.openlca.util;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.model.Exchange;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 public class Processes {
 
 	private Processes() {
+	}
+
+	/**
+	 * A multi-functional process has multiple product outputs or waste inputs.
+	 */
+	public static boolean isMultiFunctional(Process p) {
+		if (p == null)
+			return false;
+		int count = 0;
+		for (var exchange : p.exchanges) {
+			if (Exchanges.isProviderFlow(exchange)){
+				count++;
+				if (count > 1)
+					return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -19,13 +39,12 @@ public class Processes {
 	public static ProcessDescriptor findForLabel(IDatabase db, String label) {
 		if (db == null || label == null)
 			return null;
-		String fullName = label;
 		String name = null;
 		Location location = null;
-		if (fullName.contains(" - ")) {
-			int splitIdx = fullName.lastIndexOf(" - ");
-			name = fullName.substring(0, splitIdx).trim();
-			String locationCode = fullName.substring(splitIdx + 3).trim();
+		if (label.contains(" - ")) {
+			int splitIdx = label.lastIndexOf(" - ");
+			name = label.substring(0, splitIdx).trim();
+			String locationCode = label.substring(splitIdx + 3).trim();
 			LocationDao dao = new LocationDao(db);
 			for (Location loc : dao.getAll()) {
 				if (Strings.nullOrEqual(loc.code, locationCode)) {
@@ -38,7 +57,7 @@ public class Processes {
 		ProcessDescriptor selected = null;
 		ProcessDao pDao = new ProcessDao(db);
 		for (ProcessDescriptor d : pDao.getDescriptors()) {
-			if (!Strings.nullOrEqual(fullName, d.name)
+			if (!Strings.nullOrEqual(label, d.name)
 					&& !Strings.nullOrEqual(name, d.name))
 				continue;
 			if (selected == null) {
@@ -63,7 +82,7 @@ public class Processes {
 		if (d.location == null)
 			return loc == null;
 		if (loc == null)
-			return d.location == null;
-		return d.location.longValue() == loc.id;
+			return false;
+		return d.location == loc.id;
 	}
 }
