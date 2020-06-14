@@ -83,7 +83,7 @@ class ProcessHandler {
 		mapProductOutputs(process, scope);
 		mapProductInputs(process, scope);
 		mapElementaryFlows(process, scope);
-		mapAllocation();
+		mapAllocation(scope);
 	}
 
 	private void mapName() {
@@ -106,7 +106,7 @@ class ProcessHandler {
 		process.location = refFlow.location;
 	}
 
-	private void mapAllocation() {
+	private void mapAllocation(long scope) {
 		if (!Processes.isMultiFunctional(process))
 			return;
 		for (var output : block.products) {
@@ -121,6 +121,7 @@ class ProcessHandler {
 					f.value = 1.0;
 				} else {
 					f.formula = output.allocation;
+					f.value = parameterMapper.eval(f.formula, scope);
 				}
 			}
 

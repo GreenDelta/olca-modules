@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 class ProcessParameterMapper {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final FormulaInterpreter interpreter;
 	// private Process process;
@@ -54,8 +54,7 @@ class ProcessParameterMapper {
 			if (param.isInputParameter)
 				continue;
 			try {
-				double val = scope.eval(param.name);
-				param.value = val;
+				param.value = scope.eval(param.name);
 			} catch (Exception e) {
 				log.error("failed to evaluate process parameter " + param
 						+ "; set it as an input parameter with value 1", e);
@@ -73,8 +72,8 @@ class ProcessParameterMapper {
 			return scope.eval(formula);
 		} catch (Exception e) {
 			log.error("failed to evaluate formula " + formula
-					+ "; set value to NaN", e);
-			return Double.NaN;
+					+ "; set value to 0", e);
+			return 0;
 		}
 	}
 }
