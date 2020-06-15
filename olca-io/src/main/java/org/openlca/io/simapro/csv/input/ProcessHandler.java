@@ -120,8 +120,8 @@ class ProcessHandler {
 				if (Strings.nullOrEmpty(output.allocation)) {
 					f.value = 1.0;
 				} else {
-					f.formula = output.allocation;
-					f.value = parameterMapper.eval(f.formula, scope);
+					f.formula = "(" + output.allocation + ") / 100";
+					f.value = parameterMapper.eval(f.formula, scope) / 100;
 				}
 			}
 
@@ -140,8 +140,8 @@ class ProcessHandler {
 				if (Exchanges.isProviderFlow(e))
 					continue;
 				var causal = f.clone();
-				f.method = AllocationMethod.CAUSAL;
-				f.exchange = e;
+				causal.method = AllocationMethod.CAUSAL;
+				causal.exchange = e;
 				process.allocationFactors.add(causal);
 			}
 		}

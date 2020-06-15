@@ -100,6 +100,7 @@ class ProcessWriter extends Writer<Process> {
 			}
 			Out.put(obj, "product", findProduct(f.productId), conf, Out.REQUIRED_FIELD);
 			Out.put(obj, "value", f.value);
+			Out.put(obj, "formula", f.formula);
 			factors.add(obj);
 		}
 		Out.put(json, "allocationFactors", factors);

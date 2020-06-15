@@ -11,7 +11,6 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.RiskLevel;
 import org.openlca.core.model.SocialAspect;
@@ -21,10 +20,11 @@ import org.openlca.util.DQSystems;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.openlca.util.Strings;
 
 class ProcessImport extends BaseImport<Process> {
 
-	private Map<Integer, Exchange> exchangeMap = new HashMap<>();
+	private final Map<Integer, Exchange> exchangeMap = new HashMap<>();
 
 	private ProcessImport(String refId, ImportConfig conf) {
 		super(ModelType.PROCESS, refId, conf);
@@ -43,8 +43,7 @@ class ProcessImport extends BaseImport<Process> {
 		p.processType = getType(json);
 		p.infrastructureProcess = Json.getBool(json, "infrastructureProcess", false);
 		p.defaultAllocationMethod = Json.getEnum(json, "defaultAllocationMethod", AllocationMethod.class);
-		ProcessDocumentation doc = ProcessDocReader.read(json, conf);
-		p.documentation = doc;
+		p.documentation = ProcessDocReader.read(json, conf);
 		String locId = Json.getRefId(json, "location");
 		if (locId != null)
 			p.location = LocationImport.run(locId, conf);
@@ -113,10 +112,8 @@ class ProcessImport extends BaseImport<Process> {
 			if (!e.isJsonObject())
 				continue;
 			JsonObject o = e.getAsJsonObject();
-			String refId = Json.getString(o, "@id");
-			ParameterImport pi = new ParameterImport(refId, conf);
 			Parameter parameter = new Parameter();
-			pi.mapFields(o, parameter);
+			ParameterImport.mapFields(o, parameter);
 			p.parameters.add(parameter);
 		}
 	}
@@ -201,7 +198,12 @@ class ProcessImport extends BaseImport<Process> {
 		if (exchangeId != null && exchangeId != 0)
 			factor.exchange = exchangeMap.get(exchangeId);
 		factor.value = Json.getDouble(json, "value", 1);
-		factor.method = Json.getEnum(json, "allocationType", AllocationMethod.class);
+		var formula = Json.getString(json, "formula");
+		if (!Strings.nullOrEmpty(formula)) {
+			factor.formula = formula;
+		}
+		factor.method = Json.getEnum(
+				json, "allocationType", AllocationMethod.class);
 		return factor;
 	}
 

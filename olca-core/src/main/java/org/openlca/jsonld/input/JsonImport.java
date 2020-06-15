@@ -26,9 +26,9 @@ import com.google.gson.JsonObject;
 
 public class JsonImport implements Runnable {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-	private IDatabase database;
-	private EntityStore store;
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final IDatabase database;
+	private final EntityStore store;
 	private UpdateMode updateMode = UpdateMode.NEVER;
 	private Consumer<RootEntity> callback;
 
@@ -222,7 +222,7 @@ public class JsonImport implements Runnable {
 			}
 			query += id;
 		}
-		return query += ")";
+		return query + ")";
 	}
 
 	private void checkSchemaSupported() {
