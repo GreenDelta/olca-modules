@@ -51,7 +51,7 @@ class InventorySheet {
 		if (!withDQ())
 			return col + 1;
 		col = writer.dataQualityHeader(sheet, row, col,
-				dqResult.setup.exchangeDqSystem);
+				dqResult.setup.exchangeSystem);
 		return col + 1;
 	}
 
@@ -68,14 +68,14 @@ class InventorySheet {
 			}
 			writer.dataQuality(sheet, row++, startCol + col + 1,
 					dqResult.get(flow.flow),
-					dqResult.setup.exchangeDqSystem);
+					dqResult.setup.exchangeSystem);
 		}
 	}
 
 	private boolean withDQ() {
 		return dqResult != null
 				&& dqResult.setup != null
-				&& dqResult.setup.exchangeDqSystem != null;
+				&& dqResult.setup.exchangeSystem != null;
 	}
 
 }

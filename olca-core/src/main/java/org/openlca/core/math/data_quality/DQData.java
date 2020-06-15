@@ -25,10 +25,10 @@ class DQData {
 		for (long id : relevantFlowIds) {
 			data.relevantFlowIds.add(id);
 		}
-		if (setup.processDqSystem != null) {
+		if (setup.processSystem != null) {
 			data.loadProcessEntries(db, setup);
 		}
-		if (setup.exchangeDqSystem != null) {
+		if (setup.exchangeSystem != null) {
 			data.loadExchangeEntries(db, setup);
 		}
 		return data;
@@ -44,7 +44,7 @@ class DQData {
 		NativeSql.on(db).query(query.toString(), (res) -> {
 			long processId = res.getLong("id");
 			String dqEntry = res.getString("dq_entry");
-			int[] values = setup.processDqSystem.toValues(dqEntry);
+			int[] values = setup.processSystem.toValues(dqEntry);
 			processData.put(processId, toDouble(values));
 			increaseCounter(statistics.processCounts, 0);
 			for (int i = 0; i < values.length; i++) {
@@ -74,7 +74,7 @@ class DQData {
 			if (!relevantFlowIds.contains(flowId))
 				return true;
 			String dqEntry = res.getString("dq_entry");
-			int[] values = setup.exchangeDqSystem.toValues(dqEntry);
+			int[] values = setup.exchangeSystem.toValues(dqEntry);
 			exchangeData.put(new LongPair(processId, flowId), toDouble(values));
 			increaseCounter(getMap(statistics.exchangeCounts, 0l), 0);
 			increaseCounter(getMap(statistics.exchangeCounts, processId), 0);

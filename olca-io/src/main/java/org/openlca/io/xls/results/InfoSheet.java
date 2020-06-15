@@ -9,7 +9,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.data_quality.AggregationType;
 import org.openlca.core.math.data_quality.DQCalculationSetup;
-import org.openlca.core.math.data_quality.ProcessingType;
+import org.openlca.core.math.data_quality.NAHandling;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQScore;
@@ -46,12 +46,12 @@ public class InfoSheet {
 	public static void write(Workbook workbook, CellWriter writer, CalculationSetup setup, DQCalculationSetup dqSetup,
 			String title) {
 		Sheet sheet = workbook.createSheet("Calculation setup");
-		boolean withDataQuality = dqSetup != null && dqSetup.exchangeDqSystem != null;
+		boolean withDataQuality = dqSetup != null && dqSetup.exchangeSystem != null;
 		header(writer, sheet, 1, 1, title, withDataQuality);
 		int row = generalInfo(writer, sheet, 2, 2, setup);
-		if (dqSetup != null && dqSetup.exchangeDqSystem != null) {
+		if (dqSetup != null && dqSetup.exchangeSystem != null) {
 			dataQualityInfo(writer, sheet, row + 2, 2, dqSetup);
-			for (int i = 1; i <= dqSetup.exchangeDqSystem.indicators.size() + 1; i++) {
+			for (int i = 1; i <= dqSetup.exchangeSystem.indicators.size() + 1; i++) {
 				sheet.setColumnWidth(i, Excel.width(200));
 			}
 		} else {
@@ -85,7 +85,7 @@ public class InfoSheet {
 	}
 
 	private static void dataQualityInfo(CellWriter writer, Sheet sheet, int row, int col, DQCalculationSetup setup) {
-		writer.cell(sheet, row++, col, dqSystem(setup.exchangeDqSystem));
+		writer.cell(sheet, row++, col, dqSystem(setup.exchangeSystem));
 		writer.cell(sheet, row++, col, aggregation(setup));
 		writer.cell(sheet, row++, col, rounding(setup));
 		writer.cell(sheet, row++, col, processing(setup));
@@ -93,15 +93,15 @@ public class InfoSheet {
 	}
 
 	private static void legend(CellWriter writer, Sheet sheet, int row, int col, DQCalculationSetup setup) {
-		for (DQIndicator indicator : setup.exchangeDqSystem.indicators) {
+		for (DQIndicator indicator : setup.exchangeSystem.indicators) {
 			writer.cell(sheet, row, col + indicator.position, indicator(indicator), true);
 		}
-		for (DQScore score : setup.exchangeDqSystem.indicators.get(0).scores) {
+		for (DQScore score : setup.exchangeSystem.indicators.get(0).scores) {
 			writer.cell(sheet, row + score.position, col, score(score), true);
 		}
-		for (DQIndicator indicator : setup.exchangeDqSystem.indicators) {
+		for (DQIndicator indicator : setup.exchangeSystem.indicators) {
 			for (DQScore score : indicator.scores) {
-				Color color = DQColors.get(score.position, setup.exchangeDqSystem.getScoreCount());
+				Color color = DQColors.get(score.position, setup.exchangeSystem.getScoreCount());
 				writer.wrappedCell(sheet, row + score.position, col + indicator.position, score.description, color,
 						true);
 			}
@@ -212,7 +212,7 @@ public class InfoSheet {
 	}
 
 	private static String processing(DQCalculationSetup setup) {
-		ProcessingType type = setup.processingType;
+		NAHandling type = setup.naHandling;
 		if (type == null)
 			return "none";
 		switch (type) {

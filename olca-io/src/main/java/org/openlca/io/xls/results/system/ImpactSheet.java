@@ -42,9 +42,9 @@ class ImpactSheet {
 		if (nwSet != null) {
 			col = writer.headerRow(sheet, row, col, ResultExport.IMPACT_NW_HEADER);
 		}
-		if (dqResult == null || dqResult.setup.exchangeDqSystem == null)
+		if (dqResult == null || dqResult.setup.exchangeSystem == null)
 			return;
-		writer.dataQualityHeader(sheet, row, col, dqResult.setup.exchangeDqSystem);
+		writer.dataQualityHeader(sheet, row, col, dqResult.setup.exchangeSystem);
 	}
 
 	private void data() {
@@ -62,7 +62,7 @@ class ImpactSheet {
 			}
 			writer.dataQuality(sheet, row++, col + 1,
 					dqResult.get(impact),
-					dqResult.setup.exchangeDqSystem);
+					dqResult.setup.exchangeSystem);
 		}
 	}
 

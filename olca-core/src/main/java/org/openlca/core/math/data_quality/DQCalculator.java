@@ -69,10 +69,10 @@ class DQCalculator {
 	private <T> void addValue(Map<T, List<AggregationValue>> map, T key,
 			BigDecimal factor, double[] dqValues) {
 		List<AggregationValue> list = safeGetList(key, map);
-		int max = setup.exchangeDqSystem.getScoreCount();
+		int max = setup.exchangeSystem.getScoreCount();
 		for (int i = 0; i < dqValues.length; i++) {
 			double v = dqValues[i];
-			if (v != 0d || setup.processingType == ProcessingType.EXCLUDE)
+			if (v != 0d || setup.naHandling == NAHandling.EXCLUDE)
 				continue;
 			dqValues[i] = max;
 		}

@@ -2,8 +2,6 @@ package org.openlca.core.math.data_quality;
 
 import static org.junit.Assert.*;
 
-import java.math.RoundingMode;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +27,6 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptors;
-import org.openlca.core.results.ContributionResult;
 
 public class DQResultTest {
 
@@ -132,22 +129,16 @@ public class DQResultTest {
 
 	@Test
 	public void test() {
-		SystemCalculator calculator = new SystemCalculator(
+		var calculator = new SystemCalculator(
 				Tests.getDb(),
 				Tests.getDefaultSolver());
-		CalculationSetup setup = new CalculationSetup(system);
+		var setup = new CalculationSetup(system);
 		setup.setAmount(1);
 		setup.impactMethod = Descriptors.toDescriptor(method);
-		ContributionResult cResult = calculator.calculateContributions(setup);
-		DQCalculationSetup dqSetup = new DQCalculationSetup();
-		dqSetup.productSystemId = system.id;
-		dqSetup.aggregationType = AggregationType.WEIGHTED_AVERAGE;
-		dqSetup.roundingMode = RoundingMode.HALF_UP;
-		dqSetup.processingType = ProcessingType.EXCLUDE;
-		dqSetup.exchangeDqSystem = dqSystem;
-		dqSetup.processDqSystem = dqSystem;
-		DQResult result = DQResult.calculate(Tests.getDb(), cResult, dqSetup);
-		ImpactCategory impact = method.impactCategories.get(0);
+		var cResult = calculator.calculateContributions(setup);
+		var dqSetup = DQCalculationSetup.of(system);
+		var result = DQResult.calculate(Tests.getDb(), cResult, dqSetup);
+		var impact = method.impactCategories.get(0);
 		checkResults(result, impact);
 	}
 

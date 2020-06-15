@@ -61,7 +61,7 @@ public class DQResult {
 			DQCalculationSetup setup) {
 		if (db == null || result == null || setup == null)
 			return null;
-		if (setup.processDqSystem == null && setup.exchangeDqSystem == null
+		if (setup.processSystem == null && setup.exchangeSystem == null
 				|| setup.aggregationType == null
 				|| setup.productSystemId == 0l)
 			return null;
@@ -80,10 +80,10 @@ public class DQResult {
 		// create the result
 		DQResult dqResult = new DQResult(setup, data.statistics);
 		RoundingMode rmode = setup.roundingMode;
-		if (setup.processDqSystem != null) {
+		if (setup.processSystem != null) {
 			dqResult.processValues = iv(data.processData, rmode);
 		}
-		if (setup.exchangeDqSystem == null)
+		if (setup.exchangeSystem == null)
 			return dqResult;
 		dqResult.flowValuesPerProcess = iv(data.exchangeData, rmode);
 		if (setup.aggregationType == AggregationType.NONE)
