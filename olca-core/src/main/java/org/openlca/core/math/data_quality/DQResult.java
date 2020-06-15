@@ -61,9 +61,9 @@ public class DQResult {
 			DQCalculationSetup setup) {
 		if (db == null || result == null || setup == null)
 			return null;
-		if (setup.processSystem == null && setup.exchangeSystem == null
-				|| setup.aggregationType == null
-				|| setup.productSystemId == 0l)
+		if ((setup.processSystem == null
+				&& setup.exchangeSystem == null)
+				|| setup.aggregationType == null)
 			return null;
 
 		// load the data quality data
