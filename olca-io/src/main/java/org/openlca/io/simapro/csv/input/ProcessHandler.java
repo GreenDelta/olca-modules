@@ -121,7 +121,7 @@ class ProcessHandler {
 					f.value = 1.0;
 				} else {
 					f.formula = "(" + output.allocation + ") / 100";
-					f.value = parameterMapper.eval(f.formula, scope) / 100;
+					f.value = parameterMapper.eval(f.formula, scope);
 				}
 			}
 
