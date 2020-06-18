@@ -1,8 +1,5 @@
 package org.openlca.core.math.data_quality;
 
-import java.util.HashMap;
-
-import gnu.trove.map.hash.TIntObjectHashMap;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.IndexFlow;
@@ -32,22 +29,46 @@ class DQData2 {
 
 		// load the process DQ data
 		if (setup.processSystem != null) {
+
+			var system = setup.processSystem;
+			var n = system.indicators.size();
+			processData = new byte[n][];
+			for (int i = 0; i < n; i++) {
+				processData[i] = new byte[result.techIndex.size()];
+			}
+
+			var techIndex = result.techIndex;
 			var sql = "select id, f_dq_system, dq_entry " +
 					"from tbl_processes";
 			NativeSql.on(db).query(sql, r -> {
+
+				// check that we have a valid entry
 				long systemID = r.getLong(2);
-				if (systemID != setup.processSystem.id)
+				if (systemID != system.id)
 					return true;
-
-
-				var providers = result.techIndex.getProviders(r.getLong(1));
+				var dqEntry = r.getString(3);
+				if (dqEntry == null)
+					return true;
+				var providers = techIndex.getProviders(r.getLong(1));
 				if (providers.isEmpty())
 					return true;
 
+				// store the values of the entry
+				int[] values = system.toValues(dqEntry);
+				int _n = Math.min(n, values.length);
+				for (int i = 0; i < _n; i++) {
+					byte[] data = processData[i];
+					byte value = (byte) values[i];
+					for (var provider : providers) {
+						int col = techIndex.getIndex(provider);
+						data[col] = value;
+					}
+				}
 				return true;
 			});
 		}
 	}
+
 
 	/**
 	 * Get the process data quality entry for the given product.
