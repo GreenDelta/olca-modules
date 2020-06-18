@@ -21,7 +21,7 @@ import org.openlca.util.Strings;
  * exchanges by tagging them with an instance of the system $D$ where $D$ is a
  * $m * n$ matrix with an entry $d_{ij}$ containing the value of the data
  * quality score $j$ for indicator $i$.
- * 
+ *
  * As each indicator in $D$ can only have a single score value, $D$ can be
  * stored in a vector $d$ where $d_i$ contains the data quality score for
  * indicator $i$. The possible values of the data quality scores are defined as
@@ -29,14 +29,14 @@ import org.openlca.util.Strings;
  * process or exchange is stored as a string like `(3;2;4;n.a.;2)` which means
  * the data quality score for the first indicator is `3`, for the second `2`
  * etc. A specific value is `n.a.` which stands for _not applicable_.
- * 
+ *
  * In calculations, these data quality entries can be aggregated in different
  * ways. For example, the data quality entry of a flow $f$ with a contribution
  * of `0.5 kg` and a data quality entry of `(3;2;4;n.a.;2)` in a process $p$ and
  * a contribution of `1.5 kg` and a data quality entry of `(2;3;1;n.a.;5)` in a
  * process $q$ could be aggregated to `(2;3;2;n.a.;4)` by applying an weighted
  * average and rounding.
- * 
+ *
  * Finally, custom labels like `A, B, C, ...` or `Very good, Good, Fair, ...`
  * for the DQ scores can be assigned by the user. These labels are then
  * displayed instead of `1, 2, 3 ...` in the user interface or result exports.
@@ -74,7 +74,7 @@ public class DQSystem extends CategorizedEntity {
 	 * Get the number of scores $n$ of the data quality system.
 	 */
 	public int getScoreCount() {
-		if (indicators == null || indicators.isEmpty())
+		if (indicators.isEmpty())
 			return 0;
 		return indicators.get(0).scores.size();
 	}
@@ -85,7 +85,7 @@ public class DQSystem extends CategorizedEntity {
 	 * returned value is null if the given score is not defined in this system.
 	 */
 	public String getScoreLabel(int j) {
-		if (indicators == null || indicators.isEmpty())
+		if (indicators.isEmpty())
 			return null;
 		for (DQScore score : indicators.get(0).scores) {
 			if (score.position == j)
@@ -101,7 +101,7 @@ public class DQSystem extends CategorizedEntity {
 	 * and scores are 1-based.
 	 */
 	public void setScoreLabel(int pos, String label) {
-		if (indicators == null || indicators.isEmpty())
+		if (indicators.isEmpty())
 			return;
 		if (indicators.get(0).scores.size() < pos)
 			return;
@@ -172,7 +172,7 @@ public class DQSystem extends CategorizedEntity {
 				if (val > 0 && val <= n) {
 					values[i] = val;
 				}
-			} catch (NumberFormatException e) {
+			} catch (NumberFormatException ignored) {
 			}
 		}
 		return values;

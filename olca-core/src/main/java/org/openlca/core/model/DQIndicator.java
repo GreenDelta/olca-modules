@@ -34,17 +34,17 @@ public class DQIndicator extends AbstractEntity implements Comparable<DQIndicato
 
 	@Override
 	public DQIndicator clone() {
-		DQIndicator clone = new DQIndicator();
+		var clone = new DQIndicator();
 		clone.name = name;
 		clone.position = position;
-		for (DQScore score : scores) {
+		for (var score : scores) {
 			clone.scores.add(score.clone());
 		}
 		return clone;
 	}
 
 	public DQScore getScore(int pos) {
-		for (DQScore score : scores) {
+		for (var score : scores) {
 			if (score.position == pos)
 				return score;
 		}

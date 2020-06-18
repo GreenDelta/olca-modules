@@ -19,7 +19,7 @@ import gnu.trove.map.hash.TLongObjectHashMap;
  * sub-systems, these systems are handled like processes and are also mapped as
  * pair with their quantitative reference flow to that index (and also their
  * processes etc.).
- *
+ * <p>
  * $$\mathit{Idx}_A: \mathit{P} \mapsto [0 \dots n-1]$$
  */
 public class TechIndex {
@@ -57,9 +57,8 @@ public class TechIndex {
 	/**
 	 * Creates a new technosphere index of a product system.
 	 *
-	 * @param refFlow
-	 *            the reference product-output or waste-input as (processId,
-	 *            flowId) pair.
+	 * @param refFlow the reference product-output or waste-input as (processId,
+	 *                flowId) pair.
 	 */
 	public TechIndex(ProcessProduct refFlow) {
 		put(refFlow);
@@ -163,25 +162,20 @@ public class TechIndex {
 	 * system as entity.
 	 */
 	public List<ProcessProduct> getProviders(CategorizedDescriptor d) {
-		if (d == null)
-			return Collections.emptyList();
-		List<ProcessProduct> providers = processProviders.get(d.id);
-		if (providers == null)
-			return Collections.emptyList();
-		return new ArrayList<>(providers);
+		return d == null
+				? Collections.emptyList()
+				: getProviders(d.id);
 	}
 
 	/**
 	 * Returns the providers (product-outputs and waste-inputs) for the process
 	 * with the given ID.
-	 *
-	 * TODO: do we need this anymore?
 	 */
 	public List<ProcessProduct> getProviders(long processId) {
-		List<ProcessProduct> providers = processProviders.get(processId);
-		if (providers == null)
-			return Collections.emptyList();
-		return new ArrayList<>(providers);
+		var providers = processProviders.get(processId);
+		return providers == null
+				? Collections.emptyList()
+				: providers;
 	}
 
 	/**
@@ -195,12 +189,10 @@ public class TechIndex {
 	/**
 	 * Adds a process link to this index.
 	 *
-	 * @param exchange
-	 *            The linked product-input or waste-output as (processId,
-	 *            exchangeId) pair.
-	 * @param provider
-	 *            The product-output or waste-input (provider) as (processId,
-	 *            flowId) pair.
+	 * @param exchange The linked product-input or waste-output as (processId,
+	 *                 exchangeId) pair.
+	 * @param provider The product-output or waste-input (provider) as (processId,
+	 *                 flowId) pair.
 	 */
 	public void putLink(LongPair exchange, ProcessProduct provider) {
 		if (links.containsKey(exchange))
@@ -210,7 +202,6 @@ public class TechIndex {
 	}
 
 	/**
-	 *
 	 * Returns true if the given product-input or waste-output is linked to a
 	 * provider of this index.
 	 */

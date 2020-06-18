@@ -217,29 +217,28 @@ CREATE INDEX idx_flow_factor_property ON tbl_flow_property_factors(f_flow_proper
 
 CREATE TABLE tbl_processes (
 
-    id BIGINT NOT NULL,
-    ref_id VARCHAR(36),
-    name VARCHAR(2048),
-    version BIGINT,
+    id BIGINT   NOT NULL,
+    ref_id      VARCHAR(36),
+    name        VARCHAR(2048),
+    version     BIGINT,
     last_change BIGINT,
-    f_category BIGINT,
+    f_category  BIGINT,
     description CLOB(64 K),
 
-    process_type VARCHAR(255),
+    process_type              VARCHAR(255),
     default_allocation_method VARCHAR(255),
-    infrastructure_process SMALLINT default 0,
-    f_quantitative_reference BIGINT,
-    f_location BIGINT,
-    f_process_doc BIGINT,
-    f_currency BIGINT,
-    f_dq_system BIGINT,
-    dq_entry VARCHAR(50),
-    f_exchange_dq_system BIGINT,
-    f_social_dq_system BIGINT,
-    last_internal_id INTEGER,
+    infrastructure_process    SMALLINT default 0,
+    f_quantitative_reference  BIGINT,
+    f_location                BIGINT,
+    f_process_doc             BIGINT,
+    f_currency                BIGINT,
+    f_dq_system               BIGINT,
+    dq_entry                  VARCHAR(50),
+    f_exchange_dq_system      BIGINT,
+    f_social_dq_system        BIGINT,
+    last_internal_id          INTEGER,
 
     PRIMARY KEY (id)
-
 );
 CREATE INDEX idx_process_category ON tbl_processes(f_category);
 CREATE INDEX idx_process_qref ON tbl_processes(f_quantitative_reference);

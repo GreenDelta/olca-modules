@@ -98,7 +98,7 @@ public class DQResult {
 	}
 
 	private static <K> Map<K, int[]> iv(Map<K, double[]> m, RoundingMode rmode) {
-		Map<K, int[]> im = new HashMap<K, int[]>();
+		Map<K, int[]> im = new HashMap<>();
 		m.forEach((key, vals) -> {
 			if (key == null || vals == null)
 				return;
