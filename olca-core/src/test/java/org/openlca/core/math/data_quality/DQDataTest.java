@@ -6,6 +6,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
+import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
@@ -18,6 +19,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.results.SimpleResult;
 
 public class DQDataTest {
@@ -99,9 +101,17 @@ public class DQDataTest {
 		var result = new SimpleResult();
 		result.techIndex = new TechIndex(product1);
 		result.techIndex.put(product2);
+		result.flowIndex = FlowIndex.create();
+		result.flowIndex.putOutput(Descriptors.toDescriptor(elemFlow));
+		var iFlow = result.flowIndex.at(0);
 
+		// test process data
 		var dqData = DQData2.of(Tests.getDb(), setup, result);
 		assertArrayEquals(new int[]{1, 2, 3, 4, 5}, dqData.get(product1));
 		assertArrayEquals(new int[]{5, 4, 3, 2, 1}, dqData.get(product2));
+
+		// test exchange data
+		assertArrayEquals(new int[]{2, 1, 4, 3, 5}, dqData.get(product1, iFlow));
+		assertArrayEquals(new int[]{4, 5, 2, 3, 1}, dqData.get(product2, iFlow));
 	}
 }
