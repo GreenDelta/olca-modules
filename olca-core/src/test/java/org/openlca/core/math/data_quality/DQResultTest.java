@@ -7,13 +7,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.DQSystemDao;
-import org.openlca.core.database.ImpactCategoryDao;
-import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.IndexFlow;
+import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQScore;
 import org.openlca.core.model.DQSystem;
@@ -28,7 +26,6 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptors;
-import org.openlca.core.results.ContributionResult;
 
 public class DQResultTest {
 
@@ -54,23 +51,19 @@ public class DQResultTest {
 
 		createDQSystem();
 		ProcessDao dao = new ProcessDao(Tests.getDb());
-		process1 = process();
-		var ref1 = process1.output(product1, 1);
-		ref1.dqEntry = "(1;2;3;4;5)";
+		process1 = process(product1);
+		process1.quantitativeReference.dqEntry = "(1;2;3;4;5)";
 		process1.input(pFlow2, 2);
 		process1.input(eFlow1, 3).dqEntry = "(1;2;3;4;5)";
 		process1.input(eFlow2, 4).dqEntry = "(5;4;3;2;1)";
-		process1.dqEntry = ref1.dqEntry;
-		process1.quantitativeReference = ref1;
+		process1.dqEntry = "(1;2;3;4;5)";
 		process1 = dao.insert(process1);
 
-		process2 = process();
-		var ref2 = process2.output(pFlow2, 1);
-		ref2.dqEntry = "(5;4;3;2;1)";
+		process2 = process(pFlow2);
+		process2.quantitativeReference.dqEntry = "(5;4;3;2;1)";
 		process2.input(eFlow1, 5).dqEntry = "(5;4;3;2;1)";
 		process2.input(eFlow2, 6).dqEntry = "(1;2;3;4;5)";
-		process2.dqEntry = ref2.dqEntry;
-		process2.quantitativeReference = ref2;
+		process2.dqEntry = "(5;4;3;2;1)";
 		process2 = dao.insert(process2);
 		createProductSystem();
 		createImpactMethod();
@@ -113,8 +106,8 @@ public class DQResultTest {
 		system = Tests.insert(system);
 	}
 
-	private Process process() {
-		Process p = new Process();
+	private Process process(Flow product) {
+		Process p = Process.of(product.name, product);
 		p.dqSystem = dqSystem;
 		p.exchangeDqSystem = dqSystem;
 		return p;
@@ -157,12 +150,23 @@ public class DQResultTest {
 		var dqResult = DQResult2.of(Tests.getDb(), dqSetup, result);
 		assertArrayEquals(a(4, 4, 3, 2, 2), r(dqResult, eFlow1));
 		assertArrayEquals(a(2, 3, 3, 4, 4), r(dqResult, eFlow2));
+		assertArrayEquals(a(1, 2, 3, 4, 5), r(dqResult, process1, eFlow1));
+		assertArrayEquals(a(5, 4, 3, 2, 1), r(dqResult, process2, eFlow1));
+		assertArrayEquals(a(5, 4, 3, 2, 1), r(dqResult, process1, eFlow2));
+		assertArrayEquals(a(1, 2, 3, 4, 5), r(dqResult, process2, eFlow2));
 	}
 
 	private int[] r(DQResult2 dq, Flow flow) {
 		var iflow = new IndexFlow();
 		iflow.flow = Descriptors.toDescriptor(flow);
 		return dq.get(iflow);
+	}
+
+	private int[] r(DQResult2 dq, Process process, Flow flow) {
+		var product = ProcessProduct.of(process);
+		var iflow = new IndexFlow();
+		iflow.flow = Descriptors.toDescriptor(flow);
+		return dq.get(product, iflow);
 	}
 
 	private void checkResults(DQResult result) {
