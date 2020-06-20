@@ -1,102 +1,107 @@
 package org.openlca.core.math.data_quality;
 
+import static org.junit.Assert.*;
+
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.database.DQSystemDao;
-import org.openlca.core.database.FlowDao;
-import org.openlca.core.database.ProcessDao;
-import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQScore;
 import org.openlca.core.model.DQSystem;
-import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Unit;
+import org.openlca.core.model.UnitGroup;
+import org.openlca.core.results.SimpleResult;
 
 public class DQDataTest {
 
 	private DQSystem dqSystem;
-	private ProductSystem pSystem;
+	private ProductSystem productSystem;
 	private Process process1;
 	private Process process2;
-	private Flow flow;
+	private Flow elemFlow;
+	private FlowProperty mass;
 
 	@Before
 	public void setup() {
-		createFlow();
-		createDQSystem();
-		createProductSystem();
+		var units = Tests.insert(UnitGroup.of("Mass units", Unit.of("kg")));
+		mass = Tests.insert(FlowProperty.of("Mass", units));
+		elemFlow = Tests.insert(Flow.elementary("CO2", mass));
+		dqSystem = dqSystem();
+		process1 = process("(1;2;3;4;5)", "(2;1;4;3;5)");
+		process2 = process("(5;4;3;2;1)", "(4;5;2;3;1)");
+		productSystem = ProductSystem.of(process1);
+		productSystem.processes.add(process2.id);
+		productSystem = Tests.insert(productSystem);
 	}
 
-	private void createDQSystem() {
-		dqSystem = new DQSystem();
+	@After
+	public void shutdown() {
+		Tests.clearDb();
+	}
+
+	private DQSystem dqSystem() {
+		var sys = new DQSystem();
 		for (int i = 1; i <= 5; i++) {
 			DQIndicator indicator = new DQIndicator();
 			indicator.position = i;
-			dqSystem.indicators.add(indicator);
+			sys.indicators.add(indicator);
 			for (int j = 1; j <= 5; j++) {
 				DQScore score = new DQScore();
 				score.position = j;
 				indicator.scores.add(score);
 			}
 		}
-		dqSystem = new DQSystemDao(Tests.getDb()).insert(dqSystem);
+		return Tests.insert(sys);
 	}
 
-	private void createProductSystem() {
-		process1 = new ProcessDao(Tests.getDb()).insert(createProcess("(1;2;3;4;5)", "(2;1;4;3;5)"));
-		process2 = new ProcessDao(Tests.getDb()).insert(createProcess("(5;4;3;2;1)", "(4;5;2;3;1)"));
-		pSystem = new ProductSystem();
-		pSystem.processes.add(process1.id);
-		pSystem.processes.add(process2.id);
-		pSystem = new ProductSystemDao(Tests.getDb()).insert(pSystem);
-	}
-
-	private Process createProcess(String dqEntry1, String dqEntry2) {
-		Process process = new Process();
-		process.dqSystem = dqSystem;
-		process.dqEntry = dqEntry1;
-		process.exchangeDqSystem = dqSystem;
-		Exchange exchange = new Exchange();
-		exchange.dqEntry = dqEntry2;
-		exchange.flow = flow;
-		process.exchanges.add(exchange);
-		return process;
-	}
-
-	private void createFlow() {
-		flow = new Flow();
-		flow = new FlowDao(Tests.getDb()).insert(flow);
+	private Process process(String processEntry, String flowEntry) {
+		var product = Tests.insert(Flow.product("product", mass));
+		var p = Process.of("process", product);
+		p.dqSystem = dqSystem;
+		p.dqEntry = processEntry;
+		p.exchangeDqSystem = dqSystem;
+		p.output(elemFlow, 1.0)
+				.dqEntry = flowEntry;
+		return Tests.insert(p);
 	}
 
 	@Test
 	public void test() {
-		var setup = DQCalculationSetup.of(pSystem);
-		setup.exchangeSystem = dqSystem;
-		setup.processSystem = dqSystem;
-		DQData data = DQData.load(Tests.getDb(), setup, new long[] { flow.id });
-		Assert.assertEquals(dqSystem.id, setup.processSystem.id);
-		Assert.assertEquals(dqSystem.id, setup.exchangeSystem.id);
-		Assert.assertArrayEquals(new double[] { 1, 2, 3, 4, 5 }, data.processData.get(process1.id), 0);
-		Assert.assertArrayEquals(new double[] { 5, 4, 3, 2, 1 }, data.processData.get(process2.id), 0);
-		Assert.assertArrayEquals(new double[] { 2, 1, 4, 3, 5 },
-				data.exchangeData.get(new LongPair(process1.id, flow.id)), 0);
-		Assert.assertArrayEquals(new double[] { 4, 5, 2, 3, 1 },
-				data.exchangeData.get(new LongPair(process2.id, flow.id)), 0);
+		var setup = DQCalculationSetup.of(productSystem);
+		var data = DQData.load(
+				Tests.getDb(), setup, new long[]{elemFlow.id});
+		assertEquals(dqSystem.id, setup.processSystem.id);
+		assertEquals(dqSystem.id, setup.exchangeSystem.id);
+		assertArrayEquals(new double[]{1, 2, 3, 4, 5},
+				data.processData.get(process1.id), 0);
+		assertArrayEquals(new double[]{5, 4, 3, 2, 1},
+				data.processData.get(process2.id), 0);
+		assertArrayEquals(new double[]{2, 1, 4, 3, 5},
+				data.exchangeData.get(LongPair.of(process1.id, elemFlow.id)), 0);
+		assertArrayEquals(new double[]{4, 5, 2, 3, 1},
+				data.exchangeData.get(LongPair.of(process2.id, elemFlow.id)), 0);
 	}
 
-	@After
-	public void shutdown() {
-		new ProductSystemDao(Tests.getDb()).delete(pSystem);
-		new ProcessDao(Tests.getDb()).delete(process1);
-		new ProcessDao(Tests.getDb()).delete(process2);
-		new DQSystemDao(Tests.getDb()).delete(dqSystem);
-		new FlowDao(Tests.getDb()).delete(flow);
-	}
+	@Test
+	public void testLoadData() {
+		var setup = DQCalculationSetup.of(productSystem);
+		var product1 = ProcessProduct.of(process1);
+		var product2 = ProcessProduct.of(process2);
 
+		var result = new SimpleResult();
+		result.techIndex = new TechIndex(product1);
+		result.techIndex.put(product2);
+
+		var dqData = DQData2.of(Tests.getDb(), setup, result);
+		assertArrayEquals(new int[]{1, 2, 3, 4, 5}, dqData.get(product1));
+		assertArrayEquals(new int[]{5, 4, 3, 2, 1}, dqData.get(product2));
+	}
 }

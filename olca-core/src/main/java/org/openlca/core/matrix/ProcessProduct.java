@@ -40,7 +40,7 @@ public class ProcessProduct {
 	public static ProcessProduct of(
 			CategorizedDescriptor entity,
 			FlowDescriptor flow) {
-		ProcessProduct p = new ProcessProduct();
+		var p = new ProcessProduct();
 		p.process = entity;
 		p.flow = flow;
 		return p;
@@ -62,6 +62,21 @@ public class ProcessProduct {
 				? system.referenceExchange.flow
 				: null;
 		return of(Descriptors.toDescriptor(system),
+				Descriptors.toDescriptor(flow));
+	}
+
+	/**
+	 * Creates a process product with the quantitative reference flow of the
+	 * process as the provider flow. Note that the quantitative reference flow
+	 * must be a product output or waste input in this case. Make sure that this
+	 * is the case and what you want when calling this method. Otherwise use
+	 * another construction method.
+	 */
+	public static ProcessProduct of(Process process) {
+		var flow = process.quantitativeReference != null
+				? process.quantitativeReference.flow
+				: null;
+		return of(Descriptors.toDescriptor(process),
 				Descriptors.toDescriptor(flow));
 	}
 
