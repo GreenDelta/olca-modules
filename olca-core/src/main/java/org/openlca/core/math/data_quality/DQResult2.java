@@ -1,13 +1,14 @@
 package org.openlca.core.math.data_quality;
 
+import java.math.RoundingMode;
 import java.util.List;
+import java.util.function.Supplier;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.results.BaseResult;
 import org.openlca.core.results.ContributionResult;
 
 /**
@@ -33,19 +34,75 @@ public class DQResult2 {
 	 */
 	private BMatrix[] exchangeData;
 
-	private BMatrix flowResults;
+	/**
+	 * A k*m matrix that holds the aggregated flow results for the k
+	 * indicators and m flows of the setup. It is calculated by
+	 * aggregating the exchange data with the direct flow contribution
+	 * result.
+	 */
+	private BMatrix flowResult;
 
 	static DQResult2 of(IDatabase db, DQCalculationSetup setup,
 						ContributionResult result) {
-		var data = new DQResult2(setup, result);
-		data.loadProcessData(db);
-		data.loadExchangeData(db);
-		return data;
+		var r = new DQResult2(setup, result);
+		r.loadProcessData(db);
+		r.loadExchangeData(db);
+		r.calculateFlowResults();
+		return r;
 	}
 
 	private DQResult2(DQCalculationSetup setup, ContributionResult result) {
 		this.setup = setup;
 		this.result = result;
+	}
+
+	/**
+	 * Get the process data quality entry for the given product.
+	 */
+	public int[] get(ProcessProduct product) {
+		if (processData == null)
+			return null;
+		int col = result.techIndex.getIndex(product);
+		if (col < 0)
+			return null;
+		int[] values = new int[processData.length];
+		for (int row = 0; row < processData.length; row++) {
+			values[row] = processData[row][col];
+		}
+		return values;
+	}
+
+	/**
+	 * Get the exchange data quality entry for the given product and flow.
+	 */
+	public int[] get(ProcessProduct product, IndexFlow flow) {
+		if (exchangeData == null)
+			return null;
+		int row = result.flowIndex.of(flow);
+		int col = result.techIndex.getIndex(product);
+		if (row < 0 || col < 0)
+			return null;
+		int[] values = new int[exchangeData.length];
+		for (int k = 0; k < exchangeData.length; k++) {
+			values[k] = exchangeData[k].get(row, col);
+		}
+		return values;
+	}
+
+	/**
+	 * Get the aggregated result for the given flow.
+	 */
+	public int[] get(IndexFlow flow) {
+		if (flowResult == null)
+			return null;
+		int col = result.flowIndex.of(flow);
+		if (col < 0)
+			return null;
+		int[] values = new int[flowResult.rows];
+		for (int row = 0; row < flowResult.rows; row++) {
+			values[row] = flowResult.get(row, col);
+		}
+		return values;
 	}
 
 	private void loadProcessData(IDatabase db) {
@@ -155,60 +212,93 @@ public class DQResult2 {
 		});
 	}
 
+	/**
+	 * Aggregate the raw exchange DQ values with the direct flow contribution
+	 * results if applicable.
+	 */
 	private void calculateFlowResults() {
-		if (exchangeData == null)
+		if (setup.aggregationType == AggregationType.NONE
+				|| exchangeData == null)
 			return;
-		int m = result.flowIndex.size();
+		var matrixG = result.directFlowResults;
+		if (matrixG == null)
+			return;
+
 		var system = setup.exchangeSystem;
 		int k = system.indicators.size();
+		int m = result.flowIndex.size();
+		int n = result.techIndex.size();
+		flowResult = new BMatrix(k, m);
+		int max = system.getScoreCount();
 
+		for (int indicator = 0; indicator < k; indicator++) {
+			var b = exchangeData[indicator];
+			for (int flow = 0; flow < m; flow++) {
 
-		var matrixG = result.directFlowResults;
+				// collect the n DQ values of the flow
+				int[] dqs = new int[n];
+				for (int j = 0; j < n; j++) {
+					int val = b.get(flow, j);
+					if (val == 0 && setup.naHandling == NAHandling.USE_MAX) {
+						val = max;
+					}
+					dqs[j] = val;
+				}
 
-
+				// set the aggregated indicator result
+				int flowIdx = flow; // because we need a final var for the closure
+				Supplier<double[]> weights = () -> matrixG.getRow(flowIdx);
+				flowResult.set(indicator, flow, aggregate(dqs, max, weights));
+			}
+		}
 
 	}
 
-	/**
-	 * Get the process data quality entry for the given product.
-	 */
-	public int[] get(ProcessProduct product) {
-		if (processData == null)
-			return null;
-		int col = result.techIndex.getIndex(product);
-		if (col < 0)
-			return null;
-		int[] values = new int[processData.length];
-		for (int row = 0; row < processData.length; row++) {
-			values[row] = processData[row][col];
-		}
-		return values;
-	}
+	private int aggregate(int[] dqs, int max, Supplier<double[]> weightsFn) {
+		if (setup.aggregationType == null
+				|| setup.aggregationType == AggregationType.NONE)
+			return 0;
 
-	/**
-	 * Get the exchange data quality entry for the given product and flow.
-	 */
-	public int[] get(ProcessProduct product, IndexFlow flow) {
-		if (exchangeData == null)
-			return null;
-		int row = result.flowIndex.of(flow);
-		int col = result.techIndex.getIndex(product);
-		if (row < 0 || col < 0)
-			return null;
-		int[] values = new int[exchangeData.length];
-		for (int k = 0; k < exchangeData.length; k++) {
-			values[k] = exchangeData[k].get(row, col);
+		if (setup.aggregationType == AggregationType.MAXIMUM) {
+			int m = 0;
+			for (int dq : dqs) {
+				m = Math.max(m, dq);
+			}
+			return Math.min(m, max);
 		}
-		return values;
+
+		boolean square = setup.aggregationType
+				== AggregationType.WEIGHTED_SQUARED_AVERAGE;
+		double[] weights = weightsFn.get();
+		double totalWeight = 0;
+		double value = 0;
+
+		for (int i = 0; i < dqs.length; i++) {
+			double weight = square
+					? Math.pow(weights[i], 2)
+					: Math.abs(weights[i]);
+			totalWeight += weight;
+			value += dqs[i] * weight;
+		}
+
+		if (totalWeight == 0)
+			return 0;
+		value /= totalWeight;
+		int m = setup.roundingMode == RoundingMode.UP
+				? Math.round((float) Math.ceil(value))
+				: Math.round((float) value);
+		return Math.min(m, max);
 	}
 
 	private static class BMatrix {
 
-		private final int rows;
+		final int rows;
+		final int columns;
 		private final byte[] data;
 
 		BMatrix(int rows, int columns) {
 			this.rows = rows;
+			this.columns = columns;
 			this.data = new byte[rows * columns];
 		}
 

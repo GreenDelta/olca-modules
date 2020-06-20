@@ -13,6 +13,7 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQScore;
 import org.openlca.core.model.DQSystem;
@@ -27,6 +28,7 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.results.ContributionResult;
 
 public class DQResultTest {
 
@@ -38,6 +40,7 @@ public class DQResultTest {
 	private Flow eFlow1;
 	private Flow eFlow2;
 	private ImpactMethod method;
+	private ImpactCategory impact;
 
 	@Before
 	public void setup() {
@@ -107,7 +110,7 @@ public class DQResultTest {
 		}
 		link.processId = process1.id;
 		system.processLinks.add(link);
-		system = new ProductSystemDao(Tests.getDb()).insert(system);
+		system = Tests.insert(system);
 	}
 
 	private Process process() {
@@ -118,13 +121,13 @@ public class DQResultTest {
 	}
 
 	private void createImpactMethod() {
-		ImpactCategory c = new ImpactCategory();
-		c.factor(eFlow1, 2);
-		c.factor(eFlow2, 8);
-		c = new ImpactCategoryDao(Tests.getDb()).insert(c);
+		impact = new ImpactCategory();
+		impact.factor(eFlow1, 2);
+		impact.factor(eFlow2, 8);
+		impact = Tests.insert(impact);
 		method = new ImpactMethod();
-		method.impactCategories.add(c);
-		method = new ImpactMethodDao(Tests.getDb()).insert(method);
+		method.impactCategories.add(impact);
+		method = Tests.insert(method);
 	}
 
 	@Test
@@ -138,11 +141,31 @@ public class DQResultTest {
 		var cResult = calculator.calculateContributions(setup);
 		var dqSetup = DQCalculationSetup.of(system);
 		var result = DQResult.calculate(Tests.getDb(), cResult, dqSetup);
-		var impact = method.impactCategories.get(0);
-		checkResults(result, impact);
+		checkResults(result);
 	}
 
-	private void checkResults(DQResult result, ImpactCategory impact) {
+	@Test
+	public void test2() {
+		var calculator = new SystemCalculator(
+				Tests.getDb(),
+				Tests.getDefaultSolver());
+		var setup = new CalculationSetup(system);
+		setup.setAmount(1);
+		setup.impactMethod = Descriptors.toDescriptor(method);
+		var result = calculator.calculateContributions(setup);
+		var dqSetup = DQCalculationSetup.of(system);
+		var dqResult = DQResult2.of(Tests.getDb(), dqSetup, result);
+		assertArrayEquals(a(4, 4, 3, 2, 2), r(dqResult, eFlow1));
+		assertArrayEquals(a(2, 3, 3, 4, 4), r(dqResult, eFlow2));
+	}
+
+	private int[] r(DQResult2 dq, Flow flow) {
+		var iflow = new IndexFlow();
+		iflow.flow = Descriptors.toDescriptor(flow);
+		return dq.get(iflow);
+	}
+
+	private void checkResults(DQResult result) {
 		assertArrayEquals(a(4, 4, 3, 2, 2), getResult(result, eFlow1));
 		assertArrayEquals(a(2, 3, 3, 4, 4), getResult(result, eFlow2));
 		assertArrayEquals(a(2, 3, 3, 3, 4), getResult(result, impact));

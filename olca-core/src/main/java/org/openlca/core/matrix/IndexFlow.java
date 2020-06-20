@@ -2,6 +2,8 @@ package org.openlca.core.matrix;
 
 import java.util.Objects;
 
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 
@@ -9,15 +11,6 @@ import org.openlca.core.model.descriptors.LocationDescriptor;
  * Describes the mapping of flow information to a matrix index.
  */
 public class IndexFlow {
-
-	/*
-	 * TODO: we may add this later to improve performance for single flow index
-	 * results.
-	 * 
-	 * 
-	 * The matrix index to which this flow information is mapped.
-	 */
-	// public int index;
 
 	/**
 	 * The flow that is mapped to the matrix index.
