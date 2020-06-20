@@ -68,7 +68,8 @@ class DQCalculator {
 
 	private <T> void addValue(Map<T, List<AggregationValue>> map, T key,
 			BigDecimal factor, double[] dqValues) {
-		List<AggregationValue> list = safeGetList(key, map);
+		List<AggregationValue> list = map.computeIfAbsent(
+				key, _k -> new ArrayList<>());
 		int max = setup.exchangeSystem.getScoreCount();
 		for (int i = 0; i < dqValues.length; i++) {
 			double v = dqValues[i];
@@ -104,15 +105,6 @@ class DQCalculator {
 			values.put(key, result);
 		}
 		return values;
-	}
-
-	private <T> List<AggregationValue> safeGetList(T key,
-			Map<T, List<AggregationValue>> map) {
-		List<AggregationValue> list = map.get(key);
-		if (list != null)
-			return list;
-		map.put(key, list = new ArrayList<>());
-		return list;
 	}
 
 	private double getImpactFactor(ContributionResult result, long impactId,

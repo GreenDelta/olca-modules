@@ -34,7 +34,7 @@ class Aggregation {
 				if (squared) {
 					factor = factor.pow(2);
 				}
-				BigDecimal result = new BigDecimal(value.values[i])
+				BigDecimal result = BigDecimal.valueOf(value.values[i])
 						.multiply(factor);
 				if (aggregated[i] == null) {
 					aggregated[i] = result;
@@ -47,11 +47,9 @@ class Aggregation {
 		}
 		double[] result = new double[aggregated.length];
 		for (int i = 0; i < aggregated.length; i++) {
-			if (aggregated == null || aggregated[i] == null
-					|| aggregated[i].doubleValue() == 0d)
+			if (aggregated[i] == null || aggregated[i].doubleValue() == 0d)
 				continue;
-			if (divisors == null || divisors[i] == null
-					|| divisors[i].doubleValue() == 0d)
+			if (divisors[i] == null || divisors[i].doubleValue() == 0d)
 				continue;
 			result[i] = aggregated[i]
 					.divide(divisors[i], MathContext.DECIMAL128).doubleValue();

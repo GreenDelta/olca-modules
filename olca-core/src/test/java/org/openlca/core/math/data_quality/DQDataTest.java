@@ -20,7 +20,7 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptors;
-import org.openlca.core.results.SimpleResult;
+import org.openlca.core.results.ContributionResult;
 
 public class DQDataTest {
 
@@ -98,7 +98,7 @@ public class DQDataTest {
 		var product1 = ProcessProduct.of(process1);
 		var product2 = ProcessProduct.of(process2);
 
-		var result = new SimpleResult();
+		var result = new ContributionResult();
 		result.techIndex = new TechIndex(product1);
 		result.techIndex.put(product2);
 		result.flowIndex = FlowIndex.create();
@@ -106,7 +106,7 @@ public class DQDataTest {
 		var iFlow = result.flowIndex.at(0);
 
 		// test process data
-		var dqData = DQData2.of(Tests.getDb(), setup, result);
+		var dqData = DQResult2.of(Tests.getDb(), setup, result);
 		assertArrayEquals(new int[]{1, 2, 3, 4, 5}, dqData.get(product1));
 		assertArrayEquals(new int[]{5, 4, 3, 2, 1}, dqData.get(product2));
 

@@ -8,11 +8,16 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.results.BaseResult;
+import org.openlca.core.results.ContributionResult;
 
-class DQData2 {
+/**
+ * Contains the raw data quality data of a setup and result in an efficient
+ * data structure.
+ */
+public class DQResult2 {
 
 	private final DQCalculationSetup setup;
-	private final BaseResult result;
+	private final ContributionResult result;
 
 	/**
 	 * We store the process data in a byte matrix where the data quality
@@ -28,14 +33,17 @@ class DQData2 {
 	 */
 	private BMatrix[] exchangeData;
 
-	static DQData2 of(IDatabase db, DQCalculationSetup setup, BaseResult result) {
-		var data = new DQData2(setup, result);
+	private BMatrix flowResults;
+
+	static DQResult2 of(IDatabase db, DQCalculationSetup setup,
+						ContributionResult result) {
+		var data = new DQResult2(setup, result);
 		data.loadProcessData(db);
 		data.loadExchangeData(db);
 		return data;
 	}
 
-	private DQData2(DQCalculationSetup setup, BaseResult result) {
+	private DQResult2(DQCalculationSetup setup, ContributionResult result) {
 		this.setup = setup;
 		this.result = result;
 	}
@@ -147,6 +155,19 @@ class DQData2 {
 		});
 	}
 
+	private void calculateFlowResults() {
+		if (exchangeData == null)
+			return;
+		int m = result.flowIndex.size();
+		var system = setup.exchangeSystem;
+		int k = system.indicators.size();
+
+
+		var matrixG = result.directFlowResults;
+
+
+
+	}
 
 	/**
 	 * Get the process data quality entry for the given product.
