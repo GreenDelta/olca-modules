@@ -1,6 +1,5 @@
 package org.openlca.core.math.data_quality;
 
-import java.math.RoundingMode;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -334,28 +333,4 @@ public class DQResult2 {
 		return values;
 	}
 
-	private static class BMatrix {
-
-		final int rows;
-		final int columns;
-		private final byte[] data;
-
-		BMatrix(int rows, int columns) {
-			this.rows = rows;
-			this.columns = columns;
-			this.data = new byte[rows * columns];
-		}
-
-		void set(int row, int col, int value) {
-			data[index(row, col)] = (byte) value;
-		}
-
-		int get(int row, int col) {
-			return data[index(row, col)];
-		}
-
-		int index(int row, int column) {
-			return row + rows * column;
-		}
-	}
 }
