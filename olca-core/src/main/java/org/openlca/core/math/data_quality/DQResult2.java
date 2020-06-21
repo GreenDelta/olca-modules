@@ -1,7 +1,6 @@
 package org.openlca.core.math.data_quality;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.IDatabase;
@@ -58,6 +57,16 @@ public class DQResult2 {
 	 * impact category and flow for the respective data quality indicator.
 	 */
 	private BMatrix[] flowImpactResult;
+
+	/**
+	 * If there is an impact result, this field contains for each of the k
+	 * data quality indicators a q*n matrix with the q impact categories
+	 * mapped to the rows and the n process products of the setup mapped
+	 * to the columns that contains the aggregated data quality values per
+	 * impact category and process product for the respective data quality
+	 * indicator.
+	 */
+	private BMatrix[] processImpactResult;
 
 	static DQResult2 of(IDatabase db, DQCalculationSetup setup,
 						ContributionResult result) {
@@ -138,6 +147,21 @@ public class DQResult2 {
 		int[] values = new int[k];
 		for (int i = 0; i < k; i++) {
 			values[i] = flowImpactResult[i].get(row, col);
+		}
+		return values;
+	}
+
+	public int[] get(ImpactCategoryDescriptor impact, ProcessProduct product) {
+		if (processImpactResult == null)
+			return null;
+		int row = result.impactIndex.of(impact);
+		int col = result.techIndex.getIndex(product);
+		if (row < 0 || col < 0)
+			return null;
+		int k = processImpactResult.length;
+		int[] values = new int[k];
+		for (int i = 0; i < k; i++) {
+			values[i] = processImpactResult[i].get(row, col);
 		}
 		return values;
 	}
@@ -270,8 +294,7 @@ public class DQResult2 {
 			for (int flow = 0; flow < m; flow++) {
 				int[] dqs = b.getRow(flow);
 				// set the aggregated indicator result
-				int flowIdx = flow; // because we need a final var for the closure
-				Supplier<double[]> weights = () -> matrixG.getRow(flowIdx);
+				double[] weights = matrixG.getRow(flow);
 				flowResult.set(indicator, flow, acc.get(dqs, weights));
 			}
 		}
@@ -291,46 +314,62 @@ public class DQResult2 {
 		var system = setup.exchangeSystem;
 		int k = system.indicators.size();
 		int m = result.flowIndex.size();
+		int n = result.techIndex.size();
 		int q = result.impactIndex.size();
 		int max = system.getScoreCount();
 		impactResult = new BMatrix(k, q);
 		flowImpactResult = new BMatrix[k];
+		processImpactResult = new BMatrix[k];
 		for (int i = 0; i < k; i++) {
 			flowImpactResult[i] = new BMatrix(q, m);
+			processImpactResult[i] = new BMatrix(q, n);
 		}
 
 		// initialize the accumulators
 		var totalImpactAcc = new Accumulator(setup, max);
 		var flowImpactAcc = new Accumulator(setup, max);
+		var processAccs = new Accumulator[n];
+		for (int j = 0; j < n; j++) {
+			processAccs[j] = new Accumulator(setup, max);
+		}
 
 		for (int indicator = 0; indicator < k; indicator++) {
 			var b = exchangeData[indicator];
 
 			for (int impact = 0; impact < q; impact++) {
+
+				// reset the accumulators
 				totalImpactAcc.reset();
+				for (var acc : processAccs) {
+					acc.reset();
+				}
+
 				for (int flow = 0; flow < m; flow++) {
 
+					// get DQ data and calculate weights
 					int[] dqs = b.getRow(flow);
-					// set the aggregated indicator result
-					int flowIdx = flow; // because we need a final var for the closure
-					int impactIdx = impact;
-					Supplier<double[]> weights = () -> {
-						double factor = impactFactors.get(impactIdx, flowIdx);
-						double[] w = flowResults.getRow(flowIdx);
-						for (int i = 0; i < w.length; i++) {
-							w[i] *= factor;
-						}
-						return w;
-					};
+					double factor = impactFactors.get(impact, flow);
+					double[] weights = flowResults.getRow(flow);
+					for (int i = 0; i < weights.length; i++) {
+						weights[i] *= factor;
+					}
+
+					// add data
 					totalImpactAcc.addAll(dqs, weights);
 					flowImpactResult[indicator].set(
 							impact, flow, flowImpactAcc.get(dqs, weights));
-				}
+					for (int process = 0; process < n; process++) {
+						processAccs[process].add(dqs[process], weights[process]);
+					}
+
+				} // each flow
+
 				impactResult.set(indicator, impact, totalImpactAcc.get());
-			}
-
-
-		}
-
+				for (int process = 0; process < n; process++) {
+					processImpactResult[indicator].set(
+							impact, process, processAccs[process].get());
+				}
+			} // each impact
+		} // each indicator
 	}
 }

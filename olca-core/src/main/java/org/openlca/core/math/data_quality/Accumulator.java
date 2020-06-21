@@ -1,7 +1,5 @@
 package org.openlca.core.math.data_quality;
 
-import java.util.function.Supplier;
-
 class Accumulator {
 
 	private final AggregationType aggType;
@@ -60,14 +58,13 @@ class Accumulator {
 		accTotalWeight += w;
 	}
 
-	void addAll(int[] dqs, Supplier<double[]> weightsFn) {
+	void addAll(int[] dqs, double[] weights) {
 		if (aggType == AggregationType.MAXIMUM) {
 			for (int dq : dqs) {
 				add(dq, 0);
 			}
 			return;
 		}
-		double[] weights = weightsFn.get();
 		for (int i = 0; i < dqs.length; i++) {
 			add(dqs[i], weights[i]);
 		}
@@ -93,7 +90,7 @@ class Accumulator {
 	 * Get the accumulated score of the given scores and weights (if applicable)
 	 * without adding them to this accumulator.
 	 */
-	int get(int[] dqs, Supplier<double[]> weightsFn) {
+	int get(int[] dqs, double[] weights) {
 		if (aggType == null || aggType == AggregationType.NONE)
 			return 0;
 
@@ -109,7 +106,6 @@ class Accumulator {
 		}
 
 		boolean square = aggType == AggregationType.WEIGHTED_SQUARED_AVERAGE;
-		double[] weights = weightsFn.get();
 		double totalWeight = 0;
 		double value = 0;
 

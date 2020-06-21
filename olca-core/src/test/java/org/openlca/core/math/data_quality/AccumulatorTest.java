@@ -64,7 +64,7 @@ public class AccumulatorTest {
 
 	private void check(DQCalculationSetup setup, int result) {
 		var acc = new Accumulator(setup, 5);
-		assertEquals(result, acc.get(dqs, () -> weights));
+		assertEquals(result, acc.get(dqs, weights));
 
 		// add some random stuff and reset
 		for (int i = 0; i < 100; i++) {
@@ -73,7 +73,7 @@ public class AccumulatorTest {
 		acc.reset();
 
 		// test multi adding
-		acc.addAll(dqs, () -> weights);
+		acc.addAll(dqs, weights);
 		assertEquals(result, acc.get());
 		acc.reset();
 
