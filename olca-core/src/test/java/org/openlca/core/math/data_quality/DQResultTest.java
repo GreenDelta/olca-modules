@@ -148,12 +148,15 @@ public class DQResultTest {
 		var result = calculator.calculateContributions(setup);
 		var dqSetup = DQCalculationSetup.of(system);
 		var dqResult = DQResult2.of(Tests.getDb(), dqSetup, result);
+
 		assertArrayEquals(a(4, 4, 3, 2, 2), r(dqResult, eFlow1));
 		assertArrayEquals(a(2, 3, 3, 4, 4), r(dqResult, eFlow2));
 		assertArrayEquals(a(1, 2, 3, 4, 5), r(dqResult, process1, eFlow1));
 		assertArrayEquals(a(5, 4, 3, 2, 1), r(dqResult, process2, eFlow1));
 		assertArrayEquals(a(5, 4, 3, 2, 1), r(dqResult, process1, eFlow2));
 		assertArrayEquals(a(1, 2, 3, 4, 5), r(dqResult, process2, eFlow2));
+
+		assertArrayEquals(a(2, 3, 3, 3, 4), r(dqResult, impact));
 	}
 
 	private int[] r(DQResult2 dq, Flow flow) {
@@ -167,6 +170,14 @@ public class DQResultTest {
 		var iflow = new IndexFlow();
 		iflow.flow = Descriptors.toDescriptor(flow);
 		return dq.get(product, iflow);
+	}
+
+	private int[] r(DQResult2 dq, ImpactCategory impact) {
+		return dq.get(Descriptors.toDescriptor(impact));
+	}
+
+	private int[] r(DQResult2 dq, Process process, ImpactCategory impact) {
+		return dq.get(Descriptors.toDescriptor(impact));
 	}
 
 	private void checkResults(DQResult result) {

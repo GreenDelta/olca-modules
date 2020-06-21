@@ -50,6 +50,15 @@ public class DQResult2 {
 	 */
 	private BMatrix impactResult;
 
+	/**
+	 * If there is an impact result, this field contains for each of the k
+	 * data quality indicators a q*m matrix with the q impact categories
+	 * mapped to the rows and the m elementary flows of the setup mapped
+	 * to the columns that contains the aggregated data quality values per
+	 * impact category and flow for the respective data quality indicator.
+	 */
+	private BMatrix[] flowImpactResult;
+
 	static DQResult2 of(IDatabase db, DQCalculationSetup setup,
 						ContributionResult result) {
 		var r = new DQResult2(setup, result);
@@ -116,6 +125,21 @@ public class DQResult2 {
 		return col < 0
 				? null
 				: impactResult.getColumn(col);
+	}
+
+	public int[] get(ImpactCategoryDescriptor impact, IndexFlow flow) {
+		if (flowImpactResult == null)
+			return null;
+		int row = result.impactIndex.of(impact);
+		int col = result.flowIndex.of(flow);
+		if (row < 0 || col < 0)
+			return null;
+		int k = flowImpactResult.length;
+		int[] values = new int[k];
+		for (int i = 0; i < k; i++) {
+			values[i] = flowImpactResult[i].get(row, col);
+		}
+		return values;
 	}
 
 	private void loadProcessData(IDatabase db) {
@@ -263,20 +287,27 @@ public class DQResult2 {
 		if (impactFactors == null || flowResults == null)
 			return;
 
+		// initialize the results
 		var system = setup.exchangeSystem;
 		int k = system.indicators.size();
 		int m = result.flowIndex.size();
 		int q = result.impactIndex.size();
-		impactResult = new BMatrix(k, q);
 		int max = system.getScoreCount();
+		impactResult = new BMatrix(k, q);
+		flowImpactResult = new BMatrix[k];
+		for (int i = 0; i < k; i++) {
+			flowImpactResult[i] = new BMatrix(q, m);
+		}
 
+		// initialize the accumulators
 		var totalImpactAcc = new Accumulator(setup, max);
+		var flowImpactAcc = new Accumulator(setup, max);
 
 		for (int indicator = 0; indicator < k; indicator++) {
-			totalImpactAcc.reset();
-
 			var b = exchangeData[indicator];
+
 			for (int impact = 0; impact < q; impact++) {
+				totalImpactAcc.reset();
 				for (int flow = 0; flow < m; flow++) {
 
 					int[] dqs = b.getRow(flow);
@@ -291,9 +322,14 @@ public class DQResult2 {
 						}
 						return w;
 					};
-
+					totalImpactAcc.addAll(dqs, weights);
+					flowImpactResult[indicator].set(
+							impact, flow, flowImpactAcc.get(dqs, weights));
 				}
+				impactResult.set(indicator, impact, totalImpactAcc.get());
 			}
+
+
 		}
 
 	}
