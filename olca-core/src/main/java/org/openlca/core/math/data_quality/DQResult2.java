@@ -9,6 +9,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.ContributionResult;
 
 /**
@@ -42,12 +43,21 @@ public class DQResult2 {
 	 */
 	private BMatrix flowResult;
 
+	/**
+	 * A k*q matrix that holds the aggregated impact results for the k
+	 * indicators and q impact categories of the setup. It is calculated
+	 * by aggregating the exchange data with the direct flow results and
+	 * impact factors.
+	 */
+	private BMatrix impactResult;
+
 	static DQResult2 of(IDatabase db, DQCalculationSetup setup,
 						ContributionResult result) {
 		var r = new DQResult2(setup, result);
 		r.loadProcessData(db);
 		r.loadExchangeData(db);
 		r.calculateFlowResults();
+		r.calculateImpactResults();
 		return r;
 	}
 
@@ -101,6 +111,22 @@ public class DQResult2 {
 		int[] values = new int[flowResult.rows];
 		for (int row = 0; row < flowResult.rows; row++) {
 			values[row] = flowResult.get(row, col);
+		}
+		return values;
+	}
+
+	/**
+	 * Get the aggregated result for the given impact category.
+	 */
+	public int[] get(ImpactCategoryDescriptor impact) {
+		if (impactResult == null)
+			return null;
+		int col = result.impactIndex.of(impact);
+		if (col < 0)
+			return null;
+		int[] values =new int[impactResult.rows];
+		for (int row = 0; row < impactResult.rows; row++) {
+			values[row] = impactResult.get(row, col);
 		}
 		return values;
 	}
@@ -227,67 +253,85 @@ public class DQResult2 {
 		var system = setup.exchangeSystem;
 		int k = system.indicators.size();
 		int m = result.flowIndex.size();
-		int n = result.techIndex.size();
 		flowResult = new BMatrix(k, m);
 		int max = system.getScoreCount();
 
+		var acc = new Accumulator(setup, max);
 		for (int indicator = 0; indicator < k; indicator++) {
 			var b = exchangeData[indicator];
 			for (int flow = 0; flow < m; flow++) {
-
-				// collect the n DQ values of the flow
-				int[] dqs = new int[n];
-				for (int j = 0; j < n; j++) {
-					int val = b.get(flow, j);
-					if (val == 0 && setup.naHandling == NAHandling.USE_MAX) {
-						val = max;
-					}
-					dqs[j] = val;
-				}
-
+				int[] dqs = rowOf(flow, b, max);
 				// set the aggregated indicator result
 				int flowIdx = flow; // because we need a final var for the closure
 				Supplier<double[]> weights = () -> matrixG.getRow(flowIdx);
-				flowResult.set(indicator, flow, aggregate(dqs, max, weights));
+				flowResult.set(indicator, flow, acc.get(dqs, weights));
+			}
+		}
+	}
+
+	private void calculateImpactResults() {
+		if (setup.aggregationType == AggregationType.NONE
+				|| exchangeData == null
+				|| !result.hasImpactResults())
+			return;
+		var impactFactors = result.impactFactors;
+		var flowResults = result.directFlowResults;
+		if (impactFactors == null || flowResults == null)
+			return;
+
+		var system = setup.exchangeSystem;
+		int k = system.indicators.size();
+		int m = result.flowIndex.size();
+		int q = result.impactIndex.size();
+		impactResult = new BMatrix(k, q);
+		int max = system.getScoreCount();
+
+		var acc = new Accumulator(setup, max);
+		for (int indicator = 0; indicator < k; indicator++) {
+			var b = exchangeData[indicator];
+			for (int impact = 0; impact < q; impact++) {
+				for (int flow = 0; flow < m; flow++) {
+					int[] dqs = rowOf(flow, b, max);
+					// set the aggregated indicator result
+					int flowIdx = flow; // because we need a final var for the closure
+					int impactIdx = impact;
+					Supplier<double[]> weights = () -> {
+						double factor = impactFactors.get(impactIdx, flowIdx);
+						double[] w = flowResults.getRow(flowIdx);
+						for (int i = 0; i < w.length; i++) {
+							w[i] *= factor;
+						}
+						return w;
+					};
+					flowResult.set(indicator, flow, acc.get(dqs, weights));
+				}
 			}
 		}
 
 	}
 
-	private int aggregate(int[] dqs, int max, Supplier<double[]> weightsFn) {
-		if (setup.aggregationType == null
-				|| setup.aggregationType == AggregationType.NONE)
-			return 0;
-
-		if (setup.aggregationType == AggregationType.MAXIMUM) {
-			int m = 0;
-			for (int dq : dqs) {
-				m = Math.max(m, dq);
+	private int[] rowOf(int row, BMatrix b, int max) {
+		int[] values = new int[b.columns];
+		for (int col = 0; col < b.columns; col++) {
+			int val = b.get(row, col);
+			if (val == 0 && setup.naHandling == NAHandling.USE_MAX) {
+				val = max;
 			}
-			return Math.min(m, max);
+			values[col] = val;
 		}
+		return values;
+	}
 
-		boolean square = setup.aggregationType
-				== AggregationType.WEIGHTED_SQUARED_AVERAGE;
-		double[] weights = weightsFn.get();
-		double totalWeight = 0;
-		double value = 0;
-
-		for (int i = 0; i < dqs.length; i++) {
-			double weight = square
-					? Math.pow(weights[i], 2)
-					: Math.abs(weights[i]);
-			totalWeight += weight;
-			value += dqs[i] * weight;
+	private int[] columnOf(int column, BMatrix b, int max) {
+		int[] values = new int[b.rows];
+		for (int row = 0; row < b.rows; row++) {
+			int val = b.get(row, column);
+			if (val == 0 && setup.naHandling == NAHandling.USE_MAX) {
+				val = max;
+			}
+			values[row] = val;
 		}
-
-		if (totalWeight == 0)
-			return 0;
-		value /= totalWeight;
-		int m = setup.roundingMode == RoundingMode.UP
-				? Math.round((float) Math.ceil(value))
-				: Math.round((float) value);
-		return Math.min(m, max);
+		return values;
 	}
 
 	private static class BMatrix {

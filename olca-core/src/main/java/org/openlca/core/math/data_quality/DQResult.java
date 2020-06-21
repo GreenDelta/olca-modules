@@ -1,6 +1,5 @@
 package org.openlca.core.math.data_quality;
 
-import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -79,32 +78,32 @@ public class DQResult {
 
 		// create the result
 		DQResult dqResult = new DQResult(setup, data.statistics);
-		RoundingMode rmode = setup.roundingMode;
+		boolean ceiling = setup.ceiling;
 		if (setup.processSystem != null) {
-			dqResult.processValues = iv(data.processData, rmode);
+			dqResult.processValues = iv(data.processData, ceiling);
 		}
 		if (setup.exchangeSystem == null)
 			return dqResult;
-		dqResult.flowValuesPerProcess = iv(data.exchangeData, rmode);
+		dqResult.flowValuesPerProcess = iv(data.exchangeData, ceiling);
 		if (setup.aggregationType == AggregationType.NONE)
 			return dqResult;
 		DQCalculator calc = new DQCalculator(result, data, setup);
 		calc.calculate();
-		dqResult.flowValues = iv(calc.getFlowValues(), rmode);
-		dqResult.impactValuesPerFlow = iv(calc.getImpactPerFlowValues(), rmode);
-		dqResult.impactValues = iv(calc.getImpactValues(), rmode);
-		dqResult.impactValuesPerProcess = iv(calc.getImpactPerProcessValues(), rmode);
+		dqResult.flowValues = iv(calc.getFlowValues(), ceiling);
+		dqResult.impactValuesPerFlow = iv(calc.getImpactPerFlowValues(), ceiling);
+		dqResult.impactValues = iv(calc.getImpactValues(), ceiling);
+		dqResult.impactValuesPerProcess = iv(calc.getImpactPerProcessValues(), ceiling);
 		return dqResult;
 	}
 
-	private static <K> Map<K, int[]> iv(Map<K, double[]> m, RoundingMode rmode) {
+	private static <K> Map<K, int[]> iv(Map<K, double[]> m, boolean ceiling) {
 		Map<K, int[]> im = new HashMap<>();
 		m.forEach((key, vals) -> {
 			if (key == null || vals == null)
 				return;
 			int[] ivals = new int[vals.length];
 			for (int i = 0; i < vals.length; i++) {
-				ivals[i] = (int) (rmode == RoundingMode.CEILING
+				ivals[i] = (int) (ceiling
 						? Math.ceil(vals[i])
 						: Math.round(vals[i]));
 			}

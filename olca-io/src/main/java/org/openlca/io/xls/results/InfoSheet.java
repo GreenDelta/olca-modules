@@ -87,7 +87,7 @@ public class InfoSheet {
 	private static void dataQualityInfo(CellWriter writer, Sheet sheet, int row, int col, DQCalculationSetup setup) {
 		writer.cell(sheet, row++, col, dqSystem(setup.exchangeSystem));
 		writer.cell(sheet, row++, col, aggregation(setup));
-		writer.cell(sheet, row++, col, rounding(setup));
+		writer.cell(sheet, row++, col, setup.ceiling ? "up" : "half up");
 		writer.cell(sheet, row++, col, processing(setup));
 		legend(writer, sheet, row + 1, col - 1, setup);
 	}
@@ -192,20 +192,6 @@ public class InfoSheet {
 			return "maximum";
 		case NONE:
 			return "none";
-		default:
-			return "unknown";
-		}
-	}
-
-	private static String rounding(DQCalculationSetup setup) {
-		RoundingMode mode = setup.roundingMode;
-		if (mode == null)
-			return "none";
-		switch (mode) {
-		case CEILING:
-			return "up";
-		case HALF_UP:
-			return "half up";
 		default:
 			return "unknown";
 		}

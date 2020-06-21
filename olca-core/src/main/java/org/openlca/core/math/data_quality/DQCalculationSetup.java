@@ -1,7 +1,5 @@
 package org.openlca.core.math.data_quality;
 
-import java.math.RoundingMode;
-
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.ProductSystem;
 
@@ -12,7 +10,14 @@ public class DQCalculationSetup {
 	public long productSystemId;
 
 	public AggregationType aggregationType;
-	public RoundingMode roundingMode;
+
+	/**
+	 * Indicates whether values should be rounded in `ceiling` mode (e.g.
+	 * 2.1 is rounded to 3 in this case). If this field is set to false, normal
+	 * `half-up` rounding is used.
+	 */
+	public boolean ceiling;
+
 	public NAHandling naHandling;
 	public DQSystem processSystem;
 	public DQSystem exchangeSystem;
@@ -26,7 +31,7 @@ public class DQCalculationSetup {
 	public static DQCalculationSetup of(ProductSystem system) {
 		var setup = new DQCalculationSetup();
 		setup.aggregationType = AggregationType.WEIGHTED_AVERAGE;
-		setup.roundingMode = RoundingMode.HALF_UP;
+		setup.ceiling = false;
 		setup.naHandling = NAHandling.EXCLUDE;
 		if (system == null)
 			return setup;
