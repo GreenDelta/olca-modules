@@ -1,6 +1,7 @@
 package org.openlca.core.math.data_quality;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
@@ -22,6 +23,7 @@ public class DirectCalculationTest {
 	private final IDatabase db = Tests.getDb();
 
 	@Test
+	@Ignore
 	public void testSimpleProcess() {
 
 		// reference data

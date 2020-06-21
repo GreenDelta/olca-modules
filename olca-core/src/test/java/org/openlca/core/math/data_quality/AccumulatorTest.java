@@ -72,11 +72,15 @@ public class AccumulatorTest {
 		}
 		acc.reset();
 
-		// do the test
+		// test multi adding
+		acc.addAll(dqs, () -> weights);
+		assertEquals(result, acc.get());
+		acc.reset();
+
+		// test single adding
 		for (int i = 0; i < dqs.length; i++) {
 			acc.add(dqs[i], weights[i]);
 		}
-
 		assertEquals(result, acc.get());
 	}
 }

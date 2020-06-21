@@ -60,6 +60,19 @@ class Accumulator {
 		accTotalWeight += w;
 	}
 
+	void addAll(int[] dqs, Supplier<double[]> weightsFn) {
+		if (aggType == AggregationType.MAXIMUM) {
+			for (int dq : dqs) {
+				add(dq, 0);
+			}
+			return;
+		}
+		double[] weights = weightsFn.get();
+		for (int i = 0; i < dqs.length; i++) {
+			add(dqs[i], weights[i]);
+		}
+	}
+
 	/**
 	 * Get the accumulated score of the scores that where added before.
 	 */

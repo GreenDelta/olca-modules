@@ -21,11 +21,11 @@ public class DQResult2 {
 	private final ContributionResult result;
 
 	/**
-	 * We store the process data in a byte matrix where the data quality
-	 * indicators are mapped to the rows and the process products to the
+	 * We store the process data in a k*n byte matrix where the k data quality
+	 * indicators are mapped to the rows and the n process products to the
 	 * columns.
 	 */
-	private byte[][] processData;
+	private BMatrix processData;
 
 	/**
 	 * For the exchange data we store a flow*product matrix for each
@@ -72,13 +72,9 @@ public class DQResult2 {
 		if (processData == null)
 			return null;
 		int col = result.techIndex.getIndex(product);
-		if (col < 0)
-			return null;
-		int[] values = new int[processData.length];
-		for (int row = 0; row < processData.length; row++) {
-			values[row] = processData[row][col];
-		}
-		return values;
+		return col < 0
+				? null
+				: processData.getColumn(col);
 	}
 
 	/**
@@ -105,13 +101,9 @@ public class DQResult2 {
 		if (flowResult == null)
 			return null;
 		int col = result.flowIndex.of(flow);
-		if (col < 0)
-			return null;
-		int[] values = new int[flowResult.rows];
-		for (int row = 0; row < flowResult.rows; row++) {
-			values[row] = flowResult.get(row, col);
-		}
-		return values;
+		return col < 0
+				? null
+				: flowResult.getColumn(col);
 	}
 
 	/**
@@ -121,13 +113,9 @@ public class DQResult2 {
 		if (impactResult == null)
 			return null;
 		int col = result.impactIndex.of(impact);
-		if (col < 0)
-			return null;
-		int[] values =new int[impactResult.rows];
-		for (int row = 0; row < impactResult.rows; row++) {
-			values[row] = impactResult.get(row, col);
-		}
-		return values;
+		return col < 0
+				? null
+				: impactResult.getColumn(col);
 	}
 
 	private void loadProcessData(IDatabase db) {
@@ -135,14 +123,12 @@ public class DQResult2 {
 		if (system == null)
 			return;
 
-		var n = system.indicators.size();
-		processData = new byte[n][];
-		for (int i = 0; i < n; i++) {
-			processData[i] = new byte[result.techIndex.size()];
-		}
+		var k = system.indicators.size();
+		var techIndex = result.techIndex;
+		var n = techIndex.size();
+		processData = new BMatrix(k, n);
 
 		// query the process table
-		var techIndex = result.techIndex;
 		var sql = "select id, f_dq_system, dq_entry " +
 				"from tbl_processes";
 		NativeSql.on(db).query(sql, r -> {
@@ -160,13 +146,12 @@ public class DQResult2 {
 
 			// store the values of the entry
 			int[] values = system.toValues(dqEntry);
-			int _n = Math.min(n, values.length);
-			for (int i = 0; i < _n; i++) {
-				byte[] data = processData[i];
-				byte value = (byte) values[i];
+			int _k = Math.min(k, values.length);
+			for (int row = 0; row < _k; row++) {
+				byte value = (byte) values[row];
 				for (var provider : providers) {
 					int col = techIndex.getIndex(provider);
-					data[col] = value;
+					processData.set(row, col, value);
 				}
 			}
 			return true;
@@ -259,7 +244,7 @@ public class DQResult2 {
 		for (int indicator = 0; indicator < k; indicator++) {
 			var b = exchangeData[indicator];
 			for (int flow = 0; flow < m; flow++) {
-				int[] dqs = rowOf(flow, b, max);
+				int[] dqs = b.getRow(flow);
 				// set the aggregated indicator result
 				int flowIdx = flow; // because we need a final var for the closure
 				Supplier<double[]> weights = () -> matrixG.getRow(flowIdx);
@@ -285,12 +270,16 @@ public class DQResult2 {
 		impactResult = new BMatrix(k, q);
 		int max = system.getScoreCount();
 
-		var acc = new Accumulator(setup, max);
+		var totalImpactAcc = new Accumulator(setup, max);
+
 		for (int indicator = 0; indicator < k; indicator++) {
+			totalImpactAcc.reset();
+
 			var b = exchangeData[indicator];
 			for (int impact = 0; impact < q; impact++) {
 				for (int flow = 0; flow < m; flow++) {
-					int[] dqs = rowOf(flow, b, max);
+
+					int[] dqs = b.getRow(flow);
 					// set the aggregated indicator result
 					int flowIdx = flow; // because we need a final var for the closure
 					int impactIdx = impact;
@@ -302,35 +291,10 @@ public class DQResult2 {
 						}
 						return w;
 					};
-					flowResult.set(indicator, flow, acc.get(dqs, weights));
+
 				}
 			}
 		}
 
 	}
-
-	private int[] rowOf(int row, BMatrix b, int max) {
-		int[] values = new int[b.columns];
-		for (int col = 0; col < b.columns; col++) {
-			int val = b.get(row, col);
-			if (val == 0 && setup.naHandling == NAHandling.USE_MAX) {
-				val = max;
-			}
-			values[col] = val;
-		}
-		return values;
-	}
-
-	private int[] columnOf(int column, BMatrix b, int max) {
-		int[] values = new int[b.rows];
-		for (int row = 0; row < b.rows; row++) {
-			int val = b.get(row, column);
-			if (val == 0 && setup.naHandling == NAHandling.USE_MAX) {
-				val = max;
-			}
-			values[row] = val;
-		}
-		return values;
-	}
-
 }
