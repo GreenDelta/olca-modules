@@ -23,7 +23,6 @@ public class DirectCalculationTest {
 	private final IDatabase db = Tests.getDb();
 
 	@Test
-	@Ignore
 	public void testSimpleProcess() {
 
 		// reference data
@@ -51,10 +50,10 @@ public class DirectCalculationTest {
 				Tests.getDefaultSolver());
 		var result = calculator.calculateFull(setup);
 		var dqSetup = DQCalculationSetup.of((system));
-		var dqResult = DQResult.calculate(db, result, dqSetup);
+		var dqResult = DQResult2.of(db, dqSetup, result);
 
 		// check the result
-		var dq = dqResult.get(Descriptors.toDescriptor(co2));
+		var dq = dqResult.get(result.flowIndex.at(0));
 		Assert.assertArrayEquals(new int[]{1,2,3,4,5}, dq);
 
 		Tests.clearDb();
