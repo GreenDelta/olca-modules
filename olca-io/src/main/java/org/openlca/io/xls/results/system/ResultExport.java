@@ -8,7 +8,7 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.data_quality.DQCalculationSetup;
-import org.openlca.core.math.data_quality.DQResult;
+import org.openlca.core.math.data_quality.DQResultMap;
 import org.openlca.core.model.NwSet;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
@@ -30,7 +30,7 @@ public class ResultExport implements Runnable {
 	final CalculationSetup setup;
 	final SimpleResult result;
 	final EntityCache cache;
-	DQResult dqResult;
+	DQResultMap dqResult;
 
 	private boolean success;
 	NwSet nwSet;
@@ -48,7 +48,7 @@ public class ResultExport implements Runnable {
 		}
 	}
 
-	public void setDQResult(DQResult dqResult) {
+	public void setDQResult(DQResultMap dqResult) {
 		this.dqResult = dqResult;
 	}
 

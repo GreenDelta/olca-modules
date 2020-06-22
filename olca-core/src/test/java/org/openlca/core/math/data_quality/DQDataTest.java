@@ -106,7 +106,7 @@ public class DQDataTest {
 		var iFlow = result.flowIndex.at(0);
 
 		// test process data
-		var dqData = DQResult2.of(Tests.getDb(), setup, result);
+		var dqData = DQResult.of(Tests.getDb(), setup, result);
 		assertArrayEquals(new int[]{1, 2, 3, 4, 5}, dqData.get(product1));
 		assertArrayEquals(new int[]{5, 4, 3, 2, 1}, dqData.get(product2));
 

@@ -2,7 +2,7 @@ package org.openlca.io.xls.results.system;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.openlca.core.math.data_quality.DQResult;
+import org.openlca.core.math.data_quality.DQResultMap;
 import org.openlca.core.model.NwSet;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.SimpleResult;
@@ -13,7 +13,7 @@ class ImpactSheet {
 	private final CellWriter writer;
 	private final Workbook workbook;
 	private final SimpleResult result;
-	private final DQResult dqResult;
+	private final DQResultMap dqResult;
 	private final NwSet nwSet;
 	private Sheet sheet;
 

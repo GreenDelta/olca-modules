@@ -16,7 +16,6 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.descriptors.Descriptors;
 
 public class DirectCalculationTest {
 
@@ -50,7 +49,7 @@ public class DirectCalculationTest {
 				Tests.getDefaultSolver());
 		var result = calculator.calculateFull(setup);
 		var dqSetup = DQCalculationSetup.of((system));
-		var dqResult = DQResult2.of(db, dqSetup, result);
+		var dqResult = DQResult.of(db, dqSetup, result);
 
 		// check the result
 		var dq = dqResult.get(result.flowIndex.at(0));

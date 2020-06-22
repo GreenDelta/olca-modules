@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.openlca.core.math.data_quality.DQResult;
+import org.openlca.core.math.data_quality.DQResultMap;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.io.xls.results.CellWriter;
@@ -15,7 +15,7 @@ class InventorySheet {
 	private final CellWriter writer;
 	private final Workbook workbook;
 	private final SimpleResult result;
-	private final DQResult dqResult;
+	private final DQResultMap dqResult;
 	private Sheet sheet;
 
 	static void write(ResultExport export) {
