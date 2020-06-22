@@ -68,7 +68,7 @@ public class DQResult2 {
 	 */
 	private BMatrix[] processImpactResult;
 
-	static DQResult2 of(IDatabase db, DQCalculationSetup setup,
+	public static DQResult2 of(IDatabase db, DQCalculationSetup setup,
 						ContributionResult result) {
 		var r = new DQResult2(setup, result);
 		r.loadProcessData(db);

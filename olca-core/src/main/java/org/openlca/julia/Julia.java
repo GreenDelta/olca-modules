@@ -120,7 +120,7 @@ public final class Julia {
 						"libwinpthread-1.dll",
 						"libgcc_s_seh-1.dll",
 						"libquadmath-0.dll",
-						"libgfortran-3.dll",
+						"libgfortran-4.dll",
 						"libopenblas64_.dll",
 						"olcar.dll"
 				};
