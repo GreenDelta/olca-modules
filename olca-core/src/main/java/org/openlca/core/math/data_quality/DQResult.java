@@ -2,13 +2,15 @@ package org.openlca.core.math.data_quality;
 
 import java.util.List;
 
-import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.ContributionResult;
+
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
  * Contains the raw data quality data of a setup and result in an efficient
@@ -16,7 +18,7 @@ import org.openlca.core.results.ContributionResult;
  */
 public class DQResult {
 
-	private final DQCalculationSetup setup;
+	public final DQCalculationSetup setup;
 	private final ContributionResult result;
 
 	/**
@@ -84,6 +86,17 @@ public class DQResult {
 	}
 
 	/**
+	 * @deprecated just added for compatibility reasons
+	 */
+	@Deprecated
+	public int[] get(CategorizedDescriptor process) {
+		var products = result.techIndex.getProviders(process);
+		return products.isEmpty()
+				? null
+				: get(products.get(0));
+	}
+
+	/**
 	 * Get the process data quality entry for the given product.
 	 */
 	public int[] get(ProcessProduct product) {
@@ -93,6 +106,17 @@ public class DQResult {
 		return col < 0
 				? null
 				: processData.getColumn(col);
+	}
+
+	/**
+	 * @deprecated just added for compatibility reasons
+	 */
+	@Deprecated
+	public int[] get(CategorizedDescriptor process, IndexFlow flow) {
+		var products = result.techIndex.getProviders(process);
+		return products.isEmpty()
+				? null
+				: get(products.get(0), flow);
 	}
 
 	/**
@@ -149,6 +173,17 @@ public class DQResult {
 			values[i] = flowImpactResult[i].get(row, col);
 		}
 		return values;
+	}
+
+	/**
+	 * @deprecated just added for compatibility reasons
+	 */
+	@Deprecated
+	public int[] get(ImpactCategoryDescriptor impact, CategorizedDescriptor process) {
+		var products = result.techIndex.getProviders(process);
+		return products.isEmpty()
+				? null
+				: get(impact, products.get(0));
 	}
 
 	public int[] get(ImpactCategoryDescriptor impact, ProcessProduct product) {
