@@ -38,6 +38,23 @@ public class UpgradeChainTest {
 		// to see that each upgrade was executed; also note
 		// that the rollbacks are done in reverse order
 
+		String[] catEntityTables = {
+				"tbl_actors",
+				"tbl_categories",
+				"tbl_currencies",
+				"tbl_dq_systems",
+				"tbl_flows",
+				"tbl_flow_properties",
+				"tbl_impact_methods",
+				"tbl_locations",
+				"tbl_parameters",
+				"tbl_product_systems",
+				"tbl_projects",
+				"tbl_social_indicators",
+				"tbl_sources",
+				"tbl_unit_groups",
+		};
+
 		// roll back Upgrade9
 		u.dropTable("tbl_parameter_redef_sets");
 		u.dropColumn("tbl_parameter_redefs", "description");
@@ -48,6 +65,10 @@ public class UpgradeChainTest {
 		u.dropColumn("tbl_impact_factors", "f_location");
 		u.dropColumn("tbl_locations", "geodata");
 		u.dropColumn("tbl_allocation_factors", "formula");
+		for (var table : catEntityTables) {
+			u.dropColumn(table, "tags");
+			u.dropColumn(table, "library");
+		}
 
 		// roll back Upgrade8
 		u.dropColumn("tbl_process_links", "is_system_link");
@@ -133,6 +154,10 @@ public class UpgradeChainTest {
 		assertTrue(u.columnExists("tbl_impact_factors", "f_location"));
 		assertTrue(u.columnExists("tbl_locations", "geodata"));
 		assertTrue(u.columnExists("tbl_allocation_factors", "formula"));
+		for (var table : catEntityTables) {
+			assertTrue(u.columnExists(table, "tags"));
+			assertTrue(u.columnExists(table, "library"));
+		}
 
 		// finally, check that we now have the current database version
 		assertEquals(IDatabase.CURRENT_VERSION, db.getVersion());

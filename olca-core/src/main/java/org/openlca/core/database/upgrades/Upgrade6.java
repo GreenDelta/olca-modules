@@ -19,7 +19,7 @@ class Upgrade6 implements IUpgrade {
 	@Override
 	public void exec(IDatabase db) {
 		DbUtil u = new DbUtil(db);
-		
+
 		u.createTable("tbl_dq_systems",
 				"CREATE TABLE tbl_dq_systems ( "
 						+ "id BIGINT NOT NULL, "
@@ -32,7 +32,7 @@ class Upgrade6 implements IUpgrade {
 						+ "description CLOB(64 K), "
 						+ "has_uncertainties SMALLINT default 0, "
 						+ "PRIMARY KEY (id)) ");
-		
+
 		u.createTable("tbl_dq_indicators",
 				"CREATE TABLE tbl_dq_indicators ( "
 						+ "id BIGINT NOT NULL, "
@@ -40,7 +40,7 @@ class Upgrade6 implements IUpgrade {
 						+ "position INTEGER NOT NULL, "
 						+ "f_dq_system BIGINT, "
 						+ "PRIMARY KEY (id)) ");
-		
+
 		u.createTable("tbl_dq_scores", "CREATE TABLE tbl_dq_scores ( "
 				+ "id BIGINT NOT NULL, "
 				+ "position INTEGER NOT NULL, "
@@ -49,7 +49,7 @@ class Upgrade6 implements IUpgrade {
 				+ "uncertainty DOUBLE default 0, "
 				+ "f_dq_indicator BIGINT, "
 				+ "PRIMARY KEY (id)) ");
-		
+
 		u.createColumn("tbl_processes", "dq_entry VARCHAR(50)");
 		u.createColumn("tbl_processes", "f_dq_system BIGINT");
 		u.createColumn("tbl_processes", "f_exchange_dq_system BIGINT");
@@ -59,6 +59,7 @@ class Upgrade6 implements IUpgrade {
 		u.createColumn("tbl_product_systems", "cutoff DOUBLE");
 
 		db.getEntityFactory().getCache().evictAll();
+
 		// update calls on the root categories make sure
 		// that they get a path generated UUID => this
 		// was introduced for the collaboration server
