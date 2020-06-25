@@ -67,7 +67,7 @@ class InventorySheet {
 				continue;
 			}
 			writer.dataQuality(sheet, row++, startCol + col + 1,
-					dqResult.get(flow.flow),
+					dqResult.get(flow),
 					dqResult.setup.exchangeSystem);
 		}
 	}

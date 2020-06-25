@@ -48,7 +48,7 @@ public class DirectCalculationTest {
 				Tests.getDefaultSolver());
 		var result = calculator.calculateFull(setup);
 		var dqSetup = DQCalculationSetup.of((system));
-		var dqResult = DQResult2.of(db, dqSetup, result);
+		var dqResult = DQResult.of(db, dqSetup, result);
 
 		// check the result
 		var dq = dqResult.get(result.flowIndex.at(0));

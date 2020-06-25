@@ -133,7 +133,7 @@ public class DQResultTest {
 		setup.impactMethod = Descriptors.toDescriptor(method);
 		var cResult = calculator.calculateContributions(setup);
 		var dqSetup = DQCalculationSetup.of(system);
-		var result = DQResult.calculate(Tests.getDb(), cResult, dqSetup);
+		var result = DQResultMap.calculate(Tests.getDb(), cResult, dqSetup);
 		checkResults(result);
 	}
 
@@ -147,7 +147,7 @@ public class DQResultTest {
 		setup.impactMethod = Descriptors.toDescriptor(method);
 		var result = calculator.calculateContributions(setup);
 		var dqSetup = DQCalculationSetup.of(system);
-		var dqResult = DQResult2.of(Tests.getDb(), dqSetup, result);
+		var dqResult = DQResult.of(Tests.getDb(), dqSetup, result);
 
 		assertArrayEquals(a(1, 2, 3, 4, 5), r(dqResult, process1));
 		assertArrayEquals(a(5, 4, 3, 2, 1), r(dqResult, process2));
@@ -163,34 +163,34 @@ public class DQResultTest {
 		assertArrayEquals(a(2, 2, 3, 4, 4), r(dqResult, process2, impact));
 	}
 
-	private int[] r(DQResult2 dq, Flow flow) {
+	private int[] r(DQResult dq, Flow flow) {
 		var iflow = new IndexFlow();
 		iflow.flow = Descriptors.toDescriptor(flow);
 		return dq.get(iflow);
 	}
 
-	private int[] r(DQResult2 dq, Process process) {
+	private int[] r(DQResult dq, Process process) {
 		var product = ProcessProduct.of(process);
 		return dq.get(product);
 	}
 
-	private int[] r(DQResult2 dq, Process process, Flow flow) {
+	private int[] r(DQResult dq, Process process, Flow flow) {
 		var product = ProcessProduct.of(process);
 		var iflow = new IndexFlow();
 		iflow.flow = Descriptors.toDescriptor(flow);
 		return dq.get(product, iflow);
 	}
 
-	private int[] r(DQResult2 dq, ImpactCategory impact) {
+	private int[] r(DQResult dq, ImpactCategory impact) {
 		return dq.get(Descriptors.toDescriptor(impact));
 	}
 
-	private int[] r(DQResult2 dq, Process process, ImpactCategory impact) {
+	private int[] r(DQResult dq, Process process, ImpactCategory impact) {
 		var product = ProcessProduct.of(process);
 		return dq.get(Descriptors.toDescriptor(impact), product);
 	}
 
-	private void checkResults(DQResult result) {
+	private void checkResults(DQResultMap result) {
 		assertArrayEquals(a(4, 4, 3, 2, 2), getResult(result, eFlow1));
 		assertArrayEquals(a(2, 3, 3, 4, 4), getResult(result, eFlow2));
 		assertArrayEquals(a(2, 3, 3, 3, 4), getResult(result, impact));
@@ -208,24 +208,24 @@ public class DQResultTest {
 		return vals;
 	}
 
-	private int[] getResult(DQResult result, Flow flow) {
+	private int[] getResult(DQResultMap result, Flow flow) {
 		return result.get(Descriptors.toDescriptor(flow));
 	}
 
-	private int[] getResult(DQResult result, Process process) {
+	private int[] getResult(DQResultMap result, Process process) {
 		return result.get(Descriptors.toDescriptor(process));
 	}
 
-	private int[] getResult(DQResult result, ImpactCategory impact) {
+	private int[] getResult(DQResultMap result, ImpactCategory impact) {
 		return result.get(Descriptors.toDescriptor(impact));
 	}
 
-	private int[] getResult(DQResult result, Process process, Flow flow) {
+	private int[] getResult(DQResultMap result, Process process, Flow flow) {
 		return result.get(Descriptors.toDescriptor(process),
 				Descriptors.toDescriptor(flow));
 	}
 
-	private int[] getResult(DQResult result, Process process,
+	private int[] getResult(DQResultMap result, Process process,
 							ImpactCategory impact) {
 		return result.get(Descriptors.toDescriptor(process),
 				Descriptors.toDescriptor(impact));
