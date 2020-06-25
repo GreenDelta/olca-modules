@@ -21,7 +21,7 @@ public class Categories {
 		ModelType type = category.modelType;
 		if (type != null)
 			path.add(0, type.name());
-		return KeyGen.get(path.toArray(new String[path.size()]));
+		return KeyGen.get(path.toArray(new String[0]));
 	}
 
 	public static List<String> path(Category category) {

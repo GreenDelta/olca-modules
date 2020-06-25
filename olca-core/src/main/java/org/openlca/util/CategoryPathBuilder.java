@@ -41,26 +41,26 @@ public class CategoryPathBuilder {
 	public String build(Long id) {
 		if (id == null)
 			return null;
-		String cached = cache.get(id);
+		var cached = cache.get(id);
 		if (cached != null)
 			return cached;
-		String path = null;
+		var path = new StringBuilder();
 		long pid = id;
 		while (true) {
 			String name = names.get(pid);
 			if (name == null)
 				break;
-			if (path == null) {
-				path = name;
-			} else {
-				path = name + "/" + path;
+			if (path.length() > 0) {
+				path.insert(0, '/');
 			}
+			path.insert(0, name.trim());
 			Long parent = parents.get(pid);
 			if (parent == null)
 				break;
 			pid = parent;
 		}
-		cache.put(id, path);
-		return path;
+		var p = path.toString();
+		cache.put(id, p);
+		return p;
 	}
 }

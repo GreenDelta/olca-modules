@@ -28,7 +28,7 @@ public class KeyGen {
 	}
 
 	public static String toPath(String... names) {
-		StringBuilder builder = new StringBuilder();
+		var builder = new StringBuilder();
 		for (int i = 0; i < names.length; i++) {
 			String val = names[i];
 			val = val == null ? "" : val.trim();

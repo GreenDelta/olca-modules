@@ -2,6 +2,7 @@ package org.openlca.core.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -23,6 +24,22 @@ public class Category extends CategorizedEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "model_type")
 	public ModelType modelType;
+
+	public static Category of(String name, ModelType type) {
+		var category = new Category();
+		category.name = name;
+		category.modelType = type;
+		return category;
+	}
+
+	public static Category childOf(Category parent, String name) {
+		var child = new Category();
+		child.name = name;
+		child.modelType = parent.modelType;
+		parent.childCategories.add(child);
+		child.category = parent;
+		return child;
+	}
 
 	@Override
 	public Category clone() {
