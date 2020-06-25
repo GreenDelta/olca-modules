@@ -13,10 +13,9 @@ import org.openlca.core.model.Currency;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CurrencyDescriptor;
-import org.openlca.core.model.descriptors.Descriptors;
 
 public class CurrencyUseSearchTest {
 
@@ -31,8 +30,8 @@ public class CurrencyUseSearchTest {
 	@Test
 	public void testFindNoUsage() {
 		Currency currency = createCurrency();
-		List<CategorizedDescriptor> models = search.findUses(Descriptors
-				.toDescriptor(currency));
+		List<CategorizedDescriptor> models = search.findUses(Descriptor
+				.of(currency));
 		Assert.assertNotNull(models);
 		Assert.assertTrue(models.isEmpty());
 		new CurrencyDao(database).delete(currency);
@@ -44,11 +43,11 @@ public class CurrencyUseSearchTest {
 		Currency other = createCurrency();
 		other.referenceCurrency = currency;
 		new CurrencyDao(database).update(other);
-		List<CategorizedDescriptor> results = search.findUses(Descriptors
-				.toDescriptor(currency));
+		List<CategorizedDescriptor> results = search.findUses(Descriptor
+				.of(currency));
 		new CurrencyDao(database).delete(currency);
 		new CurrencyDao(database).delete(other);
-		BaseDescriptor expected = Descriptors.toDescriptor(other);
+		Descriptor expected = Descriptor.of(other);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
 	}
@@ -57,11 +56,11 @@ public class CurrencyUseSearchTest {
 	public void testFindInExchanges() {
 		Currency currency = createCurrency();
 		Process process = createProcess(currency, true);
-		List<CategorizedDescriptor> results = search.findUses(Descriptors
-				.toDescriptor(currency));
+		List<CategorizedDescriptor> results = search.findUses(Descriptor
+				.of(currency));
 		new ProcessDao(database).delete(process);
 		new CurrencyDao(database).delete(currency);
-		BaseDescriptor expected = Descriptors.toDescriptor(process);
+		Descriptor expected = Descriptor.of(process);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
 	}
@@ -70,11 +69,11 @@ public class CurrencyUseSearchTest {
 	public void testFindInProcess() {
 		Currency currency = createCurrency();
 		Process process = createProcess(currency, false);
-		List<CategorizedDescriptor> results = search.findUses(Descriptors
-				.toDescriptor(currency));
+		List<CategorizedDescriptor> results = search.findUses(Descriptor
+				.of(currency));
 		new ProcessDao(database).delete(process);
 		new CurrencyDao(database).delete(currency);
-		BaseDescriptor expected = Descriptors.toDescriptor(process);
+		Descriptor expected = Descriptor.of(process);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
 	}

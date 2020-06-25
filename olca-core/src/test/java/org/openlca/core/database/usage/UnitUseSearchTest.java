@@ -19,9 +19,8 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.Descriptors;
 
 public class UnitUseSearchTest {
 
@@ -63,7 +62,7 @@ public class UnitUseSearchTest {
 		new ImpactCategoryDao(database).insert(category);
 		List<CategorizedDescriptor> results = search.findUses(unit);
 		new ImpactCategoryDao(database).delete(category);
-		BaseDescriptor expected = Descriptors.toDescriptor(category);
+		Descriptor expected = Descriptor.of(category);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
 	}
@@ -73,7 +72,7 @@ public class UnitUseSearchTest {
 		Process process = createProcess();
 		List<CategorizedDescriptor> results = search.findUses(unit);
 		new ProcessDao(database).delete(process);
-		BaseDescriptor expected = Descriptors.toDescriptor(process);
+		Descriptor expected = Descriptor.of(process);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
 	}
@@ -92,7 +91,7 @@ public class UnitUseSearchTest {
 		SocialIndicator indicator = createSocialIndicator();
 		List<CategorizedDescriptor> results = search.findUses(unit);
 		new SocialIndicatorDao(database).delete(indicator);
-		BaseDescriptor expected = Descriptors.toDescriptor(indicator);
+		Descriptor expected = Descriptor.of(indicator);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
 	}

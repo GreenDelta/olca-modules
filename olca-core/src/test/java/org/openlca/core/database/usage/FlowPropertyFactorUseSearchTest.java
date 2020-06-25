@@ -19,9 +19,8 @@ import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.Descriptors;
 
 public class FlowPropertyFactorUseSearchTest {
 
@@ -71,7 +70,7 @@ public class FlowPropertyFactorUseSearchTest {
 		List<CategorizedDescriptor> results = search.findUses(factor);
 		dao.delete(category);
 		Assert.assertEquals(1, results.size());
-		BaseDescriptor expected = Descriptors.toDescriptor(category);
+		Descriptor expected = Descriptor.of(category);
 		Assert.assertEquals(expected, results.get(0));
 	}
 
@@ -80,7 +79,7 @@ public class FlowPropertyFactorUseSearchTest {
 		Process process = createProcess();
 		List<CategorizedDescriptor> results = search.findUses(factor);
 		new ProcessDao(database).delete(process);
-		BaseDescriptor expected = Descriptors.toDescriptor(process);
+		Descriptor expected = Descriptor.of(process);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
 	}

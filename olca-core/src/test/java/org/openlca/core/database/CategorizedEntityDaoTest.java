@@ -24,7 +24,7 @@ import org.openlca.core.model.Project;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +71,7 @@ public class CategorizedEntityDaoTest {
 			CategorizedEntityDao<T, V> dao, T instance) {
 		Category cat = null;
 		List<V> descriptors = dao.getDescriptors(Optional.ofNullable(cat));
-		BaseDescriptor descriptor = ListUtils.findDescriptor(instance.id,
+		Descriptor descriptor = ListUtils.findDescriptor(instance.id,
 				descriptors);
 		Assert.assertNotNull(descriptor);
 	}
@@ -92,7 +92,7 @@ public class CategorizedEntityDaoTest {
 	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void testGetDescriptorsForCategory(
 			CategorizedEntityDao<T, V> dao, T instance, Category category) {
 		List<V> descriptors = dao.getDescriptors(Optional.ofNullable(category));
-		BaseDescriptor descriptor = ListUtils.findDescriptor(instance.id,
+		Descriptor descriptor = ListUtils.findDescriptor(instance.id,
 				descriptors);
 		Assert.assertNotNull(descriptor);
 		new CategoryDao(Tests.getDb()).delete(category);

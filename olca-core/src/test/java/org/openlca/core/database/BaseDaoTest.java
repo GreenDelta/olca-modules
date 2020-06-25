@@ -34,7 +34,7 @@ import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,7 +110,7 @@ public class BaseDaoTest {
 		ModelType type = ModelType.forModelClass(clazz);
 		List<CategorizedDescriptor> descriptors = IUseSearch.FACTORY
 				.createFor(type, Tests.getDb())
-				.findUses(Descriptors.toDescriptor(entity));
+				.findUses(Descriptor.of(entity));
 		Assert.assertTrue(descriptors.isEmpty());
 	}
 }

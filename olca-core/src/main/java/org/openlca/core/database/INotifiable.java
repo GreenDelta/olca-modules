@@ -1,6 +1,6 @@
 package org.openlca.core.database;
 
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 
 public interface INotifiable {
 	
@@ -8,10 +8,10 @@ public interface INotifiable {
 	
 	void removeListener(IDatabaseListener listener);
 
-	void notifyInsert(BaseDescriptor descriptor);
+	void notifyInsert(Descriptor descriptor);
 
-	void notifyUpdate(BaseDescriptor descriptor);
+	void notifyUpdate(Descriptor descriptor);
 
-	void notifyDelete(BaseDescriptor descriptor);
+	void notifyDelete(Descriptor descriptor);
 	
 }

@@ -1,6 +1,6 @@
 package org.openlca.core.model.descriptors;
 
-public class CategorizedDescriptor extends BaseDescriptor {
+public class CategorizedDescriptor extends Descriptor {
 
 	public Long category;
 

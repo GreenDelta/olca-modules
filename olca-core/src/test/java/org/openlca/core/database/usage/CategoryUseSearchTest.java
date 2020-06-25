@@ -12,10 +12,9 @@ import org.openlca.core.database.ProjectDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Project;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
-import org.openlca.core.model.descriptors.Descriptors;
 
 public class CategoryUseSearchTest {
 
@@ -30,8 +29,8 @@ public class CategoryUseSearchTest {
 	@Test
 	public void testFindNoUsage() {
 		Category category = createCategory();
-		List<CategorizedDescriptor> models = search.findUses(Descriptors
-				.toDescriptor(category));
+		List<CategorizedDescriptor> models = search.findUses(Descriptor
+				.of(category));
 		Assert.assertNotNull(models);
 		Assert.assertTrue(models.isEmpty());
 		new CategoryDao(database).delete(category);
@@ -44,11 +43,11 @@ public class CategoryUseSearchTest {
 		project.name = "project";
 		project.category = category;
 		new ProjectDao(database).insert(project);
-		List<CategorizedDescriptor> results = search.findUses(Descriptors
-				.toDescriptor(category));
+		List<CategorizedDescriptor> results = search.findUses(Descriptor
+				.of(category));
 		new ProjectDao(database).delete(project);
 		new CategoryDao(database).delete(category);
-		BaseDescriptor expected = Descriptors.toDescriptor(project);
+		Descriptor expected = Descriptor.of(project);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
 	}
@@ -66,11 +65,11 @@ public class CategoryUseSearchTest {
 		Category parent = createCategory();
 		parent.category = category;
 		new CategoryDao(database).update(parent);
-		List<CategorizedDescriptor> results = search.findUses(Descriptors
-				.toDescriptor(category));
+		List<CategorizedDescriptor> results = search.findUses(Descriptor
+				.of(category));
 		new CategoryDao(database).delete(category);
 		new CategoryDao(database).delete(parent);
-		BaseDescriptor expected = Descriptors.toDescriptor(parent);
+		Descriptor expected = Descriptor.of(parent);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
 	}

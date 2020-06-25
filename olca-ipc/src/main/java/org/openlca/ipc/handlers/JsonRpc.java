@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.results.Contribution;
 import org.openlca.core.results.FlowResult;
 import org.openlca.core.results.ImpactResult;
@@ -69,13 +69,13 @@ class JsonRpc {
 		return obj;
 	}
 
-	static <T extends BaseDescriptor> JsonArray encode(Collection<Contribution<T>> l, EntityCache cache, Consumer<JsonObject> modifier) {
+	static <T extends Descriptor> JsonArray encode(Collection<Contribution<T>> l, EntityCache cache, Consumer<JsonObject> modifier) {
 		if (l == null)
 			return null;
 		return encode(l, contribution -> encode(contribution, cache, modifier));
 	}
 
-	static <T extends BaseDescriptor> JsonObject encode(Contribution<T> i, EntityCache cache,
+	static <T extends Descriptor> JsonObject encode(Contribution<T> i, EntityCache cache,
 			Consumer<JsonObject> modifier) {
 		if (i == null)
 			return null;
@@ -89,7 +89,7 @@ class JsonRpc {
 		return obj;
 	}
 
-	static <T extends BaseDescriptor> JsonArray encode(Collection<UpstreamNode> l, UpstreamTree tree, EntityCache cache, Consumer<JsonObject> modifier) {
+	static <T extends Descriptor> JsonArray encode(Collection<UpstreamNode> l, UpstreamTree tree, EntityCache cache, Consumer<JsonObject> modifier) {
 		if (l == null)
 			return null;
 		return encode(l, node -> encode(node, tree.root.result, cache, json -> {
@@ -129,7 +129,7 @@ class JsonRpc {
 		return items;
 	}
 
-	static JsonArray encode(Collection<? extends BaseDescriptor> descriptors, EntityCache cache) {
+	static JsonArray encode(Collection<? extends Descriptor> descriptors, EntityCache cache) {
 		return encode(descriptors, d -> Json.asRef(d, cache));
 	}
 

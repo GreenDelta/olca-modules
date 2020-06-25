@@ -15,7 +15,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.Version;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -187,7 +187,7 @@ public class Json {
 	 * or processes) a more specific `Ref` type is used (e.g. `FlowRef` or
 	 * `ProcessRef`) that contains additional meta-data.
 	 */
-	public static JsonObject asRef(BaseDescriptor d, EntityCache cache) {
+	public static JsonObject asRef(Descriptor d, EntityCache cache) {
 		if (d == null)
 			return null;
 		JsonObject obj = new JsonObject();
@@ -221,7 +221,7 @@ public class Json {
 	 * or processes) a more specific `Ref` type is used (e.g. `FlowRef` or
 	 * `ProcessRef`) that contains additional meta-data.
 	 */
-	public static JsonObject asDescriptor(BaseDescriptor d, EntityCache cache) {
+	public static JsonObject asDescriptor(Descriptor d, EntityCache cache) {
 		if (d == null)
 			return null;
 		JsonObject obj = asRef(d, cache);

@@ -16,7 +16,7 @@ import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
-import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.util.Categories;
 import org.openlca.util.Strings;
 
@@ -79,7 +79,7 @@ public class CategoryDao
 		Category forRefId = getForRefId(newRefId);
 		boolean isNew = category.id == 0L;
 		if (!Objects.equals(refId, newRefId) && !isNew)
-			getDatabase().notifyDelete(Descriptors.toDescriptor(category));
+			getDatabase().notifyDelete(Descriptor.of(category));
 		if (Objects.equals(refId, newRefId) || forRefId == null) {
 			category.refId = newRefId;
 			category = super.update(category);

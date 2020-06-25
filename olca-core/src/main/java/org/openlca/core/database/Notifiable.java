@@ -3,7 +3,7 @@ package org.openlca.core.database;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 
 public class Notifiable implements INotifiable {
 
@@ -20,19 +20,19 @@ public class Notifiable implements INotifiable {
 	}
 
 	@Override
-	public void notifyInsert(BaseDescriptor descriptor) {
+	public void notifyInsert(Descriptor descriptor) {
 		for (IDatabaseListener listener : listeners)
 			listener.modelInserted(descriptor);
 	}
 
 	@Override
-	public void notifyUpdate(BaseDescriptor descriptor) {
+	public void notifyUpdate(Descriptor descriptor) {
 		for (IDatabaseListener listener : listeners)
 			listener.modelUpdated(descriptor);
 	}
 
 	@Override
-	public void notifyDelete(BaseDescriptor descriptor) {
+	public void notifyDelete(Descriptor descriptor) {
 		for (IDatabaseListener listener : listeners)
 			listener.modelDeleted(descriptor);
 	}

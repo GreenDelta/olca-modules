@@ -8,7 +8,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessGroupSet;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 
 public class Daos {
@@ -33,7 +33,7 @@ public class Daos {
 		return new BaseDao<>(clazz, database);
 	}
 
-	public static RootEntityDao<? extends RootEntity, ? extends BaseDescriptor> root(
+	public static RootEntityDao<? extends RootEntity, ? extends Descriptor> root(
 			IDatabase database, ModelType type) {
 		if (database == null)
 			return null;

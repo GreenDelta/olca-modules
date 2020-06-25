@@ -14,7 +14,7 @@ import org.openlca.core.math.Simulator;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
@@ -159,7 +159,7 @@ public class Calculator {
 			}
 
 			// set the context
-			BaseDescriptor d = parameterContext(context);
+			Descriptor d = parameterContext(context);
 			if (d == null)
 				continue;
 			redef.contextId = d.id;
@@ -168,7 +168,7 @@ public class Calculator {
 		}
 	}
 
-	private BaseDescriptor parameterContext(JsonObject context) {
+	private Descriptor parameterContext(JsonObject context) {
 		String type = Json.getString(context, "@type");
 		String refId = Json.getString(context, "@id");
 		if ("Process".equals(type)) {

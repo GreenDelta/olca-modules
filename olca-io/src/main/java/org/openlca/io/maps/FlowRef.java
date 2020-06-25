@@ -1,6 +1,6 @@
 package org.openlca.io.maps;
 
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
@@ -30,13 +30,13 @@ public class FlowRef {
 	 * An optional reference to a property (= quantity) of the flow. When this
 	 * is missing, the reference flow property of the flow is taken by default.
 	 */
-	public BaseDescriptor property;
+	public Descriptor property;
 
 	/**
 	 * Also, the unit reference is optional; the reference unit of the unit
 	 * group of the flow property is taken by default.
 	 */
-	public BaseDescriptor unit;
+	public Descriptor unit;
 
 	/**
 	 * An optional reference to a provider process in case this reference
@@ -99,7 +99,7 @@ public class FlowRef {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends BaseDescriptor> T copy(T d) {
+	private <T extends Descriptor> T copy(T d) {
 		if (d == null)
 			return null;
 		try {

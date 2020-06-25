@@ -3,8 +3,7 @@ package org.openlca.core.model;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.openlca.core.model.descriptors.BaseDescriptor;
-import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.model.descriptors.Descriptor;
 
 public class DescriptorsTest {
 
@@ -17,7 +16,7 @@ public class DescriptorsTest {
 			RootEntity e = clazz.newInstance();
 			e.name = t.name();
 			e.refId = t.name();
-			BaseDescriptor d = Descriptors.toDescriptor(e);
+			Descriptor d = Descriptor.of(e);
 			assertEquals(t, d.type);
 			assertEquals(e.name, d.name);
 			assertEquals(e.refId, d.refId);

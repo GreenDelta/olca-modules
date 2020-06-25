@@ -2,7 +2,7 @@ package org.openlca.core.matrix;
 
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TLongIntHashMap;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -14,7 +14,7 @@ import java.util.Set;
  * implementation assumes that the descriptors describe existing objects in a
  * database and thus have an ID > 0. Also, this class is *not* thread safe.
  */
-public class DIndex<D extends BaseDescriptor> {
+public class DIndex<D extends Descriptor> {
 
 	/**
 	 * Contains the ordered content of the index.

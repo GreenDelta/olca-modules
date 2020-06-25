@@ -16,7 +16,7 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 public class ImpactCategoryUseSearchTest {
@@ -50,11 +50,11 @@ public class ImpactCategoryUseSearchTest {
 		method = new ImpactMethodDao(db).update(method);
 		List<CategorizedDescriptor> r = doSearch();
 		assertEquals(1, r.size());
-		assertEquals(Descriptors.toDescriptor(method), r.get(0));
+		assertEquals(Descriptor.of(method), r.get(0));
 	}
 
 	private List<CategorizedDescriptor> doSearch() {
-		ImpactCategoryDescriptor d = Descriptors.toDescriptor(category);
+		ImpactCategoryDescriptor d = Descriptor.of(category);
 		return IUseSearch.FACTORY.createFor(
 				ModelType.IMPACT_CATEGORY, db).findUses(d);
 	}

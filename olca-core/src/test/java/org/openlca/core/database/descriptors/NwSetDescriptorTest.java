@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.NwSetDao;
 import org.openlca.core.model.NwSet;
-import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.NwSetDescriptor;
 
 public class NwSetDescriptorTest {
@@ -35,8 +35,8 @@ public class NwSetDescriptorTest {
 
 	@Test
 	public void testToDescriptor() {
-		NwSetDescriptor descriptor = (NwSetDescriptor) Descriptors
-				.toDescriptor(nwSet);
+		NwSetDescriptor descriptor = (NwSetDescriptor) Descriptor
+				.of(nwSet);
 		checkDescriptor(descriptor);
 	}
 

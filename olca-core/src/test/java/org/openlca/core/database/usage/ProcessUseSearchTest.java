@@ -13,9 +13,8 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 public class ProcessUseSearchTest {
@@ -39,8 +38,8 @@ public class ProcessUseSearchTest {
 
 	@Test
 	public void testFindNoUsage() {
-		List<CategorizedDescriptor> models = search.findUses(Descriptors
-				.toDescriptor(process));
+		List<CategorizedDescriptor> models = search.findUses(Descriptor
+				.of(process));
 		Assert.assertNotNull(models);
 		Assert.assertTrue(models.isEmpty());
 	}
@@ -48,10 +47,10 @@ public class ProcessUseSearchTest {
 	@Test
 	public void testFindInSystems() {
 		ProductSystem system = createSystem();
-		List<CategorizedDescriptor> results = search.findUses(Descriptors
-				.toDescriptor(process));
+		List<CategorizedDescriptor> results = search.findUses(Descriptor
+				.of(process));
 		new ProductSystemDao(database).delete(system);
-		BaseDescriptor expected = Descriptors.toDescriptor(system);
+		Descriptor expected = Descriptor.of(system);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
 	}

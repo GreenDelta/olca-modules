@@ -14,7 +14,7 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 
 public class ImpactMethodUseSearchTest {
@@ -47,7 +47,7 @@ public class ImpactMethodUseSearchTest {
 
 	@Test
 	public void testNoUsage() {
-		ImpactMethodDescriptor d = Descriptors.toDescriptor(method);
+		ImpactMethodDescriptor d = Descriptor.of(method);
 		List<CategorizedDescriptor> descriptors = search.findUses(d);
 		Assert.assertNotNull(descriptors);
 		Assert.assertTrue(descriptors.isEmpty());
@@ -57,10 +57,10 @@ public class ImpactMethodUseSearchTest {
 	public void testFindInProject() {
 		project.impactMethodId = method.id;
 		project = projectDao.update(project);
-		ImpactMethodDescriptor d = Descriptors.toDescriptor(method);
+		ImpactMethodDescriptor d = Descriptor.of(method);
 		List<CategorizedDescriptor> descriptors = search.findUses(d);
 		Assert.assertEquals(1, descriptors.size());
-		Assert.assertEquals(Descriptors.toDescriptor(project),
+		Assert.assertEquals(Descriptor.of(project),
 				descriptors.get(0));
 	}
 

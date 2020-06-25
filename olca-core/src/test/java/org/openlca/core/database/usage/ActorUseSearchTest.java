@@ -18,9 +18,8 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.descriptors.ActorDescriptor;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.Descriptors;
 
 public class ActorUseSearchTest {
 
@@ -35,8 +34,8 @@ public class ActorUseSearchTest {
 	@Test
 	public void testFindNoUsage() {
 		Actor actor = createActor();
-		List<CategorizedDescriptor> models = search.findUses(Descriptors
-				.toDescriptor(actor));
+		List<CategorizedDescriptor> models = search.findUses(Descriptor
+				.of(actor));
 		Assert.assertNotNull(models);
 		Assert.assertTrue(models.isEmpty());
 		new ActorDao(database).delete(actor);
@@ -49,11 +48,11 @@ public class ActorUseSearchTest {
 		project.name = "project";
 		project.author = actor;
 		new ProjectDao(database).insert(project);
-		List<CategorizedDescriptor> results = search.findUses(Descriptors
-				.toDescriptor(actor));
+		List<CategorizedDescriptor> results = search.findUses(Descriptor
+				.of(actor));
 		new ProjectDao(database).delete(project);
 		new ActorDao(database).delete(actor);
-		BaseDescriptor expected = Descriptors.toDescriptor(project);
+		Descriptor expected = Descriptor.of(project);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
 	}
@@ -68,11 +67,11 @@ public class ActorUseSearchTest {
 	public void testFindInProcesses() {
 		Actor actor = createActor();
 		Process process = createProcess(actor);
-		List<CategorizedDescriptor> results = search.findUses(Descriptors
-				.toDescriptor(actor));
+		List<CategorizedDescriptor> results = search.findUses(Descriptor
+				.of(actor));
 		new ProcessDao(database).delete(process);
 		new ActorDao(database).delete(actor);
-		BaseDescriptor expected = Descriptors.toDescriptor(process);
+		Descriptor expected = Descriptor.of(process);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
 	}
@@ -96,8 +95,8 @@ public class ActorUseSearchTest {
 		method.name = "method";
 		method.author = author;
 		method = new ImpactMethodDao(database).insert(method);
-		List<CategorizedDescriptor> results = search.findUses(Descriptors.toDescriptor(author));
-		BaseDescriptor expected = Descriptors.toDescriptor(method);
+		List<CategorizedDescriptor> results = search.findUses(Descriptor.of(author));
+		Descriptor expected = Descriptor.of(method);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
 		new ImpactMethodDao(database).delete(method);
@@ -108,8 +107,8 @@ public class ActorUseSearchTest {
 		method.name = "method";
 		method.generator = generator;
 		method = new ImpactMethodDao(database).insert(method);
-		results = search.findUses(Descriptors.toDescriptor(generator));
-		expected = Descriptors.toDescriptor(method);
+		results = search.findUses(Descriptor.of(generator));
+		expected = Descriptor.of(method);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
 		new ImpactMethodDao(database).delete(method);

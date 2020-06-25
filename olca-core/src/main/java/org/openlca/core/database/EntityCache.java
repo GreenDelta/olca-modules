@@ -12,7 +12,7 @@ import java.util.Set;
 
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.descriptors.ActorDescriptor;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.CurrencyDescriptor;
 import org.openlca.core.model.descriptors.DQSystemDescriptor;
@@ -191,7 +191,7 @@ public class EntityCache {
 				Collection<Long> ids = idMap.get(clazz);
 				if (ids.isEmpty())
 					continue;
-				if (BaseDescriptor.class.isAssignableFrom(clazz))
+				if (Descriptor.class.isAssignableFrom(clazz))
 					loadDescriptors(clazz, ids, result);
 				else
 					loadFullEntities((Class<? extends AbstractEntity>) clazz,
@@ -221,9 +221,9 @@ public class EntityCache {
 				log.error("unknown descriptor class {}, returning null", clazz);
 				return;
 			}
-			List<? extends BaseDescriptor> descriptors = dao
+			List<? extends Descriptor> descriptors = dao
 					.getDescriptors(new HashSet<>(ids));
-			for (BaseDescriptor descriptor : descriptors)
+			for (Descriptor descriptor : descriptors)
 				result.put(Key.get(clazz, descriptor.id), descriptor);
 		}
 
@@ -232,7 +232,7 @@ public class EntityCache {
 			if (key == null || key.clazz == null)
 				return null;
 			Object obj = null;
-			if (BaseDescriptor.class.isAssignableFrom(key.clazz))
+			if (Descriptor.class.isAssignableFrom(key.clazz))
 				obj = loadDescriptor(key);
 			else
 				obj = loadFull(key);

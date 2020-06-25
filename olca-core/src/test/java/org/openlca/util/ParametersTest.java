@@ -12,7 +12,7 @@ import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
-import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.model.descriptors.Descriptor;
 
 public class ParametersTest {
 
@@ -58,9 +58,9 @@ public class ParametersTest {
 				param, process, db);
 		Assert.assertEquals(2, owners.size());
 		Assert.assertTrue(
-				owners.contains(Descriptors.toDescriptor(system)));
+				owners.contains(Descriptor.of(system)));
 		Assert.assertTrue(
-				owners.contains(Descriptors.toDescriptor(project)));
+				owners.contains(Descriptor.of(project)));
 		Tests.clearDb();
 	}
 }

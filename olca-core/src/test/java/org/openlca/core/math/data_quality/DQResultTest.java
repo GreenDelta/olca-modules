@@ -25,7 +25,7 @@ import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.model.descriptors.Descriptor;
 
 public class DQResultTest {
 
@@ -130,7 +130,7 @@ public class DQResultTest {
 				Tests.getDefaultSolver());
 		var setup = new CalculationSetup(system);
 		setup.setAmount(1);
-		setup.impactMethod = Descriptors.toDescriptor(method);
+		setup.impactMethod = Descriptor.of(method);
 		var cResult = calculator.calculateContributions(setup);
 		var dqSetup = DQCalculationSetup.of(system);
 		var result = DQResultMap.calculate(Tests.getDb(), cResult, dqSetup);
@@ -144,7 +144,7 @@ public class DQResultTest {
 				Tests.getDefaultSolver());
 		var setup = new CalculationSetup(system);
 		setup.setAmount(1);
-		setup.impactMethod = Descriptors.toDescriptor(method);
+		setup.impactMethod = Descriptor.of(method);
 		var result = calculator.calculateContributions(setup);
 		var dqSetup = DQCalculationSetup.of(system);
 		var dqResult = DQResult.of(Tests.getDb(), dqSetup, result);
@@ -165,7 +165,7 @@ public class DQResultTest {
 
 	private int[] r(DQResult dq, Flow flow) {
 		var iflow = new IndexFlow();
-		iflow.flow = Descriptors.toDescriptor(flow);
+		iflow.flow = Descriptor.of(flow);
 		return dq.get(iflow);
 	}
 
@@ -177,17 +177,17 @@ public class DQResultTest {
 	private int[] r(DQResult dq, Process process, Flow flow) {
 		var product = ProcessProduct.of(process);
 		var iflow = new IndexFlow();
-		iflow.flow = Descriptors.toDescriptor(flow);
+		iflow.flow = Descriptor.of(flow);
 		return dq.get(product, iflow);
 	}
 
 	private int[] r(DQResult dq, ImpactCategory impact) {
-		return dq.get(Descriptors.toDescriptor(impact));
+		return dq.get(Descriptor.of(impact));
 	}
 
 	private int[] r(DQResult dq, Process process, ImpactCategory impact) {
 		var product = ProcessProduct.of(process);
-		return dq.get(Descriptors.toDescriptor(impact), product);
+		return dq.get(Descriptor.of(impact), product);
 	}
 
 	private void checkResults(DQResultMap result) {
@@ -209,26 +209,26 @@ public class DQResultTest {
 	}
 
 	private int[] getResult(DQResultMap result, Flow flow) {
-		return result.get(Descriptors.toDescriptor(flow));
+		return result.get(Descriptor.of(flow));
 	}
 
 	private int[] getResult(DQResultMap result, Process process) {
-		return result.get(Descriptors.toDescriptor(process));
+		return result.get(Descriptor.of(process));
 	}
 
 	private int[] getResult(DQResultMap result, ImpactCategory impact) {
-		return result.get(Descriptors.toDescriptor(impact));
+		return result.get(Descriptor.of(impact));
 	}
 
 	private int[] getResult(DQResultMap result, Process process, Flow flow) {
-		return result.get(Descriptors.toDescriptor(process),
-				Descriptors.toDescriptor(flow));
+		return result.get(Descriptor.of(process),
+				Descriptor.of(flow));
 	}
 
 	private int[] getResult(DQResultMap result, Process process,
 							ImpactCategory impact) {
-		return result.get(Descriptors.toDescriptor(process),
-				Descriptors.toDescriptor(impact));
+		return result.get(Descriptor.of(process),
+				Descriptor.of(impact));
 	}
 
 }

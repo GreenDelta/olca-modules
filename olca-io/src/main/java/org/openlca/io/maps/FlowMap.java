@@ -10,7 +10,7 @@ import java.util.Map;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.FlowType;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -25,13 +25,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-public class FlowMap extends BaseDescriptor {
+public class FlowMap extends Descriptor {
 
 	/** Description of the source system. */
-	public BaseDescriptor source;
+	public Descriptor source;
 
 	/** Description of the target system. */
-	public BaseDescriptor target;
+	public Descriptor target;
 
 	public final List<FlowMapEntry> entries = new ArrayList<>();
 
@@ -270,9 +270,9 @@ public class FlowMap extends BaseDescriptor {
 		map.name = Json.getString(obj, "name");
 		map.description = Json.getString(obj, "name");
 
-		map.source = new BaseDescriptor();
+		map.source = new Descriptor();
 		mapDescriptor(Json.getObject(obj, "source"), map.source);
-		map.target = new BaseDescriptor();
+		map.target = new Descriptor();
 		mapDescriptor(Json.getObject(obj, "target"), map.target);
 
 		JsonArray array = Json.getArray(obj, "mappings");
@@ -308,19 +308,19 @@ public class FlowMap extends BaseDescriptor {
 
 		JsonObject fp = Json.getObject(obj, "flowProperty");
 		if (fp != null) {
-			ref.property = new BaseDescriptor();
+			ref.property = new Descriptor();
 			mapDescriptor(fp, ref.property);
 		}
 		JsonObject u = Json.getObject(obj, "unit");
 		if (u != null) {
-			ref.unit = new BaseDescriptor();
+			ref.unit = new Descriptor();
 			mapDescriptor(u, ref.unit);
 		}
 
 		return ref;
 	}
 
-	private static void mapDescriptor(JsonObject obj, BaseDescriptor d) {
+	private static void mapDescriptor(JsonObject obj, Descriptor d) {
 		if (obj == null || d == null)
 			return;
 		d.name = Json.getString(obj, "name");

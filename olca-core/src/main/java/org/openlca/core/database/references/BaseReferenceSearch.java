@@ -11,7 +11,7 @@ import java.util.Set;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.CategorizedEntity;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 
 abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
@@ -79,8 +79,8 @@ abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
 		for (Object o : objects) {
 			if (o instanceof Reference) {
 				ids.add(((Reference) o).id); 
-			} else if (o instanceof BaseDescriptor) {
-				ids.add(((BaseDescriptor) o).id);
+			} else if (o instanceof Descriptor) {
+				ids.add(((Descriptor) o).id);
 			}
 		}
 		return ids;

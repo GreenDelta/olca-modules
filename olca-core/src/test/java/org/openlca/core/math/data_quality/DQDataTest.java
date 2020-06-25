@@ -19,7 +19,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.results.ContributionResult;
 
 public class DQDataTest {
@@ -102,7 +102,7 @@ public class DQDataTest {
 		result.techIndex = new TechIndex(product1);
 		result.techIndex.put(product2);
 		result.flowIndex = FlowIndex.create();
-		result.flowIndex.putOutput(Descriptors.toDescriptor(elemFlow));
+		result.flowIndex.putOutput(Descriptor.of(elemFlow));
 		var iFlow = result.flowIndex.at(0);
 
 		// test process data

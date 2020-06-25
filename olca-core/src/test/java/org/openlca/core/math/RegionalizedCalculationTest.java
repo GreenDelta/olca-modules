@@ -34,7 +34,7 @@ import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.FullResult;
 
@@ -455,7 +455,7 @@ public class RegionalizedCalculationTest {
 		// reload the product system to get the updates
 		sys = new ProductSystemDao(db).getForId(sys.id);
 		CalculationSetup setup = new CalculationSetup(sys);
-		setup.impactMethod = Descriptors.toDescriptor(method);
+		setup.impactMethod = Descriptor.of(method);
 		return setup;
 	}
 
@@ -491,7 +491,7 @@ public class RegionalizedCalculationTest {
 		// create the product system and calculation setup
 		CalculationSetup setup = new CalculationSetup(ProductSystem.of(p));
 		setup.withRegionalization = true;
-		setup.impactMethod = Descriptors.toDescriptor(method);
+		setup.impactMethod = Descriptor.of(method);
 		SystemCalculator calculator = new SystemCalculator(db, new JavaSolver());
 
 		FullResult r = calculator.calculateFull(setup);
@@ -552,7 +552,7 @@ public class RegionalizedCalculationTest {
 	}
 
 	private ImpactCategoryDescriptor des(ImpactCategory imp) {
-		return Descriptors.toDescriptor(imp);
+		return Descriptor.of(imp);
 	}
 
 	private Process setLoc(Process p, Location loc) {

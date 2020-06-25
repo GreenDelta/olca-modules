@@ -14,13 +14,12 @@ import javax.persistence.Table;
 
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.descriptors.BaseDescriptor;
-import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.util.Strings;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 
-public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor> extends BaseDao<T> {
+public class RootEntityDao<T extends RootEntity, V extends Descriptor> extends BaseDao<T> {
 
 	private Class<V> descriptorType;
 	private String entityTable;
@@ -33,28 +32,28 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor> exten
 	@Override
 	public T insert(T entity) {
 		entity = super.insert(entity);
-		database.notifyInsert(Descriptors.toDescriptor(entity));
+		database.notifyInsert(Descriptor.of(entity));
 		return entity;
 	}
 
 	@Override
 	public T update(T entity) {
 		entity = super.update(entity);
-		database.notifyUpdate(Descriptors.toDescriptor(entity));
+		database.notifyUpdate(Descriptor.of(entity));
 		return entity;
 	}
 
 	@Override
 	public void delete(T entity) {
 		super.delete(entity);
-		database.notifyDelete(Descriptors.toDescriptor(entity));
+		database.notifyDelete(Descriptor.of(entity));
 	}
 
 	@Override
 	public void deleteAll(Collection<T> entities) {
 		super.deleteAll(entities);
 		for (T entity : entities) {
-			database.notifyDelete(Descriptors.toDescriptor(entity));
+			database.notifyDelete(Descriptor.of(entity));
 		}
 	}
 

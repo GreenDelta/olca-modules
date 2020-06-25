@@ -12,7 +12,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.Contribution;
 import org.openlca.core.results.ContributionResult;
@@ -34,7 +34,7 @@ public class CostTests {
 		FullResult r = TestSystem.calculate(system);
 
 		Assert.assertEquals(3, r.totalCosts, 1e-10);
-		ProcessDescriptor d1 = Descriptors.toDescriptor(p1);
+		ProcessDescriptor d1 = Descriptor.of(p1);
 		Assert.assertEquals(3, r.getUpstreamCostResult(d1), 1e-10);
 		Assert.assertEquals(3, r.getDirectCostResult(d1), 1e-10);
 		UpstreamTree tree = r.getCostTree();
@@ -79,8 +79,8 @@ public class CostTests {
 		ProductSystem system = TestSystem.of(p2).link(p1).get();
 		FullResult r = TestSystem.calculate(system);
 
-		ProcessDescriptor d1 = Descriptors.toDescriptor(p1);
-		ProcessDescriptor d2 = Descriptors.toDescriptor(p2);
+		ProcessDescriptor d1 = Descriptor.of(p1);
+		ProcessDescriptor d2 = Descriptor.of(p2);
 		Assert.assertEquals(5, r.totalCosts, 1e-10);
 		Assert.assertEquals(6, r.getDirectCostResult(d1), 1e-10);
 		Assert.assertEquals(-1, r.getDirectCostResult(d2), 1e-10);

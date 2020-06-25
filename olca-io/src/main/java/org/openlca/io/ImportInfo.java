@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.descriptors.BaseDescriptor;
-import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.model.descriptors.Descriptor;
 
 public class ImportInfo {
 
@@ -27,27 +26,27 @@ public class ImportInfo {
 
 	}
 
-	public final BaseDescriptor entity;
+	public final Descriptor entity;
 	public final Status status;
 	public String message;
 
-	public ImportInfo(BaseDescriptor entity, Status status) {
+	public ImportInfo(Descriptor entity, Status status) {
 		this.entity = entity;
 		this.status = status;
 	}
 
 	public static ImportInfo imported(RootEntity entity) {
-		BaseDescriptor d = Descriptors.toDescriptor(entity);
+		Descriptor d = Descriptor.of(entity);
 		return new ImportInfo(d, Status.IMPORTED);
 	}
 
 	public static ImportInfo ignored(RootEntity entity) {
-		BaseDescriptor d = Descriptors.toDescriptor(entity);
+		Descriptor d = Descriptor.of(entity);
 		return new ImportInfo(d, Status.IGNORED);
 	}
 
 	public static ImportInfo error(RootEntity entity) {
-		BaseDescriptor d = Descriptors.toDescriptor(entity);
+		Descriptor d = Descriptor.of(entity);
 		return new ImportInfo(d, Status.ERROR);
 	}
 
@@ -77,7 +76,7 @@ public class ImportInfo {
 			ImportInfo info = infos.get(e.refId);
 			if (info != null)
 				return;
-			BaseDescriptor d = Descriptors.toDescriptor(e);
+			Descriptor d = Descriptor.of(e);
 			infos.put(e.refId, new ImportInfo(d, s));
 		}
 

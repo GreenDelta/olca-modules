@@ -2,8 +2,6 @@ package org.openlca.core.matrix;
 
 import java.util.Objects;
 
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 

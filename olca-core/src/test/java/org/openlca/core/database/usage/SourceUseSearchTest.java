@@ -19,7 +19,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.SourceDescriptor;
 
 public class SourceUseSearchTest {
@@ -66,8 +66,8 @@ public class SourceUseSearchTest {
 
 	@Test
 	public void testFindNoUsage() {
-		List<CategorizedDescriptor> models = search.findUses(Descriptors
-				.toDescriptor(source));
+		List<CategorizedDescriptor> models = search.findUses(Descriptor
+				.of(source));
 		Assert.assertNotNull(models);
 		Assert.assertTrue(models.isEmpty());
 	}
@@ -76,40 +76,40 @@ public class SourceUseSearchTest {
 	public void testFindInProcessPublication() {
 		process.documentation.publication = source;
 		process = processDao.update(process);
-		List<CategorizedDescriptor> models = search.findUses(Descriptors
-				.toDescriptor(source));
+		List<CategorizedDescriptor> models = search.findUses(Descriptor
+				.of(source));
 		Assert.assertEquals(1, models.size());
-		Assert.assertEquals(Descriptors.toDescriptor(process), models.get(0));
+		Assert.assertEquals(Descriptor.of(process), models.get(0));
 	}
 
 	@Test
 	public void testFindInProcessSources() {
 		process.documentation.sources.add(source);
 		process = processDao.update(process);
-		List<CategorizedDescriptor> models = search.findUses(Descriptors
-				.toDescriptor(source));
+		List<CategorizedDescriptor> models = search.findUses(Descriptor
+				.of(source));
 		Assert.assertEquals(1, models.size());
-		Assert.assertEquals(Descriptors.toDescriptor(process), models.get(0));
+		Assert.assertEquals(Descriptor.of(process), models.get(0));
 	}
 
 	@Test
 	public void testFindInMethodSources() {
 		method.sources.add(source);
 		method = methodDao.update(method);
-		List<CategorizedDescriptor> models = search.findUses(Descriptors
-				.toDescriptor(source));
+		List<CategorizedDescriptor> models = search.findUses(Descriptor
+				.of(source));
 		Assert.assertEquals(1, models.size());
-		Assert.assertEquals(Descriptors.toDescriptor(method), models.get(0));
+		Assert.assertEquals(Descriptor.of(method), models.get(0));
 	}
 	
 	@Test
 	public void testFindInDQSystem() {
 		dqSystem.source = source;
 		dqSystem = dqSystemDao.update(dqSystem);
-		List<CategorizedDescriptor> models = search.findUses(Descriptors
-				.toDescriptor(source));
+		List<CategorizedDescriptor> models = search.findUses(Descriptor
+				.of(source));
 		Assert.assertEquals(1, models.size());
-		Assert.assertEquals(Descriptors.toDescriptor(dqSystem), models.get(0));
+		Assert.assertEquals(Descriptor.of(dqSystem), models.get(0));
 	}
 
 }

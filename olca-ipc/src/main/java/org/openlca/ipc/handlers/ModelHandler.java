@@ -15,7 +15,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
@@ -40,7 +40,7 @@ public class ModelHandler {
 
 	@Rpc("get/model")
 	public RpcResponse get(RpcRequest req) {
-		BaseDescriptor d = readDescriptor(req);
+		Descriptor d = readDescriptor(req);
 		if (d == null)
 			return Responses.invalidParams("params must be an object with"
 					+ " valid @id and @type", req);
@@ -119,7 +119,7 @@ public class ModelHandler {
 	@Rpc("delete/model")
 	@SuppressWarnings("unchecked")
 	public <T extends RootEntity> RpcResponse delete(RpcRequest req) {
-		BaseDescriptor d = readDescriptor(req);
+		Descriptor d = readDescriptor(req);
 		if (d == null)
 			return Responses.invalidParams("params must be an object with"
 					+ " valid @id and @type", req);
@@ -173,7 +173,7 @@ public class ModelHandler {
 	}
 
 	private RpcResponse saveModel(RpcRequest req, UpdateMode mode) {
-		BaseDescriptor d = readDescriptor(req);
+		Descriptor d = readDescriptor(req);
 		if (d == null)
 			return Responses.invalidParams("params must be an object with"
 					+ " valid @id and @type", req);
@@ -190,7 +190,7 @@ public class ModelHandler {
 		}
 	}
 
-	private BaseDescriptor readDescriptor(RpcRequest req) {
+	private Descriptor readDescriptor(RpcRequest req) {
 		if (req.params == null || !req.params.isJsonObject())
 			return null;
 		JsonObject obj = req.params.getAsJsonObject();

@@ -16,9 +16,8 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.ParameterDescriptor;
 
 public class ParameterUseSearchTest {
@@ -36,8 +35,8 @@ public class ParameterUseSearchTest {
 		Parameter parameter = new Parameter();
 		parameter.name = "testNoUsage";
 		Tests.insert(parameter);
-		List<CategorizedDescriptor> models = search.findUses(Descriptors
-				.toDescriptor(parameter));
+		List<CategorizedDescriptor> models = search.findUses(Descriptor
+				.of(parameter));
 		Assert.assertNotNull(models);
 		Assert.assertTrue(models.isEmpty());
 		Tests.delete(parameter);
@@ -53,13 +52,13 @@ public class ParameterUseSearchTest {
 		Tests.insert(p2);
 		Tests.insert(p3);
 		Tests.insert(p4);
-		List<CategorizedDescriptor> models = search.findUses(Descriptors
-				.toDescriptor(p1));
+		List<CategorizedDescriptor> models = search.findUses(Descriptor
+				.of(p1));
 		Tests.delete(p1);
 		Tests.delete(p2);
 		Tests.delete(p3);
 		Tests.delete(p4);
-		BaseDescriptor expected = Descriptors.toDescriptor(p4);
+		Descriptor expected = Descriptor.of(p4);
 		Assert.assertEquals(1, models.size());
 		Assert.assertEquals(expected, models.get(0));
 	}
@@ -72,11 +71,11 @@ public class ParameterUseSearchTest {
 		process.parameters.add(p2);
 		Tests.insert(p1);
 		Tests.insert(process);
-		List<CategorizedDescriptor> models = search.findUses(Descriptors
-				.toDescriptor(p1));
+		List<CategorizedDescriptor> models = search.findUses(Descriptor
+				.of(p1));
 		Tests.delete(p1);
 		Tests.delete(process);
-		BaseDescriptor expected = Descriptors.toDescriptor(process);
+		Descriptor expected = Descriptor.of(process);
 		Assert.assertEquals(1, models.size());
 		Assert.assertEquals(expected, models.get(0));
 	}
@@ -91,11 +90,11 @@ public class ParameterUseSearchTest {
 		impact.parameters.add(p2);
 		Tests.insert(p1);
 		Tests.insert(impact);
-		List<CategorizedDescriptor> models = search.findUses(Descriptors
-				.toDescriptor(p1));
+		List<CategorizedDescriptor> models = search.findUses(Descriptor
+				.of(p1));
 		Tests.delete(p1);
 		Tests.delete(impact);
-		BaseDescriptor expected = Descriptors.toDescriptor(impact);
+		Descriptor expected = Descriptor.of(impact);
 		Assert.assertEquals(1, models.size());
 		Assert.assertEquals(expected, models.get(0));
 	}
@@ -110,8 +109,8 @@ public class ParameterUseSearchTest {
 		process.parameters.add(p2);
 		Tests.insert(p);
 		Tests.insert(process);
-		List<CategorizedDescriptor> models = search.findUses(Descriptors
-				.toDescriptor(p));
+		List<CategorizedDescriptor> models = search.findUses(Descriptor
+				.of(p));
 		Tests.delete(p);
 		Tests.delete(process);
 		Assert.assertEquals(0, models.size());
@@ -128,8 +127,8 @@ public class ParameterUseSearchTest {
 		impact.parameters.add(p2);
 		Tests.insert(p);
 		Tests.insert(impact);
-		List<CategorizedDescriptor> models = search.findUses(Descriptors
-				.toDescriptor(p));
+		List<CategorizedDescriptor> models = search.findUses(Descriptor
+				.of(p));
 		Tests.delete(p);
 		Tests.delete(impact);
 		Assert.assertEquals(0, models.size());
@@ -142,11 +141,11 @@ public class ParameterUseSearchTest {
 		ProductSystem system = new ProductSystem();
 		system.parameterRedefs.add(createParameterRedef("p1"));
 		Tests.insert(system);
-		List<CategorizedDescriptor> models = search.findUses(Descriptors
-				.toDescriptor(parameter));
+		List<CategorizedDescriptor> models = search.findUses(Descriptor
+				.of(parameter));
 		Tests.delete(parameter);
 		Tests.delete(system);
-		BaseDescriptor expected = Descriptors.toDescriptor(system);
+		Descriptor expected = Descriptor.of(system);
 		Assert.assertEquals(1, models.size());
 		Assert.assertEquals(expected, models.get(0));
 	}
@@ -160,11 +159,11 @@ public class ParameterUseSearchTest {
 		variant.parameterRedefs.add(createParameterRedef("p1"));
 		project.variants.add(variant);
 		Tests.insert(project);
-		List<CategorizedDescriptor> models = search.findUses(Descriptors
-				.toDescriptor(parameter));
+		List<CategorizedDescriptor> models = search.findUses(Descriptor
+				.of(parameter));
 		Tests.delete(parameter);
 		Tests.delete(project);
-		BaseDescriptor expected = Descriptors.toDescriptor(project);
+		Descriptor expected = Descriptor.of(project);
 		Assert.assertEquals(1, models.size());
 		Assert.assertEquals(expected, models.get(0));
 	}

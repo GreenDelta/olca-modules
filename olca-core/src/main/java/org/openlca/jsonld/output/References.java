@@ -4,8 +4,7 @@ import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.descriptors.BaseDescriptor;
-import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonObject;
@@ -36,10 +35,10 @@ class References {
 	}
 
 	static JsonObject create(RootEntity ref, ExportConfig conf) {
-		return create(Descriptors.toDescriptor(ref), conf);
+		return create(Descriptor.of(ref), conf);
 	}
 
-	static JsonObject create(BaseDescriptor descriptor, ExportConfig conf) {
+	static JsonObject create(Descriptor descriptor, ExportConfig conf) {
 		return Json.asRef(descriptor, conf.cache);
 	}
 
@@ -64,7 +63,7 @@ class References {
 
 	// FIXME: single line function that are only used in one other function (ms
 	// 8/23/2018)
-	private static BaseDescriptor loadDescriptor(IDatabase database, ModelType type, long id) {
+	private static Descriptor loadDescriptor(IDatabase database, ModelType type, long id) {
 		return Daos.root(database, type).getDescriptor(id);
 	}
 

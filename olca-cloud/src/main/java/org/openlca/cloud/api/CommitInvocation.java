@@ -14,7 +14,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.NwSetDescriptor;
 
@@ -74,7 +74,7 @@ public class CommitInvocation {
 		return commitId;
 	}
 
-	private Dataset toDataset(BaseDescriptor descriptor) {
+	private Dataset toDataset(Descriptor descriptor) {
 		Dataset ds = new Dataset();
 		ds.refId = descriptor.refId;
 		ds.type = descriptor.type;

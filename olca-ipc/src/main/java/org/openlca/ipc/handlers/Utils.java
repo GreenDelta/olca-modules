@@ -14,9 +14,8 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Unit;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -75,12 +74,12 @@ class Utils {
 	}
 
 	@SuppressWarnings("unchecked")
-	<T1 extends RootEntity, T2 extends BaseDescriptor> List<Contribution<T2>> toDescriptors(
+	<T1 extends RootEntity, T2 extends Descriptor> List<Contribution<T2>> toDescriptors(
 			List<Contribution<T1>> items) {
 		List<Contribution<T2>> contributions = new ArrayList<>();
 		items.forEach(i -> {
 			Contribution<T2> item = new Contribution<>();
-			item.item = (T2) Descriptors.toDescriptor(i.item);
+			item.item = (T2) Descriptor.of(i.item);
 			item.amount = i.amount;
 			item.isRest = i.isRest;
 			item.share = i.share;
@@ -239,7 +238,7 @@ class Utils {
 		return Responses.ok(handler.handle(result, impact, cache), req);
 	}
 
-	private <T extends BaseDescriptor> T get(
+	private <T extends Descriptor> T get(
 			DIndex<T> index, JsonObject json, String field) {
 		if (index == null)
 			return null;

@@ -13,7 +13,7 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Uncertainty;
-import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.results.SimpleResult;
 
 public class SimulatorTest {
@@ -36,7 +36,7 @@ public class SimulatorTest {
 		// create the simulator
 		CalculationSetup setup = new CalculationSetup(s);
 		setup.withUncertainties = true;
-		setup.impactMethod = Descriptors.toDescriptor(m);
+		setup.impactMethod = Descriptor.of(m);
 		Simulator simulator = Simulator.create(
 				setup, Tests.getDb(), new JavaSolver());
 

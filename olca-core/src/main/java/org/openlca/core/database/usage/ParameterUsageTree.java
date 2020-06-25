@@ -18,7 +18,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -103,7 +103,7 @@ public class ParameterUsageTree {
 		}
 
 		Node(CategorizedEntity e) {
-			this(Descriptors.toDescriptor(e));
+			this(Descriptor.of(e));
 		}
 
 		Node(CategorizedDescriptor model) {

@@ -24,7 +24,7 @@ import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.model.descriptors.Descriptor;
 
 public class ParameterUsageTreeTest {
 
@@ -131,7 +131,7 @@ public class ParameterUsageTreeTest {
 				.findFirst()
 				.orElse(null);
 		var tree = ParameterUsageTree.of(
-				param, Descriptors.toDescriptor(process), db);
+				param, Descriptor.of(process), db);
 
 		// process parameters
 		var def = find(tree, "process", "param");
@@ -158,7 +158,7 @@ public class ParameterUsageTreeTest {
 				.get();
 		var tree = ParameterUsageTree.of(
 				process.parameters.get(0),
-				Descriptors.toDescriptor(process),
+				Descriptor.of(process),
 				db);
 		assertTrue(tree.isEmpty());
 	}
@@ -198,7 +198,7 @@ public class ParameterUsageTreeTest {
 
 		var local = process.parameters.get(0);
 		var localTree = ParameterUsageTree.of(
-				local, Descriptors.toDescriptor(process), db);
+				local, Descriptor.of(process), db);
 		alloc = find(localTree, process.name, "*");
 		assertNotNull(alloc);
 		assertEquals(UsageType.FORMULA, alloc.usageType);
@@ -226,14 +226,14 @@ public class ParameterUsageTreeTest {
 		var tree = ParameterUsageTree.of("param", db);
 		var node = find(tree, "GWP", "CH4");
 		assertNotNull(node);
-		assertEquals(Descriptors.toDescriptor(flow), node.model);
+		assertEquals(Descriptor.of(flow), node.model);
 		assertEquals(UsageType.FORMULA, node.usageType);
 		assertEquals("2 * param", node.usage);
 
 		// find the global parameter definition
 		node = find(tree, "param");
 		assertNotNull(node);
-		assertEquals(Descriptors.toDescriptor(global), node.model);
+		assertEquals(Descriptor.of(global), node.model);
 		assertEquals(UsageType.DEFINITION, node.usageType);
 	}
 

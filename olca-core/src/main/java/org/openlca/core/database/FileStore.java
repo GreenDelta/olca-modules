@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.util.Dirs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,7 @@ public class FileStore {
 		return root;
 	}
 
-	public File getFolder(BaseDescriptor d) {
+	public File getFolder(Descriptor d) {
 		if (d == null)
 			return new File(root, "null");
 		else
@@ -58,7 +58,7 @@ public class FileStore {
 		copyFolder(type, from.refId, to.refId);
 	}
 
-	public void copyFolder(BaseDescriptor from, BaseDescriptor to) {
+	public void copyFolder(Descriptor from, Descriptor to) {
 		if (from == null || to == null)
 			return;
 		copyFolder(from.type, from.refId, to.refId);
@@ -79,7 +79,7 @@ public class FileStore {
 		}
 	}
 
-	public void deleteFolder(BaseDescriptor d) {
+	public void deleteFolder(Descriptor d) {
 		if (d == null)
 			return;
 		deleteFolder(d.type, d.refId);

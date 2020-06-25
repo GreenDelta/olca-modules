@@ -22,7 +22,7 @@ import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitDao;
 import org.openlca.core.database.UnitGroupDao;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,8 +85,8 @@ class Sequence {
 	}
 
 	private void index(int type, RootEntityDao<?, ?> dao) {
-		List<? extends BaseDescriptor> descriptors = dao.getDescriptors();
-		for (BaseDescriptor d : descriptors) {
+		List<? extends Descriptor> descriptors = dao.getDescriptors();
+		for (Descriptor d : descriptors) {
 			if (d.refId == null) {
 				log.warn("found root entity without reference ID: {}", d);
 				continue;

@@ -17,7 +17,7 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.util.Categories;
@@ -38,7 +38,7 @@ class Indexer {
 		categories = all(new CategoryDao(db));
 	}
 
-	private <T extends BaseDescriptor> Map<Long, T> descriptors(
+	private <T extends Descriptor> Map<Long, T> descriptors(
 			RootEntityDao<?, T> dao) {
 		Map<Long, T> map = new HashMap<>();
 		for (T d : dao.getDescriptors()) {

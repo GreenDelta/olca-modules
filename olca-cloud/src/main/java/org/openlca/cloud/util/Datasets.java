@@ -10,12 +10,12 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
-import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.model.descriptors.Descriptor;
 
 public class Datasets {
 
 	public static Dataset toDataset(CategorizedEntity entity) {
-		CategorizedDescriptor descriptor = Descriptors.toDescriptor(entity);
+		CategorizedDescriptor descriptor = Descriptor.of(entity);
 		Category category = entity.category;
 		return toDataset(descriptor, category);
 	}
@@ -43,7 +43,7 @@ public class Datasets {
 	}
 
 	public static List<String> getCategories(Category category) {
-		return getCategories(Descriptors.toDescriptor(category), category.category);
+		return getCategories(Descriptor.of(category), category.category);
 	}
 
 	public static List<String> getCategories(CategorizedDescriptor entity, Category category) {
