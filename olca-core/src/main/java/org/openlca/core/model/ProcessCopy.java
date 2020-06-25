@@ -6,7 +6,7 @@ class ProcessCopy {
 
 	public Process create(Process origin) {
 		Process copy = new Process();
-		Util.cloneRootFields(origin, copy);
+		Util.copyFields(origin, copy);
 		copyFields(origin, copy);
 		copyParameters(origin, copy);
 		copyExchanges(origin, copy);
@@ -19,7 +19,6 @@ class ProcessCopy {
 	private void copyFields(Process origin, Process copy) {
 		copy.lastInternalId = origin.lastInternalId;
 		copy.defaultAllocationMethod = origin.defaultAllocationMethod;
-		copy.category = origin.category;
 		copy.location = origin.location;
 		copy.processType = origin.processType;
 		copy.infrastructureProcess = origin.infrastructureProcess;
@@ -53,8 +52,7 @@ class ProcessCopy {
 			AllocationFactor clone = factor.clone();
 			// not that the cloned factor has a reference to an exchange of
 			// the original process
-			Exchange copyExchange = findExchange(clone.exchange, copy);
-			clone.exchange = copyExchange;
+			clone.exchange = findExchange(clone.exchange, copy);
 			copy.allocationFactors.add(clone);
 		}
 	}

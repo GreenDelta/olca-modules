@@ -51,10 +51,9 @@ public class Project extends CategorizedEntity {
 
 	@Override
 	public Project clone() {
-		Project clone = new Project();
-		Util.cloneRootFields(this, clone);
+		var clone = new Project();
+		Util.copyFields(this, clone);
 		clone.author = author;
-		clone.category = category;
 		clone.creationDate = creationDate;
 		clone.functionalUnit = functionalUnit;
 		clone.goal = goal;

@@ -48,18 +48,12 @@ public class ImpactMethod extends CategorizedEntity {
 
 	@Override
 	public ImpactMethod clone() {
-		ImpactMethod clone = new ImpactMethod();
-		Util.cloneRootFields(this, clone);
-		clone.category = category;
-		for (ImpactCategory i : impactCategories) {
-			clone.impactCategories.add(i);
-		}
-
+		var clone = new ImpactMethod();
+		Util.copyFields(this, clone);
+		clone.impactCategories.addAll(impactCategories);
 		clone.author = author;
 		clone.generator = generator;
-		for (Source source : sources) {
-			clone.sources.add(source);
-		}
+		clone.sources.addAll(sources);
 		for (NwSet nwSet : nwSets) {
 			clone.nwSets.add(nwSet.clone());
 		}

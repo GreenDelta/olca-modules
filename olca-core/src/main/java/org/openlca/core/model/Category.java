@@ -26,12 +26,11 @@ public class Category extends CategorizedEntity {
 
 	@Override
 	public Category clone() {
-		Category clone = new Category();
-		Util.cloneRootFields(this, clone);
+		var clone = new Category();
+		Util.copyFields(this, clone);
 		clone.modelType = modelType;
-		clone.category = category;
-		for (Category child : childCategories) {
-			Category childCopy = child.clone();
+		for (var child : childCategories) {
+			var childCopy = child.clone();
 			clone.childCategories.add(childCopy);
 			childCopy.category = clone;
 		}

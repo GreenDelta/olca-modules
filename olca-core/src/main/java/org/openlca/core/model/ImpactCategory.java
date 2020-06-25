@@ -23,9 +23,8 @@ public class ImpactCategory extends ParameterizedEntity {
 
 	@Override
 	public ImpactCategory clone() {
-		ImpactCategory clone = new ImpactCategory();
-		Util.cloneRootFields(this, clone);
-		clone.category = category;
+		var clone = new ImpactCategory();
+		Util.copyFields(this, clone);
 		clone.referenceUnit = referenceUnit;
 		for (ImpactFactor f : impactFactors) {
 			clone.impactFactors.add(f.clone());

@@ -1,7 +1,6 @@
 package org.openlca.core.math.data_quality;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
@@ -16,7 +15,6 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.descriptors.Descriptors;
 
 public class DirectCalculationTest {
 

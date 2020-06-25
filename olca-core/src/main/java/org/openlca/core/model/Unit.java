@@ -38,8 +38,8 @@ public class Unit extends RootEntity {
 
 	@Override
 	public Unit clone() {
-		Unit unit = new Unit();
-		Util.cloneRootFields(this, unit);
+		var unit = new Unit();
+		Util.copyRootFields(this, unit);
 		unit.conversionFactor = conversionFactor;
 		unit.synonyms = synonyms;
 		return unit;

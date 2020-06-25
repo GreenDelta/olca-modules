@@ -74,9 +74,8 @@ public class Flow extends CategorizedEntity {
 
 	@Override
 	public Flow clone() {
-		Flow clone = new Flow();
-		Util.cloneRootFields(this, clone);
-		clone.category = category;
+		var clone = new Flow();
+		Util.copyFields(this, clone);
 		clone.flowType = flowType;
 		clone.casNumber = casNumber;
 		clone.formula = formula;

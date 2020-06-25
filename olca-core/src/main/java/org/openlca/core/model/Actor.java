@@ -37,10 +37,9 @@ public class Actor extends CategorizedEntity {
 
 	@Override
 	public Actor clone() {
-		Actor clone = new Actor();
-		Util.cloneRootFields(this, clone);
+		var clone = new Actor();
+		Util.copyFields(this, clone);
 		clone.address = address;
-		clone.category = category;
 		clone.city = city;
 		clone.country = country;
 		clone.email = email;

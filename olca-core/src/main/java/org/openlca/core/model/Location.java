@@ -31,12 +31,11 @@ public class Location extends CategorizedEntity {
 	@Override
 	public Location clone() {
 		Location clone = new Location();
-		Util.cloneRootFields(this, clone);
+		Util.copyFields(this, clone);
 		clone.code = code;
 		clone.latitude = latitude;
 		clone.longitude = longitude;
 		clone.geodata = geodata;
 		return clone;
 	}
-
 }

@@ -50,9 +50,8 @@ public class UnitGroup extends CategorizedEntity {
 
 	@Override
 	public UnitGroup clone() {
-		UnitGroup clone = new UnitGroup();
-		Util.cloneRootFields(this, clone);
-		clone.category = category;
+		var clone = new UnitGroup();
+		Util.copyFields(this, clone);
 		clone.defaultFlowProperty = defaultFlowProperty;
 		for (Unit unit : units) {
 			Unit copy = unit.clone();

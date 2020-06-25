@@ -24,9 +24,8 @@ public class Source extends CategorizedEntity {
 
 	@Override
 	public Source clone() {
-		Source clone = new Source();
-		Util.cloneRootFields(this, clone);
-		clone.category = category;
+		var clone = new Source();
+		Util.copyFields(this, clone);
 		clone.url = url;
 		clone.textReference = textReference;
 		clone.year = year;
