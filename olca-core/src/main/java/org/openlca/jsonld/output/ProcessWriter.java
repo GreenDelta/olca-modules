@@ -59,6 +59,8 @@ class ProcessWriter extends Writer<Process> {
 	}
 
 	private void mapExchanges(JsonObject json) {
+		if (conf.isLibraryExport)
+			return;
 		JsonArray exchanges = new JsonArray();
 		for (Exchange e : process.exchanges) {
 			JsonObject obj = new JsonObject();

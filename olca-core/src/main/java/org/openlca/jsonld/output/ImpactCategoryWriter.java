@@ -27,6 +27,8 @@ class ImpactCategoryWriter extends Writer<ImpactCategory> {
 	}
 
 	private void mapImpactFactors(ImpactCategory category, JsonObject json) {
+		if (conf.isLibraryExport)
+			return;
 		JsonArray array = new JsonArray();
 		for (ImpactFactor f : category.impactFactors) {
 			JsonObject obj = new JsonObject();

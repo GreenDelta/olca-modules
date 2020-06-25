@@ -22,7 +22,7 @@ public class CommitStream extends ModelStream<Dataset> {
 
 	private final IDatabase db;
 	private final Gson gson = new Gson();
-	
+
 	public CommitStream(IDatabase db, String commitMessage, Set<Dataset> datasets, Consumer<Dataset> callback) {
 		super(commitMessage, datasets.iterator(), datasets.size(), callback);
 		this.db = db;
@@ -39,14 +39,13 @@ public class CommitStream extends ModelStream<Dataset> {
 		RootEntity entity = Daos.root(db, dataset.type).getForRefId(dataset.refId);
 		if (entity == null)
 			return new byte[0];
-		byte[] data = new byte[0];
 		JsonObject object = JsonExport.toJson(entity, db);
 		String json = gson.toJson(object);
-		data = json.getBytes(CHARSET);
+		byte[] data = json.getBytes(CHARSET);
 		data = BinUtils.gzip(data);
 		return data;
 	}
-	
+
 	@Override
 	protected byte[] getBinaryData(Path file) throws IOException {
 		byte[] data = Files.readAllBytes(file);

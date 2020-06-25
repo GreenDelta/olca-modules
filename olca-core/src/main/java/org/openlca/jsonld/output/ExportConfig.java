@@ -27,6 +27,7 @@ class ExportConfig {
 	Consumer<RootEntity> refFn;
 	boolean exportReferences = true;
 	boolean exportProviders = false;
+	boolean isLibraryExport = false;
 	String clientInfo;
 	private final Map<ModelType, Set<Long>> visited = new HashMap<>();
 
@@ -52,9 +53,7 @@ class ExportConfig {
 		if (entity == null)
 			return;
 		ModelType type = ModelType.forModelClass(entity.getClass());
-		Set<Long> set = visited.get(type);
-		if (set == null)
-			visited.put(type, set = new HashSet<>());
+		Set<Long> set = visited.computeIfAbsent(type, k -> new HashSet<>());
 		set.add(entity.id);
 	}
 

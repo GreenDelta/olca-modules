@@ -170,6 +170,10 @@ public class JsonExport {
 		conf.exportReferences = value;
 	}
 
+	public void setLibraryExport(boolean value) {
+		conf.isLibraryExport = value;
+	}
+
 	public void setClientInfo(String value) {
 		conf.clientInfo = value;
 		JsonObject obj = new MetaInfoWriter(conf).write();
