@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SystemCalculator {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final IDatabase db;
 	private final IMatrixSolver solver;
 
@@ -82,7 +82,7 @@ public class SystemCalculator {
 		for (ProjectVariant v : project.variants) {
 			if (v.isDisabled)
 				continue;
-			CalculationSetup setup = new CalculationSetup(v.productSystem);
+			var setup = new CalculationSetup(v.productSystem);
 			setup.setUnit(v.unit);
 			setup.setFlowPropertyFactor(v.flowPropertyFactor);
 			setup.setAmount(v.amount);
@@ -103,7 +103,7 @@ public class SystemCalculator {
 		if (setup.productSystem.withoutNetwork) {
 			data = new FastMatrixBuilder(db, setup).build();
 		} else {
-			Map<ProcessProduct, SimpleResult> subs = calculateSubSystems(setup);
+			var subs = calculateSubSystems(setup);
 			data = DataStructures.matrixData(setup, db, subs);
 		}
 		return new LcaCalculator(solver, data);
@@ -142,7 +142,7 @@ public class SystemCalculator {
 			ProductSystem subSys = sysDao.getForId(pp.id());
 			if (subSys == null)
 				continue;
-			CalculationSetup subSetup = new CalculationSetup(subSys);
+			var subSetup = new CalculationSetup(subSys);
 			subSetup.parameterRedefs.addAll(setup.parameterRedefs);
 			ParameterRedefs.addTo(subSetup, subSys);
 			subSetup.withCosts = setup.withCosts;

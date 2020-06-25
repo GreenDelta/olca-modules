@@ -13,7 +13,6 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gnu.trove.iterator.TLongObjectIterator;
@@ -24,8 +23,6 @@ import gnu.trove.map.hash.TLongObjectHashMap;
  * TODO: tests + doc
  */
 public class ProcessTable {
-
-	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private final TLongObjectHashMap<ProcessDescriptor> processes = new TLongObjectHashMap<>();
 	private final TLongObjectHashMap<FlowDescriptor> flows = new TLongObjectHashMap<>();
@@ -39,11 +36,11 @@ public class ProcessTable {
 	private final TLongObjectHashMap<TLongArrayList> flowProviders = new TLongObjectHashMap<>();
 
 	public static ProcessTable create(IDatabase db) {
-		ProcessTable table = new ProcessTable(db);
-		return table;
+		return new ProcessTable(db);
 	}
 
 	private ProcessTable(IDatabase db) {
+		var log = LoggerFactory.getLogger(getClass());
 		log.trace("build process index table");
 
 		// index processes and tech-flows

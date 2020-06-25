@@ -14,10 +14,8 @@ import org.openlca.core.matrix.cache.FlowTable;
 import org.openlca.core.matrix.format.MatrixBuilder;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
@@ -201,8 +199,7 @@ public class FastMatrixBuilder {
 		TechIndex idx = new TechIndex(qref);
 		idx.setDemand(setup.getDemandValue());
 
-		TLongObjectHashMap<ProcessDescriptor> processes = new ProcessDao(
-				db).descriptorMap();
+		var processes = new ProcessDao(db).descriptorMap();
 
 		String sql = "select f_owner, f_flow, is_input from tbl_exchanges";
 		try {
@@ -217,8 +214,8 @@ public class FastMatrixBuilder {
 				if (!isInput && type == FlowType.WASTE_FLOW)
 					return true;
 				long procID = r.getLong(1);
-				ProcessDescriptor process = processes.get(procID);
-				FlowDescriptor flow = flows.get(flowID);
+				var process = processes.get(procID);
+				var flow = flows.get(flowID);
 				if (process == null || flow == null) {
 					// note that product system results could be
 					// stored in the exchanges table; in this
