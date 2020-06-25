@@ -231,13 +231,15 @@ CREATE INDEX idx_flow_factor_property ON tbl_flow_property_factors(f_flow_proper
 
 CREATE TABLE tbl_processes (
 
-    id BIGINT   NOT NULL,
-    ref_id      VARCHAR(36),
-    name        VARCHAR(2048),
-    version     BIGINT,
-    last_change BIGINT,
-    f_category  BIGINT,
-    description CLOB(64 K),
+    id           BIGINT NOT NULL,
+    ref_id       VARCHAR(36),
+    name         VARCHAR(2048),
+    version      BIGINT,
+    last_change  BIGINT,
+    f_category   BIGINT,
+    tags         VARCHAR(255),
+    library      VARCHAR(255),
+    description  CLOB(64 K),
 
     process_type              VARCHAR(255),
     default_allocation_method VARCHAR(255),
@@ -428,13 +430,15 @@ CREATE TABLE tbl_impact_methods (
 
 CREATE TABLE tbl_impact_categories (
 
-    id                BIGINT NOT NULL,
-    ref_id            VARCHAR(36),
-    name              VARCHAR(2048),
-    version           BIGINT,
-    last_change       BIGINT,
-    f_category        BIGINT,
-    description       CLOB(64 K),
+    id           BIGINT NOT NULL,
+    ref_id       VARCHAR(36),
+    name         VARCHAR(2048),
+    version      BIGINT,
+    last_change  BIGINT,
+    f_category   BIGINT,
+    tags         VARCHAR(255),
+    library      VARCHAR(255),
+    description  CLOB(64 K),
 
     reference_unit    VARCHAR(255),
 

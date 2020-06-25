@@ -1,9 +1,7 @@
 package org.openlca.core.database.upgrades;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -42,9 +40,11 @@ class Upgrade9 implements IUpgrade {
 				"tbl_dq_systems",
 				"tbl_flows",
 				"tbl_flow_properties",
+				"tbl_impact_categories",
 				"tbl_impact_methods",
 				"tbl_locations",
 				"tbl_parameters",
+				"tbl_processes",
 				"tbl_product_systems",
 				"tbl_projects",
 				"tbl_social_indicators",
