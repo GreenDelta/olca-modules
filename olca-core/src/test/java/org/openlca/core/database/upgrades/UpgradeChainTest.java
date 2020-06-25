@@ -29,7 +29,7 @@ public class UpgradeChainTest {
 	}
 
 	@Test
-	public void test() throws Exception {
+	public void test() {
 
 		DbUtil u = new DbUtil(db);
 		DbUtil.setVersion(db, 1);

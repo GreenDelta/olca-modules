@@ -20,18 +20,18 @@ public class Upgrades {
 			new Upgrade9(),
 	};
 
-	private Logger log = LoggerFactory.getLogger(Upgrades.class);
-	
+	private final Logger log = LoggerFactory.getLogger(Upgrades.class);
+
 	private Upgrades() {
 	}
 
-	public static void on(IDatabase dbDatabase) throws Exception {
+	public static void on(IDatabase dbDatabase) {
 		Upgrades upgrades = new Upgrades();
 		upgrades.run(dbDatabase);
 	}
 
 	private void run(IDatabase db) {
-		IUpgrade next = null;
+		IUpgrade next;
 		while ((next = findNextUpgrade(db)) != null) {
 			log.info("execute update from v({}) to v{}",
 					next.getInitialVersions(),
@@ -39,9 +39,9 @@ public class Upgrades {
 			next.exec(db);
 			DbUtil.setVersion(db, next.getEndVersion());
 		}
+		db.clearCache();
 		log.debug("no more upgrades");
 	}
-
 
 	private IUpgrade findNextUpgrade(IDatabase db) {
 		int version = db.getVersion();

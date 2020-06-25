@@ -97,27 +97,21 @@ class Upgrade9 implements IUpgrade {
 			});
 
 			// 2) move possible parameter redefinitions into parameter sets
-			TLongLongHashMap systemSets = new TLongLongHashMap();
+			var systemSets = new TLongLongHashMap();
 			sql = "select f_owner from tbl_parameter_redefs";
-			try (Connection con = u.db.createConnection();
-					Statement stmt = con.createStatement(
-							ResultSet.TYPE_SCROLL_SENSITIVE,
-							ResultSet.CONCUR_UPDATABLE);
-					ResultSet rs = stmt.executeQuery(sql)) {
-				while (rs.next()) {
-					long owner = rs.getLong(1);
-					if (!systemIDs.contains(owner))
-						continue;
-					long paramSet = systemSets.get(owner);
-					if (paramSet == 0) {
-						paramSet = seq.incrementAndGet();
-						systemSets.put(owner, paramSet);
-					}
-					rs.updateLong(1, paramSet);
-					rs.updateRow();
+			NativeSql.on(u.db).updateRows(sql, rs -> {
+				long owner = rs.getLong(1);
+				if (!systemIDs.contains(owner))
+					return true;
+				long paramSet = systemSets.get(owner);
+				if (paramSet == 0) {
+					paramSet = seq.incrementAndGet();
+					systemSets.put(owner, paramSet);
 				}
-				con.commit();
-			}
+				rs.updateLong(1, paramSet);
+				rs.updateRow();
+				return true;
+			});
 
 			// 3) create the allocated parameter sets
 			TLongLongIterator it = systemSets.iterator();

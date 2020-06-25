@@ -1,14 +1,16 @@
 package org.openlca.core.database.upgrades;
 
-import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.Category;
+import org.openlca.core.database.NativeSql;
+import org.openlca.util.CategoryPathBuilder;
+import org.openlca.util.KeyGen;
+import org.openlca.util.Strings;
 
 class Upgrade6 implements IUpgrade {
 
 	@Override
 	public int[] getInitialVersions() {
-		return new int[] { 5 };
+		return new int[]{5};
 	}
 
 	@Override
@@ -58,19 +60,22 @@ class Upgrade6 implements IUpgrade {
 				"dq_entry VARCHAR(50)");
 		u.createColumn("tbl_product_systems", "cutoff DOUBLE");
 
-		db.getEntityFactory().getCache().evictAll();
-
 		// update calls on the root categories make sure
 		// that they get a path generated UUID => this
 		// was introduced for the collaboration server
 		// so that it can handle category paths more
 		// easily
-		CategoryDao dao = new CategoryDao(db);
-		for (Category c : dao.getRootCategories()) {
-			dao.update(c);
-		}
-		db.getEntityFactory().getCache().evictAll();
+		var paths = new CategoryPathBuilder(db);
+		var sql = "select id, ref_id from tbl_categories";
+		NativeSql.on(db).updateRows(sql, r -> {
+			long id = r.getLong(1);
+			var refID = r.getString(2);
+			var pathKey = KeyGen.get(paths.build(id));
+			if (Strings.nullOrEqual(refID, pathKey))
+				return true;
+			r.updateString(2, pathKey);
+			r.updateRow();
+			return true;
+		});
 	}
-
-
 }
