@@ -71,7 +71,11 @@ public class LibraryExport implements Runnable {
 	public static void main(String[] args) throws Exception {
 		var dbPath = "C:/Users/Win10/openLCA-data-1.4/databases/ecoinvent_2_2_unit_1";
 		var db = new DerbyDatabase(new File(dbPath));
+		System.out.println("Start export");
+		long start = System.currentTimeMillis();
 		new LibraryExport(db, new File("C:/Users/Win10/Desktop/rems/ei2")).run();
+		double time = (System.currentTimeMillis() - start) / 1000d;
+		System.out.println("Done, it took " + String.format("%.0f seconds", time));
 		db.close();
 	}
 }

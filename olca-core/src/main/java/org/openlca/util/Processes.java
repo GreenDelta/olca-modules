@@ -1,5 +1,9 @@
 package org.openlca.util;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
@@ -12,6 +16,17 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 public class Processes {
 
 	private Processes() {
+	}
+
+	/**
+	 * Get the product outputs or waste inputs of the give process.
+	 */
+	public static List<Exchange> getProviderFlows(Process p) {
+		return p == null
+			? Collections.emptyList()
+			: p.exchanges.stream()
+				.filter(Exchanges::isProviderFlow)
+				.collect(Collectors.toList());
 	}
 
 	/**

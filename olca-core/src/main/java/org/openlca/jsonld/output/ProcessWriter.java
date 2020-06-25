@@ -13,6 +13,7 @@ import org.openlca.util.AllocationCleanup;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.openlca.util.Processes;
 
 class ProcessWriter extends Writer<Process> {
 
@@ -59,19 +60,20 @@ class ProcessWriter extends Writer<Process> {
 	}
 
 	private void mapExchanges(JsonObject json) {
-		if (conf.isLibraryExport)
-			return;
-		JsonArray exchanges = new JsonArray();
-		for (Exchange e : process.exchanges) {
-			JsonObject obj = new JsonObject();
+		var exchanges = conf.isLibraryExport
+				? Processes.getProviderFlows(process)
+				: process.exchanges;
+		var array = new JsonArray();
+		for (Exchange e : exchanges) {
+			var obj = new JsonObject();
 			boolean mapped = Exchanges.map(e, obj, conf);
 			if (!mapped)
 				continue;
 			if (Objects.equals(process.quantitativeReference, e))
 				Out.put(obj, "quantitativeReference", true);
-			exchanges.add(obj);
+			array.add(obj);
 		}
-		Out.put(json, "exchanges", exchanges);
+		Out.put(json, "exchanges", array);
 	}
 
 	private void mapSocialAspects(JsonObject json) {
