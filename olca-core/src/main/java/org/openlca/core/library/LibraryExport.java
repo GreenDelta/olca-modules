@@ -2,7 +2,9 @@ package org.openlca.core.library;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
@@ -21,6 +23,7 @@ import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.matrix.FastMatrixBuilder;
+import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.IMatrix;
@@ -59,7 +62,7 @@ public class LibraryExport implements Runnable {
 
 	@Override
 	public void run() {
-
+		log.info("start library export of database {}", db.getName());
 		// create the folder if it does not exist
 		if (!folder.exists()) {
 			if (!folder.mkdirs()) {
@@ -67,13 +70,46 @@ public class LibraryExport implements Runnable {
 			}
 		}
 
-		var threadPool = Executors.newFixedThreadPool(4);
+		// create a thread pool and start writing the meta-data
+		var threadPool = Executors.newFixedThreadPool(8);
 		threadPool.execute(this::writeMeta);
-		threadPool.execute(this::writeMatrixData);
 
+		// create matrices and write them
+		var data = buildMatrices();
+		if (data.isEmpty()) {
+			log.warn("could not build matrices of database");
+		} else {
+			var d = data.get();
+			threadPool.execute(() -> {
+				log.info("write matrices A and B");
+				writeMatrix("A", d.techMatrix);
+				writeMatrix("B", d.enviMatrix);
+				log.info("finished with A and B");
+			});
+
+			if (solver != null) {
+				threadPool.execute(() -> {
+					log.info("create matrix INV");
+					var inv = solver.invert(d.techMatrix);
+					writeMatrix("INV", inv);
+					log.info("create matrix M");
+					var m = solver.multiply(d.enviMatrix, inv);
+					writeMatrix("M", m);
+					log.info("finished with INV and M");
+				});
+			}
+		}
+
+		try {
+			threadPool.shutdown();
+			threadPool.awaitTermination(1, TimeUnit.DAYS);
+		} catch (Exception e) {
+			throw new RuntimeException("failed to wait for export to finish", e);
+		}
 	}
 
-	private void writeMatrixData() {
+	private Optional<MatrixData> buildMatrices() {
+		log.info("start building matrices");
 		// create an arbitrary product system for the fast matrix builder
 		// TODO this does not work when the process of that system has no
 		// quantitative reference flow which is a valid provider flow
@@ -84,21 +120,14 @@ public class LibraryExport implements Runnable {
 				// .filter(p -> !Processes.getProviderFlows(p).isEmpty())
 				.findFirst();
 		if (process.isEmpty())
-			return;
+			return Optional.empty();
 		var system = ProductSystem.of(process.get());
 		system.withoutNetwork = true;
 		var setup = new CalculationSetup(system);
 		setup.withRegionalization = regionalized;
 		var data = new FastMatrixBuilder(db, setup).build();
-		writeMatrix("A", data.techMatrix);
-		writeMatrix("B", data.enviMatrix);
-
-		if (solver != null) {
-			var inv = solver.invert(data.techMatrix);
-			writeMatrix("INV", inv);
-			var m = solver.multiply(data.enviMatrix, inv);
-			writeMatrix("M", m);
-		}
+		log.info("finished with building matrices");
+		return Optional.of(data);
 	}
 
 	private void writeMatrix(String name, IMatrix matrix) {
@@ -115,6 +144,7 @@ public class LibraryExport implements Runnable {
 	}
 
 	private void writeMeta() {
+		log.info("start writing meta-data");
 		try (var zip = ZipStore.open(new File(folder, "meta.zip"))) {
 			var exp = new JsonExport(db, zip);
 			exp.setLibraryExport(true);
@@ -136,6 +166,7 @@ public class LibraryExport implements Runnable {
 					new UnitGroupDao(db))
 					.forEach(dao -> dao.getDescriptors()
 							.forEach(d -> exp.write(dao.getForId(d.id))));
+			log.info("finished writing meta-data");
 		} catch (Exception e) {
 			throw new RuntimeException("failed to write meta data", e);
 		}
