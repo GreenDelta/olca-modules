@@ -2,6 +2,7 @@ package org.openlca.core.library;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
@@ -18,7 +19,6 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitGroupDao;
-import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.matrix.FastMatrixBuilder;
 import org.openlca.core.matrix.format.CSCMatrix;
@@ -26,18 +26,35 @@ import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.matrix.io.npy.Npz;
+import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.output.JsonExport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LibraryExport implements Runnable {
 
+	private final Logger log = LoggerFactory.getLogger(getClass());
+
 	private final IDatabase db;
 	private final File folder;
+	private IMatrixSolver solver;
+	private boolean regionalized;
 
 	public LibraryExport(IDatabase db, File folder) {
 		this.db = db;
 		this.folder = folder;
+	}
+
+	public LibraryExport solver(IMatrixSolver solver) {
+		this.solver = solver;
+		return this;
+	}
+
+	public LibraryExport regionalized() {
+		this.regionalized = true;
+		return this;
 	}
 
 	@Override
@@ -50,8 +67,9 @@ public class LibraryExport implements Runnable {
 			}
 		}
 
-		writeMeta();
-		// writeMatrixData();
+		var threadPool = Executors.newFixedThreadPool(4);
+		threadPool.execute(this::writeMeta);
+		threadPool.execute(this::writeMatrixData);
 
 	}
 
@@ -70,9 +88,17 @@ public class LibraryExport implements Runnable {
 		var system = ProductSystem.of(process.get());
 		system.withoutNetwork = true;
 		var setup = new CalculationSetup(system);
+		setup.withRegionalization = regionalized;
 		var data = new FastMatrixBuilder(db, setup).build();
 		writeMatrix("A", data.techMatrix);
 		writeMatrix("B", data.enviMatrix);
+
+		if (solver != null) {
+			var inv = solver.invert(data.techMatrix);
+			writeMatrix("INV", inv);
+			var m = solver.multiply(data.enviMatrix, inv);
+			writeMatrix("M", m);
+		}
 	}
 
 	private void writeMatrix(String name, IMatrix matrix) {
@@ -113,16 +139,5 @@ public class LibraryExport implements Runnable {
 		} catch (Exception e) {
 			throw new RuntimeException("failed to write meta data", e);
 		}
-	}
-
-	public static void main(String[] args) throws Exception {
-		var dbPath = "C:/Users/Win10/openLCA-data-1.4/databases/ecoinvent_36_cutoff_unit_20191212";
-		var db = new DerbyDatabase(new File(dbPath));
-		System.out.println("Start export");
-		long start = System.currentTimeMillis();
-		new LibraryExport(db, new File("C:/Users/Win10/Desktop/rems/ei2")).run();
-		double time = (System.currentTimeMillis() - start) / 1000d;
-		System.out.println("Done, it took " + String.format("%.0f seconds", time));
-		db.close();
 	}
 }
