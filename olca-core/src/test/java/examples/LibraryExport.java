@@ -4,7 +4,6 @@ import java.io.File;
 
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.julia.Julia;
-import org.openlca.julia.JuliaSolver;
 
 public class LibraryExport {
 
@@ -19,7 +18,7 @@ public class LibraryExport {
 		System.out.println("Start export");
 		long start = System.currentTimeMillis();
 		new org.openlca.core.library.LibraryExport(db, new File(expPath))
-				.solver(new JuliaSolver())
+				//.solver(new JuliaSolver())
 				.run();
 		double time = (System.currentTimeMillis() - start) / 1000d;
 		System.out.println("Done, it took " + String.format("%.0f seconds", time));

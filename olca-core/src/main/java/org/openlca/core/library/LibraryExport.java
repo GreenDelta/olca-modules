@@ -6,10 +6,13 @@ import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.DQSystemDao;
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
@@ -31,6 +34,7 @@ import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.matrix.io.npy.Npz;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.jsonld.Json;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.output.JsonExport;
 import org.slf4j.Logger;
@@ -85,6 +89,7 @@ public class LibraryExport implements Runnable {
 				writeMatrix("A", d.techMatrix);
 				writeMatrix("B", d.enviMatrix);
 				log.info("finished with A and B");
+				writeIndices(d);
 			});
 
 			if (solver != null) {
@@ -141,6 +146,36 @@ public class LibraryExport implements Runnable {
 		} else {
 			Npy.save(new File(folder, name + ".npy"), m);
 		}
+	}
+
+	private void writeIndices(MatrixData data) {
+		log.info("write matrix indices");
+		var ecache = EntityCache.create(db);
+
+		var techArray = new JsonArray();
+		data.techIndex.each((index, product) -> {
+			var idxObj = new JsonObject();
+			idxObj.addProperty("index", index);
+			idxObj.add("process", Json.asRef(product.process, ecache));
+			idxObj.add("flow", Json.asRef(product.flow, ecache));
+			techArray.add(idxObj);
+		});
+		Json.write(techArray, new File(folder, "index_A.json"));
+		log.info("wrote index A");
+
+		var enviArray = new JsonArray();
+		data.flowIndex.each((index, iFlow) -> {
+			var idxObj = new JsonObject();
+			idxObj.addProperty("index", index);
+			idxObj.add("flow", Json.asRef(iFlow.flow, ecache));
+			idxObj.addProperty("isInput", iFlow.isInput);
+			if (iFlow.location != null) {
+				idxObj.add("location", Json.asRef(iFlow.location, ecache));
+			}
+			enviArray.add(idxObj);
+		});
+		Json.write(enviArray, new File(folder, "index_B.json"));
+		log.info("wrote index B");
 	}
 
 	private void writeMeta() {

@@ -1,5 +1,10 @@
 package org.openlca.jsonld;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -9,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import com.google.gson.Gson;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.FlowProperty;
@@ -294,6 +300,23 @@ public class Json {
 			if (loc != null) {
 				ref.addProperty("location", loc.code);
 			}
+		}
+	}
+
+	/**
+	 * Writes the given JSON element to the given file. Possible exceptions are
+	 * rethrown as runtime exceptions.
+	 */
+	public static void write(JsonElement json, File file) {
+		if (json == null)
+			return;
+		try (var stream = new FileOutputStream(file);
+			 var writer = new OutputStreamWriter(stream, StandardCharsets.UTF_8);
+			 var buffer = new BufferedWriter(writer)
+			){
+			new Gson().toJson(json, buffer);
+		} catch (Exception e) {
+			throw new RuntimeException("failed to write JSON file " + file, e);
 		}
 	}
 
