@@ -47,7 +47,7 @@ public class LibraryExport implements Runnable {
 	private final IDatabase db;
 	private final File folder;
 	private IMatrixSolver solver;
-	private boolean regionalized;
+	private Library library;
 
 	public LibraryExport(IDatabase db, File folder) {
 		this.db = db;
@@ -59,8 +59,12 @@ public class LibraryExport implements Runnable {
 		return this;
 	}
 
-	public LibraryExport regionalized() {
-		this.regionalized = true;
+	/**
+	 * Optionally set meta-data and configurations of the library that should
+	 * be created.
+	 */
+	public LibraryExport as(Library library) {
+		this.library = library;
 		return this;
 	}
 
@@ -72,6 +76,10 @@ public class LibraryExport implements Runnable {
 			if (!folder.mkdirs()) {
 				throw new RuntimeException("failed to create folder " + folder);
 			}
+		}
+
+		if (library == null) {
+			library = new Library(db.getName(), "0.0.1");
 		}
 
 		// create a thread pool and start writing the meta-data
@@ -105,6 +113,9 @@ public class LibraryExport implements Runnable {
 			}
 		}
 
+		// write library meta-data
+		Json.write(library.toJson(), new File(folder, "library.json"));
+
 		try {
 			threadPool.shutdown();
 			threadPool.awaitTermination(1, TimeUnit.DAYS);
@@ -129,7 +140,7 @@ public class LibraryExport implements Runnable {
 		var system = ProductSystem.of(process.get());
 		system.withoutNetwork = true;
 		var setup = new CalculationSetup(system);
-		setup.withRegionalization = regionalized;
+		setup.withRegionalization = library.isRegionalized;
 		var data = new FastMatrixBuilder(db, setup).build();
 		log.info("finished with building matrices");
 		return Optional.of(data);

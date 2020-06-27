@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
  * version number in a single field. This makes the version number easy to
  * compare, automatically increment (the update part), and can be converted to
  * the ILCD and ecoinvent version schemes.
- * 
+ *
  * For each version field we allow a value between 0 and 32767 so the minimum
  * version number is 0.0.0 and the maximum number 32767.32767.32767. The exact
  * data type for a version field would be a 2-byte positive integer (short).
@@ -45,15 +45,20 @@ public class Version {
 	}
 
 	public static void incMajor(RootEntity entity) {
-		inc(entity, (v) -> v.incMajor());
+		inc(entity, Version::incMajor);
 	}
 
 	public static void incMinor(RootEntity entity) {
-		inc(entity, (v) -> v.incMinor());
+		inc(entity, Version::incMinor);
 	}
 
 	public static void incUpdate(RootEntity entity) {
-		inc(entity, (v) -> v.incUpdate());
+		inc(entity, Version::incUpdate);
+	}
+
+	public static String format(String version) {
+		var v = fromString(version);
+		return v.toString();
 	}
 
 	private static void inc(RootEntity entity, Consumer<Version> inc) {
