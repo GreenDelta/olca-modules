@@ -1,8 +1,11 @@
 package org.openlca.jsonld;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -320,4 +323,22 @@ public class Json {
 		}
 	}
 
+	/**
+	 * Read the content of the given file as JSON object. If this fails an
+	 * empty result is returned instead of throwing an exception.
+	 */
+	public static Optional<JsonObject> readObject(File file) {
+		if (file == null)
+			return Optional.empty();
+		try (var stream = new FileInputStream(file);
+			var reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
+			var buffer = new BufferedReader(reader)) {
+			var obj = new Gson().fromJson(buffer, JsonObject.class);
+			return Optional.of(obj);
+		} catch (Exception e) {
+			var log = LoggerFactory.getLogger(Json.class);
+			log.error("failed to read file as JSON object " + file, e);
+			return Optional.empty();
+		}
+	}
 }

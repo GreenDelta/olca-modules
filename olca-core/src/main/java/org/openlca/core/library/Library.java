@@ -44,6 +44,17 @@ public class Library {
 		this.version = version;
 	}
 
+	/**
+	 * The identifier of a library is the combination of `[name]_[version]`.
+	 * The identifier of a library must be unique. It is up to the user to
+	 * find good library names (specifying the type of allocation,
+	 * regionalization etc.). However, there are restrictions on the name
+	 * as we also use them as folder names.
+	 */
+	public String id() {
+		return (name + "_" + Version.format(version)).trim().toLowerCase();
+	}
+
 	JsonObject toJson() {
 		var obj = new JsonObject();
 		Json.put(obj, "name", name);
@@ -60,5 +71,24 @@ public class Library {
 		}
 		obj.add("dependencies", deps);
 		return obj;
+	}
+
+	static Library fromJson(JsonObject obj) {
+		var name = Json.getString(obj, "name");
+		var version = Version.format(Json.getString(obj, "version"));
+		var library = new Library(name, version);
+		library.isRegionalized = Json.getBool(obj, "isRegionalized", false);
+		var deps = Json.getObject(obj, "dependencies");
+		if (deps != null) {
+			for (var entry : deps.entrySet()) {
+				var v = entry.getValue();
+				if (v == null || !v.isJsonPrimitive())
+					continue;
+				library.dependencies.add(
+						Pair.of(entry.getKey(), v.getAsString()));
+			}
+		}
+
+		return library;
 	}
 }
