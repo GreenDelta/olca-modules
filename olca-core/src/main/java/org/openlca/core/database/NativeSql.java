@@ -13,24 +13,23 @@ public final class NativeSql {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private final int MAX_BATCH_SIZE = 1000;
-	private final IDatabase database;
+	private final IDatabase db;
 
 	public static NativeSql on(IDatabase database) {
 		return new NativeSql(database);
 	}
 
-	private NativeSql(IDatabase database) {
-		this.database = database;
+	private NativeSql(IDatabase db) {
+		this.db = db;
 	}
 
 	public void query(String query, QueryResultHandler handler) {
 		log.trace("execute query {}", query);
-		try (Connection con = database.createConnection();
-				Statement stmt = con.createStatement();
-				ResultSet result = stmt.executeQuery(query)) {
+		try (Connection con = db.createConnection();
+			 Statement stmt = con.createStatement();
+			 ResultSet result = stmt.executeQuery(query)) {
 			while (result.next()) {
-				boolean b = handler.nextResult(result);
-				if (!b)
+				if (!handler.accept(result))
 					break;
 			}
 		} catch (SQLException e) {
@@ -43,13 +42,13 @@ public final class NativeSql {
 	 */
 	public void updateRows(String query, QueryResultHandler handler) {
 		log.trace("execute update {}", query);
-		try (Connection con = database.createConnection();
+		try (Connection con = db.createConnection();
 			 Statement stmt = con.createStatement(
 					 ResultSet.TYPE_SCROLL_SENSITIVE,
 					 ResultSet.CONCUR_UPDATABLE);
 			 ResultSet rs = stmt.executeQuery(query)) {
 			while (rs.next()) {
-				boolean b = handler.nextResult(rs);
+				boolean b = handler.accept(rs);
 				if (!b)
 					break;
 			}
@@ -61,8 +60,8 @@ public final class NativeSql {
 
 	public void runUpdate(String sql) {
 		log.trace("run update statement {}", sql);
-		try (Connection con = database.createConnection();
-				Statement stmt = con.createStatement()) {
+		try (Connection con = db.createConnection();
+			 Statement stmt = con.createStatement()) {
 			stmt.executeUpdate(sql);
 			con.commit();
 			log.trace("update done");
@@ -71,23 +70,34 @@ public final class NativeSql {
 		}
 	}
 
-	public void batchInsert(String sql, int size, BatchInsertHandler fn)
+	public void update(String sql, UpdateHandler fn) {
+		try (var con = db.createConnection();
+			 var stmt = con.prepareStatement(sql)) {
+			fn.accept(stmt);
+			stmt.executeUpdate();
+			con.commit();
+		} catch (SQLException e) {
+			throw new RuntimeException("updated failed: " + sql, e);
+		}
+	}
+
+	public void batchInsert(String sql, int size, BatchUpdateHandler fn)
 			throws SQLException {
 		log.trace("execute batch insert {}", sql);
 		if (size <= 0) {
 			log.trace("size {} <= 0; nothing to do", size);
 			return;
 		}
-		try (Connection con = database.createConnection();
-				PreparedStatement ps = con.prepareStatement(sql)) {
+		try (Connection con = db.createConnection();
+			 PreparedStatement ps = con.prepareStatement(sql)) {
 			insertRows(size, fn, ps);
 			con.commit();
 			log.trace("inserts done");
 		}
 	}
 
-	private void insertRows(int size, BatchInsertHandler fn,
-			PreparedStatement ps) throws SQLException {
+	private void insertRows(int size, BatchUpdateHandler fn,
+							PreparedStatement ps) throws SQLException {
 		for (int i = 0; i < size; i++) {
 			boolean b = fn.addBatch(i, ps);
 			if (!b) {
@@ -106,8 +116,8 @@ public final class NativeSql {
 
 	public void batchUpdate(Iterable<String> statements) throws SQLException {
 		log.trace("execute batch update");
-		try (Connection con = database.createConnection();
-				Statement stmt = con.createStatement()) {
+		try (Connection con = db.createConnection();
+			 Statement stmt = con.createStatement()) {
 			int batchSize = 0;
 			for (String statement : statements) {
 				stmt.addBatch(statement);
@@ -123,16 +133,19 @@ public final class NativeSql {
 		}
 	}
 
-	public interface BatchInsertHandler {
-
+	@FunctionalInterface
+	public interface BatchUpdateHandler {
 		boolean addBatch(int i, PreparedStatement stmt) throws SQLException;
-
 	}
 
+	@FunctionalInterface
+	public interface UpdateHandler {
+		void accept(PreparedStatement stmt) throws SQLException;
+	}
+
+	@FunctionalInterface
 	public interface QueryResultHandler {
-
-		boolean nextResult(ResultSet result) throws SQLException;
-
+		boolean accept(ResultSet result) throws SQLException;
 	}
 
 }

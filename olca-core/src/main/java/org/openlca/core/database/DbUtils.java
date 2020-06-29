@@ -1,8 +1,5 @@
 package org.openlca.core.database;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,10 +19,7 @@ public class DbUtils {
 			return false;
 		if (!isIdentifier(dbName))
 			return false;
-		if (dbName.equalsIgnoreCase("mysql"))
-			return false;
-		else
-			return true;
+		return !dbName.equalsIgnoreCase("mysql");
 	}
 
 	private static boolean isIdentifier(String s) {
@@ -44,13 +38,9 @@ public class DbUtils {
 		try {
 			final int[] version = new int[1];
 			NativeSql.on(database).query("select version from openlca_version",
-					new NativeSql.QueryResultHandler() {
-						@Override
-						public boolean nextResult(ResultSet result)
-								throws SQLException {
-							version[0] = result.getInt(1);
-							return true;
-						}
+					result -> {
+						version[0] = result.getInt(1);
+						return true;
 					});
 			return version[0];
 		} catch (Exception e) {

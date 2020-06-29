@@ -11,33 +11,24 @@ import org.supercsv.io.CsvListWriter;
 public class ImpactCategoryExport extends AbstractExport {
 
 	@Override
-	protected void doIt(final CsvListWriter writer, IDatabase database)
-			throws Exception {
+	protected void doIt(final CsvListWriter writer, IDatabase database) {
 		log.trace("write impact categories");
 		String query = "select c.ref_id, c.name, c.description, c.reference_unit, "
 				+ "m.ref_id from tbl_impact_categories c join tbl_impact_methods m "
 				+ "on c.f_impact_method = m.id";
 		final AtomicInteger count = new AtomicInteger(0);
-		NativeSql.on(database).query(query, new NativeSql.QueryResultHandler() {
-			@Override
-			public boolean nextResult(ResultSet resultSet) throws SQLException {
-				return writeLine(resultSet, writer, count);
+		NativeSql.on(database).query(query, r -> {
+			try {
+				Object[] line = createLine(r);
+				writer.write(line);
+				count.incrementAndGet();
+				return true;
+			} catch (Exception e) {
+				log.error("failed to write line", e);
+				return false;
 			}
 		});
 		log.trace("{} impact categories written", count.get());
-	}
-
-	private boolean writeLine(ResultSet resultSet, final CsvListWriter writer,
-			final AtomicInteger count) {
-		try {
-			Object[] line = createLine(resultSet);
-			writer.write(line);
-			count.incrementAndGet();
-			return true;
-		} catch (Exception e) {
-			log.error("failed to write line", e);
-			return false;
-		}
 	}
 
 	private Object[] createLine(ResultSet resultSet) throws SQLException {

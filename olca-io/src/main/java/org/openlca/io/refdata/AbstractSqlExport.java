@@ -1,7 +1,6 @@
 package org.openlca.io.refdata;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openlca.core.database.IDatabase;
@@ -14,31 +13,20 @@ import org.supercsv.io.CsvListWriter;
 abstract class AbstractSqlExport extends AbstractExport {
 
 	@Override
-	protected void doIt(final CsvListWriter writer, IDatabase database)
-			throws Exception {
+	protected void doIt(final CsvListWriter writer, IDatabase db) {
 		final AtomicInteger count = new AtomicInteger(0);
-		NativeSql.on(database).query(getQuery(),
-				new NativeSql.QueryResultHandler() {
-					@Override
-					public boolean nextResult(ResultSet resultSet)
-							throws SQLException {
-						return writeLine(resultSet, writer, count);
-					}
-				});
+		NativeSql.on(db).query(getQuery(), r -> {
+			try {
+				Object[] line = createLine(r);
+				writer.write(line);
+				count.incrementAndGet();
+				return true;
+			} catch (Exception e) {
+				log.error("failed to write line", e);
+				return false;
+			}
+		});
 		logWrittenCount(count.get());
-	}
-
-	private boolean writeLine(ResultSet resultSet, CsvListWriter writer,
-			AtomicInteger count) {
-		try {
-			Object[] line = createLine(resultSet);
-			writer.write(line);
-			count.incrementAndGet();
-			return true;
-		} catch (Exception e) {
-			log.error("failed to write line", e);
-			return false;
-		}
 	}
 
 	protected abstract String getQuery();

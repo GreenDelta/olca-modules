@@ -59,7 +59,7 @@ class Upgrade4 implements IUpgrade {
 				+ "VALUES (?, ?, ?, ?, ?)";
 		try (Connection con = database.createConnection();
 				PreparedStatement updateStmt = con.prepareStatement(updateSql);
-				PreparedStatement insertStmt = con.prepareStatement(insertSql);) {
+				PreparedStatement insertStmt = con.prepareStatement(insertSql)) {
 			KmzResultHandler handler = new KmzResultHandler(
 					updateStmt, insertStmt);
 			handler.currentId = getSequenceId(con);
@@ -177,10 +177,10 @@ class Upgrade4 implements IUpgrade {
 		util.createColumn("tbl_exchanges", "f_currency BIGINT");
 	}
 
-	private class KmzResultHandler implements QueryResultHandler {
+	private static class KmzResultHandler implements QueryResultHandler {
 
-		private PreparedStatement processUpdateStatement;
-		private PreparedStatement locationInsertStatement;
+		private final PreparedStatement processUpdateStatement;
+		private final PreparedStatement locationInsertStatement;
 		private long currentId;
 
 		private KmzResultHandler(PreparedStatement processUpdateStatement,
@@ -190,7 +190,7 @@ class Upgrade4 implements IUpgrade {
 		}
 
 		@Override
-		public boolean nextResult(ResultSet r) throws SQLException {
+		public boolean accept(ResultSet r) throws SQLException {
 			long id = r.getLong("id");
 			String name = r.getString("name");
 			String refId = r.getString("ref_id");

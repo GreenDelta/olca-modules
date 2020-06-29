@@ -1,7 +1,5 @@
 package org.openlca.core.matrix;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,8 +8,6 @@ import java.util.List;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.results.ImpactResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Stores the factors of a normalization and weighting set. As creating such a
@@ -31,39 +27,23 @@ public class NwSetTable {
 	 * from the given database.
 	 */
 	public static NwSetTable build(IDatabase database, long nwSetId) {
-		final NwSetTable table = new NwSetTable();
-		String query = "select * from tbl_nw_factors where f_nw_set = "
-				+ nwSetId;
-		try {
-			NativeSql.on(database).query(query,
-					new NativeSql.QueryResultHandler() {
-						@Override
-						public boolean nextResult(ResultSet result)
-								throws SQLException {
-							fetchResult(result, table);
-							return true;
-						}
-					});
-		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(NwSetTable.class);
-			log.error("failed to get nw-factors", e);
-		}
+		var table = new NwSetTable();
+		String query = "select * from tbl_nw_factors where f_nw_set = " + nwSetId;
+		NativeSql.on(database).query(query, r -> {
+			long categoryId = r.getLong("f_impact_category");
+			double weightingFactor = r.getDouble("weighting_factor");
+			if (!r.wasNull()) {
+				table.weightFactors.put(categoryId, weightingFactor);
+				table.hasWeightFactors = true;
+			}
+			double normalisationFactor = r.getDouble("normalisation_factor");
+			if (!r.wasNull()) {
+				table.normFactors.put(categoryId, normalisationFactor);
+				table.hasNormFactors = true;
+			}
+			return true;
+		});
 		return table;
-	}
-
-	private static void fetchResult(ResultSet result, NwSetTable table)
-			throws SQLException {
-		long categoryId = result.getLong("f_impact_category");
-		double weightingFactor = result.getDouble("weighting_factor");
-		if (!result.wasNull()) {
-			table.weightFactors.put(categoryId, weightingFactor);
-			table.hasWeightFactors = true;
-		}
-		double normalisationFactor = result.getDouble("normalisation_factor");
-		if (!result.wasNull()) {
-			table.normFactors.put(categoryId, normalisationFactor);
-			table.hasNormFactors = true;
-		}
 	}
 
 	public boolean hasWeightingFactors() {

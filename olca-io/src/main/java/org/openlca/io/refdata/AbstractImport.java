@@ -85,7 +85,7 @@ abstract class AbstractImport {
 	protected abstract void setValues(PreparedStatement statement,
 			List<Object> values) throws Exception;
 
-	private class BatchHandler implements NativeSql.BatchInsertHandler {
+	private class BatchHandler implements NativeSql.BatchUpdateHandler {
 		@Override
 		public boolean addBatch(int i, PreparedStatement stmt)
 				throws SQLException {

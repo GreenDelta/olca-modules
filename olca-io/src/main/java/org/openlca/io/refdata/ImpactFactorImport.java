@@ -1,8 +1,6 @@
 package org.openlca.io.refdata;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -68,19 +66,16 @@ class ImpactFactorImport extends AbstractImport {
 		stmt.setString(7, Maps.getString(vals, 5));
 	}
 
-	private void loadPropertyTable() throws Exception {
+	private void loadPropertyTable() {
 		propertyTable = new HashMap<>();
 		String query = "select id, f_flow, f_flow_property from "
 				+ "tbl_flow_property_factors";
-		NativeSql.on(database).query(query, new NativeSql.QueryResultHandler() {
-			@Override
-			public boolean nextResult(ResultSet result) throws SQLException {
-				long factorId = result.getLong(1);
-				long flowId = result.getLong(2);
-				long propId = result.getLong(3);
-				propertyTable.put(LongPair.of(flowId, propId), factorId);
-				return true;
-			}
+		NativeSql.on(database).query(query, result -> {
+			long factorId = result.getLong(1);
+			long flowId = result.getLong(2);
+			long propId = result.getLong(3);
+			propertyTable.put(LongPair.of(flowId, propId), factorId);
+			return true;
 		});
 	}
 

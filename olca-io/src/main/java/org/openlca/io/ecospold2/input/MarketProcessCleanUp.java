@@ -1,7 +1,5 @@
 package org.openlca.io.ecospold2.input;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -9,7 +7,6 @@ import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.database.NativeSql.QueryResultHandler;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
@@ -19,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 public class MarketProcessCleanUp implements Runnable {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final ProcessDao dao;
 	private final IDatabase database;
 
@@ -78,7 +75,7 @@ public class MarketProcessCleanUp implements Runnable {
 		return dao.update(marketProcess);
 	}
 
-	private void replaceMarket(Process marketProcess) throws Exception {
+	private void replaceMarket(Process marketProcess) {
 		List<Long> usedIds = getWhereUsed(marketProcess);
 		log.trace("replace {} in {} processes", marketProcess, usedIds.size());
 		for (long id : usedIds) {
@@ -104,16 +101,13 @@ public class MarketProcessCleanUp implements Runnable {
 		}
 	}
 
-	private List<Long> getWhereUsed(Process marketProcess) throws Exception {
+	private List<Long> getWhereUsed(Process marketProcess) {
 		String query = "select distinct f_owner from tbl_exchanges where "
 				+ "f_default_provider = " + marketProcess.id;
-		final List<Long> list = new ArrayList<>();
-		NativeSql.on(database).query(query, new QueryResultHandler() {
-			@Override
-			public boolean nextResult(ResultSet result) throws SQLException {
-				list.add(result.getLong(1));
-				return true;
-			}
+		var list = new ArrayList<Long>();
+		NativeSql.on(database).query(query, result -> {
+			list.add(result.getLong(1));
+			return true;
 		});
 		return list;
 	}
