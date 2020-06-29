@@ -67,6 +67,7 @@ public class UpgradeChainTest {
 		u.dropColumn("tbl_impact_factors", "f_location");
 		u.dropColumn("tbl_locations", "geodata");
 		u.dropColumn("tbl_allocation_factors", "formula");
+		u.dropTable("tbl_libraries");
 		for (var table : catEntityTables) {
 			u.dropColumn(table, "tags");
 			u.dropColumn(table, "library");
@@ -156,6 +157,7 @@ public class UpgradeChainTest {
 		assertTrue(u.columnExists("tbl_impact_factors", "f_location"));
 		assertTrue(u.columnExists("tbl_locations", "geodata"));
 		assertTrue(u.columnExists("tbl_allocation_factors", "formula"));
+		assertTrue(u.tableExists("tbl_libraries"));
 		for (var table : catEntityTables) {
 			assertTrue(u.columnExists(table, "tags"));
 			assertTrue(u.columnExists(table, "library"));

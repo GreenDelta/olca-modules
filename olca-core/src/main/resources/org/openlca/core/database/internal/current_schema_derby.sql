@@ -25,6 +25,14 @@ CREATE TABLE openlca_version (
 INSERT INTO openlca_version (version) VALUES (9);
 
 
+CREATE TABLE tbl_libraries (
+
+    id  VARCHAR(255),
+
+    PRIMARY KEY (id)
+);
+
+
 CREATE TABLE tbl_categories (
 
     id           BIGINT NOT NULL,

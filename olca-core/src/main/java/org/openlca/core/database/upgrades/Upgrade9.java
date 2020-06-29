@@ -20,7 +20,7 @@ class Upgrade9 implements IUpgrade {
 
 	@Override
 	public int[] getInitialVersions() {
-		return new int[] { 8 };
+		return new int[]{8};
 	}
 
 	@Override
@@ -31,6 +31,12 @@ class Upgrade9 implements IUpgrade {
 	@Override
 	public void exec(IDatabase db) {
 		DbUtil u = new DbUtil(db);
+
+		// add new library table
+		u.createTable("tbl_libraries",
+				"CREATE TABLE tbl_libraries (" +
+						" id VARCHAR(255)," +
+						" PRIMARY KEY (id))");
 
 		// add tags and library fields
 		String[] tables = {
