@@ -3,10 +3,12 @@ package org.openlca.core.library;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.google.gson.JsonObject;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.Json;
+import org.openlca.jsonld.ZipStore;
 import org.openlca.util.Pair;
 
 public class Library {
@@ -27,6 +29,4 @@ public class Library {
 			throw new RuntimeException("failed to read " + file);
 		return LibraryInfo.fromJson(obj.get());
 	}
-
-
 }
