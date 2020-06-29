@@ -4,7 +4,6 @@ import java.io.Closeable;
 import java.io.File;
 import java.sql.Connection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.EntityManagerFactory;
@@ -88,7 +87,11 @@ public interface IDatabase extends Closeable, INotifiable {
 		NativeSql.on(this).update(sql, s -> s.setString(1, id));
 	}
 
+	/**
+	 * Remove the library with the given ID from this database.
+	 */
 	default void removeLibrary(String id) {
-
+		var sql = "delete from tbl_libraries where id = ?";
+		NativeSql.on(this).update(sql, s -> s.setString(1, id));
 	}
 }
