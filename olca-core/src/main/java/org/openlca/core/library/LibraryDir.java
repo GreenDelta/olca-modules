@@ -1,20 +1,18 @@
 package org.openlca.core.library;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
-
-import org.openlca.jsonld.Json;
 
 /**
  * A library directory is a specific folder where each sub-folder is a library.
- * If a library A in that folder has a dependency to a library B there should
- * be a sub-folder with that library B in the same directory. The identifier
- * of a library, which is the combination of name and version, is used as the
- * folder name of a library.
+ * If a library A in that folder has a dependency to a library B there should be
+ * a sub-folder with that library B in the same directory. The identifier of a
+ * library, which is the combination of name and version, is used as the folder
+ * name of a library.
  */
 public class LibraryDir {
 
@@ -39,6 +37,21 @@ public class LibraryDir {
 						&& new File(dir, "library.json").exists())
 				.map(Library::new)
 				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Gets the library for the given ID if it exists in this library folder.
+	 */
+	public Optional<Library> get(String id) {
+		if (id == null)
+			return Optional.empty();
+		var folder = new File(dir, id);
+		if (!folder.exists())
+			return Optional.empty();
+		var meta = new File(folder, "library.json");
+		return meta.exists()
+				? Optional.of(new Library(folder))
+				: Optional.empty();
 	}
 
 	/**

@@ -26,6 +26,36 @@ public class IndexFlow {
 	 */
 	public boolean isInput;
 
+	public static IndexFlow ofInput(FlowDescriptor flow) {
+		var iflow = new IndexFlow();
+		iflow.flow = flow;
+		iflow.isInput = true;
+		return iflow;
+	}
+
+	public static IndexFlow ofInput(FlowDescriptor flow, LocationDescriptor loc) {
+		var iflow = new IndexFlow();
+		iflow.flow = flow;
+		iflow.location = loc;
+		iflow.isInput = true;
+		return iflow;
+	}
+
+	public static IndexFlow ofOutput(FlowDescriptor flow) {
+		var iflow = new IndexFlow();
+		iflow.flow = flow;
+		iflow.isInput = false;
+		return iflow;
+	}
+
+	public static IndexFlow ofOutput(FlowDescriptor flow, LocationDescriptor loc) {
+		var iflow = new IndexFlow();
+		iflow.flow = flow;
+		iflow.location = loc;
+		iflow.isInput = false;
+		return iflow;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o)

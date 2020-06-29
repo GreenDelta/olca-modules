@@ -35,6 +35,7 @@ public class LibraryImport implements Runnable {
 					var ce = (CategorizedEntity) e;
 					update(ce, libID);
 				});
+				imp.run();
 			}
 			db.addLibrary(libID);
 		} catch (Exception e) {
