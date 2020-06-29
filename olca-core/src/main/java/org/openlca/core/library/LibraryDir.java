@@ -2,8 +2,10 @@ package org.openlca.core.library;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.openlca.jsonld.Json;
 
@@ -32,28 +34,25 @@ public class LibraryDir {
 		var files = dir.listFiles();
 		if (files == null)
 			return Collections.emptyList();
-		var libs = new ArrayList<Library>();
-		for (var file : files) {
-			if (!file.isDirectory())
-				continue;
-			var meta = new File(file, "library.json");
-			if (!meta.exists())
-				continue;
-			var json = Json.readObject(meta);
-			if (json.isEmpty())
-				continue;
-			libs.add(Library.fromJson(json.get()));
-		}
-		return libs;
+		return Arrays.stream(files)
+				.filter(dir -> dir.isDirectory()
+						&& new File(dir, "library.json").exists())
+				.map(Library::new)
+				.collect(Collectors.toList());
 	}
 
 	/**
-	 * Get the folder of the given library in this library directory. This
-	 * folder may not exist yet.
+	 * Get the folder of the library with the given meta-data in this library
+	 * directory. This folder may not exist yet.
 	 */
-	public File getFolder(Library library) {
-		return library == null || library.name == null
-				? new File(dir, "_null")
-				: new File(dir, library.id());
+	public File getFolder(LibraryInfo info) {
+		return new File(dir, info.id());
+	}
+
+	/**
+	 * Returns true if a library with the given meta-data exists.
+	 */
+	public boolean exists(LibraryInfo info) {
+		return getFolder(info).exists();
 	}
 }
