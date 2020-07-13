@@ -32,7 +32,7 @@ class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 		if (json == null)
 			return null;
 		ImpactCategory cat = new ImpactCategory();
-		In.mapAtts(json, cat, id);
+		In.mapAtts(json, cat, id, conf);
 		cat.referenceUnit = Json.getString(json, "referenceUnitName");
 		mapParameters(json, cat);
 		JsonArray factors = Json.getArray(json, "impactFactors");

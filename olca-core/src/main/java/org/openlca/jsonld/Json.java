@@ -16,6 +16,8 @@ import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import com.google.gson.Gson;
 import org.openlca.core.database.EntityCache;
@@ -70,6 +72,12 @@ public class Json {
 			return null;
 		else
 			return elem.getAsJsonArray();
+	}
+
+	public static Stream<JsonElement> stream(JsonArray array) {
+		if (array == null)
+			return Stream.empty();
+		return StreamSupport.stream(array.spliterator(),  false);
 	}
 
 	/**

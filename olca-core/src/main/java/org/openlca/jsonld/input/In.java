@@ -1,11 +1,13 @@
 package org.openlca.jsonld.input;
 
+import com.google.gson.JsonElement;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonObject;
+import org.openlca.util.Strings;
 
 final class In {
 
@@ -47,8 +49,21 @@ final class In {
 		if (obj == null || entity == null)
 			return;
 		mapAtts(obj, entity, id);
-		String catId = Json.getRefId(obj, "category");
+		var catId = Json.getRefId(obj, "category");
 		entity.category = CategoryImport.run(catId, conf);
+
+		// read tags
+		var tagArray = Json.getArray(obj, "tags");
+		if (tagArray != null) {
+			var tags = Json.stream(tagArray)
+					.filter(JsonElement::isJsonPrimitive)
+					.map(JsonElement::getAsString)
+					.filter(tag -> !Strings.nullOrEmpty(tag))
+					.toArray(String[]::new);
+			entity.tags = tags.length > 0
+					? String.join(",", tags)
+					: null;
+		}
 	}
 
 	static boolean isNewer(JsonObject json, RootEntity model) {

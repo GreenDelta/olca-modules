@@ -101,10 +101,6 @@ class Out {
 		json.addProperty(property, value);
 	}
 
-	static void put(JsonObject json, String property, Character value) {
-		put(json, property, value, 0);
-	}
-
 	static void put(JsonObject json, String property, Character value, int flags) {
 		if (!checkValidInput(json, property, value, flags))
 			return;
@@ -115,18 +111,23 @@ class Out {
 		if (isValidInput(value))
 			return true;
 		if (is(flags, REQUIRED_FIELD)) {
-			String type = json == null || !json.has("@type") ? "unknown type" : json.get("@type").getAsString();
-			String refId = json == null || !json.has("@id") ? "" : " " + json.get("@id").getAsString();
-			log.warn("JsonExport: Missing required field '" + property + "' on " + type + refId);
+			String type = json == null || !json.has("@type")
+					? "unknown type"
+					: json.get("@type").getAsString();
+			String refId = json == null || !json.has("@id")
+					? ""
+					: json.get("@id").getAsString();
+			log.warn("JsonExport: Missing required field '{}' on {} {}",
+					property, type, refId);
 		}
 		return false;
 	}
 
 	private static boolean isValidInput(Object value) {
-		if (Collection.class.isInstance(value))
-			return WRITE_EMPTY_COLLECTIONS || !Collection.class.cast(value).isEmpty();
-		if (JsonArray.class.isInstance(value))
-			return WRITE_EMPTY_COLLECTIONS || JsonArray.class.cast(value).size() > 0;
+		if (value instanceof Collection)
+			return WRITE_EMPTY_COLLECTIONS || !((Collection<?>) value).isEmpty();
+		if (value instanceof JsonArray)
+			return WRITE_EMPTY_COLLECTIONS || ((JsonArray) value).size() > 0;
 		return WRITE_NULL_VALUES || value != null;
 	}
 

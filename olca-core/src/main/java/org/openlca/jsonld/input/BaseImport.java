@@ -16,8 +16,8 @@ import com.google.gson.JsonObject;
 
 abstract class BaseImport<T extends RootEntity> {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-	private ModelType modelType;
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final ModelType modelType;
 	String refId;
 	ImportConfig conf;
 
@@ -57,10 +57,8 @@ abstract class BaseImport<T extends RootEntity> {
 		long jsonDate = In.getLastChange(json);
 		if (jsonVersion < model.version)
 			return false;
-		if (jsonVersion == model.version
-				&& jsonDate <= model.lastChange)
-			return false;
-		return true;
+		return jsonVersion != model.version
+				|| jsonDate > model.lastChange;
 	}
 
 	/**
@@ -98,7 +96,7 @@ abstract class BaseImport<T extends RootEntity> {
 
 	T map(JsonObject json, T model) {
 		if (model == null)
-			return map(json, 0l);
+			return map(json, 0L);
 		return map(json, model.id);
 	}
 
