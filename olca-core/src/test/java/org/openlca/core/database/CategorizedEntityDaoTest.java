@@ -99,8 +99,8 @@ public class CategorizedEntityDaoTest {
 
 	private <T extends CategorizedEntity> T makeNew(Class<T> clazz)
 			throws Exception {
-		T instance = clazz.newInstance();
-		instance.description = "descriptiom";
+		T instance = clazz.getDeclaredConstructor().newInstance();
+		instance.description = "description";
 		instance.name = "name";
 		instance.refId = UUID.randomUUID().toString();
 		return instance;

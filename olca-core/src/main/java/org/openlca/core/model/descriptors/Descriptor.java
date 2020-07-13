@@ -77,6 +77,13 @@ public class Descriptor {
 				+ ", type=" + type + "]";
 	}
 
+	/**
+	 * Returns true if the data set of this descriptor is from a library.
+	 */
+	public boolean isFromLibrary() {
+		return library != null;
+	}
+
 	static Descriptor createUnknownDescriptor(RootEntity entity) {
 		Descriptor descriptor = new Descriptor();
 		setBaseValues(entity, descriptor);

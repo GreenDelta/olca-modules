@@ -29,4 +29,10 @@ public abstract class CategorizedEntity extends RootEntity {
 	@Column(name = "library")
 	public String library;
 
+	/**
+	 * Returns true if this data set is from a library.
+	 */
+	public boolean isFromLibrary() {
+		return library != null;
+	}
 }

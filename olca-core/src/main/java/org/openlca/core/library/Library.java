@@ -21,17 +21,21 @@ public class Library {
 	 * The folder where the library files are stored.
 	 */
 	public final File folder;
+	private LibraryInfo info;
 
 	public Library(File folder) {
 		this.folder = folder;
 	}
 
 	public LibraryInfo getInfo() {
+		if (info != null)
+			return info;
 		var file = new File(folder, "library.json");
 		var obj = Json.readObject(file);
 		if (obj.isEmpty())
 			throw new RuntimeException("failed to read " + file);
-		return LibraryInfo.fromJson(obj.get());
+		info = LibraryInfo.fromJson(obj.get());
+		return info;
 	}
 
 	/**
