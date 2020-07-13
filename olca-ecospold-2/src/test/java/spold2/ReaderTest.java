@@ -1,32 +1,30 @@
 package spold2;
 
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 
-import java.io.InputStream;
-import java.util.List;
-import java.util.logging.Logger;
-
 @RunWith(Theories.class)
 public class ReaderTest {
 
-	private Logger log = Logger.getLogger("ReaderTest");
-
 	@DataPoints
-	public static String[] dataSets = { "sample_ecospold2.xml",
-			"sample_child_ecospold2.xml" };
+	public static String[] dataSets = {
+			"sample_ecospold2.xml",
+			"sample_child_ecospold2.xml"
+	};
 
 	@Theory
-	public void testDataSetNotNull(String file) throws Exception {
+	public void testDataSetNotNull(String file) {
 		DataSet dataSet = read(file);
 		Assert.assertNotNull(dataSet);
 	}
 
 	@Theory
-	public void testActivity(String file) throws Exception {
+	public void testActivity(String file) {
 		DataSet dataSet = read(file);
 		Activity activity = dataSet.description.activity;
 		Assert.assertNotNull(activity);
@@ -36,7 +34,7 @@ public class ReaderTest {
 	}
 
 	@Theory
-	public void testClassifications(String file) throws Exception {
+	public void testClassifications(String file) {
 		DataSet dataSet = read(file);
 		List<Classification> classifications = dataSet.description.classifications;
 		Assert.assertEquals(2, classifications.size());
@@ -46,20 +44,21 @@ public class ReaderTest {
 	}
 
 	@Theory
-	public void testGeography(String file) throws Exception {
+	public void testGeography(String file) {
 		DataSet dataSet = read(file);
 		Geography geo = dataSet.description.geography;
 		Assert.assertEquals("geography comment", geo.comment.texts.get(0).value);
 	}
 
 	@Theory
-	public void testTechnology(String file) throws Exception {
+	public void testTechnology(String file) {
 		DataSet dataSet = read(file);
 		Technology tech = dataSet.description.technology;
 		Assert.assertEquals(3, tech.level.intValue());
 	}
 
-	public void testElementaryExchanges(String file) throws Exception {
+	@Theory
+	public void testElementaryExchanges(String file) {
 		DataSet dataSet = read(file);
 		Assert.assertEquals(dataSet.flowData.elementaryExchanges.size(), 3);
 		double sum = 0;
@@ -70,7 +69,7 @@ public class ReaderTest {
 	}
 
 	@Theory
-	public void testIntermediateExchanges(String file) throws Exception {
+	public void testIntermediateExchanges(String file) {
 		DataSet dataSet = read(file);
 		Assert.assertEquals(2, dataSet.flowData.intermediateExchanges.size());
 		boolean found = false;
@@ -83,9 +82,20 @@ public class ReaderTest {
 		Assert.assertTrue(found);
 	}
 
-	private DataSet read(String file) throws Exception {
-		log.info("parse file " + file);
-		InputStream stream = getClass().getResourceAsStream(file);
-		return EcoSpold2.read(stream).activity();
+	@Theory
+	public void testTags(String file) {
+		var ds = read(file);
+		var tags = ds.description.activity.tags;
+		Assert.assertEquals(2, tags.size());
+		Assert.assertTrue(tags.contains("tag1"));
+		Assert.assertTrue(tags.contains("tag2"));
+	}
+
+	private DataSet read(String file) {
+		try (var stream = getClass().getResourceAsStream(file)) {
+			return EcoSpold2.read(stream).activity();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
