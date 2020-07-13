@@ -127,7 +127,6 @@ class ProcessImport {
 				RichText.join(activity.allocationComment));
 		p.description = d;
 
-
 		// map the process category
 		Category category = null;
 		for (Classification clazz : Spold2.getClassifications(ds)) {
@@ -136,6 +135,12 @@ class ProcessImport {
 				break;
 		}
 		p.category = category;
+
+		// tags
+		if (!activity.tags.isEmpty()) {
+			var tags = activity.tags.toArray(new String[0]);
+			p.tags = String.join(",", tags);
+		}
 
 		if (config.withParameters) {
 			handleParameters(ds, p);
@@ -330,9 +335,8 @@ class ProcessImport {
 	 *
 	 * <process name> | <product name> | <system model>, <process type>
 	 *
-	 * Where <system model> is a mnemonic like "APOS" or "Cutoff" and the
-	 * process type is "U" when it is a unit process or "S" when it is a LCI
-	 * result
+	 * Where <system model> is a mnemonic like "APOS" or "Cutoff" and the process
+	 * type is "U" when it is a unit process or "S" when it is a LCI result
 	 */
 	private String getProcessName(DataSet ds) {
 
@@ -354,7 +358,7 @@ class ProcessImport {
 			String sys = repri.systemModelName.toLowerCase();
 			if (sys.contains("consequential")) {
 				model = "Consequential";
-			} else if ( sys.contains("apos") ||
+			} else if (sys.contains("apos") ||
 					sys.contains("allocation at the point of substitution")) {
 				model = "APOS";
 			} else if (sys.contains("cut-off") || sys.contains("cutoff")) {

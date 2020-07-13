@@ -2,6 +2,7 @@ package org.openlca.io.ecospold2.output;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -44,7 +45,7 @@ public class EcoSpold2Export implements Runnable {
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private final File activityDir;
-	private final IDatabase database;
+	private final IDatabase db;
 	private final List<ProcessDescriptor> descriptors;
 
 	private final LocationMap locationMap;
@@ -52,18 +53,18 @@ public class EcoSpold2Export implements Runnable {
 	private final CompartmentMap compartmentMap;
 	private final ElemFlowMap elemFlowMap;
 
-	public EcoSpold2Export(File dir, IDatabase database) {
-		this(dir, database, Collections.emptyList());
+	public EcoSpold2Export(File dir, IDatabase db) {
+		this(dir, db, Collections.emptyList());
 	}
 
-	public EcoSpold2Export(File dir, IDatabase database, List<ProcessDescriptor> descriptors) {
+	public EcoSpold2Export(File dir, IDatabase db, List<ProcessDescriptor> descriptors) {
 		this.activityDir = new File(dir, "Activities");
-		this.database = database;
+		this.db = db;
 		this.descriptors = descriptors;
-		this.locationMap = new LocationMap(database);
-		this.unitMap = new UnitMap(database);
-		this.compartmentMap = new CompartmentMap(database);
-		this.elemFlowMap = new ElemFlowMap(database);
+		this.locationMap = new LocationMap(db);
+		this.unitMap = new UnitMap(db);
+		this.compartmentMap = new CompartmentMap(db);
+		this.elemFlowMap = new ElemFlowMap(db);
 	}
 
 	@Override
@@ -83,7 +84,7 @@ public class EcoSpold2Export implements Runnable {
 
 	private void exportProcesses() throws Exception {
 		for (ProcessDescriptor descriptor : descriptors) {
-			ProcessDao dao = new ProcessDao(database);
+			ProcessDao dao = new ProcessDao(db);
 			Process process = dao.getForId(descriptor.id);
 			ProcessDocumentation doc = process.documentation;
 			if (process == null || doc == null) {
@@ -113,9 +114,9 @@ public class EcoSpold2Export implements Runnable {
 	}
 
 	private void mapActivity(Process process, DataSet dataSet) {
-		Activity activity = new Activity();
+		var activity = new Activity();
 		dataSet.description.activity = activity;
-		ActivityName activityName = new ActivityName();
+		var activityName = new ActivityName();
 		dataSet.masterData.activityNames.add(activityName);
 		String nameId = UUID.randomUUID().toString();
 		activity.activityNameId = nameId;
@@ -128,6 +129,11 @@ public class EcoSpold2Export implements Runnable {
 		activity.type = type;
 		activity.specialActivityType = 0; // default
 		activity.generalComment = RichText.of(process.description);
+		if (!Strings.nullOrEmpty(process.tags)) {
+			Arrays.stream(process.tags.split(","))
+					.filter(tag -> !tag.isBlank())
+					.forEach(tag -> activity.tags.add(tag));
+		}
 	}
 
 	private void mapExchanges(Process process, DataSet ds) {
@@ -201,7 +207,7 @@ public class EcoSpold2Export implements Runnable {
 	private ProcessDescriptor getDefaultProvider(Exchange exchange) {
 		if (!exchange.isInput || exchange.defaultProviderId == 0)
 			return null;
-		ProcessDao dao = new ProcessDao(database);
+		ProcessDao dao = new ProcessDao(db);
 		return dao.getDescriptor(exchange.defaultProviderId);
 	}
 
@@ -221,7 +227,7 @@ public class EcoSpold2Export implements Runnable {
 			ds.flowData = new FlowData();
 		List<Parameter> parameters = new ArrayList<>();
 		parameters.addAll(process.parameters);
-		ParameterDao dao = new ParameterDao(database);
+		ParameterDao dao = new ParameterDao(db);
 		parameters.addAll(dao.getGlobalParameters());
 		for (Parameter param : parameters) {
 			spold2.Parameter e2Param = new spold2.Parameter();
