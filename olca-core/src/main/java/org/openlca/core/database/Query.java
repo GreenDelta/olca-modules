@@ -17,8 +17,8 @@ import org.slf4j.LoggerFactory;
  */
 public class Query {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-	private IDatabase database;
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final IDatabase database;
 
 	private Query(IDatabase database) {
 		this.database = database;
@@ -56,8 +56,7 @@ public class Query {
 		return getAll(type, jpql, map);
 	}
 
-	public <T> List<T> getAll(Class<T> type, String jpql,
-			Map<String, ? extends Object> params) {
+	public <T> List<T> getAll(Class<T> type, String jpql, Map<String, ?> params) {
 		log.trace("Get all {} with query {}", type, jpql);
 		EntityManager em = createManager();
 		try {

@@ -26,6 +26,7 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 				"version",
 				"last_change",
 				"f_category",
+				"library",
 				"flow_type",
 				"f_location",
 				"f_reference_flow_property"
@@ -36,14 +37,16 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 	protected FlowDescriptor createDescriptor(Object[] queryResult) {
 		if (queryResult == null)
 			return null;
-		FlowDescriptor descriptor = super.createDescriptor(queryResult);
-		if (queryResult[7] instanceof String)
-			descriptor.flowType = FlowType.valueOf((String) queryResult[7]);
-		descriptor.location = (Long) queryResult[8];
-		Long refProp = (Long) queryResult[9];
-		if (refProp != null)
-			descriptor.refFlowPropertyId = refProp;
-		return descriptor;
+		var d = super.createDescriptor(queryResult);
+		if (queryResult[8] instanceof String) {
+			d.flowType = FlowType.valueOf((String) queryResult[8]);
+		}
+		d.location = (Long) queryResult[9];
+		Long refProp = (Long) queryResult[10];
+		if (refProp != null) {
+			d.refFlowPropertyId = refProp;
+		}
+		return d;
 	}
 
 	/**

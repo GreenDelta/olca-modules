@@ -24,24 +24,35 @@ public class ProcessDao extends CategorizedEntityDao<Process, ProcessDescriptor>
 
 	@Override
 	protected String[] getDescriptorFields() {
-		return new String[] { "id", "ref_id", "name", "description", "version",
-				"last_change", "f_category", "process_type",
-				"infrastructure_process", "f_location",
-				"f_quantitative_reference" };
+		return new String[] {
+				"id",
+				"ref_id",
+				"name",
+				"description",
+				"version",
+				"last_change",
+				"f_category",
+				"library",
+				"process_type",
+				"infrastructure_process",
+				"f_location",
+				"f_quantitative_reference",
+		};
 	}
 
 	@Override
 	protected ProcessDescriptor createDescriptor(Object[] queryResult) {
 		if (queryResult == null)
 			return null;
-		ProcessDescriptor d = super.createDescriptor(queryResult);
-		Object type = queryResult[7];
-		if (type instanceof String) {
-			d.processType = ProcessType.valueOf((String) type);
+		var d = super.createDescriptor(queryResult);
+		if (queryResult[8] instanceof String) {
+			d.processType = ProcessType.valueOf((String) queryResult[8]);
 		}
-		d.infrastructureProcess = (Integer) queryResult[8] == 1;
-		d.location = (Long) queryResult[9];
-		d.quantitativeReference = (Long) queryResult[10];
+		if (queryResult[9] instanceof Integer) {
+			d.infrastructureProcess = (Integer) queryResult[9] == 1;
+		}
+		d.location = (Long) queryResult[10];
+		d.quantitativeReference = (Long) queryResult[11];
 		return d;
 	}
 

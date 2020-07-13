@@ -16,7 +16,7 @@ public class LocationDao
 
 	@Override
 	protected String[] getDescriptorFields() {
-		return new String[] {
+		return new String[]{
 				"id",
 				"ref_id",
 				"name",
@@ -24,15 +24,17 @@ public class LocationDao
 				"version",
 				"last_change",
 				"f_category",
-				"code" };
+				"library",
+				"code",
+		};
 	}
 
 	@Override
 	protected LocationDescriptor createDescriptor(Object[] values) {
 		if (values == null)
 			return null;
-		LocationDescriptor d = super.createDescriptor(values);
-		d.code = (String) values[7];
+		var d = super.createDescriptor(values);
+		d.code = (String) values[8];
 		return d;
 	}
 

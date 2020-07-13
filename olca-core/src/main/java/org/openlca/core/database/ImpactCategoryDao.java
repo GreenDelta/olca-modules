@@ -20,15 +20,17 @@ public class ImpactCategoryDao extends
 				"version",
 				"last_change",
 				"f_category",
-				"reference_unit" };
+				"library",
+				"reference_unit",
+		};
 	}
 
 	@Override
 	protected ImpactCategoryDescriptor createDescriptor(Object[] queryResult) {
 		if (queryResult == null)
 			return null;
-		ImpactCategoryDescriptor d = super.createDescriptor(queryResult);
-		d.referenceUnit = (String) queryResult[7];
+		var d = super.createDescriptor(queryResult);
+		d.referenceUnit = (String) queryResult[8];
 		return d;
 	}
 }

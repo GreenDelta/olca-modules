@@ -38,6 +38,13 @@ public class Descriptor {
 	public String description;
 	public long version;
 	public long lastChange;
+
+	/**
+	 * Contains the library identifier if the corresponding data set of this
+	 * descriptor belongs to a library. Otherwise this field is empty (or null).
+	 */
+	public String library;
+
 	public ModelType type = ModelType.UNKNOWN;
 
 	@Override

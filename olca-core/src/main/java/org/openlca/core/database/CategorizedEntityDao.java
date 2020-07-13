@@ -16,7 +16,7 @@ public class CategorizedEntityDao<T extends CategorizedEntity, V extends Categor
 		extends RootEntityDao<T, V> {
 
 	protected CategorizedEntityDao(Class<T> entityType, Class<V> descriptorType,
-			IDatabase database) {
+								   IDatabase database) {
 		super(entityType, descriptorType, database);
 	}
 
@@ -37,26 +37,34 @@ public class CategorizedEntityDao<T extends CategorizedEntity, V extends Categor
 
 	@Override
 	protected V createDescriptor(Object[] queryResult) {
-		V descriptor = super.createDescriptor(queryResult);
-		if (descriptor != null)
-			descriptor.category = (Long) queryResult[6];
-		return descriptor;
+		var d = super.createDescriptor(queryResult);
+		if (d == null)
+			return d;
+		if (queryResult[6] != null) {
+			d.category = (Long) queryResult[6];
+		}
+		if (queryResult[7] != null) {
+			d.library = (String) queryResult[7];
+		}
+		return d;
 	}
 
 	@Override
 	protected String[] getDescriptorFields() {
-		return new String[] {
+		return new String[]{
 				"id",
 				"ref_id",
 				"name",
 				"description",
 				"version",
 				"last_change",
-				"f_category" };
+				"f_category",
+				"library"
+		};
 	}
 
 	public CategorizedDescriptor updateCategory(CategorizedDescriptor model,
-			Optional<Category> category) {
+												Optional<Category> category) {
 		Version v = new Version(model.version);
 		v.incUpdate();
 		long version = v.getValue();

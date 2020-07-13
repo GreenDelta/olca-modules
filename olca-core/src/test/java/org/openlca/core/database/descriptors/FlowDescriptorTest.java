@@ -10,18 +10,17 @@ import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 
 public class FlowDescriptorTest {
 
-	private IDatabase database = Tests.getDb();
-	private FlowDao flowDao = new FlowDao(database);
+	private final IDatabase database = Tests.getDb();
+	private final FlowDao flowDao = new FlowDao(database);
 
 	private FlowProperty property;
 	private Flow flow;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		property = new FlowProperty();
 		property = new FlowPropertyDao(database).insert(property);
 		flow = new Flow();
@@ -30,15 +29,15 @@ public class FlowDescriptorTest {
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		flowDao.delete(flow);
 		new FlowPropertyDao(database).delete(property);
 	}
 
 	@Test
-	public void testGetRefFlowPropertyId() throws Exception {
-		FlowDescriptor descriptor = flowDao.getDescriptor(flow.id);
-		Assert.assertEquals(property.id, descriptor.refFlowPropertyId);
+	public void testGetRefFlowPropertyId() {
+		var d = flowDao.getDescriptor(flow.id);
+		Assert.assertEquals(property.id, d.refFlowPropertyId);
 	}
 
 }

@@ -31,16 +31,26 @@ public class CategoryDao
 
 	@Override
 	protected String[] getDescriptorFields() {
-		return new String[] { "id", "ref_id", "name", "description", "version",
-				"last_change", "f_category", "model_type" };
+		return new String[] {
+				"id",
+				"ref_id",
+				"name",
+				"description",
+				"version",
+				"last_change",
+				"f_category",
+				"library",
+				"model_type",
+		};
 	}
 
 	@Override
 	protected CategoryDescriptor createDescriptor(Object[] queryResult) {
-		CategoryDescriptor descriptor = super.createDescriptor(queryResult);
-		if (queryResult[7] instanceof String)
+		var descriptor = super.createDescriptor(queryResult);
+		if (queryResult[8] instanceof String) {
 			descriptor.categoryType = ModelType
 					.valueOf((String) queryResult[7]);
+		}
 		return descriptor;
 	}
 
