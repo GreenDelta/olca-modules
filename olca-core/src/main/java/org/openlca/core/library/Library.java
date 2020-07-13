@@ -3,6 +3,7 @@ package org.openlca.core.library;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.openlca.core.database.CategorizedEntityDao;
@@ -12,8 +13,12 @@ import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.io.npy.Npy;
+import org.openlca.core.matrix.io.npy.Npz;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.jsonld.Json;
+import org.slf4j.LoggerFactory;
 
 public class Library {
 
@@ -40,9 +45,9 @@ public class Library {
 
 	/**
 	 * Returns the products of the library in corresponding matrix order. If this
-	 * information is not present or something went wrong while synchronizing
-	 * the product index with the database, an empty array is returned. Of
-	 * course, this only works when this library is mounted to that database.
+	 * information is not present or something went wrong while synchronizing the
+	 * product index with the database, an empty array is returned. Of course, this
+	 * only works when this library is mounted to that database.
 	 */
 	public ProcessProduct[] syncProducts(IDatabase db) {
 		var array = Json.readArray(new File(folder, "index_A.json"));
@@ -70,11 +75,10 @@ public class Library {
 	}
 
 	/**
-	 * Returns the elementary flows of the library in corresponding matrix
-	 * order. If this information is not present or something went wrong
-	 * while synchronizing the flow index with the database, an empty array
-	 * is returned. Of course, this only works when this library is mounted
-	 * to that database.
+	 * Returns the elementary flows of the library in corresponding matrix order. If
+	 * this information is not present or something went wrong while synchronizing
+	 * the flow index with the database, an empty array is returned. Of course, this
+	 * only works when this library is mounted to that database.
 	 */
 	public IndexFlow[] syncElementaryFlows(IDatabase db) {
 		var array = Json.readArray(new File(folder, "index_B.json"));
@@ -119,5 +123,45 @@ public class Library {
 				.collect(Collectors.toMap(
 						d -> d.refId,
 						d -> d));
+	}
+
+	public boolean hasMatrix(LibraryMatrix m) {
+		var npy = new File(folder, m.name() + ".npy");
+		if (npy.exists())
+			return true;
+		var npz = new File(folder, m.name() + ".npz");
+		return npz.exists();
+	}
+
+	public Optional<IMatrix> getMatrix(LibraryMatrix m) {
+		try {
+			var npy = new File(folder, m.name() + ".npy");
+			if (npy.exists())
+				return Optional.of(Npy.load(npy));
+			var npz = new File(folder, m.name() + ".npz");
+			return npz.exists()
+					? Optional.of(Npz.load(npz))
+					: Optional.empty();
+		} catch (Exception e) {
+			var log = LoggerFactory.getLogger(getClass());
+			log.error("failed to read matrix from " + folder, e);
+			return Optional.empty();
+		}
+	}
+
+	public Optional<double[]> getColumn(LibraryMatrix m, int column) {
+		try {
+			var npy = new File(folder, m.name() + ".npy");
+			if (npy.exists())
+				return Optional.of(Npy.loadColumn(npy, column));
+			var npz = new File(folder, m.name() + ".npz");
+			return npz.exists()
+					? Optional.of(Npz.loadColumn(npz, column))
+					: Optional.empty();
+		} catch (Exception e) {
+			var log = LoggerFactory.getLogger(getClass());
+			log.error("failed to read matrix from " + folder, e);
+			return Optional.empty();
+		}
 	}
 }
