@@ -105,7 +105,7 @@ public class Library {
 				var location = locations.get(entry.getLocation().getId());
 				if (flow == null)
 					return new IndexFlow[0];
-				index[0] = entry.getIsInput()
+				index[i] = entry.getIsInput()
 						? IndexFlow.ofInput(flow, location)
 						: IndexFlow.ofOutput(flow, location);
 			}
