@@ -1,6 +1,7 @@
 package org.openlca.core.library;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -53,28 +54,31 @@ public class Library {
 	 * only works when this library is mounted to that database.
 	 */
 	public ProcessProduct[] syncProducts(IDatabase db) {
-		var array = Json.readArray(new File(folder, "index_A.json"));
-		if (array.isEmpty())
+		var file = new File(folder, "index_A.bin");
+		if (!file.exists())
 			return new ProcessProduct[0];
+
 		var processes = descriptors(new ProcessDao(db));
 		var products = descriptors(new FlowDao(db));
-		var index = new ArrayList<ProcessProduct>();
-		for (var elem : array.get()) {
-			if (!elem.isJsonObject())
-				return new ProcessProduct[0];
-			var obj = elem.getAsJsonObject();
-			var procID = Json.getRefId(obj, "process");
-			var flowID = Json.getRefId(obj, "flow");
-			if (procID == null || flowID == null)
-				return new ProcessProduct[0];
 
-			var process = processes.get(procID);
-			var product = products.get(flowID);
-			if (process == null || product == null)
-				return new ProcessProduct[0];
-			index.add(ProcessProduct.of(process, product));
+		try (var stream = new FileInputStream(file)) {
+			var proto = Proto.ProductIndex.parseFrom(stream);
+			int size = proto.getProductCount();
+			var index = new ProcessProduct[size];
+			for (int i = 0; i < size; i++) {
+				var entry = proto.getProduct(i);
+				var process = processes.get(entry.getProcess().getId());
+				var product = products.get(entry.getProduct().getId());
+				if (process == null || product == null)
+					return new ProcessProduct[0];
+				index[i] = ProcessProduct.of(process, product);
+			}
+			return index;
+		} catch (Exception e) {
+			var log = LoggerFactory.getLogger(getClass());
+			log.error("failed to read product index @" + file, e);
+			return new ProcessProduct[0];
 		}
-		return index.toArray(new ProcessProduct[0]);
 	}
 
 	/**
@@ -84,39 +88,33 @@ public class Library {
 	 * only works when this library is mounted to that database.
 	 */
 	public IndexFlow[] syncElementaryFlows(IDatabase db) {
-		var array = Json.readArray(new File(folder, "index_B.json"));
-		if (array.isEmpty())
+		var file = new File(folder, "index_B.bin");
+		if (!file.exists())
 			return new IndexFlow[0];
+
 		var flows = descriptors(new FlowDao(db));
 		var locations = descriptors(new LocationDao(db));
 
-		var index = new ArrayList<IndexFlow>();
-		for (var elem : array.get()) {
-			if (!elem.isJsonObject())
-				return new IndexFlow[0];
-			var obj = elem.getAsJsonObject();
-			var flowID = Json.getRefId(obj, "flow");
-			if (flowID == null)
-				return new IndexFlow[0];
-			var flow = flows.get(flowID);
-
-			var isInput = Json.getBool(obj, "isInput", false);
-			var locationID = Json.getRefId(obj, "location");
-			if (locationID != null) {
-				var location = locations.get(locationID);
-				if (location == null)
+		try (var stream = new FileInputStream(file)) {
+			var proto = Proto.ElemFlowIndex.parseFrom(stream);
+			int size = proto.getFlowCount();
+			var index = new IndexFlow[size];
+			for (int i = 0; i < size; i++) {
+				var entry = proto.getFlow(i);
+				var flow = flows.get(entry.getFlow().getId());
+				var location = locations.get(entry.getLocation().getId());
+				if (flow == null)
 					return new IndexFlow[0];
-				index.add(isInput
+				index[0] = entry.getIsInput()
 						? IndexFlow.ofInput(flow, location)
-						: IndexFlow.ofOutput(flow, location));
-				continue;
+						: IndexFlow.ofOutput(flow, location);
 			}
-
-			index.add(isInput
-					? IndexFlow.ofInput(flow)
-					: IndexFlow.ofOutput(flow));
+			return index;
+		} catch (Exception e) {
+			var log = LoggerFactory.getLogger(getClass());
+			log.error("failed to read flow index @" + file, e);
+			return new IndexFlow[0];
 		}
-		return index.toArray(new IndexFlow[0]);
 	}
 
 	private <T extends CategorizedDescriptor> Map<String, T> descriptors(
@@ -169,15 +167,75 @@ public class Library {
 	}
 
 	/**
-	 * Get the matrix index of the given process product. Returns -1 if the
-	 * given product is not part of this library.
+	 * Creates a list of exchanges from the library matrices that describe the
+	 * inputs and outputs of the given library product. The meta-data of the
+	 * exchanges are synchronized with the given databases. Thus, this library
+	 * needs to be mounted to the given database.
 	 */
-	public int getIndex(ProcessProduct product) {
-		return -1;
-	}
-
 	public List<Exchange> getExchanges(ProcessProduct product, IDatabase db) {
+		if (product == null || db == null)
+			return Collections.emptyList();
 		var products = syncProducts(db);
-		return Collections.emptyList();
+
+		// find the library index of the given product
+		int index = -1;
+		for (int i = 0; i < products.length; i++) {
+			var p = products[i];
+			if (p.id() == product.id() && p.flowId() == product.flowId()) {
+				index = i;
+				break;
+			}
+		}
+		if (index < 0)
+			return Collections.emptyList();
+
+		// read the product inputs and outputs
+		var exchanges = new ArrayList<Exchange>();
+		var flowDao = new FlowDao(db);
+		var colA = getColumn(LibraryMatrix.A, index).orElse(null);
+		if (colA == null)
+			return Collections.emptyList();
+		for (int i = 0; i < colA.length; i++) {
+			double val = colA[i];
+			if (val == 0)
+				continue;
+			product = products[i];
+			var flow = flowDao.getForId(product.flowId());
+			if (flow == null)
+				continue;
+			var exchange = val < 0
+					? Exchange.input(flow, Math.abs(val))
+					: Exchange.output(flow, val);
+			if (i != index) {
+				exchange.defaultProviderId = product.id();
+			}
+			exchanges.add(exchange);
+		}
+
+		// read the the elementary flow inputs and outputs
+		var colB = getColumn(LibraryMatrix.B, index).orElse(null);
+		if (colB == null)
+			return exchanges;
+		var iFlows = syncElementaryFlows(db);
+		var locDao = new LocationDao(db);
+		for (int i = 0; i < colB.length; i++) {
+			double val = colB[i];
+			if (val == 0)
+				continue;
+			var iFlow = iFlows[i];
+			var flow = flowDao.getForId(iFlow.flow.id);
+			if (flow == null)
+				continue;
+			var exchange = iFlow.isInput
+					? Exchange.input(flow, -val)
+					: Exchange.output(flow, val);
+			if (iFlow.location != null) {
+				exchange.location = locDao.getForId(
+						iFlow.location.id);
+			}
+			exchanges.add(exchange);
+		}
+
+		return exchanges;
 	}
 }

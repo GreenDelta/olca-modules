@@ -89,7 +89,7 @@ public class ProcessProduct {
 	public boolean equals(Object obj) {
 		if (!(obj instanceof ProcessProduct))
 			return false;
-		ProcessProduct other = (ProcessProduct) obj;
+		var other = (ProcessProduct) obj;
 		return Objects.equals(this.process, other.process)
 				&& Objects.equals(this.flow, other.flow);
 	}
@@ -119,5 +119,4 @@ public class ProcessProduct {
 			return ((ProcessDescriptor) process).location;
 		return null;
 	}
-
 }
