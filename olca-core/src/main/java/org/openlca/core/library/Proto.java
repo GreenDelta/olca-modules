@@ -55,16 +55,16 @@ public final class Proto {
         getCategoryBytes();
 
     /**
-     * <code>string location = 4;</code>
-     * @return The location.
+     * <code>string locationCode = 4;</code>
+     * @return The locationCode.
      */
-    java.lang.String getLocation();
+    java.lang.String getLocationCode();
     /**
-     * <code>string location = 4;</code>
-     * @return The bytes for location.
+     * <code>string locationCode = 4;</code>
+     * @return The bytes for locationCode.
      */
     com.google.protobuf.ByteString
-        getLocationBytes();
+        getLocationCodeBytes();
   }
   /**
    * <pre>
@@ -86,7 +86,7 @@ public final class Proto {
       id_ = "";
       name_ = "";
       category_ = "";
-      location_ = "";
+      locationCode_ = "";
     }
 
     @java.lang.Override
@@ -140,7 +140,7 @@ public final class Proto {
             case 34: {
               java.lang.String s = input.readStringRequireUtf8();
 
-              location_ = s;
+              locationCode_ = s;
               break;
             }
             default: {
@@ -289,38 +289,38 @@ public final class Proto {
       }
     }
 
-    public static final int LOCATION_FIELD_NUMBER = 4;
-    private volatile java.lang.Object location_;
+    public static final int LOCATIONCODE_FIELD_NUMBER = 4;
+    private volatile java.lang.Object locationCode_;
     /**
-     * <code>string location = 4;</code>
-     * @return The location.
+     * <code>string locationCode = 4;</code>
+     * @return The locationCode.
      */
     @java.lang.Override
-    public java.lang.String getLocation() {
-      java.lang.Object ref = location_;
+    public java.lang.String getLocationCode() {
+      java.lang.Object ref = locationCode_;
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
         com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        location_ = s;
+        locationCode_ = s;
         return s;
       }
     }
     /**
-     * <code>string location = 4;</code>
-     * @return The bytes for location.
+     * <code>string locationCode = 4;</code>
+     * @return The bytes for locationCode.
      */
     @java.lang.Override
     public com.google.protobuf.ByteString
-        getLocationBytes() {
-      java.lang.Object ref = location_;
+        getLocationCodeBytes() {
+      java.lang.Object ref = locationCode_;
       if (ref instanceof java.lang.String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        location_ = b;
+        locationCode_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
@@ -350,8 +350,8 @@ public final class Proto {
       if (!getCategoryBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 3, category_);
       }
-      if (!getLocationBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, location_);
+      if (!getLocationCodeBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, locationCode_);
       }
       unknownFields.writeTo(output);
     }
@@ -371,8 +371,8 @@ public final class Proto {
       if (!getCategoryBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, category_);
       }
-      if (!getLocationBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, location_);
+      if (!getLocationCodeBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, locationCode_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -395,8 +395,8 @@ public final class Proto {
           .equals(other.getName())) return false;
       if (!getCategory()
           .equals(other.getCategory())) return false;
-      if (!getLocation()
-          .equals(other.getLocation())) return false;
+      if (!getLocationCode()
+          .equals(other.getLocationCode())) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -414,8 +414,8 @@ public final class Proto {
       hash = (53 * hash) + getName().hashCode();
       hash = (37 * hash) + CATEGORY_FIELD_NUMBER;
       hash = (53 * hash) + getCategory().hashCode();
-      hash = (37 * hash) + LOCATION_FIELD_NUMBER;
-      hash = (53 * hash) + getLocation().hashCode();
+      hash = (37 * hash) + LOCATIONCODE_FIELD_NUMBER;
+      hash = (53 * hash) + getLocationCode().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -559,7 +559,7 @@ public final class Proto {
 
         category_ = "";
 
-        location_ = "";
+        locationCode_ = "";
 
         return this;
       }
@@ -590,7 +590,7 @@ public final class Proto {
         result.id_ = id_;
         result.name_ = name_;
         result.category_ = category_;
-        result.location_ = location_;
+        result.locationCode_ = locationCode_;
         onBuilt();
         return result;
       }
@@ -651,8 +651,8 @@ public final class Proto {
           category_ = other.category_;
           onChanged();
         }
-        if (!other.getLocation().isEmpty()) {
-          location_ = other.location_;
+        if (!other.getLocationCode().isEmpty()) {
+          locationCode_ = other.locationCode_;
           onChanged();
         }
         this.mergeUnknownFields(other.unknownFields);
@@ -912,78 +912,78 @@ public final class Proto {
         return this;
       }
 
-      private java.lang.Object location_ = "";
+      private java.lang.Object locationCode_ = "";
       /**
-       * <code>string location = 4;</code>
-       * @return The location.
+       * <code>string locationCode = 4;</code>
+       * @return The locationCode.
        */
-      public java.lang.String getLocation() {
-        java.lang.Object ref = location_;
+      public java.lang.String getLocationCode() {
+        java.lang.Object ref = locationCode_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
-          location_ = s;
+          locationCode_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
         }
       }
       /**
-       * <code>string location = 4;</code>
-       * @return The bytes for location.
+       * <code>string locationCode = 4;</code>
+       * @return The bytes for locationCode.
        */
       public com.google.protobuf.ByteString
-          getLocationBytes() {
-        java.lang.Object ref = location_;
+          getLocationCodeBytes() {
+        java.lang.Object ref = locationCode_;
         if (ref instanceof String) {
           com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
-          location_ = b;
+          locationCode_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
       /**
-       * <code>string location = 4;</code>
-       * @param value The location to set.
+       * <code>string locationCode = 4;</code>
+       * @param value The locationCode to set.
        * @return This builder for chaining.
        */
-      public Builder setLocation(
+      public Builder setLocationCode(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
   
-        location_ = value;
+        locationCode_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>string location = 4;</code>
+       * <code>string locationCode = 4;</code>
        * @return This builder for chaining.
        */
-      public Builder clearLocation() {
+      public Builder clearLocationCode() {
         
-        location_ = getDefaultInstance().getLocation();
+        locationCode_ = getDefaultInstance().getLocationCode();
         onChanged();
         return this;
       }
       /**
-       * <code>string location = 4;</code>
-       * @param value The bytes for location to set.
+       * <code>string locationCode = 4;</code>
+       * @param value The bytes for locationCode to set.
        * @return This builder for chaining.
        */
-      public Builder setLocationBytes(
+      public Builder setLocationCodeBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
   checkByteStringIsUtf8(value);
         
-        location_ = value;
+        locationCode_ = value;
         onChanged();
         return this;
       }
@@ -1081,12 +1081,24 @@ public final class Proto {
         getCategoryBytes();
 
     /**
-     * <code>string unit = 4;</code>
+     * <code>string type = 4;</code>
+     * @return The type.
+     */
+    java.lang.String getType();
+    /**
+     * <code>string type = 4;</code>
+     * @return The bytes for type.
+     */
+    com.google.protobuf.ByteString
+        getTypeBytes();
+
+    /**
+     * <code>string unit = 5;</code>
      * @return The unit.
      */
     java.lang.String getUnit();
     /**
-     * <code>string unit = 4;</code>
+     * <code>string unit = 5;</code>
      * @return The bytes for unit.
      */
     com.google.protobuf.ByteString
@@ -1112,6 +1124,7 @@ public final class Proto {
       id_ = "";
       name_ = "";
       category_ = "";
+      type_ = "";
       unit_ = "";
     }
 
@@ -1164,6 +1177,12 @@ public final class Proto {
               break;
             }
             case 34: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              type_ = s;
+              break;
+            }
+            case 42: {
               java.lang.String s = input.readStringRequireUtf8();
 
               unit_ = s;
@@ -1315,10 +1334,48 @@ public final class Proto {
       }
     }
 
-    public static final int UNIT_FIELD_NUMBER = 4;
+    public static final int TYPE_FIELD_NUMBER = 4;
+    private volatile java.lang.Object type_;
+    /**
+     * <code>string type = 4;</code>
+     * @return The type.
+     */
+    @java.lang.Override
+    public java.lang.String getType() {
+      java.lang.Object ref = type_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        type_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string type = 4;</code>
+     * @return The bytes for type.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getTypeBytes() {
+      java.lang.Object ref = type_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        type_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int UNIT_FIELD_NUMBER = 5;
     private volatile java.lang.Object unit_;
     /**
-     * <code>string unit = 4;</code>
+     * <code>string unit = 5;</code>
      * @return The unit.
      */
     @java.lang.Override
@@ -1335,7 +1392,7 @@ public final class Proto {
       }
     }
     /**
-     * <code>string unit = 4;</code>
+     * <code>string unit = 5;</code>
      * @return The bytes for unit.
      */
     @java.lang.Override
@@ -1376,8 +1433,11 @@ public final class Proto {
       if (!getCategoryBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 3, category_);
       }
+      if (!getTypeBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, type_);
+      }
       if (!getUnitBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, unit_);
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 5, unit_);
       }
       unknownFields.writeTo(output);
     }
@@ -1397,8 +1457,11 @@ public final class Proto {
       if (!getCategoryBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, category_);
       }
+      if (!getTypeBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, type_);
+      }
       if (!getUnitBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, unit_);
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(5, unit_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -1421,6 +1484,8 @@ public final class Proto {
           .equals(other.getName())) return false;
       if (!getCategory()
           .equals(other.getCategory())) return false;
+      if (!getType()
+          .equals(other.getType())) return false;
       if (!getUnit()
           .equals(other.getUnit())) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
@@ -1440,6 +1505,8 @@ public final class Proto {
       hash = (53 * hash) + getName().hashCode();
       hash = (37 * hash) + CATEGORY_FIELD_NUMBER;
       hash = (53 * hash) + getCategory().hashCode();
+      hash = (37 * hash) + TYPE_FIELD_NUMBER;
+      hash = (53 * hash) + getType().hashCode();
       hash = (37 * hash) + UNIT_FIELD_NUMBER;
       hash = (53 * hash) + getUnit().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
@@ -1585,6 +1652,8 @@ public final class Proto {
 
         category_ = "";
 
+        type_ = "";
+
         unit_ = "";
 
         return this;
@@ -1616,6 +1685,7 @@ public final class Proto {
         result.id_ = id_;
         result.name_ = name_;
         result.category_ = category_;
+        result.type_ = type_;
         result.unit_ = unit_;
         onBuilt();
         return result;
@@ -1675,6 +1745,10 @@ public final class Proto {
         }
         if (!other.getCategory().isEmpty()) {
           category_ = other.category_;
+          onChanged();
+        }
+        if (!other.getType().isEmpty()) {
+          type_ = other.type_;
           onChanged();
         }
         if (!other.getUnit().isEmpty()) {
@@ -1938,9 +2012,85 @@ public final class Proto {
         return this;
       }
 
+      private java.lang.Object type_ = "";
+      /**
+       * <code>string type = 4;</code>
+       * @return The type.
+       */
+      public java.lang.String getType() {
+        java.lang.Object ref = type_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          type_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string type = 4;</code>
+       * @return The bytes for type.
+       */
+      public com.google.protobuf.ByteString
+          getTypeBytes() {
+        java.lang.Object ref = type_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          type_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string type = 4;</code>
+       * @param value The type to set.
+       * @return This builder for chaining.
+       */
+      public Builder setType(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        type_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string type = 4;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearType() {
+        
+        type_ = getDefaultInstance().getType();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string type = 4;</code>
+       * @param value The bytes for type to set.
+       * @return This builder for chaining.
+       */
+      public Builder setTypeBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        type_ = value;
+        onChanged();
+        return this;
+      }
+
       private java.lang.Object unit_ = "";
       /**
-       * <code>string unit = 4;</code>
+       * <code>string unit = 5;</code>
        * @return The unit.
        */
       public java.lang.String getUnit() {
@@ -1956,7 +2106,7 @@ public final class Proto {
         }
       }
       /**
-       * <code>string unit = 4;</code>
+       * <code>string unit = 5;</code>
        * @return The bytes for unit.
        */
       public com.google.protobuf.ByteString
@@ -1973,7 +2123,7 @@ public final class Proto {
         }
       }
       /**
-       * <code>string unit = 4;</code>
+       * <code>string unit = 5;</code>
        * @param value The unit to set.
        * @return This builder for chaining.
        */
@@ -1988,7 +2138,7 @@ public final class Proto {
         return this;
       }
       /**
-       * <code>string unit = 4;</code>
+       * <code>string unit = 5;</code>
        * @return This builder for chaining.
        */
       public Builder clearUnit() {
@@ -1998,7 +2148,7 @@ public final class Proto {
         return this;
       }
       /**
-       * <code>string unit = 4;</code>
+       * <code>string unit = 5;</code>
        * @param value The bytes for unit to set.
        * @return This builder for chaining.
        */
@@ -2061,6 +2211,882 @@ public final class Proto {
 
     @java.lang.Override
     public org.openlca.core.library.Proto.Flow getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface LocationOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:olcalib.Location)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>string id = 1;</code>
+     * @return The id.
+     */
+    java.lang.String getId();
+    /**
+     * <code>string id = 1;</code>
+     * @return The bytes for id.
+     */
+    com.google.protobuf.ByteString
+        getIdBytes();
+
+    /**
+     * <code>string name = 2;</code>
+     * @return The name.
+     */
+    java.lang.String getName();
+    /**
+     * <code>string name = 2;</code>
+     * @return The bytes for name.
+     */
+    com.google.protobuf.ByteString
+        getNameBytes();
+
+    /**
+     * <code>string code = 3;</code>
+     * @return The code.
+     */
+    java.lang.String getCode();
+    /**
+     * <code>string code = 3;</code>
+     * @return The bytes for code.
+     */
+    com.google.protobuf.ByteString
+        getCodeBytes();
+  }
+  /**
+   * <pre>
+   * Contains the meta data of a location.
+   * </pre>
+   *
+   * Protobuf type {@code olcalib.Location}
+   */
+  public static final class Location extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:olcalib.Location)
+      LocationOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use Location.newBuilder() to construct.
+    private Location(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private Location() {
+      id_ = "";
+      name_ = "";
+      code_ = "";
+    }
+
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new Location();
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private Location(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              id_ = s;
+              break;
+            }
+            case 18: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              name_ = s;
+              break;
+            }
+            case 26: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              code_ = s;
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.openlca.core.library.Proto.internal_static_olcalib_Location_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.openlca.core.library.Proto.internal_static_olcalib_Location_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.openlca.core.library.Proto.Location.class, org.openlca.core.library.Proto.Location.Builder.class);
+    }
+
+    public static final int ID_FIELD_NUMBER = 1;
+    private volatile java.lang.Object id_;
+    /**
+     * <code>string id = 1;</code>
+     * @return The id.
+     */
+    @java.lang.Override
+    public java.lang.String getId() {
+      java.lang.Object ref = id_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        id_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string id = 1;</code>
+     * @return The bytes for id.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getIdBytes() {
+      java.lang.Object ref = id_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        id_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int NAME_FIELD_NUMBER = 2;
+    private volatile java.lang.Object name_;
+    /**
+     * <code>string name = 2;</code>
+     * @return The name.
+     */
+    @java.lang.Override
+    public java.lang.String getName() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        name_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string name = 2;</code>
+     * @return The bytes for name.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getNameBytes() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        name_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int CODE_FIELD_NUMBER = 3;
+    private volatile java.lang.Object code_;
+    /**
+     * <code>string code = 3;</code>
+     * @return The code.
+     */
+    @java.lang.Override
+    public java.lang.String getCode() {
+      java.lang.Object ref = code_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        code_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string code = 3;</code>
+     * @return The bytes for code.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getCodeBytes() {
+      java.lang.Object ref = code_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        code_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!getIdBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, id_);
+      }
+      if (!getNameBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, name_);
+      }
+      if (!getCodeBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, code_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (!getIdBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, id_);
+      }
+      if (!getNameBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, name_);
+      }
+      if (!getCodeBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, code_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof org.openlca.core.library.Proto.Location)) {
+        return super.equals(obj);
+      }
+      org.openlca.core.library.Proto.Location other = (org.openlca.core.library.Proto.Location) obj;
+
+      if (!getId()
+          .equals(other.getId())) return false;
+      if (!getName()
+          .equals(other.getName())) return false;
+      if (!getCode()
+          .equals(other.getCode())) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + ID_FIELD_NUMBER;
+      hash = (53 * hash) + getId().hashCode();
+      hash = (37 * hash) + NAME_FIELD_NUMBER;
+      hash = (53 * hash) + getName().hashCode();
+      hash = (37 * hash) + CODE_FIELD_NUMBER;
+      hash = (53 * hash) + getCode().hashCode();
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static org.openlca.core.library.Proto.Location parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.openlca.core.library.Proto.Location parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.openlca.core.library.Proto.Location parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.openlca.core.library.Proto.Location parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.openlca.core.library.Proto.Location parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.openlca.core.library.Proto.Location parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.openlca.core.library.Proto.Location parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static org.openlca.core.library.Proto.Location parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static org.openlca.core.library.Proto.Location parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static org.openlca.core.library.Proto.Location parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static org.openlca.core.library.Proto.Location parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static org.openlca.core.library.Proto.Location parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.openlca.core.library.Proto.Location prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * <pre>
+     * Contains the meta data of a location.
+     * </pre>
+     *
+     * Protobuf type {@code olcalib.Location}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:olcalib.Location)
+        org.openlca.core.library.Proto.LocationOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.openlca.core.library.Proto.internal_static_olcalib_Location_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.openlca.core.library.Proto.internal_static_olcalib_Location_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.openlca.core.library.Proto.Location.class, org.openlca.core.library.Proto.Location.Builder.class);
+      }
+
+      // Construct using org.openlca.core.library.Proto.Location.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        id_ = "";
+
+        name_ = "";
+
+        code_ = "";
+
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.openlca.core.library.Proto.internal_static_olcalib_Location_descriptor;
+      }
+
+      @java.lang.Override
+      public org.openlca.core.library.Proto.Location getDefaultInstanceForType() {
+        return org.openlca.core.library.Proto.Location.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public org.openlca.core.library.Proto.Location build() {
+        org.openlca.core.library.Proto.Location result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public org.openlca.core.library.Proto.Location buildPartial() {
+        org.openlca.core.library.Proto.Location result = new org.openlca.core.library.Proto.Location(this);
+        result.id_ = id_;
+        result.name_ = name_;
+        result.code_ = code_;
+        onBuilt();
+        return result;
+      }
+
+      @java.lang.Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.openlca.core.library.Proto.Location) {
+          return mergeFrom((org.openlca.core.library.Proto.Location)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.openlca.core.library.Proto.Location other) {
+        if (other == org.openlca.core.library.Proto.Location.getDefaultInstance()) return this;
+        if (!other.getId().isEmpty()) {
+          id_ = other.id_;
+          onChanged();
+        }
+        if (!other.getName().isEmpty()) {
+          name_ = other.name_;
+          onChanged();
+        }
+        if (!other.getCode().isEmpty()) {
+          code_ = other.code_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.openlca.core.library.Proto.Location parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.openlca.core.library.Proto.Location) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private java.lang.Object id_ = "";
+      /**
+       * <code>string id = 1;</code>
+       * @return The id.
+       */
+      public java.lang.String getId() {
+        java.lang.Object ref = id_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          id_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string id = 1;</code>
+       * @return The bytes for id.
+       */
+      public com.google.protobuf.ByteString
+          getIdBytes() {
+        java.lang.Object ref = id_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          id_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string id = 1;</code>
+       * @param value The id to set.
+       * @return This builder for chaining.
+       */
+      public Builder setId(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        id_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string id = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearId() {
+        
+        id_ = getDefaultInstance().getId();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string id = 1;</code>
+       * @param value The bytes for id to set.
+       * @return This builder for chaining.
+       */
+      public Builder setIdBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        id_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object name_ = "";
+      /**
+       * <code>string name = 2;</code>
+       * @return The name.
+       */
+      public java.lang.String getName() {
+        java.lang.Object ref = name_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          name_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string name = 2;</code>
+       * @return The bytes for name.
+       */
+      public com.google.protobuf.ByteString
+          getNameBytes() {
+        java.lang.Object ref = name_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          name_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string name = 2;</code>
+       * @param value The name to set.
+       * @return This builder for chaining.
+       */
+      public Builder setName(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        name_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string name = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearName() {
+        
+        name_ = getDefaultInstance().getName();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string name = 2;</code>
+       * @param value The bytes for name to set.
+       * @return This builder for chaining.
+       */
+      public Builder setNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        name_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object code_ = "";
+      /**
+       * <code>string code = 3;</code>
+       * @return The code.
+       */
+      public java.lang.String getCode() {
+        java.lang.Object ref = code_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          code_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string code = 3;</code>
+       * @return The bytes for code.
+       */
+      public com.google.protobuf.ByteString
+          getCodeBytes() {
+        java.lang.Object ref = code_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          code_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string code = 3;</code>
+       * @param value The code to set.
+       * @return This builder for chaining.
+       */
+      public Builder setCode(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        code_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string code = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearCode() {
+        
+        code_ = getDefaultInstance().getCode();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string code = 3;</code>
+       * @param value The bytes for code to set.
+       * @return This builder for chaining.
+       */
+      public Builder setCodeBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        code_ = value;
+        onChanged();
+        return this;
+      }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:olcalib.Location)
+    }
+
+    // @@protoc_insertion_point(class_scope:olcalib.Location)
+    private static final org.openlca.core.library.Proto.Location DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.openlca.core.library.Proto.Location();
+    }
+
+    public static org.openlca.core.library.Proto.Location getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<Location>
+        PARSER = new com.google.protobuf.AbstractParser<Location>() {
+      @java.lang.Override
+      public Location parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new Location(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<Location> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Location> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public org.openlca.core.library.Proto.Location getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -3999,27 +5025,27 @@ public final class Proto {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>repeated .olcalib.ProductEntry products = 1;</code>
+     * <code>repeated .olcalib.ProductEntry product = 1;</code>
      */
     java.util.List<org.openlca.core.library.Proto.ProductEntry> 
-        getProductsList();
+        getProductList();
     /**
-     * <code>repeated .olcalib.ProductEntry products = 1;</code>
+     * <code>repeated .olcalib.ProductEntry product = 1;</code>
      */
-    org.openlca.core.library.Proto.ProductEntry getProducts(int index);
+    org.openlca.core.library.Proto.ProductEntry getProduct(int index);
     /**
-     * <code>repeated .olcalib.ProductEntry products = 1;</code>
+     * <code>repeated .olcalib.ProductEntry product = 1;</code>
      */
-    int getProductsCount();
+    int getProductCount();
     /**
-     * <code>repeated .olcalib.ProductEntry products = 1;</code>
+     * <code>repeated .olcalib.ProductEntry product = 1;</code>
      */
     java.util.List<? extends org.openlca.core.library.Proto.ProductEntryOrBuilder> 
-        getProductsOrBuilderList();
+        getProductOrBuilderList();
     /**
-     * <code>repeated .olcalib.ProductEntry products = 1;</code>
+     * <code>repeated .olcalib.ProductEntry product = 1;</code>
      */
-    org.openlca.core.library.Proto.ProductEntryOrBuilder getProductsOrBuilder(
+    org.openlca.core.library.Proto.ProductEntryOrBuilder getProductOrBuilder(
         int index);
   }
   /**
@@ -4039,7 +5065,7 @@ public final class Proto {
       super(builder);
     }
     private ProductIndex() {
-      products_ = java.util.Collections.emptyList();
+      product_ = java.util.Collections.emptyList();
     }
 
     @java.lang.Override
@@ -4075,10 +5101,10 @@ public final class Proto {
               break;
             case 10: {
               if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                products_ = new java.util.ArrayList<org.openlca.core.library.Proto.ProductEntry>();
+                product_ = new java.util.ArrayList<org.openlca.core.library.Proto.ProductEntry>();
                 mutable_bitField0_ |= 0x00000001;
               }
-              products_.add(
+              product_.add(
                   input.readMessage(org.openlca.core.library.Proto.ProductEntry.parser(), extensionRegistry));
               break;
             }
@@ -4098,7 +5124,7 @@ public final class Proto {
             e).setUnfinishedMessage(this);
       } finally {
         if (((mutable_bitField0_ & 0x00000001) != 0)) {
-          products_ = java.util.Collections.unmodifiableList(products_);
+          product_ = java.util.Collections.unmodifiableList(product_);
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -4117,44 +5143,44 @@ public final class Proto {
               org.openlca.core.library.Proto.ProductIndex.class, org.openlca.core.library.Proto.ProductIndex.Builder.class);
     }
 
-    public static final int PRODUCTS_FIELD_NUMBER = 1;
-    private java.util.List<org.openlca.core.library.Proto.ProductEntry> products_;
+    public static final int PRODUCT_FIELD_NUMBER = 1;
+    private java.util.List<org.openlca.core.library.Proto.ProductEntry> product_;
     /**
-     * <code>repeated .olcalib.ProductEntry products = 1;</code>
+     * <code>repeated .olcalib.ProductEntry product = 1;</code>
      */
     @java.lang.Override
-    public java.util.List<org.openlca.core.library.Proto.ProductEntry> getProductsList() {
-      return products_;
+    public java.util.List<org.openlca.core.library.Proto.ProductEntry> getProductList() {
+      return product_;
     }
     /**
-     * <code>repeated .olcalib.ProductEntry products = 1;</code>
+     * <code>repeated .olcalib.ProductEntry product = 1;</code>
      */
     @java.lang.Override
     public java.util.List<? extends org.openlca.core.library.Proto.ProductEntryOrBuilder> 
-        getProductsOrBuilderList() {
-      return products_;
+        getProductOrBuilderList() {
+      return product_;
     }
     /**
-     * <code>repeated .olcalib.ProductEntry products = 1;</code>
+     * <code>repeated .olcalib.ProductEntry product = 1;</code>
      */
     @java.lang.Override
-    public int getProductsCount() {
-      return products_.size();
+    public int getProductCount() {
+      return product_.size();
     }
     /**
-     * <code>repeated .olcalib.ProductEntry products = 1;</code>
+     * <code>repeated .olcalib.ProductEntry product = 1;</code>
      */
     @java.lang.Override
-    public org.openlca.core.library.Proto.ProductEntry getProducts(int index) {
-      return products_.get(index);
+    public org.openlca.core.library.Proto.ProductEntry getProduct(int index) {
+      return product_.get(index);
     }
     /**
-     * <code>repeated .olcalib.ProductEntry products = 1;</code>
+     * <code>repeated .olcalib.ProductEntry product = 1;</code>
      */
     @java.lang.Override
-    public org.openlca.core.library.Proto.ProductEntryOrBuilder getProductsOrBuilder(
+    public org.openlca.core.library.Proto.ProductEntryOrBuilder getProductOrBuilder(
         int index) {
-      return products_.get(index);
+      return product_.get(index);
     }
 
     private byte memoizedIsInitialized = -1;
@@ -4171,8 +5197,8 @@ public final class Proto {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      for (int i = 0; i < products_.size(); i++) {
-        output.writeMessage(1, products_.get(i));
+      for (int i = 0; i < product_.size(); i++) {
+        output.writeMessage(1, product_.get(i));
       }
       unknownFields.writeTo(output);
     }
@@ -4183,9 +5209,9 @@ public final class Proto {
       if (size != -1) return size;
 
       size = 0;
-      for (int i = 0; i < products_.size(); i++) {
+      for (int i = 0; i < product_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1, products_.get(i));
+          .computeMessageSize(1, product_.get(i));
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -4202,8 +5228,8 @@ public final class Proto {
       }
       org.openlca.core.library.Proto.ProductIndex other = (org.openlca.core.library.Proto.ProductIndex) obj;
 
-      if (!getProductsList()
-          .equals(other.getProductsList())) return false;
+      if (!getProductList()
+          .equals(other.getProductList())) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -4215,9 +5241,9 @@ public final class Proto {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      if (getProductsCount() > 0) {
-        hash = (37 * hash) + PRODUCTS_FIELD_NUMBER;
-        hash = (53 * hash) + getProductsList().hashCode();
+      if (getProductCount() > 0) {
+        hash = (37 * hash) + PRODUCT_FIELD_NUMBER;
+        hash = (53 * hash) + getProductList().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -4351,17 +5377,17 @@ public final class Proto {
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessageV3
                 .alwaysUseFieldBuilders) {
-          getProductsFieldBuilder();
+          getProductFieldBuilder();
         }
       }
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        if (productsBuilder_ == null) {
-          products_ = java.util.Collections.emptyList();
+        if (productBuilder_ == null) {
+          product_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000001);
         } else {
-          productsBuilder_.clear();
+          productBuilder_.clear();
         }
         return this;
       }
@@ -4390,14 +5416,14 @@ public final class Proto {
       public org.openlca.core.library.Proto.ProductIndex buildPartial() {
         org.openlca.core.library.Proto.ProductIndex result = new org.openlca.core.library.Proto.ProductIndex(this);
         int from_bitField0_ = bitField0_;
-        if (productsBuilder_ == null) {
+        if (productBuilder_ == null) {
           if (((bitField0_ & 0x00000001) != 0)) {
-            products_ = java.util.Collections.unmodifiableList(products_);
+            product_ = java.util.Collections.unmodifiableList(product_);
             bitField0_ = (bitField0_ & ~0x00000001);
           }
-          result.products_ = products_;
+          result.product_ = product_;
         } else {
-          result.products_ = productsBuilder_.build();
+          result.product_ = productBuilder_.build();
         }
         onBuilt();
         return result;
@@ -4447,29 +5473,29 @@ public final class Proto {
 
       public Builder mergeFrom(org.openlca.core.library.Proto.ProductIndex other) {
         if (other == org.openlca.core.library.Proto.ProductIndex.getDefaultInstance()) return this;
-        if (productsBuilder_ == null) {
-          if (!other.products_.isEmpty()) {
-            if (products_.isEmpty()) {
-              products_ = other.products_;
+        if (productBuilder_ == null) {
+          if (!other.product_.isEmpty()) {
+            if (product_.isEmpty()) {
+              product_ = other.product_;
               bitField0_ = (bitField0_ & ~0x00000001);
             } else {
-              ensureProductsIsMutable();
-              products_.addAll(other.products_);
+              ensureProductIsMutable();
+              product_.addAll(other.product_);
             }
             onChanged();
           }
         } else {
-          if (!other.products_.isEmpty()) {
-            if (productsBuilder_.isEmpty()) {
-              productsBuilder_.dispose();
-              productsBuilder_ = null;
-              products_ = other.products_;
+          if (!other.product_.isEmpty()) {
+            if (productBuilder_.isEmpty()) {
+              productBuilder_.dispose();
+              productBuilder_ = null;
+              product_ = other.product_;
               bitField0_ = (bitField0_ & ~0x00000001);
-              productsBuilder_ = 
+              productBuilder_ = 
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
-                   getProductsFieldBuilder() : null;
+                   getProductFieldBuilder() : null;
             } else {
-              productsBuilder_.addAllMessages(other.products_);
+              productBuilder_.addAllMessages(other.product_);
             }
           }
         }
@@ -4503,244 +5529,244 @@ public final class Proto {
       }
       private int bitField0_;
 
-      private java.util.List<org.openlca.core.library.Proto.ProductEntry> products_ =
+      private java.util.List<org.openlca.core.library.Proto.ProductEntry> product_ =
         java.util.Collections.emptyList();
-      private void ensureProductsIsMutable() {
+      private void ensureProductIsMutable() {
         if (!((bitField0_ & 0x00000001) != 0)) {
-          products_ = new java.util.ArrayList<org.openlca.core.library.Proto.ProductEntry>(products_);
+          product_ = new java.util.ArrayList<org.openlca.core.library.Proto.ProductEntry>(product_);
           bitField0_ |= 0x00000001;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          org.openlca.core.library.Proto.ProductEntry, org.openlca.core.library.Proto.ProductEntry.Builder, org.openlca.core.library.Proto.ProductEntryOrBuilder> productsBuilder_;
+          org.openlca.core.library.Proto.ProductEntry, org.openlca.core.library.Proto.ProductEntry.Builder, org.openlca.core.library.Proto.ProductEntryOrBuilder> productBuilder_;
 
       /**
-       * <code>repeated .olcalib.ProductEntry products = 1;</code>
+       * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public java.util.List<org.openlca.core.library.Proto.ProductEntry> getProductsList() {
-        if (productsBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(products_);
+      public java.util.List<org.openlca.core.library.Proto.ProductEntry> getProductList() {
+        if (productBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(product_);
         } else {
-          return productsBuilder_.getMessageList();
+          return productBuilder_.getMessageList();
         }
       }
       /**
-       * <code>repeated .olcalib.ProductEntry products = 1;</code>
+       * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public int getProductsCount() {
-        if (productsBuilder_ == null) {
-          return products_.size();
+      public int getProductCount() {
+        if (productBuilder_ == null) {
+          return product_.size();
         } else {
-          return productsBuilder_.getCount();
+          return productBuilder_.getCount();
         }
       }
       /**
-       * <code>repeated .olcalib.ProductEntry products = 1;</code>
+       * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public org.openlca.core.library.Proto.ProductEntry getProducts(int index) {
-        if (productsBuilder_ == null) {
-          return products_.get(index);
+      public org.openlca.core.library.Proto.ProductEntry getProduct(int index) {
+        if (productBuilder_ == null) {
+          return product_.get(index);
         } else {
-          return productsBuilder_.getMessage(index);
+          return productBuilder_.getMessage(index);
         }
       }
       /**
-       * <code>repeated .olcalib.ProductEntry products = 1;</code>
+       * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public Builder setProducts(
+      public Builder setProduct(
           int index, org.openlca.core.library.Proto.ProductEntry value) {
-        if (productsBuilder_ == null) {
+        if (productBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureProductsIsMutable();
-          products_.set(index, value);
+          ensureProductIsMutable();
+          product_.set(index, value);
           onChanged();
         } else {
-          productsBuilder_.setMessage(index, value);
+          productBuilder_.setMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ProductEntry products = 1;</code>
+       * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public Builder setProducts(
+      public Builder setProduct(
           int index, org.openlca.core.library.Proto.ProductEntry.Builder builderForValue) {
-        if (productsBuilder_ == null) {
-          ensureProductsIsMutable();
-          products_.set(index, builderForValue.build());
+        if (productBuilder_ == null) {
+          ensureProductIsMutable();
+          product_.set(index, builderForValue.build());
           onChanged();
         } else {
-          productsBuilder_.setMessage(index, builderForValue.build());
+          productBuilder_.setMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ProductEntry products = 1;</code>
+       * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public Builder addProducts(org.openlca.core.library.Proto.ProductEntry value) {
-        if (productsBuilder_ == null) {
+      public Builder addProduct(org.openlca.core.library.Proto.ProductEntry value) {
+        if (productBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureProductsIsMutable();
-          products_.add(value);
+          ensureProductIsMutable();
+          product_.add(value);
           onChanged();
         } else {
-          productsBuilder_.addMessage(value);
+          productBuilder_.addMessage(value);
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ProductEntry products = 1;</code>
+       * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public Builder addProducts(
+      public Builder addProduct(
           int index, org.openlca.core.library.Proto.ProductEntry value) {
-        if (productsBuilder_ == null) {
+        if (productBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureProductsIsMutable();
-          products_.add(index, value);
+          ensureProductIsMutable();
+          product_.add(index, value);
           onChanged();
         } else {
-          productsBuilder_.addMessage(index, value);
+          productBuilder_.addMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ProductEntry products = 1;</code>
+       * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public Builder addProducts(
+      public Builder addProduct(
           org.openlca.core.library.Proto.ProductEntry.Builder builderForValue) {
-        if (productsBuilder_ == null) {
-          ensureProductsIsMutable();
-          products_.add(builderForValue.build());
+        if (productBuilder_ == null) {
+          ensureProductIsMutable();
+          product_.add(builderForValue.build());
           onChanged();
         } else {
-          productsBuilder_.addMessage(builderForValue.build());
+          productBuilder_.addMessage(builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ProductEntry products = 1;</code>
+       * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public Builder addProducts(
+      public Builder addProduct(
           int index, org.openlca.core.library.Proto.ProductEntry.Builder builderForValue) {
-        if (productsBuilder_ == null) {
-          ensureProductsIsMutable();
-          products_.add(index, builderForValue.build());
+        if (productBuilder_ == null) {
+          ensureProductIsMutable();
+          product_.add(index, builderForValue.build());
           onChanged();
         } else {
-          productsBuilder_.addMessage(index, builderForValue.build());
+          productBuilder_.addMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ProductEntry products = 1;</code>
+       * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public Builder addAllProducts(
+      public Builder addAllProduct(
           java.lang.Iterable<? extends org.openlca.core.library.Proto.ProductEntry> values) {
-        if (productsBuilder_ == null) {
-          ensureProductsIsMutable();
+        if (productBuilder_ == null) {
+          ensureProductIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
-              values, products_);
+              values, product_);
           onChanged();
         } else {
-          productsBuilder_.addAllMessages(values);
+          productBuilder_.addAllMessages(values);
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ProductEntry products = 1;</code>
+       * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public Builder clearProducts() {
-        if (productsBuilder_ == null) {
-          products_ = java.util.Collections.emptyList();
+      public Builder clearProduct() {
+        if (productBuilder_ == null) {
+          product_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000001);
           onChanged();
         } else {
-          productsBuilder_.clear();
+          productBuilder_.clear();
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ProductEntry products = 1;</code>
+       * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public Builder removeProducts(int index) {
-        if (productsBuilder_ == null) {
-          ensureProductsIsMutable();
-          products_.remove(index);
+      public Builder removeProduct(int index) {
+        if (productBuilder_ == null) {
+          ensureProductIsMutable();
+          product_.remove(index);
           onChanged();
         } else {
-          productsBuilder_.remove(index);
+          productBuilder_.remove(index);
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ProductEntry products = 1;</code>
+       * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public org.openlca.core.library.Proto.ProductEntry.Builder getProductsBuilder(
+      public org.openlca.core.library.Proto.ProductEntry.Builder getProductBuilder(
           int index) {
-        return getProductsFieldBuilder().getBuilder(index);
+        return getProductFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .olcalib.ProductEntry products = 1;</code>
+       * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public org.openlca.core.library.Proto.ProductEntryOrBuilder getProductsOrBuilder(
+      public org.openlca.core.library.Proto.ProductEntryOrBuilder getProductOrBuilder(
           int index) {
-        if (productsBuilder_ == null) {
-          return products_.get(index);  } else {
-          return productsBuilder_.getMessageOrBuilder(index);
+        if (productBuilder_ == null) {
+          return product_.get(index);  } else {
+          return productBuilder_.getMessageOrBuilder(index);
         }
       }
       /**
-       * <code>repeated .olcalib.ProductEntry products = 1;</code>
+       * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
       public java.util.List<? extends org.openlca.core.library.Proto.ProductEntryOrBuilder> 
-           getProductsOrBuilderList() {
-        if (productsBuilder_ != null) {
-          return productsBuilder_.getMessageOrBuilderList();
+           getProductOrBuilderList() {
+        if (productBuilder_ != null) {
+          return productBuilder_.getMessageOrBuilderList();
         } else {
-          return java.util.Collections.unmodifiableList(products_);
+          return java.util.Collections.unmodifiableList(product_);
         }
       }
       /**
-       * <code>repeated .olcalib.ProductEntry products = 1;</code>
+       * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public org.openlca.core.library.Proto.ProductEntry.Builder addProductsBuilder() {
-        return getProductsFieldBuilder().addBuilder(
+      public org.openlca.core.library.Proto.ProductEntry.Builder addProductBuilder() {
+        return getProductFieldBuilder().addBuilder(
             org.openlca.core.library.Proto.ProductEntry.getDefaultInstance());
       }
       /**
-       * <code>repeated .olcalib.ProductEntry products = 1;</code>
+       * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public org.openlca.core.library.Proto.ProductEntry.Builder addProductsBuilder(
+      public org.openlca.core.library.Proto.ProductEntry.Builder addProductBuilder(
           int index) {
-        return getProductsFieldBuilder().addBuilder(
+        return getProductFieldBuilder().addBuilder(
             index, org.openlca.core.library.Proto.ProductEntry.getDefaultInstance());
       }
       /**
-       * <code>repeated .olcalib.ProductEntry products = 1;</code>
+       * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
       public java.util.List<org.openlca.core.library.Proto.ProductEntry.Builder> 
-           getProductsBuilderList() {
-        return getProductsFieldBuilder().getBuilderList();
+           getProductBuilderList() {
+        return getProductFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilderV3<
           org.openlca.core.library.Proto.ProductEntry, org.openlca.core.library.Proto.ProductEntry.Builder, org.openlca.core.library.Proto.ProductEntryOrBuilder> 
-          getProductsFieldBuilder() {
-        if (productsBuilder_ == null) {
-          productsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+          getProductFieldBuilder() {
+        if (productBuilder_ == null) {
+          productBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
               org.openlca.core.library.Proto.ProductEntry, org.openlca.core.library.Proto.ProductEntry.Builder, org.openlca.core.library.Proto.ProductEntryOrBuilder>(
-                  products_,
+                  product_,
                   ((bitField0_ & 0x00000001) != 0),
                   getParentForChildren(),
                   isClean());
-          products_ = null;
+          product_ = null;
         }
-        return productsBuilder_;
+        return productBuilder_;
       }
       @java.lang.Override
       public final Builder setUnknownFields(
@@ -4819,6 +5845,27 @@ public final class Proto {
      * <code>.olcalib.Flow flow = 2;</code>
      */
     org.openlca.core.library.Proto.FlowOrBuilder getFlowOrBuilder();
+
+    /**
+     * <code>.olcalib.Location location = 3;</code>
+     * @return Whether the location field is set.
+     */
+    boolean hasLocation();
+    /**
+     * <code>.olcalib.Location location = 3;</code>
+     * @return The location.
+     */
+    org.openlca.core.library.Proto.Location getLocation();
+    /**
+     * <code>.olcalib.Location location = 3;</code>
+     */
+    org.openlca.core.library.Proto.LocationOrBuilder getLocationOrBuilder();
+
+    /**
+     * <code>bool is_input = 4;</code>
+     * @return The isInput.
+     */
+    boolean getIsInput();
   }
   /**
    * <pre>
@@ -4885,6 +5932,24 @@ public final class Proto {
                 flow_ = subBuilder.buildPartial();
               }
 
+              break;
+            }
+            case 26: {
+              org.openlca.core.library.Proto.Location.Builder subBuilder = null;
+              if (location_ != null) {
+                subBuilder = location_.toBuilder();
+              }
+              location_ = input.readMessage(org.openlca.core.library.Proto.Location.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(location_);
+                location_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 32: {
+
+              isInput_ = input.readBool();
               break;
             }
             default: {
@@ -4956,6 +6021,43 @@ public final class Proto {
       return getFlow();
     }
 
+    public static final int LOCATION_FIELD_NUMBER = 3;
+    private org.openlca.core.library.Proto.Location location_;
+    /**
+     * <code>.olcalib.Location location = 3;</code>
+     * @return Whether the location field is set.
+     */
+    @java.lang.Override
+    public boolean hasLocation() {
+      return location_ != null;
+    }
+    /**
+     * <code>.olcalib.Location location = 3;</code>
+     * @return The location.
+     */
+    @java.lang.Override
+    public org.openlca.core.library.Proto.Location getLocation() {
+      return location_ == null ? org.openlca.core.library.Proto.Location.getDefaultInstance() : location_;
+    }
+    /**
+     * <code>.olcalib.Location location = 3;</code>
+     */
+    @java.lang.Override
+    public org.openlca.core.library.Proto.LocationOrBuilder getLocationOrBuilder() {
+      return getLocation();
+    }
+
+    public static final int IS_INPUT_FIELD_NUMBER = 4;
+    private boolean isInput_;
+    /**
+     * <code>bool is_input = 4;</code>
+     * @return The isInput.
+     */
+    @java.lang.Override
+    public boolean getIsInput() {
+      return isInput_;
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -4976,6 +6078,12 @@ public final class Proto {
       if (flow_ != null) {
         output.writeMessage(2, getFlow());
       }
+      if (location_ != null) {
+        output.writeMessage(3, getLocation());
+      }
+      if (isInput_ != false) {
+        output.writeBool(4, isInput_);
+      }
       unknownFields.writeTo(output);
     }
 
@@ -4992,6 +6100,14 @@ public final class Proto {
       if (flow_ != null) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(2, getFlow());
+      }
+      if (location_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(3, getLocation());
+      }
+      if (isInput_ != false) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(4, isInput_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -5015,6 +6131,13 @@ public final class Proto {
         if (!getFlow()
             .equals(other.getFlow())) return false;
       }
+      if (hasLocation() != other.hasLocation()) return false;
+      if (hasLocation()) {
+        if (!getLocation()
+            .equals(other.getLocation())) return false;
+      }
+      if (getIsInput()
+          != other.getIsInput()) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -5032,6 +6155,13 @@ public final class Proto {
         hash = (37 * hash) + FLOW_FIELD_NUMBER;
         hash = (53 * hash) + getFlow().hashCode();
       }
+      if (hasLocation()) {
+        hash = (37 * hash) + LOCATION_FIELD_NUMBER;
+        hash = (53 * hash) + getLocation().hashCode();
+      }
+      hash = (37 * hash) + IS_INPUT_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getIsInput());
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -5177,6 +6307,14 @@ public final class Proto {
           flow_ = null;
           flowBuilder_ = null;
         }
+        if (locationBuilder_ == null) {
+          location_ = null;
+        } else {
+          location_ = null;
+          locationBuilder_ = null;
+        }
+        isInput_ = false;
+
         return this;
       }
 
@@ -5209,6 +6347,12 @@ public final class Proto {
         } else {
           result.flow_ = flowBuilder_.build();
         }
+        if (locationBuilder_ == null) {
+          result.location_ = location_;
+        } else {
+          result.location_ = locationBuilder_.build();
+        }
+        result.isInput_ = isInput_;
         onBuilt();
         return result;
       }
@@ -5262,6 +6406,12 @@ public final class Proto {
         }
         if (other.hasFlow()) {
           mergeFlow(other.getFlow());
+        }
+        if (other.hasLocation()) {
+          mergeLocation(other.getLocation());
+        }
+        if (other.getIsInput() != false) {
+          setIsInput(other.getIsInput());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -5441,6 +6591,156 @@ public final class Proto {
         }
         return flowBuilder_;
       }
+
+      private org.openlca.core.library.Proto.Location location_;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          org.openlca.core.library.Proto.Location, org.openlca.core.library.Proto.Location.Builder, org.openlca.core.library.Proto.LocationOrBuilder> locationBuilder_;
+      /**
+       * <code>.olcalib.Location location = 3;</code>
+       * @return Whether the location field is set.
+       */
+      public boolean hasLocation() {
+        return locationBuilder_ != null || location_ != null;
+      }
+      /**
+       * <code>.olcalib.Location location = 3;</code>
+       * @return The location.
+       */
+      public org.openlca.core.library.Proto.Location getLocation() {
+        if (locationBuilder_ == null) {
+          return location_ == null ? org.openlca.core.library.Proto.Location.getDefaultInstance() : location_;
+        } else {
+          return locationBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>.olcalib.Location location = 3;</code>
+       */
+      public Builder setLocation(org.openlca.core.library.Proto.Location value) {
+        if (locationBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          location_ = value;
+          onChanged();
+        } else {
+          locationBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.olcalib.Location location = 3;</code>
+       */
+      public Builder setLocation(
+          org.openlca.core.library.Proto.Location.Builder builderForValue) {
+        if (locationBuilder_ == null) {
+          location_ = builderForValue.build();
+          onChanged();
+        } else {
+          locationBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>.olcalib.Location location = 3;</code>
+       */
+      public Builder mergeLocation(org.openlca.core.library.Proto.Location value) {
+        if (locationBuilder_ == null) {
+          if (location_ != null) {
+            location_ =
+              org.openlca.core.library.Proto.Location.newBuilder(location_).mergeFrom(value).buildPartial();
+          } else {
+            location_ = value;
+          }
+          onChanged();
+        } else {
+          locationBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.olcalib.Location location = 3;</code>
+       */
+      public Builder clearLocation() {
+        if (locationBuilder_ == null) {
+          location_ = null;
+          onChanged();
+        } else {
+          location_ = null;
+          locationBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>.olcalib.Location location = 3;</code>
+       */
+      public org.openlca.core.library.Proto.Location.Builder getLocationBuilder() {
+        
+        onChanged();
+        return getLocationFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.olcalib.Location location = 3;</code>
+       */
+      public org.openlca.core.library.Proto.LocationOrBuilder getLocationOrBuilder() {
+        if (locationBuilder_ != null) {
+          return locationBuilder_.getMessageOrBuilder();
+        } else {
+          return location_ == null ?
+              org.openlca.core.library.Proto.Location.getDefaultInstance() : location_;
+        }
+      }
+      /**
+       * <code>.olcalib.Location location = 3;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          org.openlca.core.library.Proto.Location, org.openlca.core.library.Proto.Location.Builder, org.openlca.core.library.Proto.LocationOrBuilder> 
+          getLocationFieldBuilder() {
+        if (locationBuilder_ == null) {
+          locationBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              org.openlca.core.library.Proto.Location, org.openlca.core.library.Proto.Location.Builder, org.openlca.core.library.Proto.LocationOrBuilder>(
+                  getLocation(),
+                  getParentForChildren(),
+                  isClean());
+          location_ = null;
+        }
+        return locationBuilder_;
+      }
+
+      private boolean isInput_ ;
+      /**
+       * <code>bool is_input = 4;</code>
+       * @return The isInput.
+       */
+      @java.lang.Override
+      public boolean getIsInput() {
+        return isInput_;
+      }
+      /**
+       * <code>bool is_input = 4;</code>
+       * @param value The isInput to set.
+       * @return This builder for chaining.
+       */
+      public Builder setIsInput(boolean value) {
+        
+        isInput_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>bool is_input = 4;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearIsInput() {
+        
+        isInput_ = false;
+        onChanged();
+        return this;
+      }
       @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -5499,27 +6799,27 @@ public final class Proto {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+     * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
      */
     java.util.List<org.openlca.core.library.Proto.ElemFlowEntry> 
-        getFlowsList();
+        getFlowList();
     /**
-     * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+     * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
      */
-    org.openlca.core.library.Proto.ElemFlowEntry getFlows(int index);
+    org.openlca.core.library.Proto.ElemFlowEntry getFlow(int index);
     /**
-     * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+     * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
      */
-    int getFlowsCount();
+    int getFlowCount();
     /**
-     * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+     * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
      */
     java.util.List<? extends org.openlca.core.library.Proto.ElemFlowEntryOrBuilder> 
-        getFlowsOrBuilderList();
+        getFlowOrBuilderList();
     /**
-     * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+     * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
      */
-    org.openlca.core.library.Proto.ElemFlowEntryOrBuilder getFlowsOrBuilder(
+    org.openlca.core.library.Proto.ElemFlowEntryOrBuilder getFlowOrBuilder(
         int index);
   }
   /**
@@ -5539,7 +6839,7 @@ public final class Proto {
       super(builder);
     }
     private ElemFlowIndex() {
-      flows_ = java.util.Collections.emptyList();
+      flow_ = java.util.Collections.emptyList();
     }
 
     @java.lang.Override
@@ -5575,10 +6875,10 @@ public final class Proto {
               break;
             case 10: {
               if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                flows_ = new java.util.ArrayList<org.openlca.core.library.Proto.ElemFlowEntry>();
+                flow_ = new java.util.ArrayList<org.openlca.core.library.Proto.ElemFlowEntry>();
                 mutable_bitField0_ |= 0x00000001;
               }
-              flows_.add(
+              flow_.add(
                   input.readMessage(org.openlca.core.library.Proto.ElemFlowEntry.parser(), extensionRegistry));
               break;
             }
@@ -5598,7 +6898,7 @@ public final class Proto {
             e).setUnfinishedMessage(this);
       } finally {
         if (((mutable_bitField0_ & 0x00000001) != 0)) {
-          flows_ = java.util.Collections.unmodifiableList(flows_);
+          flow_ = java.util.Collections.unmodifiableList(flow_);
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -5617,44 +6917,44 @@ public final class Proto {
               org.openlca.core.library.Proto.ElemFlowIndex.class, org.openlca.core.library.Proto.ElemFlowIndex.Builder.class);
     }
 
-    public static final int FLOWS_FIELD_NUMBER = 1;
-    private java.util.List<org.openlca.core.library.Proto.ElemFlowEntry> flows_;
+    public static final int FLOW_FIELD_NUMBER = 1;
+    private java.util.List<org.openlca.core.library.Proto.ElemFlowEntry> flow_;
     /**
-     * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+     * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
      */
     @java.lang.Override
-    public java.util.List<org.openlca.core.library.Proto.ElemFlowEntry> getFlowsList() {
-      return flows_;
+    public java.util.List<org.openlca.core.library.Proto.ElemFlowEntry> getFlowList() {
+      return flow_;
     }
     /**
-     * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+     * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
      */
     @java.lang.Override
     public java.util.List<? extends org.openlca.core.library.Proto.ElemFlowEntryOrBuilder> 
-        getFlowsOrBuilderList() {
-      return flows_;
+        getFlowOrBuilderList() {
+      return flow_;
     }
     /**
-     * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+     * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
      */
     @java.lang.Override
-    public int getFlowsCount() {
-      return flows_.size();
+    public int getFlowCount() {
+      return flow_.size();
     }
     /**
-     * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+     * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
      */
     @java.lang.Override
-    public org.openlca.core.library.Proto.ElemFlowEntry getFlows(int index) {
-      return flows_.get(index);
+    public org.openlca.core.library.Proto.ElemFlowEntry getFlow(int index) {
+      return flow_.get(index);
     }
     /**
-     * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+     * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
      */
     @java.lang.Override
-    public org.openlca.core.library.Proto.ElemFlowEntryOrBuilder getFlowsOrBuilder(
+    public org.openlca.core.library.Proto.ElemFlowEntryOrBuilder getFlowOrBuilder(
         int index) {
-      return flows_.get(index);
+      return flow_.get(index);
     }
 
     private byte memoizedIsInitialized = -1;
@@ -5671,8 +6971,8 @@ public final class Proto {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      for (int i = 0; i < flows_.size(); i++) {
-        output.writeMessage(1, flows_.get(i));
+      for (int i = 0; i < flow_.size(); i++) {
+        output.writeMessage(1, flow_.get(i));
       }
       unknownFields.writeTo(output);
     }
@@ -5683,9 +6983,9 @@ public final class Proto {
       if (size != -1) return size;
 
       size = 0;
-      for (int i = 0; i < flows_.size(); i++) {
+      for (int i = 0; i < flow_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1, flows_.get(i));
+          .computeMessageSize(1, flow_.get(i));
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -5702,8 +7002,8 @@ public final class Proto {
       }
       org.openlca.core.library.Proto.ElemFlowIndex other = (org.openlca.core.library.Proto.ElemFlowIndex) obj;
 
-      if (!getFlowsList()
-          .equals(other.getFlowsList())) return false;
+      if (!getFlowList()
+          .equals(other.getFlowList())) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -5715,9 +7015,9 @@ public final class Proto {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      if (getFlowsCount() > 0) {
-        hash = (37 * hash) + FLOWS_FIELD_NUMBER;
-        hash = (53 * hash) + getFlowsList().hashCode();
+      if (getFlowCount() > 0) {
+        hash = (37 * hash) + FLOW_FIELD_NUMBER;
+        hash = (53 * hash) + getFlowList().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -5851,17 +7151,17 @@ public final class Proto {
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessageV3
                 .alwaysUseFieldBuilders) {
-          getFlowsFieldBuilder();
+          getFlowFieldBuilder();
         }
       }
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        if (flowsBuilder_ == null) {
-          flows_ = java.util.Collections.emptyList();
+        if (flowBuilder_ == null) {
+          flow_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000001);
         } else {
-          flowsBuilder_.clear();
+          flowBuilder_.clear();
         }
         return this;
       }
@@ -5890,14 +7190,14 @@ public final class Proto {
       public org.openlca.core.library.Proto.ElemFlowIndex buildPartial() {
         org.openlca.core.library.Proto.ElemFlowIndex result = new org.openlca.core.library.Proto.ElemFlowIndex(this);
         int from_bitField0_ = bitField0_;
-        if (flowsBuilder_ == null) {
+        if (flowBuilder_ == null) {
           if (((bitField0_ & 0x00000001) != 0)) {
-            flows_ = java.util.Collections.unmodifiableList(flows_);
+            flow_ = java.util.Collections.unmodifiableList(flow_);
             bitField0_ = (bitField0_ & ~0x00000001);
           }
-          result.flows_ = flows_;
+          result.flow_ = flow_;
         } else {
-          result.flows_ = flowsBuilder_.build();
+          result.flow_ = flowBuilder_.build();
         }
         onBuilt();
         return result;
@@ -5947,29 +7247,29 @@ public final class Proto {
 
       public Builder mergeFrom(org.openlca.core.library.Proto.ElemFlowIndex other) {
         if (other == org.openlca.core.library.Proto.ElemFlowIndex.getDefaultInstance()) return this;
-        if (flowsBuilder_ == null) {
-          if (!other.flows_.isEmpty()) {
-            if (flows_.isEmpty()) {
-              flows_ = other.flows_;
+        if (flowBuilder_ == null) {
+          if (!other.flow_.isEmpty()) {
+            if (flow_.isEmpty()) {
+              flow_ = other.flow_;
               bitField0_ = (bitField0_ & ~0x00000001);
             } else {
-              ensureFlowsIsMutable();
-              flows_.addAll(other.flows_);
+              ensureFlowIsMutable();
+              flow_.addAll(other.flow_);
             }
             onChanged();
           }
         } else {
-          if (!other.flows_.isEmpty()) {
-            if (flowsBuilder_.isEmpty()) {
-              flowsBuilder_.dispose();
-              flowsBuilder_ = null;
-              flows_ = other.flows_;
+          if (!other.flow_.isEmpty()) {
+            if (flowBuilder_.isEmpty()) {
+              flowBuilder_.dispose();
+              flowBuilder_ = null;
+              flow_ = other.flow_;
               bitField0_ = (bitField0_ & ~0x00000001);
-              flowsBuilder_ = 
+              flowBuilder_ = 
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
-                   getFlowsFieldBuilder() : null;
+                   getFlowFieldBuilder() : null;
             } else {
-              flowsBuilder_.addAllMessages(other.flows_);
+              flowBuilder_.addAllMessages(other.flow_);
             }
           }
         }
@@ -6003,244 +7303,244 @@ public final class Proto {
       }
       private int bitField0_;
 
-      private java.util.List<org.openlca.core.library.Proto.ElemFlowEntry> flows_ =
+      private java.util.List<org.openlca.core.library.Proto.ElemFlowEntry> flow_ =
         java.util.Collections.emptyList();
-      private void ensureFlowsIsMutable() {
+      private void ensureFlowIsMutable() {
         if (!((bitField0_ & 0x00000001) != 0)) {
-          flows_ = new java.util.ArrayList<org.openlca.core.library.Proto.ElemFlowEntry>(flows_);
+          flow_ = new java.util.ArrayList<org.openlca.core.library.Proto.ElemFlowEntry>(flow_);
           bitField0_ |= 0x00000001;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          org.openlca.core.library.Proto.ElemFlowEntry, org.openlca.core.library.Proto.ElemFlowEntry.Builder, org.openlca.core.library.Proto.ElemFlowEntryOrBuilder> flowsBuilder_;
+          org.openlca.core.library.Proto.ElemFlowEntry, org.openlca.core.library.Proto.ElemFlowEntry.Builder, org.openlca.core.library.Proto.ElemFlowEntryOrBuilder> flowBuilder_;
 
       /**
-       * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+       * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public java.util.List<org.openlca.core.library.Proto.ElemFlowEntry> getFlowsList() {
-        if (flowsBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(flows_);
+      public java.util.List<org.openlca.core.library.Proto.ElemFlowEntry> getFlowList() {
+        if (flowBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(flow_);
         } else {
-          return flowsBuilder_.getMessageList();
+          return flowBuilder_.getMessageList();
         }
       }
       /**
-       * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+       * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public int getFlowsCount() {
-        if (flowsBuilder_ == null) {
-          return flows_.size();
+      public int getFlowCount() {
+        if (flowBuilder_ == null) {
+          return flow_.size();
         } else {
-          return flowsBuilder_.getCount();
+          return flowBuilder_.getCount();
         }
       }
       /**
-       * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+       * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public org.openlca.core.library.Proto.ElemFlowEntry getFlows(int index) {
-        if (flowsBuilder_ == null) {
-          return flows_.get(index);
+      public org.openlca.core.library.Proto.ElemFlowEntry getFlow(int index) {
+        if (flowBuilder_ == null) {
+          return flow_.get(index);
         } else {
-          return flowsBuilder_.getMessage(index);
+          return flowBuilder_.getMessage(index);
         }
       }
       /**
-       * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+       * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public Builder setFlows(
+      public Builder setFlow(
           int index, org.openlca.core.library.Proto.ElemFlowEntry value) {
-        if (flowsBuilder_ == null) {
+        if (flowBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureFlowsIsMutable();
-          flows_.set(index, value);
+          ensureFlowIsMutable();
+          flow_.set(index, value);
           onChanged();
         } else {
-          flowsBuilder_.setMessage(index, value);
+          flowBuilder_.setMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+       * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public Builder setFlows(
+      public Builder setFlow(
           int index, org.openlca.core.library.Proto.ElemFlowEntry.Builder builderForValue) {
-        if (flowsBuilder_ == null) {
-          ensureFlowsIsMutable();
-          flows_.set(index, builderForValue.build());
+        if (flowBuilder_ == null) {
+          ensureFlowIsMutable();
+          flow_.set(index, builderForValue.build());
           onChanged();
         } else {
-          flowsBuilder_.setMessage(index, builderForValue.build());
+          flowBuilder_.setMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+       * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public Builder addFlows(org.openlca.core.library.Proto.ElemFlowEntry value) {
-        if (flowsBuilder_ == null) {
+      public Builder addFlow(org.openlca.core.library.Proto.ElemFlowEntry value) {
+        if (flowBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureFlowsIsMutable();
-          flows_.add(value);
+          ensureFlowIsMutable();
+          flow_.add(value);
           onChanged();
         } else {
-          flowsBuilder_.addMessage(value);
+          flowBuilder_.addMessage(value);
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+       * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public Builder addFlows(
+      public Builder addFlow(
           int index, org.openlca.core.library.Proto.ElemFlowEntry value) {
-        if (flowsBuilder_ == null) {
+        if (flowBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureFlowsIsMutable();
-          flows_.add(index, value);
+          ensureFlowIsMutable();
+          flow_.add(index, value);
           onChanged();
         } else {
-          flowsBuilder_.addMessage(index, value);
+          flowBuilder_.addMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+       * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public Builder addFlows(
+      public Builder addFlow(
           org.openlca.core.library.Proto.ElemFlowEntry.Builder builderForValue) {
-        if (flowsBuilder_ == null) {
-          ensureFlowsIsMutable();
-          flows_.add(builderForValue.build());
+        if (flowBuilder_ == null) {
+          ensureFlowIsMutable();
+          flow_.add(builderForValue.build());
           onChanged();
         } else {
-          flowsBuilder_.addMessage(builderForValue.build());
+          flowBuilder_.addMessage(builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+       * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public Builder addFlows(
+      public Builder addFlow(
           int index, org.openlca.core.library.Proto.ElemFlowEntry.Builder builderForValue) {
-        if (flowsBuilder_ == null) {
-          ensureFlowsIsMutable();
-          flows_.add(index, builderForValue.build());
+        if (flowBuilder_ == null) {
+          ensureFlowIsMutable();
+          flow_.add(index, builderForValue.build());
           onChanged();
         } else {
-          flowsBuilder_.addMessage(index, builderForValue.build());
+          flowBuilder_.addMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+       * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public Builder addAllFlows(
+      public Builder addAllFlow(
           java.lang.Iterable<? extends org.openlca.core.library.Proto.ElemFlowEntry> values) {
-        if (flowsBuilder_ == null) {
-          ensureFlowsIsMutable();
+        if (flowBuilder_ == null) {
+          ensureFlowIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
-              values, flows_);
+              values, flow_);
           onChanged();
         } else {
-          flowsBuilder_.addAllMessages(values);
+          flowBuilder_.addAllMessages(values);
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+       * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public Builder clearFlows() {
-        if (flowsBuilder_ == null) {
-          flows_ = java.util.Collections.emptyList();
+      public Builder clearFlow() {
+        if (flowBuilder_ == null) {
+          flow_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000001);
           onChanged();
         } else {
-          flowsBuilder_.clear();
+          flowBuilder_.clear();
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+       * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public Builder removeFlows(int index) {
-        if (flowsBuilder_ == null) {
-          ensureFlowsIsMutable();
-          flows_.remove(index);
+      public Builder removeFlow(int index) {
+        if (flowBuilder_ == null) {
+          ensureFlowIsMutable();
+          flow_.remove(index);
           onChanged();
         } else {
-          flowsBuilder_.remove(index);
+          flowBuilder_.remove(index);
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+       * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public org.openlca.core.library.Proto.ElemFlowEntry.Builder getFlowsBuilder(
+      public org.openlca.core.library.Proto.ElemFlowEntry.Builder getFlowBuilder(
           int index) {
-        return getFlowsFieldBuilder().getBuilder(index);
+        return getFlowFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+       * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public org.openlca.core.library.Proto.ElemFlowEntryOrBuilder getFlowsOrBuilder(
+      public org.openlca.core.library.Proto.ElemFlowEntryOrBuilder getFlowOrBuilder(
           int index) {
-        if (flowsBuilder_ == null) {
-          return flows_.get(index);  } else {
-          return flowsBuilder_.getMessageOrBuilder(index);
+        if (flowBuilder_ == null) {
+          return flow_.get(index);  } else {
+          return flowBuilder_.getMessageOrBuilder(index);
         }
       }
       /**
-       * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+       * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
       public java.util.List<? extends org.openlca.core.library.Proto.ElemFlowEntryOrBuilder> 
-           getFlowsOrBuilderList() {
-        if (flowsBuilder_ != null) {
-          return flowsBuilder_.getMessageOrBuilderList();
+           getFlowOrBuilderList() {
+        if (flowBuilder_ != null) {
+          return flowBuilder_.getMessageOrBuilderList();
         } else {
-          return java.util.Collections.unmodifiableList(flows_);
+          return java.util.Collections.unmodifiableList(flow_);
         }
       }
       /**
-       * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+       * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public org.openlca.core.library.Proto.ElemFlowEntry.Builder addFlowsBuilder() {
-        return getFlowsFieldBuilder().addBuilder(
+      public org.openlca.core.library.Proto.ElemFlowEntry.Builder addFlowBuilder() {
+        return getFlowFieldBuilder().addBuilder(
             org.openlca.core.library.Proto.ElemFlowEntry.getDefaultInstance());
       }
       /**
-       * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+       * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public org.openlca.core.library.Proto.ElemFlowEntry.Builder addFlowsBuilder(
+      public org.openlca.core.library.Proto.ElemFlowEntry.Builder addFlowBuilder(
           int index) {
-        return getFlowsFieldBuilder().addBuilder(
+        return getFlowFieldBuilder().addBuilder(
             index, org.openlca.core.library.Proto.ElemFlowEntry.getDefaultInstance());
       }
       /**
-       * <code>repeated .olcalib.ElemFlowEntry flows = 1;</code>
+       * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
       public java.util.List<org.openlca.core.library.Proto.ElemFlowEntry.Builder> 
-           getFlowsBuilderList() {
-        return getFlowsFieldBuilder().getBuilderList();
+           getFlowBuilderList() {
+        return getFlowFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilderV3<
           org.openlca.core.library.Proto.ElemFlowEntry, org.openlca.core.library.Proto.ElemFlowEntry.Builder, org.openlca.core.library.Proto.ElemFlowEntryOrBuilder> 
-          getFlowsFieldBuilder() {
-        if (flowsBuilder_ == null) {
-          flowsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+          getFlowFieldBuilder() {
+        if (flowBuilder_ == null) {
+          flowBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
               org.openlca.core.library.Proto.ElemFlowEntry, org.openlca.core.library.Proto.ElemFlowEntry.Builder, org.openlca.core.library.Proto.ElemFlowEntryOrBuilder>(
-                  flows_,
+                  flow_,
                   ((bitField0_ & 0x00000001) != 0),
                   getParentForChildren(),
                   isClean());
-          flows_ = null;
+          flow_ = null;
         }
-        return flowsBuilder_;
+        return flowBuilder_;
       }
       @java.lang.Override
       public final Builder setUnknownFields(
@@ -6999,27 +8299,27 @@ public final class Proto {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+     * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
      */
     java.util.List<org.openlca.core.library.Proto.ImpactEntry> 
-        getImpactsList();
+        getImpactList();
     /**
-     * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+     * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
      */
-    org.openlca.core.library.Proto.ImpactEntry getImpacts(int index);
+    org.openlca.core.library.Proto.ImpactEntry getImpact(int index);
     /**
-     * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+     * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
      */
-    int getImpactsCount();
+    int getImpactCount();
     /**
-     * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+     * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
      */
     java.util.List<? extends org.openlca.core.library.Proto.ImpactEntryOrBuilder> 
-        getImpactsOrBuilderList();
+        getImpactOrBuilderList();
     /**
-     * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+     * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
      */
-    org.openlca.core.library.Proto.ImpactEntryOrBuilder getImpactsOrBuilder(
+    org.openlca.core.library.Proto.ImpactEntryOrBuilder getImpactOrBuilder(
         int index);
   }
   /**
@@ -7039,7 +8339,7 @@ public final class Proto {
       super(builder);
     }
     private ImpactIndex() {
-      impacts_ = java.util.Collections.emptyList();
+      impact_ = java.util.Collections.emptyList();
     }
 
     @java.lang.Override
@@ -7075,10 +8375,10 @@ public final class Proto {
               break;
             case 10: {
               if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                impacts_ = new java.util.ArrayList<org.openlca.core.library.Proto.ImpactEntry>();
+                impact_ = new java.util.ArrayList<org.openlca.core.library.Proto.ImpactEntry>();
                 mutable_bitField0_ |= 0x00000001;
               }
-              impacts_.add(
+              impact_.add(
                   input.readMessage(org.openlca.core.library.Proto.ImpactEntry.parser(), extensionRegistry));
               break;
             }
@@ -7098,7 +8398,7 @@ public final class Proto {
             e).setUnfinishedMessage(this);
       } finally {
         if (((mutable_bitField0_ & 0x00000001) != 0)) {
-          impacts_ = java.util.Collections.unmodifiableList(impacts_);
+          impact_ = java.util.Collections.unmodifiableList(impact_);
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -7117,44 +8417,44 @@ public final class Proto {
               org.openlca.core.library.Proto.ImpactIndex.class, org.openlca.core.library.Proto.ImpactIndex.Builder.class);
     }
 
-    public static final int IMPACTS_FIELD_NUMBER = 1;
-    private java.util.List<org.openlca.core.library.Proto.ImpactEntry> impacts_;
+    public static final int IMPACT_FIELD_NUMBER = 1;
+    private java.util.List<org.openlca.core.library.Proto.ImpactEntry> impact_;
     /**
-     * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+     * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
      */
     @java.lang.Override
-    public java.util.List<org.openlca.core.library.Proto.ImpactEntry> getImpactsList() {
-      return impacts_;
+    public java.util.List<org.openlca.core.library.Proto.ImpactEntry> getImpactList() {
+      return impact_;
     }
     /**
-     * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+     * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
      */
     @java.lang.Override
     public java.util.List<? extends org.openlca.core.library.Proto.ImpactEntryOrBuilder> 
-        getImpactsOrBuilderList() {
-      return impacts_;
+        getImpactOrBuilderList() {
+      return impact_;
     }
     /**
-     * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+     * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
      */
     @java.lang.Override
-    public int getImpactsCount() {
-      return impacts_.size();
+    public int getImpactCount() {
+      return impact_.size();
     }
     /**
-     * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+     * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
      */
     @java.lang.Override
-    public org.openlca.core.library.Proto.ImpactEntry getImpacts(int index) {
-      return impacts_.get(index);
+    public org.openlca.core.library.Proto.ImpactEntry getImpact(int index) {
+      return impact_.get(index);
     }
     /**
-     * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+     * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
      */
     @java.lang.Override
-    public org.openlca.core.library.Proto.ImpactEntryOrBuilder getImpactsOrBuilder(
+    public org.openlca.core.library.Proto.ImpactEntryOrBuilder getImpactOrBuilder(
         int index) {
-      return impacts_.get(index);
+      return impact_.get(index);
     }
 
     private byte memoizedIsInitialized = -1;
@@ -7171,8 +8471,8 @@ public final class Proto {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      for (int i = 0; i < impacts_.size(); i++) {
-        output.writeMessage(1, impacts_.get(i));
+      for (int i = 0; i < impact_.size(); i++) {
+        output.writeMessage(1, impact_.get(i));
       }
       unknownFields.writeTo(output);
     }
@@ -7183,9 +8483,9 @@ public final class Proto {
       if (size != -1) return size;
 
       size = 0;
-      for (int i = 0; i < impacts_.size(); i++) {
+      for (int i = 0; i < impact_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1, impacts_.get(i));
+          .computeMessageSize(1, impact_.get(i));
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -7202,8 +8502,8 @@ public final class Proto {
       }
       org.openlca.core.library.Proto.ImpactIndex other = (org.openlca.core.library.Proto.ImpactIndex) obj;
 
-      if (!getImpactsList()
-          .equals(other.getImpactsList())) return false;
+      if (!getImpactList()
+          .equals(other.getImpactList())) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -7215,9 +8515,9 @@ public final class Proto {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      if (getImpactsCount() > 0) {
-        hash = (37 * hash) + IMPACTS_FIELD_NUMBER;
-        hash = (53 * hash) + getImpactsList().hashCode();
+      if (getImpactCount() > 0) {
+        hash = (37 * hash) + IMPACT_FIELD_NUMBER;
+        hash = (53 * hash) + getImpactList().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -7351,17 +8651,17 @@ public final class Proto {
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessageV3
                 .alwaysUseFieldBuilders) {
-          getImpactsFieldBuilder();
+          getImpactFieldBuilder();
         }
       }
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        if (impactsBuilder_ == null) {
-          impacts_ = java.util.Collections.emptyList();
+        if (impactBuilder_ == null) {
+          impact_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000001);
         } else {
-          impactsBuilder_.clear();
+          impactBuilder_.clear();
         }
         return this;
       }
@@ -7390,14 +8690,14 @@ public final class Proto {
       public org.openlca.core.library.Proto.ImpactIndex buildPartial() {
         org.openlca.core.library.Proto.ImpactIndex result = new org.openlca.core.library.Proto.ImpactIndex(this);
         int from_bitField0_ = bitField0_;
-        if (impactsBuilder_ == null) {
+        if (impactBuilder_ == null) {
           if (((bitField0_ & 0x00000001) != 0)) {
-            impacts_ = java.util.Collections.unmodifiableList(impacts_);
+            impact_ = java.util.Collections.unmodifiableList(impact_);
             bitField0_ = (bitField0_ & ~0x00000001);
           }
-          result.impacts_ = impacts_;
+          result.impact_ = impact_;
         } else {
-          result.impacts_ = impactsBuilder_.build();
+          result.impact_ = impactBuilder_.build();
         }
         onBuilt();
         return result;
@@ -7447,29 +8747,29 @@ public final class Proto {
 
       public Builder mergeFrom(org.openlca.core.library.Proto.ImpactIndex other) {
         if (other == org.openlca.core.library.Proto.ImpactIndex.getDefaultInstance()) return this;
-        if (impactsBuilder_ == null) {
-          if (!other.impacts_.isEmpty()) {
-            if (impacts_.isEmpty()) {
-              impacts_ = other.impacts_;
+        if (impactBuilder_ == null) {
+          if (!other.impact_.isEmpty()) {
+            if (impact_.isEmpty()) {
+              impact_ = other.impact_;
               bitField0_ = (bitField0_ & ~0x00000001);
             } else {
-              ensureImpactsIsMutable();
-              impacts_.addAll(other.impacts_);
+              ensureImpactIsMutable();
+              impact_.addAll(other.impact_);
             }
             onChanged();
           }
         } else {
-          if (!other.impacts_.isEmpty()) {
-            if (impactsBuilder_.isEmpty()) {
-              impactsBuilder_.dispose();
-              impactsBuilder_ = null;
-              impacts_ = other.impacts_;
+          if (!other.impact_.isEmpty()) {
+            if (impactBuilder_.isEmpty()) {
+              impactBuilder_.dispose();
+              impactBuilder_ = null;
+              impact_ = other.impact_;
               bitField0_ = (bitField0_ & ~0x00000001);
-              impactsBuilder_ = 
+              impactBuilder_ = 
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
-                   getImpactsFieldBuilder() : null;
+                   getImpactFieldBuilder() : null;
             } else {
-              impactsBuilder_.addAllMessages(other.impacts_);
+              impactBuilder_.addAllMessages(other.impact_);
             }
           }
         }
@@ -7503,244 +8803,244 @@ public final class Proto {
       }
       private int bitField0_;
 
-      private java.util.List<org.openlca.core.library.Proto.ImpactEntry> impacts_ =
+      private java.util.List<org.openlca.core.library.Proto.ImpactEntry> impact_ =
         java.util.Collections.emptyList();
-      private void ensureImpactsIsMutable() {
+      private void ensureImpactIsMutable() {
         if (!((bitField0_ & 0x00000001) != 0)) {
-          impacts_ = new java.util.ArrayList<org.openlca.core.library.Proto.ImpactEntry>(impacts_);
+          impact_ = new java.util.ArrayList<org.openlca.core.library.Proto.ImpactEntry>(impact_);
           bitField0_ |= 0x00000001;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          org.openlca.core.library.Proto.ImpactEntry, org.openlca.core.library.Proto.ImpactEntry.Builder, org.openlca.core.library.Proto.ImpactEntryOrBuilder> impactsBuilder_;
+          org.openlca.core.library.Proto.ImpactEntry, org.openlca.core.library.Proto.ImpactEntry.Builder, org.openlca.core.library.Proto.ImpactEntryOrBuilder> impactBuilder_;
 
       /**
-       * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+       * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public java.util.List<org.openlca.core.library.Proto.ImpactEntry> getImpactsList() {
-        if (impactsBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(impacts_);
+      public java.util.List<org.openlca.core.library.Proto.ImpactEntry> getImpactList() {
+        if (impactBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(impact_);
         } else {
-          return impactsBuilder_.getMessageList();
+          return impactBuilder_.getMessageList();
         }
       }
       /**
-       * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+       * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public int getImpactsCount() {
-        if (impactsBuilder_ == null) {
-          return impacts_.size();
+      public int getImpactCount() {
+        if (impactBuilder_ == null) {
+          return impact_.size();
         } else {
-          return impactsBuilder_.getCount();
+          return impactBuilder_.getCount();
         }
       }
       /**
-       * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+       * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public org.openlca.core.library.Proto.ImpactEntry getImpacts(int index) {
-        if (impactsBuilder_ == null) {
-          return impacts_.get(index);
+      public org.openlca.core.library.Proto.ImpactEntry getImpact(int index) {
+        if (impactBuilder_ == null) {
+          return impact_.get(index);
         } else {
-          return impactsBuilder_.getMessage(index);
+          return impactBuilder_.getMessage(index);
         }
       }
       /**
-       * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+       * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public Builder setImpacts(
+      public Builder setImpact(
           int index, org.openlca.core.library.Proto.ImpactEntry value) {
-        if (impactsBuilder_ == null) {
+        if (impactBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureImpactsIsMutable();
-          impacts_.set(index, value);
+          ensureImpactIsMutable();
+          impact_.set(index, value);
           onChanged();
         } else {
-          impactsBuilder_.setMessage(index, value);
+          impactBuilder_.setMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+       * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public Builder setImpacts(
+      public Builder setImpact(
           int index, org.openlca.core.library.Proto.ImpactEntry.Builder builderForValue) {
-        if (impactsBuilder_ == null) {
-          ensureImpactsIsMutable();
-          impacts_.set(index, builderForValue.build());
+        if (impactBuilder_ == null) {
+          ensureImpactIsMutable();
+          impact_.set(index, builderForValue.build());
           onChanged();
         } else {
-          impactsBuilder_.setMessage(index, builderForValue.build());
+          impactBuilder_.setMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+       * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public Builder addImpacts(org.openlca.core.library.Proto.ImpactEntry value) {
-        if (impactsBuilder_ == null) {
+      public Builder addImpact(org.openlca.core.library.Proto.ImpactEntry value) {
+        if (impactBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureImpactsIsMutable();
-          impacts_.add(value);
+          ensureImpactIsMutable();
+          impact_.add(value);
           onChanged();
         } else {
-          impactsBuilder_.addMessage(value);
+          impactBuilder_.addMessage(value);
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+       * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public Builder addImpacts(
+      public Builder addImpact(
           int index, org.openlca.core.library.Proto.ImpactEntry value) {
-        if (impactsBuilder_ == null) {
+        if (impactBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureImpactsIsMutable();
-          impacts_.add(index, value);
+          ensureImpactIsMutable();
+          impact_.add(index, value);
           onChanged();
         } else {
-          impactsBuilder_.addMessage(index, value);
+          impactBuilder_.addMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+       * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public Builder addImpacts(
+      public Builder addImpact(
           org.openlca.core.library.Proto.ImpactEntry.Builder builderForValue) {
-        if (impactsBuilder_ == null) {
-          ensureImpactsIsMutable();
-          impacts_.add(builderForValue.build());
+        if (impactBuilder_ == null) {
+          ensureImpactIsMutable();
+          impact_.add(builderForValue.build());
           onChanged();
         } else {
-          impactsBuilder_.addMessage(builderForValue.build());
+          impactBuilder_.addMessage(builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+       * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public Builder addImpacts(
+      public Builder addImpact(
           int index, org.openlca.core.library.Proto.ImpactEntry.Builder builderForValue) {
-        if (impactsBuilder_ == null) {
-          ensureImpactsIsMutable();
-          impacts_.add(index, builderForValue.build());
+        if (impactBuilder_ == null) {
+          ensureImpactIsMutable();
+          impact_.add(index, builderForValue.build());
           onChanged();
         } else {
-          impactsBuilder_.addMessage(index, builderForValue.build());
+          impactBuilder_.addMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+       * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public Builder addAllImpacts(
+      public Builder addAllImpact(
           java.lang.Iterable<? extends org.openlca.core.library.Proto.ImpactEntry> values) {
-        if (impactsBuilder_ == null) {
-          ensureImpactsIsMutable();
+        if (impactBuilder_ == null) {
+          ensureImpactIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
-              values, impacts_);
+              values, impact_);
           onChanged();
         } else {
-          impactsBuilder_.addAllMessages(values);
+          impactBuilder_.addAllMessages(values);
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+       * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public Builder clearImpacts() {
-        if (impactsBuilder_ == null) {
-          impacts_ = java.util.Collections.emptyList();
+      public Builder clearImpact() {
+        if (impactBuilder_ == null) {
+          impact_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000001);
           onChanged();
         } else {
-          impactsBuilder_.clear();
+          impactBuilder_.clear();
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+       * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public Builder removeImpacts(int index) {
-        if (impactsBuilder_ == null) {
-          ensureImpactsIsMutable();
-          impacts_.remove(index);
+      public Builder removeImpact(int index) {
+        if (impactBuilder_ == null) {
+          ensureImpactIsMutable();
+          impact_.remove(index);
           onChanged();
         } else {
-          impactsBuilder_.remove(index);
+          impactBuilder_.remove(index);
         }
         return this;
       }
       /**
-       * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+       * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public org.openlca.core.library.Proto.ImpactEntry.Builder getImpactsBuilder(
+      public org.openlca.core.library.Proto.ImpactEntry.Builder getImpactBuilder(
           int index) {
-        return getImpactsFieldBuilder().getBuilder(index);
+        return getImpactFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+       * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public org.openlca.core.library.Proto.ImpactEntryOrBuilder getImpactsOrBuilder(
+      public org.openlca.core.library.Proto.ImpactEntryOrBuilder getImpactOrBuilder(
           int index) {
-        if (impactsBuilder_ == null) {
-          return impacts_.get(index);  } else {
-          return impactsBuilder_.getMessageOrBuilder(index);
+        if (impactBuilder_ == null) {
+          return impact_.get(index);  } else {
+          return impactBuilder_.getMessageOrBuilder(index);
         }
       }
       /**
-       * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+       * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
       public java.util.List<? extends org.openlca.core.library.Proto.ImpactEntryOrBuilder> 
-           getImpactsOrBuilderList() {
-        if (impactsBuilder_ != null) {
-          return impactsBuilder_.getMessageOrBuilderList();
+           getImpactOrBuilderList() {
+        if (impactBuilder_ != null) {
+          return impactBuilder_.getMessageOrBuilderList();
         } else {
-          return java.util.Collections.unmodifiableList(impacts_);
+          return java.util.Collections.unmodifiableList(impact_);
         }
       }
       /**
-       * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+       * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public org.openlca.core.library.Proto.ImpactEntry.Builder addImpactsBuilder() {
-        return getImpactsFieldBuilder().addBuilder(
+      public org.openlca.core.library.Proto.ImpactEntry.Builder addImpactBuilder() {
+        return getImpactFieldBuilder().addBuilder(
             org.openlca.core.library.Proto.ImpactEntry.getDefaultInstance());
       }
       /**
-       * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+       * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public org.openlca.core.library.Proto.ImpactEntry.Builder addImpactsBuilder(
+      public org.openlca.core.library.Proto.ImpactEntry.Builder addImpactBuilder(
           int index) {
-        return getImpactsFieldBuilder().addBuilder(
+        return getImpactFieldBuilder().addBuilder(
             index, org.openlca.core.library.Proto.ImpactEntry.getDefaultInstance());
       }
       /**
-       * <code>repeated .olcalib.ImpactEntry impacts = 1;</code>
+       * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
       public java.util.List<org.openlca.core.library.Proto.ImpactEntry.Builder> 
-           getImpactsBuilderList() {
-        return getImpactsFieldBuilder().getBuilderList();
+           getImpactBuilderList() {
+        return getImpactFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilderV3<
           org.openlca.core.library.Proto.ImpactEntry, org.openlca.core.library.Proto.ImpactEntry.Builder, org.openlca.core.library.Proto.ImpactEntryOrBuilder> 
-          getImpactsFieldBuilder() {
-        if (impactsBuilder_ == null) {
-          impactsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+          getImpactFieldBuilder() {
+        if (impactBuilder_ == null) {
+          impactBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
               org.openlca.core.library.Proto.ImpactEntry, org.openlca.core.library.Proto.ImpactEntry.Builder, org.openlca.core.library.Proto.ImpactEntryOrBuilder>(
-                  impacts_,
+                  impact_,
                   ((bitField0_ & 0x00000001) != 0),
                   getParentForChildren(),
                   isClean());
-          impacts_ = null;
+          impact_ = null;
         }
-        return impactsBuilder_;
+        return impactBuilder_;
       }
       @java.lang.Override
       public final Builder setUnknownFields(
@@ -7806,6 +9106,11 @@ public final class Proto {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_olcalib_Flow_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_olcalib_Location_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_olcalib_Location_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_olcalib_Impact_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -7849,23 +9154,26 @@ public final class Proto {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\tlib.proto\022\007olcalib\"G\n\007Process\022\n\n\002id\030\001 " +
-      "\001(\t\022\014\n\004name\030\002 \001(\t\022\020\n\010category\030\003 \001(\t\022\020\n\010l" +
-      "ocation\030\004 \001(\t\"@\n\004Flow\022\n\n\002id\030\001 \001(\t\022\014\n\004nam" +
-      "e\030\002 \001(\t\022\020\n\010category\030\003 \001(\t\022\014\n\004unit\030\004 \001(\t\"" +
-      "B\n\006Impact\022\n\n\002id\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\020\n\010c" +
-      "ategory\030\003 \001(\t\022\014\n\004unit\030\004 \001(\t\"`\n\014ProductEn" +
-      "try\022\r\n\005index\030\001 \001(\005\022!\n\007process\030\002 \001(\0132\020.ol" +
-      "calib.Process\022\036\n\007product\030\003 \001(\0132\r.olcalib" +
-      ".Flow\"7\n\014ProductIndex\022\'\n\010products\030\001 \003(\0132" +
-      "\025.olcalib.ProductEntry\";\n\rElemFlowEntry\022" +
-      "\r\n\005index\030\001 \001(\005\022\033\n\004flow\030\002 \001(\0132\r.olcalib.F" +
-      "low\"6\n\rElemFlowIndex\022%\n\005flows\030\001 \003(\0132\026.ol" +
-      "calib.ElemFlowEntry\"=\n\013ImpactEntry\022\r\n\005in" +
-      "dex\030\001 \001(\005\022\037\n\006impact\030\002 \001(\0132\017.olcalib.Impa" +
-      "ct\"4\n\013ImpactIndex\022%\n\007impacts\030\001 \003(\0132\024.olc" +
-      "alib.ImpactEntryB!\n\030org.openlca.core.lib" +
-      "raryB\005Protob\006proto3"
+      "\n\tlib.proto\022\007olcalib\"K\n\007Process\022\n\n\002id\030\001 " +
+      "\001(\t\022\014\n\004name\030\002 \001(\t\022\020\n\010category\030\003 \001(\t\022\024\n\014l" +
+      "ocationCode\030\004 \001(\t\"N\n\004Flow\022\n\n\002id\030\001 \001(\t\022\014\n" +
+      "\004name\030\002 \001(\t\022\020\n\010category\030\003 \001(\t\022\014\n\004type\030\004 " +
+      "\001(\t\022\014\n\004unit\030\005 \001(\t\"2\n\010Location\022\n\n\002id\030\001 \001(" +
+      "\t\022\014\n\004name\030\002 \001(\t\022\014\n\004code\030\003 \001(\t\"B\n\006Impact\022" +
+      "\n\n\002id\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\020\n\010category\030\003 " +
+      "\001(\t\022\014\n\004unit\030\004 \001(\t\"`\n\014ProductEntry\022\r\n\005ind" +
+      "ex\030\001 \001(\005\022!\n\007process\030\002 \001(\0132\020.olcalib.Proc" +
+      "ess\022\036\n\007product\030\003 \001(\0132\r.olcalib.Flow\"6\n\014P" +
+      "roductIndex\022&\n\007product\030\001 \003(\0132\025.olcalib.P" +
+      "roductEntry\"r\n\rElemFlowEntry\022\r\n\005index\030\001 " +
+      "\001(\005\022\033\n\004flow\030\002 \001(\0132\r.olcalib.Flow\022#\n\010loca" +
+      "tion\030\003 \001(\0132\021.olcalib.Location\022\020\n\010is_inpu" +
+      "t\030\004 \001(\010\"5\n\rElemFlowIndex\022$\n\004flow\030\001 \003(\0132\026" +
+      ".olcalib.ElemFlowEntry\"=\n\013ImpactEntry\022\r\n" +
+      "\005index\030\001 \001(\005\022\037\n\006impact\030\002 \001(\0132\017.olcalib.I" +
+      "mpact\"3\n\013ImpactIndex\022$\n\006impact\030\001 \003(\0132\024.o" +
+      "lcalib.ImpactEntryB!\n\030org.openlca.core.l" +
+      "ibraryB\005Protob\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -7876,55 +9184,61 @@ public final class Proto {
     internal_static_olcalib_Process_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_olcalib_Process_descriptor,
-        new java.lang.String[] { "Id", "Name", "Category", "Location", });
+        new java.lang.String[] { "Id", "Name", "Category", "LocationCode", });
     internal_static_olcalib_Flow_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_olcalib_Flow_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_olcalib_Flow_descriptor,
-        new java.lang.String[] { "Id", "Name", "Category", "Unit", });
-    internal_static_olcalib_Impact_descriptor =
+        new java.lang.String[] { "Id", "Name", "Category", "Type", "Unit", });
+    internal_static_olcalib_Location_descriptor =
       getDescriptor().getMessageTypes().get(2);
+    internal_static_olcalib_Location_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_olcalib_Location_descriptor,
+        new java.lang.String[] { "Id", "Name", "Code", });
+    internal_static_olcalib_Impact_descriptor =
+      getDescriptor().getMessageTypes().get(3);
     internal_static_olcalib_Impact_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_olcalib_Impact_descriptor,
         new java.lang.String[] { "Id", "Name", "Category", "Unit", });
     internal_static_olcalib_ProductEntry_descriptor =
-      getDescriptor().getMessageTypes().get(3);
+      getDescriptor().getMessageTypes().get(4);
     internal_static_olcalib_ProductEntry_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_olcalib_ProductEntry_descriptor,
         new java.lang.String[] { "Index", "Process", "Product", });
     internal_static_olcalib_ProductIndex_descriptor =
-      getDescriptor().getMessageTypes().get(4);
+      getDescriptor().getMessageTypes().get(5);
     internal_static_olcalib_ProductIndex_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_olcalib_ProductIndex_descriptor,
-        new java.lang.String[] { "Products", });
+        new java.lang.String[] { "Product", });
     internal_static_olcalib_ElemFlowEntry_descriptor =
-      getDescriptor().getMessageTypes().get(5);
+      getDescriptor().getMessageTypes().get(6);
     internal_static_olcalib_ElemFlowEntry_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_olcalib_ElemFlowEntry_descriptor,
-        new java.lang.String[] { "Index", "Flow", });
+        new java.lang.String[] { "Index", "Flow", "Location", "IsInput", });
     internal_static_olcalib_ElemFlowIndex_descriptor =
-      getDescriptor().getMessageTypes().get(6);
+      getDescriptor().getMessageTypes().get(7);
     internal_static_olcalib_ElemFlowIndex_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_olcalib_ElemFlowIndex_descriptor,
-        new java.lang.String[] { "Flows", });
+        new java.lang.String[] { "Flow", });
     internal_static_olcalib_ImpactEntry_descriptor =
-      getDescriptor().getMessageTypes().get(7);
+      getDescriptor().getMessageTypes().get(8);
     internal_static_olcalib_ImpactEntry_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_olcalib_ImpactEntry_descriptor,
         new java.lang.String[] { "Index", "Impact", });
     internal_static_olcalib_ImpactIndex_descriptor =
-      getDescriptor().getMessageTypes().get(8);
+      getDescriptor().getMessageTypes().get(9);
     internal_static_olcalib_ImpactIndex_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_olcalib_ImpactIndex_descriptor,
-        new java.lang.String[] { "Impacts", });
+        new java.lang.String[] { "Impact", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

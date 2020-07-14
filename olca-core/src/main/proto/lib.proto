@@ -8,7 +8,7 @@ message Process {
     string id = 1;
     string name = 2;
     string category = 3;
-    string location = 4;
+    string locationCode = 4;
 }
 
 // Contains the meta data of a flow data set.
@@ -16,7 +16,15 @@ message Flow {
     string id = 1;
     string name = 2;
     string category = 3;
-    string unit = 4;
+    string type = 4;
+    string unit = 5;
+}
+
+// Contains the meta data of a location.
+message Location {
+    string id = 1;
+    string name = 2;
+    string code = 3;
 }
 
 // Contains the meta data of an impact category.
@@ -36,18 +44,20 @@ message ProductEntry {
 
 // The product index (of the technology matrix).
 message ProductIndex {
-    repeated ProductEntry products = 1;
+    repeated ProductEntry product = 1;
 }
 
 // An index entry of an elementary flow (in the intervention matrix).
 message ElemFlowEntry {
     int32 index = 1;
     Flow flow = 2;
+    Location location = 3;
+    bool is_input = 4;
 }
 
 // The elementary flow index (of the intervention matrix).
 message ElemFlowIndex {
-    repeated ElemFlowEntry flows = 1;
+    repeated ElemFlowEntry flow = 1;
 }
 
 // An index entry of an impact category.
@@ -58,5 +68,5 @@ message ImpactEntry {
 
 // The impact category index.
 message ImpactIndex {
-    repeated ImpactEntry impacts = 1;
+    repeated ImpactEntry impact = 1;
 }

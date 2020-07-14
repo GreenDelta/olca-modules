@@ -163,6 +163,7 @@ public class LibraryExport implements Runnable {
 
 	private void writeIndices(MatrixData data) {
 		log.info("write matrix indices");
+		new IndexWriter(folder, data, db).run();
 		var ecache = EntityCache.create(db);
 
 		var techArray = new JsonArray();
@@ -174,7 +175,6 @@ public class LibraryExport implements Runnable {
 			techArray.add(idxObj);
 		});
 		Json.write(techArray, new File(folder, "index_A.json"));
-
 		log.info("wrote index A");
 
 		var enviArray = new JsonArray();
