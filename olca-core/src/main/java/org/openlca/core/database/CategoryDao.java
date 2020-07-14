@@ -49,7 +49,7 @@ public class CategoryDao
 		var descriptor = super.createDescriptor(queryResult);
 		if (queryResult[8] instanceof String) {
 			descriptor.categoryType = ModelType
-					.valueOf((String) queryResult[7]);
+					.valueOf((String) queryResult[8]);
 		}
 		return descriptor;
 	}
