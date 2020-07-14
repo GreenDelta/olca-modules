@@ -174,6 +174,7 @@ public class LibraryExport implements Runnable {
 			techArray.add(idxObj);
 		});
 		Json.write(techArray, new File(folder, "index_A.json"));
+
 		log.info("wrote index A");
 
 		var enviArray = new JsonArray();

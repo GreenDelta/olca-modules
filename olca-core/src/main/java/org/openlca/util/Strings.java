@@ -163,4 +163,12 @@ public class Strings {
 		return copy;
 	}
 
+	/**
+	 * Returns the empty string if the given string is null. Otherwise the
+	 * given string is returned.
+	 */
+	public static String orEmpty(String s) {
+		return s == null ? "" : s;
+	}
+
 }
