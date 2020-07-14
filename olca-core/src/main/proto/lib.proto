@@ -1,0 +1,62 @@
+syntax = "proto3";
+package olcalib;
+option java_package = "org.openlca.core.library";
+option java_outer_classname = "Proto";
+
+// Contains the meta data of a process data set.
+message Process {
+    string id = 1;
+    string name = 2;
+    string category = 3;
+    string location = 4;
+}
+
+// Contains the meta data of a flow data set.
+message Flow {
+    string id = 1;
+    string name = 2;
+    string category = 3;
+    string unit = 4;
+}
+
+// Contains the meta data of an impact category.
+message Impact {
+    string id = 1;
+    string name = 2;
+    string category = 3;
+    string unit = 4;
+}
+
+// An index entry of a product (in the technology matrix).
+message ProductEntry {
+    int32 index = 1;
+    Process process = 2;
+    Flow product = 3;
+}
+
+// The product index (of the technology matrix).
+message ProductIndex {
+    repeated ProductEntry products = 1;
+}
+
+// An index entry of an elementary flow (in the intervention matrix).
+message ElemFlowEntry {
+    int32 index = 1;
+    Flow flow = 2;
+}
+
+// The elementary flow index (of the intervention matrix).
+message ElemFlowIndex {
+    repeated ElemFlowEntry flows = 1;
+}
+
+// An index entry of an impact category.
+message ImpactEntry {
+    int32 index = 1;
+    Impact impact = 2;
+}
+
+// The impact category index.
+message ImpactIndex {
+    repeated ImpactEntry impacts = 1;
+}

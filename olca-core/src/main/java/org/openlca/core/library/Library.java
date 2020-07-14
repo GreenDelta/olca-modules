@@ -2,6 +2,8 @@ package org.openlca.core.library;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -16,6 +18,7 @@ import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.matrix.io.npy.Npz;
+import org.openlca.core.model.Exchange;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.jsonld.Json;
 import org.slf4j.LoggerFactory;
@@ -163,5 +166,22 @@ public class Library {
 			log.error("failed to read matrix from " + folder, e);
 			return Optional.empty();
 		}
+	}
+
+	/**
+	 * Get the matrix index of the given process product. Returns -1 if the
+	 * given product is not part of this library.
+	 */
+	public int getIndex(ProcessProduct product) {
+		return -1;
+	}
+
+	public List<Exchange> getExchanges(ProcessProduct product, IDatabase db) {
+		var products = syncProducts(db);
+		return Collections.emptyList();
+	}
+
+	public static void main(String[] args) {
+		var dbPath = "";
 	}
 }
