@@ -180,8 +180,4 @@ public class Library {
 		var products = syncProducts(db);
 		return Collections.emptyList();
 	}
-
-	public static void main(String[] args) {
-		var dbPath = "";
-	}
 }
