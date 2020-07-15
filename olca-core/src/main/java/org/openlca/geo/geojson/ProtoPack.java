@@ -171,7 +171,21 @@ public class ProtoPack {
 	}
 
 	private static Geometry unpack(Proto.Geometry proto) {
-
+		if (proto.hasPoint())
+			return unpack(proto.getPoint());
+		if (proto.hasMultiPoint())
+			return unpack(proto.getMultiPoint());
+		if (proto.hasLineString())
+			return unpack(proto.getLineString());
+		if (proto.hasMultiLineString())
+			return unpack(proto.getMultiLineString());
+		if (proto.hasPolygon())
+			return unpack(proto.getPolygon());
+		if (proto.hasMultiPolygon())
+			return unpack(proto.getMultiPolygon());
+		if (proto.hasGeometryCollection())
+			return unpack(proto.getGeometryCollection());
+		return null;
 	}
 
 	private static Point unpack(Proto.Point proto) {
