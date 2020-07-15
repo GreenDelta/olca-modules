@@ -41,8 +41,62 @@ public class ProtoPack {
 	private static Proto.Geometry pack(Geometry g) {
 		var proto = Proto.Geometry.newBuilder();
 		if (g instanceof Point) {
-
+			proto.setPoint(pack((Point) g));
 		}
+		// TODO: type branches
+		return proto.build();
+	}
+
+	private static Proto.Point pack(Point point) {
+		var proto = Proto.Point.newBuilder();
+		proto.setX(point.x);
+		proto.setY(point.y);
+		return proto.build();
+	}
+
+	private static Proto.MultiPoint pack(MultiPoint multiPoint) {
+		var proto = Proto.MultiPoint.newBuilder();
+		for (var point : multiPoint.points) {
+			proto.addPoint(pack(point));
+		}
+		return proto.build();
+	}
+
+	private static Proto.LineString pack(LineString lineString) {
+		var proto = Proto.LineString.newBuilder();
+		for (var point : lineString.points) {
+			proto.addPoint(pack(point));
+		}
+		return proto.build();
+	}
+
+	private static Proto.MultiLineString pack(MultiLineString multiLineString) {
+		var proto = Proto.MultiLineString.newBuilder();
+		for (var lineString : multiLineString.lineStrings) {
+			proto.addLineString(pack(lineString));
+		}
+		return proto.build();
+	}
+
+	private static Proto.Polygon pack(Polygon polygon) {
+		var proto = Proto.Polygon.newBuilder();
+		for (var ring : polygon.rings) {
+			proto.addRing(pack(ring));
+		}
+		return proto.build();
+	}
+
+	private static Proto.MultiPolygon pack(MultiPolygon multiPolygon) {
+		var proto = Proto.MultiPolygon.newBuilder();
+		for (var polygon : multiPolygon.polygons) {
+			proto.addPolygon(pack(polygon));
+		}
+		return proto.build();
+	}
+
+	private static Proto.GeometryCollection pack(GeometryCollection geometryCollection) {
+		var proto = Proto.GeometryCollection.newBuilder();
+		// TODO: map values
 		return proto.build();
 	}
 }
