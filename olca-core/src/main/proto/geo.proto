@@ -1,0 +1,54 @@
+syntax = "proto3";
+package geoproto;
+option java_package = "org.openlca.geo.geojson";
+option java_outer_classname = "Proto";
+
+message Point {
+    double x = 1;
+    double y = 2;
+}
+
+message MultiPoint {
+    repeated Point point = 1;
+}
+
+message LineString {
+    repeated Point point = 1;
+}
+
+message MultiLineString {
+    repeated LineString line_string = 1;
+}
+
+message Polygon {
+    repeated LineString ring = 1;
+}
+
+message MultiPolygon {
+    repeated Polygon polygon = 1;
+}
+
+message Geometry {
+    oneof geometry {
+        Point point = 1;
+        MultiPoint multi_point = 2;
+        LineString line_string = 3;
+        MultiLineString multi_line_string = 4;
+        Polygon polygon = 5;
+        MultiPolygon multi_polygon = 6;
+        GeometryCollection geometry_collection = 7;
+    }
+}
+
+message GeometryCollection {
+    repeated Geometry geometry = 1;
+}
+
+message Feature {
+    Geometry geometry = 1;
+    map<string, double> properties = 2;
+}
+
+message FeatureCollection {
+    repeated Feature feature = 1;
+}
