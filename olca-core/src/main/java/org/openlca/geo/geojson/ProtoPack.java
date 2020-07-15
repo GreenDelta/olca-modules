@@ -16,6 +16,8 @@ public class ProtoPack {
 	 * geographic data of locations in an openLCA database.
 	 */
 	public static byte[] packgz(FeatureCollection coll) {
+		if (coll == null)
+			return null;
 		try {
 			byte[] data = pack(coll);
 			return BinUtils.gzip(data);
@@ -26,15 +28,32 @@ public class ProtoPack {
 	}
 
 	public static byte[] pack(FeatureCollection coll) {
+		if (coll == null)
+			return null;
 		var proto = Proto.FeatureCollection.newBuilder();
 		for (var feature : coll.features) {
+			if (feature == null)
+				continue;
+			proto.addFeature(pack(feature));
 		}
 		return proto.build().toByteArray();
 	}
 
 	private static Proto.Feature pack(Feature feature) {
 		var proto = Proto.Feature.newBuilder();
-
+		if (feature.geometry != null) {
+			proto.setGeometry(pack(feature.geometry));
+		}
+		if (feature.properties != null) {
+			feature.properties.entrySet()
+					.stream()
+					.filter(e -> e.getKey() != null
+							&& e.getValue() instanceof Number)
+					.forEach(e -> proto.putProperties(
+							e.getKey(),
+							((Number) e.getValue()).doubleValue())
+					);
+		}
 		return proto.build();
 	}
 
@@ -42,8 +61,19 @@ public class ProtoPack {
 		var proto = Proto.Geometry.newBuilder();
 		if (g instanceof Point) {
 			proto.setPoint(pack((Point) g));
+		} else if (g instanceof MultiPoint) {
+			proto.setMultiPoint(pack((MultiPoint) g));
+		} else if (g instanceof LineString) {
+			proto.setLineString(pack((LineString) g));
+		} else if (g instanceof MultiLineString) {
+			proto.setMultiLineString(pack((MultiLineString) g));
+		} else if (g instanceof Polygon) {
+			proto.setPolygon(pack((Polygon) g));
+		} else if (g instanceof MultiPolygon) {
+			proto.setMultiPolygon(pack((MultiPolygon) g));
+		} else if (g instanceof GeometryCollection) {
+			proto.setGeometryCollection(pack((GeometryCollection) g));
 		}
-		// TODO: type branches
 		return proto.build();
 	}
 
@@ -94,9 +124,11 @@ public class ProtoPack {
 		return proto.build();
 	}
 
-	private static Proto.GeometryCollection pack(GeometryCollection geometryCollection) {
+	private static Proto.GeometryCollection pack(GeometryCollection coll) {
 		var proto = Proto.GeometryCollection.newBuilder();
-		// TODO: map values
+		for (var geometry : coll.geometries) {
+			proto.addGeometry(pack(geometry));
+		}
 		return proto.build();
 	}
 }
