@@ -1,6 +1,7 @@
 package org.openlca.geo.geojson;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.openlca.util.BinUtils;
 import org.openlca.util.Exceptions;
@@ -130,5 +131,107 @@ public class ProtoPack {
 			proto.addGeometry(pack(geometry));
 		}
 		return proto.build();
+	}
+
+	public static FeatureCollection unpackgz(byte[] data) {
+		if (data == null || data.length == 0)
+			return null;
+		try {
+			byte[] raw = BinUtils.gunzip(data);
+			return unpack(raw);
+		} catch (IOException e) {
+			Exceptions.unchecked(e);
+			return null;
+		}
+	}
+
+	public static FeatureCollection unpack(byte[] data) {
+		if (data == null)
+			return null;
+		try {
+			var proto = Proto.FeatureCollection.parseFrom(data);
+			var coll = new FeatureCollection();
+			for (int i = 0; i < proto.getFeatureCount(); i++) {
+				coll.features.add(unpack(proto.getFeature(i)));
+			}
+			return coll;
+		} catch (Exception e) {
+			Exceptions.unchecked(e);
+			return null;
+		}
+	}
+
+	private static Feature unpack(Proto.Feature proto) {
+		var feature = new Feature();
+		feature.geometry = unpack(proto.getGeometry());
+		if (proto.getPropertiesCount() > 0) {
+			feature.properties = new HashMap<>(proto.getPropertiesMap());
+		}
+		return feature;
+	}
+
+	private static Geometry unpack(Proto.Geometry proto) {
+
+	}
+
+	private static Point unpack(Proto.Point proto) {
+		var point = new Point();
+		point.x = proto.getX();
+		point.y = proto.getY();
+		return point;
+	}
+
+	private static MultiPoint unpack(Proto.MultiPoint proto) {
+		var multiPoint = new MultiPoint();
+		for (int i = 0; i < proto.getPointCount(); i++) {
+			var point = unpack(proto.getPoint(i));
+			multiPoint.points.add(point);
+		}
+		return multiPoint;
+	}
+
+	private static LineString unpack(Proto.LineString proto) {
+		var lineString = new LineString();
+		for (int i = 0; i < proto.getPointCount(); i++) {
+			var point = unpack(proto.getPoint(i));
+			lineString.points.add(point);
+		}
+		return lineString;
+	}
+
+	private static MultiLineString unpack(Proto.MultiLineString proto) {
+		var multiLineString = new MultiLineString();
+		for (int i = 0; i < proto.getLineStringCount(); i++) {
+			var lineString = unpack(proto.getLineString(i));
+			multiLineString.lineStrings.add(lineString);
+		}
+		return multiLineString;
+	}
+
+	private static Polygon unpack(Proto.Polygon proto) {
+		var polygon = new Polygon();
+		for (int i = 0; i < proto.getRingCount(); i++) {
+			var ring = unpack(proto.getRing(i));
+			polygon.rings.add(ring);
+		}
+		return polygon;
+	}
+
+	private static MultiPolygon unpack(Proto.MultiPolygon proto) {
+		var multiPolygon = new MultiPolygon();
+		for (int i = 0; i < proto.getPolygonCount(); i++) {
+			var polygon = unpack(proto.getPolygon(i));
+			multiPolygon.polygons.add(polygon);
+		}
+		return multiPolygon;
+	}
+
+	private static GeometryCollection unpack(Proto.GeometryCollection proto) {
+		var coll = new GeometryCollection();
+		for (int i = 0; i < proto.getGeometryCount(); i++) {
+			var geometry = unpack(proto.getGeometry(i));
+			coll.geometries.add(geometry);
+		}
+		return coll;
 	}
 }
