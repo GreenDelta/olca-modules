@@ -1,15 +1,14 @@
 package org.openlca.jsonld.input;
 
+import com.google.gson.JsonObject;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.geo.geojson.FeatureCollection;
 import org.openlca.geo.geojson.GeoJSON;
-import org.openlca.geo.geojson.MsgPack;
+import org.openlca.geo.geojson.ProtoPack;
 import org.openlca.jsonld.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.gson.JsonObject;
 
 class LocationImport extends BaseImport<Location> {
 
@@ -37,7 +36,7 @@ class LocationImport extends BaseImport<Location> {
 			try {
 				FeatureCollection coll = GeoJSON.read(geometry);
 				if (coll != null) {
-					loc.geodata = MsgPack.packgz(coll);
+					loc.geodata = ProtoPack.packgz(coll);
 				}
 			} catch (Exception e) {
 				Logger log = LoggerFactory.getLogger(getClass());
