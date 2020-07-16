@@ -6,13 +6,10 @@ import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.DQSystemDao;
-import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
@@ -33,6 +30,7 @@ import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.matrix.io.npy.Npz;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.ZipStore;
@@ -48,6 +46,7 @@ public class LibraryExport implements Runnable {
 	private final File folder;
 	private IMatrixSolver solver;
 	private LibraryInfo info;
+	private AllocationMethod allocation;
 
 	public LibraryExport(IDatabase db, File folder) {
 		this.db = db;
@@ -56,6 +55,11 @@ public class LibraryExport implements Runnable {
 
 	public LibraryExport solver(IMatrixSolver solver) {
 		this.solver = solver;
+		return this;
+	}
+
+	public LibraryExport allocation(AllocationMethod method) {
+		this.allocation = method;
 		return this;
 	}
 
@@ -99,7 +103,9 @@ public class LibraryExport implements Runnable {
 				writeMatrix("A", d.techMatrix);
 				writeMatrix("B", d.enviMatrix);
 				log.info("finished with A and B");
-				writeIndices(d);
+				log.info("write matrix indices");
+				new IndexWriter(folder, d, db).run();
+				log.info("finished with matrix indices");
 			});
 
 			if (solver != null) {
@@ -143,8 +149,41 @@ public class LibraryExport implements Runnable {
 		system.withoutNetwork = true;
 		var setup = new CalculationSetup(system);
 		setup.withRegionalization = info.isRegionalized;
+		setup.allocationMethod = allocation;
 		var data = new FastMatrixBuilder(db, setup).build();
 		log.info("finished with building matrices");
+
+		// normalize the columns to 1 | -1
+		log.info("normalize matrices to 1 | -1");
+		var matrixA = data.techMatrix;
+		var matrixB = data.enviMatrix;
+		int n = matrixA.columns();
+		for (int j = 0; j < n; j++) {
+			double f = Math.abs(matrixA.get(j, j));
+			if (f == 1)
+				continue;
+
+			// normalize column j in matrix A
+			for (int i = 0; i < n; i++) {
+				double val = matrixA.get(i, j);
+				if (val == 0)
+					continue;
+				matrixA.set(i, j, val / f);
+			}
+
+			// normalize column j in matrix B
+			if (matrixB == null)
+				continue;
+			int m = matrixB.rows();
+			for (int i = 0; i < m; i++) {
+				double val = matrixB.get(i, j);
+				if (val == 0)
+					continue;
+				matrixB.set(i, j, val / f);
+			}
+		}
+		log.info("finished matrix normalization");
+
 		return Optional.of(data);
 	}
 
@@ -159,37 +198,6 @@ public class LibraryExport implements Runnable {
 		} else {
 			Npy.save(new File(folder, name + ".npy"), m);
 		}
-	}
-
-	private void writeIndices(MatrixData data) {
-		log.info("write matrix indices");
-		new IndexWriter(folder, data, db).run();
-		var ecache = EntityCache.create(db);
-
-		var techArray = new JsonArray();
-		data.techIndex.each((index, product) -> {
-			var idxObj = new JsonObject();
-			idxObj.addProperty("index", index);
-			idxObj.add("process", Json.asRef(product.process, ecache));
-			idxObj.add("flow", Json.asRef(product.flow, ecache));
-			techArray.add(idxObj);
-		});
-		Json.write(techArray, new File(folder, "index_A.json"));
-		log.info("wrote index A");
-
-		var enviArray = new JsonArray();
-		data.flowIndex.each((index, iFlow) -> {
-			var idxObj = new JsonObject();
-			idxObj.addProperty("index", index);
-			idxObj.add("flow", Json.asRef(iFlow.flow, ecache));
-			idxObj.addProperty("isInput", iFlow.isInput);
-			if (iFlow.location != null) {
-				idxObj.add("location", Json.asRef(iFlow.location, ecache));
-			}
-			enviArray.add(idxObj);
-		});
-		Json.write(enviArray, new File(folder, "index_B.json"));
-		log.info("wrote index B");
 	}
 
 	private void writeMeta() {
