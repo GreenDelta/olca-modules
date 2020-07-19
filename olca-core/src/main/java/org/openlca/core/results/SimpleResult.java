@@ -97,7 +97,6 @@ public class SimpleResult extends BaseResult {
 	/**
 	 * Get the total inventory result $\mathbf{g}_i$ of the given flow $i$.
 	 */
-	// TODO: better just rename it to getTotalResult
 	public double getTotalFlowResult(IndexFlow flow) {
 		if (flowIndex == null)
 			return 0;

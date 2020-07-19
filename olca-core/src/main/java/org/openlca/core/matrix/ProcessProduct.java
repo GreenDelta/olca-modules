@@ -1,6 +1,7 @@
 package org.openlca.core.matrix;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
@@ -118,5 +119,11 @@ public class ProcessProduct {
 		if (process instanceof ProcessDescriptor)
 			return ((ProcessDescriptor) process).location;
 		return null;
+	}
+
+	public Optional<String> getLibrary() {
+		return process == null || process.library == null
+				? Optional.empty()
+				: Optional.of(process.library);
 	}
 }

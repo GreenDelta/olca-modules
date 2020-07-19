@@ -97,14 +97,12 @@ public class TechIndex {
 	}
 
 	/**
-	 * Returns the ordinal index of the given provider (product-output or waste
-	 * input).
+	 * Returns the ordinal index of the given product (product-output or waste
+	 * input). If the product is not not part of this index, -1 is returned.
 	 */
 	public int getIndex(ProcessProduct provider) {
-		Integer idx = index.get(provider);
-		if (idx == null)
-			return -1;
-		return idx;
+		var idx = index.get(provider);
+		return idx == null ? -1 : idx;
 	}
 
 	/**
@@ -133,21 +131,24 @@ public class TechIndex {
 	}
 
 	/**
-	 * Adds the given provider (product-output or waste-input) to this index.
-	 * Does nothing if it is already contained in this index.
+	 * Adds the given provider (product-output or waste-input) to this index and
+	 * returns its position. If the product is already contained in this index
+	 * its current position is returned.
 	 */
-	public void put(ProcessProduct provider) {
-		if (index.containsKey(provider))
-			return;
-		int idx = index.size();
-		index.put(provider, idx);
-		List<ProcessProduct> list = processProviders.get(provider.id());
+	public int put(ProcessProduct provider) {
+		var existing = index.get(provider);
+		if (existing != null)
+			return existing;
+		int pos = index.size();
+		index.put(provider, pos);
+		var list = processProviders.get(provider.id());
 		if (list == null) {
 			list = new ArrayList<>();
 			processProviders.put(provider.id(), list);
 		}
 		list.add(provider);
 		providers.add(provider);
+		return pos;
 	}
 
 	/**

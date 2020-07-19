@@ -16,6 +16,7 @@ import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.matrix.io.npy.Npz;
@@ -48,36 +49,38 @@ public class Library {
 	}
 
 	/**
-	 * Returns the products of the library in corresponding matrix order. If this
-	 * information is not present or something went wrong while synchronizing the
-	 * product index with the database, an empty array is returned. Of course, this
-	 * only works when this library is mounted to that database.
+	 * Returns the products of the library in corresponding matrix order. If
+	 * this library has no product index of if this index is not in sync with
+	 * the database, an empty option is returned.
 	 */
-	public ProcessProduct[] syncProducts(IDatabase db) {
+	public Optional<TechIndex> syncProducts(IDatabase db) {
 		var file = new File(folder, "index_A.bin");
 		if (!file.exists())
-			return new ProcessProduct[0];
+			return Optional.empty();
 
 		var processes = descriptors(new ProcessDao(db));
 		var products = descriptors(new FlowDao(db));
-
+		TechIndex index = null;
 		try (var stream = new FileInputStream(file)) {
 			var proto = Proto.ProductIndex.parseFrom(stream);
 			int size = proto.getProductCount();
-			var index = new ProcessProduct[size];
 			for (int i = 0; i < size; i++) {
 				var entry = proto.getProduct(i);
 				var process = processes.get(entry.getProcess().getId());
 				var product = products.get(entry.getProduct().getId());
 				if (process == null || product == null)
-					return new ProcessProduct[0];
-				index[i] = ProcessProduct.of(process, product);
+					return Optional.empty();
+				if (index == null) {
+					index = new TechIndex(ProcessProduct.of(process, product));
+				} else {
+					index.put(ProcessProduct.of(process, product));
+				}
 			}
-			return index;
+			return Optional.ofNullable(index);
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(getClass());
 			log.error("failed to read product index @" + file, e);
-			return new ProcessProduct[0];
+			return Optional.empty();
 		}
 	}
 
@@ -175,17 +178,12 @@ public class Library {
 	public List<Exchange> getExchanges(ProcessProduct product, IDatabase db) {
 		if (product == null || db == null)
 			return Collections.emptyList();
-		var products = syncProducts(db);
+		var products = syncProducts(db).orElse(null);
+		if (products == null)
+			return Collections.emptyList();
 
 		// find the library index of the given product
-		int index = -1;
-		for (int i = 0; i < products.length; i++) {
-			var p = products[i];
-			if (p.id() == product.id() && p.flowId() == product.flowId()) {
-				index = i;
-				break;
-			}
-		}
+		int index = products.getIndex(product);
 		if (index < 0)
 			return Collections.emptyList();
 
@@ -199,7 +197,7 @@ public class Library {
 			double val = colA[i];
 			if (val == 0)
 				continue;
-			product = products[i];
+			product = products.getProviderAt(i);
 			var flow = flowDao.getForId(product.flowId());
 			if (flow == null)
 				continue;
