@@ -43,4 +43,22 @@ public interface IMatrix {
 		}
 	}
 
+	/**
+	 * Iterates over the non-zero values in this matrix. There is no defined
+	 * order in which the matrix entries are processed. Specifically sparse
+	 * matrix layouts should overwrite this function with faster implementations.
+	 */
+	default void iterate(EntryFunction fn) {
+		if (fn == null)
+			return;
+		for (int col = 0; col < columns(); col++) {
+			for (int row = 0; row < rows(); row++) {
+				double val = get(row, col);
+				if (val != 0) {
+					fn.value(row, col, val);
+				}
+			}
+		}
+	}
+
 }

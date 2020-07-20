@@ -1,12 +1,15 @@
 package org.openlca.core.library;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.format.MatrixBuilder;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.core.results.ContributionResult;
 
 public class LibraryCalculator {
 
@@ -38,13 +41,30 @@ public class LibraryCalculator {
 		this.solver = solver;
 	}
 
-	public LibraryResult calculate(MatrixData foregroundData) {
+	public ContributionResult calculate(MatrixData foregroundData) {
 		this.foregroundData = foregroundData;
 
-		var result = new LibraryResult();
+		var result = new ContributionResult();
 		result.techIndex = techIndex();
 		result.flowIndex = flowIndex();
 		result.scalingVector = scalingVector(result.techIndex);
+
+		// the total requirements of library products are
+		// equal to their scaling factors because their
+		// matrices are normalized to 1
+		result.totalRequirements = Arrays.copyOf(
+				result.scalingVector,
+				result.scalingVector.length);
+		result.techIndex.each((i, product) -> {
+			var lib = product.getLibrary();
+			if (lib.isPresent())
+				return;
+			var ai = foregroundData.techMatrix.get(i, i);
+			var si = result.scalingVector[i];
+			result.totalRequirements[i] = ai * si;
+		});
+
+		addFlowResults(result);
 
 		return result;
 	}
@@ -162,5 +182,75 @@ public class LibraryCalculator {
 		}
 
 		return s;
+	}
+
+	private void addFlowResults(ContributionResult result) {
+
+		// initialize data structures
+		var flowIndex = result.flowIndex;
+		var techIndex = result.techIndex;
+		if (flowIndex == null)
+			return;
+		var s = result.scalingVector;
+		var g = new double[flowIndex.size()];
+		var matrixG = new MatrixBuilder();
+		matrixG.minSize(flowIndex.size(), techIndex.size());
+
+		// foreground data
+		// TODO we could reuse the scaling vector sf here
+		// or maybe even calculate a result for the foreground
+		// system
+		var flowIndexF = foregroundData.flowIndex;
+		var techIndexF = foregroundData.techIndex;
+		if (flowIndexF != null) {
+			foregroundData.enviMatrix.iterate((rowF, colF, value) -> {
+
+				// map the indices
+				var flow = flowIndexF.at(rowF);
+				var product = techIndexF.getProviderAt(colF);
+				var row = flowIndex.of(flow);
+				var col = techIndex.getIndex(product);
+				if (row < 0 || col < 0 )
+					return;
+
+				var val = s[col] * value;
+				if (val == 0)
+					return;
+				g[row] += val;
+				matrixG.add(row, col, val);
+			});
+		}
+
+		// library data
+		for (var e : libraries.entrySet()) {
+			var libID = e.getKey();
+			var lib = e.getValue();
+			var libFlowIndex = libFlowIndices.get(libID);
+			if (libFlowIndex == null)
+				continue;
+			var libTechIndex = libTechIndices.get(libID);
+			var libMatrix = lib.getMatrix(LibraryMatrix.M).orElse(null);
+			if (libMatrix == null)
+				continue;
+			libMatrix.iterate((rowLib, colLib, value) -> {
+
+				// map indices
+				var flow = libFlowIndex.at(rowLib);
+				var product = libTechIndex.getProviderAt(colLib);
+				var row = flowIndex.of(flow);
+				var col = techIndex.getIndex(product);
+				if (row < 0 || col < 0)
+					return;
+
+				var val = s[col] * value;
+				if (val == 0)
+					return;
+				g[row] += val;
+				matrixG.add(row, col, val);
+			});
+		}
+
+		result.totalFlowResults = g;
+		result.directFlowResults = matrixG.finish();
 	}
 }

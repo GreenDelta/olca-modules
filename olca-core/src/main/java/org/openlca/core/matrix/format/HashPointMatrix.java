@@ -135,9 +135,7 @@ public class HashPointMatrix implements IMatrix {
 		return copy;
 	}
 
-	/**
-	 * Iterates over the non-zero values in this matrix.
-	 */
+	@Override
 	public void iterate(EntryFunction fn) {
 		TIntObjectIterator<TIntDoubleHashMap> rows = data.iterator();
 		while (rows.hasNext()) {
