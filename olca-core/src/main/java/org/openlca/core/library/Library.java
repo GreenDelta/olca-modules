@@ -14,7 +14,7 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.matrix.IndexFlow;
+import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.IMatrix;
@@ -49,9 +49,9 @@ public class Library {
 	}
 
 	/**
-	 * Returns the products of the library in corresponding matrix order. If
-	 * this library has no product index of if this index is not in sync with
-	 * the database, an empty option is returned.
+	 * Returns the products of the library in matrix order. If this library has
+	 * no product index or if this index is not in sync with the database, an
+	 * empty option is returned.
 	 */
 	public Optional<TechIndex> syncProducts(IDatabase db) {
 		var file = new File(folder, "index_A.bin");
@@ -85,38 +85,42 @@ public class Library {
 	}
 
 	/**
-	 * Returns the elementary flows of the library in corresponding matrix order. If
-	 * this information is not present or something went wrong while synchronizing
-	 * the flow index with the database, an empty array is returned. Of course, this
-	 * only works when this library is mounted to that database.
+	 * Returns the elementary flows of the library in matrix order. If this
+	 * information is not present or something went wrong while synchronizing
+	 * the flow index with the database, an empty array is returned.
 	 */
-	public IndexFlow[] syncElementaryFlows(IDatabase db) {
+	public Optional<FlowIndex> syncElementaryFlows(IDatabase db) {
 		var file = new File(folder, "index_B.bin");
 		if (!file.exists())
-			return new IndexFlow[0];
+			return Optional.empty();
+
+		var info = getInfo();
+		var index = info.isRegionalized
+				? FlowIndex.createRegionalized()
+				: FlowIndex.create();
 
 		var flows = descriptors(new FlowDao(db));
 		var locations = descriptors(new LocationDao(db));
-
 		try (var stream = new FileInputStream(file)) {
 			var proto = Proto.ElemFlowIndex.parseFrom(stream);
 			int size = proto.getFlowCount();
-			var index = new IndexFlow[size];
 			for (int i = 0; i < size; i++) {
 				var entry = proto.getFlow(i);
 				var flow = flows.get(entry.getFlow().getId());
 				var location = locations.get(entry.getLocation().getId());
 				if (flow == null)
-					return new IndexFlow[0];
-				index[i] = entry.getIsInput()
-						? IndexFlow.ofInput(flow, location)
-						: IndexFlow.ofOutput(flow, location);
+					return Optional.empty();
+				if (entry.getIsInput()) {
+					index.putInput(flow, location);
+				} else {
+					index.putOutput(flow, location);
+				}
 			}
-			return index;
+			return Optional.of(index);
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(getClass());
 			log.error("failed to read flow index @" + file, e);
-			return new IndexFlow[0];
+			return Optional.empty();
 		}
 	}
 
@@ -214,13 +218,18 @@ public class Library {
 		var colB = getColumn(LibraryMatrix.B, index).orElse(null);
 		if (colB == null)
 			return exchanges;
-		var iFlows = syncElementaryFlows(db);
+		var iFlows = syncElementaryFlows(db).orElse(null);
+		if (iFlows == null)
+			return exchanges;
+
 		var locDao = new LocationDao(db);
 		for (int i = 0; i < colB.length; i++) {
 			double val = colB[i];
 			if (val == 0)
 				continue;
-			var iFlow = iFlows[i];
+			var iFlow = iFlows.at(i);
+			if (iFlow == null)
+				continue;
 			var flow = flowDao.getForId(iFlow.flow.id);
 			if (flow == null)
 				continue;

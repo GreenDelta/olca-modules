@@ -38,6 +38,7 @@ public class LibraryCalculator {
 
 		var result = new LibraryResult();
 		result.techIndex = techIndex();
+		result.flowIndex = flowIndex();
 
 		return result;
 	}
@@ -69,6 +70,43 @@ public class LibraryCalculator {
 			libTechIndices.put(libID, libIndex);
 			libIndex.each((_pos, product) -> index.put(product));
 		});
+
+		return index;
+	}
+
+	/**
+	 * Creates the combined flow index of the library result. Note that
+	 * this may be if this is a result without elementary flows.
+	 */
+	private FlowIndex flowIndex() {
+
+		// initialize the flow index with the foreground
+		// index if present
+		FlowIndex index = null;
+		var indexF = foregroundData.flowIndex;
+		if (indexF != null) {
+			index = indexF.isRegionalized
+					? FlowIndex.createRegionalized()
+					: FlowIndex.create();
+			index.putAll(indexF);
+		}
+
+		// extend the flow index with the flow indices
+		// of used libraries.
+		for (var entry : libraries.entrySet()) {
+			var libID = entry.getKey();
+			var lib = entry.getValue();
+			var libIdx = lib.syncElementaryFlows(db).orElse(null);
+			if (libIdx == null)
+				continue;
+			if (index == null) {
+				index = libIdx.isRegionalized
+						? FlowIndex.createRegionalized()
+						: FlowIndex.create();
+			}
+			index.putAll(libIdx);
+			libFlowIndices.put(libID, libIdx);
+		}
 
 		return index;
 	}
