@@ -229,7 +229,7 @@ public class LibraryCalculator {
 			if (libFlowIndex == null)
 				continue;
 			var libTechIndex = libTechIndices.get(libID);
-			var libMatrix = lib.getMatrix(LibraryMatrix.M).orElse(null);
+			var libMatrix = lib.getMatrix(LibraryMatrix.B).orElse(null);
 			if (libMatrix == null)
 				continue;
 			libMatrix.iterate((rowLib, colLib, value) -> {
