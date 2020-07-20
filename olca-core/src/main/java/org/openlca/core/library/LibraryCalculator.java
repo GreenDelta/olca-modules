@@ -6,11 +6,14 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.solvers.IMatrixSolver;
 
 public class LibraryCalculator {
 
 	private final IDatabase db;
 	private final LibraryDir libDir;
+	private final IMatrixSolver solver;
+
 	private MatrixData foregroundData;
 
 	/**
@@ -28,9 +31,11 @@ public class LibraryCalculator {
 	 */
 	private final HashMap<String, FlowIndex> libFlowIndices = new HashMap<>();
 
-	public LibraryCalculator(IDatabase db, LibraryDir libDir) {
+	public LibraryCalculator(IDatabase db, LibraryDir libDir,
+							 IMatrixSolver solver) {
 		this.db = db;
 		this.libDir = libDir;
+		this.solver = solver;
 	}
 
 	public LibraryResult calculate(MatrixData foregroundData) {
@@ -39,6 +44,7 @@ public class LibraryCalculator {
 		var result = new LibraryResult();
 		result.techIndex = techIndex();
 		result.flowIndex = flowIndex();
+		result.scalingVector = scalingVector(result.techIndex);
 
 		return result;
 	}
@@ -109,5 +115,52 @@ public class LibraryCalculator {
 		}
 
 		return index;
+	}
+
+	private double[] scalingVector(TechIndex index) {
+
+		// calculate the scaling vector of the foreground system
+		var indexF = foregroundData.techIndex;
+		var sf = solver.solve(
+				foregroundData.techMatrix,
+				indexF.getIndex(indexF.getRefFlow()),
+				indexF.getDemand());
+
+		var s = new double[index.size()];
+		for (int jf = 0; jf < sf.length; jf++) {
+			var valF = sf[jf];
+			if (valF == 0)
+				continue;
+
+			var product = indexF.getProviderAt(jf);
+			var j = index.getIndex(product);
+			var libID = product.getLibrary().orElse(null);
+
+			// scaling factors of foreground processes are
+			// copied into the combined vector
+			if (libID == null) {
+				s[j] = valF;
+				continue;
+			}
+
+			// scaling vectors of library products are
+			// scaled and mapped to the combined vector
+			var libIndex = libTechIndices.get(libID);
+			var lib = libraries.get(libID);
+			if (libIndex == null || lib == null)
+				continue;
+			var jLib = libIndex.getIndex(product);
+			var sLib = lib.getColumn(LibraryMatrix.INV, jLib)
+					.orElse(null);
+			if (sLib == null)
+				continue;
+			for (int iLib = 0; iLib < sLib.length; iLib++) {
+				var libProduct = libIndex.getProviderAt(iLib);
+				int i = index.getIndex(libProduct);
+				s[i] += valF * sLib[iLib];
+			}
+		}
+
+		return s;
 	}
 }
