@@ -15,6 +15,7 @@ import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.util.CategoryPathBuilder;
@@ -45,6 +46,7 @@ class IndexWriter implements Runnable {
 	public void run() {
 		writeProductIndex();
 		writeElemFlowIndex();
+		writeImpactIndex();
 	}
 
 	private void writeProductIndex() {
@@ -76,6 +78,19 @@ class IndexWriter implements Runnable {
 			elemFlows.addFlow(entry.build());
 		});
 		write("index_B.bin", out -> elemFlows.build().writeTo(out));
+	}
+
+	private void writeImpactIndex() {
+		if (data.impactIndex == null)
+			return;
+		var impacts = Proto.ImpactIndex.newBuilder();
+		data.impactIndex.each((index, impact) -> {
+			var entry = Proto.ImpactEntry.newBuilder();
+			entry.setIndex(index);
+			entry.setImpact(impact(impact));
+			impacts.addImpact(entry);
+		});
+		write("index_C.bin", out -> impacts.build().writeTo(out));
 	}
 
 	private Proto.Process process(CategorizedDescriptor d) {
@@ -124,6 +139,16 @@ class IndexWriter implements Runnable {
 		proto.setId(Strings.orEmpty(d.refId));
 		proto.setName(Strings.orEmpty(d.name));
 		proto.setCode(Strings.orEmpty(d.code));
+		return proto.build();
+	}
+
+	private Proto.Impact impact(ImpactCategoryDescriptor d) {
+		var proto = Proto.Impact.newBuilder();
+		if (d == null)
+			return proto.build();
+		proto.setId(Strings.orEmpty(d.refId));
+		proto.setName(Strings.orEmpty(d.name));
+		proto.setUnit(Strings.orEmpty(d.referenceUnit));
 		return proto.build();
 	}
 

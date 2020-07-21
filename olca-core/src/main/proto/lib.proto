@@ -31,8 +31,7 @@ message Location {
 message Impact {
     string id = 1;
     string name = 2;
-    string category = 3;
-    string unit = 4;
+    string unit = 3;
 }
 
 // An index entry of a product (in the technology matrix).

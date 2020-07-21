@@ -3121,24 +3121,12 @@ public final class Proto {
         getNameBytes();
 
     /**
-     * <code>string category = 3;</code>
-     * @return The category.
-     */
-    java.lang.String getCategory();
-    /**
-     * <code>string category = 3;</code>
-     * @return The bytes for category.
-     */
-    com.google.protobuf.ByteString
-        getCategoryBytes();
-
-    /**
-     * <code>string unit = 4;</code>
+     * <code>string unit = 3;</code>
      * @return The unit.
      */
     java.lang.String getUnit();
     /**
-     * <code>string unit = 4;</code>
+     * <code>string unit = 3;</code>
      * @return The bytes for unit.
      */
     com.google.protobuf.ByteString
@@ -3163,7 +3151,6 @@ public final class Proto {
     private Impact() {
       id_ = "";
       name_ = "";
-      category_ = "";
       unit_ = "";
     }
 
@@ -3210,12 +3197,6 @@ public final class Proto {
               break;
             }
             case 26: {
-              java.lang.String s = input.readStringRequireUtf8();
-
-              category_ = s;
-              break;
-            }
-            case 34: {
               java.lang.String s = input.readStringRequireUtf8();
 
               unit_ = s;
@@ -3329,48 +3310,10 @@ public final class Proto {
       }
     }
 
-    public static final int CATEGORY_FIELD_NUMBER = 3;
-    private volatile java.lang.Object category_;
-    /**
-     * <code>string category = 3;</code>
-     * @return The category.
-     */
-    @java.lang.Override
-    public java.lang.String getCategory() {
-      java.lang.Object ref = category_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        category_ = s;
-        return s;
-      }
-    }
-    /**
-     * <code>string category = 3;</code>
-     * @return The bytes for category.
-     */
-    @java.lang.Override
-    public com.google.protobuf.ByteString
-        getCategoryBytes() {
-      java.lang.Object ref = category_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        category_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int UNIT_FIELD_NUMBER = 4;
+    public static final int UNIT_FIELD_NUMBER = 3;
     private volatile java.lang.Object unit_;
     /**
-     * <code>string unit = 4;</code>
+     * <code>string unit = 3;</code>
      * @return The unit.
      */
     @java.lang.Override
@@ -3387,7 +3330,7 @@ public final class Proto {
       }
     }
     /**
-     * <code>string unit = 4;</code>
+     * <code>string unit = 3;</code>
      * @return The bytes for unit.
      */
     @java.lang.Override
@@ -3425,11 +3368,8 @@ public final class Proto {
       if (!getNameBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 2, name_);
       }
-      if (!getCategoryBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, category_);
-      }
       if (!getUnitBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, unit_);
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, unit_);
       }
       unknownFields.writeTo(output);
     }
@@ -3446,11 +3386,8 @@ public final class Proto {
       if (!getNameBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, name_);
       }
-      if (!getCategoryBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, category_);
-      }
       if (!getUnitBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, unit_);
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, unit_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -3471,8 +3408,6 @@ public final class Proto {
           .equals(other.getId())) return false;
       if (!getName()
           .equals(other.getName())) return false;
-      if (!getCategory()
-          .equals(other.getCategory())) return false;
       if (!getUnit()
           .equals(other.getUnit())) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
@@ -3490,8 +3425,6 @@ public final class Proto {
       hash = (53 * hash) + getId().hashCode();
       hash = (37 * hash) + NAME_FIELD_NUMBER;
       hash = (53 * hash) + getName().hashCode();
-      hash = (37 * hash) + CATEGORY_FIELD_NUMBER;
-      hash = (53 * hash) + getCategory().hashCode();
       hash = (37 * hash) + UNIT_FIELD_NUMBER;
       hash = (53 * hash) + getUnit().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
@@ -3635,8 +3568,6 @@ public final class Proto {
 
         name_ = "";
 
-        category_ = "";
-
         unit_ = "";
 
         return this;
@@ -3667,7 +3598,6 @@ public final class Proto {
         org.openlca.core.library.Proto.Impact result = new org.openlca.core.library.Proto.Impact(this);
         result.id_ = id_;
         result.name_ = name_;
-        result.category_ = category_;
         result.unit_ = unit_;
         onBuilt();
         return result;
@@ -3723,10 +3653,6 @@ public final class Proto {
         }
         if (!other.getName().isEmpty()) {
           name_ = other.name_;
-          onChanged();
-        }
-        if (!other.getCategory().isEmpty()) {
-          category_ = other.category_;
           onChanged();
         }
         if (!other.getUnit().isEmpty()) {
@@ -3914,85 +3840,9 @@ public final class Proto {
         return this;
       }
 
-      private java.lang.Object category_ = "";
-      /**
-       * <code>string category = 3;</code>
-       * @return The category.
-       */
-      public java.lang.String getCategory() {
-        java.lang.Object ref = category_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          category_ = s;
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>string category = 3;</code>
-       * @return The bytes for category.
-       */
-      public com.google.protobuf.ByteString
-          getCategoryBytes() {
-        java.lang.Object ref = category_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          category_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>string category = 3;</code>
-       * @param value The category to set.
-       * @return This builder for chaining.
-       */
-      public Builder setCategory(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  
-        category_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>string category = 3;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearCategory() {
-        
-        category_ = getDefaultInstance().getCategory();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>string category = 3;</code>
-       * @param value The bytes for category to set.
-       * @return This builder for chaining.
-       */
-      public Builder setCategoryBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-        
-        category_ = value;
-        onChanged();
-        return this;
-      }
-
       private java.lang.Object unit_ = "";
       /**
-       * <code>string unit = 4;</code>
+       * <code>string unit = 3;</code>
        * @return The unit.
        */
       public java.lang.String getUnit() {
@@ -4008,7 +3858,7 @@ public final class Proto {
         }
       }
       /**
-       * <code>string unit = 4;</code>
+       * <code>string unit = 3;</code>
        * @return The bytes for unit.
        */
       public com.google.protobuf.ByteString
@@ -4025,7 +3875,7 @@ public final class Proto {
         }
       }
       /**
-       * <code>string unit = 4;</code>
+       * <code>string unit = 3;</code>
        * @param value The unit to set.
        * @return This builder for chaining.
        */
@@ -4040,7 +3890,7 @@ public final class Proto {
         return this;
       }
       /**
-       * <code>string unit = 4;</code>
+       * <code>string unit = 3;</code>
        * @return This builder for chaining.
        */
       public Builder clearUnit() {
@@ -4050,7 +3900,7 @@ public final class Proto {
         return this;
       }
       /**
-       * <code>string unit = 4;</code>
+       * <code>string unit = 3;</code>
        * @param value The bytes for unit to set.
        * @return This builder for chaining.
        */
@@ -9159,21 +9009,21 @@ public final class Proto {
       "ocationCode\030\004 \001(\t\"N\n\004Flow\022\n\n\002id\030\001 \001(\t\022\014\n" +
       "\004name\030\002 \001(\t\022\020\n\010category\030\003 \001(\t\022\014\n\004type\030\004 " +
       "\001(\t\022\014\n\004unit\030\005 \001(\t\"2\n\010Location\022\n\n\002id\030\001 \001(" +
-      "\t\022\014\n\004name\030\002 \001(\t\022\014\n\004code\030\003 \001(\t\"B\n\006Impact\022" +
-      "\n\n\002id\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\020\n\010category\030\003 " +
-      "\001(\t\022\014\n\004unit\030\004 \001(\t\"`\n\014ProductEntry\022\r\n\005ind" +
-      "ex\030\001 \001(\005\022!\n\007process\030\002 \001(\0132\020.olcalib.Proc" +
-      "ess\022\036\n\007product\030\003 \001(\0132\r.olcalib.Flow\"6\n\014P" +
-      "roductIndex\022&\n\007product\030\001 \003(\0132\025.olcalib.P" +
-      "roductEntry\"r\n\rElemFlowEntry\022\r\n\005index\030\001 " +
-      "\001(\005\022\033\n\004flow\030\002 \001(\0132\r.olcalib.Flow\022#\n\010loca" +
-      "tion\030\003 \001(\0132\021.olcalib.Location\022\020\n\010is_inpu" +
-      "t\030\004 \001(\010\"5\n\rElemFlowIndex\022$\n\004flow\030\001 \003(\0132\026" +
-      ".olcalib.ElemFlowEntry\"=\n\013ImpactEntry\022\r\n" +
-      "\005index\030\001 \001(\005\022\037\n\006impact\030\002 \001(\0132\017.olcalib.I" +
-      "mpact\"3\n\013ImpactIndex\022$\n\006impact\030\001 \003(\0132\024.o" +
-      "lcalib.ImpactEntryB!\n\030org.openlca.core.l" +
-      "ibraryB\005Protob\006proto3"
+      "\t\022\014\n\004name\030\002 \001(\t\022\014\n\004code\030\003 \001(\t\"0\n\006Impact\022" +
+      "\n\n\002id\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\014\n\004unit\030\003 \001(\t\"" +
+      "`\n\014ProductEntry\022\r\n\005index\030\001 \001(\005\022!\n\007proces" +
+      "s\030\002 \001(\0132\020.olcalib.Process\022\036\n\007product\030\003 \001" +
+      "(\0132\r.olcalib.Flow\"6\n\014ProductIndex\022&\n\007pro" +
+      "duct\030\001 \003(\0132\025.olcalib.ProductEntry\"r\n\rEle" +
+      "mFlowEntry\022\r\n\005index\030\001 \001(\005\022\033\n\004flow\030\002 \001(\0132" +
+      "\r.olcalib.Flow\022#\n\010location\030\003 \001(\0132\021.olcal" +
+      "ib.Location\022\020\n\010is_input\030\004 \001(\010\"5\n\rElemFlo" +
+      "wIndex\022$\n\004flow\030\001 \003(\0132\026.olcalib.ElemFlowE" +
+      "ntry\"=\n\013ImpactEntry\022\r\n\005index\030\001 \001(\005\022\037\n\006im" +
+      "pact\030\002 \001(\0132\017.olcalib.Impact\"3\n\013ImpactInd" +
+      "ex\022$\n\006impact\030\001 \003(\0132\024.olcalib.ImpactEntry" +
+      "B!\n\030org.openlca.core.libraryB\005Protob\006pro" +
+      "to3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -9202,7 +9052,7 @@ public final class Proto {
     internal_static_olcalib_Impact_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_olcalib_Impact_descriptor,
-        new java.lang.String[] { "Id", "Name", "Category", "Unit", });
+        new java.lang.String[] { "Id", "Name", "Unit", });
     internal_static_olcalib_ProductEntry_descriptor =
       getDescriptor().getMessageTypes().get(4);
     internal_static_olcalib_ProductEntry_fieldAccessorTable = new

@@ -1,9 +1,9 @@
 package org.openlca.core.matrix.format;
 
+import java.util.Arrays;
+
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
-
-import java.util.Arrays;
 
 /**
  * Implements a compressed-column representation of a sparse matrix (CSC =
@@ -69,8 +69,8 @@ public class CSCMatrix implements IMatrix {
 
 		// compress another matrix format
 		int[] columnPointers = new int[m.columns() + 1];
-		TDoubleArrayList values = new TDoubleArrayList(m.rows());
-		TIntArrayList rowIndices = new TIntArrayList(m.rows());
+		var values = new TDoubleArrayList(m.rows());
+		var rowIndices = new TIntArrayList(m.rows());
 		int i = 0;
 		for (int col = 0; col < m.columns(); col++) {
 			boolean foundEntry = false;
