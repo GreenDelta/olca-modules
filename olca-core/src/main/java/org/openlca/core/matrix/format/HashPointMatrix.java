@@ -2,7 +2,6 @@ package org.openlca.core.matrix.format;
 
 import gnu.trove.impl.Constants;
 import gnu.trove.iterator.TIntDoubleIterator;
-import gnu.trove.iterator.TIntObjectIterator;
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
@@ -73,7 +72,7 @@ public class HashPointMatrix implements IMatrix {
 			cols = col + 1;
 		}
 
-		TIntDoubleHashMap rowMap = data.get(row);
+		var rowMap = data.get(row);
 		if (rowMap == null) {
 			rowMap = new TIntDoubleHashMap(
 					Constants.DEFAULT_CAPACITY,
@@ -86,7 +85,7 @@ public class HashPointMatrix implements IMatrix {
 	}
 
 	private boolean hasEntry(int row, int col) {
-		TIntDoubleHashMap rowMap = data.get(row);
+		var rowMap = data.get(row);
 		if (rowMap == null)
 			return false;
 		return rowMap.get(col) != 0;
@@ -100,48 +99,55 @@ public class HashPointMatrix implements IMatrix {
 
 	@Override
 	public double get(int row, int col) {
-		TIntDoubleHashMap rowMap = data.get(row);
+		var rowMap = data.get(row);
 		if (rowMap == null)
 			return 0;
 		return rowMap.get(col);
 	}
 
 	@Override
-	public double[] getColumn(int i) {
-		// TODO: use iterators
+	public double[] getColumn(int col) {
 		double[] column = new double[rows];
-		for (int row = 0; row < rows; row++) {
-			column[row] = get(row, i);
+		var iter = data.iterator();
+		while (iter.hasNext()) {
+			iter.advance();
+			var row = iter.key();
+			column[row] =  iter.value().get(col);
 		}
 		return column;
 	}
 
 	@Override
 	public double[] getRow(int i) {
-		// TODO: use iterators
 		double[] row = new double[cols];
-		for (int col = 0; col < cols; col++) {
-			row[col] = get(i, col);
+		var values = data.get(i);
+		if (values == null)
+			return row;
+		var iter = values.iterator();
+		while(iter.hasNext()) {
+			iter.advance();
+			var col = iter.key();
+			row[col] = iter.value();
 		}
 		return row;
 	}
 
 	@Override
 	public HashPointMatrix copy() {
-		HashPointMatrix copy = new HashPointMatrix();
+		var copy = new HashPointMatrix();
 		copy.rows = rows;
 		copy.cols = cols;
-		iterate((row, col, val) -> copy.set(row, col, val));
+		iterate(copy::set);
 		return copy;
 	}
 
 	@Override
 	public void iterate(EntryFunction fn) {
-		TIntObjectIterator<TIntDoubleHashMap> rows = data.iterator();
+		var rows = data.iterator();
 		while (rows.hasNext()) {
 			rows.advance();
 			int row = rows.key();
-			TIntDoubleIterator cols = rows.value().iterator();
+			var cols = rows.value().iterator();
 			while (cols.hasNext()) {
 				cols.advance();
 				fn.value(row, cols.key(), cols.value());
@@ -154,9 +160,7 @@ public class HashPointMatrix implements IMatrix {
 	 */
 	public double[] multiply(double[] v) {
 		double[] x = new double[rows()];
-		iterate((row, col, val) -> {
-			x[row] += val * v[col];
-		});
+		iterate((row, col, val) -> x[row] += val * v[col]);
 		return x;
 	}
 
@@ -165,10 +169,10 @@ public class HashPointMatrix implements IMatrix {
 	 * vector: M * diagm(v). The matrix is modified in-place.
 	 */
 	public void scaleColumns(double[] v) {
-		TIntObjectIterator<TIntDoubleHashMap> rows = data.iterator();
+		var rows = data.iterator();
 		while (rows.hasNext()) {
 			rows.advance();
-			TIntDoubleIterator cols = rows.value().iterator();
+			var cols = rows.value().iterator();
 			while (cols.hasNext()) {
 				cols.advance();
 				int col = cols.key();
@@ -213,8 +217,8 @@ public class HashPointMatrix implements IMatrix {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder("HashMapMatrix = [");
-		int maxRows = rows > 15 ? 15 : rows;
-		int maxCols = cols > 15 ? 15 : cols;
+		int maxRows = Math.min(rows, 15);
+		int maxCols = Math.min(cols, 15);
 		for (int row = 0; row < maxRows; row++) {
 			for (int col = 0; col < maxCols; col++) {
 				double val = get(row, col);
