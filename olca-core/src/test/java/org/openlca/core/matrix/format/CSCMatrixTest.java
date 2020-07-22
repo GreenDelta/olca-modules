@@ -46,6 +46,24 @@ public class CSCMatrixTest {
 	}
 
 	@Test
+	public void testScaleColumns() {
+		var hpm = new HashPointMatrix(2, 3);
+		hpm.setValues(new double[][]{
+				{1, 2, 3},
+				{4, 5, 6},
+		});
+		var csc = CSCMatrix.of(hpm);
+		csc.scaleColumns(v(0.5, 1.0, 1.5));
+
+		var expected = new double[][]{
+				{0.5, 2.0, 4.5},
+				{2.0, 5.0, 9.0},
+		};
+		csc.iterate((row, col, val)
+				-> assertEquals(expected[row][col], val, 1e-10));
+	}
+
+	@Test
 	public void testDiagonal() {
 		var hmp = new HashPointMatrix();
 		hmp.set(0, 0, 1.0);

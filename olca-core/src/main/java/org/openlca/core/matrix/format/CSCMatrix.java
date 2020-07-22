@@ -39,7 +39,7 @@ public class CSCMatrix implements IMatrix {
 	public final int[] rowIndices;
 
 	public CSCMatrix(int rows, int cols, double[] values,
-	                 int[] columnPointers, int[] rowIndices) {
+					 int[] columnPointers, int[] rowIndices) {
 		this.rows = rows;
 		this.columns = cols;
 		this.values = values;
@@ -161,6 +161,20 @@ public class CSCMatrix implements IMatrix {
 				if (val != 0) {
 					fn.value(row, col, val);
 				}
+			}
+		}
+	}
+
+	@Override
+	public void scaleColumns(double[] v) {
+		for (int col = 0; col < columns; col++) {
+			double factor = v[col];
+			int start = columnPointers[col];
+			int end = col < (columns - 1)
+					? columnPointers[col + 1]
+					: values.length;
+			for (int i = start; i < end; i++) {
+				values[i] *= factor;
 			}
 		}
 	}
