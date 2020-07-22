@@ -25,21 +25,21 @@ public class JuliaSolver implements IMatrixSolver {
 	@Override
 	public double[] solve(IMatrix a, int idx, double d) {
 		if (a instanceof HashPointMatrix && Julia.isWithUmfpack()) {
-			CSCMatrix ccr = CSCMatrix.of(a);
-			double[] f = new double[ccr.rows];
+			var csc = CSCMatrix.of(a);
+			double[] f = new double[csc.rows];
 			f[idx] = d;
-			double[] b = new double[ccr.rows];
+			double[] b = new double[csc.rows];
 			Julia.umfSolve(
-				ccr.rows,
-				ccr.columnPointers,
-				ccr.rowIndices,
-				ccr.values,
+				csc.rows,
+				csc.columnPointers,
+				csc.rowIndices,
+				csc.values,
 				f,
 				b);
 			return b;
 		}
-		DenseMatrix A = MatrixConverter.dense(a);
-		DenseMatrix lu = A == a ? A.copy() : A;
+		var A = MatrixConverter.dense(a);
+		var lu = A == a ? A.copy() : A;
 		double[] b = new double[A.rows()];
 		b[idx] = d;
 		Julia.solve(A.columns(), 1, lu.data, b);
@@ -85,8 +85,8 @@ public class JuliaSolver implements IMatrixSolver {
 	@Override
 	public void scaleColumns(IMatrix m, double[] v) {
 		if (m instanceof HashPointMatrix) {
-			HashPointMatrix s = (HashPointMatrix) m;
-			s.scaleColumns(v);
+			var hpm = (HashPointMatrix) m;
+			hpm.scaleColumns(v);
 			return;
 		}
 		for (int row = 0; row < m.rows(); row++) {

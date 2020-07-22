@@ -4,38 +4,76 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class CSCMatrixTest {
 
 	@Test
+	public void testAllZeros() {
+		var hpm = new HashPointMatrix(10, 10);
+		var csc = CSCMatrix.of(hpm);
+		assertEquals(10, csc.rows);
+		assertEquals(10, csc.columns);
+		assertEquals(0, csc.rowIndices.length);
+		assertEquals(0, csc.values.length);
+		assertEquals(11, csc.columnPointers.length);
+		for (int i = 0; i < 11; i++) {
+			assertEquals(0, csc.columnPointers[i]);
+		}
+		csc.iterate((row, col, val) -> fail());
+	}
+
+	@Test
+	public void testEmptyColumn() {
+		var hpm = new HashPointMatrix();
+		hpm.set(0, 0, 1);
+		hpm.set(1, 2, 2);
+		var csc = CSCMatrix.of(hpm);
+		assertEquals(2, csc.rows);
+		assertEquals(3, csc.columns);
+		assertEquals(2, csc.rowIndices.length);
+		assertEquals(2, csc.values.length);
+		assertArrayEquals(v(0, 1, 1, 2), csc.columnPointers);
+		csc.iterate((row, col, val) -> {
+			if (row == 0 && col == 0) {
+				assertEquals(1.0, val, 1e-10);
+			} else if (row == 1 && col == 2) {
+				assertEquals(2.0, val, 1e-10);
+			} else {
+				fail();
+			}
+		});
+	}
+
+	@Test
 	public void testDiagonal() {
-		HashPointMatrix m = new HashPointMatrix();
-		m.set(0, 0, 1.0);
-		m.set(1, 1, 2.0);
-		m.set(2, 2, 3.0);
-		CSCMatrix ccr = CSCMatrix.of(m);
+		var hmp = new HashPointMatrix();
+		hmp.set(0, 0, 1.0);
+		hmp.set(1, 1, 2.0);
+		hmp.set(2, 2, 3.0);
+		var csc = CSCMatrix.of(hmp);
 
 		// test fields
-		assertEquals(3, ccr.rows);
-		assertEquals(3, ccr.columns);
-		assertArrayEquals(v(1.0, 2.0, 3.0), ccr.values, 1e-10);
-		assertArrayEquals(v(0, 1, 2), ccr.rowIndices);
-		assertArrayEquals(v(0, 1, 2, 3), ccr.columnPointers);
+		assertEquals(3, csc.rows);
+		assertEquals(3, csc.columns);
+		assertArrayEquals(v(1.0, 2.0, 3.0), csc.values, 1e-10);
+		assertArrayEquals(v(0, 1, 2), csc.rowIndices);
+		assertArrayEquals(v(0, 1, 2, 3), csc.columnPointers);
 
 		// test get
 		for (int row = 0; row < 3; row++) {
 			for (int col = 0; col < 3; col++) {
 				if (row == col) {
-					assertEquals(row + 1.0, ccr.get(row, col), 1e-10);
+					assertEquals(row + 1.0, csc.get(row, col), 1e-10);
 				} else {
-					assertEquals(0.0, ccr.get(row, col), 1e-10);
+					assertEquals(0.0, csc.get(row, col), 1e-10);
 				}
 			}
 		}
 
 		// test get column
 		for (int col = 0; col < 3; col++) {
-			double[] column = ccr.getColumn(col);
+			double[] column = csc.getColumn(col);
 			for (int row = 0; row < 3; row++) {
 				if (row == col) {
 					assertEquals(row + 1.0, column[row], 1e-10);
@@ -47,7 +85,7 @@ public class CSCMatrixTest {
 
 		// test get row
 		for (int r = 0; r < 3; r++) {
-			double[] row = ccr.getRow(r);
+			double[] row = csc.getRow(r);
 			for (int col = 0; col < 3; col++) {
 				if (r == col) {
 					assertEquals(r + 1.0, row[col], 1e-10);
@@ -56,16 +94,20 @@ public class CSCMatrixTest {
 				}
 			}
 		}
+
+		// test iterate
+		csc.iterate((row, col, val)
+				-> assertEquals(hmp.get(row, col), val, 1e-10));
 	}
 
 	@Test
 	public void testMatrix() {
 		double[][] data = {
-				{ 2, 3, 0, 0, 0 },
-				{ 3, 0, 4, 0, 6 },
-				{ 0, -1, -3, 2, 0, },
-				{ 0, 0, 1, 0, 0 },
-				{ 0, 4, 2, 0, 1, },
+				{2, 3, 0, 0, 0},
+				{3, 0, 4, 0, 6},
+				{0, -1, -3, 2, 0,},
+				{0, 0, 1, 0, 0},
+				{0, 4, 2, 0, 1,},
 		};
 		HashPointMatrix hpm = new HashPointMatrix(data);
 

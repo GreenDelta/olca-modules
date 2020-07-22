@@ -149,6 +149,23 @@ public class CSCMatrix implements IMatrix {
 	}
 
 	@Override
+	public void iterate(EntryFunction fn) {
+		for (int col = 0; col < columns; col++) {
+			int start = columnPointers[col];
+			int end = col < (columns - 1)
+					? columnPointers[col + 1]
+					: values.length;
+			for (int i = start; i < end; i++) {
+				int row = rowIndices[i];
+				double val = values[i];
+				if (val != 0) {
+					fn.value(row, col, val);
+				}
+			}
+		}
+	}
+
+	@Override
 	public void set(int row, int col, double val) {
 		throw new RuntimeException(
 				"Modifying a compressed matrix is not supported");
