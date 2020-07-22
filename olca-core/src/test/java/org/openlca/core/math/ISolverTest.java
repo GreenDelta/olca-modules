@@ -18,7 +18,7 @@ public class ISolverTest {
 		IMatrix m = solver.matrix(2, 3);
 		double[][] vals = { { 1, 2, 3 }, { 4, 5, 6 } };
 		m.setValues(vals);
-		solver.scaleColumns(m, new double[] { 2, 1, 0.5 });
+		m.scaleColumns(new double[] { 2, 1, 0.5 });
 		double[][] expected = { { 2, 2, 1.5 }, { 8, 5, 3 } };
 		for (int row = 0; row < 2; row++) {
 			for (int col = 0; col < 3; col++) {

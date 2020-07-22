@@ -168,6 +168,7 @@ public class HashPointMatrix implements IMatrix {
 	 * Scales each column j of the matrix with the value v[j] of the given
 	 * vector: M * diagm(v). The matrix is modified in-place.
 	 */
+	@Override
 	public void scaleColumns(double[] v) {
 		var rows = data.iterator();
 		while (rows.hasNext()) {

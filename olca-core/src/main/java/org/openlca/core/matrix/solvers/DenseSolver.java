@@ -57,14 +57,4 @@ public class DenseSolver implements IMatrixSolver {
 		}
 		return c;
 	}
-
-	@Override
-	public void scaleColumns(IMatrix m, double[] v) {
-		for (int row = 0; row < m.rows(); row++) {
-			for (int col = 0; col < m.columns(); col++) {
-				m.set(row, col, v[col] * m.get(row, col));
-			}
-		}
-	}
-
 }

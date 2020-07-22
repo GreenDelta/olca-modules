@@ -61,4 +61,16 @@ public interface IMatrix {
 		}
 	}
 
+	/**
+	 * Scales the columns of this matrix in-place with the given factors $v$;
+	 * this is like $M = M diagm(v)$. Specifically for sparse matrices this
+	 * should be implemented in a more efficient way.
+	 */
+	default void scaleColumns(double[] v) {
+		for (int row = 0; row < this.rows(); row++) {
+			for (int col = 0; col < this.columns(); col++) {
+				this.set(row, col, v[col] * this.get(row, col));
+			}
+		}
+	}
 }

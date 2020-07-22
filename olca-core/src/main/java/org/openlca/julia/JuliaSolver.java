@@ -81,19 +81,4 @@ public class JuliaSolver implements IMatrixSolver {
 		}
 		return c;
 	}
-
-	@Override
-	public void scaleColumns(IMatrix m, double[] v) {
-		if (m instanceof HashPointMatrix) {
-			var hpm = (HashPointMatrix) m;
-			hpm.scaleColumns(v);
-			return;
-		}
-		for (int row = 0; row < m.rows(); row++) {
-			for (int col = 0; col < m.columns(); col++) {
-				m.set(row, col, v[col] * m.get(row, col));
-			}
-		}
-	}
-
 }

@@ -67,7 +67,7 @@ public class LcaCalculator {
 
 		IMatrix enviMatrix = data.enviMatrix;
 		IMatrix singleResult = enviMatrix.copy();
-		solver.scaleColumns(singleResult, s);
+		singleResult.scaleColumns(s);
 		result.directFlowResults = singleResult;
 		result.totalFlowResults = solver.multiply(enviMatrix, s);
 
@@ -98,9 +98,9 @@ public class LcaCalculator {
 
 		// direct results
 		result.techMatrix = techMatrix.copy();
-		solver.scaleColumns(result.techMatrix, scalingVector);
+		result.techMatrix.scaleColumns(scalingVector);
 		result.directFlowResults = enviMatrix.copy();
-		solver.scaleColumns(result.directFlowResults, scalingVector);
+		result.directFlowResults.scaleColumns(scalingVector);
 		result.totalRequirements = getTotalRequirements(techMatrix,
 				scalingVector);
 
@@ -113,7 +113,7 @@ public class LcaCalculator {
 		if (data.costVector == null) {
 			inverse = null; // allow GC
 		}
-		solver.scaleColumns(totalResult, demands);
+		totalResult.scaleColumns(demands);
 		result.upstreamFlowResults = totalResult;
 		int refIdx = productIdx.getIndex(productIdx.getRefFlow());
 		result.totalFlowResults = totalResult.getColumn(refIdx);
@@ -132,7 +132,7 @@ public class LcaCalculator {
 			addDirectCosts(result, scalingVector);
 			IMatrix costValues = CostVector.asMatrix(solver, data.costVector);
 			IMatrix upstreamCosts = solver.multiply(costValues, inverse);
-			solver.scaleColumns(upstreamCosts, demands);
+			upstreamCosts.scaleColumns(demands);
 			result.totalCosts = upstreamCosts.get(0, refIdx);
 			result.upstreamCostResults = upstreamCosts;
 		}
@@ -207,18 +207,17 @@ public class LcaCalculator {
 	private void addTotalImpacts(SimpleResult result) {
 		result.impactIndex = data.impactIndex;
 		IMatrix factors = data.impactMatrix;
-		double[] totals = solver.multiply(factors, result.totalFlowResults);
-		result.totalImpactResults = totals;
+		result.totalImpactResults = solver.multiply(
+				factors, result.totalFlowResults);
 	}
 
 	private void addDirectImpacts(ContributionResult result) {
 		IMatrix factors = data.impactMatrix;
 		result.impactFactors = factors;
-		IMatrix directResults = solver.multiply(factors,
+		result.directImpactResults = solver.multiply(factors,
 				result.directFlowResults);
-		result.directImpactResults = directResults;
 		IMatrix singleFlowImpacts = factors.copy();
-		solver.scaleColumns(singleFlowImpacts, result.totalFlowResults);
+		singleFlowImpacts.scaleColumns(result.totalFlowResults);
 		result.directFlowImpacts = singleFlowImpacts;
 	}
 

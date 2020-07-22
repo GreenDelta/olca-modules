@@ -15,9 +15,9 @@ public class LinkContributionsTest {
 
 	/**
 	 * A = [1, 0, 0, 0; -0.5, 1, 0, 0; -0.5, 0, 1, 0; 0, -0.5, -0.5, 1]
-	 * 
+	 *
 	 * d = [1; 0; 0; 0]
-	 * 
+	 *
 	 * s = inv(A) * d = [1; 0.5; 0.5; 0.5]
 	 */
 	@Test
@@ -30,7 +30,7 @@ public class LinkContributionsTest {
 				{ -0.5, 0, 1, 0 },
 				{ 0, -0.5, -0.5, 1 } });
 		double[] s = { 1, 0.5, 0.5, 0.5 };
-		Tests.getDefaultSolver().scaleColumns(techMatrix, s);
+		techMatrix.scaleColumns(s);
 
 		TechIndex index = new TechIndex(provider(1, 1));
 		index.put(provider(2, 2));
@@ -55,7 +55,7 @@ public class LinkContributionsTest {
 	/**
 	 * each column has two entries: +1 for the reference product, -1 for the
 	 * input of the direct neighbor
-	 * 
+	 *
 	 * p_1 <- p_2 <- p_3 <- ... <- p_n
 	 */
 	@Test

@@ -31,15 +31,15 @@ public interface IMatrixSolver {
 	 * Solves the system of linear equations A * s = d. In openLCA this is used
 	 * to calculate the scaling factors of an inventory where the vector d has
 	 * just a single entry.
-	 * 
+	 *
 	 * @param a
 	 *            the technology matrix A
 	 * @param d
 	 *            the demand value (the entry in the vector d).
-	 * 
+	 *
 	 * @param idx
 	 *            the index of the entry in the demand vector.
-	 * 
+	 *
 	 * @return the calculated scaling vector s
 	 */
 	double[] solve(IMatrix a, int idx, double d);
@@ -86,18 +86,6 @@ public interface IMatrixSolver {
 			}
 		}
 		return r;
-	}
-
-	/**
-	 * Scales the columns of matrix m with the factors in v. This is equivalent
-	 * to m * diag(v) but can be implemented in a more efficient way.
-	 */
-	default void scaleColumns(IMatrix m, double[] v) {
-		for (int row = 0; row < m.rows(); row++) {
-			for (int col = 0; col < m.columns(); col++) {
-				m.set(row, col, v[col] * m.get(row, col));
-			}
-		}
 	}
 
 }
