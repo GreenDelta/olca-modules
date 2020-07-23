@@ -55,7 +55,7 @@ public class Descriptor {
 			return true;
 		if (!(this.getClass().isInstance(obj)))
 			return false;
-		Descriptor other = (Descriptor) obj;
+		var other = (Descriptor) obj;
 		if (this.type != other.type)
 			return false;
 		if (this.id != 0 || other.id != 0)
@@ -84,39 +84,41 @@ public class Descriptor {
 		return library != null;
 	}
 
-	static Descriptor createUnknownDescriptor(RootEntity entity) {
-		Descriptor descriptor = new Descriptor();
-		setBaseValues(entity, descriptor);
-		return descriptor;
+	static Descriptor createUnknownDescriptor(RootEntity e) {
+		var d = new Descriptor();
+		setBaseValues(e, d);
+		return d;
 	}
 
-	static CategorizedDescriptor createUnknownDescriptor(CategorizedEntity entity) {
-		CategorizedDescriptor descriptor = new CategorizedDescriptor();
-		setBaseValues(entity, descriptor);
-		return descriptor;
+	static CategorizedDescriptor createUnknownDescriptor(CategorizedEntity e) {
+		var d = new CategorizedDescriptor();
+		setBaseValues(e, d);
+		return d;
 	}
 
-	static void setBaseValues(RootEntity entity, Descriptor descriptor) {
-		descriptor.refId = entity.refId;
-		descriptor.description = entity.description;
-		descriptor.id = entity.id;
-		descriptor.name = entity.name;
-		descriptor.lastChange = entity.lastChange;
-		descriptor.version = entity.version;
+	static void setBaseValues(RootEntity e, Descriptor d) {
+		d.refId = e.refId;
+		d.description = e.description;
+		d.id = e.id;
+		d.name = e.name;
+		d.lastChange = e.lastChange;
+		d.version = e.version;
 	}
 
-	static void setBaseValues(CategorizedEntity entity, CategorizedDescriptor descriptor) {
-		Descriptor.setBaseValues((RootEntity) entity, descriptor);
-		if (entity.category != null)
-			descriptor.category = entity.category.id;
+	static void setBaseValues(CategorizedEntity e, CategorizedDescriptor d) {
+		Descriptor.setBaseValues((RootEntity) e, d);
+		if (e.category != null) {
+			d.category = e.category.id;
+		}
+		d.library = e.library;
 	}
 
 	public static DQSystemDescriptor of(DQSystem system) {
 		if (system == null)
 			return null;
-		DQSystemDescriptor descriptor = new DQSystemDescriptor();
-		Descriptor.setBaseValues(system, descriptor);
-		return descriptor;
+		var d = new DQSystemDescriptor();
+		Descriptor.setBaseValues(system, d);
+		return d;
 	}
 
 	public static NwSetDescriptor of(NwSet nwSet) {
