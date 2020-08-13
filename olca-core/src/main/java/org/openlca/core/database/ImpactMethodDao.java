@@ -1,6 +1,7 @@
 package org.openlca.core.database;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,32 +31,25 @@ public class ImpactMethodDao extends
 
 	private List<ImpactCategoryDescriptor> getImpactCategories(
 			String whereClause) {
-		String sql = "select " +
-				"  ic.id,            " +
-				"  ic.ref_id,        " +
-				"  ic.name,          " +
-				"  ic.description,   " +
-				"  ic.version,       " +
-				"  ic.last_change,   " +
-				"  ic.f_category,    " +
-				"  ic.reference_unit " +
+		var dao = new ImpactCategoryDao(database);
+		var fields = Arrays.stream(dao.getDescriptorFields())
+				.map(field -> "ic." + field)
+				.reduce((field1, field2) -> field1 + ", " + field2)
+				.get();
+		String sql = "select "
+				+ fields + " " +
 				"from tbl_impact_categories ic     " +
 				"inner join tbl_impact_links link  " +
 				"on ic.id = link.f_impact_category " +
 				"inner join tbl_impact_methods m   " +
 				"on m.id = link.f_impact_method    " +
 				"where " + whereClause;
-		try {
-			ImpactCategoryDao cdao = new ImpactCategoryDao(database);
-			List<Object[]> list = selectAll(sql,
-					cdao.getDescriptorFields(), Collections.emptyList());
-			return list.stream()
-					.map(cdao::createDescriptor)
-					.collect(Collectors.toList());
-		} catch (Exception e) {
-			throw new RuntimeException(
-					"failed to get method indicators: " + sql, e);
-		}
+		List<Object[]> records = selectAll(sql,
+				dao.getDescriptorFields(),
+				Collections.emptyList());
+		return records.stream()
+				.map(dao::createDescriptor)
+				.collect(Collectors.toList());
 	}
 
 	public List<NwSetDescriptor> getNwSetDescriptors(long methodId) {
@@ -95,4 +89,5 @@ public class ImpactMethodDao extends
 			return Collections.emptyList();
 		}
 	}
+
 }
