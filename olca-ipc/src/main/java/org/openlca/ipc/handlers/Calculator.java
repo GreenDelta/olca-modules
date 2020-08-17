@@ -99,18 +99,17 @@ public class Calculator {
 	public RpcResponse calculate(RpcRequest req) {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("No calculation setup given", req);
-		JsonObject json = req.params.getAsJsonObject();
-		String systemID = Json.getRefId(json, "productSystem");
+		var json = req.params.getAsJsonObject();
+		var systemID = Json.getRefId(json, "productSystem");
 		if (systemID == null)
 			return Responses.invalidParams("No product system ID", req);
-		ProductSystem system = new ProductSystemDao(db).getForRefId(systemID);
+		var system = new ProductSystemDao(db).getForRefId(systemID);
 		if (system == null)
 			return Responses.invalidParams(
 					"No product system found for @id=" + systemID, req);
-		CalculationSetup setup = buildSetup(json, system);
+		var setup = buildSetup(json, system);
 		log.info("Calculate product system {}", systemID);
-		CalculationType type = Json.getEnum(json, "calculationType",
-				CalculationType.class);
+		var type = Json.getEnum(json, "calculationType", CalculationType.class);
 		if (type == null) {
 			type = CalculationType.CONTRIBUTION_ANALYSIS;
 			log.info("No calculation type defined; " +
@@ -201,15 +200,14 @@ public class Calculator {
 				return Responses.error(501, "Calculation method " + type
 						+ "is not yet implemented", req);
 			}
-			String id = UUID.randomUUID().toString();
+			var id = UUID.randomUUID().toString();
 			log.info("encode and cache result {}", id);
 			context.cache.put(id, CachedResult.of(setup, r));
-			JsonObject result = JsonRpc.encode(r, id, EntityCache.create(db));
+			var result = JsonRpc.encode(r, id, EntityCache.create(db));
 			return Responses.ok(result, req);
 		} catch (Exception e) {
 			log.error("Calculation failed", e);
 			return Responses.serverError(e, req);
 		}
 	}
-
 }

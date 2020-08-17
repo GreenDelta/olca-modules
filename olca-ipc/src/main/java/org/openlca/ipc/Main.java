@@ -5,8 +5,12 @@ import java.io.IOException;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.matrix.solvers.DenseSolver;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.matrix.solvers.JavaSolver;
+import org.openlca.eigen.NativeLibrary;
+import org.openlca.julia.Julia;
+import org.openlca.julia.JuliaSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +20,7 @@ public class Main {
 
 	private String db;
 	private String port;
+	private String lib;
 
 	private static Main parseArgs(String[] args) {
 		Main main = new Main();
@@ -36,6 +41,9 @@ public class Main {
 			case "-port":
 				main.port = arg;
 				break;
+			case "-lib":
+				main.lib = arg;
+				break;
 			}
 			flag = null;
 		}
@@ -43,13 +51,13 @@ public class Main {
 	}
 
 	private void startServer() {
-		IDatabase db = initDB();
+		var db = initDB();
 		if (db == null)
 			return;
 		int port = initPort();
 		try {
-			IMatrixSolver solver = initSolver();
-			Server server = new Server(port)
+			var solver = initSolver();
+			var server = new Server(port)
 					.withDefaultHandlers(db, solver);
 			server.start();
 			Runtime.getRuntime().addShutdownHook(
@@ -60,7 +68,7 @@ public class Main {
 	}
 
 	private IDatabase initDB() {
-		String dbDir = this.db;
+		var dbDir = this.db;
 		if (dbDir == null) {
 			log.info("No database given; use default database folder `db`");
 			dbDir = "db";
@@ -90,19 +98,22 @@ public class Main {
 	}
 
 	private IMatrixSolver initSolver() {
+		var libDir = this.lib != null
+				? new File(lib)
+				: new File(".");
 		try {
-//			if (Julia.loadFromDir(new File("."))
-//					&& Julia.isLoaded(JuliaModule.OPEN_BLAS)) {
-//				log.info("Loaded Julia libraries and solver");
-//				return new JuliaDenseSolver();
-//			}
-//			NativeLibrary.loadFromDir(new File("."));
-//			if (NativeLibrary.isLoaded()) {
-//				log.info("Loaded olca-eigen library and solver");
-//				return new DenseSolver();
-//			}
-//			log.warn("Could not load a native library; use plain Java solver" +
-//					"; this can be very slow");
+			if (Julia.loadFromDir(libDir)
+					&& Julia.isLoaded()) {
+				log.info("Loaded Julia libraries and solver");
+				return new JuliaSolver();
+			}
+			NativeLibrary.loadFromDir(libDir);
+			if (NativeLibrary.isLoaded()) {
+				log.info("Loaded olca-eigen library and solver");
+				return new DenseSolver();
+			}
+			log.warn("Could not load a native library; use plain Java solver" +
+					"; this can be very slow");
 			return new JavaSolver();
 		} catch (Exception e) {
 			log.error("Initialization of matrix solver failed", e);

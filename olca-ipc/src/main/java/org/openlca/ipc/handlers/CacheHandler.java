@@ -21,7 +21,7 @@ public class CacheHandler {
 	}
 
 	@Rpc("dispose")
-	public RpcResponse get(RpcRequest req) {
+	public RpcResponse dispose(RpcRequest req) {
 		if (req.params == null || !req.params.isJsonObject())
 			return Responses.error(400, "No object with '@id' provided", req);
 		JsonObject param = req.params.getAsJsonObject();
