@@ -46,6 +46,9 @@ public class CategorizedEntityDao<T extends CategorizedEntity, V extends Categor
 		if (queryResult[7] != null) {
 			d.library = (String) queryResult[7];
 		}
+		if (queryResult[8] != null) {
+			d.tags = (String) queryResult[8];
+		}
 		return d;
 	}
 
@@ -59,7 +62,8 @@ public class CategorizedEntityDao<T extends CategorizedEntity, V extends Categor
 				"version",
 				"last_change",
 				"f_category",
-				"library"
+				"library",
+				"tags",
 		};
 	}
 

@@ -22,7 +22,7 @@ public final class GeoJSON {
 
 	private GeoJSON() {
 	}
-
+	
 	public static FeatureCollection read(File file) {
 		try (Reader r = Files.newBufferedReader(
 				file.toPath(), StandardCharsets.UTF_8)) {

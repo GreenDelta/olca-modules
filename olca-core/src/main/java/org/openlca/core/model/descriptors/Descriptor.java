@@ -44,6 +44,11 @@ public class Descriptor {
 	 * descriptor belongs to a library. Otherwise this field is empty (or null).
 	 */
 	public String library;
+	
+	/**
+	 * Tags are stored in a single string separated by commas `,`.
+	 */
+	public String tags;
 
 	public ModelType type = ModelType.UNKNOWN;
 

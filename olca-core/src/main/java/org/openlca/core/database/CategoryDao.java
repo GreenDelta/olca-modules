@@ -40,18 +40,18 @@ public class CategoryDao
 				"last_change",
 				"f_category",
 				"library",
+				"tags",
 				"model_type",
 		};
 	}
 
 	@Override
-	protected CategoryDescriptor createDescriptor(Object[] queryResult) {
-		var descriptor = super.createDescriptor(queryResult);
-		if (queryResult[8] instanceof String) {
-			descriptor.categoryType = ModelType
-					.valueOf((String) queryResult[8]);
+	protected CategoryDescriptor createDescriptor(Object[] record) {
+		var d = super.createDescriptor(record);
+		if (record[9] instanceof String) {
+			d.categoryType = ModelType.valueOf((String) record[9]);
 		}
-		return descriptor;
+		return d;
 	}
 
 	/** Root categories do not have a parent category. */

@@ -107,8 +107,8 @@ public class RootEntityDao<T extends RootEntity, V extends Descriptor> extends B
 	}
 
 	/**
-	 * Returns all descriptors of the DAO type in a map which is indexed by
-	 * the IDs of the respective descriptors.
+	 * Returns all descriptors of the DAO type in a map which is indexed by the IDs
+	 * of the respective descriptors.
 	 */
 	public TLongObjectHashMap<V> descriptorMap() {
 		TLongObjectHashMap<V> m = new TLongObjectHashMap<>();
@@ -129,11 +129,18 @@ public class RootEntityDao<T extends RootEntity, V extends Descriptor> extends B
 	}
 
 	/**
-	 * Returns all fields that should be queried by the descriptor query.
-	 * Subclass may override to provide more information. Use sql column names !
+	 * Returns all fields that should be queried by the descriptor query. Subclass
+	 * may override to provide more information. Use sql column names !
 	 */
 	protected String[] getDescriptorFields() {
-		return new String[] { "id", "ref_id", "name", "description", "version", "last_change" };
+		return new String[] {
+				"id",
+				"ref_id",
+				"name",
+				"description",
+				"version",
+				"last_change"
+		};
 	}
 
 	/**
@@ -152,29 +159,30 @@ public class RootEntityDao<T extends RootEntity, V extends Descriptor> extends B
 	}
 
 	/**
-	 * Creates a descriptor from the given result of a descriptor query. This
-	 * method can be overwritten by subclasses but it must be implemented in a
-	 * way that it matches the respective descriptor query.
+	 * Creates a descriptor from the given result of a descriptor query. This method
+	 * can be overwritten by subclasses but it must be implemented in a way that it
+	 * matches the respective descriptor query.
 	 */
-	protected V createDescriptor(Object[] queryResult) {
-		if (queryResult == null)
+	protected V createDescriptor(Object[] record) {
+		if (record == null)
 			return null;
-		V descriptor = null;
+		V d = null;
 		try {
-			descriptor = descriptorType.newInstance();
-			descriptor.id = (Long) queryResult[0];
-			descriptor.refId = (String) queryResult[1];
-			descriptor.name = (String) queryResult[2];
-			descriptor.description = (String) queryResult[3];
-			if (queryResult[4] != null)
-				descriptor.version = (long) queryResult[4];
-			if (queryResult[5] != null)
-				descriptor.lastChange = (long) queryResult[5];
-			descriptor.type = ModelType.forModelClass(entityType);
+			d = descriptorType.getDeclaredConstructor().newInstance();
+			d.id = (Long) record[0];
+			d.refId = (String) record[1];
+			d.name = (String) record[2];
+			d.description = (String) record[3];
+			if (record[4] != null)
+				d.version = (long) record[4];
+			if (record[5] != null)
+				d.lastChange = (long) record[5];
+			d.type = ModelType.forModelClass(entityType);
 		} catch (Exception e) {
-			DatabaseException.logAndThrow(log, "failed to map query result to descriptor", e);
+			DatabaseException.logAndThrow(
+					log, "failed to map query result to descriptor", e);
 		}
-		return descriptor;
+		return d;
 	}
 
 	public T getForRefId(String refId) {

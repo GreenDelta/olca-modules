@@ -145,7 +145,7 @@ public class ZipStore implements EntityStore {
 				return null;
 			return Files.readAllBytes(file);
 		} catch (Exception e) {
-			log.error("failed to file " + path, e);
+			log.error("failed to get file " + path, e);
 			return null;
 		}
 	}
@@ -209,10 +209,9 @@ public class ZipStore implements EntityStore {
 	}
 
 	/**
-	 * Returns the paths of the files that are located under the given folder.
-	 * The returned paths are absolute to the root of the underlying zip file.
-	 * Thus, you can get the content of such a path `p` by using the method
-	 * `get(p)`.
+	 * Returns the paths of the files that are located under the given folder. The
+	 * returned paths are absolute to the root of the underlying zip file. Thus, you
+	 * can get the content of such a path `p` by using the method `get(p)`.
 	 */
 	public List<String> getFiles(String folder) {
 		if (folder == null)
@@ -225,7 +224,7 @@ public class ZipStore implements EntityStore {
 			Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
 				@Override
 				public FileVisitResult visitFile(Path file,
-						BasicFileAttributes attrs) throws IOException {
+						BasicFileAttributes attrs) {
 					paths.add(file.toAbsolutePath().toString());
 					return FileVisitResult.CONTINUE;
 				}
@@ -241,8 +240,7 @@ public class ZipStore implements EntityStore {
 		private List<String> ids = new ArrayList<>();
 
 		@Override
-		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-				throws IOException {
+		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
 			if (file == null)
 				return FileVisitResult.CONTINUE;
 			String fileName = file.getFileName().toString();
@@ -257,8 +255,7 @@ public class ZipStore implements EntityStore {
 		private List<String> paths = new ArrayList<>();
 
 		@Override
-		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-				throws IOException {
+		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
 			if (file == null)
 				return FileVisitResult.CONTINUE;
 			paths.add(file.toAbsolutePath().toString());

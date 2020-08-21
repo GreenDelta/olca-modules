@@ -33,6 +33,7 @@ public class ProcessDao extends CategorizedEntityDao<Process, ProcessDescriptor>
 				"last_change",
 				"f_category",
 				"library",
+				"tags",
 				"process_type",
 				"infrastructure_process",
 				"f_location",
@@ -41,18 +42,18 @@ public class ProcessDao extends CategorizedEntityDao<Process, ProcessDescriptor>
 	}
 
 	@Override
-	protected ProcessDescriptor createDescriptor(Object[] queryResult) {
-		if (queryResult == null)
+	protected ProcessDescriptor createDescriptor(Object[] record) {
+		if (record == null)
 			return null;
-		var d = super.createDescriptor(queryResult);
-		if (queryResult[8] instanceof String) {
-			d.processType = ProcessType.valueOf((String) queryResult[8]);
+		var d = super.createDescriptor(record);
+		if (record[9] instanceof String) {
+			d.processType = ProcessType.valueOf((String) record[9]);
 		}
-		if (queryResult[9] instanceof Integer) {
-			d.infrastructureProcess = (Integer) queryResult[9] == 1;
+		if (record[10] instanceof Integer) {
+			d.infrastructureProcess = (Integer) record[10] == 1;
 		}
-		d.location = (Long) queryResult[10];
-		d.quantitativeReference = (Long) queryResult[11];
+		d.location = (Long) record[11];
+		d.quantitativeReference = (Long) record[12];
 		return d;
 	}
 

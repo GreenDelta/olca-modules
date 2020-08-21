@@ -25,16 +25,17 @@ public class LocationDao
 				"last_change",
 				"f_category",
 				"library",
+				"tags",
 				"code",
 		};
 	}
 
 	@Override
-	protected LocationDescriptor createDescriptor(Object[] values) {
-		if (values == null)
+	protected LocationDescriptor createDescriptor(Object[] record) {
+		if (record == null)
 			return null;
-		var d = super.createDescriptor(values);
-		d.code = (String) values[8];
+		var d = super.createDescriptor(record);
+		d.code = (String) record[9];
 		return d;
 	}
 
