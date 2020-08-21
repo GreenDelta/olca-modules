@@ -159,7 +159,7 @@ public class TestData {
 			param.refId = UUID.randomUUID().toString();
 			param.isInputParameter = true;
 			param.uncertainty = u;
-			param.scope = ParameterScope.IMPACT_CATEGORY;
+			param.scope = ParameterScope.IMPACT;
 			impact.parameters.add(param);
 			if (u.distributionType != null) {
 				switch (u.distributionType) {

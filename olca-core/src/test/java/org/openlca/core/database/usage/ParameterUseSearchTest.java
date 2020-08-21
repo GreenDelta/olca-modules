@@ -85,7 +85,7 @@ public class ParameterUseSearchTest {
 		Parameter p1 = createParameter("p1", 5d,
 				ParameterScope.GLOBAL);
 		Parameter p2 = createParameter("p2", "5*p1",
-				ParameterScope.IMPACT_CATEGORY);
+				ParameterScope.IMPACT);
 		ImpactCategory impact = new ImpactCategory();
 		impact.parameters.add(p2);
 		Tests.insert(p1);
@@ -119,9 +119,9 @@ public class ParameterUseSearchTest {
 	@Test
 	public void testFindNotInImpactCategory() {
 		Parameter p = createParameter("p1", 5d, ParameterScope.GLOBAL);
-		Parameter p1 = createParameter("p1", 5d, ParameterScope.IMPACT_CATEGORY);
+		Parameter p1 = createParameter("p1", 5d, ParameterScope.IMPACT);
 		Parameter p2 = createParameter("p2", "5*p1",
-				ParameterScope.IMPACT_CATEGORY);
+				ParameterScope.IMPACT);
 		ImpactCategory impact = new ImpactCategory();
 		impact.parameters.add(p1);
 		impact.parameters.add(p2);

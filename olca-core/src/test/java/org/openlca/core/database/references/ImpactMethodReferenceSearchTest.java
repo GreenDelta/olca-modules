@@ -115,7 +115,7 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 		if (global)
 			parameter.scope = ParameterScope.GLOBAL;
 		else
-			parameter.scope = ParameterScope.IMPACT_CATEGORY;
+			parameter.scope = ParameterScope.IMPACT;
 		return parameter;
 	}
 

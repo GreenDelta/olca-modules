@@ -52,7 +52,7 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 			else if (!hasDefinedLocalParameter(ref)) {
 				if (ref.scope == ParameterScope.PROCESS)
 					processes.add(ref.ownerId);
-				else if (ref.scope == ParameterScope.IMPACT_CATEGORY)
+				else if (ref.scope == ParameterScope.IMPACT)
 					impacts.add(ref.ownerId);
 			}
 		}

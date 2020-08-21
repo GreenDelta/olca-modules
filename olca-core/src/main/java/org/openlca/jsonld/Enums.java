@@ -30,7 +30,7 @@ public class Enums {
 	private static void putParameterScopes() {
 		put(ParameterScope.GLOBAL, "GLOBAL_SCOPE");
 		put(ParameterScope.PROCESS, "PROCESS_SCOPE");
-		put(ParameterScope.IMPACT_CATEGORY, "LCIA_CATEGORY_SCOPE");
+		put(ParameterScope.IMPACT, "IMPACT_SCOPE");
 		defaultValues.put(ParameterScope.class, ParameterScope.GLOBAL);
 	}
 

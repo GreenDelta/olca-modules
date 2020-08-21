@@ -474,7 +474,7 @@ public class ParameterUsageTree {
 			switch (param.scope) {
 				case PROCESS:
 					return root(ownerID, ProcessDescriptor.class);
-				case IMPACT_CATEGORY:
+				case IMPACT:
 					return root(ownerID, ImpactCategoryDescriptor.class);
 				default:
 					return null;

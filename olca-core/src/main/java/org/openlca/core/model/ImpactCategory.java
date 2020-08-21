@@ -72,6 +72,6 @@ public class ImpactCategory extends ParameterizedEntity {
 
 	@Override
 	public final ParameterScope parameterScope() {
-		return ParameterScope.IMPACT_CATEGORY;
+		return ParameterScope.IMPACT;
 	}
 }

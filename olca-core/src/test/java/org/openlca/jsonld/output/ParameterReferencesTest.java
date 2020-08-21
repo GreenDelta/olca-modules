@@ -359,7 +359,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		redef.name = p.name;
 		if (p.scope == ParameterScope.PROCESS)
 			redef.contextType = ModelType.PROCESS;
-		else if (p.scope == ParameterScope.IMPACT_CATEGORY)
+		else if (p.scope == ParameterScope.IMPACT)
 			redef.contextType = ModelType.IMPACT_CATEGORY;
 		if (p.scope != ParameterScope.GLOBAL)
 			redef.contextId = 1l;

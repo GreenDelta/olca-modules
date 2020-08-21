@@ -10,7 +10,7 @@ public enum ParameterScope {
 
 	PROCESS,
 
-	IMPACT_CATEGORY,
+	IMPACT,
 
 	GLOBAL
 
