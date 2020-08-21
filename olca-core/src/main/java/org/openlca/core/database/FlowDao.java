@@ -40,7 +40,7 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 			return null;
 		var d = super.createDescriptor(record);
 		if (record[9] instanceof String) {
-			d.flowType = FlowType.valueOf((String) record[8]);
+			d.flowType = FlowType.valueOf((String) record[9]);
 		}
 		d.location = (Long) record[10];
 		Long refProp = (Long) record[11];

@@ -36,18 +36,18 @@ public class CategorizedEntityDao<T extends CategorizedEntity, V extends Categor
 	}
 
 	@Override
-	protected V createDescriptor(Object[] queryResult) {
-		var d = super.createDescriptor(queryResult);
+	protected V createDescriptor(Object[] record) {
+		var d = super.createDescriptor(record);
 		if (d == null)
 			return d;
-		if (queryResult[6] != null) {
-			d.category = (Long) queryResult[6];
+		if (record[6] != null) {
+			d.category = (Long) record[6];
 		}
-		if (queryResult[7] != null) {
-			d.library = (String) queryResult[7];
+		if (record[7] != null) {
+			d.library = (String) record[7];
 		}
-		if (queryResult[8] != null) {
-			d.tags = (String) queryResult[8];
+		if (record[8] != null) {
+			d.tags = (String) record[8];
 		}
 		return d;
 	}

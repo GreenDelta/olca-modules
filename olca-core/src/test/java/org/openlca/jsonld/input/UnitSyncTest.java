@@ -24,8 +24,11 @@ import org.openlca.jsonld.Tests;
 public class UnitSyncTest {
 
 	private static final ModelType[] modelTypes = new ModelType[] {
-		ModelType.IMPACT_METHOD, ModelType.PRODUCT_SYSTEM, ModelType.PROCESS 
+		ModelType.IMPACT_METHOD, 
+		ModelType.PRODUCT_SYSTEM, 
+		ModelType.PROCESS 
 	};
+	
 	private IDatabase db;
 	private UnitDao dao;
 	private File allData;

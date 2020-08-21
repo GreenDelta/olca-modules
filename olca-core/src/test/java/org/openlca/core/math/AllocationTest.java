@@ -64,8 +64,8 @@ public class AllocationTest {
 
 	@Test
 	public void testFormula() {
-		AllocationMethod method = AllocationMethod.PHYSICAL;
-		Process p = TestProcess
+		var method = AllocationMethod.PHYSICAL;
+		var p = TestProcess
 				.refProduct("p1", 1, "kg")
 				.wasteIn("w2", 3, "kg")
 				.elemOut("CO2", 2, "kg")

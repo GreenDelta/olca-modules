@@ -46,7 +46,9 @@ public class CalcAllocationFactor {
 			return amount;
 		try {
 			var scope = interpreter.getScope(processID);
-			amount = interpreter.eval(formula);
+			amount = scope.isPresent()
+					? scope.get().eval(formula)
+					: interpreter.eval(formula);
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(getClass());
 			log.error("failed to evaluate formula of allocation factor: "
