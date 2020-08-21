@@ -12,6 +12,7 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.Json;
+import org.openlca.util.Strings;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -54,8 +55,8 @@ class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 			return null;
 
 		ImpactFactor factor = new ImpactFactor();
-		factor.value = Json.getDouble(json, "value", 0);
-		factor.formula = Json.getString(json, "formula");
+		
+		// flow
 		String flowId = Json.getRefId(json, "flow");
 		Flow flow = FlowImport.run(flowId, conf);
 		factor.flow = flow;
@@ -64,10 +65,19 @@ class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 			return null;
 		}
 
+		// amount fields
+		factor.value = Json.getDouble(json, "value", 0);
+		factor.formula = Json.getString(json, "formula");
 		JsonElement uncertainty = json.get("uncertainty");
 		if (uncertainty != null && uncertainty.isJsonObject()) {
 			factor.uncertainty = Uncertainties.read(
 					uncertainty.getAsJsonObject());
+		}
+		
+		// location
+		var locID = Json.getRefId(json, "location");
+		if (Strings.notEmpty(locID)) {
+			factor.location = LocationImport.run(locID, conf);
 		}
 
 		// set the flow property and unit; if we cannot find them

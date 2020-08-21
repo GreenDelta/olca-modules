@@ -46,6 +46,7 @@ class ImpactCategoryWriter extends Writer<ImpactCategory> {
 				property = f.flowPropertyFactor.flowProperty;
 			Out.put(obj, "flowProperty", property, conf, Out.REQUIRED_FIELD);
 			Out.put(obj, "uncertainty", Uncertainties.map(f.uncertainty));
+			Out.put(obj, "location", f.location, conf);
 			array.add(obj);
 		}
 		Out.put(json, "impactFactors", array);
