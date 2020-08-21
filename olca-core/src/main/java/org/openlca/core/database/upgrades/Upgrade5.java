@@ -10,8 +10,6 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.cache.FlowTable;
 import org.openlca.core.model.FlowType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TObjectLongHashMap;
@@ -69,25 +67,22 @@ class Upgrade5 implements IUpgrade {
 	}
 
 	private TObjectLongHashMap<LongPair> inputIdx(IDatabase db) {
-		TObjectLongHashMap<LongPair> idx = new TObjectLongHashMap<>(
-				Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, -1);
-		FlowTable flowTypes = FlowTable.create(db);
+		var idx = new TObjectLongHashMap<LongPair>(
+				Constants.DEFAULT_CAPACITY,
+				Constants.DEFAULT_LOAD_FACTOR,
+				-1);
+		var flowTypes = FlowTable.getTypes(db);
 		String sql = "SELECT id, f_owner, f_flow, is_input from tbl_exchanges";
-		try {
-			NativeSql.on(db).query(sql, r -> {
-				long exchangeId = r.getLong(1);
-				long processId = r.getLong(2);
-				long flowId = r.getLong(3);
-				boolean isInput = r.getBoolean(4);
-				if (!isInput || flowTypes.type(flowId) == FlowType.ELEMENTARY_FLOW)
-					return true;
-				idx.put(LongPair.of(processId, flowId), exchangeId);
+		NativeSql.on(db).query(sql, r -> {
+			long exchangeId = r.getLong(1);
+			long processId = r.getLong(2);
+			long flowId = r.getLong(3);
+			boolean isInput = r.getBoolean(4);
+			if (!isInput || flowTypes.get(flowId) == FlowType.ELEMENTARY_FLOW)
 				return true;
-			});
-		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(getClass());
-			log.error("failed to build exchange index");
-		}
+			idx.put(LongPair.of(processId, flowId), exchangeId);
+			return true;
+		});
 		return idx;
 	}
 }
