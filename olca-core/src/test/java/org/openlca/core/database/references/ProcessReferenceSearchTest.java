@@ -6,7 +6,6 @@ import java.util.Map;
 import org.openlca.core.Tests;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
-import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -52,7 +51,6 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 		process.parameters.add(createParameter(n2, n1 + "*2*" + n3, false));
 		process.socialAspects.add(createSocialAspect());
 		process.socialAspects.add(createSocialAspect());
-		process.currency = insertAndAddExpected("currency", new Currency());
 		process.documentation = createDocumentation();
 		insertAndAddExpected(n3, createParameter(n3, "5*5", true));
 		// formula with parameter to see if added as reference (unexpected)

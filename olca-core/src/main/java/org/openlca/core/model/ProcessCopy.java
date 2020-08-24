@@ -22,7 +22,6 @@ class ProcessCopy {
 		copy.location = origin.location;
 		copy.processType = origin.processType;
 		copy.infrastructureProcess = origin.infrastructureProcess;
-		copy.currency = origin.currency;
 		copy.dqEntry = origin.dqEntry;
 		copy.dqSystem = origin.dqSystem;
 		copy.exchangeDqSystem = origin.exchangeDqSystem;

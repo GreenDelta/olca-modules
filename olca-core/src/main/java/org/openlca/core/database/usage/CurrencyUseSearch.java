@@ -21,11 +21,9 @@ public class CurrencyUseSearch extends BaseUseSearch<CurrencyDescriptor> {
 
 	@Override
 	public List<CategorizedDescriptor> findUses(Set<Long> ids) {
-		List<CategorizedDescriptor> results = new ArrayList<>();
-		Set<Long> processIds = queryForIds("f_owner", "tbl_exchanges", ids,
-				"f_currency");
+		var results = new ArrayList<CategorizedDescriptor>();
+		var processIds = queryForIds("f_owner", "tbl_exchanges", ids, "f_currency");
 		results.addAll(queryFor(ModelType.PROCESS, processIds, "id"));
-		results.addAll(queryFor(ModelType.PROCESS, ids, "f_currency"));
 		results.addAll(queryFor(ModelType.CURRENCY, ids, "f_reference_currency"));
 		return results;
 	}

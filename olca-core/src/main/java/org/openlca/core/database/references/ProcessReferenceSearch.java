@@ -10,7 +10,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
-import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -31,7 +30,6 @@ public class ProcessReferenceSearch
 	private final static Ref[] references = {
 			new Ref(Category.class, "category", "f_category", true),
 			new Ref(Location.class, "location", "f_location", true),
-			new Ref(Currency.class, "currency", "f_currency", true),
 			new Ref(DQSystem.class, "dqSystem", "f_dq_system", true),
 			new Ref(DQSystem.class, "exchangeDqSystem", "f_exchange_dq_system", true),
 			new Ref(DQSystem.class, "socialDqSystem", "f_social_dq_system", true),

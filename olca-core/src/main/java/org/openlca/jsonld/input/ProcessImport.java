@@ -3,7 +3,6 @@ package org.openlca.jsonld.input;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openlca.core.database.DQSystemDao;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
@@ -15,12 +14,11 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.RiskLevel;
 import org.openlca.core.model.SocialAspect;
 import org.openlca.jsonld.Json;
-import org.openlca.util.DQSystems;
+import org.openlca.util.Strings;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.openlca.util.Strings;
 
 class ProcessImport extends BaseImport<Process> {
 
@@ -40,6 +38,7 @@ class ProcessImport extends BaseImport<Process> {
 			return null;
 		Process p = new Process();
 		In.mapAtts(json, p, id, conf);
+
 		p.processType = getType(json);
 		p.infrastructureProcess = Json.getBool(json, "infrastructureProcess", false);
 		p.defaultAllocationMethod = Json.getEnum(json, "defaultAllocationMethod", AllocationMethod.class);
@@ -47,6 +46,8 @@ class ProcessImport extends BaseImport<Process> {
 		String locId = Json.getRefId(json, "location");
 		if (locId != null)
 			p.location = LocationImport.run(locId, conf);
+
+		// DQ systems
 		String dqSystemId = Json.getRefId(json, "dqSystem");
 		if (dqSystemId != null)
 			p.dqSystem = DQSystemImport.run(dqSystemId, conf);
@@ -54,13 +55,10 @@ class ProcessImport extends BaseImport<Process> {
 		String exchangeDqSystemId = Json.getRefId(json, "exchangeDqSystem");
 		if (exchangeDqSystemId != null)
 			p.exchangeDqSystem = DQSystemImport.run(exchangeDqSystemId, conf);
-		checkPedigreeSystem(p);
 		String socialDqSystemId = Json.getRefId(json, "socialDqSystem");
 		if (socialDqSystemId != null)
 			p.socialDqSystem = DQSystemImport.run(socialDqSystemId, conf);
-		String curId = Json.getRefId(json, "currency");
-		if (curId != null)
-			p.currency = CurrencyImport.run(curId, conf);
+
 		addParameters(json, p);
 		// avoid cyclic reference problems
 		if (hasDefaultProviders(json))
@@ -69,18 +67,6 @@ class ProcessImport extends BaseImport<Process> {
 		addSocialAspects(json, p);
 		addAllocationFactors(json, p);
 		return conf.db.put(p);
-	}
-
-	private void checkPedigreeSystem(Process p) {
-		if (p.exchangeDqSystem != null)
-			// set another system, so everything all right
-			return;
-		for (Exchange e : p.exchanges) {
-			if (e.dqEntry == null)
-				continue;
-			p.exchangeDqSystem = new DQSystemDao(conf.db.getDatabase()).insert(DQSystems.ecoinvent());
-			return;
-		}
 	}
 
 	private boolean hasDefaultProviders(JsonObject json) {

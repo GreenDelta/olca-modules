@@ -13,9 +13,9 @@ import org.openlca.core.model.Currency;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CurrencyDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 
 public class CurrencyUseSearchTest {
 
@@ -55,20 +55,7 @@ public class CurrencyUseSearchTest {
 	@Test
 	public void testFindInExchanges() {
 		Currency currency = createCurrency();
-		Process process = createProcess(currency, true);
-		List<CategorizedDescriptor> results = search.findUses(Descriptor
-				.of(currency));
-		new ProcessDao(database).delete(process);
-		new CurrencyDao(database).delete(currency);
-		Descriptor expected = Descriptor.of(process);
-		Assert.assertEquals(1, results.size());
-		Assert.assertEquals(expected, results.get(0));
-	}
-
-	@Test
-	public void testFindInProcess() {
-		Currency currency = createCurrency();
-		Process process = createProcess(currency, false);
+		Process process = createProcess(currency);
 		List<CategorizedDescriptor> results = search.findUses(Descriptor
 				.of(currency));
 		new ProcessDao(database).delete(process);
@@ -85,15 +72,12 @@ public class CurrencyUseSearchTest {
 		return currency;
 	}
 
-	private Process createProcess(Currency currency, boolean inExchange) {
+	private Process createProcess(Currency currency) {
 		Process process = new Process();
 		process.name = "process";
-		if (inExchange) {
-			Exchange exchange = new Exchange();
-			exchange.currency = currency;
-			process.exchanges.add(exchange);
-		} else 
-			process.currency = currency;
+		Exchange exchange = new Exchange();
+		exchange.currency = currency;
+		process.exchanges.add(exchange);
 		new ProcessDao(database).insert(process);
 		return process;
 	}

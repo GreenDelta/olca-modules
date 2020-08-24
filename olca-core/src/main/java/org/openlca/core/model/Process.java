@@ -60,10 +60,6 @@ public class Process extends ParameterizedEntity {
 	public final List<SocialAspect> socialAspects = new ArrayList<>();
 
 	@OneToOne
-	@JoinColumn(name = "f_currency")
-	public Currency currency;
-
-	@OneToOne
 	@JoinColumn(name = "f_dq_system")
 	public DQSystem dqSystem;
 

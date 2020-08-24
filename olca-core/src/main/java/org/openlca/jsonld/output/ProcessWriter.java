@@ -10,10 +10,10 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.SocialAspect;
 import org.openlca.util.AllocationCleanup;
+import org.openlca.util.Processes;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.openlca.util.Processes;
 
 class ProcessWriter extends Writer<Process> {
 
@@ -35,7 +35,6 @@ class ProcessWriter extends Writer<Process> {
 		Out.put(obj, "infrastructureProcess", p.infrastructureProcess);
 		Out.put(obj, "location", p.location, conf);
 		Out.put(obj, "processDocumentation", Documentation.create(p, conf));
-		Out.put(obj, "currency", p.currency, conf);
 		Out.put(obj, "dqSystem", p.dqSystem, conf);
 		Out.put(obj, "dqEntry", p.dqEntry);
 		Out.put(obj, "exchangeDqSystem", p.exchangeDqSystem, conf);

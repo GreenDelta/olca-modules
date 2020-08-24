@@ -255,7 +255,6 @@ CREATE TABLE tbl_processes (
     f_quantitative_reference  BIGINT,
     f_location                BIGINT,
     f_process_doc             BIGINT,
-    f_currency                BIGINT,
     f_dq_system               BIGINT,
     dq_entry                  VARCHAR(50),
     f_exchange_dq_system      BIGINT,
