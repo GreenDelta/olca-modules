@@ -1,12 +1,13 @@
 package org.openlca.jsonld.input;
 
-import org.openlca.core.model.ImpactCategory;
+import java.util.Objects;
+
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.NwFactor;
 import org.openlca.core.model.NwSet;
 import org.openlca.jsonld.Json;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -33,34 +34,51 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 	}
 
 	private void mapCategories(JsonObject json, ImpactMethod m) {
-		JsonArray array = Json.getArray(json, "impactCategories");
+		var array = Json.getArray(json, "impactCategories");
 		if (array == null || array.size() == 0)
 			return;
-		for (JsonElement e : array) {
+		for (var e : array) {
 			if (!e.isJsonObject())
 				continue;
-			String catId = Json.getString(e.getAsJsonObject(), "@id");
-			ImpactCategory category = ImpactCategoryImport.run(catId, conf);
-			if (category != null) {
-				m.impactCategories.add(category);
+			var catId = Json.getString(e.getAsJsonObject(), "@id");
+			var impact = ImpactCategoryImport.run(catId, conf);
+			if (impact != null) {
+				m.impactCategories.add(impact);
 			}
 		}
 	}
 
-	private void mapNwSets(JsonObject json, ImpactMethod m) {
-		JsonArray array = Json.getArray(json, "nwSets");
+	private void mapNwSets(JsonObject json, ImpactMethod method) {
+		var array = Json.getArray(json, "nwSets");
 		if (array == null)
 			return;
 		for (JsonElement e : array) {
 			if (!e.isJsonObject())
 				continue;
-			String nwSetId = Json.getString(e.getAsJsonObject(), "@id");
-			JsonObject nwSetJson = conf.store.get(ModelType.NW_SET, nwSetId);
-			NwSet set = NwSetImport.run(m.refId, m.impactCategories, nwSetJson, conf);
-			if (set != null)
-				m.nwSets.add(set);
+			var nwObj = e.getAsJsonObject();
+			var nwSet = new NwSet();
+			method.nwSets.add(nwSet);
+			In.mapAtts(nwObj, nwSet, 0L);
+			nwSet.weightedScoreUnit = Json.getString(
+					json, "weightedScoreUnit");
+			Json.stream(Json.getArray(nwObj, "factors"))
+					.filter(JsonElement::isJsonObject)
+					.map(f -> nwFactor(f.getAsJsonObject(), method))
+					.forEach(nwSet.factors::add);
 		}
 	}
 
-
+	private NwFactor nwFactor(JsonObject json, ImpactMethod method) {
+		var f = new NwFactor();
+		var impactID = Json.getRefId(json, "impactCategory");
+		f.impactCategory = method.impactCategories.stream()
+				.filter(i -> Objects.equals(i.refId, impactID))
+				.findAny()
+				.orElse(null);
+		f.normalisationFactor = Json.getDouble(json, "normalisationFactor")
+				.orElse(null);
+		f.weightingFactor = Json.getDouble(json, "weightingFactor")
+				.orElse(null);
+		return f;
+	}
 }

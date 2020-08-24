@@ -1,8 +1,8 @@
 package org.openlca.jsonld.output;
 
-import org.openlca.core.model.ImpactMethod;
-
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.openlca.core.model.ImpactMethod;
 
 class ImpactMethodWriter extends Writer<ImpactMethod> {
 
@@ -11,13 +11,41 @@ class ImpactMethodWriter extends Writer<ImpactMethod> {
 	}
 
 	@Override
-	JsonObject write(ImpactMethod m) {
-		JsonObject obj = super.write(m);
+	JsonObject write(ImpactMethod method) {
+		var obj = super.write(method);
 		if (obj == null)
 			return null;
-		Out.put(obj, "impactCategories", m.impactCategories, conf, Out.FORCE_EXPORT);
-		Out.put(obj, "nwSets", m.nwSets, conf, Out.FORCE_EXPORT);
+		Out.put(obj, "impactCategories", method.impactCategories,
+				conf, Out.FORCE_EXPORT);
+		mapNwSets(obj, method);
 		return obj;
 	}
 
+	private void mapNwSets(JsonObject obj, ImpactMethod method) {
+		if (method.nwSets.isEmpty())
+			return;
+		var nwSets = new JsonArray();
+		for (var nwSet : method.nwSets) {
+			var nwObj = new JsonObject();
+			Writer.addBasicAttributes(nwSet, nwObj);
+			Out.put(nwObj, "weightedScoreUnit", nwSet.weightedScoreUnit);
+			var factors = new JsonArray();
+			nwSet.factors.stream()
+					.map(f -> {
+						var factor = new JsonObject();
+						Out.put(factor, "@type", "NwFactor");
+						Out.put(factor, "impactCategory",
+								f.impactCategory, conf, Out.REQUIRED_FIELD);
+						Out.put(factor, "normalisationFactor",
+								f.normalisationFactor);
+						Out.put(factor, "weightingFactor",
+								f.weightingFactor);
+						return factor;
+					})
+					.forEach(factors::add);
+			nwObj.add("factors", factors);
+			nwSets.add(nwObj);
+		}
+		obj.add("nwSets", nwSets);
+	}
 }
