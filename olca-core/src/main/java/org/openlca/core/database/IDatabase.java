@@ -8,6 +8,8 @@ import java.util.Set;
 
 import javax.persistence.EntityManagerFactory;
 
+import org.openlca.core.model.AbstractEntity;
+
 /**
  * The common interface for openLCA databases.
  */
@@ -20,8 +22,8 @@ public interface IDatabase extends Closeable, INotifiable {
 	int CURRENT_VERSION = 9;
 
 	/**
-	 * Creates a native SQL connection to the underlying database. The
-	 * connection should be closed from the respective client.
+	 * Creates a native SQL connection to the underlying database. The connection
+	 * should be closed from the respective client.
 	 */
 	Connection createConnection();
 
@@ -39,16 +41,15 @@ public interface IDatabase extends Closeable, INotifiable {
 
 	/**
 	 * Get a location where external files that belongs this database are stored
-	 * (e.g. PDF or Word documents, shapefiles etc). If there is no such
-	 * location for such files for this database, an implementation can just
-	 * return null.
+	 * (e.g. PDF or Word documents, shapefiles etc). If there is no such location
+	 * for such files for this database, an implementation can just return null.
 	 */
 	File getFileStorageLocation();
 
 	/**
-	 * Clears the cache of the entity manager of this database. You should
-	 * always call this method when you modified the database (via native SQL
-	 * queries) outside of the entity manager.
+	 * Clears the cache of the entity manager of this database. You should always
+	 * call this method when you modified the database (via native SQL queries)
+	 * outside of the entity manager.
 	 */
 	default void clearCache() {
 		var emf = getEntityFactory();
@@ -74,10 +75,10 @@ public interface IDatabase extends Closeable, INotifiable {
 	}
 
 	/**
-	 * Registers the library with the given ID to this database. It is the task
-	 * of the application layer to resolve the location of the corresponding
-	 * library in the file system. Nothing is done if a library with this ID is
-	 * already registered.
+	 * Registers the library with the given ID to this database. It is the task of
+	 * the application layer to resolve the location of the corresponding library in
+	 * the file system. Nothing is done if a library with this ID is already
+	 * registered.
 	 */
 	default void addLibrary(String id) {
 		var libs = getLibraries();
@@ -93,5 +94,28 @@ public interface IDatabase extends Closeable, INotifiable {
 	default void removeLibrary(String id) {
 		var sql = "delete from tbl_libraries where id = ?";
 		NativeSql.on(this).update(sql, s -> s.setString(1, id));
+	}
+
+	@SuppressWarnings("unchecked")
+	default <T extends AbstractEntity> T insert(T e) {
+		var dao = (BaseDao<T>) Daos.base(this, e.getClass());
+		return dao.insert(e);
+	}
+
+	@SuppressWarnings("unchecked")
+	default <T extends AbstractEntity> T update(T e) {
+		var dao = (BaseDao<T>) Daos.base(this, e.getClass());
+		return dao.update(e);
+	}
+
+	@SuppressWarnings("unchecked")
+	default <T extends AbstractEntity> void delete(T e) {
+		var dao = (BaseDao<T>) Daos.base(this, e.getClass());
+		dao.delete(e);
+	}
+
+	default <T extends AbstractEntity> T get(Class<T> type, long id) {
+		var dao = Daos.base(this, type);
+		return dao.getForId(id);
 	}
 }

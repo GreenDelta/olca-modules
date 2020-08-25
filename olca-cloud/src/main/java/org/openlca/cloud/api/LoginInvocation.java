@@ -23,11 +23,10 @@ class LoginInvocation {
 	CredentialSupplier credentials;
 
 	/**
-	 * Login with the specificied credentials
+	 * Login with the specified credentials
 	 * 
-	 * @throws WebRequestException
-	 *             if the credentials were invalid or the user is already logged
-	 *             in
+	 * @throws WebRequestException if the credentials were invalid or the user is
+	 *                             already logged in
 	 */
 	String execute() throws WebRequestException {
 		ClientResponse response = _execute(null);

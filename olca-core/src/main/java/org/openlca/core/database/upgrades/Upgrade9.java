@@ -230,7 +230,7 @@ class Upgrade9 implements IUpgrade {
 					insert += "NULL, "; // category
 					insert += r.getInt(8) + ", "; // is input
 					insert += impact + ", "; // owner
-					insert += "'IMPACT_CATEGORY', "; // scope
+					insert += "'IMPACT', "; // scope
 					insert += r.getDouble(11) + ", "; // value
 					insert += _string(r, 12) + ", "; // formula
 					insert += _string(r, 13) + ", "; // external source

@@ -49,14 +49,14 @@ class ProcessDocReader {
 		doc.time = Json.getString(json, "timeDescription");
 		doc.technology = Json.getString(json, "technologyDescription");
 		doc.dataCollectionPeriod = Json.getString(json,
-		"dataCollectionDescription");
+				"dataCollectionDescription");
 		doc.completeness = Json.getString(json, "completenessDescription");
 		doc.dataSelection = Json.getString(json, "dataSelectionDescription");
 		doc.reviewDetails = Json.getString(json, "reviewDetails");
 		doc.dataTreatment = Json.getString(json, "dataTreatmentDescription");
 		doc.inventoryMethod = Json.getString(json, "inventoryMethodDescription");
 		doc.modelingConstants = Json.getString(json,
-		"modelingConstantsDescription");
+				"modelingConstantsDescription");
 		doc.sampling = Json.getString(json, "samplingDescription");
 		doc.restrictions = Json.getString(json, "restrictionsDescription");
 		doc.intendedApplication = Json.getString(json, "intendedApplication");

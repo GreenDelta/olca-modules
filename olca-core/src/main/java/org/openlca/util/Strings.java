@@ -30,12 +30,12 @@ public class Strings {
 			return str;
 
 		switch (length) {
-		case 1:
-			return ".";
-		case 2:
-			return "..";
-		default:
-			return str.substring(0, length - 3).concat("...");
+			case 1:
+				return ".";
+			case 2:
+				return "..";
+			default:
+				return str.substring(0, length - 3).concat("...");
 		}
 	}
 
@@ -48,12 +48,12 @@ public class Strings {
 			return str;
 
 		switch (len) {
-		case 1:
-			return ".";
-		case 2:
-			return "..";
-		default:
-			return "...".concat(str.substring(str.length() - len + 3));
+			case 1:
+				return ".";
+			case 2:
+				return "..";
+			default:
+				return "...".concat(str.substring(str.length() - len + 3));
 		}
 	}
 
@@ -64,12 +64,12 @@ public class Strings {
 		List<String> list = new ArrayList<>();
 		InputStreamReader reader = new InputStreamReader(is);
 		try (BufferedReader buffer = new BufferedReader(reader)) {
-			String line = null;
+			String line;
 			while ((line = buffer.readLine()) != null) {
 				list.add(line);
 			}
 		}
-		return list.toArray(new String[list.size()]);
+		return list.toArray(new String[0]);
 	}
 
 	/**
@@ -78,8 +78,7 @@ public class Strings {
 	 */
 	public static boolean nullOrEqual(String string1, String string2) {
 		return (string1 == null && string2 == null)
-				|| (string1 != null && string2 != null && string1
-						.equals(string2));
+				|| (string1 != null && string1.equals(string2));
 	}
 
 	/**
@@ -110,7 +109,7 @@ public class Strings {
 			return 0;
 		if (str1 != null && str2 == null)
 			return 1;
-		if (str1 == null && str2 != null)
+		if (str1 == null)
 			return -1;
 		return str1.compareToIgnoreCase(str2);
 	}
@@ -149,7 +148,7 @@ public class Strings {
 
 	private static String[] put(String[] array, String value, int index) {
 		if (array == null || array.length == 0)
-			return new String[] { value };
+			return new String[]{value};
 		String[] copy = new String[array.length + 1];
 		for (int i = 0; i < copy.length; i++) {
 			if (i == index) {
@@ -169,6 +168,12 @@ public class Strings {
 	 */
 	public static String orEmpty(String s) {
 		return s == null ? "" : s;
+	}
+
+	public static String nullIfEmpty(String s) {
+		return nullOrEmpty(s)
+				? null
+				: s;
 	}
 
 }
