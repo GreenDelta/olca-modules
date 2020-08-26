@@ -105,7 +105,7 @@ public class ProductSystem extends CategorizedEntity {
 	@Override
 	public ProductSystem clone() {
 		ProductSystem clone = new ProductSystem();
-		Util.cloneRootFields(this, clone);
+		Util.copyRootFields(this, clone);
 		clone.category = category;
 		clone.referenceExchange = referenceExchange;
 		clone.referenceProcess = referenceProcess;

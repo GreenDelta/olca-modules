@@ -61,7 +61,7 @@ public class DQSystem extends CategorizedEntity {
 	@Override
 	public DQSystem clone() {
 		DQSystem clone = new DQSystem();
-		Util.cloneRootFields(this, clone);
+		Util.copyRootFields(this, clone);
 		clone.hasUncertainties = hasUncertainties;
 		for (DQIndicator indicator : indicators) {
 			clone.indicators.add(indicator.clone());

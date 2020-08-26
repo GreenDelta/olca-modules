@@ -33,15 +33,15 @@ public class CategoryDao
 	@Override
 	protected String[] getDescriptorFields() {
 		return new String[] { "id", "ref_id", "name", "description", "version",
-				"last_change", "f_category", "model_type" };
+				"last_change", "f_category", "tags", "model_type" };
 	}
 
 	@Override
 	protected CategoryDescriptor createDescriptor(Object[] queryResult) {
 		CategoryDescriptor descriptor = super.createDescriptor(queryResult);
-		if (queryResult[7] instanceof String)
+		if (queryResult[8] instanceof String)
 			descriptor.categoryType = ModelType
-					.valueOf((String) queryResult[7]);
+					.valueOf((String) queryResult[8]);
 		return descriptor;
 	}
 

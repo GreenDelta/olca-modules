@@ -19,6 +19,7 @@ public class Dataset extends FileReference implements Serializable {
 	public String categoryRefId;
 	// used for categories
 	public ModelType categoryType;
+	public String tags;
 
 	public String getHashId() {
 		String fullId = getFullId();

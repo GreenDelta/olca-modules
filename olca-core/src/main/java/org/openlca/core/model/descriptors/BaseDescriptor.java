@@ -18,6 +18,12 @@ public class BaseDescriptor {
 	public String description;
 	public long version;
 	public long lastChange;
+	
+	/**
+	 * Tags are stored in a single string separated by commas `,`.
+	 */
+	public String tags;
+
 	public ModelType type = ModelType.UNKNOWN;
 
 	@Override

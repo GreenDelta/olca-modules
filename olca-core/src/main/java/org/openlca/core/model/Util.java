@@ -10,7 +10,7 @@ class Util {
 	private Util() {
 	}
 
-	static void cloneRootFields(RootEntity from, RootEntity to) {
+	static void copyRootFields(RootEntity from, RootEntity to) {
 		if (from == null || to == null)
 			return;
 		to.refId = (UUID.randomUUID().toString());
@@ -19,5 +19,12 @@ class Util {
 		to.version = from.version;
 		to.lastChange = from.lastChange;
 	}
+	
+	static void copyFields(CategorizedEntity from, CategorizedEntity to) {
+		copyRootFields(from, to);
+		to.category = from.category;
+		to.tags = from.tags;
+	}
+
 
 }

@@ -235,6 +235,7 @@ public class Descriptors {
 		setBaseValues((RootEntity) entity, descriptor);
 		if (entity.category != null)
 			descriptor.category = entity.category.id;
+		descriptor.tags = entity.tags;
 	}
 
 	private static void setBaseValues(RootEntity entity, BaseDescriptor descriptor) {

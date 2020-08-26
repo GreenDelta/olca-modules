@@ -27,7 +27,7 @@ public class Category extends CategorizedEntity {
 	@Override
 	public Category clone() {
 		Category clone = new Category();
-		Util.cloneRootFields(this, clone);
+		Util.copyRootFields(this, clone);
 		clone.modelType = modelType;
 		clone.category = category;
 		for (Category child : childCategories) {

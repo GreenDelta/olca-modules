@@ -1,12 +1,17 @@
 package org.openlca.jsonld.output;
 
+import java.util.Arrays;
+
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.Dates;
 import org.openlca.jsonld.Schema;
+import org.openlca.util.Strings;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 class Writer<T extends RootEntity> {
 
@@ -27,6 +32,19 @@ class Writer<T extends RootEntity> {
 		if (entity instanceof CategorizedEntity) {
 			CategorizedEntity ce = (CategorizedEntity) entity;
 			Out.put(obj, "category", ce.category, conf);
+			
+			// write tags
+			if (!Strings.nullOrEmpty(ce.tags)) {
+				JsonArray tags = new JsonArray();
+				Arrays.stream(ce.tags.split(","))
+						.map(String::trim)
+						.filter(tag -> !Strings.nullOrEmpty(tag))
+						.map(JsonPrimitive::new)
+						.forEach(tags::add);
+				if (tags.size() > 0) {
+					obj.add("tags", tags);
+				}
+			}
 		}
 		return obj;
 	}

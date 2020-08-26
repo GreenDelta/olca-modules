@@ -5,7 +5,10 @@ import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.Dates;
 import org.openlca.jsonld.Json;
+import org.openlca.util.Strings;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 final class In {
@@ -51,6 +54,19 @@ final class In {
 		mapAtts(obj, (RootEntity) entity, id);
 		String catId = Json.getRefId(obj, "category");
 		entity.category = CategoryImport.run(catId, conf);
+		
+		// read tags
+		JsonArray tagArray = Json.getArray(obj, "tags");
+		if (tagArray != null) {
+			String[] tags = Json.stream(tagArray)
+					.filter(JsonElement::isJsonPrimitive)
+					.map(JsonElement::getAsString)
+					.filter(tag -> !Strings.nullOrEmpty(tag))
+					.toArray(String[]::new);
+			entity.tags = tags.length > 0
+					? String.join(",", tags)
+					: null;
+		}
 	}
 	
 	static boolean isNewer(JsonObject json, RootEntity model) {

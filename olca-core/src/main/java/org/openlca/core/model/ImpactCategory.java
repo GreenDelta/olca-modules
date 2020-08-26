@@ -24,7 +24,7 @@ public class ImpactCategory extends RootEntity {
 	@Override
 	public ImpactCategory clone() {
 		ImpactCategory clone = new ImpactCategory();
-		Util.cloneRootFields(this, clone);
+		Util.copyRootFields(this, clone);
 		clone.referenceUnit = referenceUnit;
 		for (ImpactFactor f : impactFactors)
 			clone.impactFactors.add(f.clone());

@@ -67,7 +67,7 @@ public class ImpactMethod extends CategorizedEntity {
 	@Override
 	public ImpactMethod clone() {
 		ImpactMethod clone = new ImpactMethod();
-		Util.cloneRootFields(this, clone);
+		Util.copyRootFields(this, clone);
 		clone.category = category;
 		HashMap<ImpactCategory, ImpactCategory> impactMap = new HashMap<>();
 		for (ImpactCategory origCat : impactCategories) {

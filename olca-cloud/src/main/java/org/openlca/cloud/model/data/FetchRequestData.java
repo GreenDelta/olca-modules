@@ -37,9 +37,10 @@ public class FetchRequestData extends Dataset {
 		ds.categoryType = categoryType;
 		ds.version = version;
 		ds.lastChange = lastChange;
-		if (categories == null)
-			return ds;
-		ds.categories = new ArrayList<>(categories);
+		if (categories != null) {
+			ds.categories = new ArrayList<>(categories);
+		}
+		ds.tags = tags;
 		return ds;
 	}
 

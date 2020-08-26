@@ -39,6 +39,7 @@ public class Datasets {
 		}
 		dataset.categoryType = categoryType;
 		dataset.categories = getCategories(descriptor, category);
+		dataset.tags = descriptor.tags;
 		return dataset;
 	}
 
@@ -54,5 +55,5 @@ public class Datasets {
 		}
 		return categories;
 	}
-	
+
 }

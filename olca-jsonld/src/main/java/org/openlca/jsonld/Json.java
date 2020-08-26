@@ -2,6 +2,8 @@ package org.openlca.jsonld;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.model.Category;
@@ -50,6 +52,12 @@ public class Json {
 			return null;
 		else
 			return elem.getAsJsonArray();
+	}
+
+	public static Stream<JsonElement> stream(JsonArray array) {
+		if (array == null)
+			return Stream.empty();
+		return StreamSupport.stream(array.spliterator(),  false);
 	}
 
 	/** Return the string value of the given property. */

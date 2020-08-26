@@ -137,6 +137,12 @@ class ProcessImport {
 		}
 		p.category = category;
 
+		// tags
+		if (!activity.tags.isEmpty()) {
+			String[] tags = activity.tags.toArray(new String[0]);
+			p.tags = String.join(",", tags);
+		}
+		
 		if (config.withParameters) {
 			handleParameters(ds, p);
 		}

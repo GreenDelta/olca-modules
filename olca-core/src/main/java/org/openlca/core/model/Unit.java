@@ -17,7 +17,7 @@ public class Unit extends RootEntity {
 	@Override
 	public Unit clone() {
 		Unit unit = new Unit();
-		Util.cloneRootFields(this, unit);
+		Util.copyRootFields(this, unit);
 		unit.conversionFactor = conversionFactor;
 		unit.synonyms = synonyms;
 		return unit;

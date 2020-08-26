@@ -23,7 +23,7 @@ public class Currency extends CategorizedEntity {
 	@Override
 	public Currency clone() {
 		Currency clone = new Currency();
-		Util.cloneRootFields(this, clone);
+		Util.copyRootFields(this, clone);
 		clone.code = code;
 		clone.conversionFactor = conversionFactor;
 		clone.referenceCurrency = referenceCurrency;

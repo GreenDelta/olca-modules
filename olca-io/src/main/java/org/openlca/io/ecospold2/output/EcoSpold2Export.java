@@ -2,6 +2,7 @@ package org.openlca.io.ecospold2.output;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -128,6 +129,11 @@ public class EcoSpold2Export implements Runnable {
 		activity.type = type;
 		activity.specialActivityType = 0; // default
 		activity.generalComment = RichText.of(process.description);
+		if (!Strings.nullOrEmpty(process.tags)) {
+			Arrays.stream(process.tags.split(","))
+					.filter(tag -> !tag.isEmpty())
+					.forEach(tag -> activity.tags.add(tag));
+		}
 	}
 
 	private void mapExchanges(Process process, DataSet ds) {

@@ -36,6 +36,25 @@ public final class NativeSql {
 		}
 	}
 
+	/**
+	 * Creates an updateable cursor for the given query.
+	 */
+	public void updateRows(String query, QueryResultHandler handler) throws SQLException {
+		log.trace("execute update {}", query);
+		try (Connection con = database.createConnection();
+				Statement stmt = con.createStatement(
+						ResultSet.TYPE_SCROLL_SENSITIVE,
+						ResultSet.CONCUR_UPDATABLE);
+				ResultSet rs = stmt.executeQuery(query)) {
+			while (rs.next()) {
+				boolean b = handler.nextResult(rs);
+				if (!b)
+					break;
+			}
+			con.commit();
+		}
+	}
+
 	public void runUpdate(String statement) throws SQLException {
 		log.trace("run update statement {}", statement);
 		try (Connection con = database.createConnection();

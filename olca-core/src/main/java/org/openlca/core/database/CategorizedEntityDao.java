@@ -38,15 +38,21 @@ public class CategorizedEntityDao<T extends CategorizedEntity, V extends Categor
 	@Override
 	protected V createDescriptor(Object[] queryResult) {
 		V descriptor = super.createDescriptor(queryResult);
-		if (descriptor != null)
+		if (descriptor == null)
+			return descriptor;
+		if (queryResult[6] != null) {
 			descriptor.category = (Long) queryResult[6];
+		}
+		if (queryResult[7] != null) {
+			descriptor.tags = (String) queryResult[7];
+		}
 		return descriptor;
 	}
 
 	@Override
 	protected String[] getDescriptorFields() {
 		return new String[] { "id", "ref_id", "name", "description", "version",
-				"last_change", "f_category" };
+				"last_change", "f_category", "tags" };
 	}
 
 	public CategorizedDescriptor updateCategory(CategorizedDescriptor model,
