@@ -45,6 +45,7 @@ public class UnitGroup extends CategorizedEntity {
 		group.name = name;
 		group.refId = UUID.randomUUID().toString();
 		group.units.add(refUnit);
+		group.referenceUnit = refUnit;
 		return group;
 	}
 

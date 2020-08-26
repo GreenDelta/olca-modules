@@ -37,12 +37,14 @@ public class JsonImport implements Runnable {
 		this.database = db;
 	}
 
-	public void setUpdateMode(UpdateMode updateMode) {
+	public JsonImport setUpdateMode(UpdateMode updateMode) {
 		this.updateMode = updateMode;
+		return this;
 	}
 
-	public void setCallback(Consumer<RootEntity> callback) {
+	public JsonImport setCallback(Consumer<RootEntity> callback) {
 		this.callback = callback;
+		return this;
 	}
 
 	public void run(ModelType type, String id) {
