@@ -38,6 +38,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import org.openlca.util.Strings;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -155,7 +156,7 @@ public class Json {
 	}
 
 	public static Date parseDate(String str) {
-		if (str == null)
+		if (Strings.nullOrEmpty(str))
 			return null;
 		try {
 			if (str.length() < 18) {
