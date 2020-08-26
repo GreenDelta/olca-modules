@@ -36,6 +36,7 @@ CREATE TABLE tbl_categories (
 
     model_type VARCHAR(255),
     f_category BIGINT,
+	tags VARCHAR(255),
 
     PRIMARY KEY (id)
 );
@@ -50,6 +51,7 @@ CREATE TABLE tbl_actors (
     version BIGINT,
     last_change BIGINT,
     f_category BIGINT,
+	tags VARCHAR(255),
     description CLOB(64 K),
 
     telefax VARCHAR(255),
@@ -74,6 +76,7 @@ CREATE TABLE tbl_locations (
     description CLOB(64 K),
     version BIGINT,
     last_change BIGINT,
+	tags VARCHAR(255),
     f_category BIGINT,
 
     longitude DOUBLE,
@@ -94,6 +97,7 @@ CREATE TABLE tbl_sources (
     version BIGINT,
     last_change BIGINT,
     f_category  BIGINT,
+	tags VARCHAR(255),
     description CLOB(64 K),
 
     source_year SMALLINT,
@@ -142,6 +146,7 @@ CREATE TABLE tbl_unit_groups (
     version BIGINT,
     last_change BIGINT,
     f_category BIGINT,
+	tags VARCHAR(255),
     description CLOB(64 K),
 
     f_reference_unit BIGINT,
@@ -163,6 +168,7 @@ CREATE TABLE tbl_flow_properties (
     version BIGINT,
     last_change BIGINT,
     f_category BIGINT,
+	tags VARCHAR(255),
     description CLOB(64 K),
 
     flow_property_type VARCHAR(255),
@@ -183,6 +189,7 @@ CREATE TABLE tbl_flows (
     version BIGINT,
     last_change BIGINT,
     f_category BIGINT,
+	tags VARCHAR(255),
     synonyms VARCHAR(32672),
     description CLOB(64 K),
 
@@ -223,6 +230,7 @@ CREATE TABLE tbl_processes (
     version BIGINT,
     last_change BIGINT,
     f_category BIGINT,
+	tags VARCHAR(255),
     description CLOB(64 K),
 
     process_type VARCHAR(255),
@@ -341,6 +349,7 @@ CREATE TABLE tbl_product_systems (
     version BIGINT,
     last_change BIGINT,
     f_category BIGINT,
+	tags VARCHAR(255),
     description CLOB(64 K),
 
     cutoff DOUBLE,
@@ -385,6 +394,7 @@ CREATE TABLE tbl_impact_methods (
     version         BIGINT,
     last_change     BIGINT,
     f_category      BIGINT,
+	tags VARCHAR(255),
     description     CLOB(64 K),
 
     parameter_mean  VARCHAR(255),
@@ -404,6 +414,7 @@ CREATE TABLE tbl_impact_categories (
     description CLOB(64 K),
     version BIGINT,
     last_change BIGINT,
+	tags VARCHAR(255),
 
     reference_unit VARCHAR(255),
     f_impact_method BIGINT,
@@ -476,6 +487,7 @@ CREATE TABLE tbl_parameters (
     version BIGINT,
     last_change BIGINT,
     f_category BIGINT,
+	tags VARCHAR(255),
 
     is_input_param SMALLINT default 0,
     f_owner BIGINT,
@@ -527,6 +539,7 @@ CREATE TABLE tbl_projects (
     version BIGINT,
     last_change BIGINT,
     f_category BIGINT,
+	tags VARCHAR(255),
     description CLOB(64 K),
 
     creation_date TIMESTAMP,
@@ -573,6 +586,7 @@ CREATE TABLE tbl_currencies (
     version BIGINT,
     last_change BIGINT,
     f_category BIGINT,
+	tags VARCHAR(255),
     description CLOB(64 K),
 
     code VARCHAR(255),
@@ -600,6 +614,7 @@ CREATE TABLE tbl_social_indicators (
     version BIGINT,
     last_change BIGINT,
     f_category BIGINT,
+	tags VARCHAR(255),
     description CLOB(64 K),
 
     activity_variable VARCHAR(255),
@@ -635,6 +650,7 @@ CREATE TABLE tbl_dq_systems (
     version BIGINT,
     last_change BIGINT,
     f_category BIGINT,
+	tags VARCHAR(255),
     f_source BIGINT,
     description CLOB(64 K),
     has_uncertainties SMALLINT default 0,
