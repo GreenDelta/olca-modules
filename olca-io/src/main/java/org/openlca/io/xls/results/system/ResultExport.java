@@ -3,7 +3,6 @@ package org.openlca.io.xls.results.system;
 import java.io.File;
 import java.io.FileOutputStream;
 
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.CalculationSetup;
@@ -34,7 +33,7 @@ public class ResultExport implements Runnable {
 
 	private boolean success;
 	NwSet nwSet;
-	Workbook workbook;
+	SXSSFWorkbook workbook;
 	CellWriter writer;
 
 	public ResultExport(CalculationSetup setup,
@@ -71,6 +70,7 @@ public class ResultExport implements Runnable {
 			try (FileOutputStream stream = new FileOutputStream(file)) {
 				workbook.write(stream);
 			}
+			workbook.dispose();
 		} catch (Exception e) {
 			log.error("Error exporting results", e);
 			success = false;

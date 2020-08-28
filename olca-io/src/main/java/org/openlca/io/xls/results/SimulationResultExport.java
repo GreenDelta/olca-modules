@@ -52,7 +52,7 @@ public class SimulationResultExport {
 	public void run(File file) throws Exception {
 		useStreaming = result.getNumberOfRuns() > 150;
 		log.trace("create workbook, using streaming: {}", useStreaming);
-		Workbook wb = useStreaming
+		var wb = useStreaming
 				? new SXSSFWorkbook(-1)
 				: new XSSFWorkbook();
 		writer = new CellWriter(cache, wb);
@@ -75,6 +75,9 @@ public class SimulationResultExport {
 
 		try (FileOutputStream fos = new FileOutputStream(file)) {
 			wb.write(fos);
+		}
+		if (wb instanceof SXSSFWorkbook) {
+			((SXSSFWorkbook) wb).dispose();
 		}
 		log.trace("result written to file {}", file);
 	}

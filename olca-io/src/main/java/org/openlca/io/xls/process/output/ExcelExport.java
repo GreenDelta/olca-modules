@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.List;
 
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
@@ -47,13 +46,14 @@ public class ExcelExport implements Runnable {
 							+ "not exported", d);
 					continue;
 				}
-				Workbook wb = new SXSSFWorkbook();
+				var wb = new SXSSFWorkbook();
 				Config config = new Config(wb, db, p);
 				writeSheets(config);
 				File f = exportFile(p);
 				try (FileOutputStream fos = new FileOutputStream(f)) {
 					wb.write(fos);
 				}
+				wb.dispose();
 			}
 		} catch (Exception e) {
 			log.error("failed to export process data sets to Excel", e);
