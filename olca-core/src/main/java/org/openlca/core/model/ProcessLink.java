@@ -13,15 +13,15 @@ import javax.persistence.Embeddable;
 public class ProcessLink implements Cloneable {
 
 	/**
-	 * ID of the flow that is an output of the one process and an input of the
-	 * of the other process.
+	 * ID of the flow that is an output of the one process (or the reference flow of
+	 * a product system) and an input of the other process.
 	 */
 	@Column(name = "f_flow")
 	public long flowId;
 
 	/**
-	 * ID of the process or product system that is an provider of a product (has
-	 * a product output) or a waste treatment (has a waste input). The pair
+	 * ID of the process or product system that is an provider of a product (has a
+	 * product output) or a waste treatment (has a waste input). The pair
 	 * (providerId, flowId) is used to index the matrices in the calculation.
 	 */
 	@Column(name = "f_provider")
@@ -35,7 +35,11 @@ public class ProcessLink implements Cloneable {
 	public long processId;
 
 	/**
-	 * ID of the product input or waste output that is linked to a provider.
+	 * ID of the product input or waste output of the process that is linked to a
+	 * provider. Note that an exchange can be linked to only one provider in a
+	 * product system but a provider can be linked to multiple exchanges. Also,
+	 * there can be multiple exchanges in a process with the same flow that are
+	 * linked to different providers.
 	 */
 	@Column(name = "f_exchange")
 	public long exchangeId;
@@ -48,7 +52,7 @@ public class ProcessLink implements Cloneable {
 
 	@Override
 	public ProcessLink clone() {
-		ProcessLink clone = new ProcessLink();
+		var clone = new ProcessLink();
 		clone.flowId = flowId;
 		clone.providerId = providerId;
 		clone.processId = processId;
@@ -74,8 +78,11 @@ public class ProcessLink implements Cloneable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.flowId, this.providerId,
-				this.processId, this.exchangeId);
+		return Objects.hash(
+				this.flowId, 
+				this.providerId,
+				this.processId, 
+				this.exchangeId);
 	}
 
 }
