@@ -25,7 +25,7 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 	ProductSystem map(JsonObject json, long id) {
 		if (json == null)
 			return null;
-		ProductSystem s = new ProductSystem();
+		var s = new ProductSystem();
 		In.mapAtts(json, s, id, conf);
 		String processRefId = Json.getRefId(json, "referenceProcess");
 		if (processRefId != null) {

@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.CalcExchange;
-import org.openlca.core.matrix.CalcImpactFactor;
 import org.openlca.core.model.ModelType;
 
 import com.google.common.cache.LoadingCache;
@@ -18,7 +17,6 @@ public final class MatrixCache {
 	private ConversionTable conversionTable;
 	private ProcessTable processTable;
 
-	private LoadingCache<Long, List<CalcImpactFactor>> impactCache;
 	private LoadingCache<Long, List<CalcExchange>> exchangeCache;
 
 	public static MatrixCache createEager(IDatabase database) {
@@ -38,7 +36,6 @@ public final class MatrixCache {
 			processTable = ProcessTable.create(database);
 			exchangeCache = ExchangeCache.create(database, conversionTable,
 					flowTypeTable);
-			impactCache = ImpactFactorCache.create(database, conversionTable);
 		}
 	}
 
@@ -64,13 +61,6 @@ public final class MatrixCache {
 		return processTable;
 	}
 
-	public LoadingCache<Long, List<CalcImpactFactor>> getImpactCache() {
-		if (impactCache == null)
-			impactCache = ImpactFactorCache.create(database,
-					getConversionTable());
-		return impactCache;
-	}
-
 	public LoadingCache<Long, List<CalcExchange>> getExchangeCache() {
 		if (exchangeCache == null)
 			exchangeCache = ExchangeCache.create(database,
@@ -85,8 +75,6 @@ public final class MatrixCache {
 			conversionTable.reload();
 		if (exchangeCache != null)
 			exchangeCache.invalidateAll();
-		if (impactCache != null)
-			impactCache.invalidateAll();
 		processTable = null;
 	}
 
@@ -99,14 +87,6 @@ public final class MatrixCache {
 			break;
 		case FLOW_PROPERTY:
 			baseEviction();
-			break;
-		case IMPACT_CATEGORY:
-			if (impactCache != null)
-				impactCache.invalidate(id);
-			break;
-		case IMPACT_METHOD:
-			if (impactCache != null)
-				impactCache.invalidateAll();
 			break;
 		case PROCESS:
 			evictProcess(id);
@@ -129,12 +109,10 @@ public final class MatrixCache {
 			conversionTable = null;
 			flowTypeTable = null;
 			exchangeCache = null;
-			impactCache = null;
 		} else {
 			conversionTable.reload();
 			flowTypeTable.reload(database);
 			exchangeCache.invalidateAll();
-			impactCache.invalidateAll();
 		}
 		processTable = null;
 	}

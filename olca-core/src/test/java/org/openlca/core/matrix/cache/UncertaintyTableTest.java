@@ -8,13 +8,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.matrix.CalcExchange;
-import org.openlca.core.matrix.CalcImpactFactor;
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Uncertainty;
 
@@ -47,26 +43,6 @@ public class UncertaintyTableTest {
 		Assert.assertEquals(1, e.parameter1, 1e-16);
 		Assert.assertEquals(2, e.parameter2, 1e-16);
 		Assert.assertEquals(3, e.parameter3, 1e-16);
-	}
-
-	@Test
-	public void testForImpactFactor() throws Exception {
-		ImpactFactor factor = new ImpactFactor();
-		factor.uncertainty = createUncertainty();
-		ImpactCategory category = new ImpactCategory();
-		category.impactFactors.add(factor);
-		ImpactCategoryDao dao = new ImpactCategoryDao(database);
-		dao.insert(category);
-		List<CalcImpactFactor> factors = cache.getImpactCache().get(
-				category.id);
-		checkFactor(factors.get(0));
-		dao.delete(category);
-	}
-
-	private void checkFactor(CalcImpactFactor factor) {
-		Assert.assertEquals(1, factor.parameter1, 1e-16);
-		Assert.assertEquals(2, factor.parameter2, 1e-16);
-		Assert.assertEquals(3, factor.parameter3, 1e-16);
 	}
 
 	private Uncertainty createUncertainty() {

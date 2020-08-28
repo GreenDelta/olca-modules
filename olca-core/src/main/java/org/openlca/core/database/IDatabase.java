@@ -9,6 +9,8 @@ import java.util.Set;
 import javax.persistence.EntityManagerFactory;
 
 import org.openlca.core.model.AbstractEntity;
+import org.openlca.core.model.ModelType;
+import org.openlca.core.model.RootEntity;
 
 /**
  * The common interface for openLCA databases.
@@ -117,5 +119,14 @@ public interface IDatabase extends Closeable, INotifiable {
 	default <T extends AbstractEntity> T get(Class<T> type, long id) {
 		var dao = Daos.base(this, type);
 		return dao.getForId(id);
+	}
+
+	@SuppressWarnings("unchecked")
+	default <T extends RootEntity> T get(Class<T> type, String refID) {
+		var modelType = ModelType.forModelClass(type);
+		if (modelType == null)
+			return null;
+		var dao = Daos.root(this, modelType);
+		return (T) dao.getForRefId(refID);
 	}
 }
