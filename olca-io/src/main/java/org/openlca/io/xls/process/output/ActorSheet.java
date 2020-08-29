@@ -29,7 +29,7 @@ class ActorSheet {
 		writeHeader();
 		ActorDao dao = new ActorDao(config.database);
 		List<Actor> actors = dao.getAll();
-		Collections.sort(actors, new EntitySorter());
+		actors.sort(new EntitySorter());
 		for (Actor actor : actors) {
 			row++;
 			write(actor);

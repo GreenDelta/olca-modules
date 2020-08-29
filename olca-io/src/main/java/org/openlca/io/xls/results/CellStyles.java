@@ -5,8 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.DefaultIndexedColorMap;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.openlca.io.xls.Excel;
@@ -56,7 +58,7 @@ class CellStyles {
 	private void applyType(CellStyle style, int type) {
 		if (type == BOLD) {
 			Font font = workbook.createFont();
-			font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font.setBold(true);
 			style.setFont(font);
 		} else if (type == DATE) {
 			style.setDataFormat(Excel.dateFormat(workbook));
@@ -66,8 +68,9 @@ class CellStyles {
 	private void applyColor(XSSFCellStyle style, Color color) {
 		if (color == null)
 			return;
-		style.setFillPattern(XSSFCellStyle.SOLID_FOREGROUND);
-		style.setFillForegroundColor(new XSSFColor(color));
+		style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		style.setFillForegroundColor(
+				new XSSFColor(color, new DefaultIndexedColorMap()));
 	}
 
 	private String toKey(int type, Color color) {

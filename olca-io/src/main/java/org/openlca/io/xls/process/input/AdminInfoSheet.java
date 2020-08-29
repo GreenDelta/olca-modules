@@ -1,6 +1,7 @@
 package org.openlca.io.xls.process.input;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.ProcessDocumentation;
@@ -67,7 +68,7 @@ class AdminInfoSheet {
 	private void readCopyright() {
 		try {
 			Cell cell = config.getCell(sheet, 9, 1);
-			if (cell != null && cell.getCellType() == Cell.CELL_TYPE_BOOLEAN) {
+			if (cell != null && cell.getCellType() == CellType.BOOLEAN) {
 				doc.copyright = cell.getBooleanCellValue();
 			}
 		} catch (Exception e) {

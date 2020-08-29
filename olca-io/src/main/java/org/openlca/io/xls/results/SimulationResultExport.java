@@ -98,8 +98,9 @@ public class SimulationResultExport {
 			writeValues(sheet, row, IMPACT_HEADER.length + 1, values);
 			row++;
 		}
-		for (int i = 0; i < IMPACT_HEADER.length + 7; i++)
+		for (int i = 0; i < IMPACT_HEADER.length + 7; i++) {
 			sheet.autoSizeColumn(i);
+		}
 	}
 
 	private void writeInventorySheet(Workbook wb) {

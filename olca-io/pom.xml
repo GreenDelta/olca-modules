@@ -10,14 +10,6 @@
 	<artifactId>olca-io</artifactId>
 	<packaging>jar</packaging>
 
-	<repositories>
-		<repository>
-			<id>osgeo</id>
-			<name>Open Source Geospatial Foundation Repository</name>
-			<url>http://download.osgeo.org/webdav/geotools/</url>
-		</repository>
-	</repositories>
-
 	<dependencies>
 
 		<!--
@@ -91,13 +83,13 @@
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
-			<version>3.12</version>
+			<version>4.1.2</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
-			<version>3.12</version>
+			<version>4.1.2</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>stax-api</artifactId>

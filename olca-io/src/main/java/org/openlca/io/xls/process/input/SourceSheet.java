@@ -3,6 +3,7 @@ package org.openlca.io.xls.process.input;
 import java.util.Date;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.model.ModelType;
@@ -78,7 +79,7 @@ class SourceSheet {
 		source.textReference = config.getString(sheet, row, 7);
 		Cell yearCell = config.getCell(sheet, row, 8);
 		if (yearCell != null
-				&& yearCell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+				&& yearCell.getCellType() == CellType.NUMERIC) {
 			double y = yearCell.getNumericCellValue();
 			source.year = (short) y;
 		}
