@@ -1,8 +1,6 @@
 package org.openlca.io.xls.process.output;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Sheet;
@@ -13,8 +11,9 @@ import org.openlca.util.Strings;
 
 class ParameterSheet {
 
-	private Config config;
-	private Sheet sheet;
+	private final Config config;
+	private final Sheet sheet;
+
 	private int row = 0;
 
 	private ParameterSheet(Config config) {
@@ -27,6 +26,7 @@ class ParameterSheet {
 	}
 
 	private void write() {
+		Excel.trackSize(sheet, 0, 7);
 		writeGlobalParams();
 		config.header(sheet, row++, 0, "Input parameters");
 		writeInputParams(getInputParameters());
@@ -38,7 +38,7 @@ class ParameterSheet {
 	private void writeGlobalParams() {
 		ParameterDao dao = new ParameterDao(config.database);
 		List<Parameter> all = dao.getGlobalParameters();
-		Collections.sort(all, new Sorter());
+		all.sort((p1, p2) -> Strings.compare(p1.name, p2.name));
 		List<Parameter> inputParams = new ArrayList<>();
 		List<Parameter> calcParams = new ArrayList<>();
 		for (Parameter p : all) {
@@ -96,30 +96,22 @@ class ParameterSheet {
 	}
 
 	private List<Parameter> getInputParameters() {
-		List<Parameter> parameters = new ArrayList<>();
-		for (Parameter param : config.process.parameters) {
+		var params = new ArrayList<Parameter>();
+		for (var param : config.process.parameters) {
 			if (param.isInputParameter)
-				parameters.add(param);
+				params.add(param);
 		}
-		Collections.sort(parameters, new Sorter());
-		return parameters;
+		params.sort((p1, p2) -> Strings.compare(p1.name, p2.name));
+		return params;
 	}
 
 	private List<Parameter> getDependentParameters() {
-		List<Parameter> parameters = new ArrayList<>();
-		for (Parameter param : config.process.parameters) {
+		var params = new ArrayList<Parameter>();
+		for (var param : config.process.parameters) {
 			if (!param.isInputParameter)
-				parameters.add(param);
+				params.add(param);
 		}
-		Collections.sort(parameters, new Sorter());
-		return parameters;
+		params.sort((p1, p2) -> Strings.compare(p1.name, p2.name));
+		return params;
 	}
-
-	private class Sorter implements Comparator<Parameter> {
-		@Override
-		public int compare(Parameter p1, Parameter p2) {
-			return Strings.compare(p1.name, p2.name);
-		}
-	}
-
 }

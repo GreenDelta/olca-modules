@@ -1,8 +1,5 @@
 package org.openlca.io.xls.process.output;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.model.Source;
@@ -12,8 +9,9 @@ import org.openlca.io.xls.Excel;
 
 class SourceSheet {
 
-	private Config config;
-	private Sheet sheet;
+	private final Config config;
+	private final Sheet sheet;
+
 	private int row = 0;
 
 	private SourceSheet(Config config) {
@@ -26,10 +24,10 @@ class SourceSheet {
 	}
 
 	private void write() {
+		Excel.trackSize(sheet, 0, 5);
 		writeHeader();
-		SourceDao dao = new SourceDao(config.database);
-		List<Source> sources = dao.getAll();
-		Collections.sort(sources, new EntitySorter());
+		var sources = new SourceDao(config.database).getAll();
+		sources.sort(new EntitySorter());
 		for (Source source : sources) {
 			row++;
 			write(source);

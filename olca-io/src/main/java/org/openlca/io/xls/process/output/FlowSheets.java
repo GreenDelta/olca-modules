@@ -1,8 +1,5 @@
 package org.openlca.io.xls.process.output;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.model.Flow;
@@ -18,9 +15,9 @@ import org.openlca.io.xls.Excel;
  */
 class FlowSheets {
 
-	private Config config;
-	private Sheet flowSheet;
-	private Sheet factorSheet;
+	private final Config config;
+	private final Sheet flowSheet;
+	private final Sheet factorSheet;
 	private int flowRow = 0;
 	private int factorRow = 0;
 
@@ -35,11 +32,12 @@ class FlowSheets {
 	}
 
 	private void write() {
+		Excel.trackSize(flowSheet, 0, 10);
+		Excel.trackSize(factorSheet, 0, 4);
 		writeFlowHeader();
 		writeFactorHeader();
-		FlowDao dao = new FlowDao(config.database);
-		List<Flow> flows = dao.getAll();
-		Collections.sort(flows, new EntitySorter());
+		var flows = new FlowDao(config.database).getAll();
+		flows.sort(new EntitySorter());
 		for (Flow flow : flows) {
 			flowRow++;
 			write(flow);
@@ -87,8 +85,6 @@ class FlowSheets {
 		if (flow.flowType == null)
 			return "Elementary flow";
 		switch (flow.flowType) {
-			case ELEMENTARY_FLOW:
-				return "Elementary flow";
 			case PRODUCT_FLOW:
 				return "Product flow";
 			case WASTE_FLOW:

@@ -156,7 +156,7 @@ public class SystemExport {
 		currentRow = line(sheet, currentRow, "No. of products:", products);
 		currentRow = line(sheet, currentRow, "Matrix dimensions:", dimensions);
 
-		Excel.autoSize(sheet, new int[] { 0, 1 });
+		Excel.autoSize(sheet, 0, 1);
 	}
 
 	private void createImpactMethodCoverSheet(Workbook workbook) {

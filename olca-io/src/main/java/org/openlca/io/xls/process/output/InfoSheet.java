@@ -13,10 +13,11 @@ import org.openlca.io.xls.Excel;
 
 class InfoSheet {
 
-	private Config config;
-	private Process process;
-	private ProcessDocumentation doc;
-	private Sheet sheet;
+	private final Config config;
+	private final Process process;
+	private final ProcessDocumentation doc;
+	private final Sheet sheet;
+
 	private int row = 0;
 
 	private InfoSheet(Config config) {
@@ -31,6 +32,7 @@ class InfoSheet {
 	}
 
 	private void write() {
+		Excel.trackSize(sheet, 0, 0);
 		infoSection();
 		row++;
 		qRefSection();
@@ -40,7 +42,7 @@ class InfoSheet {
 		geoSection();
 		row++;
 		techSection();
-		Excel.autoSize(sheet, 0);
+		Excel.autoSize(sheet, 0, 0);
 		sheet.setColumnWidth(1, 100 * 256);
 	}
 

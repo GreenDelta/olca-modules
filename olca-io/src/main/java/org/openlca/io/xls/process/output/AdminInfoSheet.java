@@ -10,9 +10,9 @@ import org.openlca.io.xls.Excel;
 
 class AdminInfoSheet {
 
-	private ProcessDocumentation doc;
-	private Config config;
-	private Sheet sheet;
+	private final ProcessDocumentation doc;
+	private final Config config;
+	private final Sheet sheet;
 	private int row = 0;
 
 	private AdminInfoSheet(Config config) {
@@ -26,6 +26,7 @@ class AdminInfoSheet {
 	}
 
 	private void write() {
+		Excel.trackSize(sheet, 0, 0);
 		config.header(sheet, row++, 0, "Administrative information");
 		pair("Intended application", doc.intendedApplication);
 		pair("Data set owner", doc.dataSetOwner);
@@ -37,7 +38,7 @@ class AdminInfoSheet {
 		pair("Creation date", doc.creationDate);
 		Excel.cell(sheet, row, 0, "Copyright");
 		Excel.cell(sheet, row++, 1).setCellValue(doc.copyright);
-		Excel.autoSize(sheet, 0);
+		Excel.autoSize(sheet, 0, 0);
 		sheet.setColumnWidth(1, 100 * 256);
 	}
 

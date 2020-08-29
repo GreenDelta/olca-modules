@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ExcelExport implements Runnable {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final File file;
 	private final IDatabase db;

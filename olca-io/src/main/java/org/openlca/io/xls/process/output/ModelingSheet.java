@@ -10,9 +10,10 @@ import org.openlca.io.xls.Excel;
 
 class ModelingSheet {
 
-	private ProcessDocumentation doc;
-	private Config config;
-	private Sheet sheet;
+	private final ProcessDocumentation doc;
+	private final Config config;
+	private final Sheet sheet;
+
 	private int row = 0;
 
 	private ModelingSheet(Config config) {
@@ -26,6 +27,7 @@ class ModelingSheet {
 	}
 
 	private void write() {
+		Excel.trackSize(sheet, 0, 0);
 		writeModelingSection();
 		row++;
 		writeDataSourceSection();
@@ -33,7 +35,7 @@ class ModelingSheet {
 		writeReviewSection();
 		row++;
 		writeSources();
-		Excel.autoSize(sheet, 0);
+		Excel.autoSize(sheet, 0, 0);
 		sheet.setColumnWidth(1, 100 * 256);
 	}
 

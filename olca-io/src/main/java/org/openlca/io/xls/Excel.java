@@ -7,6 +7,7 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,23 +92,42 @@ public class Excel {
 	}
 
 	/**
-	 * The auto-size function has a strange behaviour when you use the SXSSF
-	 * streaming API of POI. Thus it is better to not call this function in this
-	 * case.
+	 * In order to call `autoSize` on columns of an SXSSF sheet, these sizes
+	 * of these columns need to be tracked.
 	 */
-	public static void autoSize(Sheet sheet, int... columns) {
-		for (int column : columns)
-			sheet.autoSizeColumn(column);
+	public static void trackSize(Sheet sheet, int from, int to) {
+		if (!(sheet instanceof SXSSFSheet))
+			return;
+		var sxssf = (SXSSFSheet) sheet;
+		for (int col = from; col <= to; col++) {
+			sxssf.trackColumnForAutoSizing(col);
+		}
 	}
 
 	/**
-	 * The auto-size function has a strange behavior when you use the SXSSF
-	 * streaming API of POI. Thus it is better to not call this function in this
-	 * case.
+	 * Call `autoSize` on the columns of the given interval (including the end of
+	 * interval) In case of an SXSSF it is required to track the column sizes before
+	 * calling auto-size on them, see `trackSize`.
 	 */
 	public static void autoSize(Sheet sheet, int from, int to) {
-		for (int column = from; column <= to; column++)
+		if (sheet == null)
+			return;
+		// in case of an SXSSF sheet we make sure that the columns
+		// of the given range have been tracked, otherwise calling
+		// auto-size on them will crash with an exception.
+		if (sheet instanceof SXSSFSheet) {
+			var sxssf = (SXSSFSheet) sheet;
+			var tracked = sxssf.getTrackedColumnsForAutoSizing();
+			for (int col = from; col <= to; col++) {
+				if (!tracked.contains(col))
+					continue;
+				sxssf.autoSizeColumn(col);
+			}
+			return;
+		}
+		for (int column = from; column <= to; column++) {
 			sheet.autoSizeColumn(column);
+		}
 	}
 
 	public static String getString(Sheet sheet, int row, int col) {

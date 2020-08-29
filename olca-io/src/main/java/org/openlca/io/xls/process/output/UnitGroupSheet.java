@@ -1,8 +1,5 @@
 package org.openlca.io.xls.process.output;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.UnitGroup;
@@ -12,8 +9,9 @@ import org.openlca.io.xls.Excel;
 
 class UnitGroupSheet {
 
-	private Config config;
-	private Sheet sheet;
+	private final Config config;
+	private final Sheet sheet;
+
 	private int row = 0;
 
 	private UnitGroupSheet(Config config) {
@@ -26,10 +24,10 @@ class UnitGroupSheet {
 	}
 
 	private void write() {
+		Excel.trackSize(sheet, 0, 7);
 		writeHeader();
-		UnitGroupDao dao = new UnitGroupDao(config.database);
-		List<UnitGroup> groups = dao.getAll();
-		Collections.sort(groups, new EntitySorter());
+		var groups = new UnitGroupDao(config.database).getAll();
+		groups.sort(new EntitySorter());
 		for (UnitGroup group : groups) {
 			row++;
 			write(group);

@@ -14,8 +14,8 @@ import org.openlca.util.Strings;
 
 class UnitSheet {
 
-	private Config config;
-	private Sheet sheet;
+	private final Config config;
+	private final Sheet sheet;
 	private int row = 0;
 
 	private UnitSheet(Config config) {
@@ -28,6 +28,7 @@ class UnitSheet {
 	}
 
 	private void write() {
+		Excel.trackSize(sheet, 0, 5);
 		writeHeader();
 		for (Record record : getRecords()) {
 			row++;
@@ -74,7 +75,7 @@ class UnitSheet {
 		return records;
 	}
 
-	private class Record implements Comparable<Record> {
+	private static class Record implements Comparable<Record> {
 
 		final Unit unit;
 		final UnitGroup group;

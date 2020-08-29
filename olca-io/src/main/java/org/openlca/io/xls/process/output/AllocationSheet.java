@@ -1,7 +1,6 @@
 package org.openlca.io.xls.process.output;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -17,8 +16,8 @@ import org.openlca.util.Strings;
 
 class AllocationSheet {
 
-	private Config config;
-	private Sheet sheet;
+	private final Config config;
+	private final Sheet sheet;
 	private int row = 0;
 
 	private AllocationSheet(Config config) {
@@ -31,6 +30,7 @@ class AllocationSheet {
 	}
 
 	private void write() {
+		Excel.trackSize(sheet, 0, 3);
 		config.pair(sheet, row++, "Default allocation method",
 				getAllocationMethod());
 		List<Exchange> outputs = getProducts();
@@ -117,7 +117,7 @@ class AllocationSheet {
 			if (isOutputProduct(exchange))
 				outputs.add(exchange);
 		}
-		Collections.sort(outputs, new ExchangeSorter());
+		outputs.sort(new ExchangeSorter());
 		return outputs;
 	}
 
@@ -127,7 +127,7 @@ class AllocationSheet {
 			if (!isOutputProduct(exchange))
 				exchanges.add(exchange);
 		}
-		Collections.sort(exchanges, new ExchangeSorter());
+		exchanges.sort(new ExchangeSorter());
 		return exchanges;
 	}
 
@@ -159,7 +159,7 @@ class AllocationSheet {
 		return 1.0;
 	}
 
-	private class ExchangeSorter implements Comparator<Exchange> {
+	private static class ExchangeSorter implements Comparator<Exchange> {
 		@Override
 		public int compare(Exchange e1, Exchange e2) {
 			return Strings.compare(

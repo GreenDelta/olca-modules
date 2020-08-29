@@ -13,8 +13,8 @@ import org.openlca.io.xls.Excel;
 
 class FlowPropertySheet {
 
-	private Config config;
-	private Sheet sheet;
+	private final Config config;
+	private final Sheet sheet;
 	private int row = 0;
 
 	private FlowPropertySheet(Config config) {
@@ -27,10 +27,11 @@ class FlowPropertySheet {
 	}
 
 	private void write() {
+		Excel.trackSize(sheet, 0, 7);
 		writeHeader();
-		FlowPropertyDao dao = new FlowPropertyDao(config.database);
-		List<FlowProperty> properties = dao.getAll();
-		Collections.sort(properties, new EntitySorter());
+		var dao = new FlowPropertyDao(config.database);
+		var properties = dao.getAll();
+		properties.sort(new EntitySorter());
 		for (FlowProperty property : properties) {
 			row++;
 			write(property);

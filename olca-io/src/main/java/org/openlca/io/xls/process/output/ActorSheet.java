@@ -1,6 +1,5 @@
 package org.openlca.io.xls.process.output;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Sheet;
@@ -12,8 +11,8 @@ import org.openlca.io.xls.Excel;
 
 class ActorSheet {
 
-	private Config config;
-	private Sheet sheet;
+	private final Config config;
+	private final Sheet sheet;
 	private int row = 0;
 
 	private ActorSheet(Config config) {
@@ -26,9 +25,9 @@ class ActorSheet {
 	}
 
 	private void write() {
+		Excel.trackSize(sheet, 0, 5);
 		writeHeader();
-		ActorDao dao = new ActorDao(config.database);
-		List<Actor> actors = dao.getAll();
+		var actors = new ActorDao(config.database).getAll();
 		actors.sort(new EntitySorter());
 		for (Actor actor : actors) {
 			row++;

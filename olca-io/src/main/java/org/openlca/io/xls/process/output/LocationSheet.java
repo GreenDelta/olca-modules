@@ -1,8 +1,5 @@
 package org.openlca.io.xls.process.output;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
@@ -10,8 +7,9 @@ import org.openlca.io.xls.Excel;
 
 class LocationSheet {
 
-	private Config config;
-	private Sheet sheet;
+	private final Config config;
+	private final Sheet sheet;
+
 	private int row = 0;
 
 	private LocationSheet(Config config) {
@@ -24,10 +22,10 @@ class LocationSheet {
 	}
 
 	private void write() {
+		Excel.trackSize(sheet, 0, 5);
 		writeHeader();
-		LocationDao dao = new LocationDao(config.database);
-		List<Location> locations = dao.getAll();
-		Collections.sort(locations, new EntitySorter());
+		var locations = new LocationDao(config.database).getAll();
+		locations.sort(new EntitySorter());
 		for (Location location : locations) {
 			row++;
 			write(location);

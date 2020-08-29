@@ -1,8 +1,6 @@
 package org.openlca.io.xls.process.output;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Sheet;
@@ -38,6 +36,7 @@ class IOSheet {
 	}
 
 	private void write() {
+		Excel.trackSize(sheet, 0, 12);
 		witeHeader();
 		row++;
 		for (Exchange exchange : getExchanges()) {
@@ -94,18 +93,15 @@ class IOSheet {
 	}
 
 	private List<Exchange> getExchanges() {
-		List<Exchange> exchanges = new ArrayList<>();
+		var exchanges = new ArrayList<Exchange>();
 		for (Exchange exchange : config.process.exchanges) {
 			if (exchange.isInput == forInputs)
 				exchanges.add(exchange);
 		}
-		Collections.sort(exchanges, new Comparator<Exchange>() {
-			@Override
-			public int compare(Exchange e1, Exchange e2) {
-				if (e1.flow == null || e2.flow == null)
-					return 0;
-				return Strings.compare(e1.flow.name, e2.flow.name);
-			}
+		exchanges.sort((e1, e2) -> {
+			if (e1.flow == null || e2.flow == null)
+				return 0;
+			return Strings.compare(e1.flow.name, e2.flow.name);
 		});
 		return exchanges;
 	}
