@@ -36,6 +36,7 @@ class ProjectInventories {
 	}
 
 	private void run() {
+		Excel.trackSize(sheet, 1, 6);
 		List<ProjectVariant> variants = result.getVariants();
 		List<IndexFlow> flows = result.getFlows();
 		if (variants.isEmpty() || flows.isEmpty())

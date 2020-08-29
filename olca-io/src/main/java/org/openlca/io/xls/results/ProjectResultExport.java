@@ -51,6 +51,7 @@ public class ProjectResultExport {
 
 	private void writeInfoSheet(Workbook workbook) {
 		Sheet sheet = workbook.createSheet("Info");
+		Excel.trackSize(sheet, 1, 2);
 		int row = 1;
 		header(sheet, row++, 1, "Project result");
 		header(sheet, row, 1, "Name:");

@@ -8,6 +8,7 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.slf4j.Logger;
@@ -41,10 +42,14 @@ public class ExcelExport implements Runnable {
 			ProcessDao dao = new ProcessDao(db);
 			for (ProcessDescriptor d : descriptors) {
 				Process p = dao.getForId(d.id);
-				if (p == null || p.documentation == null) {
-					log.warn("process {} was null or has no documentation: "
-							+ "not exported", d);
+				if (p == null) {
+					log.warn("process {} was null; not exported", d);
 					continue;
+				}
+				if (p.documentation == null) {
+					// append a default documentation to avoid
+					// null pointers later
+					p.documentation =new ProcessDocumentation();
 				}
 				var wb = new SXSSFWorkbook();
 				Config config = new Config(wb, db, p);

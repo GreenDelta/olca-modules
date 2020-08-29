@@ -45,6 +45,7 @@ class MatrixExcelExport {
 
 	public Sheet writeTo(Workbook workbook) {
 		Sheet sheet = workbook.createSheet("Data");
+		Excel.trackSize(sheet, 0, columnHeader.getHeaderSize() + 2);
 		writeHeader(workbook, sheet, COLUMN);
 		writeHeader(workbook, sheet, ROW);
 		writeValues(sheet);

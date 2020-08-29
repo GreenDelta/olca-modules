@@ -44,8 +44,6 @@ public class SystemExport {
 		setup.parameterRedefs.addAll(conf.system.parameterRedefs);
 		setup.allocationMethod = conf.allocationMethod;
 		setup.impactMethod = conf.impactMethod;
-
-		// the Julia solver that we pass here is just for creating the matrices
 		data = DataStructures.matrixData(
 				setup, conf.database, Collections.emptyMap());
 
@@ -89,12 +87,14 @@ public class SystemExport {
 	private void createElementaryCoverSheet(Workbook workbook,
 			AllocationMethod allocationMethod) {
 		Sheet sheet = workbook.createSheet("General information");
+		Excel.trackSize(sheet, 0, 1);
 		boolean allocated = allocationMethod != null;
-		String subTitle = allocated ? TITLES.ELEMENTARY_ALLOCATED
+		String subTitle = allocated 
+				? TITLES.ELEMENTARY_ALLOCATED
 				: TITLES.ELEMENTARY;
-		int currentRow = 0;
-		currentRow = writeHeaderInformation(sheet, currentRow++, subTitle);
-		currentRow = writeSoftwareInformation(sheet, currentRow++);
+		int row = 0;
+		row = writeHeaderInformation(sheet, row++, subTitle);
+		row = writeSoftwareInformation(sheet, row++);
 
 		String name = conf.system.name;
 		int processes = conf.system.processes.size();
@@ -102,14 +102,14 @@ public class SystemExport {
 		int flows = data.flowIndex.size();
 		String dimensions = flows + "x" + products;
 
-		currentRow = line(sheet, currentRow, "Product system:", name);
+		row = line(sheet, row, "Product system:", name);
 		if (allocated)
-			currentRow = line(sheet, currentRow, "Allocation method:",
+			row = line(sheet, row, "Allocation method:",
 					getMethodLabel(allocationMethod));
-		currentRow = line(sheet, currentRow, "No. of processes:", processes);
-		currentRow = line(sheet, currentRow, "No. of products:", products);
-		currentRow = line(sheet, currentRow, "No. of elementary flows:", flows);
-		currentRow = line(sheet, currentRow, "Matrix dimensions:", dimensions);
+		row = line(sheet, row, "No. of processes:", processes);
+		row = line(sheet, row, "No. of products:", products);
+		row = line(sheet, row, "No. of elementary flows:", flows);
+		row = line(sheet, row, "Matrix dimensions:", dimensions);
 		Excel.autoSize(sheet, 0, 1);
 	}
 
@@ -135,33 +135,35 @@ public class SystemExport {
 	private void createProductCoverSheet(Workbook workbook,
 			AllocationMethod allocationMethod) {
 		Sheet sheet = workbook.createSheet("General information");
-
+		Excel.trackSize(sheet, 0, 1);
 		boolean allocated = allocationMethod != null;
-		String subTitle = allocated ? TITLES.PRODUCT_ALLOCATED : TITLES.PRODUCT;
+		String subTitle = allocated 
+				? TITLES.PRODUCT_ALLOCATED 
+				: TITLES.PRODUCT;
 
-		int currentRow = 0;
-		currentRow = writeHeaderInformation(sheet, currentRow++, subTitle);
-		currentRow = writeSoftwareInformation(sheet, currentRow++);
+		int row = 0;
+		row = writeHeaderInformation(sheet, row++, subTitle);
+		row = writeSoftwareInformation(sheet, row++);
 
 		String name = conf.system.name;
 		int processes = conf.system.processes.size();
 		int products = data.techIndex.size();
 		String dimensions = products + "x" + products;
 
-		currentRow = line(sheet, currentRow, "Product system:", name);
+		row = line(sheet, row, "Product system:", name);
 		if (allocated)
-			currentRow = line(sheet, currentRow, "Allocation method:",
+			row = line(sheet, row, "Allocation method:",
 					getMethodLabel(allocationMethod));
-		currentRow = line(sheet, currentRow, "No. of processes:", processes);
-		currentRow = line(sheet, currentRow, "No. of products:", products);
-		currentRow = line(sheet, currentRow, "Matrix dimensions:", dimensions);
+		row = line(sheet, row, "No. of processes:", processes);
+		row = line(sheet, row, "No. of products:", products);
+		row = line(sheet, row, "Matrix dimensions:", dimensions);
 
 		Excel.autoSize(sheet, 0, 1);
 	}
 
 	private void createImpactMethodCoverSheet(Workbook workbook) {
 		Sheet sheet = workbook.createSheet("General information");
-
+		Excel.trackSize(sheet, 0, 1);
 		int row = 0;
 		row = writeHeaderInformation(sheet, row, TITLES.IMPACT_FACTORS);
 		row++;
