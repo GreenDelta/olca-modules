@@ -37,7 +37,7 @@ class AdminInfoSheet {
 		pair("Project", doc.project);
 		pair("Creation date", doc.creationDate);
 		Excel.cell(sheet, row, 0, "Copyright");
-		Excel.cell(sheet, row++, 1).setCellValue(doc.copyright);
+		Excel.cell(sheet, row++, 1, doc.copyright);
 		Excel.autoSize(sheet, 0, 0);
 		sheet.setColumnWidth(1, 100 * 256);
 	}

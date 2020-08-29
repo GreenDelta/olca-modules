@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Optional;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -192,31 +193,26 @@ public class CellWriter {
 		}
 	}
 
-	void wrappedCell(Sheet sheet, int row, int col, Object val, Color color,
-			boolean bold) {
-		Cell cell = null;
-		if (bold) {
-			cell = cell(sheet, row, col, val, styles.bold(color));
-		} else {
-			cell = cell(sheet, row, col, val, styles.normal(color));
-		}
-		cell.getCellStyle().setWrapText(true);
+	void boldWrapped(Sheet sheet, int row, int col, Object val, Color color) {
+		var cell = cell(sheet, row, col, val, styles.bold(color));
+		cell.ifPresent(c -> c.getCellStyle().setWrapText(true));
 	}
 
-	private Cell cell(Sheet sheet, int row, int col, Object val,
-			CellStyle style) {
-		Cell cell = null;
+	private Optional<Cell> cell(Sheet sheet, int row, int col, Object val, CellStyle style) {
+		Optional<Cell> cell;
 		if (val instanceof Number) {
 			cell = Excel.cell(sheet, row, col, ((Number) val).doubleValue());
 		} else if (val instanceof Date) {
 			cell = Excel.cell(sheet, row, col);
-			cell.setCellValue((Date) val);
+			cell.ifPresent(c -> c.setCellValue((Date) val));
 			style = styles.date();
 		} else {
 			cell = Excel.cell(sheet, row, col,
 					val == null ? "" : val.toString());
 		}
-		cell.setCellStyle(style);
+		if (cell.isPresent()) {
+			cell.get().setCellStyle(style);
+		}
 		return cell;
 	}
 

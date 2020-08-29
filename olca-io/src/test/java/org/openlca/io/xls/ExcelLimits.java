@@ -1,4 +1,4 @@
-package org.openlca.io;
+package org.openlca.io.xls;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -11,7 +11,7 @@ import org.openlca.io.xls.Excel;
 public class ExcelLimits {
 
 	public static final int MAX_COLUMN_INDEX = SpreadsheetVersion.EXCEL2007.getLastColumnIndex();
-	
+
 	public static void main(String[] args) throws Exception {
 		var wb = new XSSFWorkbook();
 		var sheet = wb.createSheet("test");
@@ -28,5 +28,5 @@ public class ExcelLimits {
 			// wb.dispose();
 		}
 	}
-	
+
 }

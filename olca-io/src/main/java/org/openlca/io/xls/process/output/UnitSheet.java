@@ -59,8 +59,10 @@ class UnitSheet {
 	private void markRefUnit(Record record) {
 		if (!Objects.equals(record.unit, record.group.referenceUnit))
 			return;
-		for (int i = 0; i < 6; i++)
-			Excel.cell(sheet, row, i).setCellStyle(config.headerStyle);
+		for (int i = 0; i < 6; i++) {
+			Excel.cell(sheet, row, i)
+					.ifPresent(c -> c.setCellStyle(config.headerStyle));
+		}
 	}
 
 	private List<Record> getRecords() {

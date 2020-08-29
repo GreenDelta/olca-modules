@@ -2,7 +2,6 @@ package org.openlca.io.xls.process.output;
 
 import java.util.Date;
 
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -39,28 +38,31 @@ class Config {
 	}
 
 	void header(Sheet sheet, int row, int col, String val) {
-		Excel.cell(sheet, row, col, val).setCellStyle(headerStyle);
+		var cell = Excel.cell(sheet, row, col, val);
+		cell.ifPresent(value -> value.setCellStyle(headerStyle));
 	}
 
 	void date(Sheet sheet, int row, int col, long time) {
 		if (time == 0)
 			return;
-		Cell cell = Excel.cell(sheet, row, col);
-		cell.setCellValue(new Date(time));
-		cell.setCellStyle(dateStyle);
+		date(sheet, row, col, new Date(time));
 	}
 
 	void date(Sheet sheet, int row, int col, Date date) {
 		if (date == null)
 			return;
-		Cell cell = Excel.cell(sheet, row, col);
-		cell.setCellValue(date);
-		cell.setCellStyle(dateStyle);
+		var cell = Excel.cell(sheet, row, col);
+		cell.ifPresent(c -> {
+			c.setCellValue(date);
+			c.setCellStyle(dateStyle);
+		});
 	}
 
 	void pair(Sheet sheet, int row, String header, String value) {
-		Excel.cell(sheet, row, 0, header).setCellStyle(pairHeader);
-		Excel.cell(sheet, row, 1, value).setCellStyle(pairValue);
+		Excel.cell(sheet, row, 0, header)
+				.ifPresent(c -> c.setCellStyle(pairHeader));
+		Excel.cell(sheet, row, 1, value)
+				.ifPresent(c -> c.setCellStyle(pairValue));
 	}
 
 	void uncertainty(Sheet sheet, int row, int col, Uncertainty uncertainty) {

@@ -66,7 +66,8 @@ class MatrixExcelExport {
 
 				if (j == 0) {
 					String value = header.getHeader(i);
-					Excel.cell(sheet, row, column, value).setCellStyle(bold);
+					Excel.cell(sheet, row, column, value)
+							.ifPresent(c -> c.setCellStyle(bold));
 				} else {
 					int entryIndex = j - 1;
 					int valueIndex = i;

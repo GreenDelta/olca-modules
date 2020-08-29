@@ -101,9 +101,15 @@ public class InfoSheet {
 		}
 		for (DQIndicator indicator : setup.exchangeSystem.indicators) {
 			for (DQScore score : indicator.scores) {
-				Color color = DQColors.get(score.position, setup.exchangeSystem.getScoreCount());
-				writer.wrappedCell(sheet, row + score.position, col + indicator.position, score.description, color,
-						true);
+				Color color = DQColors.get(
+						score.position,
+						setup.exchangeSystem.getScoreCount());
+				writer.boldWrapped(
+						sheet,
+						row + score.position,
+						col + indicator.position,
+						score.description,
+						color);
 			}
 		}
 	}

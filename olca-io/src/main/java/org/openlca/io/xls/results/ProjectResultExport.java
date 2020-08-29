@@ -106,18 +106,18 @@ public class ProjectResultExport {
 		header(sheet, row, 1, "Name");
 		header(sheet, row, 2, "Process");
 		for (int i = 0; i < parameters.size(); i++) {
-			ParameterRedef redef = parameters.get(i);
+			var redef = parameters.get(i);
 			int r = row + i + 1;
 			Excel.cell(sheet, r, 1, redef.name);
 			Excel.cell(sheet, r, 2, processName(redef));
 			for (int j = 0; j < project.variants.size(); j++) {
-				ProjectVariant variant = project.variants.get(j);
+				var variant = project.variants.get(j);
 				int c = j + 3;
-				if (r == (row + 1))
-					Excel.cell(sheet, row, c, variant.name).setCellStyle(
-							headerStyle);
-				ParameterRedef variantRedef = findRedef(redef,
-						variant.parameterRedefs);
+				if (r == (row + 1)) {
+					Excel.cell(sheet, row, c, variant.name)
+							.ifPresent(cc -> cc.setCellStyle(headerStyle));
+				}
+				var variantRedef = findRedef(redef, variant.parameterRedefs);
 				if (variantRedef == null)
 					continue;
 				Excel.cell(sheet, r, c, variantRedef.value);
@@ -149,7 +149,7 @@ public class ProjectResultExport {
 	}
 
 	private ParameterRedef findRedef(ParameterRedef redef,
-			List<ParameterRedef> redefs) {
+									 List<ParameterRedef> redefs) {
 		for (ParameterRedef contained : redefs)
 			if (eq(redef, contained))
 				return contained;
@@ -166,7 +166,8 @@ public class ProjectResultExport {
 	}
 
 	private void header(Sheet sheet, int row, int col, String val) {
-		Excel.cell(sheet, row, col, val).setCellStyle(headerStyle);
+		Excel.cell(sheet, row, col, val)
+				.ifPresent(c -> c.setCellStyle(headerStyle));
 	}
 
 }

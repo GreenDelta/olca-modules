@@ -57,7 +57,8 @@ class SourceSheet {
 		Excel.cell(sheet, row, 6, source.url);
 		Excel.cell(sheet, row, 7, source.textReference);
 		if (source.year != null) {
-			Excel.cell(sheet, row, 8).setCellValue(source.year);
+			Excel.cell(sheet, row, 8)
+					.ifPresent(c -> c.setCellValue(source.year));
 		}
 	}
 

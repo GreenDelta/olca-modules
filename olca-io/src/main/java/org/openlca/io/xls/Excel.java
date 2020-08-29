@@ -1,5 +1,8 @@
 package org.openlca.io.xls;
 
+import java.util.Optional;
+
+import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DataFormat;
@@ -14,6 +17,8 @@ import org.slf4j.LoggerFactory;
 /** Helper methods for Excel exports. */
 public class Excel {
 
+	public static final int MAX_COLUMN_INDEX = SpreadsheetVersion.EXCEL2007.getLastColumnIndex();
+
 	private Excel() {
 	}
 
@@ -26,11 +31,13 @@ public class Excel {
 
 	public static void headerStyle(Workbook workbook, Sheet sheet, int row,
 			int column) {
-		Cell cell = cell(sheet, row, column);
-		cell.setCellStyle(headerStyle(workbook));
+		var cell = cell(sheet, row, column);
+		if (cell.isEmpty())
+			return;
+		cell.get().setCellStyle(headerStyle(workbook));
 	}
 
-	public static Cell cell(Sheet sheet, int row, int column) {
+	public static Optional<Cell> cell(Sheet sheet, int row, int column) {
 		Row _row = row(sheet, row);
 		return cell(_row, column);
 	}
@@ -61,33 +68,48 @@ public class Excel {
 		return _row;
 	}
 
-	public static Cell cell(Row row, int column) {
-		Cell cell = row.getCell(column);
-		if (cell == null)
+	public static Optional<Cell> cell(Row row, int column) {
+		if (column > MAX_COLUMN_INDEX)
+			return Optional.empty();
+		var cell = row.getCell(column);
+		if (cell == null) {
 			cell = row.createCell(column);
-		return cell;
+		}
+		return Optional.of(cell);
 	}
 
-	public static Cell cell(Sheet sheet, int row, int column, String value) {
+	public static Optional<Cell> cell(Sheet sheet, int row, int column, String value) {
 		Row _row = row(sheet, row);
 		return cell(_row, column, value);
 	}
 
-	public static Cell cell(Row row, int column, String value) {
-		Cell cell = cell(row, column);
+	public static Optional<Cell> cell(Row row, int column, String value) {
+		var cell = cell(row, column);
+		if (cell.isEmpty())
+			return Optional.empty();
 		// set a default value if NULL > otherwise auto-size fails for XSSF
-		cell.setCellValue(value == null ? "" : value);
+		cell.get().setCellValue(value == null ? "" : value);
 		return cell;
 	}
 
-	public static Cell cell(Sheet sheet, int row, int column, double value) {
+	public static Optional<Cell> cell(Sheet sheet, int row, int column, double value) {
 		Row _row = row(sheet, row);
 		return cell(_row, column, value);
 	}
 
-	public static Cell cell(Row row, int column, double value) {
-		Cell cell = cell(row, column);
-		cell.setCellValue(value);
+	public static Optional<Cell> cell(Row row, int column, double value) {
+		var cell = cell(row, column);
+		if (cell.isEmpty())
+			return Optional.empty();
+		cell.get().setCellValue(value);
+		return cell;
+	}
+
+	public static Optional<Cell> cell(Sheet sheet, int row, int col, boolean value) {
+		var cell = cell(sheet, row, col);
+		if (cell.isEmpty())
+			return Optional.empty();
+		cell.get().setCellValue(value);
 		return cell;
 	}
 

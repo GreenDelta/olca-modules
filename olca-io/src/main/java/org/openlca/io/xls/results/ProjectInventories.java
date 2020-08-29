@@ -98,7 +98,8 @@ class ProjectInventories {
 	}
 
 	private void header(Sheet sheet, int row, int col, String val) {
-		Excel.cell(sheet, row, col, val).setCellStyle(headerStyle);
+		Excel.cell(sheet, row, col, val)
+				.ifPresent(c -> c.setCellStyle(headerStyle));
 	}
 
 }
