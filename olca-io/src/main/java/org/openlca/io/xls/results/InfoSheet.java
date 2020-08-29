@@ -45,6 +45,7 @@ public class InfoSheet {
 	public static void write(Workbook workbook, CellWriter writer, CalculationSetup setup, DQCalculationSetup dqSetup,
 			String title) {
 		Sheet sheet = workbook.createSheet("Calculation setup");
+		Excel.trackSize(sheet, 1, 2);
 		boolean withDataQuality = dqSetup != null && dqSetup.exchangeSystem != null;
 		header(writer, sheet, 1, 1, title, withDataQuality);
 		int row = generalInfo(writer, sheet, 2, 2, setup);

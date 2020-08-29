@@ -1,7 +1,5 @@
 package org.openlca.io.xls.process.output;
 
-import java.util.List;
-
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.model.Actor;

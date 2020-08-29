@@ -1,8 +1,5 @@
 package org.openlca.io.xls.process.output;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.model.FlowProperty;

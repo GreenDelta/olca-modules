@@ -26,15 +26,25 @@ import org.slf4j.LoggerFactory;
 /** Exports a simulation result to Excel. */
 public class SimulationResultExport {
 
-	private static final String[] FLOW_HEADER = { "Flow UUID", "Flow",
-			"Category", "Sub-category", "Unit" };
-	private static final String[] IMPACT_HEADER = { "Impact category UUID",
-			"Impact category", "Reference unit" };
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private static final String[] FLOW_HEADER = {
+			"Flow UUID",
+			"Flow",
+			"Category",
+			"Sub-category",
+			"Unit"
+	};
 
-	private CalculationSetup setup;
-	private SimulationResult result;
-	private EntityCache cache;
+	private static final String[] IMPACT_HEADER = {
+			"Impact category UUID",
+			"Impact category",
+			"Reference unit"
+	};
+
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final CalculationSetup setup;
+	private final SimulationResult result;
+	private final EntityCache cache;
+
 	private int row = 0;
 	private CellWriter writer;
 	private boolean useStreaming = false;
@@ -84,6 +94,7 @@ public class SimulationResultExport {
 
 	private void writeImpactSheet(Workbook wb) {
 		Sheet sheet = wb.createSheet("Impact Assessment");
+		Excel.trackSize(sheet, 0, IMPACT_HEADER.length + 6);
 		row = 0;
 
 		row++;
@@ -98,21 +109,17 @@ public class SimulationResultExport {
 			writeValues(sheet, row, IMPACT_HEADER.length + 1, values);
 			row++;
 		}
-		for (int i = 0; i < IMPACT_HEADER.length + 7; i++) {
-			sheet.autoSizeColumn(i);
-		}
+		Excel.autoSize(sheet, 0, IMPACT_HEADER.length + 6);
 	}
 
 	private void writeInventorySheet(Workbook wb) {
 		Sheet sheet = wb.createSheet("Inventory");
+		Excel.trackSize(sheet, 0, FLOW_HEADER.length + 6);
 		row = 0;
 		List<IndexFlow> flows = result.getFlows();
 		writeInventorySection(flows, true, sheet);
 		writeInventorySection(flows, false, sheet);
-		if (!useStreaming) {
-			for (int i = 0; i < FLOW_HEADER.length + 7; i++)
-				sheet.autoSizeColumn(i);
-		}
+		Excel.autoSize(sheet, 0, FLOW_HEADER.length + 6);
 		flushSheet(sheet);
 	}
 
@@ -254,8 +261,8 @@ public class SimulationResultExport {
 		Excel.cell(sheet, row, col++, stats.median);
 		Excel.cell(sheet, row, col++, stats.getPercentileValue(5));
 		Excel.cell(sheet, row, col++, stats.getPercentileValue(95));
-		for (int i = 0; i < values.length; i++) {
-			Excel.cell(sheet, row, col++, values[i]);
+		for (double value : values) {
+			Excel.cell(sheet, row, col++, value);
 		}
 	}
 

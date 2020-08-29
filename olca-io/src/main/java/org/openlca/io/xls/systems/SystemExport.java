@@ -299,7 +299,7 @@ public class SystemExport {
 		Collections.sort(sortedFlows);
 		int counter = 0;
 		for (FlowInfo flow : sortedFlows) {
-			header.putIndexMapping(counter, flowIndex.of(flow.getRealId()));
+			header.putIndexMapping(counter, flowIndex.of(flow.realId));
 			counter++;
 		}
 		return sortedFlows;
@@ -447,17 +447,17 @@ public class SystemExport {
 		private String getValue(String header) {
 			switch (header) {
 			case HEADERS.FLOW.NAME:
-				return flowInfo.getName();
+				return flowInfo.name;
 			case HEADERS.FLOW.UUID:
-				return flowInfo.getId();
+				return flowInfo.id;
 			case HEADERS.FLOW.LOCATION:
-				return flowInfo.getLocation();
+				return flowInfo.location;
 			case HEADERS.FLOW.CATEGORY:
-				return flowInfo.getCategory();
+				return flowInfo.category;
 			case HEADERS.FLOW.SUB_CATEGORY:
-				return flowInfo.getSubCategory();
+				return flowInfo.subCategory;
 			case HEADERS.FLOW.UNIT:
-				return flowInfo.getUnit();
+				return flowInfo.unit;
 			}
 			return null;
 		}

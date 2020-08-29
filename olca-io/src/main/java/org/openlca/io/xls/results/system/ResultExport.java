@@ -103,10 +103,10 @@ public class ResultExport implements Runnable {
 	}
 
 	private String getType() {
-		if (result instanceof ContributionResult)
-			return "Contribution result";
 		if (result instanceof FullResult)
 			return "Analysis result";
+		if (result instanceof ContributionResult)
+			return "Contribution result";
 		return "Simple result";
 	}
 }

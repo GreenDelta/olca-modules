@@ -30,6 +30,7 @@ class ProjectImpacts {
 	}
 
 	private void run() {
+		Excel.trackSize(sheet, 1, 4);
 		int row = 1;
 		header(sheet, row++, 1, "LCIA Results");
 		writeRows(row, result.getVariants());

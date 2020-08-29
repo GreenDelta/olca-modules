@@ -3,8 +3,6 @@ package org.openlca.io.xls.results;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,22 +22,16 @@ import org.openlca.util.Strings;
 
 public class ProjectResultExport {
 
-	private Project project;
-	private File file;
-	private EntityCache cache;
+	private final Project project;
+	private final File file;
+	private final EntityCache cache;
 	private CellStyle headerStyle;
 
 	public ProjectResultExport(Project project, File file, EntityCache cache) {
 		this.project = project;
 		this.file = file;
 		this.cache = cache;
-		Collections.sort(project.variants,
-				new Comparator<ProjectVariant>() {
-					@Override
-					public int compare(ProjectVariant o1, ProjectVariant o2) {
-						return Strings.compare(o1.name, o2.name);
-					}
-				});
+		project.variants.sort((o1, o2) -> Strings.compare(o1.name, o2.name));
 	}
 
 	public void run(ProjectResult result) throws Exception {
@@ -151,12 +143,7 @@ public class ProjectResultExport {
 					parameters.add(redef);
 			}
 		}
-		Collections.sort(parameters, new Comparator<ParameterRedef>() {
-			@Override
-			public int compare(ParameterRedef o1, ParameterRedef o2) {
-				return Strings.compare(o1.name, o2.name);
-			}
-		});
+		parameters.sort((o1, o2) -> Strings.compare(o1.name, o2.name));
 		return parameters;
 	}
 

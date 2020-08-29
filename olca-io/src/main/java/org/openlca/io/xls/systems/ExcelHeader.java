@@ -1,15 +1,16 @@
 package org.openlca.io.xls.systems;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 class ExcelHeader {
 
-	private List<String> headers = new ArrayList<>();
-	private List<IExcelHeaderEntry> entries = new ArrayList<>();
-	private Map<Integer, Integer> indexMapping = new HashMap<>();
+	private final List<String> headers = new ArrayList<>();
+	private final List<IExcelHeaderEntry> entries = new ArrayList<>();
+	private final Map<Integer, Integer> indexMapping = new HashMap<>();
 
 	int getHeaderSize() {
 		return headers.size();
@@ -29,22 +30,18 @@ class ExcelHeader {
 	}
 
 	int mapIndex(int from) {
-		return indexMapping.containsKey(from) ? indexMapping.get(from) : from;
+		return indexMapping.getOrDefault(from, from);
 	}
 
 	public void setHeaders(String[] headers) {
 		if (headers != null) {
-			for (String header : headers) {
-				this.headers.add(header);
-			}
+			this.headers.addAll(Arrays.asList(headers));
 		}
 	}
 
 	public void setEntries(IExcelHeaderEntry[] entries) {
 		if (entries != null) {
-			for (IExcelHeaderEntry entry : entries) {
-				this.entries.add(entry);
-			}
+			this.entries.addAll(Arrays.asList(entries));
 		}
 	}
 
@@ -52,7 +49,7 @@ class ExcelHeader {
 		indexMapping.put(from, to);
 	}
 
-	private class EmptyHeaderEntry implements IExcelHeaderEntry {
+	private static class EmptyHeaderEntry implements IExcelHeaderEntry {
 		@Override
 		public String getValue(int count) {
 			return "";

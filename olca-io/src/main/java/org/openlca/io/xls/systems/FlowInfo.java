@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.openlca.core.database.EntityCache;
@@ -19,13 +20,13 @@ import org.openlca.util.Strings;
  */
 class FlowInfo implements Comparable<FlowInfo> {
 
-	private long realId;
-	private String id;
-	private String name;
-	private String unit;
-	private String category;
-	private String subCategory;
-	private String location;
+	long realId;
+	String id;
+	String name;
+	String unit;
+	String category;
+	String subCategory;
+	String location;
 
 	public static List<FlowInfo> getAll(SystemExportConfig conf,
 			FlowIndex index) {
@@ -36,18 +37,18 @@ class FlowInfo implements Comparable<FlowInfo> {
 			CategoryPair catPair = CategoryPair.create(flow, cache);
 			FlowInfo info = new FlowInfo();
 			info.realId = flow.id;
-			info.setId(flow.refId);
-			info.setName(flow.name);
-			info.setCategory(catPair.getCategory());
-			info.setSubCategory(catPair.getSubCategory());
+			info.id = flow.refId;
+			info.name = flow.name;
+			info.category = catPair.getCategory();
+			info.subCategory = catPair.getSubCategory();
 			if (flow.location != null) {
 				Location location = cache.get(Location.class,
 						flow.location);
 				if (location != null)
-					info.setLocation(location.code);
+					info.location = location.code;
 			}
 			String unit = DisplayValues.referenceUnit(flow, cache);
-			info.setUnit(unit);
+			info.unit = unit;
 			infos.add(info);
 		}
 		return infos;
@@ -63,58 +64,6 @@ class FlowInfo implements Comparable<FlowInfo> {
 			}
 		});
 		return descriptors;
-	}
-
-	public long getRealId() {
-		return realId;
-	}
-
-	public String getLocation() {
-		return location;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getUnit() {
-		return unit;
-	}
-
-	public void setUnit(String unit) {
-		this.unit = unit;
-	}
-
-	public String getCategory() {
-		return category;
-	}
-
-	public void setCategory(String category) {
-		this.category = category;
-	}
-
-	public String getSubCategory() {
-		return subCategory;
-	}
-
-	public void setSubCategory(String subCategory) {
-		this.subCategory = subCategory;
 	}
 
 	@Override
@@ -133,10 +82,7 @@ class FlowInfo implements Comparable<FlowInfo> {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
+		return Objects.hashCode(id);
 	}
 
 	@Override
@@ -148,12 +94,7 @@ class FlowInfo implements Comparable<FlowInfo> {
 		if (getClass() != obj.getClass())
 			return false;
 		FlowInfo other = (FlowInfo) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
+		return Objects.equals(id, other.id);
 	}
 
 }
