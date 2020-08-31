@@ -1,12 +1,13 @@
 package org.openlca.jsonld.output;
 
-import com.google.gson.JsonObject;
 import org.openlca.core.model.Location;
 import org.openlca.geo.geojson.Feature;
 import org.openlca.geo.geojson.FeatureCollection;
-import org.openlca.geo.geojson.ProtoPack;
+import org.openlca.geo.geojson.GeoJSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonObject;
 
 class LocationWriter extends Writer<Location> {
 
@@ -30,7 +31,7 @@ class LocationWriter extends Writer<Location> {
 		if (location.geodata == null)
 			return;
 		try {
-			FeatureCollection coll = ProtoPack.unpackgz(location.geodata);
+			FeatureCollection coll = GeoJSON.unpack(location.geodata);
 			if (coll == null)
 				return;
 			Feature f = coll.first();

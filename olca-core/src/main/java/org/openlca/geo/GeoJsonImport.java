@@ -11,7 +11,6 @@ import org.openlca.core.model.Location;
 import org.openlca.geo.geojson.Feature;
 import org.openlca.geo.geojson.FeatureCollection;
 import org.openlca.geo.geojson.GeoJSON;
-import org.openlca.geo.geojson.ProtoPack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +57,7 @@ public class GeoJsonImport implements Runnable {
 				Location loc = findMatch(f);
 				if (loc == null)
 					continue;
-				loc.geodata = ProtoPack.packgz(FeatureCollection.of(f.geometry));
+				loc.geodata = GeoJSON.pack(FeatureCollection.of(f.geometry));
 				dao.update(loc);
 			}
 		} catch (Exception e) {

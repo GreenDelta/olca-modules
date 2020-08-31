@@ -6,29 +6,19 @@ import java.util.HashMap;
 import org.openlca.util.BinUtils;
 import org.openlca.util.Exceptions;
 
-public class ProtoPack {
+class ProtoPack {
 
 	private ProtoPack() {
 	}
 
-	/**
-	 * Converts the given feature collection into a protocol buffer format and
-	 * compresses it with gzip. This is the format that we use for storing
-	 * geographic data of locations in an openLCA database.
-	 */
-	public static byte[] packgz(FeatureCollection coll) {
+	static byte[] packgz(FeatureCollection coll) {
 		if (coll == null)
 			return null;
-		try {
-			byte[] data = pack(coll);
-			return BinUtils.gzip(data);
-		} catch (IOException e) {
-			Exceptions.unchecked(e);
-			return null;
-		}
+		byte[] data = pack(coll);
+		return BinUtils.gzip(data);
 	}
 
-	public static byte[] pack(FeatureCollection coll) {
+	static byte[] pack(FeatureCollection coll) {
 		if (coll == null)
 			return null;
 		var proto = Proto.FeatureCollection.newBuilder();
@@ -133,7 +123,7 @@ public class ProtoPack {
 		return proto.build();
 	}
 
-	public static FeatureCollection unpackgz(byte[] data) {
+	static FeatureCollection unpackgz(byte[] data) {
 		if (data == null || data.length == 0)
 			return null;
 		try {
@@ -145,7 +135,7 @@ public class ProtoPack {
 		}
 	}
 
-	public static FeatureCollection unpack(byte[] data) {
+	static FeatureCollection unpack(byte[] data) {
 		if (data == null)
 			return null;
 		try {

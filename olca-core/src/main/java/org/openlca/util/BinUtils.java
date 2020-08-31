@@ -62,16 +62,29 @@ public class BinUtils {
 	/**
 	 * Compresses the given byte array using the GZIP file format.
 	 */
-	public static byte[] gzip(byte[] bytes) throws IOException {
+	public static byte[] gzip(byte[] bytes) {
 		if (bytes == null)
 			return null;
 		if (bytes.length == 0)
 			return new byte[0];
-		ByteArrayOutputStream bout = new ByteArrayOutputStream();
-		try (GZIPOutputStream gzip = new GZIPOutputStream(bout)) {
+		var bout = new ByteArrayOutputStream();
+		try (var gzip = new GZIPOutputStream(bout)) {
 			gzip.write(bytes);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 		return bout.toByteArray();
+	}
+
+	/**
+	 * Returns true if the given byte array has a valid gzip file header
+	 * (see https://www.ietf.org/rfc/rfc1952.txt, section 2.3.1)
+	 */
+	public static boolean isGzip(byte[] bytes) {
+		if (bytes == null || bytes.length < 10)
+			return false;
+		return (bytes[0] & 0xFF) == 31
+				&& (bytes[1] & 0xFF) == 139;
 	}
 
 	/**
@@ -85,7 +98,7 @@ public class BinUtils {
 		ByteArrayInputStream bin = new ByteArrayInputStream(bytes);
 		byte[] result = null;
 		try (GZIPInputStream gzip = new GZIPInputStream(bin);
-				ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
+			 ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
 			byte[] buffer = new byte[4096];
 			int count = -1;
 			while ((count = gzip.read(buffer)) >= 0)

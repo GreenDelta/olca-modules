@@ -6,6 +6,8 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
+import org.openlca.util.BinUtils;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -22,7 +24,26 @@ public final class GeoJSON {
 
 	private GeoJSON() {
 	}
-	
+
+	/**
+	 * Converts the given feature collection into the openLCA Protocol Buffers
+	 * format for GeoJSON data and compresses it with gzip. This is the format that
+	 * we use for storing geographic data of locations in an openLCA database.
+	 */
+	public static byte[] pack(FeatureCollection coll) {
+		return ProtoPack.packgz(coll);
+	}
+
+	/**
+	 * Extracts a feature collection from a byte array that contains data in the
+	 * openLCA Protocol Buffers format for GeoJSON.
+	 */
+	public static FeatureCollection unpack(byte[] data) {
+		return BinUtils.isGzip(data)
+				? ProtoPack.unpackgz(data)
+				: ProtoPack.unpack(data);
+	}
+
 	public static FeatureCollection read(File file) {
 		try (Reader r = Files.newBufferedReader(
 				file.toPath(), StandardCharsets.UTF_8)) {
@@ -44,16 +65,16 @@ public final class GeoJSON {
 			throw new IllegalStateException("no valid type element found");
 		String type = typeElem.getAsString();
 		switch (type) {
-			case "FeatureCollection":
-				return FeatureCollection.fromJson(obj);
-			case "Feature":
-				return FeatureCollection.of(Feature.fromJson(obj));
-			default:
-				Geometry geom = readGeometry(obj);
-				if (geom == null)
-					throw new IllegalStateException(
-							"unknown Geometry type: " + type);
-				return FeatureCollection.of(geom);
+		case "FeatureCollection":
+			return FeatureCollection.fromJson(obj);
+		case "Feature":
+			return FeatureCollection.of(Feature.fromJson(obj));
+		default:
+			Geometry geom = readGeometry(obj);
+			if (geom == null)
+				throw new IllegalStateException(
+						"unknown Geometry type: " + type);
+			return FeatureCollection.of(geom);
 		}
 	}
 
@@ -118,22 +139,22 @@ public final class GeoJSON {
 			return null;
 		String type = typeElem.getAsString();
 		switch (type) {
-			case "Point":
-				return Point.fromJson(obj);
-			case "MultiPoint":
-				return MultiPoint.fromJson(obj);
-			case "LineString":
-				return LineString.fromJson(obj);
-			case "MultiLineString":
-				return MultiLineString.fromJson(obj);
-			case "Polygon":
-				return Polygon.fromJson(obj);
-			case "MultiPolygon":
-				return MultiPolygon.fromJson(obj);
-			case "GeometryCollection":
-				return GeometryCollection.fromJson(obj);
-			default:
-				return null;
+		case "Point":
+			return Point.fromJson(obj);
+		case "MultiPoint":
+			return MultiPoint.fromJson(obj);
+		case "LineString":
+			return LineString.fromJson(obj);
+		case "MultiLineString":
+			return MultiLineString.fromJson(obj);
+		case "Polygon":
+			return Polygon.fromJson(obj);
+		case "MultiPolygon":
+			return MultiPolygon.fromJson(obj);
+		case "GeometryCollection":
+			return GeometryCollection.fromJson(obj);
+		default:
+			return null;
 		}
 	}
 }
