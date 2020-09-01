@@ -6,6 +6,7 @@ import org.openlca.core.matrix.solvers.IMatrixSolver;
 
 public class DenseSolutionProvider implements SolutionProvider {
 
+	private IMatrix techMatrix;
 	private IMatrix inverse;
 	private IMatrix intensities;
 	private IMatrix impacts;
@@ -18,6 +19,7 @@ public class DenseSolutionProvider implements SolutionProvider {
 			MatrixData data,
 			IMatrixSolver solver) {
 		var provider = new DenseSolutionProvider();
+		provider.techMatrix = data.techMatrix;
 
 		// the inverse of A: inv(A)
 		provider.inverse = solver.invert(data.techMatrix);
@@ -91,5 +93,15 @@ public class DenseSolutionProvider implements SolutionProvider {
 		if (costs == null)
 			return 0;
 		return costs[i];
+	}
+
+	@Override
+	public double getLoopFactor(int i) {
+		var aii = techMatrix.get(i, i);
+		var ii = inverse.get(i, i);
+		var f = aii * ii;
+		return f == 0
+				? 0
+				: 1 / f;
 	}
 }

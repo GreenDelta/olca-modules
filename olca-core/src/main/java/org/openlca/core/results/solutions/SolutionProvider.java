@@ -15,4 +15,6 @@ public interface SolutionProvider {
 	boolean hasCosts();
 
 	double costs(int i);
+
+	double getLoopFactor(int i);
 }
