@@ -3,6 +3,7 @@ package org.openlca.core.results;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.IntToDoubleFunction;
 
 import org.openlca.core.matrix.IndexFlow;
 
@@ -20,14 +21,14 @@ public class UpstreamTree {
 	 */
 	public final Object ref;
 
-	private final double[] intensityRow;
+	private final IntToDoubleFunction intensity;
 	private final FullResult r;
 
-	public UpstreamTree(FullResult r, double[] u) {
-		this(null, r, u);
+	public UpstreamTree(FullResult r, IntToDoubleFunction intensity) {
+		this(null, r, intensity);
 	}
 
-	public UpstreamTree(Object ref, FullResult r, double[] u) {
+	public UpstreamTree(Object ref, FullResult r, IntToDoubleFunction intensity) {
 		this.ref = ref;
 		this.r = r;
 		root = new UpstreamNode();
@@ -35,17 +36,6 @@ public class UpstreamTree {
 		root.provider = r.techIndex.getRefFlow();
 		root.index = r.techIndex.getIndex(root.provider);
 		root.result = adopt(u[root.index]);
-		intensityRow = new double[u.length];
-		if (r.loopFactor == 1) {
-			for (int i = 0; i < intensityRow.length; i++) {
-				intensityRow[i] = u[i] / r.totalRequirements[i];
-			}
-		} else {
-			for (int i = 0; i < intensityRow.length; i++) {
-				intensityRow[i] = u[i]
-						/ (r.totalRequirements[i] * r.loopFactor);
-			}
-		}
 	}
 
 	public List<UpstreamNode> childs(UpstreamNode parent) {

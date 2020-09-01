@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.results.solutions.SolutionProvider;
 
 /**
  * The `FullResult` extends the `ContributionResult`. It contains additionally
@@ -16,89 +16,28 @@ import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
  */
 public class FullResult extends ContributionResult {
 
-	/**
-	 * The *scaled* technology matrix $\mathbf{A*}$ of the product system. In
-	 * this matrix each column $j$ is scaled by the respective scaling factor
-	 * $\mathbf{s}_j$:
-	 *
-	 * $$\mathbf{A*} = \mathbf{A} \ \text{diag}(\mathbf{s})$$
-	 */
-	public IMatrix techMatrix;
+	public SolutionProvider solutions;
 
 	/**
-	 * The loop factor $c_r$ indicates whether the reference process of the
-	 * product system is part of a product loop ($c_r \neq 1$ when this is the
-	 * case). It can be calculated via:
-	 * 
-	 * $$c_r = \frac{\mathbf{s}[r] \mathbf{A}[r,r]}{\mathbf{f}[r]}$$
-	 * 
-	 * Where $r$ is the index of the reference product of the system. Some
-	 * upstream results have to be corrected by $c_r$ when $c_r \neq 1$ to avoid
-	 * double counting of these loop contributions.
-	 */
-	public double loopFactor;
-
-	//@formatter:off
-	/**
-	 * An elementary flow * process-product matrix that contains the upstream
-	 * contributions (including the direct contributions) of the processes to
-	 * the inventory result. It can be calculated by column-wise scaling of the
-	 * result of the matrix-matrix multiplication of the intervention matrix
-	 * $\mathbf{B}$ with the inverse of the technology matrix $\mathbf{A}$ by
-	 * the total requirements $\mathbf{t}$:
-	 * 
-	 * $$\mathbf{U} = (\mathbf{B} \ \mathbf{A}^{-1}) \ \text{diag}(c_r \ \mathbf{t})$$
-	 * 
-	 * When the reference process itself is located in a loop the total requirements
-	 * need to be multiplied with the loop factor $c_r$ to avoid double counting
-	 * of the loop contributions (as they are contained in $\mathbf{A}^{-1}$ and
-	 * $\mathbf{t}$).
-	 */
-	public IMatrix upstreamFlowResults;
-	//@formatter:on
-
-	/**
-	 * A LCIA category * process-product matrix that contains the upstream
-	 * contributions (including the direct contributions) of the processes to
-	 * the LCIA result. It can be calculated by a matrix-matrix multiplication
-	 * of the characterization factor matrix $\mathbf{C}$ with the upstream
-	 * results of the elementary flows $\mathbf{U}$:
-	 * 
-	 * $$\mathbf{V} = \mathbf{C} \ \mathbf{U}$$
-	 */
-	public IMatrix upstreamImpactResults;
-
-	//@formatter:off
-	/**
-	 * A row vector the upstream contributions to the LCC result of each
-	 * process-product pair in the product system.
-	 * 
-	 * $$\mathbf{k}_u = (\mathbf{k} \ \mathbf{A}^{-1}) \ \text{diag}(c_r \ \mathbf{t})$$
-	 * 
-	 * When the reference process itself is located in a loop the total requirements
-	 * need to be multiplied with the loop factor $c_r$ to avoid double counting
-	 * of the loop contributions (as they are contained in $\mathbf{A}^{-1}$ and
-	 * $\mathbf{t}$).
-	 */
-	public IMatrix upstreamCostResults;
-	//@formatter:on
-
-	/**
-	 * Get the upstream contribution of the given process-product pair $j$ to
-	 * the inventory result of elementary flow $i$: $\mathbf{U}[i,j]$.
+	 * Get the upstream contribution of the given process-product pair $j$ to the
+	 * inventory result of elementary flow $i$: $\mathbf{U}[i,j]$.
 	 */
 	public double getUpstreamFlowResult(ProcessProduct product, IndexFlow flow) {
 		if (techIndex == null || flowIndex == null)
 			return 0;
 		int row = flowIndex.of(flow);
 		int col = techIndex.getIndex(product);
-		return adopt(flow, getValue(upstreamFlowResults, row, col));
+		double[] m = solutions.intensities(col);
+		if (m.length == 0)
+			return 0;
+		double t = totalRequirements[col] * solutions.getLoopFactor(col);
+		return adopt(flow, t * m[row]);
 	}
 
 	/**
 	 * Get the upstream contribution of the given process $j$ to the inventory
-	 * result of elementary flow $i$. When the process has multiple products it
-	 * is the sum of the contributions of all of these process-product pairs.
+	 * result of elementary flow $i$. When the process has multiple products it is
+	 * the sum of the contributions of all of these process-product pairs.
 	 */
 	public double getUpstreamFlowResult(CategorizedDescriptor process,
 			IndexFlow flow) {
@@ -124,8 +63,8 @@ public class FullResult extends ContributionResult {
 	}
 
 	/**
-	 * Get the upstream contribution of the given process-product pair $j$ to
-	 * the LCIA category result $j$: $\mathbf{V}[i,j]$.
+	 * Get the upstream contribution of the given process-product pair $j$ to the
+	 * LCIA category result $j$: $\mathbf{V}[i,j]$.
 	 */
 	public double getUpstreamImpactResult(
 			ProcessProduct product,
@@ -134,13 +73,17 @@ public class FullResult extends ContributionResult {
 			return 0;
 		int row = impactIndex.of(impact);
 		int col = techIndex.getIndex(product);
-		return getValue(upstreamImpactResults, row, col);
+		double[] h = solutions.impacts(col);
+		if (h.length == 0)
+			return 0;
+		double t = totalRequirements[col] * solutions.getLoopFactor(col);
+		return t * h[row];
 	}
 
 	/**
-	 * Get the upstream contribution of the given process $j$ to the LCIA
-	 * category result $i$. When the process has multiple products it is the sum
-	 * of the contributions of all of these process-product pairs.
+	 * Get the upstream contribution of the given process $j$ to the LCIA category
+	 * result $i$. When the process has multiple products it is the sum of the
+	 * contributions of all of these process-product pairs.
 	 */
 	public double getUpstreamImpactResult(
 			CategorizedDescriptor process,
@@ -153,8 +96,8 @@ public class FullResult extends ContributionResult {
 	}
 
 	/**
-	 * Get the upstream contributions of the given process $j$ to the LCIA
-	 * category results.
+	 * Get the upstream contributions of the given process $j$ to the LCIA category
+	 * results.
 	 */
 	public List<ImpactResult> getUpstreamImpactResults(
 			CategorizedDescriptor process) {
@@ -171,20 +114,22 @@ public class FullResult extends ContributionResult {
 	}
 
 	/**
-	 * Get the upstream contribution of the given process-product pair $j$ to
-	 * the LCC result: $\mathbf{k}_u[j]$.
+	 * Get the upstream contribution of the given process-product pair $j$ to the
+	 * LCC result: $\mathbf{k}_u[j]$.
 	 */
 	public double getUpstreamCostResult(ProcessProduct provider) {
 		if (!hasCostResults())
 			return 0;
 		int col = techIndex.getIndex(provider);
-		return getValue(upstreamCostResults, 0, col);
+		double c = solutions.costs(col);
+		double t = totalRequirements[col] * solutions.getLoopFactor(col);
+		return c * t;
 	}
 
 	/**
 	 * Get the upstream contribution of the given process $j$ to the LCC result.
-	 * When the process has multiple products it is the sum of the contributions
-	 * of all of these process-product pairs.
+	 * When the process has multiple products it is the sum of the contributions of
+	 * all of these process-product pairs.
 	 */
 	public double getUpstreamCostResult(CategorizedDescriptor process) {
 		double total = 0;
@@ -195,9 +140,9 @@ public class FullResult extends ContributionResult {
 	}
 
 	/**
-	 * Get the contribution share of the outgoing process product (provider) to
-	 * the product input (recipient) of the given link and the calculated
-	 * product system. The returned share is a value between 0 and 1.
+	 * Get the contribution share of the outgoing process product (provider) to the
+	 * product input (recipient) of the given link and the calculated product
+	 * system. The returned share is a value between 0 and 1.
 	 */
 	public double getLinkShare(ProcessLink link) {
 		ProcessProduct provider = techIndex.getProvider(link.providerId,

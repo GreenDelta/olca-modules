@@ -25,7 +25,6 @@ import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.BaseResult;
 import org.openlca.core.results.ContributionResult;
-import org.openlca.core.results.FullResult;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.util.CategoryPathBuilder;
 
@@ -95,13 +94,13 @@ public final class CsvOut {
 			write(cr.impactFactors, new File(folder, "C.csv"));
 		}
 
-		if (result instanceof FullResult) {
-			FullResult fr = (FullResult) result;
-			write(fr.techMatrix, new File(folder, "A_scaled.csv"));
-			write(fr.upstreamFlowResults, new File(folder, "U.csv"));
-			write(fr.upstreamImpactResults, new File(folder, "V.csv"));
-			write(fr.upstreamCostResults, new File(folder, "k_upstreams.csv"));
-		}
+//		if (result instanceof FullResult) {
+//			FullResult fr = (FullResult) result;
+//			write(fr.techMatrix, new File(folder, "A_scaled.csv"));
+//			write(fr.upstreamFlowResults, new File(folder, "U.csv"));
+//			write(fr.upstreamImpactResults, new File(folder, "V.csv"));
+//			write(fr.upstreamCostResults, new File(folder, "k_upstreams.csv"));
+//		}
 	}
 
 	/**
