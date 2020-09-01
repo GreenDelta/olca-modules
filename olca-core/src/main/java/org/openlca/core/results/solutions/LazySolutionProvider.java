@@ -10,6 +10,7 @@ public class LazySolutionProvider implements SolutionProvider {
 	private final MatrixData data;
 	private final IMatrixSolver solver;
 
+	private final double[] scalingVector;
 	private final TIntObjectHashMap<double[]> solutions;
 	private final TIntObjectHashMap<double[]> intensities;
 	private final TIntObjectHashMap<double[]> impacts;
@@ -17,13 +18,23 @@ public class LazySolutionProvider implements SolutionProvider {
 	private LazySolutionProvider(MatrixData data, IMatrixSolver solver) {
 		this.data = data;
 		this.solver = solver;
-		solutions = new TIntObjectHashMap<double[]>();
+		solutions = new TIntObjectHashMap<>();
 		intensities = data.enviMatrix == null
 				? null
-				: new TIntObjectHashMap<double[]>();
+				: new TIntObjectHashMap<>();
 		impacts = data.impactMatrix == null
 				? null
-				: new TIntObjectHashMap<double[]>();
+				: new TIntObjectHashMap<>();
+
+		// calculate the scaling vector
+		var refIdx = data.techIndex.getIndex(
+				data.techIndex.getRefFlow());
+		var s = solution(refIdx);
+		var d = data.techIndex.getDemand();
+		scalingVector = new double[s.length];
+		for (int i = 0; i < s.length; i++) {
+			scalingVector[i] = s[i] * d;
+		}
 	}
 
 	public static LazySolutionProvider create(
@@ -33,12 +44,22 @@ public class LazySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] solution(int i) {
-		var s = solutions.get(i);
+	public double[] scalingVector() {
+		return scalingVector;
+	}
+
+	@Override
+	public double[] directRequirements(int product) {
+		return data.techMatrix.getColumn(product);
+	}
+
+	@Override
+	public double[] solution(int product) {
+		var s = solutions.get(product);
 		if (s != null)
 			return s;
-		s = solver.solve(data.techMatrix, i, 1.0);
-		solutions.put(i, s);
+		s = solver.solve(data.techMatrix, product, 1.0);
+		solutions.put(product, s);
 		return s;
 	}
 
@@ -48,16 +69,23 @@ public class LazySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] intensities(int i) {
+	public double[] intensities(int product) {
 		if (intensities == null)
 			return new double[0];
-		var m = intensities.get(i);
+		var m = intensities.get(product);
 		if (m != null)
 			return m;
-		var s = solution(i);
+		var s = solution(product);
 		m = solver.multiply(data.enviMatrix, s);
-		intensities.put(i, m);
+		intensities.put(product, m);
 		return m;
+	}
+
+	@Override
+	public double intensity(int flow, int product) {
+		if (intensities == null)
+			return 0;
+		return intensities(product)[flow];
 	}
 
 	@Override
@@ -66,16 +94,23 @@ public class LazySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] impacts(int i) {
+	public double[] impacts(int product) {
 		if (impacts == null)
 			return new double[0];
-		var h = impacts.get(i);
+		var h = impacts.get(product);
 		if (h != null)
 			return h;
-		var g = intensities(i);
+		var g = intensities(product);
 		h = solver.multiply(data.impactMatrix, g);
-		impacts.put(i, h);
+		impacts.put(product, h);
 		return h;
+	}
+
+	@Override
+	public double impact(int indicator, int product) {
+		if (impacts == null)
+			return 0;
+		return impacts(product)[indicator];
 	}
 
 	@Override

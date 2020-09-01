@@ -6,6 +6,7 @@ import org.openlca.core.matrix.solvers.IMatrixSolver;
 
 public class DenseSolutionProvider implements SolutionProvider {
 
+	private double[] scalingVector;
 	private IMatrix techMatrix;
 	private IMatrix inverse;
 	private IMatrix intensities;
@@ -23,6 +24,15 @@ public class DenseSolutionProvider implements SolutionProvider {
 
 		// the inverse of A: inv(A)
 		provider.inverse = solver.invert(data.techMatrix);
+
+		// the scaling vector s = A \ d
+		var refIdx = data.techIndex.getIndex(
+				data.techIndex.getRefFlow());
+		provider.scalingVector = provider.inverse.getColumn(refIdx);
+		var d = data.techIndex.getDemand();
+		for (int i = 0; i < provider.scalingVector.length; i++) {
+			provider.scalingVector[i] *= d;
+		}
 
 		if (data.enviMatrix != null) {
 
@@ -55,8 +65,18 @@ public class DenseSolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] solution(int i) {
-		return inverse.getColumn(i);
+	public double[] scalingVector() {
+		return scalingVector;
+	}
+
+	@Override
+	public double[] directRequirements(int product) {
+		return techMatrix.getColumn(product);
+	}
+
+	@Override
+	public double[] solution(int product) {
+		return inverse.getColumn(product);
 	}
 
 	@Override
@@ -65,10 +85,17 @@ public class DenseSolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] intensities(int i) {
+	public double[] intensities(int product) {
 		if (intensities == null)
 			return new double[0];
-		return intensities.getColumn(i);
+		return intensities.getColumn(product);
+	}
+
+	@Override
+	public double intensity(int flow, int product) {
+		if (intensities == null)
+			return 0;
+		return intensities.get(flow, product);
 	}
 
 	@Override
@@ -77,10 +104,17 @@ public class DenseSolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] impacts(int i) {
+	public double[] impacts(int product) {
 		if (impacts == null)
 			return new double[0];
-		return impacts.getColumn(i);
+		return impacts.getColumn(product);
+	}
+
+	@Override
+	public double impact(int indicator, int product) {
+		if (impacts == null)
+			return 0;
+		return impacts.get(indicator, product);
 	}
 
 	@Override
@@ -89,10 +123,10 @@ public class DenseSolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double costs(int i) {
+	public double costs(int product) {
 		if (costs == null)
 			return 0;
-		return costs[i];
+		return costs[product];
 	}
 
 	@Override
