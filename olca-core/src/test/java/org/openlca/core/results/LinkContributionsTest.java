@@ -4,35 +4,37 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
-import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.results.solutions.LazySolutionProvider;
 
 public class LinkContributionsTest {
 
 	/**
 	 * A = [1, 0, 0, 0; -0.5, 1, 0, 0; -0.5, 0, 1, 0; 0, -0.5, -0.5, 1]
 	 *
-	 * d = [1; 0; 0; 0]
+	 * f = [1; 0; 0; 0]
 	 *
 	 * s = inv(A) * d = [1; 0.5; 0.5; 0.5]
 	 */
 	@Test
 	public void testDoubleLink() {
 
-		IMatrix techMatrix = Tests.getDefaultSolver().matrix(4, 4);
+		var solver = Tests.getDefaultSolver();
+		var techMatrix = solver.matrix(4, 4);
 		techMatrix.setValues(new double[][] {
 				{ 1, 0, 0, 0 },
 				{ -0.5, 1, 0, 0 },
 				{ -0.5, 0, 1, 0 },
-				{ 0, -0.5, -0.5, 1 } });
-		double[] s = { 1, 0.5, 0.5, 0.5 };
-		techMatrix.scaleColumns(s);
+				{ 0, -0.5, -0.5, 1 },
+		});
 
-		TechIndex index = new TechIndex(provider(1, 1));
+		var index = new TechIndex(provider(1, 1));
+		index.setDemand(1);
 		index.put(provider(2, 2));
 		index.put(provider(3, 3));
 		index.put(provider(4, 4));
@@ -41,8 +43,12 @@ public class LinkContributionsTest {
 		index.putLink(LongPair.of(2, 4), provider(4, 4));
 		index.putLink(LongPair.of(3, 4), provider(4, 4));
 
+		var data =new MatrixData();
+		data.techMatrix = techMatrix;
+		data.techIndex = index;
+
 		FullResult r = new FullResult();
-		r.techMatrix = techMatrix;
+		r.solutions = LazySolutionProvider.create(data, solver);
 		r.techIndex = index;
 
 		Assert.assertEquals(0, r.getLinkShare(link(4, 4, 1)), 1e-16);
@@ -60,14 +66,14 @@ public class LinkContributionsTest {
 	 */
 	@Test
 	public void testBandMatrix() {
-		int size = 4000;
-		IMatrix techMatrix = Tests.getDefaultSolver().matrix(size, size);
-		TechIndex index = new TechIndex(provider(1, 1));
-		double[] s = new double[size];
+		int size = 40;
+		var solver = Tests.getDefaultSolver();
+		var techMatrix = solver.matrix(size, size);
+		var index = new TechIndex(provider(1, 1));
+		index.setDemand(1);
 		for (int i = 0; i < size; i++) {
 			index.put(provider(i + 1, i + 1));
 			techMatrix.set(i, i, 1.0);
-			s[i] = 1;
 			if (i < (size - 1)) {
 				techMatrix.set(i + 1, i, -1);
 				index.putLink(LongPair.of(i + 1, i + 2),
@@ -75,8 +81,12 @@ public class LinkContributionsTest {
 			}
 		}
 		Assert.assertEquals(size - 1, index.getLinkedExchanges().size());
+
+		var data = new MatrixData();
+		data.techIndex = index;
+		data.techMatrix = techMatrix;
 		FullResult r = new FullResult();
-		r.techMatrix = techMatrix;
+		r.solutions = LazySolutionProvider.create(data, solver);
 		r.techIndex = index;
 
 		for (int i = 0; i < size; i++) {
