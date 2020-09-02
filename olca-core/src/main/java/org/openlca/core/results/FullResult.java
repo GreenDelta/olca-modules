@@ -145,22 +145,24 @@ public class FullResult extends ContributionResult {
 	 * system. The returned share is a value between 0 and 1.
 	 */
 	public double getLinkShare(ProcessLink link) {
-		ProcessProduct provider = techIndex.getProvider(link.providerId,
-				link.flowId);
+
+		var provider = techIndex.getProvider(link.providerId, link.flowId);
 		int providerIdx = techIndex.getIndex(provider);
 		if (providerIdx < 0)
 			return 0;
+
 		double amount = 0.0;
-		for (ProcessProduct process : techIndex.getProviders(link.processId)) {
+		for (var process : techIndex.getProviders(link.processId)) {
 			int processIdx = techIndex.getIndex(process);
-			amount += techMatrix.get(providerIdx, processIdx);
+			amount += solutions.scaledValueOfA(providerIdx, processIdx);
 		}
 		if (amount == 0)
 			return 0;
-		double total = techMatrix.get(providerIdx, providerIdx);
-		if (total == 0)
-			return 0;
-		return -amount / total;
+
+		double total = solutions.scaledValueOfA(providerIdx, providerIdx);
+		return total == 0
+			? 0
+			:  -amount / total;
 	}
 
 	/**

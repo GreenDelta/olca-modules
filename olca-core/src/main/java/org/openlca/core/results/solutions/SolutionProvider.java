@@ -4,11 +4,11 @@ public interface SolutionProvider {
 
 	double[] scalingVector();
 
-	/**
-	 * Get the direct requirements for product j in the product system. This is
-	 * equivalent with the jth column of the technology matrix $A[:,j].
-	 */
-	double[] directRequirements(int product);
+	double[] columnOfA(int product);
+
+	double valueOfA(int row, int col);
+
+	double scaledValueOfA(int row, int col);
 
 	/**
 	 * Get the scaling vector of the product system for one unit of output (input)

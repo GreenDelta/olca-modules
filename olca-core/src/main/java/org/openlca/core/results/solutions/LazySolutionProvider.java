@@ -49,8 +49,19 @@ public class LazySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] directRequirements(int product) {
+	public double[] columnOfA(int product) {
 		return data.techMatrix.getColumn(product);
+	}
+
+	@Override
+	public double valueOfA(int row, int col) {
+		return data.techMatrix.get(row, col);
+	}
+
+	@Override
+	public double scaledValueOfA(int row, int col) {
+		var s = scalingVector[col];
+		return s * data.techMatrix.get(row, col);
 	}
 
 	@Override

@@ -70,8 +70,19 @@ public class DenseSolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] directRequirements(int product) {
+	public double[] columnOfA(int product) {
 		return techMatrix.getColumn(product);
+	}
+
+	@Override
+	public double valueOfA(int row, int col) {
+		return techMatrix.get(row, col);
+	}
+
+	@Override
+	public double scaledValueOfA(int row, int col) {
+		var s = scalingVector[col];
+		return s * techMatrix.get(row, col);
 	}
 
 	@Override
