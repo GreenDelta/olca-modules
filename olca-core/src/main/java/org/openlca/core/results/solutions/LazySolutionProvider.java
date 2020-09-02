@@ -15,7 +15,6 @@ public class LazySolutionProvider implements SolutionProvider {
 	private final double[] totalImpacts;
 	private final double totalCosts;
 
-
 	private final TIntObjectHashMap<double[]> solutions;
 	private final TIntObjectHashMap<double[]> intensities;
 	private final TIntObjectHashMap<double[]> impacts;

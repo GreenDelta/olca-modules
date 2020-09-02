@@ -7,11 +7,15 @@ import org.openlca.core.matrix.solvers.IMatrixSolver;
 public class DenseSolutionProvider implements SolutionProvider {
 
 	private double[] scalingVector;
+	private double[] totalFlows;
+	private double[] totalImpacts;
+	private double totalCosts;
+
 	private IMatrix techMatrix;
 	private IMatrix inverse;
-	private IMatrix intensities;
-	private IMatrix impacts;
-	private double[] costs;
+	private IMatrix flowIntensities;
+	private IMatrix impactIntensities;
+	private double[] costIntensities;
 
 	private DenseSolutionProvider() {
 	}
@@ -29,24 +33,32 @@ public class DenseSolutionProvider implements SolutionProvider {
 		var refIdx = data.techIndex.getIndex(
 				data.techIndex.getRefFlow());
 		provider.scalingVector = provider.inverse.getColumn(refIdx);
-		var d = data.techIndex.getDemand();
+		var demand = data.techIndex.getDemand();
 		for (int i = 0; i < provider.scalingVector.length; i++) {
-			provider.scalingVector[i] *= d;
+			provider.scalingVector[i] *= demand;
 		}
 
 		if (data.enviMatrix != null) {
 
 			// the intensity matrix: M = B * inv(A)
-			provider.intensities = solver.multiply(
+			provider.flowIntensities = solver.multiply(
 					data.enviMatrix,
 					provider.inverse);
+			provider.totalFlows = provider.totalFlowsOfOne(refIdx);
+			for (int i = 0; i < provider.totalFlows.length; i++) {
+				provider.totalFlows[i] *= demand;
+			}
 
 			if (data.impactMatrix != null) {
 
 				// impacts of the intensities: C * M
-				provider.impacts = solver.multiply(
+				provider.impactIntensities = solver.multiply(
 						data.impactMatrix,
-						provider.intensities);
+						provider.flowIntensities);
+				provider.totalImpacts = provider.totalImpactsOfOne(refIdx);
+				for(int i = 0; i < provider.totalImpacts.length; i++) {
+					provider.totalImpacts[i] *= demand;
+				}
 			}
 		}
 
@@ -56,9 +68,10 @@ public class DenseSolutionProvider implements SolutionProvider {
 			for (int col = 0; col < n; col++) {
 				costs.set(0, col, data.costVector[col]);
 			}
-			provider.costs = solver.multiply(
+			provider.costIntensities = solver.multiply(
 					costs, provider.inverse)
 					.getRow(0);
+			provider.totalCosts = provider.totalCostsOfOne(refIdx) * demand;
 		}
 
 		return provider;
@@ -92,52 +105,71 @@ public class DenseSolutionProvider implements SolutionProvider {
 
 	@Override
 	public boolean hasFlows() {
-		return intensities != null;
+		return flowIntensities != null;
+	}
+
+	@Override
+	public double[] totalFlows() {
+		return totalFlows == null
+				? new double[0]
+				: totalFlows;
 	}
 
 	@Override
 	public double[] totalFlowsOfOne(int product) {
-		if (intensities == null)
+		if (flowIntensities == null)
 			return new double[0];
-		return intensities.getColumn(product);
+		return flowIntensities.getColumn(product);
 	}
 
 	@Override
 	public double totalFlowOfOne(int flow, int product) {
-		if (intensities == null)
+		if (flowIntensities == null)
 			return 0;
-		return intensities.get(flow, product);
+		return flowIntensities.get(flow, product);
 	}
 
 	@Override
 	public boolean hasImpacts() {
-		return impacts != null;
+		return impactIntensities != null;
+	}
+
+	@Override
+	public double[] totalImpacts() {
+		return totalImpacts == null
+				? new double[0]
+				: totalImpacts;
 	}
 
 	@Override
 	public double[] totalImpactsOfOne(int product) {
-		if (impacts == null)
+		if (impactIntensities == null)
 			return new double[0];
-		return impacts.getColumn(product);
+		return impactIntensities.getColumn(product);
 	}
 
 	@Override
 	public double totalImpactOfOne(int indicator, int product) {
-		if (impacts == null)
+		if (impactIntensities == null)
 			return 0;
-		return impacts.get(indicator, product);
+		return impactIntensities.get(indicator, product);
 	}
 
 	@Override
 	public boolean hasCosts() {
-		return costs != null;
+		return costIntensities != null;
+	}
+
+	@Override
+	public double totalCosts() {
+		return totalCosts;
 	}
 
 	@Override
 	public double totalCostsOfOne(int product) {
-		if (costs == null)
+		if (costIntensities == null)
 			return 0;
-		return costs[product];
+		return costIntensities[product];
 	}
 
 	@Override
