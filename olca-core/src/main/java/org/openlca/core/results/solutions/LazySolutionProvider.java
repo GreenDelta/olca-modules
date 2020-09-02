@@ -11,6 +11,9 @@ public class LazySolutionProvider implements SolutionProvider {
 	private final IMatrixSolver solver;
 
 	private final double[] scalingVector;
+	private final double[] totalFlows;
+	private final double[] totalImpacts;
+	private final double totalCosts;
 
 
 	private final TIntObjectHashMap<double[]> solutions;
@@ -31,12 +34,27 @@ public class LazySolutionProvider implements SolutionProvider {
 		// calculate the scaling vector
 		var refIdx = data.techIndex.getIndex(
 				data.techIndex.getRefFlow());
-		var s = solution(refIdx);
+		var s = solutionOfOne(refIdx);
 		var d = data.techIndex.getDemand();
 		scalingVector = new double[s.length];
 		for (int i = 0; i < s.length; i++) {
 			scalingVector[i] = s[i] * d;
 		}
+
+		// calculate the total results
+		totalFlows = data.enviMatrix != null
+				? solver.multiply(data.enviMatrix, scalingVector)
+				: null;
+		totalImpacts = totalFlows != null && data.impactMatrix != null
+				? solver.multiply(data.impactMatrix, totalFlows)
+				: null;
+		var tCosts = 0.0;
+		if (data.costVector != null) {
+			for (int i = 0; i < scalingVector.length; i++) {
+				tCosts += data.costVector[i] * scalingVector[i];
+			}
+		}
+		totalCosts = tCosts;
 	}
 
 	public static LazySolutionProvider create(
@@ -67,7 +85,7 @@ public class LazySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] solution(int product) {
+	public double[] solutionOfOne(int product) {
 		var s = solutions.get(product);
 		if (s != null)
 			return s;
@@ -77,28 +95,35 @@ public class LazySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public boolean hasIntensities() {
+	public boolean hasFlows() {
 		return intensities != null;
 	}
 
 	@Override
-	public double[] intensities(int product) {
+	public double[] totalFlows() {
+		return totalFlows == null
+				? new double[0]
+				: totalFlows;
+	}
+
+	@Override
+	public double[] totalFlowsOfOne(int product) {
 		if (intensities == null)
 			return new double[0];
 		var m = intensities.get(product);
 		if (m != null)
 			return m;
-		var s = solution(product);
+		var s = solutionOfOne(product);
 		m = solver.multiply(data.enviMatrix, s);
 		intensities.put(product, m);
 		return m;
 	}
 
 	@Override
-	public double intensity(int flow, int product) {
+	public double totalFlowOfOne(int flow, int product) {
 		if (intensities == null)
 			return 0;
-		return intensities(product)[flow];
+		return totalFlowsOfOne(product)[flow];
 	}
 
 	@Override
@@ -107,23 +132,30 @@ public class LazySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] impacts(int product) {
+	public double[] totalImpacts() {
+		return totalImpacts == null
+				? new double[0]
+				: totalImpacts;
+	}
+
+	@Override
+	public double[] totalImpactsOfOne(int product) {
 		if (impacts == null)
 			return new double[0];
 		var h = impacts.get(product);
 		if (h != null)
 			return h;
-		var g = intensities(product);
+		var g = totalFlowsOfOne(product);
 		h = solver.multiply(data.impactMatrix, g);
 		impacts.put(product, h);
 		return h;
 	}
 
 	@Override
-	public double impact(int indicator, int product) {
+	public double totalImpactOfOne(int indicator, int product) {
 		if (impacts == null)
 			return 0;
-		return impacts(product)[indicator];
+		return totalImpactsOfOne(product)[indicator];
 	}
 
 	@Override
@@ -132,10 +164,15 @@ public class LazySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double costs(int i) {
+	public double totalCosts() {
+		return totalCosts;
+	}
+
+	@Override
+	public double totalCostsOfOne(int i) {
 		if (data.costVector == null)
 			return 0;
-		var s = solution(i);
+		var s = solutionOfOne(i);
 		double c = 0.0;
 		for (int j = 0; j < s.length; j++) {
 			c += s[j] * data.costVector[j];
@@ -144,9 +181,9 @@ public class LazySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double getLoopFactor(int i) {
+	public double loopFactorOf(int i) {
 		var aii = data.techMatrix.get(i, i);
-		var eii = solution(i)[i];
+		var eii = solutionOfOne(i)[i];
 		var f = aii * eii;
 		return f == 0
 				? 0

@@ -27,10 +27,10 @@ public class FullResult extends ContributionResult {
 			return 0;
 		int row = flowIndex.of(flow);
 		int col = techIndex.getIndex(product);
-		double[] m = solutions.intensities(col);
+		double[] m = solutions.totalFlowsOfOne(col);
 		if (m.length == 0)
 			return 0;
-		double t = totalRequirements[col] * solutions.getLoopFactor(col);
+		double t = totalRequirements[col] * solutions.loopFactorOf(col);
 		return adopt(flow, t * m[row]);
 	}
 
@@ -73,10 +73,10 @@ public class FullResult extends ContributionResult {
 			return 0;
 		int row = impactIndex.of(impact);
 		int col = techIndex.getIndex(product);
-		double[] h = solutions.impacts(col);
+		double[] h = solutions.totalImpactsOfOne(col);
 		if (h.length == 0)
 			return 0;
-		double t = totalRequirements[col] * solutions.getLoopFactor(col);
+		double t = totalRequirements[col] * solutions.loopFactorOf(col);
 		return t * h[row];
 	}
 
@@ -121,8 +121,8 @@ public class FullResult extends ContributionResult {
 		if (!hasCostResults())
 			return 0;
 		int col = techIndex.getIndex(provider);
-		double c = solutions.costs(col);
-		double t = totalRequirements[col] * solutions.getLoopFactor(col);
+		double c = solutions.totalCostsOfOne(col);
+		double t = totalRequirements[col] * solutions.loopFactorOf(col);
 		return c * t;
 	}
 
@@ -172,7 +172,7 @@ public class FullResult extends ContributionResult {
 		int i = flowIndex.of(flow);
 		double total = getTotalFlowResult(flow);
 		return new UpstreamTree(flow, this, total,
-				product -> solutions.intensity(i, product));
+				product -> solutions.totalFlowOfOne(i, product));
 	}
 
 	/**
@@ -182,7 +182,7 @@ public class FullResult extends ContributionResult {
 		int i = impactIndex.of(impact.id);
 		double total = getTotalImpactResult(impact);
 		return new UpstreamTree(impact, this, total,
-				product -> solutions.impact(i, product));
+				product -> solutions.totalImpactOfOne(i, product));
 	}
 
 	/**
@@ -190,7 +190,7 @@ public class FullResult extends ContributionResult {
 	 */
 	public UpstreamTree getCostTree() {
 		return new UpstreamTree(this, totalCosts,
-				product -> solutions.costs(product));
+				product -> solutions.totalCostsOfOne(product));
 	}
 
 	/**
@@ -198,7 +198,7 @@ public class FullResult extends ContributionResult {
 	 */
 	public UpstreamTree getAddedValueTree() {
 		return new UpstreamTree(this, -totalCosts,
-				product -> -solutions.costs(product));
+				product -> -solutions.totalCostsOfOne(product));
 	}
 
 }

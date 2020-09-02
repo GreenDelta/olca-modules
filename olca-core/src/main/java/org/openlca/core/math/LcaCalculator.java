@@ -1,6 +1,5 @@
 package org.openlca.core.math;
 
-import org.openlca.core.matrix.CostVector;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
@@ -95,7 +94,6 @@ public class LcaCalculator {
 				: DenseSolutionProvider.create(data, solver);
 
 
-		TechIndex productIdx = data.techIndex;
 		IMatrix techMatrix = data.techMatrix;
 		IMatrix enviMatrix = data.enviMatrix;
 
@@ -109,37 +107,19 @@ public class LcaCalculator {
 				scalingVector);
 
 		// upstream results
-		double[] demands = getRealDemands(
-				result.totalRequirements, result.loopFactor);
-		IMatrix totalResult = solver.multiply(enviMatrix, inverse);
-		if (data.costVector == null) {
-			inverse = null; // allow GC
-		}
-		totalResult.scaleColumns(demands);
-		int refIdx = productIdx.getIndex(productIdx.getRefFlow());
-		result.totalFlowResults = totalResult.getColumn(refIdx);
+		result.totalFlowResults = result.solutions.totalFlows();
 
 		if (data.impactMatrix != null) {
 			addDirectImpacts(result);
-			IMatrix factors = data.impactMatrix;
-			IMatrix totalImpactResult = solver.multiply(factors, totalResult);
-			result.upstreamImpactResults = totalImpactResult;
-			// total impacts = upstream result of reference product
 			result.impactIndex = data.impactIndex;
-			result.totalImpactResults = totalImpactResult.getColumn(refIdx);
+			result.totalImpactResults = result.solutions.totalImpacts();
 		}
 
 		if (data.costVector != null) {
 			addDirectCosts(result, scalingVector);
-			IMatrix costValues = CostVector.asMatrix(solver, data.costVector);
-			IMatrix upstreamCosts = solver.multiply(costValues, inverse);
-			upstreamCosts.scaleColumns(demands);
-			result.totalCosts = upstreamCosts.get(0, refIdx);
-			result.upstreamCostResults = upstreamCosts;
+			result.totalCosts = result.solutions.totalCosts();
 		}
-
 		return result;
-
 	}
 
 	/**

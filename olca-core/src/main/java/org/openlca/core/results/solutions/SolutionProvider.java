@@ -15,23 +15,41 @@ public interface SolutionProvider {
 	 * of product (waste flow) j. This is equivalent with the jth column of the
 	 * inverse technology matrix $A^{-1}[:,j]$ in case of full in-memory matrices.
 	 */
-	double[] solution(int product);
+	double[] solutionOfOne(int product);
 
-	boolean hasIntensities();
+	boolean hasFlows();
 
-	double[] intensities(int product);
+	/**
+	 * Returns the total flow results (direct + upstream) related to the final
+	 * demand of the product system.
+	 */
+	double[] totalFlows();
 
-	double intensity(int flow, int product);
+	/**
+	 * Returns the total flow results (direct + upstream) related to one unit of
+	 * the given product in the system.
+	 */
+	double[] totalFlowsOfOne(int product);
+
+	/**
+	 * Returns the total result (direct + upstream) of the given flow related
+	 * to one unit of the given product in the system.
+	 */
+	double totalFlowOfOne(int flow, int product);
 
 	boolean hasImpacts();
 
-	double[] impacts(int product);
+	double[] totalImpacts();
 
-	double impact(int indicator, int product);
+	double[] totalImpactsOfOne(int product);
+
+	double totalImpactOfOne(int indicator, int product);
 
 	boolean hasCosts();
 
-	double costs(int product);
+	double totalCosts();
 
-	double getLoopFactor(int product);
+	double totalCostsOfOne(int product);
+
+	double loopFactorOf(int product);
 }

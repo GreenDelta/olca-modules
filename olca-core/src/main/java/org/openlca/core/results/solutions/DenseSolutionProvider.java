@@ -86,24 +86,24 @@ public class DenseSolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] solution(int product) {
+	public double[] solutionOfOne(int product) {
 		return inverse.getColumn(product);
 	}
 
 	@Override
-	public boolean hasIntensities() {
+	public boolean hasFlows() {
 		return intensities != null;
 	}
 
 	@Override
-	public double[] intensities(int product) {
+	public double[] totalFlowsOfOne(int product) {
 		if (intensities == null)
 			return new double[0];
 		return intensities.getColumn(product);
 	}
 
 	@Override
-	public double intensity(int flow, int product) {
+	public double totalFlowOfOne(int flow, int product) {
 		if (intensities == null)
 			return 0;
 		return intensities.get(flow, product);
@@ -115,14 +115,14 @@ public class DenseSolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] impacts(int product) {
+	public double[] totalImpactsOfOne(int product) {
 		if (impacts == null)
 			return new double[0];
 		return impacts.getColumn(product);
 	}
 
 	@Override
-	public double impact(int indicator, int product) {
+	public double totalImpactOfOne(int indicator, int product) {
 		if (impacts == null)
 			return 0;
 		return impacts.get(indicator, product);
@@ -134,14 +134,14 @@ public class DenseSolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double costs(int product) {
+	public double totalCostsOfOne(int product) {
 		if (costs == null)
 			return 0;
 		return costs[product];
 	}
 
 	@Override
-	public double getLoopFactor(int i) {
+	public double loopFactorOf(int i) {
 		var aii = techMatrix.get(i, i);
 		var ii = inverse.get(i, i);
 		var f = aii * ii;
