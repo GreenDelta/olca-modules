@@ -9,6 +9,8 @@ import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.SimpleResult;
+import org.openlca.core.results.solutions.DenseSolutionProvider;
+import org.openlca.core.results.solutions.LazySolutionProvider;
 
 /**
  * This calculator does the low level matrix based LCA-calculation. Typically,
@@ -88,25 +90,25 @@ public class LcaCalculator {
 		FullResult result = new FullResult();
 		result.flowIndex = data.flowIndex;
 		result.techIndex = data.techIndex;
+		result.solutions = data.isSparse()
+				? LazySolutionProvider.create(data, solver)
+				: DenseSolutionProvider.create(data, solver);
+
 
 		TechIndex productIdx = data.techIndex;
 		IMatrix techMatrix = data.techMatrix;
 		IMatrix enviMatrix = data.enviMatrix;
-		IMatrix inverse = solver.invert(techMatrix);
-		double[] scalingVector = getScalingVector(inverse, productIdx);
+
+		double[] scalingVector = result.solutions.scalingVector();
 		result.scalingVector = scalingVector;
 
 		// direct results
-		result.techMatrix = techMatrix.copy();
-		result.techMatrix.scaleColumns(scalingVector);
 		result.directFlowResults = enviMatrix.copy();
 		result.directFlowResults.scaleColumns(scalingVector);
 		result.totalRequirements = getTotalRequirements(techMatrix,
 				scalingVector);
 
 		// upstream results
-		result.loopFactor = getLoopFactor(
-				techMatrix, scalingVector, productIdx);
 		double[] demands = getRealDemands(
 				result.totalRequirements, result.loopFactor);
 		IMatrix totalResult = solver.multiply(enviMatrix, inverse);
@@ -114,7 +116,6 @@ public class LcaCalculator {
 			inverse = null; // allow GC
 		}
 		totalResult.scaleColumns(demands);
-		result.upstreamFlowResults = totalResult;
 		int refIdx = productIdx.getIndex(productIdx.getRefFlow());
 		result.totalFlowResults = totalResult.getColumn(refIdx);
 

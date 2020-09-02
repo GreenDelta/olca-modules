@@ -1,5 +1,7 @@
 package org.openlca.core.matrix;
 
+import org.openlca.core.matrix.format.CSCMatrix;
+import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.uncertainties.UMatrix;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -83,5 +85,10 @@ public class MatrixData {
 		if (impactMatrix != null && impactUncertainties != null) {
 			impactUncertainties.generate(impactMatrix, interpreter);
 		}
+	}
+
+	public boolean isSparse() {
+		return techMatrix instanceof HashPointMatrix
+			|| techMatrix instanceof CSCMatrix;
 	}
 }

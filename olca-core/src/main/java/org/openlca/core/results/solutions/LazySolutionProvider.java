@@ -11,6 +11,8 @@ public class LazySolutionProvider implements SolutionProvider {
 	private final IMatrixSolver solver;
 
 	private final double[] scalingVector;
+
+
 	private final TIntObjectHashMap<double[]> solutions;
 	private final TIntObjectHashMap<double[]> intensities;
 	private final TIntObjectHashMap<double[]> impacts;
