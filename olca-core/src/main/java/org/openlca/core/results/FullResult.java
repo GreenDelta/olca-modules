@@ -40,7 +40,7 @@ public class FullResult extends ContributionResult {
 	 * the sum of the contributions of all of these process-product pairs.
 	 */
 	public double getUpstreamFlowResult(CategorizedDescriptor process,
-			IndexFlow flow) {
+										IndexFlow flow) {
 		double total = 0;
 		for (ProcessProduct p : techIndex.getProviders(process)) {
 			total += getUpstreamFlowResult(p, flow);
@@ -168,8 +168,9 @@ public class FullResult extends ContributionResult {
 	 */
 	public UpstreamTree getTree(IndexFlow flow) {
 		int i = flowIndex.of(flow);
-		double[] u = upstreamFlowResults.getRow(i);
-		return new UpstreamTree(flow, this, u);
+		double total = getTotalFlowResult(flow);
+		return new UpstreamTree(flow, this, total,
+				product -> solutions.intensity(i, product));
 	}
 
 	/**
@@ -177,26 +178,25 @@ public class FullResult extends ContributionResult {
 	 */
 	public UpstreamTree getTree(ImpactCategoryDescriptor impact) {
 		int i = impactIndex.of(impact.id);
-		double[] u = upstreamImpactResults.getRow(i);
-		return new UpstreamTree(impact, this, u);
+		double total = getTotalImpactResult(impact);
+		return new UpstreamTree(impact, this, total,
+				product -> solutions.impact(i, product));
 	}
 
 	/**
 	 * Calculate the upstream tree for the LCC result as costs.
 	 */
 	public UpstreamTree getCostTree() {
-		return new UpstreamTree(this, upstreamCostResults.getRow(0));
+		return new UpstreamTree(this, totalCosts,
+				product -> solutions.costs(product));
 	}
 
 	/**
 	 * Calculate the upstream tree for the LCC result as added value.
 	 */
 	public UpstreamTree getAddedValueTree() {
-		double[] u = upstreamCostResults.getRow(0);
-		for (int i = 0; i < u.length; i++) {
-			u[i] = -u[i];
-		}
-		return new UpstreamTree(this, u);
+		return new UpstreamTree(this, -totalCosts,
+				product -> -solutions.costs(product));
 	}
 
 }

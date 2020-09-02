@@ -1,7 +1,6 @@
 package org.openlca.core.results;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.IntToDoubleFunction;
 
@@ -24,18 +23,20 @@ public class UpstreamTree {
 	private final IntToDoubleFunction intensity;
 	private final FullResult r;
 
-	public UpstreamTree(FullResult r, IntToDoubleFunction intensity) {
-		this(null, r, intensity);
+	public UpstreamTree(FullResult r, double total, IntToDoubleFunction intensity) {
+		this(null, r, total, intensity);
 	}
 
-	public UpstreamTree(Object ref, FullResult r, IntToDoubleFunction intensity) {
+	public UpstreamTree(Object ref, FullResult r, double total, IntToDoubleFunction intensity) {
 		this.ref = ref;
 		this.r = r;
+		this.intensity = intensity;
+
 		root = new UpstreamNode();
-		root.scaling = 1.0;
 		root.provider = r.techIndex.getRefFlow();
 		root.index = r.techIndex.getIndex(root.provider);
-		root.result = adopt(u[root.index]);
+		root.scaling = r.scalingVector[root.index];
+		root.result = total;
 	}
 
 	public List<UpstreamNode> childs(UpstreamNode parent) {
@@ -44,23 +45,25 @@ public class UpstreamTree {
 		parent.childs = new ArrayList<>();
 		if (parent.scaling == 0)
 			return parent.childs;
-		for (int row = 0; row < r.techMatrix.rows(); row++) {
-			if (row == parent.index)
+
+		var requirements = r.solutions.directRequirements(parent.index);
+		for (int i = 0; i < requirements.length; i++) {
+			if (i == parent.index)
 				continue;
-			double val = r.techMatrix.get(row, parent.index);
-			if (val == 0)
+			double aij = requirements[i];
+			if (aij == 0)
 				continue;
-			val *= parent.scaling;
+			aij *= parent.scaling;
 			UpstreamNode child = new UpstreamNode();
-			double refVal = r.techMatrix.get(row, row);
-			child.scaling = -val / refVal;
-			child.index = row;
-			child.provider = r.techIndex.getProviderAt(row);
-			child.result = adopt(intensityRow[row] * refVal * child.scaling);
+			double refVal = r.solutions.directRequirements(i)[i];
+			child.scaling = -aij / refVal;
+			child.index = i;
+			child.provider = r.techIndex.getProviderAt(i);
+			child.result = adopt(intensity.applyAsDouble(i) * refVal * child.scaling);
 			parent.childs.add(child);
 		}
-		Collections.sort(parent.childs,
-				(n1, n2) -> Double.compare(n2.result, n1.result));
+
+		parent.childs.sort((n1, n2) -> Double.compare(n2.result, n1.result));
 		return parent.childs;
 	}
 
