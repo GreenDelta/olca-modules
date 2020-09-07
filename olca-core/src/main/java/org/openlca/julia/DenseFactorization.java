@@ -38,7 +38,7 @@ public class DenseFactorization {
 		return x;
 	}
 
-	public double[] solve(DenseFactorization f, IMatrix b) {
+	public IMatrix solve(DenseFactorization f, IMatrix b) {
 		double[] x;
 		if (b instanceof DenseMatrix) {
 			var data = ((DenseMatrix) b).data;
@@ -47,7 +47,7 @@ public class DenseFactorization {
 			x = MatrixConverter.dense(b).data;
 		}
 		Julia.solveDenseFactorization(pointer, b.columns(), x);
-		return x;
+		return new DenseMatrix(f.n, b.columns(), x);
 	}
 
 	public boolean isDisposed() {
