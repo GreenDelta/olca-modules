@@ -32,13 +32,13 @@ public class DenseFactorization {
 		return b;
 	}
 
-	public double[] solve(DenseFactorization f, double[] b) {
+	public double[] solve(double[] b) {
 		var x = Arrays.copyOf(b, b.length);
 		Julia.solveDenseFactorization(pointer, 1, x);
 		return x;
 	}
 
-	public IMatrix solve(DenseFactorization f, IMatrix b) {
+	public IMatrix solve(IMatrix b) {
 		double[] x;
 		if (b instanceof DenseMatrix) {
 			var data = ((DenseMatrix) b).data;
@@ -47,7 +47,7 @@ public class DenseFactorization {
 			x = MatrixConverter.dense(b).data;
 		}
 		Julia.solveDenseFactorization(pointer, b.columns(), x);
-		return new DenseMatrix(f.n, b.columns(), x);
+		return new DenseMatrix(n, b.columns(), x);
 	}
 
 	public boolean isDisposed() {
