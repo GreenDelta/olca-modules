@@ -297,4 +297,18 @@ public final class Julia {
 
 	public static native void destroyDenseFactorization(
 			long factorization);
+
+	public static native long createSparseFactorization(
+			int n,
+			int[] columnPointers,
+			int[] rowIndices,
+			double[] values);
+
+	public static native void solveSparseFactorization(
+			long factorization,
+			double[] b,
+			double[] x);
+
+	public static native void destroySparseFactorization(
+			long factorization);
 }
