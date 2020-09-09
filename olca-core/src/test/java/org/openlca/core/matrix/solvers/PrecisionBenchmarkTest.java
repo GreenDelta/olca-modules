@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.julia.JuliaSolver;
 
 public class PrecisionBenchmarkTest {
 
@@ -24,7 +25,7 @@ public class PrecisionBenchmarkTest {
 		System.out.println("\nRun benchmark for double precision");
 		System.out.println("Matrix size \t Time (ms) \t DiagSum \t Success");
 		for (int i = STEP; i <= MAX_SIZE; i += STEP) {
-			runAndLog(i, new DenseSolver());
+			runAndLog(i, new JuliaSolver());
 		}
 	}
 

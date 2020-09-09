@@ -46,12 +46,64 @@ public class JavaSolver implements IMatrixSolver {
 		return new JavaMatrix(c);
 	}
 
-	private RealMatrix unwrap(IMatrix m) {
+	private static RealMatrix unwrap(IMatrix m) {
 		if (m instanceof JavaMatrix)
 			return ((JavaMatrix) m).getRealMatrix();
 		var rm = new Array2DRowRealMatrix(
 				m.rows(), m.columns());
 		m.iterate(rm::setEntry);
 		return rm;
+	}
+
+	@Override
+	public Factorization factorize(IMatrix matrix) {
+		return LU.of(matrix);
+	}
+
+	private static class LU implements Factorization {
+
+		private final int n;
+		private final LUDecomposition lu;
+		private boolean disposed;
+
+		LU(int n, LUDecomposition lu) {
+			this.n = n;
+			this.lu = lu;
+		}
+
+		static LU of (IMatrix matrix) {
+			var m = unwrap(matrix);
+			var lu = new LUDecomposition(m);
+			return new LU(matrix.rows(), lu);
+		}
+
+		@Override
+		public int size() {
+			return n;
+		}
+
+		@Override
+		public double[] solve(double[] b) {
+			var vec = new ArrayRealVector(b);
+			var x = lu.getSolver().solve(vec);
+			return x.toArray();
+		}
+
+		@Override
+		public IMatrix solve(IMatrix b) {
+			var _b = unwrap(b);
+			var x = lu.getSolver().solve(_b);
+			return new JavaMatrix(x);
+		}
+
+		@Override
+		public void dispose() {
+			disposed = true;
+		}
+
+		@Override
+		public boolean isDisposed() {
+			return disposed;
+		}
 	}
 }

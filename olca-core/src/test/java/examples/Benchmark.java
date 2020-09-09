@@ -12,12 +12,11 @@ import org.openlca.core.math.DataStructures;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.solvers.DenseSolver;
-import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.FullResult;
 import org.openlca.eigen.NativeLibrary;
+import org.openlca.julia.JuliaSolver;
 
 public class Benchmark {
 
@@ -26,9 +25,8 @@ public class Benchmark {
 			return;
 		String tempDirPath = System.getProperty("java.io.tmpdir");
 		File tmpDir = new File(tempDirPath);
-		NativeLibrary.loadFromDir(tmpDir);
-
-		IMatrixSolver solver = new DenseSolver();
+		// TODO: load Julia libraries first here
+		var solver = new JuliaSolver();
 
 		int runs = 1;
 		// IDatabase db = new

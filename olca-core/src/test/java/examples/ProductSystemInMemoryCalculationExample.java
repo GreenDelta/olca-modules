@@ -12,14 +12,13 @@ import org.openlca.core.matrix.LinkingConfig;
 import org.openlca.core.matrix.LinkingConfig.DefaultProviders;
 import org.openlca.core.matrix.ProductSystemBuilder;
 import org.openlca.core.matrix.cache.MatrixCache;
-import org.openlca.core.matrix.solvers.DenseSolver;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.results.SimpleResult;
-import org.openlca.eigen.NativeLibrary;
+import org.openlca.julia.JuliaSolver;
 
 /*
  * This example shows how you can create and calculate a
@@ -53,9 +52,9 @@ public class ProductSystemInMemoryCalculationExample {
 		setup.impactMethod = method;
 
 		// load the native library and calculate the result
-		NativeLibrary.loadFromDir(new File(workspace));
-		SystemCalculator calc = new SystemCalculator(
-				db, new DenseSolver());
+		// TODO: load Julia libraries first here
+		var solver = new JuliaSolver();
+		SystemCalculator calc = new SystemCalculator(db, solver);
 		SimpleResult r = calc.calculateSimple(setup);
 
 		// print the LCIA results

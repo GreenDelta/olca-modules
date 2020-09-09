@@ -3,7 +3,6 @@ package org.openlca.io.xls;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.Writer;
-import java.util.Collections;
 import java.util.HashMap;
 
 import org.openlca.core.database.EntityCache;
@@ -52,8 +51,7 @@ public class CsvMatrixExport implements Runnable {
 		CalculationSetup setup = new CalculationSetup(conf.productSystem);
 		setup.parameterRedefs.addAll(conf.productSystem.parameterRedefs);
 		setup.allocationMethod = AllocationMethod.NONE;
-		MatrixData data = DataStructures.matrixData(
-				setup, conf.db, Collections.emptyMap());
+		MatrixData data = DataStructures.matrixData(conf.db, setup);
 
 		log.trace("Write technology matrix");
 		try (FileWriter writer = new FileWriter(conf.technologyFile);

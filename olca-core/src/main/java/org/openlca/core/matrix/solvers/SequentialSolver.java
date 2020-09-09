@@ -3,7 +3,11 @@ package org.openlca.core.matrix.solvers;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.IMatrix;
 
-public class SequentialSolver implements IMatrixSolver {
+/**
+ * @deprecated This solver should not be used anymore and will be removed.
+ */
+@Deprecated
+public class SequentialSolver {
 
 	private final double cutoff;
 	private final int maxIterations;
@@ -26,7 +30,6 @@ public class SequentialSolver implements IMatrixSolver {
 		this.breakIteration = iteration;
 	}
 
-	@Override
 	public double[] solve(IMatrix a, int index, double demand) {
 		double[] s = new double[a.rows()];
 		iterations = new int[s.length];
@@ -60,13 +63,11 @@ public class SequentialSolver implements IMatrixSolver {
 		}
 	}
 
-	@Override
 	public IMatrix invert(IMatrix a) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public IMatrix matrix(int rows, int columns) {
 		return new HashPointMatrix(rows, columns);
 	}

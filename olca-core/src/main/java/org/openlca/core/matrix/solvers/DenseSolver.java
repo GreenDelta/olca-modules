@@ -8,15 +8,17 @@ import org.openlca.eigen.Lapack;
 
 /**
  * A double precision solver that uses dense matrices and calls the respective
+ *
+ * @deprecated The JuliaSolver should be used now (and may gets a different name)
+ * instead of this solver. This solver and its dependencies will be removed.
  */
-public class DenseSolver implements IMatrixSolver {
+@Deprecated
+public class DenseSolver {
 
-	@Override
 	public IMatrix matrix(int rows, int columns) {
 		return new DenseMatrix(rows, columns);
 	}
 
-	@Override
 	public double[] solve(IMatrix a, int idx, double d) {
 		DenseMatrix A = MatrixConverter.dense(a);
 		DenseMatrix lu = A.copy();
@@ -26,7 +28,6 @@ public class DenseSolver implements IMatrixSolver {
 		return b;
 	}
 
-	@Override
 	public double[] multiply(IMatrix m, double[] x) {
 		DenseMatrix a = MatrixConverter.dense(m);
 		double[] y = new double[m.rows()];
@@ -34,7 +35,6 @@ public class DenseSolver implements IMatrixSolver {
 		return y;
 	}
 
-	@Override
 	public DenseMatrix invert(IMatrix a) {
 		DenseMatrix _a = MatrixConverter.dense(a);
 		DenseMatrix i = _a.copy();
@@ -42,7 +42,6 @@ public class DenseSolver implements IMatrixSolver {
 		return i;
 	}
 
-	@Override
 	public DenseMatrix multiply(IMatrix a, IMatrix b) {
 		DenseMatrix _a = MatrixConverter.dense(a);
 		DenseMatrix _b = MatrixConverter.dense(b);
