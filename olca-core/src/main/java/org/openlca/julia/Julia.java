@@ -20,7 +20,9 @@ public final class Julia {
 	private static final AtomicBoolean _loaded = new AtomicBoolean(false);
 	private static final AtomicBoolean _withUmfpack = new AtomicBoolean(false);
 
-	/** Returns true if the Julia libraries with openLCA bindings are loaded. */
+	/**
+	 * Returns true if the Julia libraries with openLCA bindings are loaded.
+	 */
 	public static boolean isLoaded() {
 		return _loaded.get();
 	}
@@ -100,7 +102,7 @@ public final class Julia {
 
 		if (os == OS.WINDOWS) {
 			if (opt == LinkOption.ALL) {
-				return new String[] {
+				return new String[]{
 						"libsuitesparseconfig.dll",
 						"libamd.dll",
 						"libcamd.dll",
@@ -116,7 +118,7 @@ public final class Julia {
 						"olcar_withumf.dll",
 				};
 			} else {
-				return new String[] {
+				return new String[]{
 						"libwinpthread-1.dll",
 						"libgcc_s_seh-1.dll",
 						"libquadmath-0.dll",
@@ -129,7 +131,7 @@ public final class Julia {
 
 		if (os == OS.LINUX) {
 			if (opt == LinkOption.ALL) {
-				return new String[] {
+				return new String[]{
 						"libgcc_s.so.1",
 						"libsuitesparseconfig.so.5",
 						"libccolamd.so.2",
@@ -144,7 +146,7 @@ public final class Julia {
 						"libolcar_withumf.so",
 				};
 			} else {
-				return new String[] {
+				return new String[]{
 						"libgcc_s.so.1",
 						"libquadmath.so.0",
 						"libgfortran.so.4",
@@ -156,7 +158,7 @@ public final class Julia {
 
 		if (os == OS.MAC) {
 			if (opt == LinkOption.ALL) {
-				return new String[] {
+				return new String[]{
 						"libgcc_s.1.dylib",
 						"libquadmath.0.dylib",
 						"libgfortran.5.dylib",
@@ -171,7 +173,7 @@ public final class Julia {
 						"libolcar_withumf.dylib",
 				};
 			} else {
-				return new String[] {
+				return new String[]{
 						"libgcc_s.1.dylib",
 						"libquadmath.0.dylib",
 						"libgfortran.5.dylib",
@@ -190,8 +192,11 @@ public final class Julia {
 	private static LinkOption linkOption(File dir) {
 		if (dir == null || !dir.exists())
 			return LinkOption.NONE;
+		var files = dir.listFiles();
+		if (files == null)
+			return LinkOption.NONE;
 		LinkOption opt = LinkOption.NONE;
-		for (File f : dir.listFiles()) {
+		for (File f : files) {
 			if (!f.isFile())
 				continue;
 			if (f.getName().contains("olcar_withumf")) {
@@ -199,7 +204,6 @@ public final class Julia {
 			}
 			if (f.getName().contains("olcar")) {
 				opt = LinkOption.BLAS;
-				continue;
 			}
 		}
 		return opt;
@@ -219,7 +223,7 @@ public final class Julia {
 	 * @param c     [out] matrix C (size = rowsA * colsB)
 	 */
 	public static native void mmult(int rowsA, int colsB, int k,
-			double[] a, double[] b, double[] c);
+									double[] a, double[] b, double[] c);
 
 	/**
 	 * Matrix-vector multiplication: y:= A * x
@@ -231,7 +235,7 @@ public final class Julia {
 	 * @param y     [out] the resulting vector y
 	 */
 	public static native void mvmult(int rowsA, int colsA,
-			double[] a, double[] x, double[] y);
+									 double[] a, double[] x, double[] y);
 
 	// LAPACK
 
@@ -277,5 +281,34 @@ public final class Julia {
 	public static native void umfDispose(long pointer);
 
 	public static native long umfSolveFactorized(
-			long pointer, double[] demand, double[] result);
+			long pointer,
+			double[] demand,
+			double[] result);
+
+
+	public static native long createDenseFactorization(
+			int n,
+			double[] matrix);
+
+	public static native void solveDenseFactorization(
+			long factorization,
+			int columns,
+			double[] b);
+
+	public static native void destroyDenseFactorization(
+			long factorization);
+
+	public static native long createSparseFactorization(
+			int n,
+			int[] columnPointers,
+			int[] rowIndices,
+			double[] values);
+
+	public static native void solveSparseFactorization(
+			long factorization,
+			double[] b,
+			double[] x);
+
+	public static native void destroySparseFactorization(
+			long factorization);
 }

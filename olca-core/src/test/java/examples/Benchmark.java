@@ -3,7 +3,6 @@ package examples;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
-import java.util.Collections;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
@@ -13,12 +12,11 @@ import org.openlca.core.math.DataStructures;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.solvers.DenseSolver;
-import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.FullResult;
 import org.openlca.eigen.NativeLibrary;
+import org.openlca.julia.JuliaSolver;
 
 public class Benchmark {
 
@@ -27,9 +25,8 @@ public class Benchmark {
 			return;
 		String tempDirPath = System.getProperty("java.io.tmpdir");
 		File tmpDir = new File(tempDirPath);
-		NativeLibrary.loadFromDir(tmpDir);
-
-		IMatrixSolver solver = new DenseSolver();
+		// TODO: load Julia libraries first here
+		var solver = new JuliaSolver();
 
 		int runs = 1;
 		// IDatabase db = new
@@ -40,8 +37,7 @@ public class Benchmark {
 		ProductSystem system = new ProductSystemDao(db).getForId(654886);
 		CalculationSetup setup = new CalculationSetup(system);
 		setup.allocationMethod = AllocationMethod.USE_DEFAULT;
-		MatrixData data = DataStructures.matrixData(
-				setup, db, Collections.emptyMap());
+		MatrixData data = DataStructures.matrixData(db, setup);
 		LcaCalculator calculator = new LcaCalculator(solver, data);
 
 		System.out.println("Inventory ready. Type enter to start!");

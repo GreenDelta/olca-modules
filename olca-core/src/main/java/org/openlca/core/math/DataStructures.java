@@ -1,5 +1,6 @@
 package org.openlca.core.math;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -96,11 +97,19 @@ public class DataStructures {
 	}
 
 	/**
-	 * Create the matrix data for the calculation of the given setup.
+	 * Create the matrix data for the given calculation setup.
+	 */
+	public static MatrixData matrixData(IDatabase db, CalculationSetup setup) {
+		return matrixData(db, setup, Collections.emptyMap());
+	}
+
+	/**
+	 * Create the matrix data for the given calculation setup and sub-results.
+	 * The sub-results will be integrated into the resulting matrices.
 	 */
 	public static MatrixData matrixData(
-			CalculationSetup setup,
 			IDatabase db,
+			CalculationSetup setup,
 			Map<ProcessProduct, SimpleResult> subResults) {
 
 		var techIndex = createProductIndex(setup.productSystem, db);

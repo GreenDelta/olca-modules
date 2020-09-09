@@ -1,7 +1,6 @@
 package examples;
 
 import java.io.File;
-import java.util.Collections;
 
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.derby.DerbyDatabase;
@@ -25,8 +24,7 @@ public class LibraryCalculatorExample {
 		var system = new ProductSystemDao(db).getForRefId(
 				"6e0fcd0c-9c2b-4c7b-a432-3a26af371eb2");
 		var setup = new CalculationSetup(system);
-		var foregroundData = DataStructures.matrixData(
-				setup, db, Collections.emptyMap());
+		var foregroundData = DataStructures.matrixData(db, setup);
 
 		var calculator = new LibraryCalculator(
 				db, libDir, new JavaSolver());

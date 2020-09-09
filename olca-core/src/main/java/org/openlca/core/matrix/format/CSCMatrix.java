@@ -56,7 +56,7 @@ public class CSCMatrix implements IMatrix {
 
 		if (m instanceof CSCMatrix) {
 			// copy a CCR matrix
-			CSCMatrix csc = (CSCMatrix) m;
+			var csc = (CSCMatrix) m;
 			double[] values = Arrays.copyOf(
 					csc.values, csc.values.length);
 			int[] columnPointers = Arrays.copyOf(
@@ -65,6 +65,10 @@ public class CSCMatrix implements IMatrix {
 					csc.rowIndices, csc.rowIndices.length);
 			return new CSCMatrix(csc.rows, csc.columns,
 					values, columnPointers, rowIndices);
+		}
+
+		if (m instanceof HashPointMatrix) {
+			return ((HashPointMatrix) m).compress();
 		}
 
 		// compress another matrix format

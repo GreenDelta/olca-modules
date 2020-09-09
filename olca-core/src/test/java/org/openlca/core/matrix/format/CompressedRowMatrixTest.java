@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 public class CompressedRowMatrixTest {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	@Test
 	public void testSetAndClearEntries() {
@@ -58,17 +58,6 @@ public class CompressedRowMatrixTest {
 		CompressedRowMatrix m = new CompressedRowMatrix(n, n);
 		for (int i = 0; i < n; i++)
 			m.set(i, i, 1);
-		testIdentityMatrix(n, m);
-	}
-
-	@Test
-	public void testCompressSparseHashMatrix() {
-		int n = (int) (150 * Math.random() + 1);
-		log.trace("test a {} x {} matrix", n, n);
-		HashPointMatrix hashMatrix = new HashPointMatrix(n, n);
-		for (int i = 0; i < n; i++)
-			hashMatrix.set(i, i, 1);
-		CompressedRowMatrix m = hashMatrix.compress();
 		testIdentityMatrix(n, m);
 	}
 

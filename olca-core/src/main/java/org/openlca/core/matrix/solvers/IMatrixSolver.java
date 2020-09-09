@@ -88,4 +88,6 @@ public interface IMatrixSolver {
 		return r;
 	}
 
+	Factorization factorize(IMatrix matrix);
+
 }

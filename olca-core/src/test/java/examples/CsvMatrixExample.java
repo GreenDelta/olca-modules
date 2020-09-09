@@ -1,7 +1,6 @@
 package examples;
 
 import java.io.File;
-import java.util.Collections;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
@@ -11,11 +10,9 @@ import org.openlca.core.math.DataStructures;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.io.CsvOut;
-import org.openlca.core.matrix.solvers.DenseSolver;
-import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.FullResult;
-import org.openlca.eigen.NativeLibrary;
+import org.openlca.julia.JuliaSolver;
 
 /*
  * This example shows how to transform a product system into a set of matrices,
@@ -40,13 +37,12 @@ public class CsvMatrixExample {
 		// "207ffac9-aaa8-401d-ac90-874defd3751a");
 
 		// load the native and create the solver
-		NativeLibrary.loadFromDir(new File(workspace));
-		IMatrixSolver solver = new DenseSolver();
+		// TODO: load Julia libraries first here
+		var solver = new JuliaSolver();
 
 		// create and export the matrix data
 		File exportDir = new File("target/data");
-		MatrixData data = DataStructures.matrixData(
-				setup, db, Collections.emptyMap());
+		MatrixData data = DataStructures.matrixData(db, setup);
 		CsvOut.write(data, db, exportDir);
 
 		// calculate and export the result

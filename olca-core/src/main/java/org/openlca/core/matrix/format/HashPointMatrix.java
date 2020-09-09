@@ -1,7 +1,6 @@
 package org.openlca.core.matrix.format;
 
 import gnu.trove.impl.Constants;
-import gnu.trove.iterator.TIntDoubleIterator;
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
@@ -9,7 +8,7 @@ import gnu.trove.map.hash.TIntObjectHashMap;
  * A sparse matrix implementation that uses primitive hash maps from the Trove
  * project to store the data. Filling this matrix is fast with relatively low
  * memory consumption.
- *
+ * <p>
  * Note that you have to make sure to set the respective row and column size
  * when there are empty rows or columns.
  */
@@ -18,6 +17,11 @@ public class HashPointMatrix implements IMatrix {
 	public int rows;
 	public int cols;
 
+	/**
+	 * Data is stored in {column -> {row -> value}} format because it is then
+	 * faster to convert this matrix into the compressed column format
+	 * that is used in the math libraries.
+	 */
 	private final TIntObjectHashMap<TIntDoubleHashMap> data;
 
 	public HashPointMatrix() {
@@ -34,17 +38,18 @@ public class HashPointMatrix implements IMatrix {
 	}
 
 	public HashPointMatrix(double[][] values) {
+		this();
 		rows = values.length;
 		int cols = 1;
-		for (int row = 0; row < rows; row++)
+		for (int row = 0; row < rows; row++) {
 			cols = Math.max(cols, values[row].length);
+		}
 		this.cols = cols;
-		data = new TIntObjectHashMap<>(Constants.DEFAULT_CAPACITY,
-				Constants.DEFAULT_LOAD_FACTOR, -1);
 		for (int row = 0; row < rows; row++) {
 			double[] rowVals = values[row];
-			for (int col = 0; col < rowVals.length; col++)
+			for (int col = 0; col < rowVals.length; col++) {
 				set(row, col, rowVals[col]);
+			}
 		}
 	}
 
@@ -60,10 +65,6 @@ public class HashPointMatrix implements IMatrix {
 
 	@Override
 	public void set(int row, int col, double val) {
-		// do nothing if val = 0 *and* when there is no value to overwrite
-		if (val == 0 && !hasEntry(row, col))
-			return;
-
 		// ensure matrix size
 		if (row >= rows) {
 			rows = row + 1;
@@ -72,23 +73,20 @@ public class HashPointMatrix implements IMatrix {
 			cols = col + 1;
 		}
 
-		var rowMap = data.get(row);
-		if (rowMap == null) {
-			rowMap = new TIntDoubleHashMap(
+		var column = data.get(col);
+		if (column == null) {
+			column = new TIntDoubleHashMap(
 					Constants.DEFAULT_CAPACITY,
 					Constants.DEFAULT_LOAD_FACTOR,
 					-1,
 					0);
-			data.put(row, rowMap);
+			data.put(col, column);
 		}
-		rowMap.put(col, val);
-	}
-
-	private boolean hasEntry(int row, int col) {
-		var rowMap = data.get(row);
-		if (rowMap == null)
-			return false;
-		return rowMap.get(col) != 0;
+		if (val == 0) {
+			column.remove(row);
+		} else {
+			column.put(row, val);
+		}
 	}
 
 	public void clear() {
@@ -99,20 +97,22 @@ public class HashPointMatrix implements IMatrix {
 
 	@Override
 	public double get(int row, int col) {
-		var rowMap = data.get(row);
-		if (rowMap == null)
+		var column = data.get(col);
+		if (column == null)
 			return 0;
-		return rowMap.get(col);
+		return column.get(row);
 	}
 
 	@Override
-	public double[] getColumn(int col) {
+	public double[] getColumn(int j) {
 		double[] column = new double[rows];
-		var iter = data.iterator();
+		var m = data.get(j);
+		if (m == null)
+			return column;
+		var iter = m.iterator();
 		while (iter.hasNext()) {
 			iter.advance();
-			var row = iter.key();
-			column[row] =  iter.value().get(col);
+			column[iter.key()] = iter.value();
 		}
 		return column;
 	}
@@ -120,14 +120,14 @@ public class HashPointMatrix implements IMatrix {
 	@Override
 	public double[] getRow(int i) {
 		double[] row = new double[cols];
-		var values = data.get(i);
-		if (values == null)
-			return row;
-		var iter = values.iterator();
-		while(iter.hasNext()) {
+		var iter = data.iterator();
+		while (iter.hasNext()) {
 			iter.advance();
 			var col = iter.key();
-			row[col] = iter.value();
+			var colData = iter.value();
+			if (colData == null)
+				continue;
+			row[col] = colData.get(i);
 		}
 		return row;
 	}
@@ -143,14 +143,17 @@ public class HashPointMatrix implements IMatrix {
 
 	@Override
 	public void iterate(EntryFunction fn) {
-		var rows = data.iterator();
-		while (rows.hasNext()) {
-			rows.advance();
-			int row = rows.key();
-			var cols = rows.value().iterator();
-			while (cols.hasNext()) {
-				cols.advance();
-				fn.value(row, cols.key(), cols.value());
+		var columns = data.iterator();
+		while (columns.hasNext()) {
+			columns.advance();
+			int col = columns.key();
+			var colVals = columns.value();
+			if (colVals == null)
+				continue;
+			var iter = colVals.iterator();
+			while (iter.hasNext()) {
+				iter.advance();
+				fn.value(iter.key(), col, iter.value());
 			}
 		}
 	}
@@ -170,54 +173,66 @@ public class HashPointMatrix implements IMatrix {
 	 */
 	@Override
 	public void scaleColumns(double[] v) {
-		var rows = data.iterator();
-		while (rows.hasNext()) {
-			rows.advance();
-			var cols = rows.value().iterator();
-			while (cols.hasNext()) {
-				cols.advance();
-				int col = cols.key();
-				cols.setValue(cols.value() * v[col]);
+		var columns = data.iterator();
+		while (columns.hasNext()) {
+			columns.advance();
+			int col = columns.key();
+			var rows = columns.value();
+			if (rows == null)
+				continue;
+			var iter = rows.iterator();
+			while (iter.hasNext()) {
+				iter.advance();
+				iter.setValue(iter.value() * v[col]);
 			}
 		}
 	}
 
-	public CompressedRowMatrix compress() {
-		CompressedRowMatrix c = new CompressedRowMatrix(rows, cols);
-		int entryCount = getNumberOfEntries();
-		c.columnIndices = new int[entryCount];
-		c.values = new double[entryCount];
-		int idx = 0;
-		for (int row = 0; row < rows; row++) {
-			c.rowPointers[row] = idx;
-			TIntDoubleHashMap rowMap = data.get(row);
-			if (rowMap == null)
+	public CSCMatrix compress() {
+		int[] columnPointers = new int[cols + 1];
+		int nonZeros = getNumberOfEntries();
+		columnPointers[cols] = nonZeros;
+		int[] rowIndices = new int[nonZeros];
+		double[] values = new double[nonZeros];
+
+		int pos = 0;
+		for (int col = 0; col < cols; col++) {
+			columnPointers[col] = pos;
+			var column = data.get(col);
+			if (column == null)
 				continue;
-			TIntDoubleIterator it = rowMap.iterator();
-			while (it.hasNext()) {
-				it.advance();
-				c.columnIndices[idx] = it.key();
-				c.values[idx] = it.value();
-				idx++;
+			var iter = column.iterator();
+			while(iter.hasNext()) {
+				iter.advance();
+				rowIndices[pos] = iter.key();
+				values[pos] = iter.value();
+				pos++;
 			}
 		}
-		return c;
+
+		return new CSCMatrix(
+				rows,
+				cols,
+				values,
+				columnPointers,
+				rowIndices
+		);
 	}
 
 	public int getNumberOfEntries() {
 		int entryCount = 0;
-		for (int row = 0; row < rows; row++) {
-			TIntDoubleHashMap rowMap = data.get(row);
-			if (rowMap == null)
-				continue;
-			entryCount += rowMap.size();
+		var columns = data.iterator();
+		while(columns.hasNext()) {
+			columns.advance();
+			var column = columns.value();
+			entryCount += column.size();
 		}
 		return entryCount;
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder("HashMapMatrix = [");
+		var builder = new StringBuilder("HashPointMatrix = [");
 		int maxRows = Math.min(rows, 15);
 		int maxCols = Math.min(cols, 15);
 		for (int row = 0; row < maxRows; row++) {

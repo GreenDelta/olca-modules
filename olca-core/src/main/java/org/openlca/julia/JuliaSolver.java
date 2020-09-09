@@ -5,6 +5,7 @@ import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.format.MatrixConverter;
+import org.openlca.core.matrix.solvers.Factorization;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 
 public class JuliaSolver implements IMatrixSolver {
@@ -80,5 +81,17 @@ public class JuliaSolver implements IMatrixSolver {
 			Julia.mmult(rowsA, colsB, k, _a.data, _b.data, c.data);
 		}
 		return c;
+	}
+
+	@Override
+	public Factorization factorize(IMatrix matrix) {
+		if (matrix instanceof HashPointMatrix) {
+			var csc = ((HashPointMatrix) matrix).compress();
+			return SparseFactorization.of(csc);
+		}
+		if (matrix instanceof CSCMatrix) {
+			return SparseFactorization.of((CSCMatrix)matrix);
+		}
+		return DenseFactorization.of(matrix);
 	}
 }

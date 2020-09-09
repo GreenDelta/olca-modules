@@ -16,6 +16,12 @@ public class DenseMatrix implements IMatrix {
 		data = new double[rows * columns];
 	}
 
+	public DenseMatrix(int rows, int columns, double[] data) {
+		this.rows = rows;
+		this.columns = columns;
+		this.data = data;
+	}
+
 	@Override
 	public int rows() {
 		return rows;

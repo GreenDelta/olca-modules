@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.format.JavaMatrix;
+import org.openlca.core.matrix.solvers.Factorization;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 
 /**
@@ -73,5 +74,9 @@ public class ISolverTest {
 			return null;
 		}
 
+		@Override
+		public Factorization factorize(IMatrix matrix) {
+			return null;
+		}
 	}
 }

@@ -1,7 +1,6 @@
 package org.openlca.core.matrix.io.olcamat;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -17,10 +16,7 @@ import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
-import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.product.index.ProviderSearch;
-import org.openlca.core.matrix.solvers.DenseSolver;
-import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ProcessType;
 
@@ -33,10 +29,8 @@ public class Export implements Runnable {
 	private final CalculationSetup setup;
 	private final IDatabase db;
 	private final MatrixCache cache;
-	private final IMatrixSolver solver;
 	private final File dir;
 
-	public boolean withResults = false;
 
 	public Export(IDatabase db, File dir) {
 		this(null, db, dir);
@@ -47,7 +41,6 @@ public class Export implements Runnable {
 		this.db = db;
 		cache = MatrixCache.createEager(db);
 		this.dir = dir;
-		this.solver = new DenseSolver();
 	}
 
 	@Override
@@ -86,8 +79,7 @@ public class Export implements Runnable {
 
 	private MatrixData setupInventory() {
 		return DataStructures.matrixData(
-				setup, cache.getDatabase(),
-				Collections.emptyMap());
+				cache.getDatabase(), setup);
 	}
 
 	private void dbLinks(TechIndex idx) throws Exception {
@@ -117,11 +109,5 @@ public class Export implements Runnable {
 			throws Exception {
 		Matrices.writeDenseColumn(mat.techMatrix, new File(dir, "A.bin"));
 		Matrices.writeDenseColumn(mat.enviMatrix, new File(dir, "B.bin"));
-		if (withResults) {
-			IMatrix invA = solver.invert(mat.techMatrix);
-			Matrices.writeDenseColumn(invA, new File(dir, "Ainv.bin"));
-			IMatrix m = solver.multiply(mat.enviMatrix, invA);
-			Matrices.writeDenseColumn(m, new File(dir, "M.bin"));
-		}
 	}
 }

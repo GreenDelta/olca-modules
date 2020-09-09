@@ -9,12 +9,11 @@ import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.IndexFlow;
-import org.openlca.core.matrix.solvers.DenseSolver;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.results.FullResult;
-import org.openlca.eigen.NativeLibrary;
+import org.openlca.julia.JuliaSolver;
 
 public class CalculationExample {
 
@@ -29,9 +28,11 @@ public class CalculationExample {
 		CalculationSetup setup = new CalculationSetup(system);
 		setup.impactMethod = method;
 
-		NativeLibrary.loadFromDir(
-				new File("C:/Users/ms/openLCA-data-1.4"));
-		SystemCalculator calc = new SystemCalculator(db, new DenseSolver());
+
+		// TODO: load Julia libraries first here
+		var solver = new JuliaSolver();
+
+		SystemCalculator calc = new SystemCalculator(db, solver);
 		FullResult r = calc.calculateFull(setup);
 		IndexFlow f = r.flowIndex.at(0);
 		System.out.println(f.flow.name + "  -> " + r.getTotalFlowResult(f));

@@ -14,6 +14,7 @@ import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.SimpleResult;
+import org.openlca.julia.JuliaSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +28,7 @@ public class SolverTest {
 	private Logger log = LoggerFactory.getLogger(SolverTest.class);
 
 	@DataPoint
-	public static IMatrixSolver denseSolver = new DenseSolver();
+	public static IMatrixSolver denseSolver = new JuliaSolver();
 
 	@DataPoint
 	public static IMatrixSolver javaSolver = new JavaSolver();

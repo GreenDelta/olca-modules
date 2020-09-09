@@ -104,7 +104,7 @@ public class SystemCalculator {
 			data = new FastMatrixBuilder(db, setup).build();
 		} else {
 			var subs = calculateSubSystems(setup);
-			data = DataStructures.matrixData(setup, db, subs);
+			data = DataStructures.matrixData(db, setup, subs);
 		}
 		return new LcaCalculator(solver, data);
 	}

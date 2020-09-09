@@ -5,10 +5,8 @@ import java.io.IOException;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.derby.DerbyDatabase;
-import org.openlca.core.matrix.solvers.DenseSolver;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.matrix.solvers.JavaSolver;
-import org.openlca.eigen.NativeLibrary;
 import org.openlca.julia.Julia;
 import org.openlca.julia.JuliaSolver;
 import org.slf4j.Logger;
@@ -106,11 +104,6 @@ public class Main {
 					&& Julia.isLoaded()) {
 				log.info("Loaded Julia libraries and solver");
 				return new JuliaSolver();
-			}
-			NativeLibrary.loadFromDir(libDir);
-			if (NativeLibrary.isLoaded()) {
-				log.info("Loaded olca-eigen library and solver");
-				return new DenseSolver();
 			}
 			log.warn("Could not load a native library; use plain Java solver" +
 					"; this can be very slow");

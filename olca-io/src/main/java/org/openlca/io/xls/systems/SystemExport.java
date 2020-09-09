@@ -44,8 +44,7 @@ public class SystemExport {
 		setup.parameterRedefs.addAll(conf.system.parameterRedefs);
 		setup.allocationMethod = conf.allocationMethod;
 		setup.impactMethod = conf.impactMethod;
-		data = DataStructures.matrixData(
-				setup, conf.database, Collections.emptyMap());
+		data = DataStructures.matrixData(conf.database, setup);
 
 		File subDir = new File(dir, conf.system.name.trim());
 		if (!subDir.exists())
@@ -89,7 +88,7 @@ public class SystemExport {
 		Sheet sheet = workbook.createSheet("General information");
 		Excel.trackSize(sheet, 0, 1);
 		boolean allocated = allocationMethod != null;
-		String subTitle = allocated 
+		String subTitle = allocated
 				? TITLES.ELEMENTARY_ALLOCATED
 				: TITLES.ELEMENTARY;
 		int row = 0;
@@ -137,8 +136,8 @@ public class SystemExport {
 		Sheet sheet = workbook.createSheet("General information");
 		Excel.trackSize(sheet, 0, 1);
 		boolean allocated = allocationMethod != null;
-		String subTitle = allocated 
-				? TITLES.PRODUCT_ALLOCATED 
+		String subTitle = allocated
+				? TITLES.PRODUCT_ALLOCATED
 				: TITLES.PRODUCT;
 
 		int row = 0;
