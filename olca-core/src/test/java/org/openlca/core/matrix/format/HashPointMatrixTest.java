@@ -69,4 +69,37 @@ public class HashPointMatrixTest {
 			}
 		});
 	}
+
+	@Test
+	public void testDrop() {
+		var m = new HashPointMatrix();
+
+		// set zeros
+		for (int i = 0; i < 100; i++) {
+			for (int j = 0; j < 100; j++) {
+				m.set(i, j, 0.0);
+			}
+		}
+		assertEquals(0, m.getNumberOfEntries());
+		assertEquals(100, m.columns());
+		assertEquals(100, m.rows());
+
+		// set ones
+		for (int i = 0; i < 100; i++) {
+			for (int j = 0; j < 100; j++) {
+				m.set(i, j, 1.0);
+			}
+		}
+		assertEquals(100*100, m.getNumberOfEntries());
+
+		// set zeros
+		for (int i = 0; i < 100; i++) {
+			for (int j = 0; j < 100; j++) {
+				m.set(i, j, 0.0);
+			}
+		}
+		assertEquals(0, m.getNumberOfEntries());
+		assertEquals(100, m.columns());
+		assertEquals(100, m.rows());
+	}
 }

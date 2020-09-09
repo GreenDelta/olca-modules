@@ -60,10 +60,6 @@ public class HashPointMatrix implements IMatrix {
 
 	@Override
 	public void set(int row, int col, double val) {
-		// do nothing if val = 0 *and* when there is no value to overwrite
-		if (val == 0 && !hasEntry(row, col))
-			return;
-
 		// ensure matrix size
 		if (row >= rows) {
 			rows = row + 1;
@@ -81,14 +77,11 @@ public class HashPointMatrix implements IMatrix {
 					0);
 			data.put(row, rowMap);
 		}
-		rowMap.put(col, val);
-	}
-
-	private boolean hasEntry(int row, int col) {
-		var rowMap = data.get(row);
-		if (rowMap == null)
-			return false;
-		return rowMap.get(col) != 0;
+		if (val == 0) {
+			rowMap.remove(col);
+		} else {
+			rowMap.put(col, val);
+		}
 	}
 
 	public void clear() {
