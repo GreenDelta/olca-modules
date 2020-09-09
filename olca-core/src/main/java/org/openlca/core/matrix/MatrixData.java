@@ -91,4 +91,16 @@ public class MatrixData {
 		return techMatrix instanceof HashPointMatrix
 			|| techMatrix instanceof CSCMatrix;
 	}
+
+	public void compress() {
+		if (techMatrix instanceof HashPointMatrix) {
+			techMatrix = CSCMatrix.of(techMatrix);
+		}
+		if (enviMatrix instanceof HashPointMatrix) {
+			enviMatrix = CSCMatrix.of(enviMatrix);
+		}
+		if (impactMatrix instanceof HashPointMatrix) {
+			impactMatrix = CSCMatrix.of(impactMatrix);
+		}
+	}
 }

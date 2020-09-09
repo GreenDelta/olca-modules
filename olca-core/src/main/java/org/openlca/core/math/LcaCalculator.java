@@ -24,6 +24,7 @@ public class LcaCalculator {
 	public LcaCalculator(IMatrixSolver solver, MatrixData data) {
 		this.solver = solver;
 		this.data = data;
+		this.data.compress();
 	}
 
 	public SimpleResult calculateSimple() {
@@ -92,7 +93,6 @@ public class LcaCalculator {
 		result.solutions = data.isSparse()
 				? LazySolutionProvider.create(data, solver)
 				: DenseSolutionProvider.create(data, solver);
-
 
 		IMatrix techMatrix = data.techMatrix;
 		IMatrix enviMatrix = data.enviMatrix;

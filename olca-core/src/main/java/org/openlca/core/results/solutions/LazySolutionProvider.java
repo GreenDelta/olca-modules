@@ -1,6 +1,7 @@
 package org.openlca.core.results.solutions;
 
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.solvers.Factorization;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -9,6 +10,7 @@ public class LazySolutionProvider implements SolutionProvider {
 
 	private final MatrixData data;
 	private final IMatrixSolver solver;
+	private final Factorization factorization;
 
 	private final double[] scalingVector;
 	private final double[] totalFlows;
@@ -22,6 +24,8 @@ public class LazySolutionProvider implements SolutionProvider {
 	private LazySolutionProvider(MatrixData data, IMatrixSolver solver) {
 		this.data = data;
 		this.solver = solver;
+		this.factorization = solver.factorize(data.techMatrix);
+
 		solutions = new TIntObjectHashMap<>();
 		intensities = data.enviMatrix == null
 				? null
@@ -88,7 +92,7 @@ public class LazySolutionProvider implements SolutionProvider {
 		var s = solutions.get(product);
 		if (s != null)
 			return s;
-		s = solver.solve(data.techMatrix, product, 1.0);
+		s = factorization.solve(product, 1.0);
 		solutions.put(product, s);
 		return s;
 	}
