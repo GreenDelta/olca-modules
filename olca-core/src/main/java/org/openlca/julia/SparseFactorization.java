@@ -1,8 +1,9 @@
 package org.openlca.julia;
 
 import org.openlca.core.matrix.format.CSCMatrix;
+import org.openlca.core.matrix.solvers.Factorization;
 
-public class SparseFactorization {
+public class SparseFactorization implements Factorization {
 
 	private final int n;
 	private final long pointer;
@@ -22,29 +23,28 @@ public class SparseFactorization {
 		return new SparseFactorization(matrix.rows, pointer);
 	}
 
-	public double[] solve(int idx, double d) {
-		double[] b = new double[n];
-		b[idx] = d;
-		double[] x = new double[n];
-		Julia.solveSparseFactorization(pointer, b, x);
-		return x;
+	@Override
+	public int size() {
+		return n;
 	}
 
+	@Override
 	public double[] solve(double[] b) {
 		var x = new double[n];
 		Julia.solveSparseFactorization(pointer, b, x);
 		return x;
 	}
 
+	@Override
 	public boolean isDisposed() {
 		return isDisposed;
 	}
 
+	@Override
 	public void dispose() {
 		if (isDisposed)
 			return;
 		Julia.destroySparseFactorization(pointer);
 		isDisposed = true;
 	}
-
 }

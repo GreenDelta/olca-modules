@@ -5,8 +5,9 @@ import java.util.Arrays;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.format.MatrixConverter;
+import org.openlca.core.matrix.solvers.Factorization;
 
-public class DenseFactorization {
+public class DenseFactorization implements Factorization {
 
 	private final int n;
 	private final long pointer;
@@ -25,6 +26,12 @@ public class DenseFactorization {
 		return new DenseFactorization(n, pointer);
 	}
 
+	@Override
+	public int size() {
+		return n;
+	}
+
+	@Override
 	public double[] solve(int idx, double d) {
 		double[] b = new double[n];
 		b[idx] = d;
@@ -32,12 +39,14 @@ public class DenseFactorization {
 		return b;
 	}
 
+	@Override
 	public double[] solve(double[] b) {
 		var x = Arrays.copyOf(b, b.length);
 		Julia.solveDenseFactorization(pointer, 1, x);
 		return x;
 	}
 
+	@Override
 	public IMatrix solve(IMatrix b) {
 		double[] x;
 		if (b instanceof DenseMatrix) {
@@ -50,10 +59,12 @@ public class DenseFactorization {
 		return new DenseMatrix(n, b.columns(), x);
 	}
 
+	@Override
 	public boolean isDisposed() {
 		return isDisposed;
 	}
 
+	@Override
 	public void dispose() {
 		if (isDisposed)
 			return;
