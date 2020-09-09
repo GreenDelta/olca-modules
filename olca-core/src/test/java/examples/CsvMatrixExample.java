@@ -1,7 +1,6 @@
 package examples;
 
 import java.io.File;
-import java.util.Collections;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
@@ -45,8 +44,7 @@ public class CsvMatrixExample {
 
 		// create and export the matrix data
 		File exportDir = new File("target/data");
-		MatrixData data = DataStructures.matrixData(
-				setup, db, Collections.emptyMap());
+		MatrixData data = DataStructures.matrixData(db, setup);
 		CsvOut.write(data, db, exportDir);
 
 		// calculate and export the result

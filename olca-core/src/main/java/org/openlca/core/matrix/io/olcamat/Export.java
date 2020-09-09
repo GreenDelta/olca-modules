@@ -1,7 +1,6 @@
 package org.openlca.core.matrix.io.olcamat;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -86,8 +85,7 @@ public class Export implements Runnable {
 
 	private MatrixData setupInventory() {
 		return DataStructures.matrixData(
-				setup, cache.getDatabase(),
-				Collections.emptyMap());
+				cache.getDatabase(), setup);
 	}
 
 	private void dbLinks(TechIndex idx) throws Exception {

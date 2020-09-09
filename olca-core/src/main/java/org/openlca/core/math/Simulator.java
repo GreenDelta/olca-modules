@@ -387,7 +387,7 @@ public class Simulator {
 			systemID = setup.productSystem.id;
 			product = ProcessProduct.of(setup.productSystem);
 			data = DataStructures.matrixData(
-					setup, db, subResults);
+					db, setup, subResults);
 
 			// parameters
 			HashSet<Long> paramContexts = new HashSet<>();

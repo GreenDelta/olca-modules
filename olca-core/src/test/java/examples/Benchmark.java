@@ -3,7 +3,6 @@ package examples;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
-import java.util.Collections;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
@@ -40,8 +39,7 @@ public class Benchmark {
 		ProductSystem system = new ProductSystemDao(db).getForId(654886);
 		CalculationSetup setup = new CalculationSetup(system);
 		setup.allocationMethod = AllocationMethod.USE_DEFAULT;
-		MatrixData data = DataStructures.matrixData(
-				setup, db, Collections.emptyMap());
+		MatrixData data = DataStructures.matrixData(db, setup);
 		LcaCalculator calculator = new LcaCalculator(solver, data);
 
 		System.out.println("Inventory ready. Type enter to start!");
