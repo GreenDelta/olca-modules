@@ -1,36 +1,37 @@
 package org.openlca.core.results.solutions;
 
+import java.util.ArrayDeque;
 import java.util.HashMap;
+import java.util.Objects;
 
+import gnu.trove.map.hash.TIntObjectHashMap;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.LibraryDir;
+import org.openlca.core.library.LibraryMatrix;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.util.Pair;
 
 public class LibrarySolutionProvider implements SolutionProvider {
 
 	private final IDatabase db;
 	private final LibraryDir libDir;
 	private final IMatrixSolver solver;
+
 	private final MatrixData foregroundData;
+	private final SolutionProvider foregroundSolutions;
+
+	// cached results
 	private final MatrixData fullData;
+	private final TIntObjectHashMap<double[]> solutions;
 
-	/**
-	 * Contains the loaded libraries: library ID -> library.
-	 */
+	// library maps: libID -> T
 	private final HashMap<String, Library> libraries = new HashMap<>();
-
-	/**
-	 * The product indices for the loaded libraries.
-	 */
 	private final HashMap<String, TechIndex> libTechIndices = new HashMap<>();
-
-	/**
-	 * The elem. flow indices of the loaded libraries.
-	 */
 	private final HashMap<String, FlowIndex> libFlowIndices = new HashMap<>();
 
 	private LibrarySolutionProvider(
@@ -42,7 +43,11 @@ public class LibrarySolutionProvider implements SolutionProvider {
 		this.libDir = libDir;
 		this.solver = solver;
 		this.foregroundData = foregroundData;
+		this.foregroundSolutions = DenseSolutionProvider.create(
+				foregroundData, solver);
+
 		this.fullData = new MatrixData();
+		this.solutions = new TIntObjectHashMap<>();
 	}
 
 	public static LibrarySolutionProvider of (
@@ -110,7 +115,76 @@ public class LibrarySolutionProvider implements SolutionProvider {
 
 	@Override
 	public double[] solutionOfOne(int product) {
-		return new double[0];
+		var solution = solutions.get(product);
+		if (solution != null)
+			return solution;
+
+		var techIndex = fullData.techIndex;
+		solution = new double[techIndex.size()];
+
+		// initialize a queue that is used for adding scaled
+		// sub-solutions of libraries recursively
+		var queue = new ArrayDeque<Pair<ProcessProduct, Double>>();
+		var start = fullData.techIndex.getProviderAt(product);
+		if (start.getLibrary().isPresent()) {
+			// start process is a library process
+			queue.push(Pair.of(start, 1.0));
+		} else {
+			// start process is a foreground process
+			// we copy the values of the solution of
+			// the foreground system or initialize
+			// the entries of the queue with the scaled
+			// library links
+			var idxF = foregroundData.techIndex;
+			var pf = idxF.getIndex(start);
+			var sf = foregroundSolutions.solutionOfOne(pf);
+			for (int i = 0; i < sf.length; i++) {
+				var value = sf[i];
+				if (value == 0)
+					continue;
+				var provider = idxF.getProviderAt(i);
+				if (provider.getLibrary().isPresent()) {
+					queue.push(Pair.of(provider, value));
+				} else {
+					int index = techIndex.getIndex(provider);
+					solution[index] = value;
+				}
+			}
+		}
+
+		// recursively add library solutions
+		while (!queue.isEmpty()) {
+			var pair = queue.pop();
+			var p = pair.first;
+			double factor = pair.second;
+			var libID = p.getLibrary().orElseThrow();
+			var lib = libraries.get(libID);
+			var libIndex = libTechIndices.get(libID);
+			if (lib == null || libIndex == null)
+				continue;
+			int column = libIndex.getIndex(p);
+			var libSolution = lib.getColumn(
+					LibraryMatrix.INV, column)
+					.orElse(null);
+			if (libSolution == null)
+				continue;
+			for (int i = 0; i < libSolution.length; i++) {
+				var value = libSolution[i];
+				if (value == 0)
+					continue;
+				var provider = libIndex.getProviderAt(i);
+				var subLibID = provider.getLibrary().orElse(null);
+				if (Objects.equals(libID, subLibID)) {
+					int index = techIndex.getIndex(provider);
+					solution[index] += factor * value;
+				} else {
+					queue.push(Pair.of(provider, factor * value));
+				}
+			}
+		}
+
+		solutions.put(product, solution);
+		return solution;
 	}
 
 	@Override
