@@ -1,6 +1,7 @@
 package org.openlca.core.results.solutions;
 
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -28,6 +29,7 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	// cached results
 	private final MatrixData fullData;
 	private final TIntObjectHashMap<double[]> solutions;
+	private double[] scalingVector;
 
 	// library maps: libID -> T
 	private final HashMap<String, Library> libraries = new HashMap<>();
@@ -50,7 +52,7 @@ public class LibrarySolutionProvider implements SolutionProvider {
 		this.solutions = new TIntObjectHashMap<>();
 	}
 
-	public static LibrarySolutionProvider of (
+	public static LibrarySolutionProvider of(
 			IDatabase db,
 			LibraryDir libDir,
 			IMatrixSolver solver,
@@ -59,6 +61,16 @@ public class LibrarySolutionProvider implements SolutionProvider {
 		var provider = new LibrarySolutionProvider(
 				db, libDir, solver, foregroundData);
 		provider.initTechIndex();
+
+		// calculate the scaling vector
+		var s = provider.solutionOfOne(0);
+		var scalingVector = Arrays.copyOf(s, s.length);
+		var demand = provider.fullData.techIndex.getDemand();
+		for (int i = 0; i < scalingVector.length; i++) {
+			scalingVector[i] *= demand;
+		}
+		provider.scalingVector = scalingVector;
+
 		return provider;
 	}
 
@@ -95,7 +107,7 @@ public class LibrarySolutionProvider implements SolutionProvider {
 
 	@Override
 	public double[] scalingVector() {
-		return new double[0];
+		return scalingVector;
 	}
 
 	@Override
