@@ -1,30 +1,32 @@
 package org.openlca.core.results.solutions;
 
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 
 public class DenseSolutionProvider implements SolutionProvider {
+
+	private final MatrixData data;
 
 	private double[] scalingVector;
 	private double[] totalFlows;
 	private double[] totalImpacts;
 	private double totalCosts;
 
-	private IMatrix techMatrix;
 	private IMatrix inverse;
 	private IMatrix flowIntensities;
 	private IMatrix impactIntensities;
 	private double[] costIntensities;
 
-	private DenseSolutionProvider() {
+	private DenseSolutionProvider(MatrixData data) {
+		this.data = data;
 	}
 
 	public static DenseSolutionProvider create(
 			MatrixData data,
 			IMatrixSolver solver) {
-		var provider = new DenseSolutionProvider();
-		provider.techMatrix = data.techMatrix;
+		var provider = new DenseSolutionProvider(data);
 
 		// the inverse of A: inv(A)
 		provider.inverse = solver.invert(data.techMatrix);
@@ -78,24 +80,23 @@ public class DenseSolutionProvider implements SolutionProvider {
 	}
 
 	@Override
+	public TechIndex techIndex() {
+		return data.techIndex;
+	}
+
+	@Override
 	public double[] scalingVector() {
 		return scalingVector;
 	}
 
 	@Override
 	public double[] columnOfA(int product) {
-		return techMatrix.getColumn(product);
+		return data.techMatrix.getColumn(product);
 	}
 
 	@Override
 	public double valueOfA(int row, int col) {
-		return techMatrix.get(row, col);
-	}
-
-	@Override
-	public double scaledValueOfA(int row, int col) {
-		var s = scalingVector[col];
-		return s * techMatrix.get(row, col);
+		return data.techMatrix.get(row, col);
 	}
 
 	@Override
@@ -174,7 +175,7 @@ public class DenseSolutionProvider implements SolutionProvider {
 
 	@Override
 	public double loopFactorOf(int i) {
-		var aii = techMatrix.get(i, i);
+		var aii = data.techMatrix.get(i, i);
 		var ii = inverse.get(i, i);
 		var f = aii * ii;
 		return f == 0

@@ -1,14 +1,34 @@
 package org.openlca.core.results.solutions;
 
+import org.openlca.core.matrix.TechIndex;
+
 public interface SolutionProvider {
 
+	/**
+	 * Get the scaling vector $s$ of the overall solution.
+	 */
 	double[] scalingVector();
 
-	double[] columnOfA(int product);
+	/**
+	 * Get the technology index of the solution.
+	 */
+	TechIndex techIndex();
 
-	double valueOfA(int row, int col);
+	/**
+	 * Get the unscaled column with the given index from the technology matrix A.
+	 */
+	double[] columnOfA(int index);
 
-	double scaledValueOfA(int row, int col);
+	default double valueOfA(int row, int col) {
+		double[] column = columnOfA(col);
+		return column[row];
+	}
+
+	default double scaledValueOfA(int row, int col) {
+		var s = scalingVector();
+		var aij = valueOfA(row, col);
+		return s[col] * aij;
+	}
 
 	/**
 	 * Get the scaling vector of the product system for one unit of output (input)

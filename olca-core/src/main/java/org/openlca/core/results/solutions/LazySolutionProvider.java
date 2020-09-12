@@ -1,6 +1,7 @@
 package org.openlca.core.results.solutions;
 
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.solvers.Factorization;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 
@@ -67,6 +68,11 @@ public class LazySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
+	public TechIndex techIndex() {
+		return data.techIndex;
+	}
+
+	@Override
 	public double[] scalingVector() {
 		return scalingVector;
 	}
@@ -79,12 +85,6 @@ public class LazySolutionProvider implements SolutionProvider {
 	@Override
 	public double valueOfA(int row, int col) {
 		return data.techMatrix.get(row, col);
-	}
-
-	@Override
-	public double scaledValueOfA(int row, int col) {
-		var s = scalingVector[col];
-		return s * data.techMatrix.get(row, col);
 	}
 
 	@Override

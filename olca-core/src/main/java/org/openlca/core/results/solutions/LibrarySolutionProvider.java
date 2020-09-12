@@ -3,7 +3,6 @@ package org.openlca.core.results.solutions;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Objects;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -31,6 +30,7 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	// cached results
 	private final MatrixData fullData;
 	private final TIntObjectHashMap<double[]> solutions;
+	private final TIntObjectHashMap<double[]> columnsOfA;
 	private double[] scalingVector;
 
 	// library maps: libID -> T
@@ -52,6 +52,7 @@ public class LibrarySolutionProvider implements SolutionProvider {
 
 		this.fullData = new MatrixData();
 		this.solutions = new TIntObjectHashMap<>();
+		this.columnsOfA = new TIntObjectHashMap<>();
 	}
 
 	public static LibrarySolutionProvider of(
@@ -122,23 +123,25 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
+	public TechIndex techIndex() {
+		return fullData.techIndex;
+	}
+
+	@Override
 	public double[] scalingVector() {
 		return scalingVector;
 	}
 
 	@Override
 	public double[] columnOfA(int product) {
+
 		return new double[0];
 	}
 
 	@Override
 	public double valueOfA(int row, int col) {
-		return 0;
-	}
-
-	@Override
-	public double scaledValueOfA(int row, int col) {
-		return 0;
+		var column = columnOfA(col);
+		return column[row];
 	}
 
 	@Override
