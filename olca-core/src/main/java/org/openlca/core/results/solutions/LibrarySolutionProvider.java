@@ -3,6 +3,7 @@ package org.openlca.core.results.solutions;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Objects;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -15,6 +16,7 @@ import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.util.Exceptions;
 import org.openlca.util.Pair;
 
 public class LibrarySolutionProvider implements SolutionProvider {
@@ -74,33 +76,47 @@ public class LibrarySolutionProvider implements SolutionProvider {
 		return provider;
 	}
 
+	/**
+	 * Creates the combined tech. index. It recursively loads the tech.
+	 * indices of the linked libraries first (recursively, because a
+	 * library can link another library. Then it creates a combined
+	 * index where the first part of that index is identical to the
+	 * tech. index of the foreground system.
+	 */
 	private void initTechIndex() {
 
+		// initialize the combined index with the index
+		// of the foreground system indexF
 		var indexF = foregroundData.techIndex;
 		var index = new TechIndex(indexF.getRefFlow());
 		index.setDemand(indexF.getDemand());
-
+		var libs = new ArrayDeque<String>();
 		indexF.each((pos, product) -> {
-			var lib = product.getLibrary();
-			if (lib.isEmpty()) {
-				index.put(product);
-			} else {
-				libraries.computeIfAbsent(lib.get(),
-						libID -> libDir.get(libID).orElseThrow(
-								() -> new RuntimeException(
-										"Could not load library " + libID)));
-
-			}
+			index.put(product);
+			product.getLibrary().ifPresent(libs::add);
 		});
 
-		libraries.keySet().forEach(libID -> {
-			var lib = libraries.get(libID);
-			var libIndex = lib.syncProducts(db).orElseThrow(
+		// recursively add the indices of the used libraries
+		while (!libs.isEmpty()) {
+			var libID = libs.poll();
+			var lib = libDir.get(libID).orElseThrow(
+					() -> new RuntimeException(
+							"Failed to load library: " + libID));
+			libraries.put(libID, lib);
+			var indexB = lib.syncProducts(db).orElseThrow(
 					() -> new RuntimeException(
 							"Could not load product index of " + libID));
-			libTechIndices.put(libID, libIndex);
-			libIndex.each((_pos, product) -> index.put(product));
-		});
+			indexB.each((_pos, product) -> {
+				index.put(product);
+				var nextLibID = product.getLibrary().orElse(null);
+				if (nextLibID == null
+						|| libID.equals(nextLibID)
+						|| libraries.containsKey(nextLibID)
+						|| libs.contains(nextLibID))
+					return;
+				libs.add(nextLibID);
+			});
+		}
 
 		fullData.techIndex = index;
 	}
