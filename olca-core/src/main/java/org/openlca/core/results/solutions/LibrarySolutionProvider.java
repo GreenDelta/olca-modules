@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 
+import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.Library;
@@ -51,8 +52,14 @@ public class LibrarySolutionProvider implements SolutionProvider {
 				foregroundData, solver);
 
 		this.fullData = new MatrixData();
-		this.solutions = new TIntObjectHashMap<>();
-		this.columnsOfA = new TIntObjectHashMap<>();
+		this.solutions = new TIntObjectHashMap<>(
+				Constants.DEFAULT_CAPACITY,
+				Constants.DEFAULT_LOAD_FACTOR,
+				-1);
+		this.columnsOfA = new TIntObjectHashMap<>(
+				Constants.DEFAULT_CAPACITY,
+				Constants.DEFAULT_LOAD_FACTOR,
+				-1);
 	}
 
 	public static LibrarySolutionProvider of(
@@ -133,9 +140,52 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] columnOfA(int product) {
+	public double[] columnOfA(int j) {
+		var column = columnsOfA.get(j);
+		if (column != null)
+			return column;
 
-		return new double[0];
+		var index = fullData.techIndex;
+		var product = index.getProviderAt(j);
+		column = new double[index.size()];
+		var libID = product.getLibrary().orElse(null);
+
+		// in case of a foreground product, we just need
+		// to copy the column of the foreground system
+		// into the first part of the result column as
+		// the tech. index of the foreground is exactly
+		// the first part of the combined index
+		if (libID == null) {
+			var colF = foregroundData.techMatrix.getColumn(j);
+			System.arraycopy(colF, 0, column, 0, colF.length);
+			columnsOfA.put(j, column);
+			return column;
+		}
+
+		// in case of a library product, we need to map
+		// the column entries
+		var lib = libraries.get(libID);
+		var indexLib = libTechIndices.get(libID);
+		if (lib == null || indexLib == null)
+			return column;
+		int jLib = indexLib.getIndex(product);
+		var columnLib = lib.getColumn(LibraryMatrix.A, jLib)
+				.orElse(null);
+		if (columnLib == null)
+			return column;
+		for (int iLib = 0; iLib < columnLib.length; iLib++) {
+			double val = columnLib[iLib];
+			if (val == 0)
+				continue;
+			var providerLib = indexLib.getProviderAt(iLib);
+			var i = index.getIndex(providerLib);
+			if (i < 0)
+				continue;
+			column[i] = val;
+		}
+
+		columnsOfA.put(j, column);
+		return column;
 	}
 
 	@Override

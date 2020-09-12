@@ -90,8 +90,8 @@ public class DenseSolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] columnOfA(int product) {
-		return data.techMatrix.getColumn(product);
+	public double[] columnOfA(int j) {
+		return data.techMatrix.getColumn(j);
 	}
 
 	@Override

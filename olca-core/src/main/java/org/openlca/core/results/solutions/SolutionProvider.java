@@ -15,9 +15,9 @@ public interface SolutionProvider {
 	TechIndex techIndex();
 
 	/**
-	 * Get the unscaled column with the given index from the technology matrix A.
+	 * Get the unscaled column $j$ from the technology matrix $A$.
 	 */
-	double[] columnOfA(int index);
+	double[] columnOfA(int j);
 
 	default double valueOfA(int row, int col) {
 		double[] column = columnOfA(col);
