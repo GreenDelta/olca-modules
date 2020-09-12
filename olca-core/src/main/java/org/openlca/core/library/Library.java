@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,6 +33,8 @@ public class Library {
 	 */
 	public final File folder;
 	private LibraryInfo info;
+
+	private final Map<LibraryMatrix, IMatrix> matrixCache = new HashMap<>();
 
 	public Library(File folder) {
 		this.folder = folder;
@@ -142,14 +145,27 @@ public class Library {
 	}
 
 	public Optional<IMatrix> getMatrix(LibraryMatrix m) {
+		var matrix = matrixCache.get(m);
+		if (matrix != null)
+			return Optional.of(matrix);
+
 		try {
 			var npy = new File(folder, m.name() + ".npy");
-			if (npy.exists())
-				return Optional.of(Npy.load(npy));
+			if (npy.exists()) {
+				matrix = Npy.load(npy);
+				matrixCache.put(m, matrix);
+				return Optional.of(matrix);
+			}
+
 			var npz = new File(folder, m.name() + ".npz");
-			return npz.exists()
-					? Optional.of(Npz.load(npz))
-					: Optional.empty();
+			if (npz.exists()) {
+				matrix = Npz.load(npz);
+				matrixCache.put(m, matrix);
+				return Optional.of(matrix);
+			}
+
+			return Optional.empty();
+
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(getClass());
 			log.error("failed to read matrix from " + folder, e);
@@ -158,14 +174,23 @@ public class Library {
 	}
 
 	public Optional<double[]> getColumn(LibraryMatrix m, int column) {
+		var matrix = matrixCache.get(m);
+		if (matrix != null)
+			return Optional.of(matrix.getColumn(column));
+
 		try {
+
+			// do not cache dense matrices
 			var npy = new File(folder, m.name() + ".npy");
 			if (npy.exists())
 				return Optional.of(Npy.loadColumn(npy, column));
-			var npz = new File(folder, m.name() + ".npz");
-			return npz.exists()
-					? Optional.of(Npz.loadColumn(npz, column))
-					: Optional.empty();
+
+			// force caching of sparse matrices
+			matrix = getMatrix(m).orElse(null);
+			return matrix == null
+					? Optional.empty()
+					: Optional.of(matrix.getColumn(column));
+
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(getClass());
 			log.error("failed to read matrix from " + folder, e);
