@@ -52,38 +52,60 @@ public class Library {
 	}
 
 	/**
+	 * Get the product index of this library.
+	 */
+	public Proto.ProductIndex getProducts() {
+		var file = new File(folder, "index_A.bin");
+		if (!file.exists())
+			return Proto.ProductIndex.getDefaultInstance();
+		try (var stream = new FileInputStream(file)) {
+			return Proto.ProductIndex.parseFrom(stream);
+		} catch (Exception e) {
+			var log = LoggerFactory.getLogger(getClass());
+			log.error("failed to read product index from " + file, e);
+			return Proto.ProductIndex.getDefaultInstance();
+		}
+	}
+
+	/**
 	 * Returns the products of the library in matrix order. If this library has
 	 * no product index or if this index is not in sync with the database, an
 	 * empty option is returned.
 	 */
 	public Optional<TechIndex> syncProducts(IDatabase db) {
-		var file = new File(folder, "index_A.bin");
-		if (!file.exists())
-			return Optional.empty();
-
 		var processes = descriptors(new ProcessDao(db));
 		var products = descriptors(new FlowDao(db));
 		TechIndex index = null;
-		try (var stream = new FileInputStream(file)) {
-			var proto = Proto.ProductIndex.parseFrom(stream);
-			int size = proto.getProductCount();
-			for (int i = 0; i < size; i++) {
-				var entry = proto.getProduct(i);
-				var process = processes.get(entry.getProcess().getId());
-				var product = products.get(entry.getProduct().getId());
-				if (process == null || product == null)
-					return Optional.empty();
-				if (index == null) {
-					index = new TechIndex(ProcessProduct.of(process, product));
-				} else {
-					index.put(ProcessProduct.of(process, product));
-				}
+		var proto = getProducts();
+		int size = proto.getProductCount();
+		for (int i = 0; i < size; i++) {
+			var entry = proto.getProduct(i);
+			var process = processes.get(entry.getProcess().getId());
+			var product = products.get(entry.getProduct().getId());
+			if (process == null || product == null)
+				return Optional.empty();
+			if (index == null) {
+				index = new TechIndex(ProcessProduct.of(process, product));
+			} else {
+				index.put(ProcessProduct.of(process, product));
 			}
-			return Optional.ofNullable(index);
+		}
+		return Optional.ofNullable(index);
+	}
+
+	/**
+	 * Get the elementary flow index of this library.
+	 */
+	public Proto.ElemFlowIndex getElemFlows() {
+		var file = new File(folder, "index_B.bin");
+		if (!file.exists())
+			return Proto.ElemFlowIndex.getDefaultInstance();
+		try (var stream = new FileInputStream(file)) {
+			return Proto.ElemFlowIndex.parseFrom(stream);
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(getClass());
-			log.error("failed to read product index @" + file, e);
-			return Optional.empty();
+			log.error("failed to read elem. flow index from " + file, e);
+			return Proto.ElemFlowIndex.getDefaultInstance();
 		}
 	}
 
@@ -93,10 +115,6 @@ public class Library {
 	 * the flow index with the database, an empty array is returned.
 	 */
 	public Optional<FlowIndex> syncElementaryFlows(IDatabase db) {
-		var file = new File(folder, "index_B.bin");
-		if (!file.exists())
-			return Optional.empty();
-
 		var info = getInfo();
 		var index = info.isRegionalized
 				? FlowIndex.createRegionalized()
@@ -104,27 +122,21 @@ public class Library {
 
 		var flows = descriptors(new FlowDao(db));
 		var locations = descriptors(new LocationDao(db));
-		try (var stream = new FileInputStream(file)) {
-			var proto = Proto.ElemFlowIndex.parseFrom(stream);
-			int size = proto.getFlowCount();
-			for (int i = 0; i < size; i++) {
-				var entry = proto.getFlow(i);
-				var flow = flows.get(entry.getFlow().getId());
-				var location = locations.get(entry.getLocation().getId());
-				if (flow == null)
-					return Optional.empty();
-				if (entry.getIsInput()) {
-					index.putInput(flow, location);
-				} else {
-					index.putOutput(flow, location);
-				}
+		var proto = getElemFlows();
+		int size = proto.getFlowCount();
+		for (int i = 0; i < size; i++) {
+			var entry = proto.getFlow(i);
+			var flow = flows.get(entry.getFlow().getId());
+			var location = locations.get(entry.getLocation().getId());
+			if (flow == null)
+				return Optional.empty();
+			if (entry.getIsInput()) {
+				index.putInput(flow, location);
+			} else {
+				index.putOutput(flow, location);
 			}
-			return Optional.of(index);
-		} catch (Exception e) {
-			var log = LoggerFactory.getLogger(getClass());
-			log.error("failed to read flow index @" + file, e);
-			return Optional.empty();
 		}
+		return Optional.of(index);
 	}
 
 	private <T extends CategorizedDescriptor> Map<String, T> descriptors(
