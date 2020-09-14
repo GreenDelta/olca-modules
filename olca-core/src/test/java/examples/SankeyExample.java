@@ -7,6 +7,7 @@ import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.DataStructures;
 import org.openlca.core.math.SystemCalculator;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.Sankey;
@@ -34,8 +35,20 @@ public class SankeyExample {
 		System.out.println("Computed result in: "
 				+ ((double) (end - start) / 1000d));
 
+		IndexFlow flow = null;
+		for (var f : result.getFlows()) {
+			if (result.getTotalFlowResult(f) != 0) {
+				flow = f;
+				break;
+			}
+		}
+		if (flow == null) {
+			System.out.println("No flow result");
+			return;
+		}
+
 		start = System.currentTimeMillis();
-		var sankey = Sankey.of(result.getFlows().get(0), result)
+		var sankey = Sankey.of(flow, result)
 				.withMaximumNodeCount(30)
 				.build();
 		end = System.currentTimeMillis();
@@ -49,7 +62,7 @@ public class SankeyExample {
 			var node = queue.poll();
 			for (var child : node.providers) {
 				queue.push(child);
-				System.out.println(String.format("  %d -> %d;", child.index, node.index));
+				System.out.printf("  %d -> %d;%n", child.index, node.index);
 			}
 		}
 		System.out.println("}");

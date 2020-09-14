@@ -162,15 +162,6 @@ public class HashPointMatrix implements IMatrix {
 	}
 
 	/**
-	 * Performs a matrix-vector multiplication with the given vector v.
-	 */
-	public double[] multiply(double[] v) {
-		double[] x = new double[rows()];
-		iterate((row, col, val) -> x[row] += val * v[col]);
-		return x;
-	}
-
-	/**
 	 * Scales each column j of the matrix with the value v[j] of the given
 	 * vector: M * diagm(v). The matrix is modified in-place.
 	 */

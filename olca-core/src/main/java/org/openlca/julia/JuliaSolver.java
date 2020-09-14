@@ -25,18 +25,20 @@ public class JuliaSolver implements IMatrixSolver {
 
 	@Override
 	public double[] solve(IMatrix a, int idx, double d) {
-		if (a instanceof HashPointMatrix && Julia.isWithUmfpack()) {
+		if (Julia.isWithUmfpack() &&
+				(a instanceof HashPointMatrix
+						|| a instanceof CSCMatrix)) {
 			var csc = CSCMatrix.of(a);
 			double[] f = new double[csc.rows];
 			f[idx] = d;
 			double[] b = new double[csc.rows];
 			Julia.umfSolve(
-				csc.rows,
-				csc.columnPointers,
-				csc.rowIndices,
-				csc.values,
-				f,
-				b);
+					csc.rows,
+					csc.columnPointers,
+					csc.rowIndices,
+					csc.values,
+					f,
+					b);
 			return b;
 		}
 		var A = MatrixConverter.dense(a);
@@ -49,11 +51,11 @@ public class JuliaSolver implements IMatrixSolver {
 
 	@Override
 	public double[] multiply(IMatrix m, double[] x) {
-		if (m instanceof HashPointMatrix) {
-			HashPointMatrix s = (HashPointMatrix) m;
-			return s.multiply(x);
+		if (m instanceof HashPointMatrix
+				|| m instanceof CSCMatrix) {
+			return m.multiply(x);
 		}
-		DenseMatrix a = MatrixConverter.dense(m);
+		var a = MatrixConverter.dense(m);
 		double[] y = new double[m.rows()];
 		Julia.mvmult(m.rows(), m.columns(), a.data, x, y);
 		return y;
@@ -90,7 +92,7 @@ public class JuliaSolver implements IMatrixSolver {
 			return SparseFactorization.of(csc);
 		}
 		if (matrix instanceof CSCMatrix) {
-			return SparseFactorization.of((CSCMatrix)matrix);
+			return SparseFactorization.of((CSCMatrix) matrix);
 		}
 		return DenseFactorization.of(matrix);
 	}

@@ -62,6 +62,18 @@ public interface IMatrix {
 	}
 
 	/**
+	 * Performs a matrix-vector multiplication with the given vector v. It uses
+	 * the iterate function which can be fast for sparse matrices. For dense
+	 * matrices it can be much faster to call into native code instead of using
+	 * this method.
+	 */
+	default double[] multiply(double[] v) {
+		double[] x = new double[rows()];
+		iterate((row, col, val) -> x[row] += val * v[col]);
+		return x;
+	}
+
+	/**
 	 * Scales the columns of this matrix in-place with the given factors $v$;
 	 * this is like $M = M diagm(v)$. Specifically for sparse matrices this
 	 * should be implemented in a more efficient way.
