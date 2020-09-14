@@ -54,7 +54,7 @@ public class Library {
 	/**
 	 * Get the product index of this library.
 	 */
-	public Proto.ProductIndex getProducts() {
+	public Proto.ProductIndex getProductIndex() {
 		var file = new File(folder, "index_A.bin");
 		if (!file.exists())
 			return Proto.ProductIndex.getDefaultInstance();
@@ -76,7 +76,7 @@ public class Library {
 		var processes = descriptors(new ProcessDao(db));
 		var products = descriptors(new FlowDao(db));
 		TechIndex index = null;
-		var proto = getProducts();
+		var proto = getProductIndex();
 		int size = proto.getProductCount();
 		for (int i = 0; i < size; i++) {
 			var entry = proto.getProduct(i);
@@ -96,7 +96,7 @@ public class Library {
 	/**
 	 * Get the elementary flow index of this library.
 	 */
-	public Proto.ElemFlowIndex getElemFlows() {
+	public Proto.ElemFlowIndex getElemFlowIndex() {
 		var file = new File(folder, "index_B.bin");
 		if (!file.exists())
 			return Proto.ElemFlowIndex.getDefaultInstance();
@@ -122,7 +122,7 @@ public class Library {
 
 		var flows = descriptors(new FlowDao(db));
 		var locations = descriptors(new LocationDao(db));
-		var proto = getElemFlows();
+		var proto = getElemFlowIndex();
 		int size = proto.getFlowCount();
 		for (int i = 0; i < size; i++) {
 			var entry = proto.getFlow(i);

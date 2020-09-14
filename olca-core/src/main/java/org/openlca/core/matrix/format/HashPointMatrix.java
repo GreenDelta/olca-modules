@@ -1,5 +1,8 @@
 package org.openlca.core.matrix.format;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -196,16 +199,23 @@ public class HashPointMatrix implements IMatrix {
 		double[] values = new double[nonZeros];
 
 		int pos = 0;
+		var entries = new ArrayList<CSCEntry>();
 		for (int col = 0; col < cols; col++) {
 			columnPointers[col] = pos;
 			var column = data.get(col);
 			if (column == null)
 				continue;
 			var iter = column.iterator();
-			while(iter.hasNext()) {
+			entries.clear();
+			while (iter.hasNext()) {
 				iter.advance();
-				rowIndices[pos] = iter.key();
-				values[pos] = iter.value();
+				entries.add(new CSCEntry(
+						iter.key(), iter.value()));
+			}
+			entries.sort(Comparator.comparingInt(e -> e.row));
+			for (var entry : entries) {
+				rowIndices[pos] = entry.row;
+				values[pos] = entry.val;
 				pos++;
 			}
 		}
@@ -222,7 +232,7 @@ public class HashPointMatrix implements IMatrix {
 	public int getNumberOfEntries() {
 		int entryCount = 0;
 		var columns = data.iterator();
-		while(columns.hasNext()) {
+		while (columns.hasNext()) {
 			columns.advance();
 			var column = columns.value();
 			entryCount += column.size();
@@ -251,6 +261,16 @@ public class HashPointMatrix implements IMatrix {
 			builder.append("; ...");
 		builder.append("]");
 		return builder.toString();
+	}
+
+	private static class CSCEntry {
+		final int row;
+		final double val;
+
+		CSCEntry(int row, double val) {
+			this.row = row;
+			this.val = val;
+		}
 	}
 
 }
