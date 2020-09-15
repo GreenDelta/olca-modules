@@ -1,5 +1,7 @@
 package org.openlca.core.results;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.math.LcaCalculator;
@@ -9,7 +11,6 @@ import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.JavaMatrix;
 import org.openlca.core.matrix.solvers.JavaSolver;
-import org.openlca.core.model.Flow;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
@@ -32,8 +33,8 @@ public class SankeyTest {
 		var flow = new FlowDescriptor();
 		flow.id = 42;
 		data.flowIndex.putOutput(flow);
-		data.enviMatrix = JavaMatrix.of(new double[][] {
-				{1.0 , 2.0, 3.0},
+		data.enviMatrix = JavaMatrix.of(new double[][]{
+				{1.0, 2.0, 3.0},
 		});
 
 		var calculator = new LcaCalculator(new JavaSolver(), data);
@@ -41,9 +42,32 @@ public class SankeyTest {
 
 		var sankey = Sankey.of(data.flowIndex.at(0), result)
 				.build();
-
 		Assert.assertEquals(3, sankey.nodeCount);
+		var visited = new AtomicInteger(0);
+		sankey.traverse(node -> {
+			visited.incrementAndGet();
 
+			switch (node.index) {
+				case 0:
+					Assert.assertEquals(1.0, node.direct, 1e-10);
+					Assert.assertEquals(11.0, node.total, 1e-10);
+					Assert.assertEquals(1.0, node.share, 1e-10);
+					break;
+
+				case 1:
+					Assert.assertEquals(2.5, node.direct, 1e-10);
+					Assert.assertEquals(10, node.total, 1e-10);
+					Assert.assertEquals(10.0 / 11.0, node.share, 1e-10);
+					break;
+
+				case 2:
+					Assert.assertEquals(7.5, node.direct, 1e-10);
+					Assert.assertEquals(8.0, node.total, 1e-10);
+					Assert.assertEquals(8.0 / 11.0, node.share, 1e-10);
+					break;
+			}
+		});
+		Assert.assertEquals(3, visited.get());
 	}
 
 	private ProcessProduct product(int i) {
