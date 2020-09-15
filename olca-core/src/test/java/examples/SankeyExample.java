@@ -1,7 +1,6 @@
 package examples;
 
 import java.io.File;
-import java.util.ArrayDeque;
 
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
@@ -35,36 +34,18 @@ public class SankeyExample {
 		System.out.println("Computed result in: "
 				+ ((double) (end - start) / 1000d));
 
-		IndexFlow flow = null;
-		for (var f : result.getFlows()) {
-			if (result.getTotalFlowResult(f) != 0) {
-				flow = f;
-				break;
-			}
-		}
-		if (flow == null) {
-			System.out.println("No flow result");
-			return;
-		}
+		IndexFlow flow = result.flowIndex.at(242);
 
 		start = System.currentTimeMillis();
 		var sankey = Sankey.of(flow, result)
-				.withMaximumNodeCount(500)
+				.withMaximumNodeCount(50)
 				.withMinimumShare(0.01)
 				.build();
 		end = System.currentTimeMillis();
 		System.out.println("Computed sankey in: "
 				+ ((double) (end - start) / 1000d));
 
-		System.out.println("digraph g {");
-		System.out.println("  rankdir=BT;");
-		sankey.traverse(node -> {
-			for (var child : node.providers) {
-				System.out.printf("  %d -> %d;%n",
-						child.index, node.index);
-			}
-		});
-		System.out.println("}");
+		System.out.println(sankey.toDot());
 
 		db.close();
 	}

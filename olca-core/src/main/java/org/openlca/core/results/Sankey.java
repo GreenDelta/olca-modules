@@ -12,6 +12,7 @@ import gnu.trove.set.hash.TIntHashSet;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.results.solutions.SolutionProvider;
 
 /**
  * An instance of this class contains the underlying graph data structure of
@@ -37,6 +38,12 @@ public class Sankey<T> {
 	 * The total number of nodes in the graph.
 	 */
 	public int nodeCount;
+
+	/**
+	 * We hold a reference to the solution provider of the underlying result
+	 * in order to calculate the link shares.
+	 */
+	private final SolutionProvider solution;
 
 	/**
 	 * Describes a single node in the graph. For a process product in the
@@ -98,8 +105,9 @@ public class Sankey<T> {
 		}
 	}
 
-	private Sankey(T reference) {
+	private Sankey(T reference, SolutionProvider solution) {
 		this.reference = reference;
+		this.solution = solution;
 		this.root = new Node();
 	}
 
@@ -136,6 +144,56 @@ public class Sankey<T> {
 		}
 	}
 
+	/**
+	 * Get the share of the upstream total of the given provider that goes
+	 * into the given node. If the provider is only a provider of the given
+	 * node, the share is 1. If it is a provider of several nodes (e.g. an
+	 * electricity process that provides electricity to several other processes)
+	 * the link share is a value between 0 and 1. The link share can also be
+	 * a negative value (-1..0) in case of negative upstream contributions.
+	 */
+	public double getLinkShare(Node provider, Node node) {
+		var total = solution.scaledValueOfA(
+				provider.index, provider.index);
+		if (total == 0)
+			return 0;
+		var amount = solution.scaledValueOfA(
+				provider.index, node.index);
+		return amount == 0
+				? 0
+				: -amount / total;
+	}
+
+	/**
+	 * Returns a string with the graph in DOT format (
+	 * https://en.wikipedia.org/wiki/DOT_(graph_description_language)).
+	 */
+	public String toDot() {
+		var buf = new StringBuilder();
+		buf.append("digraph g {\n")
+				.append("  rankdir=BT;\n")
+				.append("  node [shape=point];\n")
+				.append("  edge [arrowhead=none];\n")
+				.append("  ").append(root.index).append(";\n");
+		traverse(node -> {
+			for (var provider : node.providers) {
+				var penwidth = 0.5 + 3
+						* provider.share
+						* getLinkShare(provider, node);
+				buf.append("  ")
+						.append(provider.index)
+						.append(" -> ")
+						.append(node.index)
+						.append(" [penwidth=")
+						.append(penwidth)
+						.append("];\n");
+			}
+		});
+		buf.append("}\n");
+		return buf.toString();
+	}
+
+
 	public static class Builder<T> {
 
 		private final Sankey<T> sankey;
@@ -153,7 +211,7 @@ public class Sankey<T> {
 		private PriorityQueue<Candidate> candidates;
 
 		private Builder(T ref, FullResult result) {
-			this.sankey = new Sankey<>(ref);
+			this.sankey = new Sankey<>(ref, result.solutions);
 			this.result = result;
 			handled = new TIntObjectHashMap<>(
 					Constants.DEFAULT_CAPACITY,
