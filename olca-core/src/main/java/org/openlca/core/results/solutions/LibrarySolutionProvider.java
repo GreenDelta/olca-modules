@@ -173,6 +173,11 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
+	public FlowIndex flowIndex() {
+		return fullData.flowIndex;
+	}
+
+	@Override
 	public double[] scalingVector() {
 		return scalingVector;
 	}
@@ -313,8 +318,17 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] totalFlowResults() {
+	public double[] columnOfB(int j) {
+		return new double[0];
+	}
 
+	@Override
+	public double valueOfB(int row, int col) {
+		return 0;
+	}
+
+	@Override
+	public double[] totalFlowResults() {
 		return new double[0];
 	}
 

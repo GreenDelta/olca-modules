@@ -1,5 +1,6 @@
 package org.openlca.core.results.solutions;
 
+import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.IMatrix;
@@ -85,6 +86,11 @@ public class DenseSolutionProvider implements SolutionProvider {
 	}
 
 	@Override
+	public FlowIndex flowIndex() {
+		return data.flowIndex;
+	}
+
+	@Override
 	public double[] scalingVector() {
 		return scalingVector;
 	}
@@ -107,6 +113,16 @@ public class DenseSolutionProvider implements SolutionProvider {
 	@Override
 	public boolean hasFlows() {
 		return flowIntensities != null;
+	}
+
+	@Override
+	public double[] columnOfB(int j) {
+		return data.enviMatrix.getColumn(j);
+	}
+
+	@Override
+	public double valueOfB(int row, int col) {
+		return data.enviMatrix.get(row, col);
 	}
 
 	@Override

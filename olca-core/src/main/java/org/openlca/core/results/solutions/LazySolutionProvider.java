@@ -1,5 +1,6 @@
 package org.openlca.core.results.solutions;
 
+import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.solvers.Factorization;
@@ -73,6 +74,11 @@ public class LazySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
+	public FlowIndex flowIndex() {
+		return data.flowIndex;
+	}
+
+	@Override
 	public double[] scalingVector() {
 		return scalingVector;
 	}
@@ -100,6 +106,16 @@ public class LazySolutionProvider implements SolutionProvider {
 	@Override
 	public boolean hasFlows() {
 		return intensities != null;
+	}
+
+	@Override
+	public double[] columnOfB(int j) {
+		return data.enviMatrix.getColumn(j);
+	}
+
+	@Override
+	public double valueOfB(int row, int col) {
+		return data.enviMatrix.get(row, col);
 	}
 
 	@Override
