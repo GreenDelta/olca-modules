@@ -313,18 +313,18 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] totalFlowResult() {
+	public double[] totalFlowResults() {
 
 		return new double[0];
 	}
 
 	@Override
-	public double[] totalFlowsOfOne(int product) {
+	public double[] totalFlowResultsOfOne(int product) {
 		return new double[0];
 	}
 
 	@Override
-	public double totalFlowOfOne(int flow, int product) {
+	public double totalFlowResultOfOne(int flow, int product) {
 		return 0;
 	}
 

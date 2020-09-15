@@ -107,7 +107,7 @@ public class LcaCalculator {
 				scalingVector);
 
 		// upstream results
-		result.totalFlowResults = result.solutions.totalFlowResult();
+		result.totalFlowResults = result.solutions.totalFlowResults();
 
 		if (data.impactMatrix != null) {
 			addDirectImpacts(result);

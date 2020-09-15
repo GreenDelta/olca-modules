@@ -27,7 +27,7 @@ public class FullResult extends ContributionResult {
 			return 0;
 		int row = flowIndex.of(flow);
 		int col = techIndex.getIndex(product);
-		double[] m = solutions.totalFlowsOfOne(col);
+		double[] m = solutions.totalFlowResultsOfOne(col);
 		if (m.length == 0)
 			return 0;
 		double t = totalRequirements[col] * solutions.loopFactorOf(col);
@@ -172,7 +172,7 @@ public class FullResult extends ContributionResult {
 		int i = flowIndex.of(flow);
 		double total = getTotalFlowResult(flow);
 		return new UpstreamTree(flow, this, total,
-				product -> solutions.totalFlowOfOne(i, product));
+				product -> solutions.totalFlowResultOfOne(i, product));
 	}
 
 	/**

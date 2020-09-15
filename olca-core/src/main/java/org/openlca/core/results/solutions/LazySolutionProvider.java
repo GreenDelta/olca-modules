@@ -103,14 +103,14 @@ public class LazySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] totalFlowResult() {
+	public double[] totalFlowResults() {
 		return totalFlows == null
 				? new double[0]
 				: totalFlows;
 	}
 
 	@Override
-	public double[] totalFlowsOfOne(int product) {
+	public double[] totalFlowResultsOfOne(int product) {
 		if (intensities == null)
 			return new double[0];
 		var m = intensities.get(product);
@@ -123,10 +123,10 @@ public class LazySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double totalFlowOfOne(int flow, int product) {
+	public double totalFlowResultOfOne(int flow, int product) {
 		if (intensities == null)
 			return 0;
-		return totalFlowsOfOne(product)[flow];
+		return totalFlowResultsOfOne(product)[flow];
 	}
 
 	@Override
@@ -148,7 +148,7 @@ public class LazySolutionProvider implements SolutionProvider {
 		var h = impacts.get(product);
 		if (h != null)
 			return h;
-		var g = totalFlowsOfOne(product);
+		var g = totalFlowResultsOfOne(product);
 		h = solver.multiply(data.impactMatrix, g);
 		impacts.put(product, h);
 		return h;

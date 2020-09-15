@@ -46,7 +46,7 @@ public class DenseSolutionProvider implements SolutionProvider {
 			provider.flowIntensities = solver.multiply(
 					data.enviMatrix,
 					provider.inverse);
-			provider.totalFlows = provider.totalFlowsOfOne(refIdx);
+			provider.totalFlows = provider.totalFlowResultsOfOne(refIdx);
 			for (int i = 0; i < provider.totalFlows.length; i++) {
 				provider.totalFlows[i] *= demand;
 			}
@@ -110,21 +110,21 @@ public class DenseSolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] totalFlowResult() {
+	public double[] totalFlowResults() {
 		return totalFlows == null
 				? new double[0]
 				: totalFlows;
 	}
 
 	@Override
-	public double[] totalFlowsOfOne(int product) {
+	public double[] totalFlowResultsOfOne(int product) {
 		if (flowIntensities == null)
 			return new double[0];
 		return flowIntensities.getColumn(product);
 	}
 
 	@Override
-	public double totalFlowOfOne(int flow, int product) {
+	public double totalFlowResultOfOne(int flow, int product) {
 		if (flowIntensities == null)
 			return 0;
 		return flowIntensities.get(flow, product);
