@@ -40,10 +40,14 @@ public interface SolutionProvider {
 	boolean hasFlows();
 
 	/**
-	 * Returns the total flow results (direct + upstream) related to the final
-	 * demand of the product system.
+	 * The inventory result $\mathbf{g}$ of the product system:
+	 * <p>
+	 * $$\mathbf{g} = \mathbf{B} \ \mathbf{s}$$
+	 * <p>
+	 * Where $\mathbf{B}$ is the intervention matrix and $\mathbf{s}$ the
+	 * scaling vector. Note that inputs have negative values in this vector.
 	 */
-	double[] totalFlows();
+	double[] totalFlowResult();
 
 	/**
 	 * Returns the total flow results (direct + upstream) related to one unit of

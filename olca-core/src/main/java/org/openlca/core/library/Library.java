@@ -115,6 +115,10 @@ public class Library {
 	 * the flow index with the database, an empty array is returned.
 	 */
 	public Optional<FlowIndex> syncElementaryFlows(IDatabase db) {
+		var proto = getElemFlowIndex();
+		if (proto.getFlowCount() == 0)
+			return Optional.empty();
+
 		var info = getInfo();
 		var index = info.isRegionalized
 				? FlowIndex.createRegionalized()
@@ -122,7 +126,6 @@ public class Library {
 
 		var flows = descriptors(new FlowDao(db));
 		var locations = descriptors(new LocationDao(db));
-		var proto = getElemFlowIndex();
 		int size = proto.getFlowCount();
 		for (int i = 0; i < size; i++) {
 			var entry = proto.getFlow(i);

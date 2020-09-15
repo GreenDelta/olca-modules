@@ -16,7 +16,6 @@ import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
-import org.openlca.util.Exceptions;
 import org.openlca.util.Pair;
 
 public class LibrarySolutionProvider implements SolutionProvider {
@@ -71,6 +70,7 @@ public class LibrarySolutionProvider implements SolutionProvider {
 		var provider = new LibrarySolutionProvider(
 				db, libDir, solver, foregroundData);
 		provider.initTechIndex();
+		provider.initFlowIndex();
 
 		// calculate the scaling vector
 		var s = provider.solutionOfOne(0);
@@ -127,6 +127,44 @@ public class LibrarySolutionProvider implements SolutionProvider {
 		}
 
 		fullData.techIndex = index;
+	}
+
+	/**
+	 * Creates the combined elem. flow index. This method needs to be called
+	 * after the tech. indices of the libraries were loaded. If the foreground
+	 * system and all libraries do not have a flow index, the flow index of
+	 * the combined system is just null.
+	 */
+	private void initFlowIndex() {
+		// initialize the flow index with the foreground
+		// index if present
+		FlowIndex index = null;
+		var indexF = foregroundData.flowIndex;
+		if (indexF != null) {
+			index = indexF.isRegionalized
+					? FlowIndex.createRegionalized()
+					: FlowIndex.create();
+			index.putAll(indexF);
+		}
+
+		// extend the flow index with the flow indices
+		// of used libraries.
+		for (var entry : libraries.entrySet()) {
+			var libID = entry.getKey();
+			var lib = entry.getValue();
+			var libIdx = lib.syncElementaryFlows(db).orElse(null);
+			if (libIdx == null)
+				continue;
+			if (index == null) {
+				index = libIdx.isRegionalized
+						? FlowIndex.createRegionalized()
+						: FlowIndex.create();
+			}
+			index.putAll(libIdx);
+			libFlowIndices.put(libID, libIdx);
+		}
+
+		fullData.flowIndex = index;
 	}
 
 	@Override
@@ -270,11 +308,13 @@ public class LibrarySolutionProvider implements SolutionProvider {
 
 	@Override
 	public boolean hasFlows() {
-		return false;
+		return fullData.flowIndex != null
+				&& fullData.flowIndex.size() > 0;
 	}
 
 	@Override
-	public double[] totalFlows() {
+	public double[] totalFlowResult() {
+
 		return new double[0];
 	}
 

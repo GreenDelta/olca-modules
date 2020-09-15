@@ -110,7 +110,7 @@ public class DenseSolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] totalFlows() {
+	public double[] totalFlowResult() {
 		return totalFlows == null
 				? new double[0]
 				: totalFlows;
