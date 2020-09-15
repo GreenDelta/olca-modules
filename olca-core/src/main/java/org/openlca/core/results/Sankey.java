@@ -4,31 +4,106 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 
+import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
+/**
+ * An instance of this class contains the underlying graph data structure of
+ * a Sankey diagram. It does not contain methods for rendering the diagram on
+ * some output but just the data structures and functions for building the
+ * graph.
+ */
 public class Sankey<T> {
 
+	/**
+	 * The result reference of the graph; a flow or impact category.
+	 */
 	public final T reference;
+
+	/**
+	 * The root (source or sink, depending on the perspective) of the graph
+	 * which always describes the reference product of the underlying product
+	 * system.
+	 */
 	public final Node root;
+
+	/**
+	 * The total number of nodes in the graph.
+	 */
 	public int nodeCount;
+
+	/**
+	 * Describes a single node in the graph. For a process product in the
+	 * system there can be only one or no node in the resulting graph. Thus,
+	 * a node can be uniquely identified by its process product (which can be
+	 * also a waste input) and its index of the tech. matrix.
+	 */
+	public static class Node {
+
+		/**
+		 * The matrix index of corresponding process product.
+		 */
+		public int index;
+
+		/**
+		 * The process product of the node.
+		 */
+		public ProcessProduct product;
+
+		/**
+		 * The total result (upstream plus direct) of this node in the supply
+		 * chain.
+		 */
+		public double total;
+
+		/**
+		 * The direct result of this node.
+		 */
+		public double direct;
+
+		/**
+		 * The absolute share of the total result of this node in relation to
+		 * the total result of the root of the graph (of the reference product).
+		 */
+		public double share;
+
+		/**
+		 * The nodes of the providers of products or waste treatment of this
+		 * node. Note that depending of the cutoffs when building the graph
+		 * this list is often not complete.
+		 */
+		public List<Node> providers = new ArrayList<>();
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o)
+				return true;
+			if (o == null)
+				return false;
+			if (!(o instanceof Node))
+				return false;
+			var other = (Node) o;
+			return index == other.index;
+		}
+
+		@Override
+		public int hashCode() {
+			return index;
+		}
+	}
 
 	private Sankey(T reference) {
 		this.reference = reference;
 		this.root = new Node();
 	}
 
-	public static class Node {
-		public ProcessProduct product;
-		public int index;
-		public double total;
-		public double direct;
-		public double share;
-		public List<Node> providers = new ArrayList<>();
-	}
-
+	/**
+	 * Creates a new builder of a graph for a Sankey diagram for the given
+	 * reference (flow or impact) and result.
+	 */
 	public static <T> Builder<T> of(T ref, FullResult result) {
 		return new Builder<>(ref, result);
 	}
@@ -37,35 +112,51 @@ public class Sankey<T> {
 
 		private final Sankey<T> sankey;
 		private final FullResult result;
-		double minShare;
-		int maxNodes = -1;
 
-		private final TIntObjectHashMap<Node> handled = new TIntObjectHashMap<>();
+		// result references
 		private IndexFlow flow;
 		private ImpactCategoryDescriptor impact;
 
-		private PriorityQueue<Candidate> queue;
+		// cutoff rules
+		private double minShare = 0;
+		private int maxNodes = -1;
+
+		private final TIntObjectHashMap<Node> handled;
+		private PriorityQueue<Candidate> candidates;
 
 		private Builder(T ref, FullResult result) {
 			this.sankey = new Sankey<>(ref);
 			this.result = result;
+			handled = new TIntObjectHashMap<>(
+					Constants.DEFAULT_CAPACITY,
+					Constants.DEFAULT_LOAD_FACTOR,
+					-1);
 		}
 
+		/**
+		 * The minimum share of the total result of a node in relation to the
+		 * total result of the root of the graph (of the reference product) that
+		 * is required for a node to be added to the graph.
+		 */
 		public Builder<T> withMinimumShare(double share) {
 			this.minShare = Math.abs(share);
 			return this;
 		}
 
+		/**
+		 * The maximum number of nodes that should be added to the graph.
+		 */
 		public Builder<T> withMaximumNodeCount(int count) {
 			this.maxNodes = count;
 			return this;
 		}
 
+		/**
+		 * Builds the underlying graph of a Sankey diagram.
+		 */
 		public Sankey<T> build() {
-			var root = sankey.root;
-			root.product = result.techIndex.getRefFlow();
-			root.index = result.techIndex.getIndex(root.product);
 
+			// select the result reference
 			// TODO: currently no support for cost-results
 			if (sankey.reference instanceof IndexFlow) {
 				flow = (IndexFlow) sankey.reference;
@@ -73,13 +164,17 @@ public class Sankey<T> {
 				impact = (ImpactCategoryDescriptor) sankey.reference;
 			}
 
+			// create the root node of the reference product
+			var root = sankey.root;
+			root.product = result.techIndex.getRefFlow();
+			root.index = result.techIndex.getIndex(root.product);
 			root.total = getTotal(root.product);
 			root.direct = getDirect(root.product);
 			root.share = root.total == 0 ? 0 : 1;
 			sankey.nodeCount = 1;
 			handled.put(root.index, root);
 
-			// expand the graph
+			// expand the graph recursively
 			if (root.total != 0 && (maxNodes < 0 || maxNodes > 1)) {
 				expand(root);
 			}
@@ -103,6 +198,10 @@ public class Sankey<T> {
 			return 0;
 		}
 
+		/**
+		 * Expands recursively the providers of the given node, that was already
+		 * added to the graph, according to the cutoff rules of this builder.
+		 */
 		private void expand(Node node) {
 			var colA = result.solutions.columnOfA(node.index);
 			for (int i = 0; i < colA.length; i++) {
@@ -140,21 +239,21 @@ public class Sankey<T> {
 				}
 
 				// add is as a candidate
-				if (queue == null) {
-					queue = new PriorityQueue<>(
+				if (candidates == null) {
+					candidates = new PriorityQueue<>(
 							(n1, n2) -> Double.compare(n2.share, n1.share));
 				}
-				queue.add(Candidate.of(node, provider));
+				candidates.add(new Candidate(node, provider));
 			}
 
 			// we add the candidate with the largest share to
 			// the providers.
-			if (queue == null || queue.isEmpty())
+			if (candidates == null || candidates.isEmpty())
 				return;
-			var best = queue.poll();
-			add(best.handled, best.provider);
-			if (sankey.nodeCount < maxNodes ) {
-				expand(best.provider);
+			var next = candidates.poll();
+			add(next.handled, next.provider);
+			if (sankey.nodeCount < maxNodes) {
+				expand(next.provider);
 			}
 		}
 
@@ -165,17 +264,32 @@ public class Sankey<T> {
 		}
 	}
 
+	/**
+	 * Describes a new provider candidate of a handled node that was already
+	 * added to the graph. This candidate could be added in a next expansion
+	 * step depending on the result share.
+	 */
 	private static class Candidate {
-		Node handled;
-		Node provider;
-		double share;
 
-		static Candidate of(Node handled, Node provider) {
-			var cand = new Candidate();
-			cand.handled = handled;
-			cand.provider = provider;
-			cand.share = provider.share;
-			return cand;
+		/**
+		 * The handled node that was already added to the graph.
+		 */
+		final Node handled;
+
+		/**
+		 * The provider node that could be added in a next expansion step.
+		 */
+		final Node provider;
+
+		/**
+		 * The result share of the provider candidate.
+		 */
+		final double share;
+
+		Candidate(Node handled, Node provider) {
+			this.handled = handled;
+			this.provider = provider;
+			this.share = provider.share;
 		}
 	}
 }
