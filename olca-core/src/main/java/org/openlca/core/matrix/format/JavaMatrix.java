@@ -21,6 +21,22 @@ public class JavaMatrix implements IMatrix {
 		matrix = new Array2DRowRealMatrix(rowSize, colSize);
 	}
 
+	public static JavaMatrix of(double[][] data) {
+		int rows = data.length;
+		int cols = 0;
+		for (var rowData : data) {
+			cols = Math.max(cols, rowData.length);
+		}
+		var m = new JavaMatrix(rows, cols);
+		for (int row = 0; row < rows; row++) {
+			var rowData = data[row];
+			for (int col = 0; col < rowData.length; col++) {
+				m.set(row, col, rowData[col]);
+			}
+		}
+		return m;
+	}
+
 	public RealMatrix getRealMatrix() {
 		return matrix;
 	}

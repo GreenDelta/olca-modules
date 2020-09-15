@@ -1,11 +1,14 @@
 package org.openlca.core.results;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.function.Consumer;
 
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.TIntHashSet;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -106,6 +109,31 @@ public class Sankey<T> {
 	 */
 	public static <T> Builder<T> of(T ref, FullResult result) {
 		return new Builder<>(ref, result);
+	}
+
+	/**
+	 * Traverses the graph in breadth-first order starting from the root.
+	 */
+	public void traverse(Consumer<Node> fn) {
+		if (fn == null)
+			return;
+		var queue = new ArrayDeque<Node>(root.providers.size());
+		queue.add(root);
+		var visited = new TIntHashSet(
+				Constants.DEFAULT_CAPACITY,
+				Constants.DEFAULT_LOAD_FACTOR,
+				-1);
+		visited.add(root.index);
+		while (!queue.isEmpty()) {
+			var node = queue.poll();
+			fn.accept(node);
+			for (var provider : node.providers) {
+				if (visited.contains(provider.index))
+					continue;
+				queue.add(provider);
+				visited.add(provider.index);
+			}
+		}
 	}
 
 	public static class Builder<T> {

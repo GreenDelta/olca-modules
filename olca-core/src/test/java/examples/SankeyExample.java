@@ -49,22 +49,21 @@ public class SankeyExample {
 
 		start = System.currentTimeMillis();
 		var sankey = Sankey.of(flow, result)
-				.withMaximumNodeCount(30)
+				.withMaximumNodeCount(500)
+				.withMinimumShare(0.01)
 				.build();
 		end = System.currentTimeMillis();
 		System.out.println("Computed sankey in: "
 				+ ((double) (end - start) / 1000d));
 
 		System.out.println("digraph g {");
-		var queue = new ArrayDeque<Sankey.Node>();
-		queue.push(sankey.root);
-		while (!queue.isEmpty()) {
-			var node = queue.poll();
+		System.out.println("  rankdir=BT;");
+		sankey.traverse(node -> {
 			for (var child : node.providers) {
-				queue.push(child);
-				System.out.printf("  %d -> %d;%n", child.index, node.index);
+				System.out.printf("  %d -> %d;%n",
+						child.index, node.index);
 			}
-		}
+		});
 		System.out.println("}");
 
 		db.close();
