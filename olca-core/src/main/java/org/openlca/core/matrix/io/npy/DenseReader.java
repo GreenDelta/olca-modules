@@ -44,8 +44,8 @@ class DenseReader {
 	 * matrix.
 	 */
 	static double[] readColumn(File file, int column) {
-		try (RandomAccessFile f = new RandomAccessFile(file, "r");
-			 FileChannel channel = f.getChannel()) {
+		try (var f = new RandomAccessFile(file, "r");
+			 var channel = f.getChannel()) {
 
 			// read and check the header
 			Header header = HeaderReader.read(channel);
@@ -87,7 +87,46 @@ class DenseReader {
 			}
 			return data;
 		} catch (IOException e) {
-			throw new RuntimeException("failed to read column from " + file, e);
+			throw new RuntimeException(
+					"failed to read column from " + file, e);
+		}
+	}
+
+	/**
+	 * Reads the matrix diagonal from the given file.
+	 */
+	static double[] readDiagonal(File file) {
+		try (var f = new RandomAccessFile(file, "r");
+			 var chan = f.getChannel()) {
+
+			var header = HeaderReader.read(chan);
+			checkMatrix(file, header);
+			int rows = header.shape[0];
+			int cols = header.shape[1];
+			int n = Math.min(rows, cols);
+			var diag = new double[n];
+			if (n == 0)
+				return diag;
+
+			var buffer = ByteBuffer.allocate(8);
+			buffer.order(header.getByteOrder());
+
+			int pos = header.dataOffset;
+			for (int i = 0; i < n; i++) {
+				f.seek(pos);
+				chan.read(buffer);
+				buffer.flip();
+				diag[i] = buffer.getDouble();
+				buffer.clear();
+				pos += header.fortranOrder
+						? (rows + 1) * 8
+						: (cols + 1) * 8;
+			}
+
+			return diag;
+		} catch (IOException e) {
+			throw new RuntimeException(
+					"failed to read diagonal from " + file, e);
 		}
 	}
 

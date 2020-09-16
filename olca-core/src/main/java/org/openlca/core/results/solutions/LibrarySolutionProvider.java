@@ -389,54 +389,12 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	public double[] totalFlowResults() {
 		if (totalFlowResults != null)
 			return totalFlowResults;
-		var flowIndex = fullData.flowIndex;
-		if (flowIndex == null || flowIndex.size() == 0) {
-			totalFlowResults = new double[0];
-			return totalFlowResults;
+		var m = totalFlowResultsOfOne(0);
+		var demand = fullData.techIndex.getDemand();
+		var results = Arrays.copyOf(m, m.length);
+		for (int i = 0; i < m.length; i++) {
+			results[i] *= demand;
 		}
-
-		var results = new double[flowIndex.size()];
-
-		// add the foreground result
-		if (foregroundSolution.hasFlows()) {
-			var rF = foregroundSolution.totalFlowResults();
-			System.arraycopy(rF, 0, results, 0, rF.length);
-		}
-
-		var s = scalingVector();
-		var techIdx = techIndex();
-		for (var e : libraries.entrySet()) {
-			var libID = e.getKey();
-			var lib = e.getValue();
-			var flowIdxB = libFlowIndices.get(libID);
-			var techIdxB = libTechIndices.get(libID);
-			if (lib == null || flowIdxB == null || techIdxB == null)
-				continue;
-			if (flowIdxB.size() == 0)
-				continue;
-
-			// calculate the scaled library result
-			var matrixB = lib.getMatrix(LibraryMatrix.B).orElse(null);
-			if (matrixB == null)
-				continue;
-			var sB = new double[techIdxB.size()];
-			for (int i = 0; i < s.length; i++) {
-				var product = techIdx.getProviderAt(i);
-				var iB = techIdxB.getIndex(product);
-				if (iB < 0)
-					continue;
-				sB[iB] = s[i];
-			}
-			var gB = solver.multiply(matrixB, sB);
-			for (int iB = 0; iB < gB.length; iB++) {
-				var flow = flowIdxB.at(iB);
-				var i = flowIndex.of(flow);
-				if (i < 0)
-					continue;
-				results[i] += gB[iB];
-			}
-		}
-
 		totalFlowResults = results;
 		return totalFlowResults;
 	}
@@ -502,7 +460,10 @@ public class LibrarySolutionProvider implements SolutionProvider {
 
 	@Override
 	public double totalFlowResultOfOne(int flow, int product) {
-		return 0;
+		var column = totalFlowResultsOfOne(product);
+		if (column.length <= flow)
+			return 0;
+		return column[flow];
 	}
 
 	@Override

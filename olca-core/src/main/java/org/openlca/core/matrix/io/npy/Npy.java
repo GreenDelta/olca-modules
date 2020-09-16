@@ -40,6 +40,14 @@ public final class Npy {
 	}
 
 	/**
+	 * Reads the diagonal from the dense matrix that is stored in
+	 * the given file.
+	 */
+	public static double[] loadDiagonal(File file) {
+		return DenseReader.readDiagonal(file);
+	}
+
+	/**
 	 * Saves the given matrix as dense matrix in column-major order to the
 	 * given file.
 	 */

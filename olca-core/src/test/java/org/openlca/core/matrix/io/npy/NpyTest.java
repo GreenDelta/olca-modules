@@ -51,4 +51,12 @@ public class NpyTest {
 					matrix.getColumn(j), Npy.loadColumn(npy, j), 1e-10);
 		}
 	}
+
+	@Test
+	public void testLoadDiagonal() {
+		var diag = Npy.loadDiagonal(npy);
+		Assert.assertArrayEquals(
+				new double[]{1, 5}, diag, 1e-10);
+
+	}
 }

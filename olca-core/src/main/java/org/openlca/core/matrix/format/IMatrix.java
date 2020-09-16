@@ -85,4 +85,18 @@ public interface IMatrix {
 			}
 		}
 	}
+
+	/**
+	 * Returns the diagonal of this matrix.
+	 */
+	default double[] diag() {
+		var rows = rows();
+		var cols = columns();
+		var n = Math.min(rows, cols);
+		var diag = new double[n];
+		for (int i = 0; i < n; i++) {
+			diag[i] = get(i, i);
+		}
+		return diag;
+	}
 }
