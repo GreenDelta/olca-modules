@@ -114,6 +114,7 @@ public class LibrarySolutionProvider implements SolutionProvider {
 			var indexB = lib.syncProducts(db).orElseThrow(
 					() -> new RuntimeException(
 							"Could not load product index of " + libID));
+			libTechIndices.put(libID, indexB);
 			indexB.each((_pos, product) -> {
 				index.put(product);
 				var nextLibID = product.getLibrary().orElse(null);
@@ -196,8 +197,8 @@ public class LibrarySolutionProvider implements SolutionProvider {
 		// in case of a foreground product, we just need
 		// to copy the column of the foreground system
 		// into the first part of the result column as
-		// the tech. index of the foreground is exactly
-		// the first part of the combined index
+		// the tech. index of the foreground system is
+		// exactly the first part of the combined index
 		if (libID == null) {
 			var colF = foregroundData.techMatrix.getColumn(j);
 			System.arraycopy(colF, 0, column, 0, colF.length);
@@ -319,12 +320,62 @@ public class LibrarySolutionProvider implements SolutionProvider {
 
 	@Override
 	public double[] columnOfB(int j) {
+		var flowIdx = fullData.flowIndex;
+		if (flowIdx == null)
+			return new double[0];
+
+		var product = fullData.techIndex.getProviderAt(j);
+		var libID = product.getLibrary().orElse(null);
+		var column = new double[flowIdx.size()];
+
+		// in case of a foreground product, we just need
+		// to copy the column of the foreground system
+		// into the first part of the result column as
+		// the flow index of the foreground system is
+		// exactly the first part of the combined index
+		if (libID == null) {
+			var enviF = foregroundData.enviMatrix;
+			if (enviF == null)
+				return column;
+			var colF =enviF.getColumn(j);
+			System.arraycopy(colF, 0, column, 0, colF.length);
+			return column;
+		}
+
+		// in case of a library product, we need to map
+		// the column entries
+		var lib = libraries.get(libID);
+		var flowIdxB = libFlowIndices.get(libID);
+		var techIdxB = libTechIndices.get(libID);
+		if (lib == null || flowIdxB == null || techIdxB == null)
+			return column;
+		var jB = techIdxB.getIndex(product);
+		var colB = lib.getColumn(LibraryMatrix.B, jB)
+				.orElse(null);
+		if (colB == null)
+			return column;
+
+		for (int iB = 0; iB < colB.length; iB++) {
+			double val = colB[iB];
+			if (val == 0)
+				continue;
+			var flow = flowIdxB.at(iB);
+			var i = flowIdx.of(flow);
+			if (i < 0)
+				continue;
+			column[i] = val;
+		}
+
 		return new double[0];
 	}
 
 	@Override
 	public double valueOfB(int row, int col) {
-		return 0;
+		// TODO: we may want to load matrix entries
+		// explicitly from libraries in the future
+		// instead of loading the full column
+		var column = columnOfB(col);
+		return column[row];
 	}
 
 	@Override
