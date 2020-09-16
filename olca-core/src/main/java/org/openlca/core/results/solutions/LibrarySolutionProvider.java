@@ -31,6 +31,8 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	private final MatrixData fullData;
 	private final TIntObjectHashMap<double[]> solutions;
 	private final TIntObjectHashMap<double[]> columnsOfA;
+	private final TIntObjectHashMap<double[]> intensities;
+
 	private double[] scalingVector;
 	private double[] totalFlowResults;
 
@@ -57,6 +59,10 @@ public class LibrarySolutionProvider implements SolutionProvider {
 				Constants.DEFAULT_LOAD_FACTOR,
 				-1);
 		this.columnsOfA = new TIntObjectHashMap<>(
+				Constants.DEFAULT_CAPACITY,
+				Constants.DEFAULT_LOAD_FACTOR,
+				-1);
+		this.intensities = new TIntObjectHashMap<>(
 				Constants.DEFAULT_CAPACITY,
 				Constants.DEFAULT_LOAD_FACTOR,
 				-1);
@@ -436,8 +442,62 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] totalFlowResultsOfOne(int product) {
-		return new double[0];
+	public double[] totalFlowResultsOfOne(int j) {
+		var m = intensities.get(j);
+		if (m != null)
+			return m;
+
+		var flowIndex = fullData.flowIndex;
+		if (flowIndex == null || flowIndex.size() == 0) {
+			return new double[0];
+		}
+
+		var s = solutionOfOne(j);
+		m = new double[flowIndex.size()];
+
+		// add the foreground result
+		var enviF = foregroundData.enviMatrix;
+		if (enviF != null) {
+			var sF = Arrays.copyOf(
+					s, foregroundData.techIndex.size());
+			var mF = solver.multiply(enviF, sF);
+			System.arraycopy(mF, 0, m, 0, mF.length);
+		}
+
+		var techIdx = techIndex();
+		for (var e : libraries.entrySet()) {
+			var libID = e.getKey();
+			var lib = e.getValue();
+			var flowIdxB = libFlowIndices.get(libID);
+			var techIdxB = libTechIndices.get(libID);
+			if (lib == null || flowIdxB == null || techIdxB == null)
+				continue;
+			if (flowIdxB.size() == 0)
+				continue;
+
+			// calculate the scaled library result
+			var matrixB = lib.getMatrix(LibraryMatrix.B).orElse(null);
+			if (matrixB == null)
+				continue;
+			var sB = new double[techIdxB.size()];
+			for (int i = 0; i < s.length; i++) {
+				var product = techIdx.getProviderAt(i);
+				var iB = techIdxB.getIndex(product);
+				if (iB < 0)
+					continue;
+				sB[iB] = s[i];
+			}
+			var gB = solver.multiply(matrixB, sB);
+			for (int iB = 0; iB < gB.length; iB++) {
+				var flow = flowIdxB.at(iB);
+				var i = flowIndex.of(flow);
+				if (i < 0)
+					continue;
+				m[i] += gB[iB];
+			}
+		}
+		intensities.put(j, m);
+		return m;
 	}
 
 	@Override
