@@ -34,6 +34,7 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	private final TIntObjectHashMap<double[]> intensities;
 
 	private double[] scalingVector;
+	private double[] totalRequirements;
 	private double[] totalFlowResults;
 
 	// library maps: libID -> T
@@ -503,6 +504,11 @@ public class LibrarySolutionProvider implements SolutionProvider {
 
 	@Override
 	public double loopFactorOf(int product) {
-		return 0;
+		var aii = valueOfA(product, product);
+		var ii = solutionOfOne(product)[product];
+		var f = aii * ii;
+		return f == 0
+				? 0
+				: 1 / f;
 	}
 }

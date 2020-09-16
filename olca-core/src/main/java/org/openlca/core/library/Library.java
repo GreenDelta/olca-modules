@@ -208,7 +208,36 @@ public class Library {
 
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(getClass());
-			log.error("failed to read matrix from " + folder, e);
+			log.error("failed to read matrix column "
+					+ column + " from " + m + " in " + folder, e);
+			return Optional.empty();
+		}
+	}
+
+	/**
+	 * Get the diagonal of the given library matrix.
+	 */
+	public Optional<double[]> getDiagonal(LibraryMatrix m) {
+		var matrix = matrixCache.get(m);
+		if (matrix != null)
+			return Optional.of(matrix.diag());
+
+		try {
+			// do not cache dense matrices
+			var npy = new File(folder, m.name() + ".npy");
+			if (npy.exists())
+				return Optional.of(Npy.loadDiagonal(npy));
+
+			// force caching of sparse matrices
+			matrix = getMatrix(m).orElse(null);
+			return matrix == null
+					? Optional.empty()
+					: Optional.of(matrix.diag());
+
+		} catch (Exception e) {
+			var log = LoggerFactory.getLogger(getClass());
+			log.error("failed to read matrix diagonal"
+					+ " from " + m + " in " + folder, e);
 			return Optional.empty();
 		}
 	}
