@@ -80,17 +80,25 @@ public class InventoryBuilder {
 		fillMatrices();
 		int n = techIndex.size();
 		int m = flowIndex.size();
-		techBuilder.minSize(n, n);
-		enviBuilder.minSize(m, n);
 
-		// return the matrix data
-		MatrixData data = new MatrixData();
+		// create the matrix data
+		var data = new MatrixData();
+
+		// product data
 		data.techIndex = techIndex;
-		data.flowIndex = flowIndex;
+		techBuilder.minSize(n, n);
 		data.techMatrix = techBuilder.finish();
-		data.enviMatrix = enviBuilder.finish();
 		data.techUncertainties = techUncerts;
-		data.enviUncertainties = enviUncerts;
+
+		// optional elementary flows
+		if (m > 0) {
+			data.flowIndex = flowIndex;
+			enviBuilder.minSize(m, n);
+			data.enviMatrix = enviBuilder.finish();
+			data.enviUncertainties = enviUncerts;
+		}
+
+		// optional costs
 		data.costVector = costs;
 		return data;
 	}
