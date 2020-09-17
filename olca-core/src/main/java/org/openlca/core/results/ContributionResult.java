@@ -20,16 +20,6 @@ import org.openlca.core.results.solutions.SolutionProvider;
 public class ContributionResult extends SimpleResult {
 
 	/**
-	 * An elementary flow * process-product matrix that contains the direct
-	 * contributions of the processes to the inventory result. This can be
-	 * calculated by column-wise scaling of the intervention matrix $\mathbf{B}$
-	 * with the scaling vector $\mathbf{s}$:
-	 *
-	 * $$\mathbf{G} = \mathbf{B} \ \text{diag}(\mathbf{s})$$
-	 */
-	public IMatrix directFlowResults;
-
-	/**
 	 * A LCIA category * process-product matrix that contains the direct
 	 * contributions of the processes to the LCIA result. This can be calculated by
 	 * a matrix-matrix multiplication of the direct inventory contributions
@@ -63,7 +53,7 @@ public class ContributionResult extends SimpleResult {
 	 */
 	public IMatrix impactFactors;
 
-	protected final SolutionProvider solution;
+	public final SolutionProvider solution;
 
 	public ContributionResult(SolutionProvider provider) {
 		this.solution = provider;
@@ -82,9 +72,10 @@ public class ContributionResult extends SimpleResult {
 	public double getDirectFlowResult(ProcessProduct product, IndexFlow flow) {
 		if (!hasFlowResults())
 			return 0;
-		int row = flowIndex.of(flow);
-		int col = techIndex.getIndex(product);
-		return adopt(flow, getValue(directFlowResults, row, col));
+		int flowIdx = flowIndex.of(flow);
+		int productIdx = techIndex.getIndex(product);
+		double value = solution.directFlowResult(flowIdx, productIdx);
+		return adopt(flow, value);
 	}
 
 	/**

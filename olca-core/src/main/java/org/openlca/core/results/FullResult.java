@@ -27,13 +27,10 @@ public class FullResult extends ContributionResult {
 	public double getUpstreamFlowResult(ProcessProduct product, IndexFlow flow) {
 		if (techIndex == null || flowIndex == null)
 			return 0;
-		int row = flowIndex.of(flow);
-		int col = techIndex.getIndex(product);
-		double[] m = solution.totalFlowResultsOfOne(col);
-		if (m.length == 0)
-			return 0;
-		double t = totalRequirements[col] * solution.loopFactorOf(col);
-		return adopt(flow, t * m[row]);
+		int flowIdx = flowIndex.of(flow);
+		int productIdx = techIndex.getIndex(product);
+		double amount = solution.totalFlowResult(flowIdx, productIdx);
+		return adopt(flow, amount);
 	}
 
 	/**

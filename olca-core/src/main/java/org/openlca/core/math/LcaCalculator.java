@@ -85,11 +85,6 @@ public class LcaCalculator {
 		int idx = productIndex.getIndex(productIndex.getRefFlow());
 		double[] s = solver.solve(techMatrix, idx, productIndex.getDemand());
 
-		IMatrix enviMatrix = data.enviMatrix;
-		IMatrix singleResult = enviMatrix.copy();
-		singleResult.scaleColumns(s);
-		result.directFlowResults = singleResult;
-
 		if (data.impactMatrix != null) {
 			addDirectImpacts(result);
 		}
@@ -105,13 +100,6 @@ public class LcaCalculator {
 		var result = new FullResult(solution);
 
 		double[] scalingVector = solution.scalingVector();
-
-		// flow results
-		IMatrix enviMatrix = data.enviMatrix;
-		if (enviMatrix != null) {
-			result.directFlowResults = enviMatrix.copy();
-			result.directFlowResults.scaleColumns(scalingVector);
-		}
 
 		if (data.impactMatrix != null) {
 			addDirectImpacts(result);

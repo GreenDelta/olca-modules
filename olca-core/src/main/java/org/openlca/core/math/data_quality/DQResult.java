@@ -71,7 +71,7 @@ public class DQResult {
 	private BMatrix[] processImpactResult;
 
 	public static DQResult of(IDatabase db, DQCalculationSetup setup,
-						ContributionResult result) {
+							  ContributionResult result) {
 		var r = new DQResult(setup, result);
 		r.loadProcessData(db);
 		r.loadExchangeData(db);
@@ -313,24 +313,25 @@ public class DQResult {
 		if (setup.aggregationType == AggregationType.NONE
 				|| exchangeData == null)
 			return;
-		var matrixG = result.directFlowResults;
-		if (matrixG == null)
-			return;
 
 		var system = setup.exchangeSystem;
+		int n = result.techIndex.size();
 		int k = system.indicators.size();
 		int m = result.flowIndex.size();
 		flowResult = new BMatrix(k, m);
 		int max = system.getScoreCount();
 
 		var acc = new Accumulator(setup, max);
+		var flowContributions = new double[n];
 		for (int indicator = 0; indicator < k; indicator++) {
 			var b = exchangeData[indicator];
 			for (int flow = 0; flow < m; flow++) {
 				int[] dqs = b.getRow(flow);
-				// set the aggregated indicator result
-				double[] weights = matrixG.getRow(flow);
-				flowResult.set(indicator, flow, acc.get(dqs, weights));
+				for (int product = 0; product < n; product++) {
+					flowContributions[product] = result.solution
+							.directFlowResult(flow, product);
+				}
+				flowResult.set(indicator, flow, acc.get(dqs, flowContributions));
 			}
 		}
 	}

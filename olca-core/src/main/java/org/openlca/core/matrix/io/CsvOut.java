@@ -88,7 +88,6 @@ public final class CsvOut {
 
 		if (result instanceof ContributionResult) {
 			ContributionResult cr = (ContributionResult) result;
-			write(cr.directFlowResults, new File(folder, "G.csv"));
 			write(cr.directImpactResults, new File(folder, "H.csv"));
 			writeCol(cr.directCostResults, new File(folder, "k_scaled.csv"));
 			write(cr.impactFactors, new File(folder, "C.csv"));

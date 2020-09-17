@@ -113,16 +113,6 @@ public interface SolutionProvider {
 	}
 
 	/**
-	 * Get the scaled value $s_j * b_{ij}$ of the intervention matrix $B$. This
-	 * is the direct contribution of process $j$ to the result of flow $i$.
-	 */
-	default double scaledValueOfB(int row, int col) {
-		var s = scalingVector();
-		var bij = valueOfB(row, col);
-		return s[col] * bij;
-	}
-
-	/**
 	 * The inventory result $\mathbf{g}$ of the product system:
 	 * <p>
 	 * $$\mathbf{g} = \mathbf{B} \ \mathbf{s}$$
@@ -131,6 +121,20 @@ public interface SolutionProvider {
 	 * scaling vector. Note that inputs have negative values in this vector.
 	 */
 	double[] totalFlowResults();
+
+	/**
+	 * Get the the direct result of the given flow and product related to the
+	 * final demand of the system. This is basically the element $g_{ij}$
+	 * of the column-wise scaled intervention matrix $B$:
+	 * <p>
+	 * $$ G = B \text{diag}(s) $$
+	 */
+	default double directFlowResult(int flow, int product) {
+		var s = scalingVector();
+		if (s == null || s.length <= product)
+			return 0;
+		return s[product] * valueOfB(flow, product);
+	}
 
 	/**
 	 * Returns the total flow results (direct + upstream) related to one unit of
@@ -145,7 +149,30 @@ public interface SolutionProvider {
 	 * Returns the total result (direct + upstream) of the given flow related
 	 * to one unit of the given product in the system.
 	 */
-	double totalFlowResultOfOne(int flow, int product);
+	default double totalFlowResultOfOne(int flow, int product) {
+		var column = totalFlowResultsOfOne(product);
+		if (column == null || column.length <= flow)
+			return 0;
+		return column[flow];
+	}
+
+	/**
+	 * Returns the total flow result (direct + upstream) of the given flow
+	 * and product related to the final demand of the system.
+	 */
+	default double totalFlowResult(int flow, int product) {
+		if (flow < 0 || product < 0)
+			return 0;
+		double[] tr = totalRequirements();
+		if (tr == null || tr.length <= product)
+			return 0;
+		double[] ofOne = totalFlowResultsOfOne(product);
+		if (ofOne == null || ofOne.length < flow)
+			return 0;
+		double loop = loopFactorOf(product);
+		return loop * tr[product] * ofOne[flow];
+	}
+
 
 	double[] totalImpacts();
 

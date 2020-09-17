@@ -129,8 +129,6 @@ public class LazySolutionProvider implements SolutionProvider {
 
 	@Override
 	public double[] totalFlowResultsOfOne(int product) {
-		if (intensities == null)
-			return new double[0];
 		var m = intensities.get(product);
 		if (m != null)
 			return m;
@@ -138,13 +136,6 @@ public class LazySolutionProvider implements SolutionProvider {
 		m = solver.multiply(data.enviMatrix, s);
 		intensities.put(product, m);
 		return m;
-	}
-
-	@Override
-	public double totalFlowResultOfOne(int flow, int product) {
-		if (intensities == null)
-			return 0;
-		return totalFlowResultsOfOne(product)[flow];
 	}
 
 	@Override

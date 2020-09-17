@@ -461,14 +461,6 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double totalFlowResultOfOne(int flow, int product) {
-		var column = totalFlowResultsOfOne(product);
-		if (column.length <= flow)
-			return 0;
-		return column[flow];
-	}
-
-	@Override
 	public double[] totalImpacts() {
 		return new double[0];
 	}
