@@ -48,6 +48,44 @@ public interface SolutionProvider {
 	 */
 	double[] scalingVector();
 
+	default double scalingFactorOf(int product) {
+		if (product < 0)
+			return 0;
+		var s = scalingVector();
+		return s == null || s.length < product
+				? 0
+				: s[product];
+	}
+
+	/**
+	 * The total requirements of the products to fulfill the demand of the
+	 * product system. As our technology matrix $\mathbf{A}$ is indexed
+	 * symmetrically (means rows and columns refer to the same process-product
+	 * pair) our product amounts are on the diagonal of the technology matrix
+	 * $\mathbf{A}$ and the total requirements can be calculated by the
+	 * following equation where $\mathbf{s}$ is the scaling vector ($\odot$
+	 * denotes element-wise multiplication):
+	 * <p>
+	 * $$\mathbf{t} = \text{diag}(\mathbf{A}) \odot \mathbf{s}$$
+	 */
+	default double[] totalRequirements() {
+		var index = techIndex();
+		var t = new double[index.size()];
+		for (int i = 0; i < t.length; i++) {
+			t[i] = scaledValueOfA(i, i);
+		}
+		return t;
+	}
+
+	default double totalRequirementsOf(int product) {
+		if (product < 0)
+			return 0;
+		var t = totalRequirements();
+		return t == null || t.length < product
+				? 0
+				: t[product];
+
+	}
 
 	/**
 	 * Get the unscaled column $j$ from the technology matrix $A$.
@@ -70,26 +108,6 @@ public interface SolutionProvider {
 		var s = scalingVector();
 		var aij = valueOfA(row, col);
 		return s[col] * aij;
-	}
-
-	/**
-	 * The total requirements of the products to fulfill the demand of the
-	 * product system. As our technology matrix $\mathbf{A}$ is indexed
-	 * symmetrically (means rows and columns refer to the same process-product
-	 * pair) our product amounts are on the diagonal of the technology matrix
-	 * $\mathbf{A}$ and the total requirements can be calculated by the
-	 * following equation where $\mathbf{s}$ is the scaling vector ($\odot$
-	 * denotes element-wise multiplication):
-	 * <p>
-	 * $$\mathbf{t} = \text{diag}(\mathbf{A}) \odot \mathbf{s}$$
-	 */
-	default double[] totalRequirements() {
-		var index = techIndex();
-		var t = new double[index.size()];
-		for (int i = 0; i < t.length; i++) {
-			t[i] = scaledValueOfA(i, i);
-		}
-		return t;
 	}
 
 	/**

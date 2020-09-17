@@ -12,12 +12,14 @@ public class EagerSolutionProvider implements SolutionProvider {
 
 	private final MatrixData data;
 
-	private double[] scalingVector;
+	private final IMatrix inverse;
+	private final double[] scalingVector;
+	private final double[] totalRequirements;
+
 	private double[] totalFlows;
 	private double[] totalImpacts;
 	private double totalCosts;
 
-	private IMatrix inverse;
 
 	private IMatrix directFlowResults;
 	private IMatrix flowIntensities;
@@ -26,26 +28,29 @@ public class EagerSolutionProvider implements SolutionProvider {
 	private IMatrix impactIntensities;
 	private double[] costIntensities;
 
-	private EagerSolutionProvider(MatrixData data) {
+	private EagerSolutionProvider(MatrixData data, IMatrixSolver solver) {
 		this.data = data;
+
+		// product and waste flows flows
+		var techIdx = data.techIndex;
+		inverse = solver.invert(data.techMatrix);
+		var refIdx = techIdx.getIndex(techIdx.getRefFlow());
+		scalingVector = inverse.getColumn(refIdx);
+		var demand = techIdx.getDemand();
+		for (int i = 0; i < scalingVector.length; i++) {
+			scalingVector[i] *= demand;
+		}
+		totalRequirements = data.techMatrix.diag();
+		for (int i = 0; i < totalRequirements.length; i++) {
+			totalRequirements[i] *= scalingVector[i];
+		}
+
 	}
 
 	public static EagerSolutionProvider create(
 			MatrixData data,
 			IMatrixSolver solver) {
 		var provider = new EagerSolutionProvider(data);
-
-		// the inverse of A: inv(A)
-		provider.inverse = solver.invert(data.techMatrix);
-
-		// the scaling vector s = A \ d
-		var refIdx = data.techIndex.getIndex(
-				data.techIndex.getRefFlow());
-		provider.scalingVector = provider.inverse.getColumn(refIdx);
-		var demand = data.techIndex.getDemand();
-		for (int i = 0; i < provider.scalingVector.length; i++) {
-			provider.scalingVector[i] *= demand;
-		}
 
 		if (data.flowMatrix != null) {
 
@@ -112,6 +117,11 @@ public class EagerSolutionProvider implements SolutionProvider {
 	@Override
 	public double[] scalingVector() {
 		return scalingVector;
+	}
+
+	@Override
+	public double[] totalRequirements() {
+		return totalRequirements;
 	}
 
 	@Override
