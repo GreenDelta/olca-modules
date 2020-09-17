@@ -98,7 +98,7 @@ public class DQDataTest {
 		var product1 = ProcessProduct.of(process1);
 		var product2 = ProcessProduct.of(process2);
 
-		var result = new ContributionResult();
+		var result = new ContributionResult(null);
 		result.techIndex = new TechIndex(product1);
 		result.techIndex.put(product2);
 		result.flowIndex = FlowIndex.create();

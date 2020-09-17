@@ -9,6 +9,7 @@ import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.results.solutions.SolutionProvider;
 
 /**
  * The `ContributionResult` extends the `SimpleResult` type. It also contains
@@ -61,6 +62,13 @@ public class ContributionResult extends SimpleResult {
 	 * factors.
 	 */
 	public IMatrix impactFactors;
+
+	protected final SolutionProvider solution;
+
+	public ContributionResult(SolutionProvider provider) {
+		this.solution = provider;
+	}
+
 
 	@Override
 	public boolean hasCostResults() {

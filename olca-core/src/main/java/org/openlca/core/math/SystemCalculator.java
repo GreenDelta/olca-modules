@@ -10,6 +10,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.NwSetDao;
 import org.openlca.core.database.ProductSystemDao;
+import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.FastMatrixBuilder;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
@@ -40,10 +41,16 @@ public class SystemCalculator {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final IDatabase db;
 	private final IMatrixSolver solver;
+	private LibraryDir libDir;
 
 	public SystemCalculator(IDatabase db, IMatrixSolver solver) {
 		this.db = db;
 		this.solver = solver;
+	}
+
+	public SystemCalculator withLibraries(LibraryDir libDir) {
+		this.libDir = libDir;
+		return this;
 	}
 
 	public SimpleResult calculateSimple(CalculationSetup setup) {
@@ -106,7 +113,11 @@ public class SystemCalculator {
 			var subs = calculateSubSystems(setup);
 			data = DataStructures.matrixData(db, setup, subs);
 		}
-		return new LcaCalculator(solver, data);
+		var calculator = new LcaCalculator(solver, data);
+		if (libDir != null) {
+			calculator.withLibraries(db, libDir);
+		}
+		return calculator;
 	}
 
 	/**

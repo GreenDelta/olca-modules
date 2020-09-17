@@ -24,6 +24,8 @@ public class LcaCalculator {
 
 	private final IMatrixSolver solver;
 	private final MatrixData data;
+	private IDatabase db;
+	private LibraryDir libDir;
 
 	public LcaCalculator(IMatrixSolver solver, MatrixData data) {
 		this.solver = solver;
@@ -31,20 +33,39 @@ public class LcaCalculator {
 		this.data.compress();
 	}
 
+	public LcaCalculator withLibraries(IDatabase db, LibraryDir libDir) {
+		this.db = db;
+		this.libDir = libDir;
+		return this;
+	}
+
+	private SolutionProvider solution(boolean forceLazy) {
+		if (db != null && libDir != null)
+			return LibrarySolutionProvider.of(db, libDir, solver, data);
+		if (forceLazy)
+			return LazySolutionProvider.create(data, solver);
+		// TODO: consider the matrix size and format and the capabilities
+		// of the solver...
+		return data.isSparse()
+				? LazySolutionProvider.create(data, solver)
+				: EagerSolutionProvider.create(data, solver);
+	}
+
 	public SimpleResult calculateSimple() {
 
-		SimpleResult result = new SimpleResult();
+		var solution = solution(true);
+		var result = new SimpleResult();
 		result.flowIndex = data.flowIndex;
 		result.techIndex = data.techIndex;
 
-		IMatrix techMatrix = data.techMatrix;
-		TechIndex productIndex = data.techIndex;
-		int idx = productIndex.getIndex(productIndex.getRefFlow());
-		double[] s = solver.solve(techMatrix, idx, productIndex.getDemand());
+		var techMatrix = data.techMatrix;
+		var techIndex = data.techIndex;
+		int idx = techIndex.getIndex(techIndex.getRefFlow());
+		var s = solver.solve(techMatrix, idx, techIndex.getDemand());
 		result.scalingVector = s;
 		result.totalRequirements = getTotalRequirements(techMatrix, s);
-		IMatrix enviMatrix = data.enviMatrix;
 
+		var enviMatrix = data.enviMatrix;
 		result.totalFlowResults = solver.multiply(enviMatrix, s);
 
 		if (data.impactMatrix != null) {
@@ -58,11 +79,12 @@ public class LcaCalculator {
 		return result;
 	}
 
+
+
 	public ContributionResult calculateContributions() {
 
-		ContributionResult result = new ContributionResult();
-		result.flowIndex = data.flowIndex;
-		result.techIndex = data.techIndex;
+		var solution = solution(true);
+		var result = new ContributionResult(solution);
 
 		IMatrix techMatrix = data.techMatrix;
 		TechIndex productIndex = data.techIndex;
@@ -89,28 +111,9 @@ public class LcaCalculator {
 		return result;
 	}
 
-	public FullResult calculateWithLibraries(IDatabase db, LibraryDir libDir) {
-		var solution = LibrarySolutionProvider.of(
-				db,
-				libDir,
-				solver,
-				data);
-		return calculateFull(solution);
-	}
-
 	public FullResult calculateFull() {
-		var solution = data.isSparse()
-				? LazySolutionProvider.create(data, solver)
-				: EagerSolutionProvider.create(data, solver);
-		return calculateFull(solution);
-	}
-
-	private FullResult calculateFull(SolutionProvider solution) {
-		FullResult result = new FullResult();
-		result.solutions = solution;
-		result.flowIndex = solution.flowIndex();
-		result.techIndex = solution.techIndex();
-
+		var solution = solution(false);
+		var result = new FullResult(solution);
 
 		double[] scalingVector = solution.scalingVector();
 		result.scalingVector = scalingVector;
@@ -127,12 +130,12 @@ public class LcaCalculator {
 		if (data.impactMatrix != null) {
 			addDirectImpacts(result);
 			result.impactIndex = data.impactIndex;
-			result.totalImpactResults = result.solutions.totalImpacts();
+			result.totalImpactResults = solution.totalImpacts();
 		}
 
 		if (data.costVector != null) {
 			addDirectCosts(result, scalingVector);
-			result.totalCosts = result.solutions.totalCosts();
+			result.totalCosts = solution.totalCosts();
 		}
 		return result;
 	}

@@ -26,10 +26,11 @@ public class SankeyExample {
 		var setup = new CalculationSetup(system);
 
 		var data = DataStructures.matrixData(db, setup);
-		var calc = new LcaCalculator(new JavaSolver(), data);
+		var calc = new LcaCalculator(new JavaSolver(), data)
+				.withLibraries(db, libDir);
 
 		var start = System.currentTimeMillis();
-		var result = calc.calculateWithLibraries(db, libDir);
+		var result = calc.calculateFull();
 		var end = System.currentTimeMillis();
 		System.out.println("Computed result in: "
 				+ ((double) (end - start) / 1000d));

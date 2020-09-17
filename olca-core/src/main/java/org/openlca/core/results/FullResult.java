@@ -16,7 +16,9 @@ import org.openlca.core.results.solutions.SolutionProvider;
  */
 public class FullResult extends ContributionResult {
 
-	public SolutionProvider solutions;
+	public FullResult(SolutionProvider solution) {
+		super(solution);
+	}
 
 	/**
 	 * Get the upstream contribution of the given process-product pair $j$ to the
@@ -27,10 +29,10 @@ public class FullResult extends ContributionResult {
 			return 0;
 		int row = flowIndex.of(flow);
 		int col = techIndex.getIndex(product);
-		double[] m = solutions.totalFlowResultsOfOne(col);
+		double[] m = solution.totalFlowResultsOfOne(col);
 		if (m.length == 0)
 			return 0;
-		double t = totalRequirements[col] * solutions.loopFactorOf(col);
+		double t = totalRequirements[col] * solution.loopFactorOf(col);
 		return adopt(flow, t * m[row]);
 	}
 
@@ -73,10 +75,10 @@ public class FullResult extends ContributionResult {
 			return 0;
 		int row = impactIndex.of(impact);
 		int col = techIndex.getIndex(product);
-		double[] h = solutions.totalImpactsOfOne(col);
+		double[] h = solution.totalImpactsOfOne(col);
 		if (h.length == 0)
 			return 0;
-		double t = totalRequirements[col] * solutions.loopFactorOf(col);
+		double t = totalRequirements[col] * solution.loopFactorOf(col);
 		return t * h[row];
 	}
 
@@ -121,8 +123,8 @@ public class FullResult extends ContributionResult {
 		if (!hasCostResults())
 			return 0;
 		int col = techIndex.getIndex(provider);
-		double c = solutions.totalCostsOfOne(col);
-		double t = totalRequirements[col] * solutions.loopFactorOf(col);
+		double c = solution.totalCostsOfOne(col);
+		double t = totalRequirements[col] * solution.loopFactorOf(col);
 		return c * t;
 	}
 
@@ -154,15 +156,15 @@ public class FullResult extends ContributionResult {
 		double amount = 0.0;
 		for (var process : techIndex.getProviders(link.processId)) {
 			int processIdx = techIndex.getIndex(process);
-			amount += solutions.scaledValueOfA(providerIdx, processIdx);
+			amount += solution.scaledValueOfA(providerIdx, processIdx);
 		}
 		if (amount == 0)
 			return 0;
 
-		double total = solutions.scaledValueOfA(providerIdx, providerIdx);
+		double total = solution.scaledValueOfA(providerIdx, providerIdx);
 		return total == 0
-			? 0
-			:  -amount / total;
+				? 0
+				: -amount / total;
 	}
 
 	/**
@@ -172,7 +174,7 @@ public class FullResult extends ContributionResult {
 		int i = flowIndex.of(flow);
 		double total = getTotalFlowResult(flow);
 		return new UpstreamTree(flow, this, total,
-				product -> solutions.totalFlowResultOfOne(i, product));
+				product -> solution.totalFlowResultOfOne(i, product));
 	}
 
 	/**
@@ -182,7 +184,7 @@ public class FullResult extends ContributionResult {
 		int i = impactIndex.of(impact.id);
 		double total = getTotalImpactResult(impact);
 		return new UpstreamTree(impact, this, total,
-				product -> solutions.totalImpactOfOne(i, product));
+				product -> solution.totalImpactOfOne(i, product));
 	}
 
 	/**
@@ -190,7 +192,7 @@ public class FullResult extends ContributionResult {
 	 */
 	public UpstreamTree getCostTree() {
 		return new UpstreamTree(this, totalCosts,
-				product -> solutions.totalCostsOfOne(product));
+				solution::totalCostsOfOne);
 	}
 
 	/**
@@ -198,7 +200,7 @@ public class FullResult extends ContributionResult {
 	 */
 	public UpstreamTree getAddedValueTree() {
 		return new UpstreamTree(this, -totalCosts,
-				product -> -solutions.totalCostsOfOne(product));
+				product -> -solution.totalCostsOfOne(product));
 	}
 
 }

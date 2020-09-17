@@ -47,8 +47,8 @@ public class LinkContributionsTest {
 		data.techMatrix = techMatrix;
 		data.techIndex = index;
 
-		FullResult r = new FullResult();
-		r.solutions = LazySolutionProvider.create(data, solver);
+		var solution = LazySolutionProvider.create(data, solver);
+		FullResult r = new FullResult(solution);
 		r.techIndex = index;
 
 		Assert.assertEquals(0, r.getLinkShare(link(4, 4, 1)), 1e-16);
@@ -85,8 +85,8 @@ public class LinkContributionsTest {
 		var data = new MatrixData();
 		data.techIndex = index;
 		data.techMatrix = techMatrix;
-		FullResult r = new FullResult();
-		r.solutions = LazySolutionProvider.create(data, solver);
+		var solutions = LazySolutionProvider.create(data, solver);
+		FullResult r = new FullResult(solutions);
 		r.techIndex = index;
 
 		for (int i = 0; i < size; i++) {
