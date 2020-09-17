@@ -94,7 +94,7 @@ public class InventoryBuilder {
 		if (m > 0) {
 			data.flowIndex = flowIndex;
 			enviBuilder.minSize(m, n);
-			data.enviMatrix = enviBuilder.finish();
+			data.flowMatrix = enviBuilder.finish();
 			data.enviUncertainties = enviUncerts;
 		}
 

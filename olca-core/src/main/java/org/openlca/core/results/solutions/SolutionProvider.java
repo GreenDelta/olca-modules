@@ -173,12 +173,18 @@ public interface SolutionProvider {
 		return loop * tr[product] * ofOne[flow];
 	}
 
-
 	double[] totalImpacts();
+
+	double directImpact(int indicator, int product);
 
 	double[] totalImpactsOfOne(int product);
 
-	double totalImpactOfOne(int indicator, int product);
+	default double totalImpactOfOne(int indicator, int product) {
+		var ofOne = totalImpactsOfOne(product);
+		if (ofOne == null || ofOne.length <= indicator)
+			return 0;
+		return ofOne[indicator];
+	}
 
 	double totalCosts();
 

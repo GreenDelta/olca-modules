@@ -101,7 +101,7 @@ public class LibraryExport implements Runnable {
 			threadPool.execute(() -> {
 				log.info("write matrices A and B");
 				writeMatrix("A", d.techMatrix);
-				writeMatrix("B", d.enviMatrix);
+				writeMatrix("B", d.flowMatrix);
 				log.info("finished with A and B");
 				log.info("write matrix indices");
 				new IndexWriter(folder, d, db).run();
@@ -114,7 +114,7 @@ public class LibraryExport implements Runnable {
 					var inv = solver.invert(d.techMatrix);
 					writeMatrix("INV", inv);
 					log.info("create matrix M");
-					var m = solver.multiply(d.enviMatrix, inv);
+					var m = solver.multiply(d.flowMatrix, inv);
 					writeMatrix("M", m);
 					log.info("finished with INV and M");
 				});
@@ -156,7 +156,7 @@ public class LibraryExport implements Runnable {
 		// normalize the columns to 1 | -1
 		log.info("normalize matrices to 1 | -1");
 		var matrixA = data.techMatrix;
-		var matrixB = data.enviMatrix;
+		var matrixB = data.flowMatrix;
 		int n = matrixA.columns();
 		for (int j = 0; j < n; j++) {
 			double f = Math.abs(matrixA.get(j, j));

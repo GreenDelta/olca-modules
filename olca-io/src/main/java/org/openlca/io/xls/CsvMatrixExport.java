@@ -100,7 +100,7 @@ public class CsvMatrixExport implements Runnable {
 		int rows = flowIndex.size();
 		int columns = techIndex.size();
 		writeEnviMatrixHeader(buffer, techIndex);
-		IMatrix matrix = data.enviMatrix;
+		IMatrix matrix = data.flowMatrix;
 		for (int row = 0; row < rows; row++) {
 			FlowDescriptor flow = flowIndex.at(row).flow;
 			writeName(flow, buffer);

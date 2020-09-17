@@ -18,7 +18,11 @@ public class EagerSolutionProvider implements SolutionProvider {
 	private double totalCosts;
 
 	private IMatrix inverse;
+
+	private IMatrix directFlowResults;
 	private IMatrix flowIntensities;
+
+	private IMatrix directImpacts;
 	private IMatrix impactIntensities;
 	private double[] costIntensities;
 
@@ -43,11 +47,14 @@ public class EagerSolutionProvider implements SolutionProvider {
 			provider.scalingVector[i] *= demand;
 		}
 
-		if (data.enviMatrix != null) {
+		if (data.flowMatrix != null) {
+
+			provider.directFlowResults = data.flowMatrix.copy();
+			provider.directFlowResults.scaleColumns(provider.scalingVector());
 
 			// the intensity matrix: M = B * inv(A)
 			provider.flowIntensities = solver.multiply(
-					data.enviMatrix,
+					data.flowMatrix,
 					provider.inverse);
 			provider.totalFlows = provider.totalFlowResultsOfOne(refIdx);
 			for (int i = 0; i < provider.totalFlows.length; i++) {
@@ -55,6 +62,11 @@ public class EagerSolutionProvider implements SolutionProvider {
 			}
 
 			if (data.impactMatrix != null) {
+
+				provider.directImpacts = solver.matrix(
+						data.impactMatrix,
+						data.
+				)
 
 				// impacts of the intensities: C * M
 				provider.impactIntensities = solver.multiply(
@@ -119,12 +131,12 @@ public class EagerSolutionProvider implements SolutionProvider {
 
 	@Override
 	public double[] columnOfB(int j) {
-		return data.enviMatrix.getColumn(j);
+		return data.flowMatrix.getColumn(j);
 	}
 
 	@Override
 	public double valueOfB(int row, int col) {
-		return data.enviMatrix.get(row, col);
+		return data.flowMatrix.get(row, col);
 	}
 
 	@Override

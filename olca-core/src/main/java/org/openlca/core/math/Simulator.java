@@ -164,7 +164,7 @@ public class Simulator {
 				// A, B, C, s, t are the standard symbols
 				// in LCA calculations
 				IMatrix A = root.data.techMatrix;
-				IMatrix B = root.data.enviMatrix;
+				IMatrix B = root.data.flowMatrix;
 				IMatrix C = root.data.impactMatrix;
 				double[] s = sr.scalingVector;
 
@@ -223,7 +223,7 @@ public class Simulator {
 					double val = sub.lastResult.totalFlowResults[i];
 					int row = node.data.flowIndex.of(f.flow, f.location);
 					if (row >= 0) {
-						node.data.enviMatrix.set(row, col, val);
+						node.data.flowMatrix.set(row, col, val);
 					}
 				});
 			}

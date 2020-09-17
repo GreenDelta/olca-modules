@@ -33,7 +33,7 @@ public class SankeyTest {
 		var flow = new FlowDescriptor();
 		flow.id = 42;
 		data.flowIndex.putOutput(flow);
-		data.enviMatrix = JavaMatrix.of(new double[][]{
+		data.flowMatrix = JavaMatrix.of(new double[][]{
 				{1.0, 2.0, 3.0},
 		});
 

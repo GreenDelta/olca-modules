@@ -37,8 +37,8 @@ public class ContributionTreeTest {
 				{ 1, 0, 0 },
 				{ -1, 1, 0 },
 				{ -1, 0, 1 } });
-		data.enviMatrix = solver.matrix(1, 3);
-		data.enviMatrix.setValues(new double[][] {
+		data.flowMatrix = solver.matrix(1, 3);
+		data.flowMatrix.setValues(new double[][] {
 				{ 0, 0.5, 0.5 } });
 
 		// calculate and check the result

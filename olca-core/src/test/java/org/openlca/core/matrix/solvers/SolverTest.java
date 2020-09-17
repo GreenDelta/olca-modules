@@ -75,7 +75,7 @@ public class SolverTest {
 		IMatrix enviMatrix = solver.matrix(4, 1);
 		for (int r = 0; r < 4; r++)
 			enviMatrix.set(r, 0, 1 * r);
-		data.enviMatrix = enviMatrix;
+		data.flowMatrix = enviMatrix;
 
 		LcaCalculator calculator = new LcaCalculator(solver, data);
 		SimpleResult result = calculator.calculateSimple();

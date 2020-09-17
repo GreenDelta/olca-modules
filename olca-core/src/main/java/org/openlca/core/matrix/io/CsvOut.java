@@ -60,7 +60,7 @@ public final class CsvOut {
 		write(data.impactIndex, new File(folder, "indexC.csv"));
 
 		write(data.techMatrix, new File(folder, "A.csv"));
-		write(data.enviMatrix, new File(folder, "B.csv"));
+		write(data.flowMatrix, new File(folder, "B.csv"));
 		write(data.impactMatrix, new File(folder, "C.csv"));
 		writeCol(data.costVector, new File(folder, "k.csv"));
 	}

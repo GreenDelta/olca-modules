@@ -31,7 +31,7 @@ public class LazySolutionProvider implements SolutionProvider {
 		this.factorization = solver.factorize(data.techMatrix);
 
 		solutions = new TIntObjectHashMap<>();
-		intensities = data.enviMatrix == null
+		intensities = data.flowMatrix == null
 				? null
 				: new TIntObjectHashMap<>();
 		impacts = data.impactMatrix == null
@@ -49,8 +49,8 @@ public class LazySolutionProvider implements SolutionProvider {
 		}
 
 		// calculate the total results
-		totalFlows = data.enviMatrix != null
-				? solver.multiply(data.enviMatrix, scalingVector)
+		totalFlows = data.flowMatrix != null
+				? solver.multiply(data.flowMatrix, scalingVector)
 				: null;
 		totalImpacts = totalFlows != null && data.impactMatrix != null
 				? solver.multiply(data.impactMatrix, totalFlows)
@@ -112,12 +112,12 @@ public class LazySolutionProvider implements SolutionProvider {
 
 	@Override
 	public double[] columnOfB(int j) {
-		return data.enviMatrix.getColumn(j);
+		return data.flowMatrix.getColumn(j);
 	}
 
 	@Override
 	public double valueOfB(int row, int col) {
-		return data.enviMatrix.get(row, col);
+		return data.flowMatrix.get(row, col);
 	}
 
 	@Override
@@ -133,7 +133,7 @@ public class LazySolutionProvider implements SolutionProvider {
 		if (m != null)
 			return m;
 		var s = solutionOfOne(product);
-		m = solver.multiply(data.enviMatrix, s);
+		m = solver.multiply(data.flowMatrix, s);
 		intensities.put(product, m);
 		return m;
 	}

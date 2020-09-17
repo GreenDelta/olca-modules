@@ -98,7 +98,7 @@ public class FastMatrixBuilder {
 		data.techIndex = techIndex;
 		data.flowIndex = flowIndex;
 		data.techMatrix = techBuilder.finish();
-		data.enviMatrix = enviBuilder.finish();
+		data.flowMatrix = enviBuilder.finish();
 		data.costVector = costs;
 
 		// add LCIA matrices

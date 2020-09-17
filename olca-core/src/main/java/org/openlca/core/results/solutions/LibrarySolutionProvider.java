@@ -343,7 +343,7 @@ public class LibrarySolutionProvider implements SolutionProvider {
 		// the flow index of the foreground system is
 		// exactly the first part of the combined index
 		if (libID == null) {
-			var enviF = foregroundData.enviMatrix;
+			var enviF = foregroundData.flowMatrix;
 			if (enviF == null)
 				return column;
 			var colF = enviF.getColumn(j);
@@ -416,7 +416,7 @@ public class LibrarySolutionProvider implements SolutionProvider {
 		m = new double[flowIndex.size()];
 
 		// add the foreground result
-		var enviF = foregroundData.enviMatrix;
+		var enviF = foregroundData.flowMatrix;
 		if (enviF != null) {
 			var sF = Arrays.copyOf(
 					s, foregroundData.techIndex.size());

@@ -108,6 +108,6 @@ public class Export implements Runnable {
 	private void writeMatrices(MatrixData mat)
 			throws Exception {
 		Matrices.writeDenseColumn(mat.techMatrix, new File(dir, "A.bin"));
-		Matrices.writeDenseColumn(mat.enviMatrix, new File(dir, "B.bin"));
+		Matrices.writeDenseColumn(mat.flowMatrix, new File(dir, "B.bin"));
 	}
 }

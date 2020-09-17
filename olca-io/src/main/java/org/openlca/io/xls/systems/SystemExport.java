@@ -265,7 +265,7 @@ public class SystemExport {
 		MatrixExcelExport export = new MatrixExcelExport();
 		export.setColumnHeader(columnHeader);
 		export.setRowHeader(rowHeader);
-		export.setMatrix(data.enviMatrix);
+		export.setMatrix(data.flowMatrix);
 		export.writeTo(workbook);
 	}
 

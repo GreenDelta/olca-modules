@@ -39,7 +39,7 @@ public class MatrixData {
 	/**
 	 * The intervention matrix.
 	 */
-	public IMatrix enviMatrix;
+	public IMatrix flowMatrix;
 
 	/**
 	 * The matrix with the characterization factors: LCIA categories *
@@ -79,8 +79,8 @@ public class MatrixData {
 		if (techMatrix != null && techUncertainties != null) {
 			techUncertainties.generate(techMatrix, interpreter);
 		}
-		if (enviMatrix != null && enviUncertainties != null) {
-			enviUncertainties.generate(enviMatrix, interpreter);
+		if (flowMatrix != null && enviUncertainties != null) {
+			enviUncertainties.generate(flowMatrix, interpreter);
 		}
 		if (impactMatrix != null && impactUncertainties != null) {
 			impactUncertainties.generate(impactMatrix, interpreter);
@@ -96,8 +96,8 @@ public class MatrixData {
 		if (techMatrix instanceof HashPointMatrix) {
 			techMatrix = CSCMatrix.of(techMatrix);
 		}
-		if (enviMatrix instanceof HashPointMatrix) {
-			enviMatrix = CSCMatrix.of(enviMatrix);
+		if (flowMatrix instanceof HashPointMatrix) {
+			flowMatrix = CSCMatrix.of(flowMatrix);
 		}
 		if (impactMatrix instanceof HashPointMatrix) {
 			impactMatrix = CSCMatrix.of(impactMatrix);
