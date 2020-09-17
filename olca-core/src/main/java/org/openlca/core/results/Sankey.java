@@ -153,11 +153,11 @@ public class Sankey<T> {
 	 * a negative value (-1..0) in case of negative upstream contributions.
 	 */
 	public double getLinkShare(Node provider, Node node) {
-		var total = solution.scaledValueOfA(
+		var total = solution.scaledTechValueOf(
 				provider.index, provider.index);
 		if (total == 0)
 			return 0;
-		var amount = solution.scaledValueOfA(
+		var amount = solution.scaledTechValueOf(
 				provider.index, node.index);
 		return amount == 0
 				? 0
@@ -289,7 +289,7 @@ public class Sankey<T> {
 		 * added to the graph, according to the cutoff rules of this builder.
 		 */
 		private void expand(Node node) {
-			var colA = result.solution.columnOfA(node.index);
+			var colA = result.solution.techColumnOf(node.index);
 			for (int i = 0; i < colA.length; i++) {
 				if (i == node.index || colA[i] == 0)
 					continue;

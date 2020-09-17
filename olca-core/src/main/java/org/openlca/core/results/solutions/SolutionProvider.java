@@ -72,7 +72,7 @@ public interface SolutionProvider {
 		var index = techIndex();
 		var t = new double[index.size()];
 		for (int i = 0; i < t.length; i++) {
-			t[i] = scaledValueOfA(i, i);
+			t[i] = scaledTechValueOf(i, i);
 		}
 		return t;
 	}
@@ -90,13 +90,13 @@ public interface SolutionProvider {
 	/**
 	 * Get the unscaled column $j$ from the technology matrix $A$.
 	 */
-	double[] columnOfA(int j);
+	double[] techColumnOf(int product);
 
 	/**
 	 * Get the unscaled value $a_{ij}$ from the technology matrix $A$.
 	 */
-	default double valueOfA(int row, int col) {
-		double[] column = columnOfA(col);
+	default double techValueOf(int row, int col) {
+		double[] column = techColumnOf(col);
 		return column[row];
 	}
 
@@ -104,9 +104,9 @@ public interface SolutionProvider {
 	 * Get the scaled value $s_j * a_{ij}$ of the technology matrix $A$. On
 	 * the diagonal of $A$ these are the total requirements of the system.
 	 */
-	default double scaledValueOfA(int row, int col) {
+	default double scaledTechValueOf(int row, int col) {
 		var s = scalingVector();
-		var aij = valueOfA(row, col);
+		var aij = techValueOf(row, col);
 		return s[col] * aij;
 	}
 
@@ -120,14 +120,14 @@ public interface SolutionProvider {
 	/**
 	 * Get the unscaled column $j$ from the intervention matrix $B$.
 	 */
-	double[] columnOfB(int j);
+	double[] flowColumnOf(int product);
 
 	/**
 	 * Get the unscaled value $b_{ij}$ from the intervention matrix $B$.
 	 */
-	default double valueOfB(int row, int col) {
-		double[] column = columnOfB(col);
-		return column[row];
+	default double flowValueOf(int flow, int product) {
+		double[] column = flowColumnOf(product);
+		return column[flow];
 	}
 
 	/**
@@ -151,7 +151,7 @@ public interface SolutionProvider {
 		var s = scalingVector();
 		if (s == null || s.length <= product)
 			return 0;
-		return s[product] * valueOfB(flow, product);
+		return s[product] * flowValueOf(flow, product);
 	}
 
 	/**

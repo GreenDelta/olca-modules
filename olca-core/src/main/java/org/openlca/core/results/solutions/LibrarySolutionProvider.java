@@ -199,7 +199,7 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] columnOfA(int j) {
+	public double[] techColumnOf(int j) {
 		var column = columnsOfA.get(j);
 		if (column != null)
 			return column;
@@ -248,8 +248,8 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double valueOfA(int row, int col) {
-		var column = columnOfA(col);
+	public double techValueOf(int row, int col) {
+		var column = techColumnOf(col);
 		return column[row];
 	}
 
@@ -328,7 +328,7 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] columnOfB(int j) {
+	public double[] flowColumnOf(int j) {
 		var flowIdx = fullData.flowIndex;
 		if (flowIdx == null)
 			return new double[0];
@@ -379,12 +379,12 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double valueOfB(int row, int col) {
+	public double flowValueOf(int flow, int product) {
 		// TODO: we may want to load matrix entries
 		// explicitly from libraries in the future
 		// instead of loading the full column
-		var column = columnOfB(col);
-		return column[row];
+		var column = flowColumnOf(product);
+		return column[flow];
 	}
 
 	@Override
@@ -487,7 +487,7 @@ public class LibrarySolutionProvider implements SolutionProvider {
 
 	@Override
 	public double loopFactorOf(int product) {
-		var aii = valueOfA(product, product);
+		var aii = techValueOf(product, product);
 		var ii = solutionOfOne(product)[product];
 		var f = aii * ii;
 		return f == 0

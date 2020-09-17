@@ -91,12 +91,12 @@ public class LazySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] columnOfA(int j) {
+	public double[] techColumnOf(int j) {
 		return data.techMatrix.getColumn(j);
 	}
 
 	@Override
-	public double valueOfA(int row, int col) {
+	public double techValueOf(int row, int col) {
 		return data.techMatrix.get(row, col);
 	}
 
@@ -111,13 +111,13 @@ public class LazySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] columnOfB(int j) {
+	public double[] flowColumnOf(int j) {
 		return data.flowMatrix.getColumn(j);
 	}
 
 	@Override
-	public double valueOfB(int row, int col) {
-		return data.flowMatrix.get(row, col);
+	public double flowValueOf(int flow, int product) {
+		return data.flowMatrix.get(flow, product);
 	}
 
 	@Override

@@ -46,7 +46,7 @@ public class UpstreamTree {
 		if (parent.scaling == 0)
 			return parent.childs;
 
-		var requirements = r.solution.columnOfA(parent.index);
+		var requirements = r.solution.techColumnOf(parent.index);
 		for (int i = 0; i < requirements.length; i++) {
 			if (i == parent.index)
 				continue;
@@ -55,7 +55,7 @@ public class UpstreamTree {
 				continue;
 			aij *= parent.scaling;
 			UpstreamNode child = new UpstreamNode();
-			double refVal = r.solution.columnOfA(i)[i];
+			double refVal = r.solution.techColumnOf(i)[i];
 			child.scaling = -aij / refVal;
 			child.index = i;
 			child.provider = r.techIndex.getProviderAt(i);

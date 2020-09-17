@@ -153,12 +153,12 @@ public class FullResult extends ContributionResult {
 		double amount = 0.0;
 		for (var process : techIndex.getProviders(link.processId)) {
 			int processIdx = techIndex.getIndex(process);
-			amount += solution.scaledValueOfA(providerIdx, processIdx);
+			amount += solution.scaledTechValueOf(providerIdx, processIdx);
 		}
 		if (amount == 0)
 			return 0;
 
-		double total = solution.scaledValueOfA(providerIdx, providerIdx);
+		double total = solution.scaledTechValueOf(providerIdx, providerIdx);
 		return total == 0
 				? 0
 				: -amount / total;
