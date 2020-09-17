@@ -11,11 +11,13 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.LibraryMatrix;
+import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.util.Pair;
 
 public class LibrarySolutionProvider implements SolutionProvider {
@@ -34,7 +36,6 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	private final TIntObjectHashMap<double[]> intensities;
 
 	private double[] scalingVector;
-	private double[] totalRequirements;
 	private double[] totalFlowResults;
 
 	// library maps: libID -> T
@@ -51,7 +52,7 @@ public class LibrarySolutionProvider implements SolutionProvider {
 		this.libDir = libDir;
 		this.solver = solver;
 		this.foregroundData = foregroundData;
-		this.foregroundSolution = DenseSolutionProvider.create(
+		this.foregroundSolution = EagerSolutionProvider.create(
 				foregroundData, solver);
 
 		this.fullData = new MatrixData();
@@ -187,6 +188,12 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
+	public DIndex<ImpactCategoryDescriptor> impactIndex() {
+		// TODO: not yet implemented
+		return null;
+	}
+
+	@Override
 	public double[] scalingVector() {
 		return scalingVector;
 	}
@@ -318,12 +325,6 @@ public class LibrarySolutionProvider implements SolutionProvider {
 
 		solutions.put(product, solution);
 		return solution;
-	}
-
-	@Override
-	public boolean hasFlows() {
-		return fullData.flowIndex != null
-				&& fullData.flowIndex.size() > 0;
 	}
 
 	@Override
@@ -468,11 +469,6 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public boolean hasImpacts() {
-		return false;
-	}
-
-	@Override
 	public double[] totalImpacts() {
 		return new double[0];
 	}
@@ -485,11 +481,6 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	@Override
 	public double totalImpactOfOne(int indicator, int product) {
 		return 0;
-	}
-
-	@Override
-	public boolean hasCosts() {
-		return false;
 	}
 
 	@Override

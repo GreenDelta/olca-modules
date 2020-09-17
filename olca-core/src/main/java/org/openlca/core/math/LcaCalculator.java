@@ -10,7 +10,7 @@ import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.SimpleResult;
-import org.openlca.core.results.solutions.DenseSolutionProvider;
+import org.openlca.core.results.solutions.EagerSolutionProvider;
 import org.openlca.core.results.solutions.LazySolutionProvider;
 import org.openlca.core.results.solutions.LibrarySolutionProvider;
 import org.openlca.core.results.solutions.SolutionProvider;
@@ -101,7 +101,7 @@ public class LcaCalculator {
 	public FullResult calculateFull() {
 		var solution = data.isSparse()
 				? LazySolutionProvider.create(data, solver)
-				: DenseSolutionProvider.create(data, solver);
+				: EagerSolutionProvider.create(data, solver);
 		return calculateFull(solution);
 	}
 

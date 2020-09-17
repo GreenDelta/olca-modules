@@ -1,5 +1,6 @@
 package org.openlca.core.results.solutions;
 
+import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
@@ -7,6 +8,7 @@ import org.openlca.core.matrix.solvers.Factorization;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 public class LazySolutionProvider implements SolutionProvider {
 
@@ -79,6 +81,11 @@ public class LazySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
+	public DIndex<ImpactCategoryDescriptor> impactIndex() {
+		return data.impactIndex;
+	}
+
+	@Override
 	public double[] scalingVector() {
 		return scalingVector;
 	}
@@ -101,11 +108,6 @@ public class LazySolutionProvider implements SolutionProvider {
 		s = factorization.solve(product, 1.0);
 		solutions.put(product, s);
 		return s;
-	}
-
-	@Override
-	public boolean hasFlows() {
-		return intensities != null;
 	}
 
 	@Override
@@ -146,11 +148,6 @@ public class LazySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public boolean hasImpacts() {
-		return impacts != null;
-	}
-
-	@Override
 	public double[] totalImpacts() {
 		return totalImpacts == null
 				? new double[0]
@@ -175,11 +172,6 @@ public class LazySolutionProvider implements SolutionProvider {
 		if (impacts == null)
 			return 0;
 		return totalImpactsOfOne(product)[indicator];
-	}
-
-	@Override
-	public boolean hasCosts() {
-		return data.costVector != null;
 	}
 
 	@Override

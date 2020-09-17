@@ -1,20 +1,11 @@
 package org.openlca.core.results.solutions;
 
+import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 public interface SolutionProvider {
-
-	/**
-	 * The scaling vector $\mathbf{s}$ which is calculated by solving the
-	 * equation
-	 * <p>
-	 * $$\mathbf{A} \ \mathbf{s} = \mathbf{f}$$
-	 * <p>
-	 * where $\mathbf{A}$ is the technology matrix and $\mathbf{f}$ the final
-	 * demand vector of the product system.
-	 */
-	double[] scalingVector();
 
 	/**
 	 * The index $\mathit{Idx}_A$ of the technology matrix $\mathbf{A}$. It maps the
@@ -36,6 +27,27 @@ public interface SolutionProvider {
 	 * $$\mathit{Idx}_B: \mathit{F} \mapsto [0 \dots k-1]$$
 	 */
 	FlowIndex flowIndex();
+
+	/**
+	 * The row index $\mathit{Idx}_C$ of the matrix with the characterization
+	 * factors $\mathbf{C}$. It maps the LCIA categories $\mathit{C}$ to the $l$
+	 * rows of $\mathbf{C}$.
+	 * <p>
+	 * $$\mathit{Idx}_C: \mathit{C} \mapsto [0 \dots l-1]$$
+	 */
+	DIndex<ImpactCategoryDescriptor> impactIndex();
+
+	/**
+	 * The scaling vector $\mathbf{s}$ which is calculated by solving the
+	 * equation
+	 * <p>
+	 * $$\mathbf{A} \ \mathbf{s} = \mathbf{f}$$
+	 * <p>
+	 * where $\mathbf{A}$ is the technology matrix and $\mathbf{f}$ the final
+	 * demand vector of the product system.
+	 */
+	double[] scalingVector();
+
 
 	/**
 	 * Get the unscaled column $j$ from the technology matrix $A$.
@@ -87,8 +99,6 @@ public interface SolutionProvider {
 	 */
 	double[] solutionOfOne(int product);
 
-	boolean hasFlows();
-
 	/**
 	 * Get the unscaled column $j$ from the intervention matrix $B$.
 	 */
@@ -137,15 +147,11 @@ public interface SolutionProvider {
 	 */
 	double totalFlowResultOfOne(int flow, int product);
 
-	boolean hasImpacts();
-
 	double[] totalImpacts();
 
 	double[] totalImpactsOfOne(int product);
 
 	double totalImpactOfOne(int indicator, int product);
-
-	boolean hasCosts();
 
 	double totalCosts();
 
