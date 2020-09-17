@@ -52,60 +52,49 @@ public class LcaCalculator {
 	}
 
 	public SimpleResult calculateSimple() {
-
 		var solution = solution(true);
 		var result = new SimpleResult();
-		result.flowIndex = data.flowIndex;
-		result.techIndex = data.techIndex;
-
-		var techMatrix = data.techMatrix;
-		var techIndex = data.techIndex;
-		int idx = techIndex.getIndex(techIndex.getRefFlow());
-		var s = solver.solve(techMatrix, idx, techIndex.getDemand());
-		result.scalingVector = s;
-		result.totalRequirements = getTotalRequirements(techMatrix, s);
-
-		var enviMatrix = data.enviMatrix;
-		result.totalFlowResults = solver.multiply(enviMatrix, s);
-
-		if (data.impactMatrix != null) {
-			addTotalImpacts(result);
-		}
-
-		if (data.costVector != null) {
-			addTotalCosts(result, s);
-		}
-
+		fillSimple(result, solution);
 		return result;
 	}
 
+	private void fillSimple(SimpleResult r, SolutionProvider s) {
+		r.techIndex = s.techIndex();
+		r.flowIndex = s.flowIndex();
+		r.impactIndex = s.impactIndex();
+		r.scalingVector = s.scalingVector();
+		r.totalRequirements = s.totalRequirements();
 
+		if (r.flowIndex != null && !r.flowIndex.isEmpty()) {
+			r.totalFlowResults = s.totalFlowResults();
+			if (r.impactIndex != null && !r.impactIndex.isEmpty()) {
+				r.totalImpactResults = s.totalImpacts();
+			}
+		}
+		r.totalCosts = s.totalCosts();
+	}
 
 	public ContributionResult calculateContributions() {
 
 		var solution = solution(true);
 		var result = new ContributionResult(solution);
+		fillSimple(result, solution);
 
 		IMatrix techMatrix = data.techMatrix;
 		TechIndex productIndex = data.techIndex;
 		int idx = productIndex.getIndex(productIndex.getRefFlow());
 		double[] s = solver.solve(techMatrix, idx, productIndex.getDemand());
-		result.scalingVector = s;
-		result.totalRequirements = getTotalRequirements(techMatrix, s);
 
 		IMatrix enviMatrix = data.enviMatrix;
 		IMatrix singleResult = enviMatrix.copy();
 		singleResult.scaleColumns(s);
 		result.directFlowResults = singleResult;
-		result.totalFlowResults = solver.multiply(enviMatrix, s);
 
 		if (data.impactMatrix != null) {
-			addTotalImpacts(result);
 			addDirectImpacts(result);
 		}
 
 		if (data.costVector != null) {
-			addTotalCosts(result, s);
 			addDirectCosts(result, s);
 		}
 		return result;
@@ -116,26 +105,20 @@ public class LcaCalculator {
 		var result = new FullResult(solution);
 
 		double[] scalingVector = solution.scalingVector();
-		result.scalingVector = scalingVector;
-		result.totalRequirements = solution.totalRequirements();
 
 		// flow results
 		IMatrix enviMatrix = data.enviMatrix;
 		if (enviMatrix != null) {
 			result.directFlowResults = enviMatrix.copy();
 			result.directFlowResults.scaleColumns(scalingVector);
-			result.totalFlowResults = solution.totalFlowResults();
 		}
 
 		if (data.impactMatrix != null) {
 			addDirectImpacts(result);
-			result.impactIndex = data.impactIndex;
-			result.totalImpactResults = solution.totalImpacts();
 		}
 
 		if (data.costVector != null) {
 			addDirectCosts(result, scalingVector);
-			result.totalCosts = solution.totalCosts();
 		}
 		return result;
 	}
@@ -202,13 +185,6 @@ public class LcaCalculator {
 		return rd;
 	}
 
-	private void addTotalImpacts(SimpleResult result) {
-		result.impactIndex = data.impactIndex;
-		IMatrix factors = data.impactMatrix;
-		result.totalImpactResults = solver.multiply(
-				factors, result.totalFlowResults);
-	}
-
 	private void addDirectImpacts(ContributionResult result) {
 		IMatrix factors = data.impactMatrix;
 		result.impactFactors = factors;
@@ -217,15 +193,6 @@ public class LcaCalculator {
 		IMatrix singleFlowImpacts = factors.copy();
 		singleFlowImpacts.scaleColumns(result.totalFlowResults);
 		result.directFlowImpacts = singleFlowImpacts;
-	}
-
-	private void addTotalCosts(SimpleResult result, double[] scalingVector) {
-		double[] costValues = data.costVector;
-		double total = 0;
-		for (int i = 0; i < scalingVector.length; i++) {
-			total += scalingVector[i] * costValues[i];
-		}
-		result.totalCosts = total;
 	}
 
 	private void addDirectCosts(ContributionResult result,

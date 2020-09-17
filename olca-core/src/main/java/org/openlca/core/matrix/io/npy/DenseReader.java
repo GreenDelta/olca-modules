@@ -68,7 +68,7 @@ class DenseReader {
 			if (header.fortranOrder) {
 
 				// read the column in Fortran order
-				long offset = header.dataOffset + (cols64 * rows64 * 8);
+				long offset = header.dataOffset + (column * rows64 * 8L);
 				f.seek(offset);
 				ByteBuffer buffer = ByteBuffer.allocate(rows * 8);
 				buffer.order(header.getByteOrder());
@@ -84,7 +84,7 @@ class DenseReader {
 				buffer.order(header.getByteOrder());
 				for (int row = 0; row < rows; row++) {
 					long offset = header.dataOffset
-							+ ((rows64 * cols64 + column) * 8);
+							+ ((row * cols64 + column) * 8L);
 					f.seek(offset);
 					channel.read(buffer);
 					buffer.flip();
