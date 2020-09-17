@@ -136,12 +136,30 @@ public class EagerSolutionProvider implements SolutionProvider {
 
 	@Override
 	public double[] flowColumnOf(int j) {
-		return data.flowMatrix.getColumn(j);
+		return data.flowMatrix == null
+				? new double[0]
+				: data.flowMatrix.getColumn(j);
 	}
 
 	@Override
 	public double flowValueOf(int flow, int product) {
-		return data.flowMatrix.get(flow, product);
+		return data.flowMatrix == null
+				? 0
+				: data.flowMatrix.get(flow, product);
+	}
+
+	@Override
+	public double[] directFlowResultsOf(int product) {
+		if (directFlows == null)
+			return new double[0];
+		return directFlows.getColumn(product);
+	}
+
+	@Override
+	public double directFlowResultOf(int flow, int product) {
+		if (directFlows == null)
+			return 0;
+		return directFlows.get(flow, product);
 	}
 
 	@Override

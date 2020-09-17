@@ -134,6 +134,21 @@ public interface SolutionProvider {
 	 */
 	double[] totalFlowResults();
 
+	default double[] directFlowResultsOf(int product) {
+		var flowIdx = flowIndex();
+		if (flowIdx == null)
+			return new double[0];
+		var r = new double[flowIdx.size()];
+		var s = scalingVector();
+		if (s == null)
+			return r;
+		var sj = s[product];
+		for (int flow = 0; flow < r.length; flow++) {
+			r[flow] = sj * flowValueOf(flow, product);
+		}
+		return r;
+	}
+
 	/**
 	 * Get the the direct result of the given flow and product related to the
 	 * final demand of the system. This is basically the element $g_{ij}$
@@ -141,7 +156,7 @@ public interface SolutionProvider {
 	 * <p>
 	 * $$ G = B \text{diag}(s) $$
 	 */
-	default double directFlowResult(int flow, int product) {
+	default double directFlowResultOf(int flow, int product) {
 		var s = scalingVector();
 		return s == null
 				? 0
@@ -168,18 +183,28 @@ public interface SolutionProvider {
 		return column[flow];
 	}
 
+	default double[] totalFlowResultsOf(int product) {
+		var tr = totalRequirements();
+		if (tr == null)
+			return new double[0];
+		var f = tr[product] * loopFactorOf(product);
+		var r = totalFlowResultsOfOne(product);
+		for (int i = 0; i < r.length; i++) {
+			r[i] *= f;
+		}
+		return r;
+	}
+
 	/**
 	 * Returns the total flow result (direct + upstream) of the given flow
 	 * and product related to the final demand of the system.
 	 */
-	default double totalFlowResult(int flow, int product) {
-		if (flow < 0 || product < 0)
-			return 0;
+	default double totalFlowResultOf(int flow, int product) {
 		double[] tr = totalRequirements();
-		if (tr == null || tr.length <= product)
+		if (tr == null)
 			return 0;
 		double[] ofOne = totalFlowResultsOfOne(product);
-		if (ofOne == null || ofOne.length < flow)
+		if (ofOne == null)
 			return 0;
 		double loop = loopFactorOf(product);
 		return loop * tr[product] * ofOne[flow];

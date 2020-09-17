@@ -29,7 +29,7 @@ public class FullResult extends ContributionResult {
 			return 0;
 		int flowIdx = flowIndex.of(flow);
 		int productIdx = techIndex.getIndex(product);
-		double amount = solution.totalFlowResult(flowIdx, productIdx);
+		double amount = solution.totalFlowResultOf(flowIdx, productIdx);
 		return adopt(flow, amount);
 	}
 

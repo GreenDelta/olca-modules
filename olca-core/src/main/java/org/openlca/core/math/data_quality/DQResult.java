@@ -329,7 +329,7 @@ public class DQResult {
 				int[] dqs = b.getRow(flow);
 				for (int product = 0; product < n; product++) {
 					flowContributions[product] = result.solution
-							.directFlowResult(flow, product);
+							.directFlowResultOf(flow, product);
 				}
 				flowResult.set(indicator, flow, acc.get(dqs, flowContributions));
 			}
