@@ -49,12 +49,8 @@ public interface SolutionProvider {
 	double[] scalingVector();
 
 	default double scalingFactorOf(int product) {
-		if (product < 0)
-			return 0;
 		var s = scalingVector();
-		return s == null || s.length < product
-				? 0
-				: s[product];
+		return s == null ? 0 : s[product];
 	}
 
 	/**
@@ -78,12 +74,8 @@ public interface SolutionProvider {
 	}
 
 	default double totalRequirementsOf(int product) {
-		if (product < 0)
-			return 0;
 		var t = totalRequirements();
-		return t == null || t.length < product
-				? 0
-				: t[product];
+		return t == null ? 0 : t[product];
 
 	}
 
@@ -106,6 +98,8 @@ public interface SolutionProvider {
 	 */
 	default double scaledTechValueOf(int row, int col) {
 		var s = scalingVector();
+		if (s == null)
+			return 0;
 		var aij = techValueOf(row, col);
 		return s[col] * aij;
 	}
@@ -149,9 +143,9 @@ public interface SolutionProvider {
 	 */
 	default double directFlowResult(int flow, int product) {
 		var s = scalingVector();
-		if (s == null || s.length <= product)
-			return 0;
-		return s[product] * flowValueOf(flow, product);
+		return s == null
+				? 0
+				: s[product] * flowValueOf(flow, product);
 	}
 
 	/**

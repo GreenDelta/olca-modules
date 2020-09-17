@@ -17,21 +17,21 @@ public class EagerSolutionProvider implements SolutionProvider {
 	private final double[] totalRequirements;
 
 	private double[] totalFlows;
+	private IMatrix directFlows;
+	private IMatrix totalFlowsOfOne;
+
 	private double[] totalImpacts;
-	private double totalCosts;
-
-
-	private IMatrix directFlowResults;
-	private IMatrix flowIntensities;
-
 	private IMatrix directImpacts;
-	private IMatrix impactIntensities;
-	private double[] costIntensities;
+	private IMatrix totalImpactsOfOne;
+
+	private double totalCosts;
+	private double[] directCosts;
+	private double[] totalCostsOfOne;
 
 	private EagerSolutionProvider(MatrixData data, IMatrixSolver solver) {
 		this.data = data;
 
-		// product and waste flows flows
+		// product and waste flows
 		var techIdx = data.techIndex;
 		inverse = solver.invert(data.techMatrix);
 		var refIdx = techIdx.getIndex(techIdx.getRefFlow());
@@ -45,58 +45,53 @@ public class EagerSolutionProvider implements SolutionProvider {
 			totalRequirements[i] *= scalingVector[i];
 		}
 
+		if (data.flowMatrix != null) {
+
+			// elementary flows
+			directFlows = data.flowMatrix.copy();
+			directFlows.scaleColumns(scalingVector);
+
+			// the intensity matrix: M = B * inv(A)
+			totalFlowsOfOne = solver.multiply(data.flowMatrix, inverse);
+			totalFlows = totalFlowResultsOfOne(refIdx);
+			for (int i = 0; i < totalFlows.length; i++) {
+				totalFlows[i] *= demand;
+			}
+
+			if (data.impactMatrix != null) {
+
+				directImpacts = solver.multiply(
+						data.impactMatrix,
+						directFlows);
+				totalImpactsOfOne = solver.multiply(
+						data.impactMatrix,
+						totalFlowsOfOne);
+				totalImpacts = totalImpactsOfOne(refIdx);
+				for (int i = 0; i < totalImpacts.length; i++) {
+					totalImpacts[i] *= demand;
+				}
+			}
+		}
+
+		// costs
+		if (data.costVector != null) {
+			var n = data.costVector.length;
+			directCosts = new double[n];
+			var costMatrix = solver.matrix(1, n);
+			for (int j = 0; j < n; j++) {
+				var costs = data.costVector[j];
+				directCosts[j] = costs * scalingVector[j];
+				costMatrix.set(0, j, costs);
+			}
+			totalCostsOfOne = solver.multiply(costMatrix, inverse).getRow(0);
+			totalCosts = totalCostsOfOne(refIdx) * demand;
+		}
 	}
 
 	public static EagerSolutionProvider create(
 			MatrixData data,
 			IMatrixSolver solver) {
-		var provider = new EagerSolutionProvider(data);
-
-		if (data.flowMatrix != null) {
-
-			provider.directFlowResults = data.flowMatrix.copy();
-			provider.directFlowResults.scaleColumns(provider.scalingVector());
-
-			// the intensity matrix: M = B * inv(A)
-			provider.flowIntensities = solver.multiply(
-					data.flowMatrix,
-					provider.inverse);
-			provider.totalFlows = provider.totalFlowResultsOfOne(refIdx);
-			for (int i = 0; i < provider.totalFlows.length; i++) {
-				provider.totalFlows[i] *= demand;
-			}
-
-			if (data.impactMatrix != null) {
-
-				provider.directImpacts = solver.matrix(
-						data.impactMatrix,
-						data.
-				)
-
-				// impacts of the intensities: C * M
-				provider.impactIntensities = solver.multiply(
-						data.impactMatrix,
-						provider.flowIntensities);
-				provider.totalImpacts = provider.totalImpactsOfOne(refIdx);
-				for(int i = 0; i < provider.totalImpacts.length; i++) {
-					provider.totalImpacts[i] *= demand;
-				}
-			}
-		}
-
-		if (data.costVector != null) {
-			var n = data.costVector.length;
-			var costs = solver.matrix(1, n);
-			for (int col = 0; col < n; col++) {
-				costs.set(0, col, data.costVector[col]);
-			}
-			provider.costIntensities = solver.multiply(
-					costs, provider.inverse)
-					.getRow(0);
-			provider.totalCosts = provider.totalCostsOfOne(refIdx) * demand;
-		}
-
-		return provider;
+		return new EagerSolutionProvider(data, solver);
 	}
 
 	@Override
@@ -158,16 +153,16 @@ public class EagerSolutionProvider implements SolutionProvider {
 
 	@Override
 	public double[] totalFlowResultsOfOne(int product) {
-		if (flowIntensities == null)
+		if (totalFlowsOfOne == null)
 			return new double[0];
-		return flowIntensities.getColumn(product);
+		return totalFlowsOfOne.getColumn(product);
 	}
 
 	@Override
 	public double totalFlowResultOfOne(int flow, int product) {
-		if (flowIntensities == null)
+		if (totalFlowsOfOne == null)
 			return 0;
-		return flowIntensities.get(flow, product);
+		return totalFlowsOfOne.get(flow, product);
 	}
 
 	@Override
@@ -179,16 +174,16 @@ public class EagerSolutionProvider implements SolutionProvider {
 
 	@Override
 	public double[] totalImpactsOfOne(int product) {
-		if (impactIntensities == null)
+		if (totalImpactsOfOne == null)
 			return new double[0];
-		return impactIntensities.getColumn(product);
+		return totalImpactsOfOne.getColumn(product);
 	}
 
 	@Override
 	public double totalImpactOfOne(int indicator, int product) {
-		if (impactIntensities == null)
+		if (totalImpactsOfOne == null)
 			return 0;
-		return impactIntensities.get(indicator, product);
+		return totalImpactsOfOne.get(indicator, product);
 	}
 
 	@Override
@@ -198,9 +193,9 @@ public class EagerSolutionProvider implements SolutionProvider {
 
 	@Override
 	public double totalCostsOfOne(int product) {
-		if (costIntensities == null)
+		if (totalCostsOfOne == null)
 			return 0;
-		return costIntensities[product];
+		return totalCostsOfOne[product];
 	}
 
 	@Override
