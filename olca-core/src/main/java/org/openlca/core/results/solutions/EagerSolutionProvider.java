@@ -202,10 +202,79 @@ public class EagerSolutionProvider implements SolutionProvider {
 	}
 
 	@Override
+	public double[] totalFlowsOf(int product) {
+		var factor = totalFactorOf(product);
+		var totals = totalFlowsOfOne(product);
+		scaleInPlace(totals, factor);
+		return totals;
+	}
+
+	@Override
 	public double[] totalFlows() {
 		return totalFlows == null
 				? new double[0]
 				: totalFlows;
+	}
+
+	@Override
+	public double[] impactFactorsOf(int flow) {
+		return data.impactMatrix == null
+				? new double[0]
+				: data.impactMatrix.getColumn(flow);
+	}
+
+	@Override
+	public double impactFactorOf(int indicator, int flow) {
+		return data.impactMatrix == null
+				? 0
+				: data.impactMatrix.get(indicator, flow);
+	}
+
+	@Override
+	public double[] flowImpactsOf(int flow) {
+		if (totalFlows == null)
+			return new double[0];
+		var total = totalFlows[flow];
+		var impacts = impactFactorsOf(flow);
+		scaleInPlace(impacts, total);
+		return impacts;
+	}
+
+	@Override
+	public double flowImpactOf(int indicator, int flow) {
+		if (totalFlows == null)
+			return 0;
+		var total = totalFlows[flow];
+		return total * impactFactorOf(indicator, flow);
+	}
+
+	@Override
+	public double[] directImpactsOf(int product) {
+		return directImpacts == null
+				? new double[0]
+				: directImpacts.getColumn(product);
+	}
+
+	@Override
+	public double directImpactOf(int indicator, int product) {
+		return directImpacts == null
+				? 0
+				: directImpacts.get(indicator, product);
+	}
+
+
+	@Override
+	public double[] totalImpactsOfOne(int product) {
+		return totalImpactsOfOne == null
+				? new double[0]
+				: totalImpactsOfOne.getColumn(product);
+	}
+
+	@Override
+	public double totalImpactOfOne(int indicator, int product) {
+		return totalImpactsOfOne == null
+				? 0
+				: totalImpactsOfOne.get(indicator, product);
 	}
 
 	@Override
@@ -216,35 +285,21 @@ public class EagerSolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double directImpact(int indicator, int product) {
-		return 0;
+	public double directCostsOf(int product) {
+		return directCosts == null
+				? 0
+				: directCosts[product];
 	}
 
 	@Override
-	public double[] totalImpactsOfOne(int product) {
-		if (totalImpactsOfOne == null)
-			return new double[0];
-		return totalImpactsOfOne.getColumn(product);
-	}
-
-	@Override
-	public double totalImpactOfOne(int indicator, int product) {
-		if (totalImpactsOfOne == null)
-			return 0;
-		return totalImpactsOfOne.get(indicator, product);
+	public double totalCostsOfOne(int product) {
+		return totalCostsOfOne == null
+				? 0
+				: totalCostsOfOne[product];
 	}
 
 	@Override
 	public double totalCosts() {
 		return totalCosts;
 	}
-
-	@Override
-	public double totalCostsOfOne(int product) {
-		if (totalCostsOfOne == null)
-			return 0;
-		return totalCostsOfOne[product];
-	}
-
-
 }

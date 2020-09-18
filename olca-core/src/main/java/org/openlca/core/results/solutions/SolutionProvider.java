@@ -170,9 +170,6 @@ public interface SolutionProvider {
 	}
 
 	default double[] directFlowsOf(int product) {
-		var flowIdx = flowIndex();
-		if (flowIdx == null)
-			return new double[0];
 		var flows = unscaledFlowsOf(product);
 		var s = scalingVector();
 		if (empty(flows) || empty(s))
