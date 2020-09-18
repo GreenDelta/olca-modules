@@ -25,7 +25,7 @@ public class FullResult extends ContributionResult {
 	 * inventory result of elementary flow $i$: $\mathbf{U}[i,j]$.
 	 */
 	public double getUpstreamFlowResult(ProcessProduct product, IndexFlow flow) {
-		if (techIndex == null || flowIndex == null)
+		if (!hasFlowResults())
 			return 0;
 		int flowIdx = flowIndex.of(flow);
 		int productIdx = techIndex.getIndex(product);
@@ -40,10 +40,10 @@ public class FullResult extends ContributionResult {
 	 * result of elementary flow $i$. When the process has multiple products it is
 	 * the sum of the contributions of all of these process-product pairs.
 	 */
-	public double getUpstreamFlowResult(CategorizedDescriptor process,
-										IndexFlow flow) {
+	public double getUpstreamFlowResult(
+			CategorizedDescriptor process, IndexFlow flow) {
 		double total = 0;
-		for (ProcessProduct p : techIndex.getProviders(process)) {
+		for (var p : techIndex.getProviders(process)) {
 			total += getUpstreamFlowResult(p, flow);
 		}
 		return total;
@@ -55,7 +55,7 @@ public class FullResult extends ContributionResult {
 	 */
 	public List<FlowResult> getUpstreamFlowResults(
 			CategorizedDescriptor process) {
-		List<FlowResult> results = new ArrayList<>();
+		var results = new ArrayList<FlowResult>();
 		flowIndex.each((i, flow) -> {
 			double value = getUpstreamFlowResult(process, flow);
 			results.add(new FlowResult(flow, value));
@@ -68,17 +68,14 @@ public class FullResult extends ContributionResult {
 	 * LCIA category result $j$: $\mathbf{V}[i,j]$.
 	 */
 	public double getUpstreamImpactResult(
-			ProcessProduct product,
-			ImpactCategoryDescriptor impact) {
+			ProcessProduct product, ImpactCategoryDescriptor impact) {
 		if (!hasImpactResults())
 			return 0;
-		int row = impactIndex.of(impact);
-		int col = techIndex.getIndex(product);
-		double[] h = provider.totalImpactsOfOne(col);
-		if (h.length == 0)
-			return 0;
-		double t = totalRequirements[col] * provider.loopFactorOf(col);
-		return t * h[row];
+		int impactIdx = impactIndex.of(impact);
+		int productIdx = techIndex.getIndex(product);
+		return impactIdx < 0 || productIdx < 0
+				? 0
+				: provider.totalImpactOfOne(impactIdx, productIdx);
 	}
 
 	/**
@@ -87,10 +84,9 @@ public class FullResult extends ContributionResult {
 	 * contributions of all of these process-product pairs.
 	 */
 	public double getUpstreamImpactResult(
-			CategorizedDescriptor process,
-			ImpactCategoryDescriptor impact) {
+			CategorizedDescriptor process, ImpactCategoryDescriptor impact) {
 		double total = 0;
-		for (ProcessProduct p : techIndex.getProviders(process)) {
+		for (var p : techIndex.getProviders(process)) {
 			total += getUpstreamImpactResult(p, impact);
 		}
 		return total;
@@ -102,11 +98,11 @@ public class FullResult extends ContributionResult {
 	 */
 	public List<ImpactResult> getUpstreamImpactResults(
 			CategorizedDescriptor process) {
-		List<ImpactResult> results = new ArrayList<>();
+		var results = new ArrayList<ImpactResult>();
 		if (!hasImpactResults())
 			return results;
 		impactIndex.each((i, impact) -> {
-			ImpactResult r = new ImpactResult();
+			var r = new ImpactResult();
 			r.impactCategory = impact;
 			r.value = getUpstreamImpactResult(process, impact);
 			results.add(r);
@@ -118,13 +114,13 @@ public class FullResult extends ContributionResult {
 	 * Get the upstream contribution of the given process-product pair $j$ to the
 	 * LCC result: $\mathbf{k}_u[j]$.
 	 */
-	public double getUpstreamCostResult(ProcessProduct provider) {
+	public double getUpstreamCostResult(ProcessProduct product) {
 		if (!hasCostResults())
 			return 0;
-		int col = techIndex.getIndex(provider);
-		double c = this.provider.totalCostsOfOne(col);
-		double t = totalRequirements[col] * this.provider.loopFactorOf(col);
-		return c * t;
+		int productIdx = techIndex.getIndex(product);
+		return productIdx < 0
+				? 0
+				: provider.totalCostsOf(productIdx);
 	}
 
 	/**
@@ -134,7 +130,7 @@ public class FullResult extends ContributionResult {
 	 */
 	public double getUpstreamCostResult(CategorizedDescriptor process) {
 		double total = 0;
-		for (ProcessProduct p : techIndex.getProviders(process)) {
+		for (var p : techIndex.getProviders(process)) {
 			total += getUpstreamCostResult(p);
 		}
 		return total;
@@ -201,5 +197,4 @@ public class FullResult extends ContributionResult {
 		return new UpstreamTree(this, -totalCosts,
 				product -> -provider.totalCostsOfOne(product));
 	}
-
 }
