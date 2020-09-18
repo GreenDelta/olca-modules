@@ -19,6 +19,8 @@ import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
  */
 public interface SolutionProvider {
 
+	static final double[] EMPTY_VECTOR = new double[0];
+
 	/**
 	 * The index $\mathit{Idx}_A$ of the technology matrix $\mathbf{A}$. It maps the
 	 * process-product pairs (or process-waste pairs) $\mathit{P}$ of the product

@@ -4,6 +4,7 @@ import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.solvers.Factorization;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 
@@ -17,13 +18,19 @@ public class LazySolutionProvider implements SolutionProvider {
 	private final Factorization factorization;
 
 	private final double[] scalingVector;
-	private final double[] totalFlows;
-	private final double[] totalImpacts;
-	private final double totalCosts;
-
+	private double[] totalRequirements;
 	private final TIntObjectHashMap<double[]> solutions;
-	private final TIntObjectHashMap<double[]> intensities;
-	private final TIntObjectHashMap<double[]> impacts;
+
+	private IMatrix directFlows;
+	private final double[] totalFlows;
+	private final TIntObjectHashMap<double[]> totalFlowsOfOne;
+
+	private IMatrix directImpacts;
+	private final double[] totalImpacts;
+	private final TIntObjectHashMap<double[]> totalImpactsOfOne;
+
+	private final double[] directCosts;
+	private final double totalCosts;
 
 	private LazySolutionProvider(MatrixData data, IMatrixSolver solver) {
 		this.data = data;
@@ -31,10 +38,10 @@ public class LazySolutionProvider implements SolutionProvider {
 		this.factorization = solver.factorize(data.techMatrix);
 
 		solutions = new TIntObjectHashMap<>();
-		intensities = data.flowMatrix == null
+		totalFlowsOfOne = data.flowMatrix == null
 				? null
 				: new TIntObjectHashMap<>();
-		impacts = data.impactMatrix == null
+		totalImpactsOfOne = data.impactMatrix == null
 				? null
 				: new TIntObjectHashMap<>();
 
@@ -55,13 +62,21 @@ public class LazySolutionProvider implements SolutionProvider {
 		totalImpacts = totalFlows != null && data.impactMatrix != null
 				? solver.multiply(data.impactMatrix, totalFlows)
 				: null;
-		var tCosts = 0.0;
-		if (data.costVector != null) {
+
+		// costs
+		if (data.costVector == null) {
+			totalCosts = 0;
+			directCosts = null;
+		} else {
+			var tCosts = 0.0;
+			directCosts = new double[scalingVector.length];
 			for (int i = 0; i < scalingVector.length; i++) {
-				tCosts += data.costVector[i] * scalingVector[i];
+				double value = data.costVector[i] * scalingVector[i];
+				directCosts[i] = value;
+				tCosts += value;
 			}
+			totalCosts = tCosts;
 		}
-		totalCosts = tCosts;
 	}
 
 	public static LazySolutionProvider create(
@@ -91,6 +106,28 @@ public class LazySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
+	public double scalingFactorOf(int product) {
+		return scalingVector[product];
+	}
+
+	@Override
+	public double[] totalRequirements() {
+		if (totalRequirements != null)
+			return totalRequirements;
+		var t = data.techMatrix.diag();
+		for (int i = 0; i < t.length; i++) {
+			t[i] *= scalingVector[i];
+		}
+		totalRequirements = t;
+		return t;
+	}
+
+	@Override
+	public double totalRequirementsOf(int product) {
+		return totalRequirements()[product];
+	}
+
+	@Override
 	public double[] techColumnOf(int j) {
 		return data.techMatrix.getColumn(j);
 	}
@@ -111,8 +148,18 @@ public class LazySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] unscaledFlowsOf(int j) {
-		return data.flowMatrix.getColumn(j);
+	public double loopFactorOf(int product) {
+		var aii = data.techMatrix.get(product, product);
+		var eii = solutionOfOne(product)[product];
+		var f = aii * eii;
+		return f == 0
+				? 0
+				: 1 / f;
+	}
+
+	@Override
+	public double[] unscaledFlowsOf(int product) {
+		return data.flowMatrix.getColumn(product);
 	}
 
 	@Override
@@ -120,22 +167,122 @@ public class LazySolutionProvider implements SolutionProvider {
 		return data.flowMatrix.get(flow, product);
 	}
 
+	private IMatrix directFlows() {
+		if (directFlows != null)
+			return directFlows;
+		if (data.flowMatrix == null)
+			return null;
+		var m = data.flowMatrix.copy();
+		m.scaleColumns(scalingVector);
+		directFlows = m;
+		return directFlows;
+	}
+
 	@Override
-	public double[] totalFlows() {
-		return totalFlows == null
-				? new double[0]
-				: totalFlows;
+	public double[] directFlowsOf(int product) {
+		var m = directFlows();
+		return m == null
+				? EMPTY_VECTOR
+				: m.getColumn(product);
+	}
+
+	@Override
+	public double directFlowOf(int flow, int product) {
+		var m = directFlows();
+		return m == null
+				? 0
+				: m.get(flow, product);
 	}
 
 	@Override
 	public double[] totalFlowsOfOne(int product) {
-		var m = intensities.get(product);
-		if (m != null)
-			return m;
+		if (totalFlowsOfOne == null)
+			return EMPTY_VECTOR;
+		var totals = totalFlowsOfOne.get(product);
+		if (totals != null)
+			return totals;
 		var s = solutionOfOne(product);
-		m = solver.multiply(data.flowMatrix, s);
-		intensities.put(product, m);
-		return m;
+		totals = solver.multiply(data.flowMatrix, s);
+		totalFlowsOfOne.put(product, totals);
+		return totals;
+	}
+
+	@Override
+	public double[] totalFlows() {
+		return totalFlows == null
+				? EMPTY_VECTOR
+				: totalFlows;
+	}
+
+	@Override
+	public double[] impactFactorsOf(int flow) {
+		return data.impactMatrix == null
+				? new double[0]
+				: data.impactMatrix.getColumn(flow);
+	}
+
+	@Override
+	public double impactFactorOf(int indicator, int flow) {
+		return data.impactMatrix == null
+				? 0
+				: data.impactMatrix.get(indicator, flow);
+	}
+
+	@Override
+	public double[] flowImpactsOf(int flow) {
+		if (totalFlows == null)
+			return new double[0];
+		var impacts = impactFactorsOf(flow);
+		scaleInPlace(impacts, totalFlows[flow]);
+		return impacts;
+	}
+
+	@Override
+	public double flowImpactOf(int indicator, int flow) {
+		if (totalFlows == null)
+			return 0;
+		return totalFlows[flow] * impactFactorOf(indicator, flow);
+	}
+
+	private IMatrix directImpacts() {
+		if (directImpacts != null)
+			return directImpacts;
+		if (data.impactMatrix == null)
+			return null;
+		var flows = directFlows();
+		if (flows == null)
+			return null;
+		directImpacts = solver.multiply(data.impactMatrix, flows);
+		return directImpacts;
+	}
+
+	@Override
+	public double[] directImpactsOf(int product) {
+		var impacts = directImpacts();
+		return impacts == null
+				? new double[0]
+				: impacts.getColumn(product);
+	}
+
+	@Override
+	public double directImpactOf(int indicator, int product) {
+		var impacts = directImpacts();
+		return impacts == null
+				? 0
+				: impacts.get(indicator, product);
+	}
+
+	@Override
+	public double[] totalImpactsOfOne(int product) {
+		if (totalImpactsOfOne == null)
+			return EMPTY_VECTOR;
+		var h = totalImpactsOfOne.get(product);
+		if (h != null)
+			return h;
+		var g = totalFlowsOfOne(product);
+		h = solver.multiply(data.impactMatrix, g);
+		totalImpactsOfOne.put(product, h);
+		return h;
 	}
 
 	@Override
@@ -146,35 +293,17 @@ public class LazySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] totalImpactsOfOne(int product) {
-		if (impacts == null)
-			return new double[0];
-		var h = impacts.get(product);
-		if (h != null)
-			return h;
-		var g = totalFlowsOfOne(product);
-		h = solver.multiply(data.impactMatrix, g);
-		impacts.put(product, h);
-		return h;
+	public double directCostsOf(int product) {
+		return directCosts == null
+				? 0
+				: directCosts[product];
 	}
 
 	@Override
-	public double totalImpactOfOne(int indicator, int product) {
-		if (impacts == null)
-			return 0;
-		return totalImpactsOfOne(product)[indicator];
-	}
-
-	@Override
-	public double totalCosts() {
-		return totalCosts;
-	}
-
-	@Override
-	public double totalCostsOfOne(int i) {
+	public double totalCostsOfOne(int product) {
 		if (data.costVector == null)
 			return 0;
-		var s = solutionOfOne(i);
+		var s = solutionOfOne(product);
 		double c = 0.0;
 		for (int j = 0; j < s.length; j++) {
 			c += s[j] * data.costVector[j];
@@ -183,13 +312,8 @@ public class LazySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double loopFactorOf(int i) {
-		var aii = data.techMatrix.get(i, i);
-		var eii = solutionOfOne(i)[i];
-		var f = aii * eii;
-		return f == 0
-				? 0
-				: 1 / f;
+	public double totalCosts() {
+		return totalCosts;
 	}
 
 }
