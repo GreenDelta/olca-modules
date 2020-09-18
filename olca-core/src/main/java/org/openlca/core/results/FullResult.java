@@ -29,6 +29,8 @@ public class FullResult extends ContributionResult {
 			return 0;
 		int flowIdx = flowIndex.of(flow);
 		int productIdx = techIndex.getIndex(product);
+		if (flowIdx < 0 || productIdx < 0)
+			return 0;
 		double amount = provider.totalFlowOf(flowIdx, productIdx);
 		return adopt(flow, amount);
 	}
