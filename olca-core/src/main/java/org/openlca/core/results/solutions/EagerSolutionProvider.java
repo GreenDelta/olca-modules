@@ -162,7 +162,7 @@ public class EagerSolutionProvider implements SolutionProvider {
 	@Override
 	public double[] unscaledFlowsOf(int j) {
 		return data.flowMatrix == null
-				? new double[0]
+				? EMPTY_VECTOR
 				: data.flowMatrix.getColumn(j);
 	}
 
@@ -176,7 +176,7 @@ public class EagerSolutionProvider implements SolutionProvider {
 	@Override
 	public double[] directFlowsOf(int product) {
 		return directFlows == null
-				? new double[0]
+				? EMPTY_VECTOR
 				: directFlows.getColumn(product);
 	}
 
@@ -190,7 +190,7 @@ public class EagerSolutionProvider implements SolutionProvider {
 	@Override
 	public double[] totalFlowsOfOne(int product) {
 		return totalFlowsOfOne == null
-				? new double[0]
+				? EMPTY_VECTOR
 				: totalFlowsOfOne.getColumn(product);
 	}
 
@@ -212,14 +212,14 @@ public class EagerSolutionProvider implements SolutionProvider {
 	@Override
 	public double[] totalFlows() {
 		return totalFlows == null
-				? new double[0]
+				? EMPTY_VECTOR
 				: totalFlows;
 	}
 
 	@Override
 	public double[] impactFactorsOf(int flow) {
 		return data.impactMatrix == null
-				? new double[0]
+				? EMPTY_VECTOR
 				: data.impactMatrix.getColumn(flow);
 	}
 
@@ -233,7 +233,7 @@ public class EagerSolutionProvider implements SolutionProvider {
 	@Override
 	public double[] flowImpactsOf(int flow) {
 		if (totalFlows == null)
-			return new double[0];
+			return EMPTY_VECTOR;
 		var total = totalFlows[flow];
 		var impacts = impactFactorsOf(flow);
 		scaleInPlace(impacts, total);
@@ -251,7 +251,7 @@ public class EagerSolutionProvider implements SolutionProvider {
 	@Override
 	public double[] directImpactsOf(int product) {
 		return directImpacts == null
-				? new double[0]
+				? EMPTY_VECTOR
 				: directImpacts.getColumn(product);
 	}
 
@@ -266,7 +266,7 @@ public class EagerSolutionProvider implements SolutionProvider {
 	@Override
 	public double[] totalImpactsOfOne(int product) {
 		return totalImpactsOfOne == null
-				? new double[0]
+				? EMPTY_VECTOR
 				: totalImpactsOfOne.getColumn(product);
 	}
 
@@ -280,7 +280,7 @@ public class EagerSolutionProvider implements SolutionProvider {
 	@Override
 	public double[] totalImpacts() {
 		return totalImpacts == null
-				? new double[0]
+				? EMPTY_VECTOR
 				: totalImpacts;
 	}
 

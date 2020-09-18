@@ -19,7 +19,7 @@ import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
  */
 public interface SolutionProvider {
 
-	static final double[] EMPTY_VECTOR = new double[0];
+	double[] EMPTY_VECTOR = new double[0];
 
 	/**
 	 * The index $\mathit{Idx}_A$ of the technology matrix $\mathbf{A}$. It maps the
@@ -175,7 +175,7 @@ public interface SolutionProvider {
 		var flows = unscaledFlowsOf(product);
 		var s = scalingVector();
 		if (empty(flows) || empty(s))
-			return new double[0];
+			return EMPTY_VECTOR;
 		return scale(flows, s[product]);
 	}
 
@@ -264,7 +264,7 @@ public interface SolutionProvider {
 		var totals = totalFlows();
 		var impacts = impactFactorsOf(flow);
 		if (empty(totals) || empty(impacts))
-			return new double[0];
+			return EMPTY_VECTOR;
 		return scale(impacts, totals[flow]);
 	}
 
@@ -348,7 +348,7 @@ public interface SolutionProvider {
 	 */
 	default double[] scale(double[] values, double factor) {
 		if (empty(values))
-			return new double[0];
+			return EMPTY_VECTOR;
 		var w = new double[values.length];
 		for (int i = 0; i < values.length; i++) {
 			w[i] = values[i] * factor;
@@ -358,7 +358,7 @@ public interface SolutionProvider {
 
 	default double[] copy(double[] values) {
 		if (empty(values))
-			return new double[0];
+			return EMPTY_VECTOR;
 		return Arrays.copyOf(values, values.length);
 	}
 }

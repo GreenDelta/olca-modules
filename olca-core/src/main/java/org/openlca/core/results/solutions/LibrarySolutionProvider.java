@@ -33,7 +33,7 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	private final MatrixData fullData;
 	private final TIntObjectHashMap<double[]> solutions;
 	private final TIntObjectHashMap<double[]> columnsOfA;
-	private final TIntObjectHashMap<double[]> intensities;
+	private final TIntObjectHashMap<double[]> totalFlowsOfOne;
 
 	private double[] scalingVector;
 	private double[] totalFlowResults;
@@ -64,7 +64,7 @@ public class LibrarySolutionProvider implements SolutionProvider {
 				Constants.DEFAULT_CAPACITY,
 				Constants.DEFAULT_LOAD_FACTOR,
 				-1);
-		this.intensities = new TIntObjectHashMap<>(
+		this.totalFlowsOfOne = new TIntObjectHashMap<>(
 				Constants.DEFAULT_CAPACITY,
 				Constants.DEFAULT_LOAD_FACTOR,
 				-1);
@@ -199,6 +199,23 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
+	public double scalingFactorOf(int product) {
+		return scalingVector[product];
+	}
+
+	@Override
+	public double[] totalRequirements() {
+		// TODO: not yet implemented
+		return new double[0];
+	}
+
+	@Override
+	public double totalRequirementsOf(int product) {
+		// TODO: not yet implemented
+		return 0;
+	}
+
+	@Override
 	public double[] techColumnOf(int j) {
 		var column = columnsOfA.get(j);
 		if (column != null)
@@ -245,12 +262,6 @@ public class LibrarySolutionProvider implements SolutionProvider {
 
 		columnsOfA.put(j, column);
 		return column;
-	}
-
-	@Override
-	public double techValueOf(int row, int col) {
-		var column = techColumnOf(col);
-		return column[row];
 	}
 
 	@Override
@@ -328,6 +339,16 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
+	public double loopFactorOf(int product) {
+		var aii = techValueOf(product, product);
+		var ii = solutionOfOne(product)[product];
+		var f = aii * ii;
+		return f == 0
+				? 0
+				: 1 / f;
+	}
+
+	@Override
 	public double[] unscaledFlowsOf(int j) {
 		var flowIdx = fullData.flowIndex;
 		if (flowIdx == null)
@@ -388,22 +409,8 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] totalFlows() {
-		if (totalFlowResults != null)
-			return totalFlowResults;
-		var m = totalFlowsOfOne(0);
-		var demand = fullData.techIndex.getDemand();
-		var results = Arrays.copyOf(m, m.length);
-		for (int i = 0; i < m.length; i++) {
-			results[i] *= demand;
-		}
-		totalFlowResults = results;
-		return totalFlowResults;
-	}
-
-	@Override
 	public double[] totalFlowsOfOne(int j) {
-		var m = intensities.get(j);
+		var m = totalFlowsOfOne.get(j);
 		if (m != null)
 			return m;
 
@@ -456,27 +463,75 @@ public class LibrarySolutionProvider implements SolutionProvider {
 				m[i] += gB[iB];
 			}
 		}
-		intensities.put(j, m);
+		totalFlowsOfOne.put(j, m);
 		return m;
 	}
 
 	@Override
-	public double[] totalImpacts() {
+	public double[] totalFlows() {
+		if (totalFlowResults != null)
+			return totalFlowResults;
+		var m = totalFlowsOfOne(0);
+		var demand = fullData.techIndex.getDemand();
+		var results = Arrays.copyOf(m, m.length);
+		for (int i = 0; i < m.length; i++) {
+			results[i] *= demand;
+		}
+		totalFlowResults = results;
+		return totalFlowResults;
+	}
+
+	@Override
+	public double[] impactFactorsOf(int flow) {
+		// TODO: not yet implemented
+		return new double[0];
+	}
+
+	@Override
+	public double impactFactorOf(int indicator, int flow) {
+		// TODO: not yet implemented
+		return 0;
+	}
+
+	@Override
+	public double[] flowImpactsOf(int flow) {
+		// TODO: not yet implemented
+		return new double[0];
+	}
+
+	@Override
+	public double flowImpactOf(int indicator, int flow) {
+		// TODO: not yet implemented
+		return 0;
+	}
+
+	@Override
+	public double[] directImpactsOf(int product) {
+		// TODO: not yet implemented
 		return new double[0];
 	}
 
 	@Override
 	public double[] totalImpactsOfOne(int product) {
+		// TODO: not yet implemented
 		return new double[0];
 	}
 
 	@Override
 	public double totalImpactOfOne(int indicator, int product) {
+		// TODO: not yet implemented
 		return 0;
 	}
 
 	@Override
-	public double totalCosts() {
+	public double[] totalImpacts() {
+		// TODO: not yet implemented
+		return new double[0];
+	}
+
+	@Override
+	public double directCostsOf(int product) {
+		// TODO: not yet implemented
 		return 0;
 	}
 
@@ -486,12 +541,7 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double loopFactorOf(int product) {
-		var aii = techValueOf(product, product);
-		var ii = solutionOfOne(product)[product];
-		var f = aii * ii;
-		return f == 0
-				? 0
-				: 1 / f;
+	public double totalCosts() {
+		return 0;
 	}
 }
