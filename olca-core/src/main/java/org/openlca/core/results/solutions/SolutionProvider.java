@@ -13,27 +13,33 @@ public interface SolutionProvider {
 	 * system to the respective $n$ rows and columns of $\mathbf{A}$. If the product
 	 * system contains other product systems as sub-systems, these systems are
 	 * handled like processes and are also mapped as pair with their quantitative
-	 * reference flow to that index (and also their processes etc.).
+	 * reference flow to that index:
 	 * <p>
-	 * $$\mathit{Idx}_A: \mathit{P} \mapsto [0 \dots n-1]$$
+	 * $$
+	 * \mathit{Idx}_A: \mathit{P} \mapsto [0 \dots n-1]
+	 * $$
 	 */
 	TechIndex techIndex();
 
 	/**
 	 * The row index $\mathit{Idx}_B$ of the intervention matrix $\mathbf{B}$. It
 	 * maps the (elementary) flows $\mathit{F}$ of the processes in the product
-	 * system to the $k$ rows of $\mathbf{B}$.
+	 * system to the $m$ rows of $\mathbf{B}$.
 	 * <p>
-	 * $$\mathit{Idx}_B: \mathit{F} \mapsto [0 \dots k-1]$$
+	 * $$
+	 * \mathit{Idx}_B: \mathit{F} \mapsto [0 \dots m-1]
+	 * $$
 	 */
 	FlowIndex flowIndex();
 
 	/**
 	 * The row index $\mathit{Idx}_C$ of the matrix with the characterization
-	 * factors $\mathbf{C}$. It maps the LCIA categories $\mathit{C}$ to the $l$
-	 * rows of $\mathbf{C}$.
+	 * factors $\mathbf{C}$ (the impact matrix). It maps the impact categories
+	 * $\mathit{C}$ to the $k$ rows of $\mathbf{C}$.
 	 * <p>
-	 * $$\mathit{Idx}_C: \mathit{C} \mapsto [0 \dots l-1]$$
+	 * $$
+	 * \mathit{Idx}_C: \mathit{C} \mapsto [0 \dots k-1]
+	 * $$
 	 */
 	DIndex<ImpactCategoryDescriptor> impactIndex();
 
@@ -48,6 +54,14 @@ public interface SolutionProvider {
 	 */
 	double[] scalingVector();
 
+	/**
+	 * Returns the scaling factor $s_j$ for product $j$ from the scaling vector
+	 * $\mathbf{s}$:
+	 * <p>
+	 * $$
+	 * s_j = \mathbf{s}[j]
+	 * $$
+	 */
 	default double scalingFactorOf(int product) {
 		var s = scalingVector();
 		return empty(s)
@@ -64,7 +78,9 @@ public interface SolutionProvider {
 	 * following equation where $\mathbf{s}$ is the scaling vector ($\odot$
 	 * denotes element-wise multiplication):
 	 * <p>
-	 * $$\mathbf{t} = \text{diag}(\mathbf{A}) \odot \mathbf{s}$$
+	 * $$
+	 * \mathbf{t} = \text{diag}(\mathbf{A}) \odot \mathbf{s}
+	 * $$
 	 */
 	default double[] totalRequirements() {
 		var index = techIndex();
@@ -129,7 +145,7 @@ public interface SolutionProvider {
 	default double totalFactorOf(int product) {
 		var t = totalRequirementsOf(product);
 		var loop = loopFactorOf(product);
-		return loop * f;
+		return loop * t;
 	}
 
 	/**
@@ -192,9 +208,7 @@ public interface SolutionProvider {
 	default double[] totalFlowsOf(int product) {
 		var factor = totalFactorOf(product);
 		var totals = totalFlowsOfOne(product);
-		for (int i = 0; i < totals.length; i++) {
-			totals[i] *= factor;
-		}
+		scale(totals, factor);
 		return totals;
 	}
 
@@ -203,14 +217,7 @@ public interface SolutionProvider {
 	 * and product related to the final demand of the system.
 	 */
 	default double totalFlowOf(int flow, int product) {
-		double[] tr = totalRequirements();
-		if (tr == null)
-			return 0;
-		double[] ofOne = totalFlowsOfOne(product);
-		if (ofOne == null)
-			return 0;
-		double loop = loopFactorOf(product);
-		return loop * tr[product] * ofOne[flow];
+		return totalFactorOf(product) * totalFlowOfOne(flow, product);
 	}
 
 	/**
@@ -244,7 +251,9 @@ public interface SolutionProvider {
 	 */
 	default double impactFactorOf(int indicator, int flow) {
 		var factors = impactFactorsOf(flow);
-		return factors == null ? 0 : factors[indicator];
+		return empty(factors)
+				? 0
+				: factors[indicator];
 	}
 
 	default double[] flowImpactsOf(int flow) {
@@ -261,10 +270,10 @@ public interface SolutionProvider {
 
 	default double flowImpactOf(int indicator, int flow) {
 		var totals = totalFlows();
-		if (empty(totals))
-			return 0;
 		var factor = impactFactorOf(indicator, flow);
-		return factor * totals[flow];
+		return empty(totals)
+				? 0
+				: factor * totals[flow];
 	}
 
 	double[] directImpactsOf(int product);
@@ -287,15 +296,30 @@ public interface SolutionProvider {
 
 	default double[] totalImpactsOf(int product) {
 		var impacts = totalImpactsOfOne(product);
+		var factor = totalFactorOf(product);
+		scale(impacts, factor);
+		return impacts;
+	}
 
+	default double totalImpactOf(int indicator, int product) {
+		return totalFactorOf(product) * totalImpactOfOne(indicator, product);
 	}
 
 	double[] totalImpacts();
 
-	double totalCosts();
+	double directCostsOf(int product);
 
 	double totalCostsOfOne(int product);
 
+	default double totalCostsOf(int product) {
+		return totalFactorOf(product) * totalCostsOfOne(product);
+	}
+
+	double totalCosts();
+
+	/**
+	 * Returns true if the given array is `null` or empty.
+	 */
 	default boolean empty(double[] values) {
 		return values == null || values.length == 0;
 	}
