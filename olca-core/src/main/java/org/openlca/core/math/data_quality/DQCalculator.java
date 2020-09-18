@@ -111,7 +111,7 @@ class DQCalculator {
 			long flowId) {
 		int flowIndex = result.flowIndex.of(flowId);
 		int impactIndex = result.impactIndex.of(impactId);
-		return result.impactFactors.get(impactIndex, flowIndex);
+		return result.provider.impactFactorOf(impactIndex, flowIndex);
 	}
 
 }

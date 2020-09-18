@@ -164,7 +164,7 @@ public class ImpactHandler {
 			return contributions;
 		});
 	}
-	
+
 	@Rpc("get/impacts/upstream")
 	public RpcResponse getUpstream(RpcRequest req) {
 		return utils.fullImpact(req, (result, impact, cache) -> {
@@ -180,9 +180,9 @@ public class ImpactHandler {
 
 	private double getImpactFactor(ContributionResult result,
 			ImpactCategoryDescriptor impact, IndexFlow flow) {
-		int row = result.impactIndex.of(impact);
-		int col = result.flowIndex.of(flow);
-		double value = result.impactFactors.get(row, col);
+		int impactIdx = result.impactIndex.of(impact);
+		int flowIdx = result.flowIndex.of(flow);
+		double value = result.provider.impactFactorOf(impactIdx, flowIdx);
 		if (value == 0)
 			return 0; // avoid -0
 		if (flow.isInput) {

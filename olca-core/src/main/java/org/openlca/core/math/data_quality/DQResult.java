@@ -341,9 +341,8 @@ public class DQResult {
 				|| exchangeData == null
 				|| !result.hasImpactResults())
 			return;
-		var impactFactors = result.impactFactors;
-		var flowResults = result.directFlowResults;
-		if (impactFactors == null || flowResults == null)
+		var provider = result.provider;
+		if (!provider.hasImpacts())
 			return;
 
 		// initialize the results
@@ -384,10 +383,12 @@ public class DQResult {
 
 					// get DQ data and calculate weights
 					int[] dqs = b.getRow(flow);
-					double factor = impactFactors.get(impact, flow);
-					double[] weights = flowResults.getRow(flow);
-					for (int i = 0; i < weights.length; i++) {
-						weights[i] *= factor;
+					double factor = provider.impactFactorOf(impact, flow);
+
+					double[] weights = new double[provider.techIndex().size()];
+					for (int product = 0; product < weights.length; product++) {
+						weights[product] = factor * provider.directFlowOf(
+								flow, product);
 					}
 
 					// add data

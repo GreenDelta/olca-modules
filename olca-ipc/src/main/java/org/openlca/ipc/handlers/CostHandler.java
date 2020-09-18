@@ -2,6 +2,7 @@ package org.openlca.ipc.handlers;
 
 import java.util.List;
 
+import com.google.gson.JsonObject;
 import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
@@ -14,6 +15,7 @@ import org.openlca.ipc.RpcResponse;
 import org.openlca.ipc.handlers.Upstream.StringPair;
 
 import com.google.gson.JsonArray;
+import org.openlca.jsonld.Json;
 
 public class CostHandler {
 
@@ -28,7 +30,21 @@ public class CostHandler {
 	@Rpc("get/costs/total_requirements")
 	public RpcResponse getTotalRequirements(RpcRequest req) {
 		return utils.contribution(req, (result, cache) -> {
-			return JsonRpc.encode(result.totalRequirements, result.directCostResults, result.techIndex, cache);
+			JsonArray items = new JsonArray();
+			var techIdx = result.techIndex;
+			for (int i = 0; i < techIdx.size(); i++) {
+				var tr = result.totalRequirements[i];
+				if (tr == 0)
+					continue;
+				var product = techIdx.getProviderAt(i);
+				var obj = new JsonObject();
+				obj.add("process", Json.asRef(product.process, cache));
+				obj.add("product", Json.asRef(product.flow, cache));
+				obj.addProperty("amount", tr);
+				obj.addProperty("costs", result.getDirectCostResult(product));
+				items.add(obj);
+			}
+			return items;
 		});
 	}
 
