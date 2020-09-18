@@ -5,11 +5,10 @@ import java.util.List;
 
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.results.solutions.SolutionProvider;
+import org.openlca.core.results.solutions.ResultProvider;
 
 /**
  * The `ContributionResult` extends the `SimpleResult` type. It also contains
@@ -19,50 +18,25 @@ import org.openlca.core.results.solutions.SolutionProvider;
  */
 public class ContributionResult extends SimpleResult {
 
-	/**
-	 * A LCIA category * process-product matrix that contains the direct
-	 * contributions of the processes to the LCIA result. This can be calculated by
-	 * a matrix-matrix multiplication of the direct inventory contributions
-	 * $\mathbf{G}$ with the matrix with the characterization factors $\mathbf{C}$:
-	 *
-	 * $$\mathbf{H} = \mathbf{C} \ \mathbf{G}$$
-	 */
-	public IMatrix directImpactResults;
+	public final ResultProvider provider;
 
-	/**
-	 * Contains the direct contributions $\mathbf{k}_s$ of the process-product pairs
-	 * to the total net-costs ($\odot$ denotes element-wise multiplication):
-	 *
-	 * $$\mathbf{k}_s = \mathbf{k} \odot \mathbf{s}$$
-	 */
-	public double[] directCostResults;
-
-	/**
-	 * A LCIA category * flow matrix that contains the direct contributions of the
-	 * elementary flows to the LCIA result. This matrix can be calculated by
-	 * column-wise scaling of the matrix with the characterization factors
-	 * $\mathbf{C}$ with the inventory result $\mathbf{g}$:
-	 *
-	 * $$\mathbf{H} = \mathbf{C} \ \text{diag}(\mathbf{g})$$
-	 */
-	public IMatrix directFlowImpacts;
-
-	/**
-	 * A LCIA category * flow matrix $\mathbf{C}$ the contains the characterization
-	 * factors.
-	 */
-	public IMatrix impactFactors;
-
-	public final SolutionProvider solution;
-
-	public ContributionResult(SolutionProvider provider) {
-		this.solution = provider;
+	public ContributionResult(ResultProvider provider) {
+		this.provider = provider;
 	}
 
+	@Override
+	public boolean hasFlowResults() {
+		return provider.hasFlows();
+	}
+
+	@Override
+	public boolean hasImpactResults() {
+		return provider.hasImpacts();
+	}
 
 	@Override
 	public boolean hasCostResults() {
-		return directCostResults != null;
+		return provider.hasCosts();
 	}
 
 	/**
@@ -74,7 +48,7 @@ public class ContributionResult extends SimpleResult {
 			return 0;
 		int flowIdx = flowIndex.of(flow);
 		int productIdx = techIndex.getIndex(product);
-		double value = solution.directFlowOf(flowIdx, productIdx);
+		double value = provider.directFlowOf(flowIdx, productIdx);
 		return adopt(flow, value);
 	}
 
@@ -84,7 +58,7 @@ public class ContributionResult extends SimpleResult {
 	 * of the contributions of all of these process-product pairs.
 	 */
 	public double getDirectFlowResult(CategorizedDescriptor process,
-			IndexFlow flow) {
+									  IndexFlow flow) {
 		double total = 0;
 		for (ProcessProduct p : techIndex.getProviders(process)) {
 			total += getDirectFlowResult(p, flow);
@@ -123,12 +97,12 @@ public class ContributionResult extends SimpleResult {
 	 * category result $j$: $\mathbf{D}[i,j]$.
 	 */
 	public double getDirectImpactResult(ProcessProduct product,
-			ImpactCategoryDescriptor impact) {
+										ImpactCategoryDescriptor impact) {
 		if (!hasImpactResults())
 			return 0;
-		int row = impactIndex.of(impact);
-		int col = techIndex.getIndex(product);
-		return getValue(directImpactResults, row, col);
+		int impactIdx = impactIndex.of(impact);
+		int productIdx = techIndex.getIndex(product);
+		return provider.directImpactOf(impactIdx, productIdx);
 	}
 
 	/**
@@ -137,7 +111,7 @@ public class ContributionResult extends SimpleResult {
 	 * contributions of all of these process-product pairs.
 	 */
 	public double getDirectImpactResult(CategorizedDescriptor process,
-			ImpactCategoryDescriptor impact) {
+										ImpactCategoryDescriptor impact) {
 		double total = 0;
 		for (ProcessProduct p : techIndex.getProviders(process)) {
 			total += getDirectImpactResult(p, impact);
@@ -178,12 +152,8 @@ public class ContributionResult extends SimpleResult {
 	 * result: $\mathbf{k}_s[j]$.
 	 */
 	public double getDirectCostResult(ProcessProduct product) {
-		if (!hasCostResults())
-			return 0;
 		int col = techIndex.getIndex(product);
-		if (col >= directCostResults.length)
-			return 0;
-		return directCostResults[col];
+		return provider.directCostsOf(col);
 	}
 
 	/**
@@ -213,15 +183,14 @@ public class ContributionResult extends SimpleResult {
 	 * Get the direct contribution of the given elementary flow to the LCIA result
 	 * of the given LCIA category.
 	 */
-	public double getDirectFlowImpact(IndexFlow flow,
-			ImpactCategoryDescriptor impact) {
+	public double getDirectFlowImpact(IndexFlow flow, ImpactCategoryDescriptor impact) {
 		if (!hasImpactResults())
 			return 0;
 		if (impact == null || flow == null)
 			return 0;
-		int row = impactIndex.of(impact);
-		int col = flowIndex.of(flow);
-		return getValue(directFlowImpacts, row, col);
+		int impactIdx = impactIndex.of(impact);
+		int flowIdx = flowIndex.of(flow);
+		return provider.flowImpactOf(impactIdx, flowIdx);
 	}
 
 	/**
@@ -241,32 +210,24 @@ public class ContributionResult extends SimpleResult {
 	 * Get the characterization factor for the given flow (and location in case of a
 	 * regionalized result).
 	 */
-	public double getImpactFactor(ImpactCategoryDescriptor impact,
+	public double getImpactFactor(
+			ImpactCategoryDescriptor impact,
 			IndexFlow flow) {
 		if (impact == null || flow == null)
 			return 0;
-		int row = impactIndex.of(impact);
-		int col = flowIndex.of(flow);
-		double value = getValue(impactFactors, row, col);
+
+		int impactIdx = impactIndex.of(impact);
+		int flowIdx = flowIndex.of(flow);
+
+		double value = provider.impactFactorOf(impactIdx, flowIdx);
 		if (!flow.isInput)
 			return value;
 
 		// characterization factors for input flows are negative in the
 		// matrix. A simple abs() is not correct because the original
 		// characterization factor maybe was already negative (-(-(f))).
-		if (value == 0)
-			return 0; // avoid -0
-		return -value;
+		return value == 0
+				? 0 // avoid -0
+				: -value;
 	}
-
-	double getValue(IMatrix matrix, int row, int col) {
-		if (matrix == null)
-			return 0d;
-		if (row < 0 || row >= matrix.rows())
-			return 0d;
-		if (col < 0 || col >= matrix.columns())
-			return 0d;
-		return matrix.get(row, col);
-	}
-
 }

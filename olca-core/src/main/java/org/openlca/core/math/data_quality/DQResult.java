@@ -328,7 +328,7 @@ public class DQResult {
 			for (int flow = 0; flow < m; flow++) {
 				int[] dqs = b.getRow(flow);
 				for (int product = 0; product < n; product++) {
-					flowContributions[product] = result.solution
+					flowContributions[product] = result.provider
 							.directFlowOf(flow, product);
 				}
 				flowResult.set(indicator, flow, acc.get(dqs, flowContributions));

@@ -8,7 +8,7 @@ import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.results.solutions.SolutionProvider;
+import org.openlca.core.results.solutions.ResultProvider;
 
 /**
  * The `FullResult` extends the `ContributionResult`. It contains additionally
@@ -16,7 +16,7 @@ import org.openlca.core.results.solutions.SolutionProvider;
  */
 public class FullResult extends ContributionResult {
 
-	public FullResult(SolutionProvider solution) {
+	public FullResult(ResultProvider solution) {
 		super(solution);
 	}
 
@@ -29,7 +29,7 @@ public class FullResult extends ContributionResult {
 			return 0;
 		int flowIdx = flowIndex.of(flow);
 		int productIdx = techIndex.getIndex(product);
-		double amount = solution.totalFlowOf(flowIdx, productIdx);
+		double amount = provider.totalFlowOf(flowIdx, productIdx);
 		return adopt(flow, amount);
 	}
 
@@ -72,10 +72,10 @@ public class FullResult extends ContributionResult {
 			return 0;
 		int row = impactIndex.of(impact);
 		int col = techIndex.getIndex(product);
-		double[] h = solution.totalImpactsOfOne(col);
+		double[] h = provider.totalImpactsOfOne(col);
 		if (h.length == 0)
 			return 0;
-		double t = totalRequirements[col] * solution.loopFactorOf(col);
+		double t = totalRequirements[col] * provider.loopFactorOf(col);
 		return t * h[row];
 	}
 
@@ -120,8 +120,8 @@ public class FullResult extends ContributionResult {
 		if (!hasCostResults())
 			return 0;
 		int col = techIndex.getIndex(provider);
-		double c = solution.totalCostsOfOne(col);
-		double t = totalRequirements[col] * solution.loopFactorOf(col);
+		double c = this.provider.totalCostsOfOne(col);
+		double t = totalRequirements[col] * this.provider.loopFactorOf(col);
 		return c * t;
 	}
 
@@ -153,12 +153,12 @@ public class FullResult extends ContributionResult {
 		double amount = 0.0;
 		for (var process : techIndex.getProviders(link.processId)) {
 			int processIdx = techIndex.getIndex(process);
-			amount += solution.scaledTechValueOf(providerIdx, processIdx);
+			amount += this.provider.scaledTechValueOf(providerIdx, processIdx);
 		}
 		if (amount == 0)
 			return 0;
 
-		double total = solution.scaledTechValueOf(providerIdx, providerIdx);
+		double total = this.provider.scaledTechValueOf(providerIdx, providerIdx);
 		return total == 0
 				? 0
 				: -amount / total;
@@ -171,7 +171,7 @@ public class FullResult extends ContributionResult {
 		int i = flowIndex.of(flow);
 		double total = getTotalFlowResult(flow);
 		return new UpstreamTree(flow, this, total,
-				product -> solution.totalFlowOfOne(i, product));
+				product -> provider.totalFlowOfOne(i, product));
 	}
 
 	/**
@@ -181,7 +181,7 @@ public class FullResult extends ContributionResult {
 		int i = impactIndex.of(impact.id);
 		double total = getTotalImpactResult(impact);
 		return new UpstreamTree(impact, this, total,
-				product -> solution.totalImpactOfOne(i, product));
+				product -> provider.totalImpactOfOne(i, product));
 	}
 
 	/**
@@ -189,7 +189,7 @@ public class FullResult extends ContributionResult {
 	 */
 	public UpstreamTree getCostTree() {
 		return new UpstreamTree(this, totalCosts,
-				solution::totalCostsOfOne);
+				provider::totalCostsOfOne);
 	}
 
 	/**
@@ -197,7 +197,7 @@ public class FullResult extends ContributionResult {
 	 */
 	public UpstreamTree getAddedValueTree() {
 		return new UpstreamTree(this, -totalCosts,
-				product -> -solution.totalCostsOfOne(product));
+				product -> -provider.totalCostsOfOne(product));
 	}
 
 }

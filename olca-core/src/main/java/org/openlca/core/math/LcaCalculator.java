@@ -9,10 +9,10 @@ import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.SimpleResult;
-import org.openlca.core.results.solutions.EagerSolutionProvider;
-import org.openlca.core.results.solutions.LazySolutionProvider;
-import org.openlca.core.results.solutions.LibrarySolutionProvider;
-import org.openlca.core.results.solutions.SolutionProvider;
+import org.openlca.core.results.solutions.EagerResultProvider;
+import org.openlca.core.results.solutions.LazyResultProvider;
+import org.openlca.core.results.solutions.LibraryResultProvider;
+import org.openlca.core.results.solutions.ResultProvider;
 
 /**
  * This calculator does the low level matrix based LCA-calculation. Typically,
@@ -38,16 +38,16 @@ public class LcaCalculator {
 		return this;
 	}
 
-	private SolutionProvider solution(boolean forceLazy) {
+	private ResultProvider solution(boolean forceLazy) {
 		if (db != null && libDir != null)
-			return LibrarySolutionProvider.of(db, libDir, solver, data);
+			return LibraryResultProvider.of(db, libDir, solver, data);
 		if (forceLazy)
-			return LazySolutionProvider.create(data, solver);
+			return LazyResultProvider.create(data, solver);
 		// TODO: consider the matrix size and format and the capabilities
 		// of the solver...
 		return data.isSparse()
-				? LazySolutionProvider.create(data, solver)
-				: EagerSolutionProvider.create(data, solver);
+				? LazyResultProvider.create(data, solver)
+				: EagerResultProvider.create(data, solver);
 	}
 
 	public SimpleResult calculateSimple() {
@@ -57,7 +57,7 @@ public class LcaCalculator {
 		return result;
 	}
 
-	private void fillSimple(SimpleResult r, SolutionProvider s) {
+	private void fillSimple(SimpleResult r, ResultProvider s) {
 		r.techIndex = s.techIndex();
 		r.flowIndex = s.flowIndex();
 		r.impactIndex = s.impactIndex();

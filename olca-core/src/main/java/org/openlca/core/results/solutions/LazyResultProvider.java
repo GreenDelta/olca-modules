@@ -11,7 +11,7 @@ import org.openlca.core.matrix.solvers.IMatrixSolver;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
-public class LazySolutionProvider implements SolutionProvider {
+public class LazyResultProvider implements ResultProvider {
 
 	private final MatrixData data;
 	private final IMatrixSolver solver;
@@ -32,7 +32,7 @@ public class LazySolutionProvider implements SolutionProvider {
 	private final double[] directCosts;
 	private final double totalCosts;
 
-	private LazySolutionProvider(MatrixData data, IMatrixSolver solver) {
+	private LazyResultProvider(MatrixData data, IMatrixSolver solver) {
 		this.data = data;
 		this.solver = solver;
 		this.factorization = solver.factorize(data.techMatrix);
@@ -79,10 +79,10 @@ public class LazySolutionProvider implements SolutionProvider {
 		}
 	}
 
-	public static LazySolutionProvider create(
+	public static LazyResultProvider create(
 			MatrixData data,
 			IMatrixSolver solver) {
-		return new LazySolutionProvider(data, solver);
+		return new LazyResultProvider(data, solver);
 	}
 
 	@Override
@@ -98,6 +98,11 @@ public class LazySolutionProvider implements SolutionProvider {
 	@Override
 	public DIndex<ImpactCategoryDescriptor> impactIndex() {
 		return data.impactIndex;
+	}
+
+	@Override
+	public boolean hasCosts() {
+		return !empty(data.costVector);
 	}
 
 	@Override

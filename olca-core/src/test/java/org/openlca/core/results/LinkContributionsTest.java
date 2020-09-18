@@ -10,7 +10,7 @@ import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.solutions.LazySolutionProvider;
+import org.openlca.core.results.solutions.LazyResultProvider;
 
 public class LinkContributionsTest {
 
@@ -47,7 +47,7 @@ public class LinkContributionsTest {
 		data.techMatrix = techMatrix;
 		data.techIndex = index;
 
-		var solution = LazySolutionProvider.create(data, solver);
+		var solution = LazyResultProvider.create(data, solver);
 		FullResult r = new FullResult(solution);
 		r.techIndex = index;
 
@@ -85,7 +85,7 @@ public class LinkContributionsTest {
 		var data = new MatrixData();
 		data.techIndex = index;
 		data.techMatrix = techMatrix;
-		var solutions = LazySolutionProvider.create(data, solver);
+		var solutions = LazyResultProvider.create(data, solver);
 		FullResult r = new FullResult(solutions);
 		r.techIndex = index;
 

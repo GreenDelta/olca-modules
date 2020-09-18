@@ -25,7 +25,7 @@ public class LazySolutionProviderTest {
 		data.techIndex.put(product(3));
 		data.techIndex.setDemand(1.0);
 
-		var provider = LazySolutionProvider.create(
+		var provider = LazyResultProvider.create(
 				data, new JavaSolver());
 		var scaling = provider.scalingVector();
 		Assert.assertArrayEquals(

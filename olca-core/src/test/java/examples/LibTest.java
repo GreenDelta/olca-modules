@@ -8,7 +8,7 @@ import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.DataStructures;
 import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.results.solutions.LibrarySolutionProvider;
+import org.openlca.core.results.solutions.LibraryResultProvider;
 
 public class LibTest {
 
@@ -23,7 +23,7 @@ public class LibTest {
 		var system = db.get(ProductSystem.class, sysID);
 		var data = DataStructures.matrixData(
 				db, new CalculationSetup(system));
-		var provider = LibrarySolutionProvider.of(
+		var provider = LibraryResultProvider.of(
 				db,
 				libDir,
 				new JavaSolver(),

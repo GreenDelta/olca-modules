@@ -8,7 +8,7 @@ import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
-public class EagerSolutionProvider implements SolutionProvider {
+public class EagerResultProvider implements ResultProvider {
 
 	private final MatrixData data;
 
@@ -29,7 +29,7 @@ public class EagerSolutionProvider implements SolutionProvider {
 	private double[] directCosts;
 	private double[] totalCostsOfOne;
 
-	private EagerSolutionProvider(MatrixData data, IMatrixSolver solver) {
+	private EagerResultProvider(MatrixData data, IMatrixSolver solver) {
 		this.data = data;
 
 		// product and waste flows
@@ -98,10 +98,10 @@ public class EagerSolutionProvider implements SolutionProvider {
 		}
 	}
 
-	public static EagerSolutionProvider create(
+	public static EagerResultProvider create(
 			MatrixData data,
 			IMatrixSolver solver) {
-		return new EagerSolutionProvider(data, solver);
+		return new EagerResultProvider(data, solver);
 	}
 
 	@Override
@@ -117,6 +117,11 @@ public class EagerSolutionProvider implements SolutionProvider {
 	@Override
 	public DIndex<ImpactCategoryDescriptor> impactIndex() {
 		return data.impactIndex;
+	}
+
+	@Override
+	public boolean hasCosts() {
+		return !empty(data.costVector);
 	}
 
 	@Override

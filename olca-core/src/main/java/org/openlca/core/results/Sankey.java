@@ -12,7 +12,7 @@ import gnu.trove.set.hash.TIntHashSet;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.results.solutions.SolutionProvider;
+import org.openlca.core.results.solutions.ResultProvider;
 
 /**
  * An instance of this class contains the underlying graph data structure of
@@ -43,7 +43,7 @@ public class Sankey<T> {
 	 * We hold a reference to the solution provider of the underlying result
 	 * in order to calculate the link shares.
 	 */
-	private final SolutionProvider solution;
+	private final ResultProvider solution;
 
 	/**
 	 * Describes a single node in the graph. For a process product in the
@@ -105,7 +105,7 @@ public class Sankey<T> {
 		}
 	}
 
-	private Sankey(T reference, SolutionProvider solution) {
+	private Sankey(T reference, ResultProvider solution) {
 		this.reference = reference;
 		this.solution = solution;
 		this.root = new Node();
@@ -211,7 +211,7 @@ public class Sankey<T> {
 		private PriorityQueue<Candidate> candidates;
 
 		private Builder(T ref, FullResult result) {
-			this.sankey = new Sankey<>(ref, result.solution);
+			this.sankey = new Sankey<>(ref, result.provider);
 			this.result = result;
 			handled = new TIntObjectHashMap<>(
 					Constants.DEFAULT_CAPACITY,
@@ -289,7 +289,7 @@ public class Sankey<T> {
 		 * added to the graph, according to the cutoff rules of this builder.
 		 */
 		private void expand(Node node) {
-			var colA = result.solution.techColumnOf(node.index);
+			var colA = result.provider.techColumnOf(node.index);
 			for (int i = 0; i < colA.length; i++) {
 				if (i == node.index || colA[i] == 0)
 					continue;

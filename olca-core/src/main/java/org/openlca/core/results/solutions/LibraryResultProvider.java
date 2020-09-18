@@ -20,14 +20,14 @@ import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.util.Pair;
 
-public class LibrarySolutionProvider implements SolutionProvider {
+public class LibraryResultProvider implements ResultProvider {
 
 	private final IDatabase db;
 	private final LibraryDir libDir;
 	private final IMatrixSolver solver;
 
 	private final MatrixData foregroundData;
-	private final SolutionProvider foregroundSolution;
+	private final ResultProvider foregroundSolution;
 
 	// cached results
 	private final MatrixData fullData;
@@ -43,7 +43,7 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	private final HashMap<String, TechIndex> libTechIndices = new HashMap<>();
 	private final HashMap<String, FlowIndex> libFlowIndices = new HashMap<>();
 
-	private LibrarySolutionProvider(
+	private LibraryResultProvider(
 			IDatabase db,
 			LibraryDir libDir,
 			IMatrixSolver solver,
@@ -52,7 +52,7 @@ public class LibrarySolutionProvider implements SolutionProvider {
 		this.libDir = libDir;
 		this.solver = solver;
 		this.foregroundData = foregroundData;
-		this.foregroundSolution = EagerSolutionProvider.create(
+		this.foregroundSolution = EagerResultProvider.create(
 				foregroundData, solver);
 
 		this.fullData = new MatrixData();
@@ -70,13 +70,13 @@ public class LibrarySolutionProvider implements SolutionProvider {
 				-1);
 	}
 
-	public static LibrarySolutionProvider of(
+	public static LibraryResultProvider of(
 			IDatabase db,
 			LibraryDir libDir,
 			IMatrixSolver solver,
 			MatrixData foregroundData) {
 
-		var provider = new LibrarySolutionProvider(
+		var provider = new LibraryResultProvider(
 				db, libDir, solver, foregroundData);
 		provider.initTechIndex();
 		provider.initFlowIndex();
@@ -191,6 +191,12 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	public DIndex<ImpactCategoryDescriptor> impactIndex() {
 		// TODO: not yet implemented
 		return null;
+	}
+
+	@Override
+	public boolean hasCosts() {
+		// TODO: not yet implemented
+		return false;
 	}
 
 	@Override

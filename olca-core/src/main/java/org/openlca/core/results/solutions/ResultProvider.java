@@ -17,7 +17,7 @@ import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
  * copy-behaviour and it is often more efficient to overwrite them in a
  * specific implementation.
  */
-public interface SolutionProvider {
+public interface ResultProvider {
 
 	double[] EMPTY_VECTOR = new double[0];
 
@@ -56,6 +56,18 @@ public interface SolutionProvider {
 	 * $$
 	 */
 	DIndex<ImpactCategoryDescriptor> impactIndex();
+
+	default boolean hasFlows() {
+		var flowIdx = flowIndex();
+		return flowIdx != null && flowIdx.size() > 0;
+	}
+
+	default boolean hasImpacts() {
+		var impactIdx = impactIndex();
+		return impactIdx != null && impactIdx.size() > 0;
+	}
+
+	boolean hasCosts();
 
 	/**
 	 * The scaling vector $\mathbf{s}$ which is calculated by solving the
@@ -260,6 +272,14 @@ public interface SolutionProvider {
 				: factors[indicator];
 	}
 
+	/**
+	 * A LCIA category * flow matrix that contains the direct contributions of the
+	 * elementary flows to the LCIA result. This matrix can be calculated by
+	 * column-wise scaling of the matrix with the characterization factors
+	 * $\mathbf{C}$ with the inventory result $\mathbf{g}$:
+	 *
+	 * $$\mathbf{H} = \mathbf{C} \ \text{diag}(\mathbf{g})$$
+	 */
 	default double[] flowImpactsOf(int flow) {
 		var totals = totalFlows();
 		var impacts = impactFactorsOf(flow);
@@ -276,6 +296,14 @@ public interface SolutionProvider {
 				: factor * totals[flow];
 	}
 
+	/**
+	 * A LCIA category * process-product matrix that contains the direct
+	 * contributions of the processes to the LCIA result. This can be calculated by
+	 * a matrix-matrix multiplication of the direct inventory contributions
+	 * $\mathbf{G}$ with the matrix with the characterization factors $\mathbf{C}$:
+	 * <p>
+	 * $$\mathbf{H} = \mathbf{C} \ \mathbf{G}$$
+	 */
 	double[] directImpactsOf(int product);
 
 	default double directImpactOf(int indicator, int product) {
@@ -306,6 +334,12 @@ public interface SolutionProvider {
 
 	double[] totalImpacts();
 
+	/**
+	 * Contains the direct contributions $\mathbf{k}_s$ of the process-product pairs
+	 * to the total net-costs ($\odot$ denotes element-wise multiplication):
+	 * <p>
+	 * $$\mathbf{k}_s = \mathbf{k} \odot \mathbf{s}$$
+	 */
 	double directCostsOf(int product);
 
 	double totalCostsOfOne(int product);
@@ -341,7 +375,7 @@ public interface SolutionProvider {
 	/**
 	 * Calculates a vector $\mathbf{w}$ by scaling the given vector
 	 * $\mathbf{v}$ with the given factor $f$:
-	 *
+	 * <p>
 	 * $$
 	 * \mathbf{w} = \mathbf{v} \odot f
 	 * $$

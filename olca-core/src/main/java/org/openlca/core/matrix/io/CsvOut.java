@@ -85,21 +85,6 @@ public final class CsvOut {
 			writeCol(sr.totalFlowResults, new File(folder, "g.csv"));
 			writeCol(sr.totalImpactResults, new File(folder, "h.csv"));
 		}
-
-		if (result instanceof ContributionResult) {
-			ContributionResult cr = (ContributionResult) result;
-			write(cr.directImpactResults, new File(folder, "H.csv"));
-			writeCol(cr.directCostResults, new File(folder, "k_scaled.csv"));
-			write(cr.impactFactors, new File(folder, "C.csv"));
-		}
-
-//		if (result instanceof FullResult) {
-//			FullResult fr = (FullResult) result;
-//			write(fr.techMatrix, new File(folder, "A_scaled.csv"));
-//			write(fr.upstreamFlowResults, new File(folder, "U.csv"));
-//			write(fr.upstreamImpactResults, new File(folder, "V.csv"));
-//			write(fr.upstreamCostResults, new File(folder, "k_upstreams.csv"));
-//		}
 	}
 
 	/**
