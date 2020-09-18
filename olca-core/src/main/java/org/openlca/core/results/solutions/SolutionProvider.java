@@ -1,10 +1,22 @@
 package org.openlca.core.results.solutions;
 
+import java.util.Arrays;
+
 import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
+/**
+ * Defines the general interface of a `ResultProvider`. The documentation is
+ * based on matrix algebra but this does not mean that an implementation has
+ * to be based on matrices. It just has to implement this protocol. A user of
+ * a `ResultProvider` should treat the returned values as live views on the
+ * data of the result provider and thus should **never** modify these values.
+ * Because of this, the default implementations in this interface often have
+ * copy-behaviour and it is often more efficient to overwrite them in a
+ * specific implementation.
+ */
 public interface SolutionProvider {
 
 	/**
@@ -116,11 +128,7 @@ public interface SolutionProvider {
 	 * the diagonal of $A$ these are the total requirements of the system.
 	 */
 	default double scaledTechValueOf(int row, int col) {
-		var s = scalingVector();
-		if (s == null)
-			return 0;
-		var aij = techValueOf(row, col);
-		return s[col] * aij;
+		return scalingFactorOf(col) * techValueOf(row, col);
 	}
 
 	/**
@@ -169,9 +177,7 @@ public interface SolutionProvider {
 		var s = scalingVector();
 		if (empty(flows) || empty(s))
 			return new double[0];
-		var factor = s[product];
-		scale(flows, factor);
-		return flows;
+		return scale(flows, s[product]);
 	}
 
 	/**
@@ -208,8 +214,7 @@ public interface SolutionProvider {
 	default double[] totalFlowsOf(int product) {
 		var factor = totalFactorOf(product);
 		var totals = totalFlowsOfOne(product);
-		scale(totals, factor);
-		return totals;
+		return scale(totals, factor);
 	}
 
 	/**
@@ -261,11 +266,7 @@ public interface SolutionProvider {
 		var impacts = impactFactorsOf(flow);
 		if (empty(totals) || empty(impacts))
 			return new double[0];
-		var total = totals[flow];
-		for (int k = 0; k < impacts.length; k++) {
-			impacts[k] *= total;
-		}
-		return impacts;
+		return scale(impacts, totals[flow]);
 	}
 
 	default double flowImpactOf(int indicator, int flow) {
@@ -297,8 +298,7 @@ public interface SolutionProvider {
 	default double[] totalImpactsOf(int product) {
 		var impacts = totalImpactsOfOne(product);
 		var factor = totalFactorOf(product);
-		scale(impacts, factor);
-		return impacts;
+		return scale(impacts, factor);
 	}
 
 	default double totalImpactOf(int indicator, int product) {
@@ -325,17 +325,41 @@ public interface SolutionProvider {
 	}
 
 	/**
-	 * Scales the given vector $\mathbf{v}$ with the given factor $f$ in place:
+	 * Scales the given vector $\mathbf{v}$ by the given factor $f$ in place:
 	 * <p>
 	 * $$
 	 * \mathbf{v} := \mathbf{v} \odot f
 	 * $$
 	 */
-	default void scale(double[] values, double factor) {
+	default void scaleInPlace(double[] values, double factor) {
 		if (empty(values))
 			return;
 		for (int i = 0; i < values.length; i++) {
 			values[i] *= factor;
 		}
+	}
+
+	/**
+	 * Calculates a vector $\mathbf{w}$ by scaling the given vector
+	 * $\mathbf{v}$ with the given factor $f$:
+	 *
+	 * $$
+	 * \mathbf{w} = \mathbf{v} \odot f
+	 * $$
+	 */
+	default double[] scale(double[] values, double factor) {
+		if (empty(values))
+			return new double[0];
+		var w = new double[values.length];
+		for (int i = 0; i < values.length; i++) {
+			w[i] = values[i] * factor;
+		}
+		return w;
+	}
+
+	default double[] copy(double[] values) {
+		if (empty(values))
+			return new double[0];
+		return Arrays.copyOf(values, values.length);
 	}
 }

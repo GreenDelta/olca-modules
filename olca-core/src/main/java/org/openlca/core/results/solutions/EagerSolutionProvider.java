@@ -15,6 +15,7 @@ public class EagerSolutionProvider implements SolutionProvider {
 	private final IMatrix inverse;
 	private final double[] scalingVector;
 	private final double[] totalRequirements;
+	private final double[] loopFactors;
 
 	private double[] totalFlows;
 	private IMatrix directFlows;
@@ -43,6 +44,15 @@ public class EagerSolutionProvider implements SolutionProvider {
 		totalRequirements = data.techMatrix.diag();
 		for (int i = 0; i < totalRequirements.length; i++) {
 			totalRequirements[i] *= scalingVector[i];
+		}
+		loopFactors = new double[techIdx.size()];
+		for (int i = 0; i < loopFactors.length; i++) {
+			var aii = data.techMatrix.get(i, i);
+			var ii = inverse.get(i, i);
+			var f = aii * ii;
+			loopFactors[i] = f == 0
+					? 1.0
+					: 1 / f;
 		}
 
 		if (data.flowMatrix != null) {
@@ -115,8 +125,18 @@ public class EagerSolutionProvider implements SolutionProvider {
 	}
 
 	@Override
+	public double scalingFactorOf(int product) {
+		return scalingVector[product];
+	}
+
+	@Override
 	public double[] totalRequirements() {
 		return totalRequirements;
+	}
+
+	@Override
+	public double totalRequirementsOf(int product) {
+		return totalRequirements[product];
 	}
 
 	@Override
@@ -135,6 +155,11 @@ public class EagerSolutionProvider implements SolutionProvider {
 	}
 
 	@Override
+	public double loopFactorOf(int product) {
+		return loopFactors[product];
+	}
+
+	@Override
 	public double[] unscaledFlowsOf(int j) {
 		return data.flowMatrix == null
 				? new double[0]
@@ -150,16 +175,30 @@ public class EagerSolutionProvider implements SolutionProvider {
 
 	@Override
 	public double[] directFlowsOf(int product) {
-		if (directFlows == null)
-			return new double[0];
-		return directFlows.getColumn(product);
+		return directFlows == null
+				? new double[0]
+				: directFlows.getColumn(product);
 	}
 
 	@Override
 	public double directFlowOf(int flow, int product) {
-		if (directFlows == null)
-			return 0;
-		return directFlows.get(flow, product);
+		return directFlows == null
+				? 0
+				: directFlows.get(flow, product);
+	}
+
+	@Override
+	public double[] totalFlowsOfOne(int product) {
+		return totalFlowsOfOne == null
+				? new double[0]
+				: totalFlowsOfOne.getColumn(product);
+	}
+
+	@Override
+	public double totalFlowOfOne(int flow, int product) {
+		return totalFlowsOfOne == null
+				? 0
+				: totalFlowsOfOne.get(flow, product);
 	}
 
 	@Override
@@ -167,20 +206,6 @@ public class EagerSolutionProvider implements SolutionProvider {
 		return totalFlows == null
 				? new double[0]
 				: totalFlows;
-	}
-
-	@Override
-	public double[] totalFlowsOfOne(int product) {
-		if (totalFlowsOfOne == null)
-			return new double[0];
-		return totalFlowsOfOne.getColumn(product);
-	}
-
-	@Override
-	public double totalFlowOfOne(int flow, int product) {
-		if (totalFlowsOfOne == null)
-			return 0;
-		return totalFlowsOfOne.get(flow, product);
 	}
 
 	@Override
@@ -219,16 +244,6 @@ public class EagerSolutionProvider implements SolutionProvider {
 		if (totalCostsOfOne == null)
 			return 0;
 		return totalCostsOfOne[product];
-	}
-
-	@Override
-	public double loopFactorOf(int i) {
-		var aii = data.techMatrix.get(i, i);
-		var ii = inverse.get(i, i);
-		var f = aii * ii;
-		return f == 0
-				? 0
-				: 1 / f;
 	}
 
 
