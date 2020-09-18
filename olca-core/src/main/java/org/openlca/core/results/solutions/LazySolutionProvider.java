@@ -111,24 +111,24 @@ public class LazySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] flowColumnOf(int j) {
+	public double[] unscaledFlowsOf(int j) {
 		return data.flowMatrix.getColumn(j);
 	}
 
 	@Override
-	public double flowValueOf(int flow, int product) {
+	public double unscaledFlowOf(int flow, int product) {
 		return data.flowMatrix.get(flow, product);
 	}
 
 	@Override
-	public double[] totalFlowResults() {
+	public double[] totalFlows() {
 		return totalFlows == null
 				? new double[0]
 				: totalFlows;
 	}
 
 	@Override
-	public double[] totalFlowResultsOfOne(int product) {
+	public double[] totalFlowsOfOne(int product) {
 		var m = intensities.get(product);
 		if (m != null)
 			return m;
@@ -152,7 +152,7 @@ public class LazySolutionProvider implements SolutionProvider {
 		var h = impacts.get(product);
 		if (h != null)
 			return h;
-		var g = totalFlowResultsOfOne(product);
+		var g = totalFlowsOfOne(product);
 		h = solver.multiply(data.impactMatrix, g);
 		impacts.put(product, h);
 		return h;

@@ -53,7 +53,7 @@ public class EagerSolutionProvider implements SolutionProvider {
 
 			// the intensity matrix: M = B * inv(A)
 			totalFlowsOfOne = solver.multiply(data.flowMatrix, inverse);
-			totalFlows = totalFlowResultsOfOne(refIdx);
+			totalFlows = totalFlowsOfOne(refIdx);
 			for (int i = 0; i < totalFlows.length; i++) {
 				totalFlows[i] *= demand;
 			}
@@ -135,49 +135,49 @@ public class EagerSolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] flowColumnOf(int j) {
+	public double[] unscaledFlowsOf(int j) {
 		return data.flowMatrix == null
 				? new double[0]
 				: data.flowMatrix.getColumn(j);
 	}
 
 	@Override
-	public double flowValueOf(int flow, int product) {
+	public double unscaledFlowOf(int flow, int product) {
 		return data.flowMatrix == null
 				? 0
 				: data.flowMatrix.get(flow, product);
 	}
 
 	@Override
-	public double[] directFlowResultsOf(int product) {
+	public double[] directFlowsOf(int product) {
 		if (directFlows == null)
 			return new double[0];
 		return directFlows.getColumn(product);
 	}
 
 	@Override
-	public double directFlowResultOf(int flow, int product) {
+	public double directFlowOf(int flow, int product) {
 		if (directFlows == null)
 			return 0;
 		return directFlows.get(flow, product);
 	}
 
 	@Override
-	public double[] totalFlowResults() {
+	public double[] totalFlows() {
 		return totalFlows == null
 				? new double[0]
 				: totalFlows;
 	}
 
 	@Override
-	public double[] totalFlowResultsOfOne(int product) {
+	public double[] totalFlowsOfOne(int product) {
 		if (totalFlowsOfOne == null)
 			return new double[0];
 		return totalFlowsOfOne.getColumn(product);
 	}
 
 	@Override
-	public double totalFlowResultOfOne(int flow, int product) {
+	public double totalFlowOfOne(int flow, int product) {
 		if (totalFlowsOfOne == null)
 			return 0;
 		return totalFlowsOfOne.get(flow, product);
@@ -188,6 +188,11 @@ public class EagerSolutionProvider implements SolutionProvider {
 		return totalImpacts == null
 				? new double[0]
 				: totalImpacts;
+	}
+
+	@Override
+	public double directImpact(int indicator, int product) {
+		return 0;
 	}
 
 	@Override
@@ -225,4 +230,6 @@ public class EagerSolutionProvider implements SolutionProvider {
 				? 0
 				: 1 / f;
 	}
+
+
 }

@@ -33,7 +33,7 @@ public class LibTest {
 		var flowIdx = provider.flowIndex();
 
 		var start =  System.currentTimeMillis();
-		var result = provider.totalFlowResults();
+		var result = provider.totalFlows();
 		var end = System.currentTimeMillis();
 		System.out.printf("Calculation done in %d ms %n", (end - start));
 

@@ -328,7 +328,7 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] flowColumnOf(int j) {
+	public double[] unscaledFlowsOf(int j) {
 		var flowIdx = fullData.flowIndex;
 		if (flowIdx == null)
 			return new double[0];
@@ -379,19 +379,19 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double flowValueOf(int flow, int product) {
+	public double unscaledFlowOf(int flow, int product) {
 		// TODO: we may want to load matrix entries
 		// explicitly from libraries in the future
 		// instead of loading the full column
-		var column = flowColumnOf(product);
+		var column = unscaledFlowsOf(product);
 		return column[flow];
 	}
 
 	@Override
-	public double[] totalFlowResults() {
+	public double[] totalFlows() {
 		if (totalFlowResults != null)
 			return totalFlowResults;
-		var m = totalFlowResultsOfOne(0);
+		var m = totalFlowsOfOne(0);
 		var demand = fullData.techIndex.getDemand();
 		var results = Arrays.copyOf(m, m.length);
 		for (int i = 0; i < m.length; i++) {
@@ -402,7 +402,7 @@ public class LibrarySolutionProvider implements SolutionProvider {
 	}
 
 	@Override
-	public double[] totalFlowResultsOfOne(int j) {
+	public double[] totalFlowsOfOne(int j) {
 		var m = intensities.get(j);
 		if (m != null)
 			return m;

@@ -74,7 +74,7 @@ public class ContributionResult extends SimpleResult {
 			return 0;
 		int flowIdx = flowIndex.of(flow);
 		int productIdx = techIndex.getIndex(product);
-		double value = solution.directFlowResultOf(flowIdx, productIdx);
+		double value = solution.directFlowOf(flowIdx, productIdx);
 		return adopt(flow, value);
 	}
 

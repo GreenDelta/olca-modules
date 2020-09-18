@@ -50,7 +50,9 @@ public interface SolutionProvider {
 
 	default double scalingFactorOf(int product) {
 		var s = scalingVector();
-		return s == null ? 0 : s[product];
+		return empty(s)
+				? 0
+				: s[product];
 	}
 
 	/**
@@ -75,8 +77,9 @@ public interface SolutionProvider {
 
 	default double totalRequirementsOf(int product) {
 		var t = totalRequirements();
-		return t == null ? 0 : t[product];
-
+		return empty(t)
+				? 0
+				: t[product];
 	}
 
 	/**
@@ -112,16 +115,102 @@ public interface SolutionProvider {
 	double[] solutionOfOne(int product);
 
 	/**
+	 * The loop factor $loop_j$ of a product $i$ is calculated via:
+	 * <p>
+	 * $$
+	 * loop_j = \frac{1}{\mathbf{A}_{jj} \ \mathbf{A}^{-1}_{jj}}
+	 * $$
+	 * <p>
+	 * It is $1.0$ if the process of the product is not in a loop. Otherwise
+	 * it describes ...
+	 */
+	double loopFactorOf(int product);
+
+	default double totalFactorOf(int product) {
+		var t = totalRequirementsOf(product);
+		var loop = loopFactorOf(product);
+		return loop * f;
+	}
+
+	/**
 	 * Get the unscaled column $j$ from the intervention matrix $B$.
 	 */
-	double[] flowColumnOf(int product);
+	double[] unscaledFlowsOf(int product);
 
 	/**
 	 * Get the unscaled value $b_{ij}$ from the intervention matrix $B$.
 	 */
-	default double flowValueOf(int flow, int product) {
-		double[] column = flowColumnOf(product);
+	default double unscaledFlowOf(int flow, int product) {
+		double[] column = unscaledFlowsOf(product);
 		return column[flow];
+	}
+
+	default double[] directFlowsOf(int product) {
+		var flowIdx = flowIndex();
+		if (flowIdx == null)
+			return new double[0];
+		var flows = unscaledFlowsOf(product);
+		var s = scalingVector();
+		if (empty(flows) || empty(s))
+			return new double[0];
+		var factor = s[product];
+		scale(flows, factor);
+		return flows;
+	}
+
+	/**
+	 * Get the the direct result of the given flow and product related to the
+	 * final demand of the system. This is basically the element $g_{ij}$
+	 * of the column-wise scaled intervention matrix $B$:
+	 * <p>
+	 * $$ G = B \text{diag}(s) $$
+	 */
+	default double directFlowOf(int flow, int product) {
+		return scalingFactorOf(product) * unscaledFlowOf(flow, product);
+	}
+
+	/**
+	 * Returns the total flow results (direct + upstream) related to one unit of
+	 * the given product $j$ in the system. This is the respective column $j$
+	 * of the intensity matrix $M$:
+	 * <p>
+	 * $$M = B * A^{-1}$$
+	 */
+	double[] totalFlowsOfOne(int product);
+
+	/**
+	 * Returns the total result (direct + upstream) of the given flow related
+	 * to one unit of the given product in the system.
+	 */
+	default double totalFlowOfOne(int flow, int product) {
+		var totals = totalFlowsOfOne(product);
+		return empty(totals)
+				? 0
+				: totals[flow];
+	}
+
+	default double[] totalFlowsOf(int product) {
+		var factor = totalFactorOf(product);
+		var totals = totalFlowsOfOne(product);
+		for (int i = 0; i < totals.length; i++) {
+			totals[i] *= factor;
+		}
+		return totals;
+	}
+
+	/**
+	 * Returns the total flow result (direct + upstream) of the given flow
+	 * and product related to the final demand of the system.
+	 */
+	default double totalFlowOf(int flow, int product) {
+		double[] tr = totalRequirements();
+		if (tr == null)
+			return 0;
+		double[] ofOne = totalFlowsOfOne(product);
+		if (ofOne == null)
+			return 0;
+		double loop = loopFactorOf(product);
+		return loop * tr[product] * ofOne[flow];
 	}
 
 	/**
@@ -132,100 +221,97 @@ public interface SolutionProvider {
 	 * Where $\mathbf{B}$ is the intervention matrix and $\mathbf{s}$ the
 	 * scaling vector. Note that inputs have negative values in this vector.
 	 */
-	double[] totalFlowResults();
-
-	default double[] directFlowResultsOf(int product) {
-		var flowIdx = flowIndex();
-		if (flowIdx == null)
-			return new double[0];
-		var r = new double[flowIdx.size()];
-		var s = scalingVector();
-		if (s == null)
-			return r;
-		var sj = s[product];
-		for (int flow = 0; flow < r.length; flow++) {
-			r[flow] = sj * flowValueOf(flow, product);
-		}
-		return r;
-	}
+	double[] totalFlows();
 
 	/**
-	 * Get the the direct result of the given flow and product related to the
-	 * final demand of the system. This is basically the element $g_{ij}$
-	 * of the column-wise scaled intervention matrix $B$:
+	 * Get the impact factors $c_m$ for the given flow $m$ which is the $m$th
+	 * column of the impact matrix $C \in \mathbb{R}^{k \times m}$:
 	 * <p>
-	 * $$ G = B \text{diag}(s) $$
+	 * $$
+	 * c_m = C[:, m]
+	 * $$
 	 */
-	default double directFlowResultOf(int flow, int product) {
-		var s = scalingVector();
-		return s == null
+	double[] impactFactorsOf(int flow);
+
+	/**
+	 * Get the impact factor $c_{km}$ for the given indicator $m$ and flow $m$
+	 * which is the respective entry in the impact matrix
+	 * $C \in \mathbb{R}^{k \times m}$:
+	 * <p>
+	 * $$
+	 * c_{km} = C[k, m]
+	 * $$
+	 */
+	default double impactFactorOf(int indicator, int flow) {
+		var factors = impactFactorsOf(flow);
+		return factors == null ? 0 : factors[indicator];
+	}
+
+	default double[] flowImpactsOf(int flow) {
+		var totals = totalFlows();
+		var impacts = impactFactorsOf(flow);
+		if (empty(totals) || empty(impacts))
+			return new double[0];
+		var total = totals[flow];
+		for (int k = 0; k < impacts.length; k++) {
+			impacts[k] *= total;
+		}
+		return impacts;
+	}
+
+	default double flowImpactOf(int indicator, int flow) {
+		var totals = totalFlows();
+		if (empty(totals))
+			return 0;
+		var factor = impactFactorOf(indicator, flow);
+		return factor * totals[flow];
+	}
+
+	double[] directImpactsOf(int product);
+
+	default double directImpactOf(int indicator, int product) {
+		var impacts = directImpactsOf(product);
+		return empty(impacts)
 				? 0
-				: s[product] * flowValueOf(flow, product);
+				: impacts[product];
 	}
-
-	/**
-	 * Returns the total flow results (direct + upstream) related to one unit of
-	 * the given product $j$ in the system. This is the respective column $j$
-	 * of the intensity matrix $M$:
-	 * <p>
-	 * $$M = B * A^{-1}$$
-	 */
-	double[] totalFlowResultsOfOne(int product);
-
-	/**
-	 * Returns the total result (direct + upstream) of the given flow related
-	 * to one unit of the given product in the system.
-	 */
-	default double totalFlowResultOfOne(int flow, int product) {
-		var column = totalFlowResultsOfOne(product);
-		if (column == null || column.length <= flow)
-			return 0;
-		return column[flow];
-	}
-
-	default double[] totalFlowResultsOf(int product) {
-		var tr = totalRequirements();
-		if (tr == null)
-			return new double[0];
-		var f = tr[product] * loopFactorOf(product);
-		var r = totalFlowResultsOfOne(product);
-		for (int i = 0; i < r.length; i++) {
-			r[i] *= f;
-		}
-		return r;
-	}
-
-	/**
-	 * Returns the total flow result (direct + upstream) of the given flow
-	 * and product related to the final demand of the system.
-	 */
-	default double totalFlowResultOf(int flow, int product) {
-		double[] tr = totalRequirements();
-		if (tr == null)
-			return 0;
-		double[] ofOne = totalFlowResultsOfOne(product);
-		if (ofOne == null)
-			return 0;
-		double loop = loopFactorOf(product);
-		return loop * tr[product] * ofOne[flow];
-	}
-
-	double[] totalImpacts();
-
-	double directImpact(int indicator, int product);
 
 	double[] totalImpactsOfOne(int product);
 
 	default double totalImpactOfOne(int indicator, int product) {
-		var ofOne = totalImpactsOfOne(product);
-		if (ofOne == null || ofOne.length <= indicator)
-			return 0;
-		return ofOne[indicator];
+		var impacts = totalImpactsOfOne(product);
+		return empty(impacts)
+				? 0
+				: impacts[indicator];
 	}
+
+	default double[] totalImpactsOf(int product) {
+		var impacts = totalImpactsOfOne(product);
+
+	}
+
+	double[] totalImpacts();
 
 	double totalCosts();
 
 	double totalCostsOfOne(int product);
 
-	double loopFactorOf(int product);
+	default boolean empty(double[] values) {
+		return values == null || values.length == 0;
+	}
+
+	/**
+	 * Scales the given vector $\mathbf{v}$ with the given factor $f$ in place:
+	 * <p>
+	 * $$
+	 * \mathbf{v} := \mathbf{v} \odot f
+	 * $$
+	 */
+	default void scale(double[] values, double factor) {
+		if (empty(values))
+			return;
+		for (int i = 0; i < values.length; i++) {
+			values[i] *= factor;
+		}
+	}
 }
