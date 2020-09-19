@@ -7,6 +7,8 @@ import java.util.Objects;
 
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.TIntHashSet;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.LibraryDir;
@@ -36,6 +38,8 @@ public class LibraryResultProvider implements ResultProvider {
 	private final TIntObjectHashMap<double[]> totalFlowsOfOne;
 
 	private double[] scalingVector;
+	private double[] totalRequirements;
+
 	private double[] totalFlowResults;
 
 	// library maps: libID -> T
@@ -94,11 +98,10 @@ public class LibraryResultProvider implements ResultProvider {
 	}
 
 	/**
-	 * Creates the combined tech. index. It recursively loads the tech.
-	 * indices of the linked libraries first (recursively, because a
-	 * library can link another library. Then it creates a combined
-	 * index where the first part of that index is identical to the
-	 * tech. index of the foreground system.
+	 * Creates the combined tech. index. It recursively loads the tech. indices of
+	 * the linked libraries first (recursively, because a library can link another
+	 * library. Then it creates a combined index where the first part of that index
+	 * is identical to the tech. index of the foreground system.
 	 */
 	private void initTechIndex() {
 
@@ -140,10 +143,10 @@ public class LibraryResultProvider implements ResultProvider {
 	}
 
 	/**
-	 * Creates the combined elem. flow index. This method needs to be called
-	 * after the tech. indices of the libraries were loaded. If the foreground
-	 * system and all libraries do not have a flow index, the flow index of
-	 * the combined system is just null.
+	 * Creates the combined elem. flow index. This method needs to be called after
+	 * the tech. indices of the libraries were loaded. If the foreground system and
+	 * all libraries do not have a flow index, the flow index of the combined system
+	 * is just null.
 	 */
 	private void initFlowIndex() {
 		// initialize the flow index with the foreground
@@ -211,14 +214,59 @@ public class LibraryResultProvider implements ResultProvider {
 
 	@Override
 	public double[] totalRequirements() {
-		// TODO: not yet implemented
-		return new double[0];
+		if (totalRequirements != null)
+			return totalRequirements;
+
+		// the same process can occur in different indices
+		// (e.g. in the index of the foreground system and
+		// in the index of some library), while they should
+		// result all in the same total requirements we
+		// want to avoid double counting them
+		var handled = new TIntHashSet(
+				Constants.DEFAULT_CAPACITY,
+				Constants.DEFAULT_LOAD_FACTOR,
+				-1);
+
+		// handle the foreground system
+		var index = fullData.techIndex;
+		var t = new double[index.size()];
+		var techF = foregroundData.techMatrix;
+		for (int i = 0; i < techF.columns(); i++) {
+			t[i] = techF.get(i, i) * scalingVector[i];
+			handled.add(i);
+		}
+
+		// handle the libraries
+		for (var e : libraries.entrySet()) {
+			var libID = e.getKey();
+			var lib = e.getValue();
+			var indexB = libTechIndices.get(libID);
+			if (lib == null || indexB == null)
+				continue;
+			var libDiag = lib.getDiagonal(LibraryMatrix.A).orElse(null);
+			if (libDiag == null)
+				continue;
+			for (int iB = 0; iB < libDiag.length; iB++) {
+				var product = indexB.getProviderAt(iB);
+				var i = index.getIndex(product);
+				if (i < 0 || handled.contains(i))
+					continue;
+				handled.add(i);
+				var si = scalingVector[i];
+				if (si == 0)
+					continue;
+				t[i] = si * libDiag[i];
+			}
+		}
+
+		totalRequirements = t;
+		return totalRequirements;
 	}
 
 	@Override
 	public double totalRequirementsOf(int product) {
-		// TODO: not yet implemented
-		return 0;
+		var t = totalRequirements();
+		return t[product];
 	}
 
 	@Override
