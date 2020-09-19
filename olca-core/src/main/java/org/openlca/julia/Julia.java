@@ -105,14 +105,14 @@ public final class Julia {
 				return new String[]{
 						"libsuitesparseconfig.dll",
 						"libamd.dll",
-						"libcamd.dll",
-						"libccolamd.dll",
-						"libcolamd.dll",
 						"libwinpthread-1.dll",
 						"libgcc_s_seh-1.dll",
 						"libquadmath-0.dll",
-						"libgfortran-4.dll",
+						"libgfortran-5.dll",
 						"libopenblas64_.dll",
+						"libccolamd.dll",
+						"libcolamd.dll",
+						"libcamd.dll",
 						"libcholmod.dll",
 						"libumfpack.dll",
 						"olcar_withumf.dll",
@@ -122,9 +122,9 @@ public final class Julia {
 						"libwinpthread-1.dll",
 						"libgcc_s_seh-1.dll",
 						"libquadmath-0.dll",
-						"libgfortran-4.dll",
+						"libgfortran-5.dll",
 						"libopenblas64_.dll",
-						"olcar.dll"
+						"olcar.dll",
 				};
 			}
 		}
