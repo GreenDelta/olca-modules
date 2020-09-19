@@ -10,7 +10,7 @@ import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
-public class LazySolutionProviderTest {
+public class LazyProviderTest {
 
 	@Test
 	public void testScalingVector() {
