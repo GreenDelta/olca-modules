@@ -2,7 +2,9 @@ package org.openlca.core.results.solutions;
 
 import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Objects;
 
 import gnu.trove.impl.Constants;
@@ -15,11 +17,16 @@ import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.LibraryMatrix;
 import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.MatrixBuilder;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.formula.Formulas;
 import org.openlca.util.Pair;
 
 public class LibraryResultProvider implements ResultProvider {
@@ -537,10 +544,74 @@ public class LibraryResultProvider implements ResultProvider {
 		return totalFlowResults;
 	}
 
+	private IMatrix impactMatrix() {
+		if (fullData.impactMatrix != null)
+			return fullData.impactMatrix;
+		if (!hasFlows() || !hasImpacts())
+			return null;
+
+		// allocate a Combined impact matrix C
+		var impactIndex = impactIndex();
+		var flowIndex = flowIndex();
+		var builder = new MatrixBuilder();
+		builder.minSize(impactIndex.size(), flowIndex.size());
+
+		// collect factors for indicators from
+		// the foreground database
+		var impactsF = new DIndex<ImpactCategoryDescriptor>();
+		impactIndex.each((index, impact) -> {
+			if (!impact.isFromLibrary()) {
+				impactsF.put(impact);
+			}
+		});
+		if (!impactsF.isEmpty()) {
+			var contexts = new HashSet<Long>();
+			impactsF.each((_idx, impact) -> contexts.add(impact.id));
+			// TODO: think about parameter redefinitions here:
+			// a flow that is only used in a library could have
+			// a formula for a characterization factor for an
+			// impact category in the foreground database with
+			// an parameter that is redefined in a calculation
+			// setup -> unlikely? yes, but...
+			var interpreter = ParameterTable.interpreter(
+					db, contexts, Collections.emptyList());
+			var matrixF = new ImpactBuilder(db).build(
+					flowIndex, impactIndex, interpreter).impactMatrix;
+			if (matrixF != null) {
+				// note that the combined flow index is used here
+				// so that we do not have to map the columns
+				matrixF.iterate((rowF, col, val) -> {
+					var impact = impactsF.at(rowF);
+					int row = impactIndex.of(impact);
+					builder.set(row, col, val);
+				});
+			}
+		}
+
+		var usedLibs = new HashSet<String>();
+		impactIndex.each((_idx, impact) -> {
+			if (impact.library != null) {
+				usedLibs.add(impact.library);
+			}
+		});
+		for (var libID : usedLibs) {
+			var lib = libraries.get(libID);
+			var libFlowIdx = libFlowIndices.get(libID);
+			if (lib == null || libFlowIdx == null)
+				continue;
+			
+		}
+
+		fullData.impactMatrix = builder.finish();
+		return fullData.impactMatrix;
+	}
+
 	@Override
 	public double[] impactFactorsOf(int flow) {
-		// TODO: not yet implemented
-		return new double[0];
+		var matrix = impactMatrix();
+		return matrix == null
+				? EMPTY_VECTOR
+				: matrix.getColumn(flow);
 	}
 
 	@Override
