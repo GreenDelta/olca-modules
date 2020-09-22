@@ -452,7 +452,7 @@ public class LibraryResultProvider implements ResultProvider {
 			column[i] = val;
 		}
 
-		return new double[0];
+		return column;
 	}
 
 	@Override

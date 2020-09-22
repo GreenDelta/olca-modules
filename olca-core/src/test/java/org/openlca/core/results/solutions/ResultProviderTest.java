@@ -226,6 +226,7 @@ public class ResultProviderTest {
 
 	@Test
 	public void testUnscaledFlowsOf() {
+		assumeTrue(noLibrary());
 		assertArrayEquals(d(1.0, -3.0), provider.unscaledFlowsOf(0), 1e-10);
 		assertArrayEquals(d(2.0, -3.0), provider.unscaledFlowsOf(1), 1e-10);
 	}
