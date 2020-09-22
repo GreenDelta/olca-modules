@@ -223,10 +223,12 @@ public class LibraryResultProvider implements ResultProvider {
 		// in the index of some library), while they should
 		// result all in the same total requirements we
 		// want to avoid double counting them
+		/*
 		var handled = new TIntHashSet(
 				Constants.DEFAULT_CAPACITY,
 				Constants.DEFAULT_LOAD_FACTOR,
 				-1);
+		*/
 
 		// handle the foreground system
 		var index = fullData.techIndex;
@@ -234,7 +236,7 @@ public class LibraryResultProvider implements ResultProvider {
 		var techF = foregroundData.techMatrix;
 		for (int i = 0; i < techF.columns(); i++) {
 			t[i] = techF.get(i, i) * scalingVector[i];
-			handled.add(i);
+			//handled.add(i);
 		}
 
 		// handle the libraries
@@ -250,9 +252,9 @@ public class LibraryResultProvider implements ResultProvider {
 			for (int iB = 0; iB < libDiag.length; iB++) {
 				var product = indexB.getProviderAt(iB);
 				var i = index.getIndex(product);
-				if (i < 0 || handled.contains(i))
+				if (i < 0 /*|| handled.contains(i)*/)
 					continue;
-				handled.add(i);
+				//handled.add(i);
 				var si = scalingVector[i];
 				if (si == 0)
 					continue;

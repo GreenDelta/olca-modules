@@ -1,6 +1,7 @@
 package org.openlca.core.results.solutions;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -135,6 +136,7 @@ public class ResultProviderTest {
 
 	@Test
 	public void testScalingVector() {
+		assumeTrue(noLibrary());
 		assertArrayEquals(
 				d(4, 2),
 				provider.scalingVector(),
@@ -143,6 +145,7 @@ public class ResultProviderTest {
 
 	@Test
 	public void testScalingFactorOf() {
+		assumeTrue(noLibrary());
 		assertEquals(4, provider.scalingFactorOf(0), 1e-10);
 		assertEquals(2, provider.scalingFactorOf(1), 1e-10);
 	}
@@ -163,12 +166,14 @@ public class ResultProviderTest {
 
 	@Test
 	public void testTechColumnOf() {
+		assumeTrue(noLibrary());
 		assertArrayEquals(d(0.5, -0.5), provider.techColumnOf(0), 1e-10);
 		assertArrayEquals(d(-0.5, 1.0), provider.techColumnOf(1), 1e-10);
 	}
 
 	@Test
 	public void testTechValueOf() {
+		assumeTrue(noLibrary());
 		double[][] expected = {
 				{0.5, -0.5},
 				{-0.5, 1.0},
@@ -201,6 +206,7 @@ public class ResultProviderTest {
 
 	@Test
 	public void testSolutionOfOne() {
+		assumeTrue(noLibrary());
 		assertArrayEquals(d(4.0, 2.0), provider.solutionOfOne(0), 1e-10);
 		assertArrayEquals(d(2.0, 2.0), provider.solutionOfOne(1), 1e-10);
 	}
@@ -213,6 +219,7 @@ public class ResultProviderTest {
 
 	@Test
 	public void testTotalFactorOf() {
+		assumeTrue(noLibrary());
 		assertEquals(1.0, provider.totalFactorOf(0), 1e-10);
 		assertEquals(1.0, provider.totalFactorOf(1), 1e-10);
 	}
@@ -225,6 +232,7 @@ public class ResultProviderTest {
 
 	@Test
 	public void testUnscaledFlowOf() {
+		assumeTrue(noLibrary());
 		double[][] expected = {
 				{1.0, 2.0},
 				{-3, -3.0}
@@ -344,5 +352,9 @@ public class ResultProviderTest {
 
 	private double[] d(double... values) {
 		return values;
+	}
+
+	private boolean noLibrary() {
+		return !(provider instanceof LibraryResultProvider);
 	}
 }
