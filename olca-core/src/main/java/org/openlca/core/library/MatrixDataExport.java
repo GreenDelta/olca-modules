@@ -1,7 +1,8 @@
 package org.openlca.core.library;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
-import java.util.function.Function;
+import java.io.FileOutputStream;
 
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.CSCMatrix;
@@ -11,12 +12,10 @@ import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.matrix.io.npy.Npz;
 import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.Version;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.jsonld.Json;
 import org.openlca.julia.Julia;
 import org.openlca.julia.JuliaSolver;
-import org.openlca.util.Strings;
+import org.openlca.util.Exceptions;
 
 class MatrixDataExport {
 
@@ -40,6 +39,7 @@ class MatrixDataExport {
 			}
 		}
 		writeInfo();
+		writeIndices();
 		writeMatrices();
 		return new Library(folder);
 	}
@@ -68,34 +68,33 @@ class MatrixDataExport {
 	}
 
 	private void writeIndices() {
-		var products = Proto.ProductIndex.newBuilder();
 
-		Function<FlowDescriptor, Proto.Flow> flow = d -> {
-			var proto = Proto.Flow.newBuilder();
-			if (d == null)
-				return proto.build();
-			proto.setId(Strings.orEmpty(d.refId));
-			proto.setName(Strings.orEmpty(d.name));
-			if (d.flowType != null) {
-				proto.setType(d.flowType.name());
-			}
-			return proto.build();
-		};
+		if (data.techIndex != null) {
+			var products = Proto.ProductIndex.newBuilder();
+			data.techIndex.each((index, product) -> {
+				var entry = LibIndex.protoEntry(index, product);
+				products.addProduct(entry);
+			});
+			write("index_A.bin", out -> products.build().writeTo(out));
+		}
 
-		Function<CategorizedDescriptor, Proto.Process> process = d -> {
-			var proto = Proto.Process.newBuilder();
-			if (d == null)
-				return proto.build();
-			proto.setId(Strings.orEmpty(d.refId));
-			proto.setName(Strings.orEmpty(d.name));
-			return proto.build();
-		};
+		if (data.flowIndex != null) {
+			var flows = Proto.ElemFlowIndex.newBuilder();
+			data.flowIndex.each((index, iFlow) -> {
+				var entry = LibIndex.protoEntry(index, iFlow);
+				flows.addFlow(entry);
+			});
+			write("index_B.bin", out -> flows.build().writeTo(out));
+		}
 
-		data.techIndex.each((index, product) -> {
-			var entry = Proto.ProductEntry.newBuilder();
-			entry.setIndex(index);
-			entry.setProduct(flow.apply(product.flow));
-		});
+		if (data.impactIndex != null) {
+			var impacts = Proto.ImpactIndex.newBuilder();
+			data.impactIndex.each((index, impact) -> {
+				var entry = LibIndex.protoEntry(index, impact);
+				impacts.addImpact(entry);
+			});
+			write("index_C.bin", out -> impacts.build().writeTo(out));
+		}
 	}
 
 	private void writeMatrices() {
@@ -132,6 +131,16 @@ class MatrixDataExport {
 			Npz.save(new File(folder, name + ".npz"), csc);
 		} else {
 			Npy.save(new File(folder, name + ".npy"), m);
+		}
+	}
+
+	private void write(String file, IndexWriter.Output fn) {
+		var f = new File(folder, file);
+		try (var stream = new FileOutputStream(f);
+			 var buffer = new BufferedOutputStream(stream)) {
+			fn.accept(buffer);
+		} catch (Exception e) {
+			Exceptions.unchecked("failed to write file " + f, e);
 		}
 	}
 }
