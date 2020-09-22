@@ -83,6 +83,7 @@ public class ResultProviderTest {
 		// impact factors
 		Function<Integer, ImpactCategoryDescriptor> impact = i -> {
 			var imp = new ImpactCategoryDescriptor();
+			imp.library = libID;
 			imp.id = i + 84;
 			imp.name = "i" + i;
 			return imp;
@@ -105,13 +106,14 @@ public class ResultProviderTest {
 		var foreground = new MatrixData();
 		foreground.techIndex = new TechIndex(data.techIndex.getRefFlow());
 		foreground.techIndex.setDemand(1.0);
-		foreground.techMatrix = JavaMatrix.of(new double[][]{{1}});
+		foreground.techMatrix = JavaMatrix.of(new double[][]{{0.5}});
+		foreground.impactIndex = data.impactIndex;
 
 		// create the result providers
 		var solver = new JavaSolver();
 		return List.of(
-				EagerResultProvider.create(data, solver),
-				LazyResultProvider.create(data, solver),
+				//EagerResultProvider.create(data, solver),
+				//LazyResultProvider.create(data, solver),
 				LibraryResultProvider.of(
 						db, new LibraryDir(libsDir), solver, foreground));
 	}
@@ -124,9 +126,11 @@ public class ResultProviderTest {
 
 	@Test
 	public void testIndices() {
+		assertTrue(provider.hasFlows());
+		assertTrue(provider.hasImpacts());
 		assertEquals(2, provider.techIndex().size());
 		assertEquals(2, provider.flowIndex().size());
-		assertTrue(provider.hasFlows());
+		assertEquals(3, provider.impactIndex().size());
 	}
 
 	@Test

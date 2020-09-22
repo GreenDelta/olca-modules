@@ -98,10 +98,46 @@ class MatrixDataExport {
 	}
 
 	private void writeMatrices() {
-		writeMatrix("A", data.techMatrix);
-		writeMatrix("B", data.flowMatrix);
-		writeMatrix("C", data.impactMatrix);
-		if (data.techMatrix == null)
+
+		// we scale the tech. matrix to 1|-1 on the diag.
+		var techMatrix = data.techMatrix;
+		double[] scalings = null;
+		if (techMatrix != null) {
+			int n = techMatrix.rows();
+			scalings = new double[n];
+			boolean needScaling = false;
+			for (int i = 0; i < n; i++) {
+				var aii = Math.abs(techMatrix.get(i, i));
+				if (aii == 1) {
+					scalings[i] = 1;
+				} else {
+					scalings[i] = 1 / aii;
+					needScaling = true;
+				}
+			}
+			if (!needScaling) {
+				scalings = null;
+			} else {
+				techMatrix = techMatrix.copy();
+				techMatrix.scaleColumns(scalings);
+			}
+			writeMatrix("A", techMatrix);
+		}
+
+		var flowMatrix = data.flowMatrix;
+		if (flowMatrix != null) {
+			if (scalings != null) {
+				flowMatrix = flowMatrix.copy();
+				flowMatrix.scaleColumns(scalings);
+			}
+			writeMatrix("B", flowMatrix);
+		}
+
+		if (data.impactMatrix != null) {
+			writeMatrix("C", data.impactMatrix);
+		}
+
+		if (techMatrix == null)
 			return;
 
 		var solver = Julia.isLoaded()
@@ -109,19 +145,17 @@ class MatrixDataExport {
 				: new JavaSolver();
 
 		// create the inverse
-		var inv = solver.invert(data.techMatrix);
+		var inv = solver.invert(techMatrix);
 		writeMatrix("INV", inv);
 
 		// create the intensity matrix
-		if (data.flowMatrix == null)
+		if (flowMatrix == null)
 			return;
-		var m = solver.multiply(data.flowMatrix, inv);
+		var m = solver.multiply(flowMatrix, inv);
 		writeMatrix("M", m);
 	}
 
 	private void writeMatrix(String name, IMatrix matrix) {
-		if (matrix == null)
-			return;
 		var m = matrix;
 		if (m instanceof HashPointMatrix) {
 			m = CSCMatrix.of(m);

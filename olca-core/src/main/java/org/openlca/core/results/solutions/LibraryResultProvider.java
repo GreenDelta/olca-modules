@@ -60,6 +60,8 @@ public class LibraryResultProvider implements ResultProvider {
 				foregroundData, solver);
 
 		this.fullData = new MatrixData();
+		this.fullData.impactIndex = foregroundData.impactIndex;
+
 		this.solutions = new TIntObjectHashMap<>(
 				Constants.DEFAULT_CAPACITY,
 				Constants.DEFAULT_LOAD_FACTOR,
@@ -192,8 +194,7 @@ public class LibraryResultProvider implements ResultProvider {
 
 	@Override
 	public DIndex<ImpactCategoryDescriptor> impactIndex() {
-		// TODO: not yet implemented
-		return null;
+		return fullData.impactIndex;
 	}
 
 	@Override
