@@ -1,6 +1,7 @@
 package org.openlca.core.library;
 
 import java.io.File;
+import java.util.function.Function;
 
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.CSCMatrix;
@@ -10,9 +11,12 @@ import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.matrix.io.npy.Npz;
 import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.Version;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.jsonld.Json;
 import org.openlca.julia.Julia;
 import org.openlca.julia.JuliaSolver;
+import org.openlca.util.Strings;
 
 class MatrixDataExport {
 
@@ -50,9 +54,9 @@ class MatrixDataExport {
 		var name = fullName;
 		var version = "";
 		if (versionPart != null) {
-			name = folder.getName().substring(0,
-					fullName.length() - versionPart.length() + 1);
-			version = Version.format(version);
+			name = fullName.substring(0,
+					fullName.length() - versionPart.length() - 1);
+			version = Version.format(versionPart);
 		}
 
 		var info = new LibraryInfo();
@@ -61,6 +65,37 @@ class MatrixDataExport {
 		info.isRegionalized = data.flowIndex != null
 				&& data.flowIndex.isRegionalized;
 		Json.write(info.toJson(), new File(folder, "library.json"));
+	}
+
+	private void writeIndices() {
+		var products = Proto.ProductIndex.newBuilder();
+
+		Function<FlowDescriptor, Proto.Flow> flow = d -> {
+			var proto = Proto.Flow.newBuilder();
+			if (d == null)
+				return proto.build();
+			proto.setId(Strings.orEmpty(d.refId));
+			proto.setName(Strings.orEmpty(d.name));
+			if (d.flowType != null) {
+				proto.setType(d.flowType.name());
+			}
+			return proto.build();
+		};
+
+		Function<CategorizedDescriptor, Proto.Process> process = d -> {
+			var proto = Proto.Process.newBuilder();
+			if (d == null)
+				return proto.build();
+			proto.setId(Strings.orEmpty(d.refId));
+			proto.setName(Strings.orEmpty(d.name));
+			return proto.build();
+		};
+
+		data.techIndex.each((index, product) -> {
+			var entry = Proto.ProductEntry.newBuilder();
+			entry.setIndex(index);
+			entry.setProduct(flow.apply(product.flow));
+		});
 	}
 
 	private void writeMatrices() {

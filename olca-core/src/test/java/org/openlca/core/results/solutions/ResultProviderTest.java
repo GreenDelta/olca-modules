@@ -2,6 +2,8 @@ package org.openlca.core.results.solutions;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
@@ -27,11 +29,12 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.util.Dirs;
 
 @RunWith(Parameterized.class)
 public class ResultProviderTest {
 
+	private static File libsDir;
 	private final ResultProvider provider;
 
 	public ResultProviderTest(ResultProvider provider) {
@@ -39,9 +42,11 @@ public class ResultProviderTest {
 	}
 
 	@Parameterized.Parameters
-	public static Collection<ResultProvider> createModel() {
+	public static Collection<ResultProvider> setup() throws Exception {
 
 		var db = Tests.getDb();
+		var libID = "lib_01.00.000";
+
 		var units = db.insert(UnitGroup.of("Mass units", Unit.of("kg")));
 		var mass = db.insert(FlowProperty.of("Mass", units));
 		var data = new MatrixData();
@@ -49,7 +54,9 @@ public class ResultProviderTest {
 		// tech. flows
 		Function<Integer, ProcessProduct> product = i -> {
 			var flow = db.insert(Flow.product("p" + i, mass));
-			var process = db.insert(Process.of("p" + i, flow));
+			var process = Process.of("p" + i, flow);
+			process.library = libID;
+			process = db.insert(process);
 			return ProcessProduct.of(process, flow);
 		};
 		data.techIndex = new TechIndex(product.apply(1));
@@ -62,7 +69,7 @@ public class ResultProviderTest {
 
 		// env. flows
 		Function<Integer, FlowDescriptor> flow = i -> {
-			var f = db.insert(Flow.elementary("e"+ i, mass));
+			var f = db.insert(Flow.elementary("e" + i, mass));
 			return Descriptor.of(f);
 		};
 		data.flowIndex = FlowIndex.create();
@@ -90,11 +97,29 @@ public class ResultProviderTest {
 				{2.0, -0.5},
 		});
 
+		// write the matrix data as library and create a
+		// foreground system
+		libsDir = Files.createTempDirectory("olca_tests").toFile();
+		var libDir = new File(libsDir, libID);
+		Library.create(data, libDir);
+		var foreground = new MatrixData();
+		foreground.techIndex = new TechIndex(data.techIndex.getRefFlow());
+		foreground.techIndex.setDemand(1.0);
+		foreground.techMatrix = JavaMatrix.of(new double[][]{{1}});
+
 		// create the result providers
 		var solver = new JavaSolver();
 		return List.of(
 				EagerResultProvider.create(data, solver),
-				LazyResultProvider.create(data, solver));
+				LazyResultProvider.create(data, solver),
+				LibraryResultProvider.of(
+						db, new LibraryDir(libsDir), solver, foreground));
+	}
+
+	@Parameterized.AfterParam
+	public static void tearDown() {
+		Tests.clearDb();
+		Dirs.delete(libsDir);
 	}
 
 	@Test
@@ -198,7 +223,7 @@ public class ResultProviderTest {
 	public void testUnscaledFlowOf() {
 		double[][] expected = {
 				{1.0, 2.0},
-				{-3 - 0, -3.0}
+				{-3, -3.0}
 		};
 		for (int flow = 0; flow < expected.length; flow++) {
 			for (int product = 0; product < expected[flow].length; product++) {
