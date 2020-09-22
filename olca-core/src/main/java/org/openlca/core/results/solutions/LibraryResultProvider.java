@@ -218,25 +218,21 @@ public class LibraryResultProvider implements ResultProvider {
 		if (totalRequirements != null)
 			return totalRequirements;
 
-		// the same process can occur in different indices
-		// (e.g. in the index of the foreground system and
-		// in the index of some library), while they should
-		// result all in the same total requirements we
-		// want to avoid double counting them
-		/*
-		var handled = new TIntHashSet(
-				Constants.DEFAULT_CAPACITY,
-				Constants.DEFAULT_LOAD_FACTOR,
-				-1);
-		*/
+		// for a library product j, the total requirements
+		// need to be based on the a_{jj} entry of the
+		// technology matrix of the library because our
+		// scaling factor for j is based on the inverse
+		// of that matrix
 
 		// handle the foreground system
 		var index = fullData.techIndex;
 		var t = new double[index.size()];
 		var techF = foregroundData.techMatrix;
 		for (int i = 0; i < techF.columns(); i++) {
+			var product = index.getProviderAt(i);
+			if (product.getLibrary().isPresent())
+				continue;
 			t[i] = techF.get(i, i) * scalingVector[i];
-			//handled.add(i);
 		}
 
 		// handle the libraries
@@ -251,10 +247,13 @@ public class LibraryResultProvider implements ResultProvider {
 				continue;
 			for (int iB = 0; iB < libDiag.length; iB++) {
 				var product = indexB.getProviderAt(iB);
-				var i = index.getIndex(product);
-				if (i < 0 /*|| handled.contains(i)*/)
+				var productLib = product.getLibrary().orElse(null);
+				if (!Objects.equals(productLib, libID))
 					continue;
-				//handled.add(i);
+
+				var i = index.getIndex(product);
+				if (i < 0)
+					continue;
 				var si = scalingVector[i];
 				if (si == 0)
 					continue;
