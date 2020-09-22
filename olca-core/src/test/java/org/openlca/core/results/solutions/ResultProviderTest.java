@@ -9,6 +9,9 @@ import java.util.function.Function;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.openlca.core.Tests;
+import org.openlca.core.library.Library;
+import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
@@ -16,6 +19,12 @@ import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.JavaMatrix;
 import org.openlca.core.matrix.solvers.JavaSolver;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.Process;
+import org.openlca.core.model.Unit;
+import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -30,49 +39,38 @@ public class ResultProviderTest {
 	}
 
 	@Parameterized.Parameters
-	public static Collection<ResultProvider> providers() {
-		var data = createModel();
-		var solver = new JavaSolver();
-		return List.of(
-				EagerResultProvider.create(data, solver),
-				LazyResultProvider.create(data, solver));
-	}
+	public static Collection<ResultProvider> createModel() {
 
-	private static MatrixData createModel() {
-
+		var db = Tests.getDb();
+		var units = db.insert(UnitGroup.of("Mass units", Unit.of("kg")));
+		var mass = db.insert(FlowProperty.of("Mass", units));
 		var data = new MatrixData();
 
 		// tech. flows
 		Function<Integer, ProcessProduct> product = i -> {
-			var process = new ProcessDescriptor();
-			process.name = "p" + i;
-			process.id = i;
-			var flow = new FlowDescriptor();
-			flow.name = "p" + i;
-			flow.id = i;
+			var flow = db.insert(Flow.product("p" + i, mass));
+			var process = db.insert(Process.of("p" + i, flow));
 			return ProcessProduct.of(process, flow);
 		};
 		data.techIndex = new TechIndex(product.apply(1));
 		data.techIndex.setDemand(1.0);
 		data.techIndex.put(product.apply(2));
-		data.techMatrix = JavaMatrix.of(new double[][] {
-				{ 0.5, -0.5 },
-				{ -0.5, 1.0 },
+		data.techMatrix = JavaMatrix.of(new double[][]{
+				{0.5, -0.5},
+				{-0.5, 1.0},
 		});
 
 		// env. flows
 		Function<Integer, FlowDescriptor> flow = i -> {
-			var f = new FlowDescriptor();
-			f.id = i + 42;
-			f.name = "e" + i;
-			return f;
+			var f = db.insert(Flow.elementary("e"+ i, mass));
+			return Descriptor.of(f);
 		};
 		data.flowIndex = FlowIndex.create();
 		data.flowIndex.putOutput(flow.apply(1));
 		data.flowIndex.putInput(flow.apply(2));
-		data.flowMatrix = JavaMatrix.of(new double[][] {
-				{ 1.0, 2.0 },
-				{ -3.0, -3.0 },
+		data.flowMatrix = JavaMatrix.of(new double[][]{
+				{1.0, 2.0},
+				{-3.0, -3.0},
 		});
 
 		// impact factors
@@ -86,13 +84,17 @@ public class ResultProviderTest {
 		data.impactIndex.put(impact.apply(1));
 		data.impactIndex.put(impact.apply(2));
 		data.impactIndex.put(impact.apply(3));
-		data.impactMatrix = JavaMatrix.of(new double[][] {
-				{ 1.0, 0.0 },
-				{ 0.0, -1.0 },
-				{ 2.0, -0.5 },
+		data.impactMatrix = JavaMatrix.of(new double[][]{
+				{1.0, 0.0},
+				{0.0, -1.0},
+				{2.0, -0.5},
 		});
 
-		return data;
+		// create the result providers
+		var solver = new JavaSolver();
+		return List.of(
+				EagerResultProvider.create(data, solver),
+				LazyResultProvider.create(data, solver));
 	}
 
 	@Test
@@ -139,8 +141,8 @@ public class ResultProviderTest {
 	@Test
 	public void testTechValueOf() {
 		double[][] expected = {
-				{ 0.5, -0.5 },
-				{ -0.5, 1.0 },
+				{0.5, -0.5},
+				{-0.5, 1.0},
 		};
 		for (int row = 0; row < expected.length; row++) {
 			for (int col = 0; col < expected[row].length; col++) {
@@ -155,8 +157,8 @@ public class ResultProviderTest {
 	@Test
 	public void testScaledTechValueOf() {
 		double[][] expected = {
-				{ 2.0, -1.0 },
-				{ -2.0, 2.0 },
+				{2.0, -1.0},
+				{-2.0, 2.0},
 		};
 		for (int row = 0; row < expected.length; row++) {
 			for (int col = 0; col < expected[row].length; col++) {
@@ -195,8 +197,8 @@ public class ResultProviderTest {
 	@Test
 	public void testUnscaledFlowOf() {
 		double[][] expected = {
-				{ 1.0, 2.0 },
-				{ -3 - 0, -3.0 }
+				{1.0, 2.0},
+				{-3 - 0, -3.0}
 		};
 		for (int flow = 0; flow < expected.length; flow++) {
 			for (int product = 0; product < expected[flow].length; product++) {
@@ -217,8 +219,8 @@ public class ResultProviderTest {
 	@Test
 	public void testDirectFlowOf() {
 		double[][] expected = {
-				{ 4.0, 4.0 },
-				{ -12.0, -6.0 }
+				{4.0, 4.0},
+				{-12.0, -6.0}
 		};
 		for (int flow = 0; flow < expected.length; flow++) {
 			for (int product = 0; product < expected[flow].length; product++) {
@@ -239,8 +241,8 @@ public class ResultProviderTest {
 	@Test
 	public void testTotalFlowOfOne() {
 		double[][] expected = {
-				{ 8, 6 },
-				{ -18, -12 }
+				{8, 6},
+				{-18, -12}
 		};
 		for (int flow = 0; flow < expected.length; flow++) {
 			for (int product = 0; product < expected[flow].length; product++) {
@@ -261,8 +263,8 @@ public class ResultProviderTest {
 	@Test
 	public void totalFlowOf() {
 		double[][] expected = {
-				{ 8, 6 },
-				{ -18, -12 }
+				{8, 6},
+				{-18, -12}
 		};
 		for (int flow = 0; flow < expected.length; flow++) {
 			for (int product = 0; product < expected[flow].length; product++) {
@@ -297,9 +299,9 @@ public class ResultProviderTest {
 	@Test
 	public void testImpactFactorOf() {
 		double[][] expected = {
-				{ 1.0, 0.0 },
-				{ 0.0, -1.0 },
-				{ 2.0, -0.5 },
+				{1.0, 0.0},
+				{0.0, -1.0},
+				{2.0, -0.5},
 		};
 		for (int impact = 0; impact < expected.length; impact++) {
 			for (int flow = 0; flow < expected[impact].length; flow++) {

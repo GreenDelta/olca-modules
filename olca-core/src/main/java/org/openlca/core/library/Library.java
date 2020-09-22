@@ -16,6 +16,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.IMatrix;
@@ -38,6 +39,18 @@ public class Library {
 
 	public Library(File folder) {
 		this.folder = folder;
+	}
+
+	/**
+	 * Creates a new library by writing the given matrix data into the given
+	 * folder. It will try to derive the name and version of the library from
+	 * the name of the given folder which should follow this pattern
+	 * `<lib-name>_<version>`. Also, it will try to calculate the respective
+	 * matrices with best available solver (so you should load any native
+	 * libraries before calling this function).
+	 */
+	public static Library create(MatrixData data, File folder) {
+		return MatrixDataExport.of(data, folder);
 	}
 
 	public LibraryInfo getInfo() {
