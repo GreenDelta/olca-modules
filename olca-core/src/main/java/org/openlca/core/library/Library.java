@@ -13,8 +13,10 @@ import java.util.stream.Collectors;
 import org.openlca.core.database.CategorizedEntityDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
@@ -24,6 +26,7 @@ import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.matrix.io.npy.Npz;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.jsonld.Json;
 import org.slf4j.LoggerFactory;
 
@@ -125,11 +128,12 @@ public class Library {
 	/**
 	 * Returns the elementary flows of the library in matrix order. If this
 	 * information is not present or something went wrong while synchronizing
-	 * the flow index with the database, an empty array is returned.
+	 * the flow index with the database, an empty option is returned.
 	 */
 	public Optional<FlowIndex> syncElementaryFlows(IDatabase db) {
 		var proto = getElemFlowIndex();
-		if (proto.getFlowCount() == 0)
+		int size = proto.getFlowCount();
+		if (size == 0)
 			return Optional.empty();
 
 		var info = getInfo();
@@ -139,7 +143,6 @@ public class Library {
 
 		var flows = descriptors(new FlowDao(db));
 		var locations = descriptors(new LocationDao(db));
-		int size = proto.getFlowCount();
 		for (int i = 0; i < size; i++) {
 			var entry = proto.getFlow(i);
 			var flow = flows.get(entry.getFlow().getId());
@@ -151,6 +154,47 @@ public class Library {
 			} else {
 				index.putOutput(flow, location);
 			}
+		}
+		return Optional.of(index);
+	}
+
+	/**
+	 * Get the impact category index of this library. Note that an
+	 * empty index instead of `null` is returned if this information
+	 * is not present in this library.
+	 */
+	public Proto.ImpactIndex getImpactIndex() {
+		var file = new File(folder, "index_C.bin");
+		if (!file.exists())
+			return Proto.ImpactIndex.getDefaultInstance();
+		try (var stream = new FileInputStream(file)) {
+			return Proto.ImpactIndex.parseFrom(stream);
+		} catch (Exception e) {
+			var log = LoggerFactory.getLogger(getClass());
+			log.error("failed to read impact index from " + file, e);
+			return Proto.ImpactIndex.getDefaultInstance();
+		}
+	}
+
+	/**
+	 * Returns the impact categories of the library in matrix order. If this
+	 * information is not present or something went wrong while synchronizing
+	 * the impact index with the database, an empty option is returned.
+	 */
+	public Optional<DIndex<ImpactCategoryDescriptor>> syncImpacts(IDatabase db) {
+		var proto = getImpactIndex();
+		int size = proto.getImpactCount();
+		if (size == 0)
+			return Optional.empty();
+
+		var index = new DIndex<ImpactCategoryDescriptor>();
+		var impacts = descriptors(new ImpactCategoryDao(db));
+		for (int i = 0; i < size; i++) {
+			var entry = proto.getImpact(i);
+			var impact = impacts.get(entry.getImpact().getId());
+			if (impact == null)
+				return Optional.empty();
+			index.put(impact);
 		}
 		return Optional.of(index);
 	}
