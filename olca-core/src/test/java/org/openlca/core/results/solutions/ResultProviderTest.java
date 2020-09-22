@@ -113,8 +113,8 @@ public class ResultProviderTest {
 		// create the result providers
 		var solver = new JavaSolver();
 		return List.of(
-				//EagerResultProvider.create(data, solver),
-				//LazyResultProvider.create(data, solver),
+				EagerResultProvider.create(data, solver),
+				LazyResultProvider.create(data, solver),
 				LibraryResultProvider.of(
 						db, new LibraryDir(libsDir), solver, foreground));
 	}

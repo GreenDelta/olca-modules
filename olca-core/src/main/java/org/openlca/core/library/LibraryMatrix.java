@@ -13,6 +13,11 @@ public enum LibraryMatrix {
 	B,
 
 	/**
+	 * The matrix with characterization factors.
+	 */
+	C,
+
+	/**
 	 * The inverse of the technology matrix INV.
 	 */
 	INV,

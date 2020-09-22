@@ -599,7 +599,22 @@ public class LibraryResultProvider implements ResultProvider {
 			var libFlowIdx = libFlowIndices.get(libID);
 			if (lib == null || libFlowIdx == null)
 				continue;
-			
+			var libImpactIdx = lib.syncImpacts(db).orElse(null);
+			if (libImpactIdx == null)
+				continue;
+			var libMatrix = lib.getMatrix(LibraryMatrix.C)
+					.orElse(null);
+			if (libMatrix == null)
+				continue;
+			libMatrix.iterate((rowB, colB, val) -> {
+				var impact = libImpactIdx.at(rowB);
+				var flow = libFlowIdx.at(colB);
+				int row = impactIndex.of(impact);
+				int col = flowIndex.of(flow);
+				if (row < 0 || col < 0)
+					return;
+				builder.set(row, col, val);
+			});
 		}
 
 		fullData.impactMatrix = builder.finish();
@@ -616,8 +631,10 @@ public class LibraryResultProvider implements ResultProvider {
 
 	@Override
 	public double impactFactorOf(int indicator, int flow) {
-		// TODO: not yet implemented
-		return 0;
+		var matrix = impactMatrix();
+		return matrix == null
+				? 0
+				: matrix.get(indicator, flow);
 	}
 
 	@Override
