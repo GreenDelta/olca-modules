@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -115,11 +116,11 @@ public class ResultProviderTest {
 		return List.of(
 				EagerResultProvider.create(data, solver),
 				LazyResultProvider.create(data, solver),
-				LibraryResultProvider.of(
-						db, new LibraryDir(libsDir), solver, foreground));
+				LibraryResultProvider.of(db, new LibraryDir(libsDir), solver, foreground)
+		);
 	}
 
-	@Parameterized.AfterParam
+	@AfterClass
 	public static void tearDown() {
 		Tests.clearDb();
 		Dirs.delete(libsDir);

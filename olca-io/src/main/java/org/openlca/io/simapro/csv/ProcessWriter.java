@@ -17,14 +17,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.ReferenceAmount;
+import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.Unit;
@@ -247,11 +250,10 @@ public class ProcessWriter {
 	}
 
 	private void writeGlobalParameters() {
+
 		String[] sections = {
 				"Database Input parameters",
 				"Database Calculated parameters",
-				"Project Input parameters",
-				"Project Calculated parameters",
 		};
 		for (String s : sections) {
 			writeln(s);
@@ -259,6 +261,36 @@ public class ProcessWriter {
 			writeln("End");
 			writeln();
 		}
+
+		var globals = new ParameterDao(db)
+				.getGlobalParameters();
+
+		writeln("Project Input parameters");
+		for (var param : globals) {
+			if (!param.isInputParameter)
+				continue;
+			var u = uncertainty(param.value, param.uncertainty);
+			writeln(param.name,
+					param.value,
+					u[0], u[1], u[2], u[3],
+					"No",
+					param.description);
+		}
+		writeln();
+		writeln("End");
+		writeln();
+
+		writeln("Project Calculated parameters");
+		for (var param : globals) {
+			if (param.isInputParameter)
+				continue;
+			writeln(param.name,
+					param.formula,
+					param.description);
+		}
+		writeln();
+		writeln("End");
+		writeln();
 	}
 
 	private void writeProcess(Process p) {
@@ -270,17 +302,45 @@ public class ProcessWriter {
 				continue;
 			outputProducts.add(e.flow);
 			var ref = toReferenceAmount(e);
+
+			double allocation = 100;
+			for (var f : p.allocationFactors) {
+				if (f.method != AllocationMethod.PHYSICAL)
+					continue;
+				if (f.productId == e.flow.id) {
+					allocation = 100 * f.value;
+					break;
+				}
+			}
+
 			writeln(productName(p, e.flow),
 					unit(ref.unit),
 					ref.amount,
-					100,
+					allocation,
 					"not defined",
 					productCategory(e.flow),
-					"");
+					e.description);
 		}
 		writeln();
 
 		writeln("Avoided products");
+		for (var e : p.exchanges) {
+			if (!e.isAvoided)
+				continue;
+			inputProducts.add(e.flow);
+			Process provider = null;
+			if (e.defaultProviderId > 0) {
+				provider = db.get(
+						Process.class, e.defaultProviderId);
+			}
+			var ref = toReferenceAmount(e);
+			var u = uncertainty(ref.amount, ref.uncertainty);
+			writeln(productName(provider, e.flow),
+					unit(ref.unit),
+					ref.amount,
+					u[0], u[1], u[2], u[3],
+					e.description);
+		}
 		writeln();
 
 		writeElemExchanges(p, ElementaryFlowType.RESOURCES);
@@ -372,7 +432,7 @@ public class ProcessWriter {
 						unit(ref.unit),
 						ref.amount,
 						u[0], u[1], u[2], u[3],
-						"");
+						e.description);
 				continue;
 			}
 
@@ -387,12 +447,16 @@ public class ProcessWriter {
 					unit,
 					e.amount * mapEntry.factor,
 					u[0], u[1], u[2], u[3],
-					"");
+					e.description);
 		}
 		writeln();
 	}
 
 	private void writeProcessDoc(Process p) {
+		if (p.documentation == null) {
+			p.documentation = new ProcessDocumentation();
+		}
+
 		writeln("Process");
 		writeln();
 
@@ -451,17 +515,32 @@ public class ProcessWriter {
 				"Generator",
 				"External documents",
 				"Literature references",
-				"Collection method",
-				"Data treatment",
-				"Verification",
-				"Comment",
-				"Allocation rules",
 		};
 		for (String s : eSections) {
 			writeln(s);
 			writeln();
 			writeln();
 		}
+
+		writeln("Collection method");
+		writeln(p.documentation.sampling);
+		writeln();
+
+		writeln("Data treatment");
+		writeln(p.documentation.dataTreatment);
+		writeln();
+
+		writeln("Verification");
+		writeln(p.documentation.reviewDetails);
+		writeln();
+
+		writeln("Comment");
+		writeln(p.description);
+		writeln();
+
+		writeln("Allocation rules");
+		writeln(p.documentation.inventoryMethod);
+		writeln();
 
 		writeln("System description");
 		writeln("", "");
@@ -692,7 +771,8 @@ public class ProcessWriter {
 				if (obj instanceof String) {
 					var s = ((String) obj)
 							.replace(';', ',')
-							.replace('\n', ' ');
+							.replace("\r", "")
+							.replace('\n', '\u007F');
 					if (s.contains("\"")) {
 						s = "\"" + s + "\"";
 					}
