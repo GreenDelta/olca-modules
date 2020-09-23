@@ -13,13 +13,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.derby.DerbyDatabase;
-import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -34,6 +32,7 @@ import org.openlca.io.maps.FlowMapEntry;
 import org.openlca.io.maps.FlowRef;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.SubCompartment;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -268,12 +267,12 @@ public class ProcessWriter {
 			if (!isProductOutput(e))
 				continue;
 			outputProducts.add(e.flow);
-			writeln(e.flow.name,
+			writeln(productName(p, e.flow),
 					unit(e.unit),
 					e.amount,
 					100,
 					"not defined",
-					category(e.flow),
+					productCategory(e.flow),
 					"");
 		}
 		writeln();
@@ -329,12 +328,18 @@ public class ProcessWriter {
 
 	private void writeProductInputs(Process p) {
 		writeln("Materials/fuels");
-		for (Exchange e : p.exchanges) {
+		for (var e : p.exchanges) {
 			if (!isProductInput(e))
 				continue;
 			inputProducts.add(e.flow);
 			var u = uncertainty(e.uncertainty);
-			writeln(e.flow.name,
+
+			Process provider = null;
+			if (e.defaultProviderId > 0) {
+				provider = db.get(
+						Process.class, e.defaultProviderId);
+			}
+			writeln(productName(provider, e.flow),
 					unit(e.unit),
 					e.amount,
 					u[0], u[1], u[2], u[3],
@@ -497,6 +502,9 @@ public class ProcessWriter {
 				|| (ft == FlowType.WASTE_FLOW && !e.isInput);
 	}
 
+	/**
+	 * Returns the corresponding SimaPro name of the given unit.
+	 */
 	private String unit(Unit u) {
 		if (u == null)
 			return SimaProUnit.kg.symbol;
@@ -524,6 +532,9 @@ public class ProcessWriter {
 		return SimaProUnit.kg.symbol;
 	}
 
+	/**
+	 * Returns the corresponding SimaPro name of the given unit name.
+	 */
 	private String unit(String u) {
 		if (u == null)
 			return SimaProUnit.kg.symbol;
@@ -542,7 +553,7 @@ public class ProcessWriter {
 		return SimaProUnit.kg.symbol;
 	}
 
-	private String category(CategorizedEntity e) {
+	private String productCategory(Flow e) {
 		if (e == null)
 			return "";
 		StringBuilder path = null;
@@ -551,11 +562,29 @@ public class ProcessWriter {
 			if (path == null) {
 				path = new StringBuilder(c.name);
 			} else {
+				if (path.length() > 40)
+					break;
 				path.insert(0, c.name + '\\');
 			}
 			c = c.category;
 		}
-		return path == null ? "" : path.toString();
+		return path == null
+				? "Other"
+				: Strings.cut(path.toString(), 40);
+	}
+
+	private String productName(Process process, Flow product) {
+		var flowName = product == null || product.name == null
+				? "?"
+				: product.name.trim();
+		if (process == null
+				|| process.name == null
+				|| process.name.startsWith("Dummy: "))
+			return flowName;
+		var processName = process.name.trim();
+		return processName.equalsIgnoreCase(flowName)
+				? flowName
+				: processName + " - " + flowName;
 	}
 
 	private FlowMapEntry mappedFlow(Flow flow) {
