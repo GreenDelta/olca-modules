@@ -12,12 +12,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.math.ReferenceAmount;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -267,9 +269,10 @@ public class ProcessWriter {
 			if (!isProductOutput(e))
 				continue;
 			outputProducts.add(e.flow);
+			var ref = toReferenceAmount(e);
 			writeln(productName(p, e.flow),
-					unit(e.unit),
-					e.amount,
+					unit(ref.unit),
+					ref.amount,
 					100,
 					"not defined",
 					productCategory(e.flow),
@@ -332,16 +335,17 @@ public class ProcessWriter {
 			if (!isProductInput(e))
 				continue;
 			inputProducts.add(e.flow);
-			var u = uncertainty(e.uncertainty);
-
 			Process provider = null;
 			if (e.defaultProviderId > 0) {
 				provider = db.get(
 						Process.class, e.defaultProviderId);
 			}
+
+			var ref = toReferenceAmount(e);
+			var u = uncertainty(ref.uncertainty);
 			writeln(productName(provider, e.flow),
-					unit(e.unit),
-					e.amount,
+					unit(ref.unit),
+					ref.amount,
 					u[0], u[1], u[2], u[3],
 					e.description);
 		}
@@ -361,11 +365,12 @@ public class ProcessWriter {
 			FlowMapEntry mapEntry = mappedFlow(e.flow);
 			if (mapEntry == null) {
 				// we have an unmapped flow
-				var u = uncertainty(e.uncertainty);
+				var ref = toReferenceAmount(e);
+				var u = uncertainty(ref.uncertainty);
 				writeln(e.flow.name,
 						comp.sub.getValue(),
-						unit(e.unit),
-						e.amount,
+						unit(ref.unit),
+						ref.amount,
 						u[0], u[1], u[2], u[3],
 						"");
 				continue;
@@ -591,6 +596,38 @@ public class ProcessWriter {
 		if (flowMap == null || flow == null)
 			return null;
 		return flowMap.getEntry(flow.refId);
+	}
+
+	/**
+	 * In SimaPro you cannot have multiple flow properties for
+	 * a flow. Thus we convert everything into the reference
+	 * flow property and unit. Otherwise the SimaPro import will
+	 * throw errors when the same flow is present with units from
+	 * different quantities.
+	 */
+	public Exchange toReferenceAmount(Exchange e) {
+		if (e == null || e.flow == null)
+			return e;
+		var refProp = e.flow.getReferenceFactor();
+		var refUnit = e.flow.getReferenceUnit();
+		if (Objects.equals(refProp, e.flowPropertyFactor)
+			&& Objects.equals(refUnit, e.unit))
+			return e;
+		var clone = e.clone();
+		clone.flowPropertyFactor = refProp;
+		clone.unit = refUnit;
+		clone.amount = ReferenceAmount.get(e);
+		if (e.amount == 0) {
+			return clone;
+		}
+		var factor = clone.amount / e.amount;
+		if (Strings.notEmpty(clone.formula)) {
+			clone.formula = factor + " * (" + clone.formula + ")";
+		}
+		if (clone.uncertainty != null) {
+			clone.uncertainty.scale(factor);
+		}
+		return clone;
 	}
 
 	private Object[] uncertainty(Uncertainty u, double... factor) {
