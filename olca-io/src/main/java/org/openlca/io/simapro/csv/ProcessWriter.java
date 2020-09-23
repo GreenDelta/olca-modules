@@ -305,7 +305,7 @@ public class ProcessWriter {
 		for (var param : p.parameters) {
 			if (!param.isInputParameter)
 				continue;
-			var u = uncertainty(param.uncertainty);
+			var u = uncertainty(param.value, param.uncertainty);
 			writeln(param.name,
 					param.value,
 					u[0], u[1], u[2], u[3],
@@ -342,7 +342,7 @@ public class ProcessWriter {
 			}
 
 			var ref = toReferenceAmount(e);
-			var u = uncertainty(ref.uncertainty);
+			var u = uncertainty(ref.amount, ref.uncertainty);
 			writeln(productName(provider, e.flow),
 					unit(ref.unit),
 					ref.amount,
@@ -366,7 +366,7 @@ public class ProcessWriter {
 			if (mapEntry == null) {
 				// we have an unmapped flow
 				var ref = toReferenceAmount(e);
-				var u = uncertainty(ref.uncertainty);
+				var u = uncertainty(ref.amount, ref.uncertainty);
 				writeln(e.flow.name,
 						comp.sub.getValue(),
 						unit(ref.unit),
@@ -381,7 +381,7 @@ public class ProcessWriter {
 			String unit = target.unit != null
 					? unit(target.unit.name)
 					: SimaProUnit.kg.symbol;
-			var u = uncertainty(e.uncertainty, mapEntry.factor);
+			var u = uncertainty(e.amount, e.uncertainty, mapEntry.factor);
 			writeln(target.flow.name,
 					comp.sub.getValue(),
 					unit,
@@ -611,7 +611,7 @@ public class ProcessWriter {
 		var refProp = e.flow.getReferenceFactor();
 		var refUnit = e.flow.getReferenceUnit();
 		if (Objects.equals(refProp, e.flowPropertyFactor)
-			&& Objects.equals(refUnit, e.unit))
+				&& Objects.equals(refUnit, e.unit))
 			return e;
 		var clone = e.clone();
 		clone.flowPropertyFactor = refProp;
@@ -630,7 +630,13 @@ public class ProcessWriter {
 		return clone;
 	}
 
-	private Object[] uncertainty(Uncertainty u, double... factor) {
+	/**
+	 * Converts the given uncertainty into a SimaPro entry. Passing null into
+	 * this function is totally fine. Note that SimaPro does some validation
+	 * checks in the import (e.g. min <= mean <= max), so that we have to pass
+	 * also the mean value into this function.
+	 */
+	private Object[] uncertainty(double mean, Uncertainty u, double... factor) {
 		var row = new Object[]{"Undefined", 0, 0, 0};
 		if (u == null || u.distributionType == null)
 			return row;
@@ -647,14 +653,22 @@ public class ProcessWriter {
 				row[1] = u.parameter2 == null ? 0 : f * u.parameter2;
 				return row;
 			case TRIANGLE:
+				var tmin = u.parameter1 == null ? 0 : f * u.parameter1;
+				var tmax = u.parameter3 == null ? 0 : f * u.parameter3;
+				if (tmin > mean || tmax < mean)
+					return row;
 				row[0] = "Triangle";
-				row[2] = u.parameter1 == null ? 0 : f * u.parameter1;
-				row[3] = u.parameter3 == null ? 0 : f * u.parameter3;
+				row[2] = tmin;
+				row[3] = tmax;
 				return row;
 			case UNIFORM:
+				var umin = u.parameter1 == null ? 0 : f * u.parameter1;
+				var umax = u.parameter2 == null ? 0 : f * u.parameter2;
+				if (umin > mean || umax < mean)
+					return row;
 				row[0] = "Uniform";
-				row[2] = u.parameter1 == null ? 0 : f * u.parameter1;
-				row[3] = u.parameter2 == null ? 0 : f * u.parameter2;
+				row[2] = umin;
+				row[3] = umax;
 				return row;
 			default:
 				return row;
