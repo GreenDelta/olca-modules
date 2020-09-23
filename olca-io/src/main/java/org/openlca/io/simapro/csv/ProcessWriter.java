@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
@@ -25,6 +26,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
+import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.io.maps.FlowMap;
@@ -299,25 +301,27 @@ public class ProcessWriter {
 		// input parameters
 		writeln("Input parameters");
 		for (var param : p.parameters) {
+			if (!param.isInputParameter)
+				continue;
+			var u = uncertainty(param.uncertainty);
 			writeln(param.name,
 					param.value,
-					"Undefined",
-					0,
-					0,
-					0,
+					u[0], u[1], u[2], u[3],
 					"No",
 					param.description);
 		}
+		writeln();
 
-		String[] sections = {
-				"Waste to treatment",
-				"Input parameters",
-				"Calculated parameters",
-		};
-		for (String s : sections) {
-			writeln(s);
-			writeln();
+		// calculated parameters
+		writeln("Calculated parameters");
+		for (var param : p.parameters) {
+			if (param.isInputParameter)
+				continue;
+			writeln(param.name,
+					param.formula,
+					param.description);
 		}
+		writeln();
 
 		writeln("End");
 		writeln();
@@ -329,13 +333,11 @@ public class ProcessWriter {
 			if (!isProductInput(e))
 				continue;
 			inputProducts.add(e.flow);
+			var u = uncertainty(e.uncertainty);
 			writeln(e.flow.name,
 					unit(e.unit),
 					e.amount,
-					"Undefined",
-					0,
-					0,
-					0,
+					u[0], u[1], u[2], u[3],
 					e.description);
 		}
 		writeln();
@@ -354,14 +356,12 @@ public class ProcessWriter {
 			FlowMapEntry mapEntry = mappedFlow(e.flow);
 			if (mapEntry == null) {
 				// we have an unmapped flow
+				var u = uncertainty(e.uncertainty);
 				writeln(e.flow.name,
 						comp.sub.getValue(),
 						unit(e.unit),
 						e.amount,
-						"Undefined",
-						0,
-						0,
-						0,
+						u[0], u[1], u[2], u[3],
 						"");
 				continue;
 			}
@@ -371,14 +371,12 @@ public class ProcessWriter {
 			String unit = target.unit != null
 					? unit(target.unit.name)
 					: SimaProUnit.kg.symbol;
+			var u = uncertainty(e.uncertainty, mapEntry.factor);
 			writeln(target.flow.name,
 					comp.sub.getValue(),
 					unit,
 					e.amount * mapEntry.factor,
-					"Undefined",
-					0,
-					0,
-					0,
+					u[0], u[1], u[2], u[3],
 					"");
 		}
 		writeln();
@@ -560,6 +558,43 @@ public class ProcessWriter {
 		return path == null ? "" : path.toString();
 	}
 
+	private FlowMapEntry mappedFlow(Flow flow) {
+		if (flowMap == null || flow == null)
+			return null;
+		return flowMap.getEntry(flow.refId);
+	}
+
+	private Object[] uncertainty(Uncertainty u, double... factor) {
+		var row = new Object[]{"Undefined", 0, 0, 0};
+		if (u == null || u.distributionType == null)
+			return row;
+		double f = factor.length > 0
+				? factor[0]
+				: 1;
+		switch (u.distributionType) {
+			case LOG_NORMAL:
+				row[0] = "Lognormal";
+				row[1] = u.parameter2 == null ? 0 : u.parameter2;
+				return row;
+			case NORMAL:
+				row[0] = "Normal";
+				row[1] = u.parameter2 == null ? 0 : f * u.parameter2;
+				return row;
+			case TRIANGLE:
+				row[0] = "Triangle";
+				row[2] = u.parameter1 == null ? 0 : f * u.parameter1;
+				row[3] = u.parameter3 == null ? 0 : f * u.parameter3;
+				return row;
+			case UNIFORM:
+				row[0] = "Uniform";
+				row[2] = u.parameter1 == null ? 0 : f * u.parameter1;
+				row[3] = u.parameter2 == null ? 0 : f * u.parameter2;
+				return row;
+			default:
+				return row;
+		}
+	}
+
 	private void writeln(Object... objects) {
 		try {
 			if (objects.length == 0) {
@@ -601,12 +636,6 @@ public class ProcessWriter {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	private FlowMapEntry mappedFlow(Flow flow) {
-		if (flowMap == null || flow == null)
-			return null;
-		return flowMap.getEntry(flow.refId);
 	}
 
 	public static void main(String[] args) throws Exception {
