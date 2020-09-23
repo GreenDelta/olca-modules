@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
@@ -44,6 +45,7 @@ public class ProcessWriter {
 
 	private final IDatabase db;
 	private FlowMap flowMap;
+	private BufferedWriter writer;
 
 	private final Map<String, SimaProUnit> units = new HashMap<>();
 	private final Map<Category, Compartment> compartments = new HashMap<>();
@@ -62,23 +64,24 @@ public class ProcessWriter {
 	public void write(Collection<ProcessDescriptor> processes, File file) {
 		if (processes == null || file == null)
 			return;
-		try (FileOutputStream fout = new FileOutputStream(file);
-				OutputStreamWriter writer = new OutputStreamWriter(
-						fout, "windows-1252");
-				BufferedWriter buffer = new BufferedWriter(writer)) {
-			writerHeader(buffer);
-			ProcessDao dao = new ProcessDao(db);
-			for (ProcessDescriptor p : processes) {
-				Process process = dao.getForId(p.id);
+		try (var fout = new FileOutputStream(file);
+			 var w = new OutputStreamWriter(fout, "windows-1252");
+			 var buffer = new BufferedWriter(w)) {
+			this.writer = buffer;
+			writerHeader();
+			var dao = new ProcessDao(db);
+			for (var descriptor : processes) {
+				var process = dao.getForId(descriptor.id);
 				if (process == null)
 					continue;
 				classifyElemFlows(process);
-				writeProcess(buffer, process);
+				writeProcess(process);
 			}
-			writeDummies(buffer);
-			writeQuantities(buffer);
-			writeReferenceFlows(buffer);
-			writeGlobalParameters(buffer);
+			writeDummies();
+			writeQuantities();
+			writeReferenceFlows();
+			writeGlobalParameters();
+			this.writer = null;
 		} catch (Exception e) {
 			throw e instanceof RuntimeException
 					? (RuntimeException) e
@@ -86,15 +89,15 @@ public class ProcessWriter {
 		}
 	}
 
-	private void writeDummies(BufferedWriter w) {
+	private void writeDummies() {
 		for (Flow flow : inputProducts) {
 			if (outputProducts.contains(flow))
 				continue;
-			Process p = Process.of("Dummy: " + flow.name, flow);
+			var p = Process.of("Dummy: " + flow.name, flow);
 			p.id = flow.id;
 			p.category = new Category();
 			p.category.name = "Dummy processes";
-			writeProcess(w, p);
+			writeProcess(p);
 		}
 	}
 
@@ -136,7 +139,7 @@ public class ProcessWriter {
 		}
 	}
 
-	private void writeQuantities(BufferedWriter w) {
+	private void writeQuantities() {
 
 		// we always write at least the kilogram data
 		// into the quantity sections
@@ -146,41 +149,41 @@ public class ProcessWriter {
 		Set<String> quantities = units.values().stream()
 				.map(u -> u.quantity)
 				.collect(Collectors.toSet());
-		r(w, "Quantities");
+		writeln("Quantities");
 		if (!quantities.contains(kg.quantity)) {
-			r(w, kg.quantity, "Yes");
+			writeln(kg.quantity, "Yes");
 		}
 		for (String q : quantities) {
-			r(w, q, "Yes");
+			writeln(q, "Yes");
 		}
-		r(w, "");
-		r(w, "End");
-		r(w, "");
-		r(w, "");
+		writeln();
+		writeln("End");
+		writeln();
+		writeln();
 
 		// units
 		Set<SimaProUnit> us = new HashSet<>(units.values());
-		r(w, "Units");
+		writeln("Units");
 		if (!us.contains(kg)) {
-			r(w, kg.symbol,
+			writeln(kg.symbol,
 					kg.quantity,
 					Double.toString(kg.factor),
 					kg.refUnit);
 		}
 		for (SimaProUnit u : us) {
-			r(w, u.symbol,
+			writeln(u.symbol,
 					u.quantity,
 					Double.toString(u.factor),
 					u.refUnit);
 		}
-		r(w, "");
-		r(w, "End");
-		r(w, "");
-		r(w, "");
+		writeln();
+		writeln("End");
+		writeln();
+		writeln();
 	}
 
 	@SuppressWarnings("unchecked")
-	private void writeReferenceFlows(BufferedWriter w) {
+	private void writeReferenceFlows() {
 
 		// order flows by their type
 		int n = ElementaryFlowType.values().length;
@@ -194,8 +197,8 @@ public class ProcessWriter {
 		}
 
 		// write the flow information
-		for (ElementaryFlowType type : ElementaryFlowType.values()) {
-			r(w, type.getReferenceHeader());
+		for (var type : ElementaryFlowType.values()) {
+			writeln(type.getReferenceHeader());
 
 			// duplicate names are not allowed here
 			HashSet<String> handledNames = new HashSet<>();
@@ -231,19 +234,16 @@ public class ProcessWriter {
 					continue;
 				handledNames.add(id);
 
-				r(w, unsep(name),
-						unit,
-						flow.casNumber != null ? flow.casNumber : "",
-						"");
+				writeln(name, unit, flow.casNumber, "");
 			}
-			r(w, "");
-			r(w, "End");
-			r(w, "");
-			r(w, "");
+			writeln();
+			writeln("End");
+			writeln();
+			writeln();
 		}
 	}
 
-	private void writeGlobalParameters(BufferedWriter w) {
+	private void writeGlobalParameters() {
 		String[] sections = {
 				"Database Input parameters",
 				"Database Calculated parameters",
@@ -251,47 +251,63 @@ public class ProcessWriter {
 				"Project Calculated parameters",
 		};
 		for (String s : sections) {
-			r(w, s);
-			r(w, "");
-			r(w, "End");
-			r(w, "");
+			writeln(s);
+			writeln();
+			writeln("End");
+			writeln();
 		}
 	}
 
-	private void writeProcess(BufferedWriter w, Process p) {
-		writeProcessDoc(w, p);
+	private void writeProcess(Process p) {
+		writeProcessDoc(p);
 
-		r(w, "Products");
+		writeln("Products");
 		for (Exchange e : p.exchanges) {
 			if (!isProductOutput(e))
 				continue;
 			outputProducts.add(e.flow);
-			r(w, unsep(e.flow.name),
+			writeln(e.flow.name,
 					unit(e.unit),
-					Double.toString(e.amount),
-					"100",
+					e.amount,
+					100,
 					"not defined",
 					category(e.flow),
 					"");
 		}
-		r(w, "");
+		writeln();
 
-		r(w, "Avoided products");
-		r(w, "");
+		writeln("Avoided products");
+		writeln();
 
-		writeElemExchanges(w, p, ElementaryFlowType.RESOURCES);
-		writeProductInputs(w, p);
+		writeElemExchanges(p, ElementaryFlowType.RESOURCES);
+		writeProductInputs(p);
 
-		r(w, "Electricity/heat");
-		r(w, "");
+		writeln("Electricity/heat");
+		writeln();
 
-		writeElemExchanges(w, p, ElementaryFlowType.EMISSIONS_TO_AIR);
-		writeElemExchanges(w, p, ElementaryFlowType.EMISSIONS_TO_WATER);
-		writeElemExchanges(w, p, ElementaryFlowType.EMISSIONS_TO_SOIL);
-		writeElemExchanges(w, p, ElementaryFlowType.FINAL_WASTE_FLOWS);
-		writeElemExchanges(w, p, ElementaryFlowType.NON_MATERIAL_EMISSIONS);
-		writeElemExchanges(w, p, ElementaryFlowType.SOCIAL_ISSUES);
-		writeElemExchanges(w, p, ElementaryFlowType.ECONOMIC_ISSUES);
+		writeElemExchanges(p, ElementaryFlowType.EMISSIONS_TO_AIR);
+		writeElemExchanges(p, ElementaryFlowType.EMISSIONS_TO_WATER);
+		writeElemExchanges(p, ElementaryFlowType.EMISSIONS_TO_SOIL);
+		writeElemExchanges(p, ElementaryFlowType.FINAL_WASTE_FLOWS);
+		writeElemExchanges(p, ElementaryFlowType.NON_MATERIAL_EMISSIONS);
+		writeElemExchanges(p, ElementaryFlowType.SOCIAL_ISSUES);
+		writeElemExchanges(p, ElementaryFlowType.ECONOMIC_ISSUES);
+
+		writeln("Waste to treatment");
+		writeln();
+
+		// input parameters
+		writeln("Input parameters");
+		for (var param : p.parameters) {
+			writeln(param.name,
+					param.value,
+					"Undefined",
+					0,
+					0,
+					0,
+					"No",
+					param.description);
+		}
 
 		String[] sections = {
 				"Waste to treatment",
@@ -299,36 +315,34 @@ public class ProcessWriter {
 				"Calculated parameters",
 		};
 		for (String s : sections) {
-			r(w, s);
-			r(w, "");
+			writeln(s);
+			writeln();
 		}
 
-		r(w, "End");
-		r(w, "");
+		writeln("End");
+		writeln();
 	}
 
-	private void writeProductInputs(
-			BufferedWriter w, Process p) {
-		r(w, "Materials/fuels");
+	private void writeProductInputs(Process p) {
+		writeln("Materials/fuels");
 		for (Exchange e : p.exchanges) {
 			if (!isProductInput(e))
 				continue;
 			inputProducts.add(e.flow);
-			r(w, unsep(e.flow.name),
+			writeln(e.flow.name,
 					unit(e.unit),
-					Double.toString(e.amount),
+					e.amount,
 					"Undefined",
-					"0",
-					"0",
-					"0",
-					"");
+					0,
+					0,
+					0,
+					e.description);
 		}
-		r(w, "");
+		writeln();
 	}
 
-	private void writeElemExchanges(
-			BufferedWriter w, Process p, ElementaryFlowType type) {
-		r(w, type.getExchangeHeader());
+	private void writeElemExchanges(Process p, ElementaryFlowType type) {
+		writeln(type.getExchangeHeader());
 		for (Exchange e : p.exchanges) {
 			if (e.flow == null
 					|| e.flow.flowType != FlowType.ELEMENTARY_FLOW)
@@ -340,14 +354,14 @@ public class ProcessWriter {
 			FlowMapEntry mapEntry = mappedFlow(e.flow);
 			if (mapEntry == null) {
 				// we have an unmapped flow
-				r(w, unsep(e.flow.name),
+				writeln(e.flow.name,
 						comp.sub.getValue(),
 						unit(e.unit),
-						Double.toString(e.amount),
+						e.amount,
 						"Undefined",
-						"0",
-						"0",
-						"0",
+						0,
+						0,
+						0,
 						"");
 				continue;
 			}
@@ -357,44 +371,44 @@ public class ProcessWriter {
 			String unit = target.unit != null
 					? unit(target.unit.name)
 					: SimaProUnit.kg.symbol;
-			r(w, unsep(target.flow.name),
+			writeln(target.flow.name,
 					comp.sub.getValue(),
 					unit,
-					Double.toString(e.amount * mapEntry.factor),
+					e.amount * mapEntry.factor,
 					"Undefined",
-					"0",
-					"0",
-					"0",
+					0,
+					0,
+					0,
 					"");
 		}
-		r(w, "");
+		writeln();
 	}
 
-	private void writeProcessDoc(BufferedWriter w, Process p) {
-		r(w, "Process");
-		r(w, "");
+	private void writeProcessDoc(Process p) {
+		writeln("Process");
+		writeln();
 
-		r(w, "Category type");
-		r(w, "material");
-		r(w, "");
+		writeln("Category type");
+		writeln("material");
+		writeln();
 
-		r(w, "Process identifier");
-		r(w, "Standard" + String.format("%015d", p.id));
-		r(w, "");
+		writeln("Process identifier");
+		writeln("Standard" + String.format("%015d", p.id));
+		writeln();
 
-		r(w, "Type");
-		r(w, p.processType == ProcessType.UNIT_PROCESS
+		writeln("Type");
+		writeln(p.processType == ProcessType.UNIT_PROCESS
 				? "Unit process"
 				: "System");
-		r(w, "");
+		writeln();
 
-		r(w, "Process name");
-		r(w, unsep(p.name));
-		r(w, "");
+		writeln("Process name");
+		writeln(p.name);
+		writeln();
 
-		r(w, "Status");
-		r(w, "");
-		r(w, "");
+		writeln("Status");
+		writeln();
+		writeln();
 
 		// these sections all get an `Unspecified` value
 		String[] uSections = {
@@ -409,19 +423,19 @@ public class ProcessWriter {
 				"Boundary with nature",
 		};
 		for (String uSection : uSections) {
-			r(w, uSection);
-			r(w, "Unspecified");
-			r(w, "");
+			writeln(uSection);
+			writeln("Unspecified");
+			writeln();
 		}
 
-		r(w, "Infrastructure");
-		r(w, "No");
-		r(w, "");
+		writeln("Infrastructure");
+		writeln("No");
+		writeln();
 
-		r(w, "Date");
-		r(w, new SimpleDateFormat("dd.MM.yyyy")
+		writeln("Date");
+		writeln(new SimpleDateFormat("dd.MM.yyyy")
 				.format(new Date()));
-		r(w, "");
+		writeln();
 
 		// we keep the following sections empty
 		String[] eSections = {
@@ -436,37 +450,37 @@ public class ProcessWriter {
 				"Allocation rules",
 		};
 		for (String s : eSections) {
-			r(w, s);
-			r(w, "");
-			r(w, "");
+			writeln(s);
+			writeln();
+			writeln();
 		}
 
-		r(w, "System description");
-		r(w, ";");
-		r(w, "");
+		writeln("System description");
+		writeln("", "");
+		writeln();
 	}
 
-	public void writerHeader(BufferedWriter w) {
-		r(w, "{SimaPro 8.5.0.0}");
-		r(w, "{processes}");
+	public void writerHeader() {
+		writeln("{SimaPro 8.5.0.0}");
+		writeln("{processes}");
 
 		// date
 		String date = new SimpleDateFormat("dd.MM.yyyy")
 				.format(new Date());
-		r(w, "{Date: " + date + "}");
+		writeln("{Date: " + date + "}");
 
 		// time
 		String time = new SimpleDateFormat("HH:mm:ss")
 				.format(new Date());
-		r(w, "{Time: " + time + "}");
+		writeln("{Time: " + time + "}");
 
-		r(w, "{Project: " + db.getName() + "}");
-		r(w, "{CSV Format version: 8.0.5}");
-		r(w, "{CSV separator: Semicolon}");
-		r(w, "{Decimal separator: .}");
-		r(w, "{Date separator: .}");
-		r(w, "{Short date format: dd.MM.yyyy}");
-		r(w, "");
+		writeln("{Project: " + db.getName() + "}");
+		writeln("{CSV Format version: 8.0.5}");
+		writeln("{CSV separator: Semicolon}");
+		writeln("{Decimal separator: .}");
+		writeln("{Date separator: .}");
+		writeln("{Short date format: dd.MM.yyyy}");
+		writeln();
 	}
 
 	private boolean isProductOutput(Exchange e) {
@@ -546,27 +560,62 @@ public class ProcessWriter {
 		return path == null ? "" : path.toString();
 	}
 
-	private void r(BufferedWriter w, String... s) {
-		String row = s.length == 1
-				? s[0]
-				: String.join(";", s);
+	private void writeln(Object... objects) {
 		try {
-			w.write(row);
-			w.write("\r\n"); // write Windows line endings
+			if (objects.length == 0) {
+				writer.write("\r\n");
+				return;
+			}
+
+			var strings = new String[objects.length];
+			for (int i = 0; i < objects.length; i++) {
+				var obj = objects[i];
+				if (obj == null) {
+					strings[i] = "";
+					continue;
+				}
+				if (obj instanceof String) {
+					var s = ((String) obj)
+							.replace(';', ',')
+							.replace('\n', ' ');
+					if (s.contains("\"")) {
+						s = "\"" + s + "\"";
+					}
+					strings[i] = s;
+					continue;
+				}
+				if (obj instanceof Boolean) {
+					strings[i] = ((Boolean) obj)
+							? "Yes"
+							: "No";
+				}
+				strings[i] = obj.toString();
+			}
+
+			var row = strings.length == 1
+					? strings[0]
+					: String.join(";", strings);
+
+			writer.write(row);
+			writer.write("\r\n");
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	private String unsep(String s) {
-		if (s == null)
-			return "";
-		return s.replace(';', ',').replace('\n', ' ');
 	}
 
 	private FlowMapEntry mappedFlow(Flow flow) {
 		if (flowMap == null || flow == null)
 			return null;
 		return flowMap.getEntry(flow.refId);
+	}
+
+	public static void main(String[] args) throws Exception {
+		var dbDir = "C:/Users/ms/openLCA-data-1.4/databases/_sp_exp";
+		var db = new DerbyDatabase(new File(dbDir));
+		var writer = new ProcessWriter(db);
+		writer.write(
+				new ProcessDao(db).getDescriptors(),
+				new File("C:/Users/ms/Desktop/rems/spout.CSV"));
+		db.close();
 	}
 }
