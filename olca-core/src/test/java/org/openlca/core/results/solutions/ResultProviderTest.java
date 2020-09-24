@@ -361,6 +361,110 @@ public class ResultProviderTest {
 	}
 
 	@Test
+	public void testFlowImpactOf() {
+		double[][] expected = new double[][]{
+				{8.0, 0.0},
+				{0.0, 18.0},
+				{16.0, 9.0},
+		};
+		for (int impact = 0; impact < expected.length; impact++) {
+			for (int flow = 0; flow < expected[impact].length; flow++) {
+				assertEquals(
+						expected[impact][flow],
+						provider.flowImpactOf(impact, flow),
+						1e-10);
+			}
+		}
+	}
+
+	@Test
+	public void testDirectImpactsOf() {
+		assertArrayEquals(
+				d(4, 12, 14),
+				provider.directImpactsOf(0),
+				1e-10);
+		assertArrayEquals(
+				d(4, 6, 11),
+				provider.directImpactsOf(1),
+				1e-10);
+	}
+
+	@Test
+	public void testDirectImpactOf() {
+		double[][] expected = new double[][]{
+				{4.0, 4.0},
+				{12.0, 6.0},
+				{14.0, 11.0},
+		};
+		for (int impact = 0; impact < expected.length; impact++) {
+			for (int product = 0; product < expected[impact].length; product++) {
+				assertEquals(
+						expected[impact][product],
+						provider.directImpactOf(impact, product),
+						1e-10);
+			}
+		}
+	}
+
+	@Test
+	public void testTotalImpactsOfOne() {
+		assertArrayEquals(
+				d(8, 18, 25),
+				provider.totalImpactsOfOne(0),
+				1e-10);
+		assertArrayEquals(
+				d(6, 12, 18),
+				provider.totalImpactsOfOne(1),
+				1e-10);
+	}
+
+	@Test
+	public void testTotalImpactOfOne() {
+		double[][] expected = new double[][]{
+				{8.0, 6.0},
+				{18.0, 12.0},
+				{25.0, 18.0},
+		};
+		for (int impact = 0; impact < expected.length; impact++) {
+			for (int product = 0; product < expected[impact].length; product++) {
+				assertEquals(
+						expected[impact][product],
+						provider.totalImpactOfOne(impact, product),
+						1e-10);
+			}
+		}
+	}
+
+	@Test
+	public void testTotalImpactsOf() {
+		assertArrayEquals(
+				d(8, 18, 25),
+				provider.totalImpactsOf(0),
+				1e-10);
+		assertArrayEquals(
+				d(6, 12, 18),
+				provider.totalImpactsOf(1),
+				1e-10);
+	}
+
+	@Test
+	public void testTotalImpactOf() {
+		double[][] expected = new double[][]{
+				{8.0, 6.0},
+				{18.0, 12.0},
+				{25.0, 18.0},
+		};
+		for (int impact = 0; impact < expected.length; impact++) {
+			for (int product = 0; product < expected[impact].length; product++) {
+				assertEquals(
+						expected[impact][product],
+						provider.totalImpactOf(impact, product),
+						1e-10);
+			}
+		}
+	}
+
+	@Test
 	public void testTotalImpacts() {
 		assertArrayEquals(
 				d(8, 18, 25),
