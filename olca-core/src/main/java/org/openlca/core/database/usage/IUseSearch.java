@@ -14,17 +14,17 @@ public interface IUseSearch<T extends CategorizedDescriptor> {
 	 * Returns a list of descriptors of entities where the given entity id is
 	 * used.
 	 */
-	public List<CategorizedDescriptor> findUses(long id);
+	List<CategorizedDescriptor> findUses(long id);
 
-	public List<CategorizedDescriptor> findUses(T entity);
+	List<CategorizedDescriptor> findUses(T entity);
 
-	public List<CategorizedDescriptor> findUses(List<T> entity);
+	List<CategorizedDescriptor> findUses(List<T> entity);
 
-	public List<CategorizedDescriptor> findUses(Set<Long> entity);
+	List<CategorizedDescriptor> findUses(Set<Long> entity);
 
-	public static final Factory FACTORY = new Factory();
+	Factory FACTORY = new Factory();
 
-	public class Factory {
+	class Factory {
 
 		@SuppressWarnings("unchecked")
 		public <T extends CategorizedDescriptor> IUseSearch<T> createFor(
@@ -56,12 +56,12 @@ public interface IUseSearch<T extends CategorizedDescriptor> {
 				return (IUseSearch<T>) new SocialIndicatorUseSearch(db);
 			case CATEGORY:
 				return (IUseSearch<T>) new CategoryUseSearch(db);
-			case PARAMETER: 
-				return (IUseSearch<T>) new ParameterUseSearch(db);				
-			case DQ_SYSTEM: 
-				return (IUseSearch<T>) new DQSystemUseSearch(db);				
+			case PARAMETER:
+				return (IUseSearch<T>) new ParameterUseSearch(db);
+			case DQ_SYSTEM:
+				return (IUseSearch<T>) new DQSystemUseSearch(db);
 			default:
-				return new EmptyUseSearch<T>();
+				return new EmptyUseSearch<>();
 			}
 		}
 	}

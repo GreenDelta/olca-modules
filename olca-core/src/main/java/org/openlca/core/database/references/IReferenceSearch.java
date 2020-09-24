@@ -10,62 +10,64 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.util.Strings;
 
-/** Search of used entities within an entity. */
+/**
+ * Search of used entities within an entity.
+ */
 public interface IReferenceSearch<T extends CategorizedDescriptor> {
 
-	public List<Reference> findReferences();
+	List<Reference> findReferences();
 
 	/**
 	 * Returns a list of descriptors of entities that are used in the entity
 	 * with the given id
 	 */
-	public List<Reference> findReferences(long id);
+	List<Reference> findReferences(long id);
 
-	public List<Reference> findReferences(T entity);
+	List<Reference> findReferences(T entity);
 
-	public List<Reference> findReferences(List<T> entity);
+	List<Reference> findReferences(List<T> entity);
 
-	public List<Reference> findReferences(Set<Long> entity);
+	List<Reference> findReferences(Set<Long> entity);
 
-	public static final Factory FACTORY = new Factory();
+	Factory FACTORY = new Factory();
 
-	public class Factory {
+	class Factory {
 
 		@SuppressWarnings("unchecked")
 		public <T extends CategorizedDescriptor> IReferenceSearch<T> createFor(ModelType type, IDatabase db,
-				boolean includeOptional) {
+																			   boolean includeOptional) {
 			switch (type) {
-			case UNIT_GROUP:
-				return (IReferenceSearch<T>) new UnitGroupReferenceSearch(db, includeOptional);
-			case FLOW_PROPERTY:
-				return (IReferenceSearch<T>) new FlowPropertyReferenceSearch(db, includeOptional);
-			case FLOW:
-				return (IReferenceSearch<T>) new FlowReferenceSearch(db, includeOptional);
-			case PROCESS:
-				return (IReferenceSearch<T>) new ProcessReferenceSearch(db, includeOptional);
-			case PRODUCT_SYSTEM:
-				return (IReferenceSearch<T>) new ProductSystemReferenceSearch(db, includeOptional);
-			case PROJECT:
-				return (IReferenceSearch<T>) new ProjectReferenceSearch(db, includeOptional);
-			case IMPACT_METHOD:
-				return (IReferenceSearch<T>) new ImpactMethodReferenceSearch(db, includeOptional);
-			case CURRENCY:
-				return (IReferenceSearch<T>) new CurrencyReferenceSearch(db, includeOptional);
-			case SOCIAL_INDICATOR:
-				return (IReferenceSearch<T>) new SocialIndicatorReferenceSearch(db, includeOptional);
-			case CATEGORY:
-				return (IReferenceSearch<T>) new CategoryReferenceSearch(db, includeOptional);
-			case PARAMETER:
-				return (IReferenceSearch<T>) new ParameterReferenceSearch(db, includeOptional);
-			case DQ_SYSTEM:
-				return (IReferenceSearch<T>) new DQSystemReferenceSearch(db, includeOptional);
-			default:
-				return new EmptyReferenceSearch<T>();
+				case UNIT_GROUP:
+					return (IReferenceSearch<T>) new UnitGroupReferenceSearch(db, includeOptional);
+				case FLOW_PROPERTY:
+					return (IReferenceSearch<T>) new FlowPropertyReferenceSearch(db, includeOptional);
+				case FLOW:
+					return (IReferenceSearch<T>) new FlowReferenceSearch(db, includeOptional);
+				case PROCESS:
+					return (IReferenceSearch<T>) new ProcessReferenceSearch(db, includeOptional);
+				case PRODUCT_SYSTEM:
+					return (IReferenceSearch<T>) new ProductSystemReferenceSearch(db, includeOptional);
+				case PROJECT:
+					return (IReferenceSearch<T>) new ProjectReferenceSearch(db, includeOptional);
+				case IMPACT_METHOD:
+					return (IReferenceSearch<T>) new ImpactMethodReferenceSearch(db, includeOptional);
+				case CURRENCY:
+					return (IReferenceSearch<T>) new CurrencyReferenceSearch(db, includeOptional);
+				case SOCIAL_INDICATOR:
+					return (IReferenceSearch<T>) new SocialIndicatorReferenceSearch(db, includeOptional);
+				case CATEGORY:
+					return (IReferenceSearch<T>) new CategoryReferenceSearch(db, includeOptional);
+				case PARAMETER:
+					return (IReferenceSearch<T>) new ParameterReferenceSearch(db, includeOptional);
+				case DQ_SYSTEM:
+					return (IReferenceSearch<T>) new DQSystemReferenceSearch(db, includeOptional);
+				default:
+					return new EmptyReferenceSearch<>();
 			}
 		}
 	}
 
-	public class Reference implements Serializable {
+	class Reference implements Serializable {
 
 		private static final long serialVersionUID = -3036634720068312246L;
 
@@ -80,20 +82,20 @@ public interface IReferenceSearch<T extends CategorizedDescriptor> {
 		public final boolean optional;
 
 		public Reference(String property, Class<? extends AbstractEntity> type, long id,
-				Class<? extends AbstractEntity> ownerType, long ownerId) {
-			this(property, type, id, ownerType, ownerId, null, null, 0l, false);
+						 Class<? extends AbstractEntity> ownerType, long ownerId) {
+			this(property, type, id, ownerType, ownerId, null, null, 0L, false);
 		}
 
 		public Reference(String property, Class<? extends AbstractEntity> type, long id,
-				Class<? extends AbstractEntity> ownerType, long ownerId,
-				boolean optional) {
-			this(property, type, id, ownerType, ownerId, null, null, 0l, optional);
+						 Class<? extends AbstractEntity> ownerType, long ownerId,
+						 boolean optional) {
+			this(property, type, id, ownerType, ownerId, null, null, 0L, optional);
 		}
 
 		public Reference(String property, Class<? extends AbstractEntity> type, long id,
-				Class<? extends AbstractEntity> ownerType, long ownerId,
-				String nestedProperty, Class<? extends AbstractEntity> nestedOwnerType,
-				long nestedOwnerId, boolean optional) {
+						 Class<? extends AbstractEntity> ownerType, long ownerId,
+						 String nestedProperty, Class<? extends AbstractEntity> nestedOwnerType,
+						 long nestedOwnerId, boolean optional) {
 			this.property = property;
 			this.type = type.getCanonicalName();
 			this.id = id;
@@ -153,9 +155,7 @@ public interface IReferenceSearch<T extends CategorizedDescriptor> {
 				return false;
 			if (other.getOwnerType() != getOwnerType())
 				return false;
-			if (other.getNestedOwnerType() != getNestedOwnerType())
-				return false;
-			return true;
+			return other.getNestedOwnerType() == getNestedOwnerType();
 		}
 
 		@Override
