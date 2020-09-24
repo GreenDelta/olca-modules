@@ -34,19 +34,22 @@ public class LibraryResultProvider implements ResultProvider {
 
 	private final MatrixData foregroundData;
 	private final ResultProvider foregroundSolution;
-
-	// cached results
 	private final MatrixData fullData;
-	private final TIntObjectHashMap<double[]> solutions;
-	private final TIntObjectHashMap<double[]> columnsOfA;
-	private final TIntObjectHashMap<double[]> totalFlowsOfOne;
 
 	private double[] scalingVector;
 	private double[] totalRequirements;
+	private final TIntObjectHashMap<double[]> solutions = newCache();
+	private final TIntObjectHashMap<double[]> techColumns = newCache();
 
 	private double[] totalFlows;
+	private final TIntObjectHashMap<double[]> flowColumns = newCache();
+	private final TIntObjectHashMap<double[]> directFlows = newCache();
+	private final TIntObjectHashMap<double[]> totalFlowsOfOne = newCache();
+
 	private double[] totalImpacts;
 	private IMatrix flowImpacts;
+	private final TIntObjectHashMap<double[]> directImpacts = newCache();
+	private final TIntObjectHashMap<double[]> totalImpactsOfOne = newCache();
 
 	// library maps: libID -> T
 	private final HashMap<String, Library> libraries = new HashMap<>();
@@ -64,22 +67,20 @@ public class LibraryResultProvider implements ResultProvider {
 		this.foregroundData = foregroundData;
 		this.foregroundSolution = EagerResultProvider.create(
 				foregroundData, solver);
-
 		this.fullData = new MatrixData();
 		this.fullData.impactIndex = foregroundData.impactIndex;
+	}
 
-		this.solutions = new TIntObjectHashMap<>(
+	private static TIntObjectHashMap<double[]> newCache() {
+		return new TIntObjectHashMap<>(
 				Constants.DEFAULT_CAPACITY,
 				Constants.DEFAULT_LOAD_FACTOR,
 				-1);
-		this.columnsOfA = new TIntObjectHashMap<>(
-				Constants.DEFAULT_CAPACITY,
-				Constants.DEFAULT_LOAD_FACTOR,
-				-1);
-		this.totalFlowsOfOne = new TIntObjectHashMap<>(
-				Constants.DEFAULT_CAPACITY,
-				Constants.DEFAULT_LOAD_FACTOR,
-				-1);
+	}
+
+	private double[] put(int key, TIntObjectHashMap<double[]> cache, double[] v) {
+		cache.put(key, v);
+		return v;
 	}
 
 	public static LibraryResultProvider of(
@@ -279,7 +280,7 @@ public class LibraryResultProvider implements ResultProvider {
 
 	@Override
 	public double[] techColumnOf(int j) {
-		var column = columnsOfA.get(j);
+		var column = techColumns.get(j);
 		if (column != null)
 			return column;
 
@@ -296,8 +297,7 @@ public class LibraryResultProvider implements ResultProvider {
 		if (libID == null) {
 			var colF = foregroundData.techMatrix.getColumn(j);
 			System.arraycopy(colF, 0, column, 0, colF.length);
-			columnsOfA.put(j, column);
-			return column;
+			return put(j, techColumns, column);
 		}
 
 		// in case of a library product, we need to map
@@ -321,9 +321,7 @@ public class LibraryResultProvider implements ResultProvider {
 				continue;
 			column[i] = val;
 		}
-
-		columnsOfA.put(j, column);
-		return column;
+		return put(j, techColumns, column);
 	}
 
 	@Override
@@ -396,8 +394,7 @@ public class LibraryResultProvider implements ResultProvider {
 			}
 		}
 
-		solutions.put(product, solution);
-		return solution;
+		return put(product, solutions, solution);
 	}
 
 	@Override
@@ -412,13 +409,17 @@ public class LibraryResultProvider implements ResultProvider {
 
 	@Override
 	public double[] unscaledFlowsOf(int j) {
+		var column = flowColumns.get(j);
+		if (column != null)
+			return column;
+
 		var flowIdx = fullData.flowIndex;
 		if (flowIdx == null)
-			return new double[0];
+			return EMPTY_VECTOR;
 
+		column = new double[flowIdx.size()];
 		var product = fullData.techIndex.getProviderAt(j);
 		var libID = product.getLibrary().orElse(null);
-		var column = new double[flowIdx.size()];
 
 		// in case of a foreground product, we just need
 		// to copy the column of the foreground system
@@ -426,12 +427,12 @@ public class LibraryResultProvider implements ResultProvider {
 		// the flow index of the foreground system is
 		// exactly the first part of the combined index
 		if (libID == null) {
-			var enviF = foregroundData.flowMatrix;
-			if (enviF == null)
-				return column;
-			var colF = enviF.getColumn(j);
-			System.arraycopy(colF, 0, column, 0, colF.length);
-			return column;
+			var flowMatrixF = foregroundData.flowMatrix;
+			if (flowMatrixF != null) {
+				var colF = flowMatrixF.getColumn(j);
+				System.arraycopy(colF, 0, column, 0, colF.length);
+			}
+			return put(j, flowColumns, column);
 		}
 
 		// in case of a library product, we need to map
@@ -440,12 +441,12 @@ public class LibraryResultProvider implements ResultProvider {
 		var flowIdxB = libFlowIndices.get(libID);
 		var techIdxB = libTechIndices.get(libID);
 		if (lib == null || flowIdxB == null || techIdxB == null)
-			return column;
+			return put(j, flowColumns, column);
 		var jB = techIdxB.getIndex(product);
 		var colB = lib.getColumn(LibraryMatrix.B, jB)
 				.orElse(null);
 		if (colB == null)
-			return column;
+			return put(j, flowColumns, column);
 
 		for (int iB = 0; iB < colB.length; iB++) {
 			double val = colB[iB];
@@ -458,31 +459,51 @@ public class LibraryResultProvider implements ResultProvider {
 			column[i] = val;
 		}
 
-		return column;
+		return put(j, flowColumns, column);
 	}
 
 	@Override
 	public double unscaledFlowOf(int flow, int product) {
-		// TODO: we may want to load matrix entries
-		// explicitly from libraries in the future
-		// instead of loading the full column
-		var column = unscaledFlowsOf(product);
-		return column[flow];
+		var flows = unscaledFlowsOf(product);
+		return empty(flows)
+				? 0
+				: flows[flow];
+	}
+
+	@Override
+	public double[] directFlowsOf(int product) {
+		var flows = directFlows.get(product);
+		if (flows != null)
+			return flows;
+		var unscaled = unscaledFlowsOf(product);
+		if (empty(unscaled))
+			return EMPTY_VECTOR;
+		var factor = scalingFactorOf(product);
+		flows = scale(unscaled, factor);
+		return put(product, directFlows, flows);
+	}
+
+	@Override
+	public double directFlowOf(int flow, int product) {
+		var flows = directFlowsOf(product);
+		return empty(flows)
+				? 0
+				: flows[flow];
 	}
 
 	@Override
 	public double[] totalFlowsOfOne(int j) {
-		var m = totalFlowsOfOne.get(j);
-		if (m != null)
-			return m;
+		var totals = totalFlowsOfOne.get(j);
+		if (totals != null)
+			return totals;
 
 		var flowIndex = fullData.flowIndex;
 		if (flowIndex == null || flowIndex.size() == 0) {
-			return new double[0];
+			return EMPTY_VECTOR;
 		}
 
 		var s = solutionOfOne(j);
-		m = new double[flowIndex.size()];
+		totals = new double[flowIndex.size()];
 
 		// add the foreground result
 		var enviF = foregroundData.flowMatrix;
@@ -490,7 +511,7 @@ public class LibraryResultProvider implements ResultProvider {
 			var sF = Arrays.copyOf(
 					s, foregroundData.techIndex.size());
 			var mF = solver.multiply(enviF, sF);
-			System.arraycopy(mF, 0, m, 0, mF.length);
+			System.arraycopy(mF, 0, totals, 0, mF.length);
 		}
 
 		var techIdx = techIndex();
@@ -522,11 +543,10 @@ public class LibraryResultProvider implements ResultProvider {
 				var i = flowIndex.of(flow);
 				if (i < 0)
 					continue;
-				m[i] += gB[iB];
+				totals[i] += gB[iB];
 			}
 		}
-		totalFlowsOfOne.put(j, m);
-		return m;
+		return put(j, totalFlowsOfOne, totals);
 	}
 
 	@Override
@@ -543,7 +563,11 @@ public class LibraryResultProvider implements ResultProvider {
 		return totalFlows;
 	}
 
-	private IMatrix impactMatrix() {
+	/**
+	 * Returns the characterization factors of the combined system.
+	 * we cache this matrix in the `fullData` object.
+	 */
+	private IMatrix impactFactors() {
 		if (fullData.impactMatrix != null)
 			return fullData.impactMatrix;
 		if (!hasFlows() || !hasImpacts())
@@ -622,7 +646,7 @@ public class LibraryResultProvider implements ResultProvider {
 
 	@Override
 	public double[] impactFactorsOf(int flow) {
-		var matrix = impactMatrix();
+		var matrix = impactFactors();
 		return matrix == null
 				? EMPTY_VECTOR
 				: matrix.getColumn(flow);
@@ -630,7 +654,7 @@ public class LibraryResultProvider implements ResultProvider {
 
 	@Override
 	public double impactFactorOf(int indicator, int flow) {
-		var matrix = impactMatrix();
+		var matrix = impactFactors();
 		return matrix == null
 				? 0
 				: matrix.get(indicator, flow);
@@ -640,7 +664,7 @@ public class LibraryResultProvider implements ResultProvider {
 		if (flowImpacts != null)
 			return flowImpacts;
 		var g = totalFlows();
-		var factors = impactMatrix();
+		var factors = impactFactors();
 		if (g == null || factors == null)
 			return null;
 		var m = factors.copy();
@@ -667,20 +691,28 @@ public class LibraryResultProvider implements ResultProvider {
 
 	@Override
 	public double[] directImpactsOf(int product) {
-		// TODO: not yet implemented
-		return new double[0];
+		var impacts = directImpacts.get(product);
+		if (impacts != null)
+			return impacts;
+		var factors = impactFactors();
+		var flows = directFlowsOf(product);
+		if (factors == null || empty(flows))
+			return EMPTY_VECTOR;
+		impacts = solver.multiply(factors, flows);
+		return put(product, directImpacts, impacts);
 	}
 
 	@Override
 	public double[] totalImpactsOfOne(int product) {
-		// TODO: not yet implemented
-		return new double[0];
-	}
-
-	@Override
-	public double totalImpactOfOne(int indicator, int product) {
-		// TODO: not yet implemented
-		return 0;
+		var impacts = totalImpactsOfOne.get(product);
+		if (impacts != null)
+			return impacts;
+		var factors = impactFactors();
+		var flows = totalFlowsOfOne(product);
+		if (factors == null || empty(flows))
+			return EMPTY_VECTOR;
+		impacts = solver.multiply(factors, flows);
+		return put(product, totalImpactsOfOne, impacts);
 	}
 
 	@Override
@@ -688,7 +720,7 @@ public class LibraryResultProvider implements ResultProvider {
 		if (totalImpacts != null)
 			return totalImpacts;
 		var g = totalFlows();
-		var factors = impactMatrix();
+		var factors = impactFactors();
 		if (g == null || factors == null)
 			return EMPTY_VECTOR;
 		totalImpacts = solver.multiply(factors, g);
