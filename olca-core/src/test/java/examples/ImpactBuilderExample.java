@@ -6,12 +6,11 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.derby.DerbyDatabase;
-import org.openlca.core.matrix.DIndex;
+import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.model.FlowType;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
 
 public class ImpactBuilderExample {
@@ -22,7 +21,7 @@ public class ImpactBuilderExample {
 		IDatabase db = new DerbyDatabase(new File(dbPath));
 
 		// build the LCIA category and flow indices
-		DIndex<ImpactCategoryDescriptor> impactIndex = new DIndex<>();
+		var impactIndex = new ImpactIndex();
 		new ImpactCategoryDao(db).getDescriptors().forEach(
 				impactIndex::put);
 

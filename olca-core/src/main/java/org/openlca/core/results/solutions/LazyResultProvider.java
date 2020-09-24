@@ -1,6 +1,6 @@
 package org.openlca.core.results.solutions;
 
-import org.openlca.core.matrix.DIndex;
+import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
@@ -9,7 +9,6 @@ import org.openlca.core.matrix.solvers.Factorization;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 public class LazyResultProvider implements ResultProvider {
 
@@ -96,7 +95,7 @@ public class LazyResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public DIndex<ImpactCategoryDescriptor> impactIndex() {
+	public ImpactIndex impactIndex() {
 		return data.impactIndex;
 	}
 

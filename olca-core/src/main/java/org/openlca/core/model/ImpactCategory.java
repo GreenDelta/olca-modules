@@ -2,6 +2,7 @@ package org.openlca.core.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -14,12 +15,24 @@ import javax.persistence.Table;
 @Table(name = "tbl_impact_categories")
 public class ImpactCategory extends ParameterizedEntity {
 
-	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
+	@OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
 	@JoinColumn(name = "f_impact_category")
 	public final List<ImpactFactor> impactFactors = new ArrayList<>();
 
 	@Column(name = "reference_unit")
 	public String referenceUnit;
+
+	public static ImpactCategory of(String name) {
+		return of(name, null);
+	}
+
+	public static ImpactCategory of(String name, String refUnit) {
+		var impact = new ImpactCategory();
+		impact.refId = UUID.randomUUID().toString();
+		impact.name = name;
+		impact.referenceUnit = refUnit;
+		return impact;
+	}
 
 	@Override
 	public ImpactCategory clone() {

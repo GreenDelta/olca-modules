@@ -4,7 +4,6 @@ import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.uncertainties.UMatrix;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
 
 /**
@@ -29,7 +28,7 @@ public class MatrixData {
 	 * The matrix index of the LCIA categories (i.e. the row index of the impact
 	 * matrix).
 	 */
-	public DIndex<ImpactCategoryDescriptor> impactIndex;
+	public ImpactIndex impactIndex;
 
 	/**
 	 * The technology matrix.

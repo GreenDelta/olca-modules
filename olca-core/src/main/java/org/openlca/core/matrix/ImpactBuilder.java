@@ -11,7 +11,6 @@ import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.format.MatrixBuilder;
 import org.openlca.core.matrix.uncertainties.UMatrix;
 import org.openlca.core.model.UncertaintyType;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
 
 /**
@@ -27,7 +26,7 @@ public final class ImpactBuilder {
 
 	// shared variables of the build methods
 	private FlowIndex flowIndex;
-	private DIndex<ImpactCategoryDescriptor> impactIndex;
+	private ImpactIndex impactIndex;
 	private FormulaInterpreter interpreter;
 	private MatrixBuilder matrix;
 	private UMatrix uncertainties;
@@ -44,7 +43,7 @@ public final class ImpactBuilder {
 
 	public ImpactData build(
 			FlowIndex flowIndex,
-			DIndex<ImpactCategoryDescriptor> impactIndex,
+			ImpactIndex impactIndex,
 			FormulaInterpreter interpreter) {
 
 		this.flowIndex = flowIndex;
@@ -248,7 +247,7 @@ public final class ImpactBuilder {
 	 */
 	public static class ImpactData {
 		public FlowIndex flowIndex;
-		public DIndex<ImpactCategoryDescriptor> impactIndex;
+		public ImpactIndex impactIndex;
 		public IMatrix impactMatrix;
 		public UMatrix impactUncertainties;
 	}

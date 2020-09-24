@@ -15,7 +15,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.DataStructures;
-import org.openlca.core.matrix.DIndex;
+import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
@@ -224,8 +224,7 @@ public class SystemExport {
 		for (FlowInfo info : sortedFlows) {
 			entries.add(new FlowHeaderEntry(info));
 		}
-		header.setEntries(
-				entries.toArray(new IExcelHeaderEntry[entries.size()]));
+		header.setEntries(entries.toArray(new IExcelHeaderEntry[0]));
 		return header;
 	}
 
@@ -243,8 +242,7 @@ public class SystemExport {
 		return header;
 	}
 
-	private ExcelHeader createImpactCategoryHeader(
-			DIndex<ImpactCategoryDescriptor> impactIndex) {
+	private ExcelHeader createImpactCategoryHeader(ImpactIndex impactIndex) {
 		ExcelHeader header = new ExcelHeader();
 		header.setHeaders(HEADERS.IMPACT_CATEGORY.VALUES);
 		List<IExcelHeaderEntry> headerEntries = new ArrayList<>();
@@ -319,8 +317,8 @@ public class SystemExport {
 	}
 
 	private List<ImpactCategoryDescriptor> mapImpactCategoryIndices(
-			ExcelHeader header, DIndex<ImpactCategoryDescriptor> impactIndex) {
-		List<ImpactCategoryDescriptor> sortedCategories = impactIndex.content()
+			ExcelHeader header, ImpactIndex impactIndex) {
+		var sortedCategories = impactIndex.content()
 				.stream()
 				.sorted((i1, i2) -> Strings.compare(i1.name, i2.name))
 				.collect(Collectors.toList());

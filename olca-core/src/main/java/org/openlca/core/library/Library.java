@@ -16,7 +16,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.matrix.DIndex;
+import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
@@ -26,7 +26,6 @@ import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.matrix.io.npy.Npz;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.jsonld.Json;
 import org.slf4j.LoggerFactory;
 
@@ -181,13 +180,13 @@ public class Library {
 	 * information is not present or something went wrong while synchronizing
 	 * the impact index with the database, an empty option is returned.
 	 */
-	public Optional<DIndex<ImpactCategoryDescriptor>> syncImpacts(IDatabase db) {
+	public Optional<ImpactIndex> syncImpacts(IDatabase db) {
 		var proto = getImpactIndex();
 		int size = proto.getImpactCount();
 		if (size == 0)
 			return Optional.empty();
 
-		var index = new DIndex<ImpactCategoryDescriptor>();
+		var index = new ImpactIndex();
 		var impacts = descriptors(new ImpactCategoryDao(db));
 		for (int i = 0; i < size; i++) {
 			var entry = proto.getImpact(i);

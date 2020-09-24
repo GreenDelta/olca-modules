@@ -16,7 +16,7 @@ import org.junit.runners.Parameterized;
 import org.openlca.core.Tests;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.LibraryDir;
-import org.openlca.core.matrix.DIndex;
+import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
@@ -25,6 +25,7 @@ import org.openlca.core.matrix.format.JavaMatrix;
 import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
@@ -84,13 +85,10 @@ public class ResultProviderTest {
 
 		// impact factors
 		Function<Integer, ImpactCategoryDescriptor> impact = i -> {
-			var imp = new ImpactCategoryDescriptor();
-			imp.library = libID;
-			imp.id = i + 84;
-			imp.name = "i" + i;
-			return imp;
+			var imp = db.insert(ImpactCategory.of("i" + i));
+			return Descriptor.of(imp);
 		};
-		data.impactIndex = new DIndex<>();
+		data.impactIndex = new ImpactIndex();
 		data.impactIndex.put(impact.apply(1));
 		data.impactIndex.put(impact.apply(2));
 		data.impactIndex.put(impact.apply(3));

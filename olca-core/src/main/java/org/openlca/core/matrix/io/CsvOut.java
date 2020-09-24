@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.matrix.DIndex;
+import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
@@ -24,7 +24,6 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.BaseResult;
-import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.util.CategoryPathBuilder;
 
@@ -218,7 +217,7 @@ public final class CsvOut {
 	/**
 	 * Write the LCIA category index into the given file.
 	 */
-	public static void write(DIndex<ImpactCategoryDescriptor> idx, File file) {
+	public static void write(ImpactIndex idx, File file) {
 		if (idx == null || file == null)
 			return;
 

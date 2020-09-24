@@ -7,15 +7,15 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
-public class DIndexTest {
+public class ImpactIndexTest {
 
 	@Test
 	public void testIndex() {
-		DIndex<ImpactCategoryDescriptor> index = new DIndex<>();
+		ImpactIndex index = new ImpactIndex();
 		assertArrayEquals(new long[] {}, index.ids());
 		for (int i = 1; i < 11; i++) {
-			ImpactCategoryDescriptor d = new ImpactCategoryDescriptor();
-			d.id = (long) i;
+			var d = new ImpactCategoryDescriptor();
+			d.id = i;
 			index.put(d);
 		}
 		long[] ids = index.ids();
@@ -28,9 +28,7 @@ public class DIndexTest {
 			ImpactCategoryDescriptor d = index.at(i - 1);
 			assertEquals(i - 1, index.of(d));
 			assertTrue(index.contains(d));
-			assertEquals((long) i, d.id);
+			assertEquals(i, d.id);
 		}
-
 	}
-
 }

@@ -1,12 +1,11 @@
 package org.openlca.core.results.solutions;
 
-import org.openlca.core.matrix.DIndex;
+import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 public class EagerResultProvider implements ResultProvider {
 
@@ -115,7 +114,7 @@ public class EagerResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public DIndex<ImpactCategoryDescriptor> impactIndex() {
+	public ImpactIndex impactIndex() {
 		return data.impactIndex;
 	}
 

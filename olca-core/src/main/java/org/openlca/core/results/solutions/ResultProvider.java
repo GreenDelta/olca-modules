@@ -2,10 +2,9 @@ package org.openlca.core.results.solutions;
 
 import java.util.Arrays;
 
-import org.openlca.core.matrix.DIndex;
+import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.TechIndex;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 /**
  * Defines the general interface of a `ResultProvider`. The documentation is
@@ -55,7 +54,7 @@ public interface ResultProvider {
 	 * \mathit{Idx}_C: \mathit{C} \mapsto [0 \dots k-1]
 	 * $$
 	 */
-	DIndex<ImpactCategoryDescriptor> impactIndex();
+	ImpactIndex impactIndex();
 
 	default boolean hasFlows() {
 		var flowIdx = flowIndex();

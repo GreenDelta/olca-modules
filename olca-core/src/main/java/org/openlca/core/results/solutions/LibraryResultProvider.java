@@ -9,13 +9,12 @@ import java.util.Objects;
 
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TIntObjectHashMap;
-import gnu.trove.set.hash.TIntHashSet;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.LibraryMatrix;
-import org.openlca.core.matrix.DIndex;
+import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.MatrixData;
@@ -25,8 +24,6 @@ import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.format.MatrixBuilder;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.formula.Formulas;
 import org.openlca.util.Pair;
 
 public class LibraryResultProvider implements ResultProvider {
@@ -200,7 +197,7 @@ public class LibraryResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public DIndex<ImpactCategoryDescriptor> impactIndex() {
+	public ImpactIndex impactIndex() {
 		return fullData.impactIndex;
 	}
 
@@ -558,7 +555,7 @@ public class LibraryResultProvider implements ResultProvider {
 
 		// collect factors for indicators from
 		// the foreground database
-		var impactsF = new DIndex<ImpactCategoryDescriptor>();
+		var impactsF = new ImpactIndex();
 		impactIndex.each((index, impact) -> {
 			if (!impact.isFromLibrary()) {
 				impactsF.put(impact);

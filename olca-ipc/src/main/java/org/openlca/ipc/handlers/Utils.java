@@ -7,7 +7,7 @@ import java.util.function.Function;
 
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.matrix.DIndex;
+import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.FlowProperty;
@@ -238,14 +238,14 @@ class Utils {
 		return Responses.ok(handler.handle(result, impact, cache), req);
 	}
 
-	private <T extends Descriptor> T get(
-			DIndex<T> index, JsonObject json, String field) {
+	private ImpactCategoryDescriptor get(
+			ImpactIndex index, JsonObject json, String field) {
 		if (index == null)
 			return null;
 		String refID = Json.getRefId(json, field);
 		if (refID == null)
 			return null;
-		for (T d : index.content()) {
+		for (var d : index.content()) {
 			if (refID.equals(d.refId))
 				return d;
 		}
@@ -310,7 +310,7 @@ class Utils {
 		}
 		return filtered;
 	}
-	
+
 	interface Simple {
 
 		JsonElement handle(SimpleResult result, EntityCache cache);
@@ -362,7 +362,7 @@ class Utils {
 				ProcessDescriptor process, EntityCache cache);
 
 	}
-	
+
 	interface Full {
 
 		JsonElement handle(FullResult result, EntityCache cache);

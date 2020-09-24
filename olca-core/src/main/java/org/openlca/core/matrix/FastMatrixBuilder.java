@@ -119,7 +119,7 @@ public class FastMatrixBuilder {
 				setup.impactMethod.id);
 		if (indicators.isEmpty())
 			return;
-		DIndex<ImpactCategoryDescriptor> impactIndex = new DIndex<>();
+		var impactIndex = new ImpactIndex();
 		impactIndex.putAll(indicators);
 
 		// build the matrix

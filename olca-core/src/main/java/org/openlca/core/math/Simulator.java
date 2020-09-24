@@ -14,7 +14,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.matrix.DIndex;
+import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.MatrixData;
@@ -26,7 +26,6 @@ import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.core.results.SimulationResult;
 import org.openlca.expressions.FormulaInterpreter;
@@ -129,7 +128,7 @@ public class Simulator {
 		return root.data.flowIndex;
 	}
 
-	public DIndex<ImpactCategoryDescriptor> getImpactIndex() {
+	public ImpactIndex getImpactIndex() {
 		return root.data.impactIndex;
 	}
 

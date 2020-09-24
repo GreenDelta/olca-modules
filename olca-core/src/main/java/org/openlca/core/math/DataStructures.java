@@ -9,7 +9,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.matrix.DIndex;
+import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.InventoryBuilder;
 import org.openlca.core.matrix.InventoryConfig;
@@ -24,7 +24,6 @@ import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.core.results.SimpleResult;
@@ -128,7 +127,7 @@ public class DataStructures {
 
 		// add the LCIA matrix structures
 		if (setup.impactMethod != null) {
-			var impactIdx = new DIndex<ImpactCategoryDescriptor>();
+			var impactIdx = new ImpactIndex();
 			new ImpactMethodDao(db).getCategoryDescriptors(
 					setup.impactMethod.id).forEach(impactIdx::put);
 			if (!impactIdx.isEmpty()) {

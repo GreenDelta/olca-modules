@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.openlca.core.matrix.DIndex;
+import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
@@ -49,7 +49,7 @@ public abstract class BaseResult implements IResult {
 	 * <p>
 	 * $$\mathit{Idx}_C: \mathit{C} \mapsto [0 \dots l-1]$$
 	 */
-	public DIndex<ImpactCategoryDescriptor> impactIndex;
+	public ImpactIndex impactIndex;
 
 	// cached descriptor lists which are initialized lazily
 	private ArrayList<IndexFlow> _flows;
