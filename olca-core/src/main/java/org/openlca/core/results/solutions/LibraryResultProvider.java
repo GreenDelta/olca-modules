@@ -44,7 +44,9 @@ public class LibraryResultProvider implements ResultProvider {
 	private double[] scalingVector;
 	private double[] totalRequirements;
 
-	private double[] totalFlowResults;
+	private double[] totalFlows;
+	private double[] totalImpacts;
+	private IMatrix flowImpacts;
 
 	// library maps: libID -> T
 	private final HashMap<String, Library> libraries = new HashMap<>();
@@ -529,16 +531,16 @@ public class LibraryResultProvider implements ResultProvider {
 
 	@Override
 	public double[] totalFlows() {
-		if (totalFlowResults != null)
-			return totalFlowResults;
+		if (totalFlows != null)
+			return totalFlows;
 		var m = totalFlowsOfOne(0);
 		var demand = fullData.techIndex.getDemand();
 		var results = Arrays.copyOf(m, m.length);
 		for (int i = 0; i < m.length; i++) {
 			results[i] *= demand;
 		}
-		totalFlowResults = results;
-		return totalFlowResults;
+		totalFlows = results;
+		return totalFlows;
 	}
 
 	private IMatrix impactMatrix() {
@@ -634,16 +636,33 @@ public class LibraryResultProvider implements ResultProvider {
 				: matrix.get(indicator, flow);
 	}
 
+	private IMatrix flowImpacts() {
+		if (flowImpacts != null)
+			return flowImpacts;
+		var g = totalFlows();
+		var factors = impactMatrix();
+		if (g == null || factors == null)
+			return null;
+		var m = factors.copy();
+		m.scaleColumns(g);
+		flowImpacts = m;
+		return flowImpacts;
+	}
+
 	@Override
 	public double[] flowImpactsOf(int flow) {
-		// TODO: not yet implemented
-		return new double[0];
+		var impacts = flowImpacts();
+		return impacts == null
+				? EMPTY_VECTOR
+				: impacts.getColumn(flow);
 	}
 
 	@Override
 	public double flowImpactOf(int indicator, int flow) {
-		// TODO: not yet implemented
-		return 0;
+		var impacts = flowImpacts();
+		return impacts == null
+				? 0
+				: impacts.get(indicator, flow);
 	}
 
 	@Override
@@ -666,8 +685,14 @@ public class LibraryResultProvider implements ResultProvider {
 
 	@Override
 	public double[] totalImpacts() {
-		// TODO: not yet implemented
-		return new double[0];
+		if (totalImpacts != null)
+			return totalImpacts;
+		var g = totalFlows();
+		var factors = impactMatrix();
+		if (g == null || factors == null)
+			return EMPTY_VECTOR;
+		totalImpacts = solver.multiply(factors, g);
+		return totalImpacts;
 	}
 
 	@Override

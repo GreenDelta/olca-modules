@@ -85,7 +85,9 @@ public class ResultProviderTest {
 
 		// impact factors
 		Function<Integer, ImpactCategoryDescriptor> impact = i -> {
-			var imp = db.insert(ImpactCategory.of("i" + i));
+			var imp = ImpactCategory.of("i" + i);
+			imp.library = libID;
+			imp = db.insert(imp);
 			return Descriptor.of(imp);
 		};
 		data.impactIndex = new ImpactIndex();
@@ -348,6 +350,22 @@ public class ResultProviderTest {
 						1e-10);
 			}
 		}
+	}
+
+	@Test
+	public void testFlowImpactsOf() {
+		assertArrayEquals(
+				d(8, 0, 16), provider.flowImpactsOf(0), 1e-10);
+		assertArrayEquals(
+				d(0, 18, 9), provider.flowImpactsOf(1), 1e-10);
+	}
+
+	@Test
+	public void testTotalImpacts() {
+		assertArrayEquals(
+				d(8, 18, 25),
+				provider.totalImpacts(),
+				1e-10);
 	}
 
 	private double[] d(double... values) {

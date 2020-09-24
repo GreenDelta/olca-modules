@@ -111,7 +111,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		IndexFlow flow = get(result.flowIndex, json, "flow");
+		IndexFlow flow = get(result.flowIndex, json);
 		if (flow == null)
 			return Responses.invalidParams("Missing or invalid flow parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
@@ -123,7 +123,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		IndexFlow flow = get(result.flowIndex, json, "flow");
+		IndexFlow flow = get(result.flowIndex, json);
 		if (flow == null || flow.flow == null)
 			return Responses.invalidParams("Missing or invalid flow parameter", req);
 		LocationDescriptor location = get(ModelType.LOCATION, json);
@@ -138,7 +138,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		ImpactCategoryDescriptor impact = get(result.impactIndex, json, "impactCategory");
+		ImpactCategoryDescriptor impact = get(result.impactIndex, json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
@@ -150,7 +150,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		ImpactCategoryDescriptor impact = get(result.impactIndex, json, "impactCategory");
+		ImpactCategoryDescriptor impact = get(result.impactIndex, json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
 		ProcessDescriptor process = get(ModelType.PROCESS, json, result.techIndex.getProcessIds());
@@ -165,7 +165,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		ImpactCategoryDescriptor impact = get(result.impactIndex, json, "impactCategory");
+		ImpactCategoryDescriptor impact = get(result.impactIndex, json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
 		LocationDescriptor location = get(ModelType.LOCATION, json);
@@ -180,7 +180,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		ImpactCategoryDescriptor impact = get(result.impactIndex, json, "impactCategory");
+		ImpactCategoryDescriptor impact = get(result.impactIndex, json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
 		LocationDescriptor location = get(ModelType.LOCATION, json);
@@ -207,7 +207,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		FullResult result = getResult(json);
-		IndexFlow flow = get(result.flowIndex, json, "flow");
+		IndexFlow flow = get(result.flowIndex, json);
 		if (flow == null || flow.flow == null)
 			return Responses.invalidParams("Missing or invalid flow parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
@@ -231,18 +231,17 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		FullResult result = getResult(json);
-		ImpactCategoryDescriptor impact = get(result.impactIndex, json, "impactCategory");
+		ImpactCategoryDescriptor impact = get(result.impactIndex, json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
 		return Responses.ok(handler.handle(result, impact, cache), req);
 	}
 
-	private ImpactCategoryDescriptor get(
-			ImpactIndex index, JsonObject json, String field) {
+	private ImpactCategoryDescriptor get(ImpactIndex index, JsonObject json) {
 		if (index == null)
 			return null;
-		String refID = Json.getRefId(json, field);
+		String refID = Json.getRefId(json, "impactCategory");
 		if (refID == null)
 			return null;
 		for (var d : index.content()) {
@@ -252,11 +251,10 @@ class Utils {
 		return null;
 	}
 
-	private IndexFlow get(FlowIndex idx, JsonObject json,
-			String field) {
+	private IndexFlow get(FlowIndex idx, JsonObject json) {
 		if (idx == null)
 			return null;
-		String refID = Json.getRefId(json, field);
+		String refID = Json.getRefId(json, "flow");
 		if (refID == null)
 			return null;
 		for (IndexFlow f : idx.flows()) {
