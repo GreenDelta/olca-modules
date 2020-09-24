@@ -14,7 +14,7 @@ import org.openlca.core.matrix.cache.FlowTable;
 import org.openlca.core.matrix.format.MatrixBuilder;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
 
@@ -115,7 +115,7 @@ public class FastMatrixBuilder {
 
 		// load the LCIA category index
 		ImpactMethodDao dao = new ImpactMethodDao(db);
-		List<ImpactCategoryDescriptor> indicators = dao.getCategoryDescriptors(
+		List<ImpactDescriptor> indicators = dao.getCategoryDescriptors(
 				setup.impactMethod.id);
 		if (indicators.isEmpty())
 			return;

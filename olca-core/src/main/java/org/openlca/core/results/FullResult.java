@@ -7,7 +7,7 @@ import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.solutions.ResultProvider;
 
 /**
@@ -68,7 +68,7 @@ public class FullResult extends ContributionResult {
 	 * LCIA category result $j$: $\mathbf{V}[i,j]$.
 	 */
 	public double getUpstreamImpactResult(
-			ProcessProduct product, ImpactCategoryDescriptor impact) {
+			ProcessProduct product, ImpactDescriptor impact) {
 		if (!hasImpactResults())
 			return 0;
 		int impactIdx = impactIndex.of(impact);
@@ -84,7 +84,7 @@ public class FullResult extends ContributionResult {
 	 * contributions of all of these process-product pairs.
 	 */
 	public double getUpstreamImpactResult(
-			CategorizedDescriptor process, ImpactCategoryDescriptor impact) {
+			CategorizedDescriptor process, ImpactDescriptor impact) {
 		double total = 0;
 		for (var p : techIndex.getProviders(process)) {
 			total += getUpstreamImpactResult(p, impact);
@@ -175,7 +175,7 @@ public class FullResult extends ContributionResult {
 	/**
 	 * Calculate the upstream tree for the given LCIA category.
 	 */
-	public UpstreamTree getTree(ImpactCategoryDescriptor impact) {
+	public UpstreamTree getTree(ImpactDescriptor impact) {
 		int i = impactIndex.of(impact.id);
 		double total = getTotalImpactResult(impact);
 		return new UpstreamTree(impact, this, total,

@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 /**
  * The common protocol of all result types.
@@ -44,6 +44,6 @@ public interface IResult {
 	/**
 	 * Get the LCIA categories of the LCIA result.
 	 */
-	List<ImpactCategoryDescriptor> getImpacts();
+	List<ImpactDescriptor> getImpacts();
 
 }

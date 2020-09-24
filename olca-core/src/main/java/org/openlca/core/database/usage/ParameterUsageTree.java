@@ -20,7 +20,7 @@ import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.util.Formula;
 import org.openlca.util.Strings;
@@ -302,7 +302,7 @@ public class ParameterUsageTree {
 				long ownerID = r.getLong(1);
 				if (skipOwner(ownerID))
 					return true;
-				var root = root(ownerID, ImpactCategoryDescriptor.class);
+				var root = root(ownerID, ImpactDescriptor.class);
 				var flow = cache.get(FlowDescriptor.class, r.getLong(2));
 				if (root == null || flow == null)
 					return true;
@@ -475,7 +475,7 @@ public class ParameterUsageTree {
 				case PROCESS:
 					return root(ownerID, ProcessDescriptor.class);
 				case IMPACT:
-					return root(ownerID, ImpactCategoryDescriptor.class);
+					return root(ownerID, ImpactDescriptor.class);
 				default:
 					return null;
 			}

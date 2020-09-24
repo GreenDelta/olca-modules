@@ -9,7 +9,7 @@ import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.Simulator;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.julia.Julia;
@@ -31,8 +31,8 @@ public class SimulatorExample {
 		ImpactMethodDescriptor method = idao.getDescriptorForRefId(
 				"207ffac9-aaa8-401d-ac90-874defd3751a");
 		setup.impactMethod = method;
-		ImpactCategoryDescriptor gwp = null;
-		for (ImpactCategoryDescriptor i : idao
+		ImpactDescriptor gwp = null;
+		for (ImpactDescriptor i : idao
 				.getCategoryDescriptors(method.id)) {
 			if (i.name.equals("Climate change - GWP100")) {
 				gwp = i;

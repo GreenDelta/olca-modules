@@ -21,7 +21,7 @@ import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.BaseResult;
 import org.openlca.core.results.SimpleResult;
@@ -231,7 +231,7 @@ public final class CsvOut {
 			writeln(w, line(header));
 			String[] mask = new String[header.length];
 			for (int i = 0; i < idx.size(); i++) {
-				ImpactCategoryDescriptor d = idx.at(i);
+				ImpactDescriptor d = idx.at(i);
 				mask[0] = Integer.toString(i);
 				mask[1] = d.refId;
 				mask[2] = d.name;

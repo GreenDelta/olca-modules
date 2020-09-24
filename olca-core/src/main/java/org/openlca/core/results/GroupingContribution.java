@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 /**
  * Calculates the contributions of single process results grouped by a given
@@ -39,7 +39,7 @@ public class GroupingContribution {
 
 	/** Calculates contributions to an impact assessment method. */
 	public List<Contribution<ProcessGrouping>> calculate(
-			final ImpactCategoryDescriptor impact) {
+			final ImpactDescriptor impact) {
 		if (result == null || groupings == null)
 			return Collections.emptyList();
 		double total = result.getTotalImpactResult(impact);

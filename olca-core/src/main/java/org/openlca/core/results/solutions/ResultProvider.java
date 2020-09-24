@@ -309,7 +309,7 @@ public interface ResultProvider {
 		var impacts = directImpactsOf(product);
 		return empty(impacts)
 				? 0
-				: impacts[product];
+				: impacts[indicator];
 	}
 
 	double[] totalImpactsOfOne(int product);

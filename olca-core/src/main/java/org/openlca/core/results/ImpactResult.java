@@ -1,10 +1,10 @@
 package org.openlca.core.results;
 
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 public class ImpactResult {
 
-	public ImpactCategoryDescriptor impactCategory;
+	public ImpactDescriptor impactCategory;
 	public double value;
 
 }

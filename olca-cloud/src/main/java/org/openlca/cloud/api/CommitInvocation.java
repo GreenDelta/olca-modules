@@ -15,7 +15,7 @@ import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.NwSetDescriptor;
 
 /**
@@ -60,7 +60,7 @@ public class CommitInvocation {
 		ImpactMethodDao dao = new ImpactMethodDao(database);
 		for (Dataset ds : new ArrayList<>(data)) {
 			if (ds.type == ModelType.IMPACT_METHOD) {
-				for (ImpactCategoryDescriptor cat : dao.getCategoryDescriptors(ds.refId)) {
+				for (ImpactDescriptor cat : dao.getCategoryDescriptors(ds.refId)) {
 					data.add(toDataset(cat));
 				}
 				for (NwSetDescriptor nwSet : dao.getNwSetDescriptors(ds.refId)) {

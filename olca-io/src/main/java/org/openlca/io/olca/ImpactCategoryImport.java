@@ -4,7 +4,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +26,7 @@ class ImpactCategoryImport {
 
 	void run() {
 		log.trace("import LCIA categories");
-		for (ImpactCategoryDescriptor d : sourceDao.getDescriptors()) {
+		for (ImpactDescriptor d : sourceDao.getDescriptors()) {
 			if (seq.contains(seq.IMPACT_CATEGORY, d.refId))
 				continue;
 			ImpactCategory src = sourceDao.getForId(d.id);

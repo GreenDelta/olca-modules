@@ -9,7 +9,7 @@ import java.util.List;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 import gnu.trove.set.hash.TLongHashSet;
 
@@ -23,7 +23,7 @@ public class ProjectResult implements IResult {
 
 	// cached descriptor lists which are initialized lazily
 	private ArrayList<IndexFlow> _flows;
-	private ArrayList<ImpactCategoryDescriptor> _impacts;
+	private ArrayList<ImpactDescriptor> _impacts;
 	private ArrayList<CategorizedDescriptor> _processes;
 	private ArrayList<ProjectVariant> _variants;
 	
@@ -65,7 +65,7 @@ public class ProjectResult implements IResult {
 	}
 
 	public double getTotalImpactResult(ProjectVariant variant,
-			ImpactCategoryDescriptor impact) {
+			ImpactDescriptor impact) {
 		ContributionResult result = results.get(variant);
 		if (result == null)
 			return 0;
@@ -73,7 +73,7 @@ public class ProjectResult implements IResult {
 	}
 
 	public List<Contribution<ProjectVariant>> getContributions(
-			ImpactCategoryDescriptor impact) {
+			ImpactDescriptor impact) {
 		return Contributions.calculate(getVariants(),
 				variant -> getTotalImpactResult(variant, impact));
 	}
@@ -138,7 +138,7 @@ public class ProjectResult implements IResult {
 	}
 
 	@Override
-	public List<ImpactCategoryDescriptor> getImpacts() {
+	public List<ImpactDescriptor> getImpacts() {
 		if (_impacts != null)
 			return _impacts;
 		_impacts = new ArrayList<>();
@@ -146,7 +146,7 @@ public class ProjectResult implements IResult {
 		for (ContributionResult r : results.values()) {
 			if (!r.hasImpactResults())
 				continue;
-			for (ImpactCategoryDescriptor impact : r.getImpacts()) {
+			for (ImpactDescriptor impact : r.getImpacts()) {
 				if (handled.contains(impact.id))
 					continue;
 				_impacts.add(impact);

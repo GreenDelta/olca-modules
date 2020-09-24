@@ -15,7 +15,7 @@ import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.Location;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.SimulationResult;
 import org.openlca.core.results.Statistics;
@@ -103,7 +103,7 @@ public class SimulationResultExport {
 		writeValueHeaders(sheet, row, nextCol);
 		row++;
 
-		for (ImpactCategoryDescriptor impact : result.getImpacts()) {
+		for (ImpactDescriptor impact : result.getImpacts()) {
 			writer.impactRow(sheet, row, 1, impact);
 			double[] values = result.getAll(impact);
 			writeValues(sheet, row, IMPACT_HEADER.length + 1, values);
@@ -180,7 +180,7 @@ public class SimulationResultExport {
 			writer.headerRow(sheet, row, 1, IMPACT_HEADER);
 			int valCol = IMPACT_HEADER.length + 1;
 			writeValueHeaders(sheet, row++, valCol);
-			for (ImpactCategoryDescriptor impact : result.getImpacts()) {
+			for (ImpactDescriptor impact : result.getImpacts()) {
 				writer.impactRow(sheet, row, 1, impact);
 				double[] values = result.getAllDirect(pp, impact);
 				writeValues(sheet, row, IMPACT_HEADER.length + 1, values);
@@ -191,7 +191,7 @@ public class SimulationResultExport {
 			writer.headerRow(sheet, row++, 1, "Upstream LCIA contributions");
 			writer.headerRow(sheet, row, 1, IMPACT_HEADER);
 			writeValueHeaders(sheet, row++, valCol);
-			for (ImpactCategoryDescriptor impact : result.getImpacts()) {
+			for (ImpactDescriptor impact : result.getImpacts()) {
 				writer.impactRow(sheet, row, 1, impact);
 				double[] values = result.getAllUpstream(pp, impact);
 				writeValues(sheet, row, IMPACT_HEADER.length + 1, values);

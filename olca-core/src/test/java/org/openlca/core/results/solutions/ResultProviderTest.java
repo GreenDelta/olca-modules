@@ -31,7 +31,7 @@ import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.util.Dirs;
 
 @RunWith(Parameterized.class)
@@ -84,7 +84,7 @@ public class ResultProviderTest {
 		});
 
 		// impact factors
-		Function<Integer, ImpactCategoryDescriptor> impact = i -> {
+		Function<Integer, ImpactDescriptor> impact = i -> {
 			var imp = ImpactCategory.of("i" + i);
 			imp.library = libID;
 			imp = db.insert(imp);

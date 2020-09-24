@@ -16,7 +16,7 @@ import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.BaseResult;
@@ -138,7 +138,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		ImpactCategoryDescriptor impact = get(result.impactIndex, json);
+		ImpactDescriptor impact = get(result.impactIndex, json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
@@ -150,7 +150,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		ImpactCategoryDescriptor impact = get(result.impactIndex, json);
+		ImpactDescriptor impact = get(result.impactIndex, json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
 		ProcessDescriptor process = get(ModelType.PROCESS, json, result.techIndex.getProcessIds());
@@ -165,7 +165,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		ImpactCategoryDescriptor impact = get(result.impactIndex, json);
+		ImpactDescriptor impact = get(result.impactIndex, json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
 		LocationDescriptor location = get(ModelType.LOCATION, json);
@@ -180,7 +180,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		ImpactCategoryDescriptor impact = get(result.impactIndex, json);
+		ImpactDescriptor impact = get(result.impactIndex, json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
 		LocationDescriptor location = get(ModelType.LOCATION, json);
@@ -231,14 +231,14 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		FullResult result = getResult(json);
-		ImpactCategoryDescriptor impact = get(result.impactIndex, json);
+		ImpactDescriptor impact = get(result.impactIndex, json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
 		return Responses.ok(handler.handle(result, impact, cache), req);
 	}
 
-	private ImpactCategoryDescriptor get(ImpactIndex index, JsonObject json) {
+	private ImpactDescriptor get(ImpactIndex index, JsonObject json) {
 		if (index == null)
 			return null;
 		String refID = Json.getRefId(json, "impactCategory");
@@ -336,27 +336,27 @@ class Utils {
 
 	interface ContributionImpact {
 
-		JsonElement handle(ContributionResult result, ImpactCategoryDescriptor impact, EntityCache cache);
+		JsonElement handle(ContributionResult result, ImpactDescriptor impact, EntityCache cache);
 
 	}
 
 	interface ContributionImpactProcess {
 
-		JsonElement handle(ContributionResult result, ImpactCategoryDescriptor impact, ProcessDescriptor process,
+		JsonElement handle(ContributionResult result, ImpactDescriptor impact, ProcessDescriptor process,
 				EntityCache cache);
 
 	}
 
 	interface ContributionImpactLocation {
 
-		JsonElement handle(ContributionResult result, ImpactCategoryDescriptor impact, LocationDescriptor location,
+		JsonElement handle(ContributionResult result, ImpactDescriptor impact, LocationDescriptor location,
 				EntityCache cache);
 
 	}
 
 	interface ContributionImpactLocationProcess {
 
-		JsonElement handle(ContributionResult result, ImpactCategoryDescriptor impact, LocationDescriptor location,
+		JsonElement handle(ContributionResult result, ImpactDescriptor impact, LocationDescriptor location,
 				ProcessDescriptor process, EntityCache cache);
 
 	}
@@ -381,7 +381,7 @@ class Utils {
 
 	interface FullImpact {
 
-		JsonElement handle(FullResult result, ImpactCategoryDescriptor impact, EntityCache cache);
+		JsonElement handle(FullResult result, ImpactDescriptor impact, EntityCache cache);
 
 	}
 

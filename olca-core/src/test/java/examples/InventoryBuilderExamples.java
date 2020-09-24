@@ -10,7 +10,7 @@ import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.julia.Julia;
 import org.openlca.julia.JuliaSolver;
@@ -33,7 +33,7 @@ public class InventoryBuilderExamples {
 		IMatrixSolver solver = new JuliaSolver();
 		SystemCalculator calc = new SystemCalculator(db, solver);
 		ContributionResult r = calc.calculateContributions(setup);
-		for (ImpactCategoryDescriptor impact : r.getImpacts()) {
+		for (ImpactDescriptor impact : r.getImpacts()) {
 			System.out.println(impact.refId + "\t" +
 					impact.name + "\t" + r.getTotalImpactResult(impact));
 		}

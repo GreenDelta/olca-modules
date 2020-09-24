@@ -10,7 +10,7 @@ import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 import gnu.trove.set.hash.TLongHashSet;
 
@@ -53,7 +53,7 @@ public abstract class BaseResult implements IResult {
 
 	// cached descriptor lists which are initialized lazily
 	private ArrayList<IndexFlow> _flows;
-	private ArrayList<ImpactCategoryDescriptor> _impacts;
+	private ArrayList<ImpactDescriptor> _impacts;
 	private ArrayList<ProcessProduct> _products;
 	private ArrayList<CategorizedDescriptor> _processes;
 
@@ -79,7 +79,7 @@ public abstract class BaseResult implements IResult {
 	}
 
 	@Override
-	public final List<ImpactCategoryDescriptor> getImpacts() {
+	public final List<ImpactDescriptor> getImpacts() {
 		if (_impacts != null)
 			return _impacts;
 		if (impactIndex == null)

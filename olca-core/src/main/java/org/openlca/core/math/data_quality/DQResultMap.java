@@ -7,7 +7,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.ContributionResult;
 
 import gnu.trove.set.hash.TLongHashSet;
@@ -35,7 +35,7 @@ public class DQResultMap {
 		return flowValues.get(flow.id);
 	}
 
-	public int[] get(ImpactCategoryDescriptor impact) {
+	public int[] get(ImpactDescriptor impact) {
 		return impactValues.get(impact.id);
 	}
 
@@ -45,12 +45,12 @@ public class DQResultMap {
 	}
 
 	public int[] get(CategorizedDescriptor process,
-			ImpactCategoryDescriptor impact) {
+			ImpactDescriptor impact) {
 		return impactValuesPerProcess
 				.get(new LongPair(process.id, impact.id));
 	}
 
-	public int[] get(FlowDescriptor flow, ImpactCategoryDescriptor impact) {
+	public int[] get(FlowDescriptor flow, ImpactDescriptor impact) {
 		return impactValuesPerFlow
 				.get(new LongPair(flow.id, impact.id));
 	}

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.openlca.core.model.ImpactMethod;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.model.descriptors.NwSetDescriptor;
 
@@ -19,17 +19,17 @@ public class ImpactMethodDao extends
 		super(ImpactMethod.class, ImpactMethodDescriptor.class, database);
 	}
 
-	public List<ImpactCategoryDescriptor> getCategoryDescriptors(long methodId) {
+	public List<ImpactDescriptor> getCategoryDescriptors(long methodId) {
 		return getImpactCategories("m.id = " + methodId);
 	}
 
-	public List<ImpactCategoryDescriptor> getCategoryDescriptors(String methodId) {
+	public List<ImpactDescriptor> getCategoryDescriptors(String methodId) {
 		if (methodId == null)
 			return Collections.emptyList();
 		return getImpactCategories("m.ref_id = '" + methodId + "'");
 	}
 
-	private List<ImpactCategoryDescriptor> getImpactCategories(
+	private List<ImpactDescriptor> getImpactCategories(
 			String whereClause) {
 		var dao = new ImpactCategoryDao(database);
 		var fields = Arrays.stream(dao.getDescriptorFields())

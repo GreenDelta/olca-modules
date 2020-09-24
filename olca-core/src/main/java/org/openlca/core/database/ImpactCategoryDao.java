@@ -1,13 +1,13 @@
 package org.openlca.core.database;
 
 import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 public class ImpactCategoryDao extends
-		CategorizedEntityDao<ImpactCategory, ImpactCategoryDescriptor> {
+		CategorizedEntityDao<ImpactCategory, ImpactDescriptor> {
 
 	public ImpactCategoryDao(IDatabase database) {
-		super(ImpactCategory.class, ImpactCategoryDescriptor.class, database);
+		super(ImpactCategory.class, ImpactDescriptor.class, database);
 	}
 
 	@Override
@@ -27,7 +27,7 @@ public class ImpactCategoryDao extends
 	}
 
 	@Override
-	protected ImpactCategoryDescriptor createDescriptor(Object[] record) {
+	protected ImpactDescriptor createDescriptor(Object[] record) {
 		if (record == null)
 			return null;
 		var d = super.createDescriptor(record);

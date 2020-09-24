@@ -11,7 +11,7 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.set.hash.TIntHashSet;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.solutions.ResultProvider;
 
 /**
@@ -201,7 +201,7 @@ public class Sankey<T> {
 
 		// result references
 		private IndexFlow flow;
-		private ImpactCategoryDescriptor impact;
+		private ImpactDescriptor impact;
 
 		// cutoff rules
 		private double minShare = 0;
@@ -246,8 +246,8 @@ public class Sankey<T> {
 			// TODO: currently no support for cost-results
 			if (sankey.reference instanceof IndexFlow) {
 				flow = (IndexFlow) sankey.reference;
-			} else if (sankey.reference instanceof ImpactCategoryDescriptor) {
-				impact = (ImpactCategoryDescriptor) sankey.reference;
+			} else if (sankey.reference instanceof ImpactDescriptor) {
+				impact = (ImpactDescriptor) sankey.reference;
 			}
 
 			// create the root node of the reference product

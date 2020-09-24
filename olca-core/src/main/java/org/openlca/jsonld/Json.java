@@ -30,7 +30,7 @@ import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.util.Categories;
 
@@ -237,8 +237,8 @@ public class Json {
 		if (d instanceof ProcessDescriptor) {
 			putProcessMetaData(obj, (ProcessDescriptor) d, cache);
 		}
-		if (d instanceof ImpactCategoryDescriptor) {
-			ImpactCategoryDescriptor icd = (ImpactCategoryDescriptor) d;
+		if (d instanceof ImpactDescriptor) {
+			ImpactDescriptor icd = (ImpactDescriptor) d;
 			obj.addProperty("refUnit", icd.referenceUnit);
 		}
 		return obj;

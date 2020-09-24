@@ -7,7 +7,7 @@ import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.solutions.ResultProvider;
 
 /**
@@ -99,7 +99,7 @@ public class ContributionResult extends SimpleResult {
 	 * category result $j$: $\mathbf{D}[i,j]$.
 	 */
 	public double getDirectImpactResult(
-			ProcessProduct product, ImpactCategoryDescriptor impact) {
+			ProcessProduct product, ImpactDescriptor impact) {
 		if (!hasImpactResults())
 			return 0;
 		int impactIdx = impactIndex.of(impact);
@@ -115,7 +115,7 @@ public class ContributionResult extends SimpleResult {
 	 * contributions of all of these process-product pairs.
 	 */
 	public double getDirectImpactResult(
-			CategorizedDescriptor process, ImpactCategoryDescriptor impact) {
+			CategorizedDescriptor process, ImpactDescriptor impact) {
 		double total = 0;
 		for (var p : techIndex.getProviders(process)) {
 			total += getDirectImpactResult(p, impact);
@@ -144,7 +144,7 @@ public class ContributionResult extends SimpleResult {
 	 * result of the given LCIA category.
 	 */
 	public List<Contribution<CategorizedDescriptor>> getProcessContributions(
-			ImpactCategoryDescriptor impact) {
+			ImpactDescriptor impact) {
 		return Contributions.calculate(
 				getProcesses(),
 				getTotalImpactResult(impact),
@@ -189,7 +189,7 @@ public class ContributionResult extends SimpleResult {
 	 * Get the direct contribution of the given elementary flow to the LCIA result
 	 * of the given LCIA category.
 	 */
-	public double getDirectFlowImpact(IndexFlow flow, ImpactCategoryDescriptor impact) {
+	public double getDirectFlowImpact(IndexFlow flow, ImpactDescriptor impact) {
 		if (!hasImpactResults())
 			return 0;
 		int impactIdx = impactIndex.of(impact);
@@ -203,7 +203,7 @@ public class ContributionResult extends SimpleResult {
 	 * Get the contributions of all elementary flows to the given LCA category.
 	 */
 	public List<FlowResult> getFlowContributions(
-			ImpactCategoryDescriptor impact) {
+			ImpactDescriptor impact) {
 		var results = new ArrayList<FlowResult>();
 		flowIndex.each((i, flow) -> {
 			double value = getDirectFlowImpact(flow, impact);
@@ -217,7 +217,7 @@ public class ContributionResult extends SimpleResult {
 	 * regionalized result).
 	 */
 	public double getImpactFactor(
-			ImpactCategoryDescriptor impact, IndexFlow flow) {
+			ImpactDescriptor impact, IndexFlow flow) {
 		int impactIdx = impactIndex.of(impact);
 		int flowIdx = flowIndex.of(flow);
 		if (impactIdx < 0 || flowIdx < 0 )

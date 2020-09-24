@@ -135,10 +135,10 @@ public class Descriptor {
 		return descriptor;
 	}
 
-	public static ImpactCategoryDescriptor of(ImpactCategory impact) {
+	public static ImpactDescriptor of(ImpactCategory impact) {
 		if (impact == null)
 			return null;
-		ImpactCategoryDescriptor d = new ImpactCategoryDescriptor();
+		ImpactDescriptor d = new ImpactDescriptor();
 		Descriptor.setBaseValues(impact, d);
 		d.referenceUnit = impact.referenceUnit;
 		return d;

@@ -4,7 +4,7 @@ import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.util.Strings;
 
@@ -35,7 +35,7 @@ class LibIndex {
 		return entry.build();
 	}
 
-	static Proto.ImpactEntry protoEntry(int index, ImpactCategoryDescriptor impact) {
+	static Proto.ImpactEntry protoEntry(int index, ImpactDescriptor impact) {
 		var entry = Proto.ImpactEntry.newBuilder();
 		entry.setIndex(index);
 		entry.setImpact(protoImpact(impact));
@@ -73,7 +73,7 @@ class LibIndex {
 		return proto.build();
 	}
 
-	static Proto.Impact protoImpact(ImpactCategoryDescriptor d) {
+	static Proto.Impact protoImpact(ImpactDescriptor d) {
 		var proto = Proto.Impact.newBuilder();
 		if (d == null)
 			return proto.build();

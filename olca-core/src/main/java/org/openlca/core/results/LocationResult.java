@@ -12,7 +12,7 @@ import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 import com.google.common.util.concurrent.AtomicDouble;
@@ -85,7 +85,7 @@ public class LocationResult {
 	 * Calculates location contributions to the given LCIA category.
 	 */
 	public List<Contribution<Location>> getContributions(
-			ImpactCategoryDescriptor impact) {
+			ImpactDescriptor impact) {
 		if (impact == null || result == null)
 			return Collections.emptyList();
 

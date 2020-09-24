@@ -3,12 +3,12 @@ package org.openlca.io.xls.results.system;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.matrix.IndexFlow;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.io.xls.results.CellWriter;
 
 class FlowImpactContributionSheet
-		extends ContributionSheet<IndexFlow, ImpactCategoryDescriptor> {
+		extends ContributionSheet<IndexFlow, ImpactDescriptor> {
 
 	private final CellWriter writer;
 	private final ContributionResult r;
@@ -35,7 +35,7 @@ class FlowImpactContributionSheet
 	}
 
 	@Override
-	protected double getValue(IndexFlow flow, ImpactCategoryDescriptor impact) {
+	protected double getValue(IndexFlow flow, ImpactDescriptor impact) {
 		return r.getDirectFlowImpact(flow, impact);
 	}
 
@@ -45,7 +45,7 @@ class FlowImpactContributionSheet
 	}
 
 	@Override
-	protected void subHeaderRow(ImpactCategoryDescriptor impact, Sheet sheet,
+	protected void subHeaderRow(ImpactDescriptor impact, Sheet sheet,
 			int row) {
 		writer.impactRow(sheet, row, 1, impact);
 	}

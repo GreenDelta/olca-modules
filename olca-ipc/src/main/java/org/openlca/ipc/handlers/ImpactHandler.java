@@ -8,7 +8,7 @@ import java.util.Map;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.Contribution;
@@ -150,7 +150,7 @@ public class ImpactHandler {
 				double total = result.getTotalImpactResult(impact);
 				if (total == 0)
 					return;
-				Contribution<ImpactCategoryDescriptor> c = new Contribution<>();
+				Contribution<ImpactDescriptor> c = new Contribution<>();
 				c.item = impact;
 				c.amount = result.getDirectImpactResult(process, impact);
 				c.share = c.amount / total;
@@ -179,7 +179,7 @@ public class ImpactHandler {
 	}
 
 	private double getImpactFactor(ContributionResult result,
-			ImpactCategoryDescriptor impact, IndexFlow flow) {
+			ImpactDescriptor impact, IndexFlow flow) {
 		int impactIdx = result.impactIndex.of(impact);
 		int flowIdx = result.flowIndex.of(flow);
 		double value = result.provider.impactFactorOf(impactIdx, flowIdx);

@@ -19,7 +19,7 @@ import org.openlca.core.model.NwFactor;
 import org.openlca.core.model.NwSet;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.io.CategoryPair;
 import org.openlca.io.DisplayValues;
@@ -62,14 +62,14 @@ public class CellWriter {
 	 * Writes the impact category information into the given row, starting in
 	 * column col
 	 */
-	public int impactRow(Sheet sheet, int row, int col, ImpactCategoryDescriptor impact) {
+	public int impactRow(Sheet sheet, int row, int col, ImpactDescriptor impact) {
 		cell(sheet, row, col++, impact.refId, false);
 		cell(sheet, row, col++, impact.name, false);
 		cell(sheet, row, col++, impact.referenceUnit, false);
 		return col;
 	}
 
-	public int impactNwRow(Sheet sheet, int row, int col, ImpactCategoryDescriptor impact, double value, NwSet nwSet) {
+	public int impactNwRow(Sheet sheet, int row, int col, ImpactDescriptor impact, double value, NwSet nwSet) {
 		NwFactor nwFactor = nwSet.getFactor(impact);
 		if (nwFactor == null)
 			return col;

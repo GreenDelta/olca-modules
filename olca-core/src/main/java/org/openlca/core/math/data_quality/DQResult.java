@@ -7,7 +7,7 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.ContributionResult;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
@@ -151,7 +151,7 @@ public class DQResult {
 	/**
 	 * Get the aggregated result for the given impact category.
 	 */
-	public int[] get(ImpactCategoryDescriptor impact) {
+	public int[] get(ImpactDescriptor impact) {
 		if (impactResult == null)
 			return null;
 		int col = result.impactIndex.of(impact);
@@ -160,7 +160,7 @@ public class DQResult {
 				: impactResult.getColumn(col);
 	}
 
-	public int[] get(ImpactCategoryDescriptor impact, IndexFlow flow) {
+	public int[] get(ImpactDescriptor impact, IndexFlow flow) {
 		if (flowImpactResult == null)
 			return null;
 		int row = result.impactIndex.of(impact);
@@ -179,14 +179,14 @@ public class DQResult {
 	 * @deprecated just added for compatibility reasons
 	 */
 	@Deprecated
-	public int[] get(ImpactCategoryDescriptor impact, CategorizedDescriptor process) {
+	public int[] get(ImpactDescriptor impact, CategorizedDescriptor process) {
 		var products = result.techIndex.getProviders(process);
 		return products.isEmpty()
 				? null
 				: get(impact, products.get(0));
 	}
 
-	public int[] get(ImpactCategoryDescriptor impact, ProcessProduct product) {
+	public int[] get(ImpactDescriptor impact, ProcessProduct product) {
 		if (processImpactResult == null)
 			return null;
 		int row = result.impactIndex.of(impact);

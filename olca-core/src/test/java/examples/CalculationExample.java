@@ -10,7 +10,7 @@ import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.results.FullResult;
 import org.openlca.julia.JuliaSolver;
@@ -37,7 +37,7 @@ public class CalculationExample {
 		IndexFlow f = r.flowIndex.at(0);
 		System.out.println(f.flow.name + "  -> " + r.getTotalFlowResult(f));
 
-		ImpactCategoryDescriptor impact = r.impactIndex.at(0);
+		ImpactDescriptor impact = r.impactIndex.at(0);
 		System.out.println(impact.name + "  -> " + r.getTotalImpactResult(impact));
 	}
 

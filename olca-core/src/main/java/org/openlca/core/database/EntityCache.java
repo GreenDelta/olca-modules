@@ -18,7 +18,7 @@ import org.openlca.core.model.descriptors.CurrencyDescriptor;
 import org.openlca.core.model.descriptors.DQSystemDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.ParameterDescriptor;
@@ -169,7 +169,7 @@ public class EntityCache {
 			m.put(ProductSystemDescriptor.class, new ProductSystemDao(db));
 			m.put(ImpactMethodDescriptor.class, new ImpactMethodDao(db));
 			m.put(ProjectDescriptor.class, new ProjectDao(db));
-			m.put(ImpactCategoryDescriptor.class, new ImpactCategoryDao(db));
+			m.put(ImpactDescriptor.class, new ImpactCategoryDao(db));
 			m.put(SocialIndicatorDescriptor.class, new SocialIndicatorDao(db));
 			m.put(CurrencyDescriptor.class, new CurrencyDao(db));
 			m.put(LocationDescriptor.class, new LocationDao(db));

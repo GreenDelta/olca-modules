@@ -15,7 +15,7 @@ import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.julia.JuliaSolver;
@@ -58,7 +58,7 @@ public class ProductSystemInMemoryCalculationExample {
 		SimpleResult r = calc.calculateSimple(setup);
 
 		// print the LCIA results
-		for (ImpactCategoryDescriptor impact : r.getImpacts()) {
+		for (ImpactDescriptor impact : r.getImpacts()) {
 			System.out.println(impact.name + "\t"
 					+ r.getTotalImpactResult(impact) + "\t"
 					+ impact.referenceUnit);

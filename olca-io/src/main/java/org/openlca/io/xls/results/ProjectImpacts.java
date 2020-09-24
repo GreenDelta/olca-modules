@@ -5,7 +5,7 @@ import java.util.List;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.ProjectVariant;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.Contribution;
 import org.openlca.core.results.Contributions;
 import org.openlca.core.results.ProjectResult;
@@ -44,7 +44,7 @@ class ProjectImpacts {
 		}
 		row++;
 		writeHeader(row++);
-		for (ImpactCategoryDescriptor impact : result.getImpacts()) {
+		for (ImpactDescriptor impact : result.getImpacts()) {
 			writeInfo(row, impact);
 			List<Contribution<ProjectVariant>> contributions = result
 					.getContributions(impact);
@@ -68,7 +68,7 @@ class ProjectImpacts {
 		header(sheet, row, col++, "Reference unit");
 	}
 
-	void writeInfo(int row, ImpactCategoryDescriptor impact) {
+	void writeInfo(int row, ImpactDescriptor impact) {
 		int col = 1;
 		Excel.cell(sheet, row, col++, impact.refId);
 		Excel.cell(sheet, row, col++, impact.name);

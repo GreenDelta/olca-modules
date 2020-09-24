@@ -22,7 +22,7 @@ import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.AllocationMethod;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.io.xls.Excel;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -246,9 +246,9 @@ public class SystemExport {
 		ExcelHeader header = new ExcelHeader();
 		header.setHeaders(HEADERS.IMPACT_CATEGORY.VALUES);
 		List<IExcelHeaderEntry> headerEntries = new ArrayList<>();
-		List<ImpactCategoryDescriptor> sortedCategories = mapImpactCategoryIndices(
+		List<ImpactDescriptor> sortedCategories = mapImpactCategoryIndices(
 				header, impactIndex);
-		for (ImpactCategoryDescriptor category : sortedCategories) {
+		for (ImpactDescriptor category : sortedCategories) {
 			headerEntries.add(new ImpactCategoryHeaderEntry(
 					conf.impactMethod.name, category));
 		}
@@ -316,14 +316,14 @@ public class SystemExport {
 		return products;
 	}
 
-	private List<ImpactCategoryDescriptor> mapImpactCategoryIndices(
+	private List<ImpactDescriptor> mapImpactCategoryIndices(
 			ExcelHeader header, ImpactIndex impactIndex) {
 		var sortedCategories = impactIndex.content()
 				.stream()
 				.sorted((i1, i2) -> Strings.compare(i1.name, i2.name))
 				.collect(Collectors.toList());
 		int counter = 0;
-		for (ImpactCategoryDescriptor category : sortedCategories) {
+		for (ImpactDescriptor category : sortedCategories) {
 			header.putIndexMapping(counter, impactIndex.of(category));
 			counter++;
 		}
@@ -507,11 +507,11 @@ public class SystemExport {
 
 	private class ImpactCategoryHeaderEntry implements IExcelHeaderEntry {
 
-		private ImpactCategoryDescriptor impactCategory;
+		private ImpactDescriptor impactCategory;
 		private String methodName;
 
 		private ImpactCategoryHeaderEntry(String methodName,
-				ImpactCategoryDescriptor impactCategory) {
+				ImpactDescriptor impactCategory) {
 			this.methodName = methodName;
 			this.impactCategory = impactCategory;
 		}

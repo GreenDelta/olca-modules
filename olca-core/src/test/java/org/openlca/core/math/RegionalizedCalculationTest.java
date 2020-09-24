@@ -35,7 +35,7 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.FullResult;
 
 /**
@@ -551,7 +551,7 @@ public class RegionalizedCalculationTest {
 				.orElse(null);
 	}
 
-	private ImpactCategoryDescriptor des(ImpactCategory imp) {
+	private ImpactDescriptor des(ImpactCategory imp) {
 		return Descriptor.of(imp);
 	}
 

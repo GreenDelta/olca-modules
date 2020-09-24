@@ -4,7 +4,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.math.data_quality.DQResult;
 import org.openlca.core.model.NwSet;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.io.xls.results.CellWriter;
 
@@ -49,7 +49,7 @@ class ImpactSheet {
 
 	private void data() {
 		int row = 2;
-		for (ImpactCategoryDescriptor impact : result.getImpacts()) {
+		for (ImpactDescriptor impact : result.getImpacts()) {
 			double value = result.getTotalImpactResult(impact);
 			int col = writer.impactRow(sheet, row, 1, impact);
 			writer.cell(sheet, row, col++, value);

@@ -6,10 +6,10 @@ import java.util.Set;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 public class ImpactCategoryUseSearch extends
-		BaseUseSearch<ImpactCategoryDescriptor> {
+		BaseUseSearch<ImpactDescriptor> {
 
 	ImpactCategoryUseSearch(IDatabase db) {
 		super(db);

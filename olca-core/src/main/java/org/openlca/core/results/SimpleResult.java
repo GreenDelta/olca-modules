@@ -7,7 +7,7 @@ import java.util.List;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 /**
  * The simplest kind of result of a calculated product system. This result type
@@ -122,7 +122,7 @@ public class SimpleResult extends BaseResult {
 	 * Returns the total LCIA result $\mathbf{h}_i$ of the given LCIA category
 	 * $i$.
 	 */
-	public double getTotalImpactResult(ImpactCategoryDescriptor impact) {
+	public double getTotalImpactResult(ImpactDescriptor impact) {
 		int idx = impactIndex.of(impact);
 		if (idx < 0 || idx >= totalImpactResults.length)
 			return 0;

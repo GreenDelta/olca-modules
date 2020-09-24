@@ -8,7 +8,7 @@ import java.util.Set;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 /**
  * The results of a Monte-Carlo-Simulation. The single result values of the
@@ -154,7 +154,7 @@ public class SimulationResult extends BaseResult {
 	 * Get the result of the given LCIA category in the iteration i (zero
 	 * based).
 	 */
-	public double get(ImpactCategoryDescriptor impact, int i) {
+	public double get(ImpactDescriptor impact, int i) {
 		if (impactIndex == null)
 			return 0;
 		int arrayIdx = impactIndex.of(impact);
@@ -166,7 +166,7 @@ public class SimulationResult extends BaseResult {
 	 * category in the iteration i (zero based).
 	 */
 	public double getDirect(ProcessProduct product,
-			ImpactCategoryDescriptor impact, int i) {
+			ImpactDescriptor impact, int i) {
 		PinnedContributions pc = pinned.get(product);
 		if (pc == null || impactIndex == null)
 			return 0;
@@ -179,7 +179,7 @@ public class SimulationResult extends BaseResult {
 	 * category for all iterations.
 	 */
 	public double[] getAllDirect(ProcessProduct product,
-			ImpactCategoryDescriptor impact) {
+			ImpactDescriptor impact) {
 		int count = getNumberOfRuns();
 		double[] vals = new double[count];
 		for (int i = 0; i < count; i++) {
@@ -193,7 +193,7 @@ public class SimulationResult extends BaseResult {
 	 * category in the iteration i (zero based).
 	 */
 	public double getUpstream(ProcessProduct product,
-			ImpactCategoryDescriptor impact, int i) {
+			ImpactDescriptor impact, int i) {
 		PinnedContributions pc = pinned.get(product);
 		if (pc == null || impactIndex == null)
 			return 0;
@@ -206,7 +206,7 @@ public class SimulationResult extends BaseResult {
 	 * category for all iterations.
 	 */
 	public double[] getAllUpstream(ProcessProduct product,
-			ImpactCategoryDescriptor impact) {
+			ImpactDescriptor impact) {
 		int count = getNumberOfRuns();
 		double[] vals = new double[count];
 		for (int i = 0; i < count; i++) {
@@ -218,7 +218,7 @@ public class SimulationResult extends BaseResult {
 	/**
 	 * Get all simulation results of the given LCIA category.
 	 */
-	public double[] getAll(ImpactCategoryDescriptor impact) {
+	public double[] getAll(ImpactDescriptor impact) {
 		double[] vals = new double[impactResults.size()];
 		for (int i = 0; i < impactResults.size(); i++) {
 			vals[i] = get(impact, i);
