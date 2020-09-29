@@ -1,9 +1,11 @@
 package org.openlca.julia;
 
 import java.io.File;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.openlca.util.OS;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +14,11 @@ import org.slf4j.LoggerFactory;
  * utility methods for loading these libraries.
  */
 public final class Julia {
+
+	/**
+	 * The version of the native interface that is used.
+	 */
+	public static final String VERSION = "1.1.0";
 
 	private enum LinkOption {
 		NONE, BLAS, ALL
@@ -32,20 +39,33 @@ public final class Julia {
 	}
 
 	/**
-	 * Loads the libraries from a folder specified by the "OLCA_JULIA" environment
-	 * variable.
+	 * Get the default location on the file system where our native libraries
+	 * are located.
+	 */
+	public static File getDefaultDir() {
+		var home = new File(System.getProperty("user.home"));
+		var os = System.getProperty("os.name");
+		var arch = System.getProperty("os.arch");
+		var path = Strings.join(
+				List.of(".openLCA", "native", VERSION, os, arch),
+				File.separatorChar);
+		return new File(home, path);
+	}
+
+	/**
+	 * Tries to load the library from the default folder. Returns true if the
+	 * libraries could be loaded or if they were already loaded.
 	 */
 	public static boolean load() {
 		if (isLoaded())
 			return true;
-		Logger log = LoggerFactory.getLogger(Julia.class);
-		String path = System.getenv("OLCA_JULIA");
-		if (path == null || path.isEmpty()) {
-			log.warn("Could not load Julia libs and bindings;"
-					+ "OLCA_JULIA is not defined");
+		var log = LoggerFactory.getLogger(Julia.class);
+		var dir = getDefaultDir();
+		if (!dir.exists()) {
+			log.warn("Could not load native libraries from {}," +
+					" folder does not exist", dir);
 			return false;
 		}
-		File dir = new File(path);
 		return loadFromDir(dir);
 	}
 
@@ -110,9 +130,9 @@ public final class Julia {
 						"libquadmath-0.dll",
 						"libgfortran-5.dll",
 						"libopenblas64_.dll",
-						"libccolamd.dll",
 						"libcolamd.dll",
 						"libcamd.dll",
+						"libccolamd.dll",
 						"libcholmod.dll",
 						"libumfpack.dll",
 						"olcar_withumf.dll",
