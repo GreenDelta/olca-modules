@@ -27,7 +27,7 @@ public final class Julia {
 	}
 
 	private static final AtomicBoolean _loaded = new AtomicBoolean(false);
-	private static final AtomicBoolean _withUmfpack = new AtomicBoolean(false);
+	private static final AtomicBoolean _withSparse = new AtomicBoolean(false);
 
 	/**
 	 * Returns true if the Julia libraries with openLCA bindings are loaded.
@@ -36,8 +36,20 @@ public final class Julia {
 		return _loaded.get();
 	}
 
-	public static boolean isWithUmfpack() {
-		return _withUmfpack.get();
+	public static boolean hasSparseLibraries() {
+		return _withSparse.get();
+	}
+
+	public static synchronized boolean fetchSparseLibraries() {
+		if (isLoaded() && hasSparseLibraries())
+			return true;
+		try {
+			new LibraryDownload().run();
+		} catch (Exception e) {
+			return false;
+		}
+		_loaded.set(false);
+		return load();
 	}
 
 	/**
@@ -135,7 +147,7 @@ public final class Julia {
 				}
 				_loaded.set(true);
 				if (opt == LinkOption.ALL) {
-					_withUmfpack.set(true);
+					_withSparse.set(true);
 					log.info("Math libraries loaded with UMFPACK support.");
 				} else {
 					log.info("Math libraries loaded without UMFPACK support.");

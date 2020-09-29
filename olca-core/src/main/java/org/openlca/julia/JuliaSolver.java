@@ -25,7 +25,7 @@ public class JuliaSolver implements IMatrixSolver {
 
 	@Override
 	public double[] solve(IMatrix a, int idx, double d) {
-		if (Julia.isWithUmfpack() &&
+		if (Julia.hasSparseLibraries() &&
 				(a instanceof HashPointMatrix
 						|| a instanceof CSCMatrix)) {
 			var csc = CSCMatrix.of(a);

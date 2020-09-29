@@ -22,7 +22,7 @@ public class UmfpackTest {
 		// run the tests in this class only if the Julia libraries could be
 		// loaded
 		assumeTrue(Julia.isLoaded());
-		assumeTrue(Julia.isWithUmfpack());
+		assumeTrue(Julia.hasSparseLibraries());
 	}
 
 	@Test
