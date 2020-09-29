@@ -1,6 +1,8 @@
 package org.openlca.julia;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -44,8 +46,8 @@ public final class Julia {
 	 */
 	public static File getDefaultDir() {
 		var home = new File(System.getProperty("user.home"));
-		var os = System.getProperty("os.name");
 		var arch = System.getProperty("os.arch");
+		var os = OS.get().toString();
 		var path = Strings.join(
 				List.of(".openLCA", "native", VERSION, os, arch),
 				File.separatorChar);
@@ -53,20 +55,52 @@ public final class Julia {
 	}
 
 	/**
-	 * Tries to load the library from the default folder. Returns true if the
+	 * Tries to load the libraries from the default folder. Returns true if the
 	 * libraries could be loaded or if they were already loaded.
 	 */
-	public static boolean load() {
-		if (isLoaded())
+	public static synchronized boolean load() {
+		if (_loaded.get())
 			return true;
 		var log = LoggerFactory.getLogger(Julia.class);
 		var dir = getDefaultDir();
 		if (!dir.exists()) {
-			log.warn("Could not load native libraries from {}," +
-					" folder does not exist", dir);
-			return false;
+			if (!dir.mkdirs()) {
+				log.error("Could not create library dir {}", dir);
+				return false;
+			}
+		}
+
+		// check if our base BLAS libraries are present and
+		// extract them if necessary
+		var blasLibs = libs(LinkOption.BLAS);
+
+		for (var lib : blasLibs) {
+			var libFile = new File(dir, lib);
+			if (libFile.exists())
+				continue;
+			var arch = System.getProperty("os.arch");
+			var jarPath = "/native/" + OS.get().toString()
+					+ "/" + arch + "/" + lib;
+			try {
+				copyLib(jarPath, libFile);
+			} catch (Exception e) {
+				log.error("failed to extract library " + lib, e);
+				return false;
+			}
 		}
 		return loadFromDir(dir);
+	}
+
+	private static void copyLib(String jarPath, File file) throws IOException {
+		var is = Julia.class.getResourceAsStream(jarPath);
+		var os = new FileOutputStream(file);
+		byte[] buf = new byte[1024];
+		int len;
+		while ((len = is.read(buf)) > 0) {
+			os.write(buf, 0, len);
+		}
+		os.flush();
+		os.close();
 	}
 
 	/**
@@ -215,7 +249,7 @@ public final class Julia {
 		var files = dir.listFiles();
 		if (files == null)
 			return LinkOption.NONE;
-		LinkOption opt = LinkOption.NONE;
+		var opt = LinkOption.NONE;
 		for (File f : files) {
 			if (!f.isFile())
 				continue;

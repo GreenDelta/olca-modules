@@ -19,7 +19,7 @@ public enum OS {
 
 	private final String name;
 
-	private OS(String name) {
+	OS(String name) {
 		this.name = name;
 	}
 
