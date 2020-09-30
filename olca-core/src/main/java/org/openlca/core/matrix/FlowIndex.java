@@ -51,6 +51,13 @@ public final class FlowIndex {
 		return new FlowIndex(true);
 	}
 
+	/**
+	 * Returns true if the given index is null or empty.
+	 */
+	public static boolean isEmpty(FlowIndex idx) {
+		return idx == null || idx.size() == 0;
+	}
+
 	public int size() {
 		return flows.size();
 	}

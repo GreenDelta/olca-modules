@@ -9,6 +9,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
+import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.InventoryBuilder;
@@ -58,8 +59,8 @@ public class DataStructures {
 		FlowType ftype = system.referenceExchange == null
 				? null
 				: system.referenceExchange.flow == null
-						? null
-						: system.referenceExchange.flow.flowType;
+				? null
+				: system.referenceExchange.flow.flowType;
 		if (ftype == FlowType.WASTE_FLOW) {
 			demand = -demand;
 		}
@@ -125,27 +126,41 @@ public class DataStructures {
 		var builder = new InventoryBuilder(conf);
 		var data = builder.build();
 
-		// add the LCIA matrix structures
-		if (setup.impactMethod != null) {
+		// add the LCIA matrix structures; note that in case
+		// of a library system we may not have elementary
+		// flows in the foreground system but still want to
+		// attach an impact index to the matrix data.
+		if (setup.impactMethod != null
+				&& data.flowIndex != null
+				&& !data.flowIndex.isEmpty()) {
+
 			var impactIdx = new ImpactIndex();
-			new ImpactMethodDao(db).getCategoryDescriptors(
-					setup.impactMethod.id).forEach(impactIdx::put);
-			if (!impactIdx.isEmpty()) {
-				var impactBuilder = new ImpactBuilder(db);
-				impactBuilder.withUncertainties(conf.withUncertainties);
-				var impactData = impactBuilder.build(
-						data.flowIndex, impactIdx, interpreter);
-				data.impactMatrix = impactData.impactMatrix;
+			new ImpactMethodDao(db)
+					.getCategoryDescriptors(setup.impactMethod.id)
+					.forEach(impactIdx::put);
+
+			if (impactIdx.isEmpty())
+				return data;
+
+			if (FlowIndex.isEmpty(data.flowIndex)) {
 				data.impactIndex = impactIdx;
-				data.impactUncertainties = impactData.impactUncertainties;
+				return data;
 			}
+
+			var impactBuilder = new ImpactBuilder(db);
+			impactBuilder.withUncertainties(conf.withUncertainties);
+			var impactData = impactBuilder.build(
+					data.flowIndex, impactIdx, interpreter);
+			data.impactMatrix = impactData.impactMatrix;
+			data.impactIndex = impactIdx;
+			data.impactUncertainties = impactData.impactUncertainties;
 		}
 
 		return data;
 	}
 
 	public static FormulaInterpreter interpreter(IDatabase db,
-			CalculationSetup setup, TechIndex techIndex) {
+												 CalculationSetup setup, TechIndex techIndex) {
 		// collect the process and LCIA category IDs; these
 		// are the possible contexts of local parameters
 		HashSet<Long> contexts = new HashSet<>();
