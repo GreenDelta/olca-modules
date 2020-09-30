@@ -11,21 +11,16 @@ import org.openlca.core.matrix.format.IMatrix;
 public interface IMatrixSolver {
 
 	/**
+	 * Returns true if the solver has specific support for solving sparse
+	 * matrices efficiently.
+	 */
+	boolean hasSparseSupport();
+	
+	/**
 	 * Creates an instance of the default matrix type that can be used with this
 	 * solver.
 	 */
 	IMatrix matrix(int rows, int columns);
-
-	/**
-	 * Creates a instance of a matrix type which may dependent on the given
-	 * density of the matrix (which is the number of non-zero elements divided
-	 * by the total number of elements. By default it just calls the
-	 * {@link IMatrixSolver#matrix(int, int)} method but this can be overwritten
-	 * when the solver supports dense and sparse matrix implementations.
-	 */
-	default IMatrix matrix(int rows, int columns, double density) {
-		return matrix(rows, columns);
-	}
 
 	/**
 	 * Solves the system of linear equations A * s = d. In openLCA this is used

@@ -60,6 +60,11 @@ public class ISolverTest {
 	private class Solver implements IMatrixSolver {
 
 		@Override
+		public boolean hasSparseSupport() {
+			return false;
+		}
+
+		@Override
 		public IMatrix matrix(int rows, int columns) {
 			return new JavaMatrix(rows, columns);
 		}

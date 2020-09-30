@@ -11,16 +11,13 @@ import org.openlca.core.matrix.solvers.IMatrixSolver;
 public class JuliaSolver implements IMatrixSolver {
 
 	@Override
+	public boolean hasSparseSupport() {
+		return Julia.hasSparseLibraries();
+	}
+	
+	@Override
 	public IMatrix matrix(int rows, int columns) {
 		return new DenseMatrix(rows, columns);
-	}
-
-	@Override
-	public IMatrix matrix(int rows, int cols, double density) {
-		if (density < 0.4)
-			return new HashPointMatrix(rows, cols);
-		else
-			return new DenseMatrix(rows, cols);
 	}
 
 	@Override

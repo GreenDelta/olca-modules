@@ -43,9 +43,9 @@ public class LcaCalculator {
 			return LibraryResultProvider.of(db, libDir, solver, data);
 		if (forceLazy)
 			return LazyResultProvider.create(data, solver);
-		// TODO: consider the matrix size and format and the capabilities
-		// of the solver...
-		return data.isSparse()
+		if (!data.isSparse())
+			return EagerResultProvider.create(data, solver);
+		return solver.hasSparseSupport()
 				? LazyResultProvider.create(data, solver)
 				: EagerResultProvider.create(data, solver);
 	}
@@ -91,6 +91,7 @@ public class LcaCalculator {
 	 * TODO replace with $diag(A) \odot diag(A^{-1})$
 	 * @deprecated
 	 */
+	@Deprecated
 	public static double getLoopFactor(
 			IMatrix A, double[] s, TechIndex techIndex) {
 		int i = techIndex.getIndex(techIndex.getRefFlow());
