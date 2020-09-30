@@ -130,9 +130,7 @@ public class DataStructures {
 		// of a library system we may not have elementary
 		// flows in the foreground system but still want to
 		// attach an impact index to the matrix data.
-		if (setup.impactMethod != null
-				&& data.flowIndex != null
-				&& !data.flowIndex.isEmpty()) {
+		if (setup.impactMethod != null) {
 
 			var impactIdx = new ImpactIndex();
 			new ImpactMethodDao(db)
