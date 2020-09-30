@@ -224,28 +224,28 @@ public final class Julia {
 
 		if (os == OS.MAC) {
 			if (opt == LinkOption.ALL) {
-				return new String[]{
-						"libgcc_s.1.dylib",
-						"libquadmath.0.dylib",
-						"libgfortran.5.dylib",
-						"libopenblas64_.0.3.5.dylib",
-						"libsuitesparseconfig.5.4.0.dylib",
-						"libamd.2.4.6.dylib",
-						"libccolamd.2.9.6.dylib",
-						"libcamd.2.4.6.dylib",
-						"libcolamd.2.9.6.dylib",
-						"libcholmod.3.0.13.dylib",
-						"libumfpack.5.7.8.dylib",
-						"libolcar_withumf.dylib",
-				};
+			  	return new String[] {
+					"libgcc_s.1.dylib",
+					"libquadmath.0.dylib",
+					"libgfortran.5.dylib",
+					"libopenblas64_.dylib",
+					"libsuitesparseconfig.5.4.0.dylib",
+					"libamd.2.4.6.dylib",
+					"libccolamd.2.9.6.dylib",
+					"libcolamd.2.9.6.dylib",
+					"libcamd.2.4.6.dylib",
+					"libcholmod.3.0.13.dylib",
+					"libumfpack.5.7.8.dylib",
+					"libolcar_withumf.dylib",
+			  	};
 			} else {
-				return new String[]{
-						"libgcc_s.1.dylib",
-						"libquadmath.0.dylib",
-						"libgfortran.5.dylib",
-						"libopenblas64_.0.3.5.dylib",
-						"libolcar.dylib",
-				};
+				return new String[] {
+					"libgcc_s.1.dylib",
+					"libquadmath.0.dylib",
+					"libgfortran.5.dylib",
+					"libopenblas64_.dylib",
+					"libolcar.dylib",
+			  	};
 			}
 		}
 		return null;

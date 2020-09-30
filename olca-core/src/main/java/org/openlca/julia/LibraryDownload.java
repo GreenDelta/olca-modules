@@ -6,8 +6,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.openlca.util.OS;
@@ -73,7 +71,7 @@ class LibraryDownload {
 				"v1.1.0/olcar_withumf_1.1.0_";
 		switch (OS.get()) {
 			case MAC:
-				return base + "macos_2020-09-29.zip";
+				return base + "macos_2020-09-30.zip";
 			case WINDOWS:
 				return base + "windows_2020-09-29.zip";
 			case LINUX:
