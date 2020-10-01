@@ -14,7 +14,7 @@ import org.openlca.jsonld.output.JsonExport;
 public class ActorTest extends AbstractZipTest {
 
 	@Test
-	public void testActor() throws Exception {
+	public void testActor() {
 		ActorDao dao = new ActorDao(Tests.getDb());
 		Actor actor = createModel(dao);
 		doExport(actor, dao);

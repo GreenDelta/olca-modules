@@ -77,6 +77,13 @@ public interface IDatabase extends Closeable, INotifiable {
 	}
 
 	/**
+	 * Returns true if there are libraries linked to this database.
+	 */
+	default boolean hasLibraries() {
+		return getLibraries().size() > 0;
+	}
+
+	/**
 	 * Registers the library with the given ID to this database. It is the task of
 	 * the application layer to resolve the location of the corresponding library in
 	 * the file system. Nothing is done if a library with this ID is already

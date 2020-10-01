@@ -3,6 +3,7 @@ package org.openlca.jsonld.output;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 import org.junit.After;
@@ -323,11 +324,9 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		Process p = new Process();
 		p.refId = UUID.randomUUID().toString();
 		if (parameters != null)
-			for (Parameter param : parameters)
-				p.parameters.add(param);
+			p.parameters.addAll(Arrays.asList(parameters));
 		if (exchanges != null)
-			for (Exchange e : exchanges)
-				p.exchanges.add(e);
+			p.exchanges.addAll(Arrays.asList(exchanges));
 		return p;
 	}
 
@@ -343,13 +342,10 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		ImpactCategory c = new ImpactCategory();
 		c.refId = UUID.randomUUID().toString();
 		if (parameters != null) {
-			for (Parameter p : parameters)
-				c.parameters.add(p);
+			c.parameters.addAll(Arrays.asList(parameters));
 		}
 		if (factors != null) {
-			for (ImpactFactor f : factors) {
-				c.impactFactors.add(f);
-			}
+			c.impactFactors.addAll(Arrays.asList(factors));
 		}
 		return c;
 	}
@@ -362,7 +358,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		else if (p.scope == ParameterScope.IMPACT)
 			redef.contextType = ModelType.IMPACT_CATEGORY;
 		if (p.scope != ParameterScope.GLOBAL)
-			redef.contextId = 1l;
+			redef.contextId = 1L;
 		redef.value = 1;
 		redef.uncertainty = u;
 		return redef;
@@ -371,8 +367,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 	private ProductSystem createSystem(ParameterRedef... redefs) {
 		ProductSystem s = new ProductSystem();
 		s.refId = UUID.randomUUID().toString();
-		for (ParameterRedef redef : redefs)
-			s.parameterRedefs.add(redef);
+		s.parameterRedefs.addAll(Arrays.asList(redefs));
 		return s;
 	}
 
@@ -381,8 +376,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		p.refId = UUID.randomUUID().toString();
 		ProjectVariant v = new ProjectVariant();
 		p.variants.add(v);
-		for (ParameterRedef redef : redefs)
-			v.parameterRedefs.add(redef);
+		v.parameterRedefs.addAll(Arrays.asList(redefs));
 		return p;
 	}
 
