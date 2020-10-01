@@ -3,6 +3,7 @@ package org.openlca.core.model;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -89,12 +90,12 @@ public class ProductSystem extends CategorizedEntity {
 	 * the given process which needs to be a product output or waste input.
 	 */
 	public static ProductSystem of(Process p) {
-		ProductSystem system = new ProductSystem();
+		var system = new ProductSystem();
 		system.refId = UUID.randomUUID().toString();
 		system.name = p.name;
 		system.processes.add(p.id);
 		system.referenceProcess = p;
-		Exchange qRef = p.quantitativeReference;
+		var qRef = p.quantitativeReference;
 		system.referenceExchange = qRef;
 		if (qRef == null)
 			return system;
@@ -102,6 +103,42 @@ public class ProductSystem extends CategorizedEntity {
 		system.targetUnit = qRef.unit;
 		system.targetFlowPropertyFactor = qRef.flowPropertyFactor;
 		return system;
+	}
+
+	/**
+	 * Links the first matching output of the given provider with a
+	 * corresponding input of the given recipient.
+	 */
+	public ProductSystem link(Process provider, Process recipient) {
+		if (provider == null || recipient == null)
+			return this;
+		processes.add(provider.id);
+		processes.add(recipient.id);
+		for (var output : provider.exchanges) {
+			if (output.isInput
+					|| output.flow == null
+					|| output.flow.flowType == FlowType.ELEMENTARY_FLOW)
+				continue;
+			for (var input : recipient.exchanges) {
+				if (!input.isInput
+						|| !Objects.equals(output.flow, input.flow))
+					continue;
+				var link = new ProcessLink();
+				link.flowId = output.flow.id;
+				link.isSystemLink = false;
+				if (output.flow.flowType == FlowType.WASTE_FLOW) {
+					link.processId = provider.id;
+					link.exchangeId = output.id;
+					link.providerId = recipient.id;
+				} else {
+					link.processId = recipient.id;
+					link.exchangeId = input.id;
+					link.providerId = provider.id;
+				}
+				processLinks.add(link);
+			}
+		}
+		return this;
 	}
 
 	@Override

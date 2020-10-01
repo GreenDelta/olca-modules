@@ -1,6 +1,7 @@
 package org.openlca.core.matrix.solvers;
 
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.experimental.theories.DataPoint;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
@@ -14,6 +15,7 @@ import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.SimpleResult;
+import org.openlca.julia.Julia;
 import org.openlca.julia.JuliaSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +23,12 @@ import org.slf4j.LoggerFactory;
 @RunWith(Theories.class)
 public class SolverTest {
 
-	static {
-		TestSession.loadLib();
+	@BeforeClass
+	public static void setup() {
+		Julia.load();
 	}
 
-	private Logger log = LoggerFactory.getLogger(SolverTest.class);
+	private final Logger log = LoggerFactory.getLogger(SolverTest.class);
 
 	@DataPoint
 	public static IMatrixSolver denseSolver = new JuliaSolver();
@@ -74,7 +77,7 @@ public class SolverTest {
 
 		IMatrix enviMatrix = solver.matrix(4, 1);
 		for (int r = 0; r < 4; r++)
-			enviMatrix.set(r, 0, 1 * r);
+			enviMatrix.set(r, 0, r);
 		data.flowMatrix = enviMatrix;
 
 		LcaCalculator calculator = new LcaCalculator(solver, data);

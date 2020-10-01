@@ -100,6 +100,8 @@ public interface IDatabase extends Closeable, INotifiable {
 
 	@SuppressWarnings("unchecked")
 	default <T extends AbstractEntity> T insert(T e) {
+		if (e == null)
+			return null;
 		var dao = (BaseDao<T>) Daos.base(this, e.getClass());
 		return dao.insert(e);
 	}
@@ -128,5 +130,21 @@ public interface IDatabase extends Closeable, INotifiable {
 			return null;
 		var dao = Daos.root(this, modelType);
 		return (T) dao.getForRefId(refID);
+	}
+
+	/**
+	 * Get the first entity of the given type and with the given name from the
+	 * database. It returns `null` if no entity with the given name exists.
+	 */
+	@SuppressWarnings("unchecked")
+	default <T extends RootEntity> T forName(Class<T> type, String name) {
+		var modelType = ModelType.forModelClass(type);
+		if (modelType == null)
+			return null;
+		var dao = Daos.root(this, modelType);
+		var candidates = dao.getForName(name);
+		return candidates.isEmpty()
+				? null
+				: (T) candidates.get(0);
 	}
 }
