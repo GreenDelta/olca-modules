@@ -55,6 +55,7 @@ class ProcessHandler {
 		if (process != null) {
 			log.warn("a process with the identifier {} is already in the "
 					+ "database and was not imported", refId);
+			return;
 		}
 		log.trace("import process {}", refId);
 		process = new Process();
