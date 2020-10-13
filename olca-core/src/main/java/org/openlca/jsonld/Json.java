@@ -19,27 +19,27 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import com.google.gson.Gson;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.Version;
-import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.util.Categories;
+import org.openlca.util.Strings;
+import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import org.openlca.util.Strings;
-import org.slf4j.LoggerFactory;
 
 /**
  * Utility functions for reading and writing Json data.
@@ -78,7 +78,7 @@ public class Json {
 	public static Stream<JsonElement> stream(JsonArray array) {
 		if (array == null)
 			return Stream.empty();
-		return StreamSupport.stream(array.spliterator(),  false);
+		return StreamSupport.stream(array.spliterator(), false);
 	}
 
 	/**
@@ -98,7 +98,7 @@ public class Json {
 	 * Return the double value of the given property.
 	 */
 	public static double getDouble(JsonObject obj,
-								   String property, double defaultVal) {
+			String property, double defaultVal) {
 		if (obj == null || property == null)
 			return defaultVal;
 		JsonElement elem = obj.get(property);
@@ -121,6 +121,18 @@ public class Json {
 			return elem.getAsInt();
 	}
 
+	public static long getLong(JsonObject obj, String property, long defaultVal) {
+		if (obj == null || property == null)
+			return defaultVal;
+		var elem = obj.get(property);
+		if (elem == null || !elem.isJsonPrimitive())
+			return defaultVal;
+		var prim = elem.getAsJsonPrimitive();
+		return prim.isNumber()
+				? prim.getAsLong()
+				: defaultVal;
+	}
+
 	/**
 	 * Writes the given date as ISO 8601 string to the given JSON object.
 	 */
@@ -141,7 +153,7 @@ public class Json {
 	}
 
 	public static boolean getBool(JsonObject obj,
-								  String property, boolean defaultVal) {
+			String property, boolean defaultVal) {
 		if (obj == null || property == null)
 			return defaultVal;
 		JsonElement elem = obj.get(property);
@@ -186,7 +198,7 @@ public class Json {
 	}
 
 	public static <T extends Enum<T>> T getEnum(JsonObject obj,
-												String property, Class<T> enumClass) {
+			String property, Class<T> enumClass) {
 		String value = getString(obj, property);
 		return Enums.getValue(value, enumClass);
 	}
@@ -261,7 +273,7 @@ public class Json {
 	}
 
 	private static void putCategoryPath(JsonObject ref,
-										CategorizedDescriptor d, EntityCache cache) {
+			CategorizedDescriptor d, EntityCache cache) {
 		if (ref == null || d == null || cache == null
 				|| d.category == null)
 			return;
@@ -277,7 +289,7 @@ public class Json {
 	}
 
 	private static void putCategoryMetaData(JsonObject ref,
-											CategoryDescriptor d) {
+			CategoryDescriptor d) {
 		if (ref == null || d == null)
 			return;
 		if (d.categoryType != null) {
@@ -287,7 +299,7 @@ public class Json {
 	}
 
 	private static void putFlowMetaData(JsonObject ref,
-										FlowDescriptor d, EntityCache cache) {
+			FlowDescriptor d, EntityCache cache) {
 		if (ref == null || d == null)
 			return;
 		if (d.flowType != null) {
@@ -311,7 +323,7 @@ public class Json {
 	}
 
 	private static void putProcessMetaData(JsonObject ref,
-										   ProcessDescriptor d, EntityCache cache) {
+			ProcessDescriptor d, EntityCache cache) {
 		if (ref == null || d == null)
 			return;
 		if (d.processType != null) {
@@ -333,9 +345,8 @@ public class Json {
 		if (json == null)
 			return;
 		try (var stream = new FileOutputStream(file);
-			 var writer = new OutputStreamWriter(stream, StandardCharsets.UTF_8);
-			 var buffer = new BufferedWriter(writer)
-		) {
+				var writer = new OutputStreamWriter(stream, StandardCharsets.UTF_8);
+				var buffer = new BufferedWriter(writer)) {
 			new Gson().toJson(json, buffer);
 		} catch (Exception e) {
 			throw new RuntimeException("failed to write JSON file " + file, e);
@@ -343,8 +354,8 @@ public class Json {
 	}
 
 	/**
-	 * Read the content of the given file as JSON object. If this fails an
-	 * empty result is returned instead of throwing an exception.
+	 * Read the content of the given file as JSON object. If this fails an empty
+	 * result is returned instead of throwing an exception.
 	 */
 	public static Optional<JsonObject> readObject(File file) {
 		return read(file, JsonObject.class);
@@ -358,8 +369,8 @@ public class Json {
 		if (file == null)
 			return Optional.empty();
 		try (var stream = new FileInputStream(file);
-			 var reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
-			 var buffer = new BufferedReader(reader)) {
+				var reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
+				var buffer = new BufferedReader(reader)) {
 			var obj = new Gson().fromJson(buffer, type);
 			return Optional.of(obj);
 		} catch (Exception e) {
