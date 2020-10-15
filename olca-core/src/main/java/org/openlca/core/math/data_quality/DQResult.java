@@ -26,7 +26,7 @@ public class DQResult {
 	/**
 	 * The LCA result on which this data quality result is based.
 	 */
-	public final ContributionResult result;
+	private final ContributionResult result;
 
 	/**
 	 * We store the process data in a k*n byte matrix where the k data quality

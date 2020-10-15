@@ -9,7 +9,6 @@ import org.openlca.core.Tests;
 import org.openlca.core.database.DQSystemDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.DQIndicator;
@@ -129,21 +128,7 @@ public class DQResultTest {
 		var setup = new CalculationSetup(system);
 		setup.setAmount(1);
 		setup.impactMethod = Descriptor.of(method);
-		var cResult = FullResult.of(Tests.getDb(), setup);
-		var dqSetup = DQCalculationSetup.of(system);
-		var result = DQResult.of(Tests.getDb(), dqSetup, cResult);
-		checkResults(result);
-	}
-
-	@Test
-	public void test2() {
-		var calculator = new SystemCalculator(
-				Tests.getDb(),
-				Tests.getDefaultSolver());
-		var setup = new CalculationSetup(system);
-		setup.setAmount(1);
-		setup.impactMethod = Descriptor.of(method);
-		var result = calculator.calculateContributions(setup);
+		var result = FullResult.of(Tests.getDb(), setup);
 		var dqSetup = DQCalculationSetup.of(system);
 		var dqResult = DQResult.of(Tests.getDb(), dqSetup, result);
 
@@ -188,50 +173,8 @@ public class DQResultTest {
 		return dq.get(Descriptor.of(impact), product);
 	}
 
-	private void checkResults(DQResult result) {
-		assertArrayEquals(a(4, 4, 3, 2, 2), getResult(result, eFlow1));
-		assertArrayEquals(a(2, 3, 3, 4, 4), getResult(result, eFlow2));
-		assertArrayEquals(a(2, 3, 3, 3, 4), getResult(result, impact));
-		assertArrayEquals(a(1, 2, 3, 4, 5), getResult(result, process1, eFlow1));
-		assertArrayEquals(a(5, 4, 3, 2, 1), getResult(result, process2, eFlow1));
-		assertArrayEquals(a(5, 4, 3, 2, 1), getResult(result, process1, eFlow2));
-		assertArrayEquals(a(1, 2, 3, 4, 5), getResult(result, process2, eFlow2));
-		assertArrayEquals(a(4, 4, 3, 2, 2), getResult(result, process1, impact));
-		assertArrayEquals(a(2, 2, 3, 4, 4), getResult(result, process2, impact));
-		assertArrayEquals(a(1, 2, 3, 4, 5), getResult(result, process1));
-		assertArrayEquals(a(5, 4, 3, 2, 1), getResult(result, process2));
-	}
-
 	private int[] a(int... vals) {
 		return vals;
-	}
-
-	private int[] getResult(DQResult result, Flow flow) {
-		var flowIdx = result.result.flowIndex;
-		var iflow = flowIdx.at(flowIdx.of(Descriptor.of(flow)));
-		return result.get(iflow);
-	}
-
-	private int[] getResult(DQResult result, Process process) {
-		var product = ProcessProduct.of(process);
-		return result.get(product);
-	}
-
-	private int[] getResult(DQResult result, ImpactCategory impact) {
-		return result.get(Descriptor.of(impact));
-	}
-
-	private int[] getResult(DQResult result, Process process, Flow flow) {
-		var flowIdx = result.result.flowIndex;
-		var iflow = flowIdx.at(flowIdx.of(Descriptor.of(flow)));
-		var product = ProcessProduct.of(process);
-		return result.get(product, iflow);
-	}
-
-	private int[] getResult(DQResult result, Process process,
-			ImpactCategory impact) {
-		var product = ProcessProduct.of(process);
-		return result.get(Descriptor.of(impact), product);
 	}
 
 }
