@@ -1,12 +1,11 @@
 package org.openlca.core.math.data_quality;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQScore;
@@ -77,28 +76,7 @@ public class DQDataTest {
 	}
 
 	@Test
-	public void testLoadData() {
-		var setup = DQCalculationSetup.of(productSystem);
-		var data = DQData.load(
-				Tests.getDb(), setup, new long[]{elemFlow.id});
-		assertEquals(dqSystem.id, setup.processSystem.id);
-		assertEquals(dqSystem.id, setup.exchangeSystem.id);
-
-		// test process data
-		assertArrayEquals(new double[]{1, 2, 3, 4, 5},
-				data.processData.get(process1.id), 0);
-		assertArrayEquals(new double[]{5, 4, 3, 2, 1},
-				data.processData.get(process2.id), 0);
-
-		// test flow data
-		assertArrayEquals(new double[]{2, 1, 4, 3, 5},
-				data.exchangeData.get(LongPair.of(process1.id, elemFlow.id)), 0);
-		assertArrayEquals(new double[]{4, 5, 2, 3, 1},
-				data.exchangeData.get(LongPair.of(process2.id, elemFlow.id)), 0);
-	}
-
-	@Test
-	public void testCalculateResult() {
+	public void testGetData() {
 		var setup = DQCalculationSetup.of(productSystem);
 		var product1 = ProcessProduct.of(process1);
 		var product2 = ProcessProduct.of(process2);
