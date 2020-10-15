@@ -1,6 +1,6 @@
 package org.openlca.core.math.data_quality;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
 
 import org.junit.After;
 import org.junit.Before;
@@ -26,6 +26,7 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
+import org.openlca.core.results.FullResult;
 
 public class DQResultTest {
 
@@ -125,15 +126,12 @@ public class DQResultTest {
 
 	@Test
 	public void test() {
-		var calculator = new SystemCalculator(
-				Tests.getDb(),
-				Tests.getDefaultSolver());
 		var setup = new CalculationSetup(system);
 		setup.setAmount(1);
 		setup.impactMethod = Descriptor.of(method);
-		var cResult = calculator.calculateContributions(setup);
+		var cResult = FullResult.of(Tests.getDb(), setup);
 		var dqSetup = DQCalculationSetup.of(system);
-		var result = DQResultMap.calculate(Tests.getDb(), cResult, dqSetup);
+		var result = DQResult.of(Tests.getDb(), dqSetup, cResult);
 		checkResults(result);
 	}
 
@@ -190,7 +188,7 @@ public class DQResultTest {
 		return dq.get(Descriptor.of(impact), product);
 	}
 
-	private void checkResults(DQResultMap result) {
+	private void checkResults(DQResult result) {
 		assertArrayEquals(a(4, 4, 3, 2, 2), getResult(result, eFlow1));
 		assertArrayEquals(a(2, 3, 3, 4, 4), getResult(result, eFlow2));
 		assertArrayEquals(a(2, 3, 3, 3, 4), getResult(result, impact));
@@ -208,27 +206,32 @@ public class DQResultTest {
 		return vals;
 	}
 
-	private int[] getResult(DQResultMap result, Flow flow) {
-		return result.get(Descriptor.of(flow));
+	private int[] getResult(DQResult result, Flow flow) {
+		var flowIdx = result.result.flowIndex;
+		var iflow = flowIdx.at(flowIdx.of(Descriptor.of(flow)));
+		return result.get(iflow);
 	}
 
-	private int[] getResult(DQResultMap result, Process process) {
-		return result.get(Descriptor.of(process));
+	private int[] getResult(DQResult result, Process process) {
+		var product = ProcessProduct.of(process);
+		return result.get(product);
 	}
 
-	private int[] getResult(DQResultMap result, ImpactCategory impact) {
+	private int[] getResult(DQResult result, ImpactCategory impact) {
 		return result.get(Descriptor.of(impact));
 	}
 
-	private int[] getResult(DQResultMap result, Process process, Flow flow) {
-		return result.get(Descriptor.of(process),
-				Descriptor.of(flow));
+	private int[] getResult(DQResult result, Process process, Flow flow) {
+		var flowIdx = result.result.flowIndex;
+		var iflow = flowIdx.at(flowIdx.of(Descriptor.of(flow)));
+		var product = ProcessProduct.of(process);
+		return result.get(product, iflow);
 	}
 
-	private int[] getResult(DQResultMap result, Process process,
-							ImpactCategory impact) {
-		return result.get(Descriptor.of(process),
-				Descriptor.of(impact));
+	private int[] getResult(DQResult result, Process process,
+			ImpactCategory impact) {
+		var product = ProcessProduct.of(process);
+		return result.get(Descriptor.of(impact), product);
 	}
 
 }

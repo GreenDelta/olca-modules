@@ -18,8 +18,15 @@ import gnu.trove.map.hash.TLongObjectHashMap;
  */
 public class DQResult {
 
+	/**
+	 * The calculation setup of this data quality result.
+	 */
 	public final DQCalculationSetup setup;
-	private final ContributionResult result;
+	
+	/**
+	 * The LCA result on which this data quality result is based.
+	 */
+	public final ContributionResult result;
 
 	/**
 	 * We store the process data in a k*n byte matrix where the k data quality
