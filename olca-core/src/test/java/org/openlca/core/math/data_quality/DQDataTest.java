@@ -6,10 +6,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQScore;
 import org.openlca.core.model.DQSystem;
@@ -19,8 +17,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.results.ContributionResult;
+import org.openlca.core.results.FullResult;
 
 public class DQDataTest {
 
@@ -39,8 +36,12 @@ public class DQDataTest {
 		dqSystem = dqSystem();
 		process1 = process("(1;2;3;4;5)", "(2;1;4;3;5)");
 		process2 = process("(5;4;3;2;1)", "(4;5;2;3;1)");
+
+		process1.input(process2.quantitativeReference.flow, 1);
+		process1 = Tests.update(process1);
+
 		productSystem = ProductSystem.of(process1);
-		productSystem.processes.add(process2.id);
+		productSystem.link(process2, process1);
 		productSystem = Tests.insert(productSystem);
 	}
 
@@ -52,11 +53,11 @@ public class DQDataTest {
 	private DQSystem dqSystem() {
 		var sys = new DQSystem();
 		for (int i = 1; i <= 5; i++) {
-			DQIndicator indicator = new DQIndicator();
+			var indicator = new DQIndicator();
 			indicator.position = i;
 			sys.indicators.add(indicator);
 			for (int j = 1; j <= 5; j++) {
-				DQScore score = new DQScore();
+				var score = new DQScore();
 				score.position = j;
 				indicator.scores.add(score);
 			}
@@ -76,16 +77,20 @@ public class DQDataTest {
 	}
 
 	@Test
-	public void test() {
+	public void testLoadData() {
 		var setup = DQCalculationSetup.of(productSystem);
 		var data = DQData.load(
 				Tests.getDb(), setup, new long[]{elemFlow.id});
 		assertEquals(dqSystem.id, setup.processSystem.id);
 		assertEquals(dqSystem.id, setup.exchangeSystem.id);
+
+		// test process data
 		assertArrayEquals(new double[]{1, 2, 3, 4, 5},
 				data.processData.get(process1.id), 0);
 		assertArrayEquals(new double[]{5, 4, 3, 2, 1},
 				data.processData.get(process2.id), 0);
+
+		// test flow data
 		assertArrayEquals(new double[]{2, 1, 4, 3, 5},
 				data.exchangeData.get(LongPair.of(process1.id, elemFlow.id)), 0);
 		assertArrayEquals(new double[]{4, 5, 2, 3, 1},
@@ -93,16 +98,12 @@ public class DQDataTest {
 	}
 
 	@Test
-	public void testLoadData() {
+	public void testCalculateResult() {
 		var setup = DQCalculationSetup.of(productSystem);
 		var product1 = ProcessProduct.of(process1);
 		var product2 = ProcessProduct.of(process2);
 
-		var result = new ContributionResult(null);
-		result.techIndex = new TechIndex(product1);
-		result.techIndex.put(product2);
-		result.flowIndex = FlowIndex.create();
-		result.flowIndex.putOutput(Descriptor.of(elemFlow));
+		var result = FullResult.of(Tests.getDb(), productSystem);
 		var iFlow = result.flowIndex.at(0);
 
 		// test process data

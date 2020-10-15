@@ -15,6 +15,7 @@ import org.openlca.core.matrix.FastMatrixBuilder;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
@@ -27,6 +28,8 @@ import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.ProjectResult;
 import org.openlca.core.results.SimpleResult;
+import org.openlca.julia.Julia;
+import org.openlca.julia.JuliaSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +45,12 @@ public class SystemCalculator {
 	private final IDatabase db;
 	private final IMatrixSolver solver;
 	private LibraryDir libDir;
+
+	public SystemCalculator(IDatabase db) {
+		this(db, Julia.isLoaded()
+			? new JuliaSolver()
+			: new JavaSolver());
+	}
 
 	public SystemCalculator(IDatabase db, IMatrixSolver solver) {
 		this.db = db;

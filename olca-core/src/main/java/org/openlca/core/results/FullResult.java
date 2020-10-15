@@ -3,9 +3,13 @@ package org.openlca.core.results;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.ProcessLink;
+import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.solutions.ResultProvider;
@@ -15,6 +19,16 @@ import org.openlca.core.results.solutions.ResultProvider;
  * the upstream contributions to LCI, LCIA, and LCC results where applicable.
  */
 public class FullResult extends ContributionResult {
+
+	public static FullResult of(IDatabase db, ProductSystem system) {
+		var setup = new CalculationSetup(system);
+		return of (db, setup);
+	}
+
+	public static FullResult of(IDatabase db, CalculationSetup setup) {
+		var calculator = new SystemCalculator(db);
+		return calculator.calculateFull(setup);
+	}
 
 	public FullResult(ResultProvider solution) {
 		super(solution);
