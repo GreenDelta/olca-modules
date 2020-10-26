@@ -10,11 +10,17 @@ import org.openlca.core.matrix.solvers.IMatrixSolver;
 
 public class JuliaSolver implements IMatrixSolver {
 
+	public JuliaSolver() {
+		if (!Julia.isLoaded()) {
+			Julia.load();
+		}
+	}
+
 	@Override
 	public boolean hasSparseSupport() {
 		return Julia.hasSparseLibraries();
 	}
-	
+
 	@Override
 	public IMatrix matrix(int rows, int columns) {
 		return new DenseMatrix(rows, columns);

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.openlca.core.DataDir;
 import org.openlca.util.OS;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -57,13 +58,13 @@ public final class Julia {
 	 * are located.
 	 */
 	public static File getDefaultDir() {
-		var home = new File(System.getProperty("user.home"));
+		var root = DataDir.root();
 		var arch = System.getProperty("os.arch");
 		var os = OS.get().toString();
 		var path = Strings.join(
-				List.of(".openLCA", "native", VERSION, os, arch),
+				List.of("native", VERSION, os, arch),
 				File.separatorChar);
-		return new File(home, path);
+		return new File(root, path);
 	}
 
 	/**

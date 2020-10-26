@@ -1,7 +1,6 @@
 package org.openlca.core.database.derby;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -13,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.persistence.EntityManagerFactory;
 
 import org.eclipse.persistence.jpa.PersistenceProvider;
+import org.openlca.core.DataDir;
 import org.openlca.core.database.DatabaseException;
 import org.openlca.core.database.DbUtils;
 import org.openlca.core.database.IDatabase;
@@ -29,7 +29,7 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 
 	private static final AtomicInteger memInstances = new AtomicInteger(0);
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	private EntityManagerFactory entityFactory;
 
 	private final String name;
@@ -58,7 +58,7 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 		if (path == null) {
 			Logger log = LoggerFactory.getLogger(DerbyDatabase.class);
 			log.error("Could not find a database dump under {};"
-					+ " will create an empty DB");
+					+ " will create an empty DB", folder);
 			return createInMemory();
 		}
 		int i = memInstances.incrementAndGet();
@@ -74,6 +74,15 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 		db.url = "jdbc:derby:memory:" + db.name;
 		db.connect();
 		return db;
+	}
+
+	/**
+	 * Creates or opens a database with the given name in the default database
+	 * folder.
+	 */
+	public static DerbyDatabase fromDataDir(String name) {
+		var dbDir = new File(DataDir.databases(), name);
+		return new DerbyDatabase(dbDir);
 	}
 
 	private DerbyDatabase(String name) {
@@ -135,7 +144,7 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 	/**
 	 * Set the location where files of data that are not stored directly in the
 	 * database should be saved (e.g. external files of sources).
-	 * 
+	 *
 	 * Typically, this is only set by in-memory databases as for file based
 	 * databases it defaults to the `_olca_` folder within the database
 	 * directory.
@@ -162,7 +171,7 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void close() {
 		if (closed)
 			return;
 		log.trace("close database: {}", url);
@@ -242,7 +251,7 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 	 * Creates a backup of the database in the given folder. This is
 	 * specifically useful for creating a dump of an in-memory database. See
 	 * https://db.apache.org/derby/docs/10.0/manuals/admin/hubprnt43.html
-	 * 
+	 *
 	 * Note that the content of the folder will be overwritten if it already
 	 * exists.
 	 */
