@@ -22,6 +22,7 @@ import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.ReferenceAmount;
+import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
@@ -50,6 +51,8 @@ import org.slf4j.LoggerFactory;
  */
 public class ProcessWriter {
 
+	private final Logger log = LoggerFactory.getLogger(getClass());
+
 	private final IDatabase db;
 	private FlowMap flowMap;
 	private BufferedWriter writer;
@@ -59,6 +62,13 @@ public class ProcessWriter {
 	private final Map<Flow, Compartment> flowCompartments = new HashMap<>();
 	private final Set<Flow> inputProducts = new HashSet<>();
 	private final Set<Flow> outputProducts = new HashSet<>();
+
+	/**
+	 * Only used when we need to link product providers during the export, so
+	 * when no default providers are given in the product inputs and waste
+	 * outputs.
+	 */
+	private ProcessTable processTable;
 
 	public ProcessWriter(IDatabase db) {
 		this.db = db;
@@ -136,7 +146,6 @@ public class ProcessWriter {
 			c = compartments.computeIfAbsent(
 					e.flow.category, Compartment::of);
 			if (c == null) {
-				Logger log = LoggerFactory.getLogger(getClass());
 				log.warn("could not assign compartment to flow {};" +
 						" took default air/unspecified", e.flow);
 				c = Compartment.of(ElementaryFlowType.EMISSIONS_TO_AIR,
@@ -686,7 +695,6 @@ public class ProcessWriter {
 				}
 			}
 		}
-		Logger log = LoggerFactory.getLogger(getClass());
 		log.warn("No corresponding SimaPro unit" +
 				" for '{}' found; fall back to 'kg'", u.name);
 		units.put(u.name, SimaProUnit.kg);
@@ -707,7 +715,6 @@ public class ProcessWriter {
 			units.put(u, unit);
 			return unit.symbol;
 		}
-		Logger log = LoggerFactory.getLogger(getClass());
 		log.warn("No corresponding SimaPro unit" +
 				" for '{}' found; fall back to 'kg'", u);
 		units.put(u, SimaProUnit.kg);
@@ -720,32 +727,49 @@ public class ProcessWriter {
 		StringBuilder path = null;
 		Category c = e.category;
 		while (c != null) {
+			var name = Strings.cut(c.name, 40);
 			if (path == null) {
-				path = new StringBuilder(c.name);
+				path = new StringBuilder(name);
 			} else {
-				if (path.length() > 40)
-					break;
-				path.insert(0, c.name + '\\');
+				path.insert(0, name + '\\');
 			}
 			c = c.category;
 		}
 		return path == null
 				? "Other"
-				: Strings.cut(path.toString(), 40);
+				: path.toString();
 	}
 
 	private String productName(Process process, Flow product) {
-		var flowName = product == null || product.name == null
-				? "?"
-				: product.name.trim();
-		if (process == null
-				|| process.name == null
-				|| process.name.startsWith("Dummy: "))
+		if (product == null || product.name == null)
+			return "?";
+		var flowName = product.name.trim();
+		String processName;
+		if (process != null) {
+			processName = process.name;
+		} else {
+			// try to find a default provider if required
+			if (processTable == null) {
+				processTable = ProcessTable.create(db);
+			}
+			var providers = processTable.getProviders(product.id);
+			if (providers.isEmpty()) {
+				log.warn("no providers found for flow {}", flowName);
+				return flowName;
+			}
+			if (providers.size() > 1) {
+				log.warn("multiple providers found for flow {}", flowName);
+			}
+			processName = providers.get(0).process.name;
+		}
+
+		if (Strings.nullOrEmpty(processName)
+				|| processName.startsWith("Dummy: "))
 			return flowName;
-		var processName = process.name.trim();
+		processName = processName.trim();
 		return processName.equalsIgnoreCase(flowName)
 				? flowName
-				: processName + " - " + flowName;
+				: flowName + " - " + processName;
 	}
 
 	private FlowMapEntry mappedFlow(Flow flow) {
