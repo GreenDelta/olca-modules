@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
@@ -456,6 +457,7 @@ public class ProcessWriter {
 		if (p.documentation == null) {
 			p.documentation = new ProcessDocumentation();
 		}
+		var doc = p.documentation;
 
 		writeln("Process");
 		writeln();
@@ -509,42 +511,117 @@ public class ProcessWriter {
 				.format(new Date()));
 		writeln();
 
-		// we keep the following sections empty
-		String[] eSections = {
-				"Record",
-				"Generator",
-				"External documents",
-				"Literature references",
-		};
-		for (String s : eSections) {
-			writeln(s);
-			writeln();
+		writeln("Record");
+		writeln(doc.dataDocumentor != null
+				? doc.dataDocumentor.name
+				: "");
+		writeln();
+
+		writeln("Generator");
+		writeln(doc.dataGenerator != null
+				? doc.dataGenerator.name
+				: "");
+		writeln();
+
+		// sources
+		writeln("External documents");
+		int sourceCount = 0;
+		if (doc.publication != null) {
+			writeln(doc.publication.name, doc.publication.description);
+			sourceCount++;
+		}
+		for (var source : doc.sources) {
+			writeln(source.name, source.description);
+			sourceCount++;
+		}
+		if (sourceCount == 0) {
 			writeln();
 		}
+		writeln();
+
+		// we do not write sources as literature references as these are
+		// are stored database wide in SimaPro. there are problems when
+		// the same literature reference occurs in different SimaPro CSV
+		// files. the import then just stops. instead we import them as
+		// external docs (see above)
+		writeln("Literature references");
+		writeln();
+		writeln();
 
 		writeln("Collection method");
-		writeln(p.documentation.sampling);
+		writeln(doc.sampling);
 		writeln();
 
 		writeln("Data treatment");
-		writeln(p.documentation.dataTreatment);
+		writeln(doc.dataTreatment);
 		writeln();
 
 		writeln("Verification");
-		writeln(p.documentation.reviewDetails);
+		writeln(doc.reviewDetails);
 		writeln();
 
 		writeln("Comment");
-		writeln(p.description);
+		writeln(comment(p));
 		writeln();
 
 		writeln("Allocation rules");
-		writeln(p.documentation.inventoryMethod);
+		writeln(doc.inventoryMethod);
 		writeln();
 
 		writeln("System description");
 		writeln("", "");
 		writeln();
+	}
+
+	private String comment(Process p) {
+		var sections = new ArrayList<String>();
+		var texts = new ArrayList<String>();
+		BiConsumer<String, String> fn = (title, text) -> {
+			if (Strings.nullOrEmpty(text))
+				return;
+			sections.add(title);
+			texts.add(text);
+		};
+
+		fn.accept("Description", p.description);
+		if (p.documentation != null) {
+			var doc = p.documentation;
+			fn.accept("Time", doc.time);
+			fn.accept("Geography", doc.geography);
+			fn.accept("Technology", doc.technology);
+			fn.accept("Intended application", doc.intendedApplication);
+			if (doc.dataSetOwner != null) {
+				fn.accept("Data set owner", doc.dataSetOwner.name);
+			}
+			if (doc.publication != null) {
+				fn.accept("Publication", doc.publication.name);
+			}
+			fn.accept("Access and use restrictions", doc.restrictions);
+			fn.accept("Project", doc.project);
+			fn.accept("Copyright", doc.copyright ? "Yes" : "No");
+			fn.accept("Modeling constants", doc.modelingConstants);
+			fn.accept("Data completeness", doc.completeness);
+			fn.accept("Data selection", doc.dataSelection);
+			if (doc.reviewer != null) {
+				fn.accept("Reviewer", doc.reviewer.name);
+			}
+		}
+
+		if (texts.isEmpty())
+			return "";
+		if (texts.size() == 1)
+			return texts.get(0);
+
+		var buff = new StringBuilder();
+		for (int i = 0; i < sections.size(); i++) {
+			buff.append("# ")
+					.append(sections.get(i))
+					.append('\n')
+					.append(texts.get(i))
+					.append("\n\n");
+		}
+
+		return buff.toString();
 	}
 
 	public void writerHeader() {
@@ -798,13 +875,12 @@ public class ProcessWriter {
 		}
 	}
 
-	public static void main(String[] args) throws Exception {
-		var dbDir = "C:/Users/ms/openLCA-data-1.4/databases/_sp_exp";
-		var db = new DerbyDatabase(new File(dbDir));
+	public static void main(String[] args) {
+		var db = DerbyDatabase.fromDataDir("fuellcamodeldatabase4_5");
 		var writer = new ProcessWriter(db);
 		writer.write(
 				new ProcessDao(db).getDescriptors(),
-				new File("C:/Users/ms/Desktop/rems/spout.CSV"));
+				new File("C:/Users/Win10/Desktop/rems/spout.CSV"));
 		db.close();
 	}
 }
