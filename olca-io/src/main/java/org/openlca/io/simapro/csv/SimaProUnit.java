@@ -57,6 +57,7 @@ public enum SimaProUnit {
 	m2a("m2a", 1, "m2a", "Land use", new String[] { "m2*a" }),
 	m3("m3", 1, "m3", "Volume", null),
 	m3day("m3day", 0.0027397, "m3y", "Volume.Time", null),
+	m3km("m3km", 1.0, "m3km", "Volume.Length", new String[] {"m3*km"}),
 	m3y("m3y", 1, "m3y", "Volume.Time", new String[] { "m3*a" }),
 	mBq("mBq", 0.001, "Bq", "Radioactivity", null),
 	mg("mg", 0.000001, "kg", "Mass", null),
