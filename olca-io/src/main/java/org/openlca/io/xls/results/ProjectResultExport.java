@@ -14,7 +14,6 @@ import org.openlca.core.database.EntityCache;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
-import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.ProjectResult;
 import org.openlca.io.xls.Excel;
@@ -59,12 +58,10 @@ public class ProjectResultExport {
 		header(sheet, row, 1, "Description:");
 		Excel.cell(sheet, row++, 2, project.description);
 		header(sheet, row, 1, "LCIA Method:");
-		if (project.impactMethodId == null)
+		if (project.impactMethod == null)
 			Excel.cell(sheet, row++, 2, "none");
 		else {
-			ImpactMethodDescriptor method = cache.get(
-					ImpactMethodDescriptor.class, project.impactMethodId);
-			Excel.cell(sheet, row++, 2, method.name);
+			Excel.cell(sheet, row++, 2, project.impactMethod.name);
 		}
 		row++;
 		row = writeVariantTable(sheet, row);

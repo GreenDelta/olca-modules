@@ -3,9 +3,7 @@ package org.openlca.jsonld.input;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
-import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.NwSet;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
@@ -39,23 +37,19 @@ class ProjectImport extends BaseImport<Project> {
 	}
 
 	private void mapAtts(JsonObject json, Project p) {
-		String authorRefId = Json.getRefId(json, "author");
-		p.author = ActorImport.run(authorRefId, conf);
-		p.creationDate = Json.getDate(json, "creationDate");
-		p.functionalUnit = Json.getString(json, "functionalUnit");
-		p.goal = Json.getString(json, "goal");
-		p.lastModificationDate = Json.getDate(json, "lastModificationDate");
-		String methodRefId = Json.getRefId(json, "impactMethod");
-		ImpactMethod method = ImpactMethodImport.run(methodRefId, conf);
-		if (method == null)
+		String methodID = Json.getRefId(json, "impactMethod");
+		if (methodID == null)
 			return;
-		p.impactMethodId = method.id;
-		String nwSetRefId = Json.getRefId(json, "nwSet");
-		for (NwSet set : method.nwSets)
-			if (set.refId.equals(nwSetRefId)) {
-				p.nwSetId = set.id;
-				break;
-			}
+		p.impactMethod = ImpactMethodImport.run(methodID, conf);
+		if (p.impactMethod == null)
+			return;
+		String nwSetID = Json.getRefId(json, "nwSet");
+		if (nwSetID == null)
+			return;
+		p.nwSet = p.impactMethod.nwSets.stream()
+				.filter(nwSet -> nwSetID.equals(nwSet.refId))
+				.findAny()
+				.orElse(null);
 	}
 
 	private void mapVariants(JsonObject json, Project p) {
@@ -86,13 +80,13 @@ class ProjectImport extends BaseImport<Project> {
 			v.name = Json.getString(obj, "name");
 			v.amount = Json.getDouble(obj, "amount", 0);
 			v.allocationMethod = Json.getEnum(obj, "allocationMethod",
-			AllocationMethod.class);
+					AllocationMethod.class);
 
 			// parameter redefinitions
 			JsonArray redefs = Json.getArray(obj, "parameterRedefs");
 			if (redefs != null && redefs.size() > 0) {
 				v.parameterRedefs.addAll(
-					ParameterRedefs.read(redefs, conf));
+						ParameterRedefs.read(redefs, conf));
 			}
 
 			p.variants.add(v);
@@ -100,7 +94,7 @@ class ProjectImport extends BaseImport<Project> {
 	}
 
 	private FlowPropertyFactor findFlowPropertyFactor(String propRefId,
-			ProductSystem system) {
+													  ProductSystem system) {
 		if (system.referenceExchange == null)
 			return null;
 		Flow product = system.referenceExchange.flow;

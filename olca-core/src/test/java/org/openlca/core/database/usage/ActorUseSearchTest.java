@@ -41,22 +41,6 @@ public class ActorUseSearchTest {
 		new ActorDao(database).delete(actor);
 	}
 
-	@Test
-	public void testFindInProjects() {
-		Actor actor = createActor();
-		Project project = new Project();
-		project.name = "project";
-		project.author = actor;
-		new ProjectDao(database).insert(project);
-		List<CategorizedDescriptor> results = search.findUses(Descriptor
-				.of(actor));
-		new ProjectDao(database).delete(project);
-		new ActorDao(database).delete(actor);
-		Descriptor expected = Descriptor.of(project);
-		Assert.assertEquals(1, results.size());
-		Assert.assertEquals(expected, results.get(0));
-	}
-
 	private Actor createActor() {
 		Actor actor = new Actor();
 		actor.name = "actor";

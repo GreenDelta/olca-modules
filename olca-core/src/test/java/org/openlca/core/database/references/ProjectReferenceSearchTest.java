@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openlca.core.Tests;
-import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -33,9 +32,8 @@ public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 	protected Project createModel() {
 		Project project = new Project();
 		project.category = insertAndAddExpected("category", new Category());
-		project.author = insertAndAddExpected("author", new Actor());
-		project.impactMethodId = insertAndAddExpected("impactMethodId",
-		new ImpactMethod()).id;
+		project.impactMethod = insertAndAddExpected(
+				"impactMethodId", new ImpactMethod());
 		String n1 = generateName();
 		String n2 = generateName();
 		String n3 = generateName();
@@ -45,9 +43,9 @@ public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 		globalUnreferenced = Tests.insert(globalUnreferenced);
 		globalUnreferenced2 = Tests.insert(globalUnreferenced2);
 		project.variants.add(
-				createProjectVariant(n1, n2, n3, project.impactMethodId));
+				createProjectVariant(n1, n2, n3, project.impactMethod.id));
 		project.variants.add(
-				createProjectVariant(n1, n2, n3, project.impactMethodId));
+				createProjectVariant(n1, n2, n3, project.impactMethod.id));
 		project = Tests.insert(project);
 		for (ProjectVariant v : project.variants) {
 			addExpected("productSystem", v.productSystem, "variants", ProjectVariant.class, v.id);

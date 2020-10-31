@@ -7,8 +7,6 @@ import java.util.Map;
 
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ImpactMethodDao;
-import org.openlca.core.database.NwSetDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.FastMatrixBuilder;
@@ -20,9 +18,8 @@ import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
-import org.openlca.core.model.descriptors.NwSetDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
@@ -82,17 +79,12 @@ public class SystemCalculator {
 		if (project == null)
 			return result;
 
-		// load the LCIA method and NW set
-		ImpactMethodDescriptor method = null;
-		if (project.impactMethodId != null) {
-			ImpactMethodDao dao = new ImpactMethodDao(db);
-			method = dao.getDescriptor(project.impactMethodId);
-		}
-		NwSetDescriptor nwSet = null;
-		if (project.nwSetId != null) {
-			NwSetDao dao = new NwSetDao(db);
-			nwSet = dao.getDescriptor(project.nwSetId);
-		}
+		var method = project.impactMethod != null
+				? Descriptor.of(project.impactMethod)
+				: null;
+		var nwSet = project.nwSet != null
+				? Descriptor.of(project.nwSet)
+				: null;
 
 		// calculate the project variants
 		for (ProjectVariant v : project.variants) {

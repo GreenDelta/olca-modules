@@ -10,6 +10,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.LocationDao;
+import org.openlca.core.database.NwSetDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.RootEntityDao;
@@ -25,7 +26,9 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.NwSet;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.RootEntity;
@@ -46,9 +49,9 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
  */
 class RefSwitcher {
 
-	private Sequence seq;
-	private IDatabase source;
-	private IDatabase dest;
+	private final Sequence seq;
+	private final IDatabase source;
+	private final IDatabase dest;
 
 	RefSwitcher(IDatabase source, IDatabase dest, Sequence seq) {
 		this.source = source;
@@ -138,8 +141,17 @@ class RefSwitcher {
 				new ImpactCategoryDao(dest), srcImpact);
 	}
 
-	private <T extends RootEntity> T switchRef(int type, RootEntityDao<T, ?> dao,
-											   T srcEntity) {
+	ImpactMethod switchRef(ImpactMethod srcMethod) {
+		return switchRef(seq.IMPACT_METHOD,
+				new ImpactMethodDao(dest), srcMethod);
+	}
+
+	NwSet switchRef(NwSet srcNwSet) {
+		return switchRef(seq.NW_SET, new NwSetDao(dest), srcNwSet);
+	}
+
+	private <T extends RootEntity> T switchRef(
+			int type, RootEntityDao<T, ?> dao, T srcEntity) {
 		if (srcEntity == null)
 			return null;
 		long id = seq.get(type, srcEntity.refId);

@@ -580,11 +580,6 @@ CREATE TABLE tbl_projects (
     library      VARCHAR(255),
     description  CLOB(64 K),
 
-    creation_date          TIMESTAMP,
-    functional_unit        CLOB(64 K),
-    last_modification_date TIMESTAMP,
-    goal                   CLOB(64 K),
-    f_author               BIGINT,
     f_impact_method        BIGINT,
     f_nwset                BIGINT,
 
