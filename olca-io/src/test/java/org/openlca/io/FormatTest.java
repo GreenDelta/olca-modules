@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import java.nio.file.Files;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.ecospold.io.DataSetType;
 import org.openlca.ecospold.io.EcoSpoldIO;
@@ -16,7 +15,7 @@ public class FormatTest {
 		var file = Files.createTempFile("_olca_test", ".zolca").toFile();
 		var format = Format.detect(file).orElseThrow();
 		assertEquals(Format.ZOLCA, format);
-		assertTrue(file.delete());
+		Files.delete(file.toPath());
 	}
 
 	@Test
@@ -26,25 +25,32 @@ public class FormatTest {
 		var file = Files.createTempFile("_olca_test", ".spold").toFile();
 		var format = Format.detect(file).orElseThrow();
 		assertEquals(Format.ES2_XML, format);
-		assertTrue(file.delete());
+		Files.delete(file.toPath());
+
+		file = Files.createTempFile("_olca_test", ".spold").toFile();
 
 	}
 
 	@Test
 	public void detectES1XML() throws Exception {
-		var factory = DataSetType.PROCESS.getFactory();
-		var root = factory.createEcoSpold();
-		var ds = factory.createDataSet();
-		ds.setGenerator("openLCA tests");
-		root.getDataset().add(ds);
+		var types = new DataSetType[] {
+				DataSetType.PROCESS,
+				DataSetType.IMPACT_METHOD,
+		};
 
-		var file = Files.createTempFile("_olca_test", ".xml").toFile();
-		EcoSpoldIO.writeTo(file, root, DataSetType.PROCESS);
-		var format = Format.detect(file).orElseThrow();
-		assertEquals(Format.ES1_XML, format);
+		for (var type : types) {
+			var factory = type.getFactory();
+			var root = factory.createEcoSpold();
+			var ds = factory.createDataSet();
+			ds.setGenerator("openLCA tests");
+			root.getDataset().add(ds);
 
-
-
+			var file = Files.createTempFile("_olca_test", ".xml").toFile();
+			EcoSpoldIO.writeTo(file, root, type);
+			var format = Format.detect(file).orElseThrow();
+			assertEquals(Format.ES1_XML, format);
+			Files.delete(file.toPath());
+		}
 	}
 
 }

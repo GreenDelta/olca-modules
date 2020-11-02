@@ -11,9 +11,9 @@ public enum DataSetType {
 	IMPACT_METHOD("http://www.EcoInvent.org/EcoSpold01Impact",
 			new ImpactMethodFactory());
 
-	private String namespace;
+	private final String namespace;
 
-	private IEcoSpoldFactory factory;
+	private final IEcoSpoldFactory factory;
 
 	public IEcoSpoldFactory getFactory() {
 		return factory;

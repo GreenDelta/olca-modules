@@ -45,7 +45,7 @@ public enum Format {
 
 	/**
 	 * A zip file with JSON(-LD) files in the openLCA Schema format.
- 	 */
+	 */
 	JSON_LD_ZIP,
 
 	/**
@@ -68,7 +68,7 @@ public enum Format {
 			return Optional.empty();
 		var fileName = file.getName();
 
-		// ZOLCA
+		// *.zolca
 		if (hasExtension(fileName, ".zolca"))
 			return Optional.of(ZOLCA);
 
@@ -76,16 +76,12 @@ public enum Format {
 		if (hasExtension(fileName, ".spold"))
 			return Optional.of(ES2_XML);
 
+		// *.xml => check if the format is known
 		if (hasExtension(fileName, ".xml")) {
 			try (var stream = new FileInputStream(file);
-				var buffer = new BufferedInputStream(stream)){
-				var root = peekXmlRoot(buffer);
-				if (root == null)
-					return Optional.empty();
-
-				if (Objects.equals(root.getLocalPart(), "ecoSpold"))
-					return Optional.of(ES1_XML);
-
+				 var buffer = new BufferedInputStream(stream)) {
+				var format = fromXML(buffer);
+				return Optional.ofNullable(format);
 			} catch (Exception e) {
 				return Optional.empty();
 			}
@@ -101,7 +97,10 @@ public enum Format {
 		return name.toLowerCase().endsWith(ext.toLowerCase());
 	}
 
-	private static QName peekXmlRoot(InputStream stream) {
+	private static Format fromXML(InputStream stream) {
+
+		// read the root element
+		QName qname =null;
 		try {
 			var reader = XMLInputFactory.newInstance()
 					.createXMLStreamReader(stream);
@@ -109,12 +108,32 @@ public enum Format {
 				int next = reader.next();
 				if (next != XMLStreamReader.START_ELEMENT)
 					continue;
-				return reader.getName();
+				qname = reader.getName();
+				break;
 			}
-			return null;
 		} catch (Exception e) {
 			return null;
 		}
+
+		if (qname == null)
+			return null;
+
+		if (Objects.equals("ecoSpold", qname.getLocalPart())) {
+
+			// EcoSpold 1
+			if (Objects.equals(qname.getNamespaceURI(),
+					"http://www.EcoInvent.org/EcoSpold01")) {
+				return ES1_XML;
+			}
+			if (Objects.equals(qname.getNamespaceURI(),
+					"http://www.EcoInvent.org/EcoSpold01Impact")) {
+				return ES1_XML;
+			}
+
+
+		}
+
+		return null;
 	}
 
 }
