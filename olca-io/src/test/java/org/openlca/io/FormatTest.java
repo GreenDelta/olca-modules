@@ -140,6 +140,33 @@ public class FormatTest {
 		check(file, Format.ES1_ZIP);
 	}
 
+	@Test
+	public void testDetectSimaProCSV() throws Exception {
+		var file = Files.createTempFile("_olca_test", ".csv");
+		Files.writeString(file, "something,else");
+		var format = Format.detect(file.toFile());
+		assertTrue(format.isEmpty());
+		Files.writeString(file, "{SimaPro 0.1 internal preview}");
+		check(file.toFile(), Format.SIMAPRO_CSV);
+	}
+
+	@Test
+	public void testDetectES2ZIP() throws Exception {
+		var file = Files.createTempFile("_olca_test", ".zip").toFile();
+		try (var stream = new FileOutputStream(file);
+			 var zip = new ZipOutputStream(stream)) {
+			zip.putNextEntry(new ZipEntry("a/path/to/text.txt"));
+			zip.write("Test".getBytes());
+			zip.closeEntry();
+			zip.putNextEntry(new ZipEntry("b/path/to/es2.xml"));
+			var xml = "<?xml version='1.0' encoding='UTF-8'?>"
+					+ "<ecoSpold xmlns='http://www.EcoInvent.org/EcoSpold02'>"
+					+ "</ecoSpold>";
+			zip.write(xml.getBytes());
+		}
+		check(file, Format.ES2_ZIP);
+	}
+
 	private void check(File file, Format expected) {
 		try {
 			var detected = Format.detect(file).orElseThrow();

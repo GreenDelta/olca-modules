@@ -1,9 +1,11 @@
 package org.openlca.io;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -116,6 +118,20 @@ public enum Format {
 			}
 		}
 
+		// *.csv => check if it is SimaPro CSV
+		if (hasExtension(fileName, ".csv")) {
+			try (var stream = new FileInputStream(file);
+				 var reader = new InputStreamReader(stream);
+				 var buffer = new BufferedReader(reader)) {
+				var first = buffer.readLine();
+				return first.startsWith("{SimaPro ")
+						? Optional.of(SIMAPRO_CSV)
+						: Optional.empty();
+			} catch (Exception e) {
+				return Optional.empty();
+			}
+		}
+
 		// check *.zip files
 		if (!hasExtension(fileName, ".zip"))
 			return Optional.empty();
@@ -177,7 +193,7 @@ public enum Format {
 				var format = fromXML(stream);
 				if (format == null)
 					return false;
-				switch (format){
+				switch (format) {
 					case ES1_XML:
 						formatRef.set(ES1_ZIP);
 						return true;
@@ -202,7 +218,7 @@ public enum Format {
 	private static Format fromXML(InputStream stream) {
 
 		// read the root element
-		QName qname =null;
+		QName qname = null;
 		try {
 			var reader = XMLInputFactory.newInstance()
 					.createXMLStreamReader(stream);
@@ -252,7 +268,7 @@ public enum Format {
 	private static void scanZip(File zipFile, BiPredicate<ZipFile, ZipEntry> fn) {
 		try (var zip = new ZipFile(zipFile)) {
 			var entries = zip.entries();
-			while(entries.hasMoreElements()) {
+			while (entries.hasMoreElements()) {
 				var entry = entries.nextElement();
 				if (fn.test(zip, entry))
 					break;
