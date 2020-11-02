@@ -6,8 +6,15 @@ import java.io.File;
 import java.nio.file.Files;
 
 import org.junit.Test;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.Process;
+import org.openlca.core.model.Unit;
+import org.openlca.core.model.UnitGroup;
 import org.openlca.ecospold.io.DataSetType;
 import org.openlca.ecospold.io.EcoSpoldIO;
+import org.openlca.jsonld.ZipStore;
+import org.openlca.jsonld.output.JsonExport;
 
 public class FormatTest {
 
@@ -71,6 +78,22 @@ public class FormatTest {
 				+ "<Placemark />"
 				+ "</kml>");
 		check(file.toFile(), Format.KML);
+	}
+
+	@Test
+	public void testDetectJSONLD() throws Exception {
+		var db = Tests.getDb();
+		var units = db.insert(UnitGroup.of("Mass units", Unit.of("kg")));
+		var mass = db.insert(FlowProperty.of("Mass", units));
+		var steel = db.insert(Flow.product("Steel", mass));
+		var process = db.insert(Process.of("Steel production", steel));
+
+		var file = Files.createTempFile("_olca_test", ".zip").toFile();
+		Files.delete(file.toPath());
+		try (var zip = ZipStore.open(file)){
+			new JsonExport(db, zip).write(process);
+		}
+		check(file, Format.JSON_LD_ZIP);
 	}
 
 	private void check(File file, Format expected) {

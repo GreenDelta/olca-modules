@@ -6,6 +6,10 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiPredicate;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
@@ -104,8 +108,48 @@ public enum Format {
 			}
 		}
 
+		// check *.zip files
+		if (!hasExtension(fileName, ".zip"))
+			return Optional.empty();
+		var formatRef = new AtomicReference<Format>();
+		scanZip(file, (zip, entry) -> {
+			var entryName = entry.getName();
 
-		return Optional.empty();
+			// ES2
+			if (hasExtension(entryName, ".spold")) {
+				formatRef.set(ES2_ZIP);
+				return true;
+			}
+
+			// JSON-LD
+			if (hasExtension(entryName, ".json")) {
+				if (hasPathOneOf(entryName,
+						"actors",
+						"categories",
+						"currencies",
+						"dq_systems",
+						"flow_properties",
+						"flows",
+						"lcia_categories",
+						"lcia_methods",
+						"locations",
+						"nw_sets",
+						"parameters",
+						"processes",
+						"product_systems",
+						"projects",
+						"social_indicators",
+						"sources",
+						"unit_groups")) {
+					formatRef.set(JSON_LD_ZIP);
+					return true;
+				}
+			}
+
+			return false;
+		});
+
+		return Optional.ofNullable(formatRef.get());
 	}
 
 	private static boolean hasExtension(String name, String ext) {
@@ -160,4 +204,32 @@ public enum Format {
 		return null;
 	}
 
+	/**
+	 * Scans each entry in the given zip file until the given function returns
+	 * true.
+	 */
+	private static void scanZip(File zipFile, BiPredicate<ZipFile, ZipEntry> fn) {
+		try (var zip = new ZipFile(zipFile)) {
+			var entries = zip.entries();
+			while(entries.hasMoreElements()) {
+				var entry = entries.nextElement();
+				if (fn.test(zip, entry))
+					break;
+			}
+		} catch (Exception ignored) {
+		}
+	}
+
+	private static boolean hasPathOneOf(String path, String... parts) {
+		if (path == null)
+			return false;
+		var pathParts = path.split("[/\\\\]");
+		for (var pathPart : pathParts) {
+			for (var part : parts) {
+				if (part.equalsIgnoreCase(pathPart))
+					return true;
+			}
+		}
+		return false;
+	}
 }
