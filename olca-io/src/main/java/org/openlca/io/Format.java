@@ -10,8 +10,6 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
-import org.apache.commons.io.input.XmlStreamReader;
-
 /**
  * A set of import formats that openLCA understands and that can be determined
  * from a file.
@@ -39,6 +37,11 @@ public enum Format {
 	ES2_ZIP,
 
 	/**
+	 * A GeoJSON file.
+	 */
+	GEO_JSON,
+
+	/**
 	 * A zip file with ILCD files.
 	 */
 	ILCD_ZIP,
@@ -47,6 +50,11 @@ public enum Format {
 	 * A zip file with JSON(-LD) files in the openLCA Schema format.
 	 */
 	JSON_LD_ZIP,
+
+	/**
+	 * A KML file.
+	 */
+	KML,
 
 	/**
 	 * A SimaPro CSV file.
@@ -72,9 +80,18 @@ public enum Format {
 		if (hasExtension(fileName, ".zolca"))
 			return Optional.of(ZOLCA);
 
+		// *.geojson
+		if (hasExtension(fileName, ".geojson"))
+			return Optional.of(GEO_JSON);
+
 		// *.spold => EcoSpold 2
 		if (hasExtension(fileName, ".spold"))
 			return Optional.of(ES2_XML);
+
+		// *.kml
+		if (hasExtension(fileName, ".kml"))
+			return Optional.of(KML);
+
 
 		// *.xml => check if the format is known
 		if (hasExtension(fileName, ".xml")) {
@@ -130,8 +147,15 @@ public enum Format {
 				return ES1_XML;
 			}
 
-
+			// EcoSpold 2
+			if (Objects.equals(qname.getNamespaceURI(),
+					"http://www.EcoInvent.org/EcoSpold02")) {
+				return ES2_XML;
+			}
 		}
+
+		if (Objects.equals("kml", qname.getLocalPart()))
+			return KML;
 
 		return null;
 	}
