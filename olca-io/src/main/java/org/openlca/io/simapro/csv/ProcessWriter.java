@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.ReferenceAmount;
 import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.AllocationMethod;
@@ -897,14 +896,5 @@ public class ProcessWriter {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	public static void main(String[] args) {
-		var db = DerbyDatabase.fromDataDir("fuellcamodeldatabase4_5");
-		var writer = new ProcessWriter(db);
-		writer.write(
-				new ProcessDao(db).getDescriptors(),
-				new File("C:/Users/Win10/Desktop/rems/spout.CSV"));
-		db.close();
 	}
 }

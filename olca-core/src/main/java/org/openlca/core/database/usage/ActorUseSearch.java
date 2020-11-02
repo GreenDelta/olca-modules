@@ -22,7 +22,6 @@ public class ActorUseSearch extends BaseUseSearch<ActorDescriptor> {
 	@Override
 	public List<CategorizedDescriptor> findUses(Set<Long> ids) {
 		List<CategorizedDescriptor> results = new ArrayList<>();
-		results.addAll(queryFor(ModelType.PROJECT, ids, "f_author"));
 		results.addAll(queryFor(ModelType.IMPACT_METHOD, ids, "f_author"));
 		results.addAll(queryFor(ModelType.IMPACT_METHOD, ids, "f_generator"));
 		Set<Long> processDocIds = queryForIds("id", "tbl_process_docs", ids,
