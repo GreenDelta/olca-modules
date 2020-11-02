@@ -3,7 +3,10 @@ package org.openlca.io;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.nio.file.Files;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.junit.Test;
 import org.openlca.core.model.Flow;
@@ -118,6 +121,23 @@ public class FormatTest {
 		}
 		check(file, Format.ILCD_ZIP);
 		Tests.clearDb();
+	}
+
+	@Test
+	public void testDetectES1ZIP() throws Exception {
+		var file = Files.createTempFile("_olca_test", ".zip").toFile();
+		try (var stream = new FileOutputStream(file);
+			 var zip = new ZipOutputStream(stream)) {
+			zip.putNextEntry(new ZipEntry("a/path/to/text.txt"));
+			zip.write("Test".getBytes());
+			zip.closeEntry();
+			zip.putNextEntry(new ZipEntry("b/path/to/es1.xml"));
+			var xml = "<?xml version='1.0' encoding='UTF-8'?>"
+					+ "<ecoSpold xmlns='http://www.EcoInvent.org/EcoSpold01'>"
+					+ "</ecoSpold>";
+			zip.write(xml.getBytes());
+		}
+		check(file, Format.ES1_ZIP);
 	}
 
 	private void check(File file, Format expected) {

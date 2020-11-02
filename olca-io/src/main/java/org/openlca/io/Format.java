@@ -172,6 +172,21 @@ public enum Format {
 				return true;
 			}
 
+			// parse XML files in zip
+			try (var stream = zip.getInputStream(entry)) {
+				var format = fromXML(stream);
+				if (format == null)
+					return false;
+				switch (format){
+					case ES1_XML:
+						formatRef.set(ES1_ZIP);
+						return true;
+					case ES2_XML:
+						formatRef.set(ES2_ZIP);
+						return true;
+				}
+			} catch (Exception ignored) {
+			}
 			return false;
 		});
 
