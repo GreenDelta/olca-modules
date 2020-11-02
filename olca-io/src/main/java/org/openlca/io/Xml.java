@@ -16,29 +16,23 @@ public final class Xml {
 	 * initialization is terribly slow. see: https://stackoverflow.com/q/7346508
 	 */
 	public static DatatypeFactory datatypeFactory;
-	static {
-		try {
-			datatypeFactory = DatatypeFactory.newInstance();
-		} catch (Exception e) {
-			throw new RuntimeException("Could not init DatatypeFactory", e);
-		}
-	}
 
 	public static XMLGregorianCalendar calendar(long time) {
 		return calendar(new Date(time));
 	}
 
 	public static XMLGregorianCalendar calendar(Date date) {
-		Date _date = date == null ? new Date() : date;
-		GregorianCalendar gCal = new GregorianCalendar();
-		gCal.setTime(_date);
+		var cal = new GregorianCalendar();
+		cal.setTime(date == null ? new Date() : date);
 		try {
-			return datatypeFactory.newXMLGregorianCalendar(gCal);
+			if (datatypeFactory == null) {
+				datatypeFactory = DatatypeFactory.newInstance();
+			}
+			return datatypeFactory.newXMLGregorianCalendar(cal);
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(Xml.class);
 			log.warn("Could not create XML Gregorian Calender", e);
 			return null;
 		}
 	}
-
 }

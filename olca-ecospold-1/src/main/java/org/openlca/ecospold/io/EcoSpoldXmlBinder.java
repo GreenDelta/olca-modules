@@ -14,15 +14,15 @@ import org.openlca.ecospold.IEcoSpold;
 
 public abstract class EcoSpoldXmlBinder<T extends IEcoSpold> {
 
-	private HashMap<Class<?>, Marshaller> marshallers = new HashMap<>();
-	private HashMap<Class<?>, Unmarshaller> unmarshallers = new HashMap<>();
+	private final HashMap<Class<?>, Marshaller> marshallers = new HashMap<>();
+	private final HashMap<Class<?>, Unmarshaller> unmarshallers = new HashMap<>();
 
 	protected EcoSpoldXmlBinder() {
 
 	}
 
-	private Marshaller createMarshaller(Object ilcdObject) throws JAXBException {
-		JAXBContext context = JAXBContext.newInstance(ilcdObject.getClass());
+	private Marshaller createMarshaller(Object object) throws JAXBException {
+		JAXBContext context = JAXBContext.newInstance(object.getClass());
 		Marshaller marshaller = context.createMarshaller();
 		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 		return marshaller;
@@ -31,8 +31,7 @@ public abstract class EcoSpoldXmlBinder<T extends IEcoSpold> {
 	private Unmarshaller createUnmarshaller(Class<?> clazz)
 			throws JAXBException {
 		JAXBContext context = JAXBContext.newInstance(clazz);
-		Unmarshaller unmarshaller = context.createUnmarshaller();
-		return unmarshaller;
+		return context.createUnmarshaller();
 	}
 
 	private Marshaller getMarshaller(Object object) throws JAXBException {

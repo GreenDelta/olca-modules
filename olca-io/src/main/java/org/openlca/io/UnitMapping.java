@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  */
 public class UnitMapping {
 
-	private HashMap<String, UnitMappingEntry> entries = new HashMap<>();
+	private final HashMap<String, UnitMappingEntry> entries = new HashMap<>();
 
 	/**
 	 * Creates a default mapping for the unit names in the database.
@@ -104,7 +104,7 @@ public class UnitMapping {
 	}
 
 	public String[] getUnits() {
-		return entries.keySet().toArray(new String[entries.size()]);
+		return entries.keySet().toArray(new String[0]);
 	}
 
 	public void put(String unitName, UnitMappingEntry entry) {

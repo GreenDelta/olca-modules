@@ -115,10 +115,6 @@ public class DataSet {
 		return processInformation;
 	}
 
-	IDataSet getDataSet() {
-		return dataSet;
-	}
-
 	public IDataEntryBy getDataEntryBy() {
 		IDataEntryBy dataEntryBy = null;
 		if (getAdministrativeInformation() != null) {
