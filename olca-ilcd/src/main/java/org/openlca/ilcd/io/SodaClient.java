@@ -3,7 +3,6 @@ package org.openlca.ilcd.io;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -38,14 +37,13 @@ import com.sun.jersey.multipart.FormDataMultiPart;
  */
 public class SodaClient implements DataStore {
 
-	private Logger log = LoggerFactory.getLogger(this.getClass());
-
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private final SodaConnection con;
+	private final List<Cookie> cookies = new ArrayList<>();
+	private final XmlBinder binder = new XmlBinder();
 
 	private Client client;
-	private List<Cookie> cookies = new ArrayList<>();
 	private boolean isConnected = false;
-	private XmlBinder binder = new XmlBinder();
 
 	public SodaClient(SodaConnection con) {
 		this.con = con;
@@ -81,8 +79,7 @@ public class SodaClient implements DataStore {
 		WebResource r = resource("authenticate", "status");
 		ClientResponse response = cookies(r).get(ClientResponse.class);
 		eval(response);
-		AuthInfo authInfo = response.getEntity(AuthInfo.class);
-		return authInfo;
+		return response.getEntity(AuthInfo.class);
 	}
 
 	public DataStockList getDataStockList() {
@@ -241,8 +238,7 @@ public class SodaClient implements DataStore {
 			r = r.queryParam("search", "true")
 					.queryParam("name", term);
 			log.trace("Search resources: {}", r.getURI());
-			DescriptorList list = cookies(r).get(DescriptorList.class);
-			return list;
+			return cookies(r).get(DescriptorList.class);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -257,7 +253,7 @@ public class SodaClient implements DataStore {
 					: resource("datastocks", con.dataStockId, Dir.get(type));
 			r = r.queryParam("pageSize", "1000");
 			List<Descriptor> list = new ArrayList<>();
-			int total = 0;
+			int total;
 			int idx = 0;
 			do {
 				log.debug("get descriptors for {} @startIndex={}", type, idx);
@@ -316,8 +312,7 @@ public class SodaClient implements DataStore {
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void close() {
 		client.destroy();
 	}
-
 }

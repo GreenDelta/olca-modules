@@ -13,6 +13,8 @@ import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.ecospold.io.DataSetType;
 import org.openlca.ecospold.io.EcoSpoldIO;
+import org.openlca.io.ilcd.ILCDExport;
+import org.openlca.io.ilcd.output.ExportConfig;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.output.JsonExport;
 
@@ -26,6 +28,7 @@ public class FormatTest {
 				".spold",
 				".geojson",
 				".kml",
+				".xlsx",
 		};
 
 		var formats = new Format[]{
@@ -33,6 +36,7 @@ public class FormatTest {
 				Format.ES2_XML,
 				Format.GEO_JSON,
 				Format.KML,
+				Format.EXCEL,
 		};
 
 		for (int i = 0; i < extensions.length; i++) {
@@ -74,9 +78,9 @@ public class FormatTest {
 		var file = Files.createTempFile("_olca_test", ".xml");
 		Files.writeString(file,
 				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-				+ "<kml xmlns=\"http://www.opengis.net/kml/2.2\">"
-				+ "<Placemark />"
-				+ "</kml>");
+						+ "<kml xmlns=\"http://www.opengis.net/kml/2.2\">"
+						+ "<Placemark />"
+						+ "</kml>");
 		check(file.toFile(), Format.KML);
 	}
 
@@ -90,10 +94,30 @@ public class FormatTest {
 
 		var file = Files.createTempFile("_olca_test", ".zip").toFile();
 		Files.delete(file.toPath());
-		try (var zip = ZipStore.open(file)){
+		try (var zip = ZipStore.open(file)) {
 			new JsonExport(db, zip).write(process);
 		}
 		check(file, Format.JSON_LD_ZIP);
+		Tests.clearDb();
+	}
+
+	@Test
+	public void testDetectILCD() throws Exception {
+		var db = Tests.getDb();
+		var units = db.insert(UnitGroup.of("Mass units", Unit.of("kg")));
+		var mass = db.insert(FlowProperty.of("Mass", units));
+		var steel = db.insert(Flow.product("Steel", mass));
+		var process = db.insert(Process.of("Steel production", steel));
+
+		var file = Files.createTempFile("_olca_test", ".zip").toFile();
+		Files.delete(file.toPath());
+		try (var zip = new org.openlca.ilcd.io.ZipStore(file)) {
+			var export = new ILCDExport(new ExportConfig(db, zip));
+			export.export(process);
+			export.close();
+		}
+		check(file, Format.ILCD_ZIP);
+		Tests.clearDb();
 	}
 
 	private void check(File file, Format expected) {
@@ -105,5 +129,4 @@ public class FormatTest {
 			throw new RuntimeException(e);
 		}
 	}
-
 }

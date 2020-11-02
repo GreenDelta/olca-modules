@@ -41,6 +41,11 @@ public enum Format {
 	ES2_ZIP,
 
 	/**
+	 * An Excel file with openLCA data sets.
+	 */
+	EXCEL,
+
+	/**
 	 * A GeoJSON file.
 	 */
 	GEO_JSON,
@@ -96,6 +101,9 @@ public enum Format {
 		if (hasExtension(fileName, ".kml"))
 			return Optional.of(KML);
 
+		// *.xlsx
+		if (hasExtension(fileName, ".xlsx"))
+			return Optional.of(EXCEL);
 
 		// *.xml => check if the format is known
 		if (hasExtension(fileName, ".xml")) {
@@ -144,6 +152,24 @@ public enum Format {
 					formatRef.set(JSON_LD_ZIP);
 					return true;
 				}
+			}
+
+			if (!hasExtension(entryName, ".xml"))
+				return false;
+
+			// XML files in the ILCD package Layout
+			if (hasPathOneOf(entryName,
+					"ILCD",
+					"contacts",
+					"flowproperties",
+					"flows",
+					"lciamethods",
+					"lifecyclemodels",
+					"processes",
+					"sources",
+					"unitgroups")) {
+				formatRef.set(ILCD_ZIP);
+				return true;
 			}
 
 			return false;
