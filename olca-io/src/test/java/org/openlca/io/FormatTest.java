@@ -1,5 +1,7 @@
 package org.openlca.io;
 
+import static org.junit.Assert.*;
+
 import java.nio.file.Files;
 
 import org.junit.Assert;
@@ -13,8 +15,19 @@ public class FormatTest {
 	public void testDetectZOLCA() throws Exception {
 		var file = Files.createTempFile("_olca_test", ".zolca").toFile();
 		var format = Format.detect(file).orElseThrow();
-		Assert.assertEquals(Format.ZOLCA, format);
-		Assert.assertTrue(file.delete());
+		assertEquals(Format.ZOLCA, format);
+		assertTrue(file.delete());
+	}
+
+	@Test
+	public void testDetectES2XML() throws Exception {
+
+		// it should recognise a *.spold file without checking the content
+		var file = Files.createTempFile("_olca_test", ".spold").toFile();
+		var format = Format.detect(file).orElseThrow();
+		assertEquals(Format.ES2_XML, format);
+		assertTrue(file.delete());
+
 	}
 
 	@Test
@@ -27,6 +40,8 @@ public class FormatTest {
 
 		var file = Files.createTempFile("_olca_test", ".xml").toFile();
 		EcoSpoldIO.writeTo(file, root, DataSetType.PROCESS);
+		var format = Format.detect(file).orElseThrow();
+		assertEquals(Format.ES1_XML, format);
 
 
 
