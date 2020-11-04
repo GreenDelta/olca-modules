@@ -23,9 +23,9 @@ public class RepositoryConfig {
 	private final static Logger log = LoggerFactory.getLogger(RepositoryConfig.class);
 	public static final String DIR = "cloud";
 	private static final String PROPERTIES_FILE = "config.json";
-	public final IDatabase database;
+	public IDatabase database;
 	public final String baseUrl;
-	public final String repositoryId;
+	public String repositoryId;
 	public CredentialSupplier credentials;
 	private final String id;
 	private boolean active;

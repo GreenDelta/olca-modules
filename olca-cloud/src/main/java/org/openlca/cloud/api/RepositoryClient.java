@@ -16,6 +16,7 @@ import org.openlca.cloud.model.Comments;
 import org.openlca.cloud.model.LibraryRestriction;
 import org.openlca.cloud.model.data.Commit;
 import org.openlca.cloud.model.data.Dataset;
+import org.openlca.cloud.model.data.DatasetEntry;
 import org.openlca.cloud.model.data.FetchRequestData;
 import org.openlca.cloud.model.data.FileReference;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
@@ -24,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
+import com.greendelta.search.wrapper.SearchResult;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 public class RepositoryClient {
@@ -269,6 +271,20 @@ public class RepositoryClient {
 		if (result == null)
 			return new HashSet<>();
 		return result;
+	}
+
+	public SearchResult<DatasetEntry> search(String query, int page, int pageSize, ModelType type) throws WebRequestException {
+		return executeLoggedIn(() -> {
+			SearchInvocation invocation = new SearchInvocation();
+			invocation.baseUrl = config.baseUrl;
+			invocation.sessionId = sessionId;
+			invocation.query = query;
+			invocation.page = page;
+			invocation.pageSize = pageSize;
+			invocation.type = type;
+			invocation.repositoryId = getConfig().repositoryId;
+			return invocation.execute();
+		});
 	}
 
 	public File downloadJson(Set<FileReference> requestData) throws WebRequestException {

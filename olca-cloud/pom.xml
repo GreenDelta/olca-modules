@@ -52,6 +52,12 @@
 			<artifactId>olca-jsonld</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>com.greendelta.search</groupId>
+			<artifactId>search-wrapper</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 
 	</dependencies>
 
