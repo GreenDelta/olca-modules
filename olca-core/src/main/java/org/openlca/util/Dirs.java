@@ -32,10 +32,8 @@ public final class Dirs {
 			return false;
 		if (!Files.isDirectory(path) || !Files.exists(path))
 			return false;
-		try {
-			return !Files.newDirectoryStream(path)
-					.iterator()
-					.hasNext();
+		try (var stream = Files.newDirectoryStream(path)){
+			return !stream.iterator().hasNext();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -156,6 +154,7 @@ public final class Dirs {
 
 		private long size;
 
+		@Override
 		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
 			size += attrs.size();
 			return FileVisitResult.CONTINUE;

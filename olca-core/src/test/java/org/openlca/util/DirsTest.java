@@ -33,6 +33,7 @@ public class DirsTest {
 	@Test
 	public void testDelete() throws Exception {
 		var dir = Files.createTempDirectory("_olca_tests").toFile();
+		Assert.assertTrue(Dirs.isEmpty(dir));
 		var file = new File(dir, "test.txt");
 		Files.writeString(file.toPath(), "a test");
 		Dirs.delete(dir);
