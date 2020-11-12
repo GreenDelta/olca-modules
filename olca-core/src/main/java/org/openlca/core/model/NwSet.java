@@ -27,10 +27,16 @@ public class NwSet extends RootEntity {
 	@Column(name = "weighted_score_unit")
 	public String weightedScoreUnit;
 
+	public static NwSet of(String name) {
+		var nwSet = new NwSet();
+		Entities.init(nwSet, name);
+		return nwSet;
+	}
+
 	@Override
 	public NwSet clone() {
-		NwSet clone = new NwSet();
-		Util.copyRootFields(this, clone);
+		var clone = new NwSet();
+		Entities.copyRootFields(this, clone);
 		clone.weightedScoreUnit = weightedScoreUnit;
 		for (NwFactor factor : factors) {
 			clone.factors.add(factor.clone());

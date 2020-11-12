@@ -2,7 +2,6 @@ package org.openlca.core.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -28,8 +27,7 @@ public class ImpactCategory extends ParameterizedEntity {
 
 	public static ImpactCategory of(String name, String refUnit) {
 		var impact = new ImpactCategory();
-		impact.refId = UUID.randomUUID().toString();
-		impact.name = name;
+		Entities.init(impact, name);
 		impact.referenceUnit = refUnit;
 		return impact;
 	}
@@ -37,7 +35,7 @@ public class ImpactCategory extends ParameterizedEntity {
 	@Override
 	public ImpactCategory clone() {
 		var clone = new ImpactCategory();
-		Util.copyFields(this, clone);
+		Entities.copyFields(this, clone);
 		clone.referenceUnit = referenceUnit;
 		for (ImpactFactor f : impactFactors) {
 			clone.impactFactors.add(f.clone());

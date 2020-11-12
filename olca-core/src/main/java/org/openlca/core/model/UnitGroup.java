@@ -37,13 +37,16 @@ public class UnitGroup extends CategorizedEntity {
 	@JoinColumn(name = "f_unit_group")
 	public final List<Unit> units = new ArrayList<>();
 
+	public static UnitGroup of(String name, String refUnit) {
+		return of(name, Unit.of(refUnit));
+	}
+
 	/**
 	 * Creates a new unit group with the given name and reference unit.
 	 */
 	public static UnitGroup of(String name, Unit refUnit) {
 		var group = new UnitGroup();
-		group.name = name;
-		group.refId = UUID.randomUUID().toString();
+		Entities.init(group, name);
 		group.units.add(refUnit);
 		group.referenceUnit = refUnit;
 		return group;
@@ -52,7 +55,7 @@ public class UnitGroup extends CategorizedEntity {
 	@Override
 	public UnitGroup clone() {
 		var clone = new UnitGroup();
-		Util.copyFields(this, clone);
+		Entities.copyFields(this, clone);
 		clone.defaultFlowProperty = defaultFlowProperty;
 		for (Unit unit : units) {
 			Unit copy = unit.clone();

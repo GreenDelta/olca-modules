@@ -76,8 +76,7 @@ public class Process extends ParameterizedEntity {
 
 	public static Process of(String name, Flow refFlow) {
 		var process = new Process();
-		process.name = name;
-		process.refId = UUID.randomUUID().toString();
+		Entities.init(process, name);
 		process.quantitativeReference = refFlow.flowType == FlowType.WASTE_FLOW
 				? process.input(refFlow, 1.0)
 				: process.output(refFlow, 1.0);

@@ -21,8 +21,7 @@ public class Unit extends RootEntity {
 	 */
 	public static Unit of(String name) {
 		var unit = new Unit();
-		unit.name = name;
-		unit.refId = UUID.randomUUID().toString();
+		Entities.init(unit, name);
 		unit.conversionFactor = 1.0;
 		return unit;
 	}
@@ -39,7 +38,7 @@ public class Unit extends RootEntity {
 	@Override
 	public Unit clone() {
 		var unit = new Unit();
-		Util.copyRootFields(this, unit);
+		Entities.copyRootFields(this, unit);
 		unit.conversionFactor = conversionFactor;
 		unit.synonyms = synonyms;
 		return unit;

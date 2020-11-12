@@ -5,9 +5,20 @@ import java.util.UUID;
 /**
  * A package private utility class for openLCA models.
  */
-class Util {
+class Entities {
 
-	private Util() {
+	private Entities() {
+	}
+
+	/**
+	 * Initializes the basic fields (ID, name, etc.) for the given entity.
+	 */
+	static void init(RootEntity entity, String name) {
+		if (entity == null)
+			return;
+		entity.refId = UUID.randomUUID().toString();
+		entity.name = name;
+		entity.lastChange = System.currentTimeMillis();
 	}
 
 	static void copyRootFields(RootEntity from, RootEntity to) {

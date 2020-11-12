@@ -26,7 +26,7 @@ public class Flow extends CategorizedEntity {
 	@Column(name = "cas_number")
 	public String casNumber;
 
-	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
+	@OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
 	@JoinColumn(name = "f_flow")
 	public final List<FlowPropertyFactor> flowPropertyFactors = new ArrayList<>();
 
@@ -61,8 +61,7 @@ public class Flow extends CategorizedEntity {
 
 	public static Flow of(String name, FlowType type, FlowProperty property) {
 		var flow = new Flow();
-		flow.name = name;
-		flow.refId = UUID.randomUUID().toString();
+		Entities.init(flow, name);
 		flow.flowType = type;
 		flow.referenceFlowProperty = property;
 		var factor = new FlowPropertyFactor();
@@ -75,7 +74,7 @@ public class Flow extends CategorizedEntity {
 	@Override
 	public Flow clone() {
 		var clone = new Flow();
-		Util.copyFields(this, clone);
+		Entities.copyFields(this, clone);
 		clone.flowType = flowType;
 		clone.casNumber = casNumber;
 		clone.formula = formula;
@@ -119,11 +118,9 @@ public class Flow extends CategorizedEntity {
 	 * In openLCA, results of a flow are always calculated in its reference unit.
 	 */
 	public Unit getReferenceUnit() {
-		if (referenceFlowProperty == null)
-			return null;
-		if (referenceFlowProperty.unitGroup == null)
-			return null;
-		return referenceFlowProperty.unitGroup.referenceUnit;
+		return referenceFlowProperty == null
+				? null
+				: referenceFlowProperty.getReferenceUnit();
 	}
 
 	/**

@@ -58,10 +58,16 @@ public class DQSystem extends CategorizedEntity {
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 	public final List<DQIndicator> indicators = new ArrayList<>();
 
+	public static DQSystem of(String name) {
+		var dqs = new DQSystem();
+		Entities.init(dqs, name);
+		return dqs;
+	}
+
 	@Override
 	public DQSystem clone() {
 		var clone = new DQSystem();
-		Util.copyFields(this, clone);
+		Entities.copyFields(this, clone);
 		clone.hasUncertainties = hasUncertainties;
 		for (DQIndicator indicator : indicators) {
 			clone.indicators.add(indicator.clone());

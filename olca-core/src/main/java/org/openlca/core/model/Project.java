@@ -26,10 +26,16 @@ public class Project extends CategorizedEntity {
 	@JoinColumn(name = "f_nwset")
 	public NwSet nwSet;
 
+	public static Project of(String name) {
+		var project = new Project();
+		Entities.init(project, name);
+		return project;
+	}
+
 	@Override
 	public Project clone() {
 		var clone = new Project();
-		Util.copyFields(this, clone);
+		Entities.copyFields(this, clone);
 		for (var variant : variants) {
 			clone.variants.add(variant.clone());
 		}

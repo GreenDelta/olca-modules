@@ -35,10 +35,16 @@ public class Actor extends CategorizedEntity {
 	@Column(name = "zip_code")
 	public String zipCode;
 
+	public static Actor of(String name) {
+		var actor = new Actor();
+		Entities.init(actor, name);
+		return actor;
+	}
+
 	@Override
 	public Actor clone() {
 		var clone = new Actor();
-		Util.copyFields(this, clone);
+		Entities.copyFields(this, clone);
 		clone.address = address;
 		clone.city = city;
 		clone.country = country;

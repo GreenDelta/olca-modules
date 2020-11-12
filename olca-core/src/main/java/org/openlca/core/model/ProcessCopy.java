@@ -6,7 +6,7 @@ class ProcessCopy {
 
 	public Process create(Process origin) {
 		Process copy = new Process();
-		Util.copyFields(origin, copy);
+		Entities.copyFields(origin, copy);
 		copyFields(origin, copy);
 		copyParameters(origin, copy);
 		copyExchanges(origin, copy);

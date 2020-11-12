@@ -84,7 +84,7 @@ public class Parameter extends CategorizedEntity {
 	@Override
 	public Parameter clone() {
 		var clone = new Parameter();
-		Util.copyFields(this, clone);
+		Entities.copyFields(this, clone);
 		clone.formula = formula;
 		clone.isInputParameter = isInputParameter;
 		clone.scope = scope;

@@ -48,6 +48,32 @@ public class ParameterRedef extends AbstractEntity {
 	@Embedded
 	public Uncertainty uncertainty;
 
+	public static ParameterRedef of(Parameter param) {
+		return of(param, null);
+	}
+
+	public static ParameterRedef of(Parameter param, ParameterizedEntity owner) {
+		var redef = new ParameterRedef();
+		if (param != null) {
+			redef.name = param.name;
+			redef.value = param.value;
+			redef.uncertainty = param.uncertainty;
+			redef.description = param.description;
+		}
+		if (owner != null) {
+			redef.contextId = owner.id;
+			redef.contextType = ModelType.forModelClass(owner.getClass());
+		}
+		return redef;
+	}
+
+	public static ParameterRedef of(String name) {
+		var redef = new ParameterRedef();
+		redef.name = name;
+		redef.value = 1.0;
+		return redef;
+	}
+
 	@Override
 	public ParameterRedef clone() {
 		var clone = new ParameterRedef();

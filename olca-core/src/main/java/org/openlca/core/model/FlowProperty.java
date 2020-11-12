@@ -24,17 +24,22 @@ public class FlowProperty extends CategorizedEntity {
 
 	public static FlowProperty of(String name, UnitGroup unitGroup) {
 		var prop = new FlowProperty();
-		prop.name = name;
-		prop.refId = UUID.randomUUID().toString();
+		Entities.init(prop, name);
 		prop.flowPropertyType = FlowPropertyType.PHYSICAL;
 		prop.unitGroup = unitGroup;
 		return prop;
 	}
 
+	public Unit getReferenceUnit() {
+		return unitGroup == null
+				? null
+				: unitGroup.referenceUnit;
+	}
+
 	@Override
 	public FlowProperty clone() {
 		var clone = new FlowProperty();
-		Util.copyFields(this, clone);
+		Entities.copyFields(this, clone);
 		clone.unitGroup = unitGroup;
 		clone.flowPropertyType = flowPropertyType;
 		return clone;

@@ -69,7 +69,7 @@ public class ProductSystem extends CategorizedEntity {
 	@ElementCollection
 	@Column(name = "f_process")
 	@CollectionTable(name = "tbl_product_system_processes", joinColumns = {
-			@JoinColumn(name = "f_product_system") })
+			@JoinColumn(name = "f_product_system")})
 	public final Set<Long> processes = new HashSet<>();
 
 	@Column
@@ -80,8 +80,12 @@ public class ProductSystem extends CategorizedEntity {
 	public final List<Exchange> inventory = new ArrayList<>();
 
 	@JoinColumn(name = "f_product_system")
-	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
+	@OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
 	public final List<ParameterRedefSet> parameterSets = new ArrayList<>();
+
+	public static ProductSystem of(Process p) {
+		return of(p.name, p);
+	}
 
 	/**
 	 * Initializes a product system from the given process. Note that this
@@ -89,10 +93,9 @@ public class ProductSystem extends CategorizedEntity {
 	 * quantitative reference of the system from the quantitative reference of
 	 * the given process which needs to be a product output or waste input.
 	 */
-	public static ProductSystem of(Process p) {
+	public static ProductSystem of(String name, Process p) {
 		var system = new ProductSystem();
-		system.refId = UUID.randomUUID().toString();
-		system.name = p.name;
+		Entities.init(system, name);
 		system.processes.add(p.id);
 		system.referenceProcess = p;
 		var qRef = p.quantitativeReference;
@@ -144,7 +147,7 @@ public class ProductSystem extends CategorizedEntity {
 	@Override
 	public ProductSystem clone() {
 		var clone = new ProductSystem();
-		Util.copyFields(this, clone);
+		Entities.copyFields(this, clone);
 		clone.referenceExchange = referenceExchange;
 		clone.referenceProcess = referenceProcess;
 		clone.targetAmount = targetAmount;

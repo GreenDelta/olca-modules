@@ -44,7 +44,7 @@ public class SocialAspect extends AbstractEntity {
 
 	@Override
 	public SocialAspect clone() {
-		SocialAspect clone = new SocialAspect();
+		var clone = new SocialAspect();
 		clone.indicator = indicator;
 		clone.activityValue = activityValue;
 		clone.rawAmount = rawAmount;

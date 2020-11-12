@@ -29,7 +29,7 @@ class Exchanges {
 	}
 
 	private static void mapRefs(Exchange e, JsonObject obj, ExportConfig conf) {
-		Long pId = e.defaultProviderId;
+		long pId = e.defaultProviderId;
 		JsonObject p = null;
 		if (conf.exportProviders)
 			p = References.create(ModelType.PROCESS, pId, conf, false);

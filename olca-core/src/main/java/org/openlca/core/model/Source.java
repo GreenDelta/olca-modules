@@ -22,10 +22,16 @@ public class Source extends CategorizedEntity {
 	@Column(name = "external_file")
 	public String externalFile;
 
+	public static Source of(String name) {
+		var source = new Source();
+		Entities.init(source, name);
+		return source;
+	}
+
 	@Override
 	public Source clone() {
 		var clone = new Source();
-		Util.copyFields(this, clone);
+		Entities.copyFields(this, clone);
 		clone.url = url;
 		clone.textReference = textReference;
 		clone.year = year;

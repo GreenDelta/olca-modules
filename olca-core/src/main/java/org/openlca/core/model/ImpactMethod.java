@@ -46,10 +46,16 @@ public class ImpactMethod extends CategorizedEntity {
 					@JoinColumn(name = "f_source") })
 	public final List<Source> sources = new ArrayList<>();
 
+	public static ImpactMethod of(String name) {
+		var method = new ImpactMethod();
+		Entities.init(method, name);
+		return method;
+	}
+
 	@Override
 	public ImpactMethod clone() {
 		var clone = new ImpactMethod();
-		Util.copyFields(this, clone);
+		Entities.copyFields(this, clone);
 		clone.impactCategories.addAll(impactCategories);
 		clone.author = author;
 		clone.generator = generator;

@@ -20,10 +20,16 @@ public class Currency extends CategorizedEntity {
 	@JoinColumn(name = "f_reference_currency")
 	public Currency referenceCurrency;
 
+	public static Currency of(String name) {
+		var currency = new Currency();
+		Entities.init(currency, name);
+		return currency;
+	}
+
 	@Override
 	public Currency clone() {
 		var clone = new Currency();
-		Util.copyFields(this, clone);
+		Entities.copyFields(this, clone);
 		clone.code = code;
 		clone.conversionFactor = conversionFactor;
 		clone.referenceCurrency = referenceCurrency;
