@@ -35,7 +35,7 @@ import org.openlca.ecospold.IReferenceFunction;
 import org.openlca.ecospold.ISource;
 import org.openlca.ecospold.io.DataSet;
 import org.openlca.ecospold.io.DataSetType;
-import org.openlca.ecospold.io.EcoSpoldIO;
+import org.openlca.ecospold.io.EcoSpold;
 import org.openlca.io.FileImport;
 import org.openlca.io.ImportEvent;
 import org.openlca.io.ImportInfo;
@@ -117,7 +117,7 @@ public class EcoSpold01Import implements FileImport {
 	}
 
 	private void importXml(File file) {
-		var type = EcoSpoldIO.getType(file);
+		var type = EcoSpold.typeOf(file);
 		if (type.isEmpty()) {
 			log.warn("could not detect ecoSpold type of {}", file);
 			return;
@@ -141,7 +141,7 @@ public class EcoSpold01Import implements FileImport {
 				if (!name.endsWith(".xml"))
 					continue;
 				fireEvent(name);
-				var type = EcoSpoldIO.getType(zip.getInputStream(entry));
+				var type = EcoSpold.typeOf(zip.getInputStream(entry));
 				if (type.isEmpty())
 					continue;
 				run(zip.getInputStream(entry), type.get());
@@ -161,7 +161,7 @@ public class EcoSpold01Import implements FileImport {
 	public void run(InputStream is, DataSetType type) throws Exception {
 		if (is == null || type == null)
 			return;
-		IEcoSpold spold = EcoSpoldIO.readFrom(is, type);
+		IEcoSpold spold = EcoSpold.read(is, type);
 		if (spold == null || spold.getDataset().isEmpty())
 			return;
 		if (type == DataSetType.PROCESS) {

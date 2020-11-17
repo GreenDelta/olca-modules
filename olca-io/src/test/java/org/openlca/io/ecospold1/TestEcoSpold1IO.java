@@ -16,7 +16,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.ecospold.io.DataSetType;
-import org.openlca.ecospold.io.EcoSpoldIO;
+import org.openlca.ecospold.io.EcoSpold;
 import org.openlca.io.Tests;
 import org.openlca.io.ecospold1.input.EcoSpold01Import;
 import org.openlca.io.ecospold1.input.ImportConfig;
@@ -49,16 +49,17 @@ public class TestEcoSpold1IO {
 		assertNotNull(files);
 		assertTrue(files.length > 0);
 		for (var file : files) {
-			var type = EcoSpoldIO.getType(file);
+			var type = EcoSpold.typeOf(file);
 			if (type.isEmpty())
 				continue;
+
 		}
 	}
 
 	@Test
 	public void testIO() throws Exception {
 		InputStream in = openXml();
-		DataSetType type = EcoSpoldIO.getType(in).orElse(null);
+		DataSetType type = EcoSpold.typeOf(in).orElse(null);
 		ImportConfig config = new ImportConfig(db);
 		EcoSpold01Import es1Import = new EcoSpold01Import(config);
 		es1Import.run(openXml(), type);

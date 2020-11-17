@@ -1,6 +1,7 @@
 package org.openlca.io;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -15,7 +16,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.ecospold.io.DataSetType;
-import org.openlca.ecospold.io.EcoSpoldIO;
+import org.openlca.ecospold.io.EcoSpold;
 import org.openlca.io.ilcd.ILCDExport;
 import org.openlca.io.ilcd.output.ExportConfig;
 import org.openlca.jsonld.ZipStore;
@@ -71,7 +72,7 @@ public class FormatTest {
 			ds.setGenerator("openLCA tests");
 			root.getDataset().add(ds);
 			var file = Files.createTempFile("_olca_test", ".xml").toFile();
-			EcoSpoldIO.writeTo(file, root, type);
+			EcoSpold.write(file, root);
 			check(file, Format.ES1_XML);
 		}
 	}

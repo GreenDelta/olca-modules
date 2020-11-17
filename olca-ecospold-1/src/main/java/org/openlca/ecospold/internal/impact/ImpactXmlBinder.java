@@ -10,6 +10,11 @@ public class ImpactXmlBinder extends EcoSpoldXmlBinder<ImpactEcoSpold> {
 	private ObjectFactory factory = new ObjectFactory();
 
 	@Override
+	public boolean matches(IEcoSpold spold) {
+		return spold instanceof ImpactEcoSpold;
+	}
+	
+	@Override
 	protected Class<ImpactEcoSpold> getEcoSpoldClass() {
 		return ImpactEcoSpold.class;
 	}

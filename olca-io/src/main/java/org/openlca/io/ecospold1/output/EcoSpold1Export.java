@@ -12,7 +12,7 @@ import org.openlca.ecospold.IDataSet;
 import org.openlca.ecospold.IEcoSpold;
 import org.openlca.ecospold.IEcoSpoldFactory;
 import org.openlca.ecospold.io.DataSetType;
-import org.openlca.ecospold.io.EcoSpoldIO;
+import org.openlca.ecospold.io.EcoSpold;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,7 @@ public class EcoSpold1Export implements Closeable {
 		IEcoSpold spold = MethodConverter.convert(method, config);
 		String fileName = "lcia_method_" + method.refId + ".xml";
 		File file = new File(outDir, fileName);
-		EcoSpoldIO.writeTo(file, spold, DataSetType.IMPACT_METHOD);
+		EcoSpold.write(file, spold);
 		log.trace("wrote {} to {}", method, file);
 	}
 
@@ -58,7 +58,7 @@ public class EcoSpold1Export implements Closeable {
 			spold.getDataset().add(dataSet);
 			String fileName = "process_" + process.refId + ".xml";
 			File file = new File(outDir, fileName);
-			EcoSpoldIO.writeTo(file, spold, DataSetType.PROCESS);
+			EcoSpold.write(file, spold);
 			log.trace("wrote {} to {}", process, file);
 		}
 	}
@@ -90,7 +90,7 @@ public class EcoSpold1Export implements Closeable {
 			String fileName = "EcoSpold_" + size + "_processes_" + time
 					+ ".xml";
 			File file = new File(outDir, fileName);
-			EcoSpoldIO.writeTo(file, singleSpold, DataSetType.PROCESS);
+			EcoSpold.write(file, singleSpold);
 			log.trace("wrote {} processes to {}", size, file);
 			categoryWriter.close();
 		} catch (Exception e) {

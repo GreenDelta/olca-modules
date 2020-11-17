@@ -18,8 +18,12 @@ public abstract class EcoSpoldXmlBinder<T extends IEcoSpold> {
 	private final HashMap<Class<?>, Unmarshaller> unmarshallers = new HashMap<>();
 
 	protected EcoSpoldXmlBinder() {
-
 	}
+	
+	/**
+	 * Returns true if the given EcoSpold type matches this XML binder.
+	 */
+	public abstract boolean matches(IEcoSpold spold);
 
 	private Marshaller createMarshaller(Object object) throws JAXBException {
 		JAXBContext context = JAXBContext.newInstance(object.getClass());

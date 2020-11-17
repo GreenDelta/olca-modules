@@ -10,6 +10,11 @@ public class ProcessXmlBinder extends EcoSpoldXmlBinder<EcoSpold> {
 	private ObjectFactory factory = new ObjectFactory();
 
 	@Override
+	public boolean matches(IEcoSpold spold) {
+		return spold instanceof EcoSpold;
+	}
+	
+	@Override
 	protected Class<EcoSpold> getEcoSpoldClass() {
 		return EcoSpold.class;
 	}
