@@ -1,108 +1,105 @@
 package org.openlca.ecospold.io;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Objects;
+import java.util.Optional;
 
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
 
 import org.openlca.ecospold.IEcoSpold;
 import org.openlca.ecospold.internal.impact.ImpactXmlBinder;
 import org.openlca.ecospold.internal.process.ProcessXmlBinder;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
 public class EcoSpoldIO {
 
-	private static SAXParser parser;
-	private static EcoSpoldXmlBinder<?> processXmlBinder = new ProcessXmlBinder();
-	private static EcoSpoldXmlBinder<?> impactMethodXmlBinder = new ImpactXmlBinder();
+	private static final EcoSpoldXmlBinder<?> processXmlBinder = new ProcessXmlBinder();
+	private static final EcoSpoldXmlBinder<?> impactMethodXmlBinder = new ImpactXmlBinder();
 
-	public static DataSetType getEcoSpoldType(File file) throws Exception {
-		return getEcoSpoldType(new FileInputStream(file));
-	}
-
-	public static DataSetType getEcoSpoldType(InputStream inputStream)
-			throws Exception {
-		SAXParser parser = getParser();
-		// sax parser closes stream
-		TypeHandler handler = new TypeHandler();
-		parser.parse(inputStream, handler);
-		return handler.type;
-	}
-
-	private static SAXParser getParser() {
-		if (parser != null)
-			return parser;
-		try {
-			SAXParserFactory factory = SAXParserFactory.newInstance();
-			factory.setNamespaceAware(true);
-			parser = factory.newSAXParser();
-			return parser;
+	/**
+	 * Tries to detect the EcoSpold data set type from the given file. If this
+	 * fails, an empty Optional is returned.
+	 */
+	public static Optional<DataSetType> getType(File file) {
+		try (var stream = new FileInputStream(file);
+			 var buff = new BufferedInputStream(stream)) {
+			return getType(buff);
 		} catch (Exception e) {
-			throw new RuntimeException("Could not create parser", e);
+			return Optional.empty();
 		}
 	}
 
-	public static IEcoSpold readFrom(File file, DataSetType ecoSpoldType)
+	/**
+	 * Tries to detect the EcoSpold data set type from the given stream. If this
+	 * fails, an empty Optional is returned.
+	 */
+	public static Optional<DataSetType> getType(InputStream stream) {
+
+		// we just check the root element
+		try {
+			var reader = XMLInputFactory.newInstance()
+					.createXMLStreamReader(stream);
+			while (reader.hasNext()) {
+				int next = reader.next();
+				if (next != XMLStreamReader.START_ELEMENT)
+					continue;
+				var qname = reader.getName();
+				if (!Objects.equals("ecoSpold", qname.getLocalPart()))
+					return Optional.empty();
+				var type = DataSetType.forNamespace(qname.getNamespaceURI());
+				return Optional.ofNullable(type);
+			}
+			return Optional.empty();
+		} catch (Exception e) {
+			return Optional.empty();
+		}
+	}
+
+	public static IEcoSpold readFrom(File file, DataSetType type)
 			throws Exception {
-		try (InputStream inputStream = new FileInputStream(file)) {
-			IEcoSpold ecoSpold = readFrom(inputStream, ecoSpoldType);
-			return ecoSpold;
+		try (var stream = new FileInputStream(file)) {
+			return readFrom(stream, type);
 		}
 	}
 
-	public static IEcoSpold readFrom(InputStream inputStream,
-			DataSetType ecoSpoldType) throws Exception {
+	public static IEcoSpold readFrom(InputStream stream, DataSetType type)
+			throws Exception {
 		IEcoSpold result = null;
-		switch (ecoSpoldType) {
-		case PROCESS:
-			result = processXmlBinder.unmarshal(inputStream);
-			break;
-		case IMPACT_METHOD:
-			result = impactMethodXmlBinder.unmarshal(inputStream);
-			break;
+		switch (type) {
+			case PROCESS:
+				result = processXmlBinder.unmarshal(stream);
+				break;
+			case IMPACT_METHOD:
+				result = impactMethodXmlBinder.unmarshal(stream);
+				break;
 		}
 		return result;
 	}
 
 	public static void writeTo(File file, IEcoSpold ecoSpold,
-			DataSetType ecoSpoldType) throws Exception {
+							   DataSetType ecoSpoldType) throws Exception {
 		try (OutputStream outputStream = new FileOutputStream(file)) {
 			writeTo(outputStream, ecoSpold, ecoSpoldType);
 		}
 	}
 
 	public static void writeTo(OutputStream outputStream, IEcoSpold ecoSpold,
-			DataSetType ecoSpoldType) throws Exception {
+							   DataSetType ecoSpoldType) throws Exception {
 		if (ecoSpold == null) {
 			throw new IllegalArgumentException("EcoSpold cannot be null");
 		}
 		switch (ecoSpoldType) {
-		case PROCESS:
-			processXmlBinder.marshal(ecoSpold, outputStream);
-			break;
-		case IMPACT_METHOD:
-			impactMethodXmlBinder.marshal(ecoSpold, outputStream);
-			break;
+			case PROCESS:
+				processXmlBinder.marshal(ecoSpold, outputStream);
+				break;
+			case IMPACT_METHOD:
+				impactMethodXmlBinder.marshal(ecoSpold, outputStream);
+				break;
 		}
 	}
-
-	private static class TypeHandler extends DefaultHandler {
-
-		private DataSetType type;
-
-		@Override
-		public void startElement(String uri, String localName, String qName,
-				Attributes attributes) throws SAXException {
-			if ("ecoSpold".equals(qName)) {
-				type = DataSetType.forNamespace(uri);
-			}
-		}
-	}
-
 }

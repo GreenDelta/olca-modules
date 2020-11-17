@@ -3,7 +3,6 @@ package org.openlca.io.ecospold1.input;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -53,11 +52,11 @@ import com.google.common.eventbus.EventBus;
  */
 public class EcoSpold01Import implements FileImport {
 
-	private Logger log = LoggerFactory.getLogger(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private Category processCategory;
-	private HashMap<Integer, Exchange> localExchangeCache = new HashMap<>();
-	private DB db;
-	private FlowImport flowImport;
+	private final HashMap<Integer, Exchange> localExchangeCache = new HashMap<>();
+	private final DB db;
+	private final FlowImport flowImport;
 	private EventBus eventBus;
 	private boolean canceled = false;
 	private File[] files;
@@ -87,7 +86,9 @@ public class EcoSpold01Import implements FileImport {
 		this.eventBus = eventBus;
 	}
 
-	/** Set an optional root category for the new processes. */
+	/**
+	 * Set an optional root category for the new processes.
+	 */
 	public void setProcessCategory(Category processCategory) {
 		this.processCategory = processCategory;
 	}
@@ -116,19 +117,22 @@ public class EcoSpold01Import implements FileImport {
 	}
 
 	private void importXml(File file) {
-		try {
-			DataSetType type = EcoSpoldIO.getEcoSpoldType(file);
-			FileInputStream in = new FileInputStream(file);
+		var type = EcoSpoldIO.getType(file);
+		if (type.isEmpty()) {
+			log.warn("could not detect ecoSpold type of {}", file);
+			return;
+		}
+		try (var stream = new FileInputStream(file)) {
 			fireEvent(file.getName());
-			run(in, type);
+			run(stream, type.get());
 		} catch (Exception e) {
 			log.error("failed to import XML file " + file, e);
 		}
 	}
 
 	private void importZip(File file) {
-		try (ZipFile zipFile = new ZipFile(file)) {
-			Enumeration<? extends ZipEntry> entries = zipFile.entries();
+		try (var zip = new ZipFile(file)) {
+			var entries = zip.entries();
 			while (entries.hasMoreElements() && !canceled) {
 				ZipEntry entry = entries.nextElement();
 				if (entry.isDirectory())
@@ -137,9 +141,10 @@ public class EcoSpold01Import implements FileImport {
 				if (!name.endsWith(".xml"))
 					continue;
 				fireEvent(name);
-				DataSetType type = EcoSpoldIO.getEcoSpoldType(zipFile
-						.getInputStream(entry));
-				run(zipFile.getInputStream(entry), type);
+				var type = EcoSpoldIO.getType(zip.getInputStream(entry));
+				if (type.isEmpty())
+					continue;
+				run(zip.getInputStream(entry), type.get());
 			}
 		} catch (Exception e) {
 			log.error("failed to import ZIP file " + file, e);
@@ -253,7 +258,7 @@ public class EcoSpold01Import implements FileImport {
 
 		IReferenceFunction refFun = ds.getReferenceFunction();
 		if (refFun != null)
-			mapReferenceFunction(refFun, p, doc);
+			mapReferenceFunction(refFun, p);
 
 		p.processType = Mapper.getProcessType(ds);
 		mapTimeAndGeography(ds, p, doc);
@@ -285,7 +290,7 @@ public class EcoSpold01Import implements FileImport {
 	}
 
 	private void mapTimeAndGeography(DataSet ds, Process p,
-			ProcessDocumentation doc) {
+									 ProcessDocumentation doc) {
 		ProcessTime time = new ProcessTime(ds.getTimePeriod());
 		time.map(doc);
 		if (ds.getGeography() != null) {
@@ -317,7 +322,7 @@ public class EcoSpold01Import implements FileImport {
 	}
 
 	private void mapAllocations(Process process,
-			List<IAllocation> allocations) {
+								List<IAllocation> allocations) {
 		for (IAllocation allocation : allocations) {
 			double factor = Math.round(allocation.getFraction() * 10000d)
 					/ 1000000d;
@@ -358,14 +363,14 @@ public class EcoSpold01Import implements FileImport {
 			if (ioProcess.quantitativeReference == null
 					&& inExchange.getOutputGroup() != null
 					&& (inExchange.getOutputGroup() == 0
-							|| inExchange.getOutputGroup() == 2)) {
+					|| inExchange.getOutputGroup() == 2)) {
 				ioProcess.quantitativeReference = outExchange;
 			}
 		}
 	}
 
 	private void mapFactors(List<IExchange> inFactors,
-			ImpactCategory ioCategory) {
+							ImpactCategory ioCategory) {
 		for (IExchange inFactor : inFactors) {
 			FlowBucket flow = flowImport.handleImpactFactor(inFactor);
 			if (flow == null || !flow.isValid()) {
@@ -394,20 +399,15 @@ public class EcoSpold01Import implements FileImport {
 		return category;
 	}
 
-	private void mapReferenceFunction(IReferenceFunction refFun,
-			Process ioProcess, ProcessDocumentation doc) {
+	private void mapReferenceFunction(IReferenceFunction refFun, Process ioProcess) {
 		ioProcess.name = refFun.getName();
 		ioProcess.description = refFun.getGeneralComment();
 		ioProcess.infrastructureProcess = refFun.isInfrastructureProcess();
 		String topCategory = refFun.getCategory();
 		String subCategory = refFun.getSubCategory();
-		Category cat = null;
-		if (processCategory != null)
-			cat = db.getPutCategory(processCategory, topCategory, subCategory);
-		else
-			cat = db.getPutCategory(ModelType.PROCESS, topCategory,
-					subCategory);
-		ioProcess.category = cat;
+		ioProcess.category = processCategory != null
+				? db.getPutCategory(processCategory, topCategory, subCategory)
+				: db.getPutCategory(ModelType.PROCESS, topCategory, subCategory);
 	}
 
 	private void createProductFromRefFun(DataSet dataSet, Process ioProcess) {
@@ -419,9 +419,8 @@ public class EcoSpold01Import implements FileImport {
 		Exchange outExchange = ioProcess.add(
 				Exchange.of(flow.flow, flow.flowProperty, flow.unit));
 		outExchange.isInput = false;
-		double amount = dataSet.getReferenceFunction().getAmount()
+		outExchange.amount = dataSet.getReferenceFunction().getAmount()
 				* flow.conversionFactor;
-		outExchange.amount = amount;
 		ioProcess.quantitativeReference = outExchange;
 	}
 
@@ -436,7 +435,7 @@ public class EcoSpold01Import implements FileImport {
 		}
 		if (adapter.getDataGeneratorAndPublication() != null
 				&& adapter.getDataGeneratorAndPublication()
-						.getReferenceToPublishedSource() != null)
+				.getReferenceToPublishedSource() != null)
 			doc.publication = sources.get(adapter
 					.getDataGeneratorAndPublication()
 					.getReferenceToPublishedSource());

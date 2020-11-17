@@ -18,12 +18,16 @@ import org.slf4j.LoggerFactory;
 
 public class EcoSpold1Export implements Closeable {
 
-	private Logger log = LoggerFactory.getLogger(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private File outDir;
-	private ExportConfig config;
+	private final File outDir;
+	private final ExportConfig config;
 	private IEcoSpold singleSpold;
-	private CategoryWriter categoryWriter;
+	private final CategoryWriter categoryWriter;
+
+	public EcoSpold1Export(File outDir) {
+		this(outDir, ExportConfig.getDefault());
+	}
 
 	public EcoSpold1Export(File outDir, ExportConfig config) {
 		File categoryFile = new File(outDir, "categories.xml");

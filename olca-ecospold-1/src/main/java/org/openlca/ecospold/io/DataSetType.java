@@ -19,7 +19,7 @@ public enum DataSetType {
 		return factory;
 	}
 
-	private DataSetType(String namespace, IEcoSpoldFactory factory) {
+	DataSetType(String namespace, IEcoSpoldFactory factory) {
 		this.namespace = namespace;
 		this.factory = factory;
 	}
