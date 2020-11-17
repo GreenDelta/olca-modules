@@ -21,7 +21,7 @@ import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 public class ImpactCategoryUseSearchTest {
 
-	private IDatabase db = Tests.getDb();
+	private final IDatabase db = Tests.getDb();
 	private ImpactMethod method;
 	private ImpactCategory category;
 
