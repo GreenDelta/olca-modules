@@ -53,6 +53,25 @@ public class ImpactCategoryUseSearchTest {
 		assertEquals(Descriptor.of(method), r.get(0));
 	}
 
+	@Test
+	public void testOneInTwo() {
+		var impact = ImpactCategory.of("GWP", "CO2 eq.");
+		var method1 = ImpactMethod.of("Method 1");
+		method1.impactCategories.add(impact);
+		var method2 = ImpactMethod.of("Method 2");
+		method2.impactCategories.add(impact);
+		var entities = List.of(impact, method1, method2);
+		entities.forEach(db::insert);
+
+		var results = IUseSearch.FACTORY
+				.createFor(ModelType.IMPACT_CATEGORY, db)
+				.findUses(Descriptor.of(impact));
+		assertEquals(2, results.size());
+		assertTrue(results.contains(Descriptor.of(method1)));
+		assertTrue(results.contains(Descriptor.of(method2)));
+		entities.forEach(db::delete);
+	}
+
 	private List<CategorizedDescriptor> doSearch() {
 		ImpactDescriptor d = Descriptor.of(category);
 		return IUseSearch.FACTORY.createFor(

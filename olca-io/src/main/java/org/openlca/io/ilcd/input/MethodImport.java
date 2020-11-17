@@ -1,5 +1,11 @@
 package org.openlca.io.ilcd.input;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ImpactMethodDao;
@@ -25,12 +31,6 @@ import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-
 /**
  * Imports an ILCD LCIA data set. Note that the ILCD LCIA data sets contain
  * impact categories and not methods. This import tries to find or create
@@ -38,7 +38,7 @@ import java.util.UUID;
  */
 public class MethodImport {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final ImportConfig config;
 
 	public MethodImport(ImportConfig config) {
@@ -79,7 +79,7 @@ public class MethodImport {
 		if (uuid == null)
 			return false;
 		try {
-			ImpactCategoryDao dao = new ImpactCategoryDao(config.db);
+			var dao = new ImpactCategoryDao(config.db);
 			ImpactCategory category = dao.getForRefId(uuid);
 			if (category != null) {
 				log.info("LCIA category {} not imported because it "
@@ -272,5 +272,4 @@ public class MethodImport {
 		}
 		return	null;
 	}
-
 }
