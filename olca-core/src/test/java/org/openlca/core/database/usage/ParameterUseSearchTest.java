@@ -22,24 +22,24 @@ import org.openlca.core.model.descriptors.ParameterDescriptor;
 
 public class ParameterUseSearchTest {
 
-	private IDatabase database = Tests.getDb();
+	private final IDatabase db = Tests.getDb();
 	private IUseSearch<ParameterDescriptor> search;
 
 	@Before
 	public void setup() {
-		search = IUseSearch.FACTORY.createFor(ModelType.PARAMETER, database);
+		search = IUseSearch.FACTORY.createFor(ModelType.PARAMETER, db);
 	}
 
 	@Test
 	public void testFindNoUsage() {
 		Parameter parameter = new Parameter();
 		parameter.name = "testNoUsage";
-		Tests.insert(parameter);
+		db.insert(parameter);
 		List<CategorizedDescriptor> models = search.findUses(Descriptor
 				.of(parameter));
 		Assert.assertNotNull(models);
 		Assert.assertTrue(models.isEmpty());
-		Tests.delete(parameter);
+		db.delete(parameter);
 	}
 
 	@Test
@@ -48,16 +48,16 @@ public class ParameterUseSearchTest {
 		Parameter p2 = createParameter("p2", 5d, ParameterScope.GLOBAL);
 		Parameter p3 = createParameter("p3", "5*3", ParameterScope.GLOBAL);
 		Parameter p4 = createParameter("p4", "5*p1", ParameterScope.GLOBAL);
-		Tests.insert(p1);
-		Tests.insert(p2);
-		Tests.insert(p3);
-		Tests.insert(p4);
+		db.insert(p1);
+		db.insert(p2);
+		db.insert(p3);
+		db.insert(p4);
 		List<CategorizedDescriptor> models = search.findUses(Descriptor
 				.of(p1));
-		Tests.delete(p1);
-		Tests.delete(p2);
-		Tests.delete(p3);
-		Tests.delete(p4);
+		db.delete(p1);
+		db.delete(p2);
+		db.delete(p3);
+		db.delete(p4);
 		Descriptor expected = Descriptor.of(p4);
 		Assert.assertEquals(1, models.size());
 		Assert.assertEquals(expected, models.get(0));
@@ -69,12 +69,12 @@ public class ParameterUseSearchTest {
 		Parameter p2 = createParameter("p2", "5*p1", ParameterScope.PROCESS);
 		Process process = new Process();
 		process.parameters.add(p2);
-		Tests.insert(p1);
-		Tests.insert(process);
+		db.insert(p1);
+		db.insert(process);
 		List<CategorizedDescriptor> models = search.findUses(Descriptor
 				.of(p1));
-		Tests.delete(p1);
-		Tests.delete(process);
+		db.delete(p1);
+		db.delete(process);
 		Descriptor expected = Descriptor.of(process);
 		Assert.assertEquals(1, models.size());
 		Assert.assertEquals(expected, models.get(0));
@@ -88,12 +88,12 @@ public class ParameterUseSearchTest {
 				ParameterScope.IMPACT);
 		ImpactCategory impact = new ImpactCategory();
 		impact.parameters.add(p2);
-		Tests.insert(p1);
-		Tests.insert(impact);
+		db.insert(p1);
+		db.insert(impact);
 		List<CategorizedDescriptor> models = search.findUses(Descriptor
 				.of(p1));
-		Tests.delete(p1);
-		Tests.delete(impact);
+		db.delete(p1);
+		db.delete(impact);
 		Descriptor expected = Descriptor.of(impact);
 		Assert.assertEquals(1, models.size());
 		Assert.assertEquals(expected, models.get(0));
@@ -107,12 +107,12 @@ public class ParameterUseSearchTest {
 		Process process = new Process();
 		process.parameters.add(p1);
 		process.parameters.add(p2);
-		Tests.insert(p);
-		Tests.insert(process);
+		db.insert(p);
+		db.insert(process);
 		List<CategorizedDescriptor> models = search.findUses(Descriptor
 				.of(p));
-		Tests.delete(p);
-		Tests.delete(process);
+		db.delete(p);
+		db.delete(process);
 		Assert.assertEquals(0, models.size());
 	}
 
@@ -125,26 +125,26 @@ public class ParameterUseSearchTest {
 		ImpactCategory impact = new ImpactCategory();
 		impact.parameters.add(p1);
 		impact.parameters.add(p2);
-		Tests.insert(p);
-		Tests.insert(impact);
+		db.insert(p);
+		db.insert(impact);
 		List<CategorizedDescriptor> models = search.findUses(Descriptor
 				.of(p));
-		Tests.delete(p);
-		Tests.delete(impact);
+		db.delete(p);
+		db.delete(impact);
 		Assert.assertEquals(0, models.size());
 	}
 
 	@Test
 	public void testFindProductSystemRedef() {
 		Parameter parameter = createParameter("p1", 5d, ParameterScope.GLOBAL);
-		Tests.insert(parameter);
+		db.insert(parameter);
 		ProductSystem system = new ProductSystem();
 		system.parameterRedefs.add(createParameterRedef("p1"));
-		Tests.insert(system);
+		db.insert(system);
 		List<CategorizedDescriptor> models = search.findUses(Descriptor
 				.of(parameter));
-		Tests.delete(parameter);
-		Tests.delete(system);
+		db.delete(parameter);
+		db.delete(system);
 		Descriptor expected = Descriptor.of(system);
 		Assert.assertEquals(1, models.size());
 		Assert.assertEquals(expected, models.get(0));
@@ -153,16 +153,16 @@ public class ParameterUseSearchTest {
 	@Test
 	public void testFindProjectRedef() {
 		Parameter parameter = createParameter("p1", 5d, ParameterScope.GLOBAL);
-		Tests.insert(parameter);
+		db.insert(parameter);
 		Project project = new Project();
 		ProjectVariant variant = new ProjectVariant();
 		variant.parameterRedefs.add(createParameterRedef("p1"));
 		project.variants.add(variant);
-		Tests.insert(project);
+		db.insert(project);
 		List<CategorizedDescriptor> models = search.findUses(Descriptor
 				.of(parameter));
-		Tests.delete(parameter);
-		Tests.delete(project);
+		db.delete(parameter);
+		db.delete(project);
 		Descriptor expected = Descriptor.of(project);
 		Assert.assertEquals(1, models.size());
 		Assert.assertEquals(expected, models.get(0));

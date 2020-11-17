@@ -45,6 +45,6 @@ public class ProcessIOTest {
 
 		// clean up
 		Files.delete(file.toPath());
-		Tests.clearDb();
+		db.clear();
 	}
 }

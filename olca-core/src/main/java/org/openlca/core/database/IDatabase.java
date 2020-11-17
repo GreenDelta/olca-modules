@@ -3,7 +3,10 @@ package org.openlca.core.database;
 import java.io.Closeable;
 import java.io.File;
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.EntityManagerFactory;
@@ -139,6 +142,15 @@ public interface IDatabase extends Closeable, INotifiable {
 		return (T) dao.getForRefId(refID);
 	}
 
+	@SuppressWarnings("unchecked")
+	default <T extends RootEntity> List<T> allOf(Class<T> type) {
+		var modelType = ModelType.forModelClass(type);
+		if (modelType == null)
+			return Collections.emptyList();
+		var dao = Daos.root(this, modelType);
+		return (List<T>) dao.getAll();
+	}
+
 	/**
 	 * Get the first entity of the given type and with the given name from the
 	 * database. It returns `null` if no entity with the given name exists.
@@ -153,5 +165,27 @@ public interface IDatabase extends Closeable, INotifiable {
 		return candidates.isEmpty()
 				? null
 				: (T) candidates.get(0);
+	}
+
+	/**
+	 * Deletes everything from this database. We assume that you now what you
+	 * do when calling this method.
+	 */
+	default void clear() {
+		var tables = new ArrayList<String>();
+		// type = T means user table
+		String sql = "SELECT TABLENAME FROM SYS.SYSTABLES WHERE TABLETYPE = 'T'";
+		NativeSql.on(this).query(sql, r -> {
+			tables.add(r.getString(1));
+			return true;
+		});
+		for (var table : tables) {
+			if (table.equalsIgnoreCase("SEQUENCE")
+					|| table.equalsIgnoreCase("OPENLCA_VERSION"))
+				continue;
+			NativeSql.on(this).runUpdate("DELETE FROM " + table);
+		}
+		NativeSql.on(this).runUpdate("UPDATE SEQUENCE SET SEQ_COUNT = 0");
+		this.clearCache();
 	}
 }

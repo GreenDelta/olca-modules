@@ -46,6 +46,6 @@ public class ResultExportTest {
 
 		// clean up
 		Files.delete(file.toPath());
-		Tests.clearDb();
+		db.clear();
 	}
 }

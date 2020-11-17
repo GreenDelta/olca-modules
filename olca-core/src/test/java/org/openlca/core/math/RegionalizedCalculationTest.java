@@ -67,7 +67,7 @@ import org.openlca.core.results.FullResult;
  */
 public class RegionalizedCalculationTest {
 
-	private IDatabase db = Tests.getDb();
+	private final IDatabase db = Tests.getDb();
 
 	private Process p1;
 	private Process p2;
@@ -137,7 +137,7 @@ public class RegionalizedCalculationTest {
 
 	@After
 	public void tearDown() {
-		Tests.clearDb();
+		db.clear();
 	}
 
 	@Test

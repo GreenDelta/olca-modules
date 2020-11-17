@@ -25,9 +25,9 @@ public class SocialIndicatorReferenceSearchTest extends BaseReferenceSearchTest 
 		Unit unit = new Unit();
 		group.units.add(unit);
 		indicator.activityUnit = unit;
-		group = Tests.insert(group);
+		group = db.insert(group);
 		addExpected("activityUnit", unit);
-		return Tests.insert(indicator);
+		return db.insert(indicator);
 	}
 
 }

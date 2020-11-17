@@ -10,13 +10,13 @@ import org.openlca.core.model.ModelType;
 
 public class CategoryReferenceSearchTest extends BaseReferenceSearchTest {
 
-	private List<Category> categories = new ArrayList<>();
+	private final List<Category> categories = new ArrayList<>();
 
 	@Override
 	public void clear() {
 		for (Category category : categories)
 			new CategoryDao(Tests.getDb()).delete(category);
-		Tests.clearDb();
+		db.clear();
 	}
 
 	@Override
@@ -28,7 +28,7 @@ public class CategoryReferenceSearchTest extends BaseReferenceSearchTest {
 	protected Category createModel() {
 		Category category = new Category();
 		category.category = insertAndAddExpected("category", new Category());
-		category = Tests.insert(category);
+		category = db.insert(category);
 		categories.add(category);
 		return category;
 	}

@@ -122,7 +122,7 @@ public class ResultProviderTest {
 
 	@AfterClass
 	public static void tearDown() {
-		Tests.clearDb();
+		Tests.getDb().clear();
 		Dirs.delete(libsDir);
 	}
 

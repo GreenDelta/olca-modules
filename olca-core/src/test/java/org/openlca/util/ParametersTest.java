@@ -4,8 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.TestProcess;
 import org.openlca.core.Tests;
-import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.database.ProjectDao;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ParameterRedefSet;
@@ -16,9 +15,10 @@ import org.openlca.core.model.descriptors.Descriptor;
 
 public class ParametersTest {
 
+	private final IDatabase db = Tests.getDb();
+
 	@Test
 	public void testFindRedefOwners() {
-		var db = Tests.getDb();
 
 		// create a process with a local parameter
 		var process = TestProcess
@@ -30,10 +30,10 @@ public class ParametersTest {
 		// create project and product system
 		var project = new Project();
 		project.variants.add(new ProjectVariant());
-		new ProjectDao(db).insert(project);
+		db.insert(project);
 		var system = new ProductSystem();
 		system.parameterSets.add(new ParameterRedefSet());
-		new ProductSystemDao(db).insert(system);
+		db.insert(system);
 
 		// should not find something
 		var owners = Parameters.findRedefOwners(
@@ -48,10 +48,10 @@ public class ParametersTest {
 		redef.value = 24;
 		project.variants.get(0)
 				.parameterRedefs.add(redef.clone());
-		project = Tests.update(project);
+		project = db.update(project);
 		system.parameterSets.get(0)
 				.parameters.add(redef.clone());
-		system = Tests.update(system);
+		system = db.update(system);
 
 		// should find something
 		owners = Parameters.findRedefOwners(
@@ -61,6 +61,6 @@ public class ParametersTest {
 				owners.contains(Descriptor.of(system)));
 		Assert.assertTrue(
 				owners.contains(Descriptor.of(project)));
-		Tests.clearDb();
+		db.clear();
 	}
 }

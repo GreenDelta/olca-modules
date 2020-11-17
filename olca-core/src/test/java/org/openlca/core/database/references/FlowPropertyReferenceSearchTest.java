@@ -1,6 +1,5 @@
 package org.openlca.core.database.references;
 
-import org.openlca.core.Tests;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
@@ -18,6 +17,6 @@ public class FlowPropertyReferenceSearchTest extends BaseReferenceSearchTest {
 		FlowProperty property = new FlowProperty();
 		property.category = insertAndAddExpected("category", new Category());
 		property.unitGroup = insertAndAddExpected("unitGroup", new UnitGroup());
-		return Tests.insert(property);
+		return db.insert(property);
 	}
 }

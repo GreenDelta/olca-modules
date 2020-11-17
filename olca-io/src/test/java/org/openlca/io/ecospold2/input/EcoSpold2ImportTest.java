@@ -26,14 +26,14 @@ import java.util.UUID;
 
 public class EcoSpold2ImportTest {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final String REF_ID = "e926dd9b-7045-3a90-9702-03e0b1376607";
 	private File tempFile;
 	private ProcessDao dao = new ProcessDao(Tests.getDb());
 
 	@Before
 	public void setUp() throws Exception {
-		Tests.clearDb();
+		Tests.getDb().clear();
 		createUnit("20aadc24-a391-41cf-b340-3e4529f44bde",
 				"93a60a56-a3c8-11da-a746-0800200b9a66", "kg");
 		createUnit("ee5f2241-18af-4444-b457-b275660e5a20",

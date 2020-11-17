@@ -1,6 +1,5 @@
 package org.openlca.core.database.references;
 
-import org.openlca.core.Tests;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -22,7 +21,7 @@ public class FlowReferenceSearchTest extends BaseReferenceSearchTest {
 		flow.location = insertAndAddExpected("location", new Location());
 		flow.flowPropertyFactors.add(createFlowPropertyFactor());
 		flow.flowPropertyFactors.add(createFlowPropertyFactor());
-		flow = Tests.insert(flow);
+		flow = db.insert(flow);
 		for (FlowPropertyFactor f : flow.flowPropertyFactors)
 			addExpected("flowProperty", f.flowProperty,
 					"flowPropertyFactors", FlowPropertyFactor.class, f.id);
@@ -31,7 +30,7 @@ public class FlowReferenceSearchTest extends BaseReferenceSearchTest {
 
 	private FlowPropertyFactor createFlowPropertyFactor() {
 		FlowPropertyFactor factor = new FlowPropertyFactor();
-		factor.flowProperty = Tests.insert(new FlowProperty());
+		factor.flowProperty = db.insert(new FlowProperty());
 		return factor;
 	}
 

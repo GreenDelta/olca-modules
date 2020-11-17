@@ -3,7 +3,6 @@ package org.openlca.core.database.references;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openlca.core.Tests;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.DQSystem;
@@ -25,7 +24,7 @@ import org.openlca.core.model.UnitGroup;
 
 public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 
-	private Map<Long, Process> processes = new HashMap<>();
+	private final Map<Long, Process> processes = new HashMap<>();
 
 	@Override
 	protected ModelType getModelType() {
@@ -58,9 +57,9 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 		Parameter globalUnreferenced = createParameter(n1, "3*3", true);
 		Parameter globalUnreferenced2 = createParameter(n5, "3*3", true);
 		// must be inserted manually
-		globalUnreferenced = Tests.insert(globalUnreferenced);
-		globalUnreferenced2 = Tests.insert(globalUnreferenced2);
-		process = Tests.insert(process);
+		globalUnreferenced = db.insert(globalUnreferenced);
+		globalUnreferenced2 = db.insert(globalUnreferenced2);
+		process = db.insert(process);
 		for (Exchange e : process.exchanges) {
 			addExpected("flow", e.flow, "exchanges", Exchange.class, e.id);
 			addExpected("flowPropertyFactor", e.flowPropertyFactor, "exchanges", Exchange.class, e.id);
@@ -86,7 +85,7 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 		return process;
 	}
 
-	private Exchange createExchange(Process process, Object value, boolean provider) {
+	private void createExchange(Process process, Object value, boolean provider) {
 		Flow flow = createFlow();
 		Exchange exchange = process.output(flow, 1);
 		boolean formula = value instanceof String;
@@ -95,26 +94,25 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 		else
 			exchange.amount = (double) value;
 		if (provider) {
-			Process pProcess = Tests.insert(new Process());
+			Process pProcess = db.insert(new Process());
 			processes.put(pProcess.id, pProcess);
 			exchange.defaultProviderId = pProcess.id;
 		}
-		return exchange;
 	}
 
 	private Flow createFlow() {
-		var massUnits = Tests.insert(
+		var massUnits = db.insert(
 				UnitGroup.of("Units of mass", Unit.of("kg")));
-		var mass = Tests.insert(
+		var mass = db.insert(
 				FlowProperty.of("Mass", massUnits));
-		return Tests.insert(
+		return db.insert(
 				Flow.product("a product", mass));
 	}
 
 	private SocialAspect createSocialAspect() {
 		SocialAspect aspect = new SocialAspect();
-		aspect.indicator = Tests.insert(new SocialIndicator());
-		aspect.source = Tests.insert(new Source());
+		aspect.indicator = db.insert(new SocialIndicator());
+		aspect.source = db.insert(new Source());
 		return aspect;
 	}
 
@@ -136,13 +134,13 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 
 	private ProcessDocumentation createDocumentation() {
 		ProcessDocumentation doc = new ProcessDocumentation();
-		doc.dataDocumentor = Tests.insert(new Actor());
-		doc.dataGenerator = Tests.insert(new Actor());
-		doc.dataSetOwner = Tests.insert(new Actor());
-		doc.reviewer = Tests.insert(new Actor());
-		doc.publication = Tests.insert(new Source());
-		doc.sources.add(Tests.insert(new Source()));
-		doc.sources.add(Tests.insert(new Source()));
+		doc.dataDocumentor = db.insert(new Actor());
+		doc.dataGenerator = db.insert(new Actor());
+		doc.dataSetOwner = db.insert(new Actor());
+		doc.reviewer = db.insert(new Actor());
+		doc.publication = db.insert(new Source());
+		doc.sources.add(db.insert(new Source()));
+		doc.sources.add(db.insert(new Source()));
 		return doc;
 	}
 

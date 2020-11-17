@@ -11,13 +11,13 @@ import org.openlca.core.model.ModelType;
 
 public class CurrencyReferenceSearchTest extends BaseReferenceSearchTest {
 
-	private List<Currency> currencies = new ArrayList<>();
+	private final List<Currency> currencies = new ArrayList<>();
 
 	@Override
 	public void clear() {
 		for (Currency currency : currencies)
 			new CurrencyDao(Tests.getDb()).delete(currency);
-		Tests.clearDb();
+		db.clear();
 	}
 
 	@Override
@@ -31,7 +31,7 @@ public class CurrencyReferenceSearchTest extends BaseReferenceSearchTest {
 		currency.category = insertAndAddExpected("category", new Category());
 		currency.referenceCurrency = insertAndAddExpected("referenceCurrency",
 				new Currency());
-		currency = Tests.insert(currency);
+		currency = db.insert(currency);
 		currencies.add(currency);
 		return currency;
 	}

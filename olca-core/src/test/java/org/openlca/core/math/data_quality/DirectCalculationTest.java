@@ -24,20 +24,16 @@ public class DirectCalculationTest {
 	public void testSimpleProcess() {
 
 		// reference data
-		var units = Tests.insert(
-				UnitGroup.of("Mass units", Unit.of("kg")));
-		var mass = Tests.insert(
-				FlowProperty.of("Mass", units));
-		var steel = Tests.insert(
-				Flow.product("steel", mass));
-		var co2 = Tests.insert(
-				Flow.elementary("CO2", mass));
+		var units = db.insert(UnitGroup.of("Mass units", Unit.of("kg")));
+		var mass = db.insert(FlowProperty.of("Mass", units));
+		var steel = db.insert(Flow.product("steel", mass));
+		var co2 = db.insert(Flow.elementary("CO2", mass));
 
 		// process
 		var process = Process.of("process", steel);
 		process.output(co2, 2).dqEntry = "(1;2;3;4;5)";
 		process.exchangeDqSystem = dqSystem();
-		process = Tests.insert(process);
+		process = db.insert(process);
 
 		// calculation
 		var system = ProductSystem.of(process);
@@ -54,7 +50,7 @@ public class DirectCalculationTest {
 		var dq = dqResult.get(result.flowIndex.at(0));
 		Assert.assertArrayEquals(new int[]{1,2,3,4,5}, dq);
 
-		Tests.clearDb();
+		db.clear();
 	}
 
 	private DQSystem dqSystem() {
@@ -69,7 +65,6 @@ public class DirectCalculationTest {
 				indicator.scores.add(score);
 			}
 		}
-		return Tests.insert(system);
+		return db.insert(system);
 	}
-
 }

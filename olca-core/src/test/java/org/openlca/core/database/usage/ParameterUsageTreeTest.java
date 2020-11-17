@@ -30,11 +30,10 @@ public class ParameterUsageTreeTest {
 
 	private final IDatabase db = Tests.getDb();
 	private Process process;
-	private ImpactCategory impact;
 
 	@Before
 	public void setup() {
-		Tests.clearDb();
+		db.clear();
 
 		// a dependent global parameter
 		var globalDep = new Parameter();
@@ -42,11 +41,11 @@ public class ParameterUsageTreeTest {
 		globalDep.isInputParameter = false;
 		globalDep.scope = ParameterScope.GLOBAL;
 		globalDep.formula = "param / pi";
-		Tests.insert(globalDep);
+		db.insert(globalDep);
 
 		var flow = new Flow();
 		flow.name = "flow";
-		Tests.insert(flow);
+		db.insert(flow);
 
 		// local process parameter
 		process = new Process();
@@ -63,13 +62,13 @@ public class ParameterUsageTreeTest {
 		process.parameters.add(processDepParam);
 		var exchange = process.output(flow, 1.0);
 		exchange.formula = "sin(param)";
-		Tests.insert(process);
+		db.insert(process);
 
 	}
 
 	@After
 	public void tearDown() {
-		Tests.clearDb();
+		db.clear();
 	}
 
 	@Test
@@ -82,7 +81,7 @@ public class ParameterUsageTreeTest {
 
 	@Test
 	public void findGlobalsByName() {
-		Tests.insert(Parameter.global("param", 42));
+		db.insert(Parameter.global("param", 42));
 		var tree = ParameterUsageTree.of("param", db);
 		var dep = find(tree, "global_dep_param");
 		assertNotNull(dep);
@@ -94,7 +93,7 @@ public class ParameterUsageTreeTest {
 
 	@Test
 	public void findGlobalContext() {
-		var global = Tests.insert(Parameter.global("param", 42));
+		var global = db.insert(Parameter.global("param", 42));
 		var tree = ParameterUsageTree.of(global, db);
 
 		// no global definition
@@ -165,7 +164,7 @@ public class ParameterUsageTreeTest {
 
 	@Test
 	public void testFindInAllocationFactors() {
-		var global = Tests.insert(Parameter.global("param", 42));
+		var global = db.insert(Parameter.global("param", 42));
 		var process = TestProcess
 				.refProduct("prod", 1, "kg")
 				.prodIn("prod2", 0.5, "kg")
@@ -182,7 +181,7 @@ public class ParameterUsageTreeTest {
 
 	@Test
 	public void testFindLocalInAllocationFactors() {
-		var global = Tests.insert(Parameter.global("param", 42));
+		var global = db.insert(Parameter.global("param", 42));
 		var process = TestProcess
 				.refProduct("prod", 1, "kg")
 				.param("param", 42)
@@ -207,7 +206,7 @@ public class ParameterUsageTreeTest {
 
 	@Test
 	public void testImpactFactor() {
-		var global = Tests.insert(Parameter.global("param", 42));
+		var global = db.insert(Parameter.global("param", 42));
 
 		var flow = new Flow();
 		flow.name = "CH4";

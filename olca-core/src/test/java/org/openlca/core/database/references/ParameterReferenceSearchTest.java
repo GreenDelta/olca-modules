@@ -23,8 +23,8 @@ public class ParameterReferenceSearchTest extends BaseReferenceSearchTest {
 		insertAndAddExpected(n3, createParameter(n3, 5d));
 		Parameter globalUnreferenced = createParameter(n2, "3*3");
 		// must be inserted manually
-		globalUnreferenced = Tests.insert(globalUnreferenced);
-		return Tests.insert(parameter);
+		globalUnreferenced = db.insert(globalUnreferenced);
+		return db.insert(parameter);
 	}
 
 	private Parameter createParameter(String name, Object value) {

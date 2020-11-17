@@ -8,6 +8,7 @@ import org.openlca.core.TestData;
 import org.openlca.core.TestProcess;
 import org.openlca.core.TestSystem;
 import org.openlca.core.Tests;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
@@ -17,6 +18,8 @@ import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.results.SimpleResult;
 
 public class SimulatorTest {
+
+	private final IDatabase db = Tests.getDb();
 
 	@Test
 	public void testImpactParam() {
@@ -38,7 +41,7 @@ public class SimulatorTest {
 		setup.withUncertainties = true;
 		setup.impactMethod = Descriptor.of(m);
 		Simulator simulator = Simulator.create(
-				setup, Tests.getDb(), new JavaSolver());
+				setup, db, new JavaSolver());
 
 		// check the simulation results
 		for (int i = 0; i < 100; i++) {
@@ -49,7 +52,7 @@ public class SimulatorTest {
 			Assert.assertTrue(val >= 22 && val <= 26);
 		}
 
-		Arrays.asList(s, m, p).forEach(Tests::delete);
+		Arrays.asList(s, m, p).forEach(db::delete);
 	}
 
 }

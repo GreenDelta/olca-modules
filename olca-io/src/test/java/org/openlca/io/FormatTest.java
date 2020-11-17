@@ -102,7 +102,7 @@ public class FormatTest {
 			new JsonExport(db, zip).write(process);
 		}
 		check(file, Format.JSON_LD_ZIP);
-		Tests.clearDb();
+		db.clear();
 	}
 
 	@Test
@@ -121,7 +121,7 @@ public class FormatTest {
 			export.close();
 		}
 		check(file, Format.ILCD_ZIP);
-		Tests.clearDb();
+		db.clear();
 	}
 
 	@Test

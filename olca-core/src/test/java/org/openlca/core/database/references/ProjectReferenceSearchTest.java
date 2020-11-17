@@ -21,7 +21,7 @@ import org.openlca.core.model.UnitGroup;
 
 public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 
-	private Map<String, Parameter> parameters = new HashMap<>();
+	private final Map<String, Parameter> parameters = new HashMap<>();
 
 	@Override
 	protected ModelType getModelType() {
@@ -40,13 +40,13 @@ public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 		Parameter globalUnreferenced = createParameter(n1, "3*3", true);
 		Parameter globalUnreferenced2 = createParameter(n3, "3*3", true);
 		// must be inserted manually
-		globalUnreferenced = Tests.insert(globalUnreferenced);
-		globalUnreferenced2 = Tests.insert(globalUnreferenced2);
+		globalUnreferenced = db.insert(globalUnreferenced);
+		globalUnreferenced2 = db.insert(globalUnreferenced2);
 		project.variants.add(
 				createProjectVariant(n1, n2, n3, project.impactMethod.id));
 		project.variants.add(
 				createProjectVariant(n1, n2, n3, project.impactMethod.id));
-		project = Tests.insert(project);
+		project = db.insert(project);
 		for (ProjectVariant v : project.variants) {
 			addExpected("productSystem", v.productSystem, "variants", ProjectVariant.class, v.id);
 			addExpected("unit", v.unit, "variants", ProjectVariant.class, v.id);
@@ -63,25 +63,25 @@ public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 	private ProjectVariant createProjectVariant(String p1Name, String p2Name,
 			String p3Name, long methodId) {
 		ProjectVariant variant = new ProjectVariant();
-		variant.productSystem = Tests.insert(new ProductSystem());
+		variant.productSystem = db.insert(new ProductSystem());
 		variant.parameterRedefs.add(
 				createParameterRedef(p1Name, methodId));
 		variant.parameterRedefs.add(
 				createParameterRedef(p2Name, p3Name + "*5"));
 		FlowPropertyFactor factor = new FlowPropertyFactor();
-		factor.flowProperty = Tests.insert(new FlowProperty());
+		factor.flowProperty = db.insert(new FlowProperty());
 		variant.flowPropertyFactor = factor;
 		UnitGroup unitGroup = new UnitGroup();
 		Unit unit = new Unit();
 		unit.name = "unit";
 		unitGroup.units.add(unit);
-		unitGroup = Tests.insert(unitGroup);
+		unitGroup = db.insert(unitGroup);
 		unit = unitGroup.getUnit(unit.name);
 		variant.unit = unit;
 		Flow flow = new Flow();
 		flow.flowPropertyFactors.add(factor);
 		// don't add flow to expected references, just for persisting the factor
-		flow = Tests.insert(flow);
+		flow = db.insert(flow);
 		return variant;
 	}
 
@@ -95,7 +95,7 @@ public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 		} else {
 			if (!parameters.containsKey(name)) {
 				Parameter parameter = createParameter(name, contextOrValue.toString(), true);
-				parameters.put(name, Tests.insert(parameter));
+				parameters.put(name, db.insert(parameter));
 			}
 		}
 		return redef;

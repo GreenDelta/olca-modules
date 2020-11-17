@@ -39,13 +39,13 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 		Parameter globalUnreferenced = createParameter(n1, "3*3", true);
 		Parameter globalUnreferenced2 = createParameter(n5, "3*3", true);
 		// must be inserted manually
-		globalUnreferenced = Tests.insert(globalUnreferenced);
-		globalUnreferenced2 = Tests.insert(globalUnreferenced2);
+		globalUnreferenced = db.insert(globalUnreferenced);
+		globalUnreferenced2 = db.insert(globalUnreferenced2);
 		method.impactCategories.add(createImpactCategory(n4));
 		method.impactCategories.add(createImpactCategory(n4));
-		method.sources.add(Tests.insert(new Source()));
-		method.sources.add(Tests.insert(new Source()));
-		method = Tests.insert(method);
+		method.sources.add(db.insert(new Source()));
+		method.sources.add(db.insert(new Source()));
+		method = db.insert(method);
 		for (ImpactCategory category : method.impactCategories)
 			for (ImpactFactor f : category.impactFactors) {
 				addExpected("flow", f.flow, "impactFactors",
@@ -66,7 +66,7 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 		ImpactCategory category = new ImpactCategory();
 		category.impactFactors.add(createImpactFactor(3d));
 		category.impactFactors.add(createImpactFactor("2*" + p4Name));
-		return Tests.insert(category);
+		return db.insert(category);
 	}
 
 	private ImpactFactor createImpactFactor(Object value) {
@@ -91,14 +91,14 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 		Unit unit = new Unit();
 		unit.name = "unit";
 		group.units.add(unit);
-		group = Tests.insert(group);
+		group = db.insert(group);
 		FlowProperty property = new FlowProperty();
 		property.unitGroup = group;
-		property = Tests.insert(property);
+		property = db.insert(property);
 		FlowPropertyFactor factor = new FlowPropertyFactor();
 		factor.flowProperty = property;
 		flow.flowPropertyFactors.add(factor);
-		return Tests.insert(flow);
+		return db.insert(flow);
 	}
 
 	// TODO: LCIA method parameters moved down to LCIA categories but the

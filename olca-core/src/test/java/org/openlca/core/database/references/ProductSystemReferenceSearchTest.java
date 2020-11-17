@@ -49,9 +49,9 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 		Parameter globalUnreferenced = createParameter(n1, "3*3", true);
 		Parameter globalUnreferenced2 = createParameter(n3, "3*3", true);
 		// must be inserted manually
-		globalUnreferenced = Tests.insert(globalUnreferenced);
-		globalUnreferenced2 = Tests.insert(globalUnreferenced2);
-		return Tests.insert(system);
+		globalUnreferenced = db.insert(globalUnreferenced);
+		globalUnreferenced2 = db.insert(globalUnreferenced2);
+		return db.insert(system);
 	}
 
 	private Process createProcess() {
@@ -80,10 +80,10 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 		group.units.add(unit);
 		property.unitGroup = group;
 		flow.flowPropertyFactors.add(factor);
-		group = Tests.insert(group);
+		group = db.insert(group);
 		addExpected("targetUnit", group.getUnit(unit.name));
-		property = Tests.insert(property);
-		flow = Tests.insert(flow);
+		property = db.insert(property);
+		flow = db.insert(flow);
 		addExpected("targetFlowPropertyFactor", flow.getFactor(property));
 		return flow;
 	}

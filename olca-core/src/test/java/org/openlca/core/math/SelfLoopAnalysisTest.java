@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.openlca.core.TestProcess;
 import org.openlca.core.TestSystem;
 import org.openlca.core.Tests;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
@@ -14,6 +15,7 @@ import org.openlca.core.results.FullResult;
 
 public class SelfLoopAnalysisTest {
 
+	private final IDatabase db = Tests.getDb();
 	private FullResult result;
 
 	@Before
@@ -32,7 +34,7 @@ public class SelfLoopAnalysisTest {
 				.get();
 		ProductSystem system = TestSystem.of(p1).link(p2).get();
 		system.targetAmount = 2;
-		system = Tests.update(system);
+		system = db.update(system);
 		result = TestSystem.calculate(system);
 	}
 

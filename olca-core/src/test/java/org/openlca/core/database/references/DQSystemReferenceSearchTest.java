@@ -11,13 +11,13 @@ import org.openlca.core.model.Source;
 
 public class DQSystemReferenceSearchTest extends BaseReferenceSearchTest {
 
-	private List<DQSystem> systems = new ArrayList<>();
+	private final List<DQSystem> systems = new ArrayList<>();
 
 	@Override
 	public void clear() {
 		for (DQSystem system : systems)
 			new DQSystemDao(Tests.getDb()).delete(system);
-		Tests.clearDb();
+		db.clear();
 	}
 
 	@Override
@@ -29,7 +29,7 @@ public class DQSystemReferenceSearchTest extends BaseReferenceSearchTest {
 	protected DQSystem createModel() {
 		DQSystem system = new DQSystem();
 		system.source = insertAndAddExpected("source", new Source());
-		system = Tests.insert(system);
+		system = db.insert(system);
 		systems.add(system);
 		return system;
 	}

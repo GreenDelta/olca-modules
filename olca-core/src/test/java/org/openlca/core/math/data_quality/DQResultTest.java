@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.DQSystemDao;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.matrix.IndexFlow;
@@ -29,6 +30,7 @@ import org.openlca.core.results.FullResult;
 
 public class DQResultTest {
 
+	private final IDatabase db = Tests.getDb();
 	private DQSystem dqSystem;
 	private ProductSystem system;
 	private Process process1;
@@ -41,16 +43,16 @@ public class DQResultTest {
 
 	@Before
 	public void setup() {
-		var units = Tests.insert(UnitGroup.of("Mass units", Unit.of("kg")));
-		var mass = Tests.insert(FlowProperty.of("Mass", units));
+		var units = db.insert(UnitGroup.of("Mass units", Unit.of("kg")));
+		var mass = db.insert(FlowProperty.of("Mass", units));
 
-		var product1 = Tests.insert(Flow.product("product 1", mass));
-		pFlow2 = Tests.insert(Flow.product("product 2", mass));
-		eFlow1 = Tests.insert(Flow.elementary("elem 1", mass));
-		eFlow2 = Tests.insert(Flow.elementary("elem 2", mass));
+		var product1 = db.insert(Flow.product("product 1", mass));
+		pFlow2 = db.insert(Flow.product("product 2", mass));
+		eFlow1 = db.insert(Flow.elementary("elem 1", mass));
+		eFlow2 = db.insert(Flow.elementary("elem 2", mass));
 
 		createDQSystem();
-		ProcessDao dao = new ProcessDao(Tests.getDb());
+		ProcessDao dao = new ProcessDao(db);
 		process1 = process(product1);
 		process1.quantitativeReference.dqEntry = "(1;2;3;4;5)";
 		process1.input(pFlow2, 2);
@@ -71,7 +73,7 @@ public class DQResultTest {
 
 	@After
 	public void shutdown() {
-		Tests.clearDb();
+		db.clear();
 	}
 
 	private void createDQSystem() {
@@ -86,7 +88,7 @@ public class DQResultTest {
 				indicator.scores.add(score);
 			}
 		}
-		dqSystem = new DQSystemDao(Tests.getDb()).insert(dqSystem);
+		dqSystem = new DQSystemDao(db).insert(dqSystem);
 	}
 
 	private void createProductSystem() {
@@ -103,7 +105,7 @@ public class DQResultTest {
 		}
 		link.processId = process1.id;
 		system.processLinks.add(link);
-		system = Tests.insert(system);
+		system = db.insert(system);
 	}
 
 	private Process process(Flow product) {
@@ -117,10 +119,10 @@ public class DQResultTest {
 		impact = new ImpactCategory();
 		impact.factor(eFlow1, 2);
 		impact.factor(eFlow2, 8);
-		impact = Tests.insert(impact);
+		impact = db.insert(impact);
 		method = new ImpactMethod();
 		method.impactCategories.add(impact);
-		method = Tests.insert(method);
+		method = db.insert(method);
 	}
 
 	@Test
@@ -128,9 +130,9 @@ public class DQResultTest {
 		var setup = new CalculationSetup(system);
 		setup.setAmount(1);
 		setup.impactMethod = Descriptor.of(method);
-		var result = FullResult.of(Tests.getDb(), setup);
+		var result = FullResult.of(db, setup);
 		var dqSetup = DQCalculationSetup.of(system);
-		var dqResult = DQResult.of(Tests.getDb(), dqSetup, result);
+		var dqResult = DQResult.of(db, dqSetup, result);
 
 		assertArrayEquals(a(1, 2, 3, 4, 5), r(dqResult, process1));
 		assertArrayEquals(a(5, 4, 3, 2, 1), r(dqResult, process2));

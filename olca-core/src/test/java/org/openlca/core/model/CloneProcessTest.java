@@ -24,7 +24,7 @@ public class CloneProcessTest {
 			assertTrue(e.internalId > 0);
 			assertEquals(e, p2.getExchange(e.internalId));
 		}
-		Tests.delete(p1);
+		Tests.getDb().clear();
 	}
 
 }

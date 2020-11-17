@@ -41,7 +41,7 @@ public class WasteCalculationTest {
 
 	@After
 	public void tearDown() {
-		Tests.clearDb();
+		db.clear();
 	}
 
 	@Test

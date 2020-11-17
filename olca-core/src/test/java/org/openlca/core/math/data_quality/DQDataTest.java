@@ -6,6 +6,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQScore;
@@ -20,6 +21,7 @@ import org.openlca.core.results.FullResult;
 
 public class DQDataTest {
 
+	private final IDatabase db = Tests.getDb();
 	private DQSystem dqSystem;
 	private ProductSystem productSystem;
 	private Process process1;
@@ -29,24 +31,24 @@ public class DQDataTest {
 
 	@Before
 	public void setup() {
-		var units = Tests.insert(UnitGroup.of("Mass units", Unit.of("kg")));
-		mass = Tests.insert(FlowProperty.of("Mass", units));
-		elemFlow = Tests.insert(Flow.elementary("CO2", mass));
+		var units = db.insert(UnitGroup.of("Mass units", Unit.of("kg")));
+		mass = db.insert(FlowProperty.of("Mass", units));
+		elemFlow = db.insert(Flow.elementary("CO2", mass));
 		dqSystem = dqSystem();
 		process1 = process("(1;2;3;4;5)", "(2;1;4;3;5)");
 		process2 = process("(5;4;3;2;1)", "(4;5;2;3;1)");
 
 		process1.input(process2.quantitativeReference.flow, 1);
-		process1 = Tests.update(process1);
+		process1 = db.update(process1);
 
 		productSystem = ProductSystem.of(process1);
 		productSystem.link(process2, process1);
-		productSystem = Tests.insert(productSystem);
+		productSystem = db.insert(productSystem);
 	}
 
 	@After
 	public void shutdown() {
-		Tests.clearDb();
+		db.clear();
 	}
 
 	private DQSystem dqSystem() {
@@ -61,18 +63,18 @@ public class DQDataTest {
 				indicator.scores.add(score);
 			}
 		}
-		return Tests.insert(sys);
+		return db.insert(sys);
 	}
 
 	private Process process(String processEntry, String flowEntry) {
-		var product = Tests.insert(Flow.product("product", mass));
+		var product = db.insert(Flow.product("product", mass));
 		var p = Process.of("process", product);
 		p.dqSystem = dqSystem;
 		p.dqEntry = processEntry;
 		p.exchangeDqSystem = dqSystem;
 		p.output(elemFlow, 1.0)
 				.dqEntry = flowEntry;
-		return Tests.insert(p);
+		return db.insert(p);
 	}
 
 	@Test
@@ -81,11 +83,11 @@ public class DQDataTest {
 		var product1 = ProcessProduct.of(process1);
 		var product2 = ProcessProduct.of(process2);
 
-		var result = FullResult.of(Tests.getDb(), productSystem);
+		var result = FullResult.of(db, productSystem);
 		var iFlow = result.flowIndex.at(0);
 
 		// test process data
-		var dqData = DQResult.of(Tests.getDb(), setup, result);
+		var dqData = DQResult.of(db, setup, result);
 		assertArrayEquals(new int[]{1, 2, 3, 4, 5}, dqData.get(product1));
 		assertArrayEquals(new int[]{5, 4, 3, 2, 1}, dqData.get(product2));
 

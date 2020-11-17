@@ -3,25 +3,20 @@ package org.openlca.io.ecospold1;
 import static org.junit.Assert.*;
 
 import java.io.File;
-import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.ecospold.io.DataSetType;
-import org.openlca.ecospold.io.EcoSpold;
 import org.openlca.io.Tests;
 import org.openlca.io.ecospold1.input.EcoSpold01Import;
 import org.openlca.io.ecospold1.input.ImportConfig;
 import org.openlca.io.ecospold1.output.EcoSpold1Export;
-import org.openlca.io.ecospold1.output.ExportConfig;
 
 public class TestEcoSpold1IO {
 
@@ -40,47 +35,28 @@ public class TestEcoSpold1IO {
 		var entities = List.of(units, mass, co2, steel, process);
 		entities.forEach(db::insert);
 
-		var dir = Files.createTempDirectory("_spold_out").toFile();
-		var export = new EcoSpold1Export(dir);
+		var dir = Files.createTempDirectory("_spold_out");
+		var export = new EcoSpold1Export(dir.toFile());
 		export.export(process);
-		Tests.clearDb();
+		db.clear();
 
-		var files = dir.listFiles();
+		var config = new ImportConfig(db);
+		var imp = new EcoSpold01Import(config);
+
+		var files = Files.walk(dir)
+				.filter(Files::isRegularFile)
+				.map(Path::toFile)
+				.toArray(File[]::new);
+
 		assertNotNull(files);
 		assertTrue(files.length > 0);
-		for (var file : files) {
-			var type = EcoSpold.typeOf(file);
-			if (type.isEmpty())
-				continue;
+		imp.setFiles(files);
+		imp.run();
 
-		}
-	}
-
-	@Test
-	public void testIO() throws Exception {
-		InputStream in = openXml();
-		DataSetType type = EcoSpold.typeOf(in).orElse(null);
-		ImportConfig config = new ImportConfig(db);
-		EcoSpold01Import es1Import = new EcoSpold01Import(config);
-		es1Import.run(openXml(), type);
-		ProcessDao dao = new ProcessDao(db);
-		List<Process> processes = dao.getForName("Bauxite, at mine");
-		Process process = processes.get(0);
-		String tmpDirPath = System.getProperty("java.io.tmpdir");
-		File dir = new File(tmpDirPath);
-		EcoSpold1Export export = new EcoSpold1Export(dir,
-				ExportConfig.getDefault());
-		export.export(process);
-		export.close();
-		dao.delete(process);
-		File esDir = new File(dir, "EcoSpold01");
-		File file = new File(esDir, "process_" + process.refId + ".xml");
-		Assert.assertTrue(file.exists());
-		Files.delete(file.toPath());
-	}
-
-	private InputStream openXml() {
-		return getClass().getResourceAsStream("sample_ecospold01.xml");
+		var processes = db.allOf(Process.class);
+		assertEquals(1, processes.size());
+		assertEquals("steel", process.quantitativeReference.flow.name);
+		db.clear();
 	}
 
 }

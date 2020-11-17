@@ -6,12 +6,15 @@ import org.junit.Test;
 import org.openlca.core.TestProcess;
 import org.openlca.core.TestSystem;
 import org.openlca.core.Tests;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.FullResult;
 
 public class AvoidedFlowsTest {
+
+	private final IDatabase db = Tests.getDb();
 
 	@Test
 	public void testProduct() {
@@ -21,7 +24,7 @@ public class AvoidedFlowsTest {
 				.elemOut("CO2", 2.0, "kg")
 				.get();
 		TestProcess.findExchange(p1, "p2").isAvoided = true;
-		p1 = Tests.update(p1);
+		p1 = db.update(p1);
 		Process p2 = TestProcess
 				.refProduct("p2", 1.0, "kg")
 				.elemOut("CO2", 2.0, "kg")
@@ -37,7 +40,7 @@ public class AvoidedFlowsTest {
 				.elemOut("CO2", 2.0, "kg")
 				.get();
 		TestProcess.findExchange(p, "w").isAvoided = true;
-		p = Tests.update(p);
+		p = db.update(p);
 		Process w = TestProcess
 				.refWaste("w", 1.0, "kg")
 				.elemOut("CO2", 2.0, "kg")

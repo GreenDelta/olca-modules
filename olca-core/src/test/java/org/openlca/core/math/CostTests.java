@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.openlca.core.TestProcess;
 import org.openlca.core.TestSystem;
 import org.openlca.core.Tests;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
@@ -21,6 +22,8 @@ import org.openlca.core.results.UpstreamNode;
 import org.openlca.core.results.UpstreamTree;
 
 public class CostTests {
+
+	private final IDatabase db = Tests.getDb();
 
 	@Test
 	public void testSingleProcess() {
@@ -43,7 +46,7 @@ public class CostTests {
 		Assert.assertEquals(3, root.result, 1e-10);
 		List<Contribution<CategorizedDescriptor>> contributions = r
 				.getProcessCostContributions();
-		Assert.assertTrue(contributions.size() == 1);
+		Assert.assertEquals(1, contributions.size());
 		Contribution<CategorizedDescriptor> item = contributions.get(0);
 		Assert.assertEquals(3, item.amount, 1e-10);
 		Assert.assertEquals(1, item.share, 1e-10);
@@ -105,7 +108,7 @@ public class CostTests {
 				break;
 			}
 		}
-		p1 = Tests.update(p1);
+		p1 = db.update(p1);
 
 		ProductSystem system = TestSystem.of(p1).get();
 		// add a link to the process itself
@@ -115,7 +118,7 @@ public class CostTests {
 		selfLink.processId = p1.id;
 		selfLink.exchangeId = exchangeId;
 		system.processLinks.add(selfLink);
-		system = Tests.update(system);
+		system = db.update(system);
 
 		FullResult r = TestSystem.calculate(system);
 		Assert.assertEquals(-1.2, r.totalCosts, 1e-10);

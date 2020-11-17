@@ -33,7 +33,7 @@ public class ParameterRenameTest {
 
 	@Test
 	public void testRenameUnused() {
-		var param = Tests.insert(Parameter.global("global_unused", 42));
+		var param = db.insert(Parameter.global("global_unused", 42));
 		var renamed = Parameters.rename(db, param, "unused_global");
 		Assert.assertEquals(param, renamed);
 		Assert.assertEquals("unused_global", renamed.name);
@@ -42,8 +42,8 @@ public class ParameterRenameTest {
 
 	@Test
 	public void testParameterFormulas() {
-		var global = Tests.insert(Parameter.global("param", 42));
-		var globalDep = Tests.insert(Parameter.global("dep", "2 / param"));
+		var global = db.insert(Parameter.global("param", 42));
+		var globalDep = db.insert(Parameter.global("dep", "2 / param"));
 
 		var process1 = new Process();
 		process1.parameter("dep", "2 * param");
@@ -86,7 +86,7 @@ public class ParameterRenameTest {
 
 	@Test
 	public void testExchangeFormulas() {
-		var global = Tests.insert(Parameter.global("param", 42));
+		var global = db.insert(Parameter.global("param", 42));
 
 		// no local parameter in process 1
 		var p1 = new Process();
@@ -127,7 +127,7 @@ public class ParameterRenameTest {
 
 	@Test
 	public void testImpactFormulas() {
-		var global = Tests.insert(Parameter.global("param", 42));
+		var global = db.insert(Parameter.global("param", 42));
 
 		// no local parameter in impact 1
 		var i1 = new ImpactCategory();
@@ -168,7 +168,7 @@ public class ParameterRenameTest {
 
 	@Test
 	public void testAllocationFactors() {
-		var global = Tests.insert(Parameter.global("global_param", 42));
+		var global = db.insert(Parameter.global("global_param", 42));
 		var process = TestProcess
 				.refProduct("p1", 1, "kg")
 				.param("local_param", 33)
@@ -196,7 +196,7 @@ public class ParameterRenameTest {
 
 	@Test
 	public void testProductSystemRedefs() {
-		var global = Tests.insert(Parameter.global("param", 42));
+		var global = db.insert(Parameter.global("param", 42));
 
 		var process = new Process();
 		process.parameter("param", 42);
@@ -249,7 +249,7 @@ public class ParameterRenameTest {
 
 	@Test
 	public void testProjectVariantRedefs() {
-		var global = Tests.insert(Parameter.global("param", 42));
+		var global = db.insert(Parameter.global("param", 42));
 
 		var process = new Process();
 		process.parameter("param", 42);
@@ -310,7 +310,7 @@ public class ParameterRenameTest {
 		var af = new AllocationFactor();
 		af.formula = "2 * param";
 		process.allocationFactors.add(af);
-		Tests.insert(process);
+		db.insert(process);
 
 		process = Parameters.rename(param, process, db, "new_param");
 		var dep = process.parameters.stream()

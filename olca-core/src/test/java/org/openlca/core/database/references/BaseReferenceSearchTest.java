@@ -14,6 +14,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.references.IReferenceSearch.Reference;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.CategorizedEntity;
@@ -22,24 +23,27 @@ import org.openlca.util.Strings;
 
 public abstract class BaseReferenceSearchTest {
 
+	protected IDatabase db = Tests.getDb();
 	private List<Reference> expectedReferences = new ArrayList<>();
 	private Map<Long, List<Reference>> referencesByOwner = new HashMap<>();
 
 	@Before
 	public void setup() {
-		Tests.clearDb();
+		db.clear();
 	}
 
 	@After
 	public void clear() {
-		Tests.clearDb();
+		db.clear();
 	}
 
 	@Test
-	public void testNoReferences() throws InstantiationException,
-			IllegalAccessException {
-		AbstractEntity minimalModel = (AbstractEntity) getModelClass().newInstance();
-		List<Reference> references = findReferences(Collections.singleton(minimalModel.id));
+	public void testNoReferences() throws Exception {
+		var empty = getModelClass()
+				.getDeclaredConstructor()
+				.newInstance();
+		List<Reference> references = findReferences(
+				Collections.singleton(empty.id));
 		Assert.assertNotNull(references);
 		Assert.assertEquals(0, references.size());
 	}
@@ -105,7 +109,7 @@ public abstract class BaseReferenceSearchTest {
 				continue;
 			if (ref.getOwnerType() != reference.getOwnerType())
 				continue;
-			if (ref.ownerId != (reference.ownerId != 0l ? reference.ownerId : ownerId))
+			if (ref.ownerId != (reference.ownerId != 0L ? reference.ownerId : ownerId))
 				continue;
 			if (!Strings.nullOrEqual(ref.nestedProperty, reference.nestedProperty))
 				continue;
@@ -130,7 +134,7 @@ public abstract class BaseReferenceSearchTest {
 
 	protected final <T extends CategorizedEntity> T insertAndAddExpected(String property, T entity,
 			String nestedProperty, Class<? extends AbstractEntity> nestedOwnerType, long nestedOwnerId) {
-		entity = Tests.insert(entity);
+		entity = db.insert(entity);
 		expectedReferences.add(new Reference(property, entity.getClass(), entity.id, getModelClass(), 0,
 				nestedProperty, nestedOwnerType, nestedOwnerId, false));
 		return entity;
