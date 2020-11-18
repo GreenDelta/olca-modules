@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
@@ -26,7 +27,6 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Source;
 import org.openlca.ecospold.IAllocation;
-import org.openlca.ecospold.IDataSet;
 import org.openlca.ecospold.IEcoSpold;
 import org.openlca.ecospold.IExchange;
 import org.openlca.ecospold.IGeography;
@@ -158,23 +158,23 @@ public class EcoSpold01Import implements FileImport {
 		eventBus.post(new ImportEvent(dataSetName));
 	}
 
-	public void run(InputStream is, DataSetType type) throws Exception {
+	public void run(InputStream is, DataSetType type) {
 		if (is == null || type == null)
 			return;
-		IEcoSpold spold = EcoSpold.read(is, type);
+		var spold = EcoSpold.read(is, type);
 		if (spold == null || spold.getDataset().isEmpty())
 			return;
-		if (type == DataSetType.PROCESS) {
-			for (IDataSet ds : spold.getDataset()) {
-				DataSet dataSet = new DataSet(ds, type.getFactory());
-				handleProcessDataSet(dataSet);
+		if (type == DataSetType.IMPACT_METHOD) {
+			importImpacts(spold);
+		} else {
+			for (var ds : spold.getDataset()) {
+				var wrap = new DataSet(ds, type.getFactory());
+				importProcess(wrap);
 			}
-		} else if (!spold.getDataset().isEmpty()) {
-			impactMethod(spold);
 		}
 	}
 
-	private void handleProcessDataSet(DataSet ds) {
+	private void importProcess(DataSet ds) {
 		if (ds.getReferenceFunction() == null)
 			return;
 		persons(ds);
@@ -386,19 +386,6 @@ public class EcoSpold01Import implements FileImport {
 		}
 	}
 
-	private ImpactCategory mapReferenceFunction(
-			IReferenceFunction inRefFunction) {
-		ImpactCategory category = new ImpactCategory();
-		category.refId = UUID.randomUUID().toString();
-		String name = inRefFunction.getSubCategory();
-		if (inRefFunction.getName() != null) {
-			name = name.concat(" - ").concat(inRefFunction.getName());
-		}
-		category.name = name;
-		category.referenceUnit = inRefFunction.getUnit();
-		return category;
-	}
-
 	private void mapReferenceFunction(IReferenceFunction refFun, Process ioProcess) {
 		ioProcess.name = refFun.getName();
 		ioProcess.description = refFun.getGeneralComment();
@@ -441,34 +428,48 @@ public class EcoSpold01Import implements FileImport {
 					.getReferenceToPublishedSource());
 	}
 
-	private void impactMethod(IEcoSpold es) {
-		if (es.getDataset().isEmpty())
+	private void importImpacts(IEcoSpold es) {
+		if (es == null)
 			return;
-		DataSet dataSet = new DataSet(es.getDataset().get(0),
-				DataSetType.IMPACT_METHOD.getFactory());
-		String methodId = ES1KeyGen.forImpactMethod(dataSet);
-		ImpactMethod method = db.get(ImpactMethod.class, methodId);
-		if (method != null) {
-			log.trace("LCIA method {} already exists, not imported", methodId);
-			infos.ignored(method);
-			return;
-		}
+		var db = this.db.database;
+		for (var ds : es.getDataset()) {
+			var wrap = new DataSet(
+					ds, DataSetType.IMPACT_METHOD.getFactory());
+			var ref = wrap.getReferenceFunction();
+			if (ref == null)
+				continue;
 
-		method = new ImpactMethod();
-		method.refId = methodId;
-		method.name = dataSet.getReferenceFunction().getCategory();
-		method.description = dataSet.getReferenceFunction()
-				.getGeneralComment();
-		for (IDataSet adapter : es.getDataset()) {
-			dataSet = new DataSet(adapter,
-					DataSetType.IMPACT_METHOD.getFactory());
-			ImpactCategory lciaCategory = mapReferenceFunction(dataSet
-					.getReferenceFunction());
-			mapFactors(dataSet.getExchanges(), lciaCategory);
-			method.impactCategories.add(lciaCategory);
+			// get or create the LCIA category
+			var impactID = ES1KeyGen.forImpactCategory(wrap);
+			var impact = db.get(ImpactCategory.class, impactID);
+			if (impact == null) {
+				var name = ref.getSubCategory();
+				if (ref.getName() != null) {
+					name = name.concat(" - ").concat(ref.getName());
+				}
+				impact = ImpactCategory.of(name, ref.getUnit());
+				impact.refId = impactID;
+				mapFactors(wrap.getExchanges(), impact);
+				impact = db.insert(impact);
+				infos.imported(impact);
+			}
+
+			// get or create the method
+			var methodID = ES1KeyGen.forImpactMethod(wrap);
+			var method = db.get(ImpactMethod.class, methodID);
+			if (method == null) {
+				method = ImpactMethod.of(ref.getCategory());
+				method.refId = methodID;
+				method.description = ref.getGeneralComment();
+				method = db.insert(method);
+			}
+
+			var alreadyExists = method.impactCategories.stream()
+					.anyMatch(i -> Objects.equals(i.refId, impactID));
+			if (alreadyExists)
+				continue;
+			method.impactCategories.add(impact);
+			db.update(method);
 		}
-		db.put(method, methodId);
-		infos.imported(method);
 	}
-
 }

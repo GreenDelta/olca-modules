@@ -30,15 +30,15 @@ import org.slf4j.LoggerFactory;
  */
 class DB {
 
-	private IDatabase database;
-	private DBSearch search;
-	private Logger log = LoggerFactory.getLogger(getClass());
+	final IDatabase database;
+	private final DBSearch search;
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private Map<String, Category> categories = new HashMap<>();
-	private Map<String, Actor> actors = new HashMap<>();
-	private Map<String, Source> sources = new HashMap<>();
-	private Map<String, Location> locations = new HashMap<>();
-	private Map<String, Flow> flows = new HashMap<>();
+	private final Map<String, Category> categories = new HashMap<>();
+	private final Map<String, Actor> actors = new HashMap<>();
+	private final Map<String, Source> sources = new HashMap<>();
+	private final Map<String, Location> locations = new HashMap<>();
+	private final Map<String, Flow> flows = new HashMap<>();
 
 	public DB(IDatabase database) {
 		this.database = database;

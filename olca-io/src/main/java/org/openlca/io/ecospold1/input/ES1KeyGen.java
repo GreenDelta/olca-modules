@@ -9,7 +9,7 @@ import org.openlca.util.KeyGen;
 
 /**
  * Generator for name-based UUIDs (version 3) for EcoSpold 01 entities.
- * 
+ * <p>
  * See <a href=
  * "http://openlca.org/documentation/index.php/UUIDs_for_EcoSpold_01_data_sets">
  * http
@@ -91,10 +91,28 @@ public class ES1KeyGen {
 		vals[5] = inf ? "true" : "false";
 	}
 
-	public static String forImpactMethod(DataSet dataset) {
-		if (dataset == null || dataset.getReferenceFunction() == null)
+	/**
+	 * For LCIA methods we generate the ref. ID from the method name which is
+	 * stored in the `category` field of the reference function.
+	 */
+	public static String forImpactMethod(DataSet ds) {
+		if (ds == null || ds.getReferenceFunction() == null)
 			return KeyGen.get("");
-		return KeyGen.get(dataset.getReferenceFunction().getCategory());
+		return KeyGen.get(ds.getReferenceFunction().getCategory());
+	}
+
+	/**
+	 * For LCIA categories we generate the ref. ID from the indicator name,
+	 * which is stored in the `subCategory` and `name` field of the reference
+	 * function, and from the reference unit.
+	 */
+	public static String forImpactCategory(DataSet ds) {
+		var ref = ds == null
+				? null
+				: ds.getReferenceFunction();
+		return ref == null
+				? KeyGen.get("")
+				: KeyGen.get(ref.getSubCategory(), ref.getName(), ref.getUnit());
 	}
 
 	public static String forPerson(IPerson person) {
