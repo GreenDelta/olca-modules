@@ -144,7 +144,7 @@ public interface IDatabase extends Closeable, INotifiable {
 	default void delete(AbstractEntity e1, AbstractEntity e2,
 						AbstractEntity... more) {
 		this.delete(e1);
-		this.delete(e1);
+		this.delete(e2);
 		if (more == null)
 			return;
 		for (var e : more) {

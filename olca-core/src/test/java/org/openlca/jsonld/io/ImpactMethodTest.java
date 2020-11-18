@@ -43,9 +43,7 @@ public class ImpactMethodTest extends AbstractZipTest {
 			export.write(method2);
 		});
 
-		// only db.clear works here; no idea why
-		db.clear();
-		// db.delete(method2, method1, impact);
+		db.delete(method2, method1, impact);
 
 		// import and check
 		with(zip -> new JsonImport(zip, db).run());
