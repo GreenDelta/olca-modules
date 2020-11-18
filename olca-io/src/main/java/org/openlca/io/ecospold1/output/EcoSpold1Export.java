@@ -39,7 +39,7 @@ public class EcoSpold1Export implements Closeable {
 		this.config = config;
 	}
 
-	public void export(ImpactMethod method) throws Exception {
+	public void export(ImpactMethod method) {
 		IEcoSpold spold = MethodConverter.convert(method, config);
 		String fileName = "lcia_method_" + method.refId + ".xml";
 		File file = new File(outDir, fileName);
@@ -47,7 +47,7 @@ public class EcoSpold1Export implements Closeable {
 		log.trace("wrote {} to {}", method, file);
 	}
 
-	public void export(Process process) throws Exception {
+	public void export(Process process) {
 		categoryWriter.takeFrom(process);
 		IDataSet dataSet = ProcessConverter.convert(process, config);
 		if (config.isSingleFile())
