@@ -199,9 +199,21 @@ class FlowImport {
 
 	/** Creates a new flow and inserts it in the database. */
 	private FlowBucket createFlow(String flowKey, Flow flow, String unit) {
-		UnitMappingEntry entry = unitMapping.getEntry(unit);
-		if (entry == null || !entry.isValid())
-			return null;
+		var entry = unitMapping.getEntry(unit);
+		if (entry == null || !entry.isValid()) {
+			// we have no valid unit mapping; we create
+			// a new one here
+			var _db = db.database;
+			var units = _db.insert(UnitGroup.of("New: " + unit, unit));
+			var prop = _db.insert(FlowProperty.of("New: " + unit, units));
+			entry = new UnitMappingEntry();
+			entry.factor = 1.0;
+			entry.flowProperty = prop;
+			entry.unit = units.referenceUnit;
+			entry.unitGroup = units;
+			entry.unitName = unit;
+			unitMapping.put(unit, entry);
+		}
 		flow.referenceFlowProperty = entry.flowProperty;
 		FlowPropertyFactor factor = new FlowPropertyFactor();
 		factor.flowProperty = entry.flowProperty;
