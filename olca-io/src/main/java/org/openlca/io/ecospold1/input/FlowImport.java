@@ -30,11 +30,11 @@ import org.slf4j.LoggerFactory;
  */
 class FlowImport {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-	private DB db;
-	private UnitMapping unitMapping;
-	private FlowMap flowMap;
-	private Map<String, FlowBucket> cache = new HashMap<>();
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final DB db;
+	private final UnitMapping unitMapping;
+	private final FlowMap flowMap;
+	private final Map<String, FlowBucket> cache = new HashMap<>();
 
 	public FlowImport(DB db, ImportConfig config) {
 		this.db = db;
@@ -125,8 +125,7 @@ class FlowImport {
 		bucket.conversionFactor = entry.factor;
 		bucket.flow = flow;
 		bucket.flowProperty = flow.referenceFlowProperty;
-		Unit unit = getReferenceUnit(bucket.flowProperty);
-		bucket.unit = unit;
+		bucket.unit = getReferenceUnit(bucket.flowProperty);
 		if (!bucket.isValid()) {
 			log.warn("invalid flow mapping for {}", genKey);
 			return null;
@@ -176,8 +175,7 @@ class FlowImport {
 			String locKey = KeyGen.get(locationCode);
 			flow.location = db.findLocation(locationCode, locKey);
 		}
-		FlowType flowType = Mapper.getFlowType(inExchange);
-		flow.flowType = flowType;
+		flow.flowType = Mapper.getFlowType(inExchange);
 	}
 
 	private void mapDataSetData(DataSet dataset, Flow flow) {

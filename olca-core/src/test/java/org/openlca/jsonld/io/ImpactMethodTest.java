@@ -1,10 +1,10 @@
 package org.openlca.jsonld.io;
 
-import java.util.UUID;
+import static org.junit.Assert.*;
 
-import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.core.database.ImpactMethodDao;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.jsonld.AbstractZipTest;
 import org.openlca.jsonld.Tests;
@@ -13,39 +13,45 @@ import org.openlca.jsonld.output.JsonExport;
 
 public class ImpactMethodTest extends AbstractZipTest {
 
+  private final IDatabase db = Tests.getDb();
+
 	@Test
-	public void testImpactMethod() throws Exception {
-		ImpactMethodDao dao = new ImpactMethodDao(Tests.getDb());
-		ImpactMethod method = createModel(dao);
-		doExport(method, dao);
-		doImport(dao, method);
-		dao.delete(method);
+	public void testEmptyMethod() {
+    var method = db.insert(ImpactMethod.of("Some method"));
+		with(zip -> new JsonExport(db, zip).write(method));
+		db.delete(method);
+		assertNull(db.get(ImpactMethod.class, method.refId));
+		with(zip -> new JsonImport(zip, Tests.getDb()).run());
+		var clone = db.get(ImpactMethod.class, method.refId);
+		assertEquals(method.name, clone.name);
+		db.delete(method);
 	}
 
-	private ImpactMethod createModel(ImpactMethodDao dao) {
-		ImpactMethod method = new ImpactMethod();
-		method.name = "method";
-		method.refId = UUID.randomUUID().toString();
-		dao.insert(method);
-		return method;
-	}
+  @Test
+  public void testSharedCategories() {
 
-	private void doExport(ImpactMethod method, ImpactMethodDao dao) {
-		with(zip -> {
-			JsonExport export = new JsonExport(Tests.getDb(), zip);
-			export.write(method);
-		});
-		dao.delete(method);
-		Assert.assertFalse(dao.contains(method.refId));
-	}
+    // build and export the model
+    var impact = ImpactCategory.of("GWP", "kg CO2 eq.");
+    var method1 = ImpactMethod.of("Method 1");
+    method1.impactCategories.add(impact);
+    var method2 = ImpactMethod.of("Method 2");
+    method2.impactCategories.add(impact);
+    db.insert(impact, method1, method2);
+    with(zip -> {
+      var export = new JsonExport(db, zip);
+      export.write(method1);
+      export.write(method2);
+    });
+    db.delete(method2, method1, impact);
 
-	private void doImport(ImpactMethodDao dao, ImpactMethod method) {
-		with(zip -> {
-			JsonImport jImport = new JsonImport(zip, Tests.getDb());
-			jImport.run();
-		});
-		Assert.assertTrue(dao.contains(method.refId));
-		ImpactMethod clone = dao.getForRefId(method.refId);
-		Assert.assertEquals(method.name, clone.name);
-	}
+    // import and check
+    with(zip -> new JsonImport(zip, db).run());
+    var m1 = db.get(ImpactMethod.class, method1.refId);
+    var m2 = db.get(ImpactMethod.class, method2.refId);
+    var c1 = m1.impactCategories.get(0);
+    var c2 = m2.impactCategories.get(0);
+    assertEquals(c1, c2);
+    db.delete(m1, m2, c1);
+  }
+
 }

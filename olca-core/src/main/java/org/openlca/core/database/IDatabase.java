@@ -116,6 +116,17 @@ public interface IDatabase extends Closeable, INotifiable {
 		return dao.insert(e);
 	}
 
+	default void insert(AbstractEntity e1, AbstractEntity e2,
+						AbstractEntity... more) {
+		insert(e1);
+		insert(e2);
+		if (more == null)
+			return;
+		for (var e : more) {
+			insert(e);
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	default <T extends AbstractEntity> T update(T e) {
 		var dao = (BaseDao<T>) Daos.base(this, e.getClass());
@@ -124,8 +135,21 @@ public interface IDatabase extends Closeable, INotifiable {
 
 	@SuppressWarnings("unchecked")
 	default <T extends AbstractEntity> void delete(T e) {
+		if (e == null)
+			return;
 		var dao = (BaseDao<T>) Daos.base(this, e.getClass());
 		dao.delete(e);
+	}
+
+	default void delete(AbstractEntity e1, AbstractEntity e2,
+						AbstractEntity... more) {
+		this.delete(e1);
+		this.delete(e1);
+		if (more == null)
+			return;
+		for (var e : more) {
+			delete(e);
+		}
 	}
 
 	default <T extends AbstractEntity> T get(Class<T> type, long id) {
