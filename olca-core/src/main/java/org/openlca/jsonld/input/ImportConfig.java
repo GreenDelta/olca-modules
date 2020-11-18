@@ -22,7 +22,7 @@ class ImportConfig {
 	final Map<String, Map<Integer, String>> providerInfo = new HashMap<>();
 	private final Map<ModelType, Set<String>> visited = new HashMap<>();
 	private final Consumer<RootEntity> callback;
-	
+
 	private ImportConfig(Db db, EntityStore store, UpdateMode updateMode, Consumer<RootEntity> callback) {
 		this.db = db;
 		this.store = store;
@@ -35,20 +35,15 @@ class ImportConfig {
 	}
 
 	void visited(ModelType type, String refId) {
-		Set<String> set = visited.get(type);
-		if (set == null)
-			visited.put(type, set = new HashSet<>());
+		var set = visited.computeIfAbsent(type, k -> new HashSet<>());
 		set.add(refId);
 	}
-	
+
 	void putProviderInfo(String processRefId, int exchangeInternalId, String providerRefId) {
-		Map<Integer, String > info = providerInfo.get(processRefId);
-		if (info == null) {
-			providerInfo.put(processRefId, info = new HashMap<>());
-		}
+		var info = providerInfo.computeIfAbsent(processRefId, k -> new HashMap<>());
 		info.put(exchangeInternalId, providerRefId);
 	}
-	
+
 	void imported(RootEntity entity) {
 		if (callback == null)
 			return;
@@ -57,9 +52,7 @@ class ImportConfig {
 
 	boolean hasVisited(ModelType type, String refId) {
 		Set<String> set = visited.get(type);
-		if (set == null)
-			return false;
-		return set.contains(refId);
+		return set != null && set.contains(refId);
 	}
 
 

@@ -16,12 +16,12 @@ import javax.persistence.Table;
 public class ImpactMethod extends CategorizedEntity {
 
 	@OneToMany
-	@JoinTable(name = "tbl_impact_links", joinColumns = {
-			@JoinColumn(name = "f_impact_method") }, inverseJoinColumns = {
-					@JoinColumn(name = "f_impact_category") })
+	@JoinTable(name = "tbl_impact_links",
+			joinColumns = {@JoinColumn(name = "f_impact_method")},
+			inverseJoinColumns = {@JoinColumn(name = "f_impact_category")})
 	public final List<ImpactCategory> impactCategories = new ArrayList<>();
 
-	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
+	@OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
 	@JoinColumn(name = "f_impact_method")
 	public final List<NwSet> nwSets = new ArrayList<>();
 
@@ -42,8 +42,8 @@ public class ImpactMethod extends CategorizedEntity {
 
 	@OneToMany
 	@JoinTable(name = "tbl_source_links", joinColumns = {
-			@JoinColumn(name = "f_owner") }, inverseJoinColumns = {
-					@JoinColumn(name = "f_source") })
+			@JoinColumn(name = "f_owner")}, inverseJoinColumns = {
+			@JoinColumn(name = "f_source")})
 	public final List<Source> sources = new ArrayList<>();
 
 	public static ImpactMethod of(String name) {

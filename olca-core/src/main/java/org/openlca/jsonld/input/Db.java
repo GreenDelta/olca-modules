@@ -45,27 +45,27 @@ import java.util.Map;
 
 class Db {
 
-	private Map<String, Long> categoryIds = new HashMap<>();
-	private Map<String, Long> unitGroupIds = new HashMap<>();
-	private Map<String, Long> unitIds = new HashMap<>();
-	private Map<String, Long> flowPropertyIds = new HashMap<>();
-	private Map<String, Long> flowIds = new HashMap<>();
-	private Map<String, Long> locationIds = new HashMap<>();
-	private Map<String, Long> dqSystemIds = new HashMap<>();
-	private Map<String, Long> methodIds = new HashMap<>();
-	private Map<String, Long> impactCategoryIds = new HashMap<>();
-	private Map<String, Long> nwSetIds = new HashMap<>();
-	private Map<String, Long> actorIds = new HashMap<>();
-	private Map<String, Long> sourceIds = new HashMap<>();
-	private Map<String, Long> parameterIds = new HashMap<>();
-	private Map<String, Long> processIds = new HashMap<>();
-	private Map<String, Long> indicatorIds = new HashMap<>();
-	private Map<String, Long> currencyIds = new HashMap<>();
-	private Map<String, Long> systemIds = new HashMap<>();
-	private Map<String, Long> projectIds = new HashMap<>();
+	private final Map<String, Long> categoryIds = new HashMap<>();
+	private final Map<String, Long> unitGroupIds = new HashMap<>();
+	private final Map<String, Long> unitIds = new HashMap<>();
+	private final Map<String, Long> flowPropertyIds = new HashMap<>();
+	private final Map<String, Long> flowIds = new HashMap<>();
+	private final Map<String, Long> locationIds = new HashMap<>();
+	private final Map<String, Long> dqSystemIds = new HashMap<>();
+	private final Map<String, Long> methodIds = new HashMap<>();
+	private final Map<String, Long> impactCategoryIds = new HashMap<>();
+	private final Map<String, Long> nwSetIds = new HashMap<>();
+	private final Map<String, Long> actorIds = new HashMap<>();
+	private final Map<String, Long> sourceIds = new HashMap<>();
+	private final Map<String, Long> parameterIds = new HashMap<>();
+	private final Map<String, Long> processIds = new HashMap<>();
+	private final Map<String, Long> indicatorIds = new HashMap<>();
+	private final Map<String, Long> currencyIds = new HashMap<>();
+	private final Map<String, Long> systemIds = new HashMap<>();
+	private final Map<String, Long> projectIds = new HashMap<>();
 	public Map<String, String> categoryRefIdMapping = new HashMap<>();
 
-	private IDatabase db;
+	private final IDatabase db;
 
 	public Db(IDatabase db) {
 		this.db = db;

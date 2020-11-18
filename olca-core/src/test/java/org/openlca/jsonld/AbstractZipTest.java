@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.openlca.core.database.IDatabase;
 
 public class AbstractZipTest {
 
@@ -20,7 +21,7 @@ public class AbstractZipTest {
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		Assert.assertTrue(zipFile.delete());
 		Assert.assertTrue(tempDir.delete());
 	}

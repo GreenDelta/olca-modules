@@ -49,10 +49,14 @@ abstract class BaseImport<T extends RootEntity> {
 	private boolean doImport(T model, JsonObject json) {
 		if (model == null)
 			return true;
-		if (json == null || conf.updateMode == UpdateMode.NEVER)
+		if (json == null
+				|| conf.updateMode == UpdateMode.NEVER
+				|| conf.hasVisited(modelType, refId))
 			return false;
 		if (conf.updateMode == UpdateMode.ALWAYS)
-			return !conf.hasVisited(modelType, refId);
+			return true;
+
+		// check version and date
 		long jsonVersion = In.getVersion(json);
 		long jsonDate = In.getLastChange(json);
 		if (jsonVersion < model.version)
