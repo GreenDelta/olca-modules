@@ -15,7 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.references.IReferenceSearch.Reference;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.ModelType;
@@ -25,7 +24,7 @@ public abstract class BaseReferenceSearchTest {
 
 	protected IDatabase db = Tests.getDb();
 	private List<Reference> expectedReferences = new ArrayList<>();
-	private Map<Long, List<Reference>> referencesByOwner = new HashMap<>();
+	private final Map<Long, List<Reference>> referencesByOwner = new HashMap<>();
 
 	@Before
 	public void setup() {
@@ -142,10 +141,6 @@ public abstract class BaseReferenceSearchTest {
 
 	protected final void addExpected(String property, AbstractEntity entity) {
 		addExpected(property, entity, null, null, 0);
-	}
-
-	protected final void addExpected(Reference reference) {
-		expectedReferences.add(reference);
 	}
 
 	protected final void addExpected(String property, AbstractEntity entity, String nestedProperty,

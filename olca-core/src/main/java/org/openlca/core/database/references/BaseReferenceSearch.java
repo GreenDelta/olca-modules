@@ -33,12 +33,12 @@ abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
 
 	@Override
 	public List<Reference> findReferences() {
-		return findReferences(new HashSet<Long>());
+		return findReferences(new HashSet<>());
 	}
 
 	@Override
 	public List<Reference> findReferences(T descriptor) {
-		if (descriptor == null || descriptor.id == 0l)
+		if (descriptor == null || descriptor.id == 0L)
 			return Collections.emptyList();
 		return findReferences(Collections.singletonList(descriptor));
 	}
@@ -52,7 +52,7 @@ abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
 
 	@Override
 	public List<Reference> findReferences(long id) {
-		if (id == 0l)
+		if (id == 0L)
 			return Collections.emptyList();
 		return findReferences(Collections.singleton(id));
 	}
@@ -78,7 +78,7 @@ abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
 		Set<Long> ids = new HashSet<>();
 		for (Object o : objects) {
 			if (o instanceof Reference) {
-				ids.add(((Reference) o).id); 
+				ids.add(((Reference) o).id);
 			} else if (o instanceof Descriptor) {
 				ids.add(((Descriptor) o).id);
 			}

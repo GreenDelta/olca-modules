@@ -10,7 +10,6 @@ import java.util.function.Consumer;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.database.references.IReferenceSearch.Reference;
 import org.openlca.core.model.AbstractEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

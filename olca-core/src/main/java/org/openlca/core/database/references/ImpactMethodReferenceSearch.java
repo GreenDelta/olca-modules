@@ -83,7 +83,7 @@ public class ImpactMethodReferenceSearch extends BaseParametrizedReferenceSearch
 		Map<Long, Set<String>> formulas = new HashMap<>();
 		List<String> queries = Search.createQueries(select, "WHERE f_impact_method IN", ids);
 		for (String query : queries) {
-			Search.on(database, null).query(query.toString(), (result) -> {
+			Search.on(database, null).query(query, (result) -> {
 				long methodId = result.getLong(1);
 				String formula = result.getString(2);
 				if (formula != null && !formula.trim().isEmpty()) {

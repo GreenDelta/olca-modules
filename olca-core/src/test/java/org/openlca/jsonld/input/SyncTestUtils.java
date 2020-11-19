@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.references.IReferenceSearch;
-import org.openlca.core.database.references.IReferenceSearch.Reference;
+import org.openlca.core.database.references.Reference;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.ZipStore;
 
