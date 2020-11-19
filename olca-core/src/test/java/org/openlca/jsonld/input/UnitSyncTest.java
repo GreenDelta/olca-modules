@@ -8,7 +8,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.UnitDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.jsonld.Tests;
@@ -24,23 +23,27 @@ import org.openlca.jsonld.Tests;
 public class UnitSyncTest {
 
 	private static final ModelType[] modelTypes = new ModelType[] {
-		ModelType.IMPACT_METHOD, 
-		ModelType.PRODUCT_SYSTEM, 
-		ModelType.PROCESS 
+		ModelType.IMPACT_METHOD,
+		ModelType.PRODUCT_SYSTEM,
+		ModelType.PROCESS
 	};
-	
-	private IDatabase db;
-	private UnitDao dao;
+
+	private final IDatabase db = Tests.getDb();
 	private File allData;
 	private File unitGroupData;
 
 	@Before
-	public void before() throws IOException {
-		db = Tests.getDb();
-		Tests.clearDb();
-		dao = new UnitDao(db);
+	public void before() {
+		db.clear();
 		allData = SyncTestUtils.copyToTemp("unit_sync-all.zip");
 		unitGroupData = SyncTestUtils.copyToTemp("unit_sync-unit_group.zip");
+	}
+
+	@After
+	public void after() {
+		SyncTestUtils.delete(unitGroupData);
+		SyncTestUtils.delete(allData);
+		Tests.clearDb();
 	}
 
 	@Test
@@ -57,18 +60,11 @@ public class UnitSyncTest {
 	}
 
 	private boolean validate() {
-		return SyncTestUtils.validate(db, modelTypes, (reference) -> {
-			if(!reference.type.equals(Unit.class.getCanonicalName()))
+		return SyncTestUtils.validate(modelTypes, ref -> {
+			if(!ref.type.equals(Unit.class.getCanonicalName()))
 				return true;
-			return dao.getForId(reference.id) != null;
+			return db.get(Unit.class, ref.id) != null;
 		});
-	}
-	
-	@After
-	public void after() throws IOException {
-		SyncTestUtils.delete(unitGroupData);
-		SyncTestUtils.delete(allData);
-		Tests.clearDb();
 	}
 
 }

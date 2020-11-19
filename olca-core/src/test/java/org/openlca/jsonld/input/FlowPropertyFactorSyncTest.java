@@ -25,7 +25,7 @@ import org.openlca.jsonld.Tests;
 public class FlowPropertyFactorSyncTest {
 
 	private static final ModelType[] modelTypes = new ModelType[] {
-		ModelType.IMPACT_METHOD, ModelType.PRODUCT_SYSTEM, ModelType.PROCESS 
+		ModelType.IMPACT_METHOD, ModelType.PRODUCT_SYSTEM, ModelType.PROCESS
 	};
 	private IDatabase db;
 	private BaseDao<FlowPropertyFactor> dao;
@@ -55,7 +55,7 @@ public class FlowPropertyFactorSyncTest {
 	}
 
 	private boolean validate() {
-		return SyncTestUtils.validate(db, modelTypes, (reference) -> {
+		return SyncTestUtils.validate(modelTypes, (reference) -> {
 			if(!reference.type.equals(FlowPropertyFactor.class.getCanonicalName()))
 				return true;
 			return dao.getForId(reference.id) != null;

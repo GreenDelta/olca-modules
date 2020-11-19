@@ -51,7 +51,7 @@ public class NwSetSyncTest {
 	}
 
 	private boolean validate() {
-		return SyncTestUtils.validate(db, modelTypes, (reference) -> {
+		return SyncTestUtils.validate(modelTypes, (reference) -> {
 			if (reference.type.equals(NwSet.class.getCanonicalName()))
 				return dao.getForId(reference.id) != null;
 			return true;
