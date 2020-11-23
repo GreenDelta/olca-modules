@@ -106,6 +106,27 @@ public class ModelHandler {
 		}
 	}
 
+	@Rpc("get/descriptor")
+	public RpcResponse getDescriptor(RpcRequest req) {
+		var error = "An object with a valid @type and @id"
+				+ " attribute is required";
+		if (req.params == null || !req.params.isJsonObject())
+			return Responses.invalidParams(error, req);
+		var params = req.params.getAsJsonObject();
+		var type = Models.getType(params);
+		if (type == null)
+			return Responses.invalidParams(error, req);
+		var id = Json.getString(params, "@id");
+		if (id == null)
+			return Responses.invalidParams(error, req);
+		var d = Daos.root(db, type).getDescriptorForRefId(id);
+		if (d == null)
+			return Responses.notFound(
+					"A " + type + " with id=" + id + " does not exist", req);
+		var json = Json.asRef(d, EntityCache.create(db));
+		return Responses.ok(json, req);
+	}
+
 	@Rpc("insert/model")
 	public RpcResponse insert(RpcRequest req) {
 		return saveModel(req, UpdateMode.NEVER);
@@ -159,9 +180,9 @@ public class ModelHandler {
 		config.providerLinking = DefaultProviders.PREFER;
 		if (obj.has("providerLinking")) {
 			if (obj.get("providerLinking").getAsString().toLowerCase().equals("ignore")) {
-				config.providerLinking = DefaultProviders.IGNORE;				
+				config.providerLinking = DefaultProviders.IGNORE;
 			} else if (obj.get("providerLinking").getAsString().toLowerCase().equals("only")) {
-				config.providerLinking = DefaultProviders.ONLY;								
+				config.providerLinking = DefaultProviders.ONLY;
 			}
 		}
 		ProductSystemBuilder builder = new ProductSystemBuilder(MatrixCache.createLazy(db), config);
