@@ -45,7 +45,7 @@ public class MapsTest {
 	public void testMappingFile() throws Exception {
 		var dao = new MappingFileDao(database);
 		var file = dao.getForName(FILE_NAME);
-		var t = new String(BinUtils.unzip(file.content), StandardCharsets.UTF_8);
+		var t = new String(BinUtils.gunzip(file.content), StandardCharsets.UTF_8);
 		Assert.assertEquals(CONTENT, t);
 	}
 

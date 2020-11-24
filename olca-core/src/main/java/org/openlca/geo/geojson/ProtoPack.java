@@ -1,6 +1,5 @@
 package org.openlca.geo.geojson;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 import org.openlca.util.BinUtils;
@@ -126,13 +125,8 @@ class ProtoPack {
 	static FeatureCollection unpackgz(byte[] data) {
 		if (data == null || data.length == 0)
 			return null;
-		try {
-			byte[] raw = BinUtils.gunzip(data);
-			return unpack(raw);
-		} catch (IOException e) {
-			Exceptions.unchecked(e);
-			return null;
-		}
+		byte[] raw = BinUtils.gunzip(data);
+		return unpack(raw);
 	}
 
 	static FeatureCollection unpack(byte[] data) {

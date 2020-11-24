@@ -122,7 +122,7 @@ public class Maps {
 		MappingFile file = dao.getForName(fileName);
 		if (file == null || file.content == null)
 			return null;
-		byte[] bytes = BinUtils.unzip(file.content);
+		byte[] bytes = BinUtils.gunzip(file.content);
 		ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
 		return createReader(stream);
 	}
@@ -151,7 +151,7 @@ public class Maps {
 			}
 			byte[] bytes = IOUtils.toByteArray(stream);
 			var file = new MappingFile();
-			file.content = BinUtils.zip(bytes);
+			file.content = BinUtils.gzip(bytes);
 			file.name = name;
 			dao.insert(file);
 		} catch (Exception e) {

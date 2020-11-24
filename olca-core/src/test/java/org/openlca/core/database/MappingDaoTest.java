@@ -22,7 +22,7 @@ public class MappingDaoTest {
 	public void setUp() throws Exception {
 		var mf = new MappingFile();
 		mf.name = FILE_NAME;
-		mf.content = BinUtils.zip(CONTENT.getBytes(StandardCharsets.UTF_8));
+		mf.content = BinUtils.gzip(CONTENT.getBytes(StandardCharsets.UTF_8));
 		dao.insert(mf);
 	}
 
@@ -61,7 +61,7 @@ public class MappingDaoTest {
 	public void testGetContent() throws Exception {
 		MappingFile file = dao.getForName(FILE_NAME);
 		String t = new String(
-				BinUtils.unzip(file.content),
+				BinUtils.gunzip(file.content),
 				StandardCharsets.UTF_8);
 		Assert.assertEquals(t, CONTENT);
 	}
