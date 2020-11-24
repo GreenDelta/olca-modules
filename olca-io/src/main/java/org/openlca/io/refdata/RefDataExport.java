@@ -8,7 +8,6 @@ import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.MappingFileDao;
-import org.openlca.core.model.MappingFile;
 import org.openlca.io.maps.Maps;
 import org.openlca.util.BinUtils;
 import org.slf4j.Logger;
@@ -16,9 +15,9 @@ import org.slf4j.LoggerFactory;
 
 public class RefDataExport implements Runnable {
 
-	private IDatabase database;
-	private File dir;
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final IDatabase database;
+	private final File dir;
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	public RefDataExport(File dir, IDatabase database) {
 		this.dir = dir;
@@ -49,7 +48,7 @@ public class RefDataExport implements Runnable {
 	}
 
 	private void export(String fileName, AbstractExport export) {
-		File file = new File(dir, fileName);
+		var file = new File(dir, fileName);
 		if (file.exists()) {
 			log.warn("the file already exists; did not changed it");
 		} else {
@@ -58,15 +57,18 @@ public class RefDataExport implements Runnable {
 	}
 
 	private void exportMappingFiles() throws Exception {
-		MappingFileDao dao = new MappingFileDao(database);
+		var dao = new MappingFileDao(database);
 		// TODO: add other mapping files
-		String[] fileNames = { Maps.SP_FLOW_IMPORT, Maps.ES2_UNIT_EXPORT,
-				Maps.ES2_LOCATION_EXPORT, Maps.ES2_COMPARTMENT_EXPORT,
+		String[] fileNames = {
+				Maps.SP_FLOW_IMPORT,
+				Maps.ES2_UNIT_EXPORT,
+				Maps.ES2_LOCATION_EXPORT,
+				Maps.ES2_COMPARTMENT_EXPORT,
 				Maps.ES2_FLOW_EXPORT };
 		for (String fileName : fileNames) {
-			File file = new File(dir, fileName);
-			FileOutputStream out = new FileOutputStream(file);
-			MappingFile mappingFile = dao.getForFileName(fileName);
+			var file = new File(dir, fileName);
+			var out = new FileOutputStream(file);
+			var mappingFile = dao.getForName(fileName);
 			InputStream in;
 			if (mappingFile != null && mappingFile.content != null) {
 				byte[] bytes = BinUtils.unzip(mappingFile.content);

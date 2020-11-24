@@ -2,6 +2,7 @@ package org.openlca.io.maps;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,35 +25,38 @@ public class MapsTest {
 	private final String CONTENT = "\"aString\";42.42;42;\n";
 	private final String FILE_NAME = "test_map_" + UUID.randomUUID() + ".csv";
 
-	private IDatabase database = Tests.getDb();
+	private final IDatabase database = Tests.getDb();
 
 	@Before
-	public void setUp() throws Exception {
-		InputStream stream = new ByteArrayInputStream(CONTENT.getBytes("utf-8"));
+	public void setUp() {
+		InputStream stream = new ByteArrayInputStream(
+				CONTENT.getBytes(StandardCharsets.UTF_8));
 		Maps.store(FILE_NAME, stream, database);
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		MappingFileDao dao = new MappingFileDao(database);
-		MappingFile file = dao.getForFileName(FILE_NAME);
+		MappingFile file = dao.getForName(FILE_NAME);
 		dao.delete(file);
 	}
 
 	@Test
 	public void testMappingFile() throws Exception {
-		MappingFileDao dao = new MappingFileDao(database);
-		MappingFile file = dao.getForFileName(FILE_NAME);
-		String t = new String(BinUtils.unzip(file.content), "utf-8");
+		var dao = new MappingFileDao(database);
+		var file = dao.getForName(FILE_NAME);
+		var t = new String(BinUtils.unzip(file.content), StandardCharsets.UTF_8);
 		Assert.assertEquals(CONTENT, t);
 	}
 
 	@Test
 	public void testCellReader() throws Exception {
-		CellProcessor[] processors = { null, new ParseDouble(), new ParseInt(),
+		CellProcessor[] processors = {
+				null,
+				new ParseDouble(),
+				new ParseInt(),
 				new Optional() };
-		List<List<Object>> results = Maps.readAll(FILE_NAME, database,
-				processors);
+		var results = Maps.readAll(FILE_NAME, database, processors);
 		Assert.assertEquals(1, results.size());
 		List<Object> row = results.get(0);
 		Assert.assertEquals("aString", Maps.getString(row, 0));

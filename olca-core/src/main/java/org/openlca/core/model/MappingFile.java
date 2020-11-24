@@ -16,7 +16,7 @@ import javax.persistence.Table;
 public class MappingFile extends AbstractEntity {
 
 	@Column(name = "file_name")
-	public String fileName;
+	public String name;
 
 	@Column(name = "content")
 	public byte[] content;

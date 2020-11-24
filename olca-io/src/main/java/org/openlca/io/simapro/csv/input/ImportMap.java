@@ -73,9 +73,9 @@ class ImportMap {
 
 	private OlcaFlowMapEntry getOlcaFlowEntry(List<Object> row) {
 		OlcaFlowMapEntry entry = new OlcaFlowMapEntry();
-		entry.setFlowId(Maps.getString(row, 4));
-		entry.setRefPropertyId(Maps.getString(row, 6));
-		entry.setRefUnitId(Maps.getString(row, 8));
+		entry.flowId = Maps.getString(row, 4);
+		entry.refPropertyId = Maps.getString(row, 6);
+		entry.refUnitId = Maps.getString(row, 8);
 		return entry;
 	}
 

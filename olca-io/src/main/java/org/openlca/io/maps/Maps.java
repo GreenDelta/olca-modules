@@ -8,8 +8,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -89,7 +89,7 @@ public class Maps {
 			throws Exception {
 		try (CsvListReader reader = open(fileName, database)) {
 			List<List<Object>> results = new ArrayList<>();
-			List<Object> nextRow = null;
+			List<Object> nextRow;
 			while ((nextRow = reader.read(cellProcessors)) != null) {
 				results.add(nextRow);
 			}
@@ -116,7 +116,7 @@ public class Maps {
 		if (database == null)
 			return null;
 		MappingFileDao dao = new MappingFileDao(database);
-		MappingFile file = dao.getForFileName(fileName);
+		MappingFile file = dao.getForName(fileName);
 		if (file == null || file.content == null)
 			return null;
 		byte[] bytes = BinUtils.unzip(file.content);
@@ -124,16 +124,13 @@ public class Maps {
 		return createReader(stream);
 	}
 
-	private static CsvListReader createReader(InputStream stream)
-			throws Exception {
-		CsvPreference pref = new CsvPreference.Builder('"', ';', "\n").build();
+	private static CsvListReader createReader(InputStream stream) {
+		var pref = new CsvPreference.Builder('"', ';', "\n").build();
 		// exclude the byte order mark, if there is any
-		BOMInputStream bom = new BOMInputStream(stream, false,
-				ByteOrderMark.UTF_8);
-		InputStreamReader reader = new InputStreamReader(bom, "utf-8");
-		BufferedReader buffer = new BufferedReader(reader);
-		CsvListReader csvReader = new CsvListReader(buffer, pref);
-		return csvReader;
+		var bom = new BOMInputStream(stream, false, ByteOrderMark.UTF_8);
+		var reader = new InputStreamReader(bom, StandardCharsets.UTF_8);
+		var buffer = new BufferedReader(reader);
+		return new CsvListReader(buffer, pref);
 	}
 
 	/**
@@ -142,26 +139,30 @@ public class Maps {
 	 * updated by this method. The given must be the raw CSV stream. The content
 	 * of this stream will be compressed before storing it in the database.
 	 */
-	public static void store(String fileName, InputStream stream,
-			IDatabase database) throws Exception {
-		MappingFileDao dao = new MappingFileDao(database);
-		MappingFile oldFile = dao.getForFileName(fileName);
-		if (oldFile != null)
-			dao.delete(oldFile);
-		byte[] bytes = IOUtils.toByteArray(stream);
-		MappingFile file = new MappingFile();
-		file.content = BinUtils.zip(bytes);
-		file.fileName = fileName;
-		dao.insert(file);
+	public static void store(String name, InputStream stream, IDatabase db) {
+		try {
+			var dao = new MappingFileDao(db);
+			var oldFile = dao.getForName(name);
+			if (oldFile != null) {
+				dao.delete(oldFile);
+			}
+			byte[] bytes = IOUtils.toByteArray(stream);
+			var file = new MappingFile();
+			file.content = BinUtils.zip(bytes);
+			file.name = name;
+			dao.insert(file);
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to save mapping file " + name, e);
+		}
 	}
 
 	public static String getString(List<?> values, int i) {
 		if (values == null || i >= values.size())
 			return null;
-		Object val = values.get(i);
-		if (val == null)
-			return null;
-		return val.toString();
+		var val = values.get(i);
+		return val == null
+				? null
+				: val.toString();
 	}
 
 	public static Double getOptionalDouble(List<?> values, int i) {
@@ -226,14 +227,12 @@ public class Maps {
 	public static void each(File file, Consumer<List<String>> fn) {
 		if (file == null)
 			return;
-		CsvPreference prefs = new CsvPreference.Builder(
-				'"', ';', "\n").build();
-		try (InputStream is = new FileInputStream(file);
-				BOMInputStream bom = new BOMInputStream(
-						is, false, ByteOrderMark.UTF_8);
-				InputStreamReader r = new InputStreamReader(bom, "utf-8");
-				BufferedReader buf = new BufferedReader(r);
-				CsvListReader reader = new CsvListReader(buf, prefs)) {
+		var prefs = new CsvPreference.Builder('"', ';', "\n").build();
+		try (var is = new FileInputStream(file);
+			 var bom = new BOMInputStream(is, false, ByteOrderMark.UTF_8);
+			 var r = new InputStreamReader(bom, StandardCharsets.UTF_8);
+			 var buf = new BufferedReader(r);
+			 var reader = new CsvListReader(buf, prefs)) {
 			List<String> row;
 			while ((row = reader.read()) != null) {
 				if (row.isEmpty())
@@ -248,12 +247,11 @@ public class Maps {
 	public static void write(File file, Stream<Object[]> rows) {
 		if (file == null || rows == null)
 			return;
-		CsvPreference prefs = new CsvPreference.Builder(
-				'"', ';', "\n").build();
-		try (OutputStream os = new FileOutputStream(file);
-				OutputStreamWriter w = new OutputStreamWriter(os, "utf-8");
-				BufferedWriter buf = new BufferedWriter(w);
-				CsvListWriter writer = new CsvListWriter(w, prefs)) {
+		var prefs = new CsvPreference.Builder('"', ';', "\n").build();
+		try (var os = new FileOutputStream(file);
+			 var w = new OutputStreamWriter(os, StandardCharsets.UTF_8);
+			 var buf = new BufferedWriter(w);
+			 var writer = new CsvListWriter(buf, prefs)) {
 			rows.forEach(row -> {
 				if (row == null)
 					return;

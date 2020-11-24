@@ -2,7 +2,6 @@ package org.openlca.io.maps;
 
 import java.util.Objects;
 
-import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -14,33 +13,9 @@ import org.openlca.core.model.Unit;
  */
 public class OlcaFlowMapEntry {
 
-	private String flowId;
-	private String refPropertyId;
-	private String refUnitId;
-
-	public String getFlowId() {
-		return flowId;
-	}
-
-	public void setFlowId(String flowId) {
-		this.flowId = flowId;
-	}
-
-	public String getRefPropertyId() {
-		return refPropertyId;
-	}
-
-	public void setRefPropertyId(String refPropertyId) {
-		this.refPropertyId = refPropertyId;
-	}
-
-	public String getRefUnitId() {
-		return refUnitId;
-	}
-
-	public void setRefUnitId(String refUnitId) {
-		this.refUnitId = refUnitId;
-	}
+	public String flowId;
+	public String refPropertyId;
+	public String refUnitId;
 
 	@Override
 	public boolean equals(Object obj) {
@@ -50,7 +25,7 @@ public class OlcaFlowMapEntry {
 			return true;
 		if (!obj.getClass().equals(this.getClass()))
 			return false;
-		OlcaFlowMapEntry other = (OlcaFlowMapEntry) obj;
+		var other = (OlcaFlowMapEntry) obj;
 		return Objects.equals(this.flowId, other.flowId)
 				&& Objects.equals(this.refPropertyId, other.refPropertyId)
 				&& Objects.equals(this.refUnitId, other.refUnitId);
@@ -66,15 +41,13 @@ public class OlcaFlowMapEntry {
 	 * null otherwise. The result of this method should be cached as searching
 	 * the database by reference IDs is quite expensive.
 	 */
-	public Flow getMatchingFlow(IDatabase database) throws Exception {
+	public Flow getMatchingFlow(IDatabase db) throws Exception {
 		if (flowId == null)
 			return null;
-		FlowDao flowDao = new FlowDao(database);
-		Flow flow = flowDao.getForRefId(flowId);
-		if (matches(flow))
-			return flow;
-		else
-			return null;
+		var flow  = db.get(Flow.class, flowId);
+		return matches(flow)
+				? flow
+				: null;
 	}
 
 	/**

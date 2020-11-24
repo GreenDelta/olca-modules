@@ -8,10 +8,10 @@ import org.slf4j.LoggerFactory;
 
 class MappingFileImport {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private MappingFileDao sourceDao;
-	private MappingFileDao destDao;
+	private final MappingFileDao sourceDao;
+	private final MappingFileDao destDao;
 
 	MappingFileImport(IDatabase source, IDatabase dest) {
 		sourceDao = new MappingFileDao(source);
@@ -21,7 +21,7 @@ class MappingFileImport {
 	public void run() {
 		log.trace("import mapping files");
 		try {
-			for (MappingFile sourceFile : sourceDao.getAll()) {
+			for (var sourceFile : sourceDao.getAll()) {
 				syncFile(sourceFile);
 			}
 		} catch (Exception e) {
@@ -32,7 +32,7 @@ class MappingFileImport {
 	private void syncFile(MappingFile sourceFile) {
 		if (sourceFile == null || sourceFile.content == null)
 			return;
-		MappingFile destFile = destDao.getForFileName(sourceFile.fileName);
+		var destFile = destDao.getForName(sourceFile.name);
 		if (destFile != null) {
 			log.trace("the mapping file {} already exist in the database and " +
 					"was not changed", destFile);
@@ -41,7 +41,7 @@ class MappingFileImport {
 		log.trace("copy mapping file {}", sourceFile);
 		destFile = new MappingFile();
 		destFile.content = sourceFile.content;
-		destFile.fileName = sourceFile.fileName;
+		destFile.name = sourceFile.name;
 		destDao.insert(destFile);
 	}
 

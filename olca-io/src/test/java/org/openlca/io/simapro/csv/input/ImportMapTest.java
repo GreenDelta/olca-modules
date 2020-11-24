@@ -28,11 +28,11 @@ public class ImportMapTest {
 		MapFactor<OlcaFlowMapEntry> entry = map.getFlowEntry(key);
 		OlcaFlowMapEntry flow = entry.getEntity();
 		Assert.assertEquals("cd5898ca-96ad-4038-b7ac-edf544d2800a",
-				flow.getFlowId());
+				flow.flowId);
 		Assert.assertEquals("93a60a56-a3c8-11da-a746-0800200b9a66",
-				flow.getRefPropertyId());
+				flow.refPropertyId);
 		Assert.assertEquals("20aadc24-a391-41cf-b340-3e4529f44bde",
-				flow.getRefUnitId());
+				flow.refUnitId);
 		Assert.assertEquals(1, entry.getFactor(), 1e-16);
 	}
 

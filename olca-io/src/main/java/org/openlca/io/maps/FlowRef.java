@@ -65,7 +65,7 @@ public class FlowRef {
 	 * concatenation of the UUIDs of the referenced entities.
 	 */
 	public String key() {
-		String[] ids = new String[4];
+		var ids = new String[4];
 		if (flow != null) {
 			ids[0] = flow.refId;
 		}
@@ -83,7 +83,7 @@ public class FlowRef {
 
 	@Override
 	public FlowRef clone() {
-		FlowRef clone = new FlowRef();
+		var clone = new FlowRef();
 		clone.flow = copy(flow);
 		clone.flowCategory = flowCategory;
 		clone.flowLocation = flowLocation;
@@ -103,7 +103,9 @@ public class FlowRef {
 		if (d == null)
 			return null;
 		try {
-			T clone = (T) d.getClass().newInstance();
+			T clone = (T) d.getClass()
+					.getConstructor()
+					.newInstance();
 			clone.description = d.description;
 			clone.id = d.id;
 			clone.lastChange = d.lastChange;
@@ -113,8 +115,8 @@ public class FlowRef {
 			clone.version = d.version;
 
 			if (d instanceof FlowDescriptor) {
-				FlowDescriptor fd = (FlowDescriptor) d;
-				FlowDescriptor fclone = (FlowDescriptor) clone;
+				var fd = (FlowDescriptor) d;
+				var fclone = (FlowDescriptor) clone;
 				fclone.category = fd.category;
 				fclone.flowType = fd.flowType;
 				fclone.location = fd.location;
@@ -122,8 +124,8 @@ public class FlowRef {
 			}
 
 			if (d instanceof ProcessDescriptor) {
-				ProcessDescriptor pd = (ProcessDescriptor) d;
-				ProcessDescriptor pclone = (ProcessDescriptor) clone;
+				var pd = (ProcessDescriptor) d;
+				var pclone = (ProcessDescriptor) clone;
 				pclone.category = pd.category;
 				pclone.infrastructureProcess = pd.infrastructureProcess;
 				pclone.location = pd.location;

@@ -1,6 +1,6 @@
 package org.openlca.core.database;
 
-import java.util.List;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import org.junit.After;
@@ -16,30 +16,28 @@ public class MappingDaoTest {
 	private final String FILE_NAME = "units_test_" + UUID.randomUUID() + ".csv";
 	private final String CONTENT = "kg;1.0\ng;1000\n";
 
-	private MappingFileDao dao = new MappingFileDao(
-			Tests.getDb());
+	private final MappingFileDao dao = new MappingFileDao(Tests.getDb());
 
 	@Before
 	public void setUp() throws Exception {
-		MappingFile mappingFile = new MappingFile();
-		mappingFile.fileName = FILE_NAME;
-		byte[] content = BinUtils.zip(CONTENT.getBytes("utf-8"));
-		mappingFile.content = content;
-		dao.insert(mappingFile);
+		var mf = new MappingFile();
+		mf.name = FILE_NAME;
+		mf.content = BinUtils.zip(CONTENT.getBytes(StandardCharsets.UTF_8));
+		dao.insert(mf);
 	}
 
 	@After
-	public void tearDown() throws Exception {
-		MappingFile file = dao.getForFileName(FILE_NAME);
+	public void tearDown() {
+		var file = dao.getForName(FILE_NAME);
 		dao.delete(file);
 	}
 
 	@Test
 	public void testGetAll() {
-		List<MappingFile> all = dao.getAll();
+		var all = dao.getAll();
 		boolean found = false;
 		for (MappingFile file : all) {
-			if (FILE_NAME.equals(file.fileName)) {
+			if (FILE_NAME.equals(file.name)) {
 				found = true;
 				break;
 			}
@@ -48,15 +46,23 @@ public class MappingDaoTest {
 	}
 
 	@Test
+	public void getNames() {
+		var names = dao.getNames();
+		Assert.assertTrue(names.contains(FILE_NAME));
+	}
+
+	@Test
 	public void testGetForFileName() {
-		MappingFile file = dao.getForFileName(FILE_NAME);
-		Assert.assertEquals(FILE_NAME, file.fileName);
+		MappingFile file = dao.getForName(FILE_NAME);
+		Assert.assertEquals(FILE_NAME, file.name);
 	}
 
 	@Test
 	public void testGetContent() throws Exception {
-		MappingFile file = dao.getForFileName(FILE_NAME);
-		String t = new String(BinUtils.unzip(file.content), "utf-8");
+		MappingFile file = dao.getForName(FILE_NAME);
+		String t = new String(
+				BinUtils.unzip(file.content),
+				StandardCharsets.UTF_8);
 		Assert.assertEquals(t, CONTENT);
 	}
 
