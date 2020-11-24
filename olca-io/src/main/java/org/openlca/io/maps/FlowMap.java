@@ -1,6 +1,10 @@
 package org.openlca.io.maps;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -186,10 +190,29 @@ public class FlowMap extends Descriptor {
 		return fm;
 	}
 
+	public static byte[] toCsv(FlowMap fm) {
+		if (fm == null)
+			return new byte[0];
+		var stream = new ByteArrayOutputStream();
+		toCsv(fm, stream);
+		return stream.toByteArray();
+	}
+
 	public static void toCsv(FlowMap fm, File file) {
 		if (fm == null || file == null)
 			return;
-		Maps.write(file, fm.entries.stream().map(e -> {
+		try (var stream = new FileOutputStream(file)) {
+			toCsv(fm, stream);
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to " +
+					"write mapping to file " + file, e);
+		}
+	}
+
+	public static void toCsv(FlowMap fm, OutputStream stream) {
+		if (fm == null || stream == null)
+			return;
+		Maps.write(stream, fm.entries.stream().map(e -> {
 			Object[] row = new Object[23];
 			row[2] = e.factor;
 

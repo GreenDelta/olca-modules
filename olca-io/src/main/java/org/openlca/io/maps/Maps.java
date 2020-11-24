@@ -3,11 +3,14 @@ package org.openlca.io.maps;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -225,11 +228,23 @@ public class Maps {
 	 * Iterates over each row in the given mapping file.
 	 */
 	public static void each(File file, Consumer<List<String>> fn) {
-		if (file == null)
+		if (file == null || fn == null)
+			return;
+		try (var stream = new FileInputStream(file)){
+		 	each(stream, fn);
+		} catch (IOException e) {
+			throw new RuntimeException("failed to read mapping file " + file, e);
+		}
+	}
+
+	/**
+	 * Iterates over each row in the given mapping file.
+	 */
+	public static void each(InputStream stream, Consumer<List<String>> fn) {
+		if (stream == null || fn == null)
 			return;
 		var prefs = new CsvPreference.Builder('"', ';', "\n").build();
-		try (var is = new FileInputStream(file);
-			 var bom = new BOMInputStream(is, false, ByteOrderMark.UTF_8);
+		try (var bom = new BOMInputStream(stream, false, ByteOrderMark.UTF_8);
 			 var r = new InputStreamReader(bom, StandardCharsets.UTF_8);
 			 var buf = new BufferedReader(r);
 			 var reader = new CsvListReader(buf, prefs)) {
@@ -239,17 +254,46 @@ public class Maps {
 					continue;
 				fn.accept(row);
 			}
-		} catch (Exception e) {
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
+	/**
+	 * Converts the given rows into the CSV mapping format and writes this to
+	 * the given file.
+	 */
 	public static void write(File file, Stream<Object[]> rows) {
 		if (file == null || rows == null)
 			return;
+		try (var out = new FileOutputStream(file)) {
+			write(out, rows);
+		} catch (IOException e) {
+			throw new RuntimeException("failed to write mapping file " + file, e);
+		}
+	}
+
+	/**
+	 * Converts the given rows into the CSV mapping format and writes this to
+	 * a byte array.
+	 */
+	public static byte[] write(Stream<Object[]> rows) {
+		if (rows == null)
+			return new byte[0];
+		var bout = new ByteArrayOutputStream();
+		write(bout, rows);
+		return bout.toByteArray();
+	}
+
+	/**
+	 * Converts the given rows into the CSV mapping format and writes this to
+	 * the given output stream.
+	 */
+	public static void write(OutputStream out, Stream<Object[]> rows) {
+		if (out == null || rows == null)
+			return;
 		var prefs = new CsvPreference.Builder('"', ';', "\n").build();
-		try (var os = new FileOutputStream(file);
-			 var w = new OutputStreamWriter(os, StandardCharsets.UTF_8);
+		try (var w = new OutputStreamWriter(out, StandardCharsets.UTF_8);
 			 var buf = new BufferedWriter(w);
 			 var writer = new CsvListWriter(buf, prefs)) {
 			rows.forEach(row -> {
@@ -257,13 +301,12 @@ public class Maps {
 					return;
 				try {
 					writer.write(row);
-				} catch (Exception e) {
+				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
 			});
-		} catch (RuntimeException e) {
-			throw e;
-		} catch (Exception e) {
+			writer.flush();
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
