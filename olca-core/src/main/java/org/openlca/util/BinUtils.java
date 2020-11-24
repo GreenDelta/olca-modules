@@ -90,22 +90,22 @@ public class BinUtils {
 	/**
 	 * Decompresses the given byte array in the GZIP file format.
 	 */
-	public static byte[] gunzip(byte[] bytes) throws IOException {
+	public static byte[] gunzip(byte[] bytes) {
 		if (bytes == null)
 			return null;
 		if (bytes.length == 0)
 			return new byte[0];
-		ByteArrayInputStream bin = new ByteArrayInputStream(bytes);
-		byte[] result = null;
-		try (GZIPInputStream gzip = new GZIPInputStream(bin);
-			 ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
+		var bin = new ByteArrayInputStream(bytes);
+		try (var gzip = new GZIPInputStream(bin);
+			 var bout = new ByteArrayOutputStream()) {
 			byte[] buffer = new byte[4096];
-			int count = -1;
+			int count;
 			while ((count = gzip.read(buffer)) >= 0)
 				bout.write(buffer, 0, count);
-			result = bout.toByteArray();
+			return bout.toByteArray();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
-		return result;
 	}
 
 	/**

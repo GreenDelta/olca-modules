@@ -1,9 +1,12 @@
 package org.openlca.io.maps;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +23,7 @@ import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.UnitDescriptor;
 import org.openlca.jsonld.Json;
+import org.openlca.util.BinUtils;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,12 +102,34 @@ public class FlowMap extends Descriptor {
 		return m;
 	}
 
+	public static FlowMap fromCsv(byte[] bytes) {
+		if (bytes == null)
+			return new FlowMap();
+		var data = BinUtils.isGzip(bytes)
+				? BinUtils.gunzip(bytes)
+				: bytes;
+		var stream = new ByteArrayInputStream(data);
+		return fromCsv(stream);
+	}
+
 	public static FlowMap fromCsv(File file) {
-		FlowMap fm = new FlowMap();
 		if (file == null)
+			return new FlowMap();
+		try (var stream = new FileInputStream(file)) {
+			var map = fromCsv(stream);
+			map.name = file.getName();
+			return map;
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to " +
+					"read flow map from " + file, e);
+		}
+	}
+
+	public static FlowMap fromCsv(InputStream stream) {
+		FlowMap fm = new FlowMap();
+		if (stream == null)
 			return fm;
-		fm.name = file.getName();
-		Maps.each(file, row -> {
+		Maps.each(stream, row -> {
 
 			FlowMapEntry e = new FlowMapEntry();
 			fm.entries.add(e);

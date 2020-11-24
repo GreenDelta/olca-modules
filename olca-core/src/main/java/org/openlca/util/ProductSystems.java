@@ -2,7 +2,6 @@ package org.openlca.util;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.ProductSystem;
 
 public final class ProductSystems {
