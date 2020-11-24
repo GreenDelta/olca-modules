@@ -1,14 +1,10 @@
 package org.openlca.io.refdata;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.nio.file.Files;
 
-import org.apache.commons.io.IOUtils;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.MappingFileDao;
-import org.openlca.io.maps.Maps;
 import org.openlca.util.BinUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +23,9 @@ public class RefDataExport implements Runnable {
 	@Override
 	public void run() {
 		try {
-			if (!dir.exists())
-				dir.mkdirs();
+			if (!dir.exists()) {
+				Files.createDirectories(dir.toPath());
+			}
 			export("locations.csv", new LocationExport());
 			export("categories.csv", new CategoryExport());
 			export("units.csv", new UnitExport());
@@ -58,25 +55,24 @@ public class RefDataExport implements Runnable {
 
 	private void exportMappingFiles() throws Exception {
 		var dao = new MappingFileDao(database);
-		// TODO: add other mapping files
-		String[] fileNames = {
-				Maps.SP_FLOW_IMPORT,
-				Maps.ES2_UNIT_EXPORT,
-				Maps.ES2_LOCATION_EXPORT,
-				Maps.ES2_COMPARTMENT_EXPORT,
-				Maps.ES2_FLOW_EXPORT };
-		for (String fileName : fileNames) {
-			var file = new File(dir, fileName);
-			var out = new FileOutputStream(file);
-			var mappingFile = dao.getForName(fileName);
-			InputStream in;
-			if (mappingFile != null && mappingFile.content != null) {
-				byte[] bytes = BinUtils.gunzip(mappingFile.content);
-				in = new ByteArrayInputStream(bytes);
-			} else {
-				in = Maps.class.getResourceAsStream(fileName);
-			}
-			IOUtils.copy(in, out);
+		var names = dao.getNames();
+		if (names.isEmpty())
+			return;
+
+		var mapDir = new File(dir, "mappings");
+		if (!mapDir.exists()) {
+			Files.createDirectories(mapDir.toPath());
+		}
+
+		for (var name : names) {
+			var mapFile = dao.getForName(name);
+			if (mapFile == null || mapFile.content == null)
+				continue;
+			var file = new File(mapDir, name);
+			var data = BinUtils.isGzip(mapFile.content)
+					? BinUtils.gunzip(mapFile.content)
+					: mapFile.content;
+			Files.write(file.toPath(), data);
 		}
 	}
 }
