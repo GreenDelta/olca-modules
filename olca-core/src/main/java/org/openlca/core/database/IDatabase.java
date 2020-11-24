@@ -14,6 +14,7 @@ import javax.persistence.EntityManagerFactory;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.descriptors.Descriptor;
 
 /**
  * The common interface for openLCA databases.
@@ -166,6 +167,33 @@ public interface IDatabase extends Closeable, INotifiable {
 		return (T) dao.getForRefId(refID);
 	}
 
+	/**
+	 * Get the descriptor of the entity of the given type and ID.
+	 */
+	default <T extends RootEntity> Descriptor getDescriptor(
+			Class<T> type, long id) {
+		var modelType = ModelType.forModelClass(type);
+		return modelType == null
+				? null
+				: Daos.root(this, modelType).getDescriptor(id);
+	}
+
+	/**
+	 * Get the descriptor of the entity of the given type and reference ID.
+	 */
+	default <T extends RootEntity> Descriptor getDescriptor(
+			Class<T> type, String refID) {
+		if (refID == null)
+			return null;
+		var modelType = ModelType.forModelClass(type);
+		return modelType == null
+				? null
+				: Daos.root(this, modelType).getDescriptorForRefId(refID);
+	}
+
+	/**
+	 * Get all entities of the given type from this database.
+	 */
 	@SuppressWarnings("unchecked")
 	default <T extends RootEntity> List<T> allOf(Class<T> type) {
 		var modelType = ModelType.forModelClass(type);
@@ -173,6 +201,17 @@ public interface IDatabase extends Closeable, INotifiable {
 			return Collections.emptyList();
 		var dao = Daos.root(this, modelType);
 		return (List<T>) dao.getAll();
+	}
+
+	/**
+	 * Get the descriptors of all entities of the given type from this database.
+	 */
+	default <T extends RootEntity> List<? extends Descriptor> allDescriptorsOf(
+			Class<T> type) {
+		var modelType = ModelType.forModelClass(type);
+		return modelType == null
+				? Collections.emptyList()
+				: Daos.root(this, modelType).getDescriptors();
 	}
 
 	/**

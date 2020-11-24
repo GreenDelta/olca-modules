@@ -6,15 +6,15 @@ import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.NwSetDao;
-import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.Simulator;
 import org.openlca.core.math.SystemCalculator;
+import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ParameterRedef;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
@@ -24,8 +24,6 @@ import org.openlca.jsonld.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class Calculator {
@@ -119,13 +117,13 @@ public class Calculator {
 	}
 
 	private CalculationSetup buildSetup(JsonObject json, ProductSystem system) {
-		CalculationSetup setup = new CalculationSetup(system);
-		String methodID = Json.getRefId(json, "impactMethod");
+		var setup = new CalculationSetup(system);
+		var methodID = Json.getRefId(json, "impactMethod");
 		if (methodID != null) {
 			setup.impactMethod = new ImpactMethodDao(db)
 					.getDescriptorForRefId(methodID);
 		}
-		String nwSetID = Json.getRefId(json, "nwSet");
+		var nwSetID = Json.getRefId(json, "nwSet");
 		if (nwSetID != null) {
 			setup.nwSet = new NwSetDao(db).getDescriptorForRefId(nwSetID);
 		}
@@ -136,21 +134,31 @@ public class Calculator {
 	}
 
 	private void parameters(JsonObject json, CalculationSetup setup) {
-		JsonArray array = Json.getArray(json, "parameterRedefs");
-		if (array == null)
+		var array = Json.getArray(json, "parameterRedefs");
+		if (array == null) {
+			if (setup.productSystem != null) {
+				var redefSet = setup.productSystem.parameterSets.stream()
+						.filter(s -> s.isBaseline)
+						.findAny();
+				if (redefSet.isPresent()) {
+					setup.parameterRedefs.clear();
+					setup.parameterRedefs.addAll(redefSet.get().parameters);
+				}
+			}
 			return;
-		for (JsonElement e : array) {
+		}
+		for (var e : array) {
 			if (!e.isJsonObject())
 				continue;
-			JsonObject obj = e.getAsJsonObject();
-			String name = Json.getString(obj, "name");
+			var obj = e.getAsJsonObject();
+			var name = Json.getString(obj, "name");
 			if (name == null)
 				continue;
-			ParameterRedef redef = new ParameterRedef();
+			var redef = new ParameterRedef();
 			redef.name = name;
 			redef.value = Json.getDouble(obj, "value", 1);
 
-			JsonObject context = Json.getObject(obj, "context");
+			var context = Json.getObject(obj, "context");
 			if (context == null) {
 				// global parameter redefinition
 				setup.parameterRedefs.add(redef);
@@ -158,7 +166,13 @@ public class Calculator {
 			}
 
 			// set the context
-			Descriptor d = parameterContext(context);
+			var type = Json.getString(context, "@type");
+			var refId = Json.getString(context, "@id");
+			if (refId == null)
+				continue;
+			var d = "ImpactCategory".equals(type)
+					? db.getDescriptor(ImpactCategory.class, refId)
+					: db.getDescriptor(Process.class, refId);
 			if (d == null)
 				continue;
 			redef.contextId = d.id;
@@ -167,34 +181,23 @@ public class Calculator {
 		}
 	}
 
-	private Descriptor parameterContext(JsonObject context) {
-		String type = Json.getString(context, "@type");
-		String refId = Json.getString(context, "@id");
-		if ("Process".equals(type)) {
-			return new ProcessDao(db).getDescriptorForRefId(refId);
-		} else if ("ImpactMethod".equals(type)) {
-			return new ImpactMethodDao(db).getDescriptorForRefId(refId);
-		}
-		return null;
-	}
-
 	private RpcResponse calculate(RpcRequest req, CalculationSetup setup,
-			CalculationType type) {
+								  CalculationType type) {
 		try {
 			SystemCalculator calc = new SystemCalculator(db, context.solver);
 			SimpleResult r = null;
 			switch (type) {
-			case CONTRIBUTION_ANALYSIS:
-				r = calc.calculateContributions(setup);
-				break;
-			case SIMPLE_CALCULATION:
-				r = calc.calculateSimple(setup);
-				break;
-			case UPSTREAM_ANALYSIS:
-				r = calc.calculateFull(setup);
-				break;
-			default:
-				break;
+				case CONTRIBUTION_ANALYSIS:
+					r = calc.calculateContributions(setup);
+					break;
+				case SIMPLE_CALCULATION:
+					r = calc.calculateSimple(setup);
+					break;
+				case UPSTREAM_ANALYSIS:
+					r = calc.calculateFull(setup);
+					break;
+				default:
+					break;
 			}
 			if (r == null) {
 				return Responses.error(501, "Calculation method " + type
