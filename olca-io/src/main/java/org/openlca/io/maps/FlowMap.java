@@ -17,6 +17,7 @@ import java.util.Map;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.MappingFile;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
@@ -47,6 +48,22 @@ public class FlowMap extends Descriptor {
 
 	public static FlowMap empty() {
 		return new FlowMap();
+	}
+
+	/**
+	 * Constructs a flow map from the openLCA internal storage format.
+	 */
+	public static FlowMap of(MappingFile mapping) {
+		if (mapping == null)
+			return empty();
+		if (mapping.content == null) {
+			var fm = empty();
+			fm.name = mapping.name;
+			return fm;
+		}
+		var fm = fromCsv(mapping.content);
+		fm.name = mapping.name;
+		return fm;
 	}
 
 	/**
@@ -214,6 +231,29 @@ public class FlowMap extends Descriptor {
 			}
 		});
 		return fm;
+	}
+
+	/**
+	 * Converts this flow map into the openLCA internal storage format.
+	 */
+	public MappingFile toMappingFile() {
+		var mapping = new MappingFile();
+		mapping.name = name;
+		updateContentOf(mapping);
+		return mapping;
+	}
+
+	/**
+	 * Updates the content of the given mapping file with the data of this flow
+	 * map.
+	 */
+	public void updateContentOf(MappingFile mapping) {
+		if (mapping == null)
+			return;
+		var content = toCsv(this);
+		mapping.content = content.length == 0
+				? null
+				: BinUtils.gzip(content);
 	}
 
 	public static byte[] toCsv(FlowMap fm) {
