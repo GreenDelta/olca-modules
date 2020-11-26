@@ -170,10 +170,15 @@ public class Strings {
 		return s == null ? "" : s;
 	}
 
-	public static String nullIfEmpty(String s) {
-		return nullOrEmpty(s)
+	/**
+	 * Returns null if the given string is empty or contains only whitespaces,
+	 * otherwise it returns the unchanged string.
+	 */
+	public static String orNull(String s) {
+		return s == null
 				? null
-				: s;
+				: s.isBlank()
+					? null
+					: s;
 	}
-
 }
