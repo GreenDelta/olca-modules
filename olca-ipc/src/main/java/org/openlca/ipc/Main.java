@@ -3,6 +3,7 @@ package org.openlca.ipc;
 import java.io.File;
 import java.io.IOException;
 
+import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
@@ -33,15 +34,15 @@ public class Main {
 			if (flag == null)
 				continue;
 			switch (flag) {
-			case "-db":
-				main.db = arg;
-				break;
-			case "-port":
-				main.port = arg;
-				break;
-			case "-lib":
-				main.lib = arg;
-				break;
+				case "-db":
+					main.db = arg;
+					break;
+				case "-port":
+					main.port = arg;
+					break;
+				case "-lib":
+					main.lib = arg;
+					break;
 			}
 			flag = null;
 		}
@@ -66,12 +67,28 @@ public class Main {
 	}
 
 	private IDatabase initDB() {
-		var dbDir = this.db;
-		if (dbDir == null) {
-			log.info("No database given; use default database folder `db`");
-			dbDir = "db";
-		}
 		try {
+			var dbDir = this.db;
+			if (dbDir == null) {
+				log.info("No database given; use default database folder `database`");
+				return new DerbyDatabase(new File("database"));
+			}
+
+			// check if an existing folder is given
+			var dir = new File(dbDir);
+			if (dir.exists()) {
+				log.info("Connect to existing database {}", dbDir);
+				return new DerbyDatabase(dir);
+			}
+
+			// check if it is a folder in the openLCA data directory
+			dir = new File(DataDir.databases(), dbDir);
+			if (dir.exists()) {
+				log.info("Connect to database in {}", dir);
+				return new DerbyDatabase(dir);
+			}
+
+			// finally, create a new one
 			return new DerbyDatabase(new File(dbDir));
 		} catch (Exception e) {
 			log.error("Could not initialize database", e);
@@ -80,19 +97,15 @@ public class Main {
 	}
 
 	private int initPort() {
-		int port = -1;
-		if (this.port != null) {
-			try {
-				port = Integer.parseInt(this.port);
-			} catch (Exception e) {
-				log.error(this.port + " is not a valid port number", e);
-			}
-		}
-		if (port < 0) {
-			port = 0;
+		if (this.port == null)
+			return 8080;
+		try {
+			return Integer.parseInt(this.port);
+		} catch (Exception e) {
+			log.error(this.port + " is not a valid port number", e);
 			log.info("Start the server on a random port");
+			return 0;
 		}
-		return port;
 	}
 
 	private IMatrixSolver initSolver() {
@@ -129,7 +142,7 @@ public class Main {
 		}
 	}
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		parseArgs(args).startServer();
 	}
 
