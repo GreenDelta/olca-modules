@@ -5,16 +5,14 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.Unit;
 import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.openlca.util.Strings;
 
 abstract class ExchangeImport<P extends RootEntity> extends BaseEmbeddedImport<Exchange, P> {
 
@@ -23,8 +21,8 @@ abstract class ExchangeImport<P extends RootEntity> extends BaseEmbeddedImport<E
 	}
 
 	static <AP extends RootEntity> Exchange run(ModelType parentType,
-			String parentRefId, JsonObject json,
-			ImportConfig conf, Function<AP, List<Exchange>> getExchanges) {
+												String parentRefId, JsonObject json,
+												ImportConfig conf, Function<AP, List<Exchange>> getExchanges) {
 		return new ExchangeImport<AP>(parentType, parentRefId, conf) {
 
 			Exchange getPersisted(AP parent, JsonObject json) {
@@ -76,14 +74,18 @@ abstract class ExchangeImport<P extends RootEntity> extends BaseEmbeddedImport<E
 	}
 
 	private void addExchangeRefs(JsonObject json, Exchange e, ImportConfig conf) {
-		Flow flow = FlowImport.run(Json.getRefId(json, "flow"), conf);
+		var flow = FlowImport.run(Json.getRefId(json, "flow"), conf);
 		e.flow = flow;
 		if (flow == null)
 			return;
+
+		e.flowPropertyFactor = e.flow.getReferenceFactor();
 		String propId = Json.getRefId(json, "flowProperty");
-		if (propId != null) {
-			for (FlowPropertyFactor f : flow.flowPropertyFactors) {
-				FlowProperty prop = f.flowProperty;
+		if (Strings.nullOrEmpty(propId)) {
+			e.flowPropertyFactor = e.flow.getReferenceFactor();
+		} else {
+			for (var f : flow.flowPropertyFactors) {
+				var prop = f.flowProperty;
 				if (prop == null)
 					continue;
 				if (Objects.equals(propId, prop.refId)) {
@@ -91,25 +93,32 @@ abstract class ExchangeImport<P extends RootEntity> extends BaseEmbeddedImport<E
 					break;
 				}
 			}
-		} else {
-			e.flowPropertyFactor = e.flow.getReferenceFactor();
 		}
-		String unitId = Json.getRefId(json, "unit");
-		if (unitId != null) {
-			e.unit = conf.db.get(ModelType.UNIT, unitId);
-		} else if (e.flowPropertyFactor != null) {
-			JsonObject unit = Json.getObject(json, "unit");
-			UnitGroup unitGroup = e.flowPropertyFactor.flowProperty.unitGroup;
-			if (unit != null) {
-				String unitName = Json.getString(unit, "name");
-				if (unitName != null) {
-					e.unit = unitGroup.getUnit(unitName);
-				}
-			}
-			if (e.unit == null) {
-				e.unit = unitGroup.referenceUnit;
-			}
-		}
+
+		e.unit = unitOf(e, json);
+	}
+
+	private Unit unitOf(Exchange e, JsonObject exchangeObj) {
+
+		// first try to get it by reference ID
+		var unitObj = Json.getObject(exchangeObj, "unit");
+		var unitID = unitObj != null
+				? Json.getString(unitObj, "@id")
+				: null;
+		if (Strings.notEmpty(unitID))
+			return conf.db.get(ModelType.UNIT, unitID);
+
+		if (e.flowPropertyFactor == null
+				|| e.flowPropertyFactor.flowProperty == null)
+			return null;
+		var units = e.flowPropertyFactor.flowProperty.unitGroup;
+		if (units == null)
+			return null;
+
+		var name = Json.getString(unitObj, "name");
+		return Strings.notEmpty(name)
+				? units.getUnit(name)
+				: units.referenceUnit;
 	}
 
 }
