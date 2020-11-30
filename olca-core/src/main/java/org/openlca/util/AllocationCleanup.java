@@ -2,6 +2,7 @@ package org.openlca.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
@@ -31,18 +32,17 @@ public class AllocationCleanup {
 		return products;
 	}
 
-	private boolean isProduct(Exchange exchange) {
-		if (exchange.flow == null)
+	private boolean isProduct(Exchange e) {
+		if (e.flow == null)
 			return false;
-		if (exchange.isInput && exchange.flow.flowType == FlowType.WASTE_FLOW)
-			return true;
-		if (!exchange.isInput && exchange.flow.flowType == FlowType.PRODUCT_FLOW)
-			return true;
-		return false;
+		var type = e.flow.flowType;
+		return (e.isInput && type == FlowType.WASTE_FLOW)
+				|| (!e.isInput && type == FlowType.PRODUCT_FLOW);
 	}
 
-	private boolean isQuantitativeReference(Exchange exchange) {
-		return exchange.equals(process.quantitativeReference);
+	private boolean isQuantitativeReference(Exchange e) {
+		return e != null
+			&& Objects.equals(e, process.quantitativeReference);
 	}
 
 	private void run() {
@@ -61,8 +61,11 @@ public class AllocationCleanup {
 	}
 
 	private void checkFactors(Exchange product) {
+		if (product == null)
+			return;
 		double defaultValue = 0;
-		if (process.allocationFactors.isEmpty() && isQuantitativeReference(product)) {
+		if (process.allocationFactors.isEmpty()
+				&& isQuantitativeReference(product)) {
 			defaultValue = 1; // initialize quant. ref. with 1
 		}
 		checkFactor(product, AllocationMethod.PHYSICAL, defaultValue);
@@ -75,23 +78,21 @@ public class AllocationCleanup {
 	}
 
 	private void removeInvalid() {
-		for (AllocationFactor factor : new ArrayList<>(process.allocationFactors)) {
+		for (var factor : new ArrayList<>(process.allocationFactors)) {
 			if (isValid(factor))
 				continue;
 			process.allocationFactors.remove(factor);
 		}
 	}
 
-	private boolean isValid(AllocationFactor factor) {
-		if (factor.method == null)
+	private boolean isValid(AllocationFactor f) {
+		if (f.method == null)
 			return false;
-		if (!hasExchangeWithFlow(factor.productId))
+		if (!hasExchangeWithFlow(f.productId))
 			return false;
-		if (factor.method == AllocationMethod.CAUSAL && factor.exchange == null)
+		if (f.method == AllocationMethod.CAUSAL && f.exchange == null)
 			return false;
-		if (factor.method == AllocationMethod.CAUSAL && !hasExchangeFor(factor.exchange.id))
-			return false;
-		return true;
+		return f.method != AllocationMethod.CAUSAL || hasExchangeFor(f.exchange.id);
 	}
 
 	private boolean hasExchangeFor(long id) {

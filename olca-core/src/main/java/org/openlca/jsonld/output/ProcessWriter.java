@@ -9,7 +9,6 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.SocialAspect;
-import org.openlca.util.AllocationCleanup;
 import org.openlca.util.Processes;
 
 import com.google.gson.JsonArray;
@@ -29,7 +28,7 @@ class ProcessWriter extends Writer<Process> {
 		if (obj == null)
 			return null;
 		this.process = p;
-		AllocationCleanup.on(p);
+		// AllocationCleanup.on(p);
 		Out.put(obj, "processType", p.processType, Out.REQUIRED_FIELD);
 		Out.put(obj, "defaultAllocationMethod", p.defaultAllocationMethod);
 		Out.put(obj, "infrastructureProcess", p.infrastructureProcess);
