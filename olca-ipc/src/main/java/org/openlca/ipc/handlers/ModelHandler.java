@@ -200,7 +200,7 @@ public class ModelHandler {
 			var type = d.type.getModelClass();
 
 			// get by ID
-			if (!Strings.notEmpty(d.refId)) {
+			if (Strings.notEmpty(d.refId)) {
 				var e = db.get(type, d.refId);
 				if (e == null) {
 					var err = Responses.error(404, "No " + type
@@ -211,7 +211,7 @@ public class ModelHandler {
 			}
 
 			// get by name
-			if (!Strings.notEmpty(d.name)) {
+			if (Strings.notEmpty(d.name)) {
 				var e = db.forName(type, d.name);
 				if (e == null) {
 					var err = Responses.error(404, "No " + type
