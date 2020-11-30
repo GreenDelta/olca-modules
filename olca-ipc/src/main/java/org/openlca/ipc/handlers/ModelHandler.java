@@ -5,13 +5,11 @@ import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.matrix.LinkingConfig;
 import org.openlca.core.matrix.LinkingConfig.DefaultProviders;
 import org.openlca.core.matrix.ProductSystemBuilder;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.RootEntity;
@@ -26,9 +24,10 @@ import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
 import org.openlca.jsonld.output.JsonExport;
 
-import com.google.common.base.Strings;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.openlca.util.Pair;
+import org.openlca.util.Strings;
 
 public class ModelHandler {
 
@@ -40,20 +39,17 @@ public class ModelHandler {
 
 	@Rpc("get/model")
 	public RpcResponse get(RpcRequest req) {
-		Descriptor d = readDescriptor(req);
-		if (d == null)
-			return Responses.invalidParams("params must be an object with"
-					+ " valid @id and @type", req);
 		try {
-			RootEntity e = Daos.root(db, d.type)
-					.getForRefId(d.refId);
-			if (e == null)
-				return Responses.error(404, "Not found", req);
-			MemStore store = new MemStore();
-			JsonExport exp = new JsonExport(db, store);
+			var p = getModelOrError(req);
+			if (p.second != null)
+				return p.second;
+			var model = p.first;
+			var store = new MemStore();
+			var exp = new JsonExport(db, store);
 			exp.setExportReferences(false);
-			exp.write(e);
-			JsonObject obj = store.get(d.type, d.refId);
+			exp.write(model);
+			var modelType = ModelType.forModelClass(model.getClass());
+			var obj = store.get(modelType, model.refId);
 			if (obj == null)
 				return Responses.error(500, "Conversion to JSON failed", req);
 			return Responses.ok(obj, req);
@@ -67,16 +63,16 @@ public class ModelHandler {
 		if (req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("params must be an object with"
 					+ " valid @type attribute", req);
-		ModelType type = Models.getType(req.params.getAsJsonObject());
+		var type = getType(req.params.getAsJsonObject());
 		if (type == null)
 			return Responses.invalidParams("params must be an object with"
 					+ " valid @type attribute", req);
 		try {
-			MemStore store = new MemStore();
-			JsonExport exp = new JsonExport(db, store);
+			var store = new MemStore();
+			var exp = new JsonExport(db, store);
 			exp.setExportReferences(false);
 			Daos.root(db, type).getAll().forEach(exp::write);
-			JsonArray array = new JsonArray();
+			var array = new JsonArray();
 			store.getAll(type).forEach(array::add);
 			return Responses.ok(array, req);
 		} catch (Exception e) {
@@ -89,13 +85,13 @@ public class ModelHandler {
 		if (req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("params must be an object with"
 					+ " valid @type attribute", req);
-		ModelType type = Models.getType(req.params.getAsJsonObject());
+		var type = getType(req.params.getAsJsonObject());
 		if (type == null)
 			return Responses.invalidParams("params must be an object with"
 					+ " valid @type attribute", req);
 		try {
-			JsonArray array = new JsonArray();
-			EntityCache cache = EntityCache.create(db);
+			var array = new JsonArray();
+			var cache = EntityCache.create(db);
 			Daos.root(db, type).getDescriptors().forEach(d -> {
 				JsonObject obj = Json.asRef(d, cache);
 				array.add(obj);
@@ -108,21 +104,10 @@ public class ModelHandler {
 
 	@Rpc("get/descriptor")
 	public RpcResponse getDescriptor(RpcRequest req) {
-		var error = "An object with a valid @type and @id"
-				+ " attribute is required";
-		if (req.params == null || !req.params.isJsonObject())
-			return Responses.invalidParams(error, req);
-		var params = req.params.getAsJsonObject();
-		var type = Models.getType(params);
-		if (type == null)
-			return Responses.invalidParams(error, req);
-		var id = Json.getString(params, "@id");
-		if (id == null)
-			return Responses.invalidParams(error, req);
-		var d = Daos.root(db, type).getDescriptorForRefId(id);
-		if (d == null)
-			return Responses.notFound(
-					"A " + type + " with id=" + id + " does not exist", req);
+		var p = getModelOrError(req);
+		if (p.second != null)
+			return p.second;
+		var d = Descriptor.of(p.first);
 		var json = Json.asRef(d, EntityCache.create(db));
 		return Responses.ok(json, req);
 	}
@@ -138,19 +123,12 @@ public class ModelHandler {
 	}
 
 	@Rpc("delete/model")
-	@SuppressWarnings("unchecked")
-	public <T extends RootEntity> RpcResponse delete(RpcRequest req) {
-		Descriptor d = readDescriptor(req);
-		if (d == null)
-			return Responses.invalidParams("params must be an object with"
-					+ " valid @id and @type", req);
+	public RpcResponse delete(RpcRequest req) {
 		try {
-			RootEntityDao<T, ?> dao = (RootEntityDao<T, ?>) Daos.root(
-					db, d.type);
-			T e = dao.getForRefId(d.refId);
-			if (e == null)
-				return Responses.error(404, "Not found", req);
-			dao.delete(e);
+			var p = getModelOrError(req);
+			if (p.second != null)
+				return p.second;
+			db.delete(p.first);
 			return Responses.ok(req);
 		} catch (Exception e) {
 			return Responses.serverError(e, req);
@@ -161,18 +139,18 @@ public class ModelHandler {
 	public RpcResponse createProductSystem(RpcRequest req) {
 		if (req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("params must be an object with valid processId", req);
-		JsonObject obj = req.params.getAsJsonObject();
+		var obj = req.params.getAsJsonObject();
 		if (!obj.has("processId") || !obj.get("processId").isJsonPrimitive())
 			return Responses.invalidParams("params must be an object with valid processId", req);
-		String processId = obj.get("processId").getAsString();
-		if (Strings.isNullOrEmpty(processId))
+		var processId = obj.get("processId").getAsString();
+		if (Strings.nullOrEmpty(processId))
 			return Responses.invalidParams("params must be an object with valid processId", req);
-		Process refProcess = new ProcessDao(db).getForRefId(processId);
+		var refProcess = new ProcessDao(db).getForRefId(processId);
 		if (refProcess == null)
 			return Responses.invalidParams("No process found for ref id " + processId, req);
-		ProductSystem system = ProductSystem.of(refProcess);
+		var system = ProductSystem.of(refProcess);
 		system = new ProductSystemDao(db).insert(system);
-		LinkingConfig config = new LinkingConfig();
+		var config = new LinkingConfig();
 		config.preferredType = ProcessType.UNIT_PROCESS;
 		if (obj.has("preferredType") && obj.get("preferredType").getAsString().toLowerCase().equals("lci_result")) {
 			config.preferredType = ProcessType.LCI_RESULT;
@@ -185,16 +163,16 @@ public class ModelHandler {
 				config.providerLinking = DefaultProviders.ONLY;
 			}
 		}
-		ProductSystemBuilder builder = new ProductSystemBuilder(MatrixCache.createLazy(db), config);
+		var builder = new ProductSystemBuilder(MatrixCache.createLazy(db), config);
 		builder.autoComplete(system);
 		system = builder.saveUpdates(system);
-		JsonObject res = new JsonObject();
+		var res = new JsonObject();
 		res.addProperty("@id", system.refId);
 		return Responses.ok(res, req);
 	}
 
 	private RpcResponse saveModel(RpcRequest req, UpdateMode mode) {
-		Descriptor d = readDescriptor(req);
+		Descriptor d = descriptorOf(req);
 		if (d == null)
 			return Responses.invalidParams("params must be an object with"
 					+ " valid @id and @type", req);
@@ -211,11 +189,72 @@ public class ModelHandler {
 		}
 	}
 
-	private Descriptor readDescriptor(RpcRequest req) {
-		if (req.params == null || !req.params.isJsonObject())
-			return null;
-		JsonObject obj = req.params.getAsJsonObject();
-		return Models.getDescriptor(obj);
+	private Pair<RootEntity, RpcResponse> getModelOrError(RpcRequest req) {
+		var d = descriptorOf(req);
+		if (d == null || d.type == null) {
+			var err = Responses.invalidParams(
+					"could not identify model from request parameters", req);
+			return Pair.of(null, err);
+		}
+		try {
+			var type = d.type.getModelClass();
+
+			// get by ID
+			if (!Strings.notEmpty(d.refId)) {
+				var e = db.get(type, d.refId);
+				if (e == null) {
+					var err = Responses.error(404, "No " + type
+							+ " with id='" + d.refId + "' found", req);
+					return Pair.of(null, err);
+				}
+				return Pair.of(e, null);
+			}
+
+			// get by name
+			if (!Strings.notEmpty(d.name)) {
+				var e = db.forName(type, d.name);
+				if (e == null) {
+					var err = Responses.error(404, "No " + type
+							+ " with name='" + d.name + "' found", req);
+					return Pair.of(null, err);
+				}
+				return Pair.of(e, null);
+			}
+
+			var err = Responses.invalidParams(
+					"No valid ID or name given", req);
+			return Pair.of(null, err);
+		} catch (Exception e) {
+			var err = Responses.serverError(e, req);
+			return Pair.of(null, err);
+		}
 	}
 
+	private Descriptor descriptorOf(RpcRequest req) {
+		if (req.params == null || !req.params.isJsonObject())
+			return null;
+		var obj = req.params.getAsJsonObject();
+		var type = getType(obj);
+		if (type == null)
+			return null;
+		var d = new Descriptor();
+		d.type = type;
+		d.refId = Json.getString(obj, "@id");
+		d.name = Json.getString(obj, "name");
+		return d;
+	}
+
+	private ModelType getType(JsonObject obj) {
+		if (obj == null)
+			return null;
+		var s = Json.getString(obj, "@type");
+		if (s == null)
+			return null;
+		try {
+			var clazz = Class.forName("org.openlca.core.model." + s);
+			return ModelType.forModelClass(clazz);
+		} catch (Exception e) {
+			return null;
+		}
+	}
 }

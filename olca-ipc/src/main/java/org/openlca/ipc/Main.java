@@ -1,7 +1,6 @@
 package org.openlca.ipc;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
