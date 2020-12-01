@@ -29,6 +29,7 @@ import org.openlca.core.model.Project;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
+import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.EntityStore;
 
@@ -156,6 +157,8 @@ public class JsonExport {
 			return (Writer<T>) new ProjectWriter(conf);
 		if (entity instanceof DQSystem)
 			return (Writer<T>) new DQSystemWriter(conf);
+		if (entity instanceof Unit)
+			return (Writer<T>) new UnitWriter(conf);
 		return null;
 	}
 
