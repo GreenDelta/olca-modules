@@ -9,11 +9,14 @@ import org.openlca.core.matrix.LinkingConfig;
 import org.openlca.core.matrix.LinkingConfig.DefaultProviders;
 import org.openlca.core.matrix.ProductSystemBuilder;
 import org.openlca.core.matrix.cache.MatrixCache;
+import org.openlca.core.matrix.cache.ProcessTable;
+import org.openlca.core.model.Flow;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
@@ -133,6 +136,30 @@ public class ModelHandler {
 		} catch (Exception e) {
 			return Responses.serverError(e, req);
 		}
+	}
+
+	@Rpc("get/providers")
+	public RpcResponse getProviders(RpcRequest req) {
+		var d = descriptorOf(req);
+		if (d == null || d.refId == null)
+			return Responses.invalidParams(
+					"A valid flow reference with a valid @id is required", req);
+
+		var flow = db.get(Flow.class, d.refId);
+		if (flow == null)
+			return Responses.notFound(
+					"No flow with @id='" + d.refId + "' exists", req);
+
+		var providers = ProcessTable.create(db)
+				.getProviders(flow.id);
+		var array = new JsonArray();
+		var cache = EntityCache.create(db);
+		providers.stream()
+				.map(p -> p.process)
+				.filter(p -> p instanceof ProcessDescriptor)
+				.map(p -> Json.asDescriptor(p, cache))
+				.forEach(array::add);
+		return Responses.ok(array, req);
 	}
 
 	@Rpc("create/product_system")
