@@ -52,6 +52,20 @@ public class ImpactMethod extends CategorizedEntity {
 		return method;
 	}
 
+	public ImpactMethod add(ImpactCategory impact) {
+		if(impact == null)
+			return this;
+		impactCategories.add(impact);
+		return this;
+	}
+
+	public ImpactMethod add(NwSet nwSet) {
+		if (nwSet == null)
+			return this;
+		nwSets.add(nwSet);
+		return this;
+	}
+
 	@Override
 	public ImpactMethod clone() {
 		var clone = new ImpactMethod();

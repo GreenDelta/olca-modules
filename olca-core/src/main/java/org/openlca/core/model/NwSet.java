@@ -33,6 +33,13 @@ public class NwSet extends RootEntity {
 		return nwSet;
 	}
 
+	public NwSet add(NwFactor factor) {
+		if (factor == null)
+			return this;
+		factors.add(factor);
+		return this;
+	}
+
 	@Override
 	public NwSet clone() {
 		var clone = new NwSet();

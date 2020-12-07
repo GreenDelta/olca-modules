@@ -20,6 +20,30 @@ public class NwFactor extends AbstractEntity implements Cloneable {
 	@Column(name = "weighting_factor")
 	public Double weightingFactor;
 
+	public NwFactor() {
+	}
+
+	private NwFactor(ImpactCategory impact,Double nFactor, Double wFactor) {
+		this.impactCategory = impact;
+		this.normalisationFactor = nFactor;
+		this.weightingFactor = wFactor;
+	}
+
+	public static NwFactor of(
+			ImpactCategory impact,
+			double normalisationFactor,
+			double weightingFactor) {
+		return new NwFactor(impact, normalisationFactor, weightingFactor);
+	}
+
+	public static NwFactor ofNormalization(ImpactCategory impact, double factor) {
+		return new NwFactor(impact, factor, null);
+	}
+
+	public static NwFactor ofWeighting(ImpactCategory impact, double factor) {
+		return new NwFactor(impact, null, factor);
+	}
+
 	@Override
 	protected NwFactor clone() {
 		NwFactor clone = new NwFactor();
