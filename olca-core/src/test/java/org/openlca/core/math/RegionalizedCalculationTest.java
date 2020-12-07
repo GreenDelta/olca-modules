@@ -13,7 +13,6 @@ import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ImpactMethodDao;
-import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.UnitGroupDao;
@@ -30,7 +29,6 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
@@ -82,40 +80,38 @@ public class RegionalizedCalculationTest {
 
 	@Before
 	public void setup() {
-		loc1 = location("L1");
-		loc2 = location("L2");
-		loc3 = location("L3");
-		e1 = flow("e1", "kg", FlowType.ELEMENTARY_FLOW);
-		e2 = flow("e2", "kg", FlowType.ELEMENTARY_FLOW);
+
+		// locations
+		loc1 = db.insert(Location.of("L1"));
+		loc2 = db.insert(Location.of("L2"));
+		loc3 = db.insert(Location.of("L3"));
+
+		// quantities and flows
+		var units = db.insert(UnitGroup.of("Units of mass", "kg"));
+		var mass = db.insert(FlowProperty.of("Mass", units));
+		e1 = db.insert(Flow.elementary("e1", mass));
+		e2 = db.insert(Flow.elementary("e2", mass));
+		var pp1 = db.insert(Flow.product("p1", mass));
+		var pp2 = db.insert(Flow.product("p2", mass));
 
 		// process p2
-		p2 = new Process();
-		Flow pp2 = flow("p2", "kg", FlowType.PRODUCT_FLOW);
-		p2.quantitativeReference = p2.output(pp2, 1);
+		p2 = Process.of("p2", pp2);
 		p2.output(e2, 2.0);
-		p2 = new ProcessDao(db).insert(p2);
+		p2 = db.insert(p2);
 
 		// process p1
-		p1 = new Process();
-		Flow pp1 = flow("p1", "kg", FlowType.PRODUCT_FLOW);
-		p1.quantitativeReference = p1.output(pp1, 1.0);
+		p1 = Process.of("p1", pp1);
 		p1.input(pp2, 2.0);
 		p1.output(e1, 2.0);
-		p1 = new ProcessDao(db).insert(p1);
+		p1 = db.insert(p1);
 
 		// create the product system
 		sys = ProductSystem.of(p1);
-		sys.processes.add(p2.id);
-		ProcessLink link = new ProcessLink();
-		link.providerId = p2.id;
-		link.processId = p1.id;
-		link.flowId = pp2.id;
-		link.exchangeId = exchange(p1, pp2).id;
-		sys.processLinks.add(link);
-		sys = new ProductSystemDao(db).insert(sys);
+		sys.link(p2, p1);
+		sys = db.insert(sys);
 
 		// create the LCIA method
-		impact = new ImpactCategory();
+		impact = ImpactCategory.of("Impacts");
 		Object[][] factors = new Object[][]{
 				{e1, loc1, 9.0},
 				{e1, loc2, 6.0},
@@ -128,11 +124,10 @@ public class RegionalizedCalculationTest {
 			var f = impact.factor((Flow) row[0], (Double) row[2]);
 			f.location = (Location) row[1];
 		});
-		impact = new ImpactCategoryDao(db).insert(impact);
-		method = new ImpactMethod();
+		impact = db.insert(impact);
+		method = ImpactMethod.of("Method");
 		method.impactCategories.add(impact);
-		method = new ImpactMethodDao(db).insert(method);
-
+		method = db.insert(method);
 	}
 
 	@After
@@ -142,9 +137,7 @@ public class RegionalizedCalculationTest {
 
 	@Test
 	public void checkNormalCalculation() {
-		CalculationSetup setup = calcSetup();
-		SystemCalculator calc = new SystemCalculator(db, new JavaSolver());
-		FullResult r = calc.calculateFull(setup);
+		var r = FullResult.of(db, calcSetup());
 
 		// total results
 		checkTotalFlowResults(r, new Object[][]{
@@ -454,7 +447,7 @@ public class RegionalizedCalculationTest {
 	private CalculationSetup calcSetup() {
 		// reload the product system to get the updates
 		sys = new ProductSystemDao(db).getForId(sys.id);
-		CalculationSetup setup = new CalculationSetup(sys);
+		var setup = new CalculationSetup(sys);
 		setup.impactMethod = Descriptor.of(method);
 		return setup;
 	}
@@ -463,8 +456,6 @@ public class RegionalizedCalculationTest {
 	public void testRegionalizedCalculation() {
 
 		Flow nox = flow("NOx", "mg", FlowType.ELEMENTARY_FLOW);
-		Location loc1 = location("L1");
-		Location loc2 = location("L2");
 
 		// create the process
 		Process p = new Process();
@@ -530,25 +521,6 @@ public class RegionalizedCalculationTest {
 			return groups.get(0);
 		var group = UnitGroup.of(unit, Unit.of(unit));
 		return dao.insert(group);
-	}
-
-	private Location location(String code) {
-		LocationDao dao = new LocationDao(db);
-		Location loc = dao.getForRefId(code);
-		if (loc != null)
-			return loc;
-		loc = new Location();
-		loc.refId = code;
-		loc.code = code;
-		loc.name = code;
-		return dao.insert(loc);
-	}
-
-	private Exchange exchange(Process p, Flow f) {
-		return p.exchanges.stream()
-				.filter(e -> f.equals(e.flow))
-				.findFirst()
-				.orElse(null);
 	}
 
 	private ImpactDescriptor des(ImpactCategory imp) {

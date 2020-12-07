@@ -89,7 +89,7 @@ public class FullResult extends ContributionResult {
 		int productIdx = techIndex.getIndex(product);
 		return impactIdx < 0 || productIdx < 0
 				? 0
-				: provider.totalImpactOfOne(impactIdx, productIdx);
+				: provider.totalImpactOf(impactIdx, productIdx);
 	}
 
 	/**
