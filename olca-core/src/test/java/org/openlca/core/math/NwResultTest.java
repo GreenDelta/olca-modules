@@ -55,14 +55,14 @@ public class NwResultTest {
 		assertEquals(4, impacts.get(0).value, 1e-10);
 
 		// check nw results
-		var factors = NwSetTable.build(db, nwSet.id);
-		var normalized = factors.applyNormalisation(impacts);
-		assertTrue(factors.hasNormalisationFactors());
+		var factors = NwSetTable.of(db, nwSet.id);
+		var normalized = factors.normalize(impacts);
+		assertTrue(factors.hasNormalization());
 		assertEquals(8, normalized.get(0).value, 1e-10);
-		assertTrue(factors.hasWeightingFactors());
-		var weighted = factors.applyWeighting(impacts);
+		assertTrue(factors.hasWeighting());
+		var weighted = factors.weight(impacts);
 		assertEquals(12, weighted.get(0).value, 1e-10);
-		var both = factors.applyBoth(impacts);
+		var both = factors.apply(impacts);
 		assertEquals(24, both.get(0).value, 1e-10);
 	}
 }

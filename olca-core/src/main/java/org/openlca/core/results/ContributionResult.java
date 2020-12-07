@@ -132,7 +132,7 @@ public class ContributionResult extends SimpleResult {
 		var results = new ArrayList<ImpactResult>();
 		impactIndex.each((i, impact) -> {
 			ImpactResult r = new ImpactResult();
-			r.impactCategory = impact;
+			r.impact = impact;
 			r.value = getDirectImpactResult(process, impact);
 			results.add(r);
 		});

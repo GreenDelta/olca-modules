@@ -117,7 +117,7 @@ public class FullResult extends ContributionResult {
 			return results;
 		impactIndex.each((i, impact) -> {
 			var r = new ImpactResult();
-			r.impactCategory = impact;
+			r.impact = impact;
 			r.value = getUpstreamImpactResult(process, impact);
 			results.add(r);
 		});

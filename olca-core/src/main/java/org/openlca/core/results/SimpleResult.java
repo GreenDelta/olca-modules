@@ -138,7 +138,7 @@ public class SimpleResult extends BaseResult {
 			return results;
 		impactIndex.each((i, d) -> {
 			ImpactResult r = new ImpactResult();
-			r.impactCategory = d;
+			r.impact = d;
 			r.value = getTotalImpactResult(d);
 			results.add(r);
 		});
