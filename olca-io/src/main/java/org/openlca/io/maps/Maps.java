@@ -48,16 +48,6 @@ public class Maps {
 	public static final String SP_FLOW_IMPORT = "sp_flow_import_map.csv";
 
 	/**
-	 * Export map for units to EcoSpold 02.
-	 */
-	public static final String ES2_UNIT_EXPORT = "es2_unit_export_map.csv";
-
-	/**
-	 * Export map for categories/compartments to EcoSpold 2.
-	 */
-	public static final String ES2_COMPARTMENT_EXPORT = "es2_compartment_export_map.csv";
-
-	/**
 	 * A mapping file that maps location codes to UUIDs of locations.
 	 */
 	public static final String LOCATION_IMPORT = "location_import.csv";

@@ -227,42 +227,6 @@ Default mappings
 EcoSpold 2
 ==========
 
-
-EcoSpold 2: Unit import mapping
--------------------------------
-File:		`es2_unit_import_map.csv`
-
-Columns:
-
-0. ecoinvent reference ID of the unit (UUID)
-1. ecoinvent name of the unit (string)
-2. openLCA reference ID of the unit (UUID)
-3. openLCA name of the unit (string)
-4. openLCA reference ID of the flow property (UUID)
-5. openLCA name of the flow property
-
-
-EcoSpold 2: Unit export mapping
--------------------------------
-File:       `es2_unit_export_map.csv`
-
-0. openLCA reference ID of the unit (UUID)
-1. openLCA name of the unit (string)
-2. ecoinvent reference ID of the unit (UUID)
-3. ecoinvent name of the unit (string)
-
-
-EcoSpold 2: Compartment export mapping
---------------------------------------
-File:		`es2_compartment_export_map.csv`
-
-0. openLCA reference ID of the compartment/category (UUID)
-1. openLCA short path of the category (just for display; not used) (string)
-2. ecoinvent ID of the sub-compartment
-3. ecoinvent name of the compartment
-4. ecoinvent name of the sub-compartment
-
-
 SimaPro CSV
 ===========
 

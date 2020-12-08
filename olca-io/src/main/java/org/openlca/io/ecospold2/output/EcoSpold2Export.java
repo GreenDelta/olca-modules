@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import spold2.Activity;
 import spold2.ActivityDescription;
 import spold2.ActivityName;
+import spold2.Compartment;
 import spold2.DataSet;
 import spold2.EcoSpold2;
 import spold2.ElementaryExchange;
@@ -49,9 +50,6 @@ public class EcoSpold2Export implements Runnable {
 	private final File activityDir;
 	private final IDatabase db;
 	private final List<ProcessDescriptor> descriptors;
-
-	private final UnitMap unitMap;
-	private final CompartmentMap compartmentMap;
 	private ElemFlowMap elemFlowMap;
 
 	public EcoSpold2Export(File dir, IDatabase db) {
@@ -62,8 +60,6 @@ public class EcoSpold2Export implements Runnable {
 		this.activityDir = new File(dir, "Activities");
 		this.db = db;
 		this.descriptors = descriptors;
-		this.unitMap = new UnitMap(db);
-		this.compartmentMap = new CompartmentMap(db);
 		this.elemFlowMap = new ElemFlowMap(FlowMap.empty());
 	}
 
@@ -184,20 +180,32 @@ public class EcoSpold2Export implements Runnable {
 
 	private ElementaryExchange createElemExchange(Exchange exchange,
 			UserMasterData masterData) {
-		ElementaryExchange e2Ex = elemFlowMap.apply(exchange);
+		var e2Ex = elemFlowMap.apply(exchange);
 		if (e2Ex != null)
 			return e2Ex;
 		e2Ex = new ElementaryExchange();
-		if (exchange.isInput)
+		if (exchange.isInput) {
 			e2Ex.inputGroup = 4;
-		else
+		} else {
 			e2Ex.outputGroup = 4;
-		Flow flow = exchange.flow;
+		}
+
+		var flow = exchange.flow;
 		e2Ex.flowId = flow.refId;
 		e2Ex.formula = flow.formula;
 		mapExchangeData(exchange, e2Ex);
-		compartmentMap.apply(flow.category, e2Ex);
-		unitMap.apply(exchange.unit, e2Ex, masterData);
+
+		// compartment
+		if (flow.category != null) {
+			var comp = new Compartment();
+			comp.id = flow.category.refId;
+			comp.subCompartment = flow.category.name;
+			if (flow.category.category != null) {
+				comp.compartment = flow.category.category.name;
+			}
+		}
+
+		Units.map(exchange.unit, e2Ex, masterData);
 		MasterData.writeElemFlow(e2Ex, masterData);
 		return e2Ex;
 	}
@@ -220,7 +228,7 @@ public class EcoSpold2Export implements Runnable {
 		if (provider != null)
 			e2Ex.activityLinkId = provider.refId;
 		mapExchangeData(exchange, e2Ex);
-		unitMap.apply(exchange.unit, e2Ex, masterData);
+		Units.map(exchange.unit, e2Ex, masterData);
 		MasterData.writeTechFlow(e2Ex, masterData);
 		return e2Ex;
 	}
