@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
+import org.openlca.core.model.NwSet;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.NwSetDescriptor;
 import org.openlca.core.results.ImpactResult;
@@ -24,6 +25,12 @@ public class NwSetTable {
 
 	public static NwSetTable empty() {
 		return new NwSetTable();
+	}
+
+	public static NwSetTable of(IDatabase db, NwSet nwSet) {
+		return db == null || nwSet == null
+				? empty()
+				: of(db, nwSet.id);
 	}
 
 	public static NwSetTable of(IDatabase db, NwSetDescriptor d) {

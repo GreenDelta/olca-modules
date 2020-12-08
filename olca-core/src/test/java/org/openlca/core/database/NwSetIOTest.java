@@ -86,8 +86,8 @@ public class NwSetIOTest {
 	@Test
 	public void testNwSetTable() {
 		for(NwSet nwSet : method.nwSets) {
-			NwSetTable table = NwSetTable.of(db, nwSet.id);
-			for(ImpactCategory impact : method.impactCategories) {
+			var table = NwSetTable.of(db, nwSet);
+			for(var impact : method.impactCategories) {
 				Assert.assertEquals(FACTOR, table.getNormalizationFactor(
 						impact.id), 1e-20);
 				Assert.assertEquals(FACTOR, table.getWeightingFactor(

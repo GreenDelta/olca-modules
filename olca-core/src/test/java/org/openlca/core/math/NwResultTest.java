@@ -1,6 +1,7 @@
 package org.openlca.core.math;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.openlca.core.Tests;
@@ -55,7 +56,7 @@ public class NwResultTest {
 		assertEquals(4, impacts.get(0).value, 1e-10);
 
 		// check nw results
-		var factors = NwSetTable.of(db, nwSet.id);
+		var factors = NwSetTable.of(db, nwSet);
 		var normalized = factors.normalize(impacts);
 		assertTrue(factors.hasNormalization());
 		assertEquals(8, normalized.get(0).value, 1e-10);
