@@ -47,8 +47,6 @@ public class Maps {
 
 	public static final String ES2_FLOW_IMPORT = "ecospold_2_flow_map.csv";
 
-	public static final String ILCD_FLOW_IMPORT = "ilcd_flow_map.csv";
-
 	/**
 	 * Import map for flows from SimaPro CSV.
 	 */

@@ -326,16 +326,6 @@ ILCD
   official ILCD package
 
 
-ILCD: Flow import mapping
--------------------------
-
-File: `ilcd_flow_map.csv`
-
-0. UUID of the ILCD flow
-1. UUID of the openLCA flow
-2. conversion factor: amount_ilcd * factor = amount_openlca (double)
-
-
 SimaPro CSV
 ===========
 

@@ -8,7 +8,6 @@ import org.openlca.core.model.Flow;
 import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.io.ZipStore;
 import org.openlca.io.maps.FlowMap;
-import org.openlca.io.maps.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +41,7 @@ public class ImportConfig {
 
 	public FlowMap getFlowMap() {
 		if (flowMap == null) {
-			flowMap = FlowMap.of(Maps.ILCD_FLOW_IMPORT, db);
+			flowMap = FlowMap.empty();
 		}
 		return flowMap;
 	}
