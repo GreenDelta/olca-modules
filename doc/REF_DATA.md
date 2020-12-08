@@ -224,39 +224,6 @@ folder and the KML data from this file will be imported.
 Default mappings
 ================
 
-
-Default mappings: Unit import
-----------------------------
-File:		`unit_import_map.csv`
-
-Columns:
-
-0. external name of the unit
-1. openLCA reference ID of the unit (UUID)
-2. openLCA name of the unit (string)
-3. openLCA reference ID of the flow property (UUID)
-4. openLCA name of the flow property
-
-
-EcoSpold 1
-==========
-
-* units are mapped by name (see default unit mapping)
-* locations are mapped by the location code (name-based UUID)
-
-
-EcoSpold 1: Flow import mapping
--------------------------------
-
-File: `ecospold_flow_map.csv`
-
-Columns:
-
-0. UUID from hashed attributes of the EcoSpold flow
-1. UUID of the openLCA flow
-2. conversion factor: amount_ecospold * factor = amount_openlca (double)
-
-
 EcoSpold 2
 ==========
 
@@ -317,13 +284,6 @@ File:		`es2_compartment_export_map.csv`
 2. ecoinvent ID of the sub-compartment
 3. ecoinvent name of the compartment
 4. ecoinvent name of the sub-compartment
-
-
-ILCD
-====
-
-* we use the same UUIDs for unit groups and flow properties as in the
-  official ILCD package
 
 
 SimaPro CSV

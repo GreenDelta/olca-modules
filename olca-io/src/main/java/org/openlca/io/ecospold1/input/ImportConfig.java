@@ -18,7 +18,7 @@ public class ImportConfig {
 
 	public FlowMap getFlowMap() {
 		if (flowMap == null) {
-			flowMap = FlowMap.of(Maps.ES1_FLOW_IMPORT, db);
+			flowMap = FlowMap.empty();
 		}
 		return flowMap;
 	}

@@ -43,8 +43,6 @@ import org.supercsv.prefs.CsvPreference;
  */
 public class Maps {
 
-	public static final String ES1_FLOW_IMPORT = "ecospold_flow_map.csv";
-
 	public static final String ES2_FLOW_IMPORT = "ecospold_2_flow_map.csv";
 
 	/**
