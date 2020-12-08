@@ -47,11 +47,6 @@ public class Maps {
 	 */
 	public static final String SP_FLOW_IMPORT = "sp_flow_import_map.csv";
 
-	/**
-	 * A mapping file that maps location codes to UUIDs of locations.
-	 */
-	public static final String LOCATION_IMPORT = "location_import.csv";
-
 	private Maps() {
 	}
 
