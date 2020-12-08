@@ -20,6 +20,7 @@ import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.io.ecospold2.UncertaintyConverter;
+import org.openlca.io.maps.FlowMap;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +43,7 @@ import spold2.UserMasterData;
  */
 public class EcoSpold2Export implements Runnable {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final File activityDir;
 	private final IDatabase db;
@@ -51,7 +52,7 @@ public class EcoSpold2Export implements Runnable {
 	private final LocationMap locationMap;
 	private final UnitMap unitMap;
 	private final CompartmentMap compartmentMap;
-	private final ElemFlowMap elemFlowMap;
+	private ElemFlowMap elemFlowMap;
 
 	public EcoSpold2Export(File dir, IDatabase db) {
 		this(dir, db, Collections.emptyList());
@@ -64,30 +65,33 @@ public class EcoSpold2Export implements Runnable {
 		this.locationMap = new LocationMap(db);
 		this.unitMap = new UnitMap(db);
 		this.compartmentMap = new CompartmentMap(db);
-		this.elemFlowMap = new ElemFlowMap(db);
+		this.elemFlowMap = new ElemFlowMap(FlowMap.empty());
+	}
+
+	public void setFlowMap(FlowMap map) {
+		if (map != null) {
+			elemFlowMap = new ElemFlowMap(map);
+		}
 	}
 
 	@Override
 	public void run() {
 		try {
-			init();
+			if (!activityDir.exists()) {
+				activityDir.mkdirs();
+			}
 			exportProcesses();
 		} catch (Exception e) {
 			log.error("EcoSpold 2 export failed", e);
 		}
 	}
 
-	public void init() {
-		if (!activityDir.exists())
-			activityDir.mkdirs();
-	}
-
-	private void exportProcesses() throws Exception {
+	private void exportProcesses() {
 		for (ProcessDescriptor descriptor : descriptors) {
 			ProcessDao dao = new ProcessDao(db);
 			Process process = dao.getForId(descriptor.id);
 			ProcessDocumentation doc = process.documentation;
-			if (process == null || doc == null) {
+			if (doc == null) {
 				log.warn("no process entity or documentation for {} found",
 						descriptor);
 				continue;
@@ -96,11 +100,10 @@ public class EcoSpold2Export implements Runnable {
 		}
 	}
 
-	public void exportProcess(Process process) throws Exception {
+	public void exportProcess(Process process) {
 		DataSet dataSet = new DataSet();
 		dataSet.description = new ActivityDescription();
-		UserMasterData masterData = new UserMasterData();
-		dataSet.masterData = masterData;
+		dataSet.masterData = new UserMasterData();
 		mapActivity(process, dataSet);
 		locationMap.apply(process, dataSet);
 		ProcessDoc.map(process, dataSet);
@@ -125,14 +128,13 @@ public class EcoSpold2Export implements Runnable {
 		activity.name = name;
 		activityName.name = name;
 		activity.id = process.refId;
-		int type = process.processType == ProcessType.LCI_RESULT ? 2 : 1;
-		activity.type = type;
+		activity.type = process.processType == ProcessType.LCI_RESULT ? 2 : 1;
 		activity.specialActivityType = 0; // default
 		activity.generalComment = RichText.of(process.description);
 		if (!Strings.nullOrEmpty(process.tags)) {
 			Arrays.stream(process.tags.split(","))
 					.filter(tag -> !tag.isBlank())
-					.forEach(tag -> activity.tags.add(tag));
+					.forEach(activity.tags::add);
 		}
 	}
 

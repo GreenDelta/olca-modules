@@ -11,6 +11,34 @@ properties:
 * the decimal separator of numbers should be a decimal point: `.`
 * the files should __not__ contain column headers
 
+Below is a small code example for reading and writing this format in Python:
+
+```py
+import csv
+from typing import Any, Iterator, List
+
+
+def each_row_of(path: str) -> Iterator[List[str]]:
+    with open(path, 'r', encoding='utf-8-sig') as stream:
+        reader = csv.reader(stream, delimiter=';')
+        for row in reader:
+            yield row
+
+def write_to(path: str, rows: Iterator[List[Any]]):
+    with open(path, 'w', encoding='utf-8', newline='\n') as stream:
+        writer = csv.writer(stream, delimiter=';', quoting=csv.QUOTE_MINIMAL)
+        for row in rows:
+            writer.writerow(row)
+
+def convert(rows: Iterator[List[str]]) -> Iterator[List[str]]:
+    for row in rows:
+        yield row
+
+
+if __name__ == '__main__':
+    write_to('to.csv', convert(each_row_of('from.csv')))
+```
+
 
 Locations
 ---------
@@ -278,26 +306,6 @@ File:       `es2_unit_export_map.csv`
 1. openLCA name of the unit (string)
 2. ecoinvent reference ID of the unit (UUID)
 3. ecoinvent name of the unit (string)
-
-
-EcoSpold 2: Flow export mapping
--------------------------------
-File:       `es2_flow_export_map.csv`
-
-0. openLCA reference ID of the flow (UUID)
-1. openLCA name of the flow (string)
-2. openLCA reference ID of the reference flow property of the flow (UUID)
-3. openLCA name of the reference flow property of the flow (string)
-4. openLCA reference ID of the reference unit of the flow (UUID)
-5. openLCA name of the reference unit of the flow (string)
-6. ecoinvent reference ID of the flow (UUID)
-7. ecoinvent name of the flow (string)
-8. ecoinvent reference ID of the reference unit of the flow (UUID)
-9. ecoinvent name of the reference unit of the flow (string)
-10. ecoinvent ID of the sub-compartment
-11. ecoinvent name of the compartment
-12. ecoinvent name of the sub-compartment
-13. conversion factor: amount_openlca * factor = amount_ecoinvent (double)
 
 
 EcoSpold 2: Compartment export mapping

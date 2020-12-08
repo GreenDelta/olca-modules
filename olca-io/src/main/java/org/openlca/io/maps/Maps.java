@@ -70,11 +70,6 @@ public class Maps {
 	public static final String ES2_COMPARTMENT_EXPORT = "es2_compartment_export_map.csv";
 
 	/**
-	 * Export map for elementary flows to EcoSpold 2.
-	 */
-	public static final String ES2_FLOW_EXPORT = "es2_flow_export_map.csv";
-
-	/**
 	 * A mapping file that maps location codes to UUIDs of locations.
 	 */
 	public static final String LOCATION_IMPORT = "location_import.csv";
@@ -105,20 +100,17 @@ public class Maps {
 	 * the database. If it does not exist it loads the mapping from the
 	 * jar-internal resource file.
 	 */
-	private static CsvListReader open(String fileName, IDatabase database)
-			throws Exception {
+	private static CsvListReader open(String fileName, IDatabase database) {
 		CsvListReader reader = fromDatabase(fileName, database);
-		if (reader != null)
-			return reader;
-		else
-			return createReader(Maps.class.getResourceAsStream(fileName));
+		return reader != null
+				? reader
+				: createReader(Maps.class.getResourceAsStream(fileName));
 	}
 
-	private static CsvListReader fromDatabase(String fileName,
-			IDatabase database) throws Exception {
-		if (database == null)
+	private static CsvListReader fromDatabase(String fileName, IDatabase db) {
+		if (db == null)
 			return null;
-		MappingFileDao dao = new MappingFileDao(database);
+		MappingFileDao dao = new MappingFileDao(db);
 		MappingFile file = dao.getForName(fileName);
 		if (file == null || file.content == null)
 			return null;
