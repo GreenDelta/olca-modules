@@ -1,6 +1,7 @@
 package org.openlca.io.ecospold2.output;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,7 +15,6 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
-import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
@@ -32,6 +32,7 @@ import spold2.DataSet;
 import spold2.EcoSpold2;
 import spold2.ElementaryExchange;
 import spold2.FlowData;
+import spold2.Geography;
 import spold2.IntermediateExchange;
 import spold2.RichText;
 import spold2.UserMasterData;
@@ -49,7 +50,6 @@ public class EcoSpold2Export implements Runnable {
 	private final IDatabase db;
 	private final List<ProcessDescriptor> descriptors;
 
-	private final LocationMap locationMap;
 	private final UnitMap unitMap;
 	private final CompartmentMap compartmentMap;
 	private ElemFlowMap elemFlowMap;
@@ -62,7 +62,6 @@ public class EcoSpold2Export implements Runnable {
 		this.activityDir = new File(dir, "Activities");
 		this.db = db;
 		this.descriptors = descriptors;
-		this.locationMap = new LocationMap(db);
 		this.unitMap = new UnitMap(db);
 		this.compartmentMap = new CompartmentMap(db);
 		this.elemFlowMap = new ElemFlowMap(FlowMap.empty());
@@ -78,7 +77,7 @@ public class EcoSpold2Export implements Runnable {
 	public void run() {
 		try {
 			if (!activityDir.exists()) {
-				activityDir.mkdirs();
+				Files.createDirectories(activityDir.toPath());
 			}
 			exportProcesses();
 		} catch (Exception e) {
@@ -101,26 +100,27 @@ public class EcoSpold2Export implements Runnable {
 	}
 
 	public void exportProcess(Process process) {
-		DataSet dataSet = new DataSet();
-		dataSet.description = new ActivityDescription();
-		dataSet.masterData = new UserMasterData();
-		mapActivity(process, dataSet);
-		locationMap.apply(process, dataSet);
-		ProcessDoc.map(process, dataSet);
-		mapExchanges(process, dataSet);
-		mapParameters(process, dataSet);
-		MasterData.writeIndexEntry(dataSet);
-		String fileName = process.refId == null ? UUID.randomUUID()
-				.toString() : process.refId;
-		File file = new File(activityDir, fileName + ".spold");
-		EcoSpold2.write(dataSet, file);
+		var ds = new DataSet();
+		ds.description = new ActivityDescription();
+		ds.masterData = new UserMasterData();
+		mapActivity(process, ds);
+		mapLocation(process, ds);
+		ProcessDoc.map(process, ds);
+		mapExchanges(process, ds);
+		mapParameters(process, ds);
+		MasterData.writeIndexEntry(ds);
+		var fileName = process.refId == null
+				? UUID.randomUUID().toString()
+				: process.refId;
+		var file = new File(activityDir, fileName + ".spold");
+		EcoSpold2.write(ds, file);
 	}
 
-	private void mapActivity(Process process, DataSet dataSet) {
+	private void mapActivity(Process process, DataSet ds) {
 		var activity = new Activity();
-		dataSet.description.activity = activity;
+		ds.description.activity = activity;
 		var activityName = new ActivityName();
-		dataSet.masterData.activityNames.add(activityName);
+		ds.masterData.activityNames.add(activityName);
 		String nameId = UUID.randomUUID().toString();
 		activity.activityNameId = nameId;
 		activityName.id = nameId;
@@ -135,6 +135,25 @@ public class EcoSpold2Export implements Runnable {
 			Arrays.stream(process.tags.split(","))
 					.filter(tag -> !tag.isBlank())
 					.forEach(activity.tags::add);
+		}
+	}
+
+	private void mapLocation(Process process, DataSet ds) {
+		if (ds.description == null) {
+			ds.description = new ActivityDescription();
+		}
+		var geo = new Geography();
+		ds.description.geography = geo;
+		if (process.documentation != null) {
+			geo.comment = RichText.of(process.documentation.geography);
+		}
+		if (process.location == null) {
+			// set defaults
+			geo.id = "34dbbff8-88ce-11de-ad60-0019e336be3a";
+			geo.shortName = "GLO";
+		} else {
+			geo.id = process.location.refId;
+			geo.shortName = process.location.code;
 		}
 	}
 
@@ -227,12 +246,11 @@ public class EcoSpold2Export implements Runnable {
 	private void mapParameters(Process process, DataSet ds) {
 		if (ds.flowData == null)
 			ds.flowData = new FlowData();
-		List<Parameter> parameters = new ArrayList<>();
-		parameters.addAll(process.parameters);
-		ParameterDao dao = new ParameterDao(db);
+		var parameters = new ArrayList<>(process.parameters);
+		var dao = new ParameterDao(db);
 		parameters.addAll(dao.getGlobalParameters());
-		for (Parameter param : parameters) {
-			spold2.Parameter e2Param = new spold2.Parameter();
+		for (var param : parameters) {
+			var e2Param = new spold2.Parameter();
 			e2Param.name = param.name;
 			e2Param.id = new UUID(param.id, 0L).toString();
 			e2Param.amount = param.value;

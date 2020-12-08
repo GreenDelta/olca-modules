@@ -242,29 +242,6 @@ Columns:
 5. openLCA name of the flow property
 
 
-EcoSpold 2: Flow import mapping
--------------------------------
-File:		`ecospold_2_flow_map.csv`
-
-Columns:
-
-0. UUID of the EcoSpold flow
-1. UUID of the openLCA flow
-2. conversion factor: amount_ecospold * factor = amount_openlca (double)
-
-
-EcoSpold 2: Location export mapping
------------------------------------
-File:       `es2_location_export_map.csv`
-
-Columns:
-
-0. openLCA reference ID of the location (UUID)
-1. openLCA location code of the location (string)
-2. ecoinvent reference ID of the location (UUID)
-3. ecoinvent location code of the location (string)
-
-
 EcoSpold 2: Unit export mapping
 -------------------------------
 File:       `es2_unit_export_map.csv`

@@ -42,9 +42,6 @@ import org.supercsv.prefs.CsvPreference;
  * updating the io-package).
  */
 public class Maps {
-
-	public static final String ES2_FLOW_IMPORT = "ecospold_2_flow_map.csv";
-
 	/**
 	 * Import map for flows from SimaPro CSV.
 	 */
@@ -54,11 +51,6 @@ public class Maps {
 	 * Export map for units to EcoSpold 02.
 	 */
 	public static final String ES2_UNIT_EXPORT = "es2_unit_export_map.csv";
-
-	/**
-	 * Export map for locations to EcoSpold 2.
-	 */
-	public static final String ES2_LOCATION_EXPORT = "es2_location_export_map.csv";
 
 	/**
 	 * Export map for categories/compartments to EcoSpold 2.
