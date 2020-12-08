@@ -6,10 +6,10 @@ other formats and databases. In general all CSV files should have the following
 properties:
 
 * files should be utf-8 encoded
-* columns should be separated by semicolon: ;
-* strings should be enclosed in double quotes if it is necessary: "
-* the decimal separator of numbers should be a point: .
-* the files should not contain column headers
+* columns should be separated by semicolons: `;`
+* strings should be enclosed in double quotes if it is necessary: `"`
+* the decimal separator of numbers should be a decimal point: `.`
+* the files should __not__ contain column headers
 
 
 Locations
