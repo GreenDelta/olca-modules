@@ -9,7 +9,9 @@ import org.openlca.util.Strings;
 
 class Flows {
 
-	String getMappingID(ElementaryFlowType type, ElementaryExchangeRow row) {
+	static String getMappingID(
+			ElementaryFlowType type, 
+			ElementaryExchangeRow row) {
 		if (row == null || type == null)
 			return "";
 		return List.of(
@@ -22,5 +24,7 @@ class Flows {
 				.map(s -> s.trim().toLowerCase())
 				.collect(Collectors.joining("/"));
 	}
+	
+	
 
 }

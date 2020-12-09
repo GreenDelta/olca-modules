@@ -1,10 +1,7 @@
 package org.openlca.io.maps;
 
-import java.util.Objects;
-
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.Descriptor;

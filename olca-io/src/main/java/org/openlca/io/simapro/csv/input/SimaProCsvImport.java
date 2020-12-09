@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.io.FileImport;
+import org.openlca.io.maps.FlowMap;
 import org.openlca.simapro.csv.SimaProCSV;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,13 +15,19 @@ public class SimaProCsvImport implements FileImport {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private boolean canceled = false;
-	private final IDatabase database;
+	private final IDatabase db;
 	private final File[] files;
 	private EventBus eventBus;
+	private FlowMap flowMap;
 
-	public SimaProCsvImport(IDatabase database, File[] files) {
-		this.database = database;
+	public SimaProCsvImport(IDatabase db, File[] files) {
+		this.db = db;
 		this.files = files;
+	}
+	
+	public SimaProCsvImport with(FlowMap flowMap) {
+		this.flowMap = flowMap;
+		return this;
 	}
 
 	public EventBus getEventBus() {
@@ -49,15 +56,16 @@ public class SimaProCsvImport implements FileImport {
 			for (File file : files) {
 				log.trace("import SimaPro CSV file {}", file);
 				log.trace("extract reference data");
-				SpRefIndexHandler refDataHandler = new SpRefIndexHandler();
+				var refDataHandler = new SpRefIndexHandler();
 				SimaProCSV.parse(file, refDataHandler);
-				SpRefDataIndex index = refDataHandler.getIndex();
+				var index = refDataHandler.getIndex();
 				log.trace("sync. reference data");
-				RefDataSync sync = new RefDataSync(index, database);
-				RefData refData = sync.run();
+				var flowMap = this.flowMap != null
+						? this.flowMap
+						: FlowMap.empty();
+				var refData = new RefDataSync(index, db, flowMap).run();
 				log.trace("import processes");
-				ProcessHandler processHandler = new ProcessHandler(database,
-						refData);
+				var processHandler = new ProcessHandler(db, refData);
 				SimaProCSV.parse(file, processHandler);
 			}
 		} catch (Exception e) {
