@@ -224,27 +224,6 @@ folder and the KML data from this file will be imported.
 Default mappings
 ================
 
-EcoSpold 2
-==========
-
-SimaPro CSV
-===========
-
-* units are mapped by name (see default unit mapping)
-
-
-SimaPro CSV: Compartment import mapping
----------------------------------------
-File:		`sp_compartment_import_map.csv`
-
-Columns:
-
-0. SimaPro compartment name (string)
-1. SimaPro sub-compartment name (string)
-2. openLCA reference ID of the category (UUID)
-3. openLCA short category path category/sub-category (string)
-
-
 SimaPro CSV: Flow import mapping
 --------------------------------
 File:		`sp_flow_import_map.csv`

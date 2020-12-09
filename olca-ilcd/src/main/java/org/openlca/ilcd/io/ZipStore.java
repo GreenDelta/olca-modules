@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory;
 
 public class ZipStore implements DataStore {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-	private FileSystem zip;
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final FileSystem zip;
 	private HashMap<String, List<Path>> entries;
 
 	/**
@@ -38,9 +38,9 @@ public class ZipStore implements DataStore {
 	 * the contains check faster because in the export we usually first call
 	 * contains and then do the export if necessary.
 	 */
-	private HashMap<Class<?>, Set<String>> addedContent = new HashMap<>();
+	private final HashMap<Class<?>, Set<String>> addedContent = new HashMap<>();
 
-	private XmlBinder binder = new XmlBinder();
+	private final XmlBinder binder = new XmlBinder();
 
 	public ZipStore(File zipFile) throws IOException {
 		log.trace("Create zip store {}", zipFile);
@@ -72,12 +72,7 @@ public class ZipStore implements DataStore {
 
 	/** Get the entries of the given directory. */
 	public List<Path> getEntries(String dir) {
-		List<Path> list = entries.get(dir);
-		if (list == null) {
-			list = new ArrayList<>();
-			entries.put(dir, list);
-		}
-		return list;
+		return entries.computeIfAbsent(dir, _d -> new ArrayList<>());
 	}
 
 	public List<Path> getEntries(Class<? extends IDataSet> type) {
@@ -109,11 +104,8 @@ public class ZipStore implements DataStore {
 			binder.toStream(ds, os);
 			List<Path> list = getEntries(dir);
 			list.add(entry);
-			Set<String> ids = addedContent.get(ds.getClass());
-			if (ids == null) {
-				ids = new HashSet<>();
-				addedContent.put(ds.getClass(), ids);
-			}
+			var ids = addedContent.computeIfAbsent(
+					ds.getClass(), k -> new HashSet<>());
 			ids.add(ds.getUUID());
 		} catch (Exception e) {
 			throw new RuntimeException("Could not add file  " + entryName, e);
@@ -128,11 +120,11 @@ public class ZipStore implements DataStore {
 			return;
 		try {
 			Path parent = zip.getPath("ILCD/external_docs");
-			if (parent != null && !Files.exists(parent))
+			if (!Files.exists(parent)) {
 				Files.createDirectories(parent);
+			}
 			for (File file : files) {
-				Path entry = zip
-						.getPath("ILCD/external_docs/" + file.getName());
+				Path entry = zip.getPath("ILCD/external_docs/" + file.getName());
 				Files.copy(file.toPath(), entry,
 						StandardCopyOption.REPLACE_EXISTING);
 				List<Path> list = getEntries("external_docs");
@@ -164,8 +156,7 @@ public class ZipStore implements DataStore {
 	<T> T unmarshal(Class<T> type, Path entry) {
 		try {
 			InputStream is = Files.newInputStream(entry);
-			T t = binder.fromStream(type, is);
-			return t;
+			return binder.fromStream(type, is);
 		} catch (Exception e) {
 			throw new RuntimeException("Cannot load " + type + " from entry "
 					+ entry, e);
@@ -186,7 +177,6 @@ public class ZipStore implements DataStore {
 				// representation of an entry in older JDK
 				// versions:https://bugs.openjdk.java.net/browse/JDK-8061777
 				// log.warn("Could not read zip entry {}", entry);
-				continue;
 			}
 		}
 		return null;
@@ -227,17 +217,16 @@ public class ZipStore implements DataStore {
 		}
 	}
 
-	private class FileVisitor extends SimpleFileVisitor<Path> {
+	private static class FileVisitor extends SimpleFileVisitor<Path> {
 
-		private Consumer<Path> fn;
+		private final Consumer<Path> fn;
 
 		public FileVisitor(Consumer<Path> fn) {
 			this.fn = fn;
 		}
 
 		@Override
-		public FileVisitResult visitFile(Path f, BasicFileAttributes atts)
-				throws IOException {
+		public FileVisitResult visitFile(Path f, BasicFileAttributes atts) {
 			if (f == null || f.getParent() == null)
 				return FileVisitResult.CONTINUE;
 			fn.accept(f);

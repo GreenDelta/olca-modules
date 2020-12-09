@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-class Derby {
+public class Derby {
 
 	private Derby() {
 	}
@@ -15,7 +15,7 @@ class Derby {
 	 * folder specification:
 	 * http://db.apache.org/derby/docs/10.0/manuals/develop/develop13.html
 	 */
-	static boolean isDerbyFolder(File folder) {
+	public static boolean isDerbyFolder(File folder) {
 		if (folder == null || !folder.exists() || !folder.isDirectory())
 			return false;
 		File log = new File(folder, "log");
@@ -25,9 +25,7 @@ class Derby {
 		if (!seg0.exists() || !seg0.isDirectory())
 			return false;
 		File props = new File(folder, "service.properties");
-		if (!props.exists() || !props.isFile())
-			return false;
-		return true;
+		return props.exists() && props.isFile();
 	}
 
 	/**
