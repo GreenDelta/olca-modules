@@ -42,10 +42,6 @@ import org.supercsv.prefs.CsvPreference;
  * updating the io-package).
  */
 public class Maps {
-	/**
-	 * Import map for flows from SimaPro CSV.
-	 */
-	public static final String SP_FLOW_IMPORT = "sp_flow_import_map.csv";
 
 	private Maps() {
 	}

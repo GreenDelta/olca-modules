@@ -63,8 +63,11 @@ class FlowSync {
 
 	private void syncElemFlow(ElementaryExchangeRow row,
 			ElementaryFlowType type, RefData refData) {
-		String key = KeyGen.get(row.name, type.getExchangeHeader(),
-				row.subCompartment, row.unit);
+		String key = KeyGen.get(
+				row.name, 
+				type.getExchangeHeader(),
+				row.subCompartment, 
+				row.unit);
 		MapFactor<Flow> mappedFlow = getMappedFlow(key);
 		if (mappedFlow != null)
 			refData.putMappedFlow(key, mappedFlow);
@@ -247,7 +250,7 @@ class FlowSync {
 	private void setFlowProperty(UnitMappingEntry unitEntry, Flow flow) {
 		flow.referenceFlowProperty = unitEntry.flowProperty;
 		FlowPropertyFactor factor = new FlowPropertyFactor();
-		factor.conversionFactor = (double) 1;
+		factor.conversionFactor = 1;
 		factor.flowProperty = unitEntry.flowProperty;
 		flow.flowPropertyFactors.add(factor);
 	}

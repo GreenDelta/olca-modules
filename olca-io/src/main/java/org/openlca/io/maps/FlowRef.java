@@ -1,8 +1,16 @@
 package org.openlca.io.maps;
 
+import java.util.Objects;
+
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.util.Strings;
 
 /**
  * A FlowRef contains the associated reference data of a source or target flow
@@ -137,6 +145,67 @@ public class FlowRef {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * Tries to find a matching flow from the given database. It checks
+	 * the reference ID of the flows and also of the flow property and
+	 * unit if these are present.
+	 */
+	public Flow getMatchingFlow(IDatabase db) {
+		if (db == null
+				|| flow == null
+				|| flow.refId == null)
+			return null;
+
+		var f = db.get(Flow.class, flow.refId);
+		if (f == null)
+			return null;
+		return getMatchingUnit(f) != null
+				? f
+				: null;
+	}
+
+	/**
+	 * Get the matching flow property from the given flow, which is
+	 * the reference flow property of that flow if not specified
+	 * otherwise. Note that this can be null, if there is no
+	 * matching flow property defined in the given flow.
+	 */
+	public FlowPropertyFactor getMatchingProperty(Flow flow) {
+		if (flow == null)
+			return null;
+		if (property == null || Strings.nullOrEmpty(property.refId))
+			return flow.getReferenceFactor();
+		for (var f : flow.flowPropertyFactors) {
+			if (f == null || f.flowProperty == null)
+				continue;
+			if (Strings.nullOrEqual(
+					f.flowProperty.refId, property.refId))
+				return f;
+		}
+		return null;
+	}
+
+	/**
+	 * Get the matching unit from the given flow, which is the
+	 * reference unit of that flow if not specified otherwise.
+	 * Note that this can be null, if there is no matching
+	 * unit defined in the given flow.
+	 */
+	public Unit getMatchingUnit(Flow flow) {
+		var fac = getMatchingProperty(flow);
+		if (fac == null
+				|| fac.flowProperty == null
+				|| fac.flowProperty.unitGroup == null)
+			return null;
+		var group = fac.flowProperty.unitGroup;
+		if (unit == null || Strings.nullOrEmpty(unit.refId))
+			return group.referenceUnit;
+		return group.units.stream()
+				.filter(u -> Strings.nullOrEqual(u.refId, unit.refId))
+				.findAny()
+				.orElse(null);
 	}
 
 }
