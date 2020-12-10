@@ -68,6 +68,14 @@ public enum Format {
 	KML,
 
 	/**
+	 * An openLCA flow mapping file in CSV format:
+	 * - columns separated by semicolons
+	 * - at minimum 3 columns
+	 * - the third column contains numbers
+	 */
+	MAPPING_CSV,
+
+	/**
 	 * A SimaPro CSV file.
 	 */
 	SIMAPRO_CSV,
@@ -118,15 +126,27 @@ public enum Format {
 			}
 		}
 
-		// *.csv => check if it is SimaPro CSV
+		// *.csv => check if it is SimaPro CSV or a mapping file
 		if (hasExtension(fileName, ".csv")) {
 			try (var stream = new FileInputStream(file);
 				 var reader = new InputStreamReader(stream);
 				 var buffer = new BufferedReader(reader)) {
 				var first = buffer.readLine();
-				return first.startsWith("{SimaPro ")
-						? Optional.of(SIMAPRO_CSV)
-						: Optional.empty();
+
+				// check if it is SimaPro CSV
+				if (first.startsWith("{SimaPro "))
+					return Optional.of(SIMAPRO_CSV);
+
+				// check if it is a mapping file
+				var columns = first.split(";");
+				if (columns.length < 3)
+					return Optional.empty();
+				try {
+					Double.parseDouble(columns[2]);
+					return Optional.of(MAPPING_CSV);
+				} catch (Exception ignored) {
+				}
+				return Optional.empty();
 			} catch (Exception e) {
 				return Optional.empty();
 			}

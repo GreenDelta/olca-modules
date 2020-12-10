@@ -152,6 +152,23 @@ public class FormatTest {
 	}
 
 	@Test
+	public void testDetectMappingFile() throws Exception {
+		var file = Files.createTempFile("_olca_test", ".csv");
+		var failures = new String[] {
+			"other,separator,42",
+			"only;two",
+			"not;a;number",
+		};
+		for (var failure : failures) {
+			Files.writeString(file, failure);
+			var format = Format.detect(file.toFile());
+			assertTrue(format.isEmpty());
+		}
+		Files.writeString(file, "but;this;42;is;correct");
+		check(file.toFile(), Format.MAPPING_CSV);
+	}
+
+	@Test
 	public void testDetectES2ZIP() throws Exception {
 		var file = Files.createTempFile("_olca_test", ".zip").toFile();
 		try (var stream = new FileOutputStream(file);
