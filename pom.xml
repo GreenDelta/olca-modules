@@ -61,11 +61,6 @@
 		</developer>
 	</developers>
 
-	<ciManagement>
-		<system>Travis CI</system>
-		<url>https://travis-ci.org/GreenDelta/olca-modules</url>
-	</ciManagement>
-
 	<modules>
 		<module>olca-cloud</module>
 		<module>olca-core</module>
@@ -75,6 +70,7 @@
 		<module>olca-ilcd</module>
 		<module>olca-io</module>
 		<module>olca-ipc</module>
+		<module>olca-proto</module>
 		<module>olca-simapro-csv</module>
 	</modules>
 
