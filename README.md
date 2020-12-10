@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/GreenDelta/olca-modules.svg?branch=master)](https://travis-ci.org/GreenDelta/olca-modules)
-
 # openLCA – modules
 This project provides the core functionality of [openLCA](http://openlca.org) as
 a set of [Maven](https://maven.apache.org/) modules. Since version version 1.4
