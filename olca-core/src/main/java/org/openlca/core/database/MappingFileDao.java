@@ -12,6 +12,15 @@ public class MappingFileDao extends BaseDao<MappingFile> {
 		super(MappingFile.class, db);
 	}
 
+	/**
+	 * Get the mapping file with the given name from the database.
+	 */
+	public static MappingFile get(IDatabase db, String name) {
+		if (db == null || name == null)
+			return null;
+		return new MappingFileDao(db).getForName(name);
+	}
+
 	public MappingFile getForName(String name) {
 		var jpql = "select m from MappingFile m where m.name = :name";
 		return getFirst(jpql, Collections.singletonMap("name", name));

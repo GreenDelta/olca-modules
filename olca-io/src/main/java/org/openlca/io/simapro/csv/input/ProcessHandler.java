@@ -194,14 +194,11 @@ class ProcessHandler {
 	}
 
 	private void mapElementaryFlows(Process process, long scope) {
-		for (ElementaryFlowType type : ElementaryFlowType.values()) {
+		for (var type : ElementaryFlowType.values()) {
 			boolean isInput = type == ElementaryFlowType.RESOURCES;
-			for (ElementaryExchangeRow row : block
-					.getElementaryExchangeRows(type)) {
-				String key = KeyGen.get(row.name,
-						type.getExchangeHeader(), row.subCompartment,
-						row.unit);
-				MapFactor<Flow> factor = refData.getMappedFlow(key);
+			for (var row : block.getElementaryExchangeRows(type)) {
+				var key = Flows.getMappingID(type, row);
+				var factor = refData.getMappedFlow(key);
 				Exchange e;
 				if (factor != null) {
 					e = initMappedExchange(factor, row, process, scope);

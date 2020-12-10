@@ -48,6 +48,15 @@ public final class DataDir {
 	}
 
 	/**
+	 * Get the folder of the database with the given name in the openLCA data
+	 * folder. Note that the returned folder may not exist if there is no
+	 * such database in that folder.
+	 */
+	public static File database(String name) {
+		return new File(databases(), name);
+	}
+
+	/**
 	 * Get the `libraries` folder in which data libraries are stored where each
 	 * data library is stored in its separate folder.
 	 */
@@ -64,9 +73,4 @@ public final class DataDir {
 					"Failed to create folder: " + dir.getAbsolutePath(), e);
 		}
 	}
-
-	public static void main(String[] args) {
-		System.out.println(DataDir.libraries());
-	}
-
 }
