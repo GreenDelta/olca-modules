@@ -20,11 +20,11 @@ public class SimaProCsvImport implements FileImport {
 	private EventBus eventBus;
 	private FlowMap flowMap;
 
-	public SimaProCsvImport(IDatabase db, File[] files) {
+	public SimaProCsvImport(IDatabase db, File... files) {
 		this.db = db;
 		this.files = files;
 	}
-	
+
 	public SimaProCsvImport with(FlowMap flowMap) {
 		this.flowMap = flowMap;
 		return this;

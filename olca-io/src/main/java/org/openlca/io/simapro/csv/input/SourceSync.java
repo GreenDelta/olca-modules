@@ -1,13 +1,13 @@
 package org.openlca.io.simapro.csv.input;
 
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.SourceDao;
-import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Source;
-import org.openlca.io.Categories;
 import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
 import org.openlca.util.KeyGen;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,17 +56,12 @@ class SourceSync {
 		Source source = new Source();
 		source.refId = refId;
 		source.name = block.name;
-		source.category = getCategory(block);
+		source.category = Strings.nullOrEmpty(block.category)
+			? null
+			: CategoryDao.sync(database, ModelType.SOURCE, block.category);
 		source.description = block.description;
 		source.textReference = block.documentationLink;
 		new SourceDao(database).insert(source);
 		return source;
-	}
-
-	private Category getCategory(LiteratureReferenceBlock block) {
-		if (block.category == null)
-			return null;
-		return Categories.findOrAdd(database, ModelType.SOURCE,
-				new String[] { block.category });
 	}
 }

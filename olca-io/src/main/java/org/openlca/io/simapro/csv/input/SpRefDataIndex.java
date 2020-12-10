@@ -30,7 +30,7 @@ class SpRefDataIndex {
 	private HashMap<String, QuantityRow> quantities = new HashMap<>();
 	private HashSet<String> usedUnits = new HashSet<>();
 	private HashMap<String, UnitRow> unitRows = new HashMap<>();
-	private HashMap<String, LiteratureReferenceBlock> literatureReferences = new HashMap<>();
+	private HashMap<String, LiteratureReferenceBlock> sources = new HashMap<>();
 	private HashMap<String, ElementaryFlowRow> elemFlowInfos = new HashMap<>();
 	private List<InputParameterRow> inputParameters = new ArrayList<>();
 	private List<CalculatedParameterRow> calculatedParameters = new ArrayList<>();
@@ -75,18 +75,17 @@ class SpRefDataIndex {
 	public void put(LiteratureReferenceBlock reference) {
 		if (reference == null)
 			return;
-		literatureReferences.put(reference.name, reference);
+		sources.put(reference.name, reference);
 	}
 
 	public Collection<LiteratureReferenceBlock> getLiteratureReferences() {
-		return literatureReferences.values();
+		return sources.values();
 	}
 
 	public void put(ElementaryFlowRow elemFlowRow, ElementaryFlowType type) {
 		if (elemFlowRow == null || type == null)
 			return;
-		String key = KeyGen
-				.get(elemFlowRow.name, type.getExchangeHeader());
+		String key = KeyGen.get(elemFlowRow.name, type.getExchangeHeader());
 		elemFlowInfos.put(key, elemFlowRow);
 	}
 
@@ -144,25 +143,19 @@ class SpRefDataIndex {
 	public void putElemFlow(ElementaryExchangeRow row, ElementaryFlowType type) {
 		if (row == null || type == null)
 			return;
-		HashMap<String, ElementaryExchangeRow> map = elemFlows.get(type);
-		if (map == null) {
-			map = new HashMap<>();
-			elemFlows.put(type, map);
-		}
-		String key = KeyGen.get(row.name, type.getExchangeHeader(),
-				row.subCompartment, row.unit);
+		var map = elemFlows.computeIfAbsent(type, k -> new HashMap<>());
+		String key = Flows.getMappingID(type, row);
 		map.put(key, row);
 	}
 
 	public Collection<ElementaryExchangeRow> getElementaryFlows(
-			ElementaryFlowType type) {
+		ElementaryFlowType type) {
 		if (type == null)
 			return Collections.emptyList();
-		HashMap<String, ElementaryExchangeRow> rows = elemFlows.get(type);
-		if (rows == null)
-			return Collections.emptyList();
-		else
-			return rows.values();
+		var rows = elemFlows.get(type);
+		return rows == null
+			? Collections.emptyList()
+			: rows.values();
 	}
 
 }

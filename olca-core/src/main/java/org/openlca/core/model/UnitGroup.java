@@ -37,6 +37,12 @@ public class UnitGroup extends CategorizedEntity {
 	@JoinColumn(name = "f_unit_group")
 	public final List<Unit> units = new ArrayList<>();
 
+	public static UnitGroup of(String name) {
+		var group = new UnitGroup();
+		Entities.init(group, name);
+		return group;
+	}
+
 	public static UnitGroup of(String name, String refUnit) {
 		return of(name, Unit.of(refUnit));
 	}

@@ -126,21 +126,21 @@ public class CategoryDao
 		return false;
 	}
 
-	private <T extends CategorizedEntity> void updateModels(Category category) {
-		Optional<Category> optional = Optional.ofNullable(category);
-		for (CategorizedDescriptor descriptor : getDescriptors(
-				category.modelType, optional)) {
-			Version v = new Version(descriptor.version);
+	private void updateModels(Category category) {
+		if (category == null)
+			return;
+		for (var d : getDescriptors(category.modelType, Optional.of(category))) {
+			Version v = new Version(d.version);
 			v.incUpdate();
 			long version = v.getValue();
 			long lastChange = System.currentTimeMillis();
-			descriptor.version = version;
-			descriptor.lastChange = lastChange;
-			String update = "UPDATE " + getTable(descriptor.type)
+			d.version = version;
+			d.lastChange = lastChange;
+			String update = "UPDATE " + getTable(d.type)
 					+ " SET version = " + version + ", last_change = "
-					+ lastChange + " WHERE id = " + descriptor.id;
+					+ lastChange + " WHERE id = " + d.id;
 			NativeSql.on(database).runUpdate(update);
-			database.notifyUpdate(descriptor);
+			database.notifyUpdate(d);
 		}
 	}
 
@@ -158,12 +158,18 @@ public class CategoryDao
 		return tables.get(modelType);
 	}
 
-	private <T extends CategorizedEntity> List<? extends CategorizedDescriptor> getDescriptors(
+	private List<? extends CategorizedDescriptor> getDescriptors(
 			ModelType type,
 			Optional<Category> category) {
 		if (type == null || !type.isCategorized())
 			return new ArrayList<>();
 		return Daos.categorized(getDatabase(), type).getDescriptors(category);
+	}
+
+	public static Category sync(IDatabase db, ModelType type, String... path) {
+		return db == null
+			? null
+			: new CategoryDao(db).sync(type, path);
 	}
 
 	/**
@@ -172,12 +178,11 @@ public class CategoryDao
 	 * empty or null, null is returned.
 	 */
 	public Category sync(ModelType type, String... path) {
-		if (path == null || path.length == 0)
+		if (type == null || path == null || path.length == 0)
 			return null;
 		Category parent = null;
 		List<Category> next = getRootCategories(type);
-		for (int i = 0; i < path.length; i++) {
-			String segment = path[i];
+		for (var segment : path) {
 			if (Strings.nullOrEmpty(segment))
 				continue;
 			segment = segment.trim();

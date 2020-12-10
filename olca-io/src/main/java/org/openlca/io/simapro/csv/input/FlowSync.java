@@ -3,6 +3,7 @@ package org.openlca.io.simapro.csv.input;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
@@ -12,7 +13,6 @@ import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
-import org.openlca.io.Categories;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.FlowMap;
@@ -104,20 +104,24 @@ class FlowSync {
 		if (flow != null)
 			return flow;
 		flow = createProductFlow(refId, row);
-		flow.category = getProductCategory(row);
+		flow.category = Strings.nullOrEmpty(row.category)
+			?  null
+			: CategoryDao.sync(db, ModelType.FLOW, row.category.split("\\\\"));
 		dao.insert(flow);
 		return flow;
 	}
 
 	private Flow getProductFlow(ProductExchangeRow row, ProductType type) {
-		String refId = getProductRefId(row);
+		var refId = getProductRefId(row);
 		if (refId == null)
 			return null;
-		Flow flow = dao.getForRefId(refId);
+		var flow = dao.getForRefId(refId);
 		if (flow != null)
 			return flow;
 		flow = createProductFlow(refId, row);
-		flow.category = getProductCategory(type);
+		flow.category = type != null
+			? CategoryDao.sync(db, ModelType.FLOW, type.getHeader())
+			: null;
 		dao.insert(flow);
 		return flow;
 	}
@@ -164,20 +168,6 @@ class FlowSync {
 		return description;
 	}
 
-	private Category getProductCategory(ProductType type) {
-		if (type == null)
-			return null;
-		String[] path = new String[] { type.getHeader() };
-		return Categories.findOrAdd(db, ModelType.FLOW, path);
-	}
-
-	private Category getProductCategory(RefProductRow row) {
-		if (row.category == null)
-			return null;
-		String[] path = row.category.split("\\\\");
-		return Categories.findOrAdd(db, ModelType.FLOW, path);
-	}
-
 	private Location getProductLocation(ExchangeRow row) {
 		if (row.name == null)
 			return null;
@@ -194,20 +184,21 @@ class FlowSync {
 	}
 
 	private Flow getElementaryFlow(ElementaryExchangeRow row,
-			ElementaryFlowType type, String refId) {
+			ElementaryFlowType type, String key) {
 		String unit = row.unit;
 		UnitMappingEntry unitEntry = unitMapping.getEntry(unit);
 		if (unitEntry == null) {
 			log.error("could not find unit {} in database", unit);
 			return null;
 		}
+		var refId = KeyGen.get(key);
 		Flow flow = dao.getForRefId(refId);
 		if (flow != null)
 			return flow;
 		flow = new Flow();
 		flow.refId = refId;
 		flow.name = row.name;
-		flow.category = getElementaryFlowCategory(row, type);
+		flow.category = getCategory(row, type);
 		flow.flowType = FlowType.ELEMENTARY_FLOW;
 		setFlowProperty(unitEntry, flow);
 		ElementaryFlowRow flowInfo = index.getFlowInfo(row.name, type);
@@ -225,17 +216,13 @@ class FlowSync {
 		// location from the comment string
 	}
 
-	private Category getElementaryFlowCategory(
-			ElementaryExchangeRow exchangeRow, ElementaryFlowType type) {
-		if (exchangeRow == null || type == null)
+	private Category getCategory(ElementaryExchangeRow row, ElementaryFlowType type) {
+		if (row == null || type == null)
 			return null;
-		String[] path;
-		String subCompartment = exchangeRow.subCompartment;
-		if (subCompartment != null && !subCompartment.isEmpty())
-			path = new String[] { type.getExchangeHeader(), subCompartment };
-		else
-			path = new String[] { type.getExchangeHeader(), "Unspecified" };
-		return Categories.findOrAdd(db, ModelType.FLOW, path);
+		var sub = Strings.notEmpty(row.subCompartment)
+			? row.subCompartment
+			: "unspecified";
+		return CategoryDao.sync(db, ModelType.FLOW, type.getExchangeHeader(), sub);
 	}
 
 	private void setFlowProperty(UnitMappingEntry unitEntry, Flow flow) {

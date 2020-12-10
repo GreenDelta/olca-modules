@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  */
 class GlobalParameterSync {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final SpRefDataIndex index;
 	private final ParameterDao dao;
@@ -69,8 +69,7 @@ class GlobalParameterSync {
 
 	private void eval(Parameter p, FormulaInterpreter interpreter) {
 		try {
-			double val = interpreter.eval(p.formula);
-			p.value = val;
+			p.value = interpreter.eval(p.formula);
 		} catch (Exception e) {
 			log.warn("failed to evaluate formula for global parameter "
 					+ p.name + ": set value to 1.0", e);

@@ -5,16 +5,15 @@ import java.util.HashMap;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Source;
 import org.openlca.io.UnitMapping;
-import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.MapFactor;
 
 class RefData {
 
 	private UnitMapping unitMapping;
-	private HashMap<String, Flow> products = new HashMap<>();
-	private HashMap<String, Flow> elemFlows = new HashMap<>();
-	private HashMap<String, MapFactor<Flow>> mappedFlows = new HashMap<>();
-	private HashMap<String, Source> sources = new HashMap<>();
+	private final HashMap<String, Flow> products = new HashMap<>();
+	private final HashMap<String, Flow> elemFlows = new HashMap<>();
+	private final HashMap<String, MapFactor<Flow>> mappedFlows = new HashMap<>();
+	private final HashMap<String, Source> sources = new HashMap<>();
 
 	public void setUnitMapping(UnitMapping unitMapping) {
 		this.unitMapping = unitMapping;
@@ -22,13 +21,6 @@ class RefData {
 
 	public UnitMapping getUnitMapping() {
 		return unitMapping;
-	}
-
-	public UnitMappingEntry getUnitEntry(String unitName) {
-		if (unitMapping == null)
-			return null;
-		else
-			return unitMapping.getEntry(unitName);
 	}
 
 	public void putProduct(String key, Flow flow) {
