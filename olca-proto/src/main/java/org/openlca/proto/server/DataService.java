@@ -85,6 +85,29 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
   }
 
   @Override
+  public void getDescriptors(
+    Services.DescriptorRequest req, StreamObserver<Proto.Ref> resp) {
+    Descriptors.get(db, req).forEach(resp::onNext);
+    resp.onCompleted();
+  }
+
+  @Override
+  public void getDescriptor(
+    Services.DescriptorRequest req, StreamObserver<Services.RefStatus> resp) {
+    var ref = Descriptors.get(db, req).findFirst().orElse(null);
+    var status = Services.RefStatus.newBuilder();
+    if (ref == null) {
+      status.setOk(false);
+      status.setError("not found");
+    } else {
+      status.setOk(true);
+      status.setRef(ref);
+    }
+    resp.onNext(status.build());
+    resp.onCompleted();
+  }
+
+  @Override
   public void delete(Proto.Ref req, StreamObserver<Services.Status> resp) {
     var type = Arrays.stream(ModelType.values())
       .map(ModelType::getModelClass)

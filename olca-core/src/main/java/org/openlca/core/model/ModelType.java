@@ -41,12 +41,12 @@ public enum ModelType {
 	CURRENCY(Currency.class),
 
 	PARAMETER(Parameter.class),
-	
+
 	DQ_SYSTEM(DQSystem.class);
 
 	final Class<? extends RootEntity> modelClass;
 
-	private ModelType(Class<? extends RootEntity> clazz) {
+	ModelType(Class<? extends RootEntity> clazz) {
 		this.modelClass = clazz;
 	}
 
@@ -55,9 +55,8 @@ public enum ModelType {
 	}
 
 	public boolean isCategorized() {
-		if (modelClass == null)
-			return false;
-		return CategorizedEntity.class.isAssignableFrom(modelClass);
+		return modelClass != null
+			&& CategorizedEntity.class.isAssignableFrom(modelClass);
 	}
 
 	public boolean isOneOf(ModelType... types) {
@@ -86,7 +85,7 @@ public enum ModelType {
 				continue;
 			categorized.add(type);
 		}
-		return categorized.toArray(new ModelType[categorized.size()]);
+		return categorized.toArray(new ModelType[0]);
 	}
 
 }
