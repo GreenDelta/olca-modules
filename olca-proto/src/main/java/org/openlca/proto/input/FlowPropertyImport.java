@@ -3,7 +3,7 @@ package org.openlca.proto.input;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyType;
-import org.openlca.proto.Proto;
+import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
 public class FlowPropertyImport {

@@ -15,7 +15,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.proto.Proto;
+import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
 public class ProductSystemImport {

@@ -24,6 +24,7 @@ import com.google.protobuf.Parser;
 import com.google.protobuf.util.JsonFormat;
 import org.openlca.geo.geojson.GeoJSON;
 import org.openlca.jsonld.Json;
+import org.openlca.proto.generated.Proto;
 import org.slf4j.LoggerFactory;
 
 public class ZipStore implements ProtoStore {

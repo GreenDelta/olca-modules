@@ -1,7 +1,7 @@
 syntax = "proto3";
 package protolca.services;
 
-option java_package = "org.openlca.proto.services";
+option java_package = "org.openlca.proto.generated";
 option csharp_namespace = "ProtoLCA.Services";
 option go_package = ".;protolca";
 

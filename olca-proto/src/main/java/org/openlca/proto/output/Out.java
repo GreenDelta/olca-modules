@@ -14,7 +14,7 @@ import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.proto.Proto;
+import org.openlca.proto.generated.Proto;
 import org.openlca.util.Categories;
 import org.openlca.util.Strings;
 

@@ -6,7 +6,7 @@ import java.util.Map;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.proto.Proto;
+import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
 public class UnitGroupImport {

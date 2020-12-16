@@ -3,7 +3,7 @@ package org.openlca.proto.input;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
-import org.openlca.proto.Proto;
+import org.openlca.proto.generated.Proto;
 
 public class ParameterImport {
 

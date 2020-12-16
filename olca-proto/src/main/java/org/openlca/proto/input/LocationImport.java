@@ -2,7 +2,7 @@ package org.openlca.proto.input;
 
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
-import org.openlca.proto.Proto;
+import org.openlca.proto.generated.Proto;
 
 public class LocationImport {
 

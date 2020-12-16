@@ -6,8 +6,7 @@ import java.util.Map;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
-import org.openlca.core.model.FlowType;
-import org.openlca.proto.Proto;
+import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
 public class FlowImport {

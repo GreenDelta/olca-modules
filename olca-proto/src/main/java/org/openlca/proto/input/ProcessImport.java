@@ -17,7 +17,7 @@ import org.openlca.core.model.RiskLevel;
 import org.openlca.core.model.SocialAspect;
 import org.openlca.core.model.Source;
 import org.openlca.jsonld.Json;
-import org.openlca.proto.Proto;
+import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
 public class ProcessImport {

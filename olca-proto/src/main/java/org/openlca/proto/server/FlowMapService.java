@@ -12,11 +12,11 @@ import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
 import org.openlca.io.maps.FlowRef;
 import org.openlca.proto.Messages;
-import org.openlca.proto.Proto;
+import org.openlca.proto.generated.FlowMapServiceGrpc;
+import org.openlca.proto.generated.Proto;
+import org.openlca.proto.generated.Services;
 import org.openlca.proto.input.In;
 import org.openlca.proto.output.Out;
-import org.openlca.proto.services.FlowMapServiceGrpc;
-import org.openlca.proto.services.Services;
 import org.openlca.util.Pair;
 import org.openlca.util.Strings;
 

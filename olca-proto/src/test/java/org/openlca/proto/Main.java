@@ -2,6 +2,8 @@ package org.openlca.proto;
 
 import java.util.UUID;
 
+import org.openlca.proto.generated.Proto;
+
 import com.google.protobuf.util.JsonFormat;
 
 public class Main {

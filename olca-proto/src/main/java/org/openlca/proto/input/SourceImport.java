@@ -2,7 +2,7 @@ package org.openlca.proto.input;
 
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.model.Source;
-import org.openlca.proto.Proto;
+import org.openlca.proto.generated.Proto;
 
 public class SourceImport {
 

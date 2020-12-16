@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import org.openlca.proto.generated.Proto;
+
 public class MemStore implements ProtoStore {
 
   private final HashMap<String, HashMap<String, Object>> store = new HashMap<>();

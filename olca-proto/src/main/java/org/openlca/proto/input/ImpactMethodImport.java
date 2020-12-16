@@ -6,7 +6,7 @@ import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.NwFactor;
 import org.openlca.core.model.NwSet;
-import org.openlca.proto.Proto;
+import org.openlca.proto.generated.Proto;
 
 public class ImpactMethodImport {
 

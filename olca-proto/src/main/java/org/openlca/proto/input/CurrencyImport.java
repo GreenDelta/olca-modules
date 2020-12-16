@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.model.Currency;
-import org.openlca.proto.Proto;
+import org.openlca.proto.generated.Proto;
 
 public class CurrencyImport {
 

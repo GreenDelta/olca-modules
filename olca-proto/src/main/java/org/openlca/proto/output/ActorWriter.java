@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Version;
-import org.openlca.proto.Proto;
+import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
 public class ActorWriter {

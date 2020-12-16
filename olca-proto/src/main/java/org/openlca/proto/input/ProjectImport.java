@@ -2,7 +2,7 @@ package org.openlca.proto.input;
 
 import org.openlca.core.database.ProjectDao;
 import org.openlca.core.model.Project;
-import org.openlca.proto.Proto;
+import org.openlca.proto.generated.Proto;
 
 public class ProjectImport {
 

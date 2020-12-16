@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.model.SocialIndicator;
-import org.openlca.proto.Proto;
+import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
 public class SocialIndicatorImport {

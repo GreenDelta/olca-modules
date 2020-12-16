@@ -6,7 +6,7 @@ import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Parameter;
-import org.openlca.proto.Proto;
+import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
 public class ImpactCategoryImport {

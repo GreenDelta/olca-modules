@@ -2,7 +2,7 @@ package org.openlca.proto.input;
 
 import com.google.protobuf.ProtocolStringList;
 import org.openlca.core.model.CategorizedEntity;
-import org.openlca.proto.Proto;
+import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
 abstract class ProtoWrap {
