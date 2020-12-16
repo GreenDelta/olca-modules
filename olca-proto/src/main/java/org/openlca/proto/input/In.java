@@ -24,7 +24,7 @@ public final class In {
   }
 
   static Uncertainty uncertainty(Proto.Uncertainty proto) {
-    if (proto == null || proto.getDistributionType() == null)
+    if (proto == null)
       return null;
     switch (proto.getDistributionType()) {
       case LOG_NORMAL_DISTRIBUTION:

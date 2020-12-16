@@ -58,6 +58,130 @@ public final class DataServiceGrpc {
     return getDeleteMethod;
   }
 
+  private static volatile io.grpc.MethodDescriptor<org.openlca.proto.services.Services.DescriptorRequest,
+      org.openlca.proto.Proto.Ref> getGetDescriptorsMethod;
+
+  @io.grpc.stub.annotations.RpcMethod(
+      fullMethodName = SERVICE_NAME + '/' + "GetDescriptors",
+      requestType = org.openlca.proto.services.Services.DescriptorRequest.class,
+      responseType = org.openlca.proto.Proto.Ref.class,
+      methodType = io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
+  public static io.grpc.MethodDescriptor<org.openlca.proto.services.Services.DescriptorRequest,
+      org.openlca.proto.Proto.Ref> getGetDescriptorsMethod() {
+    io.grpc.MethodDescriptor<org.openlca.proto.services.Services.DescriptorRequest, org.openlca.proto.Proto.Ref> getGetDescriptorsMethod;
+    if ((getGetDescriptorsMethod = DataServiceGrpc.getGetDescriptorsMethod) == null) {
+      synchronized (DataServiceGrpc.class) {
+        if ((getGetDescriptorsMethod = DataServiceGrpc.getGetDescriptorsMethod) == null) {
+          DataServiceGrpc.getGetDescriptorsMethod = getGetDescriptorsMethod =
+              io.grpc.MethodDescriptor.<org.openlca.proto.services.Services.DescriptorRequest, org.openlca.proto.Proto.Ref>newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetDescriptors"))
+              .setSampledToLocalTracing(true)
+              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  org.openlca.proto.services.Services.DescriptorRequest.getDefaultInstance()))
+              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  org.openlca.proto.Proto.Ref.getDefaultInstance()))
+              .setSchemaDescriptor(new DataServiceMethodDescriptorSupplier("GetDescriptors"))
+              .build();
+        }
+      }
+    }
+    return getGetDescriptorsMethod;
+  }
+
+  private static volatile io.grpc.MethodDescriptor<org.openlca.proto.services.Services.DescriptorRequest,
+      org.openlca.proto.services.Services.RefStatus> getGetDescriptorMethod;
+
+  @io.grpc.stub.annotations.RpcMethod(
+      fullMethodName = SERVICE_NAME + '/' + "GetDescriptor",
+      requestType = org.openlca.proto.services.Services.DescriptorRequest.class,
+      responseType = org.openlca.proto.services.Services.RefStatus.class,
+      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  public static io.grpc.MethodDescriptor<org.openlca.proto.services.Services.DescriptorRequest,
+      org.openlca.proto.services.Services.RefStatus> getGetDescriptorMethod() {
+    io.grpc.MethodDescriptor<org.openlca.proto.services.Services.DescriptorRequest, org.openlca.proto.services.Services.RefStatus> getGetDescriptorMethod;
+    if ((getGetDescriptorMethod = DataServiceGrpc.getGetDescriptorMethod) == null) {
+      synchronized (DataServiceGrpc.class) {
+        if ((getGetDescriptorMethod = DataServiceGrpc.getGetDescriptorMethod) == null) {
+          DataServiceGrpc.getGetDescriptorMethod = getGetDescriptorMethod =
+              io.grpc.MethodDescriptor.<org.openlca.proto.services.Services.DescriptorRequest, org.openlca.proto.services.Services.RefStatus>newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetDescriptor"))
+              .setSampledToLocalTracing(true)
+              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  org.openlca.proto.services.Services.DescriptorRequest.getDefaultInstance()))
+              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  org.openlca.proto.services.Services.RefStatus.getDefaultInstance()))
+              .setSchemaDescriptor(new DataServiceMethodDescriptorSupplier("GetDescriptor"))
+              .build();
+        }
+      }
+    }
+    return getGetDescriptorMethod;
+  }
+
+  private static volatile io.grpc.MethodDescriptor<org.openlca.proto.services.Services.SearchRequest,
+      org.openlca.proto.Proto.Ref> getSearchMethod;
+
+  @io.grpc.stub.annotations.RpcMethod(
+      fullMethodName = SERVICE_NAME + '/' + "Search",
+      requestType = org.openlca.proto.services.Services.SearchRequest.class,
+      responseType = org.openlca.proto.Proto.Ref.class,
+      methodType = io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
+  public static io.grpc.MethodDescriptor<org.openlca.proto.services.Services.SearchRequest,
+      org.openlca.proto.Proto.Ref> getSearchMethod() {
+    io.grpc.MethodDescriptor<org.openlca.proto.services.Services.SearchRequest, org.openlca.proto.Proto.Ref> getSearchMethod;
+    if ((getSearchMethod = DataServiceGrpc.getSearchMethod) == null) {
+      synchronized (DataServiceGrpc.class) {
+        if ((getSearchMethod = DataServiceGrpc.getSearchMethod) == null) {
+          DataServiceGrpc.getSearchMethod = getSearchMethod =
+              io.grpc.MethodDescriptor.<org.openlca.proto.services.Services.SearchRequest, org.openlca.proto.Proto.Ref>newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "Search"))
+              .setSampledToLocalTracing(true)
+              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  org.openlca.proto.services.Services.SearchRequest.getDefaultInstance()))
+              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  org.openlca.proto.Proto.Ref.getDefaultInstance()))
+              .setSchemaDescriptor(new DataServiceMethodDescriptorSupplier("Search"))
+              .build();
+        }
+      }
+    }
+    return getSearchMethod;
+  }
+
+  private static volatile io.grpc.MethodDescriptor<org.openlca.proto.services.Services.CreateSystemRequest,
+      org.openlca.proto.services.Services.RefStatus> getCreateProductSystemMethod;
+
+  @io.grpc.stub.annotations.RpcMethod(
+      fullMethodName = SERVICE_NAME + '/' + "CreateProductSystem",
+      requestType = org.openlca.proto.services.Services.CreateSystemRequest.class,
+      responseType = org.openlca.proto.services.Services.RefStatus.class,
+      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  public static io.grpc.MethodDescriptor<org.openlca.proto.services.Services.CreateSystemRequest,
+      org.openlca.proto.services.Services.RefStatus> getCreateProductSystemMethod() {
+    io.grpc.MethodDescriptor<org.openlca.proto.services.Services.CreateSystemRequest, org.openlca.proto.services.Services.RefStatus> getCreateProductSystemMethod;
+    if ((getCreateProductSystemMethod = DataServiceGrpc.getCreateProductSystemMethod) == null) {
+      synchronized (DataServiceGrpc.class) {
+        if ((getCreateProductSystemMethod = DataServiceGrpc.getCreateProductSystemMethod) == null) {
+          DataServiceGrpc.getCreateProductSystemMethod = getCreateProductSystemMethod =
+              io.grpc.MethodDescriptor.<org.openlca.proto.services.Services.CreateSystemRequest, org.openlca.proto.services.Services.RefStatus>newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "CreateProductSystem"))
+              .setSampledToLocalTracing(true)
+              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  org.openlca.proto.services.Services.CreateSystemRequest.getDefaultInstance()))
+              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  org.openlca.proto.services.Services.RefStatus.getDefaultInstance()))
+              .setSchemaDescriptor(new DataServiceMethodDescriptorSupplier("CreateProductSystem"))
+              .build();
+        }
+      }
+    }
+    return getCreateProductSystemMethod;
+  }
+
   private static volatile io.grpc.MethodDescriptor<org.openlca.proto.services.Services.Empty,
       org.openlca.proto.Proto.Actor> getGetActorsMethod;
 
@@ -1639,6 +1763,46 @@ public final class DataServiceGrpc {
 
     /**
      * <pre>
+     * Get all descriptors that match the given request.
+     * </pre>
+     */
+    public void getDescriptors(org.openlca.proto.services.Services.DescriptorRequest request,
+        io.grpc.stub.StreamObserver<org.openlca.proto.Proto.Ref> responseObserver) {
+      asyncUnimplementedUnaryCall(getGetDescriptorsMethod(), responseObserver);
+    }
+
+    /**
+     * <pre>
+     * Get the first descriptor that matches the given request.
+     * </pre>
+     */
+    public void getDescriptor(org.openlca.proto.services.Services.DescriptorRequest request,
+        io.grpc.stub.StreamObserver<org.openlca.proto.services.Services.RefStatus> responseObserver) {
+      asyncUnimplementedUnaryCall(getGetDescriptorMethod(), responseObserver);
+    }
+
+    /**
+     * <pre>
+     * Search for data sets.
+     * </pre>
+     */
+    public void search(org.openlca.proto.services.Services.SearchRequest request,
+        io.grpc.stub.StreamObserver<org.openlca.proto.Proto.Ref> responseObserver) {
+      asyncUnimplementedUnaryCall(getSearchMethod(), responseObserver);
+    }
+
+    /**
+     * <pre>
+     * Creates a new product system.
+     * </pre>
+     */
+    public void createProductSystem(org.openlca.proto.services.Services.CreateSystemRequest request,
+        io.grpc.stub.StreamObserver<org.openlca.proto.services.Services.RefStatus> responseObserver) {
+      asyncUnimplementedUnaryCall(getCreateProductSystemMethod(), responseObserver);
+    }
+
+    /**
+     * <pre>
      * methods for Actor
      * </pre>
      */
@@ -2045,6 +2209,34 @@ public final class DataServiceGrpc {
                 org.openlca.proto.services.Services.Status>(
                   this, METHODID_DELETE)))
           .addMethod(
+            getGetDescriptorsMethod(),
+            asyncServerStreamingCall(
+              new MethodHandlers<
+                org.openlca.proto.services.Services.DescriptorRequest,
+                org.openlca.proto.Proto.Ref>(
+                  this, METHODID_GET_DESCRIPTORS)))
+          .addMethod(
+            getGetDescriptorMethod(),
+            asyncUnaryCall(
+              new MethodHandlers<
+                org.openlca.proto.services.Services.DescriptorRequest,
+                org.openlca.proto.services.Services.RefStatus>(
+                  this, METHODID_GET_DESCRIPTOR)))
+          .addMethod(
+            getSearchMethod(),
+            asyncServerStreamingCall(
+              new MethodHandlers<
+                org.openlca.proto.services.Services.SearchRequest,
+                org.openlca.proto.Proto.Ref>(
+                  this, METHODID_SEARCH)))
+          .addMethod(
+            getCreateProductSystemMethod(),
+            asyncUnaryCall(
+              new MethodHandlers<
+                org.openlca.proto.services.Services.CreateSystemRequest,
+                org.openlca.proto.services.Services.RefStatus>(
+                  this, METHODID_CREATE_PRODUCT_SYSTEM)))
+          .addMethod(
             getGetActorsMethod(),
             asyncServerStreamingCall(
               new MethodHandlers<
@@ -2416,6 +2608,50 @@ public final class DataServiceGrpc {
         io.grpc.stub.StreamObserver<org.openlca.proto.services.Services.Status> responseObserver) {
       asyncUnaryCall(
           getChannel().newCall(getDeleteMethod(), getCallOptions()), request, responseObserver);
+    }
+
+    /**
+     * <pre>
+     * Get all descriptors that match the given request.
+     * </pre>
+     */
+    public void getDescriptors(org.openlca.proto.services.Services.DescriptorRequest request,
+        io.grpc.stub.StreamObserver<org.openlca.proto.Proto.Ref> responseObserver) {
+      asyncServerStreamingCall(
+          getChannel().newCall(getGetDescriptorsMethod(), getCallOptions()), request, responseObserver);
+    }
+
+    /**
+     * <pre>
+     * Get the first descriptor that matches the given request.
+     * </pre>
+     */
+    public void getDescriptor(org.openlca.proto.services.Services.DescriptorRequest request,
+        io.grpc.stub.StreamObserver<org.openlca.proto.services.Services.RefStatus> responseObserver) {
+      asyncUnaryCall(
+          getChannel().newCall(getGetDescriptorMethod(), getCallOptions()), request, responseObserver);
+    }
+
+    /**
+     * <pre>
+     * Search for data sets.
+     * </pre>
+     */
+    public void search(org.openlca.proto.services.Services.SearchRequest request,
+        io.grpc.stub.StreamObserver<org.openlca.proto.Proto.Ref> responseObserver) {
+      asyncServerStreamingCall(
+          getChannel().newCall(getSearchMethod(), getCallOptions()), request, responseObserver);
+    }
+
+    /**
+     * <pre>
+     * Creates a new product system.
+     * </pre>
+     */
+    public void createProductSystem(org.openlca.proto.services.Services.CreateSystemRequest request,
+        io.grpc.stub.StreamObserver<org.openlca.proto.services.Services.RefStatus> responseObserver) {
+      asyncUnaryCall(
+          getChannel().newCall(getCreateProductSystemMethod(), getCallOptions()), request, responseObserver);
     }
 
     /**
@@ -2894,6 +3130,48 @@ public final class DataServiceGrpc {
 
     /**
      * <pre>
+     * Get all descriptors that match the given request.
+     * </pre>
+     */
+    public java.util.Iterator<org.openlca.proto.Proto.Ref> getDescriptors(
+        org.openlca.proto.services.Services.DescriptorRequest request) {
+      return blockingServerStreamingCall(
+          getChannel(), getGetDescriptorsMethod(), getCallOptions(), request);
+    }
+
+    /**
+     * <pre>
+     * Get the first descriptor that matches the given request.
+     * </pre>
+     */
+    public org.openlca.proto.services.Services.RefStatus getDescriptor(org.openlca.proto.services.Services.DescriptorRequest request) {
+      return blockingUnaryCall(
+          getChannel(), getGetDescriptorMethod(), getCallOptions(), request);
+    }
+
+    /**
+     * <pre>
+     * Search for data sets.
+     * </pre>
+     */
+    public java.util.Iterator<org.openlca.proto.Proto.Ref> search(
+        org.openlca.proto.services.Services.SearchRequest request) {
+      return blockingServerStreamingCall(
+          getChannel(), getSearchMethod(), getCallOptions(), request);
+    }
+
+    /**
+     * <pre>
+     * Creates a new product system.
+     * </pre>
+     */
+    public org.openlca.proto.services.Services.RefStatus createProductSystem(org.openlca.proto.services.Services.CreateSystemRequest request) {
+      return blockingUnaryCall(
+          getChannel(), getCreateProductSystemMethod(), getCallOptions(), request);
+    }
+
+    /**
+     * <pre>
      * methods for Actor
      * </pre>
      */
@@ -3336,6 +3614,28 @@ public final class DataServiceGrpc {
     }
 
     /**
+     * <pre>
+     * Get the first descriptor that matches the given request.
+     * </pre>
+     */
+    public com.google.common.util.concurrent.ListenableFuture<org.openlca.proto.services.Services.RefStatus> getDescriptor(
+        org.openlca.proto.services.Services.DescriptorRequest request) {
+      return futureUnaryCall(
+          getChannel().newCall(getGetDescriptorMethod(), getCallOptions()), request);
+    }
+
+    /**
+     * <pre>
+     * Creates a new product system.
+     * </pre>
+     */
+    public com.google.common.util.concurrent.ListenableFuture<org.openlca.proto.services.Services.RefStatus> createProductSystem(
+        org.openlca.proto.services.Services.CreateSystemRequest request) {
+      return futureUnaryCall(
+          getChannel().newCall(getCreateProductSystemMethod(), getCallOptions()), request);
+    }
+
+    /**
      */
     public com.google.common.util.concurrent.ListenableFuture<org.openlca.proto.services.Services.ActorStatus> getActor(
         org.openlca.proto.Proto.Ref request) {
@@ -3593,55 +3893,59 @@ public final class DataServiceGrpc {
   }
 
   private static final int METHODID_DELETE = 0;
-  private static final int METHODID_GET_ACTORS = 1;
-  private static final int METHODID_GET_ACTOR = 2;
-  private static final int METHODID_PUT_ACTOR = 3;
-  private static final int METHODID_GET_CATEGORIES = 4;
-  private static final int METHODID_GET_CATEGORY = 5;
-  private static final int METHODID_PUT_CATEGORY = 6;
-  private static final int METHODID_GET_CURRENCIES = 7;
-  private static final int METHODID_GET_CURRENCY = 8;
-  private static final int METHODID_PUT_CURRENCY = 9;
-  private static final int METHODID_GET_DQSYSTEMS = 10;
-  private static final int METHODID_GET_DQSYSTEM = 11;
-  private static final int METHODID_PUT_DQSYSTEM = 12;
-  private static final int METHODID_GET_FLOWS = 13;
-  private static final int METHODID_GET_FLOW = 14;
-  private static final int METHODID_PUT_FLOW = 15;
-  private static final int METHODID_GET_FLOW_PROPERTIES = 16;
-  private static final int METHODID_GET_FLOW_PROPERTY = 17;
-  private static final int METHODID_PUT_FLOW_PROPERTY = 18;
-  private static final int METHODID_GET_IMPACT_CATEGORIES = 19;
-  private static final int METHODID_GET_IMPACT_CATEGORY = 20;
-  private static final int METHODID_PUT_IMPACT_CATEGORY = 21;
-  private static final int METHODID_GET_IMPACT_METHODS = 22;
-  private static final int METHODID_GET_IMPACT_METHOD = 23;
-  private static final int METHODID_PUT_IMPACT_METHOD = 24;
-  private static final int METHODID_GET_LOCATIONS = 25;
-  private static final int METHODID_GET_LOCATION = 26;
-  private static final int METHODID_PUT_LOCATION = 27;
-  private static final int METHODID_GET_PARAMETERS = 28;
-  private static final int METHODID_GET_PARAMETER = 29;
-  private static final int METHODID_PUT_PARAMETER = 30;
-  private static final int METHODID_GET_PROCESSES = 31;
-  private static final int METHODID_GET_PROCESS = 32;
-  private static final int METHODID_PUT_PROCESS = 33;
-  private static final int METHODID_GET_PRODUCT_SYSTEMS = 34;
-  private static final int METHODID_GET_PRODUCT_SYSTEM = 35;
-  private static final int METHODID_PUT_PRODUCT_SYSTEM = 36;
-  private static final int METHODID_GET_PROJECTS = 37;
-  private static final int METHODID_GET_PROJECT = 38;
-  private static final int METHODID_PUT_PROJECT = 39;
-  private static final int METHODID_GET_SOCIAL_INDICATORS = 40;
-  private static final int METHODID_GET_SOCIAL_INDICATOR = 41;
-  private static final int METHODID_PUT_SOCIAL_INDICATOR = 42;
-  private static final int METHODID_GET_SOURCES = 43;
-  private static final int METHODID_GET_SOURCE = 44;
-  private static final int METHODID_PUT_SOURCE = 45;
-  private static final int METHODID_GET_UNIT_GROUPS = 46;
-  private static final int METHODID_GET_UNIT_GROUP = 47;
-  private static final int METHODID_PUT_UNIT_GROUP = 48;
-  private static final int METHODID_GET_PROVIDERS_FOR = 49;
+  private static final int METHODID_GET_DESCRIPTORS = 1;
+  private static final int METHODID_GET_DESCRIPTOR = 2;
+  private static final int METHODID_SEARCH = 3;
+  private static final int METHODID_CREATE_PRODUCT_SYSTEM = 4;
+  private static final int METHODID_GET_ACTORS = 5;
+  private static final int METHODID_GET_ACTOR = 6;
+  private static final int METHODID_PUT_ACTOR = 7;
+  private static final int METHODID_GET_CATEGORIES = 8;
+  private static final int METHODID_GET_CATEGORY = 9;
+  private static final int METHODID_PUT_CATEGORY = 10;
+  private static final int METHODID_GET_CURRENCIES = 11;
+  private static final int METHODID_GET_CURRENCY = 12;
+  private static final int METHODID_PUT_CURRENCY = 13;
+  private static final int METHODID_GET_DQSYSTEMS = 14;
+  private static final int METHODID_GET_DQSYSTEM = 15;
+  private static final int METHODID_PUT_DQSYSTEM = 16;
+  private static final int METHODID_GET_FLOWS = 17;
+  private static final int METHODID_GET_FLOW = 18;
+  private static final int METHODID_PUT_FLOW = 19;
+  private static final int METHODID_GET_FLOW_PROPERTIES = 20;
+  private static final int METHODID_GET_FLOW_PROPERTY = 21;
+  private static final int METHODID_PUT_FLOW_PROPERTY = 22;
+  private static final int METHODID_GET_IMPACT_CATEGORIES = 23;
+  private static final int METHODID_GET_IMPACT_CATEGORY = 24;
+  private static final int METHODID_PUT_IMPACT_CATEGORY = 25;
+  private static final int METHODID_GET_IMPACT_METHODS = 26;
+  private static final int METHODID_GET_IMPACT_METHOD = 27;
+  private static final int METHODID_PUT_IMPACT_METHOD = 28;
+  private static final int METHODID_GET_LOCATIONS = 29;
+  private static final int METHODID_GET_LOCATION = 30;
+  private static final int METHODID_PUT_LOCATION = 31;
+  private static final int METHODID_GET_PARAMETERS = 32;
+  private static final int METHODID_GET_PARAMETER = 33;
+  private static final int METHODID_PUT_PARAMETER = 34;
+  private static final int METHODID_GET_PROCESSES = 35;
+  private static final int METHODID_GET_PROCESS = 36;
+  private static final int METHODID_PUT_PROCESS = 37;
+  private static final int METHODID_GET_PRODUCT_SYSTEMS = 38;
+  private static final int METHODID_GET_PRODUCT_SYSTEM = 39;
+  private static final int METHODID_PUT_PRODUCT_SYSTEM = 40;
+  private static final int METHODID_GET_PROJECTS = 41;
+  private static final int METHODID_GET_PROJECT = 42;
+  private static final int METHODID_PUT_PROJECT = 43;
+  private static final int METHODID_GET_SOCIAL_INDICATORS = 44;
+  private static final int METHODID_GET_SOCIAL_INDICATOR = 45;
+  private static final int METHODID_PUT_SOCIAL_INDICATOR = 46;
+  private static final int METHODID_GET_SOURCES = 47;
+  private static final int METHODID_GET_SOURCE = 48;
+  private static final int METHODID_PUT_SOURCE = 49;
+  private static final int METHODID_GET_UNIT_GROUPS = 50;
+  private static final int METHODID_GET_UNIT_GROUP = 51;
+  private static final int METHODID_PUT_UNIT_GROUP = 52;
+  private static final int METHODID_GET_PROVIDERS_FOR = 53;
 
   private static final class MethodHandlers<Req, Resp> implements
       io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -3663,6 +3967,22 @@ public final class DataServiceGrpc {
         case METHODID_DELETE:
           serviceImpl.delete((org.openlca.proto.Proto.Ref) request,
               (io.grpc.stub.StreamObserver<org.openlca.proto.services.Services.Status>) responseObserver);
+          break;
+        case METHODID_GET_DESCRIPTORS:
+          serviceImpl.getDescriptors((org.openlca.proto.services.Services.DescriptorRequest) request,
+              (io.grpc.stub.StreamObserver<org.openlca.proto.Proto.Ref>) responseObserver);
+          break;
+        case METHODID_GET_DESCRIPTOR:
+          serviceImpl.getDescriptor((org.openlca.proto.services.Services.DescriptorRequest) request,
+              (io.grpc.stub.StreamObserver<org.openlca.proto.services.Services.RefStatus>) responseObserver);
+          break;
+        case METHODID_SEARCH:
+          serviceImpl.search((org.openlca.proto.services.Services.SearchRequest) request,
+              (io.grpc.stub.StreamObserver<org.openlca.proto.Proto.Ref>) responseObserver);
+          break;
+        case METHODID_CREATE_PRODUCT_SYSTEM:
+          serviceImpl.createProductSystem((org.openlca.proto.services.Services.CreateSystemRequest) request,
+              (io.grpc.stub.StreamObserver<org.openlca.proto.services.Services.RefStatus>) responseObserver);
           break;
         case METHODID_GET_ACTORS:
           serviceImpl.getActors((org.openlca.proto.services.Services.Empty) request,
@@ -3922,6 +4242,10 @@ public final class DataServiceGrpc {
           serviceDescriptor = result = io.grpc.ServiceDescriptor.newBuilder(SERVICE_NAME)
               .setSchemaDescriptor(new DataServiceFileDescriptorSupplier())
               .addMethod(getDeleteMethod())
+              .addMethod(getGetDescriptorsMethod())
+              .addMethod(getGetDescriptorMethod())
+              .addMethod(getSearchMethod())
+              .addMethod(getCreateProductSystemMethod())
               .addMethod(getGetActorsMethod())
               .addMethod(getGetActorMethod())
               .addMethod(getPutActorMethod())

@@ -15385,6 +15385,2893 @@ public final class Services {
 
   }
 
+  public interface DescriptorRequestOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:protolca.services.DescriptorRequest)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * The model type of the requested descriptor(s).
+     * </pre>
+     *
+     * <code>.protolca.ModelType type = 1;</code>
+     * @return The enum numeric value on the wire for type.
+     */
+    int getTypeValue();
+    /**
+     * <pre>
+     * The model type of the requested descriptor(s).
+     * </pre>
+     *
+     * <code>.protolca.ModelType type = 1;</code>
+     * @return The type.
+     */
+    org.openlca.proto.Proto.ModelType getType();
+
+    /**
+     * <pre>
+     * The ID of the requested descriptor.
+     * </pre>
+     *
+     * <code>string id = 2;</code>
+     * @return The id.
+     */
+    java.lang.String getId();
+    /**
+     * <pre>
+     * The ID of the requested descriptor.
+     * </pre>
+     *
+     * <code>string id = 2;</code>
+     * @return The bytes for id.
+     */
+    com.google.protobuf.ByteString
+        getIdBytes();
+
+    /**
+     * <pre>
+     * The name of the requested descriptor(s).
+     * </pre>
+     *
+     * <code>string name = 3;</code>
+     * @return The name.
+     */
+    java.lang.String getName();
+    /**
+     * <pre>
+     * The name of the requested descriptor(s).
+     * </pre>
+     *
+     * <code>string name = 3;</code>
+     * @return The bytes for name.
+     */
+    com.google.protobuf.ByteString
+        getNameBytes();
+  }
+  /**
+   * <pre>
+   * DescriptorRequest is a message type for getting descriptors from the data
+   * service. Note that all fields are optional and can have different meanings
+   * depending on the service function.
+   * </pre>
+   *
+   * Protobuf type {@code protolca.services.DescriptorRequest}
+   */
+  public static final class DescriptorRequest extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:protolca.services.DescriptorRequest)
+      DescriptorRequestOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use DescriptorRequest.newBuilder() to construct.
+    private DescriptorRequest(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private DescriptorRequest() {
+      type_ = 0;
+      id_ = "";
+      name_ = "";
+    }
+
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new DescriptorRequest();
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private DescriptorRequest(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 8: {
+              int rawValue = input.readEnum();
+
+              type_ = rawValue;
+              break;
+            }
+            case 18: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              id_ = s;
+              break;
+            }
+            case 26: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              name_ = s;
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.openlca.proto.services.Services.internal_static_protolca_services_DescriptorRequest_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.openlca.proto.services.Services.internal_static_protolca_services_DescriptorRequest_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.openlca.proto.services.Services.DescriptorRequest.class, org.openlca.proto.services.Services.DescriptorRequest.Builder.class);
+    }
+
+    public static final int TYPE_FIELD_NUMBER = 1;
+    private int type_;
+    /**
+     * <pre>
+     * The model type of the requested descriptor(s).
+     * </pre>
+     *
+     * <code>.protolca.ModelType type = 1;</code>
+     * @return The enum numeric value on the wire for type.
+     */
+    @java.lang.Override public int getTypeValue() {
+      return type_;
+    }
+    /**
+     * <pre>
+     * The model type of the requested descriptor(s).
+     * </pre>
+     *
+     * <code>.protolca.ModelType type = 1;</code>
+     * @return The type.
+     */
+    @java.lang.Override public org.openlca.proto.Proto.ModelType getType() {
+      @SuppressWarnings("deprecation")
+      org.openlca.proto.Proto.ModelType result = org.openlca.proto.Proto.ModelType.valueOf(type_);
+      return result == null ? org.openlca.proto.Proto.ModelType.UNRECOGNIZED : result;
+    }
+
+    public static final int ID_FIELD_NUMBER = 2;
+    private volatile java.lang.Object id_;
+    /**
+     * <pre>
+     * The ID of the requested descriptor.
+     * </pre>
+     *
+     * <code>string id = 2;</code>
+     * @return The id.
+     */
+    @java.lang.Override
+    public java.lang.String getId() {
+      java.lang.Object ref = id_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        id_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * The ID of the requested descriptor.
+     * </pre>
+     *
+     * <code>string id = 2;</code>
+     * @return The bytes for id.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getIdBytes() {
+      java.lang.Object ref = id_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        id_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int NAME_FIELD_NUMBER = 3;
+    private volatile java.lang.Object name_;
+    /**
+     * <pre>
+     * The name of the requested descriptor(s).
+     * </pre>
+     *
+     * <code>string name = 3;</code>
+     * @return The name.
+     */
+    @java.lang.Override
+    public java.lang.String getName() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        name_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * The name of the requested descriptor(s).
+     * </pre>
+     *
+     * <code>string name = 3;</code>
+     * @return The bytes for name.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getNameBytes() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        name_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (type_ != org.openlca.proto.Proto.ModelType.UNDEFINED_MODEL_TYPE.getNumber()) {
+        output.writeEnum(1, type_);
+      }
+      if (!getIdBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, id_);
+      }
+      if (!getNameBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, name_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (type_ != org.openlca.proto.Proto.ModelType.UNDEFINED_MODEL_TYPE.getNumber()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(1, type_);
+      }
+      if (!getIdBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, id_);
+      }
+      if (!getNameBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, name_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof org.openlca.proto.services.Services.DescriptorRequest)) {
+        return super.equals(obj);
+      }
+      org.openlca.proto.services.Services.DescriptorRequest other = (org.openlca.proto.services.Services.DescriptorRequest) obj;
+
+      if (type_ != other.type_) return false;
+      if (!getId()
+          .equals(other.getId())) return false;
+      if (!getName()
+          .equals(other.getName())) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + TYPE_FIELD_NUMBER;
+      hash = (53 * hash) + type_;
+      hash = (37 * hash) + ID_FIELD_NUMBER;
+      hash = (53 * hash) + getId().hashCode();
+      hash = (37 * hash) + NAME_FIELD_NUMBER;
+      hash = (53 * hash) + getName().hashCode();
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static org.openlca.proto.services.Services.DescriptorRequest parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.openlca.proto.services.Services.DescriptorRequest parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.openlca.proto.services.Services.DescriptorRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.openlca.proto.services.Services.DescriptorRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.openlca.proto.services.Services.DescriptorRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.openlca.proto.services.Services.DescriptorRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.openlca.proto.services.Services.DescriptorRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static org.openlca.proto.services.Services.DescriptorRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static org.openlca.proto.services.Services.DescriptorRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static org.openlca.proto.services.Services.DescriptorRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static org.openlca.proto.services.Services.DescriptorRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static org.openlca.proto.services.Services.DescriptorRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.openlca.proto.services.Services.DescriptorRequest prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * <pre>
+     * DescriptorRequest is a message type for getting descriptors from the data
+     * service. Note that all fields are optional and can have different meanings
+     * depending on the service function.
+     * </pre>
+     *
+     * Protobuf type {@code protolca.services.DescriptorRequest}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:protolca.services.DescriptorRequest)
+        org.openlca.proto.services.Services.DescriptorRequestOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.openlca.proto.services.Services.internal_static_protolca_services_DescriptorRequest_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.openlca.proto.services.Services.internal_static_protolca_services_DescriptorRequest_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.openlca.proto.services.Services.DescriptorRequest.class, org.openlca.proto.services.Services.DescriptorRequest.Builder.class);
+      }
+
+      // Construct using org.openlca.proto.services.Services.DescriptorRequest.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        type_ = 0;
+
+        id_ = "";
+
+        name_ = "";
+
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.openlca.proto.services.Services.internal_static_protolca_services_DescriptorRequest_descriptor;
+      }
+
+      @java.lang.Override
+      public org.openlca.proto.services.Services.DescriptorRequest getDefaultInstanceForType() {
+        return org.openlca.proto.services.Services.DescriptorRequest.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public org.openlca.proto.services.Services.DescriptorRequest build() {
+        org.openlca.proto.services.Services.DescriptorRequest result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public org.openlca.proto.services.Services.DescriptorRequest buildPartial() {
+        org.openlca.proto.services.Services.DescriptorRequest result = new org.openlca.proto.services.Services.DescriptorRequest(this);
+        result.type_ = type_;
+        result.id_ = id_;
+        result.name_ = name_;
+        onBuilt();
+        return result;
+      }
+
+      @java.lang.Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.openlca.proto.services.Services.DescriptorRequest) {
+          return mergeFrom((org.openlca.proto.services.Services.DescriptorRequest)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.openlca.proto.services.Services.DescriptorRequest other) {
+        if (other == org.openlca.proto.services.Services.DescriptorRequest.getDefaultInstance()) return this;
+        if (other.type_ != 0) {
+          setTypeValue(other.getTypeValue());
+        }
+        if (!other.getId().isEmpty()) {
+          id_ = other.id_;
+          onChanged();
+        }
+        if (!other.getName().isEmpty()) {
+          name_ = other.name_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.openlca.proto.services.Services.DescriptorRequest parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.openlca.proto.services.Services.DescriptorRequest) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private int type_ = 0;
+      /**
+       * <pre>
+       * The model type of the requested descriptor(s).
+       * </pre>
+       *
+       * <code>.protolca.ModelType type = 1;</code>
+       * @return The enum numeric value on the wire for type.
+       */
+      @java.lang.Override public int getTypeValue() {
+        return type_;
+      }
+      /**
+       * <pre>
+       * The model type of the requested descriptor(s).
+       * </pre>
+       *
+       * <code>.protolca.ModelType type = 1;</code>
+       * @param value The enum numeric value on the wire for type to set.
+       * @return This builder for chaining.
+       */
+      public Builder setTypeValue(int value) {
+        
+        type_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * The model type of the requested descriptor(s).
+       * </pre>
+       *
+       * <code>.protolca.ModelType type = 1;</code>
+       * @return The type.
+       */
+      @java.lang.Override
+      public org.openlca.proto.Proto.ModelType getType() {
+        @SuppressWarnings("deprecation")
+        org.openlca.proto.Proto.ModelType result = org.openlca.proto.Proto.ModelType.valueOf(type_);
+        return result == null ? org.openlca.proto.Proto.ModelType.UNRECOGNIZED : result;
+      }
+      /**
+       * <pre>
+       * The model type of the requested descriptor(s).
+       * </pre>
+       *
+       * <code>.protolca.ModelType type = 1;</code>
+       * @param value The type to set.
+       * @return This builder for chaining.
+       */
+      public Builder setType(org.openlca.proto.Proto.ModelType value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        
+        type_ = value.getNumber();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * The model type of the requested descriptor(s).
+       * </pre>
+       *
+       * <code>.protolca.ModelType type = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearType() {
+        
+        type_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object id_ = "";
+      /**
+       * <pre>
+       * The ID of the requested descriptor.
+       * </pre>
+       *
+       * <code>string id = 2;</code>
+       * @return The id.
+       */
+      public java.lang.String getId() {
+        java.lang.Object ref = id_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          id_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * The ID of the requested descriptor.
+       * </pre>
+       *
+       * <code>string id = 2;</code>
+       * @return The bytes for id.
+       */
+      public com.google.protobuf.ByteString
+          getIdBytes() {
+        java.lang.Object ref = id_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          id_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * The ID of the requested descriptor.
+       * </pre>
+       *
+       * <code>string id = 2;</code>
+       * @param value The id to set.
+       * @return This builder for chaining.
+       */
+      public Builder setId(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        id_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * The ID of the requested descriptor.
+       * </pre>
+       *
+       * <code>string id = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearId() {
+        
+        id_ = getDefaultInstance().getId();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * The ID of the requested descriptor.
+       * </pre>
+       *
+       * <code>string id = 2;</code>
+       * @param value The bytes for id to set.
+       * @return This builder for chaining.
+       */
+      public Builder setIdBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        id_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object name_ = "";
+      /**
+       * <pre>
+       * The name of the requested descriptor(s).
+       * </pre>
+       *
+       * <code>string name = 3;</code>
+       * @return The name.
+       */
+      public java.lang.String getName() {
+        java.lang.Object ref = name_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          name_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * The name of the requested descriptor(s).
+       * </pre>
+       *
+       * <code>string name = 3;</code>
+       * @return The bytes for name.
+       */
+      public com.google.protobuf.ByteString
+          getNameBytes() {
+        java.lang.Object ref = name_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          name_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * The name of the requested descriptor(s).
+       * </pre>
+       *
+       * <code>string name = 3;</code>
+       * @param value The name to set.
+       * @return This builder for chaining.
+       */
+      public Builder setName(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        name_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * The name of the requested descriptor(s).
+       * </pre>
+       *
+       * <code>string name = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearName() {
+        
+        name_ = getDefaultInstance().getName();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * The name of the requested descriptor(s).
+       * </pre>
+       *
+       * <code>string name = 3;</code>
+       * @param value The bytes for name to set.
+       * @return This builder for chaining.
+       */
+      public Builder setNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        name_ = value;
+        onChanged();
+        return this;
+      }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:protolca.services.DescriptorRequest)
+    }
+
+    // @@protoc_insertion_point(class_scope:protolca.services.DescriptorRequest)
+    private static final org.openlca.proto.services.Services.DescriptorRequest DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.openlca.proto.services.Services.DescriptorRequest();
+    }
+
+    public static org.openlca.proto.services.Services.DescriptorRequest getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<DescriptorRequest>
+        PARSER = new com.google.protobuf.AbstractParser<DescriptorRequest>() {
+      @java.lang.Override
+      public DescriptorRequest parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new DescriptorRequest(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<DescriptorRequest> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<DescriptorRequest> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public org.openlca.proto.services.Services.DescriptorRequest getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface SearchRequestOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:protolca.services.SearchRequest)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * The model type of the searched entities.
+     * </pre>
+     *
+     * <code>.protolca.ModelType type = 1;</code>
+     * @return The enum numeric value on the wire for type.
+     */
+    int getTypeValue();
+    /**
+     * <pre>
+     * The model type of the searched entities.
+     * </pre>
+     *
+     * <code>.protolca.ModelType type = 1;</code>
+     * @return The type.
+     */
+    org.openlca.proto.Proto.ModelType getType();
+
+    /**
+     * <pre>
+     * The search query.
+     * </pre>
+     *
+     * <code>string query = 2;</code>
+     * @return The query.
+     */
+    java.lang.String getQuery();
+    /**
+     * <pre>
+     * The search query.
+     * </pre>
+     *
+     * <code>string query = 2;</code>
+     * @return The bytes for query.
+     */
+    com.google.protobuf.ByteString
+        getQueryBytes();
+  }
+  /**
+   * Protobuf type {@code protolca.services.SearchRequest}
+   */
+  public static final class SearchRequest extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:protolca.services.SearchRequest)
+      SearchRequestOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use SearchRequest.newBuilder() to construct.
+    private SearchRequest(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private SearchRequest() {
+      type_ = 0;
+      query_ = "";
+    }
+
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new SearchRequest();
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private SearchRequest(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 8: {
+              int rawValue = input.readEnum();
+
+              type_ = rawValue;
+              break;
+            }
+            case 18: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              query_ = s;
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.openlca.proto.services.Services.internal_static_protolca_services_SearchRequest_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.openlca.proto.services.Services.internal_static_protolca_services_SearchRequest_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.openlca.proto.services.Services.SearchRequest.class, org.openlca.proto.services.Services.SearchRequest.Builder.class);
+    }
+
+    public static final int TYPE_FIELD_NUMBER = 1;
+    private int type_;
+    /**
+     * <pre>
+     * The model type of the searched entities.
+     * </pre>
+     *
+     * <code>.protolca.ModelType type = 1;</code>
+     * @return The enum numeric value on the wire for type.
+     */
+    @java.lang.Override public int getTypeValue() {
+      return type_;
+    }
+    /**
+     * <pre>
+     * The model type of the searched entities.
+     * </pre>
+     *
+     * <code>.protolca.ModelType type = 1;</code>
+     * @return The type.
+     */
+    @java.lang.Override public org.openlca.proto.Proto.ModelType getType() {
+      @SuppressWarnings("deprecation")
+      org.openlca.proto.Proto.ModelType result = org.openlca.proto.Proto.ModelType.valueOf(type_);
+      return result == null ? org.openlca.proto.Proto.ModelType.UNRECOGNIZED : result;
+    }
+
+    public static final int QUERY_FIELD_NUMBER = 2;
+    private volatile java.lang.Object query_;
+    /**
+     * <pre>
+     * The search query.
+     * </pre>
+     *
+     * <code>string query = 2;</code>
+     * @return The query.
+     */
+    @java.lang.Override
+    public java.lang.String getQuery() {
+      java.lang.Object ref = query_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        query_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * The search query.
+     * </pre>
+     *
+     * <code>string query = 2;</code>
+     * @return The bytes for query.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getQueryBytes() {
+      java.lang.Object ref = query_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        query_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (type_ != org.openlca.proto.Proto.ModelType.UNDEFINED_MODEL_TYPE.getNumber()) {
+        output.writeEnum(1, type_);
+      }
+      if (!getQueryBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, query_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (type_ != org.openlca.proto.Proto.ModelType.UNDEFINED_MODEL_TYPE.getNumber()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(1, type_);
+      }
+      if (!getQueryBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, query_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof org.openlca.proto.services.Services.SearchRequest)) {
+        return super.equals(obj);
+      }
+      org.openlca.proto.services.Services.SearchRequest other = (org.openlca.proto.services.Services.SearchRequest) obj;
+
+      if (type_ != other.type_) return false;
+      if (!getQuery()
+          .equals(other.getQuery())) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + TYPE_FIELD_NUMBER;
+      hash = (53 * hash) + type_;
+      hash = (37 * hash) + QUERY_FIELD_NUMBER;
+      hash = (53 * hash) + getQuery().hashCode();
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static org.openlca.proto.services.Services.SearchRequest parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.openlca.proto.services.Services.SearchRequest parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.openlca.proto.services.Services.SearchRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.openlca.proto.services.Services.SearchRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.openlca.proto.services.Services.SearchRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.openlca.proto.services.Services.SearchRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.openlca.proto.services.Services.SearchRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static org.openlca.proto.services.Services.SearchRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static org.openlca.proto.services.Services.SearchRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static org.openlca.proto.services.Services.SearchRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static org.openlca.proto.services.Services.SearchRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static org.openlca.proto.services.Services.SearchRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.openlca.proto.services.Services.SearchRequest prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code protolca.services.SearchRequest}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:protolca.services.SearchRequest)
+        org.openlca.proto.services.Services.SearchRequestOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.openlca.proto.services.Services.internal_static_protolca_services_SearchRequest_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.openlca.proto.services.Services.internal_static_protolca_services_SearchRequest_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.openlca.proto.services.Services.SearchRequest.class, org.openlca.proto.services.Services.SearchRequest.Builder.class);
+      }
+
+      // Construct using org.openlca.proto.services.Services.SearchRequest.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        type_ = 0;
+
+        query_ = "";
+
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.openlca.proto.services.Services.internal_static_protolca_services_SearchRequest_descriptor;
+      }
+
+      @java.lang.Override
+      public org.openlca.proto.services.Services.SearchRequest getDefaultInstanceForType() {
+        return org.openlca.proto.services.Services.SearchRequest.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public org.openlca.proto.services.Services.SearchRequest build() {
+        org.openlca.proto.services.Services.SearchRequest result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public org.openlca.proto.services.Services.SearchRequest buildPartial() {
+        org.openlca.proto.services.Services.SearchRequest result = new org.openlca.proto.services.Services.SearchRequest(this);
+        result.type_ = type_;
+        result.query_ = query_;
+        onBuilt();
+        return result;
+      }
+
+      @java.lang.Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.openlca.proto.services.Services.SearchRequest) {
+          return mergeFrom((org.openlca.proto.services.Services.SearchRequest)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.openlca.proto.services.Services.SearchRequest other) {
+        if (other == org.openlca.proto.services.Services.SearchRequest.getDefaultInstance()) return this;
+        if (other.type_ != 0) {
+          setTypeValue(other.getTypeValue());
+        }
+        if (!other.getQuery().isEmpty()) {
+          query_ = other.query_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.openlca.proto.services.Services.SearchRequest parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.openlca.proto.services.Services.SearchRequest) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private int type_ = 0;
+      /**
+       * <pre>
+       * The model type of the searched entities.
+       * </pre>
+       *
+       * <code>.protolca.ModelType type = 1;</code>
+       * @return The enum numeric value on the wire for type.
+       */
+      @java.lang.Override public int getTypeValue() {
+        return type_;
+      }
+      /**
+       * <pre>
+       * The model type of the searched entities.
+       * </pre>
+       *
+       * <code>.protolca.ModelType type = 1;</code>
+       * @param value The enum numeric value on the wire for type to set.
+       * @return This builder for chaining.
+       */
+      public Builder setTypeValue(int value) {
+        
+        type_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * The model type of the searched entities.
+       * </pre>
+       *
+       * <code>.protolca.ModelType type = 1;</code>
+       * @return The type.
+       */
+      @java.lang.Override
+      public org.openlca.proto.Proto.ModelType getType() {
+        @SuppressWarnings("deprecation")
+        org.openlca.proto.Proto.ModelType result = org.openlca.proto.Proto.ModelType.valueOf(type_);
+        return result == null ? org.openlca.proto.Proto.ModelType.UNRECOGNIZED : result;
+      }
+      /**
+       * <pre>
+       * The model type of the searched entities.
+       * </pre>
+       *
+       * <code>.protolca.ModelType type = 1;</code>
+       * @param value The type to set.
+       * @return This builder for chaining.
+       */
+      public Builder setType(org.openlca.proto.Proto.ModelType value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        
+        type_ = value.getNumber();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * The model type of the searched entities.
+       * </pre>
+       *
+       * <code>.protolca.ModelType type = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearType() {
+        
+        type_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object query_ = "";
+      /**
+       * <pre>
+       * The search query.
+       * </pre>
+       *
+       * <code>string query = 2;</code>
+       * @return The query.
+       */
+      public java.lang.String getQuery() {
+        java.lang.Object ref = query_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          query_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * The search query.
+       * </pre>
+       *
+       * <code>string query = 2;</code>
+       * @return The bytes for query.
+       */
+      public com.google.protobuf.ByteString
+          getQueryBytes() {
+        java.lang.Object ref = query_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          query_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * The search query.
+       * </pre>
+       *
+       * <code>string query = 2;</code>
+       * @param value The query to set.
+       * @return This builder for chaining.
+       */
+      public Builder setQuery(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        query_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * The search query.
+       * </pre>
+       *
+       * <code>string query = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearQuery() {
+        
+        query_ = getDefaultInstance().getQuery();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * The search query.
+       * </pre>
+       *
+       * <code>string query = 2;</code>
+       * @param value The bytes for query to set.
+       * @return This builder for chaining.
+       */
+      public Builder setQueryBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        query_ = value;
+        onChanged();
+        return this;
+      }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:protolca.services.SearchRequest)
+    }
+
+    // @@protoc_insertion_point(class_scope:protolca.services.SearchRequest)
+    private static final org.openlca.proto.services.Services.SearchRequest DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.openlca.proto.services.Services.SearchRequest();
+    }
+
+    public static org.openlca.proto.services.Services.SearchRequest getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<SearchRequest>
+        PARSER = new com.google.protobuf.AbstractParser<SearchRequest>() {
+      @java.lang.Override
+      public SearchRequest parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new SearchRequest(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<SearchRequest> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<SearchRequest> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public org.openlca.proto.services.Services.SearchRequest getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface CreateSystemRequestOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:protolca.services.CreateSystemRequest)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * The (reference of the) process from which the product system should be
+     * generated. This will be the reference process of the product system
+     * with upstream and downstream processes added recursively.
+     * </pre>
+     *
+     * <code>.protolca.Ref process = 1;</code>
+     * @return Whether the process field is set.
+     */
+    boolean hasProcess();
+    /**
+     * <pre>
+     * The (reference of the) process from which the product system should be
+     * generated. This will be the reference process of the product system
+     * with upstream and downstream processes added recursively.
+     * </pre>
+     *
+     * <code>.protolca.Ref process = 1;</code>
+     * @return The process.
+     */
+    org.openlca.proto.Proto.Ref getProcess();
+    /**
+     * <pre>
+     * The (reference of the) process from which the product system should be
+     * generated. This will be the reference process of the product system
+     * with upstream and downstream processes added recursively.
+     * </pre>
+     *
+     * <code>.protolca.Ref process = 1;</code>
+     */
+    org.openlca.proto.Proto.RefOrBuilder getProcessOrBuilder();
+
+    /**
+     * <pre>
+     * Indicates how default providers of product inputs and waste outputs
+     * should be considered during the linking. `only` means that only
+     * product inputs and waste outputs should be linked that have a
+     * default provider and that this default provider is used. `prefer`
+     * means that a default provider is used during the linking if there
+     * are multiple options. `ignore` means that the default providers
+     * have no specific role.
+     * </pre>
+     *
+     * <code>.protolca.services.CreateSystemRequest.DefaultProviders default_providers = 2;</code>
+     * @return The enum numeric value on the wire for defaultProviders.
+     */
+    int getDefaultProvidersValue();
+    /**
+     * <pre>
+     * Indicates how default providers of product inputs and waste outputs
+     * should be considered during the linking. `only` means that only
+     * product inputs and waste outputs should be linked that have a
+     * default provider and that this default provider is used. `prefer`
+     * means that a default provider is used during the linking if there
+     * are multiple options. `ignore` means that the default providers
+     * have no specific role.
+     * </pre>
+     *
+     * <code>.protolca.services.CreateSystemRequest.DefaultProviders default_providers = 2;</code>
+     * @return The defaultProviders.
+     */
+    org.openlca.proto.services.Services.CreateSystemRequest.DefaultProviders getDefaultProviders();
+
+    /**
+     * <pre>
+     * When there are multiple provider processes available for linking a
+     * product input or waste output the `preferred_type` indicates which
+     * type of process (LCI results or unit processes) should be preferred
+     * during the linking.
+     * </pre>
+     *
+     * <code>.protolca.ProcessType preferred_type = 3;</code>
+     * @return The enum numeric value on the wire for preferredType.
+     */
+    int getPreferredTypeValue();
+    /**
+     * <pre>
+     * When there are multiple provider processes available for linking a
+     * product input or waste output the `preferred_type` indicates which
+     * type of process (LCI results or unit processes) should be preferred
+     * during the linking.
+     * </pre>
+     *
+     * <code>.protolca.ProcessType preferred_type = 3;</code>
+     * @return The preferredType.
+     */
+    org.openlca.proto.Proto.ProcessType getPreferredType();
+  }
+  /**
+   * Protobuf type {@code protolca.services.CreateSystemRequest}
+   */
+  public static final class CreateSystemRequest extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:protolca.services.CreateSystemRequest)
+      CreateSystemRequestOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use CreateSystemRequest.newBuilder() to construct.
+    private CreateSystemRequest(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private CreateSystemRequest() {
+      defaultProviders_ = 0;
+      preferredType_ = 0;
+    }
+
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new CreateSystemRequest();
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private CreateSystemRequest(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10: {
+              org.openlca.proto.Proto.Ref.Builder subBuilder = null;
+              if (process_ != null) {
+                subBuilder = process_.toBuilder();
+              }
+              process_ = input.readMessage(org.openlca.proto.Proto.Ref.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(process_);
+                process_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 16: {
+              int rawValue = input.readEnum();
+
+              defaultProviders_ = rawValue;
+              break;
+            }
+            case 24: {
+              int rawValue = input.readEnum();
+
+              preferredType_ = rawValue;
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.openlca.proto.services.Services.internal_static_protolca_services_CreateSystemRequest_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.openlca.proto.services.Services.internal_static_protolca_services_CreateSystemRequest_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.openlca.proto.services.Services.CreateSystemRequest.class, org.openlca.proto.services.Services.CreateSystemRequest.Builder.class);
+    }
+
+    /**
+     * Protobuf enum {@code protolca.services.CreateSystemRequest.DefaultProviders}
+     */
+    public enum DefaultProviders
+        implements com.google.protobuf.ProtocolMessageEnum {
+      /**
+       * <code>Prefer = 0;</code>
+       */
+      Prefer(0),
+      /**
+       * <code>Ignore = 1;</code>
+       */
+      Ignore(1),
+      /**
+       * <code>Only = 2;</code>
+       */
+      Only(2),
+      UNRECOGNIZED(-1),
+      ;
+
+      /**
+       * <code>Prefer = 0;</code>
+       */
+      public static final int Prefer_VALUE = 0;
+      /**
+       * <code>Ignore = 1;</code>
+       */
+      public static final int Ignore_VALUE = 1;
+      /**
+       * <code>Only = 2;</code>
+       */
+      public static final int Only_VALUE = 2;
+
+
+      public final int getNumber() {
+        if (this == UNRECOGNIZED) {
+          throw new java.lang.IllegalArgumentException(
+              "Can't get the number of an unknown enum value.");
+        }
+        return value;
+      }
+
+      /**
+       * @param value The numeric wire value of the corresponding enum entry.
+       * @return The enum associated with the given numeric wire value.
+       * @deprecated Use {@link #forNumber(int)} instead.
+       */
+      @java.lang.Deprecated
+      public static DefaultProviders valueOf(int value) {
+        return forNumber(value);
+      }
+
+      /**
+       * @param value The numeric wire value of the corresponding enum entry.
+       * @return The enum associated with the given numeric wire value.
+       */
+      public static DefaultProviders forNumber(int value) {
+        switch (value) {
+          case 0: return Prefer;
+          case 1: return Ignore;
+          case 2: return Only;
+          default: return null;
+        }
+      }
+
+      public static com.google.protobuf.Internal.EnumLiteMap<DefaultProviders>
+          internalGetValueMap() {
+        return internalValueMap;
+      }
+      private static final com.google.protobuf.Internal.EnumLiteMap<
+          DefaultProviders> internalValueMap =
+            new com.google.protobuf.Internal.EnumLiteMap<DefaultProviders>() {
+              public DefaultProviders findValueByNumber(int number) {
+                return DefaultProviders.forNumber(number);
+              }
+            };
+
+      public final com.google.protobuf.Descriptors.EnumValueDescriptor
+          getValueDescriptor() {
+        if (this == UNRECOGNIZED) {
+          throw new java.lang.IllegalStateException(
+              "Can't get the descriptor of an unrecognized enum value.");
+        }
+        return getDescriptor().getValues().get(ordinal());
+      }
+      public final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptorForType() {
+        return getDescriptor();
+      }
+      public static final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptor() {
+        return org.openlca.proto.services.Services.CreateSystemRequest.getDescriptor().getEnumTypes().get(0);
+      }
+
+      private static final DefaultProviders[] VALUES = values();
+
+      public static DefaultProviders valueOf(
+          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+        if (desc.getType() != getDescriptor()) {
+          throw new java.lang.IllegalArgumentException(
+            "EnumValueDescriptor is not for this type.");
+        }
+        if (desc.getIndex() == -1) {
+          return UNRECOGNIZED;
+        }
+        return VALUES[desc.getIndex()];
+      }
+
+      private final int value;
+
+      private DefaultProviders(int value) {
+        this.value = value;
+      }
+
+      // @@protoc_insertion_point(enum_scope:protolca.services.CreateSystemRequest.DefaultProviders)
+    }
+
+    public static final int PROCESS_FIELD_NUMBER = 1;
+    private org.openlca.proto.Proto.Ref process_;
+    /**
+     * <pre>
+     * The (reference of the) process from which the product system should be
+     * generated. This will be the reference process of the product system
+     * with upstream and downstream processes added recursively.
+     * </pre>
+     *
+     * <code>.protolca.Ref process = 1;</code>
+     * @return Whether the process field is set.
+     */
+    @java.lang.Override
+    public boolean hasProcess() {
+      return process_ != null;
+    }
+    /**
+     * <pre>
+     * The (reference of the) process from which the product system should be
+     * generated. This will be the reference process of the product system
+     * with upstream and downstream processes added recursively.
+     * </pre>
+     *
+     * <code>.protolca.Ref process = 1;</code>
+     * @return The process.
+     */
+    @java.lang.Override
+    public org.openlca.proto.Proto.Ref getProcess() {
+      return process_ == null ? org.openlca.proto.Proto.Ref.getDefaultInstance() : process_;
+    }
+    /**
+     * <pre>
+     * The (reference of the) process from which the product system should be
+     * generated. This will be the reference process of the product system
+     * with upstream and downstream processes added recursively.
+     * </pre>
+     *
+     * <code>.protolca.Ref process = 1;</code>
+     */
+    @java.lang.Override
+    public org.openlca.proto.Proto.RefOrBuilder getProcessOrBuilder() {
+      return getProcess();
+    }
+
+    public static final int DEFAULT_PROVIDERS_FIELD_NUMBER = 2;
+    private int defaultProviders_;
+    /**
+     * <pre>
+     * Indicates how default providers of product inputs and waste outputs
+     * should be considered during the linking. `only` means that only
+     * product inputs and waste outputs should be linked that have a
+     * default provider and that this default provider is used. `prefer`
+     * means that a default provider is used during the linking if there
+     * are multiple options. `ignore` means that the default providers
+     * have no specific role.
+     * </pre>
+     *
+     * <code>.protolca.services.CreateSystemRequest.DefaultProviders default_providers = 2;</code>
+     * @return The enum numeric value on the wire for defaultProviders.
+     */
+    @java.lang.Override public int getDefaultProvidersValue() {
+      return defaultProviders_;
+    }
+    /**
+     * <pre>
+     * Indicates how default providers of product inputs and waste outputs
+     * should be considered during the linking. `only` means that only
+     * product inputs and waste outputs should be linked that have a
+     * default provider and that this default provider is used. `prefer`
+     * means that a default provider is used during the linking if there
+     * are multiple options. `ignore` means that the default providers
+     * have no specific role.
+     * </pre>
+     *
+     * <code>.protolca.services.CreateSystemRequest.DefaultProviders default_providers = 2;</code>
+     * @return The defaultProviders.
+     */
+    @java.lang.Override public org.openlca.proto.services.Services.CreateSystemRequest.DefaultProviders getDefaultProviders() {
+      @SuppressWarnings("deprecation")
+      org.openlca.proto.services.Services.CreateSystemRequest.DefaultProviders result = org.openlca.proto.services.Services.CreateSystemRequest.DefaultProviders.valueOf(defaultProviders_);
+      return result == null ? org.openlca.proto.services.Services.CreateSystemRequest.DefaultProviders.UNRECOGNIZED : result;
+    }
+
+    public static final int PREFERRED_TYPE_FIELD_NUMBER = 3;
+    private int preferredType_;
+    /**
+     * <pre>
+     * When there are multiple provider processes available for linking a
+     * product input or waste output the `preferred_type` indicates which
+     * type of process (LCI results or unit processes) should be preferred
+     * during the linking.
+     * </pre>
+     *
+     * <code>.protolca.ProcessType preferred_type = 3;</code>
+     * @return The enum numeric value on the wire for preferredType.
+     */
+    @java.lang.Override public int getPreferredTypeValue() {
+      return preferredType_;
+    }
+    /**
+     * <pre>
+     * When there are multiple provider processes available for linking a
+     * product input or waste output the `preferred_type` indicates which
+     * type of process (LCI results or unit processes) should be preferred
+     * during the linking.
+     * </pre>
+     *
+     * <code>.protolca.ProcessType preferred_type = 3;</code>
+     * @return The preferredType.
+     */
+    @java.lang.Override public org.openlca.proto.Proto.ProcessType getPreferredType() {
+      @SuppressWarnings("deprecation")
+      org.openlca.proto.Proto.ProcessType result = org.openlca.proto.Proto.ProcessType.valueOf(preferredType_);
+      return result == null ? org.openlca.proto.Proto.ProcessType.UNRECOGNIZED : result;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (process_ != null) {
+        output.writeMessage(1, getProcess());
+      }
+      if (defaultProviders_ != org.openlca.proto.services.Services.CreateSystemRequest.DefaultProviders.Prefer.getNumber()) {
+        output.writeEnum(2, defaultProviders_);
+      }
+      if (preferredType_ != org.openlca.proto.Proto.ProcessType.UNDEFINED_PROCESS_TYPE.getNumber()) {
+        output.writeEnum(3, preferredType_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (process_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, getProcess());
+      }
+      if (defaultProviders_ != org.openlca.proto.services.Services.CreateSystemRequest.DefaultProviders.Prefer.getNumber()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(2, defaultProviders_);
+      }
+      if (preferredType_ != org.openlca.proto.Proto.ProcessType.UNDEFINED_PROCESS_TYPE.getNumber()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(3, preferredType_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof org.openlca.proto.services.Services.CreateSystemRequest)) {
+        return super.equals(obj);
+      }
+      org.openlca.proto.services.Services.CreateSystemRequest other = (org.openlca.proto.services.Services.CreateSystemRequest) obj;
+
+      if (hasProcess() != other.hasProcess()) return false;
+      if (hasProcess()) {
+        if (!getProcess()
+            .equals(other.getProcess())) return false;
+      }
+      if (defaultProviders_ != other.defaultProviders_) return false;
+      if (preferredType_ != other.preferredType_) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (hasProcess()) {
+        hash = (37 * hash) + PROCESS_FIELD_NUMBER;
+        hash = (53 * hash) + getProcess().hashCode();
+      }
+      hash = (37 * hash) + DEFAULT_PROVIDERS_FIELD_NUMBER;
+      hash = (53 * hash) + defaultProviders_;
+      hash = (37 * hash) + PREFERRED_TYPE_FIELD_NUMBER;
+      hash = (53 * hash) + preferredType_;
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static org.openlca.proto.services.Services.CreateSystemRequest parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.openlca.proto.services.Services.CreateSystemRequest parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.openlca.proto.services.Services.CreateSystemRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.openlca.proto.services.Services.CreateSystemRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.openlca.proto.services.Services.CreateSystemRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.openlca.proto.services.Services.CreateSystemRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.openlca.proto.services.Services.CreateSystemRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static org.openlca.proto.services.Services.CreateSystemRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static org.openlca.proto.services.Services.CreateSystemRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static org.openlca.proto.services.Services.CreateSystemRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static org.openlca.proto.services.Services.CreateSystemRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static org.openlca.proto.services.Services.CreateSystemRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.openlca.proto.services.Services.CreateSystemRequest prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code protolca.services.CreateSystemRequest}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:protolca.services.CreateSystemRequest)
+        org.openlca.proto.services.Services.CreateSystemRequestOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.openlca.proto.services.Services.internal_static_protolca_services_CreateSystemRequest_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.openlca.proto.services.Services.internal_static_protolca_services_CreateSystemRequest_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.openlca.proto.services.Services.CreateSystemRequest.class, org.openlca.proto.services.Services.CreateSystemRequest.Builder.class);
+      }
+
+      // Construct using org.openlca.proto.services.Services.CreateSystemRequest.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        if (processBuilder_ == null) {
+          process_ = null;
+        } else {
+          process_ = null;
+          processBuilder_ = null;
+        }
+        defaultProviders_ = 0;
+
+        preferredType_ = 0;
+
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.openlca.proto.services.Services.internal_static_protolca_services_CreateSystemRequest_descriptor;
+      }
+
+      @java.lang.Override
+      public org.openlca.proto.services.Services.CreateSystemRequest getDefaultInstanceForType() {
+        return org.openlca.proto.services.Services.CreateSystemRequest.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public org.openlca.proto.services.Services.CreateSystemRequest build() {
+        org.openlca.proto.services.Services.CreateSystemRequest result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public org.openlca.proto.services.Services.CreateSystemRequest buildPartial() {
+        org.openlca.proto.services.Services.CreateSystemRequest result = new org.openlca.proto.services.Services.CreateSystemRequest(this);
+        if (processBuilder_ == null) {
+          result.process_ = process_;
+        } else {
+          result.process_ = processBuilder_.build();
+        }
+        result.defaultProviders_ = defaultProviders_;
+        result.preferredType_ = preferredType_;
+        onBuilt();
+        return result;
+      }
+
+      @java.lang.Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.openlca.proto.services.Services.CreateSystemRequest) {
+          return mergeFrom((org.openlca.proto.services.Services.CreateSystemRequest)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.openlca.proto.services.Services.CreateSystemRequest other) {
+        if (other == org.openlca.proto.services.Services.CreateSystemRequest.getDefaultInstance()) return this;
+        if (other.hasProcess()) {
+          mergeProcess(other.getProcess());
+        }
+        if (other.defaultProviders_ != 0) {
+          setDefaultProvidersValue(other.getDefaultProvidersValue());
+        }
+        if (other.preferredType_ != 0) {
+          setPreferredTypeValue(other.getPreferredTypeValue());
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.openlca.proto.services.Services.CreateSystemRequest parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.openlca.proto.services.Services.CreateSystemRequest) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private org.openlca.proto.Proto.Ref process_;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          org.openlca.proto.Proto.Ref, org.openlca.proto.Proto.Ref.Builder, org.openlca.proto.Proto.RefOrBuilder> processBuilder_;
+      /**
+       * <pre>
+       * The (reference of the) process from which the product system should be
+       * generated. This will be the reference process of the product system
+       * with upstream and downstream processes added recursively.
+       * </pre>
+       *
+       * <code>.protolca.Ref process = 1;</code>
+       * @return Whether the process field is set.
+       */
+      public boolean hasProcess() {
+        return processBuilder_ != null || process_ != null;
+      }
+      /**
+       * <pre>
+       * The (reference of the) process from which the product system should be
+       * generated. This will be the reference process of the product system
+       * with upstream and downstream processes added recursively.
+       * </pre>
+       *
+       * <code>.protolca.Ref process = 1;</code>
+       * @return The process.
+       */
+      public org.openlca.proto.Proto.Ref getProcess() {
+        if (processBuilder_ == null) {
+          return process_ == null ? org.openlca.proto.Proto.Ref.getDefaultInstance() : process_;
+        } else {
+          return processBuilder_.getMessage();
+        }
+      }
+      /**
+       * <pre>
+       * The (reference of the) process from which the product system should be
+       * generated. This will be the reference process of the product system
+       * with upstream and downstream processes added recursively.
+       * </pre>
+       *
+       * <code>.protolca.Ref process = 1;</code>
+       */
+      public Builder setProcess(org.openlca.proto.Proto.Ref value) {
+        if (processBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          process_ = value;
+          onChanged();
+        } else {
+          processBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * The (reference of the) process from which the product system should be
+       * generated. This will be the reference process of the product system
+       * with upstream and downstream processes added recursively.
+       * </pre>
+       *
+       * <code>.protolca.Ref process = 1;</code>
+       */
+      public Builder setProcess(
+          org.openlca.proto.Proto.Ref.Builder builderForValue) {
+        if (processBuilder_ == null) {
+          process_ = builderForValue.build();
+          onChanged();
+        } else {
+          processBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * The (reference of the) process from which the product system should be
+       * generated. This will be the reference process of the product system
+       * with upstream and downstream processes added recursively.
+       * </pre>
+       *
+       * <code>.protolca.Ref process = 1;</code>
+       */
+      public Builder mergeProcess(org.openlca.proto.Proto.Ref value) {
+        if (processBuilder_ == null) {
+          if (process_ != null) {
+            process_ =
+              org.openlca.proto.Proto.Ref.newBuilder(process_).mergeFrom(value).buildPartial();
+          } else {
+            process_ = value;
+          }
+          onChanged();
+        } else {
+          processBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * The (reference of the) process from which the product system should be
+       * generated. This will be the reference process of the product system
+       * with upstream and downstream processes added recursively.
+       * </pre>
+       *
+       * <code>.protolca.Ref process = 1;</code>
+       */
+      public Builder clearProcess() {
+        if (processBuilder_ == null) {
+          process_ = null;
+          onChanged();
+        } else {
+          process_ = null;
+          processBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * The (reference of the) process from which the product system should be
+       * generated. This will be the reference process of the product system
+       * with upstream and downstream processes added recursively.
+       * </pre>
+       *
+       * <code>.protolca.Ref process = 1;</code>
+       */
+      public org.openlca.proto.Proto.Ref.Builder getProcessBuilder() {
+        
+        onChanged();
+        return getProcessFieldBuilder().getBuilder();
+      }
+      /**
+       * <pre>
+       * The (reference of the) process from which the product system should be
+       * generated. This will be the reference process of the product system
+       * with upstream and downstream processes added recursively.
+       * </pre>
+       *
+       * <code>.protolca.Ref process = 1;</code>
+       */
+      public org.openlca.proto.Proto.RefOrBuilder getProcessOrBuilder() {
+        if (processBuilder_ != null) {
+          return processBuilder_.getMessageOrBuilder();
+        } else {
+          return process_ == null ?
+              org.openlca.proto.Proto.Ref.getDefaultInstance() : process_;
+        }
+      }
+      /**
+       * <pre>
+       * The (reference of the) process from which the product system should be
+       * generated. This will be the reference process of the product system
+       * with upstream and downstream processes added recursively.
+       * </pre>
+       *
+       * <code>.protolca.Ref process = 1;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          org.openlca.proto.Proto.Ref, org.openlca.proto.Proto.Ref.Builder, org.openlca.proto.Proto.RefOrBuilder> 
+          getProcessFieldBuilder() {
+        if (processBuilder_ == null) {
+          processBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              org.openlca.proto.Proto.Ref, org.openlca.proto.Proto.Ref.Builder, org.openlca.proto.Proto.RefOrBuilder>(
+                  getProcess(),
+                  getParentForChildren(),
+                  isClean());
+          process_ = null;
+        }
+        return processBuilder_;
+      }
+
+      private int defaultProviders_ = 0;
+      /**
+       * <pre>
+       * Indicates how default providers of product inputs and waste outputs
+       * should be considered during the linking. `only` means that only
+       * product inputs and waste outputs should be linked that have a
+       * default provider and that this default provider is used. `prefer`
+       * means that a default provider is used during the linking if there
+       * are multiple options. `ignore` means that the default providers
+       * have no specific role.
+       * </pre>
+       *
+       * <code>.protolca.services.CreateSystemRequest.DefaultProviders default_providers = 2;</code>
+       * @return The enum numeric value on the wire for defaultProviders.
+       */
+      @java.lang.Override public int getDefaultProvidersValue() {
+        return defaultProviders_;
+      }
+      /**
+       * <pre>
+       * Indicates how default providers of product inputs and waste outputs
+       * should be considered during the linking. `only` means that only
+       * product inputs and waste outputs should be linked that have a
+       * default provider and that this default provider is used. `prefer`
+       * means that a default provider is used during the linking if there
+       * are multiple options. `ignore` means that the default providers
+       * have no specific role.
+       * </pre>
+       *
+       * <code>.protolca.services.CreateSystemRequest.DefaultProviders default_providers = 2;</code>
+       * @param value The enum numeric value on the wire for defaultProviders to set.
+       * @return This builder for chaining.
+       */
+      public Builder setDefaultProvidersValue(int value) {
+        
+        defaultProviders_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Indicates how default providers of product inputs and waste outputs
+       * should be considered during the linking. `only` means that only
+       * product inputs and waste outputs should be linked that have a
+       * default provider and that this default provider is used. `prefer`
+       * means that a default provider is used during the linking if there
+       * are multiple options. `ignore` means that the default providers
+       * have no specific role.
+       * </pre>
+       *
+       * <code>.protolca.services.CreateSystemRequest.DefaultProviders default_providers = 2;</code>
+       * @return The defaultProviders.
+       */
+      @java.lang.Override
+      public org.openlca.proto.services.Services.CreateSystemRequest.DefaultProviders getDefaultProviders() {
+        @SuppressWarnings("deprecation")
+        org.openlca.proto.services.Services.CreateSystemRequest.DefaultProviders result = org.openlca.proto.services.Services.CreateSystemRequest.DefaultProviders.valueOf(defaultProviders_);
+        return result == null ? org.openlca.proto.services.Services.CreateSystemRequest.DefaultProviders.UNRECOGNIZED : result;
+      }
+      /**
+       * <pre>
+       * Indicates how default providers of product inputs and waste outputs
+       * should be considered during the linking. `only` means that only
+       * product inputs and waste outputs should be linked that have a
+       * default provider and that this default provider is used. `prefer`
+       * means that a default provider is used during the linking if there
+       * are multiple options. `ignore` means that the default providers
+       * have no specific role.
+       * </pre>
+       *
+       * <code>.protolca.services.CreateSystemRequest.DefaultProviders default_providers = 2;</code>
+       * @param value The defaultProviders to set.
+       * @return This builder for chaining.
+       */
+      public Builder setDefaultProviders(org.openlca.proto.services.Services.CreateSystemRequest.DefaultProviders value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        
+        defaultProviders_ = value.getNumber();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Indicates how default providers of product inputs and waste outputs
+       * should be considered during the linking. `only` means that only
+       * product inputs and waste outputs should be linked that have a
+       * default provider and that this default provider is used. `prefer`
+       * means that a default provider is used during the linking if there
+       * are multiple options. `ignore` means that the default providers
+       * have no specific role.
+       * </pre>
+       *
+       * <code>.protolca.services.CreateSystemRequest.DefaultProviders default_providers = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearDefaultProviders() {
+        
+        defaultProviders_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private int preferredType_ = 0;
+      /**
+       * <pre>
+       * When there are multiple provider processes available for linking a
+       * product input or waste output the `preferred_type` indicates which
+       * type of process (LCI results or unit processes) should be preferred
+       * during the linking.
+       * </pre>
+       *
+       * <code>.protolca.ProcessType preferred_type = 3;</code>
+       * @return The enum numeric value on the wire for preferredType.
+       */
+      @java.lang.Override public int getPreferredTypeValue() {
+        return preferredType_;
+      }
+      /**
+       * <pre>
+       * When there are multiple provider processes available for linking a
+       * product input or waste output the `preferred_type` indicates which
+       * type of process (LCI results or unit processes) should be preferred
+       * during the linking.
+       * </pre>
+       *
+       * <code>.protolca.ProcessType preferred_type = 3;</code>
+       * @param value The enum numeric value on the wire for preferredType to set.
+       * @return This builder for chaining.
+       */
+      public Builder setPreferredTypeValue(int value) {
+        
+        preferredType_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * When there are multiple provider processes available for linking a
+       * product input or waste output the `preferred_type` indicates which
+       * type of process (LCI results or unit processes) should be preferred
+       * during the linking.
+       * </pre>
+       *
+       * <code>.protolca.ProcessType preferred_type = 3;</code>
+       * @return The preferredType.
+       */
+      @java.lang.Override
+      public org.openlca.proto.Proto.ProcessType getPreferredType() {
+        @SuppressWarnings("deprecation")
+        org.openlca.proto.Proto.ProcessType result = org.openlca.proto.Proto.ProcessType.valueOf(preferredType_);
+        return result == null ? org.openlca.proto.Proto.ProcessType.UNRECOGNIZED : result;
+      }
+      /**
+       * <pre>
+       * When there are multiple provider processes available for linking a
+       * product input or waste output the `preferred_type` indicates which
+       * type of process (LCI results or unit processes) should be preferred
+       * during the linking.
+       * </pre>
+       *
+       * <code>.protolca.ProcessType preferred_type = 3;</code>
+       * @param value The preferredType to set.
+       * @return This builder for chaining.
+       */
+      public Builder setPreferredType(org.openlca.proto.Proto.ProcessType value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        
+        preferredType_ = value.getNumber();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * When there are multiple provider processes available for linking a
+       * product input or waste output the `preferred_type` indicates which
+       * type of process (LCI results or unit processes) should be preferred
+       * during the linking.
+       * </pre>
+       *
+       * <code>.protolca.ProcessType preferred_type = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearPreferredType() {
+        
+        preferredType_ = 0;
+        onChanged();
+        return this;
+      }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:protolca.services.CreateSystemRequest)
+    }
+
+    // @@protoc_insertion_point(class_scope:protolca.services.CreateSystemRequest)
+    private static final org.openlca.proto.services.Services.CreateSystemRequest DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.openlca.proto.services.Services.CreateSystemRequest();
+    }
+
+    public static org.openlca.proto.services.Services.CreateSystemRequest getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<CreateSystemRequest>
+        PARSER = new com.google.protobuf.AbstractParser<CreateSystemRequest>() {
+      @java.lang.Override
+      public CreateSystemRequest parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new CreateSystemRequest(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<CreateSystemRequest> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<CreateSystemRequest> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public org.openlca.proto.services.Services.CreateSystemRequest getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface FlowMapStatusOrBuilder extends
       // @@protoc_insertion_point(interface_extends:protolca.services.FlowMapStatus)
       com.google.protobuf.MessageOrBuilder {
@@ -16891,6 +19778,21 @@ public final class Services {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_protolca_services_UnitGroupStatus_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_protolca_services_DescriptorRequest_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_protolca_services_DescriptorRequest_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_protolca_services_SearchRequest_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_protolca_services_SearchRequest_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_protolca_services_CreateSystemRequest_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_protolca_services_CreateSystemRequest_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_protolca_services_FlowMapStatus_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -16947,102 +19849,120 @@ public final class Services {
       "\n\n\002ok\030\001 \001(\010\022 \n\006source\030\002 \001(\0132\020.protolca.S" +
       "ource\022\r\n\005error\030\003 \001(\t\"U\n\017UnitGroupStatus\022" +
       "\n\n\002ok\030\001 \001(\010\022\'\n\nunit_group\030\002 \001(\0132\023.protol" +
-      "ca.UnitGroup\022\r\n\005error\030\003 \001(\t\"O\n\rFlowMapSt" +
-      "atus\022\n\n\002ok\030\001 \001(\010\022#\n\010flow_map\030\002 \001(\0132\021.pro" +
-      "tolca.FlowMap\022\r\n\005error\030\003 \001(\t\"\033\n\013FlowMapI" +
-      "nfo\022\014\n\004name\030\001 \001(\t2\212\032\n\013DataService\0222\n\006Del" +
-      "ete\022\r.protolca.Ref\032\031.protolca.services.S" +
-      "tatus\0228\n\tGetActors\022\030.protolca.services.E" +
-      "mpty\032\017.protolca.Actor0\001\0229\n\010GetActor\022\r.pr" +
-      "otolca.Ref\032\036.protolca.services.ActorStat" +
-      "us\0229\n\010PutActor\022\017.protolca.Actor\032\034.protol" +
-      "ca.services.RefStatus\022?\n\rGetCategories\022\030" +
-      ".protolca.services.Empty\032\022.protolca.Cate" +
-      "gory0\001\022?\n\013GetCategory\022\r.protolca.Ref\032!.p" +
-      "rotolca.services.CategoryStatus\022?\n\013PutCa" +
-      "tegory\022\022.protolca.Category\032\034.protolca.se" +
-      "rvices.RefStatus\022?\n\rGetCurrencies\022\030.prot" +
-      "olca.services.Empty\032\022.protolca.Currency0" +
-      "\001\022?\n\013GetCurrency\022\r.protolca.Ref\032!.protol" +
-      "ca.services.CurrencyStatus\022?\n\013PutCurrenc" +
-      "y\022\022.protolca.Currency\032\034.protolca.service" +
-      "s.RefStatus\022>\n\014GetDQSystems\022\030.protolca.s" +
-      "ervices.Empty\032\022.protolca.DQSystem0\001\022?\n\013G" +
-      "etDQSystem\022\r.protolca.Ref\032!.protolca.ser" +
-      "vices.DQSystemStatus\022?\n\013PutDQSystem\022\022.pr" +
-      "otolca.DQSystem\032\034.protolca.services.RefS" +
-      "tatus\0226\n\010GetFlows\022\030.protolca.services.Em" +
-      "pty\032\016.protolca.Flow0\001\0227\n\007GetFlow\022\r.proto" +
-      "lca.Ref\032\035.protolca.services.FlowStatus\0227" +
-      "\n\007PutFlow\022\016.protolca.Flow\032\034.protolca.ser" +
-      "vices.RefStatus\022G\n\021GetFlowProperties\022\030.p" +
-      "rotolca.services.Empty\032\026.protolca.FlowPr" +
-      "operty0\001\022G\n\017GetFlowProperty\022\r.protolca.R" +
-      "ef\032%.protolca.services.FlowPropertyStatu" +
-      "s\022G\n\017PutFlowProperty\022\026.protolca.FlowProp" +
-      "erty\032\034.protolca.services.RefStatus\022K\n\023Ge" +
-      "tImpactCategories\022\030.protolca.services.Em" +
-      "pty\032\030.protolca.ImpactCategory0\001\022K\n\021GetIm" +
-      "pactCategory\022\r.protolca.Ref\032\'.protolca.s" +
-      "ervices.ImpactCategoryStatus\022K\n\021PutImpac" +
-      "tCategory\022\030.protolca.ImpactCategory\032\034.pr" +
-      "otolca.services.RefStatus\022F\n\020GetImpactMe" +
-      "thods\022\030.protolca.services.Empty\032\026.protol" +
-      "ca.ImpactMethod0\001\022G\n\017GetImpactMethod\022\r.p" +
-      "rotolca.Ref\032%.protolca.services.ImpactMe" +
-      "thodStatus\022G\n\017PutImpactMethod\022\026.protolca" +
-      ".ImpactMethod\032\034.protolca.services.RefSta" +
-      "tus\022>\n\014GetLocations\022\030.protolca.services." +
-      "Empty\032\022.protolca.Location0\001\022?\n\013GetLocati" +
-      "on\022\r.protolca.Ref\032!.protolca.services.Lo" +
-      "cationStatus\022?\n\013PutLocation\022\022.protolca.L" +
-      "ocation\032\034.protolca.services.RefStatus\022@\n" +
-      "\rGetParameters\022\030.protolca.services.Empty" +
-      "\032\023.protolca.Parameter0\001\022A\n\014GetParameter\022" +
-      "\r.protolca.Ref\032\".protolca.services.Param" +
-      "eterStatus\022A\n\014PutParameter\022\023.protolca.Pa" +
-      "rameter\032\034.protolca.services.RefStatus\022=\n" +
-      "\014GetProcesses\022\030.protolca.services.Empty\032" +
-      "\021.protolca.Process0\001\022=\n\nGetProcess\022\r.pro" +
-      "tolca.Ref\032 .protolca.services.ProcessSta" +
-      "tus\022=\n\nPutProcess\022\021.protolca.Process\032\034.p" +
-      "rotolca.services.RefStatus\022H\n\021GetProduct" +
-      "Systems\022\030.protolca.services.Empty\032\027.prot" +
-      "olca.ProductSystem0\001\022I\n\020GetProductSystem" +
-      "\022\r.protolca.Ref\032&.protolca.services.Prod" +
-      "uctSystemStatus\022I\n\020PutProductSystem\022\027.pr" +
-      "otolca.ProductSystem\032\034.protolca.services" +
-      ".RefStatus\022<\n\013GetProjects\022\030.protolca.ser" +
-      "vices.Empty\032\021.protolca.Project0\001\022=\n\nGetP" +
-      "roject\022\r.protolca.Ref\032 .protolca.service" +
-      "s.ProjectStatus\022=\n\nPutProject\022\021.protolca" +
-      ".Project\032\034.protolca.services.RefStatus\022L" +
-      "\n\023GetSocialIndicators\022\030.protolca.service" +
-      "s.Empty\032\031.protolca.SocialIndicator0\001\022M\n\022" +
-      "GetSocialIndicator\022\r.protolca.Ref\032(.prot" +
-      "olca.services.SocialIndicatorStatus\022M\n\022P" +
-      "utSocialIndicator\022\031.protolca.SocialIndic" +
-      "ator\032\034.protolca.services.RefStatus\022:\n\nGe" +
-      "tSources\022\030.protolca.services.Empty\032\020.pro" +
-      "tolca.Source0\001\022;\n\tGetSource\022\r.protolca.R" +
-      "ef\032\037.protolca.services.SourceStatus\022;\n\tP" +
-      "utSource\022\020.protolca.Source\032\034.protolca.se" +
-      "rvices.RefStatus\022@\n\rGetUnitGroups\022\030.prot" +
-      "olca.services.Empty\032\023.protolca.UnitGroup" +
-      "0\001\022A\n\014GetUnitGroup\022\r.protolca.Ref\032\".prot" +
-      "olca.services.UnitGroupStatus\022A\n\014PutUnit" +
-      "Group\022\023.protolca.UnitGroup\032\034.protolca.se" +
-      "rvices.RefStatus\022<\n\017GetProvidersFor\022\021.pr" +
-      "otolca.FlowRef\032\024.protolca.ProcessRef0\0012\231" +
-      "\002\n\016FlowMapService\022C\n\006Delete\022\036.protolca.s" +
-      "ervices.FlowMapInfo\032\031.protolca.services." +
-      "Status\022G\n\003Get\022\036.protolca.services.FlowMa" +
-      "pInfo\032 .protolca.services.FlowMapStatus\022" +
-      "D\n\006GetAll\022\030.protolca.services.Empty\032\036.pr" +
-      "otolca.services.FlowMapInfo0\001\0223\n\003Put\022\021.p" +
-      "rotolca.FlowMap\032\031.protolca.services.Stat" +
-      "usB<\n\032org.openlca.proto.servicesZ\n.;prot" +
-      "olca\252\002\021ProtoLCA.ServicesP\000b\006proto3"
+      "ca.UnitGroup\022\r\n\005error\030\003 \001(\t\"P\n\021Descripto" +
+      "rRequest\022!\n\004type\030\001 \001(\0162\023.protolca.ModelT" +
+      "ype\022\n\n\002id\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\"A\n\rSearchR" +
+      "equest\022!\n\004type\030\001 \001(\0162\023.protolca.ModelTyp" +
+      "e\022\r\n\005query\030\002 \001(\t\"\356\001\n\023CreateSystemRequest" +
+      "\022\036\n\007process\030\001 \001(\0132\r.protolca.Ref\022R\n\021defa" +
+      "ult_providers\030\002 \001(\01627.protolca.services." +
+      "CreateSystemRequest.DefaultProviders\022-\n\016" +
+      "preferred_type\030\003 \001(\0162\025.protolca.ProcessT" +
+      "ype\"4\n\020DefaultProviders\022\n\n\006Prefer\020\000\022\n\n\006I" +
+      "gnore\020\001\022\010\n\004Only\020\002\"O\n\rFlowMapStatus\022\n\n\002ok" +
+      "\030\001 \001(\010\022#\n\010flow_map\030\002 \001(\0132\021.protolca.Flow" +
+      "Map\022\r\n\005error\030\003 \001(\t\"\033\n\013FlowMapInfo\022\014\n\004nam" +
+      "e\030\001 \001(\t2\302\034\n\013DataService\0222\n\006Delete\022\r.prot" +
+      "olca.Ref\032\031.protolca.services.Status\022G\n\016G" +
+      "etDescriptors\022$.protolca.services.Descri" +
+      "ptorRequest\032\r.protolca.Ref0\001\022S\n\rGetDescr" +
+      "iptor\022$.protolca.services.DescriptorRequ" +
+      "est\032\034.protolca.services.RefStatus\022;\n\006Sea" +
+      "rch\022 .protolca.services.SearchRequest\032\r." +
+      "protolca.Ref0\001\022[\n\023CreateProductSystem\022&." +
+      "protolca.services.CreateSystemRequest\032\034." +
+      "protolca.services.RefStatus\0228\n\tGetActors" +
+      "\022\030.protolca.services.Empty\032\017.protolca.Ac" +
+      "tor0\001\0229\n\010GetActor\022\r.protolca.Ref\032\036.proto" +
+      "lca.services.ActorStatus\0229\n\010PutActor\022\017.p" +
+      "rotolca.Actor\032\034.protolca.services.RefSta" +
+      "tus\022?\n\rGetCategories\022\030.protolca.services" +
+      ".Empty\032\022.protolca.Category0\001\022?\n\013GetCateg" +
+      "ory\022\r.protolca.Ref\032!.protolca.services.C" +
+      "ategoryStatus\022?\n\013PutCategory\022\022.protolca." +
+      "Category\032\034.protolca.services.RefStatus\022?" +
+      "\n\rGetCurrencies\022\030.protolca.services.Empt" +
+      "y\032\022.protolca.Currency0\001\022?\n\013GetCurrency\022\r" +
+      ".protolca.Ref\032!.protolca.services.Curren" +
+      "cyStatus\022?\n\013PutCurrency\022\022.protolca.Curre" +
+      "ncy\032\034.protolca.services.RefStatus\022>\n\014Get" +
+      "DQSystems\022\030.protolca.services.Empty\032\022.pr" +
+      "otolca.DQSystem0\001\022?\n\013GetDQSystem\022\r.proto" +
+      "lca.Ref\032!.protolca.services.DQSystemStat" +
+      "us\022?\n\013PutDQSystem\022\022.protolca.DQSystem\032\034." +
+      "protolca.services.RefStatus\0226\n\010GetFlows\022" +
+      "\030.protolca.services.Empty\032\016.protolca.Flo" +
+      "w0\001\0227\n\007GetFlow\022\r.protolca.Ref\032\035.protolca" +
+      ".services.FlowStatus\0227\n\007PutFlow\022\016.protol" +
+      "ca.Flow\032\034.protolca.services.RefStatus\022G\n" +
+      "\021GetFlowProperties\022\030.protolca.services.E" +
+      "mpty\032\026.protolca.FlowProperty0\001\022G\n\017GetFlo" +
+      "wProperty\022\r.protolca.Ref\032%.protolca.serv" +
+      "ices.FlowPropertyStatus\022G\n\017PutFlowProper" +
+      "ty\022\026.protolca.FlowProperty\032\034.protolca.se" +
+      "rvices.RefStatus\022K\n\023GetImpactCategories\022" +
+      "\030.protolca.services.Empty\032\030.protolca.Imp" +
+      "actCategory0\001\022K\n\021GetImpactCategory\022\r.pro" +
+      "tolca.Ref\032\'.protolca.services.ImpactCate" +
+      "goryStatus\022K\n\021PutImpactCategory\022\030.protol" +
+      "ca.ImpactCategory\032\034.protolca.services.Re" +
+      "fStatus\022F\n\020GetImpactMethods\022\030.protolca.s" +
+      "ervices.Empty\032\026.protolca.ImpactMethod0\001\022" +
+      "G\n\017GetImpactMethod\022\r.protolca.Ref\032%.prot" +
+      "olca.services.ImpactMethodStatus\022G\n\017PutI" +
+      "mpactMethod\022\026.protolca.ImpactMethod\032\034.pr" +
+      "otolca.services.RefStatus\022>\n\014GetLocation" +
+      "s\022\030.protolca.services.Empty\032\022.protolca.L" +
+      "ocation0\001\022?\n\013GetLocation\022\r.protolca.Ref\032" +
+      "!.protolca.services.LocationStatus\022?\n\013Pu" +
+      "tLocation\022\022.protolca.Location\032\034.protolca" +
+      ".services.RefStatus\022@\n\rGetParameters\022\030.p" +
+      "rotolca.services.Empty\032\023.protolca.Parame" +
+      "ter0\001\022A\n\014GetParameter\022\r.protolca.Ref\032\".p" +
+      "rotolca.services.ParameterStatus\022A\n\014PutP" +
+      "arameter\022\023.protolca.Parameter\032\034.protolca" +
+      ".services.RefStatus\022=\n\014GetProcesses\022\030.pr" +
+      "otolca.services.Empty\032\021.protolca.Process" +
+      "0\001\022=\n\nGetProcess\022\r.protolca.Ref\032 .protol" +
+      "ca.services.ProcessStatus\022=\n\nPutProcess\022" +
+      "\021.protolca.Process\032\034.protolca.services.R" +
+      "efStatus\022H\n\021GetProductSystems\022\030.protolca" +
+      ".services.Empty\032\027.protolca.ProductSystem" +
+      "0\001\022I\n\020GetProductSystem\022\r.protolca.Ref\032&." +
+      "protolca.services.ProductSystemStatus\022I\n" +
+      "\020PutProductSystem\022\027.protolca.ProductSyst" +
+      "em\032\034.protolca.services.RefStatus\022<\n\013GetP" +
+      "rojects\022\030.protolca.services.Empty\032\021.prot" +
+      "olca.Project0\001\022=\n\nGetProject\022\r.protolca." +
+      "Ref\032 .protolca.services.ProjectStatus\022=\n" +
+      "\nPutProject\022\021.protolca.Project\032\034.protolc" +
+      "a.services.RefStatus\022L\n\023GetSocialIndicat" +
+      "ors\022\030.protolca.services.Empty\032\031.protolca" +
+      ".SocialIndicator0\001\022M\n\022GetSocialIndicator" +
+      "\022\r.protolca.Ref\032(.protolca.services.Soci" +
+      "alIndicatorStatus\022M\n\022PutSocialIndicator\022" +
+      "\031.protolca.SocialIndicator\032\034.protolca.se" +
+      "rvices.RefStatus\022:\n\nGetSources\022\030.protolc" +
+      "a.services.Empty\032\020.protolca.Source0\001\022;\n\t" +
+      "GetSource\022\r.protolca.Ref\032\037.protolca.serv" +
+      "ices.SourceStatus\022;\n\tPutSource\022\020.protolc" +
+      "a.Source\032\034.protolca.services.RefStatus\022@" +
+      "\n\rGetUnitGroups\022\030.protolca.services.Empt" +
+      "y\032\023.protolca.UnitGroup0\001\022A\n\014GetUnitGroup" +
+      "\022\r.protolca.Ref\032\".protolca.services.Unit" +
+      "GroupStatus\022A\n\014PutUnitGroup\022\023.protolca.U" +
+      "nitGroup\032\034.protolca.services.RefStatus\022<" +
+      "\n\017GetProvidersFor\022\021.protolca.FlowRef\032\024.p" +
+      "rotolca.ProcessRef0\0012\231\002\n\016FlowMapService\022" +
+      "C\n\006Delete\022\036.protolca.services.FlowMapInf" +
+      "o\032\031.protolca.services.Status\022G\n\003Get\022\036.pr" +
+      "otolca.services.FlowMapInfo\032 .protolca.s" +
+      "ervices.FlowMapStatus\022D\n\006GetAll\022\030.protol" +
+      "ca.services.Empty\032\036.protolca.services.Fl" +
+      "owMapInfo0\001\0223\n\003Put\022\021.protolca.FlowMap\032\031." +
+      "protolca.services.StatusB<\n\032org.openlca." +
+      "proto.servicesZ\n.;protolca\252\002\021ProtoLCA.Se" +
+      "rvicesP\000b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -17163,14 +20083,32 @@ public final class Services {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_protolca_services_UnitGroupStatus_descriptor,
         new java.lang.String[] { "Ok", "UnitGroup", "Error", });
-    internal_static_protolca_services_FlowMapStatus_descriptor =
+    internal_static_protolca_services_DescriptorRequest_descriptor =
       getDescriptor().getMessageTypes().get(19);
+    internal_static_protolca_services_DescriptorRequest_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_protolca_services_DescriptorRequest_descriptor,
+        new java.lang.String[] { "Type", "Id", "Name", });
+    internal_static_protolca_services_SearchRequest_descriptor =
+      getDescriptor().getMessageTypes().get(20);
+    internal_static_protolca_services_SearchRequest_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_protolca_services_SearchRequest_descriptor,
+        new java.lang.String[] { "Type", "Query", });
+    internal_static_protolca_services_CreateSystemRequest_descriptor =
+      getDescriptor().getMessageTypes().get(21);
+    internal_static_protolca_services_CreateSystemRequest_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_protolca_services_CreateSystemRequest_descriptor,
+        new java.lang.String[] { "Process", "DefaultProviders", "PreferredType", });
+    internal_static_protolca_services_FlowMapStatus_descriptor =
+      getDescriptor().getMessageTypes().get(22);
     internal_static_protolca_services_FlowMapStatus_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_protolca_services_FlowMapStatus_descriptor,
         new java.lang.String[] { "Ok", "FlowMap", "Error", });
     internal_static_protolca_services_FlowMapInfo_descriptor =
-      getDescriptor().getMessageTypes().get(20);
+      getDescriptor().getMessageTypes().get(23);
     internal_static_protolca_services_FlowMapInfo_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_protolca_services_FlowMapInfo_descriptor,
