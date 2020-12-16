@@ -2,31 +2,26 @@
 `olca-proto` is an experimental implementation of the
 [olca-schema](https://github.com/GreenDelta/olca-schema) based on
 [Protocol Buffers](https://developers.google.com/protocol-buffers). It supports
-serialization in JSON(-LD) and a fast binary format. In addition, it and comes
-with a [gRPC server](https://grpc.io/) that may could replace the current IPC
-implementation in openLCA.
+serialization in JSON(-LD) and in a fast binary format. In addition, it and
+comes with a [gRPC server](https://grpc.io/) that may could replace the current
+IPC implementation in openLCA. A Python client library which also contains a
+test suite is currently developed here: https://github.com/msrocka/olca-grpc.py.
 
-__Generating the model__
+The proto3 definitions are located in the [./src/main/proto](./src/main/proto)
+folder. We use the `protobuf-maven-plugin` as described in the
+[grpc-java documentation](https://github.com/grpc/grpc-java#generated-code) to
+generate the Java source code from the proto3 files. In Eclipse, you may have
+to put the [os-maven-plugin](https://search.maven.org/artifact/kr.motd.maven/os-maven-plugin)
+plugin into your `eclipse/dropins` folder as described in the
+[os-maven-plugin documentation](https://github.com/trustin/os-maven-plugin#issues-with-eclipse-m2e-or-other-ides).
 
-The [genproto](./scripts/genproto/main.go) tool directly generates the
-[olca.proto](./proto/olca.proto) definition from the YAML files of the
-`olca-schema` project:
+**Note** that the `olca.proto` file is automatically generated from the
+`olca-schema` definitions using the [genproto tool](./genproto). Thus, you
+should update the `olca-schema` first and then run the `genproto` tool when
+you want to update the model.
 
-```
-$ genproto path/to/olca-schema path/to/olca.proto
-```
 
-From the `olca.proto` definition we then generate the APIs with the `gen`
-script:
-
-```
-$ scripts/gen
-```
-
-This requires that the Protocol Buffers and gRPC compiler is in your path (see
-the `scripts/gen.bat` script).
-
-__Building the server__
+__Building the standalone server__
 
 The standalone server can be created via the `server-app` Maven profile:
 
@@ -34,26 +29,24 @@ The standalone server can be created via the `server-app` Maven profile:
 $ mvn package -P server-app
 ```
 
-This will generate the server application in the `target/dist` folder. The
-server can be started via:
+This will generate the server application in the `target/olca-grpc-server`
+folder. The server can be started via:
 
 ```
 $ run -db <database> [-port <port>]
 ```
 
-Where database is the name of a database in the openLCA database folder
+where database is the name of a database in the openLCA database folder
 (`~/openLCA-1.4-data/databases/<database>`). The port number is optional,
 `8080` is chosen by default if it is not specified.
 
-__API Examples__
 
-A Python package for client-side communication is in development here:
-https://github.com/msrocka/olca-grpc.py
+__API Examples__
 
 For Java, a single class `Proto` is generated:
 
 ```java
-import org.openlca.proto;
+import org.openlca.generated.proto;
 import com.google.protobuf.util.JsonFormat;
 
 var flow = Proto.Flow.newBuilder()
@@ -74,23 +67,5 @@ This will generate the following output:
   "@id": "481682dd-c2a2-4646-9760-b0fe3e242676",
   "name": "Steel",
   "flowType": "PRODUCT_FLOW"
-}
-```
-
-To generate the `Go` package, you need put the
-[Go plugin protoc-gen-go](https://github.com/protocolbuffers/protobuf-go) of the
-protocol buffers compiler in your path.
-
-```go
-func main() {
-  id, _ := uuid.NewRandom()
-  flow := &proto.Flow{
-    Type:     "Flow",
-    Id:       id.String(),
-    Name:     "Steel",
-    FlowType: proto.FlowType_PRODUCT_FLOW,
-  }
-  json := protojson.Format(flow)
-  fmt.Println(string(json))
 }
 ```

@@ -73,7 +73,7 @@ type EnumItem struct {
 const ProtoHeader = `syntax = "proto3";
 package protolca;
 
-option java_package = "org.openlca.proto";
+option java_package = "org.openlca.proto.generated";
 option java_outer_classname = "Proto";
 option csharp_namespace = "ProtoLCA";
 option go_package = ".;protolca";
