@@ -1,5 +1,7 @@
 package org.openlca.core.library;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -19,7 +21,8 @@ public class LibraryPackage {
 			return;
 
 		try (var out = new FileOutputStream(zipFile);
-			 var zip = new ZipOutputStream(out)) {
+			 var outBuff = new BufferedOutputStream(out);
+			 var zip = new ZipOutputStream(outBuff)) {
 
 			// put the library files directly in the root of
 			// the zip
@@ -28,10 +31,29 @@ public class LibraryPackage {
 				return;
 			for (var libFile : libFiles) {
 				zip.putNextEntry(new ZipEntry(libFile.getName()));
-				try (var in = new FileInputStream(libFile)) {
-					in.transferTo(zip);
+				try (var in = new FileInputStream(libFile);
+					 var inBuff = new BufferedInputStream(in)) {
+					inBuff.transferTo(zip);
 				}
 				zip.closeEntry();
+			}
+
+			// put the dependent libraries into the "dependencies"
+			// sub-folder
+			for (var depLib : library.getDependencies()) {
+				var prefix = "dependencies/" + depLib.id() + "/";
+				var depFiles = depLib.folder.listFiles();
+				if (depFiles == null)
+					continue;
+				for (var depFile : depFiles) {
+					var entry = new ZipEntry(prefix + depFile.getName());
+					zip.putNextEntry(entry);
+					try (var in = new FileInputStream(depFile);
+						 var inBuff = new BufferedInputStream(in)) {
+						inBuff.transferTo(zip);
+					}
+					zip.closeEntry();
+				}
 			}
 
 		} catch (Exception e) {

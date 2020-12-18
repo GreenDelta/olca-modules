@@ -2,13 +2,16 @@ package org.openlca.core.library;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openlca.core.database.CategorizedEntityDao;
@@ -67,19 +70,38 @@ public class Library {
 		return _info;
 	}
 
+	public String id() {
+		return getInfo().id();
+	}
+
 	/**
-	 * Get the direct dependencies of this library.
+	 * Get the dependencies of this library (which includes dependencies of
+	 * dependencies etc.).
 	 */
-	public List<Library> getDependencies() {
+	public Set<Library> getDependencies() {
 		var info = getInfo();
 		if (info.dependencies.isEmpty())
-			return Collections.emptyList();
+			return Collections.emptySet();
 		var libDir = new LibraryDir(folder.getParentFile());
-		return info.dependencies.stream()
-			.map(libDir::get)
-			.filter(Optional::isPresent)
-			.map(Optional::get)
-			.collect(Collectors.toList());
+
+		var deps = new HashSet<Library>();
+		var queue = new ArrayDeque<Library>();
+		queue.add(this);
+		while (!queue.isEmpty()) {
+			queue.poll()
+				.getInfo()
+				.dependencies.stream()
+				.map(libDir::get)
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.forEach(dep -> {
+					if (!deps.contains(dep)) {
+						deps.add(dep);
+						queue.add(dep);
+					}
+				});
+		}
+		return deps;
 	}
 
 	@Override
