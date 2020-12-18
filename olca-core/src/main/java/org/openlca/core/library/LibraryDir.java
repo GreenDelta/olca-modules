@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.openlca.core.DataDir;
+
 /**
  * A library directory is a specific folder where each sub-folder is a library.
  * If a library A in that folder has a dependency to a library B there should be
@@ -17,6 +19,10 @@ import java.util.stream.Collectors;
 public class LibraryDir {
 
 	public final File dir;
+
+	public static LibraryDir getDefault() {
+		return new LibraryDir(DataDir.libraries());
+	}
 
 	public LibraryDir(File dir) {
 		if (!dir.exists()) {

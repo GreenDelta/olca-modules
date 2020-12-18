@@ -154,16 +154,15 @@ public class BinUtils {
 	public static byte[] read(InputStream input) throws IOException {
 		if (input == null)
 			return null;
-		BufferedInputStream bin = input instanceof BufferedInputStream
+		var bin = input instanceof BufferedInputStream
 				? (BufferedInputStream) input
 				: new BufferedInputStream(input);
 		byte[] buf = new byte[4096];
-		ByteArrayOutputStream bout = new ByteArrayOutputStream(4096);
+		var bout = new ByteArrayOutputStream(4096);
 		int n = 0;
 		while ((n = bin.read(buf)) > 0) {
 			bout.write(buf, 0, n);
 		}
 		return bout.toByteArray();
 	}
-
 }

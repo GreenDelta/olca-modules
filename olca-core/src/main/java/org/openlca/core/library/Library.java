@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -35,7 +36,7 @@ public class Library {
 	 * The folder where the library files are stored.
 	 */
 	public final File folder;
-	private LibraryInfo info;
+	private LibraryInfo _info;
 
 	private final Map<LibraryMatrix, IMatrix> matrixCache = new HashMap<>();
 
@@ -56,14 +57,44 @@ public class Library {
 	}
 
 	public LibraryInfo getInfo() {
-		if (info != null)
-			return info;
+		if (_info != null)
+			return _info;
 		var file = new File(folder, "library.json");
 		var obj = Json.readObject(file);
 		if (obj.isEmpty())
 			throw new RuntimeException("failed to read " + file);
-		info = LibraryInfo.fromJson(obj.get());
-		return info;
+		_info = LibraryInfo.fromJson(obj.get());
+		return _info;
+	}
+
+	/**
+	 * Get the direct dependencies of this library.
+	 */
+	public List<Library> getDependencies() {
+		var info = getInfo();
+		if (info.dependencies.isEmpty())
+			return Collections.emptyList();
+		var libDir = new LibraryDir(folder.getParentFile());
+		return info.dependencies.stream()
+			.map(libDir::get)
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.collect(Collectors.toList());
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		var other = (Library) o;
+		return Objects.equals(getInfo(), other.getInfo());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getInfo());
 	}
 
 	/**
@@ -137,8 +168,8 @@ public class Library {
 
 		var info = getInfo();
 		var index = info.isRegionalized
-				? FlowIndex.createRegionalized()
-				: FlowIndex.create();
+			? FlowIndex.createRegionalized()
+			: FlowIndex.create();
 
 		var flows = descriptors(new FlowDao(db));
 		var locations = descriptors(new LocationDao(db));
@@ -199,12 +230,12 @@ public class Library {
 	}
 
 	private <T extends CategorizedDescriptor> Map<String, T> descriptors(
-			CategorizedEntityDao<?, T> dao) {
+		CategorizedEntityDao<?, T> dao) {
 		return dao.getDescriptors()
-				.stream()
-				.collect(Collectors.toMap(
-						d -> d.refId,
-						d -> d));
+			.stream()
+			.collect(Collectors.toMap(
+				d -> d.refId,
+				d -> d));
 	}
 
 	public boolean hasMatrix(LibraryMatrix m) {
@@ -259,13 +290,13 @@ public class Library {
 			// force caching of sparse matrices
 			matrix = getMatrix(m).orElse(null);
 			return matrix == null
-					? Optional.empty()
-					: Optional.of(matrix.getColumn(column));
+				? Optional.empty()
+				: Optional.of(matrix.getColumn(column));
 
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(getClass());
 			log.error("failed to read matrix column "
-					+ column + " from " + m + " in " + folder, e);
+				+ column + " from " + m + " in " + folder, e);
 			return Optional.empty();
 		}
 	}
@@ -287,13 +318,13 @@ public class Library {
 			// force caching of sparse matrices
 			matrix = getMatrix(m).orElse(null);
 			return matrix == null
-					? Optional.empty()
-					: Optional.of(matrix.diag());
+				? Optional.empty()
+				: Optional.of(matrix.diag());
 
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(getClass());
 			log.error("failed to read matrix diagonal"
-					+ " from " + m + " in " + folder, e);
+				+ " from " + m + " in " + folder, e);
 			return Optional.empty();
 		}
 	}
@@ -331,8 +362,8 @@ public class Library {
 			if (flow == null)
 				continue;
 			var exchange = val < 0
-					? Exchange.input(flow, Math.abs(val))
-					: Exchange.output(flow, val);
+				? Exchange.input(flow, Math.abs(val))
+				: Exchange.output(flow, val);
 			if (i != index) {
 				exchange.defaultProviderId = product.id();
 			}
@@ -359,11 +390,11 @@ public class Library {
 			if (flow == null)
 				continue;
 			var exchange = iFlow.isInput
-					? Exchange.input(flow, -val)
-					: Exchange.output(flow, val);
+				? Exchange.input(flow, -val)
+				: Exchange.output(flow, val);
 			if (iFlow.location != null) {
 				exchange.location = locDao.getForId(
-						iFlow.location.id);
+					iFlow.location.id);
 			}
 			exchanges.add(exchange);
 		}

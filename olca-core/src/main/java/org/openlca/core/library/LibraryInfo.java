@@ -2,11 +2,13 @@ package org.openlca.core.library;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.Json;
-import org.openlca.util.Pair;
 
 /**
  * Contains the meta-data of a library.
@@ -36,11 +38,11 @@ public class LibraryInfo {
 	public boolean isRegionalized;
 
 	/**
-	 * A list of [name, version] pairs of libraries on which this library depends.
+	 * A list of library IDs this library depends on.
 	 * <p>
 	 * like https://docs.npmjs.com/files/package.json#dependencies
 	 */
-	public final List<Pair<String, String>> dependencies = new ArrayList<>();
+	public final List<String> dependencies = new ArrayList<>();
 
 	/**
 	 * The identifier of a library is the combination of `[name]_[version]`.
@@ -61,11 +63,9 @@ public class LibraryInfo {
 		obj.addProperty("isRegionalized", isRegionalized);
 		if (dependencies.isEmpty())
 			return obj;
-		var deps = new JsonObject();
+		var deps = new JsonArray();
 		for (var dep : dependencies) {
-			if (dep.first == null || dep.second == null)
-				continue;
-			deps.addProperty(dep.first, dep.second);
+			deps.add(dep);
 		}
 		obj.add("dependencies", deps);
 		return obj;
@@ -76,16 +76,28 @@ public class LibraryInfo {
 		info.name = Json.getString(obj, "name");
 		info.version = Version.format(Json.getString(obj, "version"));
 		info.isRegionalized = Json.getBool(obj, "isRegionalized", false);
-		var deps = Json.getObject(obj, "dependencies");
+		var deps = Json.getArray(obj, "dependencies");
 		if (deps != null) {
-			for (var entry : deps.entrySet()) {
-				var v = entry.getValue();
-				if (v == null || !v.isJsonPrimitive())
-					continue;
-				info.dependencies.add(
-						Pair.of(entry.getKey(), v.getAsString()));
-			}
+			Json.stream(deps)
+				.filter(JsonElement::isJsonPrimitive)
+				.map(JsonElement::getAsString)
+				.forEach(info.dependencies::add);
 		}
 		return info;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		var other = (LibraryInfo) o;
+		return Objects.equals(this.id(), other.id());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id());
 	}
 }
