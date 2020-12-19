@@ -161,8 +161,7 @@ class ExchangeConversion {
 	private void mapFlow(Exchange oExchange,
 			org.openlca.ilcd.processes.Exchange iExchange) {
 		if (oExchange.flow != null) {
-			Ref ref = ExportDispatch.forwardExport(
-					oExchange.flow, config);
+			Ref ref = Export.of(oExchange.flow, config);
 			if (ref != null) {
 				iExchange.flow = ref;
 			}

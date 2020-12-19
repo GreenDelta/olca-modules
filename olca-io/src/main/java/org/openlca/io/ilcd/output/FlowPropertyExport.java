@@ -6,13 +6,13 @@ import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
-import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.flowproperties.AdminInfo;
 import org.openlca.ilcd.flowproperties.DataSetInfo;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flowproperties.FlowPropertyInfo;
 import org.openlca.ilcd.flowproperties.QuantitativeReference;
 import org.openlca.ilcd.util.Refs;
+import org.openlca.io.Xml;
 
 public class FlowPropertyExport {
 
@@ -64,9 +64,7 @@ public class FlowPropertyExport {
 	private QuantitativeReference makeUnitGroupRef() {
 		QuantitativeReference qRef = new QuantitativeReference();
 		UnitGroup unitGroup = flowProperty.unitGroup;
-		Ref ref = ExportDispatch.forwardExport(unitGroup,
-				config);
-		qRef.unitGroup = ref;
+		qRef.unitGroup = Export.of(unitGroup, config);
 		return qRef;
 	}
 
@@ -74,7 +72,7 @@ public class FlowPropertyExport {
 		AdminInfo info = new AdminInfo();
 		DataEntry entry = new DataEntry();
 		info.dataEntry = entry;
-		entry.timeStamp = Out.getTimestamp(flowProperty);
+		entry.timeStamp = Xml.calendar(flowProperty.lastChange);
 		entry.formats.add(Refs.ilcd());
 		addPublication(info);
 		return info;

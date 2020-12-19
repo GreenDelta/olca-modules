@@ -21,8 +21,7 @@ class Util {
 		if (year == null)
 			return null;
 		try {
-			XMLGregorianCalendar xmlCal = Xml.datatypeFactory
-					.newXMLGregorianCalendar();
+			var xmlCal = Xml.types().newXMLGregorianCalendar();
 			xmlCal.setYear(year);
 			return xmlCal;
 		} catch (Exception e) {

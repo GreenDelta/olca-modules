@@ -214,8 +214,7 @@ public class ProcessExport {
 		s(iRepri.dataTreatment, doc.dataTreatment);
 
 		for (Source source : doc.sources) {
-			Ref ref = ExportDispatch.forwardExport(
-					source, config);
+			Ref ref = Export.of(source, config);
 			if (ref != null)
 				iRepri.sources.add(ref);
 		}
@@ -237,8 +236,7 @@ public class ProcessExport {
 		reviews.add(review);
 		review.type = ReviewType.NOT_REVIEWED;
 		if (doc.reviewer != null) {
-			Ref ref = ExportDispatch.forwardExport(
-					doc.reviewer, config);
+			Ref ref = Export.of(doc.reviewer, config);
 			if (ref != null)
 				review.reviewers.add(ref);
 		}

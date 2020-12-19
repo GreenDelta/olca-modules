@@ -2,14 +2,11 @@ package org.openlca.io.ilcd.output;
 
 import java.util.List;
 
-import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.FlowType;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
-import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.flows.AdminInfo;
 import org.openlca.ilcd.flows.CompartmentList;
 import org.openlca.ilcd.flows.DataEntry;
@@ -25,6 +22,7 @@ import org.openlca.ilcd.flows.Modelling;
 import org.openlca.ilcd.flows.QuantitativeReference;
 import org.openlca.ilcd.util.Flows;
 import org.openlca.ilcd.util.Refs;
+import org.openlca.io.Xml;
 
 public class FlowExport {
 
@@ -63,15 +61,15 @@ public class FlowExport {
 		FlowName flowName = new FlowName();
 		info.name = flowName;
 		LangString.set(flowName.baseName, flow.name,
-				config.lang);
+			config.lang);
 		if (flow.description != null)
 			LangString.set(info.generalComment,
-					flow.description, config.lang);
+				flow.description, config.lang);
 		info.casNumber = flow.casNumber;
 		info.sumFormula = flow.formula;
 		if (flow.synonyms != null)
 			LangString.set(info.synonyms, flow.synonyms,
-					config.lang);
+				config.lang);
 		makeCategoryInfo(info);
 		return info;
 	}
@@ -82,11 +80,11 @@ public class FlowExport {
 		dataSetInfo.classificationInformation = info;
 		if (flow.flowType == org.openlca.core.model.FlowType.ELEMENTARY_FLOW) {
 			CompartmentList categorization = converter
-					.getElementaryFlowCategory(flow.category);
+				.getElementaryFlowCategory(flow.category);
 			info.compartmentLists.add(categorization);
 		} else {
 			Classification classification = converter
-					.getClassification(flow.category);
+				.getClassification(flow.category);
 			info.classifications.add(classification);
 		}
 	}
@@ -96,19 +94,16 @@ public class FlowExport {
 	 * data set internal ID of 0, the others 1++.
 	 */
 	private void makeFlowProperties(List<FlowPropertyRef> refs) {
-		FlowProperty referenceProperty = flow.referenceFlowProperty;
+		var refProp = flow.referenceFlowProperty;
 		int pos = 1;
-		for (FlowPropertyFactor factor : flow.flowPropertyFactors) {
-			FlowPropertyRef propRef = new FlowPropertyRef();
+		for (var factor : flow.flowPropertyFactors) {
+			var propRef = new FlowPropertyRef();
 			refs.add(propRef);
-			FlowProperty property = factor.flowProperty;
-			Ref ref = ExportDispatch.forwardExport(property,
-					config);
-			propRef.flowProperty = ref;
-			if (property.equals(referenceProperty))
-				propRef.dataSetInternalID = 0;
-			else
-				propRef.dataSetInternalID = pos++;
+			var property = factor.flowProperty;
+			propRef.flowProperty = Export.of(property, config);
+			propRef.dataSetInternalID = property.equals(refProp)
+				? 0
+				: pos++;
 			propRef.meanValue = factor.conversionFactor;
 		}
 	}
@@ -125,7 +120,7 @@ public class FlowExport {
 		AdminInfo info = new AdminInfo();
 		DataEntry entry = new DataEntry();
 		info.dataEntry = entry;
-		entry.timeStamp = Out.getTimestamp(flow);
+		entry.timeStamp = Xml.calendar(flow.lastChange);
 		entry.formats.add(Refs.ilcd());
 		addPublication(info);
 		return info;
@@ -154,14 +149,14 @@ public class FlowExport {
 		if (flow.flowType == null)
 			return FlowType.OTHER_FLOW;
 		switch (flow.flowType) {
-		case ELEMENTARY_FLOW:
-			return FlowType.ELEMENTARY_FLOW;
-		case PRODUCT_FLOW:
-			return FlowType.PRODUCT_FLOW;
-		case WASTE_FLOW:
-			return FlowType.WASTE_FLOW;
-		default:
-			return FlowType.OTHER_FLOW;
+			case ELEMENTARY_FLOW:
+				return FlowType.ELEMENTARY_FLOW;
+			case PRODUCT_FLOW:
+				return FlowType.PRODUCT_FLOW;
+			case WASTE_FLOW:
+				return FlowType.WASTE_FLOW;
+			default:
+				return FlowType.OTHER_FLOW;
 		}
 	}
 

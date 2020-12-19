@@ -15,6 +15,7 @@ import org.openlca.ilcd.sources.FileRef;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.sources.SourceInfo;
 import org.openlca.ilcd.util.Refs;
+import org.openlca.io.Xml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,7 +109,7 @@ public class SourceExport {
 		AdminInfo info = new AdminInfo();
 		DataEntry entry = new DataEntry();
 		info.dataEntry = entry;
-		entry.timeStamp = Out.getTimestamp(source);
+		entry.timeStamp = Xml.calendar(source.lastChange);
 		entry.formats.add(Refs.ilcd());
 		addPublication(info);
 		return info;

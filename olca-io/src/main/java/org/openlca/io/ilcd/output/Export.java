@@ -15,39 +15,38 @@ import org.slf4j.LoggerFactory;
  * A class for forwarding an export of a resource to the respective Export
  * class.
  */
-class ExportDispatch {
+class Export {
 
-	private static Logger log = LoggerFactory.getLogger(ExportDispatch.class);
+	private static final Logger log = LoggerFactory.getLogger(Export.class);
 
-	private ExportDispatch() {
+	private Export() {
 	}
 
 	/**
 	 * Runs an export of the given model to the ILCD data store and returns the
 	 * data set reference to the exported model in the store.
 	 */
-	public static Ref forwardExport(CategorizedEntity model,
-			ExportConfig config) {
+	public static Ref of(CategorizedEntity model, ExportConfig config) {
 		if (model instanceof Source)
-			return sourceExort((Source) model, config);
+			return source((Source) model, config);
 		if (model instanceof Actor)
-			return actorExport((Actor) model, config);
+			return actor((Actor) model, config);
 		if (model instanceof Flow)
-			return flowExport((Flow) model, config);
+			return flow((Flow) model, config);
 		if (model instanceof FlowProperty)
-			return flowPropertyExport((FlowProperty) model, config);
+			return property((FlowProperty) model, config);
 		if (model instanceof Process)
-			return processExport((Process) model, config);
+			return process((Process) model, config);
 		if (model instanceof UnitGroup)
-			return unitGroupExport((UnitGroup) model, config);
+			return unitGroup((UnitGroup) model, config);
 		log.error("Cannot export {}", model);
 		return null;
 	}
 
-	private static Ref sourceExort(Source source, ExportConfig config) {
+	private static Ref source(Source source, ExportConfig config) {
 		try {
-			SourceExport sourceExport = new SourceExport(config);
-			sourceExport.run(source);
+			var export = new SourceExport(config);
+			export.run(source);
 			return DataSetRef.makeRef(source, config);
 		} catch (Exception e) {
 			log.error("Export of source failed: " + source, e);
@@ -55,10 +54,10 @@ class ExportDispatch {
 		}
 	}
 
-	private static Ref actorExport(Actor actor, ExportConfig config) {
+	private static Ref actor(Actor actor, ExportConfig config) {
 		try {
-			ActorExport actorExport = new ActorExport(config);
-			actorExport.run(actor);
+			var export = new ActorExport(config);
+			export.run(actor);
 			return DataSetRef.makeRef(actor, config);
 		} catch (Exception e) {
 			log.error("Export of actor failed: " + actor, e);
@@ -66,10 +65,10 @@ class ExportDispatch {
 		}
 	}
 
-	private static Ref flowExport(Flow flow, ExportConfig config) {
+	private static Ref flow(Flow flow, ExportConfig config) {
 		try {
-			FlowExport flowExport = new FlowExport(config);
-			flowExport.run(flow);
+			var export = new FlowExport(config);
+			export.run(flow);
 			return DataSetRef.makeRef(flow, config);
 		} catch (Exception e) {
 			log.error("Export of flow failed: " + flow, e);
@@ -77,10 +76,9 @@ class ExportDispatch {
 		}
 	}
 
-	private static Ref flowPropertyExport(FlowProperty prop,
-			ExportConfig config) {
+	private static Ref property(FlowProperty prop, ExportConfig config) {
 		try {
-			FlowPropertyExport export = new FlowPropertyExport(config);
+			var export = new FlowPropertyExport(config);
 			export.run(prop);
 			return DataSetRef.makeRef(prop, config);
 		} catch (Exception e) {
@@ -89,10 +87,9 @@ class ExportDispatch {
 		}
 	}
 
-	private static Ref unitGroupExport(UnitGroup unitGroup,
-			ExportConfig config) {
+	private static Ref unitGroup(UnitGroup unitGroup, ExportConfig config) {
 		try {
-			UnitGroupExport export = new UnitGroupExport(config);
+			var export = new UnitGroupExport(config);
 			export.run(unitGroup);
 			return DataSetRef.makeRef(unitGroup, config);
 		} catch (Exception e) {
@@ -101,9 +98,9 @@ class ExportDispatch {
 		}
 	}
 
-	private static Ref processExport(Process process, ExportConfig config) {
+	private static Ref process(Process process, ExportConfig config) {
 		try {
-			ProcessExport export = new ProcessExport(config);
+			var export = new ProcessExport(config);
 			export.run(process);
 			return DataSetRef.makeRef(process, config);
 		} catch (Exception e) {

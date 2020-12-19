@@ -30,7 +30,9 @@ public final class Xml {
 	}
 
 	public static XMLGregorianCalendar calendar(long time) {
-		return calendar(new Date(time));
+		return calendar(time == 0
+			? new Date()
+			: new Date(time));
 	}
 
 	public static XMLGregorianCalendar calendar(Date date) {

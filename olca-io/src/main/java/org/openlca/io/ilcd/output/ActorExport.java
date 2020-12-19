@@ -11,6 +11,7 @@ import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.contacts.ContactInfo;
 import org.openlca.ilcd.contacts.DataSetInfo;
 import org.openlca.ilcd.util.Refs;
+import org.openlca.io.Xml;
 
 public class ActorExport {
 
@@ -85,7 +86,7 @@ public class ActorExport {
 		AdminInfo info = new AdminInfo();
 		DataEntry entry = new DataEntry();
 		info.dataEntry = entry;
-		entry.timeStamp = Out.getTimestamp(actor);
+		entry.timeStamp = Xml.calendar(actor.lastChange);
 		entry.formats.add(Refs.ilcd());
 		addPublication(info);
 		return info;

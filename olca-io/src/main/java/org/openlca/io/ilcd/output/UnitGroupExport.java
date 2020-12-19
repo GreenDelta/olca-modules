@@ -16,6 +16,7 @@ import org.openlca.ilcd.units.UnitGroupInfo;
 import org.openlca.ilcd.util.Refs;
 import org.openlca.ilcd.util.UnitExtension;
 import org.openlca.ilcd.util.UnitGroups;
+import org.openlca.io.Xml;
 
 public class UnitGroupExport {
 
@@ -102,7 +103,7 @@ public class UnitGroupExport {
 		AdminInfo info = new AdminInfo();
 		DataEntry entry = new DataEntry();
 		info.dataEntry = entry;
-		entry.timeStamp = Out.getTimestamp(unitGroup);
+		entry.timeStamp = Xml.calendar(unitGroup.lastChange);
 		entry.formats.add(Refs.ilcd());
 		addPublication(info);
 		return info;

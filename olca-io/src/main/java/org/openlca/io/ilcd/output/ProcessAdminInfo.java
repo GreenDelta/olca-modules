@@ -47,8 +47,7 @@ class ProcessAdminInfo {
 		dataEntry.timeStamp = Xml.calendar(new Date());
 		dataEntry.formats.add(Refs.ilcd());
 		if (doc.dataDocumentor != null) {
-			Ref ref = ExportDispatch.forwardExport(
-					doc.dataDocumentor, config);
+			Ref ref = Export.of(doc.dataDocumentor, config);
 			if (ref != null) {
 				dataEntry.documentor = ref;
 			}
@@ -57,10 +56,9 @@ class ProcessAdminInfo {
 
 	private void createDataGenerator() {
 		if (doc.dataGenerator != null) {
-			DataGenerator generator = new DataGenerator();
+			var generator = new DataGenerator();
 			iAdminInfo.dataGenerator = generator;
-			Ref ref = ExportDispatch.forwardExport(
-					doc.dataGenerator, config);
+			Ref ref = Export.of(doc.dataGenerator, config);
 			if (ref != null)
 				generator.contacts.add(ref);
 		}
@@ -84,8 +82,7 @@ class ProcessAdminInfo {
 
 	private void mapDataSetOwner(Publication publication) {
 		if (doc.dataSetOwner != null) {
-			Ref ref = ExportDispatch.forwardExport(
-					doc.dataSetOwner, config);
+			Ref ref = Export.of(doc.dataSetOwner, config);
 			if (ref != null) {
 				publication.owner = ref;
 			}
@@ -96,8 +93,7 @@ class ProcessAdminInfo {
 		Source source = doc.publication;
 		if (source == null)
 			return;
-		Ref ref = ExportDispatch
-				.forwardExport(source, config);
+		Ref ref = Export.of(source, config);
 		if (ref != null)
 			publication.republication = ref;
 	}

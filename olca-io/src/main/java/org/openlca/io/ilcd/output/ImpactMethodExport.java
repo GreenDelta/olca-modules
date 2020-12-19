@@ -70,8 +70,7 @@ public class ImpactMethodExport {
 			list.factors.add(iFactor);
 			// TODO: uncertainty values + formulas
 			iFactor.meanValue = getRefAmount(oFactor);
-			iFactor.flow = ExportDispatch.forwardExport(
-					oFactor.flow, config);
+			iFactor.flow = Export.of(oFactor.flow, config);
 			if (oFactor.location != null) {
 				iFactor.location = oFactor.location.code;
 			}
