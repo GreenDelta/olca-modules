@@ -5,6 +5,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
@@ -98,7 +100,7 @@ public class Json {
 	 * Return the double value of the given property.
 	 */
 	public static double getDouble(JsonObject obj,
-			String property, double defaultVal) {
+								   String property, double defaultVal) {
 		if (obj == null || property == null)
 			return defaultVal;
 		JsonElement elem = obj.get(property);
@@ -129,8 +131,8 @@ public class Json {
 			return defaultVal;
 		var prim = elem.getAsJsonPrimitive();
 		return prim.isNumber()
-				? prim.getAsLong()
-				: defaultVal;
+			? prim.getAsLong()
+			: defaultVal;
 	}
 
 	/**
@@ -148,12 +150,12 @@ public class Json {
 			return Optional.empty();
 		JsonElement elem = obj.get(property);
 		return elem == null || !elem.isJsonPrimitive()
-				? Optional.empty()
-				: Optional.of(elem.getAsDouble());
+			? Optional.empty()
+			: Optional.of(elem.getAsDouble());
 	}
 
 	public static boolean getBool(JsonObject obj,
-			String property, boolean defaultVal) {
+								  String property, boolean defaultVal) {
 		if (obj == null || property == null)
 			return defaultVal;
 		JsonElement elem = obj.get(property);
@@ -198,7 +200,7 @@ public class Json {
 	}
 
 	public static <T extends Enum<T>> T getEnum(JsonObject obj,
-			String property, Class<T> enumClass) {
+												String property, Class<T> enumClass) {
 		String value = getString(obj, property);
 		return Enums.getValue(value, enumClass);
 	}
@@ -273,9 +275,9 @@ public class Json {
 	}
 
 	private static void putCategoryPath(JsonObject ref,
-			CategorizedDescriptor d, EntityCache cache) {
+										CategorizedDescriptor d, EntityCache cache) {
 		if (ref == null || d == null || cache == null
-				|| d.category == null)
+			|| d.category == null)
 			return;
 		Category cat = cache.get(Category.class, d.category);
 		if (cat == null)
@@ -289,7 +291,7 @@ public class Json {
 	}
 
 	private static void putCategoryMetaData(JsonObject ref,
-			CategoryDescriptor d) {
+											CategoryDescriptor d) {
 		if (ref == null || d == null)
 			return;
 		if (d.categoryType != null) {
@@ -299,7 +301,7 @@ public class Json {
 	}
 
 	private static void putFlowMetaData(JsonObject ref,
-			FlowDescriptor d, EntityCache cache) {
+										FlowDescriptor d, EntityCache cache) {
 		if (ref == null || d == null)
 			return;
 		if (d.flowType != null) {
@@ -323,7 +325,7 @@ public class Json {
 	}
 
 	private static void putProcessMetaData(JsonObject ref,
-			ProcessDescriptor d, EntityCache cache) {
+										   ProcessDescriptor d, EntityCache cache) {
 		if (ref == null || d == null)
 			return;
 		if (d.processType != null) {
@@ -345,8 +347,8 @@ public class Json {
 		if (json == null)
 			return;
 		try (var stream = new FileOutputStream(file);
-				var writer = new OutputStreamWriter(stream, StandardCharsets.UTF_8);
-				var buffer = new BufferedWriter(writer)) {
+			 var writer = new OutputStreamWriter(stream, StandardCharsets.UTF_8);
+			 var buffer = new BufferedWriter(writer)) {
 			new Gson().toJson(json, buffer);
 		} catch (Exception e) {
 			throw new RuntimeException("failed to write JSON file " + file, e);
@@ -361,6 +363,10 @@ public class Json {
 		return read(file, JsonObject.class);
 	}
 
+	public static Optional<JsonObject> readObject(InputStream stream) {
+		return read(stream, JsonObject.class);
+	}
+
 	public static Optional<JsonArray> readArray(File file) {
 		return read(file, JsonArray.class);
 	}
@@ -368,14 +374,23 @@ public class Json {
 	private static <T> Optional<T> read(File file, Class<T> type) {
 		if (file == null)
 			return Optional.empty();
-		try (var stream = new FileInputStream(file);
-				var reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
-				var buffer = new BufferedReader(reader)) {
+		try (var stream = new FileInputStream(file)) {
+			return read(stream, type);
+		} catch (IOException e) {
+			var log = LoggerFactory.getLogger(Json.class);
+			log.error("failed to read JSON file " + file, e);
+			return Optional.empty();
+		}
+	}
+
+	private static <T> Optional<T> read(InputStream stream, Class<T> type) {
+		try (var reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
+			 var buffer = new BufferedReader(reader)) {
 			var obj = new Gson().fromJson(buffer, type);
 			return Optional.of(obj);
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(Json.class);
-			log.error("failed to read JSON file " + file, e);
+			log.error("failed to read JSON", e);
 			return Optional.empty();
 		}
 	}

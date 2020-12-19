@@ -39,6 +39,10 @@ public class LibraryPackageTest {
 		Dirs.delete(dir);
 		assertFalse(dir.exists());
 
+		var packInfo = LibraryPackage.getInfo(zipFile);
+		assertEquals(libInfo, packInfo);
+		assertTrue(packInfo.dependencies.contains(dep.id()));
+
 		System.out.println(zipFile.getAbsoluteFile());
 
 	}

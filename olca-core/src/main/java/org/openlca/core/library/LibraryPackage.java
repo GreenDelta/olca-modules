@@ -6,7 +6,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+
+import org.openlca.jsonld.Json;
 
 public class LibraryPackage {
 
@@ -60,4 +64,31 @@ public class LibraryPackage {
 			throw new RuntimeException(e);
 		}
 	}
+
+	/**
+	 * Get the library information from the given zip file. Returns `null` if
+	 * this is not a valid library file.
+	 */
+	public static LibraryInfo getInfo(File zipFile) {
+		if (zipFile == null || !zipFile.exists())
+			return null;
+		try (var zip = new ZipFile(zipFile)) {
+			var entries = zip.entries();
+			while (entries.hasMoreElements()) {
+				var entry = entries.nextElement();
+				if (!"library.json".equals(entry.getName()))
+					continue;
+				try (var stream = zip.getInputStream(entry)) {
+					var json = Json.readObject(stream);
+					return json.isEmpty()
+						? null
+						: LibraryInfo.fromJson(json.get());
+				}
+			}
+			return null;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
 }
