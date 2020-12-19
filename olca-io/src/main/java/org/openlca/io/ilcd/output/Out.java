@@ -23,9 +23,7 @@ final class Out {
 		try {
 			GregorianCalendar gCal = new GregorianCalendar();
 			gCal.setTimeInMillis(time);
-			XMLGregorianCalendar xml = Xml.datatypeFactory
-					.newXMLGregorianCalendar(gCal);
-			return xml;
+			return Xml.types().newXMLGregorianCalendar(gCal);
 		} catch (Exception ex) {
 			Logger log = LoggerFactory.getLogger(Out.class);
 			log.error("failed to create XML calendar for time " + time, ex);

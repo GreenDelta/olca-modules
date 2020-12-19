@@ -16,6 +16,8 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
+import org.openlca.util.Strings;
+
 /**
  * A set of import formats that openLCA understands and that can be determined
  * from a file.
@@ -66,6 +68,11 @@ public enum Format {
 	 * A KML file.
 	 */
 	KML,
+
+	/**
+	 * A zip file that contains an openLCA libraries with its dependencies.
+	 */
+	LIBRARY_PACKAGE,
 
 	/**
 	 * An openLCA flow mapping file in CSV format:
@@ -158,6 +165,12 @@ public enum Format {
 		var formatRef = new AtomicReference<Format>();
 		scanZip(file, (zip, entry) -> {
 			var entryName = entry.getName();
+
+			// library package
+			if (Strings.nullOrEqual(entryName, "library.json")) {
+				formatRef.set(LIBRARY_PACKAGE);
+				return true;
+			}
 
 			// ES2
 			if (hasExtension(entryName, ".spold")) {

@@ -10,6 +10,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.junit.Test;
+import org.openlca.core.library.LibraryDir;
+import org.openlca.core.library.LibraryInfo;
+import org.openlca.core.library.LibraryPackage;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
@@ -21,6 +24,7 @@ import org.openlca.io.ilcd.ILCDExport;
 import org.openlca.io.ilcd.output.ExportConfig;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.output.JsonExport;
+import org.openlca.util.Dirs;
 
 public class FormatTest {
 
@@ -183,6 +187,17 @@ public class FormatTest {
 			zip.write(xml.getBytes());
 		}
 		check(file, Format.ES2_ZIP);
+	}
+
+	@Test
+	public void testDetectLibraryPackages() throws Exception {
+		var dir = Files.createTempDirectory("_olca_test").toFile();
+		var libDir = LibraryDir.of(dir);
+		var lib = libDir.init(LibraryInfo.of("lib", "0.1"));
+		var file = Files.createTempFile("_olca_test", ".zip").toFile();
+		LibraryPackage.zip(lib, file);
+		Dirs.delete(dir);
+		check(file, Format.LIBRARY_PACKAGE);
 	}
 
 	private void check(File file, Format expected) {
