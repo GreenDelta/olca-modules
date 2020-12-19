@@ -5,9 +5,11 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.openlca.jsonld.Json;
@@ -91,4 +93,70 @@ public class LibraryPackage {
 		}
 	}
 
+	/**
+	 * Extracts the library and its dependencies of the given library package
+	 * into the given library folder. If the library or a dependency already
+	 * exists in that library it is simply ignored.
+	 */
+	public static void unzip(File zipFile, LibraryDir libDir) {
+		if (zipFile == null || libDir == null)
+			return;
+		var info = getInfo(zipFile);
+		if (info == null)
+			throw new IllegalArgumentException(
+				zipFile + " is not a library package");
+
+		// do nothing when the library already exists
+		if (libDir.exists(info))
+			return;
+
+		// collect the dependencies that we need to copy
+		var deps = info.dependencies.stream()
+			.filter(dep -> libDir.get(dep).isEmpty())
+			.collect(Collectors.toSet());
+
+		try (var zip = new ZipFile(zipFile)) {
+
+			// create the target folders
+			var lib = libDir.init(info);
+			for (var dep : deps) {
+				var depDir = new File(libDir.dir, dep);
+				Files.createDirectories(depDir.toPath());
+			}
+
+			// extract the files
+			var entries = zip.entries();
+			while (entries.hasMoreElements()) {
+				var entry = entries.nextElement();
+				if (entry.isDirectory())
+					continue;
+				var path = entry.getName().split("[/\\\\]");
+				if (path.length == 0)
+					continue;
+
+				File target;
+				if ("dependencies".equals(path[0])) {
+					// a dependency file
+					if (path.length < 3)
+						continue;
+					var dep = path[1];
+					if (!deps.contains(dep))
+						continue;
+					target = new File(libDir.dir, dep + "/" + path[2]);
+				} else {
+					// a root library file
+					target = new File(lib.folder, path[0]);
+				}
+
+				// copy the content to the target file
+				if (target.exists())
+					continue;
+				try (var stream = zip.getInputStream(entry)) {
+					Files.copy(stream, target.toPath());
+				}
+			}
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to extract library package", e);
+		}
+	}
 }

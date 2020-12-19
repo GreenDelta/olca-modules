@@ -39,12 +39,19 @@ public class LibraryPackageTest {
 		Dirs.delete(dir);
 		assertFalse(dir.exists());
 
+		// check the zip
 		var packInfo = LibraryPackage.getInfo(zipFile);
 		assertEquals(libInfo, packInfo);
 		assertTrue(packInfo.dependencies.contains(dep.id()));
 
-		System.out.println(zipFile.getAbsoluteFile());
+		// extract the zip
+		dir = Files.createTempDirectory("_olca_lib_test").toFile();
+		libDir = LibraryDir.of(dir);
+		LibraryPackage.unzip(zipFile, libDir);
+		assertTrue(libDir.exists(libInfo));
+		assertTrue(libDir.exists(depInfo));
 
+		Dirs.delete(dir);
+		assertTrue(zipFile.delete());
 	}
-
 }
