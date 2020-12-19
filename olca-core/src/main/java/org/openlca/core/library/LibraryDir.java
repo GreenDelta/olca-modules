@@ -1,6 +1,8 @@
 package org.openlca.core.library;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -8,6 +10,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.openlca.core.DataDir;
+import org.openlca.jsonld.Json;
 
 /**
  * A library directory is a specific folder where each sub-folder is a library.
@@ -22,6 +25,10 @@ public class LibraryDir {
 
 	public static LibraryDir getDefault() {
 		return new LibraryDir(DataDir.libraries());
+	}
+
+	public static LibraryDir of(File dir) {
+		return new LibraryDir(dir);
 	}
 
 	public LibraryDir(File dir) {
@@ -73,5 +80,25 @@ public class LibraryDir {
 	 */
 	public boolean exists(LibraryInfo info) {
 		return getFolder(info).exists();
+	}
+
+	/**
+	 * Initializes a new library folder for the given library information. If
+	 * this library already exists, it returns that library.
+	 */
+	public Library init(LibraryInfo info) {
+		if (exists(info))
+			return get(info.id()).orElseThrow();
+		var dir = getFolder(info);
+		try {
+			if (!dir.exists()) {
+				Files.createDirectories(dir.toPath());
+			}
+			var lib = new Library(dir);
+			info.writeTo(lib);
+			return lib;
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to create library folder", e);
+		}
 	}
 }

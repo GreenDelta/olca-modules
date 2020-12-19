@@ -1,5 +1,6 @@
 package org.openlca.core.library;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -44,6 +45,13 @@ public class LibraryInfo {
 	 */
 	public final List<String> dependencies = new ArrayList<>();
 
+	public static LibraryInfo of(String name, String version) {
+		var info = new LibraryInfo();
+		info.name = name;
+		info.version = version;
+		return info;
+	}
+
 	/**
 	 * The identifier of a library is the combination of `[name]_[version]`.
 	 * The identifier of a library must be unique. It is up to the user to
@@ -53,6 +61,12 @@ public class LibraryInfo {
 	 */
 	public String id() {
 		return (name + "_" + Version.format(version)).trim().toLowerCase();
+	}
+
+	public void writeTo(Library library) {
+		if (library == null)
+			return;
+		Json.write(toJson(), new File(library.folder, "library.json"));
 	}
 
 	JsonObject toJson() {

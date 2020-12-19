@@ -104,6 +104,17 @@ public class Library {
 		return deps;
 	}
 
+	public void addDependency(Library dependency) {
+		if (dependency == null)
+			return;
+		var info = getInfo();
+		var depID = dependency.id();
+		if (info.dependencies.contains(depID))
+			return;
+		info.dependencies.add(depID);
+		info.writeTo(this);
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o)
