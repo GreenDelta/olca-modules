@@ -78,6 +78,9 @@ public class Mollweide extends Projection {
 		p.y = Math.toDegrees(lat);
 	}
 
+	/**
+	 * Calculates the area of the geometry of the given location in m2.
+	 */
 	public static double areaOf(Location loc) {
 		if (loc == null || loc.geodata == null)
 			return 0;

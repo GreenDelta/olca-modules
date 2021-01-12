@@ -14,8 +14,9 @@ import org.openlca.util.Pair;
 /**
  * Calculates the intersections of a geometry $g$ (typically a location in
  * an openLCA database) with a given feature collection $F$ (e.g. features
- * with characterization factors of an LCIA category). An optional projection
- * can be applied when calculating the intersections.
+ * with characterization factors of an LCIA category). A specific projection can
+ * be applied when calculating the intersections. By default the Mollweide
+ * projection is used.
  */
 public class IntersectionCalculator {
 
@@ -42,7 +43,7 @@ public class IntersectionCalculator {
 	}
 
 	public static IntersectionCalculator on(FeatureCollection coll) {
-		return on(coll, null);
+		return on(coll, new Mollweide());
 	}
 
 	public static IntersectionCalculator on(
