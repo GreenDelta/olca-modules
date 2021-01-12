@@ -1,5 +1,7 @@
 package org.openlca.geo.calc;
 
+import org.openlca.core.model.Location;
+import org.openlca.geo.geojson.GeoJSON;
 import org.openlca.geo.geojson.Point;
 
 public class Mollweide extends Projection {
@@ -74,5 +76,20 @@ public class Mollweide extends Projection {
 		var lon = Math.PI * p.x / (2 * R * Math.sqrt(2) * Math.cos(theta));
 		p.x = Math.toDegrees(lon);
 		p.y = Math.toDegrees(lat);
+	}
+
+	public static double areaOf(Location loc) {
+		if (loc == null || loc.geodata == null)
+			return 0;
+		var features = GeoJSON.unpack(loc.geodata);
+		if (features.isEmpty())
+			return 0;
+		var feature = features.first();
+		if (feature == null || feature.geometry == null)
+			return 0;
+		var projection = new Mollweide(6_378_137);
+		projection.project(feature);
+		var jts = JTS.fromGeoJSON(feature.geometry);
+		return jts.getArea();
 	}
 }

@@ -61,6 +61,10 @@ public final class FeatureCollection implements Cloneable {
 		return features.isEmpty() ? null : features.get(0);
 	}
 
+	public boolean isEmpty() {
+		return features.isEmpty();
+	}
+
 	@Override
 	public FeatureCollection clone() {
 		FeatureCollection c = new FeatureCollection();
