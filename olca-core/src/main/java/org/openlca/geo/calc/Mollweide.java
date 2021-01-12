@@ -18,13 +18,16 @@ public class Mollweide extends Projection {
 	protected void apply(Point p) {
 		if (p == null)
 			return;
-
 		// see https://mathworld.wolfram.com/MollweideProjection.html
 		// and https://en.wikipedia.org/wiki/Mollweide_projection
-
 		var lon = longitudeOf(p);
 		var lat = latitudeOf(p);
+		double theta = thetaOf(lat);
+		p.x = R * 2 * Math.sqrt(2) * lon * Math.cos(theta) / Math.PI;
+		p.y = R * Math.sqrt(2) * Math.sin(theta);
+	}
 
+	private double thetaOf(double lat) {
 		var theta = lat;
 		var piSinLat = Math.PI * Math.sin(lat);
 		int i = 0;
@@ -32,15 +35,14 @@ public class Mollweide extends Projection {
 			i++;
 			var dividend = 2 * theta + Math.sin(2 * theta) - piSinLat;
 			var divisor = 2 + 2 * Math.cos(2 * theta);
+			if (divisor == 0)
+				return lat;
 			var next = theta - dividend / divisor;
-			var doBreak = Math.abs(theta - next) < 1e-12;
+			if(Math.abs(theta - next) < 1e-12)
+				return next;
 			theta = next;
-			if (doBreak)
-				break;
 		}
-
-		p.x = R * 2 * Math.sqrt(2) * lon * Math.cos(theta) / Math.PI;
-		p.y = R * Math.sqrt(2) * Math.sin(theta);
+		return theta;
 	}
 
 	private double longitudeOf(Point p) {
@@ -63,9 +65,14 @@ public class Mollweide extends Projection {
 		return Math.toRadians(lat);
 	}
 
-
 	@Override
-	protected void inverse(Point point) {
-
+	protected void inverse(Point p) {
+		if (p == null)
+			return;
+		var theta = Math.asin(p.y / (R * Math.sqrt(2)));
+		var lat = Math.asin((2 * theta + Math.sin(2 * theta)) / Math.PI);
+		var lon = Math.PI * p.x / (2 * R * Math.sqrt(2) * Math.cos(theta));
+		p.x = Math.toDegrees(lon);
+		p.y = Math.toDegrees(lat);
 	}
 }

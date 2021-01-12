@@ -1,5 +1,8 @@
 package org.openlca.geo.calc;
 
+import static org.junit.Assert.*;
+
+import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.geo.geojson.Point;
 
@@ -41,7 +44,24 @@ public class MollweideTest {
 			var y = datum[2];
 			var point = new Point(90, lat);
 			projection.apply(point);
-			System.out.println(point);
+			assertEquals(x, point.x, 1e-4);
+			assertEquals(y, point.y, 1e-4);
+		}
+	}
+
+	@Test
+	public void testFullRange() {
+		var mollweide = new Mollweide();
+		for (int lon = -180; lon <= 180; lon+=10) {
+			for (int lat = -90; lat <= 90; lat+=10) {
+				Point p = new Point();
+				p.x = lon;
+				p.y = lat;
+				mollweide.apply(p);
+				mollweide.inverse(p);
+				Assert.assertEquals(lon, p.x, 1e-10);
+				Assert.assertEquals(lat, p.y, 1e-10);
+			}
 		}
 	}
 }
