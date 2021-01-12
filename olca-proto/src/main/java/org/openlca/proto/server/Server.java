@@ -16,9 +16,10 @@ public class Server {
   public Server(IDatabase db, int port) {
     this.port = port;
     this.server = ServerBuilder.forPort(port)
-        .addService(new DataService(db))
-        .addService(new FlowMapService(db))
-        .build();
+      .addService(new DataService(db))
+      .addService(new FlowMapService(db))
+      .addService(new ResultService(db))
+      .build();
   }
 
   public void start() {
@@ -68,21 +69,21 @@ public class Server {
         return;
       }
       switch (flag) {
-      case "-db":
-        dbArg = arg;
-        break;
-      case "-port":
-        portArg = arg;
-        break;
-      default:
-        System.err.println("Unknown flag: " + flag);
-        return;
+        case "-db":
+          dbArg = arg;
+          break;
+        case "-port":
+          portArg = arg;
+          break;
+        default:
+          System.err.println("Unknown flag: " + flag);
+          return;
       }
     }
 
     if (dbArg == null) {
       System.err.println(
-          "No database given. You can set it via `-db <database>`.");
+        "No database given. You can set it via `-db <database>`.");
       return;
     }
 

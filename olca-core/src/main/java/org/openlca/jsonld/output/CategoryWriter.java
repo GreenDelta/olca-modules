@@ -14,7 +14,7 @@ class CategoryWriter extends Writer<Category> {
 	JsonObject write(Category category) {
 		JsonObject obj = super.write(category);
 		if (obj == null)
-			return obj;
+			return null;
 		Out.put(obj, "modelType", category.modelType, Out.REQUIRED_FIELD);
 		Out.put(obj, "category", category.category, conf);
 		return obj;
