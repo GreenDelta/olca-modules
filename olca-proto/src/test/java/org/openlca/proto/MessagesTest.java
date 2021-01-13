@@ -36,5 +36,4 @@ public class MessagesTest {
     assertFalse(Messages.isEmpty(builder.build()));
     assertTrue(Messages.isNotEmpty(builder.build()));
   }
-
 }

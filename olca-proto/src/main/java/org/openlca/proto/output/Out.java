@@ -1,11 +1,17 @@
 package org.openlca.proto.output;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.Message;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Uncertainty;
@@ -78,6 +84,7 @@ public final class Out {
     proto.setVersion(Version.asString(d.version));
     proto.setType("Flow");
     proto.setLastChange(dateTimeOf(d.lastChange));
+
     proto.setFlowType(flowTypeOf(d.flowType));
     return proto;
   }
@@ -100,6 +107,106 @@ public final class Out {
       .setProcessType(processTypeOf(d.processType))
       .setLastChange(dateTimeOf(d.lastChange));
   }
+
+  public static Proto.ProcessRef.Builder processRefOf(Process p) {
+    var proto = Proto.ProcessRef.newBuilder();
+    if (p == null)
+      return proto;
+    map(p, proto);
+    return proto;
+  }
+
+  private static void map(RootEntity e, Message.Builder proto) {
+    if (e == null || proto == null)
+      return;
+    var fields = proto.getDescriptorForType().getFields();
+    for (var field : fields) {
+      switch (field.getName()) {
+        case "id":
+          set(proto, field, e.refId);
+          break;
+        case "type":
+          set(proto, field, e.getClass().getSimpleName());
+          break;
+        case "name":
+          set(proto, field, e.name);
+          break;
+        case "description":
+          set(proto, field, e.description);
+          break;
+        case "version":
+          set(proto, field, Version.asString(e.version));
+          break;
+        case "lastChange":
+          set(proto, field, dateTimeOf(e.lastChange));
+          break;
+
+        case "library":
+          if (e instanceof CategorizedEntity ){
+            var ce = (CategorizedEntity) e;
+            set(proto, field, ce.library);
+          }
+          break;
+
+        case "category":
+          if (field.getJavaType() == Descriptors.FieldDescriptor.JavaType.MESSAGE) {
+            if (e instanceof CategorizedEntity) {
+              var ce = (CategorizedEntity) e;
+              if (ce.category != null) {
+                var catRef = Out.refOf(ce.category);
+                proto.setField(field, catRef);
+              }
+            }
+          }
+          break;
+
+        case "tags":
+            if (e instanceof CategorizedEntity) {
+              var ce = (CategorizedEntity) e;
+              if (Strings.notEmpty(ce.tags)) {
+                var tags = Arrays.stream(ce.tags.split(","))
+                  .filter(Strings::notEmpty)
+                  .collect(Collectors.toList());
+                setRepeated(proto, field, tags);
+              }
+          }
+          break;
+
+        case "categoryPath":
+          if (e instanceof CategorizedEntity) {
+            var ce = (CategorizedEntity) e;
+            if (ce.category != null) {
+              var path = Categories.path(ce.category);
+              setRepeated(proto, field, path);
+            }
+          }
+          break;
+      }
+    }
+  }
+
+  private static void set(Message.Builder proto,
+                          Descriptors.FieldDescriptor field,
+                          String value) {
+    if (Strings.nullOrEmpty(value))
+      return;
+    if (field.getJavaType() != Descriptors.FieldDescriptor.JavaType.STRING)
+      return;
+    proto.setField(field, value);
+  }
+
+  private static void setRepeated(Message.Builder proto,
+                          Descriptors.FieldDescriptor field,
+                          List<String> values) {
+    if (values == null || values.isEmpty())
+      return;
+    if (field.getJavaType() != Descriptors.FieldDescriptor.JavaType.STRING)
+      return;
+    for (var value : values) {
+      proto.addRepeatedField(field, value);
+    }
+  }
+
 
   static Proto.Ref refOf(RootEntity e, WriterConfig config) {
     var proto = refOf(e);

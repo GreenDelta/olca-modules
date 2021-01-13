@@ -48,11 +48,15 @@ public class ProductSystemWriter {
     // model specific fields
     mapParameterSets(system, proto);
 
+    if (system.referenceProcess != null) {
+      Out.processRefOf(system.referenceProcess);
+    }
     if (system.referenceExchange != null) {
       var protoRefEx = Proto.ExchangeRef.newBuilder()
         .setInternalId(system.referenceExchange.internalId);
       proto.setReferenceExchange(protoRefEx);
     }
+
 
     // TODO
 
