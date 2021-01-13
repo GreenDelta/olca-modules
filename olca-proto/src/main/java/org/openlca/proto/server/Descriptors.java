@@ -25,7 +25,7 @@ final class Descriptors {
   static Stream<Proto.Ref> get(IDatabase db, Services.DescriptorRequest req) {
     return db == null || req == null
       ? Stream.empty()
-      : byName(byID(daosOf(db, req), req), req).map(Out::refOf);
+      : byName(byID(daosOf(db, req), req), req).map(d -> Out.refOf(d).build());
   }
 
   private static Stream<? extends RootEntityDao<?, ?>> daosOf(

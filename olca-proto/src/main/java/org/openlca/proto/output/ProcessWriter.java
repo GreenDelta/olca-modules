@@ -190,7 +190,7 @@ public class ProcessWriter {
     LongFunction<Proto.FlowRef> product = flowID -> {
       for (var e : p.exchanges) {
         if (e.flow != null && e.flow.id == flowID) {
-          return Out.flowRefOf(e.flow, config);
+          return Out.flowRefOf(e.flow, config).build();
         }
       }
       return null;

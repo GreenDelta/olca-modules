@@ -29,62 +29,27 @@ public final class Out {
   private Out() {
   }
 
-  public static Proto.Ref refOf(RootEntity e) {
+  public static Proto.Ref.Builder refOf(RootEntity e) {
     var proto = Proto.Ref.newBuilder();
     if (e == null)
-      return proto.build();
-    proto.setId(Strings.orEmpty(e.refId));
-    proto.setName(Strings.orEmpty(e.name));
-    proto.setDescription(Strings.orEmpty(e.description));
-    proto.setVersion(Version.asString(e.version));
-    proto.setType(e.getClass().getSimpleName());
-    proto.setLastChange(dateTimeOf(e.lastChange));
-
-    // add a the category path
-    if (e instanceof CategorizedEntity) {
-      var ce = (CategorizedEntity) e;
-      if (ce.category != null) {
-        var path = Categories.path(ce.category);
-        if (!path.isEmpty()) {
-          proto.addAllCategoryPath(path);
-        }
-      }
-    }
-    return proto.build();
+      return proto;
+    map(e, proto);
+    return proto;
   }
 
-  public static Proto.Ref refOf(Descriptor d) {
+  public static Proto.Ref.Builder refOf(Descriptor d) {
     var proto = Proto.Ref.newBuilder();
     if (d == null)
-      return proto.build();
-    proto.setId(Strings.orEmpty(d.refId));
-    proto.setName(Strings.orEmpty(d.name));
-    proto.setDescription(Strings.orEmpty(d.description));
-    proto.setVersion(Version.asString(d.version));
-    proto.setLastChange(dateTimeOf(d.lastChange));
-
-    // entity type
-    if (d.type != null) {
-      var type = d.type.getModelClass();
-      if (type != null) {
-        proto.setType(type.getSimpleName());
-      }
-    }
-
-    return proto.build();
+      return proto;
+    map(d, proto);
+    return proto;
   }
 
   public static Proto.FlowRef.Builder flowRefOf(FlowDescriptor d) {
     var proto = Proto.FlowRef.newBuilder();
     if (d == null)
       return proto;
-    proto.setId(Strings.orEmpty(d.refId));
-    proto.setName(Strings.orEmpty(d.name));
-    proto.setDescription(Strings.orEmpty(d.description));
-    proto.setVersion(Version.asString(d.version));
-    proto.setType("Flow");
-    proto.setLastChange(dateTimeOf(d.lastChange));
-
+    map(d, proto);
     proto.setFlowType(flowTypeOf(d.flowType));
     return proto;
   }
@@ -99,13 +64,9 @@ public final class Out {
     var proto = Proto.ProcessRef.newBuilder();
     if (d == null)
       return proto;
-    return proto.setId(Strings.orEmpty(d.refId))
-      .setName(Strings.orEmpty(d.name))
-      .setDescription(Strings.orEmpty(d.description))
-      .setVersion(Version.asString(d.version))
-      .setType("Process")
-      .setProcessType(processTypeOf(d.processType))
-      .setLastChange(dateTimeOf(d.lastChange));
+    map(d, proto);
+    proto.setProcessType(processTypeOf(d.processType));
+    return proto;
   }
 
   public static Proto.ProcessRef.Builder processRefOf(Process p) {
@@ -113,6 +74,7 @@ public final class Out {
     if (p == null)
       return proto;
     map(p, proto);
+    proto.setProcessType(processTypeOf(p.processType));
     return proto;
   }
 
@@ -142,7 +104,7 @@ public final class Out {
           break;
 
         case "library":
-          if (e instanceof CategorizedEntity ){
+          if (e instanceof CategorizedEntity) {
             var ce = (CategorizedEntity) e;
             set(proto, field, ce.library);
           }
@@ -161,14 +123,14 @@ public final class Out {
           break;
 
         case "tags":
-            if (e instanceof CategorizedEntity) {
-              var ce = (CategorizedEntity) e;
-              if (Strings.notEmpty(ce.tags)) {
-                var tags = Arrays.stream(ce.tags.split(","))
-                  .filter(Strings::notEmpty)
-                  .collect(Collectors.toList());
-                setRepeated(proto, field, tags);
-              }
+          if (e instanceof CategorizedEntity) {
+            var ce = (CategorizedEntity) e;
+            if (Strings.notEmpty(ce.tags)) {
+              var tags = Arrays.stream(ce.tags.split(","))
+                .filter(Strings::notEmpty)
+                .collect(Collectors.toList());
+              setRepeated(proto, field, tags);
+            }
           }
           break;
 
@@ -185,6 +147,42 @@ public final class Out {
     }
   }
 
+  private static void map(Descriptor d, Message.Builder proto) {
+    if (d == null || proto == null)
+      return;
+    var fields = proto.getDescriptorForType().getFields();
+    for (var field : fields) {
+      switch (field.getName()) {
+        case "id":
+          set(proto, field, d.refId);
+          break;
+        case "type":
+          if (d.type != null) {
+            var modelClass = d.type.getModelClass();
+            if (modelClass != null) {
+              set(proto, field, modelClass.getSimpleName());
+            }
+          }
+          break;
+        case "name":
+          set(proto, field, d.name);
+          break;
+        case "description":
+          set(proto, field, d.description);
+          break;
+        case "version":
+          set(proto, field, Version.asString(d.version));
+          break;
+        case "lastChange":
+          set(proto, field, dateTimeOf(d.lastChange));
+          break;
+        case "library":
+          set(proto, field, d.library);
+          break;
+      }
+    }
+  }
+
   private static void set(Message.Builder proto,
                           Descriptors.FieldDescriptor field,
                           String value) {
@@ -196,8 +194,8 @@ public final class Out {
   }
 
   private static void setRepeated(Message.Builder proto,
-                          Descriptors.FieldDescriptor field,
-                          List<String> values) {
+                                  Descriptors.FieldDescriptor field,
+                                  List<String> values) {
     if (values == null || values.isEmpty())
       return;
     if (field.getJavaType() != Descriptors.FieldDescriptor.JavaType.STRING)
@@ -207,8 +205,7 @@ public final class Out {
     }
   }
 
-
-  static Proto.Ref refOf(RootEntity e, WriterConfig config) {
+  static Proto.Ref.Builder refOf(RootEntity e, WriterConfig config) {
     var proto = refOf(e);
     if (e == null)
       return proto;
@@ -220,31 +217,18 @@ public final class Out {
     return proto;
   }
 
-  static Proto.FlowRef flowRefOf(Flow flow, WriterConfig config) {
+  static Proto.FlowRef.Builder flowRefOf(Flow flow, WriterConfig config) {
 
     var proto = Proto.FlowRef.newBuilder();
     if (flow == null)
-      return proto.build();
+      return proto;
 
     // push the dependency
     if (config != null && config.dependencies != null) {
       config.dependencies.push(flow);
     }
 
-    proto.setId(Strings.orEmpty(flow.refId));
-    proto.setName(Strings.orEmpty(flow.name));
-    proto.setDescription(Strings.orEmpty(flow.description));
-    proto.setVersion(Version.asString(flow.version));
-    proto.setType("Flow");
-    proto.setLastChange(dateTimeOf(flow.lastChange));
-
-    // add a the category path
-    if (flow.category != null) {
-      var path = Categories.path(flow.category);
-      if (!path.isEmpty()) {
-        proto.addAllCategoryPath(path);
-      }
-    }
+    map(flow, proto);
 
     // FlowRef specific fields
     if (flow.location != null) {
@@ -256,7 +240,7 @@ public final class Out {
     }
     proto.setFlowType(flowTypeOf(flow.flowType));
 
-    return proto.build();
+    return proto;
   }
 
   static Proto.ImpactCategoryRef impactRefOf(
@@ -271,24 +255,8 @@ public final class Out {
       config.dependencies.push(impact);
     }
 
-    proto.setId(Strings.orEmpty(impact.refId));
-    proto.setName(Strings.orEmpty(impact.name));
-    proto.setDescription(Strings.orEmpty(impact.description));
-    proto.setVersion(Version.asString(impact.version));
-    proto.setType("ImpactCategory");
-    proto.setLastChange(dateTimeOf(impact.lastChange));
-
-    // add a the category path
-    if (impact.category != null) {
-      var path = Categories.path(impact.category);
-      if (!path.isEmpty()) {
-        proto.addAllCategoryPath(path);
-      }
-    }
-
-    // ImpactCategoryRef specific fields
+    map(impact, proto);
     proto.setRefUnit(Strings.orEmpty(impact.referenceUnit));
-
     return proto.build();
   }
 
