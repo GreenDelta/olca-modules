@@ -1,10 +1,6 @@
 package org.openlca.proto.output;
 
-import java.time.Instant;
-import java.util.Arrays;
-
 import org.openlca.core.model.DQSystem;
-import org.openlca.core.model.Version;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
@@ -20,35 +16,15 @@ public class DQSystemWriter {
     var proto = Proto.DQSystem.newBuilder();
     if (dqSystem == null)
       return proto.build();
+    Out.map(dqSystem, proto);
+    Out.dep(config, dqSystem.category);
 
-    // root entity fields
-    proto.setType("DQSystem");
-    proto.setId(Strings.orEmpty(dqSystem.refId));
-    proto.setName(Strings.orEmpty(dqSystem.name));
-    proto.setDescription(Strings.orEmpty(dqSystem.description));
-    proto.setVersion(Version.asString(dqSystem.version));
-    if (dqSystem.lastChange != 0L) {
-      var instant = Instant.ofEpochMilli(dqSystem.lastChange);
-      proto.setLastChange(instant.toString());
-    }
-
-    // categorized entity fields
-    if (Strings.notEmpty(dqSystem.tags)) {
-      Arrays.stream(dqSystem.tags.split(","))
-        .filter(Strings::notEmpty)
-        .forEach(proto::addTags);
-    }
-    if (dqSystem.category != null) {
-      proto.setCategory(Out.refOf(dqSystem.category, config));
-    }
-
-    // model specific fields
     proto.setHasUncertainties(dqSystem.hasUncertainties);
     if (dqSystem.source != null) {
-      proto.setSource(Out.refOf(dqSystem.source, config));
+      proto.setSource(Out.refOf(dqSystem.source));
+      Out.dep(config, dqSystem.source);
     }
     writeIndicators(dqSystem, proto);
-
     return proto.build();
   }
 

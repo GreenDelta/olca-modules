@@ -1,13 +1,9 @@
 package org.openlca.proto.output;
 
-import java.time.Instant;
-import java.util.Arrays;
-
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.Version;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
@@ -23,44 +19,41 @@ public class ProductSystemWriter {
     var proto = Proto.ProductSystem.newBuilder();
     if (system == null)
       return proto.build();
-
-    // root entity fields
-    proto.setType("ProductSystem");
-    proto.setId(Strings.orEmpty(system.refId));
-    proto.setName(Strings.orEmpty(system.name));
-    proto.setDescription(Strings.orEmpty(system.description));
-    proto.setVersion(Version.asString(system.version));
-    if (system.lastChange != 0L) {
-      var instant = Instant.ofEpochMilli(system.lastChange);
-      proto.setLastChange(instant.toString());
-    }
-
-    // categorized entity fields
-    if (Strings.notEmpty(system.tags)) {
-      Arrays.stream(system.tags.split(","))
-        .filter(Strings::notEmpty)
-        .forEach(proto::addTags);
-    }
-    if (system.category != null) {
-      proto.setCategory(Out.refOf(system.category, config));
-    }
-
-    // model specific fields
+    Out.map(system, proto);
+    Out.dep(config, system.category);
+    mapQRef(system, proto);
     mapParameterSets(system, proto);
-
-    if (system.referenceProcess != null) {
-      Out.processRefOf(system.referenceProcess);
-    }
-    if (system.referenceExchange != null) {
-      var protoRefEx = Proto.ExchangeRef.newBuilder()
-        .setInternalId(system.referenceExchange.internalId);
-      proto.setReferenceExchange(protoRefEx);
-    }
-
-
-    // TODO
-
     return proto.build();
+  }
+
+  private void mapQRef(ProductSystem system,
+                       Proto.ProductSystem.Builder proto) {
+    // ref. process
+    if (system.referenceProcess != null) {
+      var p = Out.processRefOf(system.referenceProcess);
+      proto.setReferenceProcess(p);
+    }
+
+    // ref. exchange
+    if (system.referenceExchange != null) {
+      var e = Proto.ExchangeRef.newBuilder()
+        .setInternalId(system.referenceExchange.internalId);
+      proto.setReferenceExchange(e);
+    }
+
+    // ref. quantity
+    if (system.targetFlowPropertyFactor != null) {
+      var prop = system.targetFlowPropertyFactor.flowProperty;
+      proto.setTargetFlowProperty(Out.refOf(prop));
+    }
+
+    // ref. unit
+    if (system.targetUnit != null) {
+      proto.setTargetUnit(Out.refOf(system.targetUnit));
+    }
+
+    // ref. amount
+    proto.setTargetAmount(system.targetAmount);
   }
 
   private void mapParameterSets(ProductSystem system,

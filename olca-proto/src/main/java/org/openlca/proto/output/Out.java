@@ -29,6 +29,14 @@ public final class Out {
   private Out() {
   }
 
+  static void dep(WriterConfig config, RootEntity e) {
+    if (config == null
+      || config.dependencies == null
+      || e == null)
+      return;
+    config.dependencies.push(e);
+  }
+
   public static Proto.Ref.Builder refOf(RootEntity e) {
     var proto = Proto.Ref.newBuilder();
     if (e == null)
@@ -78,7 +86,10 @@ public final class Out {
     return proto;
   }
 
-  private static void map(RootEntity e, Message.Builder proto) {
+  /**
+   * Map the common entity fields to the proto object.
+   */
+  static void map(RootEntity e, Message.Builder proto) {
     if (e == null || proto == null)
       return;
     var fields = proto.getDescriptorForType().getFields();
@@ -97,10 +108,14 @@ public final class Out {
           set(proto, field, e.description);
           break;
         case "version":
-          set(proto, field, Version.asString(e.version));
+          if (e.version != 0) {
+            set(proto, field, Version.asString(e.version));
+          }
           break;
         case "lastChange":
-          set(proto, field, dateTimeOf(e.lastChange));
+          if (e.lastChange != 0) {
+            set(proto, field, dateTimeOf(e.lastChange));
+          }
           break;
 
         case "library":
@@ -116,7 +131,7 @@ public final class Out {
               var ce = (CategorizedEntity) e;
               if (ce.category != null) {
                 var catRef = Out.refOf(ce.category);
-                proto.setField(field, catRef);
+                proto.setField(field, catRef.build());
               }
             }
           }
@@ -205,28 +220,10 @@ public final class Out {
     }
   }
 
-  static Proto.Ref.Builder refOf(RootEntity e, WriterConfig config) {
-    var proto = refOf(e);
-    if (e == null)
-      return proto;
-
-    // push the dependency
-    if (config != null && config.dependencies != null) {
-      config.dependencies.push(e);
-    }
-    return proto;
-  }
-
-  static Proto.FlowRef.Builder flowRefOf(Flow flow, WriterConfig config) {
-
+  static Proto.FlowRef.Builder flowRefOf(Flow flow) {
     var proto = Proto.FlowRef.newBuilder();
     if (flow == null)
       return proto;
-
-    // push the dependency
-    if (config != null && config.dependencies != null) {
-      config.dependencies.push(flow);
-    }
 
     map(flow, proto);
 
@@ -243,18 +240,10 @@ public final class Out {
     return proto;
   }
 
-  static Proto.ImpactCategoryRef impactRefOf(
-    ImpactCategory impact, WriterConfig config) {
-
+  static Proto.ImpactCategoryRef impactRefOf(ImpactCategory impact) {
     var proto = Proto.ImpactCategoryRef.newBuilder();
     if (impact == null)
       return proto.build();
-
-    // push the dependency
-    if (config != null && config.dependencies != null) {
-      config.dependencies.push(impact);
-    }
-
     map(impact, proto);
     proto.setRefUnit(Strings.orEmpty(impact.referenceUnit));
     return proto.build();

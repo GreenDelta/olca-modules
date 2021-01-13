@@ -1,7 +1,5 @@
 package org.openlca.proto.output;
 
-import java.time.Instant;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.LongFunction;
 
@@ -9,7 +7,6 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.SocialAspect;
-import org.openlca.core.model.Version;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
@@ -25,50 +22,34 @@ public class ProcessWriter {
     var proto = Proto.Process.newBuilder();
     if (process == null)
       return proto.build();
+    Out.map(process, proto);
+    Out.dep(config, process.category);
 
-    // root entity fields
-    proto.setType("Process");
-    proto.setId(Strings.orEmpty(process.refId));
-    proto.setName(Strings.orEmpty(process.name));
-    proto.setDescription(Strings.orEmpty(process.description));
-    proto.setVersion(Version.asString(process.version));
-    if (process.lastChange != 0L) {
-      var instant = Instant.ofEpochMilli(process.lastChange);
-      proto.setLastChange(instant.toString());
-    }
-
-    // categorized entity fields
-    if (Strings.notEmpty(process.tags)) {
-      Arrays.stream(process.tags.split(","))
-        .filter(Strings::notEmpty)
-        .forEach(proto::addTags);
-    }
-    if (process.category != null) {
-      proto.setCategory(Out.refOf(process.category, config));
-    }
-
-    // model specific fields
     proto.setProcessType(Out.processTypeOf(process.processType));
     proto.setDefaultAllocationMethod(
       allocationType(process.defaultAllocationMethod));
     proto.setInfrastructureProcess(process.infrastructureProcess);
     if (process.location != null) {
-      proto.setLocation(Out.refOf(process.location, config));
+      proto.setLocation(Out.refOf(process.location));
+      Out.dep(config, process.location);
     }
     proto.setLastInternalId(process.lastInternalId);
 
     // DQ systems
     if (process.dqSystem != null) {
-      proto.setDqSystem(Out.refOf(process.dqSystem, config));
+      proto.setDqSystem(Out.refOf(process.dqSystem));
+      Out.dep(config, process.dqSystem);
     }
     proto.setDqEntry(Strings.orEmpty(process.dqEntry));
     if (process.exchangeDqSystem != null) {
       proto.setExchangeDqSystem(
-        Out.refOf(process.exchangeDqSystem, config));
+        Out.refOf(process.exchangeDqSystem));
+      Out.dep(config, process.exchangeDqSystem);
     }
     if (process.socialDqSystem != null) {
       proto.setSocialDqSystem(
-        Out.refOf(process.socialDqSystem, config));
+        Out.refOf(process.socialDqSystem));
+      Out.dep(config, process.socialDqSystem);
     }
 
     // parameters
@@ -120,7 +101,8 @@ public class ProcessWriter {
         pe.setCostValue(e.costs);
       }
       if (e.currency != null) {
-        pe.setCurrency(Out.refOf(e.currency, config));
+        pe.setCurrency(Out.refOf(e.currency));
+        Out.dep(config, e.currency);
       }
       pe.setInternalId(e.internalId);
       if (e.uncertainty != null) {
@@ -138,7 +120,8 @@ public class ProcessWriter {
 
       // flow references
       if (e.flow != null) {
-        pe.setFlow(Out.flowRefOf(e.flow, config));
+        pe.setFlow(Out.flowRefOf(e.flow));
+        Out.dep(config, e.flow);
       }
       if (e.flowPropertyFactor != null) {
         var fp = e.flowPropertyFactor.flowProperty;
@@ -162,7 +145,8 @@ public class ProcessWriter {
     for (var aspect : p.socialAspects) {
       var pa = Proto.SocialAspect.newBuilder();
       if (aspect.indicator != null) {
-        pa.setSocialIndicator(Out.refOf(aspect.indicator, config));
+        pa.setSocialIndicator(Out.refOf(aspect.indicator));
+        Out.dep(config, aspect.indicator);
       }
       pa.setComment(Strings.orEmpty(aspect.comment));
       pa.setQuality(Strings.orEmpty(aspect.quality));
@@ -170,7 +154,8 @@ public class ProcessWriter {
       pa.setActivityValue(aspect.activityValue);
       pa.setRiskLevel(riskLevel(aspect));
       if (aspect.source != null) {
-        pa.setSource(Out.refOf(aspect.source, config));
+        pa.setSource(Out.refOf(aspect.source));
+        Out.dep(config, aspect.source);
       }
       proto.addSocialAspects(pa);
     }
@@ -190,7 +175,7 @@ public class ProcessWriter {
     LongFunction<Proto.FlowRef> product = flowID -> {
       for (var e : p.exchanges) {
         if (e.flow != null && e.flow.id == flowID) {
-          return Out.flowRefOf(e.flow, config).build();
+          return Out.flowRefOf(e.flow).build();
         }
       }
       return null;

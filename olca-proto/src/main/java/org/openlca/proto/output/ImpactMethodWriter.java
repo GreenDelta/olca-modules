@@ -1,10 +1,6 @@
 package org.openlca.proto.output;
 
-import java.time.Instant;
-import java.util.Arrays;
-
 import org.openlca.core.model.ImpactMethod;
-import org.openlca.core.model.Version;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
@@ -20,31 +16,12 @@ public class ImpactMethodWriter {
     var proto = Proto.ImpactMethod.newBuilder();
     if (method == null)
       return proto.build();
+    Out.map(method, proto);
+    Out.dep(config, method.category);
 
-    // root entity fields
-    proto.setType("ImpactMethod");
-    proto.setId(Strings.orEmpty(method.refId));
-    proto.setName(Strings.orEmpty(method.name));
-    proto.setDescription(Strings.orEmpty(method.description));
-    proto.setVersion(Version.asString(method.version));
-    if (method.lastChange != 0L) {
-      var instant = Instant.ofEpochMilli(method.lastChange);
-      proto.setLastChange(instant.toString());
-    }
-
-    // categorized entity fields
-    if (Strings.notEmpty(method.tags)) {
-      Arrays.stream(method.tags.split(","))
-        .filter(Strings::notEmpty)
-        .forEach(proto::addTags);
-    }
-    if (method.category != null) {
-      proto.setCategory(Out.refOf(method.category, config));
-    }
-
-    // model specific fields
     for (var impact : method.impactCategories) {
-      proto.addImpactCategories(Out.impactRefOf(impact, config));
+      proto.addImpactCategories(Out.impactRefOf(impact));
+      Out.dep(config, impact);
     }
     writeNwSets(method, proto);
 
@@ -64,7 +41,8 @@ public class ImpactMethodWriter {
         var protoFactor = Proto.NwFactor.newBuilder();
         if (nwFactor.impactCategory != null) {
           protoFactor.setImpactCategory(
-            Out.impactRefOf(nwFactor.impactCategory, config));
+            Out.impactRefOf(nwFactor.impactCategory));
+          Out.dep(config, nwFactor.impactCategory);
         }
         if (nwFactor.normalisationFactor != null) {
           protoFactor.setNormalisationFactor(
