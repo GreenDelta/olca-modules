@@ -1527,7 +1527,7 @@ message ProductSystem {
 
   // The exchange of the reference processes (typically the product output)
   // that provides the flow of the functional unit of the product system.
-  Exchange reference_exchange = 12;
+  ExchangeRef reference_exchange = 12;
 
   // The flow amount of the functional unit of the product system.
   double target_amount = 13;

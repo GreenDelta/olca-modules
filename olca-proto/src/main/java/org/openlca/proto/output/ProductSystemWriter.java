@@ -48,12 +48,19 @@ public class ProductSystemWriter {
     // model specific fields
     mapParameterSets(system, proto);
 
+    if (system.referenceExchange != null) {
+      var protoRefEx = Proto.ExchangeRef.newBuilder()
+        .setInternalId(system.referenceExchange.internalId);
+      proto.setReferenceExchange(protoRefEx);
+    }
+
     // TODO
 
     return proto.build();
   }
 
-  private void mapParameterSets(ProductSystem system, Proto.ProductSystem.Builder proto) {
+  private void mapParameterSets(ProductSystem system,
+                                Proto.ProductSystem.Builder proto) {
     for (var paramSet : system.parameterSets) {
       var protoSet = Proto.ParameterRedefSet.newBuilder();
       protoSet.setName(Strings.orEmpty(paramSet.name));

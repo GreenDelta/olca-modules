@@ -129,13 +129,11 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 	}
 
 	private Map<Long, CategorizedDescriptor> mapProcesses(JsonObject json) {
-		TLongObjectHashMap<ProcessDescriptor> processes = processDao
-				.descriptorMap();
-		TLongObjectHashMap<ProductSystemDescriptor> systems = new ProductSystemDao(
-				conf.db).descriptorMap();
+		var processes = processDao.descriptorMap();
+		var systems = new ProductSystemDao(conf.db).descriptorMap();
 		Map<Long, CategorizedDescriptor> map = new HashMap<>();
-		JsonArray array = new JsonArray();
-		for (Long id : system.processes) {
+		var array = new JsonArray();
+		for (var id : system.processes) {
 			CategorizedDescriptor d = processes.get(id);
 			if (d == null) {
 				d = systems.get(id);
@@ -143,12 +141,9 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 			if (d == null)
 				continue;
 			map.put(id, d);
-			JsonObject ref = null;
-			if (conf.exportReferences) {
-				ref = References.create(d.type, d.id, conf, false);
-			} else {
-				ref = References.create(d, conf);
-			}
+			JsonObject ref = conf.exportReferences
+				? References.create(d.type, d.id, conf, false)
+				: References.create(d, conf);
 			if (ref == null)
 				continue;
 			array.add(ref);
