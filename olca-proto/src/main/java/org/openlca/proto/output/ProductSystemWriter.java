@@ -3,6 +3,9 @@ package org.openlca.proto.output;
 import java.time.Instant;
 import java.util.Arrays;
 
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Version;
 import org.openlca.proto.generated.Proto;
@@ -43,8 +46,38 @@ public class ProductSystemWriter {
     }
 
     // model specific fields
+    mapParameterSets(system, proto);
+
     // TODO
 
     return proto.build();
+  }
+
+  private void mapParameterSets(ProductSystem system, Proto.ProductSystem.Builder proto) {
+    for (var paramSet : system.parameterSets) {
+      var protoSet = Proto.ParameterRedefSet.newBuilder();
+      protoSet.setName(Strings.orEmpty(paramSet.name));
+      protoSet.setDescription(Strings.orEmpty(paramSet.description));
+      protoSet.setIsBaseline(paramSet.isBaseline);
+      for (var redef : paramSet.parameters) {
+        var protoRedef = Proto.ParameterRedef.newBuilder();
+        protoRedef.setName(Strings.orEmpty(redef.name));
+        protoRedef.setValue(redef.value);
+        if (redef.uncertainty != null) {
+          var u = Out.uncertaintyOf(redef.uncertainty);
+          protoRedef.setUncertainty(u);
+        }
+        if (redef.contextId != null) {
+          var context = redef.contextType == ModelType.PROCESS
+            ? config.db.getDescriptor(Process.class, redef.contextId)
+            : config.db.getDescriptor(ImpactCategory.class, redef.contextId);
+          if (context != null) {
+            protoRedef.setContext(Out.refOf(context));
+          }
+        }
+        protoSet.addParameters(protoRedef);
+      }
+      proto.addParameterSets(protoSet);
+    }
   }
 }
