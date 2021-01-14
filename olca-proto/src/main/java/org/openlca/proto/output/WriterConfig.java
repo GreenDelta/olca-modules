@@ -2,6 +2,7 @@ package org.openlca.proto.output;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.descriptors.Descriptor;
 
 public class WriterConfig {
 
@@ -21,6 +22,10 @@ public class WriterConfig {
 
     @Override
     public void push(RootEntity dependency) {
+    }
+
+    @Override
+    public void push(Descriptor descriptor) {
     }
   }
 }

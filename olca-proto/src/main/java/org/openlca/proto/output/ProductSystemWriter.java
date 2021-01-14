@@ -1,9 +1,21 @@
 package org.openlca.proto.output;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import gnu.trove.map.hash.TLongIntHashMap;
+import gnu.trove.set.hash.TLongHashSet;
+import org.openlca.core.database.FlowDao;
+import org.openlca.core.database.NativeSql;
+import org.openlca.core.database.ProcessDao;
+import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
@@ -22,6 +34,8 @@ public class ProductSystemWriter {
     Out.map(system, proto);
     Out.dep(config, system.category);
     mapQRef(system, proto);
+    var processes = mapProcesses(system, proto);
+    mapLinks(system, proto, processes);
     mapParameterSets(system, proto);
     return proto.build();
   }
@@ -32,6 +46,7 @@ public class ProductSystemWriter {
     if (system.referenceProcess != null) {
       var p = Out.processRefOf(system.referenceProcess);
       proto.setReferenceProcess(p);
+      Out.dep(config, system.referenceProcess);
     }
 
     // ref. exchange
@@ -54,6 +69,91 @@ public class ProductSystemWriter {
 
     // ref. amount
     proto.setTargetAmount(system.targetAmount);
+  }
+
+  private Map<Long, CategorizedDescriptor> mapProcesses(
+    ProductSystem system, Proto.ProductSystem.Builder proto) {
+    var processes = new ProcessDao(config.db).descriptorMap();
+    var systems = new ProductSystemDao(config.db).descriptorMap();
+    Map<Long, CategorizedDescriptor> map = new HashMap<>();
+    for (var id : system.processes) {
+      CategorizedDescriptor d = processes.get(id);
+      if (d == null) {
+        d = systems.get(id);
+      }
+      if (d == null)
+        continue;
+      map.put(id, d);
+      proto.addProcesses(Out.refOf(d));
+      Out.dep(config, d);
+    }
+    return map;
+  }
+
+  private void mapLinks(ProductSystem system,
+                        Proto.ProductSystem.Builder proto,
+                        Map<Long, CategorizedDescriptor> processes) {
+
+    // collect the used flows
+    var flowIDs = new HashSet<Long>();
+    var usedExchanges = new TLongHashSet();
+    for (var link : system.processLinks) {
+      flowIDs.add(link.flowId);
+      usedExchanges.add(link.exchangeId);
+    }
+    var flows = new FlowDao(config.db)
+      .getDescriptors(flowIDs)
+      .stream()
+      .collect(Collectors.toMap(d -> d.id, d -> d));
+
+    // collect the used exchanges
+    var exchangeIDs = new TLongIntHashMap();
+    String sql = "select id, internal_id from tbl_exchanges";
+    NativeSql.on(config.db).query(sql, r -> {
+      long id = r.getLong(1);
+      if (usedExchanges.contains(id)) {
+        exchangeIDs.put(id, r.getInt(2));
+      }
+      return true;
+    });
+
+
+    // add the links
+    for (var link : system.processLinks) {
+      var protoLink = Proto.ProcessLink.newBuilder();
+
+      // provider
+      var provider = processes.get(link.providerId);
+      if (provider != null) {
+        protoLink.setProvider(Out.refOf(provider));
+        Out.dep(config, provider);
+      }
+
+      // process
+      var process = processes.get(link.processId);
+      if (process != null) {
+        protoLink.setProcess(Out.refOf(process));
+        Out.dep(config, process);
+      }
+
+      // flow
+      var flow = flows.get(link.flowId);
+      if (flow != null) {
+        protoLink.setFlow(Out.refOf(flow));
+      }
+
+      // linked exchange
+      var eid = exchangeIDs.get(link.exchangeId);
+      if (eid != 0) {
+        protoLink.setExchange(
+          Proto.ExchangeRef.newBuilder()
+            .setInternalId(eid)
+            .build());
+      }
+
+      // add the link
+      proto.addProcessLinks(protoLink);
+    }
   }
 
   private void mapParameterSets(ProductSystem system,

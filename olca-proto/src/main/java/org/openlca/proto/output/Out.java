@@ -37,6 +37,14 @@ public final class Out {
     config.dependencies.push(e);
   }
 
+  static void dep(WriterConfig config, Descriptor d) {
+    if (config == null
+      || config.dependencies == null
+      || d == null)
+      return;
+    config.dependencies.push(d);
+  }
+
   public static Proto.Ref.Builder refOf(RootEntity e) {
     var proto = Proto.Ref.newBuilder();
     if (e == null)

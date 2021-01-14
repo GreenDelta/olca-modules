@@ -38,7 +38,7 @@ message Actor {
   repeated string tags = 8;
 
   // If this entity is part of a library, this field contains the identifier of
-  // that library. The identifier is typically just the comination of the
+  // that library. The identifier is typically just the combination of the
   // library name and version.
   string library = 9;
 
@@ -224,7 +224,7 @@ message Category {
   repeated string tags = 8;
 
   // If this entity is part of a library, this field contains the identifier of
-  // that library. The identifier is typically just the comination of the
+  // that library. The identifier is typically just the combination of the
   // library name and version.
   string library = 9;
 
@@ -264,7 +264,7 @@ message Currency {
   repeated string tags = 8;
 
   // If this entity is part of a library, this field contains the identifier of
-  // that library. The identifier is typically just the comination of the
+  // that library. The identifier is typically just the combination of the
   // library name and version.
   string library = 9;
 
@@ -362,7 +362,7 @@ message DQSystem {
   repeated string tags = 8;
 
   // If this entity is part of a library, this field contains the identifier of
-  // that library. The identifier is typically just the comination of the
+  // that library. The identifier is typically just the combination of the
   // library name and version.
   string library = 9;
 
@@ -492,7 +492,7 @@ message Flow {
   repeated string tags = 8;
 
   // If this entity is part of a library, this field contains the identifier of
-  // that library. The identifier is typically just the comination of the
+  // that library. The identifier is typically just the combination of the
   // library name and version.
   string library = 9;
 
@@ -662,7 +662,7 @@ message FlowProperty {
   repeated string tags = 8;
 
   // If this entity is part of a library, this field contains the identifier of
-  // that library. The identifier is typically just the comination of the
+  // that library. The identifier is typically just the combination of the
   // library name and version.
   string library = 9;
 
@@ -756,15 +756,20 @@ message FlowRef {
   // e.g. `"Elementary flows", "Emissions to air", "unspecified"`.
   repeated string category_path = 7;
 
+  // If the entity that is described by this reference is part of a library,
+  // this field contains the identifier of that library. The identifier is
+  // typically just the combination of the library name and version.
+  string library = 8;
+
   // The name (symbol) of the reference unit of the flow.
-  string ref_unit = 8;
+  string ref_unit = 9;
 
   // The location name or code of the flow. Typically, this is only used for
   // product flows in databases like ecoinvent.
-  string location = 9;
+  string location = 10;
 
   // The type of the flow.
-  FlowType flow_type = 10;
+  FlowType flow_type = 11;
 
 }
 
@@ -832,7 +837,7 @@ message ImpactCategory {
   repeated string tags = 8;
 
   // If this entity is part of a library, this field contains the identifier of
-  // that library. The identifier is typically just the comination of the
+  // that library. The identifier is typically just the combination of the
   // library name and version.
   string library = 9;
 
@@ -876,8 +881,13 @@ message ImpactCategoryRef {
   // e.g. `"Elementary flows", "Emissions to air", "unspecified"`.
   repeated string category_path = 7;
 
+  // If the entity that is described by this reference is part of a library,
+  // this field contains the identifier of that library. The identifier is
+  // typically just the combination of the library name and version.
+  string library = 8;
+
   // The name (symbol) of the reference unit of the impact category.
-  string ref_unit = 8;
+  string ref_unit = 9;
 
 }
 
@@ -944,7 +954,7 @@ message ImpactMethod {
   repeated string tags = 8;
 
   // If this entity is part of a library, this field contains the identifier of
-  // that library. The identifier is typically just the comination of the
+  // that library. The identifier is typically just the combination of the
   // library name and version.
   string library = 9;
 
@@ -1003,7 +1013,7 @@ message Location {
   repeated string tags = 8;
 
   // If this entity is part of a library, this field contains the identifier of
-  // that library. The identifier is typically just the comination of the
+  // that library. The identifier is typically just the combination of the
   // library name and version.
   string library = 9;
 
@@ -1161,7 +1171,7 @@ message Parameter {
   repeated string tags = 8;
 
   // If this entity is part of a library, this field contains the identifier of
-  // that library. The identifier is typically just the comination of the
+  // that library. The identifier is typically just the combination of the
   // library name and version.
   string library = 9;
 
@@ -1292,7 +1302,7 @@ message Process {
   repeated string tags = 8;
 
   // If this entity is part of a library, this field contains the identifier of
-  // that library. The identifier is typically just the comination of the
+  // that library. The identifier is typically just the combination of the
   // library name and version.
   string library = 9;
 
@@ -1461,11 +1471,16 @@ message ProcessRef {
   // e.g. `"Elementary flows", "Emissions to air", "unspecified"`.
   repeated string category_path = 7;
 
+  // If the entity that is described by this reference is part of a library,
+  // this field contains the identifier of that library. The identifier is
+  // typically just the combination of the library name and version.
+  string library = 8;
+
   // The location name or code of the process.
-  string location = 8;
+  string location = 9;
 
   // The type of the process.
-  ProcessType process_type = 9;
+  ProcessType process_type = 10;
 
 }
 
@@ -1514,12 +1529,13 @@ message ProductSystem {
   repeated string tags = 8;
 
   // If this entity is part of a library, this field contains the identifier of
-  // that library. The identifier is typically just the comination of the
+  // that library. The identifier is typically just the combination of the
   // library name and version.
   string library = 9;
 
-  // The descriptors of all processes that are contained in the product system.
-  repeated ProcessRef processes = 10;
+  // The descriptors of all processes and sub-systems that are contained in the
+  // product system.
+  repeated Ref processes = 10;
 
   // The descriptor of the process that provides the flow of the functional
   // unit of the product system.
@@ -1579,7 +1595,7 @@ message Project {
   repeated string tags = 8;
 
   // If this entity is part of a library, this field contains the identifier of
-  // that library. The identifier is typically just the comination of the
+  // that library. The identifier is typically just the combination of the
   // library name and version.
   string library = 9;
 
@@ -1620,6 +1636,11 @@ message Ref {
   // The full path of the category of the referenced entity from top to bottom,
   // e.g. `"Elementary flows", "Emissions to air", "unspecified"`.
   repeated string category_path = 7;
+
+  // If the entity that is described by this reference is part of a library,
+  // this field contains the identifier of that library. The identifier is
+  // typically just the combination of the library name and version.
+  string library = 8;
 
 }
 
@@ -1726,7 +1747,7 @@ message SocialIndicator {
   repeated string tags = 8;
 
   // If this entity is part of a library, this field contains the identifier of
-  // that library. The identifier is typically just the comination of the
+  // that library. The identifier is typically just the combination of the
   // library name and version.
   string library = 9;
 
@@ -1779,7 +1800,7 @@ message Source {
   repeated string tags = 8;
 
   // If this entity is part of a library, this field contains the identifier of
-  // that library. The identifier is typically just the comination of the
+  // that library. The identifier is typically just the combination of the
   // library name and version.
   string library = 9;
 
@@ -1942,7 +1963,7 @@ message UnitGroup {
   repeated string tags = 8;
 
   // If this entity is part of a library, this field contains the identifier of
-  // that library. The identifier is typically just the comination of the
+  // that library. The identifier is typically just the combination of the
   // library name and version.
   string library = 9;
 
