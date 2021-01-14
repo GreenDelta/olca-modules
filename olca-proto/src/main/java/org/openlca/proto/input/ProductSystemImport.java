@@ -11,7 +11,11 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.ParameterRedef;
+import org.openlca.core.model.ParameterRedefSet;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -67,9 +71,16 @@ public class ProductSystemImport {
   }
 
   private void map(Proto.ProductSystem proto, ProductSystem sys) {
-
     mapQRef(proto, sys);
+    mapLinks(proto, sys);
+    // map parameters after the links and processes
+    // because we may need the process IDs in redefinitions
+    // this also means that LCIA methods with redefined
+    // parameters should be already contained in the database
+    mapParameters(proto, sys);
+  }
 
+  private void mapLinks(Proto.ProductSystem proto, ProductSystem sys) {
     // sync processes
     var processes = syncProcesses(proto);
     sys.processes.clear();
@@ -146,7 +157,6 @@ public class ProductSystemImport {
       sys.processLinks.add(link);
       return true;
     });
-
   }
 
   private Map<String, Descriptor> syncProcesses(Proto.ProductSystem proto) {
@@ -224,12 +234,54 @@ public class ProductSystemImport {
       sys.targetUnit = Strings.nullOrEmpty(unitID)
         ? qref.unit
         : group.units.stream()
-          .filter(u -> Strings.nullOrEqual(unitID, u.refId))
-          .findAny()
-          .orElse(null);
+        .filter(u -> Strings.nullOrEqual(unitID, u.refId))
+        .findAny()
+        .orElse(null);
     }
 
     sys.targetAmount = proto.getTargetAmount();
+  }
+
+  private void mapParameters(Proto.ProductSystem proto, ProductSystem sys) {
+    // note that global parameters need to be already imported into
+    // the database; also we assume that the processes and impact
+    // categories are already available in the database here.
+    for (var protoSet : proto.getParameterSetsList()) {
+      var set = new ParameterRedefSet();
+      sys.parameterSets.add(set);
+      set.name = protoSet.getName();
+      set.description = protoSet.getDescription();
+      set.isBaseline = protoSet.getIsBaseline();
+      for (var protoRedef : protoSet.getParametersList()) {
+        var redef = new ParameterRedef();
+        set.parameters.add(redef);
+        redef.name = protoRedef.getName();
+        redef.value = protoRedef.getValue();
+        redef.uncertainty = In.uncertainty(protoRedef.getUncertainty());
+        redef.description = protoRedef.getDescription();
+
+        // context
+        var context = protoRedef.getContext().getId();
+        if (Strings.nullOrEmpty(context))
+          continue;
+
+        // we could check the context type but do we know that
+        // this is correctly entered? thus, we first try to
+        // find a process with that ID (the usual case) and
+        // then an impact category
+        var process = imp.db.getDescriptor(Process.class, context);
+        if (process != null) {
+          redef.contextType = ModelType.PROCESS;
+          redef.contextId = process.id;
+          continue;
+        }
+        var impact = imp.db.getDescriptor(ImpactCategory.class, context);
+        if (impact == null)
+          continue;
+        redef.contextType = ModelType.IMPACT_CATEGORY;
+        redef.contextId = impact.id;
+      }
+    }
   }
 
 }
