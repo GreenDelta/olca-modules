@@ -16,6 +16,7 @@ public class Server {
   public Server(IDatabase db, int port) {
     this.port = port;
     this.server = ServerBuilder.forPort(port)
+      .maxInboundMessageSize(1024 * 1024 * 1024)
       .addService(new DataService(db))
       .addService(new FlowMapService(db))
       .addService(new ResultService(db))
