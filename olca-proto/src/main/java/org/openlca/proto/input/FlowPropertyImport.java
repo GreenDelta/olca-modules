@@ -14,6 +14,10 @@ public class FlowPropertyImport {
     this.imp = imp;
   }
 
+  static FlowProperty of(ProtoImport imp, String id) {
+    return new FlowPropertyImport(imp).of(id);
+  }
+
   public FlowProperty of(String id) {
     if (id == null)
       return null;

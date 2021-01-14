@@ -29,6 +29,10 @@ public class ProcessImport {
     this.imp = imp;
   }
 
+  static Process of(ProtoImport imp, String id) {
+    return new ProcessImport(imp).of(id);
+  }
+
   public Process of(String id) {
     if (id == null)
       return null;

@@ -68,6 +68,8 @@ public class ProductSystemImport {
 
   private void map(Proto.ProductSystem proto, ProductSystem sys) {
 
+    mapQRef(proto, sys);
+
     // sync processes
     var processes = syncProcesses(proto);
     sys.processes.clear();
@@ -182,4 +184,52 @@ public class ProductSystemImport {
     }
     return map;
   }
+
+  private void mapQRef(Proto.ProductSystem proto, ProductSystem sys) {
+
+    // ref. process
+    sys.referenceProcess = ProcessImport.of(
+      imp, proto.getReferenceProcess().getId());
+
+    // ref. exchange
+    var refExchange = proto.getReferenceExchange().getInternalId();
+    if (sys.referenceProcess != null && refExchange > 0) {
+      sys.referenceExchange = sys.referenceProcess.exchanges.stream()
+        .filter(e -> e.internalId == refExchange)
+        .findAny()
+        .orElse(null);
+    }
+
+    // ref. quantity
+    var qref = sys.referenceExchange;
+    if (qref != null && qref.flow != null) {
+      var propID = proto.getTargetFlowProperty().getId();
+      sys.targetFlowPropertyFactor = Strings.nullOrEmpty(propID)
+        ? qref.flowPropertyFactor
+        : qref.flow.flowPropertyFactors.stream()
+        .filter(f -> f.flowProperty != null
+          && Strings.nullOrEqual(f.flowProperty.refId, propID))
+        .findAny()
+        .orElse(null);
+    }
+
+    // ref. unit
+    var qf = sys.targetFlowPropertyFactor;
+    if (qref != null
+      && qf != null
+      && qf.flowProperty != null
+      && qf.flowProperty.unitGroup != null) {
+      var group = qf.flowProperty.unitGroup;
+      var unitID = proto.getTargetUnit().getId();
+      sys.targetUnit = Strings.nullOrEmpty(unitID)
+        ? qref.unit
+        : group.units.stream()
+          .filter(u -> Strings.nullOrEqual(unitID, u.refId))
+          .findAny()
+          .orElse(null);
+    }
+
+    sys.targetAmount = proto.getTargetAmount();
+  }
+
 }
