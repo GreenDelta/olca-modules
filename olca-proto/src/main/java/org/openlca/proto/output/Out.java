@@ -61,6 +61,19 @@ public final class Out {
     return proto;
   }
 
+  /**
+   * Creates a Ref that just contains the reference ID of the given descriptor.
+   * This is useful when we have a huge amount of references and we know what
+   * type they contain.
+   */
+  public static Proto.Ref.Builder tinyRefOf(Descriptor d) {
+    var proto = Proto.Ref.newBuilder();
+    if (d == null)
+      return proto;
+    proto.setId(Strings.orEmpty(d.refId));
+    return proto;
+  }
+
   public static Proto.FlowRef.Builder flowRefOf(FlowDescriptor d) {
     var proto = Proto.FlowRef.newBuilder();
     if (d == null)

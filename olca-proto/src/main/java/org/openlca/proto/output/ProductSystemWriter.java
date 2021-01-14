@@ -125,21 +125,21 @@ public class ProductSystemWriter {
       // provider
       var provider = processes.get(link.providerId);
       if (provider != null) {
-        protoLink.setProvider(Out.refOf(provider));
+        protoLink.setProvider(Out.tinyRefOf(provider));
         Out.dep(config, provider);
       }
 
       // process
       var process = processes.get(link.processId);
       if (process != null) {
-        protoLink.setProcess(Out.refOf(process));
+        protoLink.setProcess(Out.tinyRefOf(process));
         Out.dep(config, process);
       }
 
       // flow
       var flow = flows.get(link.flowId);
       if (flow != null) {
-        protoLink.setFlow(Out.refOf(flow));
+        protoLink.setFlow(Out.tinyRefOf(flow));
       }
 
       // linked exchange
