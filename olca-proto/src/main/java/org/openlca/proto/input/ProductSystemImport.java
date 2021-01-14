@@ -11,11 +11,8 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.FlowType;
-import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ParameterRedefSet;
-import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -253,33 +250,8 @@ public class ProductSystemImport {
       set.description = protoSet.getDescription();
       set.isBaseline = protoSet.getIsBaseline();
       for (var protoRedef : protoSet.getParametersList()) {
-        var redef = new ParameterRedef();
+        var redef = In.parameterRedefOf(protoRedef, imp.db);
         set.parameters.add(redef);
-        redef.name = protoRedef.getName();
-        redef.value = protoRedef.getValue();
-        redef.uncertainty = In.uncertainty(protoRedef.getUncertainty());
-        redef.description = protoRedef.getDescription();
-
-        // context
-        var context = protoRedef.getContext().getId();
-        if (Strings.nullOrEmpty(context))
-          continue;
-
-        // we could check the context type but do we know that
-        // this is correctly entered? thus, we first try to
-        // find a process with that ID (the usual case) and
-        // then an impact category
-        var process = imp.db.getDescriptor(Process.class, context);
-        if (process != null) {
-          redef.contextType = ModelType.PROCESS;
-          redef.contextId = process.id;
-          continue;
-        }
-        var impact = imp.db.getDescriptor(ImpactCategory.class, context);
-        if (impact == null)
-          continue;
-        redef.contextType = ModelType.IMPACT_CATEGORY;
-        redef.contextId = impact.id;
       }
     }
   }

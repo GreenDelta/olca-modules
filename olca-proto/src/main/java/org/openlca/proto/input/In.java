@@ -1,8 +1,12 @@
 package org.openlca.proto.input;
 
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.ParameterRedef;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.Version;
@@ -23,7 +27,7 @@ public final class In {
   private In() {
   }
 
-  static Uncertainty uncertainty(Proto.Uncertainty proto) {
+  public static Uncertainty uncertainty(Proto.Uncertainty proto) {
     if (proto == null)
       return null;
     switch (proto.getDistributionType()) {
@@ -44,7 +48,7 @@ public final class In {
     }
   }
 
-  static AllocationMethod allocationMethod(Proto.AllocationType proto) {
+  public static AllocationMethod allocationMethod(Proto.AllocationType proto) {
     if (proto == null)
       return null;
     switch (proto) {
@@ -151,6 +155,40 @@ public final class In {
     }
 
     return d;
+  }
+
+  public static ParameterRedef parameterRedefOf(
+    Proto.ParameterRedef proto, IDatabase db) {
+    var redef = new ParameterRedef();
+    if (proto == null)
+      return redef;
+    redef.name = proto.getName();
+    redef.value = proto.getValue();
+    redef.uncertainty = In.uncertainty(proto.getUncertainty());
+    redef.description = proto.getDescription();
+
+    // context
+    var context = proto.getContext().getId();
+    if (Strings.nullOrEmpty(context))
+      return redef;
+
+    // we could check the context type but do we know that
+    // this is correctly entered? thus, we first try to
+    // find a process with that ID (the usual case) and
+    // then an impact category
+    var process = db.getDescriptor(Process.class, context);
+    if (process != null) {
+      redef.contextType = ModelType.PROCESS;
+      redef.contextId = process.id;
+      return redef;
+    }
+
+    var impact = db.getDescriptor(ImpactCategory.class, context);
+    if (impact == null)
+      return redef;
+    redef.contextType = ModelType.IMPACT_CATEGORY;
+    redef.contextId = impact.id;
+    return redef;
   }
 
 }

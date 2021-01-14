@@ -2,16 +2,19 @@ package org.openlca.proto.server;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
-import com.google.common.base.Strings;
+import org.openlca.core.database.ImpactMethodDao;
+import org.openlca.core.database.NwSetDao;
+import org.openlca.core.results.FullResult;
+import org.openlca.proto.input.In;
+import org.openlca.util.Strings;
 import io.grpc.stub.StreamObserver;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.results.FullResult;
 import org.openlca.core.results.SimpleResult;
-import org.openlca.proto.Messages;
 import org.openlca.proto.generated.Proto;
 import org.openlca.proto.generated.ResultServiceGrpc;
 import org.openlca.proto.generated.Services;
@@ -41,7 +44,16 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     }
 
     var setup = p.first;
-
+    var result = FullResult.of(db, setup);
+    var key = UUID.randomUUID().toString();
+    results.put(key, result);
+    var status = Services.ResultStatus.newBuilder()
+      .setOk(true)
+      .setResult(
+        Services.Result.newBuilder().setId(key))
+      .build();
+    resp.onNext(status);
+    resp.onCompleted();
   }
 
   private Pair<CalculationSetup, String> setup(Proto.CalculationSetup proto) {
@@ -49,6 +61,53 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     if (system == null)
       return Pair.of(null, "Product system or process does not exist");
     var setup = new CalculationSetup(system);
+
+    // demand value
+    if (proto.getAmount() != 0) {
+      setup.setAmount(proto.getAmount());
+    }
+
+    // flow property
+    var qref = system.referenceExchange;
+    var propID = proto.getFlowProperty().getId();
+    if (Strings.notEmpty(propID)
+        && qref != null
+        && qref.flow != null) {
+      qref.flow.flowPropertyFactors.stream()
+        .filter(f -> Strings.nullOrEqual(propID, f.flowProperty.refId))
+        .findAny()
+        .ifPresent(setup::setFlowPropertyFactor);
+    }
+
+    // unit
+    var unitID = proto.getUnit().getId();
+    var propFac = setup.getFlowPropertyFactor();
+    if (Strings.notEmpty(unitID)
+        && propFac != null
+        && propFac.flowProperty != null
+        && propFac.flowProperty.unitGroup != null) {
+      var group = propFac.flowProperty.unitGroup;
+      group.units.stream()
+        .filter(u -> Strings.nullOrEqual(unitID, u.refId))
+        .findAny()
+        .ifPresent(setup::setUnit);
+    }
+
+    // impact method and NW set
+    var methodID = proto.getImpactMethod().getId();
+    if (Strings.notEmpty(methodID)) {
+      setup.impactMethod = new ImpactMethodDao(db)
+        .getDescriptorForRefId(methodID);
+      var nwID = proto.getNwSet().getId();
+      if (Strings.notEmpty(nwID)) {
+        setup.nwSet = new NwSetDao(db)
+          .getDescriptorForRefId(nwID);
+      }
+    }
+
+    // other settings
+    setup.allocationMethod = In.allocationMethod(proto.getAllocationMethod());
+    setup.withCosts = proto.getWithCosts();
 
     // add parameter redefinitions
     setup.parameterRedefs.clear();
@@ -60,7 +119,8 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
         .ifPresent(set -> setup.parameterRedefs.addAll(set.parameters));
     } else {
       for (var protoRedef : protoRedefs) {
-
+        var redef = In.parameterRedefOf(protoRedef, db);
+        setup.parameterRedefs.add(redef);
       }
     }
 
@@ -69,7 +129,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 
   private ProductSystem systemOf(Proto.CalculationSetup proto) {
     var refID = proto.getProductSystem().getId();
-    if (Strings.isNullOrEmpty(refID))
+    if (Strings.nullOrEmpty(refID))
       return null;
     var system = db.get(ProductSystem.class, refID);
     if (system != null)
