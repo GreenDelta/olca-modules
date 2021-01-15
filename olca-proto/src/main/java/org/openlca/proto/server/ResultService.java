@@ -9,7 +9,6 @@ import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.NwSetDao;
-import org.openlca.core.database.UnitDao;
 import org.openlca.core.results.FullResult;
 import org.openlca.proto.input.In;
 import org.openlca.proto.output.Out;
@@ -77,8 +76,8 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     var qref = system.referenceExchange;
     var propID = proto.getFlowProperty().getId();
     if (Strings.notEmpty(propID)
-        && qref != null
-        && qref.flow != null) {
+      && qref != null
+      && qref.flow != null) {
       qref.flow.flowPropertyFactors.stream()
         .filter(f -> Strings.nullOrEqual(propID, f.flowProperty.refId))
         .findAny()
@@ -89,9 +88,9 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     var unitID = proto.getUnit().getId();
     var propFac = setup.getFlowPropertyFactor();
     if (Strings.notEmpty(unitID)
-        && propFac != null
-        && propFac.flowProperty != null
-        && propFac.flowProperty.unitGroup != null) {
+      && propFac != null
+      && propFac.flowProperty != null
+      && propFac.flowProperty.unitGroup != null) {
       var group = propFac.flowProperty.unitGroup;
       group.units.stream()
         .filter(u -> Strings.nullOrEqual(unitID, u.refId))
@@ -208,6 +207,33 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
       proto.setValue(fr.value);
       resp.onNext(proto.build());
     }
+    resp.onCompleted();
+  }
+
+  @Override
+  public void getImpacts(Services.Result req,
+                         StreamObserver<Proto.ImpactResult> resp) {
+
+    // get the impact results
+    var result = results.get(req.getId());
+    if (result == null) {
+      resp.onCompleted();
+      return;
+    }
+    var impacts = result.getTotalImpactResults();
+    if (impacts.isEmpty()) {
+      resp.onCompleted();
+      return;
+    }
+
+    // create the result data
+    for (var impact : impacts) {
+      var proto = Proto.ImpactResult.newBuilder();
+      proto.setImpactCategory(Out.impactRefOf(impact.impact));
+      proto.setValue(impact.value);
+      resp.onNext(proto.build());
+    }
+    resp.onCompleted();
   }
 
   @Override

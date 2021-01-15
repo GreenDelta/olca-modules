@@ -19,6 +19,7 @@ import org.openlca.core.model.UncertaintyType;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Categories;
@@ -261,13 +262,22 @@ public final class Out {
     return proto;
   }
 
-  static Proto.ImpactCategoryRef impactRefOf(ImpactCategory impact) {
+  static Proto.ImpactCategoryRef.Builder impactRefOf(ImpactCategory impact) {
     var proto = Proto.ImpactCategoryRef.newBuilder();
     if (impact == null)
-      return proto.build();
+      return proto;
     map(impact, proto);
     proto.setRefUnit(Strings.orEmpty(impact.referenceUnit));
-    return proto.build();
+    return proto;
+  }
+
+  public static Proto.ImpactCategoryRef.Builder impactRefOf(ImpactDescriptor d) {
+    var proto = Proto.ImpactCategoryRef.newBuilder();
+    if (d == null)
+      return proto;
+    map(d, proto);
+    proto.setRefUnit(Strings.orEmpty(d.referenceUnit));
+    return proto;
   }
 
   static Proto.FlowType flowTypeOf(FlowType type) {
