@@ -1,16 +1,8 @@
 package org.openlca.proto.server;
 
-import java.util.Collection;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
-
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.openlca.core.DataDir;
-import org.openlca.core.database.ImpactMethodDao;
-import org.openlca.core.database.RootEntityDao;
-import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.proto.Tests;
 import org.openlca.proto.generated.Proto;
