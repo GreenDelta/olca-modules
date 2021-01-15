@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.julia.Julia;
 import org.slf4j.LoggerFactory;
 
 import io.grpc.ServerBuilder;
@@ -102,6 +103,11 @@ public class Server {
     }
 
     try {
+
+      // try to load the native libraries
+      Julia.load();
+
+      // open the database and start the server
       var db = DerbyDatabase.fromDataDir(dbArg);
       new Server(db, port).start();
       System.out.println("close database...");

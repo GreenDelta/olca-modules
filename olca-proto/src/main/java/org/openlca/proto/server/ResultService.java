@@ -1,13 +1,19 @@
 package org.openlca.proto.server;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.ImpactMethodDao;
+import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.NwSetDao;
+import org.openlca.core.database.UnitDao;
 import org.openlca.core.results.FullResult;
 import org.openlca.proto.input.In;
+import org.openlca.proto.output.Out;
+import org.openlca.util.CategoryPathBuilder;
 import org.openlca.util.Strings;
 import io.grpc.stub.StreamObserver;
 import org.openlca.core.database.IDatabase;
@@ -140,6 +146,68 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     system = ProductSystem.of(process);
     system.withoutNetwork = true;
     return system;
+  }
+
+  @Override
+  public void getInventory(Services.Result req,
+                           StreamObserver<Proto.FlowResult> resp) {
+
+    // get the flow results
+    var result = results.get(req.getId());
+    if (result == null) {
+      resp.onCompleted();
+      return;
+    }
+    var flowResults = result.getTotalFlowResults();
+    if (flowResults.isEmpty()) {
+      resp.onCompleted();
+      return;
+    }
+
+    // collect additional flow data
+    var categories = new CategoryPathBuilder(db);
+    var units = new TLongObjectHashMap<String>();
+    var query = "select fp.id, u.name" +
+      "  from tbl_flow_properties fp" +
+      "  inner join tbl_unit_groups ug" +
+      "  on fp.f_unit_group = ug.id" +
+      "  inner join tbl_units u" +
+      "  on ug.f_reference_unit = u.id";
+    NativeSql.on(db).query(query, r -> {
+      long propID = r.getLong(1);
+      var unit = r.getString(2);
+      units.put(propID, unit);
+      return true;
+    });
+
+    // create the result objects
+    for (var fr : result.getTotalFlowResults()) {
+      if (fr.flow == null)
+        continue;
+      var proto = Proto.FlowResult.newBuilder();
+      var flowRef = Out.flowRefOf(fr.flow);
+
+      // flow category
+      if (fr.flow.category != null) {
+        var category = categories.build(fr.flow.category);
+        if (Strings.notEmpty(category)) {
+          Arrays.stream(category.split("/"))
+            .filter(Strings::notEmpty)
+            .forEach(flowRef::addCategoryPath);
+        }
+      }
+
+      // flow unit
+      var unit = units.get(fr.flow.refFlowPropertyId);
+      if (unit != null) {
+        flowRef.setRefUnit(unit);
+      }
+
+      proto.setFlow(flowRef);
+      proto.setInput(fr.input);
+      proto.setValue(fr.value);
+      resp.onNext(proto.build());
+    }
   }
 
   @Override

@@ -327,6 +327,12 @@ service ResultService {
   // Calculates a result for the given calculation setup.
   rpc Calculate(CalculationSetup) returns (ResultStatus);
 
+  // Get the inventory of the given result.
+  rpc GetInventory(Result) returns (stream FlowResult);
+
+  // Get the total impact assessment result of the given result.
+  rpc GetImpacts(Result) returns (stream ImpactResult);
+
   // Disposes the given result on the server side.
   rpc Dispose(Result) returns (Status);
 
