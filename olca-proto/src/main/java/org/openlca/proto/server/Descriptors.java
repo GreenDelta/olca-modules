@@ -61,8 +61,9 @@ final class Descriptors {
     var name = req.getName();
     if (name.isBlank())
       return descriptors;
+    var term = name.trim().toLowerCase();
     Predicate<String> match = other ->
-      other != null && other.trim().toLowerCase().equals(name);
+      other != null && other.trim().toLowerCase().equals(term);
     return descriptors.filter(d -> match.test(d.name));
   }
 }
