@@ -20,7 +20,7 @@ public class ImpactMethodWriter {
     Out.dep(config, method.category);
 
     for (var impact : method.impactCategories) {
-      proto.addImpactCategories(Out.impactRefOf(impact));
+      proto.addImpactCategories(Out.refOf(impact));
       Out.dep(config, impact);
     }
     writeNwSets(method, proto);
@@ -41,7 +41,7 @@ public class ImpactMethodWriter {
         var protoFactor = Proto.NwFactor.newBuilder();
         if (nwFactor.impactCategory != null) {
           protoFactor.setImpactCategory(
-            Out.impactRefOf(nwFactor.impactCategory));
+            Out.refOf(nwFactor.impactCategory));
           Out.dep(config, nwFactor.impactCategory);
         }
         if (nwFactor.normalisationFactor != null) {

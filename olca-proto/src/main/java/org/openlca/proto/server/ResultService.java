@@ -184,7 +184,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
       if (fr.flow == null)
         continue;
       var proto = Proto.FlowResult.newBuilder();
-      var flowRef = Out.flowRefOf(fr.flow);
+      var flowRef = Out.refOf(fr.flow);
 
       // flow category
       if (fr.flow.category != null) {
@@ -229,7 +229,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     // create the result data
     for (var impact : impacts) {
       var proto = Proto.ImpactResult.newBuilder();
-      proto.setImpactCategory(Out.impactRefOf(impact.impact));
+      proto.setImpactCategory(Out.refOf(impact.impact));
       proto.setValue(impact.value);
       resp.onNext(proto.build());
     }

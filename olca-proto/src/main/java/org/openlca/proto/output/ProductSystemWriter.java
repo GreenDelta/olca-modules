@@ -44,7 +44,7 @@ public class ProductSystemWriter {
                        Proto.ProductSystem.Builder proto) {
     // ref. process
     if (system.referenceProcess != null) {
-      var p = Out.processRefOf(system.referenceProcess);
+      var p = Out.refOf(system.referenceProcess);
       proto.setReferenceProcess(p);
       Out.dep(config, system.referenceProcess);
     }

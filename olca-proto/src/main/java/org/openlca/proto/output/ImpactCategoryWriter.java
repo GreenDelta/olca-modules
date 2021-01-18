@@ -35,7 +35,7 @@ public class ImpactCategoryWriter {
       var protoFac = Proto.ImpactFactor.newBuilder();
 
       if (factor.flow != null) {
-        protoFac.setFlow(Out.flowRefOf(factor.flow));
+        protoFac.setFlow(Out.refOf(factor.flow));
         Out.dep(config, factor.flow);
       }
 

@@ -114,13 +114,13 @@ public class ProcessWriter {
         var provider = new ProcessDao(config.db)
           .getDescriptor(e.defaultProviderId);
         if (provider != null) {
-          pe.setDefaultProvider(Out.processRefOf(provider));
+          pe.setDefaultProvider(Out.refOf(provider));
         }
       }
 
       // flow references
       if (e.flow != null) {
-        pe.setFlow(Out.flowRefOf(e.flow));
+        pe.setFlow(Out.refOf(e.flow));
         Out.dep(config, e.flow);
       }
       if (e.flowPropertyFactor != null) {
@@ -175,7 +175,7 @@ public class ProcessWriter {
     LongFunction<Proto.Ref> product = flowID -> {
       for (var e : p.exchanges) {
         if (e.flow != null && e.flow.id == flowID) {
-          return Out.flowRefOf(e.flow).build();
+          return Out.refOf(e.flow).build();
         }
       }
       return null;

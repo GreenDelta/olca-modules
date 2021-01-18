@@ -51,6 +51,37 @@ public final class Out {
     if (e == null)
       return proto;
     map(e, proto);
+
+    if (e instanceof Flow) {
+
+      // flow specific fields
+      var flow = (Flow) e;
+      if (flow.flowType != null) {
+        proto.setFlowType(flowTypeOf(flow.flowType));
+      }
+      if (flow.location != null) {
+        proto.setLocation(Strings.orEmpty(flow.location.code));
+      }
+      var refUnit = flow.getReferenceUnit();
+      if (refUnit != null) {
+        proto.setRefUnit(Strings.orEmpty(refUnit.name));
+      }
+
+      // process specific fields
+    } else if (e instanceof Process) {
+      var process = (Process) e;
+      if (process.processType != null) {
+        proto.setProcessType(processTypeOf(process.processType));
+      }
+      if (process.location != null) {
+        proto.setLocation(Strings.orEmpty(process.location.code));
+      }
+
+      // impact specific fields
+    } else if (e instanceof ImpactCategory) {
+      proto.setRefUnit(Strings.orEmpty(
+        ((ImpactCategory) e).referenceUnit));
+    }
     return proto;
   }
 
@@ -59,6 +90,20 @@ public final class Out {
     if (d == null)
       return proto;
     map(d, proto);
+    if (d instanceof FlowDescriptor) {
+      var fd = (FlowDescriptor) d;
+      if (fd.flowType != null) {
+        proto.setFlowType(flowTypeOf(fd.flowType));
+      }
+    } else if (d instanceof ProcessDescriptor) {
+      var pd = (ProcessDescriptor) d;
+      if (pd.processType != null) {
+        proto.setProcessType(processTypeOf(pd.processType));
+      }
+    } else if (d instanceof ImpactDescriptor) {
+      var id = (ImpactDescriptor) d;
+      proto.setRefUnit(Strings.orEmpty(id.referenceUnit));
+    }
     return proto;
   }
 
@@ -75,37 +120,10 @@ public final class Out {
     return proto;
   }
 
-  public static Proto.Ref.Builder flowRefOf(FlowDescriptor d) {
-    var proto = Proto.Ref.newBuilder();
-    if (d == null)
-      return proto;
-    map(d, proto);
-    proto.setFlowType(flowTypeOf(d.flowType));
-    return proto;
-  }
-
   private static String dateTimeOf(long time) {
     return time == 0
       ? ""
       : Instant.ofEpochMilli(time).toString();
-  }
-
-  public static Proto.Ref.Builder processRefOf(ProcessDescriptor d) {
-    var proto = Proto.Ref.newBuilder();
-    if (d == null)
-      return proto;
-    map(d, proto);
-    proto.setProcessType(processTypeOf(d.processType));
-    return proto;
-  }
-
-  public static Proto.Ref.Builder processRefOf(Process p) {
-    var proto = Proto.Ref.newBuilder();
-    if (p == null)
-      return proto;
-    map(p, proto);
-    proto.setProcessType(processTypeOf(p.processType));
-    return proto;
   }
 
   /**
@@ -240,44 +258,6 @@ public final class Out {
     for (var value : values) {
       proto.addRepeatedField(field, value);
     }
-  }
-
-  static Proto.Ref.Builder flowRefOf(Flow flow) {
-    var proto = Proto.Ref.newBuilder();
-    if (flow == null)
-      return proto;
-
-    map(flow, proto);
-
-    // FlowRef specific fields
-    if (flow.location != null) {
-      proto.setLocation(Strings.orEmpty(flow.location.code));
-    }
-    var refUnit = flow.getReferenceUnit();
-    if (refUnit != null) {
-      proto.setRefUnit(Strings.orEmpty(refUnit.name));
-    }
-    proto.setFlowType(flowTypeOf(flow.flowType));
-
-    return proto;
-  }
-
-  static Proto.Ref.Builder impactRefOf(ImpactCategory impact) {
-    var proto = Proto.Ref.newBuilder();
-    if (impact == null)
-      return proto;
-    map(impact, proto);
-    proto.setRefUnit(Strings.orEmpty(impact.referenceUnit));
-    return proto;
-  }
-
-  public static Proto.Ref.Builder impactRefOf(ImpactDescriptor d) {
-    var proto = Proto.Ref.newBuilder();
-    if (d == null)
-      return proto;
-    map(d, proto);
-    proto.setRefUnit(Strings.orEmpty(d.referenceUnit));
-    return proto;
   }
 
   static Proto.FlowType flowTypeOf(FlowType type) {

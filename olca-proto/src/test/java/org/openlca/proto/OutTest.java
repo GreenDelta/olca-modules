@@ -15,7 +15,7 @@ public class OutTest {
     process.name = "process name";
     process.description = "process description";
     process.version = Version.valueOf(1,0,0);
-    var ref = Out.processRefOf(process);
+    var ref = Out.refOf(process);
     assertEquals("process name", ref.getName());
     assertEquals("process description", ref.getDescription());
     assertEquals("01.00.000", ref.getVersion());

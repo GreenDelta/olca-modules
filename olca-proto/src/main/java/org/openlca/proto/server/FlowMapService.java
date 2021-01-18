@@ -249,7 +249,7 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
       return proto.build();
 
     // flow
-    var protoFlow = Out.flowRefOf(flowRef.flow);
+    var protoFlow = Out.refOf(flowRef.flow);
     if (flowRef.flowCategory != null) {
       Arrays.stream(flowRef.flowCategory.split("/"))
         .filter(Strings::notEmpty)
@@ -270,7 +270,7 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
 
     // provider
     if (flowRef.provider != null) {
-      var protoProv = Out.processRefOf(flowRef.provider);
+      var protoProv = Out.refOf(flowRef.provider);
       if (flowRef.providerLocation != null) {
         protoProv.setLocation(flowRef.providerLocation);
       }
