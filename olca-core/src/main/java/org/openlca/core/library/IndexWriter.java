@@ -98,7 +98,7 @@ class IndexWriter implements Runnable {
 			return proto.build();
 		proto.setId(Strings.orEmpty(d.refId));
 		proto.setName(Strings.orEmpty(d.name));
-		var category = categories.build(d.category);
+		var category = categories.path(d.category);
 		proto.setCategory(Strings.orEmpty(category));
 		if (d instanceof ProcessDescriptor) {
 			var loc = ((ProcessDescriptor) d).location;
@@ -116,7 +116,7 @@ class IndexWriter implements Runnable {
 			return proto.build();
 		proto.setId(Strings.orEmpty(d.refId));
 		proto.setName(Strings.orEmpty(d.name));
-		var category = categories.build(d.category);
+		var category = categories.path(d.category);
 		proto.setCategory(Strings.orEmpty(category));
 		if (d.flowType != null) {
 			proto.setType(d.flowType.name());

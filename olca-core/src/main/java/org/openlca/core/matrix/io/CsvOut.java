@@ -161,14 +161,14 @@ public final class CsvOut {
 					mask[3] = ModelType.PRODUCT_SYSTEM.toString();
 					mask[4] = "";
 				}
-				mask[5] = categories.build(p.category);
+				mask[5] = categories.path(p.category);
 				mask[6] = f.refId;
 				mask[7] = f.name;
 				mask[8] = f.flowType != null
 						? f.flowType.toString()
 						: "";
 				mask[9] = locations.get(f.location);
-				mask[10] = categories.build(f.category);
+				mask[10] = categories.path(f.category);
 				mask[11] = units.get(f.refFlowPropertyId);
 				writeln(w, line(mask));
 			}
@@ -207,7 +207,7 @@ public final class CsvOut {
 						? flow.flowType.toString()
 						: "";
 				mask[4] = locations.get(flow.location);
-				mask[5] = categories.build(flow.category);
+				mask[5] = categories.path(flow.category);
 				mask[6] = units.get(flow.refFlowPropertyId);
 				writeln(w, line(mask));
 			}

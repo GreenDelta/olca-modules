@@ -70,7 +70,7 @@ class Upgrade6 implements IUpgrade {
 		NativeSql.on(db).updateRows(sql, r -> {
 			long id = r.getLong(1);
 			var refID = r.getString(2);
-			var pathKey = KeyGen.get(paths.build(id));
+			var pathKey = KeyGen.get(paths.path(id));
 			if (Strings.nullOrEqual(refID, pathKey))
 				return true;
 			r.updateString(2, pathKey);

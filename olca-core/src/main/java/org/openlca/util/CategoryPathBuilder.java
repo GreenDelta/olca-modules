@@ -1,6 +1,9 @@
 package org.openlca.util;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
@@ -14,7 +17,7 @@ public class CategoryPathBuilder {
 
 	private final HashMap<Long, Long> parents = new HashMap<>();
 	private final HashMap<Long, String> names = new HashMap<>();
-	private final HashMap<Long, String> cache = new HashMap<>();
+	private final HashMap<Long, Object> cache = new HashMap<>();
 
 	public CategoryPathBuilder(IDatabase db) {
 		String sql = "select id, name, f_category from tbl_categories";
@@ -38,16 +41,20 @@ public class CategoryPathBuilder {
 	 * function is allowed. It will return also `null` in this case as well as
 	 * when there is no category with the given ID in the database.
 	 */
-	public String build(Long id) {
+	public String path(Long id) {
 		if (id == null)
 			return null;
+
+		// check the cache
 		var cached = cache.get(id);
-		if (cached != null)
-			return cached;
+		if (cached instanceof String)
+			return (String) cached;
+
+		// build and cache the path
 		var path = new StringBuilder();
 		long pid = id;
 		while (true) {
-			String name = names.get(pid);
+			var name = names.get(pid);
 			if (name == null)
 				break;
 			if (path.length() > 0) {
@@ -61,6 +68,34 @@ public class CategoryPathBuilder {
 		}
 		var p = path.toString();
 		cache.put(id, p);
+
 		return p;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<String> list(Long id) {
+		if (id == null)
+			return Collections.emptyList();
+
+		// check the cache
+		var cached = cache.get(id);
+		if (cached instanceof List)
+			return (List<String>) cached;
+
+		var path = new ArrayList<String>();
+		long pid = id;
+		while (true) {
+			var name = names.get(pid);
+			if (name == null)
+				break;
+			path.add(0, name);
+			var parent = parents.get(pid);
+			if (parent == null)
+				break;
+			pid = parent;
+		}
+
+		cache.put(id, path);
+		return path;
 	}
 }

@@ -33,7 +33,7 @@ public class AutoTagger implements Runnable {
 		descriptors.forEachValue(d -> {
 			addToStats(d.name, stats);
 			if (d.category != null) {
-				addToStats(paths.build(d.category), stats);
+				addToStats(paths.path(d.category), stats);
 			}
 			return true;
 		});
@@ -52,7 +52,7 @@ public class AutoTagger implements Runnable {
 
 			var candidates = new HashSet<String>(words(d.name));
 			if (d.category != null) {
-				candidates.addAll(words(paths.build(d.category)));
+				candidates.addAll(words(paths.path(d.category)));
 			}
 
 			var tagList = candidates.stream()

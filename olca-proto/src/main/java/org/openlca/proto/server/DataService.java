@@ -109,8 +109,9 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void search(Services.SearchRequest req, StreamObserver<Proto.Ref> resp) {
+    var decorator = Descriptors.decorator(db);
     Search.of(db, req).run()
-      .map(Out::refOf)
+      .map(decorator::of)
       .forEach(ref -> resp.onNext(ref.build()));
     resp.onCompleted();
   }
@@ -959,7 +960,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
           }
 
           if (p.category != null) {
-            var path = categories.build(p.category);
+            var path = categories.path(p.category);
             if (path != null) {
               Arrays.stream(path.split("/"))
                 .forEach(ref::addCategoryPath);

@@ -19,11 +19,11 @@ public class CategoryPathBuilderTest {
 
 		var paths = new CategoryPathBuilder(Tests.getDb());
 		assertEquals("Elementary flows",
-				paths.build(root.id));
+				paths.path(root.id));
 		assertEquals("Elementary flows/air",
-				paths.build(top.id));
+				paths.path(top.id));
 		assertEquals("Elementary flows/air/high population density",
-				paths.build(sub.id));
+				paths.path(sub.id));
 	}
 
 }
