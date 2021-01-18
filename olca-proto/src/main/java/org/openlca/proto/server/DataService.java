@@ -920,7 +920,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
   }
 
   @Override
-  public void getProvidersFor(Proto.FlowRef req, StreamObserver<Proto.ProcessRef> resp) {
+  public void getProvidersFor(Proto.Ref req, StreamObserver<Proto.Ref> resp) {
     Consumer<Flow> onFlowExists = flow -> {
       if (flow.flowType == FlowType.ELEMENTARY_FLOW) {
         resp.onCompleted();
@@ -938,7 +938,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
         .map(p -> (ProcessDescriptor) p)
         .forEach(p -> {
 
-          var ref = Proto.ProcessRef.newBuilder()
+          var ref = Proto.Ref.newBuilder()
             .setId(Strings.orEmpty(p.refId))
             .setName(Strings.orEmpty(p.name))
             .setDescription(Strings.orEmpty(p.description))

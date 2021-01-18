@@ -274,7 +274,7 @@ service DataService {
   // and for waste flows processes with that waste flow on the
   // input side. For elementary flows, an empty stream is
   // returned.
-  rpc GetProvidersFor(FlowRef) returns (stream ProcessRef);
+  rpc GetProvidersFor(Ref) returns (stream Ref);
 }
 
 message FlowMapStatus {

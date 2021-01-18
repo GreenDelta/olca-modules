@@ -73,7 +73,7 @@ message AllocationFactor {
   // The output product (or waste input) to which this allocation factor is
   // related. The must be an exchange with this product output (or waste input)
   // in this process.
-  FlowRef product = 3;
+  Ref product = 3;
 
   // The value of the allocation factor.
   double value = 4;
@@ -404,7 +404,7 @@ message Exchange {
   int32 internal_id = 6;
 
   // The reference to the flow of the exchange.
-  FlowRef flow = 7;
+  Ref flow = 7;
 
   // The quantity in which the amount is given.
   Ref flow_property = 8;
@@ -423,7 +423,7 @@ message Exchange {
   // product systems in openLCA. The user is always free to link processes in
   // product systems ignoring these defaults (but the flows and flow directions
   // have to match of course).
-  ProcessRef default_provider = 12;
+  Ref default_provider = 12;
 
   double amount = 13;
 
@@ -612,7 +612,7 @@ message FlowMapRef {
   string type = 1 [json_name = "@type"];
 
   // The reference to the flow data set.
-  FlowRef flow = 2;
+  Ref flow = 2;
 
   // An optional reference to a flow property of the flow for which the mapping
   // is valid.
@@ -626,7 +626,7 @@ message FlowMapRef {
   // process that consumes the waste flow. This is useful when we want to apply
   // mappings of product and waste flows on databases and link them in the
   // corresponding processes and product systems.
-  ProcessRef provider = 5;
+  Ref provider = 5;
 
 }
 
@@ -728,51 +728,6 @@ enum FlowPropertyType {
 
 }
 
-// A reference to a [Flow] data set.
-message FlowRef {
-
-  // The type name of the respectiven entity.
-  // This field is used for JSON-LD compatibility.
-  string type = 1 [json_name = "@type"];
-
-  // The reference ID (typically an UUID) of the entity.
-  string id = 2 [json_name = "@id"];
-
-  // The name of the entity.
-  string name = 3;
-
-  // The description of the entity.
-  string description = 4;
-
-  // A version number in MAJOR.MINOR.PATCH format where the MINOR and PATCH
-  // fields are optional and the fields may have leading zeros (so 01.00.00 is
-  // the same as 1.0.0 or 1).
-  string version = 5;
-
-  // The timestamp when the entity was changed the last time.
-  string last_change = 6;
-
-  // The full path of the category of the referenced entity from top to bottom,
-  // e.g. `"Elementary flows", "Emissions to air", "unspecified"`.
-  repeated string category_path = 7;
-
-  // If the entity that is described by this reference is part of a library,
-  // this field contains the identifier of that library. The identifier is
-  // typically just the combination of the library name and version.
-  string library = 8;
-
-  // The name (symbol) of the reference unit of the flow.
-  string ref_unit = 9;
-
-  // The location name or code of the flow. Typically, this is only used for
-  // product flows in databases like ecoinvent.
-  string location = 10;
-
-  // The type of the flow.
-  FlowType flow_type = 11;
-
-}
-
 // A result value for a flow; given in the reference unit of the flow.
 message FlowResult {
 
@@ -781,7 +736,7 @@ message FlowResult {
   string type = 1 [json_name = "@type"];
 
   // The flow reference.
-  FlowRef flow = 2;
+  Ref flow = 2;
 
   // Indicates whether the flow is an input or not.
   bool input = 3;
@@ -853,44 +808,6 @@ message ImpactCategory {
 
 }
 
-// A reference to a [ImpactCategory] data set.
-message ImpactCategoryRef {
-
-  // The type name of the respectiven entity.
-  // This field is used for JSON-LD compatibility.
-  string type = 1 [json_name = "@type"];
-
-  // The reference ID (typically an UUID) of the entity.
-  string id = 2 [json_name = "@id"];
-
-  // The name of the entity.
-  string name = 3;
-
-  // The description of the entity.
-  string description = 4;
-
-  // A version number in MAJOR.MINOR.PATCH format where the MINOR and PATCH
-  // fields are optional and the fields may have leading zeros (so 01.00.00 is
-  // the same as 1.0.0 or 1).
-  string version = 5;
-
-  // The timestamp when the entity was changed the last time.
-  string last_change = 6;
-
-  // The full path of the category of the referenced entity from top to bottom,
-  // e.g. `"Elementary flows", "Emissions to air", "unspecified"`.
-  repeated string category_path = 7;
-
-  // If the entity that is described by this reference is part of a library,
-  // this field contains the identifier of that library. The identifier is
-  // typically just the combination of the library name and version.
-  string library = 8;
-
-  // The name (symbol) of the reference unit of the impact category.
-  string ref_unit = 9;
-
-}
-
 // A single characterisation factor of a LCIA category for a flow.
 message ImpactFactor {
 
@@ -899,7 +816,7 @@ message ImpactFactor {
   string type = 1 [json_name = "@type"];
 
   // The [Flow] of the impact assessment factor.
-  FlowRef flow = 2;
+  Ref flow = 2;
 
   // In case of a regionalized impact category, this field can contain the
   // location for which this factor is valid.
@@ -959,7 +876,7 @@ message ImpactMethod {
   string library = 9;
 
   // The impact categories of the method.
-  repeated ImpactCategoryRef impact_categories = 10;
+  repeated Ref impact_categories = 10;
 
   // The normalization and weighting sets of the method.
   repeated NwSet nw_sets = 11;
@@ -974,7 +891,7 @@ message ImpactResult {
   string type = 1 [json_name = "@type"];
 
   // The reference to the impact assessment category.
-  ImpactCategoryRef impact_category = 2;
+  Ref impact_category = 2;
 
   // The value of the flow amount.
   double value = 3;
@@ -1091,7 +1008,7 @@ message NwFactor {
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
-  ImpactCategoryRef impact_category = 2;
+  Ref impact_category = 2;
 
   double normalisation_factor = 3;
 
@@ -1443,47 +1360,6 @@ message ProcessLink {
 
 }
 
-// A reference to a [Process] data set.
-message ProcessRef {
-
-  // The type name of the respectiven entity.
-  // This field is used for JSON-LD compatibility.
-  string type = 1 [json_name = "@type"];
-
-  // The reference ID (typically an UUID) of the entity.
-  string id = 2 [json_name = "@id"];
-
-  // The name of the entity.
-  string name = 3;
-
-  // The description of the entity.
-  string description = 4;
-
-  // A version number in MAJOR.MINOR.PATCH format where the MINOR and PATCH
-  // fields are optional and the fields may have leading zeros (so 01.00.00 is
-  // the same as 1.0.0 or 1).
-  string version = 5;
-
-  // The timestamp when the entity was changed the last time.
-  string last_change = 6;
-
-  // The full path of the category of the referenced entity from top to bottom,
-  // e.g. `"Elementary flows", "Emissions to air", "unspecified"`.
-  repeated string category_path = 7;
-
-  // If the entity that is described by this reference is part of a library,
-  // this field contains the identifier of that library. The identifier is
-  // typically just the combination of the library name and version.
-  string library = 8;
-
-  // The location name or code of the process.
-  string location = 9;
-
-  // The type of the process.
-  ProcessType process_type = 10;
-
-}
-
 enum ProcessType {
 
   // This default option was added automatically
@@ -1539,7 +1415,7 @@ message ProductSystem {
 
   // The descriptor of the process that provides the flow of the functional
   // unit of the product system.
-  ProcessRef reference_process = 11;
+  Ref reference_process = 11;
 
   // The exchange of the reference processes (typically the product output)
   // that provides the flow of the functional unit of the product system.
@@ -1641,6 +1517,23 @@ message Ref {
   // this field contains the identifier of that library. The identifier is
   // typically just the combination of the library name and version.
   string library = 8;
+
+  // This field is only valid for references of flows or impact categories and
+  // contains the name (symbol) of the reference unit of that respective flow
+  // or impact category.
+  string ref_unit = 9;
+
+  // This field is only valid for references of processes or flows and contains
+  // the location name or code of that respective process or flow.
+  string location = 10;
+
+  // In case of a reference to a flow, this field can contain the type of flow
+  // that is referenced.
+  FlowType flow_type = 11;
+
+  // In case of a reference to a process, this fiel can contain the type of
+  // process that is referenced.
+  ProcessType process_type = 12;
 
 }
 

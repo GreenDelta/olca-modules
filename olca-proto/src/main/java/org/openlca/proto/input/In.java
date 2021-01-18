@@ -1,5 +1,7 @@
 package org.openlca.proto.input;
 
+import java.util.Arrays;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
@@ -10,9 +12,25 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.Version;
+import org.openlca.core.model.descriptors.ActorDescriptor;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.CurrencyDescriptor;
+import org.openlca.core.model.descriptors.DQSystemDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
+import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
+import org.openlca.core.model.descriptors.LocationDescriptor;
+import org.openlca.core.model.descriptors.NwSetDescriptor;
+import org.openlca.core.model.descriptors.ParameterDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.model.descriptors.ProductSystemDescriptor;
+import org.openlca.core.model.descriptors.ProjectDescriptor;
+import org.openlca.core.model.descriptors.SocialIndicatorDescriptor;
+import org.openlca.core.model.descriptors.SourceDescriptor;
+import org.openlca.core.model.descriptors.UnitDescriptor;
+import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 import org.openlca.jsonld.Enums;
 import org.openlca.jsonld.Json;
 import org.openlca.proto.generated.Proto;
@@ -96,9 +114,16 @@ public final class In {
   }
 
   public static ProcessType processTypeOf(Proto.ProcessType proto) {
-    return proto == Proto.ProcessType.LCI_RESULT
-      ? ProcessType.LCI_RESULT
-      : ProcessType.UNIT_PROCESS;
+    if (proto == null)
+      return null;
+    switch (proto) {
+      case LCI_RESULT:
+        return ProcessType.LCI_RESULT;
+      case UNIT_PROCESS:
+        return ProcessType.UNIT_PROCESS;
+      default:
+        return null;
+    }
   }
 
   public static ModelType modelTypeOf(Proto.ModelType proto) {
@@ -107,55 +132,84 @@ public final class In {
       : Enums.getValue(proto.name(), ModelType.class);
   }
 
-  public static FlowDescriptor descriptorOf(Proto.FlowRef proto) {
-    if (proto == null)
-      return null;
-    var d = new FlowDescriptor();
-    d.refId = proto.getId();
-    d.flowType = flowTypeOf(proto.getFlowType());
-    d.name = proto.getName();
-    d.description = Strings.orNull(proto.getDescription());
-    d.lastChange = timeOf(proto.getLastChange());
-    d.version = versionOf(proto.getVersion());
-    return d;
-  }
-
-  public static ProcessDescriptor descriptorOf(Proto.ProcessRef proto) {
-    if (proto == null)
-      return null;
-    var d = new ProcessDescriptor();
-    d.refId = proto.getId();
-    d.processType = processTypeOf(proto.getProcessType());
-    d.name = proto.getName();
-    d.description = Strings.orNull(proto.getDescription());
-    d.lastChange = timeOf(proto.getLastChange());
-    d.version = versionOf(proto.getVersion());
-    return d;
-  }
-
   public static Descriptor descriptorOf(Proto.Ref proto) {
     if (proto == null)
       return null;
-    var d = new Descriptor();
+    var d = initDescriptor(proto);
     d.refId = proto.getId();
     d.name = proto.getName();
     d.description = Strings.orNull(proto.getDescription());
     d.lastChange = timeOf(proto.getLastChange());
     d.version = versionOf(proto.getVersion());
+    d.library = proto.getLibrary();
 
-    // try to determine the model type
-    try {
-      var type = proto.getType();
-      if (Strings.notEmpty(type)) {
-        var clazz = Class.forName(
-          "org.openlca.core.model." + type);
-        d.type = ModelType.forModelClass(clazz);
-      }
-    } catch (Exception ignored) {
+    if (d instanceof ProcessDescriptor) {
+      ((ProcessDescriptor) d).processType = processTypeOf(
+        proto.getProcessType());
+    }
+
+    if (d instanceof FlowDescriptor) {
+      ((FlowDescriptor) d).flowType = flowTypeOf(
+        proto.getFlowType());
     }
 
     return d;
   }
+
+  private static Descriptor initDescriptor(Proto.Ref ref) {
+    var refType = ref.getType();
+    if (Strings.nullOrEmpty(refType))
+      return new Descriptor();
+    var modType = Arrays.stream(ModelType.values())
+      .filter(modelType ->
+        modelType != null
+          && modelType.getModelClass() != null
+          && modelType.getModelClass().getSimpleName().equals(refType))
+      .findFirst();
+    if (modType.isEmpty())
+      return new Descriptor();
+    switch (modType.get()) {
+      case ACTOR:
+        return new ActorDescriptor();
+      case CATEGORY:
+        return new CategorizedDescriptor();
+      case CURRENCY:
+        return new CurrencyDescriptor();
+      case DQ_SYSTEM:
+        return new DQSystemDescriptor();
+      case FLOW:
+        return new FlowDescriptor();
+      case FLOW_PROPERTY:
+        return new FlowPropertyDescriptor();
+      case IMPACT_CATEGORY:
+        return new ImpactDescriptor();
+      case IMPACT_METHOD:
+        return new ImpactMethodDescriptor();
+      case LOCATION:
+        return new LocationDescriptor();
+      case NW_SET:
+        return new NwSetDescriptor();
+      case PARAMETER:
+        return new ParameterDescriptor();
+      case PROCESS:
+        return new ProcessDescriptor();
+      case PRODUCT_SYSTEM:
+        return new ProductSystemDescriptor();
+      case PROJECT:
+        return new ProjectDescriptor();
+      case SOCIAL_INDICATOR:
+        return new SocialIndicatorDescriptor();
+      case SOURCE:
+        return new SourceDescriptor();
+      case UNIT:
+        return new UnitDescriptor();
+      case UNIT_GROUP:
+        return new UnitGroupDescriptor();
+      default:
+        return new Descriptor();
+    }
+  }
+
 
   public static ParameterRedef parameterRedefOf(
     Proto.ParameterRedef proto, IDatabase db) {

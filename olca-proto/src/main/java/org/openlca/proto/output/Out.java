@@ -75,8 +75,8 @@ public final class Out {
     return proto;
   }
 
-  public static Proto.FlowRef.Builder flowRefOf(FlowDescriptor d) {
-    var proto = Proto.FlowRef.newBuilder();
+  public static Proto.Ref.Builder flowRefOf(FlowDescriptor d) {
+    var proto = Proto.Ref.newBuilder();
     if (d == null)
       return proto;
     map(d, proto);
@@ -90,8 +90,8 @@ public final class Out {
       : Instant.ofEpochMilli(time).toString();
   }
 
-  public static Proto.ProcessRef.Builder processRefOf(ProcessDescriptor d) {
-    var proto = Proto.ProcessRef.newBuilder();
+  public static Proto.Ref.Builder processRefOf(ProcessDescriptor d) {
+    var proto = Proto.Ref.newBuilder();
     if (d == null)
       return proto;
     map(d, proto);
@@ -99,8 +99,8 @@ public final class Out {
     return proto;
   }
 
-  public static Proto.ProcessRef.Builder processRefOf(Process p) {
-    var proto = Proto.ProcessRef.newBuilder();
+  public static Proto.Ref.Builder processRefOf(Process p) {
+    var proto = Proto.Ref.newBuilder();
     if (p == null)
       return proto;
     map(p, proto);
@@ -242,8 +242,8 @@ public final class Out {
     }
   }
 
-  static Proto.FlowRef.Builder flowRefOf(Flow flow) {
-    var proto = Proto.FlowRef.newBuilder();
+  static Proto.Ref.Builder flowRefOf(Flow flow) {
+    var proto = Proto.Ref.newBuilder();
     if (flow == null)
       return proto;
 
@@ -262,8 +262,8 @@ public final class Out {
     return proto;
   }
 
-  static Proto.ImpactCategoryRef.Builder impactRefOf(ImpactCategory impact) {
-    var proto = Proto.ImpactCategoryRef.newBuilder();
+  static Proto.Ref.Builder impactRefOf(ImpactCategory impact) {
+    var proto = Proto.Ref.newBuilder();
     if (impact == null)
       return proto;
     map(impact, proto);
@@ -271,8 +271,8 @@ public final class Out {
     return proto;
   }
 
-  public static Proto.ImpactCategoryRef.Builder impactRefOf(ImpactDescriptor d) {
-    var proto = Proto.ImpactCategoryRef.newBuilder();
+  public static Proto.Ref.Builder impactRefOf(ImpactDescriptor d) {
+    var proto = Proto.Ref.newBuilder();
     if (d == null)
       return proto;
     map(d, proto);
