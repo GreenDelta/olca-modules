@@ -135,7 +135,12 @@ public final class In {
   public static Descriptor descriptorOf(Proto.Ref proto) {
     if (proto == null)
       return null;
-    var d = initDescriptor(proto);
+    return fill(initDescriptor(proto), proto);
+  }
+
+  public static <T extends Descriptor> T fill(T d, Proto.Ref proto) {
+    if (d == null || proto == null)
+      return null;
     d.refId = proto.getId();
     d.name = proto.getName();
     d.description = Strings.orNull(proto.getDescription());
@@ -209,7 +214,6 @@ public final class In {
         return new Descriptor();
     }
   }
-
 
   public static ParameterRedef parameterRedefOf(
     Proto.ParameterRedef proto, IDatabase db) {

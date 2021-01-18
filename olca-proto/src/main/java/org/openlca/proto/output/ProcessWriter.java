@@ -172,7 +172,7 @@ public class ProcessWriter {
   }
 
   private void writeAllocationFactors(Process p, Proto.Process.Builder proto) {
-    LongFunction<Proto.FlowRef> product = flowID -> {
+    LongFunction<Proto.Ref> product = flowID -> {
       for (var e : p.exchanges) {
         if (e.flow != null && e.flow.id == flowID) {
           return Out.flowRefOf(e.flow).build();

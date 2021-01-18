@@ -8,6 +8,8 @@ import io.grpc.stub.StreamObserver;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.MappingFileDao;
 import org.openlca.core.model.MappingFile;
+import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
 import org.openlca.io.maps.FlowRef;
@@ -175,7 +177,8 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
       return flowRef;
 
     // flow information
-    flowRef.flow = In.descriptorOf(protoRef.getFlow());
+    flowRef.flow = In.fill
+      (new FlowDescriptor(), protoRef.getFlow());
     flowRef.flowCategory = categoryPathOf(
       protoRef.getFlow().getCategoryPathList());
     flowRef.flowLocation = Strings.orNull(
@@ -196,7 +199,8 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
     // provider
     var provider = protoRef.getProvider();
     if (Messages.isNotEmpty(provider)) {
-      flowRef.provider = In.descriptorOf(provider);
+      flowRef.provider = In.fill(
+        new ProcessDescriptor(), provider);
       flowRef.providerCategory = categoryPathOf(
         provider.getCategoryPathList());
       flowRef.providerLocation = Strings.orNull(
