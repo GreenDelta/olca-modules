@@ -113,6 +113,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     // other settings
     setup.allocationMethod = In.allocationMethod(proto.getAllocationMethod());
     setup.withCosts = proto.getWithCosts();
+    setup.withRegionalization = proto.getWithRegionalization();
 
     // add parameter redefinitions
     setup.parameterRedefs.clear();
@@ -206,6 +207,9 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
       proto.setInput(fr.input);
       proto.setValue(fr.value);
       resp.onNext(proto.build());
+      if (fr.location != null) {
+        proto.setLocation(Out.refOf(fr.location));
+      }
     }
     resp.onCompleted();
   }

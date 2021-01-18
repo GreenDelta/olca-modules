@@ -130,24 +130,26 @@ message CalculationSetup {
   // Indicates whether life cycle costs should be also calculated (optional).
   bool with_costs = 5;
 
+  bool with_regionalization = 6;
+
   // The normalisation and weighting set for the calculation (optional).
-  Ref nw_set = 6;
+  Ref nw_set = 7;
 
   // The calculation type to be used in the calculation (optional).
-  AllocationType allocation_method = 7;
+  AllocationType allocation_method = 8;
 
   // A list of parameter redefinitions to be used in the calculation
   // (optional).
-  repeated ParameterRedef parameter_redefs = 8;
+  repeated ParameterRedef parameter_redefs = 9;
 
   // (optional)
-  double amount = 9;
+  double amount = 10;
 
   // (optional)
-  Ref unit = 10;
+  Ref unit = 11;
 
   // (optional)
-  Ref flow_property = 11;
+  Ref flow_property = 12;
 
 }
 
@@ -743,6 +745,10 @@ message FlowResult {
 
   // The value of the flow amount.
   double value = 4;
+
+  // The (reference to the) location of this flow result in case of a
+  // regionalized result.
+  Ref location = 5;
 
 }
 

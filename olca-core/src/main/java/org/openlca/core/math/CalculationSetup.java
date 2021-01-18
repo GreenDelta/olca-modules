@@ -22,6 +22,14 @@ public class CalculationSetup {
 
 	public ImpactMethodDescriptor impactMethod;
 	public boolean withCosts = false;
+
+	/**
+	 * Indicates whether a regionalized result should be calculated or not. If
+	 * this is set to true, the intervention matrix is indexed by (elementary
+	 * flow, location) - pairs instead of just elementary flows. The LCI result
+	 * then contains results for these pairs which can be then used in
+	 * regionalized impact assessments.
+	 */
 	public boolean withRegionalization = false;
 
 	/**
@@ -97,11 +105,13 @@ public class CalculationSetup {
 		this.amount = amount;
 	}
 
-	/** Get the target amount in the unit of this calculation setup. */
+	/**
+	 * Get the target amount in the unit of this calculation setup.
+	 */
 	public double getAmount() {
 		return amount != null
-				? amount
-				: productSystem.targetAmount;
+			? amount
+			: productSystem.targetAmount;
 	}
 
 	/**
@@ -111,8 +121,8 @@ public class CalculationSetup {
 	 */
 	public double getDemandValue() {
 		double a = amount != null
-				? amount
-				: productSystem.targetAmount;
+			? amount
+			: productSystem.targetAmount;
 		a = ReferenceAmount.get(a, getUnit(), getFlowPropertyFactor());
 		if (productSystem.referenceExchange == null)
 			return a;
