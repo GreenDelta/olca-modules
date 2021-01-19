@@ -6,11 +6,11 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.openlca.core.DataDir;
-import org.openlca.jsonld.Json;
 
 /**
  * A library directory is a specific folder where each sub-folder is a library.
@@ -100,5 +100,20 @@ public class LibraryDir {
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to create library folder", e);
 		}
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		var other = (LibraryDir) o;
+		return Objects.equals(dir, other.dir);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(dir);
 	}
 }
