@@ -264,7 +264,7 @@ public class LibraryResultProvider implements ResultProvider {
 				var si = scalingVector[i];
 				if (si == 0)
 					continue;
-				t[i] = si * libDiag[i];
+				t[i] = si * libDiag[iB];
 			}
 		}
 
