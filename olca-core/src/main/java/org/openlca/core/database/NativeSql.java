@@ -1,10 +1,8 @@
 package org.openlca.core.database;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,9 +23,9 @@ public final class NativeSql {
 
 	public void query(String query, QueryResultHandler handler) {
 		log.trace("execute query {}", query);
-		try (Connection con = db.createConnection();
-			 Statement stmt = con.createStatement();
-			 ResultSet result = stmt.executeQuery(query)) {
+		try (var con = db.createConnection();
+			 var stmt = con.createStatement();
+			 var result = stmt.executeQuery(query)) {
 			while (result.next()) {
 				if (!handler.accept(result))
 					break;
@@ -42,17 +40,18 @@ public final class NativeSql {
 	 */
 	public void updateRows(String query, QueryResultHandler handler) {
 		log.trace("execute update {}", query);
-		try (Connection con = db.createConnection();
-			 Statement stmt = con.createStatement(
+		try (var con = db.createConnection();
+			 var stmt = con.createStatement(
 					 ResultSet.TYPE_SCROLL_SENSITIVE,
 					 ResultSet.CONCUR_UPDATABLE);
-			 ResultSet rs = stmt.executeQuery(query)) {
+			 var rs = stmt.executeQuery(query)) {
 			while (rs.next()) {
 				boolean b = handler.accept(rs);
 				if (!b)
 					break;
 			}
 			con.commit();
+			db.clearCache();
 		} catch (SQLException e) {
 			throw new RuntimeException("update failed: " + query, e);
 		}
@@ -60,11 +59,12 @@ public final class NativeSql {
 
 	public void runUpdate(String sql) {
 		log.trace("run update statement {}", sql);
-		try (Connection con = db.createConnection();
-			 Statement stmt = con.createStatement()) {
+		try (var con = db.createConnection();
+			 var stmt = con.createStatement()) {
 			stmt.executeUpdate(sql);
 			con.commit();
 			log.trace("update done");
+			db.clearCache();
 		} catch (SQLException e) {
 			throw new RuntimeException("update failed: " + sql, e);
 		}
@@ -76,6 +76,7 @@ public final class NativeSql {
 			fn.accept(stmt);
 			stmt.executeUpdate();
 			con.commit();
+			db.clearCache();
 		} catch (SQLException e) {
 			throw new RuntimeException("updated failed: " + sql, e);
 		}
@@ -88,11 +89,12 @@ public final class NativeSql {
 			log.trace("size {} <= 0; nothing to do", size);
 			return;
 		}
-		try (Connection con = db.createConnection();
-			 PreparedStatement ps = con.prepareStatement(sql)) {
+		try (var con = db.createConnection();
+			 var ps = con.prepareStatement(sql)) {
 			insertRows(size, fn, ps);
 			con.commit();
 			log.trace("inserts done");
+			db.clearCache();
 		}
 	}
 
@@ -116,10 +118,10 @@ public final class NativeSql {
 
 	public void batchUpdate(Iterable<String> statements) throws SQLException {
 		log.trace("execute batch update");
-		try (Connection con = db.createConnection();
-			 Statement stmt = con.createStatement()) {
+		try (var con = db.createConnection();
+			 var stmt = con.createStatement()) {
 			int batchSize = 0;
-			for (String statement : statements) {
+			for (var statement : statements) {
 				stmt.addBatch(statement);
 				if (batchSize % MAX_BATCH_SIZE == 0) {
 					int[] s = stmt.executeBatch();
@@ -130,6 +132,7 @@ public final class NativeSql {
 			int[] s = stmt.executeBatch();
 			log.trace("{} statements executed", s.length);
 			con.commit();
+			db.clearCache();
 		}
 	}
 
