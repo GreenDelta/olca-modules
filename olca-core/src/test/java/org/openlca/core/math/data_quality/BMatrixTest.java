@@ -4,16 +4,17 @@ import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.openlca.core.matrix.format.DenseByteMatrix;
 
 public class BMatrixTest {
 
-	private BMatrix matrix;
+	private DenseByteMatrix matrix;
 
 	@Before
 	public void setup() {
 		// create a matrix [ 1 2 3 ; 4 5 6]
-		matrix = new BMatrix(2, 3);
-		for (int i = 1; i < 7; i++) {
+		matrix = new DenseByteMatrix(2, 3);
+		for (byte i = 1; i < 7; i++) {
 			int row = i < 4 ? 0 : 1;
 			int col = (i - 1) % 3;
 			matrix.set(row, col, i);
@@ -32,14 +33,14 @@ public class BMatrixTest {
 
 	@Test
 	public void testGetColumn() {
-		assertArrayEquals(new int[] {1, 4}, matrix.getColumn(0));
-		assertArrayEquals(new int[] {2, 5}, matrix.getColumn(1));
-		assertArrayEquals(new int[] {3, 6}, matrix.getColumn(2));
+		assertArrayEquals(new byte[] {1, 4}, matrix.getColumn(0));
+		assertArrayEquals(new byte[] {2, 5}, matrix.getColumn(1));
+		assertArrayEquals(new byte[] {3, 6}, matrix.getColumn(2));
 	}
 
 	@Test
 	public void testGetRow() {
-		assertArrayEquals(new int[] {1, 2, 3}, matrix.getRow(0));
-		assertArrayEquals(new int[] {4, 5, 6}, matrix.getRow(1));
+		assertArrayEquals(new byte[] {1, 2, 3}, matrix.getRow(0));
+		assertArrayEquals(new byte[] {4, 5, 6}, matrix.getRow(1));
 	}
 }

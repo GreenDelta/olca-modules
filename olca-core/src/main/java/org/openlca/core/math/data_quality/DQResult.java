@@ -6,6 +6,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.matrix.format.DenseByteMatrix;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.ContributionResult;
@@ -22,7 +23,7 @@ public class DQResult {
 	 * The calculation setup of this data quality result.
 	 */
 	public final DQCalculationSetup setup;
-	
+
 	/**
 	 * The LCA result on which this data quality result is based.
 	 */
@@ -33,14 +34,14 @@ public class DQResult {
 	 * indicators are mapped to the rows and the n process products to the
 	 * columns.
 	 */
-	private BMatrix processData;
+	private DenseByteMatrix processData;
 
 	/**
 	 * For the exchange data we store a flow*product matrix for each
 	 * indicator that holds the respective data quality scores of that
 	 * indicator.
 	 */
-	private BMatrix[] exchangeData;
+	private DenseByteMatrix[] exchangeData;
 
 	/**
 	 * A k*m matrix that holds the aggregated flow results for the k
@@ -48,7 +49,7 @@ public class DQResult {
 	 * aggregating the exchange data with the direct flow contribution
 	 * result.
 	 */
-	private BMatrix flowResult;
+	private DenseByteMatrix flowResult;
 
 	/**
 	 * A k*q matrix that holds the aggregated impact results for the k
@@ -56,7 +57,7 @@ public class DQResult {
 	 * by aggregating the exchange data with the direct flow results and
 	 * impact factors.
 	 */
-	private BMatrix impactResult;
+	private DenseByteMatrix impactResult;
 
 	/**
 	 * If there is an impact result, this field contains for each of the k
@@ -65,7 +66,7 @@ public class DQResult {
 	 * to the columns that contains the aggregated data quality values per
 	 * impact category and flow for the respective data quality indicator.
 	 */
-	private BMatrix[] flowImpactResult;
+	private DenseByteMatrix[] flowImpactResult;
 
 	/**
 	 * If there is an impact result, this field contains for each of the k
@@ -75,7 +76,7 @@ public class DQResult {
 	 * impact category and process product for the respective data quality
 	 * indicator.
 	 */
-	private BMatrix[] processImpactResult;
+	private DenseByteMatrix[] processImpactResult;
 
 	public static DQResult of(IDatabase db, DQCalculationSetup setup,
 							  ContributionResult result) {
@@ -99,8 +100,8 @@ public class DQResult {
 	public int[] get(CategorizedDescriptor process) {
 		var products = result.techIndex.getProviders(process);
 		return products.isEmpty()
-				? null
-				: get(products.get(0));
+			? null
+			: get(products.get(0));
 	}
 
 	/**
@@ -111,8 +112,8 @@ public class DQResult {
 			return null;
 		int col = result.techIndex.getIndex(product);
 		return col < 0
-				? null
-				: processData.getColumn(col);
+			? null
+			: toInt(processData.getColumn(col));
 	}
 
 	/**
@@ -122,8 +123,8 @@ public class DQResult {
 	public int[] get(CategorizedDescriptor process, IndexFlow flow) {
 		var products = result.techIndex.getProviders(process);
 		return products.isEmpty()
-				? null
-				: get(products.get(0), flow);
+			? null
+			: get(products.get(0), flow);
 	}
 
 	/**
@@ -151,8 +152,8 @@ public class DQResult {
 			return null;
 		int col = result.flowIndex.of(flow);
 		return col < 0
-				? null
-				: flowResult.getColumn(col);
+			? null
+			: toInt(flowResult.getColumn(col));
 	}
 
 	/**
@@ -163,8 +164,8 @@ public class DQResult {
 			return null;
 		int col = result.impactIndex.of(impact);
 		return col < 0
-				? null
-				: impactResult.getColumn(col);
+			? null
+			: toInt(impactResult.getColumn(col));
 	}
 
 	public int[] get(ImpactDescriptor impact, IndexFlow flow) {
@@ -189,8 +190,8 @@ public class DQResult {
 	public int[] get(ImpactDescriptor impact, CategorizedDescriptor process) {
 		var products = result.techIndex.getProviders(process);
 		return products.isEmpty()
-				? null
-				: get(impact, products.get(0));
+			? null
+			: get(impact, products.get(0));
 	}
 
 	public int[] get(ImpactDescriptor impact, ProcessProduct product) {
@@ -216,11 +217,11 @@ public class DQResult {
 		var k = system.indicators.size();
 		var techIndex = result.techIndex;
 		var n = techIndex.size();
-		processData = new BMatrix(k, n);
+		processData = new DenseByteMatrix(k, n);
 
 		// query the process table
 		var sql = "select id, f_dq_system, dq_entry " +
-				"from tbl_processes";
+				  "from tbl_processes";
 		NativeSql.on(db).query(sql, r -> {
 
 			// check that we have a valid entry
@@ -255,12 +256,12 @@ public class DQResult {
 
 		// allocate a BMatrix for each indicator
 		var n = system.indicators.size();
-		exchangeData = new BMatrix[n];
+		exchangeData = new DenseByteMatrix[n];
 		var techIndex = result.techIndex;
 		var flowIndex = result.flowIndex;
 		for (int i = 0; i < n; i++) {
-			exchangeData[i] = new BMatrix(
-					flowIndex.size(), techIndex.size());
+			exchangeData[i] = new DenseByteMatrix(
+				flowIndex.size(), techIndex.size());
 		}
 
 		// collect the processes (providers) of the result with a
@@ -318,25 +319,25 @@ public class DQResult {
 	 */
 	private void calculateFlowResults() {
 		if (setup.aggregationType == AggregationType.NONE
-				|| exchangeData == null)
+			|| exchangeData == null)
 			return;
 
 		var system = setup.exchangeSystem;
 		int n = result.techIndex.size();
 		int k = system.indicators.size();
 		int m = result.flowIndex.size();
-		flowResult = new BMatrix(k, m);
-		int max = system.getScoreCount();
+		flowResult = new DenseByteMatrix(k, m);
+		byte max = (byte) system.getScoreCount();
 
 		var acc = new Accumulator(setup, max);
 		var flowContributions = new double[n];
 		for (int indicator = 0; indicator < k; indicator++) {
 			var b = exchangeData[indicator];
 			for (int flow = 0; flow < m; flow++) {
-				int[] dqs = b.getRow(flow);
+				byte[] dqs = b.getRow(flow);
 				for (int product = 0; product < n; product++) {
 					flowContributions[product] = result.provider
-							.directFlowOf(flow, product);
+						.directFlowOf(flow, product);
 				}
 				flowResult.set(indicator, flow, acc.get(dqs, flowContributions));
 			}
@@ -345,8 +346,8 @@ public class DQResult {
 
 	private void calculateImpactResults() {
 		if (setup.aggregationType == AggregationType.NONE
-				|| exchangeData == null
-				|| !result.hasImpactResults())
+			|| exchangeData == null
+			|| !result.hasImpactResults())
 			return;
 		var provider = result.provider;
 		if (!provider.hasImpacts())
@@ -358,13 +359,13 @@ public class DQResult {
 		int m = result.flowIndex.size();
 		int n = result.techIndex.size();
 		int q = result.impactIndex.size();
-		int max = system.getScoreCount();
-		impactResult = new BMatrix(k, q);
-		flowImpactResult = new BMatrix[k];
-		processImpactResult = new BMatrix[k];
+		byte max = (byte) system.getScoreCount();
+		impactResult = new DenseByteMatrix(k, q);
+		flowImpactResult = new DenseByteMatrix[k];
+		processImpactResult = new DenseByteMatrix[k];
 		for (int i = 0; i < k; i++) {
-			flowImpactResult[i] = new BMatrix(q, m);
-			processImpactResult[i] = new BMatrix(q, n);
+			flowImpactResult[i] = new DenseByteMatrix(q, m);
+			processImpactResult[i] = new DenseByteMatrix(q, n);
 		}
 
 		// initialize the accumulators
@@ -389,19 +390,19 @@ public class DQResult {
 				for (int flow = 0; flow < m; flow++) {
 
 					// get DQ data and calculate weights
-					int[] dqs = b.getRow(flow);
+					byte[] dqs = b.getRow(flow);
 					double factor = provider.impactFactorOf(impact, flow);
 
 					double[] weights = new double[provider.techIndex().size()];
 					for (int product = 0; product < weights.length; product++) {
 						weights[product] = factor * provider.directFlowOf(
-								flow, product);
+							flow, product);
 					}
 
 					// add data
 					totalImpactAcc.addAll(dqs, weights);
 					flowImpactResult[indicator].set(
-							impact, flow, flowImpactAcc.get(dqs, weights));
+						impact, flow, flowImpactAcc.get(dqs, weights));
 					for (int process = 0; process < n; process++) {
 						processAccs[process].add(dqs[process], weights[process]);
 					}
@@ -411,9 +412,19 @@ public class DQResult {
 				impactResult.set(indicator, impact, totalImpactAcc.get());
 				for (int process = 0; process < n; process++) {
 					processImpactResult[indicator].set(
-							impact, process, processAccs[process].get());
+						impact, process, processAccs[process].get());
 				}
 			} // each impact
 		} // each indicator
+	}
+
+	private static int[] toInt(byte[] bytes) {
+		if (bytes == null)
+			return null;
+		var ints = new int[bytes.length];
+		for (int i = 0; i < bytes.length; i++) {
+			ints[i] = bytes[i];
+		}
+		return ints;
 	}
 }

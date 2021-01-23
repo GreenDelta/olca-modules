@@ -5,13 +5,13 @@ class Accumulator {
 	private final AggregationType aggType;
 	private final boolean ceiling;
 	private final boolean zeroToMax;
-	private final int max;
+	private final byte max;
 
-	private int accMax;
+	private byte accMax;
 	private double accSum;
 	private double accTotalWeight;
 
-	Accumulator(DQCalculationSetup setup, int max) {
+	Accumulator(DQCalculationSetup setup, byte max) {
 		this.aggType = setup.aggregationType;
 		this.ceiling = setup.ceiling;
 		this.zeroToMax = setup.naHandling == NAHandling.USE_MAX;
@@ -31,7 +31,7 @@ class Accumulator {
 	 * Adds the given score with the given weight (if applicable) to this
 	 * accumulator.
 	 */
-	void add(int dq, double weight) {
+	void add(byte dq, double weight) {
 		if (aggType == AggregationType.MAXIMUM) {
 			if (dq == 0) {
 				if (zeroToMax) {
@@ -39,7 +39,7 @@ class Accumulator {
 				}
 				return;
 			}
-			accMax = Math.max(accMax, dq);
+			accMax = max(accMax, dq);
 			return;
 		}
 
@@ -52,15 +52,15 @@ class Accumulator {
 			}
 		}
 		double w = aggType == AggregationType.WEIGHTED_SQUARED_AVERAGE
-				? Math.pow(weight, 2)
-				: Math.abs(weight);
+			? Math.pow(weight, 2)
+			: Math.abs(weight);
 		accSum += _dq * w;
 		accTotalWeight += w;
 	}
 
-	void addAll(int[] dqs, double[] weights) {
+	void addAll(byte[] dqs, double[] weights) {
 		if (aggType == AggregationType.MAXIMUM) {
-			for (int dq : dqs) {
+			for (byte dq : dqs) {
 				add(dq, 0);
 			}
 			return;
@@ -73,36 +73,36 @@ class Accumulator {
 	/**
 	 * Get the accumulated score of the scores that where added before.
 	 */
-	int get() {
+	byte get() {
 		if (aggType == AggregationType.MAXIMUM) {
-			return Math.min(accMax, max);
+			return (byte) Math.min(accMax, max);
 		}
 		if (accTotalWeight == 0)
 			return 0;
 		double value = accSum / accTotalWeight;
-		int accDQ = ceiling
-				? Math.round((float) Math.ceil(value))
-				: Math.round((float) value);
-		return Math.min(accDQ, max);
+		byte accDQ = ceiling
+			? (byte) Math.round(Math.ceil(value))
+			: (byte) Math.round(value);
+		return min(accDQ, max);
 	}
 
 	/**
 	 * Get the accumulated score of the given scores and weights (if applicable)
 	 * without adding them to this accumulator.
 	 */
-	int get(int[] dqs, double[] weights) {
+	byte get(byte[] dqs, double[] weights) {
 		if (aggType == null || aggType == AggregationType.NONE)
 			return 0;
 
 		if (aggType == AggregationType.MAXIMUM) {
-			int m = 0;
-			for (int dq : dqs) {
+			byte m = 0;
+			for (byte dq : dqs) {
 				if (dq == 0 && zeroToMax) {
 					return max;
 				}
-				m = Math.max(m, dq);
+				m = max(m, dq);
 			}
-			return Math.min(m, max);
+			return min(m, max);
 		}
 
 		boolean square = aggType == AggregationType.WEIGHTED_SQUARED_AVERAGE;
@@ -110,7 +110,7 @@ class Accumulator {
 		double value = 0;
 
 		for (int i = 0; i < dqs.length; i++) {
-			int dq = dqs[i];
+			byte dq = dqs[i];
 			if (dq == 0) {
 				if (!zeroToMax)
 					continue;
@@ -118,19 +118,26 @@ class Accumulator {
 			}
 
 			double weight = square
-					? Math.pow(weights[i], 2)
-					: Math.abs(weights[i]);
+				? Math.pow(weights[i], 2)
+				: Math.abs(weights[i]);
 			totalWeight += weight;
-			value += ((double) dq) * weight;
+			value += dq * weight;
 		}
 
 		if (totalWeight == 0)
 			return 0;
 		value /= totalWeight;
-		int m = ceiling
-				? Math.round((float) Math.ceil(value))
-				: Math.round((float) value);
-		return Math.min(m, max);
+		byte m = ceiling
+			? (byte) Math.round(Math.ceil(value))
+			: (byte) Math.round(value);
+		return min(m, max);
 	}
 
+	private static byte min(byte b1, byte b2) {
+		return b1 > b2 ? b2 : b1;
+	}
+
+	private static byte max(byte b1, byte b2) {
+		return b1 < b2 ? b2 : b1;
+	}
 }

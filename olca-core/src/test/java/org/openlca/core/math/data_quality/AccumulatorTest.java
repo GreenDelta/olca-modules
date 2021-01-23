@@ -6,7 +6,7 @@ import org.junit.Test;
 
 public class AccumulatorTest {
 
-	private final int[] dqs = {1, 0, 4};
+	private final byte[] dqs = {1, 0, 4};
 	private final double[] weights = {0.5, 0.1, 0.4};
 
 	@Test
@@ -63,12 +63,12 @@ public class AccumulatorTest {
 	}
 
 	private void check(DQCalculationSetup setup, int result) {
-		var acc = new Accumulator(setup, 5);
+		var acc = new Accumulator(setup, (byte) 5);
 		assertEquals(result, acc.get(dqs, weights));
 
 		// add some random stuff and reset
 		for (int i = 0; i < 100; i++) {
-			acc.add(i / 10, Math.random() * 100);
+			acc.add((byte) (i / 10), Math.random() * 100);
 		}
 		acc.reset();
 
