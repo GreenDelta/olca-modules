@@ -6,7 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.matrix.format.DenseByteMatrix;
 
-public class BMatrixTest {
+public class DenseByteMatrixTest {
 
 	private DenseByteMatrix matrix;
 

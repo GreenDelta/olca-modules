@@ -8,7 +8,7 @@ public class DenseByteMatrix {
 
 	public final int rows;
 	public final int columns;
-	private final byte[] data;
+	public final byte[] data;
 
 	public DenseByteMatrix(int rows, int columns) {
 		this(rows, columns, new byte[rows * columns]);

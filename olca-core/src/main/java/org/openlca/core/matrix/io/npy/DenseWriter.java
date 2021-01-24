@@ -20,19 +20,18 @@ class DenseWriter {
 	}
 
 	void run() {
-		try (RandomAccessFile f = new RandomAccessFile(file, "rw");
-			 FileChannel channel = f.getChannel()) {
+		try (var f = new RandomAccessFile(file, "rw");
+			 var channel = f.getChannel()) {
 
 			// write the header
-			Header head = new Header();
+			var head = new Header();
 			head.dtype = "<f8";
 			head.shape = new int[]{matrix.rows(), matrix.columns()};
 			head.fortranOrder = true;
-			ByteBuffer headerBuffer = head.toByteBuffer();
-			channel.write(headerBuffer);
+			channel.write(head.toByteBuffer());
 
 			// write the data
-			ByteBuffer buffer = ByteBuffer.allocate(matrix.rows() * 8);
+			var buffer = ByteBuffer.allocate(matrix.rows() * 8);
 			buffer.order(ByteOrder.LITTLE_ENDIAN);
 			for (int col = 0; col < matrix.columns(); col++) {
 				for (int row = 0; row < matrix.rows(); row++) {

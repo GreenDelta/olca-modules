@@ -9,19 +9,24 @@ package org.openlca.core.matrix.io.npy;
 public enum DType {
 
 	/**
-	 * 64 bit floating point numbers.
+	 * 64 bit floating point number.
 	 */
 	Float64,
 
 	/**
-	 * Signed 32 bit integers.
+	 * Signed 32 bit integer.
 	 */
 	Int32,
 
 	/**
-	 * Signed 64 bit integers.
+	 * Signed 64 bit integer.
 	 */
 	Int64,
+
+	/**
+	 * Signed 8 bit integer (a signed byte).
+	 */
+	Int8,
 
 	/**
 	 * All other things that we currently not support.
@@ -39,8 +44,10 @@ public enum DType {
 			return Float64;
 		if (dtype.endsWith("i4"))
 			return Int32;
-		if (dtype.endsWith("i8"))
+		if (dtype.endsWith("i8") || dtype.equals("b"))
 			return Int64;
+		if (dtype.endsWith("i1"))
+			return Int8;
 		return UNKNOWN;
 	}
 
@@ -55,6 +62,8 @@ public enum DType {
 				return 8;
 			case Int32:
 				return 4;
+			case Int8:
+				return 1;
 			default:
 				return -1;
 		}

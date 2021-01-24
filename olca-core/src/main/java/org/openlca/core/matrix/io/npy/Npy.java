@@ -1,5 +1,6 @@
 package org.openlca.core.matrix.io.npy;
 
+import org.openlca.core.matrix.format.DenseByteMatrix;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.IMatrix;
 
@@ -7,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -24,11 +26,20 @@ public final class Npy {
 
 	/**
 	 * Loads a dense matrix from the given file. Only 2d matrices in
-	 * column-major (Fortran order) or row-major (C order) order with 64 bit
-	 * floating point numbers are supported.
+	 * column-major (Fortran) or row-major (C) order with 64 bit floating point
+	 * numbers are supported.
 	 */
 	public static DenseMatrix load(File file) {
 		return DenseReader.read(file);
+	}
+
+	/**
+	 * Loads a dense matrix of signed bytes from the given file. Only 2d
+	 * matrices in column-major (Fortran) or row-major (C) order of 8 bit signed
+	 * integers are supported.
+	 */
+	public static DenseByteMatrix loadByteMatrix(File file) {
+		return DenseByteReader.read(file);
 	}
 
 	/**
@@ -57,9 +68,27 @@ public final class Npy {
 		new DenseWriter(file, matrix).run();
 	}
 
-	public static double[] loadVector(File file) {
-		// TODO not yet implemented
-		return null;
+	public static void save(File file, DenseByteMatrix m) {
+		if (m == null || file == null)
+			return;
+		try (var f = new RandomAccessFile(file, "rw");
+			 var chan = f.getChannel()) {
+
+			// write the header
+			var header = new Header();
+			header.dtype = "|i1";
+			header.shape = new int[]{m.rows, m.columns};
+			header.fortranOrder = true;
+			chan.write(header.toByteBuffer());
+
+			// write the data
+			var buffer = ByteBuffer.wrap(m.data);
+			buffer.order(ByteOrder.LITTLE_ENDIAN);
+			chan.write(buffer);
+
+		} catch (IOException e) {
+			throw new RuntimeException("failed to write matrix to " + file, e);
+		}
 	}
 
 	/**
@@ -98,10 +127,6 @@ public final class Npy {
 			buf.position(0);
 		}
 		return v;
-	}
-
-	public static void save(File file, double[] vector) {
-		// TODO not yet implemented
 	}
 
 	/**
