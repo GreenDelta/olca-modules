@@ -56,10 +56,10 @@ public class Main {
 		try {
 			var solver = initSolver();
 			var server = new Server(port)
-					.withDefaultHandlers(db, solver);
+				.withDefaultHandlers(db, solver);
 			server.start();
 			Runtime.getRuntime().addShutdownHook(
-					new Thread(() -> shutdown(server, db)));
+				new Thread(() -> shutdown(server, db)));
 		} catch (Exception e) {
 			log.error("Failed to start server", e);
 		}
@@ -108,22 +108,21 @@ public class Main {
 	}
 
 	private IMatrixSolver initSolver() {
-		var libDir = this.lib != null
-				? new File(lib)
-				: new File(".");
 		try {
-			if (Julia.loadFromDir(libDir)
-					&& Julia.isLoaded()) {
+			var nativeLib = this.lib != null
+				? Julia.loadFromDir(new File(lib))
+				: Julia.load();
+			if (nativeLib && Julia.isLoaded()) {
 				log.info("Loaded Julia libraries and solver");
 				return new JuliaSolver();
 			}
 			log.warn("Could not load a native library; use plain Java solver" +
-					"; this can be very slow");
+				"; this can be very slow");
 			return new JavaSolver();
 		} catch (Exception e) {
 			log.error("Initialization of matrix solver failed", e);
 			log.warn("Could not load a native library; use plain Java solver" +
-					"; this can be very slow");
+				"; this can be very slow");
 			return new JavaSolver();
 		}
 	}

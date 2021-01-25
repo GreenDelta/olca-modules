@@ -1,6 +1,7 @@
 package org.openlca.ipc.handlers;
 
 import java.util.UUID;
+import java.util.function.Function;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
@@ -11,6 +12,7 @@ import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.Simulator;
 import org.openlca.core.math.SystemCalculator;
+import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
@@ -21,6 +23,8 @@ import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
 import org.openlca.jsonld.Json;
+import org.openlca.util.Pair;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,18 +46,11 @@ public class Calculator {
 	 */
 	@Rpc("simulator")
 	public RpcResponse simulator(RpcRequest req) {
-		if (req == null || req.params == null || !req.params.isJsonObject())
-			return Responses.invalidParams("No calculation setup given", req);
-		JsonObject json = req.params.getAsJsonObject();
-		String systemID = Json.getRefId(json, "productSystem");
-		if (systemID == null)
-			return Responses.invalidParams("No product system ID", req);
-		ProductSystem system = new ProductSystemDao(db).getForRefId(systemID);
-		if (system == null)
-			return Responses.invalidParams(
-					"No product system found for @id=" + systemID, req);
-		CalculationSetup setup = buildSetup(json, system);
-		log.info("Create simulator for system {}", systemID);
+		var p = setupOf(req);
+		if (p.second != null)
+			return p.second;
+		var setup = p.first;
+		log.info("Create simulator for system {}", setup.productSystem.refId);
 		Simulator simulator = Simulator.create(setup, db, context.solver);
 		String id = UUID.randomUUID().toString();
 		JsonObject obj = new JsonObject();
@@ -95,19 +92,15 @@ public class Calculator {
 
 	@Rpc("calculate")
 	public RpcResponse calculate(RpcRequest req) {
-		if (req == null || req.params == null || !req.params.isJsonObject())
-			return Responses.invalidParams("No calculation setup given", req);
-		var json = req.params.getAsJsonObject();
-		var systemID = Json.getRefId(json, "productSystem");
-		if (systemID == null)
-			return Responses.invalidParams("No product system ID", req);
-		var system = new ProductSystemDao(db).getForRefId(systemID);
-		if (system == null)
-			return Responses.invalidParams(
-					"No product system found for @id=" + systemID, req);
-		var setup = buildSetup(json, system);
-		log.info("Calculate product system {}", systemID);
-		var type = Json.getEnum(json, "calculationType", CalculationType.class);
+		var p = setupOf(req);
+		if (p.second != null)
+			return p.second;
+		var setup = p.first;
+		log.info("Calculate product system {}", setup.productSystem.refId);
+		var type = Json.getEnum(
+			req.params.getAsJsonObject(),
+			"calculationType",
+			CalculationType.class);
 		if (type == null) {
 			type = CalculationType.CONTRIBUTION_ANALYSIS;
 			log.info("No calculation type defined; " +
@@ -116,21 +109,58 @@ public class Calculator {
 		return calculate(req, setup, type);
 	}
 
-	private CalculationSetup buildSetup(JsonObject json, ProductSystem system) {
+	/**
+	 * Builds a calculation setup from the given request. Returns an error
+	 * response if this fails.
+	 */
+	private Pair<CalculationSetup, RpcResponse> setupOf(RpcRequest req) {
+
+		Function<String, Pair<CalculationSetup, RpcResponse>> error = msg -> {
+			var response = Responses.invalidParams(msg, req);
+			return Pair.of(null, response);
+		};
+
+		if (req == null || req.params == null || !req.params.isJsonObject())
+			return error.apply("No calculation setup given");
+		var json =  req.params.getAsJsonObject();
+
+		// load the product system
+		var systemID = Json.getRefId(json, "productSystem");
+		if (systemID == null)
+			return error.apply("No product system ID");
+		var system = new ProductSystemDao(db).getForRefId(systemID);
+		if (system == null)
+			return error.apply("No product system found for @id=" + systemID);
+
 		var setup = new CalculationSetup(system);
+
+		// LCIA method and normalization and weighting
 		var methodID = Json.getRefId(json, "impactMethod");
-		if (methodID != null) {
+		if (Strings.notEmpty(methodID)) {
 			setup.impactMethod = new ImpactMethodDao(db)
 					.getDescriptorForRefId(methodID);
 		}
 		var nwSetID = Json.getRefId(json, "nwSet");
-		if (nwSetID != null) {
+		if (Strings.notEmpty(nwSetID)) {
 			setup.nwSet = new NwSetDao(db).getDescriptorForRefId(nwSetID);
 		}
-		setup.withCosts = Json.getBool(json, "withCosts", false);
+
+		// the quantitative reference
 		setup.setAmount(Json.getDouble(json, "amount", system.targetAmount));
+		var qref = system.referenceExchange;
+		if (qref != null && qref.flow != null) {
+
+		}
+
+		// other calculation attributes
+		setup.allocationMethod = Json.getEnum(
+			json, "allocationMethod", AllocationMethod.class);
+		setup.withCosts = Json.getBool(json, "withCosts", false);
+
+		// add parameter redefinitions
 		parameters(json, setup);
-		return setup;
+
+		return Pair.of(setup, null);
 	}
 
 	private void parameters(JsonObject json, CalculationSetup setup) {
@@ -184,7 +214,7 @@ public class Calculator {
 	private RpcResponse calculate(RpcRequest req, CalculationSetup setup,
 								  CalculationType type) {
 		try {
-			SystemCalculator calc = new SystemCalculator(db, context.solver);
+			var calc = new SystemCalculator(db, context.solver);
 			SimpleResult r = null;
 			switch (type) {
 				case CONTRIBUTION_ANALYSIS:
