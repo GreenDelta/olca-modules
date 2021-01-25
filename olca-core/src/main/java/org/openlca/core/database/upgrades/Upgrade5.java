@@ -4,11 +4,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.LongPair;
-import org.openlca.core.matrix.cache.FlowTable;
 import org.openlca.core.model.FlowType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,15 +72,20 @@ class Upgrade5 implements IUpgrade {
 	private TObjectLongHashMap<LongPair> inputIdx(IDatabase db) {
 		TObjectLongHashMap<LongPair> idx = new TObjectLongHashMap<>(
 				Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, -1);
-		FlowTable flowTypes = FlowTable.create(db);
-		String sql = "SELECT id, f_owner, f_flow, is_input from tbl_exchanges";
+		Map<Long, FlowType> flowTypes = new HashMap<>();
 		try {
+			String sql = "SELECT id, flow_type from tbl_flows";
+			NativeSql.on(db).query(sql, r -> {
+				flowTypes.put(r.getLong(1), FlowType.valueOf(r.getString(2)));
+				return true;
+			});
+			sql = "SELECT id, f_owner, f_flow, is_input from tbl_exchanges";
 			NativeSql.on(db).query(sql, r -> {
 				long exchangeId = r.getLong(1);
 				long processId = r.getLong(2);
 				long flowId = r.getLong(3);
 				boolean isInput = r.getBoolean(4);
-				if (!isInput || flowTypes.type(flowId) == FlowType.ELEMENTARY_FLOW)
+				if (!isInput || flowTypes.get(flowId) == FlowType.ELEMENTARY_FLOW)
 					return true;
 				idx.put(LongPair.of(processId, flowId), exchangeId);
 				return true;
