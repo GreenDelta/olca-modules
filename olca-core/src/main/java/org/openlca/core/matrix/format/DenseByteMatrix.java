@@ -4,7 +4,7 @@ package org.openlca.core.matrix.format;
  * An dense matrix that stores its values in a plain byte array in column major
  * order.
  */
-public class DenseByteMatrix {
+public class DenseByteMatrix implements IByteMatrix {
 
 	public final int rows;
 	public final int columns;
@@ -20,14 +20,27 @@ public class DenseByteMatrix {
 		this.data = data;
 	}
 
+	@Override
+	public int rows() {
+		return rows;
+	}
+
+	@Override
+	public int columns() {
+		return columns;
+	}
+
+	@Override
 	public void set(int row, int col, byte value) {
 		data[index(row, col)] = value;
 	}
 
+	@Override
 	public byte get(int row, int col) {
 		return data[index(row, col)];
 	}
 
+	@Override
 	public byte[] getColumn(int j) {
 		byte[] col = new byte[rows];
 		int start = index(0, j);
@@ -37,6 +50,7 @@ public class DenseByteMatrix {
 		return col;
 	}
 
+	@Override
 	public byte[] getRow(int i) {
 		byte[] row = new byte[columns];
 		for (int j = 0; j < columns; j++) {
