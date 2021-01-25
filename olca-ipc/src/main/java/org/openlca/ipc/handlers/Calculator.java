@@ -1,5 +1,6 @@
 package org.openlca.ipc.handlers;
 
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -72,20 +73,20 @@ public class Calculator {
 		String id = Json.getString(req.params.getAsJsonObject(), "@id");
 		if (id == null)
 			return Responses.invalidParams(
-					"No simulator with '@id' given", req);
+				"No simulator with '@id' given", req);
 		Object obj = context.cache.get(id);
 		if (!(obj instanceof CachedResult))
 			return Responses.invalidParams(
-					"No cached simulator with @id=" + id, req);
+				"No cached simulator with @id=" + id, req);
 		obj = ((CachedResult<?>) obj).result;
 		if (!(obj instanceof Simulator))
 			return Responses.invalidParams(
-					"No cached simulator with @id=" + id, req);
+				"No cached simulator with @id=" + id, req);
 		Simulator simulator = (Simulator) obj;
 		SimpleResult r = simulator.nextRun();
 		if (r == null)
 			return Responses.internalServerError(
-					"Simulation failed", req);
+				"Simulation failed", req);
 		JsonObject result = JsonRpc.encode(r, id, EntityCache.create(db));
 		return Responses.ok(result, req);
 	}
@@ -104,7 +105,7 @@ public class Calculator {
 		if (type == null) {
 			type = CalculationType.CONTRIBUTION_ANALYSIS;
 			log.info("No calculation type defined; " +
-					"calculate contributions as default");
+				"calculate contributions as default");
 		}
 		return calculate(req, setup, type);
 	}
@@ -122,7 +123,7 @@ public class Calculator {
 
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return error.apply("No calculation setup given");
-		var json =  req.params.getAsJsonObject();
+		var json = req.params.getAsJsonObject();
 
 		// load the product system
 		var systemID = Json.getRefId(json, "productSystem");
@@ -138,7 +139,7 @@ public class Calculator {
 		var methodID = Json.getRefId(json, "impactMethod");
 		if (Strings.notEmpty(methodID)) {
 			setup.impactMethod = new ImpactMethodDao(db)
-					.getDescriptorForRefId(methodID);
+				.getDescriptorForRefId(methodID);
 		}
 		var nwSetID = Json.getRefId(json, "nwSet");
 		if (Strings.notEmpty(nwSetID)) {
@@ -149,6 +150,37 @@ public class Calculator {
 		setup.setAmount(Json.getDouble(json, "amount", system.targetAmount));
 		var qref = system.referenceExchange;
 		if (qref != null && qref.flow != null) {
+
+			// flow property
+			var propID = Json.getRefId(json, "flowProperty");
+			if (Strings.notEmpty(propID)) {
+				for (var f : qref.flow.flowPropertyFactors) {
+					if (f.flowProperty != null
+						&& !propID.equals(f.flowProperty.refId)) {
+						setup.setFlowPropertyFactor(f);
+						break;
+					}
+				}
+			}
+
+			// unit (we check for matching unit names and IDs here)
+			var unitObj = Json.getObject(json, "unit");
+			if (unitObj != null) {
+				var prop = setup.getFlowPropertyFactor();
+				var group = prop != null && prop.flowProperty != null
+					? prop.flowProperty.unitGroup
+					: null;
+				var unitName = Json.getString(unitObj, "name");
+				var unitID = Json.getString(unitObj, "@id");
+				if (group != null && (Strings.notEmpty(unitName)
+					|| Strings.notEmpty(unitID))) {
+					group.units.stream()
+						.filter(u -> Objects.equals(u.refId, unitID)
+							|| Objects.equals(u.name, unitName))
+						.findAny()
+						.ifPresent(setup::setUnit);
+				}
+			}
 
 		}
 
@@ -168,8 +200,8 @@ public class Calculator {
 		if (array == null) {
 			if (setup.productSystem != null) {
 				var redefSet = setup.productSystem.parameterSets.stream()
-						.filter(s -> s.isBaseline)
-						.findAny();
+					.filter(s -> s.isBaseline)
+					.findAny();
 				if (redefSet.isPresent()) {
 					setup.parameterRedefs.clear();
 					setup.parameterRedefs.addAll(redefSet.get().parameters);
@@ -201,8 +233,8 @@ public class Calculator {
 			if (refId == null)
 				continue;
 			var d = "ImpactCategory".equals(type)
-					? db.getDescriptor(ImpactCategory.class, refId)
-					: db.getDescriptor(Process.class, refId);
+				? db.getDescriptor(ImpactCategory.class, refId)
+				: db.getDescriptor(Process.class, refId);
 			if (d == null)
 				continue;
 			redef.contextId = d.id;
@@ -231,7 +263,7 @@ public class Calculator {
 			}
 			if (r == null) {
 				return Responses.error(501, "Calculation method " + type
-						+ "is not yet implemented", req);
+					+ "is not yet implemented", req);
 			}
 			var id = UUID.randomUUID().toString();
 			log.info("encode and cache result {}", id);
