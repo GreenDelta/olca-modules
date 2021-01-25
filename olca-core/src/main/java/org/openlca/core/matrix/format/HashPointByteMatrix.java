@@ -156,6 +156,22 @@ public class HashPointByteMatrix implements IByteMatrix {
 		return n;
 	}
 
+	public void iterate(ByteEntryFunction fn) {
+		var columns = data.iterator();
+		while (columns.hasNext()) {
+			columns.advance();
+			int col = columns.key();
+			var colVals = columns.value();
+			if (colVals == null)
+				continue;
+			var iter = colVals.iterator();
+			while (iter.hasNext()) {
+				iter.advance();
+				fn.value(iter.key(), col, iter.value());
+			}
+		}
+	}
+
 	private static class CSCEntry {
 		final int row;
 		final byte val;
