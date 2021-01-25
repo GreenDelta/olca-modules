@@ -1,5 +1,8 @@
 package org.openlca.core.matrix.format;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TIntByteHashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -81,7 +84,7 @@ public class HashPointByteMatrix implements IByteMatrix {
 		if (v == null)
 			return column;
 		var iter = v.iterator();
-		while(iter.hasNext()) {
+		while (iter.hasNext()) {
 			iter.advance();
 			column[iter.key()] = iter.value();
 		}
@@ -92,7 +95,7 @@ public class HashPointByteMatrix implements IByteMatrix {
 	public byte[] getRow(int i) {
 		byte[] row = new byte[columns];
 		var iter = data.iterator();
-		while(iter.hasNext()) {
+		while (iter.hasNext()) {
 			iter.advance();
 			var column = iter.value();
 			if (column == null)
@@ -103,5 +106,67 @@ public class HashPointByteMatrix implements IByteMatrix {
 			}
 		}
 		return row;
+	}
+
+	public CSCByteMatrix compress() {
+		int[] columnPointers = new int[columns + 1];
+		int n = getNumberOfEntries();
+		columnPointers[columns] = n;
+		int[] rowIndices = new int[n];
+		byte[] values = new byte[n];
+
+		int pos = 0;
+		var entries = new ArrayList<CSCEntry>();
+		for (int col = 0; col < columns; col++) {
+			columnPointers[col] = pos;
+			var column = data.get(col);
+			if (column == null)
+				continue;
+			var iter = column.iterator();
+			entries.clear();
+			while (iter.hasNext()) {
+				iter.advance();
+				entries.add(CSCEntry.of(iter.key(), iter.value()));
+			}
+			entries.sort(Comparator.comparingInt(e -> e.row));
+			for (var entry : entries) {
+				rowIndices[pos] = entry.row;
+				values[pos] = entry.val;
+				pos++;
+			}
+		}
+
+		return new CSCByteMatrix(
+			rows,
+			columns,
+			values,
+			columnPointers,
+			rowIndices
+		);
+	}
+
+	public int getNumberOfEntries() {
+		int n = 0;
+		var columns = data.iterator();
+		while (columns.hasNext()) {
+			columns.advance();
+			var column = columns.value();
+			n += column.size();
+		}
+		return n;
+	}
+
+	private static class CSCEntry {
+		final int row;
+		final byte val;
+
+		CSCEntry(int row, byte val) {
+			this.row = row;
+			this.val = val;
+		}
+
+		static CSCEntry of(int row, byte val) {
+			return new CSCEntry(row, val);
+		}
 	}
 }
