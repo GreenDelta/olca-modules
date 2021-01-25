@@ -167,6 +167,22 @@ public final class Npy {
 		return v;
 	}
 
+	static byte[] readByteVector(InputStream stream) throws IOException {
+		var header = Header.read(stream);
+		if (header.shape == null || header.shape.length == 0)
+			return new byte[0];
+		int len = header.shape[0];
+		if (len <= 0)
+			return new byte[0];
+		var dtype = header.getDType();
+		if (dtype != DType.Int8)
+			throw new IllegalArgumentException(
+				"not a supported byte type: " + dtype);
+		var data = new byte[len];
+		stream.read(data);
+		return data;
+	}
+
 	/**
 	 * Writes the given vector including its header to the given output stream.
 	 */
@@ -195,5 +211,14 @@ public final class Npy {
 		buff.order(ByteOrder.LITTLE_ENDIAN);
 		buff.asDoubleBuffer().put(v);
 		out.write(buff.array());
+	}
+
+	static void write(OutputStream out, byte[] v) throws IOException {
+		var header = new Header();
+		header.shape = new int[]{v.length};
+		header.dtype = "|i1";
+		header.fortranOrder = false;
+		header.write(out);
+		out.write(v);
 	}
 }

@@ -73,4 +73,20 @@ public class CSCByteMatrix implements IByteMatrix {
 		}
 		return v;
 	}
+
+	public void iterate(ByteEntryFunction fn) {
+		for (int col = 0; col < columns; col++) {
+			int start = columnPointers[col];
+			int end = col < (columns - 1)
+				? columnPointers[col + 1]
+				: values.length;
+			for (int i = start; i < end; i++) {
+				int row = rowIndices[i];
+				byte val = values[i];
+				if (val != 0) {
+					fn.value(row, col, val);
+				}
+			}
+		}
+	}
 }
