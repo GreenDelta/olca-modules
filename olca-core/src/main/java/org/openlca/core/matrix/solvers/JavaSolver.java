@@ -21,7 +21,7 @@ public class JavaSolver implements MatrixSolver {
 	}
 
 	@Override
-	public double[] solve(Matrix a, int idx, double d) {
+	public double[] solve(MatrixReader a, int idx, double d) {
 		var A = unwrap(a);
 		var b = new ArrayRealVector(a.rows());
 		b.setEntry(idx, d);
@@ -38,7 +38,7 @@ public class JavaSolver implements MatrixSolver {
 	}
 
 	@Override
-	public Matrix invert(Matrix a) {
+	public Matrix invert(MatrixReader a) {
 		var _a = unwrap(a);
 		var inverse = new LUDecomposition(_a).getSolver().getInverse();
 		return new JavaMatrix(inverse);
@@ -62,7 +62,7 @@ public class JavaSolver implements MatrixSolver {
 	}
 
 	@Override
-	public Factorization factorize(Matrix matrix) {
+	public Factorization factorize(MatrixReader matrix) {
 		return LU.of(matrix);
 	}
 
@@ -77,7 +77,7 @@ public class JavaSolver implements MatrixSolver {
 			this.lu = lu;
 		}
 
-		static LU of (Matrix matrix) {
+		static LU of (MatrixReader matrix) {
 			var m = unwrap(matrix);
 			var lu = new LUDecomposition(m);
 			return new LU(matrix.rows(), lu);

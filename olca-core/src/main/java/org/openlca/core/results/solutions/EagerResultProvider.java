@@ -57,7 +57,7 @@ public class EagerResultProvider implements ResultProvider {
 		if (data.flowMatrix != null) {
 
 			// elementary flows
-			directFlows = data.flowMatrix.copy();
+			directFlows = data.flowMatrix.asMutableCopy();
 			directFlows.scaleColumns(scalingVector);
 
 			// the intensity matrix: M = B * inv(A)

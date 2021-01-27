@@ -5,6 +5,7 @@ import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixConverter;
+import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.solvers.Factorization;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 
@@ -27,7 +28,7 @@ public class JuliaSolver implements MatrixSolver {
 	}
 
 	@Override
-	public double[] solve(Matrix a, int idx, double d) {
+	public double[] solve(MatrixReader a, int idx, double d) {
 		if (Julia.hasSparseLibraries() &&
 				(a instanceof HashPointMatrix
 						|| a instanceof CSCMatrix)) {
@@ -53,7 +54,7 @@ public class JuliaSolver implements MatrixSolver {
 	}
 
 	@Override
-	public double[] multiply(Matrix m, double[] x) {
+	public double[] multiply(MatrixReader m, double[] x) {
 		if (m instanceof HashPointMatrix
 				|| m instanceof CSCMatrix) {
 			return m.multiply(x);
@@ -65,7 +66,7 @@ public class JuliaSolver implements MatrixSolver {
 	}
 
 	@Override
-	public DenseMatrix invert(Matrix a) {
+	public DenseMatrix invert(MatrixReader a) {
 		DenseMatrix _a = MatrixConverter.dense(a);
 		DenseMatrix i = _a == a ? _a.copy() : _a;
 		Julia.invert(_a.columns(), i.data);
@@ -73,7 +74,7 @@ public class JuliaSolver implements MatrixSolver {
 	}
 
 	@Override
-	public DenseMatrix multiply(Matrix a, Matrix b) {
+	public DenseMatrix multiply(MatrixReader a, MatrixReader b) {
 		DenseMatrix _a = MatrixConverter.dense(a);
 		DenseMatrix _b = MatrixConverter.dense(b);
 		int rowsA = _a.rows();
@@ -89,7 +90,7 @@ public class JuliaSolver implements MatrixSolver {
 	}
 
 	@Override
-	public Factorization factorize(Matrix matrix) {
+	public Factorization factorize(MatrixReader matrix) {
 		if (matrix instanceof HashPointMatrix) {
 			var csc = ((HashPointMatrix) matrix).compress();
 			return SparseFactorization.of(csc);

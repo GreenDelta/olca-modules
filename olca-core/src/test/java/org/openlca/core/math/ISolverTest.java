@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.JavaMatrix;
+import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.solvers.Factorization;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 
@@ -70,17 +71,17 @@ public class ISolverTest {
 		}
 
 		@Override
-		public double[] solve(Matrix a, int idx, double d) {
+		public double[] solve(MatrixReader a, int idx, double d) {
 			return null;
 		}
 
 		@Override
-		public Matrix invert(Matrix a) {
+		public Matrix invert(MatrixReader a) {
 			return null;
 		}
 
 		@Override
-		public Factorization factorize(Matrix matrix) {
+		public Factorization factorize(MatrixReader matrix) {
 			return null;
 		}
 	}

@@ -84,6 +84,6 @@ public interface MatrixSolver {
 		return r;
 	}
 
-	Factorization factorize(Matrix matrix);
+	Factorization factorize(MatrixReader matrix);
 
 }

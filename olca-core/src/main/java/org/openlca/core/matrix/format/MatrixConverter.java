@@ -5,17 +5,17 @@ public final class MatrixConverter {
 	private MatrixConverter() {
 	}
 
-	public static DenseMatrix dense(Matrix m) {
+	public static DenseMatrix dense(MatrixReader m) {
 		if (m instanceof DenseMatrix)
 			return (DenseMatrix) m;
 
 		int rows = m.rows();
 		int cols = m.columns();
-		DenseMatrix d = new DenseMatrix(rows, cols);
+		var d = new DenseMatrix(rows, cols);
 
 		if (m instanceof HashPointMatrix) {
-			HashPointMatrix s = (HashPointMatrix) m;
-			s.iterate((row, col, val) -> d.set(row, col, val));
+			var s = (HashPointMatrix) m;
+			s.iterate(d::set);
 			return d;
 		}
 

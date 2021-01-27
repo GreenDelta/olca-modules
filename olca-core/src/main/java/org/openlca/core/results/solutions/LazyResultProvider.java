@@ -176,7 +176,7 @@ public class LazyResultProvider implements ResultProvider {
 			return directFlows;
 		if (data.flowMatrix == null)
 			return null;
-		var m = data.flowMatrix.copy();
+		var m = data.flowMatrix.asMutableCopy();
 		m.scaleColumns(scalingVector);
 		directFlows = m;
 		return directFlows;

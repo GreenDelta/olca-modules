@@ -18,6 +18,7 @@ import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.Matrix;
+import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -89,7 +90,7 @@ public final class CsvOut {
 	/**
 	 * Write the matrix to the given file.
 	 */
-	public static void write(Matrix matrix, File file) {
+	public static void write(MatrixReader matrix, File file) {
 		if (matrix == null || file == null)
 			return;
 		String[] mask = new String[matrix.columns()];

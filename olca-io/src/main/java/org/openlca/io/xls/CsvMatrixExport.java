@@ -74,7 +74,7 @@ public class CsvMatrixExport implements Runnable {
 
 	private void writeTechMatrix(MatrixData data, BufferedWriter buffer)
 			throws Exception {
-		Matrix techMatrix = data.techMatrix;
+		var techMatrix = data.techMatrix;
 		TechIndex techIndex = data.techIndex;
 		int size = techIndex.size();
 		for (int row = 0; row < size; row++) {
@@ -100,7 +100,7 @@ public class CsvMatrixExport implements Runnable {
 		int rows = flowIndex.size();
 		int columns = techIndex.size();
 		writeEnviMatrixHeader(buffer, techIndex);
-		Matrix matrix = data.flowMatrix;
+		var matrix = data.flowMatrix;
 		for (int row = 0; row < rows; row++) {
 			FlowDescriptor flow = flowIndex.at(row).flow;
 			writeName(flow, buffer);

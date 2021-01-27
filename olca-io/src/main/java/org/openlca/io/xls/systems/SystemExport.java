@@ -21,6 +21,7 @@ import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.Matrix;
+import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.io.xls.Excel;
@@ -30,10 +31,10 @@ import org.slf4j.LoggerFactory;
 
 public class SystemExport {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private MatrixData data;
-	private SystemExportConfig conf;
+	private final SystemExportConfig conf;
 
 	public SystemExport(SystemExportConfig config) {
 		this.conf = config;
@@ -330,9 +331,8 @@ public class SystemExport {
 		return sortedCategories;
 	}
 
-	private Matrix transpose(Matrix matrix) {
-		Matrix result = new DenseMatrix(
-				matrix.columns(), matrix.rows());
+	private Matrix transpose(MatrixReader matrix) {
+		var result = new DenseMatrix(matrix.columns(), matrix.rows());
 		for (int row = 0; row < matrix.rows(); row++) {
 			for (int column = 0; column < matrix.columns(); column++) {
 				double value = matrix.get(row, column);

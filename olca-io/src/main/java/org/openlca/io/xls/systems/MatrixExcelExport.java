@@ -10,6 +10,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openlca.core.matrix.format.Matrix;
+import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.io.xls.Excel;
 
 class MatrixExcelExport {
@@ -19,7 +20,7 @@ class MatrixExcelExport {
 
 	private ExcelHeader columnHeader;
 	private ExcelHeader rowHeader;
-	private Matrix matrix;
+	private MatrixReader matrix;
 
 	public void setColumnHeader(ExcelHeader columnHeader) {
 		this.columnHeader = columnHeader;
@@ -29,7 +30,7 @@ class MatrixExcelExport {
 		this.rowHeader = rowHeader;
 	}
 
-	public void setMatrix(Matrix matrix) {
+	public void setMatrix(MatrixReader matrix) {
 		this.matrix = matrix;
 	}
 

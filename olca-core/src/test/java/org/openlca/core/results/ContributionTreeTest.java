@@ -32,14 +32,17 @@ public class ContributionTreeTest {
 		data.flowIndex = enviIndex;
 
 		var solver = Tests.getDefaultSolver();
-		data.techMatrix = solver.matrix(3, 3);
-		data.techMatrix.setValues(new double[][] {
+		var techMatrix = solver.matrix(3, 3);
+		techMatrix.setValues(new double[][] {
 				{ 1, 0, 0 },
 				{ -1, 1, 0 },
 				{ -1, 0, 1 } });
-		data.flowMatrix = solver.matrix(1, 3);
-		data.flowMatrix.setValues(new double[][] {
+		data.techMatrix = techMatrix;
+
+		var flowMatrix = solver.matrix(1, 3);
+		flowMatrix.setValues(new double[][] {
 				{ 0, 0.5, 0.5 } });
+		data.flowMatrix = flowMatrix;
 
 		// calculate and check the result
 		var r = new LcaCalculator(solver, data).calculateFull();
