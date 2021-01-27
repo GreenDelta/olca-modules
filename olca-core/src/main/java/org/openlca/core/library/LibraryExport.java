@@ -26,7 +26,6 @@ import org.openlca.core.matrix.FastMatrixBuilder;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
-import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.matrix.io.npy.Npz;
@@ -156,8 +155,10 @@ public class LibraryExport implements Runnable {
 
 		// normalize the columns to 1 | -1
 		log.info("normalize matrices to 1 | -1");
-		var matrixA = data.techMatrix;
-		var matrixB = data.flowMatrix;
+		var matrixA = data.techMatrix.asMutable();
+		data.techMatrix = matrixA;
+		var matrixB = data.flowMatrix.asMutable();
+		data.flowMatrix = matrixB;
 		int n = matrixA.columns();
 		for (int j = 0; j < n; j++) {
 			double f = Math.abs(matrixA.get(j, j));

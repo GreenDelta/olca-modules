@@ -6,6 +6,7 @@ import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.JavaMatrix;
+import org.openlca.core.matrix.format.MatrixReader;
 
 public class JavaSolver implements MatrixSolver {
 
@@ -13,7 +14,7 @@ public class JavaSolver implements MatrixSolver {
 	public boolean hasSparseSupport() {
 		return false;
 	}
-	
+
 	@Override
 	public Matrix matrix(int rows, int columns) {
 		return new JavaMatrix(rows, columns);
@@ -29,7 +30,7 @@ public class JavaSolver implements MatrixSolver {
 	}
 
 	@Override
-	public double[] multiply(Matrix m, double[] v) {
+	public double[] multiply(MatrixReader m, double[] v) {
 		var A = unwrap(m);
 		var b = new Array2DRowRealMatrix(v.length, 1);
 		b.setColumn(0, v);
@@ -44,14 +45,14 @@ public class JavaSolver implements MatrixSolver {
 	}
 
 	@Override
-	public Matrix multiply(Matrix a, Matrix b) {
+	public Matrix multiply(MatrixReader a, MatrixReader b) {
 		RealMatrix _a = unwrap(a);
 		RealMatrix _b = unwrap(b);
 		RealMatrix c = _a.multiply(_b);
 		return new JavaMatrix(c);
 	}
 
-	private static RealMatrix unwrap(Matrix m) {
+	private static RealMatrix unwrap(MatrixReader m) {
 		if (m instanceof JavaMatrix)
 			return ((JavaMatrix) m).getRealMatrix();
 		var rm = new Array2DRowRealMatrix(

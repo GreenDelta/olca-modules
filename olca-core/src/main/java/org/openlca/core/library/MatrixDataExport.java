@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
-import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.matrix.io.npy.Npz;
@@ -119,8 +118,9 @@ class MatrixDataExport {
 			if (!needScaling) {
 				scalings = null;
 			} else {
-				techMatrix = techMatrix.copy();
-				techMatrix.scaleColumns(scalings);
+				var copy = techMatrix.asMutableCopy();
+				copy.scaleColumns(scalings);
+				techMatrix = copy;
 			}
 			writeMatrix("A", techMatrix);
 		}
@@ -128,8 +128,9 @@ class MatrixDataExport {
 		var flowMatrix = data.flowMatrix;
 		if (flowMatrix != null) {
 			if (scalings != null) {
-				flowMatrix = flowMatrix.copy();
-				flowMatrix.scaleColumns(scalings);
+				var copy = flowMatrix.asMutableCopy();
+				copy.scaleColumns(scalings);
+				flowMatrix = copy;
 			}
 			writeMatrix("B", flowMatrix);
 		}
@@ -156,7 +157,7 @@ class MatrixDataExport {
 		writeMatrix("M", m);
 	}
 
-	private void writeMatrix(String name, Matrix matrix) {
+	private void writeMatrix(String name, MatrixReader matrix) {
 		MatrixReader m = matrix;
 		if (m instanceof HashPointMatrix) {
 			m = CSCMatrix.of(m);

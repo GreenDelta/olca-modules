@@ -43,7 +43,7 @@ public interface MatrixSolver {
 	/**
 	 * Calculates the inverse of the given matrix.
 	 */
-	Matrix invert(Matrix a);
+	Matrix invert(MatrixReader a);
 
 	/**
 	 * Returns the matrix product of the given matrices.

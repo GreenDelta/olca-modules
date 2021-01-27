@@ -2,22 +2,34 @@ package org.openlca.core.matrix.format;
 
 public interface MatrixReader {
 
-	/** Returns the number of rows of the matrix. */
+	/**
+	 * Returns the number of rows of the matrix.
+	 */
 	int rows();
 
-	/** Returns the number of columns of the matrix. */
+	/**
+	 * Returns the number of columns of the matrix.
+	 */
 	int columns();
 
-	/** Get the value of the given row and column. */
+	/**
+	 * Get the value of the given row and column.
+	 */
 	double get(int row, int col);
 
-	/** Get the row values of the given column. */
+	/**
+	 * Get the row values of the given column.
+	 */
 	double[] getColumn(int i);
 
-	/** Get the column values of the given row. */
+	/**
+	 * Get the column values of the given row.
+	 */
 	double[] getRow(int i);
 
-	/** Creates a copy of this matrix and returns it */
+	/**
+	 * Creates a copy of this matrix and returns it
+	 */
 	MatrixReader copy();
 
 	/**
@@ -62,5 +74,48 @@ public interface MatrixReader {
 			diag[i] = get(i, i);
 		}
 		return diag;
+	}
+
+	/**
+	 * Converts this (immutable) reader into a mutable matrix. Returns itself
+	 * if this reader is already a mutable matrix. Otherwise it creates a
+	 * mutable copy.
+	 */
+	default Matrix asMutable() {
+		if (this instanceof Matrix)
+			return (Matrix) this;
+		var m = isSparse()
+			? new HashPointMatrix(rows(), columns())
+			: new DenseMatrix(rows(), columns());
+		iterate(m::set);
+		return m;
+	}
+
+	/**
+	 * Same as `asMutable` but with the guarantee that a copy is returned.
+	 */
+	default Matrix asMutableCopy() {
+		if (this instanceof Matrix)
+			return ((Matrix) this).copy();
+		var m = isSparse()
+			? new HashPointMatrix(rows(), columns())
+			: new DenseMatrix(rows(), columns());
+		iterate(m::set);
+		return m;
+	}
+
+	/**
+	 * Returns true if the type of this implementation is a sparse matrix
+	 * structure. It does **not** look into this matrix and checks if it is
+	 * filled sparsely but just returns true if the storage type is optimized
+	 * for sparsity.
+	 */
+	boolean isSparse();
+
+	/**
+	 * A matrix is dense if it is not sparse (see `isSparse`)
+	 */
+	default boolean isDense() {
+		return !isSparse();
 	}
 }
