@@ -1,7 +1,10 @@
 package org.openlca.core.matrix;
 
 import java.sql.ResultSet;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.stream.Collectors;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.IDatabase;
@@ -39,6 +42,17 @@ public final class ImpactBuilder {
 	public ImpactBuilder withUncertainties(boolean b) {
 		this.withUncertainties = b;
 		return this;
+	}
+
+	public static ImpactData build(
+		IDatabase db, FlowIndex flows, ImpactIndex impacts) {
+		var builder = new ImpactBuilder(db);
+		var impactIDs = Arrays.stream(impacts.ids())
+			.boxed()
+			.collect(Collectors.toSet());
+		var interpreter = ParameterTable.interpreter(
+			db, impactIDs, Collections.emptyList());
+		return builder.build(flows, impacts, interpreter);
 	}
 
 	public ImpactData build(
@@ -250,5 +264,23 @@ public final class ImpactBuilder {
 		public ImpactIndex impactIndex;
 		public Matrix impactMatrix;
 		public UMatrix impactUncertainties;
+
+		/**
+		 * Adds the impact data to the given matrix data.
+		 */
+		public void addTo(MatrixData data) {
+			if (data == null)
+				return;
+			if (data.flowIndex != flowIndex) {
+				// this would be a strange setup as the impact
+				// data are built with a corresponding flow index
+				// and this should be identical to the flow index
+				// in the data.
+				data.flowIndex = flowIndex;
+			}
+			data.impactIndex = impactIndex;
+			data.impactMatrix = impactMatrix;
+			data.impactUncertainties = impactUncertainties;
+		}
 	}
 }

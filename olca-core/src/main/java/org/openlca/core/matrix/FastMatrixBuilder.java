@@ -114,19 +114,16 @@ public class FastMatrixBuilder {
 			return;
 
 		// load the LCIA category index
-		ImpactMethodDao dao = new ImpactMethodDao(db);
-		List<ImpactDescriptor> indicators = dao.getCategoryDescriptors(
-				setup.impactMethod.id);
-		if (indicators.isEmpty())
+		var dao = new ImpactMethodDao(db);
+		var impacts = dao.getCategoryDescriptors(setup.impactMethod.id);
+		if (impacts.isEmpty())
 			return;
-		var impactIndex = new ImpactIndex();
-		impactIndex.putAll(indicators);
+		var impactIndex = ImpactIndex.of(impacts);
 
-		// build the matrix
-		ImpactBuilder.ImpactData idata = new ImpactBuilder(db)
-				.build(flowIndex, impactIndex, interpreter);
-		data.impactIndex = impactIndex;
-		data.impactMatrix = idata.impactMatrix;
+		// build the matrix and add it to the data
+		new ImpactBuilder(db)
+				.build(flowIndex, impactIndex, interpreter)
+				.addTo(data);
 	}
 
 	private void putExchangeValue(ProcessProduct provider, CalcExchange e) {

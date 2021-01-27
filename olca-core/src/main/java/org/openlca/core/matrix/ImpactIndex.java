@@ -30,6 +30,16 @@ public class ImpactIndex {
 			0L, // no entry key
 			-1); // no entry value
 
+	public static ImpactIndex of(Iterable<ImpactDescriptor> impacts) {
+		var index = new ImpactIndex();
+		if (impacts == null)
+			return index;
+		for (var impact : impacts) {
+			index.put(impact);
+		}
+		return index;
+	}
+
 	/**
 	 * Returns the number of impact categories in the index.
 	 */
