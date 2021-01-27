@@ -38,7 +38,7 @@ public interface MatrixSolver {
 	 *
 	 * @return the calculated scaling vector s
 	 */
-	double[] solve(Matrix a, int idx, double d);
+	double[] solve(MatrixReader a, int idx, double d);
 
 	/**
 	 * Calculates the inverse of the given matrix.

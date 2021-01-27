@@ -37,6 +37,11 @@ public class JavaMatrix implements Matrix {
 		return m;
 	}
 
+	@Override
+	public final boolean isSparse() {
+		return false;
+	}
+
 	public RealMatrix getRealMatrix() {
 		return matrix;
 	}

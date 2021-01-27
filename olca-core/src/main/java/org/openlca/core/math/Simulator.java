@@ -21,7 +21,6 @@ import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
-import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessLink;
@@ -162,9 +161,9 @@ public class Simulator {
 
 				// A, B, C, s, t are the standard symbols
 				// in LCA calculations
-				Matrix A = root.data.techMatrix;
-				Matrix B = root.data.flowMatrix;
-				Matrix C = root.data.impactMatrix;
+				var A = root.data.techMatrix;
+				var B = root.data.flowMatrix;
+				var C = root.data.impactMatrix;
 				double[] s = sr.scalingVector;
 
 				// direct contributions
@@ -182,8 +181,7 @@ public class Simulator {
 				// upstream contributions
 				SimpleResult upstream = new SimpleResult();
 				double fi = si * A.get(idx, idx);
-				double loopFactor = LcaCalculator.getLoopFactor(
-						A, s, sr.techIndex);
+				double loopFactor = LcaCalculator.getLoopFactor(A, s, sr.techIndex);
 				fi *= loopFactor;
 				double[] su = solver.solve(A, idx, fi);
 				upstream.totalFlowResults = solver.multiply(B, su);
@@ -222,7 +220,9 @@ public class Simulator {
 					double val = sub.lastResult.totalFlowResults[i];
 					int row = node.data.flowIndex.of(f.flow, f.location);
 					if (row >= 0) {
-						node.data.flowMatrix.set(row, col, val);
+						var fm = node.data.flowMatrix.asMutable();
+						fm.set(row, col, val);
+						node.data.flowMatrix = fm;
 					}
 				});
 			}

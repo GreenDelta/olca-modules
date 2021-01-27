@@ -23,6 +23,11 @@ public class DenseMatrix implements Matrix {
 	}
 
 	@Override
+	public final boolean isSparse() {
+		return false;
+	}
+
+	@Override
 	public int rows() {
 		return rows;
 	}

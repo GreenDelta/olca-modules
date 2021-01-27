@@ -57,6 +57,11 @@ public class HashPointMatrix implements Matrix {
 	}
 
 	@Override
+	public final boolean isSparse() {
+		return true;
+	}
+
+	@Override
 	public int rows() {
 		return rows;
 	}

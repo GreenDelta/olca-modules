@@ -2,7 +2,7 @@ package org.openlca.core.matrix.io.npy;
 
 import org.openlca.core.matrix.format.CSCByteMatrix;
 import org.openlca.core.matrix.format.CSCMatrix;
-import org.openlca.core.matrix.format.Matrix;
+import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.util.Strings;
 
 import java.io.BufferedInputStream;
@@ -34,7 +34,7 @@ public final class Npz {
 	private Npz() {
 	}
 
-	public static Matrix load(File file) {
+	public static MatrixReader load(File file) {
 		try (ZipFile zip = new ZipFile(file)) {
 			String format = getFormat(zip);
 			if (format == null) {
@@ -94,7 +94,7 @@ public final class Npz {
 	}
 
 	public static double[] loadColumn(File file, int column) {
-		Matrix matrix = load(file);
+		var matrix = load(file);
 		return matrix.getColumn(column);
 	}
 

@@ -5,6 +5,7 @@ import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.Matrix;
+import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
@@ -93,7 +94,7 @@ public class LcaCalculator {
 	 */
 	@Deprecated
 	public static double getLoopFactor(
-			Matrix A, double[] s, TechIndex techIndex) {
+		MatrixReader A, double[] s, TechIndex techIndex) {
 		int i = techIndex.getIndex(techIndex.getRefFlow());
 		double t = A.get(i, i) * s[i];
 		double f = techIndex.getDemand();

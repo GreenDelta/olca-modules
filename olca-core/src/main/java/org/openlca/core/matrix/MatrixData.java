@@ -2,7 +2,6 @@ package org.openlca.core.matrix;
 
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
-import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.uncertainties.UMatrix;
 import org.openlca.expressions.FormulaInterpreter;
@@ -76,18 +75,24 @@ public class MatrixData {
 	public UMatrix impactUncertainties;
 
 	/**
-	 * Generates new random values
-	 * @param interpreter
+	 * Generates new random values and modifies the respective matrices. Note that
+	 * the matrix instances may change so you need to be carefully with aliases.
 	 */
 	public void simulate(FormulaInterpreter interpreter) {
 		if (techMatrix != null && techUncertainties != null) {
-			techUncertainties.generate(techMatrix, interpreter);
+			var t = techMatrix.asMutable();
+			techUncertainties.generate(t, interpreter);
+			techMatrix = t;
 		}
 		if (flowMatrix != null && enviUncertainties != null) {
-			enviUncertainties.generate(flowMatrix, interpreter);
+			var f = flowMatrix.asMutable();
+			enviUncertainties.generate(f, interpreter);
+			flowMatrix = f;
 		}
 		if (impactMatrix != null && impactUncertainties != null) {
-			impactUncertainties.generate(impactMatrix, interpreter);
+			var c = impactMatrix.asMutable();
+			impactUncertainties.generate(c, interpreter);
+			impactMatrix = c;
 		}
 	}
 

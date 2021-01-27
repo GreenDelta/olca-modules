@@ -25,7 +25,7 @@ import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
-import org.openlca.core.matrix.format.Matrix;
+import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.matrix.io.npy.Npz;
 import org.openlca.core.model.Exchange;
@@ -41,7 +41,7 @@ public class Library {
 	public final File folder;
 	private LibraryInfo _info;
 
-	private final Map<LibraryMatrix, Matrix> matrixCache = new HashMap<>();
+	private final Map<LibraryMatrix, MatrixReader> matrixCache = new HashMap<>();
 
 	public Library(File folder) {
 		this.folder = folder;
@@ -279,7 +279,7 @@ public class Library {
 		return npz.exists();
 	}
 
-	public Optional<Matrix> getMatrix(LibraryMatrix m) {
+	public Optional<MatrixReader> getMatrix(LibraryMatrix m) {
 		var matrix = matrixCache.get(m);
 		if (matrix != null)
 			return Optional.of(matrix);

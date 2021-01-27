@@ -47,6 +47,11 @@ public class CSCMatrix implements MatrixReader {
 		this.rowIndices = rowIndices;
 	}
 
+	@Override
+	public final boolean isSparse() {
+		return true;
+	}
+
 	/**
 	 * Creates a compressed sparse column representation of the given matrix.
 	 */

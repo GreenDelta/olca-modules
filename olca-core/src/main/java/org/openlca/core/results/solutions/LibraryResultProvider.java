@@ -668,7 +668,7 @@ public class LibraryResultProvider implements ResultProvider {
 		var factors = impactFactors();
 		if (g == null || factors == null)
 			return null;
-		var m = factors.copy();
+		var m = factors.asMutableCopy();
 		m.scaleColumns(g);
 		flowImpacts = m;
 		return flowImpacts;

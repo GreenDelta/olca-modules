@@ -9,10 +9,11 @@ import java.nio.channels.FileChannel.MapMode;
 
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.Matrix;
+import org.openlca.core.matrix.format.MatrixReader;
 
 class Matrices {
 
-	static void writeDenseColumn(Matrix m, File file) throws Exception {
+	static void writeDenseColumn(MatrixReader m, File file) throws Exception {
 		if (m == null || file == null)
 			return;
 

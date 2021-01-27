@@ -17,6 +17,11 @@ public class CompressedRowMatrix implements Matrix {
 	}
 
 	@Override
+	public final boolean isSparse() {
+		return true;
+	}
+
+	@Override
 	public double[] getColumn(int col) {
 		double[] column = new double[rows];
 		if (columnIndices.length == 0)
