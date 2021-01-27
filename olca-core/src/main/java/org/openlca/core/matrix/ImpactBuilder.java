@@ -7,7 +7,7 @@ import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.cache.ConversionTable;
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixBuilder;
 import org.openlca.core.matrix.uncertainties.UMatrix;
 import org.openlca.core.model.UncertaintyType;
@@ -248,7 +248,7 @@ public final class ImpactBuilder {
 	public static class ImpactData {
 		public FlowIndex flowIndex;
 		public ImpactIndex impactIndex;
-		public IMatrix impactMatrix;
+		public Matrix impactMatrix;
 		public UMatrix impactUncertainties;
 	}
 }

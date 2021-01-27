@@ -13,7 +13,7 @@ public class MatrixBuilderTest {
 		for (int i = 0; i < size; i++) {
 			b.set(i, i, i);
 		}
-		IMatrix m = b.finish();
+		Matrix m = b.finish();
 		assertEquals(size, m.rows());
 		assertEquals(size, m.columns());
 		for (int i = 0; i < size; i++) {
@@ -31,7 +31,7 @@ public class MatrixBuilderTest {
 				b.set(row, col, row * col);
 			}
 		}
-		IMatrix m = b.finish();
+		Matrix m = b.finish();
 		assertEquals(2500, m.rows());
 		assertEquals(1500, m.columns());
 		assertEquals(DenseMatrix.class, m.getClass());
@@ -52,7 +52,7 @@ public class MatrixBuilderTest {
 				b.set(row, col, row * col);
 			}
 		}
-		IMatrix m = b.finish();
+		Matrix m = b.finish();
 		assertEquals(2500, m.rows());
 		assertEquals(1500, m.columns());
 		assertEquals(DenseMatrix.class, m.getClass());

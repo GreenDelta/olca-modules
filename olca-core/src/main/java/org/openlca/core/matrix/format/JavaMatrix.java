@@ -4,7 +4,7 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 
-public class JavaMatrix implements IMatrix {
+public class JavaMatrix implements Matrix {
 
 	private final RealMatrix matrix;
 
@@ -72,7 +72,7 @@ public class JavaMatrix implements IMatrix {
 	}
 
 	@Override
-	public IMatrix copy() {
+	public Matrix copy() {
 		return new JavaMatrix(matrix.copy());
 	}
 

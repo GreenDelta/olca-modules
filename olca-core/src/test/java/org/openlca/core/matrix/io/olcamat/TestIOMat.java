@@ -6,14 +6,14 @@ import java.nio.file.Files;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.matrix.format.DenseMatrix;
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 
 public class TestIOMat {
 
 	@Test
 	public void testMatrixIO() throws Exception {
 		File f = Files.createTempFile("olcamat-", ".bin").toFile();
-		IMatrix m = new DenseMatrix(2, 3);
+		Matrix m = new DenseMatrix(2, 3);
 		m.setValues(new double[][] {
 				{ 1, 2, 3 },
 				{ 4, 5, 6 }

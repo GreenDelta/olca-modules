@@ -4,7 +4,7 @@ package org.openlca.core.matrix.format;
  * An dense matrix that stores its values in a plain byte array in column major
  * order.
  */
-public class DenseByteMatrix implements IByteMatrix {
+public class DenseByteMatrix implements ByteMatrix {
 
 	public final int rows;
 	public final int columns;

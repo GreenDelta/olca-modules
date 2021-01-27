@@ -7,7 +7,7 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,10 +22,10 @@ public class MatrixImageExport {
 	private int height = -1;
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	private IMatrix matrix;
+	private Matrix matrix;
 	private File exportFile;
 
-	public MatrixImageExport(IMatrix matrix, File exportFile) {
+	public MatrixImageExport(Matrix matrix, File exportFile) {
 		this.matrix = matrix;
 		this.exportFile = exportFile;
 	}

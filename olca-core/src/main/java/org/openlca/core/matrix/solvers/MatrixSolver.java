@@ -1,6 +1,6 @@
 package org.openlca.core.matrix.solvers;
 
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 
 /**
  * Interface for linear algebra and matrix problems that we need to solve in
@@ -8,7 +8,7 @@ import org.openlca.core.matrix.format.IMatrix;
  * other packages which are based on high performance libraries like Eigen and
  * OpenBLAS.
  */
-public interface IMatrixSolver {
+public interface MatrixSolver {
 
 	/**
 	 * Returns true if the solver has specific support for solving sparse
@@ -20,7 +20,7 @@ public interface IMatrixSolver {
 	 * Creates an instance of the default matrix type that can be used with this
 	 * solver.
 	 */
-	IMatrix matrix(int rows, int columns);
+	Matrix matrix(int rows, int columns);
 
 	/**
 	 * Solves the system of linear equations A * s = d. In openLCA this is used
@@ -37,22 +37,22 @@ public interface IMatrixSolver {
 	 *
 	 * @return the calculated scaling vector s
 	 */
-	double[] solve(IMatrix a, int idx, double d);
+	double[] solve(Matrix a, int idx, double d);
 
 	/**
 	 * Calculates the inverse of the given matrix.
 	 */
-	IMatrix invert(IMatrix a);
+	Matrix invert(Matrix a);
 
 	/**
 	 * Returns the matrix product of the given matrices.
 	 */
-	default IMatrix multiply(IMatrix a, IMatrix b) {
+	default Matrix multiply(Matrix a, Matrix b) {
 		if (a == null || b == null)
 			return null;
 		if (a.columns() != b.rows())
 			throw new IllegalArgumentException("a.columns != b.rows");
-		IMatrix r = matrix(a.rows(), b.columns());
+		Matrix r = matrix(a.rows(), b.columns());
 		for (int row = 0; row < a.rows(); row++) {
 			for (int col = 0; col < b.columns(); col++) {
 				double val = 0;
@@ -69,7 +69,7 @@ public interface IMatrixSolver {
 	 * Calculates a matrix-vector product. In openLCA we use this for example
 	 * when we calculate the inventory result: g = B * s
 	 */
-	default double[] multiply(IMatrix m, double[] v) {
+	default double[] multiply(Matrix m, double[] v) {
 		if (m == null || v == null)
 			return null;
 		int cols = Math.min(m.columns(), v.length);
@@ -83,6 +83,6 @@ public interface IMatrixSolver {
 		return r;
 	}
 
-	Factorization factorize(IMatrix matrix);
+	Factorization factorize(Matrix matrix);
 
 }

@@ -7,8 +7,8 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 
-import org.openlca.core.matrix.format.IMatrix;
-import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.core.matrix.format.Matrix;
+import org.openlca.core.matrix.solvers.MatrixSolver;
 
 /**
  * Reads a binary Matlab file (version?) with a matrix with 64 bit floating
@@ -22,12 +22,12 @@ public class MatBinMatrixReader {
 	private final int SIZE = 8;
 
 	private final File file;
-	private final IMatrixSolver solver;
+	private final MatrixSolver solver;
 
 	private boolean useStreaming = false;
 	private ByteBuffer buffer;
 
-	public MatBinMatrixReader(File file, IMatrixSolver solver) {
+	public MatBinMatrixReader(File file, MatrixSolver solver) {
 		this.file = file;
 		this.solver = solver;
 		buffer = ByteBuffer.allocate(SIZE);
@@ -38,19 +38,19 @@ public class MatBinMatrixReader {
 		this.useStreaming = useStreaming;
 	}
 
-	public IMatrix read() throws Exception {
+	public Matrix read() throws Exception {
 		if (useStreaming)
 			return readViaStreaming();
 		else
 			return readInMemory();
 	}
 
-	private IMatrix readInMemory() throws Exception {
+	private Matrix readInMemory() throws Exception {
 		byte[] bytes = Files.readAllBytes(file.toPath());
 		checkFormat(bytes);
 		int rows = (int) readNumber(3, bytes);
 		int cols = (int) readNumber(4, bytes);
-		IMatrix matrix = solver.matrix(rows, cols);
+		Matrix matrix = solver.matrix(rows, cols);
 		for (int col = 0; col < cols; col++) {
 			for (int row = 0; row < rows; row++) {
 				int offset = 5 + row + col * matrix.rows();
@@ -61,13 +61,13 @@ public class MatBinMatrixReader {
 		return matrix;
 	}
 
-	private IMatrix readViaStreaming() throws Exception {
+	private Matrix readViaStreaming() throws Exception {
 		try (FileInputStream fis = new FileInputStream(file);
 				FileChannel channel = fis.getChannel()) {
 			checkFormat(channel);
 			int rows = (int) readNumber(channel); // pos = 3
 			int cols = (int) readNumber(channel); // pos = 4
-			IMatrix matrix = solver.matrix(rows, cols);
+			Matrix matrix = solver.matrix(rows, cols);
 			for (int col = 0; col < cols; col++) {
 				for (int row = 0; row < rows; row++) {
 					double val = readNumber(channel);

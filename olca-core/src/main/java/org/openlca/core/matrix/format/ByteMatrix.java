@@ -3,7 +3,7 @@ package org.openlca.core.matrix.format;
 /**
  * An interface for matrices of (signed) byte values.
  */
-public interface IByteMatrix {
+public interface ByteMatrix {
 
 	int rows();
 

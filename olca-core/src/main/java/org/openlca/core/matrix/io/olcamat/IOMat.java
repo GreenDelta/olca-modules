@@ -5,7 +5,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 
 public final class IOMat {
 
@@ -60,11 +60,11 @@ public final class IOMat {
 		return entries;
 	}
 
-	public static void writeMatrix(IMatrix m, File file) throws Exception {
+	public static void writeMatrix(Matrix m, File file) throws Exception {
 		Matrices.writeDenseColumn(m, file);
 	}
 
-	public static IMatrix readMatrix(File file) throws Exception {
+	public static Matrix readMatrix(File file) throws Exception {
 		return Matrices.readDenseColumn(file);
 	}
 

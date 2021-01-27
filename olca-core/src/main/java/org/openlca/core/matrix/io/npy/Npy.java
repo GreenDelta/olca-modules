@@ -2,7 +2,7 @@ package org.openlca.core.matrix.io.npy;
 
 import org.openlca.core.matrix.format.DenseByteMatrix;
 import org.openlca.core.matrix.format.DenseMatrix;
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,7 +62,7 @@ public final class Npy {
 	 * Saves the given matrix as dense matrix in column-major order to the
 	 * given file.
 	 */
-	public static void save(File file, IMatrix matrix) {
+	public static void save(File file, Matrix matrix) {
 		if (file == null || matrix == null)
 			return;
 		new DenseWriter(file, matrix).run();

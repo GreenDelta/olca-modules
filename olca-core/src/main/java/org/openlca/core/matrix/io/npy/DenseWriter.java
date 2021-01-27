@@ -1,6 +1,6 @@
 package org.openlca.core.matrix.io.npy;
 
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,9 +12,9 @@ import java.nio.channels.FileChannel;
 class DenseWriter {
 
 	private final File file;
-	private final IMatrix matrix;
+	private final Matrix matrix;
 
-	DenseWriter(File file, IMatrix matrix) {
+	DenseWriter(File file, Matrix matrix) {
 		this.file = file;
 		this.matrix = matrix;
 	}

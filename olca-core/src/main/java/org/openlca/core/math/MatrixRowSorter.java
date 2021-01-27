@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.openlca.core.matrix.format.IMatrix;
-import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.core.matrix.format.Matrix;
+import org.openlca.core.matrix.solvers.MatrixSolver;
 
 /**
  * Sorts a *quadratic* matrix (the technology matrix in openLCA) so that rows
@@ -16,19 +16,19 @@ import org.openlca.core.matrix.solvers.IMatrixSolver;
  */
 public class MatrixRowSorter {
 
-	private IMatrixSolver solver;
-	private IMatrix original;
+	private MatrixSolver solver;
+	private Matrix original;
 	private TIntIntHashMap indexMap;
 
-	public MatrixRowSorter(IMatrix original, IMatrixSolver solver) {
+	public MatrixRowSorter(Matrix original, MatrixSolver solver) {
 		this.original = original;
 		this.solver = solver;
 	}
 
-	public IMatrix run() {
+	public Matrix run() {
 		List<Row> rows = collectRows();
 		buildIndexMap(rows);
-		IMatrix swapped = createSwappedMatrix();
+		Matrix swapped = createSwappedMatrix();
 		return swapped;
 	}
 
@@ -57,8 +57,8 @@ public class MatrixRowSorter {
 		}
 	}
 
-	private IMatrix createSwappedMatrix() {
-		IMatrix swapped = solver.matrix(original.rows(),
+	private Matrix createSwappedMatrix() {
+		Matrix swapped = solver.matrix(original.rows(),
 				original.rows());
 		for (int r = 0; r < original.rows(); r++) {
 			for (int c = 0; c < original.columns(); c++) {

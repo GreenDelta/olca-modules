@@ -4,7 +4,7 @@ package org.openlca.core.matrix.format;
  * An implementation that uses a double precision array to store the data. Data
  * are stored in column-major order.
  */
-public class DenseMatrix implements IMatrix {
+public class DenseMatrix implements Matrix {
 
 	public final double[] data;
 	public final int rows;

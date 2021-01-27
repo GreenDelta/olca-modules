@@ -1,7 +1,7 @@
 package org.openlca.core.matrix.solvers;
 
 import org.openlca.core.matrix.format.HashPointMatrix;
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 
 /**
  * @deprecated This solver should not be used anymore and will be removed.
@@ -30,7 +30,7 @@ public class SequentialSolver {
 		this.breakIteration = iteration;
 	}
 
-	public double[] solve(IMatrix a, int index, double demand) {
+	public double[] solve(Matrix a, int index, double demand) {
 		double[] s = new double[a.rows()];
 		iterations = new int[s.length];
 		next(a, index, demand, s);
@@ -41,7 +41,7 @@ public class SequentialSolver {
 		return iterations;
 	}
 
-	private void next(IMatrix a, int idx, double demand, double[] s) {
+	private void next(Matrix a, int idx, double demand, double[] s) {
 		int iteration = iterations[idx];
 		if (iteration >= maxIterations)
 			return;
@@ -63,12 +63,12 @@ public class SequentialSolver {
 		}
 	}
 
-	public IMatrix invert(IMatrix a) {
+	public Matrix invert(Matrix a) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public IMatrix matrix(int rows, int columns) {
+	public Matrix matrix(int rows, int columns) {
 		return new HashPointMatrix(rows, columns);
 	}
 

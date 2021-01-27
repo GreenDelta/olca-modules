@@ -4,31 +4,31 @@ import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
-import org.openlca.core.matrix.format.IMatrix;
-import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.core.matrix.format.Matrix;
+import org.openlca.core.matrix.solvers.MatrixSolver;
 
 public class EagerResultProvider implements ResultProvider {
 
 	private final MatrixData data;
 
-	private final IMatrix inverse;
+	private final Matrix inverse;
 	private final double[] scalingVector;
 	private final double[] totalRequirements;
 	private final double[] loopFactors;
 
 	private double[] totalFlows;
-	private IMatrix directFlows;
-	private IMatrix totalFlowsOfOne;
+	private Matrix directFlows;
+	private Matrix totalFlowsOfOne;
 
 	private double[] totalImpacts;
-	private IMatrix directImpacts;
-	private IMatrix totalImpactsOfOne;
+	private Matrix directImpacts;
+	private Matrix totalImpactsOfOne;
 
 	private double totalCosts;
 	private double[] directCosts;
 	private double[] totalCostsOfOne;
 
-	private EagerResultProvider(MatrixData data, IMatrixSolver solver) {
+	private EagerResultProvider(MatrixData data, MatrixSolver solver) {
 		this.data = data;
 
 		// product and waste flows
@@ -99,7 +99,7 @@ public class EagerResultProvider implements ResultProvider {
 
 	public static EagerResultProvider create(
 			MatrixData data,
-			IMatrixSolver solver) {
+			MatrixSolver solver) {
 		return new EagerResultProvider(data, solver);
 	}
 

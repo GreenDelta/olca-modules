@@ -8,11 +8,11 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
 import org.openlca.core.matrix.format.DenseMatrix;
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 
 class Matrices {
 
-	static void writeDenseColumn(IMatrix m, File file) throws Exception {
+	static void writeDenseColumn(Matrix m, File file) throws Exception {
 		if (m == null || file == null)
 			return;
 
@@ -46,7 +46,7 @@ class Matrices {
 		}
 	}
 
-	static IMatrix readDenseColumn(File file) throws Exception {
+	static Matrix readDenseColumn(File file) throws Exception {
 		try (RandomAccessFile raf = new RandomAccessFile(file, "r");
 				FileChannel channel = raf.getChannel()) {
 

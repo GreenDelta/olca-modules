@@ -5,7 +5,7 @@ public final class MatrixConverter {
 	private MatrixConverter() {
 	}
 
-	public static DenseMatrix dense(IMatrix m) {
+	public static DenseMatrix dense(Matrix m) {
 		if (m instanceof DenseMatrix)
 			return (DenseMatrix) m;
 
@@ -28,7 +28,7 @@ public final class MatrixConverter {
 		return d;
 	}
 
-	public static HashPointMatrix hashSparse(IMatrix matrix) {
+	public static HashPointMatrix hashSparse(Matrix matrix) {
 		if (matrix instanceof HashPointMatrix)
 			return (HashPointMatrix) matrix;
 

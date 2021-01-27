@@ -3,10 +3,10 @@ package org.openlca.core.math;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.JavaMatrix;
 import org.openlca.core.matrix.solvers.Factorization;
-import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.core.matrix.solvers.MatrixSolver;
 
 /**
  * Tests the default methods of the ISolver interface.
@@ -16,7 +16,7 @@ public class ISolverTest {
 	@Test
 	public void testScaleColumns() {
 		Solver solver = new Solver();
-		IMatrix m = solver.matrix(2, 3);
+		Matrix m = solver.matrix(2, 3);
 		double[][] vals = { { 1, 2, 3 }, { 4, 5, 6 } };
 		m.setValues(vals);
 		m.scaleColumns(new double[] { 2, 1, 0.5 });
@@ -31,7 +31,7 @@ public class ISolverTest {
 	@Test
 	public void testMatrixVectorMultiplication() {
 		Solver solver = new Solver();
-		IMatrix m = solver.matrix(2, 3);
+		Matrix m = solver.matrix(2, 3);
 		m.setValues(new double[][] { { 1, 2, 3 }, { 4, 5, 6 } });
 		double[] r = solver.multiply(m, new double[] { 2, 1, 0.5 });
 		assertEquals(2, r.length);
@@ -42,11 +42,11 @@ public class ISolverTest {
 	@Test
 	public void testMatrixMatrixMultiplication() {
 		Solver solver = new Solver();
-		IMatrix a = solver.matrix(2, 3);
+		Matrix a = solver.matrix(2, 3);
 		a.setValues(new double[][] { { 1, 2, 3 }, { 4, 5, 6 } });
-		IMatrix b = solver.matrix(3, 3);
+		Matrix b = solver.matrix(3, 3);
 		b.setValues(new double[][] { { 2, 0, 0 }, { 0, 1, 0 }, { 0, 0, 0.5 } });
-		IMatrix r = solver.multiply(a, b);
+		Matrix r = solver.multiply(a, b);
 		assertEquals(2, r.rows());
 		assertEquals(3, r.columns());
 		double[][] expected = { { 2, 2, 1.5 }, { 8, 5, 3 } };
@@ -57,7 +57,7 @@ public class ISolverTest {
 		}
 	}
 
-	private class Solver implements IMatrixSolver {
+	private class Solver implements MatrixSolver {
 
 		@Override
 		public boolean hasSparseSupport() {
@@ -65,22 +65,22 @@ public class ISolverTest {
 		}
 
 		@Override
-		public IMatrix matrix(int rows, int columns) {
+		public Matrix matrix(int rows, int columns) {
 			return new JavaMatrix(rows, columns);
 		}
 
 		@Override
-		public double[] solve(IMatrix a, int idx, double d) {
+		public double[] solve(Matrix a, int idx, double d) {
 			return null;
 		}
 
 		@Override
-		public IMatrix invert(IMatrix a) {
+		public Matrix invert(Matrix a) {
 			return null;
 		}
 
 		@Override
-		public Factorization factorize(IMatrix matrix) {
+		public Factorization factorize(Matrix matrix) {
 			return null;
 		}
 	}

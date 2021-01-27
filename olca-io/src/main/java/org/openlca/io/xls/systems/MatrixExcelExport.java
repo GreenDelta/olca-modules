@@ -9,7 +9,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 import org.openlca.io.xls.Excel;
 
 class MatrixExcelExport {
@@ -19,7 +19,7 @@ class MatrixExcelExport {
 
 	private ExcelHeader columnHeader;
 	private ExcelHeader rowHeader;
-	private IMatrix matrix;
+	private Matrix matrix;
 
 	public void setColumnHeader(ExcelHeader columnHeader) {
 		this.columnHeader = columnHeader;
@@ -29,7 +29,7 @@ class MatrixExcelExport {
 		this.rowHeader = rowHeader;
 	}
 
-	public void setMatrix(IMatrix matrix) {
+	public void setMatrix(Matrix matrix) {
 		this.matrix = matrix;
 	}
 

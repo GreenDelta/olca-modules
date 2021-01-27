@@ -4,8 +4,8 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
-import org.openlca.core.matrix.format.IMatrix;
-import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.core.matrix.format.Matrix;
+import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.SimpleResult;
@@ -21,12 +21,12 @@ import org.openlca.core.results.solutions.ResultProvider;
  */
 public class LcaCalculator {
 
-	private final IMatrixSolver solver;
+	private final MatrixSolver solver;
 	private final MatrixData data;
 	private IDatabase db;
 	private LibraryDir libDir;
 
-	public LcaCalculator(IMatrixSolver solver, MatrixData data) {
+	public LcaCalculator(MatrixSolver solver, MatrixData data) {
 		this.solver = solver;
 		this.data = data;
 		this.data.compress();
@@ -93,7 +93,7 @@ public class LcaCalculator {
 	 */
 	@Deprecated
 	public static double getLoopFactor(
-			IMatrix A, double[] s, TechIndex techIndex) {
+			Matrix A, double[] s, TechIndex techIndex) {
 		int i = techIndex.getIndex(techIndex.getRefFlow());
 		double t = A.get(i, i) * s[i];
 		double f = techIndex.getDemand();

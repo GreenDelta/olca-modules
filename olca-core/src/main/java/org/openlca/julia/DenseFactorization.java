@@ -3,7 +3,7 @@ package org.openlca.julia;
 import java.util.Arrays;
 
 import org.openlca.core.matrix.format.DenseMatrix;
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixConverter;
 import org.openlca.core.matrix.solvers.Factorization;
 
@@ -18,7 +18,7 @@ public class DenseFactorization implements Factorization {
 		this.pointer = pointer;
 	}
 
-	public static DenseFactorization of(IMatrix matrix) {
+	public static DenseFactorization of(Matrix matrix) {
 		var dense = MatrixConverter.dense(matrix);
 		var n = dense.rows;
 		var pointer = Julia.createDenseFactorization(
@@ -47,7 +47,7 @@ public class DenseFactorization implements Factorization {
 	}
 
 	@Override
-	public IMatrix solve(IMatrix b) {
+	public Matrix solve(Matrix b) {
 		double[] x;
 		if (b instanceof DenseMatrix) {
 			var data = ((DenseMatrix) b).data;

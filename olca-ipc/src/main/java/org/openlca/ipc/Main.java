@@ -5,7 +5,7 @@ import java.io.File;
 import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.derby.DerbyDatabase;
-import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.julia.Julia;
 import org.openlca.julia.JuliaSolver;
@@ -107,7 +107,7 @@ public class Main {
 		}
 	}
 
-	private IMatrixSolver initSolver() {
+	private MatrixSolver initSolver() {
 		try {
 			var nativeLib = this.lib != null
 				? Julia.loadFromDir(new File(lib))

@@ -6,7 +6,7 @@ import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.derby.DerbyDatabase;
-import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.AbstractEntity;
 
@@ -16,7 +16,7 @@ public class Tests {
 
 	private static IDatabase db;
 
-	public static IMatrixSolver getDefaultSolver() {
+	public static MatrixSolver getDefaultSolver() {
 		return new JavaSolver();
 	}
 

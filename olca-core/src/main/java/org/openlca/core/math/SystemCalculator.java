@@ -12,7 +12,7 @@ import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.FastMatrixBuilder;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
@@ -40,7 +40,7 @@ public class SystemCalculator {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final IDatabase db;
-	private final IMatrixSolver solver;
+	private final MatrixSolver solver;
 	private LibraryDir libDir;
 
 	public SystemCalculator(IDatabase db) {
@@ -49,7 +49,7 @@ public class SystemCalculator {
 			: new JavaSolver());
 	}
 
-	public SystemCalculator(IDatabase db, IMatrixSolver solver) {
+	public SystemCalculator(IDatabase db, MatrixSolver solver) {
 		this.db = db;
 		this.solver = solver;
 	}

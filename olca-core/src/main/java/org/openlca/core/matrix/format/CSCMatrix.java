@@ -10,7 +10,7 @@ import gnu.trove.list.array.TIntArrayList;
  * compressed sparse column). Note that this format is not editable. Calling
  * `set(row, col, val)` will throw an exception.
  */
-public class CSCMatrix implements IMatrix {
+public class CSCMatrix implements Matrix {
 
 	/**
 	 * The total number of rows.
@@ -50,7 +50,7 @@ public class CSCMatrix implements IMatrix {
 	/**
 	 * Creates a compressed sparse column representation of the given matrix.
 	 */
-	public static CSCMatrix of(IMatrix m) {
+	public static CSCMatrix of(Matrix m) {
 		if (m == null)
 			throw new NullPointerException("the given matrix is null");
 
@@ -106,7 +106,7 @@ public class CSCMatrix implements IMatrix {
 	}
 
 	@Override
-	public IMatrix copy() {
+	public Matrix copy() {
 		return CSCMatrix.of(this);
 	}
 

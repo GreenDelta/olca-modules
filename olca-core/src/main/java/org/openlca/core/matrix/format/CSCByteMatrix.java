@@ -1,6 +1,6 @@
 package org.openlca.core.matrix.format;
 
-public class CSCByteMatrix implements IByteMatrix {
+public class CSCByteMatrix implements ByteMatrix {
 
 	public final int rows;
 	public final int columns;

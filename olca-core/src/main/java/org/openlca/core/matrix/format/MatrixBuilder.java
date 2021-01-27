@@ -89,7 +89,7 @@ public class MatrixBuilder {
 		set(row, col, v + w);
 	}
 
-	public IMatrix finish() {
+	public Matrix finish() {
 		if (dense != null) {
 			mapDense();
 			log.trace("Finish matrix builder with "

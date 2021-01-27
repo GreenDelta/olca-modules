@@ -11,7 +11,7 @@ import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.SimpleResult;
@@ -31,15 +31,15 @@ public class SolverTest {
 	private final Logger log = LoggerFactory.getLogger(SolverTest.class);
 
 	@DataPoint
-	public static IMatrixSolver denseSolver = new JuliaSolver();
+	public static MatrixSolver denseSolver = new JuliaSolver();
 
 	@DataPoint
-	public static IMatrixSolver javaSolver = new JavaSolver();
+	public static MatrixSolver javaSolver = new JavaSolver();
 
 	@Theory
-	public void testSimpleSolve(IMatrixSolver solver) {
+	public void testSimpleSolve(MatrixSolver solver) {
 		log.info("Test simple solve with {}", solver.getClass());
-		IMatrix a = solver.matrix(2, 2);
+		Matrix a = solver.matrix(2, 2);
 		a.set(0, 0, 1);
 		a.set(1, 0, -5);
 		a.set(1, 1, 4);
@@ -48,7 +48,7 @@ public class SolverTest {
 	}
 
 	@Theory
-	public void testSolve1x1System(IMatrixSolver solver) {
+	public void testSolve1x1System(MatrixSolver solver) {
 		log.info("Test solve 1x1 matrix with {}", solver.getClass());
 
 		MatrixData data = new MatrixData();
@@ -71,11 +71,11 @@ public class SolverTest {
 		enviIndex.putOutput(flow(4));
 		data.flowIndex = enviIndex;
 
-		IMatrix techMatrix = solver.matrix(1, 1);
+		Matrix techMatrix = solver.matrix(1, 1);
 		techMatrix.set(0, 0, 1);
 		data.techMatrix = techMatrix;
 
-		IMatrix enviMatrix = solver.matrix(4, 1);
+		Matrix enviMatrix = solver.matrix(4, 1);
 		for (int r = 0; r < 4; r++)
 			enviMatrix.set(r, 0, r);
 		data.flowMatrix = enviMatrix;
@@ -87,20 +87,20 @@ public class SolverTest {
 	}
 
 	@Theory
-	public void testSimpleMult(IMatrixSolver solver) {
+	public void testSimpleMult(MatrixSolver solver) {
 		log.info("Test simple multiplication with {}", solver.getClass());
-		IMatrix a = solver.matrix(2, 3);
+		Matrix a = solver.matrix(2, 3);
 		a.setValues(new double[][] {
 				{ 1, 2, 3 },
 				{ 4, 5, 6 }
 		});
-		IMatrix b = solver.matrix(3, 2);
+		Matrix b = solver.matrix(3, 2);
 		b.setValues(new double[][] {
 				{ 7, 10 },
 				{ 8, 11 },
 				{ 9, 12 }
 		});
-		IMatrix c = solver.multiply(a, b);
+		Matrix c = solver.multiply(a, b);
 		Assert.assertArrayEquals(new double[] { 50, 122 },
 				c.getColumn(0), 1e-14);
 		Assert.assertArrayEquals(new double[] { 68, 167 },

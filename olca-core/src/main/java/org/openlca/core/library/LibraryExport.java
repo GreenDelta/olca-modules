@@ -26,10 +26,10 @@ import org.openlca.core.matrix.FastMatrixBuilder;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.matrix.io.npy.Npz;
-import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.jsonld.Json;
@@ -44,7 +44,7 @@ public class LibraryExport implements Runnable {
 
 	private final IDatabase db;
 	private final File folder;
-	private IMatrixSolver solver;
+	private MatrixSolver solver;
 	private LibraryInfo info;
 	private AllocationMethod allocation;
 
@@ -53,7 +53,7 @@ public class LibraryExport implements Runnable {
 		this.folder = folder;
 	}
 
-	public LibraryExport solver(IMatrixSolver solver) {
+	public LibraryExport solver(MatrixSolver solver) {
 		this.solver = solver;
 		return this;
 	}
@@ -187,7 +187,7 @@ public class LibraryExport implements Runnable {
 		return Optional.of(data);
 	}
 
-	private void writeMatrix(String name, IMatrix matrix) {
+	private void writeMatrix(String name, Matrix matrix) {
 		var m = matrix;
 		if (m instanceof HashPointMatrix) {
 			m = CSCMatrix.of(m);

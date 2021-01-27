@@ -3,12 +3,12 @@ package org.openlca.julia;
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixConverter;
 import org.openlca.core.matrix.solvers.Factorization;
-import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.core.matrix.solvers.MatrixSolver;
 
-public class JuliaSolver implements IMatrixSolver {
+public class JuliaSolver implements MatrixSolver {
 
 	public JuliaSolver() {
 		if (!Julia.isLoaded()) {
@@ -22,12 +22,12 @@ public class JuliaSolver implements IMatrixSolver {
 	}
 
 	@Override
-	public IMatrix matrix(int rows, int columns) {
+	public Matrix matrix(int rows, int columns) {
 		return new DenseMatrix(rows, columns);
 	}
 
 	@Override
-	public double[] solve(IMatrix a, int idx, double d) {
+	public double[] solve(Matrix a, int idx, double d) {
 		if (Julia.hasSparseLibraries() &&
 				(a instanceof HashPointMatrix
 						|| a instanceof CSCMatrix)) {
@@ -53,7 +53,7 @@ public class JuliaSolver implements IMatrixSolver {
 	}
 
 	@Override
-	public double[] multiply(IMatrix m, double[] x) {
+	public double[] multiply(Matrix m, double[] x) {
 		if (m instanceof HashPointMatrix
 				|| m instanceof CSCMatrix) {
 			return m.multiply(x);
@@ -65,7 +65,7 @@ public class JuliaSolver implements IMatrixSolver {
 	}
 
 	@Override
-	public DenseMatrix invert(IMatrix a) {
+	public DenseMatrix invert(Matrix a) {
 		DenseMatrix _a = MatrixConverter.dense(a);
 		DenseMatrix i = _a == a ? _a.copy() : _a;
 		Julia.invert(_a.columns(), i.data);
@@ -73,7 +73,7 @@ public class JuliaSolver implements IMatrixSolver {
 	}
 
 	@Override
-	public DenseMatrix multiply(IMatrix a, IMatrix b) {
+	public DenseMatrix multiply(Matrix a, Matrix b) {
 		DenseMatrix _a = MatrixConverter.dense(a);
 		DenseMatrix _b = MatrixConverter.dense(b);
 		int rowsA = _a.rows();
@@ -89,7 +89,7 @@ public class JuliaSolver implements IMatrixSolver {
 	}
 
 	@Override
-	public Factorization factorize(IMatrix matrix) {
+	public Factorization factorize(Matrix matrix) {
 		if (matrix instanceof HashPointMatrix) {
 			var csc = ((HashPointMatrix) matrix).compress();
 			return SparseFactorization.of(csc);

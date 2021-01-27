@@ -20,7 +20,7 @@ import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.DenseMatrix;
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.io.xls.Excel;
@@ -330,8 +330,8 @@ public class SystemExport {
 		return sortedCategories;
 	}
 
-	private IMatrix transpose(IMatrix matrix) {
-		IMatrix result = new DenseMatrix(
+	private Matrix transpose(Matrix matrix) {
+		Matrix result = new DenseMatrix(
 				matrix.columns(), matrix.rows());
 		for (int row = 0; row < matrix.rows(); row++) {
 			for (int column = 0; column < matrix.columns(); column++) {

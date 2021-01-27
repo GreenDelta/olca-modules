@@ -21,8 +21,8 @@ import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
-import org.openlca.core.matrix.format.IMatrix;
-import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.core.matrix.format.Matrix;
+import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
@@ -69,7 +69,7 @@ public class Simulator {
 	 */
 	public final Set<ProcessProduct> pinnedProducts = new HashSet<>();
 
-	private final IMatrixSolver solver;
+	private final MatrixSolver solver;
 
 	/**
 	 * The node of the host-system. This is the node that provides the final
@@ -97,14 +97,14 @@ public class Simulator {
 
 	private SimulationResult result;
 
-	private Simulator(IMatrixSolver solver) {
+	private Simulator(MatrixSolver solver) {
 		this.solver = solver;
 	}
 
 	public static Simulator create(
 			CalculationSetup setup,
 			IDatabase db,
-			IMatrixSolver solver) {
+			MatrixSolver solver) {
 		Simulator g = new Simulator(solver);
 		g.init(db, setup);
 		return g;
@@ -162,9 +162,9 @@ public class Simulator {
 
 				// A, B, C, s, t are the standard symbols
 				// in LCA calculations
-				IMatrix A = root.data.techMatrix;
-				IMatrix B = root.data.flowMatrix;
-				IMatrix C = root.data.impactMatrix;
+				Matrix A = root.data.techMatrix;
+				Matrix B = root.data.flowMatrix;
+				Matrix C = root.data.impactMatrix;
 				double[] s = sr.scalingVector;
 
 				// direct contributions

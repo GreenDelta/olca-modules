@@ -7,7 +7,7 @@ import java.io.FileOutputStream;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.matrix.io.npy.Npz;
 import org.openlca.core.matrix.solvers.JavaSolver;
@@ -155,7 +155,7 @@ class MatrixDataExport {
 		writeMatrix("M", m);
 	}
 
-	private void writeMatrix(String name, IMatrix matrix) {
+	private void writeMatrix(String name, Matrix matrix) {
 		var m = matrix;
 		if (m instanceof HashPointMatrix) {
 			m = CSCMatrix.of(m);

@@ -6,7 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 
 /**
  * Provides methods for writing matrices in the Matrix-Market format
@@ -15,9 +15,9 @@ import org.openlca.core.matrix.format.IMatrix;
 public class MarketFormatWriter {
 
 	private File file;
-	private IMatrix matrix;
+	private Matrix matrix;
 
-	public MarketFormatWriter(File file, IMatrix matrix) {
+	public MarketFormatWriter(File file, Matrix matrix) {
 		this.file = file;
 		this.matrix = matrix;
 	}
@@ -91,7 +91,7 @@ public class MarketFormatWriter {
 		buff.newLine();
 	}
 
-	private int countEntries(IMatrix matrix) {
+	private int countEntries(Matrix matrix) {
 		int count = 0;
 		for (int col = 0; col < matrix.columns(); col++) {
 			for (int row = 0; row < matrix.rows(); row++) {

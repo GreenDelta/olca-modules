@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.ipc.handlers.CacheHandler;
 import org.openlca.ipc.handlers.Calculator;
 import org.openlca.ipc.handlers.CostHandler;
@@ -32,7 +32,7 @@ public class Server extends NanoHTTPD {
 		super(port);
 	}
 
-	public Server withDefaultHandlers(IDatabase db, IMatrixSolver solver) {
+	public Server withDefaultHandlers(IDatabase db, MatrixSolver solver) {
 		log.info("Register default handlers");
 		Cache cache = new Cache();
 		HandlerContext context = new HandlerContext(this, db, solver, cache);

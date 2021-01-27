@@ -4,34 +4,34 @@ import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.solvers.Factorization;
-import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.core.matrix.solvers.MatrixSolver;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class LazyResultProvider implements ResultProvider {
 
 	private final MatrixData data;
-	private final IMatrixSolver solver;
+	private final MatrixSolver solver;
 	private final Factorization factorization;
 
 	private final double[] scalingVector;
 	private double[] totalRequirements;
 	private final TIntObjectHashMap<double[]> solutions;
 
-	private IMatrix directFlows;
+	private Matrix directFlows;
 	private final double[] totalFlows;
 	private final TIntObjectHashMap<double[]> totalFlowsOfOne;
 
-	private IMatrix directImpacts;
+	private Matrix directImpacts;
 	private final double[] totalImpacts;
 	private final TIntObjectHashMap<double[]> totalImpactsOfOne;
 
 	private final double[] directCosts;
 	private final double totalCosts;
 
-	private LazyResultProvider(MatrixData data, IMatrixSolver solver) {
+	private LazyResultProvider(MatrixData data, MatrixSolver solver) {
 		this.data = data;
 		this.solver = solver;
 		this.factorization = solver.factorize(data.techMatrix);
@@ -80,7 +80,7 @@ public class LazyResultProvider implements ResultProvider {
 
 	public static LazyResultProvider create(
 			MatrixData data,
-			IMatrixSolver solver) {
+			MatrixSolver solver) {
 		return new LazyResultProvider(data, solver);
 	}
 
@@ -171,7 +171,7 @@ public class LazyResultProvider implements ResultProvider {
 		return data.flowMatrix.get(flow, product);
 	}
 
-	private IMatrix directFlows() {
+	private Matrix directFlows() {
 		if (directFlows != null)
 			return directFlows;
 		if (data.flowMatrix == null)
@@ -248,7 +248,7 @@ public class LazyResultProvider implements ResultProvider {
 		return totalFlows[flow] * impactFactorOf(indicator, flow);
 	}
 
-	private IMatrix directImpacts() {
+	private Matrix directImpacts() {
 		if (directImpacts != null)
 			return directImpacts;
 		if (data.impactMatrix == null)

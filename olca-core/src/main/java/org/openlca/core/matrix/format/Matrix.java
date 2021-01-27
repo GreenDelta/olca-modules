@@ -3,7 +3,7 @@ package org.openlca.core.matrix.format;
 /**
  * Interface with the general matrix operations used in openLCA.
  */
-public interface IMatrix {
+public interface Matrix {
 
 	/** Returns the number of rows of the matrix. */
 	int rows();
@@ -24,7 +24,7 @@ public interface IMatrix {
 	double[] getRow(int i);
 
 	/** Creates a copy of this matrix and returns it */
-	IMatrix copy();
+	Matrix copy();
 
 	default void setValues(double[][] values) {
 		if (values == null)

@@ -1,6 +1,6 @@
 package org.openlca.core.matrix.format;
 
-public class CompressedRowMatrix implements IMatrix {
+public class CompressedRowMatrix implements Matrix {
 
 	double[] values;
 	int[] columnIndices;
@@ -27,7 +27,7 @@ public class CompressedRowMatrix implements IMatrix {
 	}
 
 	@Override
-	public IMatrix copy() {
+	public Matrix copy() {
 		CompressedRowMatrix copy = new CompressedRowMatrix(rows, columns);
 		System.arraycopy(this.rowPointers, 0, copy.rowPointers, 0,
 				rowPointers.length);

@@ -4,10 +4,10 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.JavaMatrix;
 
-public class JavaSolver implements IMatrixSolver {
+public class JavaSolver implements MatrixSolver {
 
 	@Override
 	public boolean hasSparseSupport() {
@@ -15,12 +15,12 @@ public class JavaSolver implements IMatrixSolver {
 	}
 	
 	@Override
-	public IMatrix matrix(int rows, int columns) {
+	public Matrix matrix(int rows, int columns) {
 		return new JavaMatrix(rows, columns);
 	}
 
 	@Override
-	public double[] solve(IMatrix a, int idx, double d) {
+	public double[] solve(Matrix a, int idx, double d) {
 		var A = unwrap(a);
 		var b = new ArrayRealVector(a.rows());
 		b.setEntry(idx, d);
@@ -29,7 +29,7 @@ public class JavaSolver implements IMatrixSolver {
 	}
 
 	@Override
-	public double[] multiply(IMatrix m, double[] v) {
+	public double[] multiply(Matrix m, double[] v) {
 		var A = unwrap(m);
 		var b = new Array2DRowRealMatrix(v.length, 1);
 		b.setColumn(0, v);
@@ -37,21 +37,21 @@ public class JavaSolver implements IMatrixSolver {
 	}
 
 	@Override
-	public IMatrix invert(IMatrix a) {
+	public Matrix invert(Matrix a) {
 		var _a = unwrap(a);
 		var inverse = new LUDecomposition(_a).getSolver().getInverse();
 		return new JavaMatrix(inverse);
 	}
 
 	@Override
-	public IMatrix multiply(IMatrix a, IMatrix b) {
+	public Matrix multiply(Matrix a, Matrix b) {
 		RealMatrix _a = unwrap(a);
 		RealMatrix _b = unwrap(b);
 		RealMatrix c = _a.multiply(_b);
 		return new JavaMatrix(c);
 	}
 
-	private static RealMatrix unwrap(IMatrix m) {
+	private static RealMatrix unwrap(Matrix m) {
 		if (m instanceof JavaMatrix)
 			return ((JavaMatrix) m).getRealMatrix();
 		var rm = new Array2DRowRealMatrix(
@@ -61,7 +61,7 @@ public class JavaSolver implements IMatrixSolver {
 	}
 
 	@Override
-	public Factorization factorize(IMatrix matrix) {
+	public Factorization factorize(Matrix matrix) {
 		return LU.of(matrix);
 	}
 
@@ -76,7 +76,7 @@ public class JavaSolver implements IMatrixSolver {
 			this.lu = lu;
 		}
 
-		static LU of (IMatrix matrix) {
+		static LU of (Matrix matrix) {
 			var m = unwrap(matrix);
 			var lu = new LUDecomposition(m);
 			return new LU(matrix.rows(), lu);
@@ -95,7 +95,7 @@ public class JavaSolver implements IMatrixSolver {
 		}
 
 		@Override
-		public IMatrix solve(IMatrix b) {
+		public Matrix solve(Matrix b) {
 			var _b = unwrap(b);
 			var x = lu.getSolver().solve(_b);
 			return new JavaMatrix(x);

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.openlca.core.matrix.CalcAllocationFactor;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.CalcImpactFactor;
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 import org.openlca.expressions.FormulaInterpreter;
 
 import gnu.trove.impl.Constants;
@@ -98,7 +98,7 @@ public class UMatrix {
 	/**
 	 * Generates new values and sets them to the given matrix.
 	 */
-	public void generate(IMatrix m, FormulaInterpreter interpreter) {
+	public void generate(Matrix m, FormulaInterpreter interpreter) {
 		var rows = data.iterator();
 		while (rows.hasNext()) {
 			rows.advance();

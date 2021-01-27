@@ -8,7 +8,7 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
-import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.ContributionResult;
@@ -30,7 +30,7 @@ public class InventoryBuilderExamples {
 		setup.impactMethod = new ImpactMethodDao(db).getDescriptorForRefId(
 				"44f7066c-33fd-49d2-86ec-2b94677bf6d0");
 		Julia.loadFromDir(new File("./olca-core/julia/libs"));
-		IMatrixSolver solver = new JuliaSolver();
+		MatrixSolver solver = new JuliaSolver();
 		SystemCalculator calc = new SystemCalculator(db, solver);
 		ContributionResult r = calc.calculateContributions(setup);
 		for (ImpactDescriptor impact : r.getImpacts()) {

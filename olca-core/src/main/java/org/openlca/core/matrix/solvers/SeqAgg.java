@@ -1,15 +1,15 @@
 package org.openlca.core.matrix.solvers;
 
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 
 public class SeqAgg {
 
-	private final IMatrix a;
-	private final IMatrix b;
+	private final Matrix a;
+	private final Matrix b;
 	private final int refIdx;
 	private final double scale;
 
-	public SeqAgg(IMatrix a, IMatrix b, int refIdx, double demand) {
+	public SeqAgg(Matrix a, Matrix b, int refIdx, double demand) {
 		this.a = a.copy();
 		this.b = b.copy();
 		this.refIdx = refIdx;

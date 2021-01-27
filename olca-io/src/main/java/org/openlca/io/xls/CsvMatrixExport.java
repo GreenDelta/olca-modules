@@ -12,7 +12,7 @@ import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.io.CategoryPair;
@@ -74,7 +74,7 @@ public class CsvMatrixExport implements Runnable {
 
 	private void writeTechMatrix(MatrixData data, BufferedWriter buffer)
 			throws Exception {
-		IMatrix techMatrix = data.techMatrix;
+		Matrix techMatrix = data.techMatrix;
 		TechIndex techIndex = data.techIndex;
 		int size = techIndex.size();
 		for (int row = 0; row < size; row++) {
@@ -100,7 +100,7 @@ public class CsvMatrixExport implements Runnable {
 		int rows = flowIndex.size();
 		int columns = techIndex.size();
 		writeEnviMatrixHeader(buffer, techIndex);
-		IMatrix matrix = data.flowMatrix;
+		Matrix matrix = data.flowMatrix;
 		for (int row = 0; row < rows; row++) {
 			FlowDescriptor flow = flowIndex.at(row).flow;
 			writeName(flow, buffer);

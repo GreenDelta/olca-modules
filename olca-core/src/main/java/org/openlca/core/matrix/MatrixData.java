@@ -2,7 +2,7 @@ package org.openlca.core.matrix;
 
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.uncertainties.UMatrix;
 import org.openlca.expressions.FormulaInterpreter;
 
@@ -33,18 +33,18 @@ public class MatrixData {
 	/**
 	 * The technology matrix.
 	 */
-	public IMatrix techMatrix;
+	public Matrix techMatrix;
 
 	/**
 	 * The intervention matrix.
 	 */
-	public IMatrix flowMatrix;
+	public Matrix flowMatrix;
 
 	/**
 	 * The matrix with the characterization factors: LCIA categories *
 	 * elementary flows.
 	 */
-	public IMatrix impactMatrix;
+	public Matrix impactMatrix;
 
 	/**
 	 * A cost vector contains the unscaled net-costs for a set of

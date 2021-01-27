@@ -21,16 +21,16 @@ import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixBuilder;
-import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.util.Pair;
 
 public class LibraryResultProvider implements ResultProvider {
 
 	private final IDatabase db;
 	private final LibraryDir libDir;
-	private final IMatrixSolver solver;
+	private final MatrixSolver solver;
 
 	private final MatrixData foregroundData;
 	private final ResultProvider foregroundSolution;
@@ -47,7 +47,7 @@ public class LibraryResultProvider implements ResultProvider {
 	private final TIntObjectHashMap<double[]> totalFlowsOfOne = newCache();
 
 	private double[] totalImpacts;
-	private IMatrix flowImpacts;
+	private Matrix flowImpacts;
 	private final TIntObjectHashMap<double[]> directImpacts = newCache();
 	private final TIntObjectHashMap<double[]> totalImpactsOfOne = newCache();
 
@@ -59,7 +59,7 @@ public class LibraryResultProvider implements ResultProvider {
 	private LibraryResultProvider(
 			IDatabase db,
 			LibraryDir libDir,
-			IMatrixSolver solver,
+			MatrixSolver solver,
 			MatrixData foregroundData) {
 		this.db = db;
 		this.libDir = libDir;
@@ -86,7 +86,7 @@ public class LibraryResultProvider implements ResultProvider {
 	public static LibraryResultProvider of(
 			IDatabase db,
 			LibraryDir libDir,
-			IMatrixSolver solver,
+			MatrixSolver solver,
 			MatrixData foregroundData) {
 
 		var provider = new LibraryResultProvider(
@@ -567,7 +567,7 @@ public class LibraryResultProvider implements ResultProvider {
 	 * Returns the characterization factors of the combined system.
 	 * we cache this matrix in the `fullData` object.
 	 */
-	private IMatrix impactFactors() {
+	private Matrix impactFactors() {
 		if (fullData.impactMatrix != null)
 			return fullData.impactMatrix;
 		if (!hasFlows() || !hasImpacts())
@@ -660,7 +660,7 @@ public class LibraryResultProvider implements ResultProvider {
 				: matrix.get(indicator, flow);
 	}
 
-	private IMatrix flowImpacts() {
+	private Matrix flowImpacts() {
 		if (flowImpacts != null)
 			return flowImpacts;
 		var g = totalFlows();

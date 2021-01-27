@@ -7,7 +7,7 @@ import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TIntByteHashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
-public class HashPointByteMatrix implements IByteMatrix {
+public class HashPointByteMatrix implements ByteMatrix {
 
 	public int rows;
 	public int columns;

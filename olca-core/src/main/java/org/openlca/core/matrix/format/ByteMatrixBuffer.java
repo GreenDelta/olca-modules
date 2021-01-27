@@ -53,7 +53,7 @@ public class ByteMatrixBuffer {
 		}
 	}
 
-	public IByteMatrix finish() {
+	public ByteMatrix finish() {
 		if (dense != null) {
 			mapDense();
 			return dense;

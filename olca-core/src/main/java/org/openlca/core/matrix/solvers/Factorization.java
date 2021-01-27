@@ -1,7 +1,7 @@
 package org.openlca.core.matrix.solvers;
 
 import org.openlca.core.matrix.format.DenseMatrix;
-import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.Matrix;
 
 /**
  * Stores the factorization of a square matrix `A` (e.g. a LU decomposition)
@@ -38,7 +38,7 @@ public interface Factorization {
 	 * Implementers should overwrite this method if they have a more efficient
 	 * method available.
 	 */
-	default IMatrix solve(IMatrix b) {
+	default Matrix solve(Matrix b) {
 		var x = new DenseMatrix(size(), b.columns());
 		for (int j = 0; j < b.columns(); j++) {
 			var bj = b.getColumn(j);

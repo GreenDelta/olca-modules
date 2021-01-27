@@ -15,7 +15,7 @@ import gnu.trove.map.hash.TIntObjectHashMap;
  * Note that you have to make sure to set the respective row and column size
  * when there are empty rows or columns.
  */
-public class HashPointMatrix implements IMatrix {
+public class HashPointMatrix implements Matrix {
 
 	public int rows;
 	public int cols;
