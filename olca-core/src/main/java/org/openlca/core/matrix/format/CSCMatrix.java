@@ -10,7 +10,7 @@ import gnu.trove.list.array.TIntArrayList;
  * compressed sparse column). Note that this format is not editable. Calling
  * `set(row, col, val)` will throw an exception.
  */
-public class CSCMatrix implements Matrix {
+public class CSCMatrix implements MatrixReader {
 
 	/**
 	 * The total number of rows.
@@ -50,7 +50,7 @@ public class CSCMatrix implements Matrix {
 	/**
 	 * Creates a compressed sparse column representation of the given matrix.
 	 */
-	public static CSCMatrix of(Matrix m) {
+	public static CSCMatrix of(MatrixReader m) {
 		if (m == null)
 			throw new NullPointerException("the given matrix is null");
 
@@ -106,7 +106,7 @@ public class CSCMatrix implements Matrix {
 	}
 
 	@Override
-	public Matrix copy() {
+	public MatrixReader copy() {
 		return CSCMatrix.of(this);
 	}
 
@@ -169,7 +169,10 @@ public class CSCMatrix implements Matrix {
 		}
 	}
 
-	@Override
+	/**
+	 * Note that this method changes the data of this matrix in place. This is
+	 * a fast operation of CSC matrices.
+	 */
 	public void scaleColumns(double[] v) {
 		for (int col = 0; col < columns; col++) {
 			double factor = v[col];
@@ -183,15 +186,4 @@ public class CSCMatrix implements Matrix {
 		}
 	}
 
-	@Override
-	public void set(int row, int col, double val) {
-		throw new RuntimeException(
-				"Modifying a compressed matrix is not supported");
-	}
-
-	@Override
-	public void setValues(double[][] values) {
-		throw new RuntimeException(
-				"Modifying a compressed matrix is not supported");
-	}
 }

@@ -27,6 +27,7 @@ import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.Matrix;
+import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.matrix.io.npy.Npz;
 import org.openlca.core.matrix.solvers.MatrixSolver;
@@ -187,7 +188,7 @@ public class LibraryExport implements Runnable {
 		return Optional.of(data);
 	}
 
-	private void writeMatrix(String name, Matrix matrix) {
+	private void writeMatrix(String name, MatrixReader matrix) {
 		var m = matrix;
 		if (m instanceof HashPointMatrix) {
 			m = CSCMatrix.of(m);

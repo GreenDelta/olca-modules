@@ -1,6 +1,7 @@
 package org.openlca.core.matrix.solvers;
 
 import org.openlca.core.matrix.format.Matrix;
+import org.openlca.core.matrix.format.MatrixReader;
 
 /**
  * Interface for linear algebra and matrix problems that we need to solve in
@@ -15,7 +16,7 @@ public interface MatrixSolver {
 	 * matrices efficiently.
 	 */
 	boolean hasSparseSupport();
-	
+
 	/**
 	 * Creates an instance of the default matrix type that can be used with this
 	 * solver.
@@ -47,7 +48,7 @@ public interface MatrixSolver {
 	/**
 	 * Returns the matrix product of the given matrices.
 	 */
-	default Matrix multiply(Matrix a, Matrix b) {
+	default Matrix multiply(MatrixReader a, MatrixReader b) {
 		if (a == null || b == null)
 			return null;
 		if (a.columns() != b.rows())
@@ -69,7 +70,7 @@ public interface MatrixSolver {
 	 * Calculates a matrix-vector product. In openLCA we use this for example
 	 * when we calculate the inventory result: g = B * s
 	 */
-	default double[] multiply(Matrix m, double[] v) {
+	default double[] multiply(MatrixReader m, double[] v) {
 		if (m == null || v == null)
 			return null;
 		int cols = Math.min(m.columns(), v.length);

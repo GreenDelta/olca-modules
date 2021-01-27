@@ -3,6 +3,7 @@ package org.openlca.core.matrix;
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.Matrix;
+import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.uncertainties.UMatrix;
 import org.openlca.expressions.FormulaInterpreter;
 
@@ -33,18 +34,18 @@ public class MatrixData {
 	/**
 	 * The technology matrix.
 	 */
-	public Matrix techMatrix;
+	public MatrixReader techMatrix;
 
 	/**
 	 * The intervention matrix.
 	 */
-	public Matrix flowMatrix;
+	public MatrixReader flowMatrix;
 
 	/**
 	 * The matrix with the characterization factors: LCIA categories *
 	 * elementary flows.
 	 */
-	public Matrix impactMatrix;
+	public MatrixReader impactMatrix;
 
 	/**
 	 * A cost vector contains the unscaled net-costs for a set of
@@ -74,6 +75,10 @@ public class MatrixData {
 	 */
 	public UMatrix impactUncertainties;
 
+	/**
+	 * Generates new random values
+	 * @param interpreter
+	 */
 	public void simulate(FormulaInterpreter interpreter) {
 		if (techMatrix != null && techUncertainties != null) {
 			techUncertainties.generate(techMatrix, interpreter);

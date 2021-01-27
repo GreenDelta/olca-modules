@@ -8,6 +8,7 @@ import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.Matrix;
+import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.matrix.io.npy.Npz;
 import org.openlca.core.matrix.solvers.JavaSolver;
@@ -156,7 +157,7 @@ class MatrixDataExport {
 	}
 
 	private void writeMatrix(String name, Matrix matrix) {
-		var m = matrix;
+		MatrixReader m = matrix;
 		if (m instanceof HashPointMatrix) {
 			m = CSCMatrix.of(m);
 		}

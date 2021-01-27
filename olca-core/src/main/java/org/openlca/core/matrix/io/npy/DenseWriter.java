@@ -1,20 +1,19 @@
 package org.openlca.core.matrix.io.npy;
 
-import org.openlca.core.matrix.format.Matrix;
+import org.openlca.core.matrix.format.MatrixReader;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.channels.FileChannel;
 
 class DenseWriter {
 
 	private final File file;
-	private final Matrix matrix;
+	private final MatrixReader matrix;
 
-	DenseWriter(File file, Matrix matrix) {
+	DenseWriter(File file, MatrixReader matrix) {
 		this.file = file;
 		this.matrix = matrix;
 	}

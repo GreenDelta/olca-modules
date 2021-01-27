@@ -23,6 +23,7 @@ import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixBuilder;
+import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.util.Pair;
 
@@ -567,7 +568,7 @@ public class LibraryResultProvider implements ResultProvider {
 	 * Returns the characterization factors of the combined system.
 	 * we cache this matrix in the `fullData` object.
 	 */
-	private Matrix impactFactors() {
+	private MatrixReader impactFactors() {
 		if (fullData.impactMatrix != null)
 			return fullData.impactMatrix;
 		if (!hasFlows() || !hasImpacts())
@@ -660,7 +661,7 @@ public class LibraryResultProvider implements ResultProvider {
 				: matrix.get(indicator, flow);
 	}
 
-	private Matrix flowImpacts() {
+	private MatrixReader flowImpacts() {
 		if (flowImpacts != null)
 			return flowImpacts;
 		var g = totalFlows();

@@ -96,7 +96,8 @@ public class UMatrix {
 	}
 
 	/**
-	 * Generates new values and sets them to the given matrix.
+	 * Generates new values and sets them to the given matrix, thus, it modifies
+	 * the given matrix.
 	 */
 	public void generate(Matrix m, FormulaInterpreter interpreter) {
 		var rows = data.iterator();
