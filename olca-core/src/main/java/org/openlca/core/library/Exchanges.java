@@ -1,0 +1,101 @@
+package org.openlca.core.library;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.openlca.core.database.FlowDao;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.LocationDao;
+import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.model.Exchange;
+
+class Exchanges {
+
+	private final Library lib;
+	private final IDatabase db;
+
+	private Exchanges(Library library, IDatabase db) {
+		this.lib = library;
+		this.db = db;
+	}
+
+	static Exchanges join(Library library, IDatabase db) {
+		return new Exchanges(library, db);
+	}
+
+	List<Exchange> getFor(ProcessProduct product) {
+		if (lib == null || db == null || product == null)
+			return Collections.emptyList();
+		var techIndex = lib.syncProducts(db).orElse(null);
+		if (techIndex == null)
+			return Collections.emptyList();
+
+		// find the library index of the given product
+		int column = techIndex.getIndex(product);
+		if (column < 0)
+			return Collections.emptyList();
+
+		// read the product inputs and outputs
+		var exchanges = new ArrayList<Exchange>();
+		addTechFlows(exchanges, techIndex, column);
+		addEnviFlows(exchanges, column);
+		return exchanges;
+	}
+
+	private void addTechFlows(
+		List<Exchange> exchanges, TechIndex index, int column) {
+		var col = lib.getColumn(LibraryMatrix.A, column).orElse(null);
+		if (col == null)
+			return;
+		var flowDao = new FlowDao(db);
+		for (int i = 0; i < col.length; i++) {
+			double val = col[i];
+			if (val == 0)
+				continue;
+			var product = index.getProviderAt(i);
+			var flow = flowDao.getForId(product.flowId());
+			if (flow == null)
+				continue;
+			var exchange = val < 0
+				? Exchange.input(flow, Math.abs(val))
+				: Exchange.output(flow, val);
+			if (i != column) {
+				exchange.defaultProviderId = product.id();
+			}
+			exchanges.add(exchange);
+		}
+	}
+
+	private void addEnviFlows(List<Exchange> exchanges, int column) {
+		var colB = lib.getColumn(LibraryMatrix.B, column).orElse(null);
+		if (colB == null)
+			return;
+		var iFlows = lib.syncElementaryFlows(db).orElse(null);
+		if (iFlows == null)
+			return;
+
+		var flowDao = new FlowDao(db);
+		var locDao = new LocationDao(db);
+
+		for (int i = 0; i < colB.length; i++) {
+			double val = colB[i];
+			if (val == 0)
+				continue;
+			var iFlow = iFlows.at(i);
+			if (iFlow == null)
+				continue;
+			var flow = flowDao.getForId(iFlow.flow.id);
+			if (flow == null)
+				continue;
+			var exchange = iFlow.isInput
+				? Exchange.input(flow, -val)
+				: Exchange.output(flow, val);
+			if (iFlow.location != null) {
+				exchange.location = locDao.getForId(iFlow.location.id);
+			}
+			exchanges.add(exchange);
+		}
+	}
+}

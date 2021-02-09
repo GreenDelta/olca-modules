@@ -3,7 +3,6 @@ package org.openlca.core.library;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -369,69 +368,6 @@ public class Library {
 	 * needs to be mounted to the given database.
 	 */
 	public List<Exchange> getExchanges(ProcessProduct product, IDatabase db) {
-		if (product == null || db == null)
-			return Collections.emptyList();
-		var products = syncProducts(db).orElse(null);
-		if (products == null)
-			return Collections.emptyList();
-
-		// find the library index of the given product
-		int index = products.getIndex(product);
-		if (index < 0)
-			return Collections.emptyList();
-
-		// read the product inputs and outputs
-		var exchanges = new ArrayList<Exchange>();
-		var flowDao = new FlowDao(db);
-		var colA = getColumn(LibraryMatrix.A, index).orElse(null);
-		if (colA == null)
-			return Collections.emptyList();
-		for (int i = 0; i < colA.length; i++) {
-			double val = colA[i];
-			if (val == 0)
-				continue;
-			product = products.getProviderAt(i);
-			var flow = flowDao.getForId(product.flowId());
-			if (flow == null)
-				continue;
-			var exchange = val < 0
-				? Exchange.input(flow, Math.abs(val))
-				: Exchange.output(flow, val);
-			if (i != index) {
-				exchange.defaultProviderId = product.id();
-			}
-			exchanges.add(exchange);
-		}
-
-		// read the the elementary flow inputs and outputs
-		var colB = getColumn(LibraryMatrix.B, index).orElse(null);
-		if (colB == null)
-			return exchanges;
-		var iFlows = syncElementaryFlows(db).orElse(null);
-		if (iFlows == null)
-			return exchanges;
-
-		var locDao = new LocationDao(db);
-		for (int i = 0; i < colB.length; i++) {
-			double val = colB[i];
-			if (val == 0)
-				continue;
-			var iFlow = iFlows.at(i);
-			if (iFlow == null)
-				continue;
-			var flow = flowDao.getForId(iFlow.flow.id);
-			if (flow == null)
-				continue;
-			var exchange = iFlow.isInput
-				? Exchange.input(flow, -val)
-				: Exchange.output(flow, val);
-			if (iFlow.location != null) {
-				exchange.location = locDao.getForId(
-					iFlow.location.id);
-			}
-			exchanges.add(exchange);
-		}
-
-		return exchanges;
+		return Exchanges.join(this, db).getFor(product);
 	}
 }
