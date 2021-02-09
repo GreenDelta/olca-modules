@@ -36,9 +36,20 @@ public class ImpactFactor extends AbstractEntity implements Cloneable {
 	@JoinColumn(name = "f_location")
 	public Location location;
 
+	public static ImpactFactor of(Flow flow, double value) {
+		var f = new ImpactFactor();
+		f.value = value;
+		if (flow != null) {
+			f.flow = flow;
+			f.flowPropertyFactor = flow.getReferenceFactor();
+			f.unit = flow.getReferenceUnit();
+		}
+		return f;
+	}
+
 	@Override
 	public ImpactFactor clone() {
-		ImpactFactor clone = new ImpactFactor();
+		var clone = new ImpactFactor();
 		clone.flow = flow;
 		clone.flowPropertyFactor = flowPropertyFactor;
 		clone.unit = unit;

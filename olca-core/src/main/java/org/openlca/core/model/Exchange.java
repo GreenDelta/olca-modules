@@ -159,7 +159,7 @@ public class Exchange extends AbstractEntity {
 
 	@Override
 	public Exchange clone() {
-		Exchange clone = new Exchange();
+		var clone = new Exchange();
 		clone.internalId = internalId;
 		clone.formula = formula;
 		clone.amount = amount;

@@ -28,7 +28,9 @@ import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.matrix.io.npy.Npz;
 import org.openlca.core.model.Exchange;
+import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.jsonld.Json;
 import org.slf4j.LoggerFactory;
 
@@ -328,7 +330,7 @@ public class Library {
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(getClass());
 			log.error("failed to read matrix column "
-				+ column + " from " + m + " in " + folder, e);
+								+ column + " from " + m + " in " + folder, e);
 			return Optional.empty();
 		}
 	}
@@ -356,7 +358,7 @@ public class Library {
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(getClass());
 			log.error("failed to read matrix diagonal"
-				+ " from " + m + " in " + folder, e);
+								+ " from " + m + " in " + folder, e);
 			return Optional.empty();
 		}
 	}
@@ -369,5 +371,10 @@ public class Library {
 	 */
 	public List<Exchange> getExchanges(ProcessProduct product, IDatabase db) {
 		return Exchanges.join(this, db).getFor(product);
+	}
+
+	public List<ImpactFactor> getImpactFactors(
+		ImpactDescriptor impact, IDatabase db) {
+		return ImpactFactors.join(this, db).getFor(impact);
 	}
 }

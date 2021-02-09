@@ -16,8 +16,8 @@ class Exchanges {
 	private final Library lib;
 	private final IDatabase db;
 
-	private Exchanges(Library library, IDatabase db) {
-		this.lib = library;
+	private Exchanges(Library lib, IDatabase db) {
+		this.lib = lib;
 		this.db = db;
 	}
 
@@ -37,7 +37,7 @@ class Exchanges {
 		if (column < 0)
 			return Collections.emptyList();
 
-		// read the product inputs and outputs
+		// create the exchanges from the matrices
 		var exchanges = new ArrayList<Exchange>();
 		addTechFlows(exchanges, techIndex, column);
 		addEnviFlows(exchanges, column);
@@ -84,7 +84,7 @@ class Exchanges {
 			if (val == 0)
 				continue;
 			var iFlow = iFlows.at(i);
-			if (iFlow == null)
+			if (iFlow == null || iFlow.flow == null)
 				continue;
 			var flow = flowDao.getForId(iFlow.flow.id);
 			if (flow == null)

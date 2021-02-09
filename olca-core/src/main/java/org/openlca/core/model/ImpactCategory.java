@@ -70,14 +70,8 @@ public class ImpactCategory extends ParameterizedEntity {
 	 * the flow.
 	 */
 	public ImpactFactor factor(Flow flow, double value) {
-		ImpactFactor f = new ImpactFactor();
+		var f = ImpactFactor.of(flow, value);
 		impactFactors.add(f);
-		f.value = value;
-		if (flow == null)
-			return f;
-		f.flow = flow;
-		f.flowPropertyFactor = flow.getReferenceFactor();
-		f.unit = flow.getReferenceUnit();
 		return f;
 	}
 
