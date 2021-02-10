@@ -12,11 +12,11 @@ import javax.persistence.MappedSuperclass;
  * (no cascade delete etc.). On the other side, the life cycle of non-root
  * entities contained in root entities is coupled to the life cycle of the
  * container.
- * 
+ *
  * Root entities must provide an implementation of <code>clone</code> with flat
  * copies for contained root-entities and deep copies for contained non-root
  * entities.
- * 
+ *
  */
 @MappedSuperclass
 public abstract class RootEntity extends AbstractEntity implements Cloneable {
@@ -38,12 +38,15 @@ public abstract class RootEntity extends AbstractEntity implements Cloneable {
 	@Column(name = "last_change")
 	public long lastChange;
 
+	@Override
 	public abstract Object clone();
 
 	@Override
 	public String toString() {
-		return "RootEntity [type=" + getClass().getSimpleName() + ", refId="
-				+ refId + ", name=" + name + "]";
+		return "RootEntity [type="
+				+ getClass().getSimpleName()
+				+ ", refId=" + refId
+				+ ", name=" + name + "]";
 	}
 
 }

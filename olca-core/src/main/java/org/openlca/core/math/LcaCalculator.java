@@ -4,7 +4,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
-import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.results.ContributionResult;
