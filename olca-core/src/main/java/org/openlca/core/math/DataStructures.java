@@ -10,8 +10,8 @@ import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.ImpactBuilder;
+import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.InventoryBuilder;
 import org.openlca.core.matrix.InventoryConfig;
 import org.openlca.core.matrix.LongPair;
@@ -116,13 +116,11 @@ public class DataStructures {
 		techIndex.setDemand(setup.getDemandValue());
 		var interpreter = interpreter(db, setup, techIndex);
 
-		var conf = new InventoryConfig(db, techIndex);
-		conf.allocationMethod = setup.allocationMethod;
-		conf.interpreter = interpreter;
-		conf.subResults = subResults;
-		conf.withCosts = setup.withCosts;
-		conf.withRegionalization = setup.withRegionalization;
-		conf.withUncertainties = setup.withUncertainties;
+		var conf = InventoryConfig.of(db, techIndex)
+				.withSetup(setup)
+				.withInterpreter(interpreter)
+				.withSubResults(subResults)
+				.create();
 		var builder = new InventoryBuilder(conf);
 		var data = builder.build();
 

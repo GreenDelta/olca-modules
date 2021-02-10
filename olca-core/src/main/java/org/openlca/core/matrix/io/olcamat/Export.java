@@ -17,7 +17,6 @@ import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.product.index.ProviderSearch;
-import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ProcessType;
 
 /**
@@ -70,10 +69,10 @@ public class Export implements Runnable {
 			techIndex.put(products.get(i));
 		}
 		dbLinks(techIndex);
-		InventoryConfig config = new InventoryConfig(db, techIndex);
-		config.allocationMethod = AllocationMethod.USE_DEFAULT;
-		config.interpreter = DataStructures.interpreter(db, setup, techIndex);
-		InventoryBuilder builder = new InventoryBuilder(config);
+		var config = InventoryConfig.of(db, techIndex)
+				.withInterpreter(DataStructures.interpreter(db, setup, techIndex))
+				.create();
+		var builder = new InventoryBuilder(config);
 		return builder.build();
 	}
 
