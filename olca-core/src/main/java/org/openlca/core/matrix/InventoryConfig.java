@@ -16,6 +16,7 @@ public class InventoryConfig {
 
 	public final IDatabase db;
 	public final TechIndex techIndex;
+	public final TechLinker linker;
 
 	public final boolean withUncertainties;
 	public final boolean withCosts;
@@ -31,6 +32,9 @@ public class InventoryConfig {
 	private InventoryConfig(Builder builder) {
 		this.db = builder.db;
 		this.techIndex = builder.techIndex;
+		linker = techIndex.hasLinks()
+			? techIndex
+			: TechLinker.Default.of(techIndex);
 
 		if (builder.setup != null) {
 			var setup = builder.setup;

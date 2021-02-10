@@ -157,7 +157,7 @@ public class InventoryBuilder {
 		}
 
 		if (e.isLinkable()) {
-			var linkedProvider = techIndex.providerOf(e);
+			var linkedProvider = conf.linker.providerOf(e);
 			if (linkedProvider != null) {
 				// linked product input or waste output
 				int row = techIndex.getIndex(linkedProvider);

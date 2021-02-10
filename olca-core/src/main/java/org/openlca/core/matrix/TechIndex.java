@@ -7,6 +7,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.openlca.core.database.FlowDao;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ProcessDao;
+import org.openlca.core.database.ProductSystemDao;
+import org.openlca.core.math.ReferenceAmount;
+import org.openlca.core.model.FlowType;
+import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
@@ -25,8 +32,8 @@ import gnu.trove.map.hash.TLongObjectHashMap;
 public class TechIndex implements TechLinker {
 
 	/**
-	 * Maps the product-outputs and waste-inputs as (processId, flowId) pairs to
-	 * an ordinal index.
+	 * Maps the product-outputs and waste-inputs as (processId, flowId) pairs to an
+	 * ordinal index.
 	 */
 	private final HashMap<ProcessProduct, Integer> index = new HashMap<>();
 
@@ -62,6 +69,53 @@ public class TechIndex implements TechLinker {
 	 */
 	public TechIndex(ProcessProduct refFlow) {
 		put(refFlow);
+	}
+
+	/**
+	 * Creates a linked index from the given product system. This means that the
+	 * process links of the product system are stored in this index.
+	 */
+	public static TechIndex linkedOf(ProductSystem system, IDatabase db) {
+		// initialize the TechIndex with the reference flow
+		var refExchange = system.referenceExchange;
+		var refFlow = ProcessProduct.of(
+				system.referenceProcess, refExchange.flow);
+		var index = new TechIndex(refFlow);
+
+		// set the final demand value which is negative
+		// when we have a waste flow as reference flow
+		double demand = ReferenceAmount.get(system);
+		var ftype = refExchange.flow == null
+				? null
+				: refExchange.flow.flowType;
+		if (ftype == FlowType.WASTE_FLOW) {
+			demand = -demand;
+		}
+		index.setDemand(demand);
+
+		// initialize the fast descriptor maps
+		var systems = new ProductSystemDao(db).descriptorMap();
+		var processes = new ProcessDao(db).descriptorMap();
+		var flows = new FlowDao(db).descriptorMap();
+
+		for (var link : system.processLinks) {
+			CategorizedDescriptor p = processes.get(link.providerId);
+			if (p == null) {
+				p = systems.get(link.providerId);
+				if (p == null)
+					continue;
+			}
+			var flow = flows.get(link.flowId);
+			if (flow == null)
+				continue;
+
+			// the tech-index checks for duplicates of products and links
+			var provider = ProcessProduct.of(p, flow);
+			index.put(provider);
+			var exchange = new LongPair(link.processId, link.exchangeId);
+			index.putLink(exchange, provider);
+		}
+		return index;
 	}
 
 	/**
@@ -106,8 +160,8 @@ public class TechIndex implements TechLinker {
 	}
 
 	/**
-	 * Returns true when there is a product in this index with a process and
-	 * flow of the given IDs.
+	 * Returns true when there is a product in this index with a process and flow of
+	 * the given IDs.
 	 */
 	public boolean contains(long processID, long flowID) {
 		return getProvider(processID, flowID) != null;
@@ -132,8 +186,8 @@ public class TechIndex implements TechLinker {
 
 	/**
 	 * Adds the given provider (product-output or waste-input) to this index and
-	 * returns its position. If the product is already contained in this index
-	 * its current position is returned.
+	 * returns its position. If the product is already contained in this index its
+	 * current position is returned.
 	 */
 	public int put(ProcessProduct provider) {
 		var existing = index.get(provider);
@@ -159,8 +213,8 @@ public class TechIndex implements TechLinker {
 	}
 
 	/**
-	 * Get all providers with the given descriptor of a process or product
-	 * system as entity.
+	 * Get all providers with the given descriptor of a process or product system as
+	 * entity.
 	 */
 	public List<ProcessProduct> getProviders(CategorizedDescriptor d) {
 		return d == null
@@ -169,8 +223,8 @@ public class TechIndex implements TechLinker {
 	}
 
 	/**
-	 * Returns the providers (product-outputs and waste-inputs) for the process
-	 * with the given ID.
+	 * Returns the providers (product-outputs and waste-inputs) for the process with
+	 * the given ID.
 	 */
 	public List<ProcessProduct> getProviders(long processId) {
 		var providers = processProviders.get(processId);
@@ -180,8 +234,8 @@ public class TechIndex implements TechLinker {
 	}
 
 	/**
-	 * Returns true when there is a process or product system with the given ID
-	 * part of this index.
+	 * Returns true when there is a process or product system with the given ID part
+	 * of this index.
 	 */
 	public boolean isProvider(long processID) {
 		return processProviders.containsKey(processID);
@@ -208,6 +262,13 @@ public class TechIndex implements TechLinker {
 	}
 
 	/**
+	 * Returns true if this index also contains the links between processes.
+	 */
+	public boolean hasLinks() {
+		return links.size() != 0;
+	}
+
+	/**
 	 * Returns the linked provider (product-output or waste-input) for the given
 	 * exchange (product-input or waste-output)
 	 */
@@ -216,17 +277,16 @@ public class TechIndex implements TechLinker {
 	}
 
 	/**
-	 * Returns all exchanges (product-inputs and waste-outputs) that are linked
-	 * to provider of this index.
+	 * Returns all exchanges (product-inputs and waste-outputs) that are linked to
+	 * provider of this index.
 	 */
 	public Set<LongPair> getLinkedExchanges() {
 		return links.keySet();
 	}
 
 	/**
-	 * Returns the IDs of all processes in this index (note that this can also
-	 * can contain product system IDs if there are sub-systems in the product
-	 * system).
+	 * Returns the IDs of all processes in this index (note that this can also can
+	 * contain product system IDs if there are sub-systems in the product system).
 	 */
 	public Set<Long> getProcessIds() {
 		HashSet<Long> set = new HashSet<>();
