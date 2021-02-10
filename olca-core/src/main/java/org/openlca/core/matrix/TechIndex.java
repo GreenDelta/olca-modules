@@ -22,7 +22,7 @@ import gnu.trove.map.hash.TLongObjectHashMap;
  * <p>
  * $$\mathit{Idx}_A: \mathit{P} \mapsto [0 \dots n-1]$$
  */
-public class TechIndex {
+public class TechIndex implements TechLinker {
 
 	/**
 	 * Maps the product-outputs and waste-inputs as (processId, flowId) pairs to
@@ -202,12 +202,9 @@ public class TechIndex {
 		links.put(exchange, provider);
 	}
 
-	/**
-	 * Returns true if the given product-input or waste-output is linked to a
-	 * provider of this index.
-	 */
-	public boolean isLinked(LongPair exchange) {
-		return links.containsKey(exchange);
+	@Override
+	public ProcessProduct providerOf(CalcExchange e) {
+		return getLinkedProvider(LongPair.of(e.processId, e.exchangeId));
 	}
 
 	/**

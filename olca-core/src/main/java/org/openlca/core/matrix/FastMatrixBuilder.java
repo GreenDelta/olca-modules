@@ -1,7 +1,5 @@
 package org.openlca.core.matrix;
 
-import java.util.List;
-
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.LocationDao;
@@ -26,19 +24,17 @@ public class FastMatrixBuilder {
 
 	private final IDatabase db;
 	private final CalculationSetup setup;
-	private final FlowTable flows;
-
-	private AllocationIndex allocationIndex;
 	private TechIndex techIndex;
+	private final FlowTable flows;
 	private FlowIndex flowIndex;
+
+	private final TLongObjectHashMap<LocationDescriptor> locations;
+	private AllocationIndex allocationIndex;
 
 	private FormulaInterpreter interpreter;
 	private MatrixBuilder techBuilder;
 	private MatrixBuilder enviBuilder;
 	private double[] costs;
-
-	// only used when a regionalized inventory is build
-	private final TLongObjectHashMap<LocationDescriptor> locations;
 
 	/**
 	 * A map that assigns the IDs of products and waste flows to their
@@ -53,11 +49,10 @@ public class FastMatrixBuilder {
 		this.db = db;
 		this.setup = setup;
 		this.flows = FlowTable.create(db);
-		if (!setup.withRegionalization) {
-			locations = null;
-		} else {
-			locations = new LocationDao(db).descriptorMap();
-		}
+		locations = setup.withRegionalization
+			? new LocationDao(db).descriptorMap()
+			: null;
+
 	}
 
 	public MatrixData build() {
@@ -79,10 +74,9 @@ public class FastMatrixBuilder {
 			costs = new double[techIndex.size()];
 		}
 
-		ExchangeTable exchanges = new ExchangeTable(db);
+		var exchanges = new ExchangeTable(db);
 		exchanges.each(techIndex, exchange -> {
-			List<ProcessProduct> products = techIndex
-					.getProviders(exchange.processId);
+			var products = techIndex.getProviders(exchange.processId);
 			for (ProcessProduct product : products) {
 				putExchangeValue(product, exchange);
 			}
@@ -126,14 +120,13 @@ public class FastMatrixBuilder {
 	}
 
 	private void putExchangeValue(ProcessProduct provider, CalcExchange e) {
-		if (e.flowType == FlowType.ELEMENTARY_FLOW) {
+		if (e.isElementary()) {
 			// elementary flows
 			addIntervention(provider, e);
 			return;
 		}
 
-		if ((e.isInput && e.flowType == FlowType.PRODUCT_FLOW)
-				|| (!e.isInput && e.flowType == FlowType.WASTE_FLOW)) {
+		if (e.isLinkable()) {
 			addProcessLink(provider, e);
 			return;
 		}

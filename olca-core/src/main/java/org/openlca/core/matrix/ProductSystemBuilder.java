@@ -102,7 +102,7 @@ public class ProductSystemBuilder {
 			linkIds.add(link.exchangeId);
 		}
 		for (LongPair exchange : index.getLinkedExchanges()) {
-			ProcessProduct provider = index.getLinkedProvider(exchange);
+			var provider = index.getLinkedProvider(exchange);
 			if (provider == null)
 				continue;
 			system.processes.add(provider.id());

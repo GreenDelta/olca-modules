@@ -157,9 +157,11 @@ public class InventoryBuilder {
 		}
 
 		if (e.isLinkable()) {
-			if (techIndex.isLinked(LongPair.of(e.processId, e.exchangeId))) {
+			var linkedProvider = techIndex.providerOf(e);
+			if (linkedProvider != null) {
 				// linked product input or waste output
-				addProcessLink(provider, e);
+				int row = techIndex.getIndex(linkedProvider);
+				add(row, provider, techBuilder, e);
 			} else {
 				// unlinked product input or waste output
 				addIntervention(provider, e);
@@ -178,13 +180,6 @@ public class InventoryBuilder {
 			// non allocated output products or waste inputs
 			addIntervention(provider, e);
 		}
-	}
-
-	private void addProcessLink(ProcessProduct product, CalcExchange e) {
-		var exchange = LongPair.of(e.processId, e.exchangeId);
-		var provider = techIndex.getLinkedProvider(exchange);
-		int row = techIndex.getIndex(provider);
-		add(row, product, techBuilder, e);
 	}
 
 	private void addIntervention(ProcessProduct provider, CalcExchange e) {
