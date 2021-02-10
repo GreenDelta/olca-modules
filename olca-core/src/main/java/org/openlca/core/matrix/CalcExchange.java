@@ -4,7 +4,6 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.util.Strings;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CalcExchange {
@@ -25,10 +24,14 @@ public class CalcExchange {
 
 	public FlowType flowType;
 
-	/** 0 if the exchange has no default provider. */
+	/**
+	 * 0 if the exchange has no default provider.
+	 */
 	public long defaultProviderId;
 
-	/** 0 if the exchange has no location assigned. */
+	/**
+	 * 0 if the exchange has no location assigned.
+	 */
 	public long locationId;
 
 	public boolean isAvoided;
@@ -52,15 +55,15 @@ public class CalcExchange {
 		if (isAvoided || flowType == null)
 			return false;
 		switch (flowType) {
-		case ELEMENTARY_FLOW:
-			return true;
-		case PRODUCT_FLOW:
-			return isInput;
-		case WASTE_FLOW:
-			return !isInput;
-		default:
-			// this should never happen
-			return false;
+			case ELEMENTARY_FLOW:
+				return true;
+			case PRODUCT_FLOW:
+				return isInput;
+			case WASTE_FLOW:
+				return !isInput;
+			default:
+				// this should never happen
+				return false;
 		}
 	}
 
@@ -68,13 +71,27 @@ public class CalcExchange {
 	 * Returns true when the exchange has an uncertainty distribution assigned.
 	 */
 	public boolean hasUncertainty() {
-		return uncertaintyType != null
-				&& uncertaintyType != UncertaintyType.NONE;
+		return uncertaintyType != null && uncertaintyType != UncertaintyType.NONE;
 	}
 
-	public double matrixValue(
-			FormulaInterpreter interpreter,
-			double allocationFactor) {
+	/**
+	 * Returns true if the flow of this exchange is an elementary flow.
+	 */
+	public boolean isElementary() {
+		return flowType == null || flowType == FlowType.ELEMENTARY_FLOW;
+	}
+
+	/**
+	 * Returns true if this exchange can be linked to a provider. This is the
+	 * case if this exchange is a product input or waste output.
+	 */
+	public boolean isLinkable() {
+		return (isInput && flowType == FlowType.PRODUCT_FLOW)
+			|| (!isInput && flowType == FlowType.WASTE_FLOW);
+	}
+
+	public double matrixValue(FormulaInterpreter interpreter,
+														double allocationFactor) {
 
 		double a = amount;
 		if (Strings.notEmpty(formula) && interpreter != null) {
@@ -82,9 +99,9 @@ public class CalcExchange {
 				var scope = interpreter.getScopeOrGlobal(processId);
 				a = scope.eval(formula);
 			} catch (Exception e) {
-				Logger log = LoggerFactory.getLogger(getClass());
+				var log = LoggerFactory.getLogger(getClass());
 				log.error("Formula evaluation failed, exchange "
-						+ exchangeId, e);
+									+ exchangeId, e);
 			}
 		}
 
@@ -99,9 +116,8 @@ public class CalcExchange {
 		return isInput ? -a : a;
 	}
 
-	public double costValue(
-			FormulaInterpreter interpreter,
-			double allocationFactor) {
+	public double costValue(FormulaInterpreter interpreter,
+													double allocationFactor) {
 
 		double c = costValue;
 		if (Strings.notEmpty(costFormula) && interpreter != null) {
@@ -109,9 +125,9 @@ public class CalcExchange {
 				var scope = interpreter.getScopeOrGlobal(processId);
 				c = scope.eval(costFormula);
 			} catch (Exception e) {
-				Logger log = LoggerFactory.getLogger(getClass());
+				var log = LoggerFactory.getLogger(getClass());
 				log.error("Formula evaluation for costs failed, exchange "
-						+ exchangeId, e);
+									+ exchangeId, e);
 			}
 		}
 

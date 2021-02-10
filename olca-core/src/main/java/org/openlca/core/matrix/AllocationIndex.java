@@ -31,6 +31,10 @@ public class AllocationIndex {
 	 */
 	private HashMap<ProcessProduct, TLongObjectHashMap<CalcAllocationFactor>> causalFactors;
 
+	public static AllocationIndex create(InventoryConfig config) {
+		return create(config.db, config.techIndex, config.allocationMethod);
+	}
+
 	/**
 	 * Creates a new allocation index for the given database, product index, and
 	 * allocation method.

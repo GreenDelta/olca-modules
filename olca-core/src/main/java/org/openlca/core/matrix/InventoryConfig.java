@@ -59,6 +59,11 @@ public class InventoryConfig {
 		return new Builder(db, techIndex);
 	}
 
+	boolean hasAllocation() {
+		return allocationMethod != null
+			&& allocationMethod != AllocationMethod.NONE;
+	}
+
 	public static class Builder {
 		private final IDatabase db;
 		private final TechIndex techIndex;
