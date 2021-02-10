@@ -47,4 +47,27 @@ class UImpactCell implements UCell {
 				return NumberGenerator.discrete(e.amount);
 		}
 	}
+
+	@Override
+	public UncertaintyType type() {
+		return factor.uncertaintyType == null
+			? UncertaintyType.NONE
+			: factor.uncertaintyType;
+	}
+
+	@Override
+	public double[] values() {
+		if (factor.uncertaintyType == null
+				|| factor.uncertaintyType == UncertaintyType.NONE)
+			return new double[0];
+		if (factor.uncertaintyType == UncertaintyType.TRIANGLE)
+			return new double[]{
+				factor.parameter1,
+				factor.parameter2,
+				factor.parameter3};
+		return new double[] {
+			factor.parameter1,
+			factor.parameter2,
+		};
+	}
 }

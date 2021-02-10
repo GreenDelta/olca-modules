@@ -6,7 +6,7 @@ public class ByteMatrixBuffer {
 	private final int checkpoint;
 
 	private int sparseEntries = 0;
-	private HashPointByteMatrix sparse = new HashPointByteMatrix();
+	private final HashPointByteMatrix sparse = new HashPointByteMatrix();
 	private DenseByteMatrix dense;
 	private int denseCols;
 	private int denseRows;

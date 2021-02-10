@@ -32,8 +32,8 @@ class UExchangeCell implements UCell {
 		this.exchange = e;
 		this.allocationFactor = f;
 		gen = e.hasUncertainty()
-				? generator(e)
-				: null;
+			? generator(e)
+			: null;
 	}
 
 	@Override
@@ -42,8 +42,8 @@ class UExchangeCell implements UCell {
 			exchange.amount = gen.next();
 		}
 		double af = allocationFactor != null
-				? allocationFactor.force(interpreter)
-				: 1;
+			? allocationFactor.force(interpreter)
+			: 1;
 		double amount = exchange.matrixValue(interpreter, af);
 		if (overlay != null) {
 			for (UCell u : overlay) {
@@ -59,20 +59,43 @@ class UExchangeCell implements UCell {
 			return NumberGenerator.discrete(e.amount);
 		}
 		switch (t) {
-		case LOG_NORMAL:
-			return NumberGenerator.logNormal(
+			case LOG_NORMAL:
+				return NumberGenerator.logNormal(
 					e.parameter1, e.parameter2);
-		case NORMAL:
-			return NumberGenerator.normal(
+			case NORMAL:
+				return NumberGenerator.normal(
 					e.parameter1, e.parameter2);
-		case TRIANGLE:
-			return NumberGenerator.triangular(
+			case TRIANGLE:
+				return NumberGenerator.triangular(
 					e.parameter1, e.parameter2, e.parameter3);
-		case UNIFORM:
-			return NumberGenerator.uniform(
+			case UNIFORM:
+				return NumberGenerator.uniform(
 					e.parameter1, e.parameter2);
-		default:
-			return NumberGenerator.discrete(e.amount);
+			default:
+				return NumberGenerator.discrete(e.amount);
 		}
+	}
+
+	@Override
+	public UncertaintyType type() {
+		return exchange.uncertaintyType == null
+			? UncertaintyType.NONE
+			: exchange.uncertaintyType;
+	}
+
+	@Override
+	public double[] values() {
+		if (exchange.uncertaintyType == null
+				|| exchange.uncertaintyType == UncertaintyType.NONE)
+			return new double[0];
+		if (exchange.uncertaintyType == UncertaintyType.TRIANGLE)
+			return new double[]{
+				exchange.parameter1,
+				exchange.parameter2,
+				exchange.parameter3};
+		return new double[] {
+			exchange.parameter1,
+			exchange.parameter2,
+		};
 	}
 }
