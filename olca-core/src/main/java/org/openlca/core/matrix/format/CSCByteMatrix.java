@@ -1,6 +1,6 @@
 package org.openlca.core.matrix.format;
 
-public class CSCByteMatrix implements ByteMatrix {
+public class CSCByteMatrix implements ByteMatrixReader {
 
 	public final int rows;
 	public final int columns;
@@ -29,12 +29,6 @@ public class CSCByteMatrix implements ByteMatrix {
 	@Override
 	public int columns() {
 		return columns;
-	}
-
-	@Override
-	public void set(int row, int col, byte value) {
-		throw new RuntimeException(
-			"Modifying a compressed matrix is not supported");
 	}
 
 	@Override

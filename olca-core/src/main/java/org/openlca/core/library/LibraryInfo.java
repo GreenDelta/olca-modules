@@ -45,6 +45,11 @@ public class LibraryInfo {
 	 */
 	public final List<String> dependencies = new ArrayList<>();
 
+	/**
+	 * Indicates whether the library has uncertainty information.
+	 */
+	public boolean hasUncertaintyData;
+
 	public static LibraryInfo of(String name, String version) {
 		var info = new LibraryInfo();
 		info.name = name;
@@ -75,6 +80,7 @@ public class LibraryInfo {
 		Json.put(obj, "version", Version.format(version));
 		Json.put(obj, "description", description);
 		obj.addProperty("isRegionalized", isRegionalized);
+		obj.addProperty("hasUncertaintyData", hasUncertaintyData);
 		if (dependencies.isEmpty())
 			return obj;
 		var deps = new JsonArray();
@@ -90,6 +96,7 @@ public class LibraryInfo {
 		info.name = Json.getString(obj, "name");
 		info.version = Version.format(Json.getString(obj, "version"));
 		info.isRegionalized = Json.getBool(obj, "isRegionalized", false);
+		info.hasUncertaintyData = Json.getBool(obj, "hasUncertaintyData", false);
 		var deps = Json.getArray(obj, "dependencies");
 		if (deps != null) {
 			Json.stream(deps)
