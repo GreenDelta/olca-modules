@@ -35,6 +35,7 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.output.JsonExport;
+import org.openlca.util.Databases;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,6 +87,7 @@ public class LibraryExport implements Runnable {
 			info = new LibraryInfo();
 			info.name = db.getName();
 			info.version = "0.0.1";
+			info.hasUncertaintyData = Databases.hasUncertaintyData(db);
 		}
 
 		// create a thread pool and start writing the meta-data
@@ -150,6 +152,7 @@ public class LibraryExport implements Runnable {
 		var setup = new CalculationSetup(system);
 		setup.withRegionalization = info.isRegionalized;
 		setup.allocationMethod = allocation;
+		setup.withUncertainties = info.hasUncertaintyData;
 		var data = new FastMatrixBuilder(db, setup).build();
 		log.info("finished with building matrices");
 

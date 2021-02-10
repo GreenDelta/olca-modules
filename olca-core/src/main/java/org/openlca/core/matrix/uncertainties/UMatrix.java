@@ -100,23 +100,12 @@ public class UMatrix {
 	 * the given matrix.
 	 */
 	public void generate(Matrix m, FormulaInterpreter interpreter) {
-		each((row, col, cell) -> {
-			m.set(row, col, cell.next(interpreter));
-		});
-		var rows = data.iterator();
-		while (rows.hasNext()) {
-			rows.advance();
-			int row = rows.key();
-			var cols = rows.value().iterator();
-			while (cols.hasNext()) {
-				cols.advance();
-				int col = cols.key();
-				var cell = cols.value();
-				m.set(row, col, cell.next(interpreter));
-			}
-		}
+		each((row, col, cell) -> m.set(row, col, cell.next(interpreter)));
 	}
 
+	/**
+	 * Iterate over the cells of this matrix.
+	 */
 	public void each(EntryFunction fn) {
 		var rows = data.iterator();
 		while (rows.hasNext()) {
