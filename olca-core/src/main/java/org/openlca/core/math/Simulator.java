@@ -142,20 +142,20 @@ public class Simulator {
 		try {
 
 			// generate the numbers and calculate the overall result
-			for (Node sub : subNodes) {
+			for (var sub : subNodes) {
 				generateData(sub);
-				LcaCalculator calc = new LcaCalculator(solver, sub.data);
+				var calc = new LcaCalculator(solver, sub.data);
 				sub.lastResult = calc.calculateSimple();
 			}
 			generateData(root);
-			LcaCalculator calc = new LcaCalculator(solver, root.data);
-			SimpleResult sr = calc.calculateSimple();
-			SimulationResult r = getResult();
-			r.append(sr);
+			var calc = new LcaCalculator(solver, root.data);
+			var next = calc.calculateSimple();
+			var result = getResult();
+			result.append(next);
 
 			// calculate results of possible pinned products
 			for (ProcessProduct pinned : pinnedProducts) {
-				int idx = sr.techIndex.getIndex(pinned);
+				int idx = next.techIndex.getIndex(pinned);
 				if (idx < 0)
 					continue;
 
@@ -164,13 +164,13 @@ public class Simulator {
 				var A = root.data.techMatrix;
 				var B = root.data.flowMatrix;
 				var C = root.data.impactMatrix;
-				double[] s = sr.scalingVector;
+				double[] s = next.scalingVector;
 
 				// direct contributions
 				SimpleResult direct = new SimpleResult();
 				double si = s[idx];
 				direct.totalFlowResults = B.getColumn(idx);
-				for (int row = 0; row < sr.flowIndex.size(); row++) {
+				for (int row = 0; row < next.flowIndex.size(); row++) {
 					direct.totalFlowResults[row] *= si;
 				}
 				if (C != null) {
@@ -181,7 +181,7 @@ public class Simulator {
 				// upstream contributions
 				SimpleResult upstream = new SimpleResult();
 				double fi = si * A.get(idx, idx);
-				double loopFactor = LcaCalculator.getLoopFactor(A, s, sr.techIndex);
+				double loopFactor = LcaCalculator.getLoopFactor(A, s, next.techIndex);
 				fi *= loopFactor;
 				double[] su = solver.solve(A, idx, fi);
 				upstream.totalFlowResults = solver.multiply(B, su);
@@ -190,9 +190,9 @@ public class Simulator {
 							C, upstream.totalFlowResults);
 				}
 
-				r.append(pinned, direct, upstream);
+				result.append(pinned, direct, upstream);
 			}
-			return sr;
+			return next;
 		} catch (Throwable e) {
 			Logger log = LoggerFactory.getLogger(this.getClass());
 			log.trace("simulation run failed", e);
@@ -342,7 +342,7 @@ public class Simulator {
 				// be initialized with the correct matrix shapes (
 				// e.g. flows that only occure in a sub-system
 				// need a row in the respective host-systems)
-				SimpleResult r = new SimpleResult();
+				var r = new SimpleResult();
 				r.techIndex = node.data.techIndex;
 				r.flowIndex = node.data.flowIndex;
 				r.totalFlowResults = new double[r.flowIndex.size()];
@@ -385,8 +385,7 @@ public class Simulator {
 
 			systemID = setup.productSystem.id;
 			product = ProcessProduct.of(setup.productSystem);
-			data = DataStructures.matrixData(
-					db, setup, subResults);
+			data = MatrixData.of(db, setup, subResults);
 
 			// parameters
 			HashSet<Long> paramContexts = new HashSet<>();

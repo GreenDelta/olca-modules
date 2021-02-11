@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.DataStructures;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.InventoryBuilder;
 import org.openlca.core.matrix.InventoryConfig;
@@ -70,15 +69,14 @@ public class Export implements Runnable {
 		}
 		dbLinks(techIndex);
 		var config = InventoryConfig.of(db, techIndex)
-				.withInterpreter(DataStructures.interpreter(db, setup, techIndex))
+				.withInterpreter(MatrixData.interpreter(db, setup, techIndex))
 				.create();
 		var builder = new InventoryBuilder(config);
 		return builder.build();
 	}
 
 	private MatrixData setupInventory() {
-		return DataStructures.matrixData(
-				cache.getDatabase(), setup);
+		return MatrixData.of(cache.getDatabase(), setup);
 	}
 
 	private void dbLinks(TechIndex idx) throws Exception {

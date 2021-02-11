@@ -6,7 +6,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.DataStructures;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.io.CsvOut;
@@ -42,7 +41,7 @@ public class CsvMatrixExample {
 
 		// create and export the matrix data
 		File exportDir = new File("target/data");
-		MatrixData data = DataStructures.matrixData(db, setup);
+		MatrixData data = MatrixData.of(db, setup);
 		CsvOut.write(data, db, exportDir);
 
 		// calculate and export the result

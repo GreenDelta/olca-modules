@@ -9,18 +9,13 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.library.LibraryDir;
-import org.openlca.core.matrix.FastMatrixBuilder;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.matrix.solvers.JavaSolver;
-import org.openlca.core.model.ProcessLink;
-import org.openlca.core.model.ProductSystem;
+import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.ProjectResult;
@@ -107,13 +102,8 @@ public class SystemCalculator {
 	}
 
 	private LcaCalculator calculator(CalculationSetup setup) {
-		MatrixData data;
-		if (setup.productSystem.withoutNetwork) {
-			data = new FastMatrixBuilder(db, setup).build();
-		} else {
-			var subs = calculateSubSystems(setup);
-			data = DataStructures.matrixData(db, setup, subs);
-		}
+		var subs = calculateSubSystems(setup);
+		var data = MatrixData.of(db, setup, subs);
 		var calculator = new LcaCalculator(solver, data);
 		if (libDir != null) {
 			calculator.withLibraries(db, libDir);
@@ -127,18 +117,20 @@ public class SystemCalculator {
 	 */
 	private Map<ProcessProduct, SimpleResult> calculateSubSystems(
 			CalculationSetup setup) {
-		if (setup == null || setup.productSystem == null)
+		if (setup == null
+				|| setup.productSystem == null
+				|| setup.productSystem.withoutNetwork)
 			return Collections.emptyMap();
 
 		// collect the sub-systems
-		HashSet<ProcessProduct> subSystems = new HashSet<>();
-		ProductSystemDao sysDao = new ProductSystemDao(db);
-		FlowDao flowDao = new FlowDao(db);
-		for (ProcessLink link : setup.productSystem.processLinks) {
+		var subSystems = new HashSet<ProcessProduct>();
+		var sysDao = new ProductSystemDao(db);
+		var flowDao = new FlowDao(db);
+		for (var link : setup.productSystem.processLinks) {
 			if (!link.isSystemLink)
 				continue;
-			ProductSystemDescriptor sys = sysDao.getDescriptor(link.providerId);
-			FlowDescriptor flow = flowDao.getDescriptor(link.flowId);
+			var sys = sysDao.getDescriptor(link.providerId);
+			var flow = flowDao.getDescriptor(link.flowId);
 			if (sys == null || flow == null) {
 				log.error("could not load descriptors of system link {}", link);
 				continue;
@@ -149,21 +141,21 @@ public class SystemCalculator {
 			return Collections.emptyMap();
 
 		// calculate the LCI results of the sub-systems
-		HashMap<ProcessProduct, SimpleResult> map = new HashMap<>();
-		for (ProcessProduct pp : subSystems) {
-			ProductSystem subSys = sysDao.getForId(pp.id());
-			if (subSys == null)
+		var subResults = new HashMap<ProcessProduct, SimpleResult>();
+		for (var pp : subSystems) {
+			var subSystem = sysDao.getForId(pp.id());
+			if (subSystem == null)
 				continue;
-			var subSetup = new CalculationSetup(subSys);
+			var subSetup = new CalculationSetup(subSystem);
 			subSetup.parameterRedefs.addAll(setup.parameterRedefs);
-			ParameterRedefs.addTo(subSetup, subSys);
+			ParameterRedefs.addTo(subSetup, subSystem);
 			subSetup.withCosts = setup.withCosts;
 			subSetup.withUncertainties = setup.withUncertainties;
 			subSetup.withRegionalization = setup.withRegionalization;
 			subSetup.allocationMethod = setup.allocationMethod;
-			SimpleResult r = calculateSimple(subSetup);
-			map.put(pp, r);
+			var subResult = calculateSimple(subSetup);
+			subResults.put(pp, subResult);
 		}
-		return map;
+		return subResults;
 	}
 }

@@ -5,14 +5,11 @@ import java.io.File;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.DataStructures;
 import org.openlca.core.math.SystemCalculator;
-import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.results.solutions.LibraryResultProvider;
 import org.openlca.julia.Julia;
 import org.openlca.julia.JuliaSolver;
 

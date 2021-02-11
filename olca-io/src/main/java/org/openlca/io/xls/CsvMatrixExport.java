@@ -7,12 +7,10 @@ import java.util.HashMap;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.DataStructures;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
-import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.io.CategoryPair;
@@ -25,12 +23,12 @@ import org.slf4j.LoggerFactory;
  */
 public class CsvMatrixExport implements Runnable {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-	private EntityCache cache;
-	private CsvMatrixExportConfig conf;
-	private String separator;
-	private String point;
-	private HashMap<Long, String> categoryCache = new HashMap<>();
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final EntityCache cache;
+	private final CsvMatrixExportConfig conf;
+	private final String separator;
+	private final String point;
+	private final HashMap<Long, String> categoryCache = new HashMap<>();
 
 	public CsvMatrixExport(CsvMatrixExportConfig conf) {
 		this.conf = conf;
@@ -51,7 +49,7 @@ public class CsvMatrixExport implements Runnable {
 		CalculationSetup setup = new CalculationSetup(conf.productSystem);
 		setup.parameterRedefs.addAll(conf.productSystem.parameterRedefs);
 		setup.allocationMethod = AllocationMethod.NONE;
-		MatrixData data = DataStructures.matrixData(conf.db, setup);
+		var data = MatrixData.of(conf.db, setup);
 
 		log.trace("Write technology matrix");
 		try (FileWriter writer = new FileWriter(conf.technologyFile);

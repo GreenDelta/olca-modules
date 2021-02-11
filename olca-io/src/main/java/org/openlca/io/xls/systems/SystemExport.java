@@ -14,7 +14,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.DataStructures;
 import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
@@ -45,7 +44,7 @@ public class SystemExport {
 		setup.parameterRedefs.addAll(conf.system.parameterRedefs);
 		setup.allocationMethod = conf.allocationMethod;
 		setup.impactMethod = conf.impactMethod;
-		data = DataStructures.matrixData(conf.database, setup);
+		data = MatrixData.of(conf.database, setup);
 
 		File subDir = new File(dir, conf.system.name.trim());
 		if (!subDir.exists())

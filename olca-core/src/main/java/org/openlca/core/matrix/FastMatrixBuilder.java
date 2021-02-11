@@ -6,7 +6,6 @@ import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.DataStructures;
 import org.openlca.core.matrix.cache.ExchangeTable;
 import org.openlca.core.matrix.cache.FlowTable;
 import org.openlca.core.matrix.format.MatrixBuilder;
@@ -19,7 +18,13 @@ import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
  * A fast matrix builder that skips the product system linking layer ...
+ *
+ * @deprecated it is now possible to build inventory matrices of a complete
+ * database also with the InventoryBuilder. The performance is the same and it
+ * has more features (like changing the linker or collecting uncertainty data
+ * in the same table scan).
  */
+@Deprecated
 public class FastMatrixBuilder {
 
 	private final IDatabase db;
@@ -60,7 +65,7 @@ public class FastMatrixBuilder {
 		flowIndex = setup.withRegionalization
 			? FlowIndex.createRegionalized()
 			: FlowIndex.create();
-		interpreter = DataStructures.interpreter(
+		interpreter = MatrixData.interpreter(
 			db, setup, techIndex);
 		techBuilder = new MatrixBuilder();
 		enviBuilder = new MatrixBuilder();
