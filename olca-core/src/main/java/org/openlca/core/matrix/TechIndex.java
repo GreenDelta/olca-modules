@@ -6,9 +6,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.math.ReferenceAmount;
@@ -76,22 +78,7 @@ public class TechIndex implements TechLinker {
 	 * process links of the product system are stored in this index.
 	 */
 	public static TechIndex linkedOf(ProductSystem system, IDatabase db) {
-		// initialize the TechIndex with the reference flow
-		var refExchange = system.referenceExchange;
-		var refFlow = ProcessProduct.of(
-				system.referenceProcess, refExchange.flow);
-		var index = new TechIndex(refFlow);
-
-		// set the final demand value which is negative
-		// when we have a waste flow as reference flow
-		double demand = ReferenceAmount.get(system);
-		var ftype = refExchange.flow == null
-				? null
-				: refExchange.flow.flowType;
-		if (ftype == FlowType.WASTE_FLOW) {
-			demand = -demand;
-		}
-		index.setDemand(demand);
+		var index = initFrom(system);
 
 		// initialize the fast descriptor maps
 		var systems = new ProductSystemDao(db).descriptorMap();
@@ -116,6 +103,85 @@ public class TechIndex implements TechLinker {
 			index.putLink(exchange, provider);
 		}
 		return index;
+	}
+
+	/**
+	 * Creates an unlinked index from the given product system and all process
+	 * products of the database. It first sets the quantitative reference of
+	 * the given system as the demand of this index and then adds all process
+	 * products (and waste flows) of the database to the index in some
+	 * arbitrary order.
+	 */
+	public static TechIndex unlinkedOf(ProductSystem system, IDatabase db) {
+		var index = initFrom(system);
+		eachProviderOf(db, index::put);
+		return index;
+	}
+
+	/**
+	 * Creates an unlinked index of all process products (and waste flows) of
+	 * the database in some arbitrary order.
+	 */
+	public static TechIndex unlinkedOf(IDatabase db) {
+		var list = new ArrayList<ProcessProduct>();
+		eachProviderOf(db, list::add);
+		if (list.isEmpty())
+			throw new RuntimeException("no providers in database");
+		var index = new TechIndex(list.get(0));
+		for (int i = 1; i < list.size(); i++) {
+			index.put(list.get(i));
+		}
+		return index;
+	}
+
+	private static TechIndex initFrom(ProductSystem system) {
+		// initialize the TechIndex with the reference flow
+		var refExchange = system.referenceExchange;
+		var refFlow = ProcessProduct.of(
+			system.referenceProcess, refExchange.flow);
+		var index = new TechIndex(refFlow);
+
+		// set the final demand value which is negative
+		// when we have a waste flow as reference flow
+		double demand = ReferenceAmount.get(system);
+		var ftype = refExchange.flow == null
+			? null
+			: refExchange.flow.flowType;
+		if (ftype == FlowType.WASTE_FLOW) {
+			demand = -demand;
+		}
+		index.setDemand(demand);
+		return index;
+	}
+
+	private static void eachProviderOf(IDatabase db, Consumer<ProcessProduct> fn) {
+		var processes = new ProcessDao(db).descriptorMap();
+		var flows = new FlowDao(db).descriptorMap();
+		String sql = "select f_owner, f_flow, is_input from tbl_exchanges";
+		NativeSql.on(db).query(sql, r -> {
+			long flowID = r.getLong(2);
+			var flow = flows.get(flowID);
+			if (flow == null
+					|| flow.flowType == null
+					|| flow.flowType == FlowType.ELEMENTARY_FLOW)
+				return true;
+			var type = flow.flowType;
+			boolean isInput = r.getBoolean(3);
+			if (isInput && type == FlowType.PRODUCT_FLOW)
+				return true;
+			if (!isInput && type == FlowType.WASTE_FLOW)
+				return true;
+			long procID = r.getLong(1);
+			var process = processes.get(procID);
+			if (process == null) {
+				// note that product system results could be
+				// stored in the exchanges table; in this
+				// case the process would be null.
+				return true;
+			}
+			fn.accept(ProcessProduct.of(process, flow));
+			return true;
+		});
 	}
 
 	/**

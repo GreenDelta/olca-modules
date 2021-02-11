@@ -58,17 +58,17 @@ public class FastMatrixBuilder {
 	public MatrixData build() {
 		techIndex = buildTechIndex();
 		flowIndex = setup.withRegionalization
-				? FlowIndex.createRegionalized()
-				: FlowIndex.create();
+			? FlowIndex.createRegionalized()
+			: FlowIndex.create();
 		interpreter = DataStructures.interpreter(
-				db, setup, techIndex);
+			db, setup, techIndex);
 		techBuilder = new MatrixBuilder();
 		enviBuilder = new MatrixBuilder();
 
 		if (setup.allocationMethod != null
 				&& setup.allocationMethod != AllocationMethod.NONE) {
 			allocationIndex = AllocationIndex.create(
-					db, techIndex, setup.allocationMethod);
+				db, techIndex, setup.allocationMethod);
 		}
 		if (setup.withCosts) {
 			costs = new double[techIndex.size()];
@@ -103,7 +103,7 @@ public class FastMatrixBuilder {
 	}
 
 	private void addImpacts(MatrixData data) {
-		if(flowIndex.isEmpty())
+		if (flowIndex.isEmpty())
 			return;
 
 		// load the LCIA category index
@@ -115,8 +115,8 @@ public class FastMatrixBuilder {
 
 		// build the matrix and add it to the data
 		new ImpactBuilder(db)
-				.build(flowIndex, impactIndex, interpreter)
-				.addTo(data);
+			.build(flowIndex, impactIndex, interpreter)
+			.addTo(data);
 	}
 
 	private void putExchangeValue(ProcessProduct provider, CalcExchange e) {
@@ -147,7 +147,7 @@ public class FastMatrixBuilder {
 			if (providers == null) {
 				providers = new TLongObjectHashMap<>();
 				techIndex.each(
-						(i, pp) -> providers.put(pp.flowId(), pp));
+					(i, pp) -> providers.put(pp.flowId(), pp));
 			}
 			provider = providers.get(e.flowId);
 		}
@@ -163,7 +163,7 @@ public class FastMatrixBuilder {
 	}
 
 	private void add(int row, ProcessProduct provider, MatrixBuilder matrix,
-					 CalcExchange exchange) {
+									 CalcExchange exchange) {
 		int col = techIndex.getIndex(provider);
 		if (row < 0 || col < 0)
 			return;
@@ -171,52 +171,48 @@ public class FastMatrixBuilder {
 		double allocationFactor = 1.0;
 		if (allocationIndex != null && exchange.isAllocatable()) {
 			allocationFactor = allocationIndex.get(
-					provider, exchange.exchangeId, interpreter);
+				provider, exchange.exchangeId, interpreter);
 		}
 		matrix.add(row, col, exchange.matrixValue(
-				interpreter, allocationFactor));
+			interpreter, allocationFactor));
 		if (setup.withCosts) {
 			costs[col] += exchange.costValue(
-					interpreter, allocationFactor);
+				interpreter, allocationFactor);
 		}
 	}
 
 	private TechIndex buildTechIndex() {
 		ProcessProduct qref = ProcessProduct.of(
-				setup.productSystem.referenceProcess,
-				setup.productSystem.referenceExchange.flow);
+			setup.productSystem.referenceProcess,
+			setup.productSystem.referenceExchange.flow);
 		TechIndex idx = new TechIndex(qref);
 		idx.setDemand(setup.getDemandValue());
 
 		var processes = new ProcessDao(db).descriptorMap();
 
 		String sql = "select f_owner, f_flow, is_input from tbl_exchanges";
-		try {
-			NativeSql.on(db).query(sql, r -> {
-				long flowID = r.getLong(2);
-				FlowType type = flows.type(flowID);
-				if (type == FlowType.ELEMENTARY_FLOW)
-					return true;
-				boolean isInput = r.getBoolean(3);
-				if (isInput && type == FlowType.PRODUCT_FLOW)
-					return true;
-				if (!isInput && type == FlowType.WASTE_FLOW)
-					return true;
-				long procID = r.getLong(1);
-				var process = processes.get(procID);
-				var flow = flows.get(flowID);
-				if (process == null || flow == null) {
-					// note that product system results could be
-					// stored in the exchanges table; in this
-					// case the process would be null.
-					return true;
-				}
-				idx.put(ProcessProduct.of(process, flow));
+		NativeSql.on(db).query(sql, r -> {
+			long flowID = r.getLong(2);
+			FlowType type = flows.type(flowID);
+			if (type == FlowType.ELEMENTARY_FLOW)
 				return true;
-			});
-		} catch (Exception e) {
-			throw new RuntimeException("failed to build tech-index", e);
-		}
+			boolean isInput = r.getBoolean(3);
+			if (isInput && type == FlowType.PRODUCT_FLOW)
+				return true;
+			if (!isInput && type == FlowType.WASTE_FLOW)
+				return true;
+			long procID = r.getLong(1);
+			var process = processes.get(procID);
+			var flow = flows.get(flowID);
+			if (process == null || flow == null) {
+				// note that product system results could be
+				// stored in the exchanges table; in this
+				// case the process would be null.
+				return true;
+			}
+			idx.put(ProcessProduct.of(process, flow));
+			return true;
+		});
 		return idx;
 	}
 }

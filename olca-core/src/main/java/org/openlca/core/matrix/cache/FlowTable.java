@@ -1,7 +1,5 @@
 package org.openlca.core.matrix.cache;
 
-import java.util.List;
-
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
@@ -17,7 +15,7 @@ import gnu.trove.map.hash.TLongObjectHashMap;
  */
 public class FlowTable {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final TLongObjectHashMap<FlowDescriptor> map = new TLongObjectHashMap<>();
 
@@ -37,7 +35,7 @@ public class FlowTable {
 	private void init(IDatabase db) {
 		log.trace("initialize flow index");
 		FlowDao dao = new FlowDao(db);
-		List<FlowDescriptor> flows = dao.getDescriptors();
+		var flows = dao.getDescriptors();
 		for (FlowDescriptor d : flows) {
 			map.put(d.id, d);
 		}
@@ -48,7 +46,7 @@ public class FlowTable {
 	}
 
 	public FlowType type(long flowId) {
-		FlowDescriptor d = map.get(flowId);
+		var d = map.get(flowId);
 		return d == null ? null : d.flowType;
 	}
 
@@ -61,12 +59,12 @@ public class FlowTable {
 	 * Get a map with all `ID -> FlowType` pairs from the database.
 	 */
 	public static TLongObjectHashMap<FlowType> getTypes(IDatabase db) {
-		TLongObjectHashMap<FlowType> types = new TLongObjectHashMap<>();
+		var types = new TLongObjectHashMap<FlowType>();
 		try {
-			String query = "SELECT id, flow_type FROM tbl_flows";
+			var query = "SELECT id, flow_type FROM tbl_flows";
 			NativeSql.on(db).query(query, r -> {
 				long flowID = r.getLong(1);
-				String typeStr = r.getString(2);
+				var typeStr = r.getString(2);
 				if (typeStr != null) {
 					types.put(flowID, FlowType.valueOf(typeStr));
 				}
