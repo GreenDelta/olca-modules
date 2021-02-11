@@ -31,7 +31,7 @@ public class AllocationIndex {
 	 */
 	private HashMap<ProcessProduct, TLongObjectHashMap<CalcAllocationFactor>> causalFactors;
 
-	public static AllocationIndex create(InventoryConfig config) {
+	public static AllocationIndex create(MatrixConfig config) {
 		return create(config.db, config.techIndex, config.allocationMethod);
 	}
 

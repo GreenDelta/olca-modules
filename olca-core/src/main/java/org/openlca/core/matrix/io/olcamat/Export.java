@@ -8,7 +8,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.InventoryBuilder;
-import org.openlca.core.matrix.InventoryConfig;
+import org.openlca.core.matrix.MatrixConfig;
 import org.openlca.core.matrix.LinkingConfig;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.MatrixData;
@@ -68,7 +68,7 @@ public class Export implements Runnable {
 			techIndex.put(products.get(i));
 		}
 		dbLinks(techIndex);
-		var config = InventoryConfig.of(db, techIndex)
+		var config = MatrixConfig.of(db, techIndex)
 				.withInterpreter(MatrixData.interpreter(db, setup, techIndex))
 				.create();
 		var builder = new InventoryBuilder(config);

@@ -14,7 +14,7 @@ import gnu.trove.map.hash.TLongObjectHashMap;
 
 public class InventoryBuilder {
 
-	private final InventoryConfig conf;
+	private final MatrixConfig conf;
 	private final TechIndex techIndex;
 	private final FlowTable flows;
 	private final FlowIndex flowIndex;
@@ -28,7 +28,7 @@ public class InventoryBuilder {
 	private UMatrix enviUncerts;
 	private double[] costs;
 
-	public InventoryBuilder(InventoryConfig conf) {
+	public InventoryBuilder(MatrixConfig conf) {
 		this.conf = conf;
 
 		// setup the indices

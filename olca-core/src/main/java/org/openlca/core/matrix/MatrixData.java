@@ -104,7 +104,7 @@ public class MatrixData {
 		techIndex.setDemand(setup.getDemandValue());
 		var interpreter = interpreter(db, setup, techIndex);
 
-		var conf = InventoryConfig.of(db, techIndex)
+		var conf = MatrixConfig.of(db, techIndex)
 				.withSetup(setup)
 				.withInterpreter(interpreter)
 				.withSubResults(subResults)

@@ -17,11 +17,8 @@ import org.openlca.julia.JuliaSolver;
 public class FastMatrixBuilderTest {
 
 	public static void main(String[] args) {
-		System.out.println("load ps");
-		String workspace = "C:/Users/ms/openLCA-data-1.4";
-		String dbPath = workspace
-				+ "/databases/zimple";
-		IDatabase db = new DerbyDatabase(new File(dbPath));
+		var db = DerbyDatabase.fromDataDir("ei2");
+
 		ProductSystem system = new ProductSystemDao(db).getForRefId(
 				"8a42a5d5-7244-4692-a735-067eeedbc710");
 		CalculationSetup setup = new CalculationSetup(system);

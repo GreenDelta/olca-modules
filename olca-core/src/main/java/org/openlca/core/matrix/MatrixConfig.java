@@ -9,10 +9,7 @@ import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.expressions.FormulaInterpreter;
 
-/**
- * A class for configuration objects that are passed into an inventory builder.
- */
-public class InventoryConfig {
+public class MatrixConfig {
 
 	public final IDatabase db;
 	public final TechIndex techIndex;
@@ -29,27 +26,19 @@ public class InventoryConfig {
 	public final Map<ProcessProduct, SimpleResult> subResults;
 	public final FormulaInterpreter interpreter;
 
-	private InventoryConfig(Builder builder) {
+	private MatrixConfig(Builder builder) {
 		this.db = builder.db;
 		this.techIndex = builder.techIndex;
 		linker = techIndex.hasLinks()
 			? techIndex
 			: TechLinker.Default.of(techIndex);
 
-		if (builder.setup != null) {
-			var setup = builder.setup;
-			withUncertainties = setup.withUncertainties;
-			withCosts = setup.withCosts;
-			withRegionalization = setup.withRegionalization;
-			allocationMethod = setup.allocationMethod == null
-				? AllocationMethod.NONE
-				: setup.allocationMethod;
-		} else {
-			withUncertainties = false;
-			withCosts = false;
-			withRegionalization = false;
-			allocationMethod = AllocationMethod.NONE;
-		}
+		withUncertainties = builder.withUncertainties;
+		withCosts = builder.withCosts;
+		withRegionalization = builder.withRegionalization;
+		allocationMethod = builder.allocationMethod == null
+			? AllocationMethod.NONE
+			: builder.allocationMethod;
 
 		interpreter = builder.interpreter != null
 			? builder.interpreter
@@ -65,16 +54,19 @@ public class InventoryConfig {
 
 	boolean hasAllocation() {
 		return allocationMethod != null
-			&& allocationMethod != AllocationMethod.NONE;
+					 && allocationMethod != AllocationMethod.NONE;
 	}
 
 	public static class Builder {
 		private final IDatabase db;
 		private final TechIndex techIndex;
-		private CalculationSetup setup;
+
 		private FormulaInterpreter interpreter;
 		private Map<ProcessProduct, SimpleResult> subResults;
-
+		private AllocationMethod allocationMethod;
+		public boolean withUncertainties;
+		public boolean withCosts;
+		public boolean withRegionalization;
 
 		private Builder(IDatabase db, TechIndex techIndex) {
 			this.db = db;
@@ -82,7 +74,32 @@ public class InventoryConfig {
 		}
 
 		public Builder withSetup(CalculationSetup setup) {
-			this.setup = setup;
+			if (setup != null) {
+				withUncertainties = setup.withUncertainties;
+				withCosts = setup.withCosts;
+				withRegionalization = setup.withRegionalization;
+				allocationMethod = setup.allocationMethod;
+			}
+			return this;
+		}
+
+		public Builder withUncertainties() {
+			withUncertainties = true;
+			return this;
+		}
+
+		public Builder withCosts() {
+			withCosts = true;
+			return this;
+		}
+
+		public Builder withRegionalization() {
+			withRegionalization = true;
+			return this;
+		}
+
+		public Builder withAllocation(AllocationMethod method) {
+			allocationMethod = method;
 			return this;
 		}
 
@@ -96,8 +113,8 @@ public class InventoryConfig {
 			return this;
 		}
 
-		public InventoryConfig create() {
-			return new InventoryConfig(this);
+		public MatrixConfig create() {
+			return new MatrixConfig(this);
 		}
 	}
 
