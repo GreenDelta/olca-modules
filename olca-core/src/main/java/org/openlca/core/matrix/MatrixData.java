@@ -1,11 +1,9 @@
 package org.openlca.core.matrix;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
@@ -94,68 +92,36 @@ public class MatrixData {
 	 * sub-results will be integrated into the resulting matrices.
 	 */
 	public static MatrixData of(
-			IDatabase db, CalculationSetup setup,
-			Map<ProcessProduct, SimpleResult> subResults) {
+		IDatabase db, CalculationSetup setup,
+		Map<ProcessProduct, SimpleResult> subResults) {
 
 		var system = setup.productSystem;
 		var techIndex = system.withoutNetwork
-				? TechIndex.unlinkedOf(system, db)
-				: TechIndex.linkedOf(system, db);
+			? TechIndex.unlinkedOf(system, db)
+			: TechIndex.linkedOf(system, db);
 		techIndex.setDemand(setup.getDemandValue());
-		var interpreter = interpreter(db, setup, techIndex);
 
 		var conf = MatrixConfig.of(db, techIndex)
-				.withSetup(setup)
-				.withInterpreter(interpreter)
-				.withSubResults(subResults)
-				.create();
+			.withSetup(setup)
+			.withSubResults(subResults)
+			.create();
 		var data = new InventoryBuilder(conf).build();
 
 		// add the LCIA matrix structures; note that in case
 		// of a library system we may not have elementary
 		// flows in the foreground system but still want to
 		// attach an impact index to the matrix data.
-		if (setup.impactMethod != null) {
-
-			var impactIdx = new ImpactIndex();
-			new ImpactMethodDao(db)
-					.getCategoryDescriptors(setup.impactMethod.id)
-					.forEach(impactIdx::put);
-
-			if (impactIdx.isEmpty())
-				return data;
-
+		if (conf.hasImpacts()) {
 			if (FlowIndex.isEmpty(data.flowIndex)) {
-				data.impactIndex = impactIdx;
-				return data;
-			}
-
-			new ImpactBuilder(db)
-					.withUncertainties(conf.withUncertainties)
-					.build(data.flowIndex, impactIdx, interpreter)
+				data.impactIndex = conf.impactIndex;
+			} else {
+				ImpactBuilder.of(conf, data.flowIndex)
+					.build()
 					.addTo(data);
+			}
 		}
 
 		return data;
-	}
-
-	// TODO: hide this
-	@Deprecated
-	public static FormulaInterpreter interpreter(
-			IDatabase db, CalculationSetup setup, TechIndex techIndex) {
-		// collect the process and LCIA category IDs; these
-		// are the possible contexts of local parameters
-		HashSet<Long> contexts = new HashSet<>();
-		if (techIndex != null) {
-			contexts.addAll(techIndex.getProcessIds());
-		}
-		if (setup.impactMethod != null) {
-			ImpactMethodDao dao = new ImpactMethodDao(db);
-			dao.getCategoryDescriptors(setup.impactMethod.id).forEach(
-					d -> contexts.add(d.id));
-		}
-		return ParameterTable.interpreter(
-				db, contexts, setup.parameterRedefs);
 	}
 
 	/**
@@ -182,7 +148,7 @@ public class MatrixData {
 
 	public boolean isSparse() {
 		return techMatrix instanceof HashPointMatrix
-				|| techMatrix instanceof CSCMatrix;
+					 || techMatrix instanceof CSCMatrix;
 	}
 
 	public void compress() {

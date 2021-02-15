@@ -599,8 +599,10 @@ public class LibraryResultProvider implements ResultProvider {
 			// setup -> unlikely? yes, but...
 			var interpreter = ParameterTable.interpreter(
 					db, contexts, Collections.emptyList());
-			var matrixF = new ImpactBuilder(db).build(
-					flowIndex, impactIndex, interpreter).impactMatrix;
+			var matrixF = ImpactBuilder.of(db, flowIndex)
+					.withImpacts(impactIndex)
+					.withInterpreter(interpreter)
+					.build().impactMatrix;
 			if (matrixF != null) {
 				// note that the combined flow index is used here
 				// so that we do not have to map the columns

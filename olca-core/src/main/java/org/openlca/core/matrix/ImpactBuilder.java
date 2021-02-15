@@ -1,19 +1,21 @@
 package org.openlca.core.matrix;
 
 import java.sql.ResultSet;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.stream.Collectors;
+import java.util.TreeSet;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.cache.ConversionTable;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixBuilder;
 import org.openlca.core.matrix.uncertainties.UMatrix;
 import org.openlca.core.model.UncertaintyType;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
+import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
 
 /**
@@ -23,51 +25,59 @@ import org.openlca.expressions.FormulaInterpreter;
 public final class ImpactBuilder {
 
 	private final IDatabase db;
+	private final FlowIndex flowIndex;
+	private final ImpactIndex impactIndex;
+	private final FormulaInterpreter interpreter;
+	private final boolean withUncertainties;
+
 	private final ConversionTable conversions;
-
-	private boolean withUncertainties = false;
-
-	// shared variables of the build methods
-	private FlowIndex flowIndex;
-	private ImpactIndex impactIndex;
-	private FormulaInterpreter interpreter;
 	private MatrixBuilder matrix;
 	private UMatrix uncertainties;
 
-	public ImpactBuilder(IDatabase db) {
-		this.db = db;
+	private ImpactBuilder(Config config) {
+		this.db = config.db;
+		this.flowIndex = config.flows;
+
+		// if no impact index is set via the configuration,
+		// we build it from all impacts in the database.
+		if (config.impacts != null) {
+			this.impactIndex = config.impacts;
+		} else {
+			var all = new ImpactCategoryDao(db).getDescriptors();
+			this.impactIndex = ImpactIndex.of(all);
+		}
+
+		// same for the interpreter, we create it if it is not
+		// set via the configuration
+		if (config.interpreter != null) {
+			this.interpreter= config.interpreter;
+		} else {
+			var contexts = new TreeSet<Long>();
+			impactIndex.each((i, d) -> contexts.add(d.id));
+			this.interpreter = ParameterTable.interpreter(
+				db, contexts, Collections.emptyList());
+		}
+
+		withUncertainties = config.withUncertainties;
 		conversions = ConversionTable.create(db);
 	}
 
-	public ImpactBuilder withUncertainties(boolean b) {
-		this.withUncertainties = b;
-		return this;
+	public static Config of(IDatabase db, FlowIndex flows) {
+		return new Config(db, flows);
 	}
 
-	public static ImpactData build(
-		IDatabase db, FlowIndex flows, ImpactIndex impacts) {
-		var builder = new ImpactBuilder(db);
-		var impactIDs = Arrays.stream(impacts.ids())
-			.boxed()
-			.collect(Collectors.toSet());
-		var interpreter = ParameterTable.interpreter(
-			db, impactIDs, Collections.emptyList());
-		return builder.build(flows, impacts, interpreter);
+	public static Config of(MatrixConfig config, FlowIndex flows) {
+		return new Config(config, flows);
 	}
 
-	public ImpactData build(
-			FlowIndex flowIndex,
-			ImpactIndex impactIndex,
-			FormulaInterpreter interpreter) {
-
-		this.flowIndex = flowIndex;
-		this.impactIndex = impactIndex;
-		this.interpreter = interpreter;
+	public ImpactData build() {
 
 		// allocate and fill the matrices
 		matrix = new MatrixBuilder();
 		matrix.minSize(impactIndex.size(), flowIndex.size());
-		uncertainties = withUncertainties ? new UMatrix() : null;
+		uncertainties = withUncertainties
+			? new UMatrix()
+			: null;
 		if (flowIndex.isRegionalized) {
 			fillRegionalized();
 		} else {
@@ -281,6 +291,57 @@ public final class ImpactBuilder {
 			data.impactIndex = impactIndex;
 			data.impactMatrix = impactMatrix;
 			data.impactUncertainties = impactUncertainties;
+		}
+	}
+
+	public static class Config {
+
+		private final IDatabase db;
+		private final FlowIndex flows;
+		private boolean withUncertainties;
+		private FormulaInterpreter interpreter;
+		private ImpactIndex impacts;
+
+		private Config(IDatabase db, FlowIndex flows) {
+			this.db = db;
+			this.flows = flows;
+		}
+
+		public Config(MatrixConfig conf, FlowIndex flows) {
+			this.db	= conf.db;
+			this.flows = flows;
+			this.withUncertainties = conf.withUncertainties;
+			this.interpreter = conf.interpreter;
+			this.impacts = conf.impactIndex;
+		}
+
+		public Config withUncertainties() {
+			this.withUncertainties = true;
+			return this;
+		}
+
+		public Config withInterpreter(FormulaInterpreter interpreter) {
+			this.interpreter = interpreter;
+			return this;
+		}
+
+		public Config withImpacts(ImpactIndex impacts) {
+			this.impacts = impacts;
+			return this;
+		}
+
+		public Config withImpacts(Iterable<ImpactDescriptor> impacts) {
+			this.impacts = ImpactIndex.of(impacts);
+			return this;
+		}
+
+		public Config withImpacts(ImpactMethodDescriptor method) {
+			this.impacts = ImpactIndex.of(db, method);
+			return this;
+		}
+
+		public ImpactData build() {
+			return new ImpactBuilder(this).build();
 		}
 	}
 }

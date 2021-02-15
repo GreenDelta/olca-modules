@@ -2,7 +2,10 @@ package org.openlca.core.matrix;
 
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TLongIntHashMap;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
+import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -38,6 +41,18 @@ public class ImpactIndex {
 			index.put(impact);
 		}
 		return index;
+	}
+
+	public static ImpactIndex of(IDatabase db, ImpactMethodDescriptor method) {
+		if (db == null || method == null)
+			return empty();
+		var impacts = new ImpactMethodDao(db)
+			.getCategoryDescriptors(method.id);
+		return of(impacts);
+	}
+
+	public static ImpactIndex empty() {
+		return new ImpactIndex();
 	}
 
 	/**

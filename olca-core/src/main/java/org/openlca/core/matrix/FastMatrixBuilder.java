@@ -108,7 +108,8 @@ public class FastMatrixBuilder {
 	}
 
 	private void addImpacts(MatrixData data) {
-		if (flowIndex.isEmpty())
+		if (flowIndex.isEmpty()
+				|| setup.impactMethod == null)
 			return;
 
 		// load the LCIA category index
@@ -119,8 +120,10 @@ public class FastMatrixBuilder {
 		var impactIndex = ImpactIndex.of(impacts);
 
 		// build the matrix and add it to the data
-		new ImpactBuilder(db)
-			.build(flowIndex, impactIndex, interpreter)
+		ImpactBuilder.of(db,flowIndex)
+			.withImpacts(setup.impactMethod)
+			.withInterpreter(interpreter)
+			.build()
 			.addTo(data);
 	}
 
