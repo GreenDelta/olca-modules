@@ -130,6 +130,9 @@ message DescriptorRequest {
 
   // The name of the requested descriptor(s).
   string name = 3;
+
+  // The ID or full path of the category.
+  string category = 4;
 }
 
 message SearchRequest {
