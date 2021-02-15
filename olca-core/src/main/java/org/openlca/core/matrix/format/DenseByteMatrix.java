@@ -20,6 +20,11 @@ public class DenseByteMatrix implements ByteMatrix {
 		this.data = data;
 	}
 
+	public DenseByteMatrix(ByteMatrixReader other) {
+		this(other.rows(), other.columns());
+		other.iterate(this::set);
+	}
+
 	@Override
 	public int rows() {
 		return rows;

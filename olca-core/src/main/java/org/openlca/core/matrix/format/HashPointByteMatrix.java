@@ -27,6 +27,10 @@ public class HashPointByteMatrix implements ByteMatrix {
 		this.columns = cols;
 	}
 
+	public boolean isEmpty() {
+		return data.isEmpty();
+	}
+
 	@Override
 	public int rows() {
 		return rows;

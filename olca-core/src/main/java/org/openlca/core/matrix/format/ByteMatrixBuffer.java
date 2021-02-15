@@ -24,6 +24,10 @@ public class ByteMatrixBuffer {
 		this(0.4);
 	}
 
+	public boolean isEmpty() {
+		return dense == null && sparse.isEmpty();
+	}
+
 	public void minSize(int rows, int cols) {
 		if (sparse.rows < rows) {
 			sparse.rows = rows;

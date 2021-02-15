@@ -19,7 +19,7 @@ public class MatrixBuilder {
 	private final int checkpoint;
 
 	private int sparseEntries = 0;
-	private HashPointMatrix sparse = new HashPointMatrix();
+	private final HashPointMatrix sparse = new HashPointMatrix();
 	private DenseMatrix dense;
 	private int denseCols; // we need these because
 	private int denseRows; // dense is null by default
@@ -44,6 +44,10 @@ public class MatrixBuilder {
 		if (sparse.cols < cols) {
 			sparse.cols = cols;
 		}
+	}
+
+	public boolean isEmpty() {
+		return dense == null && sparse.isEmpty();
 	}
 
 	/**
@@ -80,12 +84,9 @@ public class MatrixBuilder {
 	public void add(int row, int col, double w) {
 		if (w == 0 || row < 0 || col < 0)
 			return;
-		double v = 0;
-		if (row < denseRows && col < denseCols) {
-			v = dense.get(row, col);
-		} else {
-			v = sparse.get(row, col);
-		}
+		double v = row < denseRows && col < denseCols
+			? dense.get(row, col)
+			: sparse.get(row, col);
 		set(row, col, v + w);
 	}
 

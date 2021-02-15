@@ -61,6 +61,10 @@ public class HashPointMatrix implements Matrix {
 		return true;
 	}
 
+	public boolean isEmpty() {
+		return data.isEmpty();
+	}
+
 	@Override
 	public int rows() {
 		return rows;

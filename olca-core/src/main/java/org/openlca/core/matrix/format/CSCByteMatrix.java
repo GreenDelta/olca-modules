@@ -68,6 +68,7 @@ public class CSCByteMatrix implements ByteMatrixReader {
 		return v;
 	}
 
+	@Override
 	public void iterate(ByteEntryFunction fn) {
 		for (int col = 0; col < columns; col++) {
 			int start = columnPointers[col];

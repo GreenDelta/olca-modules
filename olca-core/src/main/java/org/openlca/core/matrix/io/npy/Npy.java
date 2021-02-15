@@ -2,7 +2,6 @@ package org.openlca.core.matrix.io.npy;
 
 import org.openlca.core.matrix.format.DenseByteMatrix;
 import org.openlca.core.matrix.format.DenseMatrix;
-import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixReader;
 
 import java.io.File;
