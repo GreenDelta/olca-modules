@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ParameterRedef;
@@ -41,13 +40,14 @@ public class MatrixConfig {
 			? techIndex
 			: TechLinker.Default.of(techIndex);
 		impactIndex = builder.impacts != null
-			? ImpactIndex.of(builder.impacts)
+			? builder.impacts
 			: ImpactIndex.empty();
 
 		// build the formula interpreter
 		var contexts = new HashSet<>(techIndex.getProcessIds());
-		if (builder.impacts != null) {
-			builder.impacts.forEach(impact -> contexts.add(impact.id));
+		if (!impactIndex.isEmpty()) {
+			impactIndex.content().forEach(
+				impact -> contexts.add(impact.id));
 		}
 		Collection<ParameterRedef> redefs = builder.redefs != null
 			? builder.redefs
@@ -84,7 +84,7 @@ public class MatrixConfig {
 
 		private final IDatabase db;
 		private final TechIndex techIndex;
-		private List<ImpactDescriptor> impacts;
+		private ImpactIndex impacts;
 		private List<ParameterRedef> redefs;
 		private Map<ProcessProduct, SimpleResult> subResults;
 
@@ -107,22 +107,22 @@ public class MatrixConfig {
 			allocationMethod = setup.allocationMethod;
 			redefs = setup.parameterRedefs;
 			return setup.impactMethod != null
-				? withImpactMethod(setup.impactMethod)
+				? withImpacts(setup.impactMethod)
 				: this;
 		}
 
-		public Builder withUncertainties() {
-			withUncertainties = true;
+		public Builder withUncertainties(boolean b) {
+			withUncertainties = b;
 			return this;
 		}
 
-		public Builder withCosts() {
-			withCosts = true;
+		public Builder withCosts(boolean b) {
+			withCosts = b;
 			return this;
 		}
 
-		public Builder withRegionalization() {
-			withRegionalization = true;
+		public Builder withRegionalization(boolean b) {
+			withRegionalization = b;
 			return this;
 		}
 
@@ -131,14 +131,19 @@ public class MatrixConfig {
 			return this;
 		}
 
-		public Builder withImpactMethod(ImpactMethodDescriptor d) {
-			if (d == null)
+		public Builder withImpacts(ImpactMethodDescriptor method) {
+			if (method == null)
 				return this;
-			impacts = new ImpactMethodDao(db).getCategoryDescriptors(d.id);
+			impacts = ImpactIndex.of(db, method);
 			return this;
 		}
 
 		public Builder withImpacts(List<ImpactDescriptor> impacts) {
+			this.impacts =  ImpactIndex.of(impacts);
+			return this;
+		}
+
+		public Builder withImpacts(ImpactIndex impacts) {
 			this.impacts = impacts;
 			return this;
 		}

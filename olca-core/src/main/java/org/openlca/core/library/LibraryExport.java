@@ -21,9 +21,10 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitGroupDao;
-import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.matrix.FastMatrixBuilder;
+import org.openlca.core.matrix.ImpactIndex;
+import org.openlca.core.matrix.MatrixConfig;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.MatrixReader;
@@ -31,7 +32,6 @@ import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.matrix.io.npy.Npz;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.AllocationMethod;
-import org.openlca.core.model.ProductSystem;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.output.JsonExport;
@@ -47,7 +47,10 @@ public class LibraryExport implements Runnable {
 	private final File folder;
 	private MatrixSolver solver;
 	private LibraryInfo info;
+
 	private AllocationMethod allocation;
+	private boolean withImpacts;
+	private boolean withUncertainties;
 
 	public LibraryExport(IDatabase db, File folder) {
 		this.db = db;
@@ -61,6 +64,16 @@ public class LibraryExport implements Runnable {
 
 	public LibraryExport allocation(AllocationMethod method) {
 		this.allocation = method;
+		return this;
+	}
+
+	public LibraryExport withImpacts() {
+		this.withImpacts = true;
+		return this;
+	}
+
+	public LibraryExport withUncertainties() {
+		this.withUncertainties = true;
 		return this;
 	}
 
@@ -136,24 +149,20 @@ public class LibraryExport implements Runnable {
 
 	private Optional<MatrixData> buildMatrices() {
 		log.info("start building matrices");
-		// create an arbitrary product system for the fast matrix builder
-		// TODO this does not work when the process of that system has no
-		// quantitative reference flow which is a valid provider flow
-		var procDao = new ProcessDao(db);
-		var process = procDao.getDescriptors()
-				.stream()
-				.map(d -> procDao.getForId(d.id))
-				// .filter(p -> !Processes.getProviderFlows(p).isEmpty())
-				.findFirst();
-		if (process.isEmpty())
-			return Optional.empty();
-		var system = ProductSystem.of(process.get());
-		system.withoutNetwork = true;
-		var setup = new CalculationSetup(system);
-		setup.withRegionalization = info.isRegionalized;
-		setup.allocationMethod = allocation;
-		setup.withUncertainties = info.hasUncertaintyData;
-		var data = new FastMatrixBuilder(db, setup).build();
+
+		// TODO: this currently fails if the user wants
+		// to build an LCIA library
+		// create the configuration options
+		var techIndex = TechIndex.unlinkedOf(db);
+		var config = MatrixConfig.of(db, techIndex)
+			.withUncertainties(withUncertainties)
+			.withRegionalization(info.isRegionalized)
+			.withAllocation(allocation);
+		if (withImpacts) {
+			config.withImpacts(ImpactIndex.of(db));
+		}
+
+		var data = MatrixData.of(config.create());
 		log.info("finished with building matrices");
 
 		// normalize the columns to 1 | -1
@@ -213,21 +222,21 @@ public class LibraryExport implements Runnable {
 			exp.setExportReferences(false);
 			exp.setExportDefaultProviders(false);
 			List.of(new ActorDao(db),
-					new CategoryDao(db),
-					new CurrencyDao(db),
-					new DQSystemDao(db),
-					new FlowDao(db),
-					new FlowPropertyDao(db),
-					new ImpactCategoryDao(db),
-					new ImpactMethodDao(db),
-					new LocationDao(db),
-					new ParameterDao(db),
-					new ProcessDao(db),
-					new SocialIndicatorDao(db),
-					new SourceDao(db),
-					new UnitGroupDao(db))
-					.forEach(dao -> dao.getDescriptors()
-							.forEach(d -> exp.write(dao.getForId(d.id))));
+				new CategoryDao(db),
+				new CurrencyDao(db),
+				new DQSystemDao(db),
+				new FlowDao(db),
+				new FlowPropertyDao(db),
+				new ImpactCategoryDao(db),
+				new ImpactMethodDao(db),
+				new LocationDao(db),
+				new ParameterDao(db),
+				new ProcessDao(db),
+				new SocialIndicatorDao(db),
+				new SourceDao(db),
+				new UnitGroupDao(db))
+				.forEach(dao -> dao.getDescriptors()
+					.forEach(d -> exp.write(dao.getForId(d.id))));
 			log.info("finished writing meta-data");
 		} catch (Exception e) {
 			throw new RuntimeException("failed to write meta data", e);

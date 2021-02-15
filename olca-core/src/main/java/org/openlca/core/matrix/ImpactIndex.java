@@ -3,6 +3,7 @@ package org.openlca.core.matrix;
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TLongIntHashMap;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
@@ -48,6 +49,14 @@ public class ImpactIndex {
 			return empty();
 		var impacts = new ImpactMethodDao(db)
 			.getCategoryDescriptors(method.id);
+		return of(impacts);
+	}
+
+	public static ImpactIndex of(IDatabase db) {
+		if (db == null)
+			return empty();
+		var impacts = new ImpactCategoryDao(db)
+			.getDescriptors();
 		return of(impacts);
 	}
 

@@ -1,5 +1,7 @@
 package org.openlca.core.matrix;
 
+import java.util.HashSet;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.LocationDao;
@@ -65,8 +67,17 @@ public class FastMatrixBuilder {
 		flowIndex = setup.withRegionalization
 			? FlowIndex.createRegionalized()
 			: FlowIndex.create();
-		interpreter = MatrixData.interpreter(
-			db, setup, techIndex);
+
+		// create the formula interpreter
+		var contexts = new HashSet<>(techIndex.getProcessIds());
+		if (setup.impactMethod != null) {
+			new ImpactMethodDao(db)
+				.getCategoryDescriptors(setup.impactMethod.id)
+				.forEach(impact -> contexts.add(impact.id));
+		}
+		interpreter = ParameterTable.interpreter(
+			db, contexts, setup.parameterRedefs);
+
 		techBuilder = new MatrixBuilder();
 		enviBuilder = new MatrixBuilder();
 
@@ -111,14 +122,6 @@ public class FastMatrixBuilder {
 		if (flowIndex.isEmpty()
 				|| setup.impactMethod == null)
 			return;
-
-		// load the LCIA category index
-		var dao = new ImpactMethodDao(db);
-		var impacts = dao.getCategoryDescriptors(setup.impactMethod.id);
-		if (impacts.isEmpty())
-			return;
-		var impactIndex = ImpactIndex.of(impacts);
-
 		// build the matrix and add it to the data
 		ImpactBuilder.of(db,flowIndex)
 			.withImpacts(setup.impactMethod)

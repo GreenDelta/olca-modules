@@ -95,6 +95,7 @@ public class MatrixData {
 		IDatabase db, CalculationSetup setup,
 		Map<ProcessProduct, SimpleResult> subResults) {
 
+		// create the tech-index
 		var system = setup.productSystem;
 		var techIndex = system.withoutNetwork
 			? TechIndex.unlinkedOf(system, db)
@@ -105,8 +106,11 @@ public class MatrixData {
 			.withSetup(setup)
 			.withSubResults(subResults)
 			.create();
-		var data = new InventoryBuilder(conf).build();
+		return of(conf);
+	}
 
+	public static MatrixData of(MatrixConfig conf) {
+		var data = new InventoryBuilder(conf).build();
 		// add the LCIA matrix structures; note that in case
 		// of a library system we may not have elementary
 		// flows in the foreground system but still want to
@@ -120,7 +124,6 @@ public class MatrixData {
 					.addTo(data);
 			}
 		}
-
 		return data;
 	}
 
