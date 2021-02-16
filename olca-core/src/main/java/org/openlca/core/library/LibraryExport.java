@@ -25,11 +25,7 @@ import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.MatrixConfig;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
-import org.openlca.core.matrix.format.CSCMatrix;
-import org.openlca.core.matrix.format.HashPointMatrix;
-import org.openlca.core.matrix.format.MatrixReader;
-import org.openlca.core.matrix.io.npy.Npy;
-import org.openlca.core.matrix.io.npy.Npz;
+import org.openlca.core.matrix.io.MatrixExport;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.jsonld.Json;
@@ -114,10 +110,10 @@ public class LibraryExport implements Runnable {
 		} else {
 			var d = data.get();
 			threadPool.execute(() -> {
-				log.info("write matrices A and B");
-				writeMatrix("A", d.techMatrix);
-				writeMatrix("B", d.flowMatrix);
-				log.info("finished with A and B");
+				log.info("write matrices");
+				MatrixExport.toNpy(db, folder, d)
+					.writeMatrices();
+				log.info("finished with matrices");
 				log.info("write matrix indices");
 				new IndexWriter(folder, d, db).run();
 				log.info("finished with matrix indices");
@@ -127,10 +123,10 @@ public class LibraryExport implements Runnable {
 				threadPool.execute(() -> {
 					log.info("create matrix INV");
 					var inv = solver.invert(d.techMatrix);
-					writeMatrix("INV", inv);
+					MatrixExport.toNpy(folder, inv, "INV");
 					log.info("create matrix M");
 					var m = solver.multiply(d.flowMatrix, inv);
-					writeMatrix("M", m);
+					MatrixExport.toNpy(folder, m, "M");
 					log.info("finished with INV and M");
 				});
 			}
@@ -198,19 +194,6 @@ public class LibraryExport implements Runnable {
 		log.info("finished matrix normalization");
 
 		return Optional.of(data);
-	}
-
-	private void writeMatrix(String name, MatrixReader matrix) {
-		var m = matrix;
-		if (m instanceof HashPointMatrix) {
-			m = CSCMatrix.of(m);
-		}
-		if (m instanceof CSCMatrix) {
-			var csc = (CSCMatrix) m;
-			Npz.save(new File(folder, name + ".npz"), csc);
-		} else {
-			Npy.save(new File(folder, name + ".npy"), m);
-		}
 	}
 
 	private void writeMeta() {

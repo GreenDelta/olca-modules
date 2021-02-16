@@ -1,6 +1,8 @@
 package org.openlca.core.matrix.io;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.MatrixData;
@@ -36,17 +38,7 @@ class NpyExport extends MatrixExport {
 
 	@Override
 	protected void write(MatrixReader matrix, String name) {
-		if (matrix == null)
-			return;
-		var m = matrix instanceof HashPointMatrix
-			? CSCMatrix.of(matrix)
-			: matrix;
-		if (m instanceof CSCMatrix) {
-			var csc = (CSCMatrix) m;
-			Npz.save(new File(folder, name + ".npz"), csc);
-		} else {
-			Npy.save(new File(folder, name + ".npy"), m);
-		}
+		toNpy(folder, matrix, name);
 	}
 
 	@Override

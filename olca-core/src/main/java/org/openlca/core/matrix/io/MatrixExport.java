@@ -13,8 +13,12 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.ByteMatrixBuffer;
 import org.openlca.core.matrix.format.ByteMatrixReader;
+import org.openlca.core.matrix.format.CSCMatrix;
+import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.MatrixBuilder;
 import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.core.matrix.io.npy.Npy;
+import org.openlca.core.matrix.io.npy.Npz;
 import org.openlca.core.matrix.uncertainties.UMatrix;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.UncertaintyType;
@@ -42,6 +46,28 @@ public abstract class MatrixExport {
 
 	public static MatrixExport toNpy(IDatabase db, File folder, MatrixData data) {
 		return new NpyExport(db, folder, data);
+	}
+
+	public static void toNpy(File folder, MatrixReader matrix, String name) {
+		if (folder == null || matrix == null)
+			return;
+		if (!folder.exists()) {
+			try {
+				Files.createDirectories(folder.toPath());
+			} catch (IOException e) {
+				throw new RuntimeException("failed to create folder " + folder, e);
+			}
+		}
+
+		var m = matrix instanceof HashPointMatrix
+			? CSCMatrix.of(matrix)
+			: matrix;
+		if (m instanceof CSCMatrix) {
+			var csc = (CSCMatrix) m;
+			Npz.save(new File(folder, name + ".npz"), csc);
+		} else {
+			Npy.save(new File(folder, name + ".npy"), m);
+		}
 	}
 
 	public static CsvExport toCsv(IDatabase db, File folder, MatrixData data) {
