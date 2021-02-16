@@ -102,29 +102,14 @@ public class MatrixData {
 			: TechIndex.linkedOf(system, db);
 		techIndex.setDemand(setup.getDemandValue());
 
-		var conf = MatrixConfig.of(db, techIndex)
+		return MatrixConfig.of(db, techIndex)
 			.withSetup(setup)
 			.withSubResults(subResults)
-			.create();
-		return of(conf);
+			.build();
 	}
 
-	public static MatrixData of(MatrixConfig conf) {
-		var data = new InventoryBuilder(conf).build();
-		// add the LCIA matrix structures; note that in case
-		// of a library system we may not have elementary
-		// flows in the foreground system but still want to
-		// attach an impact index to the matrix data.
-		if (conf.hasImpacts()) {
-			if (FlowIndex.isEmpty(data.flowIndex)) {
-				data.impactIndex = conf.impactIndex;
-			} else {
-				ImpactBuilder.of(conf, data.flowIndex)
-					.build()
-					.addTo(data);
-			}
-		}
-		return data;
+	public static MatrixConfig.Builder of(IDatabase db, TechIndex techIndex) {
+		return MatrixConfig.of(db, techIndex);
 	}
 
 	/**

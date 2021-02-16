@@ -68,10 +68,7 @@ public class Export implements Runnable {
 			techIndex.put(products.get(i));
 		}
 		dbLinks(techIndex);
-		var config = MatrixConfig.of(db, techIndex)
-				.create();
-		var builder = new InventoryBuilder(config);
-		return builder.build();
+		return MatrixData.of(db, techIndex).build();
 	}
 
 	private MatrixData setupInventory() {

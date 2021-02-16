@@ -158,8 +158,23 @@ public class MatrixConfig {
 			return this;
 		}
 
-		public MatrixConfig create() {
-			return new MatrixConfig(this);
+		public MatrixData build() {
+			var conf = new MatrixConfig(this);
+			var data = new InventoryBuilder(conf).build();
+			// add the LCIA matrix structures; note that in case
+			// of a library system we may not have elementary
+			// flows in the foreground system but still want to
+			// attach an impact index to the matrix data.
+			if (conf.hasImpacts()) {
+				if (FlowIndex.isEmpty(data.flowIndex)) {
+					data.impactIndex = conf.impactIndex;
+				} else {
+					ImpactBuilder.of(conf, data.flowIndex)
+						.build()
+						.addTo(data);
+				}
+			}
+			return data;
 		}
 	}
 

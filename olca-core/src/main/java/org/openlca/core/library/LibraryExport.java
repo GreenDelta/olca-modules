@@ -161,8 +161,7 @@ public class LibraryExport implements Runnable {
 		if (withImpacts) {
 			config.withImpacts(ImpactIndex.of(db));
 		}
-
-		var data = MatrixData.of(config.create());
+		var data = config.build();
 		log.info("finished with building matrices");
 
 		// normalize the columns to 1 | -1
