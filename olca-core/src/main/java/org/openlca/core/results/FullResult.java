@@ -6,7 +6,6 @@ import java.util.List;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.MatrixData;
@@ -23,9 +22,11 @@ import org.openlca.core.results.solutions.ResultProvider;
  */
 public class FullResult extends ContributionResult {
 
-	public static FullResult of(MatrixData matrices) {
-		var calculator = new LcaCalculator(matrices);
-		return calculator.calculateFull();
+	public static FullResult of(IDatabase db, MatrixData data) {
+		var provider = Results.eagerOf(db, data);
+		var result = new FullResult(provider);
+		Results.fill(provider, result);
+		return result;
 	}
 
 	public static FullResult of(IDatabase db, ProductSystem system) {

@@ -22,6 +22,7 @@ import org.openlca.julia.JuliaSolver;
  * you do not want to use this directly but a more high level calculator where
  * you can directly throw in a calculation setup or project.
  */
+@Deprecated
 public class LcaCalculator {
 
 	private final MatrixSolver solver;

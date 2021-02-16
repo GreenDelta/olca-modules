@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.IndexFlow;
+import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
@@ -15,6 +17,13 @@ import org.openlca.core.model.descriptors.ImpactDescriptor;
  * calculations.
  */
 public class SimpleResult extends BaseResult {
+
+	public static SimpleResult of(IDatabase db, MatrixData data) {
+		var provider = Results.lazyOf(db, data);
+		var result = new SimpleResult();
+		Results.fill(provider, result);
+		return result;
+	}
 
 	/**
 	 * The scaling vector $\mathbf{s}$ which is calculated by solving the
