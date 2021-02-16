@@ -35,14 +35,13 @@ import org.openlca.core.results.BaseResult;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.util.CategoryPathBuilder;
 
-final class Csv extends MatrixExport {
+final class Csv {
 
 	private final DecimalFormat numberFormat;
 	private String delimiter = ",";
 	private Charset charset = StandardCharsets.UTF_8;
 
-	Csv(File folder, MatrixData data) {
-		super(folder, data);
+	Csv() {
 		numberFormat = (DecimalFormat) NumberFormat.getInstance(Locale.US);
 		numberFormat.setMaximumFractionDigits(1000);
 	}
@@ -69,7 +68,65 @@ final class Csv extends MatrixExport {
 		return this;
 	}
 
+	public void write(double[] vector, File file) {
+		if (vector == null || file == null)
+			return;
+		writer(file, w -> {
+			for (double v : vector) {
+				writeln(w, numberFormat.format(v));
+			}
+		});
+	}
 
+	public void write(MatrixReader matrix, File file) {
+		if (matrix == null || file == null)
+			return;
+		var buffer = new String[matrix.columns()];
+		writer(file, w -> {
+			for (int row = 0; row < matrix.rows(); row++) {
+				for (int col = 0; col < matrix.columns(); col++) {
+					buffer[col] = numberFormat.format(matrix.get(row, col));
+				}
+				writeln(w, line(buffer));
+			}
+		});
+	}
+
+	void writeln(BufferedWriter writer, String line) {
+		try {
+			writer.write(line);
+			writer.newLine();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	void writer(File file, Consumer<BufferedWriter> fn) {
+		try (var stream = new FileOutputStream(file);
+				 var writer = new OutputStreamWriter(stream, charset);
+				 var buffer = new BufferedWriter(writer)) {
+			fn.accept(buffer);
+			buffer.flush();
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to write file: " + file.getName(), e);
+		}
+	}
+
+	String line(String[] entries) {
+		if (entries == null)
+			return "";
+		var b = new StringBuilder();
+		for (int i = 0; i < entries.length; i++) {
+			if (i != 0) {
+				b.append(delimiter);
+			}
+			var e = entries[i];
+			if(e != null) {
+				b.append(e);
+			}
+		}
+		return b.toString();
+	}
 
 	/**
 	 * Write the given matrix data and indices as CSV files to the given folder.
@@ -112,22 +169,7 @@ final class Csv extends MatrixExport {
 		}
 	}
 
-	/**
-	 * Write the matrix to the given file.
-	 */
-	public static void write(MatrixReader matrix, File file) {
-		if (matrix == null || file == null)
-			return;
-		String[] mask = new String[matrix.columns()];
-		writer(file, w -> {
-			for (int row = 0; row < matrix.rows(); row++) {
-				for (int col = 0; col < matrix.columns(); col++) {
-					mask[col] = Double.toString(matrix.get(row, col));
-				}
-				writeln(w, line(mask));
-			}
-		});
-	}
+
 
 	/**
 	 * Write the array as column vector to the given file.
@@ -267,49 +309,7 @@ final class Csv extends MatrixExport {
 		});
 	}
 
-	private static String line(String[] entries) {
-		if (entries == null)
-			return "";
-		StringBuilder b = new StringBuilder();
-		for (int i = 0; i < entries.length; i++) {
-			String e = entries[i];
-			boolean last = i == entries.length - 1;
-			if (e == null) {
-				if (!last)
-					b.append(',');
-				continue;
-			}
-			e = e.trim().replace('"', '\'');
-			if (e.indexOf(',') >= 0) {
-				b.append('"').append(e).append('"');
-			} else {
-				b.append(e);
-			}
-			if (!last)
-				b.append(',');
-		}
-		return b.toString();
-	}
 
-	private static void writer(File file, Consumer<BufferedWriter> fn) {
-		try (FileOutputStream stream = new FileOutputStream(file);
-				Writer writer = new OutputStreamWriter(stream, "utf-8");
-				BufferedWriter buffer = new BufferedWriter(writer)) {
-			fn.accept(buffer);
-			buffer.flush();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private static void writeln(BufferedWriter writer, String line) {
-		try {
-			writer.write(line);
-			writer.newLine();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
 
 	/**
 	 * Returns a map `flow property ID -> reference unit name` for the flow
