@@ -1,6 +1,8 @@
 package org.openlca.core.matrix.io;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.util.function.BiConsumer;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.MatrixData;
@@ -24,6 +26,36 @@ public class CsvExport extends MatrixExport {
 
 	@Override
 	public void writeIndices() {
+		BiConsumer<BufferedWriter, String[]> writeln = (w, row) -> {
+			for (int i = 0; i < row.length; i++) {
+				row[i] = csv.quote(row[i]);
+			}
+			csv.writeln(w, csv.line(row));
+		};
+
+		// tech. index
+		if (data.techIndex != null) {
+			var indexA = new File(folder, "index_A.csv");
+			csv.writer(
+				indexA,
+				w -> eachTechIndexRow(row -> writeln.accept(w, row)));
+		}
+
+		// flow index
+		if (data.flowIndex != null) {
+			var indexB = new File(folder, "index_B.csv");
+			csv.writer(
+				indexB,
+				w -> eachFlowIndexRow(row -> writeln.accept(w, row)));
+		}
+
+		// impact index
+		if (data.impactIndex != null) {
+			var indexC = new File(folder, "index_C.csv");
+			csv.writer(
+				indexC,
+				w -> eachImpactIndexRow(row -> writeln.accept(w, row)));
+		}
 	}
 
 	@Override

@@ -30,6 +30,14 @@ public final class Csv {
 		return new Csv();
 	}
 
+	public String quote(String s) {
+		if (s == null)
+			return "\"\"";
+		return s.contains("\"")
+			? "\"" + s.replace("\"", "\"\"") + "\""
+			: "\"" + s + "\"";
+	}
+
 	public Csv withDelimiter(String delimiter) {
 		if (delimiter != null) {
 			this.delimiter = delimiter;
