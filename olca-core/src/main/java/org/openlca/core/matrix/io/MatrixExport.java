@@ -18,8 +18,6 @@ import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.uncertainties.UMatrix;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.UncertaintyType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.util.CategoryPathBuilder;
 
@@ -40,6 +38,14 @@ public abstract class MatrixExport {
 				throw new RuntimeException(e);
 			}
 		}
+	}
+
+	public static MatrixExport toNpy(IDatabase db, File folder, MatrixData data) {
+		return new NpyExport(db, folder, data);
+	}
+
+	public static CsvExport toCsv(IDatabase db, File folder, MatrixData data) {
+		return new CsvExport(db, folder, data);
 	}
 
 	/**
