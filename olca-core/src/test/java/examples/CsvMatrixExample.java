@@ -8,7 +8,7 @@ import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.io.CsvOut;
+import org.openlca.core.matrix.io.Csv;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.FullResult;
 import org.openlca.julia.JuliaSolver;
@@ -42,13 +42,13 @@ public class CsvMatrixExample {
 		// create and export the matrix data
 		File exportDir = new File("target/data");
 		MatrixData data = MatrixData.of(db, setup);
-		CsvOut.write(data, db, exportDir);
+		Csv.write(data, db, exportDir);
 
 		// calculate and export the result
 		LcaCalculator calc = new LcaCalculator(
 				solver, data);
 		FullResult r = calc.calculateFull();
-		CsvOut.write(r, db, exportDir);
+		Csv.write(r, db, exportDir);
 	}
 
 }

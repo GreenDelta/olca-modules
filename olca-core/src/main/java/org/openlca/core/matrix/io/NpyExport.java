@@ -1,8 +1,6 @@
 package org.openlca.core.matrix.io;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.ByteMatrixBuffer;
@@ -19,84 +17,32 @@ import org.openlca.core.matrix.io.npy.Npz;
 import org.openlca.core.matrix.uncertainties.UMatrix;
 import org.openlca.core.model.UncertaintyType;
 
-public abstract class MatrixExport {
+class NpyExport extends MatrixExport {
 
-	protected final File folder;
-	protected final MatrixData data;
-
-	protected MatrixExport(File folder, MatrixData data) {
-		this.data = data;
-		this.folder = folder;
-		if (!folder.exists()) {
-			try {
-				Files.createDirectories(folder.toPath());
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
+	NpyExport(File folder, MatrixData data) {
+		super(folder, data);
 	}
 
-	/**
-	 * Writes only the indices of the matrix data into the respective format.
-	 */
-	public abstract void writeIndices();
-
-	/**
-	 * Writes only the matrices without the indices into the respective format.
-	 */
-	public abstract void writeMatrices();
-
-	/**
-	 * Writes the indices and matrices into the respective export format.
-	 */
-	public void write() {
-		writeIndices();
-		writeMatrices();
-	}
-
-
-	/**
-	 * Creates the NPY or NPZ files of the given data in the given folder.
-	 */
-	public static void npyOf(File folder, MatrixData data) {
-		if (data == null || folder == null)
-			return;
-		if (!folder.exists()) {
-			try {
-				Files.createDirectories(folder.toPath());
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
-
+	@Override
+	public void writeMatrices() {
 		// write the base matrices
-		npyOf(folder, data.techMatrix, "A");
-		npyOf(folder, data.flowMatrix, "B");
-		npyOf(folder, data.impactMatrix, "C");
+		write(data.techMatrix, "A");
+		write(data.flowMatrix, "B");
+		write(data.impactMatrix, "C");
 
 		// write the uncertainty matrices
-		npyOf(folder, data.techMatrix, data.techUncertainties, "A");
-		npyOf(folder, data.flowMatrix, data.enviUncertainties, "B");
-		npyOf(folder, data.impactMatrix, data.impactUncertainties, "C");
-
+		write(data.techMatrix, data.techUncertainties, "A");
+		write(data.flowMatrix, data.enviUncertainties, "B");
+		write(data.impactMatrix, data.impactUncertainties, "C");
 	}
 
-	private static void npyOf(File folder, MatrixReader matrix, String name) {
-		if (matrix == null)
-			return;
-		var m = matrix instanceof HashPointMatrix
-			? CSCMatrix.of(matrix)
-			: matrix;
-		if (m instanceof CSCMatrix) {
-			var csc = (CSCMatrix) m;
-			Npz.save(new File(folder, name + ".npz"), csc);
-		} else {
-			Npy.save(new File(folder, name + ".npy"), m);
-		}
+	@Override
+	public void writeIndices() {
+		// TODO: do the things that are currently done in the
+		// library export here
 	}
 
-	private static void npyOf(
-		File folder, MatrixReader host, UMatrix umatrix, String prefix) {
+	private void write(MatrixReader host, UMatrix umatrix, String prefix) {
 		if (host == null || umatrix == null)
 			return;
 
@@ -131,7 +77,7 @@ public abstract class MatrixExport {
 		// write the type matrix
 		types.minSize(host.rows(), host.columns());
 		var typeMatrix = types.finish();
-		npyOf(folder, typeMatrix, prefix + "_utype");
+		write(typeMatrix, prefix + "_utype");
 
 		// write the value matrices
 		for (int i = 0; i < builders.length; i++) {
@@ -140,19 +86,30 @@ public abstract class MatrixExport {
 				continue;
 			builder.minSize(host.rows(), host.columns());
 			var matrix = builder.finish();
-			npyOf(folder, matrix, prefix + "_u" + i);
+			write(matrix, prefix + "_u" + i);
 		}
 	}
 
-	private static void npyOf(
-		File folder, ByteMatrixReader matrix, String name) {
+	private void write(MatrixReader matrix, String name) {
+		if (matrix == null)
+			return;
+		var m = matrix instanceof HashPointMatrix
+			? CSCMatrix.of(matrix)
+			: matrix;
+		if (m instanceof CSCMatrix) {
+			var csc = (CSCMatrix) m;
+			Npz.save(new File(folder, name + ".npz"), csc);
+		} else {
+			Npy.save(new File(folder, name + ".npy"), m);
+		}
+	}
+
+	private void write(ByteMatrixReader matrix, String name) {
 		var m = matrix instanceof HashPointByteMatrix
 			? ((HashPointByteMatrix) matrix).compress()
 			: matrix;
 		if (m instanceof CSCByteMatrix) {
-			Npz.save(
-				new File(folder, name + ".npz"),
-				(CSCByteMatrix) m);
+			Npz.save(new File(folder, name + ".npz"), (CSCByteMatrix) m);
 		} else {
 			var dense = m instanceof DenseByteMatrix
 				? (DenseByteMatrix) m
@@ -160,5 +117,4 @@ public abstract class MatrixExport {
 			Npy.save(new File(folder, name + ".npy"), dense);
 		}
 	}
-
 }

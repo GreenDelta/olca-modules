@@ -3,9 +3,17 @@ package org.openlca.core.matrix.io;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -27,23 +35,41 @@ import org.openlca.core.results.BaseResult;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.util.CategoryPathBuilder;
 
-/**
- * This class provides methods for writing matrices and related indices to CSV
- * files. It has the following properties:
- *
- * <ul>
- * <li>existing files are overwritten
- * <li>the column separator is a comma: `,`
- * <li>the file encoding is `UTF-8`
- * <li>the line separator is platform specific
- * <li>internal exceptions are rethrown as runtime exceptions, handling them is
- * up to you
- * </ul>
- */
-public final class CsvOut {
+final class Csv extends MatrixExport {
 
-	private CsvOut() {
+	private final DecimalFormat numberFormat;
+	private String delimiter = ",";
+	private Charset charset = StandardCharsets.UTF_8;
+
+	Csv(File folder, MatrixData data) {
+		super(folder, data);
+		numberFormat = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+		numberFormat.setMaximumFractionDigits(1000);
 	}
+
+	public Csv withDelimiter(String delimiter) {
+		if (delimiter != null) {
+			this.delimiter = delimiter;
+		}
+		return this;
+	}
+
+	public Csv withEncoding(Charset charset) {
+		if (charset != null) {
+			this.charset = charset;
+		}
+		return this;
+	}
+
+	public Csv withDecimalSeparator(char separator) {
+		var symbols = new DecimalFormat().getDecimalFormatSymbols();
+		symbols.setDecimalSeparator(separator);
+		symbols.setGroupingSeparator(separator == ',' ? '.' : ',');
+		numberFormat.setDecimalFormatSymbols(symbols);
+		return this;
+	}
+
+
 
 	/**
 	 * Write the given matrix data and indices as CSV files to the given folder.

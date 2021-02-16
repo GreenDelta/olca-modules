@@ -9,7 +9,7 @@ import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.matrix.FastMatrixBuilder;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.io.CsvOut;
+import org.openlca.core.matrix.io.Csv;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ProductSystem;
 
@@ -53,7 +53,7 @@ public class FastMatrixExportExample {
 			FastMatrixBuilder builder = new FastMatrixBuilder(db, setup);
 			MatrixData data = builder.build();
 			outFolder.mkdirs();
-			CsvOut.write(data, db, outFolder);
+			Csv.write(data, db, outFolder);
 
 		} catch (Exception e) {
 			e.printStackTrace();
