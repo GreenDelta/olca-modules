@@ -5,36 +5,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.function.Consumer;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.LocationDao;
-import org.openlca.core.database.NativeSql;
-import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.matrix.ImpactIndex;
-import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.ByteMatrixReader;
 import org.openlca.core.matrix.format.MatrixReader;
-import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.BaseResult;
-import org.openlca.core.results.SimpleResult;
-import org.openlca.util.CategoryPathBuilder;
 
 public final class Csv {
 
@@ -145,154 +124,5 @@ public final class Csv {
 			}
 		}
 		return b.toString();
-	}
-
-	/**
-	 * Write the product index into the given file.
-	 */
-	public static void write(TechIndex idx, IDatabase db, File file) {
-		if (idx == null || file == null)
-			return;
-
-		String[] header = {
-				"index",
-				"process ID",
-				"process name",
-				"process type",
-				"process location",
-				"process category",
-				"flow ID",
-				"flow name",
-				"flow type",
-				"flow location",
-				"flow category",
-				"flow unit" };
-
-		CategoryPathBuilder categories = new CategoryPathBuilder(db);
-		Map<Long, String> locations = new LocationDao(db).getCodes();
-		Map<Long, String> units = propUnits(db);
-
-		writer(file, w -> {
-			writeln(w, line(header));
-			String[] mask = new String[header.length];
-			for (int i = 0; i < idx.size(); i++) {
-				ProcessProduct product = idx.getProviderAt(i);
-				CategorizedDescriptor p = product.process;
-				FlowDescriptor f = product.flow;
-				mask[0] = Integer.toString(i);
-				mask[1] = p.refId;
-				mask[2] = p.name;
-				if (p instanceof ProcessDescriptor) {
-					ProcessDescriptor pd = (ProcessDescriptor) p;
-					mask[3] = pd.processType != null
-							? pd.processType.toString()
-							: ModelType.PROCESS.toString();
-					mask[4] = locations.get(pd.location);
-				} else {
-					mask[3] = ModelType.PRODUCT_SYSTEM.toString();
-					mask[4] = "";
-				}
-				mask[5] = categories.path(p.category);
-				mask[6] = f.refId;
-				mask[7] = f.name;
-				mask[8] = f.flowType != null
-						? f.flowType.toString()
-						: "";
-				mask[9] = locations.get(f.location);
-				mask[10] = categories.path(f.category);
-				mask[11] = units.get(f.refFlowPropertyId);
-				writeln(w, line(mask));
-			}
-		});
-	}
-
-	/**
-	 * Write the flow index into the given file.
-	 */
-	public static void write(FlowIndex idx, IDatabase db, File file) {
-		if (idx == null || file == null)
-			return;
-
-		String[] header = {
-				"index",
-				"flow ID",
-				"flow name",
-				"flow type",
-				"flow location",
-				"flow category",
-				"flow unit" };
-
-		CategoryPathBuilder categories = new CategoryPathBuilder(db);
-		Map<Long, String> locations = new LocationDao(db).getCodes();
-		Map<Long, String> units = propUnits(db);
-
-		writer(file, w -> {
-			writeln(w, line(header));
-			String[] mask = new String[header.length];
-			for (int i = 0; i < idx.size(); i++) {
-				FlowDescriptor flow = idx.at(i).flow;
-				mask[0] = Integer.toString(i);
-				mask[1] = flow.refId;
-				mask[2] = flow.name;
-				mask[3] = flow.flowType != null
-						? flow.flowType.toString()
-						: "";
-				mask[4] = locations.get(flow.location);
-				mask[5] = categories.path(flow.category);
-				mask[6] = units.get(flow.refFlowPropertyId);
-				writeln(w, line(mask));
-			}
-		});
-	}
-
-	/**
-	 * Write the LCIA category index into the given file.
-	 */
-	public static void write(ImpactIndex idx, File file) {
-		if (idx == null || file == null)
-			return;
-
-		String[] header = {
-				"index",
-				"impact ID",
-				"impact name",
-				"impact ref. unit" };
-
-		writer(file, w -> {
-			writeln(w, line(header));
-			String[] mask = new String[header.length];
-			for (int i = 0; i < idx.size(); i++) {
-				ImpactDescriptor d = idx.at(i);
-				mask[0] = Integer.toString(i);
-				mask[1] = d.refId;
-				mask[2] = d.name;
-				mask[3] = d.referenceUnit;
-				writeln(w, line(mask));
-			}
-		});
-	}
-
-
-
-	/**
-	 * Returns a map `flow property ID -> reference unit name` for the flow
-	 * properties in the database.
-	 */
-	private static Map<Long, String> propUnits(IDatabase db) {
-		try {
-			String sql = "select fp.id, u.name from tbl_flow_properties as fp"
-					+ "  inner join tbl_unit_groups ug"
-					+ "  on fp.f_unit_group = ug.id"
-					+ "  inner join tbl_units u"
-					+ "  on ug.f_reference_unit = u.id";
-			HashMap<Long, String> m = new HashMap<>();
-			NativeSql.on(db).query(sql, r -> {
-				m.put(r.getLong(1), r.getString(2));
-				return true;
-			});
-			return m;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
 	}
 }
