@@ -80,6 +80,8 @@ public class MatrixData {
 	 */
 	public UMatrix impactUncertainties;
 
+	private Boolean _hasLibraryLinks;
+
 	/**
 	 * Create the matrix data for the given calculation setup.
 	 */
@@ -137,6 +139,31 @@ public class MatrixData {
 	public boolean isSparse() {
 		return techMatrix instanceof HashPointMatrix
 					 || techMatrix instanceof CSCMatrix;
+	}
+
+	public boolean hasLibraryLinks() {
+		if (_hasLibraryLinks != null)
+			return _hasLibraryLinks;
+		if (techIndex != null) {
+			for (int i = 0; i < techIndex.size(); i++) {
+				var product = techIndex.getProviderAt(i);
+				if (product.isFromLibrary()) {
+					_hasLibraryLinks = true;
+					return true;
+				}
+			}
+		}
+		if (impactIndex != null) {
+			for (int i = 0; i < impactIndex.size(); i++) {
+				var impact = impactIndex.at(i);
+				if (impact.isFromLibrary()) {
+					_hasLibraryLinks = true;
+					return true;
+				}
+			}
+		}
+		_hasLibraryLinks = false;
+		return false;
 	}
 
 	public void compress() {

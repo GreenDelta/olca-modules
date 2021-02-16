@@ -5,6 +5,7 @@ import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
@@ -13,6 +14,8 @@ import org.openlca.core.results.solutions.EagerResultProvider;
 import org.openlca.core.results.solutions.LazyResultProvider;
 import org.openlca.core.results.solutions.LibraryResultProvider;
 import org.openlca.core.results.solutions.ResultProvider;
+import org.openlca.julia.Julia;
+import org.openlca.julia.JuliaSolver;
 
 /**
  * This calculator does the low level matrix based LCA-calculation. Typically,
@@ -25,6 +28,13 @@ public class LcaCalculator {
 	private final MatrixData data;
 	private IDatabase db;
 	private LibraryDir libDir;
+
+	public LcaCalculator(MatrixData data) {
+		this(Julia.isLoaded()
+			? new JuliaSolver()
+			: new JavaSolver(),
+			data);
+	}
 
 	public LcaCalculator(MatrixSolver solver, MatrixData data) {
 		this.solver = solver;
@@ -70,7 +80,9 @@ public class LcaCalculator {
 				r.totalImpactResults = s.totalImpacts();
 			}
 		}
-		r.totalCosts = s.totalCosts();
+		if (s.hasCosts()) {
+			r.totalCosts = s.totalCosts();
+		}
 	}
 
 	public ContributionResult calculateContributions() {

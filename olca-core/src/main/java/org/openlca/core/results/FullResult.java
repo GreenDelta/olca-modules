@@ -6,8 +6,10 @@ import java.util.List;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.IndexFlow;
+import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
@@ -20,6 +22,11 @@ import org.openlca.core.results.solutions.ResultProvider;
  * the upstream contributions to LCI, LCIA, and LCC results where applicable.
  */
 public class FullResult extends ContributionResult {
+
+	public static FullResult of(MatrixData matrices) {
+		var calculator = new LcaCalculator(matrices);
+		return calculator.calculateFull();
+	}
 
 	public static FullResult of(IDatabase db, ProductSystem system) {
 		var setup = new CalculationSetup(system);

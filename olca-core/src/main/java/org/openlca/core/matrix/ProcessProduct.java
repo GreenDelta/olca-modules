@@ -1,7 +1,6 @@
 package org.openlca.core.matrix;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
@@ -121,9 +120,20 @@ public class ProcessProduct {
 		return null;
 	}
 
-	public Optional<String> getLibrary() {
-		return process == null || process.library == null
-				? Optional.empty()
-				: Optional.of(process.library);
+	/**
+	 * Returns true if the underlying process of this product is from a library.
+	 */
+	public boolean isFromLibrary() {
+		return process != null && process.isFromLibrary();
+	}
+
+	/**
+	 * Returns the library ID if the process of this product is from a library,
+	 * otherwise `null` is returned.
+	 */
+	public String library() {
+		return process == null
+				? null
+				: process.library;
 	}
 }
