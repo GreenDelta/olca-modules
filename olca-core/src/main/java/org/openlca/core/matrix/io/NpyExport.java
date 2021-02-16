@@ -24,22 +24,47 @@ class NpyExport extends MatrixExport {
 	}
 
 	@Override
-	public void writeMatrices() {
-		// write the base matrices
-		write(data.techMatrix, "A");
-		write(data.flowMatrix, "B");
-		write(data.impactMatrix, "C");
-
-		// write the uncertainty matrices
-		write(data.techMatrix, data.techUncertainties, "A");
-		write(data.flowMatrix, data.enviUncertainties, "B");
-		write(data.impactMatrix, data.impactUncertainties, "C");
-	}
-
-	@Override
 	public void writeIndices() {
 		// TODO: do the things that are currently done in the
 		// library export here
+	}
+
+	@Override
+	protected void write(double[] vector, String name) {
+		if (vector == null)
+			return;
+		var file = new File(folder, name + ".npy");
+		Npy.save(file, vector);
+	}
+
+	@Override
+	protected void write(MatrixReader matrix, String name) {
+		if (matrix == null)
+			return;
+		var m = matrix instanceof HashPointMatrix
+			? CSCMatrix.of(matrix)
+			: matrix;
+		if (m instanceof CSCMatrix) {
+			var csc = (CSCMatrix) m;
+			Npz.save(new File(folder, name + ".npz"), csc);
+		} else {
+			Npy.save(new File(folder, name + ".npy"), m);
+		}
+	}
+
+	@Override
+	protected void write(ByteMatrixReader matrix, String name) {
+		var m = matrix instanceof HashPointByteMatrix
+			? ((HashPointByteMatrix) matrix).compress()
+			: matrix;
+		if (m instanceof CSCByteMatrix) {
+			Npz.save(new File(folder, name + ".npz"), (CSCByteMatrix) m);
+		} else {
+			var dense = m instanceof DenseByteMatrix
+				? (DenseByteMatrix) m
+				: new DenseByteMatrix(m);
+			Npy.save(new File(folder, name + ".npy"), dense);
+		}
 	}
 
 	private void write(MatrixReader host, UMatrix umatrix, String prefix) {
@@ -90,31 +115,6 @@ class NpyExport extends MatrixExport {
 		}
 	}
 
-	private void write(MatrixReader matrix, String name) {
-		if (matrix == null)
-			return;
-		var m = matrix instanceof HashPointMatrix
-			? CSCMatrix.of(matrix)
-			: matrix;
-		if (m instanceof CSCMatrix) {
-			var csc = (CSCMatrix) m;
-			Npz.save(new File(folder, name + ".npz"), csc);
-		} else {
-			Npy.save(new File(folder, name + ".npy"), m);
-		}
-	}
 
-	private void write(ByteMatrixReader matrix, String name) {
-		var m = matrix instanceof HashPointByteMatrix
-			? ((HashPointByteMatrix) matrix).compress()
-			: matrix;
-		if (m instanceof CSCByteMatrix) {
-			Npz.save(new File(folder, name + ".npz"), (CSCByteMatrix) m);
-		} else {
-			var dense = m instanceof DenseByteMatrix
-				? (DenseByteMatrix) m
-				: new DenseByteMatrix(m);
-			Npy.save(new File(folder, name + ".npy"), dense);
-		}
-	}
+
 }

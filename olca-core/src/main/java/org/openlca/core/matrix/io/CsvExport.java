@@ -2,7 +2,6 @@ package org.openlca.core.matrix.io;
 
 import java.io.File;
 
-import org.apache.commons.math3.linear.RealMatrix;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.ByteMatrixReader;
 import org.openlca.core.matrix.format.MatrixReader;
@@ -20,6 +19,10 @@ public class CsvExport extends MatrixExport {
 			this.csv = csv;
 		}
 		return this;
+	}
+
+	@Override
+	public void writeIndices() {
 	}
 
 	@Override

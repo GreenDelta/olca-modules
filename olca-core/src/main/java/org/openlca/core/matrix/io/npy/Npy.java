@@ -5,6 +5,7 @@ import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.MatrixReader;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -88,6 +89,16 @@ public final class Npy {
 
 		} catch (IOException e) {
 			throw new RuntimeException("failed to write matrix to " + file, e);
+		}
+	}
+
+	public static void save(File file, double[] vector) {
+		if (vector == null || file == null)
+			return;
+		try (var stream = new FileOutputStream(file)) {
+			write(stream, vector);
+		} catch (IOException e) {
+			throw new RuntimeException("failed to write vector to " + file, e);
 		}
 	}
 
@@ -202,12 +213,12 @@ public final class Npy {
 	 * Writes the given vector including its header to the given output stream.
 	 */
 	static void write(OutputStream out, double[] v) throws IOException {
-		Header h = new Header();
+		var h = new Header();
 		h.shape = new int[]{v.length};
 		h.dtype = "<f8";
 		h.fortranOrder = false;
 		h.write(out);
-		ByteBuffer buff = ByteBuffer.allocate(v.length * 8);
+		var buff = ByteBuffer.allocate(v.length * 8);
 		buff.order(ByteOrder.LITTLE_ENDIAN);
 		buff.asDoubleBuffer().put(v);
 		out.write(buff.array());

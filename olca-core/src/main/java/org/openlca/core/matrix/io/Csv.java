@@ -148,62 +148,6 @@ public final class Csv {
 	}
 
 	/**
-	 * Write the given matrix data and indices as CSV files to the given folder.
-	 */
-	public static void write(MatrixData data, IDatabase db, File folder) {
-		if (data == null || folder == null)
-			return;
-		if (!folder.exists()) {
-			folder.mkdirs();
-		}
-		write(data.techIndex, db, new File(folder, "indexA.csv"));
-		write(data.flowIndex, db, new File(folder, "indexB.csv"));
-		write(data.impactIndex, new File(folder, "indexC.csv"));
-
-		write(data.techMatrix, new File(folder, "A.csv"));
-		write(data.flowMatrix, new File(folder, "B.csv"));
-		write(data.impactMatrix, new File(folder, "C.csv"));
-		writeCol(data.costVector, new File(folder, "k.csv"));
-	}
-
-	/**
-	 * Write the result to the given folder.
-	 */
-	public static void write(BaseResult result, IDatabase db, File folder) {
-		if (result == null || folder == null)
-			return;
-		if (!folder.exists()) {
-			folder.mkdirs();
-		}
-		write(result.techIndex, db, new File(folder, "indexA.csv"));
-		write(result.flowIndex, db, new File(folder, "indexB.csv"));
-		write(result.impactIndex, new File(folder, "indexC.csv"));
-
-		if (result instanceof SimpleResult) {
-			SimpleResult sr = (SimpleResult) result;
-			writeCol(sr.scalingVector, new File(folder, "s.csv"));
-			writeCol(sr.totalRequirements, new File(folder, "t.csv"));
-			writeCol(sr.totalFlowResults, new File(folder, "g.csv"));
-			writeCol(sr.totalImpactResults, new File(folder, "h.csv"));
-		}
-	}
-
-
-
-	/**
-	 * Write the array as column vector to the given file.
-	 */
-	public static void writeCol(double[] v, File file) {
-		if (v == null || file == null)
-			return;
-		writer(file, w -> {
-			for (int i = 0; i < v.length; i++) {
-				writeln(w, Double.toString(v[i]));
-			}
-		});
-	}
-
-	/**
 	 * Write the product index into the given file.
 	 */
 	public static void write(TechIndex idx, IDatabase db, File file) {
