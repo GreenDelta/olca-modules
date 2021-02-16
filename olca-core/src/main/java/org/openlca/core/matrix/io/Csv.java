@@ -25,6 +25,7 @@ import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.format.ByteMatrixReader;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
@@ -35,15 +36,19 @@ import org.openlca.core.results.BaseResult;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.util.CategoryPathBuilder;
 
-final class Csv {
+public final class Csv {
 
 	private final DecimalFormat numberFormat;
 	private String delimiter = ",";
 	private Charset charset = StandardCharsets.UTF_8;
 
-	Csv() {
+	public Csv() {
 		numberFormat = (DecimalFormat) NumberFormat.getInstance(Locale.US);
 		numberFormat.setMaximumFractionDigits(1000);
+	}
+
+	public static Csv defaultConfig() {
+		return new Csv();
 	}
 
 	public Csv withDelimiter(String delimiter) {
@@ -86,6 +91,20 @@ final class Csv {
 			for (int row = 0; row < matrix.rows(); row++) {
 				for (int col = 0; col < matrix.columns(); col++) {
 					buffer[col] = numberFormat.format(matrix.get(row, col));
+				}
+				writeln(w, line(buffer));
+			}
+		});
+	}
+
+	public void write(ByteMatrixReader matrix, File file) {
+		if (matrix == null || file == null)
+			return;
+		var buffer = new String[matrix.columns()];
+		writer(file, w -> {
+			for (int row = 0; row < matrix.rows(); row++) {
+				for (int col = 0; col < matrix.columns(); col++) {
+					buffer[col] = Integer.toString(matrix.get(row, col));
 				}
 				writeln(w, line(buffer));
 			}
