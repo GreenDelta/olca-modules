@@ -1,17 +1,13 @@
 package org.openlca.core.matrix.io;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.ByteMatrixReader;
 import org.openlca.core.matrix.format.CSCByteMatrix;
-import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.DenseByteMatrix;
 import org.openlca.core.matrix.format.HashPointByteMatrix;
-import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.matrix.io.npy.Npz;
