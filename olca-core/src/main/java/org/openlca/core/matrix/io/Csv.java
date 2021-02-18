@@ -77,7 +77,10 @@ public final class Csv {
 		writer(file, w -> {
 			for (int row = 0; row < matrix.rows(); row++) {
 				for (int col = 0; col < matrix.columns(); col++) {
-					buffer[col] = numberFormat.format(matrix.get(row, col));
+					var val = matrix.get(row, col);
+					buffer[col] = val == 0
+						? "0"  // avoid slow formatter calls
+						: numberFormat.format(val);
 				}
 				writeln(w, line(buffer));
 			}

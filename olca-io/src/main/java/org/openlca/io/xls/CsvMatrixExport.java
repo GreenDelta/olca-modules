@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Writes a product system as matrices into CSV files.
  */
+@Deprecated
 public class CsvMatrixExport implements Runnable {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());

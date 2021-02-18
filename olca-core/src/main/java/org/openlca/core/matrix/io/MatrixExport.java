@@ -100,6 +100,17 @@ public abstract class MatrixExport {
 			write(data.costVector, "costs");
 		}
 
+		// write the demand vector in case of a linked tech. index
+		var techIndex = data.techIndex;
+		if (techIndex != null && techIndex.hasLinks()) {
+			var demand = new double[techIndex.size()];
+			int refIdx = techIndex.getIndex(techIndex.getRefFlow());
+			if (refIdx >= 0) {
+				demand[refIdx] = techIndex.getDemand();
+			}
+			write(demand, "f");
+		}
+
 		uncertainties(data.techMatrix, data.techUncertainties, "A");
 		uncertainties(data.flowMatrix, data.enviUncertainties, "B");
 		uncertainties(data.impactMatrix, data.impactUncertainties, "C");

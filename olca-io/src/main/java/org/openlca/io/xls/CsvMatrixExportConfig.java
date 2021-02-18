@@ -6,6 +6,7 @@ import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ProductSystem;
 
+@Deprecated
 public class CsvMatrixExportConfig {
 
 	public final ProductSystem productSystem;
