@@ -3,6 +3,7 @@ package org.openlca.core.matrix;
 import java.util.Objects;
 
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
@@ -118,6 +119,15 @@ public class ProcessProduct {
 		if (process instanceof ProcessDescriptor)
 			return ((ProcessDescriptor) process).location;
 		return null;
+	}
+
+	/**
+	 * Returns true when the flow of this "product" is (an input of) a waste flow.
+	 * This means that the corresponding process is a waste treatment process in
+	 * this case.
+	 */
+	public boolean isWaste() {
+		return flow != null && flow.flowType == FlowType.WASTE_FLOW;
 	}
 
 	/**
