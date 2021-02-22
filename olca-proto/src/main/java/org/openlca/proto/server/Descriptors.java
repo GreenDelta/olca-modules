@@ -3,14 +3,15 @@ package org.openlca.proto.server;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.RootEntityDao;
+import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -30,48 +31,10 @@ final class Descriptors {
   }
 
   static Stream<Proto.Ref> get(IDatabase db, Services.DescriptorRequest req) {
-    return db == null || req == null
-      ? Stream.empty()
-      : byName(byID(daosOf(db, req), req), req).map(d -> Out.refOf(d).build());
-  }
-
-  private static Stream<? extends RootEntityDao<?, ?>> daosOf(
-    IDatabase db, Services.DescriptorRequest req) {
-    var modelType = In.modelTypeOf(req.getType());
-    if (modelType != null) {
-      var dao = Daos.root(db, modelType);
-      return dao == null
-        ? Stream.empty()
-        : Stream.of(dao);
-    }
-    return Arrays.stream(ModelType.values())
-      .filter(type -> type.getModelClass() != null)
-      .map(type -> Daos.root(db, type))
-      .filter(Objects::nonNull);
-  }
-
-  private static Stream<? extends Descriptor> byID(
-    Stream<? extends RootEntityDao<?, ? extends Descriptor>> daos,
-    Services.DescriptorRequest req) {
-    var id = req.getId();
-    if (Strings.notEmpty(id)) {
-      return daos.map(dao -> dao.getDescriptorForRefId(id))
-        .filter(Objects::nonNull);
-    }
-    return daos.map(RootEntityDao::getDescriptors)
-      .flatMap(Collection::stream);
-  }
-
-  private static Stream<? extends Descriptor> byName(
-    Stream<? extends Descriptor> descriptors,
-    Services.DescriptorRequest req) {
-    var name = req.getName();
-    if (name.isBlank())
-      return descriptors;
-    var term = name.trim().toLowerCase();
-    Predicate<String> match = other ->
-      other != null && other.trim().toLowerCase().equals(term);
-    return descriptors.filter(d -> match.test(d.name));
+    if (db == null || req == null)
+      return Stream.empty();
+    return new Search(db, req).get()
+      .map(d -> Out.refOf(d).build());
   }
 
   public static Decorator decorator(IDatabase db) {
@@ -132,11 +95,11 @@ final class Descriptors {
       if (flowUnits == null) {
         flowUnits = new TLongObjectHashMap<>();
         var query = "select fp.id, u.name" +
-          "  from tbl_flow_properties fp" +
-          "  inner join tbl_unit_groups ug" +
-          "  on fp.f_unit_group = ug.id" +
-          "  inner join tbl_units u" +
-          "  on ug.f_reference_unit = u.id";
+                    "  from tbl_flow_properties fp" +
+                    "  inner join tbl_unit_groups ug" +
+                    "  on fp.f_unit_group = ug.id" +
+                    "  inner join tbl_units u" +
+                    "  on ug.f_reference_unit = u.id";
         NativeSql.on(db).query(query, r -> {
           long propID = r.getLong(1);
           var unit = r.getString(2);
@@ -164,6 +127,92 @@ final class Descriptors {
         });
       }
       return Strings.orEmpty(locationCodes.get(locationID));
+    }
+  }
+
+  private static class Search {
+
+    private final IDatabase db;
+    private final Services.DescriptorRequest req;
+    private final ModelType type;
+    private final RootEntityDao<?, ?> dao;
+
+    Search(IDatabase db, Services.DescriptorRequest req) {
+      this.db = db;
+      this.req = req;
+      type = In.modelTypeOf(req.getType());
+      dao = type == null || type == ModelType.UNKNOWN
+        ? null
+        : Daos.root(db, type);
+    }
+
+    Stream<? extends Descriptor> get() {
+
+      // get by ID
+      var id = req.getId();
+      if (Strings.notEmpty(id)) {
+        if (dao != null) {
+          var d = dao.getDescriptorForRefId(id);
+          return d == null
+            ? Stream.empty()
+            : Stream.of(d);
+        }
+        return daos()
+          .map(dao -> dao.getDescriptorForRefId(id))
+          .filter(Objects::nonNull);
+      }
+
+      var stream = all();
+
+      // filter by category
+      var categoryReq = req.getCategory();
+      if (Strings.notEmpty(categoryReq)) {
+        var category = category(categoryReq);
+        if (category == null)
+          return Stream.empty();
+        stream = stream.filter(d -> {
+          if (!(d instanceof CategorizedDescriptor))
+            return false;
+          var cd = (CategorizedDescriptor) d;
+          return cd.category != null && cd.category == category.id;
+        });
+      }
+
+      // filter by name
+      var name = req.getName();
+      if (Strings.nullOrEmpty(name))
+        return stream;
+      var term = name.trim().toLowerCase();
+      return stream.filter(d -> {
+        if (d.name == null)
+          return false;
+        var other = d.name.trim().toLowerCase();
+        return other.equals(term);
+      });
+    }
+
+    private Stream<? extends Descriptor> all() {
+      return dao != null
+        ? dao.getDescriptors().stream()
+        : daos().map(RootEntityDao::getDescriptors)
+        .flatMap(Collection::stream);
+    }
+
+    private Stream<? extends RootEntityDao<?, ?>> daos() {
+      return Arrays.stream(ModelType.values())
+        .filter(type -> type.getModelClass() != null)
+        .map(type -> Daos.root(db, type))
+        .filter(Objects::nonNull);
+    }
+
+    private Category category(String idOrPath) {
+      if (type == null)
+        return null;
+      var dao = new CategoryDao(db);
+      var category = dao.getForRefId(idOrPath);
+      return category != null
+        ? category
+        : dao.getForPath(type, idOrPath);
     }
   }
 }
