@@ -21,7 +21,7 @@ import org.openlca.util.Categories;
 import org.openlca.util.Strings;
 
 public class CategoryDao
-		extends CategorizedEntityDao<Category, CategoryDescriptor> {
+	extends CategorizedEntityDao<Category, CategoryDescriptor> {
 
 	private static Map<ModelType, String> tables;
 
@@ -31,17 +31,17 @@ public class CategoryDao
 
 	@Override
 	protected String[] getDescriptorFields() {
-		return new String[] {
-				"id",
-				"ref_id",
-				"name",
-				"description",
-				"version",
-				"last_change",
-				"f_category",
-				"library",
-				"tags",
-				"model_type",
+		return new String[]{
+			"id",
+			"ref_id",
+			"name",
+			"description",
+			"version",
+			"last_change",
+			"f_category",
+			"library",
+			"tags",
+			"model_type",
 		};
 	}
 
@@ -54,13 +54,17 @@ public class CategoryDao
 		return d;
 	}
 
-	/** Root categories do not have a parent category. */
+	/**
+	 * Root categories do not have a parent category.
+	 */
 	public List<Category> getRootCategories(ModelType type) {
 		String jpql = "select c from Category c where c.category is null and c.modelType = :type";
 		return getAll(jpql, Collections.singletonMap("type", type));
 	}
 
-	/** Root categories do not have a parent category. */
+	/**
+	 * Root categories do not have a parent category.
+	 */
 	public List<Category> getRootCategories() {
 		String jpql = "select c from Category c where c.category is null";
 		Map<String, Object> m = Collections.emptyMap();
@@ -121,7 +125,7 @@ public class CategoryDao
 	private boolean contains(List<Category> categories, Category category) {
 		for (Category child : categories)
 			if (Categories.createRefId(child)
-					.equals(Categories.createRefId(category)))
+				.equals(Categories.createRefId(category)))
 				return true;
 		return false;
 	}
@@ -137,8 +141,8 @@ public class CategoryDao
 			d.version = version;
 			d.lastChange = lastChange;
 			String update = "UPDATE " + getTable(d.type)
-					+ " SET version = " + version + ", last_change = "
-					+ lastChange + " WHERE id = " + d.id;
+											+ " SET version = " + version + ", last_change = "
+											+ lastChange + " WHERE id = " + d.id;
 			NativeSql.on(database).runUpdate(update);
 			database.notifyUpdate(d);
 		}
@@ -149,7 +153,7 @@ public class CategoryDao
 			tables = new HashMap<>();
 			for (ModelType type : ModelType.values()) {
 				if (type.getModelClass() == null || !RootEntity.class
-						.isAssignableFrom(type.getModelClass()))
+					.isAssignableFrom(type.getModelClass()))
 					continue;
 				String table = Daos.root(database, type).getEntityTable();
 				tables.put(type, table);
@@ -159,8 +163,8 @@ public class CategoryDao
 	}
 
 	private List<? extends CategorizedDescriptor> getDescriptors(
-			ModelType type,
-			Optional<Category> category) {
+		ModelType type,
+		Optional<Category> category) {
 		if (type == null || !type.isCategorized())
 			return new ArrayList<>();
 		return Daos.categorized(getDatabase(), type).getDescriptors(category);
@@ -224,6 +228,32 @@ public class CategoryDao
 			next = category.childCategories;
 		}
 		return parent;
+	}
+
+	public Category getForPath(ModelType type, String path) {
+		if (type == null || path == null)
+			return null;
+		var parts = path.split("/");
+		var next = getRootCategories(type);
+		Category category = null;
+		for (var p : parts) {
+			var part = p.trim();
+			if (part.isEmpty())
+				continue;
+			category = null;
+			for (var c : next) {
+					if (c.name == null)
+						continue;
+					if (c.name.trim().equalsIgnoreCase(part)) {
+						category = c;
+						next = c.childCategories;
+						break;
+					}
+			}
+			if (category == null)
+				return null;
+		}
+		return category;
 	}
 
 }

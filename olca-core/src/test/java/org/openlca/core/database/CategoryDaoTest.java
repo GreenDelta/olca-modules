@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Assert;
@@ -14,7 +16,7 @@ import org.openlca.core.model.ModelType;
 
 public class CategoryDaoTest {
 
-	private CategoryDao dao = new CategoryDao(Tests.getDb());
+	private final CategoryDao dao = new CategoryDao(Tests.getDb());
 
 	@Test
 	public void testSimple() {
@@ -62,7 +64,7 @@ public class CategoryDaoTest {
 	public void testSyncEmpty() {
 		// it should never crash
 		assertNull(dao.sync(ModelType.ACTOR, (String[]) null));
-		assertNull(dao.sync(ModelType.ACTOR, (String) null, (String) null));
+		assertNull(dao.sync(ModelType.ACTOR, null, null));
 		assertNull(dao.sync(ModelType.ACTOR, ""));
 		assertNull(dao.sync(ModelType.ACTOR, "", ""));
 		assertNull(dao.sync(ModelType.ACTOR, "", null, ""));
@@ -97,6 +99,42 @@ public class CategoryDaoTest {
 			categories = dao.getRootCategories(type);
 			Assert.assertFalse(categories.contains(cat));
 		}
+	}
+
+	@Test
+	public void testGetForPath() {
+		var path = "Emission/Ground/Human-Dominated/Agricultural/Rural";
+		var parts = path.split("/");
+
+		// test non-existing
+		assertNull(dao.getForPath(ModelType.FLOW, null));
+		assertNull(dao.getForPath(ModelType.FLOW, ""));
+		assertNull(dao.getForPath(ModelType.FLOW, "/"));
+		assertNull(dao.getForPath(ModelType.FLOW, path));
+
+		var category = dao.sync(ModelType.FLOW, parts);
+		var c = dao.getForPath(ModelType.FLOW, path);
+		assertEquals(category, c);
+
+		// find each category along the path
+		var cc = category;
+		var categories = new ArrayList<Category>();
+		while (cc != null) {
+			categories.add(0, cc);
+			cc = cc.category;
+		}
+		assertEquals(5, categories.size());
+		var p = new StringBuilder();
+		for (int i = 0; i < parts.length; i++) {
+			p.append("/").append(parts[i]);
+			assertEquals(
+				categories.get(i),
+				dao.getForPath(ModelType.FLOW, p.toString()));
+		}
+
+		// delete it
+		dao.delete(categories.get(0));
+		assertNull(dao.getForPath(ModelType.FLOW, path));
 	}
 
 	private Category create() {
