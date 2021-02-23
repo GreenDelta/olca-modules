@@ -58,18 +58,18 @@ public class LibraryExport implements Runnable {
 		return this;
 	}
 
-	public LibraryExport allocation(AllocationMethod method) {
+	public LibraryExport withAllocation(AllocationMethod method) {
 		this.allocation = method;
 		return this;
 	}
 
-	public LibraryExport withImpacts() {
-		this.withImpacts = true;
+	public LibraryExport withImpacts(boolean b) {
+		this.withImpacts = b;
 		return this;
 	}
 
-	public LibraryExport withUncertainties() {
-		this.withUncertainties = true;
+	public LibraryExport withUncertainties(boolean b) {
+		this.withUncertainties = b;
 		return this;
 	}
 

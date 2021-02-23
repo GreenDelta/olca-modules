@@ -17,9 +17,9 @@ public class LibraryExportExample {
 			long start = System.currentTimeMillis();
 			new LibraryExport(db, new File("target/data/lib"))
 				.solver(new JuliaSolver())
-				.withImpacts()
-				.withUncertainties()
-				.allocation(AllocationMethod.PHYSICAL)
+				.withImpacts(true)
+				.withUncertainties(true)
+				.withAllocation(AllocationMethod.PHYSICAL)
 				.run();
 			double time = (System.currentTimeMillis() - start) / 1000d;
 			System.out.println(
