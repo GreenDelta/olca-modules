@@ -2,6 +2,7 @@ package org.openlca.util;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.openlca.core.database.IDatabase;
@@ -14,6 +15,23 @@ import org.openlca.core.model.DQSystem;
 public class Databases {
 
 	private Databases() {
+	}
+
+	/**
+	 * Returns true when there are characterization factors available in the
+	 * database. It does not check if these factors are valid. So this is just a
+	 * quick check, e.g for showing the options in a library export of a  database.
+	 */
+	public static boolean hasImpactData(IDatabase db) {
+		if (db == null)
+			return false;
+		var sql = "select count(*) from tbl_impact_factors";
+		var count = new AtomicInteger(0);
+		NativeSql.on(db).query(sql, r -> {
+			count.set(r.getInt(1));
+			return false;
+		});
+		return count.get() > 0;
 	}
 
 	/**
