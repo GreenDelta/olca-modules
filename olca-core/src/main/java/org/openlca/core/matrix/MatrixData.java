@@ -99,9 +99,7 @@ public class MatrixData {
 
 		// create the tech-index
 		var system = setup.productSystem;
-		var techIndex = system.withoutNetwork
-			? TechIndex.unlinkedOf(system, db)
-			: TechIndex.linkedOf(system, db);
+		var techIndex = TechIndex.of(system, db);
 		techIndex.setDemand(setup.getDemandValue());
 
 		return MatrixConfig.of(db, techIndex)

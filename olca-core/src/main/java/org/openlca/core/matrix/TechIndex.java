@@ -74,11 +74,17 @@ public class TechIndex implements TechLinker {
 	}
 
 	/**
-	 * Creates a linked index from the given product system. This means that the
-	 * process links of the product system are stored in this index.
+	 * Creates the index for the given product system. If the `withoutNetwork`
+	 * attribute of the system is set to true, it creates an unlinked index with all
+	 * process products (and waste flows) from the database. Otherwise all process
+	 * links of the product system are directly stored in the index.
 	 */
-	public static TechIndex linkedOf(ProductSystem system, IDatabase db) {
+	public static TechIndex of(ProductSystem system, IDatabase db) {
 		var index = initFrom(system);
+		if (system.withoutNetwork) {
+			eachProviderOf(db, index::put);
+			return index;
+		}
 
 		// initialize the fast descriptor maps
 		var systems = new ProductSystemDao(db).descriptorMap();
@@ -106,23 +112,10 @@ public class TechIndex implements TechLinker {
 	}
 
 	/**
-	 * Creates an unlinked index from the given product system and all process
-	 * products of the database. It first sets the quantitative reference of
-	 * the given system as the demand of this index and then adds all process
-	 * products (and waste flows) of the database to the index in some
-	 * arbitrary order.
+	 * Creates an unlinked index of all process products (and waste flows) of the
+	 * database in some arbitrary order.
 	 */
-	public static TechIndex unlinkedOf(ProductSystem system, IDatabase db) {
-		var index = initFrom(system);
-		eachProviderOf(db, index::put);
-		return index;
-	}
-
-	/**
-	 * Creates an unlinked index of all process products (and waste flows) of
-	 * the database in some arbitrary order.
-	 */
-	public static TechIndex unlinkedOf(IDatabase db) {
+	public static TechIndex of(IDatabase db) {
 		var list = new ArrayList<ProcessProduct>();
 		eachProviderOf(db, list::add);
 		if (list.isEmpty())
@@ -138,15 +131,15 @@ public class TechIndex implements TechLinker {
 		// initialize the TechIndex with the reference flow
 		var refExchange = system.referenceExchange;
 		var refFlow = ProcessProduct.of(
-			system.referenceProcess, refExchange.flow);
+				system.referenceProcess, refExchange.flow);
 		var index = new TechIndex(refFlow);
 
 		// set the final demand value which is negative
 		// when we have a waste flow as reference flow
 		double demand = ReferenceAmount.get(system);
 		var ftype = refExchange.flow == null
-			? null
-			: refExchange.flow.flowType;
+				? null
+				: refExchange.flow.flowType;
 		if (ftype == FlowType.WASTE_FLOW) {
 			demand = -demand;
 		}

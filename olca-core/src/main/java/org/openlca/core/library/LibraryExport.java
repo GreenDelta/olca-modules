@@ -149,7 +149,7 @@ public class LibraryExport implements Runnable {
 		// TODO: this currently fails if the user wants
 		// to build an LCIA library
 		// create the configuration options
-		var techIndex = TechIndex.unlinkedOf(db);
+		var techIndex = TechIndex.of(db);
 		var config = MatrixConfig.of(db, techIndex)
 			.withUncertainties(withUncertainties)
 			.withRegionalization(info.isRegionalized)

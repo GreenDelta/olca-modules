@@ -46,7 +46,7 @@ public class EachOneResult {
 			Julia.load();
 		}
 		if (data == null) {
-			var techIndex = TechIndex.unlinkedOf(db);
+			var techIndex = TechIndex.of(db);
 			data = MatrixData.of(db, techIndex)
 				.withImpacts(ImpactIndex.of(db))
 				.build();
