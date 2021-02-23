@@ -17,6 +17,18 @@ public class Databases {
 	private Databases() {
 	}
 
+	public static boolean hasInventoryData(IDatabase db) {
+		if (db == null)
+			return false;
+		var sql = "select count(*) from tbl_exchanges";
+		var count = new AtomicInteger(0);
+		NativeSql.on(db).query(sql, r -> {
+			count.set(r.getInt(1));
+			return false;
+		});
+		return count.get() > 0;
+	}
+
 	/**
 	 * Returns true when there are characterization factors available in the
 	 * database. It does not check if these factors are valid. So this is just a
