@@ -10,7 +10,6 @@ import org.openlca.core.TestProcess;
 import org.openlca.core.TestSystem;
 import org.openlca.core.Tests;
 import org.openlca.core.matrix.IndexFlow;
-import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
@@ -41,8 +40,7 @@ public class ProjectCalculationTest {
 		var2.amount = 2.0;
 		project.variants.add(var2);
 
-		SystemCalculator calc = new SystemCalculator(
-				Tests.getDb(), new JavaSolver());
+		SystemCalculator calc = new SystemCalculator(Tests.getDb());
 		ProjectResult r = calc.calculate(project);
 		List<IndexFlow> flows = r.getFlows();
 		assertEquals(2, flows.size());

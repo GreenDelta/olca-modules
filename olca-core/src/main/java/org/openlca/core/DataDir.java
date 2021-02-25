@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import org.openlca.core.library.Library;
+import org.openlca.core.library.LibraryDir;
+
 public final class DataDir {
 
 	/**
@@ -35,7 +38,7 @@ public final class DataDir {
 	/**
 	 * Set the given folder as the root folder of the openLCA data directory.
 	 */
-	public static void root(File dir) {
+	public static void setRoot(File dir) {
 		root = dir;
 	}
 
@@ -52,7 +55,7 @@ public final class DataDir {
 	 * folder. Note that the returned folder may not exist if there is no
 	 * such database in that folder.
 	 */
-	public static File database(String name) {
+	public static File getDatabaseDir(String name) {
 		return new File(databases(), name);
 	}
 
@@ -62,6 +65,16 @@ public final class DataDir {
 	 */
 	public static File libraries() {
 		return ensureExists(new File(root(), "libraries"));
+	}
+
+	public static LibraryDir getLibraryDir() {
+		var folder = ensureExists(new File(root(), "libraries"));
+		return new LibraryDir(folder);
+	}
+
+	public static Library getLibrary(String id) {
+		var libDir = getLibraryDir();
+		return libDir.get(id).orElse(null);
 	}
 
 	private static File ensureExists(File dir) {

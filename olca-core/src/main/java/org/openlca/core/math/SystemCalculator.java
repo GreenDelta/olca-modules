@@ -35,23 +35,9 @@ public class SystemCalculator {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final IDatabase db;
-	private final MatrixSolver solver;
-	private LibraryDir libDir;
 
 	public SystemCalculator(IDatabase db) {
-		this(db, Julia.isLoaded()
-			? new JuliaSolver()
-			: new JavaSolver());
-	}
-
-	public SystemCalculator(IDatabase db, MatrixSolver solver) {
 		this.db = db;
-		this.solver = solver;
-	}
-
-	public SystemCalculator withLibraries(LibraryDir libDir) {
-		this.libDir = libDir;
-		return this;
 	}
 
 	public SimpleResult calculateSimple(CalculationSetup setup) {
@@ -104,11 +90,7 @@ public class SystemCalculator {
 	private LcaCalculator calculator(CalculationSetup setup) {
 		var subs = calculateSubSystems(setup);
 		var data = MatrixData.of(db, setup, subs);
-		var calculator = new LcaCalculator(solver, data);
-		if (libDir != null) {
-			calculator.withLibraries(db, libDir);
-		}
-		return calculator;
+		return new LcaCalculator(db, data);
 	}
 
 	/**

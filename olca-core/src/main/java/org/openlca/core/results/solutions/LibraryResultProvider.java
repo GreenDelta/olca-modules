@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
 
+import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.LibraryDir;
@@ -59,15 +60,12 @@ public class LibraryResultProvider implements ResultProvider {
 
 	private LibraryResultProvider(
 			IDatabase db,
-			LibraryDir libDir,
-			MatrixSolver solver,
 			MatrixData foregroundData) {
 		this.db = db;
-		this.libDir = libDir;
-		this.solver = solver;
+		this.libDir = DataDir.getLibraryDir();
+		this.solver = MatrixSolver.Instance.getNew();
 		this.foregroundData = foregroundData;
-		this.foregroundSolution = EagerResultProvider.create(
-				foregroundData, solver);
+		this.foregroundSolution = EagerResultProvider.create(foregroundData);
 		this.fullData = new MatrixData();
 		this.fullData.impactIndex = foregroundData.impactIndex;
 	}
@@ -85,13 +83,9 @@ public class LibraryResultProvider implements ResultProvider {
 	}
 
 	public static LibraryResultProvider of(
-			IDatabase db,
-			LibraryDir libDir,
-			MatrixSolver solver,
-			MatrixData foregroundData) {
+		IDatabase db, MatrixData foregroundData) {
 
-		var provider = new LibraryResultProvider(
-				db, libDir, solver, foregroundData);
+		var provider = new LibraryResultProvider(db, foregroundData);
 		provider.initTechIndex();
 		provider.initFlowIndex();
 

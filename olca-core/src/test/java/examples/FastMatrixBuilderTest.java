@@ -14,6 +14,7 @@ import org.openlca.core.results.FullResult;
 import org.openlca.julia.Julia;
 import org.openlca.julia.JuliaSolver;
 
+@Deprecated
 public class FastMatrixBuilderTest {
 
 	public static void main(String[] args) {
@@ -38,7 +39,7 @@ public class FastMatrixBuilderTest {
 		String juliaLibPath = "C:\\Users\\ms\\Projects\\openLCA\\eclipse";
 		Julia.loadFromDir(new File(juliaLibPath));
 		JuliaSolver solver = new JuliaSolver();
-		LcaCalculator calc = new LcaCalculator(solver, data);
+		LcaCalculator calc = new LcaCalculator(db, data);
 		FullResult r = calc.calculateFull();
 		end = System.currentTimeMillis();
 		time = (end - start) / 1000.0;

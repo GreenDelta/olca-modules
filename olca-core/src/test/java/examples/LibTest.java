@@ -36,8 +36,7 @@ public class LibTest {
 				db.get(ImpactMethod.class, "effb055a-ad78-39bd-8dc0-341411db4ae7"));
 
 		var start =  System.currentTimeMillis();
-		var result = new SystemCalculator(db, new JuliaSolver())
-				.withLibraries(libDir)
+		var result = new SystemCalculator(db)
 				.calculateFull(setup);
 		var end = System.currentTimeMillis();
 		System.out.printf("Calculation done in %d ms %n", (end - start));

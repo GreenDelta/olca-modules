@@ -28,11 +28,12 @@ public class EagerResultProvider implements ResultProvider {
 	private double[] directCosts;
 	private double[] totalCostsOfOne;
 
-	private EagerResultProvider(MatrixData data, MatrixSolver solver) {
+	private EagerResultProvider(MatrixData data) {
 		this.data = data;
 
 		// product and waste flows
 		var techIdx = data.techIndex;
+		var solver = MatrixSolver.Instance.getNew();
 		inverse = solver.invert(data.techMatrix);
 		var refIdx = techIdx.getIndex(techIdx.getRefFlow());
 		scalingVector = inverse.getColumn(refIdx);
@@ -97,10 +98,8 @@ public class EagerResultProvider implements ResultProvider {
 		}
 	}
 
-	public static EagerResultProvider create(
-			MatrixData data,
-			MatrixSolver solver) {
-		return new EagerResultProvider(data, solver);
+	public static EagerResultProvider create(MatrixData data) {
+		return new EagerResultProvider(data);
 	}
 
 	@Override

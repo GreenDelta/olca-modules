@@ -4,13 +4,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.Tests;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.JavaMatrix;
-import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
@@ -37,7 +37,7 @@ public class SankeyTest {
 				{1.0, 2.0, 3.0},
 		});
 
-		var calculator = new LcaCalculator(new JavaSolver(), data);
+		var calculator = new LcaCalculator(Tests.getDb(), data);
 		var result = calculator.calculateFull();
 
 		var sankey = Sankey.of(data.flowIndex.at(0), result)

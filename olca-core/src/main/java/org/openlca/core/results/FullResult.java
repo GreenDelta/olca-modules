@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.library.LibraryDir;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.IndexFlow;
@@ -36,9 +35,6 @@ public class FullResult extends ContributionResult {
 
 	public static FullResult of(IDatabase db, CalculationSetup setup) {
 		var calculator = new SystemCalculator(db);
-		if (db.hasLibraries()) {
-			calculator.withLibraries(LibraryDir.getDefault());
-		}
 		return calculator.calculateFull(setup);
 	}
 

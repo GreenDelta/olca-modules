@@ -17,7 +17,6 @@ import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
@@ -246,7 +245,7 @@ public class Calculator {
 	private RpcResponse calculate(RpcRequest req, CalculationSetup setup,
 								  CalculationType type) {
 		try {
-			var calc = new SystemCalculator(db, context.solver);
+			var calc = new SystemCalculator(db);
 			SimpleResult r = null;
 			switch (type) {
 				case CONTRIBUTION_ANALYSIS:

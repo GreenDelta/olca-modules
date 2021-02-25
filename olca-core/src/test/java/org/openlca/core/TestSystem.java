@@ -101,9 +101,7 @@ public class TestSystem {
 	}
 
 	public static FullResult calculate(CalculationSetup setup) {
-		var calc = new SystemCalculator(
-				Tests.getDb(),
-				Tests.getDefaultSolver());
+		var calc = new SystemCalculator(Tests.getDb());
 		return calc.calculateFull(setup);
 	}
 
@@ -111,9 +109,7 @@ public class TestSystem {
 			ProductSystem system) {
 		CalculationSetup setup = new CalculationSetup(system);
 		setup.withCosts = true;
-		SystemCalculator calc = new SystemCalculator(
-				Tests.getDb(),
-				Tests.getDefaultSolver());
+		SystemCalculator calc = new SystemCalculator(Tests.getDb());
 		return calc.calculateContributions(setup);
 	}
 

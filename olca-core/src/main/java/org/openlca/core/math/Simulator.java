@@ -68,6 +68,7 @@ public class Simulator {
 	 */
 	public final Set<ProcessProduct> pinnedProducts = new HashSet<>();
 
+	private final IDatabase db;
 	private final MatrixSolver solver;
 
 	/**
@@ -96,15 +97,16 @@ public class Simulator {
 
 	private SimulationResult result;
 
-	private Simulator(MatrixSolver solver) {
-		this.solver = solver;
+	private Simulator(IDatabase db) {
+		this.db = db;
+		this.solver = MatrixSolver.Instance.getNew();
 	}
 
 	public static Simulator create(
 			CalculationSetup setup,
 			IDatabase db,
 			MatrixSolver solver) {
-		Simulator g = new Simulator(solver);
+		Simulator g = new Simulator(db);
 		g.init(db, setup);
 		return g;
 	}
@@ -144,11 +146,11 @@ public class Simulator {
 			// generate the numbers and calculate the overall result
 			for (var sub : subNodes) {
 				generateData(sub);
-				var calc = new LcaCalculator(solver, sub.data);
+				var calc = new LcaCalculator(db, sub.data);
 				sub.lastResult = calc.calculateSimple();
 			}
 			generateData(root);
-			var calc = new LcaCalculator(solver, root.data);
+			var calc = new LcaCalculator(db, root.data);
 			var next = calc.calculateSimple();
 			var result = getResult();
 			result.append(next);

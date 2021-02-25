@@ -47,7 +47,7 @@ public class LinkContributionsTest {
 		data.techMatrix = techMatrix;
 		data.techIndex = index;
 
-		var solution = LazyResultProvider.create(data, solver);
+		var solution = LazyResultProvider.create(data);
 		FullResult r = new FullResult(solution);
 		r.techIndex = index;
 
@@ -85,7 +85,7 @@ public class LinkContributionsTest {
 		var data = new MatrixData();
 		data.techIndex = index;
 		data.techMatrix = techMatrix;
-		var solutions = LazyResultProvider.create(data, solver);
+		var solutions = LazyResultProvider.create(data);
 		FullResult r = new FullResult(solutions);
 		r.techIndex = index;
 

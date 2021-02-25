@@ -6,7 +6,6 @@ import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.HashPointMatrix;
-import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
@@ -25,8 +24,7 @@ public class LazyProviderTest {
 		data.techIndex.put(product(3));
 		data.techIndex.setDemand(1.0);
 
-		var provider = LazyResultProvider.create(
-				data, new JavaSolver());
+		var provider = LazyResultProvider.create(data);
 		var scaling = provider.scalingVector();
 		Assert.assertArrayEquals(
 				new double[]{1.0, 1.0, 1.0}, scaling, 1e-10);

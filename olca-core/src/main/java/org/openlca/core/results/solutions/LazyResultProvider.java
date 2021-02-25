@@ -31,9 +31,9 @@ public class LazyResultProvider implements ResultProvider {
 	private final double[] directCosts;
 	private final double totalCosts;
 
-	private LazyResultProvider(MatrixData data, MatrixSolver solver) {
+	private LazyResultProvider(MatrixData data) {
 		this.data = data;
-		this.solver = solver;
+		this.solver = MatrixSolver.Instance.getNew();
 		this.factorization = solver.factorize(data.techMatrix);
 
 		solutions = new TIntObjectHashMap<>();
@@ -78,10 +78,8 @@ public class LazyResultProvider implements ResultProvider {
 		}
 	}
 
-	public static LazyResultProvider create(
-			MatrixData data,
-			MatrixSolver solver) {
-		return new LazyResultProvider(data, solver);
+	public static LazyResultProvider create(MatrixData data) {
+		return new LazyResultProvider(data);
 	}
 
 	@Override

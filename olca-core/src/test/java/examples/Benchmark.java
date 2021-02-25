@@ -29,7 +29,7 @@ public class Benchmark {
 		var setup = new CalculationSetup(system);
 
 		var data = MatrixData.of(db, setup);
-		var calculator = new LcaCalculator(solver, data);
+		var calculator = new LcaCalculator(db, data);
 
 		System.out.println("Inventory ready. Type enter to start!");
 		try (var r = new InputStreamReader(System.in);

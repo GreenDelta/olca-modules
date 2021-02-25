@@ -25,40 +25,26 @@ import org.openlca.julia.JuliaSolver;
 @Deprecated
 public class LcaCalculator {
 
-	private final MatrixSolver solver;
 	private final MatrixData data;
-	private IDatabase db;
-	private LibraryDir libDir;
+	private final IDatabase db;
 
-	public LcaCalculator(MatrixData data) {
-		this(Julia.isLoaded()
-			? new JuliaSolver()
-			: new JavaSolver(),
-			data);
-	}
-
-	public LcaCalculator(MatrixSolver solver, MatrixData data) {
-		this.solver = solver;
+	public LcaCalculator(IDatabase db, MatrixData data) {
 		this.data = data;
 		this.data.compress();
-	}
-
-	public LcaCalculator withLibraries(IDatabase db, LibraryDir libDir) {
 		this.db = db;
-		this.libDir = libDir;
-		return this;
 	}
 
 	private ResultProvider solution(boolean forceLazy) {
-		if (db != null && libDir != null)
-			return LibraryResultProvider.of(db, libDir, solver, data);
+		if (data.hasLibraryLinks())
+			return LibraryResultProvider.of(db, data);
 		if (forceLazy)
-			return LazyResultProvider.create(data, solver);
+			return LazyResultProvider.create(data);
 		if (!data.isSparse())
-			return EagerResultProvider.create(data, solver);
+			return EagerResultProvider.create(data);
+		var solver = MatrixSolver.Instance.getNew();
 		return solver.hasSparseSupport()
-				? LazyResultProvider.create(data, solver)
-				: EagerResultProvider.create(data, solver);
+			? LazyResultProvider.create(data)
+			: EagerResultProvider.create(data);
 	}
 
 	public SimpleResult calculateSimple() {
@@ -102,6 +88,7 @@ public class LcaCalculator {
 
 	/**
 	 * TODO replace with $diag(A) \odot diag(A^{-1})$
+	 *
 	 * @deprecated
 	 */
 	@Deprecated

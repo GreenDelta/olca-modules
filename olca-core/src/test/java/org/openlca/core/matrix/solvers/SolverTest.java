@@ -6,6 +6,7 @@ import org.junit.experimental.theories.DataPoint;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
+import org.openlca.core.Tests;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
@@ -20,6 +21,7 @@ import org.openlca.julia.JuliaSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated
 @RunWith(Theories.class)
 public class SolverTest {
 
@@ -80,7 +82,7 @@ public class SolverTest {
 			enviMatrix.set(r, 0, r);
 		data.flowMatrix = enviMatrix;
 
-		LcaCalculator calculator = new LcaCalculator(solver, data);
+		LcaCalculator calculator = new LcaCalculator(Tests.getDb(), data);
 		SimpleResult result = calculator.calculateSimple();
 		Assert.assertArrayEquals(new double[] { 0, 1, 2, 3 },
 				result.totalFlowResults, 1e-14);

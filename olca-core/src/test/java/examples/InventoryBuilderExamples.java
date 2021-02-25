@@ -31,7 +31,7 @@ public class InventoryBuilderExamples {
 				"44f7066c-33fd-49d2-86ec-2b94677bf6d0");
 		Julia.loadFromDir(new File("./olca-core/julia/libs"));
 		MatrixSolver solver = new JuliaSolver();
-		SystemCalculator calc = new SystemCalculator(db, solver);
+		SystemCalculator calc = new SystemCalculator(db);
 		ContributionResult r = calc.calculateContributions(setup);
 		for (ImpactDescriptor impact : r.getImpacts()) {
 			System.out.println(impact.refId + "\t" +

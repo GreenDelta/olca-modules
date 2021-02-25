@@ -18,7 +18,6 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.results.SimpleResult;
-import org.openlca.julia.JuliaSolver;
 
 /*
  * This example shows how you can create and calculate a
@@ -53,8 +52,7 @@ public class ProductSystemInMemoryCalculationExample {
 
 		// load the native library and calculate the result
 		// TODO: load Julia libraries first here
-		var solver = new JuliaSolver();
-		SystemCalculator calc = new SystemCalculator(db, solver);
+		SystemCalculator calc = new SystemCalculator(db);
 		SimpleResult r = calc.calculateSimple(setup);
 
 		// print the LCIA results

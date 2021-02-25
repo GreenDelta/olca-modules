@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
@@ -13,16 +12,15 @@ import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.openlca.core.DataDir;
 import org.openlca.core.Tests;
 import org.openlca.core.library.Library;
-import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.JavaMatrix;
-import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
@@ -37,8 +35,8 @@ import org.openlca.util.Dirs;
 @RunWith(Parameterized.class)
 public class ResultProviderTest {
 
-	private static File libsDir;
 	private final ResultProvider provider;
+	private static File libDir;
 
 	public ResultProviderTest(ResultProvider provider) {
 		this.provider = provider;
@@ -48,7 +46,7 @@ public class ResultProviderTest {
 	public static Collection<ResultProvider> setup() throws Exception {
 
 		var db = Tests.getDb();
-		var libID = "lib_01.00.000";
+		var libID = "test_lib_01.00.000";
 
 		var units = db.insert(UnitGroup.of("Mass units", Unit.of("kg")));
 		var mass = db.insert(FlowProperty.of("Mass", units));
@@ -102,8 +100,7 @@ public class ResultProviderTest {
 
 		// write the matrix data as library and create a
 		// foreground system
-		libsDir = Files.createTempDirectory("olca_tests").toFile();
-		var libDir = new File(libsDir, libID);
+		libDir = new File(DataDir.libraries(), libID);
 		Library.create(data, libDir);
 		var foreground = new MatrixData();
 		foreground.techIndex = new TechIndex(data.techIndex.getRefFlow());
@@ -112,18 +109,17 @@ public class ResultProviderTest {
 		foreground.impactIndex = data.impactIndex;
 
 		// create the result providers
-		var solver = new JavaSolver();
 		return List.of(
-				EagerResultProvider.create(data, solver),
-				LazyResultProvider.create(data, solver),
-				LibraryResultProvider.of(db, new LibraryDir(libsDir), solver, foreground)
+				EagerResultProvider.create(data),
+				LazyResultProvider.create(data),
+				LibraryResultProvider.of(db, foreground)
 		);
 	}
 
 	@AfterClass
 	public static void tearDown() {
 		Tests.getDb().clear();
-		Dirs.delete(libsDir);
+		Dirs.delete(libDir);
 	}
 
 	@Test

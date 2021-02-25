@@ -174,8 +174,7 @@ public class RegionalizedCalculationTest {
 	@Test
 	public void checkNoLocations() {
 		CalculationSetup setup = calcSetup();
-		SystemCalculator calc = new SystemCalculator(
-				db, new JavaSolver());
+		SystemCalculator calc = new SystemCalculator(db);
 		FullResult r = calc.calculateFull(setup);
 
 		// total results
@@ -223,7 +222,7 @@ public class RegionalizedCalculationTest {
 		p2 = setLoc(p2, loc3);
 		CalculationSetup setup = calcSetup();
 		setup.withRegionalization = true;
-		SystemCalculator calc = new SystemCalculator(db, new JavaSolver());
+		SystemCalculator calc = new SystemCalculator(db);
 		FullResult r = calc.calculateFull(setup);
 
 		// LCI results and contributions
@@ -266,7 +265,7 @@ public class RegionalizedCalculationTest {
 		p2 = setLoc(p2, loc2);
 		CalculationSetup setup = calcSetup();
 		setup.withRegionalization = true;
-		SystemCalculator calc = new SystemCalculator(db, new JavaSolver());
+		SystemCalculator calc = new SystemCalculator(db);
 		FullResult r = calc.calculateFull(setup);
 		checkRegionalizedResults(r);
 	}
@@ -279,7 +278,7 @@ public class RegionalizedCalculationTest {
 		setup.withRegionalization = true;
 		FastMatrixBuilder builder = new FastMatrixBuilder(db, setup);
 		MatrixData data = builder.build();
-		LcaCalculator calculator = new LcaCalculator(new JavaSolver(), data);
+		LcaCalculator calculator = new LcaCalculator(db, data);
 		FullResult r = calculator.calculateFull();
 		checkRegionalizedResults(r);
 	}
@@ -483,7 +482,7 @@ public class RegionalizedCalculationTest {
 		CalculationSetup setup = new CalculationSetup(ProductSystem.of(p));
 		setup.withRegionalization = true;
 		setup.impactMethod = Descriptor.of(method);
-		SystemCalculator calculator = new SystemCalculator(db, new JavaSolver());
+		SystemCalculator calculator = new SystemCalculator(db);
 
 		FullResult r = calculator.calculateFull(setup);
 		Assert.assertTrue(r.flowIndex.isRegionalized);

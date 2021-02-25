@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
@@ -55,7 +54,7 @@ public class WasteCalculationTest {
 		var system = ProductSystem.of(p)
 				.link(p, w);
 		var setup = new CalculationSetup(system);
-		var result = new SystemCalculator(db, new JavaSolver())
+		var result = new SystemCalculator(db)
 				.calculateFull(setup);
 		assertEquals(4.0, result.getTotalFlowResults().get(0).value, 1e-10);
 	}
@@ -71,7 +70,7 @@ public class WasteCalculationTest {
 		var system = ProductSystem.of(w)
 				.link(p, w);
 		var setup = new CalculationSetup(system);
-		var result = new SystemCalculator(db, new JavaSolver())
+		var result = new SystemCalculator(db)
 				.calculateFull(setup);
 		assertEquals(4.0, result.getTotalFlowResults().get(0).value, 1e-10);
 	}

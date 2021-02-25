@@ -45,7 +45,7 @@ public class ContributionTreeTest {
 		data.flowMatrix = flowMatrix;
 
 		// calculate and check the result
-		var r = new LcaCalculator(solver, data).calculateFull();
+		var r = new LcaCalculator(Tests.getDb(), data).calculateFull();
 		Assert.assertEquals(1.0, r.getTotalFlowResult(enviIndex.at(0)), 1e-16);
 
 		var tree = r.getTree(enviIndex.at(0));

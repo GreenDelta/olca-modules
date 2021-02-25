@@ -23,8 +23,7 @@ public class LibraryCalculatorExample {
 				"6b32cda2-5aa4-44b9-b32a-c654da48436d");
 		var setup = new CalculationSetup(system);
 
-		var result = new SystemCalculator(db, new JavaSolver())
-				.withLibraries(libDir)
+		var result = new SystemCalculator(db)
 				.calculateSimple(setup);
 
 		var flow = result.flowIndex.at(0);
