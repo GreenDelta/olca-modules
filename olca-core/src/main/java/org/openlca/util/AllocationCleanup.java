@@ -23,8 +23,8 @@ public class AllocationCleanup {
 	}
 
 	private List<Exchange> getProducts() {
-		List<Exchange> products = new ArrayList<>();
-		for (Exchange exchange : process.exchanges) {
+		var products = new ArrayList<Exchange>();
+		for (var exchange : process.exchanges) {
 			if (!isProduct(exchange))
 				continue;
 			products.add(exchange);
@@ -46,7 +46,7 @@ public class AllocationCleanup {
 	}
 
 	private void run() {
-		List<Exchange> products = getProducts();
+		var products = getProducts();
 		if (products.size() < 2) {
 			process.allocationFactors.clear();
 			return;
@@ -96,14 +96,14 @@ public class AllocationCleanup {
 	}
 
 	private boolean hasExchangeFor(long id) {
-		for (Exchange exchange : process.exchanges)
+		for (var exchange : process.exchanges)
 			if (exchange.id == id)
 				return true;
 		return false;
 	}
 
 	private boolean hasExchangeWithFlow(long id) {
-		for (Exchange exchange : process.exchanges) {
+		for (var exchange : process.exchanges) {
 			if (exchange.flow == null)
 				continue;
 			if (exchange.flow.id == id)
@@ -120,8 +120,9 @@ public class AllocationCleanup {
 		checkFactor(product, exchange, AllocationMethod.CAUSAL, defaultValue);
 	}
 
-	private void checkFactor(Exchange product, Exchange exchange, AllocationMethod type, double defaultValue) {
-		AllocationFactor factor = findFactorFor(product, exchange, type);
+	private void checkFactor(
+		Exchange product, Exchange exchange, AllocationMethod type, double defaultValue) {
+		var factor = findFactorFor(product, exchange, type);
 		if (factor != null)
 			return;
 		factor = new AllocationFactor();
@@ -132,10 +133,11 @@ public class AllocationCleanup {
 		process.allocationFactors.add(factor);
 	}
 
-	private AllocationFactor findFactorFor(Exchange product, Exchange exchange, AllocationMethod type) {
+	private AllocationFactor findFactorFor(
+			Exchange product, Exchange exchange, AllocationMethod type) {
 		if (type == AllocationMethod.CAUSAL && exchange == null)
 			return null;
-		for (AllocationFactor factor : process.allocationFactors) {
+		for (var factor : process.allocationFactors) {
 			if (factor.method != type)
 				continue;
 			if (product.flow == null || factor.productId != product.flow.id)

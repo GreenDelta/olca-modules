@@ -40,24 +40,24 @@ import javax.persistence.Table;
 public class AllocationFactor extends AbstractEntity implements Cloneable {
 
 	/**
-	 * The ID of the product flow $j$ to which this allocation factor is
-	 * related. In case of waste treatment processes (processes with waste
-	 * inputs) this can be also the ID of a waste flow.
+	 * The ID of the product flow $j$ (the flow ID, not the exchange ID) to which
+	 * this allocation factor is related. In case of waste treatment processes
+	 * (processes with waste inputs) this can also be the ID of a waste flow.
 	 */
 	@Column(name = "f_product")
 	public long productId;
 
 	/**
-	 * The allocation method to which the factor is related (physical, economic,
-	 * or causal).
+	 * The allocation method to which the factor is related (physical, economic, or
+	 * causal).
 	 */
 	@Column(name = "allocation_type")
 	@Enumerated(EnumType.STRING)
 	public AllocationMethod method;
 
 	/**
-	 * The value of the allocation factor $\lambda_{j}$ (or $\lambda_{i,j}$ in
-	 * case of causal allocation).
+	 * The value of the allocation factor $\lambda_{j}$ (or $\lambda_{i,j}$ in case
+	 * of causal allocation).
 	 */
 	@Column(name = "value")
 	public double value;
@@ -69,10 +69,10 @@ public class AllocationFactor extends AbstractEntity implements Cloneable {
 	public String formula;
 
 	/**
-	 * If the factor is a causal allocation factor this field contains a
-	 * reference to the exchange with flow $i$ to which the allocation factor is
-	 * related. Note that there can be multiple exchanges with the same flow $i$
-	 * and different allocation factors.
+	 * If the factor is a causal allocation factor this field contains a reference
+	 * to the exchange with flow $i$ to which the allocation factor is related. Note
+	 * that there can be multiple exchanges with the same flow $i$ and different
+	 * allocation factors.
 	 */
 	@OneToOne
 	@JoinColumn(name = "f_exchange")
