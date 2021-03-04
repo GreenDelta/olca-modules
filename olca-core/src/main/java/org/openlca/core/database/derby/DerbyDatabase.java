@@ -162,8 +162,8 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 		map.put("eclipselink.classloader", getClass().getClassLoader());
 		map.put("eclipselink.target-database", "Derby");
 		log.trace("Create entity factory");
-		entityFactory = new PersistenceProvider().createEntityManagerFactory(
-				"openLCA", map);
+		entityFactory = new PersistenceProvider()
+				.createEntityManagerFactory("openLCA", map);
 		log.trace("Init connection pool");
 		connectionPool = new HikariDataSource();
 		connectionPool.setJdbcUrl(url);

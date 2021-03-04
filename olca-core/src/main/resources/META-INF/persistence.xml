@@ -49,6 +49,9 @@
 			-->
 			<property name="eclipselink.connection-pool.default.max" value="10" />
 			<property name="eclipselink.jdbc.cache-statements" value="true" />
+			<property name="eclipselink.jdbc.bind-parameters" value="true" />
+			<property name="eclipselink.jdbc.batch-writing" value="JDBC" />
+			<property name="eclipselink.jdbc.batch-writing.size" value="500" />
 		</properties>
 	</persistence-unit>
 </persistence>
