@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.cache.FlowTable;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
@@ -43,10 +44,28 @@ public final class FlowIndex {
 		}
 	}
 
+	/**
+	 * Creates an empty flow index.
+	 */
 	public static FlowIndex create() {
 		return new FlowIndex(false);
 	}
 
+	/**
+	 * Creates a flow index and fills it with the flows that are used in the
+	 * given impacts.
+	 */
+	public static FlowIndex create(IDatabase db, ImpactIndex impacts) {
+		var index = create();
+		if (db == null || impacts == null)
+			return index;
+
+		return index;
+	}
+
+	/**
+	 * Creates an empty regionalized flow index.
+	 */
 	public static FlowIndex createRegionalized() {
 		return new FlowIndex(true);
 	}
@@ -169,7 +188,7 @@ public final class FlowIndex {
 				: of(e.flowId);
 		if (i >= 0)
 			return i;
-		FlowDescriptor flow = flows.get(e.flowId);
+		var flow = flows.get(e.flowId);
 		if (flow == null)
 			return -1;
 
@@ -188,7 +207,7 @@ public final class FlowIndex {
 		}
 		if (loc == null) {
 			if (product.process instanceof ProcessDescriptor) {
-				ProcessDescriptor d = (ProcessDescriptor) product.process;
+				var d = (ProcessDescriptor) product.process;
 				if (d.location != null) {
 					loc = locations.get(d.location);
 				}
