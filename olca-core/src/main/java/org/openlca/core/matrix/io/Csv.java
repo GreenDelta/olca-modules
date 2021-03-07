@@ -17,14 +17,9 @@ import org.openlca.core.matrix.format.MatrixReader;
 
 public final class Csv {
 
-	private final DecimalFormat numberFormat;
+	private DecimalFormat numberFormat;
 	private String delimiter = ",";
 	private Charset charset = StandardCharsets.UTF_8;
-
-	public Csv() {
-		numberFormat = (DecimalFormat) NumberFormat.getInstance(Locale.US);
-		numberFormat.setMaximumFractionDigits(1000);
-	}
 
 	public static Csv defaultConfig() {
 		return new Csv();
@@ -53,9 +48,15 @@ public final class Csv {
 	}
 
 	public Csv withDecimalSeparator(char separator) {
-		var symbols = new DecimalFormat().getDecimalFormatSymbols();
+		if (separator == '.') {
+			numberFormat = null;
+			return this;
+		}
+		numberFormat = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+		numberFormat.setMaximumFractionDigits(1000);
+		numberFormat.setGroupingUsed(false);
+		var symbols = numberFormat.getDecimalFormatSymbols();
 		symbols.setDecimalSeparator(separator);
-		symbols.setGroupingSeparator(separator == ',' ? '.' : ',');
 		numberFormat.setDecimalFormatSymbols(symbols);
 		return this;
 	}
@@ -65,7 +66,7 @@ public final class Csv {
 			return;
 		writer(file, w -> {
 			for (double v : vector) {
-				writeln(w, numberFormat.format(v));
+				writeln(w, format(v));
 			}
 		});
 	}
@@ -77,14 +78,19 @@ public final class Csv {
 		writer(file, w -> {
 			for (int row = 0; row < matrix.rows(); row++) {
 				for (int col = 0; col < matrix.columns(); col++) {
-					var val = matrix.get(row, col);
-					buffer[col] = val == 0
-						? "0"  // avoid slow formatter calls
-						: numberFormat.format(val);
+					buffer[col] = format(matrix.get(row, col));
 				}
 				writeln(w, line(buffer));
 			}
 		});
+	}
+
+	private String format(double v) {
+		if (v == 0)
+			return "0";
+		return numberFormat == null
+			? Double.toString(v)
+			: numberFormat.format(v);
 	}
 
 	public void write(ByteMatrixReader matrix, File file) {
