@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.cache.FlowTable;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -60,25 +60,21 @@ public final class FlowIndex {
 		var index = create();
 		if (db == null || impacts == null)
 			return index;
-		// collect flows and IDs
-		var flows = new FlowDao(db).getDescriptors();
-		var directions = FlowTable.directionsOf(db, flows);
-		var flowMap = new TLongObjectHashMap<FlowDescriptor>();
-		for (var flow : flows) {
-			flowMap.put(flow.id, flow);
-		}
-		var impactIDs = new TLongHashSet();
-		impacts.each((i, impact) -> impactIDs.add(impact.id));
 
-		// add used flows to the index
+		// collect flows and IDs
+		var flows = new FlowDao(db).descriptorMap();
+		var directions = FlowTable.directionsOf(
+			db, flows.valueCollection());
+
+		// scan the factor table
 		var sql = "select f_impact_category, f_flow " +
 							"from tbl_impact_factors";
 		NativeSql.on(db).query(sql, r -> {
-			var impactID = r.getLong(1);
-			if (!impactIDs.contains(impactID))
+			var impact = r.getLong(1);
+			if (!impacts.contains(impact))
 				return true;
 			var flowID = r.getLong(2);
-			var flow = flowMap.get(flowID);
+			var flow = flows.get(flowID);
 			if (flow == null)
 				return true;
 			if (directions.get(flowID) < 0) {
@@ -96,6 +92,47 @@ public final class FlowIndex {
 	 */
 	public static FlowIndex createRegionalized() {
 		return new FlowIndex(true);
+	}
+
+	/**
+	 * Creates a regionalized flow index and fills it with the flows
+	 * that are used in the given impacts.
+	 */
+	public static FlowIndex createRegionalized(
+		IDatabase db, ImpactIndex impacts) {
+		var index = createRegionalized();
+		if (db == null || impacts == null)
+			return index;
+
+		// collect flows, locations and IDs
+		var flows = new FlowDao(db).descriptorMap();
+		var directions = FlowTable.directionsOf(
+			db, flows.valueCollection());
+		var locations = new LocationDao(db).descriptorMap();
+
+		// scan the factor table
+		var sql = "select f_impact_category, f_flow, f_location " +
+							"from tbl_impact_factors";
+		NativeSql.on(db).query(sql, r -> {
+			var impact = r.getLong(1);
+			if (!impacts.contains(impact))
+				return true;
+			var flowID = r.getLong(2);
+			var flow = flows.get(flowID);
+			if (flow == null)
+				return true;
+			var locationID = r.getLong(3);
+			var location = locationID != 0
+				? locations.get(locationID)
+				: null;
+			if (directions.get(flowID) < 0) {
+				index.putInput(flow, location);
+			} else {
+				index.putOutput(flow, location);
+			}
+			return true;
+		});
+		return index;
 	}
 
 	/**
