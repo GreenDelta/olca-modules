@@ -5,7 +5,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import gnu.trove.set.hash.TLongHashSet;
+import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.cache.FlowTable;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
@@ -19,7 +22,7 @@ import gnu.trove.map.hash.TLongObjectHashMap;
  * The row index $\mathit{Idx}_B$ of the intervention matrix $\mathbf{B}$. It
  * maps the (elementary) flows $\mathit{F}$ of the processes in the product
  * system to the $k$ rows of $\mathbf{B}$.
- *
+ * <p>
  * $$\mathit{Idx}_B: \mathit{F} \mapsto [0 \dots k-1]$$
  */
 public final class FlowIndex {
@@ -36,10 +39,10 @@ public final class FlowIndex {
 			regIndex = new HashMap<>();
 		} else {
 			index = new TLongIntHashMap(
-					Constants.DEFAULT_CAPACITY,
-					Constants.DEFAULT_LOAD_FACTOR,
-					-1L, // no entry key
-					-1); // no entry value
+				Constants.DEFAULT_CAPACITY,
+				Constants.DEFAULT_LOAD_FACTOR,
+				-1L, // no entry key
+				-1); // no entry value
 			regIndex = null;
 		}
 	}
@@ -59,7 +62,34 @@ public final class FlowIndex {
 		var index = create();
 		if (db == null || impacts == null)
 			return index;
+		// collect flows and IDs
+		var flows = new FlowDao(db).getDescriptors();
+		var directions = FlowTable.directionsOf(db, flows);
+		var flowMap = new TLongObjectHashMap<FlowDescriptor>();
+		for (var flow : flows) {
+			flowMap.put(flow.id, flow);
+		}
+		var impactIDs = new TLongHashSet();
+		impacts.each((i, impact) -> impactIDs.add(impact.id));
 
+		// add used flows to the index
+		var sql = "select f_impact_category, f_flow " +
+							"from tbl_impact_factors";
+		NativeSql.on(db).query(sql, r -> {
+			var impactID = r.getLong(1);
+			if (!impactIDs.contains(impactID))
+				return true;
+			var flowID = r.getLong(2);
+			var flow = flowMap.get(flowID);
+			if (flow == null)
+				return true;
+			if (directions.get(flowID) < 0) {
+				index.putInput(flow);
+			} else {
+				index.putOutput(flow);
+			}
+			return true;
+		});
 		return index;
 	}
 
@@ -100,31 +130,33 @@ public final class FlowIndex {
 	public int of(FlowDescriptor flow) {
 		if (flow == null)
 			return -1;
-		if (isRegionalized)
-			return of(flow.id, 0L);
-		return index.get(flow.id);
+		return index != null
+			? index.get(flow.id)
+			: of(flow.id, 0L);
 	}
 
 	public int of(FlowDescriptor flow, LocationDescriptor loc) {
 		if (flow == null)
 			return -1;
-		if (isRegionalized)
-			return of(flow.id, loc != null ? loc.id : 0L);
-		return index.get(flow.id);
+		return index != null
+			? index.get(flow.id)
+			: of(flow.id, loc != null ? loc.id : 0L);
 	}
 
 	public int of(long flowID) {
-		if (isRegionalized)
-			return of(flowID, 0L);
-		return index.get(flowID);
+		return index != null
+			? index.get(flowID)
+			: of(flowID, 0L);
 	}
 
 	public int of(long flowID, long locationID) {
-		if (isRegionalized) {
-			Integer idx = regIndex.get(LongPair.of(flowID, locationID));
+		if (regIndex != null) {
+			var idx = regIndex.get(LongPair.of(flowID, locationID));
 			return idx == null ? -1 : idx;
 		}
-		return index.get(flowID);
+		return index == null
+			? -1
+			: index.get(flowID);
 	}
 
 	public boolean contains(IndexFlow flow) {
@@ -153,7 +185,7 @@ public final class FlowIndex {
 	public void putAll(FlowIndex other) {
 		if (other == null || other == this)
 			return;
-		other.each((i, f) -> {
+		other.each((_i, f) -> {
 			if (contains(f))
 				return;
 			if (isRegionalized) {
@@ -178,14 +210,14 @@ public final class FlowIndex {
 	 * the locations into this method.
 	 */
 	public int register(
-			ProcessProduct product,
-			CalcExchange e,
-			FlowTable flows,
-			TLongObjectHashMap<LocationDescriptor> locations) {
+		ProcessProduct product,
+		CalcExchange e,
+		FlowTable flows,
+		TLongObjectHashMap<LocationDescriptor> locations) {
 
 		int i = isRegionalized
-				? of(e.flowId, e.locationId)
-				: of(e.flowId);
+			? of(e.flowId, e.locationId)
+			: of(e.flowId);
 		if (i >= 0)
 			return i;
 		var flow = flows.get(e.flowId);
@@ -194,8 +226,8 @@ public final class FlowIndex {
 
 		if (!isRegionalized) {
 			return e.isInput
-					? putInput(flow)
-					: putOutput(flow);
+				? putInput(flow)
+				: putOutput(flow);
 		}
 
 		// take the location from the exchange
@@ -214,8 +246,8 @@ public final class FlowIndex {
 			}
 		}
 		return e.isInput
-				? putInput(flow, loc)
-				: putOutput(flow, loc);
+			? putInput(flow, loc)
+			: putOutput(flow, loc);
 	}
 
 	public int putInput(FlowDescriptor flow) {
@@ -235,22 +267,22 @@ public final class FlowIndex {
 	}
 
 	private int put(FlowDescriptor flow,
-			LocationDescriptor location,
-			boolean isInput) {
+									LocationDescriptor location,
+									boolean isInput) {
 		if (flow == null)
 			return -1;
 
 		int idx = flows.size();
 
 		// check if the flow should be added
-		if (isRegionalized) {
+		if (regIndex != null) {
 			long locID = location == null ? 0L : location.id;
-			LongPair p = LongPair.of(flow.id, locID);
-			Integer i = regIndex.get(p);
+			var p = LongPair.of(flow.id, locID);
+			var i = regIndex.get(p);
 			if (i != null)
 				return i;
 			regIndex.put(p, idx);
-		} else {
+		} else if (index != null ){
 			int i = index.get(flow.id);
 			if (i > -1)
 				return i;
@@ -258,7 +290,7 @@ public final class FlowIndex {
 		}
 
 		// create and add the index flow
-		IndexFlow f = new IndexFlow();
+		var f = new IndexFlow();
 		// f.index = idx;
 		f.flow = flow;
 		f.location = isRegionalized ? location : null;
@@ -285,22 +317,25 @@ public final class FlowIndex {
 	public boolean isInput(long flowID) {
 		if (isRegionalized)
 			return isInput(flowID, 0L);
+		if (index == null)
+			return false;
 		int i = index.get(flowID);
 		if (i < 0)
 			return false;
-		IndexFlow flow = flows.get(i);
+		var flow = flows.get(i);
 		return flow.isInput;
 	}
 
 	public boolean isInput(long flowID, long locationID) {
 		if (!isRegionalized)
 			return isInput(flowID);
-		LongPair key = LongPair.of(flowID, locationID);
-		Integer i = regIndex.get(key);
+		if (regIndex == null)
+			return false;
+		var key = LongPair.of(flowID, locationID);
+		var i = regIndex.get(key);
 		if (i == null)
 			return false;
-		IndexFlow flow = flows.get(i);
+		var flow = flows.get(i);
 		return flow.isInput;
 	}
-
 }
