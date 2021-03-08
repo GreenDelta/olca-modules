@@ -161,7 +161,7 @@ public class LibraryResultProvider implements ResultProvider {
 		FlowIndex index = null;
 		var indexF = foregroundData.flowIndex;
 		if (indexF != null) {
-			index = indexF.isRegionalized
+			index = indexF.isRegionalized()
 					? FlowIndex.createRegionalized()
 					: FlowIndex.create();
 			index.putAll(indexF);
@@ -176,7 +176,7 @@ public class LibraryResultProvider implements ResultProvider {
 			if (libIdx == null)
 				continue;
 			if (index == null) {
-				index = libIdx.isRegionalized
+				index = libIdx.isRegionalized()
 						? FlowIndex.createRegionalized()
 						: FlowIndex.create();
 			}

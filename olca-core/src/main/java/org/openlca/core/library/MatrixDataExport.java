@@ -63,7 +63,7 @@ class MatrixDataExport {
 		info.name = name;
 		info.version = version;
 		info.isRegionalized = data.flowIndex != null
-				&& data.flowIndex.isRegionalized;
+				&& data.flowIndex.isRegionalized();
 		Json.write(info.toJson(), new File(folder, "library.json"));
 	}
 

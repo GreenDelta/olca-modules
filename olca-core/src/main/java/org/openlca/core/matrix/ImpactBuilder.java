@@ -78,7 +78,7 @@ public final class ImpactBuilder {
 		uncertainties = withUncertainties
 			? new UMatrix()
 			: null;
-		if (flowIndex.isRegionalized) {
+		if (flowIndex.isRegionalized()) {
 			fillRegionalized();
 		} else {
 			fill();

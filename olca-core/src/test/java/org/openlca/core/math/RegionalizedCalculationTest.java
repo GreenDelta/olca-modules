@@ -20,7 +20,6 @@ import org.openlca.core.matrix.FastMatrixBuilder;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -485,7 +484,7 @@ public class RegionalizedCalculationTest {
 		SystemCalculator calculator = new SystemCalculator(db);
 
 		FullResult r = calculator.calculateFull(setup);
-		Assert.assertTrue(r.flowIndex.isRegionalized);
+		Assert.assertTrue(r.flowIndex.isRegionalized());
 		checkRegTotalFlowResults(r, new Object[][]{
 				{nox, loc1, 5.0},
 				{nox, loc2, 10.0},

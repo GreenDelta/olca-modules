@@ -27,13 +27,11 @@ import gnu.trove.map.hash.TLongObjectHashMap;
  */
 public final class FlowIndex {
 
-	public final boolean isRegionalized;
 	private final TLongIntHashMap index;
 	private final HashMap<LongPair, Integer> regIndex;
 	private final ArrayList<IndexFlow> flows = new ArrayList<>();
 
 	private FlowIndex(boolean isRegionalized) {
-		this.isRegionalized = isRegionalized;
 		if (isRegionalized) {
 			index = null;
 			regIndex = new HashMap<>();
@@ -105,6 +103,10 @@ public final class FlowIndex {
 	 */
 	public static boolean isEmpty(FlowIndex idx) {
 		return idx == null || idx.size() == 0;
+	}
+
+	public boolean isRegionalized() {
+		return regIndex != null;
 	}
 
 	public int size() {
@@ -188,7 +190,7 @@ public final class FlowIndex {
 		other.each((_i, f) -> {
 			if (contains(f))
 				return;
-			if (isRegionalized) {
+			if (regIndex != null) {
 				if (f.isInput) {
 					putInput(f.flow, f.location);
 				} else {
@@ -215,7 +217,7 @@ public final class FlowIndex {
 		FlowTable flows,
 		TLongObjectHashMap<LocationDescriptor> locations) {
 
-		int i = isRegionalized
+		int i = regIndex != null
 			? of(e.flowId, e.locationId)
 			: of(e.flowId);
 		if (i >= 0)
@@ -224,7 +226,7 @@ public final class FlowIndex {
 		if (flow == null)
 			return -1;
 
-		if (!isRegionalized) {
+		if (regIndex == null) {
 			return e.isInput
 				? putInput(flow)
 				: putOutput(flow);
@@ -293,7 +295,7 @@ public final class FlowIndex {
 		var f = new IndexFlow();
 		// f.index = idx;
 		f.flow = flow;
-		f.location = isRegionalized ? location : null;
+		f.location = regIndex != null ? location : null;
 		f.isInput = isInput;
 		flows.add(f);
 		return idx;
@@ -315,7 +317,7 @@ public final class FlowIndex {
 	}
 
 	public boolean isInput(long flowID) {
-		if (isRegionalized)
+		if (regIndex != null)
 			return isInput(flowID, 0L);
 		if (index == null)
 			return false;
@@ -327,10 +329,8 @@ public final class FlowIndex {
 	}
 
 	public boolean isInput(long flowID, long locationID) {
-		if (!isRegionalized)
-			return isInput(flowID);
 		if (regIndex == null)
-			return false;
+			return isInput(flowID);
 		var key = LongPair.of(flowID, locationID);
 		var i = regIndex.get(key);
 		if (i == null)

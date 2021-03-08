@@ -42,7 +42,7 @@ public class LocationResult {
 
 		HashMap<Location, Double> cons = new HashMap<>();
 		double total;
-		if (!result.flowIndex.isRegionalized) {
+		if (!result.flowIndex.isRegionalized()) {
 			// non-regionalized calculation;
 			// the flow is mapped to a single row
 			// we take the locations from the processes
@@ -92,7 +92,7 @@ public class LocationResult {
 		HashMap<Location, Double> cons = new HashMap<>();
 		double total = result.getTotalImpactResult(impact);
 
-		if (!result.flowIndex.isRegionalized) {
+		if (!result.flowIndex.isRegionalized()) {
 			// non-regionalized calculation;
 			// we take the locations from the processes
 			// in the columns and the results from the
