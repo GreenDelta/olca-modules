@@ -1,15 +1,29 @@
 package org.openlca.core.matrix;
 
+import static org.junit.Assert.*;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.Tests;
+import org.openlca.core.database.CategoryDao;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.Location;
+import org.openlca.core.model.ModelType;
+import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 
 public class FlowIndexTest {
 
+	private final IDatabase db = Tests.getDb();
 	private long nextID = 1L;
 
 	@Test
@@ -31,8 +45,8 @@ public class FlowIndexTest {
 			Assert.assertFalse(idx.contains(flow.id, loc.id));
 			Assert.assertFalse(idx.contains(flow, loc));
 			int j = b
-					? idx.putInput(flow, loc)
-					: idx.putOutput(flow, loc);
+				? idx.putInput(flow, loc)
+				: idx.putOutput(flow, loc);
 			Assert.assertEquals(i, j);
 			b = !b;
 		}
@@ -67,13 +81,13 @@ public class FlowIndexTest {
 			}
 			if (i % 2 == 0) {
 				int _i = isInput
-						? idx.putInput(randFlow())
-						: idx.putOutput(randFlow());
+					? idx.putInput(randFlow())
+					: idx.putOutput(randFlow());
 				Assert.assertEquals(i, _i);
 			} else {
 				int _i = isInput
-						? idx.putInput(randFlow(), randLocation())
-						: idx.putOutput(randFlow(), randLocation());
+					? idx.putInput(randFlow(), randLocation())
+					: idx.putOutput(randFlow(), randLocation());
 				Assert.assertEquals(i, _i);
 			}
 		}
@@ -103,5 +117,59 @@ public class FlowIndexTest {
 		loc.id = nextID++;
 		loc.name = "Location " + loc.id;
 		return loc;
+	}
+
+	@Test
+	public void testFlowIndexFromImpacts() {
+
+		// build a simple regionalized impact category from scratch
+		var units = db.insert(UnitGroup.of("Mass units", "kg"));
+		var mass = db.insert(FlowProperty.of("Mass", units));
+		var nox = Flow.elementary("NOx", mass);
+		nox.category = CategoryDao.sync(
+			db, ModelType.FLOW, "emissions/to air");
+		db.insert(nox);
+		var de = db.insert(Location.of("DE"));
+		var us = db.insert(Location.of("US"));
+		var impacts = ImpactCategory.of("Impacts");
+		impacts.factor(nox, 1); // default
+		impacts.factor(nox, 0.5).location = de;
+		impacts.factor(nox, 0.25).location = us;
+		db.insert(impacts);
+
+		// build a non-regionalized index
+		var index = FlowIndex.create(db,
+			ImpactIndex.of(List.of(Descriptor.of(impacts))));
+		assertEquals(1, index.size());
+		var iFlow = Objects.requireNonNull(index.at(0));
+		assertEquals(nox.id, iFlow.flow.id);
+		assertNull(iFlow.location);
+
+		// build a regionalized index
+		var regIndex = FlowIndex.createRegionalized(db,
+			ImpactIndex.of(List.of(Descriptor.of(impacts))));
+		assertEquals(3, regIndex.size());
+		var found = new boolean[]{false, false, false};
+		regIndex.each((_i, f) -> {
+			assertEquals(nox.id, f.flow.id);
+			if (f.location == null) {
+				found[0] = true;
+			} else if (f.location.id == de.id) {
+				found[1] = true;
+			} else if (f.location.id == us.id) {
+				found[2] = true;
+			}
+		});
+		assertArrayEquals(
+			new boolean[]{true, true, true}, found);
+
+		// clean up the database
+		db.delete(
+			impacts,
+			de,
+			us,
+			nox,
+			mass,
+			units);
 	}
 }
