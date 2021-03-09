@@ -11,13 +11,11 @@ import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.matrix.io.npy.Npz;
 import org.openlca.core.matrix.solvers.JavaSolver;
-import org.openlca.core.model.Version;
-import org.openlca.jsonld.Json;
 import org.openlca.julia.Julia;
 import org.openlca.julia.JuliaSolver;
 import org.openlca.util.Exceptions;
 
-class MatrixDataExport {
+class MatrixDataExport implements Runnable {
 
 	private final File folder;
 	private final MatrixData data;
@@ -27,44 +25,16 @@ class MatrixDataExport {
 		this.data = data;
 	}
 
-	static Library of(MatrixData data, File folder) {
-		return new MatrixDataExport(data, folder).run();
-	}
-
-	private Library run() {
+	@Override
+	public void run() {
 		if (!folder.exists()) {
 			if (!folder.mkdirs()) {
 				throw new RuntimeException(
 						"Could not create folder: " + folder);
 			}
 		}
-		writeInfo();
 		writeIndices();
 		writeMatrices();
-		return new Library(folder);
-	}
-
-	private void writeInfo() {
-		var fullName = folder.getName();
-		var nameParts = fullName.split("_");
-		var versionPart = nameParts.length == 1
-				? null
-				: nameParts[nameParts.length - 1];
-
-		var name = fullName;
-		var version = "";
-		if (versionPart != null) {
-			name = fullName.substring(0,
-					fullName.length() - versionPart.length() - 1);
-			version = Version.format(versionPart);
-		}
-
-		var info = new LibraryInfo();
-		info.name = name;
-		info.version = version;
-		info.isRegionalized = data.flowIndex != null
-				&& data.flowIndex.isRegionalized();
-		Json.write(info.toJson(), new File(folder, "library.json"));
 	}
 
 	private void writeIndices() {

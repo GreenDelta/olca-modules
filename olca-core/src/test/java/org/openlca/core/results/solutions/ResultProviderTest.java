@@ -1,6 +1,8 @@
 package org.openlca.core.results.solutions;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
@@ -15,8 +17,8 @@ import org.junit.runners.Parameterized;
 import org.openlca.core.DataDir;
 import org.openlca.core.Tests;
 import org.openlca.core.library.Library;
-import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
@@ -101,7 +103,7 @@ public class ResultProviderTest {
 		// write the matrix data as library and create a
 		// foreground system
 		libDir = new File(DataDir.libraries(), libID);
-		Library.create(data, libDir);
+		Library.create(db, data, libDir);
 		var foreground = new MatrixData();
 		foreground.techIndex = new TechIndex(data.techIndex.getRefFlow());
 		foreground.techIndex.setDemand(1.0);
@@ -119,7 +121,7 @@ public class ResultProviderTest {
 	@AfterClass
 	public static void tearDown() {
 		Tests.getDb().clear();
-		Dirs.delete(libDir);
+		// Dirs.delete(libDir);
 	}
 
 	@Test

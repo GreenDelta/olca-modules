@@ -32,6 +32,7 @@ public class LibraryExport implements Runnable {
 	boolean withInventory = true;
 	boolean withImpacts;
 	boolean withUncertainties;
+	private MatrixData data;
 
 	public LibraryExport(IDatabase db, File folder) {
 		this.db = db;
@@ -68,6 +69,20 @@ public class LibraryExport implements Runnable {
 		return this;
 	}
 
+	public LibraryExport withData(MatrixData data) {
+		if (data == null)
+			return this;
+		this.data = data;
+		withInventory = data.techIndex != null;
+		withImpacts = data.impactIndex != null;
+		withUncertainties = data.techUncertainties != null
+			|| data.enviUncertainties != null
+			|| data.impactUncertainties != null;
+		info.isRegionalized = data.flowIndex != null
+			&& data.flowIndex.isRegionalized();
+		return this;
+	}
+
 	public LibraryExport withUncertainties(boolean b) {
 		this.withUncertainties = b;
 		return this;
@@ -90,7 +105,9 @@ public class LibraryExport implements Runnable {
 		threadPool.execute(new MetaDataExport(this));
 
 		// create matrices and write them
-		var data = buildMatrices();
+		if (data == null) {
+			data = buildMatrices();
+		}
 		if (data == null) {
 			log.warn("could not build matrices of database");
 		} else {

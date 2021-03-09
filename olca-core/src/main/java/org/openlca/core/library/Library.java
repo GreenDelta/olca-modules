@@ -19,8 +19,8 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
@@ -29,6 +29,7 @@ import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.matrix.io.npy.Npz;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ImpactFactor;
+import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.jsonld.Json;
@@ -56,8 +57,31 @@ public class Library {
 	 * matrices with best available solver (so you should load any native
 	 * libraries before calling this function).
 	 */
-	public static Library create(MatrixData data, File folder) {
-		return MatrixDataExport.of(data, folder);
+	public static Library create(IDatabase db, MatrixData data, File folder) {
+		var fullName = folder.getName();
+		var nameParts = fullName.split("_");
+		var versionPart = nameParts.length == 1
+			? null
+			: nameParts[nameParts.length - 1];
+
+		var name = fullName;
+		var version = "";
+		if (versionPart != null) {
+			name = fullName.substring(0,
+				fullName.length() - versionPart.length() - 1);
+			version = Version.format(versionPart);
+		}
+
+		var info = new LibraryInfo();
+		info.name = name;
+		info.version = version;
+		info.isRegionalized = data.flowIndex != null
+													&& data.flowIndex.isRegionalized();
+		new LibraryExport(db, folder)
+			.withConfig(info)
+			.withData(data)
+			.run();
+		return new Library(folder);
 	}
 
 	public LibraryInfo getInfo() {

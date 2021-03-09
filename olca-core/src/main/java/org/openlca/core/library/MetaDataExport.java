@@ -10,6 +10,9 @@ import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.output.JsonExport;
 import org.openlca.util.Exchanges;
 
+/**
+ * Writes the meta-data (JSON-LD) package in a library export.
+ */
 class MetaDataExport implements Runnable {
 
 	private final LibraryExport export;
