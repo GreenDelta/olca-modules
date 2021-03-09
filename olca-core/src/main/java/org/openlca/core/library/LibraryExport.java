@@ -32,7 +32,7 @@ public class LibraryExport implements Runnable {
 	boolean withInventory = true;
 	boolean withImpacts;
 	boolean withUncertainties;
-	private MatrixData data;
+	MatrixData data;
 
 	public LibraryExport(IDatabase db, File folder) {
 		this.db = db;
@@ -76,10 +76,10 @@ public class LibraryExport implements Runnable {
 		withInventory = data.techIndex != null;
 		withImpacts = data.impactIndex != null;
 		withUncertainties = data.techUncertainties != null
-			|| data.enviUncertainties != null
-			|| data.impactUncertainties != null;
+												|| data.enviUncertainties != null
+												|| data.impactUncertainties != null;
 		info.isRegionalized = data.flowIndex != null
-			&& data.flowIndex.isRegionalized();
+													&& data.flowIndex.isRegionalized();
 		return this;
 	}
 
@@ -104,35 +104,37 @@ public class LibraryExport implements Runnable {
 		var threadPool = Executors.newFixedThreadPool(4);
 		threadPool.execute(new MetaDataExport(this));
 
-		// create matrices and write them
+		// prepare the matrix data
 		if (data == null) {
 			data = buildMatrices();
 		}
 		if (data == null) {
 			log.warn("could not build matrices of database");
-		} else {
-			threadPool.execute(() -> {
-				log.info("write matrices");
-				MatrixExport.toNpy(db, folder, data)
-					.writeMatrices();
-				log.info("finished with matrices");
-				log.info("write matrix indices");
-				new IndexWriter(folder, data, db).run();
-				log.info("finished with matrix indices");
-			});
+			return;
+		}
+		if (withInventory) {
+			normalizeInventory(data);
+		}
 
-			if (withInventory && Julia.isLoaded()) {
-				threadPool.execute(() -> {
-					log.info("create matrix INV");
-					var solver = new JuliaSolver();
-					var inv = solver.invert(data.techMatrix);
-					MatrixExport.toNpy(folder, inv, "INV");
-					log.info("create matrix M");
-					var m = solver.multiply(data.flowMatrix, inv);
-					MatrixExport.toNpy(folder, m, "M");
-					log.info("finished with INV and M");
-				});
-			}
+		// write the matrices
+		threadPool.execute(() -> {
+			log.info("write matrices");
+			MatrixExport.toNpy(db, folder, data)
+				.writeMatrices();
+			new IndexWriter(folder, data, db).run();
+		});
+
+		if (withInventory && Julia.isLoaded()) {
+			threadPool.execute(() -> {
+				log.info("create matrix INV");
+				var solver = new JuliaSolver();
+				var inv = solver.invert(data.techMatrix);
+				MatrixExport.toNpy(folder, inv, "INV");
+				log.info("create matrix M");
+				var m = solver.multiply(data.flowMatrix, inv);
+				MatrixExport.toNpy(folder, m, "M");
+				log.info("finished with INV and M");
+			});
 		}
 
 		// write library meta-data
@@ -140,7 +142,11 @@ public class LibraryExport implements Runnable {
 
 		try {
 			threadPool.shutdown();
-			threadPool.awaitTermination(1, TimeUnit.DAYS);
+			while (true) {
+				var finished = threadPool.awaitTermination(1, TimeUnit.HOURS);
+				if (finished)
+					break;
+			}
 		} catch (Exception e) {
 			throw new RuntimeException("failed to wait for export to finish", e);
 		}
@@ -150,10 +156,8 @@ public class LibraryExport implements Runnable {
 		if (!withInventory && !withImpacts)
 			return null;
 
-		log.info("start building matrices");
-
+		// check if we only need impact matrices
 		if (!withInventory) {
-			// only build impact matrices
 			var impacts = ImpactIndex.of(db);
 			var flowIndex = info.isRegionalized
 				? FlowIndex.createRegionalized(db, impacts)
@@ -168,9 +172,7 @@ public class LibraryExport implements Runnable {
 			return data;
 		}
 
-		// TODO: this currently fails if the user wants
-		// to build an LCIA library
-		// create the configuration options
+		// build matrices with inventory
 		var techIndex = TechIndex.of(db);
 		var config = MatrixConfig.of(db, techIndex)
 			.withUncertainties(withUncertainties)
@@ -179,10 +181,16 @@ public class LibraryExport implements Runnable {
 		if (withImpacts) {
 			config.withImpacts(ImpactIndex.of(db));
 		}
-		var data = config.build();
-		log.info("finished with building matrices");
+		return config.build();
+	}
 
-		// normalize the columns to 1 | -1
+	/**
+	 * Normalize the columns of the technology matrix A and intervention matrix B to one
+	 * unit of output or input for each product or waste flow.
+	 */
+	private void normalizeInventory(MatrixData data) {
+		if (data.techMatrix == null)
+			return;
 		log.info("normalize matrices to 1 | -1");
 		var matrixA = data.techMatrix.asMutable();
 		data.techMatrix = matrixA;
@@ -213,9 +221,8 @@ public class LibraryExport implements Runnable {
 				matrixB.set(i, j, val / f);
 			}
 		}
-		log.info("finished matrix normalization");
-
-		return data;
 	}
+
+
 
 }
