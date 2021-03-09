@@ -123,19 +123,7 @@ public class LibraryExport implements Runnable {
 				.writeMatrices();
 			new IndexWriter(folder, data, db).run();
 		});
-
-		if (withInventory && Julia.isLoaded()) {
-			threadPool.execute(() -> {
-				log.info("create matrix INV");
-				var solver = new JuliaSolver();
-				var inv = solver.invert(data.techMatrix);
-				MatrixExport.toNpy(folder, inv, "INV");
-				log.info("create matrix M");
-				var m = solver.multiply(data.flowMatrix, inv);
-				MatrixExport.toNpy(folder, m, "M");
-				log.info("finished with INV and M");
-			});
-		}
+		threadPool.execute(this::preCalculate);
 
 		// write library meta-data
 		Json.write(info.toJson(), new File(folder, "library.json"));
@@ -223,6 +211,19 @@ public class LibraryExport implements Runnable {
 		}
 	}
 
-
-
+	private void preCalculate() {
+		if (!withInventory
+				|| !Julia.isLoaded()
+				|| data.techMatrix == null)
+			return;
+		log.info("create matrix INV");
+		var solver = new JuliaSolver();
+		var inv = solver.invert(data.techMatrix);
+		MatrixExport.toNpy(folder, inv, "INV");
+		if (data.flowMatrix == null)
+			return;
+		log.info("create matrix M");
+		var m = solver.multiply(data.flowMatrix, inv);
+		MatrixExport.toNpy(folder, m, "M");
+	}
 }
