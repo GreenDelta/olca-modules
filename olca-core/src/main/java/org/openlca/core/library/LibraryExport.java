@@ -1,8 +1,8 @@
 package org.openlca.core.library;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -21,17 +21,19 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitGroupDao;
+import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.MatrixConfig;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.io.MatrixExport;
-import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.output.JsonExport;
-import org.openlca.util.Databases;
+import org.openlca.julia.Julia;
+import org.openlca.julia.JuliaSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,25 +43,28 @@ public class LibraryExport implements Runnable {
 
 	private final IDatabase db;
 	private final File folder;
-	private MatrixSolver solver;
-	private LibraryInfo info;
+	private final LibraryInfo info;
 
 	private AllocationMethod allocation;
+	private boolean withInventory = true;
 	private boolean withImpacts;
 	private boolean withUncertainties;
 
 	public LibraryExport(IDatabase db, File folder) {
 		this.db = db;
 		this.folder = folder;
-	}
-
-	public LibraryExport solver(MatrixSolver solver) {
-		this.solver = solver;
-		return this;
+		this.info = new LibraryInfo();
+		info.name = db.getName();
+		info.version = "0.0.1";
 	}
 
 	public LibraryExport withAllocation(AllocationMethod method) {
 		this.allocation = method;
+		return this;
+	}
+
+	public LibraryExport withInventory(boolean b) {
+		this.withInventory = b;
 		return this;
 	}
 
@@ -68,17 +73,20 @@ public class LibraryExport implements Runnable {
 		return this;
 	}
 
-	public LibraryExport withUncertainties(boolean b) {
-		this.withUncertainties = b;
+	public LibraryExport withConfig(LibraryInfo info) {
+		if (info == null)
+			return this;
+		this.info.name = info.name;
+		this.info.version = info.version;
+		this.info.isRegionalized = info.isRegionalized;
+		this.info.description = info.description;
+		this.info.dependencies.clear();
+		this.info.dependencies.addAll(info.dependencies);
 		return this;
 	}
 
-	/**
-	 * Optionally set meta-data and configurations of the library that should
-	 * be created.
-	 */
-	public LibraryExport as(LibraryInfo info) {
-		this.info = info;
+	public LibraryExport withUncertainties(boolean b) {
+		this.withUncertainties = b;
 		return this;
 	}
 
@@ -87,16 +95,11 @@ public class LibraryExport implements Runnable {
 		log.info("start library export of database {}", db.getName());
 		// create the folder if it does not exist
 		if (!folder.exists()) {
-			if (!folder.mkdirs()) {
-				throw new RuntimeException("failed to create folder " + folder);
+			try {
+				Files.createDirectories(folder.toPath());
+			} catch (Exception e) {
+				throw new RuntimeException("failed to create folder " + folder, e);
 			}
-		}
-
-		if (info == null) {
-			info = new LibraryInfo();
-			info.name = db.getName();
-			info.version = "0.0.1";
-			info.hasUncertaintyData = Databases.hasUncertaintyData(db);
 		}
 
 		// create a thread pool and start writing the meta-data
@@ -105,27 +108,27 @@ public class LibraryExport implements Runnable {
 
 		// create matrices and write them
 		var data = buildMatrices();
-		if (data.isEmpty()) {
+		if (data == null) {
 			log.warn("could not build matrices of database");
 		} else {
-			var d = data.get();
 			threadPool.execute(() -> {
 				log.info("write matrices");
-				MatrixExport.toNpy(db, folder, d)
+				MatrixExport.toNpy(db, folder, data)
 					.writeMatrices();
 				log.info("finished with matrices");
 				log.info("write matrix indices");
-				new IndexWriter(folder, d, db).run();
+				new IndexWriter(folder, data, db).run();
 				log.info("finished with matrix indices");
 			});
 
-			if (solver != null) {
+			if (withInventory && Julia.isLoaded()) {
 				threadPool.execute(() -> {
 					log.info("create matrix INV");
-					var inv = solver.invert(d.techMatrix);
+					var solver = new JuliaSolver();
+					var inv = solver.invert(data.techMatrix);
 					MatrixExport.toNpy(folder, inv, "INV");
 					log.info("create matrix M");
-					var m = solver.multiply(d.flowMatrix, inv);
+					var m = solver.multiply(data.flowMatrix, inv);
 					MatrixExport.toNpy(folder, m, "M");
 					log.info("finished with INV and M");
 				});
@@ -143,8 +146,27 @@ public class LibraryExport implements Runnable {
 		}
 	}
 
-	private Optional<MatrixData> buildMatrices() {
+	private MatrixData buildMatrices() {
+		if (!withInventory && !withImpacts)
+			return null;
+
 		log.info("start building matrices");
+
+		if (!withInventory) {
+			// only build impact matrices
+			var impacts = ImpactIndex.of(db);
+			var flowIndex = info.isRegionalized
+				? FlowIndex.createRegionalized(db, impacts)
+				: FlowIndex.create(db, impacts);
+			var data = new MatrixData();
+			data.impactIndex = impacts;
+			data.flowIndex = flowIndex;
+			ImpactBuilder.of(db, flowIndex)
+				.withUncertainties(withUncertainties)
+				.build()
+				.addTo(data);
+			return data;
+		}
 
 		// TODO: this currently fails if the user wants
 		// to build an LCIA library
@@ -193,7 +215,7 @@ public class LibraryExport implements Runnable {
 		}
 		log.info("finished matrix normalization");
 
-		return Optional.of(data);
+		return data;
 	}
 
 	private void writeMeta() {

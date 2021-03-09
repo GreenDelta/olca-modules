@@ -16,7 +16,7 @@ public class LibraryExportExample {
 			System.out.println("Start export");
 			long start = System.currentTimeMillis();
 			new LibraryExport(db, new File("target/data/lib"))
-				.solver(new JuliaSolver())
+				.withInventory(true)
 				.withImpacts(true)
 				.withUncertainties(true)
 				.withAllocation(AllocationMethod.PHYSICAL)

@@ -315,8 +315,8 @@ public final class ImpactBuilder {
 			this.impacts = conf.impactIndex;
 		}
 
-		public Config withUncertainties() {
-			this.withUncertainties = true;
+		public Config withUncertainties(boolean b) {
+			this.withUncertainties = b;
 			return this;
 		}
 
