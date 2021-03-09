@@ -9,7 +9,6 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.SocialAspect;
-import org.openlca.util.Processes;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -58,11 +57,8 @@ class ProcessWriter extends Writer<Process> {
 	}
 
 	private void mapExchanges(JsonObject json) {
-		var exchanges = conf.isLibraryExport
-				? Processes.getProviderFlows(process)
-				: process.exchanges;
 		var array = new JsonArray();
-		for (Exchange e : exchanges) {
+		for (var e : process.exchanges) {
 			var obj = new JsonObject();
 			boolean mapped = Exchanges.map(e, obj, conf);
 			if (!mapped)

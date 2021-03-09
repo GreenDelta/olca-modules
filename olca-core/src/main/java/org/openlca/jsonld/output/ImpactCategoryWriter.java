@@ -27,17 +27,17 @@ class ImpactCategoryWriter extends Writer<ImpactCategory> {
 	}
 
 	private void mapImpactFactors(ImpactCategory category, JsonObject json) {
-		if (conf.isLibraryExport)
+		if (category.impactFactors.isEmpty())
 			return;
-		JsonArray array = new JsonArray();
-		for (ImpactFactor f : category.impactFactors) {
-			JsonObject obj = new JsonObject();
+		var array = new JsonArray();
+		for (var f : category.impactFactors) {
+			var obj = new JsonObject();
 			Out.put(obj, "@type", ImpactFactor.class.getSimpleName());
 			Out.put(obj, "value", f.value);
 			Out.put(obj, "formula", f.formula);
 			Out.put(obj, "flow", f.flow, conf, Out.REQUIRED_FIELD);
 			if (f.flow != null) {
-				JsonObject flow = obj.get("flow").getAsJsonObject();
+				var flow = obj.get("flow").getAsJsonObject();
 				Out.put(flow, "flowType", f.flow.flowType);
 			}
 			Out.put(obj, "unit", f.unit, conf, Out.REQUIRED_FIELD);

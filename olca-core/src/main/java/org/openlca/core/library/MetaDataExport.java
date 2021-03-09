@@ -27,7 +27,6 @@ class MetaDataExport implements Runnable {
 		try (var zip = ZipStore.open(new File(export.folder, "meta.zip"))) {
 			var exp = new JsonExport(db, zip);
 			exp.setExportDefaultProviders(false);
-			exp.setLibraryExport(true);
 			if (export.withInventory) {
 				writeProcesses(exp);
 			}
