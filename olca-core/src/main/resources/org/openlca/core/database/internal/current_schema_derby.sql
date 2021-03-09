@@ -11,8 +11,8 @@
 
 
 CREATE TABLE SEQUENCE (
-    SEQ_NAME VARCHAR(255) NOT NULL,
-    SEQ_COUNT BIGINT
+    SEQ_NAME   VARCHAR(255) NOT NULL,
+    SEQ_COUNT  BIGINT
 );
 INSERT INTO SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES('entity_seq', 0);
 
@@ -90,32 +90,33 @@ CREATE TABLE tbl_locations (
     library      VARCHAR(255),
     description  CLOB(64 K),
 
-    longitude DOUBLE,
-    latitude  DOUBLE,
-    code      VARCHAR(255),
-    geodata   BLOB(32 M),
+    longitude    DOUBLE,
+    latitude     DOUBLE,
+    code         VARCHAR(255),
+    geodata      BLOB(32 M),
 
     PRIMARY KEY (id)
 );
 CREATE INDEX idx_location_category ON tbl_locations(f_category);
 CREATE INDEX idx_location_ref_id ON tbl_locations(ref_id);
 
+
 CREATE TABLE tbl_sources (
 
-    id           BIGINT NOT NULL,
-    ref_id       VARCHAR(36),
-    name         VARCHAR(2048),
-    version      BIGINT,
-    last_change  BIGINT,
-    f_category   BIGINT,
-    tags         VARCHAR(255),
-    library      VARCHAR(255),
-    description  CLOB(64 K),
+    id              BIGINT NOT NULL,
+    ref_id          VARCHAR(36),
+    name            VARCHAR(2048),
+    version         BIGINT,
+    last_change     BIGINT,
+    f_category      BIGINT,
+    tags            VARCHAR(255),
+    library         VARCHAR(255),
+    description     CLOB(64 K),
 
-    source_year    SMALLINT,
-    text_reference CLOB(64 K),
-    url            VARCHAR(255),
-    external_file  VARCHAR(255),
+    source_year     SMALLINT,
+    text_reference  CLOB(64 K),
+    url             VARCHAR(255),
+    external_file   VARCHAR(255),
 
     PRIMARY KEY (id)
 
@@ -132,16 +133,16 @@ CREATE TABLE tbl_source_links (
 
 CREATE TABLE tbl_units (
 
-    id BIGINT NOT NULL,
-    ref_id VARCHAR(36),
-    name VARCHAR(2048),
-    description CLOB(64 K),
-    version BIGINT,
-    last_change BIGINT,
+    id                 BIGINT NOT NULL,
+    ref_id             VARCHAR(36),
+    name               VARCHAR(2048),
+    description        CLOB(64 K),
+    version            BIGINT,
+    last_change        BIGINT,
 
-    conversion_factor DOUBLE,
-    synonyms VARCHAR(255),
-    f_unit_group BIGINT,
+    conversion_factor  DOUBLE,
+    synonyms           VARCHAR(255),
+    f_unit_group       BIGINT,
 
     PRIMARY KEY (id)
 
@@ -152,18 +153,18 @@ CREATE INDEX idx_unit_ref_id ON tbl_units(ref_id);
 
 CREATE TABLE tbl_unit_groups (
 
-    id           BIGINT NOT NULL,
-    ref_id       VARCHAR(36),
-    name         VARCHAR(2048),
-    version      BIGINT,
-    last_change  BIGINT,
-    f_category   BIGINT,
-    tags         VARCHAR(255),
-    library      VARCHAR(255),
-    description  CLOB(64 K),
+    id                       BIGINT NOT NULL,
+    ref_id                   VARCHAR(36),
+    name                     VARCHAR(2048),
+    version                  BIGINT,
+    last_change              BIGINT,
+    f_category               BIGINT,
+    tags                     VARCHAR(255),
+    library                  VARCHAR(255),
+    description              CLOB(64 K),
 
-    f_reference_unit        BIGINT,
-    f_default_flow_property BIGINT,
+    f_reference_unit         BIGINT,
+    f_default_flow_property  BIGINT,
 
     PRIMARY KEY (id)
 
@@ -173,20 +174,21 @@ CREATE INDEX idx_unit_group_refunit ON tbl_unit_groups(f_reference_unit);
 CREATE INDEX idx_unit_group_flowprop ON tbl_unit_groups(f_default_flow_property);
 CREATE INDEX idx_unit_group_ref_id ON tbl_unit_groups(ref_id);
 
+
 CREATE TABLE tbl_flow_properties (
 
-    id           BIGINT NOT NULL,
-    ref_id       VARCHAR(36),
-    name         VARCHAR(2048),
-    version      BIGINT,
-    last_change  BIGINT,
-    f_category   BIGINT,
-    tags         VARCHAR(255),
-    library      VARCHAR(255),
-    description  CLOB(64 K),
+    id                  BIGINT NOT NULL,
+    ref_id              VARCHAR(36),
+    name                VARCHAR(2048),
+    version             BIGINT,
+    last_change         BIGINT,
+    f_category          BIGINT,
+    tags                VARCHAR(255),
+    library             VARCHAR(255),
+    description         CLOB(64 K),
 
-    flow_property_type VARCHAR(255),
-    f_unit_group       BIGINT,
+    flow_property_type  VARCHAR(255),
+    f_unit_group        BIGINT,
 
     PRIMARY KEY (id)
 
@@ -195,25 +197,26 @@ CREATE INDEX idx_flowprop_category ON tbl_flow_properties(f_category);
 CREATE INDEX idx_flowprop_unti_group ON tbl_flow_properties(f_unit_group);
 CREATE INDEX idx_flowprop_ref_id ON tbl_flow_properties(ref_id);
 
+
 CREATE TABLE tbl_flows (
 
-    id           BIGINT NOT NULL,
-    ref_id       VARCHAR(36),
-    name         VARCHAR(2048),
-    version      BIGINT,
-    last_change  BIGINT,
-    f_category   BIGINT,
-    tags         VARCHAR(255),
-    library      VARCHAR(255),
-    description  CLOB(64 K),
+    id                         BIGINT NOT NULL,
+    ref_id                     VARCHAR(36),
+    name                       VARCHAR(2048),
+    version                    BIGINT,
+    last_change                BIGINT,
+    f_category                 BIGINT,
+    tags                       VARCHAR(255),
+    library                    VARCHAR(255),
+    description                CLOB(64 K),
 
-    synonyms                  VARCHAR(32672),
-    flow_type                 VARCHAR(255),
-    infrastructure_flow       SMALLINT default 0,
-    cas_number                VARCHAR(255),
-    formula                   VARCHAR(255),
-    f_reference_flow_property BIGINT,
-    f_location                BIGINT,
+    synonyms                   VARCHAR(32672),
+    flow_type                  VARCHAR(255),
+    infrastructure_flow        SMALLINT default 0,
+    cas_number                 VARCHAR(255),
+    formula                    VARCHAR(255),
+    f_reference_flow_property  BIGINT,
+    f_location                 BIGINT,
 
     PRIMARY KEY (id)
 
@@ -223,12 +226,13 @@ CREATE INDEX idx_flow_flow_property ON tbl_flows(f_reference_flow_property);
 CREATE INDEX idx_flow_location ON tbl_flows(f_location);
 CREATE INDEX idx_flow_ref_id ON tbl_flows(ref_id);
 
+
 CREATE TABLE tbl_flow_property_factors (
 
-    id BIGINT NOT NULL,
-    conversion_factor DOUBLE,
-    f_flow BIGINT,
-    f_flow_property BIGINT,
+    id                 BIGINT NOT NULL,
+    conversion_factor  DOUBLE,
+    f_flow             BIGINT,
+    f_flow_property    BIGINT,
 
     PRIMARY KEY (id)
 
@@ -239,27 +243,27 @@ CREATE INDEX idx_flow_factor_property ON tbl_flow_property_factors(f_flow_proper
 
 CREATE TABLE tbl_processes (
 
-    id           BIGINT NOT NULL,
-    ref_id       VARCHAR(36),
-    name         VARCHAR(2048),
-    version      BIGINT,
-    last_change  BIGINT,
-    f_category   BIGINT,
-    tags         VARCHAR(255),
-    library      VARCHAR(255),
-    description  CLOB(64 K),
+    id                         BIGINT NOT NULL,
+    ref_id                     VARCHAR(36),
+    name                       VARCHAR(2048),
+    version                    BIGINT,
+    last_change                BIGINT,
+    f_category                 BIGINT,
+    tags                       VARCHAR(255),
+    library                    VARCHAR(255),
+    description                CLOB(64 K),
 
-    process_type              VARCHAR(255),
-    default_allocation_method VARCHAR(255),
-    infrastructure_process    SMALLINT default 0,
-    f_quantitative_reference  BIGINT,
-    f_location                BIGINT,
-    f_process_doc             BIGINT,
-    f_dq_system               BIGINT,
-    dq_entry                  VARCHAR(50),
-    f_exchange_dq_system      BIGINT,
-    f_social_dq_system        BIGINT,
-    last_internal_id          INTEGER,
+    process_type               VARCHAR(255),
+    default_allocation_method  VARCHAR(255),
+    infrastructure_process     SMALLINT default 0,
+    f_quantitative_reference   BIGINT,
+    f_location                 BIGINT,
+    f_process_doc              BIGINT,
+    f_dq_system                BIGINT,
+    dq_entry                   VARCHAR(50),
+    f_exchange_dq_system       BIGINT,
+    f_social_dq_system         BIGINT,
+    last_internal_id           INTEGER,
 
     PRIMARY KEY (id)
 );
@@ -359,15 +363,15 @@ CREATE TABLE tbl_allocation_factors (
 
 CREATE TABLE tbl_product_systems (
 
-    id           BIGINT NOT NULL,
-    ref_id       VARCHAR(36),
-    name         VARCHAR(2048),
-    version      BIGINT,
-    last_change  BIGINT,
-    f_category   BIGINT,
-    tags         VARCHAR(255),
-    library      VARCHAR(255),
-    description  CLOB(64 K),
+    id                             BIGINT NOT NULL,
+    ref_id                         VARCHAR(36),
+    name                           VARCHAR(2048),
+    version                        BIGINT,
+    last_change                    BIGINT,
+    f_category                     BIGINT,
+    tags                           VARCHAR(255),
+    library                        VARCHAR(255),
+    description                    CLOB(64 K),
 
     cutoff                         DOUBLE,
     target_amount                  DOUBLE,
@@ -409,8 +413,9 @@ CREATE TABLE tbl_parameter_redef_sets (
     name              VARCHAR(2048),
     description       CLOB(64 K),
     is_baseline       SMALLINT default 0,
-    f_product_system  BIGINT
+    f_product_system  BIGINT,
 
+    PRIMARY KEY (id)
 );
 CREATE INDEX idx_parameter_redef_set_system ON tbl_parameter_redef_sets(f_product_system);
 
@@ -437,17 +442,17 @@ CREATE TABLE tbl_impact_methods (
 
 CREATE TABLE tbl_impact_categories (
 
-    id           BIGINT NOT NULL,
-    ref_id       VARCHAR(36),
-    name         VARCHAR(2048),
-    version      BIGINT,
-    last_change  BIGINT,
-    f_category   BIGINT,
-    tags         VARCHAR(255),
-    library      VARCHAR(255),
-    description  CLOB(64 K),
+    id              BIGINT NOT NULL,
+    ref_id          VARCHAR(36),
+    name            VARCHAR(2048),
+    version         BIGINT,
+    last_change     BIGINT,
+    f_category      BIGINT,
+    tags            VARCHAR(255),
+    library         VARCHAR(255),
+    description     CLOB(64 K),
 
-    reference_unit VARCHAR(255),
+    reference_unit  VARCHAR(255),
 
     PRIMARY KEY (id)
 
@@ -462,22 +467,22 @@ CREATE TABLE tbl_impact_links (
 
 CREATE TABLE tbl_impact_factors (
 
-    id BIGINT              NOT NULL,
-    f_impact_category      BIGINT,
-    f_flow                 BIGINT,
-    f_flow_property_factor BIGINT,
-    f_unit                 BIGINT,
-    value                  DOUBLE,
-    formula                VARCHAR(1000),
-    f_location             BIGINT,
+    id BIGINT               NOT NULL,
+    f_impact_category       BIGINT,
+    f_flow                  BIGINT,
+    f_flow_property_factor  BIGINT,
+    f_unit                  BIGINT,
+    value                   DOUBLE,
+    formula                 VARCHAR(1000),
+    f_location              BIGINT,
 
-    distribution_type      INTEGER default 0,
-    parameter1_value       DOUBLE,
-    parameter1_formula     VARCHAR(1000),
-    parameter2_value       DOUBLE,
-    parameter2_formula     VARCHAR(1000),
-    parameter3_value       DOUBLE,
-    parameter3_formula     VARCHAR(1000),
+    distribution_type       INTEGER default 0,
+    parameter1_value        DOUBLE,
+    parameter1_formula      VARCHAR(1000),
+    parameter2_value        DOUBLE,
+    parameter2_formula      VARCHAR(1000),
+    parameter3_value        DOUBLE,
+    parameter3_formula      VARCHAR(1000),
 
     PRIMARY KEY (id)
 
@@ -487,12 +492,12 @@ CREATE INDEX idx_impact_factor_flow ON tbl_impact_factors(f_flow);
 
 CREATE TABLE tbl_nw_sets (
 
-    id           BIGINT NOT NULL,
-    ref_id       VARCHAR(36),
-    name         VARCHAR(2048),
-    description  CLOB(64 K),
-    version      BIGINT,
-    last_change  BIGINT,
+    id                   BIGINT NOT NULL,
+    ref_id               VARCHAR(36),
+    name                 VARCHAR(2048),
+    description          CLOB(64 K),
+    version              BIGINT,
+    last_change          BIGINT,
 
     f_impact_method      BIGINT,
     weighted_score_unit  VARCHAR(255),
@@ -517,29 +522,29 @@ CREATE TABLE tbl_nw_factors (
 
 CREATE TABLE tbl_parameters (
 
-    id           BIGINT NOT NULL,
-    ref_id       VARCHAR(36),
-    name         VARCHAR(2048),
-    version      BIGINT,
-    last_change  BIGINT,
-    f_category   BIGINT,
-    tags         VARCHAR(255),
-    library      VARCHAR(255),
-    description  CLOB(64 K),
+    id                  BIGINT NOT NULL,
+    ref_id              VARCHAR(36),
+    name                VARCHAR(2048),
+    version             BIGINT,
+    last_change         BIGINT,
+    f_category          BIGINT,
+    tags                VARCHAR(255),
+    library             VARCHAR(255),
+    description         CLOB(64 K),
 
-    is_input_param SMALLINT default 0,
-    f_owner        BIGINT,
-    scope          VARCHAR(255),
-    value          DOUBLE,
-    formula        VARCHAR(1000),
+    is_input_param      SMALLINT default 0,
+    f_owner             BIGINT,
+    scope               VARCHAR(255),
+    value               DOUBLE,
+    formula             VARCHAR(1000),
 
-    distribution_type  INTEGER default 0,
-    parameter1_value   DOUBLE,
-    parameter1_formula VARCHAR(1000),
-    parameter2_value   DOUBLE,
-    parameter2_formula VARCHAR(1000),
-    parameter3_value   DOUBLE,
-    parameter3_formula VARCHAR(1000),
+    distribution_type   INTEGER default 0,
+    parameter1_value    DOUBLE,
+    parameter1_formula  VARCHAR(1000),
+    parameter2_value    DOUBLE,
+    parameter2_formula  VARCHAR(1000),
+    parameter3_value    DOUBLE,
+    parameter3_formula  VARCHAR(1000),
 
     PRIMARY KEY (id)
 );
@@ -607,6 +612,7 @@ CREATE TABLE tbl_mapping_files (
     id         BIGINT NOT NULL,
     file_name  VARCHAR(255),
     content    BLOB(16 M),
+
     PRIMARY KEY (id)
 );
 
@@ -633,9 +639,11 @@ CREATE TABLE tbl_currencies (
 
 
 CREATE TABLE tbl_process_group_sets (
+
     id           BIGINT NOT NULL,
     name         VARCHAR(2048),
     groups_blob  BLOB(16 M),
+
     PRIMARY KEY  (id)
 ) ;
 
