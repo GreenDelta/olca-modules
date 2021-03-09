@@ -2,25 +2,10 @@ package org.openlca.core.library;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.openlca.core.database.ActorDao;
-import org.openlca.core.database.CategoryDao;
-import org.openlca.core.database.CurrencyDao;
-import org.openlca.core.database.DQSystemDao;
-import org.openlca.core.database.FlowDao;
-import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ImpactCategoryDao;
-import org.openlca.core.database.ImpactMethodDao;
-import org.openlca.core.database.LocationDao;
-import org.openlca.core.database.ParameterDao;
-import org.openlca.core.database.ProcessDao;
-import org.openlca.core.database.SocialIndicatorDao;
-import org.openlca.core.database.SourceDao;
-import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.ImpactIndex;
@@ -30,8 +15,6 @@ import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.io.MatrixExport;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.jsonld.Json;
-import org.openlca.jsonld.ZipStore;
-import org.openlca.jsonld.output.JsonExport;
 import org.openlca.julia.Julia;
 import org.openlca.julia.JuliaSolver;
 import org.slf4j.Logger;
@@ -41,14 +24,14 @@ public class LibraryExport implements Runnable {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private final IDatabase db;
-	private final File folder;
-	private final LibraryInfo info;
+	final IDatabase db;
+	final File folder;
+	final LibraryInfo info;
 
-	private AllocationMethod allocation;
-	private boolean withInventory = true;
-	private boolean withImpacts;
-	private boolean withUncertainties;
+	AllocationMethod allocation;
+	boolean withInventory = true;
+	boolean withImpacts;
+	boolean withUncertainties;
 
 	public LibraryExport(IDatabase db, File folder) {
 		this.db = db;
@@ -103,8 +86,8 @@ public class LibraryExport implements Runnable {
 		}
 
 		// create a thread pool and start writing the meta-data
-		var threadPool = Executors.newFixedThreadPool(8);
-		threadPool.execute(this::writeMeta);
+		var threadPool = Executors.newFixedThreadPool(4);
+		threadPool.execute(new MetaDataExport(this));
 
 		// create matrices and write them
 		var data = buildMatrices();
@@ -218,32 +201,4 @@ public class LibraryExport implements Runnable {
 		return data;
 	}
 
-	private void writeMeta() {
-		log.info("start writing meta-data");
-		try (var zip = ZipStore.open(new File(folder, "meta.zip"))) {
-			var exp = new JsonExport(db, zip);
-			exp.setLibraryExport(true);
-			exp.setExportReferences(false);
-			exp.setExportDefaultProviders(false);
-			List.of(new ActorDao(db),
-				new CategoryDao(db),
-				new CurrencyDao(db),
-				new DQSystemDao(db),
-				new FlowDao(db),
-				new FlowPropertyDao(db),
-				new ImpactCategoryDao(db),
-				new ImpactMethodDao(db),
-				new LocationDao(db),
-				new ParameterDao(db),
-				new ProcessDao(db),
-				new SocialIndicatorDao(db),
-				new SourceDao(db),
-				new UnitGroupDao(db))
-				.forEach(dao -> dao.getDescriptors()
-					.forEach(d -> exp.write(dao.getForId(d.id))));
-			log.info("finished writing meta-data");
-		} catch (Exception e) {
-			throw new RuntimeException("failed to write meta data", e);
-		}
-	}
 }
