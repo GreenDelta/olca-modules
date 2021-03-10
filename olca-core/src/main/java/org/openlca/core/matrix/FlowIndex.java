@@ -3,6 +3,7 @@ package org.openlca.core.matrix;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import org.openlca.core.database.FlowDao;
@@ -25,7 +26,7 @@ import gnu.trove.map.hash.TLongObjectHashMap;
  * <p>
  * $$\mathit{Idx}_B: \mathit{F} \mapsto [0 \dots k-1]$$
  */
-public final class FlowIndex {
+public final class FlowIndex implements MatrixIndex<IndexFlow> {
 
 	private final TLongIntHashMap index;
 	private final HashMap<LongPair, Integer> regIndex;
@@ -146,20 +147,24 @@ public final class FlowIndex {
 		return regIndex != null;
 	}
 
+	@Override
 	public int size() {
 		return flows.size();
 	}
 
+	@Override
 	public boolean isEmpty() {
 		return flows.isEmpty();
 	}
 
+	@Override
 	public IndexFlow at(int i) {
 		if (i < 0 || i >= flows.size())
 			return null;
 		return flows.get(i);
 	}
 
+	@Override
 	public int of(IndexFlow flow) {
 		if (flow == null)
 			return -1;
@@ -198,6 +203,7 @@ public final class FlowIndex {
 			: index.get(flowID);
 	}
 
+	@Override
 	public boolean contains(IndexFlow flow) {
 		return of(flow) >= 0;
 	}
@@ -338,6 +344,7 @@ public final class FlowIndex {
 		return idx;
 	}
 
+	@Override
 	public void each(IndexConsumer<IndexFlow> fn) {
 		if (fn == null)
 			return;
@@ -374,5 +381,30 @@ public final class FlowIndex {
 			return false;
 		var flow = flows.get(i);
 		return flow.isInput;
+	}
+
+	@Override
+	public FlowIndex copy() {
+
+		// copy a regionalized index
+		if (isRegionalized()) {
+			var copy = createRegionalized();
+			copy.flows.addAll(flows);
+			var regIndex = Objects.requireNonNull(copy.regIndex);
+			each((i, iFlow) -> {
+				var locID = iFlow.location != null
+					? iFlow.location.id
+					: 0L;
+				regIndex.put(LongPair.of(iFlow.flow.id, locID), i);
+			});
+			return copy;
+		}
+
+		// copy a non-regionalized index
+		var copy = create();
+		copy.flows.addAll(flows);
+		var index = Objects.requireNonNull(copy.index);
+		each((i, iFlow) -> index.put(iFlow.flow.id, i));
+		return copy;
 	}
 }

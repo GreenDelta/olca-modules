@@ -43,8 +43,8 @@ public class ProcessProduct {
 		this.flow = flow;
 	}
 
-	public static ProcessProduct of(CategorizedDescriptor process,
-																	FlowDescriptor flow) {
+	public static ProcessProduct of(
+			CategorizedDescriptor process, FlowDescriptor flow) {
 		return new ProcessProduct(process, flow);
 	}
 
