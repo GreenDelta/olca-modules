@@ -35,9 +35,9 @@ public class LinkContributionsTest {
 
 		var index = new TechIndex(provider(1, 1));
 		index.setDemand(1);
-		index.put(provider(2, 2));
-		index.put(provider(3, 3));
-		index.put(provider(4, 4));
+		index.add(provider(2, 2));
+		index.add(provider(3, 3));
+		index.add(provider(4, 4));
 		index.putLink(LongPair.of(1, 2), provider(2, 2));
 		index.putLink(LongPair.of(1, 3), provider(3, 3));
 		index.putLink(LongPair.of(2, 4), provider(4, 4));
@@ -72,7 +72,7 @@ public class LinkContributionsTest {
 		var index = new TechIndex(provider(1, 1));
 		index.setDemand(1);
 		for (int i = 0; i < size; i++) {
-			index.put(provider(i + 1, i + 1));
+			index.add(provider(i + 1, i + 1));
 			techMatrix.set(i, i, 1.0);
 			if (i < (size - 1)) {
 				techMatrix.set(i + 1, i, -1);

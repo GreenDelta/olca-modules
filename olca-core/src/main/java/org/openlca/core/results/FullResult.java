@@ -50,7 +50,7 @@ public class FullResult extends ContributionResult {
 		if (!hasFlowResults())
 			return 0;
 		int flowIdx = flowIndex.of(flow);
-		int productIdx = techIndex.getIndex(product);
+		int productIdx = techIndex.of(product);
 		if (flowIdx < 0 || productIdx < 0)
 			return 0;
 		double amount = provider.totalFlowOf(flowIdx, productIdx);
@@ -94,7 +94,7 @@ public class FullResult extends ContributionResult {
 		if (!hasImpactResults())
 			return 0;
 		int impactIdx = impactIndex.of(impact);
-		int productIdx = techIndex.getIndex(product);
+		int productIdx = techIndex.of(product);
 		return impactIdx < 0 || productIdx < 0
 				? 0
 				: provider.totalImpactOf(impactIdx, productIdx);
@@ -139,7 +139,7 @@ public class FullResult extends ContributionResult {
 	public double getUpstreamCostResult(ProcessProduct product) {
 		if (!hasCostResults())
 			return 0;
-		int productIdx = techIndex.getIndex(product);
+		int productIdx = techIndex.of(product);
 		return productIdx < 0
 				? 0
 				: provider.totalCostsOf(productIdx);
@@ -166,13 +166,13 @@ public class FullResult extends ContributionResult {
 	public double getLinkShare(ProcessLink link) {
 
 		var provider = techIndex.getProvider(link.providerId, link.flowId);
-		int providerIdx = techIndex.getIndex(provider);
+		int providerIdx = techIndex.of(provider);
 		if (providerIdx < 0)
 			return 0;
 
 		double amount = 0.0;
 		for (var process : techIndex.getProviders(link.processId)) {
-			int processIdx = techIndex.getIndex(process);
+			int processIdx = techIndex.of(process);
 			amount += this.provider.scaledTechValueOf(providerIdx, processIdx);
 		}
 		if (amount == 0)

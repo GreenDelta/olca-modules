@@ -96,7 +96,7 @@ public class EachOneResult {
 				result.totalImpactResults = lcia.getColumn(next);
 			}
 
-			var product = data.techIndex.getProviderAt(next);
+			var product = data.techIndex.at(next);
 			if (product.isWaste()) {
 				swapSign(result.scalingVector);
 				swapSign(result.totalRequirements);

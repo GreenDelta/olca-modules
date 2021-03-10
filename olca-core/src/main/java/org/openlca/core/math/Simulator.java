@@ -14,8 +14,8 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
@@ -157,7 +157,7 @@ public class Simulator {
 
 			// calculate results of possible pinned products
 			for (ProcessProduct pinned : pinnedProducts) {
-				int idx = next.techIndex.getIndex(pinned);
+				int idx = next.techIndex.of(pinned);
 				if (idx < 0)
 					continue;
 
@@ -215,7 +215,7 @@ public class Simulator {
 				if (sub.lastResult == null
 						|| sub.lastResult.totalFlowResults == null)
 					continue; // should not happen
-				int col = node.data.techIndex.getIndex(subLink);
+				int col = node.data.techIndex.of(subLink);
 				if (col < 0)
 					continue;
 				sub.lastResult.flowIndex.each((i, f) -> {

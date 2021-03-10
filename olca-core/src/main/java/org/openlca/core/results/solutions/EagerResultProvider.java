@@ -1,7 +1,7 @@
 package org.openlca.core.results.solutions;
 
-import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.Matrix;
@@ -35,7 +35,7 @@ public class EagerResultProvider implements ResultProvider {
 		var techIdx = data.techIndex;
 		var solver = MatrixSolver.Instance.getNew();
 		inverse = solver.invert(data.techMatrix);
-		var refIdx = techIdx.getIndex(techIdx.getRefFlow());
+		var refIdx = techIdx.of(techIdx.getRefFlow());
 		scalingVector = inverse.getColumn(refIdx);
 		var demand = techIdx.getDemand();
 		for (int i = 0; i < scalingVector.length; i++) {

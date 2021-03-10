@@ -144,7 +144,7 @@ public class FastMatrixBuilder {
 
 		if (provider.matches(e.processId, e.flowId)) {
 			// the reference product or waste flow
-			int idx = techIndex.getIndex(provider);
+			int idx = techIndex.of(provider);
 			add(idx, provider, techBuilder, e);
 		}
 	}
@@ -164,7 +164,7 @@ public class FastMatrixBuilder {
 		}
 		if (provider == null)
 			return;
-		int row = techIndex.getIndex(provider);
+		int row = techIndex.of(provider);
 		add(row, product, techBuilder, e);
 	}
 
@@ -175,7 +175,7 @@ public class FastMatrixBuilder {
 
 	private void add(int row, ProcessProduct provider, MatrixBuilder matrix,
 									 CalcExchange exchange) {
-		int col = techIndex.getIndex(provider);
+		int col = techIndex.of(provider);
 		if (row < 0 || col < 0)
 			return;
 
@@ -221,7 +221,7 @@ public class FastMatrixBuilder {
 				// case the process would be null.
 				return true;
 			}
-			idx.put(ProcessProduct.of(process, flow));
+			idx.add(ProcessProduct.of(process, flow));
 			return true;
 		});
 		return idx;

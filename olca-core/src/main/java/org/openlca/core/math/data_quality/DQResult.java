@@ -110,7 +110,7 @@ public class DQResult {
 	public int[] get(ProcessProduct product) {
 		if (processData == null)
 			return null;
-		int col = result.techIndex.getIndex(product);
+		int col = result.techIndex.of(product);
 		return col < 0
 			? null
 			: toInt(processData.getColumn(col));
@@ -134,7 +134,7 @@ public class DQResult {
 		if (exchangeData == null)
 			return null;
 		int row = result.flowIndex.of(flow);
-		int col = result.techIndex.getIndex(product);
+		int col = result.techIndex.of(product);
 		if (row < 0 || col < 0)
 			return null;
 		int[] values = new int[exchangeData.length];
@@ -198,7 +198,7 @@ public class DQResult {
 		if (processImpactResult == null)
 			return null;
 		int row = result.impactIndex.of(impact);
-		int col = result.techIndex.getIndex(product);
+		int col = result.techIndex.of(product);
 		if (row < 0 || col < 0)
 			return null;
 		int k = processImpactResult.length;
@@ -241,7 +241,7 @@ public class DQResult {
 			for (int row = 0; row < _k; row++) {
 				byte value = (byte) values[row];
 				for (var provider : providers) {
-					int col = techIndex.getIndex(provider);
+					int col = techIndex.of(provider);
 					processData.set(row, col, value);
 				}
 			}
@@ -305,7 +305,7 @@ public class DQResult {
 				var data = exchangeData[i];
 				byte value = (byte) values[i];
 				for (var product : products) {
-					int col = techIndex.getIndex(product);
+					int col = techIndex.of(product);
 					data.set(row, col, value);
 				}
 			}

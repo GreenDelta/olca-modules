@@ -2,7 +2,6 @@ package org.openlca.ipc.handlers;
 
 import java.util.List;
 
-import com.google.gson.JsonObject;
 import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
@@ -13,9 +12,10 @@ import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
 import org.openlca.ipc.handlers.Upstream.StringPair;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
-import org.openlca.jsonld.Json;
+import com.google.gson.JsonObject;
 
 public class CostHandler {
 
@@ -36,7 +36,7 @@ public class CostHandler {
 				var tr = result.totalRequirements[i];
 				if (tr == 0)
 					continue;
-				var product = techIdx.getProviderAt(i);
+				var product = techIdx.at(i);
 				var obj = new JsonObject();
 				obj.add("process", Json.asRef(product.process, cache));
 				obj.add("product", Json.asRef(product.flow, cache));

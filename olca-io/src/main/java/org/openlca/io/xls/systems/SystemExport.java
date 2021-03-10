@@ -14,8 +14,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.DenseMatrix;
@@ -310,7 +310,7 @@ public class SystemExport {
 		Collections.sort(products);
 		int i = 0;
 		for (ProductInfo product : products) {
-			header.putIndexMapping(i, index.getIndex(product.provider));
+			header.putIndexMapping(i, index.of(product.provider));
 			i++;
 		}
 		return products;

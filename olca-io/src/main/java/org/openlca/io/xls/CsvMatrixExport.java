@@ -77,7 +77,7 @@ public class CsvMatrixExport implements Runnable {
 		TechIndex techIndex = data.techIndex;
 		int size = techIndex.size();
 		for (int row = 0; row < size; row++) {
-			ProcessProduct product = techIndex.getProviderAt(row);
+			ProcessProduct product = techIndex.at(row);
 			FlowDescriptor flow = product.flow;
 			writeName(flow, buffer);
 			sep(buffer);
@@ -121,7 +121,7 @@ public class CsvMatrixExport implements Runnable {
 		sep(buffer);
 		int columns = techIndex.size();
 		for (int col = 0; col < columns; col++) {
-			ProcessProduct product = techIndex.getProviderAt(col);
+			ProcessProduct product = techIndex.at(col);
 			FlowDescriptor flow = product.flow;
 			writeName(flow, buffer);
 			sep(buffer, col, columns);
@@ -130,7 +130,7 @@ public class CsvMatrixExport implements Runnable {
 		sep(buffer);
 		sep(buffer);
 		for (int col = 0; col < columns; col++) {
-			ProcessProduct product = techIndex.getProviderAt(col);
+			ProcessProduct product = techIndex.at(col);
 			FlowDescriptor flow = product.flow;
 			writeCategory(flow, buffer);
 			sep(buffer, col, columns);

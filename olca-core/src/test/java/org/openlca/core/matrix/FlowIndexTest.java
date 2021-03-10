@@ -38,7 +38,7 @@ public class FlowIndexTest {
 		// build the index
 		boolean b = false;
 		for (int i = 0; i < 10_000; i++) {
-			var iFlow = b 
+			var iFlow = b
 					? IndexFlow.inputOf(randFlow(), randLocation())
 					: IndexFlow.outputOf(randFlow(), randLocation());
 			flows.add(iFlow.flow);
@@ -93,7 +93,7 @@ public class FlowIndexTest {
 		}
 
 		// check the index
-		Assert.assertEquals(1000, idx.flows().size());
+		Assert.assertEquals(1000, idx.size());
 		for (int i = 0; i < 1000; i++) {
 			IndexFlow iflow = idx.at(i);
 			Assert.assertNotNull(iflow);

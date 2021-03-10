@@ -63,7 +63,6 @@ public class SolverTest {
 		ProcessProduct provider = ProcessProduct.of(process, flow);
 
 		TechIndex techIndex = new TechIndex(provider);
-		techIndex.put(provider);
 		techIndex.setDemand(1d);
 		data.techIndex = techIndex;
 

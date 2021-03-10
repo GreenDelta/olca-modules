@@ -33,7 +33,7 @@ class Exchanges {
 			return Collections.emptyList();
 
 		// find the library index of the given product
-		int column = techIndex.getIndex(product);
+		int column = techIndex.of(product);
 		if (column < 0)
 			return Collections.emptyList();
 
@@ -54,7 +54,7 @@ class Exchanges {
 			double val = col[i];
 			if (val == 0)
 				continue;
-			var product = index.getProviderAt(i);
+			var product = index.at(i);
 			var flow = flowDao.getForId(product.flowId());
 			if (flow == null)
 				continue;

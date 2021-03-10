@@ -116,7 +116,7 @@ public class LibraryResultProvider implements ResultProvider {
 		index.setDemand(indexF.getDemand());
 		var libs = new ArrayDeque<String>();
 		indexF.each((pos, product) -> {
-			index.put(product);
+			index.add(product);
 			var lib = product.library();
 			if(lib != null) {
 				libs.add(lib);
@@ -135,7 +135,7 @@ public class LibraryResultProvider implements ResultProvider {
 							"Could not load product index of " + libID));
 			libTechIndices.put(libID, indexB);
 			indexB.each((_pos, product) -> {
-				index.put(product);
+				index.add(product);
 				var nextLibID = product.library();
 				if (nextLibID == null
 						|| libID.equals(nextLibID)
@@ -234,7 +234,7 @@ public class LibraryResultProvider implements ResultProvider {
 		var t = new double[index.size()];
 		var techF = foregroundData.techMatrix;
 		for (int i = 0; i < techF.columns(); i++) {
-			var product = index.getProviderAt(i);
+			var product = index.at(i);
 			if (product.isFromLibrary())
 				continue;
 			t[i] = techF.get(i, i) * scalingVector[i];
@@ -251,12 +251,12 @@ public class LibraryResultProvider implements ResultProvider {
 			if (libDiag == null)
 				continue;
 			for (int iB = 0; iB < libDiag.length; iB++) {
-				var product = indexB.getProviderAt(iB);
+				var product = indexB.at(iB);
 				var productLib = product.library();
 				if (!Objects.equals(productLib, libID))
 					continue;
 
-				var i = index.getIndex(product);
+				var i = index.of(product);
 				if (i < 0)
 					continue;
 				var si = scalingVector[i];
@@ -283,7 +283,7 @@ public class LibraryResultProvider implements ResultProvider {
 			return column;
 
 		var index = fullData.techIndex;
-		var product = index.getProviderAt(j);
+		var product = index.at(j);
 		column = new double[index.size()];
 		var libID = product.library();
 
@@ -304,7 +304,7 @@ public class LibraryResultProvider implements ResultProvider {
 		var indexLib = libTechIndices.get(libID);
 		if (lib == null || indexLib == null)
 			return column;
-		int jLib = indexLib.getIndex(product);
+		int jLib = indexLib.of(product);
 		var columnLib = lib.getColumn(LibraryMatrix.A, jLib)
 				.orElse(null);
 		if (columnLib == null)
@@ -313,8 +313,8 @@ public class LibraryResultProvider implements ResultProvider {
 			double val = columnLib[iLib];
 			if (val == 0)
 				continue;
-			var providerLib = indexLib.getProviderAt(iLib);
-			var i = index.getIndex(providerLib);
+			var providerLib = indexLib.at(iLib);
+			var i = index.of(providerLib);
 			if (i < 0)
 				continue;
 			column[i] = val;
@@ -334,7 +334,7 @@ public class LibraryResultProvider implements ResultProvider {
 		// initialize a queue that is used for adding scaled
 		// sub-solutions of libraries recursively
 		var queue = new ArrayDeque<Pair<ProcessProduct, Double>>();
-		var start = fullData.techIndex.getProviderAt(product);
+		var start = fullData.techIndex.at(product);
 		if (start.isFromLibrary()) {
 			// start process is a library process
 			queue.push(Pair.of(start, 1.0));
@@ -345,17 +345,17 @@ public class LibraryResultProvider implements ResultProvider {
 			// the entries of the queue with the scaled
 			// library links
 			var idxF = foregroundData.techIndex;
-			var pf = idxF.getIndex(start);
+			var pf = idxF.of(start);
 			var sf = foregroundSolution.solutionOfOne(pf);
 			for (int i = 0; i < sf.length; i++) {
 				var value = sf[i];
 				if (value == 0)
 					continue;
-				var provider = idxF.getProviderAt(i);
+				var provider = idxF.at(i);
 				if (provider.isFromLibrary()) {
 					queue.push(Pair.of(provider, value));
 				} else {
-					int index = techIndex.getIndex(provider);
+					int index = techIndex.of(provider);
 					solution[index] = value;
 				}
 			}
@@ -373,7 +373,7 @@ public class LibraryResultProvider implements ResultProvider {
 			var libIndex = libTechIndices.get(libID);
 			if (lib == null || libIndex == null)
 				continue;
-			int column = libIndex.getIndex(p);
+			int column = libIndex.of(p);
 			var libSolution = lib.getColumn(
 					LibraryMatrix.INV, column)
 					.orElse(null);
@@ -383,10 +383,10 @@ public class LibraryResultProvider implements ResultProvider {
 				var value = libSolution[i];
 				if (value == 0)
 					continue;
-				var provider = libIndex.getProviderAt(i);
+				var provider = libIndex.at(i);
 				var subLibID = provider.library();
 				if (Objects.equals(libID, subLibID)) {
-					int index = techIndex.getIndex(provider);
+					int index = techIndex.of(provider);
 					solution[index] += factor * value;
 				} else {
 					queue.push(Pair.of(provider, factor * value));
@@ -418,7 +418,7 @@ public class LibraryResultProvider implements ResultProvider {
 			return EMPTY_VECTOR;
 
 		column = new double[flowIdx.size()];
-		var product = fullData.techIndex.getProviderAt(j);
+		var product = fullData.techIndex.at(j);
 		var libID = product.library();
 
 		// in case of a foreground product, we just need
@@ -442,7 +442,7 @@ public class LibraryResultProvider implements ResultProvider {
 		var techIdxB = libTechIndices.get(libID);
 		if (lib == null || flowIdxB == null || techIdxB == null)
 			return put(j, flowColumns, column);
-		var jB = techIdxB.getIndex(product);
+		var jB = techIdxB.of(product);
 		var colB = lib.getColumn(LibraryMatrix.B, jB)
 				.orElse(null);
 		if (colB == null)
@@ -531,8 +531,8 @@ public class LibraryResultProvider implements ResultProvider {
 				continue;
 			var sB = new double[techIdxB.size()];
 			for (int i = 0; i < s.length; i++) {
-				var product = techIdx.getProviderAt(i);
-				var iB = techIdxB.getIndex(product);
+				var product = techIdx.at(i);
+				var iB = techIdxB.of(product);
 				if (iB < 0)
 					continue;
 				sB[iB] = s[i];

@@ -31,7 +31,7 @@ import gnu.trove.map.hash.TLongObjectHashMap;
  * <p>
  * $$\mathit{Idx}_A: \mathit{P} \mapsto [0 \dots n-1]$$
  */
-public class TechIndex implements TechLinker {
+public final class TechIndex implements TechLinker, MatrixIndex<ProcessProduct> {
 
 	/**
 	 * Maps the product-outputs and waste-inputs as (processId, flowId) pairs to an
@@ -70,7 +70,7 @@ public class TechIndex implements TechLinker {
 	 *                flowId) pair.
 	 */
 	public TechIndex(ProcessProduct refFlow) {
-		put(refFlow);
+		add(refFlow);
 	}
 
 	/**
@@ -82,7 +82,7 @@ public class TechIndex implements TechLinker {
 	public static TechIndex of(ProductSystem system, IDatabase db) {
 		var index = initFrom(system);
 		if (system.withoutNetwork) {
-			eachProviderOf(db, index::put);
+			eachProviderOf(db, index::add);
 			return index;
 		}
 
@@ -104,7 +104,7 @@ public class TechIndex implements TechLinker {
 
 			// the tech-index checks for duplicates of products and links
 			var provider = ProcessProduct.of(p, flow);
-			index.put(provider);
+			index.add(provider);
 			var exchange = new LongPair(link.processId, link.exchangeId);
 			index.putLink(exchange, provider);
 		}
@@ -122,7 +122,7 @@ public class TechIndex implements TechLinker {
 			throw new RuntimeException("no providers in database");
 		var index = new TechIndex(list.get(0));
 		for (int i = 1; i < list.size(); i++) {
-			index.put(list.get(i));
+			index.add(list.get(i));
 		}
 		return index;
 	}
@@ -205,6 +205,7 @@ public class TechIndex implements TechLinker {
 	 * Returns the size of this index which is equal to the number of rows and
 	 * columns in the related technology matrix.
 	 */
+	@Override
 	public int size() {
 		return index.size();
 	}
@@ -213,7 +214,8 @@ public class TechIndex implements TechLinker {
 	 * Returns the ordinal index of the given product (product-output or waste
 	 * input). If the product is not not part of this index, -1 is returned.
 	 */
-	public int getIndex(ProcessProduct provider) {
+	@Override
+	public int of(ProcessProduct provider) {
 		var idx = index.get(provider);
 		return idx == null ? -1 : idx;
 	}
@@ -226,6 +228,7 @@ public class TechIndex implements TechLinker {
 		return getProvider(processID, flowID) != null;
 	}
 
+	@Override
 	public void each(IndexConsumer<ProcessProduct> fn) {
 		for (int i = 0; i < providers.size(); i++) {
 			fn.accept(i, providers.get(i));
@@ -248,7 +251,8 @@ public class TechIndex implements TechLinker {
 	 * returns its position. If the product is already contained in this index its
 	 * current position is returned.
 	 */
-	public int put(ProcessProduct provider) {
+	@Override
+	public int add(ProcessProduct provider) {
 		var existing = index.get(provider);
 		if (existing != null)
 			return existing;
@@ -267,7 +271,8 @@ public class TechIndex implements TechLinker {
 	/**
 	 * Returns the provider (product-output or waste-input) at the given index.
 	 */
-	public ProcessProduct getProviderAt(int index) {
+	@Override
+	public ProcessProduct at(int index) {
 		return providers.get(index);
 	}
 
@@ -311,7 +316,7 @@ public class TechIndex implements TechLinker {
 	public void putLink(LongPair exchange, ProcessProduct provider) {
 		if (links.containsKey(exchange))
 			return;
-		put(provider);
+		add(provider);
 		links.put(exchange, provider);
 	}
 
@@ -358,7 +363,21 @@ public class TechIndex implements TechLinker {
 	/**
 	 * Returns all providers of this index.
 	 */
+	@Override
 	public Set<ProcessProduct> content() {
 		return new HashSet<>(providers);
+	}
+
+	@Override
+	public TechIndex copy() {
+		var copy = new TechIndex(at(0));
+		copy.demand = demand;
+		for (var p : providers) {
+			copy.add(p);
+		}
+		if (!links.isEmpty()) {
+			copy.links.putAll(links);
+		}
+		return copy;
 	}
 }

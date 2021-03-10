@@ -84,7 +84,7 @@ public class SimpleResult extends BaseResult {
 	 * $j$.
 	 */
 	public double getScalingFactor(ProcessProduct product) {
-		int idx = techIndex.getIndex(product);
+		int idx = techIndex.of(product);
 		if (idx < 0 || idx > scalingVector.length)
 			return 0;
 		return scalingVector[idx];

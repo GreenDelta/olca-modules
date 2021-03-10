@@ -20,8 +20,8 @@ public class ContributionTreeTest {
 
 		var data = new MatrixData();
 		var techIndex = new TechIndex(provider(1, 1));
-		techIndex.put(provider(2, 2));
-		techIndex.put(provider(3, 3));
+		techIndex.add(provider(2, 2));
+		techIndex.add(provider(3, 3));
 		techIndex.putLink(LongPair.of(1, 2), provider(2, 2));
 		techIndex.putLink(LongPair.of(1, 3), provider(3, 3));
 		data.techIndex = techIndex;

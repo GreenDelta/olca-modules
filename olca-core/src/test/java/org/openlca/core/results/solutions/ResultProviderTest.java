@@ -65,7 +65,7 @@ public class ResultProviderTest {
 		};
 		data.techIndex = new TechIndex(product.apply(1));
 		data.techIndex.setDemand(1.0);
-		data.techIndex.put(product.apply(2));
+		data.techIndex.add(product.apply(2));
 		data.techMatrix = JavaMatrix.of(new double[][]{
 				{0.5, -0.5},
 				{-0.5, 1.0},

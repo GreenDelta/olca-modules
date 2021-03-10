@@ -56,7 +56,7 @@ public class ContributionResult extends SimpleResult {
 		if (!hasFlowResults())
 			return 0;
 		int flowIdx = flowIndex.of(flow);
-		int productIdx = techIndex.getIndex(product);
+		int productIdx = techIndex.of(product);
 		if (flowIdx < 0 || productIdx < 0)
 			return 0;
 		double value = provider.directFlowOf(flowIdx, productIdx);
@@ -112,7 +112,7 @@ public class ContributionResult extends SimpleResult {
 		if (!hasImpactResults())
 			return 0;
 		int impactIdx = impactIndex.of(impact);
-		int productIdx = techIndex.getIndex(product);
+		int productIdx = techIndex.of(product);
 		return impactIdx < 0 || productIdx < 0
 				? 0
 				: provider.directImpactOf(impactIdx, productIdx);
@@ -165,7 +165,7 @@ public class ContributionResult extends SimpleResult {
 	 * result: $\mathbf{k}_s[j]$.
 	 */
 	public double getDirectCostResult(ProcessProduct product) {
-		int col = techIndex.getIndex(product);
+		int col = techIndex.of(product);
 		return col < 0
 				? 0
 				: provider.directCostsOf(col);

@@ -20,8 +20,8 @@ public class LazyProviderTest {
 				{0.0, -1.0, 1.0},
 		});
 		data.techIndex = new TechIndex(product(1));
-		data.techIndex.put(product(2));
-		data.techIndex.put(product(3));
+		data.techIndex.add(product(2));
+		data.techIndex.add(product(3));
 		data.techIndex.setDemand(1.0);
 
 		var provider = LazyResultProvider.create(data);

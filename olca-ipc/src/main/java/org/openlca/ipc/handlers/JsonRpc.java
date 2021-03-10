@@ -115,7 +115,7 @@ class JsonRpc {
 		for (int i = 0; i < totalRequirements.length; i++) {
 			if (totalRequirements[i] == 0)
 				continue;
-			var product = index.getProviderAt(i);
+			var product = index.at(i);
 			JsonObject obj = new JsonObject();
 			obj.add("process", Json.asRef(product.process, cache));
 			obj.add("product", Json.asRef(product.flow, cache));

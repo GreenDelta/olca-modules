@@ -1,7 +1,7 @@
 package org.openlca.core.results.solutions;
 
-import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.Matrix;
@@ -45,7 +45,7 @@ public class LazyResultProvider implements ResultProvider {
 				: new TIntObjectHashMap<>();
 
 		// calculate the scaling vector
-		var refIdx = data.techIndex.getIndex(
+		var refIdx = data.techIndex.of(
 				data.techIndex.getRefFlow());
 		var s = solutionOfOne(refIdx);
 		var d = data.techIndex.getDemand();

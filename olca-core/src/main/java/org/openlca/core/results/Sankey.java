@@ -6,13 +6,14 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.function.Consumer;
 
-import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TIntObjectHashMap;
-import gnu.trove.set.hash.TIntHashSet;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.solutions.ResultProvider;
+
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.TIntHashSet;
 
 /**
  * An instance of this class contains the underlying graph data structure of
@@ -253,7 +254,7 @@ public class Sankey<T> {
 			// create the root node of the reference product
 			var root = sankey.root;
 			root.product = result.techIndex.getRefFlow();
-			root.index = result.techIndex.getIndex(root.product);
+			root.index = result.techIndex.of(root.product);
 			root.total = getTotal(root.product);
 			root.direct = getDirect(root.product);
 			root.share = root.total == 0 ? 0 : 1;
@@ -300,7 +301,7 @@ public class Sankey<T> {
 				}
 
 				// calculate and check the share
-				var product = result.techIndex.getProviderAt(i);
+				var product = result.techIndex.at(i);
 				var total = getTotal(product);
 				if (total == 0)
 					continue;

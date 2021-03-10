@@ -128,8 +128,8 @@ public class AllocationIndexTest {
 
 	private AllocationIndex index(AllocationMethod method) {
 		TechIndex techIdx = new TechIndex(product("p1"));
-		techIdx.put(product("p2"));
-		techIdx.put(product("w"));
+		techIdx.add(product("p2"));
+		techIdx.add(product("w"));
 		return AllocationIndex.create(db, techIdx, method);
 	}
 

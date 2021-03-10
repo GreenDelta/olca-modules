@@ -120,7 +120,7 @@ public class InventoryBuilder {
 			// results in the database (!) that were mapped to the same columns above
 			for (ProcessProduct sub : subSystems) {
 
-				int col = techIndex.getIndex(sub);
+				int col = techIndex.of(sub);
 				var result = conf.subResults.get(sub);
 				if (result == null) {
 					// TODO: log this error
@@ -160,7 +160,7 @@ public class InventoryBuilder {
 			var linkedProvider = conf.linker.providerOf(e);
 			if (linkedProvider != null) {
 				// linked product input or waste output
-				int row = techIndex.getIndex(linkedProvider);
+				int row = techIndex.of(linkedProvider);
 				add(row, provider, techBuilder, e);
 			} else {
 				// unlinked product input or waste output
@@ -171,7 +171,7 @@ public class InventoryBuilder {
 
 		if (provider.matches(e.processId, e.flowId)) {
 			// the reference product or waste flow
-			int idx = techIndex.getIndex(provider);
+			int idx = techIndex.of(provider);
 			add(idx, provider, techBuilder, e);
 			return;
 		}
@@ -190,7 +190,7 @@ public class InventoryBuilder {
 	private void add(int row, ProcessProduct provider, MatrixBuilder matrix,
 			CalcExchange exchange) {
 
-		int col = techIndex.getIndex(provider);
+		int col = techIndex.of(provider);
 		if (row < 0 || col < 0)
 			return;
 

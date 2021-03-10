@@ -144,7 +144,7 @@ public class MatrixData {
 			return _hasLibraryLinks;
 		if (techIndex != null) {
 			for (int i = 0; i < techIndex.size(); i++) {
-				var product = techIndex.getProviderAt(i);
+				var product = techIndex.at(i);
 				if (product.isFromLibrary()) {
 					_hasLibraryLinks = true;
 					return true;

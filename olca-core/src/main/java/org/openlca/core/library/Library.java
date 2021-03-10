@@ -193,7 +193,7 @@ public class Library {
 			if (index == null) {
 				index = new TechIndex(ProcessProduct.of(process, product));
 			} else {
-				index.put(ProcessProduct.of(process, product));
+				index.add(ProcessProduct.of(process, product));
 			}
 		}
 		return Optional.ofNullable(index);

@@ -22,8 +22,8 @@ public class SankeyTest {
 		var data = new MatrixData();
 		data.techIndex = new TechIndex(product(1));
 		data.techIndex.setDemand(1.0);
-		data.techIndex.put(product(2));
-		data.techIndex.put(product(3));
+		data.techIndex.add(product(2));
+		data.techIndex.add(product(3));
 		data.techMatrix = JavaMatrix.of(new double[][]{
 				{1.0, 0.0, 0.0},
 				{-1.0, 1.0, -0.1},

@@ -104,7 +104,7 @@ public abstract class MatrixExport {
 		var techIndex = data.techIndex;
 		if (techIndex != null && techIndex.hasLinks()) {
 			var demand = new double[techIndex.size()];
-			int refIdx = techIndex.getIndex(techIndex.getRefFlow());
+			int refIdx = techIndex.of(techIndex.getRefFlow());
 			if (refIdx >= 0) {
 				demand[refIdx] = techIndex.getDemand();
 			}
@@ -198,7 +198,7 @@ public abstract class MatrixExport {
 		var locations = new LocationDao(db).getCodes();
 		var units = propUnits();
 		for (int i = 0; i < data.techIndex.size(); i++) {
-			var product = data.techIndex.getProviderAt(i);
+			var product = data.techIndex.at(i);
 			var p = product.process;
 			var f = product.flow;
 			var row = new String[header.length];

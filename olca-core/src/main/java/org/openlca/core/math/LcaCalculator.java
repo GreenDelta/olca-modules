@@ -1,11 +1,9 @@
 package org.openlca.core.math;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.MatrixReader;
-import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
@@ -14,8 +12,6 @@ import org.openlca.core.results.solutions.EagerResultProvider;
 import org.openlca.core.results.solutions.LazyResultProvider;
 import org.openlca.core.results.solutions.LibraryResultProvider;
 import org.openlca.core.results.solutions.ResultProvider;
-import org.openlca.julia.Julia;
-import org.openlca.julia.JuliaSolver;
 
 /**
  * This calculator does the low level matrix based LCA-calculation. Typically,
@@ -94,7 +90,7 @@ public class LcaCalculator {
 	@Deprecated
 	public static double getLoopFactor(
 		MatrixReader A, double[] s, TechIndex techIndex) {
-		int i = techIndex.getIndex(techIndex.getRefFlow());
+		int i = techIndex.of(techIndex.getRefFlow());
 		double t = A.get(i, i) * s[i];
 		double f = techIndex.getDemand();
 		if (Math.abs(t - f) < 1e-12)
