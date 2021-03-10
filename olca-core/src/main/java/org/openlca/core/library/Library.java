@@ -21,6 +21,7 @@ import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.ImpactIndex;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
@@ -239,9 +240,9 @@ public class Library {
 			if (flow == null)
 				return Optional.empty();
 			if (entry.getIsInput()) {
-				index.putInput(flow, location);
+				index.add(IndexFlow.inputOf(flow, location));
 			} else {
-				index.putOutput(flow, location);
+				index.add(IndexFlow.outputOf(flow, location));
 			}
 		}
 		return Optional.of(index);

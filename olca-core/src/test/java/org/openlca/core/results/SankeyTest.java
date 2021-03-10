@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
@@ -32,7 +33,7 @@ public class SankeyTest {
 		data.flowIndex = FlowIndex.create();
 		var flow = new FlowDescriptor();
 		flow.id = 42;
-		data.flowIndex.putOutput(flow);
+		data.flowIndex.add(IndexFlow.outputOf(flow));
 		data.flowMatrix = JavaMatrix.of(new double[][]{
 				{1.0, 2.0, 3.0},
 		});

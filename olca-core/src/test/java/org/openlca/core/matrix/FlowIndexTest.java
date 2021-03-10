@@ -1,6 +1,8 @@
 package org.openlca.core.matrix;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,17 +38,16 @@ public class FlowIndexTest {
 		// build the index
 		boolean b = false;
 		for (int i = 0; i < 10_000; i++) {
-			FlowDescriptor flow = randFlow();
-			flows.add(flow);
-			LocationDescriptor loc = randLocation();
-			locations.add(loc);
+			var iFlow = b 
+					? IndexFlow.inputOf(randFlow(), randLocation())
+					: IndexFlow.outputOf(randFlow(), randLocation());
+			flows.add(iFlow.flow);
+			locations.add(iFlow.location);
 			isInput.add(b);
 
-			Assert.assertFalse(idx.contains(flow.id, loc.id));
-			Assert.assertFalse(idx.contains(flow, loc));
-			int j = b
-				? idx.putInput(flow, loc)
-				: idx.putOutput(flow, loc);
+			Assert.assertFalse(idx.contains(iFlow));
+			Assert.assertFalse(idx.contains(iFlow.flow.id, iFlow.location.id));
+			int j = idx.add(iFlow);
 			Assert.assertEquals(i, j);
 			b = !b;
 		}
@@ -63,7 +64,6 @@ public class FlowIndexTest {
 			Assert.assertEquals(i, idx.of(iflow.flow.id, iflow.location.id));
 			Assert.assertEquals(i, idx.of(iflow.flow, iflow.location));
 			Assert.assertTrue(idx.contains(iflow.flow.id, iflow.location.id));
-			Assert.assertTrue(idx.contains(iflow.flow, iflow.location));
 			Assert.assertEquals(isInput.get(i), iflow.isInput);
 		}
 	}
@@ -81,13 +81,13 @@ public class FlowIndexTest {
 			}
 			if (i % 2 == 0) {
 				int _i = isInput
-					? idx.putInput(randFlow())
-					: idx.putOutput(randFlow());
+					? idx.add(IndexFlow.inputOf(randFlow()))
+					: idx.add(IndexFlow.outputOf(randFlow()));
 				Assert.assertEquals(i, _i);
 			} else {
 				int _i = isInput
-					? idx.putInput(randFlow(), randLocation())
-					: idx.putOutput(randFlow(), randLocation());
+					? idx.add(IndexFlow.inputOf(randFlow(), randLocation()))
+					: idx.add(IndexFlow.outputOf(randFlow(), randLocation()));
 				Assert.assertEquals(i, _i);
 			}
 		}

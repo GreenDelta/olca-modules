@@ -19,6 +19,7 @@ import org.openlca.core.Tests;
 import org.openlca.core.library.Library;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.ImpactIndex;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
@@ -76,8 +77,8 @@ public class ResultProviderTest {
 			return Descriptor.of(f);
 		};
 		data.flowIndex = FlowIndex.create();
-		data.flowIndex.putOutput(flow.apply(1));
-		data.flowIndex.putInput(flow.apply(2));
+		data.flowIndex.add(IndexFlow.outputOf(flow.apply(1)));
+		data.flowIndex.add(IndexFlow.inputOf(flow.apply(2)));
 		data.flowMatrix = JavaMatrix.of(new double[][]{
 				{1.0, 2.0},
 				{-3.0, -3.0},

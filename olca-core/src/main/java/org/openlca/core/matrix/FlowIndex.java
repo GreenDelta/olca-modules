@@ -79,9 +79,9 @@ public final class FlowIndex implements MatrixIndex<IndexFlow> {
 			if (flow == null)
 				return true;
 			if (directions.get(flowID) < 0) {
-				index.putInput(flow);
+				index.add(IndexFlow.inputOf(flow));
 			} else {
-				index.putOutput(flow);
+				index.add(IndexFlow.outputOf(flow));
 			}
 			return true;
 		});
@@ -127,9 +127,9 @@ public final class FlowIndex implements MatrixIndex<IndexFlow> {
 				? locations.get(locationID)
 				: null;
 			if (directions.get(flowID) < 0) {
-				index.putInput(flow, location);
+				index.add(IndexFlow.inputOf(flow, location));
 			} else {
-				index.putOutput(flow, location);
+				index.add(IndexFlow.outputOf(flow, location));
 			}
 			return true;
 		});
@@ -208,14 +208,6 @@ public final class FlowIndex implements MatrixIndex<IndexFlow> {
 		return of(flow) >= 0;
 	}
 
-	public boolean contains(FlowDescriptor flow) {
-		return of(flow) >= 0;
-	}
-
-	public boolean contains(FlowDescriptor flow, LocationDescriptor location) {
-		return of(flow, location) >= 0;
-	}
-
 	public boolean contains(long flowID) {
 		return of(flowID) >= 0;
 	}
@@ -285,26 +277,6 @@ public final class FlowIndex implements MatrixIndex<IndexFlow> {
 		return e.isInput
 			? add(IndexFlow.inputOf(flow, loc))
 			: add(IndexFlow.outputOf(flow, loc));
-	}
-
-	public int putInput(FlowDescriptor flow) {
-		return add(IndexFlow.inputOf(flow));
-	}
-
-	public int putInput(FlowDescriptor flow, LocationDescriptor location) {
-		return isRegionalized()
-			? add(IndexFlow.inputOf(flow, location))
-			: add(IndexFlow.inputOf(flow));
-	}
-
-	public int putOutput(FlowDescriptor flow) {
-		return add(IndexFlow.outputOf(flow));
-	}
-
-	public int putOutput(FlowDescriptor flow, LocationDescriptor location) {
-		return isRegionalized()
-			? add(IndexFlow.outputOf(flow, location))
-			: add(IndexFlow.outputOf(flow));
 	}
 
 	@Override

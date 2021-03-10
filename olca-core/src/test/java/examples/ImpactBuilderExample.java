@@ -5,9 +5,10 @@ import java.io.File;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.derby.DerbyDatabase;
-import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.ImpactBuilder;
+import org.openlca.core.matrix.ImpactIndex;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.model.FlowType;
 
@@ -28,7 +29,7 @@ public class ImpactBuilderExample {
 		var flowIndex = FlowIndex.create();
 		new FlowDao(db).getDescriptors().forEach(d -> {
 			if (d.flowType == FlowType.ELEMENTARY_FLOW) {
-				flowIndex.putOutput(d);
+				flowIndex.add(IndexFlow.outputOf(d));
 			}
 		});
 

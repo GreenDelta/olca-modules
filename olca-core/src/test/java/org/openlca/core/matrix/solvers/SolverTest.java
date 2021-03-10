@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.openlca.core.Tests;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
@@ -67,10 +68,10 @@ public class SolverTest {
 		data.techIndex = techIndex;
 
 		FlowIndex enviIndex = FlowIndex.create();
-		enviIndex.putInput(flow(1));
-		enviIndex.putInput(flow(2));
-		enviIndex.putOutput(flow(3));
-		enviIndex.putOutput(flow(4));
+		enviIndex.add(IndexFlow.inputOf(flow(1)));
+		enviIndex.add(IndexFlow.inputOf(flow(2)));
+		enviIndex.add(IndexFlow.outputOf(flow(3)));
+		enviIndex.add(IndexFlow.outputOf(flow(4)));
 		data.flowIndex = enviIndex;
 
 		Matrix techMatrix = solver.matrix(1, 1);

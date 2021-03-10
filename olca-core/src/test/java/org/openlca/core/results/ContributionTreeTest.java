@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
@@ -28,7 +29,7 @@ public class ContributionTreeTest {
 		var enviIndex = FlowIndex.create();
 		var outFlow = new FlowDescriptor();
 		outFlow.id = 4;
-		enviIndex.putOutput(outFlow);
+		enviIndex.add(IndexFlow.outputOf(outFlow));
 		data.flowIndex = enviIndex;
 
 		var solver = Tests.getDefaultSolver();
