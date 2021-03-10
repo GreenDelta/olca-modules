@@ -1,5 +1,6 @@
 package org.openlca.core.matrix;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.uncertainties.UMatrix;
+import org.openlca.core.model.Copyable;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.expressions.FormulaInterpreter;
 
@@ -136,7 +138,7 @@ public class MatrixData {
 
 	public boolean isSparse() {
 		return techMatrix instanceof HashPointMatrix
-					 || techMatrix instanceof CSCMatrix;
+			|| techMatrix instanceof CSCMatrix;
 	}
 
 	public boolean hasLibraryLinks() {
@@ -174,5 +176,23 @@ public class MatrixData {
 		if (impactMatrix instanceof HashPointMatrix) {
 			impactMatrix = CSCMatrix.of(impactMatrix);
 		}
+	}
+
+	public MatrixData copy() {
+		var copy = new MatrixData();
+		copy.techIndex = Copyable.Copy.of(techIndex);
+		copy.flowIndex = Copyable.Copy.of(flowIndex);
+		copy.impactIndex = Copyable.Copy.of(impactIndex);
+		copy.techMatrix = Copyable.Copy.of(techMatrix);
+		copy.flowMatrix = Copyable.Copy.of(flowMatrix);
+		copy.impactMatrix = Copyable.Copy.of(impactMatrix);
+		if (costVector != null) {
+			copy.costVector = Arrays.copyOf(costVector, costVector.length);
+		}
+		// copy.techUncertainties = Copyable.Copy.of(techUncertainties);
+		// copy.enviUncertainties = Copyable.Copy.of(enviUncertainties);
+		// copy.impactUncertainties = Copyable.Copy.of(impactUncertainties);
+		copy._hasLibraryLinks = _hasLibraryLinks;
+		return copy;
 	}
 }

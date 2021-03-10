@@ -1,6 +1,8 @@
 package org.openlca.core.matrix.format;
 
-public interface MatrixReader {
+import org.openlca.core.model.Copyable;
+
+public interface MatrixReader extends Copyable<MatrixReader> {
 
 	/**
 	 * Returns the number of rows of the matrix.
@@ -26,11 +28,6 @@ public interface MatrixReader {
 	 * Get the column values of the given row.
 	 */
 	double[] getRow(int i);
-
-	/**
-	 * Creates a copy of this matrix and returns it
-	 */
-	MatrixReader copy();
 
 	/**
 	 * Iterates over the non-zero values in this matrix. There is no defined

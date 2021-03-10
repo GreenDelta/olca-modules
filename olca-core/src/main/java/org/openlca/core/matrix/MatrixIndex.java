@@ -2,11 +2,13 @@ package org.openlca.core.matrix;
 
 import java.util.Set;
 
+import org.openlca.core.model.Copyable;
+
 /**
  * Maps a set of instances of a given type to the corresponding rows or columns
  * of a matrix.
  */
-public interface MatrixIndex<T> {
+public interface MatrixIndex<T> extends Copyable<MatrixIndex<T>> {
 
 	/**
 	 * Adds the given element to this index and returns the position of that
@@ -53,12 +55,6 @@ public interface MatrixIndex<T> {
 	 * Get the content of this index.
 	 */
   Set<T> content();
-
-	/**
-	 * Creates a copy of this index. Note that this does not copy the elements
-	 * of the index.
-	 */
-	MatrixIndex<T> copy();
 
 	/**
 	 * Iterates over this index calling the given function for each position
