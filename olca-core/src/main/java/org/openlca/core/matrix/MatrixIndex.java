@@ -27,6 +27,30 @@ public interface MatrixIndex<T> {
 	}
 
 	/**
+	 * Adds the given element to this index and returns the position of that
+	 * element in this index. If this index already contains this element
+	 * only the existing position is return without modifying this index.
+	 */
+	int add(T elem);
+
+	/**
+	 * Adds all element of the given collection to this index.
+	 */
+	default void addAll(Iterable<T> elements) {
+		if (elements == null)
+			return;
+		for (var elem : elements) {
+			add(elem);
+		}
+	}
+
+	default <I extends MatrixIndex<T>> void addAll(I other) {
+		if (other == null)
+			return;
+		other.each((_i, elem) -> add(elem));
+	}
+
+	/**
 	 * Returns the number of elements of this index.
 	 */
 	int size();
@@ -39,8 +63,8 @@ public interface MatrixIndex<T> {
 	}
 
 	/**
-	 * Iterates over this index calling the given function for each position and
-	 * element pair.
+	 * Iterates over this index calling the given function for each position
+	 * and element pair.
 	 */
 	void each(IndexConsumer<T> fn);
 

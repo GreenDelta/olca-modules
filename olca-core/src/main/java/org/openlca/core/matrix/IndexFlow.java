@@ -13,48 +13,50 @@ public class IndexFlow {
 	/**
 	 * The flow that is mapped to the matrix index.
 	 */
-	public FlowDescriptor flow;
+	public final FlowDescriptor flow;
 
 	/**
 	 * In case of a regionalized flow index flow-location pairs are mapped to matrix
 	 * indices.
 	 */
-	public LocationDescriptor location;
+	public final LocationDescriptor location;
 
 	/**
 	 * Indicates whether the flow is an input flow or not.
 	 */
-	public boolean isInput;
+	public final boolean isInput;
 
-	public static IndexFlow ofInput(FlowDescriptor flow) {
-		var iflow = new IndexFlow();
-		iflow.flow = flow;
-		iflow.isInput = true;
-		return iflow;
+	IndexFlow(FlowDescriptor flow, LocationDescriptor location, boolean isInput) {
+		this.flow = Objects.requireNonNull(flow);
+		this.location = location;
+		this.isInput = isInput;
 	}
 
-	public static IndexFlow ofInput(FlowDescriptor flow, LocationDescriptor loc) {
-		var iflow = new IndexFlow();
-		iflow.flow = flow;
-		iflow.location = loc;
-		iflow.isInput = true;
-		return iflow;
+	public static IndexFlow inputOf(FlowDescriptor flow) {
+		return new IndexFlow(flow, null, true);
 	}
 
-	public static IndexFlow ofOutput(FlowDescriptor flow) {
-		var iflow = new IndexFlow();
-		iflow.flow = flow;
-		iflow.isInput = false;
-		return iflow;
+	public static IndexFlow inputOf(FlowDescriptor flow, LocationDescriptor loc) {
+		return new IndexFlow(flow, loc, true);
 	}
 
-	public static IndexFlow ofOutput(FlowDescriptor flow, LocationDescriptor loc) {
-		var iflow = new IndexFlow();
-		iflow.flow = flow;
-		iflow.location = loc;
-		iflow.isInput = false;
-		return iflow;
+	public static IndexFlow outputOf(FlowDescriptor flow) {
+		return new IndexFlow(flow, null, false);
 	}
+
+	public static IndexFlow outputOf(FlowDescriptor flow, LocationDescriptor loc) {
+		return new IndexFlow(flow, loc, false);
+	}
+
+	long id() {
+		return flow.id;
+	}
+
+	LongPair regionalizedId() {
+		var locID = location == null ? 0L : location.id;
+		return LongPair.of(flow.id, locID);
+	}
+
 
 	@Override
 	public boolean equals(Object o) {
@@ -69,8 +71,6 @@ public class IndexFlow {
 
 	@Override
 	public int hashCode() {
-		if (flow == null)
-			return super.hashCode();
 		if (location == null)
 			return (int) flow.id;
 		return LongPair.hash(flow.id, location.id);

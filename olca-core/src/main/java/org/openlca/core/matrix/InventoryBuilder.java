@@ -49,7 +49,7 @@ public class InventoryBuilder {
 			: FlowIndex.create();
 		if (conf.subResults != null) {
 			for (var subResult : conf.subResults.values()) {
-				flowIndex.putAll(subResult.flowIndex);
+				flowIndex.addAll(subResult.flowIndex);
 			}
 		}
 

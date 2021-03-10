@@ -164,7 +164,7 @@ public class LibraryResultProvider implements ResultProvider {
 			index = indexF.isRegionalized()
 					? FlowIndex.createRegionalized()
 					: FlowIndex.create();
-			index.putAll(indexF);
+			index.addAll(indexF);
 		}
 
 		// extend the flow index with the flow indices
@@ -180,7 +180,7 @@ public class LibraryResultProvider implements ResultProvider {
 						? FlowIndex.createRegionalized()
 						: FlowIndex.create();
 			}
-			index.putAll(libIdx);
+			index.addAll(libIdx);
 			libFlowIndices.put(libID, libIdx);
 		}
 

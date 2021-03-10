@@ -149,9 +149,7 @@ public class DQResultTest {
 	}
 
 	private int[] r(DQResult dq, Flow flow) {
-		var iflow = new IndexFlow();
-		iflow.flow = Descriptor.of(flow);
-		return dq.get(iflow);
+		return dq.get(IndexFlow.outputOf(Descriptor.of(flow)));
 	}
 
 	private int[] r(DQResult dq, Process process) {
@@ -161,8 +159,7 @@ public class DQResultTest {
 
 	private int[] r(DQResult dq, Process process, Flow flow) {
 		var product = ProcessProduct.of(process);
-		var iflow = new IndexFlow();
-		iflow.flow = Descriptor.of(flow);
+		var iflow = IndexFlow.outputOf(Descriptor.of(flow));
 		return dq.get(product, iflow);
 	}
 

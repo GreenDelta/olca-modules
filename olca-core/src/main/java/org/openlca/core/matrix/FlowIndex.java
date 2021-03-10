@@ -224,29 +224,21 @@ public final class FlowIndex implements MatrixIndex<IndexFlow> {
 		return of(flowID, locationID) >= 0;
 	}
 
-	/**
-	 * Adds all flows of the given index to this index.
-	 */
-	public void putAll(FlowIndex other) {
-		if (other == null || other == this)
-			return;
-		other.each((_i, f) -> {
-			if (contains(f))
-				return;
-			if (regIndex != null) {
-				if (f.isInput) {
-					putInput(f.flow, f.location);
-				} else {
-					putOutput(f.flow, f.location);
-				}
-			} else {
-				if (f.isInput) {
-					putInput(f.flow);
-				} else {
-					putOutput(f.flow);
-				}
-			}
-		});
+	@Override
+	public int add(IndexFlow elem) {
+		if (elem == null)
+			return -1;
+		var pos = of(elem);
+		if (pos >= 0)
+			return pos;
+		var idx = flows.size();
+		flows.add(elem);
+		if (regIndex != null) {
+			regIndex.put(elem.regionalizedId(), idx);
+		} else if (index != null) {
+			index.put(elem.id(), idx);
+		}
+		return idx;
 	}
 
 	/**
@@ -271,8 +263,8 @@ public final class FlowIndex implements MatrixIndex<IndexFlow> {
 
 		if (regIndex == null) {
 			return e.isInput
-				? putInput(flow)
-				: putOutput(flow);
+				? add(IndexFlow.inputOf(flow))
+				: add(IndexFlow.outputOf(flow));
 		}
 
 		// take the location from the exchange
@@ -291,57 +283,28 @@ public final class FlowIndex implements MatrixIndex<IndexFlow> {
 			}
 		}
 		return e.isInput
-			? putInput(flow, loc)
-			: putOutput(flow, loc);
+			? add(IndexFlow.inputOf(flow, loc))
+			: add(IndexFlow.outputOf(flow, loc));
 	}
 
 	public int putInput(FlowDescriptor flow) {
-		return put(flow, null, true);
+		return add(IndexFlow.inputOf(flow));
 	}
 
 	public int putInput(FlowDescriptor flow, LocationDescriptor location) {
-		return put(flow, location, true);
+		return isRegionalized()
+			? add(IndexFlow.inputOf(flow, location))
+			: add(IndexFlow.inputOf(flow));
 	}
 
 	public int putOutput(FlowDescriptor flow) {
-		return put(flow, null, false);
+		return add(IndexFlow.outputOf(flow));
 	}
 
 	public int putOutput(FlowDescriptor flow, LocationDescriptor location) {
-		return put(flow, location, false);
-	}
-
-	private int put(FlowDescriptor flow,
-									LocationDescriptor location,
-									boolean isInput) {
-		if (flow == null)
-			return -1;
-
-		int idx = flows.size();
-
-		// check if the flow should be added
-		if (regIndex != null) {
-			long locID = location == null ? 0L : location.id;
-			var p = LongPair.of(flow.id, locID);
-			var i = regIndex.get(p);
-			if (i != null)
-				return i;
-			regIndex.put(p, idx);
-		} else if (index != null ){
-			int i = index.get(flow.id);
-			if (i > -1)
-				return i;
-			index.put(flow.id, idx);
-		}
-
-		// create and add the index flow
-		var f = new IndexFlow();
-		// f.index = idx;
-		f.flow = flow;
-		f.location = regIndex != null ? location : null;
-		f.isInput = isInput;
-		flows.add(f);
-		return idx;
+		return isRegionalized()
+			? add(IndexFlow.outputOf(flow, location))
+			: add(IndexFlow.outputOf(flow));
 	}
 
 	@Override
