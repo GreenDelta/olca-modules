@@ -212,10 +212,14 @@ public class LibraryExport implements Runnable {
 	}
 
 	private void preCalculate() {
-		if (!withInventory
-				|| !Julia.isLoaded()
-				|| data.techMatrix == null)
+		if (!withInventory || data.techMatrix == null)
 			return;
+		// we only pre-calculate the inverse etc. if the
+		// native can be loaded
+		if (!Julia.isLoaded()) {
+			if (!Julia.load())
+				return;
+		}
 		log.info("create matrix INV");
 		var solver = new JuliaSolver();
 		var inv = solver.invert(data.techMatrix);

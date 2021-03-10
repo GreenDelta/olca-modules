@@ -32,6 +32,7 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
+import org.openlca.util.Dirs;
 
 @RunWith(Parameterized.class)
 public class ResultProviderTest {
@@ -111,8 +112,8 @@ public class ResultProviderTest {
 
 		// create the result providers
 		return List.of(
-				// EagerResultProvider.create(data),
-				// LazyResultProvider.create(data),
+				EagerResultProvider.create(data),
+				LazyResultProvider.create(data),
 				LibraryResultProvider.of(db, foreground)
 		);
 	}
@@ -120,7 +121,7 @@ public class ResultProviderTest {
 	@AfterClass
 	public static void tearDown() {
 		Tests.getDb().clear();
-		// Dirs.delete(libDir);
+		Dirs.delete(libDir);
 	}
 
 	@Test
