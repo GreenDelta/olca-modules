@@ -17,7 +17,7 @@ import java.util.Set;
  * maps the IDs of the impacts so that each impact category needs a unique
  * ID > 0 (which is the case when it is stored in a database).
  */
-public class ImpactIndex {
+public class ImpactIndex implements MatrixIndex<ImpactDescriptor> {
 
 	/**
 	 * Contains the ordered content of the index.
@@ -39,7 +39,7 @@ public class ImpactIndex {
 		if (impacts == null)
 			return index;
 		for (var impact : impacts) {
-			index.put(impact);
+			index.add(impact);
 		}
 		return index;
 	}
@@ -67,6 +67,7 @@ public class ImpactIndex {
 	/**
 	 * Returns the number of impact categories in the index.
 	 */
+	@Override
 	public int size() {
 		return content.size();
 	}
@@ -74,14 +75,16 @@ public class ImpactIndex {
 	/**
 	 * Returns true if there is no content in this index.
 	 */
+	@Override
 	public boolean isEmpty() {
-		return content.size() == 0;
+		return content.isEmpty();
 	}
 
 	/**
 	 * Get the impact category at the given position or null when
 	 * there is no impact category mapped to the given position.
 	 */
+	@Override
 	public ImpactDescriptor at(int i) {
 		if (i < 0 || i >= content.size())
 			return null;
@@ -100,6 +103,7 @@ public class ImpactIndex {
 	 * Returns the position of the given impact category. If the impact
 	 * category is not contained in this index, it returns -1.
 	 */
+	@Override
 	public int of(ImpactDescriptor d) {
 		if (d == null)
 			return -1;
@@ -117,6 +121,7 @@ public class ImpactIndex {
 	/**
 	 * Returns true when the given impact category is part of this index.
 	 */
+	@Override
 	public boolean contains(ImpactDescriptor d) {
 		return of(d) >= 0;
 	}
@@ -133,7 +138,8 @@ public class ImpactIndex {
 	 * Adds the given impact category to this index if it is not yet
 	 * contained and returns the index position of it.
 	 */
-	public int put(ImpactDescriptor d) {
+	@Override
+	public int add(ImpactDescriptor d) {
 		if (d == null)
 			return -1;
 		int idx = of(d);
@@ -146,17 +152,6 @@ public class ImpactIndex {
 	}
 
 	/**
-	 * Adds all impact categories from the given collection to this index.
-	 */
-	public void putAll(Iterable<ImpactDescriptor> it) {
-		if (it == null)
-			return;
-		for (var d : it) {
-			put(d);
-		}
-	}
-
-	/**
 	 * Get the (unordered) IDs of all impact categories that are in this index.
 	 */
 	public long[] ids() {
@@ -166,6 +161,7 @@ public class ImpactIndex {
 	/**
 	 * Calls the given function for each impact category in this index.
 	 */
+	@Override
 	public void each(IndexConsumer<ImpactDescriptor> fn) {
 		for (int i = 0; i < content.size(); i++) {
 			fn.accept(i, content.get(i));
@@ -177,5 +173,14 @@ public class ImpactIndex {
 	 */
 	public Set<ImpactDescriptor> content() {
 		return new HashSet<>(content);
+	}
+
+	@Override
+	public MatrixIndex<ImpactDescriptor> copy() {
+		var copy = new ImpactIndex();
+		for (var impact : content) {
+			copy.add(impact);
+		}
+		return copy;
 	}
 }

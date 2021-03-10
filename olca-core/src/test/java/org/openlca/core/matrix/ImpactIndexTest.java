@@ -16,7 +16,7 @@ public class ImpactIndexTest {
 		for (int i = 1; i < 11; i++) {
 			var d = new ImpactDescriptor();
 			d.id = i;
-			index.put(d);
+			index.add(d);
 		}
 		long[] ids = index.ids();
 		assertEquals(10, ids.length);

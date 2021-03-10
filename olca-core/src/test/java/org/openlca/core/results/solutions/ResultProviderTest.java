@@ -92,9 +92,9 @@ public class ResultProviderTest {
 			return Descriptor.of(imp);
 		};
 		data.impactIndex = new ImpactIndex();
-		data.impactIndex.put(impact.apply(1));
-		data.impactIndex.put(impact.apply(2));
-		data.impactIndex.put(impact.apply(3));
+		data.impactIndex.add(impact.apply(1));
+		data.impactIndex.add(impact.apply(2));
+		data.impactIndex.add(impact.apply(3));
 		data.impactMatrix = JavaMatrix.of(new double[][]{
 				{1.0, 0.0},
 				{0.0, -1.0},

@@ -284,7 +284,7 @@ public class Library {
 			var impact = impacts.get(entry.getImpact().getId());
 			if (impact == null)
 				return Optional.empty();
-			index.put(impact);
+			index.add(impact);
 		}
 		return Optional.of(index);
 	}

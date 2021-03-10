@@ -584,7 +584,7 @@ public class LibraryResultProvider implements ResultProvider {
 		var impactsF = new ImpactIndex();
 		impactIndex.each((index, impact) -> {
 			if (!impact.isFromLibrary()) {
-				impactsF.put(impact);
+				impactsF.add(impact);
 			}
 		});
 		if (!impactsF.isEmpty()) {
