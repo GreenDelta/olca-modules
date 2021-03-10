@@ -291,7 +291,8 @@ public final class FlowIndex implements MatrixIndex<IndexFlow> {
 	/**
 	 * Creates a new set with the flows of this index.
 	 */
-	public Set<IndexFlow> flows() {
+	@Override
+	public Set<IndexFlow> content() {
 		return new HashSet<>(flows);
 	}
 

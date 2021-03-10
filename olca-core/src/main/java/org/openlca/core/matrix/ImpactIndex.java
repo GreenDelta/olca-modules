@@ -1,16 +1,17 @@
 package org.openlca.core.matrix;
 
-import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TLongIntHashMap;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TLongIntHashMap;
 
 /**
  * Maps a set of impact categories to a matrix index. Note that the index
@@ -152,13 +153,6 @@ public class ImpactIndex implements MatrixIndex<ImpactDescriptor> {
 	}
 
 	/**
-	 * Get the (unordered) IDs of all impact categories that are in this index.
-	 */
-	public long[] ids() {
-		return index.keys();
-	}
-
-	/**
 	 * Calls the given function for each impact category in this index.
 	 */
 	@Override
@@ -171,6 +165,7 @@ public class ImpactIndex implements MatrixIndex<ImpactDescriptor> {
 	/**
 	 * Returns the impact categories of this index.
 	 */
+	@Override
 	public Set<ImpactDescriptor> content() {
 		return new HashSet<>(content);
 	}

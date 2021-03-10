@@ -1,30 +1,12 @@
 package org.openlca.core.matrix;
 
+import java.util.Set;
+
 /**
  * Maps a set of instances of a given type to the corresponding rows or columns
  * of a matrix.
  */
 public interface MatrixIndex<T> {
-
-	/**
-	 * Get the index element at the given matrix position.
-	 */
-	T at(int i);
-
-	/**
-	 * Get the matrix position of the given index element. Returns -1 if the
-	 * given element is not part of this index.
-	 */
-	int of(T elem);
-
-	/**
-	 * Returns true if this index contains the given element.
-	 */
-	default boolean contains(T elem) {
-		if (elem == null)
-			return false;
-		return of(elem) >= 0;
-	}
 
 	/**
 	 * Adds the given element to this index and returns the position of that
@@ -44,6 +26,9 @@ public interface MatrixIndex<T> {
 		}
 	}
 
+	/**
+	 * Adds all element of the given index to this index.
+	 */
 	default <I extends MatrixIndex<T>> void addAll(I other) {
 		if (other == null)
 			return;
@@ -51,9 +36,35 @@ public interface MatrixIndex<T> {
 	}
 
 	/**
-	 * Returns the number of elements of this index.
+	 * Get the index element at the given matrix position.
 	 */
-	int size();
+	T at(int i);
+
+	/**
+	 * Returns true if this index contains the given element.
+	 */
+	default boolean contains(T elem) {
+		if (elem == null)
+			return false;
+		return of(elem) >= 0;
+	}
+
+	/**
+	 * Get the content of this index.
+	 */
+  Set<T> content();
+
+	/**
+	 * Creates a copy of this index. Note that this does not copy the elements
+	 * of the index.
+	 */
+	MatrixIndex<T> copy();
+
+	/**
+	 * Iterates over this index calling the given function for each position
+	 * and element pair.
+	 */
+	void each(IndexConsumer<T> fn);
 
 	/**
 	 * Returns true when this index is empty and does not contain any element.
@@ -63,14 +74,13 @@ public interface MatrixIndex<T> {
 	}
 
 	/**
-	 * Iterates over this index calling the given function for each position
-	 * and element pair.
+	 * Get the matrix position of the given index element. Returns -1 if the
+	 * given element is not part of this index.
 	 */
-	void each(IndexConsumer<T> fn);
+	int of(T elem);
 
 	/**
-	 * Creates a copy of this index. Note that this does not copy the elements
-	 * of the index.
+	 * Returns the number of elements of this index.
 	 */
-	MatrixIndex<T> copy();
+	int size();
 }
