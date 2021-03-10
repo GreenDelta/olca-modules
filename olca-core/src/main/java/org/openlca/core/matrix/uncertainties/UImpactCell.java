@@ -70,4 +70,9 @@ class UImpactCell implements UCell {
 			factor.parameter2,
 		};
 	}
+
+	@Override
+	public UCell copy() {
+		return new UImpactCell(factor);
+	}
 }

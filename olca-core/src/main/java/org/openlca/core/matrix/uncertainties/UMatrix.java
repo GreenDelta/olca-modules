@@ -6,6 +6,7 @@ import org.openlca.core.matrix.CalcAllocationFactor;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.CalcImpactFactor;
 import org.openlca.core.matrix.format.Matrix;
+import org.openlca.core.model.Copyable;
 import org.openlca.expressions.FormulaInterpreter;
 
 import gnu.trove.impl.Constants;
@@ -14,7 +15,7 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 /**
  * An UMatrix is a matrix with uncertainty distributions.
  */
-public class UMatrix {
+public class UMatrix implements Copyable<UMatrix> {
 
 	private final TIntObjectHashMap<TIntObjectHashMap<UCell>> data;
 
@@ -118,5 +119,31 @@ public class UMatrix {
 				fn.accept(row, col, cols.value());
 			}
 		}
+	}
+
+	@Override
+	public UMatrix copy() {
+		var copy = new UMatrix();
+		for(var rowIt = data.iterator(); rowIt.hasNext();) {
+			rowIt.advance();
+			var row = rowIt.key();
+			var cells = rowIt.value();
+			if (cells == null || cells.isEmpty())
+				continue;
+			var copyCells = new TIntObjectHashMap<UCell>(
+				Constants.DEFAULT_CAPACITY,
+				Constants.DEFAULT_LOAD_FACTOR,
+				-1);
+			copy.data.put(row, copyCells);
+			for (var cellIt = cells.iterator(); cellIt.hasNext();) {
+				cellIt.advance();
+				var col = cellIt.key();
+				var cell = cellIt.value();
+				if (cell == null)
+					continue;
+				copyCells.put(col, cell.copy());
+			}
+		}
+		return copy;
 	}
 }

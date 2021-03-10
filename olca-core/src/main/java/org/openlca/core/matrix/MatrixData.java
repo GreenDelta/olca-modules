@@ -10,9 +10,9 @@ import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.uncertainties.UMatrix;
-import org.openlca.core.model.Copyable;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.expressions.FormulaInterpreter;
+import org.openlca.util.Copy;
 
 /**
  * Contains the matrices of that are input of a calculation.
@@ -180,18 +180,18 @@ public class MatrixData {
 
 	public MatrixData copy() {
 		var copy = new MatrixData();
-		copy.techIndex = Copyable.Copy.of(techIndex);
-		copy.flowIndex = Copyable.Copy.of(flowIndex);
-		copy.impactIndex = Copyable.Copy.of(impactIndex);
-		copy.techMatrix = Copyable.Copy.of(techMatrix);
-		copy.flowMatrix = Copyable.Copy.of(flowMatrix);
-		copy.impactMatrix = Copyable.Copy.of(impactMatrix);
+		copy.techIndex = Copy.of(techIndex);
+		copy.flowIndex = Copy.of(flowIndex);
+		copy.impactIndex = Copy.of(impactIndex);
+		copy.techMatrix = Copy.of(techMatrix);
+		copy.flowMatrix = Copy.of(flowMatrix);
+		copy.impactMatrix = Copy.of(impactMatrix);
 		if (costVector != null) {
 			copy.costVector = Arrays.copyOf(costVector, costVector.length);
 		}
-		// copy.techUncertainties = Copyable.Copy.of(techUncertainties);
-		// copy.enviUncertainties = Copyable.Copy.of(enviUncertainties);
-		// copy.impactUncertainties = Copyable.Copy.of(impactUncertainties);
+		copy.techUncertainties = Copy.of(techUncertainties);
+		copy.enviUncertainties = Copy.of(enviUncertainties);
+		copy.impactUncertainties = Copy.of(impactUncertainties);
 		copy._hasLibraryLinks = _hasLibraryLinks;
 		return copy;
 	}

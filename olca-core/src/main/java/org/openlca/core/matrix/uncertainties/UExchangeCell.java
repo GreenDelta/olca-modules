@@ -1,5 +1,6 @@
 package org.openlca.core.matrix.uncertainties;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.openlca.core.math.NumberGenerator;
@@ -23,10 +24,6 @@ class UExchangeCell implements UCell {
 	 * https://github.com/GreenDelta/olca-app/issues/62
 	 */
 	private final NumberGenerator gen;
-
-	UExchangeCell(CalcExchange e) {
-		this(e, null);
-	}
 
 	UExchangeCell(CalcExchange e, CalcAllocationFactor f) {
 		this.exchange = e;
@@ -97,5 +94,17 @@ class UExchangeCell implements UCell {
 			exchange.parameter1,
 			exchange.parameter2,
 		};
+	}
+
+	@Override
+	public UExchangeCell copy() {
+		var copy = new UExchangeCell(exchange, allocationFactor);
+		if (overlay != null) {
+			copy.overlay = new ArrayList<>(overlay.size());
+			for (var o : overlay) {
+				copy.overlay.add(o.copy());
+			}
+		}
+		return copy;
 	}
 }
