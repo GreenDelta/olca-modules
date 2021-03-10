@@ -29,29 +29,27 @@ public class ProcessProduct {
 	 * (they are mapped to the technology matrix $mathbf{A}$ via the `TechIndex`
 	 * etc.).
 	 */
-	public CategorizedDescriptor process;
+	public final CategorizedDescriptor process;
 
 	/**
 	 * The product flow of the process-product pair. Note that this can also be
 	 * a waste flow (which is then an input of the process and the treatment of
 	 * waste is the product of the process).
 	 */
-	public FlowDescriptor flow;
+	public final FlowDescriptor flow;
 
-	public static ProcessProduct of(
-			CategorizedDescriptor entity,
-			FlowDescriptor flow) {
-		var p = new ProcessProduct();
-		p.process = entity;
-		p.flow = flow;
-		return p;
+	private ProcessProduct(CategorizedDescriptor process, FlowDescriptor flow) {
+		this.process = process;
+		this.flow = flow;
 	}
 
-	public static ProcessProduct of(
-			Process process,
-			Flow flow) {
-		return of(Descriptor.of(process),
-				Descriptor.of(flow));
+	public static ProcessProduct of(CategorizedDescriptor process,
+																	FlowDescriptor flow) {
+		return new ProcessProduct(process, flow);
+	}
+
+	public static ProcessProduct of(Process process, Flow flow) {
+		return of(Descriptor.of(process), Descriptor.of(flow));
 	}
 
 	/**
@@ -60,10 +58,9 @@ public class ProcessProduct {
 	 */
 	public static ProcessProduct of(ProductSystem system) {
 		Flow flow = system.referenceExchange != null
-				? system.referenceExchange.flow
-				: null;
-		return of(Descriptor.of(system),
-				Descriptor.of(flow));
+			? system.referenceExchange.flow
+			: null;
+		return of(Descriptor.of(system), Descriptor.of(flow));
 	}
 
 	/**
@@ -75,10 +72,9 @@ public class ProcessProduct {
 	 */
 	public static ProcessProduct of(Process process) {
 		var flow = process.quantitativeReference != null
-				? process.quantitativeReference.flow
-				: null;
-		return of(Descriptor.of(process),
-				Descriptor.of(flow));
+			? process.quantitativeReference.flow
+			: null;
+		return of(Descriptor.of(process), Descriptor.of(flow));
 	}
 
 	@Override
@@ -92,11 +88,16 @@ public class ProcessProduct {
 			return false;
 		var other = (ProcessProduct) obj;
 		return Objects.equals(this.process, other.process)
-				&& Objects.equals(this.flow, other.flow);
+			&& Objects.equals(this.flow, other.flow);
 	}
 
-	public boolean equals(long id, long flowId) {
-		return id == id() && flowId == flowId();
+	/**
+	 * Returns true if the given process and flow ID are the same as of the
+	 * process or product system and product or waste flow of this process
+	 * product.
+	 */
+	public boolean matches(long processId, long flowId) {
+		return processId == processId() && flowId == flowId();
 	}
 
 	public long flowId() {
@@ -107,12 +108,12 @@ public class ProcessProduct {
 	 * Returns the ID of the underlying process or product system of this
 	 * provider.
 	 */
-	public long id() {
+	public long processId() {
 		return process == null ? 0L : process.id;
 	}
 
 	public LongPair pair() {
-		return LongPair.of(id(), flowId());
+		return LongPair.of(processId(), flowId());
 	}
 
 	public Long locationId() {
@@ -143,7 +144,7 @@ public class ProcessProduct {
 	 */
 	public String library() {
 		return process == null
-				? null
-				: process.library;
+			? null
+			: process.library;
 	}
 }

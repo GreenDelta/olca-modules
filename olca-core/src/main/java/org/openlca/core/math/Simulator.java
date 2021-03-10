@@ -209,7 +209,7 @@ public class Simulator {
 		if (node.subSystems != null) {
 			for (ProcessProduct subLink : node.subSystems) {
 				// add the LCI result of the sub-system
-				Node sub = nodeIndex.get(subLink.id());
+				Node sub = nodeIndex.get(subLink.processId());
 				if (sub == null)
 					continue;
 				if (sub.lastResult == null
@@ -394,7 +394,7 @@ public class Simulator {
 			data.techIndex.each((i, p) -> {
 				if (p.process != null
 						&& p.process.type == ModelType.PROCESS) {
-					paramContexts.add(p.id());
+					paramContexts.add(p.processId());
 				}
 			});
 			if (setup.impactMethod != null) {

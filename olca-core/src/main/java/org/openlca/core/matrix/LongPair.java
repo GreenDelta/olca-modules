@@ -8,8 +8,8 @@ package org.openlca.core.matrix;
  */
 public class LongPair implements Comparable<LongPair> {
 
-	public long first;
-	public long second;
+	public final long first;
+	public final long second;
 
 	public LongPair(long first, long second) {
 		this.first = first;
@@ -33,8 +33,7 @@ public class LongPair implements Comparable<LongPair> {
 
 	public static int hash(long first, long second) {
 		long h = first * 79 + second;
-		int hash = (int) ((h >> 32) ^ h);
-		return hash;
+		return (int) ((h >> 32) ^ h);
 	}
 
 	/**

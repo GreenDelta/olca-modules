@@ -254,10 +254,10 @@ public class TechIndex implements TechLinker {
 			return existing;
 		int pos = index.size();
 		index.put(provider, pos);
-		var list = processProviders.get(provider.id());
+		var list = processProviders.get(provider.processId());
 		if (list == null) {
 			list = new ArrayList<>();
-			processProviders.put(provider.id(), list);
+			processProviders.put(provider.processId(), list);
 		}
 		list.add(provider);
 		providers.add(provider);
@@ -350,7 +350,7 @@ public class TechIndex implements TechLinker {
 	public Set<Long> getProcessIds() {
 		HashSet<Long> set = new HashSet<>();
 		for (ProcessProduct p : providers) {
-			set.add(p.id());
+			set.add(p.processId());
 		}
 		return set;
 	}

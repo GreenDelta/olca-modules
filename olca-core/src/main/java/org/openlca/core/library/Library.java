@@ -52,10 +52,11 @@ public class Library {
 	/**
 	 * Creates a new library by writing the given matrix data into the given
 	 * folder. It will try to derive the name and version of the library from
-	 * the name of the given folder which should follow this pattern
-	 * `<lib-name>_<version>`. Also, it will try to calculate the respective
-	 * matrices with best available solver (so you should load any native
-	 * libraries before calling this function).
+	 * the name of the given folder which should follow the pattern
+	 * `<lib-name>_<version>`. Note that this method will modify the data of the
+	 * matrices A and B if these are not normalized 1 | -1. Thus, you should not
+	 * reuse the matrices after calling this method are provide a copy of the
+	 * data.
 	 */
 	public static Library create(IDatabase db, MatrixData data, File folder) {
 		var fullName = folder.getName();

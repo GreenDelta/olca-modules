@@ -62,7 +62,7 @@ class Exchanges {
 				? Exchange.input(flow, Math.abs(val))
 				: Exchange.output(flow, val);
 			if (i != column) {
-				exchange.defaultProviderId = product.id();
+				exchange.defaultProviderId = product.processId();
 			}
 			exchanges.add(exchange);
 		}

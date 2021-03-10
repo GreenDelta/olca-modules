@@ -43,7 +43,7 @@ public class ProviderSearch {
 		// there are multiple options.
 		if (config.providerLinking != DefaultProviders.IGNORE) {
 			for (ProcessProduct provider : providers) {
-				if (provider.id() == e.defaultProviderId)
+				if (provider.processId() == e.defaultProviderId)
 					return provider;
 			}
 			if (config.providerLinking == DefaultProviders.ONLY)
@@ -76,13 +76,13 @@ public class ProviderSearch {
 		if (newOption == null)
 			return false;
 		if (config.providerLinking != DefaultProviders.IGNORE) {
-			if (old.id() == e.defaultProviderId)
+			if (old.processId() == e.defaultProviderId)
 				return false;
-			if (newOption.id() == e.defaultProviderId)
+			if (newOption.processId() == e.defaultProviderId)
 				return true;
 		}
-		ProcessType oldType = processTable.getType(old.id());
-		ProcessType newType = processTable.getType(newOption.id());
+		ProcessType oldType = processTable.getType(old.processId());
+		ProcessType newType = processTable.getType(newOption.processId());
 		if (oldType == config.preferredType
 				&& newType != config.preferredType)
 			return false;

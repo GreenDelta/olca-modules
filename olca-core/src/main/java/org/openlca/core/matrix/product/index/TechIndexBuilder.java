@@ -52,14 +52,14 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 			Map<Long, List<CalcExchange>> exchanges = fetchExchanges(block);
 			for (ProcessProduct recipient : block) {
 				handled.add(recipient);
-				List<CalcExchange> all = exchanges.get(recipient.id());
+				List<CalcExchange> all = exchanges.get(recipient.processId());
 				List<CalcExchange> candidates = providers
 						.getLinkCandidates(all);
 				for (CalcExchange linkExchange : candidates) {
 					ProcessProduct provider = providers.find(linkExchange);
 					if (provider == null)
 						continue;
-					LongPair exchange = new LongPair(recipient.id(),
+					LongPair exchange = new LongPair(recipient.processId(),
 							linkExchange.exchangeId);
 					index.putLink(exchange, provider);
 					if (!handled.contains(provider)
@@ -90,7 +90,7 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 			return Collections.emptyMap();
 		Set<Long> processIds = new HashSet<>();
 		for (ProcessProduct provider : block) {
-			processIds.add(provider.id());
+			processIds.add(provider.processId());
 		}
 		try {
 			return cache.getExchangeCache().getAll(processIds);

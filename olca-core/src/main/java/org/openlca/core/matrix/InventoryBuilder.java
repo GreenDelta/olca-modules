@@ -169,7 +169,7 @@ public class InventoryBuilder {
 			return;
 		}
 
-		if (provider.equals(e.processId, e.flowId)) {
+		if (provider.matches(e.processId, e.flowId)) {
 			// the reference product or waste flow
 			int idx = techIndex.getIndex(provider);
 			add(idx, provider, techBuilder, e);

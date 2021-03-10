@@ -79,7 +79,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 					continue;
 				Node provider = link.provider;
 				LongPair exchange = LongPair.of(
-						node.flow.id(), link.exchangeId);
+						node.flow.processId(), link.exchangeId);
 				index.putLink(exchange, provider.flow);
 			}
 		}
@@ -113,7 +113,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 			for (Node n : next) {
 				n.state = NodeState.PROGRESS;
 				List<CalcExchange> exchanges = nextExchanges.get(
-						n.flow.id());
+						n.flow.processId());
 				CalcExchange provider = getProviderFlow(n, exchanges);
 				if (provider == null)
 					continue;
@@ -225,7 +225,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 				return Collections.emptyMap();
 			Set<Long> processIds = new HashSet<>();
 			for (Node node : next)
-				processIds.add(node.flow.id());
+				processIds.add(node.flow.processId());
 			try {
 				return cache.getExchangeCache().getAll(processIds);
 			} catch (Exception e) {

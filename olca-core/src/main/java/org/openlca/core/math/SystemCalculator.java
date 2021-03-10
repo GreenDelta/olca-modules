@@ -8,11 +8,8 @@ import java.util.Map;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.matrix.solvers.JavaSolver;
-import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -20,8 +17,6 @@ import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.ProjectResult;
 import org.openlca.core.results.SimpleResult;
-import org.openlca.julia.Julia;
-import org.openlca.julia.JuliaSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -125,7 +120,7 @@ public class SystemCalculator {
 		// calculate the LCI results of the sub-systems
 		var subResults = new HashMap<ProcessProduct, SimpleResult>();
 		for (var pp : subSystems) {
-			var subSystem = sysDao.getForId(pp.id());
+			var subSystem = sysDao.getForId(pp.processId());
 			if (subSystem == null)
 				continue;
 			var subSetup = new CalculationSetup(subSystem);
