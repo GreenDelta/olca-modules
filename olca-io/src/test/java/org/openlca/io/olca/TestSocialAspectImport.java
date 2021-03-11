@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.SocialIndicatorDao;
-import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.database.Derby;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.SocialAspect;
 import org.openlca.core.model.SocialIndicator;
@@ -23,7 +23,7 @@ public class TestSocialAspectImport {
 	@Test
 	@Ignore
 	public void testCopySocialAspects() throws Exception {
-		IDatabase db1 = DerbyDatabase.createInMemory();
+		IDatabase db1 = Derby.createInMemory();
 		SocialIndicator indicator = new SocialIndicator();
 		indicator.refId = "si";
 		SocialIndicatorDao idao = new SocialIndicatorDao(db1);
@@ -37,7 +37,7 @@ public class TestSocialAspectImport {
 		ProcessDao pdao = new ProcessDao(db1);
 		pdao.insert(process);
 
-		IDatabase db2 = DerbyDatabase.createInMemory();
+		IDatabase db2 = Derby.createInMemory();
 		DatabaseImport imp = new DatabaseImport(db1, db2);
 		imp.run();
 		db1.close();

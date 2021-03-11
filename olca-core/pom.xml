@@ -43,10 +43,10 @@
 		</dependency>
 
 		<dependency>
-        	<groupId>com.zaxxer</groupId>
-        	<artifactId>HikariCP</artifactId>
-        	<version>3.2.0</version>
-    	</dependency>
+			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+			<version>4.0.3</version>
+		</dependency>
 
 		<dependency>
 			<groupId>net.sf.trove4j</groupId>

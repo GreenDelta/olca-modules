@@ -7,7 +7,7 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.database.Derby;
 import org.openlca.core.matrix.solvers.JavaSolver;
 
 class Tests {
@@ -18,7 +18,7 @@ class Tests {
 		if (server == null) {
 			server = new Server(0);
 			server.withDefaultHandlers(
-					DerbyDatabase.createInMemory(), new JavaSolver());
+					Derby.createInMemory(), new JavaSolver());
 			server.start();
 		}
 		return server;

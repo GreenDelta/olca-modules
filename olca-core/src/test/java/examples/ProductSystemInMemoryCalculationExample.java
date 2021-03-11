@@ -5,7 +5,7 @@ import java.io.File;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.database.Derby;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.LinkingConfig;
@@ -29,7 +29,7 @@ public class ProductSystemInMemoryCalculationExample {
 		// load the database and matrix cache
 		String workspace = "C:/Users/Besitzer/openLCA-data-1.4";
 		String dbPath = workspace + "/databases/ecoinvent_2_2_unit";
-		IDatabase db = new DerbyDatabase(new File(dbPath));
+		IDatabase db = new Derby(new File(dbPath));
 		MatrixCache mcache = MatrixCache.createLazy(db);
 
 		// load the reference process and create

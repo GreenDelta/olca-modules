@@ -5,7 +5,7 @@ import java.io.File;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.database.Derby;
 import org.openlca.core.matrix.LinkingConfig;
 import org.openlca.core.matrix.ProductSystemBuilder;
 import org.openlca.core.matrix.LinkingConfig.DefaultProviders;
@@ -21,7 +21,7 @@ public class ProductSystemBuilderExample {
 
 	public static void main(String[] args) {
 		String dbPath = "C:/Users/Besitzer/openLCA-data-1.4/databases/ecoinvent_2_2_unit";
-		IDatabase db = new DerbyDatabase(new File(dbPath));
+		IDatabase db = new Derby(new File(dbPath));
 
 		// load the reference process of the new product system
 		Process p = new ProcessDao(db).getForRefId(

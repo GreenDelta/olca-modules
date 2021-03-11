@@ -3,7 +3,7 @@ package org.openlca.jsonld;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.database.Derby;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 
@@ -13,7 +13,7 @@ public class Tests {
 
 	public static IDatabase getDb() {
 		if (db == null)
-			db = DerbyDatabase.createInMemory();
+			db = Derby.createInMemory();
 		return db;
 	}
 

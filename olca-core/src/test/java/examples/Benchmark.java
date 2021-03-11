@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Random;
 
-import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.database.Derby;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.IndexFlow;
@@ -20,7 +20,7 @@ public class Benchmark {
 	public static void main(String[] args) {
 		Julia.load();
 		var solver = new JuliaSolver();
-		var db = DerbyDatabase.fromDataDir("ei37-apos");
+		var db = Derby.fromDataDir("ei37-apos");
 
 		var processes = db.allDescriptorsOf(Process.class);
 		var i = new Random().nextInt(processes.size());

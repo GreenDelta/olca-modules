@@ -1,6 +1,6 @@
 package examples;
 
-import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.database.Derby;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.FullResult;
@@ -10,7 +10,7 @@ import org.openlca.julia.Julia;
 public class SankeyExample {
 	public static void main(String[] args) {
 		Julia.load();
-		var db = DerbyDatabase.fromDataDir("ei37-apos");
+		var db = Derby.fromDataDir("ei37-apos");
 
 		var system = db.get(
 				ProductSystem.class,

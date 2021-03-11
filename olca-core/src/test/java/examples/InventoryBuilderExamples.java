@@ -5,7 +5,7 @@ import java.io.File;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.database.Derby;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.solvers.MatrixSolver;
@@ -22,7 +22,7 @@ public class InventoryBuilderExamples {
 	public static void main(String[] args) {
 
 		String dbPath = "C:/Users/ms/openLCA-data-1.4/databases/e_3_3_er_database_es2050_v1_7_1";
-		IDatabase db = new DerbyDatabase(new File(dbPath));
+		IDatabase db = new Derby(new File(dbPath));
 		ProductSystem system = new ProductSystemDao(db)
 				.getForRefId("9aae83bf-e300-49c5-b62b-981546bcf8d6");
 

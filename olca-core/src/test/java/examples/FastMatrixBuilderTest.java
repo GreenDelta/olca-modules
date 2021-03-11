@@ -2,9 +2,8 @@ package examples;
 
 import java.io.File;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.database.Derby;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.FastMatrixBuilder;
@@ -18,7 +17,7 @@ import org.openlca.julia.JuliaSolver;
 public class FastMatrixBuilderTest {
 
 	public static void main(String[] args) {
-		var db = DerbyDatabase.fromDataDir("ei2");
+		var db = Derby.fromDataDir("ei2");
 
 		ProductSystem system = new ProductSystemDao(db).getForRefId(
 				"8a42a5d5-7244-4692-a735-067eeedbc710");

@@ -9,16 +9,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.database.Derby;
 import org.openlca.util.Dirs;
 
 public class UpgradeChainTest {
 
-	private DerbyDatabase db;
+	private Derby db;
 
 	@Before
 	public void setup() throws Exception {
-		db = new DerbyDatabase(
+		db = new Derby(
 				Files.createTempDirectory("_olca_tests_").toFile());
 	}
 

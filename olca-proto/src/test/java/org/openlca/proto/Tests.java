@@ -1,7 +1,7 @@
 package org.openlca.proto;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.database.Derby;
 
 public class Tests {
 
@@ -10,7 +10,7 @@ public class Tests {
   public static IDatabase db() {
     if (db != null)
       return db;
-    db = DerbyDatabase.createInMemory();
+    db = Derby.createInMemory();
     return db;
   }
 

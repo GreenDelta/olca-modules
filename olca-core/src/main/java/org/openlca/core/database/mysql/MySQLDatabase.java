@@ -59,7 +59,7 @@ public class MySQLDatabase extends Notifiable implements IDatabase {
 		map.put("javax.persistence.jdbc.url", url);
 		map.put("javax.persistence.jdbc.user", user);
 		map.put("javax.persistence.jdbc.password", password);
-		map.put("javax.persistence.jdbc.driver", "com.mysql.jdbc.Driver");
+		map.put("javax.persistence.jdbc.driver", "org.mariadb.jdbc.Driver");
 		map.put("eclipselink.classloader", getClass().getClassLoader());
 		map.put("eclipselink.target-database", "MySQL");
 		entityFactory = new PersistenceProvider().createEntityManagerFactory(

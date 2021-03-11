@@ -2,7 +2,7 @@ package examples;
 
 import java.io.File;
 
-import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.database.Derby;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
@@ -11,14 +11,13 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.julia.Julia;
-import org.openlca.julia.JuliaSolver;
 
 public class LibTest {
 
 	public static void main(String[] args) throws Exception {
 		Julia.load();
 		var workspace = "C:/Users/Win10/openLCA-data-1.4";
-		var db = new DerbyDatabase(new File(
+		var db = new Derby(new File(
 				workspace + "/databases/methods"));
 		var libDir = new LibraryDir(new File(
 				workspace + "/libraries"));

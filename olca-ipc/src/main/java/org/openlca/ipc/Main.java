@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.database.Derby;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.julia.Julia;
@@ -70,25 +70,25 @@ public class Main {
 			var dbDir = this.db;
 			if (dbDir == null) {
 				log.info("No database given; use default database folder `database`");
-				return new DerbyDatabase(new File("database"));
+				return new Derby(new File("database"));
 			}
 
 			// check if an existing folder is given
 			var dir = new File(dbDir);
 			if (dir.exists()) {
 				log.info("Connect to existing database {}", dbDir);
-				return new DerbyDatabase(dir);
+				return new Derby(dir);
 			}
 
 			// check if it is a folder in the openLCA data directory
 			dir = new File(DataDir.databases(), dbDir);
 			if (dir.exists()) {
 				log.info("Connect to database in {}", dir);
-				return new DerbyDatabase(dir);
+				return new Derby(dir);
 			}
 
 			// finally, create a new one
-			return new DerbyDatabase(new File(dbDir));
+			return new Derby(new File(dbDir));
 		} catch (Exception e) {
 			log.error("Could not initialize database", e);
 			return null;

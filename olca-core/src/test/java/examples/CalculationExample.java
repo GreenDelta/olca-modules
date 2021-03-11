@@ -1,7 +1,7 @@
 package examples;
 
 import org.openlca.core.database.ImpactMethodDao;
-import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.database.Derby;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.ProductSystem;
@@ -11,7 +11,7 @@ public class CalculationExample {
 
 	public static void main(String[] args) {
 		Julia.load();
-		try (var db = DerbyDatabase.fromDataDir("ei22")) {
+		try (var db = Derby.fromDataDir("ei22")) {
 			var system = db.get(ProductSystem.class,
 				"7d1cbce0-b5b3-47ba-95b5-014ab3c7f569");
 			var method = new ImpactMethodDao(db)

@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.database.Derby;
 import org.openlca.core.database.mysql.MySQLDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -204,7 +204,7 @@ class DbUtil {
 		}
 
 		log.info("rename column {}.{} to {}.{}", table, column, table, newCol);
-		String query = db instanceof DerbyDatabase
+		String query = db instanceof Derby
 				? "RENAME COLUMN " + table + "." + column + " TO " + newCol
 				: "ALTER TABLE " + table + " CHANGE " + column
 						+ " " + definition;

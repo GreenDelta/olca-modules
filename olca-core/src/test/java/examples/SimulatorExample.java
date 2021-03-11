@@ -5,7 +5,7 @@ import java.io.File;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.database.Derby;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.Simulator;
 import org.openlca.core.model.ProductSystem;
@@ -21,7 +21,7 @@ public class SimulatorExample {
 		String workspace = "C:/Users/ms/openLCA-data-1.4";
 		String dbPath = workspace
 				+ "/databases/ecoinvent_2_2_unit";
-		IDatabase db = new DerbyDatabase(new File(dbPath));
+		IDatabase db = new Derby(new File(dbPath));
 		ProductSystem system = new ProductSystemDao(db).getForRefId(
 				"53f9b9db-139f-4617-bf2b-8fc715b3cd16");
 		CalculationSetup setup = new CalculationSetup(system);

@@ -2,17 +2,16 @@ package examples;
 
 import java.io.File;
 
-import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.database.Derby;
 import org.openlca.core.library.LibraryExport;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.julia.Julia;
-import org.openlca.julia.JuliaSolver;
 
 public class LibraryExportExample {
 
 	public static void main(String[] args) throws Exception {
 		Julia.load();
-		try (var db = DerbyDatabase.fromDataDir("ei2")) {
+		try (var db = Derby.fromDataDir("ei2")) {
 			System.out.println("Start export");
 			long start = System.currentTimeMillis();
 			new LibraryExport(db, new File("target/data/lib"))

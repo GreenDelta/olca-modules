@@ -2,11 +2,10 @@ package examples;
 
 import java.io.File;
 
-import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.database.Derby;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
-import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.ProductSystem;
 
 public class LibraryCalculatorExample {
@@ -14,7 +13,7 @@ public class LibraryCalculatorExample {
 	public static void main(String[] args) throws Exception {
 
 		var workspace = "C:/Users/Win10/openLCA-data-1.4";
-		var db = new DerbyDatabase(new File(
+		var db = new Derby(new File(
 				workspace + "/databases/libre2"));
 		var libDir = new LibraryDir(new File(
 				workspace + "/libraries"));

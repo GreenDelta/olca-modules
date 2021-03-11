@@ -1,31 +1,32 @@
-package org.openlca.core.database.derby;
+package org.openlca.core.database;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.persistence.EntityManagerFactory;
 
 import org.eclipse.persistence.jpa.PersistenceProvider;
 import org.openlca.core.DataDir;
-import org.openlca.core.database.DatabaseException;
-import org.openlca.core.database.DbUtils;
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.Notifiable;
 import org.openlca.core.database.internal.Resource;
 import org.openlca.core.database.internal.ScriptRunner;
 import org.openlca.util.Dirs;
+import org.openlca.util.Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.zaxxer.hikari.HikariDataSource;
 
-public class DerbyDatabase extends Notifiable implements IDatabase {
+public class Derby extends Notifiable implements IDatabase {
 
 	private static final AtomicInteger memInstances = new AtomicInteger(0);
 
@@ -40,9 +41,9 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 	private boolean closed = false;
 	private HikariDataSource connectionPool;
 
-	public static DerbyDatabase createInMemory() {
+	public static Derby createInMemory() {
 		int i = memInstances.incrementAndGet();
-		DerbyDatabase db = new DerbyDatabase("olca_mem_db" + i);
+		Derby db = new Derby("olca_mem_db" + i);
 		db.url = "jdbc:derby:memory:" + db.name;
 		db.createNew(db.url + ";create=true");
 		db.connect();
@@ -53,16 +54,16 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 	 * Restores an in-memory database from a backup folder (see
 	 * {@link #dump(String)}).
 	 */
-	public static DerbyDatabase restoreInMemory(String folder) {
-		String path = Derby.searchDump(folder);
+	public static Derby restoreInMemory(String folder) {
+		String path = searchDump(folder);
 		if (path == null) {
-			Logger log = LoggerFactory.getLogger(DerbyDatabase.class);
+			Logger log = LoggerFactory.getLogger(Derby.class);
 			log.error("Could not find a database dump under {};"
 					+ " will create an empty DB", folder);
 			return createInMemory();
 		}
 		int i = memInstances.incrementAndGet();
-		DerbyDatabase db = new DerbyDatabase("olca_mem_db" + i);
+		Derby db = new Derby("olca_mem_db" + i);
 		String url = "jdbc:derby:memory:" + db.name
 				+ ";restoreFrom=" + path;
 		try {
@@ -80,19 +81,19 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 	 * Creates or opens a database with the given name in the default database
 	 * folder.
 	 */
-	public static DerbyDatabase fromDataDir(String name) {
+	public static Derby fromDataDir(String name) {
 		var dbDir = new File(DataDir.databases(), name);
-		return new DerbyDatabase(dbDir);
+		return new Derby(dbDir);
 	}
 
-	private DerbyDatabase(String name) {
+	private Derby(String name) {
 		this.name = name;
 	}
 
-	public DerbyDatabase(File folder) {
+	public Derby(File folder) {
 		this.folder = folder;
 		this.name = folder.getName();
-		boolean create = !Derby.isDerbyFolder(folder);
+		boolean create = !isDerbyFolder(folder);
 		if (create) {
 			Dirs.delete(folder.toPath());
 		}
@@ -103,6 +104,53 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 			createNew(url + ";create=true");
 		}
 		connect();
+	}
+
+	/**
+	 * Returns true if the given folder is (most likely) a Derby database by
+	 * checking if Derby specific files and folders are present; see the Derby
+	 * folder specification:
+	 * http://db.apache.org/derby/docs/10.0/manuals/develop/develop13.html
+	 */
+	public static boolean isDerbyFolder(File folder) {
+		if (folder == null || !folder.exists() || !folder.isDirectory())
+			return false;
+		File log = new File(folder, "log");
+		if (!log.exists() || !log.isDirectory())
+			return false;
+		File seg0 = new File(folder, "seg0");
+		if (!seg0.exists() || !seg0.isDirectory())
+			return false;
+		File props = new File(folder, "service.properties");
+		return props.exists() && props.isFile();
+	}
+
+	/**
+	 * Searches for a database dump in the given folder. Returns null if nothing
+	 * was found. Otherwise the returned path can be directly used to restore an
+	 * in-memory database.
+	 */
+	static String searchDump(String path) {
+		if (path == null)
+			return null;
+		File root = new File(path);
+		if (!root.exists() || !root.isDirectory())
+			return null;
+		Queue<File> dirs = new ArrayDeque<>();
+		dirs.add(root);
+		while (!dirs.isEmpty()) {
+			File dir = dirs.poll();
+			if (isDerbyFolder(dir)) {
+				String dbPath = dir.getAbsolutePath();
+				return dbPath.replace('\\', '/');
+			}
+			for (File f : dir.listFiles()) {
+				if (f.isDirectory()) {
+					dirs.add(f);
+				}
+			}
+		}
+		return null;
 	}
 
 	private void createNew(String url) {
@@ -136,8 +184,13 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 		if (fileStorageLocation != null)
 			return fileStorageLocation;
 		fileStorageLocation = new File(folder, "_olca_");
-		if (!fileStorageLocation.exists())
-			fileStorageLocation.mkdirs();
+		if (!fileStorageLocation.exists()) {
+			try {
+				Files.createDirectories(fileStorageLocation.toPath());
+			} catch (IOException e) {
+				Exceptions.unchecked("failed to create file storage folder", e);
+			}
+		}
 		return fileStorageLocation;
 	}
 

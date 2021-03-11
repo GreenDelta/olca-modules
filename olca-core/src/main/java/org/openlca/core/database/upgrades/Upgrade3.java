@@ -8,7 +8,7 @@ import java.util.UUID;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.database.Derby;
 
 class Upgrade3 implements IUpgrade {
 
@@ -51,7 +51,7 @@ class Upgrade3 implements IUpgrade {
 	private void updateMappingTable() {
 		util.dropTable("tbl_mappings");
 		String tableDef;
-		if (database instanceof DerbyDatabase) {
+		if (database instanceof Derby) {
 			tableDef = "CREATE TABLE tbl_mapping_files ("
 					+ "id BIGINT NOT NULL, "
 					+ "file_name VARCHAR(255), "

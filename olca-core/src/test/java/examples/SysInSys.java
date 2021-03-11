@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.database.Derby;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.Simulator;
 import org.openlca.core.matrix.IndexFlow;
@@ -21,7 +21,7 @@ public class SysInSys {
 
 	public static void main(String[] args) {
 		String dbPath = "C:/Users/Besitzer/openLCA-data-1.4/databases/zabtest";
-		IDatabase db = new DerbyDatabase(new File(dbPath));
+		IDatabase db = new Derby(new File(dbPath));
 		ProductSystem system = new ProductSystemDao(db).getForRefId(
 				"b53db562-1584-4c4c-bc6f-989f77348c8d");
 

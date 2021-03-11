@@ -3,7 +3,7 @@ package examples;
 import java.io.File;
 
 import org.openlca.core.database.FlowDao;
-import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.database.Derby;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.ImpactIndex;
@@ -14,7 +14,7 @@ import org.openlca.core.model.FlowType;
 public class ImpactBuilderExample {
 
 	public static void main(String[] args) throws Exception {
-		var db = DerbyDatabase.fromDataDir(
+		var db = Derby.fromDataDir(
 			"openlca_lcia_v2_0_5_under_dev_201911220");
 
 		// build the LCIA category and flow indices
