@@ -10,7 +10,6 @@ import java.sql.SQLException;
 import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.persistence.EntityManagerFactory;
@@ -51,30 +50,53 @@ public class Derby extends Notifiable implements IDatabase {
 	}
 
 	/**
-	 * Restores an in-memory database from a backup folder (see
-	 * {@link #dump(String)}).
+	 * Restores an in-memory database from a backup folder.
 	 */
 	public static Derby restoreInMemory(String folder) {
-		String path = searchDump(folder);
+		var path = searchDump(folder);
 		if (path == null) {
-			Logger log = LoggerFactory.getLogger(Derby.class);
+			var log = LoggerFactory.getLogger(Derby.class);
 			log.error("Could not find a database dump under {};"
 					+ " will create an empty DB", folder);
 			return createInMemory();
 		}
 		int i = memInstances.incrementAndGet();
-		Derby db = new Derby("olca_mem_db" + i);
-		String url = "jdbc:derby:memory:" + db.name
-				+ ";restoreFrom=" + path;
+		var db = new Derby("olca_mem_db" + i);
+		var url = "jdbc:derby:memory:" + db.name + ";restoreFrom=" + path;
 		try {
-			Connection con = DriverManager.getConnection(url);
-			con.close();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+			DriverManager.getConnection(url).close();
+		} catch (SQLException e) {
+			Exceptions.unchecked("failed to restore in-memory", e);
 		}
 		db.url = "jdbc:derby:memory:" + db.name;
 		db.connect();
 		return db;
+	}
+
+	private static String searchDump(String path) {
+		if (path == null)
+			return null;
+		var root = new File(path);
+		if (!root.exists() || !root.isDirectory())
+			return null;
+		var dirs = new ArrayDeque<File>();
+		dirs.add(root);
+		while (!dirs.isEmpty()) {
+			var dir = dirs.poll();
+			if (isDerbyFolder(dir)) {
+				var dbPath = dir.getAbsolutePath();
+				return dbPath.replace('\\', '/');
+			}
+			var next = dir.listFiles();
+			if (next == null)
+				continue;
+			for (var f : next) {
+				if (f.isDirectory()) {
+					dirs.add(f);
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -125,41 +147,12 @@ public class Derby extends Notifiable implements IDatabase {
 		return props.exists() && props.isFile();
 	}
 
-	/**
-	 * Searches for a database dump in the given folder. Returns null if nothing
-	 * was found. Otherwise the returned path can be directly used to restore an
-	 * in-memory database.
-	 */
-	static String searchDump(String path) {
-		if (path == null)
-			return null;
-		File root = new File(path);
-		if (!root.exists() || !root.isDirectory())
-			return null;
-		Queue<File> dirs = new ArrayDeque<>();
-		dirs.add(root);
-		while (!dirs.isEmpty()) {
-			File dir = dirs.poll();
-			if (isDerbyFolder(dir)) {
-				String dbPath = dir.getAbsolutePath();
-				return dbPath.replace('\\', '/');
-			}
-			for (File f : dir.listFiles()) {
-				if (f.isDirectory()) {
-					dirs.add(f);
-				}
-			}
-		}
-		return null;
-	}
-
 	private void createNew(String url) {
 		log.info("create new database {}", url);
 		try {
-			Connection con = DriverManager.getConnection(url);
-			con.close();
-			ScriptRunner runner = new ScriptRunner(this);
-			runner.run(Resource.CURRENT_SCHEMA_DERBY.getStream(), "utf-8");
+			DriverManager.getConnection(url).close();
+			new ScriptRunner(this).run(
+				Resource.CURRENT_SCHEMA_DERBY.getStream(), "utf-8");
 		} catch (Exception e) {
 			log.error("failed to create database", e);
 			throw new DatabaseException("Failed to create database", e);
@@ -314,8 +307,12 @@ public class Derby extends Notifiable implements IDatabase {
 			if (dir.exists()) {
 				Dirs.delete(dir.toPath());
 			}
-			dir.mkdirs();
-			String command = "CALL SYSCS_UTIL.SYSCS_BACKUP_DATABASE(?)";
+			try {
+				Files.createDirectories(dir.toPath());
+			} catch (IOException e) {
+				Exceptions.unchecked("failed to create folder " + dir, e);
+			}
+			var command = "CALL SYSCS_UTIL.SYSCS_BACKUP_DATABASE(?)";
 			try (Connection con = createConnection();
 					CallableStatement cs = con.prepareCall(command)) {
 				cs.setString(1, path.replace('\\', '/'));
