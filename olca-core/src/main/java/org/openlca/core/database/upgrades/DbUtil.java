@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.Derby;
-import org.openlca.core.database.mysql.MySQLDatabase;
+import org.openlca.core.database.MySQL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +24,7 @@ class DbUtil {
 
 	public DbUtil(IDatabase db) {
 		this.db = db;
-		if (db instanceof MySQLDatabase)
+		if (db instanceof MySQL)
 			dbType = TYPE_MYSQL;
 		else
 			dbType = TYPE_DERBY;
