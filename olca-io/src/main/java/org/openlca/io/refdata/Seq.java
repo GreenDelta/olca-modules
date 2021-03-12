@@ -1,12 +1,11 @@
 package org.openlca.io.refdata;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.persistence.Table;
-
+import jakarta.persistence.Table;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
@@ -15,7 +14,18 @@ import org.slf4j.LoggerFactory;
 
 class Seq {
 
-	private final ModelType[] TYPES = {
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final IDatabase db;
+	private final HashMap<String, Long>[] sequences;
+	private final HashSet<String>[] inDatabase;
+	private long seqCount = 0;
+
+	@SuppressWarnings("unchecked")
+	public Seq(IDatabase db) {
+		this.db = db;
+		sequences = new HashMap[ModelType.values().length];
+		inDatabase = new HashSet[ModelType.values().length];
+		ModelType[] TYPES = {
 			ModelType.LOCATION,
 			ModelType.CATEGORY,
 			ModelType.UNIT,
@@ -26,19 +36,7 @@ class Seq {
 			ModelType.IMPACT_CATEGORY,
 			ModelType.IMPACT_METHOD,
 			ModelType.NW_SET
-	};
-
-	private Logger log = LoggerFactory.getLogger(getClass());
-	private IDatabase db;
-	private final HashMap<String, Long>[] sequences;
-	private final HashSet<String>[] inDatabase;
-	private long seqCount = 0;
-
-	@SuppressWarnings("unchecked")
-	public Seq(IDatabase db) {
-		this.db = db;
-		sequences = new HashMap[ModelType.values().length];
-		inDatabase = new HashSet[ModelType.values().length];
+		};
 		for (ModelType type : TYPES)
 			initType(type);
 		initSeqCount();
@@ -105,7 +103,7 @@ class Seq {
 
 	public void write() throws Exception {
 		String sql = "UPDATE sequence SET SEQ_COUNT = " + next();
-		NativeSql.on(db).batchUpdate(Arrays.asList(sql));
+		NativeSql.on(db).batchUpdate(Collections.singletonList(sql));
 	}
 
 }

@@ -3,8 +3,7 @@ package org.openlca.util;
 import java.util.HashMap;
 import java.util.function.Consumer;
 
-import javax.persistence.Table;
-
+import jakarta.persistence.Table;
 import org.apache.commons.math3.util.Pair;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
@@ -28,9 +27,7 @@ public class RefIdMap<From, To> {
 		for (Class<?> type : types) {
 			HashMap<Long, String> map = new HashMap<>();
 			refMap.map.put(type, map);
-			scan(db, type, p -> {
-				map.put(p.getFirst(), p.getSecond());
-			});
+			scan(db, type, p -> map.put(p.getFirst(), p.getSecond()));
 		}
 		return refMap;
 	}
@@ -42,9 +39,7 @@ public class RefIdMap<From, To> {
 		for (Class<?> type : types) {
 			HashMap<String, Long> map = new HashMap<>();
 			refMap.map.put(type, map);
-			scan(db, type, p -> {
-				map.put(p.getSecond(), p.getFirst());
-			});
+			scan(db, type, p -> map.put(p.getSecond(), p.getFirst()));
 		}
 		return refMap;
 	}
@@ -59,7 +54,7 @@ public class RefIdMap<From, To> {
 			NativeSql.on(db).query(sql, r -> {
 				long id = r.getLong(1);
 				String refId = r.getString(2);
-				fn.accept(new Pair<Long, String>(id, refId));
+				fn.accept(new Pair<>(id, refId));
 				return true;
 			});
 		} catch (Exception e) {

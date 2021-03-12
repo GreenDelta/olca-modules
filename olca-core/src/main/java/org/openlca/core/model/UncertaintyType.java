@@ -20,18 +20,13 @@ public enum UncertaintyType {
 	public static byte byteIndexOf(UncertaintyType type) {
 		if (type == null || type == NONE)
 			return 0;
-		switch (type) {
-			case LOG_NORMAL:
-				return 1;
-			case NORMAL:
-				return 2;
-			case TRIANGLE:
-				return 3;
-			case UNIFORM:
-				return 4;
-			default:
-				return 0;
-		}
+		return switch (type) {
+			case LOG_NORMAL -> (byte) 1;
+			case NORMAL -> (byte) 2;
+			case TRIANGLE -> (byte) 3;
+			case UNIFORM -> (byte) 4;
+			default -> (byte) 0;
+		};
 	}
 
 }

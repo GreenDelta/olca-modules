@@ -41,13 +41,13 @@ import org.slf4j.LoggerFactory;
 // @RunWith(Theories.class)
 public class BaseDaoTest {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	// we cannot use @Theory and @DataPoints with an array of classes
 	// see https://github.com/junit-team/junit/issues/76
 	// @DataPoints
 	@SuppressWarnings("unchecked")
-	private Class<? extends AbstractEntity>[] classes = new Class[] {
+	private final Class<? extends AbstractEntity>[] classes = new Class[] {
 			Actor.class,
 			AllocationFactor.class,
 			Category.class,
@@ -103,12 +103,12 @@ public class BaseDaoTest {
 
 	private <T extends AbstractEntity> void testUsage(T instance) {
 		log.trace("test simple usage tests with {}", instance);
-		Class<?> clazz = instance.getClass();
+		var clazz = instance.getClass();
 		if (!CategorizedEntity.class.isAssignableFrom(clazz))
 			return;
-		CategorizedEntity entity = (CategorizedEntity) instance;
-		ModelType type = ModelType.forModelClass(clazz);
-		List<CategorizedDescriptor> descriptors = IUseSearch.FACTORY
+		var entity = (CategorizedEntity) instance;
+		var type = ModelType.forModelClass(clazz);
+		var descriptors = IUseSearch.FACTORY
 				.createFor(type, Tests.getDb())
 				.findUses(Descriptor.of(entity));
 		Assert.assertTrue(descriptors.isEmpty());

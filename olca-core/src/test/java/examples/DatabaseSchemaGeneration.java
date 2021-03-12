@@ -31,13 +31,13 @@ public class DatabaseSchemaGeneration {
 			String url = "jdbc:mysql://localhost:3306/olca_test_db";
 			String user = "root";
 			String pw = "";
-			config.put("javax.persistence.jdbc.url", url);
-			config.put("javax.persistence.jdbc.user", user);
-			config.put("javax.persistence.jdbc.password", pw);
+			config.put("jakarta.persistence.jdbc.url", url);
+			config.put("jakarta.persistence.jdbc.user", user);
+			config.put("jakarta.persistence.jdbc.password", pw);
 
 			// change the driver and database type if you want to create the
 			// database schema for another database type than MySQL
-			config.put("javax.persistence.jdbc.driver", "com.mysql.jdbc.Driver");
+			config.put("jakarta.persistence.jdbc.driver", "com.mysql.jdbc.Driver");
 			config.put("eclipselink.target-database", "MySQL");
 
 			// specify the location where the schema files should be written

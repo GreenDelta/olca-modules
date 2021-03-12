@@ -7,19 +7,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Lob;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
 
 import org.openlca.util.BinUtils;
 
 /**
  * A set of process groups that can be stored in the database. The groups are
  * stored in a binary format:
- * 
+ *
  * gzip([number_of_groups:n]([group_name][group_size:s]([process_id])*s)*n)
- * 
+ *
  */
 @Entity
 @Table(name = "tbl_process_group_sets")

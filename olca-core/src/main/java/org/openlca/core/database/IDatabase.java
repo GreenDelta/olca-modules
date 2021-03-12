@@ -9,8 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.EntityManagerFactory;
-
+import jakarta.persistence.EntityManagerFactory;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;

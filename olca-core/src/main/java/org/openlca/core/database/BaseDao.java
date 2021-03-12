@@ -16,10 +16,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Table;
-import javax.persistence.TypedQuery;
-
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Table;
+import jakarta.persistence.TypedQuery;
 import org.openlca.core.model.AbstractEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

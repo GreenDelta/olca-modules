@@ -9,8 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.Table;
-
+import jakarta.persistence.Table;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
@@ -20,7 +19,7 @@ import org.openlca.core.model.descriptors.CategorizedDescriptor;
 class Search {
 
 	private final static Map<ModelType, String> tableNames = new HashMap<>();
-	private IDatabase database;
+	private final IDatabase database;
 
 	static {
 		for (ModelType type : ModelType.values()) {

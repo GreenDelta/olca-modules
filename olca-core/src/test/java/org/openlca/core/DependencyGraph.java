@@ -8,6 +8,7 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
@@ -16,8 +17,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
-import javax.persistence.Embeddable;
-
+import jakarta.persistence.Embeddable;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.RootEntity;
 
@@ -105,9 +105,7 @@ public class DependencyGraph {
 		Class<?> superType = type.getSuperclass();
 		if (superType != null && !superType.equals(Object.class))
 			fields.addAll(getFields(type.getSuperclass()));
-		for (Field field : type.getDeclaredFields()) {
-			fields.add(field);
-		}
+		fields.addAll(Arrays.asList(type.getDeclaredFields()));
 		return fields;
 	}
 

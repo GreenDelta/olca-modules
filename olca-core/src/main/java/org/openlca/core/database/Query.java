@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 
 import org.openlca.core.model.AbstractEntity;
 import org.slf4j.Logger;
@@ -73,8 +73,7 @@ public class Query {
 		}
 	}
 
-	public <T> T getFirst(Class<T> type, String jpql,
-			Map<String, ? extends Object> params) {
+	public <T> T getFirst(Class<T> type, String jpql, Map<String, ?> params) {
 		List<T> all = getAll(type, jpql, params);
 		if (all == null || all.isEmpty())
 			return null;

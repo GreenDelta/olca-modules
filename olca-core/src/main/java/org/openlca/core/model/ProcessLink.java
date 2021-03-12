@@ -2,8 +2,8 @@ package org.openlca.core.model;
 
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 /**
  * A process link is a connection between a provider (which can be a process or
@@ -79,9 +79,9 @@ public class ProcessLink implements Cloneable {
 	@Override
 	public int hashCode() {
 		return Objects.hash(
-				this.flowId, 
+				this.flowId,
 				this.providerId,
-				this.processId, 
+				this.processId,
 				this.exchangeId);
 	}
 

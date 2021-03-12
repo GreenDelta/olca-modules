@@ -5,8 +5,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-import javax.persistence.EntityManagerFactory;
-
+import jakarta.persistence.EntityManagerFactory;
 import org.eclipse.persistence.jpa.PersistenceProvider;
 import org.openlca.util.Exceptions;
 
@@ -29,10 +28,10 @@ public class MySQL extends Notifiable implements IDatabase {
 
 		// create the JPA persistence manager
 		var jpaConfig = new HashMap<>();
-		jpaConfig.put("javax.persistence.jdbc.url", url);
-		jpaConfig.put("javax.persistence.jdbc.user", config.user);
-		jpaConfig.put("javax.persistence.jdbc.password", config.password);
-		jpaConfig.put("javax.persistence.jdbc.driver", "org.mariadb.jdbc.Driver");
+		jpaConfig.put("jakarta.persistence.jdbc.url", url);
+		jpaConfig.put("jakarta.persistence.jdbc.user", config.user);
+		jpaConfig.put("jakarta.persistence.jdbc.password", config.password);
+		jpaConfig.put("jakarta.persistence.jdbc.driver", "org.mariadb.jdbc.Driver");
 		jpaConfig.put("eclipselink.classloader", getClass().getClassLoader());
 		jpaConfig.put("eclipselink.target-database", "MySQL");
 		entityFactory = new PersistenceProvider()

@@ -10,8 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.Table;
-
+import jakarta.persistence.Table;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -21,7 +20,7 @@ import gnu.trove.map.hash.TLongObjectHashMap;
 
 public class RootEntityDao<T extends RootEntity, V extends Descriptor> extends BaseDao<T> {
 
-	private Class<V> descriptorType;
+	private final Class<V> descriptorType;
 	private String entityTable;
 
 	protected RootEntityDao(Class<T> entityType, Class<V> descriptorType, IDatabase database) {
@@ -63,7 +62,7 @@ public class RootEntityDao<T extends RootEntity, V extends Descriptor> extends B
 
 	public V getDescriptor(long id) {
 		String sql = getDescriptorQuery() + " where id = ?";
-		Object[] result = selectFirst(sql, getDescriptorFields(), Collections.singletonList((Object) id));
+		Object[] result = selectFirst(sql, getDescriptorFields(), Collections.singletonList(id));
 		return createDescriptor(result);
 	}
 
@@ -87,7 +86,7 @@ public class RootEntityDao<T extends RootEntity, V extends Descriptor> extends B
 		if (refIds == null || refIds.isEmpty())
 			return Collections.emptyList();
 		if (refIds.size() > MAX_LIST_SIZE)
-			return executeChunked(refIds, (set) -> getDescriptorsForRefIds(set));
+			return executeChunked(refIds, this::getDescriptorsForRefIds);
 		Set<String> quotedIds = new HashSet<>();
 		for (String refId : refIds) {
 			quotedIds.add('\'' + refId + '\'');
@@ -201,7 +200,7 @@ public class RootEntityDao<T extends RootEntity, V extends Descriptor> extends B
 		if (refIds == null || refIds.isEmpty())
 			return Collections.emptyList();
 		if (refIds.size() > MAX_LIST_SIZE)
-			return executeChunked(refIds, (set) -> getForRefIds(set));
+			return executeChunked(refIds, this::getForRefIds);
 		String jpql = "select e from " + entityType.getSimpleName() + " e where e.refId in :refIds";
 		try {
 			return Query.on(getDatabase()).getAll(entityType, jpql, Collections.singletonMap("refIds", refIds));

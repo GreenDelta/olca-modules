@@ -1,8 +1,8 @@
 package org.openlca.core.model;
 
-import javax.persistence.Column;
-import javax.persistence.Lob;
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.Column;
+import jakarta.persistence.Lob;
+import jakarta.persistence.MappedSuperclass;
 
 /**
  * A root entity is a stand alone entity in the application. It should have a
