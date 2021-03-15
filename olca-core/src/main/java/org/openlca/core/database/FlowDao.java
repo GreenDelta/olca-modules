@@ -73,7 +73,7 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 		for (String table : tables) {
 			String query = "SELECT DISTINCT f_flow FROM " + table;
 			try {
-				NativeSql.on(database).query(query, (rs) -> {
+				NativeSql.on(db).query(query, (rs) -> {
 					ids.add(rs.getLong(1));
 					return true;
 				});
@@ -94,7 +94,7 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 				+ "AND f_flow IN (SELECT DISTINCT id FROM tbl_flows WHERE flow_type = '"
 				+ type.name() + "')";
 		try {
-			NativeSql.on(database).query(query, (rs) -> {
+			NativeSql.on(db).query(query, (rs) -> {
 				ids.add(rs.getLong("f_flow"));
 				return true;
 			});
@@ -129,7 +129,7 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 			if (excludeExchangesWithProviders) {
 				query += " AND f_default_provider IS NULL";
 			}
-			NativeSql.on(database).runUpdate(query);
+			NativeSql.on(db).runUpdate(query);
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log,
 					"failed to replace flow " + oldId + " with " + newId, e);
@@ -144,7 +144,7 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 			String query = "UPDATE tbl_impact_factors SET f_flow = " + newId
 					+ ", f_flow_property_factor = (" + subquery
 					+ ") WHERE f_flow = " + oldId;
-			NativeSql.on(database).runUpdate(query);
+			NativeSql.on(db).runUpdate(query);
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log,
 					"failed to replace flow " + oldId + " with " + newId, e);
@@ -157,7 +157,7 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 				+ flowId + " AND is_input = "
 				+ (input ? 1 : 0);
 		try {
-			NativeSql.on(database).query(query, (rs) -> {
+			NativeSql.on(db).query(query, (rs) -> {
 				ids.add(rs.getLong("f_owner"));
 				return true;
 			});
@@ -187,7 +187,7 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 		Map<Long, Boolean> result = new HashMap<>();
 		for (long id : ids)
 			result.put(id, false);
-		NativeSql.on(database).query(query.toString(), (res) -> {
+		NativeSql.on(db).query(query.toString(), (res) -> {
 			result.put(res.getLong(1), res.getLong(2) != 0l);
 			return true;
 		});

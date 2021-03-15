@@ -25,8 +25,8 @@ public class Flow extends CategorizedEntity {
 	@Column(name = "cas_number")
 	public String casNumber;
 
-	@OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
 	@JoinColumn(name = "f_flow")
+	@OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
 	public final List<FlowPropertyFactor> flowPropertyFactors = new ArrayList<>();
 
 	@Column(name = "formula")
@@ -118,8 +118,8 @@ public class Flow extends CategorizedEntity {
 	 */
 	public Unit getReferenceUnit() {
 		return referenceFlowProperty == null
-				? null
-				: referenceFlowProperty.getReferenceUnit();
+			? null
+			: referenceFlowProperty.getReferenceUnit();
 	}
 
 	/**

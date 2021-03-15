@@ -31,7 +31,7 @@ public class ImpactMethodDao extends
 
 	private List<ImpactDescriptor> getImpactCategories(
 			String whereClause) {
-		var dao = new ImpactCategoryDao(database);
+		var dao = new ImpactCategoryDao(db);
 		var fields = Arrays.stream(dao.getDescriptorFields())
 				.map(field -> "ic." + field)
 				.reduce((field1, field2) -> field1 + ", " + field2)

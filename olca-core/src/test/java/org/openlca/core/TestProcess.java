@@ -11,8 +11,6 @@ import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
-import org.openlca.core.model.Parameter;
-import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.util.Strings;
 

@@ -44,12 +44,12 @@ public class LocationDao
 	 * code.
 	 */
 	public Map<Long, String> getCodes() {
-		if (database == null)
+		if (db == null)
 			return Collections.emptyMap();
 		String sql = "select id, code from tbl_locations";
 		Map<Long, String> map = new HashMap<>();
 		try {
-			NativeSql.on(database).query(sql, r -> {
+			NativeSql.on(db).query(sql, r -> {
 				map.put(r.getLong(1), r.getString(2));
 				return true;
 			});

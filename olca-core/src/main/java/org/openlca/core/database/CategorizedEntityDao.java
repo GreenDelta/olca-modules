@@ -78,7 +78,7 @@ public class CategorizedEntityDao<T extends CategorizedEntity, V extends Categor
 		model.category = category.isPresent() ? category.get().id : null;
 		String jpql = "update " + entityType.getSimpleName()
 				+ " e set e.category = :category, e.version = :version, e.lastChange = :lastChange where e.id = :id";
-		EntityManager em = createManager();
+		var em = db.newEntityManager();
 		TypedQuery<?> query = em.createQuery(jpql, entityType);
 		query.setParameter("id", model.id);
 		query.setParameter("category",
@@ -95,7 +95,7 @@ public class CategorizedEntityDao<T extends CategorizedEntity, V extends Categor
 		} finally {
 			em.close();
 		}
-		database.notifyUpdate(model);
+		db.notifyUpdate(model);
 		return model;
 	}
 

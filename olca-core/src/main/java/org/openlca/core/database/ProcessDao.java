@@ -72,7 +72,7 @@ public class ProcessDao extends CategorizedEntityDao<Process, ProcessDescriptor>
 		Set<Long> ids = new HashSet<>();
 		String query = "SELECT DISTINCT f_default_provider FROM tbl_exchanges";
 		try {
-			NativeSql.on(database).query(query, (rs) -> {
+			NativeSql.on(db).query(query, (rs) -> {
 				ids.add(rs.getLong("f_default_provider"));
 				return true;
 			});
@@ -87,7 +87,7 @@ public class ProcessDao extends CategorizedEntityDao<Process, ProcessDescriptor>
 		String statement = "UPDATE tbl_exchanges SET f_default_provider = " + newId + " "
 				+ "WHERE f_default_provider = " + oldId + " AND f_flow = " + productId;
 		try {
-			NativeSql.on(database).runUpdate(statement);
+			NativeSql.on(db).runUpdate(statement);
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "failed to replace provider " + oldId + " for product " + productId
 					+ " with " + newId, e);
@@ -133,7 +133,7 @@ public class ProcessDao extends CategorizedEntityDao<Process, ProcessDescriptor>
 		Map<Long, Boolean> result = new HashMap<>();
 		for (long id : ids)
 			result.put(id, false);
-		NativeSql.on(database).query(query.toString(), (res) -> {
+		NativeSql.on(db).query(query.toString(), (res) -> {
 			result.put(res.getLong(1), res.getLong(2) != 0l);
 			return true;
 		});

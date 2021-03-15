@@ -1,8 +1,5 @@
 package org.openlca.core.matrix.cache;
 
-import java.util.Locale;
-import java.util.function.BooleanSupplier;
-
 import gnu.trove.map.hash.TLongIntHashMap;
 import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.FlowDao;
@@ -11,8 +8,6 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.util.CategoryPathBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 

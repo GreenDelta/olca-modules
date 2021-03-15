@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
@@ -143,8 +142,8 @@ public class CategoryDao
 			String update = "UPDATE " + getTable(d.type)
 											+ " SET version = " + version + ", last_change = "
 											+ lastChange + " WHERE id = " + d.id;
-			NativeSql.on(database).runUpdate(update);
-			database.notifyUpdate(d);
+			NativeSql.on(db).runUpdate(update);
+			db.notifyUpdate(d);
 		}
 	}
 
@@ -155,7 +154,7 @@ public class CategoryDao
 				if (type.getModelClass() == null || !RootEntity.class
 					.isAssignableFrom(type.getModelClass()))
 					continue;
-				String table = Daos.root(database, type).getEntityTable();
+				String table = Daos.root(db, type).getEntityTable();
 				tables.put(type, table);
 			}
 		}

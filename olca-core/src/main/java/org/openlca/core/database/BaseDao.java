@@ -32,15 +32,15 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 
 	protected Class<T> entityType;
 	protected Logger log = LoggerFactory.getLogger(this.getClass());
-	protected IDatabase database;
+	protected IDatabase db;
 
-	protected BaseDao(Class<T> entityType, IDatabase database) {
+	protected BaseDao(Class<T> entityType, IDatabase db) {
 		this.entityType = entityType;
-		this.database = database;
+		this.db = db;
 	}
 
 	protected IDatabase getDatabase() {
-		return database;
+		return db;
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 		var table = entityType.getDeclaredAnnotation(Table.class).name();
 		var query = "SELECT id FROM " + table
 								+ " WHERE id IN " + asSqlList(ids);
-		NativeSql.on(database).query(query, (entry) -> {
+		NativeSql.on(db).query(query, (entry) -> {
 			long id = entry.getLong(1);
 			result.put(id, true);
 			return true;
@@ -86,7 +86,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 	public void delete(T entity) {
 		if (entity == null)
 			return;
-		EntityManager em = createManager();
+		var em = db.newEntityManager();
 		try {
 			em.getTransaction().begin();
 			em.remove(em.merge(entity));
@@ -103,7 +103,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 	public void deleteAll(Collection<T> entities) {
 		if (entities == null)
 			return;
-		EntityManager em = createManager();
+		var em = db.newEntityManager();
 		try {
 			em.getTransaction().begin();
 			for (T entity : entities) {
@@ -123,7 +123,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 	public T update(T entity) {
 		if (entity == null)
 			return null;
-		EntityManager em = createManager();
+		var em = db.newEntityManager();
 		try {
 			em.getTransaction().begin();
 			T retval = em.merge(entity);
@@ -142,7 +142,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 	public T insert(T entity) {
 		if (entity == null)
 			return null;
-		var em = createManager();
+		var em = db.newEntityManager();
 		try {
 			em.getTransaction().begin();
 			em.persist(entity);
@@ -160,7 +160,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 	@Override
 	public T getForId(long id) {
 		log.trace("get {} for id={}", entityType, id);
-		var entityManager = createManager();
+		var entityManager = db.newEntityManager();
 		try {
 			return entityManager.find(entityType, id);
 		} catch (Exception e) {
@@ -178,7 +178,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 			return Collections.emptyList();
 		if (ids.size() > MAX_LIST_SIZE)
 			return executeChunked(ids, this::getForIds);
-		EntityManager em = createManager();
+		var em = db.newEntityManager();
 		try {
 			String jpql = "SELECT o FROM " + entityType.getSimpleName()
 					+ " o WHERE o.id IN :ids";
@@ -231,7 +231,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 	@Override
 	public List<T> getAll() {
 		log.debug("Select all for class {}", entityType);
-		EntityManager em = createManager();
+		var em = db.newEntityManager();
 		try {
 			String jpql = "SELECT o FROM ".concat(entityType.getSimpleName())
 					.concat(" o");
@@ -250,7 +250,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 
 	@Override
 	public List<T> getAll(String jpql, Map<String, ?> parameters) {
-		EntityManager em = createManager();
+		var em = db.newEntityManager();
 		try {
 			TypedQuery<T> query = em.createQuery(jpql, entityType);
 			for (String param : parameters.keySet()) {
@@ -276,7 +276,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 
 	@Override
 	public long getCount(String jpql, Map<String, Object> parameters) {
-		EntityManager em = createManager();
+		var em = db.newEntityManager();
 		try {
 			TypedQuery<Long> query = em.createQuery(jpql, Long.class);
 			for (String param : parameters.keySet()) {
@@ -299,14 +299,8 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 		deleteAll(getAll());
 	}
 
-	protected EntityManager createManager() {
-		return getDatabase()
-			.getEntityFactory()
-			.createEntityManager();
-	}
-
 	protected Query query() {
-		return Query.on(database);
+		return Query.on(db);
 	}
 
 	protected List<Object[]> selectAll(String sql, String[] fields,
@@ -366,7 +360,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 	}
 
 	public void detach(T val) {
-		EntityManager em = createManager();
+		EntityManager em = db.newEntityManager();
 		try {
 			em.detach(val);
 		} catch (Exception e) {

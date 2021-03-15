@@ -26,7 +26,7 @@ public class DQSystemDao extends CategorizedEntityDao<DQSystem, DQSystemDescript
 		query += "INNER JOIN tbl_product_system_processes ON tbl_product_system_processes.f_process = tbl_processes.id ";
 		query += "WHERE f_product_system = " + productSystemId;
 		Set<Long> ids = new HashSet<>();
-		NativeSql.on(database).query(query, (rs) -> {
+		NativeSql.on(db).query(query, (rs) -> {
 			ids.add(rs.getLong(field));
 			return true;
 		});

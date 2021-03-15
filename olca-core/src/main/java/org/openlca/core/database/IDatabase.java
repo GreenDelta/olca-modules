@@ -9,6 +9,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import gnu.trove.set.TLongSet;
+import gnu.trove.set.hash.TLongHashSet;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.ModelType;
@@ -36,6 +39,14 @@ public interface IDatabase extends Closeable, INotifiable {
 	 * Returns the entity manager factory from the database.
 	 */
 	EntityManagerFactory getEntityFactory();
+
+	/**
+	 * Creates a new entity manager which should be closed when it is not needed
+	 * anymore.
+	 */
+	default EntityManager newEntityManager() {
+		return getEntityFactory().createEntityManager();
+	}
 
 	/**
 	 * Returns the database name.
@@ -117,7 +128,7 @@ public interface IDatabase extends Closeable, INotifiable {
 	}
 
 	default void insert(AbstractEntity e1, AbstractEntity e2,
-						AbstractEntity... more) {
+											AbstractEntity... more) {
 		insert(e1);
 		insert(e2);
 		if (more == null)
@@ -142,7 +153,7 @@ public interface IDatabase extends Closeable, INotifiable {
 	}
 
 	default void delete(AbstractEntity e1, AbstractEntity e2,
-						AbstractEntity... more) {
+											AbstractEntity... more) {
 		this.delete(e1);
 		this.delete(e2);
 		if (more == null)
@@ -155,6 +166,20 @@ public interface IDatabase extends Closeable, INotifiable {
 	default <T extends AbstractEntity> T get(Class<T> type, long id) {
 		var dao = Daos.base(this, type);
 		return dao.getForId(id);
+	}
+
+	default <T extends AbstractEntity> List<T> getAll(
+		Class<T> type, TLongSet ids) {
+		var list = new ArrayList<T>();
+		var em = newEntityManager();
+		for (var it = ids.iterator(); it.hasNext(); ) {
+			var entity = em.find(type, it.next());
+			if (entity != null) {
+				list.add(entity);
+			}
+		}
+		em.close();
+		return list;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -170,24 +195,24 @@ public interface IDatabase extends Closeable, INotifiable {
 	 * Get the descriptor of the entity of the given type and ID.
 	 */
 	default <T extends RootEntity> Descriptor getDescriptor(
-			Class<T> type, long id) {
+		Class<T> type, long id) {
 		var modelType = ModelType.forModelClass(type);
 		return modelType == null
-				? null
-				: Daos.root(this, modelType).getDescriptor(id);
+			? null
+			: Daos.root(this, modelType).getDescriptor(id);
 	}
 
 	/**
 	 * Get the descriptor of the entity of the given type and reference ID.
 	 */
 	default <T extends RootEntity> Descriptor getDescriptor(
-			Class<T> type, String refID) {
+		Class<T> type, String refID) {
 		if (refID == null)
 			return null;
 		var modelType = ModelType.forModelClass(type);
 		return modelType == null
-				? null
-				: Daos.root(this, modelType).getDescriptorForRefId(refID);
+			? null
+			: Daos.root(this, modelType).getDescriptorForRefId(refID);
 	}
 
 	/**
@@ -206,11 +231,11 @@ public interface IDatabase extends Closeable, INotifiable {
 	 * Get the descriptors of all entities of the given type from this database.
 	 */
 	default <T extends RootEntity> List<? extends Descriptor> allDescriptorsOf(
-			Class<T> type) {
+		Class<T> type) {
 		var modelType = ModelType.forModelClass(type);
 		return modelType == null
-				? Collections.emptyList()
-				: Daos.root(this, modelType).getDescriptors();
+			? Collections.emptyList()
+			: Daos.root(this, modelType).getDescriptors();
 	}
 
 	/**
@@ -225,8 +250,8 @@ public interface IDatabase extends Closeable, INotifiable {
 		var dao = Daos.root(this, modelType);
 		var candidates = dao.getForName(name);
 		return candidates.isEmpty()
-				? null
-				: (T) candidates.get(0);
+			? null
+			: (T) candidates.get(0);
 	}
 
 	/**

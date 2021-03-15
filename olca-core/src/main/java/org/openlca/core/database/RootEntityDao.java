@@ -31,28 +31,28 @@ public class RootEntityDao<T extends RootEntity, V extends Descriptor> extends B
 	@Override
 	public T insert(T entity) {
 		entity = super.insert(entity);
-		database.notifyInsert(Descriptor.of(entity));
+		db.notifyInsert(Descriptor.of(entity));
 		return entity;
 	}
 
 	@Override
 	public T update(T entity) {
 		entity = super.update(entity);
-		database.notifyUpdate(Descriptor.of(entity));
+		db.notifyUpdate(Descriptor.of(entity));
 		return entity;
 	}
 
 	@Override
 	public void delete(T entity) {
 		super.delete(entity);
-		database.notifyDelete(Descriptor.of(entity));
+		db.notifyDelete(Descriptor.of(entity));
 	}
 
 	@Override
 	public void deleteAll(Collection<T> entities) {
 		super.deleteAll(entities);
 		for (T entity : entities) {
-			database.notifyDelete(Descriptor.of(entity));
+			db.notifyDelete(Descriptor.of(entity));
 		}
 	}
 

@@ -17,8 +17,6 @@ import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +24,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import gnu.trove.map.hash.TLongLongHashMap;
-import gnu.trove.map.hash.TLongObjectHashMap;
 
 class ProductSystemWriter extends Writer<ProductSystem> {
 

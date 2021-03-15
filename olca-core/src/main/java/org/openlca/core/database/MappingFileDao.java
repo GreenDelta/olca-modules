@@ -35,7 +35,7 @@ public class MappingFileDao extends BaseDao<MappingFile> {
 	public Set<String> getNames() {
 		var set = new HashSet<String>();
 		var sql = "select file_name from tbl_mapping_files";
-		NativeSql.on(database).query(sql, r -> {
+		NativeSql.on(db).query(sql, r -> {
 			set.add(r.getString(1));
 			return true;
 		});
