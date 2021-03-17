@@ -1,7 +1,9 @@
 package org.openlca.ilcd.commons;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -9,21 +11,33 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlValue;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class LangString implements Serializable {
+public final class LangString implements Serializable {
 
+	@Serial
 	private static final long serialVersionUID = -818083869232748527L;
 
 	@XmlValue
-	public String value;
+	public final String value;
 
 	@XmlAttribute(name = "lang", namespace = "http://www.w3.org/XML/1998/namespace")
-	public String lang;
+	public final String lang;
+
+	/**
+	 * This private constructor is required so that JAXB can initialize it.
+	 * see: https://stackoverflow.com/a/14820037
+	 */
+	@SuppressWarnings("unused")
+	private LangString() {
+		this(null, null);
+	}
+
+	public LangString(String value, String lang) {
+		this.value = value;
+		this.lang = lang;
+	}
 
 	public static LangString of(String value, String lang) {
-		LangString s = new LangString();
-		s.value = value;
-		s.lang = lang;
-		return s;
+		return new LangString(value, lang);
 	}
 
 	@Override
@@ -37,6 +51,22 @@ public class LangString implements Serializable {
 	@Override
 	public LangString clone() {
 		return LangString.of(value, lang);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (!(o instanceof LangString))
+			return false;
+		var other = (LangString) o;
+		return Objects.equals(value, other.value)
+					 && Objects.equals(lang, other.lang);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(value, lang);
 	}
 
 	/**
@@ -100,13 +130,10 @@ public class LangString implements Serializable {
 	 * and add it to the list.
 	 */
 	public static void set(List<LangString> list, String value, String lang) {
-		LangString s = get(list, lang);
-		if (s != null) {
-			s.value = value;
-		} else if (value != null) {
-			s = LangString.of(value, lang);
-			list.add(s);
-		}
+		if (list == null)
+			return;
+		list.removeIf(s -> equal(s.lang, lang));
+		list.add(LangString.of(value, lang));
 	}
 
 	private static boolean equal(String s1, String s2) {

@@ -13,6 +13,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.ilcd.commons.Compliance;
 import org.openlca.ilcd.commons.DataSetType;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.ModellingPrinciple;
 import org.openlca.ilcd.commons.ProcessType;
 import org.openlca.ilcd.commons.PublicationStatus;
@@ -35,7 +36,7 @@ import org.openlca.ilcd.processes.Review;
 public class ProcessSampleTest {
 
 	@Test
-	public void testAdminInfo() throws Exception {
+	public void testAdminInfo() {
 		with(p -> {
 			Publication pub = p.adminInfo.publication;
 			Assert.assertNotNull(pub.lastRevision);
@@ -60,17 +61,18 @@ public class ProcessSampleTest {
 	}
 
 	@Test
-	public void testDataSetInfo() throws Exception {
+	public void testDataSetInfo() {
 		with(p -> {
 			DataSetInfo info = p.processInfo.dataSetInfo;
 			assertEquals(2, info.complementingProcesses.length);
 			assertEquals("identifierOfSubDataSet0", info.subIdentifier);
 			assertEquals(2, info.classifications.size());
+			assertEquals("baseName0", LangString.get(info.name.name, "en").value);
 		});
 	}
 
 	@Test
-	public void testTime() throws Exception {
+	public void testTime() {
 		with(p -> {
 			Time time = p.processInfo.time;
 			assertEquals(1234, time.referenceYear.intValue());
@@ -80,7 +82,7 @@ public class ProcessSampleTest {
 	}
 
 	@Test
-	public void testGeography() throws Exception {
+	public void testGeography() {
 		with(p -> {
 			Location loc = p.processInfo.geography.location;
 			assertEquals("EU-28", loc.code);
@@ -89,24 +91,24 @@ public class ProcessSampleTest {
 	}
 
 	@Test
-	public void testParameters() throws Exception {
+	public void testParameters() {
 		with(p -> {
 			ParameterSection section = p.processInfo.parameters;
 			assertEquals(2, section.description.size());
 			assertEquals(2, section.parameters.size());
 			Parameter param = section.parameters.get(0);
 			assertEquals("formula0", param.formula);
-			assertEquals(0.0, param.mean.doubleValue(), 0);
-			assertEquals(0.0, param.min.doubleValue(), 0);
-			assertEquals(0.0, param.max.doubleValue(), 0);
-			assertEquals(12.123, param.dispersion.doubleValue(), 1e-16);
+			assertEquals(0.0, param.mean, 0);
+			assertEquals(0.0, param.min, 0);
+			assertEquals(0.0, param.max, 0);
+			assertEquals(12.123, param.dispersion, 1e-16);
 			assertEquals(UncertaintyDistribution.UNDEFINED, param.distribution);
 			assertEquals(2, param.comment.size());
 		});
 	}
 
 	@Test
-	public void testCompliance() throws Exception {
+	public void testCompliance() {
 		with(p -> {
 			assertEquals(2, p.modelling.complianceDeclarations.entries.size());
 			ComplianceDeclaration c = p.modelling.complianceDeclarations.entries
@@ -123,7 +125,7 @@ public class ProcessSampleTest {
 	}
 
 	@Test
-	public void testMethod() throws Exception {
+	public void testMethod() {
 		with(p -> {
 			Method method = p.modelling.method;
 			assertEquals(ProcessType.UNIT_PROCESS, method.processType);
@@ -138,7 +140,7 @@ public class ProcessSampleTest {
 	}
 
 	@Test
-	public void testReviews() throws Exception {
+	public void testReviews() {
 		with(p -> {
 			List<Review> reviews = p.modelling.validation.reviews;
 			assertEquals(2, reviews.size());
@@ -151,7 +153,7 @@ public class ProcessSampleTest {
 	}
 
 	@Test
-	public void testAllocation() throws Exception {
+	public void testAllocation() {
 		with(p -> {
 			Exchange e = p.exchanges.get(0);
 			assertEquals(2, e.allocations.length);
@@ -162,7 +164,7 @@ public class ProcessSampleTest {
 	}
 
 	@Test
-	public void testLCIAResults() throws Exception {
+	public void testLCIAResults() {
 		with(p -> {
 			assertEquals(2, p.lciaResults.length);
 			LCIAResult r1 = p.lciaResults[0];
@@ -171,11 +173,12 @@ public class ProcessSampleTest {
 		});
 	}
 
-	private void with(Consumer<Process> fn) throws Exception {
-		try (InputStream in = getClass()
-				.getResourceAsStream("sdk_sample_process.xml")) {
-			Process p = JAXB.unmarshal(in, Process.class);
+	private void with(Consumer<Process> fn) {
+		try (var in = getClass().getResourceAsStream("sdk_sample_process.xml")) {
+			var p = JAXB.unmarshal(in, Process.class);
 			fn.accept(p);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 
