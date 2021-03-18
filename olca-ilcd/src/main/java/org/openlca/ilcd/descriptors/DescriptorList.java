@@ -1,7 +1,6 @@
 
 package org.openlca.ilcd.descriptors;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,30 +12,44 @@ import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "DataSetListType", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI", propOrder = {
-		"descriptors"
-})
-public class DescriptorList implements Serializable {
-
-	private final static long serialVersionUID = 1L;
+@XmlType(
+	name = "DataSetListType",
+	namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI",
+	propOrder = {"descriptors"}
+)
+public class DescriptorList {
 
 	@XmlElements({
-			@XmlElement(name = "process", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Process", type = ProcessDescriptor.class),
-			@XmlElement(name = "contact", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Contact", type = ContactDescriptor.class),
-			@XmlElement(name = "source", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Source", type = SourceDescriptor.class),
-			@XmlElement(name = "flow", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Flow", type = FlowDescriptor.class),
-			@XmlElement(name = "unitGroup", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/UnitGroup", type = UnitGroupDescriptor.class),
-			@XmlElement(name = "flowProperty", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/FlowProperty", type = FlowPropertyDescriptor.class)
+		@XmlElement(name = "LCIAMethod", type = LCIAMethodDescriptor.class,
+			namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/LCIAMethod"),
+		@XmlElement(name = "process", type = ProcessDescriptor.class,
+			namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Process"),
+		@XmlElement(name = "contact", type = ContactDescriptor.class,
+			namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Contact"),
+		@XmlElement(name = "source", type = SourceDescriptor.class,
+			namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Source"),
+		@XmlElement(name = "flow", type = FlowDescriptor.class,
+			namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Flow"),
+		@XmlElement(name = "unitGroup", type = UnitGroupDescriptor.class,
+			namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/UnitGroup"),
+		@XmlElement(name = "flowProperty", type = FlowPropertyDescriptor.class,
+			namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/FlowProperty")
 	})
 	public final List<Descriptor> descriptors = new ArrayList<>();
 
-	@XmlAttribute(name = "totalSize", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
+	@XmlAttribute(
+		name = "totalSize",
+		namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
 	public int totalSize;
 
-	@XmlAttribute(name = "startIndex", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
+	@XmlAttribute(
+		name = "startIndex",
+		namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
 	public int startIndex;
 
-	@XmlAttribute(name = "pageSize", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
+	@XmlAttribute(
+		name = "pageSize",
+		namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
 	public int pageSize;
 
 }

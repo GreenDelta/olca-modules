@@ -9,7 +9,9 @@ public class SodaConnection {
 
 	public String uuid;
 
-	/** The URL of the service end-point. */
+	/**
+	 * The URL of the service end-point.
+	 */
 	public String url;
 
 	public String user;
@@ -18,17 +20,20 @@ public class SodaConnection {
 
 	public String dataStockId;
 
-	/** The short name of the data stock; just used for display information. */
+	/**
+	 * The short name of the data stock; just used for display information.
+	 */
 	public String dataStockName;
 
 	@Override
 	public String toString() {
 		String s = url;
-		if (dataStockName != null && dataStockName.length() > 0)
-			return s += "/" + dataStockName;
-		if (user != null && user.length() > 0)
-			return user + "@" + url;
-		return s;
+		if (dataStockName != null && dataStockName.length() > 0) {
+			s = dataStockName + "::" + url;
+		}
+		return user != null && user.length() > 0
+			? user + "@" + url
+			: s;
 	}
 
 	@Override
@@ -44,7 +49,7 @@ public class SodaConnection {
 			return true;
 		if (!(obj instanceof SodaConnection))
 			return false;
-		SodaConnection other = (SodaConnection) obj;
+		var other = (SodaConnection) obj;
 		return Objects.equals(this.id(), other.id());
 	}
 
