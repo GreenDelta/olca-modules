@@ -31,7 +31,7 @@ public class CostHandler {
 	public RpcResponse getTotalRequirements(RpcRequest req) {
 		return utils.contribution(req, (result, cache) -> {
 			JsonArray items = new JsonArray();
-			var techIdx = result.techIndex;
+			var techIdx = result.techIndex();
 			for (int i = 0; i < techIdx.size(); i++) {
 				var tr = result.totalRequirements[i];
 				if (tr == 0)

@@ -17,7 +17,7 @@ import gnu.trove.set.hash.TLongHashSet;
  * A project result is a wrapper for the inventory results of the respective
  * project variants.
  */
-public class ProjectResult implements IResult {
+public class ProjectResult {
 
 	private final HashMap<ProjectVariant, ContributionResult> results = new HashMap<>();
 
@@ -26,7 +26,7 @@ public class ProjectResult implements IResult {
 	private ArrayList<ImpactDescriptor> _impacts;
 	private ArrayList<CategorizedDescriptor> _processes;
 	private ArrayList<ProjectVariant> _variants;
-	
+
 	public void addResult(ProjectVariant variant, ContributionResult result) {
 		results.put(variant, result);
 	}
@@ -78,7 +78,6 @@ public class ProjectResult implements IResult {
 				variant -> getTotalImpactResult(variant, impact));
 	}
 
-	@Override
 	public boolean hasImpactResults() {
 		for (ContributionResult result : results.values()) {
 			if (result.hasImpactResults())
@@ -87,7 +86,6 @@ public class ProjectResult implements IResult {
 		return false;
 	}
 
-	@Override
 	public boolean hasCostResults() {
 		for (ContributionResult result : results.values()) {
 			if (result.hasCostResults())
@@ -96,7 +94,6 @@ public class ProjectResult implements IResult {
 		return false;
 	}
 
-	@Override
 	public boolean hasFlowResults() {
 		for (ContributionResult result : results.values()) {
 			if (result.hasFlowResults())
@@ -105,7 +102,6 @@ public class ProjectResult implements IResult {
 		return false;
 	}
 
-	@Override
 	public final List<CategorizedDescriptor> getProcesses() {
 		if (_processes != null)
 			return _processes;
@@ -122,22 +118,18 @@ public class ProjectResult implements IResult {
 		return _processes;
 	}
 
-	@Override
 	public List<IndexFlow> getFlows() {
 		if (_flows != null)
 			return _flows;
 		HashSet<IndexFlow> flows = new HashSet<>();
 		for (ContributionResult r : results.values()) {
-			for (IndexFlow f : r.getFlows()) {
-				flows.add(f);
-			}
+			flows.addAll(r.getFlows());
 		}
 		_flows = new ArrayList<>();
 		_flows.addAll(flows);
 		return _flows;
 	}
 
-	@Override
 	public List<ImpactDescriptor> getImpacts() {
 		if (_impacts != null)
 			return _impacts;

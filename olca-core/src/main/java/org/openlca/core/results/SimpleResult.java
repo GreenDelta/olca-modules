@@ -3,11 +3,15 @@ package org.openlca.core.results;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.providers.ResultProvider;
@@ -76,15 +80,27 @@ public class SimpleResult extends BaseResult {
 	public final double totalCosts;
 
 	public SimpleResult(ResultProvider p) {
-		this.provider = p;
-		this.techIndex = p.techIndex();
-		this.flowIndex = p.flowIndex();
-		this.impactIndex = p.impactIndex();
+		this.provider = Objects.requireNonNull(p);
 		this.scalingVector = p.scalingVector();
 		this.totalRequirements = p.totalRequirements();
 		this.totalFlowResults = p.totalFlows();
 		this.totalImpactResults = p.totalImpacts();
 		this.totalCosts = p.totalCosts();
+	}
+
+	@Override
+	public TechIndex techIndex() {
+		return provider.techIndex();
+	}
+
+	@Override
+	public FlowIndex flowIndex() {
+		return provider.flowIndex();
+	}
+
+	@Override
+	public ImpactIndex impactIndex() {
+		return provider.impactIndex();
 	}
 
 	public static SimpleResult of(IDatabase db, MatrixData data) {
@@ -97,7 +113,7 @@ public class SimpleResult extends BaseResult {
 	 * $j$.
 	 */
 	public double getScalingFactor(ProcessProduct product) {
-		int idx = techIndex.of(product);
+		int idx = techIndex().of(product);
 		if (idx < 0 || idx > scalingVector.length)
 			return 0;
 		return scalingVector[idx];
@@ -110,7 +126,7 @@ public class SimpleResult extends BaseResult {
 	 */
 	public double getScalingFactor(CategorizedDescriptor process) {
 		double factor = 0;
-		for (ProcessProduct p : techIndex.getProviders(process)) {
+		for (ProcessProduct p : techIndex().getProviders(process)) {
 			factor += getScalingFactor(p);
 		}
 		return factor;
@@ -120,6 +136,7 @@ public class SimpleResult extends BaseResult {
 	 * Get the total inventory result $\mathbf{g}_i$ of the given flow $i$.
 	 */
 	public double getTotalFlowResult(IndexFlow flow) {
+		var flowIndex = flowIndex();
 		if (flowIndex == null)
 			return 0;
 		int idx = flowIndex.of(flow);
@@ -132,6 +149,7 @@ public class SimpleResult extends BaseResult {
 	 * Returns the flow results of the inventory result $\mathbf{g}$.
 	 */
 	public List<FlowResult> getTotalFlowResults() {
+		var flowIndex = flowIndex();
 		if (flowIndex == null)
 			return Collections.emptyList();
 		List<FlowResult> results = new ArrayList<>(flowIndex.size());
@@ -145,6 +163,9 @@ public class SimpleResult extends BaseResult {
 	 * $i$.
 	 */
 	public double getTotalImpactResult(ImpactDescriptor impact) {
+		var impactIndex = impactIndex();
+		if (impactIndex == null)
+			return 0;
 		int idx = impactIndex.of(impact);
 		if (idx < 0 || idx >= totalImpactResults.length)
 			return 0;
@@ -155,11 +176,12 @@ public class SimpleResult extends BaseResult {
 	 * Returns the impact category results for the given result.
 	 */
 	public List<ImpactResult> getTotalImpactResults() {
-		List<ImpactResult> results = new ArrayList<>();
-		if (!hasImpactResults())
-			return results;
+		var impactIndex = impactIndex();
+		if (impactIndex == null)
+			return Collections.emptyList();
+		var results = new ArrayList<ImpactResult>();
 		impactIndex.each((i, d) -> {
-			ImpactResult r = new ImpactResult();
+			var r = new ImpactResult();
 			r.impact = d;
 			r.value = getTotalImpactResult(d);
 			results.add(r);

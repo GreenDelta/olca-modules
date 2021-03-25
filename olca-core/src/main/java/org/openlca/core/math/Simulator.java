@@ -158,7 +158,7 @@ public class Simulator {
 
 			// calculate results of possible pinned products
 			for (var product : pinnedProducts) {
-				int idx = next.techIndex.of(product);
+				int idx = next.techIndex().of(product);
 				if (idx < 0)
 					continue;
 
@@ -172,7 +172,7 @@ public class Simulator {
 				// direct contributions
 				double si = s[idx];
 				var directFlows = B.getColumn(idx);
-				for (int row = 0; row < next.flowIndex.size(); row++) {
+				for (int row = 0; row < next.flowIndex().size(); row++) {
 					directFlows[row] *= si;
 				}
 				var pin = result.pin(product)
@@ -184,7 +184,7 @@ public class Simulator {
 
 				// upstream contributions
 				double fi = si * A.get(idx, idx);
-				double loopFactor = LcaCalculator.getLoopFactor(A, s, next.techIndex);
+				double loopFactor = LcaCalculator.getLoopFactor(A, s, next.techIndex());
 				fi *= loopFactor;
 				double[] su = solver.solve(A, idx, fi);
 				var upstreamFlows = solver.multiply(B, su);
@@ -219,7 +219,7 @@ public class Simulator {
 				int col = node.data.techIndex.of(subLink);
 				if (col < 0)
 					continue;
-				sub.lastResult.flowIndex.each((i, f) -> {
+				sub.lastResult.flowIndex().each((i, f) -> {
 					double val = sub.lastResult.totalFlowResults[i];
 					int row = node.data.flowIndex.of(f.flow, f.location);
 					if (row >= 0) {

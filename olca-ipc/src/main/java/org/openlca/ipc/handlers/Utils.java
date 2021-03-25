@@ -111,7 +111,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		IndexFlow flow = get(result.flowIndex, json);
+		IndexFlow flow = get(result.flowIndex(), json);
 		if (flow == null)
 			return Responses.invalidParams("Missing or invalid flow parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
@@ -123,8 +123,8 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		IndexFlow flow = get(result.flowIndex, json);
-		if (flow == null || flow.flow == null)
+		IndexFlow flow = get(result.flowIndex(), json);
+		if (flow == null)
 			return Responses.invalidParams("Missing or invalid flow parameter", req);
 		LocationDescriptor location = get(ModelType.LOCATION, json);
 		if (location == null)
@@ -138,7 +138,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		ImpactDescriptor impact = get(result.impactIndex, json);
+		ImpactDescriptor impact = get(result.impactIndex(), json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
@@ -150,10 +150,10 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		ImpactDescriptor impact = get(result.impactIndex, json);
+		ImpactDescriptor impact = get(result.impactIndex(), json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
-		ProcessDescriptor process = get(ModelType.PROCESS, json, result.techIndex.getProcessIds());
+		ProcessDescriptor process = get(ModelType.PROCESS, json, result.techIndex().getProcessIds());
 		if (process == null)
 			return Responses.invalidParams("Missing or invalid process parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
@@ -165,7 +165,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		ImpactDescriptor impact = get(result.impactIndex, json);
+		ImpactDescriptor impact = get(result.impactIndex(), json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
 		LocationDescriptor location = get(ModelType.LOCATION, json);
@@ -180,13 +180,13 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		ImpactDescriptor impact = get(result.impactIndex, json);
+		ImpactDescriptor impact = get(result.impactIndex(), json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
 		LocationDescriptor location = get(ModelType.LOCATION, json);
 		if (location == null)
 			return Responses.invalidParams("Missing or invalid location parameter", req);
-		ProcessDescriptor process = get(ModelType.PROCESS, json, result.techIndex.getProcessIds());
+		ProcessDescriptor process = get(ModelType.PROCESS, json, result.techIndex().getProcessIds());
 		if (process == null)
 			return Responses.invalidParams("Missing or invalid process parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
@@ -207,8 +207,8 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		FullResult result = getResult(json);
-		IndexFlow flow = get(result.flowIndex, json);
-		if (flow == null || flow.flow == null)
+		IndexFlow flow = get(result.flowIndex(), json);
+		if (flow == null)
 			return Responses.invalidParams("Missing or invalid flow parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
 		return Responses.ok(handler.handle(result, flow, cache), req);
@@ -219,7 +219,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		FullResult result = getResult(json);
-		ProcessDescriptor process = get(ModelType.PROCESS, json, result.techIndex.getProcessIds());
+		ProcessDescriptor process = get(ModelType.PROCESS, json, result.techIndex().getProcessIds());
 		if (process == null)
 			return Responses.invalidParams("Missing or invalid process parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
@@ -231,7 +231,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		FullResult result = getResult(json);
-		ImpactDescriptor impact = get(result.impactIndex, json);
+		ImpactDescriptor impact = get(result.impactIndex(), json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
@@ -258,8 +258,6 @@ class Utils {
 		if (refID == null)
 			return null;
 		for (IndexFlow f : idx.content()) {
-			if (f.flow == null)
-				continue;
 			if (refID.equals(f.flow.refId))
 				return f;
 		}

@@ -66,9 +66,9 @@ public class SystemProcess {
 	}
 
 	private void addElemFlows(Process p) {
-		result.flowIndex.each((i, f) -> {
+		result.flowIndex().each((i, f) -> {
 			double amount = result.getTotalFlowResult(f);
-			if (amount == 0 || f.flow == null)
+			if (amount == 0)
 				return;
 			Flow flow = flowDao.getForId(f.flow.id);
 			if (flow == null)

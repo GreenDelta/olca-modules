@@ -5,9 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 /**
@@ -22,10 +25,29 @@ public class SimulationResult extends BaseResult {
 	private final List<double[]> impactResults = new ArrayList<>();
 	private final HashMap<ProcessProduct, PinnedContributions> pinned = new HashMap<>();
 
+	private final TechIndex techIndex;
+	private final FlowIndex flowIndex;
+	private final ImpactIndex impactIndex;
+
 	public SimulationResult(MatrixData data) {
 		this.techIndex = data.techIndex;
 		this.flowIndex = data.flowIndex;
 		this.impactIndex = data.impactIndex;
+	}
+
+	@Override
+	public TechIndex techIndex() {
+		return techIndex;
+	}
+
+	@Override
+	public FlowIndex flowIndex() {
+		return flowIndex;
+	}
+
+	@Override
+	public ImpactIndex impactIndex() {
+		return impactIndex;
 	}
 
 	/**

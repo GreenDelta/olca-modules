@@ -37,22 +37,23 @@ public class LocationResult {
 	 * Calculates location contributions to the given inventory flow.
 	 */
 	public List<Contribution<Location>> getContributions(FlowDescriptor flow) {
-		if (flow == null || result == null)
+		if (flow == null || result == null || !result.hasFlowResults())
 			return Collections.emptyList();
 
+		var flowIndex = result.flowIndex();
 		HashMap<Location, Double> cons = new HashMap<>();
 		double total;
-		if (!result.flowIndex.isRegionalized()) {
+		if (!flowIndex.isRegionalized()) {
 			// non-regionalized calculation;
 			// the flow is mapped to a single row
 			// we take the locations from the processes
 			// in the columns
-			int idx = result.flowIndex.of(flow);
-			IndexFlow iFlow = result.flowIndex.at(idx);
+			int idx = flowIndex.of(flow);
+			IndexFlow iFlow = flowIndex.at(idx);
 			if (iFlow == null)
 				return Collections.emptyList();
 			total = result.getTotalFlowResult(iFlow);
-			result.techIndex.each((i, product) -> {
+			result.techIndex().each((i, product) -> {
 				Location loc = getLocation(product);
 				double v = result.getDirectFlowResult(product, iFlow);
 				cons.compute(loc,
@@ -64,7 +65,7 @@ public class LocationResult {
 			// the flow is mapped to multiple rows where
 			// each row specifies the location
 			AtomicDouble t = new AtomicDouble();
-			result.flowIndex.each((i, iFlow) -> {
+			flowIndex.each((i, iFlow) -> {
 				if (!Objects.equals(flow, iFlow.flow))
 					return;
 				Location loc = iFlow.location == null
@@ -86,18 +87,18 @@ public class LocationResult {
 	 */
 	public List<Contribution<Location>> getContributions(
 			ImpactDescriptor impact) {
-		if (impact == null || result == null)
+		if (impact == null || result == null || !result.hasImpactResults())
 			return Collections.emptyList();
 
 		HashMap<Location, Double> cons = new HashMap<>();
 		double total = result.getTotalImpactResult(impact);
 
-		if (!result.flowIndex.isRegionalized()) {
+		if (!result.flowIndex().isRegionalized()) {
 			// non-regionalized calculation;
 			// we take the locations from the processes
 			// in the columns and the results from the
 			// corresponding process contributions
-			result.techIndex.each((i, product) -> {
+			result.techIndex().each((i, product) -> {
 				Location loc = getLocation(product);
 				double v = result.getDirectImpactResult(product, impact);
 				cons.compute(loc,
@@ -109,7 +110,7 @@ public class LocationResult {
 			// we take the location from the index flows
 			// and the values from the direct contributions
 			// of these flows to the LCIA category result
-			result.flowIndex.each((i, iFlow) -> {
+			result.flowIndex().each((i, iFlow) -> {
 				Location loc = iFlow.location == null
 						? null
 						: getLocation(iFlow.location.id);
@@ -130,7 +131,7 @@ public class LocationResult {
 		if (result == null)
 			return Collections.emptyList();
 		HashMap<Location, Double> cons = new HashMap<>();
-		result.techIndex.each((i, product) -> {
+		result.techIndex().each((i, product) -> {
 			Location loc = getLocation(product);
 			double costs = result.getDirectCostResult(product);
 			double v = costs == 0 ? 0 : -costs;
@@ -149,7 +150,7 @@ public class LocationResult {
 		if (result == null)
 			return Collections.emptyList();
 		HashMap<Location, Double> cons = new HashMap<>();
-		result.techIndex.each((i, product) -> {
+		result.techIndex().each((i, product) -> {
 			Location loc = getLocation(product);
 			double v = result.getDirectCostResult(product);
 			cons.compute(loc,

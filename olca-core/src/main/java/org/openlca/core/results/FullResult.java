@@ -1,6 +1,7 @@
 package org.openlca.core.results;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
@@ -45,10 +46,11 @@ public class FullResult extends ContributionResult {
 	 * inventory result of elementary flow $i$: $\mathbf{U}[i,j]$.
 	 */
 	public double getUpstreamFlowResult(ProcessProduct product, IndexFlow flow) {
-		if (!hasFlowResults())
+		var flowIndex = flowIndex();
+		if (flowIndex == null)
 			return 0;
 		int flowIdx = flowIndex.of(flow);
-		int productIdx = techIndex.of(product);
+		int productIdx = techIndex().of(product);
 		if (flowIdx < 0 || productIdx < 0)
 			return 0;
 		double amount = provider.totalFlowOf(flowIdx, productIdx);
@@ -63,7 +65,7 @@ public class FullResult extends ContributionResult {
 	public double getUpstreamFlowResult(
 		CategorizedDescriptor process, IndexFlow flow) {
 		double total = 0;
-		for (var p : techIndex.getProviders(process)) {
+		for (var p : techIndex().getProviders(process)) {
 			total += getUpstreamFlowResult(p, flow);
 		}
 		return total;
@@ -75,6 +77,9 @@ public class FullResult extends ContributionResult {
 	 */
 	public List<FlowResult> getUpstreamFlowResults(
 		CategorizedDescriptor process) {
+		var flowIndex = flowIndex();
+		if (flowIndex == null)
+			return Collections.emptyList();
 		var results = new ArrayList<FlowResult>();
 		flowIndex.each((i, flow) -> {
 			double value = getUpstreamFlowResult(process, flow);
@@ -91,8 +96,8 @@ public class FullResult extends ContributionResult {
 		ProcessProduct product, ImpactDescriptor impact) {
 		if (!hasImpactResults())
 			return 0;
-		int impactIdx = impactIndex.of(impact);
-		int productIdx = techIndex.of(product);
+		int impactIdx = impactIndex().of(impact);
+		int productIdx = techIndex().of(product);
 		return impactIdx < 0 || productIdx < 0
 			? 0
 			: provider.totalImpactOf(impactIdx, productIdx);
@@ -106,7 +111,7 @@ public class FullResult extends ContributionResult {
 	public double getUpstreamImpactResult(
 		CategorizedDescriptor process, ImpactDescriptor impact) {
 		double total = 0;
-		for (var p : techIndex.getProviders(process)) {
+		for (var p : techIndex().getProviders(process)) {
 			total += getUpstreamImpactResult(p, impact);
 		}
 		return total;
@@ -121,7 +126,7 @@ public class FullResult extends ContributionResult {
 		var results = new ArrayList<ImpactResult>();
 		if (!hasImpactResults())
 			return results;
-		impactIndex.each((i, impact) -> {
+		impactIndex().each((i, impact) -> {
 			var r = new ImpactResult();
 			r.impact = impact;
 			r.value = getUpstreamImpactResult(process, impact);
@@ -137,7 +142,7 @@ public class FullResult extends ContributionResult {
 	public double getUpstreamCostResult(ProcessProduct product) {
 		if (!hasCostResults())
 			return 0;
-		int productIdx = techIndex.of(product);
+		int productIdx = techIndex().of(product);
 		return productIdx < 0
 			? 0
 			: provider.totalCostsOf(productIdx);
@@ -150,7 +155,7 @@ public class FullResult extends ContributionResult {
 	 */
 	public double getUpstreamCostResult(CategorizedDescriptor process) {
 		double total = 0;
-		for (var p : techIndex.getProviders(process)) {
+		for (var p : techIndex().getProviders(process)) {
 			total += getUpstreamCostResult(p);
 		}
 		return total;
@@ -163,6 +168,7 @@ public class FullResult extends ContributionResult {
 	 */
 	public double getLinkShare(ProcessLink link) {
 
+		var techIndex = techIndex();
 		var provider = techIndex.getProvider(link.providerId, link.flowId);
 		int providerIdx = techIndex.of(provider);
 		if (providerIdx < 0)
@@ -186,7 +192,7 @@ public class FullResult extends ContributionResult {
 	 * Calculate the upstream tree for the given flow.
 	 */
 	public UpstreamTree getTree(IndexFlow flow) {
-		int i = flowIndex.of(flow);
+		int i = flowIndex().of(flow);
 		double total = getTotalFlowResult(flow);
 		return new UpstreamTree(flow, this, total,
 			product -> provider.totalFlowOfOne(i, product));
@@ -196,7 +202,7 @@ public class FullResult extends ContributionResult {
 	 * Calculate the upstream tree for the given LCIA category.
 	 */
 	public UpstreamTree getTree(ImpactDescriptor impact) {
-		int i = impactIndex.of(impact.id);
+		int i = impactIndex().of(impact.id);
 		double total = getTotalImpactResult(impact);
 		return new UpstreamTree(impact, this, total,
 			product -> provider.totalImpactOfOne(i, product));

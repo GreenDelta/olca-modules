@@ -40,7 +40,7 @@ public class LibTest {
 		var end = System.currentTimeMillis();
 		System.out.printf("Calculation done in %d ms %n", (end - start));
 
-		result.impactIndex.each((i, impact) -> {
+		result.impactIndex().each((i, impact) -> {
 			System.out.printf("%s : %.4f\n",
 					impact.name, + result.getTotalImpactResult(impact));
 		});

@@ -49,7 +49,7 @@ public class InventoryBuilder {
 			: FlowIndex.create();
 		if (conf.subResults != null) {
 			for (var subResult : conf.subResults.values()) {
-				flowIndex.addAll(subResult.flowIndex);
+				flowIndex.addAll(subResult.flowIndex());
 			}
 		}
 
@@ -128,12 +128,12 @@ public class InventoryBuilder {
 				}
 
 				// add the link in the technology matrix
-				double a = result.techIndex.getDemand();
+				double a = result.techIndex().getDemand();
 				techBuilder.set(col, col, a);
 
 				// add the LCI result
-				if (result.flowIndex != null) {
-					result.flowIndex.each((i, f) -> {
+				if (result.flowIndex() != null) {
+					result.flowIndex().each((i, f) -> {
 						double b = result.getTotalFlowResult(f);
 						if (f.isInput) {
 							b = -b;

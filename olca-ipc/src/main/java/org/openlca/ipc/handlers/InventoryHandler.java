@@ -94,7 +94,7 @@ public class InventoryHandler {
 	@Rpc("get/inventory/total_requirements")
 	public RpcResponse getTotalRequirements(RpcRequest req) {
 		return utils.contribution(req, (result, cache) -> {
-			return JsonRpc.encode(result.totalRequirements, null, result.techIndex, cache);
+			return JsonRpc.encode(result.totalRequirements, null, result.techIndex(), cache);
 		});
 	}
 
@@ -111,7 +111,7 @@ public class InventoryHandler {
 	private RpcResponse getProcessResults(RpcRequest req, boolean input) {
 		return utils.fullProcess(req, (result, process, cache) -> {
 			JsonArray contributions = new JsonArray();
-			result.flowIndex.each((i, f) -> {
+			result.flowIndex().each((i, f) -> {
 				if (f.isInput != input)
 					return;
 				double total = result.getTotalFlowResult(f);

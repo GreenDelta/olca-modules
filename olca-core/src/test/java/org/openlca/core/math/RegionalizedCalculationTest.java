@@ -342,8 +342,8 @@ public class RegionalizedCalculationTest {
 	private void checkTotalFlowResults(FullResult r, Object[][] defs) {
 		for (Object[] row : defs) {
 			Flow flow = (Flow) row[0];
-			int flowIdx = r.flowIndex.of(flow.id);
-			IndexFlow iFlow = r.flowIndex.at(flowIdx);
+			int flowIdx = r.flowIndex().of(flow.id);
+			IndexFlow iFlow = r.flowIndex().at(flowIdx);
 			double v = r.getTotalFlowResult(iFlow);
 			Assert.assertEquals((Double) row[1], v, 1e-10);
 		}
@@ -356,8 +356,8 @@ public class RegionalizedCalculationTest {
 		for (Object[] row : defs) {
 			Flow flow = (Flow) row[0];
 			Location loc = (Location) row[1];
-			int flowIdx = r.flowIndex.of(flow.id, loc != null ? loc.id : 0L);
-			IndexFlow iFlow = r.flowIndex.at(flowIdx);
+			int flowIdx = r.flowIndex().of(flow.id, loc != null ? loc.id : 0L);
+			IndexFlow iFlow = r.flowIndex().at(flowIdx);
 			double v = r.getTotalFlowResult(iFlow);
 			Assert.assertEquals((Double) row[2], v, 1e-10);
 		}
@@ -374,16 +374,16 @@ public class RegionalizedCalculationTest {
 
 			if (row[2] instanceof Number) {
 				// non-regionalized
-				int flowIdx = r.flowIndex.of(flow.id);
-				IndexFlow iFlow = r.flowIndex.at(flowIdx);
+				int flowIdx = r.flowIndex().of(flow.id);
+				IndexFlow iFlow = r.flowIndex().at(flowIdx);
 				double v = r.getDirectFlowResult(product, iFlow);
 				Assert.assertEquals((Double) row[2], v, 1e-10);
 			} else {
 				// regionalized
 				Location loc = (Location) row[2];
-				int flowIdx = r.flowIndex.of(flow.id,
+				int flowIdx = r.flowIndex().of(flow.id,
 						loc != null ? loc.id : 0L);
-				IndexFlow iFlow = r.flowIndex.at(flowIdx);
+				IndexFlow iFlow = r.flowIndex().at(flowIdx);
 				double v = r.getDirectFlowResult(product, iFlow);
 				Assert.assertEquals((Double) row[3], v, 1e-10);
 			}
@@ -401,16 +401,16 @@ public class RegionalizedCalculationTest {
 
 			if (row[2] instanceof Number) {
 				// non-regionalized
-				int flowIdx = r.flowIndex.of(flow.id);
-				IndexFlow iFlow = r.flowIndex.at(flowIdx);
+				int flowIdx = r.flowIndex().of(flow.id);
+				IndexFlow iFlow = r.flowIndex().at(flowIdx);
 				double v = r.getUpstreamFlowResult(product, iFlow);
 				Assert.assertEquals((Double) row[2], v, 1e-10);
 			} else {
 				// regionalized
 				Location loc = (Location) row[2];
-				int flowIdx = r.flowIndex.of(flow.id,
+				int flowIdx = r.flowIndex().of(flow.id,
 						loc != null ? loc.id : 0L);
-				IndexFlow iFlow = r.flowIndex.at(flowIdx);
+				IndexFlow iFlow = r.flowIndex().at(flowIdx);
 				double v = r.getUpstreamFlowResult(product, iFlow);
 				Assert.assertEquals((Double) row[3], v, 1e-10);
 			}
@@ -484,7 +484,7 @@ public class RegionalizedCalculationTest {
 		SystemCalculator calculator = new SystemCalculator(db);
 
 		FullResult r = calculator.calculateFull(setup);
-		Assert.assertTrue(r.flowIndex.isRegionalized());
+		Assert.assertTrue(r.flowIndex().isRegionalized());
 		checkRegTotalFlowResults(r, new Object[][]{
 				{nox, loc1, 5.0},
 				{nox, loc2, 10.0},

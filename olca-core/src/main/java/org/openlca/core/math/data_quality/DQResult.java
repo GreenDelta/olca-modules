@@ -98,7 +98,7 @@ public class DQResult {
 	 */
 	@Deprecated
 	public int[] get(CategorizedDescriptor process) {
-		var products = result.techIndex.getProviders(process);
+		var products = result.techIndex().getProviders(process);
 		return products.isEmpty()
 			? null
 			: get(products.get(0));
@@ -110,7 +110,7 @@ public class DQResult {
 	public int[] get(ProcessProduct product) {
 		if (processData == null)
 			return null;
-		int col = result.techIndex.of(product);
+		int col = result.techIndex().of(product);
 		return col < 0
 			? null
 			: toInt(processData.getColumn(col));
@@ -121,7 +121,7 @@ public class DQResult {
 	 */
 	@Deprecated
 	public int[] get(CategorizedDescriptor process, IndexFlow flow) {
-		var products = result.techIndex.getProviders(process);
+		var products = result.techIndex().getProviders(process);
 		return products.isEmpty()
 			? null
 			: get(products.get(0), flow);
@@ -133,8 +133,8 @@ public class DQResult {
 	public int[] get(ProcessProduct product, IndexFlow flow) {
 		if (exchangeData == null)
 			return null;
-		int row = result.flowIndex.of(flow);
-		int col = result.techIndex.of(product);
+		int row = result.flowIndex().of(flow);
+		int col = result.techIndex().of(product);
 		if (row < 0 || col < 0)
 			return null;
 		int[] values = new int[exchangeData.length];
@@ -150,7 +150,7 @@ public class DQResult {
 	public int[] get(IndexFlow flow) {
 		if (flowResult == null)
 			return null;
-		int col = result.flowIndex.of(flow);
+		int col = result.flowIndex().of(flow);
 		return col < 0
 			? null
 			: toInt(flowResult.getColumn(col));
@@ -162,7 +162,7 @@ public class DQResult {
 	public int[] get(ImpactDescriptor impact) {
 		if (impactResult == null)
 			return null;
-		int col = result.impactIndex.of(impact);
+		int col = result.impactIndex().of(impact);
 		return col < 0
 			? null
 			: toInt(impactResult.getColumn(col));
@@ -171,8 +171,8 @@ public class DQResult {
 	public int[] get(ImpactDescriptor impact, IndexFlow flow) {
 		if (flowImpactResult == null)
 			return null;
-		int row = result.impactIndex.of(impact);
-		int col = result.flowIndex.of(flow);
+		int row = result.impactIndex().of(impact);
+		int col = result.flowIndex().of(flow);
 		if (row < 0 || col < 0)
 			return null;
 		int k = flowImpactResult.length;
@@ -188,7 +188,7 @@ public class DQResult {
 	 */
 	@Deprecated
 	public int[] get(ImpactDescriptor impact, CategorizedDescriptor process) {
-		var products = result.techIndex.getProviders(process);
+		var products = result.techIndex().getProviders(process);
 		return products.isEmpty()
 			? null
 			: get(impact, products.get(0));
@@ -197,8 +197,8 @@ public class DQResult {
 	public int[] get(ImpactDescriptor impact, ProcessProduct product) {
 		if (processImpactResult == null)
 			return null;
-		int row = result.impactIndex.of(impact);
-		int col = result.techIndex.of(product);
+		int row = result.impactIndex().of(impact);
+		int col = result.techIndex().of(product);
 		if (row < 0 || col < 0)
 			return null;
 		int k = processImpactResult.length;
@@ -215,7 +215,7 @@ public class DQResult {
 			return;
 
 		var k = system.indicators.size();
-		var techIndex = result.techIndex;
+		var techIndex = result.techIndex();
 		var n = techIndex.size();
 		processData = new DenseByteMatrix(k, n);
 
@@ -251,14 +251,17 @@ public class DQResult {
 
 	private void loadExchangeData(IDatabase db) {
 		var system = setup.exchangeSystem;
-		if (system == null || result.flowIndex == null)
+		var techIndex = result.techIndex();
+		var flowIndex = result.flowIndex();
+		if (system == null
+				|| techIndex == null
+				|| flowIndex == null)
 			return;
 
 		// allocate a BMatrix for each indicator
 		var n = system.indicators.size();
 		exchangeData = new DenseByteMatrix[n];
-		var techIndex = result.techIndex;
-		var flowIndex = result.flowIndex;
+
 		for (int i = 0; i < n; i++) {
 			exchangeData[i] = new DenseByteMatrix(
 				flowIndex.size(), techIndex.size());
@@ -273,7 +276,7 @@ public class DQResult {
 			if (sysID != system.id)
 				return true;
 			var processID = r.getLong(1);
-			var products = result.techIndex.getProviders(processID);
+			var products = techIndex.getProviders(processID);
 			if (products.isEmpty())
 				return true;
 			providers.put(processID, products);
@@ -323,9 +326,9 @@ public class DQResult {
 			return;
 
 		var system = setup.exchangeSystem;
-		int n = result.techIndex.size();
+		int n = result.techIndex().size();
 		int k = system.indicators.size();
-		int m = result.flowIndex.size();
+		int m = result.flowIndex().size();
 		flowResult = new DenseByteMatrix(k, m);
 		byte max = (byte) system.getScoreCount();
 
@@ -356,9 +359,9 @@ public class DQResult {
 		// initialize the results
 		var system = setup.exchangeSystem;
 		int k = system.indicators.size();
-		int m = result.flowIndex.size();
-		int n = result.techIndex.size();
-		int q = result.impactIndex.size();
+		int m = result.flowIndex().size();
+		int n = result.techIndex().size();
+		int q = result.impactIndex().size();
 		byte max = (byte) system.getScoreCount();
 		impactResult = new DenseByteMatrix(k, q);
 		flowImpactResult = new DenseByteMatrix[k];

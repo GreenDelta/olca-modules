@@ -22,7 +22,7 @@ public class SankeyExample {
 		System.out.println("Computed result in: "
 				+ ((double) (end - start) / 1000d));
 
-		IndexFlow flow = result.flowIndex.at(42);
+		IndexFlow flow = result.flowIndex().at(42);
 
 		start = System.currentTimeMillis();
 		var sankey = Sankey.of(flow, result)

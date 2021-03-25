@@ -1,4 +1,4 @@
-package org.openlca.core.results.solutions;
+package org.openlca.core.results.providers;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -8,7 +8,6 @@ import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.providers.LazyResultProvider;
 
 public class LazyProviderTest {
 

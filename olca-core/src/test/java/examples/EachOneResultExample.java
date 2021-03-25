@@ -17,7 +17,7 @@ public class EachOneResultExample {
 				var product = pair.first;
 				var result = pair.second;
 				System.out.printf("Calculated result for %s%n%n", product.process.refId);
-				result.impactIndex.each((_i, impact) -> {
+				result.impactIndex().each((_i, impact) -> {
 					var r = result.getTotalImpactResult(impact);
 					System.out.printf("%s;%.5f;%s%n",
 						impact.name, r, impact.referenceUnit);

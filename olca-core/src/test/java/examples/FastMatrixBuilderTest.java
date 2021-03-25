@@ -44,7 +44,7 @@ public class FastMatrixBuilderTest {
 		time = (end - start) / 1000.0;
 		System.out.println("calculation took " + time + " secs");
 
-		System.out.println("done; flow count = " + r.flowIndex.size());
+		System.out.println("done; flow count = " + r.flowIndex().size());
 		System.out.println(r.totalFlowResults[0]);
 
 	}

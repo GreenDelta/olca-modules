@@ -5,12 +5,12 @@ import java.util.Arrays;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.ImpactIndex;
 import org.openlca.core.matrix.TechIndex;
-import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.results.SimpleResult;
 
 /**
- * A SimpleResultProvider just wraps the result matrices and
- * vectors.
+ * A SimpleResultProvider just wraps a set of result data. It
+ * should be just used with the SimpleResult view as the
+ * detailed contributions are not provided.
  */
 public class SimpleResultProvider implements ResultProvider {
 

@@ -51,8 +51,8 @@ public class AvoidedFlowsTest {
 	private void check(Process refProc, Process linkedProc) {
 		ProductSystem system = TestSystem.of(refProc).link(linkedProc).get();
 		FullResult r = TestSystem.calculate(system);
-		assertEquals(1, r.flowIndex.size());
-		IndexFlow co2 = r.flowIndex.at(0);
+		assertEquals(1, r.flowIndex().size());
+		IndexFlow co2 = r.flowIndex().at(0);
 		assertEquals(1.0, r.getTotalFlowResult(co2), 1e-16);
 	}
 

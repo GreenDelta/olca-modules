@@ -36,7 +36,7 @@ public class SysInSys {
 
 		SimpleResult r = sim.nextRun();
 
-		IndexFlow f = r.flowIndex.at(0);
+		IndexFlow f = r.flowIndex().at(0);
 		System.out.println(f.flow.name + "  -> " + r.getTotalFlowResult(f));
 
 	}

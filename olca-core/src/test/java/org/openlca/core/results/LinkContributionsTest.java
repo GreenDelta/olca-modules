@@ -49,7 +49,6 @@ public class LinkContributionsTest {
 
 		var solution = LazyResultProvider.create(data);
 		FullResult r = new FullResult(solution);
-		r.techIndex = index;
 
 		Assert.assertEquals(0, r.getLinkShare(link(4, 4, 1)), 1e-16);
 		Assert.assertEquals(1, r.getLinkShare(link(2, 2, 1)), 1e-16);
@@ -87,7 +86,6 @@ public class LinkContributionsTest {
 		data.techMatrix = techMatrix;
 		var solutions = LazyResultProvider.create(data);
 		FullResult r = new FullResult(solutions);
-		r.techIndex = index;
 
 		for (int i = 0; i < size; i++) {
 			if (i < (size - 1)) {
