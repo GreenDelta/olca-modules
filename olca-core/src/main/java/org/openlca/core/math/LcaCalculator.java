@@ -44,42 +44,15 @@ public class LcaCalculator {
 	}
 
 	public SimpleResult calculateSimple() {
-		var solution = solution(true);
-		var result = new SimpleResult();
-		fillSimple(result, solution);
-		return result;
-	}
-
-	private void fillSimple(SimpleResult r, ResultProvider s) {
-		r.techIndex = s.techIndex();
-		r.flowIndex = s.flowIndex();
-		r.impactIndex = s.impactIndex();
-		r.scalingVector = s.scalingVector();
-		r.totalRequirements = s.totalRequirements();
-
-		if (r.flowIndex != null && !r.flowIndex.isEmpty()) {
-			r.totalFlowResults = s.totalFlows();
-			if (r.impactIndex != null && !r.impactIndex.isEmpty()) {
-				r.totalImpactResults = s.totalImpacts();
-			}
-		}
-		if (s.hasCosts()) {
-			r.totalCosts = s.totalCosts();
-		}
+		return new SimpleResult(solution(true));
 	}
 
 	public ContributionResult calculateContributions() {
-		var solution = solution(true);
-		var result = new ContributionResult(solution);
-		fillSimple(result, solution);
-		return result;
+		return new ContributionResult(solution(true));
 	}
 
 	public FullResult calculateFull() {
-		var solution = solution(false);
-		var result = new FullResult(solution);
-		fillSimple(result, solution);
-		return result;
+		return new FullResult(solution(false));
 	}
 
 	/**

@@ -23,14 +23,12 @@ public class FullResult extends ContributionResult {
 
 	public static FullResult of(IDatabase db, MatrixData data) {
 		var provider = Results.eagerOf(db, data);
-		var result = new FullResult(provider);
-		Results.fill(provider, result);
-		return result;
+		return new FullResult(provider);
 	}
 
 	public static FullResult of(IDatabase db, ProductSystem system) {
 		var setup = new CalculationSetup(system);
-		return of (db, setup);
+		return of(db, setup);
 	}
 
 	public static FullResult of(IDatabase db, CalculationSetup setup) {
@@ -63,7 +61,7 @@ public class FullResult extends ContributionResult {
 	 * the sum of the contributions of all of these process-product pairs.
 	 */
 	public double getUpstreamFlowResult(
-			CategorizedDescriptor process, IndexFlow flow) {
+		CategorizedDescriptor process, IndexFlow flow) {
 		double total = 0;
 		for (var p : techIndex.getProviders(process)) {
 			total += getUpstreamFlowResult(p, flow);
@@ -76,7 +74,7 @@ public class FullResult extends ContributionResult {
 	 * result of all elementary flows in the product system.
 	 */
 	public List<FlowResult> getUpstreamFlowResults(
-			CategorizedDescriptor process) {
+		CategorizedDescriptor process) {
 		var results = new ArrayList<FlowResult>();
 		flowIndex.each((i, flow) -> {
 			double value = getUpstreamFlowResult(process, flow);
@@ -90,14 +88,14 @@ public class FullResult extends ContributionResult {
 	 * LCIA category result $j$: $\mathbf{V}[i,j]$.
 	 */
 	public double getUpstreamImpactResult(
-			ProcessProduct product, ImpactDescriptor impact) {
+		ProcessProduct product, ImpactDescriptor impact) {
 		if (!hasImpactResults())
 			return 0;
 		int impactIdx = impactIndex.of(impact);
 		int productIdx = techIndex.of(product);
 		return impactIdx < 0 || productIdx < 0
-				? 0
-				: provider.totalImpactOf(impactIdx, productIdx);
+			? 0
+			: provider.totalImpactOf(impactIdx, productIdx);
 	}
 
 	/**
@@ -106,7 +104,7 @@ public class FullResult extends ContributionResult {
 	 * contributions of all of these process-product pairs.
 	 */
 	public double getUpstreamImpactResult(
-			CategorizedDescriptor process, ImpactDescriptor impact) {
+		CategorizedDescriptor process, ImpactDescriptor impact) {
 		double total = 0;
 		for (var p : techIndex.getProviders(process)) {
 			total += getUpstreamImpactResult(p, impact);
@@ -119,7 +117,7 @@ public class FullResult extends ContributionResult {
 	 * results.
 	 */
 	public List<ImpactResult> getUpstreamImpactResults(
-			CategorizedDescriptor process) {
+		CategorizedDescriptor process) {
 		var results = new ArrayList<ImpactResult>();
 		if (!hasImpactResults())
 			return results;
@@ -141,8 +139,8 @@ public class FullResult extends ContributionResult {
 			return 0;
 		int productIdx = techIndex.of(product);
 		return productIdx < 0
-				? 0
-				: provider.totalCostsOf(productIdx);
+			? 0
+			: provider.totalCostsOf(productIdx);
 	}
 
 	/**
@@ -180,8 +178,8 @@ public class FullResult extends ContributionResult {
 
 		double total = this.provider.scaledTechValueOf(providerIdx, providerIdx);
 		return total == 0
-				? 0
-				: -amount / total;
+			? 0
+			: -amount / total;
 	}
 
 	/**
@@ -191,7 +189,7 @@ public class FullResult extends ContributionResult {
 		int i = flowIndex.of(flow);
 		double total = getTotalFlowResult(flow);
 		return new UpstreamTree(flow, this, total,
-				product -> provider.totalFlowOfOne(i, product));
+			product -> provider.totalFlowOfOne(i, product));
 	}
 
 	/**
@@ -201,7 +199,7 @@ public class FullResult extends ContributionResult {
 		int i = impactIndex.of(impact.id);
 		double total = getTotalImpactResult(impact);
 		return new UpstreamTree(impact, this, total,
-				product -> provider.totalImpactOfOne(i, product));
+			product -> provider.totalImpactOfOne(i, product));
 	}
 
 	/**
@@ -209,7 +207,7 @@ public class FullResult extends ContributionResult {
 	 */
 	public UpstreamTree getCostTree() {
 		return new UpstreamTree(this, totalCosts,
-				provider::totalCostsOfOne);
+			provider::totalCostsOfOne);
 	}
 
 	/**
@@ -217,6 +215,6 @@ public class FullResult extends ContributionResult {
 	 */
 	public UpstreamTree getAddedValueTree() {
 		return new UpstreamTree(this, -totalCosts,
-				product -> -provider.totalCostsOfOne(product));
+			product -> -provider.totalCostsOfOne(product));
 	}
 }

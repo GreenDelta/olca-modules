@@ -27,6 +27,7 @@ import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.core.results.SimulationResult;
+import org.openlca.core.results.providers.SimpleResultProvider;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.util.TopoSort;
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A `Simulator` runs Monte-Carlo simulations with a given calculation setup.
- *
+ * <p>
  * When running the Monte Carlo simulation on a product system $s_r$ that has a
  * sub-system (which again can have sub-systems etc.) we need to first run the
  * number generation and calculation for that sub-system and integrate these
@@ -42,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * In general, we have to do this for each relation $s_i \prec s_j$, where $s_i$
  * is a sub-system of $s_j$, of all product systems $S$ of the recursively
  * expanded sub-system dependencies.
- *
+ * <p>
  * $S$ is a [strict partial ordered
  * set](https://en.wikipedia.org/wiki/Partially_ordered_set#Strict_and_non-strict_partial_orders)
  * as we do not allow cycles in the sub-system dependencies. Thus, we can define
@@ -50,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * sorting](https://en.wikipedia.org/wiki/Topological_sorting) which maps each
  * product system $s_i$ to a position $pos_i$ with $pos_i < pos_j$ when $s_i
  * \prec s_j$.
- *
+ * <p>
  * In the simulation, we then run the number generation and calculation for each
  * sub-system starting from the lowest position in $pos = [1 \dots n]$ where the
  * top-most product system $s_r$ has the position $pos_r = n$. Thus, in a
@@ -103,9 +104,9 @@ public class Simulator {
 	}
 
 	public static Simulator create(
-			CalculationSetup setup,
-			IDatabase db,
-			MatrixSolver solver) {
+		CalculationSetup setup,
+		IDatabase db,
+		MatrixSolver solver) {
 		Simulator g = new Simulator(db);
 		g.init(db, setup);
 		return g;
@@ -156,8 +157,8 @@ public class Simulator {
 			result.append(next);
 
 			// calculate results of possible pinned products
-			for (ProcessProduct pinned : pinnedProducts) {
-				int idx = next.techIndex.of(pinned);
+			for (var product : pinnedProducts) {
+				int idx = next.techIndex.of(product);
 				if (idx < 0)
 					continue;
 
@@ -169,30 +170,30 @@ public class Simulator {
 				double[] s = next.scalingVector;
 
 				// direct contributions
-				SimpleResult direct = new SimpleResult();
 				double si = s[idx];
-				direct.totalFlowResults = B.getColumn(idx);
+				var directFlows = B.getColumn(idx);
 				for (int row = 0; row < next.flowIndex.size(); row++) {
-					direct.totalFlowResults[row] *= si;
+					directFlows[row] *= si;
 				}
+				var pin = result.pin(product)
+					.withDirectFlows(directFlows);
 				if (C != null) {
-					direct.totalImpactResults = solver.multiply(
-							C, direct.totalFlowResults);
+					pin.withDirectImpacts(
+						solver.multiply(C, directFlows));
 				}
 
 				// upstream contributions
-				SimpleResult upstream = new SimpleResult();
 				double fi = si * A.get(idx, idx);
 				double loopFactor = LcaCalculator.getLoopFactor(A, s, next.techIndex);
 				fi *= loopFactor;
 				double[] su = solver.solve(A, idx, fi);
-				upstream.totalFlowResults = solver.multiply(B, su);
+				var upstreamFlows = solver.multiply(B, su);
+				pin.withUpstreamFlows(upstreamFlows);
 				if (C != null) {
-					upstream.totalImpactResults = solver.multiply(
-							C, upstream.totalFlowResults);
+					pin.withUpstreamImpacts(solver.multiply(C, upstreamFlows));
 				}
 
-				result.append(pinned, direct, upstream);
+				pin.add();
 			}
 			return next;
 		} catch (Throwable e) {
@@ -262,7 +263,7 @@ public class Simulator {
 			});
 		} catch (Exception e) {
 			throw new RuntimeException(
-					"failed to collect product system IDs", e);
+				"failed to collect product system IDs", e);
 		}
 
 		// allRels contains the sub-system relations of each product system
@@ -276,13 +277,13 @@ public class Simulator {
 					return true;
 				long system = r.getLong(1);
 				List<LongPair> rels = allRels.computeIfAbsent(
-						system, k -> new ArrayList<>());
+					system, k -> new ArrayList<>());
 				rels.add(LongPair.of(provider, system));
 				return true;
 			});
 		} catch (Exception e) {
 			throw new RuntimeException(
-					"failed to collect sub-system relations", e);
+				"failed to collect sub-system relations", e);
 		}
 
 		// now collect the sub-system relations that we need to consider
@@ -310,7 +311,7 @@ public class Simulator {
 		List<Long> order = TopoSort.of(sysRels);
 		if (order == null)
 			throw new RuntimeException(
-					"there are sub-system cycles in the product system");
+				"there are sub-system cycles in the product system");
 
 		// now, we initialize the nodes in topological order
 		Map<ProcessProduct, SimpleResult> subResults = new HashMap<>();
@@ -342,12 +343,12 @@ public class Simulator {
 				// for the sub-nodes we need to initialize an empty
 				// result so that the respective host-systems will
 				// be initialized with the correct matrix shapes (
-				// e.g. flows that only occure in a sub-system
+				// e.g. flows that only occur in a sub-system
 				// need a row in the respective host-systems)
-				var r = new SimpleResult();
-				r.techIndex = node.data.techIndex;
-				r.flowIndex = node.data.flowIndex;
-				r.totalFlowResults = new double[r.flowIndex.size()];
+				var r = SimpleResultProvider.of(node.data.techIndex)
+					.withFlowIndex(node.data.flowIndex)
+					.withTotalFlows(new double[node.data.flowIndex.size()])
+					.toResult();
 				node.lastResult = r;
 				subResults.put(node.product, r);
 			}
@@ -383,7 +384,7 @@ public class Simulator {
 		SimpleResult lastResult;
 
 		Node(CalculationSetup setup, IDatabase db,
-				Map<ProcessProduct, SimpleResult> subResults) {
+				 Map<ProcessProduct, SimpleResult> subResults) {
 
 			systemID = setup.productSystem.id;
 			product = ProcessProduct.of(setup.productSystem);
@@ -399,11 +400,11 @@ public class Simulator {
 			});
 			if (setup.impactMethod != null) {
 				new ImpactMethodDao(db).getCategoryDescriptors(
-						setup.impactMethod.id)
-						.forEach(d -> paramContexts.add(d.id));
+					setup.impactMethod.id)
+					.forEach(d -> paramContexts.add(d.id));
 			}
 			parameters = ParameterTable.forSimulation(
-					db, paramContexts, setup.parameterRedefs);
+				db, paramContexts, setup.parameterRedefs);
 		}
 	}
 

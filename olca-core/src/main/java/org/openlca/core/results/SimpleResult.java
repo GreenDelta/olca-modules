@@ -10,6 +10,7 @@ import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
+import org.openlca.core.results.providers.ResultProvider;
 
 /**
  * The simplest kind of result of a calculated product system. This result type
@@ -18,12 +19,7 @@ import org.openlca.core.model.descriptors.ImpactDescriptor;
  */
 public class SimpleResult extends BaseResult {
 
-	public static SimpleResult of(IDatabase db, MatrixData data) {
-		var provider = Results.lazyOf(db, data);
-		var result = new SimpleResult();
-		Results.fill(provider, result);
-		return result;
-	}
+	public final ResultProvider provider;
 
 	/**
 	 * The scaling vector $\mathbf{s}$ which is calculated by solving the
@@ -34,7 +30,7 @@ public class SimpleResult extends BaseResult {
 	 * where $\mathbf{A}$ is the technology matrix and $\mathbf{f}$ the final
 	 * demand vector of the product system.
 	 */
-	public double[] scalingVector;
+	public final double[] scalingVector;
 
 	/**
 	 * The total requirements of the products to fulfill the demand of the
@@ -47,7 +43,7 @@ public class SimpleResult extends BaseResult {
 	 * <p>
 	 * $$\mathbf{t} = \text{diag}(\mathbf{A}) \odot \mathbf{s}$$
 	 */
-	public double[] totalRequirements;
+	public final double[] totalRequirements;
 
 	/**
 	 * The inventory result $\mathbf{g}$ of a product system:
@@ -57,7 +53,7 @@ public class SimpleResult extends BaseResult {
 	 * Where $\mathbf{B}$ is the intervention matrix and $\mathbf{s}$ the
 	 * scaling vector. Note that inputs have negative values in this vector.
 	 */
-	public double[] totalFlowResults;
+	public final double[] totalFlowResults;
 
 	/**
 	 * The LCIA result $\mathbf{h}$ of a product system:
@@ -67,7 +63,7 @@ public class SimpleResult extends BaseResult {
 	 * Where $\mathbf{C}$ is a flow * LCIA category matrix with the
 	 * characterization factors and $\mathbf{g}$ the inventory result.
 	 */
-	public double[] totalImpactResults;
+	public final double[] totalImpactResults;
 
 	/**
 	 * The total net-costs $k_t$ of the LCC result:
@@ -77,7 +73,24 @@ public class SimpleResult extends BaseResult {
 	 * Where $\mathbf{k}_j$ are the net-costs of process $j$ and $\mathbf{s}_j$
 	 * is the scaling factor of that process.
 	 */
-	public double totalCosts;
+	public final double totalCosts;
+
+	public SimpleResult(ResultProvider p) {
+		this.provider = p;
+		this.techIndex = p.techIndex();
+		this.flowIndex = p.flowIndex();
+		this.impactIndex = p.impactIndex();
+		this.scalingVector = p.scalingVector();
+		this.totalRequirements = p.totalRequirements();
+		this.totalFlowResults = p.totalFlows();
+		this.totalImpactResults = p.totalImpacts();
+		this.totalCosts = p.totalCosts();
+	}
+
+	public static SimpleResult of(IDatabase db, MatrixData data) {
+		var provider = Results.lazyOf(db, data);
+		return new SimpleResult(provider);
+	}
 
 	/**
 	 * Get the scaling factor $\mathbf{s}_j$ of the given process-product pair

@@ -20,17 +20,13 @@ import org.openlca.core.results.providers.ResultProvider;
  */
 public class ContributionResult extends SimpleResult {
 
-	public final ResultProvider provider;
+	public ContributionResult(ResultProvider provider) {
+		super(provider);
+	}
 
 	public static ContributionResult of(IDatabase db, MatrixData data) {
 		var provider = Results.lazyOf(db, data);
-		var result = new ContributionResult(provider);
-		Results.fill(provider, result);
-		return result;
-	}
-
-	public ContributionResult(ResultProvider provider) {
-		this.provider = provider;
+		return new ContributionResult(provider);
 	}
 
 	@Override

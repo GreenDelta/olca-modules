@@ -41,23 +41,4 @@ final class Results {
 			? LazyResultProvider.create(data)
 			: EagerResultProvider.create(data);
 	}
-
-	static void fill(ResultProvider s, SimpleResult r) {
-		r.techIndex = s.techIndex();
-		r.flowIndex = s.flowIndex();
-		r.impactIndex = s.impactIndex();
-		r.scalingVector = s.scalingVector();
-		r.totalRequirements = s.totalRequirements();
-
-		if (r.flowIndex != null && !r.flowIndex.isEmpty()) {
-			r.totalFlowResults = s.totalFlows();
-			if (r.impactIndex != null && !r.impactIndex.isEmpty()) {
-				r.totalImpactResults = s.totalImpacts();
-			}
-		}
-		if (s.hasCosts()) {
-			r.totalCosts = s.totalCosts();
-		}
-	}
-
 }

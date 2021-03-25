@@ -20,8 +20,7 @@ public class SimulationResult extends BaseResult {
 
 	private final List<double[]> flowResults = new ArrayList<>();
 	private final List<double[]> impactResults = new ArrayList<>();
-
-	private HashMap<ProcessProduct, PinnedContributions> pinned = new HashMap<>();
+	private final HashMap<ProcessProduct, PinnedContributions> pinned = new HashMap<>();
 
 	public SimulationResult(MatrixData data) {
 		this.techIndex = data.techIndex;
@@ -45,31 +44,13 @@ public class SimulationResult extends BaseResult {
 	}
 
 	/**
-	 * Append the given direct and upstream result of the pinned product to this
-	 * result. We only append the respective vectors from the results. The
-	 * indices of these vectors need to match with the indices of this result.
+	 * Creates a new pinned contribution for the given product with which direct
+	 * and upstream contributions of this product can be added to this result.
+	 * We only append the respective vectors from these contributions. Thus, the
+	 * indices of these vectors must match with the indices of this result.
 	 */
-	public void append(ProcessProduct product,
-			SimpleResult direct, SimpleResult upstream) {
-		if (product == null || direct == null || upstream == null)
-			return;
-		PinnedContributions pc = pinned.get(product);
-		if (pc == null) {
-			pc = new PinnedContributions();
-			pinned.put(product, pc);
-		}
-		if (direct.totalFlowResults != null) {
-			pc.directLCI.add(direct.totalFlowResults);
-		}
-		if (direct.totalImpactResults != null) {
-			pc.directLCIA.add(direct.totalImpactResults);
-		}
-		if (upstream.totalFlowResults != null) {
-			pc.upstreamLCI.add(upstream.totalFlowResults);
-		}
-		if (upstream.totalImpactResults != null) {
-			pc.upstreamLCIA.add(upstream.totalImpactResults);
-		}
+	public PinnedContribution pin(ProcessProduct product) {
+		return new PinnedContribution(this, product);
 	}
 
 	public Set<ProcessProduct> getPinnedProducts() {
@@ -90,13 +71,12 @@ public class SimulationResult extends BaseResult {
 	 * Get the direct contribution of the given product to the given flow in the
 	 * iteration i (zero based).
 	 */
-	public double getDirect(ProcessProduct product,
-			IndexFlow flow, int i) {
-		PinnedContributions pc = pinned.get(product);
+	public double getDirect(ProcessProduct product, IndexFlow flow, int i) {
+		var pc = pinned.get(product);
 		if (pc == null || flowIndex == null)
 			return 0;
 		int arrayIdx = flowIndex.of(flow);
-		return adopt(flow, val(pc.directLCI, i, arrayIdx));
+		return adopt(flow, val(pc.directFlows, i, arrayIdx));
 	}
 
 	/**
@@ -116,21 +96,21 @@ public class SimulationResult extends BaseResult {
 	 * Get the upstream contribution of the given product to the given flow in
 	 * the iteration i (zero based).
 	 */
-	public double getUpstream(ProcessProduct product,
-			IndexFlow flow, int i) {
+	public double getUpstream(
+		ProcessProduct product, IndexFlow flow, int i) {
 		PinnedContributions pc = pinned.get(product);
 		if (pc == null || flowIndex == null)
 			return 0;
 		int arrayIdx = flowIndex.of(flow);
-		return adopt(flow, val(pc.upstreamLCI, i, arrayIdx));
+		return adopt(flow, val(pc.upstreamFlows, i, arrayIdx));
 	}
 
 	/**
 	 * Get the upstream contribution of the given product to the given flow for
 	 * all iterations.
 	 */
-	public double[] getAllUpstream(ProcessProduct product,
-			IndexFlow flow) {
+	public double[] getAllUpstream(
+		ProcessProduct product, IndexFlow flow) {
 		int count = getNumberOfRuns();
 		double[] vals = new double[count];
 		for (int i = 0; i < count; i++) {
@@ -165,21 +145,21 @@ public class SimulationResult extends BaseResult {
 	 * Get the direct contribution of the given product to the given LCIA
 	 * category in the iteration i (zero based).
 	 */
-	public double getDirect(ProcessProduct product,
-			ImpactDescriptor impact, int i) {
-		PinnedContributions pc = pinned.get(product);
+	public double getDirect(
+		ProcessProduct product, ImpactDescriptor impact, int i) {
+		var pc = pinned.get(product);
 		if (pc == null || impactIndex == null)
 			return 0;
 		int arrayIdx = impactIndex.of(impact);
-		return val(pc.directLCIA, i, arrayIdx);
+		return val(pc.directImpacts, i, arrayIdx);
 	}
 
 	/**
 	 * Get the direct contribution of the given product to the given LCIA
 	 * category for all iterations.
 	 */
-	public double[] getAllDirect(ProcessProduct product,
-			ImpactDescriptor impact) {
+	public double[] getAllDirect(
+		ProcessProduct product, ImpactDescriptor impact) {
 		int count = getNumberOfRuns();
 		double[] vals = new double[count];
 		for (int i = 0; i < count; i++) {
@@ -192,13 +172,13 @@ public class SimulationResult extends BaseResult {
 	 * Get the upstream contribution of the given product to the given LCIA
 	 * category in the iteration i (zero based).
 	 */
-	public double getUpstream(ProcessProduct product,
-			ImpactDescriptor impact, int i) {
-		PinnedContributions pc = pinned.get(product);
+	public double getUpstream(
+		ProcessProduct product, ImpactDescriptor impact, int i) {
+		var pc = pinned.get(product);
 		if (pc == null || impactIndex == null)
 			return 0;
 		int arrayIdx = impactIndex.of(impact);
-		return val(pc.upstreamLCIA, i, arrayIdx);
+		return val(pc.upstreamImpacts, i, arrayIdx);
 	}
 
 	/**
@@ -248,10 +228,66 @@ public class SimulationResult extends BaseResult {
 		return false;
 	}
 
-	public static class PinnedContributions {
-		private List<double[]> directLCI = new ArrayList<>();
-		private List<double[]> upstreamLCI = new ArrayList<>();
-		private List<double[]> directLCIA = new ArrayList<>();
-		private List<double[]> upstreamLCIA = new ArrayList<>();
+	private static class PinnedContributions {
+		private final List<double[]> directFlows = new ArrayList<>();
+		private final List<double[]> upstreamFlows = new ArrayList<>();
+		private final List<double[]> directImpacts = new ArrayList<>();
+		private final List<double[]> upstreamImpacts = new ArrayList<>();
+	}
+
+	public static class PinnedContribution {
+
+		private final SimulationResult result;
+		private final ProcessProduct product;
+
+		private double[] directFlows;
+		private double[] upstreamFlows;
+		private double[] directImpacts;
+		private double[] upstreamImpacts;
+
+		private PinnedContribution(
+			SimulationResult result,
+			ProcessProduct product) {
+			this.result = result;
+			this.product = product;
+		}
+
+		public PinnedContribution withDirectFlows(double[] v) {
+			this.directFlows = v;
+			return this;
+		}
+
+		public PinnedContribution withUpstreamFlows(double[] v) {
+			this.upstreamFlows = v;
+			return this;
+		}
+
+		public PinnedContribution withDirectImpacts(double[] v) {
+			this.directImpacts = v;
+			return this;
+		}
+
+		public PinnedContribution withUpstreamImpacts(double[] v) {
+			this.upstreamImpacts = v;
+			return this;
+		}
+
+		public void add() {
+			var pinned = result.pinned.computeIfAbsent(
+				product, p -> new PinnedContributions());
+			if (directFlows != null) {
+				pinned.directFlows.add(directFlows);
+			}
+			if (upstreamFlows != null) {
+				pinned.upstreamFlows.add(upstreamFlows);
+			}
+			if (directImpacts != null) {
+				pinned.directImpacts.add(directImpacts);
+			}
+			if (upstreamImpacts != null) {
+				pinned.upstreamImpacts.add(upstreamImpacts);
+			}
+		}
+
 	}
 }

@@ -8,6 +8,7 @@ import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.core.results.providers.SimpleResultProvider;
 import org.openlca.julia.Julia;
 import org.openlca.julia.JuliaSolver;
 import org.openlca.util.Pair;
@@ -75,27 +76,30 @@ public class EachOneResult {
 		@Override
 		public Pair<ProcessProduct, SimpleResult> next() {
 
-			var result = new SimpleResult();
-			result.techIndex = data.techIndex;
-			result.flowIndex = data.flowIndex;
-			result.impactIndex = data.impactIndex;
+			var p = SimpleResultProvider.of(data.techIndex)
+				.withFlowIndex(data.flowIndex)
+				.withImpactIndex(data.impactIndex);
 
 			if (inverse != null) {
-				result.scalingVector = inverse.getColumn(next);
+				var scalingVector = inverse.getColumn(next);
+				p.withScalingVector(scalingVector);
+
 				if (diagA != null) {
-					result.totalRequirements = new double[diagA.length];
+					var totalRequirements = new double[diagA.length];
 					for (int i = 0; i < diagA.length; i++) {
-						result.totalRequirements[i] = diagA[i] * result.scalingVector[i];
+						totalRequirements[i] = diagA[i] * scalingVector[i];
 					}
+					p.withTotalRequirements(totalRequirements);
 				}
 			}
 			if (lci != null) {
-				result.totalFlowResults = lci.getColumn(next);
+				p.withTotalFlows(lci.getColumn(next));
 			}
 			if (lcia != null) {
-				result.totalImpactResults = lcia.getColumn(next);
+				p.withTotalImpacts(lcia.getColumn(next));
 			}
 
+			var result = p.toResult();
 			var product = data.techIndex.at(next);
 			if (product.isWaste()) {
 				swapSign(result.scalingVector);
