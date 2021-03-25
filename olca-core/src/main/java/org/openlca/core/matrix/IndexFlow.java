@@ -48,7 +48,7 @@ public class IndexFlow {
 		return new IndexFlow(flow, loc, false);
 	}
 
-	long id() {
+	long flowId() {
 		return flow.id;
 	}
 

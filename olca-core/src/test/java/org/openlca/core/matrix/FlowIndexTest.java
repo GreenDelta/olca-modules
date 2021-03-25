@@ -79,17 +79,17 @@ public class FlowIndexTest {
 			if (i % 5 == 0) {
 				isInput = !isInput;
 			}
+			int _i;
 			if (i % 2 == 0) {
-				int _i = isInput
+				_i = isInput
 					? idx.add(IndexFlow.inputOf(randFlow()))
 					: idx.add(IndexFlow.outputOf(randFlow()));
-				Assert.assertEquals(i, _i);
 			} else {
-				int _i = isInput
+				_i = isInput
 					? idx.add(IndexFlow.inputOf(randFlow(), randLocation()))
 					: idx.add(IndexFlow.outputOf(randFlow(), randLocation()));
-				Assert.assertEquals(i, _i);
 			}
+			Assert.assertEquals(i, _i);
 		}
 
 		// check the index

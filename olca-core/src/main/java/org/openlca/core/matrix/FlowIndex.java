@@ -3,7 +3,6 @@ package org.openlca.core.matrix;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 import org.openlca.core.database.FlowDao;
@@ -26,31 +25,18 @@ import gnu.trove.map.hash.TLongObjectHashMap;
  * <p>
  * $$\mathit{Idx}_B: \mathit{F} \mapsto [0 \dots k-1]$$
  */
-public final class FlowIndex implements MatrixIndex<IndexFlow> {
+public abstract class FlowIndex implements MatrixIndex<IndexFlow> {
 
-	private final TLongIntHashMap index;
-	private final HashMap<LongPair, Integer> regIndex;
-	private final ArrayList<IndexFlow> flows = new ArrayList<>();
+	protected final ArrayList<IndexFlow> flows = new ArrayList<>();
 
-	private FlowIndex(boolean isRegionalized) {
-		if (isRegionalized) {
-			index = null;
-			regIndex = new HashMap<>();
-		} else {
-			index = new TLongIntHashMap(
-				Constants.DEFAULT_CAPACITY,
-				Constants.DEFAULT_LOAD_FACTOR,
-				-1L, // no entry key
-				-1); // no entry value
-			regIndex = null;
-		}
+	private FlowIndex() {
 	}
 
 	/**
 	 * Creates an empty flow index.
 	 */
 	public static FlowIndex create() {
-		return new FlowIndex(false);
+		return new NormalFlowIndex();
 	}
 
 	/**
@@ -92,7 +78,7 @@ public final class FlowIndex implements MatrixIndex<IndexFlow> {
 	 * Creates an empty regionalized flow index.
 	 */
 	public static FlowIndex createRegionalized() {
-		return new FlowIndex(true);
+		return new RegionalizedFlowIndex();
 	}
 
 	/**
@@ -143,94 +129,53 @@ public final class FlowIndex implements MatrixIndex<IndexFlow> {
 		return idx == null || idx.size() == 0;
 	}
 
-	public boolean isRegionalized() {
-		return regIndex != null;
-	}
+	public abstract boolean isRegionalized();
 
 	@Override
-	public int size() {
+	public final int size() {
 		return flows.size();
 	}
 
 	@Override
-	public boolean isEmpty() {
+	public final boolean isEmpty() {
 		return flows.isEmpty();
 	}
 
 	@Override
-	public IndexFlow at(int i) {
-		if (i < 0 || i >= flows.size())
-			return null;
+	public final IndexFlow at(int i) {
 		return flows.get(i);
 	}
 
 	@Override
-	public int of(IndexFlow flow) {
+	public final int of(IndexFlow flow) {
 		if (flow == null)
 			return -1;
 		return of(flow.flow, flow.location);
 	}
 
-	public int of(FlowDescriptor flow) {
-		if (flow == null)
-			return -1;
-		return index != null
-			? index.get(flow.id)
-			: of(flow.id, 0L);
-	}
+	public abstract int of(FlowDescriptor flow);
 
-	public int of(FlowDescriptor flow, LocationDescriptor loc) {
-		if (flow == null)
-			return -1;
-		return index != null
-			? index.get(flow.id)
-			: of(flow.id, loc != null ? loc.id : 0L);
-	}
+	public abstract int of(FlowDescriptor flow, LocationDescriptor loc);
 
-	public int of(long flowID) {
-		return index != null
-			? index.get(flowID)
-			: of(flowID, 0L);
-	}
+	public abstract int of(long flowID);
 
-	public int of(long flowID, long locationID) {
-		if (regIndex != null) {
-			var idx = regIndex.get(LongPair.of(flowID, locationID));
-			return idx == null ? -1 : idx;
-		}
-		return index == null
-			? -1
-			: index.get(flowID);
-	}
+	public abstract int of(long flowID, long locationID);
+
+	public abstract boolean isInput(long flowID);
+
+	public abstract boolean isInput(long flowID, long locationID);
 
 	@Override
-	public boolean contains(IndexFlow flow) {
+	public final boolean contains(IndexFlow flow) {
 		return of(flow) >= 0;
 	}
 
-	public boolean contains(long flowID) {
+	public final boolean contains(long flowID) {
 		return of(flowID) >= 0;
 	}
 
-	public boolean contains(long flowID, long locationID) {
+	public final boolean contains(long flowID, long locationID) {
 		return of(flowID, locationID) >= 0;
-	}
-
-	@Override
-	public int add(IndexFlow elem) {
-		if (elem == null)
-			return -1;
-		var pos = of(elem);
-		if (pos >= 0)
-			return pos;
-		var idx = flows.size();
-		flows.add(elem);
-		if (regIndex != null) {
-			regIndex.put(elem.regionalizedId(), idx);
-		} else if (index != null) {
-			index.put(elem.id(), idx);
-		}
-		return idx;
 	}
 
 	/**
@@ -238,22 +183,20 @@ public final class FlowIndex implements MatrixIndex<IndexFlow> {
 	 * Only when this index is not regionalized, it is save to pass a null value for
 	 * the locations into this method.
 	 */
-	public int register(
+	public final int register(
 		ProcessProduct product,
 		CalcExchange e,
 		FlowTable flows,
 		TLongObjectHashMap<LocationDescriptor> locations) {
 
-		int i = regIndex != null
-			? of(e.flowId, e.locationId)
-			: of(e.flowId);
-		if (i >= 0)
-			return i;
+		int idx = of(e.flowId, e.locationId);
+		if (idx >= 0)
+			return idx;
 		var flow = flows.get(e.flowId);
 		if (flow == null)
 			return -1;
 
-		if (regIndex == null) {
+		if (!isRegionalized()) {
 			return e.isInput
 				? add(IndexFlow.inputOf(flow))
 				: add(IndexFlow.outputOf(flow));
@@ -280,7 +223,7 @@ public final class FlowIndex implements MatrixIndex<IndexFlow> {
 	}
 
 	@Override
-	public void each(IndexConsumer<IndexFlow> fn) {
+	public final void each(IndexConsumer<IndexFlow> fn) {
 		if (fn == null)
 			return;
 		for (int i = 0; i < flows.size(); i++) {
@@ -292,55 +235,152 @@ public final class FlowIndex implements MatrixIndex<IndexFlow> {
 	 * Creates a new set with the flows of this index.
 	 */
 	@Override
-	public Set<IndexFlow> content() {
+	public final Set<IndexFlow> content() {
 		return new HashSet<>(flows);
 	}
 
-	public boolean isInput(long flowID) {
-		if (regIndex != null)
-			return isInput(flowID, 0L);
-		if (index == null)
-			return false;
-		int i = index.get(flowID);
-		if (i < 0)
-			return false;
-		var flow = flows.get(i);
-		return flow.isInput;
-	}
-
-	public boolean isInput(long flowID, long locationID) {
-		if (regIndex == null)
-			return isInput(flowID);
-		var key = LongPair.of(flowID, locationID);
-		var i = regIndex.get(key);
-		if (i == null)
-			return false;
-		var flow = flows.get(i);
-		return flow.isInput;
-	}
-
 	@Override
-	public FlowIndex copy() {
+	public abstract FlowIndex copy();
 
-		// copy a regionalized index
-		if (isRegionalized()) {
-			var copy = createRegionalized();
-			copy.flows.addAll(flows);
-			var regIndex = Objects.requireNonNull(copy.regIndex);
-			each((i, iFlow) -> {
-				var locID = iFlow.location != null
-					? iFlow.location.id
-					: 0L;
-				regIndex.put(LongPair.of(iFlow.flow.id, locID), i);
-			});
-			return copy;
+	private static class NormalFlowIndex extends FlowIndex {
+
+		private final TLongIntHashMap index;
+
+		private NormalFlowIndex() {
+			index = new TLongIntHashMap(
+				Constants.DEFAULT_CAPACITY,
+				Constants.DEFAULT_LOAD_FACTOR,
+				-1L, // no entry key
+				-1); // no entry value
 		}
 
-		// copy a non-regionalized index
-		var copy = create();
-		copy.flows.addAll(flows);
-		var index = Objects.requireNonNull(copy.index);
-		each((i, iFlow) -> index.put(iFlow.flow.id, i));
-		return copy;
+		@Override
+		public boolean isRegionalized() {
+			return false;
+		}
+
+		@Override
+		public int of(FlowDescriptor flow) {
+			return flow == null
+				? -1
+				: index.get(flow.id);
+		}
+
+		@Override
+		public int of(FlowDescriptor flow, LocationDescriptor _loc) {
+			return of(flow);
+		}
+
+		@Override
+		public int of(long flowID) {
+			return index.get(flowID);
+		}
+
+		@Override
+		public int of(long flowID, long _locID) {
+			return index.get(flowID);
+		}
+
+		@Override
+		public int add(IndexFlow f) {
+			if (f == null)
+				return -1;
+			var pos = of(f);
+			if (pos >= 0)
+				return pos;
+			var idx = flows.size();
+			flows.add(f);
+			index.put(f.flowId(), idx);
+			return idx;
+		}
+
+		@Override
+		public boolean isInput(long flowID) {
+			var idx = index.get(flowID);
+			return idx >= 0 && flows.get(idx).isInput;
+		}
+
+		@Override
+		public boolean isInput(long flowID, long _locID) {
+			return isInput(flowID);
+		}
+
+		@Override
+		public NormalFlowIndex copy() {
+			var copy = new NormalFlowIndex();
+			copy.index.putAll(this.index);
+			copy.flows.addAll(this.flows);
+			return copy;
+		}
+	}
+
+	private static class RegionalizedFlowIndex extends FlowIndex {
+
+		private final HashMap<LongPair, Integer> index = new HashMap<>();
+
+		@Override
+		public boolean isRegionalized() {
+			return true;
+		}
+
+		@Override
+		public int of(FlowDescriptor flow) {
+			return flow == null
+				? -1
+				: of(flow.id, 0L);
+		}
+
+		@Override
+		public int of(FlowDescriptor flow, LocationDescriptor loc) {
+			if (flow == null)
+				return -1;
+			return loc == null
+				? of(flow.id, 0L)
+				: of(flow.id, loc.id);
+		}
+
+		@Override
+		public int of(long flowID) {
+			return of(flowID, 0L);
+		}
+
+		@Override
+		public int of(long flowID, long locationID) {
+			var pair = LongPair.of(flowID, locationID);
+			var idx = index.get(pair);
+			return idx == null ? -1 : idx;
+		}
+
+		@Override
+		public int add(IndexFlow f) {
+			if (f == null)
+				return -1;
+			var pos = of(f);
+			if (pos >= 0)
+				return pos;
+			var idx = flows.size();
+			flows.add(f);
+			index.put(f.regionalizedId(), idx);
+			return idx;
+		}
+
+		@Override
+		public boolean isInput(long flowID) {
+			return isInput(flowID, 0L);
+		}
+
+		@Override
+		public boolean isInput(long flowID, long locationID) {
+			var idx = index.get(LongPair.of(flowID, locationID));
+			return idx != null && flows.get(idx).isInput;
+		}
+
+		@Override
+		public RegionalizedFlowIndex copy() {
+			var copy = new RegionalizedFlowIndex();
+			copy.flows.addAll(this.flows);
+			copy.index.putAll(this.index);
+			return copy;
+		}
 	}
 }
