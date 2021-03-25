@@ -1,4 +1,4 @@
-package org.openlca.core.results.solutions;
+package org.openlca.core.results.providers;
 
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.ImpactIndex;

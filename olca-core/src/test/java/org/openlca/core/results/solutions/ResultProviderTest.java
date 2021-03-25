@@ -33,6 +33,10 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
+import org.openlca.core.results.providers.EagerResultProvider;
+import org.openlca.core.results.providers.LazyResultProvider;
+import org.openlca.core.results.providers.LibraryResultProvider;
+import org.openlca.core.results.providers.ResultProvider;
 import org.openlca.util.Dirs;
 
 @RunWith(Parameterized.class)

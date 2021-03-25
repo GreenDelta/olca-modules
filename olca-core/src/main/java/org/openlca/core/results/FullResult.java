@@ -13,7 +13,7 @@ import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.results.solutions.ResultProvider;
+import org.openlca.core.results.providers.ResultProvider;
 
 /**
  * The `FullResult` extends the `ContributionResult`. It contains additionally

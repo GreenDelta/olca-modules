@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.results.solutions.ResultProvider;
+import org.openlca.core.results.providers.ResultProvider;
 
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TIntObjectHashMap;

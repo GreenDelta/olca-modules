@@ -8,10 +8,10 @@ import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.SimpleResult;
-import org.openlca.core.results.solutions.EagerResultProvider;
-import org.openlca.core.results.solutions.LazyResultProvider;
-import org.openlca.core.results.solutions.LibraryResultProvider;
-import org.openlca.core.results.solutions.ResultProvider;
+import org.openlca.core.results.providers.EagerResultProvider;
+import org.openlca.core.results.providers.LazyResultProvider;
+import org.openlca.core.results.providers.LibraryResultProvider;
+import org.openlca.core.results.providers.ResultProvider;
 
 /**
  * This calculator does the low level matrix based LCA-calculation. Typically,

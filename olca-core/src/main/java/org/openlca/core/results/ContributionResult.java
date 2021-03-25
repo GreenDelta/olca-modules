@@ -10,7 +10,7 @@ import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.results.solutions.ResultProvider;
+import org.openlca.core.results.providers.ResultProvider;
 
 /**
  * The `ContributionResult` extends the `SimpleResult` type. It also contains
