@@ -16,7 +16,6 @@ import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.UnitGroupDao;
-import org.openlca.core.matrix.FastMatrixBuilder;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
@@ -255,7 +254,7 @@ public class RegionalizedCalculationTest {
 	}
 
 	/**
-	 * If no location is specified on a elementary flow, the process location is
+	 * If no location is specified for an elementary flow, the process location is
 	 * taken by default for that flow if available.
 	 */
 	@Test
@@ -270,13 +269,12 @@ public class RegionalizedCalculationTest {
 	}
 
 	@Test
-	public void testFastMatrixBuilderProcesssLocations() {
+	public void testMatrixBuilderProcesssLocations() {
 		p1 = setLoc(p1, loc1);
 		p2 = setLoc(p2, loc2);
 		CalculationSetup setup = calcSetup();
 		setup.withRegionalization = true;
-		FastMatrixBuilder builder = new FastMatrixBuilder(db, setup);
-		MatrixData data = builder.build();
+		MatrixData data = MatrixData.of(db, setup);
 		LcaCalculator calculator = new LcaCalculator(db, data);
 		FullResult r = calculator.calculateFull();
 		checkRegionalizedResults(r);
