@@ -645,7 +645,7 @@ CREATE TABLE tbl_process_group_sets (
     groups_blob  BLOB(16 M),
 
     PRIMARY KEY  (id)
-) ;
+);
 
 
 CREATE TABLE tbl_social_indicators (

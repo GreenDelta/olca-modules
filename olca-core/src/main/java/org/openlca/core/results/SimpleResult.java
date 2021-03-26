@@ -15,6 +15,7 @@ import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.providers.ResultProvider;
+import org.openlca.core.results.providers.ResultProviders;
 
 /**
  * The simplest kind of result of a calculated product system. This result type
@@ -104,7 +105,7 @@ public class SimpleResult extends BaseResult {
 	}
 
 	public static SimpleResult of(IDatabase db, MatrixData data) {
-		var provider = Results.lazyOf(db, data);
+		var provider = ResultProviders.lazyOf(db, data);
 		return new SimpleResult(provider);
 	}
 

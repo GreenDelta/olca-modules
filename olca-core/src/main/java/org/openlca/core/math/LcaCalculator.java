@@ -10,7 +10,7 @@ import org.openlca.core.results.FullResult;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.core.results.providers.EagerResultProvider;
 import org.openlca.core.results.providers.LazyResultProvider;
-import org.openlca.core.results.providers.LibraryResultProvider;
+import org.openlca.core.results.providers.LazyLibraryProvider;
 import org.openlca.core.results.providers.ResultProvider;
 
 /**
@@ -32,7 +32,7 @@ public class LcaCalculator {
 
 	private ResultProvider solution(boolean forceLazy) {
 		if (data.hasLibraryLinks())
-			return LibraryResultProvider.of(db, data);
+			return LazyLibraryProvider.of(db, data);
 		if (forceLazy)
 			return LazyResultProvider.create(data);
 		if (!data.isSparse())

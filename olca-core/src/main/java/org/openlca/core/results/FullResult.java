@@ -15,6 +15,7 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.providers.ResultProvider;
+import org.openlca.core.results.providers.ResultProviders;
 
 /**
  * The `FullResult` extends the `ContributionResult`. It contains additionally
@@ -23,7 +24,7 @@ import org.openlca.core.results.providers.ResultProvider;
 public class FullResult extends ContributionResult {
 
 	public static FullResult of(IDatabase db, MatrixData data) {
-		var provider = Results.eagerOf(db, data);
+		var provider = ResultProviders.eagerOf(db, data);
 		return new FullResult(provider);
 	}
 

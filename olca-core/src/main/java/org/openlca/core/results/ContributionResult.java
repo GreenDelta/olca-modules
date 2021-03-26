@@ -12,6 +12,7 @@ import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.providers.ResultProvider;
+import org.openlca.core.results.providers.ResultProviders;
 
 /**
  * The `ContributionResult` extends the `SimpleResult` type. It also contains
@@ -26,7 +27,7 @@ public class ContributionResult extends SimpleResult {
 	}
 
 	public static ContributionResult of(IDatabase db, MatrixData data) {
-		var provider = Results.lazyOf(db, data);
+		var provider = ResultProviders.lazyOf(db, data);
 		return new ContributionResult(provider);
 	}
 

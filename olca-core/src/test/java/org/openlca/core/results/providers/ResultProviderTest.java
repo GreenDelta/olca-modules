@@ -115,7 +115,7 @@ public class ResultProviderTest {
 		return List.of(
 				EagerResultProvider.create(data),
 				LazyResultProvider.create(data),
-				LibraryResultProvider.of(db, foreground)
+				LazyLibraryProvider.of(db, foreground)
 		);
 	}
 
@@ -476,6 +476,6 @@ public class ResultProviderTest {
 	}
 
 	private boolean noLibrary() {
-		return !(provider instanceof LibraryResultProvider);
+		return !(provider instanceof LazyLibraryProvider);
 	}
 }

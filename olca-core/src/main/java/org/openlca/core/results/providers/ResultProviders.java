@@ -1,26 +1,22 @@
-package org.openlca.core.results;
+package org.openlca.core.results.providers;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.solvers.JavaSolver;
-import org.openlca.core.results.providers.EagerResultProvider;
-import org.openlca.core.results.providers.LazyResultProvider;
-import org.openlca.core.results.providers.LibraryResultProvider;
-import org.openlca.core.results.providers.ResultProvider;
 import org.openlca.julia.Julia;
 import org.openlca.julia.JuliaSolver;
 
-final class Results {
+public final class ResultProviders {
 
-	private Results() {
+	private ResultProviders() {
 	}
 
-	static ResultProvider eagerOf(IDatabase db, MatrixData data) {
+	public static ResultProvider eagerOf(IDatabase db, MatrixData data) {
 		var solver = Julia.isLoaded()
 			? new JuliaSolver()
 			: new JavaSolver();
 		if (data.hasLibraryLinks())
-			return LibraryResultProvider.of(db, data);
+			return LazyLibraryProvider.of(db, data);
 
 		var isSmall = data.techMatrix != null
 									&& data.techMatrix.rows() < 3000;
@@ -31,12 +27,12 @@ final class Results {
 			: EagerResultProvider.create(data);
 	}
 
-	static ResultProvider lazyOf(IDatabase db, MatrixData data) {
+	public static ResultProvider lazyOf(IDatabase db, MatrixData data) {
 		var solver = Julia.isLoaded()
 			? new JuliaSolver()
 			: new JavaSolver();
 		if (data.hasLibraryLinks())
-			return LibraryResultProvider.of(db, data);
+			return LazyLibraryProvider.of(db, data);
 		return data.isSparse() && solver.hasSparseSupport()
 			? LazyResultProvider.create(data)
 			: EagerResultProvider.create(data);

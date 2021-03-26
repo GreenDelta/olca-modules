@@ -28,7 +28,7 @@ import org.openlca.util.Pair;
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
-public class LibraryResultProvider implements ResultProvider {
+public class LazyLibraryProvider implements ResultProvider {
 
 	private final IDatabase db;
 	private final LibraryDir libDir;
@@ -58,7 +58,7 @@ public class LibraryResultProvider implements ResultProvider {
 	private final HashMap<String, TechIndex> libTechIndices = new HashMap<>();
 	private final HashMap<String, FlowIndex> libFlowIndices = new HashMap<>();
 
-	private LibraryResultProvider(
+	private LazyLibraryProvider(
 			IDatabase db,
 			MatrixData foregroundData) {
 		this.db = db;
@@ -82,10 +82,10 @@ public class LibraryResultProvider implements ResultProvider {
 		return v;
 	}
 
-	public static LibraryResultProvider of(
+	public static LazyLibraryProvider of(
 		IDatabase db, MatrixData foregroundData) {
 
-		var provider = new LibraryResultProvider(db, foregroundData);
+		var provider = new LazyLibraryProvider(db, foregroundData);
 		provider.initTechIndex();
 		provider.initFlowIndex();
 
