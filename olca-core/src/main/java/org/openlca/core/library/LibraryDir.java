@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.openlca.core.DataDir;
+import org.openlca.core.matrix.format.MatrixReader;
 
 /**
  * A library directory is a specific folder where each sub-folder is a library.
@@ -100,6 +101,13 @@ public class LibraryDir {
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to create library folder", e);
 		}
+	}
+
+	public Optional<MatrixReader> getMatrix(String libID, LibraryMatrix matrix) {
+		var lib = get(libID);
+		if (lib.isEmpty())
+			return Optional.empty();
+		return lib.get().getMatrix(matrix);
 	}
 
 	@Override

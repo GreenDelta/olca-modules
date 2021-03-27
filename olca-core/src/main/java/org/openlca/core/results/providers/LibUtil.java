@@ -11,6 +11,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.format.MatrixReader;
 
 class LibUtil {
 

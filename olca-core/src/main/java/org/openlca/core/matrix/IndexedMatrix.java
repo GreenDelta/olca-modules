@@ -1,5 +1,7 @@
 package org.openlca.core.matrix;
 
+import java.util.Objects;
+
 import org.openlca.core.matrix.format.MatrixBuilder;
 import org.openlca.core.matrix.format.MatrixReader;
 
@@ -13,9 +15,14 @@ public final class IndexedMatrix<R, C> {
 		MatrixIndex<R> rows,
 		MatrixIndex<C> columns,
 		MatrixReader data) {
-		this.rows = rows;
-		this.columns = columns;
-		this.data = data;
+		this.rows = Objects.requireNonNull(rows);
+		this.columns = Objects.requireNonNull(columns);
+		this.data = Objects.requireNonNull(data);
+	}
+
+	public static <I> IndexedMatrix<I, I> of(
+		MatrixIndex<I> index, MatrixReader data) {
+		return of(index, index, data);
 	}
 
 	public static <R, C> IndexedMatrix<R, C> of(
@@ -60,4 +67,55 @@ public final class IndexedMatrix<R, C> {
 		return new IndexedMatrix<>(newRows, newColumns, matrix);
 	}
 
+	public static <I> Builder<I, I> build(MatrixIndex<I> index) {
+		return build(index, index);
+	}
+
+	public static <R, C> Builder<R, C> build(
+		MatrixIndex<R> rows, MatrixIndex<C> columns) {
+		return new Builder<>(rows, columns);
+	}
+
+	public static class Builder<R, C> {
+
+		private final MatrixIndex<R> rows;
+		private final MatrixIndex<C> columns;
+		private final MatrixBuilder buffer;
+
+		private Builder(
+			MatrixIndex<R> rows,
+			MatrixIndex<C> columns) {
+			this.rows = Objects.requireNonNull(rows);
+			this.columns = Objects.requireNonNull(columns);
+			buffer = new MatrixBuilder();
+			buffer.minSize(rows.size(), columns.size());
+		}
+
+		public Builder<R, C> put(IndexedMatrix<R, C> matrix) {
+			if (matrix == null)
+				return this;
+			int[] rowMap = new int[matrix.rows.size()];
+			matrix.rows.each(
+				(i, elem) -> rowMap[i] = rows.of(elem));
+			int[] colMap = new int[matrix.columns.size()];
+			matrix.columns.each(
+				(j, elem) -> colMap[j] = columns.of(elem));
+
+			matrix.data.iterate((row, col, val) -> {
+				int mappedRow = rowMap[row];
+				if (mappedRow < 0)
+					return;
+				int mappedCol = colMap[col];
+				if (mappedCol < 0)
+					return;
+				buffer.set(mappedRow, mappedCol, val);
+			});
+			return this;
+		}
+
+		public IndexedMatrix<R, C> finish() {
+			return IndexedMatrix.of(
+				rows, columns, buffer.finish());
+		}
+	}
 }
