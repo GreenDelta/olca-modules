@@ -63,8 +63,14 @@ class EagerLibraryProvider implements ResultProvider {
 				flowBuilder.put(IndexedMatrix.of(flowIdx, techIdx, m));
 			}));
 
-
-
+		// add possible impact data
+		if (dbData.impactIndex != null) {
+			fullData.impactIndex = dbData.impactIndex;
+			fullData.impactMatrix = LibImpactMatrix.of(
+				dbData.impactIndex, fullData.flowIndex)
+				.withLibraryFlowIndices(libFlowIndices)
+				.build(db, libDir);
+		}
 	}
 
 	@Override
