@@ -151,7 +151,18 @@ public class Parameters {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T extends ParameterizedEntity> T rename(
-			Parameter param, T owner, IDatabase db, String name) {
+			Parameter param, T owner, IDatabase db, String newName) {
+
+		var oldName = param.name;
+
+		// rename the parameter in the owner (note that the parameter object
+		// can be detached from the owner, so we first need to find the correct
+		// parameter in the owner)
+		for (var p : owner.parameters) {
+			if (eq(oldName, p.name)) {
+				p.name = newName;
+			}
+		}
 
 		// rename in parameter redefinitions
 		var sql = "select f_owner, name, f_context from tbl_parameter_redefs";
@@ -162,9 +173,9 @@ public class Parameters {
 				return true;
 			long redefOwner = r.getLong(1);
 			var n = r.getString(2);
-			if (!eq(n, param.name))
+			if (!eq(n, oldName))
 				return true;
-			r.updateString(2, name);
+			r.updateString(2, newName);
 			r.updateRow();
 			redefOwners.add(redefOwner);
 			return true;
@@ -177,7 +188,8 @@ public class Parameters {
 		for (var p : owner.parameters) {
 			if (Objects.equals(param, p) || p.isInputParameter)
 				continue;
-			p.formula = Formulas.renameVariable(p.formula, param.name, name);
+			p.formula = Formulas.renameVariable(
+				p.formula, oldName, newName);
 		}
 
 		// rename in other process formulas
@@ -185,14 +197,17 @@ public class Parameters {
 			var process = (Process) owner;
 			for (var e : process.exchanges) {
 				if (e.formula != null) {
-					e.formula = Formulas.renameVariable(e.formula, param.name, name);
+					e.formula = Formulas.renameVariable(
+						e.formula, oldName, newName);
 				}
 			}
 			for (var af : process.allocationFactors) {
 				if (af.formula != null) {
-					af.formula = Formulas.renameVariable(af.formula, param.name, name);
+					af.formula = Formulas.renameVariable(
+						af.formula, oldName, newName);
 				}
 			}
+
 			var dao = new ProcessDao(db);
 			return (T) (process.id == 0
 					? dao.insert(process)
@@ -204,7 +219,8 @@ public class Parameters {
 			var impact = (ImpactCategory) owner;
 			for (var f : impact.impactFactors) {
 				if (f.formula != null) {
-					f.formula = Formulas.renameVariable(f.formula, param.name, name);
+					f.formula = Formulas.renameVariable(
+						f.formula, oldName, newName);
 				}
 			}
 

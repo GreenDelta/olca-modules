@@ -59,12 +59,21 @@ public class Parameter extends CategorizedEntity {
 	 * Creates a new global input parameter.
 	 */
 	public static Parameter global(String name, double value) {
+		return of(name, value, ParameterScope.GLOBAL);
+	}
+
+	public static Parameter process(String name, double value) {
+		return of(name, value, ParameterScope.PROCESS);
+	}
+
+	private static Parameter of(
+		String name, double value, ParameterScope scope) {
 		var param = new Parameter();
 		param.name = name;
 		param.refId = UUID.randomUUID().toString();
 		param.value = value;
 		param.isInputParameter = true;
-		param.scope = ParameterScope.GLOBAL;
+		param.scope = scope;
 		return param;
 	}
 
@@ -72,12 +81,21 @@ public class Parameter extends CategorizedEntity {
 	 * Creates a new global calculated / dependent parameter.
 	 */
 	public static Parameter global(String name, String formula) {
+		return of(name, formula, ParameterScope.GLOBAL);
+	}
+
+	public static Parameter process(String name, String formula) {
+		return of(name, formula, ParameterScope.PROCESS);
+	}
+
+	private static Parameter of(
+		String name, String formula, ParameterScope scope) {
 		var param = new Parameter();
 		param.name = name;
 		param.refId = UUID.randomUUID().toString();
 		param.formula = formula;
 		param.isInputParameter = false;
-		param.scope = ParameterScope.GLOBAL;
+		param.scope = scope;
 		return param;
 	}
 
@@ -97,7 +115,7 @@ public class Parameter extends CategorizedEntity {
 	@Override
 	public String toString() {
 		return "Parameter [formula=" + formula + ", name=" + name
-				+ ", type=" + scope + "]";
+			+ ", type=" + scope + "]";
 	}
 
 }

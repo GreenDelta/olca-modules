@@ -3,7 +3,6 @@ package org.openlca.core.database.references;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openlca.core.Tests;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
