@@ -12,8 +12,11 @@ public class HandlerContext {
 	public final Cache cache;
 	public final MatrixSolver solver;
 
-	public HandlerContext(Server server, IDatabase db, MatrixSolver solver,
-			Cache cache) {
+	public HandlerContext(
+		Server server,
+		IDatabase db,
+		MatrixSolver solver,
+		Cache cache) {
 		this.server = server;
 		this.db = db;
 		this.solver = solver;

@@ -21,11 +21,11 @@ public class Main {
 	private String lib;
 
 	private static Main parseArgs(String[] args) {
-		Main main = new Main();
+		var main = new Main();
 		if (args == null)
 			return main;
 		String flag = null;
-		for (String arg : args) {
+		for (var arg : args) {
 			if (flag == null && arg.startsWith("-")) {
 				flag = arg.trim().toLowerCase();
 				continue;
@@ -33,15 +33,9 @@ public class Main {
 			if (flag == null)
 				continue;
 			switch (flag) {
-				case "-db":
-					main.db = arg;
-					break;
-				case "-port":
-					main.port = arg;
-					break;
-				case "-lib":
-					main.lib = arg;
-					break;
+				case "-db" -> main.db = arg;
+				case "-port" -> main.port = arg;
+				case "-lib" -> main.lib = arg;
 			}
 			flag = null;
 		}

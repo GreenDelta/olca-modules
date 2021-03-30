@@ -93,9 +93,9 @@ public class InventoryHandler {
 
 	@Rpc("get/inventory/total_requirements")
 	public RpcResponse getTotalRequirements(RpcRequest req) {
-		return utils.contribution(req, (result, cache) -> {
-			return JsonRpc.encode(result.totalRequirements, null, result.techIndex(), cache);
-		});
+		return utils.contribution(req,
+			(result, cache) -> JsonRpc.encode(
+				result.totalRequirements, null, result.techIndex(), cache));
 	}
 
 	@Rpc("get/inventory/process_results/inputs")

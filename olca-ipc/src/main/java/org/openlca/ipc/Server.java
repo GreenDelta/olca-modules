@@ -15,6 +15,7 @@ import org.openlca.ipc.handlers.ImpactHandler;
 import org.openlca.ipc.handlers.InventoryHandler;
 import org.openlca.ipc.handlers.ModelHandler;
 import org.openlca.ipc.handlers.RuntimeHandler;
+import org.openlca.ipc.handlers.UpstreamTreeHandler;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +35,8 @@ public class Server extends NanoHTTPD {
 
 	public Server withDefaultHandlers(IDatabase db, MatrixSolver solver) {
 		log.info("Register default handlers");
-		Cache cache = new Cache();
-		HandlerContext context = new HandlerContext(this, db, solver, cache);
+		var cache = new Cache();
+		var context = new HandlerContext(this, db, solver, cache);
 		register(new ModelHandler(context));
 		register(new Calculator(context));
 		register(new InventoryHandler(context));
@@ -44,6 +45,7 @@ public class Server extends NanoHTTPD {
 		register(new CacheHandler(cache));
 		register(new RuntimeHandler(context));
 		register(new ExportHandler(context));
+		register(new UpstreamTreeHandler(context));
 		return this;
 	}
 
