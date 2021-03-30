@@ -5,8 +5,11 @@ import java.util.Objects;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.openlca.core.database.EntityCache;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.UpstreamNode;
 import org.openlca.core.results.UpstreamTree;
@@ -36,11 +39,10 @@ public class UpstreamTreeHandler {
 		var resultId = Json.getString(obj, "resultId");
 		if (resultId == null)
 			return Responses.badRequest("no result ID", req);
-		var cachedObj = context.cache.get(resultId);
-		if (!(cachedObj instanceof FullResult))
+		var result = resultOf(resultId);
+		if (result == null)
 			return Responses.badRequest(
 				"no full result cached for ID=" + resultId, req);
-		var result = (FullResult) cachedObj;
 
 		// get the result ref
 		var refObj = Json.getObject(obj, "ref");
@@ -62,10 +64,21 @@ public class UpstreamTreeHandler {
 			return Responses.badRequest(
 				"invalid result reference: does not exist", req);
 
-		// expand the tree and convert it to JSON
-		Expansion.of(obj).expand(tree);
+		// expand the tree and return it
+		var jsonTree = Expansion.of(context.db, obj).expand(tree);
+		return Responses.ok(jsonTree, req);
+	}
 
-		return Responses.ok(null, req);
+	private FullResult resultOf(String resultId) {
+		var obj = context.cache.get(resultId);
+		if (obj instanceof FullResult)
+			return (FullResult) obj;
+		if (obj instanceof CachedResult) {
+			var cachedResult = (CachedResult<?>) obj;
+			if (cachedResult.result instanceof FullResult)
+				return (FullResult) cachedResult.result;
+		}
+		return null;
 	}
 
 	private ModelType refType(JsonObject refObj) {
@@ -107,46 +120,45 @@ public class UpstreamTreeHandler {
 		return null;
 	}
 
-	private JsonObject jsonOf(UpstreamNode node, EntityCache cache) {
-		if (node == null || node.provider == null)
-			return null;
-		var json = new JsonObject();
-		var process = Json.asRef(node.provider.process, cache);
-		var flow = Json.asRef(node.provider.flow, cache);
-		var product = new JsonObject();
-		product.add("process", process);
-		product.add("flow", flow);
-		json.add("product", product);
-		json.addProperty("result", node.result);
-	}
-
 	private static class Expansion {
 
+		final EntityCache cache;
 		final int maxDepth;
 		final double minContribution;
 		final int maxRecursionDepth;
 
-		Expansion(
-			int maxDepth,
-			double minContribution,
-			int maxRecursionDepth) {
+		Expansion(IDatabase db,
+							int maxDepth,
+							double minContribution,
+							int maxRecursionDepth) {
+			this.cache = EntityCache.create(db);
 			this.maxDepth = maxDepth;
 			this.minContribution = minContribution;
 			this.maxRecursionDepth = maxRecursionDepth;
 		}
 
-		static Expansion of(JsonObject obj) {
-			return new Expansion(
+		static Expansion of(IDatabase db, JsonObject obj) {
+			return new Expansion(db,
 				Json.getInt(obj, "maxDepth", 5),
 				Json.getDouble(obj, "minContribution", 0.1),
 				Json.getInt(obj, "maxRecursionDepth", 3));
 		}
 
-		void expand(UpstreamTree tree) {
-			expand(tree, new Path(tree.root));
+		JsonObject expand(UpstreamTree tree) {
+			var treeObj = new JsonObject();
+			if (tree.ref instanceof IndexFlow) {
+				var flow = ((IndexFlow) tree.ref).flow;
+				treeObj.add("ref", Json.asRef(flow, cache));
+			} else if (tree.ref instanceof Descriptor) {
+				treeObj.add("ref", Json.asRef((Descriptor) tree.ref, cache));
+			}
+			var root = initJsonOf(tree.root);
+			expand(root, tree, new Path(tree.root));
+			treeObj.add("root", root);
+			return treeObj;
 		}
 
-		private void expand(UpstreamTree tree, Path path) {
+		private void expand(JsonObject parent, UpstreamTree tree, Path path) {
 
 			var node = path.node;
 			double result = path.node.result;
@@ -170,9 +182,29 @@ public class UpstreamTreeHandler {
 			}
 
 			// expand the child nodes
+			var childArray = new JsonArray();
 			for (var child : tree.childs(node)) {
-				expand(tree, path.append(child));
+				var childJson = initJsonOf(child);
+				expand(childJson, tree, path.append(child));
+				childArray.add(childJson);
 			}
+			if (childArray.size() > 0) {
+				parent.add("childs", childArray);
+			}
+		}
+
+		private JsonObject initJsonOf(UpstreamNode node) {
+			if (node == null || node.provider == null)
+				return null;
+			var json = new JsonObject();
+			var process = Json.asRef(node.provider.process, cache);
+			var flow = Json.asRef(node.provider.flow, cache);
+			var product = new JsonObject();
+			product.add("process", process);
+			product.add("flow", flow);
+			json.add("product", product);
+			json.addProperty("result", node.result);
+			return json;
 		}
 	}
 
