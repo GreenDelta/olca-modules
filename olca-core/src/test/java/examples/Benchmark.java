@@ -13,13 +13,11 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.julia.Julia;
-import org.openlca.julia.JuliaSolver;
 
 public class Benchmark {
 
 	public static void main(String[] args) {
 		Julia.load();
-		var solver = new JuliaSolver();
 		var db = Derby.fromDataDir("ei37-apos");
 
 		var processes = db.allDescriptorsOf(Process.class);

@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Set;
 
 import gnu.trove.set.TLongSet;
-import gnu.trove.set.hash.TLongHashSet;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import org.openlca.core.model.AbstractEntity;

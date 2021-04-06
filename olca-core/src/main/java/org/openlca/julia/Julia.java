@@ -198,27 +198,27 @@ public final class Julia {
 
 		if (os == OS.LINUX) {
 			if (opt == LinkOption.ALL) {
-				return new String[]{
-						"libgcc_s.so.1",
-						"libsuitesparseconfig.so.5",
-						"libccolamd.so.2",
-						"libamd.so.2",
-						"libcamd.so.2",
-						"libcolamd.so.2",
-						"libquadmath.so.0",
-						"libgfortran.so.4",
-						"libopenblas64_.so.0",
-						"libcholmod.so.3",
-						"libumfpack.so.5",
-						"libolcar_withumf.so",
+				return new String[] {
+				  "libgcc_s.so.1",
+				  "libquadmath.so.0",
+				  "libsuitesparseconfig.so.5",
+				  "libcamd.so.2",
+				  "libcolamd.so.2",
+				  "libccolamd.so.2",
+				  "libgfortran.so.4",
+				  "libopenblas64_.so",
+				  "libamd.so.2",
+				  "libcholmod.so.3",
+				  "libumfpack.so.5",
+				  "libolcar_withumf.so",
 				};
 			} else {
-				return new String[]{
-						"libgcc_s.so.1",
-						"libquadmath.so.0",
-						"libgfortran.so.4",
-						"libopenblas64_.so.0",
-						"libolcar.so",
+				return new String[] {
+				  "libgcc_s.so.1",
+				  "libquadmath.so.0",
+				  "libgfortran.so.4",
+				  "libopenblas64_.so",
+				  "libolcar.so",
 				};
 			}
 		}

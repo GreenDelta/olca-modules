@@ -8,12 +8,10 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.Derby;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
-import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.julia.Julia;
-import org.openlca.julia.JuliaSolver;
 
 // TODO: just an example how to use the new inventory builder -> delete this
 // when we are ready
@@ -30,7 +28,6 @@ public class InventoryBuilderExamples {
 		setup.impactMethod = new ImpactMethodDao(db).getDescriptorForRefId(
 				"44f7066c-33fd-49d2-86ec-2b94677bf6d0");
 		Julia.loadFromDir(new File("./olca-core/julia/libs"));
-		MatrixSolver solver = new JuliaSolver();
 		SystemCalculator calc = new SystemCalculator(db);
 		ContributionResult r = calc.calculateContributions(setup);
 		for (ImpactDescriptor impact : r.getImpacts()) {

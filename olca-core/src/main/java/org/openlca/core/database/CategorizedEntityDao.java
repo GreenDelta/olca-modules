@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
