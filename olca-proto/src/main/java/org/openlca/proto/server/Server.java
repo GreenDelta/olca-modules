@@ -1,8 +1,10 @@
 package org.openlca.proto.server;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.DataDir;
 import org.openlca.core.database.Derby;
 import org.openlca.julia.Julia;
 import org.slf4j.LoggerFactory;
@@ -59,6 +61,7 @@ public class Server {
 
     String dbArg = null;
     String portArg = null;
+    String nativeArg = null;
 
     String flag = null;
     for (var arg : args) {
@@ -77,16 +80,13 @@ public class Server {
         case "-port":
           portArg = arg;
           break;
+        case "-native":
+          nativeArg = arg;
+          break;
         default:
           System.err.println("Unknown flag: " + flag);
           return;
       }
-    }
-
-    if (dbArg == null) {
-      System.err.println(
-        "No database given. You can set it via `-db <database>`.");
-      return;
     }
 
     int port;
@@ -105,10 +105,41 @@ public class Server {
     try {
 
       // try to load the native libraries
-      Julia.load();
+      if (nativeArg == null) {
+        System.out.println("Load native libraries from "
+          + Julia.getDefaultDir());
+        Julia.load();
+      } else {
+        var nativeLibDir = new File(nativeArg);
+        if (!nativeLibDir.exists() || !nativeLibDir.isDirectory()) {
+          System.err.println(nativeLibDir.getAbsolutePath()
+            + " is not a directory");
+          System.exit(-1);
+        }
+        System.out.println("Load native libraries from "
+          + nativeLibDir.getAbsolutePath());
+        Julia.loadFromDir(nativeLibDir);
+      }
 
-      // open the database and start the server
-      var db = Derby.fromDataDir(dbArg);
+      // try to open the database
+      IDatabase db;
+      if (dbArg == null) {
+        var defaultDb = new File("database");
+        System.out.println("Open default database " + defaultDb);
+        db = new Derby(defaultDb);
+      } else {
+        var dataDbDir = DataDir.getDatabaseDir(dbArg);
+        if (dataDbDir.exists()) {
+          System.out.println("Open database " + dataDbDir);
+          db = new Derby(dataDbDir);
+        } else {
+          var dbDir = new File(dbArg);
+          System.out.println("Open database " + dbDir);
+          db = new Derby(dbDir);
+        }
+      }
+
+      System.out.println("Start server");
       new Server(db, port).start();
       System.out.println("close database...");
       db.close();
