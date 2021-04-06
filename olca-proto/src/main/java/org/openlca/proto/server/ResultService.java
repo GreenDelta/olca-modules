@@ -6,7 +6,9 @@ import java.util.UUID;
 
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.NwSetDao;
+import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.results.FullResult;
+import org.openlca.core.results.providers.ResultProviders;
 import org.openlca.proto.input.In;
 import org.openlca.proto.output.Out;
 import org.openlca.util.Strings;
@@ -15,7 +17,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.results.SimpleResult;
 import org.openlca.proto.generated.Proto;
 import org.openlca.proto.generated.ResultServiceGrpc;
 import org.openlca.proto.generated.Services;
@@ -24,7 +25,7 @@ import org.openlca.util.Pair;
 class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 
   private final IDatabase db;
-  private final Map<String, SimpleResult> results = new HashMap<>();
+  private final Map<String, FullResult> results = new HashMap<>();
 
   ResultService(IDatabase db) {
     this.db = db;
@@ -45,7 +46,10 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     }
 
     var setup = p.first;
-    var result = FullResult.of(db, setup);
+    var data = MatrixData.of(db, setup);
+    var provider = ResultProviders.lazyOf(db, data);
+    var result = new FullResult(provider);
+
     var key = UUID.randomUUID().toString();
     results.put(key, result);
     var status = Services.ResultStatus.newBuilder()

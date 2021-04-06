@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.DataDir;
 import org.openlca.core.database.Derby;
+import org.openlca.core.database.upgrades.Upgrades;
 import org.openlca.julia.Julia;
 import org.slf4j.LoggerFactory;
 
@@ -74,18 +75,13 @@ public class Server {
         return;
       }
       switch (flag) {
-        case "-db":
-          dbArg = arg;
-          break;
-        case "-port":
-          portArg = arg;
-          break;
-        case "-native":
-          nativeArg = arg;
-          break;
-        default:
+        case "-db" -> dbArg = arg;
+        case "-port" -> portArg = arg;
+        case "-native" -> nativeArg = arg;
+        default -> {
           System.err.println("Unknown flag: " + flag);
           return;
+        }
       }
     }
 
@@ -137,6 +133,11 @@ public class Server {
           System.out.println("Open database " + dbDir);
           db = new Derby(dbDir);
         }
+      }
+
+      // check if the database needs an update
+      if (db.getVersion() < IDatabase.CURRENT_VERSION) {
+        Upgrades.on(db);
       }
 
       System.out.println("Start server");
