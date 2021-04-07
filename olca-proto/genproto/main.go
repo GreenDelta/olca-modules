@@ -70,7 +70,11 @@ type EnumItem struct {
 // ProtoHeader is the file header that is written to the
 // generated proto3 file. This is the place where you want
 // to define global options
-const ProtoHeader = `syntax = "proto3";
+const ProtoHeader = `// Generated from olca-schema (https://github.com/GreenDelta/olca-schema).
+// DO NOT EDIT!
+
+syntax = "proto3";
+
 package protolca;
 
 option java_package = "org.openlca.proto.generated";
@@ -201,7 +205,7 @@ func fields(class *ClassDef, buff *bytes.Buffer, types map[string]*TypeDef, offs
 
 	// @type field
 	if class.Name == "Entity" {
-		buff.WriteString("  // The type name of the respectiven entity.\n")
+		buff.WriteString("  // The type name of the respective entity.\n")
 		buff.WriteString("  // This field is used for JSON-LD compatibility.\n")
 		buff.WriteString("  string type = " + strconv.Itoa(count))
 		buff.WriteString(" [json_name = \"@type\"];\n\n")
