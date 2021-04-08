@@ -9,6 +9,9 @@ import org.openlca.core.database.NwSetDao;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.providers.ResultProviders;
+import org.openlca.proto.generated.Result;
+import org.openlca.proto.generated.ResultStatus;
+import org.openlca.proto.generated.Status;
 import org.openlca.proto.input.In;
 import org.openlca.proto.output.Out;
 import org.openlca.util.Strings;
@@ -19,7 +22,6 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.proto.generated.Proto;
 import org.openlca.proto.generated.ResultServiceGrpc;
-import org.openlca.proto.generated.Services;
 import org.openlca.util.Pair;
 
 class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
@@ -33,10 +35,10 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 
   @Override
   public void calculate(
-    Proto.CalculationSetup req, StreamObserver<Services.ResultStatus> resp) {
+    Proto.CalculationSetup req, StreamObserver<ResultStatus> resp) {
     var p = setup(req);
     if (p.first == null) {
-      var status = Services.ResultStatus.newBuilder()
+      var status = ResultStatus.newBuilder()
         .setOk(false)
         .setError(p.second)
         .build();
@@ -52,10 +54,9 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 
     var key = UUID.randomUUID().toString();
     results.put(key, result);
-    var status = Services.ResultStatus.newBuilder()
+    var status = ResultStatus.newBuilder()
       .setOk(true)
-      .setResult(
-        Services.Result.newBuilder().setId(key))
+      .setResult(Result.newBuilder().setId(key))
       .build();
     resp.onNext(status);
     resp.onCompleted();
@@ -149,8 +150,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
   }
 
   @Override
-  public void getInventory(Services.Result req,
-                           StreamObserver<Proto.FlowResult> resp) {
+  public void getInventory(Result req, StreamObserver<Proto.FlowResult> resp) {
 
     // get the flow results
     var result = results.get(req.getId());
@@ -182,8 +182,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
   }
 
   @Override
-  public void getImpacts(Services.Result req,
-                         StreamObserver<Proto.ImpactResult> resp) {
+  public void getImpacts(Result req, StreamObserver<Proto.ImpactResult> resp) {
 
     // get the impact results
     var result = results.get(req.getId());
@@ -208,10 +207,10 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
   }
 
   @Override
-  public void dispose(Services.Result req, StreamObserver<Services.Status> resp) {
+  public void dispose(Result req, StreamObserver<Status> resp) {
     results.remove(req.getId());
     // we always return ok, even when the result does not exist
-    resp.onNext(Services.Status
+    resp.onNext(Status
       .newBuilder()
       .setOk(true)
       .build());

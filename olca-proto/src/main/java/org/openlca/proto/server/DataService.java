@@ -50,7 +50,9 @@ import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.jsonld.input.UpdateMode;
 import org.openlca.proto.MemStore;
+import org.openlca.proto.generated.Empty;
 import org.openlca.proto.generated.Proto;
+import org.openlca.proto.generated.Status;
 import org.openlca.proto.input.CategoryImport;
 import org.openlca.proto.input.ProtoImport;
 import org.openlca.proto.output.ActorWriter;
@@ -117,7 +119,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
   }
 
   @Override
-  public void delete(Proto.Ref req, StreamObserver<Services.Status> resp) {
+  public void delete(Proto.Ref req, StreamObserver<Status> resp) {
     var type = Arrays.stream(ModelType.values())
       .map(ModelType::getModelClass)
       .filter(Objects::nonNull)
@@ -148,7 +150,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
   }
 
   @Override
-  public void getActors(Services.Empty req, StreamObserver<Proto.Actor> resp) {
+  public void getActors(Empty req, StreamObserver<Proto.Actor> resp) {
     var writer = new ActorWriter(WriterConfig.of(db));
     var dao = new ActorDao(db);
     dao.getDescriptors()
@@ -196,7 +198,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
   }
 
   @Override
-  public void getCategories(Services.Empty _req, StreamObserver<Proto.Category> resp) {
+  public void getCategories(Empty _req, StreamObserver<Proto.Category> resp) {
     var writer = new CategoryWriter(WriterConfig.of(db));
     var dao = new CategoryDao(db);
     dao.getDescriptors()
@@ -255,7 +257,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
   }
 
   @Override
-  public void getCurrencies(Services.Empty _req, StreamObserver<Proto.Currency> resp) {
+  public void getCurrencies(Empty _req, StreamObserver<Proto.Currency> resp) {
     var writer = new CurrencyWriter(WriterConfig.of(db));
     var dao = new CurrencyDao(db);
     dao.getDescriptors()
@@ -303,7 +305,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
   }
 
   @Override
-  public void getDQSystems(Services.Empty _req, StreamObserver<Proto.DQSystem> resp) {
+  public void getDQSystems(Empty _req, StreamObserver<Proto.DQSystem> resp) {
     var writer = new DQSystemWriter(WriterConfig.of(db));
     var dao = new DQSystemDao(db);
     dao.getDescriptors()
@@ -351,7 +353,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
   }
 
   @Override
-  public void getFlows(Services.Empty _req, StreamObserver<Proto.Flow> resp) {
+  public void getFlows(Empty _req, StreamObserver<Proto.Flow> resp) {
     var writer = new FlowWriter(WriterConfig.of(db));
     var dao = new FlowDao(db);
     dao.getDescriptors()
@@ -399,7 +401,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
   }
 
   @Override
-  public void getFlowProperties(Services.Empty _req, StreamObserver<Proto.FlowProperty> resp) {
+  public void getFlowProperties(Empty _req, StreamObserver<Proto.FlowProperty> resp) {
     var writer = new FlowPropertyWriter(WriterConfig.of(db));
     var dao = new FlowPropertyDao(db);
     dao.getDescriptors()
@@ -448,7 +450,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
   }
 
   @Override
-  public void getImpactCategories(Services.Empty _req, StreamObserver<Proto.ImpactCategory> resp) {
+  public void getImpactCategories(Empty _req, StreamObserver<Proto.ImpactCategory> resp) {
     var writer = new ImpactCategoryWriter(WriterConfig.of(db));
     var dao = new ImpactCategoryDao(db);
     dao.getDescriptors()
@@ -496,7 +498,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
   }
 
   @Override
-  public void getImpactMethods(Services.Empty _req, StreamObserver<Proto.ImpactMethod> resp) {
+  public void getImpactMethods(Empty _req, StreamObserver<Proto.ImpactMethod> resp) {
     var writer = new ImpactMethodWriter(WriterConfig.of(db));
     var dao = new ImpactMethodDao(db);
     dao.getDescriptors()
@@ -545,7 +547,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
   }
 
   @Override
-  public void getLocations(Services.Empty _req, StreamObserver<Proto.Location> resp) {
+  public void getLocations(Empty _req, StreamObserver<Proto.Location> resp) {
     var writer = new LocationWriter(WriterConfig.of(db));
     var dao = new LocationDao(db);
     dao.getDescriptors()
@@ -593,7 +595,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
   }
 
   @Override
-  public void getParameters(Services.Empty _req, StreamObserver<Proto.Parameter> resp) {
+  public void getParameters(Empty _req, StreamObserver<Proto.Parameter> resp) {
     var writer = new ParameterWriter(WriterConfig.of(db));
     var dao = new ParameterDao(db);
     dao.getDescriptors()
@@ -641,7 +643,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
   }
 
   @Override
-  public void getProcesses(Services.Empty _req, StreamObserver<Proto.Process> resp) {
+  public void getProcesses(Empty _req, StreamObserver<Proto.Process> resp) {
     var writer = new ProcessWriter(WriterConfig.of(db));
     var dao = new ProcessDao(db);
     dao.getDescriptors()
@@ -689,7 +691,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
   }
 
   @Override
-  public void getProductSystems(Services.Empty _req, StreamObserver<Proto.ProductSystem> resp) {
+  public void getProductSystems(Empty _req, StreamObserver<Proto.ProductSystem> resp) {
     var writer = new ProductSystemWriter(WriterConfig.of(db));
     var dao = new ProductSystemDao(db);
     dao.getDescriptors()
@@ -737,7 +739,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
   }
 
   @Override
-  public void getProjects(Services.Empty _req, StreamObserver<Proto.Project> resp) {
+  public void getProjects(Empty _req, StreamObserver<Proto.Project> resp) {
     var writer = new ProjectWriter(WriterConfig.of(db));
     var dao = new ProjectDao(db);
     dao.getDescriptors()
@@ -785,7 +787,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
   }
 
   @Override
-  public void getSocialIndicators(Services.Empty _req, StreamObserver<Proto.SocialIndicator> resp) {
+  public void getSocialIndicators(Empty _req, StreamObserver<Proto.SocialIndicator> resp) {
     var writer = new SocialIndicatorWriter(WriterConfig.of(db));
     var dao = new SocialIndicatorDao(db);
     dao.getDescriptors()
@@ -833,7 +835,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
   }
 
   @Override
-  public void getSources(Services.Empty _req, StreamObserver<Proto.Source> resp) {
+  public void getSources(Empty _req, StreamObserver<Proto.Source> resp) {
     var writer = new SourceWriter(WriterConfig.of(db));
     var dao = new SourceDao(db);
     dao.getDescriptors()
@@ -881,7 +883,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
   }
 
   @Override
-  public void getUnitGroups(Services.Empty _req, StreamObserver<Proto.UnitGroup> resp) {
+  public void getUnitGroups(Empty _req, StreamObserver<Proto.UnitGroup> resp) {
     var writer = new UnitGroupWriter(WriterConfig.of(db));
     var dao = new UnitGroupDao(db);
     dao.getDescriptors()

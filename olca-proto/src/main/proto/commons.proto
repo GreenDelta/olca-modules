@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package protolca.services;
+
+option java_package = "org.openlca.proto.generated";
+option java_multiple_files = true;
+option java_outer_classname = "CommonsProto";
+
+option csharp_namespace = "ProtoLCA.Services";
+option go_package = ".;protolca";
+
+message Empty {
+}
+
+message Status {
+  bool ok = 1;
+  string error = 2;
+}

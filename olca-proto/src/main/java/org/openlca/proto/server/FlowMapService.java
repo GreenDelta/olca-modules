@@ -14,9 +14,11 @@ import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
 import org.openlca.io.maps.FlowRef;
 import org.openlca.proto.Messages;
+import org.openlca.proto.generated.Empty;
 import org.openlca.proto.generated.FlowMapServiceGrpc;
 import org.openlca.proto.generated.Proto;
 import org.openlca.proto.generated.Services;
+import org.openlca.proto.generated.Status;
 import org.openlca.proto.input.In;
 import org.openlca.proto.output.Out;
 import org.openlca.util.Pair;
@@ -31,7 +33,7 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
   }
 
   @Override
-  public void getAll(Services.Empty req, StreamObserver<Services.FlowMapInfo> resp) {
+  public void getAll(Empty req, StreamObserver<Services.FlowMapInfo> resp) {
     new MappingFileDao(db).getNames()
       .stream()
       .sorted(Strings::compare)
@@ -74,7 +76,7 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
 
   @Override
   public void delete(Services.FlowMapInfo req,
-                     StreamObserver<Services.Status> resp) {
+                     StreamObserver<Status> resp) {
     var p = getExistingOrError(req.getName());
     var mapping = p.first;
     if (mapping == null) {
@@ -119,7 +121,7 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
   }
 
   @Override
-  public void put(Proto.FlowMap proto, StreamObserver<Services.Status> resp) {
+  public void put(Proto.FlowMap proto, StreamObserver<Status> resp) {
     var model = toModel(proto);
     if (Strings.nullOrEmpty(model.name)) {
       Response.error(resp, "A name of the flow map is required");

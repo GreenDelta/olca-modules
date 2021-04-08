@@ -5,15 +5,8 @@ option java_package = "org.openlca.proto.generated";
 option csharp_namespace = "ProtoLCA.Services";
 option go_package = ".;protolca";
 
-import public "olca.proto";
-
-message Empty {
-}
-
-message Status {
-  bool ok = 1;
-  string error = 2;
-}
+import "olca.proto";
+import "commons.proto";
 
 message RefStatus {
   bool ok = 1;
@@ -307,36 +300,4 @@ service FlowMapService {
   // an existing flow map if there is a flow map with the same
   // name already available in the database.
   rpc Put(protolca.FlowMap) returns (Status);
-}
-
-// A `Result` message is basically just a reference to a real result on the
-// server side. As result data can be really large, we do not add them directly
-// to the result. Instead you call the respective methods of the result service
-// to get them. Because of this, you need to explicitly call `Dispose` when
-// you do not need a result anymore. Otherwise you will create memory leaks
-// as the result still exists on the server side.
-message Result {
-  string id = 1 [json_name = "@id"];
-}
-
-message ResultStatus {
-  bool ok = 1;
-  Result result = 2;
-  string error = 3;
-}
-
-service ResultService {
-
-  // Calculates a result for the given calculation setup.
-  rpc Calculate(CalculationSetup) returns (ResultStatus);
-
-  // Get the inventory of the given result.
-  rpc GetInventory(Result) returns (stream FlowResult);
-
-  // Get the total impact assessment result of the given result.
-  rpc GetImpacts(Result) returns (stream ImpactResult);
-
-  // Disposes the given result on the server side.
-  rpc Dispose(Result) returns (Status);
-
 }
