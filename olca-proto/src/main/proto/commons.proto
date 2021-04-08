@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package protolca.services;
 
-option java_package = "org.openlca.proto.generated";
+option java_package = "org.openlca.proto.generated.commons";
 option java_multiple_files = true;
 option java_outer_classname = "CommonsProto";
 

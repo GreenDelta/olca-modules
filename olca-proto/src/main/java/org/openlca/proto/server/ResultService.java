@@ -9,9 +9,10 @@ import org.openlca.core.database.NwSetDao;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.providers.ResultProviders;
-import org.openlca.proto.generated.Result;
-import org.openlca.proto.generated.ResultStatus;
-import org.openlca.proto.generated.Status;
+import org.openlca.proto.generated.commons.Status;
+import org.openlca.proto.generated.results.Result;
+import org.openlca.proto.generated.results.ResultServiceGrpc;
+import org.openlca.proto.generated.results.ResultStatus;
 import org.openlca.proto.input.In;
 import org.openlca.proto.output.Out;
 import org.openlca.util.Strings;
@@ -21,7 +22,6 @@ import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.proto.generated.Proto;
-import org.openlca.proto.generated.ResultServiceGrpc;
 import org.openlca.util.Pair;
 
 class ResultService extends ResultServiceGrpc.ResultServiceImplBase {

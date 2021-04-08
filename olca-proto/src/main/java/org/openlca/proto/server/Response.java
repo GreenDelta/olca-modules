@@ -1,8 +1,7 @@
 package org.openlca.proto.server;
 
 import io.grpc.stub.StreamObserver;
-import org.openlca.proto.generated.Services;
-import org.openlca.proto.generated.Status;
+import org.openlca.proto.generated.commons.Status;
 
 final class Response {
 
