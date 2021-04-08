@@ -9,8 +9,8 @@ option java_outer_classname = "ResultsProto";
 option csharp_namespace = "ProtoLCA.Services";
 option go_package = ".;protolca";
 
+import "google/protobuf/empty.proto";
 import "olca.proto";
-import "commons.proto";
 
 // A `Result` message is basically just a reference to a real result on the
 // server side. As result data can be really large, we do not add them directly
@@ -22,16 +22,22 @@ message Result {
   string id = 1 [json_name = "@id"];
 }
 
-message ResultStatus {
-  bool ok = 1;
-  Result result = 2;
-  string error = 3;
+message ImpactFactorRequest {
+  Result result = 1;
+  Ref indicator = 2;
+  Ref flow = 3;
+}
+
+message ImpactFactorResponse {
+  Ref indicator = 1;
+  Ref flow = 2;
+  double value = 3;
 }
 
 service ResultService {
 
   // Calculates a result for the given calculation setup.
-  rpc Calculate(CalculationSetup) returns (ResultStatus);
+  rpc Calculate(CalculationSetup) returns (Result);
 
   // Get the inventory of the given result.
   rpc GetInventory(Result) returns (stream FlowResult);
@@ -39,7 +45,19 @@ service ResultService {
   // Get the total impact assessment result of the given result.
   rpc GetImpacts(Result) returns (stream ImpactResult);
 
+  // Get the used impact factors of a result. The request can be for:
+  //
+  // * an indicator: returns the non-zero factors of that indicator
+  // * a flow: returns the factors of that flow for all indicators (including
+  //   zero values)
+  // * an indicator and flow: returns the factor for that flow which may be zero
+  //
+  // Nothing is returned if no indicator and flow is given or if the result
+  // does not have an impact assessment result.
+  rpc GetImpactFactors(ImpactFactorRequest) returns
+      (stream ImpactFactorResponse);
+
   // Disposes the given result on the server side.
-  rpc Dispose(Result) returns (Status);
+  rpc Dispose(Result) returns (google.protobuf.Empty);
 
 }

@@ -4,15 +4,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import com.google.protobuf.Empty;
+import io.grpc.Status;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.NwSetDao;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.providers.ResultProviders;
-import org.openlca.proto.generated.commons.Status;
 import org.openlca.proto.generated.results.Result;
 import org.openlca.proto.generated.results.ResultServiceGrpc;
-import org.openlca.proto.generated.results.ResultStatus;
 import org.openlca.proto.input.In;
 import org.openlca.proto.output.Out;
 import org.openlca.util.Strings;
@@ -35,15 +35,12 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 
   @Override
   public void calculate(
-    Proto.CalculationSetup req, StreamObserver<ResultStatus> resp) {
+    Proto.CalculationSetup req, StreamObserver<Result> resp) {
     var p = setup(req);
     if (p.first == null) {
-      var status = ResultStatus.newBuilder()
-        .setOk(false)
-        .setError(p.second)
-        .build();
-      resp.onNext(status);
-      resp.onCompleted();
+      resp.onError(Status.INVALID_ARGUMENT
+        .withDescription(p.second)
+        .asException());
       return;
     }
 
@@ -54,11 +51,10 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 
     var key = UUID.randomUUID().toString();
     results.put(key, result);
-    var status = ResultStatus.newBuilder()
-      .setOk(true)
-      .setResult(Result.newBuilder().setId(key))
+    var r = Result.newBuilder()
+      .setId(key)
       .build();
-    resp.onNext(status);
+    resp.onNext(r);
     resp.onCompleted();
   }
 
@@ -77,8 +73,8 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     var qref = system.referenceExchange;
     var propID = proto.getFlowProperty().getId();
     if (Strings.notEmpty(propID)
-      && qref != null
-      && qref.flow != null) {
+        && qref != null
+        && qref.flow != null) {
       qref.flow.flowPropertyFactors.stream()
         .filter(f -> Strings.nullOrEqual(propID, f.flowProperty.refId))
         .findAny()
@@ -89,9 +85,9 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     var unitID = proto.getUnit().getId();
     var propFac = setup.getFlowPropertyFactor();
     if (Strings.notEmpty(unitID)
-      && propFac != null
-      && propFac.flowProperty != null
-      && propFac.flowProperty.unitGroup != null) {
+        && propFac != null
+        && propFac.flowProperty != null
+        && propFac.flowProperty.unitGroup != null) {
       var group = propFac.flowProperty.unitGroup;
       group.units.stream()
         .filter(u -> Strings.nullOrEqual(unitID, u.refId))
@@ -207,13 +203,10 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
   }
 
   @Override
-  public void dispose(Result req, StreamObserver<Status> resp) {
+  public void dispose(Result req, StreamObserver<Empty> resp) {
     results.remove(req.getId());
     // we always return ok, even when the result does not exist
-    resp.onNext(Status
-      .newBuilder()
-      .setOk(true)
-      .build());
+    resp.onNext(Empty.newBuilder().build());
     resp.onCompleted();
   }
 }
