@@ -75,8 +75,8 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     var qref = system.referenceExchange;
     var propID = proto.getFlowProperty().getId();
     if (Strings.notEmpty(propID)
-        && qref != null
-        && qref.flow != null) {
+      && qref != null
+      && qref.flow != null) {
       qref.flow.flowPropertyFactors.stream()
         .filter(f -> Strings.nullOrEqual(propID, f.flowProperty.refId))
         .findAny()
@@ -87,9 +87,9 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     var unitID = proto.getUnit().getId();
     var propFac = setup.getFlowPropertyFactor();
     if (Strings.notEmpty(unitID)
-        && propFac != null
-        && propFac.flowProperty != null
-        && propFac.flowProperty.unitGroup != null) {
+      && propFac != null
+      && propFac.flowProperty != null
+      && propFac.flowProperty.unitGroup != null) {
       var group = propFac.flowProperty.unitGroup;
       group.units.stream()
         .filter(u -> Strings.nullOrEqual(unitID, u.refId))
@@ -208,9 +208,81 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
   public void getImpactFactors(
     ImpactFactorRequest req, StreamObserver<ImpactFactorResponse> resp) {
 
+    // check that we have a result with  flows and impacts
+    var result = results.get(req.getResult().getId());
+    if (result == null) {
+      resp.onError(Status.INVALID_ARGUMENT
+        .withDescription("Invalid result ID")
+        .asException());
+      return;
+    }
+    var flowIndex = result.flowIndex();
+    var impactIndex = result.impactIndex();
+    if (flowIndex == null  || impactIndex == null) {
+      resp.onCompleted();
+      return;
+    }
 
-    req.getResult().getId();
+    // check that we have at least an indicator or flow
+    var indicator = Results.findIndicator(
+      result, req.getIndicator());
+    var flow = Results.findFlow(
+      result, req.getFlow(), req.getLocation());
+    if (flow == null && indicator == null) {
+      resp.onCompleted();
+      return;
+    }
 
+    // get one specific factor of an indicator and flow
+    if (indicator != null && flow != null) {
+      var factor = ImpactFactorResponse.newBuilder()
+        .setIndicator(Out.refOf(indicator))
+        .setFlow(Out.refOf(flow.flow))
+        .setValue(result.getImpactFactor(indicator, flow));
+      if (flow.location != null) {
+        factor.setLocation(Out.refOf(flow.location));
+      }
+      resp.onNext(factor.build());
+      resp.onCompleted();
+      return;
+    }
+
+    // get non-zero factors of an indicator
+    if (flow == null) {
+      var indicatorRef = Out.refOf(indicator);
+      for (var iFlow : flowIndex) {
+        var value = result.getImpactFactor(indicator, iFlow);
+        if (value == 0)
+          continue;
+        var factor = ImpactFactorResponse.newBuilder()
+          .setIndicator(indicatorRef)
+          .setFlow(Out.refOf(iFlow.flow))
+          .setValue(value);
+        if (iFlow.location != null) {
+          factor.setLocation(Out.refOf(iFlow.location));
+        }
+        resp.onNext(factor.build());
+      }
+      resp.onCompleted();
+      return;
+    }
+
+    // get all impact factors of a flow
+    var flowRef = Out.refOf(flow.flow);
+    var locationRef = flow.location != null
+      ? Out.refOf(flow.location)
+      : null;
+    for (var impact : impactIndex) {
+      var factor = ImpactFactorResponse.newBuilder()
+        .setIndicator(Out.refOf(impact))
+        .setFlow(flowRef)
+        .setValue(result.getImpactFactor(impact, flow));
+      if (locationRef != null) {
+        factor.setLocation(locationRef);
+      }
+      resp.onNext(factor.build());
+    }
+    resp.onCompleted();
   }
 
   @Override

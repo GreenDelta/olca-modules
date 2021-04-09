@@ -1,8 +1,10 @@
 package org.openlca.core.matrix;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.openlca.core.database.FlowDao;
@@ -229,6 +231,11 @@ public abstract class FlowIndex implements MatrixIndex<IndexFlow> {
 		for (int i = 0; i < flows.size(); i++) {
 			fn.accept(i, flows.get(i));
 		}
+	}
+
+	@Override
+	public final Iterator<IndexFlow> iterator() {
+		return Collections.unmodifiableList(flows).iterator();
 	}
 
 	/**

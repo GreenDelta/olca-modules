@@ -1,7 +1,9 @@
 package org.openlca.core.matrix;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
@@ -177,5 +179,10 @@ public class ImpactIndex implements MatrixIndex<ImpactDescriptor> {
 			copy.add(impact);
 		}
 		return copy;
+	}
+
+	@Override
+	public Iterator<ImpactDescriptor> iterator() {
+		return Collections.unmodifiableList(content).iterator();
 	}
 }

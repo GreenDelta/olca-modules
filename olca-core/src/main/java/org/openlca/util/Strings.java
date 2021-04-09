@@ -174,7 +174,7 @@ public class Strings {
 	 * Returns null if the given string is empty or contains only whitespaces,
 	 * otherwise it returns the unchanged string.
 	 */
-	public static String orNull(String s) {
+	public static String nullIfEmpty(String s) {
 		return s == null
 				? null
 				: s.isBlank()

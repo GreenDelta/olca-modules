@@ -8,7 +8,7 @@ import org.openlca.core.model.Copyable;
  * Maps a set of instances of a given type to the corresponding rows or columns
  * of a matrix.
  */
-public interface MatrixIndex<T> extends Copyable<MatrixIndex<T>> {
+public interface MatrixIndex<T> extends Copyable<MatrixIndex<T>>, Iterable<T> {
 
 	/**
 	 * Adds the given element to this index and returns the position of that

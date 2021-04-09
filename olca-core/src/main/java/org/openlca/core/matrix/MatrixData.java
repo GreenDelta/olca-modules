@@ -145,8 +145,7 @@ public class MatrixData {
 		if (_hasLibraryLinks != null)
 			return _hasLibraryLinks;
 		if (techIndex != null) {
-			for (int i = 0; i < techIndex.size(); i++) {
-				var product = techIndex.at(i);
+			for (var product : techIndex) {
 				if (product.isFromLibrary()) {
 					_hasLibraryLinks = true;
 					return true;
@@ -154,8 +153,7 @@ public class MatrixData {
 			}
 		}
 		if (impactIndex != null) {
-			for (int i = 0; i < impactIndex.size(); i++) {
-				var impact = impactIndex.at(i);
+			for (var impact : impactIndex) {
 				if (impact.isFromLibrary()) {
 					_hasLibraryLinks = true;
 					return true;

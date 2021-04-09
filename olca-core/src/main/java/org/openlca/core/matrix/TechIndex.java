@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -379,5 +380,10 @@ public final class TechIndex implements TechLinker, MatrixIndex<ProcessProduct> 
 			copy.links.putAll(links);
 		}
 		return copy;
+	}
+
+	@Override
+	public Iterator<ProcessProduct> iterator() {
+		return Collections.unmodifiableList(providers).iterator();
 	}
 }

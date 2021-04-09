@@ -143,7 +143,7 @@ public final class In {
       return null;
     d.refId = proto.getId();
     d.name = proto.getName();
-    d.description = Strings.orNull(proto.getDescription());
+    d.description = Strings.nullIfEmpty(proto.getDescription());
     d.lastChange = timeOf(proto.getLastChange());
     d.version = versionOf(proto.getVersion());
     d.library = proto.getLibrary();

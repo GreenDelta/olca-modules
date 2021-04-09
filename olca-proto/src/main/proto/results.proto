@@ -26,12 +26,14 @@ message ImpactFactorRequest {
   Result result = 1;
   Ref indicator = 2;
   Ref flow = 3;
+  Ref location = 4;
 }
 
 message ImpactFactorResponse {
   Ref indicator = 1;
   Ref flow = 2;
   double value = 3;
+  Ref location = 4;
 }
 
 service ResultService {

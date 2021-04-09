@@ -263,16 +263,11 @@ public final class Out {
   static Proto.FlowType flowTypeOf(FlowType type) {
     if (type == null)
       return Proto.FlowType.UNDEFINED_FLOW_TYPE;
-    switch (type) {
-      case ELEMENTARY_FLOW:
-        return Proto.FlowType.ELEMENTARY_FLOW;
-      case PRODUCT_FLOW:
-        return Proto.FlowType.PRODUCT_FLOW;
-      case WASTE_FLOW:
-        return Proto.FlowType.WASTE_FLOW;
-      default:
-        return Proto.FlowType.UNDEFINED_FLOW_TYPE;
-    }
+    return switch (type) {
+      case ELEMENTARY_FLOW -> Proto.FlowType.ELEMENTARY_FLOW;
+      case PRODUCT_FLOW -> Proto.FlowType.PRODUCT_FLOW;
+      case WASTE_FLOW -> Proto.FlowType.WASTE_FLOW;
+    };
   }
 
   static Proto.ProcessType processTypeOf(ProcessType type) {
