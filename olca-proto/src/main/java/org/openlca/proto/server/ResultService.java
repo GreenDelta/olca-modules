@@ -11,6 +11,8 @@ import org.openlca.core.database.NwSetDao;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.providers.ResultProviders;
+import org.openlca.proto.generated.results.ImpactFactorRequest;
+import org.openlca.proto.generated.results.ImpactFactorResponse;
 import org.openlca.proto.generated.results.Result;
 import org.openlca.proto.generated.results.ResultServiceGrpc;
 import org.openlca.proto.input.In;
@@ -200,6 +202,15 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
       resp.onNext(proto.build());
     }
     resp.onCompleted();
+  }
+
+  @Override
+  public void getImpactFactors(
+    ImpactFactorRequest req, StreamObserver<ImpactFactorResponse> resp) {
+
+
+    req.getResult().getId();
+
   }
 
   @Override
