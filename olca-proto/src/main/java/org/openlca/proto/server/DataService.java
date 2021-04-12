@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import com.google.protobuf.Empty;
 import io.grpc.stub.StreamObserver;
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
@@ -50,8 +51,6 @@ import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.jsonld.input.UpdateMode;
 import org.openlca.proto.MemStore;
-import org.openlca.proto.generated.commons.Empty;
-import org.openlca.proto.generated.commons.Status;
 import org.openlca.proto.generated.Proto;
 import org.openlca.proto.input.CategoryImport;
 import org.openlca.proto.input.In;
@@ -130,7 +129,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
   }
 
   @Override
-  public void delete(Proto.Ref req, StreamObserver<Status> resp) {
+  public void delete(Proto.Ref req, StreamObserver<Empty> resp) {
     var type = Arrays.stream(ModelType.values())
       .map(ModelType::getModelClass)
       .filter(Objects::nonNull)
@@ -139,20 +138,21 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
       .orElse(null);
 
     if (type == null) {
-      Response.error(resp, "Unknown model type: " + req.getType());
+      Response.invalidArg(resp,
+        "Unknown model type: " + req.getType());
       return;
     }
 
     if (!CategorizedEntity.class.isAssignableFrom(type)) {
-      Response.error(resp, req.getType()
-        + " is not a standalone entity");
+      Response.invalidArg(resp,
+        req.getType() + " is not a standalone entity");
       return;
     }
 
     var entity = db.get(type, req.getId());
     if (entity == null) {
-      Response.error(resp, "A " + req.getType()
-        + " with id=" + req.getId() + " does not exist");
+      Response.notFound(resp,
+        "A " + req.getType() + " with id=" + req.getId() + " does not exist");
       return;
     }
 
@@ -1034,7 +1034,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
       } else {
         onError.accept(
           "An instance of " + type.getSimpleName()
-            + " with id='" + id + "' does not exist");
+          + " with id='" + id + "' does not exist");
       }
       return;
     }
@@ -1051,7 +1051,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
     } else {
       onError.accept(
         "An instance of " + type.getSimpleName()
-          + " with name='" + name + "' does not exist");
+        + " with name='" + name + "' does not exist");
     }
   }
 }

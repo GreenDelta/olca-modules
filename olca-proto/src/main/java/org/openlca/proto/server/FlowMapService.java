@@ -60,7 +60,7 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
     var mapping = p.first;
     if (mapping == null) {
       onError.accept("Flow map '"
-        + req.getName() + "' does not exist");
+                     + req.getName() + "' does not exist");
       return;
     }
 
@@ -80,14 +80,15 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
     var p = getExistingOrError(req.getName());
     var mapping = p.first;
     if (mapping == null) {
-      Response.error(resp, p.second);
+      Response.notFound(resp, p.second);
       return;
     }
     try {
       new MappingFileDao(db).delete(mapping);
       Response.ok(resp);
     } catch (Exception e) {
-      Response.error(resp, "Failed to delete mapping with name='"
+      Response.serverError(resp,
+        "Failed to delete mapping with name='"
         + req.getName() + "' from database");
     }
   }
@@ -121,10 +122,10 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
   }
 
   @Override
-  public void put(Proto.FlowMap proto, StreamObserver<Status> resp) {
+  public void put(Proto.FlowMap proto, StreamObserver<Empty> resp) {
     var model = toModel(proto);
     if (Strings.nullOrEmpty(model.name)) {
-      Response.error(resp, "A name of the flow map is required");
+      Response.invalidArg(resp, "A name of the flow map is required");
       return;
     }
 
@@ -139,7 +140,8 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
         dao.update(mapping);
         Response.ok(resp);
       } catch (Exception e) {
-        Response.error(resp, "Failed to update existing" +
+        Response.serverError(resp,
+          "Failed to update existing" +
           " flow map " + model.name + ": " + e.getMessage());
       }
       return;
@@ -151,7 +153,8 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
       dao.insert(mapping);
       Response.ok(resp);
     } catch (Exception e) {
-      Response.error(resp, "Failed to save mapping "
+      Response.serverError(resp,
+        "Failed to save mapping "
         + model.name + ": " + e.getMessage());
     }
   }
@@ -264,7 +267,7 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
 
     // flow property & unit
     if (flowRef.property != null) {
-        proto.setFlowProperty(Out.refOf(flowRef.property));
+      proto.setFlowProperty(Out.refOf(flowRef.property));
     }
     if (flowRef.unit != null) {
       proto.setUnit(Out.refOf(flowRef.unit));

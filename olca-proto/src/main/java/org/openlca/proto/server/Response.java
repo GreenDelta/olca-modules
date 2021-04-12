@@ -1,27 +1,28 @@
 package org.openlca.proto.server;
 
+import com.google.protobuf.Empty;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
-import org.openlca.proto.generated.commons.Status;
 
 final class Response {
 
   private Response() {
   }
 
-  static void error(StreamObserver<Status> resp, String message) {
-    var status = Status.newBuilder()
-      .setOk(false)
-      .setError(message == null ? "error" : message)
-      .build();
-    resp.onNext(status);
-    resp.onCompleted();
+  static void invalidArg(StreamObserver<?> resp, String error) {
+    resp.onError(Status.INVALID_ARGUMENT.withDescription(error).asException());
   }
 
-  static void ok(StreamObserver<Status> resp) {
-    var status = Status.newBuilder()
-      .setOk(true)
-      .build();
-    resp.onNext(status);
+  static void notFound(StreamObserver<?> resp, String error) {
+    resp.onError(Status.NOT_FOUND.withDescription(error).asException());
+  }
+
+  static void serverError(StreamObserver<?> resp, String error) {
+    resp.onError(Status.INTERNAL.withDescription(error).asException());
+  }
+
+  static void ok(StreamObserver<Empty> resp) {
+    resp.onNext(Empty.newBuilder().build());
     resp.onCompleted();
   }
 }
