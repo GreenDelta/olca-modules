@@ -3,6 +3,7 @@ package org.openlca.proto.server;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
+import com.google.protobuf.Empty;
 import com.google.protobuf.ProtocolStringList;
 import io.grpc.stub.StreamObserver;
 import org.openlca.core.database.IDatabase;
@@ -14,8 +15,6 @@ import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
 import org.openlca.io.maps.FlowRef;
 import org.openlca.proto.Messages;
-import org.openlca.proto.generated.commons.Empty;
-import org.openlca.proto.generated.commons.Status;
 import org.openlca.proto.generated.FlowMapServiceGrpc;
 import org.openlca.proto.generated.Proto;
 import org.openlca.proto.generated.Services;
@@ -75,8 +74,9 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
   }
 
   @Override
-  public void delete(Services.FlowMapInfo req,
-                     StreamObserver<Status> resp) {
+  public void delete(
+    Services.FlowMapInfo req, StreamObserver<Empty> resp) {
+
     var p = getExistingOrError(req.getName());
     var mapping = p.first;
     if (mapping == null) {

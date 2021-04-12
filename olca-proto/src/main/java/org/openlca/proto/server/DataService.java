@@ -54,6 +54,7 @@ import org.openlca.proto.generated.commons.Empty;
 import org.openlca.proto.generated.commons.Status;
 import org.openlca.proto.generated.Proto;
 import org.openlca.proto.input.CategoryImport;
+import org.openlca.proto.input.In;
 import org.openlca.proto.input.ProtoImport;
 import org.openlca.proto.output.ActorWriter;
 import org.openlca.proto.output.CategoryWriter;
@@ -84,6 +85,16 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   DataService(IDatabase db) {
     this.db = db;
+  }
+
+  @Override
+  public void get(
+    Services.DataRequest req, StreamObserver<Services.DataSet> resp) {
+
+    var type = In.modelTypeOf(req.getModelType());
+    if (type == null) {
+    }
+
   }
 
   @Override

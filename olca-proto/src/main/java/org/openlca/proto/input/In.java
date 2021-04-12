@@ -116,14 +116,11 @@ public final class In {
   public static ProcessType processTypeOf(Proto.ProcessType proto) {
     if (proto == null)
       return null;
-    switch (proto) {
-      case LCI_RESULT:
-        return ProcessType.LCI_RESULT;
-      case UNIT_PROCESS:
-        return ProcessType.UNIT_PROCESS;
-      default:
-        return null;
-    }
+    return switch (proto) {
+      case LCI_RESULT -> ProcessType.LCI_RESULT;
+      case UNIT_PROCESS -> ProcessType.UNIT_PROCESS;
+      default -> null;
+    };
   }
 
   public static ModelType modelTypeOf(Proto.ModelType proto) {
