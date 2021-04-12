@@ -97,12 +97,17 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
       return;
     }
 
+    Consumer<RootEntity> onSuccess = model -> {
+      resp.onNext(toDataSet(model).build());
+      resp.onCompleted();
+    };
+
     // get by ID
     var id = req.getId();
     if (Strings.notEmpty(id)) {
       var model = db.get(type.getModelClass(), id);
       if (model != null) {
-        resp.onNext(toDataSet(model).build());
+        onSuccess.accept(model);
       } else {
         Response.notFound(resp,
           "Could not find a model " + type + " with ID=" + id);
@@ -120,7 +125,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
     }
     var model = db.forName(type.getModelClass(), name);
     if (model != null) {
-      resp.onNext(toDataSet(model).build());
+      onSuccess.accept(model);
     } else {
       Response.notFound(resp,
         "Could not find a model " + type + " with name=" + name);
