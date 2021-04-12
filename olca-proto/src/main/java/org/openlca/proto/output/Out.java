@@ -5,17 +5,32 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.google.protobuf.AbstractMessage;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Message;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.Actor;
 import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.Category;
+import org.openlca.core.model.Currency;
+import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.Location;
+import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
+import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Project;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.SocialIndicator;
+import org.openlca.core.model.Source;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.UncertaintyType;
+import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -32,16 +47,16 @@ public final class Out {
 
   static void dep(WriterConfig config, RootEntity e) {
     if (config == null
-      || config.dependencies == null
-      || e == null)
+        || config.dependencies == null
+        || e == null)
       return;
     config.dependencies.push(e);
   }
 
   static void dep(WriterConfig config, Descriptor d) {
     if (config == null
-      || config.dependencies == null
-      || d == null)
+        || config.dependencies == null
+        || d == null)
       return;
     config.dependencies.push(d);
   }
@@ -370,5 +385,61 @@ public final class Out {
       }
     }
     return proto.build();
+  }
+
+  public static AbstractMessage toProto(IDatabase db, RootEntity e) {
+
+    var conf = WriterConfig.of(db);
+
+    if (e instanceof Actor)
+      return new ActorWriter(conf).write((Actor) e);
+
+    if (e instanceof Category)
+      return new CategoryWriter(conf).write((Category) e);
+
+    if (e instanceof Currency)
+      return new CurrencyWriter(conf).write((Currency) e);
+
+    if (e instanceof DQSystem)
+      return new DQSystemWriter(conf).write((DQSystem) e);
+
+    if (e instanceof Flow)
+      return new FlowWriter(conf).write((Flow) e);
+
+    if (e instanceof FlowProperty)
+      return new FlowPropertyWriter(conf).write((FlowProperty) e);
+
+    if (e instanceof ImpactCategory)
+      return new ImpactCategoryWriter(conf).write((ImpactCategory) e);
+
+    if (e instanceof ImpactMethod)
+      return new ImpactMethodWriter(conf).write((ImpactMethod) e);
+
+    if (e instanceof Location)
+      return new LocationWriter(conf).write((Location) e);
+
+    if (e instanceof Parameter)
+      return new ParameterWriter(conf).write((Parameter) e);
+
+    if (e instanceof Process)
+      return new ProcessWriter(conf).write((Process) e);
+
+    if (e instanceof ProductSystem)
+      return new ProductSystemWriter(conf).write((ProductSystem) e);
+
+    if (e instanceof Project)
+      return new ProjectWriter(conf).write((Project) e);
+
+    if (e instanceof SocialIndicator)
+      return new SocialIndicatorWriter(conf).write((SocialIndicator) e);
+
+    if (e instanceof Source)
+      return new SourceWriter(conf).write((Source) e);
+
+    if (e instanceof UnitGroup)
+      return new UnitGroupWriter(conf).write((UnitGroup) e);
+
+    throw new RuntimeException(
+      "Unsupported entity type" + " for binary translation: " + e.getClass());
   }
 }

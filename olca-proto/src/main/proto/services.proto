@@ -129,18 +129,13 @@ message DescriptorRequest {
 }
 
 // Data sets or their descriptors can be retrieved by ID or attributes.
-message DataRequest {
-
-  message Attributes {
-    string name = 1;
-    string category = 2;
-  }
+message GetDataSetRequest {
 
   ModelType model_type = 1;
 
   oneof by {
     string id = 2;
-    Attributes attributes = 3;
+    string name = 3;
   }
 }
 
@@ -205,7 +200,7 @@ message CreateSystemRequest {
 
 service DataService {
 
-  rpc Get(DataRequest) returns (DataSet);
+  rpc Get(GetDataSetRequest) returns (DataSet);
   rpc Put(DataSet) returns (google.protobuf.Empty);
 
   // Deletes the object with the `id` and `type` of the given descriptor from

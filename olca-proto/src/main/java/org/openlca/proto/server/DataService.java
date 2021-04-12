@@ -88,12 +88,43 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void get(
-    Services.DataRequest req, StreamObserver<Services.DataSet> resp) {
+    Services.GetDataSetRequest req, StreamObserver<Services.DataSet> resp) {
 
     var type = In.modelTypeOf(req.getModelType());
-    if (type == null) {
+    if (type == null || type.getModelClass() == null) {
+      Response.invalidArg(resp,
+        "Invalid model type: " + req.getModelType());
+      return;
     }
 
+    // get by ID
+    var id = req.getId();
+    if (Strings.notEmpty(id)) {
+      var model = db.get(type.getModelClass(), id);
+      if (model != null) {
+        resp.onNext(toDataSet(model).build());
+      } else {
+        Response.notFound(resp,
+          "Could not find a model " + type + " with ID=" + id);
+        return;
+      }
+      return;
+    }
+
+    // get by name
+    var name = req.getName();
+    if (Strings.nullOrEmpty(name)) {
+      Response.invalidArg(resp,
+        "An ID or name is required");
+      return;
+    }
+    var model = db.forName(type.getModelClass(), name);
+    if (model != null) {
+      resp.onNext(toDataSet(model).build());
+    } else {
+      Response.notFound(resp,
+        "Could not find a model " + type + " with name=" + name);
+    }
   }
 
   @Override
@@ -1053,5 +1084,76 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
         "An instance of " + type.getSimpleName()
         + " with name='" + name + "' does not exist");
     }
+  }
+
+  private Services.DataSet.Builder toDataSet(RootEntity e) {
+    var ds = Services.DataSet.newBuilder();
+    var conf = WriterConfig.of(db);
+
+    if (e instanceof Actor)
+      return ds.setActor(new ActorWriter(conf)
+        .write((Actor) e));
+
+    if (e instanceof Category)
+      return ds.setCategory(new CategoryWriter(conf)
+        .write((Category) e));
+
+    if (e instanceof Currency)
+      return ds.setCurrency(new CurrencyWriter(conf)
+        .write((Currency) e));
+
+    if (e instanceof DQSystem)
+      return ds.setDqSystem(new DQSystemWriter(conf)
+        .write((DQSystem) e));
+
+    if (e instanceof Flow)
+      return ds.setFlow(new FlowWriter(conf)
+        .write((Flow) e));
+
+    if (e instanceof FlowProperty)
+      return ds.setFlowProperty(new FlowPropertyWriter(conf)
+        .write((FlowProperty) e));
+
+    if (e instanceof ImpactCategory)
+      return ds.setImpactCategory(new ImpactCategoryWriter(conf)
+        .write((ImpactCategory) e));
+
+    if (e instanceof ImpactMethod)
+      return ds.setImpactMethod(new ImpactMethodWriter(conf)
+        .write((ImpactMethod) e));
+
+    if (e instanceof Location)
+      return ds.setLocation(new LocationWriter(conf)
+        .write((Location) e));
+
+    if (e instanceof Parameter)
+      return ds.setParameter(new ParameterWriter(conf)
+        .write((Parameter) e));
+
+    if (e instanceof Process)
+      return ds.setProcess(new ProcessWriter(conf)
+        .write((Process) e));
+
+    if (e instanceof ProductSystem)
+      return ds.setProductSystem(new ProductSystemWriter(conf)
+        .write((ProductSystem) e));
+
+    if (e instanceof Project)
+      return ds.setProject(new ProjectWriter(conf)
+        .write((Project) e));
+
+    if (e instanceof SocialIndicator)
+      return ds.setSocialIndicator(new SocialIndicatorWriter(conf)
+        .write((SocialIndicator) e));
+
+    if (e instanceof Source)
+      return ds.setSource(new SourceWriter(conf)
+        .write((Source) e));
+
+    if (e instanceof UnitGroup)
+      return ds.setUnitGroup(new UnitGroupWriter(conf)
+        .write((UnitGroup) e));
+
+    return ds;
   }
 }

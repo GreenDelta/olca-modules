@@ -308,34 +308,21 @@ public class ProcessImport {
     // !note: we could match the enums via reflection
     // as both have the same items but we do not do this
     // because the items may change in the future.
-    switch (proto) {
-      case NO_OPPORTUNITY:
-        return RiskLevel.NO_OPPORTUNITY;
-      case HIGH_OPPORTUNITY:
-        return RiskLevel.HIGH_OPPORTUNITY;
-      case MEDIUM_OPPORTUNITY:
-        return RiskLevel.MEDIUM_OPPORTUNITY;
-      case LOW_OPPORTUNITY:
-        return RiskLevel.LOW_OPPORTUNITY;
-      case NO_RISK:
-        return RiskLevel.NO_RISK;
-      case VERY_LOW_RISK:
-        return RiskLevel.VERY_LOW_RISK;
-      case LOW_RISK:
-        return RiskLevel.LOW_RISK;
-      case MEDIUM_RISK:
-        return RiskLevel.MEDIUM_RISK;
-      case HIGH_RISK:
-        return RiskLevel.HIGH_RISK;
-      case VERY_HIGH_RISK:
-        return RiskLevel.VERY_HIGH_RISK;
-      case NO_DATA:
-        return RiskLevel.NO_DATA;
-      case NOT_APPLICABLE:
-        return RiskLevel.NOT_APPLICABLE;
-      default:
-        return null;
-    }
+    return switch (proto) {
+      case NO_OPPORTUNITY -> RiskLevel.NO_OPPORTUNITY;
+      case HIGH_OPPORTUNITY -> RiskLevel.HIGH_OPPORTUNITY;
+      case MEDIUM_OPPORTUNITY -> RiskLevel.MEDIUM_OPPORTUNITY;
+      case LOW_OPPORTUNITY -> RiskLevel.LOW_OPPORTUNITY;
+      case NO_RISK -> RiskLevel.NO_RISK;
+      case VERY_LOW_RISK -> RiskLevel.VERY_LOW_RISK;
+      case LOW_RISK -> RiskLevel.LOW_RISK;
+      case MEDIUM_RISK -> RiskLevel.MEDIUM_RISK;
+      case HIGH_RISK -> RiskLevel.HIGH_RISK;
+      case VERY_HIGH_RISK -> RiskLevel.VERY_HIGH_RISK;
+      case NO_DATA -> RiskLevel.NO_DATA;
+      case NOT_APPLICABLE -> RiskLevel.NOT_APPLICABLE;
+      default -> null;
+    };
   }
 
   private AllocationFactor allocationFactor(
