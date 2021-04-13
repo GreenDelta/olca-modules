@@ -5,7 +5,6 @@ option java_package = "org.openlca.proto.generated.data";
 option csharp_namespace = "ProtoLCA.Services";
 option go_package = ".;protolca";
 
-import "google/protobuf/empty.proto";
 import "olca.proto";
 import "data.proto";
 
