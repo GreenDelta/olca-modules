@@ -283,32 +283,3 @@ service DataService {
   // returned.
   rpc GetProvidersFor(Ref) returns (stream Ref);
 }
-
-message FlowMapStatus {
-  bool ok = 1;
-  protolca.FlowMap flow_map = 2;
-  string error = 3;
-}
-
-message FlowMapInfo {
-  string name = 1;
-}
-
-service FlowMapService {
-
-  // Delete the flow map with the given name.
-  rpc Delete(FlowMapInfo) returns (google.protobuf.Empty);
-
-  // Get the flow map with the given name form the
-  // database.
-  rpc Get(FlowMapInfo) returns (FlowMapStatus);
-
-  // Get the information (basically just the names) of all
-  // flow maps that are available in the database.
-  rpc GetAll(google.protobuf.Empty) returns (stream FlowMapInfo);
-
-  // Inserts the given flow map into the database. It overwrites
-  // an existing flow map if there is a flow map with the same
-  // name already available in the database.
-  rpc Put(protolca.FlowMap) returns (google.protobuf.Empty);
-}

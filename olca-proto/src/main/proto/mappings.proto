@@ -1,0 +1,35 @@
+syntax = "proto3";
+package protolca.services;
+
+option java_package = "org.openlca.proto.generated.mappings";
+option java_multiple_files = true;
+option java_outer_classname = "MappingsProto";
+
+option csharp_namespace = "ProtoLCA.Services";
+option go_package = ".;protolca";
+
+import "olca.proto";
+import "google/protobuf/empty.proto";
+
+service FlowMapService {
+
+  // Delete the flow map with the given name.
+  rpc Delete(FlowMapInfo) returns (google.protobuf.Empty);
+
+  // Get the flow map with the given name form the
+  // database.
+  rpc Get(FlowMapInfo) returns (FlowMap);
+
+  // Get the information (basically just the names) of all
+  // flow maps that are available in the database.
+  rpc GetAll(google.protobuf.Empty) returns (stream FlowMapInfo);
+
+  // Inserts the given flow map into the database. It overwrites
+  // an existing flow map if there is a flow map with the same
+  // name already available in the database.
+  rpc Put(FlowMap) returns (google.protobuf.Empty);
+}
+
+message FlowMapInfo {
+  string name = 1;
+}

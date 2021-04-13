@@ -1,7 +1,6 @@
 package org.openlca.proto.server;
 
 import java.util.Arrays;
-import java.util.function.Consumer;
 
 import com.google.protobuf.Empty;
 import com.google.protobuf.ProtocolStringList;
@@ -15,12 +14,11 @@ import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
 import org.openlca.io.maps.FlowRef;
 import org.openlca.proto.Messages;
-import org.openlca.proto.generated.FlowMapServiceGrpc;
 import org.openlca.proto.generated.Proto;
-import org.openlca.proto.generated.Services;
+import org.openlca.proto.generated.mappings.FlowMapInfo;
+import org.openlca.proto.generated.mappings.FlowMapServiceGrpc;
 import org.openlca.proto.input.In;
 import org.openlca.proto.output.Out;
-import org.openlca.util.Pair;
 import org.openlca.util.Strings;
 
 class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
@@ -32,93 +30,64 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
   }
 
   @Override
-  public void getAll(Empty req, StreamObserver<Services.FlowMapInfo> resp) {
+  public void getAll(Empty req, StreamObserver<FlowMapInfo> resp) {
     new MappingFileDao(db).getNames()
-      .stream()
-      .sorted(Strings::compare)
-      .map(name -> Services.FlowMapInfo
-        .newBuilder()
-        .setName(name)
-        .build())
-      .forEach(resp::onNext);
+        .stream()
+        .sorted(Strings::compare)
+        .map(name -> FlowMapInfo.newBuilder().setName(name).build())
+        .forEach(resp::onNext);
     resp.onCompleted();
   }
 
   @Override
-  public void get(Services.FlowMapInfo req,
-                  StreamObserver<Services.FlowMapStatus> resp) {
-    Consumer<String> onError = error -> {
-      var status = Services.FlowMapStatus.newBuilder()
-        .setOk(false)
-        .setError(error)
-        .build();
-      resp.onNext(status);
-      resp.onCompleted();
-    };
-
-    var p = getExistingOrError(req.getName());
-    var mapping = p.first;
-    if (mapping == null) {
-      onError.accept("Flow map '"
-                     + req.getName() + "' does not exist");
+  public void get(FlowMapInfo req, StreamObserver<Proto.FlowMap> resp) {
+    var mapping = forceGet(req.getName(), resp);
+    if (mapping == null)
       return;
-    }
-
     var flowMap = FlowMap.of(mapping);
-    var status = Services.FlowMapStatus.newBuilder()
-      .setOk(true)
-      .setFlowMap(toProto(flowMap))
-      .build();
-    resp.onNext(status);
+    resp.onNext(toProto(flowMap));
     resp.onCompleted();
   }
 
   @Override
-  public void delete(
-    Services.FlowMapInfo req, StreamObserver<Empty> resp) {
-
-    var p = getExistingOrError(req.getName());
-    var mapping = p.first;
-    if (mapping == null) {
-      Response.notFound(resp, p.second);
+  public void delete(FlowMapInfo req, StreamObserver<Empty> resp) {
+    var mapping = forceGet(req.getName(), resp);
+    if (mapping == null)
       return;
-    }
     try {
       new MappingFileDao(db).delete(mapping);
       Response.ok(resp);
     } catch (Exception e) {
       Response.serverError(resp,
-        "Failed to delete mapping with name='"
-        + req.getName() + "' from database");
+          "Failed to delete mapping with name='"
+              + req.getName() + "' from database");
     }
   }
 
-  private Pair<MappingFile, String> getExistingOrError(String name) {
-
+  private MappingFile forceGet(String name, StreamObserver<?> resp) {
     if (Strings.nullOrEmpty(name)) {
-      var err = "No name of the flow map was given.";
-      return Pair.of(null, err);
+      Response.invalidArg(resp,
+          "No name of the flow map was given.");
+      return null;
     }
+    var mapping = findByName(name);
+    if (mapping == null) {
+      Response.notFound(resp,
+          "Could not load flow map '" + name + "'");
+    }
+    return mapping;
+  }
 
-    // find the existing mapping with this name
+  private MappingFile findByName(String name) {
     var dao = new MappingFileDao(db);
     var existing = dao.getNames()
-      .stream()
-      .filter(name::equalsIgnoreCase)
-      .findAny()
-      .orElse(null);
-    if (existing == null) {
-      var err = "A flow map '" + name + "' does not exist";
-      return Pair.of(null, err);
-    }
-
-    // load the mapping
-    var mapping = dao.getForName(existing);
-    if (mapping == null) {
-      var err = "Failed to load flow map '" + name + "'";
-      return Pair.of(null, err);
-    }
-    return Pair.of(mapping, null);
+        .stream()
+        .filter(name::equalsIgnoreCase)
+        .findAny()
+        .orElse(null);
+    if (existing == null)
+      return null;
+    return dao.getForName(existing);
   }
 
   @Override
@@ -132,8 +101,7 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
     var dao = new MappingFileDao(db);
 
     // check if we should update an existing map
-    var p = getExistingOrError(model.name);
-    var mapping = p.first;
+    var mapping = findByName(model.name);
     if (mapping != null) {
       try {
         model.updateContentOf(mapping);
@@ -141,8 +109,8 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
         Response.ok(resp);
       } catch (Exception e) {
         Response.serverError(resp,
-          "Failed to update existing" +
-          " flow map " + model.name + ": " + e.getMessage());
+            "Failed to update existing" +
+                " flow map " + model.name + ": " + e.getMessage());
       }
       return;
     }
@@ -154,8 +122,8 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
       Response.ok(resp);
     } catch (Exception e) {
       Response.serverError(resp,
-        "Failed to save mapping "
-        + model.name + ": " + e.getMessage());
+          "Failed to save mapping "
+              + model.name + ": " + e.getMessage());
     }
   }
 
@@ -182,12 +150,11 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
       return flowRef;
 
     // flow information
-    flowRef.flow = In.fill
-      (new FlowDescriptor(), protoRef.getFlow());
+    flowRef.flow = In.fill(new FlowDescriptor(), protoRef.getFlow());
     flowRef.flowCategory = categoryPathOf(
-      protoRef.getFlow().getCategoryPathList());
+        protoRef.getFlow().getCategoryPathList());
     flowRef.flowLocation = Strings.nullIfEmpty(
-      protoRef.getFlow().getLocation());
+        protoRef.getFlow().getLocation());
 
     // flow property
     var property = protoRef.getFlowProperty();
@@ -205,11 +172,11 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
     var provider = protoRef.getProvider();
     if (Messages.isNotEmpty(provider)) {
       flowRef.provider = In.fill(
-        new ProcessDescriptor(), provider);
+          new ProcessDescriptor(), provider);
       flowRef.providerCategory = categoryPathOf(
-        provider.getCategoryPathList());
+          provider.getCategoryPathList());
       flowRef.providerLocation = Strings.nullIfEmpty(
-        provider.getLocation());
+          provider.getLocation());
     }
 
     return flowRef;
@@ -219,10 +186,9 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
     if (categories == null || categories.isEmpty())
       return null;
     return categories.stream()
-      .reduce(null, (path, elem) ->
-        Strings.nullOrEmpty(path)
-          ? elem
-          : path + "/" + elem);
+        .reduce(null, (path, elem) -> Strings.nullOrEmpty(path)
+            ? elem
+            : path + "/" + elem);
   }
 
   private Proto.FlowMap toProto(FlowMap model) {
@@ -257,8 +223,8 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
     var protoFlow = Out.refOf(flowRef.flow);
     if (flowRef.flowCategory != null) {
       Arrays.stream(flowRef.flowCategory.split("/"))
-        .filter(Strings::notEmpty)
-        .forEach(protoFlow::addCategoryPath);
+          .filter(Strings::notEmpty)
+          .forEach(protoFlow::addCategoryPath);
     }
     if (flowRef.flowLocation != null) {
       protoFlow.setLocation(flowRef.flowLocation);
@@ -281,8 +247,8 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
       }
       if (flowRef.providerCategory != null) {
         Arrays.stream(flowRef.providerCategory.split("/"))
-          .filter(Strings::notEmpty)
-          .forEach(protoProv::addCategoryPath);
+            .filter(Strings::notEmpty)
+            .forEach(protoProv::addCategoryPath);
       }
       proto.setProvider(protoProv);
     }
@@ -290,16 +256,3 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
     return proto.build();
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
