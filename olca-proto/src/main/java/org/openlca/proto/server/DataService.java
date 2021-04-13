@@ -53,7 +53,6 @@ import org.openlca.jsonld.input.UpdateMode;
 import org.openlca.proto.MemStore;
 import org.openlca.proto.generated.Proto;
 import org.openlca.proto.input.CategoryImport;
-import org.openlca.proto.input.In;
 import org.openlca.proto.input.ProtoImport;
 import org.openlca.proto.output.ActorWriter;
 import org.openlca.proto.output.CategoryWriter;
@@ -75,7 +74,6 @@ import org.openlca.proto.output.UnitGroupWriter;
 import org.openlca.proto.output.WriterConfig;
 import org.openlca.proto.generated.DataServiceGrpc;
 import org.openlca.proto.generated.Services;
-import org.openlca.proto.generated.data.DataSet;
 import org.openlca.util.CategoryPathBuilder;
 import org.openlca.util.Strings;
 
@@ -85,52 +83,6 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   DataService(IDatabase db) {
     this.db = db;
-  }
-
-  @Override
-  public void get(
-    Services.GetDataSetRequest req, StreamObserver<DataSet> resp) {
-
-    var type = In.modelTypeOf(req.getModelType());
-    if (type == null || type.getModelClass() == null) {
-      Response.invalidArg(resp,
-        "Invalid model type: " + req.getModelType());
-      return;
-    }
-
-    Consumer<RootEntity> onSuccess = model -> {
-      resp.onNext(toDataSet(model).build());
-      resp.onCompleted();
-    };
-
-    // get by ID
-    var id = req.getId();
-    if (Strings.notEmpty(id)) {
-      var model = db.get(type.getModelClass(), id);
-      if (model != null) {
-        onSuccess.accept(model);
-      } else {
-        Response.notFound(resp,
-          "Could not find a model " + type + " with ID=" + id);
-        return;
-      }
-      return;
-    }
-
-    // get by name
-    var name = req.getName();
-    if (Strings.nullOrEmpty(name)) {
-      Response.invalidArg(resp,
-        "An ID or name is required");
-      return;
-    }
-    var model = db.forName(type.getModelClass(), name);
-    if (model != null) {
-      onSuccess.accept(model);
-    } else {
-      Response.notFound(resp,
-        "Could not find a model " + type + " with name=" + name);
-    }
   }
 
   @Override
