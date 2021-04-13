@@ -276,10 +276,4 @@ service DataService {
   rpc GetUnitGroup(protolca.Ref) returns (UnitGroupStatus);
   rpc PutUnitGroup(protolca.UnitGroup) returns (RefStatus);
 
-  // Get possible providers for the given flow. For products
-  // these are processes with that product on the output side
-  // and for waste flows processes with that waste flow on the
-  // input side. For elementary flows, an empty stream is
-  // returned.
-  rpc GetProvidersFor(Ref) returns (stream Ref);
 }

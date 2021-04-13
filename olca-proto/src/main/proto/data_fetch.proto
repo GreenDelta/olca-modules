@@ -38,6 +38,13 @@ service DataFetchService {
 
   // Get the full category tree for the given model type.
   rpc GetCategoryTree(GetCategoryTreeRequest) returns (CategoryTree);
+
+  // Get possible providers for the given flow. For products
+  // these are processes with that product on the output side
+  // and for waste flows processes with that waste flow on the
+  // input side. For elementary flows, an empty stream is
+  // returned.
+  rpc GetProvidersFor(Ref) returns (stream Ref);
 }
 
 message GetRequest {

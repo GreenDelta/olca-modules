@@ -1,6 +1,9 @@
 package org.openlca.proto.server;
 
+import java.util.function.Supplier;
+
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
@@ -18,6 +21,8 @@ import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.proto.generated.Proto;
+import org.openlca.proto.generated.Proto.Ref;
 import org.openlca.proto.generated.data.DataSet;
 import org.openlca.proto.output.ActorWriter;
 import org.openlca.proto.output.CategoryWriter;
@@ -36,6 +41,9 @@ import org.openlca.proto.output.SocialIndicatorWriter;
 import org.openlca.proto.output.SourceWriter;
 import org.openlca.proto.output.UnitGroupWriter;
 import org.openlca.proto.output.WriterConfig;
+import org.openlca.util.Strings;
+
+import io.grpc.stub.StreamObserver;
 
 class DataUtil {
 
@@ -45,69 +53,128 @@ class DataUtil {
 
     if (e instanceof Actor)
       return ds.setActor(new ActorWriter(conf)
-        .write((Actor) e));
+          .write((Actor) e));
 
     if (e instanceof Category)
       return ds.setCategory(new CategoryWriter(conf)
-        .write((Category) e));
+          .write((Category) e));
 
     if (e instanceof Currency)
       return ds.setCurrency(new CurrencyWriter(conf)
-        .write((Currency) e));
+          .write((Currency) e));
 
     if (e instanceof DQSystem)
       return ds.setDqSystem(new DQSystemWriter(conf)
-        .write((DQSystem) e));
+          .write((DQSystem) e));
 
     if (e instanceof Flow)
       return ds.setFlow(new FlowWriter(conf)
-        .write((Flow) e));
+          .write((Flow) e));
 
     if (e instanceof FlowProperty)
       return ds.setFlowProperty(new FlowPropertyWriter(conf)
-        .write((FlowProperty) e));
+          .write((FlowProperty) e));
 
     if (e instanceof ImpactCategory)
       return ds.setImpactCategory(new ImpactCategoryWriter(conf)
-        .write((ImpactCategory) e));
+          .write((ImpactCategory) e));
 
     if (e instanceof ImpactMethod)
       return ds.setImpactMethod(new ImpactMethodWriter(conf)
-        .write((ImpactMethod) e));
+          .write((ImpactMethod) e));
 
     if (e instanceof Location)
       return ds.setLocation(new LocationWriter(conf)
-        .write((Location) e));
+          .write((Location) e));
 
     if (e instanceof Parameter)
       return ds.setParameter(new ParameterWriter(conf)
-        .write((Parameter) e));
+          .write((Parameter) e));
 
     if (e instanceof Process)
       return ds.setProcess(new ProcessWriter(conf)
-        .write((Process) e));
+          .write((Process) e));
 
     if (e instanceof ProductSystem)
       return ds.setProductSystem(new ProductSystemWriter(conf)
-        .write((ProductSystem) e));
+          .write((ProductSystem) e));
 
     if (e instanceof Project)
       return ds.setProject(new ProjectWriter(conf)
-        .write((Project) e));
+          .write((Project) e));
 
     if (e instanceof SocialIndicator)
       return ds.setSocialIndicator(new SocialIndicatorWriter(conf)
-        .write((SocialIndicator) e));
+          .write((SocialIndicator) e));
 
     if (e instanceof Source)
       return ds.setSource(new SourceWriter(conf)
-        .write((Source) e));
+          .write((Source) e));
 
     if (e instanceof UnitGroup)
       return ds.setUnitGroup(new UnitGroupWriter(conf)
-        .write((UnitGroup) e));
+          .write((UnitGroup) e));
 
     return ds;
+  }
+
+  static <T extends RootEntity> T forceGet(
+      Class<T> type,
+      IDatabase db,
+      String id,
+      Supplier<String> nameFn,
+      StreamObserver<?> resp) {
+
+    if (Strings.notEmpty(id)) {
+      var e = db.get(type, id);
+      if (e == null) {
+        Response.notFound(resp,
+            "Could not find " + type + " with ID=" + id);
+      }
+      return e;
+    }
+
+    var name = nameFn.get();
+    if (Strings.nullOrEmpty(name)) {
+      Response.invalidArg(resp, "An id or name is required");
+      return null;
+    }
+    var e = db.forName(type, name);
+    if (e == null) {
+      Response.notFound(resp,
+          "Could not find " + type + " with name=" + name);
+    }
+    return e;
+  }
+
+  static <T extends RootEntity> ModelQuery<T> get(
+      IDatabase db, Class<T> type) {
+    return new ModelQuery<>(db, type);
+  }
+
+  static class ModelQuery<T extends RootEntity> {
+
+    private final IDatabase db;
+    private final Class<T> type;
+
+    private String id;
+    private String name;
+
+    private ModelQuery(IDatabase db, Class<T> type) {
+      this.db = db;
+      this.type = type;
+    }
+
+    ModelQuery<T> forRef(Proto.Ref ref) {
+      if (ref == null)
+        return this;
+      id = Strings.nullIfEmpty(ref.getId());
+      name = Strings.nullIfEmpty(ref.getName());
+      return this;
+    }
+
+    ModelQ
+
   }
 
 }
