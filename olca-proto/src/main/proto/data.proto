@@ -1,0 +1,32 @@
+syntax = "proto3";
+package protolca.services;
+
+option java_package = "org.openlca.proto.generated.data";
+option java_multiple_files = true;
+
+option csharp_namespace = "ProtoLCA.Services";
+option go_package = ".;protolca";
+
+import "google/protobuf/empty.proto";
+import "olca.proto";
+
+message DataSet {
+  oneof model {
+    Actor actor = 1;
+    Category category = 2;
+    Currency currency = 3;
+    DQSystem dq_system = 4;
+    Flow flow = 5;
+    FlowProperty flow_property = 6;
+    ImpactCategory impact_category = 7;
+    ImpactMethod impact_method = 8;
+    Location location = 9;
+    Parameter parameter = 10;
+    Process process = 11;
+    ProductSystem product_system = 12;
+    Project project = 13;
+    SocialIndicator social_indicator = 14;
+    Source source = 15;
+    UnitGroup unit_group = 16;
+  }
+}

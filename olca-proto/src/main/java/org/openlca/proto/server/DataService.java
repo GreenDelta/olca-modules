@@ -133,6 +133,12 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
   }
 
   @Override
+  public void put(Services.DataSet req, StreamObserver<Proto.Ref> resp) {
+    var store = new MemStore();
+
+  }
+
+  @Override
   public void getDescriptors(
     Services.DescriptorRequest req, StreamObserver<Proto.Ref> resp) {
     Descriptors.get(db, req).forEach(resp::onNext);
