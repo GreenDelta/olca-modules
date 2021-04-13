@@ -81,7 +81,7 @@ message GetCategoryTreeRequest {
 message CategoryTree {
   ModelType model_type = 1;
   string id = 2;
-  string path = 3;
-  repeated CategoryTree childs = 4;
+  string name = 3;
+  repeated CategoryTree sub_tree = 4;
 }
 

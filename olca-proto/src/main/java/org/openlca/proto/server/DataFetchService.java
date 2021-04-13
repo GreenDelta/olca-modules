@@ -8,15 +8,18 @@ import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.proto.generated.Proto;
 import org.openlca.proto.generated.Proto.Ref;
+import org.openlca.proto.generated.data.CategoryTree;
 import org.openlca.proto.generated.data.DataFetchServiceGrpc;
 import org.openlca.proto.generated.data.DataSet;
 import org.openlca.proto.generated.data.FindRequest;
 import org.openlca.proto.generated.data.GetAllRequest;
 import org.openlca.proto.generated.data.GetAllResponse;
 import org.openlca.proto.generated.data.GetCategoryContentRequest;
+import org.openlca.proto.generated.data.GetCategoryTreeRequest;
 import org.openlca.proto.generated.data.GetRequest;
 import org.openlca.proto.input.In;
 import org.openlca.proto.output.Out;
@@ -124,17 +127,9 @@ class DataFetchService extends
   public void getCategoryContent(
       GetCategoryContentRequest req, StreamObserver<Ref> resp) {
 
-    // check that the request is for a categorized entity type
-    var modelType = In.modelTypeOf(req.getModelType());
-    var modelClass = modelType != null
-        ? modelType.getClass()
-        : null;
-    if (modelType == null
-        || modelClass == null
-        || !CategorizedEntity.class.isAssignableFrom(modelClass)) {
-      Response.invalidArg(resp, "Not a categorized type: " + modelType);
+    var modelType = forceCategorizedTypeOf(req.getModelType(), resp);
+    if (modelType == null)
       return;
-    }
 
     // find the category
     Optional<Category> category;
@@ -162,6 +157,28 @@ class DataFetchService extends
     resp.onCompleted();
   }
 
+  @Override
+  public void getCategoryTree(
+      GetCategoryTreeRequest req, StreamObserver<CategoryTree> resp) {
+    var modelType = forceCategorizedTypeOf(req.getModelType(), resp);
+    if (modelType == null)
+      return;
+    var root = CategoryTree.newBuilder();
+    root.setModelType(req.getModelType());
+    new CategoryDao(db).getRootCategories(modelType)
+        .forEach(c -> expand(root, c));
+    resp.onNext(root.build());
+    resp.onCompleted();
+  }
+
+  private void expand(CategoryTree.Builder parent, Category category) {
+    var tree = CategoryTree.newBuilder()
+        .setModelType(parent.getModelType())
+        .setName(Strings.orEmpty(category.name));
+    category.childCategories.forEach(c -> expand(tree, c));
+    parent.addSubTree(tree);
+  }
+
   private Class<? extends RootEntity> forceClassOf(
       Proto.ModelType type, StreamObserver<?> resp) {
     var modelType = In.modelTypeOf(type);
@@ -172,4 +189,18 @@ class DataFetchService extends
     return modelType.getModelClass();
   }
 
+  private ModelType forceCategorizedTypeOf(
+      Proto.ModelType type, StreamObserver<?> resp) {
+    var modelType = In.modelTypeOf(type);
+    var modelClass = modelType != null
+        ? modelType.getClass()
+        : null;
+    if (modelType == null
+        || modelClass == null
+        || !CategorizedEntity.class.isAssignableFrom(modelClass)) {
+      Response.invalidArg(resp, "Not a categorized type: " + modelType);
+      return null;
+    }
+    return modelType;
+  }
 }
