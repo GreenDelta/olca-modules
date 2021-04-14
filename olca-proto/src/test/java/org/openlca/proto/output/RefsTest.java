@@ -78,6 +78,13 @@ public class RefsTest {
   }
 
   @Test
+  public void testRefData() {
+    var refData = Refs.dataOf(Tests.db());
+    checkAllFields(Refs.refOf(Descriptor.of(process), refData));
+    checkAllFields(Refs.refOf(Descriptor.of(flow), refData));
+  }
+
+  @Test
   public void testTinyRefs() {
     Consumer<Descriptor> fn = d -> {
       var ref = Refs.tinyRefOf(d);

@@ -103,9 +103,9 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void search(Services.SearchRequest req, StreamObserver<Proto.Ref> resp) {
-    var decorator = Descriptors.decorator(db);
+    var refData = Refs.dataOf(db);
     Search.of(db, req).run()
-      .map(decorator::of)
+      .map(descriptor -> Refs.refOf(descriptor, refData))
       .forEach(ref -> resp.onNext(ref.build()));
     resp.onCompleted();
   }

@@ -163,12 +163,12 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     }
 
     // create the result objects
-    var decorator = Descriptors.decorator(db);
+    var refData = Refs.dataOf(db);
     for (var fr : result.getTotalFlowResults()) {
       if (fr.flow == null)
         continue;
       var proto = Proto.FlowResult.newBuilder();
-      proto.setFlow(decorator.of(fr.flow));
+      proto.setFlow(Refs.refOf(fr.flow, refData));
       proto.setInput(fr.input);
       proto.setValue(fr.value);
       resp.onNext(proto.build());
