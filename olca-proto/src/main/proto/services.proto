@@ -110,24 +110,6 @@ message UnitGroupStatus {
   string error = 3;
 }
 
-// DescriptorRequest is a message type for getting descriptors from the data
-// service. Note that all fields are optional and can have different meanings
-// depending on the service function.
-message DescriptorRequest {
-
-  // The model type of the requested descriptor(s).
-  ModelType type = 1;
-
-  // The ID of the requested descriptor.
-  string id = 2;
-
-  // The name of the requested descriptor(s).
-  string name = 3;
-
-  // The ID or full path of the category.
-  string category = 4;
-}
-
 message CreateSystemRequest {
 
   enum DefaultProviders {
@@ -163,12 +145,6 @@ service DataService {
   // the database. Note that the type is a string with the name of the
   // corresponding model class, e.g. `Process` or `Flow`.
   rpc Delete(protolca.Ref) returns (google.protobuf.Empty);
-
-  // Get all descriptors that match the given request.
-  rpc GetDescriptors(DescriptorRequest) returns (stream Ref);
-
-  // Get the first descriptor that matches the given request.
-  rpc GetDescriptor(DescriptorRequest) returns (RefStatus);
 
   // Creates a new product system.
   rpc CreateProductSystem(CreateSystemRequest) returns (RefStatus);

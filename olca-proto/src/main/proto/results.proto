@@ -15,9 +15,9 @@ import "olca.proto";
 // A `Result` message is basically just a reference to a real result on the
 // server side. As result data can be really large, we do not add them directly
 // to the result. Instead you call the respective methods of the result service
-// to get them. Because of this, you need to explicitly call `Dispose` when
-// you do not need a result anymore. Otherwise you will create memory leaks
-// as the result still exists on the server side.
+// to get them. Because of this, you need to explicitly call `Dispose` when you
+// do not need a result anymore. Otherwise you will create memory leaks as the
+// result still exists on the server side.
 message Result {
   string id = 1 [json_name = "@id"];
 }
@@ -54,8 +54,8 @@ service ResultService {
   //   zero values)
   // * an indicator and flow: returns the factor for that flow which may be zero
   //
-  // Nothing is returned if no indicator and flow is given or if the result
-  // does not have an impact assessment result.
+  // Nothing is returned if no indicator and flow is given or if the result does
+  // not have an impact assessment result.
   rpc GetImpactFactors(ImpactFactorRequest) returns
       (stream ImpactFactorResponse);
 

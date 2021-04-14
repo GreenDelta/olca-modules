@@ -16,17 +16,16 @@ service FlowMapService {
   // Delete the flow map with the given name.
   rpc Delete(FlowMapInfo) returns (google.protobuf.Empty);
 
-  // Get the flow map with the given name form the
-  // database.
+  // Get the flow map with the given name form the database.
   rpc Get(FlowMapInfo) returns (FlowMap);
 
-  // Get the information (basically just the names) of all
-  // flow maps that are available in the database.
+  // Get the information (basically just the names) of all flow maps that are
+  // available in the database.
   rpc GetAll(google.protobuf.Empty) returns (stream FlowMapInfo);
 
-  // Inserts the given flow map into the database. It overwrites
-  // an existing flow map if there is a flow map with the same
-  // name already available in the database.
+  // Inserts the given flow map into the database. It overwrites an existing
+  // flow map if there is a flow map with the same name already available in the
+  // database.
   rpc Put(FlowMap) returns (google.protobuf.Empty);
 }
 

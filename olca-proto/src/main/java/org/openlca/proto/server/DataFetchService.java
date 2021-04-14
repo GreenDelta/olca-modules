@@ -2,6 +2,7 @@ package org.openlca.proto.server;
 
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Daos;
@@ -13,6 +14,8 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.proto.generated.Proto;
 import org.openlca.proto.generated.Proto.Ref;
@@ -24,6 +27,7 @@ import org.openlca.proto.generated.data.GetAllRequest;
 import org.openlca.proto.generated.data.GetAllResponse;
 import org.openlca.proto.generated.data.GetCategoryContentRequest;
 import org.openlca.proto.generated.data.GetCategoryTreeRequest;
+import org.openlca.proto.generated.data.GetDescriptorsRequest;
 import org.openlca.proto.generated.data.GetRequest;
 import org.openlca.proto.generated.data.SearchRequest;
 import org.openlca.proto.input.In;
@@ -129,6 +133,81 @@ class DataFetchService extends
   }
 
   @Override
+  public void getDescriptors(
+    GetDescriptorsRequest req, StreamObserver<Proto.Ref> resp) {
+
+    // TODO: allow root entities; factor out in Data(Fetch)Util
+    var modelType = forceCategorizedTypeOf(req.getModelType(), resp);
+    if (modelType == null)
+      return;
+
+    var dao = Daos.root(db, modelType);
+    var refData = Refs.dataOf(db);
+
+    // get by id
+    var id = req.getId();
+    if (Strings.notEmpty(id)) {
+      var d = dao.getDescriptorForRefId(id);
+      if (d != null) {
+        resp.onNext(Refs.refOf(d, refData).build());
+      }
+      resp.onCompleted();
+      return;
+    }
+
+    if(!req.hasAttributes()) {
+      resp.onCompleted();
+      return;
+    }
+
+    var stream = dao.getDescriptors().stream();
+
+    // filter by category
+    var catId = req.getAttributes().getCategory();
+    if (Strings.notEmpty(catId)) {
+      stream = stream.filter(
+        d -> d instanceof CategorizedDescriptor);
+
+      // "/" identifies the root category or no
+      // specific category
+      if (catId.equals("/")) {
+        stream = stream.filter(d -> {
+          var cd = (CategorizedDescriptor) d;
+          return cd.category == null;
+        });
+      } else {
+        var category = DataUtil.getCategory(
+          db, modelType, catId);
+        if (category == null) {
+          resp.onCompleted();
+          return;
+        }
+        stream = stream.filter(d -> {
+          var cd = (CategorizedDescriptor) d;
+          return cd.category != null
+                 && cd.category == category.id;
+        });
+      }
+    }
+
+    // filter by name
+    var name = req.getAttributes().getName();
+    if (Strings.notEmpty(name)) {
+      var term = name.trim().toLowerCase();
+      stream = stream.filter(d -> {
+        if (d.name == null)
+          return false;
+        var other = d.name.trim().toLowerCase();
+        return other.equals(term);
+      });
+    }
+
+    stream.forEach(d -> resp.onNext(
+      Refs.refOf(d, refData).build()));
+    resp.onCompleted();
+  }
+
+  @Override
   public void search(SearchRequest req, StreamObserver<Proto.Ref> resp) {
     var refData = Refs.dataOf(db);
     Search.of(db, req).run()
@@ -151,11 +230,7 @@ class DataFetchService extends
     if (Strings.nullOrEmpty(catID) || catID.equals("/")) {
       category = Optional.empty();
     } else {
-      var dao = new CategoryDao(db);
-      var cat = dao.getForRefId(catID);
-      if (cat == null) {
-        cat = dao.getForPath(modelType, catID);
-      }
+      var cat = DataUtil.getCategory(db, modelType, catID);
       if (cat == null) {
         Response.notFound(resp,
           "Category with ID ot path =" + catID + " does not exists");

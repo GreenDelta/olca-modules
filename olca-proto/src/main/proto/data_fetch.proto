@@ -13,39 +13,39 @@ import "data.proto";
 
 service DataFetchService {
 
-  // Get a data set by ID. You use this method if you are sure
-  // that a data set of the requested type and ID exists in
-  // the database. An error is returned if this is not the case.
+  // Get a data set by ID. You use this method if you are sure that a data set
+  // of the requested type and ID exists in the database. An error is returned
+  // if this is not the case.
   rpc Get(GetRequest) returns (DataSet);
 
-  // Get a data set by ID or name. Returns an empty data set if
-  // there is no such data set in the database. If there are
-  // multiple data sets with the same name in the database it
-  // returns the first of these data sets.
+  // Get a data set by ID or name. Returns an empty data set if there is no such
+  // data set in the database. If there are multiple data sets with the same
+  // name in the database it returns the first of these data sets.
   rpc Find(FindRequest) returns (DataSet);
 
-  // Get (a page of) all data sets of a given type. If no page
-  // size is given (page <= 0) it defaults to 100. An unset
-  // page (page <= 0) defaults to the first page.
+  // Get (a page of) all data sets of a given type. If no page size is given
+  // (page <= 0) it defaults to 100. An unset page (page <= 0) defaults to the
+  // first page.
   rpc GetAll(GetAllRequest) returns (GetAllResponse);
+
+  // Get all descriptors that match the given request.
+  rpc GetDescriptors(GetDescriptorsRequest) returns (stream Ref);
 
   // Search for data sets.
   rpc Search(SearchRequest) returns (stream Ref);
 
-  // Get the descriptors of the data sets that are contained in
-  // a given category. The category can be identified by its full
-  // path or its ID where an empty string or "/" identifies the
-  // root category (or "none-category") of the respective model
-  // type.
+  // Get the descriptors of the data sets that are contained in a given
+  // category. The category can be identified by its full path or its ID where
+  // an empty string or "/" identifies the root category (or "none-category") of
+  // the respective model type.
   rpc GetCategoryContent(GetCategoryContentRequest) returns (stream Ref);
 
   // Get the full category tree for the given model type.
   rpc GetCategoryTree(GetCategoryTreeRequest) returns (CategoryTree);
 
-  // Get possible providers for the given flow. For products
-  // these are processes with that product on the output side
-  // and for waste flows processes with that waste flow on the
-  // input side. For elementary flows, an empty stream is
+  // Get possible providers for the given flow. For products these are processes
+  // with that product on the output side and for waste flows processes with
+  // that waste flow on the input side. For elementary flows, an empty stream is
   // returned.
   rpc GetProvidersFor(Ref) returns (stream Ref);
 }
@@ -87,6 +87,28 @@ message SearchRequest {
   // The search query.
   string query = 2;
 }
+
+message GetDescriptorsRequest {
+
+  message Attributes {
+    // The name of the requested descriptor(s).
+    string name = 1;
+    // The ID or full path of the category.
+    string category = 2;
+  }
+
+  // The model type of the requested descriptor(s).
+  ModelType model_type = 1;
+
+  oneof by {
+    // The ID of the requested descriptor. Setting this field means that you
+    // typically want one specific descriptor.
+    string id = 2;
+
+    Attributes attributes = 3;
+  }
+}
+
 
 message GetCategoryContentRequest {
   ModelType model_type = 1;
