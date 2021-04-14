@@ -102,15 +102,6 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
   }
 
   @Override
-  public void search(Services.SearchRequest req, StreamObserver<Proto.Ref> resp) {
-    var refData = Refs.dataOf(db);
-    Search.of(db, req).run()
-      .map(descriptor -> Refs.refOf(descriptor, refData))
-      .forEach(ref -> resp.onNext(ref.build()));
-    resp.onCompleted();
-  }
-
-  @Override
   public void delete(Proto.Ref req, StreamObserver<Empty> resp) {
     var type = Arrays.stream(ModelType.values())
       .map(ModelType::getModelClass)

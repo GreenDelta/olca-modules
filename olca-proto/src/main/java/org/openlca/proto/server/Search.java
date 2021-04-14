@@ -9,7 +9,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.proto.generated.Services;
+import org.openlca.proto.generated.data.SearchRequest;
 import org.openlca.proto.input.In;
 import org.openlca.util.Pair;
 
@@ -20,11 +20,11 @@ class Search {
   private ModelType typeFilter;
   private final String[] terms;
 
-  static Search of(IDatabase db, Services.SearchRequest req) {
+  static Search of(IDatabase db, SearchRequest req) {
     if (req == null)
       return new Search(db, "");
     var search = new Search(db, req.getQuery());
-    var type = In.modelTypeOf(req.getType());
+    var type = In.modelTypeOf(req.getModelType());
     if (type != null && type.getModelClass() != null) {
       search.typeFilter = type;
     }

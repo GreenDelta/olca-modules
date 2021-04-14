@@ -25,6 +25,7 @@ import org.openlca.proto.generated.data.GetAllResponse;
 import org.openlca.proto.generated.data.GetCategoryContentRequest;
 import org.openlca.proto.generated.data.GetCategoryTreeRequest;
 import org.openlca.proto.generated.data.GetRequest;
+import org.openlca.proto.generated.data.SearchRequest;
 import org.openlca.proto.input.In;
 import org.openlca.proto.output.Refs;
 import org.openlca.util.Strings;
@@ -124,6 +125,15 @@ class DataFetchService extends
       .map(e -> DataUtil.toDataSet(db, e))
       .forEach(response::addDataSet);
     resp.onNext(response.build());
+    resp.onCompleted();
+  }
+
+  @Override
+  public void search(SearchRequest req, StreamObserver<Proto.Ref> resp) {
+    var refData = Refs.dataOf(db);
+    Search.of(db, req).run()
+      .map(descriptor -> Refs.refOf(descriptor, refData))
+      .forEach(ref -> resp.onNext(ref.build()));
     resp.onCompleted();
   }
 

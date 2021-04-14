@@ -29,6 +29,9 @@ service DataFetchService {
   // page (page <= 0) defaults to the first page.
   rpc GetAll(GetAllRequest) returns (GetAllResponse);
 
+  // Search for data sets.
+  rpc Search(SearchRequest) returns (stream Ref);
+
   // Get the descriptors of the data sets that are contained in
   // a given category. The category can be identified by its full
   // path or its ID where an empty string or "/" identifies the
@@ -74,6 +77,15 @@ message GetAllResponse {
   int32 page_size = 3;
   int32 page = 4;
   repeated DataSet data_set = 5;
+}
+
+message SearchRequest {
+
+  // The model type of the searched entities.
+  ModelType model_type = 1;
+
+  // The search query.
+  string query = 2;
 }
 
 message GetCategoryContentRequest {

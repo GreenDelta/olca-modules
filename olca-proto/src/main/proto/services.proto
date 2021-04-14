@@ -128,26 +128,6 @@ message DescriptorRequest {
   string category = 4;
 }
 
-// Data sets or their descriptors can be retrieved by ID or attributes.
-message GetDataSetRequest {
-
-  ModelType model_type = 1;
-
-  oneof by {
-    string id = 2;
-    string name = 3;
-  }
-}
-
-message SearchRequest {
-
-  // The model type of the searched entities.
-  ModelType type = 1;
-
-  // The search query.
-  string query = 2;
-}
-
 message CreateSystemRequest {
 
   enum DefaultProviders {
@@ -189,9 +169,6 @@ service DataService {
 
   // Get the first descriptor that matches the given request.
   rpc GetDescriptor(DescriptorRequest) returns (RefStatus);
-
-  // Search for data sets.
-  rpc Search(SearchRequest) returns (stream Ref);
 
   // Creates a new product system.
   rpc CreateProductSystem(CreateSystemRequest) returns (RefStatus);
