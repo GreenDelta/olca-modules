@@ -33,9 +33,6 @@ import org.openlca.core.model.UncertaintyType;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Categories;
 import org.openlca.util.Strings;
@@ -61,81 +58,7 @@ public final class Out {
     config.dependencies.push(d);
   }
 
-  public static Proto.Ref.Builder refOf(RootEntity e) {
-    var proto = Proto.Ref.newBuilder();
-    if (e == null)
-      return proto;
-    map(e, proto);
-
-    if (e instanceof Flow) {
-
-      // flow specific fields
-      var flow = (Flow) e;
-      if (flow.flowType != null) {
-        proto.setFlowType(flowTypeOf(flow.flowType));
-      }
-      if (flow.location != null) {
-        proto.setLocation(Strings.orEmpty(flow.location.code));
-      }
-      var refUnit = flow.getReferenceUnit();
-      if (refUnit != null) {
-        proto.setRefUnit(Strings.orEmpty(refUnit.name));
-      }
-
-      // process specific fields
-    } else if (e instanceof Process) {
-      var process = (Process) e;
-      if (process.processType != null) {
-        proto.setProcessType(processTypeOf(process.processType));
-      }
-      if (process.location != null) {
-        proto.setLocation(Strings.orEmpty(process.location.code));
-      }
-
-      // impact specific fields
-    } else if (e instanceof ImpactCategory) {
-      proto.setRefUnit(Strings.orEmpty(
-        ((ImpactCategory) e).referenceUnit));
-    }
-    return proto;
-  }
-
-  public static Proto.Ref.Builder refOf(Descriptor d) {
-    var proto = Proto.Ref.newBuilder();
-    if (d == null)
-      return proto;
-    map(d, proto);
-    if (d instanceof FlowDescriptor) {
-      var fd = (FlowDescriptor) d;
-      if (fd.flowType != null) {
-        proto.setFlowType(flowTypeOf(fd.flowType));
-      }
-    } else if (d instanceof ProcessDescriptor) {
-      var pd = (ProcessDescriptor) d;
-      if (pd.processType != null) {
-        proto.setProcessType(processTypeOf(pd.processType));
-      }
-    } else if (d instanceof ImpactDescriptor) {
-      var id = (ImpactDescriptor) d;
-      proto.setRefUnit(Strings.orEmpty(id.referenceUnit));
-    }
-    return proto;
-  }
-
-  /**
-   * Creates a Ref that just contains the reference ID of the given descriptor.
-   * This is useful when we have a huge amount of references and we know what
-   * type they contain.
-   */
-  public static Proto.Ref.Builder tinyRefOf(Descriptor d) {
-    var proto = Proto.Ref.newBuilder();
-    if (d == null)
-      return proto;
-    proto.setId(Strings.orEmpty(d.refId));
-    return proto;
-  }
-
-  private static String dateTimeOf(long time) {
+  static String dateTimeOf(long time) {
     return time == 0
       ? ""
       : Instant.ofEpochMilli(time).toString();
@@ -185,7 +108,7 @@ public final class Out {
             if (e instanceof CategorizedEntity) {
               var ce = (CategorizedEntity) e;
               if (ce.category != null) {
-                var catRef = Out.refOf(ce.category);
+                var catRef = Refs.refOf(ce.category);
                 proto.setField(field, catRef.build());
               }
             }
@@ -217,45 +140,8 @@ public final class Out {
     }
   }
 
-  private static void map(Descriptor d, Message.Builder proto) {
-    if (d == null || proto == null)
-      return;
-    var fields = proto.getDescriptorForType().getFields();
-    for (var field : fields) {
-      switch (field.getName()) {
-        case "id":
-          set(proto, field, d.refId);
-          break;
-        case "type":
-          if (d.type != null) {
-            var modelClass = d.type.getModelClass();
-            if (modelClass != null) {
-              set(proto, field, modelClass.getSimpleName());
-            }
-          }
-          break;
-        case "name":
-          set(proto, field, d.name);
-          break;
-        case "description":
-          set(proto, field, d.description);
-          break;
-        case "version":
-          set(proto, field, Version.asString(d.version));
-          break;
-        case "lastChange":
-          set(proto, field, dateTimeOf(d.lastChange));
-          break;
-        case "library":
-          set(proto, field, d.library);
-          break;
-      }
-    }
-  }
-
-  private static void set(Message.Builder proto,
-                          Descriptors.FieldDescriptor field,
-                          String value) {
+  static void set(
+    Message.Builder proto, Descriptors.FieldDescriptor field, String value) {
     if (Strings.nullOrEmpty(value))
       return;
     if (field.getJavaType() != Descriptors.FieldDescriptor.JavaType.STRING)
@@ -263,9 +149,11 @@ public final class Out {
     proto.setField(field, value);
   }
 
-  private static void setRepeated(Message.Builder proto,
-                                  Descriptors.FieldDescriptor field,
-                                  List<String> values) {
+  private static void setRepeated(
+    Message.Builder proto,
+    Descriptors.FieldDescriptor field,
+    List<String> values) {
+
     if (values == null || values.isEmpty())
       return;
     if (field.getJavaType() != Descriptors.FieldDescriptor.JavaType.STRING)

@@ -27,7 +27,7 @@ public class FlowWriter {
     proto.setSynonyms(Strings.orEmpty(flow.synonyms));
     proto.setFlowType(Out.flowTypeOf(flow.flowType));
     if (flow.location != null) {
-      proto.setLocation(Out.refOf(flow.location));
+      proto.setLocation(Refs.refOf(flow.location));
       Out.dep(config, flow.location);
     }
     writeFlowProperties(flow, proto);
@@ -40,7 +40,7 @@ public class FlowWriter {
       var protoF = Proto.FlowPropertyFactor.newBuilder();
       protoF.setConversionFactor(f.conversionFactor);
       if (f.flowProperty != null) {
-        protoF.setFlowProperty(Out.refOf(f.flowProperty));
+        protoF.setFlowProperty(Refs.refOf(f.flowProperty));
         Out.dep(config, f.flowProperty);
         protoF.setReferenceFlowProperty(
           Objects.equals(f.flowProperty, flow.referenceFlowProperty));

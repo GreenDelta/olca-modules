@@ -21,7 +21,7 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.proto.generated.Proto;
 import org.openlca.proto.generated.Services;
 import org.openlca.proto.input.In;
-import org.openlca.proto.output.Out;
+import org.openlca.proto.output.Refs;
 import org.openlca.util.CategoryPathBuilder;
 import org.openlca.util.Strings;
 
@@ -34,7 +34,7 @@ final class Descriptors {
     if (db == null || req == null)
       return Stream.empty();
     return new Search(db, req).get()
-      .map(d -> Out.refOf(d).build());
+      .map(d -> Refs.refOf(d).build());
   }
 
   public static Decorator decorator(IDatabase db) {
@@ -53,7 +53,7 @@ final class Descriptors {
     }
 
     Proto.Ref.Builder of(Descriptor d) {
-      var proto = Out.refOf(d);
+      var proto = Refs.refOf(d);
 
       category(d, proto);
 

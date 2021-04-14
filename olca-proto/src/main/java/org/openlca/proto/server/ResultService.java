@@ -16,7 +16,7 @@ import org.openlca.proto.generated.results.ImpactFactorResponse;
 import org.openlca.proto.generated.results.Result;
 import org.openlca.proto.generated.results.ResultServiceGrpc;
 import org.openlca.proto.input.In;
-import org.openlca.proto.output.Out;
+import org.openlca.proto.output.Refs;
 import org.openlca.util.Strings;
 import io.grpc.stub.StreamObserver;
 import org.openlca.core.database.IDatabase;
@@ -173,7 +173,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
       proto.setValue(fr.value);
       resp.onNext(proto.build());
       if (fr.location != null) {
-        proto.setLocation(Out.refOf(fr.location));
+        proto.setLocation(Refs.refOf(fr.location));
       }
     }
     resp.onCompleted();
@@ -197,7 +197,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     // create the result data
     for (var impact : impacts) {
       var proto = Proto.ImpactResult.newBuilder();
-      proto.setImpactCategory(Out.refOf(impact.impact));
+      proto.setImpactCategory(Refs.refOf(impact.impact));
       proto.setValue(impact.value);
       resp.onNext(proto.build());
     }
@@ -236,11 +236,11 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     // get one specific factor of an indicator and flow
     if (indicator != null && flow != null) {
       var factor = ImpactFactorResponse.newBuilder()
-        .setIndicator(Out.refOf(indicator))
-        .setFlow(Out.refOf(flow.flow))
+        .setIndicator(Refs.refOf(indicator))
+        .setFlow(Refs.refOf(flow.flow))
         .setValue(result.getImpactFactor(indicator, flow));
       if (flow.location != null) {
-        factor.setLocation(Out.refOf(flow.location));
+        factor.setLocation(Refs.refOf(flow.location));
       }
       resp.onNext(factor.build());
       resp.onCompleted();
@@ -249,17 +249,17 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 
     // get non-zero factors of an indicator
     if (flow == null) {
-      var indicatorRef = Out.refOf(indicator);
+      var indicatorRef = Refs.refOf(indicator);
       for (var iFlow : flowIndex) {
         var value = result.getImpactFactor(indicator, iFlow);
         if (value == 0)
           continue;
         var factor = ImpactFactorResponse.newBuilder()
           .setIndicator(indicatorRef)
-          .setFlow(Out.refOf(iFlow.flow))
+          .setFlow(Refs.refOf(iFlow.flow))
           .setValue(value);
         if (iFlow.location != null) {
-          factor.setLocation(Out.refOf(iFlow.location));
+          factor.setLocation(Refs.refOf(iFlow.location));
         }
         resp.onNext(factor.build());
       }
@@ -268,13 +268,13 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     }
 
     // get all impact factors of a flow
-    var flowRef = Out.refOf(flow.flow);
+    var flowRef = Refs.refOf(flow.flow);
     var locationRef = flow.location != null
-      ? Out.refOf(flow.location)
+      ? Refs.refOf(flow.location)
       : null;
     for (var impact : impactIndex) {
       var factor = ImpactFactorResponse.newBuilder()
-        .setIndicator(Out.refOf(impact))
+        .setIndicator(Refs.refOf(impact))
         .setFlow(flowRef)
         .setValue(result.getImpactFactor(impact, flow));
       if (locationRef != null) {

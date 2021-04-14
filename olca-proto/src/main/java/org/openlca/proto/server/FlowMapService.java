@@ -18,7 +18,7 @@ import org.openlca.proto.generated.Proto;
 import org.openlca.proto.generated.mappings.FlowMapInfo;
 import org.openlca.proto.generated.mappings.FlowMapServiceGrpc;
 import org.openlca.proto.input.In;
-import org.openlca.proto.output.Out;
+import org.openlca.proto.output.Refs;
 import org.openlca.util.Strings;
 
 class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
@@ -220,7 +220,7 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
       return proto.build();
 
     // flow
-    var protoFlow = Out.refOf(flowRef.flow);
+    var protoFlow = Refs.refOf(flowRef.flow);
     if (flowRef.flowCategory != null) {
       Arrays.stream(flowRef.flowCategory.split("/"))
           .filter(Strings::notEmpty)
@@ -233,15 +233,15 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
 
     // flow property & unit
     if (flowRef.property != null) {
-      proto.setFlowProperty(Out.refOf(flowRef.property));
+      proto.setFlowProperty(Refs.refOf(flowRef.property));
     }
     if (flowRef.unit != null) {
-      proto.setUnit(Out.refOf(flowRef.unit));
+      proto.setUnit(Refs.refOf(flowRef.unit));
     }
 
     // provider
     if (flowRef.provider != null) {
-      var protoProv = Out.refOf(flowRef.provider);
+      var protoProv = Refs.refOf(flowRef.provider);
       if (flowRef.providerLocation != null) {
         protoProv.setLocation(flowRef.providerLocation);
       }

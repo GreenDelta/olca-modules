@@ -24,7 +24,7 @@ public class UnitGroupWriter {
 
     if (group.defaultFlowProperty != null) {
       proto.setDefaultFlowProperty(
-        Out.refOf(group.defaultFlowProperty));
+        Refs.refOf(group.defaultFlowProperty));
       Out.dep(config, group.defaultFlowProperty);
     }
     writeUnits(group, proto);

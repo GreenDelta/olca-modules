@@ -21,7 +21,7 @@ public class FlowPropertyWriter {
     // model specific fields
     writeFlowPropertyType(property, proto);
     if (property.unitGroup != null) {
-      proto.setUnitGroup(Out.refOf(property.unitGroup));
+      proto.setUnitGroup(Refs.refOf(property.unitGroup));
       Out.dep(config, property.unitGroup);
     }
 

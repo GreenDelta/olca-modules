@@ -31,7 +31,7 @@ import org.openlca.proto.generated.data.GetCategoryContentRequest;
 import org.openlca.proto.generated.data.GetCategoryTreeRequest;
 import org.openlca.proto.generated.data.GetRequest;
 import org.openlca.proto.input.In;
-import org.openlca.proto.output.Out;
+import org.openlca.proto.output.Refs;
 import org.openlca.util.CategoryPathBuilder;
 import org.openlca.util.Strings;
 
@@ -162,7 +162,7 @@ class DataFetchService extends
 
     var dao = Daos.categorized(db, modelType);
     for (var d : dao.getDescriptors(category)) {
-      resp.onNext(Out.refOf(d).build());
+      resp.onNext(Refs.refOf(d).build());
     }
     resp.onCompleted();
   }

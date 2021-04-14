@@ -1,6 +1,5 @@
 package org.openlca.proto.server;
 
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -25,7 +24,6 @@ import org.openlca.core.database.ProjectDao;
 import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitGroupDao;
-import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
@@ -33,22 +31,18 @@ import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.Version;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.jsonld.input.UpdateMode;
 import org.openlca.proto.MemStore;
 import org.openlca.proto.generated.Proto;
@@ -67,14 +61,13 @@ import org.openlca.proto.output.ParameterWriter;
 import org.openlca.proto.output.ProcessWriter;
 import org.openlca.proto.output.ProductSystemWriter;
 import org.openlca.proto.output.ProjectWriter;
-import org.openlca.proto.output.Out;
+import org.openlca.proto.output.Refs;
 import org.openlca.proto.output.SocialIndicatorWriter;
 import org.openlca.proto.output.SourceWriter;
 import org.openlca.proto.output.UnitGroupWriter;
 import org.openlca.proto.output.WriterConfig;
 import org.openlca.proto.generated.DataServiceGrpc;
 import org.openlca.proto.generated.Services;
-import org.openlca.util.CategoryPathBuilder;
 import org.openlca.util.Strings;
 
 class DataService extends DataServiceGrpc.DataServiceImplBase {
@@ -250,7 +243,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
         .setError("Import of category id=" + req.getId() + " failed");
     } else {
       status.setOk(true)
-        .setRef(Out.refOf(category));
+        .setRef(Refs.refOf(category));
     }
     resp.onNext(status.build());
     resp.onCompleted();
@@ -941,7 +934,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
     }
     return Services.RefStatus.newBuilder()
       .setOk(true)
-      .setRef(Out.refOf(e))
+      .setRef(Refs.refOf(e))
       .build();
   }
 

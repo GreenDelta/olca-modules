@@ -23,7 +23,7 @@ public class CurrencyWriter {
     proto.setConversionFactor(c.conversionFactor);
     if (c.referenceCurrency != null) {
       proto.setReferenceCurrency(
-        Out.refOf(c.referenceCurrency));
+        Refs.refOf(c.referenceCurrency));
       Out.dep(config, c.referenceCurrency);
     }
 

@@ -21,7 +21,7 @@ public class DQSystemWriter {
 
     proto.setHasUncertainties(dqSystem.hasUncertainties);
     if (dqSystem.source != null) {
-      proto.setSource(Out.refOf(dqSystem.source));
+      proto.setSource(Refs.refOf(dqSystem.source));
       Out.dep(config, dqSystem.source);
     }
     writeIndicators(dqSystem, proto);

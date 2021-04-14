@@ -44,7 +44,7 @@ public class ProductSystemWriter {
                        Proto.ProductSystem.Builder proto) {
     // ref. process
     if (system.referenceProcess != null) {
-      var p = Out.refOf(system.referenceProcess);
+      var p = Refs.refOf(system.referenceProcess);
       proto.setReferenceProcess(p);
       Out.dep(config, system.referenceProcess);
     }
@@ -59,12 +59,12 @@ public class ProductSystemWriter {
     // ref. quantity
     if (system.targetFlowPropertyFactor != null) {
       var prop = system.targetFlowPropertyFactor.flowProperty;
-      proto.setTargetFlowProperty(Out.refOf(prop));
+      proto.setTargetFlowProperty(Refs.refOf(prop));
     }
 
     // ref. unit
     if (system.targetUnit != null) {
-      proto.setTargetUnit(Out.refOf(system.targetUnit));
+      proto.setTargetUnit(Refs.refOf(system.targetUnit));
     }
 
     // ref. amount
@@ -84,7 +84,7 @@ public class ProductSystemWriter {
       if (d == null)
         continue;
       map.put(id, d);
-      proto.addProcesses(Out.refOf(d));
+      proto.addProcesses(Refs.refOf(d));
       Out.dep(config, d);
     }
     return map;
@@ -125,21 +125,21 @@ public class ProductSystemWriter {
       // provider
       var provider = processes.get(link.providerId);
       if (provider != null) {
-        protoLink.setProvider(Out.tinyRefOf(provider));
+        protoLink.setProvider(Refs.tinyRefOf(provider));
         Out.dep(config, provider);
       }
 
       // process
       var process = processes.get(link.processId);
       if (process != null) {
-        protoLink.setProcess(Out.tinyRefOf(process));
+        protoLink.setProcess(Refs.tinyRefOf(process));
         Out.dep(config, process);
       }
 
       // flow
       var flow = flows.get(link.flowId);
       if (flow != null) {
-        protoLink.setFlow(Out.tinyRefOf(flow));
+        protoLink.setFlow(Refs.tinyRefOf(flow));
       }
 
       // linked exchange
@@ -176,7 +176,7 @@ public class ProductSystemWriter {
             ? config.db.getDescriptor(Process.class, redef.contextId)
             : config.db.getDescriptor(ImpactCategory.class, redef.contextId);
           if (context != null) {
-            protoRedef.setContext(Out.refOf(context));
+            protoRedef.setContext(Refs.refOf(context));
           }
         }
         protoSet.addParameters(protoRedef);

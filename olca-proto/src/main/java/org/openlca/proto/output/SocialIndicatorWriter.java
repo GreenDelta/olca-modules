@@ -21,12 +21,12 @@ public class SocialIndicatorWriter {
 
     if (indicator.activityQuantity != null) {
       proto.setActivityQuantity(
-        Out.refOf(indicator.activityQuantity));
+        Refs.refOf(indicator.activityQuantity));
       Out.dep(config, indicator.activityQuantity);
     }
     if (indicator.activityUnit != null) {
       proto.setActivityUnit(
-        Out.refOf(indicator.activityUnit));
+        Refs.refOf(indicator.activityUnit));
     }
     proto.setActivityVariable(
       Strings.orEmpty(indicator.activityVariable));
