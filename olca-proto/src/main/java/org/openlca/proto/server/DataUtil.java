@@ -1,5 +1,7 @@
 package org.openlca.proto.server;
 
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.openlca.core.database.IDatabase;
@@ -118,36 +120,7 @@ class DataUtil {
     return ds;
   }
 
-  static <T extends RootEntity> T forceGet(
-      Class<T> type,
-      IDatabase db,
-      String id,
-      Supplier<String> nameFn,
-      StreamObserver<?> resp) {
-
-    if (Strings.notEmpty(id)) {
-      var e = db.get(type, id);
-      if (e == null) {
-        Response.notFound(resp,
-            "Could not find " + type + " with ID=" + id);
-      }
-      return e;
-    }
-
-    var name = nameFn.get();
-    if (Strings.nullOrEmpty(name)) {
-      Response.invalidArg(resp, "An id or name is required");
-      return null;
-    }
-    var e = db.forName(type, name);
-    if (e == null) {
-      Response.notFound(resp,
-          "Could not find " + type + " with name=" + name);
-    }
-    return e;
-  }
-
-  static <T extends RootEntity> ModelQuery<T> get(
+  static <T extends RootEntity> ModelQuery<T> model(
       IDatabase db, Class<T> type) {
     return new ModelQuery<>(db, type);
   }
@@ -159,22 +132,60 @@ class DataUtil {
 
     private String id;
     private String name;
+    private StreamObserver<?> errorResponse;
 
     private ModelQuery(IDatabase db, Class<T> type) {
-      this.db = db;
-      this.type = type;
+      this.db = Objects.requireNonNull(db);
+      this.type = Objects.requireNonNull(type);
     }
 
     ModelQuery<T> forRef(Proto.Ref ref) {
       if (ref == null)
         return this;
-      id = Strings.nullIfEmpty(ref.getId());
-      name = Strings.nullIfEmpty(ref.getName());
+      return this.forId(ref.getId())
+          .forName(ref.getName());
+    }
+
+    ModelQuery<T> forName(String name) {
+      this.name = Strings.nullIfEmpty(name);
       return this;
     }
 
-    ModelQ
+    ModelQuery<T> forId(String id) {
+      this.id = Strings.nullIfEmpty(id);
+      return this;
+    }
 
+    ModelQuery<T> reportErrorsOn(StreamObserver<?> resp) {
+      this.errorResponse = resp;
+      return this;
+    }
+
+    Optional<T> get() {
+
+      if (Strings.notEmpty(id)) {
+        var e = db.get(type, id);
+        if (e == null && errorResponse != null) {
+          Response.notFound(errorResponse,
+              "Could not find " + type + " with ID=" + id);
+        }
+        return Optional.ofNullable(e);
+      }
+
+      if (Strings.nullOrEmpty(name)) {
+        if (errorResponse != null) {
+          Response.invalidArg(errorResponse, "An id or name is required");
+          return null;
+        }
+        return Optional.empty();
+      }
+
+      var e = db.forName(type, name);
+      if (e == null) {
+        Response.notFound(errorResponse,
+            "Could not find " + type + " with name=" + name);
+      }
+      return Optional.ofNullable(e);
+    }
   }
-
 }

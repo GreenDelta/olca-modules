@@ -1,15 +1,24 @@
 package org.openlca.proto.server;
 
+import java.time.Instant;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.LocationDao;
+import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.Version;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.proto.generated.Proto;
 import org.openlca.proto.generated.Proto.Ref;
 import org.openlca.proto.generated.data.CategoryTree;
@@ -23,6 +32,7 @@ import org.openlca.proto.generated.data.GetCategoryTreeRequest;
 import org.openlca.proto.generated.data.GetRequest;
 import org.openlca.proto.input.In;
 import org.openlca.proto.output.Out;
+import org.openlca.util.CategoryPathBuilder;
 import org.openlca.util.Strings;
 
 import io.grpc.stub.StreamObserver;
@@ -202,5 +212,70 @@ class DataFetchService extends
       return null;
     }
     return modelType;
+  }
+
+  @Override
+  public void getProvidersFor(Proto.Ref req, StreamObserver<Proto.Ref> resp) {
+    var flow = DataUtil.model(db, Flow.class)
+        .forRef(req)
+        .reportErrorsOn(resp)
+        .get()
+        .orElse(null);
+    if (flow == null)
+      return;
+
+    if (flow.flowType == FlowType.ELEMENTARY_FLOW) {
+      resp.onCompleted();
+      return;
+    }
+
+    var locationCodes = new LocationDao(db).getCodes();
+    var categories = new CategoryPathBuilder(db);
+
+    ProcessTable.create(db)
+        .getProviders(flow.id)
+        .stream()
+        .map(p -> p.process)
+        .filter(p -> p instanceof ProcessDescriptor)
+        .map(p -> (ProcessDescriptor) p)
+        .forEach(p -> {
+
+          var ref = Proto.Ref.newBuilder()
+              .setId(Strings.orEmpty(p.refId))
+              .setName(Strings.orEmpty(p.name))
+              .setDescription(Strings.orEmpty(p.description))
+              .setVersion(Version.asString(p.version))
+              .setType("Process");
+
+          if (p.lastChange != 0) {
+            var instant = Instant.ofEpochMilli(p.lastChange);
+            ref.setLastChange(instant.toString());
+          }
+
+          if (p.category != null) {
+            var path = categories.path(p.category);
+            if (path != null) {
+              Arrays.stream(path.split("/"))
+                  .forEach(ref::addCategoryPath);
+            }
+          }
+
+          if (p.location != null) {
+            var code = locationCodes.get(p.location);
+            if (code != null) {
+              ref.setLocation(code);
+            }
+          }
+
+          ref.setProcessType(
+              p.processType == ProcessType.LCI_RESULT
+                  ? Proto.ProcessType.LCI_RESULT
+                  : Proto.ProcessType.UNIT_PROCESS);
+
+          resp.onNext(ref.build());
+
+        });
+
+    resp.onCompleted();
   }
 }

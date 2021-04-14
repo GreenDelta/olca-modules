@@ -930,69 +930,6 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
     resp.onCompleted();
   }
 
-  @Override
-  public void getProvidersFor(Proto.Ref req, StreamObserver<Proto.Ref> resp) {
-    Consumer<Flow> onFlowExists = flow -> {
-      if (flow.flowType == FlowType.ELEMENTARY_FLOW) {
-        resp.onCompleted();
-        return;
-      }
-
-      var locationCodes = new LocationDao(db).getCodes();
-      var categories = new CategoryPathBuilder(db);
-
-      ProcessTable.create(db)
-        .getProviders(flow.id)
-        .stream()
-        .map(p -> p.process)
-        .filter(p -> p instanceof ProcessDescriptor)
-        .map(p -> (ProcessDescriptor) p)
-        .forEach(p -> {
-
-          var ref = Proto.Ref.newBuilder()
-            .setId(Strings.orEmpty(p.refId))
-            .setName(Strings.orEmpty(p.name))
-            .setDescription(Strings.orEmpty(p.description))
-            .setVersion(Version.asString(p.version))
-            .setType("Process");
-
-          if (p.lastChange != 0) {
-            var instant = Instant.ofEpochMilli(p.lastChange);
-            ref.setLastChange(instant.toString());
-          }
-
-          if (p.category != null) {
-            var path = categories.path(p.category);
-            if (path != null) {
-              Arrays.stream(path.split("/"))
-                .forEach(ref::addCategoryPath);
-            }
-          }
-
-          if (p.location != null) {
-            var code = locationCodes.get(p.location);
-            if (code != null) {
-              ref.setLocation(code);
-            }
-          }
-
-          ref.setProcessType(
-            p.processType == ProcessType.LCI_RESULT
-              ? Proto.ProcessType.LCI_RESULT
-              : Proto.ProcessType.UNIT_PROCESS);
-
-          resp.onNext(ref.build());
-
-        });
-
-      resp.onCompleted();
-    };
-
-    Consumer<String> onFlowMissing = error -> resp.onCompleted();
-
-    handleGetOf(Flow.class, req.getId(), req::getName, onFlowExists, onFlowMissing);
-  }
-
   private Services.RefStatus importStatusOf(
     Class<? extends RootEntity> type, String id) {
     var e = db.get(type, id);
