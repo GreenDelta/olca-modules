@@ -91,9 +91,13 @@ message SearchRequest {
 message GetDescriptorsRequest {
 
   message Attributes {
+
     // The name of the requested descriptor(s).
     string name = 1;
-    // The ID or full path of the category.
+
+    // The ID or full path of the category. The string "/" identifies the root
+    // or none-category which means that this will filter for descriptors that
+    // do not have a specific category set.
     string category = 2;
   }
 

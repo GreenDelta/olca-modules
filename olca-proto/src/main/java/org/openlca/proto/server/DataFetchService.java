@@ -2,20 +2,16 @@ package org.openlca.proto.server;
 
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.cache.ProcessTable;
-import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.proto.generated.Proto;
 import org.openlca.proto.generated.Proto.Ref;
@@ -30,7 +26,6 @@ import org.openlca.proto.generated.data.GetCategoryTreeRequest;
 import org.openlca.proto.generated.data.GetDescriptorsRequest;
 import org.openlca.proto.generated.data.GetRequest;
 import org.openlca.proto.generated.data.SearchRequest;
-import org.openlca.proto.input.In;
 import org.openlca.proto.output.Refs;
 import org.openlca.util.Strings;
 
@@ -48,8 +43,9 @@ class DataFetchService extends
   @Override
   public void get(GetRequest req, StreamObserver<DataSet> resp) {
 
-    var type = forceClassOf(req.getModelType(), resp);
-    if (type == null)
+    var modelType = DataUtil.forceRootTypeOf(
+      req.getModelType(), resp);
+    if (modelType == null)
       return;
 
     var id = req.getId();
@@ -58,10 +54,10 @@ class DataFetchService extends
       return;
     }
 
-    var model = db.get(type, id);
+    var model = db.get(modelType.getModelClass(), id);
     if (model == null) {
-      Response.notFound(resp, "No " + type
-                              + " with ID=" + id + " exists");
+      Response.notFound(resp,
+        "No " + modelType + " with ID=" + id + " exists");
       return;
     }
 
@@ -72,9 +68,11 @@ class DataFetchService extends
   @Override
   public void find(FindRequest req, StreamObserver<DataSet> resp) {
 
-    var type = forceClassOf(req.getModelType(), resp);
-    if (type == null)
+    var modelType = DataUtil.forceRootTypeOf(
+      req.getModelType(), resp);
+    if (modelType == null)
       return;
+    var type = modelType.getModelClass();
 
     Consumer<RootEntity> onSuccess = model -> {
       resp.onNext(model == null
@@ -98,9 +96,11 @@ class DataFetchService extends
   @Override
   public void getAll(GetAllRequest req, StreamObserver<GetAllResponse> resp) {
 
-    var type = forceClassOf(req.getModelType(), resp);
-    if (type == null)
+    var modelType = DataUtil.forceRootTypeOf(
+      req.getModelType(), resp);
+    if (modelType == null)
       return;
+    var type = modelType.getModelClass();
 
     var pageSize = req.getPageSize() > 0
       ? req.getPageSize()
@@ -136,8 +136,8 @@ class DataFetchService extends
   public void getDescriptors(
     GetDescriptorsRequest req, StreamObserver<Proto.Ref> resp) {
 
-    // TODO: allow root entities; factor out in Data(Fetch)Util
-    var modelType = forceCategorizedTypeOf(req.getModelType(), resp);
+    var modelType = DataUtil.forceRootTypeOf(
+      req.getModelType(), resp);
     if (modelType == null)
       return;
 
@@ -155,15 +155,12 @@ class DataFetchService extends
       return;
     }
 
-    if(!req.hasAttributes()) {
-      resp.onCompleted();
-      return;
-    }
-
     var stream = dao.getDescriptors().stream();
 
     // filter by category
-    var catId = req.getAttributes().getCategory();
+    var catId = req.hasAttributes()
+      ? req.getAttributes().getCategory()
+      : null;
     if (Strings.notEmpty(catId)) {
       stream = stream.filter(
         d -> d instanceof CategorizedDescriptor);
@@ -191,7 +188,9 @@ class DataFetchService extends
     }
 
     // filter by name
-    var name = req.getAttributes().getName();
+    var name = req.hasAttributes()
+      ? req.getAttributes().getName()
+      : null;
     if (Strings.notEmpty(name)) {
       var term = name.trim().toLowerCase();
       stream = stream.filter(d -> {
@@ -220,7 +219,7 @@ class DataFetchService extends
   public void getCategoryContent(
     GetCategoryContentRequest req, StreamObserver<Ref> resp) {
 
-    var modelType = forceCategorizedTypeOf(req.getModelType(), resp);
+    var modelType = DataUtil.forceCategorizedTypeOf(req.getModelType(), resp);
     if (modelType == null)
       return;
 
@@ -249,7 +248,7 @@ class DataFetchService extends
   @Override
   public void getCategoryTree(
     GetCategoryTreeRequest req, StreamObserver<CategoryTree> resp) {
-    var modelType = forceCategorizedTypeOf(req.getModelType(), resp);
+    var modelType = DataUtil.forceCategorizedTypeOf(req.getModelType(), resp);
     if (modelType == null)
       return;
     var root = CategoryTree.newBuilder();
@@ -266,31 +265,6 @@ class DataFetchService extends
       .setName(Strings.orEmpty(category.name));
     category.childCategories.forEach(c -> expand(tree, c));
     parent.addSubTree(tree);
-  }
-
-  private Class<? extends RootEntity> forceClassOf(
-    Proto.ModelType type, StreamObserver<?> resp) {
-    var modelType = In.modelTypeOf(type);
-    if (modelType == null || modelType.getModelClass() == null) {
-      Response.invalidArg(resp, "Invalid model type: " + type);
-      return null;
-    }
-    return modelType.getModelClass();
-  }
-
-  private ModelType forceCategorizedTypeOf(
-    Proto.ModelType type, StreamObserver<?> resp) {
-    var modelType = In.modelTypeOf(type);
-    var modelClass = modelType != null
-      ? modelType.getModelClass()
-      : null;
-    if (modelType == null
-        || modelClass == null
-        || !CategorizedEntity.class.isAssignableFrom(modelClass)) {
-      Response.invalidArg(resp, "Not a categorized type: " + modelType);
-      return null;
-    }
-    return modelType;
   }
 
   @Override

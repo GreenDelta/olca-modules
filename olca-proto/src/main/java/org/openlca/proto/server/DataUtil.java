@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
+import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
@@ -25,6 +26,7 @@ import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.proto.generated.Proto;
 import org.openlca.proto.generated.data.DataSet;
+import org.openlca.proto.input.In;
 import org.openlca.proto.output.ActorWriter;
 import org.openlca.proto.output.CategoryWriter;
 import org.openlca.proto.output.CurrencyWriter;
@@ -55,6 +57,43 @@ class DataUtil {
     return cat == null
       ? dao.getForPath(type, idOrPath)
       : cat;
+  }
+
+  /**
+   * Returns the corresponding model type if the class of the model type is a
+   * root entity type so that modelType.getModelClass() != null. If this is not
+   * the case, null is returned and a corresponding error is written to the
+   * response.
+   */
+  static ModelType forceRootTypeOf(
+    Proto.ModelType type, StreamObserver<?> resp) {
+    var modelType = In.modelTypeOf(type);
+    if (modelType == null
+        || modelType.getModelClass() == null) {
+      Response.invalidArg(resp, "Invalid model type: " + type);
+      return null;
+    }
+    return modelType;
+  }
+
+  /**
+   * Returns the corresponding model type if the class of the model type is a
+   * categorized entity type. If this is not the case, null is returned and a
+   * corresponding error is written to the response.
+   */
+  static ModelType forceCategorizedTypeOf(
+    Proto.ModelType type, StreamObserver<?> resp) {
+    var modelType = In.modelTypeOf(type);
+    var modelClass = modelType != null
+      ? modelType.getModelClass()
+      : null;
+    if (modelType == null
+        || modelClass == null
+        || !CategorizedEntity.class.isAssignableFrom(modelClass)) {
+      Response.invalidArg(resp, "Not a categorized type: " + modelType);
+      return null;
+    }
+    return modelType;
   }
 
   static DataSet.Builder toDataSet(IDatabase db, RootEntity e) {
