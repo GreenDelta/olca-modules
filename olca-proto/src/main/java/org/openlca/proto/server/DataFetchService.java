@@ -32,7 +32,7 @@ import org.openlca.proto.generated.data.GetCategoryTreeRequest;
 import org.openlca.proto.generated.data.GetRequest;
 import org.openlca.proto.input.In;
 import org.openlca.proto.output.Refs;
-import org.openlca.util.CategoryPathBuilder;
+import org.openlca.util.Categories;
 import org.openlca.util.Strings;
 
 import io.grpc.stub.StreamObserver;
@@ -230,7 +230,7 @@ class DataFetchService extends
     }
 
     var locationCodes = new LocationDao(db).getCodes();
-    var categories = new CategoryPathBuilder(db);
+    var categories = new Categories.PathBuilder(db);
 
     ProcessTable.create(db)
         .getProviders(flow.id)

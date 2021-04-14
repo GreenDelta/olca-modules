@@ -22,7 +22,7 @@ import org.openlca.proto.generated.Proto;
 import org.openlca.proto.generated.Services;
 import org.openlca.proto.input.In;
 import org.openlca.proto.output.Refs;
-import org.openlca.util.CategoryPathBuilder;
+import org.openlca.util.Categories;
 import org.openlca.util.Strings;
 
 final class Descriptors {
@@ -44,7 +44,7 @@ final class Descriptors {
   static class Decorator {
 
     private final IDatabase db;
-    private CategoryPathBuilder categories;
+    private Categories.PathBuilder categories;
     private TLongObjectHashMap<String> flowUnits;
     private TLongObjectHashMap<String> locationCodes;
 
@@ -83,7 +83,7 @@ final class Descriptors {
       if (cd.category == null)
         return;
       if (categories == null) {
-        categories = new CategoryPathBuilder(db);
+        categories = new Categories.PathBuilder(db);
       }
       var path = categories.list(cd.category);
       if (path != null && !path.isEmpty()) {

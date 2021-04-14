@@ -7,7 +7,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.util.CategoryPathBuilder;
+import org.openlca.util.Categories;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 
@@ -113,11 +113,11 @@ public class FlowTable {
 			return map;
 
 		// try to determine it from the category path
-		var categories = new CategoryPathBuilder(db);
+		var categories = Categories.pathsOf(db);
 		for (var flow : flows) {
 			if (!withZero.contains(flow.id) || flow.category == null)
 				continue;
-			var path = categories.path(flow.category);
+			var path = categories.pathOf(flow.category);
 			if (path == null)
 				continue;
 			path = path.toLowerCase();

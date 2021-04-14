@@ -2,7 +2,7 @@ package org.openlca.core.database.upgrades;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
-import org.openlca.util.CategoryPathBuilder;
+import org.openlca.util.Categories;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
 
@@ -65,12 +65,12 @@ class Upgrade6 implements IUpgrade {
 		// was introduced for the collaboration server
 		// so that it can handle category paths more
 		// easily
-		var paths = new CategoryPathBuilder(db);
+		var categories = Categories.pathsOf(db);
 		var sql = "select id, ref_id from tbl_categories";
 		NativeSql.on(db).updateRows(sql, r -> {
 			long id = r.getLong(1);
 			var refID = r.getString(2);
-			var pathKey = KeyGen.get(paths.path(id));
+			var pathKey = KeyGen.get(categories.pathOf(id));
 			if (Strings.nullOrEqual(refID, pathKey))
 				return true;
 			r.updateString(2, pathKey);

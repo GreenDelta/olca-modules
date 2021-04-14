@@ -66,9 +66,15 @@ public class RefsTest {
   }
 
   @Test
-  public void testRefEntity() {
-    checkBaseFields(Refs.refOf(process));
-    checkBaseFields(Refs.refOf(flow));
+  public void testEntityRefs() {
+    checkAllFields(Refs.refOf(process));
+    checkAllFields(Refs.refOf(flow));
+  }
+
+  @Test
+  public void testDescriptorRefs() {
+    checkBaseFields(Refs.refOf(Descriptor.of(process)));
+    checkBaseFields(Refs.refOf(Descriptor.of(flow)));
   }
 
   @Test
@@ -90,6 +96,22 @@ public class RefsTest {
     };
     fn.accept(Descriptor.of(flow));
     fn.accept(Descriptor.of(process));
+  }
+
+  private void checkAllFields(Proto.Ref.Builder ref) {
+    checkBaseFields(ref);
+    assertEquals("DE", ref.getLocation());
+    String[] categoryPath;
+    if ("Process".equals(ref.getType())) {
+      categoryPath = new String[]{"materials", "steel"};
+    } else {
+      categoryPath = new String[]{
+        "products", "materials", "steel"};
+      assertEquals("kg", ref.getRefUnit());
+    }
+    for (int i = 0; i < categoryPath.length; i++) {
+      assertEquals(categoryPath[i], ref.getCategoryPath(i));
+    }
   }
 
   private void checkBaseFields(Proto.Ref.Builder ref) {

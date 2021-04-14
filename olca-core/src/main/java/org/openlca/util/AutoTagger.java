@@ -28,12 +28,12 @@ public class AutoTagger implements Runnable {
 
 		// compute statistics
 		var stats = new HashMap<String, Integer>();
-		var paths = new CategoryPathBuilder(db);
+		var paths = Categories.pathsOf(db);
 		var descriptors = new ProcessDao(db).descriptorMap();
 		descriptors.forEachValue(d -> {
 			addToStats(d.name, stats);
 			if (d.category != null) {
-				addToStats(paths.path(d.category), stats);
+				addToStats(paths.pathOf(d.category), stats);
 			}
 			return true;
 		});
@@ -50,9 +50,9 @@ public class AutoTagger implements Runnable {
 			if (!Strings.nullOrEmpty(tags))
 				return true;
 
-			var candidates = new HashSet<String>(words(d.name));
+			var candidates = new HashSet<>(words(d.name));
 			if (d.category != null) {
-				candidates.addAll(words(paths.path(d.category)));
+				candidates.addAll(words(paths.pathOf(d.category)));
 			}
 
 			var tagList = candidates.stream()

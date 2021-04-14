@@ -16,7 +16,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.util.CategoryPathBuilder;
+import org.openlca.util.Categories;
 import org.openlca.util.Exceptions;
 import org.openlca.util.Strings;
 
@@ -26,14 +26,14 @@ class IndexWriter implements Runnable {
 	private final MatrixData data;
 
 	private final Map<Long, String> locationCodes;
-	private final CategoryPathBuilder categories;
+	private final Categories.PathBuilder categories;
 	private final Map<Long, FlowProperty> quantities;
 
 	IndexWriter(File folder, MatrixData data, IDatabase db) {
 		this.folder = folder;
 		this.data = data;
 		this.locationCodes = new LocationDao(db).getCodes();
-		this.categories = new CategoryPathBuilder(db);
+		this.categories = Categories.pathsOf(db);
 		this.quantities = new FlowPropertyDao(db)
 				.getAll()
 				.stream()
@@ -98,7 +98,7 @@ class IndexWriter implements Runnable {
 			return proto.build();
 		proto.setId(Strings.orEmpty(d.refId));
 		proto.setName(Strings.orEmpty(d.name));
-		var category = categories.path(d.category);
+		var category = categories.pathOf(d.category);
 		proto.setCategory(Strings.orEmpty(category));
 		if (d instanceof ProcessDescriptor) {
 			var loc = ((ProcessDescriptor) d).location;
@@ -116,7 +116,7 @@ class IndexWriter implements Runnable {
 			return proto.build();
 		proto.setId(Strings.orEmpty(d.refId));
 		proto.setName(Strings.orEmpty(d.name));
-		var category = categories.path(d.category);
+		var category = categories.pathOf(d.category);
 		proto.setCategory(Strings.orEmpty(category));
 		if (d.flowType != null) {
 			proto.setType(d.flowType.name());

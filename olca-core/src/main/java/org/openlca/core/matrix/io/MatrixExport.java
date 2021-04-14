@@ -23,7 +23,7 @@ import org.openlca.core.matrix.uncertainties.UMatrix;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.util.CategoryPathBuilder;
+import org.openlca.util.Categories;
 
 public abstract class MatrixExport {
 
@@ -194,7 +194,7 @@ public abstract class MatrixExport {
 		};
 		fn.accept(header);
 
-		var categories = new CategoryPathBuilder(db);
+		var categories = Categories.pathsOf(db);
 		var locations = new LocationDao(db).getCodes();
 		var units = propUnits();
 		for (int i = 0; i < data.techIndex.size(); i++) {
@@ -214,14 +214,14 @@ public abstract class MatrixExport {
 				row[2] = ModelType.PRODUCT_SYSTEM.toString();
 				row[3] = "";
 			}
-			row[4] = categories.path(p.category);
+			row[4] = categories.pathOf(p.category);
 			row[5] = f.refId;
 			row[6] = f.name;
 			row[7] = f.flowType != null
 				? f.flowType.toString()
 				: "";
 			row[8] = locations.get(f.location);
-			row[9] = categories.path(f.category);
+			row[9] = categories.pathOf(f.category);
 			row[10] = units.get(f.refFlowPropertyId);
 
 			for (int j = 0; j < row.length; j++) {
@@ -245,7 +245,7 @@ public abstract class MatrixExport {
 			"location"};
 		fn.accept(header);
 
-		var categories = new CategoryPathBuilder(db);
+		var categories = Categories.pathsOf(db);
 		var units = propUnits();
 		for (int i = 0; i < data.flowIndex.size(); i++) {
 			var  iFlow = data.flowIndex.at(i);
@@ -260,7 +260,7 @@ public abstract class MatrixExport {
 			row[2] = flow.flowType != null
 				? flow.flowType.toString()
 				: "";
-			row[3] = categories.path(flow.category);
+			row[3] = categories.pathOf(flow.category);
 			row[4] = units.get(flow.refFlowPropertyId);
 			if (iFlow.location != null) {
 				row[5] = iFlow.location.code;
