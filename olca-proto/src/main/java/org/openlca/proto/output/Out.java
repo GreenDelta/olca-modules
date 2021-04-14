@@ -90,7 +90,7 @@ public final class Out {
             set(proto, field, Version.asString(e.version));
           }
           break;
-        case "lastChange":
+        case "last_change":
           if (e.lastChange != 0) {
             set(proto, field, dateTimeOf(e.lastChange));
           }
@@ -127,7 +127,7 @@ public final class Out {
           }
           break;
 
-        case "categoryPath":
+        case "category_path":
           if (e instanceof CategorizedEntity) {
             var ce = (CategorizedEntity) e;
             if (ce.category != null) {

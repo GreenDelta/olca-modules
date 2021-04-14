@@ -121,7 +121,7 @@ public final class Refs {
         case "version":
           Out.set(proto, field, Version.asString(d.version));
           break;
-        case "lastChange":
+        case "last_change":
           Out.set(proto, field, Out.dateTimeOf(d.lastChange));
           break;
         case "library":
