@@ -52,7 +52,7 @@ public class DataUpdateService extends
   public void put(DataSet dataSet, StreamObserver<Proto.Ref> resp) {
 
     // put the data set into an in memory store
-    var store = new MemStore();
+    var store = MemStore.create();
     if (dataSet.hasActor()) {
       store.putActor(dataSet.getActor());
     } else if (dataSet.hasCategory()) {

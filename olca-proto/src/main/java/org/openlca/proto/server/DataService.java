@@ -113,7 +113,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putActor(Proto.Actor req, StreamObserver<Services.RefStatus> resp) {
-    var store = new MemStore();
+    var store = MemStore.create();
     store.putActor(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -164,11 +164,13 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
     // note that categories behave a bit differently when inserted into a
     // database: their reference IDs may change as they are calculated from
     // the respective category paths
-    var store = new MemStore();
+    var store = MemStore.create();
     store.putCategory(req);
     var imp = new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS);
-    var category = new CategoryImport(imp).of(req.getId());
+    var category = new CategoryImport(imp)
+      .of(req.getId())
+      .model();
     var status = Services.RefStatus.newBuilder();
     if (category == null) {
       status.setOk(false)
@@ -220,7 +222,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putCurrency(Proto.Currency req, StreamObserver<Services.RefStatus> resp) {
-    var store = new MemStore();
+    var store = MemStore.create();
     store.putCurrency(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -268,7 +270,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putDQSystem(Proto.DQSystem req, StreamObserver<Services.RefStatus> resp) {
-    var store = new MemStore();
+    var store = MemStore.create();
     store.putDQSystem(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -316,7 +318,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putFlow(Proto.Flow req, StreamObserver<Services.RefStatus> resp) {
-    var store = new MemStore();
+    var store = MemStore.create();
     store.putFlow(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -365,7 +367,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putFlowProperty(Proto.FlowProperty req, StreamObserver<Services.RefStatus> resp) {
-    var store = new MemStore();
+    var store = MemStore.create();
     store.putFlowProperty(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -413,7 +415,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putImpactCategory(Proto.ImpactCategory req, StreamObserver<Services.RefStatus> resp) {
-    var store = new MemStore();
+    var store = MemStore.create();
     store.putImpactCategory(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -462,7 +464,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putImpactMethod(Proto.ImpactMethod req, StreamObserver<Services.RefStatus> resp) {
-    var store = new MemStore();
+    var store = MemStore.create();
     store.putImpactMethod(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -510,7 +512,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putLocation(Proto.Location req, StreamObserver<Services.RefStatus> resp) {
-    var store = new MemStore();
+    var store = MemStore.create();
     store.putLocation(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -558,7 +560,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putParameter(Proto.Parameter req, StreamObserver<Services.RefStatus> resp) {
-    var store = new MemStore();
+    var store = MemStore.create();
     store.putParameter(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -606,7 +608,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putProcess(Proto.Process req, StreamObserver<Services.RefStatus> resp) {
-    var store = new MemStore();
+    var store = MemStore.create();
     store.putProcess(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -654,7 +656,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putProductSystem(Proto.ProductSystem req, StreamObserver<Services.RefStatus> resp) {
-    var store = new MemStore();
+    var store = MemStore.create();
     store.putProductSystem(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -702,7 +704,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putProject(Proto.Project req, StreamObserver<Services.RefStatus> resp) {
-    var store = new MemStore();
+    var store = MemStore.create();
     store.putProject(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -750,7 +752,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putSocialIndicator(Proto.SocialIndicator req, StreamObserver<Services.RefStatus> resp) {
-    var store = new MemStore();
+    var store = MemStore.create();
     store.putSocialIndicator(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -798,7 +800,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putSource(Proto.Source req, StreamObserver<Services.RefStatus> resp) {
-    var store = new MemStore();
+    var store = MemStore.create();
     store.putSource(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -846,7 +848,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putUnitGroup(Proto.UnitGroup req, StreamObserver<Services.RefStatus> resp) {
-    var store = new MemStore();
+    var store = MemStore.create();
     store.putUnitGroup(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)

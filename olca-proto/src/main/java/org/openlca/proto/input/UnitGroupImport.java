@@ -65,7 +65,8 @@ public class UnitGroupImport implements Import<UnitGroup> {
     var propID = proto.getDefaultFlowProperty().getId();
     if (Strings.notEmpty(propID)) {
       group.defaultFlowProperty = new FlowPropertyImport(imp)
-        .of(propID);
+        .of(propID)
+        .model();
       group = dao.update(group);
     }
 

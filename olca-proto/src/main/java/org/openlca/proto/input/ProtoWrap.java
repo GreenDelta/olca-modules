@@ -37,7 +37,9 @@ abstract class ProtoWrap {
     // categorized entity fields
     var catID = category().getId();
     if (Strings.notEmpty(catID)) {
-      e.category = new CategoryImport(config).of(catID);
+      e.category = new CategoryImport(config)
+        .of(catID)
+        .model();
     }
     e.tags = tags()
       .stream()

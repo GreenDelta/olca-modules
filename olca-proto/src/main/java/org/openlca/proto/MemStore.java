@@ -11,6 +11,13 @@ public class MemStore implements ProtoStore {
 
   private final HashMap<String, HashMap<String, Object>> store = new HashMap<>();
 
+  private MemStore() {
+  }
+
+  public static MemStore create() {
+    return new MemStore();
+  }
+
   @Override
   public List<String> getIDs(String folder) {
     var map = store.get(folder);
