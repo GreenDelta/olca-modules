@@ -4,11 +4,11 @@ import org.openlca.core.database.ProjectDao;
 import org.openlca.core.model.Project;
 import org.openlca.proto.generated.Proto;
 
-public class ProjectImport implements Import<Project> {
+class ProjectImport implements Import<Project> {
 
   private final ProtoImport imp;
 
-  public ProjectImport(ProtoImport imp) {
+  ProjectImport(ProtoImport imp) {
     this.imp = imp;
   }
 

@@ -4,11 +4,11 @@ import org.openlca.core.database.SourceDao;
 import org.openlca.core.model.Source;
 import org.openlca.proto.generated.Proto;
 
-public class SourceImport implements Import<Source>{
+class SourceImport implements Import<Source>{
 
   private final ProtoImport imp;
 
-  public SourceImport(ProtoImport imp) {
+  SourceImport(ProtoImport imp) {
     this.imp = imp;
   }
 

@@ -4,11 +4,11 @@ import org.openlca.core.database.ActorDao;
 import org.openlca.core.model.Actor;
 import org.openlca.proto.generated.Proto;
 
-public class ActorImport implements Import<Actor> {
+class ActorImport implements Import<Actor> {
 
   private final ProtoImport imp;
 
-  public ActorImport(ProtoImport imp) {
+  ActorImport(ProtoImport imp) {
     this.imp = imp;
   }
 

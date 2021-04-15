@@ -5,11 +5,11 @@ import org.openlca.core.model.Category;
 import org.openlca.util.Categories;
 import org.openlca.util.Strings;
 
-public class CategoryImport implements Import<Category> {
+class CategoryImport implements Import<Category> {
 
   private final ProtoImport imp;
 
-  public CategoryImport(ProtoImport imp) {
+  CategoryImport(ProtoImport imp) {
     this.imp = imp;
   }
 

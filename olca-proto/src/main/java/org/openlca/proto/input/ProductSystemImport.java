@@ -19,11 +19,11 @@ import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
-public class ProductSystemImport implements Import<ProductSystem> {
+class ProductSystemImport implements Import<ProductSystem> {
 
   private final ProtoImport imp;
 
-  public ProductSystemImport(ProtoImport imp) {
+  ProductSystemImport(ProtoImport imp) {
     this.imp = imp;
   }
 

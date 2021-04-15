@@ -8,11 +8,11 @@ import org.openlca.core.model.NwFactor;
 import org.openlca.core.model.NwSet;
 import org.openlca.proto.generated.Proto;
 
-public class ImpactMethodImport implements Import<ImpactMethod> {
+class ImpactMethodImport implements Import<ImpactMethod> {
 
   private final ProtoImport imp;
 
-  public ImpactMethodImport(ProtoImport imp) {
+  ImpactMethodImport(ProtoImport imp) {
     this.imp = imp;
   }
 

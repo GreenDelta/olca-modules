@@ -9,12 +9,12 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
-public class UnitGroupImport implements Import<UnitGroup> {
+class UnitGroupImport implements Import<UnitGroup> {
 
   private final ProtoImport imp;
   private boolean inUpdateMode;
 
-  public UnitGroupImport(ProtoImport imp) {
+  UnitGroupImport(ProtoImport imp) {
     this.imp = imp;
   }
 

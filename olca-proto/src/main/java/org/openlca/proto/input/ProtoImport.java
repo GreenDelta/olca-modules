@@ -5,8 +5,25 @@ import java.util.Map;
 
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.Actor;
+import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.Category;
+import org.openlca.core.model.Currency;
+import org.openlca.core.model.DQSystem;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Parameter;
+import org.openlca.core.model.Process;
+import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Project;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.SocialIndicator;
+import org.openlca.core.model.Source;
+import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.input.UpdateMode;
@@ -140,6 +157,54 @@ public class ProtoImport implements Runnable {
     // try to load it with the refID
     var dao = Daos.root(db, ModelType.forModelClass(type));
     return (T) dao.getForRefId(refID);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T extends CategorizedEntity> Import<T> getImport(ModelType type) {
+    if (type == null || !type.isCategorized())
+      return null;
+    return getImport((Class<T>) type.getModelClass());
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T extends CategorizedEntity> Import<T> getImport(Class<T> type) {
+    // the comparisons are sorted by typical frequencies to minimize
+    // comparisons
+    // see https://gist.github.com/msrocka/b6a18064fbb76c8a8c3f1204839dd614
+
+    if (type == Flow.class)
+      return (Import<T>) new FlowImport(this);
+    if (type == Process.class)
+      return (Import<T>) new ProcessImport(this);
+    if (type == Category.class)
+      return (Import<T>) new CategoryImport(this);
+    if (type == Location.class)
+      return (Import<T>) new LocationImport(this);
+    if (type == ImpactCategory.class)
+      return (Import<T>) new ImpactCategoryImport(this);
+    if (type == Actor.class)
+      return (Import<T>) new ActorImport(this);
+    if (type == Source.class)
+      return (Import<T>) new SourceImport(this);
+    if (type == Parameter.class)
+      return (Import<T>) new ParameterImport(this);
+    if (type == FlowProperty.class)
+      return (Import<T>) new FlowPropertyImport(this);
+    if (type == UnitGroup.class)
+      return (Import<T>) new UnitGroupImport(this);
+    if (type == Currency.class)
+      return (Import<T>) new CurrencyImport(this);
+    if (type == DQSystem.class)
+      return (Import<T>) new DqSystemImport(this);
+    if (type == ImpactMethod.class)
+      return (Import<T>) new ImpactMethodImport(this);
+    if (type == ProductSystem.class)
+      return (Import<T>) new ProductSystemImport(this);
+    if (type == Project.class)
+      return (Import<T>) new ProjectImport(this);
+    if (type == SocialIndicator.class)
+      return (Import<T>) new SocialIndicatorImport(this);
+    return null;
   }
 
   @Override

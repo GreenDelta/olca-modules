@@ -5,11 +5,11 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.proto.generated.Proto;
 
-public class ParameterImport implements Import<Parameter> {
+class ParameterImport implements Import<Parameter> {
 
   private final ProtoImport imp;
 
-  public ParameterImport(ProtoImport imp) {
+  ParameterImport(ProtoImport imp) {
     this.imp = imp;
   }
 

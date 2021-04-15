@@ -4,11 +4,11 @@ import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
 import org.openlca.proto.generated.Proto;
 
-public class LocationImport implements Import<Location> {
+class LocationImport implements Import<Location> {
 
   private final ProtoImport imp;
 
-  public LocationImport(ProtoImport imp) {
+  LocationImport(ProtoImport imp) {
     this.imp = imp;
   }
 

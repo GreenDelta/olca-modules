@@ -20,12 +20,12 @@ import org.openlca.jsonld.Json;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
-public class ProcessImport implements Import<Process> {
+class ProcessImport implements Import<Process> {
 
   private final ProtoImport imp;
   private boolean inUpdateMode;
 
-  public ProcessImport(ProtoImport imp) {
+  ProcessImport(ProtoImport imp) {
     this.imp = imp;
   }
 

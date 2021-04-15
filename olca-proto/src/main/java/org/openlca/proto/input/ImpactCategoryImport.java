@@ -9,11 +9,11 @@ import org.openlca.core.model.Parameter;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
-public class ImpactCategoryImport implements Import<ImpactCategory> {
+class ImpactCategoryImport implements Import<ImpactCategory> {
 
   private final ProtoImport imp;
 
-  public ImpactCategoryImport(ProtoImport imp) {
+  ImpactCategoryImport(ProtoImport imp) {
     this.imp = imp;
   }
 

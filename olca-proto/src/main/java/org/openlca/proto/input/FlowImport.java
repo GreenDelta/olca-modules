@@ -9,12 +9,12 @@ import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
-public class FlowImport implements Import<Flow> {
+class FlowImport implements Import<Flow> {
 
   private final ProtoImport imp;
   private boolean inUpdateMode;
 
-  public FlowImport(ProtoImport imp) {
+  FlowImport(ProtoImport imp) {
     this.imp = imp;
   }
 

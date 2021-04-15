@@ -7,11 +7,11 @@ import org.openlca.core.model.SocialIndicator;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
-public class SocialIndicatorImport implements Import<SocialIndicator> {
+class SocialIndicatorImport implements Import<SocialIndicator> {
 
   private final ProtoImport imp;
 
-  public SocialIndicatorImport(ProtoImport imp) {
+  SocialIndicatorImport(ProtoImport imp) {
     this.imp = imp;
   }
 

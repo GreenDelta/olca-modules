@@ -42,7 +42,6 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.input.UpdateMode;
 import org.openlca.proto.MemStore;
 import org.openlca.proto.generated.Proto;
-import org.openlca.proto.input.CategoryImport;
 import org.openlca.proto.input.ProtoImport;
 import org.openlca.proto.output.ActorWriter;
 import org.openlca.proto.output.CategoryWriter;
@@ -168,7 +167,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
     store.putCategory(req);
     var imp = new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS);
-    var category = new CategoryImport(imp)
+    var category = imp.getImport(Category.class)
       .of(req.getId())
       .model();
     var status = Services.RefStatus.newBuilder();

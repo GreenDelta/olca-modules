@@ -7,11 +7,11 @@ import org.openlca.core.model.DQSystem;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
-public class DqSystemImport implements Import<DQSystem> {
+class DqSystemImport implements Import<DQSystem> {
 
   private final ProtoImport imp;
 
-  public DqSystemImport(ProtoImport imp) {
+  DqSystemImport(ProtoImport imp) {
     this.imp = imp;
   }
 

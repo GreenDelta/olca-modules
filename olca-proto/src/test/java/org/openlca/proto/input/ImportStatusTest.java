@@ -12,7 +12,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.proto.MemStore;
 import org.openlca.proto.Tests;
-import org.openlca.proto.generated.Proto;
 
 public class ImportStatusTest {
 

@@ -6,11 +6,11 @@ import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.model.Currency;
 import org.openlca.proto.generated.Proto;
 
-public class CurrencyImport implements Import<Currency> {
+class CurrencyImport implements Import<Currency> {
 
   private final ProtoImport imp;
 
-  public CurrencyImport(ProtoImport imp) {
+  CurrencyImport(ProtoImport imp) {
     this.imp = imp;
   }
 
