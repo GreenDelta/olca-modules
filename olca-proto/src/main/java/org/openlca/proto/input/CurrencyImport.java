@@ -6,7 +6,7 @@ import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.model.Currency;
 import org.openlca.proto.generated.Proto;
 
-public class CurrencyImport {
+public class CurrencyImport implements Import<Currency> {
 
   private final ProtoImport imp;
 
@@ -14,9 +14,8 @@ public class CurrencyImport {
     this.imp = imp;
   }
 
-  public Currency of(String id) {
-    if (id == null)
-      return null;
+  @Override
+  public ImportStatus<Currency> of(String id) {
     var currency = imp.get(Currency.class, id);
 
     // check if we are in update mode
@@ -24,18 +23,21 @@ public class CurrencyImport {
     if (currency != null) {
       update = imp.shouldUpdate(currency);
       if(!update) {
-        return currency;
+        return ImportStatus.skipped(currency);
       }
     }
 
-    // check the proto object
+    // resolve the proto object
     var proto = imp.store.getCurrency(id);
     if (proto == null)
-      return currency;
+      return currency != null
+        ? ImportStatus.skipped(currency)
+        : ImportStatus.error("Could not resolve Currency " + id);
+
     var wrap = ProtoWrap.of(proto);
     if (update) {
       if (imp.skipUpdate(currency, wrap))
-        return currency;
+        return ImportStatus.skipped(currency);
     }
 
     // map the data
@@ -51,7 +53,9 @@ public class CurrencyImport {
       ? dao.update(currency)
       : dao.insert(currency);
     imp.putHandled(currency);
-    return currency;
+    return update
+      ? ImportStatus.updated(currency)
+      : ImportStatus.created(currency);
   }
 
   private void map(Proto.Currency proto, Currency currency) {
@@ -61,7 +65,7 @@ public class CurrencyImport {
     if (Objects.equals(refCurrencyID, proto.getId())) {
       currency.referenceCurrency = currency;
     } else {
-      currency.referenceCurrency = of(refCurrencyID);
+      currency.referenceCurrency = of(refCurrencyID).model();
     }
   }
 }

@@ -6,7 +6,7 @@ import org.openlca.core.model.FlowPropertyType;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
-public class FlowPropertyImport {
+public class FlowPropertyImport implements Import<FlowProperty> {
 
   private final ProtoImport imp;
 
@@ -14,13 +14,8 @@ public class FlowPropertyImport {
     this.imp = imp;
   }
 
-  static FlowProperty of(ProtoImport imp, String id) {
-    return new FlowPropertyImport(imp).of(id);
-  }
-
-  public FlowProperty of(String id) {
-    if (id == null)
-      return null;
+  @Override
+  public ImportStatus<FlowProperty> of(String id) {
     var flowProperty = imp.get(FlowProperty.class, id);
 
     // check if we are in update mode
@@ -28,18 +23,21 @@ public class FlowPropertyImport {
     if (flowProperty != null) {
       update = imp.shouldUpdate(flowProperty);
       if(!update) {
-        return flowProperty;
+        return ImportStatus.skipped(flowProperty);
       }
     }
 
-    // check the proto object
+    // resolve the proto object
     var proto = imp.store.getFlowProperty(id);
     if (proto == null)
-      return flowProperty;
+      return flowProperty != null
+        ? ImportStatus.skipped(flowProperty)
+        : ImportStatus.error("Could not resolve FlowProperty " + id);
+
     var wrap = ProtoWrap.of(proto);
     if (update) {
       if (imp.skipUpdate(flowProperty, wrap))
-        return flowProperty;
+        return ImportStatus.skipped(flowProperty);
     }
 
     // map the data
@@ -50,13 +48,15 @@ public class FlowPropertyImport {
     wrap.mapTo(flowProperty, imp);
     map(proto, flowProperty);
 
-    // insert it
+    // insert or update it
     var dao = new FlowPropertyDao(imp.db);
     flowProperty = update
       ? dao.update(flowProperty)
       : dao.insert(flowProperty);
     imp.putHandled(flowProperty);
-    return flowProperty;
+    return update
+      ? ImportStatus.updated(flowProperty)
+      : ImportStatus.created(flowProperty);
   }
 
   private void map(Proto.FlowProperty proto, FlowProperty flowProperty) {
@@ -67,7 +67,8 @@ public class FlowPropertyImport {
     var unitGroupID = proto.getUnitGroup().getId();
     if (Strings.notEmpty(unitGroupID)) {
       flowProperty.unitGroup = new UnitGroupImport(imp)
-        .of(unitGroupID);
+        .of(unitGroupID)
+        .model();
     }
   }
 }

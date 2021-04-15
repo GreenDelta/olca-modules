@@ -7,7 +7,7 @@ import org.openlca.core.model.DQSystem;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
-public class DqSystemImport {
+public class DqSystemImport implements Import<DQSystem> {
 
   private final ProtoImport imp;
 
@@ -15,9 +15,8 @@ public class DqSystemImport {
     this.imp = imp;
   }
 
-  public DQSystem of(String id) {
-    if (id == null)
-      return null;
+  @Override
+  public ImportStatus<DQSystem> of(String id) {
     var dqSystem = imp.get(DQSystem.class, id);
 
     // check if we are in update mode
@@ -25,18 +24,21 @@ public class DqSystemImport {
     if (dqSystem != null) {
       update = imp.shouldUpdate(dqSystem);
       if(!update) {
-        return dqSystem;
+        return ImportStatus.skipped(dqSystem);
       }
     }
 
-    // check the proto object
+    // resolve the proto object
     var proto = imp.store.getDQSystem(id);
     if (proto == null)
-      return dqSystem;
+      return dqSystem != null
+        ? ImportStatus.skipped(dqSystem)
+        : ImportStatus.error("Could not resolve DQSystem " + id);
+
     var wrap = ProtoWrap.of(proto);
     if (update) {
       if (imp.skipUpdate(dqSystem, wrap))
-        return dqSystem;
+        return ImportStatus.skipped(dqSystem);
     }
 
     // map the data
@@ -47,20 +49,22 @@ public class DqSystemImport {
     wrap.mapTo(dqSystem, imp);
     map(proto, dqSystem);
 
-    // insert it
+    // insert or update it
     var dao = new DQSystemDao(imp.db);
     dqSystem = update
       ? dao.update(dqSystem)
       : dao.insert(dqSystem);
     imp.putHandled(dqSystem);
-    return dqSystem;
+    return update
+      ? ImportStatus.updated(dqSystem)
+      : ImportStatus.created(dqSystem);
   }
 
   private void map(Proto.DQSystem proto, DQSystem sys) {
     sys.hasUncertainties = proto.getHasUncertainties();
     var sourceID = proto.getSource().getId();
     if (Strings.notEmpty(sourceID)) {
-      sys.source = new SourceImport(imp).of(sourceID);
+      sys.source = new SourceImport(imp).of(sourceID).model();
     }
     for (var protoInd : proto.getIndicatorsList()) {
       var ind = new DQIndicator();

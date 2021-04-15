@@ -4,7 +4,7 @@ import org.openlca.core.database.ActorDao;
 import org.openlca.core.model.Actor;
 import org.openlca.proto.generated.Proto;
 
-public class ActorImport {
+public class ActorImport implements Import<Actor> {
 
   private final ProtoImport imp;
 
@@ -12,9 +12,8 @@ public class ActorImport {
     this.imp = imp;
   }
 
-  public Actor of(String id) {
-    if (id == null)
-      return null;
+  @Override
+  public ImportStatus<Actor> of(String id) {
     var actor = imp.get(Actor.class, id);
 
     // check if we are in update mode
@@ -22,17 +21,20 @@ public class ActorImport {
     if (actor != null) {
       update = imp.shouldUpdate(actor);
       if (!update)
-        return actor;
+        return ImportStatus.skipped(actor);
     }
 
-    // check the proto object
+    // resolve the proto object
     var proto = imp.store.getActor(id);
     if (proto == null)
-      return actor;
+      return actor != null
+        ? ImportStatus.skipped(actor)
+        : ImportStatus.error("Could not resolve Actor " + id);
+
     var wrap = ProtoWrap.of(proto);
     if (update) {
       if (imp.skipUpdate(actor, wrap))
-        return actor;
+        return ImportStatus.skipped(actor);
     }
 
     // map the data
@@ -42,13 +44,15 @@ public class ActorImport {
     wrap.mapTo(actor, imp);
     map(proto, actor);
 
-    // insert it
+    // insert or update it
     var dao = new ActorDao(imp.db);
     actor = update
       ? dao.update(actor)
       : dao.insert(actor);
     imp.putHandled(actor);
-    return actor;
+    return update
+      ? ImportStatus.updated(actor)
+      : ImportStatus.created(actor);
   }
 
   private void map(Proto.Actor proto, Actor actor) {

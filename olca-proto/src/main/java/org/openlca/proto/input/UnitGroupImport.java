@@ -9,7 +9,7 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
-public class UnitGroupImport {
+public class UnitGroupImport implements Import<UnitGroup> {
 
   private final ProtoImport imp;
   private boolean inUpdateMode;
@@ -18,9 +18,8 @@ public class UnitGroupImport {
     this.imp = imp;
   }
 
-  public UnitGroup of(String id) {
-    if (id == null)
-      return null;
+  @Override
+  public ImportStatus<UnitGroup> of(String id) {
     var group = imp.get(UnitGroup.class, id);
 
     // check if we are in update mode
@@ -28,18 +27,21 @@ public class UnitGroupImport {
     if (group != null) {
       inUpdateMode = imp.shouldUpdate(group);
       if(!inUpdateMode) {
-        return group;
+        return ImportStatus.skipped(group);
       }
     }
 
-    // check the proto object
+    // resolve the proto object
     var proto = imp.store.getUnitGroup(id);
     if (proto == null)
-      return group;
+      return group != null
+        ? ImportStatus.skipped(group)
+        : ImportStatus.error("Could not resolve UnitGroup " +id);
+
     var wrap = ProtoWrap.of(proto);
     if (inUpdateMode) {
       if (imp.skipUpdate(group, wrap))
-        return group;
+        return ImportStatus.skipped(group);
     }
 
     // map the data
@@ -50,7 +52,7 @@ public class UnitGroupImport {
     wrap.mapTo(group, imp);
     map(proto, group);
 
-    // insert it
+    // insert or update it
     var dao = new UnitGroupDao(imp.db);
     group = inUpdateMode
       ? dao.update(group)
@@ -67,7 +69,9 @@ public class UnitGroupImport {
       group = dao.update(group);
     }
 
-    return group;
+    return inUpdateMode
+      ? ImportStatus.updated(group)
+      : ImportStatus.created(group);
   }
 
   private void map(Proto.UnitGroup proto, UnitGroup group) {

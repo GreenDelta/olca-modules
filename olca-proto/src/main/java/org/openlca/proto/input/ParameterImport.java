@@ -5,7 +5,7 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.proto.generated.Proto;
 
-public class ParameterImport {
+public class ParameterImport implements Import<Parameter> {
 
   private final ProtoImport imp;
 
@@ -13,9 +13,8 @@ public class ParameterImport {
     this.imp = imp;
   }
 
-  public Parameter of(String id) {
-    if (id == null)
-      return null;
+  @Override
+  public ImportStatus<Parameter> of(String id) {
     var param = imp.get(Parameter.class, id);
 
     // check if we are in update mode
@@ -23,18 +22,21 @@ public class ParameterImport {
     if (param != null) {
       update = imp.shouldUpdate(param);
       if(!update) {
-        return param;
+        return ImportStatus.skipped(param);
       }
     }
 
-    // check the proto object
+    // resolve the proto object
     var proto = imp.store.getParameter(id);
     if (proto == null)
-      return param;
+      return param != null
+        ? ImportStatus.skipped(param)
+        : ImportStatus.error("Could not resolve Parameter " + id);
+
     var wrap = ProtoWrap.of(proto);
     if (update) {
       if (imp.skipUpdate(param, wrap))
-        return param;
+        return ImportStatus.skipped(param);
     }
 
     // map the data
@@ -51,7 +53,9 @@ public class ParameterImport {
       ? dao.update(param)
       : dao.insert(param);
     imp.putHandled(param);
-    return param;
+    return update
+      ? ImportStatus.updated(param)
+      : ImportStatus.created(param);
   }
 
   static void map(Proto.Parameter proto, Parameter param) {
@@ -63,13 +67,10 @@ public class ParameterImport {
   }
 
   static ParameterScope scopeOf(Proto.Parameter proto) {
-    switch (proto.getParameterScope()) {
-      case PROCESS_SCOPE:
-        return ParameterScope.PROCESS;
-      case IMPACT_SCOPE:
-        return ParameterScope.IMPACT;
-      default:
-        return ParameterScope.GLOBAL;
-    }
+    return switch (proto.getParameterScope()) {
+      case PROCESS_SCOPE -> ParameterScope.PROCESS;
+      case IMPACT_SCOPE -> ParameterScope.IMPACT;
+      default -> ParameterScope.GLOBAL;
+    };
   }
 }

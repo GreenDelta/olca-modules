@@ -20,7 +20,7 @@ import org.openlca.jsonld.Json;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
-public class ProcessImport {
+public class ProcessImport implements Import<Process> {
 
   private final ProtoImport imp;
   private boolean inUpdateMode;
@@ -29,13 +29,12 @@ public class ProcessImport {
     this.imp = imp;
   }
 
-  static Process of(ProtoImport imp, String id) {
+  static ImportStatus<Process> of(ProtoImport imp, String id) {
     return new ProcessImport(imp).of(id);
   }
 
-  public Process of(String id) {
-    if (id == null)
-      return null;
+  @Override
+  public ImportStatus<Process> of(String id) {
     var process = imp.get(Process.class, id);
 
     // check if we are in update mode
@@ -43,18 +42,21 @@ public class ProcessImport {
     if (process != null) {
       inUpdateMode = imp.shouldUpdate(process);
       if(!inUpdateMode) {
-        return process;
+        return ImportStatus.skipped(process);
       }
     }
 
-    // check the proto object
+    // resolve the proto object
     var proto = imp.store.getProcess(id);
     if (proto == null)
-      return process;
+      return process != null
+        ? ImportStatus.skipped(process)
+        : ImportStatus.error("Could not resolve Process " + id);
+
     var wrap = ProtoWrap.of(proto);
     if (inUpdateMode) {
       if (imp.skipUpdate(process, wrap))
-        return process;
+        return ImportStatus.skipped(process);
     }
 
     // map the data
@@ -65,13 +67,15 @@ public class ProcessImport {
     wrap.mapTo(process, imp);
     map(proto, process);
 
-    // insert it
+    // insert or update it
     var dao = new ProcessDao(imp.db);
     process = inUpdateMode
       ? dao.update(process)
       : dao.insert(process);
     imp.putHandled(process);
-    return process;
+    return inUpdateMode
+      ? ImportStatus.updated(process)
+      : ImportStatus.created(process);
   }
 
   private void map(Proto.Process proto, Process p) {
@@ -85,7 +89,7 @@ public class ProcessImport {
     // location
     var locID = proto.getLocation().getId();
     if (Strings.notEmpty(locID)) {
-      p.location = new LocationImport(imp).of(locID);
+      p.location = new LocationImport(imp).of(locID).model();
     }
 
     // DQ systems
@@ -214,19 +218,19 @@ public class ProcessImport {
   private Actor actor(Proto.Ref ref) {
     if (ref == null || Strings.nullOrEmpty(ref.getId()))
       return null;
-    return new ActorImport(imp).of(ref.getId());
+    return new ActorImport(imp).of(ref.getId()).model();
   }
 
   private Source source(Proto.Ref ref) {
     if (ref == null || Strings.nullOrEmpty(ref.getId()))
       return null;
-    return new SourceImport(imp).of(ref.getId());
+    return new SourceImport(imp).of(ref.getId()).model();
   }
 
   private DQSystem dqSystem(Proto.Ref ref) {
     if (ref == null || Strings.nullOrEmpty(ref.getId()))
       return null;
-    return new DqSystemImport(imp).of(ref.getId());
+    return new DqSystemImport(imp).of(ref.getId()).model();
   }
 
   private void mapExchange(Proto.Exchange proto, Exchange e) {
@@ -248,12 +252,12 @@ public class ProcessImport {
       : proto.getCostValue();
     var currencyID = proto.getCurrency().getId();
     if (Strings.notEmpty(currencyID)) {
-      e.currency = new CurrencyImport(imp).of(currencyID);
+      e.currency = new CurrencyImport(imp).of(currencyID).model();
     }
 
     // flow references
     var flowID = proto.getFlow().getId();
-    e.flow = new FlowImport(imp).of(flowID);
+    e.flow = new FlowImport(imp).of(flowID).model();
     if (e.flow == null)
       return;
 
@@ -288,7 +292,9 @@ public class ProcessImport {
     var a = new SocialAspect();
     var indicatorID = proto.getSocialIndicator().getId();
     if (Strings.notEmpty(indicatorID)) {
-      a.indicator = new SocialIndicatorImport(imp).of(indicatorID);
+      a.indicator = new SocialIndicatorImport(imp)
+        .of(indicatorID)
+        .model();
     }
     a.comment = Strings.nullIfEmpty(proto.getComment());
     a.quality = Strings.nullIfEmpty(proto.getQuality());
@@ -297,7 +303,7 @@ public class ProcessImport {
     a.riskLevel = riskLevel(proto.getRiskLevel());
     var sourceID = proto.getSource().getId();
     if (Strings.notEmpty(sourceID)) {
-      a.source = new SourceImport(imp).of(sourceID);
+      a.source = new SourceImport(imp).of(sourceID).model();
     }
     return a;
   }

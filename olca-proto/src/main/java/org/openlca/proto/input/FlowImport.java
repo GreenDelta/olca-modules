@@ -9,7 +9,7 @@ import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
-public class FlowImport {
+public class FlowImport implements Import<Flow> {
 
   private final ProtoImport imp;
   private boolean inUpdateMode;
@@ -18,9 +18,8 @@ public class FlowImport {
     this.imp = imp;
   }
 
-  public Flow of(String id) {
-    if (id == null)
-      return null;
+  @Override
+  public ImportStatus<Flow> of(String id) {
     var flow = imp.get(Flow.class, id);
 
     // check if we are in update mode
@@ -28,18 +27,21 @@ public class FlowImport {
     if (flow != null) {
       inUpdateMode = imp.shouldUpdate(flow);
       if(!inUpdateMode) {
-        return flow;
+        return ImportStatus.skipped(flow);
       }
     }
 
-    // check the proto object
+    // resolve the proto object
     var proto = imp.store.getFlow(id);
     if (proto == null)
-      return flow;
+      return flow != null
+        ? ImportStatus.skipped(flow)
+        : ImportStatus.error("Could not resolve Flow " + id);
+
     var wrap = ProtoWrap.of(proto);
     if (inUpdateMode) {
       if (imp.skipUpdate(flow, wrap))
-        return flow;
+        return ImportStatus.skipped(flow);
     }
 
     // map the data
@@ -50,13 +52,15 @@ public class FlowImport {
     wrap.mapTo(flow, imp);
     map(proto, flow);
 
-    // insert it
+    // insert or update it
     var dao = new FlowDao(imp.db);
     flow = inUpdateMode
       ? dao.update(flow)
       : dao.insert(flow);
     imp.putHandled(flow);
-    return flow;
+    return inUpdateMode
+      ? ImportStatus.updated(flow)
+      : ImportStatus.created(flow);
   }
 
   private void map(Proto.Flow proto, Flow flow) {
@@ -68,7 +72,7 @@ public class FlowImport {
     flow.infrastructureFlow = proto.getInfrastructureFlow();
     var locID = proto.getLocation().getId();
     if (Strings.notEmpty(locID)) {
-      flow.location = new LocationImport(imp).of(locID);
+      flow.location = new LocationImport(imp).of(locID).model();
     }
 
     // sync existing flow property factors if we are in update
@@ -99,7 +103,9 @@ public class FlowImport {
       }
 
       if (Strings.notEmpty(propID)) {
-        factor.flowProperty = new FlowPropertyImport(imp).of(propID);
+        factor.flowProperty = new FlowPropertyImport(imp)
+          .of(propID)
+          .model();
       }
       factor.conversionFactor = protoFactor.getConversionFactor();
       if (protoFactor.getReferenceFlowProperty()) {

@@ -7,7 +7,7 @@ import org.openlca.core.model.SocialIndicator;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
-public class SocialIndicatorImport {
+public class SocialIndicatorImport implements Import<SocialIndicator> {
 
   private final ProtoImport imp;
 
@@ -15,9 +15,8 @@ public class SocialIndicatorImport {
     this.imp = imp;
   }
 
-  public SocialIndicator of(String id) {
-    if (id == null)
-      return null;
+  @Override
+  public ImportStatus<SocialIndicator> of(String id) {
     var indicator = imp.get(SocialIndicator.class, id);
 
     // check if we are in update mode
@@ -25,18 +24,21 @@ public class SocialIndicatorImport {
     if (indicator != null) {
       update = imp.shouldUpdate(indicator);
       if(!update) {
-        return indicator;
+        return ImportStatus.skipped(indicator);
       }
     }
 
-    // check the proto object
+    // resolve the proto object
     var proto = imp.store.getSocialIndicator(id);
     if (proto == null)
-      return indicator;
+      return indicator != null
+        ? ImportStatus.skipped(indicator)
+        : ImportStatus.error("Could not resolve SocialIndicator " + id);
+
     var wrap = ProtoWrap.of(proto);
     if (update) {
       if (imp.skipUpdate(indicator, wrap))
-        return indicator;
+        return ImportStatus.skipped(indicator);
     }
 
     // map the data
@@ -47,13 +49,15 @@ public class SocialIndicatorImport {
     wrap.mapTo(indicator, imp);
     map(proto, indicator);
 
-    // insert it
+    // insert or update it
     var dao = new SocialIndicatorDao(imp.db);
     indicator = update
       ? dao.update(indicator)
       : dao.insert(indicator);
     imp.putHandled(indicator);
-    return indicator;
+    return update
+      ? ImportStatus.updated(indicator)
+      : ImportStatus.created(indicator);
   }
 
   private void map(Proto.SocialIndicator proto, SocialIndicator indicator) {
@@ -65,7 +69,8 @@ public class SocialIndicatorImport {
     var quantityID = proto.getActivityQuantity().getId();
     if (Strings.notEmpty(quantityID)) {
       indicator.activityQuantity = new FlowPropertyImport(imp)
-        .of(quantityID);
+        .of(quantityID)
+        .model();
     }
     if (indicator.activityQuantity == null)
       return;

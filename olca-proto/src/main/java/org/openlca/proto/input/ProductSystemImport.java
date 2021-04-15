@@ -19,7 +19,7 @@ import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
-public class ProductSystemImport {
+public class ProductSystemImport implements Import<ProductSystem> {
 
   private final ProtoImport imp;
 
@@ -27,9 +27,8 @@ public class ProductSystemImport {
     this.imp = imp;
   }
 
-  public ProductSystem of(String id) {
-    if (id == null)
-      return null;
+  @Override
+  public ImportStatus<ProductSystem> of(String id) {
     var sys = imp.get(ProductSystem.class, id);
 
     // check if we are in update mode
@@ -37,18 +36,22 @@ public class ProductSystemImport {
     if (sys != null) {
       update = imp.shouldUpdate(sys);
       if (!update) {
-        return sys;
+        return ImportStatus.skipped(sys);
       }
     }
 
-    // check the proto object
+    // resolve the proto object
     var proto = imp.store.getProductSystem(id);
     if (proto == null)
-      return sys;
+      return sys != null
+        ? ImportStatus.skipped(sys)
+        : ImportStatus.error(
+          "Could not resolve ProductSystem " + id);
+
     var wrap = ProtoWrap.of(proto);
     if (update) {
       if (imp.skipUpdate(sys, wrap))
-        return sys;
+        return ImportStatus.skipped(sys);
     }
 
     // map the data
@@ -58,13 +61,15 @@ public class ProductSystemImport {
     wrap.mapTo(sys, imp);
     map(proto, sys);
 
-    // insert it
+    // insert or update it
     var dao = new ProductSystemDao(imp.db);
     sys = update
       ? dao.update(sys)
       : dao.insert(sys);
     imp.putHandled(sys);
-    return sys;
+    return update
+      ? ImportStatus.updated(sys)
+      : ImportStatus.created(sys);
   }
 
   private void map(Proto.ProductSystem proto, ProductSystem sys) {
@@ -166,7 +171,7 @@ public class ProductSystemImport {
       if (map.containsKey(refID))
         return;
 
-      var process = new ProcessImport(imp).of(refID);
+      var process = new ProcessImport(imp).of(refID).model();
       if (process != null) {
         map.put(refID, Descriptor.of(process));
         return;
@@ -174,7 +179,9 @@ public class ProductSystemImport {
 
       // providers of links can also be product systems
       if (checkForSystem) {
-        var sys = new ProductSystemImport(imp).of(refID);
+        var sys = new ProductSystemImport(imp)
+          .of(refID)
+          .model();
         if (sys != null) {
           map.put(refID, Descriptor.of(sys));
         }
@@ -195,8 +202,9 @@ public class ProductSystemImport {
   private void mapQRef(Proto.ProductSystem proto, ProductSystem sys) {
 
     // ref. process
-    sys.referenceProcess = ProcessImport.of(
-      imp, proto.getReferenceProcess().getId());
+    sys.referenceProcess = ProcessImport
+      .of(imp, proto.getReferenceProcess().getId())
+      .model();
 
     // ref. exchange
     var refExchange = proto.getReferenceExchange().getInternalId();

@@ -5,7 +5,7 @@ import org.openlca.core.model.Category;
 import org.openlca.util.Categories;
 import org.openlca.util.Strings;
 
-public class CategoryImport {
+public class CategoryImport implements Import<Category> {
 
   private final ProtoImport imp;
 
@@ -13,9 +13,8 @@ public class CategoryImport {
     this.imp = imp;
   }
 
-  public Category of(String id) {
-    if (id == null)
-      return null;
+  @Override
+  public ImportStatus<Category> of(String id) {
     var mappedID = imp.mappedCategories.get(id);
     var category = mappedID != null
       ? imp.get(Category.class, mappedID)
@@ -26,26 +25,32 @@ public class CategoryImport {
     if (category != null) {
       update = imp.shouldUpdate(category);
       if(!update) {
-        return category;
+        return ImportStatus.skipped(category);
       }
     }
 
+    // resolve the proto object
     var proto = imp.store.getCategory(id);
     if (proto == null)
-      return category;
+      return category != null
+        ? ImportStatus.skipped(category)
+        : ImportStatus.error("Could not resolve Category " + id);
+
     var wrap = ProtoWrap.of(proto);
     if (update) {
       if (imp.skipUpdate(category, wrap))
-        return category;
+        return ImportStatus.skipped(category);
     }
 
+    // map the data
     if (category == null) {
       category = new Category();
     }
     wrap.mapTo(category, imp);
     category.modelType = In.modelTypeOf(proto.getModelType());
 
-    // update a possible parent
+    // update a possible parent; this is a bit complicated
+    // because we need to return the managed category from JPA
     var dao = new CategoryDao(imp.db);
     var parent = category.category;
     if (parent == null) {
@@ -62,13 +67,7 @@ public class CategoryImport {
       if (existing == null) {
         parent.childCategories.add(category);
       } else {
-        existing.name = category.name;
-        existing.description = category.description;
-        existing.version = category.version;
-        existing.lastChange = category.lastChange;
-        existing.tags = category.tags;
-        existing.library = category.library;
-        existing.modelType = category.modelType;
+        updateExisting(existing, category);
       }
       parent = dao.update(parent);
       category = parent.childCategories.stream()
@@ -76,13 +75,25 @@ public class CategoryImport {
         .findAny()
         .orElse(null);
       if (category == null)
-        return null;
+        return ImportStatus.error("Failed to update parent Category of " + id);
     }
 
     if (!Strings.nullOrEqual(id, category.refId)) {
       imp.mappedCategories.put(id, category.refId);
     }
     imp.putHandled(category);
-    return category;
+    return update
+      ? ImportStatus.updated(category)
+      : ImportStatus.created(category);
+  }
+
+  private void updateExisting(Category existing, Category category) {
+    existing.name = category.name;
+    existing.description = category.description;
+    existing.version = category.version;
+    existing.lastChange = category.lastChange;
+    existing.tags = category.tags;
+    existing.library = category.library;
+    existing.modelType = category.modelType;
   }
 }

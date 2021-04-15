@@ -4,7 +4,7 @@ import org.openlca.core.database.SourceDao;
 import org.openlca.core.model.Source;
 import org.openlca.proto.generated.Proto;
 
-public class SourceImport {
+public class SourceImport implements Import<Source>{
 
   private final ProtoImport imp;
 
@@ -12,9 +12,8 @@ public class SourceImport {
     this.imp = imp;
   }
 
-  public Source of(String id) {
-    if (id == null)
-      return null;
+  @Override
+  public ImportStatus<Source> of(String id) {
     var source = imp.get(Source.class, id);
 
     // check if we are in update mode
@@ -22,18 +21,21 @@ public class SourceImport {
     if (source != null) {
       update = imp.shouldUpdate(source);
       if(!update) {
-        return source;
+        return ImportStatus.skipped(source);
       }
     }
 
-    // check the proto object
+    // resolve the proto object
     var proto = imp.store.getSource(id);
     if (proto == null)
-      return source;
+      return source != null
+        ? ImportStatus.skipped(source)
+        : ImportStatus.error("Could not resolve Source " + id);
+
     var wrap = ProtoWrap.of(proto);
     if (update) {
       if (imp.skipUpdate(source, wrap))
-        return source;
+        return ImportStatus.skipped(source);
     }
 
     // map the data
@@ -43,13 +45,15 @@ public class SourceImport {
     wrap.mapTo(source, imp);
     map(proto, source);
 
-    // insert it
+    // insert or update it
     var dao = new SourceDao(imp.db);
     source = update
       ? dao.update(source)
       : dao.insert(source);
     imp.putHandled(source);
-    return source;
+    return update
+      ? ImportStatus.updated(source)
+      : ImportStatus.created(source);
   }
 
   private void map(Proto.Source proto, Source source) {

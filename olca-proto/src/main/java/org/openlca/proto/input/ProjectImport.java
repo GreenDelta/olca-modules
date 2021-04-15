@@ -4,7 +4,7 @@ import org.openlca.core.database.ProjectDao;
 import org.openlca.core.model.Project;
 import org.openlca.proto.generated.Proto;
 
-public class ProjectImport {
+public class ProjectImport implements Import<Project> {
 
   private final ProtoImport imp;
 
@@ -12,28 +12,30 @@ public class ProjectImport {
     this.imp = imp;
   }
 
-  public Project of(String id) {
-    if (id == null)
-      return null;
+  @Override
+  public ImportStatus<Project> of(String id) {
     var project = imp.get(Project.class, id);
 
     // check if we are in update mode
     var update = false;
     if (project != null) {
       update = imp.shouldUpdate(project);
-      if(!update) {
-        return project;
+      if (!update) {
+        return ImportStatus.skipped(project);
       }
     }
 
-    // check the proto object
+    // resolve the proto object
     var proto = imp.store.getProject(id);
     if (proto == null)
-      return project;
+      return project != null
+        ? ImportStatus.skipped(project)
+        : ImportStatus.error("Could not resolve Project " + id);
+
     var wrap = ProtoWrap.of(proto);
     if (update) {
       if (imp.skipUpdate(project, wrap))
-        return project;
+        return ImportStatus.skipped(project);
     }
 
     // map the data
@@ -44,15 +46,18 @@ public class ProjectImport {
     wrap.mapTo(project, imp);
     map(proto, project);
 
-    // insert it
+    // insert or update it
     var dao = new ProjectDao(imp.db);
     project = update
       ? dao.update(project)
       : dao.insert(project);
     imp.putHandled(project);
-    return project;
+    return update
+      ? ImportStatus.updated(project)
+      : ImportStatus.created(project);
   }
 
   private void map(Proto.Project proto, Project project) {
+    // TODO: map project data
   }
 }

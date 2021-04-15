@@ -4,7 +4,7 @@ import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
 import org.openlca.proto.generated.Proto;
 
-public class LocationImport {
+public class LocationImport implements Import<Location> {
 
   private final ProtoImport imp;
 
@@ -12,9 +12,8 @@ public class LocationImport {
     this.imp = imp;
   }
 
-  public Location of(String id) {
-    if (id == null)
-      return null;
+  @Override
+  public ImportStatus<Location> of(String id) {
     var location = imp.get(Location.class, id);
 
     // check if we are in update mode
@@ -22,18 +21,21 @@ public class LocationImport {
     if (location != null) {
       update = imp.shouldUpdate(location);
       if(!update) {
-        return location;
+        return ImportStatus.skipped(location);
       }
     }
 
-    // check the proto object
+    // resolve the proto object
     var proto = imp.store.getLocation(id);
     if (proto == null)
-      return location;
+      return location != null
+        ? ImportStatus.skipped(location)
+        : ImportStatus.error("Could not resolve Location " + id);
+
     var wrap = ProtoWrap.of(proto);
     if (update) {
       if (imp.skipUpdate(location, wrap))
-        return location;
+        return ImportStatus.skipped(location);
     }
 
     // map the data
@@ -50,7 +52,9 @@ public class LocationImport {
       ? dao.update(location)
       : dao.insert(location);
     imp.putHandled(location);
-    return location;
+    return update
+      ? ImportStatus.updated(location)
+      : ImportStatus.created(location);
   }
 
   private void map(Proto.Location proto, Location location) {

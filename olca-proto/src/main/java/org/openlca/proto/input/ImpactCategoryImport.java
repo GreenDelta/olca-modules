@@ -9,7 +9,7 @@ import org.openlca.core.model.Parameter;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
-public class ImpactCategoryImport {
+public class ImpactCategoryImport implements Import<ImpactCategory> {
 
   private final ProtoImport imp;
 
@@ -17,9 +17,8 @@ public class ImpactCategoryImport {
     this.imp = imp;
   }
 
-  public ImpactCategory of(String id) {
-    if (id == null)
-      return null;
+  @Override
+  public ImportStatus<ImpactCategory> of(String id) {
     var impact = imp.get(ImpactCategory.class, id);
 
     // check if we are in update mode
@@ -27,18 +26,21 @@ public class ImpactCategoryImport {
     if (impact != null) {
       update = imp.shouldUpdate(impact);
       if(!update) {
-        return impact;
+        return ImportStatus.skipped(impact);
       }
     }
 
-    // check the proto object
+    // resolve the proto object
     var proto = imp.store.getImpactCategory(id);
     if (proto == null)
-      return impact;
+      return impact != null
+        ? ImportStatus.skipped(impact)
+        : ImportStatus.error("Could not resolve ImpactCategory " + id);
+
     var wrap = ProtoWrap.of(proto);
     if (update) {
       if (imp.skipUpdate(impact, wrap))
-        return impact;
+        return ImportStatus.skipped(impact);
     }
 
     // map the data
@@ -49,13 +51,15 @@ public class ImpactCategoryImport {
     wrap.mapTo(impact, imp);
     map(proto, impact);
 
-    // insert it
+    // insert or update it
     var dao = new ImpactCategoryDao(imp.db);
     impact = update
       ? dao.update(impact)
       : dao.insert(impact);
     imp.putHandled(impact);
-    return impact;
+    return update
+      ? ImportStatus.updated(impact)
+      : ImportStatus.created(impact);
   }
 
   private void map(Proto.ImpactCategory proto, ImpactCategory impact) {
@@ -81,14 +85,14 @@ public class ImpactCategoryImport {
 
       // flow
       var flowID = protoFac.getFlow().getId();
-      factor.flow = new FlowImport(imp).of(flowID);
+      factor.flow = new FlowImport(imp).of(flowID).model();
       if (factor.flow == null)
         continue;
 
       // location
       var locID = protoFac.getLocation().getId();
       if (Strings.notEmpty(locID)) {
-        factor.location = new LocationImport(imp).of(locID);
+        factor.location = new LocationImport(imp).of(locID).model();
       }
 
       // set the flow property and unit; if they are not defined
