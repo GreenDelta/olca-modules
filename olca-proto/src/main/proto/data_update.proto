@@ -1,0 +1,63 @@
+syntax = "proto3";
+package protolca.services;
+
+option java_package = "org.openlca.proto.generated.data";
+option java_multiple_files = true;
+option java_outer_classname = "DataUpdateProto";
+
+option csharp_namespace = "ProtoLCA.Services";
+option go_package = ".;protolca";
+
+import "google/protobuf/empty.proto";
+import "olca.proto";
+import "data.proto";
+
+service DataUpdateService {
+
+  // Inserts or updates the given data set in the database. Returns the data
+  // set reference of the inserted or updated data set.
+  rpc Put(DataSet) returns (Ref);
+
+  // Deletes the object with the ID and type of the request message from the
+  // database.
+  rpc Delete(DeleteRequest) returns (google.protobuf.Empty);
+
+  // Creates a new product system.
+  rpc CreateProductSystem(CreateSystemRequest) returns (Ref);
+
+}
+
+message DeleteRequest {
+  ModelType model_type = 1;
+  string id = 2;
+}
+
+message CreateSystemRequest {
+
+  enum DefaultProviders {
+    Prefer = 0;
+    Ignore = 1;
+    Only = 2;
+  }
+
+  // The (reference of the) process from which the product system should be
+  // generated. This will be the reference process of the product system
+  // with upstream and downstream processes added recursively.
+  Ref process = 1;
+
+  // Indicates how default providers of product inputs and waste outputs
+  // should be considered during the linking. `only` means that only
+  // product inputs and waste outputs should be linked that have a
+  // default provider and that this default provider is used. `prefer`
+  // means that a default provider is used during the linking if there
+  // are multiple options. `ignore` means that the default providers
+  // have no specific role.
+  DefaultProviders default_providers = 2;
+
+  // When there are multiple provider processes available for linking a
+  // product input or waste output the `preferred_type` indicates which
+  // type of process (LCI results or unit processes) should be preferred
+  // during the linking.
+  ProcessType preferred_type = 3;
+
+}

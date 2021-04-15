@@ -110,44 +110,7 @@ message UnitGroupStatus {
   string error = 3;
 }
 
-message CreateSystemRequest {
-
-  enum DefaultProviders {
-    Prefer = 0;
-    Ignore = 1;
-    Only = 2;
-  }
-
-  // The (reference of the) process from which the product system should be
-  // generated. This will be the reference process of the product system
-  // with upstream and downstream processes added recursively.
-  Ref process = 1;
-
-  // Indicates how default providers of product inputs and waste outputs
-  // should be considered during the linking. `only` means that only
-  // product inputs and waste outputs should be linked that have a
-  // default provider and that this default provider is used. `prefer`
-  // means that a default provider is used during the linking if there
-  // are multiple options. `ignore` means that the default providers
-  // have no specific role.
-  DefaultProviders default_providers = 2;
-
-  // When there are multiple provider processes available for linking a
-  // product input or waste output the `preferred_type` indicates which
-  // type of process (LCI results or unit processes) should be preferred
-  // during the linking.
-  ProcessType preferred_type = 3;
-}
-
 service DataService {
-
-  // Deletes the object with the `id` and `type` of the given descriptor from
-  // the database. Note that the type is a string with the name of the
-  // corresponding model class, e.g. `Process` or `Flow`.
-  rpc Delete(protolca.Ref) returns (google.protobuf.Empty);
-
-  // Creates a new product system.
-  rpc CreateProductSystem(CreateSystemRequest) returns (RefStatus);
 
   // methods for Actor
   rpc GetActors(google.protobuf.Empty) returns (stream protolca.Actor);

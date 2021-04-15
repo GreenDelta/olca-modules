@@ -70,6 +70,4 @@ public class DataFetchTest {
       db.delete(actors[i]);
     }
   }
-
-
 }

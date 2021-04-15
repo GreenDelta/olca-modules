@@ -1,7 +1,5 @@
 package org.openlca.proto.server;
 
-import java.util.Arrays;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -25,7 +23,6 @@ import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
@@ -34,7 +31,6 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
@@ -76,38 +72,6 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   DataService(IDatabase db) {
     this.db = db;
-  }
-
-  @Override
-  public void delete(Proto.Ref req, StreamObserver<Empty> resp) {
-    var type = Arrays.stream(ModelType.values())
-      .map(ModelType::getModelClass)
-      .filter(Objects::nonNull)
-      .filter(clazz -> clazz.getSimpleName().equals(req.getType()))
-      .findAny()
-      .orElse(null);
-
-    if (type == null) {
-      Response.invalidArg(resp,
-        "Unknown model type: " + req.getType());
-      return;
-    }
-
-    if (!CategorizedEntity.class.isAssignableFrom(type)) {
-      Response.invalidArg(resp,
-        req.getType() + " is not a standalone entity");
-      return;
-    }
-
-    var entity = db.get(type, req.getId());
-    if (entity == null) {
-      Response.notFound(resp,
-        "A " + req.getType() + " with id=" + req.getId() + " does not exist");
-      return;
-    }
-
-    db.delete(entity);
-    Response.ok(resp);
   }
 
   @Override
