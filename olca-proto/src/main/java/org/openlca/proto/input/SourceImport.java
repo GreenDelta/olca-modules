@@ -26,7 +26,7 @@ class SourceImport implements Import<Source>{
     }
 
     // resolve the proto object
-    var proto = imp.store.getSource(id);
+    var proto = imp.reader.getSource(id);
     if (proto == null)
       return source != null
         ? ImportStatus.skipped(source)

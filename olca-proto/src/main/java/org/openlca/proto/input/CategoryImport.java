@@ -30,7 +30,7 @@ class CategoryImport implements Import<Category> {
     }
 
     // resolve the proto object
-    var proto = imp.store.getCategory(id);
+    var proto = imp.reader.getCategory(id);
     if (proto == null)
       return category != null
         ? ImportStatus.skipped(category)

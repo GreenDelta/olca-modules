@@ -29,7 +29,7 @@ class DqSystemImport implements Import<DQSystem> {
     }
 
     // resolve the proto object
-    var proto = imp.store.getDQSystem(id);
+    var proto = imp.reader.getDQSystem(id);
     if (proto == null)
       return dqSystem != null
         ? ImportStatus.skipped(dqSystem)

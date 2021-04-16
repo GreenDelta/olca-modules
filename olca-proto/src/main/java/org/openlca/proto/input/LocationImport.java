@@ -26,7 +26,7 @@ class LocationImport implements Import<Location> {
     }
 
     // resolve the proto object
-    var proto = imp.store.getLocation(id);
+    var proto = imp.reader.getLocation(id);
     if (proto == null)
       return location != null
         ? ImportStatus.skipped(location)

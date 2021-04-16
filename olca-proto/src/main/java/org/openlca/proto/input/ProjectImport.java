@@ -26,7 +26,7 @@ class ProjectImport implements Import<Project> {
     }
 
     // resolve the proto object
-    var proto = imp.store.getProject(id);
+    var proto = imp.reader.getProject(id);
     if (proto == null)
       return project != null
         ? ImportStatus.skipped(project)

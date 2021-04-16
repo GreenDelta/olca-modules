@@ -31,7 +31,7 @@ class ImpactCategoryImport implements Import<ImpactCategory> {
     }
 
     // resolve the proto object
-    var proto = imp.store.getImpactCategory(id);
+    var proto = imp.reader.getImpactCategory(id);
     if (proto == null)
       return impact != null
         ? ImportStatus.skipped(impact)

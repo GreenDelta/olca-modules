@@ -29,7 +29,7 @@ class SocialIndicatorImport implements Import<SocialIndicator> {
     }
 
     // resolve the proto object
-    var proto = imp.store.getSocialIndicator(id);
+    var proto = imp.reader.getSocialIndicator(id);
     if (proto == null)
       return indicator != null
         ? ImportStatus.skipped(indicator)

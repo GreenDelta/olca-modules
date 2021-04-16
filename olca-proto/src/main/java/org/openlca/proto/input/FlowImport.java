@@ -32,7 +32,7 @@ class FlowImport implements Import<Flow> {
     }
 
     // resolve the proto object
-    var proto = imp.store.getFlow(id);
+    var proto = imp.reader.getFlow(id);
     if (proto == null)
       return flow != null
         ? ImportStatus.skipped(flow)

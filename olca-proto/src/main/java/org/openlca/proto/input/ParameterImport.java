@@ -27,7 +27,7 @@ class ParameterImport implements Import<Parameter> {
     }
 
     // resolve the proto object
-    var proto = imp.store.getParameter(id);
+    var proto = imp.reader.getParameter(id);
     if (proto == null)
       return param != null
         ? ImportStatus.skipped(param)

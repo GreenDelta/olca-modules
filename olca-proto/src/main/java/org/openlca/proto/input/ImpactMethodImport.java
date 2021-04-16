@@ -30,7 +30,7 @@ class ImpactMethodImport implements Import<ImpactMethod> {
     }
 
     // resolve the proto object
-    var proto = imp.store.getImpactMethod(id);
+    var proto = imp.reader.getImpactMethod(id);
     if (proto == null)
       return method != null
         ? ImportStatus.skipped(method)

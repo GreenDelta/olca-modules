@@ -25,7 +25,7 @@ class ActorImport implements Import<Actor> {
     }
 
     // resolve the proto object
-    var proto = imp.store.getActor(id);
+    var proto = imp.reader.getActor(id);
     if (proto == null)
       return actor != null
         ? ImportStatus.skipped(actor)

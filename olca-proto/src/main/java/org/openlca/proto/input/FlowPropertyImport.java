@@ -28,7 +28,7 @@ class FlowPropertyImport implements Import<FlowProperty> {
     }
 
     // resolve the proto object
-    var proto = imp.store.getFlowProperty(id);
+    var proto = imp.reader.getFlowProperty(id);
     if (proto == null)
       return flowProperty != null
         ? ImportStatus.skipped(flowProperty)

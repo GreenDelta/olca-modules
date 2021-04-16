@@ -28,7 +28,7 @@ class CurrencyImport implements Import<Currency> {
     }
 
     // resolve the proto object
-    var proto = imp.store.getCurrency(id);
+    var proto = imp.reader.getCurrency(id);
     if (proto == null)
       return currency != null
         ? ImportStatus.skipped(currency)

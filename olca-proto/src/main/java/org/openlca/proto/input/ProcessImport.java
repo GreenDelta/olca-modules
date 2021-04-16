@@ -47,7 +47,7 @@ class ProcessImport implements Import<Process> {
     }
 
     // resolve the proto object
-    var proto = imp.store.getProcess(id);
+    var proto = imp.reader.getProcess(id);
     if (proto == null)
       return process != null
         ? ImportStatus.skipped(process)

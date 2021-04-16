@@ -32,7 +32,7 @@ import org.openlca.util.Strings;
 
 public class ProtoImport implements Runnable {
 
-  final ProtoReader store;
+  final ProtoReader reader;
   final IDatabase db;
   final ProviderUpdate providerUpdate;
   UpdateMode updateMode = UpdateMode.NEVER;
@@ -53,8 +53,8 @@ public class ProtoImport implements Runnable {
    */
   private final Map<Class<?>, Map<String, Long>> handled = new HashMap<>();
 
-  public ProtoImport(ProtoReader store, IDatabase db) {
-    this.store = store;
+  public ProtoImport(ProtoReader reader, IDatabase db) {
+    this.reader = reader;
     this.db = db;
     this.providerUpdate = new ProviderUpdate(db);
   }
@@ -209,41 +209,41 @@ public class ProtoImport implements Runnable {
 
   @Override
   public void run() {
-    for (String id : store.getIds("categories")) {
+    for (String id : reader.getIds("categories")) {
       new CategoryImport(this).of(id);
     }
-    for (String id : store.getIds("actors")) {
+    for (String id : reader.getIds("actors")) {
       new ActorImport(this).of(id);
     }
-    for (String id : store.getIds("sources")) {
+    for (String id : reader.getIds("sources")) {
       new SourceImport(this).of(id);
     }
-    for (String id : store.getIds("locations")) {
+    for (String id : reader.getIds("locations")) {
       new LocationImport(this).of(id);
     }
-    for (String id : store.getIds("unit_groups")) {
+    for (String id : reader.getIds("unit_groups")) {
       new UnitGroupImport(this).of(id);
     }
-    for (String id : store.getIds("flow_properties")) {
+    for (String id : reader.getIds("flow_properties")) {
       new FlowPropertyImport(this).of(id);
     }
-    for (String id : store.getIds("flows")) {
+    for (String id : reader.getIds("flows")) {
       new FlowImport(this).of(id);
     }
-    for (String id : store.getIds("social_indicators")) {
+    for (String id : reader.getIds("social_indicators")) {
       new SocialIndicatorImport(this).of(id);
     }
-    for (String id : store.getIds("currencies")) {
+    for (String id : reader.getIds("currencies")) {
       new CurrencyImport(this).of(id);
     }
-    for (String id : store.getIds("parameters")) {
+    for (String id : reader.getIds("parameters")) {
       new ParameterImport(this).of(id);
     }
-    for (String id : store.getIds("dq_systems")) {
+    for (String id : reader.getIds("dq_systems")) {
       new DqSystemImport(this).of(id);
     }
 
-    for (String id : store.getIds("processes")) {
+    for (String id : reader.getIds("processes")) {
       new ProcessImport(this).of(id);
     }
     // it is important to call the provider update
@@ -251,16 +251,16 @@ public class ProtoImport implements Runnable {
     // updated
     providerUpdate.run();
 
-    for (String id : store.getIds("lcia_categories")) {
+    for (String id : reader.getIds("lcia_categories")) {
       new ImpactCategoryImport(this).of(id);
     }
-    for (String id : store.getIds("lcia_methods")) {
+    for (String id : reader.getIds("lcia_methods")) {
       new ImpactMethodImport(this).of(id);
     }
-    for (String id : store.getIds("product_systems")) {
+    for (String id : reader.getIds("product_systems")) {
       new ProductSystemImport(this).of(id);
     }
-    for (String id : store.getIds("projects")) {
+    for (String id : reader.getIds("projects")) {
       new ProjectImport(this).of(id);
     }
   }

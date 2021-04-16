@@ -32,7 +32,7 @@ class UnitGroupImport implements Import<UnitGroup> {
     }
 
     // resolve the proto object
-    var proto = imp.store.getUnitGroup(id);
+    var proto = imp.reader.getUnitGroup(id);
     if (proto == null)
       return group != null
         ? ImportStatus.skipped(group)

@@ -41,7 +41,7 @@ class ProductSystemImport implements Import<ProductSystem> {
     }
 
     // resolve the proto object
-    var proto = imp.store.getProductSystem(id);
+    var proto = imp.reader.getProductSystem(id);
     if (proto == null)
       return sys != null
         ? ImportStatus.skipped(sys)
