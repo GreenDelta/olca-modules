@@ -19,52 +19,35 @@ import org.openlca.proto.generated.data.GetDescriptorsRequest;
 public class DataFetchTest {
 
   private final IDatabase db = Tests.db();
-  private Server server;
-  private ManagedChannel channel;
-
-  @Before
-  public void setup() throws Exception {
-    server = InProcessServerBuilder
-      .forName("DataFetchTest")
-      .directExecutor()
-      .addService(new DataFetchService(db))
-      .build()
-      .start();
-    channel = InProcessChannelBuilder
-      .forName("DataFetchTest")
-      .directExecutor()
-      .usePlaintext()
-      .build();
-  }
-
-  @After
-  public void tearDown() {
-    server.shutdown();
-  }
 
   @Test
   public void getDescriptors() {
 
+    // create some actors
     var actors = new Actor[10];
     var found = new boolean[actors.length];
     for (int i = 0; i < actors.length; i++) {
       actors[i] = db.insert(Actor.of("actor " + i));
     }
 
-    var stub = DataFetchServiceGrpc.newBlockingStub(channel);
-    var refs = stub.getDescriptors(
-      GetDescriptorsRequest.newBuilder()
-        .setModelType(Proto.ModelType.ACTOR)
-        .build());
-    while (refs.hasNext()) {
-      var ref = refs.next();
-      for (int i = 0; i < actors.length; i++) {
-        if (ref.getId().equals(actors[i].refId)) {
-          found[i] = true;
+    // collect the descriptors from the service
+    ServiceTests.on(channel -> {
+      var stub = DataFetchServiceGrpc.newBlockingStub(channel);
+      var refs = stub.getDescriptors(
+        GetDescriptorsRequest.newBuilder()
+          .setModelType(Proto.ModelType.ACTOR)
+          .build());
+      while (refs.hasNext()) {
+        var ref = refs.next();
+        for (int i = 0; i < actors.length; i++) {
+          if (ref.getId().equals(actors[i].refId)) {
+            found[i] = true;
+          }
         }
       }
-    }
+    });
 
+    // delete them
     for (int i = 0; i < actors.length; i++) {
       assertTrue(found[i]);
       db.delete(actors[i]);

@@ -20,6 +20,7 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
@@ -44,16 +45,16 @@ public final class Out {
 
   static void dep(WriterConfig config, RootEntity e) {
     if (config == null
-        || config.dependencies == null
-        || e == null)
+      || config.dependencies == null
+      || e == null)
       return;
     config.dependencies.push(e);
   }
 
   static void dep(WriterConfig config, Descriptor d) {
     if (config == null
-        || config.dependencies == null
-        || d == null)
+      || config.dependencies == null
+      || d == null)
       return;
     config.dependencies.push(d);
   }
@@ -161,6 +162,32 @@ public final class Out {
     for (var value : values) {
       proto.addRepeatedField(field, value);
     }
+  }
+
+  public static Proto.ModelType modelTypeOf(ModelType type) {
+    if (type == null)
+      return Proto.ModelType.UNDEFINED_MODEL_TYPE;
+    return switch (type) {
+      case UNKNOWN -> Proto.ModelType.UNDEFINED_MODEL_TYPE;
+      case PROJECT -> Proto.ModelType.PROJECT;
+      case IMPACT_METHOD -> Proto.ModelType.IMPACT_METHOD;
+      case IMPACT_CATEGORY -> Proto.ModelType.IMPACT_CATEGORY;
+      case PRODUCT_SYSTEM -> Proto.ModelType.PRODUCT_SYSTEM;
+      case PROCESS -> Proto.ModelType.PROCESS;
+      case FLOW -> Proto.ModelType.FLOW;
+      case FLOW_PROPERTY -> Proto.ModelType.FLOW_PROPERTY;
+      case UNIT_GROUP -> Proto.ModelType.UNIT_GROUP;
+      case UNIT -> Proto.ModelType.UNIT;
+      case ACTOR -> Proto.ModelType.ACTOR;
+      case SOURCE -> Proto.ModelType.SOURCE;
+      case CATEGORY -> Proto.ModelType.CATEGORY;
+      case LOCATION -> Proto.ModelType.LOCATION;
+      case NW_SET -> Proto.ModelType.NW_SET;
+      case SOCIAL_INDICATOR -> Proto.ModelType.SOCIAL_INDICATOR;
+      case CURRENCY -> Proto.ModelType.CURRENCY;
+      case PARAMETER -> Proto.ModelType.PARAMETER;
+      case DQ_SYSTEM -> Proto.ModelType.DQ_SYSTEM;
+    };
   }
 
   static Proto.FlowType flowTypeOf(FlowType type) {

@@ -2,6 +2,7 @@ package org.openlca.proto.input;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
@@ -37,6 +38,8 @@ public class ProtoImport implements Runnable {
   final ProviderUpdate providerUpdate;
   UpdateMode updateMode = UpdateMode.NEVER;
 
+  private Consumer<ImportStatus<?>> statusHandler;
+
   /**
    * Contains mapped category IDs. When inserting or updating a
    * category into an openLCA database using the CategoryDao,
@@ -61,6 +64,11 @@ public class ProtoImport implements Runnable {
 
   public ProtoImport withUpdateMode(UpdateMode mode) {
     this.updateMode = mode;
+    return this;
+  }
+
+  public ProtoImport withStatusHandler(Consumer<ImportStatus<?>> handler) {
+    this.statusHandler = handler;
     return this;
   }
 
@@ -209,59 +217,43 @@ public class ProtoImport implements Runnable {
 
   @Override
   public void run() {
-    for (String id : reader.getIds("categories")) {
-      new CategoryImport(this).of(id);
-    }
-    for (String id : reader.getIds("actors")) {
-      new ActorImport(this).of(id);
-    }
-    for (String id : reader.getIds("sources")) {
-      new SourceImport(this).of(id);
-    }
-    for (String id : reader.getIds("locations")) {
-      new LocationImport(this).of(id);
-    }
-    for (String id : reader.getIds("unit_groups")) {
-      new UnitGroupImport(this).of(id);
-    }
-    for (String id : reader.getIds("flow_properties")) {
-      new FlowPropertyImport(this).of(id);
-    }
-    for (String id : reader.getIds("flows")) {
-      new FlowImport(this).of(id);
-    }
-    for (String id : reader.getIds("social_indicators")) {
-      new SocialIndicatorImport(this).of(id);
-    }
-    for (String id : reader.getIds("currencies")) {
-      new CurrencyImport(this).of(id);
-    }
-    for (String id : reader.getIds("parameters")) {
-      new ParameterImport(this).of(id);
-    }
-    for (String id : reader.getIds("dq_systems")) {
-      new DqSystemImport(this).of(id);
+    // the import order of the types in important here
+    var types = new ModelType[]{
+      ModelType.CATEGORY,
+      ModelType.ACTOR,
+      ModelType.SOURCE,
+      ModelType.CURRENCY,
+      ModelType.DQ_SYSTEM,
+      ModelType.LOCATION,
+      ModelType.UNIT_GROUP,
+      ModelType.FLOW_PROPERTY,
+      ModelType.FLOW,
+      ModelType.PARAMETER,
+      ModelType.SOCIAL_INDICATOR,
+      ModelType.PROCESS,
+      ModelType.IMPACT_CATEGORY,
+      ModelType.IMPACT_METHOD,
+      ModelType.PRODUCT_SYSTEM,
+      ModelType.PROJECT,
+    };
+    for (var type : types) {
+      var ids = reader.getIds(type);
+      if (ids.isEmpty())
+        continue;
+      var imp = getImport(type);
+      if (imp == null)
+        continue;
+      for (var id : reader.getIds(type)) {
+        var status = imp.of(id);
+        if (statusHandler != null) {
+          statusHandler.accept(status);
+        }
+      }
     }
 
-    for (String id : reader.getIds("processes")) {
-      new ProcessImport(this).of(id);
-    }
     // it is important to call the provider update
     // when the processes have been imported or
     // updated
     providerUpdate.run();
-
-    for (String id : reader.getIds("lcia_categories")) {
-      new ImpactCategoryImport(this).of(id);
-    }
-    for (String id : reader.getIds("lcia_methods")) {
-      new ImpactMethodImport(this).of(id);
-    }
-    for (String id : reader.getIds("product_systems")) {
-      new ProductSystemImport(this).of(id);
-    }
-    for (String id : reader.getIds("projects")) {
-      new ProjectImport(this).of(id);
-    }
   }
 }

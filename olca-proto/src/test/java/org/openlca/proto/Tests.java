@@ -10,8 +10,11 @@ public class Tests {
   public static IDatabase db() {
     if (db != null)
       return db;
-    db = Derby.createInMemory();
-    return db;
+    synchronized (Tests.class) {
+      if (db != null)
+        return db;
+      db = Derby.createInMemory();
+      return db;
+    }
   }
-
 }

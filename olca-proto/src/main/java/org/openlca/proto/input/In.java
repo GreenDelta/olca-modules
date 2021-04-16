@@ -48,39 +48,29 @@ public final class In {
   public static Uncertainty uncertainty(Proto.Uncertainty proto) {
     if (proto == null)
       return null;
-    switch (proto.getDistributionType()) {
-      case LOG_NORMAL_DISTRIBUTION:
-        return Uncertainty.logNormal(
-          proto.getGeomMean(), proto.getGeomSd());
-      case NORMAL_DISTRIBUTION:
-        return Uncertainty.normal(
-          proto.getMean(), proto.getSd());
-      case TRIANGLE_DISTRIBUTION:
-        return Uncertainty.triangle(
-          proto.getMinimum(), proto.getMode(), proto.getMaximum());
-      case UNIFORM_DISTRIBUTION:
-        return Uncertainty.uniform(
-          proto.getMinimum(), proto.getMaximum());
-      default:
-        return null;
-    }
+    return switch (proto.getDistributionType()) {
+      case LOG_NORMAL_DISTRIBUTION -> Uncertainty.logNormal(
+        proto.getGeomMean(), proto.getGeomSd());
+      case NORMAL_DISTRIBUTION -> Uncertainty.normal(
+        proto.getMean(), proto.getSd());
+      case TRIANGLE_DISTRIBUTION -> Uncertainty.triangle(
+        proto.getMinimum(), proto.getMode(), proto.getMaximum());
+      case UNIFORM_DISTRIBUTION -> Uncertainty.uniform(
+        proto.getMinimum(), proto.getMaximum());
+      default -> null;
+    };
   }
 
   public static AllocationMethod allocationMethod(Proto.AllocationType proto) {
     if (proto == null)
       return null;
-    switch (proto) {
-      case CAUSAL_ALLOCATION:
-        return AllocationMethod.CAUSAL;
-      case ECONOMIC_ALLOCATION:
-        return AllocationMethod.ECONOMIC;
-      case PHYSICAL_ALLOCATION:
-        return AllocationMethod.PHYSICAL;
-      case USE_DEFAULT_ALLOCATION:
-        return AllocationMethod.USE_DEFAULT;
-      default:
-        return AllocationMethod.NONE;
-    }
+    return switch (proto) {
+      case CAUSAL_ALLOCATION -> AllocationMethod.CAUSAL;
+      case ECONOMIC_ALLOCATION -> AllocationMethod.ECONOMIC;
+      case PHYSICAL_ALLOCATION -> AllocationMethod.PHYSICAL;
+      case USE_DEFAULT_ALLOCATION -> AllocationMethod.USE_DEFAULT;
+      default -> AllocationMethod.NONE;
+    };
   }
 
   public static long timeOf(String dateTime) {
@@ -101,16 +91,12 @@ public final class In {
   public static FlowType flowTypeOf(Proto.FlowType proto) {
     if (proto == null)
       return null;
-    switch (proto) {
-      case ELEMENTARY_FLOW:
-        return FlowType.ELEMENTARY_FLOW;
-      case PRODUCT_FLOW:
-        return FlowType.PRODUCT_FLOW;
-      case WASTE_FLOW:
-        return FlowType.WASTE_FLOW;
-      default:
-        return null;
-    }
+    return switch (proto) {
+      case ELEMENTARY_FLOW -> FlowType.ELEMENTARY_FLOW;
+      case PRODUCT_FLOW -> FlowType.PRODUCT_FLOW;
+      case WASTE_FLOW -> FlowType.WASTE_FLOW;
+      default -> null;
+    };
   }
 
   public static ProcessType processTypeOf(Proto.ProcessType proto) {
@@ -170,46 +156,27 @@ public final class In {
       .findFirst();
     if (modType.isEmpty())
       return new Descriptor();
-    switch (modType.get()) {
-      case ACTOR:
-        return new ActorDescriptor();
-      case CATEGORY:
-        return new CategorizedDescriptor();
-      case CURRENCY:
-        return new CurrencyDescriptor();
-      case DQ_SYSTEM:
-        return new DQSystemDescriptor();
-      case FLOW:
-        return new FlowDescriptor();
-      case FLOW_PROPERTY:
-        return new FlowPropertyDescriptor();
-      case IMPACT_CATEGORY:
-        return new ImpactDescriptor();
-      case IMPACT_METHOD:
-        return new ImpactMethodDescriptor();
-      case LOCATION:
-        return new LocationDescriptor();
-      case NW_SET:
-        return new NwSetDescriptor();
-      case PARAMETER:
-        return new ParameterDescriptor();
-      case PROCESS:
-        return new ProcessDescriptor();
-      case PRODUCT_SYSTEM:
-        return new ProductSystemDescriptor();
-      case PROJECT:
-        return new ProjectDescriptor();
-      case SOCIAL_INDICATOR:
-        return new SocialIndicatorDescriptor();
-      case SOURCE:
-        return new SourceDescriptor();
-      case UNIT:
-        return new UnitDescriptor();
-      case UNIT_GROUP:
-        return new UnitGroupDescriptor();
-      default:
-        return new Descriptor();
-    }
+    return switch (modType.get()) {
+      case ACTOR -> new ActorDescriptor();
+      case CATEGORY -> new CategorizedDescriptor();
+      case CURRENCY -> new CurrencyDescriptor();
+      case DQ_SYSTEM -> new DQSystemDescriptor();
+      case FLOW -> new FlowDescriptor();
+      case FLOW_PROPERTY -> new FlowPropertyDescriptor();
+      case IMPACT_CATEGORY -> new ImpactDescriptor();
+      case IMPACT_METHOD -> new ImpactMethodDescriptor();
+      case LOCATION -> new LocationDescriptor();
+      case NW_SET -> new NwSetDescriptor();
+      case PARAMETER -> new ParameterDescriptor();
+      case PROCESS -> new ProcessDescriptor();
+      case PRODUCT_SYSTEM -> new ProductSystemDescriptor();
+      case PROJECT -> new ProjectDescriptor();
+      case SOCIAL_INDICATOR -> new SocialIndicatorDescriptor();
+      case SOURCE -> new SourceDescriptor();
+      case UNIT -> new UnitDescriptor();
+      case UNIT_GROUP -> new UnitGroupDescriptor();
+      default -> new Descriptor();
+    };
   }
 
   public static ParameterRedef parameterRedefOf(
