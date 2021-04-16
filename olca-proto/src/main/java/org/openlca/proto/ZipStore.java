@@ -11,10 +11,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -22,6 +22,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 import com.google.protobuf.Parser;
 import com.google.protobuf.util.JsonFormat;
+import org.openlca.core.model.ModelType;
 import org.openlca.geo.geojson.GeoJSON;
 import org.openlca.jsonld.Json;
 import org.openlca.proto.generated.Proto;
@@ -51,12 +52,16 @@ public class ZipStore implements ProtoReader, AutoCloseable {
   }
 
   @Override
-  public List<String> getIds(String folder) {
-    var dir = zip.getPath(folder);
+  public Set<String> getIds(ModelType modelType) {
+    if (modelType == null)
+      return Collections.emptySet();
+    var path = pathOf(modelType);
+    var dir = zip.getPath(path);
     if (!Files.exists(dir))
-      return Collections.emptyList();
+      return Collections.emptySet();
+
     try {
-      var ids = new ArrayList<String>();
+      var ids = new HashSet<String>();
       Files.walkFileTree(dir, new SimpleFileVisitor<>() {
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
@@ -68,8 +73,8 @@ public class ZipStore implements ProtoReader, AutoCloseable {
       return ids;
     } catch (Exception e) {
       var log = LoggerFactory.getLogger(getClass());
-      log.error("failed to collect IDs from folder in zip: " + folder, e);
-      return Collections.emptyList();
+      log.error("failed to collect IDs from folder in zip: " + path, e);
+      return Collections.emptySet();
     }
   }
 
@@ -253,18 +258,6 @@ public class ZipStore implements ProtoReader, AutoCloseable {
   }
 
   @Override
-  public Proto.NwSet getNwSet(String id) {
-    var proto = readBin("nw_sets", id, Proto.NwSet.parser());
-    if (proto != null)
-      return proto;
-    var builder = Proto.NwSet.newBuilder();
-    if (readJson("nw_sets", id, builder)) {
-      return builder.build();
-    }
-    return null;
-  }
-
-  @Override
   public Proto.SocialIndicator getSocialIndicator(String id) {
     var proto = readBin("social_indicators", id, Proto.SocialIndicator.parser());
     if (proto != null)
@@ -355,5 +348,29 @@ public class ZipStore implements ProtoReader, AutoCloseable {
       log.error("failed to get file " + path, e);
       return null;
     }
+  }
+
+  private String pathOf(ModelType type) {
+    if (type == null)
+      return "unknown";
+    return switch (type) {
+      case ACTOR -> "actors";
+      case CATEGORY -> "categories";
+      case CURRENCY -> "currencies";
+      case DQ_SYSTEM -> "dq_systems";
+      case FLOW -> "flows";
+      case FLOW_PROPERTY -> "flow_properties";
+      case IMPACT_CATEGORY -> "lcia_categories";
+      case IMPACT_METHOD -> "lcia_methods";
+      case LOCATION -> "locations";
+      case PARAMETER -> "parameters";
+      case PROCESS -> "processes";
+      case PRODUCT_SYSTEM -> "product_systems";
+      case PROJECT -> "projects";
+      case SOCIAL_INDICATOR -> "social_indicators";
+      case SOURCE -> "sources";
+      case UNIT_GROUP -> "unit_groups";
+      default -> "unknown";
+    };
   }
 }
