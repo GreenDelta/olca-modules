@@ -7,7 +7,7 @@ import java.util.Set;
 import org.openlca.core.model.ModelType;
 import org.openlca.proto.generated.Proto;
 
-public interface ProtoStore extends Closeable {
+public interface ProtoReader extends Closeable {
 
   Set<String> getIds(ModelType modelType);
 

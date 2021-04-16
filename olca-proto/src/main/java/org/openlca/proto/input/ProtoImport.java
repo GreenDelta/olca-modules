@@ -27,12 +27,12 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.input.UpdateMode;
-import org.openlca.proto.ProtoStore;
+import org.openlca.proto.ProtoReader;
 import org.openlca.util.Strings;
 
 public class ProtoImport implements Runnable {
 
-  final ProtoStore store;
+  final ProtoReader store;
   final IDatabase db;
   final ProviderUpdate providerUpdate;
   UpdateMode updateMode = UpdateMode.NEVER;
@@ -53,7 +53,7 @@ public class ProtoImport implements Runnable {
    */
   private final Map<Class<?>, Map<String, Long>> handled = new HashMap<>();
 
-  public ProtoImport(ProtoStore store, IDatabase db) {
+  public ProtoImport(ProtoReader store, IDatabase db) {
     this.store = store;
     this.db = db;
     this.providerUpdate = new ProviderUpdate(db);

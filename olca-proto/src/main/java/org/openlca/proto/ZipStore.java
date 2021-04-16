@@ -27,7 +27,7 @@ import org.openlca.jsonld.Json;
 import org.openlca.proto.generated.Proto;
 import org.slf4j.LoggerFactory;
 
-public class ZipStore implements ProtoStore {
+public class ZipStore implements ProtoReader {
 
   private final FileSystem zip;
 

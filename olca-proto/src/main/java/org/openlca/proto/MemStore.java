@@ -1,17 +1,17 @@
 package org.openlca.proto;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 
+import com.google.protobuf.AbstractMessage;
 import org.openlca.core.model.ModelType;
 import org.openlca.proto.generated.Proto;
 
-public class MemStore implements ProtoStore {
+public class MemStore implements ProtoReader, ProtoWriter {
 
   private final EnumMap<ModelType, HashMap<String, Object>> store;
 
@@ -46,14 +46,14 @@ public class MemStore implements ProtoStore {
   }
 
   public void putCategory(Proto.Category proto) {
-    if (proto == null)
-      return;
-    var map = store.computeIfAbsent(
-      ModelType.CATEGORY, _key -> new HashMap<>());
-    map.put(proto.getId(), proto);
+    if (proto == null) return;
+    put(ModelType.CATEGORY, proto, proto::getId);
   }
 
-
+  private void put(ModelType type, AbstractMessage proto, Supplier<String> id) {
+    var map = store.computeIfAbsent(type, $ -> new HashMap<>());
+    map.put(id.get(), proto);
+  }
 
   @Override
   public Proto.Actor getActor(String id) {
