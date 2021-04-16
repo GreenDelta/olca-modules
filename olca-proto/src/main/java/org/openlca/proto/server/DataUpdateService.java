@@ -7,7 +7,7 @@ import io.grpc.stub.StreamObserver;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.input.UpdateMode;
-import org.openlca.proto.MemStore;
+import org.openlca.proto.InMemoryProtoStore;
 import org.openlca.proto.generated.Proto;
 import org.openlca.proto.generated.data.DataSet;
 import org.openlca.proto.generated.data.DataUpdateServiceGrpc;
@@ -52,7 +52,7 @@ public class DataUpdateService extends
   public void put(DataSet dataSet, StreamObserver<Proto.Ref> resp) {
 
     // put the data set into an in memory store
-    var store = MemStore.create();
+    var store = InMemoryProtoStore.create();
     if (dataSet.hasActor()) {
       store.putActor(dataSet.getActor());
     } else if (dataSet.hasCategory()) {

@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
-import org.openlca.proto.MemStore;
+import org.openlca.proto.InMemoryProtoStore;
 import org.openlca.proto.Tests;
 
 public class ImportStatusTest {
@@ -18,7 +18,7 @@ public class ImportStatusTest {
 
   @Before
   public void setup() {
-    protoImport = new ProtoImport(MemStore.create(), db);
+    protoImport = new ProtoImport(InMemoryProtoStore.create(), db);
   }
 
   @Test

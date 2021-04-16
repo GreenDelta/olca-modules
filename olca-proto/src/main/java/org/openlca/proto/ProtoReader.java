@@ -1,13 +1,11 @@
 package org.openlca.proto;
 
-import java.io.Closeable;
-import java.util.List;
 import java.util.Set;
 
 import org.openlca.core.model.ModelType;
 import org.openlca.proto.generated.Proto;
 
-public interface ProtoReader extends Closeable {
+public interface ProtoReader {
 
   Set<String> getIds(ModelType modelType);
 
@@ -42,7 +40,5 @@ public interface ProtoReader extends Closeable {
   Proto.SocialIndicator getSocialIndicator(String id);
 
   Proto.ProductSystem getProductSystem(String id);
-
-  Proto.NwSet getNwSet(String id);
 
 }

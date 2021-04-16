@@ -40,7 +40,7 @@ import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.input.UpdateMode;
-import org.openlca.proto.MemStore;
+import org.openlca.proto.InMemoryProtoStore;
 import org.openlca.proto.generated.Proto;
 import org.openlca.proto.input.ProtoImport;
 import org.openlca.proto.output.ActorWriter;
@@ -112,7 +112,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putActor(Proto.Actor req, StreamObserver<Services.RefStatus> resp) {
-    var store = MemStore.create();
+    var store = InMemoryProtoStore.create();
     store.putActor(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -163,7 +163,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
     // note that categories behave a bit differently when inserted into a
     // database: their reference IDs may change as they are calculated from
     // the respective category paths
-    var store = MemStore.create();
+    var store = InMemoryProtoStore.create();
     store.putCategory(req);
     var imp = new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS);
@@ -221,7 +221,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putCurrency(Proto.Currency req, StreamObserver<Services.RefStatus> resp) {
-    var store = MemStore.create();
+    var store = InMemoryProtoStore.create();
     store.putCurrency(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -269,7 +269,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putDQSystem(Proto.DQSystem req, StreamObserver<Services.RefStatus> resp) {
-    var store = MemStore.create();
+    var store = InMemoryProtoStore.create();
     store.putDQSystem(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -317,7 +317,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putFlow(Proto.Flow req, StreamObserver<Services.RefStatus> resp) {
-    var store = MemStore.create();
+    var store = InMemoryProtoStore.create();
     store.putFlow(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -366,7 +366,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putFlowProperty(Proto.FlowProperty req, StreamObserver<Services.RefStatus> resp) {
-    var store = MemStore.create();
+    var store = InMemoryProtoStore.create();
     store.putFlowProperty(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -414,7 +414,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putImpactCategory(Proto.ImpactCategory req, StreamObserver<Services.RefStatus> resp) {
-    var store = MemStore.create();
+    var store = InMemoryProtoStore.create();
     store.putImpactCategory(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -463,7 +463,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putImpactMethod(Proto.ImpactMethod req, StreamObserver<Services.RefStatus> resp) {
-    var store = MemStore.create();
+    var store = InMemoryProtoStore.create();
     store.putImpactMethod(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -511,7 +511,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putLocation(Proto.Location req, StreamObserver<Services.RefStatus> resp) {
-    var store = MemStore.create();
+    var store = InMemoryProtoStore.create();
     store.putLocation(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -559,7 +559,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putParameter(Proto.Parameter req, StreamObserver<Services.RefStatus> resp) {
-    var store = MemStore.create();
+    var store = InMemoryProtoStore.create();
     store.putParameter(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -607,7 +607,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putProcess(Proto.Process req, StreamObserver<Services.RefStatus> resp) {
-    var store = MemStore.create();
+    var store = InMemoryProtoStore.create();
     store.putProcess(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -655,7 +655,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putProductSystem(Proto.ProductSystem req, StreamObserver<Services.RefStatus> resp) {
-    var store = MemStore.create();
+    var store = InMemoryProtoStore.create();
     store.putProductSystem(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -703,7 +703,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putProject(Proto.Project req, StreamObserver<Services.RefStatus> resp) {
-    var store = MemStore.create();
+    var store = InMemoryProtoStore.create();
     store.putProject(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -751,7 +751,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putSocialIndicator(Proto.SocialIndicator req, StreamObserver<Services.RefStatus> resp) {
-    var store = MemStore.create();
+    var store = InMemoryProtoStore.create();
     store.putSocialIndicator(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -799,7 +799,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putSource(Proto.Source req, StreamObserver<Services.RefStatus> resp) {
-    var store = MemStore.create();
+    var store = InMemoryProtoStore.create();
     store.putSource(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
@@ -847,7 +847,7 @@ class DataService extends DataServiceGrpc.DataServiceImplBase {
 
   @Override
   public void putUnitGroup(Proto.UnitGroup req, StreamObserver<Services.RefStatus> resp) {
-    var store = MemStore.create();
+    var store = InMemoryProtoStore.create();
     store.putUnitGroup(req);
     new ProtoImport(store, db)
       .withUpdateMode(UpdateMode.ALWAYS)
