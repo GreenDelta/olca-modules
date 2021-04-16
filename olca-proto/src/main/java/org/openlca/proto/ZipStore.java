@@ -51,7 +51,7 @@ public class ZipStore implements ProtoStore {
   }
 
   @Override
-  public List<String> getIDs(String folder) {
+  public List<String> getIds(String folder) {
     var dir = zip.getPath(folder);
     if (!Files.exists(dir))
       return Collections.emptyList();

@@ -2,16 +2,22 @@ package org.openlca.proto;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.openlca.core.model.ModelType;
 import org.openlca.proto.generated.Proto;
 
 public class MemStore implements ProtoStore {
 
-  private final HashMap<String, HashMap<String, Object>> store = new HashMap<>();
+  private final EnumMap<ModelType, HashMap<String, Object>> store;
+
 
   private MemStore() {
+    store = new EnumMap<>(ModelType.class);
   }
 
   public static MemStore create() {
@@ -19,16 +25,18 @@ public class MemStore implements ProtoStore {
   }
 
   @Override
-  public List<String> getIDs(String folder) {
-    var map = store.get(folder);
+  public Set<String> getIds(ModelType modelType) {
+    if (modelType == null)
+      return Collections.emptySet();
+    var map = store.get(modelType);
     if (map == null)
-      return Collections.emptyList();
-    return new ArrayList<>(map.keySet());
+      return Collections.emptySet();
+    return new HashSet<>(map.keySet());
   }
 
   @Override
   public Proto.Category getCategory(String id) {
-    var map = store.get("categories");
+    var map = store.get(ModelType.CATEGORY);
     if (map == null)
       return null;
     var proto = map.get(id);
@@ -41,13 +49,15 @@ public class MemStore implements ProtoStore {
     if (proto == null)
       return;
     var map = store.computeIfAbsent(
-      "categories", _key -> new HashMap<>());
+      ModelType.CATEGORY, _key -> new HashMap<>());
     map.put(proto.getId(), proto);
   }
 
+
+
   @Override
   public Proto.Actor getActor(String id) {
-    var map = store.get("actors");
+    var map = store.get(ModelType.ACTOR);
     if (map == null)
       return null;
     var proto = map.get(id);
@@ -60,13 +70,13 @@ public class MemStore implements ProtoStore {
     if (proto == null)
       return;
     var map = store.computeIfAbsent(
-      "actors", _key -> new HashMap<>());
+      ModelType.ACTOR, _key -> new HashMap<>());
     map.put(proto.getId(), proto);
   }
 
   @Override
   public Proto.Currency getCurrency(String id) {
-    var map = store.get("currencies");
+    var map = store.get(ModelType.CURRENCY);
     if (map == null)
       return null;
     var proto = map.get(id);
@@ -79,7 +89,7 @@ public class MemStore implements ProtoStore {
     if (proto == null)
       return;
     var map = store.computeIfAbsent(
-      "currencies", _key -> new HashMap<>());
+      ModelType.CURRENCY, _key -> new HashMap<>());
     map.put(proto.getId(), proto);
   }
 

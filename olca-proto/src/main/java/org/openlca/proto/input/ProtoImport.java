@@ -209,41 +209,41 @@ public class ProtoImport implements Runnable {
 
   @Override
   public void run() {
-    for (String id : store.getIDs("categories")) {
+    for (String id : store.getIds("categories")) {
       new CategoryImport(this).of(id);
     }
-    for (String id : store.getIDs("actors")) {
+    for (String id : store.getIds("actors")) {
       new ActorImport(this).of(id);
     }
-    for (String id : store.getIDs("sources")) {
+    for (String id : store.getIds("sources")) {
       new SourceImport(this).of(id);
     }
-    for (String id : store.getIDs("locations")) {
+    for (String id : store.getIds("locations")) {
       new LocationImport(this).of(id);
     }
-    for (String id : store.getIDs("unit_groups")) {
+    for (String id : store.getIds("unit_groups")) {
       new UnitGroupImport(this).of(id);
     }
-    for (String id : store.getIDs("flow_properties")) {
+    for (String id : store.getIds("flow_properties")) {
       new FlowPropertyImport(this).of(id);
     }
-    for (String id : store.getIDs("flows")) {
+    for (String id : store.getIds("flows")) {
       new FlowImport(this).of(id);
     }
-    for (String id : store.getIDs("social_indicators")) {
+    for (String id : store.getIds("social_indicators")) {
       new SocialIndicatorImport(this).of(id);
     }
-    for (String id : store.getIDs("currencies")) {
+    for (String id : store.getIds("currencies")) {
       new CurrencyImport(this).of(id);
     }
-    for (String id : store.getIDs("parameters")) {
+    for (String id : store.getIds("parameters")) {
       new ParameterImport(this).of(id);
     }
-    for (String id : store.getIDs("dq_systems")) {
+    for (String id : store.getIds("dq_systems")) {
       new DqSystemImport(this).of(id);
     }
 
-    for (String id : store.getIDs("processes")) {
+    for (String id : store.getIds("processes")) {
       new ProcessImport(this).of(id);
     }
     // it is important to call the provider update
@@ -251,16 +251,16 @@ public class ProtoImport implements Runnable {
     // updated
     providerUpdate.run();
 
-    for (String id : store.getIDs("lcia_categories")) {
+    for (String id : store.getIds("lcia_categories")) {
       new ImpactCategoryImport(this).of(id);
     }
-    for (String id : store.getIDs("lcia_methods")) {
+    for (String id : store.getIds("lcia_methods")) {
       new ImpactMethodImport(this).of(id);
     }
-    for (String id : store.getIDs("product_systems")) {
+    for (String id : store.getIds("product_systems")) {
       new ProductSystemImport(this).of(id);
     }
-    for (String id : store.getIDs("projects")) {
+    for (String id : store.getIds("projects")) {
       new ProjectImport(this).of(id);
     }
   }

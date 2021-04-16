@@ -2,12 +2,14 @@ package org.openlca.proto;
 
 import java.io.Closeable;
 import java.util.List;
+import java.util.Set;
 
+import org.openlca.core.model.ModelType;
 import org.openlca.proto.generated.Proto;
 
 public interface ProtoStore extends Closeable {
 
-  List<String> getIDs(String folder);
+  Set<String> getIds(ModelType modelType);
 
   Proto.Category getCategory(String id);
 
