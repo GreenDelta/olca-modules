@@ -576,46 +576,30 @@ message FlowMap {
 
 }
 
-// A mapping from one flow to another.
+// A mapping from a source flow to a target flow.
 message FlowMapEntry {
 
   // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
-  // The reference ID (typically an UUID) of the entity.
-  string id = 2 [json_name = "@id"];
+  // Describes the source flow of the mapping.
+  FlowMapRef from = 2;
 
-  // The name of the entity.
-  string name = 3;
+  // Describes the target of the mapping.
+  FlowMapRef to = 3;
 
-  // The description of the entity.
-  string description = 4;
-
-  // A version number in MAJOR.MINOR.PATCH format where the MINOR and PATCH
-  // fields are optional and the fields may have leading zeros (so 01.00.00 is
-  // the same as 1.0.0 or 1).
-  string version = 5;
-
-  // The timestamp when the entity was changed the last time.
-  string last_change = 6;
-
-  // The flow, flow property, and unit of the source flow.
-  FlowMapRef from = 7;
-
-  // The flow, flow property, and unit of the target flow.
-  FlowMapRef to = 8;
-
-  // The factor to convert the original source flow to the target flow.
-  double conversion_factor = 9;
+  // The conversion factor to convert the amount of 1 unit of the source flow
+  // into the corresponding quantity of the target flow.
+  double conversion_factor = 4;
 
 }
 
-// Describes a the source or target flow of a flow mapping in a `FlowMap`. Such
-// a flow reference can also optionally specify the unit and flow property
-// (quantity) for which the mapping is valid. If the unit and quantity are not
-// given, the mapping is based on the reference unit of the reference flow
-// property of the respective flow.
+// Describes a source or target flow in a `FlowMappingEntry` of a `FlowMap`.
+// Such a flow reference can also optionally specify the unit and flow property
+// (quantity) for which the mapping is valid. If the unit or quantity is not
+// given, the mapping is based on the respective reference unit and reference
+// flow property of the flow.
 message FlowMapRef {
 
   // The type name of the respective entity.
