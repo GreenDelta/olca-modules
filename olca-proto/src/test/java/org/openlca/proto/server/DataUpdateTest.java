@@ -33,7 +33,10 @@ public class DataUpdateTest {
       int i = 0;
       try {
         for (var type : ModelType.values()) {
-          if (!type.isCategorized())
+
+          // the ID of categories is calculated from the category
+          // name; we do not test this behaviour here
+          if (!type.isCategorized() || type == ModelType.CATEGORY)
             continue;
           i++;
           var id = UUID.randomUUID().toString();
@@ -47,35 +50,27 @@ public class DataUpdateTest {
             .getConstructor()
             .newInstance();
           instance.refId = id;
-          instance.version = Version.valueOf(0,0,1);
+          instance.version = Version.valueOf(0, 0, 1);
           var ref = update.put(DataUtil.toDataSet(db, instance).build());
-          if (type != ModelType.CATEGORY) {
-            assertEquals(id, ref.getId());
-          }
+          assertEquals(id, ref.getId());
           assertEquals("00.00.001", ref.getVersion());
 
           // check that we can get it
           dataSet = fetch.find(findRequestOf(type, id));
-          if (type != ModelType.CATEGORY) {
-            assertEquals(id, getField(type, dataSet, "id"));
-          }
+          assertEquals(id, getField(type, dataSet, "id"));
           assertEquals("00.00.001", getField(type, dataSet, "version"));
 
           // update it
           instance.name = type.name();
-          instance.version = Version.valueOf(1,0,0);
+          instance.version = Version.valueOf(1, 0, 0);
           ref = update.put(DataUtil.toDataSet(db, instance).build());
-          if (type != ModelType.CATEGORY) {
-            assertEquals(id, ref.getId());
-          }
+          assertEquals(id, ref.getId());
           assertEquals(type.name(), ref.getName());
           assertEquals("01.00.000", ref.getVersion());
 
           // check that we get the updated thing
           dataSet = fetch.find(findRequestOf(type, id));
-          if (type != ModelType.CATEGORY) {
-            assertEquals(id, getField(type, dataSet, "id"));
-          }
+          assertEquals(id, getField(type, dataSet, "id"));
           assertEquals("01.00.000", getField(type, dataSet, "version"));
           assertEquals(type.name(), getField(type, dataSet, "name"));
 
@@ -92,7 +87,7 @@ public class DataUpdateTest {
         throw new RuntimeException(e);
       }
 
-      assertEquals(16, i);
+      assertEquals(15, i);
 
     });
   }
