@@ -12,7 +12,6 @@ import org.openlca.util.Strings;
 class FlowImport implements Import<Flow> {
 
   private final ProtoImport imp;
-  private boolean inUpdateMode;
 
   FlowImport(ProtoImport imp) {
     this.imp = imp;
@@ -23,10 +22,10 @@ class FlowImport implements Import<Flow> {
     var flow = imp.get(Flow.class, id);
 
     // check if we are in update mode
-    inUpdateMode = false;
+    var inUpdateMode = false;
     if (flow != null) {
       inUpdateMode = imp.shouldUpdate(flow);
-      if(!inUpdateMode) {
+      if (!inUpdateMode) {
         return ImportStatus.skipped(flow);
       }
     }
@@ -50,7 +49,7 @@ class FlowImport implements Import<Flow> {
       flow.refId = id;
     }
     wrap.mapTo(flow, imp);
-    map(proto, flow);
+    map(proto, flow, inUpdateMode);
 
     // insert or update it
     var dao = new FlowDao(imp.db);
@@ -63,7 +62,7 @@ class FlowImport implements Import<Flow> {
       : ImportStatus.created(flow);
   }
 
-  private void map(Proto.Flow proto, Flow flow) {
+  private void map(Proto.Flow proto, Flow flow, boolean inUpdateMode) {
 
     flow.flowType = In.flowTypeOf(proto.getFlowType());
     flow.casNumber = proto.getCas();
@@ -81,7 +80,7 @@ class FlowImport implements Import<Flow> {
     Map<String, FlowPropertyFactor> oldFactors = null;
     if (inUpdateMode) {
       oldFactors = new HashMap<>();
-      for(var factor : flow.flowPropertyFactors) {
+      for (var factor : flow.flowPropertyFactors) {
         var prop = factor.flowProperty;
         if (prop == null || prop.refId == null)
           continue;

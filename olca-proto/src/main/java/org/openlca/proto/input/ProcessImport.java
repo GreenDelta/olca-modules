@@ -23,7 +23,6 @@ import org.openlca.util.Strings;
 class ProcessImport implements Import<Process> {
 
   private final ProtoImport imp;
-  private boolean inUpdateMode;
 
   ProcessImport(ProtoImport imp) {
     this.imp = imp;
@@ -38,7 +37,7 @@ class ProcessImport implements Import<Process> {
     var process = imp.get(Process.class, id);
 
     // check if we are in update mode
-    inUpdateMode = false;
+    var inUpdateMode = false;
     if (process != null) {
       inUpdateMode = imp.shouldUpdate(process);
       if(!inUpdateMode) {
@@ -65,7 +64,7 @@ class ProcessImport implements Import<Process> {
       process.refId = id;
     }
     wrap.mapTo(process, imp);
-    map(proto, process);
+    map(proto, process, inUpdateMode);
 
     // insert or update it
     var dao = new ProcessDao(imp.db);
@@ -78,7 +77,7 @@ class ProcessImport implements Import<Process> {
       : ImportStatus.created(process);
   }
 
-  private void map(Proto.Process proto, Process p) {
+  private void map(Proto.Process proto, Process p, boolean inUpdateMode) {
 
     p.processType = In.processTypeOf(proto.getProcessType());
     p.infrastructureProcess = proto.getInfrastructureProcess();

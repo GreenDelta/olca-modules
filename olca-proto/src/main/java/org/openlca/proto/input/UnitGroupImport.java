@@ -12,7 +12,6 @@ import org.openlca.util.Strings;
 class UnitGroupImport implements Import<UnitGroup> {
 
   private final ProtoImport imp;
-  private boolean inUpdateMode;
 
   UnitGroupImport(ProtoImport imp) {
     this.imp = imp;
@@ -23,7 +22,7 @@ class UnitGroupImport implements Import<UnitGroup> {
     var group = imp.get(UnitGroup.class, id);
 
     // check if we are in update mode
-    inUpdateMode = false;
+    var inUpdateMode = false;
     if (group != null) {
       inUpdateMode = imp.shouldUpdate(group);
       if(!inUpdateMode) {
@@ -50,7 +49,7 @@ class UnitGroupImport implements Import<UnitGroup> {
       group.refId = id;
     }
     wrap.mapTo(group, imp);
-    map(proto, group);
+    map(proto, group, inUpdateMode);
 
     // insert or update it
     var dao = new UnitGroupDao(imp.db);
@@ -75,7 +74,8 @@ class UnitGroupImport implements Import<UnitGroup> {
       : ImportStatus.created(group);
   }
 
-  private void map(Proto.UnitGroup proto, UnitGroup group) {
+  private void map(
+    Proto.UnitGroup proto, UnitGroup group, boolean inUpdateMode) {
 
     // sync units (keep the IDs) if we are in update mode
     // this is important because these units may are used
