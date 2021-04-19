@@ -24,6 +24,8 @@ import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.proto.InMemoryProtoStore;
+import org.openlca.proto.ProtoReader;
 import org.openlca.proto.generated.Proto;
 import org.openlca.proto.generated.data.DataSet;
 import org.openlca.proto.input.In;
@@ -166,6 +168,47 @@ class DataUtil {
 
     return ds;
   }
+
+  static ProtoReader readerOf(DataSet dataSet) {
+    var store = InMemoryProtoStore.create();
+    if (dataSet == null)
+      return store;
+    if (dataSet.hasActor()) {
+      store.putActor(dataSet.getActor());
+    } else if (dataSet.hasCategory()) {
+      store.putCategory(dataSet.getCategory());
+    } else if (dataSet.hasCurrency()) {
+      store.putCurrency(dataSet.getCurrency());
+    } else if (dataSet.hasDqSystem()) {
+      store.putDQSystem(dataSet.getDqSystem());
+    } else if (dataSet.hasFlow()) {
+      store.putFlow(dataSet.getFlow());
+    } else if (dataSet.hasFlowProperty()) {
+      store.putFlowProperty(dataSet.getFlowProperty());
+    } else if (dataSet.hasImpactCategory()) {
+      store.putImpactCategory(dataSet.getImpactCategory());
+    } else if (dataSet.hasImpactMethod()) {
+      store.putImpactMethod(dataSet.getImpactMethod());
+    } else if (dataSet.hasLocation()) {
+      store.putLocation(dataSet.getLocation());
+    } else if (dataSet.hasParameter()) {
+      store.putParameter(dataSet.getParameter());
+    } else if (dataSet.hasProcess()) {
+      store.putProcess(dataSet.getProcess());
+    } else if (dataSet.hasProductSystem()) {
+      store.putProductSystem(dataSet.getProductSystem());
+    } else if (dataSet.hasProject()) {
+      store.putProject(dataSet.getProject());
+    } else if (dataSet.hasSocialIndicator()) {
+      store.putSocialIndicator(dataSet.getSocialIndicator());
+    } else if (dataSet.hasSource()) {
+      store.putSource(dataSet.getSource());
+    } else if (dataSet.hasUnitGroup()) {
+      store.putUnitGroup(dataSet.getUnitGroup());
+    }
+    return store;
+  }
+
 
   static <T extends RootEntity> ModelQuery<T> model(
     IDatabase db, Class<T> type) {
