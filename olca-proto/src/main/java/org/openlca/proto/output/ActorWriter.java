@@ -1,6 +1,7 @@
 package org.openlca.proto.output;
 
 import org.openlca.core.model.Actor;
+import org.openlca.proto.generated.EntityType;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
@@ -19,6 +20,7 @@ public class ActorWriter {
     Out.map(a, proto);
     Out.dep(config, a.category);
 
+    proto.setEntityType(EntityType.Actor);
     proto.setAddress(Strings.orEmpty(a.address));
     proto.setCity(Strings.orEmpty(a.city));
     proto.setCountry(Strings.orEmpty(a.country));

@@ -33,6 +33,7 @@ import org.openlca.core.model.descriptors.UnitDescriptor;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 import org.openlca.jsonld.Enums;
 import org.openlca.jsonld.Json;
+import org.openlca.proto.generated.EntityType;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
@@ -145,37 +146,25 @@ public final class In {
   }
 
   private static Descriptor initDescriptor(Proto.Ref ref) {
-    var refType = ref.getType();
-    if (Strings.nullOrEmpty(refType))
-      return new Descriptor();
-    var modType = Arrays.stream(ModelType.values())
-      .filter(modelType ->
-        modelType != null
-          && modelType.getModelClass() != null
-          && modelType.getModelClass().getSimpleName().equals(refType))
-      .findFirst();
-    if (modType.isEmpty())
-      return new Descriptor();
-    return switch (modType.get()) {
-      case ACTOR -> new ActorDescriptor();
-      case CATEGORY -> new CategorizedDescriptor();
-      case CURRENCY -> new CurrencyDescriptor();
-      case DQ_SYSTEM -> new DQSystemDescriptor();
-      case FLOW -> new FlowDescriptor();
-      case FLOW_PROPERTY -> new FlowPropertyDescriptor();
-      case IMPACT_CATEGORY -> new ImpactDescriptor();
-      case IMPACT_METHOD -> new ImpactMethodDescriptor();
-      case LOCATION -> new LocationDescriptor();
-      case NW_SET -> new NwSetDescriptor();
-      case PARAMETER -> new ParameterDescriptor();
-      case PROCESS -> new ProcessDescriptor();
-      case PRODUCT_SYSTEM -> new ProductSystemDescriptor();
-      case PROJECT -> new ProjectDescriptor();
-      case SOCIAL_INDICATOR -> new SocialIndicatorDescriptor();
-      case SOURCE -> new SourceDescriptor();
-      case UNIT -> new UnitDescriptor();
-      case UNIT_GROUP -> new UnitGroupDescriptor();
-      default -> new Descriptor();
+    return switch (ref.getEntityType()) {
+      case Actor -> new ActorDescriptor();
+      case Category -> new CategorizedDescriptor();
+      case Currency -> new CurrencyDescriptor();
+      case DQSystem -> new DQSystemDescriptor();
+      case Flow -> new FlowDescriptor();
+      case FlowProperty -> new FlowPropertyDescriptor();
+      case ImpactCategory -> new ImpactDescriptor();
+      case ImpactMethod -> new ImpactMethodDescriptor();
+      case Location -> new LocationDescriptor();
+      case Parameter -> new ParameterDescriptor();
+      case Process -> new ProcessDescriptor();
+      case ProductSystem -> new ProductSystemDescriptor();
+      case Project -> new ProjectDescriptor();
+      case SocialIndicator -> new SocialIndicatorDescriptor();
+      case Source -> new SourceDescriptor();
+      case UnitGroup -> new UnitDescriptor();
+      case UNRECOGNIZED -> null;
+      case Undefined -> new Descriptor();
     };
   }
 

@@ -2,6 +2,7 @@ package org.openlca.proto;
 
 import java.util.UUID;
 
+import org.openlca.proto.generated.EntityType;
 import org.openlca.proto.generated.Proto;
 
 import com.google.protobuf.util.JsonFormat;
@@ -10,7 +11,7 @@ public class Main {
 
   public static void main(String[] args) throws Exception {
     var p = Proto.Ref.newBuilder()
-        .setType("Process")
+        .setEntityType(EntityType.Process)
         .setId(UUID.randomUUID().toString())
         .setName("steel")
         .setDescription("some steel process")
@@ -27,7 +28,7 @@ public class Main {
 
   private static void genFlow() throws Exception {
     var flow = Proto.Flow.newBuilder()
-        .setType("Flow")
+        .setEntityType(EntityType.Flow)
         .setId(UUID.randomUUID().toString())
         .setName("Steel")
         .setFlowType(Proto.FlowType.PRODUCT_FLOW)

@@ -19,6 +19,7 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.proto.Tests;
+import org.openlca.proto.generated.EntityType;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
@@ -109,7 +110,7 @@ public class RefsTest {
     checkBaseFields(ref);
     assertEquals("DE", ref.getLocation());
     String[] categoryPath;
-    if ("Process".equals(ref.getType())) {
+    if (ref.getEntityType() == EntityType.Process) {
       categoryPath = new String[]{"materials", "steel"};
     } else {
       categoryPath = new String[]{
@@ -124,14 +125,14 @@ public class RefsTest {
   private void checkBaseFields(Proto.Ref.Builder ref) {
     assertEquals("01.00.000", ref.getVersion());
     assertTrue(Strings.notEmpty(ref.getLastChange()));
-    if ("Process".equals(ref.getType())) {
+    if (ref.getEntityType() == EntityType.Process) {
       assertEquals(process.refId, ref.getId());
       assertEquals("Steel production", ref.getName());
       assertEquals("an example process", ref.getDescription());
       assertEquals(Proto.ProcessType.UNIT_PROCESS, ref.getProcessType());
     } else {
       assertEquals(flow.refId, ref.getId());
-      assertEquals("Flow", ref.getType());
+      assertEquals(EntityType.Flow, ref.getEntityType());
       assertEquals("Steel", ref.getName());
       assertEquals("an example product", ref.getDescription());
       assertEquals(Proto.FlowType.PRODUCT_FLOW, ref.getFlowType());

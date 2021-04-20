@@ -82,6 +82,8 @@ option java_outer_classname = "Proto";
 option csharp_namespace = "ProtoLCA";
 option go_package = ".;protolca";
 
+import "commons.proto";
+
 `
 
 // BytesHint is a comment we add to fields with `bytes` as data type.
@@ -190,7 +192,7 @@ func collectTypes(yamlDir string) []*TypeDef {
 }
 
 // Writes the fields of the given class to the given buffer. This function
-// climbs up the class hierarchy and inlines the fields of the correponding
+// climbs up the class hierarchy and inlines the fields of the corresponding
 // super classes (as there is no extension mechanism in proto3).
 func fields(class *ClassDef, buff *bytes.Buffer, types map[string]*TypeDef, offset int) int {
 	count := offset
@@ -204,10 +206,9 @@ func fields(class *ClassDef, buff *bytes.Buffer, types map[string]*TypeDef, offs
 	}
 
 	// @type field
-	if class.Name == "Entity" {
+	if class.Name == "Ref" || class.Name == "CategorizedEntity" {
 		buff.WriteString("  // The type name of the respective entity.\n")
-		buff.WriteString("  // This field is used for JSON-LD compatibility.\n")
-		buff.WriteString("  string type = " + strconv.Itoa(count))
+		buff.WriteString("  protolca.commons.EntityType entity_type = " + strconv.Itoa(count))
 		buff.WriteString(" [json_name = \"@type\"];\n\n")
 		count++
 	}

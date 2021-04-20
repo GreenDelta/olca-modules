@@ -143,32 +143,12 @@ public final class Refs {
     var fields = proto.getDescriptorForType().getFields();
     for (var field : fields) {
       switch (field.getName()) {
-        case "id":
-          Out.set(proto, field, d.refId);
-          break;
-        case "type":
-          if (d.type != null) {
-            var modelClass = d.type.getModelClass();
-            if (modelClass != null) {
-              Out.set(proto, field, modelClass.getSimpleName());
-            }
-          }
-          break;
-        case "name":
-          Out.set(proto, field, d.name);
-          break;
-        case "description":
-          Out.set(proto, field, d.description);
-          break;
-        case "version":
-          Out.set(proto, field, Version.asString(d.version));
-          break;
-        case "last_change":
-          Out.set(proto, field, Out.dateTimeOf(d.lastChange));
-          break;
-        case "library":
-          Out.set(proto, field, d.library);
-          break;
+        case "id" -> Out.set(proto, field, d.refId);
+        case "name" -> Out.set(proto, field, d.name);
+        case "description" -> Out.set(proto, field, d.description);
+        case "version" -> Out.set(proto, field, Version.asString(d.version));
+        case "last_change" -> Out.set(proto, field, Out.dateTimeOf(d.lastChange));
+        case "library" -> Out.set(proto, field, d.library);
       }
     }
   }

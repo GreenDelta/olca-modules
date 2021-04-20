@@ -77,9 +77,6 @@ public final class Out {
         case "id":
           set(proto, field, e.refId);
           break;
-        case "type":
-          set(proto, field, e.getClass().getSimpleName());
-          break;
         case "name":
           set(proto, field, e.name);
           break;
