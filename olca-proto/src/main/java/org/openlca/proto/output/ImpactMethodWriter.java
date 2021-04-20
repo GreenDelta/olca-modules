@@ -1,6 +1,7 @@
 package org.openlca.proto.output;
 
 import org.openlca.core.model.ImpactMethod;
+import org.openlca.proto.generated.EntityType;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
@@ -16,6 +17,7 @@ public class ImpactMethodWriter {
     var proto = Proto.ImpactMethod.newBuilder();
     if (method == null)
       return proto.build();
+    proto.setEntityType(EntityType.ImpactMethod);
     Out.map(method, proto);
     Out.dep(config, method.category);
 

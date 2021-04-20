@@ -21,6 +21,7 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.NwSet;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
@@ -31,9 +32,11 @@ import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.UncertaintyType;
+import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.Descriptor;
+import org.openlca.proto.generated.EntityType;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Categories;
 import org.openlca.util.Strings;
@@ -300,58 +303,90 @@ public final class Out {
   }
 
   public static AbstractMessage toProto(IDatabase db, RootEntity e) {
-
     var conf = WriterConfig.of(db);
-
     if (e instanceof Actor)
       return new ActorWriter(conf).write((Actor) e);
-
     if (e instanceof Category)
       return new CategoryWriter(conf).write((Category) e);
-
     if (e instanceof Currency)
       return new CurrencyWriter(conf).write((Currency) e);
-
     if (e instanceof DQSystem)
       return new DQSystemWriter(conf).write((DQSystem) e);
-
     if (e instanceof Flow)
       return new FlowWriter(conf).write((Flow) e);
-
     if (e instanceof FlowProperty)
       return new FlowPropertyWriter(conf).write((FlowProperty) e);
-
     if (e instanceof ImpactCategory)
       return new ImpactCategoryWriter(conf).write((ImpactCategory) e);
-
     if (e instanceof ImpactMethod)
       return new ImpactMethodWriter(conf).write((ImpactMethod) e);
-
     if (e instanceof Location)
       return new LocationWriter(conf).write((Location) e);
-
     if (e instanceof Parameter)
       return new ParameterWriter(conf).write((Parameter) e);
-
     if (e instanceof Process)
       return new ProcessWriter(conf).write((Process) e);
-
     if (e instanceof ProductSystem)
       return new ProductSystemWriter(conf).write((ProductSystem) e);
-
     if (e instanceof Project)
       return new ProjectWriter(conf).write((Project) e);
-
     if (e instanceof SocialIndicator)
       return new SocialIndicatorWriter(conf).write((SocialIndicator) e);
-
     if (e instanceof Source)
       return new SourceWriter(conf).write((Source) e);
-
     if (e instanceof UnitGroup)
       return new UnitGroupWriter(conf).write((UnitGroup) e);
-
     throw new RuntimeException(
       "Unsupported entity type" + " for binary translation: " + e.getClass());
+  }
+
+  public static EntityType entityTypeOf(ModelType modelType) {
+    if (modelType == null)
+      return EntityType.Undefined;
+    return switch (modelType) {
+      case ACTOR -> EntityType.Actor;
+      case CATEGORY -> EntityType.Category;
+      case CURRENCY -> EntityType.Currency;
+      case DQ_SYSTEM -> EntityType.DQSystem;
+      case FLOW -> EntityType.Flow;
+      case FLOW_PROPERTY -> EntityType.FlowProperty;
+      case IMPACT_CATEGORY -> EntityType.ImpactCategory;
+      case IMPACT_METHOD -> EntityType.ImpactMethod;
+      case LOCATION -> EntityType.Location;
+      case NW_SET -> EntityType.NwSet;
+      case PARAMETER -> EntityType.Parameter;
+      case PROCESS -> EntityType.Process;
+      case PRODUCT_SYSTEM -> EntityType.ProductSystem;
+      case PROJECT -> EntityType.Project;
+      case SOCIAL_INDICATOR -> EntityType.SocialIndicator;
+      case SOURCE -> EntityType.Source;
+      case UNIT -> EntityType.Unit;
+      case UNIT_GROUP -> EntityType.UnitGroup;
+      default -> EntityType.Undefined;
+    };
+  }
+
+  public static EntityType entityTypeOf(RootEntity e) {
+    if (e == null)
+      return EntityType.Undefined;
+    if (e instanceof Actor) return EntityType.Actor;
+    if (e instanceof Category) return EntityType.Category;
+    if (e instanceof Currency) return EntityType.Currency;
+    if (e instanceof DQSystem) return EntityType.DQSystem;
+    if (e instanceof Flow) return EntityType.Flow;
+    if (e instanceof FlowProperty) return EntityType.FlowProperty;
+    if (e instanceof ImpactCategory) return EntityType.ImpactCategory;
+    if (e instanceof ImpactMethod) return EntityType.ImpactMethod;
+    if (e instanceof Location) return EntityType.Location;
+    if (e instanceof NwSet) return EntityType.NwSet;
+    if (e instanceof Parameter) return EntityType.Parameter;
+    if (e instanceof Process) return EntityType.Process;
+    if (e instanceof ProductSystem) return EntityType.ProductSystem;
+    if (e instanceof Project) return EntityType.Project;
+    if (e instanceof SocialIndicator) return EntityType.SocialIndicator;
+    if (e instanceof Source) return EntityType.Source;
+    if (e instanceof Unit) return EntityType.Unit;
+    if (e instanceof UnitGroup) return EntityType.UnitGroup;
+    return EntityType.Undefined;
   }
 }

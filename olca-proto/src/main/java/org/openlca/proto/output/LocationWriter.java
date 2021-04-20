@@ -2,6 +2,7 @@ package org.openlca.proto.output;
 
 import com.google.protobuf.ByteString;
 import org.openlca.core.model.Location;
+import org.openlca.proto.generated.EntityType;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
@@ -17,6 +18,7 @@ public class LocationWriter {
     var proto = Proto.Location.newBuilder();
     if (location == null)
       return proto.build();
+    proto.setEntityType(EntityType.Location);
     Out.map(location, proto);
     Out.dep(config, location.category);
 

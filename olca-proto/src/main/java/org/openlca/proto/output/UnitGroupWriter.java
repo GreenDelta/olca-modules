@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import org.openlca.core.model.UnitGroup;
+import org.openlca.proto.generated.EntityType;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
@@ -19,6 +20,7 @@ public class UnitGroupWriter {
     var proto = Proto.UnitGroup.newBuilder();
     if (group == null)
       return proto.build();
+    proto.setEntityType(EntityType.UnitGroup);
     Out.map(group, proto);
     Out.dep(config, group.category);
 

@@ -1,6 +1,7 @@
 package org.openlca.proto.output;
 
 import org.openlca.core.model.Currency;
+import org.openlca.proto.generated.EntityType;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
@@ -16,6 +17,7 @@ public class CurrencyWriter {
     var proto = Proto.Currency.newBuilder();
     if (c == null)
       return proto.build();
+    proto.setEntityType(EntityType.Currency);
     Out.map(c, proto);
     Out.dep(config, c.category);
 

@@ -17,10 +17,10 @@ public class ActorWriter {
     var proto = Proto.Actor.newBuilder();
     if (a == null)
       return proto.build();
+    proto.setEntityType(EntityType.Actor);
     Out.map(a, proto);
     Out.dep(config, a.category);
 
-    proto.setEntityType(EntityType.Actor);
     proto.setAddress(Strings.orEmpty(a.address));
     proto.setCity(Strings.orEmpty(a.city));
     proto.setCountry(Strings.orEmpty(a.country));

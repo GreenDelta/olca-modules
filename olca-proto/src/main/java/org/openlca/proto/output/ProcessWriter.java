@@ -7,6 +7,7 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.SocialAspect;
+import org.openlca.proto.generated.EntityType;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
@@ -22,6 +23,7 @@ public class ProcessWriter {
     var proto = Proto.Process.newBuilder();
     if (process == null)
       return proto.build();
+    proto.setEntityType(EntityType.Process);
     Out.map(process, proto);
     Out.dep(config, process.category);
 
@@ -68,20 +70,13 @@ public class ProcessWriter {
   private Proto.AllocationType allocationType(AllocationMethod m) {
     if (m == null)
       return Proto.AllocationType.UNDEFINED_ALLOCATION_TYPE;
-    switch (m) {
-      case CAUSAL:
-        return Proto.AllocationType.CAUSAL_ALLOCATION;
-      case ECONOMIC:
-        return Proto.AllocationType.ECONOMIC_ALLOCATION;
-      case PHYSICAL:
-        return Proto.AllocationType.PHYSICAL_ALLOCATION;
-      case NONE:
-        return Proto.AllocationType.NO_ALLOCATION;
-      case USE_DEFAULT:
-        return Proto.AllocationType.USE_DEFAULT_ALLOCATION;
-      default:
-        return Proto.AllocationType.UNDEFINED_ALLOCATION_TYPE;
-    }
+    return switch (m) {
+      case CAUSAL -> Proto.AllocationType.CAUSAL_ALLOCATION;
+      case ECONOMIC -> Proto.AllocationType.ECONOMIC_ALLOCATION;
+      case PHYSICAL -> Proto.AllocationType.PHYSICAL_ALLOCATION;
+      case NONE -> Proto.AllocationType.NO_ALLOCATION;
+      case USE_DEFAULT -> Proto.AllocationType.USE_DEFAULT_ALLOCATION;
+    };
   }
 
   private void writeExchanges(Process p, Proto.Process.Builder proto) {

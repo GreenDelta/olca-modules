@@ -1,6 +1,7 @@
 package org.openlca.proto.output;
 
 import org.openlca.core.model.SocialIndicator;
+import org.openlca.proto.generated.EntityType;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
@@ -16,6 +17,7 @@ public class SocialIndicatorWriter {
     var proto = Proto.SocialIndicator.newBuilder();
     if (indicator == null)
       return proto.build();
+    proto.setEntityType(EntityType.SocialIndicator);
     Out.map(indicator, proto);
     Out.dep(config, indicator.category);
 

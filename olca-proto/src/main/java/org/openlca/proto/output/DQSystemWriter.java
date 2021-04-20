@@ -1,6 +1,7 @@
 package org.openlca.proto.output;
 
 import org.openlca.core.model.DQSystem;
+import org.openlca.proto.generated.EntityType;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
@@ -16,6 +17,7 @@ public class DQSystemWriter {
     var proto = Proto.DQSystem.newBuilder();
     if (dqSystem == null)
       return proto.build();
+    proto.setEntityType(EntityType.DQSystem);
     Out.map(dqSystem, proto);
     Out.dep(config, dqSystem.category);
 

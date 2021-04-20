@@ -16,6 +16,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.proto.generated.EntityType;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
@@ -31,6 +32,7 @@ public class ProductSystemWriter {
     var proto = Proto.ProductSystem.newBuilder();
     if (system == null)
       return proto.build();
+    proto.setEntityType(EntityType.ProductSystem);
     Out.map(system, proto);
     Out.dep(config, system.category);
     mapQRef(system, proto);

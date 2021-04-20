@@ -1,6 +1,7 @@
 package org.openlca.proto.output;
 
 import org.openlca.core.model.Category;
+import org.openlca.proto.generated.EntityType;
 import org.openlca.proto.generated.Proto;
 
 public class CategoryWriter {
@@ -15,6 +16,7 @@ public class CategoryWriter {
     var proto = Proto.Category.newBuilder();
     if (c == null)
       return proto.build();
+    proto.setEntityType(EntityType.Category);
     Out.map(c, proto);
     Out.dep(config, c.category);
     proto.setModelType(Out.modelTypeOf(c.modelType));

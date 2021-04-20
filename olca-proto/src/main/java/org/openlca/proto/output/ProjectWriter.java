@@ -1,6 +1,7 @@
 package org.openlca.proto.output;
 
 import org.openlca.core.model.Project;
+import org.openlca.proto.generated.EntityType;
 import org.openlca.proto.generated.Proto;
 
 public class ProjectWriter {
@@ -15,6 +16,7 @@ public class ProjectWriter {
     var proto = Proto.Project.newBuilder();
     if (project == null)
       return proto.build();
+    proto.setEntityType(EntityType.Project);
     Out.map(project, proto);
     Out.dep(config, project.category);
 

@@ -1,6 +1,7 @@
 package org.openlca.proto.output;
 
 import org.openlca.core.model.Parameter;
+import org.openlca.proto.generated.EntityType;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
@@ -16,6 +17,7 @@ public class ParameterWriter {
     var proto = Proto.Parameter.newBuilder();
     if (parameter == null)
       return proto.build();
+    proto.setEntityType(EntityType.Parameter);
     Out.map(parameter, proto);
     Out.dep(config, parameter.category);
 

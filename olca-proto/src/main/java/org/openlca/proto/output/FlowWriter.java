@@ -3,6 +3,7 @@ package org.openlca.proto.output;
 import java.util.Objects;
 
 import org.openlca.core.model.Flow;
+import org.openlca.proto.generated.EntityType;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
@@ -18,6 +19,7 @@ public class FlowWriter {
     var proto = Proto.Flow.newBuilder();
     if (flow == null)
       return proto.build();
+    proto.setEntityType(EntityType.Flow);
     Out.map(flow, proto);
     Out.dep(config, flow.category);
 

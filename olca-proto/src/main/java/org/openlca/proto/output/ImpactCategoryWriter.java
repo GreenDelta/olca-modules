@@ -1,6 +1,7 @@
 package org.openlca.proto.output;
 
 import org.openlca.core.model.ImpactCategory;
+import org.openlca.proto.generated.EntityType;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
@@ -16,6 +17,7 @@ public class ImpactCategoryWriter {
     var proto = Proto.ImpactCategory.newBuilder();
     if (impact == null)
       return proto.build();
+    proto.setEntityType(EntityType.ImpactCategory);
     Out.map(impact, proto);
     Out.dep(config, impact.category);
 

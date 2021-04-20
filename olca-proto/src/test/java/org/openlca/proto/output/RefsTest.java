@@ -93,7 +93,10 @@ public class RefsTest {
       Proto.Ref.getDescriptor()
         .getFields()
         .stream()
-        .filter(field -> !field.getName().equals("id"))
+        .filter(field -> {
+          var f = field.getName();
+          return !f.equals("id") && !f.equals("entity_type");
+        })
         .forEach(field -> {
           if (field.isRepeated()) {
             assertEquals(0, ref.getRepeatedFieldCount(field));

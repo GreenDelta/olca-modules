@@ -9,6 +9,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
@@ -38,6 +39,7 @@ public final class Refs {
     var proto = Proto.Ref.newBuilder();
     if (d == null)
       return proto;
+    proto.setEntityType(Out.entityTypeOf(d.type));
     proto.setId(Strings.orEmpty(d.refId));
     return proto;
   }
@@ -46,6 +48,7 @@ public final class Refs {
     var proto = Proto.Ref.newBuilder();
     if (e == null)
       return proto;
+    proto.setEntityType(Out.entityTypeOf(e));
     Out.map(e, proto);
 
     if (e instanceof Flow) {
@@ -119,6 +122,7 @@ public final class Refs {
     var proto = Proto.Ref.newBuilder();
     if (d == null)
       return proto;
+    proto.setEntityType(Out.entityTypeOf(d.type));
     map(d, proto);
     if (d instanceof FlowDescriptor) {
       var fd = (FlowDescriptor) d;
@@ -221,6 +225,5 @@ public final class Refs {
       }
       return Strings.orEmpty(flowUnits.get(flowPropertyId));
     }
-
   }
 }
