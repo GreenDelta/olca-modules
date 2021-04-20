@@ -1,7 +1,5 @@
 package org.openlca.proto.input;
 
-import java.util.Arrays;
-
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
@@ -33,7 +31,6 @@ import org.openlca.core.model.descriptors.UnitDescriptor;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 import org.openlca.jsonld.Enums;
 import org.openlca.jsonld.Json;
-import org.openlca.proto.generated.EntityType;
 import org.openlca.proto.generated.Proto;
 import org.openlca.util.Strings;
 
@@ -156,15 +153,16 @@ public final class In {
       case ImpactCategory -> new ImpactDescriptor();
       case ImpactMethod -> new ImpactMethodDescriptor();
       case Location -> new LocationDescriptor();
+      case NwSet -> new NwSetDescriptor();
       case Parameter -> new ParameterDescriptor();
       case Process -> new ProcessDescriptor();
       case ProductSystem -> new ProductSystemDescriptor();
       case Project -> new ProjectDescriptor();
       case SocialIndicator -> new SocialIndicatorDescriptor();
       case Source -> new SourceDescriptor();
-      case UnitGroup -> new UnitDescriptor();
-      case UNRECOGNIZED -> null;
-      case Undefined -> new Descriptor();
+      case Unit -> new UnitDescriptor();
+      case UnitGroup -> new UnitGroupDescriptor();
+      case UNRECOGNIZED, Undefined -> new Descriptor();
     };
   }
 
