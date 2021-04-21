@@ -36,11 +36,11 @@ public class BlasTest {
 	@Test
 	public void testSparseMatrixMatrixMult() {
 		// currently auto-conversion to a dense matrix
-		HashPointMatrix a = new HashPointMatrix(new double[][] {
+		var a = HashPointMatrix.of(new double[][] {
 				{ 1, 2, 3 },
 				{ 4, 5, 6 }
 		});
-		HashPointMatrix b = new HashPointMatrix(new double[][] {
+		var b = HashPointMatrix.of(new double[][] {
 				{ 7, 10 },
 				{ 8, 11 },
 				{ 9, 12 }

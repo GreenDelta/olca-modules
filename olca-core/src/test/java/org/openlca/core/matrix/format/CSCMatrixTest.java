@@ -120,16 +120,16 @@ public class CSCMatrixTest {
 
 	@Test
 	public void testMatrix() {
-		double[][] data = {
-				{2, 3, 0, 0, 0},
-				{3, 0, 4, 0, 6},
-				{0, -1, -3, 2, 0,},
-				{0, 0, 1, 0, 0},
-				{0, 4, 2, 0, 1,},
-		};
-		HashPointMatrix hpm = new HashPointMatrix(data);
 
-		CSCMatrix csc = CSCMatrix.of(hpm);
+		var data = new double[][] {
+			{2, 3, 0, 0, 0},
+			{3, 0, 4, 0, 6},
+			{0, -1, -3, 2, 0,},
+			{0, 0, 1, 0, 0},
+			{0, 4, 2, 0, 1,},
+		};
+		var hpm = HashPointMatrix.of(data);
+		var csc = CSCMatrix.of(hpm);
 
 		// test fields
 		assertEquals(5, csc.rows);

@@ -53,6 +53,15 @@ public class CSCMatrix implements MatrixReader {
 	}
 
 	/**
+	 * Constructs a new matrix from the given values.
+	 *
+	 * @param values The matrix values as an array of rows (row-major order).
+	 */
+	public static CSCMatrix of(double[][] values) {
+		return HashPointMatrix.of(values).compress();
+	}
+
+	/**
 	 * Creates a compressed sparse column representation of the given matrix.
 	 */
 	public static CSCMatrix of(MatrixReader m) {

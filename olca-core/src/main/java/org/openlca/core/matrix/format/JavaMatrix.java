@@ -21,19 +21,14 @@ public class JavaMatrix implements Matrix {
 		matrix = new Array2DRowRealMatrix(rowSize, colSize);
 	}
 
-	public static JavaMatrix of(double[][] data) {
-		int rows = data.length;
-		int cols = 0;
-		for (var rowData : data) {
-			cols = Math.max(cols, rowData.length);
-		}
-		var m = new JavaMatrix(rows, cols);
-		for (int row = 0; row < rows; row++) {
-			var rowData = data[row];
-			for (int col = 0; col < rowData.length; col++) {
-				m.set(row, col, rowData[col]);
-			}
-		}
+	/**
+	 * Constructs a new matrix from the given values.
+	 *
+	 * @param values The matrix values as an array of rows (row-major order).
+	 */
+	public static JavaMatrix of(double[][] values) {
+		var m = new JavaMatrix(values.length, Util.columnsOf(values));
+		m.setValues(values);
 		return m;
 	}
 

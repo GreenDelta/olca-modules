@@ -8,7 +8,7 @@ public class HashPointMatrixTest {
 
 	@Test
 	public void testMultiply() {
-		var m = new HashPointMatrix(new double[][]{
+		var m = HashPointMatrix.of(new double[][]{
 				{1, 2, 3},
 				{4, 5, 6}
 		});
@@ -18,7 +18,7 @@ public class HashPointMatrixTest {
 
 	@Test
 	public void testScaleColumns() {
-		var m = new HashPointMatrix(new double[][]{
+		var m = HashPointMatrix.of(new double[][]{
 				{1, 2, 3},
 				{4, 5, 6}
 		});

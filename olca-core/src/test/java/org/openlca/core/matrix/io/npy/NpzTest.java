@@ -3,7 +3,6 @@ package org.openlca.core.matrix.io.npy;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.matrix.format.CSCMatrix;
-import org.openlca.core.matrix.format.HashPointMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,14 +17,13 @@ public class NpzTest {
 	public void testCSC() throws IOException {
 
 		// construct the CSC matrix
-		double[][] data = {
-				{0.0, 0.0, 0.0, 0.0},
-				{0.0, 4.0, 0.0, 0.0},
-				{0.0, 0.0, 0.0, 1.0},
-				{0.0, 0.0, 0.0, 0.0},
-				{0.0, 0.0, 0.0, 0.0},
-		};
-		CSCMatrix m = CSCMatrix.of(new HashPointMatrix(data));
+		var m = CSCMatrix.of(new double[][]{
+			{0.0, 0.0, 0.0, 0.0},
+			{0.0, 4.0, 0.0, 0.0},
+			{0.0, 0.0, 0.0, 1.0},
+			{0.0, 0.0, 0.0, 0.0},
+			{0.0, 0.0, 0.0, 0.0},
+		});
 
 		// the check routine
 		Consumer<CSCMatrix> checkCSC = (csc) -> {

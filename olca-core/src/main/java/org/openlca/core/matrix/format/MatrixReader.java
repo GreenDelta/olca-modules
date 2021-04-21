@@ -30,6 +30,15 @@ public interface MatrixReader extends Copyable<MatrixReader> {
 	double[] getRow(int i);
 
 	/**
+	 * Returns true when this matrix has the same number of rows and columns.
+	 */
+	default boolean isSquare() {
+		int rows = rows();
+		int cols = columns();
+		return rows == cols && rows > 0;
+	}
+
+	/**
 	 * Iterates over the non-zero values in this matrix. There is no defined
 	 * order in which the matrix entries are processed. Specifically sparse
 	 * matrix layouts should overwrite this function with faster implementations.

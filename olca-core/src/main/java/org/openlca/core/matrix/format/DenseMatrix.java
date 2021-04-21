@@ -22,6 +22,17 @@ public class DenseMatrix implements Matrix {
 		this.data = data;
 	}
 
+	/**
+	 * Constructs a new matrix from the given values.
+	 *
+	 * @param values The matrix values as an array of rows (row-major order).
+	 */
+	public static DenseMatrix of(double[][] values) {
+		var m = new DenseMatrix(values.length, Util.columnsOf(values));
+		m.setValues(values);
+		return m;
+	}
+
 	@Override
 	public final boolean isSparse() {
 		return false;

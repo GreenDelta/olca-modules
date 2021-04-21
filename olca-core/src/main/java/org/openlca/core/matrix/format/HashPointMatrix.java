@@ -40,20 +40,15 @@ public class HashPointMatrix implements Matrix {
 		this.cols = cols;
 	}
 
-	public HashPointMatrix(double[][] values) {
-		this();
-		rows = values.length;
-		int cols = 1;
-		for (int row = 0; row < rows; row++) {
-			cols = Math.max(cols, values[row].length);
-		}
-		this.cols = cols;
-		for (int row = 0; row < rows; row++) {
-			double[] rowVals = values[row];
-			for (int col = 0; col < rowVals.length; col++) {
-				set(row, col, rowVals[col]);
-			}
-		}
+	/**
+	 * Constructs a new matrix from the given values.
+	 *
+	 * @param values The matrix values as an array of rows (row-major order).
+	 */
+	public static HashPointMatrix of(double[][] values) {
+		var m = new HashPointMatrix(values.length, Util.columnsOf(values));
+		m.setValues(values);
+		return m;
 	}
 
 	@Override

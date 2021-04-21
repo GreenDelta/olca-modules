@@ -14,7 +14,7 @@ public class LazyProviderTest {
 	@Test
 	public void testScalingVector() {
 		var data = new MatrixData();
-		data.techMatrix = new HashPointMatrix(new double[][]{
+		data.techMatrix = HashPointMatrix.of(new double[][]{
 				{1.0, 0.0, 0.0},
 				{-1.0, 1.0, 0.0},
 				{0.0, -1.0, 1.0},

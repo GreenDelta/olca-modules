@@ -1,5 +1,8 @@
 package org.openlca.julia;
 
+import org.apache.commons.math3.exception.InsufficientDataException;
+import org.apache.commons.math3.linear.NonSquareMatrixException;
+import org.apache.commons.math3.linear.SingularMatrixException;
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
@@ -29,9 +32,11 @@ public class JuliaSolver implements MatrixSolver {
 
 	@Override
 	public double[] solve(MatrixReader a, int idx, double d) {
+		if (!a.isSquare())
+			throw new NonSquareMatrixException(a.rows(), a.columns());
+
 		if (Julia.hasSparseLibraries() &&
-				(a instanceof HashPointMatrix
-						|| a instanceof CSCMatrix)) {
+				(a instanceof HashPointMatrix || a instanceof CSCMatrix)) {
 			var csc = CSCMatrix.of(a);
 			double[] f = new double[csc.rows];
 			f[idx] = d;
@@ -49,7 +54,12 @@ public class JuliaSolver implements MatrixSolver {
 		var lu = A == a ? A.copy() : A;
 		double[] b = new double[A.rows()];
 		b[idx] = d;
-		Julia.solve(A.columns(), 1, lu.data, b);
+
+		int info = Julia.solve(A.columns(), 1, lu.data, b);
+		if (info > 0)
+			throw new SingularMatrixException();
+		if (info < 0)
+			throw new InsufficientDataException();
 		return b;
 	}
 
@@ -67,9 +77,15 @@ public class JuliaSolver implements MatrixSolver {
 
 	@Override
 	public DenseMatrix invert(MatrixReader a) {
+		if (!a.isSquare())
+			throw new NonSquareMatrixException(a.rows(), a.columns());
 		DenseMatrix _a = MatrixConverter.dense(a);
 		DenseMatrix i = _a == a ? _a.copy() : _a;
-		Julia.invert(_a.columns(), i.data);
+		int info = Julia.invert(_a.columns(), i.data);
+		if (info > 0)
+			throw new SingularMatrixException();
+		if (info < 0)
+			throw new InsufficientDataException();
 		return i;
 	}
 
@@ -91,6 +107,8 @@ public class JuliaSolver implements MatrixSolver {
 
 	@Override
 	public Factorization factorize(MatrixReader matrix) {
+		if (!matrix.isSquare())
+			throw new NonSquareMatrixException(matrix.rows(), matrix.columns());
 		if (matrix instanceof HashPointMatrix) {
 			var csc = ((HashPointMatrix) matrix).compress();
 			return SparseFactorization.of(csc);
