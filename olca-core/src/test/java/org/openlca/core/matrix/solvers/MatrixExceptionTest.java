@@ -6,8 +6,16 @@ import org.apache.commons.math3.linear.NonSquareMatrixException;
 import org.apache.commons.math3.linear.SingularMatrixException;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.openlca.core.Tests;
+import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.JavaMatrix;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.Process;
+import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.UnitGroup;
 import org.openlca.julia.Julia;
 import org.openlca.julia.JuliaSolver;
 
@@ -72,5 +80,39 @@ public class MatrixExceptionTest {
 			{-1.0, 2.0},
 		});
 		new JuliaSolver().factorize(matrix);
+	}
+
+	@Test
+	public void testSingularSystem() {
+		var db = Tests.getDb();
+		var units = db.insert(UnitGroup.of("Mass units", "kg"));
+		var mass = db.insert(FlowProperty.of("Mass", units));
+		var p = db.insert(Flow.product("p", mass));
+		var q = db.insert(Flow.product("q", mass));
+
+		var pp = Process.of("pp", p);
+		pp.input(q, 1);
+		db.insert(pp);
+
+		var qq = Process.of("qq", q);
+		qq.input(p, 1);
+		db.insert(qq);
+
+		var sys = ProductSystem.of(pp);
+		sys.link(qq, pp);
+		sys.link(pp, qq);
+		db.insert(sys);
+
+		boolean caughtIt = false;
+		assertTrue(Julia.load());
+		try {
+			var setup = new CalculationSetup(sys);
+			new SystemCalculator(db).calculateFull(setup);
+		} catch (SingularMatrixException e) {
+			caughtIt = true;
+		}
+		assertTrue(caughtIt);
+
+		db.delete(sys, pp, qq, p, q, mass, units);
 	}
 }
