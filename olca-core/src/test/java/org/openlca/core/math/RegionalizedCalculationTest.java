@@ -2,6 +2,7 @@ package org.openlca.core.math;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.ToDoubleFunction;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -16,6 +17,7 @@ import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.UnitGroupDao;
+import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
@@ -111,12 +113,12 @@ public class RegionalizedCalculationTest {
 		// create the LCIA method
 		impact = ImpactCategory.of("Impacts");
 		Object[][] factors = new Object[][]{
-				{e1, loc1, 9.0},
-				{e1, loc2, 6.0},
-				{e1, null, 3.0},
-				{e2, loc1, 6.0},
-				{e2, loc2, 4.0},
-				{e2, null, 2.0},
+			{e1, loc1, 9.0},
+			{e1, loc2, 6.0},
+			{e1, null, 3.0},
+			{e2, loc1, 6.0},
+			{e2, loc2, 4.0},
+			{e2, null, 2.0},
 		};
 		Arrays.stream(factors).forEach(row -> {
 			var f = impact.factor((Flow) row[0], (Double) row[2]);
@@ -139,33 +141,33 @@ public class RegionalizedCalculationTest {
 
 		// total results
 		checkTotalFlowResults(r, new Object[][]{
-				{e1, 2.0},
-				{e2, 4.0},
+			{e1, 2.0},
+			{e2, 4.0},
 		});
 		checkTotalImpactResult(r, 14.0);
 
 		// direct contributions
 		checkDirectFlowResults(r, new Object[][]{
-				{p1, e1, 2.0},
-				{p1, e2, 0.0},
-				{p2, e1, 0.0},
-				{p2, e2, 4.0},
+			{p1, e1, 2.0},
+			{p1, e2, 0.0},
+			{p2, e1, 0.0},
+			{p2, e2, 4.0},
 		});
 		checkDirectImpactResults(r, new Object[][]{
-				{p1, 2 * 3.0},
-				{p2, 4 * 2.0},
+			{p1, 2 * 3.0},
+			{p2, 4 * 2.0},
 		});
 
 		// upstream contributions
 		checkUpstreamFlowResults(r, new Object[][]{
-				{p1, e1, 2.0},
-				{p1, e2, 4.0},
-				{p2, e1, 0.0},
-				{p2, e2, 4.0},
+			{p1, e1, 2.0},
+			{p1, e2, 4.0},
+			{p2, e1, 0.0},
+			{p2, e2, 4.0},
 		});
 		checkUpstreamImpactResults(r, new Object[][]{
-				{p1, 14.0},
-				{p2, 8.0},
+			{p1, 14.0},
+			{p2, 8.0},
 		});
 	}
 
@@ -177,33 +179,33 @@ public class RegionalizedCalculationTest {
 
 		// total results
 		checkTotalFlowResults(r, new Object[][]{
-				{e1, 2.0},
-				{e2, 4.0},
+			{e1, 2.0},
+			{e2, 4.0},
 		});
 		checkTotalImpactResult(r, 14.0);
 
 		// direct contributions
 		checkDirectFlowResults(r, new Object[][]{
-				{p1, e1, 2.0},
-				{p1, e2, 0.0},
-				{p2, e1, 0.0},
-				{p2, e2, 4.0},
+			{p1, e1, 2.0},
+			{p1, e2, 0.0},
+			{p2, e1, 0.0},
+			{p2, e2, 4.0},
 		});
 		checkDirectImpactResults(r, new Object[][]{
-				{p1, 2 * 3.0},
-				{p2, 4 * 2.0},
+			{p1, 2 * 3.0},
+			{p2, 4 * 2.0},
 		});
 
 		// upstream contributions
 		checkUpstreamFlowResults(r, new Object[][]{
-				{p1, e1, 2.0},
-				{p1, e2, 4.0},
-				{p2, e1, 0.0},
-				{p2, e2, 4.0},
+			{p1, e1, 2.0},
+			{p1, e2, 4.0},
+			{p2, e1, 0.0},
+			{p2, e2, 4.0},
 		});
 		checkUpstreamImpactResults(r, new Object[][]{
-				{p1, 14.0},
-				{p2, 8.0},
+			{p1, 14.0},
+			{p2, 8.0},
 		});
 	}
 
@@ -225,31 +227,31 @@ public class RegionalizedCalculationTest {
 
 		// LCI results and contributions
 		checkRegTotalFlowResults(r, new Object[][]{
-				{e1, loc3, 2.0},
-				{e2, loc3, 4.0},
+			{e1, loc3, 2.0},
+			{e2, loc3, 4.0},
 		});
 		checkDirectFlowResults(r, new Object[][]{
-				{p1, e1, loc3, 2.0},
-				{p1, e2, loc3, 0.0},
-				{p2, e1, loc3, 0.0},
-				{p2, e2, loc3, 4.0},
+			{p1, e1, loc3, 2.0},
+			{p1, e2, loc3, 0.0},
+			{p2, e1, loc3, 0.0},
+			{p2, e2, loc3, 4.0},
 		});
 		checkUpstreamFlowResults(r, new Object[][]{
-				{p1, e1, loc3, 2.0},
-				{p1, e2, loc3, 4.0},
-				{p2, e1, loc3, 0.0},
-				{p2, e2, loc3, 4.0},
+			{p1, e1, loc3, 2.0},
+			{p1, e2, loc3, 4.0},
+			{p2, e1, loc3, 0.0},
+			{p2, e2, loc3, 4.0},
 		});
 
 		// check LCIA results
 		checkTotalImpactResult(r, 14.0);
 		checkDirectImpactResults(r, new Object[][]{
-				{p1, 2 * 3.0},
-				{p2, 4 * 2.0},
+			{p1, 2 * 3.0},
+			{p2, 4 * 2.0},
 		});
 		checkUpstreamImpactResults(r, new Object[][]{
-				{p1, 14.0},
-				{p2, 8.0},
+			{p1, 14.0},
+			{p2, 8.0},
 		});
 	}
 
@@ -283,54 +285,54 @@ public class RegionalizedCalculationTest {
 	private void checkRegionalizedResults(FullResult r) {
 
 		checkRegTotalFlowResults(r, new Object[][]{
-				{e1, loc1, 2.0},
-				{e1, loc2, 0.0},
-				{e1, null, 0.0},
-				{e2, loc1, 0.0},
-				{e2, loc2, 4.0},
-				{e2, null, 0.0},
+			{e1, loc1, 2.0},
+			{e1, loc2, 0.0},
+			{e1, null, 0.0},
+			{e2, loc1, 0.0},
+			{e2, loc2, 4.0},
+			{e2, null, 0.0},
 		});
 
 		checkTotalImpactResult(r, 2 * 9.0 + 4 * 4.0);
 
 		checkDirectFlowResults(r, new Object[][]{
-				{p1, e1, loc1, 2.0},
-				{p1, e1, loc2, 0.0},
-				{p1, e1, null, 0.0},
-				{p1, e2, loc1, 0.0},
-				{p1, e2, loc2, 0.0},
-				{p1, e2, null, 0.0},
-				{p2, e1, loc1, 0.0},
-				{p2, e1, loc2, 0.0},
-				{p2, e1, null, 0.0},
-				{p2, e2, loc1, 0.0},
-				{p2, e2, loc2, 4.0},
-				{p2, e2, null, 0.0},
+			{p1, e1, loc1, 2.0},
+			{p1, e1, loc2, 0.0},
+			{p1, e1, null, 0.0},
+			{p1, e2, loc1, 0.0},
+			{p1, e2, loc2, 0.0},
+			{p1, e2, null, 0.0},
+			{p2, e1, loc1, 0.0},
+			{p2, e1, loc2, 0.0},
+			{p2, e1, null, 0.0},
+			{p2, e2, loc1, 0.0},
+			{p2, e2, loc2, 4.0},
+			{p2, e2, null, 0.0},
 		});
 
 		checkDirectImpactResults(r, new Object[][]{
-				{p1, 2.0 * 9.0},
-				{p2, 4.0 * 4.0},
+			{p1, 2.0 * 9.0},
+			{p2, 4.0 * 4.0},
 		});
 
 		checkUpstreamFlowResults(r, new Object[][]{
-				{p1, e1, loc1, 2.0},
-				{p1, e1, loc2, 0.0},
-				{p1, e1, null, 0.0},
-				{p1, e2, loc1, 0.0},
-				{p1, e2, loc2, 4.0},
-				{p1, e2, null, 0.0},
-				{p2, e1, loc1, 0.0},
-				{p2, e1, loc2, 0.0},
-				{p2, e1, null, 0.0},
-				{p2, e2, loc1, 0.0},
-				{p2, e2, loc2, 4.0},
-				{p2, e2, null, 0.0},
+			{p1, e1, loc1, 2.0},
+			{p1, e1, loc2, 0.0},
+			{p1, e1, null, 0.0},
+			{p1, e2, loc1, 0.0},
+			{p1, e2, loc2, 4.0},
+			{p1, e2, null, 0.0},
+			{p2, e1, loc1, 0.0},
+			{p2, e1, loc2, 0.0},
+			{p2, e1, null, 0.0},
+			{p2, e2, loc1, 0.0},
+			{p2, e2, loc2, 4.0},
+			{p2, e2, null, 0.0},
 		});
 
 		checkUpstreamImpactResults(r, new Object[][]{
-				{p1, 2 * 9.0 + 4 * 4.0},
-				{p2, 4.0 * 4.0},
+			{p1, 2 * 9.0 + 4 * 4.0},
+			{p2, 4.0 * 4.0},
 		});
 	}
 
@@ -352,12 +354,13 @@ public class RegionalizedCalculationTest {
 	 */
 	private void checkRegTotalFlowResults(FullResult r, Object[][] defs) {
 		for (Object[] row : defs) {
-			Flow flow = (Flow) row[0];
-			Location loc = (Location) row[1];
+			var flow = (Flow) row[0];
+			var loc = (Location) row[1];
 			int flowIdx = r.flowIndex().of(flow.id, loc != null ? loc.id : 0L);
-			IndexFlow iFlow = r.flowIndex().at(flowIdx);
-			double v = r.getTotalFlowResult(iFlow);
-			Assert.assertEquals((Double) row[2], v, 1e-10);
+			double value = flowIdx < 0
+				? 0.0
+				: r.getTotalFlowResult(r.flowIndex().at(flowIdx));
+			Assert.assertEquals((Double) row[2], value, 1e-10);
 		}
 	}
 
@@ -378,11 +381,8 @@ public class RegionalizedCalculationTest {
 				Assert.assertEquals((Double) row[2], v, 1e-10);
 			} else {
 				// regionalized
-				Location loc = (Location) row[2];
-				int flowIdx = r.flowIndex().of(flow.id,
-						loc != null ? loc.id : 0L);
-				IndexFlow iFlow = r.flowIndex().at(flowIdx);
-				double v = r.getDirectFlowResult(product, iFlow);
+				double v = orZero(flow, (Location) row[2], r.flowIndex(),
+					iFlow -> r.getDirectFlowResult(product, iFlow));
 				Assert.assertEquals((Double) row[3], v, 1e-10);
 			}
 		}
@@ -400,19 +400,26 @@ public class RegionalizedCalculationTest {
 			if (row[2] instanceof Number) {
 				// non-regionalized
 				int flowIdx = r.flowIndex().of(flow.id);
-				IndexFlow iFlow = r.flowIndex().at(flowIdx);
+				var iFlow = r.flowIndex().at(flowIdx);
 				double v = r.getUpstreamFlowResult(product, iFlow);
 				Assert.assertEquals((Double) row[2], v, 1e-10);
 			} else {
 				// regionalized
-				Location loc = (Location) row[2];
-				int flowIdx = r.flowIndex().of(flow.id,
-						loc != null ? loc.id : 0L);
-				IndexFlow iFlow = r.flowIndex().at(flowIdx);
-				double v = r.getUpstreamFlowResult(product, iFlow);
+				double v = orZero(flow, (Location) row[2], r.flowIndex(),
+					iFlow -> r.getUpstreamFlowResult(product, iFlow));
 				Assert.assertEquals((Double) row[3], v, 1e-10);
 			}
 		}
+	}
+
+	private double orZero(Flow flow, Location location, FlowIndex index,
+												ToDoubleFunction<IndexFlow> fn) {
+		if (flow == null)
+			return 0;
+		int idx = index.of(flow.id, location != null ? location.id : 0L);
+		return idx >= 0
+			? fn.applyAsDouble(index.at(idx))
+			: 0;
 	}
 
 	private void checkTotalImpactResult(FullResult r, double val) {
@@ -422,7 +429,7 @@ public class RegionalizedCalculationTest {
 	private void checkDirectImpactResults(FullResult r, Object[][] defs) {
 		for (Object[] row : defs) {
 			double v = r.getDirectImpactResult(
-					product((Process) row[0]), des(impact));
+				product((Process) row[0]), des(impact));
 			Assert.assertEquals((Double) row[1], v, 1e-10);
 		}
 	}
@@ -430,7 +437,7 @@ public class RegionalizedCalculationTest {
 	private void checkUpstreamImpactResults(FullResult r, Object[][] defs) {
 		for (Object[] row : defs) {
 			double v = r.getUpstreamImpactResult(
-					product((Process) row[0]), des(impact));
+				product((Process) row[0]), des(impact));
 			Assert.assertEquals((Double) row[1], v, 1e-10);
 		}
 	}
@@ -457,7 +464,7 @@ public class RegionalizedCalculationTest {
 		Process p = new Process();
 		p.name = "transport, bus";
 		p.quantitativeReference = p.output(flow(
-				"transport, bus", "p*km", FlowType.PRODUCT_FLOW), 1);
+			"transport, bus", "p*km", FlowType.PRODUCT_FLOW), 1);
 		Exchange e1 = p.output(nox, 5);
 		e1.location = loc1;
 		Exchange e2 = p.output(nox, 10);
@@ -484,8 +491,8 @@ public class RegionalizedCalculationTest {
 		FullResult r = calculator.calculateFull(setup);
 		Assert.assertTrue(r.flowIndex().isRegionalized());
 		checkRegTotalFlowResults(r, new Object[][]{
-				{nox, loc1, 5.0},
-				{nox, loc2, 10.0},
+			{nox, loc1, 5.0},
+			{nox, loc2, 10.0},
 		});
 	}
 
