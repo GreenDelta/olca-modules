@@ -465,7 +465,7 @@ public class LazyLibraryProvider implements ResultProvider {
 	@Override
 	public double unscaledFlowOf(int flow, int product) {
 		var flows = unscaledFlowsOf(product);
-		return empty(flows)
+		return isEmpty(flows)
 				? 0
 				: flows[flow];
 	}
@@ -476,7 +476,7 @@ public class LazyLibraryProvider implements ResultProvider {
 		if (flows != null)
 			return flows;
 		var unscaled = unscaledFlowsOf(product);
-		if (empty(unscaled))
+		if (isEmpty(unscaled))
 			return EMPTY_VECTOR;
 		var factor = scalingFactorOf(product);
 		flows = scale(unscaled, factor);
@@ -486,7 +486,7 @@ public class LazyLibraryProvider implements ResultProvider {
 	@Override
 	public double directFlowOf(int flow, int product) {
 		var flows = directFlowsOf(product);
-		return empty(flows)
+		return isEmpty(flows)
 				? 0
 				: flows[flow];
 	}
@@ -698,7 +698,7 @@ public class LazyLibraryProvider implements ResultProvider {
 			return impacts;
 		var factors = impactFactors();
 		var flows = directFlowsOf(product);
-		if (factors == null || empty(flows))
+		if (factors == null || isEmpty(flows))
 			return EMPTY_VECTOR;
 		impacts = solver.multiply(factors, flows);
 		return put(product, directImpacts, impacts);
@@ -711,7 +711,7 @@ public class LazyLibraryProvider implements ResultProvider {
 			return impacts;
 		var factors = impactFactors();
 		var flows = totalFlowsOfOne(product);
-		if (factors == null || empty(flows))
+		if (factors == null || isEmpty(flows))
 			return EMPTY_VECTOR;
 		impacts = solver.multiply(factors, flows);
 		return put(product, totalImpactsOfOne, impacts);

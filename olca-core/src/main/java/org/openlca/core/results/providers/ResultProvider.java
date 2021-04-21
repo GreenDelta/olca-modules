@@ -89,9 +89,9 @@ public interface ResultProvider {
 	 */
 	default double scalingFactorOf(int product) {
 		var s = scalingVector();
-		return empty(s)
-				? 0
-				: s[product];
+		return isEmpty(s)
+			? 0
+			: s[product];
 	}
 
 	/**
@@ -118,9 +118,9 @@ public interface ResultProvider {
 
 	default double totalRequirementsOf(int product) {
 		var t = totalRequirements();
-		return empty(t)
-				? 0
-				: t[product];
+		return isEmpty(t)
+			? 0
+			: t[product];
 	}
 
 	/**
@@ -182,10 +182,18 @@ public interface ResultProvider {
 		return column[flow];
 	}
 
+	/**
+	 * Returns the direct flow results for the given product {@code j}. This is
+	 * the scaled column {@code j} from the intervention matrix {@code B}
+	 * calculated via {@code s[j] * B[:, j]}.
+	 *
+	 * @param product the product index {@code j >= 0} for which the direct flow
+	 *                results should be returned.
+	 */
 	default double[] directFlowsOf(int product) {
 		var flows = unscaledFlowsOf(product);
 		var s = scalingVector();
-		if (empty(flows) || empty(s))
+		if (isEmpty(flows) || isEmpty(s))
 			return EMPTY_VECTOR;
 		return scale(flows, s[product]);
 	}
@@ -216,9 +224,9 @@ public interface ResultProvider {
 	 */
 	default double totalFlowOfOne(int flow, int product) {
 		var totals = totalFlowsOfOne(product);
-		return empty(totals)
-				? 0
-				: totals[flow];
+		return isEmpty(totals)
+			? 0
+			: totals[flow];
 	}
 
 	default double[] totalFlowsOf(int product) {
@@ -266,9 +274,9 @@ public interface ResultProvider {
 	 */
 	default double impactFactorOf(int indicator, int flow) {
 		var factors = impactFactorsOf(flow);
-		return empty(factors)
-				? 0
-				: factors[indicator];
+		return isEmpty(factors)
+			? 0
+			: factors[indicator];
 	}
 
 	/**
@@ -276,13 +284,13 @@ public interface ResultProvider {
 	 * elementary flows to the LCIA result. This matrix can be calculated by
 	 * column-wise scaling of the matrix with the characterization factors
 	 * $\mathbf{C}$ with the inventory result $\mathbf{g}$:
-	 *
+	 * <p>
 	 * $$\mathbf{H} = \mathbf{C} \ \text{diag}(\mathbf{g})$$
 	 */
 	default double[] flowImpactsOf(int flow) {
 		var totals = totalFlows();
 		var impacts = impactFactorsOf(flow);
-		if (empty(totals) || empty(impacts))
+		if (isEmpty(totals) || isEmpty(impacts))
 			return EMPTY_VECTOR;
 		return scale(impacts, totals[flow]);
 	}
@@ -290,9 +298,9 @@ public interface ResultProvider {
 	default double flowImpactOf(int indicator, int flow) {
 		var totals = totalFlows();
 		var factor = impactFactorOf(indicator, flow);
-		return empty(totals)
-				? 0
-				: factor * totals[flow];
+		return isEmpty(totals)
+			? 0
+			: factor * totals[flow];
 	}
 
 	/**
@@ -307,18 +315,18 @@ public interface ResultProvider {
 
 	default double directImpactOf(int indicator, int product) {
 		var impacts = directImpactsOf(product);
-		return empty(impacts)
-				? 0
-				: impacts[indicator];
+		return isEmpty(impacts)
+			? 0
+			: impacts[indicator];
 	}
 
 	double[] totalImpactsOfOne(int product);
 
 	default double totalImpactOfOne(int indicator, int product) {
 		var impacts = totalImpactsOfOne(product);
-		return empty(impacts)
-				? 0
-				: impacts[indicator];
+		return isEmpty(impacts)
+			? 0
+			: impacts[indicator];
 	}
 
 	default double[] totalImpactsOf(int product) {
@@ -352,7 +360,7 @@ public interface ResultProvider {
 	/**
 	 * Returns true if the given array is `null` or empty.
 	 */
-	default boolean empty(double[] values) {
+	default boolean isEmpty(double[] values) {
 		return values == null || values.length == 0;
 	}
 
@@ -364,7 +372,7 @@ public interface ResultProvider {
 	 * $$
 	 */
 	default void scaleInPlace(double[] values, double factor) {
-		if (empty(values))
+		if (isEmpty(values))
 			return;
 		for (int i = 0; i < values.length; i++) {
 			values[i] *= factor;
@@ -380,7 +388,7 @@ public interface ResultProvider {
 	 * $$
 	 */
 	default double[] scale(double[] values, double factor) {
-		if (empty(values))
+		if (isEmpty(values))
 			return EMPTY_VECTOR;
 		var w = new double[values.length];
 		for (int i = 0; i < values.length; i++) {
@@ -390,7 +398,7 @@ public interface ResultProvider {
 	}
 
 	default double[] copy(double[] values) {
-		if (empty(values))
+		if (isEmpty(values))
 			return EMPTY_VECTOR;
 		return Arrays.copyOf(values, values.length);
 	}

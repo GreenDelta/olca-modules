@@ -119,7 +119,7 @@ public class EagerResultProvider implements ResultProvider {
 
 	@Override
 	public boolean hasCosts() {
-		return !empty(data.costVector);
+		return !isEmpty(data.costVector);
 	}
 
 	@Override

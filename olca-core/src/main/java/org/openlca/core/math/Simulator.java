@@ -27,6 +27,7 @@ import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.core.results.SimulationResult;
+import org.openlca.core.results.providers.ResultProviders;
 import org.openlca.core.results.providers.SimpleResultProvider;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.util.TopoSort;
@@ -70,7 +71,6 @@ public class Simulator {
 	public final Set<ProcessProduct> pinnedProducts = new HashSet<>();
 
 	private final IDatabase db;
-	private final MatrixSolver solver;
 
 	/**
 	 * The node of the host-system. This is the node that provides the final
@@ -100,7 +100,6 @@ public class Simulator {
 
 	private Simulator(IDatabase db) {
 		this.db = db;
-		this.solver = MatrixSolver.Instance.getNew();
 	}
 
 	public static Simulator create(
@@ -147,12 +146,11 @@ public class Simulator {
 			// generate the numbers and calculate the overall result
 			for (var sub : subNodes) {
 				generateData(sub);
-				var calc = new LcaCalculator(db, sub.data);
-				sub.lastResult = calc.calculateSimple();
+				sub.lastResult = SimpleResult.of(db, sub.data);
 			}
 			generateData(root);
-			var calc = new LcaCalculator(db, root.data);
-			var next = calc.calculateSimple();
+			var provider = ResultProviders.lazyOf(db, root.data);
+			var next = new SimpleResult(provider);
 			var result = getResult();
 			result.append(next);
 
@@ -161,38 +159,15 @@ public class Simulator {
 				int idx = next.techIndex().of(product);
 				if (idx < 0)
 					continue;
-
-				// A, B, C, s, t are the standard symbols
-				// in LCA calculations
-				var A = root.data.techMatrix;
-				var B = root.data.flowMatrix;
-				var C = root.data.impactMatrix;
-				double[] s = next.scalingVector;
-
-				// direct contributions
-				double si = s[idx];
-				var directFlows = B.getColumn(idx);
-				for (int row = 0; row < next.flowIndex().size(); row++) {
-					directFlows[row] *= si;
+				var pin = result.pin(product);
+				if (provider.hasFlows()) {
+					pin.withDirectFlows(provider.directFlowsOf(idx));
+					pin.withUpstreamFlows(provider.totalFlowsOf(idx));
 				}
-				var pin = result.pin(product)
-					.withDirectFlows(directFlows);
-				if (C != null) {
-					pin.withDirectImpacts(
-						solver.multiply(C, directFlows));
+				if (provider.hasImpacts()) {
+					pin.withDirectImpacts(provider.directImpactsOf(idx));
+					pin.withUpstreamImpacts(provider.totalImpactsOf(idx));
 				}
-
-				// upstream contributions
-				double fi = si * A.get(idx, idx);
-				double loopFactor = LcaCalculator.getLoopFactor(A, s, next.techIndex());
-				fi *= loopFactor;
-				double[] su = solver.solve(A, idx, fi);
-				var upstreamFlows = solver.multiply(B, su);
-				pin.withUpstreamFlows(upstreamFlows);
-				if (C != null) {
-					pin.withUpstreamImpacts(solver.multiply(C, upstreamFlows));
-				}
-
 				pin.add();
 			}
 			return next;

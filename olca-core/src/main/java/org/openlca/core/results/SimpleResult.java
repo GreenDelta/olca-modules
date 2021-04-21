@@ -89,6 +89,11 @@ public class SimpleResult extends BaseResult {
 		this.totalCosts = p.totalCosts();
 	}
 
+	public static SimpleResult of(IDatabase db, MatrixData data) {
+		var provider = ResultProviders.lazyOf(db, data);
+		return new SimpleResult(provider);
+	}
+
 	@Override
 	public TechIndex techIndex() {
 		return provider.techIndex();
@@ -102,11 +107,6 @@ public class SimpleResult extends BaseResult {
 	@Override
 	public ImpactIndex impactIndex() {
 		return provider.impactIndex();
-	}
-
-	public static SimpleResult of(IDatabase db, MatrixData data) {
-		var provider = ResultProviders.lazyOf(db, data);
-		return new SimpleResult(provider);
 	}
 
 	/**
