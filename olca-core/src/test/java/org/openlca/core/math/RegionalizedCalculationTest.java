@@ -276,10 +276,9 @@ public class RegionalizedCalculationTest {
 		p2 = setLoc(p2, loc2);
 		CalculationSetup setup = calcSetup();
 		setup.withRegionalization = true;
-		MatrixData data = MatrixData.of(db, setup);
-		LcaCalculator calculator = new LcaCalculator(db, data);
-		FullResult r = calculator.calculateFull();
-		checkRegionalizedResults(r);
+		var data = MatrixData.of(db, setup);
+		var result = FullResult.of(db, data);
+		checkRegionalizedResults(result);
 	}
 
 	private void checkRegionalizedResults(FullResult r) {

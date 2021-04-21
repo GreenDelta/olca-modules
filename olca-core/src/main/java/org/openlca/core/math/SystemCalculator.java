@@ -36,18 +36,21 @@ public class SystemCalculator {
 	}
 
 	public SimpleResult calculateSimple(CalculationSetup setup) {
-		log.trace("calculate product system - simple result");
-		return calculator(setup).calculateSimple();
+		var subs = calculateSubSystems(setup);
+		var data = MatrixData.of(db, setup, subs);
+		return SimpleResult.of(db, data);
 	}
 
 	public ContributionResult calculateContributions(CalculationSetup setup) {
-		log.trace("calculate product system - contribution result");
-		return calculator(setup).calculateContributions();
+		var subs = calculateSubSystems(setup);
+		var data = MatrixData.of(db, setup, subs);
+		return ContributionResult.of(db, data);
 	}
 
 	public FullResult calculateFull(CalculationSetup setup) {
-		log.trace("calculate product system - full result");
-		return calculator(setup).calculateFull();
+		var subs = calculateSubSystems(setup);
+		var data = MatrixData.of(db, setup, subs);
+		return FullResult.of(db, data);
 	}
 
 	public ProjectResult calculate(Project project) {
@@ -80,12 +83,6 @@ public class SystemCalculator {
 			result.addResult(v, cr);
 		}
 		return result;
-	}
-
-	private LcaCalculator calculator(CalculationSetup setup) {
-		var subs = calculateSubSystems(setup);
-		var data = MatrixData.of(db, setup, subs);
-		return new LcaCalculator(db, data);
 	}
 
 	/**

@@ -3,7 +3,6 @@ package org.openlca.core.results;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.LongPair;
@@ -46,7 +45,7 @@ public class ContributionTreeTest {
 		data.flowMatrix = flowMatrix;
 
 		// calculate and check the result
-		var r = new LcaCalculator(Tests.getDb(), data).calculateFull();
+		var r = FullResult.of(Tests.getDb(), data);
 		Assert.assertEquals(1.0, r.getTotalFlowResult(enviIndex.at(0)), 1e-16);
 
 		var tree = r.getTree(enviIndex.at(0));

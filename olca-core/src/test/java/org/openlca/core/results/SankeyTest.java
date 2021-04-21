@@ -5,7 +5,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.MatrixData;
@@ -37,9 +36,7 @@ public class SankeyTest {
 		data.flowMatrix = JavaMatrix.of(new double[][]{
 				{1.0, 2.0, 3.0},
 		});
-
-		var calculator = new LcaCalculator(Tests.getDb(), data);
-		var result = calculator.calculateFull();
+		var result = FullResult.of(Tests.getDb(), data);
 
 		var sankey = Sankey.of(data.flowIndex.at(0), result)
 				.build();

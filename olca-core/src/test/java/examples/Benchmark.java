@@ -6,11 +6,11 @@ import java.util.Random;
 
 import org.openlca.core.database.Derby;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.IndexFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.results.FullResult;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.julia.Julia;
 
@@ -27,7 +27,6 @@ public class Benchmark {
 		var setup = new CalculationSetup(system);
 
 		var data = MatrixData.of(db, setup);
-		var calculator = new LcaCalculator(db, data);
 
 		System.out.println("Inventory ready. Type enter to start!");
 		try (var r = new InputStreamReader(System.in);
@@ -44,11 +43,11 @@ public class Benchmark {
 		for (int run = 1; run <= runs; run++) {
 			System.gc();
 			long start = System.currentTimeMillis();
-			result = calculator.calculateSimple();
+			result = SimpleResult.of(db, data);
 			long quick = System.currentTimeMillis() - start;
 			System.gc();
 			start = System.currentTimeMillis();
-			calculator.calculateFull();
+			FullResult.of(db, data);
 			long analysis = System.currentTimeMillis() - start;
 			var r = Runtime.getRuntime();
 			double mem = (r.totalMemory() - r.freeMemory()) / (1024.0 * 1024.0);

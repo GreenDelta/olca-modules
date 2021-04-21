@@ -1,7 +1,6 @@
 package examples;
 
 import org.openlca.core.database.Derby;
-import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.Process;
@@ -36,8 +35,7 @@ public class DBMatrixExample {
 
 			// now the full result calculation
 			start = System.currentTimeMillis();
-			LcaCalculator calc = new LcaCalculator(db, matrices);
-			FullResult r = calc.calculateFull();
+			var r = FullResult.of(db, matrices);
 			end = System.currentTimeMillis();
 			System.out.printf(
 				"calculation took %.3f seconds",
