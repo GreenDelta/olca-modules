@@ -150,6 +150,56 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
   }
 
   @Override
+  public void getTechFlows(Result req, StreamObserver<ResultsProto.TechFlow> resp) {
+    var result = results.get(req.getId());
+    if (result == null) {
+      Response.notFound(resp, "Result does not exist: " + req.getId());
+      return;
+    }
+    var refData = Refs.dataOf(db);
+    for (var product : result.techIndex()) {
+      resp.onNext(Results.toProto(product, refData));
+    }
+    resp.onCompleted();
+  }
+
+  @Override
+  public void getEnviFlows(Result req, StreamObserver<ResultsProto.EnviFlow> resp) {
+    var result = results.get(req.getId());
+    if (result == null) {
+      Response.notFound(resp, "Result does not exist: " + req.getId());
+      return;
+    }
+    var flows = result.flowIndex();
+    if (flows == null) {
+      resp.onCompleted();
+      return;
+    }
+    var refData = Refs.dataOf(db);
+    for (var flow : flows) {
+      resp.onNext(Results.toProto(flow, refData));
+    }
+    resp.onCompleted();
+  }
+
+  @Override
+  public void getImpactCategories(Result req, StreamObserver<Proto.Ref> resp) {
+    var result = results.get(req.getId());
+    if (result == null) {
+      Response.notFound(resp, "Result does not exist: " + req.getId());
+      return;
+    }
+    var impacts = result.impactIndex();
+    if (impacts == null)
+      return;
+    var refData = Refs.dataOf(db);
+    for (var impact : impacts) {
+      resp.onNext(Refs.refOf(impact, refData).build());
+    }
+    resp.onCompleted();
+  }
+
+  @Override
   public void getInventory(Result req, StreamObserver<Proto.FlowResult> resp) {
 
     // get the flow results
