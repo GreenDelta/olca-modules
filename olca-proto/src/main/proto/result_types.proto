@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package protolca.services;
+
+option java_package = "org.openlca.proto.generated.results";
+option java_multiple_files = false;
+option java_outer_classname = "ResultsProto";
+
+option csharp_namespace = "ProtoLCA.Services";
+option go_package = ".;protolca";
+
+import "olca.proto";
+
+// A technosphere flow of a product system. Such a flow is identified by a pair
+// of a process and a flow where the flow can be a product or waste flow.  For
+// products flows, the process is a process that produces this product; thus,
+// has it on the output side. For waste flows, the process is a process that
+// consumes this waste flow; thus, has it on the input side.  In a product
+// system, there can be multiple tech-flows with the same product or waste flow
+// but different processes, e.g. when there are multiple processes that produce
+// the same product.
+message TechFlow {
+  Ref process = 1;
+  oneof flow {
+    Ref product = 2;
+    Ref waste = 3;
+  }
+}
+
+message TechFlowValue {
+  TechFlow tech_flow = 1;
+  double value = 2;
+}
+
+message EnviFlow {
+  Ref flow = 1;
+  Ref location = 2;
+  bool is_input = 3;
+}

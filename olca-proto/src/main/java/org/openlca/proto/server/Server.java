@@ -21,8 +21,8 @@ public class Server {
     this.port = port;
     this.server = ServerBuilder.forPort(port)
       .maxInboundMessageSize(1024 * 1024 * 1024)
-      .addService(new DataService(db))
       .addService(new DataFetchService(db))
+      .addService(new DataUpdateService(db))
       .addService(new FlowMapService(db))
       .addService(new ResultService(db))
       .build();

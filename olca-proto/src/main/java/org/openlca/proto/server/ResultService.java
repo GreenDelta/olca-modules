@@ -226,22 +226,20 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     // check that we have at least an indicator or flow
     var indicator = Results.findIndicator(
       result, req.getIndicator());
-    var flow = Results.findFlow(
-      result, req.getFlow(), req.getLocation());
+    var flow = Results.findFlow(result, req.getFlow());
     if (flow == null && indicator == null) {
       resp.onCompleted();
       return;
     }
 
+    var refData = Refs.dataOf(db);
+
     // get one specific factor of an indicator and flow
     if (indicator != null && flow != null) {
       var factor = ImpactFactorResponse.newBuilder()
         .setIndicator(Refs.refOf(indicator))
-        .setFlow(Refs.refOf(flow.flow))
+        .setFlow(Results.toProto(flow, refData))
         .setValue(result.getImpactFactor(indicator, flow));
-      if (flow.location != null) {
-        factor.setLocation(Refs.refOf(flow.location));
-      }
       resp.onNext(factor.build());
       resp.onCompleted();
       return;
@@ -256,11 +254,8 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
           continue;
         var factor = ImpactFactorResponse.newBuilder()
           .setIndicator(indicatorRef)
-          .setFlow(Refs.refOf(iFlow.flow))
+          .setFlow(Results.toProto(iFlow, refData))
           .setValue(value);
-        if (iFlow.location != null) {
-          factor.setLocation(Refs.refOf(iFlow.location));
-        }
         resp.onNext(factor.build());
       }
       resp.onCompleted();
@@ -268,18 +263,11 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     }
 
     // get all impact factors of a flow
-    var flowRef = Refs.refOf(flow.flow);
-    var locationRef = flow.location != null
-      ? Refs.refOf(flow.location)
-      : null;
     for (var impact : impactIndex) {
       var factor = ImpactFactorResponse.newBuilder()
         .setIndicator(Refs.refOf(impact))
-        .setFlow(flowRef)
+        .setFlow(Results.toProto(flow, refData))
         .setValue(result.getImpactFactor(impact, flow));
-      if (locationRef != null) {
-        factor.setLocation(locationRef);
-      }
       resp.onNext(factor.build());
     }
     resp.onCompleted();
@@ -292,4 +280,5 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     resp.onNext(Empty.newBuilder().build());
     resp.onCompleted();
   }
+
 }

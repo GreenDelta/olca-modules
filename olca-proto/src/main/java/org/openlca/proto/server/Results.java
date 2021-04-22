@@ -5,6 +5,8 @@ import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.proto.Messages;
 import org.openlca.proto.generated.Proto;
+import org.openlca.proto.generated.results.ResultsProto;
+import org.openlca.proto.output.Refs;
 import org.openlca.util.Strings;
 
 final class Results {
@@ -31,19 +33,18 @@ final class Results {
     return null;
   }
 
-  static IndexFlow findFlow(
-    SimpleResult result, Proto.Ref flowRef, Proto.Ref locationRef) {
+  static IndexFlow findFlow(SimpleResult result, ResultsProto.EnviFlow proto) {
 
-    if (result == null || Messages.isEmpty(flowRef))
+    if (result == null || Messages.isEmpty(proto))
       return null;
     var index = result.flowIndex();
     if (index == null)
       return null;
 
-    var flowId = flowRef.getId();
-    var locationId = Messages.isEmpty(locationRef)
+    var flowId = proto.getFlow().getId();
+    var locationId = Messages.isEmpty(proto.getLocation())
       ? null
-      : Strings.nullIfEmpty(locationRef.getId());
+      : Strings.nullIfEmpty(proto.getLocation().getId());
 
     for (int i = 0; i < index.size(); i++) {
       var flow = index.at(i);
@@ -57,6 +58,18 @@ final class Results {
         return flow;
     }
     return null;
+  }
+
+  static ResultsProto.EnviFlow toProto(IndexFlow flow, Refs.RefData refData) {
+    var proto = ResultsProto.EnviFlow.newBuilder();
+    if (flow == null)
+      return proto.build();
+    proto.setFlow(Refs.refOf(flow.flow, refData));
+    proto.setIsInput(flow.isInput);
+    if (flow.location != null) {
+      proto.setLocation(Refs.refOf(flow.location, refData));
+    }
+    return proto.build();
   }
 
 }
