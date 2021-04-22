@@ -15,6 +15,8 @@ import org.openlca.proto.generated.results.ImpactFactorRequest;
 import org.openlca.proto.generated.results.ImpactFactorResponse;
 import org.openlca.proto.generated.results.Result;
 import org.openlca.proto.generated.results.ResultServiceGrpc;
+import org.openlca.proto.generated.results.ResultsProto;
+import org.openlca.proto.generated.results.TechFlowContributionRequest;
 import org.openlca.proto.input.In;
 import org.openlca.proto.output.Refs;
 import org.openlca.util.Strings;
@@ -28,8 +30,8 @@ import org.openlca.util.Pair;
 
 class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 
-  private final IDatabase db;
-  private final Map<String, FullResult> results = new HashMap<>();
+  final IDatabase db;
+  final Map<String, FullResult> results = new HashMap<>();
 
   ResultService(IDatabase db) {
     this.db = db;
@@ -75,8 +77,8 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     var qref = system.referenceExchange;
     var propID = proto.getFlowProperty().getId();
     if (Strings.notEmpty(propID)
-      && qref != null
-      && qref.flow != null) {
+        && qref != null
+        && qref.flow != null) {
       qref.flow.flowPropertyFactors.stream()
         .filter(f -> Strings.nullOrEqual(propID, f.flowProperty.refId))
         .findAny()
@@ -87,9 +89,9 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     var unitID = proto.getUnit().getId();
     var propFac = setup.getFlowPropertyFactor();
     if (Strings.notEmpty(unitID)
-      && propFac != null
-      && propFac.flowProperty != null
-      && propFac.flowProperty.unitGroup != null) {
+        && propFac != null
+        && propFac.flowProperty != null
+        && propFac.flowProperty.unitGroup != null) {
       var group = propFac.flowProperty.unitGroup;
       group.units.stream()
         .filter(u -> Strings.nullOrEqual(unitID, u.refId))
@@ -180,7 +182,8 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
   }
 
   @Override
-  public void getImpacts(Result req, StreamObserver<Proto.ImpactResult> resp) {
+  public void getTotalImpacts(
+    Result req, StreamObserver<Proto.ImpactResult> resp) {
 
     // get the impact results
     var result = results.get(req.getId());
@@ -218,14 +221,13 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     }
     var flowIndex = result.flowIndex();
     var impactIndex = result.impactIndex();
-    if (flowIndex == null  || impactIndex == null) {
+    if (flowIndex == null || impactIndex == null) {
       resp.onCompleted();
       return;
     }
 
     // check that we have at least an indicator or flow
-    var indicator = Results.findIndicator(
-      result, req.getIndicator());
+    var indicator = Results.findImpact(result, req.getIndicator());
     var flow = Results.findFlow(result, req.getFlow());
     if (flow == null && indicator == null) {
       resp.onCompleted();
@@ -271,6 +273,54 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
       resp.onNext(factor.build());
     }
     resp.onCompleted();
+  }
+
+  @Override
+  public void getDirectContribution(
+    TechFlowContributionRequest req,
+    StreamObserver<ResultsProto.TechFlowValue> resp) {
+
+    TechFlowContribution.of(this, req, resp)
+      .ifImpact(FullResult::getDirectImpactResult)
+      .ifFlow(FullResult::getDirectFlowResult)
+      .ifCosts(FullResult::getDirectCostResult)
+      .close();
+  }
+
+  @Override
+  public void getTotalContribution(
+    TechFlowContributionRequest req,
+    StreamObserver<ResultsProto.TechFlowValue> resp) {
+
+    TechFlowContribution.of(this, req, resp)
+      .ifImpact(FullResult::getUpstreamImpactResult)
+      .ifFlow(FullResult::getUpstreamFlowResult)
+      .ifCosts(FullResult::getUpstreamCostResult)
+      .close();
+  }
+
+  @Override
+  public void getTotalContributionOfOne(
+    TechFlowContributionRequest req,
+    StreamObserver<ResultsProto.TechFlowValue> resp) {
+
+    TechFlowContribution.of(this, req, resp)
+      .ifImpact((result, product, impact) -> {
+        var productIdx = result.techIndex().of(product);
+        var impactIdx = result.impactIndex().of(impact);
+        return result.provider.totalImpactOfOne(impactIdx, productIdx);
+      })
+      .ifFlow((result, product, flow) -> {
+        var productIdx = result.techIndex().of(product);
+        var flowIdx = result.flowIndex().of(flow);
+        var value = result.provider.totalFlowOfOne(flowIdx, productIdx);
+        return result.adopt(flow, value);
+      })
+      .ifCosts((result, product) -> {
+        var productIdx = result.techIndex().of(product);
+        return result.provider.totalCostsOfOne(productIdx);
+      })
+      .close();
   }
 
   @Override

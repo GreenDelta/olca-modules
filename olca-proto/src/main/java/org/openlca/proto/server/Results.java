@@ -1,6 +1,8 @@
 package org.openlca.proto.server;
 
 import org.openlca.core.matrix.IndexFlow;
+import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.proto.Messages;
@@ -14,7 +16,7 @@ final class Results {
   private Results() {
   }
 
-  static ImpactDescriptor findIndicator(
+  static ImpactDescriptor findImpact(
     SimpleResult result, Proto.Ref indicatorRef) {
 
     if (result == null || Messages.isEmpty(indicatorRef))
@@ -33,7 +35,8 @@ final class Results {
     return null;
   }
 
-  static IndexFlow findFlow(SimpleResult result, ResultsProto.EnviFlow proto) {
+  static IndexFlow findFlow(
+    SimpleResult result, ResultsProto.EnviFlow proto) {
 
     if (result == null || Messages.isEmpty(proto))
       return null;
@@ -46,21 +49,40 @@ final class Results {
       ? null
       : Strings.nullIfEmpty(proto.getLocation().getId());
 
-    for (int i = 0; i < index.size(); i++) {
-      var flow = index.at(i);
+    for (var flow : index) {
       if (!Strings.nullOrEqual(flow.flow.refId, flowId))
         continue;
       if (locationId == null && flow.location == null)
         return flow;
       if (locationId != null
-        && flow.location != null
-        && Strings.nullOrEqual(flow.location.refId, locationId))
+          && flow.location != null
+          && Strings.nullOrEqual(flow.location.refId, locationId))
         return flow;
     }
     return null;
   }
 
-  static ResultsProto.EnviFlow toProto(IndexFlow flow, Refs.RefData refData) {
+  static ProcessProduct findProduct(
+    SimpleResult result, ResultsProto.TechFlow proto) {
+    if (result == null || Messages.isEmpty(proto))
+      return null;
+    var processId = proto.getProcess().getId();
+    var flowId = proto.hasProduct()
+      ? proto.getProduct().getId()
+      : proto.getWaste().getId();
+    for (var p : result.techIndex()) {
+      if (p.process == null || p.flow == null)
+        continue;
+      if (Strings.nullOrEqual(p.process.refId, processId)
+          && Strings.nullOrEqual(p.flow.refId, flowId))
+        return p;
+    }
+    return null;
+  }
+
+  static ResultsProto.EnviFlow toProto(
+    IndexFlow flow, Refs.RefData refData) {
+
     var proto = ResultsProto.EnviFlow.newBuilder();
     if (flow == null)
       return proto.build();
@@ -68,6 +90,25 @@ final class Results {
     proto.setIsInput(flow.isInput);
     if (flow.location != null) {
       proto.setLocation(Refs.refOf(flow.location, refData));
+    }
+    return proto.build();
+  }
+
+  static ResultsProto.TechFlow toProto(
+    ProcessProduct product, Refs.RefData refData) {
+
+    var proto = ResultsProto.TechFlow.newBuilder();
+    if (product == null)
+      return proto.build();
+    if (product.process != null) {
+      proto.setProcess(Refs.refOf(product.process, refData));
+    }
+    if (product.flow != null) {
+      if (product.isWaste()) {
+        proto.setWaste(Refs.refOf(product.flow, refData));
+      } else {
+        proto.setProduct(Refs.refOf(product.flow, refData));
+      }
     }
     return proto.build();
   }

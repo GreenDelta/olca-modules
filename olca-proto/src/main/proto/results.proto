@@ -18,17 +18,31 @@ service ResultService {
   // Calculates a result for the given calculation setup.
   rpc Calculate(CalculationSetup) returns (Result);
 
-  // Returns all technosphere flows of the given result.
+  // Get all technosphere flows of the underlying product system of the given
+  // result.
   rpc GetTechFlows(Result) returns (stream TechFlow);
 
-  // Returns the environmental flows of the given result
+  // Get the environmental flows of the given result.
   rpc getEnviFlows(Result) returns (stream EnviFlow);
+
+  // Get the impact categories of the given result.
+  rpc getImpactCategories(Result) returns (stream Ref);
 
   // Get the inventory of the given result.
   rpc GetInventory(Result) returns (stream FlowResult);
 
   // Get the total impact assessment result of the given result.
-  rpc GetImpacts(Result) returns (stream ImpactResult);
+  rpc GetTotalImpacts(Result) returns (stream ImpactResult);
+
+  // Get the direct contribution of a TechFlow to a flow, impact, or cost
+  // result. 'Direct' means that this is only the contribution that is
+  // directly associated with the production of a product or treatment of
+  // a waste flow excluding contributions of upstream and downstream processes.
+  rpc GetDirectContribution(TechFlowContributionRequest) returns (TechFlowValue);
+
+  rpc GetTotalContribution(TechFlowContributionRequest) returns (TechFlowValue);
+
+  rpc GetTotalContributionOfOne(TechFlowContributionRequest) returns (TechFlowValue);
 
   // Get the used impact factors of a result. The request can be for:
   //
@@ -67,4 +81,15 @@ message ImpactFactorResponse {
   Ref indicator = 1;
   EnviFlow flow = 2;
   double value = 3;
+}
+
+// The request for a contribution result of a tech-flow.
+message TechFlowContributionRequest {
+  Result result = 1;
+  TechFlow tech_flow = 2;
+  oneof result_ref {
+    EnviFlow envi_flow = 3;
+    Ref impact = 4;
+    bool costs = 5;
+  }
 }
