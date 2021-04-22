@@ -1,36 +1,32 @@
 syntax = "proto3";
+package protolca.services;
 
-package protolca.commons;
-
-option java_package = "org.openlca.proto.generated";
-option java_outer_classname = "CommonsProto";
+option java_package = "org.openlca.proto.generated.data";
 option java_multiple_files = true;
-option csharp_namespace = "ProtoLCA";
+option java_outer_classname = "DataProto";
+
+option csharp_namespace = "ProtoLCA.Services";
 option go_package = ".;protolca";
 
-// This enumeration type is added for compatibility with the @type attribute of
-// the openLCA JSON-LD format. In the proto messages we limit its usage to
-// instances of CategorizedEntity and Ref while it is allowed for every type in
-// the JSON-LD format. Thus, you should use ignoringUnknownFields flag when
-// parsing openLCA JSON-LD messages with the generated proto parsers.
-enum EntityType {
-  Undefined = 0;
-  Actor = 1;
-  Category = 2;
-  Currency = 3;
-  DQSystem = 4;
-  Flow = 5;
-  FlowProperty = 6;
-  ImpactCategory = 7;
-  ImpactMethod = 8;
-  Location = 9;
-  NwSet = 10;
-  Parameter = 11;
-  Process = 12;
-  ProductSystem = 13;
-  Project = 14;
-  SocialIndicator = 15;
-  Source = 16;
-  Unit = 17;
-  UnitGroup = 18;
+import "olca.proto";
+
+message DataSet {
+  oneof model {
+    Actor actor = 1;
+    Category category = 2;
+    Currency currency = 3;
+    DQSystem dq_system = 4;
+    Flow flow = 5;
+    FlowProperty flow_property = 6;
+    ImpactCategory impact_category = 7;
+    ImpactMethod impact_method = 8;
+    Location location = 9;
+    Parameter parameter = 10;
+    Process process = 11;
+    ProductSystem product_system = 12;
+    Project project = 13;
+    SocialIndicator social_indicator = 14;
+    Source source = 15;
+    UnitGroup unit_group = 16;
+  }
 }

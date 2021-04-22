@@ -9,7 +9,7 @@ option csharp_namespace = "ProtoLCA.Services";
 option go_package = ".;protolca";
 
 import "olca.proto";
-import "data.proto";
+import "commons.proto";
 
 service DataFetchService {
 

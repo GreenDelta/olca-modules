@@ -12,34 +12,16 @@ option go_package = ".;protolca";
 import "google/protobuf/empty.proto";
 import "olca.proto";
 
-// A `Result` message is basically just a reference to a real result on the
-// server side. As result data can be really large, we do not add them directly
-// to the result. Instead you call the respective methods of the result service
-// to get them. Because of this, you need to explicitly call `Dispose` when you
-// do not need a result anymore. Otherwise you will create memory leaks as the
-// result still exists on the server side.
-message Result {
-  string id = 1 [json_name = "@id"];
-}
-
-message ImpactFactorRequest {
-  Result result = 1;
-  Ref indicator = 2;
-  Ref flow = 3;
-  Ref location = 4;
-}
-
-message ImpactFactorResponse {
-  Ref indicator = 1;
-  Ref flow = 2;
-  double value = 3;
-  Ref location = 4;
-}
-
 service ResultService {
 
   // Calculates a result for the given calculation setup.
   rpc Calculate(CalculationSetup) returns (Result);
+
+  // Returns all technosphere flows of the given result.
+  rpc GetTechFlows(Result) returns (stream TechFlow);
+
+  // Returns the environmental flows of the given result
+  rpc getEnviFlows(Result) returns (stream EnviFlow);
 
   // Get the inventory of the given result.
   rpc GetInventory(Result) returns (stream FlowResult);
@@ -63,3 +45,54 @@ service ResultService {
   rpc Dispose(Result) returns (google.protobuf.Empty);
 
 }
+
+// A `Result` message is basically just a reference to a real result on the
+// server side. As result data can be really large, we do not add them directly
+// to the result. Instead you call the respective methods of the result service
+// to get them. Because of this, you need to explicitly call `Dispose` when you
+// do not need a result anymore. Otherwise you will create memory leaks as the
+// result still exists on the server side.
+message Result {
+  string id = 1 [json_name = "@id"];
+}
+
+// A technosphere flow of a product system. Such a flow is identified by a pair
+// of a process and a flow where the flow can be a product or waste flow.  For
+// products flows, the process is a process that produces this product; thus,
+// has it on the output side. For waste flows, the process is a process that
+// consumes this waste flow; thus, has it on the input side.  In a product
+// system, there can be multiple tech-flows with the same product or waste flow
+// but different processes, e.g. when there are multiple processes that produce
+// the same product.
+message TechFlow {
+  Ref process = 1;
+  oneof flow {
+    Ref product = 2;
+    Ref waste = 3;
+  }
+}
+
+message ImpactFactorRequest {
+  Result result = 1;
+  Ref indicator = 2;
+  EnviFlow flow = 3;
+}
+
+message ImpactFactorResponse {
+  Ref indicator = 1;
+  EnviFlow flow = 2;
+  double value = 3;
+}
+
+
+message TechFlowValue {
+  TechFlow tech_flow = 1;
+  double value = 2;
+}
+
+message EnviFlow {
+  Ref flow = 1;
+  Ref location = 2;
+}
+
+

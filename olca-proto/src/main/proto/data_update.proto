@@ -10,7 +10,7 @@ option go_package = ".;protolca";
 
 import "google/protobuf/empty.proto";
 import "olca.proto";
-import "data.proto";
+import "commons.proto";
 
 service DataUpdateService {
 

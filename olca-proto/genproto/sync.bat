@@ -13,9 +13,10 @@ cd %~dp0
 rem generate the messages
 genproto ..\..\..\olca-schema ..\src\main\proto\olca.proto
 
-rem call maven package to generate the Java sources
 cd ..
-call mvn package -DskipTests=true
+rem call maven package to generate the Java sources
+rem call mvn package -DskipTests=true
+call py generate-sources.py
 
 rem back to home
 cd %home%

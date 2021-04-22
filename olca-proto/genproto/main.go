@@ -82,7 +82,7 @@ option java_outer_classname = "Proto";
 option csharp_namespace = "ProtoLCA";
 option go_package = ".;protolca";
 
-import "commons.proto";
+import "entity_type.proto";
 
 `
 

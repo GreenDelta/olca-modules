@@ -8,188 +8,86 @@ option go_package = ".;protolca";
 import "google/protobuf/empty.proto";
 import "olca.proto";
 
-message RefStatus {
-  bool ok = 1;
-  protolca.Ref ref = 2;
-  string error = 3;
-}
-
-message ActorStatus {
-  bool ok = 1;
-  protolca.Actor actor = 2;
-  string error = 3;
-}
-
-message CategoryStatus {
-  bool ok = 1;
-  protolca.Category category = 2;
-  string error = 3;
-}
-
-message CurrencyStatus {
-  bool ok = 1;
-  protolca.Currency currency = 2;
-  string error = 3;
-}
-
-message DQSystemStatus {
-  bool ok = 1;
-  protolca.DQSystem dq_system = 2;
-  string error = 3;
-}
-
-message FlowStatus {
-  bool ok = 1;
-  protolca.Flow flow = 2;
-  string error = 3;
-}
-
-message FlowPropertyStatus {
-  bool ok = 1;
-  protolca.FlowProperty flow_property = 2;
-  string error = 3;
-}
-
-message ImpactCategoryStatus {
-  bool ok = 1;
-  protolca.ImpactCategory impact_category = 2;
-  string error = 3;
-}
-
-message ImpactMethodStatus {
-  bool ok = 1;
-  protolca.ImpactMethod impact_method = 2;
-  string error = 3;
-}
-
-message LocationStatus {
-  bool ok = 1;
-  protolca.Location location = 2;
-  string error = 3;
-}
-
-message ParameterStatus {
-  bool ok = 1;
-  protolca.Parameter parameter = 2;
-  string error = 3;
-}
-
-message ProcessStatus {
-  bool ok = 1;
-  protolca.Process process = 2;
-  string error = 3;
-}
-
-message ProductSystemStatus {
-  bool ok = 1;
-  protolca.ProductSystem product_system = 2;
-  string error = 3;
-}
-
-message ProjectStatus {
-  bool ok = 1;
-  protolca.Project project = 2;
-  string error = 3;
-}
-
-message SocialIndicatorStatus {
-  bool ok = 1;
-  protolca.SocialIndicator social_indicator = 2;
-  string error = 3;
-}
-
-message SourceStatus {
-  bool ok = 1;
-  protolca.Source source = 2;
-  string error = 3;
-}
-
-message UnitGroupStatus {
-  bool ok = 1;
-  protolca.UnitGroup unit_group = 2;
-  string error = 3;
-}
-
 service DataService {
 
   // methods for Actor
   rpc GetActors(google.protobuf.Empty) returns (stream protolca.Actor);
-  rpc GetActor(protolca.Ref) returns (ActorStatus);
-  rpc PutActor(protolca.Actor) returns (RefStatus);
+  rpc GetActor(protolca.Ref) returns (Actor);
+  rpc PutActor(protolca.Actor) returns (Ref);
 
   // methods for Category
   rpc GetCategories(google.protobuf.Empty) returns (stream protolca.Category);
-  rpc GetCategory(protolca.Ref) returns (CategoryStatus);
-  rpc PutCategory(protolca.Category) returns (RefStatus);
+  rpc GetCategory(protolca.Ref) returns (Category);
+  rpc PutCategory(protolca.Category) returns (Ref);
 
   // methods for Currency
   rpc GetCurrencies(google.protobuf.Empty) returns (stream protolca.Currency);
-  rpc GetCurrency(protolca.Ref) returns (CurrencyStatus);
-  rpc PutCurrency(protolca.Currency) returns (RefStatus);
+  rpc GetCurrency(protolca.Ref) returns (Currency);
+  rpc PutCurrency(protolca.Currency) returns (Ref);
 
   // methods for DQSystem
   rpc GetDQSystems(google.protobuf.Empty) returns (stream protolca.DQSystem);
-  rpc GetDQSystem(protolca.Ref) returns (DQSystemStatus);
-  rpc PutDQSystem(protolca.DQSystem) returns (RefStatus);
+  rpc GetDQSystem(protolca.Ref) returns (DQSystem);
+  rpc PutDQSystem(protolca.DQSystem) returns (Ref);
 
   // methods for Flow
   rpc GetFlows(google.protobuf.Empty) returns (stream protolca.Flow);
-  rpc GetFlow(protolca.Ref) returns (FlowStatus);
-  rpc PutFlow(protolca.Flow) returns (RefStatus);
+  rpc GetFlow(protolca.Ref) returns (Flow);
+  rpc PutFlow(protolca.Flow) returns (Ref);
 
   // methods for FlowProperty
   rpc GetFlowProperties(google.protobuf.Empty) returns (stream protolca.FlowProperty);
-  rpc GetFlowProperty(protolca.Ref) returns (FlowPropertyStatus);
-  rpc PutFlowProperty(protolca.FlowProperty) returns (RefStatus);
+  rpc GetFlowProperty(protolca.Ref) returns (FlowProperty);
+  rpc PutFlowProperty(protolca.FlowProperty) returns (Ref);
 
   // methods for ImpactCategory
   rpc GetImpactCategories(google.protobuf.Empty) returns (stream protolca.ImpactCategory);
-  rpc GetImpactCategory(protolca.Ref) returns (ImpactCategoryStatus);
-  rpc PutImpactCategory(protolca.ImpactCategory) returns (RefStatus);
+  rpc GetImpactCategory(protolca.Ref) returns (ImpactCategory);
+  rpc PutImpactCategory(protolca.ImpactCategory) returns (Ref);
 
   // methods for ImpactMethod
   rpc GetImpactMethods(google.protobuf.Empty) returns (stream protolca.ImpactMethod);
-  rpc GetImpactMethod(protolca.Ref) returns (ImpactMethodStatus);
-  rpc PutImpactMethod(protolca.ImpactMethod) returns (RefStatus);
+  rpc GetImpactMethod(protolca.Ref) returns (ImpactMethod);
+  rpc PutImpactMethod(protolca.ImpactMethod) returns (Ref);
 
   // methods for Location
   rpc GetLocations(google.protobuf.Empty) returns (stream protolca.Location);
-  rpc GetLocation(protolca.Ref) returns (LocationStatus);
-  rpc PutLocation(protolca.Location) returns (RefStatus);
+  rpc GetLocation(protolca.Ref) returns (Location);
+  rpc PutLocation(protolca.Location) returns (Ref);
 
   // methods for Parameter
   rpc GetParameters(google.protobuf.Empty) returns (stream protolca.Parameter);
-  rpc GetParameter(protolca.Ref) returns (ParameterStatus);
-  rpc PutParameter(protolca.Parameter) returns (RefStatus);
+  rpc GetParameter(protolca.Ref) returns (Parameter);
+  rpc PutParameter(protolca.Parameter) returns (Ref);
 
   // methods for Process
   rpc GetProcesses(google.protobuf.Empty) returns (stream protolca.Process);
-  rpc GetProcess(protolca.Ref) returns (ProcessStatus);
-  rpc PutProcess(protolca.Process) returns (RefStatus);
+  rpc GetProcess(protolca.Ref) returns (Process);
+  rpc PutProcess(protolca.Process) returns (Ref);
 
   // methods for ProductSystem
   rpc GetProductSystems(google.protobuf.Empty) returns (stream protolca.ProductSystem);
-  rpc GetProductSystem(protolca.Ref) returns (ProductSystemStatus);
-  rpc PutProductSystem(protolca.ProductSystem) returns (RefStatus);
+  rpc GetProductSystem(protolca.Ref) returns (ProductSystem);
+  rpc PutProductSystem(protolca.ProductSystem) returns (Ref);
 
   // methods for Project
   rpc GetProjects(google.protobuf.Empty) returns (stream protolca.Project);
-  rpc GetProject(protolca.Ref) returns (ProjectStatus);
-  rpc PutProject(protolca.Project) returns (RefStatus);
+  rpc GetProject(protolca.Ref) returns (Project);
+  rpc PutProject(protolca.Project) returns (Ref);
 
   // methods for SocialIndicator
   rpc GetSocialIndicators(google.protobuf.Empty) returns (stream protolca.SocialIndicator);
-  rpc GetSocialIndicator(protolca.Ref) returns (SocialIndicatorStatus);
-  rpc PutSocialIndicator(protolca.SocialIndicator) returns (RefStatus);
+  rpc GetSocialIndicator(protolca.Ref) returns (SocialIndicator);
+  rpc PutSocialIndicator(protolca.SocialIndicator) returns (Ref);
 
   // methods for Source
   rpc GetSources(google.protobuf.Empty) returns (stream protolca.Source);
-  rpc GetSource(protolca.Ref) returns (SourceStatus);
-  rpc PutSource(protolca.Source) returns (RefStatus);
+  rpc GetSource(protolca.Ref) returns (Source);
+  rpc PutSource(protolca.Source) returns (Ref);
 
   // methods for UnitGroup
   rpc GetUnitGroups(google.protobuf.Empty) returns (stream protolca.UnitGroup);
-  rpc GetUnitGroup(protolca.Ref) returns (UnitGroupStatus);
-  rpc PutUnitGroup(protolca.UnitGroup) returns (RefStatus);
+  rpc GetUnitGroup(protolca.Ref) returns (UnitGroup);
+  rpc PutUnitGroup(protolca.UnitGroup) returns (Ref);
 
 }
