@@ -55,8 +55,8 @@ final class Results {
       if (locationId == null && flow.location == null)
         return flow;
       if (locationId != null
-          && flow.location != null
-          && Strings.nullOrEqual(flow.location.refId, locationId))
+        && flow.location != null
+        && Strings.nullOrEqual(flow.location.refId, locationId))
         return flow;
     }
     return null;
@@ -74,7 +74,7 @@ final class Results {
       if (p.process == null || p.flow == null)
         continue;
       if (Strings.nullOrEqual(p.process.refId, processId)
-          && Strings.nullOrEqual(p.flow.refId, flowId))
+        && Strings.nullOrEqual(p.flow.refId, flowId))
         return p;
     }
     return null;
@@ -92,6 +92,14 @@ final class Results {
       proto.setLocation(Refs.refOf(flow.location, refData));
     }
     return proto.build();
+  }
+
+  static ResultsProto.ResultValue toProtoResult(
+    IndexFlow flow, Refs.RefData refData, double value) {
+    return ResultsProto.ResultValue.newBuilder()
+      .setEnviFlow(toProto(flow, refData))
+      .setValue(value)
+      .build();
   }
 
   static ResultsProto.TechFlow toProto(

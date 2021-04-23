@@ -29,20 +29,20 @@ service ResultService {
   rpc getImpactCategories(Result) returns (stream Ref);
 
   // Get the inventory of the given result.
-  rpc GetInventory(Result) returns (stream FlowResult);
+  rpc GetTotalInventory(Result) returns (stream ResultValue);
 
   // Get the total impact assessment result of the given result.
-  rpc GetTotalImpacts(Result) returns (stream ImpactResult);
+  rpc GetTotalImpacts(Result) returns (stream ResultValue);
 
   // Get the direct contribution of a TechFlow to a flow, impact, or cost
   // result. 'Direct' means that this is only the contribution that is
   // directly associated with the production of a product or treatment of
   // a waste flow excluding contributions of upstream and downstream processes.
-  rpc GetDirectContribution(TechFlowContributionRequest) returns (TechFlowValue);
+  rpc GetDirectContribution(TechFlowContributionRequest) returns (ResultValue);
 
-  rpc GetTotalContribution(TechFlowContributionRequest) returns (TechFlowValue);
+  rpc GetTotalContribution(TechFlowContributionRequest) returns (ResultValue);
 
-  rpc GetTotalContributionOfOne(TechFlowContributionRequest) returns (TechFlowValue);
+  rpc GetTotalContributionOfOne(TechFlowContributionRequest) returns (ResultValue);
 
   // Get the used impact factors of a result. The request can be for:
   //

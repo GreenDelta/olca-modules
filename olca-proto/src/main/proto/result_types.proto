@@ -27,13 +27,18 @@ message TechFlow {
   }
 }
 
-message TechFlowValue {
-  TechFlow tech_flow = 1;
-  double value = 2;
-}
-
 message EnviFlow {
   Ref flow = 1;
   Ref location = 2;
   bool is_input = 3;
+}
+
+message ResultValue {
+  double value = 1;
+  oneof result_reference {
+    TechFlow tech_flow = 2;
+    EnviFlow envi_flow = 3;
+    Ref impact = 4;
+    bool costs = 5;
+  }
 }

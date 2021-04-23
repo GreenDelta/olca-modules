@@ -13,7 +13,7 @@ import org.openlca.proto.output.Refs;
 
 class TechFlowContribution {
 
-  private final StreamObserver<ResultsProto.TechFlowValue> resp;
+  private final StreamObserver<ResultsProto.ResultValue> resp;
   private final ResultService service;
 
   private FullResult result;
@@ -26,7 +26,7 @@ class TechFlowContribution {
   static TechFlowContribution of(
     ResultService service,
     TechFlowContributionRequest req,
-    StreamObserver<ResultsProto.TechFlowValue> resp) {
+    StreamObserver<ResultsProto.ResultValue> resp) {
 
     var resolved = new TechFlowContribution(service, resp);
 
@@ -60,7 +60,7 @@ class TechFlowContribution {
 
   private TechFlowContribution(
     ResultService service,
-    StreamObserver<ResultsProto.TechFlowValue> resp) {
+    StreamObserver<ResultsProto.ResultValue> resp) {
     this.service = service;
     this.resp = resp;
   }
@@ -93,7 +93,7 @@ class TechFlowContribution {
     if (isClosed)
       return;
     var refData = Refs.dataOf(service.db);
-    var proto = ResultsProto.TechFlowValue.newBuilder()
+    var proto = ResultsProto.ResultValue.newBuilder()
       .setTechFlow(Results.toProto(product, refData))
       .setValue(value)
       .build();

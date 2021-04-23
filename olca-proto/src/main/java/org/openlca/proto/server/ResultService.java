@@ -200,40 +200,36 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
   }
 
   @Override
-  public void getInventory(Result req, StreamObserver<Proto.FlowResult> resp) {
+  public void getTotalInventory(
+    Result req, StreamObserver<ResultsProto.ResultValue> resp) {
 
+    // TODO throw an error if the result does not exist,
+    // TODO maybe wrap with `withResult`
     // get the flow results
     var result = results.get(req.getId());
     if (result == null) {
       resp.onCompleted();
       return;
     }
-    var flowResults = result.getTotalFlowResults();
-    if (flowResults.isEmpty()) {
+    var flows = result.flowIndex();
+    if (flows == null) {
       resp.onCompleted();
       return;
     }
 
-    // create the result objects
     var refData = Refs.dataOf(db);
-    for (var fr : result.getTotalFlowResults()) {
-      if (fr.flow == null)
-        continue;
-      var proto = Proto.FlowResult.newBuilder();
-      proto.setFlow(Refs.refOf(fr.flow, refData));
-      proto.setInput(fr.input);
-      proto.setValue(fr.value);
-      resp.onNext(proto.build());
-      if (fr.location != null) {
-        proto.setLocation(Refs.refOf(fr.location));
-      }
+    for (var flow : flows) {
+      var value = result.getTotalFlowResult(flow);
+      if (value == 0)
+        return;
+      resp.onNext(Results.toProtoResult(flow, refData, value));
     }
     resp.onCompleted();
   }
 
   @Override
   public void getTotalImpacts(
-    Result req, StreamObserver<Proto.ImpactResult> resp) {
+    Result req, StreamObserver<ResultsProto.ResultValue> resp) {
 
     // get the impact results
     var result = results.get(req.getId());
@@ -241,18 +237,20 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
       resp.onCompleted();
       return;
     }
-    var impacts = result.getTotalImpactResults();
-    if (impacts.isEmpty()) {
+    var impacts = result.impactIndex();
+    if (impacts == null) {
       resp.onCompleted();
       return;
     }
 
-    // create the result data
+    var refData = Refs.dataOf(db);
     for (var impact : impacts) {
-      var proto = Proto.ImpactResult.newBuilder();
-      proto.setImpactCategory(Refs.refOf(impact.impact));
-      proto.setValue(impact.value);
-      resp.onNext(proto.build());
+      var value = result.getTotalImpactResult(impact);
+      var proto = ResultsProto.ResultValue.newBuilder()
+        .setImpact(Refs.refOf(impact, refData))
+        .setValue(value)
+        .build();
+      resp.onNext(proto);
     }
     resp.onCompleted();
   }
@@ -328,7 +326,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
   @Override
   public void getDirectContribution(
     TechFlowContributionRequest req,
-    StreamObserver<ResultsProto.TechFlowValue> resp) {
+    StreamObserver<ResultsProto.ResultValue> resp) {
 
     TechFlowContribution.of(this, req, resp)
       .ifImpact(FullResult::getDirectImpactResult)
@@ -340,7 +338,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
   @Override
   public void getTotalContribution(
     TechFlowContributionRequest req,
-    StreamObserver<ResultsProto.TechFlowValue> resp) {
+    StreamObserver<ResultsProto.ResultValue> resp) {
 
     TechFlowContribution.of(this, req, resp)
       .ifImpact(FullResult::getUpstreamImpactResult)
@@ -352,7 +350,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
   @Override
   public void getTotalContributionOfOne(
     TechFlowContributionRequest req,
-    StreamObserver<ResultsProto.TechFlowValue> resp) {
+    StreamObserver<ResultsProto.ResultValue> resp) {
 
     TechFlowContribution.of(this, req, resp)
       .ifImpact((result, product, impact) -> {
