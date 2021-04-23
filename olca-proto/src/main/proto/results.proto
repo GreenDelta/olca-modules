@@ -23,10 +23,10 @@ service ResultService {
   rpc GetTechFlows(Result) returns (stream TechFlow);
 
   // Get the environmental flows of the given result.
-  rpc getEnviFlows(Result) returns (stream EnviFlow);
+  rpc GetEnviFlows(Result) returns (stream EnviFlow);
 
   // Get the impact categories of the given result.
-  rpc getImpactCategories(Result) returns (stream Ref);
+  rpc GetImpactCategories(Result) returns (stream Ref);
 
   // Get the inventory of the given result.
   rpc GetTotalInventory(Result) returns (stream ResultValue);
