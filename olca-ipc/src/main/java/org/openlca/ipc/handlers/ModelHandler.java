@@ -26,11 +26,11 @@ import org.openlca.jsonld.MemStore;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
 import org.openlca.jsonld.output.JsonExport;
+import org.openlca.util.Pair;
+import org.openlca.util.Strings;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.openlca.util.Pair;
-import org.openlca.util.Strings;
 
 public class ModelHandler {
 
@@ -192,7 +192,7 @@ public class ModelHandler {
 		}
 		var builder = new ProductSystemBuilder(MatrixCache.createLazy(db), config);
 		builder.autoComplete(system);
-		system = builder.saveUpdates(system);
+		system = ProductSystemBuilder.update(db, system);
 		var res = new JsonObject();
 		res.addProperty("@id", system.refId);
 		return Responses.ok(res, req);

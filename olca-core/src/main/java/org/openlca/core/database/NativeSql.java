@@ -82,8 +82,7 @@ public final class NativeSql {
 		}
 	}
 
-	public void batchInsert(String sql, int size, BatchUpdateHandler fn)
-			throws SQLException {
+	public void batchInsert(String sql, int size, BatchUpdateHandler fn) {
 		log.trace("execute batch insert {}", sql);
 		if (size <= 0) {
 			log.trace("size {} <= 0; nothing to do", size);
@@ -95,6 +94,8 @@ public final class NativeSql {
 			con.commit();
 			log.trace("inserts done");
 			db.clearCache();
+		} catch (SQLException e) {
+			throw new RuntimeException("batch insert failed: " + sql, e);
 		}
 	}
 

@@ -1,6 +1,5 @@
 package org.openlca.core.matrix;
 
-import java.sql.PreparedStatement;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
@@ -26,10 +25,9 @@ import gnu.trove.set.hash.TLongHashSet;
  */
 public class ProductSystemBuilder {
 
-	private Logger log = LoggerFactory.getLogger(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private final MatrixCache matrixCache;
-	private final IDatabase database;
 	private final LinkingConfig config;
 
 	/**
@@ -37,7 +35,6 @@ public class ProductSystemBuilder {
 	 */
 	public ProductSystemBuilder(MatrixCache matrixCache, LinkingConfig config) {
 		this.matrixCache = matrixCache;
-		this.database = matrixCache.getDatabase();
 		this.config = config;
 	}
 
@@ -61,7 +58,7 @@ public class ProductSystemBuilder {
 	 * product system will contain an updated set of process IDs and process
 	 * links. The meta-data of the product system are not changed. When you then
 	 * want to save these updated process IDs and process links in the database
-	 * you can call the {@link #saveLinks(ProductSystem)} function.
+	 * you can call the {@link #update(IDatabase, ProductSystem)} function.
 	 */
 	public void autoComplete(ProductSystem system) {
 		if (system == null
@@ -89,7 +86,7 @@ public class ProductSystemBuilder {
 			builder = new TechIndexBuilder(matrixCache, system, config);
 		} else {
 			builder = new TechIndexCutoffBuilder(
-					matrixCache, system, config);
+				matrixCache, system, config);
 		}
 		TechIndex index = builder.build(product);
 		log.trace("create new process links");
@@ -98,7 +95,7 @@ public class ProductSystemBuilder {
 
 	private void addLinksAndProcesses(ProductSystem system, TechIndex index) {
 		TLongHashSet linkIds = new TLongHashSet(Constants.DEFAULT_CAPACITY,
-				Constants.DEFAULT_LOAD_FACTOR, -1);
+			Constants.DEFAULT_LOAD_FACTOR, -1);
 		for (ProcessLink link : system.processLinks) {
 			linkIds.add(link.exchangeId);
 		}
@@ -121,73 +118,60 @@ public class ProductSystemBuilder {
 	}
 
 	/**
-	 * Saves the updated process links and IDs of the given product system in
-	 * the databases. Note that if the product system is already contained in
+	 * Saves the updated process links and process IDs of the given product system
+	 * in the databases. Note that if the product system is already contained in
 	 * the database (i.e. has an ID > 0) this function will not update the other
-	 * meta-data of the system as it is intended to call this function after an
-	 * {@link #autoComplete(ProductSystem)} call in this case.
+	 * meta-data of the system as it is intended to call this function only for
+	 * updating the links and process IDs of a system.
 	 */
-	public ProductSystem saveUpdates(ProductSystem system) {
+	public static ProductSystem update(IDatabase db, ProductSystem system) {
 		if (system == null)
 			return null;
-		try {
-			ProductSystemDao dao = new ProductSystemDao(database);
-			if (system.id == 0L) {
-				log.trace("ID == 0 -> save as new product system");
-				return dao.insert(system);
-			}
-			log.trace("update product system tables");
-			cleanTables(system.id);
-			insertLinks(system);
-			insertProcesses(system);
-			log.trace("reload system");
-			database.getEntityFactory().getCache().evict(ProductSystem.class);
-			return dao.getForId(system.id);
-		} catch (Exception e) {
-			log.error("failed to update database", e);
-			return null;
+		var dao = new ProductSystemDao(db);
+		if (system.id == 0L) {
+			return dao.insert(system);
 		}
+		cleanTables(db, system.id);
+		insertLinks(db, system);
+		insertProcesses(db, system);
+		db.getEntityFactory().getCache().evict(ProductSystem.class);
+		return dao.getForId(system.id);
 	}
 
-	private void cleanTables(long systemId) throws Exception {
-		log.trace("clean system tables for {}", systemId);
+	private static void cleanTables(IDatabase db, long systemId) {
 		String sql = "delete from tbl_process_links where "
-				+ "f_product_system = " + systemId;
-		NativeSql.on(database).runUpdate(sql);
+								 + "f_product_system = " + systemId;
+		NativeSql.on(db).runUpdate(sql);
 		sql = "delete from tbl_product_system_processes where "
-				+ "f_product_system = " + systemId;
-		NativeSql.on(database).runUpdate(sql);
+					+ "f_product_system = " + systemId;
+		NativeSql.on(db).runUpdate(sql);
 	}
 
-	private void insertLinks(ProductSystem system) throws Exception {
+	private static void insertLinks(IDatabase db, ProductSystem system) {
 		List<ProcessLink> links = system.processLinks;
-		log.trace("insert {} process links", links.size());
 		String stmt = "insert into tbl_process_links(f_product_system, "
-				+ "f_provider, f_process, f_flow, f_exchange) "
-				+ "values (?, ?, ?, ?, ?)";
-		NativeSql.on(database).batchInsert(stmt, links.size(),
-				(int i, PreparedStatement ps) -> {
-					ProcessLink link = links.get(i);
-					ps.setLong(1, system.id);
-					ps.setLong(2, link.providerId);
-					ps.setLong(3, link.processId);
-					ps.setLong(4, link.flowId);
-					ps.setLong(5, link.exchangeId);
-					return true;
-				});
+									+ "f_provider, f_process, f_flow, f_exchange) "
+									+ "values (?, ?, ?, ?, ?)";
+		NativeSql.on(db).batchInsert(stmt, links.size(), (i, statement) -> {
+			var link = links.get(i);
+			statement.setLong(1, system.id);
+			statement.setLong(2, link.providerId);
+			statement.setLong(3, link.processId);
+			statement.setLong(4, link.flowId);
+			statement.setLong(5, link.exchangeId);
+			return true;
+		});
 	}
 
-	private void insertProcesses(ProductSystem system) throws Exception {
+	private static void insertProcesses(IDatabase db, ProductSystem system) {
 		long[] ids = system.processes.stream()
-				.mapToLong(Long::longValue).toArray();
-		log.trace("insert {} system processes", ids.length);
+			.mapToLong(Long::longValue).toArray();
 		String stmt = "insert into tbl_product_system_processes("
-				+ "f_product_system, f_process) values (?, ?)";
-		NativeSql.on(database).batchInsert(stmt, ids.length,
-				(int i, PreparedStatement ps) -> {
-					ps.setLong(1, system.id);
-					ps.setLong(2, ids[i]);
-					return true;
-				});
+									+ "f_product_system, f_process) values (?, ?)";
+		NativeSql.on(db).batchInsert(stmt, ids.length, (i, statement) -> {
+			statement.setLong(1, system.id);
+			statement.setLong(2, ids[i]);
+			return true;
+		});
 	}
 }
