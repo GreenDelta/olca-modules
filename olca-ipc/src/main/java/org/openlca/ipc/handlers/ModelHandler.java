@@ -5,11 +5,11 @@ import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.matrix.LinkingConfig;
-import org.openlca.core.matrix.LinkingConfig.DefaultProviders;
 import org.openlca.core.matrix.ProductSystemBuilder;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.cache.ProcessTable;
+import org.openlca.core.matrix.linking.LinkingConfig;
+import org.openlca.core.matrix.linking.ProviderLinking;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessType;
@@ -182,12 +182,12 @@ public class ModelHandler {
 		if (obj.has("preferredType") && obj.get("preferredType").getAsString().toLowerCase().equals("lci_result")) {
 			config.preferredType = ProcessType.LCI_RESULT;
 		}
-		config.providerLinking = DefaultProviders.PREFER;
+		config.providerLinking = ProviderLinking.PREFER_DEFAULTS;
 		if (obj.has("providerLinking")) {
 			if (obj.get("providerLinking").getAsString().toLowerCase().equals("ignore")) {
-				config.providerLinking = DefaultProviders.IGNORE;
+				config.providerLinking = ProviderLinking.IGNORE_DEFAULTS;
 			} else if (obj.get("providerLinking").getAsString().toLowerCase().equals("only")) {
-				config.providerLinking = DefaultProviders.ONLY;
+				config.providerLinking = ProviderLinking.ONLY_DEFAULTS;
 			}
 		}
 		var builder = new ProductSystemBuilder(MatrixCache.createLazy(db), config);

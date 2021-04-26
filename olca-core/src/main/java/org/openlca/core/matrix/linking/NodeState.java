@@ -1,4 +1,4 @@
-package org.openlca.core.matrix.product.index;
+package org.openlca.core.matrix.linking;
 
 /**
  * The different states a node can take when building the product graph.

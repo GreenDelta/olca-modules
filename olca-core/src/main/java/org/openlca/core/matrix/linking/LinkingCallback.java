@@ -1,6 +1,9 @@
-package org.openlca.core.matrix;
+package org.openlca.core.matrix.linking;
 
 import java.util.List;
+
+import org.openlca.core.matrix.CalcExchange;
+import org.openlca.core.matrix.ProcessProduct;
 
 /**
  * A LinkingCallback is a function that can be injected into the creation of
@@ -22,7 +25,7 @@ public interface LinkingCallback {
 	 * returned, the linking process will select one option based on its own
 	 * rules (e.g. this is what happens when the user selects `continue with
 	 * auto-select` in the UI).
-	 * 
+	 *
 	 * TODO: update doc
 	 */
 	List<ProcessProduct> select(CalcExchange e, List<ProcessProduct> providerCandidates);

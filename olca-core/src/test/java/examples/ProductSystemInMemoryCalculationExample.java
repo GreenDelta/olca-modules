@@ -8,10 +8,10 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.Derby;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
-import org.openlca.core.matrix.LinkingConfig;
-import org.openlca.core.matrix.LinkingConfig.DefaultProviders;
 import org.openlca.core.matrix.ProductSystemBuilder;
 import org.openlca.core.matrix.cache.MatrixCache;
+import org.openlca.core.matrix.linking.LinkingConfig;
+import org.openlca.core.matrix.linking.ProviderLinking;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.ProductSystem;
@@ -38,7 +38,7 @@ public class ProductSystemInMemoryCalculationExample {
 		Process p = new ProcessDao(db).getForRefId(
 				"7ff672e3-a296-30e8-b1bb-a3173711a28b");
 		LinkingConfig config = new LinkingConfig();
-		config.providerLinking = DefaultProviders.PREFER;
+		config.providerLinking = ProviderLinking.PREFER_DEFAULTS;
 		config.preferredType = ProcessType.UNIT_PROCESS;
 		ProductSystemBuilder builder = new ProductSystemBuilder(
 				mcache, config);

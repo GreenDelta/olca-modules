@@ -1,12 +1,10 @@
-package org.openlca.core.matrix.product.index;
+package org.openlca.core.matrix.linking;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.matrix.CalcExchange;
-import org.openlca.core.matrix.LinkingConfig;
-import org.openlca.core.matrix.LinkingConfig.DefaultProviders;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.FlowType;
@@ -41,12 +39,12 @@ public class ProviderSearch {
 		// this needs to be done before asking a potential callback
 		// for options as the callback should be only called when
 		// there are multiple options.
-		if (config.providerLinking != DefaultProviders.IGNORE) {
+		if (config.providerLinking != ProviderLinking.IGNORE_DEFAULTS) {
 			for (ProcessProduct provider : providers) {
 				if (provider.processId() == e.defaultProviderId)
 					return provider;
 			}
-			if (config.providerLinking == DefaultProviders.ONLY)
+			if (config.providerLinking == ProviderLinking.ONLY_DEFAULTS)
 				return null;
 		}
 
@@ -75,7 +73,7 @@ public class ProviderSearch {
 			return true;
 		if (newOption == null)
 			return false;
-		if (config.providerLinking != DefaultProviders.IGNORE) {
+		if (config.providerLinking != ProviderLinking.IGNORE_DEFAULTS) {
 			if (old.processId() == e.defaultProviderId)
 				return false;
 			if (newOption.processId() == e.defaultProviderId)
@@ -99,7 +97,7 @@ public class ProviderSearch {
 			return Collections.emptyList();
 		List<CalcExchange> candidates = new ArrayList<>();
 		for (CalcExchange e : list) {
-			if (config.providerLinking == DefaultProviders.ONLY
+			if (config.providerLinking == ProviderLinking.ONLY_DEFAULTS
 					&& e.defaultProviderId == 0L)
 				continue;
 			if (e.flowType == null || e.flowType == FlowType.ELEMENTARY_FLOW)

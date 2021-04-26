@@ -1,4 +1,4 @@
-package org.openlca.core.matrix.product.index;
+package org.openlca.core.matrix.linking;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openlca.core.matrix.CalcExchange;
-import org.openlca.core.matrix.LinkingConfig;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;

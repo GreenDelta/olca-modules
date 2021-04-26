@@ -1,4 +1,4 @@
-package org.openlca.core.matrix.product.index;
+package org.openlca.core.matrix.linking;
 
 import java.util.ArrayList;
 import java.util.List;

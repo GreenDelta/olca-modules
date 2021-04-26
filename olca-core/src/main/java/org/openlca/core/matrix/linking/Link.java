@@ -1,4 +1,4 @@
-package org.openlca.core.matrix.product.index;
+package org.openlca.core.matrix.linking;
 
 /**
  * Describes a link of a product input or waste output to a provider flow.
