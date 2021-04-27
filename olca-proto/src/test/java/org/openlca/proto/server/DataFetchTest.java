@@ -1,19 +1,19 @@
 package org.openlca.proto.server;
 
+import java.util.HashMap;
+import java.util.UUID;
+import java.util.function.BiConsumer;
+
 import static org.junit.Assert.*;
 
-import io.grpc.ManagedChannel;
-import io.grpc.Server;
-import io.grpc.inprocess.InProcessChannelBuilder;
-import io.grpc.inprocess.InProcessServerBuilder;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.proto.Tests;
 import org.openlca.proto.generated.Proto;
 import org.openlca.proto.generated.data.DataFetchServiceGrpc;
+import org.openlca.proto.generated.data.GetAllRequest;
+import org.openlca.proto.generated.data.GetAllResponse;
 import org.openlca.proto.generated.data.GetDescriptorsRequest;
 
 public class DataFetchTest {
@@ -52,5 +52,72 @@ public class DataFetchTest {
       assertTrue(found[i]);
       db.delete(actors[i]);
     }
+  }
+
+  @Test
+  public void testGetAll() {
+
+    // create and call the deleteAll function
+    Runnable deleteAll = () -> db.allDescriptorsOf(Actor.class)
+      .forEach(d -> {
+        var actor = db.get(Actor.class, d.id);
+        db.delete(actor);
+      });
+    deleteAll.run();
+
+    // create 142 actors
+    int count = 142;
+    var created = new HashMap<String, Actor>();
+    for (int i = 0; i < count; i++) {
+      var actor = new Actor();
+      actor.refId = UUID.randomUUID().toString();
+      actor.name = "actor " + i;
+      db.insert(actor);
+      created.put(actor.refId, actor);
+    }
+    assertEquals(count, created.size());
+
+    // check that the actors in the given response match the expected
+    // size and that all actors are also in the database
+    BiConsumer<Integer, GetAllResponse> check = (size, response) -> {
+      assertEquals(size.intValue(), response.getPageSize());
+      int found = 0;
+      for (var ds : response.getDataSetList()) {
+        found++;
+        assertTrue(ds.hasActor());
+        var dbActor = created.get(ds.getActor().getId());
+        assertEquals(dbActor.name, ds.getActor().getName());
+      }
+      assertEquals(size.intValue(), found);
+    };
+
+    // execute the requests
+    ServiceTests.on(channel -> {
+      var stub = DataFetchServiceGrpc.newBlockingStub(channel);
+      var req = GetAllRequest.newBuilder()
+        .setModelType(Proto.ModelType.ACTOR);
+
+      var firstPage = stub.getAll(req.build());
+      assertEquals(1, firstPage.getPage());
+      check.accept(100, firstPage);
+
+      var secondPage = stub.getAll(req.setPage(2).build());
+      assertEquals(2, secondPage.getPage());
+      check.accept(42, secondPage);
+
+      var emptyPage = stub.getAll(req.setPage(3).build());
+      assertEquals(3, emptyPage.getPage());
+      check.accept(0, emptyPage);
+
+      var smallPage = stub.getAll(req.setPage(3).setPageSize(10).build());
+      assertEquals(3, smallPage.getPage());
+      check.accept(10, smallPage);
+
+      var bigPage = stub.getAll(req.setPage(1).setPageSize(1000).build());
+      assertEquals(1, bigPage.getPage());
+      check.accept(count, bigPage);
+    });
+
+    deleteAll.run();
   }
 }

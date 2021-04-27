@@ -1,5 +1,7 @@
 package org.openlca.proto.server;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -12,6 +14,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.proto.generated.Proto;
 import org.openlca.proto.generated.Proto.Ref;
@@ -100,31 +103,41 @@ class DataFetchService extends
       req.getModelType(), resp);
     if (modelType == null)
       return;
+
+    // first get all descriptors and sort them by ID so that
+    // we have a defined order for the pages
     var type = modelType.getModelClass();
-
-    var pageSize = req.getPageSize() > 0
-      ? req.getPageSize()
-      : 100;
-    var page = req.getPage() > 0
-      ? req.getPage()
-      : 1;
+    var all = db.allDescriptorsOf(type);
+    all.sort(Comparator.comparingLong(d -> d.id));
+    var totalCount = all.size();
     var response = GetAllResponse.newBuilder()
-      .setPageSize(pageSize)
-      .setPage(page);
+      .setTotalCount(totalCount);
 
-    var descriptors = db.allDescriptorsOf(type);
-    var totalCount = descriptors.size();
-    response.setTotalCount(totalCount);
-    var offset = (page - 1) * pageSize;
-    if (offset >= totalCount) {
-      resp.onNext(response.build());
-      resp.onCompleted();
-      return;
+    // select the page
+    List<? extends Descriptor> selected;
+    if (req.getSkipPaging()) {
+      response.setPage(1);
+      selected = all;
+    } else {
+      var pageSize = req.getPageSize() > 0
+        ? req.getPageSize()
+        : 100;
+      var page = req.getPage() > 0
+        ? req.getPage()
+        : 1;
+      response.setPage(page);
+      var offset = (page - 1) * pageSize;
+      if (offset >= totalCount) {
+        resp.onNext(response.build());
+        resp.onCompleted();
+        return;
+      }
+      var end = Math.min(totalCount, offset + pageSize);
+      selected = all.subList(offset, end);
     }
 
-    var end = Math.min(totalCount, offset + pageSize);
-    descriptors.subList(offset, end)
-      .stream()
+    response.setPageSize(selected.size());
+    selected.stream()
       .map(d -> db.get(type, d.id))
       .map(e -> DataUtil.toDataSet(db, e))
       .forEach(response::addDataSet);
