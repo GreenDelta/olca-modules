@@ -29,6 +29,9 @@ public class Ssl {
 			try (InputStream stream = WebRequests.class.getResourceAsStream("DSTRootCAX3.cer")) {
 				addCertificate("DSTRootCAX3", stream);
 			}
+			try (InputStream stream = WebRequests.class.getResourceAsStream("lcacommons-gov.pem")) {
+				addCertificate("lcacommons-gov", stream);
+			}
 		} catch (Exception e) {
 			certificateFactory = null;
 			keyStore = null;
