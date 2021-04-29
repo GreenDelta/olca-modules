@@ -8,8 +8,8 @@ import org.openlca.core.model.Unit;
 
 public class ProjectVariantIOTest {
 
-    private IDatabase db = Tests.getDb();
-    private ProjectVariantDao dao = new ProjectVariantDao(db);
+    private final IDatabase db = Tests.getDb();
+    private final ProjectVariantDao dao = new ProjectVariantDao(db);
 
     @Test
     public void testInsertDelete() {

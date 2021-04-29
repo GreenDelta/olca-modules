@@ -22,7 +22,7 @@ CREATE TABLE openlca_version (
     version SMALLINT
 
 );
-INSERT INTO openlca_version (version) VALUES (9);
+INSERT INTO openlca_version (version) VALUES (10);
 
 
 CREATE TABLE tbl_libraries (
@@ -597,6 +597,7 @@ CREATE TABLE tbl_project_variants (
     id                      BIGINT NOT NULL,
     f_project               BIGINT,
     name                    VARCHAR(2048),
+    description             CLOB(64 K),
     f_product_system        BIGINT,
     f_unit                  BIGINT,
     f_flow_property_factor  BIGINT,

@@ -20,6 +20,9 @@ public class ProjectVariant extends AbstractEntity {
 	@Column(name = "name")
 	public String name;
 
+	@Column(name = "description")
+	public String description;
+
 	@OneToOne
 	@JoinColumn(name = "f_product_system")
 	public ProductSystem productSystem;

@@ -57,7 +57,7 @@ public class UpgradeChainTest {
 				"tbl_unit_groups",
 		};
 
-		// roll back Upgrade9
+		// roll back Upgrade9 & Upgrade10
 		u.dropTable("tbl_parameter_redef_sets");
 		u.dropColumn("tbl_parameter_redefs", "description");
 		u.dropTable("tbl_impact_links");
@@ -68,6 +68,7 @@ public class UpgradeChainTest {
 		u.dropColumn("tbl_locations", "geodata");
 		u.dropColumn("tbl_allocation_factors", "formula");
 		u.dropTable("tbl_libraries");
+		u.dropColumn("tbl_project_variants", "description");
 		for (var table : catEntityTables) {
 			u.dropColumn(table, "tags");
 			u.dropColumn(table, "library");
@@ -148,7 +149,7 @@ public class UpgradeChainTest {
 		assertTrue(u.columnExists("tbl_project_variants", "is_disabled"));
 		assertTrue(u.tableExists("tbl_source_links"));
 
-		// check Upgrade9
+		// check Upgrade9 & Upgrade10
 		assertTrue(u.tableExists("tbl_parameter_redef_sets"));
 		assertTrue(u.columnExists("tbl_parameter_redefs", "description"));
 		assertTrue(u.tableExists("tbl_impact_links"));
@@ -158,6 +159,7 @@ public class UpgradeChainTest {
 		assertTrue(u.columnExists("tbl_locations", "geodata"));
 		assertTrue(u.columnExists("tbl_allocation_factors", "formula"));
 		assertTrue(u.tableExists("tbl_libraries"));
+		assertTrue(u.columnExists("tbl_project_variants", "description"));
 		for (var table : catEntityTables) {
 			assertTrue(u.columnExists(table, "tags"));
 			assertTrue(u.columnExists(table, "library"));
