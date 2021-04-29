@@ -1,9 +1,9 @@
 
 package org.openlca.ilcd.commons;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnumValue;
+import jakarta.xml.bind.annotation.XmlType;
 
 @XmlType(name = "QualityValues")
 @XmlEnum
@@ -64,7 +64,7 @@ public enum Quality {
 	 * This criterium is not applicable to this data set, e.g. its geographical
 	 * representative can not be evaluated as it is a location-unspecific
 	 * technology unit process.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Not applicable")
 	NOT_APPLICABLE("Not applicable");

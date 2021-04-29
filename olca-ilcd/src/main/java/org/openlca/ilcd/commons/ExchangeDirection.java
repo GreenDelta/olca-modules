@@ -1,9 +1,9 @@
 
 package org.openlca.ilcd.commons;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnumValue;
+import jakarta.xml.bind.annotation.XmlType;
 
 @XmlType(name = "ExchangeDirectionValues")
 @XmlEnum
@@ -14,7 +14,7 @@ public enum ExchangeDirection {
 	 * carriers, or commodities and services entering from the technosphere. (In
 	 * case the flow has an negative "resulting amount" value this is equivalent
 	 * to belonging to the output list of the process.)
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Input")
 	INPUT("Input"),
@@ -24,7 +24,7 @@ public enum ExchangeDirection {
 	 * and waste going to the technosphere into another process. (In case the
 	 * flow has a negative "resulting amount" value this is equivalent to
 	 * belonging to the input list of the process.)
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Output")
 	OUTPUT("Output");

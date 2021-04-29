@@ -1,9 +1,9 @@
 
 package org.openlca.ilcd.commons;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnumValue;
+import jakarta.xml.bind.annotation.XmlType;
 
 @XmlType(name = "CompletenessValues")
 @XmlEnum
@@ -21,7 +21,7 @@ public enum FlowCompleteness {
 	 * [Note: These flows should be found in the Inputs and Outputs with mean
 	 * amount "0" and marked as "Missing relevant" in the field "Data derivation
 	 * type/status".]
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Relevant flows missing")
 	RELEVANT_FLOWS_MISSING("Relevant flows missing"),

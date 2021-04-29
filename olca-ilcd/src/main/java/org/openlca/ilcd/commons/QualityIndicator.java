@@ -1,8 +1,8 @@
 package org.openlca.ilcd.commons;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnumValue;
+import jakarta.xml.bind.annotation.XmlType;
 
 @XmlType(name = "DataQualityIndicatorValues")
 @XmlEnum
@@ -12,7 +12,7 @@ public enum QualityIndicator {
 	 * Degree to which the data set reflects the true population of interest
 	 * regarding technology, including for included background data sets, if
 	 * any.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Technological representativeness")
 	TECHNOLOGICAL_REPRESENTATIVENESS("Technological representativeness"),
@@ -21,7 +21,7 @@ public enum QualityIndicator {
 	 * Degree to which the data set reflects the true population of interest
 	 * regarding time / age of the data, including for included background data
 	 * sets, if any.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Time representativeness")
 	TIME_REPRESENTATIVENESS("Time representativeness"),
@@ -30,7 +30,7 @@ public enum QualityIndicator {
 	 * Degree to which the data set reflects the true population of interest
 	 * regarding geography such as e.g. country or site, including for included
 	 * background data sets, if any.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Geographical representativeness")
 	GEOGRAPHICAL_REPRESENTATIVENESS("Geographical representativeness"),
@@ -40,7 +40,7 @@ public enum QualityIndicator {
 	 * inventory. Note that also the completeness of interim product and waste
 	 * flows in the product model contributes to the overall completeness of the
 	 * inventory.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Completeness")
 	COMPLETENESS("Completeness"),
@@ -48,7 +48,7 @@ public enum QualityIndicator {
 	/**
 	 * Measure of the variability of the data values for each data expressed
 	 * (e.g. low variance = high precision).
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Precision")
 	PRECISION("Precision"),
@@ -60,7 +60,7 @@ public enum QualityIndicator {
 	 * monitoring, product-specific decision support, strategic long-term
 	 * decision support). The methods also have been consistently applied across
 	 * all data including for included processes, if any.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Methodological appropriateness and consistency")
 	METHODOLOGICAL_APPROPRIATENESS_AND_CONSISTENCY(
@@ -70,7 +70,7 @@ public enum QualityIndicator {
 	 * The degree to which the data set's overall representativeness,
 	 * completeness, precision as well as methodological appropriateness and
 	 * consistency reflects the reality the data set is representing.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Overall quality")
 	OVERALL_QUALITY("Overall quality");

@@ -1,9 +1,9 @@
 
 package org.openlca.ilcd.commons;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnumValue;
+import jakarta.xml.bind.annotation.XmlType;
 
 @XmlType(name = "LCIMethodApproachesValues")
 @XmlEnum
@@ -13,7 +13,7 @@ public enum ModellingApproach {
 	 * Market-value based partitioning of the input and output flows of
 	 * multi-functional processes to the function (i.e. good or service) of the
 	 * product system under study.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Allocation - market value")
 	ALLOCATION_MARKET_VALUE("Allocation - market value"),
@@ -21,7 +21,7 @@ public enum ModellingApproach {
 	/**
 	 * Gross calorific value based partitioning of the input and output flows of
 	 * multi-functional processes to the good of the product system under study.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Allocation - gross calorific value")
 	ALLOCATION_GROSS_CALORIFIC_VALUE("Allocation - gross calorific value"),
@@ -30,7 +30,7 @@ public enum ModellingApproach {
 	 * Net (lower) calorific value based partitioning of the input and output
 	 * flows of multi-functional processes to the good of the product system
 	 * under study.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Allocation - net calorific value")
 	ALLOCATION_NET_CALORIFIC_VALUE("Allocation - net calorific value"),
@@ -38,7 +38,7 @@ public enum ModellingApproach {
 	/**
 	 * Exergetic content based partitioning of the input and output flows of
 	 * multi-functional processes to the good of the product system under study.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Allocation - exergetic content")
 	ALLOCATION_EXERGETIC_CONTENT("Allocation - exergetic content"),
@@ -49,7 +49,7 @@ public enum ModellingApproach {
 	 * study. One specific chemical element is chosen for allocation. Additional
 	 * information is given in "Deviations from LCI method approaches /
 	 * explanations".
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Allocation - element content")
 	ALLOCATION_ELEMENT_CONTENT("Allocation - element content"),
@@ -57,7 +57,7 @@ public enum ModellingApproach {
 	/**
 	 * Mass based partitioning of the input and output flows of multi-functional
 	 * processes to the good of the product system under study.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Allocation - mass")
 	ALLOCATION_MASS("Allocation - mass"),
@@ -65,7 +65,7 @@ public enum ModellingApproach {
 	/**
 	 * Volume based partitioning of the input and output flows of
 	 * multi-functional processes to the good of the product system under study.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Allocation - volume")
 	ALLOCATION_VOLUME("Allocation - volume"),
@@ -78,7 +78,7 @@ public enum ModellingApproach {
 	 * information is given in "Deviations from LCI method approaches /
 	 * explanations". [Note: Also here the sum of burdens of all co-functions
 	 * together is to be 100% of the total burden.]
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Allocation - ability to bear")
 	ALLOCATION_ABILITY_TO_BEAR("Allocation - ability to bear"),
@@ -95,7 +95,7 @@ public enum ModellingApproach {
 	 * different wastes, according to the marginal changes in Dioxin emissions
 	 * that result from a marginal/small change in the carbon and chlorine
 	 * composition of the incinerated mixed waste.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Allocation - marginal causality")
 	ALLOCATION_MARGINAL_CAUSALITY("Allocation - marginal causality"),
@@ -110,7 +110,7 @@ public enum ModellingApproach {
 	 * input is allocated 100% to the only energy-containing co-product, while
 	 * the non-energy containing, second Chromium-containing co-product receives
 	 * 100% of the Chromium emissions and Chromium resource elementary flows.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Allocation - physical causality")
 	ALLOCATION_PHYSICAL_CAUSALITY("Allocation - physical causality"),
@@ -119,7 +119,7 @@ public enum ModellingApproach {
 	 * One user-defined and justified main function of the multi-functional
 	 * processes is allocated 100% of all other input and output flows. Other
 	 * co-functions are hence free of burden.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Allocation - 100% to main function")
 	ALLOCATION_100_TO_MAIN_FUNCTION("Allocation - 100% to main function"),
@@ -129,7 +129,7 @@ public enum ModellingApproach {
 	 * assigned to the co-functions based on other criteria than those listed
 	 * under the other "Allocation - ..." criteria. Additional information is
 	 * given in "Deviations from LCI method approaches / explanations".
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Allocation - other explicit assignment")
 	ALLOCATION_OTHER_EXPLICIT_ASSIGNMENT("Allocation - other explicit assignment"),
@@ -140,7 +140,7 @@ public enum ModellingApproach {
 	 * products or educts, only the number of functions is considered (e.g.
 	 * service output 1 receives 50% of the burdens, service 2 receives 50% of
 	 * the burdens).
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Allocation - equal distribution")
 	ALLOCATION_EQUAL_DISTRIBUTION("Allocation - equal distribution"),
@@ -152,7 +152,7 @@ public enum ModellingApproach {
 	 * function(s). The "Avoided product system" is modelled as "Best available
 	 * technology" (BAT). Additional information on the used BAT technologies
 	 * used is given in "Deviations from LCI method approaches / explanations".
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Substitution - BAT")
 	SUBSTITUTION_BAT("Substitution - BAT"),
@@ -165,7 +165,7 @@ public enum ModellingApproach {
 	 * mix of production, with a market price correction for different market
 	 * values of the substituted product system. Additional information is given
 	 * in "Deviations from LCI method approaches / explanations".
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Substitution - average, market price correction")
 	SUBSTITUTION_AVERAGE_MARKET_PRICE_CORRECTION("Substitution - average, market price correction"),
@@ -179,7 +179,7 @@ public enum ModellingApproach {
 	 * (e.g. fibre length, tensile stength, etc.) of the substituted product
 	 * system. Additional information is given in "Deviations from LCI method
 	 * approaches / explanations".
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Substitution - average, technical properties correction")
 	SUBSTITUTION_AVERAGE_TECHNICAL_PROPERTIES_CORRECTION("Substitution - average, technical properties correction"),
@@ -193,7 +193,7 @@ public enum ModellingApproach {
 	 * is the content amount of these secondary resources in the product.
 	 * Additional information is given in "Deviations from LCI method approaches
 	 * / explanations".
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Allocation - recycled content")
 	ALLOCATION_RECYCLED_CONTENT("Allocation - recycled content"),
@@ -208,7 +208,7 @@ public enum ModellingApproach {
 	 * the secondary materials/energy carriers, if applicable. Additional
 	 * information is given in "Deviations from LCI method approaches /
 	 * explanations".
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Substitution - recycling potential")
 	SUBSTITUTION_RECYCLING_POTENTIAL("Substitution - recycling potential"),
@@ -221,7 +221,7 @@ public enum ModellingApproach {
 	 * mix of production, without any correction factor of the substituted
 	 * product system. Additional information is given in "Deviations from LCI
 	 * method approaches / explanations".
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Substitution - average, no correction")
 	SUBSTITUTION_AVERAGE_NO_CORRECTION("Substitution - average, no correction"),
@@ -233,7 +233,7 @@ public enum ModellingApproach {
 	 * function(s). The "Avoided product system" is modelled as a specific
 	 * product or process, that is found to be replaced. Additional information
 	 * is given in "Deviations from LCI method approaches / explanations".
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Substitution - specific")
 	SUBSTITUTION_SPECIFIC("Substitution - specific"),
@@ -244,7 +244,7 @@ public enum ModellingApproach {
 	 * changes, or other effects even on other product systems that are not part
 	 * of the one under study. Additional information is given in "Deviations
 	 * from LCI method approaches / explanations".
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Consequential effects - other")
 	CONSEQUENTIAL_EFFECTS_OTHER("Consequential effects - other"),
@@ -252,7 +252,7 @@ public enum ModellingApproach {
 	/**
 	 * Process without multi-functionality or product system without any
 	 * multi-functional process included.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Not applicable")
 	NOT_APPLICABLE("Not applicable"),
@@ -261,7 +261,7 @@ public enum ModellingApproach {
 	 * Another LCI method approach is used. This is named in "Deviations from
 	 * LCI method approaches / explanations" where also additional information
 	 * is given.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Other")
 	OTHER("Other");

@@ -1,9 +1,9 @@
 
 package org.openlca.ilcd.commons;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnumValue;
+import jakarta.xml.bind.annotation.XmlType;
 
 @XmlType(name = "LCIMethodPrincipleValues")
 @XmlEnum
@@ -17,7 +17,7 @@ public enum ModellingPrinciple {
 	 * modelling of consequences in the market. Data not related to or suitable
 	 * for decision making but monitoring only. (Synonyms: descriptive, average,
 	 * non-marginal, book-keeping.)
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Attributional")
 	ATTRIBUTIONAL("Attributional"),
@@ -39,7 +39,7 @@ public enum ModellingPrinciple {
 	 * actual marginal (i.e. additional) technology for electricity production
 	 * installed to satisfy additional demand. Note that allocation is
 	 * (generally) not appropriate under consequential modeling.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Consequential")
 	CONSEQUENTIAL("Consequential"),
@@ -54,7 +54,7 @@ public enum ModellingPrinciple {
 	 * Components that are often modeled in a consequential way are the
 	 * recycling of materials and energy recovery. Also compare with the
 	 * definitions of "Consequential" and "Attributional" modelling.]
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Consequential with attributional components")
 	CONSEQUENTIAL_WITH_ATTRIBUTIONAL_COMPONENTS("Consequential with attributional components"),
@@ -62,7 +62,7 @@ public enum ModellingPrinciple {
 	/**
 	 * Not applicable e.g. as modelled with an attributional approach but
 	 * process without multifunctionality.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Not applicable")
 	NOT_APPLICABLE("Not applicable"),
@@ -70,7 +70,7 @@ public enum ModellingPrinciple {
 	/**
 	 * Another LCI method principle was applied. To be detailed in "Deviation
 	 * from LCI method principle / explanations".
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Other")
 	OTHER("Other");

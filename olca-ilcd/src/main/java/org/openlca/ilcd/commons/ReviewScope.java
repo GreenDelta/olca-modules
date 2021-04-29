@@ -1,9 +1,9 @@
 
 package org.openlca.ilcd.commons;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnumValue;
+import jakarta.xml.bind.annotation.XmlType;
 
 @XmlType(name = "ScopeOfReviewValues")
 @XmlEnum
@@ -38,7 +38,7 @@ public enum ReviewScope {
 	/**
 	 * The LCI result or Partly terminated system is the level of
 	 * review/verification.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("LCI results or Partly terminated system")
 	LCI_RESULTS_OR_PARTLY_TERMINATED_SYSTEM("LCI results or Partly terminated system"),
@@ -48,7 +48,7 @@ public enum ReviewScope {
 	 * are reviewed/verified, i.e. on level of Climate Change potential, Primary
 	 * energy consumption, Ecosystem damage etc. [Note: see also definition for
 	 * entry "LCIA results calculation".]
-	 * 
+	 *
 	 */
 	@XmlEnumValue("LCIA results")
 	LCIA_RESULTS("LCIA results"),
@@ -59,7 +59,7 @@ public enum ReviewScope {
 	 * "Administrative information" have been reviewed, while this does not
 	 * include the "Inputs/Outputs". This can include a review of detailed
 	 * background reports.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Documentation")
 	DOCUMENTATION("Documentation"),
@@ -83,7 +83,7 @@ public enum ReviewScope {
 	 * LCIA method(s) regarding e.g. correct assignment, coverage/gaps,
 	 * doublecounting, etc. [Note: See also definition for entry "LCIA
 	 * results".]
-	 * 
+	 *
 	 */
 	@XmlEnumValue("LCIA results calculation")
 	LCIA_RESULTS_CALCULATION("LCIA results calculation"),
@@ -94,7 +94,7 @@ public enum ReviewScope {
 	 * appropriate identification and definition of function and functional
 	 * unit, system boundary and cut-off criteria setting, choice of appropriate
 	 * LCI modelling principles and approaches for multi-functional processes.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Goal and scope definition")
 	GOAL_AND_SCOPE_DEFINITION("Goal and scope definition");

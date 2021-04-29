@@ -1,9 +1,9 @@
 
 package org.openlca.ilcd.commons;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnumValue;
+import jakarta.xml.bind.annotation.XmlType;
 
 @XmlType(name = "TypeOfOrganisationValues")
 @XmlEnum
@@ -11,28 +11,28 @@ public enum OrganisationType {
 
 	/**
 	 * Private company
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Private company")
 	PRIVATE_COMPANY("Private company"),
 
 	/**
 	 * Governmental organisation
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Governmental")
 	GOVERNMENTAL("Governmental"),
 
 	/**
 	 * Non-governmental organisation
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Non-governmental org.")
 	NON_GOVERNMENTAL_ORG("Non-governmental org."),
 
 	/**
 	 * Other, e.g. a project consortium or network
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Other")
 	OTHER("Other");

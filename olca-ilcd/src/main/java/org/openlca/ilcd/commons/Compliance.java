@@ -1,9 +1,9 @@
 
 package org.openlca.ilcd.commons;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnumValue;
+import jakarta.xml.bind.annotation.XmlType;
 
 @XmlType(name = "ComplianceValues")
 @XmlEnum
@@ -12,7 +12,7 @@ public enum Compliance {
 	/**
 	 * Meets all requirements of this compliance aspect as defined in the
 	 * respective "Compliance system".
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Fully compliant")
 	FULLY_COMPLIANT("Fully compliant"),
@@ -20,7 +20,7 @@ public enum Compliance {
 	/**
 	 * Does not meet all requirements of this compliance aspect, as defined for
 	 * the respective "Compliance system".
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Not compliant")
 	NOT_COMPLIANT("Not compliant"),
@@ -28,7 +28,7 @@ public enum Compliance {
 	/**
 	 * For this compliance aspect the named "Compliance system" has not defined
 	 * compliance requirements.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Not defined")
 	NOT_DEFINED("Not defined");

@@ -1,9 +1,9 @@
 
 package org.openlca.ilcd.commons;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnumValue;
+import jakarta.xml.bind.annotation.XmlType;
 
 @XmlType(name = "ExchangeFunctionTypeValues")
 @XmlEnum
@@ -15,7 +15,7 @@ public enum ExchangeFunction {
 	 * has already been fully considered in the inventory of the data set.
 	 * Serves to document e.g. the total amount of hazardous waste generated
 	 * over the life cycle of a product system.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("General reminder flow")
 	GENERAL_REMINDER_FLOW("General reminder flow"),
@@ -25,7 +25,7 @@ public enum ExchangeFunction {
 	 * allocation when calculating the LCI results. Purely informative flow for
 	 * additional reporting that has already been fully considered in the
 	 * inventory of the data set.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Allocation reminder flow")
 	ALLOCATION_REMINDER_FLOW("Allocation reminder flow"),
@@ -34,7 +34,7 @@ public enum ExchangeFunction {
 	 * Reminder flow on excluded co-products that have been excluded in
 	 * consequential modelling e.g. by system expansion / substitution when
 	 * calculating the LCI results.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("System expansion reminder flow")
 	SYSTEM_EXPANSION_REMINDER_FLOW("System expansion reminder flow");

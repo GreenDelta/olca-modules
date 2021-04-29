@@ -1,9 +1,9 @@
 
 package org.openlca.ilcd.commons;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnumValue;
+import jakarta.xml.bind.annotation.XmlType;
 
 @XmlType(name = "DataDerivationTypeStatusValues")
 @XmlEnum
@@ -16,7 +16,7 @@ public enum DataDerivation {
 	 * calculated data with models based on measured plant data (but not
 	 * exclusively theoretical calculations) as used e.g. in parameterised unit
 	 * processes.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Measured")
 	MEASURED("Measured"),
@@ -25,7 +25,7 @@ public enum DataDerivation {
 	 * Stochiometric or other theoretical relations were used to calculate the
 	 * amount of this flow. [Note: Calculations that include quantiatively
 	 * relevant expert judgement are of the type "Expert judgement".]
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Calculated")
 	CALCULATED("Calculated"),
@@ -35,7 +35,7 @@ public enum DataDerivation {
 	 * includes the unmodified or corrected use of data from similar processes /
 	 * technologies, times, or locations, as well as calculated values where the
 	 * formulas/parameters include quantitatively relevant expert judgement.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Estimated")
 	ESTIMATED("Estimated"),
@@ -43,7 +43,7 @@ public enum DataDerivation {
 	/**
 	 * Data derivation type information fully or at least for quantiatively
 	 * relevant parts unavailable.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Unknown derivation")
 	UNKNOWN_DERIVATION("Unknown derivation"),
@@ -52,7 +52,7 @@ public enum DataDerivation {
 	 * Indicates missing amount information for environmentally directly
 	 * (elementary flow) or indirectly (product or waste flow) important Input
 	 * or Output. As the "Mean amount" the value "0" is entered.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Missing important")
 	MISSING_IMPORTANT("Missing important"),
@@ -61,7 +61,7 @@ public enum DataDerivation {
 	 * Indicates missing amount information for an however environmentally
 	 * directly (elementary flow) or indirectly (product or waste flow) NOT
 	 * relevant Input or Output. As the "Mean amount" the value "0" is entered.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Missing unimportant")
 	MISSING_UNIMPORTANT("Missing unimportant");

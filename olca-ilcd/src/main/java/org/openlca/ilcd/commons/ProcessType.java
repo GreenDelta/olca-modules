@@ -1,8 +1,8 @@
 package org.openlca.ilcd.commons;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnumValue;
+import jakarta.xml.bind.annotation.XmlType;
 
 @XmlType(name = "TypeOfProcessValues")
 @XmlEnum
@@ -11,7 +11,7 @@ public enum ProcessType {
 	/**
 	 * Unit operation type unit process that can not be further subdivided.
 	 * Covers multi-functional processes of unit operation type.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Unit process, single operation")
 	UNIT_PROCESS("Unit process, single operation"),
@@ -22,7 +22,7 @@ public enum ProcessType {
 	 * multi-functional unit processes, where the different co-products undergo
 	 * different processing steps within the black box, hence causing
 	 * allocation-problems for this data set.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Unit process, black box")
 	UNIT_PROCESS_BLACK_BOX("Unit process, black box"),
@@ -34,7 +34,7 @@ public enum ProcessType {
 	 * list exclusively the product(s) of the process as reference flow(s), but
 	 * no other goods or services. E.g. cradle-to-gate and cradle-to-grave data
 	 * sets. Check also the definition of "Partly terminated system".
-	 * 
+	 *
 	 */
 	@XmlEnumValue("LCI result")
 	LCI_RESULT("LCI result"),
@@ -49,7 +49,7 @@ public enum ProcessType {
 	 * aggregated process data sets that include relevant amounts of waste flows
 	 * for which the waste management has not been modelled yet are "partly
 	 * terminated system" data sets.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Partly terminated system")
 	PARTLY_TERMINATED_SYSTEM("Partly terminated system"),
@@ -59,7 +59,7 @@ public enum ProcessType {
 	 * outputs and vice versa; i.e. a negative/inverted inventory (can be unit
 	 * process, LCI result, or other type). Used in system
 	 * expansion/substitution for consequential modelling.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Avoided product system")
 	AVOIDED_PRODUCT_SYSTEM("Avoided product system"),

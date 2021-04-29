@@ -1,8 +1,5 @@
 package org.openlca.ilcd.commons;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlElementDecl;
-import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
@@ -11,6 +8,10 @@ import org.openlca.ilcd.flows.Compartment;
 import org.openlca.ilcd.flows.CompartmentList;
 import org.openlca.ilcd.flows.FlowCategoryInfo;
 import org.openlca.ilcd.methods.Location;
+
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.annotation.XmlElementDecl;
+import jakarta.xml.bind.annotation.XmlRegistry;
 
 /**
  * This object contains factory methods for each Java content interface and Java
@@ -21,7 +22,7 @@ import org.openlca.ilcd.methods.Location;
  * can consist of schema derived interfaces and classes representing the binding
  * of schema type definitions, element declarations and model groups. Factory
  * methods for each of these are provided in this class.
- * 
+ *
  */
 @XmlRegistry
 public class ObjectFactory {
@@ -78,14 +79,14 @@ public class ObjectFactory {
 	/**
 	 * Create a new ObjectFactory that can be used to create new instances of
 	 * schema derived classes for package: org.openlca.ilcd.commons
-	 * 
+	 *
 	 */
 	public ObjectFactory() {
 	}
 
 	/**
 	 * Create an instance of {@link Other }
-	 * 
+	 *
 	 */
 	public Other createOther() {
 		return new Other();
@@ -93,7 +94,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Ref }
-	 * 
+	 *
 	 */
 	public Ref createDataSetReference() {
 		return new Ref();
@@ -101,7 +102,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link CommissionerAndGoal }
-	 * 
+	 *
 	 */
 	public CommissionerAndGoal createCommissionerAndGoal() {
 		return new CommissionerAndGoal();
@@ -109,7 +110,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link FlowCategoryInfo }
-	 * 
+	 *
 	 */
 	public FlowCategoryInfo createFlowCategoryInformation() {
 		return new FlowCategoryInfo();
@@ -117,7 +118,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Compartment }
-	 * 
+	 *
 	 */
 	public Compartment createCategory() {
 		return new Compartment();
@@ -125,7 +126,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Location }
-	 * 
+	 *
 	 */
 	public Location createLocationType() {
 		return new Location();
@@ -133,7 +134,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Classification }
-	 * 
+	 *
 	 */
 	public Classification createClassification() {
 		return new Classification();
@@ -141,7 +142,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link CompartmentList }
-	 * 
+	 *
 	 */
 	public CompartmentList createFlowCategorization() {
 		return new CompartmentList();
@@ -149,7 +150,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link DataQualityIndicator }
-	 * 
+	 *
 	 */
 	public DataQualityIndicator createDataQualityIndicator() {
 		return new DataQualityIndicator();
@@ -157,7 +158,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Category }
-	 * 
+	 *
 	 */
 	public Category createClass() {
 		return new Category();
@@ -165,7 +166,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Time }
-	 * 
+	 *
 	 */
 	public Time createTime() {
 		return new Time();
@@ -174,7 +175,7 @@ public class ObjectFactory {
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link FreeText }
 	 * {@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "reviewDetails")
 	public JAXBElement<LangString> createReviewDetails(LangString value) {
@@ -185,7 +186,7 @@ public class ObjectFactory {
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link Compliance }
 	 * {@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "nomenclatureCompliance")
 	public JAXBElement<Compliance> createNomenclatureCompliance(Compliance value) {
@@ -195,7 +196,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <} {@link Ref }{@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToOwnershipOfDataSet")
 	public JAXBElement<Ref> createReferenceToOwnershipOfDataSet(
@@ -206,7 +207,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <} {@link Ref }{@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToRegistrationAuthority")
 	public JAXBElement<Ref> createReferenceToRegistrationAuthority(
@@ -217,7 +218,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <} {@link Ref }{@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToConvertedOriginalDataSetFrom")
 	public JAXBElement<Ref> createReferenceToConvertedOriginalDataSetFrom(
@@ -230,7 +231,7 @@ public class ObjectFactory {
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link Compliance }
 	 * {@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "documentationCompliance")
 	public JAXBElement<Compliance> createDocumentationCompliance(
@@ -242,7 +243,7 @@ public class ObjectFactory {
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link Label
 	 * }{@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "name")
 	public JAXBElement<LangString> createName(LangString value) {
@@ -252,7 +253,7 @@ public class ObjectFactory {
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link FreeText }
 	 * {@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "generalComment")
 	public JAXBElement<LangString> createGeneralComment(LangString value) {
@@ -263,7 +264,7 @@ public class ObjectFactory {
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link FreeText }
 	 * {@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "synonyms")
 	public JAXBElement<LangString> createSynonyms(LangString value) {
@@ -272,7 +273,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <} {@link Ref }{@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToRawDataDocumentation")
 	public JAXBElement<Ref> createReferenceToRawDataDocumentation(
@@ -284,7 +285,7 @@ public class ObjectFactory {
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link String
 	 * }{@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "UUID")
 	public JAXBElement<String> createUUID(String value) {
@@ -293,7 +294,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <} {@link Ref }{@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToPersonOrEntityGeneratingTheDataSet")
 	public JAXBElement<Ref> createReferenceToPersonOrEntityGeneratingTheDataSet(
@@ -306,7 +307,7 @@ public class ObjectFactory {
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link Compliance }
 	 * {@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "reviewCompliance")
 	public JAXBElement<Compliance> createReviewCompliance(Compliance value) {
@@ -317,7 +318,7 @@ public class ObjectFactory {
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}
 	 * {@link XMLGregorianCalendar }{@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "dateOfLastRevision")
 	public JAXBElement<XMLGregorianCalendar> createDateOfLastRevision(
@@ -329,7 +330,7 @@ public class ObjectFactory {
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link Label
 	 * }{@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "shortName")
 	public JAXBElement<LangString> createShortName(LangString value) {
@@ -339,7 +340,7 @@ public class ObjectFactory {
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link FreeText }
 	 * {@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "accessRestrictions")
 	public JAXBElement<LangString> createAccessRestrictions(LangString value) {
@@ -350,7 +351,7 @@ public class ObjectFactory {
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link Compliance }
 	 * {@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "methodologicalCompliance")
 	public JAXBElement<Compliance> createMethodologicalCompliance(
@@ -362,7 +363,7 @@ public class ObjectFactory {
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}
 	 * {@link CommissionerAndGoal }{@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "commissionerAndGoal")
 	public JAXBElement<CommissionerAndGoal> createCommissionerAndGoal(
@@ -374,7 +375,7 @@ public class ObjectFactory {
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link String
 	 * }{@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "registrationNumber")
 	public JAXBElement<String> createRegistrationNumber(String value) {
@@ -385,7 +386,7 @@ public class ObjectFactory {
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link Compliance }
 	 * {@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "qualityCompliance")
 	public JAXBElement<Compliance> createQualityCompliance(Compliance value) {
@@ -396,7 +397,7 @@ public class ObjectFactory {
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link Boolean
 	 * }{@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "copyright")
 	public JAXBElement<Boolean> createCopyright(Boolean value) {
@@ -405,7 +406,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <} {@link Ref }{@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToDataSetUseApproval")
 	public JAXBElement<Ref> createReferenceToDataSetUseApproval(

@@ -1,9 +1,9 @@
 
 package org.openlca.ilcd.commons;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnumValue;
+import jakarta.xml.bind.annotation.XmlType;
 
 @XmlType(name = "CompletenessAvailabilityValues")
 @XmlEnum
@@ -15,7 +15,7 @@ public enum Availability {
 	 * field in an relevant way. The impact factor for the specific flow has to
 	 * cover all effect chains and impacts addressed by the specific LCIA
 	 * method.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Fully available")
 	FULLY_AVAILABLE("Fully available"),
@@ -27,7 +27,7 @@ public enum Availability {
 	 * for that specific flow not all effect chains and impacts that are
 	 * addressed by on or more of the respective LCIA methods are covered also
 	 * for this flow.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Partly available")
 	PARTLY_AVAILABLE("Partly available"),
@@ -36,7 +36,7 @@ public enum Availability {
 	 * For none of the referenced impact methods impact factors are provided for
 	 * this flow, while by scientific state-of-the-art knowledge this flow
 	 * contributes to a relevant degree to the named mid-point problem field.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Not available")
 	NOT_AVAILABLE("Not available"),
@@ -45,14 +45,14 @@ public enum Availability {
 	 * Flow is not relevant for the specific mid-point problem field. E.g. it is
 	 * an elementary flow such as "Carbon dioxide emissions to air" which does
 	 * not contribute to "Human toxicity" or it is a product flow.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Topic not relevant")
 	TOPIC_NOT_RELEVANT("Topic not relevant"),
 
 	/**
 	 * Unclear, not stated.
-	 * 
+	 *
 	 */
 	@XmlEnumValue("No statement")
 	NO_STATEMENT("No statement");
