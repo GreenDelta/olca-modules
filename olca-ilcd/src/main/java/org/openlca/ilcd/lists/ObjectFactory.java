@@ -1,9 +1,10 @@
 package org.openlca.ilcd.lists;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlElementDecl;
-import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
+
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.annotation.XmlElementDecl;
+import jakarta.xml.bind.annotation.XmlRegistry;
 
 /**
  * This object contains factory methods for each Java content interface and Java
@@ -14,7 +15,7 @@ import javax.xml.namespace.QName;
  * can consist of schema derived interfaces and classes representing the binding
  * of schema type definitions, element declarations and model groups. Factory
  * methods for each of these are provided in this class.
- * 
+ *
  */
 @XmlRegistry
 public class ObjectFactory {
@@ -27,14 +28,14 @@ public class ObjectFactory {
 	/**
 	 * Create a new ObjectFactory that can be used to create new instances of
 	 * schema derived classes for package: org.openlca.ilcd.lists
-	 * 
+	 *
 	 */
 	public ObjectFactory() {
 	}
 
 	/**
 	 * Create an instance of {@link LocationList }
-	 * 
+	 *
 	 */
 	public LocationList createLocationList() {
 		return new LocationList();
@@ -42,7 +43,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Location }
-	 * 
+	 *
 	 */
 	public Location createLocation() {
 		return new Location();
@@ -50,7 +51,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link CategorySystem }
-	 * 
+	 *
 	 */
 	public CategorySystem createCategorySystem() {
 		return new CategorySystem();
@@ -58,7 +59,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Category }
-	 * 
+	 *
 	 */
 	public Category createCategory() {
 		return new Category();
@@ -66,7 +67,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link CategoryList }
-	 * 
+	 *
 	 */
 	public CategoryList createCategoryList() {
 		return new CategoryList();
@@ -75,7 +76,7 @@ public class ObjectFactory {
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link LocationList }
 	 * {@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Locations", name = "ILCDLocations")
 	public JAXBElement<LocationList> createILCDLocations(LocationList value) {
@@ -86,7 +87,7 @@ public class ObjectFactory {
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link CategorySystem }
 	 * {@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Categories", name = "CategorySystem")
 	public JAXBElement<CategorySystem> createCategorySystem(CategorySystem value) {

@@ -1,27 +1,26 @@
-
 package org.openlca.ilcd.methods;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnumValue;
+import jakarta.xml.bind.annotation.XmlType;
 
 @XmlType(name = "AreaOfProtectionValues")
 @XmlEnum
 public enum AreaOfProtection {
 
-	@XmlEnumValue("Natural resources") 
+	@XmlEnumValue("Natural resources")
 	NATURAL_RESOURCES("Natural resources"),
 
-	@XmlEnumValue("Natural environment") 
+	@XmlEnumValue("Natural environment")
 	NATURAL_ENVIRONMENT("Natural environment"),
 
-	@XmlEnumValue("Human health") 
+	@XmlEnumValue("Human health")
 	HUMAN_HEALTH("Human health"),
 
-	@XmlEnumValue("Man-made environment") 
+	@XmlEnumValue("Man-made environment")
 	MAN_MADE_ENVIRONMENT("Man-made environment"),
 
-	@XmlEnumValue("Other") 
+	@XmlEnumValue("Other")
 	OTHER("Other");
 
 	private final String value;

@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.ilcd.commons.IDataSet;
@@ -20,6 +19,8 @@ import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Ref;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.xml.bind.annotation.XmlElement;
 
 /**
  * A RefTree contains the references of a data set to other data sets in a tree
