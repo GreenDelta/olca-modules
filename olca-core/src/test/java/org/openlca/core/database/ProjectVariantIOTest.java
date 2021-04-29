@@ -3,37 +3,34 @@ package org.openlca.core.database;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
+import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.Unit;
+import org.openlca.core.model.UnitGroup;
 
 public class ProjectVariantIOTest {
 
-    private final IDatabase db = Tests.getDb();
-    private final ProjectVariantDao dao = new ProjectVariantDao(db);
+	private final IDatabase db = Tests.getDb();
 
-    @Test
-    public void testInsertDelete() {
-        ProjectVariant variant = new ProjectVariant();
-        dao.insert(variant);
-        Assert.assertTrue(variant.id > 0L);
-        dao.delete(variant);
-    }
+	@Test
+	public void testInsertDelete() {
+		var project = Project.of("project");
+		var variant = new ProjectVariant();
+		variant.name = "A project variant";
+		project.variants.add(variant);
+		db.insert(project);
+		Assert.assertTrue(variant.id > 0L);
 
-    @Test
-    public void testUpdate() {
-        Unit unit = new Unit();
-        unit.name = "kg";
-        UnitDao unitDao = new UnitDao(db);
-        unit = unitDao.insert(unit);
-        ProjectVariant variant = new ProjectVariant();
-        variant = dao.insert(variant);
-        variant.unit = unit;
-        variant = dao.update(variant);
-        Tests.emptyCache();
-        variant = dao.getForId(variant.id);
-        Assert.assertEquals(unit, variant.unit);
-        dao.delete(variant);
-        unitDao.delete(unit);
-    }
+		var units = db.insert(UnitGroup.of("Mass units", "kg"));
+		variant.unit = units.referenceUnit;
+		db.update(project);
 
+		db.clearCache();
+		var clone = db.get(Project.class, project.id);
+		Assert.assertEquals(
+			units.referenceUnit,
+			clone.variants.get(0).unit);
+
+		db.delete(project, units);
+	}
 }

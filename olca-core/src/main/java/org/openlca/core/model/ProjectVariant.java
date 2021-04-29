@@ -55,8 +55,9 @@ public class ProjectVariant extends AbstractEntity {
 
 	@Override
 	public ProjectVariant clone() {
-		ProjectVariant clone = new ProjectVariant();
+		var clone = new ProjectVariant();
 		clone.name = name;
+		clone.description = description;
 		clone.productSystem = productSystem;
 		clone.unit = unit;
 		clone.flowPropertyFactor = flowPropertyFactor;
