@@ -3,21 +3,22 @@ package org.openlca.ecospold.internal.process;
 
 import java.io.Serializable;
 import java.math.BigInteger;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlType;
 
 import org.openlca.ecospold.IDataEntryBy;
+
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlType;
 
 
 /**
  * Contains information about the person that entered data in the database or transformed data into the format of the ecoinvent (or any other) quality network.
- * 
+ *
  * <p>Java class for TDataEntryBy complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="TDataEntryBy">
  *   &lt;complexContent>
@@ -28,8 +29,8 @@ import org.openlca.ecospold.IDataEntryBy;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TDataEntryBy")
@@ -45,7 +46,7 @@ class DataEntryBy
 
     /**
      * Gets the value of the person property.
-     * 
+     *
      */
     @Override
 	public int getPerson() {
@@ -54,7 +55,7 @@ class DataEntryBy
 
     /**
      * Sets the value of the person property.
-     * 
+     *
      */
     @Override
 	public void setPerson(int value) {
@@ -63,11 +64,11 @@ class DataEntryBy
 
     /**
      * Gets the value of the qualityNetwork property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link BigInteger }
-     *     
+     *
      */
     @Override
 	public BigInteger getQualityNetwork() {
@@ -76,11 +77,11 @@ class DataEntryBy
 
     /**
      * Sets the value of the qualityNetwork property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link BigInteger }
-     *     
+     *
      */
     @Override
 	public void setQualityNetwork(BigInteger value) {

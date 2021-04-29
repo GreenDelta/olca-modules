@@ -4,12 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAnyElement;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
-
 import org.openlca.ecospold.IDataSetInformation;
 import org.openlca.ecospold.IGeography;
 import org.openlca.ecospold.IProcessInformation;
@@ -18,16 +12,22 @@ import org.openlca.ecospold.ITechnology;
 import org.openlca.ecospold.ITimePeriod;
 import org.w3c.dom.Element;
 
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAnyElement;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlType;
+
 /**
  * Contains content-related metainformation for the unit process.
- * 
+ *
  * <p>
  * Java class for TProcessInformation complex type.
- * 
+ *
  * <p>
  * The following schema fragment specifies the expected content contained within
  * this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="TProcessInformation">
  *   &lt;complexContent>
@@ -44,8 +44,8 @@ import org.w3c.dom.Element;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TProcessInformation", propOrder = { "referenceFunction",
@@ -68,9 +68,9 @@ class ProcessInformation implements Serializable, IProcessInformation {
 
 	/**
 	 * Gets the value of the referenceFunction property.
-	 * 
+	 *
 	 * @return possible object is {@link ReferenceFunction }
-	 * 
+	 *
 	 */
 	@Override
 	public IReferenceFunction getReferenceFunction() {
@@ -79,10 +79,10 @@ class ProcessInformation implements Serializable, IProcessInformation {
 
 	/**
 	 * Sets the value of the referenceFunction property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link ReferenceFunction }
-	 * 
+	 *
 	 */
 	@Override
 	public void setReferenceFunction(IReferenceFunction value) {
@@ -91,9 +91,9 @@ class ProcessInformation implements Serializable, IProcessInformation {
 
 	/**
 	 * Gets the value of the geography property.
-	 * 
+	 *
 	 * @return possible object is {@link Geography }
-	 * 
+	 *
 	 */
 	@Override
 	public IGeography getGeography() {
@@ -102,10 +102,10 @@ class ProcessInformation implements Serializable, IProcessInformation {
 
 	/**
 	 * Sets the value of the geography property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link Geography }
-	 * 
+	 *
 	 */
 	@Override
 	public void setGeography(IGeography value) {
@@ -114,9 +114,9 @@ class ProcessInformation implements Serializable, IProcessInformation {
 
 	/**
 	 * Gets the value of the technology property.
-	 * 
+	 *
 	 * @return possible object is {@link Technology }
-	 * 
+	 *
 	 */
 	@Override
 	public ITechnology getTechnology() {
@@ -125,10 +125,10 @@ class ProcessInformation implements Serializable, IProcessInformation {
 
 	/**
 	 * Sets the value of the technology property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link Technology }
-	 * 
+	 *
 	 */
 	@Override
 	public void setTechnology(ITechnology value) {
@@ -137,9 +137,9 @@ class ProcessInformation implements Serializable, IProcessInformation {
 
 	/**
 	 * Gets the value of the timePeriod property.
-	 * 
+	 *
 	 * @return possible object is {@link TimePeriod }
-	 * 
+	 *
 	 */
 	@Override
 	public ITimePeriod getTimePeriod() {
@@ -148,10 +148,10 @@ class ProcessInformation implements Serializable, IProcessInformation {
 
 	/**
 	 * Sets the value of the timePeriod property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link TimePeriod }
-	 * 
+	 *
 	 */
 	@Override
 	public void setTimePeriod(ITimePeriod value) {
@@ -160,9 +160,9 @@ class ProcessInformation implements Serializable, IProcessInformation {
 
 	/**
 	 * Gets the value of the dataSetInformation property.
-	 * 
+	 *
 	 * @return possible object is {@link DataSetInformation }
-	 * 
+	 *
 	 */
 	@Override
 	public IDataSetInformation getDataSetInformation() {
@@ -171,10 +171,10 @@ class ProcessInformation implements Serializable, IProcessInformation {
 
 	/**
 	 * Sets the value of the dataSetInformation property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link DataSetInformation }
-	 * 
+	 *
 	 */
 	@Override
 	public void setDataSetInformation(IDataSetInformation value) {
@@ -183,26 +183,26 @@ class ProcessInformation implements Serializable, IProcessInformation {
 
 	/**
 	 * Gets the value of the any property.
-	 * 
+	 *
 	 * <p>
 	 * This accessor method returns a reference to the live list, not a
 	 * snapshot. Therefore any modification you make to the returned list will
 	 * be present inside the JAXB object. This is why there is not a
 	 * <CODE>set</CODE> method for the any property.
-	 * 
+	 *
 	 * <p>
 	 * For example, to add a new item, do as follows:
-	 * 
+	 *
 	 * <pre>
 	 * getAny().add(newItem);
 	 * </pre>
-	 * 
-	 * 
+	 *
+	 *
 	 * <p>
 	 * Objects of the following type(s) are allowed in the list {@link Object }
 	 * {@link Element }
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	@Override
 	public List<Object> getAny() {

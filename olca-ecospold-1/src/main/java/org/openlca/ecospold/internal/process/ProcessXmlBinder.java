@@ -1,9 +1,9 @@
 package org.openlca.ecospold.internal.process;
 
-import javax.xml.bind.JAXBElement;
-
 import org.openlca.ecospold.IEcoSpold;
 import org.openlca.ecospold.io.EcoSpoldXmlBinder;
+
+import jakarta.xml.bind.JAXBElement;
 
 public class ProcessXmlBinder extends EcoSpoldXmlBinder<EcoSpold> {
 
@@ -13,7 +13,7 @@ public class ProcessXmlBinder extends EcoSpoldXmlBinder<EcoSpold> {
 	public boolean matches(IEcoSpold spold) {
 		return spold instanceof EcoSpold;
 	}
-	
+
 	@Override
 	protected Class<EcoSpold> getEcoSpoldClass() {
 		return EcoSpold.class;

@@ -1,9 +1,9 @@
 package org.openlca.ecospold.internal.impact;
 
-import javax.xml.bind.JAXBElement;
-
 import org.openlca.ecospold.IEcoSpold;
 import org.openlca.ecospold.io.EcoSpoldXmlBinder;
+
+import jakarta.xml.bind.JAXBElement;
 
 public class ImpactXmlBinder extends EcoSpoldXmlBinder<ImpactEcoSpold> {
 
@@ -13,12 +13,12 @@ public class ImpactXmlBinder extends EcoSpoldXmlBinder<ImpactEcoSpold> {
 	public boolean matches(IEcoSpold spold) {
 		return spold instanceof ImpactEcoSpold;
 	}
-	
+
 	@Override
 	protected Class<ImpactEcoSpold> getEcoSpoldClass() {
 		return ImpactEcoSpold.class;
 	}
-	
+
 	@Override
 	protected JAXBElement<ImpactEcoSpold> toElement(IEcoSpold ecoSpold) {
 		JAXBElement<ImpactEcoSpold> element = null;

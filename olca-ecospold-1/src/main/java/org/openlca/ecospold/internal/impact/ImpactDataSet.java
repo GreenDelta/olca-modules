@@ -4,13 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAnyElement;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.ecospold.IDataSet;
@@ -18,17 +11,25 @@ import org.openlca.ecospold.IFlowData;
 import org.openlca.ecospold.IMetaInformation;
 import org.w3c.dom.Element;
 
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAnyElement;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlSchemaType;
+import jakarta.xml.bind.annotation.XmlType;
+
 /**
  * Contains information about one individual impact category. Information is
  * divided into metaInformation and flowData.
- * 
+ *
  * <p>
  * Java class for TDataset complex type.
- * 
+ *
  * <p>
  * The following schema fragment specifies the expected content contained within
  * this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="TDataset">
  *   &lt;complexContent>
@@ -50,8 +51,8 @@ import org.w3c.dom.Element;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TDataset", propOrder = { "metaInformation", "flowData", "any" })
@@ -84,9 +85,9 @@ class ImpactDataSet implements Serializable, IDataSet {
 
 	/**
 	 * Gets the value of the metaInformation property.
-	 * 
+	 *
 	 * @return possible object is {@link ImpactMetaInformation }
-	 * 
+	 *
 	 */
 	@Override
 	public IMetaInformation getMetaInformation() {
@@ -95,10 +96,10 @@ class ImpactDataSet implements Serializable, IDataSet {
 
 	/**
 	 * Sets the value of the metaInformation property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link ImpactMetaInformation }
-	 * 
+	 *
 	 */
 	@Override
 	public void setMetaInformation(IMetaInformation value) {
@@ -107,26 +108,26 @@ class ImpactDataSet implements Serializable, IDataSet {
 
 	/**
 	 * Gets the value of the flowData property.
-	 * 
+	 *
 	 * <p>
 	 * This accessor method returns a reference to the live list, not a
 	 * snapshot. Therefore any modification you make to the returned list will
 	 * be present inside the JAXB object. This is why there is not a
 	 * <CODE>set</CODE> method for the flowData property.
-	 * 
+	 *
 	 * <p>
 	 * For example, to add a new item, do as follows:
-	 * 
+	 *
 	 * <pre>
 	 * getFlowData().add(newItem);
 	 * </pre>
-	 * 
-	 * 
+	 *
+	 *
 	 * <p>
 	 * Objects of the following type(s) are allowed in the list
 	 * {@link ImpactFactors }
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	@Override
 	public List<IFlowData> getFlowData() {
@@ -138,26 +139,26 @@ class ImpactDataSet implements Serializable, IDataSet {
 
 	/**
 	 * Gets the value of the any property.
-	 * 
+	 *
 	 * <p>
 	 * This accessor method returns a reference to the live list, not a
 	 * snapshot. Therefore any modification you make to the returned list will
 	 * be present inside the JAXB object. This is why there is not a
 	 * <CODE>set</CODE> method for the any property.
-	 * 
+	 *
 	 * <p>
 	 * For example, to add a new item, do as follows:
-	 * 
+	 *
 	 * <pre>
 	 * getAny().add(newItem);
 	 * </pre>
-	 * 
-	 * 
+	 *
+	 *
 	 * <p>
 	 * Objects of the following type(s) are allowed in the list {@link Object }
 	 * {@link Element }
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	@Override
 	public List<Object> getAny() {
@@ -169,7 +170,7 @@ class ImpactDataSet implements Serializable, IDataSet {
 
 	/**
 	 * Gets the value of the number property.
-	 * 
+	 *
 	 */
 	@Override
 	public int getNumber() {
@@ -178,7 +179,7 @@ class ImpactDataSet implements Serializable, IDataSet {
 
 	/**
 	 * Sets the value of the number property.
-	 * 
+	 *
 	 */
 	@Override
 	public void setNumber(int value) {
@@ -187,9 +188,9 @@ class ImpactDataSet implements Serializable, IDataSet {
 
 	/**
 	 * Gets the value of the internalSchemaVersion property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getInternalSchemaVersion() {
@@ -198,10 +199,10 @@ class ImpactDataSet implements Serializable, IDataSet {
 
 	/**
 	 * Sets the value of the internalSchemaVersion property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setInternalSchemaVersion(String value) {
@@ -210,9 +211,9 @@ class ImpactDataSet implements Serializable, IDataSet {
 
 	/**
 	 * Gets the value of the generator property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getGenerator() {
@@ -221,10 +222,10 @@ class ImpactDataSet implements Serializable, IDataSet {
 
 	/**
 	 * Sets the value of the generator property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setGenerator(String value) {
@@ -233,9 +234,9 @@ class ImpactDataSet implements Serializable, IDataSet {
 
 	/**
 	 * Gets the value of the timestamp property.
-	 * 
+	 *
 	 * @return possible object is {@link XMLGregorianCalendar }
-	 * 
+	 *
 	 */
 	@Override
 	public XMLGregorianCalendar getTimestamp() {
@@ -244,10 +245,10 @@ class ImpactDataSet implements Serializable, IDataSet {
 
 	/**
 	 * Sets the value of the timestamp property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link XMLGregorianCalendar }
-	 * 
+	 *
 	 */
 	@Override
 	public void setTimestamp(XMLGregorianCalendar value) {
@@ -256,9 +257,9 @@ class ImpactDataSet implements Serializable, IDataSet {
 
 	/**
 	 * Gets the value of the validCompanyCodes property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getValidCompanyCodes() {
@@ -267,10 +268,10 @@ class ImpactDataSet implements Serializable, IDataSet {
 
 	/**
 	 * Sets the value of the validCompanyCodes property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setValidCompanyCodes(String value) {
@@ -279,9 +280,9 @@ class ImpactDataSet implements Serializable, IDataSet {
 
 	/**
 	 * Gets the value of the validRegionalCodes property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getValidRegionalCodes() {
@@ -290,10 +291,10 @@ class ImpactDataSet implements Serializable, IDataSet {
 
 	/**
 	 * Sets the value of the validRegionalCodes property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setValidRegionalCodes(String value) {
@@ -302,9 +303,9 @@ class ImpactDataSet implements Serializable, IDataSet {
 
 	/**
 	 * Gets the value of the validCategories property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getValidCategories() {
@@ -313,10 +314,10 @@ class ImpactDataSet implements Serializable, IDataSet {
 
 	/**
 	 * Sets the value of the validCategories property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setValidCategories(String value) {
@@ -325,9 +326,9 @@ class ImpactDataSet implements Serializable, IDataSet {
 
 	/**
 	 * Gets the value of the validUnits property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getValidUnits() {
@@ -336,10 +337,10 @@ class ImpactDataSet implements Serializable, IDataSet {
 
 	/**
 	 * Sets the value of the validUnits property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setValidUnits(String value) {

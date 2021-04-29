@@ -2,21 +2,22 @@
 package org.openlca.ecospold.internal.process;
 
 import java.io.Serializable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlType;
 
 import org.openlca.ecospold.IValidation;
+
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlType;
 
 
 /**
  * Contains information about who carried out the critical review and about the main results and conclusions of the review and the recommendations made.
- * 
+ *
  * <p>Java class for TValidation complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="TValidation">
  *   &lt;complexContent>
@@ -28,8 +29,8 @@ import org.openlca.ecospold.IValidation;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TValidation")
@@ -47,11 +48,11 @@ class Validation
 
     /**
      * Gets the value of the proofReadingDetails property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public String getProofReadingDetails() {
@@ -60,11 +61,11 @@ class Validation
 
     /**
      * Sets the value of the proofReadingDetails property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public void setProofReadingDetails(String value) {
@@ -73,7 +74,7 @@ class Validation
 
     /**
      * Gets the value of the proofReadingValidator property.
-     * 
+     *
      */
     @Override
 	public int getProofReadingValidator() {
@@ -82,7 +83,7 @@ class Validation
 
     /**
      * Sets the value of the proofReadingValidator property.
-     * 
+     *
      */
     @Override
 	public void setProofReadingValidator(int value) {
@@ -91,11 +92,11 @@ class Validation
 
     /**
      * Gets the value of the otherDetails property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public String getOtherDetails() {
@@ -104,11 +105,11 @@ class Validation
 
     /**
      * Sets the value of the otherDetails property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public void setOtherDetails(String value) {

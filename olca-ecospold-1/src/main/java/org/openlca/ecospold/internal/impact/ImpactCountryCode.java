@@ -1,15 +1,15 @@
 
 package org.openlca.ecospold.internal.impact;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlType;
-
 import org.openlca.ecospold.ICountryCode;
+
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlType;
 
 
 /**
  * <p>Java class for TISOCountryCode.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -257,7 +257,7 @@ import org.openlca.ecospold.ICountryCode;
  *   &lt;/restriction>
  * &lt;/simpleType>
  * </pre>
- * 
+ *
  */
 @XmlType(name = "TISOCountryCode")
 @XmlEnum

@@ -3,15 +3,14 @@ package spold2;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.InputStream;
 import java.io.StringWriter;
-
-import javax.xml.bind.JAXB;
 
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
+
+import jakarta.xml.bind.JAXB;
 
 @RunWith(Theories.class)
 public class JaxbTest {
@@ -21,13 +20,13 @@ public class JaxbTest {
 			"sample_child_ecospold2.xml" };
 
 	@Theory
-	public void testDataSetNotNull(String file) throws Exception {
+	public void testDataSetNotNull(String file) {
 		DataSet dataSet = read(file);
 		assertNotNull(dataSet);
 	}
 
 	@Theory
-	public void testActivity(String file) throws Exception {
+	public void testActivity(String file) {
 		DataSet dataSet = read(file);
 		Activity a = dataSet.description.activity;
 		assertEquals("08a78e38-fdbe-4ea8-869f-7735b41ecf85", a.id);
@@ -47,7 +46,7 @@ public class JaxbTest {
 	}
 
 	@Theory
-	public void testClassification(String file) throws Exception {
+	public void testClassification(String file) {
 		DataSet dataSet = read(file);
 		Classification c = dataSet.description.classifications.get(1);
 		assertEquals("359b3be8-bc56-4abf-a04b-294115165214", c.id);
@@ -55,12 +54,12 @@ public class JaxbTest {
 		assertEquals("agricultural means of production/mineral fertiliser", c.value);
 	}
 
-	private DataSet read(String file) throws Exception {
-		InputStream stream = getClass().getResourceAsStream(file);
+	private DataSet read(String file) {
+		var stream = getClass().getResourceAsStream(file);
+		assertNotNull(stream);
 		EcoSpold2 spold = JAXB.unmarshal(stream, EcoSpold2.class);
 		StringWriter xml = new StringWriter();
 		JAXB.marshal(spold, xml);
-		System.out.println(xml);
 		return spold.dataSet != null ? spold.dataSet : spold.childDataSet;
 	}
 }

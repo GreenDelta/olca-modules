@@ -4,24 +4,24 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlType;
-
 import org.openlca.ecospold.IReferenceFunction;
+
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * Contains the identifying information of a dataset including name (english and
  * german), unit, classification (category, subCategory), etc..
- * 
+ *
  * <p>
  * Java class for TReferenceFunction complex type.
- * 
+ *
  * <p>
  * The following schema fragment specifies the expected content contained within
  * this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="TReferenceFunction">
  *   &lt;complexContent>
@@ -62,8 +62,8 @@ import org.openlca.ecospold.IReferenceFunction;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TReferenceFunction", propOrder = { "synonym" })
@@ -106,25 +106,25 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Gets the value of the synonym property.
-	 * 
+	 *
 	 * <p>
 	 * This accessor method returns a reference to the live list, not a
 	 * snapshot. Therefore any modification you make to the returned list will
 	 * be present inside the JAXB object. This is why there is not a
 	 * <CODE>set</CODE> method for the synonym property.
-	 * 
+	 *
 	 * <p>
 	 * For example, to add a new item, do as follows:
-	 * 
+	 *
 	 * <pre>
 	 * getSynonym().add(newItem);
 	 * </pre>
-	 * 
-	 * 
+	 *
+	 *
 	 * <p>
 	 * Objects of the following type(s) are allowed in the list {@link String }
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	@Override
 	public List<String> getSynonym() {
@@ -136,7 +136,7 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Gets the value of the datasetRelatesToProduct property.
-	 * 
+	 *
 	 */
 	@Override
 	public boolean isDatasetRelatesToProduct() {
@@ -145,7 +145,7 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Sets the value of the datasetRelatesToProduct property.
-	 * 
+	 *
 	 */
 	@Override
 	public void setDatasetRelatesToProduct(boolean value) {
@@ -154,9 +154,9 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Gets the value of the name property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getName() {
@@ -165,10 +165,10 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Sets the value of the name property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setName(String value) {
@@ -177,9 +177,9 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Gets the value of the localName property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getLocalName() {
@@ -188,10 +188,10 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Sets the value of the localName property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setLocalName(String value) {
@@ -200,7 +200,7 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Gets the value of the infrastructureProcess property.
-	 * 
+	 *
 	 */
 	@Override
 	public boolean isInfrastructureProcess() {
@@ -209,7 +209,7 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Sets the value of the infrastructureProcess property.
-	 * 
+	 *
 	 */
 	@Override
 	public void setInfrastructureProcess(boolean value) {
@@ -218,7 +218,7 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Gets the value of the amount property.
-	 * 
+	 *
 	 */
 	@Override
 	public double getAmount() {
@@ -227,7 +227,7 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Sets the value of the amount property.
-	 * 
+	 *
 	 */
 	@Override
 	public void setAmount(double value) {
@@ -236,9 +236,9 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Gets the value of the unit property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getUnit() {
@@ -247,10 +247,10 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Sets the value of the unit property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setUnit(String value) {
@@ -259,9 +259,9 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Gets the value of the category property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getCategory() {
@@ -270,10 +270,10 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Sets the value of the category property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setCategory(String value) {
@@ -282,9 +282,9 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Gets the value of the subCategory property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getSubCategory() {
@@ -293,10 +293,10 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Sets the value of the subCategory property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setSubCategory(String value) {
@@ -305,9 +305,9 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Gets the value of the localCategory property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getLocalCategory() {
@@ -316,10 +316,10 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Sets the value of the localCategory property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setLocalCategory(String value) {
@@ -328,9 +328,9 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Gets the value of the localSubCategory property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getLocalSubCategory() {
@@ -339,10 +339,10 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Sets the value of the localSubCategory property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setLocalSubCategory(String value) {
@@ -351,9 +351,9 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Gets the value of the includedProcesses property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getIncludedProcesses() {
@@ -362,10 +362,10 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Sets the value of the includedProcesses property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setIncludedProcesses(String value) {
@@ -374,9 +374,9 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Gets the value of the generalComment property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getGeneralComment() {
@@ -385,10 +385,10 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Sets the value of the generalComment property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setGeneralComment(String value) {
@@ -397,9 +397,9 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Gets the value of the infrastructureIncluded property.
-	 * 
+	 *
 	 * @return possible object is {@link Boolean }
-	 * 
+	 *
 	 */
 	@Override
 	public boolean isInfrastructureIncluded() {
@@ -410,10 +410,10 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Sets the value of the infrastructureIncluded property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link Boolean }
-	 * 
+	 *
 	 */
 	@Override
 	public void setInfrastructureIncluded(Boolean value) {
@@ -422,9 +422,9 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Gets the value of the casNumber property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getCASNumber() {
@@ -433,10 +433,10 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Sets the value of the casNumber property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setCASNumber(String value) {
@@ -445,9 +445,9 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Gets the value of the statisticalClassification property.
-	 * 
+	 *
 	 * @return possible object is {@link Long }
-	 * 
+	 *
 	 */
 	@Override
 	public Long getStatisticalClassification() {
@@ -456,10 +456,10 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Sets the value of the statisticalClassification property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link Long }
-	 * 
+	 *
 	 */
 	@Override
 	public void setStatisticalClassification(Long value) {
@@ -468,9 +468,9 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Gets the value of the formula property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getFormula() {
@@ -479,10 +479,10 @@ class ReferenceFunction implements Serializable, IReferenceFunction {
 
 	/**
 	 * Sets the value of the formula property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setFormula(String value) {

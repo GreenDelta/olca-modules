@@ -3,22 +3,22 @@ package org.openlca.ecospold.internal.impact;
 
 import java.io.Serializable;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlType;
-
 import org.openlca.ecospold.ICountryCode;
 import org.openlca.ecospold.IPerson;
+
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlType;
 
 
 /**
  * Used for the identification of members of the organisation / institute co-operating within a quality network (e.g., ecoinvent) referred to in the areas Validation, dataEntryBy and dataGeneratorAndPublication.
- * 
+ *
  * <p>Java class for TPerson complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="TPerson">
  *   &lt;complexContent>
@@ -35,8 +35,8 @@ import org.openlca.ecospold.IPerson;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TPerson")
@@ -64,7 +64,7 @@ class ImpactPerson
 
     /**
      * Gets the value of the number property.
-     * 
+     *
      */
     @Override
 	public int getNumber() {
@@ -73,7 +73,7 @@ class ImpactPerson
 
     /**
      * Sets the value of the number property.
-     * 
+     *
      */
     @Override
 	public void setNumber(int value) {
@@ -82,11 +82,11 @@ class ImpactPerson
 
     /**
      * Gets the value of the name property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public String getName() {
@@ -95,11 +95,11 @@ class ImpactPerson
 
     /**
      * Sets the value of the name property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public void setName(String value) {
@@ -108,11 +108,11 @@ class ImpactPerson
 
     /**
      * Gets the value of the address property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public String getAddress() {
@@ -121,11 +121,11 @@ class ImpactPerson
 
     /**
      * Sets the value of the address property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public void setAddress(String value) {
@@ -134,11 +134,11 @@ class ImpactPerson
 
     /**
      * Gets the value of the telephone property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public String getTelephone() {
@@ -147,11 +147,11 @@ class ImpactPerson
 
     /**
      * Sets the value of the telephone property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public void setTelephone(String value) {
@@ -160,11 +160,11 @@ class ImpactPerson
 
     /**
      * Gets the value of the telefax property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public String getTelefax() {
@@ -173,11 +173,11 @@ class ImpactPerson
 
     /**
      * Sets the value of the telefax property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public void setTelefax(String value) {
@@ -186,11 +186,11 @@ class ImpactPerson
 
     /**
      * Gets the value of the email property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public String getEmail() {
@@ -199,11 +199,11 @@ class ImpactPerson
 
     /**
      * Sets the value of the email property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public void setEmail(String value) {
@@ -212,11 +212,11 @@ class ImpactPerson
 
     /**
      * Gets the value of the companyCode property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public String getCompanyCode() {
@@ -225,11 +225,11 @@ class ImpactPerson
 
     /**
      * Sets the value of the companyCode property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public void setCompanyCode(String value) {
@@ -238,11 +238,11 @@ class ImpactPerson
 
     /**
      * Gets the value of the countryCode property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link ImpactCountryCode }
-     *     
+     *
      */
     @Override
 	public ICountryCode getCountryCode() {
@@ -251,18 +251,18 @@ class ImpactPerson
 
     /**
      * Sets the value of the countryCode property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link ImpactCountryCode }
-     *     
+     *
      */
     @Override
 	public void setCountryCode(ICountryCode value) {
     	if (value instanceof ImpactCountryCode) {
             this.countryCode = (ImpactCountryCode)value;
     	} else {
-            this.countryCode = ImpactCountryCode.fromValue(value.value()); 		
+            this.countryCode = ImpactCountryCode.fromValue(value.value());
     	}
     }
 

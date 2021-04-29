@@ -2,21 +2,22 @@
 package org.openlca.ecospold.internal.process;
 
 import java.io.Serializable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlType;
 
 import org.openlca.ecospold.IExchange;
+
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlType;
 
 
 /**
  * Comprises all inputs and outputs (both elementary flows and intermediate product flows) recorded in a unit process and its related information.
- * 
+ *
  * <p>Java class for TExchange complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="TExchange">
  *   &lt;complexContent>
@@ -78,8 +79,8 @@ import org.openlca.ecospold.IExchange;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TExchange", propOrder = {
@@ -138,11 +139,11 @@ class Exchange
 
     /**
      * Gets the value of the inputGroup property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link Integer }
-     *     
+     *
      */
     @Override
 	public Integer getInputGroup() {
@@ -151,11 +152,11 @@ class Exchange
 
     /**
      * Sets the value of the inputGroup property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link Integer }
-     *     
+     *
      */
     @Override
 	public void setInputGroup(Integer value) {
@@ -164,11 +165,11 @@ class Exchange
 
     /**
      * Gets the value of the outputGroup property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link Integer }
-     *     
+     *
      */
     @Override
 	public Integer getOutputGroup() {
@@ -177,11 +178,11 @@ class Exchange
 
     /**
      * Sets the value of the outputGroup property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link Integer }
-     *     
+     *
      */
     @Override
 	public void setOutputGroup(Integer value) {
@@ -190,7 +191,7 @@ class Exchange
 
     /**
      * Gets the value of the number property.
-     * 
+     *
      */
     @Override
 	public int getNumber() {
@@ -199,7 +200,7 @@ class Exchange
 
     /**
      * Sets the value of the number property.
-     * 
+     *
      */
     @Override
 	public void setNumber(int value) {
@@ -208,11 +209,11 @@ class Exchange
 
     /**
      * Gets the value of the category property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public String getCategory() {
@@ -221,11 +222,11 @@ class Exchange
 
     /**
      * Sets the value of the category property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public void setCategory(String value) {
@@ -234,11 +235,11 @@ class Exchange
 
     /**
      * Gets the value of the subCategory property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public String getSubCategory() {
@@ -247,11 +248,11 @@ class Exchange
 
     /**
      * Sets the value of the subCategory property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public void setSubCategory(String value) {
@@ -260,11 +261,11 @@ class Exchange
 
     /**
      * Gets the value of the localCategory property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public String getLocalCategory() {
@@ -273,11 +274,11 @@ class Exchange
 
     /**
      * Sets the value of the localCategory property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public void setLocalCategory(String value) {
@@ -286,11 +287,11 @@ class Exchange
 
     /**
      * Gets the value of the localSubCategory property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public String getLocalSubCategory() {
@@ -299,11 +300,11 @@ class Exchange
 
     /**
      * Sets the value of the localSubCategory property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public void setLocalSubCategory(String value) {
@@ -312,11 +313,11 @@ class Exchange
 
     /**
      * Gets the value of the casNumber property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public String getCASNumber() {
@@ -325,11 +326,11 @@ class Exchange
 
     /**
      * Sets the value of the casNumber property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public void setCASNumber(String value) {
@@ -338,11 +339,11 @@ class Exchange
 
     /**
      * Gets the value of the name property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public String getName() {
@@ -351,11 +352,11 @@ class Exchange
 
     /**
      * Sets the value of the name property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public void setName(String value) {
@@ -364,11 +365,11 @@ class Exchange
 
     /**
      * Gets the value of the location property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public String getLocation() {
@@ -377,11 +378,11 @@ class Exchange
 
     /**
      * Sets the value of the location property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public void setLocation(String value) {
@@ -390,11 +391,11 @@ class Exchange
 
     /**
      * Gets the value of the unit property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public String getUnit() {
@@ -403,11 +404,11 @@ class Exchange
 
     /**
      * Sets the value of the unit property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public void setUnit(String value) {
@@ -416,7 +417,7 @@ class Exchange
 
     /**
      * Gets the value of the meanValue property.
-     * 
+     *
      */
     @Override
 	public double getMeanValue() {
@@ -425,7 +426,7 @@ class Exchange
 
     /**
      * Sets the value of the meanValue property.
-     * 
+     *
      */
     @Override
 	public void setMeanValue(double value) {
@@ -434,11 +435,11 @@ class Exchange
 
     /**
      * Gets the value of the uncertaintyType property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link Integer }
-     *     
+     *
      */
     @Override
 	public Integer getUncertaintyType() {
@@ -447,11 +448,11 @@ class Exchange
 
     /**
      * Sets the value of the uncertaintyType property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link Integer }
-     *     
+     *
      */
     @Override
 	public void setUncertaintyType(Integer value) {
@@ -460,11 +461,11 @@ class Exchange
 
     /**
      * Gets the value of the standardDeviation95 property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link Double }
-     *     
+     *
      */
     @Override
 	public Double getStandardDeviation95() {
@@ -473,11 +474,11 @@ class Exchange
 
     /**
      * Sets the value of the standardDeviation95 property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link Double }
-     *     
+     *
      */
     @Override
 	public void setStandardDeviation95(Double value) {
@@ -486,11 +487,11 @@ class Exchange
 
     /**
      * Gets the value of the formula property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public String getFormula() {
@@ -499,11 +500,11 @@ class Exchange
 
     /**
      * Sets the value of the formula property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public void setFormula(String value) {
@@ -512,11 +513,11 @@ class Exchange
 
     /**
      * Gets the value of the referenceToSource property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link Integer }
-     *     
+     *
      */
     @Override
 	public Integer getReferenceToSource() {
@@ -525,11 +526,11 @@ class Exchange
 
     /**
      * Sets the value of the referenceToSource property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link Integer }
-     *     
+     *
      */
     @Override
 	public void setReferenceToSource(Integer value) {
@@ -538,11 +539,11 @@ class Exchange
 
     /**
      * Gets the value of the pageNumbers property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public String getPageNumbers() {
@@ -551,11 +552,11 @@ class Exchange
 
     /**
      * Sets the value of the pageNumbers property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public void setPageNumbers(String value) {
@@ -564,11 +565,11 @@ class Exchange
 
     /**
      * Gets the value of the generalComment property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public String getGeneralComment() {
@@ -577,11 +578,11 @@ class Exchange
 
     /**
      * Sets the value of the generalComment property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public void setGeneralComment(String value) {
@@ -590,11 +591,11 @@ class Exchange
 
     /**
      * Gets the value of the localName property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public String getLocalName() {
@@ -603,11 +604,11 @@ class Exchange
 
     /**
      * Sets the value of the localName property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public void setLocalName(String value) {
@@ -616,11 +617,11 @@ class Exchange
 
     /**
      * Gets the value of the infrastructureProcess property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link Boolean }
-     *     
+     *
      */
     @Override
 	public Boolean isInfrastructureProcess() {
@@ -629,11 +630,11 @@ class Exchange
 
     /**
      * Sets the value of the infrastructureProcess property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link Boolean }
-     *     
+     *
      */
     @Override
 	public void setInfrastructureProcess(Boolean value) {
@@ -642,11 +643,11 @@ class Exchange
 
     /**
      * Gets the value of the minValue property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link Double }
-     *     
+     *
      */
     @Override
 	public Double getMinValue() {
@@ -655,11 +656,11 @@ class Exchange
 
     /**
      * Sets the value of the minValue property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link Double }
-     *     
+     *
      */
     @Override
 	public void setMinValue(Double value) {
@@ -668,11 +669,11 @@ class Exchange
 
     /**
      * Gets the value of the maxValue property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link Double }
-     *     
+     *
      */
     @Override
 	public Double getMaxValue() {
@@ -681,11 +682,11 @@ class Exchange
 
     /**
      * Sets the value of the maxValue property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link Double }
-     *     
+     *
      */
     @Override
 	public void setMaxValue(Double value) {
@@ -694,11 +695,11 @@ class Exchange
 
     /**
      * Gets the value of the mostLikelyValue property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link Double }
-     *     
+     *
      */
     @Override
 	public Double getMostLikelyValue() {
@@ -707,11 +708,11 @@ class Exchange
 
     /**
      * Sets the value of the mostLikelyValue property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link Double }
-     *     
+     *
      */
     @Override
 	public void setMostLikelyValue(Double value) {

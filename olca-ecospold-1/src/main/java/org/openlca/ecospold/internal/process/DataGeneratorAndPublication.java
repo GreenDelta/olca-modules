@@ -2,26 +2,26 @@ package org.openlca.ecospold.internal.process;
 
 import java.io.Serializable;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlType;
-
 import org.openlca.ecospold.ICountryCode;
 import org.openlca.ecospold.IDataGeneratorAndPublication;
+
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * Contains information about who compiled for and entered data into the
  * database. Furthermore contains information about kind of publication
  * underlying the dataset and the accessibility of the dataset.
- * 
+ *
  * <p>
  * Java class for TDataGeneratorAndPublication complex type.
- * 
+ *
  * <p>
  * The following schema fragment specifies the expected content contained within
  * this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="TDataGeneratorAndPublication">
  *   &lt;complexContent>
@@ -52,8 +52,8 @@ import org.openlca.ecospold.IDataGeneratorAndPublication;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TDataGeneratorAndPublication")
@@ -80,7 +80,7 @@ class DataGeneratorAndPublication implements Serializable,
 
 	/**
 	 * Gets the value of the person property.
-	 * 
+	 *
 	 */
 	@Override
 	public int getPerson() {
@@ -89,7 +89,7 @@ class DataGeneratorAndPublication implements Serializable,
 
 	/**
 	 * Sets the value of the person property.
-	 * 
+	 *
 	 */
 	@Override
 	public void setPerson(int value) {
@@ -98,9 +98,9 @@ class DataGeneratorAndPublication implements Serializable,
 
 	/**
 	 * Gets the value of the dataPublishedIn property.
-	 * 
+	 *
 	 * @return possible object is {@link Integer }
-	 * 
+	 *
 	 */
 	@Override
 	public int getDataPublishedIn() {
@@ -111,10 +111,10 @@ class DataGeneratorAndPublication implements Serializable,
 
 	/**
 	 * Sets the value of the dataPublishedIn property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link Integer }
-	 * 
+	 *
 	 */
 	@Override
 	public void setDataPublishedIn(Integer value) {
@@ -123,9 +123,9 @@ class DataGeneratorAndPublication implements Serializable,
 
 	/**
 	 * Gets the value of the referenceToPublishedSource property.
-	 * 
+	 *
 	 * @return possible object is {@link Integer }
-	 * 
+	 *
 	 */
 	@Override
 	public Integer getReferenceToPublishedSource() {
@@ -134,10 +134,10 @@ class DataGeneratorAndPublication implements Serializable,
 
 	/**
 	 * Sets the value of the referenceToPublishedSource property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link Integer }
-	 * 
+	 *
 	 */
 	@Override
 	public void setReferenceToPublishedSource(Integer value) {
@@ -146,7 +146,7 @@ class DataGeneratorAndPublication implements Serializable,
 
 	/**
 	 * Gets the value of the copyright property.
-	 * 
+	 *
 	 */
 	@Override
 	public boolean isCopyright() {
@@ -155,7 +155,7 @@ class DataGeneratorAndPublication implements Serializable,
 
 	/**
 	 * Sets the value of the copyright property.
-	 * 
+	 *
 	 */
 	@Override
 	public void setCopyright(boolean value) {
@@ -164,9 +164,9 @@ class DataGeneratorAndPublication implements Serializable,
 
 	/**
 	 * Gets the value of the accessRestrictedTo property.
-	 * 
+	 *
 	 * @return possible object is {@link Integer }
-	 * 
+	 *
 	 */
 	@Override
 	public Integer getAccessRestrictedTo() {
@@ -175,10 +175,10 @@ class DataGeneratorAndPublication implements Serializable,
 
 	/**
 	 * Sets the value of the accessRestrictedTo property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link Integer }
-	 * 
+	 *
 	 */
 	@Override
 	public void setAccessRestrictedTo(Integer value) {
@@ -187,9 +187,9 @@ class DataGeneratorAndPublication implements Serializable,
 
 	/**
 	 * Gets the value of the companyCode property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getCompanyCode() {
@@ -198,10 +198,10 @@ class DataGeneratorAndPublication implements Serializable,
 
 	/**
 	 * Sets the value of the companyCode property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setCompanyCode(String value) {
@@ -210,9 +210,9 @@ class DataGeneratorAndPublication implements Serializable,
 
 	/**
 	 * Gets the value of the countryCode property.
-	 * 
+	 *
 	 * @return possible object is {@link CountryCode }
-	 * 
+	 *
 	 */
 	@Override
 	public ICountryCode getCountryCode() {
@@ -221,10 +221,10 @@ class DataGeneratorAndPublication implements Serializable,
 
 	/**
 	 * Sets the value of the countryCode property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link CountryCode }
-	 * 
+	 *
 	 */
 	@Override
 	public void setCountryCode(ICountryCode value) {
@@ -237,9 +237,9 @@ class DataGeneratorAndPublication implements Serializable,
 
 	/**
 	 * Gets the value of the pageNumbers property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getPageNumbers() {
@@ -248,10 +248,10 @@ class DataGeneratorAndPublication implements Serializable,
 
 	/**
 	 * Sets the value of the pageNumbers property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setPageNumbers(String value) {

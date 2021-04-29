@@ -2,23 +2,25 @@
 package org.openlca.ecospold.internal.process;
 
 import java.io.Serializable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
+
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.ecospold.ITimePeriod;
 
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlSchemaType;
+import jakarta.xml.bind.annotation.XmlType;
+
 
 /**
  * Contains all possible date-formats applicable to describe start and end date of the time period for which the dataset is valid.
- * 
+ *
  * <p>Java class for TTimePeriod complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="TTimePeriod">
  *   &lt;complexContent>
@@ -41,8 +43,8 @@ import org.openlca.ecospold.ITimePeriod;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TTimePeriod", propOrder = {
@@ -77,11 +79,11 @@ class TimePeriod
 
     /**
      * Gets the value of the startYear property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link XMLGregorianCalendar }
-     *     
+     *
      */
     @Override
 	public XMLGregorianCalendar getStartYear() {
@@ -90,11 +92,11 @@ class TimePeriod
 
     /**
      * Sets the value of the startYear property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link XMLGregorianCalendar }
-     *     
+     *
      */
     @Override
 	public void setStartYear(XMLGregorianCalendar value) {
@@ -103,11 +105,11 @@ class TimePeriod
 
     /**
      * Gets the value of the startYearMonth property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link XMLGregorianCalendar }
-     *     
+     *
      */
     @Override
 	public XMLGregorianCalendar getStartYearMonth() {
@@ -116,11 +118,11 @@ class TimePeriod
 
     /**
      * Sets the value of the startYearMonth property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link XMLGregorianCalendar }
-     *     
+     *
      */
     @Override
 	public void setStartYearMonth(XMLGregorianCalendar value) {
@@ -129,11 +131,11 @@ class TimePeriod
 
     /**
      * Gets the value of the startDate property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link XMLGregorianCalendar }
-     *     
+     *
      */
     @Override
 	public XMLGregorianCalendar getStartDate() {
@@ -142,11 +144,11 @@ class TimePeriod
 
     /**
      * Sets the value of the startDate property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link XMLGregorianCalendar }
-     *     
+     *
      */
     @Override
 	public void setStartDate(XMLGregorianCalendar value) {
@@ -155,11 +157,11 @@ class TimePeriod
 
     /**
      * Gets the value of the endYear property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link XMLGregorianCalendar }
-     *     
+     *
      */
     @Override
 	public XMLGregorianCalendar getEndYear() {
@@ -168,11 +170,11 @@ class TimePeriod
 
     /**
      * Sets the value of the endYear property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link XMLGregorianCalendar }
-     *     
+     *
      */
     @Override
 	public void setEndYear(XMLGregorianCalendar value) {
@@ -181,11 +183,11 @@ class TimePeriod
 
     /**
      * Gets the value of the endYearMonth property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link XMLGregorianCalendar }
-     *     
+     *
      */
     @Override
 	public XMLGregorianCalendar getEndYearMonth() {
@@ -194,11 +196,11 @@ class TimePeriod
 
     /**
      * Sets the value of the endYearMonth property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link XMLGregorianCalendar }
-     *     
+     *
      */
     @Override
 	public void setEndYearMonth(XMLGregorianCalendar value) {
@@ -207,11 +209,11 @@ class TimePeriod
 
     /**
      * Gets the value of the endDate property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link XMLGregorianCalendar }
-     *     
+     *
      */
     @Override
 	public XMLGregorianCalendar getEndDate() {
@@ -220,11 +222,11 @@ class TimePeriod
 
     /**
      * Sets the value of the endDate property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link XMLGregorianCalendar }
-     *     
+     *
      */
     @Override
 	public void setEndDate(XMLGregorianCalendar value) {
@@ -233,7 +235,7 @@ class TimePeriod
 
     /**
      * Gets the value of the dataValidForEntirePeriod property.
-     * 
+     *
      */
     @Override
 	public boolean isDataValidForEntirePeriod() {
@@ -242,7 +244,7 @@ class TimePeriod
 
     /**
      * Sets the value of the dataValidForEntirePeriod property.
-     * 
+     *
      */
     @Override
 	public void setDataValidForEntirePeriod(boolean value) {
@@ -251,11 +253,11 @@ class TimePeriod
 
     /**
      * Gets the value of the text property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public String getText() {
@@ -264,11 +266,11 @@ class TimePeriod
 
     /**
      * Sets the value of the text property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     @Override
 	public void setText(String value) {

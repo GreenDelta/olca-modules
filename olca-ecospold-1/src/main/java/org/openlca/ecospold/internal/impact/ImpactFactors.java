@@ -4,28 +4,28 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAnyElement;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
-
 import org.openlca.ecospold.IAllocation;
 import org.openlca.ecospold.IExchange;
 import org.openlca.ecospold.IFlowData;
 import org.w3c.dom.Element;
 
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAnyElement;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlType;
+
 /**
  * Contains information about the characterisation, damage or weighting factors
  * of the impact category described in the dataset.
- * 
+ *
  * <p>
  * Java class for TFlowData complex type.
- * 
+ *
  * <p>
  * The following schema fragment specifies the expected content contained within
  * this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="TFlowData">
  *   &lt;complexContent>
@@ -39,8 +39,8 @@ import org.w3c.dom.Element;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TFlowData", propOrder = { "exchange", "any" })
@@ -54,26 +54,26 @@ class ImpactFactors implements Serializable, IFlowData {
 
 	/**
 	 * Gets the value of the exchange property.
-	 * 
+	 *
 	 * <p>
 	 * This accessor method returns a reference to the live list, not a
 	 * snapshot. Therefore any modification you make to the returned list will
 	 * be present inside the JAXB object. This is why there is not a
 	 * <CODE>set</CODE> method for the exchange property.
-	 * 
+	 *
 	 * <p>
 	 * For example, to add a new item, do as follows:
-	 * 
+	 *
 	 * <pre>
 	 * getExchange().add(newItem);
 	 * </pre>
-	 * 
-	 * 
+	 *
+	 *
 	 * <p>
 	 * Objects of the following type(s) are allowed in the list
 	 * {@link ImpactFactor }
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	@Override
 	public List<IExchange> getExchange() {
@@ -85,26 +85,26 @@ class ImpactFactors implements Serializable, IFlowData {
 
 	/**
 	 * Gets the value of the any property.
-	 * 
+	 *
 	 * <p>
 	 * This accessor method returns a reference to the live list, not a
 	 * snapshot. Therefore any modification you make to the returned list will
 	 * be present inside the JAXB object. This is why there is not a
 	 * <CODE>set</CODE> method for the any property.
-	 * 
+	 *
 	 * <p>
 	 * For example, to add a new item, do as follows:
-	 * 
+	 *
 	 * <pre>
 	 * getAny().add(newItem);
 	 * </pre>
-	 * 
-	 * 
+	 *
+	 *
 	 * <p>
 	 * Objects of the following type(s) are allowed in the list {@link Object }
 	 * {@link Element }
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	@Override
 	public List<Object> getAny() {

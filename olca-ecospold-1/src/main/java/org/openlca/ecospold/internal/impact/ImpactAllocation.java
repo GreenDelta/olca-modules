@@ -4,25 +4,25 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
-
 import org.openlca.ecospold.IAllocation;
+
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * Contains all information about allocation procedure, allocation parameters
  * and allocation factors applied on a multi-output process.
- * 
+ *
  * <p>
  * Java class for TAllocation complex type.
- * 
+ *
  * <p>
  * The following schema fragment specifies the expected content contained within
  * this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="TAllocation">
  *   &lt;complexContent>
@@ -45,8 +45,8 @@ import org.openlca.ecospold.IAllocation;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TAllocation", propOrder = { "referenceToInputOutput" })
@@ -66,25 +66,25 @@ class ImpactAllocation implements Serializable, IAllocation {
 
 	/**
 	 * Gets the value of the referenceToInputOutput property.
-	 * 
+	 *
 	 * <p>
 	 * This accessor method returns a reference to the live list, not a
 	 * snapshot. Therefore any modification you make to the returned list will
 	 * be present inside the JAXB object. This is why there is not a
 	 * <CODE>set</CODE> method for the referenceToInputOutput property.
-	 * 
+	 *
 	 * <p>
 	 * For example, to add a new item, do as follows:
-	 * 
+	 *
 	 * <pre>
 	 * getReferenceToInputOutput().add(newItem);
 	 * </pre>
-	 * 
-	 * 
+	 *
+	 *
 	 * <p>
 	 * Objects of the following type(s) are allowed in the list {@link Integer }
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	@Override
 	public List<Integer> getReferenceToInputOutput() {
@@ -96,7 +96,7 @@ class ImpactAllocation implements Serializable, IAllocation {
 
 	/**
 	 * Gets the value of the referenceToCoProduct property.
-	 * 
+	 *
 	 */
 	@Override
 	public int getReferenceToCoProduct() {
@@ -105,7 +105,7 @@ class ImpactAllocation implements Serializable, IAllocation {
 
 	/**
 	 * Sets the value of the referenceToCoProduct property.
-	 * 
+	 *
 	 */
 	@Override
 	public void setReferenceToCoProduct(int value) {
@@ -114,9 +114,9 @@ class ImpactAllocation implements Serializable, IAllocation {
 
 	/**
 	 * Gets the value of the allocationMethod property.
-	 * 
+	 *
 	 * @return possible object is {@link Integer }
-	 * 
+	 *
 	 */
 	@Override
 	public int getAllocationMethod() {
@@ -127,10 +127,10 @@ class ImpactAllocation implements Serializable, IAllocation {
 
 	/**
 	 * Sets the value of the allocationMethod property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link Integer }
-	 * 
+	 *
 	 */
 	@Override
 	public void setAllocationMethod(Integer value) {
@@ -139,7 +139,7 @@ class ImpactAllocation implements Serializable, IAllocation {
 
 	/**
 	 * Gets the value of the fraction property.
-	 * 
+	 *
 	 */
 	@Override
 	public float getFraction() {
@@ -148,7 +148,7 @@ class ImpactAllocation implements Serializable, IAllocation {
 
 	/**
 	 * Sets the value of the fraction property.
-	 * 
+	 *
 	 */
 	@Override
 	public void setFraction(float value) {
@@ -157,9 +157,9 @@ class ImpactAllocation implements Serializable, IAllocation {
 
 	/**
 	 * Gets the value of the explanations property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getExplanations() {
@@ -168,10 +168,10 @@ class ImpactAllocation implements Serializable, IAllocation {
 
 	/**
 	 * Sets the value of the explanations property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setExplanations(String value) {

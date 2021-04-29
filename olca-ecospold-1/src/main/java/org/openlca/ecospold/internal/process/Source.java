@@ -3,26 +3,27 @@ package org.openlca.ecospold.internal.process;
 import java.io.Serializable;
 import java.math.BigInteger;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.ecospold.ISource;
 
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlSchemaType;
+import jakarta.xml.bind.annotation.XmlType;
+
 /**
  * Contains information about author(s), title, kind of publication, place of
  * publication, name of editors (if any), etc..
- * 
+ *
  * <p>
  * Java class for TSource complex type.
- * 
+ *
  * <p>
  * The following schema fragment specifies the expected content contained within
  * this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="TSource">
  *   &lt;complexContent>
@@ -65,8 +66,8 @@ import org.openlca.ecospold.ISource;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TSource")
@@ -107,7 +108,7 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Gets the value of the number property.
-	 * 
+	 *
 	 */
 	@Override
 	public int getNumber() {
@@ -116,7 +117,7 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Sets the value of the number property.
-	 * 
+	 *
 	 */
 	@Override
 	public void setNumber(int value) {
@@ -125,9 +126,9 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Gets the value of the sourceType property.
-	 * 
+	 *
 	 * @return possible object is {@link Integer }
-	 * 
+	 *
 	 */
 	@Override
 	public int getSourceType() {
@@ -138,10 +139,10 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Sets the value of the sourceType property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link Integer }
-	 * 
+	 *
 	 */
 	@Override
 	public void setSourceType(Integer value) {
@@ -150,9 +151,9 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Gets the value of the firstAuthor property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getFirstAuthor() {
@@ -161,10 +162,10 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Sets the value of the firstAuthor property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setFirstAuthor(String value) {
@@ -173,9 +174,9 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Gets the value of the additionalAuthors property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getAdditionalAuthors() {
@@ -184,10 +185,10 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Sets the value of the additionalAuthors property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setAdditionalAuthors(String value) {
@@ -196,9 +197,9 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Gets the value of the year property.
-	 * 
+	 *
 	 * @return possible object is {@link XMLGregorianCalendar }
-	 * 
+	 *
 	 */
 	@Override
 	public XMLGregorianCalendar getYear() {
@@ -207,10 +208,10 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Sets the value of the year property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link XMLGregorianCalendar }
-	 * 
+	 *
 	 */
 	@Override
 	public void setYear(XMLGregorianCalendar value) {
@@ -219,9 +220,9 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Gets the value of the title property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getTitle() {
@@ -230,10 +231,10 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Sets the value of the title property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setTitle(String value) {
@@ -242,9 +243,9 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Gets the value of the pageNumbers property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getPageNumbers() {
@@ -253,10 +254,10 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Sets the value of the pageNumbers property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setPageNumbers(String value) {
@@ -265,9 +266,9 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Gets the value of the nameOfEditors property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getNameOfEditors() {
@@ -276,10 +277,10 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Sets the value of the nameOfEditors property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setNameOfEditors(String value) {
@@ -288,9 +289,9 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Gets the value of the titleOfAnthology property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getTitleOfAnthology() {
@@ -299,10 +300,10 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Sets the value of the titleOfAnthology property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setTitleOfAnthology(String value) {
@@ -311,9 +312,9 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Gets the value of the placeOfPublications property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getPlaceOfPublications() {
@@ -322,10 +323,10 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Sets the value of the placeOfPublications property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setPlaceOfPublications(String value) {
@@ -334,9 +335,9 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Gets the value of the publisher property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getPublisher() {
@@ -345,10 +346,10 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Sets the value of the publisher property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setPublisher(String value) {
@@ -357,9 +358,9 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Gets the value of the journal property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getJournal() {
@@ -368,10 +369,10 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Sets the value of the journal property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setJournal(String value) {
@@ -380,9 +381,9 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Gets the value of the volumeNo property.
-	 * 
+	 *
 	 * @return possible object is {@link BigInteger }
-	 * 
+	 *
 	 */
 	@Override
 	public BigInteger getVolumeNo() {
@@ -391,10 +392,10 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Sets the value of the volumeNo property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link BigInteger }
-	 * 
+	 *
 	 */
 	@Override
 	public void setVolumeNo(BigInteger value) {
@@ -403,9 +404,9 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Gets the value of the issueNo property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getIssueNo() {
@@ -414,10 +415,10 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Sets the value of the issueNo property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setIssueNo(String value) {
@@ -426,9 +427,9 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Gets the value of the text property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getText() {
@@ -437,10 +438,10 @@ class Source implements Serializable, ISource {
 
 	/**
 	 * Sets the value of the text property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public void setText(String value) {

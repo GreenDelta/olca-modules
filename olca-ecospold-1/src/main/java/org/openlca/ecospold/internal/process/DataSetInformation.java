@@ -2,29 +2,30 @@ package org.openlca.ecospold.internal.process;
 
 import java.io.Serializable;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.ecospold.IDataSetInformation;
 import org.openlca.ecospold.ILanguageCode;
+
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlSchemaType;
+import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * Contains the administrative information about the dataset at issue: type of
  * dataset (unit process, elementary flow, impact category, multi-output
  * process) timestamp, version and internalVersion number as well as language
  * and localLanguage code.
- * 
+ *
  * <p>
  * Java class for TDataSetInformation complex type.
- * 
+ *
  * <p>
  * The following schema fragment specifies the expected content contained within
  * this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="TDataSetInformation">
  *   &lt;complexContent>
@@ -67,8 +68,8 @@ import org.openlca.ecospold.ILanguageCode;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TDataSetInformation")
@@ -95,7 +96,7 @@ class DataSetInformation implements Serializable, IDataSetInformation {
 
 	/**
 	 * Gets the value of the type property.
-	 * 
+	 *
 	 */
 	@Override
 	public int getType() {
@@ -104,7 +105,7 @@ class DataSetInformation implements Serializable, IDataSetInformation {
 
 	/**
 	 * Sets the value of the type property.
-	 * 
+	 *
 	 */
 	@Override
 	public void setType(int value) {
@@ -113,7 +114,7 @@ class DataSetInformation implements Serializable, IDataSetInformation {
 
 	/**
 	 * Gets the value of the impactAssessmentResult property.
-	 * 
+	 *
 	 */
 	@Override
 	public boolean isImpactAssessmentResult() {
@@ -122,7 +123,7 @@ class DataSetInformation implements Serializable, IDataSetInformation {
 
 	/**
 	 * Sets the value of the impactAssessmentResult property.
-	 * 
+	 *
 	 */
 	@Override
 	public void setImpactAssessmentResult(boolean value) {
@@ -131,9 +132,9 @@ class DataSetInformation implements Serializable, IDataSetInformation {
 
 	/**
 	 * Gets the value of the timestamp property.
-	 * 
+	 *
 	 * @return possible object is {@link XMLGregorianCalendar }
-	 * 
+	 *
 	 */
 	@Override
 	public XMLGregorianCalendar getTimestamp() {
@@ -142,10 +143,10 @@ class DataSetInformation implements Serializable, IDataSetInformation {
 
 	/**
 	 * Sets the value of the timestamp property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link XMLGregorianCalendar }
-	 * 
+	 *
 	 */
 	@Override
 	public void setTimestamp(XMLGregorianCalendar value) {
@@ -154,7 +155,7 @@ class DataSetInformation implements Serializable, IDataSetInformation {
 
 	/**
 	 * Gets the value of the version property.
-	 * 
+	 *
 	 */
 	@Override
 	public float getVersion() {
@@ -163,7 +164,7 @@ class DataSetInformation implements Serializable, IDataSetInformation {
 
 	/**
 	 * Sets the value of the version property.
-	 * 
+	 *
 	 */
 	@Override
 	public void setVersion(float value) {
@@ -172,7 +173,7 @@ class DataSetInformation implements Serializable, IDataSetInformation {
 
 	/**
 	 * Gets the value of the internalVersion property.
-	 * 
+	 *
 	 */
 	@Override
 	public float getInternalVersion() {
@@ -181,7 +182,7 @@ class DataSetInformation implements Serializable, IDataSetInformation {
 
 	/**
 	 * Sets the value of the internalVersion property.
-	 * 
+	 *
 	 */
 	@Override
 	public void setInternalVersion(float value) {
@@ -190,7 +191,7 @@ class DataSetInformation implements Serializable, IDataSetInformation {
 
 	/**
 	 * Gets the value of the energyValues property.
-	 * 
+	 *
 	 */
 	@Override
 	public int getEnergyValues() {
@@ -199,7 +200,7 @@ class DataSetInformation implements Serializable, IDataSetInformation {
 
 	/**
 	 * Sets the value of the energyValues property.
-	 * 
+	 *
 	 */
 	@Override
 	public void setEnergyValues(int value) {
@@ -208,9 +209,9 @@ class DataSetInformation implements Serializable, IDataSetInformation {
 
 	/**
 	 * Gets the value of the languageCode property.
-	 * 
+	 *
 	 * @return possible object is {@link LanguageCode }
-	 * 
+	 *
 	 */
 	@Override
 	public ILanguageCode getLanguageCode() {
@@ -221,10 +222,10 @@ class DataSetInformation implements Serializable, IDataSetInformation {
 
 	/**
 	 * Sets the value of the languageCode property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link LanguageCode }
-	 * 
+	 *
 	 */
 	@Override
 	public void setLanguageCode(ILanguageCode value) {
@@ -237,9 +238,9 @@ class DataSetInformation implements Serializable, IDataSetInformation {
 
 	/**
 	 * Gets the value of the localLanguageCode property.
-	 * 
+	 *
 	 * @return possible object is {@link LanguageCode }
-	 * 
+	 *
 	 */
 	@Override
 	public ILanguageCode getLocalLanguageCode() {
@@ -250,10 +251,10 @@ class DataSetInformation implements Serializable, IDataSetInformation {
 
 	/**
 	 * Sets the value of the localLanguageCode property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link LanguageCode }
-	 * 
+	 *
 	 */
 	@Override
 	public void setLocalLanguageCode(ILanguageCode value) {
