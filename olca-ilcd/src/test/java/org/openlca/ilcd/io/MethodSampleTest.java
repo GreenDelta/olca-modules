@@ -5,8 +5,6 @@ import static org.junit.Assert.assertEquals;
 import java.io.InputStream;
 import java.util.function.Consumer;
 
-import javax.xml.bind.JAXB;
-
 import org.junit.Test;
 import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.methods.AreaOfProtection;
@@ -17,6 +15,8 @@ import org.openlca.ilcd.methods.LCIAMethod;
 import org.openlca.ilcd.methods.Modelling;
 import org.openlca.ilcd.methods.QuantitativeReference;
 import org.openlca.ilcd.methods.Time;
+
+import jakarta.xml.bind.JAXB;
 
 public class MethodSampleTest {
 

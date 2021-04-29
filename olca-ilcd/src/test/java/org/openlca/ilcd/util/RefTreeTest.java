@@ -5,8 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 
-import javax.xml.bind.JAXB;
-
 import org.junit.Test;
 import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.Ref;
@@ -14,6 +12,8 @@ import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.io.ProcessSampleTest;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.processes.Process;
+
+import jakarta.xml.bind.JAXB;
 
 public class RefTreeTest {
 

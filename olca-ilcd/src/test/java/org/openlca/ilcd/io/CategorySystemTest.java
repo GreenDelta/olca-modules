@@ -4,10 +4,10 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.InputStream;
 
-import javax.xml.bind.JAXB;
-
 import org.junit.Test;
 import org.openlca.ilcd.lists.CategorySystem;
+
+import jakarta.xml.bind.JAXB;
 
 public class CategorySystemTest {
 

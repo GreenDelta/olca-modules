@@ -3,8 +3,6 @@ package org.openlca.ilcd.io;
 import java.io.InputStream;
 import java.util.function.Consumer;
 
-import javax.xml.bind.JAXB;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.ilcd.commons.ProcessType;
@@ -12,6 +10,8 @@ import org.openlca.ilcd.commons.QuantitativeReferenceType;
 import org.openlca.ilcd.descriptors.DescriptorList;
 import org.openlca.ilcd.descriptors.ProcessDescriptor;
 import org.openlca.ilcd.processes.Process;
+
+import jakarta.xml.bind.JAXB;
 
 public class ProcessTypeTest {
 

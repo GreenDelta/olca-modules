@@ -5,10 +5,10 @@ import static org.junit.Assert.assertEquals;
 import java.io.InputStream;
 import java.util.function.Consumer;
 
-import javax.xml.bind.JAXB;
-
 import org.junit.Test;
 import org.openlca.ilcd.models.Model;
+
+import jakarta.xml.bind.JAXB;
 
 public class ModelSampleTest {
 

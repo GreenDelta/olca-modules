@@ -20,7 +20,6 @@ import org.openlca.ilcd.descriptors.DataStockList;
 import org.openlca.ilcd.descriptors.Descriptor;
 import org.openlca.ilcd.descriptors.DescriptorList;
 import org.openlca.ilcd.lists.CategorySystem;
-import org.openlca.ilcd.methods.LCIAMethod;
 import org.openlca.ilcd.sources.Source;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -180,6 +179,7 @@ public class SodaClient implements DataStore {
 		}
 	}
 
+	@Override
 	public InputStream getExternalDocument(String sourceId, String fileName) {
 		checkConnection();
 		WebResource r = resource("sources", sourceId, fileName);

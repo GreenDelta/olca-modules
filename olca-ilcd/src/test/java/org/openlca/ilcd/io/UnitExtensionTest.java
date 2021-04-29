@@ -8,11 +8,11 @@ import static org.junit.Assert.assertTrue;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import javax.xml.bind.JAXB;
-
 import org.junit.Test;
 import org.openlca.ilcd.units.Unit;
 import org.openlca.ilcd.util.UnitExtension;
+
+import jakarta.xml.bind.JAXB;
 
 public class UnitExtensionTest {
 

@@ -4,13 +4,13 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import javax.xml.bind.JAXB;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.descriptors.DataStock;
 import org.openlca.ilcd.descriptors.DataStockList;
+
+import jakarta.xml.bind.JAXB;
 
 public class DataStockTest {
 

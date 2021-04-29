@@ -8,11 +8,11 @@ import static org.junit.Assert.assertTrue;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import javax.xml.bind.JAXB;
-
 import org.junit.Test;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.util.ExchangeExtension;
+
+import jakarta.xml.bind.JAXB;
 
 public class ExchangeExtensionTest {
 
@@ -68,7 +68,7 @@ public class ExchangeExtensionTest {
 	private Exchange createExchange() {
 		Exchange exchange = new Exchange();
 		exchange.id = 1;
-		exchange.meanAmount = (double) 500;
+		exchange.meanAmount = 500;
 		ExchangeExtension extension = new ExchangeExtension(exchange);
 		extension.setAmount(42);
 		extension.setFormula("2 * Pi * sqr(r)");

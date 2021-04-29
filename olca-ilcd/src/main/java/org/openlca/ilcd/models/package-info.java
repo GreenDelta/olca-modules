@@ -10,6 +10,6 @@
 		@XmlNs(prefix = "model", namespaceURI = "http://eplca.jrc.ec.europa.eu/ILCD/LifeCycleModel/2017") })
 package org.openlca.ilcd.models;
 
-import javax.xml.bind.annotation.XmlNs;
-import javax.xml.bind.annotation.XmlNsForm;
-import javax.xml.bind.annotation.XmlSchema;
+import jakarta.xml.bind.annotation.XmlNs;
+import jakarta.xml.bind.annotation.XmlNsForm;
+import jakarta.xml.bind.annotation.XmlSchema;

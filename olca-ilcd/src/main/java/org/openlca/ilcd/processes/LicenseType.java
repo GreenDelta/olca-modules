@@ -1,9 +1,8 @@
-
 package org.openlca.ilcd.processes;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnumValue;
+import jakarta.xml.bind.annotation.XmlType;
 
 @XmlType(name = "LicenseTypeValues")
 @XmlEnum
@@ -12,7 +11,7 @@ public enum LicenseType {
 	/**
 	 * This data set can be freely accessed and used by all user types and for
 	 * all uses, including for commercial purposes
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Free of charge for all users and uses")
 	ALL_FREE("Free of charge for all users and uses"),
@@ -24,7 +23,7 @@ public enum LicenseType {
 	 * license conditions are to be obtained from the "Data set owner" or
 	 * electronically via the "Permanent URI", if implemented by data owner.
 	 * Also see "Access and use restrictions".
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Free of charge for some user types or use types")
 	SOME_FREE("Free of charge for some user types or use types"),
@@ -35,7 +34,7 @@ public enum LicenseType {
 	 * Membership conditions are to be obtained from the "Data set owner" or
 	 * electronically via the "Permanent URI", if implemented by data owner.
 	 * Also see "Access and use restrictions".
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Free of charge for members only")
 	MEMBERS_ONLY("Free of charge for members only"),
@@ -47,7 +46,7 @@ public enum LicenseType {
 	 * obtained from the "Data set owner" or electronically via the "Permanent
 	 * URI", if implemented by data owner. Also see "Access and use
 	 * restrictions".
-	 * 
+	 *
 	 */
 	@XmlEnumValue("License fee")
 	LICENSE_FEE("License fee"),
@@ -55,7 +54,7 @@ public enum LicenseType {
 	/**
 	 * Another license type applies. Details are given in "Access and use
 	 * restrictions".
-	 * 
+	 *
 	 */
 	@XmlEnumValue("Other")
 	OTHER("Other");

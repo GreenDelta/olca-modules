@@ -2,11 +2,11 @@ package org.openlca.ilcd.io;
 
 import java.io.InputStream;
 
-import javax.xml.bind.JAXB;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.ilcd.processes.Process;
+
+import jakarta.xml.bind.JAXB;
 
 public class WrapperTest {
 

@@ -5,8 +5,6 @@ import static org.junit.Assert.assertEquals;
 import java.io.InputStream;
 import java.util.function.Consumer;
 
-import javax.xml.bind.JAXB;
-
 import org.junit.Test;
 import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.IDataSet;
@@ -16,6 +14,8 @@ import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.methods.LCIAMethod;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
+
+import jakarta.xml.bind.JAXB;
 
 public class IDataSetTest {
 

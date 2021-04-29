@@ -3,10 +3,10 @@ package org.openlca.ilcd.models;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
-
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.annotations.Label;
+
+import jakarta.xml.bind.annotation.XmlElement;
 
 public class ModelName {
 

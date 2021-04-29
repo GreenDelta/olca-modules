@@ -7,10 +7,10 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.xml.bind.JAXB;
-
 import org.junit.Test;
 import org.openlca.ilcd.io.AuthInfo;
+
+import jakarta.xml.bind.JAXB;
 
 public class AuthenticationTest {
 

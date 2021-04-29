@@ -3,11 +3,8 @@ package org.openlca.ilcd.io;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.function.Consumer;
-
-import javax.xml.bind.JAXB;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,6 +29,8 @@ import org.openlca.ilcd.processes.ParameterSection;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.Publication;
 import org.openlca.ilcd.processes.Review;
+
+import jakarta.xml.bind.JAXB;
 
 public class ProcessSampleTest {
 

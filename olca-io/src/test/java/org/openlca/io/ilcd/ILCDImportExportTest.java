@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 
-import javax.xml.bind.JAXB;
-
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -38,6 +36,8 @@ import org.openlca.io.ilcd.output.FlowPropertyExport;
 import org.openlca.io.ilcd.output.ProcessExport;
 import org.openlca.io.ilcd.output.SourceExport;
 import org.openlca.io.ilcd.output.UnitGroupExport;
+
+import jakarta.xml.bind.JAXB;
 
 /**
  * In order to run the tests the reference data must be contained in the

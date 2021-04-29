@@ -6,8 +6,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.UUID;
 
-import javax.xml.bind.JAXB;
-
 import org.junit.Test;
 import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.Classification;
@@ -21,6 +19,8 @@ import org.openlca.ilcd.models.Parameter;
 import org.openlca.ilcd.models.ProcessInstance;
 import org.openlca.ilcd.models.Technology;
 import org.openlca.ilcd.util.Models;
+
+import jakarta.xml.bind.JAXB;
 
 public class ModelIOTest {
 

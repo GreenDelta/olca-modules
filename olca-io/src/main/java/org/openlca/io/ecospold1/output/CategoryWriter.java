@@ -8,8 +8,6 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.TreeSet;
 
-import javax.xml.bind.JAXB;
-
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
@@ -18,6 +16,8 @@ import org.openlca.ecospold.Category;
 import org.openlca.ecospold.CategoryDocument;
 import org.openlca.ecospold.SubCategory;
 import org.openlca.util.Strings;
+
+import jakarta.xml.bind.JAXB;
 
 class CategoryWriter implements Closeable {
 

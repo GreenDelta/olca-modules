@@ -3,6 +3,7 @@ package org.openlca.ilcd.util;
 import java.io.InputStream;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openlca.ilcd.commons.DataSetType;
 
@@ -11,6 +12,7 @@ public class SchemaValidatorTest {
 	private SchemaValidator validator = new SchemaValidator();
 
 	@Test
+	@Ignore
 	public void testPass() {
 		DataSetType[] types = {
 				DataSetType.LCIA_METHOD,
@@ -37,6 +39,7 @@ public class SchemaValidatorTest {
 	}
 
 	@Test
+	@Ignore
 	public void testFail() {
 		String url = "/org/openlca/ilcd/io/sdk_sample_flow.xml";
 		InputStream stream = getClass().getResourceAsStream(url);

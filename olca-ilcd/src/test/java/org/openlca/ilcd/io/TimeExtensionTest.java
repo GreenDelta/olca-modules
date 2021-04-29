@@ -9,11 +9,11 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Date;
 
-import javax.xml.bind.JAXB;
-
 import org.junit.Test;
 import org.openlca.ilcd.commons.Time;
 import org.openlca.ilcd.util.TimeExtension;
+
+import jakarta.xml.bind.JAXB;
 
 public class TimeExtensionTest {
 

@@ -1,9 +1,10 @@
 package org.openlca.ilcd.processes;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlElementDecl;
-import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
+
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.annotation.XmlElementDecl;
+import jakarta.xml.bind.annotation.XmlRegistry;
 
 /**
  * This object contains factory methods for each Java content interface and Java
@@ -14,7 +15,7 @@ import javax.xml.namespace.QName;
  * can consist of schema derived interfaces and classes representing the binding
  * of schema type definitions, element declarations and model groups. Factory
  * methods for each of these are provided in this class.
- * 
+ *
  */
 @XmlRegistry
 public class ObjectFactory {
@@ -25,14 +26,14 @@ public class ObjectFactory {
 	/**
 	 * Create a new ObjectFactory that can be used to create new instances of
 	 * schema derived classes for package: org.openlca.ilcd.processes
-	 * 
+	 *
 	 */
 	public ObjectFactory() {
 	}
 
 	/**
 	 * Create an instance of {@link Review }
-	 * 
+	 *
 	 */
 	public Review createReview() {
 		return new Review();
@@ -40,7 +41,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Review.Scope }
-	 * 
+	 *
 	 */
 	public Review.Scope createReviewScope() {
 		return new Review.Scope();
@@ -48,7 +49,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Process }
-	 * 
+	 *
 	 */
 	public Process createProcess() {
 		return new Process();
@@ -56,7 +57,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Parameter }
-	 * 
+	 *
 	 */
 	public Parameter createParameter() {
 		return new Parameter();
@@ -64,7 +65,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link DataSetInfo }
-	 * 
+	 *
 	 */
 	public DataSetInfo createDataSetInformation() {
 		return new DataSetInfo();
@@ -72,7 +73,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link ComplianceDeclaration }
-	 * 
+	 *
 	 */
 	public ComplianceDeclaration createComplianceDeclaration() {
 		return new ComplianceDeclaration();
@@ -80,7 +81,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Geography }
-	 * 
+	 *
 	 */
 	public Geography createGeography() {
 		return new Geography();
@@ -88,7 +89,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Completeness }
-	 * 
+	 *
 	 */
 	public Completeness createCompleteness() {
 		return new Completeness();
@@ -96,7 +97,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Representativeness }
-	 * 
+	 *
 	 */
 	public Representativeness createRepresentativeness() {
 		return new Representativeness();
@@ -104,7 +105,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link DataGenerator }
-	 * 
+	 *
 	 */
 	public DataGenerator createDataGenerator() {
 		return new DataGenerator();
@@ -112,7 +113,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link AdminInfo }
-	 * 
+	 *
 	 */
 	public AdminInfo createAdministrativeInformation() {
 		return new AdminInfo();
@@ -120,7 +121,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link QuantitativeReference }
-	 * 
+	 *
 	 */
 	public QuantitativeReference createQuantitativeReference() {
 		return new QuantitativeReference();
@@ -128,7 +129,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Exchange }
-	 * 
+	 *
 	 */
 	public Exchange createExchange() {
 		return new Exchange();
@@ -136,7 +137,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Modelling }
-	 * 
+	 *
 	 */
 	public Modelling createModellingAndValidation() {
 		return new Modelling();
@@ -144,7 +145,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link SubLocation }
-	 * 
+	 *
 	 */
 	public SubLocation createSubLocation() {
 		return new SubLocation();
@@ -152,7 +153,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Publication }
-	 * 
+	 *
 	 */
 	public Publication createPublication() {
 		return new Publication();
@@ -160,7 +161,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link ParameterSection }
-	 * 
+	 *
 	 */
 	public ParameterSection createParameterList() {
 		return new ParameterSection();
@@ -168,7 +169,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link AllocationFactor }
-	 * 
+	 *
 	 */
 	public AllocationFactor createAllocationFactor() {
 		return new AllocationFactor();
@@ -176,7 +177,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Validation }
-	 * 
+	 *
 	 */
 	public Validation createValidation() {
 		return new Validation();
@@ -184,7 +185,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link ProcessName }
-	 * 
+	 *
 	 */
 	public ProcessName createProcessName() {
 		return new ProcessName();
@@ -192,7 +193,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link DataEntry }
-	 * 
+	 *
 	 */
 	public DataEntry createDataEntry() {
 		return new DataEntry();
@@ -200,7 +201,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Method }
-	 * 
+	 *
 	 */
 	public Method createLCIMethod() {
 		return new Method();
@@ -208,7 +209,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link ProcessInfo }
-	 * 
+	 *
 	 */
 	public ProcessInfo createProcessInformation() {
 		return new ProcessInfo();
@@ -216,7 +217,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Technology }
-	 * 
+	 *
 	 */
 	public Technology createTechnology() {
 		return new Technology();
@@ -224,7 +225,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link LCIAResult }
-	 * 
+	 *
 	 */
 	public LCIAResult createLCIAResult() {
 		return new LCIAResult();
@@ -232,7 +233,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link FlowCompletenessEntry }
-	 * 
+	 *
 	 */
 	public FlowCompletenessEntry createElementaryFlowCompleteness() {
 		return new FlowCompletenessEntry();
@@ -240,7 +241,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Location }
-	 * 
+	 *
 	 */
 	public Location createLocation() {
 		return new Location();
@@ -248,7 +249,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Review.Scope.Method }
-	 * 
+	 *
 	 */
 	public Review.Method createReviewScopeMethod() {
 		return new Review.Method();
@@ -257,7 +258,7 @@ public class ObjectFactory {
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link Process
 	 * }{@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Process", name = "processDataSet")
 	public JAXBElement<Process> createProcessDataSet(Process value) {
