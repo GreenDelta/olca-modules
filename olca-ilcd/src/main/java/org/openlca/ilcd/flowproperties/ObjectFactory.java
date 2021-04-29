@@ -1,12 +1,13 @@
 package org.openlca.ilcd.flowproperties;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlElementDecl;
-import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.Publication;
+
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.annotation.XmlElementDecl;
+import jakarta.xml.bind.annotation.XmlRegistry;
 
 /**
  * This object contains factory methods for each Java content interface and Java
@@ -17,7 +18,7 @@ import org.openlca.ilcd.commons.Publication;
  * can consist of schema derived interfaces and classes representing the binding
  * of schema type definitions, element declarations and model groups. Factory
  * methods for each of these are provided in this class.
- * 
+ *
  */
 @XmlRegistry
 public class ObjectFactory {
@@ -28,14 +29,14 @@ public class ObjectFactory {
 	/**
 	 * Create a new ObjectFactory that can be used to create new instances of
 	 * schema derived classes for package: org.openlca.ilcd.flowproperties
-	 * 
+	 *
 	 */
 	public ObjectFactory() {
 	}
 
 	/**
 	 * Create an instance of {@link FlowProperty }
-	 * 
+	 *
 	 */
 	public FlowProperty createFlowProperty() {
 		return new FlowProperty();
@@ -43,7 +44,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link QuantitativeReference }
-	 * 
+	 *
 	 */
 	public QuantitativeReference createQuantitativeReference() {
 		return new QuantitativeReference();
@@ -51,7 +52,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link DataSetInfo }
-	 * 
+	 *
 	 */
 	public DataSetInfo createDataSetInformation() {
 		return new DataSetInfo();
@@ -59,7 +60,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link ComplianceDeclaration }
-	 * 
+	 *
 	 */
 	public ComplianceDeclaration createComplianceDeclaration() {
 		return new ComplianceDeclaration();
@@ -67,7 +68,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Modelling }
-	 * 
+	 *
 	 */
 	public Modelling createModellingAndValidation() {
 		return new Modelling();
@@ -75,7 +76,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Publication }
-	 * 
+	 *
 	 */
 	public Publication createPublication() {
 		return new Publication();
@@ -83,7 +84,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link FlowPropertyInfo }
-	 * 
+	 *
 	 */
 	public FlowPropertyInfo createFlowPropertyInformation() {
 		return new FlowPropertyInfo();
@@ -91,7 +92,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link DataEntry }
-	 * 
+	 *
 	 */
 	public DataEntry createDataEntry() {
 		return new DataEntry();
@@ -99,7 +100,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Representativeness }
-	 * 
+	 *
 	 */
 	public Representativeness createRepresentativeness() {
 		return new Representativeness();
@@ -107,7 +108,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link ComplianceDeclarationList }
-	 * 
+	 *
 	 */
 	public ComplianceDeclarationList createComplianceDeclarationList() {
 		return new ComplianceDeclarationList();
@@ -115,7 +116,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link AdminInfo }
-	 * 
+	 *
 	 */
 	public AdminInfo createAdministrativeInformation() {
 		return new AdminInfo();
@@ -124,7 +125,7 @@ public class ObjectFactory {
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link FlowProperty }
 	 * {@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/FlowProperty", name = "flowPropertyDataSet")
 	public JAXBElement<FlowProperty> createFlowPropertyDataSet(

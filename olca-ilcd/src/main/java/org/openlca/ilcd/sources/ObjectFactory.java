@@ -1,12 +1,13 @@
 package org.openlca.ilcd.sources;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlElementDecl;
-import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.Publication;
+
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.annotation.XmlElementDecl;
+import jakarta.xml.bind.annotation.XmlRegistry;
 
 /**
  * This object contains factory methods for each Java content interface and Java
@@ -17,7 +18,7 @@ import org.openlca.ilcd.commons.Publication;
  * can consist of schema derived interfaces and classes representing the binding
  * of schema type definitions, element declarations and model groups. Factory
  * methods for each of these are provided in this class.
- * 
+ *
  */
 @XmlRegistry
 public class ObjectFactory {
@@ -28,14 +29,14 @@ public class ObjectFactory {
 	/**
 	 * Create a new ObjectFactory that can be used to create new instances of
 	 * schema derived classes for package: org.openlca.ilcd.sources
-	 * 
+	 *
 	 */
 	public ObjectFactory() {
 	}
 
 	/**
 	 * Create an instance of {@link Source }
-	 * 
+	 *
 	 */
 	public Source createSource() {
 		return new Source();
@@ -43,7 +44,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link FileRef }
-	 * 
+	 *
 	 */
 	public FileRef createDigitalFileReference() {
 		return new FileRef();
@@ -51,7 +52,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link SourceInfo }
-	 * 
+	 *
 	 */
 	public SourceInfo createSourceInformation() {
 		return new SourceInfo();
@@ -59,7 +60,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link DataSetInfo }
-	 * 
+	 *
 	 */
 	public DataSetInfo createDataSetInformation() {
 		return new DataSetInfo();
@@ -67,7 +68,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Publication }
-	 * 
+	 *
 	 */
 	public Publication createPublication() {
 		return new Publication();
@@ -75,7 +76,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link DataEntry }
-	 * 
+	 *
 	 */
 	public DataEntry createDataEntry() {
 		return new DataEntry();
@@ -83,7 +84,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link AdminInfo }
-	 * 
+	 *
 	 */
 	public AdminInfo createAdministrativeInformation() {
 		return new AdminInfo();
@@ -92,7 +93,7 @@ public class ObjectFactory {
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link Source
 	 * }{@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Source", name = "sourceDataSet")
 	public JAXBElement<Source> createSourceDataSet(Source value) {
