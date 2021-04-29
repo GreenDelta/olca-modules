@@ -2,13 +2,14 @@ package org.openlca.ilcd.descriptors;
 
 import java.math.BigInteger;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlElementDecl;
-import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.QuantitativeReferenceType;
+
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.annotation.XmlElementDecl;
+import jakarta.xml.bind.annotation.XmlRegistry;
 
 /**
  * This object contains factory methods for each Java content interface and Java

@@ -9,6 +9,6 @@
 		@XmlNs(prefix = "common", namespaceURI = "http://lca.jrc.it/ILCD/Common") })
 package org.openlca.ilcd.contacts;
 
-import javax.xml.bind.annotation.XmlNs;
-import javax.xml.bind.annotation.XmlNsForm;
-import javax.xml.bind.annotation.XmlSchema;
+import jakarta.xml.bind.annotation.XmlNs;
+import jakarta.xml.bind.annotation.XmlNsForm;
+import jakarta.xml.bind.annotation.XmlSchema;

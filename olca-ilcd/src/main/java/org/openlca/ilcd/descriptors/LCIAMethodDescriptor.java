@@ -1,9 +1,9 @@
 package org.openlca.ilcd.descriptors;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-
 import org.openlca.ilcd.commons.DataSetType;
+
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class LCIAMethodDescriptor extends Descriptor {

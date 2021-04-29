@@ -1,12 +1,13 @@
 package org.openlca.ilcd.contacts;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlElementDecl;
-import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.Publication;
+
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.annotation.XmlElementDecl;
+import jakarta.xml.bind.annotation.XmlRegistry;
 
 /**
  * This object contains factory methods for each Java content interface and Java
@@ -17,7 +18,7 @@ import org.openlca.ilcd.commons.Publication;
  * can consist of schema derived interfaces and classes representing the binding
  * of schema type definitions, element declarations and model groups. Factory
  * methods for each of these are provided in this class.
- * 
+ *
  */
 @XmlRegistry
 public class ObjectFactory {
@@ -28,14 +29,14 @@ public class ObjectFactory {
 	/**
 	 * Create a new ObjectFactory that can be used to create new instances of
 	 * schema derived classes for package: org.openlca.ilcd.contacts
-	 * 
+	 *
 	 */
 	public ObjectFactory() {
 	}
 
 	/**
 	 * Create an instance of {@link Contact }
-	 * 
+	 *
 	 */
 	public Contact createContact() {
 		return new Contact();
@@ -43,7 +44,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link DataSetInfo }
-	 * 
+	 *
 	 */
 	public DataSetInfo createDataSetInformation() {
 		return new DataSetInfo();
@@ -51,7 +52,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Publication }
-	 * 
+	 *
 	 */
 	public Publication createPublication() {
 		return new Publication();
@@ -59,7 +60,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link DataEntry }
-	 * 
+	 *
 	 */
 	public DataEntry createDataEntry() {
 		return new DataEntry();
@@ -67,7 +68,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link ContactInfo }
-	 * 
+	 *
 	 */
 	public ContactInfo createContactInformation() {
 		return new ContactInfo();
@@ -75,7 +76,7 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link AdminInfo }
-	 * 
+	 *
 	 */
 	public AdminInfo createAdministrativeInformation() {
 		return new AdminInfo();
@@ -84,7 +85,7 @@ public class ObjectFactory {
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link Contact
 	 * }{@code >}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Contact", name = "contactDataSet")
 	public JAXBElement<Contact> createContactDataSet(Contact value) {
