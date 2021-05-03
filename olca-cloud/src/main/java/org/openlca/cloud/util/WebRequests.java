@@ -6,6 +6,7 @@ import java.net.SocketException;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status.Family;
@@ -43,14 +44,14 @@ public class WebRequests {
 		try {
 			ClientResponse response = call(type, request);
 			if (response.getStatus() >= 400 && response.getStatus() <= 599)
-				throw new WebRequestException(response);
+				throw new WebRequestException(url, response);
 			if (response.getStatusInfo().getFamily() == Family.REDIRECTION)
 				return call(type, response.getLocation().toString(), sessionId, data);
 			return response;
 		} catch (Exception e) {
 			if (e instanceof WebRequestException)
 				throw e;
-			throw new WebRequestException(e);
+			throw new WebRequestException(url, e);
 		}
 	}
 
@@ -104,14 +105,33 @@ public class WebRequests {
 
 		private static final long serialVersionUID = 1423557937866180113L;
 		private int errorCode;
+		private String host;
+		private int port;
 
-		private WebRequestException(ClientResponse response) {
+		private WebRequestException(String url, ClientResponse response) {
 			super(toMessage(response));
+			setHostAndPort(url);
 			this.errorCode = response.getStatus();
 		}
 
-		private WebRequestException(Exception e) {
+		private void setHostAndPort(String url) {
+			if (url.startsWith("https://")) {
+				url = url.substring(8);
+				port = 443;
+			} else if (url.startsWith("http://")) {
+				url = url.substring(7);
+				port = 80;
+			}
+			host = url.substring(0, url.indexOf("/"));
+			if (host.contains(":")) {
+				port = Integer.parseInt(host.substring(host.indexOf(":") + 1));
+				host = host.substring(0, host.indexOf(":"));
+			}
+		}
+
+		private WebRequestException(String url, Exception e) {
 			super(e);
+			setHostAndPort(url);
 			this.errorCode = 500;
 		}
 
@@ -122,7 +142,7 @@ public class WebRequests {
 		@Override
 		public String getMessage() {
 			if (isConnectException())
-				return "Server unavailable";
+				return "Server " + host + " on port " + port + " unavailable";
 			if (isUnauthorized() && Strings.isNullOrEmpty(super.getMessage()))
 				return "Invalid credentials";
 			return super.getMessage();
@@ -144,6 +164,13 @@ public class WebRequests {
 			return false;
 		}
 
+		public boolean isSslCertificateException() {
+			if ((getCause() instanceof ClientHandlerException))
+				if (getCause().getCause() instanceof SSLHandshakeException)
+					return true;
+			return false;
+		}
+
 		private static String toMessage(ClientResponse response) {
 			return response.getEntity(String.class);
 		}
@@ -151,7 +178,15 @@ public class WebRequests {
 		public boolean isUnauthorized() {
 			return errorCode == Status.UNAUTHORIZED.getStatusCode();
 		}
-		
+
+		public String getHost() {
+			return host;
+		}
+
+		public int getPort() {
+			return port;
+		}
+
 	}
 
 }

@@ -26,12 +26,6 @@ public class Ssl {
 			certificateFactory = CertificateFactory.getInstance("X.509");
 			keyStore = loadKeyStore();
 			trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-			try (InputStream stream = WebRequests.class.getResourceAsStream("DSTRootCAX3.cer")) {
-				addCertificate("DSTRootCAX3", stream);
-			}
-			try (InputStream stream = WebRequests.class.getResourceAsStream("lcacommons-gov.pem")) {
-				addCertificate("lcacommons-gov", stream);
-			}
 		} catch (Exception e) {
 			certificateFactory = null;
 			keyStore = null;
@@ -56,9 +50,25 @@ public class Ssl {
 	public static void addCertificate(String name, InputStream stream) {
 		try {
 			Certificate certificate = certificateFactory.generateCertificate(stream);
+			addCertificate(name, certificate);
+		} catch (Exception e) {
+			log.error("Error loading certificate", e);
+		}
+	}
+
+	public static void addCertificate(String name, Certificate certificate) {
+		try {
 			keyStore.setCertificateEntry(name, certificate);
 		} catch (Exception e) {
-			log.error("Error adding certificate to key store", e);
+			log.error("Error adding certificate to keystore", e);
+		}
+	}
+
+	public static void removeCertificate(String name) {
+		try {
+			keyStore.deleteEntry(name);
+		} catch (Exception e) {
+			log.error("Error removing certificate from keystore", e);
 		}
 	}
 
@@ -66,6 +76,10 @@ public class Ssl {
 		KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
 		Path path = Paths.get(System.getProperty("java.home"), "lib", "security", "cacerts");
 		keyStore.load(Files.newInputStream(path), "changeit".toCharArray());
+		return keyStore;
+	}
+
+	public static KeyStore getKeyStore() {
 		return keyStore;
 	}
 
