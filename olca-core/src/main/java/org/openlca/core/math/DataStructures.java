@@ -121,6 +121,7 @@ public class DataStructures {
 		if (setup.impactMethod != null) {
 			ImpactTable impacts = ImpactTable.build(
 					mcache, setup.impactMethod.id, data.enviIndex);
+			if(impacts == null) return data;
 			data.impactMatrix = impacts.createMatrix(
 					solver, interpreter);
 			data.impactIndex = impacts.impactIndex;
