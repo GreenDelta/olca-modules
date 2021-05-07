@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
-import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 
 public class ProjectVariantIOTest {

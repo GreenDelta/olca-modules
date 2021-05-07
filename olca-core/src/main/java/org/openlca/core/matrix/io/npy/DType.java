@@ -56,16 +56,11 @@ public enum DType {
 	 * respective data type.
 	 */
 	public int size() {
-		switch (this) {
-			case Float64:
-			case Int64:
-				return 8;
-			case Int32:
-				return 4;
-			case Int8:
-				return 1;
-			default:
-				return -1;
-		}
+		return switch (this) {
+			case Float64, Int64 -> 8;
+			case Int32 -> 4;
+			case Int8 -> 1;
+			default -> -1;
+		};
 	}
 }

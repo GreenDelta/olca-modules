@@ -203,12 +203,10 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
   public void getTotalInventory(
     Result req, StreamObserver<ResultsProto.ResultValue> resp) {
 
-    // TODO throw an error if the result does not exist,
     // TODO maybe wrap with `withResult`
-    // get the flow results
     var result = results.get(req.getId());
     if (result == null) {
-      resp.onCompleted();
+      Response.notFound(resp, "Result does not exist: " + req.getId());
       return;
     }
     var flows = result.flowIndex();
@@ -221,7 +219,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     for (var flow : flows) {
       var value = result.getTotalFlowResult(flow);
       if (value == 0)
-        return;
+        continue;
       resp.onNext(Results.toProtoResult(flow, refData, value));
     }
     resp.onCompleted();
