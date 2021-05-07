@@ -275,6 +275,7 @@ class DataFetchService extends
   private void expand(CategoryTree.Builder parent, Category category) {
     var tree = CategoryTree.newBuilder()
       .setModelType(parent.getModelType())
+      .setId(Strings.orEmpty(category.refId))
       .setName(Strings.orEmpty(category.name));
     category.childCategories.forEach(c -> expand(tree, c));
     parent.addSubTree(tree);
