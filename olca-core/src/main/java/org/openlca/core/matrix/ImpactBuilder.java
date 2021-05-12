@@ -11,7 +11,7 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.cache.ConversionTable;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixBuilder;
-import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.uncertainties.UMatrix;
@@ -29,7 +29,7 @@ import gnu.trove.map.hash.TLongObjectHashMap;
 public final class ImpactBuilder {
 
 	private final IDatabase db;
-	private final FlowIndex flowIndex;
+	private final EnviIndex flowIndex;
 	private final ImpactIndex impactIndex;
 	private final FormulaInterpreter interpreter;
 	private final boolean withUncertainties;
@@ -66,11 +66,11 @@ public final class ImpactBuilder {
 		conversions = ConversionTable.create(db);
 	}
 
-	public static Config of(IDatabase db, FlowIndex flows) {
+	public static Config of(IDatabase db, EnviIndex flows) {
 		return new Config(db, flows);
 	}
 
-	public static Config of(MatrixConfig config, FlowIndex flows) {
+	public static Config of(MatrixConfig config, EnviIndex flows) {
 		return new Config(config, flows);
 	}
 
@@ -274,7 +274,7 @@ public final class ImpactBuilder {
 	 * MatrixData class for the meaning of these fields.
 	 */
 	public static class ImpactData {
-		public FlowIndex flowIndex;
+		public EnviIndex flowIndex;
 		public ImpactIndex impactIndex;
 		public Matrix impactMatrix;
 		public UMatrix impactUncertainties;
@@ -285,12 +285,12 @@ public final class ImpactBuilder {
 		public void addTo(MatrixData data) {
 			if (data == null)
 				return;
-			if (data.flowIndex != flowIndex) {
+			if (data.enviIndex != flowIndex) {
 				// this would be a strange setup as the impact
 				// data are built with a corresponding flow index
 				// and this should be identical to the flow index
 				// in the data.
-				data.flowIndex = flowIndex;
+				data.enviIndex = flowIndex;
 			}
 			data.impactIndex = impactIndex;
 			data.impactMatrix = impactMatrix;
@@ -301,17 +301,17 @@ public final class ImpactBuilder {
 	public static class Config {
 
 		private final IDatabase db;
-		private final FlowIndex flows;
+		private final EnviIndex flows;
 		private boolean withUncertainties;
 		private FormulaInterpreter interpreter;
 		private ImpactIndex impacts;
 
-		private Config(IDatabase db, FlowIndex flows) {
+		private Config(IDatabase db, EnviIndex flows) {
 			this.db = db;
 			this.flows = flows;
 		}
 
-		public Config(MatrixConfig conf, FlowIndex flows) {
+		public Config(MatrixConfig conf, EnviIndex flows) {
 			this.db	= conf.db;
 			this.flows = flows;
 			this.withUncertainties = conf.withUncertainties;

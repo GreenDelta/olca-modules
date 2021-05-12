@@ -6,8 +6,8 @@ import org.openlca.core.database.LocationDao;
 import org.openlca.core.matrix.cache.ExchangeTable;
 import org.openlca.core.matrix.cache.FlowTable;
 import org.openlca.core.matrix.format.MatrixBuilder;
-import org.openlca.core.matrix.index.FlowIndex;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.uncertainties.UMatrix;
 import org.openlca.core.model.ModelType;
@@ -20,7 +20,7 @@ public class InventoryBuilder {
 	private final MatrixConfig conf;
 	private final TechIndex techIndex;
 	private final FlowTable flows;
-	private final FlowIndex flowIndex;
+	private final EnviIndex flowIndex;
 
 	private final TLongObjectHashMap<LocationDescriptor> locations;
 	private final AllocationIndex allocationIndex;
@@ -48,8 +48,8 @@ public class InventoryBuilder {
 		// we add the flows of the sub-systems to the index; note that there
 		// can be elementary flows that only occur in a sub-system
 		flowIndex = conf.withRegionalization
-			? FlowIndex.createRegionalized()
-			: FlowIndex.create();
+			? EnviIndex.createRegionalized()
+			: EnviIndex.create();
 		if (conf.subResults != null) {
 			for (var subResult : conf.subResults.values()) {
 				flowIndex.addAll(subResult.flowIndex());
@@ -86,9 +86,9 @@ public class InventoryBuilder {
 
 		// optional elementary flows
 		if (m > 0) {
-			data.flowIndex = flowIndex;
+			data.enviIndex = flowIndex;
 			enviBuilder.minSize(m, n);
-			data.flowMatrix = enviBuilder.finish();
+			data.enviMatrix = enviBuilder.finish();
 			data.enviUncertainties = enviUncerts;
 		}
 
@@ -102,13 +102,13 @@ public class InventoryBuilder {
 			var exchanges = new ExchangeTable(conf.db);
 			exchanges.each(techIndex, exchange -> {
 				var products = techIndex.getProviders(exchange.processId);
-				for (ProcessProduct product : products) {
+				for (TechFlow product : products) {
 					putExchangeValue(product, exchange);
 				}
 			});
 
 			// now put the entries of the sub-system into the matrices
-			var subSystems = new HashSet<ProcessProduct>();
+			var subSystems = new HashSet<TechFlow>();
 			techIndex.each((i, p) -> {
 				if (p.process() == null)
 					return;
@@ -121,7 +121,7 @@ public class InventoryBuilder {
 
 			// use the MatrixBuilder.set method here because there may are stored LCI
 			// results in the database (!) that were mapped to the same columns above
-			for (ProcessProduct sub : subSystems) {
+			for (TechFlow sub : subSystems) {
 
 				int col = techIndex.of(sub);
 				var result = conf.subResults.get(sub);
@@ -152,7 +152,7 @@ public class InventoryBuilder {
 			}
 	}
 
-	private void putExchangeValue(ProcessProduct provider, CalcExchange e) {
+	private void putExchangeValue(TechFlow provider, CalcExchange e) {
 		if (e.isElementary()) {
 			// elementary flows
 			addIntervention(provider, e);
@@ -185,12 +185,12 @@ public class InventoryBuilder {
 		}
 	}
 
-	private void addIntervention(ProcessProduct provider, CalcExchange e) {
+	private void addIntervention(TechFlow provider, CalcExchange e) {
 		int row = flowIndex.register(provider, e, flows, locations);
 		add(row, provider, enviBuilder, e);
 	}
 
-	private void add(int row, ProcessProduct provider, MatrixBuilder matrix,
+	private void add(int row, TechFlow provider, MatrixBuilder matrix,
 			CalcExchange exchange) {
 
 		int col = techIndex.of(provider);

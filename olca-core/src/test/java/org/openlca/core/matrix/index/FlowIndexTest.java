@@ -30,7 +30,7 @@ public class FlowIndexTest {
 
 	@Test
 	public void testIt() {
-		FlowIndex idx = FlowIndex.createRegionalized();
+		EnviIndex idx = EnviIndex.createRegionalized();
 		List<FlowDescriptor> flows = new ArrayList<>();
 		List<LocationDescriptor> locations = new ArrayList<>();
 		List<Boolean> isInput = new ArrayList<>();
@@ -39,8 +39,8 @@ public class FlowIndexTest {
 		boolean b = false;
 		for (int i = 0; i < 10_000; i++) {
 			var iFlow = b
-					? IndexFlow.inputOf(randFlow(), randLocation())
-					: IndexFlow.outputOf(randFlow(), randLocation());
+					? EnviFlow.inputOf(randFlow(), randLocation())
+					: EnviFlow.outputOf(randFlow(), randLocation());
 			flows.add(iFlow.flow());
 			locations.add(iFlow.location());
 			isInput.add(b);
@@ -54,7 +54,7 @@ public class FlowIndexTest {
 
 		// check the index
 		for (int i = 0; i < 10_000; i++) {
-			IndexFlow iflow = idx.at(i);
+			EnviFlow iflow = idx.at(i);
 			Assert.assertNotNull(iflow);
 			Assert.assertEquals(i, idx.of(iflow));
 			Assert.assertEquals(flows.get(i), iflow.flow());
@@ -71,7 +71,7 @@ public class FlowIndexTest {
 	@Test
 	public void testNonRegFlows() {
 
-		FlowIndex idx = FlowIndex.createRegionalized();
+		EnviIndex idx = EnviIndex.createRegionalized();
 
 		// add 500 flows with location and 500 without
 		boolean isInput = true;
@@ -82,12 +82,12 @@ public class FlowIndexTest {
 			int _i;
 			if (i % 2 == 0) {
 				_i = isInput
-					? idx.add(IndexFlow.inputOf(randFlow()))
-					: idx.add(IndexFlow.outputOf(randFlow()));
+					? idx.add(EnviFlow.inputOf(randFlow()))
+					: idx.add(EnviFlow.outputOf(randFlow()));
 			} else {
 				_i = isInput
-					? idx.add(IndexFlow.inputOf(randFlow(), randLocation()))
-					: idx.add(IndexFlow.outputOf(randFlow(), randLocation()));
+					? idx.add(EnviFlow.inputOf(randFlow(), randLocation()))
+					: idx.add(EnviFlow.outputOf(randFlow(), randLocation()));
 			}
 			Assert.assertEquals(i, _i);
 		}
@@ -95,7 +95,7 @@ public class FlowIndexTest {
 		// check the index
 		Assert.assertEquals(1000, idx.size());
 		for (int i = 0; i < 1000; i++) {
-			IndexFlow iflow = idx.at(i);
+			EnviFlow iflow = idx.at(i);
 			Assert.assertNotNull(iflow);
 			if (i % 2 == 0) {
 				Assert.assertNull(iflow.location());
@@ -138,7 +138,7 @@ public class FlowIndexTest {
 		db.insert(impacts);
 
 		// build a non-regionalized index
-		var index = FlowIndex.create(db,
+		var index = EnviIndex.create(db,
 			ImpactIndex.of(List.of(Descriptor.of(impacts))));
 		assertEquals(1, index.size());
 		var iFlow = Objects.requireNonNull(index.at(0));
@@ -146,7 +146,7 @@ public class FlowIndexTest {
 		assertNull(iFlow.location());
 
 		// build a regionalized index
-		var regIndex = FlowIndex.createRegionalized(db,
+		var regIndex = EnviIndex.createRegionalized(db,
 			ImpactIndex.of(List.of(Descriptor.of(impacts))));
 		assertEquals(3, regIndex.size());
 		var found = new boolean[]{false, false, false};

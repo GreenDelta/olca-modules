@@ -3,7 +3,7 @@ package org.openlca.core.matrix.linking;
 import java.util.List;
 
 import org.openlca.core.matrix.CalcExchange;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 
 /**
  * A LinkingCallback is a function that can be injected into the creation of
@@ -28,6 +28,6 @@ public interface LinkingCallback {
 	 *
 	 * TODO: update doc
 	 */
-	List<ProcessProduct> select(CalcExchange e, List<ProcessProduct> providerCandidates);
+	List<TechFlow> select(CalcExchange e, List<TechFlow> providerCandidates);
 
 }

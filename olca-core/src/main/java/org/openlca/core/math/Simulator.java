@@ -16,10 +16,10 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
-import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.LongPair;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.ModelType;
@@ -68,7 +68,7 @@ public class Simulator {
 	 * tracked during the simulation. These products must be part of the
 	 * TechIndex.
 	 */
-	public final Set<ProcessProduct> pinnedProducts = new HashSet<>();
+	public final Set<TechFlow> pinnedProducts = new HashSet<>();
 
 	private final IDatabase db;
 
@@ -125,8 +125,8 @@ public class Simulator {
 		return root.data.techIndex;
 	}
 
-	public FlowIndex getEnviIndex() {
-		return root.data.flowIndex;
+	public EnviIndex getEnviIndex() {
+		return root.data.enviIndex;
 	}
 
 	public ImpactIndex getImpactIndex() {
@@ -183,7 +183,7 @@ public class Simulator {
 		node.data.simulate(fi);
 
 		if (node.subSystems != null) {
-			for (ProcessProduct subLink : node.subSystems) {
+			for (TechFlow subLink : node.subSystems) {
 				// add the LCI result of the sub-system
 				Node sub = nodeIndex.get(subLink.processId());
 				if (sub == null)
@@ -196,11 +196,11 @@ public class Simulator {
 					continue;
 				sub.lastResult.flowIndex().each((i, f) -> {
 					double val = sub.lastResult.totalFlowResults[i];
-					int row = node.data.flowIndex.of(f);
+					int row = node.data.enviIndex.of(f);
 					if (row >= 0) {
-						var fm = node.data.flowMatrix.asMutable();
+						var fm = node.data.enviMatrix.asMutable();
 						fm.set(row, col, val);
-						node.data.flowMatrix = fm;
+						node.data.enviMatrix = fm;
 					}
 				});
 			}
@@ -289,7 +289,7 @@ public class Simulator {
 				"there are sub-system cycles in the product system");
 
 		// now, we initialize the nodes in topological order
-		Map<ProcessProduct, SimpleResult> subResults = new HashMap<>();
+		Map<TechFlow, SimpleResult> subResults = new HashMap<>();
 		for (long system : order) {
 
 			CalculationSetup _setup;
@@ -321,8 +321,8 @@ public class Simulator {
 				// e.g. flows that only occur in a sub-system
 				// need a row in the respective host-systems)
 				var r = SimpleResultProvider.of(node.data.techIndex)
-					.withFlowIndex(node.data.flowIndex)
-					.withTotalFlows(new double[node.data.flowIndex.size()])
+					.withFlowIndex(node.data.enviIndex)
+					.withTotalFlows(new double[node.data.enviIndex.size()])
 					.toResult();
 				node.lastResult = r;
 				subResults.put(node.product, r);
@@ -351,18 +351,18 @@ public class Simulator {
 	 */
 	private static class Node {
 		final long systemID;
-		final ProcessProduct product;
+		final TechFlow product;
 		final MatrixData data;
 		final ParameterTable parameters;
 
-		Set<ProcessProduct> subSystems;
+		Set<TechFlow> subSystems;
 		SimpleResult lastResult;
 
 		Node(CalculationSetup setup, IDatabase db,
-				 Map<ProcessProduct, SimpleResult> subResults) {
+				 Map<TechFlow, SimpleResult> subResults) {
 
 			systemID = setup.productSystem.id;
-			product = ProcessProduct.of(setup.productSystem);
+			product = TechFlow.of(setup.productSystem);
 			data = MatrixData.of(db, setup, subResults);
 
 			// parameters

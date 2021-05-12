@@ -3,7 +3,7 @@ package org.openlca.core.results;
 import java.util.Collections;
 import java.util.List;
 
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 
@@ -24,7 +24,7 @@ public class GroupingContribution {
 
 	/** Calculates contributions to an inventory flow. */
 	public List<Contribution<ProcessGrouping>> calculate(
-			IndexFlow flow) {
+			EnviFlow flow) {
 		if (result == null || groupings == null)
 			return Collections.emptyList();
 		double total = result.getTotalFlowResult(flow);

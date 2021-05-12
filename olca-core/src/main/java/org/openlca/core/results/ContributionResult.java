@@ -6,8 +6,8 @@ import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.IndexFlow;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
@@ -50,7 +50,7 @@ public class ContributionResult extends SimpleResult {
 	 * Get the direct contribution of the given process-product pair $j$ to the
 	 * inventory result of elementary flow $i$: $\mathbf{G}[i,j]$.
 	 */
-	public double getDirectFlowResult(ProcessProduct product, IndexFlow flow) {
+	public double getDirectFlowResult(TechFlow product, EnviFlow flow) {
 		if (!hasFlowResults())
 			return 0;
 		int flowIdx = flowIndex().of(flow);
@@ -67,7 +67,7 @@ public class ContributionResult extends SimpleResult {
 	 * of the contributions of all of these process-product pairs.
 	 */
 	public double getDirectFlowResult(
-			CategorizedDescriptor process, IndexFlow flow) {
+			CategorizedDescriptor process, EnviFlow flow) {
 		double total = 0;
 		for (var p : techIndex().getProviders(process)) {
 			total += getDirectFlowResult(p, flow);
@@ -96,7 +96,7 @@ public class ContributionResult extends SimpleResult {
 	 * result of the given flow.
 	 */
 	public List<Contribution<CategorizedDescriptor>> getProcessContributions(
-			IndexFlow flow) {
+			EnviFlow flow) {
 		return Contributions.calculate(
 				getProcesses(),
 				getTotalFlowResult(flow),
@@ -108,7 +108,7 @@ public class ContributionResult extends SimpleResult {
 	 * category result $j$: $\mathbf{D}[i,j]$.
 	 */
 	public double getDirectImpactResult(
-			ProcessProduct product, ImpactDescriptor impact) {
+			TechFlow product, ImpactDescriptor impact) {
 		if (!hasImpactResults())
 			return 0;
 		int impactIdx = impactIndex().of(impact);
@@ -164,7 +164,7 @@ public class ContributionResult extends SimpleResult {
 	 * Get the direct contribution of the given process-product pair $j$ to the LCC
 	 * result: $\mathbf{k}_s[j]$.
 	 */
-	public double getDirectCostResult(ProcessProduct product) {
+	public double getDirectCostResult(TechFlow product) {
 		int col = techIndex().of(product);
 		return col < 0
 				? 0
@@ -198,7 +198,7 @@ public class ContributionResult extends SimpleResult {
 	 * Get the direct contribution of the given elementary flow to the LCIA result
 	 * of the given LCIA category.
 	 */
-	public double getDirectFlowImpact(IndexFlow flow, ImpactDescriptor impact) {
+	public double getDirectFlowImpact(EnviFlow flow, ImpactDescriptor impact) {
 		if (!hasImpactResults())
 			return 0;
 		int impactIdx = impactIndex().of(impact);
@@ -226,7 +226,7 @@ public class ContributionResult extends SimpleResult {
 	 * regionalized result).
 	 */
 	public double getImpactFactor(
-			ImpactDescriptor impact, IndexFlow flow) {
+			ImpactDescriptor impact, EnviFlow flow) {
 		if (!hasImpactResults())
 			return 0;
 		int impactIdx = impactIndex().of(impact);

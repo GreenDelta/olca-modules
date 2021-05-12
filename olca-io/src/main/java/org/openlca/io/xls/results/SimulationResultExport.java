@@ -12,8 +12,8 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.matrix.index.IndexFlow;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -76,7 +76,7 @@ public class SimulationResultExport {
 
 		// pinned contributions
 		int pcount = 0;
-		for (ProcessProduct pp : result.getPinnedProducts()) {
+		for (TechFlow pp : result.getPinnedProducts()) {
 			pcount++;
 			Sheet psheet = wb.createSheet("Contributions " + pcount);
 			fillContributions(pp, psheet);
@@ -116,14 +116,14 @@ public class SimulationResultExport {
 		Sheet sheet = wb.createSheet("Inventory");
 		Excel.trackSize(sheet, 0, FLOW_HEADER.length + 6);
 		row = 0;
-		List<IndexFlow> flows = result.getFlows();
+		List<EnviFlow> flows = result.getFlows();
 		writeInventorySection(flows, true, sheet);
 		writeInventorySection(flows, false, sheet);
 		Excel.autoSize(sheet, 0, FLOW_HEADER.length + 6);
 		flushSheet(sheet);
 	}
 
-	private void writeInventorySection(List<IndexFlow> flows,
+	private void writeInventorySection(List<EnviFlow> flows,
 			boolean forInputs, Sheet sheet) {
 		row++;
 		String section = forInputs ? "Inputs" : "Outputs";
@@ -134,7 +134,7 @@ public class SimulationResultExport {
 		writeValueHeaders(sheet, row, nextCol);
 		row++;
 
-		for (IndexFlow flow : flows) {
+		for (EnviFlow flow : flows) {
 			if (flow.isInput() != forInputs)
 				continue;
 			writer.flowRow(sheet, row, 1, flow);
@@ -144,7 +144,7 @@ public class SimulationResultExport {
 		}
 	}
 
-	private void fillContributions(ProcessProduct pp, Sheet sheet) {
+	private void fillContributions(TechFlow pp, Sheet sheet) {
 		row = 0;
 
 		String label = "Contributions of: ";
@@ -200,7 +200,7 @@ public class SimulationResultExport {
 			row++;
 		}
 
-		List<IndexFlow> flows = result.getFlows();
+		List<EnviFlow> flows = result.getFlows();
 
 		writer.headerRow(sheet, row++, 1, "Direct LCI contributions - Inputs");
 		writeFlowContributions(flows, pp, true, result::getAllDirect, sheet);
@@ -219,15 +219,15 @@ public class SimulationResultExport {
 	}
 
 	private void writeFlowContributions(
-			List<IndexFlow> flows,
-			ProcessProduct pp,
+			List<EnviFlow> flows,
+			TechFlow pp,
 			boolean forInputs,
-			BiFunction<ProcessProduct, IndexFlow, double[]> fn,
+			BiFunction<TechFlow, EnviFlow, double[]> fn,
 			Sheet sheet) {
 		writer.headerRow(sheet, row, 1, FLOW_HEADER);
 		int valCol = FLOW_HEADER.length + 1;
 		writeValueHeaders(sheet, row++, valCol);
-		for (IndexFlow flow : flows) {
+		for (EnviFlow flow : flows) {
 			if (flow.isInput() != forInputs)
 				continue;
 			writer.flowRow(sheet, row, 1, flow);

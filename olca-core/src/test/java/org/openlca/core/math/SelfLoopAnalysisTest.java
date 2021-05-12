@@ -7,7 +7,7 @@ import org.openlca.core.TestProcess;
 import org.openlca.core.TestSystem;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
@@ -78,8 +78,8 @@ public class SelfLoopAnalysisTest {
 				process(processName), flow(flowName));
 	}
 
-	private IndexFlow flow(String name) {
-		for (IndexFlow f : result.flowIndex().content()) {
+	private EnviFlow flow(String name) {
+		for (EnviFlow f : result.flowIndex().content()) {
 			if (name.equals(f.flow().name))
 				return f;
 		}

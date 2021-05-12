@@ -1,7 +1,7 @@
 package org.openlca.core.matrix;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 
 public interface TechLinker {
@@ -11,7 +11,7 @@ public interface TechLinker {
 	 * You should never pass null into this method. Also make sure that the
 	 * given exchange is linkable.
 	 */
-	ProcessProduct providerOf(CalcExchange e);
+	TechFlow providerOf(CalcExchange e);
 
 	/**
 	 * The default linker gets the product index of a system (which may be the
@@ -31,7 +31,7 @@ public interface TechLinker {
 		 * matrix builder only works correctly when each product (waste) is only
 		 * produced (treated) by a single process in the database.
 		 */
-		private TLongObjectHashMap<ProcessProduct> providers;
+		private TLongObjectHashMap<TechFlow> providers;
 
 		private Default(TechIndex techIndex) {
 			this.techIndex = techIndex;
@@ -42,7 +42,7 @@ public interface TechLinker {
 		}
 
 		@Override
-		public ProcessProduct providerOf(CalcExchange e) {
+		public TechFlow providerOf(CalcExchange e) {
 			if (e.defaultProviderId > 0) {
 				var p = techIndex.getProvider(e.defaultProviderId, e.flowId);
 				if (p != null)

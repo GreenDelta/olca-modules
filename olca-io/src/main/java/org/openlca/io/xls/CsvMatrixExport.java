@@ -8,8 +8,8 @@ import java.util.HashMap;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.FlowIndex;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -77,7 +77,7 @@ public class CsvMatrixExport implements Runnable {
 		TechIndex techIndex = data.techIndex;
 		int size = techIndex.size();
 		for (int row = 0; row < size; row++) {
-			ProcessProduct product = techIndex.at(row);
+			TechFlow product = techIndex.at(row);
 			FlowDescriptor flow = product.flow();
 			writeName(flow, buffer);
 			sep(buffer);
@@ -95,11 +95,11 @@ public class CsvMatrixExport implements Runnable {
 	private void writeEnviMatrix(MatrixData data, BufferedWriter buffer)
 			throws Exception {
 		TechIndex techIndex = data.techIndex;
-		FlowIndex flowIndex = data.flowIndex;
+		EnviIndex flowIndex = data.enviIndex;
 		int rows = flowIndex.size();
 		int columns = techIndex.size();
 		writeEnviMatrixHeader(buffer, techIndex);
-		var matrix = data.flowMatrix;
+		var matrix = data.enviMatrix;
 		for (int row = 0; row < rows; row++) {
 			FlowDescriptor flow = flowIndex.at(row).flow();
 			writeName(flow, buffer);
@@ -121,7 +121,7 @@ public class CsvMatrixExport implements Runnable {
 		sep(buffer);
 		int columns = techIndex.size();
 		for (int col = 0; col < columns; col++) {
-			ProcessProduct product = techIndex.at(col);
+			TechFlow product = techIndex.at(col);
 			FlowDescriptor flow = product.flow();
 			writeName(flow, buffer);
 			sep(buffer, col, columns);
@@ -130,7 +130,7 @@ public class CsvMatrixExport implements Runnable {
 		sep(buffer);
 		sep(buffer);
 		for (int col = 0; col < columns; col++) {
-			ProcessProduct product = techIndex.at(col);
+			TechFlow product = techIndex.at(col);
 			FlowDescriptor flow = product.flow();
 			writeCategory(flow, buffer);
 			sep(buffer, col, columns);

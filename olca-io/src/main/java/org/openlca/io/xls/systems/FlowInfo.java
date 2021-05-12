@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.io.CategoryPair;
@@ -29,7 +29,7 @@ class FlowInfo implements Comparable<FlowInfo> {
 	String location;
 
 	public static List<FlowInfo> getAll(SystemExportConfig conf,
-			FlowIndex index) {
+			EnviIndex index) {
 		EntityCache cache = conf.getEntityCache();
 		Set<FlowDescriptor> flows = getFlowDescriptors(index);
 		List<FlowInfo> infos = new ArrayList<>();
@@ -54,7 +54,7 @@ class FlowInfo implements Comparable<FlowInfo> {
 		return infos;
 	}
 
-	private static Set<FlowDescriptor> getFlowDescriptors(FlowIndex index) {
+	private static Set<FlowDescriptor> getFlowDescriptors(EnviIndex index) {
 		if (index == null)
 			return Collections.emptySet();
 		var descriptors = new HashSet<FlowDescriptor>();

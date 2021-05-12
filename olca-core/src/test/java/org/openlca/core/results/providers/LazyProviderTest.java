@@ -3,7 +3,7 @@ package org.openlca.core.results.providers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -30,14 +30,14 @@ public class LazyProviderTest {
 				new double[]{1.0, 1.0, 1.0}, scaling, 1e-10);
 	}
 
-	private ProcessProduct product(int i) {
+	private TechFlow product(int i) {
 		var process = new ProcessDescriptor();
 		process.id = i;
 		process.name = "process " + i;
 		var flow = new FlowDescriptor();
 		flow.id = i;
 		flow.name = "product " + i;
-		return ProcessProduct.of(process, flow);
+		return TechFlow.of(process, flow);
 	}
 
 }

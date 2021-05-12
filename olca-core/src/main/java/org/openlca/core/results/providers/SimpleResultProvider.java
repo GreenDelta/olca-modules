@@ -2,7 +2,7 @@ package org.openlca.core.results.providers;
 
 import java.util.Arrays;
 
-import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.results.SimpleResult;
@@ -15,7 +15,7 @@ import org.openlca.core.results.SimpleResult;
 public class SimpleResultProvider implements ResultProvider {
 
 	private final TechIndex techIndex;
-	private FlowIndex flowIndex;
+	private EnviIndex flowIndex;
 	private ImpactIndex impactIndex;
 	private double[] scalingVector;
 	private double[] totalFlows;
@@ -30,7 +30,7 @@ public class SimpleResultProvider implements ResultProvider {
 		return new SimpleResultProvider(techIndex);
 	}
 
-	public SimpleResultProvider withFlowIndex(FlowIndex flowIndex) {
+	public SimpleResultProvider withFlowIndex(EnviIndex flowIndex) {
 		this.flowIndex = flowIndex;
 		return this;
 	}
@@ -70,7 +70,7 @@ public class SimpleResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public FlowIndex flowIndex() {
+	public EnviIndex flowIndex() {
 		return flowIndex;
 	}
 

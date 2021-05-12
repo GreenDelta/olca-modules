@@ -9,7 +9,7 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -89,7 +89,7 @@ public class SystemCalculator {
 	 * Calculates (recursively) the sub-systems of the product system of the
 	 * given setup. It returns an empty map when there are no subsystems.
 	 */
-	private Map<ProcessProduct, SimpleResult> calculateSubSystems(
+	private Map<TechFlow, SimpleResult> calculateSubSystems(
 			CalculationSetup setup) {
 		if (setup == null
 				|| setup.productSystem == null
@@ -97,7 +97,7 @@ public class SystemCalculator {
 			return Collections.emptyMap();
 
 		// collect the sub-systems
-		var subSystems = new HashSet<ProcessProduct>();
+		var subSystems = new HashSet<TechFlow>();
 		var sysDao = new ProductSystemDao(db);
 		var flowDao = new FlowDao(db);
 		for (var link : setup.productSystem.processLinks) {
@@ -109,13 +109,13 @@ public class SystemCalculator {
 				log.error("could not load descriptors of system link {}", link);
 				continue;
 			}
-			subSystems.add(ProcessProduct.of(sys, flow));
+			subSystems.add(TechFlow.of(sys, flow));
 		}
 		if (subSystems.isEmpty())
 			return Collections.emptyMap();
 
 		// calculate the LCI results of the sub-systems
-		var subResults = new HashMap<ProcessProduct, SimpleResult>();
+		var subResults = new HashMap<TechFlow, SimpleResult>();
 		for (var pp : subSystems) {
 			var subSystem = sysDao.getForId(pp.processId());
 			if (subSystem == null)

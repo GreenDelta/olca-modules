@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
-import org.openlca.core.matrix.index.IndexFlow;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
@@ -49,7 +49,7 @@ public class LocationResult {
 			// we take the locations from the processes
 			// in the columns
 			int idx = flowIndex.of(flow);
-			IndexFlow iFlow = flowIndex.at(idx);
+			EnviFlow iFlow = flowIndex.at(idx);
 			if (iFlow == null)
 				return Collections.emptyList();
 			total = result.getTotalFlowResult(iFlow);
@@ -175,7 +175,7 @@ public class LocationResult {
 		}).collect(Collectors.toList());
 	}
 
-	private Location getLocation(ProcessProduct p) {
+	private Location getLocation(TechFlow p) {
 		if (p == null || !(p.process() instanceof ProcessDescriptor))
 			return null;
 		ProcessDescriptor d = (ProcessDescriptor) p.process();

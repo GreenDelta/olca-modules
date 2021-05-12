@@ -7,9 +7,9 @@ import java.util.List;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
@@ -46,7 +46,7 @@ public class FullResult extends ContributionResult {
 	 * Get the upstream contribution of the given process-product pair $j$ to the
 	 * inventory result of elementary flow $i$: $\mathbf{U}[i,j]$.
 	 */
-	public double getUpstreamFlowResult(ProcessProduct product, IndexFlow flow) {
+	public double getUpstreamFlowResult(TechFlow product, EnviFlow flow) {
 		var flowIndex = flowIndex();
 		if (flowIndex == null)
 			return 0;
@@ -64,7 +64,7 @@ public class FullResult extends ContributionResult {
 	 * the sum of the contributions of all of these process-product pairs.
 	 */
 	public double getUpstreamFlowResult(
-		CategorizedDescriptor process, IndexFlow flow) {
+		CategorizedDescriptor process, EnviFlow flow) {
 		double total = 0;
 		for (var p : techIndex().getProviders(process)) {
 			total += getUpstreamFlowResult(p, flow);
@@ -94,7 +94,7 @@ public class FullResult extends ContributionResult {
 	 * LCIA category result $j$: $\mathbf{V}[i,j]$.
 	 */
 	public double getUpstreamImpactResult(
-		ProcessProduct product, ImpactDescriptor impact) {
+		TechFlow product, ImpactDescriptor impact) {
 		if (!hasImpactResults())
 			return 0;
 		int impactIdx = impactIndex().of(impact);
@@ -140,7 +140,7 @@ public class FullResult extends ContributionResult {
 	 * Get the upstream contribution of the given process-product pair $j$ to the
 	 * LCC result: $\mathbf{k}_u[j]$.
 	 */
-	public double getUpstreamCostResult(ProcessProduct product) {
+	public double getUpstreamCostResult(TechFlow product) {
 		if (!hasCostResults())
 			return 0;
 		int productIdx = techIndex().of(product);
@@ -192,7 +192,7 @@ public class FullResult extends ContributionResult {
 	/**
 	 * Calculate the upstream tree for the given flow.
 	 */
-	public UpstreamTree getTree(IndexFlow flow) {
+	public UpstreamTree getTree(EnviFlow flow) {
 		int i = flowIndex().of(flow);
 		double total = getTotalFlowResult(flow);
 		return new UpstreamTree(flow, this, total,

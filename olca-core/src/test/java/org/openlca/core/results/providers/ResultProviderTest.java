@@ -17,11 +17,11 @@ import org.junit.runners.Parameterized;
 import org.openlca.core.DataDir;
 import org.openlca.core.Tests;
 import org.openlca.core.library.Library;
-import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.format.JavaMatrix;
 import org.openlca.core.model.Flow;
@@ -56,12 +56,12 @@ public class ResultProviderTest {
 		var data = new MatrixData();
 
 		// tech. flows
-		Function<Integer, ProcessProduct> product = i -> {
+		Function<Integer, TechFlow> product = i -> {
 			var flow = db.insert(Flow.product("p" + i, mass));
 			var process = Process.of("p" + i, flow);
 			process.library = libID;
 			process = db.insert(process);
-			return ProcessProduct.of(process, flow);
+			return TechFlow.of(process, flow);
 		};
 		data.techIndex = new TechIndex(product.apply(1));
 		data.techIndex.setDemand(1.0);
@@ -76,10 +76,10 @@ public class ResultProviderTest {
 			var f = db.insert(Flow.elementary("e" + i, mass));
 			return Descriptor.of(f);
 		};
-		data.flowIndex = FlowIndex.create();
-		data.flowIndex.add(IndexFlow.outputOf(flow.apply(1)));
-		data.flowIndex.add(IndexFlow.inputOf(flow.apply(2)));
-		data.flowMatrix = JavaMatrix.of(new double[][]{
+		data.enviIndex = EnviIndex.create();
+		data.enviIndex.add(EnviFlow.outputOf(flow.apply(1)));
+		data.enviIndex.add(EnviFlow.inputOf(flow.apply(2)));
+		data.enviMatrix = JavaMatrix.of(new double[][]{
 				{1.0, 2.0},
 				{-3.0, -3.0},
 		});

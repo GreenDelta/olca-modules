@@ -6,10 +6,10 @@ import java.util.Map;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.LibraryMatrix;
-import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.IndexedMatrix;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
@@ -17,20 +17,20 @@ import org.openlca.core.model.descriptors.ImpactDescriptor;
 public class LibImpactMatrix {
 
 	private final ImpactIndex impactIndex;
-	private final FlowIndex flowIndex;
-	private Map<String, FlowIndex> libFlowIndices;
+	private final EnviIndex flowIndex;
+	private Map<String, EnviIndex> libFlowIndices;
 
-	private LibImpactMatrix(ImpactIndex impacts, FlowIndex flows) {
+	private LibImpactMatrix(ImpactIndex impacts, EnviIndex flows) {
 		this.impactIndex = impacts;
 		this.flowIndex = flows;
 	}
 
-	public static LibImpactMatrix of(ImpactIndex impacts, FlowIndex flows) {
+	public static LibImpactMatrix of(ImpactIndex impacts, EnviIndex flows) {
 		return new LibImpactMatrix(impacts, flows);
 	}
 
 	public LibImpactMatrix withLibraryFlowIndices(
-		Map<String, FlowIndex> indices) {
+		Map<String, EnviIndex> indices) {
 		this.libFlowIndices = indices;
 		return this;
 	}
@@ -71,7 +71,7 @@ public class LibImpactMatrix {
 				continue;
 
 			// load the library flows
-			FlowIndex libFlows = libFlowIndices != null
+			EnviIndex libFlows = libFlowIndices != null
 				?  libFlowIndices.get(libID)
 				: null;
 			if (libFlows == null) {
@@ -89,7 +89,7 @@ public class LibImpactMatrix {
 		return builder.finish().data();
 	}
 
-	private IndexedMatrix<ImpactDescriptor, IndexFlow> fromDB(
+	private IndexedMatrix<ImpactDescriptor, EnviFlow> fromDB(
 		IDatabase db) {
 
 		var dbIdx = new ImpactIndex();

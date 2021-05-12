@@ -6,7 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.MatrixConfig;
@@ -78,8 +78,8 @@ public class LibraryExport implements Runnable {
 		withUncertainties = data.techUncertainties != null
 												|| data.enviUncertainties != null
 												|| data.impactUncertainties != null;
-		info.isRegionalized = data.flowIndex != null
-													&& data.flowIndex.isRegionalized();
+		info.isRegionalized = data.enviIndex != null
+													&& data.enviIndex.isRegionalized();
 		return this;
 	}
 
@@ -148,11 +148,11 @@ public class LibraryExport implements Runnable {
 		if (!withInventory) {
 			var impacts = ImpactIndex.of(db);
 			var flowIndex = info.isRegionalized
-				? FlowIndex.createRegionalized(db, impacts)
-				: FlowIndex.create(db, impacts);
+				? EnviIndex.createRegionalized(db, impacts)
+				: EnviIndex.create(db, impacts);
 			var data = new MatrixData();
 			data.impactIndex = impacts;
-			data.flowIndex = flowIndex;
+			data.enviIndex = flowIndex;
 			ImpactBuilder.of(db, flowIndex)
 				.withUncertainties(withUncertainties)
 				.build()
@@ -182,8 +182,8 @@ public class LibraryExport implements Runnable {
 		log.info("normalize matrices to 1 | -1");
 		var matrixA = data.techMatrix.asMutable();
 		data.techMatrix = matrixA;
-		var matrixB = data.flowMatrix.asMutable();
-		data.flowMatrix = matrixB;
+		var matrixB = data.enviMatrix.asMutable();
+		data.enviMatrix = matrixB;
 		int n = matrixA.columns();
 		for (int j = 0; j < n; j++) {
 			double f = Math.abs(matrixA.get(j, j));
@@ -224,10 +224,10 @@ public class LibraryExport implements Runnable {
 		var solver = new JuliaSolver();
 		var inv = solver.invert(data.techMatrix);
 		MatrixExport.toNpy(folder, inv, "INV");
-		if (data.flowMatrix == null)
+		if (data.enviMatrix == null)
 			return;
 		log.info("create matrix M");
-		var m = solver.multiply(data.flowMatrix, inv);
+		var m = solver.multiply(data.enviMatrix, inv);
 		MatrixExport.toNpy(folder, m, "M");
 	}
 }

@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.openlca.core.TestProcess;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
@@ -141,9 +141,9 @@ public class AllocationIndexTest {
 		return idx.get(product(product), exchangeID, fi);
 	}
 
-	private ProcessProduct product(String name) {
+	private TechFlow product(String name) {
 		Exchange e = TestProcess.findExchange(process, name);
-		return ProcessProduct.of(process, e.flow);
+		return TechFlow.of(process, e.flow);
 	}
 
 }

@@ -7,9 +7,9 @@ import java.util.stream.Stream;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
@@ -25,14 +25,14 @@ public class ImpactBuilderTest {
 		// build the flow index
 		var units = db.insert(UnitGroup.of("Mass units", "kg"));
 		var mass = db.insert(FlowProperty.of("Mass", units));
-		var flowIdx = FlowIndex.create();
+		var flowIdx = EnviIndex.create();
 		Stream.of(
 			Flow.elementary("e1", mass),
 			Flow.elementary("e2", mass),
 			Flow.elementary("e3", mass))
 			.map(db::insert)
 			.forEach(f -> flowIdx.add(
-				IndexFlow.outputOf(Descriptor.of(f))));
+				EnviFlow.outputOf(Descriptor.of(f))));
 
 		// build the impact index
 		var impactIdx = new ImpactIndex();

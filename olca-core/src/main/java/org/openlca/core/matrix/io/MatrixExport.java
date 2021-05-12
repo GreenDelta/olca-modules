@@ -90,8 +90,8 @@ public abstract class MatrixExport {
 		if (data.techMatrix != null) {
 			write(data.techMatrix, "A");
 		}
-		if (data.flowMatrix != null) {
-			write(data.flowMatrix, "B");
+		if (data.enviMatrix != null) {
+			write(data.enviMatrix, "B");
 		}
 		if (data.impactMatrix != null) {
 			write(data.impactMatrix, "C");
@@ -112,7 +112,7 @@ public abstract class MatrixExport {
 		}
 
 		uncertainties(data.techMatrix, data.techUncertainties, "A");
-		uncertainties(data.flowMatrix, data.enviUncertainties, "B");
+		uncertainties(data.enviMatrix, data.enviUncertainties, "B");
 		uncertainties(data.impactMatrix, data.impactUncertainties, "C");
 	}
 
@@ -234,7 +234,7 @@ public abstract class MatrixExport {
 	}
 
 	protected void eachFlowIndexRow(Consumer<String[]> fn) {
-		if (data.flowIndex == null || fn == null)
+		if (data.enviIndex == null || fn == null)
 			return;
 		String[] header = {
 			"flow ID",
@@ -247,8 +247,8 @@ public abstract class MatrixExport {
 
 		var categories = Categories.pathsOf(db);
 		var units = propUnits();
-		for (int i = 0; i < data.flowIndex.size(); i++) {
-			var  iFlow = data.flowIndex.at(i);
+		for (int i = 0; i < data.enviIndex.size(); i++) {
+			var  iFlow = data.enviIndex.at(i);
 			var row = new String[header.length];
 			if (iFlow == null) {
 				fn.accept(row);

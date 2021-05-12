@@ -4,8 +4,8 @@ import java.util.Objects;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.index.IndexFlow;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.results.FullResult;
@@ -147,8 +147,8 @@ public class UpstreamTreeHandler {
 
 		JsonObject expand(UpstreamTree tree) {
 			var treeObj = new JsonObject();
-			if (tree.ref instanceof IndexFlow) {
-				var flow = ((IndexFlow) tree.ref).flow();
+			if (tree.ref instanceof EnviFlow) {
+				var flow = ((EnviFlow) tree.ref).flow();
 				treeObj.add("ref", Json.asRef(flow, cache));
 			} else if (tree.ref instanceof Descriptor) {
 				treeObj.add("ref", Json.asRef((Descriptor) tree.ref, cache));
@@ -230,7 +230,7 @@ public class UpstreamTreeHandler {
 			return new Path(node, this);
 		}
 
-		int count(ProcessProduct product) {
+		int count(TechFlow product) {
 			int c = Objects.equals(product, node.provider) ? 1 : 0;
 			return prefix != null ? c + prefix.count(product) : c;
 		}

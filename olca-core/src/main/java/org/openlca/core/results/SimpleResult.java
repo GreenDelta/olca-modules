@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
@@ -100,7 +100,7 @@ public class SimpleResult extends BaseResult {
 	}
 
 	@Override
-	public FlowIndex flowIndex() {
+	public EnviIndex flowIndex() {
 		return provider.flowIndex();
 	}
 
@@ -113,7 +113,7 @@ public class SimpleResult extends BaseResult {
 	 * Get the scaling factor $\mathbf{s}_j$ of the given process-product pair
 	 * $j$.
 	 */
-	public double getScalingFactor(ProcessProduct product) {
+	public double getScalingFactor(TechFlow product) {
 		int idx = techIndex().of(product);
 		if (idx < 0 || idx > scalingVector.length)
 			return 0;
@@ -127,7 +127,7 @@ public class SimpleResult extends BaseResult {
 	 */
 	public double getScalingFactor(CategorizedDescriptor process) {
 		double factor = 0;
-		for (ProcessProduct p : techIndex().getProviders(process)) {
+		for (TechFlow p : techIndex().getProviders(process)) {
 			factor += getScalingFactor(p);
 		}
 		return factor;
@@ -136,7 +136,7 @@ public class SimpleResult extends BaseResult {
 	/**
 	 * Get the total inventory result $\mathbf{g}_i$ of the given flow $i$.
 	 */
-	public double getTotalFlowResult(IndexFlow flow) {
+	public double getTotalFlowResult(EnviFlow flow) {
 		var flowIndex = flowIndex();
 		if (flowIndex == null)
 			return 0;

@@ -1,6 +1,6 @@
 package org.openlca.core.results.providers;
 
-import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechIndex;
@@ -55,14 +55,14 @@ public class EagerResultProvider implements ResultProvider {
 					: 1 / f;
 		}
 
-		if (data.flowMatrix != null) {
+		if (data.enviMatrix != null) {
 
 			// elementary flows
-			directFlows = data.flowMatrix.asMutableCopy();
+			directFlows = data.enviMatrix.asMutableCopy();
 			directFlows.scaleColumns(scalingVector);
 
 			// the intensity matrix: M = B * inv(A)
-			totalFlowsOfOne = solver.multiply(data.flowMatrix, inverse);
+			totalFlowsOfOne = solver.multiply(data.enviMatrix, inverse);
 			totalFlows = totalFlowsOfOne(refIdx);
 			for (int i = 0; i < totalFlows.length; i++) {
 				totalFlows[i] *= demand;
@@ -108,8 +108,8 @@ public class EagerResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public FlowIndex flowIndex() {
-		return data.flowIndex;
+	public EnviIndex flowIndex() {
+		return data.enviIndex;
 	}
 
 	@Override
@@ -164,16 +164,16 @@ public class EagerResultProvider implements ResultProvider {
 
 	@Override
 	public double[] unscaledFlowsOf(int j) {
-		return data.flowMatrix == null
+		return data.enviMatrix == null
 				? EMPTY_VECTOR
-				: data.flowMatrix.getColumn(j);
+				: data.enviMatrix.getColumn(j);
 	}
 
 	@Override
 	public double unscaledFlowOf(int flow, int product) {
-		return data.flowMatrix == null
+		return data.enviMatrix == null
 				? 0
-				: data.flowMatrix.get(flow, product);
+				: data.enviMatrix.get(flow, product);
 	}
 
 	@Override

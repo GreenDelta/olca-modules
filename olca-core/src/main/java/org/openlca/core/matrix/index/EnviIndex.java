@@ -28,17 +28,17 @@ import gnu.trove.map.hash.TLongObjectHashMap;
  * <p>
  * $$\mathit{Idx}_B: \mathit{F} \mapsto [0 \dots k-1]$$
  */
-public abstract class FlowIndex implements MatrixIndex<IndexFlow> {
+public abstract class EnviIndex implements MatrixIndex<EnviFlow> {
 
-	protected final ArrayList<IndexFlow> flows = new ArrayList<>();
+	protected final ArrayList<EnviFlow> flows = new ArrayList<>();
 
-	private FlowIndex() {
+	private EnviIndex() {
 	}
 
 	/**
 	 * Creates an empty flow index.
 	 */
-	public static FlowIndex create() {
+	public static EnviIndex create() {
 		return new NormalFlowIndex();
 	}
 
@@ -46,7 +46,7 @@ public abstract class FlowIndex implements MatrixIndex<IndexFlow> {
 	 * Creates a flow index and fills it with the flows that are used in the
 	 * given impacts.
 	 */
-	public static FlowIndex create(IDatabase db, ImpactIndex impacts) {
+	public static EnviIndex create(IDatabase db, ImpactIndex impacts) {
 		var index = create();
 		if (db == null || impacts == null)
 			return index;
@@ -68,9 +68,9 @@ public abstract class FlowIndex implements MatrixIndex<IndexFlow> {
 			if (flow == null)
 				return true;
 			if (directions.get(flowID) < 0) {
-				index.add(IndexFlow.inputOf(flow));
+				index.add(EnviFlow.inputOf(flow));
 			} else {
-				index.add(IndexFlow.outputOf(flow));
+				index.add(EnviFlow.outputOf(flow));
 			}
 			return true;
 		});
@@ -80,7 +80,7 @@ public abstract class FlowIndex implements MatrixIndex<IndexFlow> {
 	/**
 	 * Creates an empty regionalized flow index.
 	 */
-	public static FlowIndex createRegionalized() {
+	public static EnviIndex createRegionalized() {
 		return new RegionalizedFlowIndex();
 	}
 
@@ -88,7 +88,7 @@ public abstract class FlowIndex implements MatrixIndex<IndexFlow> {
 	 * Creates a regionalized flow index and fills it with the flows
 	 * that are used in the given impacts.
 	 */
-	public static FlowIndex createRegionalized(
+	public static EnviIndex createRegionalized(
 		IDatabase db, ImpactIndex impacts) {
 		var index = createRegionalized();
 		if (db == null || impacts == null)
@@ -116,9 +116,9 @@ public abstract class FlowIndex implements MatrixIndex<IndexFlow> {
 				? locations.get(locationID)
 				: null;
 			if (directions.get(flowID) < 0) {
-				index.add(IndexFlow.inputOf(flow, location));
+				index.add(EnviFlow.inputOf(flow, location));
 			} else {
-				index.add(IndexFlow.outputOf(flow, location));
+				index.add(EnviFlow.outputOf(flow, location));
 			}
 			return true;
 		});
@@ -128,7 +128,7 @@ public abstract class FlowIndex implements MatrixIndex<IndexFlow> {
 	/**
 	 * Returns true if the given index is null or empty.
 	 */
-	public static boolean isEmpty(FlowIndex idx) {
+	public static boolean isEmpty(EnviIndex idx) {
 		return idx == null || idx.size() == 0;
 	}
 
@@ -145,12 +145,12 @@ public abstract class FlowIndex implements MatrixIndex<IndexFlow> {
 	}
 
 	@Override
-	public final IndexFlow at(int i) {
+	public final EnviFlow at(int i) {
 		return flows.get(i);
 	}
 
 	@Override
-	public final int of(IndexFlow flow) {
+	public final int of(EnviFlow flow) {
 		if (flow == null)
 			return -1;
 		return of(flow.flow(), flow.location());
@@ -169,7 +169,7 @@ public abstract class FlowIndex implements MatrixIndex<IndexFlow> {
 	public abstract boolean isInput(long flowID, long locationID);
 
 	@Override
-	public final boolean contains(IndexFlow flow) {
+	public final boolean contains(EnviFlow flow) {
 		return of(flow) >= 0;
 	}
 
@@ -187,7 +187,7 @@ public abstract class FlowIndex implements MatrixIndex<IndexFlow> {
 	 * the locations into this method.
 	 */
 	public final int register(
-		ProcessProduct product,
+		TechFlow product,
 		CalcExchange e,
 		FlowTable flows,
 		TLongObjectHashMap<LocationDescriptor> locations) {
@@ -201,8 +201,8 @@ public abstract class FlowIndex implements MatrixIndex<IndexFlow> {
 
 		if (!isRegionalized()) {
 			return e.isInput
-				? add(IndexFlow.inputOf(flow))
-				: add(IndexFlow.outputOf(flow));
+				? add(EnviFlow.inputOf(flow))
+				: add(EnviFlow.outputOf(flow));
 		}
 
 		// take the location from the exchange
@@ -221,12 +221,12 @@ public abstract class FlowIndex implements MatrixIndex<IndexFlow> {
 			}
 		}
 		return e.isInput
-			? add(IndexFlow.inputOf(flow, loc))
-			: add(IndexFlow.outputOf(flow, loc));
+			? add(EnviFlow.inputOf(flow, loc))
+			: add(EnviFlow.outputOf(flow, loc));
 	}
 
 	@Override
-	public final void each(IndexConsumer<IndexFlow> fn) {
+	public final void each(IndexConsumer<EnviFlow> fn) {
 		if (fn == null)
 			return;
 		for (int i = 0; i < flows.size(); i++) {
@@ -235,7 +235,7 @@ public abstract class FlowIndex implements MatrixIndex<IndexFlow> {
 	}
 
 	@Override
-	public final Iterator<IndexFlow> iterator() {
+	public final Iterator<EnviFlow> iterator() {
 		return Collections.unmodifiableList(flows).iterator();
 	}
 
@@ -243,14 +243,14 @@ public abstract class FlowIndex implements MatrixIndex<IndexFlow> {
 	 * Creates a new set with the flows of this index.
 	 */
 	@Override
-	public final Set<IndexFlow> content() {
+	public final Set<EnviFlow> content() {
 		return new HashSet<>(flows);
 	}
 
 	@Override
-	public abstract FlowIndex copy();
+	public abstract EnviIndex copy();
 
-	private static class NormalFlowIndex extends FlowIndex {
+	private static class NormalFlowIndex extends EnviIndex {
 
 		private final TLongIntHashMap index;
 
@@ -290,7 +290,7 @@ public abstract class FlowIndex implements MatrixIndex<IndexFlow> {
 		}
 
 		@Override
-		public int add(IndexFlow f) {
+		public int add(EnviFlow f) {
 			if (f == null)
 				return -1;
 			var pos = of(f);
@@ -322,7 +322,7 @@ public abstract class FlowIndex implements MatrixIndex<IndexFlow> {
 		}
 	}
 
-	private static class RegionalizedFlowIndex extends FlowIndex {
+	private static class RegionalizedFlowIndex extends EnviIndex {
 
 		private final HashMap<LongPair, Integer> index = new HashMap<>();
 
@@ -360,7 +360,7 @@ public abstract class FlowIndex implements MatrixIndex<IndexFlow> {
 		}
 
 		@Override
-		public int add(IndexFlow f) {
+		public int add(EnviFlow f) {
 			if (f == null)
 				return -1;
 			var pos = of(f);

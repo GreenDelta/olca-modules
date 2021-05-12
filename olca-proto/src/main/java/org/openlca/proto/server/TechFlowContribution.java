@@ -3,8 +3,8 @@ package org.openlca.proto.server;
 import java.util.function.ToDoubleBiFunction;
 
 import io.grpc.stub.StreamObserver;
-import org.openlca.core.matrix.index.IndexFlow;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.FullResult;
 import org.openlca.proto.generated.results.ResultsProto;
@@ -17,9 +17,9 @@ class TechFlowContribution {
   private final ResultService service;
 
   private FullResult result;
-  private ProcessProduct product;
+  private TechFlow product;
   private ImpactDescriptor impact;
-  private IndexFlow flow;
+  private EnviFlow flow;
   private boolean forCosts;
   private boolean isClosed;
 
@@ -66,7 +66,7 @@ class TechFlowContribution {
   }
 
   TechFlowContribution ifImpact(
-    ToDoubleTriFunction<FullResult, ProcessProduct, ImpactDescriptor> fn) {
+    ToDoubleTriFunction<FullResult, TechFlow, ImpactDescriptor> fn) {
     if (isClosed || impact == null)
       return this;
     closeWith(fn.applyAsDouble(result, product, impact));
@@ -74,7 +74,7 @@ class TechFlowContribution {
   }
 
   TechFlowContribution ifFlow(
-    ToDoubleTriFunction<FullResult, ProcessProduct, IndexFlow> fn) {
+    ToDoubleTriFunction<FullResult, TechFlow, EnviFlow> fn) {
     if (isClosed || flow == null)
       return this;
     closeWith(fn.applyAsDouble(result, product, flow));
@@ -82,7 +82,7 @@ class TechFlowContribution {
   }
 
   TechFlowContribution ifCosts(
-    ToDoubleBiFunction<FullResult, ProcessProduct> fn) {
+    ToDoubleBiFunction<FullResult, TechFlow> fn) {
     if (isClosed || !forCosts)
       return this;
     closeWith(fn.applyAsDouble(result, product));

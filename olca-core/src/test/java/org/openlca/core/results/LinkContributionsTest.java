@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -105,13 +105,13 @@ public class LinkContributionsTest {
 		return link;
 	}
 
-	private ProcessProduct provider(long id, long flowId) {
+	private TechFlow provider(long id, long flowId) {
 		ProcessDescriptor process = new ProcessDescriptor();
 		process.name = "Process " + id;
 		process.id = id;
 		FlowDescriptor flow = new FlowDescriptor();
 		flow.name = "Flow " + flowId;
 		flow.id = flowId;
-		return ProcessProduct.of(process, flow);
+		return TechFlow.of(process, flow);
 	}
 }

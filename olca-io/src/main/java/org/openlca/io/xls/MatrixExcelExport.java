@@ -101,7 +101,7 @@ public class MatrixExcelExport extends MatrixExport {
 		}
 
 		// flow index
-		if (data.flowIndex != null) {
+		if (data.enviIndex != null) {
 			sheetOf("index_B", sheet -> {
 				var i = new AtomicInteger(0);
 				eachFlowIndexRow(values -> {

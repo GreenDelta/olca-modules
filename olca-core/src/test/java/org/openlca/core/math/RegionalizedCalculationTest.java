@@ -17,10 +17,10 @@ import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.UnitGroupDao;
-import org.openlca.core.matrix.index.FlowIndex;
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -342,7 +342,7 @@ public class RegionalizedCalculationTest {
 		for (Object[] row : defs) {
 			Flow flow = (Flow) row[0];
 			int flowIdx = r.flowIndex().of(flow.id);
-			IndexFlow iFlow = r.flowIndex().at(flowIdx);
+			EnviFlow iFlow = r.flowIndex().at(flowIdx);
 			double v = r.getTotalFlowResult(iFlow);
 			Assert.assertEquals((Double) row[1], v, 1e-10);
 		}
@@ -369,13 +369,13 @@ public class RegionalizedCalculationTest {
 	 */
 	private void checkDirectFlowResults(FullResult r, Object[][] defs) {
 		for (Object[] row : defs) {
-			ProcessProduct product = product((Process) row[0]);
+			TechFlow product = product((Process) row[0]);
 			Flow flow = (Flow) row[1];
 
 			if (row[2] instanceof Number) {
 				// non-regionalized
 				int flowIdx = r.flowIndex().of(flow.id);
-				IndexFlow iFlow = r.flowIndex().at(flowIdx);
+				EnviFlow iFlow = r.flowIndex().at(flowIdx);
 				double v = r.getDirectFlowResult(product, iFlow);
 				Assert.assertEquals((Double) row[2], v, 1e-10);
 			} else {
@@ -393,7 +393,7 @@ public class RegionalizedCalculationTest {
 	 */
 	private void checkUpstreamFlowResults(FullResult r, Object[][] defs) {
 		for (Object[] row : defs) {
-			ProcessProduct product = product((Process) row[0]);
+			TechFlow product = product((Process) row[0]);
 			Flow flow = (Flow) row[1];
 
 			if (row[2] instanceof Number) {
@@ -411,8 +411,8 @@ public class RegionalizedCalculationTest {
 		}
 	}
 
-	private double orZero(Flow flow, Location location, FlowIndex index,
-												ToDoubleFunction<IndexFlow> fn) {
+	private double orZero(Flow flow, Location location, EnviIndex index,
+												ToDoubleFunction<EnviFlow> fn) {
 		if (flow == null)
 			return 0;
 		int idx = index.of(flow.id, location != null ? location.id : 0L);
@@ -441,9 +441,9 @@ public class RegionalizedCalculationTest {
 		}
 	}
 
-	private ProcessProduct product(Process p) {
+	private TechFlow product(Process p) {
 		Flow pp = p.quantitativeReference.flow;
-		return ProcessProduct.of(p, pp);
+		return TechFlow.of(p, pp);
 	}
 
 	private CalculationSetup calcSetup() {

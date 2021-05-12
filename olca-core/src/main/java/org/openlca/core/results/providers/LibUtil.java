@@ -9,7 +9,7 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
-import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.TechIndex;
 
 class LibUtil {
@@ -75,9 +75,9 @@ class LibUtil {
 	/**
 	 * Load the flow indices for the given libraries.
 	 */
-	static Map<String, FlowIndex> loadFlowIndicesOf(
+	static Map<String, EnviIndex> loadFlowIndicesOf(
 		Set<String> libraries, LibraryDir dir, IDatabase db) {
-		var map = new HashMap<String, FlowIndex>(libraries.size());
+		var map = new HashMap<String, EnviIndex>(libraries.size());
 		for (var libID : libraries) {
 			var lib = dir.get(libID).orElse(null);
 			if (lib == null)
@@ -93,14 +93,14 @@ class LibUtil {
 	 * Creates the combined flow index of the given flow index of
 	 * the foreground system and the flow indices of the libraries.
 	 */
-	static FlowIndex combinedFlowIndexOf(
-		FlowIndex index, Collection<FlowIndex> libIndices) {
+	static EnviIndex combinedFlowIndexOf(
+		EnviIndex index, Collection<EnviIndex> libIndices) {
 
-		FlowIndex fullIndex;
+		EnviIndex fullIndex;
 		if (index != null) {
 			fullIndex = index.isRegionalized()
-				? FlowIndex.createRegionalized()
-				: FlowIndex.create();
+				? EnviIndex.createRegionalized()
+				: EnviIndex.create();
 			fullIndex.addAll(index);
 		} else {
 
@@ -109,10 +109,10 @@ class LibUtil {
 			// libraries. if there is at least one regionalized
 			// library we create a regionalized index in this case
 			var regionalized = libIndices.stream()
-				.anyMatch(FlowIndex::isRegionalized);
+				.anyMatch(EnviIndex::isRegionalized);
 			fullIndex = regionalized
-				? FlowIndex.createRegionalized()
-				: FlowIndex.create();
+				? EnviIndex.createRegionalized()
+				: EnviIndex.create();
 		}
 
 		libIndices.forEach(fullIndex::addAll);

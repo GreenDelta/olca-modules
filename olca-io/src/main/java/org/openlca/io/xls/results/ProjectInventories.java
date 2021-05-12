@@ -5,7 +5,7 @@ import java.util.List;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.results.Contribution;
@@ -38,7 +38,7 @@ class ProjectInventories {
 	private void run() {
 		Excel.trackSize(sheet, 1, 6);
 		List<ProjectVariant> variants = result.getVariants();
-		List<IndexFlow> flows = result.getFlows();
+		List<EnviFlow> flows = result.getFlows();
 		if (variants.isEmpty() || flows.isEmpty())
 			return;
 		int row = 1;
@@ -50,7 +50,7 @@ class ProjectInventories {
 	}
 
 	private int writeRows(int row, List<ProjectVariant> variants,
-			List<IndexFlow> flows, boolean inputs) {
+			List<EnviFlow> flows, boolean inputs) {
 		header(sheet, row, 1, inputs ? "Inputs" : "Outputs");
 		for (int i = 0; i < variants.size(); i++) {
 			int col = i + 6;
@@ -58,7 +58,7 @@ class ProjectInventories {
 		}
 		row++;
 		writeHeader(row++);
-		for (IndexFlow flow : flows) {
+		for (EnviFlow flow : flows) {
 			if (flow.isInput())
 				continue;
 			writeInfo(flow.flow(), row);

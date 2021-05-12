@@ -42,7 +42,7 @@ public class CsvExport extends MatrixExport {
 		}
 
 		// flow index
-		if (data.flowIndex != null) {
+		if (data.enviIndex != null) {
 			var indexB = new File(folder, "index_B.csv");
 			csv.writer(
 				indexB,

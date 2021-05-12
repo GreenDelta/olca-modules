@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.function.Consumer;
 
-import org.openlca.core.matrix.index.IndexFlow;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.providers.ResultProvider;
 
@@ -62,7 +62,7 @@ public class Sankey<T> {
 		/**
 		 * The process product of the node.
 		 */
-		public ProcessProduct product;
+		public TechFlow product;
 
 		/**
 		 * The total result (upstream plus direct) of this node in the supply
@@ -201,7 +201,7 @@ public class Sankey<T> {
 		private final FullResult result;
 
 		// result references
-		private IndexFlow flow;
+		private EnviFlow flow;
 		private ImpactDescriptor impact;
 
 		// cutoff rules
@@ -245,8 +245,8 @@ public class Sankey<T> {
 
 			// select the result reference
 			// TODO: currently no support for cost-results
-			if (sankey.reference instanceof IndexFlow) {
-				flow = (IndexFlow) sankey.reference;
+			if (sankey.reference instanceof EnviFlow) {
+				flow = (EnviFlow) sankey.reference;
 			} else if (sankey.reference instanceof ImpactDescriptor) {
 				impact = (ImpactDescriptor) sankey.reference;
 			}
@@ -270,7 +270,7 @@ public class Sankey<T> {
 			return sankey;
 		}
 
-		private double getTotal(ProcessProduct product) {
+		private double getTotal(TechFlow product) {
 			if (flow != null)
 				return result.getUpstreamFlowResult(product, flow);
 			if (impact != null)
@@ -278,7 +278,7 @@ public class Sankey<T> {
 			return 0;
 		}
 
-		private double getDirect(ProcessProduct product) {
+		private double getDirect(TechFlow product) {
 			if (flow != null)
 				return result.getDirectFlowResult(product, flow);
 			if (impact != null)

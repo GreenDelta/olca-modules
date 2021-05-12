@@ -3,7 +3,7 @@ package org.openlca.core.results.providers;
 import java.util.Arrays;
 
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.TechIndex;
 
 /**
@@ -43,7 +43,7 @@ public interface ResultProvider {
 	 * \mathit{Idx}_B: \mathit{F} \mapsto [0 \dots m-1]
 	 * $$
 	 */
-	FlowIndex flowIndex();
+	EnviIndex flowIndex();
 
 	/**
 	 * The row index $\mathit{Idx}_C$ of the matrix with the characterization

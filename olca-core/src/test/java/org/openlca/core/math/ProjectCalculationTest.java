@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.openlca.core.TestProcess;
 import org.openlca.core.TestSystem;
 import org.openlca.core.Tests;
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
@@ -42,11 +42,11 @@ public class ProjectCalculationTest {
 
 		SystemCalculator calc = new SystemCalculator(Tests.getDb());
 		ProjectResult r = calc.calculate(project);
-		List<IndexFlow> flows = r.getFlows();
+		List<EnviFlow> flows = r.getFlows();
 		assertEquals(2, flows.size());
 
 		AtomicInteger icount = new AtomicInteger(0);
-		for (IndexFlow f : flows) {
+		for (EnviFlow f : flows) {
 			r.getContributions(f).forEach(item -> {
 				icount.incrementAndGet();
 				switch (f.flow().name) {

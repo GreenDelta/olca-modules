@@ -7,7 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQScore;
 import org.openlca.core.model.DQSystem;
@@ -80,8 +80,8 @@ public class DQDataTest {
 	@Test
 	public void testGetData() {
 		var setup = DQCalculationSetup.of(productSystem);
-		var product1 = ProcessProduct.of(process1);
-		var product2 = ProcessProduct.of(process2);
+		var product1 = TechFlow.of(process1);
+		var product2 = TechFlow.of(process2);
 
 		var result = FullResult.of(db, productSystem);
 		var iFlow = result.flowIndex().at(0);

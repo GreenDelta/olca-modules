@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.math.data_quality.DQResult;
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.io.xls.results.CellWriter;
 
@@ -37,7 +37,7 @@ class InventorySheet {
 		data(col, filterByInputType(false));
 	}
 
-	private List<IndexFlow> filterByInputType(boolean input) {
+	private List<EnviFlow> filterByInputType(boolean input) {
 		return result.getFlows().stream()
 				.filter(f -> f.isInput() == input)
 				.collect(Collectors.toList());
@@ -55,10 +55,10 @@ class InventorySheet {
 		return col + 1;
 	}
 
-	private void data(int col, List<IndexFlow> flows) {
+	private void data(int col, List<EnviFlow> flows) {
 		int row = 3;
 		int startCol = ResultExport.FLOW_HEADER.length;
-		for (IndexFlow flow : flows) {
+		for (EnviFlow flow : flows) {
 			double value = result.getTotalFlowResult(flow);
 			writer.flowRow(sheet, row, col, flow);
 			writer.cell(sheet, row, startCol + col, value);

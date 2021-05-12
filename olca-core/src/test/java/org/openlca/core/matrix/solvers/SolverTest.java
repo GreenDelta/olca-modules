@@ -7,10 +7,10 @@ import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 import org.openlca.core.Tests;
-import org.openlca.core.matrix.index.FlowIndex;
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -59,18 +59,18 @@ public class SolverTest {
 		flow.id = 1;
 		ProcessDescriptor process = new ProcessDescriptor();
 		process.id = 1;
-		ProcessProduct provider = ProcessProduct.of(process, flow);
+		TechFlow provider = TechFlow.of(process, flow);
 
 		TechIndex techIndex = new TechIndex(provider);
 		techIndex.setDemand(1d);
 		data.techIndex = techIndex;
 
-		FlowIndex enviIndex = FlowIndex.create();
-		enviIndex.add(IndexFlow.inputOf(flow(1)));
-		enviIndex.add(IndexFlow.inputOf(flow(2)));
-		enviIndex.add(IndexFlow.outputOf(flow(3)));
-		enviIndex.add(IndexFlow.outputOf(flow(4)));
-		data.flowIndex = enviIndex;
+		EnviIndex enviIndex = EnviIndex.create();
+		enviIndex.add(EnviFlow.inputOf(flow(1)));
+		enviIndex.add(EnviFlow.inputOf(flow(2)));
+		enviIndex.add(EnviFlow.outputOf(flow(3)));
+		enviIndex.add(EnviFlow.outputOf(flow(4)));
+		data.enviIndex = enviIndex;
 
 		Matrix techMatrix = solver.matrix(1, 1);
 		techMatrix.set(0, 0, 1);
@@ -79,7 +79,7 @@ public class SolverTest {
 		Matrix enviMatrix = solver.matrix(4, 1);
 		for (int r = 0; r < 4; r++)
 			enviMatrix.set(r, 0, r);
-		data.flowMatrix = enviMatrix;
+		data.enviMatrix = enviMatrix;
 
 		var result = SimpleResult.of(Tests.getDb(), data);
 		Assert.assertArrayEquals(new double[] { 0, 1, 2, 3 },

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.IntToDoubleFunction;
 
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviFlow;
 
 /**
  * Maps the upstream results of the product system graph to a tree where the
@@ -73,9 +73,9 @@ public class UpstreamTree {
 	 * switch the sign of it.
 	 */
 	private double adopt(double value) {
-		if (!(ref instanceof IndexFlow))
+		if (!(ref instanceof EnviFlow))
 			return value;
-		return r.adopt((IndexFlow) ref, value);
+		return r.adopt((EnviFlow) ref, value);
 	}
 
 }

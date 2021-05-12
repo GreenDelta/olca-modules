@@ -1,6 +1,6 @@
 package org.openlca.core.results.providers;
 
-import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechIndex;
@@ -37,7 +37,7 @@ public class LazyResultProvider implements ResultProvider {
 		this.factorization = solver.factorize(data.techMatrix);
 
 		solutions = new TIntObjectHashMap<>();
-		totalFlowsOfOne = data.flowMatrix == null
+		totalFlowsOfOne = data.enviMatrix == null
 				? null
 				: new TIntObjectHashMap<>();
 		totalImpactsOfOne = data.impactMatrix == null
@@ -55,8 +55,8 @@ public class LazyResultProvider implements ResultProvider {
 		}
 
 		// calculate the total results
-		totalFlows = data.flowMatrix != null
-				? solver.multiply(data.flowMatrix, scalingVector)
+		totalFlows = data.enviMatrix != null
+				? solver.multiply(data.enviMatrix, scalingVector)
 				: null;
 		totalImpacts = totalFlows != null && data.impactMatrix != null
 				? solver.multiply(data.impactMatrix, totalFlows)
@@ -88,8 +88,8 @@ public class LazyResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public FlowIndex flowIndex() {
-		return data.flowIndex;
+	public EnviIndex flowIndex() {
+		return data.enviIndex;
 	}
 
 	@Override
@@ -161,20 +161,20 @@ public class LazyResultProvider implements ResultProvider {
 
 	@Override
 	public double[] unscaledFlowsOf(int product) {
-		return data.flowMatrix.getColumn(product);
+		return data.enviMatrix.getColumn(product);
 	}
 
 	@Override
 	public double unscaledFlowOf(int flow, int product) {
-		return data.flowMatrix.get(flow, product);
+		return data.enviMatrix.get(flow, product);
 	}
 
 	private Matrix directFlows() {
 		if (directFlows != null)
 			return directFlows;
-		if (data.flowMatrix == null)
+		if (data.enviMatrix == null)
 			return null;
-		var m = data.flowMatrix.asMutableCopy();
+		var m = data.enviMatrix.asMutableCopy();
 		m.scaleColumns(scalingVector);
 		directFlows = m;
 		return directFlows;
@@ -204,7 +204,7 @@ public class LazyResultProvider implements ResultProvider {
 		if (totals != null)
 			return totals;
 		var s = solutionOfOne(product);
-		totals = solver.multiply(data.flowMatrix, s);
+		totals = solver.multiply(data.enviMatrix, s);
 		totalFlowsOfOne.put(product, totals);
 		return totals;
 	}

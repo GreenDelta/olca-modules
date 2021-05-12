@@ -8,9 +8,9 @@ import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ParameterRedef;
@@ -33,7 +33,7 @@ public class MatrixConfig {
 	/**
 	 * Optional sub-system results of the product system.
 	 */
-	public final Map<ProcessProduct, SimpleResult> subResults;
+	public final Map<TechFlow, SimpleResult> subResults;
 	public final ImpactIndex impactIndex;
 	public final FormulaInterpreter interpreter;
 
@@ -90,7 +90,7 @@ public class MatrixConfig {
 		private final TechIndex techIndex;
 		private ImpactIndex impacts;
 		private List<ParameterRedef> redefs;
-		private Map<ProcessProduct, SimpleResult> subResults;
+		private Map<TechFlow, SimpleResult> subResults;
 
 		private AllocationMethod allocationMethod;
 		private boolean withUncertainties;
@@ -157,7 +157,7 @@ public class MatrixConfig {
 			return this;
 		}
 
-		public Builder withSubResults(Map<ProcessProduct, SimpleResult> results) {
+		public Builder withSubResults(Map<TechFlow, SimpleResult> results) {
 			this.subResults = results;
 			return this;
 		}
@@ -170,10 +170,10 @@ public class MatrixConfig {
 			// flows in the foreground system but still want to
 			// attach an impact index to the matrix data.
 			if (conf.hasImpacts()) {
-				if (FlowIndex.isEmpty(data.flowIndex)) {
+				if (EnviIndex.isEmpty(data.enviIndex)) {
 					data.impactIndex = conf.impactIndex;
 				} else {
-					ImpactBuilder.of(conf, data.flowIndex)
+					ImpactBuilder.of(conf, data.enviIndex)
 						.build()
 						.addTo(data);
 				}

@@ -5,7 +5,7 @@ import java.util.Iterator;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.results.providers.SimpleResultProvider;
@@ -42,7 +42,7 @@ public class EachOneResult {
 		return eor;
 	}
 
-	public Iterable<Pair<ProcessProduct, SimpleResult>> get() {
+	public Iterable<Pair<TechFlow, SimpleResult>> get() {
 		if (!Julia.isLoaded()) {
 			Julia.load();
 		}
@@ -55,7 +55,7 @@ public class EachOneResult {
 		var solver = new JuliaSolver();
 		inverse = solver.invert(data.techMatrix);
 		diagA = data.techMatrix.diag();
-		lci = solver.multiply(data.flowMatrix, inverse);
+		lci = solver.multiply(data.enviMatrix, inverse);
 		if (data.impactMatrix != null) {
 			lcia = solver.multiply(data.impactMatrix, lci);
 		}
@@ -63,8 +63,8 @@ public class EachOneResult {
 	}
 
 	private class Iter implements
-		Iterator<Pair<ProcessProduct, SimpleResult>>,
-		Iterable<Pair<ProcessProduct, SimpleResult>> {
+		Iterator<Pair<TechFlow, SimpleResult>>,
+		Iterable<Pair<TechFlow, SimpleResult>> {
 
 		@Override
 		public boolean hasNext() {
@@ -74,10 +74,10 @@ public class EachOneResult {
 		}
 
 		@Override
-		public Pair<ProcessProduct, SimpleResult> next() {
+		public Pair<TechFlow, SimpleResult> next() {
 
 			var p = SimpleResultProvider.of(data.techIndex)
-				.withFlowIndex(data.flowIndex)
+				.withFlowIndex(data.enviIndex)
 				.withImpactIndex(data.impactIndex);
 
 			if (inverse != null) {
@@ -124,7 +124,7 @@ public class EachOneResult {
 		}
 
 		@Override
-		public Iterator<Pair<ProcessProduct, SimpleResult>> iterator() {
+		public Iterator<Pair<TechFlow, SimpleResult>> iterator() {
 			return this;
 		}
 	}

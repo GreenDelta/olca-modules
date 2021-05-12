@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.matrix.CalcExchange;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessType;
@@ -28,10 +28,10 @@ public class ProviderSearch {
 	 * Find the best provider for the given product input or waste output
 	 * according to the search settings.
 	 */
-	public ProcessProduct find(CalcExchange e) {
+	public TechFlow find(CalcExchange e) {
 		if (e == null || cancel())
 			return null;
-		List<ProcessProduct> providers = processTable.getProviders(e.flowId);
+		List<TechFlow> providers = processTable.getProviders(e.flowId);
 		if (providers.isEmpty())
 			return null;
 
@@ -40,7 +40,7 @@ public class ProviderSearch {
 		// for options as the callback should be only called when
 		// there are multiple options.
 		if (config.providerLinking != ProviderLinking.IGNORE_DEFAULTS) {
-			for (ProcessProduct provider : providers) {
+			for (TechFlow provider : providers) {
 				if (provider.processId() == e.defaultProviderId)
 					return provider;
 			}
@@ -59,8 +59,8 @@ public class ProviderSearch {
 				return providers.get(0);
 		}
 
-		ProcessProduct candidate = null;
-		for (ProcessProduct next : providers) {
+		TechFlow candidate = null;
+		for (TechFlow next : providers) {
 			if (isBetter(e, candidate, next)) {
 				candidate = next;
 			}
@@ -68,7 +68,7 @@ public class ProviderSearch {
 		return candidate;
 	}
 
-	private boolean isBetter(CalcExchange e, ProcessProduct old, ProcessProduct newOption) {
+	private boolean isBetter(CalcExchange e, TechFlow old, TechFlow newOption) {
 		if (old == null)
 			return true;
 		if (newOption == null)
@@ -116,7 +116,7 @@ public class ProviderSearch {
 				&& config.callback.cancel();
 	}
 
-	ProcessProduct getProvider(long id, long flowId) {
+	TechFlow getProvider(long id, long flowId) {
 		return processTable.getProvider(id, flowId);
 	}
 

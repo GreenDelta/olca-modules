@@ -7,7 +7,7 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.index.LongPair;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.linking.ITechIndexBuilder;
 import org.openlca.core.matrix.linking.LinkingConfig;
@@ -72,7 +72,7 @@ public class ProductSystemBuilder {
 		Flow refProduct = system.referenceExchange.flow;
 		if (refProduct == null)
 			return;
-		ProcessProduct ref = ProcessProduct.of(refProcess, refProduct);
+		TechFlow ref = TechFlow.of(refProcess, refProduct);
 		autoComplete(system, ref);
 	}
 
@@ -81,7 +81,7 @@ public class ProductSystemBuilder {
 	 * linking at the given process product which can be arbitrary product in
 	 * the supply chain of the given system.
 	 */
-	public void autoComplete(ProductSystem system, ProcessProduct product) {
+	public void autoComplete(ProductSystem system, TechFlow product) {
 		log.trace("auto complete product system {}", system);
 		log.trace("build product index");
 		ITechIndexBuilder builder;

@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
@@ -22,7 +22,7 @@ public class ProjectResult {
 	private final HashMap<ProjectVariant, ContributionResult> results = new HashMap<>();
 
 	// cached descriptor lists which are initialized lazily
-	private ArrayList<IndexFlow> _flows;
+	private ArrayList<EnviFlow> _flows;
 	private ArrayList<ImpactDescriptor> _impacts;
 	private ArrayList<CategorizedDescriptor> _processes;
 	private ArrayList<ProjectVariant> _variants;
@@ -45,7 +45,7 @@ public class ProjectResult {
 		return results.get(variant);
 	}
 
-	public double getTotalFlowResult(ProjectVariant variant, IndexFlow flow) {
+	public double getTotalFlowResult(ProjectVariant variant, EnviFlow flow) {
 		ContributionResult r = results.get(variant);
 		if (r == null)
 			return 0;
@@ -59,7 +59,7 @@ public class ProjectResult {
 		return result.getTotalFlowResults();
 	}
 
-	public List<Contribution<ProjectVariant>> getContributions(IndexFlow flow) {
+	public List<Contribution<ProjectVariant>> getContributions(EnviFlow flow) {
 		return Contributions.calculate(
 				getVariants(), variant -> getTotalFlowResult(variant, flow));
 	}
@@ -118,10 +118,10 @@ public class ProjectResult {
 		return _processes;
 	}
 
-	public List<IndexFlow> getFlows() {
+	public List<EnviFlow> getFlows() {
 		if (_flows != null)
 			return _flows;
-		HashSet<IndexFlow> flows = new HashSet<>();
+		HashSet<EnviFlow> flows = new HashSet<>();
 		for (ContributionResult r : results.values()) {
 			flows.addAll(r.getFlows());
 		}

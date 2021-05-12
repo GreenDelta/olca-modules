@@ -62,10 +62,10 @@ class IndexWriter implements Runnable {
 	}
 
 	private void writeElemFlowIndex() {
-		if (data.flowIndex == null)
+		if (data.enviIndex == null)
 			return;
 		var elemFlows = Proto.ElemFlowIndex.newBuilder();
-		data.flowIndex.each((index, iFlow) -> {
+		data.enviIndex.each((index, iFlow) -> {
 			var entry = Proto.ElemFlowEntry.newBuilder();
 			entry.setIndex(index);
 			entry.setFlow(flow(iFlow.flow()));

@@ -14,7 +14,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechIndex;
@@ -98,7 +98,7 @@ public class SystemExport {
 		String name = conf.system.name;
 		int processes = conf.system.processes.size();
 		int products = data.techIndex.size();
-		int flows = data.flowIndex.size();
+		int flows = data.enviIndex.size();
 		String dimensions = flows + "x" + products;
 
 		row = line(sheet, row, "Product system:", name);
@@ -172,7 +172,7 @@ public class SystemExport {
 		String name = conf.system.name;
 		String method = conf.impactMethod.name;
 		int categories = data.impactIndex.size();
-		int factors = data.flowIndex.size();
+		int factors = data.enviIndex.size();
 		String dimensions = factors + "x" + categories;
 
 		row = line(sheet, row, "Product system:", name);
@@ -216,7 +216,7 @@ public class SystemExport {
 		return row + 1;
 	}
 
-	private ExcelHeader createFlowHeader(FlowIndex index) {
+	private ExcelHeader createFlowHeader(EnviIndex index) {
 		ExcelHeader header = new ExcelHeader();
 		header.setHeaders(HEADERS.FLOW.VALUES);
 		List<IExcelHeaderEntry> entries = new ArrayList<>();
@@ -259,11 +259,11 @@ public class SystemExport {
 
 	private void createElementarySheet(Workbook workbook) {
 		ExcelHeader columnHeader = createProductHeader(data.techIndex);
-		ExcelHeader rowHeader = createFlowHeader(data.flowIndex);
+		ExcelHeader rowHeader = createFlowHeader(data.enviIndex);
 		MatrixExcelExport export = new MatrixExcelExport();
 		export.setColumnHeader(columnHeader);
 		export.setRowHeader(rowHeader);
-		export.setMatrix(data.flowMatrix);
+		export.setMatrix(data.enviMatrix);
 		export.writeTo(workbook);
 	}
 
@@ -284,7 +284,7 @@ public class SystemExport {
 	private void createImpactMethodSheet(Workbook workbook) {
 		ExcelHeader columnHeader = createImpactCategoryHeader(
 				data.impactIndex);
-		ExcelHeader rowHeader = createFlowHeader(data.flowIndex);
+		ExcelHeader rowHeader = createFlowHeader(data.enviIndex);
 		MatrixExcelExport export = new MatrixExcelExport();
 		export.setColumnHeader(columnHeader);
 		export.setRowHeader(rowHeader);
@@ -293,7 +293,7 @@ public class SystemExport {
 	}
 
 	private List<FlowInfo> mapFlowIndices(ExcelHeader header,
-			FlowIndex flowIndex) {
+			EnviIndex flowIndex) {
 		List<FlowInfo> sortedFlows = FlowInfo.getAll(conf, flowIndex);
 		Collections.sort(sortedFlows);
 		int counter = 0;

@@ -1,7 +1,7 @@
 package org.openlca.core.library;
 
-import org.openlca.core.matrix.index.IndexFlow;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
@@ -16,7 +16,7 @@ class LibIndex {
 	private LibIndex() {
 	}
 
-	static Proto.ProductEntry protoEntry(int index, ProcessProduct product) {
+	static Proto.ProductEntry protoEntry(int index, TechFlow product) {
 		var entry = Proto.ProductEntry.newBuilder();
 		entry.setIndex(index);
 		entry.setProduct(protoFlow(product.flow()));
@@ -24,7 +24,7 @@ class LibIndex {
 		return entry.build();
 	}
 
-	static Proto.ElemFlowEntry protoEntry(int index, IndexFlow iFlow) {
+	static Proto.ElemFlowEntry protoEntry(int index, EnviFlow iFlow) {
 		var entry = Proto.ElemFlowEntry.newBuilder();
 		entry.setIndex(index);
 		entry.setIsInput(iFlow.isInput());

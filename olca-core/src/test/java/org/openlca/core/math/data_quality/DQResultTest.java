@@ -10,8 +10,8 @@ import org.openlca.core.database.DQSystemDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.matrix.index.IndexFlow;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQScore;
 import org.openlca.core.model.DQSystem;
@@ -149,17 +149,17 @@ public class DQResultTest {
 	}
 
 	private int[] r(DQResult dq, Flow flow) {
-		return dq.get(IndexFlow.outputOf(Descriptor.of(flow)));
+		return dq.get(EnviFlow.outputOf(Descriptor.of(flow)));
 	}
 
 	private int[] r(DQResult dq, Process process) {
-		var product = ProcessProduct.of(process);
+		var product = TechFlow.of(process);
 		return dq.get(product);
 	}
 
 	private int[] r(DQResult dq, Process process, Flow flow) {
-		var product = ProcessProduct.of(process);
-		var iflow = IndexFlow.outputOf(Descriptor.of(flow));
+		var product = TechFlow.of(process);
+		var iflow = EnviFlow.outputOf(Descriptor.of(flow));
 		return dq.get(product, iflow);
 	}
 
@@ -168,7 +168,7 @@ public class DQResultTest {
 	}
 
 	private int[] r(DQResult dq, Process process, ImpactCategory impact) {
-		var product = ProcessProduct.of(process);
+		var product = TechFlow.of(process);
 		return dq.get(Descriptor.of(impact), product);
 	}
 

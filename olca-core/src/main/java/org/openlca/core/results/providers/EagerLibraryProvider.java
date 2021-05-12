@@ -4,7 +4,7 @@ import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.LibraryMatrix;
-import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.IndexedMatrix;
 import org.openlca.core.matrix.MatrixData;
@@ -35,8 +35,8 @@ class EagerLibraryProvider implements ResultProvider {
 			dbData.techIndex, libTechIndices.values());
 		var libFlowIndices = LibUtil.loadFlowIndicesOf(
 			libTechIndices.keySet(), libDir, db);
-		fullData.flowIndex = LibUtil.combinedFlowIndexOf(
-			dbData.flowIndex, libFlowIndices.values());
+		fullData.enviIndex = LibUtil.combinedFlowIndexOf(
+			dbData.enviIndex, libFlowIndices.values());
 
 		// build the combined tech-matrix
 		var techBuilder = IndexedMatrix.build(fullData.techIndex)
@@ -48,12 +48,12 @@ class EagerLibraryProvider implements ResultProvider {
 
 		// build the combined intervention matrix
 		var flowBuilder = IndexedMatrix.build(
-			fullData.flowIndex, fullData.techIndex);
-		if (dbData.flowMatrix != null) {
+			fullData.enviIndex, fullData.techIndex);
+		if (dbData.enviMatrix != null) {
 			flowBuilder.put(IndexedMatrix.of(
-				dbData.flowIndex,
+				dbData.enviIndex,
 				dbData.techIndex,
-				dbData.flowMatrix));
+				dbData.enviMatrix));
 		}
 		libFlowIndices.forEach((libID, flowIdx) ->
 			libDir.getMatrix(libID, LibraryMatrix.B).ifPresent(m -> {
@@ -67,7 +67,7 @@ class EagerLibraryProvider implements ResultProvider {
 		if (dbData.impactIndex != null) {
 			fullData.impactIndex = dbData.impactIndex;
 			fullData.impactMatrix = LibImpactMatrix.of(
-				dbData.impactIndex, fullData.flowIndex)
+				dbData.impactIndex, fullData.enviIndex)
 				.withLibraryFlowIndices(libFlowIndices)
 				.build(db, libDir);
 		}
@@ -79,8 +79,8 @@ class EagerLibraryProvider implements ResultProvider {
 	}
 
 	@Override
-	public FlowIndex flowIndex() {
-		return fullData.flowIndex;
+	public EnviIndex flowIndex() {
+		return fullData.enviIndex;
 	}
 
 	@Override

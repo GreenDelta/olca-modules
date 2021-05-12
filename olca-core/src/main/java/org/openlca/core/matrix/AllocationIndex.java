@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.expressions.FormulaInterpreter;
@@ -25,13 +25,13 @@ public class AllocationIndex {
 	 * Used for physical and economic allocation: directly stores the allocation
 	 * factors for the given process-products.
 	 */
-	private HashMap<ProcessProduct, CalcAllocationFactor> factors;
+	private HashMap<TechFlow, CalcAllocationFactor> factors;
 
 	/**
 	 * Used for causal allocation: stores the relation process-product -> exchange
 	 * -> allocation factor.
 	 */
-	private HashMap<ProcessProduct, TLongObjectHashMap<CalcAllocationFactor>> causalFactors;
+	private HashMap<TechFlow, TLongObjectHashMap<CalcAllocationFactor>> causalFactors;
 
 	public static AllocationIndex create(MatrixConfig config) {
 		return create(config.db, config.techIndex, config.allocationMethod);
@@ -65,7 +65,7 @@ public class AllocationIndex {
 	 * allocated to a product output or waste input, which are: product inputs,
 	 * waste outputs, or elementary flows.
 	 */
-	public double get(ProcessProduct product, long exchangeID,
+	public double get(TechFlow product, long exchangeID,
 			FormulaInterpreter interpreter) {
 		var factor = getFactor(product, exchangeID);
 		return factor != null
@@ -73,7 +73,7 @@ public class AllocationIndex {
 				: 1;
 	}
 
-	public CalcAllocationFactor getFactor(ProcessProduct product, long exchangeID) {
+	public CalcAllocationFactor getFactor(TechFlow product, long exchangeID) {
 		if (product == null)
 			return null;
 		if (factors != null) {

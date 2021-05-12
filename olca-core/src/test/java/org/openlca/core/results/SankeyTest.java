@@ -5,10 +5,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.matrix.index.FlowIndex;
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.format.JavaMatrix;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -29,16 +29,16 @@ public class SankeyTest {
 				{0.0, -2.0, 1.0},
 		});
 
-		data.flowIndex = FlowIndex.create();
+		data.enviIndex = EnviIndex.create();
 		var flow = new FlowDescriptor();
 		flow.id = 42;
-		data.flowIndex.add(IndexFlow.outputOf(flow));
-		data.flowMatrix = JavaMatrix.of(new double[][]{
+		data.enviIndex.add(EnviFlow.outputOf(flow));
+		data.enviMatrix = JavaMatrix.of(new double[][]{
 				{1.0, 2.0, 3.0},
 		});
 		var result = FullResult.of(Tests.getDb(), data);
 
-		var sankey = Sankey.of(data.flowIndex.at(0), result)
+		var sankey = Sankey.of(data.enviIndex.at(0), result)
 				.build();
 		Assert.assertEquals(3, sankey.nodeCount);
 		var visited = new AtomicInteger(0);
@@ -68,14 +68,14 @@ public class SankeyTest {
 		Assert.assertEquals(3, visited.get());
 	}
 
-	private ProcessProduct product(int i) {
+	private TechFlow product(int i) {
 		var process = new ProcessDescriptor();
 		process.id = i;
 		process.name = "process " + i;
 		var flow = new FlowDescriptor();
 		flow.id = i;
 		flow.name = "product " + i;
-		return ProcessProduct.of(process, flow);
+		return TechFlow.of(process, flow);
 	}
 
 }

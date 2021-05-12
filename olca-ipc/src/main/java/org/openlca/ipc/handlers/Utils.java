@@ -7,9 +7,9 @@ import java.util.function.Function;
 
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
@@ -60,7 +60,7 @@ class Utils {
 		return (T) result.result;
 	}
 
-	String getUnit(IndexFlow flow, EntityCache cache) {
+	String getUnit(EnviFlow flow, EntityCache cache) {
 		if (flow == null || flow.flow() == null)
 			return null;
 		FlowProperty prop = cache.get(
@@ -111,7 +111,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		IndexFlow flow = get(result.flowIndex(), json);
+		EnviFlow flow = get(result.flowIndex(), json);
 		if (flow == null)
 			return Responses.invalidParams("Missing or invalid flow parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
@@ -123,7 +123,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		IndexFlow flow = get(result.flowIndex(), json);
+		EnviFlow flow = get(result.flowIndex(), json);
 		if (flow == null)
 			return Responses.invalidParams("Missing or invalid flow parameter", req);
 		LocationDescriptor location = get(ModelType.LOCATION, json);
@@ -207,7 +207,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		FullResult result = getResult(json);
-		IndexFlow flow = get(result.flowIndex(), json);
+		EnviFlow flow = get(result.flowIndex(), json);
 		if (flow == null)
 			return Responses.invalidParams("Missing or invalid flow parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
@@ -251,13 +251,13 @@ class Utils {
 		return null;
 	}
 
-	private IndexFlow get(FlowIndex idx, JsonObject json) {
+	private EnviFlow get(EnviIndex idx, JsonObject json) {
 		if (idx == null)
 			return null;
 		String refID = Json.getRefId(json, "flow");
 		if (refID == null)
 			return null;
-		for (IndexFlow f : idx.content()) {
+		for (EnviFlow f : idx.content()) {
 			if (refID.equals(f.flow().refId))
 				return f;
 		}
@@ -321,13 +321,13 @@ class Utils {
 
 	interface ContributionFlow {
 
-		JsonElement handle(ContributionResult result, IndexFlow flow, EntityCache cache);
+		JsonElement handle(ContributionResult result, EnviFlow flow, EntityCache cache);
 
 	}
 
 	interface ContributionFlowLocation {
 
-		JsonElement handle(ContributionResult result, IndexFlow flow, LocationDescriptor location,
+		JsonElement handle(ContributionResult result, EnviFlow flow, LocationDescriptor location,
 				EntityCache cache);
 
 	}
@@ -367,7 +367,7 @@ class Utils {
 
 	interface FullFlow {
 
-		JsonElement handle(FullResult result, IndexFlow flow, EntityCache cache);
+		JsonElement handle(FullResult result, EnviFlow flow, EntityCache cache);
 
 	}
 

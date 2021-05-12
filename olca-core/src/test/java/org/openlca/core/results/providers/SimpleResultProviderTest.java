@@ -8,10 +8,10 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.IndexFlow;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -28,9 +28,9 @@ public class SimpleResultProviderTest {
 		// create the indices
 		var techIndex = new TechIndex(product("p1"));
 		techIndex.add(product("p2"));
-		var flowIndex = FlowIndex.create();
-		flowIndex.add(IndexFlow.inputOf(flow("r")));
-		flowIndex.add(IndexFlow.outputOf(flow("e")));
+		var flowIndex = EnviIndex.create();
+		flowIndex.add(EnviFlow.inputOf(flow("r")));
+		flowIndex.add(EnviFlow.outputOf(flow("e")));
 		var impactIndex = new ImpactIndex();
 		impactIndex.add(impact("i1"));
 		impactIndex.add(impact("i2"));
@@ -72,7 +72,7 @@ public class SimpleResultProviderTest {
 	public void testScalingVector() {
 	}
 
-	private ProcessProduct product(String name) {
+	private TechFlow product(String name) {
 		var flow = new FlowDescriptor();
 		flow.id = id();
 		flow.name = name;
@@ -80,7 +80,7 @@ public class SimpleResultProviderTest {
 		var process = new ProcessDescriptor();
 		process.id = id();
 		process.name = name;
-		return ProcessProduct.of(process, flow);
+		return TechFlow.of(process, flow);
 	}
 
 	private FlowDescriptor flow(String name) {

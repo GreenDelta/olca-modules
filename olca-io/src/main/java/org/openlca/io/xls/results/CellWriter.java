@@ -11,7 +11,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Location;
@@ -86,18 +86,18 @@ public class CellWriter {
 	 * Writes the given flow information into the given row, starting in column
 	 * col
 	 */
-	public void flowRow(Sheet sheet, int row, int col, IndexFlow flow) {
+	public void flowRow(Sheet sheet, int row, int col, EnviFlow flow) {
 		flow(sheet, row, col, flow, true);
 	}
 
 	/**
 	 * Writes the given flow information into the given col, starting in row row
 	 */
-	public void flowCol(Sheet sheet, int row, int col, IndexFlow flow) {
+	public void flowCol(Sheet sheet, int row, int col, EnviFlow flow) {
 		flow(sheet, row, col, flow, false);
 	}
 
-	private void flow(Sheet sheet, int row, int col, IndexFlow flow, boolean isRow) {
+	private void flow(Sheet sheet, int row, int col, EnviFlow flow, boolean isRow) {
 		if (flow == null || flow.flow() == null)
 			return;
 		FlowDescriptor f = flow.flow();

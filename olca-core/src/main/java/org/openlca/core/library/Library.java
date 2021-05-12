@@ -19,11 +19,11 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.io.npy.Npy;
@@ -77,8 +77,8 @@ public class Library {
 		var info = new LibraryInfo();
 		info.name = name;
 		info.version = version;
-		info.isRegionalized = data.flowIndex != null
-													&& data.flowIndex.isRegionalized();
+		info.isRegionalized = data.enviIndex != null
+													&& data.enviIndex.isRegionalized();
 		new LibraryExport(db, folder)
 			.withConfig(info)
 			.withData(data)
@@ -191,9 +191,9 @@ public class Library {
 			if (process == null || product == null)
 				return Optional.empty();
 			if (index == null) {
-				index = new TechIndex(ProcessProduct.of(process, product));
+				index = new TechIndex(TechFlow.of(process, product));
 			} else {
-				index.add(ProcessProduct.of(process, product));
+				index.add(TechFlow.of(process, product));
 			}
 		}
 		return Optional.ofNullable(index);
@@ -220,7 +220,7 @@ public class Library {
 	 * information is not present or something went wrong while synchronizing
 	 * the flow index with the database, an empty option is returned.
 	 */
-	public Optional<FlowIndex> syncElementaryFlows(IDatabase db) {
+	public Optional<EnviIndex> syncElementaryFlows(IDatabase db) {
 		var proto = getElemFlowIndex();
 		int size = proto.getFlowCount();
 		if (size == 0)
@@ -228,8 +228,8 @@ public class Library {
 
 		var info = getInfo();
 		var index = info.isRegionalized
-			? FlowIndex.createRegionalized()
-			: FlowIndex.create();
+			? EnviIndex.createRegionalized()
+			: EnviIndex.create();
 
 		var flows = descriptors(new FlowDao(db));
 		var locations = descriptors(new LocationDao(db));
@@ -240,9 +240,9 @@ public class Library {
 			if (flow == null)
 				return Optional.empty();
 			if (entry.getIsInput()) {
-				index.add(IndexFlow.inputOf(flow, location));
+				index.add(EnviFlow.inputOf(flow, location));
 			} else {
-				index.add(IndexFlow.outputOf(flow, location));
+				index.add(EnviFlow.outputOf(flow, location));
 			}
 		}
 		return Optional.of(index);
@@ -395,7 +395,7 @@ public class Library {
 	 * exchanges are synchronized with the given databases. Thus, this library
 	 * needs to be mounted to the given database.
 	 */
-	public List<Exchange> getExchanges(ProcessProduct product, IDatabase db) {
+	public List<Exchange> getExchanges(TechFlow product, IDatabase db) {
 		return Exchanges.join(this, db).getFor(product);
 	}
 

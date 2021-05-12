@@ -2,9 +2,9 @@ package org.openlca.core.results;
 
 import java.util.List;
 
-import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
@@ -33,7 +33,7 @@ public interface IResult {
 	 * <p>
 	 * $$\mathit{Idx}_B: \mathit{F} \mapsto [0 \dots k-1]$$
 	 */
-	FlowIndex flowIndex();
+	EnviIndex flowIndex();
 
 	/**
 	 * The row index $\mathit{Idx}_C$ of the matrix with the characterization
@@ -78,7 +78,7 @@ public interface IResult {
 	 * model. The returned list is part of the result and should be never modified
 	 * but reordering via sorting is allowed.
 	 */
-	List<IndexFlow> getFlows();
+	List<EnviFlow> getFlows();
 
 	/**
 	 * Get the LCIA categories of the LCIA result.
@@ -89,7 +89,7 @@ public interface IResult {
 	/**
 	 * Switches the sign for input-flows.
 	 */
-	default double adopt(IndexFlow flow, double value) {
+	default double adopt(EnviFlow flow, double value) {
 		if (flow == null || !flow.isInput())
 			return value;
 		// avoid -0 in the results

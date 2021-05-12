@@ -5,11 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 
@@ -23,15 +23,15 @@ public class SimulationResult extends BaseResult {
 
 	private final List<double[]> flowResults = new ArrayList<>();
 	private final List<double[]> impactResults = new ArrayList<>();
-	private final HashMap<ProcessProduct, PinnedContributions> pinned = new HashMap<>();
+	private final HashMap<TechFlow, PinnedContributions> pinned = new HashMap<>();
 
 	private final TechIndex techIndex;
-	private final FlowIndex flowIndex;
+	private final EnviIndex flowIndex;
 	private final ImpactIndex impactIndex;
 
 	public SimulationResult(MatrixData data) {
 		this.techIndex = data.techIndex;
-		this.flowIndex = data.flowIndex;
+		this.flowIndex = data.enviIndex;
 		this.impactIndex = data.impactIndex;
 	}
 
@@ -41,7 +41,7 @@ public class SimulationResult extends BaseResult {
 	}
 
 	@Override
-	public FlowIndex flowIndex() {
+	public EnviIndex flowIndex() {
 		return flowIndex;
 	}
 
@@ -71,18 +71,18 @@ public class SimulationResult extends BaseResult {
 	 * We only append the respective vectors from these contributions. Thus, the
 	 * indices of these vectors must match with the indices of this result.
 	 */
-	public PinnedContribution pin(ProcessProduct product) {
+	public PinnedContribution pin(TechFlow product) {
 		return new PinnedContribution(this, product);
 	}
 
-	public Set<ProcessProduct> getPinnedProducts() {
+	public Set<TechFlow> getPinnedProducts() {
 		return pinned.keySet();
 	}
 
 	/**
 	 * Get the result of the given flow in the iteration i (zero based).
 	 */
-	public double get(IndexFlow flow, int i) {
+	public double get(EnviFlow flow, int i) {
 		if (flowIndex == null)
 			return 0;
 		int arrayIdx = flowIndex.of(flow);
@@ -93,7 +93,7 @@ public class SimulationResult extends BaseResult {
 	 * Get the direct contribution of the given product to the given flow in the
 	 * iteration i (zero based).
 	 */
-	public double getDirect(ProcessProduct product, IndexFlow flow, int i) {
+	public double getDirect(TechFlow product, EnviFlow flow, int i) {
 		var pc = pinned.get(product);
 		if (pc == null || flowIndex == null)
 			return 0;
@@ -105,7 +105,7 @@ public class SimulationResult extends BaseResult {
 	 * Get the direct contribution of the given product to the given flow for
 	 * all iterations.
 	 */
-	public double[] getAllDirect(ProcessProduct product, IndexFlow flow) {
+	public double[] getAllDirect(TechFlow product, EnviFlow flow) {
 		int count = getNumberOfRuns();
 		double[] vals = new double[count];
 		for (int i = 0; i < count; i++) {
@@ -119,7 +119,7 @@ public class SimulationResult extends BaseResult {
 	 * the iteration i (zero based).
 	 */
 	public double getUpstream(
-		ProcessProduct product, IndexFlow flow, int i) {
+		TechFlow product, EnviFlow flow, int i) {
 		PinnedContributions pc = pinned.get(product);
 		if (pc == null || flowIndex == null)
 			return 0;
@@ -132,7 +132,7 @@ public class SimulationResult extends BaseResult {
 	 * all iterations.
 	 */
 	public double[] getAllUpstream(
-		ProcessProduct product, IndexFlow flow) {
+		TechFlow product, EnviFlow flow) {
 		int count = getNumberOfRuns();
 		double[] vals = new double[count];
 		for (int i = 0; i < count; i++) {
@@ -144,7 +144,7 @@ public class SimulationResult extends BaseResult {
 	/**
 	 * Get all simulation results of the given flow.
 	 */
-	public double[] getAll(IndexFlow flow) {
+	public double[] getAll(EnviFlow flow) {
 		double[] vals = new double[flowResults.size()];
 		for (int i = 0; i < flowResults.size(); i++) {
 			vals[i] = get(flow, i);
@@ -168,7 +168,7 @@ public class SimulationResult extends BaseResult {
 	 * category in the iteration i (zero based).
 	 */
 	public double getDirect(
-		ProcessProduct product, ImpactDescriptor impact, int i) {
+		TechFlow product, ImpactDescriptor impact, int i) {
 		var pc = pinned.get(product);
 		if (pc == null || impactIndex == null)
 			return 0;
@@ -181,7 +181,7 @@ public class SimulationResult extends BaseResult {
 	 * category for all iterations.
 	 */
 	public double[] getAllDirect(
-		ProcessProduct product, ImpactDescriptor impact) {
+		TechFlow product, ImpactDescriptor impact) {
 		int count = getNumberOfRuns();
 		double[] vals = new double[count];
 		for (int i = 0; i < count; i++) {
@@ -195,7 +195,7 @@ public class SimulationResult extends BaseResult {
 	 * category in the iteration i (zero based).
 	 */
 	public double getUpstream(
-		ProcessProduct product, ImpactDescriptor impact, int i) {
+		TechFlow product, ImpactDescriptor impact, int i) {
 		var pc = pinned.get(product);
 		if (pc == null || impactIndex == null)
 			return 0;
@@ -207,7 +207,7 @@ public class SimulationResult extends BaseResult {
 	 * Get the upstream contribution of the given product to the given LCIA
 	 * category for all iterations.
 	 */
-	public double[] getAllUpstream(ProcessProduct product,
+	public double[] getAllUpstream(TechFlow product,
 			ImpactDescriptor impact) {
 		int count = getNumberOfRuns();
 		double[] vals = new double[count];
@@ -260,7 +260,7 @@ public class SimulationResult extends BaseResult {
 	public static class PinnedContribution {
 
 		private final SimulationResult result;
-		private final ProcessProduct product;
+		private final TechFlow product;
 
 		private double[] directFlows;
 		private double[] upstreamFlows;
@@ -269,7 +269,7 @@ public class SimulationResult extends BaseResult {
 
 		private PinnedContribution(
 			SimulationResult result,
-			ProcessProduct product) {
+			TechFlow product) {
 			this.result = result;
 			this.product = product;
 		}

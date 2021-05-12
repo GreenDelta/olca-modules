@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
@@ -179,7 +179,7 @@ public class ImpactHandler {
 	}
 
 	private double getImpactFactor(ContributionResult result,
-			ImpactDescriptor impact, IndexFlow flow) {
+			ImpactDescriptor impact, EnviFlow flow) {
 		int impactIdx = result.impactIndex().of(impact);
 		int flowIdx = result.flowIndex().of(flow);
 		double value = result.provider.impactFactorOf(impactIdx, flowIdx);

@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.openlca.core.matrix.index.IndexFlow;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 
@@ -19,14 +19,14 @@ import gnu.trove.set.hash.TLongHashSet;
 public abstract class BaseResult implements IResult {
 
 	// cached descriptor lists which are initialized lazily
-	private ArrayList<IndexFlow> _flows;
+	private ArrayList<EnviFlow> _flows;
 	private ArrayList<ImpactDescriptor> _impacts;
-	private ArrayList<ProcessProduct> _products;
+	private ArrayList<TechFlow> _products;
 	private ArrayList<CategorizedDescriptor> _processes;
 
 
 	@Override
-	public final List<IndexFlow> getFlows() {
+	public final List<EnviFlow> getFlows() {
 		if (_flows != null)
 			return _flows;
 		var flowIndex = flowIndex();
@@ -55,7 +55,7 @@ public abstract class BaseResult implements IResult {
 	 * sub-systems, these systems are handled like processes and are also included
 	 * as pairs with their quantitative reference flow.
 	 */
-	public final List<ProcessProduct> getProviders() {
+	public final List<TechFlow> getProviders() {
 		if (_products != null)
 			return _products;
 		var techIndex = techIndex();
@@ -75,7 +75,7 @@ public abstract class BaseResult implements IResult {
 			return Collections.emptyList();
 		_processes = new ArrayList<>();
 		TLongHashSet handled = new TLongHashSet();
-		for (ProcessProduct product : getProviders()) {
+		for (TechFlow product : getProviders()) {
 			CategorizedDescriptor process = product.process();
 			if (process == null || handled.contains(process.id))
 				continue;

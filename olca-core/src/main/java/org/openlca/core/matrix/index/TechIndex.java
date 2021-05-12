@@ -34,30 +34,30 @@ import gnu.trove.map.hash.TLongObjectHashMap;
  * <p>
  * $$\mathit{Idx}_A: \mathit{P} \mapsto [0 \dots n-1]$$
  */
-public final class TechIndex implements TechLinker, MatrixIndex<ProcessProduct> {
+public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 
 	/**
 	 * Maps the product-outputs and waste-inputs as (processId, flowId) pairs to an
 	 * ordinal index.
 	 */
-	private final HashMap<ProcessProduct, Integer> index = new HashMap<>();
+	private final HashMap<TechFlow, Integer> index = new HashMap<>();
 
 	/**
 	 * Contains the product-outputs and waste-inputs in an ordinal list.
 	 */
-	private final ArrayList<ProcessProduct> providers = new ArrayList<>();
+	private final ArrayList<TechFlow> providers = new ArrayList<>();
 
 	/**
 	 * Maps linked exchanges (keys) as (processId, exchangeId) pairs to the
 	 * respective provider.
 	 */
-	private final HashMap<LongPair, ProcessProduct> links = new HashMap<>();
+	private final HashMap<LongPair, TechFlow> links = new HashMap<>();
 
 	/**
 	 * Maps the IDs of the processes and product systems to the list of
 	 * product-outputs and waste-inputs provided by these respectively.
 	 */
-	private final TLongObjectHashMap<List<ProcessProduct>> processProviders = new TLongObjectHashMap<>();
+	private final TLongObjectHashMap<List<TechFlow>> processProviders = new TLongObjectHashMap<>();
 
 	/**
 	 * The demand value of the reference flow of the product system described by
@@ -72,7 +72,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<ProcessProduct> 
 	 * @param refFlow the reference product-output or waste-input as (processId,
 	 *                flowId) pair.
 	 */
-	public TechIndex(ProcessProduct refFlow) {
+	public TechIndex(TechFlow refFlow) {
 		add(refFlow);
 	}
 
@@ -106,7 +106,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<ProcessProduct> 
 				continue;
 
 			// the tech-index checks for duplicates of products and links
-			var provider = ProcessProduct.of(p, flow);
+			var provider = TechFlow.of(p, flow);
 			index.add(provider);
 			var exchange = new LongPair(link.processId, link.exchangeId);
 			index.putLink(exchange, provider);
@@ -119,7 +119,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<ProcessProduct> 
 	 * database in some arbitrary order.
 	 */
 	public static TechIndex of(IDatabase db) {
-		var list = new ArrayList<ProcessProduct>();
+		var list = new ArrayList<TechFlow>();
 		eachProviderOf(db, list::add);
 		if (list.isEmpty())
 			throw new RuntimeException("no providers in database");
@@ -133,7 +133,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<ProcessProduct> 
 	private static TechIndex initFrom(ProductSystem system) {
 		// initialize the TechIndex with the reference flow
 		var refExchange = system.referenceExchange;
-		var refFlow = ProcessProduct.of(
+		var refFlow = TechFlow.of(
 				system.referenceProcess, refExchange.flow);
 		var index = new TechIndex(refFlow);
 
@@ -150,7 +150,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<ProcessProduct> 
 		return index;
 	}
 
-	private static void eachProviderOf(IDatabase db, Consumer<ProcessProduct> fn) {
+	private static void eachProviderOf(IDatabase db, Consumer<TechFlow> fn) {
 		var processes = new ProcessDao(db).descriptorMap();
 		var flows = new FlowDao(db).descriptorMap();
 		String sql = "select f_owner, f_flow, is_input from tbl_exchanges";
@@ -175,7 +175,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<ProcessProduct> 
 				// case the process would be null.
 				return true;
 			}
-			fn.accept(ProcessProduct.of(process, flow));
+			fn.accept(TechFlow.of(process, flow));
 			return true;
 		});
 	}
@@ -192,7 +192,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<ProcessProduct> 
 	 * Get the reference product-output or waste-input of the product system
 	 * described by this index.
 	 */
-	public ProcessProduct getRefFlow() {
+	public TechFlow getRefFlow() {
 		return providers.get(0);
 	}
 
@@ -218,7 +218,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<ProcessProduct> 
 	 * input). If the product is not not part of this index, -1 is returned.
 	 */
 	@Override
-	public int of(ProcessProduct provider) {
+	public int of(TechFlow provider) {
 		var idx = index.get(provider);
 		return idx == null ? -1 : idx;
 	}
@@ -232,17 +232,17 @@ public final class TechIndex implements TechLinker, MatrixIndex<ProcessProduct> 
 	}
 
 	@Override
-	public void each(IndexConsumer<ProcessProduct> fn) {
+	public void each(IndexConsumer<TechFlow> fn) {
 		for (int i = 0; i < providers.size(); i++) {
 			fn.accept(i, providers.get(i));
 		}
 	}
 
-	public ProcessProduct getProvider(long processID, long flowID) {
-		List<ProcessProduct> list = processProviders.get(processID);
+	public TechFlow getProvider(long processID, long flowID) {
+		List<TechFlow> list = processProviders.get(processID);
 		if (list == null)
 			return null;
-		for (ProcessProduct p : list) {
+		for (TechFlow p : list) {
 			if (p.flowId() == flowID)
 				return p;
 		}
@@ -255,7 +255,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<ProcessProduct> 
 	 * current position is returned.
 	 */
 	@Override
-	public int add(ProcessProduct provider) {
+	public int add(TechFlow provider) {
 		var existing = index.get(provider);
 		if (existing != null)
 			return existing;
@@ -275,7 +275,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<ProcessProduct> 
 	 * Returns the provider (product-output or waste-input) at the given index.
 	 */
 	@Override
-	public ProcessProduct at(int index) {
+	public TechFlow at(int index) {
 		return providers.get(index);
 	}
 
@@ -283,7 +283,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<ProcessProduct> 
 	 * Get all providers with the given descriptor of a process or product system as
 	 * entity.
 	 */
-	public List<ProcessProduct> getProviders(CategorizedDescriptor d) {
+	public List<TechFlow> getProviders(CategorizedDescriptor d) {
 		return d == null
 				? Collections.emptyList()
 				: getProviders(d.id);
@@ -293,7 +293,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<ProcessProduct> 
 	 * Returns the providers (product-outputs and waste-inputs) for the process with
 	 * the given ID.
 	 */
-	public List<ProcessProduct> getProviders(long processId) {
+	public List<TechFlow> getProviders(long processId) {
 		var providers = processProviders.get(processId);
 		return providers == null
 				? Collections.emptyList()
@@ -316,7 +316,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<ProcessProduct> 
 	 * @param provider The product-output or waste-input (provider) as (processId,
 	 *                 flowId) pair.
 	 */
-	public void putLink(LongPair exchange, ProcessProduct provider) {
+	public void putLink(LongPair exchange, TechFlow provider) {
 		if (links.containsKey(exchange))
 			return;
 		add(provider);
@@ -324,7 +324,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<ProcessProduct> 
 	}
 
 	@Override
-	public ProcessProduct providerOf(CalcExchange e) {
+	public TechFlow providerOf(CalcExchange e) {
 		return getLinkedProvider(LongPair.of(e.processId, e.exchangeId));
 	}
 
@@ -339,7 +339,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<ProcessProduct> 
 	 * Returns the linked provider (product-output or waste-input) for the given
 	 * exchange (product-input or waste-output)
 	 */
-	public ProcessProduct getLinkedProvider(LongPair exchange) {
+	public TechFlow getLinkedProvider(LongPair exchange) {
 		return links.get(exchange);
 	}
 
@@ -357,7 +357,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<ProcessProduct> 
 	 */
 	public Set<Long> getProcessIds() {
 		HashSet<Long> set = new HashSet<>();
-		for (ProcessProduct p : providers) {
+		for (TechFlow p : providers) {
 			set.add(p.processId());
 		}
 		return set;
@@ -367,7 +367,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<ProcessProduct> 
 	 * Returns all providers of this index.
 	 */
 	@Override
-	public Set<ProcessProduct> content() {
+	public Set<TechFlow> content() {
 		return new HashSet<>(providers);
 	}
 
@@ -385,7 +385,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<ProcessProduct> 
 	}
 
 	@Override
-	public Iterator<ProcessProduct> iterator() {
+	public Iterator<TechFlow> iterator() {
 		return Collections.unmodifiableList(providers).iterator();
 	}
 }

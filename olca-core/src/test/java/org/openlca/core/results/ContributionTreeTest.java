@@ -3,11 +3,11 @@ package org.openlca.core.results;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.matrix.index.FlowIndex;
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -25,11 +25,11 @@ public class ContributionTreeTest {
 		techIndex.putLink(LongPair.of(1, 3), provider(3, 3));
 		data.techIndex = techIndex;
 
-		var enviIndex = FlowIndex.create();
+		var enviIndex = EnviIndex.create();
 		var outFlow = new FlowDescriptor();
 		outFlow.id = 4;
-		enviIndex.add(IndexFlow.outputOf(outFlow));
-		data.flowIndex = enviIndex;
+		enviIndex.add(EnviFlow.outputOf(outFlow));
+		data.enviIndex = enviIndex;
 
 		var solver = Tests.getDefaultSolver();
 		var techMatrix = solver.matrix(3, 3);
@@ -42,7 +42,7 @@ public class ContributionTreeTest {
 		var flowMatrix = solver.matrix(1, 3);
 		flowMatrix.setValues(new double[][] {
 				{ 0, 0.5, 0.5 } });
-		data.flowMatrix = flowMatrix;
+		data.enviMatrix = flowMatrix;
 
 		// calculate and check the result
 		var r = FullResult.of(Tests.getDb(), data);
@@ -56,13 +56,13 @@ public class ContributionTreeTest {
 
 	}
 
-	private ProcessProduct provider(long id, long flowId) {
+	private TechFlow provider(long id, long flowId) {
 		ProcessDescriptor process = new ProcessDescriptor();
 		process.name = "Process " + id;
 		process.id = id;
 		FlowDescriptor flow = new FlowDescriptor();
 		flow.name = "Flow " + flowId;
 		flow.id = flowId;
-		return ProcessProduct.of(process, flow);
+		return TechFlow.of(process, flow);
 	}
 }

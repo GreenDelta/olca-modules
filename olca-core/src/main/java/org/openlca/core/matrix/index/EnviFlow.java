@@ -8,32 +8,32 @@ import org.openlca.core.model.descriptors.LocationDescriptor;
 /**
  * Describes the mapping of flow information to a matrix index.
  */
-public class IndexFlow {
+public class EnviFlow {
 
 	private final FlowDescriptor flow;
 	private final LocationDescriptor location;
 	private final boolean isInput;
 
-	IndexFlow(FlowDescriptor flow, LocationDescriptor location, boolean isInput) {
+	EnviFlow(FlowDescriptor flow, LocationDescriptor location, boolean isInput) {
 		this.flow = Objects.requireNonNull(flow);
 		this.location = location;
 		this.isInput = isInput;
 	}
 
-	public static IndexFlow inputOf(FlowDescriptor flow) {
-		return new IndexFlow(flow, null, true);
+	public static EnviFlow inputOf(FlowDescriptor flow) {
+		return new EnviFlow(flow, null, true);
 	}
 
-	public static IndexFlow inputOf(FlowDescriptor flow, LocationDescriptor loc) {
-		return new IndexFlow(flow, loc, true);
+	public static EnviFlow inputOf(FlowDescriptor flow, LocationDescriptor loc) {
+		return new EnviFlow(flow, loc, true);
 	}
 
-	public static IndexFlow outputOf(FlowDescriptor flow) {
-		return new IndexFlow(flow, null, false);
+	public static EnviFlow outputOf(FlowDescriptor flow) {
+		return new EnviFlow(flow, null, false);
 	}
 
-	public static IndexFlow outputOf(FlowDescriptor flow, LocationDescriptor loc) {
-		return new IndexFlow(flow, loc, false);
+	public static EnviFlow outputOf(FlowDescriptor flow, LocationDescriptor loc) {
+		return new EnviFlow(flow, loc, false);
 	}
 
 	/**
@@ -75,7 +75,7 @@ public class IndexFlow {
 			return true;
 		if (o == null || getClass() != o.getClass())
 			return false;
-		var other = (IndexFlow) o;
+		var other = (EnviFlow) o;
 		return Objects.equals(flow, other.flow)
 				&& Objects.equals(location, other.location)
 				&& isInput == other.isInput;

@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.matrix.index.IndexFlow;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.format.DenseByteMatrix;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
@@ -107,7 +107,7 @@ public class DQResult {
 	/**
 	 * Get the process data quality entry for the given product.
 	 */
-	public int[] get(ProcessProduct product) {
+	public int[] get(TechFlow product) {
 		if (processData == null)
 			return null;
 		int col = result.techIndex().of(product);
@@ -120,7 +120,7 @@ public class DQResult {
 	 * @deprecated just added for compatibility reasons
 	 */
 	@Deprecated
-	public int[] get(CategorizedDescriptor process, IndexFlow flow) {
+	public int[] get(CategorizedDescriptor process, EnviFlow flow) {
 		var products = result.techIndex().getProviders(process);
 		return products.isEmpty()
 			? null
@@ -130,7 +130,7 @@ public class DQResult {
 	/**
 	 * Get the exchange data quality entry for the given product and flow.
 	 */
-	public int[] get(ProcessProduct product, IndexFlow flow) {
+	public int[] get(TechFlow product, EnviFlow flow) {
 		if (exchangeData == null)
 			return null;
 		int row = result.flowIndex().of(flow);
@@ -147,7 +147,7 @@ public class DQResult {
 	/**
 	 * Get the aggregated result for the given flow.
 	 */
-	public int[] get(IndexFlow flow) {
+	public int[] get(EnviFlow flow) {
 		if (flowResult == null)
 			return null;
 		int col = result.flowIndex().of(flow);
@@ -168,7 +168,7 @@ public class DQResult {
 			: toInt(impactResult.getColumn(col));
 	}
 
-	public int[] get(ImpactDescriptor impact, IndexFlow flow) {
+	public int[] get(ImpactDescriptor impact, EnviFlow flow) {
 		if (flowImpactResult == null)
 			return null;
 		int row = result.impactIndex().of(impact);
@@ -194,7 +194,7 @@ public class DQResult {
 			: get(impact, products.get(0));
 	}
 
-	public int[] get(ImpactDescriptor impact, ProcessProduct product) {
+	public int[] get(ImpactDescriptor impact, TechFlow product) {
 		if (processImpactResult == null)
 			return null;
 		int row = result.impactIndex().of(impact);
@@ -269,7 +269,7 @@ public class DQResult {
 
 		// collect the processes (providers) of the result with a
 		// matching data quality system
-		var providers = new TLongObjectHashMap<List<ProcessProduct>>();
+		var providers = new TLongObjectHashMap<List<TechFlow>>();
 		var sql = "select id, f_exchange_dq_system from tbl_processes";
 		NativeSql.on(db).query(sql, r -> {
 			long sysID = r.getLong(2);

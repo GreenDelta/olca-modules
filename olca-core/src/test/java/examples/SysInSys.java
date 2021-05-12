@@ -7,7 +7,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.Simulator;
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.ProductSystem;
@@ -36,7 +36,7 @@ public class SysInSys {
 
 		SimpleResult r = sim.nextRun();
 
-		IndexFlow f = r.flowIndex().at(0);
+		EnviFlow f = r.flowIndex().at(0);
 		System.out.println(f.flow().name + "  -> " + r.getTotalFlowResult(f));
 
 	}

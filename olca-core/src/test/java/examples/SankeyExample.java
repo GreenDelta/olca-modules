@@ -1,7 +1,7 @@
 package examples;
 
 import org.openlca.core.database.Derby;
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.Sankey;
@@ -22,7 +22,7 @@ public class SankeyExample {
 		System.out.println("Computed result in: "
 				+ ((double) (end - start) / 1000d));
 
-		IndexFlow flow = result.flowIndex().at(42);
+		EnviFlow flow = result.flowIndex().at(42);
 
 		start = System.currentTimeMillis();
 		var sankey = Sankey.of(flow, result)

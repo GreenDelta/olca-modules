@@ -12,12 +12,12 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.LibraryMatrix;
-import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixBuilder;
@@ -56,7 +56,7 @@ public class LazyLibraryProvider implements ResultProvider {
 	// library maps: libID -> T
 	private final HashMap<String, Library> libraries = new HashMap<>();
 	private final HashMap<String, TechIndex> libTechIndices = new HashMap<>();
-	private final HashMap<String, FlowIndex> libFlowIndices = new HashMap<>();
+	private final HashMap<String, EnviIndex> libFlowIndices = new HashMap<>();
 
 	private LazyLibraryProvider(
 			IDatabase db,
@@ -158,12 +158,12 @@ public class LazyLibraryProvider implements ResultProvider {
 	private void initFlowIndex() {
 		// initialize the flow index with the foreground
 		// index if present
-		FlowIndex index = null;
-		var indexF = foregroundData.flowIndex;
+		EnviIndex index = null;
+		var indexF = foregroundData.enviIndex;
 		if (indexF != null) {
 			index = indexF.isRegionalized()
-					? FlowIndex.createRegionalized()
-					: FlowIndex.create();
+					? EnviIndex.createRegionalized()
+					: EnviIndex.create();
 			index.addAll(indexF);
 		}
 
@@ -177,14 +177,14 @@ public class LazyLibraryProvider implements ResultProvider {
 				continue;
 			if (index == null) {
 				index = libIdx.isRegionalized()
-						? FlowIndex.createRegionalized()
-						: FlowIndex.create();
+						? EnviIndex.createRegionalized()
+						: EnviIndex.create();
 			}
 			index.addAll(libIdx);
 			libFlowIndices.put(libID, libIdx);
 		}
 
-		fullData.flowIndex = index;
+		fullData.enviIndex = index;
 	}
 
 	@Override
@@ -193,8 +193,8 @@ public class LazyLibraryProvider implements ResultProvider {
 	}
 
 	@Override
-	public FlowIndex flowIndex() {
-		return fullData.flowIndex;
+	public EnviIndex flowIndex() {
+		return fullData.enviIndex;
 	}
 
 	@Override
@@ -333,7 +333,7 @@ public class LazyLibraryProvider implements ResultProvider {
 
 		// initialize a queue that is used for adding scaled
 		// sub-solutions of libraries recursively
-		var queue = new ArrayDeque<Pair<ProcessProduct, Double>>();
+		var queue = new ArrayDeque<Pair<TechFlow, Double>>();
 		var start = fullData.techIndex.at(product);
 		if (start.isFromLibrary()) {
 			// start process is a library process
@@ -413,7 +413,7 @@ public class LazyLibraryProvider implements ResultProvider {
 		if (column != null)
 			return column;
 
-		var flowIdx = fullData.flowIndex;
+		var flowIdx = fullData.enviIndex;
 		if (flowIdx == null)
 			return EMPTY_VECTOR;
 
@@ -427,7 +427,7 @@ public class LazyLibraryProvider implements ResultProvider {
 		// the flow index of the foreground system is
 		// exactly the first part of the combined index
 		if (libID == null) {
-			var flowMatrixF = foregroundData.flowMatrix;
+			var flowMatrixF = foregroundData.enviMatrix;
 			if (flowMatrixF != null) {
 				var colF = flowMatrixF.getColumn(j);
 				System.arraycopy(colF, 0, column, 0, colF.length);
@@ -497,7 +497,7 @@ public class LazyLibraryProvider implements ResultProvider {
 		if (totals != null)
 			return totals;
 
-		var flowIndex = fullData.flowIndex;
+		var flowIndex = fullData.enviIndex;
 		if (flowIndex == null || flowIndex.size() == 0) {
 			return EMPTY_VECTOR;
 		}
@@ -506,7 +506,7 @@ public class LazyLibraryProvider implements ResultProvider {
 		totals = new double[flowIndex.size()];
 
 		// add the foreground result
-		var enviF = foregroundData.flowMatrix;
+		var enviF = foregroundData.enviMatrix;
 		if (enviF != null) {
 			var sF = Arrays.copyOf(
 					s, foregroundData.techIndex.size());

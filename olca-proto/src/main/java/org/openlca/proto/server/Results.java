@@ -1,7 +1,7 @@
 package org.openlca.proto.server;
 
-import org.openlca.core.matrix.index.IndexFlow;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.proto.Messages;
@@ -34,7 +34,7 @@ final class Results {
     return null;
   }
 
-  static IndexFlow findFlow(
+  static EnviFlow findFlow(
     SimpleResult result, ResultsProto.EnviFlow proto) {
 
     if (result == null || Messages.isEmpty(proto))
@@ -61,7 +61,7 @@ final class Results {
     return null;
   }
 
-  static ProcessProduct findProduct(
+  static TechFlow findProduct(
     SimpleResult result, ResultsProto.TechFlow proto) {
     if (result == null || Messages.isEmpty(proto))
       return null;
@@ -80,7 +80,7 @@ final class Results {
   }
 
   static ResultsProto.EnviFlow toProto(
-    IndexFlow flow, Refs.RefData refData) {
+    EnviFlow flow, Refs.RefData refData) {
 
     var proto = ResultsProto.EnviFlow.newBuilder();
     if (flow == null)
@@ -94,7 +94,7 @@ final class Results {
   }
 
   static ResultsProto.ResultValue toProtoResult(
-    IndexFlow flow, Refs.RefData refData, double value) {
+    EnviFlow flow, Refs.RefData refData, double value) {
     return ResultsProto.ResultValue.newBuilder()
       .setEnviFlow(toProto(flow, refData))
       .setValue(value)
@@ -102,7 +102,7 @@ final class Results {
   }
 
   static ResultsProto.TechFlow toProto(
-    ProcessProduct product, Refs.RefData refData) {
+    TechFlow product, Refs.RefData refData) {
 
     var proto = ResultsProto.TechFlow.newBuilder();
     if (product == null)

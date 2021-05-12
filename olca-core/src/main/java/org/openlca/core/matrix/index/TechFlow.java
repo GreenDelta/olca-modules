@@ -20,22 +20,22 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
  * that are sub-systems of other product systems (and are handled like processes
  * in these systems with their quantitative reference as product).
  */
-public class ProcessProduct {
+public class TechFlow {
 
 	private final CategorizedDescriptor process;
 	private final FlowDescriptor flow;
 
-	private ProcessProduct(CategorizedDescriptor process, FlowDescriptor flow) {
+	private TechFlow(CategorizedDescriptor process, FlowDescriptor flow) {
 		this.process = process;
 		this.flow = flow;
 	}
 
-	public static ProcessProduct of(
+	public static TechFlow of(
 			CategorizedDescriptor process, FlowDescriptor flow) {
-		return new ProcessProduct(process, flow);
+		return new TechFlow(process, flow);
 	}
 
-	public static ProcessProduct of(Process process, Flow flow) {
+	public static TechFlow of(Process process, Flow flow) {
 		return of(Descriptor.of(process), Descriptor.of(flow));
 	}
 
@@ -43,7 +43,7 @@ public class ProcessProduct {
 	 * Creates a product where the given product system is the provider and the
 	 * reference flow of the system the product.
 	 */
-	public static ProcessProduct of(ProductSystem system) {
+	public static TechFlow of(ProductSystem system) {
 		Flow flow = system.referenceExchange != null
 				? system.referenceExchange.flow
 				: null;
@@ -57,7 +57,7 @@ public class ProcessProduct {
 	 * and what you want when calling this method. Otherwise use another
 	 * construction method.
 	 */
-	public static ProcessProduct of(Process process) {
+	public static TechFlow of(Process process) {
 		var flow = process.quantitativeReference != null
 				? process.quantitativeReference.flow
 				: null;
@@ -95,7 +95,7 @@ public class ProcessProduct {
 			return true;
 		if (obj == null || this.getClass() != obj.getClass())
 			return false;
-		var other = (ProcessProduct) obj;
+		var other = (TechFlow) obj;
 		return Objects.equals(this.process(), other.process())
 				&& Objects.equals(this.flow(), other.flow());
 	}

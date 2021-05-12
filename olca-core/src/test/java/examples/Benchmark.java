@@ -7,7 +7,7 @@ import java.util.Random;
 import org.openlca.core.database.Derby;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.FullResult;
@@ -58,7 +58,7 @@ public class Benchmark {
 		System.out.println("done");
 		System.out.println("\nResults:\n");
 		System.out.println("flowId \t result");
-		for (IndexFlow f : result.getFlows()) {
+		for (EnviFlow f : result.getFlows()) {
 			System.out.printf("%s \t %.10f \n", f.flow().name,
 				result.getTotalFlowResult(f));
 		}

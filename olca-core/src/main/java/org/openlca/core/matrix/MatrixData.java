@@ -9,9 +9,9 @@ import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.MatrixReader;
-import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.uncertainties.UMatrix;
 import org.openlca.core.results.SimpleResult;
@@ -34,7 +34,7 @@ public class MatrixData {
 	 * The matrix index of the environmental/elementary flows (i.e. the row index of
 	 * the intervention matrix; the column index of the impact matrix).
 	 */
-	public FlowIndex flowIndex;
+	public EnviIndex enviIndex;
 
 	/**
 	 * The matrix index of the LCIA categories (i.e. the row index of the impact
@@ -50,7 +50,7 @@ public class MatrixData {
 	/**
 	 * The intervention matrix.
 	 */
-	public MatrixReader flowMatrix;
+	public MatrixReader enviMatrix;
 
 	/**
 	 * The matrix with the characterization factors: LCIA categories * elementary
@@ -101,7 +101,7 @@ public class MatrixData {
 	 */
 	public static MatrixData of(
 		IDatabase db, CalculationSetup setup,
-		Map<ProcessProduct, SimpleResult> subResults) {
+		Map<TechFlow, SimpleResult> subResults) {
 
 		// create the tech-index
 		var system = setup.productSystem;
@@ -128,10 +128,10 @@ public class MatrixData {
 			techUncertainties.generate(t, interpreter);
 			techMatrix = t;
 		}
-		if (flowMatrix != null && enviUncertainties != null) {
-			var f = flowMatrix.asMutable();
+		if (enviMatrix != null && enviUncertainties != null) {
+			var f = enviMatrix.asMutable();
 			enviUncertainties.generate(f, interpreter);
-			flowMatrix = f;
+			enviMatrix = f;
 		}
 		if (impactMatrix != null && impactUncertainties != null) {
 			var c = impactMatrix.asMutable();
@@ -172,8 +172,8 @@ public class MatrixData {
 		if (techMatrix instanceof HashPointMatrix) {
 			techMatrix = CSCMatrix.of(techMatrix);
 		}
-		if (flowMatrix instanceof HashPointMatrix) {
-			flowMatrix = CSCMatrix.of(flowMatrix);
+		if (enviMatrix instanceof HashPointMatrix) {
+			enviMatrix = CSCMatrix.of(enviMatrix);
 		}
 		if (impactMatrix instanceof HashPointMatrix) {
 			impactMatrix = CSCMatrix.of(impactMatrix);
@@ -183,10 +183,10 @@ public class MatrixData {
 	public MatrixData copy() {
 		var copy = new MatrixData();
 		copy.techIndex = Copy.of(techIndex);
-		copy.flowIndex = Copy.of(flowIndex);
+		copy.enviIndex = Copy.of(enviIndex);
 		copy.impactIndex = Copy.of(impactIndex);
 		copy.techMatrix = Copy.of(techMatrix);
-		copy.flowMatrix = Copy.of(flowMatrix);
+		copy.enviMatrix = Copy.of(enviMatrix);
 		copy.impactMatrix = Copy.of(impactMatrix);
 		if (costVector != null) {
 			copy.costVector = Arrays.copyOf(costVector, costVector.length);
