@@ -2,14 +2,14 @@ package examples;
 
 import java.io.File;
 
+import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.database.Derby;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.Simulator;
 import org.openlca.core.matrix.index.IndexFlow;
-import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.matrix.solvers.JavaSolver;
+import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.SimpleResult;
 
@@ -37,7 +37,7 @@ public class SysInSys {
 		SimpleResult r = sim.nextRun();
 
 		IndexFlow f = r.flowIndex().at(0);
-		System.out.println(f.flow.name + "  -> " + r.getTotalFlowResult(f));
+		System.out.println(f.flow().name + "  -> " + r.getTotalFlowResult(f));
 
 	}
 

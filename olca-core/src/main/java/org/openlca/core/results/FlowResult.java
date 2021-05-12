@@ -21,9 +21,9 @@ public class FlowResult {
 	}
 
 	public FlowResult(IndexFlow flow, double value) {
-		this.flow = flow.flow;
-		this.location = flow.location;
-		this.input = flow.isInput;
+		this.flow = flow.flow();
+		this.location = flow.location();
+		this.input = flow.isInput();
 		this.value = value;
 	}
 

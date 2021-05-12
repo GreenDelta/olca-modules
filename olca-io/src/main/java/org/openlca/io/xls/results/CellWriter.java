@@ -98,9 +98,9 @@ public class CellWriter {
 	}
 
 	private void flow(Sheet sheet, int row, int col, IndexFlow flow, boolean isRow) {
-		if (flow == null || flow.flow == null)
+		if (flow == null || flow.flow() == null)
 			return;
-		FlowDescriptor f = flow.flow;
+		FlowDescriptor f = flow.flow();
 		cell(sheet, isRow ? row : row++, !isRow ? col : col++, f.refId, false);
 		cell(sheet, isRow ? row : row++, !isRow ? col : col++, f.name, false);
 		CategoryPair flowCat = CategoryPair.create(f, cache);

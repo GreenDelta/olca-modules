@@ -138,7 +138,7 @@ public class InventoryBuilder {
 				if (result.flowIndex() != null) {
 					result.flowIndex().each((i, f) -> {
 						double b = result.getTotalFlowResult(f);
-						if (f.isInput) {
+						if (f.isInput()) {
 							b = -b;
 						}
 						enviBuilder.set(flowIndex.of(f), col, b);

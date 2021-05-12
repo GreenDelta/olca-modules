@@ -1,7 +1,7 @@
 package examples;
 
-import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.Derby;
+import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.ProductSystem;
@@ -21,7 +21,7 @@ public class CalculationExample {
 			var calc = new SystemCalculator(db);
 			var r = calc.calculateFull(setup);
 			var f = r.flowIndex().at(0);
-			System.out.println(f.flow.name + "  -> " + r.getTotalFlowResult(f));
+			System.out.println(f.flow().name + "  -> " + r.getTotalFlowResult(f));
 			var impact =  r.impactIndex().at(0);
 			System.out.println(impact.name + "  -> " + r.getTotalImpactResult(impact));
 		}

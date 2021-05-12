@@ -1,7 +1,5 @@
 package org.openlca.core.model.descriptors;
 
-import java.util.Objects;
-
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
@@ -44,7 +42,7 @@ public class Descriptor {
 	 * descriptor belongs to a library. Otherwise this field is empty (or null).
 	 */
 	public String library;
-	
+
 	/**
 	 * Tags are stored in a single string separated by commas `,`.
 	 */
@@ -54,32 +52,31 @@ public class Descriptor {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == null)
-			return false;
 		if (obj == this)
 			return true;
-		if (!(this.getClass().isInstance(obj)))
+		if (obj == null || getClass() != obj.getClass())
 			return false;
 		var other = (Descriptor) obj;
 		if (this.type != other.type)
 			return false;
 		if (this.id != 0 || other.id != 0)
 			return this.id == other.id;
-		else
-			return Objects.equals(this.refId, other.refId)
-					&& Objects.equals(this.name, other.name)
-					&& Objects.equals(this.description, other.description);
+		return this.refId != null && this.refId.equals(other.refId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Long.hashCode(id);
+		if (id != 0)
+			return Long.hashCode(id);
+		if (refId != null)
+			return refId.hashCode();
+		return super.hashCode();
 	}
 
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + " [id=" + id + ", name=" + name
-				+ ", type=" + type + "]";
+					 + ", type=" + type + "]";
 	}
 
 	/**

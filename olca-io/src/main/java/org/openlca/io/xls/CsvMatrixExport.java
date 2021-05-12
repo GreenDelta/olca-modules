@@ -7,8 +7,8 @@ import java.util.HashMap;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.matrix.index.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.index.FlowIndex;
 import org.openlca.core.matrix.index.ProcessProduct;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.AllocationMethod;
@@ -101,7 +101,7 @@ public class CsvMatrixExport implements Runnable {
 		writeEnviMatrixHeader(buffer, techIndex);
 		var matrix = data.flowMatrix;
 		for (int row = 0; row < rows; row++) {
-			FlowDescriptor flow = flowIndex.at(row).flow;
+			FlowDescriptor flow = flowIndex.at(row).flow();
 			writeName(flow, buffer);
 			sep(buffer);
 			writeCategory(flow, buffer);

@@ -1,6 +1,6 @@
 package org.openlca.core.matrix;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.stream.Stream;
 
@@ -62,7 +62,7 @@ public class ImpactBuilderTest {
 			.forEach(db::delete);
 		flowIdx.content()
 			.stream()
-			.map(f -> db.get(Flow.class, f.flow.id))
+			.map(f -> db.get(Flow.class, f.flow().id))
 			.forEach(db::delete);
 		db.delete(mass, units);
 	}

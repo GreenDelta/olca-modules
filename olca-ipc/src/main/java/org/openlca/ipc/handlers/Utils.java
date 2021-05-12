@@ -61,10 +61,10 @@ class Utils {
 	}
 
 	String getUnit(IndexFlow flow, EntityCache cache) {
-		if (flow == null || flow.flow == null)
+		if (flow == null || flow.flow() == null)
 			return null;
 		FlowProperty prop = cache.get(
-				FlowProperty.class, flow.flow.refFlowPropertyId);
+				FlowProperty.class, flow.flow().refFlowPropertyId);
 		if (prop == null || prop.unitGroup == null)
 			return null;
 		Unit unit = prop.unitGroup.referenceUnit;
@@ -258,7 +258,7 @@ class Utils {
 		if (refID == null)
 			return null;
 		for (IndexFlow f : idx.content()) {
-			if (refID.equals(f.flow.refId))
+			if (refID.equals(f.flow().refId))
 				return f;
 		}
 		return null;

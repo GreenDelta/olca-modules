@@ -10,21 +10,9 @@ import org.openlca.core.model.descriptors.LocationDescriptor;
  */
 public class IndexFlow {
 
-	/**
-	 * The flow that is mapped to the matrix index.
-	 */
-	public final FlowDescriptor flow;
-
-	/**
-	 * In case of a regionalized flow index flow-location pairs are mapped to matrix
-	 * indices.
-	 */
-	public final LocationDescriptor location;
-
-	/**
-	 * Indicates whether the flow is an input flow or not.
-	 */
-	public final boolean isInput;
+	private final FlowDescriptor flow;
+	private final LocationDescriptor location;
+	private final boolean isInput;
 
 	IndexFlow(FlowDescriptor flow, LocationDescriptor location, boolean isInput) {
 		this.flow = Objects.requireNonNull(flow);
@@ -48,6 +36,29 @@ public class IndexFlow {
 		return new IndexFlow(flow, loc, false);
 	}
 
+	/**
+	 * Returns the flow descriptor which is never {@code null}.
+	 */
+	public FlowDescriptor flow() {
+		return flow;
+	}
+
+	/**
+	 * Returns the location descriptor. This returns {@code null} fo
+	 * non-regionalized indices.
+	 */
+	public LocationDescriptor location() {
+		return location;
+	}
+
+	/**
+	 * Returns {@code true} when this flow is an input flow, otherwise
+	 * {@code false}.
+	 */
+	public boolean isInput() {
+		return isInput;
+	}
+
 	long flowId() {
 		return flow.id;
 	}
@@ -66,13 +77,14 @@ public class IndexFlow {
 			return false;
 		var other = (IndexFlow) o;
 		return Objects.equals(flow, other.flow)
-				&& Objects.equals(location, other.location);
+				&& Objects.equals(location, other.location)
+				&& isInput == other.isInput;
 	}
 
 	@Override
 	public int hashCode() {
-		if (location == null)
-			return (int) flow.id;
-		return LongPair.hash(flow.id, location.id);
+		return location == null
+			? flow.hashCode()
+			: flow.hashCode() * 31 + location.hashCode();
 	}
 }

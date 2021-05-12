@@ -49,13 +49,13 @@ final class Results {
       : Strings.nullIfEmpty(proto.getLocation().getId());
 
     for (var flow : index) {
-      if (!Strings.nullOrEqual(flow.flow.refId, flowId))
+      if (!Strings.nullOrEqual(flow.flow().refId, flowId))
         continue;
-      if (locationId == null && flow.location == null)
+      if (locationId == null && flow.location() == null)
         return flow;
       if (locationId != null
-        && flow.location != null
-        && Strings.nullOrEqual(flow.location.refId, locationId))
+        && flow.location() != null
+        && Strings.nullOrEqual(flow.location().refId, locationId))
         return flow;
     }
     return null;
@@ -85,10 +85,10 @@ final class Results {
     var proto = ResultsProto.EnviFlow.newBuilder();
     if (flow == null)
       return proto.build();
-    proto.setFlow(Refs.refOf(flow.flow, refData));
-    proto.setIsInput(flow.isInput);
-    if (flow.location != null) {
-      proto.setLocation(Refs.refOf(flow.location, refData));
+    proto.setFlow(Refs.refOf(flow.flow(), refData));
+    proto.setIsInput(flow.isInput());
+    if (flow.location() != null) {
+      proto.setLocation(Refs.refOf(flow.location(), refData));
     }
     return proto.build();
   }

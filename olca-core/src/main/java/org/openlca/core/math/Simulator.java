@@ -14,11 +14,11 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProductSystemDao;
+import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.index.FlowIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.LongPair;
-import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.index.ProcessProduct;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
@@ -196,7 +196,7 @@ public class Simulator {
 					continue;
 				sub.lastResult.flowIndex().each((i, f) -> {
 					double val = sub.lastResult.totalFlowResults[i];
-					int row = node.data.flowIndex.of(f.flow, f.location);
+					int row = node.data.flowIndex.of(f);
 					if (row >= 0) {
 						var fm = node.data.flowMatrix.asMutable();
 						fm.set(row, col, val);

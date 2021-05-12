@@ -66,11 +66,11 @@ public class LocationResult {
 			// each row specifies the location
 			AtomicDouble t = new AtomicDouble();
 			flowIndex.each((i, iFlow) -> {
-				if (!Objects.equals(flow, iFlow.flow))
+				if (!Objects.equals(flow, iFlow.flow()))
 					return;
-				Location loc = iFlow.location == null
+				Location loc = iFlow.location() == null
 						? null
-						: getLocation(iFlow.location.id);
+						: getLocation(iFlow.location().id);
 				double v = result.getTotalFlowResult(iFlow);
 				t.addAndGet(v);
 				cons.compute(loc,
@@ -111,9 +111,9 @@ public class LocationResult {
 			// and the values from the direct contributions
 			// of these flows to the LCIA category result
 			result.flowIndex().each((i, iFlow) -> {
-				Location loc = iFlow.location == null
+				Location loc = iFlow.location() == null
 						? null
-						: getLocation(iFlow.location.id);
+						: getLocation(iFlow.location().id);
 				double v = result.getDirectFlowImpact(iFlow, impact);
 				cons.compute(loc,
 						(_loc, oldVal) -> oldVal == null ? v : oldVal + v);

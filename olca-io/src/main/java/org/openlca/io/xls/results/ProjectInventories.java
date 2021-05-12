@@ -59,9 +59,9 @@ class ProjectInventories {
 		row++;
 		writeHeader(row++);
 		for (IndexFlow flow : flows) {
-			if (flow.isInput)
+			if (flow.isInput())
 				continue;
-			writeInfo(flow.flow, row);
+			writeInfo(flow.flow(), row);
 			List<Contribution<ProjectVariant>> contributions = result
 					.getContributions(flow);
 			for (int i = 0; i < variants.size(); i++) {

@@ -57,12 +57,10 @@ class FlowInfo implements Comparable<FlowInfo> {
 	private static Set<FlowDescriptor> getFlowDescriptors(FlowIndex index) {
 		if (index == null)
 			return Collections.emptySet();
-		HashSet<FlowDescriptor> descriptors = new HashSet<>();
-		index.each((i, f) -> {
-			if (f.flow != null) {
-				descriptors.add(f.flow);
-			}
-		});
+		var descriptors = new HashSet<FlowDescriptor>();
+		for (var indexFlow : index) {
+			descriptors.add(indexFlow.flow());
+		}
 		return descriptors;
 	}
 

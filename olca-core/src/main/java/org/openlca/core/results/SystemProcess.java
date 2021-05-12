@@ -70,10 +70,10 @@ public class SystemProcess {
 			double amount = result.getTotalFlowResult(f);
 			if (amount == 0)
 				return;
-			Flow flow = flowDao.getForId(f.flow.id);
+			Flow flow = flowDao.getForId(f.flow().id);
 			if (flow == null)
 				return;
-			if (f.isInput) {
+			if (f.isInput()) {
 				p.input(flow, amount);
 			} else {
 				p.output(flow, amount);

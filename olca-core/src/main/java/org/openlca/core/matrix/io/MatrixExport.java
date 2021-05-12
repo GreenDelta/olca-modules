@@ -250,11 +250,11 @@ public abstract class MatrixExport {
 		for (int i = 0; i < data.flowIndex.size(); i++) {
 			var  iFlow = data.flowIndex.at(i);
 			var row = new String[header.length];
-			if (iFlow == null || iFlow.flow == null) {
+			if (iFlow == null) {
 				fn.accept(row);
 				continue;
 			}
-			var flow = iFlow.flow;
+			var flow = iFlow.flow();
 			row[0] = flow.refId;
 			row[1] = flow.name;
 			row[2] = flow.flowType != null
@@ -262,8 +262,8 @@ public abstract class MatrixExport {
 				: "";
 			row[3] = categories.pathOf(flow.category);
 			row[4] = units.get(flow.refFlowPropertyId);
-			if (iFlow.location != null) {
-				row[5] = iFlow.location.code;
+			if (iFlow.location() != null) {
+				row[5] = iFlow.location().code;
 			}
 
 			for (int j = 0; j < row.length; j++) {

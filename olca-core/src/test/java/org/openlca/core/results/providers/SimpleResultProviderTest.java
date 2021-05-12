@@ -1,6 +1,8 @@
 package org.openlca.core.results.providers;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -52,10 +54,10 @@ public class SimpleResultProviderTest {
 	public void testFlowIndex() {
 		var flowIndex = result.flowIndex();
 		assertEquals(2, flowIndex.size());
-		assertEquals("r", flowIndex.at(0).flow.name);
-		assertTrue(flowIndex.at(0).isInput);
-		assertEquals("e", flowIndex.at(1).flow.name);
-		assertFalse(flowIndex.at(1).isInput);
+		assertEquals("r", flowIndex.at(0).flow().name);
+		assertTrue(flowIndex.at(0).isInput());
+		assertEquals("e", flowIndex.at(1).flow().name);
+		assertFalse(flowIndex.at(1).isInput());
 	}
 
 	@Test

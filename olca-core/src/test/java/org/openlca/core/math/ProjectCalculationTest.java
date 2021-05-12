@@ -49,7 +49,7 @@ public class ProjectCalculationTest {
 		for (IndexFlow f : flows) {
 			r.getContributions(f).forEach(item -> {
 				icount.incrementAndGet();
-				switch (f.flow.name) {
+				switch (f.flow().name) {
 				case "e1":
 					assertEquals(1.0, item.amount, 1e-10);
 					break;

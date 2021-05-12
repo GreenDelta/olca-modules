@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.TreeSet;
 
-import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.NativeSql;
@@ -20,6 +19,8 @@ import org.openlca.core.model.UncertaintyType;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
+
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
  * Builds the matrices with characterization factors for a given set of flows
@@ -221,9 +222,9 @@ public final class ImpactBuilder {
 		if (added.size() == flowIndex.size())
 			return;
 		flowIndex.each((col, f) -> {
-			long flowID = f.flow.id;
-			long locationID = f.location != null
-					? f.location.id
+			long flowID = f.flow().id;
+			long locationID = f.location() != null
+					? f.location().id
 					: 0L;
 			if (added.contains(LongPair.of(flowID, locationID)))
 				return;
@@ -231,7 +232,7 @@ public final class ImpactBuilder {
 				CalcImpactFactor factor = defaults[row].get(flowID);
 				if (factor == null)
 					continue;
-				factor.isInput = f.isInput;
+				factor.isInput = f.isInput();
 				matrix.set(row, col, factor.matrixValue(interpreter));
 				if (uncertainties != null) {
 					uncertainties.add(row, col, factor);

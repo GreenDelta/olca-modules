@@ -1,4 +1,4 @@
-package org.openlca.core.matrix;
+package org.openlca.core.matrix.index;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -13,9 +13,6 @@ import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.index.FlowIndex;
-import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.IndexFlow;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
@@ -44,12 +41,12 @@ public class FlowIndexTest {
 			var iFlow = b
 					? IndexFlow.inputOf(randFlow(), randLocation())
 					: IndexFlow.outputOf(randFlow(), randLocation());
-			flows.add(iFlow.flow);
-			locations.add(iFlow.location);
+			flows.add(iFlow.flow());
+			locations.add(iFlow.location());
 			isInput.add(b);
 
 			Assert.assertFalse(idx.contains(iFlow));
-			Assert.assertFalse(idx.contains(iFlow.flow.id, iFlow.location.id));
+			Assert.assertFalse(idx.contains(iFlow.flow().id, iFlow.location().id));
 			int j = idx.add(iFlow);
 			Assert.assertEquals(i, j);
 			b = !b;
@@ -60,14 +57,14 @@ public class FlowIndexTest {
 			IndexFlow iflow = idx.at(i);
 			Assert.assertNotNull(iflow);
 			Assert.assertEquals(i, idx.of(iflow));
-			Assert.assertEquals(flows.get(i), iflow.flow);
-			Assert.assertNotNull(iflow.location);
-			Assert.assertEquals(locations.get(i), iflow.location);
+			Assert.assertEquals(flows.get(i), iflow.flow());
+			Assert.assertNotNull(iflow.location());
+			Assert.assertEquals(locations.get(i), iflow.location());
 
-			Assert.assertEquals(i, idx.of(iflow.flow.id, iflow.location.id));
-			Assert.assertEquals(i, idx.of(iflow.flow, iflow.location));
-			Assert.assertTrue(idx.contains(iflow.flow.id, iflow.location.id));
-			Assert.assertEquals(isInput.get(i), iflow.isInput);
+			Assert.assertEquals(i, idx.of(iflow.flow().id, iflow.location().id));
+			Assert.assertEquals(i, idx.of(iflow.flow(), iflow.location()));
+			Assert.assertTrue(idx.contains(iflow.flow().id, iflow.location().id));
+			Assert.assertEquals(isInput.get(i), iflow.isInput());
 		}
 	}
 
@@ -101,9 +98,9 @@ public class FlowIndexTest {
 			IndexFlow iflow = idx.at(i);
 			Assert.assertNotNull(iflow);
 			if (i % 2 == 0) {
-				Assert.assertNull(iflow.location);
+				Assert.assertNull(iflow.location());
 			} else {
-				Assert.assertNotNull(iflow.location);
+				Assert.assertNotNull(iflow.location());
 			}
 		}
 	}
@@ -145,8 +142,8 @@ public class FlowIndexTest {
 			ImpactIndex.of(List.of(Descriptor.of(impacts))));
 		assertEquals(1, index.size());
 		var iFlow = Objects.requireNonNull(index.at(0));
-		assertEquals(nox.id, iFlow.flow.id);
-		assertNull(iFlow.location);
+		assertEquals(nox.id, iFlow.flow().id);
+		assertNull(iFlow.location());
 
 		// build a regionalized index
 		var regIndex = FlowIndex.createRegionalized(db,
@@ -154,12 +151,12 @@ public class FlowIndexTest {
 		assertEquals(3, regIndex.size());
 		var found = new boolean[]{false, false, false};
 		regIndex.each((_i, f) -> {
-			assertEquals(nox.id, f.flow.id);
-			if (f.location == null) {
+			assertEquals(nox.id, f.flow().id);
+			if (f.location() == null) {
 				found[0] = true;
-			} else if (f.location.id == de.id) {
+			} else if (f.location().id == de.id) {
 				found[1] = true;
-			} else if (f.location.id == us.id) {
+			} else if (f.location().id == us.id) {
 				found[2] = true;
 			}
 		});

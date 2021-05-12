@@ -153,7 +153,7 @@ public abstract class FlowIndex implements MatrixIndex<IndexFlow> {
 	public final int of(IndexFlow flow) {
 		if (flow == null)
 			return -1;
-		return of(flow.flow, flow.location);
+		return of(flow.flow(), flow.location());
 	}
 
 	public abstract int of(FlowDescriptor flow);
@@ -305,7 +305,7 @@ public abstract class FlowIndex implements MatrixIndex<IndexFlow> {
 		@Override
 		public boolean isInput(long flowID) {
 			var idx = index.get(flowID);
-			return idx >= 0 && flows.get(idx).isInput;
+			return idx >= 0 && flows.get(idx).isInput();
 		}
 
 		@Override
@@ -380,7 +380,7 @@ public abstract class FlowIndex implements MatrixIndex<IndexFlow> {
 		@Override
 		public boolean isInput(long flowID, long locationID) {
 			var idx = index.get(LongPair.of(flowID, locationID));
-			return idx != null && flows.get(idx).isInput;
+			return idx != null && flows.get(idx).isInput();
 		}
 
 		@Override

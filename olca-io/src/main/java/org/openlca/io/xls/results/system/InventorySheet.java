@@ -39,7 +39,7 @@ class InventorySheet {
 
 	private List<IndexFlow> filterByInputType(boolean input) {
 		return result.getFlows().stream()
-				.filter(f -> f.isInput == input)
+				.filter(f -> f.isInput() == input)
 				.collect(Collectors.toList());
 	}
 

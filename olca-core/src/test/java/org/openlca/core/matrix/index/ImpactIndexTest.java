@@ -1,10 +1,9 @@
-package org.openlca.core.matrix;
+package org.openlca.core.matrix.index;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 public class ImpactIndexTest {

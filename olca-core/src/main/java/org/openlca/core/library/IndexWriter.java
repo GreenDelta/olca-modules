@@ -68,12 +68,12 @@ class IndexWriter implements Runnable {
 		data.flowIndex.each((index, iFlow) -> {
 			var entry = Proto.ElemFlowEntry.newBuilder();
 			entry.setIndex(index);
-			entry.setFlow(flow(iFlow.flow));
-			if (iFlow.location != null) {
+			entry.setFlow(flow(iFlow.flow()));
+			if (iFlow.location() != null) {
 				entry.setLocation(
-						LibIndex.protoLocation(iFlow.location));
+						LibIndex.protoLocation(iFlow.location()));
 			}
-			entry.setIsInput(iFlow.isInput);
+			entry.setIsInput(iFlow.isInput());
 			elemFlows.addFlow(entry.build());
 		});
 		write("index_B.bin", out -> elemFlows.build().writeTo(out));

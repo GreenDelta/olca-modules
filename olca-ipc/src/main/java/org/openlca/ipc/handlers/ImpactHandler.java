@@ -48,8 +48,8 @@ public class ImpactHandler {
 			List<Contribution<FlowDescriptor>> contributions = new ArrayList<>();
 			// TODO: regionalization
 			result.flowIndex().each((i, f) -> {
-				Contribution<FlowDescriptor> c = new Contribution<>();
-				c.item = f.flow;
+				var c = new Contribution<FlowDescriptor>();
+				c.item = f.flow();
 				c.amount = result.getDirectFlowImpact(f, impact);
 				c.share = c.amount / total;
 				if (c.amount == 0)
@@ -68,8 +68,8 @@ public class ImpactHandler {
 			List<Contribution<FlowDescriptor>> contributions = new ArrayList<>();
 			// TODO: regionalization
 			result.flowIndex().each((i, f) -> {
-				Contribution<FlowDescriptor> c = new Contribution<>();
-				c.item = f.flow;
+				var c = new Contribution<FlowDescriptor>();
+				c.item = f.flow();
 				c.amount = result.getDirectFlowResult(process, f)
 						* getImpactFactor(result, impact, f);
 				c.share = c.amount / total;
@@ -185,7 +185,7 @@ public class ImpactHandler {
 		double value = result.provider.impactFactorOf(impactIdx, flowIdx);
 		if (value == 0)
 			return 0; // avoid -0
-		if (flow.isInput) {
+		if (flow.isInput()) {
 			// characterization factors for input flows are negative in the
 			// matrix. A simple abs() is not correct because the original
 			// characterization factor maybe was already negative (-(-(f))).

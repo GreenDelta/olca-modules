@@ -27,10 +27,10 @@ class LibIndex {
 	static Proto.ElemFlowEntry protoEntry(int index, IndexFlow iFlow) {
 		var entry = Proto.ElemFlowEntry.newBuilder();
 		entry.setIndex(index);
-		entry.setIsInput(iFlow.isInput);
-		entry.setFlow(LibIndex.protoFlow(iFlow.flow));
-		if (iFlow.location != null) {
-			entry.setLocation(LibIndex.protoLocation(iFlow.location));
+		entry.setIsInput(iFlow.isInput());
+		entry.setFlow(LibIndex.protoFlow(iFlow.flow()));
+		if (iFlow.location() != null) {
+			entry.setLocation(LibIndex.protoLocation(iFlow.location()));
 		}
 		return entry.build();
 	}

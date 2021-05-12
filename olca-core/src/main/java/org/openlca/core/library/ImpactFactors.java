@@ -56,14 +56,14 @@ class ImpactFactors {
 			if (val == 0)
 				continue;
 			var iFlow = flowIndex.at(col);
-			if (iFlow == null || iFlow.flow == null)
+			if (iFlow == null || iFlow.flow() == null)
 				continue;
-			var flow = flowDao.getForId(iFlow.flow.id);
+			var flow = flowDao.getForId(iFlow.flow().id);
 			if (flow == null)
 				continue;
 			var factor = ImpactFactor.of(flow, val);
-			if (iFlow.location != null) {
-				factor.location = locDao.getForId(iFlow.location.id);
+			if (iFlow.location() != null) {
+				factor.location = locDao.getForId(iFlow.location().id);
 			}
 			factors.add(factor);
 		}

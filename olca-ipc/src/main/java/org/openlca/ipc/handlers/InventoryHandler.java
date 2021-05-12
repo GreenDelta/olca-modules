@@ -65,7 +65,7 @@ public class InventoryHandler {
 		return utils.contributionFlow(req, (result, flow, cache) -> {
 			LocationResult r = new LocationResult(result, cache.db);
 			List<Contribution<LocationDescriptor>> cons = utils
-					.toDescriptors(r.getContributions(flow.flow));
+					.toDescriptors(r.getContributions(flow.flow()));
 			cons = utils.filter(cons, c -> c.amount != 0);
 			String unit = utils.getUnit(flow, cache);
 			return JsonRpc.encode(cons, cache,
@@ -112,13 +112,13 @@ public class InventoryHandler {
 		return utils.fullProcess(req, (result, process, cache) -> {
 			JsonArray contributions = new JsonArray();
 			result.flowIndex().each((i, f) -> {
-				if (f.isInput != input)
+				if (f.isInput() != input)
 					return;
 				double total = result.getTotalFlowResult(f);
 				if (total == 0)
 					return;
 				Contribution<FlowDescriptor> c = new Contribution<>();
-				c.item = f.flow;
+				c.item = f.flow();
 				c.amount = result.getDirectFlowResult(process, f);
 				c.share = c.amount / total;
 				if (c.amount == 0)

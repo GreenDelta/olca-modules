@@ -80,7 +80,7 @@ public class SelfLoopAnalysisTest {
 
 	private IndexFlow flow(String name) {
 		for (IndexFlow f : result.flowIndex().content()) {
-			if (name.equals(f.flow.name))
+			if (name.equals(f.flow().name))
 				return f;
 		}
 		return null;

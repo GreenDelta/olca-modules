@@ -84,16 +84,16 @@ class Exchanges {
 			if (val == 0)
 				continue;
 			var iFlow = iFlows.at(i);
-			if (iFlow == null || iFlow.flow == null)
+			if (iFlow == null || iFlow.flow() == null)
 				continue;
-			var flow = flowDao.getForId(iFlow.flow.id);
+			var flow = flowDao.getForId(iFlow.flow().id);
 			if (flow == null)
 				continue;
-			var exchange = iFlow.isInput
+			var exchange = iFlow.isInput()
 				? Exchange.input(flow, -val)
 				: Exchange.output(flow, val);
-			if (iFlow.location != null) {
-				exchange.location = locDao.getForId(iFlow.location.id);
+			if (iFlow.location() != null) {
+				exchange.location = locDao.getForId(iFlow.location().id);
 			}
 			exchanges.add(exchange);
 		}

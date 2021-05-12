@@ -35,7 +35,7 @@ class JsonRpc {
 		obj.addProperty("@type", r.getClass().getSimpleName());
 		obj.add("flows", encode(
 				r.getFlows().stream()
-						.map(f -> f.flow)
+						.map(f -> f.flow())
 						.collect(Collectors.toSet()),
 				cache));
 		obj.add("processes", encode(r.getProcesses(), cache));

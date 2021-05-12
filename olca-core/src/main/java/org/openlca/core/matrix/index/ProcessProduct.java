@@ -39,8 +39,8 @@ public class ProcessProduct {
 	public final FlowDescriptor flow;
 
 	private ProcessProduct(CategorizedDescriptor process, FlowDescriptor flow) {
-		this.process = process;
-		this.flow = flow;
+		this.process = Objects.requireNonNull(process);
+		this.flow = Objects.requireNonNull(flow);
 	}
 
 	public static ProcessProduct of(
@@ -79,12 +79,14 @@ public class ProcessProduct {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(process, flow);
+		return process.hashCode() * 31 + flow.hashCode();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof ProcessProduct))
+		if (this == obj)
+			return true;
+		if (obj == null || this.getClass() != obj.getClass())
 			return false;
 		var other = (ProcessProduct) obj;
 		return Objects.equals(this.process, other.process)
@@ -101,7 +103,7 @@ public class ProcessProduct {
 	}
 
 	public long flowId() {
-		return flow == null ? 0L : flow.id;
+		return flow.id;
 	}
 
 	/**
@@ -109,7 +111,7 @@ public class ProcessProduct {
 	 * provider.
 	 */
 	public long processId() {
-		return process == null ? 0L : process.id;
+		return process.id;
 	}
 
 	public LongPair pair() {
@@ -128,14 +130,14 @@ public class ProcessProduct {
 	 * this case.
 	 */
 	public boolean isWaste() {
-		return flow != null && flow.flowType == FlowType.WASTE_FLOW;
+		return flow.flowType == FlowType.WASTE_FLOW;
 	}
 
 	/**
 	 * Returns true if the underlying process of this product is from a library.
 	 */
 	public boolean isFromLibrary() {
-		return process != null && process.isFromLibrary();
+		return process.isFromLibrary();
 	}
 
 	/**
@@ -143,8 +145,6 @@ public class ProcessProduct {
 	 * otherwise `null` is returned.
 	 */
 	public String library() {
-		return process == null
-			? null
-			: process.library;
+		return process.library;
 	}
 }

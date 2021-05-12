@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.index.IndexFlow;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.index.IndexFlow;
 import org.openlca.core.matrix.index.ProcessProduct;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
@@ -235,7 +235,7 @@ public class ContributionResult extends SimpleResult {
 			return 0;
 
 		double value = provider.impactFactorOf(impactIdx, flowIdx);
-		if (!flow.isInput)
+		if (!flow.isInput())
 			return value;
 
 		// characterization factors for input flows are negative in the

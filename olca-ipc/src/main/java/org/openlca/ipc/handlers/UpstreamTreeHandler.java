@@ -2,8 +2,6 @@ package org.openlca.ipc.handlers;
 
 import java.util.Objects;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.index.IndexFlow;
@@ -19,6 +17,9 @@ import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 public class UpstreamTreeHandler {
 
@@ -112,9 +113,9 @@ public class UpstreamTreeHandler {
 			return null;
 		for (int i = 0; i < flowIdx.size(); i++) {
 			var flow = flowIdx.at(i);
-			if (flow.location != null)  // regionalization not supported here
+			if (flow.location() != null)  // regionalization not supported here
 				continue;
-			if (Strings.nullOrEqual(flow.flow.refId, flowID))
+			if (Strings.nullOrEqual(flow.flow().refId, flowID))
 				return result.getTree(flow);
 		}
 		return null;
@@ -147,7 +148,7 @@ public class UpstreamTreeHandler {
 		JsonObject expand(UpstreamTree tree) {
 			var treeObj = new JsonObject();
 			if (tree.ref instanceof IndexFlow) {
-				var flow = ((IndexFlow) tree.ref).flow;
+				var flow = ((IndexFlow) tree.ref).flow();
 				treeObj.add("ref", Json.asRef(flow, cache));
 			} else if (tree.ref instanceof Descriptor) {
 				treeObj.add("ref", Json.asRef((Descriptor) tree.ref, cache));

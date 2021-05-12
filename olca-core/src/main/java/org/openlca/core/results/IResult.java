@@ -90,7 +90,7 @@ public interface IResult {
 	 * Switches the sign for input-flows.
 	 */
 	default double adopt(IndexFlow flow, double value) {
-		if (flow == null || !flow.isInput)
+		if (flow == null || !flow.isInput())
 			return value;
 		// avoid -0 in the results
 		return value == 0 ? 0 : -value;

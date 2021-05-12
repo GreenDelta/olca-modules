@@ -28,10 +28,10 @@ public class LongPair implements Comparable<LongPair> {
 
 	@Override
 	public int hashCode() {
-		return hash(first, second);
+		return hashCode(first, second);
 	}
 
-	public static int hash(long first, long second) {
+	public static int hashCode(long first, long second) {
 		long h = first * 79 + second;
 		return (int) ((h >> 32) ^ h);
 	}
