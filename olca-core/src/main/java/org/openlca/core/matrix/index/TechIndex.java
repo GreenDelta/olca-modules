@@ -1,4 +1,4 @@
-package org.openlca.core.matrix;
+package org.openlca.core.matrix.index;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,6 +15,8 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.math.ReferenceAmount;
+import org.openlca.core.matrix.CalcExchange;
+import org.openlca.core.matrix.TechLinker;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;

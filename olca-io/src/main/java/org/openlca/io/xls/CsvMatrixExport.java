@@ -7,10 +7,10 @@ import java.util.HashMap;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.index.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.io.CategoryPair;

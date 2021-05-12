@@ -1,7 +1,7 @@
 package org.openlca.core.matrix.linking;
 
-import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechIndex;
 
 public interface ITechIndexBuilder {
 

@@ -3,7 +3,7 @@ package org.openlca.core.matrix.linking;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.matrix.index.ProcessProduct;
 
 /**
  * When building a product system graph, a node represents a product output or
@@ -20,7 +20,7 @@ class Node implements Comparable<Node> {
 	 * The product output or waste input that is represented by this node
 	 * (processId, flowId). There must be only one node for each product output
 	 * or waste input in a graph.
-	 * 
+	 *
 	 * TODO: update doc
 	 */
 	ProcessProduct flow;
@@ -37,9 +37,9 @@ class Node implements Comparable<Node> {
 
 	/**
 	 * The scaling factor of the process. The scaling factor is calculated via:
-	 * 
+	 *
 	 * scalingFactor = demand / amount.
-	 * 
+	 *
 	 * It is used to calculate the demands of input products and waste outputs
 	 * of this node.
 	 */

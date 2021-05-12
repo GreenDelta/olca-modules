@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.index.LongPair;
 
 /**
  * An implementation of Kahn's algorithm for topological sorting.

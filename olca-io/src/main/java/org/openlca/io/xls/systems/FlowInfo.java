@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.index.FlowIndex;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.io.CategoryPair;

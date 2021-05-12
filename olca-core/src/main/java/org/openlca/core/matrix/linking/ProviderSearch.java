@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.matrix.CalcExchange;
-import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.matrix.index.ProcessProduct;
 import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessType;

@@ -6,11 +6,11 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.matrix.ImpactIndex;
-import org.openlca.core.matrix.IndexFlow;
-import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.ImpactIndex;
+import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;

@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.openlca.core.TestProcess;
 import org.openlca.core.TestSystem;
 import org.openlca.core.Tests;
-import org.openlca.core.matrix.IndexFlow;
+import org.openlca.core.matrix.index.IndexFlow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;

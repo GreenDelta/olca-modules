@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.function.Consumer;
 
-import org.openlca.core.matrix.IndexFlow;
-import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.ProcessProduct;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.providers.ResultProvider;
 

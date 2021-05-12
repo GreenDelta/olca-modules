@@ -1,6 +1,8 @@
 package org.openlca.core.matrix;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
+import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechIndex;
 
 public interface TechLinker {
 

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.model.ModelType;
 import org.openlca.io.maps.Maps;
 import org.supercsv.cellprocessor.Optional;

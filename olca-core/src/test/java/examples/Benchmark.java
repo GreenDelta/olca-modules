@@ -6,7 +6,7 @@ import java.util.Random;
 
 import org.openlca.core.database.Derby;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.matrix.IndexFlow;
+import org.openlca.core.matrix.index.IndexFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;

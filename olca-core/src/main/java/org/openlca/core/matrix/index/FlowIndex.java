@@ -1,4 +1,4 @@
-package org.openlca.core.matrix;
+package org.openlca.core.matrix.index;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,6 +11,7 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.NativeSql;
+import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.cache.FlowTable;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;

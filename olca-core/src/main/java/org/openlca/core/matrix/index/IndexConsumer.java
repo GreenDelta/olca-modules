@@ -1,4 +1,4 @@
-package org.openlca.core.matrix;
+package org.openlca.core.matrix.index;
 
 /**
  * Like the normal consumer function but with an index of the respective object

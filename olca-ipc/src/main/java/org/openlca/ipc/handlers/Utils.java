@@ -7,9 +7,9 @@ import java.util.function.Function;
 
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.matrix.ImpactIndex;
-import org.openlca.core.matrix.IndexFlow;
+import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.ImpactIndex;
+import org.openlca.core.matrix.index.IndexFlow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;

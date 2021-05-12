@@ -8,6 +8,10 @@ import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.ImpactIndex;
+import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.descriptors.ImpactDescriptor;

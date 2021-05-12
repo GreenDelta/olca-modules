@@ -1,9 +1,9 @@
 package org.openlca.core.results.providers;
 
-import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.matrix.ImpactIndex;
+import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.solvers.Factorization;
 import org.openlca.core.matrix.solvers.MatrixSolver;

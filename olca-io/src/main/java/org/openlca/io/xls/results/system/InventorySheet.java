@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.math.data_quality.DQResult;
-import org.openlca.core.matrix.IndexFlow;
+import org.openlca.core.matrix.index.IndexFlow;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.io.xls.results.CellWriter;
 

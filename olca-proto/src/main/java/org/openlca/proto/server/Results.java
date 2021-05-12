@@ -1,8 +1,7 @@
 package org.openlca.proto.server;
 
-import org.openlca.core.matrix.IndexFlow;
-import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.model.FlowType;
+import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.ProcessProduct;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.proto.Messages;

@@ -3,7 +3,7 @@ package org.openlca.core.matrix.linking;
 import java.util.List;
 
 import org.openlca.core.matrix.CalcExchange;
-import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.matrix.index.ProcessProduct;
 
 /**
  * A LinkingCallback is a function that can be injected into the creation of

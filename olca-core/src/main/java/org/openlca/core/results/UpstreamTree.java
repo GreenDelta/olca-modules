@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.IntToDoubleFunction;
 
-import org.openlca.core.matrix.IndexFlow;
+import org.openlca.core.matrix.index.IndexFlow;
 
 /**
  * Maps the upstream results of the product system graph to a tree where the

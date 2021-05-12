@@ -2,7 +2,7 @@ package org.openlca.io.xls.results.system;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.openlca.core.matrix.IndexFlow;
+import org.openlca.core.matrix.index.IndexFlow;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.results.FullResult;
 import org.openlca.io.xls.results.CellWriter;

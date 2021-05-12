@@ -9,7 +9,7 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.matrix.index.ProcessProduct;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.Descriptor;

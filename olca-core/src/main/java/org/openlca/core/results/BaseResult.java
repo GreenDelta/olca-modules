@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.openlca.core.matrix.IndexFlow;
-import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.ProcessProduct;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 

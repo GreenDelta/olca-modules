@@ -4,11 +4,11 @@ import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.LibraryMatrix;
-import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.matrix.ImpactIndex;
+import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.IndexedMatrix;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 
 // currently under development; do not use this for now

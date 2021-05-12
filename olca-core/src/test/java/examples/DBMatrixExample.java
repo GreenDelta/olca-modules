@@ -2,7 +2,7 @@ package examples;
 
 import org.openlca.core.database.Derby;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.FullResult;

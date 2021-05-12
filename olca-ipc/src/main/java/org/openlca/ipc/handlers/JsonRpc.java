@@ -6,7 +6,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.results.Contribution;
 import org.openlca.core.results.FlowResult;

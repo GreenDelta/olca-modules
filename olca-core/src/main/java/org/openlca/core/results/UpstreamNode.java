@@ -2,11 +2,11 @@ package org.openlca.core.results;
 
 import java.util.List;
 
-import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.matrix.index.ProcessProduct;
 
 /**
  * Describes a node in an upstream tree.
- * 
+ *
  */
 public class UpstreamNode {
 

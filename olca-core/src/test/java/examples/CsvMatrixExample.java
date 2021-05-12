@@ -3,9 +3,9 @@ package examples;
 import java.io.File;
 
 import org.openlca.core.database.Derby;
-import org.openlca.core.matrix.ImpactIndex;
+import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.io.MatrixExport;
 import org.openlca.core.model.ProductSystem;
 

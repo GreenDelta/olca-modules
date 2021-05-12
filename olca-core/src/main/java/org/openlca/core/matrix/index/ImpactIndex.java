@@ -1,4 +1,4 @@
-package org.openlca.core.matrix;
+package org.openlca.core.matrix.index;
 
 import java.util.ArrayList;
 import java.util.Collections;

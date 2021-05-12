@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
-import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.index.LongPair;
 
 public class TopoSortTest {
 

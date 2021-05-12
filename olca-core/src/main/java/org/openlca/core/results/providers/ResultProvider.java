@@ -2,9 +2,9 @@ package org.openlca.core.results.providers;
 
 import java.util.Arrays;
 
-import org.openlca.core.matrix.ImpactIndex;
-import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.index.ImpactIndex;
+import org.openlca.core.matrix.index.FlowIndex;
+import org.openlca.core.matrix.index.TechIndex;
 
 /**
  * Defines the general interface of a `ResultProvider`. The documentation is

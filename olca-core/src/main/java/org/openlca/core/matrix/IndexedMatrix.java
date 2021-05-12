@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import org.openlca.core.matrix.format.MatrixBuilder;
 import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.core.matrix.index.MatrixIndex;
 
 public final class IndexedMatrix<R, C> {
 

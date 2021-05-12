@@ -1,4 +1,4 @@
-package org.openlca.core.matrix;
+package org.openlca.core.matrix.index;
 
 /**
  * A LongPair saves just a pair of longs. We use this typically to efficiently

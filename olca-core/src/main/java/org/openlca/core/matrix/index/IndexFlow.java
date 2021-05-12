@@ -1,4 +1,4 @@
-package org.openlca.core.matrix;
+package org.openlca.core.matrix.index;
 
 import java.util.Objects;
 
@@ -64,7 +64,7 @@ public class IndexFlow {
 			return true;
 		if (o == null || getClass() != o.getClass())
 			return false;
-		IndexFlow other = (IndexFlow) o;
+		var other = (IndexFlow) o;
 		return Objects.equals(flow, other.flow)
 				&& Objects.equals(location, other.location);
 	}

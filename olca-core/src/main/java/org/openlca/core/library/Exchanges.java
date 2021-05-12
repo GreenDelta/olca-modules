@@ -7,8 +7,8 @@ import java.util.List;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
-import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.Exchange;
 
 class Exchanges {

@@ -4,10 +4,10 @@ import java.io.File;
 
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.Derby;
-import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.index.FlowIndex;
 import org.openlca.core.matrix.ImpactBuilder;
-import org.openlca.core.matrix.ImpactIndex;
-import org.openlca.core.matrix.IndexFlow;
+import org.openlca.core.matrix.index.ImpactIndex;
+import org.openlca.core.matrix.index.IndexFlow;
 import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.model.FlowType;
 

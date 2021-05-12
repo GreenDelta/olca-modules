@@ -3,10 +3,10 @@ package org.openlca.core.results;
 import java.util.Iterator;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.ImpactIndex;
+import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.index.ProcessProduct;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.results.providers.SimpleResultProvider;
 import org.openlca.julia.Julia;

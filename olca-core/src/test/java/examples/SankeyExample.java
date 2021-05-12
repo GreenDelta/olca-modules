@@ -1,7 +1,7 @@
 package examples;
 
 import org.openlca.core.database.Derby;
-import org.openlca.core.matrix.IndexFlow;
+import org.openlca.core.matrix.index.IndexFlow;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.Sankey;

@@ -3,8 +3,8 @@ package org.openlca.proto.server;
 import java.util.function.ToDoubleBiFunction;
 
 import io.grpc.stub.StreamObserver;
-import org.openlca.core.matrix.IndexFlow;
-import org.openlca.core.matrix.ProcessProduct;
+import org.openlca.core.matrix.index.IndexFlow;
+import org.openlca.core.matrix.index.ProcessProduct;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.FullResult;
 import org.openlca.proto.generated.results.ResultsProto;
