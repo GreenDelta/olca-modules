@@ -17,12 +17,12 @@ import org.junit.runners.Parameterized;
 import org.openlca.core.DataDir;
 import org.openlca.core.Tests;
 import org.openlca.core.library.Library;
-import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.EnviFlowIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.index.TechFlowIndex;
 import org.openlca.core.matrix.format.JavaMatrix;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -63,7 +63,7 @@ public class ResultProviderTest {
 			process = db.insert(process);
 			return TechFlow.of(process, flow);
 		};
-		data.techIndex = new TechIndex(product.apply(1));
+		data.techIndex = new TechFlowIndex(product.apply(1));
 		data.techIndex.setDemand(1.0);
 		data.techIndex.add(product.apply(2));
 		data.techMatrix = JavaMatrix.of(new double[][]{
@@ -76,7 +76,7 @@ public class ResultProviderTest {
 			var f = db.insert(Flow.elementary("e" + i, mass));
 			return Descriptor.of(f);
 		};
-		data.enviIndex = EnviIndex.create();
+		data.enviIndex = EnviFlowIndex.create();
 		data.enviIndex.add(EnviFlow.outputOf(flow.apply(1)));
 		data.enviIndex.add(EnviFlow.inputOf(flow.apply(2)));
 		data.enviMatrix = JavaMatrix.of(new double[][]{
@@ -106,7 +106,7 @@ public class ResultProviderTest {
 		libDir = new File(DataDir.libraries(), libID);
 		Library.create(db, data.copy(), libDir);
 		var foreground = new MatrixData();
-		foreground.techIndex = new TechIndex(data.techIndex.getRefFlow());
+		foreground.techIndex = new TechFlowIndex(data.techIndex.getRefFlow());
 		foreground.techIndex.setDemand(1.0);
 		foreground.techMatrix = JavaMatrix.of(new double[][]{{0.5}});
 		foreground.impactIndex = data.impactIndex;

@@ -4,11 +4,11 @@ import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.LibraryMatrix;
-import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.EnviFlowIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.IndexedMatrix;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.index.TechFlowIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 
 // currently under development; do not use this for now
@@ -74,12 +74,12 @@ class EagerLibraryProvider implements ResultProvider {
 	}
 
 	@Override
-	public TechIndex techIndex() {
+	public TechFlowIndex techIndex() {
 		return fullData.techIndex;
 	}
 
 	@Override
-	public EnviIndex flowIndex() {
+	public EnviFlowIndex flowIndex() {
 		return fullData.enviIndex;
 	}
 

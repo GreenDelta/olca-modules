@@ -157,7 +157,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
       return;
     }
     var refData = Refs.dataOf(db);
-    for (var product : result.techIndex()) {
+    for (var product : result.techFlowIndex()) {
       resp.onNext(Results.toProto(product, refData));
     }
     resp.onCompleted();
@@ -170,7 +170,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
       Response.notFound(resp, "Result does not exist: " + req.getId());
       return;
     }
-    var flows = result.enviIndex();
+    var flows = result.enviFlowIndex();
     if (flows == null) {
       resp.onCompleted();
       return;
@@ -209,7 +209,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
       Response.notFound(resp, "Result does not exist: " + req.getId());
       return;
     }
-    var flows = result.enviIndex();
+    var flows = result.enviFlowIndex();
     if (flows == null) {
       resp.onCompleted();
       return;
@@ -265,7 +265,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
         .asException());
       return;
     }
-    var flowIndex = result.enviIndex();
+    var flowIndex = result.enviFlowIndex();
     var impactIndex = result.impactIndex();
     if (flowIndex == null || impactIndex == null) {
       resp.onCompleted();
@@ -352,18 +352,18 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 
     TechFlowContribution.of(this, req, resp)
       .ifImpact((result, product, impact) -> {
-        var productIdx = result.techIndex().of(product);
+        var productIdx = result.techFlowIndex().of(product);
         var impactIdx = result.impactIndex().of(impact);
         return result.provider.totalImpactOfOne(impactIdx, productIdx);
       })
       .ifFlow((result, product, flow) -> {
-        var productIdx = result.techIndex().of(product);
-        var flowIdx = result.enviIndex().of(flow);
+        var productIdx = result.techFlowIndex().of(product);
+        var flowIdx = result.enviFlowIndex().of(flow);
         var value = result.provider.totalFlowOfOne(flowIdx, productIdx);
         return result.adopt(flow, value);
       })
       .ifCosts((result, product) -> {
-        var productIdx = result.techIndex().of(product);
+        var productIdx = result.techFlowIndex().of(product);
         return result.provider.totalCostsOfOne(productIdx);
       })
       .close();

@@ -25,7 +25,7 @@ public class LibraryCalculatorExample {
 		var result = new SystemCalculator(db)
 				.calculateSimple(setup);
 
-		var flow = result.enviIndex().at(0);
+		var flow = result.enviFlowIndex().at(0);
 		System.out.println(flow.flow().name
 				+ " => " + result.getTotalFlowResult(flow));
 

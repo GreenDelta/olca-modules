@@ -6,7 +6,7 @@ import org.openlca.core.Tests;
 import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.index.TechFlowIndex;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -33,7 +33,7 @@ public class LinkContributionsTest {
 				{ 0, -0.5, -0.5, 1 },
 		});
 
-		var index = new TechIndex(provider(1, 1));
+		var index = new TechFlowIndex(provider(1, 1));
 		index.setDemand(1);
 		index.add(provider(2, 2));
 		index.add(provider(3, 3));
@@ -68,7 +68,7 @@ public class LinkContributionsTest {
 		int size = 40;
 		var solver = Tests.getDefaultSolver();
 		var techMatrix = solver.matrix(size, size);
-		var index = new TechIndex(provider(1, 1));
+		var index = new TechFlowIndex(provider(1, 1));
 		index.setDemand(1);
 		for (int i = 0; i < size; i++) {
 			index.add(provider(i + 1, i + 1));

@@ -73,7 +73,7 @@ public class ResultIndexView {
 			return techFlows;
 		var set = new HashSet<TechFlow>();
 		for (var result : results) {
-			var index = result.techIndex();
+			var index = result.techFlowIndex();
 			if (index == null)
 				continue;
 			set.addAll(index.content());
@@ -104,7 +104,7 @@ public class ResultIndexView {
 		for (var result : results) {
 			if (!result.hasEnviFlows())
 				continue;
-			var index = result.enviIndex();
+			var index = result.enviFlowIndex();
 			if (index == null)
 				continue;
 			for (var flow : index) {

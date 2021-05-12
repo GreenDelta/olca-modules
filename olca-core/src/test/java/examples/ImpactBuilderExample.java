@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.Derby;
-import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.EnviFlowIndex;
 import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.EnviFlow;
@@ -23,7 +23,7 @@ public class ImpactBuilderExample {
 		// !Note that this is just an example. It sets all flows to output
 		// flows. Normally, the flow direction would be determined from
 		// the inventory
-		var flowIndex = EnviIndex.create();
+		var flowIndex = EnviFlowIndex.create();
 		new FlowDao(db).getDescriptors().forEach(d -> {
 			if (d.flowType == FlowType.ELEMENTARY_FLOW) {
 				flowIndex.add(EnviFlow.outputOf(d));

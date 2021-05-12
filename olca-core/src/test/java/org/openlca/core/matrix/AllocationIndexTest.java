@@ -11,7 +11,7 @@ import org.openlca.core.TestProcess;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.index.TechFlowIndex;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
@@ -129,7 +129,7 @@ public class AllocationIndexTest {
 	}
 
 	private AllocationIndex index(AllocationMethod method) {
-		TechIndex techIdx = new TechIndex(product("p1"));
+		TechFlowIndex techIdx = new TechFlowIndex(product("p1"));
 		techIdx.add(product("p2"));
 		techIdx.add(product("w"));
 		return AllocationIndex.create(db, techIdx, method);

@@ -2,7 +2,7 @@ package examples;
 
 import org.openlca.core.database.Derby;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.index.TechFlowIndex;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.FullResult;
@@ -25,7 +25,7 @@ public class DBMatrixExample {
 
 			System.out.println("build it");
 			long start = System.currentTimeMillis();
-			var techIndex = TechIndex.of(system, db);
+			var techIndex = TechFlowIndex.of(system, db);
 			var matrices = MatrixData.of(db, techIndex)
 				.build();
 			long end = System.currentTimeMillis();
@@ -41,7 +41,7 @@ public class DBMatrixExample {
 				"calculation took %.3f seconds",
 				(end - start) / 1000.0);
 
-			System.out.println("done; flow count = " + r.enviIndex().size());
+			System.out.println("done; flow count = " + r.enviFlowIndex().size());
 			System.out.println(r.totalFlowResults[0]);
 
 		}

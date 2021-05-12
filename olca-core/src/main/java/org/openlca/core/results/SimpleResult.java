@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.EnviFlowIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.index.TechFlowIndex;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.providers.ResultProvider;
@@ -95,12 +95,12 @@ public class SimpleResult extends BaseResult {
 	}
 
 	@Override
-	public TechIndex techIndex() {
+	public TechFlowIndex techFlowIndex() {
 		return provider.techIndex();
 	}
 
 	@Override
-	public EnviIndex enviIndex() {
+	public EnviFlowIndex enviFlowIndex() {
 		return provider.flowIndex();
 	}
 
@@ -114,7 +114,7 @@ public class SimpleResult extends BaseResult {
 	 * $j$.
 	 */
 	public double getScalingFactor(TechFlow product) {
-		int idx = techIndex().of(product);
+		int idx = techFlowIndex().of(product);
 		if (idx < 0 || idx > scalingVector.length)
 			return 0;
 		return scalingVector[idx];
@@ -127,7 +127,7 @@ public class SimpleResult extends BaseResult {
 	 */
 	public double getScalingFactor(CategorizedDescriptor process) {
 		double factor = 0;
-		for (TechFlow p : techIndex().getProviders(process)) {
+		for (TechFlow p : techFlowIndex().getProviders(process)) {
 			factor += getScalingFactor(p);
 		}
 		return factor;
@@ -137,7 +137,7 @@ public class SimpleResult extends BaseResult {
 	 * Get the total inventory result $\mathbf{g}_i$ of the given flow $i$.
 	 */
 	public double getTotalFlowResult(EnviFlow flow) {
-		var flowIndex = enviIndex();
+		var flowIndex = enviFlowIndex();
 		if (flowIndex == null)
 			return 0;
 		int idx = flowIndex.of(flow);
@@ -150,7 +150,7 @@ public class SimpleResult extends BaseResult {
 	 * Returns the flow results of the inventory result $\mathbf{g}$.
 	 */
 	public List<FlowResult> getTotalFlowResults() {
-		var flowIndex = enviIndex();
+		var flowIndex = enviFlowIndex();
 		if (flowIndex == null)
 			return Collections.emptyList();
 		List<FlowResult> results = new ArrayList<>(flowIndex.size());

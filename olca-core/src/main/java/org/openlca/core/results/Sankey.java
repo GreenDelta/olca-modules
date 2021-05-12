@@ -253,7 +253,7 @@ public class Sankey<T> {
 
 			// create the root node of the reference product
 			var root = sankey.root;
-			var techIndex = result.techIndex();
+			var techIndex = result.techFlowIndex();
 			root.product = techIndex.getRefFlow();
 			root.index = techIndex.of(root.product);
 			root.total = getTotal(root.product);
@@ -302,7 +302,7 @@ public class Sankey<T> {
 				}
 
 				// calculate and check the share
-				var product = result.techIndex().at(i);
+				var product = result.techFlowIndex().at(i);
 				var total = getTotal(product);
 				if (total == 0)
 					continue;

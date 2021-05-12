@@ -6,12 +6,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.EnviFlowIndex;
 import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.MatrixConfig;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.index.TechFlowIndex;
 import org.openlca.core.matrix.io.MatrixExport;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.jsonld.Json;
@@ -148,8 +148,8 @@ public class LibraryExport implements Runnable {
 		if (!withInventory) {
 			var impacts = ImpactIndex.of(db);
 			var flowIndex = info.isRegionalized
-				? EnviIndex.createRegionalized(db, impacts)
-				: EnviIndex.create(db, impacts);
+				? EnviFlowIndex.createRegionalized(db, impacts)
+				: EnviFlowIndex.create(db, impacts);
 			var data = new MatrixData();
 			data.impactIndex = impacts;
 			data.enviIndex = flowIndex;
@@ -161,7 +161,7 @@ public class LibraryExport implements Runnable {
 		}
 
 		// build matrices with inventory
-		var techIndex = TechIndex.of(db);
+		var techIndex = TechFlowIndex.of(db);
 		var config = MatrixConfig.of(db, techIndex)
 			.withUncertainties(withUncertainties)
 			.withRegionalization(info.isRegionalized)

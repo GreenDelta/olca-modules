@@ -2,7 +2,7 @@ package org.openlca.core.matrix;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.index.TechFlowIndex;
 
 public interface TechLinker {
 
@@ -22,7 +22,7 @@ public interface TechLinker {
 	 */
 	class Default implements TechLinker {
 
-		private final TechIndex techIndex;
+		private final TechFlowIndex techIndex;
 
 		/**
 		 * A map that assigns the IDs of products and waste flows to their
@@ -33,11 +33,11 @@ public interface TechLinker {
 		 */
 		private TLongObjectHashMap<TechFlow> providers;
 
-		private Default(TechIndex techIndex) {
+		private Default(TechFlowIndex techIndex) {
 			this.techIndex = techIndex;
 		}
 
-		public static TechLinker of(TechIndex idx) {
+		public static TechLinker of(TechFlowIndex idx) {
 			return new Default(idx);
 		}
 

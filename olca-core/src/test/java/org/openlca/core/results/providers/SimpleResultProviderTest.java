@@ -8,11 +8,11 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.EnviFlowIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.index.TechFlowIndex;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
@@ -26,9 +26,9 @@ public class SimpleResultProviderTest {
 	@Before
 	public void setup() {
 		// create the indices
-		var techIndex = new TechIndex(product("p1"));
+		var techIndex = new TechFlowIndex(product("p1"));
 		techIndex.add(product("p2"));
-		var flowIndex = EnviIndex.create();
+		var flowIndex = EnviFlowIndex.create();
 		flowIndex.add(EnviFlow.inputOf(flow("r")));
 		flowIndex.add(EnviFlow.outputOf(flow("e")));
 		var impactIndex = new ImpactIndex();
@@ -44,7 +44,7 @@ public class SimpleResultProviderTest {
 
 	@Test
 	public void testTechIndex() {
-		var techIndex = result.techIndex();
+		var techIndex = result.techFlowIndex();
 		assertEquals(2, techIndex.size());
 		assertEquals("p1", techIndex.at(0).process().name);
 		assertEquals("p2", techIndex.at(1).process().name);
@@ -52,7 +52,7 @@ public class SimpleResultProviderTest {
 
 	@Test
 	public void testFlowIndex() {
-		var flowIndex = result.enviIndex();
+		var flowIndex = result.enviFlowIndex();
 		assertEquals(2, flowIndex.size());
 		assertEquals("r", flowIndex.at(0).flow().name);
 		assertTrue(flowIndex.at(0).isInput());

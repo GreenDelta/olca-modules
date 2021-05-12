@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.CalcExchange;
-import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.index.TechFlowIndex;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.UncertaintyType;
 
@@ -28,7 +28,7 @@ public class ExchangeTable {
 	 * Calls the given function for each exchange of the processes in the given
 	 * index.
 	 */
-	public void each(TechIndex techIndex, Consumer<CalcExchange> fn) {
+	public void each(TechFlowIndex techIndex, Consumer<CalcExchange> fn) {
 		String sql = query();
 		if (techIndex.size() < 1000) {
 			// avoid full table scans in LCI databases

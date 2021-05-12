@@ -5,7 +5,7 @@ import java.io.File;
 import org.openlca.core.database.Derby;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.index.TechFlowIndex;
 import org.openlca.core.matrix.io.MatrixExport;
 import org.openlca.core.model.ProductSystem;
 
@@ -23,7 +23,7 @@ public class CsvMatrixExample {
 			// build and calculate the system
 			var system = db.get(ProductSystem.class,
 				"7d1cbce0-b5b3-47ba-95b5-014ab3c7f569");
-			var techIndex = TechIndex.of(system, db);
+			var techIndex = TechFlowIndex.of(system, db);
 			var data = MatrixData.of(db, techIndex)
 				.withUncertainties(true)
 				.withImpacts(ImpactIndex.of(db))

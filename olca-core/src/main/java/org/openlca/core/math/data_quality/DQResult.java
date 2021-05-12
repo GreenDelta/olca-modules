@@ -98,7 +98,7 @@ public class DQResult {
 	 */
 	@Deprecated
 	public int[] get(CategorizedDescriptor process) {
-		var products = result.techIndex().getProviders(process);
+		var products = result.techFlowIndex().getProviders(process);
 		return products.isEmpty()
 			? null
 			: get(products.get(0));
@@ -110,7 +110,7 @@ public class DQResult {
 	public int[] get(TechFlow product) {
 		if (processData == null)
 			return null;
-		int col = result.techIndex().of(product);
+		int col = result.techFlowIndex().of(product);
 		return col < 0
 			? null
 			: toInt(processData.getColumn(col));
@@ -121,7 +121,7 @@ public class DQResult {
 	 */
 	@Deprecated
 	public int[] get(CategorizedDescriptor process, EnviFlow flow) {
-		var products = result.techIndex().getProviders(process);
+		var products = result.techFlowIndex().getProviders(process);
 		return products.isEmpty()
 			? null
 			: get(products.get(0), flow);
@@ -133,8 +133,8 @@ public class DQResult {
 	public int[] get(TechFlow product, EnviFlow flow) {
 		if (exchangeData == null)
 			return null;
-		int row = result.enviIndex().of(flow);
-		int col = result.techIndex().of(product);
+		int row = result.enviFlowIndex().of(flow);
+		int col = result.techFlowIndex().of(product);
 		if (row < 0 || col < 0)
 			return null;
 		int[] values = new int[exchangeData.length];
@@ -150,7 +150,7 @@ public class DQResult {
 	public int[] get(EnviFlow flow) {
 		if (flowResult == null)
 			return null;
-		int col = result.enviIndex().of(flow);
+		int col = result.enviFlowIndex().of(flow);
 		return col < 0
 			? null
 			: toInt(flowResult.getColumn(col));
@@ -172,7 +172,7 @@ public class DQResult {
 		if (flowImpactResult == null)
 			return null;
 		int row = result.impactIndex().of(impact);
-		int col = result.enviIndex().of(flow);
+		int col = result.enviFlowIndex().of(flow);
 		if (row < 0 || col < 0)
 			return null;
 		int k = flowImpactResult.length;
@@ -188,7 +188,7 @@ public class DQResult {
 	 */
 	@Deprecated
 	public int[] get(ImpactDescriptor impact, CategorizedDescriptor process) {
-		var products = result.techIndex().getProviders(process);
+		var products = result.techFlowIndex().getProviders(process);
 		return products.isEmpty()
 			? null
 			: get(impact, products.get(0));
@@ -198,7 +198,7 @@ public class DQResult {
 		if (processImpactResult == null)
 			return null;
 		int row = result.impactIndex().of(impact);
-		int col = result.techIndex().of(product);
+		int col = result.techFlowIndex().of(product);
 		if (row < 0 || col < 0)
 			return null;
 		int k = processImpactResult.length;
@@ -215,7 +215,7 @@ public class DQResult {
 			return;
 
 		var k = system.indicators.size();
-		var techIndex = result.techIndex();
+		var techIndex = result.techFlowIndex();
 		var n = techIndex.size();
 		processData = new DenseByteMatrix(k, n);
 
@@ -251,8 +251,8 @@ public class DQResult {
 
 	private void loadExchangeData(IDatabase db) {
 		var system = setup.exchangeSystem;
-		var techIndex = result.techIndex();
-		var flowIndex = result.enviIndex();
+		var techIndex = result.techFlowIndex();
+		var flowIndex = result.enviFlowIndex();
 		if (system == null
 				|| techIndex == null
 				|| flowIndex == null)
@@ -326,9 +326,9 @@ public class DQResult {
 			return;
 
 		var system = setup.exchangeSystem;
-		int n = result.techIndex().size();
+		int n = result.techFlowIndex().size();
 		int k = system.indicators.size();
-		int m = result.enviIndex().size();
+		int m = result.enviFlowIndex().size();
 		flowResult = new DenseByteMatrix(k, m);
 		byte max = (byte) system.getScoreCount();
 
@@ -359,8 +359,8 @@ public class DQResult {
 		// initialize the results
 		var system = setup.exchangeSystem;
 		int k = system.indicators.size();
-		int m = result.enviIndex().size();
-		int n = result.techIndex().size();
+		int m = result.enviFlowIndex().size();
+		int n = result.techFlowIndex().size();
 		int q = result.impactIndex().size();
 		byte max = (byte) system.getScoreCount();
 		impactResult = new DenseByteMatrix(k, q);

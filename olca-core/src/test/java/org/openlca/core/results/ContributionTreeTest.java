@@ -3,12 +3,12 @@ package org.openlca.core.results;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.EnviFlowIndex;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.index.TechFlowIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
@@ -18,14 +18,14 @@ public class ContributionTreeTest {
 	public void testSimpleTree() {
 
 		var data = new MatrixData();
-		var techIndex = new TechIndex(provider(1, 1));
+		var techIndex = new TechFlowIndex(provider(1, 1));
 		techIndex.add(provider(2, 2));
 		techIndex.add(provider(3, 3));
 		techIndex.putLink(LongPair.of(1, 2), provider(2, 2));
 		techIndex.putLink(LongPair.of(1, 3), provider(3, 3));
 		data.techIndex = techIndex;
 
-		var enviIndex = EnviIndex.create();
+		var enviIndex = EnviFlowIndex.create();
 		var outFlow = new FlowDescriptor();
 		outFlow.id = 4;
 		enviIndex.add(EnviFlow.outputOf(outFlow));

@@ -33,7 +33,7 @@ public class UpstreamTree {
 		this.intensity = intensity;
 
 		root = new UpstreamNode();
-		var techIndex = r.techIndex();
+		var techIndex = r.techFlowIndex();
 		root.provider = techIndex.getRefFlow();
 		root.index = techIndex.of(root.provider);
 		root.scaling = r.scalingVector[root.index];
@@ -59,7 +59,7 @@ public class UpstreamTree {
 			double refVal = r.provider.techColumnOf(i)[i];
 			child.scaling = -aij / refVal;
 			child.index = i;
-			child.provider = r.techIndex().at(i);
+			child.provider = r.techFlowIndex().at(i);
 			child.result = adopt(intensity.applyAsDouble(i) * refVal * child.scaling);
 			parent.childs.add(child);
 		}

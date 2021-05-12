@@ -5,7 +5,7 @@ import java.util.HashMap;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.index.TechFlowIndex;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.expressions.FormulaInterpreter;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,7 @@ public class AllocationIndex {
 	 * allocation method.
 	 */
 	public static AllocationIndex create(
-			IDatabase db, TechIndex techIndex, AllocationMethod method) {
+			IDatabase db, TechFlowIndex techIndex, AllocationMethod method) {
 		var idx = new AllocationIndex();
 		if (method == null || method == AllocationMethod.NONE)
 			return idx;
@@ -89,7 +89,7 @@ public class AllocationIndex {
 				: causals.get(exchangeID);
 	}
 
-	private void build(IDatabase db, TechIndex techIndex, AllocationMethod method) {
+	private void build(IDatabase db, TechFlowIndex techIndex, AllocationMethod method) {
 
 		// load process specific default allocation methods if required
 		var defMethods = method == AllocationMethod.USE_DEFAULT

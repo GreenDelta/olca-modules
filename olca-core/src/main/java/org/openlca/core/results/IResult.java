@@ -2,10 +2,10 @@ package org.openlca.core.results;
 
 import java.util.List;
 
-import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.EnviFlowIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.EnviFlow;
-import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.index.TechFlowIndex;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 
@@ -24,7 +24,7 @@ public interface IResult {
 	 * <p>
 	 * $$\mathit{Idx}_A: \mathit{P} \mapsto [0 \dots n-1]$$
 	 */
-	TechIndex techIndex();
+	TechFlowIndex techFlowIndex();
 
 	/**
 	 * The row index $\mathit{Idx}_B$ of the intervention matrix $\mathbf{B}$. It
@@ -33,7 +33,7 @@ public interface IResult {
 	 * <p>
 	 * $$\mathit{Idx}_B: \mathit{F} \mapsto [0 \dots k-1]$$
 	 */
-	EnviIndex enviIndex();
+	EnviFlowIndex enviFlowIndex();
 
 	/**
 	 * The row index $\mathit{Idx}_C$ of the matrix with the characterization
@@ -48,7 +48,7 @@ public interface IResult {
 	 * Returns true when this result contains results for environmental flows.
 	 */
 	default boolean hasEnviFlows() {
-		var enviIndex = enviIndex();
+		var enviIndex = enviFlowIndex();
 		return enviIndex != null && !enviIndex.isEmpty();
 	}
 

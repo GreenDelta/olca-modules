@@ -8,10 +8,10 @@ import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.EnviFlowIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.index.TechFlowIndex;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
@@ -22,7 +22,7 @@ import org.openlca.expressions.FormulaInterpreter;
 public class MatrixConfig {
 
 	public final IDatabase db;
-	public final TechIndex techIndex;
+	public final TechFlowIndex techIndex;
 	public final TechLinker linker;
 
 	public final boolean withUncertainties;
@@ -71,7 +71,7 @@ public class MatrixConfig {
 			: Collections.emptyMap();
 	}
 
-	public static Builder of(IDatabase db, TechIndex techIndex) {
+	public static Builder of(IDatabase db, TechFlowIndex techIndex) {
 		return new Builder(db, techIndex);
 	}
 
@@ -87,7 +87,7 @@ public class MatrixConfig {
 	public static class Builder {
 
 		private final IDatabase db;
-		private final TechIndex techIndex;
+		private final TechFlowIndex techIndex;
 		private ImpactIndex impacts;
 		private List<ParameterRedef> redefs;
 		private Map<TechFlow, SimpleResult> subResults;
@@ -97,7 +97,7 @@ public class MatrixConfig {
 		private boolean withCosts;
 		private boolean withRegionalization;
 
-		private Builder(IDatabase db, TechIndex techIndex) {
+		private Builder(IDatabase db, TechFlowIndex techIndex) {
 			this.db = db;
 			this.techIndex = techIndex;
 		}
@@ -170,7 +170,7 @@ public class MatrixConfig {
 			// flows in the foreground system but still want to
 			// attach an impact index to the matrix data.
 			if (conf.hasImpacts()) {
-				if (EnviIndex.isEmpty(data.enviIndex)) {
+				if (EnviFlowIndex.isEmpty(data.enviIndex)) {
 					data.impactIndex = conf.impactIndex;
 				} else {
 					ImpactBuilder.of(conf, data.enviIndex)

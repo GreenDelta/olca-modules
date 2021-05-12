@@ -66,7 +66,7 @@ public class SystemProcess {
 	}
 
 	private void addElemFlows(Process p) {
-		result.enviIndex().each((i, f) -> {
+		result.enviFlowIndex().each((i, f) -> {
 			double amount = result.getTotalFlowResult(f);
 			if (amount == 0)
 				return;

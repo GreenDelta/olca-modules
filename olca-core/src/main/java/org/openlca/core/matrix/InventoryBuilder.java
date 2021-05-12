@@ -6,9 +6,9 @@ import org.openlca.core.database.LocationDao;
 import org.openlca.core.matrix.cache.ExchangeTable;
 import org.openlca.core.matrix.cache.FlowTable;
 import org.openlca.core.matrix.format.MatrixBuilder;
-import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.EnviFlowIndex;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.index.TechFlowIndex;
 import org.openlca.core.matrix.uncertainties.UMatrix;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.LocationDescriptor;
@@ -18,9 +18,9 @@ import gnu.trove.map.hash.TLongObjectHashMap;
 public class InventoryBuilder {
 
 	private final MatrixConfig conf;
-	private final TechIndex techIndex;
+	private final TechFlowIndex techIndex;
 	private final FlowTable flows;
-	private final EnviIndex flowIndex;
+	private final EnviFlowIndex flowIndex;
 
 	private final TLongObjectHashMap<LocationDescriptor> locations;
 	private final AllocationIndex allocationIndex;
@@ -48,11 +48,11 @@ public class InventoryBuilder {
 		// we add the flows of the sub-systems to the index; note that there
 		// can be elementary flows that only occur in a sub-system
 		flowIndex = conf.withRegionalization
-			? EnviIndex.createRegionalized()
-			: EnviIndex.create();
+			? EnviFlowIndex.createRegionalized()
+			: EnviFlowIndex.create();
 		if (conf.subResults != null) {
 			for (var subResult : conf.subResults.values()) {
-				flowIndex.addAll(subResult.enviIndex());
+				flowIndex.addAll(subResult.enviFlowIndex());
 			}
 		}
 
@@ -131,12 +131,12 @@ public class InventoryBuilder {
 				}
 
 				// add the link in the technology matrix
-				double a = result.techIndex().getDemand();
+				double a = result.techFlowIndex().getDemand();
 				techBuilder.set(col, col, a);
 
 				// add the LCI result
-				if (result.enviIndex() != null) {
-					result.enviIndex().each((i, f) -> {
+				if (result.enviFlowIndex() != null) {
+					result.enviFlowIndex().each((i, f) -> {
 						double b = result.getTotalFlowResult(f);
 						if (f.isInput()) {
 							b = -b;

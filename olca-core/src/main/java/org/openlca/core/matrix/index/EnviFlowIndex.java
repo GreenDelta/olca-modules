@@ -28,17 +28,17 @@ import gnu.trove.map.hash.TLongObjectHashMap;
  * <p>
  * $$\mathit{Idx}_B: \mathit{F} \mapsto [0 \dots k-1]$$
  */
-public abstract class EnviIndex implements MatrixIndex<EnviFlow> {
+public abstract class EnviFlowIndex implements MatrixIndex<EnviFlow> {
 
 	protected final ArrayList<EnviFlow> flows = new ArrayList<>();
 
-	private EnviIndex() {
+	private EnviFlowIndex() {
 	}
 
 	/**
 	 * Creates an empty flow index.
 	 */
-	public static EnviIndex create() {
+	public static EnviFlowIndex create() {
 		return new NormalFlowIndex();
 	}
 
@@ -46,7 +46,7 @@ public abstract class EnviIndex implements MatrixIndex<EnviFlow> {
 	 * Creates a flow index and fills it with the flows that are used in the
 	 * given impacts.
 	 */
-	public static EnviIndex create(IDatabase db, ImpactIndex impacts) {
+	public static EnviFlowIndex create(IDatabase db, ImpactIndex impacts) {
 		var index = create();
 		if (db == null || impacts == null)
 			return index;
@@ -80,7 +80,7 @@ public abstract class EnviIndex implements MatrixIndex<EnviFlow> {
 	/**
 	 * Creates an empty regionalized flow index.
 	 */
-	public static EnviIndex createRegionalized() {
+	public static EnviFlowIndex createRegionalized() {
 		return new RegionalizedFlowIndex();
 	}
 
@@ -88,7 +88,7 @@ public abstract class EnviIndex implements MatrixIndex<EnviFlow> {
 	 * Creates a regionalized flow index and fills it with the flows
 	 * that are used in the given impacts.
 	 */
-	public static EnviIndex createRegionalized(
+	public static EnviFlowIndex createRegionalized(
 		IDatabase db, ImpactIndex impacts) {
 		var index = createRegionalized();
 		if (db == null || impacts == null)
@@ -128,7 +128,7 @@ public abstract class EnviIndex implements MatrixIndex<EnviFlow> {
 	/**
 	 * Returns true if the given index is null or empty.
 	 */
-	public static boolean isEmpty(EnviIndex idx) {
+	public static boolean isEmpty(EnviFlowIndex idx) {
 		return idx == null || idx.size() == 0;
 	}
 
@@ -248,9 +248,9 @@ public abstract class EnviIndex implements MatrixIndex<EnviFlow> {
 	}
 
 	@Override
-	public abstract EnviIndex copy();
+	public abstract EnviFlowIndex copy();
 
-	private static class NormalFlowIndex extends EnviIndex {
+	private static class NormalFlowIndex extends EnviFlowIndex {
 
 		private final TLongIntHashMap index;
 
@@ -322,7 +322,7 @@ public abstract class EnviIndex implements MatrixIndex<EnviFlow> {
 		}
 	}
 
-	private static class RegionalizedFlowIndex extends EnviIndex {
+	private static class RegionalizedFlowIndex extends EnviFlowIndex {
 
 		private final HashMap<LongPair, Integer> index = new HashMap<>();
 

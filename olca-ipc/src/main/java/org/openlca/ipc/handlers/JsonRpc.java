@@ -6,7 +6,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.index.TechFlowIndex;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.results.Contribution;
 import org.openlca.core.results.FlowResult;
@@ -110,7 +110,7 @@ class JsonRpc {
 		return obj;
 	}
 
-	static JsonArray encode(double[] totalRequirements, double[] costs, TechIndex index, EntityCache cache) {
+	static JsonArray encode(double[] totalRequirements, double[] costs, TechFlowIndex index, EntityCache cache) {
 		JsonArray items = new JsonArray();
 		for (int i = 0; i < totalRequirements.length; i++) {
 			if (totalRequirements[i] == 0)

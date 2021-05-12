@@ -34,7 +34,7 @@ import gnu.trove.map.hash.TLongObjectHashMap;
  * <p>
  * $$\mathit{Idx}_A: \mathit{P} \mapsto [0 \dots n-1]$$
  */
-public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
+public final class TechFlowIndex implements TechLinker, MatrixIndex<TechFlow> {
 
 	/**
 	 * Maps the product-outputs and waste-inputs as (processId, flowId) pairs to an
@@ -72,7 +72,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 	 * @param refFlow the reference product-output or waste-input as (processId,
 	 *                flowId) pair.
 	 */
-	public TechIndex(TechFlow refFlow) {
+	public TechFlowIndex(TechFlow refFlow) {
 		add(refFlow);
 	}
 
@@ -82,7 +82,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 	 * process products (and waste flows) from the database. Otherwise all process
 	 * links of the product system are directly stored in the index.
 	 */
-	public static TechIndex of(ProductSystem system, IDatabase db) {
+	public static TechFlowIndex of(ProductSystem system, IDatabase db) {
 		var index = initFrom(system);
 		if (system.withoutNetwork) {
 			eachProviderOf(db, index::add);
@@ -118,24 +118,24 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 	 * Creates an unlinked index of all process products (and waste flows) of the
 	 * database in some arbitrary order.
 	 */
-	public static TechIndex of(IDatabase db) {
+	public static TechFlowIndex of(IDatabase db) {
 		var list = new ArrayList<TechFlow>();
 		eachProviderOf(db, list::add);
 		if (list.isEmpty())
 			throw new RuntimeException("no providers in database");
-		var index = new TechIndex(list.get(0));
+		var index = new TechFlowIndex(list.get(0));
 		for (int i = 1; i < list.size(); i++) {
 			index.add(list.get(i));
 		}
 		return index;
 	}
 
-	private static TechIndex initFrom(ProductSystem system) {
+	private static TechFlowIndex initFrom(ProductSystem system) {
 		// initialize the TechIndex with the reference flow
 		var refExchange = system.referenceExchange;
 		var refFlow = TechFlow.of(
 				system.referenceProcess, refExchange.flow);
-		var index = new TechIndex(refFlow);
+		var index = new TechFlowIndex(refFlow);
 
 		// set the final demand value which is negative
 		// when we have a waste flow as reference flow
@@ -372,8 +372,8 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 	}
 
 	@Override
-	public TechIndex copy() {
-		var copy = new TechIndex(at(0));
+	public TechFlowIndex copy() {
+		var copy = new TechFlowIndex(at(0));
 		copy.demand = demand;
 		for (var p : providers) {
 			copy.add(p);

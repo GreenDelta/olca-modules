@@ -108,7 +108,7 @@ public class UpstreamTreeHandler {
 	}
 
 	private UpstreamTree flowTree(FullResult result, String flowID) {
-		var flowIdx = result.enviIndex();
+		var flowIdx = result.enviFlowIndex();
 		if (flowIdx == null)
 			return null;
 		for (int i = 0; i < flowIdx.size(); i++) {

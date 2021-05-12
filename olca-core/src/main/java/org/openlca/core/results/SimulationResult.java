@@ -5,12 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.EnviFlowIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.index.TechFlowIndex;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 /**
@@ -25,8 +25,8 @@ public class SimulationResult extends BaseResult {
 	private final List<double[]> impactResults = new ArrayList<>();
 	private final HashMap<TechFlow, PinnedContributions> pinned = new HashMap<>();
 
-	private final TechIndex techIndex;
-	private final EnviIndex flowIndex;
+	private final TechFlowIndex techIndex;
+	private final EnviFlowIndex flowIndex;
 	private final ImpactIndex impactIndex;
 
 	public SimulationResult(MatrixData data) {
@@ -36,12 +36,12 @@ public class SimulationResult extends BaseResult {
 	}
 
 	@Override
-	public TechIndex techIndex() {
+	public TechFlowIndex techFlowIndex() {
 		return techIndex;
 	}
 
 	@Override
-	public EnviIndex enviIndex() {
+	public EnviFlowIndex enviFlowIndex() {
 		return flowIndex;
 	}
 

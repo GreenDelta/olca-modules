@@ -81,8 +81,8 @@ public class AllocationTest {
 		var setup = new CalculationSetup(system);
 		setup.allocationMethod = method;
 		var result = TestSystem.calculate(setup);
-		assertEquals(1, result.enviIndex().size());
-		var co2 = result.enviIndex().at(0);
+		assertEquals(1, result.enviFlowIndex().size());
+		var co2 = result.enviFlowIndex().at(0);
 		assertEquals(0.5, result.getTotalFlowResult(co2), 1e-16);
 	}
 }

@@ -10,7 +10,7 @@ import java.util.Set;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.index.TechFlowIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
@@ -32,14 +32,14 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 	}
 
 	@Override
-	public TechIndex build(TechFlow refProduct) {
+	public TechFlowIndex build(TechFlow refProduct) {
 		return build(refProduct, 1.0);
 	}
 
 	@Override
-	public TechIndex build(TechFlow refFlow, double demand) {
+	public TechFlowIndex build(TechFlow refFlow, double demand) {
 		log.trace("build product index for {}", refFlow);
-		TechIndex index = new TechIndex(refFlow);
+		TechFlowIndex index = new TechFlowIndex(refFlow);
 		index.setDemand(demand);
 		addSystemLinks(index);
 		List<TechFlow> block = new ArrayList<>();
@@ -71,7 +71,7 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 		return index;
 	}
 
-	private void addSystemLinks(TechIndex index) {
+	private void addSystemLinks(TechFlowIndex index) {
 		if (system == null)
 			return;
 		for (ProcessLink link : system.processLinks) {

@@ -8,7 +8,7 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.index.TechFlowIndex;
 import org.openlca.core.matrix.linking.ITechIndexBuilder;
 import org.openlca.core.matrix.linking.LinkingConfig;
 import org.openlca.core.matrix.linking.TechIndexBuilder;
@@ -91,12 +91,12 @@ public class ProductSystemBuilder {
 			builder = new TechIndexCutoffBuilder(
 				matrixCache, system, config);
 		}
-		TechIndex index = builder.build(product);
+		TechFlowIndex index = builder.build(product);
 		log.trace("create new process links");
 		addLinksAndProcesses(system, index);
 	}
 
-	private void addLinksAndProcesses(ProductSystem system, TechIndex index) {
+	private void addLinksAndProcesses(ProductSystem system, TechFlowIndex index) {
 		TLongHashSet linkIds = new TLongHashSet(Constants.DEFAULT_CAPACITY,
 			Constants.DEFAULT_LOAD_FACTOR, -1);
 		for (ProcessLink link : system.processLinks) {
