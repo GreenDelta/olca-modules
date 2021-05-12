@@ -37,10 +37,10 @@ public class LocationResult {
 	 * Calculates location contributions to the given inventory flow.
 	 */
 	public List<Contribution<Location>> getContributions(FlowDescriptor flow) {
-		if (flow == null || result == null || !result.hasFlowResults())
+		if (flow == null || result == null || !result.hasEnviFlows())
 			return Collections.emptyList();
 
-		var flowIndex = result.flowIndex();
+		var flowIndex = result.enviIndex();
 		HashMap<Location, Double> cons = new HashMap<>();
 		double total;
 		if (!flowIndex.isRegionalized()) {
@@ -87,13 +87,13 @@ public class LocationResult {
 	 */
 	public List<Contribution<Location>> getContributions(
 			ImpactDescriptor impact) {
-		if (impact == null || result == null || !result.hasImpactResults())
+		if (impact == null || result == null || !result.hasImpacts())
 			return Collections.emptyList();
 
 		HashMap<Location, Double> cons = new HashMap<>();
 		double total = result.getTotalImpactResult(impact);
 
-		if (!result.flowIndex().isRegionalized()) {
+		if (!result.enviIndex().isRegionalized()) {
 			// non-regionalized calculation;
 			// we take the locations from the processes
 			// in the columns and the results from the
@@ -110,7 +110,7 @@ public class LocationResult {
 			// we take the location from the index flows
 			// and the values from the direct contributions
 			// of these flows to the LCIA category result
-			result.flowIndex().each((i, iFlow) -> {
+			result.enviIndex().each((i, iFlow) -> {
 				Location loc = iFlow.location() == null
 						? null
 						: getLocation(iFlow.location().id);

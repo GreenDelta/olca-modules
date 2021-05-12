@@ -29,7 +29,7 @@ public abstract class BaseResult implements IResult {
 	public final List<EnviFlow> getFlows() {
 		if (_flows != null)
 			return _flows;
-		var flowIndex = flowIndex();
+		var flowIndex = enviIndex();
 		if (flowIndex == null)
 			return Collections.emptyList();
 		_flows = new ArrayList<>();

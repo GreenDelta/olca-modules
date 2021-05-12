@@ -47,7 +47,7 @@ public class ImpactHandler {
 			double total = result.getTotalImpactResult(impact);
 			List<Contribution<FlowDescriptor>> contributions = new ArrayList<>();
 			// TODO: regionalization
-			result.flowIndex().each((i, f) -> {
+			result.enviIndex().each((i, f) -> {
 				var c = new Contribution<FlowDescriptor>();
 				c.item = f.flow();
 				c.amount = result.getDirectFlowImpact(f, impact);
@@ -67,7 +67,7 @@ public class ImpactHandler {
 			double total = result.getDirectImpactResult(process, impact);
 			List<Contribution<FlowDescriptor>> contributions = new ArrayList<>();
 			// TODO: regionalization
-			result.flowIndex().each((i, f) -> {
+			result.enviIndex().each((i, f) -> {
 				var c = new Contribution<FlowDescriptor>();
 				c.item = f.flow();
 				c.amount = result.getDirectFlowResult(process, f)
@@ -181,7 +181,7 @@ public class ImpactHandler {
 	private double getImpactFactor(ContributionResult result,
 			ImpactDescriptor impact, EnviFlow flow) {
 		int impactIdx = result.impactIndex().of(impact);
-		int flowIdx = result.flowIndex().of(flow);
+		int flowIdx = result.enviIndex().of(flow);
 		double value = result.provider.impactFactorOf(impactIdx, flowIdx);
 		if (value == 0)
 			return 0; // avoid -0

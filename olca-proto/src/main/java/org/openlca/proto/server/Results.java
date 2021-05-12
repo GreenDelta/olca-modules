@@ -39,7 +39,7 @@ final class Results {
 
     if (result == null || Messages.isEmpty(proto))
       return null;
-    var index = result.flowIndex();
+    var index = result.enviIndex();
     if (index == null)
       return null;
 

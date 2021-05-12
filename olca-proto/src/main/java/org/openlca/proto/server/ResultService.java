@@ -170,7 +170,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
       Response.notFound(resp, "Result does not exist: " + req.getId());
       return;
     }
-    var flows = result.flowIndex();
+    var flows = result.enviIndex();
     if (flows == null) {
       resp.onCompleted();
       return;
@@ -209,7 +209,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
       Response.notFound(resp, "Result does not exist: " + req.getId());
       return;
     }
-    var flows = result.flowIndex();
+    var flows = result.enviIndex();
     if (flows == null) {
       resp.onCompleted();
       return;
@@ -265,7 +265,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
         .asException());
       return;
     }
-    var flowIndex = result.flowIndex();
+    var flowIndex = result.enviIndex();
     var impactIndex = result.impactIndex();
     if (flowIndex == null || impactIndex == null) {
       resp.onCompleted();
@@ -358,7 +358,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
       })
       .ifFlow((result, product, flow) -> {
         var productIdx = result.techIndex().of(product);
-        var flowIdx = result.flowIndex().of(flow);
+        var flowIdx = result.enviIndex().of(flow);
         var value = result.provider.totalFlowOfOne(flowIdx, productIdx);
         return result.adopt(flow, value);
       })

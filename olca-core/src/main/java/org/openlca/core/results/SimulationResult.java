@@ -41,7 +41,7 @@ public class SimulationResult extends BaseResult {
 	}
 
 	@Override
-	public EnviIndex flowIndex() {
+	public EnviIndex enviIndex() {
 		return flowIndex;
 	}
 
@@ -246,7 +246,7 @@ public class SimulationResult extends BaseResult {
 
 	// TODO: no LCC for Monte Carlo simulations ?
 	@Override
-	public boolean hasCostResults() {
+	public boolean hasCosts() {
 		return false;
 	}
 

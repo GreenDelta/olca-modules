@@ -40,7 +40,7 @@ class JsonRpc {
 				cache));
 		obj.add("processes", encode(r.getProcesses(), cache));
 		obj.add("flowResults", encode(r.getTotalFlowResults(), result -> encode(result, cache)));
-		if (!r.hasImpactResults())
+		if (!r.hasImpacts())
 			return obj;
 		obj.add("impacts", encode(r.getImpacts(), cache));
 		obj.add("impactResults", encode(r.getTotalImpactResults(), result -> encode(result, cache)));

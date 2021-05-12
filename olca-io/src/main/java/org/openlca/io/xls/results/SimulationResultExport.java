@@ -70,7 +70,7 @@ public class SimulationResultExport {
 		// total LCI & LCIA results
 		InfoSheet.write(wb, writer, setup, null, "Simulation result");
 		writeInventorySheet(wb);
-		if (result.hasImpactResults()) {
+		if (result.hasImpacts()) {
 			writeImpactSheet(wb);
 		}
 
@@ -174,7 +174,7 @@ public class SimulationResultExport {
 		row++;
 		row++;
 
-		if (result.hasImpactResults()) {
+		if (result.hasImpacts()) {
 
 			writer.headerRow(sheet, row++, 1, "Direct LCIA contributions");
 			writer.headerRow(sheet, row, 1, IMPACT_HEADER);

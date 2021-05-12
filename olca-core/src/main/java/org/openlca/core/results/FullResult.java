@@ -47,7 +47,7 @@ public class FullResult extends ContributionResult {
 	 * inventory result of elementary flow $i$: $\mathbf{U}[i,j]$.
 	 */
 	public double getUpstreamFlowResult(TechFlow product, EnviFlow flow) {
-		var flowIndex = flowIndex();
+		var flowIndex = enviIndex();
 		if (flowIndex == null)
 			return 0;
 		int flowIdx = flowIndex.of(flow);
@@ -78,7 +78,7 @@ public class FullResult extends ContributionResult {
 	 */
 	public List<FlowResult> getUpstreamFlowResults(
 		CategorizedDescriptor process) {
-		var flowIndex = flowIndex();
+		var flowIndex = enviIndex();
 		if (flowIndex == null)
 			return Collections.emptyList();
 		var results = new ArrayList<FlowResult>();
@@ -95,7 +95,7 @@ public class FullResult extends ContributionResult {
 	 */
 	public double getUpstreamImpactResult(
 		TechFlow product, ImpactDescriptor impact) {
-		if (!hasImpactResults())
+		if (!hasImpacts())
 			return 0;
 		int impactIdx = impactIndex().of(impact);
 		int productIdx = techIndex().of(product);
@@ -125,7 +125,7 @@ public class FullResult extends ContributionResult {
 	public List<ImpactResult> getUpstreamImpactResults(
 		CategorizedDescriptor process) {
 		var results = new ArrayList<ImpactResult>();
-		if (!hasImpactResults())
+		if (!hasImpacts())
 			return results;
 		impactIndex().each((i, impact) -> {
 			var r = new ImpactResult();
@@ -141,7 +141,7 @@ public class FullResult extends ContributionResult {
 	 * LCC result: $\mathbf{k}_u[j]$.
 	 */
 	public double getUpstreamCostResult(TechFlow product) {
-		if (!hasCostResults())
+		if (!this.hasCosts())
 			return 0;
 		int productIdx = techIndex().of(product);
 		return productIdx < 0
@@ -193,7 +193,7 @@ public class FullResult extends ContributionResult {
 	 * Calculate the upstream tree for the given flow.
 	 */
 	public UpstreamTree getTree(EnviFlow flow) {
-		int i = flowIndex().of(flow);
+		int i = enviIndex().of(flow);
 		double total = getTotalFlowResult(flow);
 		return new UpstreamTree(flow, this, total,
 			product -> provider.totalFlowOfOne(i, product));

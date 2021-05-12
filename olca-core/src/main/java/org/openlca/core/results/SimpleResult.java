@@ -100,7 +100,7 @@ public class SimpleResult extends BaseResult {
 	}
 
 	@Override
-	public EnviIndex flowIndex() {
+	public EnviIndex enviIndex() {
 		return provider.flowIndex();
 	}
 
@@ -137,7 +137,7 @@ public class SimpleResult extends BaseResult {
 	 * Get the total inventory result $\mathbf{g}_i$ of the given flow $i$.
 	 */
 	public double getTotalFlowResult(EnviFlow flow) {
-		var flowIndex = flowIndex();
+		var flowIndex = enviIndex();
 		if (flowIndex == null)
 			return 0;
 		int idx = flowIndex.of(flow);
@@ -150,7 +150,7 @@ public class SimpleResult extends BaseResult {
 	 * Returns the flow results of the inventory result $\mathbf{g}$.
 	 */
 	public List<FlowResult> getTotalFlowResults() {
-		var flowIndex = flowIndex();
+		var flowIndex = enviIndex();
 		if (flowIndex == null)
 			return Collections.emptyList();
 		List<FlowResult> results = new ArrayList<>(flowIndex.size());
@@ -191,7 +191,7 @@ public class SimpleResult extends BaseResult {
 	}
 
 	@Override
-	public boolean hasCostResults() {
+	public boolean hasCosts() {
 		return totalCosts != 0;
 	}
 }

@@ -52,7 +52,7 @@ public class SimpleResultProviderTest {
 
 	@Test
 	public void testFlowIndex() {
-		var flowIndex = result.flowIndex();
+		var flowIndex = result.enviIndex();
 		assertEquals(2, flowIndex.size());
 		assertEquals("r", flowIndex.at(0).flow().name);
 		assertTrue(flowIndex.at(0).isInput());

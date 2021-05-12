@@ -47,11 +47,11 @@ class TechFlowContribution {
     }
 
     // set the result selector
-    if (req.hasEnviFlow() && result.hasFlowResults()) {
+    if (req.hasEnviFlow() && result.hasEnviFlows()) {
       resolved.flow = Results.findFlow(result, req.getEnviFlow());
-    } else if (req.hasImpact() && result.hasImpactResults()) {
+    } else if (req.hasImpact() && result.hasImpacts()) {
       resolved.impact = Results.findImpact(result, req.getImpact());
-    } else if (req.getCosts() && result.hasCostResults()) {
+    } else if (req.getCosts() && result.hasCosts()) {
       resolved.forCosts = true;
     }
 

@@ -80,7 +80,7 @@ public class ProjectResult {
 
 	public boolean hasImpactResults() {
 		for (ContributionResult result : results.values()) {
-			if (result.hasImpactResults())
+			if (result.hasImpacts())
 				return true;
 		}
 		return false;
@@ -88,7 +88,7 @@ public class ProjectResult {
 
 	public boolean hasCostResults() {
 		for (ContributionResult result : results.values()) {
-			if (result.hasCostResults())
+			if (result.hasCosts())
 				return true;
 		}
 		return false;
@@ -96,7 +96,7 @@ public class ProjectResult {
 
 	public boolean hasFlowResults() {
 		for (ContributionResult result : results.values()) {
-			if (result.hasFlowResults())
+			if (result.hasEnviFlows())
 				return true;
 		}
 		return false;
@@ -136,7 +136,7 @@ public class ProjectResult {
 		_impacts = new ArrayList<>();
 		TLongHashSet handled = new TLongHashSet();
 		for (ContributionResult r : results.values()) {
-			if (!r.hasImpactResults())
+			if (!r.hasImpacts())
 				continue;
 			for (ImpactDescriptor impact : r.getImpacts()) {
 				if (handled.contains(impact.id))

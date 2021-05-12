@@ -33,7 +33,7 @@ public interface IResult {
 	 * <p>
 	 * $$\mathit{Idx}_B: \mathit{F} \mapsto [0 \dots k-1]$$
 	 */
-	EnviIndex flowIndex();
+	EnviIndex enviIndex();
 
 	/**
 	 * The row index $\mathit{Idx}_C$ of the matrix with the characterization
@@ -45,17 +45,17 @@ public interface IResult {
 	ImpactIndex impactIndex();
 
 	/**
-	 * Returns true when this result contains (elementary) flow results.
+	 * Returns true when this result contains results for environmental flows.
 	 */
-	default boolean hasFlowResults() {
-		var flowIndex = flowIndex();
-		return flowIndex != null && !flowIndex.isEmpty();
+	default boolean hasEnviFlows() {
+		var enviIndex = enviIndex();
+		return enviIndex != null && !enviIndex.isEmpty();
 	}
 
 	/**
 	 * Returns true when this result contains LCIA results.
 	 */
-	default boolean hasImpactResults() {
+	default boolean hasImpacts() {
 		var impactIndex = impactIndex();
 		return impactIndex != null && !impactIndex.isEmpty();
 	}
@@ -63,7 +63,7 @@ public interface IResult {
 	/**
 	 * Returns true when this result contains LCC results.
 	 */
-	boolean hasCostResults();
+	boolean hasCosts();
 
 	/**
 	 * Get the descriptors of the processes of the inventory model. If a product

@@ -32,17 +32,17 @@ public class ContributionResult extends SimpleResult {
 	}
 
 	@Override
-	public boolean hasFlowResults() {
+	public boolean hasEnviFlows() {
 		return provider.hasFlows();
 	}
 
 	@Override
-	public boolean hasImpactResults() {
+	public boolean hasImpacts() {
 		return provider.hasImpacts();
 	}
 
 	@Override
-	public boolean hasCostResults() {
+	public boolean hasCosts() {
 		return provider.hasCosts();
 	}
 
@@ -51,9 +51,9 @@ public class ContributionResult extends SimpleResult {
 	 * inventory result of elementary flow $i$: $\mathbf{G}[i,j]$.
 	 */
 	public double getDirectFlowResult(TechFlow product, EnviFlow flow) {
-		if (!hasFlowResults())
+		if (!hasEnviFlows())
 			return 0;
-		int flowIdx = flowIndex().of(flow);
+		int flowIdx = enviIndex().of(flow);
 		int productIdx = techIndex().of(product);
 		if (flowIdx < 0 || productIdx < 0)
 			return 0;
@@ -81,10 +81,10 @@ public class ContributionResult extends SimpleResult {
 	 */
 	public List<FlowResult> getFlowContributions(
 			CategorizedDescriptor process) {
-		if (!hasFlowResults())
+		if (!hasEnviFlows())
 			return Collections.emptyList();
 		var results = new ArrayList<FlowResult>();
-		flowIndex().each((i, flow) -> {
+		enviIndex().each((i, flow) -> {
 			double value = getDirectFlowResult(process, flow);
 			results.add(new FlowResult(flow, value));
 		});
@@ -109,7 +109,7 @@ public class ContributionResult extends SimpleResult {
 	 */
 	public double getDirectImpactResult(
 			TechFlow product, ImpactDescriptor impact) {
-		if (!hasImpactResults())
+		if (!hasImpacts())
 			return 0;
 		int impactIdx = impactIndex().of(impact);
 		int productIdx = techIndex().of(product);
@@ -199,10 +199,10 @@ public class ContributionResult extends SimpleResult {
 	 * of the given LCIA category.
 	 */
 	public double getDirectFlowImpact(EnviFlow flow, ImpactDescriptor impact) {
-		if (!hasImpactResults())
+		if (!hasImpacts())
 			return 0;
 		int impactIdx = impactIndex().of(impact);
-		int flowIdx = flowIndex().of(flow);
+		int flowIdx = enviIndex().of(flow);
 		return impactIdx < 0 || flowIdx < 0
 				? 0
 				: provider.flowImpactOf(impactIdx, flowIdx);
@@ -214,7 +214,7 @@ public class ContributionResult extends SimpleResult {
 	public List<FlowResult> getFlowContributions(
 			ImpactDescriptor impact) {
 		var results = new ArrayList<FlowResult>();
-		flowIndex().each((i, flow) -> {
+		enviIndex().each((i, flow) -> {
 			double value = getDirectFlowImpact(flow, impact);
 			results.add(new FlowResult(flow, value));
 		});
@@ -227,10 +227,10 @@ public class ContributionResult extends SimpleResult {
 	 */
 	public double getImpactFactor(
 			ImpactDescriptor impact, EnviFlow flow) {
-		if (!hasImpactResults())
+		if (!hasImpacts())
 			return 0;
 		int impactIdx = impactIndex().of(impact);
-		int flowIdx = flowIndex().of(flow);
+		int flowIdx = enviIndex().of(flow);
 		if (impactIdx < 0 || flowIdx < 0 )
 			return 0;
 

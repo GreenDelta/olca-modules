@@ -61,7 +61,7 @@ public class ResultExport implements Runnable {
 					: null;
 			InfoSheet.write(workbook, writer, setup, dqSetup, getType());
 			InventorySheet.write(this);
-			if (result.hasImpactResults()) {
+			if (result.hasImpacts()) {
 				ImpactSheet.write(this);
 			}
 			writeContributionSheets();
@@ -82,7 +82,7 @@ public class ResultExport implements Runnable {
 			return;
 		ContributionResult cons = (ContributionResult) result;
 		ProcessFlowContributionSheet.write(this, cons);
-		if (cons.hasImpactResults()) {
+		if (cons.hasImpacts()) {
 			ProcessImpactContributionSheet.write(this, cons);
 			FlowImpactContributionSheet.write(this, cons);
 		}
@@ -93,7 +93,7 @@ public class ResultExport implements Runnable {
 			return;
 		FullResult r = (FullResult) result;
 		ProcessFlowUpstreamSheet.write(this, r);
-		if (r.hasImpactResults()) {
+		if (r.hasImpacts()) {
 			ProcessImpactUpstreamSheet.write(this, r);
 		}
 	}

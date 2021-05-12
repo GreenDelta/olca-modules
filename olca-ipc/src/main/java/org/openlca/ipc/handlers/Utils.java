@@ -111,7 +111,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		EnviFlow flow = get(result.flowIndex(), json);
+		EnviFlow flow = get(result.enviIndex(), json);
 		if (flow == null)
 			return Responses.invalidParams("Missing or invalid flow parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
@@ -123,7 +123,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		EnviFlow flow = get(result.flowIndex(), json);
+		EnviFlow flow = get(result.enviIndex(), json);
 		if (flow == null)
 			return Responses.invalidParams("Missing or invalid flow parameter", req);
 		LocationDescriptor location = get(ModelType.LOCATION, json);
@@ -207,7 +207,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		FullResult result = getResult(json);
-		EnviFlow flow = get(result.flowIndex(), json);
+		EnviFlow flow = get(result.enviIndex(), json);
 		if (flow == null)
 			return Responses.invalidParams("Missing or invalid flow parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);

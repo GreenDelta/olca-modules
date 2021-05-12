@@ -133,7 +133,7 @@ public class DQResult {
 	public int[] get(TechFlow product, EnviFlow flow) {
 		if (exchangeData == null)
 			return null;
-		int row = result.flowIndex().of(flow);
+		int row = result.enviIndex().of(flow);
 		int col = result.techIndex().of(product);
 		if (row < 0 || col < 0)
 			return null;
@@ -150,7 +150,7 @@ public class DQResult {
 	public int[] get(EnviFlow flow) {
 		if (flowResult == null)
 			return null;
-		int col = result.flowIndex().of(flow);
+		int col = result.enviIndex().of(flow);
 		return col < 0
 			? null
 			: toInt(flowResult.getColumn(col));
@@ -172,7 +172,7 @@ public class DQResult {
 		if (flowImpactResult == null)
 			return null;
 		int row = result.impactIndex().of(impact);
-		int col = result.flowIndex().of(flow);
+		int col = result.enviIndex().of(flow);
 		if (row < 0 || col < 0)
 			return null;
 		int k = flowImpactResult.length;
@@ -252,7 +252,7 @@ public class DQResult {
 	private void loadExchangeData(IDatabase db) {
 		var system = setup.exchangeSystem;
 		var techIndex = result.techIndex();
-		var flowIndex = result.flowIndex();
+		var flowIndex = result.enviIndex();
 		if (system == null
 				|| techIndex == null
 				|| flowIndex == null)
@@ -328,7 +328,7 @@ public class DQResult {
 		var system = setup.exchangeSystem;
 		int n = result.techIndex().size();
 		int k = system.indicators.size();
-		int m = result.flowIndex().size();
+		int m = result.enviIndex().size();
 		flowResult = new DenseByteMatrix(k, m);
 		byte max = (byte) system.getScoreCount();
 
@@ -350,7 +350,7 @@ public class DQResult {
 	private void calculateImpactResults() {
 		if (setup.aggregationType == AggregationType.NONE
 			|| exchangeData == null
-			|| !result.hasImpactResults())
+			|| !result.hasImpacts())
 			return;
 		var provider = result.provider;
 		if (!provider.hasImpacts())
@@ -359,7 +359,7 @@ public class DQResult {
 		// initialize the results
 		var system = setup.exchangeSystem;
 		int k = system.indicators.size();
-		int m = result.flowIndex().size();
+		int m = result.enviIndex().size();
 		int n = result.techIndex().size();
 		int q = result.impactIndex().size();
 		byte max = (byte) system.getScoreCount();

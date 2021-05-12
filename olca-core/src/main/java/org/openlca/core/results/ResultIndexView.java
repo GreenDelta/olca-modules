@@ -24,23 +24,23 @@ import org.openlca.core.model.descriptors.ImpactDescriptor;
 public class ResultIndexView {
 
 	private final List<? extends IResult> results;
-	private final boolean hasFlows;
+	private final boolean hasEnviFlows;
 	private final boolean hasImpacts;
 	private final boolean hasCosts;
 
-	private List<EnviFlow> flows;
+	private List<EnviFlow> enviFlows;
 	private List<ImpactDescriptor> impacts;
-	private List<TechFlow> products;
+	private List<TechFlow> techFlows;
 	private List<CategorizedDescriptor> processes;
 
 	private ResultIndexView(List<? extends IResult> results) {
 		this.results = results;
-		this.hasFlows = results.stream()
-			.anyMatch(IResult::hasFlowResults);
+		this.hasEnviFlows = results.stream()
+			.anyMatch(IResult::hasEnviFlows);
 		this.hasImpacts = results.stream()
-			.anyMatch(IResult::hasImpactResults);
+			.anyMatch(IResult::hasImpacts);
 		this.hasCosts = results.stream()
-			.anyMatch(IResult::hasCostResults);
+			.anyMatch(IResult::hasCosts);
 	}
 
 	public static ResultIndexView of(IResult result) {
@@ -56,8 +56,8 @@ public class ResultIndexView {
 		return new ResultIndexView(list);
 	}
 
-	public boolean hasFlows() {
-		return hasFlows;
+	public boolean hasEnviFlows() {
+		return hasEnviFlows;
 	}
 
 	public boolean hasImpacts() {
@@ -68,40 +68,72 @@ public class ResultIndexView {
 		return hasCosts;
 	}
 
-	public List<CategorizedDescriptor> processes() {
-		if (processes != null)
-			return processes;
-		var set = new HashSet<CategorizedDescriptor>();
+	public List<TechFlow> techFlows() {
+		if (techFlows != null)
+			return techFlows;
+		var set = new HashSet<TechFlow>();
 		for (var result : results) {
 			var index = result.techIndex();
 			if (index == null)
 				continue;
-			for (var product : index) {
-				set.add(product.process());
-			}
+			set.addAll(index.content());
 		}
+		techFlows = new ArrayList<>(set);
+		return techFlows;
+	}
+
+	public List<CategorizedDescriptor> processes() {
+		if (processes != null)
+			return processes;
+		var set = new HashSet<CategorizedDescriptor>();
+		for (var techFlow : techFlows()) {
+			set.add(techFlow.process());
+		}
+		processes = new ArrayList<>(set);
 		return processes;
 	}
 
-	public List<EnviFlow> flows() {
-		if (flows != null)
-			return flows;
-		if (!hasFlows) {
-			flows = Collections.emptyList();
-			return flows;
+	public List<EnviFlow> enviFlows() {
+		if (enviFlows != null)
+			return enviFlows;
+		if (!hasEnviFlows) {
+			enviFlows = Collections.emptyList();
+			return enviFlows;
 		}
 		var set = new HashSet<EnviFlow>();
 		for (var result : results) {
-			if (!result.hasFlowResults())
+			if (!result.hasEnviFlows())
 				continue;
-			var index = result.flowIndex();
+			var index = result.enviIndex();
 			if (index == null)
 				continue;
 			for (var flow : index) {
 				set.add(flow);
 			}
 		}
-		flows = new ArrayList<>(set);
-		return flows;
+		enviFlows = new ArrayList<>(set);
+		return enviFlows;
+	}
+
+	public List<ImpactDescriptor> impacts() {
+		if (impacts != null)
+			return impacts;
+		if (!hasImpacts) {
+			impacts = Collections.emptyList();
+			return impacts;
+		}
+		var set = new HashSet<ImpactDescriptor>();
+		for (var result : results) {
+			if (!result.hasImpacts())
+				continue;
+			var index = result.impactIndex();
+			if (index == null)
+				continue;
+			for (var impact : index) {
+				set.add(impact);
+			}
+		}
+		impacts = new ArrayList<>(set);
+		return impacts;
 	}
 }

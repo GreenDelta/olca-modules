@@ -41,7 +41,7 @@ public class DBMatrixExample {
 				"calculation took %.3f seconds",
 				(end - start) / 1000.0);
 
-			System.out.println("done; flow count = " + r.flowIndex().size());
+			System.out.println("done; flow count = " + r.enviIndex().size());
 			System.out.println(r.totalFlowResults[0]);
 
 		}
