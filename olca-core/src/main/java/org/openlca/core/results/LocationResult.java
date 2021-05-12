@@ -176,9 +176,9 @@ public class LocationResult {
 	}
 
 	private Location getLocation(ProcessProduct p) {
-		if (p == null || !(p.process instanceof ProcessDescriptor))
+		if (p == null || !(p.process() instanceof ProcessDescriptor))
 			return null;
-		ProcessDescriptor d = (ProcessDescriptor) p.process;
+		ProcessDescriptor d = (ProcessDescriptor) p.process();
 		return d.location == null
 				? null
 				: getLocation(d.location);

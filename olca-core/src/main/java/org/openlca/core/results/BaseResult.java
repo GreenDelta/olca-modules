@@ -76,7 +76,7 @@ public abstract class BaseResult implements IResult {
 		_processes = new ArrayList<>();
 		TLongHashSet handled = new TLongHashSet();
 		for (ProcessProduct product : getProviders()) {
-			CategorizedDescriptor process = product.process;
+			CategorizedDescriptor process = product.process();
 			if (process == null || handled.contains(process.id))
 				continue;
 			_processes.add(process);

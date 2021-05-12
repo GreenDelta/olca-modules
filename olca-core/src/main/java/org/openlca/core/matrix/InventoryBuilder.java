@@ -110,9 +110,9 @@ public class InventoryBuilder {
 			// now put the entries of the sub-system into the matrices
 			var subSystems = new HashSet<ProcessProduct>();
 			techIndex.each((i, p) -> {
-				if (p.process == null)
+				if (p.process() == null)
 					return;
-				if (p.process.type == ModelType.PRODUCT_SYSTEM) {
+				if (p.process().type == ModelType.PRODUCT_SYSTEM) {
 					subSystems.add(p);
 				}
 			});

@@ -19,8 +19,8 @@ class LibIndex {
 	static Proto.ProductEntry protoEntry(int index, ProcessProduct product) {
 		var entry = Proto.ProductEntry.newBuilder();
 		entry.setIndex(index);
-		entry.setProduct(protoFlow(product.flow));
-		entry.setProcess(protoProcess(product.process));
+		entry.setProduct(protoFlow(product.flow()));
+		entry.setProcess(protoProcess(product.process()));
 		return entry.build();
 	}
 

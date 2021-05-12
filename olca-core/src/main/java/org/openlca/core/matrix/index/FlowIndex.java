@@ -213,8 +213,8 @@ public abstract class FlowIndex implements MatrixIndex<IndexFlow> {
 			loc = locations.get(e.locationId);
 		}
 		if (loc == null) {
-			if (product.process instanceof ProcessDescriptor) {
-				var d = (ProcessDescriptor) product.process;
+			if (product.process() instanceof ProcessDescriptor) {
+				var d = (ProcessDescriptor) product.process();
 				if (d.location != null) {
 					loc = locations.get(d.location);
 				}

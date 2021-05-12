@@ -301,7 +301,7 @@ class DataFetchService extends
     ProcessTable.create(db)
       .getProviders(flow.id)
       .stream()
-      .map(p -> p.process)
+      .map(p -> p.process())
       .filter(p -> p instanceof ProcessDescriptor)
       .map(p -> (ProcessDescriptor) p)
       .forEach(p -> resp.onNext(Refs.refOf(p, refData).build()));

@@ -148,10 +148,10 @@ public class SimulationResultExport {
 		row = 0;
 
 		String label = "Contributions of: ";
-		if (pp.process != null) {
-			label += pp.process.name;
-			if (pp.process instanceof ProcessDescriptor) {
-				ProcessDescriptor p = (ProcessDescriptor) pp.process;
+		if (pp.process() != null) {
+			label += pp.process().name;
+			if (pp.process() instanceof ProcessDescriptor) {
+				ProcessDescriptor p = (ProcessDescriptor) pp.process();
 				if (p.location != null) {
 					Location loc = cache.get(Location.class, p.location);
 					if (loc != null) {
@@ -160,10 +160,10 @@ public class SimulationResultExport {
 				}
 			}
 		}
-		if (pp.flow != null) {
-			label += " | " + pp.flow.name;
-			if (pp.flow.location != null) {
-				Location loc = cache.get(Location.class, pp.flow.location);
+		if (pp.flow() != null) {
+			label += " | " + pp.flow().name;
+			if (pp.flow().location != null) {
+				Location loc = cache.get(Location.class, pp.flow().location);
 				if (loc != null) {
 					label += " - " + loc.code;
 				}

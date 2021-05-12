@@ -759,7 +759,7 @@ public class ProcessWriter {
 			if (providers.size() > 1) {
 				log.warn("multiple providers found for flow {}", flowName);
 			}
-			processName = providers.get(0).process.name;
+			processName = providers.get(0).process().name;
 		}
 
 		if (Strings.nullOrEmpty(processName)

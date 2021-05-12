@@ -199,8 +199,8 @@ public abstract class MatrixExport {
 		var units = propUnits();
 		for (int i = 0; i < data.techIndex.size(); i++) {
 			var product = data.techIndex.at(i);
-			var p = product.process;
-			var f = product.flow;
+			var p = product.process();
+			var f = product.flow();
 			var row = new String[header.length];
 			row[0] = p.refId;
 			row[1] = p.name;

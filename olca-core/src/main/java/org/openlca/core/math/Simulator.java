@@ -368,8 +368,8 @@ public class Simulator {
 			// parameters
 			HashSet<Long> paramContexts = new HashSet<>();
 			data.techIndex.each((i, p) -> {
-				if (p.process != null
-						&& p.process.type == ModelType.PROCESS) {
+				if (p.process() != null
+						&& p.process().type == ModelType.PROCESS) {
 					paramContexts.add(p.processId());
 				}
 			});
