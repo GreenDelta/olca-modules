@@ -16,11 +16,11 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
-import org.openlca.core.matrix.index.EnviFlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechFlowIndex;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessLink;
@@ -121,11 +121,11 @@ public class Simulator {
 		return result;
 	}
 
-	public TechFlowIndex getTechIndex() {
+	public TechIndex getTechIndex() {
 		return root.data.techIndex;
 	}
 
-	public EnviFlowIndex getEnviIndex() {
+	public EnviIndex getEnviIndex() {
 		return root.data.enviIndex;
 	}
 
@@ -156,7 +156,7 @@ public class Simulator {
 
 			// calculate results of possible pinned products
 			for (var product : pinnedProducts) {
-				int idx = next.techFlowIndex().of(product);
+				int idx = next.techIndex().of(product);
 				if (idx < 0)
 					continue;
 				var pin = result.pin(product);
@@ -194,7 +194,7 @@ public class Simulator {
 				int col = node.data.techIndex.of(subLink);
 				if (col < 0)
 					continue;
-				sub.lastResult.enviFlowIndex().each((i, f) -> {
+				sub.lastResult.enviIndex().each((i, f) -> {
 					double val = sub.lastResult.totalFlowResults[i];
 					int row = node.data.enviIndex.of(f);
 					if (row >= 0) {

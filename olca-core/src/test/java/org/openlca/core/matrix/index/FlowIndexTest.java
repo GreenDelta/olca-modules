@@ -30,7 +30,7 @@ public class FlowIndexTest {
 
 	@Test
 	public void testIt() {
-		EnviFlowIndex idx = EnviFlowIndex.createRegionalized();
+		EnviIndex idx = EnviIndex.createRegionalized();
 		List<FlowDescriptor> flows = new ArrayList<>();
 		List<LocationDescriptor> locations = new ArrayList<>();
 		List<Boolean> isInput = new ArrayList<>();
@@ -71,7 +71,7 @@ public class FlowIndexTest {
 	@Test
 	public void testNonRegFlows() {
 
-		EnviFlowIndex idx = EnviFlowIndex.createRegionalized();
+		EnviIndex idx = EnviIndex.createRegionalized();
 
 		// add 500 flows with location and 500 without
 		boolean isInput = true;
@@ -138,7 +138,7 @@ public class FlowIndexTest {
 		db.insert(impacts);
 
 		// build a non-regionalized index
-		var index = EnviFlowIndex.create(db,
+		var index = EnviIndex.create(db,
 			ImpactIndex.of(List.of(Descriptor.of(impacts))));
 		assertEquals(1, index.size());
 		var iFlow = Objects.requireNonNull(index.at(0));
@@ -146,7 +146,7 @@ public class FlowIndexTest {
 		assertNull(iFlow.location());
 
 		// build a regionalized index
-		var regIndex = EnviFlowIndex.createRegionalized(db,
+		var regIndex = EnviIndex.createRegionalized(db,
 			ImpactIndex.of(List.of(Descriptor.of(impacts))));
 		assertEquals(3, regIndex.size());
 		var found = new boolean[]{false, false, false};

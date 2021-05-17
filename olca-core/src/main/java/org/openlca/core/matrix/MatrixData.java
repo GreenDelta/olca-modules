@@ -9,10 +9,10 @@ import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.MatrixReader;
-import org.openlca.core.matrix.index.EnviFlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechFlowIndex;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.uncertainties.UMatrix;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.expressions.FormulaInterpreter;
@@ -28,13 +28,13 @@ public class MatrixData {
 	 * row and column index of the technology matrix; the column index of the
 	 * intervention matrix).
 	 */
-	public TechFlowIndex techIndex;
+	public TechIndex techIndex;
 
 	/**
 	 * The matrix index of the environmental/elementary flows (i.e. the row index of
 	 * the intervention matrix; the column index of the impact matrix).
 	 */
-	public EnviFlowIndex enviIndex;
+	public EnviIndex enviIndex;
 
 	/**
 	 * The matrix index of the LCIA categories (i.e. the row index of the impact
@@ -105,7 +105,7 @@ public class MatrixData {
 
 		// create the tech-index
 		var system = setup.productSystem;
-		var techIndex = TechFlowIndex.of(system, db);
+		var techIndex = TechIndex.of(system, db);
 		techIndex.setDemand(setup.getDemandValue());
 
 		return MatrixConfig.of(db, techIndex)
@@ -114,7 +114,7 @@ public class MatrixData {
 			.build();
 	}
 
-	public static MatrixConfig.Builder of(IDatabase db, TechFlowIndex techIndex) {
+	public static MatrixConfig.Builder of(IDatabase db, TechIndex techIndex) {
 		return MatrixConfig.of(db, techIndex);
 	}
 

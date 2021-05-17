@@ -79,7 +79,7 @@ public class SelfLoopAnalysisTest {
 	}
 
 	private EnviFlow flow(String name) {
-		for (EnviFlow f : result.enviFlowIndex().content()) {
+		for (EnviFlow f : result.enviIndex().content()) {
 			if (name.equals(f.flow().name))
 				return f;
 		}

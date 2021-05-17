@@ -8,7 +8,7 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechFlowIndex;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.Exchange;
 
 class Exchanges {
@@ -45,7 +45,7 @@ class Exchanges {
 	}
 
 	private void addTechFlows(
-		List<Exchange> exchanges, TechFlowIndex index, int column) {
+		List<Exchange> exchanges, TechIndex index, int column) {
 		var col = lib.getColumn(LibraryMatrix.A, column).orElse(null);
 		if (col == null)
 			return;

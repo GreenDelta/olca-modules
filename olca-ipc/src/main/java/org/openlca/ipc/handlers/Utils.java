@@ -7,7 +7,7 @@ import java.util.function.Function;
 
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.matrix.index.EnviFlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.FlowProperty;
@@ -111,7 +111,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		EnviFlow flow = get(result.enviFlowIndex(), json);
+		EnviFlow flow = get(result.enviIndex(), json);
 		if (flow == null)
 			return Responses.invalidParams("Missing or invalid flow parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
@@ -123,7 +123,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		ContributionResult result = getResult(json);
-		EnviFlow flow = get(result.enviFlowIndex(), json);
+		EnviFlow flow = get(result.enviIndex(), json);
 		if (flow == null)
 			return Responses.invalidParams("Missing or invalid flow parameter", req);
 		LocationDescriptor location = get(ModelType.LOCATION, json);
@@ -153,7 +153,7 @@ class Utils {
 		ImpactDescriptor impact = get(result.impactIndex(), json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
-		ProcessDescriptor process = get(ModelType.PROCESS, json, result.techFlowIndex().getProcessIds());
+		ProcessDescriptor process = get(ModelType.PROCESS, json, result.techIndex().getProcessIds());
 		if (process == null)
 			return Responses.invalidParams("Missing or invalid process parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
@@ -186,7 +186,7 @@ class Utils {
 		LocationDescriptor location = get(ModelType.LOCATION, json);
 		if (location == null)
 			return Responses.invalidParams("Missing or invalid location parameter", req);
-		ProcessDescriptor process = get(ModelType.PROCESS, json, result.techFlowIndex().getProcessIds());
+		ProcessDescriptor process = get(ModelType.PROCESS, json, result.techIndex().getProcessIds());
 		if (process == null)
 			return Responses.invalidParams("Missing or invalid process parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
@@ -207,7 +207,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		FullResult result = getResult(json);
-		EnviFlow flow = get(result.enviFlowIndex(), json);
+		EnviFlow flow = get(result.enviIndex(), json);
 		if (flow == null)
 			return Responses.invalidParams("Missing or invalid flow parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
@@ -219,7 +219,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		FullResult result = getResult(json);
-		ProcessDescriptor process = get(ModelType.PROCESS, json, result.techFlowIndex().getProcessIds());
+		ProcessDescriptor process = get(ModelType.PROCESS, json, result.techIndex().getProcessIds());
 		if (process == null)
 			return Responses.invalidParams("Missing or invalid process parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
@@ -251,7 +251,7 @@ class Utils {
 		return null;
 	}
 
-	private EnviFlow get(EnviFlowIndex idx, JsonObject json) {
+	private EnviFlow get(EnviIndex idx, JsonObject json) {
 		if (idx == null)
 			return null;
 		String refID = Json.getRefId(json, "flow");

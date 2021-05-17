@@ -20,7 +20,7 @@ public class CalculationExample {
 			setup.impactMethod = method;
 			var calc = new SystemCalculator(db);
 			var r = calc.calculateFull(setup);
-			var f = r.enviFlowIndex().at(0);
+			var f = r.enviIndex().at(0);
 			System.out.println(f.flow().name + "  -> " + r.getTotalFlowResult(f));
 			var impact =  r.impactIndex().at(0);
 			System.out.println(impact.name + "  -> " + r.getTotalImpactResult(impact));

@@ -1,9 +1,9 @@
 package org.openlca.core.results.providers;
 
-import org.openlca.core.matrix.index.EnviFlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.TechFlowIndex;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.solvers.Factorization;
 import org.openlca.core.matrix.solvers.MatrixSolver;
@@ -83,12 +83,12 @@ public class LazyResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public TechFlowIndex techIndex() {
+	public TechIndex techIndex() {
 		return data.techIndex;
 	}
 
 	@Override
-	public EnviFlowIndex flowIndex() {
+	public EnviIndex flowIndex() {
 		return data.enviIndex;
 	}
 

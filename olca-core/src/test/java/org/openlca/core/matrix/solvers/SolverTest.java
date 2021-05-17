@@ -7,11 +7,11 @@ import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 import org.openlca.core.Tests;
-import org.openlca.core.matrix.index.EnviFlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechFlowIndex;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -61,11 +61,11 @@ public class SolverTest {
 		process.id = 1;
 		TechFlow provider = TechFlow.of(process, flow);
 
-		TechFlowIndex techIndex = new TechFlowIndex(provider);
+		TechIndex techIndex = new TechIndex(provider);
 		techIndex.setDemand(1d);
 		data.techIndex = techIndex;
 
-		EnviFlowIndex enviIndex = EnviFlowIndex.create();
+		EnviIndex enviIndex = EnviIndex.create();
 		enviIndex.add(EnviFlow.inputOf(flow(1)));
 		enviIndex.add(EnviFlow.inputOf(flow(2)));
 		enviIndex.add(EnviFlow.outputOf(flow(3)));

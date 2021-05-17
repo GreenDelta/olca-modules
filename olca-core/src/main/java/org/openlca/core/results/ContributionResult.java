@@ -53,8 +53,8 @@ public class ContributionResult extends SimpleResult {
 	public double getDirectFlowResult(TechFlow product, EnviFlow flow) {
 		if (!hasEnviFlows())
 			return 0;
-		int flowIdx = enviFlowIndex().of(flow);
-		int productIdx = techFlowIndex().of(product);
+		int flowIdx = enviIndex().of(flow);
+		int productIdx = techIndex().of(product);
 		if (flowIdx < 0 || productIdx < 0)
 			return 0;
 		double value = provider.directFlowOf(flowIdx, productIdx);
@@ -69,7 +69,7 @@ public class ContributionResult extends SimpleResult {
 	public double getDirectFlowResult(
 			CategorizedDescriptor process, EnviFlow flow) {
 		double total = 0;
-		for (var p : techFlowIndex().getProviders(process)) {
+		for (var p : techIndex().getProviders(process)) {
 			total += getDirectFlowResult(p, flow);
 		}
 		return total;
@@ -84,7 +84,7 @@ public class ContributionResult extends SimpleResult {
 		if (!hasEnviFlows())
 			return Collections.emptyList();
 		var results = new ArrayList<FlowResult>();
-		enviFlowIndex().each((i, flow) -> {
+		enviIndex().each((i, flow) -> {
 			double value = getDirectFlowResult(process, flow);
 			results.add(new FlowResult(flow, value));
 		});
@@ -112,7 +112,7 @@ public class ContributionResult extends SimpleResult {
 		if (!hasImpacts())
 			return 0;
 		int impactIdx = impactIndex().of(impact);
-		int productIdx = techFlowIndex().of(product);
+		int productIdx = techIndex().of(product);
 		return impactIdx < 0 || productIdx < 0
 				? 0
 				: provider.directImpactOf(impactIdx, productIdx);
@@ -126,7 +126,7 @@ public class ContributionResult extends SimpleResult {
 	public double getDirectImpactResult(
 			CategorizedDescriptor process, ImpactDescriptor impact) {
 		double total = 0;
-		for (var p : techFlowIndex().getProviders(process)) {
+		for (var p : techIndex().getProviders(process)) {
 			total += getDirectImpactResult(p, impact);
 		}
 		return total;
@@ -165,7 +165,7 @@ public class ContributionResult extends SimpleResult {
 	 * result: $\mathbf{k}_s[j]$.
 	 */
 	public double getDirectCostResult(TechFlow product) {
-		int col = techFlowIndex().of(product);
+		int col = techIndex().of(product);
 		return col < 0
 				? 0
 				: provider.directCostsOf(col);
@@ -178,7 +178,7 @@ public class ContributionResult extends SimpleResult {
 	 */
 	public double getDirectCostResult(CategorizedDescriptor process) {
 		double total = 0;
-		for (var provider : techFlowIndex().getProviders(process)) {
+		for (var provider : techIndex().getProviders(process)) {
 			total += getDirectCostResult(provider);
 		}
 		return total;
@@ -202,7 +202,7 @@ public class ContributionResult extends SimpleResult {
 		if (!hasImpacts())
 			return 0;
 		int impactIdx = impactIndex().of(impact);
-		int flowIdx = enviFlowIndex().of(flow);
+		int flowIdx = enviIndex().of(flow);
 		return impactIdx < 0 || flowIdx < 0
 				? 0
 				: provider.flowImpactOf(impactIdx, flowIdx);
@@ -214,7 +214,7 @@ public class ContributionResult extends SimpleResult {
 	public List<FlowResult> getFlowContributions(
 			ImpactDescriptor impact) {
 		var results = new ArrayList<FlowResult>();
-		enviFlowIndex().each((i, flow) -> {
+		enviIndex().each((i, flow) -> {
 			double value = getDirectFlowImpact(flow, impact);
 			results.add(new FlowResult(flow, value));
 		});
@@ -230,7 +230,7 @@ public class ContributionResult extends SimpleResult {
 		if (!hasImpacts())
 			return 0;
 		int impactIdx = impactIndex().of(impact);
-		int flowIdx = enviFlowIndex().of(flow);
+		int flowIdx = enviIndex().of(flow);
 		if (impactIdx < 0 || flowIdx < 0 )
 			return 0;
 

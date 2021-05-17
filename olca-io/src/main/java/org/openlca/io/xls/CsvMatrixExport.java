@@ -8,9 +8,9 @@ import java.util.HashMap;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.EnviFlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechFlowIndex;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.io.CategoryPair;
@@ -74,7 +74,7 @@ public class CsvMatrixExport implements Runnable {
 	private void writeTechMatrix(MatrixData data, BufferedWriter buffer)
 			throws Exception {
 		var techMatrix = data.techMatrix;
-		TechFlowIndex techIndex = data.techIndex;
+		TechIndex techIndex = data.techIndex;
 		int size = techIndex.size();
 		for (int row = 0; row < size; row++) {
 			TechFlow product = techIndex.at(row);
@@ -94,8 +94,8 @@ public class CsvMatrixExport implements Runnable {
 
 	private void writeEnviMatrix(MatrixData data, BufferedWriter buffer)
 			throws Exception {
-		TechFlowIndex techIndex = data.techIndex;
-		EnviFlowIndex flowIndex = data.enviIndex;
+		TechIndex techIndex = data.techIndex;
+		EnviIndex flowIndex = data.enviIndex;
 		int rows = flowIndex.size();
 		int columns = techIndex.size();
 		writeEnviMatrixHeader(buffer, techIndex);
@@ -116,7 +116,7 @@ public class CsvMatrixExport implements Runnable {
 	}
 
 	private void writeEnviMatrixHeader(BufferedWriter buffer,
-			TechFlowIndex techIndex) throws Exception {
+			TechIndex techIndex) throws Exception {
 		sep(buffer);
 		sep(buffer);
 		int columns = techIndex.size();

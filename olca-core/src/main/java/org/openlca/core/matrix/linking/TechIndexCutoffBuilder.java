@@ -11,7 +11,7 @@ import java.util.Set;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechFlowIndex;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessLink;
@@ -37,15 +37,15 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 	}
 
 	@Override
-	public TechFlowIndex build(TechFlow refProduct) {
+	public TechIndex build(TechFlow refProduct) {
 		return build(refProduct, 1.0);
 	}
 
 	@Override
-	public TechFlowIndex build(TechFlow refProduct, double demand) {
+	public TechIndex build(TechFlow refProduct, double demand) {
 		log.trace("build product index for {} with cutoff=", refProduct,
 				cutoff);
-		TechFlowIndex index = new TechFlowIndex(refProduct);
+		TechIndex index = new TechIndex(refProduct);
 		index.setDemand(demand);
 		addSystemLinks(index);
 		Graph g = new Graph(refProduct, demand);
@@ -56,7 +56,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 		return index;
 	}
 
-	private void addSystemLinks(TechFlowIndex index) {
+	private void addSystemLinks(TechIndex index) {
 		if (system == null)
 			return;
 		for (ProcessLink link : system.processLinks) {
@@ -69,7 +69,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 		}
 	}
 
-	private void fillIndex(Graph g, TechFlowIndex index) {
+	private void fillIndex(Graph g, TechIndex index) {
 		for (Node node : g.nodes.values()) {
 			if (node.state != NodeState.FOLLOWED)
 				continue;

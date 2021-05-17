@@ -47,11 +47,11 @@ public class FullResult extends ContributionResult {
 	 * inventory result of elementary flow $i$: $\mathbf{U}[i,j]$.
 	 */
 	public double getUpstreamFlowResult(TechFlow product, EnviFlow flow) {
-		var flowIndex = enviFlowIndex();
+		var flowIndex = enviIndex();
 		if (flowIndex == null)
 			return 0;
 		int flowIdx = flowIndex.of(flow);
-		int productIdx = techFlowIndex().of(product);
+		int productIdx = techIndex().of(product);
 		if (flowIdx < 0 || productIdx < 0)
 			return 0;
 		double amount = provider.totalFlowOf(flowIdx, productIdx);
@@ -66,7 +66,7 @@ public class FullResult extends ContributionResult {
 	public double getUpstreamFlowResult(
 		CategorizedDescriptor process, EnviFlow flow) {
 		double total = 0;
-		for (var p : techFlowIndex().getProviders(process)) {
+		for (var p : techIndex().getProviders(process)) {
 			total += getUpstreamFlowResult(p, flow);
 		}
 		return total;
@@ -78,7 +78,7 @@ public class FullResult extends ContributionResult {
 	 */
 	public List<FlowResult> getUpstreamFlowResults(
 		CategorizedDescriptor process) {
-		var flowIndex = enviFlowIndex();
+		var flowIndex = enviIndex();
 		if (flowIndex == null)
 			return Collections.emptyList();
 		var results = new ArrayList<FlowResult>();
@@ -98,7 +98,7 @@ public class FullResult extends ContributionResult {
 		if (!hasImpacts())
 			return 0;
 		int impactIdx = impactIndex().of(impact);
-		int productIdx = techFlowIndex().of(product);
+		int productIdx = techIndex().of(product);
 		return impactIdx < 0 || productIdx < 0
 			? 0
 			: provider.totalImpactOf(impactIdx, productIdx);
@@ -112,7 +112,7 @@ public class FullResult extends ContributionResult {
 	public double getUpstreamImpactResult(
 		CategorizedDescriptor process, ImpactDescriptor impact) {
 		double total = 0;
-		for (var p : techFlowIndex().getProviders(process)) {
+		for (var p : techIndex().getProviders(process)) {
 			total += getUpstreamImpactResult(p, impact);
 		}
 		return total;
@@ -143,7 +143,7 @@ public class FullResult extends ContributionResult {
 	public double getUpstreamCostResult(TechFlow product) {
 		if (!this.hasCosts())
 			return 0;
-		int productIdx = techFlowIndex().of(product);
+		int productIdx = techIndex().of(product);
 		return productIdx < 0
 			? 0
 			: provider.totalCostsOf(productIdx);
@@ -156,7 +156,7 @@ public class FullResult extends ContributionResult {
 	 */
 	public double getUpstreamCostResult(CategorizedDescriptor process) {
 		double total = 0;
-		for (var p : techFlowIndex().getProviders(process)) {
+		for (var p : techIndex().getProviders(process)) {
 			total += getUpstreamCostResult(p);
 		}
 		return total;
@@ -169,7 +169,7 @@ public class FullResult extends ContributionResult {
 	 */
 	public double getLinkShare(ProcessLink link) {
 
-		var techIndex = techFlowIndex();
+		var techIndex = techIndex();
 		var provider = techIndex.getProvider(link.providerId, link.flowId);
 		int providerIdx = techIndex.of(provider);
 		if (providerIdx < 0)
@@ -193,7 +193,7 @@ public class FullResult extends ContributionResult {
 	 * Calculate the upstream tree for the given flow.
 	 */
 	public UpstreamTree getTree(EnviFlow flow) {
-		int i = enviFlowIndex().of(flow);
+		int i = enviIndex().of(flow);
 		double total = getTotalFlowResult(flow);
 		return new UpstreamTree(flow, this, total,
 			product -> provider.totalFlowOfOne(i, product));

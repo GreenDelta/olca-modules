@@ -29,7 +29,7 @@ public abstract class BaseResult implements IResult {
 	public final List<EnviFlow> getFlows() {
 		if (_flows != null)
 			return _flows;
-		var flowIndex = enviFlowIndex();
+		var flowIndex = enviIndex();
 		if (flowIndex == null)
 			return Collections.emptyList();
 		_flows = new ArrayList<>();
@@ -58,7 +58,7 @@ public abstract class BaseResult implements IResult {
 	public final List<TechFlow> getProviders() {
 		if (_products != null)
 			return _products;
-		var techIndex = techFlowIndex();
+		var techIndex = techIndex();
 		if (techIndex == null)
 			return Collections.emptyList();
 		_products = new ArrayList<>();
@@ -70,7 +70,7 @@ public abstract class BaseResult implements IResult {
 	public final List<CategorizedDescriptor> getProcesses() {
 		if (_processes != null)
 			return _processes;
-		var techIndex = techFlowIndex();
+		var techIndex = techIndex();
 		if (techIndex == null)
 			return Collections.emptyList();
 		_processes = new ArrayList<>();

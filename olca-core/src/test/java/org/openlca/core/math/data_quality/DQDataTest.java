@@ -84,7 +84,7 @@ public class DQDataTest {
 		var product2 = TechFlow.of(process2);
 
 		var result = FullResult.of(db, productSystem);
-		var iFlow = result.enviFlowIndex().at(0);
+		var iFlow = result.enviIndex().at(0);
 
 		// test process data
 		var dqData = DQResult.of(db, setup, result);

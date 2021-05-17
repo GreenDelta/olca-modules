@@ -17,7 +17,7 @@ import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.UnitGroupDao;
-import org.openlca.core.matrix.index.EnviFlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
@@ -341,8 +341,8 @@ public class RegionalizedCalculationTest {
 	private void checkTotalFlowResults(FullResult r, Object[][] defs) {
 		for (Object[] row : defs) {
 			Flow flow = (Flow) row[0];
-			int flowIdx = r.enviFlowIndex().of(flow.id);
-			EnviFlow iFlow = r.enviFlowIndex().at(flowIdx);
+			int flowIdx = r.enviIndex().of(flow.id);
+			EnviFlow iFlow = r.enviIndex().at(flowIdx);
 			double v = r.getTotalFlowResult(iFlow);
 			Assert.assertEquals((Double) row[1], v, 1e-10);
 		}
@@ -355,10 +355,10 @@ public class RegionalizedCalculationTest {
 		for (Object[] row : defs) {
 			var flow = (Flow) row[0];
 			var loc = (Location) row[1];
-			int flowIdx = r.enviFlowIndex().of(flow.id, loc != null ? loc.id : 0L);
+			int flowIdx = r.enviIndex().of(flow.id, loc != null ? loc.id : 0L);
 			double value = flowIdx < 0
 				? 0.0
-				: r.getTotalFlowResult(r.enviFlowIndex().at(flowIdx));
+				: r.getTotalFlowResult(r.enviIndex().at(flowIdx));
 			Assert.assertEquals((Double) row[2], value, 1e-10);
 		}
 	}
@@ -374,13 +374,13 @@ public class RegionalizedCalculationTest {
 
 			if (row[2] instanceof Number) {
 				// non-regionalized
-				int flowIdx = r.enviFlowIndex().of(flow.id);
-				EnviFlow iFlow = r.enviFlowIndex().at(flowIdx);
+				int flowIdx = r.enviIndex().of(flow.id);
+				EnviFlow iFlow = r.enviIndex().at(flowIdx);
 				double v = r.getDirectFlowResult(product, iFlow);
 				Assert.assertEquals((Double) row[2], v, 1e-10);
 			} else {
 				// regionalized
-				double v = orZero(flow, (Location) row[2], r.enviFlowIndex(),
+				double v = orZero(flow, (Location) row[2], r.enviIndex(),
 					iFlow -> r.getDirectFlowResult(product, iFlow));
 				Assert.assertEquals((Double) row[3], v, 1e-10);
 			}
@@ -398,20 +398,20 @@ public class RegionalizedCalculationTest {
 
 			if (row[2] instanceof Number) {
 				// non-regionalized
-				int flowIdx = r.enviFlowIndex().of(flow.id);
-				var iFlow = r.enviFlowIndex().at(flowIdx);
+				int flowIdx = r.enviIndex().of(flow.id);
+				var iFlow = r.enviIndex().at(flowIdx);
 				double v = r.getUpstreamFlowResult(product, iFlow);
 				Assert.assertEquals((Double) row[2], v, 1e-10);
 			} else {
 				// regionalized
-				double v = orZero(flow, (Location) row[2], r.enviFlowIndex(),
+				double v = orZero(flow, (Location) row[2], r.enviIndex(),
 					iFlow -> r.getUpstreamFlowResult(product, iFlow));
 				Assert.assertEquals((Double) row[3], v, 1e-10);
 			}
 		}
 	}
 
-	private double orZero(Flow flow, Location location, EnviFlowIndex index,
+	private double orZero(Flow flow, Location location, EnviIndex index,
 												ToDoubleFunction<EnviFlow> fn) {
 		if (flow == null)
 			return 0;
@@ -488,7 +488,7 @@ public class RegionalizedCalculationTest {
 		SystemCalculator calculator = new SystemCalculator(db);
 
 		FullResult r = calculator.calculateFull(setup);
-		Assert.assertTrue(r.enviFlowIndex().isRegionalized());
+		Assert.assertTrue(r.enviIndex().isRegionalized());
 		checkRegTotalFlowResults(r, new Object[][]{
 			{nox, loc1, 5.0},
 			{nox, loc2, 10.0},

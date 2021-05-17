@@ -39,7 +39,7 @@ final class Results {
 
     if (result == null || Messages.isEmpty(proto))
       return null;
-    var index = result.enviFlowIndex();
+    var index = result.enviIndex();
     if (index == null)
       return null;
 
@@ -69,7 +69,7 @@ final class Results {
     var flowId = proto.hasProduct()
       ? proto.getProduct().getId()
       : proto.getWaste().getId();
-    for (var p : result.techFlowIndex()) {
+    for (var p : result.techIndex()) {
       if (p.process() == null || p.flow() == null)
         continue;
       if (Strings.nullOrEqual(p.process().refId, processId)

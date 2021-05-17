@@ -6,7 +6,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechFlowIndex;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.results.providers.SimpleResultProvider;
 import org.openlca.julia.Julia;
@@ -47,7 +47,7 @@ public class EachOneResult {
 			Julia.load();
 		}
 		if (data == null) {
-			var techIndex = TechFlowIndex.of(db);
+			var techIndex = TechIndex.of(db);
 			data = MatrixData.of(db, techIndex)
 				.withImpacts(ImpactIndex.of(db))
 				.build();

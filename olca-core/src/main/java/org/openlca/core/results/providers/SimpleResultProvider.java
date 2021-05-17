@@ -2,9 +2,9 @@ package org.openlca.core.results.providers;
 
 import java.util.Arrays;
 
-import org.openlca.core.matrix.index.EnviFlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.TechFlowIndex;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.results.SimpleResult;
 
 /**
@@ -14,23 +14,23 @@ import org.openlca.core.results.SimpleResult;
  */
 public class SimpleResultProvider implements ResultProvider {
 
-	private final TechFlowIndex techIndex;
-	private EnviFlowIndex flowIndex;
+	private final TechIndex techIndex;
+	private EnviIndex flowIndex;
 	private ImpactIndex impactIndex;
 	private double[] scalingVector;
 	private double[] totalFlows;
 	private double[] totalImpacts;
 	private double[] totalRequirements;
 
-	private SimpleResultProvider(TechFlowIndex techIndex) {
+	private SimpleResultProvider(TechIndex techIndex) {
 		this.techIndex = techIndex;
 	}
 
-	public static SimpleResultProvider of(TechFlowIndex techIndex) {
+	public static SimpleResultProvider of(TechIndex techIndex) {
 		return new SimpleResultProvider(techIndex);
 	}
 
-	public SimpleResultProvider withFlowIndex(EnviFlowIndex flowIndex) {
+	public SimpleResultProvider withFlowIndex(EnviIndex flowIndex) {
 		this.flowIndex = flowIndex;
 		return this;
 	}
@@ -65,12 +65,12 @@ public class SimpleResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public TechFlowIndex techIndex() {
+	public TechIndex techIndex() {
 		return techIndex;
 	}
 
 	@Override
-	public EnviFlowIndex flowIndex() {
+	public EnviIndex flowIndex() {
 		return flowIndex;
 	}
 

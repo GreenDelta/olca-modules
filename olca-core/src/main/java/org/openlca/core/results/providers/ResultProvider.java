@@ -3,8 +3,8 @@ package org.openlca.core.results.providers;
 import java.util.Arrays;
 
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.EnviFlowIndex;
-import org.openlca.core.matrix.index.TechFlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.TechIndex;
 
 /**
  * Defines the general interface of a `ResultProvider`. The documentation is
@@ -32,7 +32,7 @@ public interface ResultProvider {
 	 * \mathit{Idx}_A: \mathit{P} \mapsto [0 \dots n-1]
 	 * $$
 	 */
-	TechFlowIndex techIndex();
+	TechIndex techIndex();
 
 	/**
 	 * The row index $\mathit{Idx}_B$ of the intervention matrix $\mathbf{B}$. It
@@ -43,7 +43,7 @@ public interface ResultProvider {
 	 * \mathit{Idx}_B: \mathit{F} \mapsto [0 \dots m-1]
 	 * $$
 	 */
-	EnviFlowIndex flowIndex();
+	EnviIndex flowIndex();
 
 	/**
 	 * The row index $\mathit{Idx}_C$ of the matrix with the characterization

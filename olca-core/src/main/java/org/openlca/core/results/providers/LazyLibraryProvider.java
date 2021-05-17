@@ -12,13 +12,13 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.LibraryMatrix;
-import org.openlca.core.matrix.index.EnviFlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechFlowIndex;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixBuilder;
 import org.openlca.core.matrix.format.MatrixReader;
@@ -55,8 +55,8 @@ public class LazyLibraryProvider implements ResultProvider {
 
 	// library maps: libID -> T
 	private final HashMap<String, Library> libraries = new HashMap<>();
-	private final HashMap<String, TechFlowIndex> libTechIndices = new HashMap<>();
-	private final HashMap<String, EnviFlowIndex> libFlowIndices = new HashMap<>();
+	private final HashMap<String, TechIndex> libTechIndices = new HashMap<>();
+	private final HashMap<String, EnviIndex> libFlowIndices = new HashMap<>();
 
 	private LazyLibraryProvider(
 			IDatabase db,
@@ -112,7 +112,7 @@ public class LazyLibraryProvider implements ResultProvider {
 		// initialize the combined index with the index
 		// of the foreground system indexF
 		var indexF = foregroundData.techIndex;
-		var index = new TechFlowIndex(indexF.getRefFlow());
+		var index = new TechIndex(indexF.getRefFlow());
 		index.setDemand(indexF.getDemand());
 		var libs = new ArrayDeque<String>();
 		indexF.each((pos, product) -> {
@@ -158,12 +158,12 @@ public class LazyLibraryProvider implements ResultProvider {
 	private void initFlowIndex() {
 		// initialize the flow index with the foreground
 		// index if present
-		EnviFlowIndex index = null;
+		EnviIndex index = null;
 		var indexF = foregroundData.enviIndex;
 		if (indexF != null) {
 			index = indexF.isRegionalized()
-					? EnviFlowIndex.createRegionalized()
-					: EnviFlowIndex.create();
+					? EnviIndex.createRegionalized()
+					: EnviIndex.create();
 			index.addAll(indexF);
 		}
 
@@ -177,8 +177,8 @@ public class LazyLibraryProvider implements ResultProvider {
 				continue;
 			if (index == null) {
 				index = libIdx.isRegionalized()
-						? EnviFlowIndex.createRegionalized()
-						: EnviFlowIndex.create();
+						? EnviIndex.createRegionalized()
+						: EnviIndex.create();
 			}
 			index.addAll(libIdx);
 			libFlowIndices.put(libID, libIdx);
@@ -188,12 +188,12 @@ public class LazyLibraryProvider implements ResultProvider {
 	}
 
 	@Override
-	public TechFlowIndex techIndex() {
+	public TechIndex techIndex() {
 		return fullData.techIndex;
 	}
 
 	@Override
-	public EnviFlowIndex flowIndex() {
+	public EnviIndex flowIndex() {
 		return fullData.enviIndex;
 	}
 

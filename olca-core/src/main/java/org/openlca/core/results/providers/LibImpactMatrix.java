@@ -6,7 +6,7 @@ import java.util.Map;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.LibraryMatrix;
-import org.openlca.core.matrix.index.EnviFlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.EnviFlow;
@@ -17,20 +17,20 @@ import org.openlca.core.model.descriptors.ImpactDescriptor;
 public class LibImpactMatrix {
 
 	private final ImpactIndex impactIndex;
-	private final EnviFlowIndex flowIndex;
-	private Map<String, EnviFlowIndex> libFlowIndices;
+	private final EnviIndex flowIndex;
+	private Map<String, EnviIndex> libFlowIndices;
 
-	private LibImpactMatrix(ImpactIndex impacts, EnviFlowIndex flows) {
+	private LibImpactMatrix(ImpactIndex impacts, EnviIndex flows) {
 		this.impactIndex = impacts;
 		this.flowIndex = flows;
 	}
 
-	public static LibImpactMatrix of(ImpactIndex impacts, EnviFlowIndex flows) {
+	public static LibImpactMatrix of(ImpactIndex impacts, EnviIndex flows) {
 		return new LibImpactMatrix(impacts, flows);
 	}
 
 	public LibImpactMatrix withLibraryFlowIndices(
-		Map<String, EnviFlowIndex> indices) {
+		Map<String, EnviIndex> indices) {
 		this.libFlowIndices = indices;
 		return this;
 	}
@@ -71,7 +71,7 @@ public class LibImpactMatrix {
 				continue;
 
 			// load the library flows
-			EnviFlowIndex libFlows = libFlowIndices != null
+			EnviIndex libFlows = libFlowIndices != null
 				?  libFlowIndices.get(libID)
 				: null;
 			if (libFlows == null) {

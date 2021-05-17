@@ -36,7 +36,7 @@ public class SysInSys {
 
 		SimpleResult r = sim.nextRun();
 
-		EnviFlow f = r.enviFlowIndex().at(0);
+		EnviFlow f = r.enviIndex().at(0);
 		System.out.println(f.flow().name + "  -> " + r.getTotalFlowResult(f));
 
 	}

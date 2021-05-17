@@ -45,7 +45,7 @@ public class DirectCalculationTest {
 		var dqResult = DQResult.of(db, dqSetup, result);
 
 		// check the result
-		var dq = dqResult.get(result.enviFlowIndex().at(0));
+		var dq = dqResult.get(result.enviIndex().at(0));
 		Assert.assertArrayEquals(new int[]{1,2,3,4,5}, dq);
 
 		db.clear();

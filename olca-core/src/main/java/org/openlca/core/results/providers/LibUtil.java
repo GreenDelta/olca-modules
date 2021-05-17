@@ -9,8 +9,8 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
-import org.openlca.core.matrix.index.EnviFlowIndex;
-import org.openlca.core.matrix.index.TechFlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.TechIndex;
 
 class LibUtil {
 
@@ -21,11 +21,11 @@ class LibUtil {
 	 * Recursively loads the tech-indices of the used libraries
 	 * starting from the given tech-index of the foreground system.
 	 */
-	static Map<String, TechFlowIndex> loadTechIndicesOf(
-		TechFlowIndex index, LibraryDir dir, IDatabase db) {
+	static Map<String, TechIndex> loadTechIndicesOf(
+		TechIndex index, LibraryDir dir, IDatabase db) {
 
-		var map = new HashMap<String, TechFlowIndex>();
-		var queue = new ArrayDeque<TechFlowIndex>();
+		var map = new HashMap<String, TechIndex>();
+		var queue = new ArrayDeque<TechIndex>();
 		queue.add(index);
 		while (!queue.isEmpty()) {
 			var idx = queue.poll();
@@ -63,9 +63,9 @@ class LibUtil {
 	 * Creates the combined tech. index from the given tech-index
 	 * of the foreground system and the indices of the libraries.
 	 */
-	static TechFlowIndex combinedTechIndexOf(
-		TechFlowIndex index, Collection<TechFlowIndex> libIndices) {
-		var fullIdx = new TechFlowIndex(index.getRefFlow());
+	static TechIndex combinedTechIndexOf(
+		TechIndex index, Collection<TechIndex> libIndices) {
+		var fullIdx = new TechIndex(index.getRefFlow());
 		fullIdx.setDemand(index.getDemand());
 		fullIdx.addAll(index);
 		libIndices.forEach(fullIdx::addAll);
@@ -75,9 +75,9 @@ class LibUtil {
 	/**
 	 * Load the flow indices for the given libraries.
 	 */
-	static Map<String, EnviFlowIndex> loadFlowIndicesOf(
+	static Map<String, EnviIndex> loadFlowIndicesOf(
 		Set<String> libraries, LibraryDir dir, IDatabase db) {
-		var map = new HashMap<String, EnviFlowIndex>(libraries.size());
+		var map = new HashMap<String, EnviIndex>(libraries.size());
 		for (var libID : libraries) {
 			var lib = dir.get(libID).orElse(null);
 			if (lib == null)
@@ -93,14 +93,14 @@ class LibUtil {
 	 * Creates the combined flow index of the given flow index of
 	 * the foreground system and the flow indices of the libraries.
 	 */
-	static EnviFlowIndex combinedFlowIndexOf(
-		EnviFlowIndex index, Collection<EnviFlowIndex> libIndices) {
+	static EnviIndex combinedFlowIndexOf(
+		EnviIndex index, Collection<EnviIndex> libIndices) {
 
-		EnviFlowIndex fullIndex;
+		EnviIndex fullIndex;
 		if (index != null) {
 			fullIndex = index.isRegionalized()
-				? EnviFlowIndex.createRegionalized()
-				: EnviFlowIndex.create();
+				? EnviIndex.createRegionalized()
+				: EnviIndex.create();
 			fullIndex.addAll(index);
 		} else {
 
@@ -109,10 +109,10 @@ class LibUtil {
 			// libraries. if there is at least one regionalized
 			// library we create a regionalized index in this case
 			var regionalized = libIndices.stream()
-				.anyMatch(EnviFlowIndex::isRegionalized);
+				.anyMatch(EnviIndex::isRegionalized);
 			fullIndex = regionalized
-				? EnviFlowIndex.createRegionalized()
-				: EnviFlowIndex.create();
+				? EnviIndex.createRegionalized()
+				: EnviIndex.create();
 		}
 
 		libIndices.forEach(fullIndex::addAll);

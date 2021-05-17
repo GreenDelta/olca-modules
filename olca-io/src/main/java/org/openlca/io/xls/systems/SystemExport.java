@@ -14,10 +14,10 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.matrix.index.EnviFlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.TechFlowIndex;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixReader;
@@ -216,7 +216,7 @@ public class SystemExport {
 		return row + 1;
 	}
 
-	private ExcelHeader createFlowHeader(EnviFlowIndex index) {
+	private ExcelHeader createFlowHeader(EnviIndex index) {
 		ExcelHeader header = new ExcelHeader();
 		header.setHeaders(HEADERS.FLOW.VALUES);
 		List<IExcelHeaderEntry> entries = new ArrayList<>();
@@ -228,7 +228,7 @@ public class SystemExport {
 		return header;
 	}
 
-	private ExcelHeader createProductHeader(TechFlowIndex index) {
+	private ExcelHeader createProductHeader(TechIndex index) {
 		ExcelHeader header = new ExcelHeader();
 		header.setHeaders(HEADERS.PRODUCT.VALUES);
 		List<IExcelHeaderEntry> headerEntries = new ArrayList<>();
@@ -293,7 +293,7 @@ public class SystemExport {
 	}
 
 	private List<FlowInfo> mapFlowIndices(ExcelHeader header,
-			EnviFlowIndex flowIndex) {
+			EnviIndex flowIndex) {
 		List<FlowInfo> sortedFlows = FlowInfo.getAll(conf, flowIndex);
 		Collections.sort(sortedFlows);
 		int counter = 0;
@@ -305,7 +305,7 @@ public class SystemExport {
 	}
 
 	private List<ProductInfo> mapProductIndices(ExcelHeader header,
-			TechFlowIndex index) {
+			TechIndex index) {
 		List<ProductInfo> products = ProductInfo.getAll(conf, index);
 		Collections.sort(products);
 		int i = 0;

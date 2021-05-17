@@ -21,7 +21,7 @@ import org.openlca.core.model.descriptors.ImpactDescriptor;
  * lists or their elements. Also note, that an instance of this class is not
  * thread-safe.
  */
-public class ResultIndexView {
+public class ResultItemView {
 
 	private final List<? extends IResult> results;
 	private final boolean hasEnviFlows;
@@ -33,7 +33,7 @@ public class ResultIndexView {
 	private List<TechFlow> techFlows;
 	private List<CategorizedDescriptor> processes;
 
-	private ResultIndexView(List<? extends IResult> results) {
+	private ResultItemView(List<? extends IResult> results) {
 		this.results = results;
 		this.hasEnviFlows = results.stream()
 			.anyMatch(IResult::hasEnviFlows);
@@ -43,17 +43,17 @@ public class ResultIndexView {
 			.anyMatch(IResult::hasCosts);
 	}
 
-	public static ResultIndexView of(IResult result) {
+	public static ResultItemView of(IResult result) {
 		var list = Collections.singletonList(result);
-		return new ResultIndexView(list);
+		return new ResultItemView(list);
 	}
 
-	public static ResultIndexView of(ProjectResult result) {
+	public static ResultItemView of(ProjectResult result) {
 		var list = result.getVariants()
 			.stream()
 			.map(result::getResult)
 			.collect(Collectors.toList());
-		return new ResultIndexView(list);
+		return new ResultItemView(list);
 	}
 
 	public boolean hasEnviFlows() {
@@ -73,7 +73,7 @@ public class ResultIndexView {
 			return techFlows;
 		var set = new HashSet<TechFlow>();
 		for (var result : results) {
-			var index = result.techFlowIndex();
+			var index = result.techIndex();
 			if (index == null)
 				continue;
 			set.addAll(index.content());
@@ -104,7 +104,7 @@ public class ResultIndexView {
 		for (var result : results) {
 			if (!result.hasEnviFlows())
 				continue;
-			var index = result.enviFlowIndex();
+			var index = result.enviIndex();
 			if (index == null)
 				continue;
 			for (var flow : index) {

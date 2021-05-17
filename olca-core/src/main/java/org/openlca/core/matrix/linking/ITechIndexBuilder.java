@@ -1,12 +1,12 @@
 package org.openlca.core.matrix.linking;
 
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechFlowIndex;
+import org.openlca.core.matrix.index.TechIndex;
 
 public interface ITechIndexBuilder {
 
-	TechFlowIndex build(TechFlow refProduct);
+	TechIndex build(TechFlow refProduct);
 
-	TechFlowIndex build(TechFlow refProduct, double demand);
+	TechIndex build(TechFlow refProduct, double demand);
 
 }

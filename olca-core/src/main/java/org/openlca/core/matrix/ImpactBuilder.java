@@ -11,7 +11,7 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.cache.ConversionTable;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixBuilder;
-import org.openlca.core.matrix.index.EnviFlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.uncertainties.UMatrix;
@@ -29,7 +29,7 @@ import gnu.trove.map.hash.TLongObjectHashMap;
 public final class ImpactBuilder {
 
 	private final IDatabase db;
-	private final EnviFlowIndex flowIndex;
+	private final EnviIndex flowIndex;
 	private final ImpactIndex impactIndex;
 	private final FormulaInterpreter interpreter;
 	private final boolean withUncertainties;
@@ -66,11 +66,11 @@ public final class ImpactBuilder {
 		conversions = ConversionTable.create(db);
 	}
 
-	public static Config of(IDatabase db, EnviFlowIndex flows) {
+	public static Config of(IDatabase db, EnviIndex flows) {
 		return new Config(db, flows);
 	}
 
-	public static Config of(MatrixConfig config, EnviFlowIndex flows) {
+	public static Config of(MatrixConfig config, EnviIndex flows) {
 		return new Config(config, flows);
 	}
 
@@ -274,7 +274,7 @@ public final class ImpactBuilder {
 	 * MatrixData class for the meaning of these fields.
 	 */
 	public static class ImpactData {
-		public EnviFlowIndex flowIndex;
+		public EnviIndex flowIndex;
 		public ImpactIndex impactIndex;
 		public Matrix impactMatrix;
 		public UMatrix impactUncertainties;
@@ -301,17 +301,17 @@ public final class ImpactBuilder {
 	public static class Config {
 
 		private final IDatabase db;
-		private final EnviFlowIndex flows;
+		private final EnviIndex flows;
 		private boolean withUncertainties;
 		private FormulaInterpreter interpreter;
 		private ImpactIndex impacts;
 
-		private Config(IDatabase db, EnviFlowIndex flows) {
+		private Config(IDatabase db, EnviIndex flows) {
 			this.db = db;
 			this.flows = flows;
 		}
 
-		public Config(MatrixConfig conf, EnviFlowIndex flows) {
+		public Config(MatrixConfig conf, EnviIndex flows) {
 			this.db	= conf.db;
 			this.flows = flows;
 			this.withUncertainties = conf.withUncertainties;

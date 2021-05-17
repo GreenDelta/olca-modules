@@ -40,7 +40,7 @@ public class LocationResult {
 		if (flow == null || result == null || !result.hasEnviFlows())
 			return Collections.emptyList();
 
-		var flowIndex = result.enviFlowIndex();
+		var flowIndex = result.enviIndex();
 		HashMap<Location, Double> cons = new HashMap<>();
 		double total;
 		if (!flowIndex.isRegionalized()) {
@@ -53,7 +53,7 @@ public class LocationResult {
 			if (iFlow == null)
 				return Collections.emptyList();
 			total = result.getTotalFlowResult(iFlow);
-			result.techFlowIndex().each((i, product) -> {
+			result.techIndex().each((i, product) -> {
 				Location loc = getLocation(product);
 				double v = result.getDirectFlowResult(product, iFlow);
 				cons.compute(loc,
@@ -93,12 +93,12 @@ public class LocationResult {
 		HashMap<Location, Double> cons = new HashMap<>();
 		double total = result.getTotalImpactResult(impact);
 
-		if (!result.enviFlowIndex().isRegionalized()) {
+		if (!result.enviIndex().isRegionalized()) {
 			// non-regionalized calculation;
 			// we take the locations from the processes
 			// in the columns and the results from the
 			// corresponding process contributions
-			result.techFlowIndex().each((i, product) -> {
+			result.techIndex().each((i, product) -> {
 				Location loc = getLocation(product);
 				double v = result.getDirectImpactResult(product, impact);
 				cons.compute(loc,
@@ -110,7 +110,7 @@ public class LocationResult {
 			// we take the location from the index flows
 			// and the values from the direct contributions
 			// of these flows to the LCIA category result
-			result.enviFlowIndex().each((i, iFlow) -> {
+			result.enviIndex().each((i, iFlow) -> {
 				Location loc = iFlow.location() == null
 						? null
 						: getLocation(iFlow.location().id);
@@ -131,7 +131,7 @@ public class LocationResult {
 		if (result == null)
 			return Collections.emptyList();
 		HashMap<Location, Double> cons = new HashMap<>();
-		result.techFlowIndex().each((i, product) -> {
+		result.techIndex().each((i, product) -> {
 			Location loc = getLocation(product);
 			double costs = result.getDirectCostResult(product);
 			double v = costs == 0 ? 0 : -costs;
@@ -150,7 +150,7 @@ public class LocationResult {
 		if (result == null)
 			return Collections.emptyList();
 		HashMap<Location, Double> cons = new HashMap<>();
-		result.techFlowIndex().each((i, product) -> {
+		result.techIndex().each((i, product) -> {
 			Location loc = getLocation(product);
 			double v = result.getDirectCostResult(product);
 			cons.compute(loc,

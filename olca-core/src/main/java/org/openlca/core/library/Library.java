@@ -19,12 +19,12 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.matrix.index.EnviFlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechFlowIndex;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.io.npy.Npy;
 import org.openlca.core.matrix.io.npy.Npz;
@@ -178,10 +178,10 @@ public class Library {
 	 * no product index or if this index is not in sync with the database, an
 	 * empty option is returned.
 	 */
-	public Optional<TechFlowIndex> syncProducts(IDatabase db) {
+	public Optional<TechIndex> syncProducts(IDatabase db) {
 		var processes = descriptors(new ProcessDao(db));
 		var products = descriptors(new FlowDao(db));
-		TechFlowIndex index = null;
+		TechIndex index = null;
 		var proto = getProductIndex();
 		int size = proto.getProductCount();
 		for (int i = 0; i < size; i++) {
@@ -191,7 +191,7 @@ public class Library {
 			if (process == null || product == null)
 				return Optional.empty();
 			if (index == null) {
-				index = new TechFlowIndex(TechFlow.of(process, product));
+				index = new TechIndex(TechFlow.of(process, product));
 			} else {
 				index.add(TechFlow.of(process, product));
 			}
@@ -220,7 +220,7 @@ public class Library {
 	 * information is not present or something went wrong while synchronizing
 	 * the flow index with the database, an empty option is returned.
 	 */
-	public Optional<EnviFlowIndex> syncElementaryFlows(IDatabase db) {
+	public Optional<EnviIndex> syncElementaryFlows(IDatabase db) {
 		var proto = getElemFlowIndex();
 		int size = proto.getFlowCount();
 		if (size == 0)
@@ -228,8 +228,8 @@ public class Library {
 
 		var info = getInfo();
 		var index = info.isRegionalized
-			? EnviFlowIndex.createRegionalized()
-			: EnviFlowIndex.create();
+			? EnviIndex.createRegionalized()
+			: EnviIndex.create();
 
 		var flows = descriptors(new FlowDao(db));
 		var locations = descriptors(new LocationDao(db));

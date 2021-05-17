@@ -5,11 +5,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.matrix.index.EnviFlowIndex;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechFlowIndex;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.format.JavaMatrix;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -19,7 +19,7 @@ public class SankeyTest {
 	@Test
 	public void testCycles() {
 		var data = new MatrixData();
-		data.techIndex = new TechFlowIndex(product(1));
+		data.techIndex = new TechIndex(product(1));
 		data.techIndex.setDemand(1.0);
 		data.techIndex.add(product(2));
 		data.techIndex.add(product(3));
@@ -29,7 +29,7 @@ public class SankeyTest {
 				{0.0, -2.0, 1.0},
 		});
 
-		data.enviIndex = EnviFlowIndex.create();
+		data.enviIndex = EnviIndex.create();
 		var flow = new FlowDescriptor();
 		flow.id = 42;
 		data.enviIndex.add(EnviFlow.outputOf(flow));
