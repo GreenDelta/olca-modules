@@ -10,12 +10,8 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.model.Project;
-import org.openlca.core.model.ProjectVariant;
-import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
-import org.openlca.core.results.ProjectResult;
 import org.openlca.core.results.SimpleResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,38 +47,6 @@ public class SystemCalculator {
 		var subs = calculateSubSystems(setup);
 		var data = MatrixData.of(db, setup, subs);
 		return FullResult.of(db, data);
-	}
-
-	public ProjectResult calculate(Project project) {
-		var result = new ProjectResult();
-		if (project == null)
-			return result;
-
-		var method = project.impactMethod != null
-				? Descriptor.of(project.impactMethod)
-				: null;
-		var nwSet = project.nwSet != null
-				? Descriptor.of(project.nwSet)
-				: null;
-
-		// calculate the project variants
-		for (var v : project.variants) {
-			if (v.isDisabled)
-				continue;
-			var setup = new CalculationSetup(v.productSystem);
-			setup.setUnit(v.unit);
-			setup.setFlowPropertyFactor(v.flowPropertyFactor);
-			setup.setAmount(v.amount);
-			setup.allocationMethod = v.allocationMethod;
-			setup.impactMethod = method;
-			setup.nwSet = nwSet;
-			setup.parameterRedefs.addAll(v.parameterRedefs);
-			setup.withCosts = true;
-			// TODO: how to handle regionalization here?
-			var cr = calculateContributions(setup);
-			result.addResult(v, cr);
-		}
-		return result;
 	}
 
 	/**

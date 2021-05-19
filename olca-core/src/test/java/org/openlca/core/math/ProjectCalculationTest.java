@@ -12,6 +12,7 @@ import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
+import org.openlca.core.results.ProjectResult;
 import org.openlca.core.results.ResultItemView;
 
 public class ProjectCalculationTest {
@@ -39,8 +40,7 @@ public class ProjectCalculationTest {
 		var2.amount = 2.0;
 		project.variants.add(var2);
 
-		var calculator = new SystemCalculator(Tests.getDb());
-		var result = calculator.calculate(project);
+		var result = ProjectResult.calculate(project, Tests.getDb());
 		var items = ResultItemView.of(result);
 		assertEquals(2, items.enviFlows().size());
 
