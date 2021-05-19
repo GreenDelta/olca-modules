@@ -1,7 +1,5 @@
 package org.openlca.core.database;
 
-import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
@@ -33,7 +31,6 @@ import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

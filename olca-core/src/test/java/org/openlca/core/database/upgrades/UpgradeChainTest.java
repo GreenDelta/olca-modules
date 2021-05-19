@@ -69,6 +69,8 @@ public class UpgradeChainTest {
 		u.dropColumn("tbl_allocation_factors", "formula");
 		u.dropTable("tbl_libraries");
 		u.dropColumn("tbl_project_variants", "description");
+		u.dropColumn("tbl_projects", "is_with_costs");
+		u.dropColumn("tbl_projects", "is_with_regionalization");
 		for (var table : catEntityTables) {
 			u.dropColumn(table, "tags");
 			u.dropColumn(table, "library");
@@ -160,6 +162,8 @@ public class UpgradeChainTest {
 		assertTrue(u.columnExists("tbl_allocation_factors", "formula"));
 		assertTrue(u.tableExists("tbl_libraries"));
 		assertTrue(u.columnExists("tbl_project_variants", "description"));
+		assertTrue(u.columnExists("tbl_projects", "is_with_costs"));
+		assertTrue(u.columnExists("tbl_projects", "is_with_regionalization"));
 		for (var table : catEntityTables) {
 			assertTrue(u.columnExists(table, "tags"));
 			assertTrue(u.columnExists(table, "library"));

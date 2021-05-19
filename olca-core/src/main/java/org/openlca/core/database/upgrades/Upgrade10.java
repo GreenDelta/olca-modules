@@ -69,7 +69,9 @@ class Upgrade10 implements IUpgrade {
 		// dynamic allocation factors
 		u.createColumn("tbl_allocation_factors", "formula VARCHAR(1000)");
 
-		// descriptions for project variants
+		// new project features
+		u.createColumn("tbl_projects", "is_with_costs SMALLINT default 0");
+		u.createColumn("tbl_projects", "is_with_regionalization SMALLINT default 0");
 		u.createColumn("tbl_project_variants", "description CLOB(64 K)");
 
 		addParameterSets(u);

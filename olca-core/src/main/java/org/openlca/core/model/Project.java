@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
@@ -26,6 +27,12 @@ public class Project extends CategorizedEntity {
 	@JoinColumn(name = "f_nwset")
 	public NwSet nwSet;
 
+	@Column(name = "is_with_costs")
+	public boolean isWithCosts;
+
+	@Column(name = "is_with_regionalization")
+	public boolean isWithRegionalization;
+
 	public static Project of(String name) {
 		var project = new Project();
 		Entities.init(project, name);
@@ -41,6 +48,8 @@ public class Project extends CategorizedEntity {
 		}
 		clone.impactMethod = impactMethod;
 		clone.nwSet = nwSet;
+		clone.isWithCosts = isWithCosts;
+		clone.isWithRegionalization = isWithRegionalization;
 		return clone;
 	}
 }

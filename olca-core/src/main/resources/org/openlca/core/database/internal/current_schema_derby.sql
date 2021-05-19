@@ -575,18 +575,20 @@ CREATE TABLE tbl_parameter_redefs (
 
 CREATE TABLE tbl_projects (
 
-    id               BIGINT NOT NULL,
-    ref_id           VARCHAR(36),
-    name             VARCHAR(2048),
-    version          BIGINT,
-    last_change      BIGINT,
-    f_category       BIGINT,
-    tags             VARCHAR(255),
-    library          VARCHAR(255),
-    description      CLOB(64 K),
+    id                       BIGINT NOT NULL,
+    ref_id                   VARCHAR(36),
+    name                     VARCHAR(2048),
+    version                  BIGINT,
+    last_change              BIGINT,
+    f_category               BIGINT,
+    tags                     VARCHAR(255),
+    library                  VARCHAR(255),
+    description              CLOB(64 K),
 
-    f_impact_method  BIGINT,
-    f_nwset          BIGINT,
+    f_impact_method          BIGINT,
+    f_nwset                  BIGINT,
+    is_with_costs            SMALLINT default 0,
+    is_with_regionalization  SMALLINT default 0,
 
     PRIMARY KEY (id)
 );
