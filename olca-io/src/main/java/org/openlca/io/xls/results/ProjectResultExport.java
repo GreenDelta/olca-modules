@@ -2,6 +2,7 @@ package org.openlca.io.xls.results;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -11,40 +12,53 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openlca.core.database.EntityCache;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.ProjectResult;
+import org.openlca.core.results.ResultItemView;
 import org.openlca.io.xls.Excel;
 import org.openlca.util.Strings;
 
 public class ProjectResultExport {
 
-	private final Project project;
-	private final File file;
-	private final EntityCache cache;
-	private CellStyle headerStyle;
+	final Project project;
+	final ProjectResult result;
+	final ResultItemView resultItems;
+	final EntityCache cache;
+	final ProjectVariant[] variants;
 
-	public ProjectResultExport(Project project, File file, EntityCache cache) {
+	CellStyle headerStyle;
+
+	public ProjectResultExport(
+		Project project, ProjectResult result, IDatabase db) {
 		this.project = project;
-		this.file = file;
-		this.cache = cache;
-		project.variants.sort((o1, o2) -> Strings.compare(o1.name, o2.name));
+		this.result = result;
+		this.resultItems = ResultItemView.of(result);
+		this.cache = EntityCache.create(db);
+		this.variants = project.variants.stream()
+			.filter(variant -> !variant.isDisabled)
+			.sorted((o1, o2) -> Strings.compare(o1.name, o2.name))
+			.toArray(ProjectVariant[]::new);
 	}
 
-	public void run(ProjectResult result) throws Exception {
-		Workbook workbook = new XSSFWorkbook();
-		headerStyle = Excel.headerStyle(workbook);
-		writeInfoSheet(workbook);
-		Sheet inventorySheet = workbook.createSheet("LCI Results");
-		ProjectInventories.write(result, inventorySheet, headerStyle, cache);
-		if (result.hasImpactResults()) {
-			Sheet impactSheet = workbook.createSheet("LCIA Results");
-			ProjectImpacts.write(result, impactSheet, headerStyle);
+	public void writeTo(File file) throws IOException {
+		var wb = new XSSFWorkbook();
+		headerStyle = Excel.headerStyle(wb);
+		writeInfoSheet(wb);
+		if (variants.length != 0) {
+			if (result.hasEnviFlows()) {
+				var inventorySheet = wb.createSheet("LCI Results");
+				ProjectInventorySheet.write(this, inventorySheet);
+			}
+			if (result.hasImpacts()) {
+				ProjectImpactSheet.write(this, wb.createSheet("LCIA Results"));
+			}
 		}
-		try (FileOutputStream fos = new FileOutputStream(file)) {
-			workbook.write(fos);
+		try (var fos = new FileOutputStream(file)) {
+			wb.write(fos);
 		}
 	}
 

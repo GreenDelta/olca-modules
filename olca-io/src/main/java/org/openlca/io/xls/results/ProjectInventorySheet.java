@@ -1,72 +1,56 @@
 package org.openlca.io.xls.results;
 
-import java.util.List;
-
-import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.results.Contribution;
 import org.openlca.core.results.Contributions;
-import org.openlca.core.results.ProjectResult;
 import org.openlca.io.CategoryPair;
 import org.openlca.io.DisplayValues;
 import org.openlca.io.xls.Excel;
 
-class ProjectInventories {
+class ProjectInventorySheet {
 
-	private ProjectResult result;
-	private Sheet sheet;
-	private CellStyle headerStyle;
-	private EntityCache cache;
+	private final ProjectResultExport export;
+	private final Sheet sheet;
 
-	public static void write(ProjectResult result, Sheet sheet,
-			CellStyle headerStyle, EntityCache cache) {
-		ProjectInventories writer = new ProjectInventories();
-		writer.result = result;
-		writer.sheet = sheet;
-		writer.headerStyle = headerStyle;
-		writer.cache = cache;
-		writer.run();
+	private ProjectInventorySheet(ProjectResultExport export, Sheet sheet) {
+		this.export = export;
+		this.sheet = sheet;
 	}
 
-	private ProjectInventories() {
+	public static void write(ProjectResultExport export, Sheet sheet) {
+		new ProjectInventorySheet(export, sheet).run();
 	}
 
 	private void run() {
 		Excel.trackSize(sheet, 1, 6);
-		List<ProjectVariant> variants = result.getVariants();
-		List<EnviFlow> flows = result.getFlows();
-		if (variants.isEmpty() || flows.isEmpty())
-			return;
 		int row = 1;
 		header(sheet, row++, 1, "Inventory Results");
-		row = writeRows(row, variants, flows, true);
+		row = writeRows(row, true);
 		row++;
-		writeRows(row, variants, flows, false);
+		writeRows(row, false);
 		Excel.autoSize(sheet, 1, 6);
 	}
 
-	private int writeRows(int row, List<ProjectVariant> variants,
-			List<EnviFlow> flows, boolean inputs) {
+	private int writeRows(int row,  boolean inputs) {
+		var variants = export.variants;
 		header(sheet, row, 1, inputs ? "Inputs" : "Outputs");
-		for (int i = 0; i < variants.size(); i++) {
+		for (int i = 0; i < variants.length; i++) {
 			int col = i + 6;
-			header(sheet, row, col, variants.get(i).name);
+			header(sheet, row, col, variants[i].name);
 		}
 		row++;
 		writeHeader(row++);
-		for (EnviFlow flow : flows) {
+		for (EnviFlow flow : export.resultItems.enviFlows()) {
 			if (flow.isInput())
 				continue;
 			writeInfo(flow.flow(), row);
-			List<Contribution<ProjectVariant>> contributions = result
-					.getContributions(flow);
-			for (int i = 0; i < variants.size(); i++) {
+			var contributions = export.result.getContributions(flow);
+			for (int i = 0; i < variants.length; i++) {
 				int col = i + 6;
-				ProjectVariant variant = variants.get(i);
+				ProjectVariant variant = variants[i];
 				Contribution<?> c = Contributions.get(contributions, variant);
 				if (c == null)
 					continue;
@@ -81,11 +65,11 @@ class ProjectInventories {
 		int col = 1;
 		Excel.cell(sheet, row, col++, flow.refId);
 		Excel.cell(sheet, row, col++, flow.name);
-		CategoryPair flowCat = CategoryPair.create(flow, cache);
+		CategoryPair flowCat = CategoryPair.create(flow, export.cache);
 		Excel.cell(sheet, row, col++, flowCat.getCategory());
 		Excel.cell(sheet, row, col++, flowCat.getSubCategory());
 		Excel.cell(sheet, row, col++,
-				DisplayValues.referenceUnit(flow, cache));
+				DisplayValues.referenceUnit(flow, export.cache));
 	}
 
 	private void writeHeader(int row) {
@@ -99,7 +83,7 @@ class ProjectInventories {
 
 	private void header(Sheet sheet, int row, int col, String val) {
 		Excel.cell(sheet, row, col, val)
-				.ifPresent(c -> c.setCellStyle(headerStyle));
+				.ifPresent(c -> c.setCellStyle(export.headerStyle));
 	}
 
 }

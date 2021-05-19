@@ -54,7 +54,7 @@ public class SystemCalculator {
 	}
 
 	public ProjectResult calculate(Project project) {
-		ProjectResult result = new ProjectResult();
+		var result = new ProjectResult();
 		if (project == null)
 			return result;
 
@@ -66,7 +66,7 @@ public class SystemCalculator {
 				: null;
 
 		// calculate the project variants
-		for (ProjectVariant v : project.variants) {
+		for (var v : project.variants) {
 			if (v.isDisabled)
 				continue;
 			var setup = new CalculationSetup(v.productSystem);
@@ -79,7 +79,7 @@ public class SystemCalculator {
 			setup.parameterRedefs.addAll(v.parameterRedefs);
 			setup.withCosts = true;
 			// TODO: how to handle regionalization here?
-			ContributionResult cr = calculateContributions(setup);
+			var cr = calculateContributions(setup);
 			result.addResult(v, cr);
 		}
 		return result;

@@ -2,7 +2,6 @@ package org.openlca.core.math;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
@@ -13,7 +12,7 @@ import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
-import org.openlca.core.results.ProjectResult;
+import org.openlca.core.results.ResultItemView;
 
 public class ProjectCalculationTest {
 
@@ -40,14 +39,14 @@ public class ProjectCalculationTest {
 		var2.amount = 2.0;
 		project.variants.add(var2);
 
-		SystemCalculator calc = new SystemCalculator(Tests.getDb());
-		ProjectResult r = calc.calculate(project);
-		List<EnviFlow> flows = r.getFlows();
-		assertEquals(2, flows.size());
+		var calculator = new SystemCalculator(Tests.getDb());
+		var result = calculator.calculate(project);
+		var items = ResultItemView.of(result);
+		assertEquals(2, items.enviFlows().size());
 
 		AtomicInteger icount = new AtomicInteger(0);
-		for (EnviFlow f : flows) {
-			r.getContributions(f).forEach(item -> {
+		for (EnviFlow f : items.enviFlows()) {
+			result.getContributions(f).forEach(item -> {
 				icount.incrementAndGet();
 				switch (f.flow().name) {
 				case "e1":
