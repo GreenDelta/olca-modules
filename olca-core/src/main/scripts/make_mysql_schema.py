@@ -17,7 +17,10 @@ def main():
 
     in_file = schema_dir + '/current_schema_derby.sql'
     lines = [
-        '-- generated with make_mysql_schema.py; do not edit'
+        '-- generated with make_mysql_schema.py; do not edit\n'
+        '\n',
+        '-- CREATE DATABASE openlca;\n',
+        '-- USE openlca',
     ]
     with open(in_file, 'r', encoding='utf-8', newline='\n') as inp:
         for r in inp:

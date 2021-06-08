@@ -1,5 +1,8 @@
 -- generated with make_mysql_schema.py; do not edit
 
+-- CREATE DATABASE openlca;
+-- USE openlca
+
 
 CREATE TABLE SEQUENCE (
     SEQ_NAME   VARCHAR(255) NOT NULL,
@@ -13,7 +16,7 @@ CREATE TABLE openlca_version (
     version SMALLINT
 
 );
-INSERT INTO openlca_version (version) VALUES (9);
+INSERT INTO openlca_version (version) VALUES (10);
 
 
 CREATE TABLE tbl_libraries (
@@ -566,18 +569,20 @@ CREATE TABLE tbl_parameter_redefs (
 
 CREATE TABLE tbl_projects (
 
-    id               BIGINT NOT NULL,
-    ref_id           VARCHAR(36),
-    name             VARCHAR(2048),
-    version          BIGINT,
-    last_change      BIGINT,
-    f_category       BIGINT,
-    tags             VARCHAR(255),
-    library          VARCHAR(255),
-    description      TEXT,
+    id                       BIGINT NOT NULL,
+    ref_id                   VARCHAR(36),
+    name                     VARCHAR(2048),
+    version                  BIGINT,
+    last_change              BIGINT,
+    f_category               BIGINT,
+    tags                     VARCHAR(255),
+    library                  VARCHAR(255),
+    description              TEXT,
 
-    f_impact_method  BIGINT,
-    f_nwset          BIGINT,
+    f_impact_method          BIGINT,
+    f_nwset                  BIGINT,
+    is_with_costs            TINYINT default 0,
+    is_with_regionalization  TINYINT default 0,
 
     PRIMARY KEY (id)
 );
@@ -588,6 +593,7 @@ CREATE TABLE tbl_project_variants (
     id                      BIGINT NOT NULL,
     f_project               BIGINT,
     name                    VARCHAR(2048),
+    description             TEXT,
     f_product_system        BIGINT,
     f_unit                  BIGINT,
     f_flow_property_factor  BIGINT,
@@ -636,7 +642,7 @@ CREATE TABLE tbl_process_group_sets (
     groups_blob  MEDIUMBLOB,
 
     PRIMARY KEY  (id)
-) ;
+);
 
 
 CREATE TABLE tbl_social_indicators (
