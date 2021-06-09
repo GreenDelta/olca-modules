@@ -3,6 +3,7 @@ package org.openlca.ilcd.tests.network;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import jakarta.ws.rs.client.Client;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,8 +16,6 @@ import org.openlca.ilcd.util.UnitGroupBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
 
 public class DescriptorTest {
 

@@ -29,11 +29,11 @@ public class SodaConnection {
 	public String toString() {
 		String s = url;
 		if (dataStockName != null && dataStockName.length() > 0) {
-			s = dataStockName + "::" + url;
+			s += ";" + dataStockName;
 		}
 		return user != null && user.length() > 0
-			? user + "@" + url
-			: s;
+			? user + "@" + s
+			: "anonymous@" + s;
 	}
 
 	@Override

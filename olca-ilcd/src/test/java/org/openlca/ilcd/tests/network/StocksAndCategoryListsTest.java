@@ -19,31 +19,19 @@ import org.openlca.ilcd.lists.ContentType;
 public class StocksAndCategoryListsTest {
 
 	@Test
-	@Ignore
-	public void testGetDataStocks() throws Exception {
-		SodaConnection con = new SodaConnection();
-		con.url = "http://oekobaudat.online-now.de/OEKOBAU.DAT/resource";
-		int numberOfStocks = 3;
-		String shortName = "default";
-		SodaClient client = new SodaClient(con);
-		client.connect();
-		DataStockList list = client.getDataStockList();
-		assertEquals(numberOfStocks, list.dataStocks.size());
-		boolean found = false;
-		for (DataStock dataStock : list.dataStocks) {
-			String sn = dataStock.shortName;
-			if (shortName.equals(sn)) {
-				found = true;
-				break;
-			}
+	public void testGetDataStocks() {
+		var con = new SodaConnection();
+		con.url = "https://www.oekobaudat.de/OEKOBAU.DAT/resource";
+		try (var client = new SodaClient(con)) {
+			client.connect();
+			var stocks = client.getDataStockList();
+			assertTrue(stocks.dataStocks.size() > 0);
 		}
-		assertTrue("Could not find data stock " + shortName, found);
-		client.close();
 	}
 
 	@Test
 	@Ignore
-	public void testGetCategorySystems() throws Exception {
+	public void testGetCategorySystems() {
 		SodaConnection con = new SodaConnection();
 		con.url = "http://www.oekobaudat.de/OEKOBAU.DAT/resource";
 		try (SodaClient client = new SodaClient(con)) {
@@ -56,7 +44,7 @@ public class StocksAndCategoryListsTest {
 
 	@Test
 	@Ignore
-	public void testGetCategorySystem() throws Exception {
+	public void testGetCategorySystem() {
 		SodaConnection con = new SodaConnection();
 		con.url = "http://www.oekobaudat.de/OEKOBAU.DAT/resource";
 		try (SodaClient client = new SodaClient(con)) {
