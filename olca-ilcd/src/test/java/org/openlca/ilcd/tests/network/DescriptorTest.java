@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,9 +20,9 @@ import org.slf4j.LoggerFactory;
 
 public class DescriptorTest {
 
-	private Logger log = LoggerFactory.getLogger(this.getClass());
-	private String unitUrl = Network.RESOURCE_URL + "/unitgroups";
-	private Client client = Client.create();
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
+	private final String unitUrl = Network.RESOURCE_URL + "/unitgroups";
+	private final Client client = ClientBuilder.newClient();
 
 	@Before
 	public void setUp() throws Exception {
@@ -42,8 +43,9 @@ public class DescriptorTest {
 		Assume.assumeTrue(Network.isAppAlive());
 		log.trace("Run testGetDescriptors");
 		log.trace("Get unit groups: {}", unitUrl);
-		DescriptorList result = client.resource(unitUrl).get(
-				DescriptorList.class);
+		DescriptorList result = client.target(unitUrl)
+			.request()
+			.get(DescriptorList.class);
 		assertTrue(result.descriptors.size() > 0);
 		iterateAndCompareFirst(result);
 	}
@@ -60,12 +62,11 @@ public class DescriptorTest {
 	}
 
 	private void compareFirst(UnitGroupDescriptor descriptorFromList) {
-		WebResource resource = client.resource(unitUrl)
+		var resource = client.target(unitUrl)
 				.path(descriptorFromList.uuid)
 				.queryParam("view", "overview");
-		log.trace("Get unit group descriptor: {}", resource.getURI());
-		UnitGroupDescriptor descriptor = resource
-				.get(UnitGroupDescriptor.class);
+		log.trace("Get unit group descriptor: {}", resource.getUri());
+		var descriptor = resource.request().get(UnitGroupDescriptor.class);
 		compareDescriptors(descriptorFromList, descriptor);
 	}
 
@@ -76,12 +77,13 @@ public class DescriptorTest {
 	}
 
 	private void loadFull(UnitGroupDescriptor descriptor) {
-		WebResource resource = client.resource(unitUrl)
+		var resource = client.target(unitUrl)
 				.path(descriptor.uuid).queryParam("format", "xml");
-		log.trace("Get full unit group: {}", resource.getURI());
-		UnitGroup unitGroup = resource.get(UnitGroup.class);
-		assertEquals(descriptor.name.get(0), unitGroup.unitGroupInfo.dataSetInfo.name
-				.get(0).value);
+		log.trace("Get full unit group: {}", resource.getUri());
+		var unitGroup = resource.request().get(UnitGroup.class);
+		assertEquals(
+			descriptor.name.get(0).value,
+			unitGroup.unitGroupInfo.dataSetInfo.name.get(0).value);
 		assertEquals(descriptor.uuid, unitGroup.unitGroupInfo.dataSetInfo.uuid);
 	}
 

@@ -19,17 +19,16 @@ class Network {
 	static final String PASSWORD = "default";
 
 	private static Boolean isAppAlive = null;
-	private static Logger log = LoggerFactory.getLogger(Network.class);
+	private static final Logger log = LoggerFactory.getLogger(Network.class);
 
 	/** Returns true if the soda4LCA instance is accessible for the tests. */
 	public static boolean isAppAlive() {
 		if (isAppAlive != null)
 			return isAppAlive;
 		try {
-			HttpURLConnection connection = (HttpURLConnection) new URL(APP_URL)
-					.openConnection();
-			connection.setRequestMethod("HEAD");
-			int responseCode = connection.getResponseCode();
+			var con = (HttpURLConnection) new URL(APP_URL).openConnection();
+			con.setRequestMethod("HEAD");
+			int responseCode = con.getResponseCode();
 			if (responseCode == 200)
 				isAppAlive = true;
 			else

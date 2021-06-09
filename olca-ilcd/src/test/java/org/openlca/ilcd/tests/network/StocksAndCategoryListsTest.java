@@ -19,6 +19,7 @@ import org.openlca.ilcd.lists.ContentType;
 public class StocksAndCategoryListsTest {
 
 	@Test
+	@Ignore
 	public void testGetDataStocks() {
 		var con = new SodaConnection();
 		con.url = "https://www.oekobaudat.de/OEKOBAU.DAT/resource";
@@ -52,7 +53,6 @@ public class StocksAndCategoryListsTest {
 			boolean processTypeFound = false;
 			for (CategoryList list : system.categories) {
 				if (list.type == ContentType.PROCESS) {
-					processTypeFound = true;
 					assertTrue(list.categories.size() > 5);
 					processTypeFound = true;
 				}
