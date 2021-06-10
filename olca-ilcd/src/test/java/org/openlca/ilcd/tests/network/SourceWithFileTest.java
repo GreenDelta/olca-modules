@@ -21,14 +21,14 @@ public class SourceWithFileTest {
 
 	@Before
 	public void setUp() throws Exception {
-		if (!Network.isAppAlive())
+		if (!TestServer.isAvailable())
 			return;
-		client = Network.createClient();
+		client = TestServer.newClient();
 	}
 
 	@Test
 	public void testSimpleSourceUpload() throws Exception {
-		Assume.assumeTrue(Network.isAppAlive());
+		Assume.assumeTrue(TestServer.isAvailable());
 		String id = UUID.randomUUID().toString();
 		Source source = makeSource(id);
 		client.put(source);
@@ -38,7 +38,7 @@ public class SourceWithFileTest {
 
 	@Test
 	public void testSourceWithFileUpload() throws Exception {
-		Assume.assumeTrue(Network.isAppAlive());
+		Assume.assumeTrue(TestServer.isAvailable());
 		String id = UUID.randomUUID().toString();
 		Source source = makeSource(id);
 		Path tempFile = Files.createTempFile("soda_upload_test", ".txt");
@@ -56,7 +56,7 @@ public class SourceWithFileTest {
 
 	@Test(expected = Exception.class)
 	public void testNoFile() throws Exception {
-		Assume.assumeTrue(Network.isAppAlive());
+		Assume.assumeTrue(TestServer.isAvailable());
 		client.getExternalDocument(UUID.randomUUID().toString(),
 				"no_such_file.txt");
 	}

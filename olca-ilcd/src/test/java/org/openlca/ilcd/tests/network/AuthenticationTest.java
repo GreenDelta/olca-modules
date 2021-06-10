@@ -37,11 +37,11 @@ public class AuthenticationTest {
 
 	@Test
 	public void testReadFromServer() {
-		Assume.assumeTrue(Network.isAppAlive());
-		try (var client = Network.createClient()) {
+		Assume.assumeTrue(TestServer.isAvailable());
+		try (var client = TestServer.newClient()) {
 			var info = client.getAuthInfo();
 			assertTrue(info.isAuthenticated);
-			assertEquals(Network.USER, info.user);
+			assertEquals(TestServer.USER, info.user);
 		}
 	}
 

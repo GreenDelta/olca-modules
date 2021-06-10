@@ -20,14 +20,14 @@ public class NetworkPutContactTest {
 
 	@Before
 	public void setUp() throws Exception {
-		if (!Network.isAppAlive())
+		if (!TestServer.isAvailable())
 			return;
-		client = Network.createClient();
+		client = TestServer.newClient();
 	}
 
 	@Test
 	public void testPutContact() throws Exception {
-		Assume.assumeTrue(Network.isAppAlive());
+		Assume.assumeTrue(TestServer.isAvailable());
 		String id = UUID.randomUUID().toString();
 		Contact contact = new Contact();
 		ContactInfo info = new ContactInfo();

@@ -28,25 +28,24 @@ public class NetworkGetTest {
 
 	@Before
 	public void setUp() throws Exception {
-		if (!Network.isAppAlive())
+		if (!TestServer.isAvailable())
 			return;
 		DataSets.upload();
-		client = Network.createClient();
+		client = TestServer.newClient();
 	}
 
 	@Test
-	public void testCreateWithPassword() throws Exception {
-		Assume.assumeTrue(Network.isAppAlive());
-		SodaClient client = Network.createClient();
+	public void testCreateWithPassword() {
+		Assume.assumeTrue(TestServer.isAvailable());
+		SodaClient client = TestServer.newClient();
 		assertNotNull(client);
 	}
 
-	@Ignore
 	@Test(expected = Exception.class)
-	public void testCreateWithWrongPassword() throws IOException {
-		Assume.assumeTrue(Network.isAppAlive());
+	public void testCreateWithWrongPassword() {
+		Assume.assumeTrue(TestServer.isAvailable());
 		SodaConnection con = new SodaConnection();
-		con.url = Network.ENDPOINT;
+		con.url = TestServer.ENDPOINT;
 		con.user = "user";
 		con.password = "invalid";
 		SodaClient client = new SodaClient(con);
@@ -55,7 +54,7 @@ public class NetworkGetTest {
 
 	@Test
 	public void testGetProcess() {
-		Assume.assumeTrue(Network.isAppAlive());
+		Assume.assumeTrue(TestServer.isAvailable());
 		String id = "76d6aaa4-37e2-40b2-994c-03292b600074";
 		Process process = client.get(Process.class, id);
 		assertEquals(id, process.processInfo.dataSetInfo.uuid);
@@ -64,7 +63,7 @@ public class NetworkGetTest {
 
 	@Test
 	public void testGetFlow() {
-		Assume.assumeTrue(Network.isAppAlive());
+		Assume.assumeTrue(TestServer.isAvailable());
 		String id = "0d7a3ad1-6556-11dd-ad8b-0800200c9a66";
 		Flow flow = client.get(Flow.class, id);
 		assertEquals(id, flow.flowInfo.dataSetInfo.uuid);
@@ -73,7 +72,7 @@ public class NetworkGetTest {
 
 	@Test
 	public void testGetFlowProperty() {
-		Assume.assumeTrue(Network.isAppAlive());
+		Assume.assumeTrue(TestServer.isAvailable());
 		String id = "93a60a56-a3c8-14da-a746-0800200c9a66";
 		FlowProperty property = client.get(FlowProperty.class, id);
 		assertEquals(id, property.flowPropertyInfo.dataSetInfo.uuid);
@@ -82,7 +81,7 @@ public class NetworkGetTest {
 
 	@Test
 	public void testGetUnitGroup() {
-		Assume.assumeTrue(Network.isAppAlive());
+		Assume.assumeTrue(TestServer.isAvailable());
 		String id = "59f191d6-5dd3-4553-af88-1a32accfe308";
 		UnitGroup group = client.get(UnitGroup.class, id);
 		assertEquals(id, group.unitGroupInfo.dataSetInfo.uuid);
@@ -91,7 +90,7 @@ public class NetworkGetTest {
 
 	@Test
 	public void testGetContact() {
-		Assume.assumeTrue(Network.isAppAlive());
+		Assume.assumeTrue(TestServer.isAvailable());
 		String id = "177ca340-ffa2-11da-92e3-0800200c9a66";
 		Contact contact = client.get(Contact.class, id);
 		assertEquals(id, contact.contactInfo.dataSetInfo.uuid);
@@ -100,7 +99,7 @@ public class NetworkGetTest {
 
 	@Test
 	public void testGetSource() {
-		Assume.assumeTrue(Network.isAppAlive());
+		Assume.assumeTrue(TestServer.isAvailable());
 		String id = "2c699413-f88b-4cb5-a56d-98cb4068472f";
 		Source source = client.get(Source.class, id);
 		assertEquals(id, source.sourceInfo.dataSetInfo.uuid);

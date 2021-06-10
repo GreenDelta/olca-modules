@@ -21,14 +21,14 @@ import org.slf4j.LoggerFactory;
 public class DescriptorTest {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
-	private final String unitUrl = Network.ENDPOINT + "/unitgroups";
+	private final String unitUrl = TestServer.ENDPOINT + "/unitgroups";
 	private final Client client = ClientBuilder.newClient();
 
 	@Before
 	public void setUp() throws Exception {
-		if (!Network.isAppAlive())
+		if (!TestServer.isAvailable())
 			return;
-		SodaClient client = Network.createClient();
+		SodaClient client = TestServer.newClient();
 		XmlBinder binder = new XmlBinder();
 		UnitGroup group = binder.fromStream(UnitGroup.class, getClass()
 				.getResourceAsStream("unit.xml"));
@@ -40,10 +40,10 @@ public class DescriptorTest {
 
 	@Test
 	public void testGetDescriptors() {
-		Assume.assumeTrue(Network.isAppAlive());
+		Assume.assumeTrue(TestServer.isAvailable());
 		log.trace("Run testGetDescriptors");
 		log.trace("Get unit groups: {}", unitUrl);
-		DescriptorList result = client.target(unitUrl)
+		var result = client.target(unitUrl)
 			.request()
 			.get(DescriptorList.class);
 		assertTrue(result.descriptors.size() > 0);

@@ -20,14 +20,14 @@ public class NetworkPutUnitGroupTest {
 
 	@Before
 	public void setUp() throws Exception {
-		if (!Network.isAppAlive())
+		if (!TestServer.isAvailable())
 			return;
-		client = Network.createClient();
+		client = TestServer.newClient();
 	}
 
 	@Test
 	public void testPutUnitGroup() throws Exception {
-		Assume.assumeTrue(Network.isAppAlive());
+		Assume.assumeTrue(TestServer.isAvailable());
 		String id = UUID.randomUUID().toString();
 		UnitGroup ug = new UnitGroup();
 		UnitGroupInfo info = new UnitGroupInfo();

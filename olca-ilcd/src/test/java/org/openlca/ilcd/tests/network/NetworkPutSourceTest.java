@@ -20,14 +20,14 @@ public class NetworkPutSourceTest {
 
 	@Before
 	public void setUp() throws Exception {
-		if (!Network.isAppAlive())
+		if (!TestServer.isAvailable())
 			return;
-		client = Network.createClient();
+		client = TestServer.newClient();
 	}
 
 	@Test
 	public void testPutSource() throws Exception {
-		Assume.assumeTrue(Network.isAppAlive());
+		Assume.assumeTrue(TestServer.isAvailable());
 		String id = UUID.randomUUID().toString();
 		Source source = new Source();
 		SourceInfo info = new SourceInfo();

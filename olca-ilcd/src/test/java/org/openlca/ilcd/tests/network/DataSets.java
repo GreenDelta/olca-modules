@@ -19,9 +19,9 @@ import org.openlca.ilcd.util.UnitGroupBag;
 class DataSets {
 
 	static void upload() throws Exception {
-		if (!Network.isAppAlive())
+		if (!TestServer.isAvailable())
 			return;
-		SodaClient client = Network.createClient();
+		SodaClient client = TestServer.newClient();
 		putUnitGroup(client);
 		putFlowProperty(client);
 		putFlow(client);

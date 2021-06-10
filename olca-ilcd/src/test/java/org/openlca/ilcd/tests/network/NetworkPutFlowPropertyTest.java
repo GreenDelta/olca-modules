@@ -20,14 +20,14 @@ public class NetworkPutFlowPropertyTest {
 
 	@Before
 	public void setUp() throws Exception {
-		if (!Network.isAppAlive())
+		if (!TestServer.isAvailable())
 			return;
-		client = Network.createClient();
+		client = TestServer.newClient();
 	}
 
 	@Test
 	public void testPutFlowProperty() throws Exception {
-		Assume.assumeTrue(Network.isAppAlive());
+		Assume.assumeTrue(TestServer.isAvailable());
 		String id = UUID.randomUUID().toString();
 		FlowProperty fp = new FlowProperty();
 		FlowPropertyInfo info = new FlowPropertyInfo();

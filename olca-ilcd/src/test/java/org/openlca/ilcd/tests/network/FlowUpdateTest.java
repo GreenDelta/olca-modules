@@ -24,14 +24,14 @@ public class FlowUpdateTest {
 
 	@Before
 	public void setUp() throws Exception {
-		if (!Network.isAppAlive())
+		if (!TestServer.isAvailable())
 			return;
-		client = Network.createClient();
+		client = TestServer.newClient();
 	}
 
 	@Test
-	public void testPutContact() throws Exception {
-		Assume.assumeTrue(Network.isAppAlive());
+	public void testPutFlow() {
+		Assume.assumeTrue(TestServer.isAvailable());
 		String id = UUID.randomUUID().toString();
 		Flow flow = makeFlow(id);
 		client.put(flow);
