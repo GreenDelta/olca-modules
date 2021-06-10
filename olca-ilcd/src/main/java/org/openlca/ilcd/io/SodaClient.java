@@ -15,6 +15,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.descriptors.CategorySystemList;
@@ -52,7 +53,8 @@ public class SodaClient implements DataStore {
 
 	public void connect() {
 		log.info("Create ILCD network connection {}", con);
-		client = ClientBuilder.newClient();
+		client = ClientBuilder.newClient()
+			.register(MultiPartFeature.class);
 		authenticate();
 		isConnected = true;
 	}
@@ -145,21 +147,26 @@ public class SodaClient implements DataStore {
 		checkConnection();
 		log.info("Publish source with files {}", source);
 		try {
-			FormDataMultiPart multiPart = new FormDataMultiPart();
+			var formData = new FormDataMultiPart();
 			if (con.dataStockId != null) {
 				log.trace("post to data stock {}", con.dataStockId);
-				multiPart.field("stock", con.dataStockId);
+				formData.field("stock", con.dataStockId);
 			}
+
+			// add the XML as `file` parameter
 			byte[] bytes = binder.toByteArray(source);
 			var xmlStream = new ByteArrayInputStream(bytes);
 			var xmlPart = new FormDataBodyPart("file", xmlStream,
 				MediaType.MULTIPART_FORM_DATA_TYPE);
-			multiPart.bodyPart(xmlPart);
-			addFiles(files, multiPart);
+			formData.bodyPart(xmlPart);
+
+			// add the other files
+			addFiles(files, formData);
+
+
 			var r = resource("sources/withBinaries");
 			var resp = cookies(r)
-				.accept(MediaType.MULTIPART_FORM_DATA_TYPE)
-				.post(Entity.entity(xmlPart, MediaType.MULTIPART_FORM_DATA_TYPE));
+				.post(Entity.entity(formData, MediaType.MULTIPART_FORM_DATA_TYPE));
 			eval(resp);
 			log.trace("Server response: {}", fetchMessage(resp));
 		} catch (Exception e) {
@@ -174,8 +181,8 @@ public class SodaClient implements DataStore {
 		for (File file : files) {
 			if (file == null)
 				continue;
-			FileInputStream is = new FileInputStream(file);
-			FormDataBodyPart part = new FormDataBodyPart(file.getName(),
+			var is = new FileInputStream(file);
+			var part = new FormDataBodyPart(file.getName(),
 				is, MediaType.MULTIPART_FORM_DATA_TYPE);
 			multiPart.bodyPart(part);
 		}
@@ -186,11 +193,11 @@ public class SodaClient implements DataStore {
 		checkConnection();
 		var r = resource("sources", sourceId, fileName);
 		log.info("Get external document {} for source {}", fileName, sourceId);
-		var response = cookies(r)
-			.accept(MediaType.APPLICATION_OCTET_STREAM)
-			.get();
-		try (response) {
-			return response.readEntity(InputStream.class);
+		try {
+			return cookies(r)
+				.accept(MediaType.APPLICATION_OCTET_STREAM)
+				.get()
+				.readEntity(InputStream.class);
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to get file " + fileName +
 				"for source " + sourceId, e);

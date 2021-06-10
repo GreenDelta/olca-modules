@@ -1,12 +1,13 @@
 package org.openlca.ilcd.tests.network;
 
+import static org.junit.Assert.*;
+
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
 
-import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,13 +28,13 @@ public class SourceWithFileTest {
 	}
 
 	@Test
-	public void testSimpleSourceUpload() throws Exception {
+	public void testSimpleSourceUpload() {
 		Assume.assumeTrue(TestServer.isAvailable());
 		String id = UUID.randomUUID().toString();
 		Source source = makeSource(id);
 		client.put(source);
 		Source fromServer = client.get(Source.class, id);
-		Assert.assertEquals(id, fromServer.sourceInfo.dataSetInfo.uuid);
+		assertEquals(id, fromServer.sourceInfo.dataSetInfo.uuid);
 	}
 
 	@Test
@@ -47,18 +48,20 @@ public class SourceWithFileTest {
 		File file = tempFile.toFile();
 		addFileLink(source, file);
 		client.put(source, new File[] { file });
-		InputStream is = client.getExternalDocument(id, file.getName());
-		byte[] contentFromServer = new byte[content.length];
-		is.read(contentFromServer);
-		is.close();
-		Assert.assertArrayEquals(content, contentFromServer);
+
+		// try to get the file from the server
+		try (var stream = client.getExternalDocument(id, file.getName())) {
+			byte[] contentFromServer = new byte[content.length];
+			assertEquals(content.length, stream.read(contentFromServer));
+			assertArrayEquals(content, contentFromServer);
+		}
 	}
 
 	@Test(expected = Exception.class)
-	public void testNoFile() throws Exception {
+	public void testNoFile(){
 		Assume.assumeTrue(TestServer.isAvailable());
-		client.getExternalDocument(UUID.randomUUID().toString(),
-				"no_such_file.txt");
+		var randomID = UUID.randomUUID().toString();
+		client.getExternalDocument(randomID, "no_such_file.txt");
 	}
 
 	private Source makeSource(String id) {
