@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 public class DescriptorTest {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
-	private final String unitUrl = Network.RESOURCE_URL + "/unitgroups";
+	private final String unitUrl = Network.ENDPOINT + "/unitgroups";
 	private final Client client = ClientBuilder.newClient();
 
 	@Before

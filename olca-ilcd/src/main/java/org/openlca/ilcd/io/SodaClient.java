@@ -75,7 +75,7 @@ public class SodaClient implements DataStore {
 		response.getCookies().forEach((key, value) -> cookies.add(value.toCookie()));
 	}
 
-	public AuthInfo getAuthentication() {
+	public AuthInfo getAuthInfo() {
 		checkConnection();
 		log.trace("Get authentication information.");
 		var r = resource("authenticate", "status");

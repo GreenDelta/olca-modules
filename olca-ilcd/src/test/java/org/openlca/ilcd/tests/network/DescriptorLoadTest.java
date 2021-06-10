@@ -19,7 +19,7 @@ public class DescriptorLoadTest {
 
 	@Test
 	@Ignore
-	public void testGetDescriptors() throws Exception {
+	public void testGetDescriptors() {
 		SodaConnection con = new SodaConnection();
 		con.url = "http://eplca.jrc.ec.europa.eu/ELCD3/resource";
 		SodaClient client = new SodaClient(con);

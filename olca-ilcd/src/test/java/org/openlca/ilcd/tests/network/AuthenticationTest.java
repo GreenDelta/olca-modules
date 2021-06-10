@@ -1,12 +1,14 @@
 package org.openlca.ilcd.tests.network;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.io.InputStream;
 
+import org.junit.Assume;
 import org.junit.Test;
 import org.openlca.ilcd.io.AuthInfo;
 
@@ -15,10 +17,10 @@ import jakarta.xml.bind.JAXB;
 public class AuthenticationTest {
 
 	@Test
-	public void testIsAuthenticated() {
-		AuthInfo auth = getAuthentication("auth_info.xml");
+	public void testReadAuthInfo() {
+		AuthInfo auth = readTestXml("auth_info.xml");
 		assertTrue(auth.isAuthenticated);
-		assertTrue(auth.user.equals("openlca"));
+		assertEquals("openlca", auth.user);
 		assertTrue(auth.roles.contains("ADMIN"));
 		assertTrue(auth.roles.contains("SUPER_ADMIN"));
 		assertTrue(auth.dataStocks.get(0).isReadAllowed());
@@ -27,21 +29,28 @@ public class AuthenticationTest {
 
 	@Test
 	public void testIsNotAuthenticated() {
-		AuthInfo auth = getAuthentication("auth_info_no_auth.xml");
+		AuthInfo auth = readTestXml("auth_info_no_auth.xml");
 		assertFalse(auth.isAuthenticated);
 		assertNull(auth.user);
 		assertTrue(auth.dataStocks.isEmpty());
 	}
 
-	private AuthInfo getAuthentication(String res) {
-		try (InputStream is = this.getClass().getResourceAsStream(res)) {
-			AuthInfo authentication = JAXB.unmarshal(is,
-					AuthInfo.class);
-			return authentication;
-		} catch (IOException e) {
-			e.printStackTrace();
+	@Test
+	public void testReadFromServer() {
+		Assume.assumeTrue(Network.isAppAlive());
+		try (var client = Network.createClient()) {
+			var info = client.getAuthInfo();
+			assertTrue(info.isAuthenticated);
+			assertEquals(Network.USER, info.user);
 		}
-		return null;
 	}
 
+	private AuthInfo readTestXml(String res) {
+		try (var stream = this.getClass().getResourceAsStream(res)) {
+			assertNotNull(stream);
+			return JAXB.unmarshal(stream, AuthInfo.class);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

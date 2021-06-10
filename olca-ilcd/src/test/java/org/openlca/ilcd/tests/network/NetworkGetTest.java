@@ -46,7 +46,7 @@ public class NetworkGetTest {
 	public void testCreateWithWrongPassword() throws IOException {
 		Assume.assumeTrue(Network.isAppAlive());
 		SodaConnection con = new SodaConnection();
-		con.url = Network.RESOURCE_URL;
+		con.url = Network.ENDPOINT;
 		con.user = "user";
 		con.password = "invalid";
 		SodaClient client = new SodaClient(con);
