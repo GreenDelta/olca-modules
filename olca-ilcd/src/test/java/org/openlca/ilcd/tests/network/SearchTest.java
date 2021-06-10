@@ -43,12 +43,12 @@ public class SearchTest {
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		client.close();
 	}
 
 	@Test
-	public void testListParams() throws Exception {
+	public void testListParams() {
 		DescriptorList list = client.search(Flow.class, "water");
 		assertTrue(list.totalSize > 0);
 		assertEquals(list.startIndex, 0);
@@ -56,7 +56,7 @@ public class SearchTest {
 	}
 
 	@Test
-	public void testSearchProcess() throws Exception {
+	public void testSearchProcess() {
 		String name = "ABS";
 		log.debug("test: search process with name '{}'", name);
 		DescriptorList list = client.search(Process.class, name);
@@ -70,7 +70,7 @@ public class SearchTest {
 	}
 
 	@Test
-	public void testSearchFlow() throws Exception {
+	public void testSearchFlow() {
 		String name = "glycidol";
 		log.debug("test: search flow with name '{}'", name);
 		DescriptorList list = client.search(Flow.class, name);
@@ -83,7 +83,7 @@ public class SearchTest {
 	}
 
 	@Test
-	public void testSearchFlowProperty() throws Exception {
+	public void testSearchFlowProperty() {
 		String name = "calorific";
 		log.debug("test: search flow property with name '{}'", name);
 		DescriptorList list = client.search(FlowProperty.class, name);
@@ -96,7 +96,7 @@ public class SearchTest {
 	}
 
 	@Test
-	public void testSearchUnitGroup() throws Exception {
+	public void testSearchUnitGroup() {
 		String name = "mass";
 		log.debug("test: search unit group with name '{}'", name);
 		DescriptorList list = client.search(UnitGroup.class, name);
@@ -109,7 +109,7 @@ public class SearchTest {
 	}
 
 	@Test
-	public void testSearchContact() throws Exception {
+	public void testSearchContact() {
 		String name = "Review";
 		log.debug("test: search contact with name '{}'", name);
 		DescriptorList list = client.search(Contact.class, name);
@@ -122,7 +122,7 @@ public class SearchTest {
 	}
 
 	@Test
-	public void testSearchSource() throws Exception {
+	public void testSearchSource() {
 		String name = "IMA-Europe_Plastic";
 		log.debug("test: search source with name '{}'", name);
 		DescriptorList list = client.search(Source.class, name);

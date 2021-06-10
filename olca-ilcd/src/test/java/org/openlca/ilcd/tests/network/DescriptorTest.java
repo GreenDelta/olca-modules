@@ -53,27 +53,22 @@ public class DescriptorTest {
 	private void iterateAndCompareFirst(DescriptorList result) {
 		for (Object obj : result.descriptors) {
 			assertTrue(obj instanceof UnitGroupDescriptor);
-			UnitGroupDescriptor descriptor = (UnitGroupDescriptor) obj;
+			var descriptor = (UnitGroupDescriptor) obj;
 			log.trace("Unit group '{}' found.", descriptor.uuid);
 		}
-		UnitGroupDescriptor descriptorFromList = (UnitGroupDescriptor) result.descriptors.get(0);
+		var descriptorFromList = (UnitGroupDescriptor) result.descriptors.get(0);
 		compareFirst(descriptorFromList);
 		loadFull(descriptorFromList);
 	}
 
-	private void compareFirst(UnitGroupDescriptor descriptorFromList) {
+	private void compareFirst(UnitGroupDescriptor fromList) {
 		var resource = client.target(unitUrl)
-				.path(descriptorFromList.uuid)
+				.path(fromList.uuid)
 				.queryParam("view", "overview");
 		log.trace("Get unit group descriptor: {}", resource.getUri());
 		var descriptor = resource.request().get(UnitGroupDescriptor.class);
-		compareDescriptors(descriptorFromList, descriptor);
-	}
-
-	private void compareDescriptors(UnitGroupDescriptor expected,
-			UnitGroupDescriptor actual) {
-		assertEquals(expected.name.get(0), actual.name.get(0));
-		assertEquals(expected.uuid, actual.uuid);
+		assertEquals(fromList.name.get(0), descriptor.name.get(0));
+		assertEquals(fromList.uuid, descriptor.uuid);
 	}
 
 	private void loadFull(UnitGroupDescriptor descriptor) {

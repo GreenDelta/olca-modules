@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openlca.ilcd.descriptors.CategorySystemList;
@@ -19,12 +20,9 @@ import org.openlca.ilcd.lists.ContentType;
 public class StocksAndCategoryListsTest {
 
 	@Test
-	@Ignore
 	public void testGetDataStocks() {
-		var con = new SodaConnection();
-		con.url = "https://www.oekobaudat.de/OEKOBAU.DAT/resource";
-		try (var client = new SodaClient(con)) {
-			client.connect();
+		Assume.assumeTrue(TestServer.isAvailable());
+		try (var client = TestServer.newClient()) {
 			var stocks = client.getDataStockList();
 			assertTrue(stocks.dataStocks.size() > 0);
 		}

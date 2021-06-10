@@ -193,15 +193,11 @@ public class SodaClient implements DataStore {
 		checkConnection();
 		var r = resource("sources", sourceId, fileName);
 		log.info("Get external document {} for source {}", fileName, sourceId);
-		try {
-			return cookies(r)
-				.accept(MediaType.APPLICATION_OCTET_STREAM)
-				.get()
-				.readEntity(InputStream.class);
-		} catch (Exception e) {
-			throw new RuntimeException("Failed to get file " + fileName +
-				"for source " + sourceId, e);
-		}
+		var response = cookies(r)
+			.accept(MediaType.APPLICATION_OCTET_STREAM)
+			.get();
+		eval(response);
+		return response.readEntity(InputStream.class);
 	}
 
 	@Override

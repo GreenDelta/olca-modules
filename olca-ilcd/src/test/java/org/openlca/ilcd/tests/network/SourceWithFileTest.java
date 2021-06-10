@@ -3,7 +3,6 @@ package org.openlca.ilcd.tests.network;
 import static org.junit.Assert.*;
 
 import java.io.File;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
