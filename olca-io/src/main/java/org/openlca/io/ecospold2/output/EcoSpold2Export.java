@@ -234,8 +234,14 @@ public class EcoSpold2Export implements Runnable {
 	}
 
 	private ProcessDescriptor getDefaultProvider(Exchange exchange) {
-		if (!exchange.isInput || exchange.defaultProviderId == 0)
+		if (exchange.defaultProviderId == 0)
 			return null;
+		if (exchange.flow.flowType == FlowType.PRODUCT_FLOW)
+			if (!exchange.isInput && !exchange.isAvoided)
+				return null;
+		if (exchange.flow.flowType == FlowType.WASTE_FLOW)
+			if (exchange.isInput && !exchange.isAvoided)
+				return null;		
 		ProcessDao dao = new ProcessDao(db);
 		return dao.getDescriptor(exchange.defaultProviderId);
 	}
