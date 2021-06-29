@@ -1,6 +1,6 @@
 package org.openlca.core.math;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class NumberGenerator {
 
@@ -33,14 +33,14 @@ public abstract class NumberGenerator {
 
 	private static class Normal extends NumberGenerator {
 
-		private final Random rand;
+		private final ThreadLocalRandom rand;
 		private final double mean;
 		private final double std;
 
 		Normal(double mean, double std) {
 			this.mean = mean;
 			this.std = std;
-			this.rand = new Random();
+			this.rand = ThreadLocalRandom.current();
 		}
 
 		@Override
@@ -81,14 +81,14 @@ public abstract class NumberGenerator {
 
 	private static class Uniform extends NumberGenerator {
 
-		private final Random rand;
+		private final ThreadLocalRandom rand;
 		private final double min;
 		private final double range;
 
 		Uniform(double min, double max) {
 			this.min = min;
 			this.range = max - min;
-			this.rand = new Random();
+			this.rand = ThreadLocalRandom.current();
 		}
 
 		@Override
@@ -99,9 +99,9 @@ public abstract class NumberGenerator {
 
 	private static class Triangular extends NumberGenerator {
 
-		private double min;
-		private double max;
-		private double mode;
+		private final double min;
+		private final double max;
+		private final double mode;
 
 		Triangular(double min, double mode, double max) {
 			this.min = min;
@@ -116,7 +116,7 @@ public abstract class NumberGenerator {
 		public double next() {
 			if (max == min)
 				return mode;
-			double u = Math.random();
+			double u = ThreadLocalRandom.current().nextDouble();
 			double fMode = (mode - min) / (max - min);
 			if (u <= fMode)
 				return min + Math.sqrt(u * (max - min) * (mode - min));
@@ -126,7 +126,7 @@ public abstract class NumberGenerator {
 
 	private static class Discrete extends NumberGenerator {
 
-		private double val;
+		private final double val;
 
 		public Discrete(double val) {
 			this.val = val;
