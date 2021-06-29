@@ -3,9 +3,7 @@ package org.openlca.core.matrix;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.Optional;
 import java.util.function.BiFunction;
 
 import org.openlca.core.database.IDatabase;
@@ -129,46 +127,26 @@ public class MatrixData {
 	 */
 	public void simulate(FormulaInterpreter interpreter) {
 
-		// prepare the executor
-		var executor = Executors.newFixedThreadPool(3);
-		BiFunction<MatrixReader, UMatrix, Future<Matrix>> submit =
-			(matrix, uncertainties) -> executor.submit(() -> {
+		BiFunction<MatrixReader, UMatrix, Optional<Matrix>> next =
+			(matrix, uncertainties) -> {
+				if (matrix == null || uncertainties == null)
+					return Optional.empty();
 				var m = matrix.asMutable();
 				uncertainties.generate(m, interpreter);
-				return m;
-			});
+				return Optional.of(m);
+			};
 
-		// submit the simulation calls
-		var techSim = techMatrix != null && techUncertainties != null
-			? submit.apply(techMatrix, techUncertainties)
-			: null;
-		var enviSim = enviMatrix != null && enviUncertainties != null
-			? submit.apply(enviMatrix, enviUncertainties)
-			: null;
-		var impactSim = impactMatrix != null && impactUncertainties != null
-			? submit.apply(impactMatrix, impactUncertainties)
-			: null;
-
-		// collect the new matrices
-		try {
-			executor.shutdown();
-			if (techSim != null) {
-				techMatrix = techSim.get();
-			}
-			if (enviSim != null) {
-				enviMatrix = enviSim.get();
-			}
-			if (impactSim != null) {
-				impactMatrix = impactSim.get();
-			}
-		} catch (InterruptedException | ExecutionException e) {
-			throw new RuntimeException("failed to generate new matrices", e);
-		}
+		next.apply(techMatrix, techUncertainties)
+			.ifPresent(m -> techMatrix = m);
+		next.apply(enviMatrix, enviUncertainties)
+			.ifPresent(m -> enviMatrix = m);
+		next.apply(impactMatrix, impactUncertainties)
+			.ifPresent(m -> impactMatrix = m);
 	}
 
 	public boolean isSparse() {
 		return techMatrix instanceof HashPointMatrix
-			|| techMatrix instanceof CSCMatrix;
+					 || techMatrix instanceof CSCMatrix;
 	}
 
 	public boolean hasLibraryLinks() {
