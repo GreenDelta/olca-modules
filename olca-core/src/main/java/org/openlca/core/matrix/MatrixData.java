@@ -3,11 +3,16 @@ package org.openlca.core.matrix;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.function.BiFunction;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
+import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
@@ -123,20 +128,41 @@ public class MatrixData {
 	 * the matrix instances may change so you need to be carefully with aliases.
 	 */
 	public void simulate(FormulaInterpreter interpreter) {
-		if (techMatrix != null && techUncertainties != null) {
-			var t = techMatrix.asMutable();
-			techUncertainties.generate(t, interpreter);
-			techMatrix = t;
-		}
-		if (enviMatrix != null && enviUncertainties != null) {
-			var f = enviMatrix.asMutable();
-			enviUncertainties.generate(f, interpreter);
-			enviMatrix = f;
-		}
-		if (impactMatrix != null && impactUncertainties != null) {
-			var c = impactMatrix.asMutable();
-			impactUncertainties.generate(c, interpreter);
-			impactMatrix = c;
+
+		// prepare the executor
+		var executor = Executors.newFixedThreadPool(3);
+		BiFunction<MatrixReader, UMatrix, Future<Matrix>> submit =
+			(matrix, uncertainties) -> executor.submit(() -> {
+				var m = matrix.asMutable();
+				uncertainties.generate(m, interpreter);
+				return m;
+			});
+
+		// submit the simulation calls
+		var techSim = techMatrix != null && techUncertainties != null
+			? submit.apply(techMatrix, techUncertainties)
+			: null;
+		var enviSim = enviMatrix != null && enviUncertainties != null
+			? submit.apply(enviMatrix, enviUncertainties)
+			: null;
+		var impactSim = impactMatrix != null && impactUncertainties != null
+			? submit.apply(impactMatrix, impactUncertainties)
+			: null;
+
+		// collect the new matrices
+		try {
+			executor.shutdown();
+			if (techSim != null) {
+				techMatrix = techSim.get();
+			}
+			if (enviSim != null) {
+				enviMatrix = enviSim.get();
+			}
+			if (impactSim != null) {
+				impactMatrix = impactSim.get();
+			}
+		} catch (InterruptedException | ExecutionException e) {
+			throw new RuntimeException("failed to generate new matrices", e);
 		}
 	}
 

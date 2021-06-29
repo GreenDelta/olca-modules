@@ -33,19 +33,18 @@ public abstract class NumberGenerator {
 
 	private static class Normal extends NumberGenerator {
 
-		private final ThreadLocalRandom rand;
 		private final double mean;
 		private final double std;
 
 		Normal(double mean, double std) {
 			this.mean = mean;
 			this.std = std;
-			this.rand = ThreadLocalRandom.current();
 		}
 
 		@Override
 		public double next() {
-			return rand.nextGaussian() * std + mean;
+			var rand = ThreadLocalRandom.current().nextGaussian();
+			return rand * std + mean;
 		}
 	}
 
@@ -81,18 +80,17 @@ public abstract class NumberGenerator {
 
 	private static class Uniform extends NumberGenerator {
 
-		private final ThreadLocalRandom rand;
 		private final double min;
 		private final double range;
 
 		Uniform(double min, double max) {
 			this.min = min;
 			this.range = max - min;
-			this.rand = ThreadLocalRandom.current();
 		}
 
 		@Override
 		public double next() {
+			var rand = ThreadLocalRandom.current();
 			return min + rand.nextDouble() * range;
 		}
 	}
@@ -136,7 +134,5 @@ public abstract class NumberGenerator {
 		public double next() {
 			return val;
 		}
-
 	}
-
 }

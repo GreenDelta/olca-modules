@@ -16,9 +16,16 @@ public class NumberGeneratorTest {
 
 	@Test
 	public void testNormal() {
-		NumberGenerator gen = NumberGenerator.normal(5, 1);
-		for (int i = 0; i < 100; i++)
+		var gen = NumberGenerator.normal(5, 1);
+		double min = Double.MAX_VALUE;
+		double max = -Double.MAX_VALUE;
+		for (int i = 0; i < 100; i++) {
+			double next = gen.next();
+			min = Math.min(min, next);
+			max = Math.max(max, next);
 			assertInInterval(gen.next(), -100, 100);
+		}
+		assertTrue(max > min);
 	}
 
 	@Test
