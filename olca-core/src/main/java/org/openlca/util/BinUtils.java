@@ -1,6 +1,5 @@
 package org.openlca.util;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -119,7 +118,7 @@ public class BinUtils {
 			return new byte[0];
 		Deflater deflater = new Deflater();
 		deflater.setInput(bytes);
-		ByteArrayOutputStream out = new ByteArrayOutputStream(bytes.length);
+		var out = new ByteArrayOutputStream(bytes.length);
 		deflater.finish();
 		byte[] buffer = new byte[4096];
 		while (!deflater.finished()) {
@@ -141,7 +140,7 @@ public class BinUtils {
 			return new byte[0];
 		Inflater inflater = new Inflater();
 		inflater.setInput(bytes);
-		ByteArrayOutputStream out = new ByteArrayOutputStream(bytes.length);
+		var out = new ByteArrayOutputStream(bytes.length);
 		byte[] buffer = new byte[4096];
 		while (!inflater.finished()) {
 			int count = inflater.inflate(buffer);
@@ -154,13 +153,10 @@ public class BinUtils {
 	public static byte[] read(InputStream input) throws IOException {
 		if (input == null)
 			return null;
-		var bin = input instanceof BufferedInputStream
-				? (BufferedInputStream) input
-				: new BufferedInputStream(input);
-		byte[] buf = new byte[4096];
-		var bout = new ByteArrayOutputStream(4096);
-		int n = 0;
-		while ((n = bin.read(buf)) > 0) {
+		byte[] buf = new byte[8192];
+		var bout = new ByteArrayOutputStream(8192);
+		int n;
+		while ((n = input.read(buf)) > 0) {
 			bout.write(buf, 0, n);
 		}
 		return bout.toByteArray();
