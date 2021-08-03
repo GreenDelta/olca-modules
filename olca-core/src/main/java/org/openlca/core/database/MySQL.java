@@ -24,7 +24,7 @@ public class MySQL extends Notifiable implements IDatabase {
 		var url = config.url != null
 			? config.url
 			: "jdbc:mysql://" + config.host + ":"
-				+ config.port + "/" + config.database;
+			+ config.port + "/" + config.database;
 
 		// create the JPA persistence manager
 		var jpaConfig = new HashMap<>();
@@ -35,7 +35,7 @@ public class MySQL extends Notifiable implements IDatabase {
 		jpaConfig.put("eclipselink.classloader", getClass().getClassLoader());
 		jpaConfig.put("eclipselink.target-database", "MySQL");
 		entityFactory = new PersistenceProvider()
-			.createEntityManagerFactory("openLCA", jpaConfig);
+			.createEntityManagerFactory(config.persistenceUnit, jpaConfig);
 
 		// create the connection pool
 		var poolConfig = new HikariConfig();
@@ -106,6 +106,7 @@ public class MySQL extends Notifiable implements IDatabase {
 		private String password = "";
 		private int port = 3306;
 		private String url;
+		private String persistenceUnit = "openLCA";
 
 		private Config(String database) {
 			this.database = database;
@@ -133,6 +134,20 @@ public class MySQL extends Notifiable implements IDatabase {
 
 		public Config url(String url) {
 			this.url = url;
+			return this;
+		}
+
+		/**
+		 * Optionally set the name of the JPA persistence unit that should be used.
+		 * Defaults to {@code openLCA} which is shipped with the openLCA core
+		 * modules. You should only set this option when you are sure that a
+		 * persistence unit with the given name exists in the classpath.
+		 *
+		 * @param persistenceUnit the name of the JPA persistence unit to be used
+		 * @return this configuration
+		 */
+		public Config persistenceUnit(String persistenceUnit) {
+			this.persistenceUnit = persistenceUnit;
 			return this;
 		}
 

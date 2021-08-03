@@ -66,7 +66,7 @@ public class Query {
 					query.setParameter(key, params.get(key));
 				}
 			List<T> results = query.getResultList();
-			log.debug("{} results", results.size());
+			log.trace("{} results", results.size());
 			return results;
 		} finally {
 			em.close();
