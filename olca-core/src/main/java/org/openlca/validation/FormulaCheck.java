@@ -1,0 +1,213 @@
+package org.openlca.validation;
+
+import java.util.function.Supplier;
+
+import org.openlca.core.database.NativeSql;
+import org.openlca.core.model.ModelType;
+import org.openlca.core.model.ParameterScope;
+import org.openlca.expressions.FormulaInterpreter;
+import org.openlca.util.Strings;
+
+class FormulaCheck implements Runnable {
+
+	private final Validation v;
+	private boolean foundErrors = false;
+	private FormulaInterpreter interpreter;
+
+	FormulaCheck(Validation v) {
+		this.v = v;
+	}
+
+	@Override
+	public void run() {
+		try {
+			interpreter = buildInterpreter();
+			checkParameterFormulas();
+			checkExchangeFormulas();
+			checkAllocationFormulas();
+			checkImpactFormulas();
+			if (!foundErrors && !v.hasStopped()) {
+				v.ok("checked formulas");
+			}
+		} catch (Exception e) {
+			v.error("error in formula validation", e);
+		} finally {
+			v.workerFinished();
+		}
+	}
+
+	private FormulaInterpreter buildInterpreter() {
+		var interpreter = new FormulaInterpreter();
+		var sql = "select " +
+			/* 1 */ "scope, " +
+			/* 2 */ "f_owner, " +
+			/* 3 */ "name, " +
+			/* 4 */ "is_input_param, " +
+			/* 5 */ "value," +
+			/* 6 */ "formula from tbl_parameters";
+		NativeSql.on(v.db).query(sql, r -> {
+
+			// parse the parameter scope
+			var _str = r.getString(1);
+			var paramScope = _str == null
+				? ParameterScope.GLOBAL
+				: ParameterScope.valueOf(_str);
+
+			// get the interpreter scope
+			long owner = r.getLong(2);
+			if (paramScope == ParameterScope.GLOBAL) {
+				owner = 0L;
+			}
+			var scope = owner == 0
+				? interpreter.getGlobalScope()
+				: interpreter.getOrCreate(owner);
+
+			// bind the parameter value or formula
+			var name = r.getString(3);
+			boolean isInput = r.getBoolean(4);
+			if (isInput) {
+				// value
+				scope.bind(name, r.getDouble(5));
+			} else {
+				// formula
+				scope.bind(name, r.getString(6));
+			}
+
+			return true;
+		});
+		return interpreter;
+	}
+
+	private void checkParameterFormulas() {
+		if (v.hasStopped())
+			return;
+
+		var sql = "select " +
+			/* 1 */ "id, " +
+			/* 2 */ "name, " +
+			/* 3 */ "scope, " +
+			/* 4 */ "f_owner, " +
+			/* 5 */ "is_input_param, " +
+			/* 6 */ "formula from tbl_parameters";
+
+		NativeSql.on(v.db).query(sql, r -> {
+
+			boolean isInput = r.getBoolean(5);
+			if (isInput)
+				return !v.hasStopped();
+
+			long paramId = r.getLong(1);
+
+			// parse the parameter scope
+			var _str = r.getString(3);
+			var paramScope = _str == null
+				? ParameterScope.GLOBAL
+				: ParameterScope.valueOf(_str);
+			var formula = r.getString(6);
+
+			// check formulas of global parameters
+			if (paramScope == ParameterScope.GLOBAL) {
+				if (Strings.nullOrEmpty(formula)) {
+					v.error(paramId, ModelType.PARAMETER, "empty formula");
+					foundErrors = true;
+					return !v.hasStopped();
+				}
+				try {
+					interpreter.getGlobalScope().eval(formula);
+				} catch (Exception e) {
+					v.error(paramId, ModelType.PARAMETER,
+						"formula error in '" + formula + "': " + e.getMessage());
+					foundErrors = true;
+				}
+				return !v.hasStopped();
+			}
+
+			// check formulas of local parameters
+			var paramName = r.getString(2);
+			var modelId = r.getLong(4);
+			var modelType = paramScope == ParameterScope.IMPACT
+				? ModelType.IMPACT_CATEGORY
+				: ModelType.PROCESS;
+
+			if (Strings.nullOrEmpty(formula)) {
+				v.error(modelId, modelType, "empty formula of parameter '"
+																		+ paramName + "'");
+				foundErrors = true;
+				return !v.hasStopped();
+			}
+
+			check(modelId, modelType, formula, () -> String.format(
+				"error in formula '%s' of parameter '%s'", formula, paramName));
+
+			return !v.hasStopped();
+
+		});
+	}
+
+	private void checkExchangeFormulas() {
+		if (v.hasStopped())
+			return;
+
+		var sql = "select " +
+			/* 1 */ "f_owner, " +
+			/* 2 */ "resulting_amount_formula, " +
+			/* 3 */ "cost_formula from tbl_exchanges";
+
+		NativeSql.on(v.db).query(sql, r -> {
+			long ownerId = r.getLong(1);
+
+			var amountFormula = r.getString(2);
+			check(ownerId, ModelType.PROCESS, amountFormula,
+				() -> "error in exchange formula '" + amountFormula + "'");
+
+			var costFormula = r.getString(3);
+			check(ownerId, ModelType.PROCESS, costFormula,
+				() -> "error in cost formula '" + costFormula + "'");
+
+			return !v.hasStopped();
+		});
+	}
+
+	private void checkAllocationFormulas() {
+		if (v.hasStopped())
+			return;
+		var sql = "select " +
+			/* 1 */ "f_process, " +
+			/* 2 */ "formula from tbl_allocation_factors";
+		NativeSql.on(v.db).query(sql, r -> {
+			long processId = r.getLong(1);
+			var formula = r.getString(2);
+			check(processId, ModelType.PROCESS, formula,
+				() -> "error in allocation formula '" + formula + "'");
+			return !v.hasStopped();
+		});
+	}
+
+	private void checkImpactFormulas() {
+		if (v.hasStopped())
+			return;
+		var sql = "select " +
+			/* 1 */ "f_impact_category, " +
+			/* 2 */ "formula from tbl_impact_factors";
+		NativeSql.on(v.db).query(sql, r -> {
+			long impactId = r.getLong(1);
+			var formula = r.getString(2);
+			check(impactId, ModelType.IMPACT_CATEGORY, formula,
+				() -> "error in factor formula '" + formula + "'");
+			return !v.hasStopped();
+		});
+	}
+
+	private void check(long modelId, ModelType modelType, String formula,
+										 Supplier<String> message) {
+		if (Strings.nullOrEmpty(formula))
+			return;
+		try {
+			var scope = interpreter.getScopeOrGlobal(modelId);
+			scope.eval(formula);
+		} catch (Exception e) {
+			v.error(modelId, modelType, message.get() + ": " + e.getMessage());
+			foundErrors = true;
+		}
+	}
+}
