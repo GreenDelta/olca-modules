@@ -16,7 +16,7 @@ class CurrencyCheck implements Runnable {
 	public void run() {
 		try {
 			checkRefFactors();
-			if (!foundErrors && !v.hasStopped()) {
+			if (!foundErrors && !v.wasCanceled()) {
 				v.ok("checked currencies");
 			}
 		} catch (Exception e) {
@@ -27,7 +27,7 @@ class CurrencyCheck implements Runnable {
 	}
 
 	private void checkRefFactors() {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 		var sql = "select " +
 			/* 1 */ "id, " +
@@ -50,7 +50,7 @@ class CurrencyCheck implements Runnable {
 				foundErrors = true;
 			}
 
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 }

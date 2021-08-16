@@ -110,7 +110,7 @@ public class FormulaCheckTest {
 		var validation = Validation.on(db);
 		validation.run();
 		boolean found = false;
-		for (var item : validation.getItems()) {
+		for (var item : validation.items()) {
 			if (!item.isError() || item.message == null)
 				continue;
 			if (!item.message.contains(formula))

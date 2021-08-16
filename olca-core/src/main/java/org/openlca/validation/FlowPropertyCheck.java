@@ -16,7 +16,7 @@ class FlowPropertyCheck implements Runnable {
 	public void run() {
 		try {
 			checkReferences();
-			if (!foundErrors && !v.hasStopped()) {
+			if (!foundErrors && !v.wasCanceled()) {
 				v.ok("checked flow properties");
 			}
 		} catch (Exception e) {
@@ -27,7 +27,7 @@ class FlowPropertyCheck implements Runnable {
 	}
 
 	private void checkReferences() {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 		var sql = "select id, f_unit_group from tbl_flow_properties";
 		NativeSql.on(v.db).query(sql, r -> {
@@ -38,7 +38,7 @@ class FlowPropertyCheck implements Runnable {
 					"invalid link to unit group @" + groupID);
 				foundErrors = true;
 			}
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 }

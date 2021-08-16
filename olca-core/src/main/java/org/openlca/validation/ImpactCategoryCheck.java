@@ -16,7 +16,7 @@ class ImpactCategoryCheck implements Runnable {
 	public void run() {
 		try {
 			checkFactors();
-			if (!foundErrors && !v.hasStopped()) {
+			if (!foundErrors && !v.wasCanceled()) {
 				v.ok("checked impact categories");
 			}
 		} catch (Exception e) {
@@ -27,7 +27,7 @@ class ImpactCategoryCheck implements Runnable {
 	}
 
 	private void checkFactors() {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 
 		var propIDs = v.ids.flowPropertyFactors();
@@ -42,7 +42,7 @@ class ImpactCategoryCheck implements Runnable {
 			if (!v.ids.contains(ModelType.IMPACT_CATEGORY, id)) {
 				v.warning("impact factor with invalid impact category ID @" + id);
 				foundErrors = true;
-				return !v.hasStopped();
+				return !v.wasCanceled();
 			}
 
 			var flowID = r.getLong(2);
@@ -73,7 +73,7 @@ class ImpactCategoryCheck implements Runnable {
 				foundErrors = true;
 			}
 
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 }

@@ -19,10 +19,12 @@ public class Validation implements Runnable {
 	private final List<Item> items = new ArrayList<>();
 	private int maxIssues = -1;
 	private boolean skipWarnings = false;
+	private boolean skipInfos = false;
 
 	private final BlockingQueue<Item> queue = new ArrayBlockingQueue<>(100);
-	private volatile boolean stopped = false;
 	private final Item FINISH = Item.ok("_finished");
+	private volatile boolean _canceled = false;
+	private volatile boolean _finished = false;
 
 	private Validation(IDatabase db) {
 		this.db = db;
@@ -33,6 +35,14 @@ public class Validation implements Runnable {
 		return new Validation(db);
 	}
 
+	/**
+	 * Set the maximum number of validation items that should be recorded. Setting
+	 * a value {@code <= 0} means that there is no limit for the number of items
+	 * (the default case).
+	 *
+	 * @param c the maximum number of validation items that should be recorded
+	 * @return this validation object
+	 */
 	public Validation maxItems(int c) {
 		this.maxIssues = c;
 		return this;
@@ -43,21 +53,40 @@ public class Validation implements Runnable {
 		return this;
 	}
 
+	public Validation skipInfos(boolean b) {
+		this.skipInfos = b;
+		return this;
+	}
+
 	/**
-	 * Cancels a running validation. It may takes a bit until the separate
+	 * Cancels a running validation. It can take a bit until the separate
 	 * validation workers stop after the cancel signal was sent.
 	 */
 	public void cancel() {
 		put(Item.ok("validation cancelled"));
-		stopped = true;
+		_canceled = true;
 	}
 
-	public List<Item> getItems() {
+	/**
+	 * Returns {@code true} when the validation was canceled, externally or
+	 * internally (e.g. when the maximum number of validation items was reached).
+	 */
+	public boolean wasCanceled() {
+		return _canceled;
+	}
+
+	public boolean hasFinished() {
+		return _finished;
+	}
+
+	public List<Item> items() {
 		return Collections.unmodifiableList(items);
 	}
 
 	@Override
 	public void run() {
+		_finished = false;
+		_canceled = false;
 		long start = System.currentTimeMillis();
 
 		// create and start the worker threads
@@ -92,13 +121,19 @@ public class Validation implements Runnable {
 					activeWorkers--;
 					continue;
 				}
-				if (stopped || (skipWarnings && item.isWarning())) {
+				if (_canceled
+					|| (skipWarnings && item.isWarning())
+					|| (skipInfos && item.isOk())) {
 					continue;
 				}
 				items.add(item);
+
+				// auto-cancel the validation when it exceeds the max. number of max.
+				// issues
 				if (maxIssues > 0 && items.size() >= maxIssues) {
-					stopped = true;
+					_canceled = true;
 				}
+
 			} catch (Exception e) {
 				throw new RuntimeException("failed to get item from validation queue", e);
 			}
@@ -106,19 +141,20 @@ public class Validation implements Runnable {
 		threads.shutdown();
 
 		// add the validation time
-		var time = (System.currentTimeMillis() - start) / 1000.0;
-		var unit = "seconds";
-		if (time > 60) {
-			time /= 60.0;
-			unit = "minutes";
+		if (!skipInfos && !wasCanceled()) {
+			var time = (System.currentTimeMillis() - start) / 1000.0;
+			var unit = "seconds";
+			if (time > 60) {
+				time /= 60.0;
+				unit = "minutes";
+			}
+			items.add(Item.ok(
+				String.format("Validated database in %.2f %s", time, unit)));
 		}
-		items.add(Item.ok(
-			String.format("Validated database in %.2f %s", time, unit)));
+
+		_finished = true;
 	}
 
-	boolean hasStopped() {
-		return stopped;
-	}
 
 	/**
 	 * This method must be called by each validation check, otherwise the

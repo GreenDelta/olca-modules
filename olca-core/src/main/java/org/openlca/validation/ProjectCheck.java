@@ -17,7 +17,7 @@ class ProjectCheck implements Runnable {
 		try {
 			checkProjectRefs();
 			checkVariantRefs();
-			if (!foundErrors && !v.hasStopped()) {
+			if (!foundErrors && !v.wasCanceled()) {
 				v.ok("checked projects");
 			}
 		} catch (Exception e) {
@@ -28,7 +28,7 @@ class ProjectCheck implements Runnable {
 	}
 
 	private void checkProjectRefs() {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 		var sql = "select " +
 			/* 1 */ "id, " +
@@ -50,12 +50,12 @@ class ProjectCheck implements Runnable {
 					"invalid reference to nw-set @" + nwSetId);
 				foundErrors = true;
 			}
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 
 	private void checkVariantRefs() {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 		var sql = "select " +
 			/* 1 */ "id, " +
@@ -70,23 +70,23 @@ class ProjectCheck implements Runnable {
 			if (!v.ids.contains(ModelType.PROJECT, projectId)) {
 				v.warning("unlinked project variant @" + variantId);
 				foundErrors = true;
-				return !v.hasStopped();
+				return !v.wasCanceled();
 			}
 
 			long systemId = r.getLong(3);
 			if (!v.ids.contains(ModelType.PRODUCT_SYSTEM, systemId)) {
 				v.error(projectId, ModelType.PROJECT,
 					"invalid reference to product system @" + systemId
-					+ " in variant @" + variantId);
+						+ " in variant @" + variantId);
 				foundErrors = true;
-				return !v.hasStopped();
+				return !v.wasCanceled();
 			}
 
 			long unitId = r.getLong(4);
 			if (!v.ids.contains(ModelType.UNIT, unitId)) {
 				v.error(projectId, ModelType.PROJECT,
 					"invalid reference to unit @" + unitId
-					+ " in variant @" + variantId);
+						+ " in variant @" + variantId);
 				foundErrors = true;
 			}
 
@@ -94,11 +94,11 @@ class ProjectCheck implements Runnable {
 			if (!v.ids.flowPropertyFactors().contains(propId)) {
 				v.error(projectId, ModelType.PROJECT,
 					"invalid reference to flow property fact. @" + propId
-					+ " in variant @" + variantId);
+						+ " in variant @" + variantId);
 				foundErrors = true;
 			}
 
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 }

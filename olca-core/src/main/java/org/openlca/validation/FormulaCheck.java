@@ -26,7 +26,7 @@ class FormulaCheck implements Runnable {
 			checkExchangeFormulas();
 			checkAllocationFormulas();
 			checkImpactFormulas();
-			if (!foundErrors && !v.hasStopped()) {
+			if (!foundErrors && !v.wasCanceled()) {
 				v.ok("checked formulas");
 			}
 		} catch (Exception e) {
@@ -79,7 +79,7 @@ class FormulaCheck implements Runnable {
 	}
 
 	private void checkParameterFormulas() {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 
 		var sql = "select " +
@@ -94,7 +94,7 @@ class FormulaCheck implements Runnable {
 
 			boolean isInput = r.getBoolean(5);
 			if (isInput)
-				return !v.hasStopped();
+				return !v.wasCanceled();
 
 			long paramId = r.getLong(1);
 
@@ -110,7 +110,7 @@ class FormulaCheck implements Runnable {
 				if (Strings.nullOrEmpty(formula)) {
 					v.error(paramId, ModelType.PARAMETER, "empty formula");
 					foundErrors = true;
-					return !v.hasStopped();
+					return !v.wasCanceled();
 				}
 				try {
 					interpreter.getGlobalScope().eval(formula);
@@ -119,7 +119,7 @@ class FormulaCheck implements Runnable {
 						"formula error in '" + formula + "': " + e.getMessage());
 					foundErrors = true;
 				}
-				return !v.hasStopped();
+				return !v.wasCanceled();
 			}
 
 			// check formulas of local parameters
@@ -131,21 +131,21 @@ class FormulaCheck implements Runnable {
 
 			if (Strings.nullOrEmpty(formula)) {
 				v.error(modelId, modelType, "empty formula of parameter '"
-																		+ paramName + "'");
+					+ paramName + "'");
 				foundErrors = true;
-				return !v.hasStopped();
+				return !v.wasCanceled();
 			}
 
 			check(modelId, modelType, formula, () -> String.format(
 				"error in formula '%s' of parameter '%s'", formula, paramName));
 
-			return !v.hasStopped();
+			return !v.wasCanceled();
 
 		});
 	}
 
 	private void checkExchangeFormulas() {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 
 		var sql = "select " +
@@ -164,12 +164,12 @@ class FormulaCheck implements Runnable {
 			check(ownerId, ModelType.PROCESS, costFormula,
 				() -> "error in cost formula '" + costFormula + "'");
 
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 
 	private void checkAllocationFormulas() {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 		var sql = "select " +
 			/* 1 */ "f_process, " +
@@ -179,12 +179,12 @@ class FormulaCheck implements Runnable {
 			var formula = r.getString(2);
 			check(processId, ModelType.PROCESS, formula,
 				() -> "error in allocation formula '" + formula + "'");
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 
 	private void checkImpactFormulas() {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 		var sql = "select " +
 			/* 1 */ "f_impact_category, " +
@@ -194,12 +194,12 @@ class FormulaCheck implements Runnable {
 			var formula = r.getString(2);
 			check(impactId, ModelType.IMPACT_CATEGORY, formula,
 				() -> "error in factor formula '" + formula + "'");
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 
 	private void check(long modelId, ModelType modelType, String formula,
-										 Supplier<String> message) {
+		Supplier<String> message) {
 		if (Strings.nullOrEmpty(formula))
 			return;
 		try {

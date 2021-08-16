@@ -29,7 +29,7 @@ class RootFieldCheck implements Runnable {
 					check(type);
 				}
 			}
-			if (!foundErrors && !v.hasStopped()) {
+			if (!foundErrors && !v.wasCanceled()) {
 				v.ok("checked root entity fields");
 			}
 		} catch (Exception e) {
@@ -40,7 +40,7 @@ class RootFieldCheck implements Runnable {
 	}
 
 	private void check(ModelType type) {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 		var table = type.getModelClass().getAnnotation(Table.class);
 		if (table == null)
@@ -69,7 +69,7 @@ class RootFieldCheck implements Runnable {
 
 			var category = r.getLong(4);
 			if (category != 0
-					&& !v.ids.contains(ModelType.CATEGORY, category)) {
+				&& !v.ids.contains(ModelType.CATEGORY, category)) {
 				v.error(id, type, "invalid category link @" + category);
 				foundErrors = true;
 			}
@@ -81,7 +81,7 @@ class RootFieldCheck implements Runnable {
 					foundErrors = true;
 				}
 			}
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 

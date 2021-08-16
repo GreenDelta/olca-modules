@@ -43,7 +43,7 @@ public class ProcessCheckTest {
 		var validation = Validation.on(db);
 		validation.run();
 		var found = false;
-		for (var item : validation.getItems()) {
+		for (var item : validation.items()) {
 			if (item.type == Type.ERROR) {
 				if (item.model != null && item.model.id == process.id) {
 					found = true;

@@ -21,7 +21,7 @@ class ProcessCheck implements Runnable {
 			checkExchanges();
 			checkAllocationFactors();
 			checkSocialAspects();
-			if (!foundErrors && !v.hasStopped()) {
+			if (!foundErrors && !v.wasCanceled()) {
 				v.ok("checked processes");
 			}
 		} catch (Exception e) {
@@ -32,7 +32,7 @@ class ProcessCheck implements Runnable {
 	}
 
 	private void checkProcessRefs() {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 		var sql = "select " +
 			/* 1 */ "id, " +
@@ -57,12 +57,12 @@ class ProcessCheck implements Runnable {
 				}
 			}
 
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 
 	private void checkProcessDocs() {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 		var sql = "select " +
 			/* 1 */ "p.id, " +
@@ -71,7 +71,7 @@ class ProcessCheck implements Runnable {
 			/* 4 */ "doc.f_dataset_owner, " +
 			/* 5 */ "doc.f_data_documentor, " +
 			/* 6 */ "doc.f_publication from tbl_processes p inner join " +
-							"tbl_process_docs doc on p.f_process_doc = doc.id";
+			"tbl_process_docs doc on p.f_process_doc = doc.id";
 		var refs = new String[]{
 			"reviewer",
 			"data generator",
@@ -93,27 +93,27 @@ class ProcessCheck implements Runnable {
 					foundErrors = true;
 				}
 			}
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 
 	private void checkQuantitativeRefs() {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 		var sql = "select p.id from tbl_processes p " +
-							"left join tbl_exchanges e on " +
-							"p.f_quantitative_reference = e.id " +
-							"where e.id is null";
+			"left join tbl_exchanges e on " +
+			"p.f_quantitative_reference = e.id " +
+			"where e.id is null";
 		NativeSql.on(v.db).query(sql, r -> {
 			long id = r.getLong(1);
 			v.warning(id, ModelType.PROCESS, "no quantitative reference");
 			foundErrors = true;
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 
 	private void checkExchanges() {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 
 		var propFactors = v.ids.flowPropertyFactors();
@@ -167,26 +167,26 @@ class ProcessCheck implements Runnable {
 				foundErrors = true;
 			}
 
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 
 	private void checkAllocationFactors() {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 		var sql = "select " +
 			/* 1 */ "a.f_process, " +
 			/* 2 */ "a.f_product, " +
 			/* 3 */ "a.f_exchange, " +
 			/* 4 */ "e.id from tbl_allocation_factors a left " +
-							"join tbl_exchanges e on a.f_exchange = e.id";
+			"join tbl_exchanges e on a.f_exchange = e.id";
 		NativeSql.on(v.db).query(sql, r -> {
 			var id = r.getLong(1);
 
 			if (!v.ids.contains(ModelType.PROCESS, id)) {
 				v.warning("allocation factor with invalid process ID @" + id);
 				foundErrors = true;
-				return !v.hasStopped();
+				return !v.wasCanceled();
 			}
 
 			var productID = r.getLong(2);
@@ -206,12 +206,12 @@ class ProcessCheck implements Runnable {
 				}
 			}
 
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 
 	private void checkSocialAspects() {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 		var sql = "select " +
 			/* 1 */ "f_process, " +
@@ -223,7 +223,7 @@ class ProcessCheck implements Runnable {
 			if (!v.ids.contains(ModelType.PROCESS, id)) {
 				v.warning("social aspect with invalid process ID @" + id);
 				foundErrors = true;
-				return !v.hasStopped();
+				return !v.wasCanceled();
 			}
 
 			var indicatorID = r.getLong(2);
@@ -240,7 +240,7 @@ class ProcessCheck implements Runnable {
 				foundErrors = true;
 			}
 
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 

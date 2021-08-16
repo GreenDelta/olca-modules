@@ -19,7 +19,7 @@ class ImpactMethodCheck implements Runnable {
 			checkImpactRefs();
 			checkNwSets();
 			checkDocRefs();
-			if (!foundErrors && !v.hasStopped()) {
+			if (!foundErrors && !v.wasCanceled()) {
 				v.ok("checked impact methods");
 			}
 		} catch (Exception e) {
@@ -30,7 +30,7 @@ class ImpactMethodCheck implements Runnable {
 	}
 
 	private void checkImpactRefs() {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 		var sql = "select " +
 			/* 1 */ "f_impact_method, " +
@@ -43,12 +43,12 @@ class ImpactMethodCheck implements Runnable {
 					"invalid reference to impact category @" + impact);
 				foundErrors = true;
 			}
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 
 	private void checkNwSets() {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 
 		// collect and check nw-sets
@@ -64,7 +64,7 @@ class ImpactMethodCheck implements Runnable {
 				v.warning("unlinked nw-set @" + nwset);
 				foundErrors = true;
 			}
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 
 		// check nw-factors
@@ -82,13 +82,13 @@ class ImpactMethodCheck implements Runnable {
 				v.warning("nw-factor with unlinked impact category @" + impact);
 				foundErrors = true;
 			}
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 
 
 	private void checkDocRefs() {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 
 		var sql = "select " +
@@ -112,7 +112,7 @@ class ImpactMethodCheck implements Runnable {
 				foundErrors = true;
 			}
 
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 }

@@ -45,7 +45,7 @@ public class FlowDirectionCheckTest {
 		validation.run();
 		boolean errorFound = false;
 		boolean warningFound = false;
-		for (var item : validation.getItems()) {
+		for (var item : validation.items()) {
 			if (item.model == null)
 				continue;
 			if (item.isError() && item.model.id == elem.id) {

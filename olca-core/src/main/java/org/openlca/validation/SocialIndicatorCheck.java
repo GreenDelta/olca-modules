@@ -15,7 +15,7 @@ class SocialIndicatorCheck implements Runnable {
 	@Override
 	public void run() {
 		try {
-			if (v.hasStopped())
+			if (v.wasCanceled())
 				return;
 			var sql = "select " +
 				/* 1 */ "id, " +
@@ -38,9 +38,9 @@ class SocialIndicatorCheck implements Runnable {
 					foundErrors = true;
 				}
 
-				return !v.hasStopped();
+				return !v.wasCanceled();
 			});
-			if (!foundErrors && !v.hasStopped()) {
+			if (!foundErrors && !v.wasCanceled()) {
 				v.ok("checked social indicators");
 			}
 		} catch (Exception e) {

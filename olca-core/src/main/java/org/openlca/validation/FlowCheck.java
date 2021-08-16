@@ -17,7 +17,7 @@ class FlowCheck implements Runnable {
 		try {
 			checkReferences();
 			checkPropertyFactors();
-			if (!foundErrors && !v.hasStopped()) {
+			if (!foundErrors && !v.wasCanceled()) {
 				v.ok("checked flows");
 			}
 		} catch (Exception e) {
@@ -28,7 +28,7 @@ class FlowCheck implements Runnable {
 	}
 
 	private void checkReferences() {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 		var sql = "select " +
 			/* 1 */ "id, " +
@@ -50,12 +50,12 @@ class FlowCheck implements Runnable {
 				foundErrors = true;
 			}
 
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 
 	private void checkPropertyFactors() {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 		var sql = "select " +
 			/* 1 */ "f_flow, " +
@@ -82,7 +82,7 @@ class FlowCheck implements Runnable {
 					"invalid flow property factor of 0 for property @" + propID);
 				foundErrors = true;
 			}
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 }

@@ -32,7 +32,7 @@ class FlowDirectionCheck implements Runnable {
 			});
 
 			checkDirections(flows, qrefs);
-			if (!foundErrors && !v.hasStopped()) {
+			if (!foundErrors && !v.wasCanceled()) {
 				v.ok("checked flow directions");
 			}
 		} catch (Exception e) {
@@ -44,8 +44,7 @@ class FlowDirectionCheck implements Runnable {
 
 	private void checkDirections(
 		TLongObjectHashMap<FlowDescriptor> flows, TLongHashSet qrefs) {
-
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 
 		var sql = "select " +
@@ -69,7 +68,7 @@ class FlowDirectionCheck implements Runnable {
 			var flow = flows.get(flowId);
 			// missing flows are reported in the ref-checks
 			if (flow == null || flow.flowType == null)
-				return !v.hasStopped();
+				return !v.wasCanceled();
 			var flowType = flow.flowType;
 
 			if (qrefs.contains(exchangeId)) {
@@ -80,7 +79,7 @@ class FlowDirectionCheck implements Runnable {
 				if (direction == 0) {
 					directions.put(flowId, isInput ? input : output);
 				} else if ((direction == input && !isInput)
-									 || (direction == output && isInput)) {
+					|| (direction == output && isInput)) {
 					directions.put(flowId, error);
 					v.error(flowId, ModelType.FLOW,
 						"elementary flow is used as input and output of processes");
@@ -88,13 +87,13 @@ class FlowDirectionCheck implements Runnable {
 				}
 			}
 
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 
 	private void checkRef(long processId, FlowType type, boolean isInput) {
 		if ((type == FlowType.PRODUCT_FLOW && !isInput)
-				|| (type == FlowType.WASTE_FLOW && isInput))
+			|| (type == FlowType.WASTE_FLOW && isInput))
 			return;
 		v.warning(processId, ModelType.PROCESS,
 			"the quantitative reference is not a product output or waste input");

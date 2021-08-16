@@ -22,7 +22,7 @@ class UnitCheck implements Runnable {
 		try {
 			var unitIDs = checkUnits();
 			checkGroups(unitIDs);
-			if (!foundErrors && !v.hasStopped()) {
+			if (!foundErrors && !v.wasCanceled()) {
 				v.ok("checked units and unit groups");
 			}
 		} catch (Exception e) {
@@ -33,7 +33,7 @@ class UnitCheck implements Runnable {
 	}
 
 	private TLongHashSet checkUnits() {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return new TLongHashSet(0);
 		var unitIDs = new TLongHashSet();
 		var names = new HashSet<String>();
@@ -78,7 +78,7 @@ class UnitCheck implements Runnable {
 			if (names.contains(name)) {
 				v.warning("duplicate unit name / synonym: " + name);
 				foundErrors = true;
-				return !v.hasStopped();
+				return !v.wasCanceled();
 			}
 			names.add(name);
 			var synonyms = r.getString(6);
@@ -95,14 +95,14 @@ class UnitCheck implements Runnable {
 						}
 					});
 			}
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 
 		return unitIDs;
 	}
 
 	private void checkGroups(TLongHashSet unitIDs) {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 
 		var sql = "select " +
@@ -126,7 +126,7 @@ class UnitCheck implements Runnable {
 				foundErrors = true;
 			}
 
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 

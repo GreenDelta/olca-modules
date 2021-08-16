@@ -18,7 +18,7 @@ class DQSystemCheck implements Runnable {
 		try {
 			checkSourceLinks();
 			checkIndicatorLinks();
-			if (!foundError && !v.hasStopped()) {
+			if (!foundError && !v.wasCanceled()) {
 				v.ok("checked DQ systems");
 			}
 		} catch (Exception e) {
@@ -29,7 +29,7 @@ class DQSystemCheck implements Runnable {
 	}
 
 	private void checkSourceLinks() {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 		var sql = "select id, f_source from tbl_dq_systems";
 		NativeSql.on(v.db).query(sql, r -> {
@@ -40,12 +40,12 @@ class DQSystemCheck implements Runnable {
 					"invalid reference to source @" + sourceID);
 				foundError = true;
 			}
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 
 	private void checkIndicatorLinks() {
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 
 		// collect and check the indicators
@@ -60,11 +60,11 @@ class DQSystemCheck implements Runnable {
 			} else {
 				indicatorIDs.add(indicatorID);
 			}
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 
 		// check the scores
-		if (v.hasStopped())
+		if (v.wasCanceled())
 			return;
 		sql = "select id, f_dq_indicator from tbl_dq_scores";
 		NativeSql.on(v.db).query(sql, r -> {
@@ -74,7 +74,7 @@ class DQSystemCheck implements Runnable {
 				v.warning("unlinked DQ score @" + scoreID);
 				foundError = true;
 			}
-			return !v.hasStopped();
+			return !v.wasCanceled();
 		});
 	}
 
