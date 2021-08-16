@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
@@ -25,6 +26,8 @@ public class Validation implements Runnable {
 	private final Item FINISH = Item.ok("_finished");
 	private volatile boolean _canceled = false;
 	private volatile boolean _finished = false;
+	private final AtomicInteger _totalWorkers = new AtomicInteger(0);
+	private final AtomicInteger _finishedWorkers = new AtomicInteger(0);
 
 	private Validation(IDatabase db) {
 		this.db = db;
@@ -79,14 +82,32 @@ public class Validation implements Runnable {
 		return _finished;
 	}
 
+	/**
+	 * Get the total number of workers of this validation where each worker checks
+	 * one or more validation aspects.
+	 */
+	public int workerCount() {
+		return _totalWorkers.get();
+	}
+
+	/**
+	 * Get the number of workers that finished their checks.
+	 */
+	public int finishedWorkerCount() {
+		return _finishedWorkers.get();
+	}
+
 	public List<Item> items() {
 		return Collections.unmodifiableList(items);
 	}
 
 	@Override
 	public void run() {
+
+		// reset the validation state
 		_finished = false;
 		_canceled = false;
+		_finishedWorkers.set(0);
 		long start = System.currentTimeMillis();
 
 		// create and start the worker threads
@@ -105,6 +126,7 @@ public class Validation implements Runnable {
 			new FormulaCheck(this),
 			new FlowDirectionCheck(this),
 		};
+		_totalWorkers.set(workers.length);
 		int activeWorkers = 0;
 		var threads = Executors.newFixedThreadPool(8);
 		for (var worker : workers) {
@@ -119,6 +141,7 @@ public class Validation implements Runnable {
 				var item = queue.take();
 				if (item == FINISH) {
 					activeWorkers--;
+					_finishedWorkers.incrementAndGet();
 					continue;
 				}
 				if (_canceled

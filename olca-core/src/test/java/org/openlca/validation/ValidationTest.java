@@ -52,4 +52,13 @@ public class ValidationTest {
 				break;
 		}
 	}
+
+	@Test
+	public void testWorkerCount() {
+		var v = Validation.on(db);
+		assertEquals(0, v.finishedWorkerCount());
+		v.run();
+		assertTrue(v.finishedWorkerCount() > 10);
+		assertEquals(v.workerCount(), v.finishedWorkerCount());
+	}
 }
