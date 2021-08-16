@@ -49,34 +49,38 @@ class UnitCheck implements Runnable {
 			long id = r.getLong(1);
 			unitIDs.add(id);
 
+			var groupID = r.getLong(5);
+			if (!v.ids.contains(ModelType.UNIT_GROUP, groupID)) {
+				v.error(id, ModelType.UNIT, "no unit group for unit @" + id);
+				foundErrors = true;
+				return !v.wasCanceled();
+			}
+
 			var refID = r.getString(2);
 			if (Strings.nullOrEmpty(refID)) {
-				v.error(id, ModelType.UNIT, "has no reference ID");
+				v.error(groupID, ModelType.UNIT_GROUP,
+					"unit has no reference ID @" + id);
 				foundErrors = true;
 			}
 
 			var name = r.getString(3);
 			if (Strings.nullOrEmpty(name)) {
-				v.error(id, ModelType.UNIT, "has empty name");
+				v.error(groupID, ModelType.UNIT_GROUP, "unit without name");
 				foundErrors = true;
+				return !v.wasCanceled();
 			}
 
 			var factor = r.getDouble(4);
 			if (factor <= 0) {
-				v.error(id, ModelType.UNIT,
-					"has invalid conversion factor: " + factor);
+				v.error(groupID, ModelType.UNIT_GROUP,
+					"unit " + name + " has invalid conversion factor: " + factor);
 				foundErrors = true;
 			}
 
-			var groupID = r.getLong(5);
-			if (!v.ids.contains(ModelType.UNIT_GROUP, groupID)) {
-				v.error(id, ModelType.UNIT, "no unit group @" + groupID);
-				foundErrors = true;
-			}
-
-			// name warning after errors
+			// check for duplicate names & synonyms
 			if (names.contains(name)) {
-				v.warning("duplicate unit name / synonym: " + name);
+				v.warning(groupID, ModelType.UNIT_GROUP,
+					"duplicate unit name or synonym: " + name);
 				foundErrors = true;
 				return !v.wasCanceled();
 			}
@@ -88,7 +92,8 @@ class UnitCheck implements Runnable {
 						var syn = synonym.trim();
 						if (Strings.notEmpty(syn)) {
 							if (names.contains(syn)) {
-								v.warning("duplicate unit name / synonym: " + name);
+								v.warning(groupID, ModelType.UNIT_GROUP,
+									"duplicate unit name or synonym: " + name);
 								foundErrors = true;
 							}
 							names.add(syn);
