@@ -1,5 +1,9 @@
 package org.openlca.core.database.upgrades;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -8,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.zip.InflaterInputStream;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
@@ -15,6 +20,9 @@ import org.openlca.core.database.NativeSql;
 import gnu.trove.iterator.TLongLongIterator;
 import gnu.trove.map.hash.TLongLongHashMap;
 import gnu.trove.set.hash.TLongHashSet;
+import org.openlca.geo.Kml2GeoJson;
+import org.openlca.geo.geojson.GeoJSON;
+import org.slf4j.LoggerFactory;
 
 class Upgrade10 implements IUpgrade {
 
@@ -64,7 +72,7 @@ class Upgrade10 implements IUpgrade {
 		// new regionalization features
 		u.createColumn("tbl_exchanges", "f_location BIGINT");
 		u.createColumn("tbl_impact_factors", "f_location BIGINT");
-		u.createColumn("tbl_locations", "geodata BLOB(32 M)");
+		upgradeGeoData(u);
 
 		// dynamic allocation factors
 		u.createColumn("tbl_allocation_factors", "formula VARCHAR(1000)");
@@ -226,7 +234,7 @@ class Upgrade10 implements IUpgrade {
 					String insert = "INSERT INTO tbl_parameters ("
 													+ columns + ")" + "VALUES (";
 					insert += nextID.incrementAndGet() + ", "; // ID
-					insert += "'" + UUID.randomUUID().toString() + "', "; // refID
+					insert += "'" + UUID.randomUUID() + "', "; // refID
 					insert += _string(r, 3) + ", "; // name
 					insert += _string(r, 4) + ", "; // description
 					insert += "1, "; // version
@@ -295,6 +303,43 @@ class Upgrade10 implements IUpgrade {
 			return Double.toString(v);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	private void upgradeGeoData(DbUtil u) {
+		u.createColumn("tbl_locations", "geodata BLOB(32 M)");
+		if (!u.columnExists("tbl_locations", "kmz"))
+			return;
+
+		// try to upgrade KML data into the new geo-data format
+		try {
+			var sql = "select id, kmz, geodata from tbl_locations";
+			NativeSql.on(u.db).updateRows(sql, r -> {
+				var blob = r.getBlob(2);
+				if (blob == null)
+					return true;
+				try (var raw = blob.getBinaryStream();
+						var unzipped = new InflaterInputStream(raw);
+						var kml = new InputStreamReader(unzipped, StandardCharsets.UTF_8)) {
+					var json = Kml2GeoJson.convert(kml);
+					if (json == null)
+						return true;
+
+					var features = GeoJSON.read(json);
+					if (features.isEmpty())
+						return true;
+					var geodata = GeoJSON.pack(features);
+					try (var geoStream = new ByteArrayInputStream(geodata)) {
+						r.updateBlob(3, geoStream);
+					}
+				} catch (IOException e) {
+					return true;
+				}
+				return true;
+			});
+		} catch (Exception e) {
+			var log = LoggerFactory.getLogger(getClass());
+			log.error("failed to upgrade KML data", e);
 		}
 	}
 }

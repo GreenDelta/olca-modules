@@ -1,5 +1,6 @@
 package org.openlca.geo;
 
+import java.io.Reader;
 import java.io.StringReader;
 import java.util.Scanner;
 
@@ -10,19 +11,15 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import org.openlca.util.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 /**
  * A minimal converter of KML to GeoJSON (as used in openLCA).
- * 
- * @see https://developers.google.com/kml/documentation/kmlreference
- * @see http://geojson.org/geojson-spec.html
+ *
+ * @see <a href="https://developers.google.com/kml/documentation/kmlreference">...</a>
+ * @see <a href="http://geojson.org/geojson-spec.html">...</a>
  */
 public class Kml2GeoJson {
 
@@ -32,24 +29,28 @@ public class Kml2GeoJson {
 	public static JsonObject convert(String kml) {
 		if (kml == null)
 			return null;
-		try {
-			return new Kml2GeoJson().parse(kml);
-		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(Kml2GeoJson.class);
-			log.error("failed to parse kml " + Strings.cut(kml, 75), e);
-			return null;
+		try (var reader = new StringReader(kml)) {
+			return convert(reader);
 		}
 	}
 
-	private JsonObject parse(String kml) throws Exception {
-		XMLInputFactory xif = XMLInputFactory.newFactory();
-		try (StringReader string = new StringReader(kml)) {
-			XMLEventReader events = xif.createXMLEventReader(string);
-			while (events.hasNext()) {
-				XMLEvent event = events.nextEvent();
-				if (isStartElement(event, "Placemark")) {
-					return readGeometry(events);
-				}
+	public static JsonObject convert(Reader reader) {
+		if (reader == null)
+			return null;
+		try {
+			return new Kml2GeoJson().parse(reader);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private JsonObject parse(Reader reader) throws Exception {
+		var xif = XMLInputFactory.newFactory();
+		var events = xif.createXMLEventReader(reader);
+		while (events.hasNext()) {
+			var event = events.nextEvent();
+			if (isStartElement(event, "Placemark")) {
+				return readGeometry(events);
 			}
 		}
 		return null;
@@ -136,7 +137,7 @@ public class Kml2GeoJson {
 					innerBoundary = readLineString(events);
 				boundaryType = 0;
 			}
-			if (isEndElement(event, "Polygon")) 
+			if (isEndElement(event, "Polygon"))
 				break;
 		}
 		JsonArray coordinates = new JsonArray();

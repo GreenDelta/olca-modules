@@ -40,13 +40,13 @@ public final class GeoJSON {
 	 */
 	public static FeatureCollection unpack(byte[] data) {
 		return BinUtils.isGzip(data)
-				? ProtoPack.unpackgz(data)
-				: ProtoPack.unpack(data);
+			? ProtoPack.unpackgz(data)
+			: ProtoPack.unpack(data);
 	}
 
 	public static FeatureCollection read(File file) {
 		try (Reader r = Files.newBufferedReader(
-				file.toPath(), StandardCharsets.UTF_8)) {
+			file.toPath(), StandardCharsets.UTF_8)) {
 			return read(r);
 		} catch (Exception e) {
 			throw new RuntimeException("failed to read " + file, e);
@@ -60,21 +60,22 @@ public final class GeoJSON {
 	}
 
 	public static FeatureCollection read(JsonObject obj) {
-		JsonElement typeElem = obj.get("type");
-		if (typeElem == null || !typeElem.isJsonPrimitive())
-			throw new IllegalStateException("no valid type element found");
-		String type = typeElem.getAsString();
-		switch (type) {
-		case "FeatureCollection":
-			return FeatureCollection.fromJson(obj);
-		case "Feature":
-			return FeatureCollection.of(Feature.fromJson(obj));
-		default:
-			Geometry geom = readGeometry(obj);
-			if (geom == null)
-				throw new IllegalStateException(
-						"unknown Geometry type: " + type);
-			return FeatureCollection.of(geom);
+		if (obj == null)
+			return FeatureCollection.empty();
+		var type = obj.get("type");
+		if (type == null || !type.isJsonPrimitive())
+			return FeatureCollection.empty();
+
+		switch (type.getAsString()) {
+			case "FeatureCollection":
+				return FeatureCollection.fromJson(obj);
+			case "Feature":
+				return FeatureCollection.of(Feature.fromJson(obj));
+			default:
+				var geom = readGeometry(obj);
+				return geom == null
+					? FeatureCollection.empty()
+					: FeatureCollection.of(geom);
 		}
 	}
 
@@ -100,7 +101,7 @@ public final class GeoJSON {
 		if (obj == null || file == null)
 			return;
 		try (Writer w = Files.newBufferedWriter(
-				file.toPath(), StandardCharsets.UTF_8)) {
+			file.toPath(), StandardCharsets.UTF_8)) {
 			write(obj, w);
 		} catch (Exception e) {
 			throw new RuntimeException("failed to write " + file, e);

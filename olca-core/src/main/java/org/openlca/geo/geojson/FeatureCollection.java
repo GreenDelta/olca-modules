@@ -11,8 +11,12 @@ public final class FeatureCollection implements Cloneable {
 
 	public final List<Feature> features = new ArrayList<>();
 
+	public static FeatureCollection empty() {
+		return new FeatureCollection();
+	}
+
 	public static FeatureCollection of(Feature f) {
-		FeatureCollection coll = new FeatureCollection();
+		var coll = new FeatureCollection();
 		if (f != null) {
 			coll.features.add(f);
 		}
@@ -20,7 +24,7 @@ public final class FeatureCollection implements Cloneable {
 	}
 
 	public static FeatureCollection of(Geometry g) {
-		FeatureCollection coll = new FeatureCollection();
+		var coll = new FeatureCollection();
 		if (g != null) {
 			Feature f = new Feature();
 			f.geometry = g;
