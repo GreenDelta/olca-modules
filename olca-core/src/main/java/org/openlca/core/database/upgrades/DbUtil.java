@@ -20,7 +20,7 @@ class DbUtil {
 	private final int dbType;
 	final IDatabase db;
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	public DbUtil(IDatabase db) {
 		this.db = db;
@@ -32,25 +32,17 @@ class DbUtil {
 
 	/** Get the database type for storing long text values. */
 	String getTextType() {
-		switch (dbType) {
-		case TYPE_DERBY:
-			return "CLOB(64 K)";
-		case TYPE_MYSQL:
-			return "TEXT";
-		default:
-			return "CLOB(64 K)";
-		}
+		return switch (dbType) {
+			case TYPE_MYSQL -> "TEXT";
+			default -> "CLOB(64 K)";
+		};
 	}
 
 	String getBlobType() {
-		switch (dbType) {
-		case TYPE_DERBY:
-			return "BLOB(16 M)";
-		case TYPE_MYSQL:
-			return "MEDIUMBLOB";
-		default:
-			return "BLOB(16 M)";
-		}
+		return switch (dbType) {
+			case TYPE_MYSQL -> "MEDIUMBLOB";
+			default -> "BLOB(16 M)";
+		};
 	}
 
 	/**

@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -111,43 +112,47 @@ public class BinUtils {
 	 * Compresses the given byte array using the standard Java deflater (which uses
 	 * the zlib compression library internally).
 	 */
-	public static byte[] zip(byte[] bytes) throws IOException {
+	public static byte[] zip(byte[] bytes) {
 		if (bytes == null)
 			return null;
 		if (bytes.length == 0)
 			return new byte[0];
-		Deflater deflater = new Deflater();
+		var deflater = new Deflater();
 		deflater.setInput(bytes);
-		var out = new ByteArrayOutputStream(bytes.length);
 		deflater.finish();
-		byte[] buffer = new byte[4096];
-		while (!deflater.finished()) {
-			int count = deflater.deflate(buffer);
-			out.write(buffer, 0, count);
+		try (var out = new ByteArrayOutputStream(bytes.length)) {
+			byte[] buffer = new byte[4096];
+			while (!deflater.finished()) {
+				int count = deflater.deflate(buffer);
+				out.write(buffer, 0, count);
+			}
+			return out.toByteArray();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
-		out.close();
-		return out.toByteArray();
 	}
 
 	/**
 	 * Decompresses the given byte array using the standard Java inflater (which
 	 * uses the zlib compression library internally).
 	 */
-	public static byte[] unzip(byte[] bytes) throws Exception {
+	public static byte[] unzip(byte[] bytes) {
 		if (bytes == null)
 			return null;
 		if (bytes.length == 0)
 			return new byte[0];
-		Inflater inflater = new Inflater();
+		var inflater = new Inflater();
 		inflater.setInput(bytes);
-		var out = new ByteArrayOutputStream(bytes.length);
-		byte[] buffer = new byte[4096];
-		while (!inflater.finished()) {
-			int count = inflater.inflate(buffer);
-			out.write(buffer, 0, count);
+		try(var out = new ByteArrayOutputStream(bytes.length)) {
+			byte[] buffer = new byte[4096];
+			while (!inflater.finished()) {
+				int count = inflater.inflate(buffer);
+				out.write(buffer, 0, count);
+			}
+			return out.toByteArray();
+		} catch (IOException | DataFormatException e) {
+			throw new RuntimeException(e);
 		}
-		out.close();
-		return out.toByteArray();
 	}
 
 	public static byte[] read(InputStream input) throws IOException {

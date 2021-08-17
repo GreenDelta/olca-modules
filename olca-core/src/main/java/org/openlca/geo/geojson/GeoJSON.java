@@ -138,23 +138,15 @@ public final class GeoJSON {
 		if (typeElem == null || !typeElem.isJsonPrimitive())
 			return null;
 		String type = typeElem.getAsString();
-		switch (type) {
-		case "Point":
-			return Point.fromJson(obj);
-		case "MultiPoint":
-			return MultiPoint.fromJson(obj);
-		case "LineString":
-			return LineString.fromJson(obj);
-		case "MultiLineString":
-			return MultiLineString.fromJson(obj);
-		case "Polygon":
-			return Polygon.fromJson(obj);
-		case "MultiPolygon":
-			return MultiPolygon.fromJson(obj);
-		case "GeometryCollection":
-			return GeometryCollection.fromJson(obj);
-		default:
-			return null;
-		}
+		return switch (type) {
+			case "Point" -> Point.fromJson(obj);
+			case "MultiPoint" -> MultiPoint.fromJson(obj);
+			case "LineString" -> LineString.fromJson(obj);
+			case "MultiLineString" -> MultiLineString.fromJson(obj);
+			case "Polygon" -> Polygon.fromJson(obj);
+			case "MultiPolygon" -> MultiPolygon.fromJson(obj);
+			case "GeometryCollection" -> GeometryCollection.fromJson(obj);
+			default -> null;
+		};
 	}
 }
