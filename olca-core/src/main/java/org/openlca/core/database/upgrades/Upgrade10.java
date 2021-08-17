@@ -331,6 +331,7 @@ class Upgrade10 implements IUpgrade {
 					var geodata = GeoJSON.pack(features);
 					try (var geoStream = new ByteArrayInputStream(geodata)) {
 						r.updateBlob(3, geoStream);
+						r.updateRow();
 					}
 				} catch (IOException e) {
 					return true;
