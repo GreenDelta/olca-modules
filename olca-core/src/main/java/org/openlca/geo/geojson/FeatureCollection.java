@@ -6,8 +6,9 @@ import java.util.List;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.openlca.core.model.Copyable;
 
-public final class FeatureCollection implements Cloneable {
+public final class FeatureCollection implements Copyable<FeatureCollection> {
 
 	public final List<Feature> features = new ArrayList<>();
 
@@ -70,12 +71,12 @@ public final class FeatureCollection implements Cloneable {
 	}
 
 	@Override
-	public FeatureCollection clone() {
+	public FeatureCollection copy() {
 		FeatureCollection c = new FeatureCollection();
 		for (Feature f : features) {
 			if (f == null)
 				continue;
-			c.features.add(f.clone());
+			c.features.add(f.copy());
 		}
 		return c;
 	}

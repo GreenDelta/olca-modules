@@ -33,14 +33,14 @@ public final class MultiPoint extends Geometry {
 	}
 
 	@Override
-	public MultiPoint clone() {
+	public MultiPoint copy() {
 		MultiPoint c = new MultiPoint();
 		if (points == null)
 			return c;
 		for (Point point : points) {
 			if (point == null)
 				continue;
-			c.points.add(point.clone());
+			c.points.add(point.copy());
 		}
 		return c;
 	}

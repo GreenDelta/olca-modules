@@ -33,14 +33,14 @@ public final class MultiPolygon extends Geometry {
 	}
 
 	@Override
-	public MultiPolygon clone() {
+	public MultiPolygon copy() {
 		MultiPolygon c = new MultiPolygon();
 		if (polygons == null)
 			return c;
 		for (Polygon polygon : polygons) {
 			if (polygon == null)
 				continue;
-			c.polygons.add(polygon.clone());
+			c.polygons.add(polygon.copy());
 		}
 		return c;
 	}

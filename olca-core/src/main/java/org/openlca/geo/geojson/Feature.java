@@ -7,8 +7,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import org.openlca.core.model.Copyable;
 
-public final class Feature implements Cloneable {
+public final class Feature implements Copyable<Feature> {
 
 	public Geometry geometry;
 
@@ -64,10 +65,10 @@ public final class Feature implements Cloneable {
 	}
 
 	@Override
-	public Feature clone() {
+	public Feature copy() {
 		Feature c = new Feature();
 		if (geometry != null) {
-			c.geometry = geometry.clone();
+			c.geometry = geometry.copy();
 		}
 		if (properties != null) {
 			c.properties = new HashMap<>(properties);

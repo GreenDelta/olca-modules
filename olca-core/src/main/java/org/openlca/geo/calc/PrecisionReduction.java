@@ -29,7 +29,7 @@ public final class PrecisionReduction {
 		List<Feature> features = coll.features.parallelStream()
 				.map(f -> {
 					if (f.geometry == null)
-						return f.clone();
+						return f.copy();
 					Feature mapped = new Feature();
 					if (f.properties != null) {
 						mapped.properties = new HashMap<>(f.properties);
@@ -45,7 +45,7 @@ public final class PrecisionReduction {
 					} catch (Exception e) {
 						LoggerFactory.getLogger(PrecisionReduction.class).error(
 								"precision reduction failed for " + g, e);
-						mapped.geometry = f.geometry.clone();
+						mapped.geometry = f.geometry.copy();
 					}
 					return mapped;
 				})

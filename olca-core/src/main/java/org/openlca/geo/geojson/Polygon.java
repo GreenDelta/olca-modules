@@ -37,14 +37,14 @@ public final class Polygon extends Geometry {
 	}
 
 	@Override
-	public Polygon clone() {
+	public Polygon copy() {
 		Polygon c = new Polygon();
 		if (rings == null)
 			return c;
 		for (LineString ring : rings) {
 			if (ring == null)
 				continue;
-			c.rings.add(ring.clone());
+			c.rings.add(ring.copy());
 		}
 		return c;
 	}

@@ -43,12 +43,12 @@ public final class GeometryCollection extends Geometry {
 	}
 
 	@Override
-	public GeometryCollection clone() {
+	public GeometryCollection copy() {
 		GeometryCollection c = new GeometryCollection();
 		for (Geometry g : geometries) {
 			if (g == null)
 				continue;
-			c.geometries.add(g.clone());
+			c.geometries.add(g.copy());
 		}
 		return c;
 	}

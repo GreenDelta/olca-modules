@@ -37,7 +37,7 @@ public final class Point extends Geometry {
 	}
 
 	@Override
-	public Point clone() {
+	public Point copy() {
 		Point clone = new Point();
 		clone.x = x;
 		clone.y = y;

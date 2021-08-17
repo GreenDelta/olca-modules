@@ -64,7 +64,7 @@ public class IntersectionCalculator {
 				continue;
 			Geometry g = feature.geometry;
 			if (projection != null) {
-				g = g.clone();
+				g = g.copy();
 				projection.project(g);
 			}
 			org.locationtech.jts.geom.Geometry jts = JTS.fromGeoJSON(g);
@@ -159,7 +159,7 @@ public class IntersectionCalculator {
 		if (projection == null) {
 			jts = JTS.fromGeoJSON(g);
 		} else {
-			Geometry clone = g.clone();
+			Geometry clone = g.copy();
 			projection.project(clone);
 			jts = JTS.fromGeoJSON(clone);
 		}

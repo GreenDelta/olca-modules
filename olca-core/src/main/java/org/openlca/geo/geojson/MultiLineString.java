@@ -33,14 +33,14 @@ public final class MultiLineString extends Geometry {
 	}
 
 	@Override
-	public MultiLineString clone() {
+	public MultiLineString copy() {
 		MultiLineString c = new MultiLineString();
 		if (lineStrings == null)
 			return c;
 		for (LineString line : lineStrings) {
 			if (line == null)
 				continue;
-			c.lineStrings.add(line.clone());
+			c.lineStrings.add(line.copy());
 		}
 		return c;
 	}
