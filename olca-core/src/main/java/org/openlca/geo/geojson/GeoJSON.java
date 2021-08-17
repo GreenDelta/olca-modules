@@ -9,7 +9,6 @@ import java.nio.file.Files;
 import org.openlca.util.BinUtils;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 /**
@@ -79,6 +78,24 @@ public final class GeoJSON {
 		}
 	}
 
+	static Geometry readGeometry(JsonObject obj) {
+		if (obj == null)
+			return null;
+		var type = obj.get("type");
+		if (type == null || !type.isJsonPrimitive())
+			return null;
+		return switch (type.getAsString()) {
+			case "Point" -> Point.fromJson(obj);
+			case "MultiPoint" -> MultiPoint.fromJson(obj);
+			case "LineString" -> LineString.fromJson(obj);
+			case "MultiLineString" -> MultiLineString.fromJson(obj);
+			case "Polygon" -> Polygon.fromJson(obj);
+			case "MultiPolygon" -> MultiPolygon.fromJson(obj);
+			case "GeometryCollection" -> GeometryCollection.fromJson(obj).trySimplify();
+			default -> null;
+		};
+	}
+
 	public static void write(FeatureCollection coll, File file) {
 		if (coll == null || file == null)
 			return;
@@ -130,24 +147,5 @@ public final class GeoJSON {
 		if (obj == null || writer == null)
 			return;
 		new Gson().toJson(obj, writer);
-	}
-
-	static Geometry readGeometry(JsonObject obj) {
-		if (obj == null)
-			return null;
-		JsonElement typeElem = obj.get("type");
-		if (typeElem == null || !typeElem.isJsonPrimitive())
-			return null;
-		String type = typeElem.getAsString();
-		return switch (type) {
-			case "Point" -> Point.fromJson(obj);
-			case "MultiPoint" -> MultiPoint.fromJson(obj);
-			case "LineString" -> LineString.fromJson(obj);
-			case "MultiLineString" -> MultiLineString.fromJson(obj);
-			case "Polygon" -> Polygon.fromJson(obj);
-			case "MultiPolygon" -> MultiPolygon.fromJson(obj);
-			case "GeometryCollection" -> GeometryCollection.fromJson(obj);
-			default -> null;
-		};
 	}
 }

@@ -52,4 +52,66 @@ public final class GeometryCollection extends Geometry {
 		}
 		return c;
 	}
+
+	/**
+	 * If this geometry collection only contains points, line strings, or
+	 * polygons, this method converts this collection into the corresponding
+	 * homogeneous multi-geometry type (multi-point, multi-line-string, or
+	 * multi-polygon). If this is not the case, the unchanged geometry collection
+	 * is returned. This method is not thread-safe.
+	 */
+	public Geometry trySimplify() {
+		int len = geometries.size();
+		if (len == 0)
+			return this;
+		if (len == 1) {
+			var first = geometries.get(0);
+			return first instanceof GeometryCollection
+				? ((GeometryCollection) first).trySimplify()
+				: first;
+		}
+
+		// count the geometry types
+		int points = 0;
+		int lines = 0;
+		int polygons = 0;
+		for (var g : geometries) {
+			if (g instanceof Point) {
+				points++;
+			} else if (g instanceof LineString) {
+				lines++;
+			} else if (g instanceof Polygon) {
+				polygons++;
+			}
+		}
+
+		// multi-point
+		if (points > 0 && points == len) {
+			var multiPoint = new MultiPoint();
+			for (var g : geometries) {
+				multiPoint.points.add((Point) g);
+			}
+			return multiPoint;
+		}
+
+		// multi-lines
+		if (lines > 0 && lines == len) {
+			var multiLine = new MultiLineString();
+			for (var g : geometries) {
+				multiLine.lineStrings.add((LineString) g);
+			}
+			return multiLine;
+		}
+
+		// multi-polygons
+		if (polygons > 0 && polygons == len) {
+			var multiPolygon = new MultiPolygon();
+			for (var g : geometries) {
+				multiPolygon.polygons.add((Polygon) g);
+			}
+			return multiPolygon;
+		}
+
+		return this;
+	}
 }
