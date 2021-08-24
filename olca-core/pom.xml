@@ -15,7 +15,7 @@
 		<dependency>
 			<groupId>org.eclipse.persistence</groupId>
 			<artifactId>org.eclipse.persistence.jpa</artifactId>
-			<version>3.0.0</version>
+			<version>3.0.2</version>
 		</dependency>
 
 		<dependency>
