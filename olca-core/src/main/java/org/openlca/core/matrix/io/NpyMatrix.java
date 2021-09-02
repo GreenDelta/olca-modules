@@ -4,10 +4,14 @@ import java.io.File;
 import java.util.Objects;
 
 import org.openlca.core.matrix.format.CSCMatrix;
+import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.npy.Npy;
 import org.openlca.npy.Npz;
+import org.openlca.npy.arrays.Array2d;
 import org.openlca.npy.arrays.NpyCharArray;
+import org.openlca.npy.arrays.NpyDoubleArray;
 import org.openlca.npy.arrays.NpyIntArray;
 
 public class NpyMatrix {
@@ -15,29 +19,64 @@ public class NpyMatrix {
 	public static MatrixReader read(File file) {
 		Objects.requireNonNull(file);
 		boolean isNpz = file.getName().toLowerCase().endsWith(".npz");
-		return isNpz
-			? readNpz(file)
-			: null; // TODO: read dense array
+		if (isNpz)
+			return readNpz(file);
+		var array = Npy.read(file).asDoubleArray();
+		if (!Array2d.isValid(array))
+			throw new IllegalArgumentException(
+				"file " + file + " does not contain a matrix");
+		if (array.hasFortranOrder()) {
+			return new DenseMatrix(
+				Array2d.rowCountOf(array),
+				Array2d.columnCountOf(array),
+				array.data());
+		}
+		// TODO transpose it
 	}
 
-	public static void write(File file, MatrixReader matrix) {
-		if (file == null || matrix == null)
+	/**
+	 * Write a matrix to a file in the given folder.
+	 *
+	 * @param folder the folder where the matrix should be stored.
+	 * @param name   the name of the matrix file without file extension.
+	 * @param matrix the matrix that should be written to the file.
+	 */
+	public static void write(File folder, String name, MatrixReader matrix) {
+		if (folder == null || matrix == null)
 			return;
+
+		// write sparse matrices into the CSC format
 		var m = matrix instanceof HashPointMatrix
 			? CSCMatrix.of(matrix)
 			: matrix;
+		if (m instanceof CSCMatrix) {
+			writeNpz(new File(folder, name + ".npz"), (CSCMatrix) m);
+			return;
+		}
 
-
+		// write dense matrices in Fortran order
+		var dense = matrix instanceof DenseMatrix
+			? (DenseMatrix) matrix
+			: DenseMatrix.of(matrix);
+		var array = new NpyDoubleArray(
+			new int[]{dense.rows, dense.columns}, dense.data, true);
+		Npy.write(new File(folder, name + ".npy"), array);
 	}
 
-	private void writeNpz(File file, CSCMatrix csc) {
-		Npz.create(file, zipOut -> {
-			var format = NpyCharArray.of("csc");
-			Npz.write(zipOut, "format.npy", format);
-			NpyIntArray.
+	private static void writeNpz(File file, CSCMatrix csc) {
+		Npz.create(file, npz -> {
+			Npz.write(npz, "format.npy",
+				NpyCharArray.of("csc"));
+			Npz.write(npz, "shape.npy",
+				NpyIntArray.vectorOf(new int[]{csc.rows, csc.columns}));
+			Npz.write(npz, "data.npy",
+				NpyDoubleArray.vectorOf(csc.values));
+			Npz.write(npz, "indptr.npy",
+				NpyIntArray.vectorOf(csc.columnPointers));
+			Npz.write(npz, "indices.npy",
+				NpyIntArray.vectorOf(csc.rowIndices));
 		});
 	}
-
 
 	private static MatrixReader readNpz(File file) {
 

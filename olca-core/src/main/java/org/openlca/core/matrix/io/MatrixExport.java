@@ -58,16 +58,22 @@ public abstract class MatrixExport {
 				throw new RuntimeException("failed to create folder " + folder, e);
 			}
 		}
+		NpyMatrix.write();
 
 		var m = matrix instanceof HashPointMatrix
 			? CSCMatrix.of(matrix)
 			: matrix;
+		var fileExt = m instanceof CSCMatrix
+			? ".npz"
+			: ".npy";
+
 		if (m instanceof CSCMatrix) {
 			var csc = (CSCMatrix) m;
 			Npz.save(new File(folder, name + ".npz"), csc);
 		} else {
 			Npy.save(new File(folder, name + ".npy"), m);
 		}
+
 	}
 
 	public static CsvExport toCsv(IDatabase db, File folder, MatrixData data) {

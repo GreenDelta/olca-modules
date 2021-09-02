@@ -33,6 +33,22 @@ public class DenseMatrix implements Matrix {
 		return m;
 	}
 
+	/**
+	 * Constructs a new dense matrix from the given other matrix. The data of
+	 * the other matrix are copied into the new matrix.
+	 *
+	 * @param other the other matrix
+	 * @return a new matrix with copied values
+	 */
+	public static DenseMatrix of(MatrixReader other) {
+		if (other instanceof DenseMatrix) {
+			return ((DenseMatrix) other).copy();
+		}
+		var m = new DenseMatrix(other.rows(), other.columns());
+		other.iterate(m::set);
+		return m;
+	}
+
 	@Override
 	public final boolean isSparse() {
 		return false;
@@ -105,8 +121,7 @@ public class DenseMatrix implements Matrix {
 			}
 			if (row < (rows - 1)) {
 				b.append(";\n");
-			}
-			else {
+			} else {
 				b.append(']');
 			}
 		}
