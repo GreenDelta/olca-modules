@@ -9,8 +9,9 @@ import org.openlca.core.matrix.format.CSCByteMatrix;
 import org.openlca.core.matrix.format.DenseByteMatrix;
 import org.openlca.core.matrix.format.HashPointByteMatrix;
 import org.openlca.core.matrix.format.MatrixReader;
-import org.openlca.core.matrix.io.npy.Npy;
-import org.openlca.core.matrix.io.npy.Npz;
+import org.openlca.npy.Npy;
+import org.openlca.npy.Npz;
+import org.openlca.npy.arrays.NpyDoubleArray;
 
 class NpyExport extends MatrixExport {
 
@@ -29,7 +30,8 @@ class NpyExport extends MatrixExport {
 		if (vector == null)
 			return;
 		var file = new File(folder, name + ".npy");
-		Npy.save(file, vector);
+		var array = new NpyDoubleArray(new int[] {vector.length}, vector, false);
+		Npy.write(file, array);
 	}
 
 	@Override

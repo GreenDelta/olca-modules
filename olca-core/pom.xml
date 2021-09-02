@@ -31,6 +31,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.openlca</groupId>
+			<artifactId>npy</artifactId>
+			<version>0.0.1</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derby</artifactId>
 			<version>10.14.2.0</version>
