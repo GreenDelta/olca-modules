@@ -6,7 +6,6 @@ import java.util.function.Function;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.NwSetDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.CalculationType;
