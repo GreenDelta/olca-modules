@@ -1,27 +1,26 @@
-package org.openlca.core.math;
+package org.openlca.core.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-import org.openlca.core.model.AllocationMethod;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowPropertyFactor;
-import org.openlca.core.model.FlowType;
-import org.openlca.core.model.ParameterRedef;
-import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.Unit;
-import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
-import org.openlca.core.model.descriptors.NwSetDescriptor;
+import org.openlca.core.math.ReferenceAmount;
 
 /**
  * A setup for a product system calculation.
  */
 public class CalculationSetup {
 
+	public final CalculationType calculationType;
+
 	public final ProductSystem productSystem;
 
-	public ImpactMethodDescriptor impactMethod;
+	public ImpactMethod impactMethod;
+
+	public NwSet nwSet;
+
 	public boolean withCosts = false;
+
 
 	/**
 	 * Indicates whether a regionalized result should be calculated or not. If
@@ -39,8 +38,8 @@ public class CalculationSetup {
 	 */
 	public boolean withUncertainties = false;
 
-	public NwSetDescriptor nwSet;
 	public AllocationMethod allocationMethod = AllocationMethod.NONE;
+
 	public final List<ParameterRedef> parameterRedefs = new ArrayList<>();
 
 	/**
@@ -51,7 +50,9 @@ public class CalculationSetup {
 
 	// properties with default values from the product system
 	private Unit unit;
+
 	private FlowPropertyFactor flowPropertyFactor;
+
 	private Double amount;
 
 	/**
@@ -59,8 +60,32 @@ public class CalculationSetup {
 	 * does not add the parameter redefinitions of the product system to this
 	 * setup. Thus, you need to do this in a separate step.
 	 */
-	public CalculationSetup(ProductSystem system) {
-		this.productSystem = system;
+	public CalculationSetup(CalculationType type, ProductSystem system) {
+		this.calculationType = Objects.requireNonNull(type);
+		this.productSystem = Objects.requireNonNull(system);
+	}
+
+	public static CalculationSetup simple(ProductSystem system) {
+		return new CalculationSetup(
+			CalculationType.SIMPLE_CALCULATION, system);
+	}
+
+	public static CalculationSetup contributions(ProductSystem system) {
+		return new CalculationSetup(
+			CalculationType.CONTRIBUTION_ANALYSIS, system);
+	}
+
+	public static CalculationSetup fullAnalysis(ProductSystem system) {
+		return new CalculationSetup(
+			CalculationType.UPSTREAM_ANALYSIS, system);
+	}
+
+	public static CalculationSetup monteCarlo(ProductSystem system, int runs) {
+		var setup = new CalculationSetup(
+			CalculationType.MONTE_CARLO_SIMULATION, system);
+		setup.numberOfRuns = runs;
+		setup.withUncertainties = true;
+		return setup;
 	}
 
 	/**

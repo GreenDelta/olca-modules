@@ -6,7 +6,7 @@ import java.io.Writer;
 import java.util.HashMap;
 
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.TechFlow;

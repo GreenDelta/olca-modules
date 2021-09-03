@@ -10,6 +10,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.SimpleResult;
@@ -55,9 +56,7 @@ public class SystemCalculator {
 	 */
 	private Map<TechFlow, SimpleResult> calculateSubSystems(
 			CalculationSetup setup) {
-		if (setup == null
-				|| setup.productSystem == null
-				|| setup.productSystem.withoutNetwork)
+		if (setup == null || setup.productSystem.withoutNetwork)
 			return Collections.emptyMap();
 
 		// collect the sub-systems
@@ -84,7 +83,7 @@ public class SystemCalculator {
 			var subSystem = sysDao.getForId(pp.processId());
 			if (subSystem == null)
 				continue;
-			var subSetup = new CalculationSetup(subSystem);
+			var subSetup = CalculationSetup.simple(subSystem);
 			subSetup.parameterRedefs.addAll(setup.parameterRedefs);
 			ParameterRedefs.addTo(subSetup, subSystem);
 			subSetup.withCosts = setup.withCosts;

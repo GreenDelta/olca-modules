@@ -7,15 +7,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ParameterRedef;
-import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.expressions.FormulaInterpreter;
 
@@ -111,7 +109,7 @@ public class MatrixConfig {
 			allocationMethod = setup.allocationMethod;
 			redefs = setup.parameterRedefs;
 			return setup.impactMethod != null
-				? withImpacts(setup.impactMethod)
+				? withImpacts(ImpactIndex.of(setup.impactMethod))
 				: this;
 		}
 
@@ -135,20 +133,10 @@ public class MatrixConfig {
 			return this;
 		}
 
-		public Builder withImpacts(ImpactMethodDescriptor method) {
-			if (method == null)
-				return this;
-			impacts = ImpactIndex.of(db, method);
-			return this;
-		}
-
-		public Builder withImpacts(List<ImpactDescriptor> impacts) {
-			this.impacts =  ImpactIndex.of(impacts);
-			return this;
-		}
-
 		public Builder withImpacts(ImpactIndex impacts) {
-			this.impacts = impacts;
+			if (impacts != null && !impacts.isEmpty()) {
+				this.impacts = impacts;
+			}
 			return this;
 		}
 

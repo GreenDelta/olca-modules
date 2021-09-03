@@ -9,6 +9,8 @@ import java.util.Set;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ImpactMethodDao;
+import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 
@@ -38,9 +40,9 @@ public class ImpactIndex implements MatrixIndex<ImpactDescriptor> {
 			-1); // no entry value
 
 	public static ImpactIndex of(Iterable<ImpactDescriptor> impacts) {
-		var index = new ImpactIndex();
 		if (impacts == null)
-			return index;
+			return empty();
+		var index = new ImpactIndex();
 		for (var impact : impacts) {
 			index.add(impact);
 		}
@@ -61,6 +63,16 @@ public class ImpactIndex implements MatrixIndex<ImpactDescriptor> {
 		var impacts = new ImpactCategoryDao(db)
 			.getDescriptors();
 		return of(impacts);
+	}
+
+	public static ImpactIndex of(ImpactMethod method) {
+		if (method == null)
+			return empty();
+		var index = new ImpactIndex();
+		for (var impact : method.impactCategories) {
+			index.add(Descriptor.of(impact));
+		}
+		return index;
 	}
 
 	public static ImpactIndex empty() {

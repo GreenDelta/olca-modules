@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.openlca.core.TestProcess;
 import org.openlca.core.TestSystem;
 import org.openlca.core.model.AllocationMethod;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.Process;
 
 public class AllocationTest {

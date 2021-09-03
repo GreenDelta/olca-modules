@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowType;

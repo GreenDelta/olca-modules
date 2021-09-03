@@ -6,7 +6,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.Derby;
-import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
@@ -24,8 +24,8 @@ public class InventoryBuilderExamples {
 		ProductSystem system = new ProductSystemDao(db)
 				.getForRefId("9aae83bf-e300-49c5-b62b-981546bcf8d6");
 
-		CalculationSetup setup = new CalculationSetup(system);
-		setup.impactMethod = new ImpactMethodDao(db).getDescriptorForRefId(
+		CalculationSetup setup = CalculationSetup.contributions(system);
+		setup.impactMethod = new ImpactMethodDao(db).getForRefId(
 				"44f7066c-33fd-49d2-86ec-2b94677bf6d0");
 		Julia.loadFromDir(new File("./olca-core/julia/libs"));
 		SystemCalculator calc = new SystemCalculator(db);
