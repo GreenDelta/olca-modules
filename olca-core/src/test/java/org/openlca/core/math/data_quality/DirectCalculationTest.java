@@ -38,7 +38,7 @@ public class DirectCalculationTest {
 		// calculation
 		var system = ProductSystem.of(process);
 		system.withoutNetwork = true;
-		var setup = new CalculationSetup(system);
+		var setup = CalculationSetup.fullAnalysis(system);
 		var calculator = new SystemCalculator(Tests.getDb());
 		var result = calculator.calculateFull(setup);
 		var dqSetup = DQCalculationSetup.of((system));

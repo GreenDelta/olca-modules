@@ -106,7 +106,7 @@ public class MatrixExceptionTest {
 		boolean caughtIt = false;
 		assertTrue(Julia.load());
 		try {
-			var setup = new CalculationSetup(sys);
+			var setup = CalculationSetup.simple(sys);
 			new SystemCalculator(db).calculateSimple(setup);
 		} catch (SingularMatrixException e) {
 			caughtIt = true;

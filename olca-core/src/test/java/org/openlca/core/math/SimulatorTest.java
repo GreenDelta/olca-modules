@@ -15,7 +15,6 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Uncertainty;
-import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.results.SimpleResult;
 
 public class SimulatorTest {
@@ -38,11 +37,9 @@ public class SimulatorTest {
 						.get());
 
 		// create the simulator
-		CalculationSetup setup = new CalculationSetup(s);
-		setup.withUncertainties = true;
-		setup.impactMethod = Descriptor.of(m);
-		Simulator simulator = Simulator.create(
-				setup, db, new JavaSolver());
+		var setup = CalculationSetup.monteCarlo(s, 100);
+		setup.impactMethod = m;
+		var simulator = Simulator.create(setup, db, new JavaSolver());
 
 		// check the simulation results
 		for (int i = 0; i < 100; i++) {

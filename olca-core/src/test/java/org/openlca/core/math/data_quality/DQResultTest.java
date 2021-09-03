@@ -127,9 +127,9 @@ public class DQResultTest {
 
 	@Test
 	public void test() {
-		var setup = new CalculationSetup(system);
+		var setup = CalculationSetup.fullAnalysis(system);
 		setup.setAmount(1);
-		setup.impactMethod = Descriptor.of(method);
+		setup.impactMethod = method;
 		var result = FullResult.of(db, setup);
 		var dqSetup = DQCalculationSetup.of(system);
 		var dqResult = DQResult.of(db, dqSetup, result);

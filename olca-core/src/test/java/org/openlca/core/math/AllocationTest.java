@@ -79,7 +79,7 @@ public class AllocationTest {
 
 	private void checkIt(AllocationMethod method, Process p) {
 		var system = TestSystem.of(p).get();
-		var setup = new CalculationSetup(system);
+		var setup = CalculationSetup.fullAnalysis(system);
 		setup.allocationMethod = method;
 		var result = TestSystem.calculate(setup);
 		assertEquals(1, result.enviIndex().size());

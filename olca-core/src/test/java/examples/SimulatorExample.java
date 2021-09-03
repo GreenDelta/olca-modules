@@ -8,7 +8,9 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.Derby;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.math.Simulator;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.results.SimpleResult;
@@ -18,24 +20,16 @@ import org.openlca.julia.JuliaSolver;
 public class SimulatorExample {
 
 	public static void main(String[] args) {
-		String workspace = "C:/Users/ms/openLCA-data-1.4";
-		String dbPath = workspace
-				+ "/databases/ecoinvent_2_2_unit";
-		IDatabase db = new Derby(new File(dbPath));
-		ProductSystem system = new ProductSystemDao(db).getForRefId(
-				"53f9b9db-139f-4617-bf2b-8fc715b3cd16");
-		CalculationSetup setup = new CalculationSetup(system);
-		setup.withUncertainties = true;
-
-		ImpactMethodDao idao = new ImpactMethodDao(db);
-		ImpactMethodDescriptor method = idao.getDescriptorForRefId(
-				"207ffac9-aaa8-401d-ac90-874defd3751a");
-		setup.impactMethod = method;
+		var db = Derby.fromDataDir("ecoinvent_2_2_unit");
+		var system = db.get(ProductSystem.class,
+			"53f9b9db-139f-4617-bf2b-8fc715b3cd16");
+		var setup = CalculationSetup.monteCarlo(system, 200);
+		setup.impactMethod = db.get(ImpactMethod.class,
+			"207ffac9-aaa8-401d-ac90-874defd3751a");
 		ImpactDescriptor gwp = null;
-		for (ImpactDescriptor i : idao
-				.getCategoryDescriptors(method.id)) {
+		for (var i : setup.impactMethod.impactCategories) {
 			if (i.name.equals("Climate change - GWP100")) {
-				gwp = i;
+				gwp = Descriptor.of(i);
 				break;
 			}
 		}
