@@ -6,7 +6,7 @@ import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 
-public class SystemExportConfig {
+class SystemExportConfig {
 
 	public final ProductSystem system;
 	public final IDatabase database;

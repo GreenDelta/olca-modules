@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  * Writes a product system as matrices into CSV files.
  */
 @Deprecated
-public class CsvMatrixExport implements Runnable {
+class CsvMatrixExport implements Runnable {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final EntityCache cache;
@@ -47,7 +47,7 @@ public class CsvMatrixExport implements Runnable {
 		}
 
 		log.trace("Build inventory matrix");
-		CalculationSetup setup = new CalculationSetup(conf.productSystem);
+		CalculationSetup setup = CalculationSetup.simple(conf.productSystem);
 		setup.parameterRedefs.addAll(conf.productSystem.parameterRedefs);
 		setup.allocationMethod = AllocationMethod.NONE;
 		var data = MatrixData.of(conf.db, setup);
