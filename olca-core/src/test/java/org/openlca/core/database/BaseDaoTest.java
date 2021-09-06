@@ -27,6 +27,7 @@ import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessGroupSet;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
+import org.openlca.core.model.ResultModel;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
@@ -44,31 +45,32 @@ public class BaseDaoTest {
 	// see https://github.com/junit-team/junit/issues/76
 	// @DataPoints
 	@SuppressWarnings("unchecked")
-	private final Class<? extends AbstractEntity>[] classes = new Class[] {
-			Actor.class,
-			AllocationFactor.class,
-			Category.class,
-			Currency.class,
-			Exchange.class,
-			Flow.class,
-			FlowProperty.class,
-			FlowPropertyFactor.class,
-			ImpactCategory.class,
-			ImpactFactor.class,
-			ImpactMethod.class,
-			Location.class,
-			NwFactor.class,
-			NwSet.class,
-			Parameter.class,
-			Process.class,
-			ProcessGroupSet.class,
-			ProcessDocumentation.class,
-			ProductSystem.class,
-			Project.class,
-			SocialIndicator.class,
-			Source.class,
-			Unit.class,
-			UnitGroup.class,
+	private final Class<? extends AbstractEntity>[] classes = new Class[]{
+		Actor.class,
+		AllocationFactor.class,
+		Category.class,
+		Currency.class,
+		Exchange.class,
+		Flow.class,
+		FlowProperty.class,
+		FlowPropertyFactor.class,
+		ImpactCategory.class,
+		ImpactFactor.class,
+		ImpactMethod.class,
+		Location.class,
+		NwFactor.class,
+		NwSet.class,
+		Parameter.class,
+		Process.class,
+		ProcessGroupSet.class,
+		ProcessDocumentation.class,
+		ProductSystem.class,
+		Project.class,
+		SocialIndicator.class,
+		Source.class,
+		Unit.class,
+		UnitGroup.class,
+		ResultModel.class,
 	};
 
 	@Test
@@ -84,7 +86,7 @@ public class BaseDaoTest {
 
 	// @Theory
 	private <T extends AbstractEntity> void testCrud(Class<T> clazz)
-			throws Exception {
+		throws Exception {
 		log.trace("run base dao test with {}", clazz);
 		T instance = clazz.getConstructor().newInstance();
 		BaseDao<T> dao = Daos.base(Tests.getDb(), clazz);
@@ -106,8 +108,8 @@ public class BaseDaoTest {
 		var entity = (CategorizedEntity) instance;
 		var type = ModelType.forModelClass(clazz);
 		var descriptors = IUseSearch.FACTORY
-				.createFor(type, Tests.getDb())
-				.findUses(Descriptor.of(entity));
+			.createFor(type, Tests.getDb())
+			.findUses(Descriptor.of(entity));
 		Assert.assertTrue(descriptors.isEmpty());
 	}
 }

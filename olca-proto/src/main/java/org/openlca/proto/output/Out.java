@@ -187,6 +187,7 @@ public final class Out {
       case CURRENCY -> Proto.ModelType.CURRENCY;
       case PARAMETER -> Proto.ModelType.PARAMETER;
       case DQ_SYSTEM -> Proto.ModelType.DQ_SYSTEM;
+      case RESULT -> Proto.ModelType.UNDEFINED_MODEL_TYPE; // TODO: !!!implement
     };
   }
 

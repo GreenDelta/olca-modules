@@ -25,9 +25,10 @@ import org.openlca.core.model.UnitGroup;
 
 /**
  * Descriptors are lightweight models containing only descriptive information of
- * a corresponding entity.The intention of descriptors is to get these
+ * a corresponding entity. The intention of descriptors is to get this
  * information fast from the database without loading the complete model.
- * Therefore, the respective DAO classes should provide these.
+ * Therefore, the respective DAO classes should provide specific methods for
+ * getting such descriptors.
  */
 public class Descriptor {
 
@@ -285,6 +286,8 @@ public class Descriptor {
 			return of((Category) entity);
 		if (entity instanceof DQSystem)
 			return of((DQSystem) entity);
+		if (entity instanceof ResultModel)
+			return of((ResultModel) entity);
 		return createUnknownDescriptor(entity);
 	}
 
