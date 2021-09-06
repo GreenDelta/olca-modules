@@ -1,5 +1,7 @@
 package org.openlca.core.matrix.format;
 
+import java.util.Arrays;
+
 /**
  * An dense matrix that stores its values in a plain byte array in column major
  * order.
@@ -20,9 +22,15 @@ public class DenseByteMatrix implements ByteMatrix {
 		this.data = data;
 	}
 
-	public DenseByteMatrix(ByteMatrixReader other) {
-		this(other.rows(), other.columns());
-		other.iterate(this::set);
+	public static DenseByteMatrix of(ByteMatrixReader other) {
+		if (other instanceof DenseByteMatrix) {
+			var otherData = ((DenseByteMatrix) other).data;
+			return new DenseByteMatrix(other.rows(), other.columns(),
+				Arrays.copyOf(otherData, otherData.length));
+		}
+		var dense = new DenseByteMatrix(other.rows(), other.columns());
+		other.iterate(dense::set);
+		return dense;
 	}
 
 	@Override

@@ -4,12 +4,17 @@ import java.io.File;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.openlca.core.matrix.format.ByteMatrixReader;
+import org.openlca.core.matrix.format.CSCByteMatrix;
 import org.openlca.core.matrix.format.CSCMatrix;
+import org.openlca.core.matrix.format.DenseByteMatrix;
 import org.openlca.core.matrix.format.DenseMatrix;
+import org.openlca.core.matrix.format.HashPointByteMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.npy.Array2d;
 import org.openlca.npy.Npy;
+import org.openlca.npy.NpyByteArray;
 import org.openlca.npy.NpyCharArray;
 import org.openlca.npy.NpyDoubleArray;
 import org.openlca.npy.NpyIntArray;
@@ -132,6 +137,28 @@ public class NpyMatrix {
 			NpyDoubleArray.columnOrderOf(dense.data, dense.rows, dense.columns));
 	}
 
+	public static void write(File folder, String name, ByteMatrixReader matrix) {
+		if (folder == null || matrix == null)
+			return;
+
+		// write sparse matrices into the CSC format
+		var m = matrix instanceof HashPointByteMatrix
+			? ((HashPointByteMatrix) matrix).compress()
+			: matrix;
+		if (m instanceof CSCByteMatrix) {
+			writeNpzBytes(new File(folder, name + ".npz"), (CSCByteMatrix) m);
+			return;
+		}
+
+		// write dense matrices in Fortran order
+		var dense = matrix instanceof DenseByteMatrix
+			? (DenseByteMatrix) matrix
+			: DenseByteMatrix.of(matrix);
+		Npy.write(
+			new File(folder, name + ".npy"),
+			NpyByteArray.columnOrderOf(dense.data, dense.rows, dense.columns));
+	}
+
 	private static void writeNpz(File file, CSCMatrix csc) {
 		Npz.create(file, npz -> {
 			Npz.write(npz, "format.npy",
@@ -140,6 +167,21 @@ public class NpyMatrix {
 				NpyIntArray.vectorOf(new int[]{csc.rows, csc.columns}));
 			Npz.write(npz, "data.npy",
 				NpyDoubleArray.vectorOf(csc.values));
+			Npz.write(npz, "indptr.npy",
+				NpyIntArray.vectorOf(csc.columnPointers));
+			Npz.write(npz, "indices.npy",
+				NpyIntArray.vectorOf(csc.rowIndices));
+		});
+	}
+
+	private static void writeNpzBytes(File file, CSCByteMatrix csc) {
+		Npz.create(file, npz -> {
+			Npz.write(npz, "format.npy",
+				NpyCharArray.of("csc"));
+			Npz.write(npz, "shape.npy",
+				NpyIntArray.vectorOf(new int[]{csc.rows, csc.columns}));
+			Npz.write(npz, "data.npy",
+				NpyByteArray.vectorOf(csc.values));
 			Npz.write(npz, "indptr.npy",
 				NpyIntArray.vectorOf(csc.columnPointers));
 			Npz.write(npz, "indices.npy",

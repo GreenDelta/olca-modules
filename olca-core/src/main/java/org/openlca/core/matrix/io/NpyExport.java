@@ -5,13 +5,9 @@ import java.io.File;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.ByteMatrixReader;
-import org.openlca.core.matrix.format.CSCByteMatrix;
-import org.openlca.core.matrix.format.DenseByteMatrix;
-import org.openlca.core.matrix.format.HashPointByteMatrix;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.npy.Npy;
 import org.openlca.npy.NpyDoubleArray;
-import org.openlca.npy.Npz;
 
 class NpyExport extends MatrixExport {
 
@@ -30,7 +26,7 @@ class NpyExport extends MatrixExport {
 		if (vector == null)
 			return;
 		var file = new File(folder, name + ".npy");
-		var array = new NpyDoubleArray(new int[] {vector.length}, vector, false);
+		var array = new NpyDoubleArray(new int[]{vector.length}, vector, false);
 		Npy.write(file, array);
 	}
 
@@ -41,16 +37,6 @@ class NpyExport extends MatrixExport {
 
 	@Override
 	protected void write(ByteMatrixReader matrix, String name) {
-		var m = matrix instanceof HashPointByteMatrix
-			? ((HashPointByteMatrix) matrix).compress()
-			: matrix;
-		if (m instanceof CSCByteMatrix) {
-			Npz.save(new File(folder, name + ".npz"), (CSCByteMatrix) m);
-		} else {
-			var dense = m instanceof DenseByteMatrix
-				? (DenseByteMatrix) m
-				: new DenseByteMatrix(m);
-			Npy.save(new File(folder, name + ".npy"), dense);
-		}
+		NpyMatrix.write(folder, name, matrix);
 	}
 }
