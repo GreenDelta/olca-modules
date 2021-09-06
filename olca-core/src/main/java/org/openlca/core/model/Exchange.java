@@ -12,7 +12,7 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name = "tbl_exchanges")
-public class Exchange extends AbstractEntity {
+public class Exchange extends AbstractExchange {
 
 	/**
 	 * Indicates whether an exchange is an avoided product or waste flow. An
@@ -24,40 +24,11 @@ public class Exchange extends AbstractEntity {
 	public boolean isAvoided;
 
 	/**
-	 * Indicates whether the exchange is an input (= true) or output (= false).
-	 */
-	@Column(name = "is_input")
-	public boolean isInput;
-
-	/**
-	 * The flow of the exchange.
-	 */
-	@OneToOne
-	@JoinColumn(name = "f_flow")
-	public Flow flow;
-
-	/**
 	 * An id that is unique within the process, this id must not be changed
 	 * after creation
 	 */
 	@Column(name = "internal_id")
 	public int internalId;
-
-	/**
-	 * The flow property (quantity) in which the amount of the exchange is
-	 * given. It is a "flow property factor" because it contains also the
-	 * conversion factor to the reference quantity of the flow.
-	 */
-	@OneToOne
-	@JoinColumn(name = "f_flow_property_factor")
-	public FlowPropertyFactor flowPropertyFactor;
-
-	/**
-	 * The unit in which the exchange amount is given.
-	 */
-	@OneToOne
-	@JoinColumn(name = "f_unit")
-	public Unit unit;
 
 	/**
 	 * If the exchange is an product input or waste output this field can
@@ -67,12 +38,6 @@ public class Exchange extends AbstractEntity {
 	 */
 	@Column(name = "f_default_provider")
 	public long defaultProviderId;
-
-	/**
-	 * The amount of the exchange.
-	 */
-	@Column(name = "resulting_amount_value")
-	public double amount;
 
 	/**
 	 * An optional formula for the exchange amount. The evaluated value of this
@@ -106,16 +71,9 @@ public class Exchange extends AbstractEntity {
 	@Column(name = "cost_formula")
 	public String costFormula;
 
-	@Column(name = "description")
-	public String description;
-
 	@OneToOne
 	@JoinColumn(name = "f_currency")
 	public Currency currency;
-
-	@OneToOne
-	@JoinColumn(name = "f_location")
-	public Location location;
 
 	@Override
 	public String toString() {
