@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.openlca.core.database.Derby;
 import org.openlca.core.library.LibraryDir;
-import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.ProductSystem;
 
@@ -20,7 +20,7 @@ public class LibraryCalculatorExample {
 
 		var system = db.get(ProductSystem.class,
 				"6b32cda2-5aa4-44b9-b32a-c654da48436d");
-		var setup = new CalculationSetup(system);
+		var setup = CalculationSetup.simple(system);
 
 		var result = new SystemCalculator(db)
 				.calculateSimple(setup);

@@ -1,6 +1,6 @@
 package org.openlca.ipc.handlers;
 
-import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.model.CalculationSetup;
 
 class CachedResult<T> {
 

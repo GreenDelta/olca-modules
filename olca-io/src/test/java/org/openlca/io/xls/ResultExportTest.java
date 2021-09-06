@@ -6,9 +6,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
-import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
@@ -35,7 +34,7 @@ public class ResultExportTest {
 
 		// create a system and calculate it
 		var sys = ProductSystem.of(process);
-		var setup = new CalculationSetup(sys);
+		var setup = CalculationSetup.fullAnalysis(sys);
 		var calculator = new SystemCalculator(db);
 		var result = calculator.calculateFull(setup);
 

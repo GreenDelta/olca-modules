@@ -6,9 +6,9 @@ import java.util.UUID;
 
 import com.google.protobuf.Empty;
 import io.grpc.Status;
-import org.openlca.core.database.ImpactMethodDao;
-import org.openlca.core.database.NwSetDao;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.model.CalculationType;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.providers.ResultProviders;
 import org.openlca.proto.generated.results.ImpactFactorRequest;
@@ -22,7 +22,7 @@ import org.openlca.proto.output.Refs;
 import org.openlca.util.Strings;
 import io.grpc.stub.StreamObserver;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.proto.generated.Proto;
@@ -66,7 +66,15 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     var system = systemOf(proto);
     if (system == null)
       return Pair.of(null, "Product system or process does not exist");
-    var setup = new CalculationSetup(system);
+
+    // initialize the setup
+    CalculationType type = switch (proto.getCalculationType()) {
+      case MONTE_CARLO_SIMULATION -> CalculationType.MONTE_CARLO_SIMULATION;
+      case SIMPLE_CALCULATION -> CalculationType.SIMPLE_CALCULATION;
+      case UPSTREAM_ANALYSIS -> CalculationType.UPSTREAM_ANALYSIS;
+      default -> CalculationType.CONTRIBUTION_ANALYSIS;
+    };
+    var setup = new CalculationSetup(type, system);
 
     // demand value
     if (proto.getAmount() != 0) {
@@ -77,8 +85,8 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     var qref = system.referenceExchange;
     var propID = proto.getFlowProperty().getId();
     if (Strings.notEmpty(propID)
-        && qref != null
-        && qref.flow != null) {
+      && qref != null
+      && qref.flow != null) {
       qref.flow.flowPropertyFactors.stream()
         .filter(f -> Strings.nullOrEqual(propID, f.flowProperty.refId))
         .findAny()
@@ -89,9 +97,9 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     var unitID = proto.getUnit().getId();
     var propFac = setup.getFlowPropertyFactor();
     if (Strings.notEmpty(unitID)
-        && propFac != null
-        && propFac.flowProperty != null
-        && propFac.flowProperty.unitGroup != null) {
+      && propFac != null
+      && propFac.flowProperty != null
+      && propFac.flowProperty.unitGroup != null) {
       var group = propFac.flowProperty.unitGroup;
       group.units.stream()
         .filter(u -> Strings.nullOrEqual(unitID, u.refId))
@@ -102,12 +110,15 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     // impact method and NW set
     var methodID = proto.getImpactMethod().getId();
     if (Strings.notEmpty(methodID)) {
-      setup.impactMethod = new ImpactMethodDao(db)
-        .getDescriptorForRefId(methodID);
+      setup.impactMethod = db.get(ImpactMethod.class, methodID);
       var nwID = proto.getNwSet().getId();
-      if (Strings.notEmpty(nwID)) {
-        setup.nwSet = new NwSetDao(db)
-          .getDescriptorForRefId(nwID);
+      if (Strings.notEmpty(nwID) && setup.impactMethod != null) {
+        for (var nwSet : setup.impactMethod.nwSets) {
+          if (nwID.equals(nwSet.refId)) {
+            setup.nwSet = nwSet;
+            break;
+          }
+        }
       }
     }
 

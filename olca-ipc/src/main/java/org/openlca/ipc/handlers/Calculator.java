@@ -6,15 +6,14 @@ import java.util.function.Function;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ImpactMethodDao;
-import org.openlca.core.database.NwSetDao;
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.math.CalculationType;
+import org.openlca.core.model.CalculationSetup;
+import org.openlca.core.model.CalculationType;
 import org.openlca.core.math.Simulator;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
 import org.openlca.core.results.SimpleResult;
@@ -97,16 +96,7 @@ public class Calculator {
 			return p.second;
 		var setup = p.first;
 		log.info("Calculate product system {}", setup.productSystem.refId);
-		var type = Json.getEnum(
-			req.params.getAsJsonObject(),
-			"calculationType",
-			CalculationType.class);
-		if (type == null) {
-			type = CalculationType.CONTRIBUTION_ANALYSIS;
-			log.info("No calculation type defined; " +
-				"calculate contributions as default");
-		}
-		return calculate(req, setup, type);
+		return calculate(req, setup);
 	}
 
 	/**
@@ -132,17 +122,29 @@ public class Calculator {
 		if (system == null)
 			return error.apply("No product system found for @id=" + systemID);
 
-		var setup = new CalculationSetup(system);
+		// read the calculation type
+		var type = Json.getEnum(json, "calculationType", CalculationType.class);
+		if (type == null) {
+			type = CalculationType.CONTRIBUTION_ANALYSIS;
+			log.info("No calculation type defined; " +
+				"calculate contributions as default");
+		}
+
+		var setup = new CalculationSetup(type, system);
 
 		// LCIA method and normalization and weighting
 		var methodID = Json.getRefId(json, "impactMethod");
 		if (Strings.notEmpty(methodID)) {
-			setup.impactMethod = new ImpactMethodDao(db)
-				.getDescriptorForRefId(methodID);
-		}
-		var nwSetID = Json.getRefId(json, "nwSet");
-		if (Strings.notEmpty(nwSetID)) {
-			setup.nwSet = new NwSetDao(db).getDescriptorForRefId(nwSetID);
+			setup.impactMethod = db.get(ImpactMethod.class, methodID);
+			var nwSetID = Json.getRefId(json, "nwSet");
+			if (Strings.notEmpty(nwSetID) && setup.impactMethod != null) {
+				for (var nwSet : setup.impactMethod.nwSets) {
+					if (nwSetID.equals(nwSet.refId)) {
+						setup.nwSet = nwSet;
+						break;
+					}
+				}
+			}
 		}
 
 		// the quantitative reference
@@ -180,7 +182,6 @@ public class Calculator {
 						.ifPresent(setup::setUnit);
 				}
 			}
-
 		}
 
 		// other calculation attributes
@@ -197,14 +198,12 @@ public class Calculator {
 	private void parameters(JsonObject json, CalculationSetup setup) {
 		var array = Json.getArray(json, "parameterRedefs");
 		if (array == null) {
-			if (setup.productSystem != null) {
-				var redefSet = setup.productSystem.parameterSets.stream()
-					.filter(s -> s.isBaseline)
-					.findAny();
-				if (redefSet.isPresent()) {
-					setup.parameterRedefs.clear();
-					setup.parameterRedefs.addAll(redefSet.get().parameters);
-				}
+			var redefSet = setup.productSystem.parameterSets.stream()
+				.filter(s -> s.isBaseline)
+				.findAny();
+			if (redefSet.isPresent()) {
+				setup.parameterRedefs.clear();
+				setup.parameterRedefs.addAll(redefSet.get().parameters);
 			}
 			return;
 		}
@@ -242,27 +241,18 @@ public class Calculator {
 		}
 	}
 
-	private RpcResponse calculate(RpcRequest req, CalculationSetup setup,
-								  CalculationType type) {
+	private RpcResponse calculate(RpcRequest req, CalculationSetup setup) {
 		try {
 			var calc = new SystemCalculator(db);
-			SimpleResult r = null;
-			switch (type) {
-				case CONTRIBUTION_ANALYSIS:
-					r = calc.calculateContributions(setup);
-					break;
-				case SIMPLE_CALCULATION:
-					r = calc.calculateSimple(setup);
-					break;
-				case UPSTREAM_ANALYSIS:
-					r = calc.calculateFull(setup);
-					break;
-				default:
-					break;
-			}
+			SimpleResult r = switch (setup.calculationType) {
+				case CONTRIBUTION_ANALYSIS -> calc.calculateContributions(setup);
+				case SIMPLE_CALCULATION -> calc.calculateSimple(setup);
+				case UPSTREAM_ANALYSIS -> calc.calculateFull(setup);
+				default -> null;
+			};
 			if (r == null) {
-				return Responses.error(501, "Calculation method " + type
-					+ "is not yet implemented", req);
+				return Responses.error(501,
+					"invalid calculation type: " + setup.calculationType, req);
 			}
 			var id = UUID.randomUUID().toString();
 			log.info("encode and cache result {}", id);

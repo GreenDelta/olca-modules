@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowType;
@@ -19,10 +19,9 @@ import org.openlca.core.results.FullResult;
 
 public class TestSystem {
 
-	private List<Process> processes = new ArrayList<>();
-	private Map<Long, Process> providers = new HashMap<>();
-
-	private ProductSystem system;
+	private final List<Process> processes = new ArrayList<>();
+	private final Map<Long, Process> providers = new HashMap<>();
+	private final ProductSystem system;
 
 	private TestSystem(Process refProcess) {
 		system = new ProductSystem();
@@ -95,7 +94,7 @@ public class TestSystem {
 	}
 
 	public static FullResult calculate(ProductSystem system) {
-		CalculationSetup setup = new CalculationSetup(system);
+		var setup = CalculationSetup.fullAnalysis(system);
 		setup.withCosts = true;
 		return calculate(setup);
 	}
@@ -107,7 +106,7 @@ public class TestSystem {
 
 	public static ContributionResult contributions(
 			ProductSystem system) {
-		CalculationSetup setup = new CalculationSetup(system);
+		var setup = CalculationSetup.contributions(system);
 		setup.withCosts = true;
 		SystemCalculator calc = new SystemCalculator(Tests.getDb());
 		return calc.calculateContributions(setup);

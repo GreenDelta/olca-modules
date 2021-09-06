@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.MatrixData;
@@ -29,7 +29,7 @@ public class FullResult extends ContributionResult {
 	}
 
 	public static FullResult of(IDatabase db, ProductSystem system) {
-		var setup = new CalculationSetup(system);
+		var setup = CalculationSetup.fullAnalysis(system);
 		return of(db, setup);
 	}
 

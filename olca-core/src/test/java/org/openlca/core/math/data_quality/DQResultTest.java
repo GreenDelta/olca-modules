@@ -9,7 +9,7 @@ import org.openlca.core.Tests;
 import org.openlca.core.database.DQSystemDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.DQIndicator;
@@ -127,9 +127,9 @@ public class DQResultTest {
 
 	@Test
 	public void test() {
-		var setup = new CalculationSetup(system);
+		var setup = CalculationSetup.fullAnalysis(system);
 		setup.setAmount(1);
-		setup.impactMethod = Descriptor.of(method);
+		setup.impactMethod = method;
 		var result = FullResult.of(db, setup);
 		var dqSetup = DQCalculationSetup.of(system);
 		var dqResult = DQResult.of(db, dqSetup, result);

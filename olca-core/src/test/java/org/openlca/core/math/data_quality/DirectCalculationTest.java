@@ -4,7 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQScore;
@@ -38,7 +38,7 @@ public class DirectCalculationTest {
 		// calculation
 		var system = ProductSystem.of(process);
 		system.withoutNetwork = true;
-		var setup = new CalculationSetup(system);
+		var setup = CalculationSetup.fullAnalysis(system);
 		var calculator = new SystemCalculator(Tests.getDb());
 		var result = calculator.calculateFull(setup);
 		var dqSetup = DQCalculationSetup.of((system));

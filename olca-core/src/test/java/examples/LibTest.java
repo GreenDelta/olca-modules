@@ -4,12 +4,11 @@ import java.io.File;
 
 import org.openlca.core.database.Derby;
 import org.openlca.core.library.LibraryDir;
-import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.julia.Julia;
 
 public class LibTest {
@@ -30,9 +29,9 @@ public class LibTest {
 		var system = ProductSystem.of(process);
 		system.withoutNetwork = true;
 
-		var setup = new CalculationSetup(system);
-		setup.impactMethod = Descriptor.of(
-				db.get(ImpactMethod.class, "effb055a-ad78-39bd-8dc0-341411db4ae7"));
+		var setup = CalculationSetup.fullAnalysis(system);
+		setup.impactMethod = db.get(ImpactMethod.class,
+			"effb055a-ad78-39bd-8dc0-341411db4ae7");
 
 		var start =  System.currentTimeMillis();
 		var result = new SystemCalculator(db)

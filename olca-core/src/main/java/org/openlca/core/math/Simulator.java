@@ -22,6 +22,7 @@ import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
@@ -300,8 +301,7 @@ public class Simulator {
 				// do *not* copy the LCIA method here
 				ProductSystemDao dao = new ProductSystemDao(db);
 				ProductSystem sub = dao.getForId(system);
-				_setup = new CalculationSetup(sub);
-				_setup.withUncertainties = true;
+				_setup = CalculationSetup.monteCarlo(sub, setup.numberOfRuns);
 				_setup.parameterRedefs.addAll(setup.parameterRedefs);
 				ParameterRedefs.addTo(_setup, sub);
 				_setup.withCosts = setup.withCosts;

@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.openlca.core.TestProcess;
 import org.openlca.core.TestSystem;
 import org.openlca.core.model.AllocationMethod;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.Process;
 
 public class AllocationTest {
@@ -78,7 +79,7 @@ public class AllocationTest {
 
 	private void checkIt(AllocationMethod method, Process p) {
 		var system = TestSystem.of(p).get();
-		var setup = new CalculationSetup(system);
+		var setup = CalculationSetup.fullAnalysis(system);
 		setup.allocationMethod = method;
 		var result = TestSystem.calculate(setup);
 		assertEquals(1, result.enviIndex().size());

@@ -3,20 +3,19 @@ package examples;
 import java.io.File;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.Derby;
-import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.ProductSystemBuilder;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.linking.LinkingConfig;
 import org.openlca.core.matrix.linking.ProviderLinking;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.results.SimpleResult;
 
 /*
@@ -45,10 +44,9 @@ public class ProductSystemInMemoryCalculationExample {
 		ProductSystem system = builder.build(p);
 
 		// create the calculation setup
-		ImpactMethodDescriptor method = new ImpactMethodDao(db)
-				.getDescriptorForRefId("207ffac9-aaa8-401d-ac90-874defd3751a");
-		CalculationSetup setup = new CalculationSetup(system);
-		setup.impactMethod = method;
+		CalculationSetup setup = CalculationSetup.simple(system);
+		setup.impactMethod = db.get(ImpactMethod.class,
+			"207ffac9-aaa8-401d-ac90-874defd3751a");
 
 		// load the native library and calculate the result
 		// TODO: load Julia libraries first here

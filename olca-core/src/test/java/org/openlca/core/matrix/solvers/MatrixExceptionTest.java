@@ -7,7 +7,7 @@ import org.apache.commons.math3.linear.SingularMatrixException;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.JavaMatrix;
@@ -106,7 +106,7 @@ public class MatrixExceptionTest {
 		boolean caughtIt = false;
 		assertTrue(Julia.load());
 		try {
-			var setup = new CalculationSetup(sys);
+			var setup = CalculationSetup.simple(sys);
 			new SystemCalculator(db).calculateSimple(setup);
 		} catch (SingularMatrixException e) {
 			caughtIt = true;

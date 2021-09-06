@@ -1,4 +1,4 @@
-package org.openlca.core.math;
+package org.openlca.core.model;
 
 /**
  * The type of a calculation.

@@ -5,7 +5,7 @@ import java.io.InputStreamReader;
 import java.util.Random;
 
 import org.openlca.core.database.Derby;
-import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.Process;
@@ -24,7 +24,7 @@ public class Benchmark {
 		var i = new Random().nextInt(processes.size());
 		var process = db.get(Process.class, processes.get(i).id);
 		var system = ProductSystem.of(process);
-		var setup = new CalculationSetup(system);
+		var setup = CalculationSetup.simple(system);
 
 		var data = MatrixData.of(db, setup);
 

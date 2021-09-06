@@ -21,6 +21,7 @@ import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -449,8 +450,8 @@ public class RegionalizedCalculationTest {
 	private CalculationSetup calcSetup() {
 		// reload the product system to get the updates
 		sys = new ProductSystemDao(db).getForId(sys.id);
-		var setup = new CalculationSetup(sys);
-		setup.impactMethod = Descriptor.of(method);
+		var setup = CalculationSetup.fullAnalysis(sys);
+		setup.impactMethod = method;
 		return setup;
 	}
 
@@ -482,10 +483,10 @@ public class RegionalizedCalculationTest {
 		method = new ImpactMethodDao(db).insert(method);
 
 		// create the product system and calculation setup
-		CalculationSetup setup = new CalculationSetup(ProductSystem.of(p));
+		var setup = CalculationSetup.fullAnalysis(ProductSystem.of(p));
+		setup.impactMethod = method;
 		setup.withRegionalization = true;
-		setup.impactMethod = Descriptor.of(method);
-		SystemCalculator calculator = new SystemCalculator(db);
+		var calculator = new SystemCalculator(db);
 
 		FullResult r = calculator.calculateFull(setup);
 		Assert.assertTrue(r.enviIndex().isRegionalized());

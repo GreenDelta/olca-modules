@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
@@ -28,7 +28,7 @@ import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SystemExport {
+class SystemExport {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -40,10 +40,10 @@ public class SystemExport {
 	}
 
 	public void exportTo(File dir) throws IOException {
-		CalculationSetup setup = new CalculationSetup(conf.system);
+		CalculationSetup setup = CalculationSetup.simple(conf.system);
 		setup.parameterRedefs.addAll(conf.system.parameterRedefs);
 		setup.allocationMethod = conf.allocationMethod;
-		setup.impactMethod = conf.impactMethod;
+		// setup.impactMethod = conf.impactMethod;
 		data = MatrixData.of(conf.database, setup);
 
 		File subDir = new File(dir, conf.system.name.trim());
