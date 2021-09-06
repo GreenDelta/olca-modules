@@ -16,6 +16,7 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
+import org.openlca.core.model.ResultModel;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
@@ -76,7 +77,7 @@ public class Descriptor {
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + " [id=" + id + ", name=" + name
-					 + ", type=" + type + "]";
+			+ ", type=" + type + "]";
 	}
 
 	/**
@@ -93,234 +94,210 @@ public class Descriptor {
 	}
 
 	static CategorizedDescriptor createUnknownDescriptor(CategorizedEntity e) {
-		var d = new CategorizedDescriptor();
-		setBaseValues(e, d);
-		return d;
+		return setBaseValues(e, new CategorizedDescriptor());
 	}
 
-	static void setBaseValues(RootEntity e, Descriptor d) {
+	static <T extends Descriptor> T setBaseValues(RootEntity e, T d) {
 		d.refId = e.refId;
 		d.description = e.description;
 		d.id = e.id;
 		d.name = e.name;
 		d.lastChange = e.lastChange;
 		d.version = e.version;
+		return d;
 	}
 
-	static void setBaseValues(CategorizedEntity e, CategorizedDescriptor d) {
+	static <T extends CategorizedDescriptor> T setBaseValues(
+		CategorizedEntity e, T d) {
 		Descriptor.setBaseValues((RootEntity) e, d);
 		if (e.category != null) {
 			d.category = e.category.id;
 		}
 		d.library = e.library;
+		return d;
 	}
 
 	public static DQSystemDescriptor of(DQSystem system) {
-		if (system == null)
-			return null;
-		var d = new DQSystemDescriptor();
-		Descriptor.setBaseValues(system, d);
-		return d;
+		return system == null
+			? null
+			: setBaseValues(system, new DQSystemDescriptor());
 	}
 
 	public static NwSetDescriptor of(NwSet nwSet) {
 		if (nwSet == null)
 			return null;
-		NwSetDescriptor descriptor = new NwSetDescriptor();
-		Descriptor.setBaseValues(nwSet, descriptor);
-		descriptor.weightedScoreUnit = nwSet.weightedScoreUnit;
-		return descriptor;
+		var d = setBaseValues(nwSet, new NwSetDescriptor());
+		d.weightedScoreUnit = nwSet.weightedScoreUnit;
+		return d;
 	}
 
 	public static ImpactDescriptor of(ImpactCategory impact) {
 		if (impact == null)
 			return null;
-		ImpactDescriptor d = new ImpactDescriptor();
-		Descriptor.setBaseValues(impact, d);
+		var d = setBaseValues(impact, new ImpactDescriptor());
 		d.referenceUnit = impact.referenceUnit;
 		return d;
 	}
 
 	public static CurrencyDescriptor of(Currency c) {
-		if (c == null)
-			return null;
-		CurrencyDescriptor d = new CurrencyDescriptor();
-		Descriptor.setBaseValues(c, d);
-		return d;
+		return c == null
+			? null
+			: setBaseValues(c, new CurrencyDescriptor());
 	}
 
 	public static SocialIndicatorDescriptor of(SocialIndicator i) {
-		if (i == null)
-			return null;
-		SocialIndicatorDescriptor d = new SocialIndicatorDescriptor();
-		Descriptor.setBaseValues(i, d);
-		return d;
+		return i == null
+			? null
+			: setBaseValues(i, new SocialIndicatorDescriptor());
 	}
 
 	public static ParameterDescriptor of(Parameter parameter) {
-		if (parameter == null)
-			return null;
-		ParameterDescriptor descriptor = new ParameterDescriptor();
-		Descriptor.setBaseValues(parameter, descriptor);
-		return descriptor;
+		return parameter == null
+			? null
+			: setBaseValues(parameter, new ParameterDescriptor());
 	}
 
 	public static LocationDescriptor of(Location location) {
-		if (location == null)
-			return null;
-		LocationDescriptor descriptor = new LocationDescriptor();
-		Descriptor.setBaseValues(location, descriptor);
-		return descriptor;
+		return location == null
+			? null
+			: setBaseValues(location, new LocationDescriptor());
 	}
 
 	public static SourceDescriptor of(Source source) {
-		if (source == null)
-			return null;
-		SourceDescriptor descriptor = new SourceDescriptor();
-		Descriptor.setBaseValues(source, descriptor);
-		return descriptor;
+		return source == null
+			? null
+			: setBaseValues(source, new SourceDescriptor());
 	}
 
 	public static ActorDescriptor of(Actor actor) {
-		if (actor == null)
-			return null;
-		ActorDescriptor descriptor = new ActorDescriptor();
-		Descriptor.setBaseValues(actor, descriptor);
-		return descriptor;
+		return actor == null
+			? null
+			: setBaseValues(actor, new ActorDescriptor());
 	}
 
 	public static UnitDescriptor of(Unit unit) {
-		if (unit == null)
-			return null;
-		UnitDescriptor descriptor = new UnitDescriptor();
-		Descriptor.setBaseValues(unit, descriptor);
-		return descriptor;
+		return unit == null
+			? null
+			: setBaseValues(unit, new UnitDescriptor());
 	}
 
 	public static UnitGroupDescriptor of(UnitGroup unitGroup) {
-		if (unitGroup == null)
-			return null;
-		UnitGroupDescriptor descriptor = new UnitGroupDescriptor();
-		Descriptor.setBaseValues(unitGroup, descriptor);
-		return descriptor;
+		return unitGroup == null
+			? null
+			: setBaseValues(unitGroup, new UnitGroupDescriptor());
 	}
 
 	public static FlowPropertyDescriptor of(FlowProperty flowProperty) {
-		if (flowProperty == null)
-			return null;
-		FlowPropertyDescriptor descriptor = new FlowPropertyDescriptor();
-		Descriptor.setBaseValues(flowProperty, descriptor);
-		return descriptor;
+		return flowProperty == null
+			? null
+			: setBaseValues(flowProperty, new FlowPropertyDescriptor());
 	}
 
 	public static FlowDescriptor of(Flow flow) {
 		if (flow == null)
 			return null;
-		FlowDescriptor descriptor = new FlowDescriptor();
-		Descriptor.setBaseValues(flow, descriptor);
+		var d = setBaseValues(flow, new FlowDescriptor());
 		if (flow.location != null)
-			descriptor.location = flow.location.id;
-		FlowProperty refProp = flow.referenceFlowProperty;
+			d.location = flow.location.id;
+		var refProp = flow.referenceFlowProperty;
 		if (refProp != null)
-			descriptor.refFlowPropertyId = refProp.id;
-		descriptor.flowType = flow.flowType;
-		return descriptor;
+			d.refFlowPropertyId = refProp.id;
+		d.flowType = flow.flowType;
+		return d;
 	}
 
 	public static ProcessDescriptor of(Process process) {
 		if (process == null)
 			return null;
-		ProcessDescriptor descriptor = new ProcessDescriptor();
-		Descriptor.setBaseValues(process, descriptor);
+		var d = setBaseValues(process, new ProcessDescriptor());
 		if (process.location != null)
-			descriptor.location = process.location.id;
+			d.location = process.location.id;
 		if (process.quantitativeReference != null)
-			descriptor.quantitativeReference = process.quantitativeReference.id;
-		descriptor.processType = process.processType;
-		return descriptor;
+			d.quantitativeReference = process.quantitativeReference.id;
+		d.processType = process.processType;
+		return d;
 	}
 
 	public static ProductSystemDescriptor of(ProductSystem system) {
-		if (system == null)
-			return null;
-		ProductSystemDescriptor descriptor = new ProductSystemDescriptor();
-		Descriptor.setBaseValues(system, descriptor);
-		return descriptor;
+		return system == null
+			? null
+			: setBaseValues(system, new ProductSystemDescriptor());
 	}
 
 	public static ImpactMethodDescriptor of(ImpactMethod method) {
-		if (method == null)
-			return null;
-		ImpactMethodDescriptor descriptor = new ImpactMethodDescriptor();
-		Descriptor.setBaseValues(method, descriptor);
-		return descriptor;
+		return method == null
+			? null
+			: setBaseValues(method, new ImpactMethodDescriptor());
 	}
 
 	public static ProjectDescriptor of(Project project) {
-		if (project == null)
-			return null;
-		ProjectDescriptor descriptor = new ProjectDescriptor();
-		Descriptor.setBaseValues(project, descriptor);
-		return descriptor;
+		return project == null
+			? null
+			: setBaseValues(project, new ProjectDescriptor());
 	}
 
 	public static CategoryDescriptor of(Category category) {
 		if (category == null)
 			return null;
-		CategoryDescriptor descriptor = new CategoryDescriptor();
-		Descriptor.setBaseValues(category, descriptor);
-		descriptor.categoryType = category.modelType;
-		return descriptor;
+		var d = setBaseValues(category, new CategoryDescriptor());
+		d.categoryType = category.modelType;
+		return d;
+	}
+
+	public static ResultDescriptor of(ResultModel result) {
+		return result == null
+			? null
+			: setBaseValues(result, new ResultDescriptor());
 	}
 
 	public static CategorizedDescriptor of(CategorizedEntity entity) {
 		if (entity == null)
 			return null;
 		if (entity instanceof Project)
-			return Descriptor.of((Project) entity);
+			return of((Project) entity);
 		if (entity instanceof ImpactCategory)
-			return Descriptor.of((ImpactCategory) entity);
+			return of((ImpactCategory) entity);
 		if (entity instanceof ImpactMethod)
-			return Descriptor.of((ImpactMethod) entity);
+			return of((ImpactMethod) entity);
 		if (entity instanceof ProductSystem)
-			return Descriptor.of((ProductSystem) entity);
+			return of((ProductSystem) entity);
 		if (entity instanceof Process)
-			return Descriptor.of((Process) entity);
+			return of((Process) entity);
 		if (entity instanceof Flow)
-			return Descriptor.of((Flow) entity);
+			return of((Flow) entity);
 		if (entity instanceof FlowProperty)
-			return Descriptor.of((FlowProperty) entity);
+			return of((FlowProperty) entity);
 		if (entity instanceof UnitGroup)
-			return Descriptor.of((UnitGroup) entity);
+			return of((UnitGroup) entity);
 		if (entity instanceof Actor)
-			return Descriptor.of((Actor) entity);
+			return of((Actor) entity);
 		if (entity instanceof Source)
-			return Descriptor.of((Source) entity);
+			return of((Source) entity);
 		if (entity instanceof SocialIndicator)
-			return Descriptor.of((SocialIndicator) entity);
+			return of((SocialIndicator) entity);
 		if (entity instanceof Currency)
-			return Descriptor.of((Currency) entity);
+			return of((Currency) entity);
 		if (entity instanceof Location)
-			return Descriptor.of((Location) entity);
+			return of((Location) entity);
 		if (entity instanceof Parameter)
-			return Descriptor.of((Parameter) entity);
+			return of((Parameter) entity);
 		if (entity instanceof Category)
-			return Descriptor.of((Category) entity);
+			return of((Category) entity);
 		if (entity instanceof DQSystem)
-			return Descriptor.of((DQSystem) entity);
-		return Descriptor.createUnknownDescriptor(entity);
+			return of((DQSystem) entity);
+		return createUnknownDescriptor(entity);
 	}
 
 	public static Descriptor of(RootEntity entity) {
 		if (entity == null)
 			return null;
 		if (entity instanceof CategorizedEntity)
-			return Descriptor.of((CategorizedEntity) entity);
+			return of((CategorizedEntity) entity);
 		if (entity instanceof NwSet)
-			return Descriptor.of((NwSet) entity);
+			return of((NwSet) entity);
 		if (entity instanceof Unit)
-			return Descriptor.of((Unit) entity);
-		return Descriptor.createUnknownDescriptor(entity);
+			return of((Unit) entity);
+		return createUnknownDescriptor(entity);
 	}
 
 }
