@@ -33,9 +33,7 @@ import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.jsonld.Json;
-import org.openlca.npy.Npy;
-import org.openlca.npy.Npz;
-import org.openlca.npy.arrays.Array2d;
+import org.openlca.npy.Array2d;
 import org.slf4j.LoggerFactory;
 
 public class Library {
@@ -376,8 +374,10 @@ public class Library {
 		try {
 			// do not cache dense matrices
 			var npy = new File(folder, m.name() + ".npy");
-			if (npy.exists())
-				return Optional.of(Npy.loadDiagonal(npy));
+			if (npy.exists()) {
+				var diag = Array2d.readDiag(npy).asDoubleArray();
+				return Optional.of(diag.data());
+			}
 
 			// force caching of sparse matrices
 			matrix = getMatrix(m).orElse(null);

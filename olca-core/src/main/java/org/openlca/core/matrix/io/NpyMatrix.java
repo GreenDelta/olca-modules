@@ -8,12 +8,12 @@ import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.npy.Array2d;
 import org.openlca.npy.Npy;
+import org.openlca.npy.NpyCharArray;
+import org.openlca.npy.NpyDoubleArray;
+import org.openlca.npy.NpyIntArray;
 import org.openlca.npy.Npz;
-import org.openlca.npy.arrays.Array2d;
-import org.openlca.npy.arrays.NpyCharArray;
-import org.openlca.npy.arrays.NpyDoubleArray;
-import org.openlca.npy.arrays.NpyIntArray;
 
 public class NpyMatrix {
 

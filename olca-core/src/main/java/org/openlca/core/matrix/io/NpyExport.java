@@ -10,8 +10,8 @@ import org.openlca.core.matrix.format.DenseByteMatrix;
 import org.openlca.core.matrix.format.HashPointByteMatrix;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.npy.Npy;
+import org.openlca.npy.NpyDoubleArray;
 import org.openlca.npy.Npz;
-import org.openlca.npy.arrays.NpyDoubleArray;
 
 class NpyExport extends MatrixExport {
 
