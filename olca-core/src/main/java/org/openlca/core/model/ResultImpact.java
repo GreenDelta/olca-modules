@@ -8,7 +8,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_result_impacts")
-public class ResultImpact {
+public class ResultImpact extends AbstractEntity {
 
 	@OneToOne
 	@JoinColumn(name = "f_impact_category")
