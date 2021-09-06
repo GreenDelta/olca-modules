@@ -11,9 +11,9 @@ import org.openlca.core.math.ReferenceAmount;
  */
 public class CalculationSetup {
 
-	public final CalculationType calculationType;
-
 	public final ProductSystem productSystem;
+
+	public CalculationType calculationType;
 
 	public ImpactMethod impactMethod;
 
