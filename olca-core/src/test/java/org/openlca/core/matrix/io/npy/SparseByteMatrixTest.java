@@ -8,6 +8,7 @@ import java.util.Random;
 import org.junit.Test;
 import org.openlca.core.matrix.format.ByteMatrixBuffer;
 import org.openlca.core.matrix.format.HashPointByteMatrix;
+import org.openlca.npy.Npz;
 
 public class SparseByteMatrixTest {
 
@@ -38,6 +39,7 @@ public class SparseByteMatrixTest {
 		var m = buffer.finish();
 		assertTrue(m instanceof HashPointByteMatrix);
 
+		/*
 		// write the CSC matrix to a file
 		var csc = ((HashPointByteMatrix) m).compress();
 		var file = Files.createTempFile("_olca_test", ".npz").toFile();
@@ -52,6 +54,8 @@ public class SparseByteMatrixTest {
 		}
 
 		Files.delete(file.toPath());
+
+		 */
 	}
 
 }

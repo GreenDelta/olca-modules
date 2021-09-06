@@ -115,48 +115,48 @@ public class NpyMatrix {
 	 * @param name   the name of the matrix file without file extension.
 	 * @param matrix the matrix that should be written to the file.
 	 */
-	public static void write(File folder, String name, MatrixReader matrix) {
-		if (folder == null || matrix == null)
-			return;
+	public static File write(File folder, String name, MatrixReader matrix) {
 
 		// write sparse matrices into the CSC format
 		var m = matrix instanceof HashPointMatrix
 			? CSCMatrix.of(matrix)
 			: matrix;
 		if (m instanceof CSCMatrix) {
-			writeNpz(new File(folder, name + ".npz"), (CSCMatrix) m);
-			return;
+			var file = new File(folder, name + ".npz");
+			writeNpz(file, (CSCMatrix) m);
+			return file;
 		}
 
 		// write dense matrices in Fortran order
 		var dense = matrix instanceof DenseMatrix
 			? (DenseMatrix) matrix
 			: DenseMatrix.of(matrix);
-		Npy.write(
-			new File(folder, name + ".npy"),
+		var file = new File(folder, name + ".npy");
+		Npy.write(file,
 			NpyDoubleArray.columnOrderOf(dense.data, dense.rows, dense.columns));
+		return file;
 	}
 
-	public static void write(File folder, String name, ByteMatrixReader matrix) {
-		if (folder == null || matrix == null)
-			return;
+	public static File write(File folder, String name, ByteMatrixReader matrix) {
 
 		// write sparse matrices into the CSC format
 		var m = matrix instanceof HashPointByteMatrix
 			? ((HashPointByteMatrix) matrix).compress()
 			: matrix;
 		if (m instanceof CSCByteMatrix) {
-			writeNpzBytes(new File(folder, name + ".npz"), (CSCByteMatrix) m);
-			return;
+			var file = new File(folder, name + ".npz");
+			writeNpzBytes(file, (CSCByteMatrix) m);
+			return file;
 		}
 
 		// write dense matrices in Fortran order
 		var dense = matrix instanceof DenseByteMatrix
 			? (DenseByteMatrix) matrix
 			: DenseByteMatrix.of(matrix);
-		Npy.write(
-			new File(folder, name + ".npy"),
+		var file = new File(folder, name + ".npy");
+		Npy.write(file,
 			NpyByteArray.columnOrderOf(dense.data, dense.rows, dense.columns));
+		return file;
 	}
 
 	private static void writeNpz(File file, CSCMatrix csc) {

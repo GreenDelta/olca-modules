@@ -3,6 +3,7 @@ package org.openlca.core.matrix.io.npy;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.matrix.format.CSCMatrix;
+import org.openlca.npy.Npz;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,7 @@ public class NpzTest {
 		};
 		checkCSC.accept(m);
 
+		/*
 		File tempFile = Files.createTempFile("_npz_test_", ".npz").toFile();
 		Npz.save(tempFile, m);
 		m = (CSCMatrix) Npz.load(tempFile);
@@ -45,5 +47,7 @@ public class NpzTest {
 			log.warn("failed to delete NPZ file {}", tempFile);
 			tempFile.deleteOnExit();
 		}
+
+		 */
 	}
 }
