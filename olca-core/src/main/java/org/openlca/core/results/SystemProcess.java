@@ -54,7 +54,7 @@ public class SystemProcess {
 	}
 
 	private void addRefFlow(Process p) {
-		if (setup == null || setup.productSystem == null)
+		if (setup == null)
 			return;
 		var ref = setup.productSystem.referenceExchange;
 		if (ref == null || ref.flow == null)
