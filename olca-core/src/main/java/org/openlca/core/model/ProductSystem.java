@@ -19,7 +19,7 @@ import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "tbl_product_systems")
-public class ProductSystem extends CategorizedEntity {
+public class ProductSystem extends CategorizedEntity implements CalculationTarget {
 
 	/**
 	 * TODO: This is currently an experimental feature and indicates that the

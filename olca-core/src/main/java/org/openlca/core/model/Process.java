@@ -15,7 +15,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_processes")
-public class Process extends ParameterizedEntity {
+public class Process extends ParameterizedEntity implements CalculationTarget {
 
 	@Column(name = "default_allocation_method")
 	@Enumerated(EnumType.STRING)
