@@ -1,6 +1,6 @@
 package org.openlca.core.model;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,42 +21,15 @@ public class CalculationSetup {
 	private CalculationType type;
 	private ImpactMethod impactMethod;
 	private NwSet nwSet;
+	private AllocationMethod allocation = AllocationMethod.NONE;
+	private List<ParameterRedef> parameters;
 	private boolean withCosts = false;
 	private boolean withRegionalization = false;
 	private boolean withUncertainties = false;
-	private AllocationMethod allocationMethod = AllocationMethod.NONE;
-	private final List<ParameterRedef> parameterRedefs = new ArrayList<>();
 	private Unit unit;
 	private FlowPropertyFactor flowPropertyFactor;
 	private Double amount;
-
-	/**
-	 * Indicates whether a regionalized result should be calculated or not. If
-	 * this is set to true, the intervention matrix is indexed by (elementary
-	 * flow, location) - pairs instead of just elementary flows. The LCI result
-	 * then contains results for these pairs which can be then used in
-	 * regionalized impact assessments.
-	 */
-
-
-	/**
-	 * Indicates whether the calculation matrices should be created with associated
-	 * uncertainty distributions. Typically, this is only required for running Monte
-	 * Carlo simulations.
-	 */
-
-
-
-
-
-
-	/**
-	 * Only valid for Monte Carlo Simulations (also, withUncertainties needs to be
-	 * true in this case).
-	 */
 	private int numberOfRuns = -1;
-
-	
 
 	/**
 	 * The default constructor which is required for our persistence framework.
@@ -81,7 +54,7 @@ public class CalculationSetup {
 		} else {
 			throw new IllegalArgumentException(
 				"Unexpected calculation target: " + target
-					+ "; only processes and product systems are supported");
+				+ "; only processes and product systems are supported");
 		}
 	}
 
@@ -106,6 +79,10 @@ public class CalculationSetup {
 		setup.numberOfRuns = runs;
 		setup.withUncertainties = true;
 		return setup;
+	}
+
+	public CalculationType type() {
+		return type;
 	}
 
 	/**
@@ -144,54 +121,82 @@ public class CalculationSetup {
 
 
 	/**
-	 * Optionally set another unit for the calculation than the one defined in
-	 * the product system.
+	 * Optionally set the unit for the target amount of the reference flow.
+	 * By default this is the reference unit of that flow.
 	 */
-	public void setUnit(Unit unit) {
+	public CalculationSetup withUnit(Unit unit) {
 		this.unit = unit;
+		return this;
 	}
 
 	/**
-	 * Get the unit of the quantitative reference of the product system. By
-	 * default this is the reference unit of the underlying product system.
+	 * Get the unit for the target amount of the reference flow.
 	 */
-	public Unit getUnit() {
+	public Unit unit() {
 		if (unit != null)
 			return unit;
-		else
+		if (system != null)
 			return system.targetUnit;
+		if (process == null)
+			return null;
+		var refFlow = process.quantitativeReference;
+		return refFlow == null
+			? null
+			: refFlow.unit;
 	}
 
 	/**
-	 * Optionally set another flow property factor for the calculation than the
-	 * one defined in the product system.
+	 * Optionally set the flow property factor for the target amount of
+	 * the reference flow. By default this is the reference flow property
+	 * factor of that flow.
 	 */
-	public void setFlowPropertyFactor(FlowPropertyFactor flowPropertyFactor) {
-		this.flowPropertyFactor = flowPropertyFactor;
+	public CalculationSetup withFlowPropertyFactor(FlowPropertyFactor f) {
+		this.flowPropertyFactor = f;
+		return this;
 	}
 
-	public FlowPropertyFactor getFlowPropertyFactor() {
+	/**
+	 * Get the flow property factor for the target amount of the reference
+	 * flow.
+	 */
+	public FlowPropertyFactor flowPropertyFactor() {
 		if (flowPropertyFactor != null)
 			return flowPropertyFactor;
-		else
+		if (system != null)
 			return system.targetFlowPropertyFactor;
+		if (process == null)
+			return null;
+		var refFlow = process.quantitativeReference;
+		return refFlow == null
+			? null
+			: refFlow.flowPropertyFactor;
 	}
 
 	/**
-	 * Optionally set another target amount for the calculation than the one
-	 * defined in the product system.
+	 * Optionally set the target amount for the reference flow of this setup.
+	 * By default it is the defined target amount of the product system or
+	 * the quantitative reference in case of a process.
 	 */
-	public void setAmount(double amount) {
+	public CalculationSetup withAmount(double amount) {
 		this.amount = amount;
+		return this;
 	}
 
 	/**
-	 * Get the target amount in the unit of this calculation setup.
+	 * Get the target amount of the reference flow in the unit as defined by
+	 * this setup.
 	 */
-	public double getAmount() {
-		return amount != null
-			? amount
-			: system.targetAmount;
+	public double amount() {
+		if (amount != null)
+			return amount;
+		if (system != null)
+			return system.targetAmount;
+		if (process == null)
+			return 1;
+		var refFlow = process.quantitativeReference;
+		return refFlow == null
+			? 1
+			: refFlow.amount;
 	}
 
 	/**
@@ -199,17 +204,115 @@ public class CalculationSetup {
 	 * this calculation setup. Note that this value is negative for waste treatment
 	 * systems and that it is given in the reference unit of the reference flow.
 	 */
-	public double getDemandValue() {
-		double a = amount != null
-			? amount
-			: system.targetAmount;
-		a = ReferenceAmount.get(a, getUnit(), getFlowPropertyFactor());
-		if (system.referenceExchange == null)
-			return a;
-		Flow flow = system.referenceExchange.flow;
-		if (flow != null && flow.flowType == FlowType.WASTE_FLOW) {
-			return -a;
-		}
-		return a;
+	public double demand() {
+		var value = ReferenceAmount.get(amount(), unit(), flowPropertyFactor());
+		var flow = flow();
+		return flow != null && flow.flowType == FlowType.WASTE_FLOW
+			? -value
+			: value;
+	}
+
+	private Flow flow() {
+		var refFlow = system != null
+			? system.referenceExchange
+			: process != null
+			? process.quantitativeReference
+			: null;
+		return refFlow != null
+			? refFlow.flow
+			: null;
+	}
+
+	public CalculationSetup withImpactMethod(ImpactMethod impactMethod) {
+		this.impactMethod = impactMethod;
+		return this;
+	}
+
+	public ImpactMethod impactMethod() {
+		return impactMethod;
+	}
+
+	public CalculationSetup withNwSet(NwSet nwSet) {
+		this.nwSet = nwSet;
+		return this;
+	}
+
+	public NwSet nwSet() {
+		return nwSet;
+	}
+
+	public CalculationSetup withAllocation(AllocationMethod allocation) {
+		this.allocation = allocation;
+		return this;
+	}
+
+	public AllocationMethod allocation() {
+		return allocation == null
+			? AllocationMethod.NONE
+			: allocation;
+	}
+
+	/**
+	 * Set the parameter redefinitions that should be applied in the calculation.
+	 * Note that even if the calculation setup is created for a product system
+	 * with parameter redefinitions, no parameter redefinitions are applied by
+	 * default.
+	 */
+	public CalculationSetup withParameters(List<ParameterRedef> parameters) {
+		this.parameters = parameters;
+		return this;
+	}
+
+	public List<ParameterRedef> parameters() {
+		return parameters == null
+			? Collections.emptyList()
+			: parameters;
+	}
+
+	public CalculationSetup withCosts(boolean b) {
+		this.withCosts = b;
+		return this;
+	}
+
+	public boolean hasCosts() {
+		return this.withCosts;
+	}
+
+	/**
+	 * Set whether the calculation matrices should be created with associated
+	 * uncertainty distributions or not. Typically, this is only required for
+	 * running Monte Carlo simulations and, thus, is {@code false} by default.
+	 */
+	public CalculationSetup withUncertainties(boolean b) {
+		this.withUncertainties = b;
+		return this;
+	}
+
+	public boolean hasUncertainties() {
+		return this.withUncertainties;
+	}
+
+	/**
+	 * Set whether a regionalized result should be calculated or not. This
+	 * is {@code false} by default. If this is set to true, the intervention
+	 * matrix is indexed by (elementary flow, location) - pairs instead of just
+	 * elementary flows. The LCI result then contains results for these pairs
+	 * which can be then used in regionalized impact assessments.
+	 */
+	public CalculationSetup withRegionalization(boolean b) {
+		this.withRegionalization = b;
+		return this;
+	}
+
+	public boolean hasRegionalization() {
+		return this.withRegionalization;
+	}
+
+	/**
+	 * This is only valid for Monte Carlo Simulations and returns the number of
+	 * simulation runs in this case, otherwise it just returns {@code -1}.
+	 */
+	public int numberOfRuns() {
+		return this.numberOfRuns;
 	}
 }
