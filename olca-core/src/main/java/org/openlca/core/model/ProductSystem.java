@@ -22,18 +22,6 @@ import jakarta.persistence.Transient;
 public class ProductSystem extends CategorizedEntity implements CalculationTarget {
 
 	/**
-	 * TODO: This is currently an experimental feature and indicates that the
-	 * product system does not store the supply chain network of the reference
-	 * process but is rather a calculation setup. When calculating such a
-	 * product system we directly take the product and waste flows between the
-	 * processes to build the network/matrices for the calculation. Note that
-	 * this field is currently not stored in the database. In a later stage we
-	 * may support this as a specific product system type directly in openLCA.
-	 */
-	@Transient
-	public boolean withoutNetwork = false;
-
-	/**
 	 * @deprecated parameter redefinitions are now organized in parameter sets
 	 */
 	@Deprecated

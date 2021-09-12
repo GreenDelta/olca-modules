@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
@@ -29,16 +29,16 @@ public class ProjectResult {
 		for (var v : project.variants) {
 			if (v.isDisabled)
 				continue;
-			var setup = CalculationSetup.contributions(v.productSystem);
-			setup.setUnit(v.unit);
-			setup.setFlowPropertyFactor(v.flowPropertyFactor);
-			setup.setAmount(v.amount);
-			setup.allocationMethod = v.allocationMethod;
-			setup.impactMethod = project.impactMethod;
-			setup.nwSet = project.nwSet;
-			setup.parameterRedefs.addAll(v.parameterRedefs);
-			setup.withCosts = project.isWithCosts;
-			setup.withRegionalization = project.isWithRegionalization;
+			var setup = CalculationSetup.contributions(v.productSystem)
+				.withUnit(v.unit)
+				.withFlowPropertyFactor(v.flowPropertyFactor)
+				.withAmount(v.amount)
+				.withAllocation(v.allocationMethod)
+				.withImpactMethod(project.impactMethod)
+				.withNwSet(project.nwSet)
+				.withParameters(v.parameterRedefs)
+				.withCosts(project.isWithCosts)
+				.withRegionalization(project.isWithRegionalization);
 			var variantResult = calculator.calculateContributions(setup);
 			result.results.put(v, variantResult);
 		}

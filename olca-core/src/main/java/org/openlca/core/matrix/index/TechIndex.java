@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -17,6 +18,7 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.math.ReferenceAmount;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.TechLinker;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
@@ -114,6 +116,13 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 		return index;
 	}
 
+	public static TechIndex of(CalculationSetup setup, IDatabase db) {
+		var index = initFrom(setup);
+		if (setup.hasProductSystem()) {
+
+		}
+	}
+
 	/**
 	 * Creates an unlinked index of all process products (and waste flows) of the
 	 * database in some arbitrary order.
@@ -147,6 +156,15 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 			demand = -demand;
 		}
 		index.setDemand(demand);
+		return index;
+	}
+
+	private static TechIndex initFrom(CalculationSetup setup) {
+		var process = Objects.requireNonNull(setup.process());
+		var flow = Objects.requireNonNull(setup.flow());
+		var refFlow = TechFlow.of(process, flow);
+		var index = new TechIndex(refFlow);
+		index.setDemand(setup.demand());
 		return index;
 	}
 

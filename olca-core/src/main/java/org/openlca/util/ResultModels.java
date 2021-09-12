@@ -43,7 +43,12 @@ public class ResultModels {
 			var m = new ResultModel();
 			m.refId = UUID.randomUUID().toString();
 			m.lastChange = new Date().getTime();
-			m.name = setup.productSystem.name;
+			var calcRef = setup.hasProductSystem()
+				? setup.productSystem()
+				: setup.process();
+			m.name = calcRef != null
+				? calcRef.name
+				: "-unknown-";
 
 			try {
 

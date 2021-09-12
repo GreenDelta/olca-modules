@@ -86,13 +86,6 @@ public class CalculationSetup {
 	}
 
 	/**
-	 * Returns true if this setup has a process as calculation target.
-	 */
-	public boolean hasProcess() {
-		return process != null;
-	}
-
-	/**
 	 * Get the reference process of this calculation setup. In case of a product
 	 * system as calculation target, it returns the reference process of that
 	 * product system.
@@ -212,7 +205,11 @@ public class CalculationSetup {
 			: value;
 	}
 
-	private Flow flow() {
+	/**
+	 * Returns the reference flow of this calculation setup, which is the
+	 * reference flow of the underlying product system or process of this setup.
+	 */
+	public Flow flow() {
 		var refFlow = system != null
 			? system.referenceExchange
 			: process != null

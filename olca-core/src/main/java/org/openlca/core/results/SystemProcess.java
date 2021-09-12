@@ -15,16 +15,16 @@ import org.openlca.core.model.SocialAspect;
 public class SystemProcess {
 
 	public static Process create(
-			IDatabase database,
-			CalculationSetup setup,
-			SimpleResult result,
-			String name) {
+		IDatabase database,
+		CalculationSetup setup,
+		SimpleResult result,
+		String name) {
 		return new SystemProcess(database, setup, result, name).create(false);
 	}
 
 	public static Process createWithMetaData(IDatabase database,
-			CalculationSetup setup,
-			SimpleResult result, String name) {
+		CalculationSetup setup,
+		SimpleResult result, String name) {
 		return new SystemProcess(database, setup, result, name).create(true);
 	}
 
@@ -34,7 +34,7 @@ public class SystemProcess {
 	private final String name;
 
 	private SystemProcess(IDatabase database, CalculationSetup setup,
-			SimpleResult result, String name) {
+		SimpleResult result, String name) {
 		this.flowDao = new FlowDao(database);
 		this.setup = setup;
 		this.result = result;
@@ -56,13 +56,13 @@ public class SystemProcess {
 	private void addRefFlow(Process p) {
 		if (setup == null)
 			return;
-		var ref = setup.productSystem.referenceExchange;
-		if (ref == null || ref.flow == null)
+		var flow = setup.flow();
+		if (flow == null)
 			return;
-		double amount = Math.abs(setup.getDemandValue());
-		p.quantitativeReference = ref.flow.flowType == FlowType.WASTE_FLOW
-				? p.input(ref.flow, amount)
-				: p.output(ref.flow, amount);
+		double amount = Math.abs(setup.demand());
+		p.quantitativeReference = flow.flowType == FlowType.WASTE_FLOW
+			? p.input(flow, amount)
+			: p.output(flow, amount);
 	}
 
 	private void addElemFlows(Process p) {
@@ -82,7 +82,7 @@ public class SystemProcess {
 	}
 
 	private void copyMetaData(Process p) {
-		Process refProc = setup.productSystem.referenceProcess;
+		Process refProc = setup.process();
 		if (refProc == null)
 			return;
 		for (SocialAspect sa : refProc.socialAspects)

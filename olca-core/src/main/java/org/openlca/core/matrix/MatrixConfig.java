@@ -103,13 +103,14 @@ public class MatrixConfig {
 		public Builder withSetup(CalculationSetup setup) {
 			if (setup == null)
 				return this;
-			withUncertainties = setup.withUncertainties;
-			withCosts = setup.withCosts;
-			withRegionalization = setup.withRegionalization;
-			allocationMethod = setup.allocationMethod;
-			redefs = setup.parameterRedefs;
-			return setup.impactMethod != null
-				? withImpacts(ImpactIndex.of(setup.impactMethod))
+			withUncertainties = setup.hasUncertainties();
+			withCosts = setup.hasCosts();
+			withRegionalization = setup.hasRegionalization();
+			allocationMethod = setup.allocation();
+			redefs = setup.parameters();
+			var impactMethod = setup.impactMethod();
+			return impactMethod != null
+				? withImpacts(ImpactIndex.of(impactMethod))
 				: this;
 		}
 
