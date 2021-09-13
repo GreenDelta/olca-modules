@@ -105,7 +105,7 @@ public class MatrixData {
 	public static MatrixData of(
 		IDatabase db, CalculationSetup setup,
 		Map<TechFlow, SimpleResult> subResults) {
-		var techIndex = TechIndex.of(setup, db);
+		var techIndex = TechIndex.of(db, setup);
 		return MatrixConfig.of(db, techIndex)
 			.withSetup(setup)
 			.withSubResults(subResults)

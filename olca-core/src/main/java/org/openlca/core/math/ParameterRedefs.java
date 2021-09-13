@@ -63,7 +63,7 @@ class ParameterRedefs {
 	/**
 	 * Returns true when the given parameter redefinitions are related to exactly
 	 * the same parameter. This is the case when the context is the same and the
-	 * name (where parameter names are case insensitive). An input of invalid
+	 * name (where parameter names are case-insensitive). An input of invalid
 	 * parameters (null or no name) will always return false.
 	 */
 	private static boolean same(ParameterRedef p1, ParameterRedef p2) {

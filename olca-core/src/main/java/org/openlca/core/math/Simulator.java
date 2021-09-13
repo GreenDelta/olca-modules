@@ -24,8 +24,6 @@ import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.ProcessLink;
-import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.core.results.SimulationResult;
 import org.openlca.core.results.providers.ResultProviders;
@@ -190,7 +188,7 @@ public class Simulator {
 				if (sub == null)
 					continue;
 				if (sub.lastResult == null
-						|| sub.lastResult.totalFlowResults == null)
+					|| sub.lastResult.totalFlowResults == null)
 					continue; // should not happen
 				int col = node.data.techIndex.of(subLink);
 				if (col < 0)
@@ -209,13 +207,21 @@ public class Simulator {
 	}
 
 	private void init(IDatabase db, CalculationSetup setup) {
-		long rootID = setup.productSystem.id;
+
+		long rootID = setup.hasProductSystem()
+			? setup.productSystem().id
+			: setup.process().id;
+		if (!setup.hasProductSystem()) {
+			root = new Node(setup, db, Collections.emptyMap());
+			nodeIndex.put(root.systemID, root);
+			return;
+		}
 
 		// check whether the root system has sub-system links;
 		// only when this is true we need to collect and order
 		// the sub-system relations
 		boolean hasSubSystems = false;
-		for (ProcessLink link : setup.productSystem.processLinks) {
+		for (var link : setup.productSystem().processLinks) {
 			if (link.isSystemLink) {
 				hasSubSystems = true;
 				break;
@@ -299,13 +305,13 @@ public class Simulator {
 			} else {
 				// create node for LCI and LCC data simulation
 				// do *not* copy the LCIA method here
-				ProductSystemDao dao = new ProductSystemDao(db);
-				ProductSystem sub = dao.getForId(system);
-				_setup = CalculationSetup.monteCarlo(sub, setup.numberOfRuns);
-				_setup.parameterRedefs.addAll(setup.parameterRedefs);
+				var dao = new ProductSystemDao(db);
+				var sub = dao.getForId(system);
+				_setup = CalculationSetup.monteCarlo(sub, setup.numberOfRuns())
+					.withParameters(setup.parameters())
+					.withCosts(setup.hasCosts())
+					.withAllocation(setup.allocation());
 				ParameterRedefs.addTo(_setup, sub);
-				_setup.withCosts = setup.withCosts;
-				_setup.allocationMethod = setup.allocationMethod;
 			}
 
 			Node node = new Node(_setup, db, subResults);
@@ -359,27 +365,30 @@ public class Simulator {
 		SimpleResult lastResult;
 
 		Node(CalculationSetup setup, IDatabase db,
-				 Map<TechFlow, SimpleResult> subResults) {
+			Map<TechFlow, SimpleResult> subResults) {
 
-			systemID = setup.productSystem.id;
-			product = TechFlow.of(setup.productSystem);
+			systemID = setup.hasProductSystem()
+				? setup.productSystem().id
+				: setup.process().id;
+			product = TechFlow.of(setup.process(), setup.flow());
 			data = MatrixData.of(db, setup, subResults);
 
 			// parameters
-			HashSet<Long> paramContexts = new HashSet<>();
+			var paramContexts = new HashSet<Long>();
 			data.techIndex.each((i, p) -> {
 				if (p.process() != null
-						&& p.process().type == ModelType.PROCESS) {
+					&& p.process().type == ModelType.PROCESS) {
 					paramContexts.add(p.processId());
 				}
 			});
-			if (setup.impactMethod != null) {
-				new ImpactMethodDao(db).getCategoryDescriptors(
-					setup.impactMethod.id)
+			var impactMethod = setup.impactMethod();
+			if (impactMethod != null) {
+				new ImpactMethodDao(db)
+					.getCategoryDescriptors(impactMethod.id)
 					.forEach(d -> paramContexts.add(d.id));
 			}
 			parameters = ParameterTable.forSimulation(
-				db, paramContexts, setup.parameterRedefs);
+				db, paramContexts, setup.parameters());
 		}
 	}
 

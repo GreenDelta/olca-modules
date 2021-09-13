@@ -84,14 +84,34 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 	 * process products (and waste flows) from the database. Otherwise all process
 	 * links of the product system are directly stored in the index.
 	 */
-	public static TechIndex of(ProductSystem system, IDatabase db) {
-		var index = initFrom(system);
-		if (system.withoutNetwork) {
-			eachProviderOf(db, index::add);
-			return index;
-		}
+	public static TechIndex of(IDatabase db, ProductSystem system) {
+		var refExchange = Objects.requireNonNull(system.referenceExchange);
+		var refFlow = Objects.requireNonNull(refExchange.flow);
+		var refProcess = Objects.requireNonNull(system.referenceProcess);
+		var index = new TechIndex(TechFlow.of(refProcess, refFlow));
+		double demand = ReferenceAmount.get(system);
+		index.setDemand(refFlow.flowType == FlowType.WASTE_FLOW
+			? -demand
+			: demand);
+		index.fillFrom(db, system);
+		return index;
+	}
 
-		// initialize the fast descriptor maps
+	public static TechIndex of(IDatabase db, CalculationSetup setup) {
+		var process = Objects.requireNonNull(setup.process());
+		var flow = Objects.requireNonNull(setup.flow());
+		var refFlow = TechFlow.of(process, flow);
+		var index = new TechIndex(refFlow);
+		index.setDemand(setup.demand());
+		if (setup.hasProductSystem()) {
+			index.fillFrom(db, setup.productSystem());
+		} else {
+			eachProviderOf(db, index::add);
+		}
+		return index;
+	}
+
+	private void fillFrom(IDatabase db, ProductSystem system) {
 		var systems = new ProductSystemDao(db).descriptorMap();
 		var processes = new ProcessDao(db).descriptorMap();
 		var flows = new FlowDao(db).descriptorMap();
@@ -109,17 +129,9 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 
 			// the tech-index checks for duplicates of products and links
 			var provider = TechFlow.of(p, flow);
-			index.add(provider);
+			add(provider);
 			var exchange = new LongPair(link.processId, link.exchangeId);
-			index.putLink(exchange, provider);
-		}
-		return index;
-	}
-
-	public static TechIndex of(CalculationSetup setup, IDatabase db) {
-		var index = initFrom(setup);
-		if (setup.hasProductSystem()) {
-
+			putLink(exchange, provider);
 		}
 	}
 
@@ -139,35 +151,6 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 		return index;
 	}
 
-	private static TechIndex initFrom(ProductSystem system) {
-		// initialize the TechIndex with the reference flow
-		var refExchange = system.referenceExchange;
-		var refFlow = TechFlow.of(
-				system.referenceProcess, refExchange.flow);
-		var index = new TechIndex(refFlow);
-
-		// set the final demand value which is negative
-		// when we have a waste flow as reference flow
-		double demand = ReferenceAmount.get(system);
-		var ftype = refExchange.flow == null
-				? null
-				: refExchange.flow.flowType;
-		if (ftype == FlowType.WASTE_FLOW) {
-			demand = -demand;
-		}
-		index.setDemand(demand);
-		return index;
-	}
-
-	private static TechIndex initFrom(CalculationSetup setup) {
-		var process = Objects.requireNonNull(setup.process());
-		var flow = Objects.requireNonNull(setup.flow());
-		var refFlow = TechFlow.of(process, flow);
-		var index = new TechIndex(refFlow);
-		index.setDemand(setup.demand());
-		return index;
-	}
-
 	private static void eachProviderOf(IDatabase db, Consumer<TechFlow> fn) {
 		var processes = new ProcessDao(db).descriptorMap();
 		var flows = new FlowDao(db).descriptorMap();
@@ -176,8 +159,8 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 			long flowID = r.getLong(2);
 			var flow = flows.get(flowID);
 			if (flow == null
-					|| flow.flowType == null
-					|| flow.flowType == FlowType.ELEMENTARY_FLOW)
+				|| flow.flowType == null
+				|| flow.flowType == FlowType.ELEMENTARY_FLOW)
 				return true;
 			var type = flow.flowType;
 			boolean isInput = r.getBoolean(3);
@@ -303,8 +286,8 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 	 */
 	public List<TechFlow> getProviders(CategorizedDescriptor d) {
 		return d == null
-				? Collections.emptyList()
-				: getProviders(d.id);
+			? Collections.emptyList()
+			: getProviders(d.id);
 	}
 
 	/**
@@ -314,8 +297,8 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 	public List<TechFlow> getProviders(long processId) {
 		var providers = processProviders.get(processId);
 		return providers == null
-				? Collections.emptyList()
-				: providers;
+			? Collections.emptyList()
+			: providers;
 	}
 
 	/**

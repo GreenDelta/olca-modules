@@ -55,15 +55,15 @@ public class SystemCalculator {
 	 * given setup. It returns an empty map when there are no subsystems.
 	 */
 	private Map<TechFlow, SimpleResult> calculateSubSystems(
-			CalculationSetup setup) {
-		if (setup == null || setup.productSystem.withoutNetwork)
+		CalculationSetup setup) {
+		if (setup == null || !setup.hasProductSystem())
 			return Collections.emptyMap();
 
 		// collect the sub-systems
 		var subSystems = new HashSet<TechFlow>();
 		var sysDao = new ProductSystemDao(db);
 		var flowDao = new FlowDao(db);
-		for (var link : setup.productSystem.processLinks) {
+		for (var link : setup.productSystem().processLinks) {
 			if (!link.isSystemLink)
 				continue;
 			var sys = sysDao.getDescriptor(link.providerId);
@@ -83,13 +83,13 @@ public class SystemCalculator {
 			var subSystem = sysDao.getForId(pp.processId());
 			if (subSystem == null)
 				continue;
-			var subSetup = CalculationSetup.simple(subSystem);
-			subSetup.parameterRedefs.addAll(setup.parameterRedefs);
+			var subSetup = CalculationSetup.simple(subSystem)
+				.withParameters(setup.parameters())
+				.withCosts(setup.hasCosts())
+				.withUncertainties(setup.hasUncertainties())
+				.withRegionalization(setup.hasRegionalization())
+				.withAllocation(setup.allocation());
 			ParameterRedefs.addTo(subSetup, subSystem);
-			subSetup.withCosts = setup.withCosts;
-			subSetup.withUncertainties = setup.withUncertainties;
-			subSetup.withRegionalization = setup.withRegionalization;
-			subSetup.allocationMethod = setup.allocationMethod;
 			var subResult = calculateSimple(subSetup);
 			subResults.put(pp, subResult);
 		}
