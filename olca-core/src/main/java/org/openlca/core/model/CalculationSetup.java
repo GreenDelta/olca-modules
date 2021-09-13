@@ -98,6 +98,12 @@ public class CalculationSetup {
 			: null;
 	}
 
+	public <T extends CategorizedEntity & CalculationTarget> T target() {
+		return (T) (system != null
+			? system
+			: process);
+	}
+
 	/**
 	 * Returns true if this setup has a product system as calculation target.
 	 */
