@@ -1,5 +1,6 @@
 package org.openlca.ipc.handlers;
 
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
@@ -49,10 +50,9 @@ public class Calculator {
 		if (p.second != null)
 			return p.second;
 		var setup = p.first;
-		log.info("Create simulator for system {}", setup.productSystem.refId);
-		Simulator simulator = Simulator.create(setup, db, context.solver);
-		String id = UUID.randomUUID().toString();
-		JsonObject obj = new JsonObject();
+		var simulator = Simulator.create(setup, db, context.solver);
+		var id = UUID.randomUUID().toString();
+		var obj = new JsonObject();
 		obj.addProperty("@id", id);
 		obj.addProperty("@type", "Simulator");
 		context.cache.put(id, CachedResult.of(setup, simulator));
@@ -95,7 +95,6 @@ public class Calculator {
 		if (p.second != null)
 			return p.second;
 		var setup = p.first;
-		log.info("Calculate product system {}", setup.productSystem.refId);
 		return calculate(req, setup);
 	}
 
@@ -135,12 +134,12 @@ public class Calculator {
 		// LCIA method and normalization and weighting
 		var methodID = Json.getRefId(json, "impactMethod");
 		if (Strings.notEmpty(methodID)) {
-			setup.impactMethod = db.get(ImpactMethod.class, methodID);
+			setup.withImpactMethod(db.get(ImpactMethod.class, methodID));
 			var nwSetID = Json.getRefId(json, "nwSet");
-			if (Strings.notEmpty(nwSetID) && setup.impactMethod != null) {
-				for (var nwSet : setup.impactMethod.nwSets) {
+			if (Strings.notEmpty(nwSetID) && setup.impactMethod() != null) {
+				for (var nwSet : setup.impactMethod().nwSets) {
 					if (nwSetID.equals(nwSet.refId)) {
-						setup.nwSet = nwSet;
+						setup.withNwSet(nwSet);
 						break;
 					}
 				}
@@ -148,7 +147,7 @@ public class Calculator {
 		}
 
 		// the quantitative reference
-		setup.setAmount(Json.getDouble(json, "amount", system.targetAmount));
+		setup.withAmount(Json.getDouble(json, "amount", system.targetAmount));
 		var qref = system.referenceExchange;
 		if (qref != null && qref.flow != null) {
 
@@ -158,7 +157,7 @@ public class Calculator {
 				for (var f : qref.flow.flowPropertyFactors) {
 					if (f.flowProperty != null
 						&& !propID.equals(f.flowProperty.refId)) {
-						setup.setFlowPropertyFactor(f);
+						setup.withFlowPropertyFactor(f);
 						break;
 					}
 				}
@@ -167,7 +166,7 @@ public class Calculator {
 			// unit (we check for matching unit names and IDs here)
 			var unitObj = Json.getObject(json, "unit");
 			if (unitObj != null) {
-				var prop = setup.getFlowPropertyFactor();
+				var prop = setup.flowPropertyFactor();
 				var group = prop != null && prop.flowProperty != null
 					? prop.flowProperty.unitGroup
 					: null;
@@ -179,34 +178,39 @@ public class Calculator {
 						.filter(u -> Objects.equals(u.refId, unitID)
 							|| Objects.equals(u.name, unitName))
 						.findAny()
-						.ifPresent(setup::setUnit);
+						.ifPresent(setup::withUnit);
 				}
 			}
 		}
 
 		// other calculation attributes
-		setup.allocationMethod = Json.getEnum(
-			json, "allocationMethod", AllocationMethod.class);
-		setup.withCosts = Json.getBool(json, "withCosts", false);
+		setup.withAllocation(
+				Json.getEnum(json, "allocationMethod", AllocationMethod.class))
+			.withCosts(Json.getBool(json, "withCosts", false));
 
 		// add parameter redefinitions
-		parameters(json, setup);
+		addParameters(json, setup);
 
 		return Pair.of(setup, null);
 	}
 
-	private void parameters(JsonObject json, CalculationSetup setup) {
+	private void addParameters(JsonObject json, CalculationSetup setup) {
 		var array = Json.getArray(json, "parameterRedefs");
-		if (array == null) {
-			var redefSet = setup.productSystem.parameterSets.stream()
+
+		// if no parameter redefinitions are defined, we take the redefinitions
+		// of the baseline set by default
+		if (array == null && setup.hasProductSystem()) {
+			setup.productSystem().parameterSets.stream()
 				.filter(s -> s.isBaseline)
-				.findAny();
-			if (redefSet.isPresent()) {
-				setup.parameterRedefs.clear();
-				setup.parameterRedefs.addAll(redefSet.get().parameters);
-			}
+				.findAny()
+				.ifPresent(paramSet -> setup.withParameters(paramSet.parameters));
 			return;
 		}
+		if (array == null)
+			return;
+
+		// add the redefinitions of the calculation setup
+		var redefs = new ArrayList<ParameterRedef>();
 		for (var e : array) {
 			if (!e.isJsonObject())
 				continue;
@@ -221,7 +225,7 @@ public class Calculator {
 			var context = Json.getObject(obj, "context");
 			if (context == null) {
 				// global parameter redefinition
-				setup.parameterRedefs.add(redef);
+				redefs.add(redef);
 				continue;
 			}
 
@@ -237,8 +241,10 @@ public class Calculator {
 				continue;
 			redef.contextId = d.id;
 			redef.contextType = d.type;
-			setup.parameterRedefs.add(redef);
+			redefs.add(redef);
 		}
+
+		setup.withParameters(redefs);
 	}
 
 	private RpcResponse calculate(RpcRequest req, CalculationSetup setup) {

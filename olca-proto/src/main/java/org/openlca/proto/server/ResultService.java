@@ -139,7 +139,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
         .filter(set -> set.isBaseline)
         .findAny()
         .ifPresent(set -> setup.withParameters(set.parameters));
-    } else {
+    } else if (!protoRedefs.isEmpty()) {
       var params = new ArrayList<ParameterRedef>();
       for (var protoRedef : protoRedefs) {
         params.add(In.parameterRedefOf(protoRedef, db));
