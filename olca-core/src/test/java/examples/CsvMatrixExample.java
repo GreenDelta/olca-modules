@@ -23,7 +23,7 @@ public class CsvMatrixExample {
 			// build and calculate the system
 			var system = db.get(ProductSystem.class,
 				"7d1cbce0-b5b3-47ba-95b5-014ab3c7f569");
-			var techIndex = TechIndex.of(system, db);
+			var techIndex = TechIndex.of(db, system);
 			var data = MatrixData.of(db, techIndex)
 				.withUncertainties(true)
 				.withImpacts(ImpactIndex.of(db))

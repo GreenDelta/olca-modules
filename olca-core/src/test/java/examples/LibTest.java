@@ -8,7 +8,6 @@ import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProductSystem;
 import org.openlca.julia.Julia;
 
 public class LibTest {
@@ -26,12 +25,11 @@ public class LibTest {
 		// var system = db.get(ProductSystem.class, sysID);
 		var process = db.get(Process.class,
 				"e78c028d-dc1d-39d3-838e-955a60f05c9e");
-		var system = ProductSystem.of(process);
-		system.withoutNetwork = true;
-
-		var setup = CalculationSetup.fullAnalysis(system);
-		setup.impactMethod = db.get(ImpactMethod.class,
+		var method = db.get(ImpactMethod.class,
 			"effb055a-ad78-39bd-8dc0-341411db4ae7");
+
+		var setup = CalculationSetup.fullAnalysis(process)
+			.withImpactMethod(method);
 
 		var start =  System.currentTimeMillis();
 		var result = new SystemCalculator(db)

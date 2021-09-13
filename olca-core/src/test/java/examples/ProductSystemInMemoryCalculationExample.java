@@ -42,11 +42,12 @@ public class ProductSystemInMemoryCalculationExample {
 		ProductSystemBuilder builder = new ProductSystemBuilder(
 				mcache, config);
 		ProductSystem system = builder.build(p);
+		var method = db.get(ImpactMethod.class,
+			"207ffac9-aaa8-401d-ac90-874defd3751a");
 
 		// create the calculation setup
-		CalculationSetup setup = CalculationSetup.simple(system);
-		setup.impactMethod = db.get(ImpactMethod.class,
-			"207ffac9-aaa8-401d-ac90-874defd3751a");
+		var setup = CalculationSetup.simple(system)
+			.withImpactMethod(method);
 
 		// load the native library and calculate the result
 		// TODO: load Julia libraries first here

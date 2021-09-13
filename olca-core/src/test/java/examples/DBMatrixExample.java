@@ -3,8 +3,6 @@ package examples;
 import org.openlca.core.database.Derby;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.model.Process;
-import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.FullResult;
 import org.openlca.julia.Julia;
 
@@ -17,17 +15,10 @@ public class DBMatrixExample {
 	public static void main(String[] args) {
 		Julia.load();
 		try (var db = Derby.fromDataDir("ei2")) {
-
-			var process = db.get(
-				Process.class, "40c4af47-b6d7-3f6c-95ba-426604a8a423");
-			var system = ProductSystem.of(process);
-			system.withoutNetwork = true;
-
 			System.out.println("build it");
 			long start = System.currentTimeMillis();
-			var techIndex = TechIndex.of(system, db);
-			var matrices = MatrixData.of(db, techIndex)
-				.build();
+			var techIndex = TechIndex.of(db);
+			var matrices = MatrixData.of(db, techIndex).build();
 			long end = System.currentTimeMillis();
 			System.out.printf(
 				"matrix build took %.3f seconds%n",

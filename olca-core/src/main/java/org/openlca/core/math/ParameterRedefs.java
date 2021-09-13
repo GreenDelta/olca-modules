@@ -1,5 +1,6 @@
 package org.openlca.core.math;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,28 +24,27 @@ class ParameterRedefs {
 	static void addTo(CalculationSetup setup, ProductSystem system) {
 		if (setup == null || system == null)
 			return;
-		ParameterRedefSet baseline = system.parameterSets
-				.stream()
-				.filter(ps -> ps.isBaseline)
-				.findFirst()
-				.orElse(system.parameterSets.isEmpty()
-						? null
-						: system.parameterSets.get(0));
-		if (baseline != null) {
-			addTo(setup.parameterRedefs, baseline.parameters);
+		var baseline = system.parameterSets
+			.stream()
+			.filter(ps -> ps.isBaseline)
+			.findFirst()
+			.orElse(system.parameterSets.isEmpty()
+				? null
+				: system.parameterSets.get(0));
+		if (baseline == null || baseline.parameters.isEmpty())
+			return;
+		var setupParams = setup.parameters();
+		if (setupParams.isEmpty()) {
+			setup.withParameters(baseline.parameters);
+			return;
 		}
-	}
-
-	/**
-	 * Adds the redefinitions of the second list to the first list but only if there
-	 * is not already a redifintion of that parameter in the first list.
-	 */
-	static void addTo(List<ParameterRedef> first, List<ParameterRedef> second) {
-		for (ParameterRedef redef : second) {
-			if (contains(first, redef))
-				continue;
-			first.add(redef);
+		var nextParams = new ArrayList<>(setupParams);
+		for (var param : baseline.parameters) {
+			if (!contains(nextParams, param)) {
+				nextParams.add(param);
+			}
 		}
+		setup.withParameters(nextParams);
 	}
 
 	/**
@@ -52,7 +52,7 @@ class ParameterRedefs {
 	 * parameter as the given redefinition.
 	 */
 	private static boolean contains(
-			List<ParameterRedef> list, ParameterRedef redef) {
+		List<ParameterRedef> list, ParameterRedef redef) {
 		for (ParameterRedef listRedef : list) {
 			if (same(listRedef, redef))
 				return true;

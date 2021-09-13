@@ -23,11 +23,12 @@ public class SimulatorExample {
 		var db = Derby.fromDataDir("ecoinvent_2_2_unit");
 		var system = db.get(ProductSystem.class,
 			"53f9b9db-139f-4617-bf2b-8fc715b3cd16");
-		var setup = CalculationSetup.monteCarlo(system, 200);
-		setup.impactMethod = db.get(ImpactMethod.class,
-			"207ffac9-aaa8-401d-ac90-874defd3751a");
+		var method = db.get(ImpactMethod.class,
+			"207ffac9-aaa8-401d-ac90-874defd3751a");;
+		var setup = CalculationSetup.monteCarlo(system, 200)
+			.withImpactMethod(method);
 		ImpactDescriptor gwp = null;
-		for (var i : setup.impactMethod.impactCategories) {
+		for (var i : method.impactCategories) {
 			if (i.name.equals("Climate change - GWP100")) {
 				gwp = Descriptor.of(i);
 				break;
