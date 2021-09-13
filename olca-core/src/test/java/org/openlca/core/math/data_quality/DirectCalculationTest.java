@@ -12,7 +12,6 @@ import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 
@@ -39,7 +38,7 @@ public class DirectCalculationTest {
 		var setup = CalculationSetup.fullAnalysis(process);
 		var calculator = new SystemCalculator(Tests.getDb());
 		var result = calculator.calculateFull(setup);
-		var dqSetup = DQCalculationSetup.of((system));
+		var dqSetup = DQCalculationSetup.of(setup);
 		var dqResult = DQResult.of(db, dqSetup, result);
 
 		// check the result

@@ -1,13 +1,15 @@
 package org.openlca.core.math.data_quality;
 
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.DQSystem;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 
 public class DQCalculationSetup {
 
 	// TODO: => does not work with in memory
 	// product systems
-	public long productSystemId;
+	// public long productSystemId;
 
 	public AggregationType aggregationType;
 
@@ -22,6 +24,12 @@ public class DQCalculationSetup {
 	public DQSystem processSystem;
 	public DQSystem exchangeSystem;
 
+	public DQCalculationSetup() {
+		aggregationType = AggregationType.WEIGHTED_AVERAGE;
+		ceiling = false;
+		naHandling = NAHandling.EXCLUDE;
+	}
+
 	/**
 	 * Initializes the setup with default settings. The data
 	 * quality systems are initialized with the respective
@@ -29,19 +37,25 @@ public class DQCalculationSetup {
 	 * may be null).
 	 */
 	public static DQCalculationSetup of(ProductSystem system) {
+		return system == null
+			? new DQCalculationSetup()
+			: of(system.referenceProcess);
+	}
+
+	public static DQCalculationSetup of(CalculationSetup setup) {
+		return setup == null
+			? new DQCalculationSetup()
+			: of(setup.process());
+	}
+
+	public static DQCalculationSetup of(Process process) {
 		var setup = new DQCalculationSetup();
-		setup.aggregationType = AggregationType.WEIGHTED_AVERAGE;
-		setup.ceiling = false;
-		setup.naHandling = NAHandling.EXCLUDE;
-		if (system == null)
-			return setup;
-		setup.productSystemId = system.id;
-		if (system.referenceProcess == null)
-			return setup;
-		var ref = system.referenceProcess;
-		setup.exchangeSystem = ref.exchangeDqSystem;
-		setup.processSystem = ref.dqSystem;
+		if (process != null) {
+			setup.exchangeSystem = process.exchangeDqSystem;
+			setup.processSystem = process.dqSystem;
+		}
 		return setup;
 	}
+
 
 }
