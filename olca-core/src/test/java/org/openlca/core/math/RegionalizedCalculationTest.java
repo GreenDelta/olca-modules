@@ -221,10 +221,9 @@ public class RegionalizedCalculationTest {
 	public void testDefaultCharacterization() {
 		p1 = setLoc(p1, loc3);
 		p2 = setLoc(p2, loc3);
-		CalculationSetup setup = calcSetup();
-		setup.withRegionalization = true;
-		SystemCalculator calc = new SystemCalculator(db);
-		FullResult r = calc.calculateFull(setup);
+		var setup = calcSetup().withRegionalization(true);
+		var calc = new SystemCalculator(db);
+		var r = calc.calculateFull(setup);
 
 		// LCI results and contributions
 		checkRegTotalFlowResults(r, new Object[][]{
@@ -264,10 +263,9 @@ public class RegionalizedCalculationTest {
 	public void testProcessLocations() {
 		p1 = setLoc(p1, loc1);
 		p2 = setLoc(p2, loc2);
-		CalculationSetup setup = calcSetup();
-		setup.withRegionalization = true;
-		SystemCalculator calc = new SystemCalculator(db);
-		FullResult r = calc.calculateFull(setup);
+		var setup = calcSetup().withRegionalization(true);
+		var calc = new SystemCalculator(db);
+		var r = calc.calculateFull(setup);
 		checkRegionalizedResults(r);
 	}
 
@@ -275,8 +273,7 @@ public class RegionalizedCalculationTest {
 	public void testMatrixBuilderProcesssLocations() {
 		p1 = setLoc(p1, loc1);
 		p2 = setLoc(p2, loc2);
-		CalculationSetup setup = calcSetup();
-		setup.withRegionalization = true;
+		var setup = calcSetup().withRegionalization(true);
 		var data = MatrixData.of(db, setup);
 		var result = FullResult.of(db, data);
 		checkRegionalizedResults(result);
@@ -450,9 +447,8 @@ public class RegionalizedCalculationTest {
 	private CalculationSetup calcSetup() {
 		// reload the product system to get the updates
 		sys = new ProductSystemDao(db).getForId(sys.id);
-		var setup = CalculationSetup.fullAnalysis(sys);
-		setup.impactMethod = method;
-		return setup;
+		return CalculationSetup.fullAnalysis(sys)
+			.withImpactMethod(method);
 	}
 
 	@Test
@@ -483,9 +479,9 @@ public class RegionalizedCalculationTest {
 		method = new ImpactMethodDao(db).insert(method);
 
 		// create the product system and calculation setup
-		var setup = CalculationSetup.fullAnalysis(ProductSystem.of(p));
-		setup.impactMethod = method;
-		setup.withRegionalization = true;
+		var setup = CalculationSetup.fullAnalysis(ProductSystem.of(p))
+			.withImpactMethod(method)
+			.withRegionalization(true);
 		var calculator = new SystemCalculator(db);
 
 		FullResult r = calculator.calculateFull(setup);

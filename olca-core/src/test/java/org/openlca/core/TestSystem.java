@@ -94,8 +94,8 @@ public class TestSystem {
 	}
 
 	public static FullResult calculate(ProductSystem system) {
-		var setup = CalculationSetup.fullAnalysis(system);
-		setup.withCosts = true;
+		var setup = CalculationSetup.fullAnalysis(system)
+			.withCosts(true);
 		return calculate(setup);
 	}
 
@@ -106,8 +106,8 @@ public class TestSystem {
 
 	public static ContributionResult contributions(
 			ProductSystem system) {
-		var setup = CalculationSetup.contributions(system);
-		setup.withCosts = true;
+		var setup = CalculationSetup.contributions(system)
+			.withCosts(true);
 		SystemCalculator calc = new SystemCalculator(Tests.getDb());
 		return calc.calculateContributions(setup);
 	}

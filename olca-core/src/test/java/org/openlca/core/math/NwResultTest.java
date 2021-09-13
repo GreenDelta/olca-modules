@@ -48,9 +48,9 @@ public class NwResultTest {
 		method = db.insert(method);
 
 		// calculate results
-		var setup = CalculationSetup.fullAnalysis(system);
-		setup.impactMethod = method;
-		setup.nwSet = nwSet;
+		var setup = CalculationSetup.fullAnalysis(system)
+			.withImpactMethod(method)
+			.withNwSet(nwSet);
 		var result = FullResult.of(db, setup);
 		var impacts = result.getTotalImpactResults();
 		assertEquals(4, impacts.get(0).value, 1e-10);

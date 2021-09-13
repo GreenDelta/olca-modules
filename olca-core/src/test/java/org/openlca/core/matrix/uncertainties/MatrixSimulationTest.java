@@ -33,7 +33,7 @@ public class MatrixSimulationTest {
 		db.insert(p);
 		var system = db.insert(ProductSystem.of(p));
 
-		var data = MatrixData.of(db, TechIndex.of(system, db))
+		var data = MatrixData.of(db, TechIndex.of(db, system))
 			.withUncertainties(true)
 			.build();
 		assertEquals(2.0, data.enviMatrix.get(0, 0), 1e-16);
