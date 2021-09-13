@@ -1,5 +1,6 @@
 package org.openlca.proto.server;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -7,8 +8,11 @@ import java.util.UUID;
 import com.google.protobuf.Empty;
 import io.grpc.Status;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.model.CalculationTarget;
 import org.openlca.core.model.CalculationType;
+import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.providers.ResultProviders;
 import org.openlca.proto.generated.results.ImpactFactorRequest;
@@ -63,18 +67,18 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
   }
 
   private Pair<CalculationSetup, String> setup(Proto.CalculationSetup proto) {
-    var system = systemOf(proto);
-    if (system == null)
+    var target = targetOf(proto);
+    if (target == null)
       return Pair.of(null, "Product system or process does not exist");
 
     // initialize the setup
-    CalculationType type = switch (proto.getCalculationType()) {
+    var type = switch (proto.getCalculationType()) {
       case MONTE_CARLO_SIMULATION -> CalculationType.MONTE_CARLO_SIMULATION;
       case SIMPLE_CALCULATION -> CalculationType.SIMPLE_CALCULATION;
       case UPSTREAM_ANALYSIS -> CalculationType.UPSTREAM_ANALYSIS;
       default -> CalculationType.CONTRIBUTION_ANALYSIS;
     };
-    var setup = new CalculationSetup(type, system);
+    var setup = new CalculationSetup(type, target);
 
     // demand value
     if (proto.getAmount() != 0) {
@@ -82,7 +86,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     }
 
     // flow property
-    var qref = system.referenceExchange;
+    var qref = refExchangeOf(target);
     var propID = proto.getFlowProperty().getId();
     if (Strings.notEmpty(propID)
       && qref != null
@@ -128,36 +132,45 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
       .withRegionalization(proto.getWithRegionalization());
 
     // add parameter redefinitions
-    setup.parameterRedefs.clear();
     var protoRedefs = proto.getParameterRedefsList();
-    if (protoRedefs.isEmpty()) {
-      system.parameterSets.stream()
+    if (protoRedefs.isEmpty() && target.isProductSystem()) {
+      target.asProductSystem()
+        .parameterSets.stream()
         .filter(set -> set.isBaseline)
         .findAny()
-        .ifPresent(set -> setup.parameterRedefs.addAll(set.parameters));
+        .ifPresent(set -> setup.withParameters(set.parameters));
     } else {
+      var params = new ArrayList<ParameterRedef>();
       for (var protoRedef : protoRedefs) {
-        var redef = In.parameterRedefOf(protoRedef, db);
-        setup.parameterRedefs.add(redef);
+        params.add(In.parameterRedefOf(protoRedef, db));
       }
+      setup.withParameters(params);
     }
 
     return Pair.of(setup, null);
   }
 
-  private ProductSystem systemOf(Proto.CalculationSetup proto) {
+  private CalculationTarget targetOf(Proto.CalculationSetup proto) {
     var refID = proto.getProductSystem().getId();
     if (Strings.nullOrEmpty(refID))
       return null;
     var system = db.get(ProductSystem.class, refID);
     if (system != null)
       return system;
-    var process = db.get(Process.class, refID);
-    if (process == null)
+    return db.get(Process.class, refID);
+  }
+
+  private Exchange refExchangeOf(CalculationTarget target) {
+    if (target == null)
       return null;
-    system = ProductSystem.of(process);
-    system.withoutNetwork = true;
-    return system;
+    if (target.isProcess()) {
+      var p = target.asProcess();
+      return p.quantitativeReference;
+    } else if (target.isProductSystem()) {
+      var s = target.asProductSystem();
+      return s.referenceExchange;
+    }
+    return null;
   }
 
   @Override

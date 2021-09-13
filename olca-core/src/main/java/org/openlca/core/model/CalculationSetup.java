@@ -47,14 +47,14 @@ public class CalculationSetup {
 	 */
 	public CalculationSetup(CalculationType type, CalculationTarget target) {
 		this.type = Objects.requireNonNull(type);
-		if (target instanceof Process) {
-			this.process = (Process) target;
-		} else if (target instanceof ProductSystem) {
-			this.system = (ProductSystem) target;
+		if (target.isProcess()) {
+			this.process = target.asProcess();
+		} else if (target.isProductSystem()) {
+			this.system = target.asProductSystem();
 		} else {
 			throw new IllegalArgumentException(
 				"Unexpected calculation target: " + target
-				+ "; only processes and product systems are supported");
+					+ "; only processes and product systems are supported");
 		}
 	}
 

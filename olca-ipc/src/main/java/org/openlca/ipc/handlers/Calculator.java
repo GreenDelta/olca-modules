@@ -244,7 +244,7 @@ public class Calculator {
 	private RpcResponse calculate(RpcRequest req, CalculationSetup setup) {
 		try {
 			var calc = new SystemCalculator(db);
-			SimpleResult r = switch (setup.calculationType) {
+			SimpleResult r = switch (setup.type()) {
 				case CONTRIBUTION_ANALYSIS -> calc.calculateContributions(setup);
 				case SIMPLE_CALCULATION -> calc.calculateSimple(setup);
 				case UPSTREAM_ANALYSIS -> calc.calculateFull(setup);
@@ -252,7 +252,7 @@ public class Calculator {
 			};
 			if (r == null) {
 				return Responses.error(501,
-					"invalid calculation type: " + setup.calculationType, req);
+					"invalid calculation type: " + setup.type(), req);
 			}
 			var id = UUID.randomUUID().toString();
 			log.info("encode and cache result {}", id);

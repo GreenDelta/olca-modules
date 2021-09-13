@@ -9,4 +9,20 @@ package org.openlca.core.model;
  * to implement that interface when we are on Java 17
  */
 public interface CalculationTarget {
+
+	default boolean isProcess() {
+		return this instanceof Process;
+	}
+
+	default Process asProcess() {
+		return (Process) this;
+	}
+
+	default boolean isProductSystem() {
+		return this instanceof ProductSystem;
+	}
+
+	default ProductSystem asProductSystem() {
+		return (ProductSystem) this;
+	}
 }
