@@ -1,6 +1,5 @@
 package org.openlca.jsonld.input;
 
-import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ProductSystem;
@@ -34,7 +33,6 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 
 		s.targetAmount = Json.getDouble(json, "targetAmount", 1d);
 		addProcesses(json, s);
-		addInventory(json, s);
 		addParameterSets(json, s);
 		importLinkRefs(json, s);
 		ProductSystemLinks.map(json, conf, s);
@@ -65,7 +63,7 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 			return;
 		String refId = Json.getString(ref, "@id");
 		String type = Json.getString(ref, "@type");
-		RootEntity p = null;
+		RootEntity p;
 		if ("ProductSystem".equals(type)) {
 			p = ProductSystemImport.run(refId, conf);
 		} else {
@@ -89,19 +87,6 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 			FlowImport.run(flowRefId, conf);
 			addProcess(s, Json.getObject(obj, "provider"));
 			addProcess(s, Json.getObject(obj, "process"));
-		}
-	}
-
-	private void addInventory(JsonObject json, ProductSystem s) {
-		JsonArray array = Json.getArray(json, "inventory");
-		if (array == null || array.size() == 0)
-			return;
-		for (JsonElement element : array) {
-			JsonObject ref = element.getAsJsonObject();
-			Exchange ex = ExchangeImport.run(ModelType.PRODUCT_SYSTEM, s.refId,
-					ref, conf,
-					(ProductSystem system) -> system.inventory);
-			s.inventory.add(ex);
 		}
 	}
 

@@ -61,10 +61,6 @@ public class ProductSystem extends CategorizedEntity implements CalculationTarge
 	@Column
 	public Double cutoff;
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "f_owner")
-	public final List<Exchange> inventory = new ArrayList<>();
-
 	@JoinColumn(name = "f_product_system")
 	@OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
 	public final List<ParameterRedefSet> parameterSets = new ArrayList<>();
@@ -146,9 +142,6 @@ public class ProductSystem extends CategorizedEntity implements CalculationTarge
 		}
 		for (ParameterRedefSet s : parameterSets) {
 			clone.parameterSets.add(s.clone());
-		}
-		for (Exchange exchange : inventory) {
-			clone.inventory.add(exchange.clone());
 		}
 		clone.targetFlowPropertyFactor = targetFlowPropertyFactor;
 		clone.targetUnit = targetUnit;

@@ -10,7 +10,6 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ProcessLink;
@@ -68,7 +67,6 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		Out.put(obj, "targetUnit", system.targetUnit, conf, Out.REQUIRED_FIELD);
 		Out.put(obj, "targetAmount", system.targetAmount);
 
-		putInventory(obj, system.inventory);
 		putParameterSets(obj, system.parameterSets);
 
 		// map the parameter redefinitions
@@ -176,20 +174,6 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 			log.error("Failed to query exchange IDs", e);
 		}
 		return m;
-	}
-
-	private void putInventory(JsonObject obj, List<Exchange> inventory) {
-		if (inventory.isEmpty())
-			return;
-		JsonArray inv = new JsonArray();
-		for (Exchange exchange : inventory) {
-			JsonObject eObj = new JsonObject();
-			boolean mapped = Exchanges.map(exchange, eObj, conf);
-			if (!mapped)
-				continue;
-			inv.add(eObj);
-		}
-		Out.put(obj, "inventory", inv);
 	}
 
 	private void putParameterSets(JsonObject obj, List<ParameterRedefSet> sets) {
