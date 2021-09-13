@@ -42,8 +42,8 @@ public class ResultExport implements Runnable {
 		this.result = result;
 		this.file = file;
 		this.cache = cache;
-		if (setup.nwSet != null) {
-			this.nwSet = cache.get(NwSet.class, setup.nwSet.id);
+		if (setup.nwSet() != null) {
+			this.nwSet = cache.get(NwSet.class, setup.nwSet().id);
 		}
 	}
 

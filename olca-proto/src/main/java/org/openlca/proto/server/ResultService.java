@@ -78,7 +78,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 
     // demand value
     if (proto.getAmount() != 0) {
-      setup.setAmount(proto.getAmount());
+      setup.withAmount(proto.getAmount());
     }
 
     // flow property
@@ -90,12 +90,12 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
       qref.flow.flowPropertyFactors.stream()
         .filter(f -> Strings.nullOrEqual(propID, f.flowProperty.refId))
         .findAny()
-        .ifPresent(setup::setFlowPropertyFactor);
+        .ifPresent(setup::withFlowPropertyFactor);
     }
 
     // unit
     var unitID = proto.getUnit().getId();
-    var propFac = setup.getFlowPropertyFactor();
+    var propFac = setup.flowPropertyFactor();
     if (Strings.notEmpty(unitID)
       && propFac != null
       && propFac.flowProperty != null
@@ -104,18 +104,18 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
       group.units.stream()
         .filter(u -> Strings.nullOrEqual(unitID, u.refId))
         .findAny()
-        .ifPresent(setup::setUnit);
+        .ifPresent(setup::withUnit);
     }
 
     // impact method and NW set
     var methodID = proto.getImpactMethod().getId();
     if (Strings.notEmpty(methodID)) {
-      setup.impactMethod = db.get(ImpactMethod.class, methodID);
+      setup.withImpactMethod(db.get(ImpactMethod.class, methodID));
       var nwID = proto.getNwSet().getId();
-      if (Strings.notEmpty(nwID) && setup.impactMethod != null) {
-        for (var nwSet : setup.impactMethod.nwSets) {
+      if (Strings.notEmpty(nwID) && setup.impactMethod() != null) {
+        for (var nwSet : setup.impactMethod().nwSets) {
           if (nwID.equals(nwSet.refId)) {
-            setup.nwSet = nwSet;
+            setup.withNwSet(nwSet);
             break;
           }
         }
@@ -123,9 +123,9 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     }
 
     // other settings
-    setup.allocationMethod = In.allocationMethod(proto.getAllocationMethod());
-    setup.withCosts = proto.getWithCosts();
-    setup.withRegionalization = proto.getWithRegionalization();
+    setup.withAllocation(In.allocationMethod(proto.getAllocationMethod()))
+      .withCosts(proto.getWithCosts())
+      .withRegionalization(proto.getWithRegionalization());
 
     // add parameter redefinitions
     setup.parameterRedefs.clear();

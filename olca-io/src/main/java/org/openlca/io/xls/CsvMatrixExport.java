@@ -47,14 +47,14 @@ class CsvMatrixExport implements Runnable {
 		}
 
 		log.trace("Build inventory matrix");
-		CalculationSetup setup = CalculationSetup.simple(conf.productSystem);
-		setup.parameterRedefs.addAll(conf.productSystem.parameterRedefs);
-		setup.allocationMethod = AllocationMethod.NONE;
+		var setup = CalculationSetup.simple(conf.productSystem)
+			.withParameters(conf.productSystem.parameterRedefs)
+			.withAllocation(AllocationMethod.NONE);
 		var data = MatrixData.of(conf.db, setup);
 
 		log.trace("Write technology matrix");
 		try (FileWriter writer = new FileWriter(conf.technologyFile);
-				BufferedWriter buffer = new BufferedWriter(writer)) {
+				 BufferedWriter buffer = new BufferedWriter(writer)) {
 			writeTechMatrix(data, buffer);
 		} catch (Exception e) {
 			log.error("Failed to write technology matrix", e);
@@ -62,7 +62,7 @@ class CsvMatrixExport implements Runnable {
 
 		log.trace("Write intervention matrix");
 		try (FileWriter writer = new FileWriter(conf.interventionFile);
-				BufferedWriter buffer = new BufferedWriter(writer)) {
+				 BufferedWriter buffer = new BufferedWriter(writer)) {
 			writeEnviMatrix(data, buffer);
 		} catch (Exception e) {
 			log.error("Failed to write intervention matrix", e);
@@ -72,7 +72,7 @@ class CsvMatrixExport implements Runnable {
 	}
 
 	private void writeTechMatrix(MatrixData data, BufferedWriter buffer)
-			throws Exception {
+		throws Exception {
 		var techMatrix = data.techMatrix;
 		TechIndex techIndex = data.techIndex;
 		int size = techIndex.size();
@@ -93,7 +93,7 @@ class CsvMatrixExport implements Runnable {
 	}
 
 	private void writeEnviMatrix(MatrixData data, BufferedWriter buffer)
-			throws Exception {
+		throws Exception {
 		TechIndex techIndex = data.techIndex;
 		EnviIndex flowIndex = data.enviIndex;
 		int rows = flowIndex.size();
@@ -116,7 +116,7 @@ class CsvMatrixExport implements Runnable {
 	}
 
 	private void writeEnviMatrixHeader(BufferedWriter buffer,
-			TechIndex techIndex) throws Exception {
+		TechIndex techIndex) throws Exception {
 		sep(buffer);
 		sep(buffer);
 		int columns = techIndex.size();
@@ -170,13 +170,13 @@ class CsvMatrixExport implements Runnable {
 	}
 
 	private void sep(Writer buffer, int position, int dimension)
-			throws Exception {
+		throws Exception {
 		if (position < dimension - 1)
 			sep(buffer);
 	}
 
 	private void writeCategory(FlowDescriptor flow, Writer buffer)
-			throws Exception {
+		throws Exception {
 		if (flow == null || flow.category == null)
 			return;
 		String catPath = categoryCache.get(flow.category);

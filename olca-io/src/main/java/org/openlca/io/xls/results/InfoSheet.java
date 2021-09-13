@@ -6,16 +6,10 @@ import java.util.Date;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.model.CalculationSetup;
-import org.openlca.core.math.data_quality.AggregationType;
 import org.openlca.core.math.data_quality.DQCalculationSetup;
-import org.openlca.core.math.data_quality.NAHandling;
-import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQScore;
 import org.openlca.core.model.DQSystem;
-import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Process;
-import org.openlca.core.model.ProductSystem;
 import org.openlca.io.xls.Excel;
 
 import com.google.common.base.Strings;
@@ -47,10 +41,10 @@ public class InfoSheet {
 		Sheet sheet = workbook.createSheet("Calculation setup");
 		Excel.trackSize(sheet, 1, 2);
 		boolean withDataQuality = dqSetup != null && dqSetup.exchangeSystem != null;
-		header(writer, sheet, 1, 1, title, withDataQuality);
-		int row = generalInfo(writer, sheet, 2, 2, setup);
+		header(writer, sheet, 1, title, withDataQuality);
+		int row = generalInfo(writer, sheet, 2, setup);
 		if (dqSetup != null && dqSetup.exchangeSystem != null) {
-			dataQualityInfo(writer, sheet, row + 2, 2, dqSetup);
+			dataQualityInfo(writer, sheet, row + 2, dqSetup);
 			for (int i = 1; i <= dqSetup.exchangeSystem.indicators.size() + 1; i++) {
 				sheet.setColumnWidth(i, Excel.width(200));
 			}
@@ -59,45 +53,50 @@ public class InfoSheet {
 		}
 	}
 
-	private static void header(CellWriter writer, Sheet sheet, int row, int col, String title, boolean withDataQuality) {
-		writer.cell(sheet, row++, col, title, true);
-		row = writer.headerCol(sheet, row, col, GENERAL_HEADERS);
+	private static void header(CellWriter writer, Sheet sheet, int row, String title, boolean withDataQuality) {
+		writer.cell(sheet, row++, 1, title, true);
+		row = writer.headerCol(sheet, row, 1, GENERAL_HEADERS);
 		if (!withDataQuality)
 			return;
 		row++;
-		writer.cell(sheet, row++, col, "Data quality", true);
-		writer.headerCol(sheet, row++, col, DATA_QUALITY_HEADERS);
+		writer.cell(sheet, row++, 1, "Data quality", true);
+		writer.headerCol(sheet, row++, 1, DATA_QUALITY_HEADERS);
 	}
 
-	private static int generalInfo(CellWriter writer, Sheet sheet, int row, int col, CalculationSetup setup) {
-		ProductSystem system = setup.productSystem;
-		writer.cell(sheet, row++, col, system.name);
-		writer.cell(sheet, row++, col, process(system));
-		writer.cell(sheet, row++, col, location(system));
-		writer.cell(sheet, row++, col, product(system));
-		writer.cell(sheet, row++, col, amount(system));
-		writer.cell(sheet, row++, col, method(setup));
-		writer.cell(sheet, row++, col, nwSet(setup));
-		writer.cell(sheet, row++, col, allocation(setup));
-		writer.cell(sheet, row++, col, cutoff(system));
-		writer.cell(sheet, row++, col, new Date());
+	private static int generalInfo(
+		CellWriter writer, Sheet sheet, int row, CalculationSetup setup) {
+		var name = setup.hasProductSystem()
+			? setup.productSystem().name
+			: setup.process().name;
+		writer.cell(sheet, row++, 2, name);
+		writer.cell(sheet, row++, 2, process(setup));
+		writer.cell(sheet, row++, 2, location(setup));
+		writer.cell(sheet, row++, 2, product(setup));
+		writer.cell(sheet, row++, 2, amount(setup));
+		writer.cell(sheet, row++, 2, method(setup));
+		writer.cell(sheet, row++, 2, nwSet(setup));
+		writer.cell(sheet, row++, 2, allocation(setup));
+		writer.cell(sheet, row++, 2, cutoff(setup));
+		writer.cell(sheet, row++, 2, new Date());
 		return row;
 	}
 
-	private static void dataQualityInfo(CellWriter writer, Sheet sheet, int row, int col, DQCalculationSetup setup) {
-		writer.cell(sheet, row++, col, dqSystem(setup.exchangeSystem));
-		writer.cell(sheet, row++, col, aggregation(setup));
-		writer.cell(sheet, row++, col, setup.ceiling ? "up" : "half up");
-		writer.cell(sheet, row++, col, processing(setup));
-		legend(writer, sheet, row + 1, col - 1, setup);
+	private static void dataQualityInfo(
+		CellWriter writer, Sheet sheet, int row, DQCalculationSetup setup) {
+		writer.cell(sheet, row++, 2, dqSystem(setup.exchangeSystem));
+		writer.cell(sheet, row++, 2, aggregation(setup));
+		writer.cell(sheet, row++, 2, setup.ceiling ? "up" : "half up");
+		writer.cell(sheet, row++, 2, naHandling(setup));
+		legend(writer, sheet, row + 1, setup);
 	}
 
-	private static void legend(CellWriter writer, Sheet sheet, int row, int col, DQCalculationSetup setup) {
+	private static void legend(
+		CellWriter writer, Sheet sheet, int row, DQCalculationSetup setup) {
 		for (DQIndicator indicator : setup.exchangeSystem.indicators) {
-			writer.cell(sheet, row, col + indicator.position, indicator(indicator), true);
+			writer.cell(sheet, row, 1 + indicator.position, indicator(indicator), true);
 		}
 		for (DQScore score : setup.exchangeSystem.indicators.get(0).scores) {
-			writer.cell(sheet, row + score.position, col, score(score), true);
+			writer.cell(sheet, row + score.position, 1, score(score), true);
 		}
 		for (DQIndicator indicator : setup.exchangeSystem.indicators) {
 			for (DQScore score : indicator.scores) {
@@ -107,76 +106,75 @@ public class InfoSheet {
 				writer.boldWrapped(
 						sheet,
 						row + score.position,
-						col + indicator.position,
+						1 + indicator.position,
 						score.description,
 						color);
 			}
 		}
 	}
 
-	private static String process(ProductSystem system) {
-		Process p = system.referenceProcess;
-		if (p == null)
-			return "";
-		return p.name;
+	private static String process(CalculationSetup setup) {
+		var p = setup.process();
+		return p == null
+			? ""
+			: p.name;
 	}
 
-	private static String location(ProductSystem system) {
-		Process p = system.referenceProcess;
+	private static String location(CalculationSetup setup) {
+		var p = setup.process();
 		if (p == null || p.location == null)
 			return "";
 		return p.location.name;
 	}
 
-	private static String product(ProductSystem system) {
-		Exchange e = system.referenceExchange;
-		if (e == null || e.flow == null)
-			return "";
-		return e.flow.name;
+	private static String product(CalculationSetup setup) {
+		var flow = setup.flow();
+		return flow == null
+			? ""
+			: flow.name;
 	}
 
-	private static String amount(ProductSystem system) {
-		if (system.targetUnit == null)
+	private static String amount(CalculationSetup setup) {
+		var unit = setup.unit();
+		if (unit == null)
 			return "";
-		return system.targetAmount + " " + system.targetUnit.name;
+		return setup.amount() + " " + unit.name;
 	}
 
 	private static String method(CalculationSetup setup) {
-		if (setup.impactMethod == null)
-			return "none";
-		return setup.impactMethod.name;
+		var method = setup.impactMethod();
+		return method == null
+			? "none"
+			: method.name;
 	}
 
 	private static String nwSet(CalculationSetup setup) {
-		if (setup.nwSet == null)
-			return "none";
-		return setup.nwSet.name;
+		var nwSet = setup.nwSet();
+		return nwSet == null
+			? "none"
+			: nwSet.name;
 	}
 
 	private static String allocation(CalculationSetup setup) {
-		AllocationMethod method = setup.allocationMethod;
+		var method = setup.allocation();
 		if (method == null)
 			return "none";
-		switch (method) {
-		case CAUSAL:
-			return "causal";
-		case ECONOMIC:
-			return "economic";
-		case NONE:
-			return "none";
-		case PHYSICAL:
-			return "physical";
-		case USE_DEFAULT:
-			return "process defaults";
-		default:
-			return "unknown";
-		}
+		return switch (method) {
+			case CAUSAL -> "causal";
+			case ECONOMIC -> "economic";
+			case NONE -> "none";
+			case PHYSICAL -> "physical";
+			case USE_DEFAULT -> "process defaults";
+		};
 	}
 
-	private static String cutoff(ProductSystem system) {
-		if (system.cutoff == null)
+	private static String cutoff(CalculationSetup setup) {
+		if (!setup.hasProductSystem())
 			return "none";
-		return Double.toString(system.cutoff);
+		var system = setup.productSystem();
+		return system.cutoff == null
+			? "none"
+			: Double.toString(system.cutoff);
 	}
 
 	private static String dqSystem(DQSystem system) {
@@ -186,35 +184,25 @@ public class InfoSheet {
 	}
 
 	private static String aggregation(DQCalculationSetup setup) {
-		AggregationType type = setup.aggregationType;
+		var type = setup.aggregationType;
 		if (type == null)
 			return "none";
-		switch (type) {
-		case WEIGHTED_AVERAGE:
-			return "weighted average";
-		case WEIGHTED_SQUARED_AVERAGE:
-			return "weighted squared average";
-		case MAXIMUM:
-			return "maximum";
-		case NONE:
-			return "none";
-		default:
-			return "unknown";
-		}
+		return switch (type) {
+			case WEIGHTED_AVERAGE -> "weighted average";
+			case WEIGHTED_SQUARED_AVERAGE -> "weighted squared average";
+			case MAXIMUM -> "maximum";
+			case NONE -> "none";
+		};
 	}
 
-	private static String processing(DQCalculationSetup setup) {
-		NAHandling type = setup.naHandling;
+	private static String naHandling(DQCalculationSetup setup) {
+		var type = setup.naHandling;
 		if (type == null)
 			return "none";
-		switch (type) {
-		case EXCLUDE:
-			return "exclude zero values";
-		case USE_MAX:
-			return "use maximum score for zero values";
-		default:
-			return "unknown";
-		}
+		return switch (type) {
+			case EXCLUDE -> "exclude zero values";
+			case USE_MAX -> "use maximum score for zero values";
+		};
 	}
 
 	private static String indicator(DQIndicator indicator) {

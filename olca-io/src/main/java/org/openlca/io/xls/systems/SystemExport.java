@@ -40,9 +40,9 @@ class SystemExport {
 	}
 
 	public void exportTo(File dir) throws IOException {
-		CalculationSetup setup = CalculationSetup.simple(conf.system);
-		setup.parameterRedefs.addAll(conf.system.parameterRedefs);
-		setup.allocationMethod = conf.allocationMethod;
+		var setup = CalculationSetup.simple(conf.system)
+			.withParameters(conf.system.parameterRedefs)
+			.withAllocation(conf.allocationMethod);
 		// setup.impactMethod = conf.impactMethod;
 		data = MatrixData.of(conf.database, setup);
 
@@ -60,10 +60,10 @@ class SystemExport {
 		log.trace("create workbook with elementary flows");
 		Workbook elementaryWorkbook = new XSSFWorkbook();
 		createElementaryCoverSheet(elementaryWorkbook,
-				conf.allocationMethod);
+			conf.allocationMethod);
 		createElementarySheet(elementaryWorkbook);
 		writeToFile(elementaryWorkbook,
-				new File(subDir, FILE_NAMES.ELEMENTARY));
+			new File(subDir, FILE_NAMES.ELEMENTARY));
 	}
 
 	private void createProductWorkbook(File subDir) throws IOException {
@@ -80,17 +80,17 @@ class SystemExport {
 		createImpactMethodCoverSheet(impactMethodWorkbook);
 		createImpactMethodSheet(impactMethodWorkbook);
 		writeToFile(impactMethodWorkbook, new File(subDir,
-				FILE_NAMES.IMPACT_FACTORS));
+			FILE_NAMES.IMPACT_FACTORS));
 	}
 
 	private void createElementaryCoverSheet(Workbook workbook,
-			AllocationMethod allocationMethod) {
+		AllocationMethod allocationMethod) {
 		Sheet sheet = workbook.createSheet("General information");
 		Excel.trackSize(sheet, 0, 1);
 		boolean allocated = allocationMethod != null;
 		String subTitle = allocated
-				? TITLES.ELEMENTARY_ALLOCATED
-				: TITLES.ELEMENTARY;
+			? TITLES.ELEMENTARY_ALLOCATED
+			: TITLES.ELEMENTARY;
 		int row = 0;
 		row = writeHeaderInformation(sheet, row++, subTitle);
 		row = writeSoftwareInformation(sheet, row++);
@@ -104,7 +104,7 @@ class SystemExport {
 		row = line(sheet, row, "Product system:", name);
 		if (allocated)
 			row = line(sheet, row, "Allocation method:",
-					getMethodLabel(allocationMethod));
+				getMethodLabel(allocationMethod));
 		row = line(sheet, row, "No. of processes:", processes);
 		row = line(sheet, row, "No. of products:", products);
 		row = line(sheet, row, "No. of elementary flows:", flows);
@@ -116,29 +116,29 @@ class SystemExport {
 		if (method == null)
 			return "None";
 		switch (method) {
-		case CAUSAL:
-			return "Causal";
-		case ECONOMIC:
-			return "Economic";
-		case NONE:
-			return "None";
-		case PHYSICAL:
-			return "Physical";
-		case USE_DEFAULT:
-			return "As defined in processes";
-		default:
-			return "Unknown";
+			case CAUSAL:
+				return "Causal";
+			case ECONOMIC:
+				return "Economic";
+			case NONE:
+				return "None";
+			case PHYSICAL:
+				return "Physical";
+			case USE_DEFAULT:
+				return "As defined in processes";
+			default:
+				return "Unknown";
 		}
 	}
 
 	private void createProductCoverSheet(Workbook workbook,
-			AllocationMethod allocationMethod) {
+		AllocationMethod allocationMethod) {
 		Sheet sheet = workbook.createSheet("General information");
 		Excel.trackSize(sheet, 0, 1);
 		boolean allocated = allocationMethod != null;
 		String subTitle = allocated
-				? TITLES.PRODUCT_ALLOCATED
-				: TITLES.PRODUCT;
+			? TITLES.PRODUCT_ALLOCATED
+			: TITLES.PRODUCT;
 
 		int row = 0;
 		row = writeHeaderInformation(sheet, row++, subTitle);
@@ -152,7 +152,7 @@ class SystemExport {
 		row = line(sheet, row, "Product system:", name);
 		if (allocated)
 			row = line(sheet, row, "Allocation method:",
-					getMethodLabel(allocationMethod));
+				getMethodLabel(allocationMethod));
 		row = line(sheet, row, "No. of processes:", processes);
 		row = line(sheet, row, "No. of products:", products);
 		row = line(sheet, row, "Matrix dimensions:", dimensions);
@@ -186,7 +186,7 @@ class SystemExport {
 
 	private int writeHeaderInformation(Sheet sheet, int row, String title) {
 		String date = DateFormat.getDateInstance().format(
-				GregorianCalendar.getInstance().getTime());
+			GregorianCalendar.getInstance().getTime());
 		Excel.cell(sheet, row, 0, TITLES.MAIN_TITLE);
 		row++;
 		Excel.cell(sheet, row, 0, title);
@@ -233,12 +233,12 @@ class SystemExport {
 		header.setHeaders(HEADERS.PRODUCT.VALUES);
 		List<IExcelHeaderEntry> headerEntries = new ArrayList<>();
 		List<ProductInfo> sortedProducts = mapProductIndices(header,
-				index);
+			index);
 		for (ProductInfo product : sortedProducts) {
 			headerEntries.add(new ProductHeaderEntry(product));
 		}
 		header.setEntries(headerEntries
-				.toArray(new IExcelHeaderEntry[headerEntries.size()]));
+			.toArray(new IExcelHeaderEntry[headerEntries.size()]));
 		return header;
 	}
 
@@ -247,13 +247,13 @@ class SystemExport {
 		header.setHeaders(HEADERS.IMPACT_CATEGORY.VALUES);
 		List<IExcelHeaderEntry> headerEntries = new ArrayList<>();
 		List<ImpactDescriptor> sortedCategories = mapImpactCategoryIndices(
-				header, impactIndex);
+			header, impactIndex);
 		for (ImpactDescriptor category : sortedCategories) {
 			headerEntries.add(new ImpactCategoryHeaderEntry(
-					conf.impactMethod.name, category));
+				conf.impactMethod.name, category));
 		}
 		header.setEntries(headerEntries
-				.toArray(new IExcelHeaderEntry[headerEntries.size()]));
+			.toArray(new IExcelHeaderEntry[headerEntries.size()]));
 		return header;
 	}
 
@@ -283,7 +283,7 @@ class SystemExport {
 
 	private void createImpactMethodSheet(Workbook workbook) {
 		ExcelHeader columnHeader = createImpactCategoryHeader(
-				data.impactIndex);
+			data.impactIndex);
 		ExcelHeader rowHeader = createFlowHeader(data.enviIndex);
 		MatrixExcelExport export = new MatrixExcelExport();
 		export.setColumnHeader(columnHeader);
@@ -293,7 +293,7 @@ class SystemExport {
 	}
 
 	private List<FlowInfo> mapFlowIndices(ExcelHeader header,
-			EnviIndex flowIndex) {
+		EnviIndex flowIndex) {
 		List<FlowInfo> sortedFlows = FlowInfo.getAll(conf, flowIndex);
 		Collections.sort(sortedFlows);
 		int counter = 0;
@@ -305,7 +305,7 @@ class SystemExport {
 	}
 
 	private List<ProductInfo> mapProductIndices(ExcelHeader header,
-			TechIndex index) {
+		TechIndex index) {
 		List<ProductInfo> products = ProductInfo.getAll(conf, index);
 		Collections.sort(products);
 		int i = 0;
@@ -317,11 +317,11 @@ class SystemExport {
 	}
 
 	private List<ImpactDescriptor> mapImpactCategoryIndices(
-			ExcelHeader header, ImpactIndex impactIndex) {
+		ExcelHeader header, ImpactIndex impactIndex) {
 		var sortedCategories = impactIndex.content()
-				.stream()
-				.sorted((i1, i2) -> Strings.compare(i1.name, i2.name))
-				.collect(Collectors.toList());
+			.stream()
+			.sorted((i1, i2) -> Strings.compare(i1.name, i2.name))
+			.collect(Collectors.toList());
 		int counter = 0;
 		for (ImpactDescriptor category : sortedCategories) {
 			header.putIndexMapping(counter, impactIndex.of(category));
@@ -347,7 +347,7 @@ class SystemExport {
 		while (actFile.exists()) {
 			String tmp = file.getAbsolutePath();
 			tmp = tmp.substring(0, tmp.lastIndexOf('.')) + "(" + i + ")"
-					+ tmp.substring(tmp.lastIndexOf('.'));
+				+ tmp.substring(tmp.lastIndexOf('.'));
 			actFile = new File(tmp);
 			i++;
 		}
@@ -389,8 +389,8 @@ class SystemExport {
 			String UNIT = "Unit";
 			String UUID = "UUID";
 
-			String[] VALUES = new String[] { UUID, CATEGORY, SUB_CATEGORY,
-					NAME, LOCATION, UNIT };
+			String[] VALUES = new String[]{UUID, CATEGORY, SUB_CATEGORY,
+				NAME, LOCATION, UNIT};
 
 		}
 
@@ -406,10 +406,10 @@ class SystemExport {
 			String PRODUCT_UNIT = "Product/Service unit";
 			String UUID = "UUID";
 
-			String[] VALUES = new String[] { PROCESS_NAME, PRODUCT_NAME,
-					MULTI_OUTPUT, UUID, INFRASTRUCTURE_PRODUCT,
-					PROCESS_LOCATION, PROCESS_CATEGORY, PROCESS_SUB_CATEGORY,
-					PRODUCT_UNIT };
+			String[] VALUES = new String[]{PROCESS_NAME, PRODUCT_NAME,
+				MULTI_OUTPUT, UUID, INFRASTRUCTURE_PRODUCT,
+				PROCESS_LOCATION, PROCESS_CATEGORY, PROCESS_SUB_CATEGORY,
+				PRODUCT_UNIT};
 
 		}
 
@@ -420,7 +420,7 @@ class SystemExport {
 			String UNIT = "Unit";
 			String UUID = "UUID";
 
-			String[] VALUES = new String[] { UUID, CATEGORY, METHOD, UNIT };
+			String[] VALUES = new String[]{UUID, CATEGORY, METHOD, UNIT};
 
 		}
 
@@ -444,18 +444,18 @@ class SystemExport {
 
 		private String getValue(String header) {
 			switch (header) {
-			case HEADERS.FLOW.NAME:
-				return flowInfo.name;
-			case HEADERS.FLOW.UUID:
-				return flowInfo.id;
-			case HEADERS.FLOW.LOCATION:
-				return flowInfo.location;
-			case HEADERS.FLOW.CATEGORY:
-				return flowInfo.category;
-			case HEADERS.FLOW.SUB_CATEGORY:
-				return flowInfo.subCategory;
-			case HEADERS.FLOW.UNIT:
-				return flowInfo.unit;
+				case HEADERS.FLOW.NAME:
+					return flowInfo.name;
+				case HEADERS.FLOW.UUID:
+					return flowInfo.id;
+				case HEADERS.FLOW.LOCATION:
+					return flowInfo.location;
+				case HEADERS.FLOW.CATEGORY:
+					return flowInfo.category;
+				case HEADERS.FLOW.SUB_CATEGORY:
+					return flowInfo.subCategory;
+				case HEADERS.FLOW.UNIT:
+					return flowInfo.unit;
 			}
 			return null;
 		}
@@ -480,24 +480,24 @@ class SystemExport {
 
 		private String getValue(String header) {
 			switch (header) {
-			case HEADERS.PRODUCT.PROCESS_NAME:
-				return productInfo.process;
-			case HEADERS.PRODUCT.PRODUCT_NAME:
-				return productInfo.product;
-			case HEADERS.PRODUCT.MULTI_OUTPUT:
-				return Boolean.toString(productInfo.fromMultiOutputProcess);
-			case HEADERS.PRODUCT.UUID:
-				return productInfo.productId;
-			case HEADERS.PRODUCT.INFRASTRUCTURE_PRODUCT:
-				return Boolean.toString(productInfo.fromInfrastructureProcess);
-			case HEADERS.PRODUCT.PROCESS_LOCATION:
-				return productInfo.processLocation;
-			case HEADERS.PRODUCT.PROCESS_CATEGORY:
-				return productInfo.processCategory;
-			case HEADERS.PRODUCT.PROCESS_SUB_CATEGORY:
-				return productInfo.processSubCategory;
-			case HEADERS.PRODUCT.PRODUCT_UNIT:
-				return productInfo.productUnit;
+				case HEADERS.PRODUCT.PROCESS_NAME:
+					return productInfo.process;
+				case HEADERS.PRODUCT.PRODUCT_NAME:
+					return productInfo.product;
+				case HEADERS.PRODUCT.MULTI_OUTPUT:
+					return Boolean.toString(productInfo.fromMultiOutputProcess);
+				case HEADERS.PRODUCT.UUID:
+					return productInfo.productId;
+				case HEADERS.PRODUCT.INFRASTRUCTURE_PRODUCT:
+					return Boolean.toString(productInfo.fromInfrastructureProcess);
+				case HEADERS.PRODUCT.PROCESS_LOCATION:
+					return productInfo.processLocation;
+				case HEADERS.PRODUCT.PROCESS_CATEGORY:
+					return productInfo.processCategory;
+				case HEADERS.PRODUCT.PROCESS_SUB_CATEGORY:
+					return productInfo.processSubCategory;
+				case HEADERS.PRODUCT.PRODUCT_UNIT:
+					return productInfo.productUnit;
 			}
 			return null;
 		}
@@ -510,7 +510,7 @@ class SystemExport {
 		private String methodName;
 
 		private ImpactCategoryHeaderEntry(String methodName,
-				ImpactDescriptor impactCategory) {
+			ImpactDescriptor impactCategory) {
 			this.methodName = methodName;
 			this.impactCategory = impactCategory;
 		}
@@ -525,14 +525,14 @@ class SystemExport {
 
 		private String getValue(String header) {
 			switch (header) {
-			case HEADERS.IMPACT_CATEGORY.CATEGORY:
-				return impactCategory.name;
-			case HEADERS.IMPACT_CATEGORY.UUID:
-				return impactCategory.refId;
-			case HEADERS.IMPACT_CATEGORY.METHOD:
-				return methodName;
-			case HEADERS.IMPACT_CATEGORY.UNIT:
-				return impactCategory.referenceUnit;
+				case HEADERS.IMPACT_CATEGORY.CATEGORY:
+					return impactCategory.name;
+				case HEADERS.IMPACT_CATEGORY.UUID:
+					return impactCategory.refId;
+				case HEADERS.IMPACT_CATEGORY.METHOD:
+					return methodName;
+				case HEADERS.IMPACT_CATEGORY.UNIT:
+					return impactCategory.referenceUnit;
 			}
 			return null;
 		}
