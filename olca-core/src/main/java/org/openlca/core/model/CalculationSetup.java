@@ -85,6 +85,13 @@ public class CalculationSetup {
 		return type;
 	}
 
+	public CalculationSetup withType(CalculationType type) {
+		if (type != null) {
+			this.type = type;
+		}
+		return this;
+	}
+
 	/**
 	 * Get the reference process of this calculation setup. In case of a product
 	 * system as calculation target, it returns the reference process of that
@@ -317,5 +324,10 @@ public class CalculationSetup {
 	 */
 	public int numberOfRuns() {
 		return this.numberOfRuns;
+	}
+
+	public CalculationSetup withNumberOfRuns(int n) {
+		this.numberOfRuns = n;
+		return this;
 	}
 }
