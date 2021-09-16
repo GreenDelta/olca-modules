@@ -75,7 +75,7 @@
               </outputDirectory>
               <archive>
                 <manifest>
-                  <mainClass>org.openlca.proto.server.Server</mainClass>
+                  <mainClass>org.openlca.proto.io.server.Server</mainClass>
                 </manifest>
               </archive>
             </configuration>
@@ -138,7 +138,7 @@ set command=java
 if exist jre (
     set command=jre\bin\java.exe
 )
-%command% %java_args% org.openlca.proto.server.Server %*
+%command% %java_args% org.openlca.proto.io.server.Server %*
 ]]>
                     </echo>
                     <get
