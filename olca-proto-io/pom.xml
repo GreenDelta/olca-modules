@@ -8,20 +8,27 @@
     <artifactId>olca-modules</artifactId>
     <version>2.0.0</version>
   </parent>
-  <artifactId>olca-proto</artifactId>
+  <artifactId>olca-proto-io</artifactId>
   <packaging>jar</packaging>
 
   <properties>
     <protobuf.version>3.12.2</protobuf.version>
     <grpc.version>1.32.2</grpc.version>
+    <olca.proto.version>1.0.0</olca.proto.version>
   </properties>
 
   <dependencies>
 
     <dependency>
-      <groupId>com.google.protobuf</groupId>
-      <artifactId>protobuf-java</artifactId>
-      <version>${protobuf.version}</version>
+      <groupId>org.openlca</groupId>
+      <artifactId>olca-proto</artifactId>
+      <version>${olca.proto.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openlca</groupId>
+      <artifactId>olca-grpc</artifactId>
+      <version>${olca.proto.version}</version>
     </dependency>
 
     <dependency>
@@ -34,24 +41,6 @@
       <groupId>io.grpc</groupId>
       <artifactId>grpc-netty-shaded</artifactId>
       <version>${grpc.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>io.grpc</groupId>
-      <artifactId>grpc-protobuf</artifactId>
-      <version>${grpc.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>io.grpc</groupId>
-      <artifactId>grpc-stub</artifactId>
-      <version>${grpc.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.tomcat</groupId>
-      <artifactId>annotations-api</artifactId>
-      <version>6.0.53</version>
     </dependency>
 
     <dependency>
@@ -68,95 +57,7 @@
 
   </dependencies>
 
-  <build>
-    <extensions>
-      <extension>
-        <groupId>kr.motd.maven</groupId>
-        <artifactId>os-maven-plugin</artifactId>
-        <version>1.7.0</version>
-      </extension>
-    </extensions>
-    <plugins>
-      <plugin>
-        <groupId>org.xolstice.maven.plugins</groupId>
-        <artifactId>protobuf-maven-plugin</artifactId>
-        <version>0.6.1</version>
-        <configuration>
-          <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
-          <pluginId>grpc-java</pluginId>
-          <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>compile</goal>
-              <goal>compile-custom</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>kr.motd.maven</groupId>
-        <artifactId>os-maven-plugin</artifactId>
-        <version>1.7.0</version>
-        <executions>
-          <execution>
-            <phase>initialize</phase>
-            <goals>
-              <goal>detect</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-
   <profiles>
-    <profile>
-      <id>osx-aarch_64</id>
-      <activation>
-        <os>
-          <name>Mac OS X</name>
-          <family>mac</family>
-          <arch>aarch64</arch>
-        </os>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.xolstice.maven.plugins</groupId>
-            <artifactId>protobuf-maven-plugin</artifactId>
-            <version>0.6.1</version>
-            <configuration>
-              <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:osx-x86_64</protocArtifact>
-              <pluginId>grpc-java</pluginId>
-              <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:osx-x86_64</pluginArtifact>
-            </configuration>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>compile</goal>
-                  <goal>compile-custom</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>kr.motd.maven</groupId>
-            <artifactId>os-maven-plugin</artifactId>
-            <version>1.7.0</version>
-            <executions>
-              <execution>
-                <phase>initialize</phase>
-                <goals>
-                  <goal>detect</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
     <profile>
       <id>server-app</id>
       <activation>
@@ -170,7 +71,8 @@
             <artifactId>maven-jar-plugin</artifactId>
             <version>3.2.0</version>
             <configuration>
-              <outputDirectory>${project.build.directory}/olca-grpc-server</outputDirectory>
+              <outputDirectory>${project.build.directory}/olca-grpc-server
+              </outputDirectory>
               <archive>
                 <manifest>
                   <mainClass>org.openlca.proto.server.Server</mainClass>
@@ -189,7 +91,9 @@
                   <goal>copy-dependencies</goal>
                 </goals>
                 <configuration>
-                  <outputDirectory>${project.build.directory}/olca-grpc-server/lib</outputDirectory>
+                  <outputDirectory>
+                    ${project.build.directory}/olca-grpc-server/lib
+                  </outputDirectory>
                   <includeScope>runtime</includeScope>
                 </configuration>
               </execution>
@@ -206,7 +110,8 @@
                   <goal>add-third-party</goal>
                 </goals>
                 <configuration>
-                  <outputDirectory>${project.build.directory}/olca-grpc-server</outputDirectory>
+                  <outputDirectory>${project.build.directory}/olca-grpc-server
+                  </outputDirectory>
                   <excludedScopes>test</excludedScopes>
                 </configuration>
               </execution>
