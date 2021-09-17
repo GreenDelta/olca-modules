@@ -63,6 +63,7 @@ class MetaDataExport implements Runnable {
 			// write the library stub of the process
 			var libProc = process.clone();
 			libProc.refId = process.refId;
+			libProc.id = process.id;
 			libProc.exchanges.removeIf(
 				e -> !Exchanges.isProviderFlow(e));
 			libProc.allocationFactors.clear();
@@ -95,6 +96,7 @@ class MetaDataExport implements Runnable {
 			}
 
 			var libImpact = impact.clone();
+			libImpact.id = impact.id;
 			libImpact.refId = impact.refId;
 			libImpact.impactFactors.clear();
 			exp.write(libImpact);

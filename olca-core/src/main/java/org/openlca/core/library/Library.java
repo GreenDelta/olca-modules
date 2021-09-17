@@ -295,7 +295,8 @@ public class Library {
 			.stream()
 			.collect(Collectors.toMap(
 				d -> d.refId,
-				d -> d));
+				d -> d,
+				(d1, d2) -> d1));
 	}
 
 	public boolean hasMatrix(LibraryMatrix m) {
