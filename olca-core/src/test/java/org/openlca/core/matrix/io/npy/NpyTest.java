@@ -1,6 +1,7 @@
 package org.openlca.core.matrix.io.npy;
 
-import static org.junit.Assert.*;
+import java.io.File;
+import java.nio.file.Files;
 
 import org.junit.After;
 import org.junit.Before;
@@ -9,13 +10,10 @@ import org.openlca.core.matrix.format.DenseByteMatrix;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.io.NpyMatrix;
 import org.openlca.npy.Array2d;
-import org.openlca.npy.Npy;
 import org.openlca.util.Dirs;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.nio.file.Files;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 public class NpyTest {
 
@@ -75,15 +73,15 @@ public class NpyTest {
 		}
 
 		var dir = Files.createTempDirectory("_olca_tests").toFile();
-		var f = NpyMatrix.write(dir, "M", m);
-
-		/*
-		var copy = NpyMatrix.read(f);
+		NpyMatrix.write(dir, "M", m);
+		var copy = NpyMatrix.readBytes(dir, "M")
+			.map(DenseByteMatrix.class::cast)
+			.orElseThrow();
 		assertArrayEquals(m.data, copy.data);
 		assertEquals(m.rows, copy.rows);
 		assertEquals(m.columns, copy.columns);
+		Dirs.delete(dir);
 
-		 */
 	}
 
 }

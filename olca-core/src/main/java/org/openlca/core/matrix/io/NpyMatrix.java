@@ -3,6 +3,7 @@ package org.openlca.core.matrix.io;
 import java.io.File;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.zip.ZipFile;
 
 import org.openlca.core.matrix.format.ByteMatrixReader;
 import org.openlca.core.matrix.format.CSCByteMatrix;
@@ -65,47 +66,48 @@ public class NpyMatrix {
 	}
 
 	private static MatrixReader readNpz(File file) {
-
-		var entries = Npz.entries(file);
-		if (!entries.contains("format.npy"))
-			throw new IllegalArgumentException(
-				"Unsupported file format: " + file +
-					" is not a valid csc file");
-
-		var format = Npz.read(file, "format.npy");
-		if (!format.isCharArray())
-			throw new IllegalArgumentException(
-				"Unsupported file format of " + file +
-					": format.npy does not contain a format string");
-		var storageFormat = format.asCharArray()
-			.toString()
-			.toLowerCase()
-			.trim();
-
-		if (!storageFormat.equals("csc"))
-			throw new IllegalArgumentException(
-				"Unsupported file format of " + file +
-					": storage format " + storageFormat + " is not supported");
-
-		try {
-			int[] shape = Npz.read(file, "shape.npy")
+		try (var npz = new ZipFile(file)) {
+			assertCscFormat(npz);
+			int[] shape = Npz.read(npz, "shape.npy")
 				.asIntArray()
 				.data();
-			double[] values = Npz.read(file, "data.npy")
+			double[] values = Npz.read(npz, "data.npy")
 				.asDoubleArray()
 				.data();
-			int[] columnPointers = Npz.read(file, "indptr.npy")
+			int[] columnPointers = Npz.read(npz, "indptr.npy")
 				.asIntArray()
 				.data();
-			int[] rowIndices = Npz.read(file, "indices.npy")
+			int[] rowIndices = Npz.read(npz, "indices.npy")
 				.asIntArray()
 				.data();
 			return new CSCMatrix(
 				shape[0], shape[1], values, columnPointers, rowIndices);
 		} catch (Exception e) {
 			throw new IllegalArgumentException(
-				"Failed to read CSC file " + file + ":" + e.getMessage());
+				"Failed to read CSC file " + file, e);
 		}
+	}
+
+	private static void assertCscFormat(ZipFile npz) {
+		var entries = Npz.entries(npz);
+		if (!entries.contains("format.npy"))
+			throw new IllegalArgumentException(
+				"Unsupported file format: " + npz +
+				" is not a valid csc file");
+
+		var format = Npz.read(npz, "format.npy");
+		if (!format.isCharArray())
+			throw new IllegalArgumentException(
+				"Unsupported file format of " + npz +
+				": format.npy does not contain a format string");
+		var formatStr = format.asCharArray()
+			.toString()
+			.toLowerCase()
+			.trim();
+		if (!formatStr.equals("csc"))
+			throw new IllegalArgumentException(
+				"Unsupported file format of " + npz +
+				": storage format " + formatStr + " is not supported");
 	}
 
 	/**
@@ -137,6 +139,21 @@ public class NpyMatrix {
 		return file;
 	}
 
+	private static void writeNpz(File file, CSCMatrix csc) {
+		Npz.create(file, npz -> {
+			Npz.write(npz, "format.npy",
+				NpyCharArray.of("csc"));
+			Npz.write(npz, "shape.npy",
+				NpyIntArray.vectorOf(new int[]{csc.rows, csc.columns}));
+			Npz.write(npz, "data.npy",
+				NpyDoubleArray.vectorOf(csc.values));
+			Npz.write(npz, "indptr.npy",
+				NpyIntArray.vectorOf(csc.columnPointers));
+			Npz.write(npz, "indices.npy",
+				NpyIntArray.vectorOf(csc.rowIndices));
+		});
+	}
+
 	public static File write(File folder, String name, ByteMatrixReader matrix) {
 
 		// write sparse matrices into the CSC format
@@ -159,21 +176,6 @@ public class NpyMatrix {
 		return file;
 	}
 
-	private static void writeNpz(File file, CSCMatrix csc) {
-		Npz.create(file, npz -> {
-			Npz.write(npz, "format.npy",
-				NpyCharArray.of("csc"));
-			Npz.write(npz, "shape.npy",
-				NpyIntArray.vectorOf(new int[]{csc.rows, csc.columns}));
-			Npz.write(npz, "data.npy",
-				NpyDoubleArray.vectorOf(csc.values));
-			Npz.write(npz, "indptr.npy",
-				NpyIntArray.vectorOf(csc.columnPointers));
-			Npz.write(npz, "indices.npy",
-				NpyIntArray.vectorOf(csc.rowIndices));
-		});
-	}
-
 	private static void writeNpzBytes(File file, CSCByteMatrix csc) {
 		Npz.create(file, npz -> {
 			Npz.write(npz, "format.npy",
@@ -188,5 +190,53 @@ public class NpyMatrix {
 				NpyIntArray.vectorOf(csc.rowIndices));
 		});
 	}
+
+	public static Optional<ByteMatrixReader> readBytes(File folder, String name) {
+		var npy = new File(folder, name + ".npy");
+		if (npy.exists())
+			return Optional.of(readNpyBytes(npy));
+		var npz = new File(folder, name + ".npz");
+		return npz.exists()
+			? Optional.of(readNpzBytes(npz))
+			: Optional.empty();
+	}
+
+	private static DenseByteMatrix readNpyBytes(File file) {
+		var array = Npy.read(file).asByteArray();
+		if (!Array2d.isValid(array))
+			throw new IllegalArgumentException(
+				"file " + file + " does not contain a matrix");
+		if (array.hasRowOrder()) {
+			array = Array2d.switchOrder(array);
+		}
+		return new DenseByteMatrix(
+			Array2d.rowCountOf(array),
+			Array2d.columnCountOf(array),
+			array.data()
+		);
+	}
+
+	private static ByteMatrixReader readNpzBytes(File file) {
+		try (var npz = new ZipFile(file)) {
+			int[] shape = Npz.read(npz, "shape.npy")
+				.asIntArray()
+				.data();
+			byte[] values = Npz.read(npz, "data.npy")
+				.asByteArray()
+				.data();
+			int[] columnPointers = Npz.read(npz, "indptr.npy")
+				.asIntArray()
+				.data();
+			int[] rowIndices = Npz.read(npz, "indices.npy")
+				.asIntArray()
+				.data();
+			return new CSCByteMatrix(
+				shape[0], shape[1], values, columnPointers, rowIndices);
+		} catch (Exception e) {
+			throw new IllegalArgumentException(
+				"Failed to read CSC file " + file, e);
+		}
+	}
+
 }
 
