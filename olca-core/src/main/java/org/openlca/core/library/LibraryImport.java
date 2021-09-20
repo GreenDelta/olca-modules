@@ -28,7 +28,7 @@ public class LibraryImport implements Runnable {
 			var libID = library.getInfo().id();
 			var meta = new File(library.folder, "meta.zip");
 			try (var store = ZipStore.open(meta)) {
-				JsonImport imp = new JsonImport(store, db);
+				var imp = new JsonImport(store, db);
 				imp.setCallback(e -> {
 					if (!(e instanceof CategorizedEntity))
 						return;

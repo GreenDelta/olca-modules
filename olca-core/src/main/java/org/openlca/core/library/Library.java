@@ -78,7 +78,7 @@ public class Library {
 		info.name = name;
 		info.version = version;
 		info.isRegionalized = data.enviIndex != null
-													&& data.enviIndex.isRegionalized();
+			&& data.enviIndex.isRegionalized();
 		new LibraryExport(db, folder)
 			.withConfig(info)
 			.withData(data)
@@ -359,7 +359,7 @@ public class Library {
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(getClass());
 			log.error("failed to read matrix column "
-								+ column + " from " + m + " in " + folder, e);
+				+ column + " from " + m + " in " + folder, e);
 			return Optional.empty();
 		}
 	}
@@ -389,7 +389,7 @@ public class Library {
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(getClass());
 			log.error("failed to read matrix diagonal"
-								+ " from " + m + " in " + folder, e);
+				+ " from " + m + " in " + folder, e);
 			return Optional.empty();
 		}
 	}
