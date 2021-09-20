@@ -118,7 +118,7 @@ public class LazyLibraryProvider implements ResultProvider {
 		indexF.each((pos, product) -> {
 			index.add(product);
 			var lib = product.library();
-			if(lib != null) {
+			if(lib != null && !libs.contains(lib)) {
 				libs.add(lib);
 			}
 		});
