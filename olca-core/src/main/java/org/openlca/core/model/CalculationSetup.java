@@ -4,6 +4,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import org.openlca.core.math.ReferenceAmount;
 
 /**
@@ -14,21 +23,59 @@ import org.openlca.core.math.ReferenceAmount;
  * system are added to the calculation matrices and are linked as defined
  * in the product system.
  */
-public class CalculationSetup {
+@Entity
+@Table(name = "tbl_calculation_setups")
+public class CalculationSetup extends AbstractEntity {
 
-	private ProductSystem system;
-	private Process process;
+	@Column(name = "calculation_type")
+	@Enumerated(EnumType.STRING)
 	private CalculationType type;
+
+	@OneToOne
+	@JoinColumn(name = "f_product_system")
+	private ProductSystem system;
+
+	@OneToOne
+	@JoinColumn(name = "f_process")
+	private Process process;
+
+	@OneToOne
+	@JoinColumn(name = "f_impact_method")
 	private ImpactMethod impactMethod;
+
+	@OneToOne
+	@JoinColumn(name = "f_nw_set")
 	private NwSet nwSet;
-	private AllocationMethod allocation = AllocationMethod.NONE;
+
+	@JoinColumn(name = "f_owner")
+	@OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
 	private List<ParameterRedef> parameters;
+
+	@Column(name = "allocation")
+	@Enumerated(EnumType.STRING)
+	private AllocationMethod allocation = AllocationMethod.NONE;
+
+	@Column(name = "with_costs")
 	private boolean withCosts = false;
+
+	@Column(name = "with_regionalization")
 	private boolean withRegionalization = false;
+
+	@Column(name = "with_uncertainties")
 	private boolean withUncertainties = false;
+
+	@OneToOne
+	@JoinColumn(name = "f_unit")
 	private Unit unit;
+
+	@OneToOne
+	@JoinColumn(name = "f_flow_property_factor")
 	private FlowPropertyFactor flowPropertyFactor;
+
+	@Column(name = "amount")
 	private Double amount;
+
+	@Column(name = "number_of_runs")
 	private int numberOfRuns = -1;
 
 	/**

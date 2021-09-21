@@ -768,5 +768,25 @@ CREATE TABLE tbl_result_impacts (
     PRIMARY KEY (id)
 );
 
+CREATE TABLE tbl_calculation_setups (
 
+    id                     BIGINT NOT NULL,
+    calculation_type       VARCHAR(255),
+    f_product_system       BIGINT,
+    f_process              BIGINT,
+    f_impact_method        BIGINT,
+    f_nw_set               BIGINT,
+
+    allocation             VARCHAR(255),
+    with_costs             SMALLINT default 0,
+    with_regionalization   SMALLINT default 0,
+    with_uncertainties     SMALLINT default 0,
+
+    f_unit                 BIGINT,
+    f_flow_property_factor BIGINT,
+    amount                 DOUBLE,
+    number_of_runs         INTEGER,
+
+    PRIMARY KEY (id)
+);
 
