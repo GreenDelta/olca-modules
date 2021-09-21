@@ -1,5 +1,6 @@
 package org.openlca.core.model;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -376,5 +377,31 @@ public class CalculationSetup extends AbstractEntity {
 	public CalculationSetup withNumberOfRuns(int n) {
 		this.numberOfRuns = n;
 		return this;
+	}
+
+	@OneToOne
+	public CalculationSetup clone() {
+		var clone = new CalculationSetup();
+		clone.type = type;
+		clone.system = system;
+		clone.process = process;
+		clone.impactMethod = impactMethod;
+		clone.nwSet = nwSet;
+		clone.allocation = allocation;
+		clone.withCosts = withCosts;
+		clone.withRegionalization = withRegionalization;
+		clone.withUncertainties = withUncertainties;
+		clone.unit = unit;
+		clone.flowPropertyFactor = flowPropertyFactor;
+		clone.amount = amount;
+		clone.numberOfRuns = numberOfRuns;
+
+		if (parameters != null) {
+			clone.parameters = new ArrayList<>(parameters.size());
+			for(var param : parameters) {
+				clone.parameters.add(param.clone());
+			}
+		}
+		return clone;
 	}
 }

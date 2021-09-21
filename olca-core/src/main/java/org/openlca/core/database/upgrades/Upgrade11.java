@@ -21,15 +21,16 @@ public class Upgrade11 implements IUpgrade {
 		u.createTable(
 			"tbl_results",
 			"CREATE TABLE tbl_results (" +
-				"    id                 BIGINT NOT NULL," +
-				"    ref_id             VARCHAR(36)," +
-				"    name               VARCHAR(2048)," +
-				"    version            BIGINT," +
-				"    last_change        BIGINT," +
-				"    f_category         BIGINT," +
-				"    tags               VARCHAR(255)," +
-				"    library            VARCHAR(255)," +
-				"    description        CLOB(64 K)," +
+				"    id                  BIGINT NOT NULL," +
+				"    ref_id              VARCHAR(36)," +
+				"    name                VARCHAR(2048)," +
+				"    version             BIGINT," +
+				"    last_change         BIGINT," +
+				"    f_category          BIGINT," +
+				"    tags                VARCHAR(255)," +
+				"    library             VARCHAR(255)," +
+				"    description         CLOB(64 K)," +
+			  "    f_calculation_setup BIGINT," +
 				"    PRIMARY KEY (id)" +
 				")");
 
