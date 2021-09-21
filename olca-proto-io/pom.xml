@@ -1,0 +1,157 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.openlca</groupId>
+    <artifactId>olca-modules</artifactId>
+    <version>2.0.0</version>
+  </parent>
+  <artifactId>olca-proto-io</artifactId>
+  <packaging>jar</packaging>
+
+  <properties>
+    <protobuf.version>3.12.2</protobuf.version>
+    <grpc.version>1.32.2</grpc.version>
+    <olca.proto.version>1.0.0</olca.proto.version>
+  </properties>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>org.openlca</groupId>
+      <artifactId>olca-proto</artifactId>
+      <version>${olca.proto.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openlca</groupId>
+      <artifactId>olca-grpc</artifactId>
+      <version>${olca.proto.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java-util</artifactId>
+      <version>${protobuf.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-netty-shaded</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openlca</groupId>
+      <artifactId>olca-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openlca</groupId>
+      <artifactId>olca-io</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+  </dependencies>
+
+  <profiles>
+    <profile>
+      <id>server-app</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <version>3.2.0</version>
+            <configuration>
+              <outputDirectory>${project.build.directory}/olca-grpc-server
+              </outputDirectory>
+              <archive>
+                <manifest>
+                  <mainClass>org.openlca.proto.io.server.Server</mainClass>
+                </manifest>
+              </archive>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>3.1.1</version>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>copy-dependencies</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>
+                    ${project.build.directory}/olca-grpc-server/lib
+                  </outputDirectory>
+                  <includeScope>runtime</includeScope>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>license-maven-plugin</artifactId>
+            <version>2.0.0</version>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>add-third-party</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>${project.build.directory}/olca-grpc-server
+                  </outputDirectory>
+                  <excludedScopes>test</excludedScopes>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>3.0.0</version>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <echo
+                      file="${project.build.directory}/olca-grpc-server/run.bat">
+                      <![CDATA[
+@echo off
+set java_args=-Xmx3584M -classpath ".\*;lib\*"
+set command=java
+if exist jre (
+    set command=jre\bin\java.exe
+)
+%command% %java_args% org.openlca.proto.io.server.Server %*
+]]>
+                    </echo>
+                    <get
+                      src="https://www.mozilla.org/media/MPL/2.0/index.815ca599c9df.txt"
+                      dest="${project.build.directory}/olca-grpc-server/LICENSE.txt"
+                      skipexisting="true"/>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

@@ -3,10 +3,9 @@ package org.openlca.core.matrix.io.npy;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.matrix.format.CSCMatrix;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.openlca.core.matrix.io.NpyMatrix;
+import org.openlca.util.Dirs;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.function.Consumer;
@@ -35,15 +34,11 @@ public class NpzTest {
 		};
 		checkCSC.accept(m);
 
-		File tempFile = Files.createTempFile("_npz_test_", ".npz").toFile();
-		Npz.save(tempFile, m);
-		m = (CSCMatrix) Npz.load(tempFile);
-		checkCSC.accept(m);
-
-		if (!tempFile.delete()) {
-			Logger log = LoggerFactory.getLogger(getClass());
-			log.warn("failed to delete NPZ file {}", tempFile);
-			tempFile.deleteOnExit();
-		}
+		var tmpDir = Files.createTempDirectory("_npy_olca").toFile();
+		var file = NpyMatrix.write(tmpDir, "M", m);
+		var copy = NpyMatrix.read(file);
+		Assert.assertTrue(copy instanceof CSCMatrix);
+		checkCSC.accept((CSCMatrix) copy);
+		Dirs.delete(tmpDir);
 	}
 }

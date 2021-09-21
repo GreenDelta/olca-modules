@@ -26,14 +26,14 @@ import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.format.MatrixReader;
-import org.openlca.core.matrix.io.npy.Npy;
-import org.openlca.core.matrix.io.npy.Npz;
+import org.openlca.core.matrix.io.NpyMatrix;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.jsonld.Json;
+import org.openlca.npy.Array2d;
 import org.slf4j.LoggerFactory;
 
 public class Library {
@@ -78,7 +78,7 @@ public class Library {
 		info.name = name;
 		info.version = version;
 		info.isRegionalized = data.enviIndex != null
-													&& data.enviIndex.isRegionalized();
+			&& data.enviIndex.isRegionalized();
 		new LibraryExport(db, folder)
 			.withConfig(info)
 			.withData(data)
@@ -295,7 +295,8 @@ public class Library {
 			.stream()
 			.collect(Collectors.toMap(
 				d -> d.refId,
-				d -> d));
+				d -> d,
+				(d1, d2) -> d1));
 	}
 
 	public boolean hasMatrix(LibraryMatrix m) {
@@ -314,14 +315,14 @@ public class Library {
 		try {
 			var npy = new File(folder, m.name() + ".npy");
 			if (npy.exists()) {
-				matrix = Npy.load(npy);
+				matrix = NpyMatrix.read(npy);
 				matrixCache.put(m, matrix);
 				return Optional.of(matrix);
 			}
 
 			var npz = new File(folder, m.name() + ".npz");
 			if (npz.exists()) {
-				matrix = Npz.load(npz);
+				matrix = NpyMatrix.read(npz);
 				matrixCache.put(m, matrix);
 				return Optional.of(matrix);
 			}
@@ -344,8 +345,10 @@ public class Library {
 
 			// do not cache dense matrices
 			var npy = new File(folder, m.name() + ".npy");
-			if (npy.exists())
-				return Optional.of(Npy.loadColumn(npy, column));
+			if (npy.exists()) {
+				var col = Array2d.readColumn(npy, column).asDoubleArray();
+				return Optional.of(col.data());
+			}
 
 			// force caching of sparse matrices
 			matrix = getMatrix(m).orElse(null);
@@ -356,7 +359,7 @@ public class Library {
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(getClass());
 			log.error("failed to read matrix column "
-								+ column + " from " + m + " in " + folder, e);
+				+ column + " from " + m + " in " + folder, e);
 			return Optional.empty();
 		}
 	}
@@ -372,8 +375,10 @@ public class Library {
 		try {
 			// do not cache dense matrices
 			var npy = new File(folder, m.name() + ".npy");
-			if (npy.exists())
-				return Optional.of(Npy.loadDiagonal(npy));
+			if (npy.exists()) {
+				var diag = Array2d.readDiag(npy).asDoubleArray();
+				return Optional.of(diag.data());
+			}
 
 			// force caching of sparse matrices
 			matrix = getMatrix(m).orElse(null);
@@ -384,7 +389,7 @@ public class Library {
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(getClass());
 			log.error("failed to read matrix diagonal"
-								+ " from " + m + " in " + folder, e);
+				+ " from " + m + " in " + folder, e);
 			return Optional.empty();
 		}
 	}

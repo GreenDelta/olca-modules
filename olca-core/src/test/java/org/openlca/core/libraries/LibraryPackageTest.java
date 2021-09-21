@@ -2,7 +2,6 @@ package org.openlca.core.libraries;
 
 import static org.junit.Assert.*;
 
-import java.io.File;
 import java.nio.file.Files;
 
 import org.junit.Test;
@@ -10,7 +9,7 @@ import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.LibraryInfo;
 import org.openlca.core.library.LibraryPackage;
 import org.openlca.core.matrix.format.DenseMatrix;
-import org.openlca.core.matrix.io.npy.Npy;
+import org.openlca.core.matrix.io.NpyMatrix;
 import org.openlca.util.Dirs;
 
 public class LibraryPackageTest {
@@ -30,8 +29,8 @@ public class LibraryPackageTest {
 
 		// put a tech. matrix into the libraries
 		var matrix = new DenseMatrix(10, 10);
-		Npy.save(new File(lib.folder, "A.npy"), matrix);
-		Npy.save(new File(dep.folder, "A.npy"), matrix);
+		NpyMatrix.write(lib.folder, "A", matrix);
+		NpyMatrix.write(dep.folder, "A", matrix);
 
 		// package the library and its dependency
 		var zipFile = Files.createTempFile("_olca_test", ".zip").toFile();

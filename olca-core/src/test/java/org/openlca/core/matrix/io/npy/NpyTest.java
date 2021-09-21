@@ -1,17 +1,19 @@
 package org.openlca.core.matrix.io.npy;
 
-import static org.junit.Assert.*;
+import java.io.File;
+import java.nio.file.Files;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.matrix.format.DenseByteMatrix;
 import org.openlca.core.matrix.format.DenseMatrix;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.openlca.core.matrix.io.NpyMatrix;
+import org.openlca.npy.Array2d;
+import org.openlca.util.Dirs;
 
-import java.io.File;
-import java.nio.file.Files;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 public class NpyTest {
 
@@ -25,22 +27,18 @@ public class NpyTest {
 			{1., 2., 3.},
 			{4., 5., 6.}
 		});
-		npy = Files.createTempFile("__olca_npy_test_", ".npy").toFile();
-		Npy.save(npy, matrix);
+		var dir = Files.createTempDirectory("_olca_tests").toFile();
+		npy = NpyMatrix.write(dir, "M", matrix);
 	}
 
 	@After
 	public void tearDown() {
-		if (!npy.delete()) {
-			Logger log = LoggerFactory.getLogger(getClass());
-			log.warn("failed to delete test file {}", npy);
-			npy.deleteOnExit();
-		}
+		Dirs.delete(npy.getParentFile());
 	}
 
 	@Test
 	public void testLoad() {
-		DenseMatrix copy = Npy.load(npy);
+		DenseMatrix copy = (DenseMatrix) NpyMatrix.read(npy);
 		assertEquals(matrix.rows, copy.rows());
 		assertEquals(matrix.columns, copy.columns());
 		assertArrayEquals(matrix.data, copy.data, 1e-10);
@@ -49,14 +47,18 @@ public class NpyTest {
 	@Test
 	public void testLoadColumn() {
 		for (int j = 0; j < matrix.columns; j++) {
-			var col = Npy.loadColumn(npy, j);
+			var col = Array2d.readColumn(npy, j)
+				.asDoubleArray()
+				.data();
 			assertArrayEquals(matrix.getColumn(j), col, 1e-10);
 		}
 	}
 
 	@Test
 	public void testLoadDiagonal() {
-		var diag = Npy.loadDiagonal(npy);
+		var diag = Array2d.readDiag(npy)
+			.asDoubleArray()
+			.data();
 		assertArrayEquals(new double[]{1, 5}, diag, 1e-10);
 
 	}
@@ -69,12 +71,17 @@ public class NpyTest {
 				m.set(row, col, (byte) ((row + 1) + col * 2));
 			}
 		}
-		var f = Files.createTempFile("_olca_test", ".npy").toFile();
-		Npy.save(f, m);
-		var copy = Npy.loadByteMatrix(f);
+
+		var dir = Files.createTempDirectory("_olca_tests").toFile();
+		NpyMatrix.write(dir, "M", m);
+		var copy = NpyMatrix.readBytes(dir, "M")
+			.map(DenseByteMatrix.class::cast)
+			.orElseThrow();
 		assertArrayEquals(m.data, copy.data);
 		assertEquals(m.rows, copy.rows);
 		assertEquals(m.columns, copy.columns);
+		Dirs.delete(dir);
+
 	}
 
 }
