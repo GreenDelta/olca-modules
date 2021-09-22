@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.model.ResultModel;
+import org.openlca.core.model.descriptors.Descriptor;
 
 public class ResultIOTest {
 
@@ -33,6 +34,11 @@ public class ResultIOTest {
 		assertTrue(all.contains(top));
 		assertTrue(all.contains(sub1));
 		assertTrue(all.contains(sub2));
+
+		var topResults = dao.getTopResults();
+		assertTrue(topResults.contains(Descriptor.of(top)));
+		assertFalse(topResults.contains(Descriptor.of(sub1)));
+		assertFalse(topResults.contains(Descriptor.of(sub2)));
 
 		db.delete(top);
 
