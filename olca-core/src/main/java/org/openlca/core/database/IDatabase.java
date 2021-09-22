@@ -127,7 +127,7 @@ public interface IDatabase extends Closeable, INotifiable {
 	}
 
 	default void insert(AbstractEntity e1, AbstractEntity e2,
-											AbstractEntity... more) {
+		AbstractEntity... more) {
 		insert(e1);
 		insert(e2);
 		if (more == null)
@@ -152,7 +152,7 @@ public interface IDatabase extends Closeable, INotifiable {
 	}
 
 	default void delete(AbstractEntity e1, AbstractEntity e2,
-											AbstractEntity... more) {
+		AbstractEntity... more) {
 		this.delete(e1);
 		this.delete(e2);
 		if (more == null)
@@ -187,7 +187,9 @@ public interface IDatabase extends Closeable, INotifiable {
 		if (modelType == null)
 			return null;
 		var dao = Daos.root(this, modelType);
-		return (T) dao.getForRefId(refID);
+		return dao == null
+			? null
+			: (T) dao.getForRefId(refID);
 	}
 
 	/**
@@ -196,9 +198,10 @@ public interface IDatabase extends Closeable, INotifiable {
 	default <T extends RootEntity> Descriptor getDescriptor(
 		Class<T> type, long id) {
 		var modelType = ModelType.forModelClass(type);
-		return modelType == null
+		var dao = Daos.root(this, modelType);
+		return dao == null
 			? null
-			: Daos.root(this, modelType).getDescriptor(id);
+			: dao.getDescriptor(id);
 	}
 
 	/**
@@ -209,9 +212,10 @@ public interface IDatabase extends Closeable, INotifiable {
 		if (refID == null)
 			return null;
 		var modelType = ModelType.forModelClass(type);
-		return modelType == null
+		var dao = Daos.root(this, modelType);
+		return dao == null
 			? null
-			: Daos.root(this, modelType).getDescriptorForRefId(refID);
+			: dao.getDescriptorForRefId(refID);
 	}
 
 	/**
@@ -223,7 +227,9 @@ public interface IDatabase extends Closeable, INotifiable {
 		if (modelType == null)
 			return Collections.emptyList();
 		var dao = Daos.root(this, modelType);
-		return (List<T>) dao.getAll();
+		return dao == null
+			? Collections.emptyList()
+			: (List<T>) dao.getAll();
 	}
 
 	/**
@@ -232,9 +238,10 @@ public interface IDatabase extends Closeable, INotifiable {
 	default <T extends RootEntity> List<? extends Descriptor> allDescriptorsOf(
 		Class<T> type) {
 		var modelType = ModelType.forModelClass(type);
-		return modelType == null
+		var dao = Daos.root(this, modelType);
+		return dao == null
 			? Collections.emptyList()
-			: Daos.root(this, modelType).getDescriptors();
+			: dao.getDescriptors();
 	}
 
 	/**
@@ -247,6 +254,8 @@ public interface IDatabase extends Closeable, INotifiable {
 		if (modelType == null)
 			return null;
 		var dao = Daos.root(this, modelType);
+		if (dao == null)
+			return null;
 		var candidates = dao.getForName(name);
 		return candidates.isEmpty()
 			? null
@@ -267,7 +276,7 @@ public interface IDatabase extends Closeable, INotifiable {
 		});
 		for (var table : tables) {
 			if (table.equalsIgnoreCase("SEQUENCE")
-					|| table.equalsIgnoreCase("OPENLCA_VERSION"))
+				|| table.equalsIgnoreCase("OPENLCA_VERSION"))
 				continue;
 			NativeSql.on(this).runUpdate("DELETE FROM " + table);
 		}
