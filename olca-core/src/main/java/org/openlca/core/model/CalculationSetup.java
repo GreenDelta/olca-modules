@@ -314,10 +314,21 @@ public class CalculationSetup extends AbstractEntity {
 	 * Set the parameter redefinitions that should be applied in the calculation.
 	 * Note that even if the calculation setup is created for a product system
 	 * with parameter redefinitions, no parameter redefinitions are applied by
-	 * default.
+	 * default. This method will create a copy of the given parameter
+	 * redefinitions as these become part of this setup which can be saved in a
+	 * database.
 	 */
 	public CalculationSetup withParameters(List<ParameterRedef> parameters) {
-		this.parameters = parameters;
+		if (parameters == null || parameters.isEmpty()) {
+			this.parameters = null;
+			return this;
+		}
+		this.parameters = new ArrayList<>(parameters.size());
+		for (var param : parameters) {
+			if (param == null)
+				continue;
+			this.parameters.add(param.clone());
+		}
 		return this;
 	}
 

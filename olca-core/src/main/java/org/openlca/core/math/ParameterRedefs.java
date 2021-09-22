@@ -6,7 +6,6 @@ import java.util.Objects;
 
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ParameterRedef;
-import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ProductSystem;
 
 class ParameterRedefs {
