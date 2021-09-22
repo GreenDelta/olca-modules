@@ -26,27 +26,32 @@ public class ResultModel extends CategorizedEntity {
 	@JoinColumn(name = "f_result")
 	public final List<ResultImpact> impacts = new ArrayList<>();
 
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "f_parent_result")
+	public final List<ResultModel> subResults = new ArrayList<>();
+
+	public static ResultModel of(String name) {
+		var result = new ResultModel();
+		Entities.init(result, name);
+		return result;
+	}
+
 	@Override
-	public CategorizedEntity clone() {
+	public ResultModel clone() {
 		var clone = new ResultModel();
 		Entities.copyRootFields(this, clone);
-
 		if (setup != null) {
 			clone.setup = setup.clone();
 		}
-
 		for (var flow : inventory) {
-			if (flow != null) {
-				clone.inventory.add(flow.clone());
-			}
+			clone.inventory.add(flow.clone());
 		}
-
 		for (var impact : impacts) {
-			if (impact != null) {
-				clone.impacts.add(impact.clone());
-			}
+			clone.impacts.add(impact.clone());
 		}
-
+		for (var subResult : subResults) {
+			clone.subResults.add(subResult.clone());
+		}
 		return clone;
 	}
 }
