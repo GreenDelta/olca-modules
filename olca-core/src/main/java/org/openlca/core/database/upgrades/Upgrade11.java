@@ -47,6 +47,7 @@ public class Upgrade11 implements IUpgrade {
 				"    resulting_amount_value    DOUBLE," +
 				"    f_location                BIGINT," +
 				"    description               CLOB(64 K)," +
+				"    origin                    VARCHAR(255)," +
 				"    PRIMARY KEY (id)" +
 				")"
 		);
@@ -59,6 +60,7 @@ public class Upgrade11 implements IUpgrade {
 				"    f_impact_category  BIGINT," +
 				"    amount             DOUBLE," +
 				"    description        CLOB(64 K)," +
+				"    origin             VARCHAR(255)," +
 				"    PRIMARY KEY (id)" + ")"
 		);
 
