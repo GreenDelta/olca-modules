@@ -11,23 +11,8 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.openlca.core.model.AbstractEntity;
-import org.openlca.core.model.descriptors.ActorDescriptor;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.model.descriptors.CategoryDescriptor;
-import org.openlca.core.model.descriptors.CurrencyDescriptor;
-import org.openlca.core.model.descriptors.DQSystemDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
-import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
-import org.openlca.core.model.descriptors.LocationDescriptor;
-import org.openlca.core.model.descriptors.ParameterDescriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.model.descriptors.ProductSystemDescriptor;
-import org.openlca.core.model.descriptors.ProjectDescriptor;
-import org.openlca.core.model.descriptors.SocialIndicatorDescriptor;
-import org.openlca.core.model.descriptors.SourceDescriptor;
-import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +32,7 @@ public class EntityCache {
 
 	public final IDatabase db;
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private LoadingCache<Key, Object> cache;
+	private final LoadingCache<Key, Object> cache;
 
 	public static EntityCache create(IDatabase db) {
 		return new EntityCache(db);
@@ -146,42 +131,28 @@ public class EntityCache {
 
 	private static class Loader extends CacheLoader<Key, Object> {
 
-		private Logger log = LoggerFactory.getLogger(getClass());
-		private final IDatabase database;
+		private final Logger log = LoggerFactory.getLogger(getClass());
+		private final IDatabase db;
 		private final HashMap<Class<?>, BaseDao<?>> daos = new HashMap<>();
 		private final HashMap<Class<?>, RootEntityDao<?, ?>> descriptorDaos = new HashMap<>();
 
-		public Loader(IDatabase database) {
-			this.database = database;
-			registerDescriptorDaos(database);
-		}
+		public Loader(IDatabase db) {
+			this.db = db;
 
-		/** Registers the DAOs for the descriptor types. */
-		private void registerDescriptorDaos(IDatabase db) {
-			log.trace("register descriptor DAOs");
-			HashMap<Class<?>, RootEntityDao<?, ?>> m = descriptorDaos;
-			m.put(ActorDescriptor.class, new ActorDao(db));
-			m.put(SourceDescriptor.class, new SourceDao(db));
-			m.put(UnitGroupDescriptor.class, new UnitGroupDao(db));
-			m.put(FlowPropertyDescriptor.class, new FlowPropertyDao(db));
-			m.put(FlowDescriptor.class, new FlowDao(db));
-			m.put(ProcessDescriptor.class, new ProcessDao(db));
-			m.put(ProductSystemDescriptor.class, new ProductSystemDao(db));
-			m.put(ImpactMethodDescriptor.class, new ImpactMethodDao(db));
-			m.put(ProjectDescriptor.class, new ProjectDao(db));
-			m.put(ImpactDescriptor.class, new ImpactCategoryDao(db));
-			m.put(SocialIndicatorDescriptor.class, new SocialIndicatorDao(db));
-			m.put(CurrencyDescriptor.class, new CurrencyDao(db));
-			m.put(LocationDescriptor.class, new LocationDao(db));
-			m.put(ParameterDescriptor.class, new ParameterDao(db));
-			m.put(DQSystemDescriptor.class, new DQSystemDao(db));
-			m.put(CategoryDescriptor.class, new CategoryDao(db));
+			// register the descriptor daos
+			for (var modelType : ModelType.values()) {
+				if (modelType.getModelClass() == null)
+					continue;
+				var dao = Daos.root(db, modelType);
+				if (dao != null) {
+					descriptorDaos.put(dao.getDescriptorType(), dao);
+				}
+			}
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public Map<Key, Object> loadAll(Iterable<? extends Key> keys)
-				throws Exception {
+		public Map<Key, Object> loadAll(Iterable<? extends Key> keys) {
 			Multimap<Class<?>, Long> idMap = ArrayListMultimap.create();
 			for (Key key : keys)
 				idMap.put(key.clazz, key.id);
@@ -231,12 +202,12 @@ public class EntityCache {
 		public Object load(Key key) throws Exception {
 			if (key == null || key.clazz == null)
 				return null;
-			Object obj = null;
-			if (Descriptor.class.isAssignableFrom(key.clazz))
-				obj = loadDescriptor(key);
-			else
-				obj = loadFull(key);
-			return obj != null ? obj : Optional.absent();
+			Object obj = Descriptor.class.isAssignableFrom(key.clazz)
+				? loadDescriptor(key)
+				: loadFull(key);
+			return obj != null
+				? obj
+				: Optional.absent();
 		}
 
 		private Object loadDescriptor(Key key) {
@@ -259,7 +230,7 @@ public class EntityCache {
 			BaseDao<?> dao = daos.get(clazz);
 			if (dao == null) {
 				log.trace("register class {}", clazz);
-				dao = Daos.base(database, clazz);
+				dao = Daos.base(db, clazz);
 				daos.put(clazz, dao);
 			}
 			return dao;

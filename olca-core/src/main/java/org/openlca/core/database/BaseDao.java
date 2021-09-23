@@ -316,15 +316,13 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 
 	protected Object[] selectFirst(String sql, String[] fields,
 								   List<Object> parameters) {
-		try (Connection conn = getDatabase().createConnection()) {
-			List<Object[]> results = execute(sql, fields, parameters, conn,
-					true);
+		try (var conn = getDatabase().createConnection()) {
+			var results = execute(sql, fields, parameters, conn, true);
 			if (results.isEmpty())
 				return null;
 			return results.get(0);
 		} catch (Exception e) {
-			DatabaseException.logAndThrow(log, "failed to execute query: "
-					+ sql, e);
+			DatabaseException.logAndThrow(log, "failed to execute query: " + sql, e);
 			return null;
 		}
 	}

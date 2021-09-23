@@ -46,6 +46,8 @@ public class CategoryDao
 
 	@Override
 	protected CategoryDescriptor createDescriptor(Object[] record) {
+		if (record == null)
+			return null;
 		var d = super.createDescriptor(record);
 		if (record[9] instanceof String) {
 			d.categoryType = ModelType.valueOf((String) record[9]);

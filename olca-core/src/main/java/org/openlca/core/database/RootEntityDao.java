@@ -62,8 +62,11 @@ public class RootEntityDao<T extends RootEntity, V extends Descriptor> extends B
 
 	public V getDescriptor(long id) {
 		String sql = getDescriptorQuery() + " where id = ?";
-		Object[] result = selectFirst(sql, getDescriptorFields(), Collections.singletonList(id));
-		return createDescriptor(result);
+		Object[] result = selectFirst(
+			sql, getDescriptorFields(), Collections.singletonList(id));
+		return result == null
+			? null
+			: createDescriptor(result);
 	}
 
 	public List<V> getDescriptors(Set<Long> ids) {
@@ -132,13 +135,13 @@ public class RootEntityDao<T extends RootEntity, V extends Descriptor> extends B
 	 * may override to provide more information. Use sql column names !
 	 */
 	protected String[] getDescriptorFields() {
-		return new String[] {
-				"id",
-				"ref_id",
-				"name",
-				"description",
-				"version",
-				"last_change"
+		return new String[]{
+			"id",
+			"ref_id",
+			"name",
+			"description",
+			"version",
+			"last_change"
 		};
 	}
 
@@ -179,7 +182,7 @@ public class RootEntityDao<T extends RootEntity, V extends Descriptor> extends B
 			d.type = ModelType.forModelClass(entityType);
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(
-					log, "failed to map query result to descriptor", e);
+				log, "failed to map query result to descriptor", e);
 		}
 		return d;
 	}
