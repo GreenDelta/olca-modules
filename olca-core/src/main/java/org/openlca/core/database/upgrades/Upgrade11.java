@@ -82,7 +82,7 @@ public class Upgrade11 implements IUpgrade {
 			"    amount                 DOUBLE," +
 			"    number_of_runs         INTEGER," +
 			"    PRIMARY KEY (id)" +
-			");"
+			")"
 		);
 
 	}

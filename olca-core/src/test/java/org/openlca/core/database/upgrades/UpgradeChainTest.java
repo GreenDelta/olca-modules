@@ -57,6 +57,12 @@ public class UpgradeChainTest {
 				"tbl_unit_groups",
 		};
 
+		// roll back Upgrade11
+		u.dropTable("tbl_results");
+		u.dropTable("tbl_result_flows");
+		u.dropTable("tbl_result_impacts");
+		u.dropTable("tbl_calculation_setups");
+
 		// roll back Upgrade9 & Upgrade10
 		u.dropTable("tbl_parameter_redef_sets");
 		u.dropColumn("tbl_parameter_redefs", "description");
@@ -168,6 +174,12 @@ public class UpgradeChainTest {
 			assertTrue(u.columnExists(table, "tags"));
 			assertTrue(u.columnExists(table, "library"));
 		}
+
+		// check Upgrade11
+		assertTrue(u.tableExists("tbl_results"));
+		assertTrue(u.tableExists("tbl_result_flows"));
+		assertTrue(u.tableExists("tbl_result_impacts"));
+		assertTrue(u.tableExists("tbl_calculation_setups"));
 
 		// finally, check that we now have the current database version
 		assertEquals(IDatabase.CURRENT_VERSION, db.getVersion());
