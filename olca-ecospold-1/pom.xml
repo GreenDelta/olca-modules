@@ -10,4 +10,6 @@
 	<artifactId>olca-ecospold-1</artifactId>
 	<packaging>jar</packaging>
 
+	<name>${project.groupId}:${project.artifactId}</name>
+
 </project>

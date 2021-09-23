@@ -10,6 +10,8 @@
 	<artifactId>olca-cloud</artifactId>
 	<packaging>jar</packaging>
 
+	<name>${project.groupId}:${project.artifactId}</name>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
@@ -34,7 +36,7 @@
 			<artifactId>commons-codec</artifactId>
 			<version>1.9</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
@@ -52,7 +54,7 @@
 			<artifactId>olca-jsonld</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.greendelta.search</groupId>
 			<artifactId>search-wrapper</artifactId>

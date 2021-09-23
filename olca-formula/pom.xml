@@ -9,6 +9,7 @@
 	</parent>
 	<artifactId>olca-formula</artifactId>
 	<packaging>jar</packaging>
+
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>The formula interpreter of the openLCA core modules.</description>
 
