@@ -1,6 +1,5 @@
 package org.openlca.util;
 
-import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -44,7 +43,8 @@ public class ResultModels {
 			var m = new ResultModel();
 			m.setup = setup;
 			m.refId = UUID.randomUUID().toString();
-			m.lastChange = new Date().getTime();
+			m.lastChange = System.currentTimeMillis();
+			m.calculationTime = m.lastChange;
 			var calcRef = setup.hasProductSystem()
 				? setup.productSystem()
 				: setup.process();

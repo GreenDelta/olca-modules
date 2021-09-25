@@ -32,6 +32,7 @@ public class Upgrade11 implements IUpgrade {
 				"    description          CLOB(64 K)," +
 			  "    f_calculation_setup  BIGINT," +
 				"    f_parent_result      BIGINT," +
+				"    calculation_time     BIGINT," +
 				"    PRIMARY KEY (id)" +
 				")");
 

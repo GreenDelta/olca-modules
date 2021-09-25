@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
@@ -30,6 +31,13 @@ public class ResultModel extends CategorizedEntity {
 	@JoinColumn(name = "f_parent_result")
 	public final List<ResultModel> subResults = new ArrayList<>();
 
+	/**
+	 * The timestamp when this result was calculated. A value of {@code <= 0}
+	 * means that there is not such timestamp.
+	 */
+	@Column(name = "calculation_time")
+	public long calculationTime;
+
 	public static ResultModel of(String name) {
 		var result = new ResultModel();
 		Entities.init(result, name);
@@ -52,6 +60,7 @@ public class ResultModel extends CategorizedEntity {
 		for (var subResult : subResults) {
 			clone.subResults.add(subResult.clone());
 		}
+		clone.calculationTime = calculationTime;
 		return clone;
 	}
 }
