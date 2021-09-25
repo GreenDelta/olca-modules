@@ -14,6 +14,7 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.ResultFlow;
 import org.openlca.core.model.ResultImpact;
 import org.openlca.core.model.ResultModel;
+import org.openlca.core.model.ResultOrigin;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.SimpleResult;
 
@@ -41,6 +42,7 @@ public class ResultModels {
 
 		ResultModel generate() {
 			var m = new ResultModel();
+			m.setup = setup;
 			m.refId = UUID.randomUUID().toString();
 			m.lastChange = new Date().getTime();
 			var calcRef = setup.hasProductSystem()
@@ -82,6 +84,7 @@ public class ResultModels {
 			if (flow == null)
 				return null;
 			var r = new ResultFlow();
+			r.origin = ResultOrigin.CALCULATED;
 			r.flow = flow;
 			r.flowPropertyFactor = flow.getReferenceFactor();
 			r.unit = flow.getReferenceUnit();
@@ -99,6 +102,7 @@ public class ResultModels {
 			if (impact == null)
 				return null;
 			var r = new ResultImpact();
+			r.origin = ResultOrigin.CALCULATED;
 			r.indicator = impact;
 			r.amount = result.getTotalImpactResult(d);
 			return r;

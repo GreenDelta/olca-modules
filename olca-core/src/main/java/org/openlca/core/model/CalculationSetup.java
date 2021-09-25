@@ -102,7 +102,7 @@ public class CalculationSetup extends AbstractEntity {
 		} else {
 			throw new IllegalArgumentException(
 				"Unexpected calculation target: " + target
-					+ "; only processes and product systems are supported");
+				+ "; only processes and product systems are supported");
 		}
 	}
 
@@ -173,10 +173,28 @@ public class CalculationSetup extends AbstractEntity {
 		return system;
 	}
 
+	/**
+	 * Set the calculation target of this setup.
+	 *
+	 * @param target The process or product system. {@code null} is allowed
+	 *               here to support editing features.
+	 * @return this calculation setup
+	 */
+	public CalculationSetup withTarget(CalculationTarget target) {
+		if (target == null) {
+			process = null;
+			system = null;
+		} else if (target.isProcess()) {
+			process = target.asProcess();
+		} else if (target.isProductSystem()) {
+			system = target.asProductSystem();
+		}
+		return this;
+	}
 
 	/**
 	 * Optionally set the unit for the target amount of the reference flow.
-	 * By default this is the reference unit of that flow.
+	 * By default, this is the reference unit of that flow.
 	 */
 	public CalculationSetup withUnit(Unit unit) {
 		this.unit = unit;
@@ -409,7 +427,7 @@ public class CalculationSetup extends AbstractEntity {
 
 		if (parameters != null) {
 			clone.parameters = new ArrayList<>(parameters.size());
-			for(var param : parameters) {
+			for (var param : parameters) {
 				clone.parameters.add(param.clone());
 			}
 		}
