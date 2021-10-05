@@ -39,7 +39,7 @@ class FlowImport {
 
 	private void createFlow(FlowDescriptor descriptor) {
 		Flow srcFlow = sourceDao.getForId(descriptor.id);
-		Flow destFlow = srcFlow.clone();
+		Flow destFlow = srcFlow.copy();
 		destFlow.refId = srcFlow.refId;
 		destFlow.category = refs.switchRef(srcFlow.category);
 		destFlow.location = refs.switchRef(srcFlow.location);

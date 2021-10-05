@@ -15,7 +15,8 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name = "tbl_parameter_redefs")
-public class ParameterRedef extends AbstractEntity {
+public class ParameterRedef extends AbstractEntity
+	implements Copyable<ParameterRedef> {
 
 	/**
 	 * The name of the parameter that should be redefined.
@@ -75,7 +76,7 @@ public class ParameterRedef extends AbstractEntity {
 	}
 
 	@Override
-	public ParameterRedef clone() {
+	public ParameterRedef copy() {
 		var clone = new ParameterRedef();
 		clone.name = name;
 		clone.description = description;
@@ -83,7 +84,7 @@ public class ParameterRedef extends AbstractEntity {
 		clone.contextType = contextType;
 		clone.value = value;
 		if (uncertainty != null) {
-			clone.uncertainty = uncertainty.clone();
+			clone.uncertainty = uncertainty.copy();
 		}
 		return clone;
 	}

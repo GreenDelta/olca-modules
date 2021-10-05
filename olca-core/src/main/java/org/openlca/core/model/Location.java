@@ -40,7 +40,7 @@ public class Location extends CategorizedEntity {
 	}
 
 	@Override
-	public Location clone() {
+	public Location copy() {
 		var clone = new Location();
 		Entities.copyFields(this, clone);
 		clone.code = code;

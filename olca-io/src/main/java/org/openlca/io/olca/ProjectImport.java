@@ -43,7 +43,7 @@ class ProjectImport {
 
 	private void createProject(ProjectDescriptor descriptor) {
 		Project srcProject = srcDao.getForId(descriptor.id);
-		Project destProject = srcProject.clone();
+		Project destProject = srcProject.copy();
 		destProject.refId = srcProject.refId;
 		destProject.category = refs.switchRef(srcProject.category);
 		destProject.impactMethod = refs.switchRef(srcProject.impactMethod);

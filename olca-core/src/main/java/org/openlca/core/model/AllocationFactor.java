@@ -36,7 +36,8 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name = "tbl_allocation_factors")
-public class AllocationFactor extends AbstractEntity implements Cloneable {
+public class AllocationFactor extends AbstractEntity
+	implements Copyable<AllocationFactor> {
 
 	/**
 	 * The ID of the product flow $j$ (the flow ID, not the exchange ID) to which
@@ -107,7 +108,7 @@ public class AllocationFactor extends AbstractEntity implements Cloneable {
 	}
 
 	@Override
-	public AllocationFactor clone() {
+	public AllocationFactor copy() {
 		var clone = new AllocationFactor();
 		clone.productId = productId;
 		clone.method = method;

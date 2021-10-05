@@ -8,14 +8,15 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_result_flows")
-public class ResultFlow  extends AbstractExchange {
+public class ResultFlow  extends AbstractExchange
+	implements Copyable<ResultFlow> {
 
 	@Column(name = "origin")
 	@Enumerated(EnumType.STRING)
 	public ResultOrigin origin;
 
 	@Override
-	protected ResultFlow clone() {
+	public ResultFlow copy() {
 		var clone = new ResultFlow();
 		clone.amount = amount;
 		clone.flow = flow;

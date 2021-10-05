@@ -21,7 +21,8 @@ import jakarta.persistence.TemporalType;
  */
 @Entity
 @Table(name = "tbl_process_docs")
-public class ProcessDocumentation extends AbstractEntity implements Cloneable {
+public class ProcessDocumentation extends AbstractEntity
+	implements Copyable<ProcessDocumentation> {
 
 	@Lob
 	@Column(name = "time")
@@ -130,8 +131,8 @@ public class ProcessDocumentation extends AbstractEntity implements Cloneable {
 	public String precedingDataSet;
 
 	@Override
-	public ProcessDocumentation clone() {
-		ProcessDocumentation clone = new ProcessDocumentation();
+	public ProcessDocumentation copy() {
+		var clone = new ProcessDocumentation();
 
 		clone.technology = technology;
 		clone.time = time;
@@ -147,9 +148,7 @@ public class ProcessDocumentation extends AbstractEntity implements Cloneable {
 		clone.modelingConstants = modelingConstants;
 		clone.reviewer = reviewer;
 		clone.sampling = sampling;
-		for (Source source : sources) {
-			clone.sources.add(source);
-		}
+		clone.sources.addAll(sources);
 
 		clone.restrictions = restrictions;
 		clone.copyright = copyright;

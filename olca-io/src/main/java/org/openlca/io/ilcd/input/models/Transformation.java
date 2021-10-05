@@ -69,7 +69,7 @@ class Transformation {
 		Node provider = forTarget(inLink.provider);
 		if (provider == null)
 			return;
-		Flow product = inLink.output.flow.clone();
+		Flow product = inLink.output.flow.copy();
 		product.flowType = FlowType.PRODUCT_FLOW;
 		Link link = link(provider, recipient, product, inLink);
 		provider.process.quantitativeReference = link.output;
@@ -80,7 +80,7 @@ class Transformation {
 		Node recipient = forTarget(outLink.recipient);
 		if (recipient == null)
 			return;
-		Flow waste = outLink.input.flow.clone();
+		Flow waste = outLink.input.flow.copy();
 		waste.flowType = FlowType.WASTE_FLOW;
 		Link link = link(provider, recipient, waste, outLink);
 		recipient.process.quantitativeReference = link.input;
@@ -89,8 +89,8 @@ class Transformation {
 
 	private Link link(Node provider, Node recipient, Flow flow,
 			Link sourceLink) {
-		Exchange output = sourceLink.output.clone();
-		Exchange input = sourceLink.input.clone();
+		Exchange output = sourceLink.output.copy();
+		Exchange input = sourceLink.input.copy();
 		setFlow(flow, output);
 		provider.process.exchanges.add(output);
 		setFlow(flow, input);
@@ -135,7 +135,7 @@ class Transformation {
 		Node n = target.getNode(sourceNode.modelID);
 		if (n != null)
 			return n;
-		n = sourceNode.clone();
+		n = sourceNode.copy();
 		List<Exchange> elemFlows = new ArrayList<>();
 		for (Exchange e : n.process.exchanges) {
 			Flow f = e.flow;
@@ -170,8 +170,8 @@ class Transformation {
 			log.warn("Ref. process of source graph has no reference flow.");
 			return;
 		}
-		ref = ref.clone();
-		Flow flow = ref.flow.clone();
+		ref = ref.copy();
+		Flow flow = ref.flow.copy();
 		if (ref.isInput) {
 			flow.flowType = FlowType.WASTE_FLOW;
 		} else {

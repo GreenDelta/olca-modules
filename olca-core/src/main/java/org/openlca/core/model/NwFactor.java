@@ -8,7 +8,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_nw_factors")
-public class NwFactor extends AbstractEntity implements Cloneable {
+public class NwFactor extends AbstractEntity implements Copyable<NwFactor> {
 
 	@OneToOne
 	@JoinColumn(name = "f_impact_category")
@@ -45,8 +45,8 @@ public class NwFactor extends AbstractEntity implements Cloneable {
 	}
 
 	@Override
-	protected NwFactor clone() {
-		NwFactor clone = new NwFactor();
+	public NwFactor copy() {
+		var clone = new NwFactor();
 		clone.normalisationFactor = normalisationFactor;
 		clone.impactCategory = impactCategory;
 		clone.weightingFactor = weightingFactor;

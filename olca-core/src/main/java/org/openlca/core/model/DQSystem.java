@@ -64,12 +64,12 @@ public class DQSystem extends CategorizedEntity {
 	}
 
 	@Override
-	public DQSystem clone() {
+	public DQSystem copy() {
 		var clone = new DQSystem();
 		Entities.copyFields(this, clone);
 		clone.hasUncertainties = hasUncertainties;
 		for (DQIndicator indicator : indicators) {
-			clone.indicators.add(indicator.clone());
+			clone.indicators.add(indicator.copy());
 		}
 		clone.source = source;
 		return clone;

@@ -100,14 +100,14 @@ public class Parameter extends CategorizedEntity {
 	}
 
 	@Override
-	public Parameter clone() {
+	public Parameter copy() {
 		var clone = new Parameter();
 		Entities.copyFields(this, clone);
 		clone.formula = formula;
 		clone.isInputParameter = isInputParameter;
 		clone.scope = scope;
 		if (uncertainty != null)
-			clone.uncertainty = uncertainty.clone();
+			clone.uncertainty = uncertainty.copy();
 		clone.value = value;
 		return clone;
 	}

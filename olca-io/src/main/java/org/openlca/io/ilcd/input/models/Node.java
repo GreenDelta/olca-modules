@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.openlca.core.model.Copyable;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
 import org.openlca.ilcd.models.Group;
@@ -13,7 +14,7 @@ import org.openlca.ilcd.models.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class Node {
+class Node implements Copyable<Node> {
 
 	/** This is the same ID as in the eILCD data set. */
 	int modelID;
@@ -83,11 +84,11 @@ class Node {
 	}
 
 	@Override
-	protected Node clone() {
+	public Node copy() {
 		Node clone = new Node();
 		clone.modelID = modelID;
 		if (process != null) {
-			clone.process = process.clone();
+			clone.process = process.copy();
 		}
 		clone.scalingFactor = scalingFactor;
 		clone.params.putAll(params);

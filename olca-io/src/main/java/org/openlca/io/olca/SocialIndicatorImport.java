@@ -9,12 +9,12 @@ import org.slf4j.LoggerFactory;
 
 class SocialIndicatorImport {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private SocialIndicatorDao srcDao;
-	private SocialIndicatorDao destDao;
-	private RefSwitcher refs;
-	private Sequence seq;
+	private final SocialIndicatorDao srcDao;
+	private final SocialIndicatorDao destDao;
+	private final RefSwitcher refs;
+	private final Sequence seq;
 
 	SocialIndicatorImport(IDatabase source, IDatabase dest, Sequence seq) {
 		this.srcDao = new SocialIndicatorDao(source);
@@ -39,7 +39,7 @@ class SocialIndicatorImport {
 
 	private void createSocialIndicator(SocialIndicatorDescriptor descriptor) {
 		SocialIndicator src = srcDao.getForId(descriptor.id);
-		SocialIndicator dest = src.clone();
+		SocialIndicator dest = src.copy();
 		dest.refId = src.refId;
 		dest.category = refs.switchRef(src.category);
 		dest.activityQuantity = refs.switchRef(src.activityQuantity);

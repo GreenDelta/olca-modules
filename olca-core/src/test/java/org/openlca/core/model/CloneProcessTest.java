@@ -18,7 +18,7 @@ public class CloneProcessTest {
 			assertTrue(e.internalId > 0);
 			assertEquals(e, p1.getExchange(e.internalId));
 		}
-		Process p2 = p1.clone();
+		Process p2 = p1.copy();
 		assertEquals(2, p2.lastInternalId);
 		for (Exchange e : p2.exchanges) {
 			assertTrue(e.internalId > 0);

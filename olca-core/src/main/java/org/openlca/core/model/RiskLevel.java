@@ -24,6 +24,6 @@ public enum RiskLevel {
 
 	NO_DATA,
 
-	NOT_APPLICABLE;
+	NOT_APPLICABLE
 
 }

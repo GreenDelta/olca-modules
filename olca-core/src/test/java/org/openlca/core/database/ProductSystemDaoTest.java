@@ -28,7 +28,7 @@ public class ProductSystemDaoTest {
 		sys.parameterSets.add(s2);
 		s2.name = "Something else";
 		s2.isBaseline = false;
-		s2.parameters.add(p1.clone());
+		s2.parameters.add(p1.copy());
 
 		dao.insert(sys);
 		sys = dao.getForId(sys.id);

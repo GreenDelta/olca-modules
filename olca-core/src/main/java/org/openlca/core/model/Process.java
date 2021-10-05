@@ -84,7 +84,7 @@ public class Process extends ParameterizedEntity implements CalculationTarget {
 	}
 
 	@Override
-	public Process clone() {
+	public Process copy() {
 		return new ProcessCopy().create(this);
 	}
 

@@ -8,7 +8,7 @@ public class AllocationFactorCloneTest {
 	@Test
 	public void testClone() {
 		Process process = createProcess();
-		Process clone = process.clone();
+		Process clone = process.copy();
 		checkGeneralValues(process, clone);
 		checkAllocationFactor(clone);
 	}

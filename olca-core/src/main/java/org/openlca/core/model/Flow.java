@@ -71,7 +71,7 @@ public class Flow extends CategorizedEntity {
 	}
 
 	@Override
-	public Flow clone() {
+	public Flow copy() {
 		var clone = new Flow();
 		Entities.copyFields(this, clone);
 		clone.flowType = flowType;
@@ -80,8 +80,8 @@ public class Flow extends CategorizedEntity {
 		clone.infrastructureFlow = infrastructureFlow;
 		clone.location = location;
 		clone.referenceFlowProperty = referenceFlowProperty;
-		for (FlowPropertyFactor factor : flowPropertyFactors) {
-			clone.flowPropertyFactors.add(factor.clone());
+		for (var factor : flowPropertyFactors) {
+			clone.flowPropertyFactors.add(factor.copy());
 		}
 		clone.synonyms = synonyms;
 		return clone;

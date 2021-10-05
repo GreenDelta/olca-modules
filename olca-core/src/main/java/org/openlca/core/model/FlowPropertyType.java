@@ -4,6 +4,6 @@ public enum FlowPropertyType {
 
 	ECONOMIC,
 
-	PHYSICAL;
+	PHYSICAL
 
 }

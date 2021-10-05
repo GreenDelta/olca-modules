@@ -11,7 +11,8 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name = "tbl_flow_property_factors")
-public class FlowPropertyFactor extends AbstractEntity {
+public class FlowPropertyFactor extends AbstractEntity
+	implements Copyable<FlowPropertyFactor> {
 
 	@Column(name = "conversion_factor")
 	public double conversionFactor = 1d;
@@ -21,8 +22,8 @@ public class FlowPropertyFactor extends AbstractEntity {
 	public FlowProperty flowProperty;
 
 	@Override
-	public FlowPropertyFactor clone() {
-		final FlowPropertyFactor factor = new FlowPropertyFactor();
+	public FlowPropertyFactor copy() {
+		var factor = new FlowPropertyFactor();
 		factor.conversionFactor = conversionFactor;
 		factor.flowProperty = flowProperty;
 		return factor;

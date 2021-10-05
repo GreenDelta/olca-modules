@@ -27,7 +27,7 @@ public class Currency extends CategorizedEntity {
 	}
 
 	@Override
-	public Currency clone() {
+	public Currency copy() {
 		var clone = new Currency();
 		Entities.copyFields(this, clone);
 		clone.code = code;

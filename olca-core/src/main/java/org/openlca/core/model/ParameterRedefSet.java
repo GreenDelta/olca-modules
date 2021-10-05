@@ -16,7 +16,8 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name = "tbl_parameter_redef_sets")
-public class ParameterRedefSet extends AbstractEntity {
+public class ParameterRedefSet extends AbstractEntity
+	implements Copyable<ParameterRedefSet> {
 
 	@Column(name = "name")
 	public String name;
@@ -28,11 +29,11 @@ public class ParameterRedefSet extends AbstractEntity {
 	public boolean isBaseline;
 
 	@JoinColumn(name = "f_owner")
-	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
+	@OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
 	public final List<ParameterRedef> parameters = new ArrayList<>();
 
 	@Override
-	public ParameterRedefSet clone() {
+	public ParameterRedefSet copy() {
 		ParameterRedefSet clone = new ParameterRedefSet();
 		clone.name = name;
 		clone.description = description;
@@ -40,7 +41,7 @@ public class ParameterRedefSet extends AbstractEntity {
 		for (ParameterRedef p : parameters) {
 			if (p == null)
 				continue;
-			clone.parameters.add(p.clone());
+			clone.parameters.add(p.copy());
 		}
 		return clone;
 	}

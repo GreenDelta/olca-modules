@@ -50,7 +50,7 @@ public class SocialIndicator extends CategorizedEntity {
 	}
 
 	@Override
-	public SocialIndicator clone() {
+	public SocialIndicator copy() {
 		var clone = new SocialIndicator();
 		Entities.copyFields(this, clone);
 		clone.activityVariable = activityVariable;

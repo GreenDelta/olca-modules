@@ -45,7 +45,7 @@ class ImpactMethodImport {
 
 	private void createMethod(ImpactMethodDescriptor d) {
 		ImpactMethod src = srcDao.getForId(d.id);
-		ImpactMethod dest = src.clone();
+		ImpactMethod dest = src.copy();
 		dest.refId = src.refId;
 		dest.category = refs.switchRef(src.category);
 		switchImpacts(dest);

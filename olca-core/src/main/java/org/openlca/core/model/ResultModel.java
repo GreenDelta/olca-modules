@@ -45,20 +45,20 @@ public class ResultModel extends CategorizedEntity {
 	}
 
 	@Override
-	public ResultModel clone() {
+	public ResultModel copy() {
 		var clone = new ResultModel();
 		Entities.copyRootFields(this, clone);
 		if (setup != null) {
-			clone.setup = setup.clone();
+			clone.setup = setup.copy();
 		}
 		for (var flow : inventory) {
-			clone.inventory.add(flow.clone());
+			clone.inventory.add(flow.copy());
 		}
 		for (var impact : impacts) {
-			clone.impacts.add(impact.clone());
+			clone.impacts.add(impact.copy());
 		}
 		for (var subResult : subResults) {
-			clone.subResults.add(subResult.clone());
+			clone.subResults.add(subResult.copy());
 		}
 		clone.calculationTime = calculationTime;
 		return clone;

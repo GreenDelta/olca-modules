@@ -19,7 +19,8 @@ import jakarta.persistence.MappedSuperclass;
  *
  */
 @MappedSuperclass
-public abstract class RootEntity extends AbstractEntity implements Cloneable {
+public abstract class RootEntity
+	extends AbstractEntity implements Copyable<RootEntity> {
 
 	@Column(name = "ref_id")
 	public String refId;
@@ -37,9 +38,6 @@ public abstract class RootEntity extends AbstractEntity implements Cloneable {
 
 	@Column(name = "last_change")
 	public long lastChange;
-
-	@Override
-	public abstract Object clone();
 
 	@Override
 	public String toString() {

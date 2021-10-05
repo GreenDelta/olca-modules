@@ -40,11 +40,11 @@ public class Project extends CategorizedEntity {
 	}
 
 	@Override
-	public Project clone() {
+	public Project copy() {
 		var clone = new Project();
 		Entities.copyFields(this, clone);
 		for (var variant : variants) {
-			clone.variants.add(variant.clone());
+			clone.variants.add(variant.copy());
 		}
 		clone.impactMethod = impactMethod;
 		clone.nwSet = nwSet;

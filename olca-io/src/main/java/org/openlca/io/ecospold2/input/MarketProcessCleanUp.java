@@ -121,7 +121,7 @@ public class MarketProcessCleanUp implements Runnable {
 		for (Exchange exchange : market.exchanges) {
 			if (Objects.equals(exchange, marketRef))
 				continue;
-			Exchange clone = exchange.clone();
+			Exchange clone = exchange.copy();
 			clone.amount = exchange.amount * factor;
 			exchanges.add(clone);
 		}

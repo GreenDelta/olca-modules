@@ -4,6 +4,6 @@ public enum ProcessType {
 
 	LCI_RESULT,
 
-	UNIT_PROCESS;
+	UNIT_PROCESS
 
 }

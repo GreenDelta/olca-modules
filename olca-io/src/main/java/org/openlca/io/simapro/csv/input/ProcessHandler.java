@@ -127,12 +127,12 @@ class ProcessHandler {
 			}
 
 			// add the physical factor
-			var physical = f.clone();
+			var physical = f.copy();
 			physical.method = AllocationMethod.PHYSICAL;
 			process.allocationFactors.add(physical);
 
 			// add the economic factor
-			var economic = f.clone();
+			var economic = f.copy();
 			economic.method = AllocationMethod.ECONOMIC;
 			process.allocationFactors.add(economic);
 
@@ -140,7 +140,7 @@ class ProcessHandler {
 			for (Exchange e : process.exchanges) {
 				if (Exchanges.isProviderFlow(e))
 					continue;
-				var causal = f.clone();
+				var causal = f.copy();
 				causal.method = AllocationMethod.CAUSAL;
 				causal.exchange = e;
 				process.allocationFactors.add(causal);

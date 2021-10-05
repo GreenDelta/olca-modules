@@ -29,7 +29,7 @@ public class Source extends CategorizedEntity {
 	}
 
 	@Override
-	public Source clone() {
+	public Source copy() {
 		var clone = new Source();
 		Entities.copyFields(this, clone);
 		clone.url = url;

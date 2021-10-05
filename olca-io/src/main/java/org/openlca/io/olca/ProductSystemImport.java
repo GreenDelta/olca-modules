@@ -16,13 +16,13 @@ import org.slf4j.LoggerFactory;
 
 class ProductSystemImport {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private ProductSystemDao srcDao;
-	private IDatabase source;
-	private IDatabase dest;
-	private RefSwitcher refs;
-	private Sequence seq;
+	private final ProductSystemDao srcDao;
+	private final IDatabase source;
+	private final IDatabase dest;
+	private final RefSwitcher refs;
+	private final Sequence seq;
 
 	ProductSystemImport(IDatabase source, IDatabase dest, Sequence seq) {
 		this.srcDao = new ProductSystemDao(source);
@@ -47,7 +47,7 @@ class ProductSystemImport {
 
 	private void copy(ProductSystemDescriptor descriptor) {
 		ProductSystem srcSystem = srcDao.getForId(descriptor.id);
-		ProductSystem destSystem = srcSystem.clone();
+		ProductSystem destSystem = srcSystem.copy();
 		destSystem.refId = srcSystem.refId;
 		destSystem.category = refs.switchRef(srcSystem.category);
 		destSystem.referenceProcess = refs.switchRef(srcSystem.referenceProcess);
@@ -105,11 +105,9 @@ class ProductSystemImport {
 			if (contextId == null)
 				continue;
 			if (redef.contextType == ModelType.IMPACT_METHOD) {
-				Long destMethodId = refs.getDestImpactMethodId(contextId);
-				redef.contextId = destMethodId;
+				redef.contextId = refs.getDestImpactMethodId(contextId);
 			} else {
-				long destProcessId = refs.getDestProcessId(contextId);
-				redef.contextId = destProcessId;
+				redef.contextId = refs.getDestProcessId(contextId);
 			}
 		}
 	}

@@ -38,7 +38,7 @@ class FlowPropertyImport {
 
 	private void createFlowProperty(FlowPropertyDescriptor descriptor) {
 		FlowProperty srcProp = sourceDao.getForId(descriptor.id);
-		FlowProperty destProp = srcProp.clone();
+		FlowProperty destProp = srcProp.copy();
 		destProp.refId = srcProp.refId;
 		destProp.unitGroup = refs.switchRef(srcProp.unitGroup);
 		destProp.category = refs.switchRef(srcProp.category);

@@ -13,7 +13,8 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_dq_indicators")
-public class DQIndicator extends AbstractEntity implements Comparable<DQIndicator> {
+public class DQIndicator extends AbstractEntity
+	implements Comparable<DQIndicator>, Copyable<DQIndicator> {
 
 	@Column(name = "name")
 	public String name;
@@ -33,12 +34,12 @@ public class DQIndicator extends AbstractEntity implements Comparable<DQIndicato
 	}
 
 	@Override
-	public DQIndicator clone() {
+	public DQIndicator copy() {
 		var clone = new DQIndicator();
 		clone.name = name;
 		clone.position = position;
 		for (var score : scores) {
-			clone.scores.add(score.clone());
+			clone.scores.add(score.copy());
 		}
 		return clone;
 	}

@@ -15,14 +15,14 @@ import org.slf4j.LoggerFactory;
 
 class UnitGroupImport {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private UnitGroupDao srcDao;
-	private UnitGroupDao destDao;
-	private RefSwitcher refs;
-	private Sequence seq;
+	private final UnitGroupDao srcDao;
+	private final UnitGroupDao destDao;
+	private final RefSwitcher refs;
+	private final Sequence seq;
 
-	private HashMap<String, UnitGroup> requirePropertyUpdate = new HashMap<>();
+	private final HashMap<String, UnitGroup> requirePropertyUpdate = new HashMap<>();
 
 	UnitGroupImport(IDatabase source, IDatabase dest, Sequence seq) {
 		this.srcDao = new UnitGroupDao(source);
@@ -64,7 +64,7 @@ class UnitGroupImport {
 			if (!updated && destUnit != null) {
 				seq.put(seq.UNIT, srcUnit.refId, destUnit.id);
 			} else {
-				destUnit = srcUnit.clone();
+				destUnit = srcUnit.copy();
 				destUnit.refId = srcUnit.refId;
 				destGroup.units.add(destUnit);
 				updated = true;
@@ -81,7 +81,7 @@ class UnitGroupImport {
 
 	private void createUnitGroup(UnitGroupDescriptor descriptor) {
 		UnitGroup srcGroup = srcDao.getForId(descriptor.id);
-		UnitGroup destGroup = srcGroup.clone();
+		UnitGroup destGroup = srcGroup.copy();
 		destGroup.refId = srcGroup.refId;
 		switchUnitRefIds(srcGroup, destGroup);
 		destGroup.defaultFlowProperty = null;

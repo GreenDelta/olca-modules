@@ -127,7 +127,7 @@ public class ProductSystem extends CategorizedEntity implements CalculationTarge
 	}
 
 	@Override
-	public ProductSystem clone() {
+	public ProductSystem copy() {
 		var clone = new ProductSystem();
 		Entities.copyFields(this, clone);
 		clone.referenceExchange = referenceExchange;
@@ -135,13 +135,13 @@ public class ProductSystem extends CategorizedEntity implements CalculationTarge
 		clone.targetAmount = targetAmount;
 		clone.processes.addAll(processes);
 		for (ProcessLink link : processLinks) {
-			clone.processLinks.add(link.clone());
+			clone.processLinks.add(link.copy());
 		}
 		for (ParameterRedef p : parameterRedefs) {
-			clone.parameterRedefs.add(p.clone());
+			clone.parameterRedefs.add(p.copy());
 		}
 		for (ParameterRedefSet s : parameterSets) {
-			clone.parameterSets.add(s.clone());
+			clone.parameterSets.add(s.copy());
 		}
 		clone.targetFlowPropertyFactor = targetFlowPropertyFactor;
 		clone.targetUnit = targetUnit;

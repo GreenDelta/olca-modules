@@ -63,7 +63,7 @@ public class ExchangeUseSearchTest {
 			ep.flow = flow;
 			ep.isInput = false;
 			p.exchanges.add(ep);
-			Exchange eq = ep.clone();
+			Exchange eq = ep.copy();
 			eq.isInput = true;
 			q.exchanges.add(eq);
 		}

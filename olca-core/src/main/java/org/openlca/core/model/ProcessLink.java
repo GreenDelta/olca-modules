@@ -10,7 +10,7 @@ import jakarta.persistence.Embeddable;
  * product system) and a process in a product system.
  */
 @Embeddable
-public class ProcessLink implements Cloneable {
+public class ProcessLink implements Copyable<ProcessLink> {
 
 	/**
 	 * ID of the flow that is an output of the one process (or the reference flow of
@@ -51,7 +51,7 @@ public class ProcessLink implements Cloneable {
 	public boolean isSystemLink;
 
 	@Override
-	public ProcessLink clone() {
+	public ProcessLink copy() {
 		var clone = new ProcessLink();
 		clone.flowId = flowId;
 		clone.providerId = providerId;

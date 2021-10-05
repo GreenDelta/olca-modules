@@ -8,11 +8,11 @@ import org.slf4j.LoggerFactory;
 
 class LocationImport {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private LocationDao srcDao;
-	private LocationDao destDao;
-	private Sequence seq;
+	private final LocationDao srcDao;
+	private final LocationDao destDao;
+	private final Sequence seq;
 
 	public LocationImport(IDatabase source, IDatabase dest, Sequence seq) {
 		this.srcDao = new LocationDao(source);
@@ -26,7 +26,7 @@ class LocationImport {
 			for (Location srcLoc : srcDao.getAll()) {
 				if (seq.contains(seq.LOCATION, srcLoc.refId))
 					continue;
-				Location destLoc = srcLoc.clone();
+				Location destLoc = srcLoc.copy();
 				destLoc.refId = srcLoc.refId;
 				destLoc = destDao.insert(destLoc);
 				seq.put(seq.LOCATION, srcLoc.refId, destLoc.id);

@@ -38,7 +38,7 @@ class DQSystemImport {
 
 	private void create(DQSystemDescriptor descriptor) {
 		DQSystem src = srcDao.getForId(descriptor.id);
-		DQSystem dest = src.clone();
+		DQSystem dest = src.copy();
 		dest.refId = src.refId;
 		dest.category = refs.switchRef(src.category);
 		dest.source = refs.switchRef(src.source);

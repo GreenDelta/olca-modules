@@ -35,7 +35,7 @@ public class FlowProperty extends CategorizedEntity {
 	}
 
 	@Override
-	public FlowProperty clone() {
+	public FlowProperty copy() {
 		var clone = new FlowProperty();
 		Entities.copyFields(this, clone);
 		clone.unitGroup = unitGroup;

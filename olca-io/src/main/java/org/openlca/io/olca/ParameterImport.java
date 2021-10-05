@@ -16,10 +16,10 @@ import org.slf4j.LoggerFactory;
  */
 class ParameterImport {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private ParameterDao sourceDao;
-	private ParameterDao destDao;
+	private final ParameterDao sourceDao;
+	private final ParameterDao destDao;
 
 	ParameterImport(IDatabase source, IDatabase dest) {
 		this.sourceDao = new ParameterDao(source);
@@ -35,7 +35,7 @@ class ParameterImport {
 					continue;
 				if (existing.contains(param.name))
 					continue;
-				Parameter c = param.clone();
+				Parameter c = param.copy();
 				destDao.insert(c);
 			}
 		} catch (Exception e) {

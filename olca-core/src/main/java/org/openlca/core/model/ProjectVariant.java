@@ -15,7 +15,8 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_project_variants")
-public class ProjectVariant extends AbstractEntity {
+public class ProjectVariant extends AbstractEntity
+	implements Copyable<ProjectVariant> {
 
 	@Column(name = "name")
 	public String name;
@@ -54,7 +55,7 @@ public class ProjectVariant extends AbstractEntity {
 	public boolean isDisabled;
 
 	@Override
-	public ProjectVariant clone() {
+	public ProjectVariant copy() {
 		var clone = new ProjectVariant();
 		clone.name = name;
 		clone.description = description;
@@ -63,8 +64,8 @@ public class ProjectVariant extends AbstractEntity {
 		clone.flowPropertyFactor = flowPropertyFactor;
 		clone.amount = amount;
 		clone.allocationMethod = allocationMethod;
-		for (ParameterRedef redef : parameterRedefs) {
-			clone.parameterRedefs.add(redef.clone());
+		for (var redef : parameterRedefs) {
+			clone.parameterRedefs.add(redef.copy());
 		}
 		clone.isDisabled = isDisabled;
 		return clone;

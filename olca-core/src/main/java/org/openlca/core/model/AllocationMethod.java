@@ -35,6 +35,6 @@ public enum AllocationMethod {
 	 * Means that a physical flow property is used to calculate the allocation
 	 * factors of a process.
 	 */
-	PHYSICAL;
+	PHYSICAL
 
 }

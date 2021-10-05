@@ -40,12 +40,12 @@ public class NwSet extends RootEntity {
 	}
 
 	@Override
-	public NwSet clone() {
+	public NwSet copy() {
 		var clone = new NwSet();
 		Entities.copyRootFields(this, clone);
 		clone.weightedScoreUnit = weightedScoreUnit;
-		for (NwFactor factor : factors) {
-			clone.factors.add(factor.clone());
+		for (var factor : factors) {
+			clone.factors.add(factor.copy());
 		}
 		return clone;
 	}

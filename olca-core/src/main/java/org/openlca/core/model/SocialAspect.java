@@ -10,7 +10,8 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_social_aspects")
-public class SocialAspect extends AbstractEntity {
+public class SocialAspect extends AbstractEntity
+	implements Copyable<SocialAspect> {
 
 	@OneToOne
 	@JoinColumn(name = "f_indicator")
@@ -43,7 +44,7 @@ public class SocialAspect extends AbstractEntity {
 	public String quality;
 
 	@Override
-	public SocialAspect clone() {
+	public SocialAspect copy() {
 		var clone = new SocialAspect();
 		clone.indicator = indicator;
 		clone.activityValue = activityValue;

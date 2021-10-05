@@ -86,13 +86,13 @@ public class SystemProcess {
 		if (refProc == null)
 			return;
 		for (SocialAspect sa : refProc.socialAspects)
-			p.socialAspects.add(sa.clone());
+			p.socialAspects.add(sa.copy());
 		p.socialDqSystem = refProc.socialDqSystem;
 		p.category = refProc.category;
 		p.defaultAllocationMethod = refProc.defaultAllocationMethod;
 		p.description = refProc.description;
 		if (refProc.documentation != null)
-			p.documentation = refProc.documentation.clone();
+			p.documentation = refProc.documentation.copy();
 		p.infrastructureProcess = refProc.infrastructureProcess;
 		p.lastChange = new Date().getTime();
 		p.location = refProc.location;

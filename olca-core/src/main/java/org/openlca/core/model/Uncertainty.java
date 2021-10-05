@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-
 import org.openlca.core.math.NumberGenerator;
 import org.openlca.util.Strings;
 
@@ -17,10 +16,9 @@ import org.openlca.util.Strings;
  * respective fields to see which distribution parameters are stored in which
  * fields for the respective distribution types. Each distribution parameter can
  * take a value and additionally a formula.
- *
  */
 @Embeddable
-public class Uncertainty {
+public class Uncertainty implements Copyable<Uncertainty> {
 
 	@Column(name = "distribution_type")
 	public UncertaintyType distributionType = UncertaintyType.NONE;
@@ -91,10 +89,8 @@ public class Uncertainty {
 	/**
 	 * Creates a normal distribution.
 	 *
-	 * @param mean
-	 *            the arithmetic mean.
-	 * @param sd
-	 *            the arithmetic standard deviation.
+	 * @param mean the arithmetic mean.
+	 * @param sd   the arithmetic standard deviation.
 	 */
 	public static Uncertainty normal(double mean, double sd) {
 		Uncertainty uncertainty = new Uncertainty();
@@ -107,10 +103,8 @@ public class Uncertainty {
 	/**
 	 * Creates a log-normal distribution.
 	 *
-	 * @param gmean
-	 *            the geometric mean.
-	 * @param gsd
-	 *            the geometric standard deviation
+	 * @param gmean the geometric mean.
+	 * @param gsd   the geometric standard deviation
 	 */
 	public static Uncertainty logNormal(double gmean, double gsd) {
 		Uncertainty uncertainty = new Uncertainty();
@@ -123,10 +117,8 @@ public class Uncertainty {
 	/**
 	 * Creates a uniform distribution.
 	 *
-	 * @param min
-	 *            the minimum.
-	 * @param max
-	 *            the maximum.
+	 * @param min the minimum.
+	 * @param max the maximum.
 	 */
 	public static Uncertainty uniform(double min, double max) {
 		Uncertainty uncertainty = new Uncertainty();
@@ -139,12 +131,9 @@ public class Uncertainty {
 	/**
 	 * Creates a triangle distribution.
 	 *
-	 * @param min
-	 *            The minimum value.
-	 * @param mode
-	 *            The most likely value (the mode).
-	 * @param max
-	 *            The maximum value.
+	 * @param min  The minimum value.
+	 * @param mode The most likely value (the mode).
+	 * @param max  The maximum value.
 	 */
 	public static Uncertainty triangle(double min, double mode, double max) {
 		Uncertainty uncertainty = new Uncertainty();
@@ -156,7 +145,7 @@ public class Uncertainty {
 	}
 
 	@Override
-	public Uncertainty clone() {
+	public Uncertainty copy() {
 		Uncertainty clone = new Uncertainty();
 		clone.distributionType = distributionType;
 		clone.formula1 = formula1;
@@ -194,8 +183,8 @@ public class Uncertainty {
 	@Override
 	public int hashCode() {
 		return Objects.hash(distributionType, formula1,
-				parameter1, formula2, parameter2,
-				formula3, parameter3);
+			parameter1, formula2, parameter2,
+			formula3, parameter3);
 	}
 
 	@Override
@@ -210,36 +199,34 @@ public class Uncertainty {
 		if (this.distributionType != other.distributionType)
 			return false;
 		return Objects.equals(this.parameter1, other.parameter1)
-				&& Objects.equals(this.parameter2, other.parameter2)
-				&& Objects.equals(this.parameter3, other.parameter3)
-				&& Objects.equals(this.formula1, other.formula1)
-				&& Objects.equals(this.formula2, other.formula2)
-				&& Objects.equals(this.formula3, other.formula3);
+					 && Objects.equals(this.parameter2, other.parameter2)
+					 && Objects.equals(this.parameter3, other.parameter3)
+					 && Objects.equals(this.formula1, other.formula1)
+					 && Objects.equals(this.formula2, other.formula2)
+					 && Objects.equals(this.formula3, other.formula3);
 	}
 
 	@Override
 	public String toString() {
 		if (distributionType == null)
 			return "none";
-		String template = null;
+		String template;
 		switch (distributionType) {
-		case NONE:
-			return "none";
-		case LOG_NORMAL:
-			template = "lognormal: gmean=%s gsigma=%s";
-			return String.format(template, str(parameter1), str(parameter2));
-		case NORMAL:
-			template = "normal: mean=%s sigma=%s";
-			return String.format(template, str(parameter1), str(parameter2));
-		case UNIFORM:
-			template = "uniform: min=%s max=%s";
-			return String.format(template, str(parameter1), str(parameter2));
-		case TRIANGLE:
-			template = "triangular: min=%s mode=%s max=%s";
-			return String.format(template, str(parameter1), str(parameter2),
+			case LOG_NORMAL:
+				template = "lognormal: gmean=%s gsigma=%s";
+				return String.format(template, str(parameter1), str(parameter2));
+			case NORMAL:
+				template = "normal: mean=%s sigma=%s";
+				return String.format(template, str(parameter1), str(parameter2));
+			case UNIFORM:
+				template = "uniform: min=%s max=%s";
+				return String.format(template, str(parameter1), str(parameter2));
+			case TRIANGLE:
+				template = "triangular: min=%s mode=%s max=%s";
+				return String.format(template, str(parameter1), str(parameter2),
 					str(parameter3));
-		default:
-			return "none";
+			default:
+				return "none";
 		}
 	}
 
@@ -254,7 +241,7 @@ public class Uncertainty {
 	private String str(Double number) {
 		if (number == null)
 			return "0";
-		return String.format(Locale.ENGLISH, "%.6G", number.doubleValue());
+		return String.format(Locale.ENGLISH, "%.6G", number);
 	}
 
 	public static Uncertainty fromString(String s) {
@@ -264,18 +251,18 @@ public class Uncertainty {
 			return u;
 		}
 		UncertaintyType[] types = {
-				UncertaintyType.LOG_NORMAL,
-				UncertaintyType.NORMAL,
-				UncertaintyType.UNIFORM,
-				UncertaintyType.TRIANGLE
+			UncertaintyType.LOG_NORMAL,
+			UncertaintyType.NORMAL,
+			UncertaintyType.UNIFORM,
+			UncertaintyType.TRIANGLE
 		};
 		String num = "([0-9,\\.,\\-,\\+,E,e]+)";
 		String[] patterns = {
-				"\\s*lognormal:\\s+gmean=" + num + "\\s+gsigma=" + num + "\\s*",
-				"\\s*normal:\\s+mean=" + num + "\\s+sigma=" + num + "\\s*",
-				"\\s*uniform:\\s+min=" + num + "\\s+max=" + num + "\\s*",
-				"\\s*triangular:\\s+min=" + num + "\\s+mode=" + num + "\\s+max="
-						+ num + "\\s*"
+			"\\s*lognormal:\\s+gmean=" + num + "\\s+gsigma=" + num + "\\s*",
+			"\\s*normal:\\s+mean=" + num + "\\s+sigma=" + num + "\\s*",
+			"\\s*uniform:\\s+min=" + num + "\\s+max=" + num + "\\s*",
+			"\\s*triangular:\\s+min=" + num + "\\s+mode=" + num + "\\s+max="
+			+ num + "\\s*"
 		};
 		for (int i = 0; i < patterns.length; i++) {
 			Pattern p = Pattern.compile(patterns[i]);
@@ -283,28 +270,27 @@ public class Uncertainty {
 			if (!m.find())
 				continue;
 			switch (types[i]) {
-			case LOG_NORMAL:
-				return logNormal(d(m.group(1)), d(m.group(2)));
-			case NORMAL:
-				return normal(d(m.group(1)), d(m.group(2)));
-			case UNIFORM:
-				return uniform(d(m.group(1)), d(m.group(2)));
-			case TRIANGLE:
-				return triangle(d(m.group(1)), d(m.group(2)), d(m.group(3)));
-			default:
-				continue;
+				case LOG_NORMAL:
+					return logNormal(d(m.group(1)), d(m.group(2)));
+				case NORMAL:
+					return normal(d(m.group(1)), d(m.group(2)));
+				case UNIFORM:
+					return uniform(d(m.group(1)), d(m.group(2)));
+				case TRIANGLE:
+					return triangle(d(m.group(1)), d(m.group(2)), d(m.group(3)));
+				default:
 			}
 		}
 		return null;
 	}
 
-	private static Double d(String s) {
+	private static double d(String s) {
 		if (Strings.nullOrEmpty(s))
-			return null;
+			return 0;
 		try {
 			return Double.parseDouble(s);
 		} catch (Exception e) {
-			return null;
+			return 0;
 		}
 	}
 
@@ -317,17 +303,17 @@ public class Uncertainty {
 		if (distributionType == null)
 			return NumberGenerator.discrete(p1);
 		switch (distributionType) {
-		case LOG_NORMAL:
-			return NumberGenerator.logNormal(p1, p2);
-		case NORMAL:
-			return NumberGenerator.normal(p1, p2);
-		case TRIANGLE:
-			double p3 = parameter3 != null ? parameter3 : 0;
-			return NumberGenerator.triangular(p1, p2, p3);
-		case UNIFORM:
-			return NumberGenerator.uniform(p1, p2);
-		default:
-			return NumberGenerator.discrete(p1);
+			case LOG_NORMAL:
+				return NumberGenerator.logNormal(p1, p2);
+			case NORMAL:
+				return NumberGenerator.normal(p1, p2);
+			case TRIANGLE:
+				double p3 = parameter3 != null ? parameter3 : 0;
+				return NumberGenerator.triangular(p1, p2, p3);
+			case UNIFORM:
+				return NumberGenerator.uniform(p1, p2);
+			default:
+				return NumberGenerator.discrete(p1);
 		}
 	}
 }

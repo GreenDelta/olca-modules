@@ -12,7 +12,7 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name = "tbl_exchanges")
-public class Exchange extends AbstractExchange {
+public class Exchange extends AbstractExchange implements Copyable<Exchange> {
 
 	/**
 	 * Indicates whether an exchange is an avoided product or waste flow. An
@@ -116,7 +116,7 @@ public class Exchange extends AbstractExchange {
 	}
 
 	@Override
-	public Exchange clone() {
+	public Exchange copy() {
 		var clone = new Exchange();
 		clone.internalId = internalId;
 		clone.formula = formula;
@@ -128,8 +128,9 @@ public class Exchange extends AbstractExchange {
 		clone.flowPropertyFactor = flowPropertyFactor;
 		clone.isInput = isInput;
 		clone.dqEntry = dqEntry;
-		if (uncertainty != null)
-			clone.uncertainty = uncertainty.clone();
+		if (uncertainty != null) {
+			clone.uncertainty = uncertainty.copy();
+		}
 		clone.unit = unit;
 		clone.costs = costs;
 		clone.costFormula = costFormula;

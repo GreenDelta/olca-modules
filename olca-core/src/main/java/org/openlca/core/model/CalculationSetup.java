@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import org.openlca.core.math.ReferenceAmount;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,7 +16,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import org.openlca.core.math.ReferenceAmount;
 
 /**
  * A calculation for a process or product system. In case of a process,
@@ -26,7 +27,8 @@ import org.openlca.core.math.ReferenceAmount;
  */
 @Entity
 @Table(name = "tbl_calculation_setups")
-public class CalculationSetup extends AbstractEntity {
+public class CalculationSetup extends AbstractEntity
+	implements Copyable<CalculationSetup> {
 
 	@Column(name = "calculation_type")
 	@Enumerated(EnumType.STRING)
@@ -153,6 +155,7 @@ public class CalculationSetup extends AbstractEntity {
 			: null;
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T extends CategorizedEntity & CalculationTarget> T target() {
 		return (T) (system != null
 			? system
@@ -345,7 +348,7 @@ public class CalculationSetup extends AbstractEntity {
 		for (var param : parameters) {
 			if (param == null)
 				continue;
-			this.parameters.add(param.clone());
+			this.parameters.add(param.copy());
 		}
 		return this;
 	}
@@ -408,8 +411,8 @@ public class CalculationSetup extends AbstractEntity {
 		return this;
 	}
 
-	@OneToOne
-	public CalculationSetup clone() {
+	@Override
+	public CalculationSetup copy() {
 		var clone = new CalculationSetup();
 		clone.type = type;
 		clone.system = system;
@@ -428,7 +431,7 @@ public class CalculationSetup extends AbstractEntity {
 		if (parameters != null) {
 			clone.parameters = new ArrayList<>(parameters.size());
 			for (var param : parameters) {
-				clone.parameters.add(param.clone());
+				clone.parameters.add(param.copy());
 			}
 		}
 		return clone;

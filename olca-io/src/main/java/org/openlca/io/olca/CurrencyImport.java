@@ -46,7 +46,7 @@ class CurrencyImport {
 	}
 
 	private void copy(Currency srcCurrency) {
-		Currency destCurrency = srcCurrency.clone();
+		Currency destCurrency = srcCurrency.copy();
 		if (Objects.equal(srcCurrency, srcCurrency.referenceCurrency)) {
 			destCurrency.referenceCurrency = destCurrency;
 		} else {

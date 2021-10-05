@@ -9,12 +9,12 @@ import org.slf4j.LoggerFactory;
 
 class SourceImport {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private SourceDao srcDao;
-	private SourceDao destDao;
-	private RefSwitcher refs;
-	private Sequence seq;
+	private final SourceDao srcDao;
+	private final SourceDao destDao;
+	private final RefSwitcher refs;
+	private final Sequence seq;
 
 	SourceImport(IDatabase source, IDatabase dest, Sequence seq) {
 		this.srcDao = new SourceDao(source);
@@ -38,7 +38,7 @@ class SourceImport {
 
 	private void createSource(SourceDescriptor descriptor) {
 		Source srcSource = srcDao.getForId(descriptor.id);
-		Source destSource = srcSource.clone();
+		Source destSource = srcSource.copy();
 		destSource.refId = srcSource.refId;
 		destSource.category = refs.switchRef(srcSource.category);
 		destSource = destDao.insert(destSource);

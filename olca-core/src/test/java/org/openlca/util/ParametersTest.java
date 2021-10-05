@@ -53,10 +53,10 @@ public class ParametersTest {
 		redef.contextType = ModelType.PROCESS;
 		redef.value = 24;
 		project.variants.get(0)
-				.parameterRedefs.add(redef.clone());
+				.parameterRedefs.add(redef.copy());
 		project = db.update(project);
 		system.parameterSets.get(0)
-				.parameters.add(redef.clone());
+				.parameters.add(redef.copy());
 		system = db.update(system);
 
 		// should find something

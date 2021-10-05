@@ -7,7 +7,8 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_dq_scores")
-public class DQScore extends AbstractEntity implements Comparable<DQScore> {
+public class DQScore extends AbstractEntity
+	implements Comparable<DQScore>, Copyable<DQScore> {
 
 	@Column(name = "position")
 	public int position;
@@ -30,8 +31,8 @@ public class DQScore extends AbstractEntity implements Comparable<DQScore> {
 	}
 
 	@Override
-	public DQScore clone() {
-		DQScore clone = new DQScore();
+	public DQScore copy() {
+		var clone = new DQScore();
 		clone.position = position;
 		clone.label = label;
 		clone.description = description;

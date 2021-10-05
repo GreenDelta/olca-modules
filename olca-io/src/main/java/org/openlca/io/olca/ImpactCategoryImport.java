@@ -30,7 +30,7 @@ class ImpactCategoryImport {
 			if (seq.contains(seq.IMPACT_CATEGORY, d.refId))
 				continue;
 			ImpactCategory src = sourceDao.getForId(d.id);
-			ImpactCategory dest = src.clone();
+			ImpactCategory dest = src.copy();
 			dest.refId = src.refId;
 			dest.category = refs.switchRef(src.category);
 			switchFactorRefs(dest);

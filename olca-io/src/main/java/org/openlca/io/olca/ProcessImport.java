@@ -24,13 +24,13 @@ import org.slf4j.LoggerFactory;
 
 class ProcessImport {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private ProcessDao srcDao;
-	private ProcessDao destDao;
-	private IDatabase dest;
-	private RefSwitcher refs;
-	private Sequence seq;
+	private final ProcessDao srcDao;
+	private final ProcessDao destDao;
+	private final IDatabase dest;
+	private final RefSwitcher refs;
+	private final Sequence seq;
 
 	// Required for translating the default provider links: we import exchanges
 	// with possible links to processes that are not yet imported
@@ -65,7 +65,7 @@ class ProcessImport {
 
 	private void createProcess(ProcessDescriptor descriptor) {
 		Process srcProcess = srcDao.getForId(descriptor.id);
-		Process destProcess = srcProcess.clone();
+		Process destProcess = srcProcess.copy();
 		destProcess.refId = srcProcess.refId;
 		destProcess.category = refs.switchRef(srcProcess.category);
 		destProcess.location = refs.switchRef(srcProcess.location);

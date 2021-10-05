@@ -792,7 +792,7 @@ public class ProcessWriter {
 		if (Objects.equals(refProp, e.flowPropertyFactor)
 				&& Objects.equals(refUnit, e.unit))
 			return e;
-		var clone = e.clone();
+		var clone = e.copy();
 		clone.flowPropertyFactor = refProp;
 		clone.unit = refUnit;
 		clone.amount = ReferenceAmount.get(e);

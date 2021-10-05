@@ -67,7 +67,7 @@ public class ImpactMethod extends CategorizedEntity {
 	}
 
 	@Override
-	public ImpactMethod clone() {
+	public ImpactMethod copy() {
 		var clone = new ImpactMethod();
 		Entities.copyFields(this, clone);
 		clone.impactCategories.addAll(impactCategories);
@@ -75,7 +75,7 @@ public class ImpactMethod extends CategorizedEntity {
 		clone.generator = generator;
 		clone.sources.addAll(sources);
 		for (NwSet nwSet : nwSets) {
-			clone.nwSets.add(nwSet.clone());
+			clone.nwSets.add(nwSet.copy());
 		}
 		return clone;
 	}

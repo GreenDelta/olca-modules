@@ -34,7 +34,7 @@ public class Unit extends RootEntity {
 	}
 
 	@Override
-	public Unit clone() {
+	public Unit copy() {
 		var unit = new Unit();
 		Entities.copyRootFields(this, unit);
 		unit.conversionFactor = conversionFactor;

@@ -9,7 +9,8 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_impact_factors")
-public class ImpactFactor extends AbstractEntity implements Cloneable {
+public class ImpactFactor extends AbstractEntity
+	implements Copyable<ImpactFactor> {
 
 	@OneToOne
 	@JoinColumn(name = "f_flow")
@@ -48,7 +49,7 @@ public class ImpactFactor extends AbstractEntity implements Cloneable {
 	}
 
 	@Override
-	public ImpactFactor clone() {
+	public ImpactFactor copy() {
 		var clone = new ImpactFactor();
 		clone.flow = flow;
 		clone.flowPropertyFactor = flowPropertyFactor;
@@ -56,7 +57,7 @@ public class ImpactFactor extends AbstractEntity implements Cloneable {
 		clone.value = value;
 		clone.formula = formula;
 		if (uncertainty != null) {
-			clone.uncertainty = uncertainty.clone();
+			clone.uncertainty = uncertainty.copy();
 		}
 		clone.location = location;
 		return clone;
