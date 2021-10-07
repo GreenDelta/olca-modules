@@ -86,7 +86,6 @@ public class SystemCalculator {
 			var subSetup = CalculationSetup.simple(subSystem)
 				.withParameters(setup.parameters())
 				.withCosts(setup.hasCosts())
-				.withUncertainties(setup.hasUncertainties())
 				.withRegionalization(setup.hasRegionalization())
 				.withAllocation(setup.allocation());
 			ParameterRedefs.addTo(subSetup, subSystem);

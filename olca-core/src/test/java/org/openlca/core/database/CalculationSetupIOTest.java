@@ -52,7 +52,6 @@ public class CalculationSetupIOTest {
 		assertEquals(AllocationMethod.ECONOMIC, clone.allocation());
 		assertEquals(42.0, clone.amount(), 1e-10);
 		assertTrue(clone.hasRegionalization());
-		assertFalse(clone.hasUncertainties());
 
 		db.delete(setup, process, flow, mass, units);
 	}

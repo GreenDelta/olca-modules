@@ -64,9 +64,6 @@ public class CalculationSetup extends AbstractEntity
 	@Column(name = "with_regionalization")
 	private boolean withRegionalization = false;
 
-	@Column(name = "with_uncertainties")
-	private boolean withUncertainties = false;
-
 	@OneToOne
 	@JoinColumn(name = "f_unit")
 	private Unit unit;
@@ -127,7 +124,6 @@ public class CalculationSetup extends AbstractEntity
 		var setup = new CalculationSetup(
 			CalculationType.MONTE_CARLO_SIMULATION, system);
 		setup.numberOfRuns = runs;
-		setup.withUncertainties = true;
 		return setup;
 	}
 
@@ -369,20 +365,6 @@ public class CalculationSetup extends AbstractEntity
 	}
 
 	/**
-	 * Set whether the calculation matrices should be created with associated
-	 * uncertainty distributions or not. Typically, this is only required for
-	 * running Monte Carlo simulations and, thus, is {@code false} by default.
-	 */
-	public CalculationSetup withUncertainties(boolean b) {
-		this.withUncertainties = b;
-		return this;
-	}
-
-	public boolean hasUncertainties() {
-		return this.withUncertainties;
-	}
-
-	/**
 	 * Set whether a regionalized result should be calculated or not. This
 	 * is {@code false} by default. If this is set to true, the intervention
 	 * matrix is indexed by (elementary flow, location) - pairs instead of just
@@ -422,7 +404,6 @@ public class CalculationSetup extends AbstractEntity
 		clone.allocation = allocation;
 		clone.withCosts = withCosts;
 		clone.withRegionalization = withRegionalization;
-		clone.withUncertainties = withUncertainties;
 		clone.unit = unit;
 		clone.flowPropertyFactor = flowPropertyFactor;
 		clone.amount = amount;

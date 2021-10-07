@@ -13,6 +13,7 @@ import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.AllocationMethod;
+import org.openlca.core.model.CalculationType;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.expressions.FormulaInterpreter;
@@ -103,11 +104,11 @@ public class MatrixConfig {
 		public Builder withSetup(CalculationSetup setup) {
 			if (setup == null)
 				return this;
-			withUncertainties = setup.hasUncertainties();
 			withCosts = setup.hasCosts();
 			withRegionalization = setup.hasRegionalization();
 			allocationMethod = setup.allocation();
 			redefs = setup.parameters();
+			withUncertainties = setup.type() == CalculationType.MONTE_CARLO_SIMULATION;
 			var impactMethod = setup.impactMethod();
 			return impactMethod != null
 				? withImpacts(ImpactIndex.of(impactMethod))
