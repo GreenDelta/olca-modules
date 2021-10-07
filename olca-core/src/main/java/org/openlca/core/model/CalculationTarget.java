@@ -25,4 +25,12 @@ public interface CalculationTarget {
 	default ProductSystem asProductSystem() {
 		return (ProductSystem) this;
 	}
+
+	default Exchange quantitativeReference() {
+		if (isProcess())
+			return asProcess().quantitativeReference;
+		if (isProductSystem())
+			return asProductSystem().referenceExchange;
+		return null;
+	}
 }

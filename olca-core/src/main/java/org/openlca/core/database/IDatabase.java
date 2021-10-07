@@ -13,7 +13,6 @@ import gnu.trove.set.TLongSet;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import org.openlca.core.model.AbstractEntity;
-import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.EntityResolver;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
@@ -185,14 +184,16 @@ public interface IDatabase extends Closeable, INotifiable, EntityResolver {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	default <T extends RootEntity> T get(Class<T> type, String refID) {
+	default <T extends RootEntity> T get(Class<T> type, String refId) {
+		if (type == null || refId == null)
+			return null;
 		var modelType = ModelType.forModelClass(type);
 		if (modelType == null)
 			return null;
 		var dao = Daos.root(this, modelType);
 		return dao == null
 			? null
-			: (T) dao.getForRefId(refID);
+			: (T) dao.getForRefId(refId);
 	}
 
 	/**
@@ -210,6 +211,7 @@ public interface IDatabase extends Closeable, INotifiable, EntityResolver {
 	/**
 	 * Get the descriptor of the entity of the given type and reference ID.
 	 */
+	@Override
 	default <T extends RootEntity> Descriptor getDescriptor(
 		Class<T> type, String refID) {
 		if (refID == null)

@@ -1,20 +1,11 @@
 package org.openlca.proto.io.server;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.model.CalculationSetup;
-import org.openlca.core.model.CalculationTarget;
-import org.openlca.core.model.CalculationType;
-import org.openlca.core.model.Exchange;
-import org.openlca.core.model.ImpactMethod;
-import org.openlca.core.model.ParameterRedef;
-import org.openlca.core.model.Process;
-import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.providers.ResultProviders;
 import org.openlca.proto.Proto;
@@ -24,10 +15,8 @@ import org.openlca.proto.grpc.Result;
 import org.openlca.proto.grpc.ResultServiceGrpc;
 import org.openlca.proto.grpc.ResultsProto;
 import org.openlca.proto.grpc.TechFlowContributionRequest;
-import org.openlca.proto.io.input.In;
+import org.openlca.proto.io.input.CalculationSetupReader;
 import org.openlca.proto.io.output.Refs;
-import org.openlca.util.Pair;
-import org.openlca.util.Strings;
 
 import com.google.protobuf.Empty;
 
@@ -46,15 +35,14 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
   @Override
   public void calculate(
     Proto.CalculationSetup req, StreamObserver<Result> resp) {
-    var p = setup(req);
-    if (p.first == null) {
+    var setup = CalculationSetupReader.read(db, req);
+    if (setup == null) {
       resp.onError(Status.INVALID_ARGUMENT
-        .withDescription(p.second)
+        .withDescription("invalid calculation setup")
         .asException());
       return;
     }
 
-    var setup = p.first;
     var data = MatrixData.of(db, setup);
     var provider = ResultProviders.lazyOf(db, data);
     var result = new FullResult(provider);
@@ -66,113 +54,6 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
       .build();
     resp.onNext(r);
     resp.onCompleted();
-  }
-
-  private Pair<CalculationSetup, String> setup(Proto.CalculationSetup proto) {
-    var target = targetOf(proto);
-    if (target == null)
-      return Pair.of(null, "Product system or process does not exist");
-
-    // initialize the setup
-    var type = switch (proto.getCalculationType()) {
-      case MONTE_CARLO_SIMULATION -> CalculationType.MONTE_CARLO_SIMULATION;
-      case SIMPLE_CALCULATION -> CalculationType.SIMPLE_CALCULATION;
-      case UPSTREAM_ANALYSIS -> CalculationType.UPSTREAM_ANALYSIS;
-      default -> CalculationType.CONTRIBUTION_ANALYSIS;
-    };
-    var setup = new CalculationSetup(type, target);
-
-    // demand value
-    if (proto.getAmount() != 0) {
-      setup.withAmount(proto.getAmount());
-    }
-
-    // flow property
-    var qref = refExchangeOf(target);
-    var propID = proto.getFlowProperty().getId();
-    if (Strings.notEmpty(propID)
-      && qref != null
-      && qref.flow != null) {
-      qref.flow.flowPropertyFactors.stream()
-        .filter(f -> Strings.nullOrEqual(propID, f.flowProperty.refId))
-        .findAny()
-        .ifPresent(setup::withFlowPropertyFactor);
-    }
-
-    // unit
-    var unitID = proto.getUnit().getId();
-    var propFac = setup.flowPropertyFactor();
-    if (Strings.notEmpty(unitID)
-      && propFac != null
-      && propFac.flowProperty != null
-      && propFac.flowProperty.unitGroup != null) {
-      var group = propFac.flowProperty.unitGroup;
-      group.units.stream()
-        .filter(u -> Strings.nullOrEqual(unitID, u.refId))
-        .findAny()
-        .ifPresent(setup::withUnit);
-    }
-
-    // impact method and NW set
-    var methodID = proto.getImpactMethod().getId();
-    if (Strings.notEmpty(methodID)) {
-      setup.withImpactMethod(db.get(ImpactMethod.class, methodID));
-      var nwID = proto.getNwSet().getId();
-      if (Strings.notEmpty(nwID) && setup.impactMethod() != null) {
-        for (var nwSet : setup.impactMethod().nwSets) {
-          if (nwID.equals(nwSet.refId)) {
-            setup.withNwSet(nwSet);
-            break;
-          }
-        }
-      }
-    }
-
-    // other settings
-    setup.withAllocation(In.allocationMethod(proto.getAllocation()))
-      .withCosts(proto.getWithCosts())
-      .withRegionalization(proto.getWithRegionalization());
-
-    // add parameter redefinitions
-    var protoRedefs = proto.getParametersList();
-    if (protoRedefs.isEmpty() && target.isProductSystem()) {
-      target.asProductSystem()
-        .parameterSets.stream()
-        .filter(set -> set.isBaseline)
-        .findAny()
-        .ifPresent(set -> setup.withParameters(set.parameters));
-    } else if (!protoRedefs.isEmpty()) {
-      var params = new ArrayList<ParameterRedef>();
-      for (var protoRedef : protoRedefs) {
-        params.add(In.parameterRedefOf(protoRedef, db));
-      }
-      setup.withParameters(params);
-    }
-
-    return Pair.of(setup, null);
-  }
-
-  private CalculationTarget targetOf(Proto.CalculationSetup proto) {
-    var refID = proto.getProductSystem().getId();
-    if (Strings.nullOrEmpty(refID))
-      return null;
-    var system = db.get(ProductSystem.class, refID);
-    if (system != null)
-      return system;
-    return db.get(Process.class, refID);
-  }
-
-  private Exchange refExchangeOf(CalculationTarget target) {
-    if (target == null)
-      return null;
-    if (target.isProcess()) {
-      var p = target.asProcess();
-      return p.quantitativeReference;
-    } else if (target.isProductSystem()) {
-      var s = target.asProductSystem();
-      return s.referenceExchange;
-    }
-    return null;
   }
 
   @Override
