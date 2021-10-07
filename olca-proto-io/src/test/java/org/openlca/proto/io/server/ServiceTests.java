@@ -25,6 +25,7 @@ class ServiceTests {
         .addService(new DataUpdateService(db))
         .addService(new FlowMapService(db))
         .addService(new ResultService(db))
+        .addService(new AboutService(db))
         .build()
         .start();
       var channel = InProcessChannelBuilder

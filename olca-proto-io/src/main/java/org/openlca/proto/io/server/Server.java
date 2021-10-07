@@ -25,6 +25,7 @@ public class Server {
       .addService(new DataUpdateService(db))
       .addService(new FlowMapService(db))
       .addService(new ResultService(db))
+      .addService(new AboutService(db))
       .build();
   }
 

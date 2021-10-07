@@ -164,7 +164,9 @@ public class ProtoImport implements Runnable {
 
     // try to load it with the refID
     var dao = Daos.root(db, ModelType.forModelClass(type));
-    return (T) dao.getForRefId(refID);
+    return dao != null
+      ? (T) dao.getForRefId(refID)
+      : null;
   }
 
   @SuppressWarnings("unchecked")

@@ -9,6 +9,7 @@ import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.cache.ProcessTable;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
@@ -149,12 +150,15 @@ class DataFetchService extends
   public void getDescriptors(
     GetDescriptorsRequest req, StreamObserver<Proto.Ref> resp) {
 
-    var modelType = DataUtil.forceRootTypeOf(
-      req.getModelType(), resp);
+    var modelType = DataUtil.forceRootTypeOf(req.getModelType(), resp);
     if (modelType == null)
       return;
-
     var dao = Daos.root(db, modelType);
+    if (dao == null) {
+      resp.onCompleted();
+      return;
+    }
+
     var refData = Refs.dataOf(db);
 
     // get by id
@@ -301,7 +305,7 @@ class DataFetchService extends
     ProcessTable.create(db)
       .getProviders(flow.id)
       .stream()
-      .map(p -> p.process())
+      .map(TechFlow::process)
       .filter(p -> p instanceof ProcessDescriptor)
       .map(p -> (ProcessDescriptor) p)
       .forEach(p -> resp.onNext(Refs.refOf(p, refData).build()));
