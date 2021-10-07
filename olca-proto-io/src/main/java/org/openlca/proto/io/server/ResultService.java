@@ -129,12 +129,12 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     }
 
     // other settings
-    setup.withAllocation(In.allocationMethod(proto.getAllocationMethod()))
+    setup.withAllocation(In.allocationMethod(proto.getAllocation()))
       .withCosts(proto.getWithCosts())
       .withRegionalization(proto.getWithRegionalization());
 
     // add parameter redefinitions
-    var protoRedefs = proto.getParameterRedefsList();
+    var protoRedefs = proto.getParametersList();
     if (protoRedefs.isEmpty() && target.isProductSystem()) {
       target.asProductSystem()
         .parameterSets.stream()

@@ -13,6 +13,8 @@ import gnu.trove.set.TLongSet;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import org.openlca.core.model.AbstractEntity;
+import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.EntityResolver;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -20,7 +22,7 @@ import org.openlca.core.model.descriptors.Descriptor;
 /**
  * The common interface for openLCA databases.
  */
-public interface IDatabase extends Closeable, INotifiable {
+public interface IDatabase extends Closeable, INotifiable, EntityResolver {
 
 	/**
 	 * The current database schema version of this package. Together with the
@@ -182,6 +184,7 @@ public interface IDatabase extends Closeable, INotifiable {
 	}
 
 	@SuppressWarnings("unchecked")
+	@Override
 	default <T extends RootEntity> T get(Class<T> type, String refID) {
 		var modelType = ModelType.forModelClass(type);
 		if (modelType == null)

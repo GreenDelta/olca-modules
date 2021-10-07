@@ -785,7 +785,6 @@ CREATE TABLE tbl_calculation_setups (
     allocation             VARCHAR(255),
     with_costs             SMALLINT default 0,
     with_regionalization   SMALLINT default 0,
-    with_uncertainties     SMALLINT default 0,
 
     f_unit                 BIGINT,
     f_flow_property_factor BIGINT,
