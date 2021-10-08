@@ -5,7 +5,7 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoParameterRedef;
 import org.openlca.util.Strings;
 
 public class ParameterRedefReader {
@@ -17,11 +17,11 @@ public class ParameterRedefReader {
   }
 
   public static ParameterRedef read(
-    EntityResolver resolver, Proto.ParameterRedef proto) {
+    EntityResolver resolver, ProtoParameterRedef proto) {
     return new ParameterRedefReader(resolver).read(proto);
   }
 
-  public ParameterRedef read(Proto.ParameterRedef proto) {
+  public ParameterRedef read(ProtoParameterRedef proto) {
     if (proto == null)
       return null;
     var redef = new ParameterRedef();

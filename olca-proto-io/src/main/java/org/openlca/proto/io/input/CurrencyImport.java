@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.model.Currency;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoCurrency;
 
 class CurrencyImport implements Import<Currency> {
 
@@ -58,7 +58,7 @@ class CurrencyImport implements Import<Currency> {
       : ImportStatus.created(currency);
   }
 
-  private void map(Proto.Currency proto, Currency currency) {
+  private void map(ProtoCurrency proto, Currency currency) {
     currency.code = proto.getCode();
     currency.conversionFactor = proto.getConversionFactor();
     var refCurrencyID = proto.getReferenceCurrency().getId();

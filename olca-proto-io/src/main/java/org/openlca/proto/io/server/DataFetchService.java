@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import com.google.protobuf.Empty;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
@@ -311,5 +312,10 @@ class DataFetchService extends
       .forEach(p -> resp.onNext(Refs.refOf(p, refData).build()));
 
     resp.onCompleted();
+  }
+
+  @Override
+  public void getTechFlows(Empty request, StreamObserver<org.openlca.proto.grpc.TechFlow> responseObserver) {
+    super.getTechFlows(request, responseObserver);
   }
 }

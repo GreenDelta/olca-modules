@@ -8,7 +8,9 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.providers.ResultProviders;
+import org.openlca.proto.CommonsProto;
 import org.openlca.proto.Proto;
+import org.openlca.proto.grpc.CommonsProto;
 import org.openlca.proto.grpc.ImpactFactorRequest;
 import org.openlca.proto.grpc.ImpactFactorResponse;
 import org.openlca.proto.grpc.Result;
@@ -57,7 +59,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
   }
 
   @Override
-  public void getTechFlows(Result req, StreamObserver<ResultsProto.TechFlow> resp) {
+  public void getTechFlows(Result req, StreamObserver<CommonsProto.> resp) {
     var result = results.get(req.getId());
     if (result == null) {
       Response.notFound(resp, "Result does not exist: " + req.getId());

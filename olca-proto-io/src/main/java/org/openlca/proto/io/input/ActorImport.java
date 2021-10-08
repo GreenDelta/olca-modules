@@ -2,7 +2,7 @@ package org.openlca.proto.io.input;
 
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.model.Actor;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoActor;
 
 class ActorImport implements Import<Actor> {
 
@@ -55,7 +55,7 @@ class ActorImport implements Import<Actor> {
       : ImportStatus.created(actor);
   }
 
-  private void map(Proto.Actor proto, Actor actor) {
+  private void map(ProtoActor proto, Actor actor) {
     actor.address = proto.getAddress();
     actor.city = proto.getCity();
     actor.country = proto.getCountry();

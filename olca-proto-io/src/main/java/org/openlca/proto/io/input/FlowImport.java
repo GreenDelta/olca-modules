@@ -6,7 +6,7 @@ import java.util.Map;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoFlow;
 import org.openlca.util.Strings;
 
 class FlowImport implements Import<Flow> {
@@ -62,7 +62,7 @@ class FlowImport implements Import<Flow> {
       : ImportStatus.created(flow);
   }
 
-  private void map(Proto.Flow proto, Flow flow, boolean inUpdateMode) {
+  private void map(ProtoFlow proto, Flow flow, boolean inUpdateMode) {
 
     flow.flowType = In.flowTypeOf(proto.getFlowType());
     flow.casNumber = proto.getCas();
