@@ -36,6 +36,7 @@ import org.openlca.proto.ProtoFlowType;
 import org.openlca.proto.ProtoParameterRedef;
 import org.openlca.proto.ProtoProcessType;
 import org.openlca.proto.ProtoRef;
+import org.openlca.proto.ProtoType;
 import org.openlca.proto.ProtoUncertainty;
 import org.openlca.util.Strings;
 
@@ -46,6 +47,33 @@ import org.openlca.util.Strings;
 public final class In {
 
   private In() {
+  }
+
+  public static ModelType modelTypeOf(ProtoType protoType) {
+    if (protoType == null)
+      return ModelType.UNKNOWN;
+    return switch (protoType) {
+      case Actor -> ModelType.ACTOR;
+      case Category -> ModelType.CATEGORY;
+      case Currency -> ModelType.CURRENCY;
+      case DQSystem -> ModelType.DQ_SYSTEM;
+      case Flow -> ModelType.FLOW;
+      case FlowProperty -> ModelType.FLOW_PROPERTY;
+      case ImpactCategory -> ModelType.IMPACT_CATEGORY;
+      case ImpactMethod -> ModelType.IMPACT_METHOD;
+      case Location -> ModelType.LOCATION;
+      case NwSet -> ModelType.NW_SET;
+      case Parameter -> ModelType.PARAMETER;
+      case Process -> ModelType.PROCESS;
+      case ProductSystem -> ModelType.PRODUCT_SYSTEM;
+      case Project -> ModelType.PROJECT;
+      case Result -> ModelType.RESULT;
+      case SocialIndicator -> ModelType.SOCIAL_INDICATOR;
+      case Source -> ModelType.SOURCE;
+      case Unit -> ModelType.UNIT;
+      case UnitGroup -> ModelType.UNIT_GROUP;
+      case Undefined, UNRECOGNIZED -> ModelType.UNKNOWN;
+    };
   }
 
   public static Uncertainty uncertainty(ProtoUncertainty proto) {

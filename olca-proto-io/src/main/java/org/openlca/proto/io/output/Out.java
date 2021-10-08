@@ -24,6 +24,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
+import org.openlca.core.model.ResultModel;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
@@ -33,8 +34,11 @@ import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.proto.EntityType;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoFlowType;
+import org.openlca.proto.ProtoProcessType;
+import org.openlca.proto.ProtoType;
+import org.openlca.proto.ProtoUncertainty;
+import org.openlca.proto.ProtoUncertaintyType;
 import org.openlca.util.Categories;
 import org.openlca.util.Strings;
 
@@ -165,60 +169,32 @@ public final class Out {
     }
   }
 
-  public static Proto.ModelType modelTypeOf(ModelType type) {
+  static ProtoFlowType flowTypeOf(FlowType type) {
     if (type == null)
-      return Proto.ModelType.UNDEFINED_MODEL_TYPE;
+      return ProtoFlowType.UNDEFINED_FLOW_TYPE;
     return switch (type) {
-      case UNKNOWN -> Proto.ModelType.UNDEFINED_MODEL_TYPE;
-      case PROJECT -> Proto.ModelType.PROJECT;
-      case IMPACT_METHOD -> Proto.ModelType.IMPACT_METHOD;
-      case IMPACT_CATEGORY -> Proto.ModelType.IMPACT_CATEGORY;
-      case PRODUCT_SYSTEM -> Proto.ModelType.PRODUCT_SYSTEM;
-      case PROCESS -> Proto.ModelType.PROCESS;
-      case FLOW -> Proto.ModelType.FLOW;
-      case FLOW_PROPERTY -> Proto.ModelType.FLOW_PROPERTY;
-      case UNIT_GROUP -> Proto.ModelType.UNIT_GROUP;
-      case UNIT -> Proto.ModelType.UNIT;
-      case ACTOR -> Proto.ModelType.ACTOR;
-      case SOURCE -> Proto.ModelType.SOURCE;
-      case CATEGORY -> Proto.ModelType.CATEGORY;
-      case LOCATION -> Proto.ModelType.LOCATION;
-      case NW_SET -> Proto.ModelType.NW_SET;
-      case SOCIAL_INDICATOR -> Proto.ModelType.SOCIAL_INDICATOR;
-      case CURRENCY -> Proto.ModelType.CURRENCY;
-      case PARAMETER -> Proto.ModelType.PARAMETER;
-      case DQ_SYSTEM -> Proto.ModelType.DQ_SYSTEM;
-      case RESULT -> Proto.ModelType.UNDEFINED_MODEL_TYPE; // TODO: !!!implement
+      case ELEMENTARY_FLOW -> ProtoFlowType.ELEMENTARY_FLOW;
+      case PRODUCT_FLOW -> ProtoFlowType.PRODUCT_FLOW;
+      case WASTE_FLOW -> ProtoFlowType.WASTE_FLOW;
     };
   }
 
-  static Proto.FlowType flowTypeOf(FlowType type) {
+  static ProtoProcessType processTypeOf(ProcessType type) {
     if (type == null)
-      return Proto.FlowType.UNDEFINED_FLOW_TYPE;
-    return switch (type) {
-      case ELEMENTARY_FLOW -> Proto.FlowType.ELEMENTARY_FLOW;
-      case PRODUCT_FLOW -> Proto.FlowType.PRODUCT_FLOW;
-      case WASTE_FLOW -> Proto.FlowType.WASTE_FLOW;
-    };
-  }
-
-  static Proto.ProcessType processTypeOf(ProcessType type) {
-    if (type == null)
-      return Proto.ProcessType.UNDEFINED_PROCESS_TYPE;
+      return ProtoProcessType.UNDEFINED_PROCESS_TYPE;
     return type == ProcessType.LCI_RESULT
-      ? Proto.ProcessType.LCI_RESULT
-      : Proto.ProcessType.UNIT_PROCESS;
+      ? ProtoProcessType.LCI_RESULT
+      : ProtoProcessType.UNIT_PROCESS;
   }
 
-  static Proto.Uncertainty uncertaintyOf(Uncertainty u) {
-    var proto = Proto.Uncertainty.newBuilder();
+  static ProtoUncertainty uncertaintyOf(Uncertainty u) {
+    var proto = ProtoUncertainty.newBuilder();
     if (u == null || u.distributionType == null)
       return proto.build();
 
     // normal distribution
     if (u.distributionType == UncertaintyType.NORMAL) {
-      proto.setDistributionType(
-        Proto.UncertaintyType.NORMAL_DISTRIBUTION);
+      proto.setDistributionType(ProtoUncertaintyType.NORMAL_DISTRIBUTION);
 
       if (u.parameter1 != null) {
         proto.setMean(u.parameter1);
@@ -237,8 +213,7 @@ public final class Out {
 
     // log-normal distribution
     if (u.distributionType == UncertaintyType.LOG_NORMAL) {
-      proto.setDistributionType(
-        Proto.UncertaintyType.LOG_NORMAL_DISTRIBUTION);
+      proto.setDistributionType(ProtoUncertaintyType.LOG_NORMAL_DISTRIBUTION);
 
       if (u.parameter1 != null) {
         proto.setGeomMean(u.parameter1);
@@ -257,8 +232,7 @@ public final class Out {
 
     // uniform distribution
     if (u.distributionType == UncertaintyType.UNIFORM) {
-      proto.setDistributionType(
-        Proto.UncertaintyType.UNIFORM_DISTRIBUTION);
+      proto.setDistributionType(ProtoUncertaintyType.UNIFORM_DISTRIBUTION);
 
       if (u.parameter1 != null) {
         proto.setMinimum(u.parameter1);
@@ -277,8 +251,7 @@ public final class Out {
 
     // triangle distribution
     if (u.distributionType == UncertaintyType.TRIANGLE) {
-      proto.setDistributionType(
-        Proto.UncertaintyType.TRIANGLE_DISTRIBUTION);
+      proto.setDistributionType(ProtoUncertaintyType.TRIANGLE_DISTRIBUTION);
 
       if (u.parameter1 != null) {
         proto.setMinimum(u.parameter1);
@@ -342,53 +315,55 @@ public final class Out {
       "Unsupported entity type" + " for binary translation: " + e.getClass());
   }
 
-  public static EntityType entityTypeOf(ModelType modelType) {
+  public static ProtoType protoTypeOf(ModelType modelType) {
     if (modelType == null)
-      return EntityType.Undefined;
+      return ProtoType.Undefined;
     return switch (modelType) {
-      case ACTOR -> EntityType.Actor;
-      case CATEGORY -> EntityType.Category;
-      case CURRENCY -> EntityType.Currency;
-      case DQ_SYSTEM -> EntityType.DQSystem;
-      case FLOW -> EntityType.Flow;
-      case FLOW_PROPERTY -> EntityType.FlowProperty;
-      case IMPACT_CATEGORY -> EntityType.ImpactCategory;
-      case IMPACT_METHOD -> EntityType.ImpactMethod;
-      case LOCATION -> EntityType.Location;
-      case NW_SET -> EntityType.NwSet;
-      case PARAMETER -> EntityType.Parameter;
-      case PROCESS -> EntityType.Process;
-      case PRODUCT_SYSTEM -> EntityType.ProductSystem;
-      case PROJECT -> EntityType.Project;
-      case SOCIAL_INDICATOR -> EntityType.SocialIndicator;
-      case SOURCE -> EntityType.Source;
-      case UNIT -> EntityType.Unit;
-      case UNIT_GROUP -> EntityType.UnitGroup;
-      default -> EntityType.Undefined;
+      case ACTOR -> ProtoType.Actor;
+      case CATEGORY -> ProtoType.Category;
+      case CURRENCY -> ProtoType.Currency;
+      case DQ_SYSTEM -> ProtoType.DQSystem;
+      case FLOW -> ProtoType.Flow;
+      case FLOW_PROPERTY -> ProtoType.FlowProperty;
+      case IMPACT_CATEGORY -> ProtoType.ImpactCategory;
+      case IMPACT_METHOD -> ProtoType.ImpactMethod;
+      case LOCATION -> ProtoType.Location;
+      case NW_SET -> ProtoType.NwSet;
+      case PARAMETER -> ProtoType.Parameter;
+      case PROCESS -> ProtoType.Process;
+      case PRODUCT_SYSTEM -> ProtoType.ProductSystem;
+      case PROJECT -> ProtoType.Project;
+      case RESULT -> ProtoType.Result;
+      case SOCIAL_INDICATOR -> ProtoType.SocialIndicator;
+      case SOURCE -> ProtoType.Source;
+      case UNIT -> ProtoType.Unit;
+      case UNIT_GROUP -> ProtoType.UnitGroup;
+      default -> ProtoType.Undefined;
     };
   }
 
-  public static EntityType entityTypeOf(RootEntity e) {
+  public static ProtoType protoTypeOf(RootEntity e) {
     if (e == null)
-      return EntityType.Undefined;
-    if (e instanceof Actor) return EntityType.Actor;
-    if (e instanceof Category) return EntityType.Category;
-    if (e instanceof Currency) return EntityType.Currency;
-    if (e instanceof DQSystem) return EntityType.DQSystem;
-    if (e instanceof Flow) return EntityType.Flow;
-    if (e instanceof FlowProperty) return EntityType.FlowProperty;
-    if (e instanceof ImpactCategory) return EntityType.ImpactCategory;
-    if (e instanceof ImpactMethod) return EntityType.ImpactMethod;
-    if (e instanceof Location) return EntityType.Location;
-    if (e instanceof NwSet) return EntityType.NwSet;
-    if (e instanceof Parameter) return EntityType.Parameter;
-    if (e instanceof Process) return EntityType.Process;
-    if (e instanceof ProductSystem) return EntityType.ProductSystem;
-    if (e instanceof Project) return EntityType.Project;
-    if (e instanceof SocialIndicator) return EntityType.SocialIndicator;
-    if (e instanceof Source) return EntityType.Source;
-    if (e instanceof Unit) return EntityType.Unit;
-    if (e instanceof UnitGroup) return EntityType.UnitGroup;
-    return EntityType.Undefined;
+      return ProtoType.Undefined;
+    if (e instanceof Actor) return ProtoType.Actor;
+    if (e instanceof Category) return ProtoType.Category;
+    if (e instanceof Currency) return ProtoType.Currency;
+    if (e instanceof DQSystem) return ProtoType.DQSystem;
+    if (e instanceof Flow) return ProtoType.Flow;
+    if (e instanceof FlowProperty) return ProtoType.FlowProperty;
+    if (e instanceof ImpactCategory) return ProtoType.ImpactCategory;
+    if (e instanceof ImpactMethod) return ProtoType.ImpactMethod;
+    if (e instanceof Location) return ProtoType.Location;
+    if (e instanceof NwSet) return ProtoType.NwSet;
+    if (e instanceof Parameter) return ProtoType.Parameter;
+    if (e instanceof Process) return ProtoType.Process;
+    if (e instanceof ProductSystem) return ProtoType.ProductSystem;
+    if (e instanceof Project) return ProtoType.Project;
+    if (e instanceof ResultModel) return ProtoType.Result;
+    if (e instanceof SocialIndicator) return ProtoType.SocialIndicator;
+    if (e instanceof Source) return ProtoType.Source;
+    if (e instanceof Unit) return ProtoType.Unit;
+    if (e instanceof UnitGroup) return ProtoType.UnitGroup;
+    return ProtoType.Undefined;
   }
 }

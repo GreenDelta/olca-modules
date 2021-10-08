@@ -2,7 +2,7 @@ package org.openlca.proto.io.input;
 
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.model.Source;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoSource;
 
 class SourceImport implements Import<Source>{
 
@@ -56,7 +56,7 @@ class SourceImport implements Import<Source>{
       : ImportStatus.created(source);
   }
 
-  private void map(Proto.Source proto, Source source) {
+  private void map(ProtoSource proto, Source source) {
     source.url = proto.getUrl();
     source.externalFile = proto.getExternalFile();
     source.textReference = proto.getTextReference();

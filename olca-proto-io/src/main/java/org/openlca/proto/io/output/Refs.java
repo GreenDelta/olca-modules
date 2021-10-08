@@ -17,7 +17,7 @@ import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoRef;
 import org.openlca.util.Categories;
 import org.openlca.util.Strings;
 
@@ -34,20 +34,20 @@ public final class Refs {
    * This is useful when we have a huge amount of references and we know what
    * type they contain.
    */
-  public static Proto.Ref.Builder tinyRefOf(Descriptor d) {
-    var proto = Proto.Ref.newBuilder();
+  public static ProtoRef.Builder tinyRefOf(Descriptor d) {
+    var proto = ProtoRef.newBuilder();
     if (d == null)
       return proto;
-    proto.setEntityType(Out.entityTypeOf(d.type));
+    proto.setType(Out.protoTypeOf(d.type));
     proto.setId(Strings.orEmpty(d.refId));
     return proto;
   }
 
-  public static Proto.Ref.Builder refOf(RootEntity e) {
-    var proto = Proto.Ref.newBuilder();
+  public static ProtoRef.Builder refOf(RootEntity e) {
+    var proto = ProtoRef.newBuilder();
     if (e == null)
       return proto;
-    proto.setEntityType(Out.entityTypeOf(e));
+    proto.setType(Out.protoTypeOf(e));
     Out.map(e, proto);
 
     if (e instanceof Flow) {
@@ -83,7 +83,7 @@ public final class Refs {
     return proto;
   }
 
-  public static Proto.Ref.Builder refOf(Descriptor d, RefData refData) {
+  public static ProtoRef.Builder refOf(Descriptor d, RefData refData) {
     var proto = refOf(d);
     if (d == null || refData == null)
       return proto;
@@ -117,11 +117,11 @@ public final class Refs {
     return proto;
   }
 
-  public static Proto.Ref.Builder refOf(Descriptor d) {
-    var proto = Proto.Ref.newBuilder();
+  public static ProtoRef.Builder refOf(Descriptor d) {
+    var proto = ProtoRef.newBuilder();
     if (d == null)
       return proto;
-    proto.setEntityType(Out.entityTypeOf(d.type));
+    proto.setType(Out.protoTypeOf(d.type));
     map(d, proto);
     if (d instanceof FlowDescriptor) {
       var fd = (FlowDescriptor) d;

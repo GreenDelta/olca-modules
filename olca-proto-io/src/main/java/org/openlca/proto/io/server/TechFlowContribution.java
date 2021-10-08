@@ -6,7 +6,7 @@ import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.FullResult;
-import org.openlca.proto.grpc.ResultsProto;
+import org.openlca.proto.grpc.ResultValue;
 import org.openlca.proto.grpc.TechFlowContributionRequest;
 import org.openlca.proto.io.output.Refs;
 
@@ -14,7 +14,7 @@ import io.grpc.stub.StreamObserver;
 
 class TechFlowContribution {
 
-  private final StreamObserver<ResultsProto.ResultValue> resp;
+  private final StreamObserver<ResultValue> resp;
   private final ResultService service;
 
   private FullResult result;
@@ -27,7 +27,7 @@ class TechFlowContribution {
   static TechFlowContribution of(
     ResultService service,
     TechFlowContributionRequest req,
-    StreamObserver<ResultsProto.ResultValue> resp) {
+    StreamObserver<ResultValue> resp) {
 
     var resolved = new TechFlowContribution(service, resp);
 
@@ -60,8 +60,7 @@ class TechFlowContribution {
   }
 
   private TechFlowContribution(
-    ResultService service,
-    StreamObserver<ResultsProto.ResultValue> resp) {
+    ResultService service, StreamObserver<ResultValue> resp) {
     this.service = service;
     this.resp = resp;
   }
@@ -94,7 +93,7 @@ class TechFlowContribution {
     if (isClosed)
       return;
     var refData = Refs.dataOf(service.db);
-    var proto = ResultsProto.ResultValue.newBuilder()
+    var proto = ResultValue.newBuilder()
       .setTechFlow(Results.toProto(product, refData))
       .setValue(value)
       .build();

@@ -2,7 +2,7 @@ package org.openlca.proto.io.input;
 
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoLocation;
 
 class LocationImport implements Import<Location> {
 
@@ -57,7 +57,7 @@ class LocationImport implements Import<Location> {
       : ImportStatus.created(location);
   }
 
-  private void map(Proto.Location proto, Location location) {
+  private void map(ProtoLocation proto, Location location) {
     location.code = proto.getCode();
     location.latitude = proto.getLatitude();
     location.longitude = proto.getLongitude();

@@ -1,8 +1,10 @@
 package org.openlca.proto.io.output;
 
+import jakarta.persistence.metamodel.EntityType;
 import org.openlca.core.model.Currency;
-import org.openlca.proto.EntityType;
 import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoCurrency;
+import org.openlca.proto.ProtoType;
 import org.openlca.util.Strings;
 
 public class CurrencyWriter {
@@ -13,11 +15,11 @@ public class CurrencyWriter {
     this.config = config;
   }
 
-  public Proto.Currency write(Currency c) {
-    var proto = Proto.Currency.newBuilder();
+  public ProtoCurrency write(Currency c) {
+    var proto = ProtoCurrency.newBuilder();
     if (c == null)
       return proto.build();
-    proto.setEntityType(EntityType.Currency);
+    proto.setType(ProtoType.Currency);
     Out.map(c, proto);
     Out.dep(config, c.category);
 

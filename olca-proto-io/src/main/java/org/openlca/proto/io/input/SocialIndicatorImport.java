@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.model.SocialIndicator;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoSocialIndicator;
 import org.openlca.util.Strings;
 
 class SocialIndicatorImport implements Import<SocialIndicator> {
@@ -60,7 +60,7 @@ class SocialIndicatorImport implements Import<SocialIndicator> {
       : ImportStatus.created(indicator);
   }
 
-  private void map(Proto.SocialIndicator proto, SocialIndicator indicator) {
+  private void map(ProtoSocialIndicator proto, SocialIndicator indicator) {
     indicator.evaluationScheme = proto.getEvaluationScheme();
     indicator.unitOfMeasurement = proto.getUnitOfMeasurement();
     indicator.activityVariable = proto.getActivityVariable();

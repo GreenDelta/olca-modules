@@ -1,8 +1,9 @@
 package org.openlca.proto.io.output;
 
 import org.openlca.core.model.FlowProperty;
-import org.openlca.proto.EntityType;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoFlowProperty;
+import org.openlca.proto.ProtoFlowPropertyType;
+import org.openlca.proto.ProtoType;
 
 public class FlowPropertyWriter {
 
@@ -12,11 +13,11 @@ public class FlowPropertyWriter {
     this.config = config;
   }
 
-  public Proto.FlowProperty write(FlowProperty property) {
-    var proto = Proto.FlowProperty.newBuilder();
+  public ProtoFlowProperty write(FlowProperty property) {
+    var proto = ProtoFlowProperty.newBuilder();
     if (property == null)
       return proto.build();
-    proto.setEntityType(EntityType.FlowProperty);
+    proto.setType(ProtoType.FlowProperty);
     Out.map(property, proto);
     Out.dep(config, property.category);
 
@@ -31,14 +32,14 @@ public class FlowPropertyWriter {
   }
 
   private void writeFlowPropertyType(
-    FlowProperty property, Proto.FlowProperty.Builder proto) {
+    FlowProperty property, ProtoFlowProperty.Builder proto) {
     if (property.flowPropertyType == null)
       return;
     switch (property.flowPropertyType) {
       case PHYSICAL -> proto.setFlowPropertyType(
-        Proto.FlowPropertyType.PHYSICAL_QUANTITY);
+        ProtoFlowPropertyType.PHYSICAL_QUANTITY);
       case ECONOMIC -> proto.setFlowPropertyType(
-        Proto.FlowPropertyType.ECONOMIC_QUANTITY);
+        ProtoFlowPropertyType.ECONOMIC_QUANTITY);
     }
   }
 }

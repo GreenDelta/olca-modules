@@ -24,10 +24,11 @@ import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.proto.ProtoRef;
+import org.openlca.proto.ProtoType;
+import org.openlca.proto.grpc.ProtoDataSet;
 import org.openlca.proto.io.InMemoryProtoStore;
 import org.openlca.proto.io.ProtoReader;
-import org.openlca.proto.Proto;
-import org.openlca.proto.grpc.DataSet;
 import org.openlca.proto.io.input.In;
 import org.openlca.proto.io.output.ActorWriter;
 import org.openlca.proto.io.output.CategoryWriter;
@@ -67,8 +68,7 @@ class DataUtil {
    * the case, null is returned and a corresponding error is written to the
    * response.
    */
-  static ModelType forceRootTypeOf(
-    Proto.ModelType type, StreamObserver<?> resp) {
+  static ModelType forceRootTypeOf(ProtoType type, StreamObserver<?> resp) {
     var modelType = In.modelTypeOf(type);
     if (modelType == null
         || modelType.getModelClass() == null) {
@@ -84,7 +84,8 @@ class DataUtil {
    * corresponding error is written to the response.
    */
   static ModelType forceCategorizedTypeOf(
-    Proto.ModelType type, StreamObserver<?> resp) {
+    ProtoType type, StreamObserver<?> resp) {
+
     var modelType = In.modelTypeOf(type);
     var modelClass = modelType != null
       ? modelType.getModelClass()
@@ -98,8 +99,8 @@ class DataUtil {
     return modelType;
   }
 
-  static DataSet.Builder toDataSet(IDatabase db, RootEntity e) {
-    var ds = DataSet.newBuilder();
+  static ProtoDataSet.Builder toDataSet(IDatabase db, RootEntity e) {
+    var ds = ProtoDataSet.newBuilder();
     var conf = WriterConfig.of(db);
 
     if (e instanceof Actor)
@@ -169,7 +170,7 @@ class DataUtil {
     return ds;
   }
 
-  static ProtoReader readerOf(DataSet dataSet) {
+  static ProtoReader readerOf(ProtoDataSet dataSet) {
     var store = InMemoryProtoStore.create();
     if (dataSet == null)
       return store;
@@ -229,7 +230,7 @@ class DataUtil {
       this.type = Objects.requireNonNull(type);
     }
 
-    ModelQuery<T> forRef(Proto.Ref ref) {
+    ModelQuery<T> forRef(ProtoRef ref) {
       if (ref == null)
         return this;
       return this.forId(ref.getId())

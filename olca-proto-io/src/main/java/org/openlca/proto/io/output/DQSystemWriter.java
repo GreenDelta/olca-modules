@@ -1,8 +1,10 @@
 package org.openlca.proto.io.output;
 
 import org.openlca.core.model.DQSystem;
-import org.openlca.proto.EntityType;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoDQIndicator;
+import org.openlca.proto.ProtoDQScore;
+import org.openlca.proto.ProtoDQSystem;
+import org.openlca.proto.ProtoType;
 import org.openlca.util.Strings;
 
 public class DQSystemWriter {
@@ -13,11 +15,11 @@ public class DQSystemWriter {
     this.config = config;
   }
 
-  public Proto.DQSystem write(DQSystem dqSystem) {
-    var proto = Proto.DQSystem.newBuilder();
+  public ProtoDQSystem write(DQSystem dqSystem) {
+    var proto = ProtoDQSystem.newBuilder();
     if (dqSystem == null)
       return proto.build();
-    proto.setEntityType(EntityType.DQSystem);
+    proto.setType(ProtoType.DQSystem);
     Out.map(dqSystem, proto);
     Out.dep(config, dqSystem.category);
 
@@ -31,13 +33,13 @@ public class DQSystemWriter {
   }
 
   private void writeIndicators(
-    DQSystem dqSystem, Proto.DQSystem.Builder proto) {
+    DQSystem dqSystem, ProtoDQSystem.Builder proto) {
     for (var indicator : dqSystem.indicators) {
-      var protoInd = Proto.DQIndicator.newBuilder();
+      var protoInd = ProtoDQIndicator.newBuilder();
       protoInd.setName(Strings.orEmpty(indicator.name));
       protoInd.setPosition(indicator.position);
-      for (var score: indicator.scores) {
-        var protoScore = Proto.DQScore.newBuilder();
+      for (var score : indicator.scores) {
+        var protoScore = ProtoDQScore.newBuilder();
         protoScore.setDescription(Strings.orEmpty(score.description));
         protoScore.setLabel(Strings.orEmpty(score.label));
         protoScore.setPosition(score.position);

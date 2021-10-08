@@ -1,8 +1,8 @@
 package org.openlca.proto.io.output;
 
 import org.openlca.core.model.SocialIndicator;
-import org.openlca.proto.EntityType;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoSocialIndicator;
+import org.openlca.proto.ProtoType;
 import org.openlca.util.Strings;
 
 public class SocialIndicatorWriter {
@@ -13,11 +13,11 @@ public class SocialIndicatorWriter {
     this.config = config;
   }
 
-  public Proto.SocialIndicator write(SocialIndicator indicator) {
-    var proto = Proto.SocialIndicator.newBuilder();
+  public ProtoSocialIndicator write(SocialIndicator indicator) {
+    var proto = ProtoSocialIndicator.newBuilder();
     if (indicator == null)
       return proto.build();
-    proto.setEntityType(EntityType.SocialIndicator);
+    proto.setType(ProtoType.SocialIndicator);
     Out.map(indicator, proto);
     Out.dep(config, indicator.category);
 

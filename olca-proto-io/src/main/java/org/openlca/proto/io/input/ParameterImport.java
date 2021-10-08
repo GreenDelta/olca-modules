@@ -3,7 +3,7 @@ package org.openlca.proto.io.input;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoParameter;
 
 class ParameterImport implements Import<Parameter> {
 
@@ -58,7 +58,7 @@ class ParameterImport implements Import<Parameter> {
       : ImportStatus.created(param);
   }
 
-  static void map(Proto.Parameter proto, Parameter param) {
+  static void map(ProtoParameter proto, Parameter param) {
     param.scope = scopeOf(proto);
     param.isInputParameter = proto.getInputParameter();
     param.value = proto.getValue();
@@ -66,7 +66,7 @@ class ParameterImport implements Import<Parameter> {
     param.uncertainty = In.uncertainty(proto.getUncertainty());
   }
 
-  static ParameterScope scopeOf(Proto.Parameter proto) {
+  static ParameterScope scopeOf(ProtoParameter proto) {
     return switch (proto.getParameterScope()) {
       case PROCESS_SCOPE -> ParameterScope.PROCESS;
       case IMPACT_SCOPE -> ParameterScope.IMPACT;

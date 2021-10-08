@@ -1,6 +1,7 @@
 package org.openlca.proto.io.server;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -24,7 +25,7 @@ class Search {
     if (req == null)
       return new Search(db, "");
     var search = new Search(db, req.getQuery());
-    var type = In.modelTypeOf(req.getModelType());
+    var type = In.modelTypeOf(req.getType());
     if (type != null && type.getModelClass() != null) {
       search.typeFilter = type;
     }
@@ -78,7 +79,10 @@ class Search {
   private List<? extends Descriptor> allOf(ModelType type) {
     if (type == ModelType.PARAMETER)
       return new ParameterDao(database).getGlobalDescriptors();
-    return Daos.root(database, type).getDescriptors();
+    var dao = Daos.root(database, type);
+    return dao == null
+      ? Collections.emptyList()
+      : dao.getDescriptors();
   }
 
   private int[] match(Descriptor d) {
