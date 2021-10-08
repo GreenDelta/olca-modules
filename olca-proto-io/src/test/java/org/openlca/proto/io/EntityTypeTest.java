@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoRef;
 import org.openlca.proto.io.output.Out;
 import org.openlca.proto.io.output.Refs;
 import org.openlca.util.Strings;
@@ -42,11 +42,11 @@ public class EntityTypeTest {
   @Test
   public void testWriteToDescriptors() throws Exception {
 
-    BiConsumer<ModelType, Proto.Ref> check = (type, ref) -> {
+    BiConsumer<ModelType, ProtoRef> check = (type, ref) -> {
       assertTrue(Strings.notEmpty(ref.getId()));
       assertEquals(
         type.getModelClass().getSimpleName(),
-        ref.getEntityType().name());
+        ref.getType().name());
     };
 
     for (var modelType : ModelType.values()) {

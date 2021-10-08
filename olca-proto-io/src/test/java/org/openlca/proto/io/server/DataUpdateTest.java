@@ -11,10 +11,10 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
 import org.openlca.proto.grpc.DataFetchServiceGrpc;
-import org.openlca.proto.grpc.DataSet;
 import org.openlca.proto.grpc.DataUpdateServiceGrpc;
 import org.openlca.proto.grpc.DeleteRequest;
 import org.openlca.proto.grpc.FindRequest;
+import org.openlca.proto.grpc.ProtoDataSet;
 import org.openlca.proto.io.Messages;
 import org.openlca.proto.io.Tests;
 import org.openlca.proto.io.output.Out;
@@ -78,7 +78,7 @@ public class DataUpdateTest {
 
           // delete it and check that we do not get it anymore
           update.delete(DeleteRequest.newBuilder()
-            .setModelType(Out.modelTypeOf(type))
+            .setType(Out.protoTypeOf(type))
             .setId(id)
             .build());
           dataSet = fetch.find(findRequestOf(type, id));
@@ -96,12 +96,12 @@ public class DataUpdateTest {
 
   private FindRequest findRequestOf(ModelType type, String id) {
     return FindRequest.newBuilder()
-      .setModelType(Out.modelTypeOf(type))
+      .setType(Out.protoTypeOf(type))
       .setId(id)
       .build();
   }
 
-  private String getField(ModelType type, DataSet ds, String field) {
+  private String getField(ModelType type, ProtoDataSet ds, String field) {
     var proto = switch (type) {
       case ACTOR -> ds.getActor();
       case CATEGORY -> ds.getCategory();
