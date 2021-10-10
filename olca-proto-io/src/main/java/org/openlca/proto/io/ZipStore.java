@@ -25,7 +25,22 @@ import com.google.protobuf.util.JsonFormat;
 import org.openlca.core.model.ModelType;
 import org.openlca.geo.geojson.GeoJSON;
 import org.openlca.jsonld.Json;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoActor;
+import org.openlca.proto.ProtoCategory;
+import org.openlca.proto.ProtoCurrency;
+import org.openlca.proto.ProtoDQSystem;
+import org.openlca.proto.ProtoFlow;
+import org.openlca.proto.ProtoFlowProperty;
+import org.openlca.proto.ProtoImpactCategory;
+import org.openlca.proto.ProtoImpactMethod;
+import org.openlca.proto.ProtoLocation;
+import org.openlca.proto.ProtoParameter;
+import org.openlca.proto.ProtoProcess;
+import org.openlca.proto.ProtoProductSystem;
+import org.openlca.proto.ProtoProject;
+import org.openlca.proto.ProtoSocialIndicator;
+import org.openlca.proto.ProtoSource;
+import org.openlca.proto.ProtoUnitGroup;
 import org.slf4j.LoggerFactory;
 
 public class ZipStore implements ProtoReader, AutoCloseable {
@@ -79,11 +94,11 @@ public class ZipStore implements ProtoReader, AutoCloseable {
   }
 
   @Override
-  public Proto.Category getCategory(String id) {
-    var proto = readBin("categories", id, Proto.Category.parser());
+  public ProtoCategory getCategory(String id) {
+    var proto = readBin("categories", id, ProtoCategory.parser());
     if (proto != null)
       return proto;
-    var builder = Proto.Category.newBuilder();
+    var builder = ProtoCategory.newBuilder();
     if (readJson("categories", id, builder)) {
       return builder.build();
     }
@@ -91,11 +106,11 @@ public class ZipStore implements ProtoReader, AutoCloseable {
   }
 
   @Override
-  public Proto.Project getProject(String id) {
-    var proto = readBin("projects", id, Proto.Project.parser());
+  public ProtoProject getProject(String id) {
+    var proto = readBin("projects", id, ProtoProject.parser());
     if (proto != null)
       return proto;
-    var builder = Proto.Project.newBuilder();
+    var builder = ProtoProject.newBuilder();
     if (readJson("projects", id, builder)) {
       return builder.build();
     }
@@ -103,11 +118,11 @@ public class ZipStore implements ProtoReader, AutoCloseable {
   }
 
   @Override
-  public Proto.ImpactMethod getImpactMethod(String id) {
-    var proto = readBin("lcia_methods", id, Proto.ImpactMethod.parser());
+  public ProtoImpactMethod getImpactMethod(String id) {
+    var proto = readBin("lcia_methods", id, ProtoImpactMethod.parser());
     if (proto != null)
       return proto;
-    var builder = Proto.ImpactMethod.newBuilder();
+    var builder = ProtoImpactMethod.newBuilder();
     if (readJson("lcia_methods", id, builder)) {
       return builder.build();
     }
@@ -115,11 +130,11 @@ public class ZipStore implements ProtoReader, AutoCloseable {
   }
 
   @Override
-  public Proto.ImpactCategory getImpactCategory(String id) {
-    var proto = readBin("lcia_categories", id, Proto.ImpactCategory.parser());
+  public ProtoImpactCategory getImpactCategory(String id) {
+    var proto = readBin("lcia_categories", id, ProtoImpactCategory.parser());
     if (proto != null)
       return proto;
-    var builder = Proto.ImpactCategory.newBuilder();
+    var builder = ProtoImpactCategory.newBuilder();
     if (readJson("lcia_categories", id, builder)) {
       return builder.build();
     }
@@ -127,11 +142,11 @@ public class ZipStore implements ProtoReader, AutoCloseable {
   }
 
   @Override
-  public Proto.ProductSystem getProductSystem(String id) {
-    var proto = readBin("product_systems", id, Proto.ProductSystem.parser());
+  public ProtoProductSystem getProductSystem(String id) {
+    var proto = readBin("product_systems", id, ProtoProductSystem.parser());
     if (proto != null)
       return proto;
-    var builder = Proto.ProductSystem.newBuilder();
+    var builder = ProtoProductSystem.newBuilder();
     if (readJson("product_systems", id, builder)) {
       return builder.build();
     }
@@ -139,11 +154,11 @@ public class ZipStore implements ProtoReader, AutoCloseable {
   }
 
   @Override
-  public Proto.Process getProcess(String id) {
-    var proto = readBin("processes", id, Proto.Process.parser());
+  public ProtoProcess getProcess(String id) {
+    var proto = readBin("processes", id, ProtoProcess.parser());
     if (proto != null)
       return proto;
-    var builder = Proto.Process.newBuilder();
+    var builder = ProtoProcess.newBuilder();
     if (readJson("processes", id, builder)) {
       return builder.build();
     }
@@ -151,11 +166,11 @@ public class ZipStore implements ProtoReader, AutoCloseable {
   }
 
   @Override
-  public Proto.Flow getFlow(String id) {
-    var proto = readBin("flows", id, Proto.Flow.parser());
+  public ProtoFlow getFlow(String id) {
+    var proto = readBin("flows", id, ProtoFlow.parser());
     if (proto != null)
       return proto;
-    var builder = Proto.Flow.newBuilder();
+    var builder = ProtoFlow.newBuilder();
     if (readJson("flows", id, builder)) {
       return builder.build();
     }
@@ -163,11 +178,11 @@ public class ZipStore implements ProtoReader, AutoCloseable {
   }
 
   @Override
-  public Proto.FlowProperty getFlowProperty(String id) {
-    var proto = readBin("flow_properties", id, Proto.FlowProperty.parser());
+  public ProtoFlowProperty getFlowProperty(String id) {
+    var proto = readBin("flow_properties", id, ProtoFlowProperty.parser());
     if (proto != null)
       return proto;
-    var builder = Proto.FlowProperty.newBuilder();
+    var builder = ProtoFlowProperty.newBuilder();
     if (readJson("flow_properties", id, builder)) {
       return builder.build();
     }
@@ -175,11 +190,11 @@ public class ZipStore implements ProtoReader, AutoCloseable {
   }
 
   @Override
-  public Proto.UnitGroup getUnitGroup(String id) {
-    var proto = readBin("unit_groups", id, Proto.UnitGroup.parser());
+  public ProtoUnitGroup getUnitGroup(String id) {
+    var proto = readBin("unit_groups", id, ProtoUnitGroup.parser());
     if (proto != null)
       return proto;
-    var builder = Proto.UnitGroup.newBuilder();
+    var builder = ProtoUnitGroup.newBuilder();
     if (readJson("unit_groups", id, builder)) {
       return builder.build();
     }
@@ -187,11 +202,11 @@ public class ZipStore implements ProtoReader, AutoCloseable {
   }
 
   @Override
-  public Proto.Actor getActor(String id) {
-    var proto = readBin("actors", id, Proto.Actor.parser());
+  public ProtoActor getActor(String id) {
+    var proto = readBin("actors", id, ProtoActor.parser());
     if (proto != null)
       return proto;
-    var builder = Proto.Actor.newBuilder();
+    var builder = ProtoActor.newBuilder();
     if (readJson("actors", id, builder)) {
       return builder.build();
     }
@@ -199,11 +214,11 @@ public class ZipStore implements ProtoReader, AutoCloseable {
   }
 
   @Override
-  public Proto.Source getSource(String id) {
-    var proto = readBin("sources", id, Proto.Source.parser());
+  public ProtoSource getSource(String id) {
+    var proto = readBin("sources", id, ProtoSource.parser());
     if (proto != null)
       return proto;
-    var builder = Proto.Source.newBuilder();
+    var builder = ProtoSource.newBuilder();
     if (readJson("sources", id, builder)) {
       return builder.build();
     }
@@ -211,8 +226,8 @@ public class ZipStore implements ProtoReader, AutoCloseable {
   }
 
   @Override
-  public Proto.Location getLocation(String id) {
-    var proto = readBin("locations", id, Proto.Location.parser());
+  public ProtoLocation getLocation(String id) {
+    var proto = readBin("locations", id, ProtoLocation.parser());
     if (proto != null)
       return proto;
 
@@ -228,7 +243,7 @@ public class ZipStore implements ProtoReader, AutoCloseable {
       if (data == null)
         return null;
       var json = new String(data, StandardCharsets.UTF_8);
-      var builder = Proto.Location.newBuilder();
+      var builder = ProtoLocation.newBuilder();
       JsonFormat.parser()
         .ignoringUnknownFields()
         .merge(json, builder);
@@ -258,11 +273,11 @@ public class ZipStore implements ProtoReader, AutoCloseable {
   }
 
   @Override
-  public Proto.SocialIndicator getSocialIndicator(String id) {
-    var proto = readBin("social_indicators", id, Proto.SocialIndicator.parser());
+  public ProtoSocialIndicator getSocialIndicator(String id) {
+    var proto = readBin("social_indicators", id, ProtoSocialIndicator.parser());
     if (proto != null)
       return proto;
-    var builder = Proto.SocialIndicator.newBuilder();
+    var builder = ProtoSocialIndicator.newBuilder();
     if (readJson("social_indicators", id, builder)) {
       return builder.build();
     }
@@ -270,11 +285,11 @@ public class ZipStore implements ProtoReader, AutoCloseable {
   }
 
   @Override
-  public Proto.Currency getCurrency(String id) {
-    var proto = readBin("currencies", id, Proto.Currency.parser());
+  public ProtoCurrency getCurrency(String id) {
+    var proto = readBin("currencies", id, ProtoCurrency.parser());
     if (proto != null)
       return proto;
-    var builder = Proto.Currency.newBuilder();
+    var builder = ProtoCurrency.newBuilder();
     if (readJson("currencies", id, builder)) {
       return builder.build();
     }
@@ -282,11 +297,11 @@ public class ZipStore implements ProtoReader, AutoCloseable {
   }
 
   @Override
-  public Proto.Parameter getParameter(String id) {
-    var proto = readBin("parameters", id, Proto.Parameter.parser());
+  public ProtoParameter getParameter(String id) {
+    var proto = readBin("parameters", id, ProtoParameter.parser());
     if (proto != null)
       return proto;
-    var builder = Proto.Parameter.newBuilder();
+    var builder = ProtoParameter.newBuilder();
     if (readJson("parameters", id, builder)) {
       return builder.build();
     }
@@ -294,11 +309,11 @@ public class ZipStore implements ProtoReader, AutoCloseable {
   }
 
   @Override
-  public Proto.DQSystem getDQSystem(String id) {
-    var proto = readBin("dq_systems", id, Proto.DQSystem.parser());
+  public ProtoDQSystem getDQSystem(String id) {
+    var proto = readBin("dq_systems", id, ProtoDQSystem.parser());
     if (proto != null)
       return proto;
-    var builder = Proto.DQSystem.newBuilder();
+    var builder = ProtoDQSystem.newBuilder();
     if (readJson("dq_systems", id, builder)) {
       return builder.build();
     }

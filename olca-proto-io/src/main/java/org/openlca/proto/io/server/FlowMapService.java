@@ -10,9 +10,11 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
 import org.openlca.io.maps.FlowRef;
-import org.openlca.proto.Proto;
-import org.openlca.proto.grpc.FlowMapInfo;
+import org.openlca.proto.ProtoFlowMap;
+import org.openlca.proto.ProtoFlowMapEntry;
+import org.openlca.proto.ProtoFlowMapRef;
 import org.openlca.proto.grpc.FlowMapServiceGrpc;
+import org.openlca.proto.grpc.ProtoFlowMapName;
 import org.openlca.proto.io.Messages;
 import org.openlca.proto.io.input.In;
 import org.openlca.proto.io.output.Refs;
@@ -32,17 +34,17 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
   }
 
   @Override
-  public void getAll(Empty req, StreamObserver<FlowMapInfo> resp) {
+  public void getAll(Empty req, StreamObserver<ProtoFlowMapName> resp) {
     new MappingFileDao(db).getNames()
         .stream()
         .sorted(Strings::compare)
-        .map(name -> FlowMapInfo.newBuilder().setName(name).build())
+        .map(name -> ProtoFlowMapName.newBuilder().setName(name).build())
         .forEach(resp::onNext);
     resp.onCompleted();
   }
 
   @Override
-  public void get(FlowMapInfo req, StreamObserver<Proto.FlowMap> resp) {
+  public void get(ProtoFlowMapName req, StreamObserver<ProtoFlowMap> resp) {
     var mapping = forceGet(req.getName(), resp);
     if (mapping == null)
       return;
@@ -52,7 +54,7 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
   }
 
   @Override
-  public void delete(FlowMapInfo req, StreamObserver<Empty> resp) {
+  public void delete(ProtoFlowMapName req, StreamObserver<Empty> resp) {
     var mapping = forceGet(req.getName(), resp);
     if (mapping == null)
       return;
@@ -93,7 +95,7 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
   }
 
   @Override
-  public void put(Proto.FlowMap proto, StreamObserver<Empty> resp) {
+  public void put(ProtoFlowMap proto, StreamObserver<Empty> resp) {
     var model = toModel(proto);
     if (Strings.nullOrEmpty(model.name)) {
       Response.invalidArg(resp, "A name of the flow map is required");
@@ -129,7 +131,7 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
     }
   }
 
-  private FlowMap toModel(Proto.FlowMap proto) {
+  private FlowMap toModel(ProtoFlowMap proto) {
     if (proto == null)
       return FlowMap.empty();
     var flowMap = new FlowMap();
@@ -146,7 +148,7 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
     return flowMap;
   }
 
-  private FlowRef toModelRef(Proto.FlowMapRef protoRef) {
+  private FlowRef toModelRef(ProtoFlowMapRef protoRef) {
     var flowRef = new FlowRef();
     if (Messages.isEmpty(protoRef))
       return flowRef;
@@ -193,8 +195,8 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
             : path + "/" + elem);
   }
 
-  private Proto.FlowMap toProto(FlowMap model) {
-    var proto = Proto.FlowMap.newBuilder();
+  private ProtoFlowMap toProto(FlowMap model) {
+    var proto = ProtoFlowMap.newBuilder();
     if (model == null)
       return proto.build();
     proto.setId(Strings.orEmpty(model.refId));
@@ -202,7 +204,7 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
     proto.setDescription(Strings.orEmpty(model.name));
 
     for (var entry : model.entries) {
-      var protoEntry = Proto.FlowMapEntry.newBuilder();
+      var protoEntry = ProtoFlowMapEntry.newBuilder();
       protoEntry.setConversionFactor(entry.factor);
       if (entry.sourceFlow != null) {
         protoEntry.setFrom(toProtoRef(entry.sourceFlow));
@@ -216,8 +218,8 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
     return proto.build();
   }
 
-  private Proto.FlowMapRef toProtoRef(FlowRef flowRef) {
-    var proto = Proto.FlowMapRef.newBuilder();
+  private ProtoFlowMapRef toProtoRef(FlowRef flowRef) {
+    var proto = ProtoFlowMapRef.newBuilder();
     if (flowRef == null || flowRef.flow == null)
       return proto.build();
 

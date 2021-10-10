@@ -12,6 +12,7 @@ import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoCalculationSetup;
 import org.openlca.util.Strings;
 
 public final class CalculationSetupReader {
@@ -23,11 +24,11 @@ public final class CalculationSetupReader {
   }
 
   public static CalculationSetup read(
-    EntityResolver resolver, Proto.CalculationSetup proto) {
+    EntityResolver resolver, ProtoCalculationSetup proto) {
     return new CalculationSetupReader(resolver).read(proto);
   }
 
-  public CalculationSetup read(Proto.CalculationSetup proto) {
+  public CalculationSetup read(ProtoCalculationSetup proto) {
     if (proto == null)
       return null;
     var type = typeOf(proto);
@@ -48,7 +49,7 @@ public final class CalculationSetupReader {
     return setup;
   }
 
-  private CalculationType typeOf(Proto.CalculationSetup proto) {
+  private CalculationType typeOf(ProtoCalculationSetup proto) {
     return switch (proto.getCalculationType()) {
       case MONTE_CARLO_SIMULATION -> CalculationType.MONTE_CARLO_SIMULATION;
       case SIMPLE_CALCULATION -> CalculationType.SIMPLE_CALCULATION;
@@ -57,7 +58,7 @@ public final class CalculationSetupReader {
     };
   }
 
-  private CalculationTarget targetOf(Proto.CalculationSetup proto) {
+  private CalculationTarget targetOf(ProtoCalculationSetup proto) {
     if (proto.hasProductSystem()) {
       var refId = proto.getProductSystem().getId();
       return resolver.get(ProductSystem.class, refId);
@@ -70,7 +71,7 @@ public final class CalculationSetupReader {
   }
 
   private void setQuantity(
-    Proto.CalculationSetup proto, CalculationSetup setup) {
+    ProtoCalculationSetup proto, CalculationSetup setup) {
 
     // amount
     if (proto.getAmount() != 0) {
@@ -106,7 +107,7 @@ public final class CalculationSetupReader {
   }
 
   private void setImpactMethod(
-    Proto.CalculationSetup proto, CalculationSetup setup) {
+    ProtoCalculationSetup proto, CalculationSetup setup) {
 
     // impact method
     var methodId = proto.getImpactMethod().getId();
@@ -130,7 +131,7 @@ public final class CalculationSetupReader {
   }
 
   private void setParameters(
-    Proto.CalculationSetup proto, CalculationSetup setup) {
+    ProtoCalculationSetup proto, CalculationSetup setup) {
 
     var n = proto.getParametersCount();
     if (n == 0)

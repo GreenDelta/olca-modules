@@ -4,7 +4,7 @@ import org.openlca.core.database.DQSystemDao;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQScore;
 import org.openlca.core.model.DQSystem;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoDQSystem;
 import org.openlca.util.Strings;
 
 class DqSystemImport implements Import<DQSystem> {
@@ -60,7 +60,7 @@ class DqSystemImport implements Import<DQSystem> {
       : ImportStatus.created(dqSystem);
   }
 
-  private void map(Proto.DQSystem proto, DQSystem sys) {
+  private void map(ProtoDQSystem proto, DQSystem sys) {
     sys.hasUncertainties = proto.getHasUncertainties();
     var sourceID = proto.getSource().getId();
     if (Strings.notEmpty(sourceID)) {

@@ -10,7 +10,7 @@ import java.util.function.BiConsumer;
 import org.junit.Test;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoType;
 import org.openlca.proto.grpc.DataFetchServiceGrpc;
 import org.openlca.proto.grpc.GetAllRequest;
 import org.openlca.proto.grpc.GetAllResponse;
@@ -36,7 +36,7 @@ public class DataFetchTest {
       var stub = DataFetchServiceGrpc.newBlockingStub(channel);
       var refs = stub.getDescriptors(
         GetDescriptorsRequest.newBuilder()
-          .setModelType(Proto.ModelType.ACTOR)
+          .setType(ProtoType.Actor)
           .build());
       while (refs.hasNext()) {
         var ref = refs.next();
@@ -96,7 +96,7 @@ public class DataFetchTest {
     ServiceTests.on(channel -> {
       var stub = DataFetchServiceGrpc.newBlockingStub(channel);
       var req = GetAllRequest.newBuilder()
-        .setModelType(Proto.ModelType.ACTOR);
+        .setType(ProtoType.Actor);
 
       var firstPage = stub.getAll(req.build());
       assertEquals(1, firstPage.getPage());

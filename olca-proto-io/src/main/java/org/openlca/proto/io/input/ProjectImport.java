@@ -2,7 +2,7 @@ package org.openlca.proto.io.input;
 
 import org.openlca.core.database.ProjectDao;
 import org.openlca.core.model.Project;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoProject;
 
 class ProjectImport implements Import<Project> {
 
@@ -57,7 +57,7 @@ class ProjectImport implements Import<Project> {
       : ImportStatus.created(project);
   }
 
-  private void map(Proto.Project proto, Project project) {
+  private void map(ProtoProject proto, Project project) {
     // TODO: map project data
   }
 }

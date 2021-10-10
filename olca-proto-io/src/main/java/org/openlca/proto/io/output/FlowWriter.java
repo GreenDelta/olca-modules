@@ -3,8 +3,9 @@ package org.openlca.proto.io.output;
 import java.util.Objects;
 
 import org.openlca.core.model.Flow;
-import org.openlca.proto.EntityType;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoFlow;
+import org.openlca.proto.ProtoFlowPropertyFactor;
+import org.openlca.proto.ProtoType;
 import org.openlca.util.Strings;
 
 public class FlowWriter {
@@ -15,11 +16,11 @@ public class FlowWriter {
     this.config = config;
   }
 
-  public Proto.Flow write(Flow flow) {
-    var proto = Proto.Flow.newBuilder();
+  public ProtoFlow write(Flow flow) {
+    var proto = ProtoFlow.newBuilder();
     if (flow == null)
       return proto.build();
-    proto.setEntityType(EntityType.Flow);
+    proto.setType(ProtoType.Flow);
     Out.map(flow, proto);
     Out.dep(config, flow.category);
 
@@ -37,9 +38,9 @@ public class FlowWriter {
     return proto.build();
   }
 
-  private void writeFlowProperties(Flow flow, Proto.Flow.Builder proto) {
+  private void writeFlowProperties(Flow flow, ProtoFlow.Builder proto) {
     for (var f : flow.flowPropertyFactors) {
-      var protoF = Proto.FlowPropertyFactor.newBuilder();
+      var protoF = ProtoFlowPropertyFactor.newBuilder();
       protoF.setConversionFactor(f.conversionFactor);
       if (f.flowProperty != null) {
         protoF.setFlowProperty(Refs.refOf(f.flowProperty));

@@ -4,8 +4,10 @@ import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.SimpleResult;
-import org.openlca.proto.Proto;
-import org.openlca.proto.grpc.ResultsProto;
+import org.openlca.proto.ProtoRef;
+import org.openlca.proto.grpc.ProtoEnviFlow;
+import org.openlca.proto.grpc.ProtoTechFlow;
+import org.openlca.proto.grpc.ResultValue;
 import org.openlca.proto.io.Messages;
 import org.openlca.proto.io.output.Refs;
 import org.openlca.util.Strings;
@@ -15,16 +17,15 @@ final class Results {
   private Results() {
   }
 
-  static ImpactDescriptor findImpact(
-    SimpleResult result, Proto.Ref indicatorRef) {
+  static ImpactDescriptor findImpact(SimpleResult result, ProtoRef ref) {
 
-    if (result == null || Messages.isEmpty(indicatorRef))
+    if (result == null || Messages.isEmpty(ref))
       return null;
     var index = result.impactIndex();
     if (index == null)
       return null;
 
-    var indicatorId = indicatorRef.getId();
+    var indicatorId = ref.getId();
     for (int i = 0; i < index.size(); i++) {
       var indicator = index.at(i);
       if (Strings.nullOrEqual(indicatorId, indicator.refId)) {
@@ -34,8 +35,7 @@ final class Results {
     return null;
   }
 
-  static EnviFlow findFlow(
-    SimpleResult result, ResultsProto.EnviFlow proto) {
+  static EnviFlow findFlow(SimpleResult result, ProtoEnviFlow proto) {
 
     if (result == null || Messages.isEmpty(proto))
       return null;
@@ -61,8 +61,7 @@ final class Results {
     return null;
   }
 
-  static TechFlow findProduct(
-    SimpleResult result, ResultsProto.TechFlow proto) {
+  static TechFlow findProduct(SimpleResult result, ProtoTechFlow proto) {
     if (result == null || Messages.isEmpty(proto))
       return null;
     var processId = proto.getProcess().getId();
@@ -79,10 +78,9 @@ final class Results {
     return null;
   }
 
-  static ResultsProto.EnviFlow toProto(
-    EnviFlow flow, Refs.RefData refData) {
+  static ProtoEnviFlow toProto(EnviFlow flow, Refs.RefData refData) {
 
-    var proto = ResultsProto.EnviFlow.newBuilder();
+    var proto = ProtoEnviFlow.newBuilder();
     if (flow == null)
       return proto.build();
     proto.setFlow(Refs.refOf(flow.flow(), refData));
@@ -93,18 +91,17 @@ final class Results {
     return proto.build();
   }
 
-  static ResultsProto.ResultValue toProtoResult(
+  static ResultValue toProtoResult(
     EnviFlow flow, Refs.RefData refData, double value) {
-    return ResultsProto.ResultValue.newBuilder()
+    return ResultValue.newBuilder()
       .setEnviFlow(toProto(flow, refData))
       .setValue(value)
       .build();
   }
 
-  static ResultsProto.TechFlow toProto(
-    TechFlow product, Refs.RefData refData) {
+  static ProtoTechFlow toProto(TechFlow product, Refs.RefData refData) {
 
-    var proto = ResultsProto.TechFlow.newBuilder();
+    var proto = ProtoTechFlow.newBuilder();
     if (product == null)
       return proto.build();
     if (product.process() != null) {

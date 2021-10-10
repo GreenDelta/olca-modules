@@ -4,8 +4,9 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import org.openlca.core.model.UnitGroup;
-import org.openlca.proto.EntityType;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoType;
+import org.openlca.proto.ProtoUnit;
+import org.openlca.proto.ProtoUnitGroup;
 import org.openlca.util.Strings;
 
 public class UnitGroupWriter {
@@ -16,11 +17,11 @@ public class UnitGroupWriter {
     this.config = config;
   }
 
-  public Proto.UnitGroup write(UnitGroup group) {
-    var proto = Proto.UnitGroup.newBuilder();
+  public ProtoUnitGroup write(UnitGroup group) {
+    var proto = ProtoUnitGroup.newBuilder();
     if (group == null)
       return proto.build();
-    proto.setEntityType(EntityType.UnitGroup);
+    proto.setType(ProtoType.UnitGroup);
     Out.map(group, proto);
     Out.dep(config, group.category);
 
@@ -33,10 +34,9 @@ public class UnitGroupWriter {
     return proto.build();
   }
 
-  private void writeUnits(
-    UnitGroup group, Proto.UnitGroup.Builder proto) {
+  private void writeUnits(UnitGroup group, ProtoUnitGroup.Builder proto) {
     for (var unit : group.units) {
-      var protoUnit = Proto.Unit.newBuilder();
+      var protoUnit = ProtoUnit.newBuilder();
       protoUnit.setId(Strings.orEmpty(unit.refId));
       protoUnit.setName(Strings.orEmpty(unit.name));
       protoUnit.setDescription(Strings.orEmpty(unit.description));

@@ -16,8 +16,12 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.proto.EntityType;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoExchangeRef;
+import org.openlca.proto.ProtoParameterRedef;
+import org.openlca.proto.ProtoParameterRedefSet;
+import org.openlca.proto.ProtoProcessLink;
+import org.openlca.proto.ProtoProductSystem;
+import org.openlca.proto.ProtoType;
 import org.openlca.util.Strings;
 
 public class ProductSystemWriter {
@@ -28,11 +32,11 @@ public class ProductSystemWriter {
     this.config = config;
   }
 
-  public Proto.ProductSystem write(ProductSystem system) {
-    var proto = Proto.ProductSystem.newBuilder();
+  public ProtoProductSystem write(ProductSystem system) {
+    var proto = ProtoProductSystem.newBuilder();
     if (system == null)
       return proto.build();
-    proto.setEntityType(EntityType.ProductSystem);
+    proto.setType(ProtoType.ProductSystem);
     Out.map(system, proto);
     Out.dep(config, system.category);
     mapQRef(system, proto);
@@ -43,7 +47,7 @@ public class ProductSystemWriter {
   }
 
   private void mapQRef(ProductSystem system,
-                       Proto.ProductSystem.Builder proto) {
+    ProtoProductSystem.Builder proto) {
     // ref. process
     if (system.referenceProcess != null) {
       var p = Refs.refOf(system.referenceProcess);
@@ -53,7 +57,7 @@ public class ProductSystemWriter {
 
     // ref. exchange
     if (system.referenceExchange != null) {
-      var e = Proto.ExchangeRef.newBuilder()
+      var e = ProtoExchangeRef.newBuilder()
         .setInternalId(system.referenceExchange.internalId);
       proto.setReferenceExchange(e);
     }
@@ -74,7 +78,7 @@ public class ProductSystemWriter {
   }
 
   private Map<Long, CategorizedDescriptor> mapProcesses(
-    ProductSystem system, Proto.ProductSystem.Builder proto) {
+    ProductSystem system, ProtoProductSystem.Builder proto) {
     var processes = new ProcessDao(config.db).descriptorMap();
     var systems = new ProductSystemDao(config.db).descriptorMap();
     Map<Long, CategorizedDescriptor> map = new HashMap<>();
@@ -93,8 +97,8 @@ public class ProductSystemWriter {
   }
 
   private void mapLinks(ProductSystem system,
-                        Proto.ProductSystem.Builder proto,
-                        Map<Long, CategorizedDescriptor> processes) {
+    ProtoProductSystem.Builder proto,
+    Map<Long, CategorizedDescriptor> processes) {
 
     // collect the used flows
     var flowIDs = new HashSet<Long>();
@@ -122,7 +126,7 @@ public class ProductSystemWriter {
 
     // add the links
     for (var link : system.processLinks) {
-      var protoLink = Proto.ProcessLink.newBuilder();
+      var protoLink = ProtoProcessLink.newBuilder();
 
       // provider
       var provider = processes.get(link.providerId);
@@ -148,7 +152,7 @@ public class ProductSystemWriter {
       var eid = exchangeIDs.get(link.exchangeId);
       if (eid != 0) {
         protoLink.setExchange(
-          Proto.ExchangeRef.newBuilder()
+          ProtoExchangeRef.newBuilder()
             .setInternalId(eid)
             .build());
       }
@@ -159,14 +163,14 @@ public class ProductSystemWriter {
   }
 
   private void mapParameterSets(ProductSystem system,
-                                Proto.ProductSystem.Builder proto) {
+    ProtoProductSystem.Builder proto) {
     for (var paramSet : system.parameterSets) {
-      var protoSet = Proto.ParameterRedefSet.newBuilder();
+      var protoSet = ProtoParameterRedefSet.newBuilder();
       protoSet.setName(Strings.orEmpty(paramSet.name));
       protoSet.setDescription(Strings.orEmpty(paramSet.description));
       protoSet.setIsBaseline(paramSet.isBaseline);
       for (var redef : paramSet.parameters) {
-        var protoRedef = Proto.ParameterRedef.newBuilder();
+        var protoRedef = ProtoParameterRedef.newBuilder();
         protoRedef.setName(Strings.orEmpty(redef.name));
         protoRedef.setValue(redef.value);
         if (redef.uncertainty != null) {

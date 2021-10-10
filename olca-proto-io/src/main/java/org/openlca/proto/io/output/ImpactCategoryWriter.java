@@ -1,8 +1,9 @@
 package org.openlca.proto.io.output;
 
 import org.openlca.core.model.ImpactCategory;
-import org.openlca.proto.EntityType;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoImpactCategory;
+import org.openlca.proto.ProtoImpactFactor;
+import org.openlca.proto.ProtoType;
 import org.openlca.util.Strings;
 
 public class ImpactCategoryWriter {
@@ -13,11 +14,11 @@ public class ImpactCategoryWriter {
     this.config = config;
   }
 
-  public Proto.ImpactCategory write(ImpactCategory impact) {
-    var proto = Proto.ImpactCategory.newBuilder();
+  public ProtoImpactCategory write(ImpactCategory impact) {
+    var proto = ProtoImpactCategory.newBuilder();
     if (impact == null)
       return proto.build();
-    proto.setEntityType(EntityType.ImpactCategory);
+    proto.setType(ProtoType.ImpactCategory);
     Out.map(impact, proto);
     Out.dep(config, impact.category);
 
@@ -32,9 +33,9 @@ public class ImpactCategoryWriter {
   }
 
   private void writeFactors(
-    ImpactCategory impact, Proto.ImpactCategory.Builder proto) {
+    ImpactCategory impact, ProtoImpactCategory.Builder proto) {
     for (var factor : impact.impactFactors) {
-      var protoFac = Proto.ImpactFactor.newBuilder();
+      var protoFac = ProtoImpactFactor.newBuilder();
 
       if (factor.flow != null) {
         protoFac.setFlow(Refs.refOf(factor.flow));

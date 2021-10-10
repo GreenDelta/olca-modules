@@ -1,39 +1,54 @@
 package org.openlca.proto.io;
 
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoActor;
+import org.openlca.proto.ProtoCategory;
+import org.openlca.proto.ProtoCurrency;
+import org.openlca.proto.ProtoDQSystem;
+import org.openlca.proto.ProtoFlow;
+import org.openlca.proto.ProtoFlowProperty;
+import org.openlca.proto.ProtoImpactCategory;
+import org.openlca.proto.ProtoImpactMethod;
+import org.openlca.proto.ProtoLocation;
+import org.openlca.proto.ProtoParameter;
+import org.openlca.proto.ProtoProcess;
+import org.openlca.proto.ProtoProductSystem;
+import org.openlca.proto.ProtoProject;
+import org.openlca.proto.ProtoSocialIndicator;
+import org.openlca.proto.ProtoSource;
+import org.openlca.proto.ProtoUnitGroup;
 
 public interface ProtoWriter {
 
-  void putActor(Proto.Actor actor);
+  void putActor(ProtoActor actor);
 
-  void putCategory(Proto.Category category);
+  void putCategory(ProtoCategory category);
 
-  void putCurrency(Proto.Currency currency);
+  void putCurrency(ProtoCurrency currency);
 
-  void putDQSystem(Proto.DQSystem dqSystem);
+  void putDQSystem(ProtoDQSystem dqSystem);
 
-  void putFlow(Proto.Flow flow);
+  void putFlow(ProtoFlow flow);
 
-  void putFlowProperty(Proto.FlowProperty property);
+  void putFlowProperty(ProtoFlowProperty property);
 
-  void putImpactCategory(Proto.ImpactCategory impact);
+  void putImpactCategory(ProtoImpactCategory impact);
 
-  void putImpactMethod(Proto.ImpactMethod method);
+  void putImpactMethod(ProtoImpactMethod method);
 
-  void putLocation(Proto.Location location);
+  void putLocation(ProtoLocation location);
 
-  void putParameter(Proto.Parameter parameter);
+  void putParameter(ProtoParameter parameter);
 
-  void putProcess(Proto.Process process);
+  void putProcess(ProtoProcess process);
 
-  void putProductSystem(Proto.ProductSystem system);
+  void putProductSystem(ProtoProductSystem system);
 
-  void putProject(Proto.Project project);
+  void putProject(ProtoProject project);
 
-  void putSocialIndicator(Proto.SocialIndicator indicator);
+  void putSocialIndicator(ProtoSocialIndicator indicator);
 
-  void putSource(Proto.Source source);
+  void putSource(ProtoSource source);
 
-  void putUnitGroup(Proto.UnitGroup group);
+  void putUnitGroup(ProtoUnitGroup group);
 
 }

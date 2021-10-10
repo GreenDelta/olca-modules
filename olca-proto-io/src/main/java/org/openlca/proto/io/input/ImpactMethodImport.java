@@ -6,7 +6,8 @@ import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.NwFactor;
 import org.openlca.core.model.NwSet;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoImpactMethod;
+import org.openlca.proto.ProtoNwFactor;
 
 class ImpactMethodImport implements Import<ImpactMethod> {
 
@@ -61,7 +62,7 @@ class ImpactMethodImport implements Import<ImpactMethod> {
       : ImportStatus.created(method);
   }
 
-  private void map(Proto.ImpactMethod proto, ImpactMethod method) {
+  private void map(ProtoImpactMethod proto, ImpactMethod method) {
 
     for (var protoImp : proto.getImpactCategoriesList()) {
       var impactID = protoImp.getId();
@@ -87,7 +88,7 @@ class ImpactMethodImport implements Import<ImpactMethod> {
     }
   }
 
-  private NwFactor nwFactor(Proto.NwFactor proto, ImpactMethod method) {
+  private NwFactor nwFactor(ProtoNwFactor proto, ImpactMethod method) {
     var f = new NwFactor();
     var impactID = proto.getImpactCategory().getId();
     f.impactCategory = method.impactCategories.stream()

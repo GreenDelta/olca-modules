@@ -1,8 +1,8 @@
 package org.openlca.proto.io.output;
 
 import org.openlca.core.model.Actor;
-import org.openlca.proto.EntityType;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoActor;
+import org.openlca.proto.ProtoType;
 import org.openlca.util.Strings;
 
 public class ActorWriter {
@@ -13,11 +13,11 @@ public class ActorWriter {
     this.config = config;
   }
 
-  public Proto.Actor write(Actor a) {
-    var proto = Proto.Actor.newBuilder();
+  public ProtoActor write(Actor a) {
+    var proto = ProtoActor.newBuilder();
     if (a == null)
       return proto.build();
-    proto.setEntityType(EntityType.Actor);
+    proto.setType(ProtoType.Actor);
     Out.map(a, proto);
     Out.dep(config, a.category);
 

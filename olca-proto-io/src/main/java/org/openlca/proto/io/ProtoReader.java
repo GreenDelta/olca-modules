@@ -4,41 +4,57 @@ import java.util.Set;
 
 import org.openlca.core.model.ModelType;
 import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoActor;
+import org.openlca.proto.ProtoCategory;
+import org.openlca.proto.ProtoCurrency;
+import org.openlca.proto.ProtoDQSystem;
+import org.openlca.proto.ProtoFlow;
+import org.openlca.proto.ProtoFlowProperty;
+import org.openlca.proto.ProtoImpactCategory;
+import org.openlca.proto.ProtoImpactMethod;
+import org.openlca.proto.ProtoLocation;
+import org.openlca.proto.ProtoParameter;
+import org.openlca.proto.ProtoProcess;
+import org.openlca.proto.ProtoProductSystem;
+import org.openlca.proto.ProtoProject;
+import org.openlca.proto.ProtoSocialIndicator;
+import org.openlca.proto.ProtoSource;
+import org.openlca.proto.ProtoUnitGroup;
 
 public interface ProtoReader {
 
   Set<String> getIds(ModelType modelType);
 
-  Proto.Category getCategory(String id);
+  ProtoCategory getCategory(String id);
 
-  Proto.Actor getActor(String id);
+  ProtoActor getActor(String id);
 
-  Proto.Source getSource(String id);
+  ProtoSource getSource(String id);
 
-  Proto.Currency getCurrency(String id);
+  ProtoCurrency getCurrency(String id);
 
-  Proto.UnitGroup getUnitGroup(String id);
+  ProtoUnitGroup getUnitGroup(String id);
 
-  Proto.FlowProperty getFlowProperty(String id);
+  ProtoFlowProperty getFlowProperty(String id);
 
-  Proto.DQSystem getDQSystem(String id);
+  ProtoDQSystem getDQSystem(String id);
 
-  Proto.Flow getFlow(String id);
+  ProtoFlow getFlow(String id);
 
-  Proto.ImpactMethod getImpactMethod(String id);
+  ProtoImpactMethod getImpactMethod(String id);
 
-  Proto.Location getLocation(String id);
+  ProtoLocation getLocation(String id);
 
-  Proto.Parameter getParameter(String id);
+  ProtoParameter getParameter(String id);
 
-  Proto.ImpactCategory getImpactCategory(String id);
+  ProtoImpactCategory getImpactCategory(String id);
 
-  Proto.Process getProcess(String id);
+  ProtoProcess getProcess(String id);
 
-  Proto.Project getProject(String id);
+  ProtoProject getProject(String id);
 
-  Proto.SocialIndicator getSocialIndicator(String id);
+  ProtoSocialIndicator getSocialIndicator(String id);
 
-  Proto.ProductSystem getProductSystem(String id);
+  ProtoProductSystem getProductSystem(String id);
 
 }

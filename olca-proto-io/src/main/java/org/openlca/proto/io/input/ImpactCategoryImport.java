@@ -6,7 +6,7 @@ import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Parameter;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoImpactCategory;
 import org.openlca.util.Strings;
 
 class ImpactCategoryImport implements Import<ImpactCategory> {
@@ -62,7 +62,7 @@ class ImpactCategoryImport implements Import<ImpactCategory> {
       : ImportStatus.created(impact);
   }
 
-  private void map(Proto.ImpactCategory proto, ImpactCategory impact) {
+  private void map(ProtoImpactCategory proto, ImpactCategory impact) {
     impact.referenceUnit = proto.getReferenceUnitName();
 
     // parameters

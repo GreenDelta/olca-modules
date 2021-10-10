@@ -3,7 +3,8 @@ package org.openlca.proto.io.input;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyType;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoFlowProperty;
+import org.openlca.proto.ProtoFlowPropertyType;
 import org.openlca.util.Strings;
 
 class FlowPropertyImport implements Import<FlowProperty> {
@@ -59,9 +60,9 @@ class FlowPropertyImport implements Import<FlowProperty> {
       : ImportStatus.created(flowProperty);
   }
 
-  private void map(Proto.FlowProperty proto, FlowProperty flowProperty) {
+  private void map(ProtoFlowProperty proto, FlowProperty flowProperty) {
     var type = proto.getFlowPropertyType();
-    flowProperty.flowPropertyType = type == Proto.FlowPropertyType.ECONOMIC_QUANTITY
+    flowProperty.flowPropertyType = type == ProtoFlowPropertyType.ECONOMIC_QUANTITY
       ? FlowPropertyType.ECONOMIC
       : FlowPropertyType.PHYSICAL;
     var unitGroupID = proto.getUnitGroup().getId();

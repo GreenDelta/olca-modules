@@ -1,8 +1,10 @@
 package org.openlca.proto.io.output;
 
 import org.openlca.core.model.ImpactMethod;
-import org.openlca.proto.EntityType;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoImpactMethod;
+import org.openlca.proto.ProtoNwFactor;
+import org.openlca.proto.ProtoNwSet;
+import org.openlca.proto.ProtoType;
 import org.openlca.util.Strings;
 
 public class ImpactMethodWriter {
@@ -13,11 +15,11 @@ public class ImpactMethodWriter {
     this.config = config;
   }
 
-  public Proto.ImpactMethod write(ImpactMethod method) {
-    var proto = Proto.ImpactMethod.newBuilder();
+  public ProtoImpactMethod write(ImpactMethod method) {
+    var proto = ProtoImpactMethod.newBuilder();
     if (method == null)
       return proto.build();
-    proto.setEntityType(EntityType.ImpactMethod);
+    proto.setType(ProtoType.ImpactMethod);
     Out.map(method, proto);
     Out.dep(config, method.category);
 
@@ -31,16 +33,16 @@ public class ImpactMethodWriter {
   }
 
   private void writeNwSets(
-    ImpactMethod method, Proto.ImpactMethod.Builder proto) {
+    ImpactMethod method, ProtoImpactMethod.Builder proto) {
     for (var nwSet : method.nwSets) {
-      var nwProto = Proto.NwSet.newBuilder();
+      var nwProto = ProtoNwSet.newBuilder();
       nwProto.setId(Strings.orEmpty(nwSet.refId));
       nwProto.setName(Strings.orEmpty(nwSet.name));
       nwProto.setDescription(Strings.orEmpty(nwSet.name));
       nwProto.setWeightedScoreUnit(
         Strings.orEmpty(nwSet.weightedScoreUnit));
       for (var nwFactor : nwSet.factors) {
-        var protoFactor = Proto.NwFactor.newBuilder();
+        var protoFactor = ProtoNwFactor.newBuilder();
         if (nwFactor.impactCategory != null) {
           protoFactor.setImpactCategory(
             Refs.refOf(nwFactor.impactCategory));

@@ -17,7 +17,13 @@ import org.openlca.core.model.RiskLevel;
 import org.openlca.core.model.SocialAspect;
 import org.openlca.core.model.Source;
 import org.openlca.jsonld.Json;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoAllocationFactor;
+import org.openlca.proto.ProtoExchange;
+import org.openlca.proto.ProtoProcess;
+import org.openlca.proto.ProtoProcessDocumentation;
+import org.openlca.proto.ProtoRef;
+import org.openlca.proto.ProtoRiskLevel;
+import org.openlca.proto.ProtoSocialAspect;
 import org.openlca.util.Strings;
 
 class ProcessImport implements Import<Process> {
@@ -77,7 +83,7 @@ class ProcessImport implements Import<Process> {
       : ImportStatus.created(process);
   }
 
-  private void map(Proto.Process proto, Process p, boolean inUpdateMode) {
+  private void map(ProtoProcess proto, Process p, boolean inUpdateMode) {
 
     p.processType = In.processTypeOf(proto.getProcessType());
     p.infrastructureProcess = proto.getInfrastructureProcess();
@@ -175,7 +181,7 @@ class ProcessImport implements Import<Process> {
       .forEach(p.allocationFactors::add);
   }
 
-  private ProcessDocumentation doc(Proto.ProcessDocumentation proto) {
+  private ProcessDocumentation doc(ProtoProcessDocumentation proto) {
     var doc = new ProcessDocumentation();
 
     // simple string fields
@@ -214,25 +220,25 @@ class ProcessImport implements Import<Process> {
     return doc;
   }
 
-  private Actor actor(Proto.Ref ref) {
+  private Actor actor(ProtoRef ref) {
     if (ref == null || Strings.nullOrEmpty(ref.getId()))
       return null;
     return new ActorImport(imp).of(ref.getId()).model();
   }
 
-  private Source source(Proto.Ref ref) {
+  private Source source(ProtoRef ref) {
     if (ref == null || Strings.nullOrEmpty(ref.getId()))
       return null;
     return new SourceImport(imp).of(ref.getId()).model();
   }
 
-  private DQSystem dqSystem(Proto.Ref ref) {
+  private DQSystem dqSystem(ProtoRef ref) {
     if (ref == null || Strings.nullOrEmpty(ref.getId()))
       return null;
     return new DqSystemImport(imp).of(ref.getId()).model();
   }
 
-  private void mapExchange(Proto.Exchange proto, Exchange e) {
+  private void mapExchange(ProtoExchange proto, Exchange e) {
     e.isAvoided = proto.getAvoidedProduct();
     e.isInput = proto.getInput();
     e.baseUncertainty = proto.getBaseUncertainty() == 0
@@ -287,7 +293,7 @@ class ProcessImport implements Import<Process> {
     }
   }
 
-  private SocialAspect socialAspect(Proto.SocialAspect proto) {
+  private SocialAspect socialAspect(ProtoSocialAspect proto) {
     var a = new SocialAspect();
     var indicatorID = proto.getSocialIndicator().getId();
     if (Strings.notEmpty(indicatorID)) {
@@ -307,7 +313,7 @@ class ProcessImport implements Import<Process> {
     return a;
   }
 
-  private RiskLevel riskLevel(Proto.RiskLevel proto) {
+  private RiskLevel riskLevel(ProtoRiskLevel proto) {
     if (proto == null)
       return null;
     // !note: we could match the enums via reflection
@@ -331,7 +337,7 @@ class ProcessImport implements Import<Process> {
   }
 
   private AllocationFactor allocationFactor(
-    Proto.AllocationFactor proto, Process process) {
+    ProtoAllocationFactor proto, Process process) {
 
     var f = new AllocationFactor();
 

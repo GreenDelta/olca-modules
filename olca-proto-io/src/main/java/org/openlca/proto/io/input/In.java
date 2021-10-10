@@ -25,13 +25,19 @@ import org.openlca.core.model.descriptors.ParameterDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.core.model.descriptors.ProjectDescriptor;
+import org.openlca.core.model.descriptors.ResultDescriptor;
 import org.openlca.core.model.descriptors.SocialIndicatorDescriptor;
 import org.openlca.core.model.descriptors.SourceDescriptor;
 import org.openlca.core.model.descriptors.UnitDescriptor;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
-import org.openlca.jsonld.Enums;
 import org.openlca.jsonld.Json;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoAllocationType;
+import org.openlca.proto.ProtoFlowType;
+import org.openlca.proto.ProtoParameterRedef;
+import org.openlca.proto.ProtoProcessType;
+import org.openlca.proto.ProtoRef;
+import org.openlca.proto.ProtoType;
+import org.openlca.proto.ProtoUncertainty;
 import org.openlca.util.Strings;
 
 /**
@@ -43,7 +49,34 @@ public final class In {
   private In() {
   }
 
-  public static Uncertainty uncertainty(Proto.Uncertainty proto) {
+  public static ModelType modelTypeOf(ProtoType protoType) {
+    if (protoType == null)
+      return ModelType.UNKNOWN;
+    return switch (protoType) {
+      case Actor -> ModelType.ACTOR;
+      case Category -> ModelType.CATEGORY;
+      case Currency -> ModelType.CURRENCY;
+      case DQSystem -> ModelType.DQ_SYSTEM;
+      case Flow -> ModelType.FLOW;
+      case FlowProperty -> ModelType.FLOW_PROPERTY;
+      case ImpactCategory -> ModelType.IMPACT_CATEGORY;
+      case ImpactMethod -> ModelType.IMPACT_METHOD;
+      case Location -> ModelType.LOCATION;
+      case NwSet -> ModelType.NW_SET;
+      case Parameter -> ModelType.PARAMETER;
+      case Process -> ModelType.PROCESS;
+      case ProductSystem -> ModelType.PRODUCT_SYSTEM;
+      case Project -> ModelType.PROJECT;
+      case Result -> ModelType.RESULT;
+      case SocialIndicator -> ModelType.SOCIAL_INDICATOR;
+      case Source -> ModelType.SOURCE;
+      case Unit -> ModelType.UNIT;
+      case UnitGroup -> ModelType.UNIT_GROUP;
+      case Undefined, UNRECOGNIZED -> ModelType.UNKNOWN;
+    };
+  }
+
+  public static Uncertainty uncertainty(ProtoUncertainty proto) {
     if (proto == null)
       return null;
     return switch (proto.getDistributionType()) {
@@ -59,7 +92,7 @@ public final class In {
     };
   }
 
-  public static AllocationMethod allocationMethod(Proto.AllocationType proto) {
+  public static AllocationMethod allocationMethod(ProtoAllocationType proto) {
     if (proto == null)
       return null;
     return switch (proto) {
@@ -86,7 +119,7 @@ public final class In {
       : Version.fromString(version).getValue();
   }
 
-  public static FlowType flowTypeOf(Proto.FlowType proto) {
+  public static FlowType flowTypeOf(ProtoFlowType proto) {
     if (proto == null)
       return null;
     return switch (proto) {
@@ -97,7 +130,7 @@ public final class In {
     };
   }
 
-  public static ProcessType processTypeOf(Proto.ProcessType proto) {
+  public static ProcessType processTypeOf(ProtoProcessType proto) {
     if (proto == null)
       return null;
     return switch (proto) {
@@ -107,19 +140,13 @@ public final class In {
     };
   }
 
-  public static ModelType modelTypeOf(Proto.ModelType proto) {
-    return proto == null
-      ? ModelType.UNKNOWN
-      : Enums.getValue(proto.name(), ModelType.class);
-  }
-
-  public static Descriptor descriptorOf(Proto.Ref proto) {
+  public static Descriptor descriptorOf(ProtoRef proto) {
     if (proto == null)
       return null;
     return fill(initDescriptor(proto), proto);
   }
 
-  public static <T extends Descriptor> T fill(T d, Proto.Ref proto) {
+  public static <T extends Descriptor> T fill(T d, ProtoRef proto) {
     if (d == null || proto == null)
       return null;
     d.refId = proto.getId();
@@ -142,8 +169,8 @@ public final class In {
     return d;
   }
 
-  private static Descriptor initDescriptor(Proto.Ref ref) {
-    return switch (ref.getEntityType()) {
+  private static Descriptor initDescriptor(ProtoRef ref) {
+    return switch (ref.getType()) {
       case Actor -> new ActorDescriptor();
       case Category -> new CategorizedDescriptor();
       case Currency -> new CurrencyDescriptor();
@@ -162,12 +189,13 @@ public final class In {
       case Source -> new SourceDescriptor();
       case Unit -> new UnitDescriptor();
       case UnitGroup -> new UnitGroupDescriptor();
+      case Result -> new ResultDescriptor();
       case UNRECOGNIZED, Undefined -> new Descriptor();
     };
   }
 
   public static ParameterRedef parameterRedefOf(
-    Proto.ParameterRedef proto, IDatabase db) {
+    ProtoParameterRedef proto, IDatabase db) {
     var redef = new ParameterRedef();
     if (proto == null)
       return redef;

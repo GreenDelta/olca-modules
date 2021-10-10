@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.openlca.proto.Proto;
 
 import com.google.protobuf.util.JsonFormat;
+import org.openlca.proto.ProtoLocation;
 
 public class LocationTest {
 
@@ -19,7 +20,7 @@ public class LocationTest {
     try (var stream = getClass().getResourceAsStream("location.json");
          var reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
          var buffer = new BufferedReader(reader)) {
-      var builder = Proto.Location.newBuilder();
+      var builder = ProtoLocation.newBuilder();
       JsonFormat.parser()
         .ignoringUnknownFields()
         .merge(buffer, builder);

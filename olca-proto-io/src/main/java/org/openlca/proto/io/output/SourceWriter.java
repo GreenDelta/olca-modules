@@ -1,8 +1,8 @@
 package org.openlca.proto.io.output;
 
 import org.openlca.core.model.Source;
-import org.openlca.proto.EntityType;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoSource;
+import org.openlca.proto.ProtoType;
 import org.openlca.util.Strings;
 
 public class SourceWriter {
@@ -13,11 +13,11 @@ public class SourceWriter {
     this.config = config;
   }
 
-  public Proto.Source write(Source source) {
-    var proto = Proto.Source.newBuilder();
+  public ProtoSource write(Source source) {
+    var proto = ProtoSource.newBuilder();
     if (source == null)
       return proto.build();
-    proto.setEntityType(EntityType.Source);
+    proto.setType(ProtoType.Source);
     Out.map(source, proto);
     Out.dep(config, source.category);
 

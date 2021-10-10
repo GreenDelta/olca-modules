@@ -2,6 +2,8 @@ package org.openlca.proto.io.input;
 
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.ModelType;
+import org.openlca.proto.ProtoCategory;
 import org.openlca.util.Categories;
 import org.openlca.util.Strings;
 
@@ -47,7 +49,7 @@ class CategoryImport implements Import<Category> {
       category = new Category();
     }
     wrap.mapTo(category, imp);
-    category.modelType = In.modelTypeOf(proto.getModelType());
+    category.modelType = modelTypeOf(proto);
 
     // update a possible parent; this is a bit complicated
     // because we need to return the managed category from JPA
@@ -95,5 +97,27 @@ class CategoryImport implements Import<Category> {
     existing.tags = category.tags;
     existing.library = category.library;
     existing.modelType = category.modelType;
+  }
+
+  private static ModelType modelTypeOf(ProtoCategory proto) {
+    return switch (proto.getModelType()) {
+      case ACTOR -> ModelType.ACTOR;
+      case CURRENCY -> ModelType.CURRENCY;
+      case DQ_SYSTEM -> ModelType.DQ_SYSTEM;
+      case FLOW -> ModelType.FLOW;
+      case FLOW_PROPERTY -> ModelType.FLOW_PROPERTY;
+      case IMPACT_CATEGORY -> ModelType.IMPACT_CATEGORY;
+      case IMPACT_METHOD -> ModelType.IMPACT_METHOD;
+      case LOCATION -> ModelType.LOCATION;
+      case PARAMETER -> ModelType.PARAMETER;
+      case PROCESS -> ModelType.PROCESS;
+      case PRODUCT_SYSTEM -> ModelType.PRODUCT_SYSTEM;
+      case PROJECT -> ModelType.PROJECT;
+      case RESULT -> ModelType.RESULT;
+      case SOCIAL_INDICATOR -> ModelType.SOCIAL_INDICATOR;
+      case SOURCE -> ModelType.SOURCE;
+      case UNIT_GROUP -> ModelType.UNIT_GROUP;
+      case UNRECOGNIZED, UNDEFINED_CATEGORY_TYPE -> ModelType.UNKNOWN;
+    };
   }
 }

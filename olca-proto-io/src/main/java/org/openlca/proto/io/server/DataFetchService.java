@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import com.google.protobuf.Empty;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
@@ -17,11 +18,9 @@ import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.proto.Proto;
-import org.openlca.proto.Proto.Ref;
+import org.openlca.proto.ProtoRef;
 import org.openlca.proto.grpc.CategoryTree;
 import org.openlca.proto.grpc.DataFetchServiceGrpc;
-import org.openlca.proto.grpc.DataSet;
 import org.openlca.proto.grpc.FindRequest;
 import org.openlca.proto.grpc.GetAllRequest;
 import org.openlca.proto.grpc.GetAllResponse;
@@ -29,6 +28,8 @@ import org.openlca.proto.grpc.GetCategoryContentRequest;
 import org.openlca.proto.grpc.GetCategoryTreeRequest;
 import org.openlca.proto.grpc.GetDescriptorsRequest;
 import org.openlca.proto.grpc.GetRequest;
+import org.openlca.proto.grpc.ProtoDataSet;
+import org.openlca.proto.grpc.ProtoTechFlow;
 import org.openlca.proto.grpc.SearchRequest;
 import org.openlca.proto.io.output.Refs;
 import org.openlca.util.Strings;
@@ -45,10 +46,9 @@ class DataFetchService extends
   }
 
   @Override
-  public void get(GetRequest req, StreamObserver<DataSet> resp) {
+  public void get(GetRequest req, StreamObserver<ProtoDataSet> resp) {
 
-    var modelType = DataUtil.forceRootTypeOf(
-      req.getModelType(), resp);
+    var modelType = DataUtil.forceRootTypeOf(req.getType(), resp);
     if (modelType == null)
       return;
 
@@ -70,17 +70,16 @@ class DataFetchService extends
   }
 
   @Override
-  public void find(FindRequest req, StreamObserver<DataSet> resp) {
+  public void find(FindRequest req, StreamObserver<ProtoDataSet> resp) {
 
-    var modelType = DataUtil.forceRootTypeOf(
-      req.getModelType(), resp);
+    var modelType = DataUtil.forceRootTypeOf(req.getType(), resp);
     if (modelType == null)
       return;
     var type = modelType.getModelClass();
 
     Consumer<RootEntity> onSuccess = model -> {
       resp.onNext(model == null
-        ? DataSet.newBuilder().build()
+        ? ProtoDataSet.newBuilder().build()
         : DataUtil.toDataSet(db, model).build());
       resp.onCompleted();
     };
@@ -100,8 +99,7 @@ class DataFetchService extends
   @Override
   public void getAll(GetAllRequest req, StreamObserver<GetAllResponse> resp) {
 
-    var modelType = DataUtil.forceRootTypeOf(
-      req.getModelType(), resp);
+    var modelType = DataUtil.forceRootTypeOf(req.getType(), resp);
     if (modelType == null)
       return;
 
@@ -148,9 +146,9 @@ class DataFetchService extends
 
   @Override
   public void getDescriptors(
-    GetDescriptorsRequest req, StreamObserver<Proto.Ref> resp) {
+    GetDescriptorsRequest req, StreamObserver<ProtoRef> resp) {
 
-    var modelType = DataUtil.forceRootTypeOf(req.getModelType(), resp);
+    var modelType = DataUtil.forceRootTypeOf(req.getType(), resp);
     if (modelType == null)
       return;
     var dao = Daos.root(db, modelType);
@@ -224,7 +222,7 @@ class DataFetchService extends
   }
 
   @Override
-  public void search(SearchRequest req, StreamObserver<Proto.Ref> resp) {
+  public void search(SearchRequest req, StreamObserver<ProtoRef> resp) {
     var refData = Refs.dataOf(db);
     Search.of(db, req).run()
       .map(descriptor -> Refs.refOf(descriptor, refData))
@@ -234,9 +232,9 @@ class DataFetchService extends
 
   @Override
   public void getCategoryContent(
-    GetCategoryContentRequest req, StreamObserver<Ref> resp) {
+    GetCategoryContentRequest req, StreamObserver<ProtoRef> resp) {
 
-    var modelType = DataUtil.forceCategorizedTypeOf(req.getModelType(), resp);
+    var modelType = DataUtil.forceCategorizedTypeOf(req.getType(), resp);
     if (modelType == null)
       return;
 
@@ -265,11 +263,11 @@ class DataFetchService extends
   @Override
   public void getCategoryTree(
     GetCategoryTreeRequest req, StreamObserver<CategoryTree> resp) {
-    var modelType = DataUtil.forceCategorizedTypeOf(req.getModelType(), resp);
+    var modelType = DataUtil.forceCategorizedTypeOf(req.getType(), resp);
     if (modelType == null)
       return;
     var root = CategoryTree.newBuilder();
-    root.setModelType(req.getModelType());
+    root.setType(req.getType());
     new CategoryDao(db).getRootCategories(modelType)
       .forEach(c -> expand(root, c));
     resp.onNext(root.build());
@@ -278,7 +276,7 @@ class DataFetchService extends
 
   private void expand(CategoryTree.Builder parent, Category category) {
     var tree = CategoryTree.newBuilder()
-      .setModelType(parent.getModelType())
+      .setType(parent.getType())
       .setId(Strings.orEmpty(category.refId))
       .setName(Strings.orEmpty(category.name));
     category.childCategories.forEach(c -> expand(tree, c));
@@ -286,7 +284,7 @@ class DataFetchService extends
   }
 
   @Override
-  public void getProvidersFor(Proto.Ref req, StreamObserver<Proto.Ref> resp) {
+  public void getProvidersFor(ProtoRef req, StreamObserver<ProtoRef> resp) {
     var flow = DataUtil.model(db, Flow.class)
       .forRef(req)
       .reportErrorsOn(resp)
@@ -311,5 +309,10 @@ class DataFetchService extends
       .forEach(p -> resp.onNext(Refs.refOf(p, refData).build()));
 
     resp.onCompleted();
+  }
+
+  @Override
+  public void getTechFlows(Empty request, StreamObserver<ProtoTechFlow> resp) {
+    super.getTechFlows(request, resp);
   }
 }

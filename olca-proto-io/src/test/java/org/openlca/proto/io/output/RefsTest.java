@@ -20,8 +20,10 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.proto.EntityType;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoFlowType;
+import org.openlca.proto.ProtoProcessType;
+import org.openlca.proto.ProtoRef;
+import org.openlca.proto.ProtoType;
 import org.openlca.proto.io.Tests;
 import org.openlca.util.Strings;
 
@@ -92,7 +94,7 @@ public class RefsTest {
     Consumer<Descriptor> fn = d -> {
       var ref = Refs.tinyRefOf(d);
       assertEquals(d.refId, ref.getId());
-      Proto.Ref.getDescriptor()
+      ProtoRef.getDescriptor()
         .getFields()
         .stream()
         .filter(field -> {
@@ -111,11 +113,11 @@ public class RefsTest {
     fn.accept(Descriptor.of(process));
   }
 
-  private void checkAllFields(Proto.Ref.Builder ref) {
+  private void checkAllFields(ProtoRef.Builder ref) {
     checkBaseFields(ref);
     assertEquals("DE", ref.getLocation());
     String[] categoryPath;
-    if (ref.getEntityType() == EntityType.Process) {
+    if (ref.getType() == ProtoType.Process) {
       categoryPath = new String[]{"materials", "steel"};
     } else {
       categoryPath = new String[]{
@@ -127,20 +129,20 @@ public class RefsTest {
     }
   }
 
-  private void checkBaseFields(Proto.Ref.Builder ref) {
+  private void checkBaseFields(ProtoRef.Builder ref) {
     assertEquals("01.00.000", ref.getVersion());
     assertTrue(Strings.notEmpty(ref.getLastChange()));
-    if (ref.getEntityType() == EntityType.Process) {
+    if (ref.getType() == ProtoType.Process) {
       assertEquals(process.refId, ref.getId());
       assertEquals("Steel production", ref.getName());
       assertEquals("an example process", ref.getDescription());
-      assertEquals(Proto.ProcessType.UNIT_PROCESS, ref.getProcessType());
+      assertEquals(ProtoProcessType.UNIT_PROCESS, ref.getProcessType());
     } else {
       assertEquals(flow.refId, ref.getId());
-      assertEquals(EntityType.Flow, ref.getEntityType());
+      assertEquals(ProtoType.Flow, ref.getType());
       assertEquals("Steel", ref.getName());
       assertEquals("an example product", ref.getDescription());
-      assertEquals(Proto.FlowType.PRODUCT_FLOW, ref.getFlowType());
+      assertEquals(ProtoFlowType.PRODUCT_FLOW, ref.getFlowType());
     }
   }
 }

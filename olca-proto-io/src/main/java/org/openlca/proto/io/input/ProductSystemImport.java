@@ -14,7 +14,7 @@ import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoProductSystem;
 import org.openlca.util.Strings;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -73,7 +73,7 @@ class ProductSystemImport implements Import<ProductSystem> {
       : ImportStatus.created(sys);
   }
 
-  private void map(Proto.ProductSystem proto, ProductSystem sys) {
+  private void map(ProtoProductSystem proto, ProductSystem sys) {
     mapQRef(proto, sys);
     mapLinks(proto, sys);
     // map parameters after the links and processes
@@ -83,7 +83,7 @@ class ProductSystemImport implements Import<ProductSystem> {
     mapParameters(proto, sys);
   }
 
-  private void mapLinks(Proto.ProductSystem proto, ProductSystem sys) {
+  private void mapLinks(ProtoProductSystem proto, ProductSystem sys) {
     // sync processes
     var processes = syncProcesses(proto);
     sys.processes.clear();
@@ -162,7 +162,7 @@ class ProductSystemImport implements Import<ProductSystem> {
     });
   }
 
-  private Map<String, Descriptor> syncProcesses(Proto.ProductSystem proto) {
+  private Map<String, Descriptor> syncProcesses(ProtoProductSystem proto) {
     var map = new HashMap<String, Descriptor>();
 
     // handles a process (or product system) reference
@@ -200,7 +200,7 @@ class ProductSystemImport implements Import<ProductSystem> {
     return map;
   }
 
-  private void mapQRef(Proto.ProductSystem proto, ProductSystem sys) {
+  private void mapQRef(ProtoProductSystem proto, ProductSystem sys) {
 
     // ref. process
     sys.referenceProcess = ProcessImport
@@ -248,7 +248,7 @@ class ProductSystemImport implements Import<ProductSystem> {
     sys.targetAmount = proto.getTargetAmount();
   }
 
-  private void mapParameters(Proto.ProductSystem proto, ProductSystem sys) {
+  private void mapParameters(ProtoProductSystem proto, ProductSystem sys) {
     // note that global parameters need to be already imported into
     // the database; also we assume that the processes and impact
     // categories are already available in the database here.

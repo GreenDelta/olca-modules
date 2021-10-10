@@ -10,6 +10,22 @@ import java.util.function.Supplier;
 import com.google.protobuf.AbstractMessage;
 import org.openlca.core.model.ModelType;
 import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoActor;
+import org.openlca.proto.ProtoCategory;
+import org.openlca.proto.ProtoCurrency;
+import org.openlca.proto.ProtoDQSystem;
+import org.openlca.proto.ProtoFlow;
+import org.openlca.proto.ProtoFlowProperty;
+import org.openlca.proto.ProtoImpactCategory;
+import org.openlca.proto.ProtoImpactMethod;
+import org.openlca.proto.ProtoLocation;
+import org.openlca.proto.ProtoParameter;
+import org.openlca.proto.ProtoProcess;
+import org.openlca.proto.ProtoProductSystem;
+import org.openlca.proto.ProtoProject;
+import org.openlca.proto.ProtoSocialIndicator;
+import org.openlca.proto.ProtoSource;
+import org.openlca.proto.ProtoUnitGroup;
 
 public class InMemoryProtoStore implements ProtoReader, ProtoWriter {
 
@@ -35,83 +51,83 @@ public class InMemoryProtoStore implements ProtoReader, ProtoWriter {
   }
 
   @Override
-  public Proto.Actor getActor(String id) {
-    return get(ModelType.ACTOR, Proto.Actor.class, id);
+  public ProtoActor getActor(String id) {
+    return get(ModelType.ACTOR, ProtoActor.class, id);
   }
 
   @Override
-  public Proto.Category getCategory(String id) {
-    return get(ModelType.CATEGORY, Proto.Category.class, id);
+  public ProtoCategory getCategory(String id) {
+    return get(ModelType.CATEGORY, ProtoCategory.class, id);
   }
 
   @Override
-  public Proto.Currency getCurrency(String id) {
-    return get(ModelType.CURRENCY, Proto.Currency.class, id);
+  public ProtoCurrency getCurrency(String id) {
+    return get(ModelType.CURRENCY, ProtoCurrency.class, id);
   }
 
   @Override
-  public Proto.DQSystem getDQSystem(String id) {
-    return get(ModelType.DQ_SYSTEM, Proto.DQSystem.class, id);
+  public ProtoDQSystem getDQSystem(String id) {
+    return get(ModelType.DQ_SYSTEM, ProtoDQSystem.class, id);
   }
 
   @Override
-  public Proto.Flow getFlow(String id) {
-    return get(ModelType.FLOW, Proto.Flow.class, id);
+  public ProtoFlow getFlow(String id) {
+    return get(ModelType.FLOW, ProtoFlow.class, id);
   }
 
   @Override
-  public Proto.FlowProperty getFlowProperty(String id) {
-    return get(ModelType.FLOW_PROPERTY, Proto.FlowProperty.class, id);
+  public ProtoFlowProperty getFlowProperty(String id) {
+    return get(ModelType.FLOW_PROPERTY, ProtoFlowProperty.class, id);
   }
 
   @Override
-  public Proto.ImpactCategory getImpactCategory(String id) {
-    return get(ModelType.IMPACT_CATEGORY, Proto.ImpactCategory.class, id);
+  public ProtoImpactCategory getImpactCategory(String id) {
+    return get(ModelType.IMPACT_CATEGORY, ProtoImpactCategory.class, id);
   }
 
   @Override
-  public Proto.ImpactMethod getImpactMethod(String id) {
-    return get(ModelType.IMPACT_METHOD, Proto.ImpactMethod.class, id);
+  public ProtoImpactMethod getImpactMethod(String id) {
+    return get(ModelType.IMPACT_METHOD, ProtoImpactMethod.class, id);
   }
 
   @Override
-  public Proto.Location getLocation(String id) {
-    return get(ModelType.LOCATION, Proto.Location.class, id);
+  public ProtoLocation getLocation(String id) {
+    return get(ModelType.LOCATION, ProtoLocation.class, id);
   }
 
   @Override
-  public Proto.Parameter getParameter(String id) {
-    return get(ModelType.PARAMETER, Proto.Parameter.class, id);
+  public ProtoParameter getParameter(String id) {
+    return get(ModelType.PARAMETER, ProtoParameter.class, id);
   }
 
   @Override
-  public Proto.Process getProcess(String id) {
-    return get(ModelType.PROCESS, Proto.Process.class, id);
+  public ProtoProcess getProcess(String id) {
+    return get(ModelType.PROCESS, ProtoProcess.class, id);
   }
 
   @Override
-  public Proto.ProductSystem getProductSystem(String id) {
-    return get(ModelType.PRODUCT_SYSTEM, Proto.ProductSystem.class, id);
+  public ProtoProductSystem getProductSystem(String id) {
+    return get(ModelType.PRODUCT_SYSTEM, ProtoProductSystem.class, id);
   }
 
   @Override
-  public Proto.Project getProject(String id) {
-    return get(ModelType.PROJECT, Proto.Project.class, id);
+  public ProtoProject getProject(String id) {
+    return get(ModelType.PROJECT, ProtoProject.class, id);
   }
 
   @Override
-  public Proto.SocialIndicator getSocialIndicator(String id) {
-    return get(ModelType.SOCIAL_INDICATOR, Proto.SocialIndicator.class, id);
+  public ProtoSocialIndicator getSocialIndicator(String id) {
+    return get(ModelType.SOCIAL_INDICATOR, ProtoSocialIndicator.class, id);
   }
 
   @Override
-  public Proto.Source getSource(String id) {
-    return get(ModelType.SOURCE, Proto.Source.class, id);
+  public ProtoSource getSource(String id) {
+    return get(ModelType.SOURCE, ProtoSource.class, id);
   }
 
   @Override
-  public Proto.UnitGroup getUnitGroup(String id) {
-    return get(ModelType.UNIT_GROUP, Proto.UnitGroup.class, id);
+  public ProtoUnitGroup getUnitGroup(String id) {
+    return get(ModelType.UNIT_GROUP, ProtoUnitGroup.class, id);
   }
 
   private <T extends AbstractMessage> T get(
@@ -126,97 +142,97 @@ public class InMemoryProtoStore implements ProtoReader, ProtoWriter {
   }
 
   @Override
-  public void putActor(Proto.Actor proto) {
+  public void putActor(ProtoActor proto) {
     if (proto == null) return;
     put(ModelType.ACTOR, proto, proto::getId);
   }
 
   @Override
-  public void putCategory(Proto.Category proto) {
+  public void putCategory(ProtoCategory proto) {
     if (proto == null) return;
     put(ModelType.CATEGORY, proto, proto::getId);
   }
 
   @Override
-  public void putCurrency(Proto.Currency proto) {
+  public void putCurrency(ProtoCurrency proto) {
     if (proto == null) return;
     put(ModelType.CURRENCY, proto, proto::getId);
   }
 
   @Override
-  public void putDQSystem(Proto.DQSystem proto) {
+  public void putDQSystem(ProtoDQSystem proto) {
     if (proto == null) return;
     put(ModelType.DQ_SYSTEM, proto, proto::getId);
   }
 
   @Override
-  public void putFlow(Proto.Flow proto) {
+  public void putFlow(ProtoFlow proto) {
     if (proto == null) return;
     put(ModelType.FLOW, proto, proto::getId);
   }
 
   @Override
-  public void putFlowProperty(Proto.FlowProperty proto) {
+  public void putFlowProperty(ProtoFlowProperty proto) {
     if (proto == null) return;
     put(ModelType.FLOW_PROPERTY, proto, proto::getId);
   }
 
   @Override
-  public void putImpactCategory(Proto.ImpactCategory proto) {
+  public void putImpactCategory(ProtoImpactCategory proto) {
     if (proto == null) return;
     put(ModelType.IMPACT_CATEGORY, proto, proto::getId);
   }
 
   @Override
-  public void putImpactMethod(Proto.ImpactMethod proto) {
+  public void putImpactMethod(ProtoImpactMethod proto) {
     if (proto == null) return;
     put(ModelType.IMPACT_METHOD, proto, proto::getId);
   }
 
   @Override
-  public void putLocation(Proto.Location proto) {
+  public void putLocation(ProtoLocation proto) {
     if (proto == null) return;
     put(ModelType.LOCATION, proto, proto::getId);
   }
 
   @Override
-  public void putParameter(Proto.Parameter proto) {
+  public void putParameter(ProtoParameter proto) {
     if (proto == null) return;
     put(ModelType.PARAMETER, proto, proto::getId);
   }
 
   @Override
-  public void putProcess(Proto.Process proto) {
+  public void putProcess(ProtoProcess proto) {
     if (proto == null) return;
     put(ModelType.PROCESS, proto, proto::getId);
   }
 
   @Override
-  public void putProductSystem(Proto.ProductSystem proto) {
+  public void putProductSystem(ProtoProductSystem proto) {
     if (proto == null) return;
     put(ModelType.PRODUCT_SYSTEM, proto, proto::getId);
   }
 
   @Override
-  public void putProject(Proto.Project proto) {
+  public void putProject(ProtoProject proto) {
     if (proto == null) return;
     put(ModelType.PROJECT, proto, proto::getId);
   }
 
   @Override
-  public void putSocialIndicator(Proto.SocialIndicator proto) {
+  public void putSocialIndicator(ProtoSocialIndicator proto) {
     if (proto == null) return;
     put(ModelType.SOCIAL_INDICATOR, proto, proto::getId);
   }
 
   @Override
-  public void putSource(Proto.Source proto) {
+  public void putSource(ProtoSource proto) {
     if (proto == null) return;
     put(ModelType.SOURCE, proto, proto::getId);
   }
 
   @Override
-  public void putUnitGroup(Proto.UnitGroup proto) {
+  public void putUnitGroup(ProtoUnitGroup proto) {
     if (proto == null) return;
     put(ModelType.UNIT_GROUP, proto, proto::getId);
   }

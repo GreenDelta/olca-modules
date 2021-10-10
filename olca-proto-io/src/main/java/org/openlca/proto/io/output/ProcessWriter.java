@@ -7,8 +7,15 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.SocialAspect;
-import org.openlca.proto.EntityType;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoAllocationFactor;
+import org.openlca.proto.ProtoAllocationType;
+import org.openlca.proto.ProtoExchange;
+import org.openlca.proto.ProtoExchangeRef;
+import org.openlca.proto.ProtoProcess;
+import org.openlca.proto.ProtoRef;
+import org.openlca.proto.ProtoRiskLevel;
+import org.openlca.proto.ProtoSocialAspect;
+import org.openlca.proto.ProtoType;
 import org.openlca.util.Strings;
 
 public class ProcessWriter {
@@ -19,11 +26,11 @@ public class ProcessWriter {
     this.config = config;
   }
 
-  public Proto.Process write(Process process) {
-    var proto = Proto.Process.newBuilder();
+  public ProtoProcess write(Process process) {
+    var proto = ProtoProcess.newBuilder();
     if (process == null)
       return proto.build();
-    proto.setEntityType(EntityType.Process);
+    proto.setType(ProtoType.Process);
     Out.map(process, proto);
     Out.dep(config, process.category);
 
@@ -67,21 +74,21 @@ public class ProcessWriter {
     return proto.build();
   }
 
-  private Proto.AllocationType allocationType(AllocationMethod m) {
+  private ProtoAllocationType allocationType(AllocationMethod m) {
     if (m == null)
-      return Proto.AllocationType.UNDEFINED_ALLOCATION_TYPE;
+      return ProtoAllocationType.UNDEFINED_ALLOCATION_TYPE;
     return switch (m) {
-      case CAUSAL -> Proto.AllocationType.CAUSAL_ALLOCATION;
-      case ECONOMIC -> Proto.AllocationType.ECONOMIC_ALLOCATION;
-      case PHYSICAL -> Proto.AllocationType.PHYSICAL_ALLOCATION;
-      case NONE -> Proto.AllocationType.NO_ALLOCATION;
-      case USE_DEFAULT -> Proto.AllocationType.USE_DEFAULT_ALLOCATION;
+      case CAUSAL -> ProtoAllocationType.CAUSAL_ALLOCATION;
+      case ECONOMIC -> ProtoAllocationType.ECONOMIC_ALLOCATION;
+      case PHYSICAL -> ProtoAllocationType.PHYSICAL_ALLOCATION;
+      case NONE -> ProtoAllocationType.NO_ALLOCATION;
+      case USE_DEFAULT -> ProtoAllocationType.USE_DEFAULT_ALLOCATION;
     };
   }
 
-  private void writeExchanges(Process p, Proto.Process.Builder proto) {
+  private void writeExchanges(Process p, ProtoProcess.Builder proto) {
     for (var e : p.exchanges) {
-      var pe = Proto.Exchange.newBuilder();
+      var pe = ProtoExchange.newBuilder();
       pe.setAvoidedProduct(e.isAvoided);
       pe.setInput(e.isInput);
       if (e.baseUncertainty != null) {
@@ -136,9 +143,9 @@ public class ProcessWriter {
     }
   }
 
-  private void writeSocialAspects(Process p, Proto.Process.Builder proto) {
+  private void writeSocialAspects(Process p, ProtoProcess.Builder proto) {
     for (var aspect : p.socialAspects) {
-      var pa = Proto.SocialAspect.newBuilder();
+      var pa = ProtoSocialAspect.newBuilder();
       if (aspect.indicator != null) {
         pa.setSocialIndicator(Refs.refOf(aspect.indicator));
         Out.dep(config, aspect.indicator);
@@ -156,18 +163,18 @@ public class ProcessWriter {
     }
   }
 
-  private Proto.RiskLevel riskLevel(SocialAspect aspect) {
+  private ProtoRiskLevel riskLevel(SocialAspect aspect) {
     if (aspect == null || aspect.riskLevel == null)
-      return Proto.RiskLevel.UNDEFINED_RISK_LEVEL;
+      return ProtoRiskLevel.UNDEFINED_RISK_LEVEL;
     try {
-      return Proto.RiskLevel.valueOf(aspect.riskLevel.name());
+      return ProtoRiskLevel.valueOf(aspect.riskLevel.name());
     } catch (Exception e) {
-      return Proto.RiskLevel.UNDEFINED_RISK_LEVEL;
+      return ProtoRiskLevel.UNDEFINED_RISK_LEVEL;
     }
   }
 
-  private void writeAllocationFactors(Process p, Proto.Process.Builder proto) {
-    LongFunction<Proto.Ref> product = flowID -> {
+  private void writeAllocationFactors(Process p, ProtoProcess.Builder proto) {
+    LongFunction<ProtoRef> product = flowID -> {
       for (var e : p.exchanges) {
         if (e.flow != null && e.flow.id == flowID) {
           return Refs.refOf(e.flow).build();
@@ -177,10 +184,10 @@ public class ProcessWriter {
     };
 
     for (var f : p.allocationFactors) {
-      var pf = Proto.AllocationFactor.newBuilder();
+      var pf = ProtoAllocationFactor.newBuilder();
       pf.setAllocationType(allocationType(f.method));
       if (f.method == AllocationMethod.CAUSAL && f.exchange != null) {
-        var eref = Proto.ExchangeRef.newBuilder();
+        var eref = ProtoExchangeRef.newBuilder();
         eref.setInternalId(f.exchange.internalId);
         pf.setExchange(eref);
       }

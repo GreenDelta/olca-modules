@@ -8,12 +8,15 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.providers.ResultProviders;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoCalculationSetup;
+import org.openlca.proto.ProtoRef;
 import org.openlca.proto.grpc.ImpactFactorRequest;
 import org.openlca.proto.grpc.ImpactFactorResponse;
-import org.openlca.proto.grpc.Result;
+import org.openlca.proto.grpc.ProtoEnviFlow;
+import org.openlca.proto.grpc.ProtoResultRef;
+import org.openlca.proto.grpc.ProtoTechFlow;
 import org.openlca.proto.grpc.ResultServiceGrpc;
-import org.openlca.proto.grpc.ResultsProto;
+import org.openlca.proto.grpc.ResultValue;
 import org.openlca.proto.grpc.TechFlowContributionRequest;
 import org.openlca.proto.io.input.CalculationSetupReader;
 import org.openlca.proto.io.output.Refs;
@@ -34,7 +37,8 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 
   @Override
   public void calculate(
-    Proto.CalculationSetup req, StreamObserver<Result> resp) {
+    ProtoCalculationSetup req, StreamObserver<ProtoResultRef> resp) {
+
     var setup = CalculationSetupReader.read(db, req);
     if (setup == null) {
       resp.onError(Status.INVALID_ARGUMENT
@@ -49,7 +53,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 
     var key = UUID.randomUUID().toString();
     results.put(key, result);
-    var r = Result.newBuilder()
+    var r = ProtoResultRef.newBuilder()
       .setId(key)
       .build();
     resp.onNext(r);
@@ -57,7 +61,8 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
   }
 
   @Override
-  public void getTechFlows(Result req, StreamObserver<ResultsProto.TechFlow> resp) {
+  public void getTechFlows(
+    ProtoResultRef req, StreamObserver<ProtoTechFlow> resp) {
     var result = results.get(req.getId());
     if (result == null) {
       Response.notFound(resp, "Result does not exist: " + req.getId());
@@ -71,7 +76,8 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
   }
 
   @Override
-  public void getEnviFlows(Result req, StreamObserver<ResultsProto.EnviFlow> resp) {
+  public void getEnviFlows(
+    ProtoResultRef req, StreamObserver<ProtoEnviFlow> resp) {
     var result = results.get(req.getId());
     if (result == null) {
       Response.notFound(resp, "Result does not exist: " + req.getId());
@@ -90,7 +96,8 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
   }
 
   @Override
-  public void getImpactCategories(Result req, StreamObserver<Proto.Ref> resp) {
+  public void getImpactCategories(
+    ProtoResultRef req, StreamObserver<ProtoRef> resp) {
     var result = results.get(req.getId());
     if (result == null) {
       Response.notFound(resp, "Result does not exist: " + req.getId());
@@ -108,7 +115,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 
   @Override
   public void getTotalInventory(
-    Result req, StreamObserver<ResultsProto.ResultValue> resp) {
+    ProtoResultRef req, StreamObserver<ResultValue> resp) {
 
     // TODO maybe wrap with `withResult`
     var result = results.get(req.getId());
@@ -134,7 +141,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 
   @Override
   public void getTotalImpacts(
-    Result req, StreamObserver<ResultsProto.ResultValue> resp) {
+    ProtoResultRef req, StreamObserver<ResultValue> resp) {
 
     // get the impact results
     var result = results.get(req.getId());
@@ -151,7 +158,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     var refData = Refs.dataOf(db);
     for (var impact : impacts) {
       var value = result.getTotalImpactResult(impact);
-      var proto = ResultsProto.ResultValue.newBuilder()
+      var proto = ResultValue.newBuilder()
         .setImpact(Refs.refOf(impact, refData))
         .setValue(value)
         .build();
@@ -230,8 +237,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 
   @Override
   public void getDirectContribution(
-    TechFlowContributionRequest req,
-    StreamObserver<ResultsProto.ResultValue> resp) {
+    TechFlowContributionRequest req, StreamObserver<ResultValue> resp) {
 
     TechFlowContribution.of(this, req, resp)
       .ifImpact(FullResult::getDirectImpactResult)
@@ -242,8 +248,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 
   @Override
   public void getTotalContribution(
-    TechFlowContributionRequest req,
-    StreamObserver<ResultsProto.ResultValue> resp) {
+    TechFlowContributionRequest req, StreamObserver<ResultValue> resp) {
 
     TechFlowContribution.of(this, req, resp)
       .ifImpact(FullResult::getUpstreamImpactResult)
@@ -255,7 +260,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
   @Override
   public void getTotalContributionOfOne(
     TechFlowContributionRequest req,
-    StreamObserver<ResultsProto.ResultValue> resp) {
+    StreamObserver<ResultValue> resp) {
 
     TechFlowContribution.of(this, req, resp)
       .ifImpact((result, product, impact) -> {
@@ -277,7 +282,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
   }
 
   @Override
-  public void dispose(Result req, StreamObserver<Empty> resp) {
+  public void dispose(ProtoResultRef req, StreamObserver<Empty> resp) {
     results.remove(req.getId());
     // we always return ok, even when the result does not exist
     resp.onNext(Empty.newBuilder().build());

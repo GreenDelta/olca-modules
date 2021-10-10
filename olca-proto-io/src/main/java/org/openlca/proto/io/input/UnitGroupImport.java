@@ -6,7 +6,8 @@ import java.util.Map;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoUnit;
+import org.openlca.proto.ProtoUnitGroup;
 import org.openlca.util.Strings;
 
 class UnitGroupImport implements Import<UnitGroup> {
@@ -75,7 +76,7 @@ class UnitGroupImport implements Import<UnitGroup> {
   }
 
   private void map(
-    Proto.UnitGroup proto, UnitGroup group, boolean inUpdateMode) {
+    ProtoUnitGroup proto, UnitGroup group, boolean inUpdateMode) {
 
     // sync units (keep the IDs) if we are in update mode
     // this is important because these units may are used
@@ -107,7 +108,7 @@ class UnitGroupImport implements Import<UnitGroup> {
     }
   }
 
-  private void mapUnit(Proto.Unit proto, Unit unit) {
+  private void mapUnit(ProtoUnit proto, Unit unit) {
     unit.refId = proto.getId();
     unit.name = proto.getName();
     unit.description = proto.getDescription();

@@ -1,8 +1,9 @@
 package org.openlca.proto.io.output;
 
 import org.openlca.core.model.Parameter;
-import org.openlca.proto.EntityType;
-import org.openlca.proto.Proto;
+import org.openlca.proto.ProtoParameter;
+import org.openlca.proto.ProtoParameterScope;
+import org.openlca.proto.ProtoType;
 import org.openlca.util.Strings;
 
 public class ParameterWriter {
@@ -13,11 +14,11 @@ public class ParameterWriter {
     this.config = config;
   }
 
-  public Proto.Parameter write(Parameter parameter) {
-    var proto = Proto.Parameter.newBuilder();
+  public ProtoParameter write(Parameter parameter) {
+    var proto = ProtoParameter.newBuilder();
     if (parameter == null)
       return proto.build();
-    proto.setEntityType(EntityType.Parameter);
+    proto.setType(ProtoType.Parameter);
     Out.map(parameter, proto);
     Out.dep(config, parameter.category);
 
@@ -33,16 +34,13 @@ public class ParameterWriter {
     return proto.build();
   }
 
-  private Proto.ParameterScope scopeOf(Parameter param) {
+  private ProtoParameterScope scopeOf(Parameter param) {
     if (param == null || param.scope == null)
-      return Proto.ParameterScope.GLOBAL_SCOPE;
-    switch (param.scope) {
-      case IMPACT:
-        return Proto.ParameterScope.IMPACT_SCOPE;
-      case PROCESS:
-        return Proto.ParameterScope.PROCESS_SCOPE;
-      default:
-        return Proto.ParameterScope.GLOBAL_SCOPE;
-    }
+      return ProtoParameterScope.GLOBAL_SCOPE;
+    return switch (param.scope) {
+      case IMPACT -> ProtoParameterScope.IMPACT_SCOPE;
+      case PROCESS -> ProtoParameterScope.PROCESS_SCOPE;
+      default -> ProtoParameterScope.GLOBAL_SCOPE;
+    };
   }
 }
