@@ -24,9 +24,9 @@ public enum TimePeriod implements ValueEnum {
 
 	UNSPECIFIED("Unspecified");
 
-	private String value;
+	private final String value;
 
-	private TimePeriod(String value) {
+	TimePeriod(String value) {
 		this.value = value;
 	}
 

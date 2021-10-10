@@ -22,9 +22,9 @@ public enum WasteTreatmentAllocation {
 
 	UNSPECIFIED("Unspecified");
 
-	private String value;
+	private final String value;
 
-	private WasteTreatmentAllocation(String value) {
+	WasteTreatmentAllocation(String value) {
 		this.value = value;
 	}
 

@@ -11,7 +11,7 @@ import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 public class SocialIssueBlock implements ElementaryFlowBlock {
 
 	@BlockRows
-	private List<ElementaryFlowRow> flows = new ArrayList<>();
+	private final List<ElementaryFlowRow> flows = new ArrayList<>();
 
 	@Override
 	public List<ElementaryFlowRow> rows() {

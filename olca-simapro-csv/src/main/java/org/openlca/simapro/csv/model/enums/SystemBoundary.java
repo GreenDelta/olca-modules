@@ -12,9 +12,9 @@ public enum SystemBoundary {
 
 	UNSPECIFIED("Unspecified");
 
-	private String value;
+	private final String value;
 
-	private SystemBoundary(String value) {
+	SystemBoundary(String value) {
 		this.value = value;
 	}
 

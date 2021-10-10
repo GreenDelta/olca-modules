@@ -19,9 +19,9 @@ public enum ProcessCategory implements ValueEnum {
 
 	WASTE_TREATMENT("waste treatment");
 
-	private String value;
+	private final String value;
 
-	private ProcessCategory(String value) {
+	ProcessCategory(String value) {
 		this.value = value;
 	}
 

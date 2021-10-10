@@ -6,9 +6,9 @@ public enum ProcessType implements ValueEnum {
 
 	UNIT_PROCESS("Unit process");
 
-	private String value;
+	private final String value;
 
-	private ProcessType(String value) {
+	ProcessType(String value) {
 		this.value = value;
 	}
 

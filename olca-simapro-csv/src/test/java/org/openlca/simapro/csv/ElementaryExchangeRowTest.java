@@ -9,7 +9,7 @@ import org.openlca.simapro.csv.model.process.ElementaryExchangeRow;
 
 public class ElementaryExchangeRowTest {
 
-	private CsvConfig config = CsvConfig.getDefault();
+	private final CsvConfig config = CsvConfig.getDefault();
 
 	@Test
 	public void testFromCsv() {

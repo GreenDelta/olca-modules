@@ -20,7 +20,7 @@ public enum ProductType {
 
 	private final String header;
 
-	private ProductType(String header) {
+	ProductType(String header) {
 		this.header = header;
 	}
 

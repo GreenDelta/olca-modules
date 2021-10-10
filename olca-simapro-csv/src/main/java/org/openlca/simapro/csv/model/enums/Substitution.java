@@ -15,9 +15,9 @@ public enum Substitution implements ValueEnum {
 
 	UNSPECIFIED("Unspecified");
 
-	private String value;
+	private final String value;
 
-	private Substitution(String value) {
+	Substitution(String value) {
 		this.value = value;
 	}
 
