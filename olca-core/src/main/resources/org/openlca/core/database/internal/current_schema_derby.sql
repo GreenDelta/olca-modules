@@ -739,7 +739,7 @@ CREATE TABLE tbl_results (
     description          CLOB(64 K),
 
     f_calculation_setup  BIGINT,
-    f_parent_result      BIGINT,
+    f_reference_flow     BIGINT,
     calculation_time     BIGINT,
 
     PRIMARY KEY (id)

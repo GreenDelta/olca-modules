@@ -8,6 +8,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ResultFlow;
@@ -34,9 +35,10 @@ public class ResultModels {
 		private final SimpleResult result;
 
 		Generator(IDatabase db, CalculationSetup setup, SimpleResult result) {
-			this.em	 = db.newEntityManager();
 			this.setup = Objects.requireNonNull(setup);
 			this.result = Objects.requireNonNull(result);
+			// we use a shared entity manager for fetching flows and impacts
+			this.em	 = db.newEntityManager();
 		}
 
 		ResultModel generate() {
@@ -52,11 +54,17 @@ public class ResultModels {
 				? calcRef.name
 				: "-unknown-";
 
+			var refFlow = referenceFlowOf(setup);
+			if (refFlow != null) {
+				m.inventory.add(refFlow);
+				m.referenceFlow = refFlow;
+			}
+
 			try {
 
 				// add inventory
 				if (result.hasEnviFlows()) {
-					result.enviIndex().each((i, enviFlow) -> {
+					result.enviIndex().each((_i, enviFlow) -> {
 						var flow = flowOf(enviFlow);
 						if (flow != null) {
 							m.inventory.add(flow);
@@ -66,13 +74,14 @@ public class ResultModels {
 
 				// add impacts
 				if (result.hasImpacts()) {
-					result.impactIndex().each((i, indicator) -> {
+					result.impactIndex().each((_i, indicator) -> {
 						var impact = impactOf(indicator);
 						if (impact != null) {
 							m.impacts.add(impact);
 						}
 					});
 				}
+
 			} finally {
 				em.close();
 			}
@@ -107,5 +116,28 @@ public class ResultModels {
 			r.amount = result.getTotalImpactResult(d);
 			return r;
 		}
+
+		private ResultFlow referenceFlowOf(CalculationSetup setup) {
+			if (setup == null)
+				return null;
+			var flow = setup.flow();
+			var factor = setup.flowPropertyFactor();
+			var unit = setup.unit();
+			if (flow == null || factor == null || unit == null)
+				return null;
+			var r = new ResultFlow();
+			r.amount = setup.amount();
+			r.flow = flow;
+			r.flowPropertyFactor = factor;
+			r.unit = unit;
+			r.origin = ResultOrigin.CALCULATED;
+			r.isInput = flow.flowType == FlowType.WASTE_FLOW;
+			var refProcess = setup.process();
+			if (refProcess != null) {
+				r.location = refProcess.location;
+			}
+			return r;
+		}
+
 	}
 }
