@@ -99,7 +99,7 @@ public class RefsTest {
         .stream()
         .filter(field -> {
           var f = field.getName();
-          return !f.equals("id") && !f.equals("entity_type");
+          return !f.equals("id") && !f.equals("type");
         })
         .forEach(field -> {
           if (field.isRepeated()) {

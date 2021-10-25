@@ -21,8 +21,9 @@ public class EntityTypeTest {
 
   @Test
   public void testWriteToModels() throws Exception {
+    // TODO: results are currently not supported but fix this test when they are
     for (var modelType : ModelType.values()) {
-      if (!modelType.isCategorized())
+      if (!modelType.isCategorized() || modelType == ModelType.RESULT)
         continue;
       var id = UUID.randomUUID().toString();
       var instance = modelType.getModelClass()
@@ -31,7 +32,7 @@ public class EntityTypeTest {
       instance.refId = id;
       var proto = Out.toProto(db, instance);
       var field = proto.getDescriptorForType()
-        .findFieldByName("entity_type");
+        .findFieldByName("type");
       var typeValue = proto.getField(field);
       assertEquals(
         modelType.getModelClass().getSimpleName(),
@@ -50,7 +51,8 @@ public class EntityTypeTest {
     };
 
     for (var modelType : ModelType.values()) {
-      if (!modelType.isCategorized())
+      // TODO: support results
+      if (!modelType.isCategorized() || modelType == ModelType.RESULT)
         continue;
       var id = UUID.randomUUID().toString();
       var instance = modelType.getModelClass()

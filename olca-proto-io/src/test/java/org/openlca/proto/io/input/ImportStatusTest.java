@@ -36,124 +36,129 @@ import org.openlca.proto.io.output.Out;
 
 public class ImportStatusTest {
 
-  private final IDatabase db = Tests.db();
-  private ProtoImport protoImport;
+	private final IDatabase db = Tests.db();
+	private ProtoImport protoImport;
 
-  @Before
-  public void setup() {
-    protoImport = new ProtoImport(InMemoryProtoStore.create(), db);
-  }
+	@Before
+	public void setup() {
+		protoImport = new ProtoImport(InMemoryProtoStore.create(), db);
+	}
 
-  @Test
-  public void testNullId() {
-    for (var type : ModelType.values()) {
-      if (!type.isCategorized())
-        continue;
-      var imp = protoImport.getImport(type);
-      var status = imp.of(null);
-      assertTrue(status.isError());
-      assertNull(status.model());
-      assertTrue(status.error()
-        .startsWith("Could not resolve"));
-    }
-  }
+	@Test
+	public void testNullId() {
+		for (var type : ModelType.values()) {
+			// TODO: support results
+			if (!type.isCategorized() || type == ModelType.RESULT)
+				continue;
+			var imp = protoImport.getImport(type);
+			var status = imp.of(null);
+			assertTrue(status.isError());
+			assertNull(status.model());
+			assertTrue(status.error()
+				.startsWith("Could not resolve"));
+		}
+	}
 
-  @Test
-  public void testUnknownId() {
-    for (var type : ModelType.values()) {
-      if (!type.isCategorized())
-        continue;
-      var imp = protoImport.getImport(type);
-      var status = imp.of(UUID.randomUUID().toString());
-      assertTrue(status.isError());
-      assertNull(status.model());
-      assertTrue(status.error()
-        .startsWith("Could not resolve"));
-    }
-  }
+	@Test
+	public void testUnknownId() {
+		for (var type : ModelType.values()) {
+			// TODO: support results
+			if (!type.isCategorized() || type == ModelType.RESULT)
+				continue;
+			var imp = protoImport.getImport(type);
+			var status = imp.of(UUID.randomUUID().toString());
+			assertTrue(status.isError());
+			assertNull(status.model());
+			assertTrue(status.error()
+				.startsWith("Could not resolve"));
+		}
+	}
 
-  @Test
-  public void testUpdate() throws Exception {
-    int i = 0;
-    for (var type : ModelType.values()) {
-      if (!type.isCategorized() || type == ModelType.CATEGORY)
-        continue;
-      i++;
+	@Test
+	public void testUpdate() throws Exception {
+		int i = 0;
+		for (var type : ModelType.values()) {
+			// TODO: support results
+			if (!type.isCategorized()
+				|| type == ModelType.CATEGORY
+				|| type == ModelType.RESULT)
+				continue;
+			i++;
 
-      var id = UUID.randomUUID().toString();
-      var instance = type.getModelClass()
-        .getConstructor()
-        .newInstance();
-      instance.refId = id;
-      instance.name = type.name();
-      instance.version = Version.valueOf(0, 0, 1);
-      instance.lastChange = new Date().getTime();
+			var id = UUID.randomUUID().toString();
+			var instance = type.getModelClass()
+				.getConstructor()
+				.newInstance();
+			instance.refId = id;
+			instance.name = type.name();
+			instance.version = Version.valueOf(0, 0, 1);
+			instance.lastChange = new Date().getTime();
 
-      // create new object
-      var status1 = put(type, instance);
-      assertTrue(status1.isCreated());
-      assertEquals(id, status1.model().refId);
+			// create new object
+			var status1 = put(type, instance);
+			assertTrue(status1.isCreated());
+			assertEquals(id, status1.model().refId);
 
-      // skip existing
-      var status2 = put(type, instance);
-      assertTrue(status2.isSkipped());
-      assertEquals(id, status2.model().refId);
+			// skip existing
+			var status2 = put(type, instance);
+			assertTrue(status2.isSkipped());
+			assertEquals(id, status2.model().refId);
 
-      // update existing
-      instance.version = Version.valueOf(0, 0, 2);
-      var status3 = put(type, instance);
-      assertTrue(status3.isUpdated());
-      assertEquals(id, status3.model().refId);
+			// update existing
+			instance.version = Version.valueOf(0, 0, 2);
+			var status3 = put(type, instance);
+			assertTrue(status3.isUpdated());
+			assertEquals(id, status3.model().refId);
 
-      // delete it from the database
-      db.delete(status3.model());
-    }
-    assertEquals(15, i);
-  }
+			// delete it from the database
+			db.delete(status3.model());
+		}
+		assertEquals(15, i);
+	}
 
-  private ImportStatus<?> put(ModelType type, RootEntity entity) {
+	private ImportStatus<?> put(ModelType type, RootEntity entity) {
 
-    var store = InMemoryProtoStore.create();
-    var proto = Out.toProto(db, entity);
+		var store = InMemoryProtoStore.create();
+		var proto = Out.toProto(db, entity);
 
-    switch (type) {
-      case ACTOR -> store.putActor(
-        (ProtoActor) proto);
-      case CATEGORY -> store.putCategory(
-        (ProtoCategory) proto);
-      case CURRENCY -> store.putCurrency(
-        (ProtoCurrency) proto);
-      case DQ_SYSTEM -> store.putDQSystem(
-        (ProtoDQSystem) proto);
-      case FLOW -> store.putFlow(
-        (ProtoFlow) proto);
-      case FLOW_PROPERTY -> store.putFlowProperty(
-        (ProtoFlowProperty) proto);
-      case IMPACT_CATEGORY -> store.putImpactCategory(
-        (ProtoImpactCategory) proto);
-      case IMPACT_METHOD -> store.putImpactMethod(
-        (ProtoImpactMethod) proto);
-      case LOCATION -> store.putLocation(
-        (ProtoLocation) proto);
-      case PARAMETER -> store.putParameter(
-        (ProtoParameter) proto);
-      case PROCESS -> store.putProcess(
-        (ProtoProcess) proto);
-      case PRODUCT_SYSTEM -> store.putProductSystem(
-        (ProtoProductSystem) proto);
-      case PROJECT -> store.putProject(
-        (ProtoProject) proto);
-      case SOCIAL_INDICATOR -> store.putSocialIndicator(
-        (ProtoSocialIndicator) proto);
-      case SOURCE -> store.putSource(
-        (ProtoSource) proto);
-      case UNIT_GROUP -> store.putUnitGroup(
-        (ProtoUnitGroup) proto);
-    }
+		switch (type) {
+			case ACTOR -> store.putActor(
+				(ProtoActor) proto);
+			case CATEGORY -> store.putCategory(
+				(ProtoCategory) proto);
+			case CURRENCY -> store.putCurrency(
+				(ProtoCurrency) proto);
+			case DQ_SYSTEM -> store.putDQSystem(
+				(ProtoDQSystem) proto);
+			case FLOW -> store.putFlow(
+				(ProtoFlow) proto);
+			case FLOW_PROPERTY -> store.putFlowProperty(
+				(ProtoFlowProperty) proto);
+			case IMPACT_CATEGORY -> store.putImpactCategory(
+				(ProtoImpactCategory) proto);
+			case IMPACT_METHOD -> store.putImpactMethod(
+				(ProtoImpactMethod) proto);
+			case LOCATION -> store.putLocation(
+				(ProtoLocation) proto);
+			case PARAMETER -> store.putParameter(
+				(ProtoParameter) proto);
+			case PROCESS -> store.putProcess(
+				(ProtoProcess) proto);
+			case PRODUCT_SYSTEM -> store.putProductSystem(
+				(ProtoProductSystem) proto);
+			case PROJECT -> store.putProject(
+				(ProtoProject) proto);
+			case SOCIAL_INDICATOR -> store.putSocialIndicator(
+				(ProtoSocialIndicator) proto);
+			case SOURCE -> store.putSource(
+				(ProtoSource) proto);
+			case UNIT_GROUP -> store.putUnitGroup(
+				(ProtoUnitGroup) proto);
+		}
 
-    var protoImport = new ProtoImport(store, db)
-      .withUpdateMode(UpdateMode.IF_NEWER);
-    return protoImport.getImport(type).of(entity.refId);
-  }
+		var protoImport = new ProtoImport(store, db)
+			.withUpdateMode(UpdateMode.IF_NEWER);
+		return protoImport.getImport(type).of(entity.refId);
+	}
 
 }
