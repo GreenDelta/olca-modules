@@ -2,8 +2,10 @@ package org.openlca.proto.io.server;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import com.google.protobuf.Empty;
 import org.openlca.core.database.CategoryDao;
@@ -312,7 +314,31 @@ class DataFetchService extends
   }
 
   @Override
-  public void getTechFlows(Empty request, StreamObserver<ProtoTechFlow> resp) {
-    super.getTechFlows(request, resp);
+  public void getTechFlows(Empty req, StreamObserver<ProtoTechFlow> resp) {
+
+		var refData = Refs.dataOf(db);
+
+		Function<TechFlow, ProtoTechFlow> mapper = techFlow -> {
+			var flow = techFlow.flow();
+			var process = techFlow.process();
+			if (flow == null || process == null)
+				return null;
+			var proto = ProtoTechFlow.newBuilder()
+				.setProcess(Refs.refOf(process, refData));
+			var protoFlow = Refs.refOf(flow, refData);
+			if (flow.flowType == FlowType.WASTE_FLOW) {
+				proto.setWaste(protoFlow);
+			} else {
+				proto.setProduct(protoFlow);
+			}
+			return proto.build();
+		};
+
+		ProcessTable.create(db).getProviders()
+			.stream()
+			.map(mapper)
+			.filter(Objects::nonNull)
+			.forEach(resp::onNext);
+		resp.onCompleted();
   }
 }

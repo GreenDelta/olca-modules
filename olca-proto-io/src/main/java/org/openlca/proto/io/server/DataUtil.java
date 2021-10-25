@@ -212,7 +212,7 @@ class DataUtil {
 
 
   static <T extends RootEntity> ModelQuery<T> model(
-    IDatabase db, Class<T> type) {
+		IDatabase db, Class<T> type) {
     return new ModelQuery<>(db, type);
   }
 

@@ -10,6 +10,10 @@
 	<artifactId>olca-core</artifactId>
 	<packaging>jar</packaging>
 
+	<properties>
+		<protobuf.version>3.18.0</protobuf.version>
+	</properties>
+
 	<dependencies>
 
 		<dependency>
@@ -75,13 +79,13 @@
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
-			<version>3.12.2</version>
+			<version>${protobuf.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java-util</artifactId>
-			<version>3.12.2</version>
+			<version>${protobuf.version}</version>
 		</dependency>
 
 	</dependencies>
