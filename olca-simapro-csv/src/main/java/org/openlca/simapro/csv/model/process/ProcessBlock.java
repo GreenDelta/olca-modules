@@ -155,42 +155,26 @@ public class ProcessBlock {
 			ElementaryFlowType type) {
 		if (type == null)
 			return Collections.emptyList();
-		switch (type) {
-		case ECONOMIC_ISSUES:
-			return economicIssues;
-		case EMISSIONS_TO_AIR:
-			return emissionsToAir;
-		case EMISSIONS_TO_SOIL:
-			return emissionsToSoil;
-		case EMISSIONS_TO_WATER:
-			return emissionsToWater;
-		case FINAL_WASTE_FLOWS:
-			return finalWasteFlows;
-		case NON_MATERIAL_EMISSIONS:
-			return nonMaterialEmissions;
-		case RESOURCES:
-			return resources;
-		case SOCIAL_ISSUES:
-			return socialIssues;
-		default:
-			return Collections.emptyList();
-		}
+		return switch (type) {
+			case ECONOMIC_ISSUES -> economicIssues;
+			case EMISSIONS_TO_AIR -> emissionsToAir;
+			case EMISSIONS_TO_SOIL -> emissionsToSoil;
+			case EMISSIONS_TO_WATER -> emissionsToWater;
+			case FINAL_WASTE_FLOWS -> finalWasteFlows;
+			case NON_MATERIAL_EMISSIONS -> nonMaterialEmissions;
+			case RESOURCES -> resources;
+			case SOCIAL_ISSUES -> socialIssues;
+		};
 	}
 
 	public List<ProductExchangeRow> getProductExchanges(ProductType productType) {
 		if (productType == null)
 			return Collections.emptyList();
-		switch (productType) {
-		case AVOIDED_PRODUCTS:
-			return avoidedProducts;
-		case ELECTRICITY_HEAT:
-			return electricityAndHeat;
-		case MATERIAL_FUELS:
-			return materialsAndFuels;
-		case WASTE_TO_TREATMENT:
-			return wasteToTreatment;
-		default:
-			return Collections.emptyList();
-		}
+		return switch (productType) {
+			case AVOIDED_PRODUCTS -> avoidedProducts;
+			case ELECTRICITY_HEAT -> electricityAndHeat;
+			case MATERIAL_FUELS -> materialsAndFuels;
+			case WASTE_TO_TREATMENT -> wasteToTreatment;
+		};
 	}
 }

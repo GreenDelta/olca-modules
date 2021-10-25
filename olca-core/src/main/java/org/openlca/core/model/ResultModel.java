@@ -27,9 +27,15 @@ public class ResultModel extends CategorizedEntity {
 	@JoinColumn(name = "f_result")
 	public final List<ResultImpact> impacts = new ArrayList<>();
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "f_parent_result")
-	public final List<ResultModel> subResults = new ArrayList<>();
+	/**
+	 * The reference flow or quantitative reference of this result. This can be a
+	 * product output or waste input. With this flow, a result can be linked as a
+	 * provider in a product system to product inputs or waste outputs of other
+	 * processes.
+	 */
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "f_reference_flow")
+	public ResultFlow referenceFlow;
 
 	/**
 	 * The timestamp when this result was calculated. A value of {@code <= 0}
@@ -51,14 +57,14 @@ public class ResultModel extends CategorizedEntity {
 		if (setup != null) {
 			clone.setup = setup.copy();
 		}
+		if (referenceFlow != null) {
+			clone.referenceFlow = referenceFlow.copy();
+		}
 		for (var flow : inventory) {
 			clone.inventory.add(flow.copy());
 		}
 		for (var impact : impacts) {
 			clone.impacts.add(impact.copy());
-		}
-		for (var subResult : subResults) {
-			clone.subResults.add(subResult.copy());
 		}
 		clone.calculationTime = calculationTime;
 		return clone;
