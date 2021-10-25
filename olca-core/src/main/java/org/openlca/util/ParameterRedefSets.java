@@ -1,6 +1,5 @@
 package org.openlca.util;
 
-import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
