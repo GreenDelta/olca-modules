@@ -119,4 +119,8 @@ public class UnitMapping {
 		return entries.get(unitName);
 	}
 
+	public boolean hasEntry(String unitName) {
+		return entries.containsKey(unitName);
+	}
+
 }

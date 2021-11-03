@@ -14,8 +14,9 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.UnitMappingEntry;
-import org.openlca.simapro.csv.model.refdata.QuantityRow;
-import org.openlca.simapro.csv.model.refdata.UnitRow;
+import org.openlca.simapro.csv.CsvDataSet;
+import org.openlca.simapro.csv.refdata.QuantityRow;
+import org.openlca.simapro.csv.refdata.UnitRow;
 import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,34 +24,36 @@ import org.slf4j.LoggerFactory;
 /**
  * Synchronizes the used unit names found in a SimaPro CSV file with the units
  * in a database. Normally all units should be already exist in the database.
- * Otherwise the corresponding unit group, flow property and, unit entries are
+ * Otherwise, the corresponding unit group, flow property, and unit entries are
  * created.
  */
 class UnitSync {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private final SpRefDataIndex index;
+	private final CsvDataSet dataSet;
 	private final IDatabase db;
 
-	public UnitSync(SpRefDataIndex index, IDatabase database) {
-		this.index = index;
+	public UnitSync(CsvDataSet dataSet, IDatabase database) {
+		this.dataSet = dataSet;
 		this.db = database;
 	}
 
 	public void run(RefData refData) {
 		log.trace("synchronize units with database");
 		try {
-			UnitMapping mapping = UnitMapping.createDefault(db);
-			List<String> unknownUnits = new ArrayList<>();
-			for (String usedUnit : index.getUsedUnits()) {
-				UnitMappingEntry entry = mapping.getEntry(usedUnit);
-				if (entry == null)
-					unknownUnits.add(usedUnit);
-				else
-					log.trace("{} is a known unit", usedUnit);
+			var mapping = UnitMapping.createDefault(db);
+			var unknownUnits = new ArrayList<String>();
+			for (var unit : CsvUtil.allUnitsOf(dataSet)) {
+				var entry = mapping.getEntry(unit);
+				if (entry == null) {
+					unknownUnits.add(unit);
+				} else {
+					log.trace("{} is a known unit", unit);
+				}
 			}
-			if (!unknownUnits.isEmpty())
+			if (!unknownUnits.isEmpty()) {
 				syncUnits(mapping, unknownUnits);
+			}
 			refData.setUnitMapping(mapping);
 		} catch (Exception e) {
 			log.error("failed to synchronize units with database", e);
@@ -60,10 +63,9 @@ class UnitSync {
 
 	private void syncUnits(UnitMapping mapping, List<String> unknownUnits) {
 		while (!unknownUnits.isEmpty()) {
-			String unit = unknownUnits.remove(0);
-			UnitRow row = index.getUnitRow(unit);
-			if (row != null
-					&& mapping.getEntry(row.referenceUnit) != null) {
+			var unit = unknownUnits.remove(0);
+			var row = CsvUtil.unitRowOf(dataSet, unit);
+			if (row != null && mapping.hasEntry(row.referenceUnit())) {
 				addUnit(row, mapping);
 				continue;
 			}
@@ -85,31 +87,36 @@ class UnitSync {
 
 	/** Add a new unit to an existing unit group. */
 	private void addUnit(UnitRow row, UnitMapping mapping) {
-		String name = row.name;
-		UnitMappingEntry refEntry = mapping.getEntry(row.referenceUnit);
-		double factor = row.conversionFactor
-				* refEntry.unit.conversionFactor;
-		Unit unit = new Unit();
+		String name = row.name();
+		var refEntry = mapping.getEntry(row.referenceUnit());
+		double factor = row.conversionFactor() * refEntry.unit.conversionFactor;
+
+		var unit = new Unit();
 		unit.conversionFactor = factor;
 		unit.name = name;
 		unit.refId = KeyGen.get(name);
-		UnitGroup group = refEntry.unitGroup;
+
+		var group = refEntry.unitGroup;
 		group.units.add(unit);
 		UnitGroupDao groupDao = new UnitGroupDao(db);
-		group.lastChange = Calendar.getInstance().getTimeInMillis();
+		group.lastChange = System.currentTimeMillis();
 		Version.incUpdate(group);
 		group = groupDao.update(group);
+
 		log.info("added new unit {} to group {}", unit, group);
+
 		FlowPropertyDao propDao = new FlowPropertyDao(db);
 		FlowProperty property = propDao
 				.getForId(refEntry.flowProperty.id);
 		updateRefs(mapping, group, property);
-		UnitMappingEntry newEntry = new UnitMappingEntry();
+
+		var newEntry = new UnitMappingEntry();
 		newEntry.factor = factor;
 		newEntry.flowProperty = property;
 		newEntry.unit = group.getUnit(name);
 		newEntry.unitGroup = group;
 		newEntry.unitName = name;
+
 		mapping.put(name, newEntry);
 	}
 
