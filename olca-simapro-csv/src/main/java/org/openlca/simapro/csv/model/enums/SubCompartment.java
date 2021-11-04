@@ -48,7 +48,7 @@ public enum SubCompartment {
 
 	UNSPECIFIED("");
 
-	private String value;
+	private final String value;
 
 	SubCompartment(String value) {
 		this.value = value;

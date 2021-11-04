@@ -13,15 +13,13 @@ import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.MapFactor;
-import org.openlca.simapro.csv.model.annotations.BlockHandler;
-import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
-import org.openlca.simapro.csv.model.enums.ProductType;
-import org.openlca.simapro.csv.model.process.ElementaryExchangeRow;
-import org.openlca.simapro.csv.model.process.ExchangeRow;
-import org.openlca.simapro.csv.model.process.ProcessBlock;
-import org.openlca.simapro.csv.model.process.ProductExchangeRow;
-import org.openlca.simapro.csv.model.process.ProductOutputRow;
-import org.openlca.simapro.csv.model.process.RefProductRow;
+import org.openlca.simapro.csv.Numeric;
+import org.openlca.simapro.csv.enums.ElementaryFlowType;
+import org.openlca.simapro.csv.enums.ProductType;
+import org.openlca.simapro.csv.process.ElementaryExchangeRow;
+import org.openlca.simapro.csv.process.ExchangeRow;
+import org.openlca.simapro.csv.process.ProcessBlock;
+import org.openlca.simapro.csv.process.ProductOutputRow;
 import org.openlca.util.Exchanges;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Processes;
@@ -50,7 +48,7 @@ class ProcessHandler {
 
 	@BlockHandler
 	public void handleProcess(ProcessBlock block) {
-		String refId = KeyGen.get(block.identifier);
+		String refId = KeyGen.get(block.identifier());
 		Process process = dao.getForRefId(refId);
 		if (process != null) {
 			log.warn("a process with the identifier {} is already in the "
@@ -88,8 +86,8 @@ class ProcessHandler {
 	}
 
 	private void mapName() {
-		if (block.name != null) {
-			process.name = block.name;
+		if (block.name() != null) {
+			process.name = block.name();
 			return;
 		}
 		Flow refFlow = getRefFlow();
@@ -97,7 +95,7 @@ class ProcessHandler {
 			process.name = refFlow.name;
 			return;
 		}
-		process.name = block.identifier;
+		process.name = block.identifier();
 	}
 
 	private void mapLocation() {
@@ -110,11 +108,12 @@ class ProcessHandler {
 	private void mapAllocation(long scope) {
 		if (!Processes.isMultiFunctional(process))
 			return;
-		for (var output : block.products) {
+		for (var output : block.products()) {
 
 			// prepare the template of the factor
 			var f = new AllocationFactor();
-			f.productId = refData.getProduct(output.name).id;
+			f.productId = refData.getProduct(output.name()).id;
+
 			try {
 				f.value = Double.parseDouble(output.allocation);
 			} catch (Exception _e){
@@ -149,29 +148,29 @@ class ProcessHandler {
 	}
 
 	private Flow getRefFlow() {
-		if (!block.products.isEmpty()) {
-			ProductOutputRow refRow = block.products.get(0);
-			Flow flow = refData.getProduct(refRow.name);
+		if (!block.products().isEmpty()) {
+			ProductOutputRow refRow = block.products().get(0);
+			Flow flow = refData.getProduct(refRow.name());
 			if (flow != null)
 				return flow;
 		}
-		if (block.wasteTreatment != null)
-			return refData.getProduct(block.wasteTreatment.name);
+		if (block.wasteTreatment() != null)
+			return refData.getProduct(block.wasteTreatment().name());
 		return null;
 	}
 
 	private void mapProductOutputs(Process process, long scope) {
 		boolean first = true;
-		for (ProductOutputRow row : block.products) {
+		for (ProductOutputRow row : block.products()) {
 			Exchange e = createProductOutput(process, row, scope);
 			if (first && e != null) {
 				process.quantitativeReference = e;
 				first = false;
 			}
 		}
-		if (block.wasteTreatment != null) {
+		if (block.wasteTreatment() != null) {
 			process.quantitativeReference = createProductOutput(
-					process, block.wasteTreatment, scope);
+					process, block.wasteTreatment(), scope);
 		}
 	}
 
@@ -230,48 +229,53 @@ class ProcessHandler {
 		return e;
 	}
 
-	private Exchange initExchange(ExchangeRow row, long scopeId,
+	private Exchange initExchange(CsvExchange row, long scopeId,
 								  Flow flow, Process process, boolean refUnit) {
 		if (flow == null) {
 			log.error("could not create exchange as there was now flow found " + "for {}", row);
 			return null;
 		}
 		Exchange e;
-		UnitMappingEntry entry = refData.getUnitMapping().getEntry(row.unit);
+		var entry = refData.getUnitMapping().getEntry(row.unit());
 		if (refUnit || entry == null) {
 			e = process.add(Exchange.of(flow));
 			if (!refUnit) {
-				log.error("unknown unit {}; could not set exchange unit, setting ref unit", row.unit);
+				log.error("unknown unit {}; could not set exchange unit, setting ref unit", row.unit());
 			}
 		} else {
 			e = process.add(Exchange.of(flow, entry.flowProperty, entry.unit));
 		}
-		e.description = row.comment;
-		setAmount(e, row.amount, scopeId);
-		e.uncertainty = Uncertainties.get(e.amount, row.uncertaintyDistribution);
+		e.description = row.comment();
+
+
+		setAmount(e, row.amount(), scopeId);
+
+
+		e.uncertainty = Uncertainties.of(e.amount, row.uncertainty());
 		return e;
 	}
 
-	private void setAmount(Exchange e, String amount, long scope) {
-		if (Strings.nullOrEmpty(amount)) {
-			e.amount = 0;
+	private void setAmount(Exchange e, Numeric amount, long scope) {
+
+		if (!amount.hasFormula()) {
+			e.amount = amount.value();
 			return;
 		}
 		try {
 			e.amount = Double.parseDouble(amount);
 		} catch (Exception ex) {
-			e.amount = parameterMapper.eval(amount, scope);
-			e.formula = amount;
+			e.amount = parameterMapper.eval(amount.formula(), scope);
+			e.formula = amount.formula();
 		}
 	}
 
 	private void mapCategory() {
 		String categoryPath = null;
-		if (!block.products.isEmpty()) {
-			ProductOutputRow row = block.products.get(0);
-			categoryPath = row.category;
-		} else if (block.wasteTreatment != null)
-			categoryPath = block.wasteTreatment.category;
+		if (!block.products().isEmpty()) {
+			ProductOutputRow row = block.products().get(0);
+			categoryPath = row.category();
+		} else if (block.wasteTreatment() != null)
+			categoryPath = block.wasteTreatment().category();
 		if (Strings.nullOrEmpty(categoryPath))
 			return;
 		var path = categoryPath.split("\\\\");
@@ -280,13 +284,13 @@ class ProcessHandler {
 	}
 
 	private void mapType() {
-		var type = block.processType;
+		var type = block.processType();
 		if (type == null) {
 			process.processType = ProcessType.UNIT_PROCESS;
 			return;
 		}
 		process.processType =
-				type == org.openlca.simapro.csv.model.enums.ProcessType.SYSTEM
+				type == org.openlca.simapro.csv.enums.ProcessType.SYSTEM
 						? ProcessType.LCI_RESULT
 						: ProcessType.UNIT_PROCESS;
 	}

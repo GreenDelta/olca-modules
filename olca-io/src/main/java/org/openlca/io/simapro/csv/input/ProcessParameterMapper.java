@@ -6,7 +6,7 @@ import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.Scope;
-import org.openlca.simapro.csv.model.process.ProcessBlock;
+import org.openlca.simapro.csv.process.ProcessBlock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,8 +15,6 @@ class ProcessParameterMapper {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final FormulaInterpreter interpreter;
-	// private Process process;
-
 	private long nextScope = 0;
 
 	public ProcessParameterMapper(IDatabase db) {
@@ -35,12 +33,12 @@ class ProcessParameterMapper {
 	public long map(ProcessBlock block, Process process) {
 		long scopeId = ++nextScope;
 		Scope scope = interpreter.createScope(scopeId);
-		for (var row : block.inputParameters) {
+		for (var row : block.inputParameters()) {
 			var p = Parameters.create(row, ParameterScope.PROCESS);
 			process.parameters.add(p);
 			scope.bind(p.name, Double.toString(p.value));
 		}
-		for (var row : block.calculatedParameters) {
+		for (var row : block.calculatedParameters()) {
 			var p = Parameters.create(row, ParameterScope.PROCESS);
 			process.parameters.add(p);
 			scope.bind(p.name, p.formula);

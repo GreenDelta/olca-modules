@@ -1,10 +1,10 @@
 package org.openlca.io.simapro.csv;
 
-import org.openlca.core.model.Category;
-import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
-import org.openlca.simapro.csv.model.enums.SubCompartment;
-
 import com.google.common.base.Strings;
+import org.openlca.core.model.Category;
+import org.openlca.simapro.csv.enums.ElementaryFlowType;
+import org.openlca.simapro.csv.enums.SubCompartment;
+
 
 class Compartment {
 
@@ -81,36 +81,35 @@ class Compartment {
 		// social flows
 		if (match(path, "social")) {
 			return Compartment.of(
-					ElementaryFlowType.SOCIAL_ISSUES, 
-					SubCompartment.UNSPECIFIED);
+				ElementaryFlowType.SOCIAL_ISSUES,
+				SubCompartment.UNSPECIFIED);
 		}
-		
+
 		// resources
 		if (match(path, "resource")) {
-			ElementaryFlowType type = ElementaryFlowType.RESOURCES;
-			if (match(path, "bio")) {
-				return Compartment.of(type,
-						SubCompartment.RAW_MATERIAL_BIOTIC);
-			}
+			var type = ElementaryFlowType.RESOURCES;
 
-			if (match(path, "water")) {
-				return Compartment.of(type,
-						SubCompartment.RAW_MATERIAL_IN_WATER);
-			}
+			if (match(path, "bio"))
+				return Compartment.of(type, SubCompartment.RESOURCES_BIOTIC);
+
+
+			if (match(path, "water"))
+				return Compartment.of(type, SubCompartment.RESOURCES_IN_WATER);
+
 
 			if (match(path, "air")) {
 				return Compartment.of(type,
-						SubCompartment.RAW_MATERIAL_IN_AIR);
+					SubCompartment.RESOURCES_IN_AIR);
 			}
 
 			if (match(path, "land")) {
 				return Compartment.of(type,
-						SubCompartment.RAW_MATERIAL_LAND);
+					SubCompartment.RESOURCES_LAND);
 			}
 
 			if (match(path, "ground")) {
 				return Compartment.of(type,
-						SubCompartment.RAW_MATERIAL_IN_GROUND);
+					SubCompartment.RESOURCES_IN_GROUND);
 			}
 
 			return Compartment.of(type, SubCompartment.UNSPECIFIED);
@@ -118,36 +117,35 @@ class Compartment {
 
 		// air emissions
 		if (match(path, "emission", "air")) {
-			ElementaryFlowType type = ElementaryFlowType.EMISSIONS_TO_AIR;
+			var type = ElementaryFlowType.EMISSIONS_TO_AIR;
 
-			if (match(path, "stratosphere", "troposhere")) {
-				return Compartment.of(type,
-						SubCompartment.AIRBORNE_STATOSPHERE_TROPOSHERE);
-			}
+			if (match(path, "stratosphere", "troposhere"))
+				return Compartment.of(type, SubCompartment.AIR_STRATOSPHERE_TROPOSHERE);
+
 
 			if (match(path, "stratosphere")) {
 				return Compartment.of(type,
-						SubCompartment.AIRBORNE_STATOSPHERE);
+					SubCompartment.AIR_STATOSPHERE);
 			}
 
 			if (match(path, "low", "pop", "long", "term")) {
 				return Compartment.of(type,
-						SubCompartment.AIRBORNE_LOW_POP_LONG_TERM);
+					SubCompartment.AIR_LOW_POP_LONG_TERM);
 			}
 
 			if (match(path, "low", "pop")) {
 				return Compartment.of(type,
-						SubCompartment.AIRBORNE_LOW_POP);
+					SubCompartment.AIR_LOW_POP);
 			}
 
 			if (match(path, "high", "pop")) {
 				return Compartment.of(type,
-						SubCompartment.AIRBORNE_HIGH_POP);
+					SubCompartment.AIR_HIGH_POP);
 			}
 
 			if (match(path, "indoor")) {
 				return Compartment.of(type,
-						SubCompartment.AIRBORNE_INDOOR);
+					SubCompartment.AIR_INDOOR);
 			}
 
 			return Compartment.of(type, SubCompartment.UNSPECIFIED);
@@ -159,27 +157,27 @@ class Compartment {
 
 			if (match(path, "non-agri")) {
 				return Compartment.of(type,
-						SubCompartment.UNSPECIFIED);
+					SubCompartment.UNSPECIFIED);
 			}
 
 			if (match(path, "agri")) {
 				return Compartment.of(type,
-						SubCompartment.SOIL_AGRICULTURAL);
+					SubCompartment.SOIL_AGRICULTURAL);
 			}
 
 			if (match(path, "forest")) {
 				return Compartment.of(type,
-						SubCompartment.SOIL_FORESTRY);
+					SubCompartment.SOIL_FORESTRY);
 			}
 
 			if (match(path, "urban")) {
 				return Compartment.of(type,
-						SubCompartment.SOIL_URBAN);
+					SubCompartment.SOIL_URBAN);
 			}
 
 			if (match(path, "industrial")) {
 				return Compartment.of(type,
-						SubCompartment.SOIL_INDUSTRIAL);
+					SubCompartment.SOIL_INDUSTRIAL);
 			}
 
 			return Compartment.of(type, SubCompartment.UNSPECIFIED);
@@ -187,41 +185,38 @@ class Compartment {
 
 		// water emissions
 		if (match(path, "emission", "water")) {
-			ElementaryFlowType type = ElementaryFlowType.EMISSIONS_TO_WATER;
 
-			if (match(path, "fossil")) {
-				return Compartment.of(type,
-						SubCompartment.WATERBORNE_FOSSILWATER);
-			}
+			var type = ElementaryFlowType.EMISSIONS_TO_WATER;
 
-			if (match(path, "ground", "long", "term")) {
-				return Compartment.of(type,
-						SubCompartment.WATERBORNE_GROUNDWATER_LONG_TERM);
-			}
+			if (match(path, "fossil"))
+				return Compartment.of(type, SubCompartment.WATER_FOSSIL);
+
+			if (match(path, "ground", "long", "term"))
+				return Compartment.of(type, SubCompartment.WATER_GROUND_LONG_TERM);
 
 			if (match(path, "ground")) {
 				return Compartment.of(type,
-						SubCompartment.WATERBORNE_GROUNDWATER);
+					SubCompartment.WATER_GROUNDWATER);
 			}
 
 			if (match(path, "lake")) {
 				return Compartment.of(type,
-						SubCompartment.WATERBORNE_LAKE);
+					SubCompartment.WATER_LAKE);
 			}
 
 			if (match(path, "ocean")) {
 				return Compartment.of(type,
-						SubCompartment.WATERBORNE_LAKE);
+					SubCompartment.WATER_LAKE);
 			}
 
 			if (match(path, "river")) {
 				return Compartment.of(type,
-						SubCompartment.WATERBORNE_RIVER);
+					SubCompartment.WATER_RIVER);
 			}
 
 			if (match(path, "river", "long", "term")) {
 				return Compartment.of(type,
-						SubCompartment.WATERBORNE_RIVER_LONG_TERM);
+					SubCompartment.WATER_RIVER_LONG_TERM);
 			}
 
 			return Compartment.of(type, SubCompartment.UNSPECIFIED);
@@ -229,7 +224,7 @@ class Compartment {
 
 		if (match(path, "land")) {
 			return Compartment.of(ElementaryFlowType.RESOURCES,
-					SubCompartment.RAW_MATERIAL_LAND);
+				SubCompartment.RESOURCES_LAND);
 		}
 
 		return null;
@@ -245,8 +240,9 @@ class Compartment {
 		ElementaryFlowType type = null;
 		String name = compartment.trim();
 		for (ElementaryFlowType t : ElementaryFlowType.values()) {
-			if (t.getReferenceHeader().equalsIgnoreCase(name)
-					|| t.getExchangeHeader().equalsIgnoreCase(name)) {
+			if (t.referenceHeader().equalsIgnoreCase(name)
+				|| t.exchangeHeader().equalsIgnoreCase(name)
+				|| t.compartment().equalsIgnoreCase(name)) {
 				type = t;
 				break;
 			}
@@ -254,7 +250,7 @@ class Compartment {
 		if (type == null)
 			return null;
 		if (Strings.isNullOrEmpty(subCompartment)
-				|| "unspecified".equalsIgnoreCase(subCompartment))
+			|| "unspecified".equalsIgnoreCase(subCompartment))
 			return Compartment.of(type, SubCompartment.UNSPECIFIED);
 
 		SubCompartment sub = null;
