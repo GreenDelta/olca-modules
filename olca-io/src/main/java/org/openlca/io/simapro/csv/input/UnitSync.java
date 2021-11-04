@@ -1,13 +1,10 @@
 package org.openlca.io.simapro.csv.input;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 
-import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
@@ -62,137 +59,147 @@ class UnitSync {
 	}
 
 	private void syncUnits(UnitMapping mapping, List<String> unknownUnits) {
+
 		while (!unknownUnits.isEmpty()) {
+
 			var unit = unknownUnits.remove(0);
-			var row = CsvUtil.unitRowOf(dataSet, unit);
-			if (row != null && mapping.hasEntry(row.referenceUnit())) {
-				addUnit(row, mapping);
+			var unitRow = CsvUtil.unitRowOf(dataSet, unit);
+
+			// add the unit to an existing unit group
+			if (unitRow != null && mapping.hasEntry(unitRow.referenceUnit())) {
+				addUnit(unitRow, mapping);
 				continue;
 			}
-			QuantityRow quantity = getQuantity(unit);
-			if (quantity == null) {
+
+			// find the quantity row
+			QuantityRow quantityRow = null;
+			if (unitRow != null) {
+				for (var q : dataSet.quantities()) {
+					if (Objects.equals(unitRow.quantity(), q.name())) {
+						quantityRow = q;
+						break;
+					}
+				}
+			}
+
+			if (quantityRow == null) {
 				log.warn("unit {} found but with no quantity; create default "
-						+ "unit, unit group, and flow property", unit);
-				createDefaultMapping(unit, mapping);
-			} else {
-				log.warn(
-						"unknown unit {}, import complete SimaPro quantity {}",
-						unit, quantity);
-				UnitGroup group = importQuantity(quantity, mapping);
-				for (Unit u : group.units)
-					unknownUnits.remove(u.name);
+					+ "unit, unit group, and flow property", unit);
+				createAllForUnit(unit, mapping);
+				continue;
+			}
+
+			log.warn("unknown unit {}, import quantity {}", unit, quantityRow);
+			var group = createForQuantity(quantityRow, mapping);
+			for (var u : group.units) {
+				unknownUnits.remove(u.name);
 			}
 		}
 	}
 
-	/** Add a new unit to an existing unit group. */
+	/**
+	 * Add a new unit to an existing unit group.
+	 */
 	private void addUnit(UnitRow row, UnitMapping mapping) {
 		String name = row.name();
 		var refEntry = mapping.getEntry(row.referenceUnit());
-		double factor = row.conversionFactor() * refEntry.unit.conversionFactor;
-
-		var unit = new Unit();
-		unit.conversionFactor = factor;
-		unit.name = name;
-		unit.refId = KeyGen.get(name);
-
 		var group = refEntry.unitGroup;
-		group.units.add(unit);
-		UnitGroupDao groupDao = new UnitGroupDao(db);
+
+		// create and add the new unit; note that the reference
+		// unit can be different from the reference unit in SimaPro;
+		// thus, we need to multiply the conversion factors here
+		var newUnit = Unit.of(name,
+			row.conversionFactor() * refEntry.unit.conversionFactor);
+		newUnit.refId = KeyGen.get(group.refId, name);
+		group.units.add(newUnit);
+
+		// update the unit group
 		group.lastChange = System.currentTimeMillis();
 		Version.incUpdate(group);
-		group = groupDao.update(group);
+		group = db.update(group);
+		log.info("added new unit {} to group {}", newUnit, group);
 
-		log.info("added new unit {} to group {}", unit, group);
+		// reload object references in the mapping entries so that
+		// we can use them directly in the JPA persistence
+		var property = db.get(FlowProperty.class, refEntry.flowProperty.id);
+		for (var u : mapping.getUnits()) {
+			var entry = mapping.getEntry(u);
+			if (!entry.isValid())
+				continue;
+			if (!Objects.equals(group, entry.unitGroup))
+				continue;
+			var unit = group.getUnit(entry.unit.name);
+			if (unit == null) {
+				log.error("Could not find {} in {}", u, group);
+				continue;
+			}
+			entry.unitGroup = group;
+			entry.unit = unit;
+			if (Objects.equals(property, entry.flowProperty)) {
+				entry.flowProperty = property;
+			}
+		}
 
-		FlowPropertyDao propDao = new FlowPropertyDao(db);
-		FlowProperty property = propDao
-				.getForId(refEntry.flowProperty.id);
-		updateRefs(mapping, group, property);
-
+		// add a new mapping entry
 		var newEntry = new UnitMappingEntry();
-		newEntry.factor = factor;
+		newEntry.factor = newUnit.conversionFactor;
 		newEntry.flowProperty = property;
-		newEntry.unit = group.getUnit(name);
+		newEntry.unit = group.getUnit(name); // reload it for JPA
 		newEntry.unitGroup = group;
 		newEntry.unitName = name;
-
 		mapping.put(name, newEntry);
 	}
 
-	private void updateRefs(UnitMapping mapping, UnitGroup group,
-			FlowProperty property) {
-		for (String name : mapping.getUnits()) {
-			UnitMappingEntry entry = mapping.getEntry(name);
-			if (!entry.isValid())
-				continue;
-			if (!Objects.equals(group, entry.unitGroup)
-					|| !Objects.equals(property, entry.flowProperty))
-				continue;
-			Unit u = group.getUnit(entry.unit.name);
-			if (u == null) {
-				log.error("Could not find {} in {}", name, group);
-				continue;
-			}
-			entry.flowProperty = property;
-			entry.unitGroup = group;
-			entry.unit = u;
-		}
-	}
 
-	private UnitGroup importQuantity(QuantityRow quantity,
-			UnitMapping mapping) {
-		UnitGroup group = UnitGroup.of("Units of " + quantity.name);
-		addUnits(group, quantity);
-		group = insertLinkProperty(group, quantity.name);
+	private UnitGroup createForQuantity(QuantityRow quantity, UnitMapping mapping) {
+
+		// create unit group and flow property
+		var group = UnitGroup.of("Units of " + quantity.name());
+		for (var row : dataSet.units()) {
+			if (!Objects.equals(row.quantity(), quantity.name()))
+				continue;
+			var unit = Unit.of(row.name(), row.conversionFactor());
+			group.units.add(unit);
+			if (Objects.equals(row.name(), row.referenceUnit())) {
+				group.referenceUnit = unit;
+			}
+		}
+		group = db.insert(group);
+		group.defaultFlowProperty = db.insert(
+			FlowProperty.of(quantity.name(), group));
+		group = db.update(group);
+
+		// create the mapping entries
 		for (Unit unit : group.units) {
-			UnitMappingEntry entry = new UnitMappingEntry();
-			entry.flowProperty = group.defaultFlowProperty;
-			entry.unitName = unit.name;
-			entry.unit = unit;
-			entry.factor = unit.conversionFactor;
-			entry.unitGroup = group;
-			mapping.put(unit.name, entry);
+			var e = new UnitMappingEntry();
+			e.flowProperty = group.defaultFlowProperty;
+			e.unitName = unit.name;
+			e.unit = unit;
+			e.factor = unit.conversionFactor;
+			e.unitGroup = group;
+			mapping.put(unit.name, e);
 		}
 		return group;
 	}
 
-	private UnitGroup insertLinkProperty(UnitGroup group, String name) {
-		var dao = new UnitGroupDao(db);
-		group = dao.insert(group);
-		var property = FlowProperty.of(name, group);
+
+	/**
+	 * Creates a new unit group and flow property for the given unit name and
+	 * adds a mapping for this.
+	 */
+	private void createAllForUnit(String unit, UnitMapping mapping) {
+		var group = UnitGroup.of("Unit group for " + unit, unit);
+		db.insert(group);
+		var property = FlowProperty.of("Property for " + unit, group);
 		group.defaultFlowProperty = db.insert(property);
-		return dao.update(group);
-	}
-
-	private void addUnits(UnitGroup group, QuantityRow quantity) {
-		for (var row : index.getUnitRows()) {
-			if (!Objects.equals(row.quantity, quantity.name))
-				continue;
-			var unit = Unit.of(row.name);
-			unit.conversionFactor = row.conversionFactor;
-			group.units.add(unit);
-			if (Objects.equals(row.name, row.referenceUnit))
-				group.referenceUnit = unit;
-		}
-	}
-
-	private void createDefaultMapping(String unitName, UnitMapping mapping) {
-		UnitGroup group = UnitGroup.of("Unit group for " + unitName, unitName);
-		group = insertLinkProperty(group, "Property for " + unitName);
-		UnitMappingEntry e = new UnitMappingEntry();
+		group = db.update(group);
+		var e = new UnitMappingEntry();
 		e.unitGroup = group;
 		e.unit = group.referenceUnit;
 		e.factor = 1d;
 		e.flowProperty = group.defaultFlowProperty;
-		e.unitName = unitName;
-		mapping.put(unitName, e);
+		e.unitName = unit;
+		mapping.put(unit, e);
 	}
 
-	private QuantityRow getQuantity(String unitName) {
-		UnitRow row = index.getUnitRow(unitName);
-		if (row == null)
-			return null;
-		return index.getQuantity(row.quantity);
-	}
 }
