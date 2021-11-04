@@ -7,10 +7,8 @@ import java.util.regex.Pattern;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Source;
-import org.openlca.simapro.csv.model.enums.ValueEnum;
-import org.openlca.simapro.csv.model.process.LiteratureReferenceRow;
-import org.openlca.simapro.csv.model.process.ProcessBlock;
-import org.openlca.simapro.csv.model.process.SystemDescriptionRow;
+import org.openlca.simapro.csv.process.ProcessBlock;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,19 +26,27 @@ class ProcessDocMapper {
 	public void map(ProcessBlock block, Process process) {
 		this.block = block;
 		this.process = process;
-		if (process.documentation == null)
+		process.description = Text.of(block.comment())
+			.join("Status", block.status())
+			.join("Boundary with nature", block.boundaryWithNature())
+			.join("Record", block.record())
+			.join("Generator", block.generator())
+			.value();
+
+		if (process.documentation == null) {
 			process.documentation = new ProcessDocumentation();
+		}
 		mapSources();
 		mapDocFields();
-		mapDescription();
-		if (block.infrastructure != null)
-			process.infrastructureProcess = block.infrastructure;
+		if (block.infrastructure() != null) {
+			process.infrastructureProcess = block.infrastructure();
+		}
 	}
 
 	private void mapSources() {
-		ProcessDocumentation doc = process.documentation;
-		for (LiteratureReferenceRow row : block.literatureReferences) {
-			Source source = refData.getSource(row.name);
+		var doc = process.documentation;
+		for (var row : block.literatures()) {
+			Source source = refData.getSource(row.name());
 			if (source == null)
 				continue;
 			doc.sources.add(source);
@@ -48,50 +54,38 @@ class ProcessDocMapper {
 	}
 
 	private void mapDocFields() {
-		ProcessDocumentation doc = process.documentation;
+		var doc = process.documentation;
 		mapTime(doc);
-		if (block.geography != null)
-			doc.geography = block.geography.getValue();
-		if (block.technology != null)
-			doc.technology = block.technology.getValue();
-		if (block.representativeness != null)
-			doc.dataSelection = block.representativeness.getValue();
-		doc.dataTreatment = block.dataTreatment;
-		doc.sampling = block.collectionMethod;
-		doc.reviewDetails = block.verification;
-		mapInventoryMethod(doc);
-		mapCompleteness(doc);
-		mapProject(doc);
-		doc.creationDate = block.date;
-	}
+		doc.geography = block.geography();
+		doc.technology = block.technology();
+		doc.dataSelection = block.representativeness();
+		doc.dataTreatment = block.dataTreatment();
+		doc.sampling = block.collectionMethod();
+		doc.reviewDetails = block.verification();
 
-	private void mapInventoryMethod(ProcessDocumentation doc) {
-		var t = a("Allocation rules", block.allocationRules, (String) null);
-		t = a("Multiple output allocation", block.allocation, t);
-		t = a("Substitution allocation", block.substitution, t);
-		doc.inventoryMethod = t;
-	}
+		doc.inventoryMethod = Text.of("Allocation rules", block.allocationRules())
+			.join("Multiple output allocation", block.allocation())
+			.join("Substitution allocation", block.substitution())
+			.value();
 
-	private void mapCompleteness(ProcessDocumentation doc) {
-		String t = a("Cut off rules", block.cutoff, (String) null);
-		t = a("Capital goods", block.capitalGoods, t);
-		doc.completeness = t;
-	}
+		doc.completeness = Text.of("Cut off rules", block.cutoff())
+			.join("Capital goods", block.capitalGoods())
+			.value();
 
-	private void mapProject(ProcessDocumentation doc) {
-		SystemDescriptionRow r = block.systemDescription;
-		if (r == null || r.name == null)
-			return;
-		String t = r.name;
-		if (r.comment != null)
-			t += " (" + r.comment + ")";
-		doc.project = t;
+		if (block.systemDescription() != null) {
+			doc.project = Text.of("System", block.systemDescription().name())
+				.join("Comment", block.systemDescription().comment())
+				.value();
+		}
+
+		// TODO: parse date
+		// doc.creationDate = block.date();
 	}
 
 	private void mapTime(ProcessDocumentation doc) {
-		if (block.time == null)
+		if (block.time() == null)
 			return;
-		String text = block.time.getValue();
+		String text = block.time();
 		Pattern pattern = Pattern.compile("(\\d{4})-(\\d{4})");
 		Matcher m = pattern.matcher(text);
 		if (!m.matches()) {
@@ -112,44 +106,26 @@ class ProcessDocMapper {
 		}
 	}
 
-	private void mapDescription() {
-		StringBuilder builder = new StringBuilder();
-		if (block.comment != null)
-			builder.append(block.comment);
-		a("Status", block.status, builder);
-		a("Boundary with nature", block.boundaryWithNature, builder);
-		a("Record", block.record, builder);
-		a("Generator", block.generator, builder);
-		process.description = builder.toString();
-	}
+	private record Text(String value) {
 
-	private void a(String label, String value, StringBuilder builder) {
-		if (value == null)
-			return;
-		builder.append(label).append(": ").append(value).append("\n");
-	}
+		static Text of(String value) {
+			return Strings.nullOrEmpty(value)
+				? new Text(null)
+				: new Text(value.trim() + "\n");
+		}
 
-	private String a(String label, String value, String field) {
-		if (value == null)
-			return field;
-		return field == null
-			? label + ": " + value + "\n"
-			: field + label + ": " + value + "\n";
-	}
+		static Text of(String header, String value) {
+			if (Strings.nullOrEmpty(value))
+				return new Text(null);
+			return new Text(header + ": " + value + "\n");
+		}
 
-	private String a(String label, ValueEnum val, String field) {
-		if (val == null)
-			return field;
-		return field == null
-			? label + ": " + val.getValue() + "\n"
-			: field + label + ": " + val.getValue() + "\n";
+		Text join(String header, String value) {
+			if (Strings.nullOrEmpty(value))
+				return this;
+			if (this.value == null)
+				return of(header, value);
+			return new Text(this.value + "\n" + header + ": " + value);
+		}
 	}
-
-	private void a(String label, ValueEnum venum, StringBuilder builder) {
-		if (venum == null)
-			return;
-		builder.append(label).append(": ").append(venum.getValue())
-				.append("\n");
-	}
-
 }

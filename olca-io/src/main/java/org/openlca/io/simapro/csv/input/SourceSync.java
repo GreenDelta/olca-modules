@@ -1,11 +1,12 @@
 package org.openlca.io.simapro.csv.input;
 
+import java.util.Map;
+
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Source;
-import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -25,7 +26,7 @@ class SourceSync {
 		this.dao = new SourceDao(database);
 	}
 
-	public void run(RefData refData) {
+	public Map<String, Source> run(RefData refData) {
 		log.trace("synchronize sources with database");
 		try {
 			for (LiteratureReferenceBlock block : index

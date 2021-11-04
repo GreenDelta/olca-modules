@@ -11,9 +11,6 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.simapro.csv.CsvDataSet;
-import org.openlca.simapro.csv.model.CalculatedParameterRow;
-import org.openlca.simapro.csv.model.InputParameterRow;
-import org.openlca.simapro.csv.refdata.InputParameterRow;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +37,7 @@ class GlobalParameterSync {
 		List<Parameter> globals = loadGlobals();
 		HashSet<String> added = new HashSet<>();
 
+		// global input parameters
 		Stream.concat(
 			dataSet.databaseInputParameters().stream(),
 			dataSet.projectInputParameters().stream())
@@ -51,44 +49,19 @@ class GlobalParameterSync {
 				globals.add(param);
 		});
 
-		for (InputParameterRow row : index.getInputParameters()) {
+		// global calculated parameters
+		Stream.concat(
+			dataSet.databaseCalculatedParameters().stream(),
+			dataSet.projectCalculatedParameters().stream())
+			.forEach(row -> {
+				if (contains(row.name(), globals))
+					return;
+				var param = Parameters.create(row, ParameterScope.GLOBAL);
+				globals.add(param);
+				added.add(param.name);
+			});
 
-		}
-
-		for (CalculatedParameterRow row : index.getCalculatedParameters()) {
-			if (contains(row.name, globals))
-				continue;
-			Parameter param = Parameters.create(row, ParameterScope.GLOBAL);
-			globals.add(param);
-			added.add(param.name);
-		}
 		evalAndWrite(globals, added);
-	}
-
-	private void evalAndWrite(List<Parameter> globals, HashSet<String> added) {
-		FormulaInterpreter interpreter = new FormulaInterpreter();
-		for (Parameter param : globals) {
-			interpreter.bind(param.name, param.formula);
-		}
-		for (Parameter param : globals) {
-			if (!added.contains(param.name))
-				continue;
-			if (!param.isInputParameter) {
-				eval(param, interpreter);
-			}
-			dao.insert(param);
-		}
-	}
-
-	private void eval(Parameter p, FormulaInterpreter interpreter) {
-		try {
-			p.value = interpreter.eval(p.formula);
-		} catch (Exception e) {
-			log.warn("failed to evaluate formula for global parameter "
-					+ p.name + ": set value to 1.0", e);
-			p.isInputParameter = true;
-			p.value = 1.0;
-		}
 	}
 
 	private List<Parameter> loadGlobals() {
@@ -100,6 +73,36 @@ class GlobalParameterSync {
 			log.error("failed to load global parameters from database");
 		}
 		return globals;
+	}
+
+	private void evalAndWrite(List<Parameter> globals, HashSet<String> added) {
+
+		// create the interpreter
+		var interpreter = new FormulaInterpreter();
+		for (var param : globals) {
+			if (param.isInputParameter) {
+				interpreter.bind(param.name, param.value);
+			} else {
+				interpreter.bind(param.name, param.formula);
+			}
+		}
+
+		// evaluate and insert the parameters
+		for (var param : globals) {
+			if (!added.contains(param.name))
+				continue;
+			if (!param.isInputParameter) {
+				try {
+					param.value = interpreter.eval(param.formula);
+				} catch (Exception e) {
+					log.warn("failed to evaluate formula for global parameter "
+						+ param.name + ": set value to 1.0", e);
+					param.isInputParameter = true;
+					param.value = 1.0;
+				}
+			}
+			dao.insert(param);
+		}
 	}
 
 	private boolean contains(String paramName, List<Parameter> globals) {

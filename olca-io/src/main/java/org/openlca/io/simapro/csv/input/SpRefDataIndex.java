@@ -8,18 +8,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openlca.simapro.csv.model.CalculatedParameterRow;
-import org.openlca.simapro.csv.model.InputParameterRow;
-import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
-import org.openlca.simapro.csv.model.enums.ProductType;
-import org.openlca.simapro.csv.model.process.ElementaryExchangeRow;
-import org.openlca.simapro.csv.model.process.ExchangeRow;
-import org.openlca.simapro.csv.model.process.ProductExchangeRow;
-import org.openlca.simapro.csv.model.process.RefProductRow;
-import org.openlca.simapro.csv.model.refdata.ElementaryFlowRow;
-import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
-import org.openlca.simapro.csv.model.refdata.QuantityRow;
-import org.openlca.simapro.csv.model.refdata.UnitRow;
+import org.openlca.simapro.csv.enums.ElementaryFlowType;
+import org.openlca.simapro.csv.enums.ProductType;
+import org.openlca.simapro.csv.process.ElementaryExchangeRow;
+import org.openlca.simapro.csv.process.ExchangeRow;
+import org.openlca.simapro.csv.refdata.CalculatedParameterRow;
+import org.openlca.simapro.csv.refdata.ElementaryFlowRow;
+import org.openlca.simapro.csv.refdata.InputParameterRow;
+import org.openlca.simapro.csv.refdata.QuantityRow;
+import org.openlca.simapro.csv.refdata.UnitRow;
 import org.openlca.util.KeyGen;
 
 /**

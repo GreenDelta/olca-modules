@@ -17,13 +17,11 @@ import org.openlca.io.UnitMapping;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.MapFactor;
-import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
-import org.openlca.simapro.csv.model.enums.ProductType;
-import org.openlca.simapro.csv.model.process.ElementaryExchangeRow;
-import org.openlca.simapro.csv.model.process.ExchangeRow;
-import org.openlca.simapro.csv.model.process.ProductExchangeRow;
-import org.openlca.simapro.csv.model.process.RefProductRow;
-import org.openlca.simapro.csv.model.refdata.ElementaryFlowRow;
+import org.openlca.simapro.csv.enums.ElementaryFlowType;
+import org.openlca.simapro.csv.enums.ProductType;
+import org.openlca.simapro.csv.process.ElementaryExchangeRow;
+import org.openlca.simapro.csv.process.ExchangeRow;
+import org.openlca.simapro.csv.refdata.ElementaryFlowRow;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -185,8 +183,8 @@ class FlowSync {
 
 	private Flow getElementaryFlow(ElementaryExchangeRow row,
 			ElementaryFlowType type, String key) {
-		String unit = row.unit;
-		UnitMappingEntry unitEntry = unitMapping.getEntry(unit);
+		String unit = row.unit();
+		var unitEntry = unitMapping.getEntry(unit);
 		if (unitEntry == null) {
 			log.error("could not find unit {} in database", unit);
 			return null;
@@ -197,11 +195,11 @@ class FlowSync {
 			return flow;
 		flow = new Flow();
 		flow.refId = refId;
-		flow.name = row.name;
+		flow.name = row.name();
 		flow.category = getCategory(row, type);
 		flow.flowType = FlowType.ELEMENTARY_FLOW;
 		setFlowProperty(unitEntry, flow);
-		ElementaryFlowRow flowInfo = index.getFlowInfo(row.name, type);
+		ElementaryFlowRow flowInfo = index.getFlowInfo(row.name(), type);
 		setFlowData(flow, flowInfo);
 		dao.insert(flow);
 		return flow;
@@ -210,8 +208,8 @@ class FlowSync {
 	private void setFlowData(Flow flow, ElementaryFlowRow flowRow) {
 		if (flow == null || flowRow == null)
 			return;
-		flow.casNumber = flowRow.casNumber;
-		flow.description = flowRow.comment;
+		flow.casNumber = flowRow.cas();
+		flow.description = flowRow.comment();
 		// TODO: we could parse the chemical formula, synonyms, and
 		// location from the comment string
 	}
@@ -219,10 +217,10 @@ class FlowSync {
 	private Category getCategory(ElementaryExchangeRow row, ElementaryFlowType type) {
 		if (row == null || type == null)
 			return null;
-		var sub = Strings.notEmpty(row.subCompartment)
-			? row.subCompartment
+		var sub = Strings.notEmpty(row.subCompartment())
+			? row.subCompartment()
 			: "unspecified";
-		return CategoryDao.sync(db, ModelType.FLOW, type.getExchangeHeader(), sub);
+		return CategoryDao.sync(db, ModelType.FLOW, type.exchangeHeader(), sub);
 	}
 
 	private void setFlowProperty(UnitMappingEntry unitEntry, Flow flow) {
