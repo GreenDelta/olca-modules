@@ -81,14 +81,4 @@ class CsvUtil {
 		return units;
 	}
 
-	static UnitRow unitRowOf(CsvDataSet ds, String unit) {
-		if (ds == null || unit == null)
-			return null;
-		for (var row : ds.units()) {
-			if (unit.equals(row.name()))
-				return row;
-		}
-		return null;
-	}
-
 }

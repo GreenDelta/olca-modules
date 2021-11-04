@@ -1,63 +1,38 @@
 package org.openlca.io.simapro.csv.input;
 
-import org.openlca.simapro.csv.model.Uncertainty;
-import org.openlca.simapro.csv.model.enums.DistributionParameter;
+import org.openlca.core.model.Uncertainty;
+import org.openlca.simapro.csv.UncertaintyRecord;
 
 final class Uncertainties {
 
 	private Uncertainties() {
 	}
 
-	public static org.openlca.core.model.Uncertainty get(double mean,
-			Uncertainty uncertainty) {
-		if (uncertainty == null || uncertainty.getType() == null)
+	public static Uncertainty of(double mean, UncertaintyRecord record) {
+		if (record == null || record.isUndefined())
 			return null;
-		switch (uncertainty.getType()) {
-		case LOG_NORMAL:
-			return logNormal(mean, uncertainty);
-		case NORMAL:
-			return normal(mean, uncertainty);
-		case TRIANGLE:
-			return triangle(mean, uncertainty);
-		case UNIFORM:
-			return uniform(uncertainty);
-		default:
-			return null;
+
+		if (record.isLogNormal()) {
+			var log = record.getAsLogNormal();
+			return Uncertainty.logNormal(mean, Math.sqrt(log.xsd()));
 		}
+
+		if (record.isNormal()) {
+			var norm = record.getAsNormal();
+			return Uncertainty.normal(mean, 0.5 * norm.xsd());
+		}
+
+		if (record.isTriangle()) {
+			var tri = record.getAsTriangle();
+			return Uncertainty.triangle(tri.min(), mean, tri.max());
+		}
+
+		if (record.isUniform()) {
+			var uni = record.getAsUniform();
+			return Uncertainty.uniform(uni.min(), uni.max());
+		}
+
+		return null;
 	}
 
-	private static org.openlca.core.model.Uncertainty logNormal(double mean,
-			Uncertainty uncertainty) {
-		return org.openlca.core.model.Uncertainty.logNormal(
-				mean,
-				Math.sqrt(uncertainty
-						.getParameterValue(DistributionParameter.SQUARED_SD))
-				);
-	}
-
-	private static org.openlca.core.model.Uncertainty normal(double mean,
-			Uncertainty uncertainty) {
-		return org.openlca.core.model.Uncertainty.normal(
-				mean,
-				0.5 * uncertainty
-						.getParameterValue(DistributionParameter.DOUBLED_SD)
-				);
-	}
-
-	private static org.openlca.core.model.Uncertainty triangle(double mean,
-			Uncertainty uncertainty) {
-		return org.openlca.core.model.Uncertainty.triangle(
-				uncertainty.getParameterValue(DistributionParameter.MINIMUM),
-				mean,
-				uncertainty.getParameterValue(DistributionParameter.MAXIMUM)
-				);
-	}
-
-	private static org.openlca.core.model.Uncertainty uniform(
-			Uncertainty uncertainty) {
-		return org.openlca.core.model.Uncertainty.uniform(
-				uncertainty.getParameterValue(DistributionParameter.MINIMUM),
-				uncertainty.getParameterValue(DistributionParameter.MAXIMUM)
-				);
-	}
 }

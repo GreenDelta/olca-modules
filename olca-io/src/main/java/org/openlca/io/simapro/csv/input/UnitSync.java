@@ -63,7 +63,13 @@ class UnitSync {
 		while (!unknownUnits.isEmpty()) {
 
 			var unit = unknownUnits.remove(0);
-			var unitRow = CsvUtil.unitRowOf(dataSet, unit);
+			UnitRow unitRow = null;
+			for (var row : dataSet.units()) {
+				if (Objects.equals(unit, row.name())) {
+					unitRow = row;
+					break;
+				}
+			}
 
 			// add the unit to an existing unit group
 			if (unitRow != null && mapping.hasEntry(unitRow.referenceUnit())) {
@@ -85,7 +91,7 @@ class UnitSync {
 			if (quantityRow == null) {
 				log.warn("unit {} found but with no quantity; create default "
 					+ "unit, unit group, and flow property", unit);
-				createAllForUnit(unit, mapping);
+				createStandalone(unit, mapping);
 				continue;
 			}
 
@@ -187,7 +193,7 @@ class UnitSync {
 	 * Creates a new unit group and flow property for the given unit name and
 	 * adds a mapping for this.
 	 */
-	private void createAllForUnit(String unit, UnitMapping mapping) {
+	private void createStandalone(String unit, UnitMapping mapping) {
 		var group = UnitGroup.of("Unit group for " + unit, unit);
 		db.insert(group);
 		var property = FlowProperty.of("Property for " + unit, group);

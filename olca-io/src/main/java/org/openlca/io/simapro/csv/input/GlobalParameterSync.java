@@ -3,14 +3,17 @@ package org.openlca.io.simapro.csv.input;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.expressions.FormulaInterpreter;
+import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.simapro.csv.model.CalculatedParameterRow;
 import org.openlca.simapro.csv.model.InputParameterRow;
+import org.openlca.simapro.csv.refdata.InputParameterRow;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,25 +26,35 @@ class GlobalParameterSync {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private final SpRefDataIndex index;
+	private final CsvDataSet dataSet;
 	private final ParameterDao dao;
 
-	public GlobalParameterSync(SpRefDataIndex index, IDatabase db) {
-		this.index = index;
+	public GlobalParameterSync(CsvDataSet dataSet, IDatabase db) {
+		this.dataSet = dataSet;
 		dao = new ParameterDao(db);
 	}
 
 	public void run() {
 		log.trace("import project and database parameters");
+
 		List<Parameter> globals = loadGlobals();
 		HashSet<String> added = new HashSet<>();
+
+		Stream.concat(
+			dataSet.databaseInputParameters().stream(),
+			dataSet.projectInputParameters().stream())
+			.forEach(row -> {
+				if (contains(row.name(), globals))
+					return;
+				var param = Parameters.create(row, ParameterScope.GLOBAL);
+				added.add(param.name);
+				globals.add(param);
+		});
+
 		for (InputParameterRow row : index.getInputParameters()) {
-			if (contains(row.name, globals))
-				continue;
-			Parameter param = Parameters.create(row, ParameterScope.GLOBAL);
-			added.add(param.name);
-			globals.add(param);
+
 		}
+
 		for (CalculatedParameterRow row : index.getCalculatedParameters()) {
 			if (contains(row.name, globals))
 				continue;

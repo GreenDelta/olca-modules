@@ -6,6 +6,8 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.simapro.csv.model.CalculatedParameterRow;
 import org.openlca.simapro.csv.model.InputParameterRow;
+import org.openlca.simapro.csv.refdata.CalculatedParameterRow;
+import org.openlca.simapro.csv.refdata.InputParameterRow;
 
 class Parameters {
 
@@ -15,14 +17,12 @@ class Parameters {
 	static Parameter create(InputParameterRow row, ParameterScope scope) {
 		Parameter p = new Parameter();
 		p.refId = UUID.randomUUID().toString();
-		p.name = row.name;
+		p.name = row.name();
 		p.isInputParameter = true;
 		p.scope = scope;
-		p.value = row.value;
-		p.formula = Double.toString(row.value);
-		p.description = row.comment;
-		p.uncertainty = Uncertainties.get(row.value,
-		row.uncertainty);
+		p.value = row.value();
+		p.description = row.comment();
+		p.uncertainty = Uncertainties.get(row.value(), row.uncertainty());
 		return p;
 	}
 
