@@ -1,13 +1,11 @@
 package org.openlca.io.simapro.csv.input;
 
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.openlca.core.database.CategoryDao;
-import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Category;
@@ -18,11 +16,12 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.FlowMap;
-import org.openlca.io.maps.MapFactor;
+import org.openlca.io.simapro.csv.Compartment;
 import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.enums.ProductType;
 import org.openlca.simapro.csv.enums.SubCompartment;
+import org.openlca.simapro.csv.method.ImpactFactorRow;
 import org.openlca.simapro.csv.process.ElementaryExchangeRow;
 import org.openlca.simapro.csv.process.ExchangeRow;
 import org.openlca.simapro.csv.process.ProductOutputRow;
@@ -46,7 +45,7 @@ class FlowSync {
 
 	private final EnumMap<ElementaryFlowType, HashMap<String, ElementaryFlowRow>> flowInfos;
 
-	FlowSync(IDatabase db,RefData refData, FlowMap flowMap) {
+	FlowSync(IDatabase db, RefData refData, FlowMap flowMap) {
 		this.db = db;
 		this.refData = refData;
 		this.flowMap = flowMap;
@@ -63,7 +62,7 @@ class FlowSync {
 						.trim()
 						.toLowerCase();
 					flowInfos.computeIfAbsent(type, t -> new HashMap<>())
-							.put(name, row);
+						.put(name, row);
 				}
 			}
 
@@ -76,18 +75,40 @@ class FlowSync {
 		}
 	}
 
-	SyncFlow get(ElementaryFlowType type, ElementaryExchangeRow row) {
+	SyncFlow get(ImpactFactorRow row) {
+		var type = ElementaryFlowType.of(row.compartment());
+		if (type == null) {
+			log.error("failed to detect compartment: '{}'", row.compartment());
+		}
+		var subComp = SubCompartment.of(row.subCompartment());
+		return get(Compartment.of(type, subComp), row.flow(), row.unit());
+	}
 
-		//
-		var mappingKey = SyncFlow.mappingKeyOf(type, row);
+	SyncFlow get(ElementaryFlowType type, ElementaryExchangeRow row) {
+		var subComp = SubCompartment.of(row.subCompartment());
+		return get(Compartment.of(type, subComp), row.name(), row.unit());
+	}
+
+	private SyncFlow get(Compartment comp, String name, String unit) {
+
+		// check if there is a mapped flow
+		var mappingKey = SyncFlow.mappingKeyOf(comp, name, unit);
 		var mappedFlow = mappedFlows.get(mappingKey);
 		if (mappedFlow != null)
 			return mappedFlow;
-		flowMap.getEntry(mappingKey);
+		var mapEntry = flowMap.getEntry(mappingKey);
+		if (mapEntry != null) {
+			var flow = mapEntry.targetFlow.getMatchingFlow(db);
+			if (flow != null) {
+				var syncFlow = SyncFlow.ofMapped(flow, mapEntry.factor);
+				mappedFlows.put(mappingKey, syncFlow);
+				return syncFlow;
+			}
+		}
 
-		var unit = refData.getUnit(row.unit());
-		if (unit == null) {
-			log.error("unknown unit {} in flow {}", row.unit(), row.name());
+		var quantity = refData.getUnit(unit);
+		if (quantity == null) {
+			log.error("unknown unit {} in flow {}", unit, name);
 			return SyncFlow.empty();
 		}
 		var subCompartment = SubCompartment.of(row.subCompartment());
@@ -95,11 +116,7 @@ class FlowSync {
 			subCompartment = SubCompartment.UNSPECIFIED;
 		}
 
-		var refId = KeyGen.get(
-			type.exchangeHeader(),
-			subCompartment.toString(),
-			row.name(),
-			unit.unitGroup.refId);
+		var refId = SyncFlow.refIdOf(comp, unit, quantity);
 
 		var syncFlow = elemFlows.get(refId);
 		if (syncFlow != null)
@@ -114,15 +131,13 @@ class FlowSync {
 
 		flow = new Flow();
 		flow.flowType = FlowType.ELEMENTARY_FLOW;
-		flow.name = row.name();
-		flow.category = CategoryDao.sync(
-			db, ModelType.FLOW, "Elementary flows",
-			type.exchangeHeader(), subCompartment.toString());
-		setFlowProperty(unit, flow);
+		flow.name = name;
+		flow.category = categoryOf(comp);
+		setFlowProperty(quantity, flow);
 
-		var infos = flowInfos.get(type);
+		var infos = flowInfos.get(comp.type());
 		if (infos != null) {
-			var key = Strings.orEmpty(row.name())
+			var key = Strings.orEmpty(name)
 				.trim()
 				.toLowerCase();
 			var info = infos.get(key);
@@ -140,35 +155,14 @@ class FlowSync {
 		return syncFlow;
 	}
 
-
-
-	private Category getCategory(ElementaryExchangeRow row, ElementaryFlowType type) {
-		if (row == null || type == null)
+	private Category categoryOf(Compartment comp) {
+		if (comp == null || comp.type() == null)
 			return null;
-		var sub = Strings.notEmpty(row.subCompartment())
-			? row.subCompartment()
-			: "unspecified";
-		return CategoryDao.sync(db, ModelType.FLOW, type.exchangeHeader(), sub);
-	}
-
-
-	private void syncElemFlow(ElementaryExchangeRow row,
-			ElementaryFlowType type) {
-		var key = Flows.getMappingID(type, row);
-		var mapEntry = flowMap.getEntry(key);
-		MapFactor<Flow> mappedFlow = null;
-		if (mapEntry != null && mapEntry.targetFlow != null) {
-			var flow = mapEntry.targetFlow.getMatchingFlow(db);
-			if (flow != null) {
-				mappedFlow = new MapFactor<>(flow, mapEntry.factor);
-			}
-		}
-		if (mappedFlow != null)
-			refData.putMappedFlow(key, mappedFlow);
-		else {
-			Flow elemFlow = getElementaryFlow(row, type, key);
-			refData.putElemFlow(key, elemFlow);
-		}
+		var sub = comp.sub() == null
+			? SubCompartment.UNSPECIFIED.toString()
+			: comp.sub().toString();
+		return CategoryDao.sync(db, ModelType.FLOW,
+			comp.type().exchangeHeader(), sub);
 	}
 
 	private void syncProduct(ExchangeRow row, RefData refData) {
@@ -191,7 +185,7 @@ class FlowSync {
 			return flow;
 		flow = createProductFlow(refId, row);
 		flow.category = Strings.nullOrEmpty(row.category())
-			?  null
+			? null
 			: CategoryDao.sync(db, ModelType.FLOW, row.category().split("\\\\"));
 		dao.insert(flow);
 		return flow;
@@ -270,9 +264,6 @@ class FlowSync {
 	}
 
 
-
-
-
 	private void setFlowProperty(UnitMappingEntry unitEntry, Flow flow) {
 		flow.referenceFlowProperty = unitEntry.flowProperty;
 		FlowPropertyFactor factor = new FlowPropertyFactor();
@@ -280,10 +271,4 @@ class FlowSync {
 		factor.flowProperty = unitEntry.flowProperty;
 		flow.flowPropertyFactors.add(factor);
 	}
-
-
-
-
-
-
 }
