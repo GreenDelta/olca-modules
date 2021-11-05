@@ -2,25 +2,43 @@ package org.openlca.io.simapro.csv.input;
 
 import java.util.HashMap;
 
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Source;
 import org.openlca.io.UnitMapping;
+import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.MapFactor;
+import org.openlca.simapro.csv.CsvDataSet;
 
 class RefData {
 
-	private UnitMapping unitMapping;
+	private final IDatabase db;
+	private final UnitSync unitSync;
+	private final SourceSync sourceSync;
+
 	private final HashMap<String, Flow> products = new HashMap<>();
 	private final HashMap<String, Flow> elemFlows = new HashMap<>();
 	private final HashMap<String, MapFactor<Flow>> mappedFlows = new HashMap<>();
-	private final HashMap<String, Source> sources = new HashMap<>();
 
-	public void setUnitMapping(UnitMapping unitMapping) {
-		this.unitMapping = unitMapping;
+	RefData(IDatabase db) {
+		this.db = db;
+		this.unitSync = new UnitSync(db);
+		this.sourceSync = new SourceSync(db);
 	}
 
-	public UnitMapping getUnitMapping() {
-		return unitMapping;
+	void sync(CsvDataSet dataSet) {
+		unitSync.sync(dataSet);
+		sourceSync.sync(dataSet);
+		// TODO: make the parameter sync like the other syncs
+		new GlobalParameterSync(dataSet, db).run();
+	}
+
+	public Source getSource(String key) {
+		return sourceSync.sources().get(key);
+	}
+
+	public UnitMappingEntry getUnit(String unit) {
+		return unitSync.mapping().getEntry(unit);
 	}
 
 	public void putProduct(String key, Flow flow) {
@@ -47,12 +65,6 @@ class RefData {
 		return mappedFlows.get(key);
 	}
 
-	public void putSource(String key, Source source) {
-		sources.put(key, source);
-	}
 
-	public Source getSource(String key) {
-		return sources.get(key);
-	}
 
 }

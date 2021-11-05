@@ -26,12 +26,12 @@ class GlobalParameterSync {
 	private final CsvDataSet dataSet;
 	private final ParameterDao dao;
 
-	public GlobalParameterSync(CsvDataSet dataSet, IDatabase db) {
+	GlobalParameterSync(CsvDataSet dataSet, IDatabase db) {
 		this.dataSet = dataSet;
 		dao = new ParameterDao(db);
 	}
 
-	public void run() {
+	void run() {
 		log.trace("import project and database parameters");
 
 		List<Parameter> globals = loadGlobals();

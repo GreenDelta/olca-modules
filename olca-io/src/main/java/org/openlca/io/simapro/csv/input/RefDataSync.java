@@ -19,10 +19,6 @@ class RefDataSync {
 	}
 
 	public RefData run() {
-		RefData refData = new RefData();
-		new GlobalParameterSync(index, db).run();
-		new SourceSync(index, db).run(refData);
-		new UnitSync(index, db).run(refData);
 		new FlowSync(index, refData.getUnitMapping(), db)
 				.run(refData, flowMap);
 		return refData;

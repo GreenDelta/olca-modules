@@ -53,13 +53,18 @@ public class SimaProCsvImport implements FileImport {
 	public void run() {
 		if (files == null || files.length == 0)
 			return;
+
+		var refData = new RefData(db);
+
 		try {
 			for (File file : files) {
 				log.trace("import SimaPro CSV file {}", file);
-				var dataSet = CsvDataSet.read(file);
 				log.trace("extract reference data");
+				var dataSet = CsvDataSet.read(file);
+				refData.sync(dataSet);
 
-				var index = refDataHandler.getIndex();
+
+
 				log.trace("sync. reference data");
 				var flowMap = this.flowMap != null
 						? this.flowMap

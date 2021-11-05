@@ -11,15 +11,14 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
-import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.MapFactor;
 import org.openlca.simapro.csv.Numeric;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.enums.ProductType;
 import org.openlca.simapro.csv.process.ElementaryExchangeRow;
-import org.openlca.simapro.csv.process.ExchangeRow;
 import org.openlca.simapro.csv.process.ProcessBlock;
 import org.openlca.simapro.csv.process.ProductOutputRow;
+import org.openlca.simapro.csv.process.TechExchangeRow;
 import org.openlca.util.Exchanges;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Processes;
@@ -46,7 +45,6 @@ class ProcessHandler {
 		this.dao = new ProcessDao(database);
 	}
 
-	@BlockHandler
 	public void handleProcess(ProcessBlock block) {
 		String refId = KeyGen.get(block.identifier());
 		Process process = dao.getForRefId(refId);
@@ -181,8 +179,8 @@ class ProcessHandler {
 
 	private void mapProductInputs(Process process, long scope) {
 		for (ProductType type : ProductType.values()) {
-			for (ProductExchangeRow row : block.getProductExchanges(type)) {
-				Flow flow = refData.getProduct(row.name);
+			for (TechExchangeRow row : block.exchangesOf(type)) {
+				Flow flow = refData.getProduct(row.name());
 				Exchange e = initExchange(row, scope, flow, process, false);
 				if (e == null)
 					continue;
@@ -236,7 +234,7 @@ class ProcessHandler {
 			return null;
 		}
 		Exchange e;
-		var entry = refData.getUnitMapping().getEntry(row.unit());
+		var entry = refData.getUnit(row.unit());
 		if (refUnit || entry == null) {
 			e = process.add(Exchange.of(flow));
 			if (!refUnit) {

@@ -1,8 +1,12 @@
 package org.openlca.io.simapro.csv.input;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.Consumer;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.FlowProperty;
@@ -12,6 +16,9 @@ import org.openlca.core.model.Version;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.simapro.csv.CsvDataSet;
+import org.openlca.simapro.csv.enums.ElementaryFlowType;
+import org.openlca.simapro.csv.enums.ProductType;
+import org.openlca.simapro.csv.process.ExchangeRow;
 import org.openlca.simapro.csv.refdata.QuantityRow;
 import org.openlca.simapro.csv.refdata.UnitRow;
 import org.openlca.util.KeyGen;
@@ -27,20 +34,29 @@ import org.slf4j.LoggerFactory;
 class UnitSync {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private final CsvDataSet dataSet;
 	private final IDatabase db;
+	private final UnitMapping mapping;
 
-	public UnitSync(CsvDataSet dataSet, IDatabase database) {
-		this.dataSet = dataSet;
-		this.db = database;
+	UnitSync(IDatabase db) {
+		this.db = db;
+		this.mapping = UnitMapping.createDefault(db);
 	}
 
-	public void run(RefData refData) {
-		log.trace("synchronize units with database");
+	UnitMapping mapping() {
+		return mapping;
+	}
+
+	/**
+	 * Adds the units of the given data set to the unit mapping if they are
+	 * missing.
+	 */
+	void sync(CsvDataSet dataSet) {
+		if (dataSet == null)
+			return;
 		try {
 			var mapping = UnitMapping.createDefault(db);
 			var unknownUnits = new ArrayList<String>();
-			for (var unit : CsvUtil.allUnitsOf(dataSet)) {
+			for (var unit : collectUnitsOf(dataSet)) {
 				var entry = mapping.getEntry(unit);
 				if (entry == null) {
 					unknownUnits.add(unit);
@@ -49,16 +65,14 @@ class UnitSync {
 				}
 			}
 			if (!unknownUnits.isEmpty()) {
-				syncUnits(mapping, unknownUnits);
+				syncUnits(dataSet, unknownUnits);
 			}
-			refData.setUnitMapping(mapping);
 		} catch (Exception e) {
 			log.error("failed to synchronize units with database", e);
-			refData.setUnitMapping(new UnitMapping());
 		}
 	}
 
-	private void syncUnits(UnitMapping mapping, List<String> unknownUnits) {
+	private void syncUnits(CsvDataSet dataSet, List<String> unknownUnits) {
 
 		while (!unknownUnits.isEmpty()) {
 
@@ -96,7 +110,7 @@ class UnitSync {
 			}
 
 			log.warn("unknown unit {}, import quantity {}", unit, quantityRow);
-			var group = createForQuantity(quantityRow, mapping);
+			var group = createForQuantity(dataSet, quantityRow, mapping);
 			for (var u : group.units) {
 				unknownUnits.remove(u.name);
 			}
@@ -157,7 +171,8 @@ class UnitSync {
 	}
 
 
-	private UnitGroup createForQuantity(QuantityRow quantity, UnitMapping mapping) {
+	private UnitGroup createForQuantity(
+		CsvDataSet dataSet, QuantityRow quantity, UnitMapping mapping) {
 
 		// create unit group and flow property
 		var group = UnitGroup.of("Units of " + quantity.name());
@@ -188,7 +203,6 @@ class UnitSync {
 		return group;
 	}
 
-
 	/**
 	 * Creates a new unit group and flow property for the given unit name and
 	 * adds a mapping for this.
@@ -208,4 +222,64 @@ class UnitSync {
 		mapping.put(unit, e);
 	}
 
+	/**
+	 * Collects the used units from the given data set.
+	 */
+	private Set<String> collectUnitsOf(CsvDataSet csv) {
+		if (csv == null)
+			return Collections.emptySet();
+		var units = new HashSet<String>();
+
+		// from flows
+		for (var type : ElementaryFlowType.values()) {
+			for (var f : csv.getElementaryFlows(type)) {
+				units.add(f.unit());
+			}
+		}
+
+		// from exchanges
+		Consumer<List<? extends ExchangeRow>> exchanges = list -> {
+			for (var e : list) {
+				units.add(e.unit());
+			}
+		};
+		for (var p: csv.processes()) {
+			exchanges.accept(p.products());
+			for (var type : ProductType.values()) {
+				exchanges.accept(p.exchangesOf(type));
+			}
+			for (var type : ElementaryFlowType.values()) {
+				exchanges.accept(p.exchangesOf(type));
+			}
+			if (p.wasteTreatment() != null) {
+				exchanges.accept(List.of(p.wasteTreatment()));
+			}
+		}
+
+		for (var s : csv.productStages()) {
+			exchanges.accept(s.products());
+			exchanges.accept(s.processes());
+			exchanges.accept(s.additionalLifeCycles());
+			exchanges.accept(s.disassemblies());
+			exchanges.accept(s.materialsAndAssemblies());
+			exchanges.accept(s.reuses());
+			if (s.assembly() != null) {
+				exchanges.accept(List.of(s.assembly()));
+			}
+			if (s.referenceAssembly() != null) {
+				exchanges.accept(List.of(s.referenceAssembly()));
+			}
+		}
+
+		// from LCIA factors
+		for (var m : csv.methods()) {
+			for (var i : m.impactCategories()) {
+				for (var f : i.factors()) {
+					units.add(f.unit());
+				}
+			}
+		}
+
+		return units;
+	}
 }
