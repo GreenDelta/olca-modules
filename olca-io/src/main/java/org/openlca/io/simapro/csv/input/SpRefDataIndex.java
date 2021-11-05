@@ -12,9 +12,12 @@ import org.openlca.simapro.csv.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.enums.ProductType;
 import org.openlca.simapro.csv.process.ElementaryExchangeRow;
 import org.openlca.simapro.csv.process.ExchangeRow;
+import org.openlca.simapro.csv.process.RefExchangeRow;
+import org.openlca.simapro.csv.process.TechExchangeRow;
 import org.openlca.simapro.csv.refdata.CalculatedParameterRow;
 import org.openlca.simapro.csv.refdata.ElementaryFlowRow;
 import org.openlca.simapro.csv.refdata.InputParameterRow;
+import org.openlca.simapro.csv.refdata.LiteratureReferenceBlock;
 import org.openlca.simapro.csv.refdata.QuantityRow;
 import org.openlca.simapro.csv.refdata.UnitRow;
 import org.openlca.util.KeyGen;
@@ -24,120 +27,120 @@ import org.openlca.util.KeyGen;
  */
 class SpRefDataIndex {
 
-	private HashMap<String, QuantityRow> quantities = new HashMap<>();
+	private final HashMap<String, QuantityRow> quantities = new HashMap<>();
 	private HashSet<String> usedUnits = new HashSet<>();
-	private HashMap<String, UnitRow> unitRows = new HashMap<>();
-	private HashMap<String, LiteratureReferenceBlock> sources = new HashMap<>();
-	private HashMap<String, ElementaryFlowRow> elemFlowInfos = new HashMap<>();
-	private List<InputParameterRow> inputParameters = new ArrayList<>();
-	private List<CalculatedParameterRow> calculatedParameters = new ArrayList<>();
-	private HashMap<String, ExchangeRow> products = new HashMap<>();
-	private HashMap<String, ProductType> productTypes = new HashMap<>();
-	private HashMap<ElementaryFlowType, HashMap<String, ElementaryExchangeRow>> elemFlows = new HashMap<>();
+	private final HashMap<String, UnitRow> unitRows = new HashMap<>();
+	private final HashMap<String, LiteratureReferenceBlock> sources = new HashMap<>();
+	private final HashMap<String, ElementaryFlowRow> elemFlowInfos = new HashMap<>();
+	private final List<InputParameterRow> inputParameters = new ArrayList<>();
+	private final List<CalculatedParameterRow> calculatedParameters = new ArrayList<>();
+	private final HashMap<String, ExchangeRow> products = new HashMap<>();
+	private final HashMap<String, ProductType> productTypes = new HashMap<>();
+	private final HashMap<ElementaryFlowType, HashMap<String, ElementaryExchangeRow>> elemFlows = new HashMap<>();
 
-	public void put(QuantityRow quantity) {
+	void put(QuantityRow quantity) {
 		if (quantity == null)
 			return;
-		quantities.put(quantity.name, quantity);
+		quantities.put(quantity.name(), quantity);
 	}
 
-	public QuantityRow getQuantity(String name) {
+	QuantityRow getQuantity(String name) {
 		return quantities.get(name);
 	}
 
-	public void put(UnitRow unitRow) {
+	void put(UnitRow unitRow) {
 		if (unitRow == null)
 			return;
-		String name = unitRow.name;
+		String name = unitRow.name();
 		unitRows.put(name, unitRow);
 	}
 
-	public UnitRow getUnitRow(String name) {
+	UnitRow getUnitRow(String name) {
 		return unitRows.get(name);
 	}
 
-	public Collection<UnitRow> getUnitRows() {
+	Collection<UnitRow> getUnitRows() {
 		return unitRows.values();
 	}
 
-	public void putUsedUnit(String unitName) {
+	void putUsedUnit(String unitName) {
 		if (unitName != null)
 			usedUnits.add(unitName);
 	}
 
-	public Set<String> getUsedUnits() {
+	Set<String> getUsedUnits() {
 		return usedUnits;
 	}
 
-	public void put(LiteratureReferenceBlock reference) {
+	void put(LiteratureReferenceBlock reference) {
 		if (reference == null)
 			return;
-		sources.put(reference.name, reference);
+		sources.put(reference.name(), reference);
 	}
 
-	public Collection<LiteratureReferenceBlock> getLiteratureReferences() {
+	Collection<LiteratureReferenceBlock> getLiteratureReferences() {
 		return sources.values();
 	}
 
-	public void put(ElementaryFlowRow elemFlowRow, ElementaryFlowType type) {
+	void put(ElementaryFlowRow elemFlowRow, ElementaryFlowType type) {
 		if (elemFlowRow == null || type == null)
 			return;
-		String key = KeyGen.get(elemFlowRow.name, type.getExchangeHeader());
+		String key = KeyGen.get(elemFlowRow.name(), type.exchangeHeader());
 		elemFlowInfos.put(key, elemFlowRow);
 	}
 
-	public ElementaryFlowRow getFlowInfo(String name, ElementaryFlowType type) {
-		String key = KeyGen.get(name, type.getExchangeHeader());
+	ElementaryFlowRow getFlowInfo(String name, ElementaryFlowType type) {
+		String key = KeyGen.get(name, type.exchangeHeader());
 		return elemFlowInfos.get(key);
 	}
 
-	public void putInputParameters(List<InputParameterRow> params) {
+	void putInputParameters(List<InputParameterRow> params) {
 		if (params == null)
 			return;
 		inputParameters.addAll(params);
 	}
 
-	public List<InputParameterRow> getInputParameters() {
+	List<InputParameterRow> getInputParameters() {
 		return inputParameters;
 	}
 
-	public void putCalculatedParameters(List<CalculatedParameterRow> params) {
+	void putCalculatedParameters(List<CalculatedParameterRow> params) {
 		if (params == null)
 			return;
 		calculatedParameters.addAll(params);
 	}
 
-	public List<CalculatedParameterRow> getCalculatedParameters() {
+	List<CalculatedParameterRow> getCalculatedParameters() {
 		return calculatedParameters;
 	}
 
-	public void putProduct(ExchangeRow row) {
+	void putProduct(ExchangeRow row) {
 		if (row == null)
 			return;
-		String key = row.name;
+		String key = row.name();
 		ExchangeRow existingRow = products.get(key);
 		// favour reference product rows
-		if (existingRow == null || (row instanceof RefProductRow))
-			products.put(row.name, row);
+		if (existingRow == null || (row instanceof RefExchangeRow))
+			products.put(row.name(), row);
 	}
 
-	public Collection<ExchangeRow> getProducts() {
+	Collection<ExchangeRow> getProducts() {
 		return products.values();
 	}
 
-	public void putProductType(ProductExchangeRow row, ProductType type) {
+	void putProductType(TechExchangeRow row, ProductType type) {
 		if (row == null || type == null)
 			return;
-		productTypes.put(row.name, type);
+		productTypes.put(row.name(), type);
 	}
 
-	public ProductType getProductType(ProductExchangeRow row) {
+	ProductType getProductType(TechExchangeRow row) {
 		if (row == null)
 			return null;
-		return productTypes.get(row.name);
+		return productTypes.get(row.name());
 	}
 
-	public void putElemFlow(ElementaryExchangeRow row, ElementaryFlowType type) {
+	void putElemFlow(ElementaryExchangeRow row, ElementaryFlowType type) {
 		if (row == null || type == null)
 			return;
 		var map = elemFlows.computeIfAbsent(type, k -> new HashMap<>());
@@ -145,7 +148,7 @@ class SpRefDataIndex {
 		map.put(key, row);
 	}
 
-	public Collection<ElementaryExchangeRow> getElementaryFlows(
+	Collection<ElementaryExchangeRow> getElementaryFlows(
 		ElementaryFlowType type) {
 		if (type == null)
 			return Collections.emptyList();

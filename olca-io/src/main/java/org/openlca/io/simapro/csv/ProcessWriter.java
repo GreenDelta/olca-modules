@@ -36,8 +36,8 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
 import org.openlca.io.maps.FlowRef;
-import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
-import org.openlca.simapro.csv.model.enums.SubCompartment;
+import org.openlca.simapro.csv.enums.ElementaryFlowType;
+import org.openlca.simapro.csv.enums.SubCompartment;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -207,13 +207,13 @@ public class ProcessWriter {
 			buckets[i] = new ArrayList<>();
 		}
 		for (Map.Entry<Flow, Compartment> e : flowCompartments.entrySet()) {
-			ElementaryFlowType type = e.getValue().type;
+			ElementaryFlowType type = e.getValue().type();
 			buckets[type.ordinal()].add(e.getKey());
 		}
 
 		// write the flow information
 		for (var type : ElementaryFlowType.values()) {
-			writeln(type.getReferenceHeader());
+			writeln(type.referenceHeader());
 
 			// duplicate names are not allowed here
 			HashSet<String> handledNames = new HashSet<>();
@@ -422,13 +422,13 @@ public class ProcessWriter {
 	}
 
 	private void writeElemExchanges(Process p, ElementaryFlowType type) {
-		writeln(type.getExchangeHeader());
+		writeln(type.exchangeHeader());
 		for (Exchange e : p.exchanges) {
 			if (e.flow == null
 					|| e.flow.flowType != FlowType.ELEMENTARY_FLOW)
 				continue;
 			Compartment comp = flowCompartments.get(e.flow);
-			if (comp == null || comp.type != type)
+			if (comp == null || comp.type() != type)
 				continue;
 
 			FlowMapEntry mapEntry = mappedFlow(e.flow);
@@ -437,7 +437,7 @@ public class ProcessWriter {
 				var ref = toReferenceAmount(e);
 				var u = uncertainty(ref.amount, ref.uncertainty);
 				writeln(e.flow.name,
-						comp.sub.getValue(),
+						comp.sub().toString(),
 						unit(ref.unit),
 						ref.amount,
 						u[0], u[1], u[2], u[3],
@@ -452,7 +452,7 @@ public class ProcessWriter {
 					: SimaProUnit.kg.symbol;
 			var u = uncertainty(e.amount, e.uncertainty, mapEntry.factor);
 			writeln(target.flow.name,
-					comp.sub.getValue(),
+					comp.sub().toString(),
 					unit,
 					e.amount * mapEntry.factor,
 					u[0], u[1], u[2], u[3],
