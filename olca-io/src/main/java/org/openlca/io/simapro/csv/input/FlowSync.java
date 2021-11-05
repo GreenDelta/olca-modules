@@ -1,5 +1,6 @@
 package org.openlca.io.simapro.csv.input;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -19,12 +20,14 @@ import org.openlca.io.maps.FlowMap;
 import org.openlca.io.simapro.csv.Compartment;
 import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
+import org.openlca.simapro.csv.enums.ProcessCategory;
 import org.openlca.simapro.csv.enums.ProductType;
 import org.openlca.simapro.csv.enums.SubCompartment;
 import org.openlca.simapro.csv.method.ImpactFactorRow;
 import org.openlca.simapro.csv.process.ElementaryExchangeRow;
 import org.openlca.simapro.csv.process.ExchangeRow;
 import org.openlca.simapro.csv.process.ProductOutputRow;
+import org.openlca.simapro.csv.process.RefExchangeRow;
 import org.openlca.simapro.csv.process.TechExchangeRow;
 import org.openlca.simapro.csv.refdata.ElementaryFlowRow;
 import org.openlca.util.KeyGen;
@@ -39,7 +42,7 @@ class FlowSync {
 	private final RefData refData;
 	private final FlowMap flowMap;
 
-	private final HashMap<String, SyncFlow> products = new HashMap<>();
+	private final HashMap<String, SyncFlow> techFlows = new HashMap<>();
 	private final HashMap<String, SyncFlow> elemFlows = new HashMap<>();
 	private final HashMap<String, SyncFlow> mappedFlows = new HashMap<>();
 
@@ -66,8 +69,30 @@ class FlowSync {
 				}
 			}
 
-			for (var row : index.getProducts()) {
-				syncProduct(row, refData);
+			// sync reference flows; other flows are
+			// synced on demand
+			for (var process : dataSet.processes()) {
+				var topCategory = process.category() != null
+					? process.category().toString()
+					: null;
+				for (var product : process.products()) {
+					techFlow(product, topCategory, false);
+				}
+				if (process.wasteTreatment() != null) {
+					techFlow(process.wasteTreatment(), topCategory, true);
+				}
+				if (process.wasteScenario() != null) {
+					techFlow(process.wasteScenario(), topCategory, true);
+				}
+			}
+
+			for (var stage : dataSet.productStages()) {
+				var topCategory = stage.category() != null
+					? stage.category().toString()
+					: null;
+				for (var product : stage.products()) {
+					techFlow(product, topCategory, false);
+				}
 			}
 
 		} catch (Exception e) {
@@ -75,49 +100,34 @@ class FlowSync {
 		}
 	}
 
-	SyncFlow get(ImpactFactorRow row) {
+	SyncFlow elemFlow(ImpactFactorRow row) {
 		var type = ElementaryFlowType.of(row.compartment());
 		if (type == null) {
 			log.error("failed to detect compartment: '{}'", row.compartment());
 		}
 		var subComp = SubCompartment.of(row.subCompartment());
-		return get(Compartment.of(type, subComp), row.flow(), row.unit());
+		return elemFlow(Compartment.of(type, subComp), row.flow(), row.unit());
 	}
 
-	SyncFlow get(ElementaryFlowType type, ElementaryExchangeRow row) {
+	SyncFlow elemFlow(ElementaryFlowType type, ElementaryExchangeRow row) {
 		var subComp = SubCompartment.of(row.subCompartment());
-		return get(Compartment.of(type, subComp), row.name(), row.unit());
+		return elemFlow(Compartment.of(type, subComp), row.name(), row.unit());
 	}
 
-	private SyncFlow get(Compartment comp, String name, String unit) {
+	private SyncFlow elemFlow(Compartment comp, String name, String unit) {
 
-		// check if there is a mapped flow
 		var mappingKey = SyncFlow.mappingKeyOf(comp, name, unit);
-		var mappedFlow = mappedFlows.get(mappingKey);
+		var mappedFlow = getMappedFlow(mappingKey);
 		if (mappedFlow != null)
 			return mappedFlow;
-		var mapEntry = flowMap.getEntry(mappingKey);
-		if (mapEntry != null) {
-			var flow = mapEntry.targetFlow.getMatchingFlow(db);
-			if (flow != null) {
-				var syncFlow = SyncFlow.ofMapped(flow, mapEntry.factor);
-				mappedFlows.put(mappingKey, syncFlow);
-				return syncFlow;
-			}
-		}
 
 		var quantity = refData.getUnit(unit);
 		if (quantity == null) {
 			log.error("unknown unit {} in flow {}", unit, name);
 			return SyncFlow.empty();
 		}
-		var subCompartment = SubCompartment.of(row.subCompartment());
-		if (subCompartment == null) {
-			subCompartment = SubCompartment.UNSPECIFIED;
-		}
 
 		var refId = SyncFlow.refIdOf(comp, unit, quantity);
-
 		var syncFlow = elemFlows.get(refId);
 		if (syncFlow != null)
 			return syncFlow;
@@ -165,59 +175,79 @@ class FlowSync {
 			comp.type().exchangeHeader(), sub);
 	}
 
-	private void syncProduct(ExchangeRow row, RefData refData) {
-		if (row instanceof ProductOutputRow) {
-			Flow flow = getProductFlow((ProductOutputRow) row);
-			refData.putProduct(row.name(), flow);
-		} else if (row instanceof TechExchangeRow pRow) {
-			ProductType type = index.getProductType(pRow);
-			Flow flow = getProductFlow(pRow, type);
-			refData.putProduct(row.name, flow);
+	SyncFlow product(ExchangeRow row) {
+		return techFlow(row, null, false);
+	}
+
+	SyncFlow waste(ExchangeRow row) {
+		return techFlow(row, null, true);
+	}
+
+	private SyncFlow techFlow(
+		ExchangeRow row, String topCategory, boolean isWaste) {
+
+		var mappingKey = KeyGen.toPath(row.name(), row.unit());
+		var mappedFlow = getMappedFlow(mappingKey);
+		if (mappedFlow != null)
+			return mappedFlow;
+
+		var quantity = refData.getUnit(row.unit());
+		if (quantity == null) {
+			log.error("unknown unit {} in flow {}", row.unit(), row.name());
+			return SyncFlow.empty();
 		}
-	}
+		var refId = KeyGen.get(row.name(), quantity.unitGroup.refId);
+		var syncFlow = techFlows.get(refId);
+		if (syncFlow != null)
+			return syncFlow;
 
-	private Flow getProductFlow(ProductOutputRow row) {
-		String refId = getProductRefId(row);
-		if (refId == null)
-			return null;
-		Flow flow = dao.getForRefId(refId);
-		if (flow != null)
-			return flow;
-		flow = createProductFlow(refId, row);
-		flow.category = Strings.nullOrEmpty(row.category())
-			? null
-			: CategoryDao.sync(db, ModelType.FLOW, row.category().split("\\\\"));
-		dao.insert(flow);
-		return flow;
-	}
-
-	private Flow getProductFlow(TechExchangeRow row, ProductType type) {
-		var refId = getProductRefId(row);
-		if (refId == null)
-			return null;
-		var flow = dao.getForRefId(refId);
-		if (flow != null)
-			return flow;
-		flow = createProductFlow(refId, row);
-		flow.category = type != null
-			? CategoryDao.sync(db, ModelType.FLOW, type.toString())
-			: null;
-		dao.insert(flow);
-		return flow;
-	}
-
-	/**
-	 * Returns null if no unit / property pair could be found.
-	 */
-	private String getProductRefId(ExchangeRow row) {
-		UnitMappingEntry unitEntry = unitMapping.getEntry(row.unit());
-		if (unitEntry == null) {
-			log.error("could not find unit {} in database", row.unit());
-			return null;
+		var flow = db.get(Flow.class, refId);
+		if(flow != null) {
+			syncFlow = SyncFlow.of(flow);
+			techFlows.put(refId, syncFlow);
+			return syncFlow;
 		}
-		// we take the olca-flow property, because the unit name may changes
-		// in different data sets
-		return KeyGen.get(row.name(), unitEntry.flowProperty.refId);
+
+		flow = new Flow();
+		flow.flowType = isWaste
+			? FlowType.WASTE_FLOW
+			: FlowType.PRODUCT_FLOW;
+		flow.refId = refId;
+		flow.name = row.name();
+
+		// create the flow category
+		var categoryPath = new ArrayList<String>();
+		if (Strings.notEmpty(topCategory)) {
+			categoryPath.add(topCategory);
+		}
+		if (row instanceof RefExchangeRow refRow) {
+			if (Strings.notEmpty(refRow.category())) {
+				var segments = refRow.category().split("\\\\");
+				for (var segment : segments) {
+					categoryPath.add(segment);
+				}
+			}
+		}
+		if (!categoryPath.isEmpty()) {
+			flow.category = CategoryDao.sync(
+				db, ModelType.FLOW, categoryPath.toArray(String[]::new));
+		}
+
+	}
+
+	private SyncFlow getMappedFlow(String mappingKey) {
+		var mappedFlow = mappedFlows.get(mappingKey);
+		if (mappedFlow != null)
+			return mappedFlow;
+		var mapEntry = flowMap.getEntry(mappingKey);
+		if (mapEntry == null)
+			return null;
+		var flow = mapEntry.targetFlow.getMatchingFlow(db);
+		if (flow == null)
+			return null;
+		var syncFlow = SyncFlow.ofMapped(flow, mapEntry.factor);
+		mappedFlows.put(mappingKey, syncFlow);
+		return syncFlow;
 	}
 
 	private Flow createProductFlow(String refId, ExchangeRow row) {
