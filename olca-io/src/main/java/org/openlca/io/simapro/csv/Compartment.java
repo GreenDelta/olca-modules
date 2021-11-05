@@ -1,52 +1,78 @@
 package org.openlca.io.simapro.csv;
 
-import com.google.common.base.Strings;
+import java.util.Optional;
+
 import org.openlca.core.model.Category;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.enums.SubCompartment;
+import org.openlca.util.Strings;
 
-record Compartment(ElementaryFlowType type, SubCompartment sub) {
+public record Compartment(ElementaryFlowType type, SubCompartment sub) {
 
-	static Compartment of(ElementaryFlowType type, SubCompartment sub) {
+	public static Compartment of(ElementaryFlowType type, SubCompartment sub) {
 		return new Compartment(type, sub);
 	}
 
-	static Compartment of(String path) {
+	/**
+	 * Try to find the compartment pair directly from the given compartment and
+	 * sub-compartment name.
+	 */
+	public static Optional<Compartment> of(
+		String compartment, String subCompartment) {
+
+		if (compartment == null)
+			return Optional.empty();
+		var type = ElementaryFlowType.of(compartment);
+		if (type == null)
+			return  Optional.empty();
+
+		if (Strings.nullOrEmpty(subCompartment)
+			|| "unspecified".equalsIgnoreCase(subCompartment)
+			|| "(unspecified)".equalsIgnoreCase(subCompartment))
+			return Optional.of(Compartment.of(type, SubCompartment.UNSPECIFIED));
+
+		var sub = SubCompartment.of(subCompartment);
+		return sub == null
+			? Optional.empty()
+			: Optional.of(Compartment.of(type, sub));
+	}
+
+	public static Compartment fromPath(String path) {
 		if (path == null)
 			return null;
-		String[] parts = path.split("/");
+		var parts = path.split("/");
 		int n = parts.length;
 		if (n == 1) {
-			Compartment c = find(parts[0], null);
-			if (c != null)
-				return c;
+			var compartment = of(parts[0], null);
+			if (compartment.isPresent())
+				return compartment.get();
 		} else if (n > 1) {
 			String sub = parts[n - 1];
 			String comp = parts[n - 2];
-			Compartment c = find(comp, sub);
-			if (c != null)
-				return c;
+			var compartment = of(comp, sub);
+			if (compartment.isPresent())
+				return compartment.get();
 		}
 		return matchPath(path);
 	}
 
-	static Compartment of(Category category) {
+	public static Compartment of(Category category) {
 		if (category == null || category.name == null)
 			return null;
 
 		// try to directly identify the compartment
 		// from the last two category names
 		if (category.category == null) {
-			Compartment c = find(category.name, null);
-			if (c != null)
-				return c;
+			var compartment = of(category.name, null);
+			if (compartment.isPresent())
+				return compartment.get();
 		} else {
 			String comp = category.category.name;
 			String sub = category.name;
 			if (comp != null) {
-				Compartment c = find(comp, sub);
-				if (c != null)
-					return c;
+				var compartment =  of(comp, sub);
+				if (compartment.isPresent())
+					return compartment.get();
 			}
 		}
 
@@ -205,27 +231,6 @@ record Compartment(ElementaryFlowType type, SubCompartment sub) {
 		}
 
 		return null;
-	}
-
-	/**
-	 * Try to find the compartment pair directly from the given compartment and
-	 * sub-compartment name.
-	 */
-	private static Compartment find(String compartment, String subCompartment) {
-		if (compartment == null)
-			return null;
-		var type = ElementaryFlowType.of(compartment);
-		if (type == null)
-			return null;
-		if (Strings.isNullOrEmpty(subCompartment)
-			|| "unspecified".equalsIgnoreCase(subCompartment)
-			|| "(unspecified)".equalsIgnoreCase(subCompartment))
-			return Compartment.of(type, SubCompartment.UNSPECIFIED);
-
-		var sub = SubCompartment.of(subCompartment);
-		return sub == null
-			? null
-			: Compartment.of(type, sub);
 	}
 
 	private static boolean match(String path, String... parts) {

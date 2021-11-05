@@ -16,10 +16,6 @@ class RefData {
 	private final UnitSync unitSync;
 	private final SourceSync sourceSync;
 
-	private final HashMap<String, Flow> products = new HashMap<>();
-	private final HashMap<String, Flow> elemFlows = new HashMap<>();
-	private final HashMap<String, MapFactor<Flow>> mappedFlows = new HashMap<>();
-
 	RefData(IDatabase db) {
 		this.db = db;
 		this.unitSync = new UnitSync(db);
@@ -27,6 +23,7 @@ class RefData {
 	}
 
 	void sync(CsvDataSet dataSet) {
+		// sync order is important => units before flows
 		unitSync.sync(dataSet);
 		sourceSync.sync(dataSet);
 		// TODO: make the parameter sync like the other syncs

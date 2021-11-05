@@ -134,7 +134,7 @@ public class ProcessWriter {
 			// 2) check if we have a mapped flow
 			FlowMapEntry mapEntry = mappedFlow(e.flow);
 			if (mapEntry != null) {
-				c = Compartment.of(mapEntry.targetFlow.flowCategory);
+				c = Compartment.fromPath(mapEntry.targetFlow.flowCategory);
 				if (c != null) {
 					flowCompartments.put(e.flow, c);
 					continue;

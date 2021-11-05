@@ -1,5 +1,8 @@
 package org.openlca.io.simapro.csv.input;
 
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,12 +16,13 @@ import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
-import org.openlca.io.UnitMapping;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.MapFactor;
+import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.enums.ProductType;
+import org.openlca.simapro.csv.enums.SubCompartment;
 import org.openlca.simapro.csv.process.ElementaryExchangeRow;
 import org.openlca.simapro.csv.process.ExchangeRow;
 import org.openlca.simapro.csv.process.ProductOutputRow;
@@ -32,41 +36,124 @@ import org.slf4j.LoggerFactory;
 class FlowSync {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private final SpRefDataIndex index;
-	private final FlowDao dao;
 	private final IDatabase db;
-	private final UnitMapping unitMapping;
-	private FlowMap flowMap;
+	private final RefData refData;
+	private final FlowMap flowMap;
 
-	public FlowSync(
-			SpRefDataIndex index,
-			UnitMapping unitMapping,
-			IDatabase database) {
-		this.index = index;
-		this.unitMapping = unitMapping;
-		this.db = database;
-		this.dao = new FlowDao(database);
+	private final HashMap<String, SyncFlow> products = new HashMap<>();
+	private final HashMap<String, SyncFlow> elemFlows = new HashMap<>();
+	private final HashMap<String, SyncFlow> mappedFlows = new HashMap<>();
+
+	private final EnumMap<ElementaryFlowType, HashMap<String, ElementaryFlowRow>> flowInfos;
+
+	FlowSync(IDatabase db,RefData refData, FlowMap flowMap) {
+		this.db = db;
+		this.refData = refData;
+		this.flowMap = flowMap;
+		flowInfos = new EnumMap<>(ElementaryFlowType.class);
 	}
 
-	public void run(RefData refData, FlowMap flowMap) {
-		this.flowMap = flowMap;
-		log.trace("synchronize flows with database");
+	void sync(CsvDataSet dataSet) {
 		try {
+
+			// collect elem. flow infos
+			for (var type : ElementaryFlowType.values()) {
+				for (var row : dataSet.getElementaryFlows(type)) {
+					var name = Strings.orEmpty(row.name())
+						.trim()
+						.toLowerCase();
+					flowInfos.computeIfAbsent(type, t -> new HashMap<>())
+							.put(name, row);
+				}
+			}
+
 			for (var row : index.getProducts()) {
 				syncProduct(row, refData);
 			}
-			for (var type : ElementaryFlowType.values()) {
-				for (var row : index.getElementaryFlows(type)) {
-					syncElemFlow(row, type, refData);
-				}
-			}
+
 		} catch (Exception e) {
 			log.error("failed to synchronize flows with database", e);
 		}
 	}
 
+	SyncFlow get(ElementaryFlowType type, ElementaryExchangeRow row) {
+
+		//
+		var mappingKey = SyncFlow.mappingKeyOf(type, row);
+		var mappedFlow = mappedFlows.get(mappingKey);
+		if (mappedFlow != null)
+			return mappedFlow;
+		flowMap.getEntry(mappingKey);
+
+		var unit = refData.getUnit(row.unit());
+		if (unit == null) {
+			log.error("unknown unit {} in flow {}", row.unit(), row.name());
+			return SyncFlow.empty();
+		}
+		var subCompartment = SubCompartment.of(row.subCompartment());
+		if (subCompartment == null) {
+			subCompartment = SubCompartment.UNSPECIFIED;
+		}
+
+		var refId = KeyGen.get(
+			type.exchangeHeader(),
+			subCompartment.toString(),
+			row.name(),
+			unit.unitGroup.refId);
+
+		var syncFlow = elemFlows.get(refId);
+		if (syncFlow != null)
+			return syncFlow;
+
+		var flow = db.get(Flow.class, refId);
+		if (flow != null) {
+			syncFlow = SyncFlow.of(flow);
+			elemFlows.put(refId, syncFlow);
+			return syncFlow;
+		}
+
+		flow = new Flow();
+		flow.flowType = FlowType.ELEMENTARY_FLOW;
+		flow.name = row.name();
+		flow.category = CategoryDao.sync(
+			db, ModelType.FLOW, "Elementary flows",
+			type.exchangeHeader(), subCompartment.toString());
+		setFlowProperty(unit, flow);
+
+		var infos = flowInfos.get(type);
+		if (infos != null) {
+			var key = Strings.orEmpty(row.name())
+				.trim()
+				.toLowerCase();
+			var info = infos.get(key);
+			if (info != null) {
+				flow.casNumber = info.cas();
+				// TODO: we could parse the chemical formula, synonyms, and
+				// location from the comment string
+				flow.description = info.comment();
+			}
+		}
+
+		flow = db.insert(flow);
+		syncFlow = SyncFlow.of(flow);
+		elemFlows.put(refId, syncFlow);
+		return syncFlow;
+	}
+
+
+
+	private Category getCategory(ElementaryExchangeRow row, ElementaryFlowType type) {
+		if (row == null || type == null)
+			return null;
+		var sub = Strings.notEmpty(row.subCompartment())
+			? row.subCompartment()
+			: "unspecified";
+		return CategoryDao.sync(db, ModelType.FLOW, type.exchangeHeader(), sub);
+	}
+
+
 	private void syncElemFlow(ElementaryExchangeRow row,
-			ElementaryFlowType type, RefData refData) {
+			ElementaryFlowType type) {
 		var key = Flows.getMappingID(type, row);
 		var mapEntry = flowMap.getEntry(key);
 		MapFactor<Flow> mappedFlow = null;
@@ -182,47 +269,9 @@ class FlowSync {
 		return dao.getForRefId(refId);
 	}
 
-	private Flow getElementaryFlow(ElementaryExchangeRow row,
-			ElementaryFlowType type, String key) {
-		String unit = row.unit();
-		var unitEntry = unitMapping.getEntry(unit);
-		if (unitEntry == null) {
-			log.error("could not find unit {} in database", unit);
-			return null;
-		}
-		var refId = KeyGen.get(key);
-		Flow flow = dao.getForRefId(refId);
-		if (flow != null)
-			return flow;
-		flow = new Flow();
-		flow.refId = refId;
-		flow.name = row.name();
-		flow.category = getCategory(row, type);
-		flow.flowType = FlowType.ELEMENTARY_FLOW;
-		setFlowProperty(unitEntry, flow);
-		ElementaryFlowRow flowInfo = index.getFlowInfo(row.name(), type);
-		setFlowData(flow, flowInfo);
-		dao.insert(flow);
-		return flow;
-	}
 
-	private void setFlowData(Flow flow, ElementaryFlowRow flowRow) {
-		if (flow == null || flowRow == null)
-			return;
-		flow.casNumber = flowRow.cas();
-		flow.description = flowRow.comment();
-		// TODO: we could parse the chemical formula, synonyms, and
-		// location from the comment string
-	}
 
-	private Category getCategory(ElementaryExchangeRow row, ElementaryFlowType type) {
-		if (row == null || type == null)
-			return null;
-		var sub = Strings.notEmpty(row.subCompartment())
-			? row.subCompartment()
-			: "unspecified";
-		return CategoryDao.sync(db, ModelType.FLOW, type.exchangeHeader(), sub);
-	}
+
 
 	private void setFlowProperty(UnitMappingEntry unitEntry, Flow flow) {
 		flow.referenceFlowProperty = unitEntry.flowProperty;
@@ -231,4 +280,10 @@ class FlowSync {
 		factor.flowProperty = unitEntry.flowProperty;
 		flow.flowPropertyFactors.add(factor);
 	}
+
+
+
+
+
+
 }
