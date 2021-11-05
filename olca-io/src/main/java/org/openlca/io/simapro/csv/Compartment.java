@@ -5,17 +5,10 @@ import org.openlca.core.model.Category;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.enums.SubCompartment;
 
-
-class Compartment {
-
-	ElementaryFlowType type;
-	SubCompartment sub;
+record Compartment(ElementaryFlowType type, SubCompartment sub) {
 
 	static Compartment of(ElementaryFlowType type, SubCompartment sub) {
-		Compartment c = new Compartment();
-		c.type = type;
-		c.sub = sub;
-		return c;
+		return new Compartment(type, sub);
 	}
 
 	static Compartment of(String path) {
@@ -50,7 +43,7 @@ class Compartment {
 		} else {
 			String comp = category.category.name;
 			String sub = category.name;
-			if (comp != null && sub != null) {
+			if (comp != null) {
 				Compartment c = find(comp, sub);
 				if (c != null)
 					return c;
@@ -81,8 +74,7 @@ class Compartment {
 		// social flows
 		if (match(path, "social")) {
 			return Compartment.of(
-				ElementaryFlowType.SOCIAL_ISSUES,
-				SubCompartment.UNSPECIFIED);
+				ElementaryFlowType.SOCIAL_ISSUES, SubCompartment.UNSPECIFIED);
 		}
 
 		// resources
@@ -90,141 +82,126 @@ class Compartment {
 			var type = ElementaryFlowType.RESOURCES;
 
 			if (match(path, "bio"))
-				return Compartment.of(type, SubCompartment.RESOURCES_BIOTIC);
-
+				return Compartment.of(
+					type, SubCompartment.RESOURCES_BIOTIC);
 
 			if (match(path, "water"))
-				return Compartment.of(type, SubCompartment.RESOURCES_IN_WATER);
+				return Compartment.of(
+					type, SubCompartment.RESOURCES_IN_WATER);
 
+			if (match(path, "air"))
+				return Compartment.of(
+					type, SubCompartment.RESOURCES_IN_AIR);
 
-			if (match(path, "air")) {
-				return Compartment.of(type,
-					SubCompartment.RESOURCES_IN_AIR);
-			}
+			if (match(path, "land"))
+				return Compartment.of(
+					type, SubCompartment.RESOURCES_LAND);
 
-			if (match(path, "land")) {
-				return Compartment.of(type,
-					SubCompartment.RESOURCES_LAND);
-			}
-
-			if (match(path, "ground")) {
-				return Compartment.of(type,
-					SubCompartment.RESOURCES_IN_GROUND);
-			}
+			if (match(path, "ground"))
+				return Compartment.of(
+					type, SubCompartment.RESOURCES_IN_GROUND);
 
 			return Compartment.of(type, SubCompartment.UNSPECIFIED);
-		}
+		} // resources
+
 
 		// air emissions
 		if (match(path, "emission", "air")) {
 			var type = ElementaryFlowType.EMISSIONS_TO_AIR;
 
 			if (match(path, "stratosphere", "troposhere"))
-				return Compartment.of(type, SubCompartment.AIR_STRATOSPHERE_TROPOSHERE);
+				return Compartment.of(
+					type, SubCompartment.AIR_STRATOSPHERE_TROPOSHERE);
 
+			if (match(path, "stratosphere"))
+				return Compartment.of(
+					type, SubCompartment.AIR_STRATOSPHERE);
 
-			if (match(path, "stratosphere")) {
-				return Compartment.of(type,
-					SubCompartment.AIR_STATOSPHERE);
-			}
+			if (match(path, "low", "pop", "long", "term"))
+				return Compartment.of(
+					type, SubCompartment.AIR_LOW_POP_LONG_TERM);
 
-			if (match(path, "low", "pop", "long", "term")) {
-				return Compartment.of(type,
-					SubCompartment.AIR_LOW_POP_LONG_TERM);
-			}
+			if (match(path, "low", "pop"))
+				return Compartment.of(
+					type, SubCompartment.AIR_LOW_POP);
 
-			if (match(path, "low", "pop")) {
-				return Compartment.of(type,
-					SubCompartment.AIR_LOW_POP);
-			}
+			if (match(path, "high", "pop"))
+				return Compartment.of(
+					type, SubCompartment.AIR_HIGH_POP);
 
-			if (match(path, "high", "pop")) {
-				return Compartment.of(type,
-					SubCompartment.AIR_HIGH_POP);
-			}
-
-			if (match(path, "indoor")) {
-				return Compartment.of(type,
-					SubCompartment.AIR_INDOOR);
-			}
+			if (match(path, "indoor"))
+				return Compartment.of(
+					type, SubCompartment.AIR_INDOOR);
 
 			return Compartment.of(type, SubCompartment.UNSPECIFIED);
-		}
+		} // air emissions
+
 
 		// soil emissions
 		if (match(path, "emission", "soil")) {
-			ElementaryFlowType type = ElementaryFlowType.EMISSIONS_TO_SOIL;
+			var type = ElementaryFlowType.EMISSIONS_TO_SOIL;
 
-			if (match(path, "non-agri")) {
-				return Compartment.of(type,
-					SubCompartment.UNSPECIFIED);
-			}
+			if (match(path, "non-agri"))
+				return Compartment.of(
+					type, SubCompartment.UNSPECIFIED);
 
-			if (match(path, "agri")) {
-				return Compartment.of(type,
-					SubCompartment.SOIL_AGRICULTURAL);
-			}
+			if (match(path, "agri"))
+				return Compartment.of(
+					type, SubCompartment.SOIL_AGRICULTURAL);
 
-			if (match(path, "forest")) {
-				return Compartment.of(type,
-					SubCompartment.SOIL_FORESTRY);
-			}
+			if (match(path, "forest"))
+				return Compartment.of(
+					type, SubCompartment.SOIL_FORESTRY);
 
-			if (match(path, "urban")) {
-				return Compartment.of(type,
-					SubCompartment.SOIL_URBAN);
-			}
+			if (match(path, "urban"))
+				return Compartment.of(
+					type, SubCompartment.SOIL_URBAN);
 
-			if (match(path, "industrial")) {
-				return Compartment.of(type,
-					SubCompartment.SOIL_INDUSTRIAL);
-			}
+			if (match(path, "industrial"))
+				return Compartment.of(
+					type, SubCompartment.SOIL_INDUSTRIAL);
 
 			return Compartment.of(type, SubCompartment.UNSPECIFIED);
-		}
+		} // soil emissions
 
 		// water emissions
 		if (match(path, "emission", "water")) {
-
 			var type = ElementaryFlowType.EMISSIONS_TO_WATER;
 
 			if (match(path, "fossil"))
-				return Compartment.of(type, SubCompartment.WATER_FOSSIL);
+				return Compartment.of(
+					type, SubCompartment.WATER_FOSSIL);
 
 			if (match(path, "ground", "long", "term"))
-				return Compartment.of(type, SubCompartment.WATER_GROUND_LONG_TERM);
+				return Compartment.of(
+					type, SubCompartment.WATER_GROUND_LONG_TERM);
 
-			if (match(path, "ground")) {
-				return Compartment.of(type,
-					SubCompartment.WATER_GROUNDWATER);
-			}
+			if (match(path, "ground"))
+				return Compartment.of(
+					type, SubCompartment.WATER_GROUND);
 
-			if (match(path, "lake")) {
-				return Compartment.of(type,
-					SubCompartment.WATER_LAKE);
-			}
+			if (match(path, "lake"))
+				return Compartment.of(
+					type, SubCompartment.WATER_LAKE);
 
-			if (match(path, "ocean")) {
-				return Compartment.of(type,
-					SubCompartment.WATER_LAKE);
-			}
+			if (match(path, "ocean"))
+				return Compartment.of(
+					type, SubCompartment.WATER_LAKE);
 
-			if (match(path, "river")) {
-				return Compartment.of(type,
-					SubCompartment.WATER_RIVER);
-			}
+			if (match(path, "river"))
+				return Compartment.of(
+					type, SubCompartment.WATER_RIVER);
 
-			if (match(path, "river", "long", "term")) {
-				return Compartment.of(type,
-					SubCompartment.WATER_RIVER_LONG_TERM);
-			}
+			if (match(path, "river", "long", "term"))
+				return Compartment.of(
+					type, SubCompartment.WATER_RIVER_LONG_TERM);
 
 			return Compartment.of(type, SubCompartment.UNSPECIFIED);
-		}
+		} // water emissions
 
 		if (match(path, "land")) {
-			return Compartment.of(ElementaryFlowType.RESOURCES,
-				SubCompartment.RESOURCES_LAND);
+			return Compartment.of(
+				ElementaryFlowType.RESOURCES, SubCompartment.RESOURCES_LAND);
 		}
 
 		return null;
@@ -237,31 +214,18 @@ class Compartment {
 	private static Compartment find(String compartment, String subCompartment) {
 		if (compartment == null)
 			return null;
-		ElementaryFlowType type = null;
-		String name = compartment.trim();
-		for (ElementaryFlowType t : ElementaryFlowType.values()) {
-			if (t.referenceHeader().equalsIgnoreCase(name)
-				|| t.exchangeHeader().equalsIgnoreCase(name)
-				|| t.compartment().equalsIgnoreCase(name)) {
-				type = t;
-				break;
-			}
-		}
+		var type = ElementaryFlowType.of(compartment);
 		if (type == null)
 			return null;
 		if (Strings.isNullOrEmpty(subCompartment)
-			|| "unspecified".equalsIgnoreCase(subCompartment))
+			|| "unspecified".equalsIgnoreCase(subCompartment)
+			|| "(unspecified)".equalsIgnoreCase(subCompartment))
 			return Compartment.of(type, SubCompartment.UNSPECIFIED);
 
-		SubCompartment sub = null;
-		name = subCompartment.trim();
-		for (SubCompartment s : SubCompartment.values()) {
-			if (s.getValue().equalsIgnoreCase(name)) {
-				sub = s;
-				break;
-			}
-		}
-		return sub == null ? null : Compartment.of(type, sub);
+		var sub = SubCompartment.of(subCompartment);
+		return sub == null
+			? null
+			: Compartment.of(type, sub);
 	}
 
 	private static boolean match(String path, String... parts) {

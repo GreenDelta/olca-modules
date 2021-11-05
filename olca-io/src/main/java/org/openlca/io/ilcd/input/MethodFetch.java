@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  */
 final class MethodFetch {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final ImpactMethodDao dao;
 	private final LCIAMethod ilcdMethod;

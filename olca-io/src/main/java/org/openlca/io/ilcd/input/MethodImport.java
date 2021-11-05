@@ -17,7 +17,6 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.LangString;
-import org.openlca.ilcd.methods.DataEntry;
 import org.openlca.ilcd.methods.DataSetInfo;
 import org.openlca.ilcd.methods.Factor;
 import org.openlca.ilcd.methods.FactorList;
@@ -104,9 +103,9 @@ public class MethodImport {
 		impact.referenceUnit = getReferenceUnit(iMethod);
 
 		// timestamp
-		DataEntry de = Methods.getDataEntry(iMethod);
-		if (de != null && de.timeStamp != null) {
-			impact.lastChange = de.timeStamp
+		var entry = Methods.getDataEntry(iMethod);
+		if (entry != null && entry.timeStamp != null) {
+			impact.lastChange = entry.timeStamp
 					.toGregorianCalendar().getTimeInMillis();
 		} else {
 			impact.lastChange = new Date().getTime();
@@ -145,7 +144,7 @@ public class MethodImport {
 
 		// add the reference year to the name if present
 		if (info.time != null && info.time.referenceYear != null) {
-			name += ", " + info.time.referenceYear.toString();
+			name += ", " + info.time.referenceYear;
 		}
 		return name;
 	}
