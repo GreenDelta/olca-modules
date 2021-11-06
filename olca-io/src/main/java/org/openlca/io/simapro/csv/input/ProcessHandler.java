@@ -234,7 +234,7 @@ class ProcessHandler {
 			return null;
 		}
 		Exchange e;
-		var entry = refData.getUnit(row.unit());
+		var entry = refData.quantityOf(row.unit());
 		if (refUnit || entry == null) {
 			e = process.add(Exchange.of(flow));
 			if (!refUnit) {

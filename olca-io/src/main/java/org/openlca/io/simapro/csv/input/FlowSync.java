@@ -1,6 +1,7 @@
 package org.openlca.io.simapro.csv.input;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -20,15 +21,12 @@ import org.openlca.io.maps.FlowMap;
 import org.openlca.io.simapro.csv.Compartment;
 import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
-import org.openlca.simapro.csv.enums.ProcessCategory;
-import org.openlca.simapro.csv.enums.ProductType;
 import org.openlca.simapro.csv.enums.SubCompartment;
 import org.openlca.simapro.csv.method.ImpactFactorRow;
 import org.openlca.simapro.csv.process.ElementaryExchangeRow;
 import org.openlca.simapro.csv.process.ExchangeRow;
 import org.openlca.simapro.csv.process.ProductOutputRow;
 import org.openlca.simapro.csv.process.RefExchangeRow;
-import org.openlca.simapro.csv.process.TechExchangeRow;
 import org.openlca.simapro.csv.refdata.ElementaryFlowRow;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
@@ -121,7 +119,7 @@ class FlowSync {
 		if (mappedFlow != null)
 			return mappedFlow;
 
-		var quantity = refData.getUnit(unit);
+		var quantity = refData.quantityOf(unit);
 		if (quantity == null) {
 			log.error("unknown unit {} in flow {}", unit, name);
 			return SyncFlow.empty();
@@ -191,7 +189,7 @@ class FlowSync {
 		if (mappedFlow != null)
 			return mappedFlow;
 
-		var quantity = refData.getUnit(row.unit());
+		var quantity = refData.quantityOf(row.unit());
 		if (quantity == null) {
 			log.error("unknown unit {} in flow {}", row.unit(), row.name());
 			return SyncFlow.empty();
@@ -214,6 +212,8 @@ class FlowSync {
 			: FlowType.PRODUCT_FLOW;
 		flow.refId = refId;
 		flow.name = row.name();
+		flow.location = getProductLocation(row);
+		setFlowProperty(quantity, flow);
 
 		// create the flow category
 		var categoryPath = new ArrayList<String>();
@@ -223,9 +223,7 @@ class FlowSync {
 		if (row instanceof RefExchangeRow refRow) {
 			if (Strings.notEmpty(refRow.category())) {
 				var segments = refRow.category().split("\\\\");
-				for (var segment : segments) {
-					categoryPath.add(segment);
-				}
+				categoryPath.addAll(Arrays.asList(segments));
 			}
 		}
 		if (!categoryPath.isEmpty()) {
@@ -233,6 +231,20 @@ class FlowSync {
 				db, ModelType.FLOW, categoryPath.toArray(String[]::new));
 		}
 
+		// description and tags
+		if (row instanceof RefExchangeRow) {
+			flow.description = row.comment();
+			if (row instanceof ProductOutputRow productRow) {
+				if (Strings.notEmpty(productRow.wasteType())) {
+					flow.tags = productRow.wasteType();
+				}
+			}
+		}
+
+		flow = db.insert(flow);
+		syncFlow = SyncFlow.of(flow);
+		techFlows.put(refId, syncFlow);
+		return syncFlow;
 	}
 
 	private SyncFlow getMappedFlow(String mappingKey) {
@@ -250,34 +262,6 @@ class FlowSync {
 		return syncFlow;
 	}
 
-	private Flow createProductFlow(String refId, ExchangeRow row) {
-		UnitMappingEntry unitEntry = unitMapping.getEntry(row.unit());
-		Flow flow;
-		flow = new Flow();
-		flow.refId = refId;
-		flow.name = Strings.cut(row.name(), 250);
-		flow.description = getProductDescription(row);
-		flow.flowType = FlowType.PRODUCT_FLOW;
-		flow.location = getProductLocation(row);
-		setFlowProperty(unitEntry, flow);
-		return flow;
-	}
-
-	private String getProductDescription(ExchangeRow row) {
-		if (row == null)
-			return null;
-		String description = "Imported from SimaPro";
-		if (row.comment() != null)
-			description += "\n" + row.comment();
-
-		if (!(row instanceof RefProductRow))
-			return description;
-		RefProductRow refRow = (RefProductRow) row;
-		if (refRow.wasteType != null)
-			description += "\nWaste type: " + refRow.wasteType;
-		return description;
-	}
-
 	private Location getProductLocation(ExchangeRow row) {
 		if (row.name() == null)
 			return null;
@@ -293,10 +277,9 @@ class FlowSync {
 		return dao.getForRefId(refId);
 	}
 
-
 	private void setFlowProperty(UnitMappingEntry unitEntry, Flow flow) {
 		flow.referenceFlowProperty = unitEntry.flowProperty;
-		FlowPropertyFactor factor = new FlowPropertyFactor();
+		var factor = new FlowPropertyFactor();
 		factor.conversionFactor = 1;
 		factor.flowProperty = unitEntry.flowProperty;
 		flow.flowPropertyFactors.add(factor);

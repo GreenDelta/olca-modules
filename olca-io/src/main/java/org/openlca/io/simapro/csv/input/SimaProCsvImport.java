@@ -6,7 +6,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.io.FileImport;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.simapro.csv.CsvDataSet;
-import org.openlca.simapro.csv.SimaProCSV;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +53,10 @@ public class SimaProCsvImport implements FileImport {
 		if (files == null || files.length == 0)
 			return;
 
-		var refData = new RefData(db);
+		var flowMap = this.flowMap == null
+			? FlowMap.empty()
+			: this.flowMap;
+		var refData = new RefData(db, flowMap);
 
 		try {
 			for (File file : files) {
@@ -62,17 +64,8 @@ public class SimaProCsvImport implements FileImport {
 				log.trace("extract reference data");
 				var dataSet = CsvDataSet.read(file);
 				refData.sync(dataSet);
-
-
-
-				log.trace("sync. reference data");
-				var flowMap = this.flowMap != null
-						? this.flowMap
-						: FlowMap.empty();
-				var refData = new RefDataSync(index, db, flowMap).run();
 				log.trace("import processes");
 				var processHandler = new ProcessHandler(db, refData);
-				SimaProCSV.parse(file, processHandler);
 			}
 		} catch (Exception e) {
 			log.error("SimaPro CSV import failed");
