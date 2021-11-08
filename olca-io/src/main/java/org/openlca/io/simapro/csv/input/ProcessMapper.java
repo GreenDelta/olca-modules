@@ -13,15 +13,11 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.expressions.Scope;
-import org.openlca.ilcd.util.Flows;
-import org.openlca.io.maps.MapFactor;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.enums.ProductType;
-import org.openlca.simapro.csv.process.ElementaryExchangeRow;
 import org.openlca.simapro.csv.process.ExchangeRow;
 import org.openlca.simapro.csv.process.ProcessBlock;
 import org.openlca.simapro.csv.process.ProductOutputRow;
-import org.openlca.simapro.csv.process.TechExchangeRow;
 import org.openlca.util.Exchanges;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Processes;
@@ -65,24 +61,18 @@ class ProcessMapper {
 		process.documentation = new ProcessDocumentation();
 		this.process = process;
 		formulaScope = ProcessParameters.map(db, block, process);
-		mapData();
-		try {
-			db.insert(process);
-		} catch (Exception e) {
-			log.error("failed to insert process " + refId, e);
-		}
-	}
 
-	private void mapData() {
 		mapName();
 		mapLocation();
 		mapCategory();
 		mapType();
 		new ProcessDocMapper(refData).map(block, process);
-		mapProductOutputs(process);
-		mapProductInputs(process);
-		mapElementaryFlows(process);
 		mapAllocation();
+
+
+		mapExchanges();
+
+		db.insert(process);
 	}
 
 	private String mapName() {
@@ -162,55 +152,54 @@ class ProcessMapper {
 		return null;
 	}
 
-	private void mapProductOutputs(Process process) {
-		boolean first = true;
-		for (ProductOutputRow row : block.products()) {
-			Exchange e = createProductOutput(process, row);
-			if (first && e != null) {
+	private void mapExchanges() {
+
+		// reference products
+		for (var row : block.products()) {
+			var flow = refData.productOf(row);
+			var e = exchangeOf(flow, row);
+			if (e == null)
+				continue;
+			e.isInput = false;
+			if (process.quantitativeReference == null) {
 				process.quantitativeReference = e;
-				first = false;
 			}
 		}
-		if (block.wasteTreatment() != null) {
-			process.quantitativeReference = createProductOutput(
-				process, block.wasteTreatment());
-		}
-	}
 
-	private void mapProductInputs(Process process, long scope) {
-		for (ProductType type : ProductType.values()) {
-			for (TechExchangeRow row : block.exchangesOf(type)) {
-				var flow = refData.getProduct(row.name());
-				Exchange e = initExchange(row, scope, flow, process, false);
+		// waste treatment
+		if (block.wasteTreatment() != null) {
+			var flow = refData.wasteFlowOf(block.wasteTreatment());
+			var e = exchangeOf(flow, block.wasteTreatment());
+			if (e != null) {
+				e.isInput = true;
+			}
+		}
+
+		// product inputs & waste outputs
+		for (var type : ProductType.values()) {
+			for (var row : block.exchangesOf(type)) {
+				var flow = refData.productOf(row);
+				var e = exchangeOf(flow, row);
 				if (e == null)
 					continue;
-				e.isInput = true;
+				e.isInput = type != ProductType.WASTE_TO_TREATMENT;
 				e.isAvoided = type == ProductType.AVOIDED_PRODUCTS;
 			}
 		}
-	}
 
-	private void mapElementaryFlows(Process process) {
+		// elementary flows
 		for (var type : ElementaryFlowType.values()) {
-			boolean isInput = type == ElementaryFlowType.RESOURCES;
-			for (var row : block.getElementaryExchangeRows(type)) {
-				var key = Flows.getMappingID(type, row);
-				var factor = refData.getMappedFlow(key);
-				Exchange e;
-				if (factor != null) {
-					e = initMappedExchange(factor, row, process, scope);
-				} else {
-					Flow flow = refData.getElemFlow(key);
-					e = initExchange(row, scope, flow, process, false);
-				}
+			for (var row : block.exchangesOf(type)) {
+				var flow = refData.elemFlowOf(type, row);
+				var e = exchangeOf(flow, row);
 				if (e == null)
 					continue;
-				e.isInput = isInput;
+				e.isInput = type == ElementaryFlowType.RESOURCES;
 			}
 		}
 	}
 
-	private Exchange initExchange(SyncFlow f, ExchangeRow row) {
+	private Exchange exchangeOf(SyncFlow f, ExchangeRow row) {
 		if (f == null || f.flow() == null) {
 			log.error(
 				"could not create exchange as there was now flow found for {}", row);
