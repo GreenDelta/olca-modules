@@ -12,12 +12,14 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
+import org.openlca.expressions.Scope;
 import org.openlca.ilcd.util.Flows;
 import org.openlca.io.maps.MapFactor;
 import org.openlca.simapro.csv.Numeric;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.enums.ProductType;
 import org.openlca.simapro.csv.process.ElementaryExchangeRow;
+import org.openlca.simapro.csv.process.ExchangeRow;
 import org.openlca.simapro.csv.process.ProcessBlock;
 import org.openlca.simapro.csv.process.ProductOutputRow;
 import org.openlca.simapro.csv.process.TechExchangeRow;
@@ -37,7 +39,7 @@ class ProcessMapper {
 	private final ProcessBlock block;
 
 	private Process process;
-	private ProcessParameterMapper parameterMapper;
+	private Scope formulaScope;
 
 	ProcessMapper(IDatabase db, RefData refData, ProcessBlock block) {
 		this.db = db;
@@ -59,9 +61,11 @@ class ProcessMapper {
 		log.trace("import process {}", refId);
 		process = new Process();
 		process.refId = refId;
+
 		process.defaultAllocationMethod = AllocationMethod.PHYSICAL;
 		process.documentation = new ProcessDocumentation();
 		this.process = process;
+		formulaScope = ProcessParameters.map(db, block, process);
 		mapData();
 		try {
 			db.insert(process);
@@ -76,12 +80,10 @@ class ProcessMapper {
 		mapCategory();
 		mapType();
 		new ProcessDocMapper(refData).map(block, process);
-		parameterMapper = new ProcessParameterMapper(db);
-		long scope = parameterMapper.map(block, process);
-		mapProductOutputs(process, scope);
-		mapProductInputs(process, scope);
-		mapElementaryFlows(process, scope);
-		mapAllocation(scope);
+		mapProductOutputs(process);
+		mapProductInputs(process);
+		mapElementaryFlows(process);
+		mapAllocation();
 	}
 
 	private String mapName() {
@@ -107,7 +109,7 @@ class ProcessMapper {
 		process.location = refFlow.location;
 	}
 
-	private void mapAllocation(long scope) {
+	private void mapAllocation() {
 		if (!Processes.isMultiFunctional(process))
 			return;
 		for (var output : block.products()) {
@@ -161,10 +163,10 @@ class ProcessMapper {
 		return null;
 	}
 
-	private void mapProductOutputs(Process process, long scope) {
+	private void mapProductOutputs(Process process) {
 		boolean first = true;
 		for (ProductOutputRow row : block.products()) {
-			Exchange e = createProductOutput(process, row, scope);
+			Exchange e = createProductOutput(process, row);
 			if (first && e != null) {
 				process.quantitativeReference = e;
 				first = false;
@@ -172,19 +174,14 @@ class ProcessMapper {
 		}
 		if (block.wasteTreatment() != null) {
 			process.quantitativeReference = createProductOutput(
-					process, block.wasteTreatment(), scope);
+					process, block.wasteTreatment());
 		}
-	}
-
-	private Exchange createProductOutput(Process process, RefProductRow row, long scope) {
-		Flow flow = refData.getProduct(row.name);
-		return initExchange(row, scope, flow, process, false);
 	}
 
 	private void mapProductInputs(Process process, long scope) {
 		for (ProductType type : ProductType.values()) {
 			for (TechExchangeRow row : block.exchangesOf(type)) {
-				Flow flow = refData.getProduct(row.name());
+				var flow = refData.getProduct(row.name());
 				Exchange e = initExchange(row, scope, flow, process, false);
 				if (e == null)
 					continue;
@@ -231,12 +228,24 @@ class ProcessMapper {
 		return e;
 	}
 
-	private Exchange initExchange(CsvExchange row, long scopeId,
-								  Flow flow, Process process, boolean refUnit) {
+	private Exchange initExchange(SyncFlow flow, ExchangeRow row) {
 		if (flow == null) {
-			log.error("could not create exchange as there was now flow found " + "for {}", row);
+			log.error(
+				"could not create exchange as there was now flow found for {}", row);
 			return null;
 		}
+		var e = process.output(flow.flow(), 1);
+		var amount = row.amount();
+		e.amount = flow.isMapped()
+			? flow.mapFactor() * ProcessParameters.eval(formulaScope, amount)
+			: ProcessParameters.eval(formulaScope, amount);
+		if (amount.hasFormula()) {
+			e.amount =
+		}
+		if (flow.isMapped()) {
+			e.amount = flow.mapFactor() *
+		}
+
 		Exchange e;
 		var entry = refData.quantityOf(row.unit());
 		if (refUnit || entry == null) {
@@ -250,25 +259,11 @@ class ProcessMapper {
 		e.description = row.comment();
 
 
-		setAmount(e, row.amount(), scopeId);
+		e.amount
 
 
 		e.uncertainty = Uncertainties.of(e.amount, row.uncertainty());
 		return e;
-	}
-
-	private void setAmount(Exchange e, Numeric amount, long scope) {
-
-		if (!amount.hasFormula()) {
-			e.amount = amount.value();
-			return;
-		}
-		try {
-			e.amount = Double.parseDouble(amount);
-		} catch (Exception ex) {
-			e.amount = parameterMapper.eval(amount.formula(), scope);
-			e.formula = amount.formula();
-		}
 	}
 
 	private void mapCategory() {
