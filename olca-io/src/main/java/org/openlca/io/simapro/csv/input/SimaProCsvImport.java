@@ -71,16 +71,19 @@ public class SimaProCsvImport implements FileImport {
 
 				var dataSet = CsvDataSet.read(file);
 				if (unrollWasteScenarios) {
-					WasteScenarios.unroll(dataSet.processes());
+					WasteScenarios.unroll(dataSet);
 				}
 
 				refData.sync(dataSet);
-
 				for (var process : dataSet.processes()) {
-					new ProcessMapper(db, refData, process).exec();
+					Processes.map(db, refData, process);
 				}
 
-				// TODO: product stages & LCIA methods
+				// TODO: product stages
+
+				for (var method : dataSet.methods()) {
+					ImpactMethods.map(db ,refData, method);
+				}
 			}
 		} catch (Exception e) {
 			log.error("SimaPro CSV import failed");

@@ -12,20 +12,13 @@ import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class ProcessDocMapper {
+record ProcessDocs (RefData refData, ProcessBlock block,Process process )  {
 
-	private final RefData refData;
-
-	private ProcessBlock block;
-	private Process process;
-
-	public ProcessDocMapper(RefData refData) {
-		this.refData = refData;
+	static void map(RefData refData, ProcessBlock block,Process process) {
+		new ProcessDocs(refData, block, process).exec();
 	}
 
-	public void map(ProcessBlock block, Process process) {
-		this.block = block;
-		this.process = process;
+	private void exec() {
 		process.description = Text.of(block.comment())
 			.join("Status", block.status())
 			.join("Boundary with nature", block.boundaryWithNature())

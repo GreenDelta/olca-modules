@@ -7,6 +7,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.simapro.csv.Numeric;
 import org.openlca.simapro.csv.enums.ProcessCategory;
 import org.openlca.simapro.csv.process.ProcessBlock;
@@ -18,7 +19,7 @@ import org.openlca.util.Strings;
 
 class WasteScenarios {
 
-  private final List<ProcessBlock> blocks;
+  private final CsvDataSet dataSet;
   private final EnumSet<ProcessCategory> applicable = EnumSet.of(
     ProcessCategory.MATERIAL,
     ProcessCategory.ENERGY,
@@ -27,18 +28,25 @@ class WasteScenarios {
     ProcessCategory.USE
   );
 
-  private WasteScenarios(List<ProcessBlock> block) {
-    this.blocks = block;
+  private WasteScenarios(CsvDataSet dataSet) {
+    this.dataSet = dataSet;
   }
 
-  static List<InputParameterRow> unroll(List<ProcessBlock> blocks) {
-    return new WasteScenarios(blocks).unroll();
+  static void unroll(CsvDataSet dataSet) {
+		if (dataSet == null || dataSet.processes().isEmpty())
+			return;
+		var unroller = new WasteScenarios(dataSet);
+		var params = unroller.unroll();
+		if (params.isEmpty())
+			return;
+		dataSet.databaseInputParameters().addAll(params);
   }
 
   private List<InputParameterRow> unroll() {
-    if (blocks == null || blocks.isEmpty())
+    if (dataSet.processes().isEmpty())
       return Collections.emptyList();
-    var scenarios = blocks.stream()
+    var scenarios = dataSet.processes()
+			.stream()
       .filter(block -> block.category() == ProcessCategory.WASTE_SCENARIO)
       .collect(Collectors.toList());
     if (scenarios.isEmpty())
@@ -58,7 +66,7 @@ class WasteScenarios {
                  "systems instead of setting the value globally. Also note,\n" +
                  "that only one waste scenario should be activated per \n" +
                  "calculation."));
-      for (var block : blocks) {
+      for (var block : dataSet.processes()) {
         apply(param, scenario, block);
       }
     }

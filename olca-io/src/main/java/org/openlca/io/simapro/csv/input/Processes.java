@@ -16,14 +16,13 @@ import org.openlca.simapro.csv.enums.ProcessType;
 import org.openlca.simapro.csv.enums.ProductType;
 import org.openlca.simapro.csv.process.ExchangeRow;
 import org.openlca.simapro.csv.process.ProcessBlock;
-import org.openlca.simapro.csv.process.ProductOutputRow;
 import org.openlca.util.Exchanges;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class ProcessMapper {
+class Processes {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -34,13 +33,17 @@ class ProcessMapper {
 	private Process process;
 	private Scope formulaScope;
 
-	ProcessMapper(IDatabase db, RefData refData, ProcessBlock block) {
+	private Processes(IDatabase db, RefData refData, ProcessBlock block) {
 		this.db = db;
 		this.refData = refData;
 		this.block = block;
 	}
 
-	void exec() {
+	static void map(IDatabase db, RefData refData, ProcessBlock block) {
+		new Processes(db, refData, block).exec();
+	}
+
+	private void exec() {
 		var refId = Strings.notEmpty(block.identifier())
 			? KeyGen.get(block.identifier())
 			: UUID.randomUUID().toString();
@@ -59,7 +62,7 @@ class ProcessMapper {
 			: org.openlca.core.model.ProcessType.UNIT_PROCESS;
 		process.name = mapName();
 		process.defaultAllocationMethod = AllocationMethod.PHYSICAL;
-		new ProcessDocMapper(refData).map(block, process);
+		ProcessDocs.map(refData, block, process);
 
 		this.process = process;
 		formulaScope = ProcessParameters.map(db, block, process);
