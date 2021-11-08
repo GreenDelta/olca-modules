@@ -1,5 +1,6 @@
 package org.openlca.io.simapro.csv.input;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 import org.openlca.core.database.CategoryDao;
@@ -7,20 +8,17 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Flow;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDocumentation;
-import org.openlca.core.model.ProcessType;
 import org.openlca.expressions.Scope;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
+import org.openlca.simapro.csv.enums.ProcessType;
 import org.openlca.simapro.csv.enums.ProductType;
 import org.openlca.simapro.csv.process.ExchangeRow;
 import org.openlca.simapro.csv.process.ProcessBlock;
 import org.openlca.simapro.csv.process.ProductOutputRow;
 import org.openlca.util.Exchanges;
 import org.openlca.util.KeyGen;
-import org.openlca.util.Processes;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,21 +54,34 @@ class ProcessMapper {
 		log.trace("import process {}", refId);
 		process = new Process();
 		process.refId = refId;
-
+		process.processType = block.processType() == ProcessType.SYSTEM
+			? org.openlca.core.model.ProcessType.LCI_RESULT
+			: org.openlca.core.model.ProcessType.UNIT_PROCESS;
+		process.name = mapName();
 		process.defaultAllocationMethod = AllocationMethod.PHYSICAL;
-		process.documentation = new ProcessDocumentation();
+		new ProcessDocMapper(refData).map(block, process);
+
 		this.process = process;
 		formulaScope = ProcessParameters.map(db, block, process);
 
-		mapName();
-		mapLocation();
-		mapCategory();
-		mapType();
-		new ProcessDocMapper(refData).map(block, process);
+		mapExchanges();
 		mapAllocation();
 
-
-		mapExchanges();
+		// take the location and category from the reference flow
+		if (process.quantitativeReference != null) {
+			var f = process.quantitativeReference.flow;
+			process.location = f.location;
+			if (f.category != null) {
+				var path = new ArrayList<String>();
+				var c = f.category;
+				while (c != null) {
+					path.add(0, c.name);
+					c = c.category;
+				}
+				process.category = CategoryDao.sync(
+					db, ModelType.PROCESS, path.toArray(String[]::new));
+			}
+		}
 
 		db.insert(process);
 	}
@@ -78,44 +89,29 @@ class ProcessMapper {
 	private String mapName() {
 		if (Strings.notEmpty(block.name()))
 			return block.name();
-
-		if (block.name() != null) {
-			process.name = block.name();
-			return;
-		}
-		Flow refFlow = getRefFlow();
-		if (refFlow != null) {
-			process.name = refFlow.name;
-			return;
-		}
-		process.name = block.identifier();
+		if (!block.products().isEmpty())
+			return block.products().get(0).name();
+		if (block.wasteTreatment() != null)
+			return block.wasteTreatment().name();
+		return block.identifier();
 	}
 
-	private void mapLocation() {
-		Flow refFlow = getRefFlow();
-		if (refFlow == null)
-			return;
-		process.location = refFlow.location;
-	}
 
 	private void mapAllocation() {
-		if (!Processes.isMultiFunctional(process))
+		if (block.products().size() < 2)
 			return;
 		for (var output : block.products()) {
+			var flow = refData.productOf(output);
+			if (flow == null || flow.flow() == null)
+				continue;
 
 			// prepare the template of the factor
 			var f = new AllocationFactor();
-			f.productId = refData.getProduct(output.name()).id;
-
-			try {
-				f.value = Double.parseDouble(output.allocation);
-			} catch (Exception _e) {
-				if (Strings.nullOrEmpty(output.allocation)) {
-					f.value = 1.0;
-				} else {
-					f.formula = "(" + output.allocation + ") / 100";
-					f.value = parameterMapper.eval(f.formula, scope);
-				}
+			f.productId = flow.flow().id;
+			var value = output.allocation();
+			f.value = ProcessParameters.eval(formulaScope, value);
+			if (value.hasFormula()) {
+				f.formula = value.formula();
 			}
 
 			// add the physical factor
@@ -129,7 +125,7 @@ class ProcessMapper {
 			process.allocationFactors.add(economic);
 
 			// add causal factors
-			for (Exchange e : process.exchanges) {
+			for (var e : process.exchanges) {
 				if (Exchanges.isProviderFlow(e))
 					continue;
 				var causal = f.copy();
@@ -138,18 +134,6 @@ class ProcessMapper {
 				process.allocationFactors.add(causal);
 			}
 		}
-	}
-
-	private Flow getRefFlow() {
-		if (!block.products().isEmpty()) {
-			var refRow = block.products().get(0);
-			Flow flow = refData. (refRow.name());
-			if (flow != null)
-				return flow;
-		}
-		if (block.wasteTreatment() != null)
-			return refData.getProduct(block.wasteTreatment().name());
-		return null;
 	}
 
 	private void mapExchanges() {
@@ -238,33 +222,6 @@ class ProcessMapper {
 				e.flowPropertyFactor = f.flow().getFactor(quantity.flowProperty);
 			}
 		}
-
 		return e;
-	}
-
-	private void mapCategory() {
-		String categoryPath = null;
-		if (!block.products().isEmpty()) {
-			ProductOutputRow row = block.products().get(0);
-			categoryPath = row.category();
-		} else if (block.wasteTreatment() != null)
-			categoryPath = block.wasteTreatment().category();
-		if (Strings.nullOrEmpty(categoryPath))
-			return;
-		var path = categoryPath.split("\\\\");
-		process.category = new CategoryDao(db)
-			.sync(ModelType.PROCESS, path);
-	}
-
-	private void mapType() {
-		var type = block.processType();
-		if (type == null) {
-			process.processType = ProcessType.UNIT_PROCESS;
-			return;
-		}
-		process.processType =
-			type == org.openlca.simapro.csv.enums.ProcessType.SYSTEM
-				? ProcessType.LCI_RESULT
-				: ProcessType.UNIT_PROCESS;
 	}
 }

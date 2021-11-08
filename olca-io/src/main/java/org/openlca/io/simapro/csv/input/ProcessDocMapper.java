@@ -32,7 +32,6 @@ class ProcessDocMapper {
 			.join("Record", block.record())
 			.join("Generator", block.generator())
 			.value();
-
 		if (process.documentation == null) {
 			process.documentation = new ProcessDocumentation();
 		}
