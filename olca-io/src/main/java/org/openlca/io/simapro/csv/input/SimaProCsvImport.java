@@ -57,6 +57,7 @@ public class SimaProCsvImport implements FileImport {
 			? FlowMap.empty()
 			: this.flowMap;
 		var refData = new RefData(db, flowMap);
+		var processMapper = new ProcessMapper(db, refData);
 
 		try {
 			for (File file : files) {
@@ -64,8 +65,6 @@ public class SimaProCsvImport implements FileImport {
 				log.trace("extract reference data");
 				var dataSet = CsvDataSet.read(file);
 				refData.sync(dataSet);
-				log.trace("import processes");
-				var processHandler = new ProcessHandler(db, refData);
 			}
 		} catch (Exception e) {
 			log.error("SimaPro CSV import failed");

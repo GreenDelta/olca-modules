@@ -1,8 +1,9 @@
 package org.openlca.io.simapro.csv.input;
 
+import java.util.UUID;
+
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
@@ -11,6 +12,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
+import org.openlca.ilcd.util.Flows;
 import org.openlca.io.maps.MapFactor;
 import org.openlca.simapro.csv.Numeric;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
@@ -26,47 +28,46 @@ import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class ProcessHandler {
+class ProcessMapper {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private final IDatabase database;
+	private final IDatabase db;
 	private final RefData refData;
-	private final ProcessDao dao;
+	private final ProcessBlock block;
 
-	// currently mapped process and process block
 	private Process process;
-	private ProcessBlock block;
 	private ProcessParameterMapper parameterMapper;
 
-	public ProcessHandler(IDatabase database, RefData refData) {
-		this.database = database;
+	ProcessMapper(IDatabase db, RefData refData, ProcessBlock block) {
+		this.db = db;
 		this.refData = refData;
-		this.dao = new ProcessDao(database);
+		this.block = block;
 	}
 
-	public void handleProcess(ProcessBlock block) {
-		String refId = KeyGen.get(block.identifier());
-		Process process = dao.getForRefId(refId);
+	void exec() {
+		var refId = Strings.notEmpty(block.identifier())
+			? KeyGen.get(block.identifier())
+			: UUID.randomUUID().toString();
+		var process = db.get(Process.class, refId);
 		if (process != null) {
 			log.warn("a process with the identifier {} is already in the "
 					+ "database and was not imported", refId);
 			return;
 		}
+
 		log.trace("import process {}", refId);
 		process = new Process();
 		process.refId = refId;
 		process.defaultAllocationMethod = AllocationMethod.PHYSICAL;
 		process.documentation = new ProcessDocumentation();
 		this.process = process;
-		this.block = block;
 		mapData();
 		try {
-			dao.insert(process);
+			db.insert(process);
 		} catch (Exception e) {
 			log.error("failed to insert process " + refId, e);
 		}
-		this.process = null;
 	}
 
 	private void mapData() {
@@ -75,7 +76,7 @@ class ProcessHandler {
 		mapCategory();
 		mapType();
 		new ProcessDocMapper(refData).map(block, process);
-		parameterMapper = new ProcessParameterMapper(database);
+		parameterMapper = new ProcessParameterMapper(db);
 		long scope = parameterMapper.map(block, process);
 		mapProductOutputs(process, scope);
 		mapProductInputs(process, scope);
@@ -83,7 +84,10 @@ class ProcessHandler {
 		mapAllocation(scope);
 	}
 
-	private void mapName() {
+	private String mapName() {
+		if (Strings.notEmpty(block.name()))
+			return block.name();
+
 		if (block.name() != null) {
 			process.name = block.name();
 			return;
@@ -147,8 +151,8 @@ class ProcessHandler {
 
 	private Flow getRefFlow() {
 		if (!block.products().isEmpty()) {
-			ProductOutputRow refRow = block.products().get(0);
-			Flow flow = refData.getProduct(refRow.name());
+			var refRow = block.products().get(0);
+			Flow flow = refData.(refRow.name());
 			if (flow != null)
 				return flow;
 		}
@@ -277,7 +281,7 @@ class ProcessHandler {
 		if (Strings.nullOrEmpty(categoryPath))
 			return;
 		var path = categoryPath.split("\\\\");
-		process.category = new CategoryDao(database)
+		process.category = new CategoryDao(db)
 				.sync(ModelType.PROCESS, path);
 	}
 

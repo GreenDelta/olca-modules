@@ -5,6 +5,10 @@ import org.openlca.core.model.Source;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.simapro.csv.CsvDataSet;
+import org.openlca.simapro.csv.enums.ElementaryFlowType;
+import org.openlca.simapro.csv.method.ImpactFactorRow;
+import org.openlca.simapro.csv.process.ElementaryExchangeRow;
+import org.openlca.simapro.csv.process.ExchangeRow;
 
 class RefData {
 
@@ -29,14 +33,30 @@ class RefData {
 		new GlobalParameterSync(dataSet, db).run();
 	}
 
-	public Source getSource(String key) {
-		return sourceSync.sources().get(key);
+	Source sourceOf(String name) {
+		return sourceSync.sources().get(name);
 	}
 
 	/**
 	 * Get the mapped quantity for the given unit symbol.
 	 */
-	public UnitMappingEntry quantityOf(String unit) {
+	UnitMappingEntry quantityOf(String unit) {
 		return unitSync.mapping().getEntry(unit);
+	}
+
+	SyncFlow elemFlowOf(ElementaryFlowType type, ElementaryExchangeRow row) {
+		return flowSync.elemFlow(type, row);
+	}
+
+	SyncFlow elemFlowOf(ImpactFactorRow row) {
+		return flowSync.elemFlow(row);
+	}
+
+	SyncFlow wasteFlowOf(ExchangeRow row) {
+		return flowSync.waste(row);
+	}
+
+	SyncFlow productOf(ExchangeRow row) {
+		return flowSync.product(row);
 	}
 }

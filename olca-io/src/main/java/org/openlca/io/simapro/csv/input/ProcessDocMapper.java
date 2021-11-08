@@ -46,7 +46,7 @@ class ProcessDocMapper {
 	private void mapSources() {
 		var doc = process.documentation;
 		for (var row : block.literatures()) {
-			Source source = refData.getSource(row.name());
+			Source source = refData.sourceOf(row.name());
 			if (source == null)
 				continue;
 			doc.sources.add(source);
