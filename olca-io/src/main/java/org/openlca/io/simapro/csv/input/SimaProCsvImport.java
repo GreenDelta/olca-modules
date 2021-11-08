@@ -74,13 +74,20 @@ public class SimaProCsvImport implements FileImport {
 					WasteScenarios.unroll(dataSet);
 				}
 
+				// reference data
 				refData.sync(dataSet);
+
+				// processes
 				for (var process : dataSet.processes()) {
 					Processes.map(db, refData, process);
 				}
 
-				// TODO: product stages
+				// product stages
+				for (var stage : dataSet.productStages()) {
+					ProductStages.map(db, refData, stage);
+				}
 
+				// impact methods
 				for (var method : dataSet.methods()) {
 					ImpactMethods.map(db ,refData, method);
 				}

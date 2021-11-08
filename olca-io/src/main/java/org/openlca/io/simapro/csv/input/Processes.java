@@ -1,28 +1,28 @@
 package org.openlca.io.simapro.csv.input;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
-import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.expressions.Scope;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.enums.ProcessType;
 import org.openlca.simapro.csv.enums.ProductType;
-import org.openlca.simapro.csv.process.ExchangeRow;
 import org.openlca.simapro.csv.process.ProcessBlock;
-import org.openlca.util.Exchanges;
+import org.openlca.simapro.csv.refdata.CalculatedParameterRow;
+import org.openlca.simapro.csv.refdata.InputParameterRow;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class Processes {
+class Processes implements ProcessMapper {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -43,11 +43,43 @@ class Processes {
 		new Processes(db, refData, block).exec();
 	}
 
+	// region ProcessMapper
+	@Override
+	public IDatabase db() {
+		return db;
+	}
+
+	@Override
+	public Scope formulaScope() {
+		return formulaScope;
+	}
+
+	@Override
+	public RefData refData() {
+		return refData;
+	}
+
+	@Override
+	public List<CalculatedParameterRow> calculatedParameterRows() {
+		return block.calculatedParameters();
+	}
+
+	@Override
+	public List<InputParameterRow> inputParameterRows() {
+		return block.inputParameters();
+	}
+
+	@Override
+	public Process process() {
+		return process;
+	}
+	// endregion
+
 	private void exec() {
 		var refId = Strings.notEmpty(block.identifier())
 			? KeyGen.get(block.identifier())
 			: UUID.randomUUID().toString();
-		var process = db.get(Process.class, refId);
+		process = db.get(Process.class, refId);
 		if (process != null) {
 			log.warn("a process with the identifier {} is already in the "
 				+ "database and was not imported", refId);
@@ -63,9 +95,7 @@ class Processes {
 		process.name = mapName();
 		process.defaultAllocationMethod = AllocationMethod.PHYSICAL;
 		ProcessDocs.map(refData, block, process);
-
-		this.process = process;
-		formulaScope = ProcessParameters.map(db, block, process);
+		formulaScope = ProcessParameters.map(this);
 
 		mapExchanges();
 		mapAllocation();
@@ -99,7 +129,6 @@ class Processes {
 		return block.identifier();
 	}
 
-
 	private void mapAllocation() {
 		if (block.products().size() < 2)
 			return;
@@ -129,7 +158,7 @@ class Processes {
 
 			// add causal factors
 			for (var e : process.exchanges) {
-				if (Exchanges.isProviderFlow(e))
+				if (org.openlca.util.Exchanges.isProviderFlow(e))
 					continue;
 				var causal = f.copy();
 				causal.method = AllocationMethod.CAUSAL;
@@ -144,7 +173,7 @@ class Processes {
 		// reference products
 		for (var row : block.products()) {
 			var flow = refData.productOf(row);
-			var e = exchangeOf(flow, row);
+			var e = Exchanges.of(this, flow, row);
 			if (e == null)
 				continue;
 			e.isInput = false;
@@ -156,7 +185,7 @@ class Processes {
 		// waste treatment
 		if (block.wasteTreatment() != null) {
 			var flow = refData.wasteFlowOf(block.wasteTreatment());
-			var e = exchangeOf(flow, block.wasteTreatment());
+			var e = Exchanges.of(this, flow, block.wasteTreatment());
 			if (e != null) {
 				e.isInput = true;
 			}
@@ -166,7 +195,7 @@ class Processes {
 		for (var type : ProductType.values()) {
 			for (var row : block.exchangesOf(type)) {
 				var flow = refData.productOf(row);
-				var e = exchangeOf(flow, row);
+				var e = Exchanges.of(this, flow, row);
 				if (e == null)
 					continue;
 				e.isInput = type != ProductType.WASTE_TO_TREATMENT;
@@ -178,7 +207,7 @@ class Processes {
 		for (var type : ElementaryFlowType.values()) {
 			for (var row : block.exchangesOf(type)) {
 				var flow = refData.elemFlowOf(type, row);
-				var e = exchangeOf(flow, row);
+				var e = Exchanges.of(this, flow, row);
 				if (e == null)
 					continue;
 				e.isInput = type == ElementaryFlowType.RESOURCES;
@@ -186,45 +215,4 @@ class Processes {
 		}
 	}
 
-	private Exchange exchangeOf(SyncFlow f, ExchangeRow row) {
-		if (f == null || f.flow() == null) {
-			log.error(
-				"could not create exchange as there was now flow found for {}", row);
-			return null;
-		}
-
-		var e = new Exchange();
-		process.lastInternalId++;
-		e.internalId = process.lastInternalId;
-		process.exchanges.add(e);
-		e.description = row.comment();
-		e.flow = f.flow();
-		e.uncertainty = Uncertainties.of(row);
-
-		if (f.isMapped()) {
-			double factor = f.mapFactor();
-			if (e.uncertainty != null) {
-				e.uncertainty.scale(factor);
-			}
-			e.amount = factor * ProcessParameters.eval(formulaScope, row.amount());
-			if (row.amount().hasFormula()) {
-				e.formula = factor + " * (" + row.amount().formula() + ")";
-			}
-			// TODO: SyncFlow should store the mapped unit and flow property
-			e.flowPropertyFactor = f.flow().getReferenceFactor();
-			e.unit = f.flow().getReferenceUnit();
-
-		} else {
-			e.amount = ProcessParameters.eval(formulaScope, row.amount());
-			if (row.amount().hasFormula()) {
-				e.formula = row.amount().formula();
-			}
-			var quantity = refData.quantityOf(row.unit());
-			if (quantity != null) {
-				e.unit = quantity.unit;
-				e.flowPropertyFactor = f.flow().getFactor(quantity.flowProperty);
-			}
-		}
-		return e;
-	}
 }
