@@ -15,7 +15,6 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.expressions.Scope;
 import org.openlca.ilcd.util.Flows;
 import org.openlca.io.maps.MapFactor;
-import org.openlca.simapro.csv.Numeric;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.enums.ProductType;
 import org.openlca.simapro.csv.process.ElementaryExchangeRow;
@@ -54,7 +53,7 @@ class ProcessMapper {
 		var process = db.get(Process.class, refId);
 		if (process != null) {
 			log.warn("a process with the identifier {} is already in the "
-					+ "database and was not imported", refId);
+				+ "database and was not imported", refId);
 			return;
 		}
 
@@ -120,7 +119,7 @@ class ProcessMapper {
 
 			try {
 				f.value = Double.parseDouble(output.allocation);
-			} catch (Exception _e){
+			} catch (Exception _e) {
 				if (Strings.nullOrEmpty(output.allocation)) {
 					f.value = 1.0;
 				} else {
@@ -154,7 +153,7 @@ class ProcessMapper {
 	private Flow getRefFlow() {
 		if (!block.products().isEmpty()) {
 			var refRow = block.products().get(0);
-			Flow flow = refData.(refRow.name());
+			Flow flow = refData. (refRow.name());
 			if (flow != null)
 				return flow;
 		}
@@ -174,7 +173,7 @@ class ProcessMapper {
 		}
 		if (block.wasteTreatment() != null) {
 			process.quantitativeReference = createProductOutput(
-					process, block.wasteTreatment());
+				process, block.wasteTreatment());
 		}
 	}
 
@@ -191,7 +190,7 @@ class ProcessMapper {
 		}
 	}
 
-	private void mapElementaryFlows(Process process, long scope) {
+	private void mapElementaryFlows(Process process) {
 		for (var type : ElementaryFlowType.values()) {
 			boolean isInput = type == ElementaryFlowType.RESOURCES;
 			for (var row : block.getElementaryExchangeRows(type)) {
@@ -211,58 +210,46 @@ class ProcessMapper {
 		}
 	}
 
-	private Exchange initMappedExchange(MapFactor<Flow> mappedFlow,
-										ElementaryExchangeRow row, Process process, long scope) {
-		Flow flow = mappedFlow.getEntity();
-		Exchange e = initExchange(row, scope, flow, process, true);
-		if (e == null)
-			return null;
-		double f = mappedFlow.getFactor();
-		e.amount = f * e.amount;
-		if (e.formula != null) {
-			e.formula = f + " * ( " + e.formula + " )";
-		}
-		if (e.uncertainty != null) {
-			e.uncertainty.scale(f);
-		}
-		return e;
-	}
-
-	private Exchange initExchange(SyncFlow flow, ExchangeRow row) {
-		if (flow == null) {
+	private Exchange initExchange(SyncFlow f, ExchangeRow row) {
+		if (f == null || f.flow() == null) {
 			log.error(
 				"could not create exchange as there was now flow found for {}", row);
 			return null;
 		}
-		var e = process.output(flow.flow(), 1);
-		var amount = row.amount();
-		e.amount = flow.isMapped()
-			? flow.mapFactor() * ProcessParameters.eval(formulaScope, amount)
-			: ProcessParameters.eval(formulaScope, amount);
-		if (amount.hasFormula()) {
-			e.amount =
-		}
-		if (flow.isMapped()) {
-			e.amount = flow.mapFactor() *
-		}
 
-		Exchange e;
-		var entry = refData.quantityOf(row.unit());
-		if (refUnit || entry == null) {
-			e = process.add(Exchange.of(flow));
-			if (!refUnit) {
-				log.error("unknown unit {}; could not set exchange unit, setting ref unit", row.unit());
-			}
-		} else {
-			e = process.add(Exchange.of(flow, entry.flowProperty, entry.unit));
-		}
+		var e = new Exchange();
+		process.lastInternalId++;
+		e.internalId = process.lastInternalId;
+		process.exchanges.add(e);
 		e.description = row.comment();
+		e.flow = f.flow();
+		e.uncertainty = Uncertainties.of(row);
 
+		if (f.isMapped()) {
+			double factor = f.mapFactor();
+			if (e.uncertainty != null) {
+				e.uncertainty.scale(factor);
+			}
+			e.amount = factor * ProcessParameters.eval(formulaScope, row.amount());
+			if (row.amount().hasFormula()) {
+				e.formula = factor + " * (" + row.amount().formula() + ")";
+			}
+			// TODO: SyncFlow should store the mapped unit and flow property
+			e.flowPropertyFactor = f.flow().getReferenceFactor();
+			e.unit = f.flow().getReferenceUnit();
 
-		e.amount
+		} else {
+			e.amount = ProcessParameters.eval(formulaScope, row.amount());
+			if (row.amount().hasFormula()) {
+				e.formula = row.amount().formula();
+			}
+			var quantity = refData.quantityOf(row.unit());
+			if (quantity != null) {
+				e.unit = quantity.unit;
+				e.flowPropertyFactor = f.flow().getFactor(quantity.flowProperty);
+			}
+		}
 
-
-		e.uncertainty = Uncertainties.of(e.amount, row.uncertainty());
 		return e;
 	}
 
@@ -277,7 +264,7 @@ class ProcessMapper {
 			return;
 		var path = categoryPath.split("\\\\");
 		process.category = new CategoryDao(db)
-				.sync(ModelType.PROCESS, path);
+			.sync(ModelType.PROCESS, path);
 	}
 
 	private void mapType() {
@@ -287,8 +274,8 @@ class ProcessMapper {
 			return;
 		}
 		process.processType =
-				type == org.openlca.simapro.csv.enums.ProcessType.SYSTEM
-						? ProcessType.LCI_RESULT
-						: ProcessType.UNIT_PROCESS;
+			type == org.openlca.simapro.csv.enums.ProcessType.SYSTEM
+				? ProcessType.LCI_RESULT
+				: ProcessType.UNIT_PROCESS;
 	}
 }
