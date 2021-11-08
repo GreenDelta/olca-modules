@@ -55,7 +55,7 @@ class DataSetRef {
 			uri += "processes/";
 		}
 		uri += iModel.refId;
-		ref.uri = uri;
+		ref.uri = uri + ".xml";
 	}
 
 }
