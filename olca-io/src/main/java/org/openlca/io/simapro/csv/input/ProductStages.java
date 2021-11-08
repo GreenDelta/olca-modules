@@ -1,14 +1,9 @@
 package org.openlca.io.simapro.csv.input;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.Category;
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.expressions.Scope;
@@ -97,13 +92,18 @@ class ProductStages implements ProcessMapper {
 		if (Strings.notEmpty(type)) {
 			process.tags = type;
 		}
-		process.category = categoryOf(block);
-		formulaScope = ProcessParameters.map(db, this);
+		formulaScope = ProcessParameters.map(this);
 
+		mapExchanges();
+		inferCategoryAndLocation();
+		db.insert(process);
+	}
+
+	private void mapExchanges() {
 		// product outputs
 		for (var row : block.products()) {
 			var flow = refData.productOf(row);
-			var e = exchangeOf(flow, row);
+			var e = Exchanges.of(this, flow, row);
 			if (e == null)
 				continue;
 			e.isInput = false;
@@ -113,8 +113,10 @@ class ProductStages implements ProcessMapper {
 		Consumer<TechExchangeRow> input = row -> {
 			if (row == null)
 				return;
-			var flow = flowMap.productOf(row);
-			var exchange = exchangeOf(process, flow, row);
+			var flow = refData.productOf(row);
+			var exchange = Exchanges.of(this, flow, row);
+			if (exchange == null)
+				return;
 			exchange.isInput = true;
 		};
 		var inputLists = List.of(
@@ -129,35 +131,5 @@ class ProductStages implements ProcessMapper {
 			}
 		}
 		input.accept(block.assembly());
-
-		db.insert(process);
 	}
-
-	private Category categoryOf(ProductStageBlock block) {
-		if (block == null)
-			return null;
-
-		var path = new ArrayList<String>();
-
-		if (block.category() != null) {
-			var root = block.category().toString();
-			if (root.length() > 0) {
-				path.add(
-					root.substring(0, 1).toUpperCase() + root.substring(1));
-			}
-		}
-
-		if (!block.products().isEmpty()) {
-			var product = block.products().get(0);
-			var c = product.category();
-			if (Strings.notEmpty(c)) {
-				path.addAll(Arrays.asList(c.split("\\\\")));
-			}
-		}
-
-		return path.isEmpty()
-			? null
-			: CategoryDao.sync(db, ModelType.PROCESS, path.toArray(String[]::new));
-	}
-
 }

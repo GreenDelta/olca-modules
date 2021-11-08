@@ -99,23 +99,7 @@ class Processes implements ProcessMapper {
 
 		mapExchanges();
 		mapAllocation();
-
-		// take the location and category from the reference flow
-		if (process.quantitativeReference != null) {
-			var f = process.quantitativeReference.flow;
-			process.location = f.location;
-			if (f.category != null) {
-				var path = new ArrayList<String>();
-				var c = f.category;
-				while (c != null) {
-					path.add(0, c.name);
-					c = c.category;
-				}
-				process.category = CategoryDao.sync(
-					db, ModelType.PROCESS, path.toArray(String[]::new));
-			}
-		}
-
+		inferCategoryAndLocation();
 		db.insert(process);
 	}
 
