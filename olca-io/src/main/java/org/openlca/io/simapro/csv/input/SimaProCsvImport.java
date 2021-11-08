@@ -19,14 +19,20 @@ public class SimaProCsvImport implements FileImport {
 	private final File[] files;
 	private EventBus eventBus;
 	private FlowMap flowMap;
+	private boolean unrollWasteScenarios;
 
 	public SimaProCsvImport(IDatabase db, File... files) {
 		this.db = db;
 		this.files = files;
 	}
 
-	public SimaProCsvImport with(FlowMap flowMap) {
+	public SimaProCsvImport withFlowMap(FlowMap flowMap) {
 		this.flowMap = flowMap;
+		return this;
+	}
+
+	public SimaProCsvImport unrollWasteScenarios(boolean b) {
+		this.unrollWasteScenarios = b;
 		return this;
 	}
 
@@ -62,7 +68,12 @@ public class SimaProCsvImport implements FileImport {
 			for (File file : files) {
 				log.trace("import SimaPro CSV file {}", file);
 				log.trace("extract reference data");
+
 				var dataSet = CsvDataSet.read(file);
+				if (unrollWasteScenarios) {
+					WasteScenarios.unroll(dataSet.processes());
+				}
+
 				refData.sync(dataSet);
 
 				for (var process : dataSet.processes()) {
