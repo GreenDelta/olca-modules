@@ -125,7 +125,7 @@ class FlowSync {
 			return SyncFlow.empty();
 		}
 
-		var refId = SyncFlow.refIdOf(comp, unit, quantity);
+		var refId = SyncFlow.refIdOf(comp, name, quantity);
 		var syncFlow = elemFlows.get(refId);
 		if (syncFlow != null)
 			return syncFlow;
