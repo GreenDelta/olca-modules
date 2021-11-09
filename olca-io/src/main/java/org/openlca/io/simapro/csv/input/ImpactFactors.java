@@ -15,14 +15,14 @@ public class ImpactFactors {
 
 	private ImpactFactors() {}
 
-	public static void expand(ImpactCategoryBlock impactCategory) {
+	public static void expand(ImpactCategoryBlock impact) {
 		var expandedFactors = new ArrayList<ImpactFactorRow>();
-		impactCategory.factors().stream()
+		impact.factors().stream()
 			.filter(factor -> factor.subCompartment().equals("(unspecified)"))
 			.forEach(factor -> {
 				var subCompartments = subCompartmentsOf(
 					factor.flow(),
-					impactCategory
+					impact
 				);
 				subCompartmentsOf(ElementaryFlowType.of(factor.compartment()))
 					.filter(subCompartment -> !subCompartments.contains(subCompartment))
@@ -36,7 +36,7 @@ public class ImpactFactors {
 							.unit(factor.unit())
 					));
 			});
-		impactCategory.factors().addAll(expandedFactors);
+		impact.factors().addAll(expandedFactors);
 	}
 
 	private static Set<SubCompartment> subCompartmentsOf(String flow, ImpactCategoryBlock impactCategory) {

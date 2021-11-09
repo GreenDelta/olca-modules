@@ -20,12 +20,14 @@ public class SimaProCsvImport implements FileImport {
 	private EventBus eventBus;
 	private FlowMap flowMap;
 	private boolean unrollWasteScenarios;
+	private boolean expandImpactFactors;
 
 	public SimaProCsvImport(IDatabase db, File... files) {
 		this.db = db;
 		this.files = files;
 	}
 
+	// region config
 	public SimaProCsvImport withFlowMap(FlowMap flowMap) {
 		this.flowMap = flowMap;
 		return this;
@@ -33,6 +35,11 @@ public class SimaProCsvImport implements FileImport {
 
 	public SimaProCsvImport unrollWasteScenarios(boolean b) {
 		this.unrollWasteScenarios = b;
+		return this;
+	}
+
+	public SimaProCsvImport expandImpactFactors(boolean b) {
+		this.expandImpactFactors = b;
 		return this;
 	}
 
@@ -53,6 +60,7 @@ public class SimaProCsvImport implements FileImport {
 	public void setEventBus(EventBus eventBus) {
 		this.eventBus = eventBus;
 	}
+	// endregion
 
 	@Override
 	public void run() {
@@ -72,6 +80,13 @@ public class SimaProCsvImport implements FileImport {
 				var dataSet = CsvDataSet.read(file);
 				if (unrollWasteScenarios) {
 					WasteScenarios.unroll(dataSet);
+				}
+				if (expandImpactFactors) {
+					for (var method : dataSet.methods()) {
+						for (var impact : method.impactCategories()) {
+							ImpactFactors.expand(impact);
+						}
+					}
 				}
 
 				// reference data
@@ -96,5 +111,4 @@ public class SimaProCsvImport implements FileImport {
 			log.error("SimaPro CSV import failed");
 		}
 	}
-
 }

@@ -22,7 +22,7 @@ public class ImpactFactorExpansionTest {
 		var impact = new ImpactCategoryBlock();
 		impact.factors().add(new ImpactFactorRow()
 			.compartment(top.compartment())
-			.subCompartment(SubCompartment.UNSPECIFIED.toString())
+			.subCompartment("(unspecified)")
 			.factor(7)
 			.flow("some flow")
 			.unit("kg"));
@@ -45,16 +45,17 @@ public class ImpactFactorExpansionTest {
 			factors.put(subComp, row.factor());
 		}
 
+		// check that we can find the correct factor for each matching
+		// sub-compartment
 		int count = 0;
 		for (var subComp : SubCompartment.values()) {
 			if (subComp != SubCompartment.UNSPECIFIED && subComp.flowType() != top)
 				continue;
 			count++;
 			var factor = factors.get(subComp);
-			assertNotNull("missing factor for "
-				+ subComp.flowType().compartment() + "/" + subComp, factor);
+			assertNotNull(factor);
 			if (subComp == sub) {
-				assertEquals(42, factor, 1e-10);
+				assertEquals("wrong factor for: " + sub, 42, factor, 1e-10);
 			} else {
 				assertEquals(7, factor, 1e-10);
 			}
