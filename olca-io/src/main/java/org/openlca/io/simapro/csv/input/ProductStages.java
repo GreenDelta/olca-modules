@@ -74,7 +74,7 @@ class ProductStages implements ProcessMapper {
 			? block.products().get(0).name()
 			: "";
 		var type = block.category() != null
-			? block.category().name()
+			? block.category().toString()
 			: "";
 		var refId = KeyGen.get("SimaPro CSV", type, name);
 
@@ -107,6 +107,9 @@ class ProductStages implements ProcessMapper {
 			if (e == null)
 				continue;
 			e.isInput = false;
+			if (process.quantitativeReference == null) {
+				process.quantitativeReference = e;
+			}
 		}
 
 		// product inputs

@@ -1,20 +1,19 @@
 package org.openlca.io.simapro.csv.input;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
-import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.expressions.Scope;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.enums.ProcessType;
 import org.openlca.simapro.csv.enums.ProductType;
 import org.openlca.simapro.csv.process.ProcessBlock;
+import org.openlca.simapro.csv.process.WasteTreatmentRow;
 import org.openlca.simapro.csv.refdata.CalculatedParameterRow;
 import org.openlca.simapro.csv.refdata.InputParameterRow;
 import org.openlca.util.KeyGen;
@@ -92,7 +91,7 @@ class Processes implements ProcessMapper {
 		process.processType = block.processType() == ProcessType.SYSTEM
 			? org.openlca.core.model.ProcessType.LCI_RESULT
 			: org.openlca.core.model.ProcessType.UNIT_PROCESS;
-		process.name = mapName();
+		process.name = nameOf(block);
 		process.defaultAllocationMethod = AllocationMethod.PHYSICAL;
 		ProcessDocs.map(refData, block, process);
 		formulaScope = ProcessParameters.map(this);
@@ -103,13 +102,15 @@ class Processes implements ProcessMapper {
 		db.insert(process);
 	}
 
-	private String mapName() {
+	static String nameOf(ProcessBlock block) {
 		if (Strings.notEmpty(block.name()))
 			return block.name();
 		if (!block.products().isEmpty())
 			return block.products().get(0).name();
 		if (block.wasteTreatment() != null)
 			return block.wasteTreatment().name();
+		if (block.wasteScenario() != null)
+			return block.wasteScenario().name();
 		return block.identifier();
 	}
 
@@ -166,14 +167,22 @@ class Processes implements ProcessMapper {
 			}
 		}
 
-		// waste treatment
-		if (block.wasteTreatment() != null) {
-			var flow = refData.wasteFlowOf(block.wasteTreatment());
-			var e = Exchanges.of(this, flow, block.wasteTreatment());
+		// waste treatment or waste scenario
+		Consumer<WasteTreatmentRow> waste = row -> {
+			if (row == null)
+				return;
+			var flow = refData.wasteFlowOf(row);
+			var e = Exchanges.of(this, flow, row);
 			if (e != null) {
 				e.isInput = true;
+				if (process.quantitativeReference == null) {
+					process.quantitativeReference = e;
+				}
 			}
-		}
+		};
+		waste.accept(block.wasteTreatment());
+		waste.accept(block.wasteScenario());
+
 
 		// product inputs & waste outputs
 		for (var type : ProductType.values()) {
