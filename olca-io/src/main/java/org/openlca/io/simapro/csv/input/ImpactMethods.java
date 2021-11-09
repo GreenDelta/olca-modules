@@ -24,7 +24,6 @@ class ImpactMethods {
 		this.block = block;
 	}
 
-
 	static void map(IDatabase db, RefData refData, ImpactMethodBlock block) {
 		new ImpactMethods(db, refData, block).exec();
 	}
@@ -59,7 +58,6 @@ class ImpactMethods {
 			impact.refId = impactId;
 			impact.name = csvImpact.info().name();
 			impact.referenceUnit = csvImpact.info().unit();
-			ImpactFactors.expand(csvImpact);
 			addFactors(csvImpact, impact);
 			db.insert(impact);
 			method.impactCategories.add(impact);
