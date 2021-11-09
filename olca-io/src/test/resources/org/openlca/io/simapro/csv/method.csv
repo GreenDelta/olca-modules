@@ -1,0 +1,190 @@
+{SimaPro 9.1.0.7}
+{methods}
+{Date: 09.11.2021}
+{Time: 09:36:15}
+{Project: Test}
+{CSV Format version: 9.0.0}
+{CSV separator: Semicolon}
+{Decimal separator: .}
+{Date separator: .}
+{Short date format: dd.MM.yyyy}
+{Export platform IDs: No}
+{Selection: Selection (1)}
+{Related objects (system descriptions, substances, units, etc.): Yes}
+{Include sub product stages and processes: No}
+{Open project: 'Test'}
+
+Method
+
+Name
+EN 15804:2012
+
+Version
+3;06
+
+Comment
+"CML-IA is a LCA methodology developed by the Center of Environmental Science (CML) of Leiden University in The Netherlands. More information on:  http://cml.leiden.edu/software/data-cmlia.html  This method is an update of the CML 2 baseline 2000 and corresponds to the files published by CML in August 2016 (version 4.7). The CML 2 baseline 2000 version can be found in the 'superseded' list. For most impact categories, substances have been added and removed and/or characterisation factors were updated, according to new scientific insight. Only the impact category Photochemical oxidation did not undergo any changes. The CML-IA (baseline) method elaborates the problem-oriented (midpoint) approach. The CML Guide provides a list of impact assessment categories grouped into: A: Obligatory impact categories (Category indicators used in most LCAs)B: Additional impact categories (operational indicators exist, but are not often included in LCA studies) C: Other impact categories (no operational indicators available, therefore impossible to include quantitatively in LCA)In case several methods are available for obligatory impact categories a baseline indicator is selected, based on the principle of best available practice. These baseline indicators are category indicators at ""mid-point level"" (problem oriented approach)"". Baseline indicators are recommended for simplified studies. The guide provides guidelines for inclusion of other methods and impact category indicators in case of detailed studies and extended studies.Only baseline indicators are available in the CML method in SimaPro (based on CML Excel spreadsheet with characterisation and normalisation factors). In general, these indicators do not deviate from the ones in the spreadsheet. In case the spreadsheet contained synonyms of substance names already available in the substance list of the SimaPro database, the existing names are used. A distinction is made for emissions to agricultural soil and industrial soil. Emissions to agricultural soil are made clear by placing 'agricultural' in the column 'subcompartment' while emissions to industrial soil are blank. Emissions to seawater are indicated with 'ocean', while emissions to fresh water are blank (we assume that all emissions to water in existing process records are emissions to fresh water). Depletion of abiotic resourcesTwo impact categories: Abiotic depletion (elements, ultimate reserves) and abiotic depletion (fossil fuels)Abiotic depletion (elements, ultimate reserves) is related to extraction of minerals due to inputs in the system. The Abiotic Depletion Factor (ADF) is determined for each extraction of minerals (kg antimony equivalents/kg extraction) based on concentration reserves and rate of deaccumulation. Abiotic depletion of fossil fuels is related to the Lower Heating Value (LHV) expressed in MJ per kg of m3 fossil fuel. The reason for taking the LHV is that fossil fuels are considered to be fully substitutable.Global warmingThe characterisation model as developed by the Intergovernmental Panel on Climate Change (IPCC) is selected for development of characterisation factors. Factors are expressed as Global Warming Potential for time horizon 100 years (GWP100), in kg carbon dioxide equivalent/kg emission. Ozone layer depletion (steady state)The characterisation model is developed by the World Meteorological Organisation (WMO) and defines ozone depletion potential of different gases (kg CFC-11 equivalent/ kg emission). Human toxicity (HTP inf), Freshwater aquatic ecotoxicity (FAETP inf), Marine aquatic ecotoxicology (MAETP inf) and Terrestrial ecotoxicity (TETP inf)Characterisation factors, expressed as Human Toxicity Potentials (HTP), are calculated with USES-LCA, describing fate, exposure and effects of toxic substances for an infinite time horizon. For each toxic substance HTP's are expressed as 1,4-dichlorobenzene equivalents/ kg emission.Photochemical oxidation (high NOx)The model is developed by Jenkin & Hayman and Derwent and defines photochemical oxidation expressed in kg ethylene equivalents per kg emission.Acidification (incl. fate, average Europe total, A&B)Acifidication potential expressed in kg SO2 equivalents per kg emission. Model is developed by Huijbregts.Eutrophication (fate not included)Eutrophication potential developed by Heijungs et al and expressed in kg PO4 equivalents per kg emission.For further information see the database manual.Some of the original names were abbreviated or changed to be clearer to the user:                              Abiotic depletion (elements, ultimate reserves) is abreviated to Abiotic depletion                Acidification (incl.fate, average Europe total, A&B), renamed in Acidification                Eutrophication (incl. fate, average Europe total, A&B), renamed in Eutrophication (incl. fate)              	Global warming (GWP 100), renamed to Global warming (GWP 100 a)	Ozone layer depletion (ODP steady state), renamed to Ozone layer depletion (ODP)	Human toxicity (HTP inf.), renamed to Human toxicity	                Fresh water aquatic ecotoxicity (FAETP inf.), renamed to Fresh water aquatic ecotoxicity                Marina aquatic ecotoxicity (MAETP inf.), renamed to Marine aquatic ecotoxicity                Terrestrial ecotoxicity (TETP inf.), renamed to Terrestrial ecotoxicity                Photochemical oxidation (high NOx), renamed to Photochemical oxidationAll adaptions of the method (2001 - 2012) are present in CML-IA_update_info.xls which can be downloaded from the CML website http://cml.leiden.edu/software/data-cmlia.htmlReferences:Guinee, J.B., Marieke Gorree, Reinout Heijungs, Gjalt Huppes, Rene Kleijn, Lauran van Oers, A. Wegener Sleeswijk, S. Suh, H.A. Udo de Haes, H. de Bruijn, R. van Duin, M.A.J. Huijbregts (2001). Handbook on Life Cycle Assessment, Operational guide to the ISO standards Volume 1, 2a, 2b and 3.Huijbregts, M.A.J. LCA normalisation data for the Netherlands (1997/1998), Western Europe (1995) and the World (1990 and 1995).Wegener Sleeswijk, A., L. van Oers, J. Guinee, J. Struijs and M. Huijbregts (2008). Normalisation in product Life Cycle assessment: An LCA of the Global and European Economic Systems in the year 2000.Other adaptations (December 2019, version 3.06):- Corrected characterisation factor of 'Methane, fossil' in 'Global warming 100a' from 30 to 28, as published in the official method documentation.Other adaptations (November 2017, version 3.05):- Updated characterisation factors for 9 flows in the Abiotic depletion (fossil fuels). Previously, their characterisation factors were calculated using HHV instead of LHV. Those are:Coal, brownCoal, hardGas, mine, off-gas, process, coal mining/kgGas, mine, off-gas, process, coal mining/m3Gas, natural/kgGas, natural/m3Gas, off-gas, oil productionMethaneOil, crude.Other adaptations (September 2016, version 3.04):- Updated characterisation factors in 'Global warming 100a', according to IPCC 2013 report. The original CML-IA spreadsheet did not contain all the substances but after consultation and in agreement with CML they were added so that the implementation is compatible with IPCC 2013. - Substances with factor ""<1"" in the IPCC report are not implemented. - Factors for Methane, Methane, biogenic and Methane, fossil were implemented according to IPCC report (this causes minor differences, comparing to the method IPCC 2013 GWP 100a, which follows Munoz and Schmidt (2016)*).- Carbon dioxide, to soil or biomass stock (emission to soil) is included due to a change in the modelling of land tenure in Ecoinvent.*Munoz, I. and Schmidt, J.H. (2016), Methane oxidation, biogenic carbon, and the IPCC's emission metrics. Proposal for a consistent greenhouse-gas accounting. The International Journal of Life Cycle Assessment, 21:1069-1075.Other adaptations (September 2015, version 3.03):- Removed characterisation factor for Nitrogen to air (this flow means atmospheric nitrogen, which has no eutrophication impact).Other adaptations (August 2014, version 3.02):- The following flows were added to the Abiotic depletion (fossil fuels) category:Coal, bituminous, 24.8 MJ per kgCoal, hard, 30.7 MJ per kgEnergy, from coalEnergy, from coal, brownEnergy, from gas, naturalEnergy, from oilEnergy, from sulfurEnergy, unspecifiedGas, natural/kgMethane- Several metal synonyms were added to the Abiotic depletion category:Copper, Cu 0.2%, in mixed oreGold, Au 1.8E-4%, in mixed oreGold, Au 5.4E-4%, Ag 1.5E-5%, in oreGold, Au 6.8E-4%, Ag 1.5E-4%, in oreGold, Au 9.7E-5%, Ag 7.6E-5%, in oreLead, Pb 3.6E-1%, in mixed oreSilver, Ag 1.5E-4%, Au 6.8E-4%, in oreSilver, Ag 1.5E-5%, Au 5.4E-4%, in oreSilver, Ag 5.4E-3%, in mixed oreSilver, Ag 7.6E-5%, Au 9.7E-5%, in oreZinc, Zn 3.1%, in mixed oreOther adaptations (February 2014, version 3.01):- Normalisation factors were corrected (in the previous version, they were not the inverse as they should be in SimaPro)Other adaptations (October 2013, version 3.0)- Characterisation factors for methane, biogenic was added to the impact category Global warming 100a: 22,25 kg CO2 eq./kg.- Mecoprop (CAS 93-65-2) was added with the same characterisation factor as its synonym 2-(4-Chloro-2-methylphenoxy)propanoic acid (CAS 7085-19-0). These substances have different characterisation factors in USEtox and ILCD method. This problem is not solved yet by the developers of those methods.- The substance ""Phoshorus, total"" was added to the impact category ""Eutrophication"".- Added mineral resource flow synonyms."
+
+Category
+European
+
+Use Damage Assessment
+No
+
+Use Normalization
+Yes
+
+Use Weighting
+Yes
+
+Use Addition
+No
+
+Weighting unit
+Pt
+
+Impact category
+Global warming (GWP100a);kg CO2 eq
+
+Substances
+Air;(unspecified);Carbon dioxide;000124-38-9;1;kg
+Air;(unspecified);Carbon dioxide, fossil;000124-38-9;1;kg
+Air;(unspecified);Carbon dioxide, land transformation;000124-38-9;1;kg
+Soil;(unspecified);Carbon dioxide, to soil or biomass stock;000124-38-9;-1;kg
+Air;(unspecified);Dinitrogen monoxide;010024-97-2;265;kg
+Air;(unspecified);Methane;000074-82-8;28;kg
+Air;(unspecified);Methane, (difluoromethoxy)((difluoromethoxy)difluoromethoxy)difluoro-;249932-25-0;5300;kg
+Air;(unspecified);Methane, biogenic;000074-82-8;28;kg
+Air;(unspecified);Methane, bromo-, Halon 1001;000074-83-9;2;kg
+Air;(unspecified);Methane, bromochlorodifluoro-, Halon 1211;000353-59-3;1750;kg
+Air;(unspecified);Methane, bromodifluoro-, Halon 1201;001511-62-2;376;kg
+Air;(unspecified);Methane, bromotrifluoro-, Halon 1301;000075-63-8;6290;kg
+Air;(unspecified);Methane, chlorodifluoro-, HCFC-22;000075-45-6;1760;kg
+Air;(unspecified);Methane, chlorotrifluoro-, CFC-13;000075-72-9;13900;kg
+Air;(unspecified);Methane, dibromo-;000074-95-3;1;kg
+Air;(unspecified);Methane, dibromodifluoro-, Halon 1202;000075-61-6;231;kg
+Air;(unspecified);Methane, dichloro-, HCC-30;000075-09-2;9;kg
+Air;(unspecified);Methane, dichlorodifluoro-, CFC-12;000075-71-8;10200;kg
+Air;(unspecified);Methane, dichlorofluoro-, HCFC-21;000075-43-4;148;kg
+Air;(unspecified);Methane, difluoro-, HFC-32;000075-10-5;677;kg
+Air;(unspecified);Methane, difluoro(fluoromethoxy)-;000461-63-2;617;kg
+Air;(unspecified);Methane, difluoro(methoxy)-;000359-15-9;144;kg
+Air;(unspecified);Methane, fluoro-, HFC-41;000593-53-3;116;kg
+Air;(unspecified);Methane, fluoro(fluoromethoxy)-;000462-51-1;130;kg
+Air;(unspecified);Methane, fluoro(methoxy)-;000460-22-0;13;kg
+Air;(unspecified);Methane, fossil;000074-82-8;28;kg
+Air;(unspecified);Methane, land transformation;000074-82-8;28;kg
+Air;(unspecified);Methane, monochloro-, R-40;000074-87-3;12;kg
+Air;(unspecified);Methane, tetrachloro-, CFC-10;000056-23-5;1730;kg
+Air;(unspecified);Methane, tetrafluoro-, CFC-14;000075-73-0;6630;kg
+Air;(unspecified);Methane, trichlorofluoro-, CFC-11;000075-69-4;4660;kg
+Air;(unspecified);Methane, trifluoro-, HFC-23;000075-46-7;12400;kg
+Air;(unspecified);Methane, trifluoro(fluoromethoxy)-;002261-01-0;751;kg
+Air;(unspecified);Methyl perfluoroisopropyl ether;022052-84-2;363;kg
+Air;(unspecified);Nitrogen fluoride;007783-54-2;16100;kg
+
+Impact category
+Photochemical oxidation;kg C2H4 eq
+
+Substances
+Air;(unspecified);1-Butanol;000071-36-3;0.62;kg
+Air;(unspecified);1-Butene;000106-98-9;1.08;kg
+Air;(unspecified);1-Butene, 2-methyl-;000563-46-2;0.771;kg
+Air;(unspecified);1-Butene, 3-methyl-;000563-45-1;0.671;kg
+Air;(unspecified);Acetic acid;000064-19-7;0.097;kg
+Air;(unspecified);Carbon monoxide;000630-08-0;0.027;kg
+Air;(unspecified);Carbon monoxide, biogenic;000630-08-0;0.027;kg
+Air;(unspecified);Carbon monoxide, fossil;000630-08-0;0.027;kg
+Air;(unspecified);Methane;000074-82-8;0.006;kg
+Air;(unspecified);Methane, biogenic;000074-82-8;0.006;kg
+Air;(unspecified);Methane, dichloro-, HCC-30;000075-09-2;0.068;kg
+Air;(unspecified);Methane, dimethoxy-;000109-87-5;0.164;kg
+Air;(unspecified);Methane, fossil;000074-82-8;0.006;kg
+Air;(unspecified);Methane, monochloro-, R-40;000074-87-3;0.005;kg
+
+Normalization-Weighting set
+EU25+3, 2000
+
+Normalization
+Global warming (GWP100a);1.92E-13
+Photochemical oxidation;5.78E-10
+
+Weighting
+Global warming (GWP100a);0.3
+Photochemical oxidation;0.05
+
+End
+
+Quantities
+Mass;Yes
+Indicator;Yes
+Energy;Yes
+Volume;Yes
+
+End
+
+
+Units
+kg;Mass;1;kg
+Pt;Indicator;1;Pt
+g;Mass;0.001;kg
+kWh;Energy;3.6;MJ
+l;Volume;0.001;m3
+m3;Volume;1;m3
+MJ;Energy;1;MJ
+ton;Mass;1000;kg
+µg;Mass;0.000000001;kg
+mg;Mass;0.000001;kg
+cm3;Volume;0.000001;m3
+mm3;Volume;0.000000001;m3
+GJ;Energy;1000;MJ
+J;Energy;0.000001;MJ
+kJ;Energy;0.001;MJ
+Mtn;Mass;1000000000;kg
+PJ;Energy;1000000000;MJ
+TJ;Energy;1000000;MJ
+µPt;Indicator;0.000001;Pt
+nPt;Indicator;0.000000001;Pt
+kPt;Indicator;1000;Pt
+MPt;Indicator;1000000;Pt
+GPt;Indicator;1000000000;Pt
+kton;Mass;1000000;kg
+ng;Mass;1.0E-12;kg
+mPt;Indicator;0.001;Pt
+pg;Mass;1.0E-15;kg
+MWh;Energy;3600;MJ
+lb;Mass;0.4535924;kg
+gal*;Volume;0.003785412;m3
+cuft;Volume;0.02831685;m3
+Btu;Energy;0.001055696;MJ
+oz;Mass;0.02834952;kg
+cu.in;Volume;1.638706E-5;m3
+cu.yd;Volume;0.7645549;m3
+tn.sh;Mass;907.1848;kg
+tn.lg;Mass;1016.047;kg
+dm3;Volume;0.001;m3
+kcal;Energy;0.0041855;MJ
+Wh;Energy;0.0036;MJ
+
+End
+
+
+Raw materials
+Nitrogen, atmospheric;kg;;
+Water, well, RE;m3;007732-18-5;RE = Reunion
+
+End
+
+
+Airborne emissions
+Carbon dioxide;kg;000124-38-9;Formula: CO2
+Methane;kg;000074-82-8;Formula: CH4
+
+End
+
+
+Waterborne emissions
+Acetone;kg;000067-64-1;Formula: C3H6O
+
+End
+

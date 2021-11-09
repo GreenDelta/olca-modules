@@ -1,0 +1,159 @@
+{SimaPro 9.1.0.7}
+{processes}
+{Date: 09.11.2021}
+{Time: 09:35:59}
+{Project: Test}
+{CSV Format version: 9.0.0}
+{CSV separator: Semicolon}
+{Decimal separator: .}
+{Date separator: .}
+{Short date format: dd.MM.yyyy}
+{Export platform IDs: No}
+{Skip empty fields: Yes}
+{Convert expressions to constants: No}
+{Selection: Selection (1)}
+{Related objects (system descriptions, substances, units, etc.): Yes}
+{Include sub product stages and processes: Yes}
+{Open project: 'Test'}
+
+Process
+
+Category type
+material
+
+Process identifier
+Dev99229000009369600009
+
+Type
+
+
+Process name
+Test
+
+Status
+
+
+Time period
+Unspecified
+
+Geography
+Unspecified
+
+Technology
+Unspecified
+
+Representativeness
+Unspecified
+
+Multiple output allocation
+Unspecified
+
+Substitution allocation
+Unspecified
+
+Cut off rules
+Unspecified
+
+Capital goods
+Unspecified
+
+Boundary with nature
+Unspecified
+
+Infrastructure
+No
+
+Date
+09.11.2021
+
+Products
+Test;kg;1;100;not defined;Others;
+
+Avoided products
+
+Resources
+Water, well, RE;in water;m3;0.01;Undefined;0;0;0;
+Nitrogen, atmospheric;in air;kg;0.05;Undefined;0;0;0;
+
+Materials/fuels
+
+Electricity/heat
+
+Emissions to air
+Carbon dioxide;low. pop.;kg;0.001;Undefined;0;0;0;
+Methane;low. pop.;kg;0.0001;Undefined;0;0;0;
+
+Emissions to water
+Acetone;groundwater, long-term;kg;1.0E-15;Undefined;0;0;0;
+
+Emissions to soil
+
+Final waste flows
+
+Non material emissions
+
+Social issues
+
+Economic issues
+
+Waste to treatment
+
+End
+
+Quantities
+Mass;Yes
+Volume;Yes
+
+End
+
+
+Units
+kg;Mass;1;kg
+g;Mass;0.001;kg
+l;Volume;0.001;m3
+m3;Volume;1;m3
+ton;Mass;1000;kg
+µg;Mass;0.000000001;kg
+mg;Mass;0.000001;kg
+cm3;Volume;0.000001;m3
+mm3;Volume;0.000000001;m3
+Mtn;Mass;1000000000;kg
+kton;Mass;1000000;kg
+ng;Mass;1.0E-12;kg
+pg;Mass;1.0E-15;kg
+lb;Mass;0.4535924;kg
+gal*;Volume;0.003785412;m3
+cuft;Volume;0.02831685;m3
+oz;Mass;0.02834952;kg
+cu.in;Volume;1.638706E-5;m3
+cu.yd;Volume;0.7645549;m3
+tn.sh;Mass;907.1848;kg
+tn.lg;Mass;1016.047;kg
+dm3;Volume;0.001;m3
+
+End
+
+
+Raw materials
+Nitrogen, atmospheric;kg;;
+Water, well, RE;m3;007732-18-5;RE = Reunion
+
+End
+
+
+Airborne emissions
+Carbon dioxide;kg;000124-38-9;Formula: CO2
+Methane;kg;000074-82-8;Formula: CH4
+
+End
+
+
+Waterborne emissions
+Acetone;kg;000067-64-1;Formula: C3H6O
+
+End
+
+
+End
+
+End
