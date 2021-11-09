@@ -59,6 +59,7 @@ class ImpactMethods {
 			impact.refId = impactId;
 			impact.name = csvImpact.info().name();
 			impact.referenceUnit = csvImpact.info().unit();
+			ImpactFactors.expand(csvImpact);
 			addFactors(csvImpact, impact);
 			db.insert(impact);
 			method.impactCategories.add(impact);
