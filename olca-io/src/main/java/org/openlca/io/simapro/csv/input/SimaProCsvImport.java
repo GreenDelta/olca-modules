@@ -4,7 +4,15 @@ import java.io.File;
 import java.util.ArrayList;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.matrix.ProductSystemBuilder;
+import org.openlca.core.matrix.cache.MatrixCache;
+import org.openlca.core.matrix.linking.LinkingConfig;
+import org.openlca.core.matrix.linking.ProviderLinking;
+import org.openlca.core.model.Parameter;
+import org.openlca.core.model.ParameterRedef;
+import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProcessType;
 import org.openlca.io.FileImport;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.simapro.csv.CsvDataSet;
@@ -112,7 +120,7 @@ public class SimaProCsvImport implements FileImport {
 					Processes.map(db, refData, process);
 				}
 
-				// product stages
+				// product stages and life cycle systems
 				var lifeCycles = new ArrayList<Pair<ProductStageBlock, Process>>();
 				for (var stage : dataSet.productStages()) {
 					var process = ProductStages.map(db, refData, stage);
@@ -122,17 +130,50 @@ public class SimaProCsvImport implements FileImport {
 						lifeCycles.add(Pair.of(stage, process.get()));
 					}
 				}
-				if (!lifeCycles.isEmpty()) {
-
+				for (var pair : lifeCycles) {
+					createSystemOf(pair.first, pair.second);
 				}
 
 				// impact methods
 				for (var method : dataSet.methods()) {
-					ImpactMethods.map(db ,refData, method);
+					ImpactMethods.map(db, refData, method);
 				}
 			}
 		} catch (Exception e) {
 			log.error("SimaPro CSV import failed");
 		}
+	}
+
+	private void createSystemOf(ProductStageBlock block, Process process) {
+		var linkingConfig = new LinkingConfig()
+			.providerLinking(ProviderLinking.PREFER_DEFAULTS)
+			.preferredType(ProcessType.LCI_RESULT);
+		var system = new ProductSystemBuilder(
+			MatrixCache.createLazy(db), linkingConfig).build(process);
+		var params = wasteScenarioParamOf(block);
+		if (params != null) {
+			system.parameterSets.add(params);
+		}
+		db.insert(system);
+	}
+
+	private ParameterRedefSet wasteScenarioParamOf(ProductStageBlock block) {
+		var ws = block.wasteOrDisposalScenario();
+		if (ws == null)
+			return null;
+		var param = WasteScenarios.parameterOf(ws.name());
+		var global = db.forName(Parameter.class, param);
+		if (global == null)
+			return null;
+		var paramSet = new ParameterRedefSet();
+		paramSet.name = "Parameters";
+		paramSet.isBaseline = true;
+		var redef = new ParameterRedef();
+		redef.name = param;
+		redef.value = 1;
+		redef.description = "Set to 1 to enable waste scenario '"
+			+ ws.name() + "'. Set it to 0 to disable it.";
+		paramSet.parameters.add(redef);
+		return paramSet;
 	}
 }

@@ -103,15 +103,15 @@ class Processes implements ProcessMapper {
 	}
 
 	static String nameOf(ProcessBlock block) {
-		if (Strings.notEmpty(block.name()))
-			return block.name();
 		if (!block.products().isEmpty())
 			return block.products().get(0).name();
 		if (block.wasteTreatment() != null)
 			return block.wasteTreatment().name();
 		if (block.wasteScenario() != null)
 			return block.wasteScenario().name();
-		return block.identifier();
+		return Strings.notEmpty(block.name())
+			? block.name()
+			: block.identifier();
 	}
 
 	private void mapAllocation() {

@@ -173,7 +173,7 @@ class WasteScenarios {
 		return Numeric.of(prefix + " * (" + s + ")");
 	}
 
-	private String parameterOf(String scenarioName) {
+	static String parameterOf(String scenarioName) {
 		var buffer = new StringBuilder("ws_");
 		boolean wasValid = true;
 		for (char c : scenarioName.toLowerCase().toCharArray()) {
