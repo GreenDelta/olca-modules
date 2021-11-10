@@ -1,17 +1,36 @@
-package org.openlca.io.simapro.csv;
+package org.openlca.io.simapro.csv.input;
 
 import static org.junit.Assert.*;
 
 import java.util.EnumMap;
 
 import org.junit.Test;
-import org.openlca.io.simapro.csv.input.ImpactFactors;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.enums.SubCompartment;
 import org.openlca.simapro.csv.method.ImpactCategoryBlock;
 import org.openlca.simapro.csv.method.ImpactFactorRow;
 
 public class ImpactFactorExpansionTest {
+
+	@Test
+	public void testEmpty() {
+		var block = new ImpactCategoryBlock();
+		ImpactFactors.expand(block);
+		assertTrue(block.factors().isEmpty());
+	}
+
+	@Test
+	public void testNoExpansion() {
+		var block = new ImpactCategoryBlock();
+		block.factors().add(new ImpactFactorRow()
+			.compartment(ElementaryFlowType.EMISSIONS_TO_AIR.compartment())
+			.subCompartment(SubCompartment.AIR_INDOOR.toString())
+			.factor(7)
+			.flow("some flow")
+			.unit("kg"));
+		ImpactFactors.expand(block);
+		assertEquals(1, block.factors().size());
+	}
 
 	@Test
 	public void testExpand() {

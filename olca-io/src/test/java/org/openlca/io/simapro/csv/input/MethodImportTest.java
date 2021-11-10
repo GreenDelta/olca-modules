@@ -1,4 +1,4 @@
-package org.openlca.io.simapro.csv;
+package org.openlca.io.simapro.csv.input;
 
 import java.io.File;
 
@@ -8,7 +8,6 @@ import org.junit.Test;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.io.Tests;
-import org.openlca.io.simapro.csv.input.SimaProCsvImport;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

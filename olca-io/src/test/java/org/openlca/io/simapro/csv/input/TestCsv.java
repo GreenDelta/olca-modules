@@ -1,4 +1,4 @@
-package org.openlca.io.simapro.csv;
+package org.openlca.io.simapro.csv.input;
 
 import java.io.BufferedReader;
 import java.io.File;
