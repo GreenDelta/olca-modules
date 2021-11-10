@@ -29,9 +29,11 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 	private final double cutoff;
 
 	public TechIndexCutoffBuilder(MatrixCache cache, ProductSystem system,
-			LinkingConfig config) {
+		LinkingConfig config) {
 		this.cache = cache;
-		this.cutoff = config.cutoff == null ? 0 : config.cutoff;
+		this.cutoff = config.cutoff().isPresent()
+			? config.cutoff().getAsDouble()
+			: 0;
 		this.system = system;
 		this.providers = new ProviderSearch(cache.getProcessTable(), config);
 	}
@@ -43,8 +45,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 
 	@Override
 	public TechIndex build(TechFlow refProduct, double demand) {
-		log.trace("build product index for {} with cutoff=", refProduct,
-				cutoff);
+		log.trace("build product index for {} with cutoff={}", refProduct, cutoff);
 		TechIndex index = new TechIndex(refProduct);
 		index.setDemand(demand);
 		addSystemLinks(index);
@@ -61,7 +62,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 			return;
 		for (ProcessLink link : system.processLinks) {
 			TechFlow provider = providers.getProvider(
-					link.providerId, link.flowId);
+				link.providerId, link.flowId);
 			if (provider == null)
 				continue;
 			LongPair exchange = new LongPair(link.processId, link.exchangeId);
@@ -78,7 +79,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 					continue;
 				Node provider = link.provider;
 				LongPair exchange = LongPair.of(
-						node.flow.processId(), link.exchangeId);
+					node.flow.processId(), link.exchangeId);
 				index.putLink(exchange, provider.flow);
 			}
 		}
@@ -112,7 +113,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 			for (Node n : next) {
 				n.state = NodeState.PROGRESS;
 				List<CalcExchange> exchanges = nextExchanges.get(
-						n.flow.processId());
+					n.flow.processId());
 				CalcExchange provider = getProviderFlow(n, exchanges);
 				if (provider == null)
 					continue;
@@ -126,9 +127,9 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 		}
 
 		private void followLinks(Node node, List<CalcExchange> exchanges,
-				List<Node> nextLayer) {
+			List<Node> nextLayer) {
 			for (CalcExchange linkExchange : providers
-					.getLinkCandidates(exchanges)) {
+				.getLinkCandidates(exchanges)) {
 				TechFlow provider = providers.find(linkExchange);
 				if (provider == null)
 					continue;
@@ -141,13 +142,13 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 					providerNode = createNode(demand, provider, nextLayer);
 				}
 				Link link = new Link(providerNode, linkExchange.exchangeId,
-						amount, demand);
+					amount, demand);
 				node.links.add(link);
 			}
 		}
 
 		private Node createNode(double demand, TechFlow product,
-				List<Node> nextLayer) {
+			List<Node> nextLayer) {
 			Node node = new Node(product, demand);
 			nodes.put(product, node);
 			if (Math.abs(demand) < cutoff)
@@ -160,9 +161,9 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 		}
 
 		private void checkSubGraph(double demand, Node provider,
-				List<Node> nextLayer, boolean recursion) {
+			List<Node> nextLayer, boolean recursion) {
 			if (Math.abs(demand) < cutoff
-					|| Math.abs(demand) <= Math.abs(provider.demand))
+				|| Math.abs(demand) <= Math.abs(provider.demand))
 				return;
 			provider.demand = demand;
 			if (provider.state == NodeState.EXCLUDED) {
@@ -201,7 +202,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 		 * exchange list.
 		 */
 		private CalcExchange getProviderFlow(Node node,
-				List<CalcExchange> all) {
+			List<CalcExchange> all) {
 			for (CalcExchange e : all) {
 				if (node.flow.flowId() != e.flowId)
 					continue;

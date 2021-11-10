@@ -1,11 +1,16 @@
 package org.openlca.io.simapro.csv.input;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.Process;
 import org.openlca.io.FileImport;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.simapro.csv.CsvDataSet;
+import org.openlca.simapro.csv.enums.ProductStageCategory;
+import org.openlca.simapro.csv.process.ProductStageBlock;
+import org.openlca.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +26,7 @@ public class SimaProCsvImport implements FileImport {
 	private FlowMap flowMap;
 	private boolean unrollWasteScenarios;
 	private boolean expandImpactFactors;
+	private boolean generateLifeCycleSystems;
 
 	public SimaProCsvImport(IDatabase db, File... files) {
 		this.db = db;
@@ -40,6 +46,15 @@ public class SimaProCsvImport implements FileImport {
 
 	public SimaProCsvImport expandImpactFactors(boolean b) {
 		this.expandImpactFactors = b;
+		return this;
+	}
+
+	/**
+	 * If set to {@code true} the import will generate product systems for life
+	 * cycle stages of type {@code 'life cycle'}.
+	 */
+	public SimaProCsvImport generateLifeCycleSystems(boolean b) {
+		this.generateLifeCycleSystems = b;
 		return this;
 	}
 
@@ -98,8 +113,17 @@ public class SimaProCsvImport implements FileImport {
 				}
 
 				// product stages
+				var lifeCycles = new ArrayList<Pair<ProductStageBlock, Process>>();
 				for (var stage : dataSet.productStages()) {
-					ProductStages.map(db, refData, stage);
+					var process = ProductStages.map(db, refData, stage);
+					if (generateLifeCycleSystems
+						&& process.isPresent()
+						&& stage.category() == ProductStageCategory.LIFE_CYCLE) {
+						lifeCycles.add(Pair.of(stage, process.get()));
+					}
+				}
+				if (!lifeCycles.isEmpty()) {
+
 				}
 
 				// impact methods

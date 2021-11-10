@@ -12,7 +12,6 @@ import org.openlca.core.matrix.linking.LinkingConfig;
 import org.openlca.core.matrix.linking.ProviderLinking;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
-import org.openlca.core.model.ProductSystem;
 
 /**
  * An example for creating a product system with auto-completion.
@@ -28,12 +27,11 @@ public class ProductSystemBuilderExample {
 				"81261285-cc4a-3588-8cce-3aabb786d7aa");
 
 		// create and auto-complete the product system
-		LinkingConfig config = new LinkingConfig();
-		config.providerLinking = ProviderLinking.PREFER_DEFAULTS;
-		config.preferredType = ProcessType.UNIT_PROCESS;
-		ProductSystemBuilder builder = new ProductSystemBuilder(
-				MatrixCache.createLazy(db), config);
-		ProductSystem system = builder.build(p);
+		var config = new LinkingConfig()
+			.providerLinking(ProviderLinking.PREFER_DEFAULTS)
+			.preferredType(ProcessType.UNIT_PROCESS);
+		var system = new ProductSystemBuilder(MatrixCache.createLazy(db), config)
+			.build(p);
 
 		// save the product system
 		new ProductSystemDao(db).insert(system);

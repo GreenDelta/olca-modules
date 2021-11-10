@@ -116,16 +116,14 @@ class ProcessImport {
 		// map meta data
 		p.refId = refId;
 		p.name = getProcessName(ds);
-		ProcessType type = activity.type == 2
+		p.processType = activity.type == 2
 				? ProcessType.LCI_RESULT
 				: ProcessType.UNIT_PROCESS;
-		p.processType = type;
-		String d = Joiner.on(" ").skipNulls().join(
+		p.description = Joiner.on(" ").skipNulls().join(
 				RichText.join(activity.generalComment),
 				activity.includedActivitiesStart,
 				activity.includedActivitiesEnd,
 				RichText.join(activity.allocationComment));
-		p.description = d;
 
 		// map the process category
 		Category category = null;

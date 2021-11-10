@@ -17,7 +17,7 @@ import java.io.File;
  */
 public class EcoSpold2Import implements FileImport {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	private EventBus eventBus;
 	private boolean canceled = false;
 	private File[] files;

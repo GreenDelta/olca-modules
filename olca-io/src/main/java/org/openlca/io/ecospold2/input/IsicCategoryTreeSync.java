@@ -18,8 +18,8 @@ import org.openlca.util.KeyGen;
  */
 public class IsicCategoryTreeSync implements Runnable {
 
-	private CategoryDao dao;
-	private ModelType type;
+	private final CategoryDao dao;
+	private final ModelType type;
 
 	public IsicCategoryTreeSync(IDatabase db, ModelType type) {
 		this.dao = new CategoryDao(db);

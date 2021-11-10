@@ -14,7 +14,6 @@ import org.openlca.core.matrix.linking.ProviderLinking;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
-import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.SimpleResult;
 
@@ -36,12 +35,11 @@ public class ProductSystemInMemoryCalculationExample {
 		// the system is not saved in the database
 		Process p = new ProcessDao(db).getForRefId(
 				"7ff672e3-a296-30e8-b1bb-a3173711a28b");
-		LinkingConfig config = new LinkingConfig();
-		config.providerLinking = ProviderLinking.PREFER_DEFAULTS;
-		config.preferredType = ProcessType.UNIT_PROCESS;
-		ProductSystemBuilder builder = new ProductSystemBuilder(
-				mcache, config);
-		ProductSystem system = builder.build(p);
+		var config = new LinkingConfig()
+			.providerLinking(ProviderLinking.PREFER_DEFAULTS)
+			.preferredType(ProcessType.UNIT_PROCESS);
+		var builder = new ProductSystemBuilder(mcache, config);
+		var system = builder.build(p);
 		var method = db.get(ImpactMethod.class,
 			"207ffac9-aaa8-401d-ac90-874defd3751a");
 

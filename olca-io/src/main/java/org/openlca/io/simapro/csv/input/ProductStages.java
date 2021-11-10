@@ -1,6 +1,7 @@
 package org.openlca.io.simapro.csv.input;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.openlca.core.database.IDatabase;
@@ -32,8 +33,15 @@ class ProductStages implements ProcessMapper {
 		this.block = block;
 	}
 
-	static void map(IDatabase db, RefData refData, ProductStageBlock block) {
-		new ProductStages(db, refData, block).exec();
+	/**
+	 * Tries to import the given product stage as a process. Returns that process
+	 * if it was created. If the process already exists in the database, an
+	 * empty option is returned.
+	 */
+	static Optional<Process> map(
+		IDatabase db, RefData refData, ProductStageBlock block) {
+		var process = new ProductStages(db, refData, block).exec();
+		return Optional.ofNullable(process);
 	}
 
 	// region ProcessMapper
@@ -68,7 +76,7 @@ class ProductStages implements ProcessMapper {
 	}
 	// endregion
 
-	void exec() {
+	private Process exec() {
 
 		var name = !block.products().isEmpty()
 			? block.products().get(0).name()
@@ -81,7 +89,7 @@ class ProductStages implements ProcessMapper {
 		process = db.get(Process.class, refId);
 		if (process != null) {
 			log.warn("A process with id={} already exists", refId);
-			return;
+			return null;
 		}
 
 		// meta-data
@@ -96,7 +104,7 @@ class ProductStages implements ProcessMapper {
 
 		mapExchanges();
 		inferCategoryAndLocation();
-		db.insert(process);
+		return db.insert(process);
 	}
 
 	private void mapExchanges() {

@@ -8,6 +8,7 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.ProductSystemBuilder;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.cache.ProcessTable;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.linking.LinkingConfig;
 import org.openlca.core.matrix.linking.ProviderLinking;
 import org.openlca.core.model.Flow;
@@ -155,7 +156,7 @@ public class ModelHandler {
 		var array = new JsonArray();
 		var cache = EntityCache.create(db);
 		providers.stream()
-				.map(p -> p.process())
+				.map(TechFlow::process)
 				.filter(p -> p instanceof ProcessDescriptor)
 				.map(p -> Json.asDescriptor(p, cache))
 				.forEach(array::add);
@@ -177,17 +178,17 @@ public class ModelHandler {
 			return Responses.invalidParams("No process found for ref id " + processId, req);
 		var system = ProductSystem.of(refProcess);
 		system = new ProductSystemDao(db).insert(system);
-		var config = new LinkingConfig();
-		config.preferredType = ProcessType.UNIT_PROCESS;
-		if (obj.has("preferredType") && obj.get("preferredType").getAsString().toLowerCase().equals("lci_result")) {
-			config.preferredType = ProcessType.LCI_RESULT;
+		var config = new LinkingConfig()
+			.preferredType(ProcessType.UNIT_PROCESS);
+		if (obj.has("preferredType") && obj.get("preferredType").getAsString().equalsIgnoreCase("lci_result")) {
+			config.preferredType(ProcessType.LCI_RESULT);
 		}
-		config.providerLinking = ProviderLinking.PREFER_DEFAULTS;
+		config.providerLinking(ProviderLinking.PREFER_DEFAULTS);
 		if (obj.has("providerLinking")) {
-			if (obj.get("providerLinking").getAsString().toLowerCase().equals("ignore")) {
-				config.providerLinking = ProviderLinking.IGNORE_DEFAULTS;
-			} else if (obj.get("providerLinking").getAsString().toLowerCase().equals("only")) {
-				config.providerLinking = ProviderLinking.ONLY_DEFAULTS;
+			if (obj.get("providerLinking").getAsString().equalsIgnoreCase("ignore")) {
+				config.providerLinking(ProviderLinking.IGNORE_DEFAULTS);
+			} else if (obj.get("providerLinking").getAsString().equalsIgnoreCase("only")) {
+				config.providerLinking(ProviderLinking.ONLY_DEFAULTS);
 			}
 		}
 		var builder = new ProductSystemBuilder(MatrixCache.createLazy(db), config);

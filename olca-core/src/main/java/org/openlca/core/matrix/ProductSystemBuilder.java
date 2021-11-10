@@ -85,7 +85,7 @@ public class ProductSystemBuilder {
 		log.trace("auto complete product system {}", system);
 		log.trace("build product index");
 		ITechIndexBuilder builder;
-		if (config.cutoff == null || config.cutoff == 0) {
+		if (config.cutoff().isEmpty()) {
 			builder = new TechIndexBuilder(matrixCache, system, config);
 		} else {
 			builder = new TechIndexCutoffBuilder(

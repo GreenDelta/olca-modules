@@ -33,10 +33,8 @@ class Exchanges {
 				|| candidate.amount.doubleValue() == 0
 				|| candidate.activityLinkId == null)
 			return false;
-		return Objects.equals(candidate.flowId,
-				ref.flowId)
-				&& Objects.equals(candidate.activityLinkId,
-						Spold2.getId(ds));
+		return Objects.equals(candidate.flowId, ref.flowId)
+				&& Objects.equals(candidate.activityLinkId, Spold2.getId(ds));
 	}
 
 }

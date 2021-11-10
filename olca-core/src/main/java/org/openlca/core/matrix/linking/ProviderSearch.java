@@ -14,15 +14,7 @@ import org.openlca.core.model.ProcessType;
  * Searches for the best provider for a given product input or waste output in
  * the database.
  */
-public class ProviderSearch {
-
-	private final ProcessTable processTable;
-	private final LinkingConfig config;
-
-	public ProviderSearch(ProcessTable processTable, LinkingConfig config) {
-		this.processTable = processTable;
-		this.config = config;
-	}
+public record ProviderSearch(ProcessTable processTable, LinkingConfig config) {
 
 	/**
 	 * Find the best provider for the given product input or waste output
@@ -39,20 +31,20 @@ public class ProviderSearch {
 		// this needs to be done before asking a potential callback
 		// for options as the callback should be only called when
 		// there are multiple options.
-		if (config.providerLinking != ProviderLinking.IGNORE_DEFAULTS) {
+		if (config.providerLinking() != ProviderLinking.IGNORE_DEFAULTS) {
 			for (TechFlow provider : providers) {
 				if (provider.processId() == e.defaultProviderId)
 					return provider;
 			}
-			if (config.providerLinking == ProviderLinking.ONLY_DEFAULTS)
+			if (config.providerLinking() == ProviderLinking.ONLY_DEFAULTS)
 				return null;
 		}
 
 		// check form single options and callback
 		if (providers.size() == 1)
 			return providers.get(0);
-		if (config.callback != null) {
-			providers = config.callback.select(e, providers);
+		if (config.callback() != null) {
+			providers = config.callback().select(e, providers);
 			if (providers == null || providers.size() == 0)
 				return null;
 			if (providers.size() == 1)
@@ -73,7 +65,7 @@ public class ProviderSearch {
 			return true;
 		if (newOption == null)
 			return false;
-		if (config.providerLinking != ProviderLinking.IGNORE_DEFAULTS) {
+		if (config.providerLinking() != ProviderLinking.IGNORE_DEFAULTS) {
 			if (old.processId() == e.defaultProviderId)
 				return false;
 			if (newOption.processId() == e.defaultProviderId)
@@ -81,11 +73,11 @@ public class ProviderSearch {
 		}
 		ProcessType oldType = processTable.getType(old.processId());
 		ProcessType newType = processTable.getType(newOption.processId());
-		if (oldType == config.preferredType
-				&& newType != config.preferredType)
+		if (oldType == config.preferredType()
+			&& newType != config.preferredType())
 			return false;
-		return oldType != config.preferredType
-				&& newType == config.preferredType;
+		return oldType != config.preferredType()
+			&& newType == config.preferredType();
 	}
 
 	/**
@@ -97,7 +89,7 @@ public class ProviderSearch {
 			return Collections.emptyList();
 		List<CalcExchange> candidates = new ArrayList<>();
 		for (CalcExchange e : list) {
-			if (config.providerLinking == ProviderLinking.ONLY_DEFAULTS
+			if (config.providerLinking() == ProviderLinking.ONLY_DEFAULTS
 					&& e.defaultProviderId == 0L)
 				continue;
 			if (e.flowType == null || e.flowType == FlowType.ELEMENTARY_FLOW)
@@ -112,8 +104,8 @@ public class ProviderSearch {
 	}
 
 	private boolean cancel() {
-		return config.callback != null
-				&& config.callback.cancel();
+		return config.callback() != null
+				&& config.callback().cancel();
 	}
 
 	TechFlow getProvider(long id, long flowId) {
