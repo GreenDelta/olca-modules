@@ -15,7 +15,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.io.FileImport;
 import org.openlca.io.maps.FlowMap;
-import org.openlca.simapro.csv.CsvDataSet;
+import org.openlca.simapro.csv.SimaProCsv;
 import org.openlca.simapro.csv.enums.ProductStageCategory;
 import org.openlca.simapro.csv.process.ProductStageBlock;
 import org.openlca.util.Pair;
@@ -100,7 +100,7 @@ public class SimaProCsvImport implements FileImport {
 				log.trace("import SimaPro CSV file {}", file);
 				log.trace("extract reference data");
 
-				var dataSet = CsvDataSet.read(file);
+				var dataSet = SimaProCsv.read(file);
 				if (unrollWasteScenarios) {
 					WasteScenarios.unroll(dataSet);
 				}

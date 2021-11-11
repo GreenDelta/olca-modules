@@ -9,7 +9,7 @@ import java.nio.file.Files;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.openlca.simapro.csv.Csv;
+import org.openlca.simapro.csv.SimaProCsv;
 
 class TestCsv {
 
@@ -23,7 +23,7 @@ class TestCsv {
 				 var buffer = new BufferedReader(reader)) {
 			var text = buffer.lines().collect(Collectors.joining("\n"));
 			var tempFile = Files.createTempFile("olca_test", ".csv");
-			Files.writeString(tempFile, text, Csv.defaultCharset());
+			Files.writeString(tempFile, text, SimaProCsv.defaultCharset());
 			return tempFile.toFile();
 		} catch (IOException e) {
 			throw new RuntimeException(e);

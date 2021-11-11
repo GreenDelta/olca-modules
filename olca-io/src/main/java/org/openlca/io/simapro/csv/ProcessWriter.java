@@ -213,7 +213,7 @@ public class ProcessWriter {
 
 		// write the flow information
 		for (var type : ElementaryFlowType.values()) {
-			writeln(type.referenceHeader());
+			writeln(type.blockHeader());
 
 			// duplicate names are not allowed here
 			HashSet<String> handledNames = new HashSet<>();
