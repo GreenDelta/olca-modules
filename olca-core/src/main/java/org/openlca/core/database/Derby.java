@@ -1,8 +1,11 @@
 package org.openlca.core.database;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -11,7 +14,13 @@ import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
+import com.zaxxer.hikari.HikariDataSource;
 import jakarta.persistence.EntityManagerFactory;
 import org.eclipse.persistence.jpa.PersistenceProvider;
 import org.openlca.core.DataDir;
@@ -21,8 +30,6 @@ import org.openlca.util.Dirs;
 import org.openlca.util.Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.zaxxer.hikari.HikariDataSource;
 
 public class Derby extends Notifiable implements IDatabase {
 
@@ -56,7 +63,7 @@ public class Derby extends Notifiable implements IDatabase {
 		if (path == null) {
 			var log = LoggerFactory.getLogger(Derby.class);
 			log.error("Could not find a database dump under {};"
-					+ " will create an empty DB", folder);
+				+ " will create an empty DB", folder);
 			return createInMemory();
 		}
 		int i = memInstances.incrementAndGet();
@@ -189,7 +196,7 @@ public class Derby extends Notifiable implements IDatabase {
 	/**
 	 * Set the location where files of data that are not stored directly in the
 	 * database should be saved (e.g. external files of sources).
-	 *
+	 * <p>
 	 * Typically, this is only set by in-memory databases as for file based
 	 * databases it defaults to the `_olca_` folder within the database
 	 * directory.
@@ -203,12 +210,12 @@ public class Derby extends Notifiable implements IDatabase {
 		Map<Object, Object> map = new HashMap<>();
 		map.put("jakarta.persistence.jdbc.url", url);
 		map.put("jakarta.persistence.jdbc.driver",
-				"org.apache.derby.jdbc.EmbeddedDriver");
+			"org.apache.derby.jdbc.EmbeddedDriver");
 		map.put("eclipselink.classloader", getClass().getClassLoader());
 		map.put("eclipselink.target-database", "Derby");
 		log.trace("Create entity factory");
 		entityFactory = new PersistenceProvider()
-				.createEntityManagerFactory("openLCA", map);
+			.createEntityManagerFactory("openLCA", map);
 		log.trace("Init connection pool");
 		connectionPool = new HikariDataSource();
 		connectionPool.setJdbcUrl(url);
@@ -283,7 +290,9 @@ public class Derby extends Notifiable implements IDatabase {
 		return DbUtils.getVersion(this);
 	}
 
-	/** Closes the database and deletes the underlying folder. */
+	/**
+	 * Closes the database and deletes the underlying folder.
+	 */
 	public void delete() throws Exception {
 		if (!closed)
 			close();
@@ -296,7 +305,7 @@ public class Derby extends Notifiable implements IDatabase {
 	 * Creates a backup of the database in the given folder. This is
 	 * specifically useful for creating a dump of an in-memory database. See
 	 * https://db.apache.org/derby/docs/10.0/manuals/admin/hubprnt43.html
-	 *
+	 * <p>
 	 * Note that the content of the folder will be overwritten if it already
 	 * exists.
 	 */
@@ -313,12 +322,112 @@ public class Derby extends Notifiable implements IDatabase {
 			}
 			var command = "CALL SYSCS_UTIL.SYSCS_BACKUP_DATABASE(?)";
 			try (Connection con = createConnection();
-					CallableStatement cs = con.prepareCall(command)) {
+					 CallableStatement cs = con.prepareCall(command)) {
 				cs.setString(1, path.replace('\\', '/'));
 				cs.execute();
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Extracts the given database backup file into the given folder.
+	 *
+	 * @param dbDir  The database folder where the backup should be extracted to.
+	 * @param backup The backup file of the database (a {@code *.zolca} file).
+	 */
+	public static void unzip(File dbDir, File backup) {
+		try (var zip = new ZipFile(backup)) {
+			if (!dbDir.exists()) {
+				Files.createDirectories(dbDir.toPath());
+			}
+			var entries = zip.entries();
+			while (entries.hasMoreElements()) {
+				var entry = entries.nextElement();
+				var target = new File(dbDir, entry.getName());
+				if (entry.isDirectory()) {
+					if (!target.exists()) {
+						Files.createDirectories(target.toPath());
+					}
+					continue;
+				}
+				var parent = target.getParentFile();
+				if (!parent.exists()) {
+					Files.createDirectories(parent.toPath());
+				}
+				try (var stream = zip.getInputStream(entry)) {
+					Files.copy(stream, target.toPath(),
+						StandardCopyOption.REPLACE_EXISTING);
+				}
+			}
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to restore database from '"
+				+ backup + "' in '" + dbDir + "'", e);
+		}
+	}
+
+	/**
+	 * Creates a backup file for the given database folder.
+	 *
+	 * @param dbDir  The database folder from which the backup should be created.
+	 * @param backup The backup file for the database (a {@code *.zolca} file).
+	 */
+	public static void zip(File dbDir, File backup) {
+
+		var root = dbDir.toPath();
+
+		// a function that translates files to zip entry names
+		Function<Path, String> entryName = path -> {
+			var relative = root.relativize(path);
+			var entry = new StringBuilder();
+			for (int i = 0; i < relative.getNameCount(); i++) {
+				if (i > 0) {
+					entry.append('/');
+				}
+				entry.append(relative.getName(i));
+			}
+			return entry.toString();
+		};
+
+		try (var out = new FileOutputStream(backup);
+				 var zip = new ZipOutputStream(out)) {
+
+			// a function that adds a file to the zip
+			Consumer<File> add = file -> {
+				try {
+					var path = file.toPath();
+					var entry = entryName.apply(path);
+					zip.putNextEntry(new ZipEntry(entry));
+					Files.copy(path, zip);
+					zip.closeEntry();
+				} catch (IOException e) {
+					throw new RuntimeException(
+						"Failed to write zip entry: " + file, e);
+				}
+			};
+
+			// traversing the database directory and add the
+			// files to the zip
+			var queue = new ArrayDeque<File>();
+			queue.add(dbDir);
+			while (!queue.isEmpty()) {
+				var nextDir = queue.poll();
+				var files = nextDir.listFiles();
+				if (files == null)
+					continue;
+				for (var file : files) {
+					if (file.isDirectory()) {
+						queue.add(file);
+					} else {
+						add.accept(file);
+					}
+				}
+			}
+
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to export database '"
+				+ dbDir + "' to '" + backup + "'", e);
 		}
 	}
 
