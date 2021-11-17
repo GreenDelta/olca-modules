@@ -42,7 +42,7 @@ public final class NativeSql {
 		log.trace("execute update {}", query);
 		try (var con = db.createConnection();
 			 var stmt = con.createStatement(
-					 ResultSet.TYPE_SCROLL_SENSITIVE,
+					 ResultSet.TYPE_SCROLL_INSENSITIVE,
 					 ResultSet.CONCUR_UPDATABLE);
 			 var rs = stmt.executeQuery(query)) {
 			while (rs.next()) {

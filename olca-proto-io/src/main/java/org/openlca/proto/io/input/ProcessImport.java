@@ -161,7 +161,7 @@ class ProcessImport implements Import<Process> {
       if (Strings.notEmpty(providerID)) {
         imp.providerUpdate.add(ProviderUpdate.Link
           .forProcess(p.refId)
-          .withExchangeID(e.internalId)
+          .withExchangeId(e.internalId)
           .withProvider(providerID));
       }
 

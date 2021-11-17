@@ -36,12 +36,12 @@ class ProviderUpdate implements Runnable {
 			.forEach(d -> processIds.put(d.refId, d.id));
 		var map = new TLongObjectHashMap<TIntLongHashMap>();
 		for (var link : links) {
-			if (link.exchangeID == 0)
+			if (link.exchangeId == 0)
 				continue;
-			var processID = processIds.get(link.processID);
+			var processID = processIds.get(link.processId);
 			if (processID == null)
 				continue;
-			var providerID = processIds.get(link.providerID);
+			var providerID = processIds.get(link.providerId);
 			if (providerID == null)
 				continue;
 			var providers = map.get(processID);
@@ -49,7 +49,7 @@ class ProviderUpdate implements Runnable {
 				providers = new TIntLongHashMap();
 				map.put(processID, providers);
 			}
-			providers.put(link.exchangeID, providerID);
+			providers.put(link.exchangeId, providerID);
 		}
 
 		// update the exchanges table in a single table scan
@@ -74,24 +74,25 @@ class ProviderUpdate implements Runnable {
 
 	static class Link {
 
-		String processID;
-		int exchangeID;
-		String providerID;
+		private String processId;
+		private int exchangeId;
+		private String providerId;
 
-		static Link forProcess(String refID) {
+		static Link forProcess(String refId) {
 			var link = new Link();
-			link.processID = refID;
+			link.processId = refId;
 			return link;
 		}
 
-		Link withExchangeID(int id) {
-			this.exchangeID = id;
+		Link withExchangeId(int id) {
+			this.exchangeId = id;
 			return this;
 		}
 
-		Link withProvider(String refID) {
-			this.providerID = refID;
+		Link withProvider(String refId) {
+			this.providerId = refId;
 			return this;
 		}
 	}
+
 }

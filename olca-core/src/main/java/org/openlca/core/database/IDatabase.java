@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import gnu.trove.set.TLongSet;
 import jakarta.persistence.EntityManager;
@@ -288,4 +289,27 @@ public interface IDatabase extends Closeable, INotifiable, EntityResolver {
 		NativeSql.on(this).runUpdate("UPDATE SEQUENCE SET SEQ_COUNT = 0");
 		this.clearCache();
 	}
+
+	/**
+	 * Executes the given function in a transaction. It closes the provided entity
+	 * manager when the function is done. When the function fails with an
+	 * exception the transaction is rolled back.
+	 *
+	 * @param fn the function that should be executed within a transaction
+	 */
+	default void transaction(Consumer<EntityManager> fn) {
+		var em = newEntityManager();
+		var transaction = em.getTransaction();
+		transaction.begin();
+		try {
+			fn.accept(em);
+			transaction.commit();
+		} catch (Exception e) {
+			transaction.rollback();
+			throw new RuntimeException("failed to execute transaction", e);
+		} finally {
+			em.close();
+		}
+	}
+
 }
