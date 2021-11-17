@@ -29,16 +29,18 @@ import org.openlca.core.model.Version;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.input.UpdateMode;
 import org.openlca.proto.io.ProtoReader;
+import org.openlca.util.ExchangeProviderQueue;
 import org.openlca.util.Strings;
 
 public class ProtoImport implements Runnable {
 
   final ProtoReader reader;
   final IDatabase db;
-  final ProviderUpdate providerUpdate;
-  UpdateMode updateMode = UpdateMode.NEVER;
 
-  private Consumer<ImportStatus<?>> statusHandler;
+	UpdateMode updateMode = UpdateMode.NEVER;
+
+	private ExchangeProviderQueue providerQueue;
+	private Consumer<ImportStatus<?>> statusHandler;
 
   /**
    * Contains mapped category IDs. When inserting or updating a
@@ -59,7 +61,6 @@ public class ProtoImport implements Runnable {
   public ProtoImport(ProtoReader reader, IDatabase db) {
     this.reader = reader;
     this.db = db;
-    this.providerUpdate = new ProviderUpdate(db);
   }
 
   public ProtoImport withUpdateMode(UpdateMode mode) {
@@ -72,7 +73,14 @@ public class ProtoImport implements Runnable {
     return this;
   }
 
-  /**
+	public ExchangeProviderQueue providerQueue() {
+		if (providerQueue == null) {
+			providerQueue = ExchangeProviderQueue.create(db);
+		}
+		return providerQueue;
+	}
+
+	/**
    * Returns true if the given existing entity should be updated. If this is
    * not the case, we mark it as handled.
    */
@@ -129,6 +137,9 @@ public class ProtoImport implements Runnable {
   void putHandled(RootEntity e) {
     if (e == null || e.refId == null)
       return;
+		if (e instanceof Process p) {
+			providerQueue().pop(p);
+		}
     var map = handled.computeIfAbsent(
       e.getClass(), c -> new HashMap<>());
     map.put(e.refId, e.id);
@@ -252,10 +263,5 @@ public class ProtoImport implements Runnable {
         }
       }
     }
-
-    // it is important to call the provider update
-    // when the processes have been imported or
-    // updated
-    providerUpdate.run();
   }
 }

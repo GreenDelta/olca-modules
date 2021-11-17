@@ -159,10 +159,7 @@ class ProcessImport implements Import<Process> {
       e.defaultProviderId = 0L;
       var providerID = protoEx.getDefaultProvider().getId();
       if (Strings.notEmpty(providerID)) {
-        imp.providerUpdate.add(ProviderUpdate.Link
-          .forProcess(p.refId)
-          .withExchangeId(e.internalId)
-          .withProvider(providerID));
+        imp.providerQueue().add(providerID, e);
       }
 
       p.exchanges.add(e);
