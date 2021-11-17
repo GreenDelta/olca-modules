@@ -33,7 +33,7 @@ public class ExchangeTable {
 		if (techIndex.size() < 1000) {
 			// avoid full table scans in LCI databases
 			sql += " where f_owner in " + CacheUtil.asSql(
-					techIndex.getProcessIds());
+				techIndex.getProcessIds());
 		}
 		try {
 			NativeSql.on(db).query(sql, r -> {
@@ -42,9 +42,26 @@ public class ExchangeTable {
 					try {
 						fn.accept(next(owner, r));
 					} catch (Exception e) {
-						throw new RuntimeException(
-								"failed to read exchange row", e);
+						throw new RuntimeException("failed to read exchange row", e);
 					}
+				}
+				return true;
+			});
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new RuntimeException("failed to query exchange table", e);
+		}
+	}
+
+	public void each(Consumer<CalcExchange> fn) {
+		try {
+			NativeSql.on(db).query(query(), r -> {
+				long owner = r.getLong(2);
+				try {
+					fn.accept(next(owner, r));
+				} catch (Exception e) {
+					throw new RuntimeException("failed to read exchange row", e);
 				}
 				return true;
 			});
@@ -57,25 +74,25 @@ public class ExchangeTable {
 
 	private static String query() {
 		return "SELECT"
-				+ /* 1 */ " id,"
-				+ /* 2 */ " f_owner,"
-				+ /* 3 */ " f_flow,"
-				+ /* 4 */ " f_flow_property_factor,"
-				+ /* 5 */ " f_unit,"
-				+ /* 6 */ " resulting_amount_value,"
-				+ /* 7 */ " resulting_amount_formula,"
-				+ /* 8 */ " is_input,"
-				+ /* 9 */ " avoided_product,"
-				+ /* 10 */ " f_default_provider,"
-				+ /* 11 */ " cost_value,"
-				+ /* 12 */ " cost_formula,"
-				+ /* 13 */ " f_currency,"
-				+ /* 14 */ " distribution_type,"
-				+ /* 15 */ " parameter1_value,"
-				+ /* 16 */ " parameter2_value,"
-				+ /* 17 */ " parameter3_value,"
-				+ /* 18 */ " f_location"
-				+ " FROM tbl_exchanges";
+			+ /* 1 */ " id,"
+			+ /* 2 */ " f_owner,"
+			+ /* 3 */ " f_flow,"
+			+ /* 4 */ " f_flow_property_factor,"
+			+ /* 5 */ " f_unit,"
+			+ /* 6 */ " resulting_amount_value,"
+			+ /* 7 */ " resulting_amount_formula,"
+			+ /* 8 */ " is_input,"
+			+ /* 9 */ " avoided_product,"
+			+ /* 10 */ " f_default_provider,"
+			+ /* 11 */ " cost_value,"
+			+ /* 12 */ " cost_formula,"
+			+ /* 13 */ " f_currency,"
+			+ /* 14 */ " distribution_type,"
+			+ /* 15 */ " parameter1_value,"
+			+ /* 16 */ " parameter2_value,"
+			+ /* 17 */ " parameter3_value,"
+			+ /* 18 */ " f_location"
+			+ " FROM tbl_exchanges";
 	}
 
 	private CalcExchange next(long owner, ResultSet r) throws Exception {

@@ -78,7 +78,8 @@ class ExchangeCache {
 				ResultSet result = statement.executeQuery(query);
 				while (result.next()) {
 					CalcExchange e = nextExchange(result);
-					CacheUtil.addListEntry(map, e, e.processId);
+					map.computeIfAbsent(e.processId, _id -> new ArrayList<>())
+							.add(e);
 				}
 				result.close();
 				statement.close();

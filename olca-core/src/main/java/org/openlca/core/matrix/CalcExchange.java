@@ -54,17 +54,11 @@ public class CalcExchange {
 	public boolean isAllocatable() {
 		if (isAvoided || flowType == null)
 			return false;
-		switch (flowType) {
-			case ELEMENTARY_FLOW:
-				return true;
-			case PRODUCT_FLOW:
-				return isInput;
-			case WASTE_FLOW:
-				return !isInput;
-			default:
-				// this should never happen
-				return false;
-		}
+		return switch (flowType) {
+			case ELEMENTARY_FLOW -> true;
+			case PRODUCT_FLOW -> isInput;
+			case WASTE_FLOW -> !isInput;
+		};
 	}
 
 	/**
@@ -91,7 +85,7 @@ public class CalcExchange {
 	}
 
 	public double matrixValue(FormulaInterpreter interpreter,
-														double allocationFactor) {
+		double allocationFactor) {
 
 		double a = amount;
 		if (Strings.notEmpty(formula) && interpreter != null) {
@@ -101,7 +95,7 @@ public class CalcExchange {
 			} catch (Exception e) {
 				var log = LoggerFactory.getLogger(getClass());
 				log.error("Formula evaluation failed, exchange "
-									+ exchangeId, e);
+					+ exchangeId, e);
 			}
 		}
 
@@ -117,7 +111,7 @@ public class CalcExchange {
 	}
 
 	public double costValue(FormulaInterpreter interpreter,
-													double allocationFactor) {
+		double allocationFactor) {
 
 		double c = costValue;
 		if (Strings.notEmpty(costFormula) && interpreter != null) {
@@ -127,7 +121,7 @@ public class CalcExchange {
 			} catch (Exception e) {
 				var log = LoggerFactory.getLogger(getClass());
 				log.error("Formula evaluation for costs failed, exchange "
-									+ exchangeId, e);
+					+ exchangeId, e);
 			}
 		}
 
@@ -138,4 +132,5 @@ public class CalcExchange {
 			return -c; // waste inputs -> revenues
 		return c;
 	}
+
 }
