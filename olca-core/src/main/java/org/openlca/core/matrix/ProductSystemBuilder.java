@@ -84,13 +84,9 @@ public class ProductSystemBuilder {
 	public void autoComplete(ProductSystem system, TechFlow product) {
 		log.trace("auto complete product system {}", system);
 		log.trace("build product index");
-		ITechIndexBuilder builder;
-		if (config.cutoff().isEmpty()) {
-			builder = new TechIndexBuilder(matrixCache, system, config);
-		} else {
-			builder = new TechIndexCutoffBuilder(
-				matrixCache, system, config);
-		}
+		ITechIndexBuilder builder = config.cutoff().isEmpty()
+			? new TechIndexBuilder(matrixCache, system, config)
+			: new TechIndexCutoffBuilder(matrixCache, system, config);
 		TechIndex index = builder.build(product);
 		log.trace("create new process links");
 		addLinksAndProcesses(system, index);

@@ -7,6 +7,4 @@ public interface ITechIndexBuilder {
 
 	TechIndex build(TechFlow refProduct);
 
-	TechIndex build(TechFlow refProduct, double demand);
-
 }

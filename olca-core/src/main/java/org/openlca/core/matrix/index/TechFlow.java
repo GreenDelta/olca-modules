@@ -20,18 +20,10 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
  * that are sub-systems of other product systems (and are handled like processes
  * in these systems with their quantitative reference as product).
  */
-public class TechFlow {
+public record TechFlow(
+	CategorizedDescriptor process, FlowDescriptor flow) {
 
-	private final CategorizedDescriptor process;
-	private final FlowDescriptor flow;
-
-	private TechFlow(CategorizedDescriptor process, FlowDescriptor flow) {
-		this.process = process;
-		this.flow = flow;
-	}
-
-	public static TechFlow of(
-			CategorizedDescriptor process, FlowDescriptor flow) {
+	public static TechFlow of(CategorizedDescriptor process, FlowDescriptor flow) {
 		return new TechFlow(process, flow);
 	}
 
@@ -71,6 +63,7 @@ public class TechFlow {
 	 * (they are mapped to the technology matrix $mathbf{A}$ via the `TechIndex`
 	 * etc.).
 	 */
+	@Override
 	public CategorizedDescriptor process() {
 		return process;
 	}
@@ -80,6 +73,7 @@ public class TechFlow {
 	 * be a waste flow (which is then an input of the process and the treatment of
 	 * waste is the product of the process).
 	 */
+	@Override
 	public FlowDescriptor flow() {
 		return flow;
 	}

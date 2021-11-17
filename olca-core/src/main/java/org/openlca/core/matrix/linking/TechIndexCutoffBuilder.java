@@ -9,10 +9,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openlca.core.matrix.CalcExchange;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
@@ -43,8 +43,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 		return build(refProduct, 1.0);
 	}
 
-	@Override
-	public TechIndex build(TechFlow refProduct, double demand) {
+	private TechIndex build(TechFlow refProduct, double demand) {
 		log.trace("build product index for {} with cutoff={}", refProduct, cutoff);
 		TechIndex index = new TechIndex(refProduct);
 		index.setDemand(demand);

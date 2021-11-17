@@ -30,10 +30,10 @@ class ExchangeCache {
 	private static class ExchangeLoader extends
 			CacheLoader<Long, List<CalcExchange>> {
 
-		private Logger log = LoggerFactory.getLogger(getClass());
-		private IDatabase database;
-		private ConversionTable conversionTable;
-		private FlowTable flowTypes;
+		private final Logger log = LoggerFactory.getLogger(getClass());
+		private final IDatabase database;
+		private final ConversionTable conversionTable;
+		private final FlowTable flowTypes;
 
 		public ExchangeLoader(IDatabase database,
 				ConversionTable conversionTable, FlowTable flowTypes) {
@@ -68,7 +68,7 @@ class ExchangeCache {
 
 		@Override
 		public Map<Long, List<CalcExchange>> loadAll(
-				Iterable<? extends Long> keys) throws Exception {
+				Iterable<? extends Long> keys) {
 			log.trace("fetch exchanges for multiple keys");
 			try (Connection con = database.createConnection()) {
 				String query = "select * from tbl_exchanges where f_owner in "
@@ -95,8 +95,7 @@ class ExchangeCache {
 			e.processId = r.getLong("f_owner");
 			e.amount = r.getDouble("resulting_amount_value");
 			e.formula = r.getString("resulting_amount_formula");
-			double factor = getConversionFactor(r);
-			e.conversionFactor = factor;
+			e.conversionFactor = getConversionFactor(r);
 			e.exchangeId = r.getLong("id");
 			e.flowId = r.getLong("f_flow");
 			e.flowType = flowTypes.type(e.flowId);

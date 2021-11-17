@@ -8,10 +8,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openlca.core.matrix.CalcExchange;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
@@ -32,15 +32,10 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 	}
 
 	@Override
-	public TechIndex build(TechFlow refProduct) {
-		return build(refProduct, 1.0);
-	}
-
-	@Override
-	public TechIndex build(TechFlow refFlow, double demand) {
+	public TechIndex build(TechFlow refFlow) {
 		log.trace("build product index for {}", refFlow);
 		TechIndex index = new TechIndex(refFlow);
-		index.setDemand(demand);
+		index.setDemand(1.0);
 		addSystemLinks(index);
 		List<TechFlow> block = new ArrayList<>();
 		block.add(refFlow);
