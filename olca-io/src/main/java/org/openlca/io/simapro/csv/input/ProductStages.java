@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.expressions.Scope;
@@ -20,16 +19,16 @@ import org.slf4j.LoggerFactory;
 class ProductStages implements ProcessMapper {
 
 	private final Logger log = LoggerFactory.getLogger(ProductStages.class);
-	private final IDatabase db;
+	private final ImportContext context;
 	private final RefData refData;
 	private final ProductStageBlock block;
 
 	private Process process;
 	private Scope formulaScope;
 
-	private ProductStages(IDatabase db, RefData refData, ProductStageBlock block) {
-		this.db = db;
-		this.refData = refData;
+	private ProductStages(ImportContext context, ProductStageBlock block) {
+		this.context = context;
+		this.refData = context.refData();
 		this.block = block;
 	}
 
@@ -38,26 +37,20 @@ class ProductStages implements ProcessMapper {
 	 * if it was created. If the process already exists in the database, an
 	 * empty option is returned.
 	 */
-	static Optional<Process> map(
-		IDatabase db, RefData refData, ProductStageBlock block) {
-		var process = new ProductStages(db, refData, block).exec();
+	static Optional<Process> map(ImportContext context, ProductStageBlock block) {
+		var process = new ProductStages(context, block).exec();
 		return Optional.ofNullable(process);
 	}
 
 	// region ProcessMapper
 	@Override
-	public IDatabase db() {
-		return db;
+	public ImportContext context() {
+		return context;
 	}
 
 	@Override
 	public Scope formulaScope() {
 		return formulaScope;
-	}
-
-	@Override
-	public RefData refData() {
-		return refData;
 	}
 
 	@Override
@@ -86,7 +79,7 @@ class ProductStages implements ProcessMapper {
 			: "";
 		var refId = KeyGen.get("SimaPro CSV", type, name);
 
-		process = db.get(Process.class, refId);
+		process = context.db().get(Process.class, refId);
 		if (process != null) {
 			log.warn("A process with id={} already exists", refId);
 			return null;
@@ -104,7 +97,7 @@ class ProductStages implements ProcessMapper {
 
 		mapExchanges();
 		inferCategoryAndLocation();
-		return db.insert(process);
+		return context.db().insert(process);
 	}
 
 	private void mapExchanges() {

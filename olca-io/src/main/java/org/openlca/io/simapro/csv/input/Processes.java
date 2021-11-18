@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Process;
@@ -25,37 +24,32 @@ class Processes implements ProcessMapper {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private final IDatabase db;
+	private final ImportContext context;
 	private final RefData refData;
 	private final ProcessBlock block;
 
 	private Process process;
 	private Scope formulaScope;
 
-	private Processes(IDatabase db, RefData refData, ProcessBlock block) {
-		this.db = db;
-		this.refData = refData;
+	private Processes(ImportContext context, ProcessBlock block) {
+		this.context = context;
+		this.refData = context.refData();
 		this.block = block;
 	}
 
-	static void map(IDatabase db, RefData refData, ProcessBlock block) {
-		new Processes(db, refData, block).exec();
+	static void map(ImportContext context, ProcessBlock block) {
+		new Processes(context, block).exec();
 	}
 
 	// region ProcessMapper
 	@Override
-	public IDatabase db() {
-		return db;
+	public ImportContext context() {
+		return context;
 	}
 
 	@Override
 	public Scope formulaScope() {
 		return formulaScope;
-	}
-
-	@Override
-	public RefData refData() {
-		return refData;
 	}
 
 	@Override
@@ -78,7 +72,7 @@ class Processes implements ProcessMapper {
 		var refId = Strings.notEmpty(block.identifier())
 			? KeyGen.get(block.identifier())
 			: UUID.randomUUID().toString();
-		process = db.get(Process.class, refId);
+		process = context.db().get(Process.class, refId);
 		if (process != null) {
 			log.warn("a process with the identifier {} is already in the "
 				+ "database and was not imported", refId);
@@ -93,13 +87,13 @@ class Processes implements ProcessMapper {
 			: org.openlca.core.model.ProcessType.UNIT_PROCESS;
 		process.name = nameOf(block);
 		process.defaultAllocationMethod = AllocationMethod.PHYSICAL;
-		ProcessDocs.map(refData, block, process);
+		ProcessDocs.map(context.refData(), block, process);
 		formulaScope = ProcessParameters.map(this);
 
 		mapExchanges();
 		mapAllocation();
 		inferCategoryAndLocation();
-		db.insert(process);
+		context.db().insert(process);
 	}
 
 	static String nameOf(ProcessBlock block) {

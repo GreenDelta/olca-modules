@@ -17,7 +17,7 @@ class ProcessParameters {
 
 		// create the interpreter and bind the global parameters
 		var interpreter = new FormulaInterpreter();
-		var dao = new ParameterDao(mapper.db());
+		var dao = new ParameterDao(mapper.context().db());
 		for (var param : dao.getGlobalParameters()) {
 			if (param.isInputParameter) {
 				interpreter.bind(param.name, param.value);

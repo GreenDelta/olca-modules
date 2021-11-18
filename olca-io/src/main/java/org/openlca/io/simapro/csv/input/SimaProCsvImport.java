@@ -93,7 +93,7 @@ public class SimaProCsvImport implements FileImport {
 		var flowMap = this.flowMap == null
 			? FlowMap.empty()
 			: this.flowMap;
-		var refData = new RefData(db, flowMap);
+		var contexts = ImportContext.of(db, flowMap);
 
 		try {
 			for (File file : files) {
@@ -113,17 +113,17 @@ public class SimaProCsvImport implements FileImport {
 				}
 
 				// reference data
-				refData.sync(dataSet);
+				var context = contexts.next(dataSet);
 
 				// processes
 				for (var process : dataSet.processes()) {
-					Processes.map(db, refData, process);
+					Processes.map(context, process);
 				}
 
 				// product stages and life cycle systems
 				var lifeCycles = new ArrayList<Pair<ProductStageBlock, Process>>();
 				for (var stage : dataSet.productStages()) {
-					var process = ProductStages.map(db, refData, stage);
+					var process = ProductStages.map(context, stage);
 					if (generateLifeCycleSystems
 						&& process.isPresent()
 						&& stage.category() == ProductStageCategory.LIFE_CYCLE) {
@@ -136,7 +136,7 @@ public class SimaProCsvImport implements FileImport {
 
 				// impact methods
 				for (var method : dataSet.methods()) {
-					ImpactMethods.map(db, refData, method);
+					ImpactMethods.map(db, context.refData(), method);
 				}
 			}
 		} catch (Exception e) {

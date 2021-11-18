@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openlca.core.database.CategoryDao;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.expressions.Scope;
@@ -13,9 +12,7 @@ import org.openlca.simapro.csv.refdata.InputParameterRow;
 
 interface ProcessMapper {
 
-	IDatabase db();
-
-	RefData refData();
+	ImportContext context();
 
 	Process process();
 
@@ -48,6 +45,6 @@ interface ProcessMapper {
 		if (path.isEmpty())
 			return;
 		process().category = CategoryDao.sync(
-			db(), ModelType.PROCESS, path.toArray(String[]::new));
+			context().db(), ModelType.PROCESS, path.toArray(String[]::new));
 	}
 }
