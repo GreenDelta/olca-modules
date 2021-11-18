@@ -5,12 +5,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.expressions.FormulaInterpreter;
-import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,12 +21,12 @@ class GlobalParameterSync {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private final CsvDataSet dataSet;
+	private final ImportContext context;
 	private final ParameterDao dao;
 
-	GlobalParameterSync(CsvDataSet dataSet, IDatabase db) {
-		this.dataSet = dataSet;
-		dao = new ParameterDao(db);
+	GlobalParameterSync(ImportContext context) {
+		this.context = context;
+		dao = new ParameterDao(context.db());
 	}
 
 	void run() {
@@ -38,6 +36,7 @@ class GlobalParameterSync {
 		HashSet<String> added = new HashSet<>();
 
 		// global input parameters
+		var dataSet = context.dataSet();
 		Stream.concat(
 			dataSet.databaseInputParameters().stream(),
 			dataSet.projectInputParameters().stream())
@@ -56,7 +55,8 @@ class GlobalParameterSync {
 			.forEach(row -> {
 				if (contains(row.name(), globals))
 					return;
-				var param = Parameters.create(row, ParameterScope.GLOBAL);
+				var param = Parameters.create(
+					context, row, ParameterScope.GLOBAL);
 				globals.add(param);
 				added.add(param.name);
 			});

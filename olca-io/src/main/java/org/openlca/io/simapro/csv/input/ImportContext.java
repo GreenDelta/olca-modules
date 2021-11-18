@@ -26,6 +26,10 @@ class ImportContext {
 		return refData;
 	}
 
+	public CsvDataSet dataSet() {
+		return dataSet;
+	}
+
 	/**
 	 * Converts a formula into syntactic form that can be understood by the
 	 * openLCA formula interpreter.

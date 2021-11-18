@@ -93,7 +93,7 @@ class ProductStages implements ProcessMapper {
 		if (Strings.notEmpty(type)) {
 			process.tags = type;
 		}
-		formulaScope = ProcessParameters.map(this);
+		formulaScope = createFormulaScope();
 
 		mapExchanges();
 		inferCategoryAndLocation();
@@ -104,7 +104,7 @@ class ProductStages implements ProcessMapper {
 		// product outputs
 		for (var row : block.products()) {
 			var flow = refData.productOf(row);
-			var e = Exchanges.of(this, flow, row);
+			var e = exchangeOf(flow, row);
 			if (e == null)
 				continue;
 			e.isInput = false;
@@ -118,7 +118,7 @@ class ProductStages implements ProcessMapper {
 			if (row == null)
 				return;
 			var flow = refData.productOf(row);
-			var exchange = Exchanges.of(this, flow, row);
+			var exchange = exchangeOf(flow, row);
 			if (exchange == null)
 				return;
 			exchange.isInput = true;

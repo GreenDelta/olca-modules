@@ -88,7 +88,7 @@ class Processes implements ProcessMapper {
 		process.name = nameOf(block);
 		process.defaultAllocationMethod = AllocationMethod.PHYSICAL;
 		ProcessDocs.map(context.refData(), block, process);
-		formulaScope = ProcessParameters.map(this);
+		formulaScope = createFormulaScope();
 
 		mapExchanges();
 		mapAllocation();
@@ -120,9 +120,9 @@ class Processes implements ProcessMapper {
 			var f = new AllocationFactor();
 			f.productId = flow.flow().id;
 			var value = output.allocation();
-			f.value = ProcessParameters.eval(formulaScope, value);
+			f.value = eval(value);
 			if (value.hasFormula()) {
-				f.formula = value.formula();
+				f.formula = context.convertFormula(value.formula());
 			}
 
 			// add the physical factor
@@ -152,7 +152,7 @@ class Processes implements ProcessMapper {
 		// reference products
 		for (var row : block.products()) {
 			var flow = refData.productOf(row);
-			var e = Exchanges.of(this, flow, row);
+			var e = exchangeOf(flow, row);
 			if (e == null)
 				continue;
 			e.isInput = false;
@@ -166,7 +166,7 @@ class Processes implements ProcessMapper {
 			if (row == null)
 				return;
 			var flow = refData.wasteFlowOf(row);
-			var e = Exchanges.of(this, flow, row);
+			var e = exchangeOf(flow, row);
 			if (e != null) {
 				e.isInput = true;
 				if (process.quantitativeReference == null) {
@@ -182,7 +182,7 @@ class Processes implements ProcessMapper {
 		for (var type : ProductType.values()) {
 			for (var row : block.exchangesOf(type)) {
 				var flow = refData.productOf(row);
-				var e = Exchanges.of(this, flow, row);
+				var e = exchangeOf(flow, row);
 				if (e == null)
 					continue;
 				e.isInput = type != ProductType.WASTE_TO_TREATMENT;
@@ -194,7 +194,7 @@ class Processes implements ProcessMapper {
 		for (var type : ElementaryFlowType.values()) {
 			for (var row : block.exchangesOf(type)) {
 				var flow = refData.elemFlowOf(type, row);
-				var e = Exchanges.of(this, flow, row);
+				var e = exchangeOf(flow, row);
 				if (e == null)
 					continue;
 				e.isInput = type == ElementaryFlowType.RESOURCES;
