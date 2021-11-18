@@ -19,9 +19,6 @@ import gnu.trove.iterator.TLongObjectIterator;
 import gnu.trove.list.array.TLongArrayList;
 import gnu.trove.map.hash.TLongObjectHashMap;
 
-/**
- * TODO: tests + doc
- */
 public class ProcessTable {
 
 	private final TLongObjectHashMap<ProcessDescriptor> processes = new TLongObjectHashMap<>();
@@ -90,8 +87,8 @@ public class ProcessTable {
 	}
 
 	public TechFlow getProvider(long id, long flowId) {
-		ProcessDescriptor process = processes.get(id);
-		FlowDescriptor flow = flows.get(flowId);
+		var process = processes.get(id);
+		var flow = flows.get(flowId);
 		if (flow == null || process == null)
 			return null;
 		return TechFlow.of(process, flow);
@@ -110,7 +107,7 @@ public class ProcessTable {
 			return Collections.emptyList();
 		ArrayList<TechFlow> providers = new ArrayList<>();
 		list.forEach(id -> {
-			ProcessDescriptor d = processes.get(id);
+			var d = processes.get(id);
 			if (d != null) {
 				providers.add(TechFlow.of(d, flow));
 			}
