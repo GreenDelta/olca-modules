@@ -1,14 +1,17 @@
 package org.openlca.io.simapro.csv.input;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.expressions.FormulaInterpreter;
+import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,65 +24,54 @@ class GlobalParameterSync {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private final ImportContext context;
-	private final ParameterDao dao;
+	private final IDatabase db;
+	private final Map<String, Parameter> globals = new HashMap<>();
 
-	GlobalParameterSync(ImportContext context) {
-		this.context = context;
-		dao = new ParameterDao(context.db());
+	GlobalParameterSync(IDatabase db) {
+		this.db = db;
+		new ParameterDao(db).getGlobalParameters()
+			.forEach(param -> globals.put(keyOf(param.name), param));
 	}
 
-	void run() {
-		log.trace("import project and database parameters");
-
-		List<Parameter> globals = loadGlobals();
-		HashSet<String> added = new HashSet<>();
+	void sync(CsvDataSet dataSet) {
+		log.trace("sync project and database parameters");
 
 		// global input parameters
-		var dataSet = context.dataSet();
 		Stream.concat(
-			dataSet.databaseInputParameters().stream(),
-			dataSet.projectInputParameters().stream())
+				dataSet.databaseInputParameters().stream(),
+				dataSet.projectInputParameters().stream())
 			.forEach(row -> {
-				if (contains(row.name(), globals))
+				var key = keyOf(row.name());
+				if (globals.containsKey(key))
 					return;
 				var param = Parameters.create(row, ParameterScope.GLOBAL);
-				added.add(param.name);
-				globals.add(param);
-		});
-
-		// global calculated parameters
-		Stream.concat(
-			dataSet.databaseCalculatedParameters().stream(),
-			dataSet.projectCalculatedParameters().stream())
-			.forEach(row -> {
-				if (contains(row.name(), globals))
-					return;
-				var param = Parameters.create(
-					context, row, ParameterScope.GLOBAL);
-				globals.add(param);
-				added.add(param.name);
+				db.insert(param);
+				globals.put(key, param);
 			});
 
-		evalAndWrite(globals, added);
+		// global calculated parameters
+		var newCalculated = new ArrayList<Parameter>();
+		Stream.concat(
+				dataSet.databaseCalculatedParameters().stream(),
+				dataSet.projectCalculatedParameters().stream())
+			.forEach(row -> {
+				var key = keyOf(row.name());
+				if (globals.containsKey(key))
+					return;
+				var param = Parameters.create(
+					dataSet, row, ParameterScope.GLOBAL);
+				newCalculated.add(param);
+				globals.put(key, param);
+			});
+
+		evalAndWrite(newCalculated);
 	}
 
-	private List<Parameter> loadGlobals() {
-		List<Parameter> globals = new ArrayList<>();
-		try {
-			List<Parameter> fromDb = dao.getGlobalParameters();
-			globals.addAll(fromDb);
-		} catch (Exception e) {
-			log.error("failed to load global parameters from database");
-		}
-		return globals;
-	}
-
-	private void evalAndWrite(List<Parameter> globals, HashSet<String> added) {
+	private void evalAndWrite(List<Parameter> newCalculated) {
 
 		// create the interpreter
 		var interpreter = new FormulaInterpreter();
-		for (var param : globals) {
+		for (var param : globals.values()) {
 			if (param.isInputParameter) {
 				interpreter.bind(param.name, param.value);
 			} else {
@@ -88,32 +80,23 @@ class GlobalParameterSync {
 		}
 
 		// evaluate and insert the parameters
-		for (var param : globals) {
-			if (!added.contains(param.name))
-				continue;
-			if (!param.isInputParameter) {
-				try {
-					param.value = interpreter.eval(param.formula);
-				} catch (Exception e) {
-					log.warn("failed to evaluate formula for global parameter "
-						+ param.name + ": set value to 1.0", e);
-					param.isInputParameter = true;
-					param.value = 1.0;
-				}
+		for (var param : newCalculated) {
+			try {
+				param.value = interpreter.eval(param.formula);
+			} catch (Exception e) {
+				log.warn("failed to evaluate formula for global parameter "
+					+ param.name + ": set value to 1.0", e);
+				param.isInputParameter = true;
+				param.value = 1.0;
 			}
-			dao.insert(param);
+			db.insert(param);
 		}
 	}
 
-	private boolean contains(String paramName, List<Parameter> globals) {
-		for (Parameter global : globals) {
-			if (Strings.nullOrEqual(paramName, global.name)) {
-				log.warn("a global paramater {} already exists in the "
-						+ "database and thus was not imported", paramName);
-				return true;
-			}
-		}
-		return false;
+	private String keyOf(String name) {
+		return Strings.nullOrEmpty(name)
+			? null
+			: name.trim().toLowerCase();
 	}
 
 }

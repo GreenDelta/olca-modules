@@ -60,7 +60,8 @@ interface ProcessMapper {
 			scope.bind(p.name, p.value);
 		}
 		for (var row : calculatedParameterRows()) {
-			var p = Parameters.create(context(), row, ParameterScope.PROCESS);
+			var p = Parameters.create(
+				context().dataSet(), row, ParameterScope.PROCESS);
 			process().parameters.add(p);
 			scope.bind(p.name, p.formula);
 		}
@@ -121,7 +122,7 @@ interface ProcessMapper {
 		if (!numeric.hasFormula())
 			return numeric.value();
 		try {
-			var formula = context().convertFormula(numeric.formula());
+			var formula = formulaOf(numeric.formula());
 			return formulaScope().eval(formula);
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(getClass());
@@ -156,7 +157,7 @@ interface ProcessMapper {
 			}
 			e.amount = factor * eval(row.amount());
 			if (row.amount().hasFormula()) {
-				var formula = context().convertFormula(row.amount().formula());
+				var formula = formulaOf(row.amount().formula());
 				e.formula = factor + " * (" + formula + ")";
 			}
 			// TODO: SyncFlow should store the mapped unit and flow property
@@ -167,7 +168,7 @@ interface ProcessMapper {
 		} else {
 			e.amount = eval(row.amount());
 			if (row.amount().hasFormula()) {
-				e.formula = context().convertFormula(row.amount().formula());
+				e.formula = formulaOf(row.amount().formula());
 			}
 			var quantity = refData().quantityOf(row.unit());
 			if (quantity != null) {
@@ -176,5 +177,9 @@ interface ProcessMapper {
 			}
 		}
 		return e;
+	}
+
+	default String formulaOf(String expression) {
+		return Parameters.formulaOf(context().dataSet(), expression);
 	}
 }

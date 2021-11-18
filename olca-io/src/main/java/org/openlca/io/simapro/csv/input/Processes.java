@@ -122,7 +122,7 @@ class Processes implements ProcessMapper {
 			var value = output.allocation();
 			f.value = eval(value);
 			if (value.hasFormula()) {
-				f.formula = context.convertFormula(value.formula());
+				f.formula = formulaOf(value.formula());
 			}
 
 			// add the physical factor

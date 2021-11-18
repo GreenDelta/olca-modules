@@ -3,8 +3,6 @@ package org.openlca.io.simapro.csv.input;
 import org.openlca.core.database.IDatabase;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.simapro.csv.CsvDataSet;
-import org.openlca.simapro.csv.FormulaConverter;
-import org.openlca.util.Strings;
 
 class ImportContext {
 
@@ -28,19 +26,6 @@ class ImportContext {
 
 	public CsvDataSet dataSet() {
 		return dataSet;
-	}
-
-	/**
-	 * Converts a formula into syntactic form that can be understood by the
-	 * openLCA formula interpreter.
-	 */
-	String convertFormula(String formula) {
-		if (Strings.nullOrEmpty(formula))
-			return null;
-		return FormulaConverter.of(dataSet.header())
-			.decimalSeparator('.')
-			.parameterSeparator(';')
-			.convert(formula);
 	}
 
 	static Builder of(IDatabase db, FlowMap flowMap) {

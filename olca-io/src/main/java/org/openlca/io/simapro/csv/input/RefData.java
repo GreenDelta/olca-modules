@@ -12,15 +12,15 @@ import org.openlca.simapro.csv.process.ExchangeRow;
 
 class RefData {
 
-	private final IDatabase db;
 	private final UnitSync unitSync;
 	private final SourceSync sourceSync;
 	private final FlowSync flowSync;
+	private final GlobalParameterSync parameterSync;
 
 	RefData(IDatabase db, FlowMap flowMap) {
-		this.db = db;
 		this.unitSync = new UnitSync(db);
 		this.sourceSync = new SourceSync(db);
+		this.parameterSync = new GlobalParameterSync(db);
 		this.flowSync = new FlowSync(db, this, flowMap);
 	}
 
@@ -29,8 +29,7 @@ class RefData {
 		sourceSync.sync(dataSet);
 		unitSync.sync(dataSet);
 		flowSync.sync(dataSet);
-		// TODO: make the parameter sync like the other syncs
-		new GlobalParameterSync(dataSet, db).run();
+		parameterSync.sync(dataSet);
 	}
 
 	Source sourceOf(String name) {
