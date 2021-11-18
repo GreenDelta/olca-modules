@@ -37,19 +37,19 @@ public final class TopoSort {
 		Map<Long, Integer> inDegrees = new HashMap<>();
 		Map<Long, List<Long>> successors = new HashMap<>();
 		for (LongPair pair : pairs) {
-			if (nodes.add(pair.first)) {
-				inDegrees.put(pair.first, 0);
+			if (nodes.add(pair.first())) {
+				inDegrees.put(pair.first(), 0);
 			}
-			if (nodes.add(pair.second)) {
-				inDegrees.put(pair.second, 0);
+			if (nodes.add(pair.second())) {
+				inDegrees.put(pair.second(), 0);
 			}
-			List<Long> succ = successors.get(pair.first);
+			List<Long> succ = successors.get(pair.first());
 			if (succ == null) {
 				succ = new ArrayList<>();
-				successors.put(pair.first, succ);
+				successors.put(pair.first(), succ);
 			}
-			succ.add(pair.second);
-			inDegrees.put(pair.second, inDegrees.get(pair.second) + 1);
+			succ.add(pair.second());
+			inDegrees.put(pair.second(), inDegrees.get(pair.second()) + 1);
 		}
 
 		// We remove a node with indegree=0 from the

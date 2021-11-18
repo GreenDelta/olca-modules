@@ -27,10 +27,9 @@ public record ProviderSearch(ProcessTable processTable, LinkingConfig config) {
 		if (providers.isEmpty())
 			return null;
 
-		// select a default provider if present
-		// this needs to be done before asking a potential callback
-		// for options as the callback should be only called when
-		// there are multiple options.
+		// select a default provider if present this needs to be done before asking
+		// a potential callback for options as the callback should be only called
+		// when there are multiple options.
 		if (config.providerLinking() != ProviderLinking.IGNORE_DEFAULTS) {
 			for (TechFlow provider : providers) {
 				if (provider.processId() == e.defaultProviderId)

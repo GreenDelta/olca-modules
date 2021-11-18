@@ -6,15 +6,8 @@ package org.openlca.core.matrix.index;
  * use in indices to build matrix structures for the calculation. In this case,
  * the first value should be always the process ID and the second the flow ID.
  */
-public class LongPair implements Comparable<LongPair> {
-
-	public final long first;
-	public final long second;
-
-	public LongPair(long first, long second) {
-		this.first = first;
-		this.second = second;
-	}
+public record LongPair(long first, long second)
+	implements Comparable<LongPair> {
 
 	public static LongPair of(long first, long second) {
 		return new LongPair(first, second);
@@ -22,8 +15,7 @@ public class LongPair implements Comparable<LongPair> {
 
 	@Override
 	public String toString() {
-		return "LongPair[first=" + first
-				+ ", second=" + second + "]";
+		return "LongPair[first=" + first + ", second=" + second + "]";
 	}
 
 	@Override
@@ -49,10 +41,9 @@ public class LongPair implements Comparable<LongPair> {
 			return false;
 		if (this == obj)
 			return true;
-		if (!(obj instanceof LongPair))
-			return false;
-		LongPair other = (LongPair) obj;
-		return this.first == other.first && this.second == other.second;
+		return obj instanceof LongPair other
+			&& this.first == other.first
+			&& this.second == other.second;
 	}
 
 	@Override

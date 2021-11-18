@@ -281,7 +281,7 @@ public class Simulator {
 				continue;
 			sysRels.addAll(rels);
 			for (LongPair rel : rels) {
-				long subSystem = rel.first;
+				long subSystem = rel.first();
 				if (handled.contains(subSystem))
 					continue;
 				queue.add(subSystem);
@@ -343,7 +343,7 @@ public class Simulator {
 				continue;
 			node.subSystems = new HashSet<>();
 			for (LongPair rel : subRels) {
-				Node subNode = nodeIndex.get(rel.first);
+				Node subNode = nodeIndex.get(rel.first());
 				if (subNode == null)
 					continue;
 				node.subSystems.add(subNode.product);
