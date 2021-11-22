@@ -3,7 +3,6 @@ package org.openlca.io.simapro.csv.input;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,13 +19,6 @@ import org.openlca.util.Strings;
 class WasteScenarios {
 
 	private final CsvDataSet dataSet;
-	private final EnumSet<ProcessCategory> applicable = EnumSet.of(
-		ProcessCategory.MATERIAL,
-		ProcessCategory.ENERGY,
-		ProcessCategory.PROCESSING,
-		ProcessCategory.TRANSPORT,
-		ProcessCategory.USE
-	);
 
 	private WasteScenarios(CsvDataSet dataSet) {
 		this.dataSet = dataSet;
@@ -45,9 +37,12 @@ class WasteScenarios {
 	private List<InputParameterRow> unroll() {
 		if (dataSet.processes().isEmpty())
 			return Collections.emptyList();
+
 		var scenarios = dataSet.processes()
 			.stream()
-			.filter(block -> block.category() == ProcessCategory.WASTE_SCENARIO)
+			.filter(block
+				-> block.category() == ProcessCategory.WASTE_SCENARIO
+				&& block.wasteScenario() != null)
 			.collect(Collectors.toList());
 		if (scenarios.isEmpty())
 			return Collections.emptyList();
@@ -76,11 +71,9 @@ class WasteScenarios {
 	}
 
 	private void apply(String param, ProcessBlock scenario, ProcessBlock block) {
-		if (block.category() == null || !applicable.contains(block.category()))
+		if (block.category() != ProcessCategory.MATERIAL)
 			return;
-		for (var product : block.products()) {
-			if (!canApply(scenario, product))
-				continue;
+		for (var material : block.products()) {
 
 			// add a waste-to-treatment-row for the scenario to capture the
 			// waste handling in the scenario (material, energy, etc. inputs
@@ -88,80 +81,67 @@ class WasteScenarios {
 			var scenarioRow = scenario.wasteScenario();
 			block.wasteToTreatment().add(new TechExchangeRow()
 				.name(scenarioRow.name())
-				.unit(product.unit())
-				.amount(combine(param, product.amount())));
+				.unit(material.unit())
+				.amount(combine(param, material.amount())));
 
 			// separated fractions
 			double separatedTotal = 0.0;
-			var separated = getFractions(product, scenario.separatedWaste());
+			var separated = getFractions(material, scenario.separatedWaste());
 			for (var sep : separated) {
 				double f = sep.fraction() / 100.0;
 				separatedTotal += f;
 				var prefix = param + " * " + f;
 				block.wasteToTreatment().add(new TechExchangeRow()
 					.name(sep.wasteTreatment())
-					.unit(product.unit())
-					.amount(combine(prefix, product.amount())));
+					.unit(material.unit())
+					.amount(combine(prefix, material.amount())));
 			}
 
 			// remaining fractions
 			double remainingTotal = 1.0 - separatedTotal;
 			if (remainingTotal < 0.01)
 				continue;
-			var remaining = getFractions(product, scenario.remainingWaste());
+			var remaining = getFractions(material, scenario.remainingWaste());
 			for (var rem : remaining) {
 				double f = rem.fraction() / 100.0;
 				var prefix = param + " * " + remainingTotal + " * " + f;
 				block.wasteToTreatment().add(new TechExchangeRow()
 					.name(rem.wasteTreatment())
-					.unit(product.unit())
-					.amount(combine(prefix, product.amount())));
+					.unit(material.unit())
+					.amount(combine(prefix, material.amount())));
 			}
 		}
 	}
 
+	/**
+	 * Get the fractions for the given product with the best matching waste type.
+	 */
 	private List<WasteFractionRow> getFractions(
-		ProductOutputRow product, Collection<WasteFractionRow> fractions) {
-		var matchedType = findMatchingType(product.wasteType(), fractions);
-		if (matchedType == null)
+		ProductOutputRow material, Collection<WasteFractionRow> fractions) {
+
+		if (fractions.isEmpty())
 			return Collections.emptyList();
-		return fractions.stream()
-			.filter(row -> matchedType.equals(row.wasteType()))
+
+		// fractions for the specific material
+		var forMaterial = fractions.stream()
+			.filter(f -> Strings.nullOrEqual(material.name(), f.wasteType()))
 			.collect(Collectors.toList());
-	}
+		if (!forMaterial.isEmpty())
+			return forMaterial;
 
-	private boolean canApply(ProcessBlock scenario, ProductOutputRow product) {
-		var productWasteType = product.wasteType();
-		if (Strings.nullOrEmpty(productWasteType)
-			|| productWasteType.equals("not defined"))
-			return false;
-
-		var scenarioWasteType = scenario.wasteScenario() != null
-			? scenario.wasteScenario().wasteType()
-			: null;
-		if (Strings.nullOrEmpty(scenarioWasteType))
-			return false;
-
-		return productWasteType.equals(scenarioWasteType)
-			|| scenarioWasteType.equals("All waste types");
-	}
-
-	private String findMatchingType(
-		String wasteType, Collection<WasteFractionRow> fractions) {
-		String matchedType = null;
-		for (var fraction : fractions) {
-			var fractionType = fraction.wasteType();
-			if (fractionType == null)
-				continue;
-			if (fractionType.equals(wasteType)) {
-				return fractionType;
-			}
-			if (fractionType.equals("All waste types")
-				|| fractionType.isBlank()) {
-				matchedType = fractionType;
-			}
+		// fractions for a specific waste type
+		if (!matchesAll(material.wasteType())) {
+			var forWasteType = fractions.stream()
+				.filter(f -> Strings.nullOrEqual(material.wasteType(), f.wasteType()))
+				.collect(Collectors.toList());
+			if (!forWasteType.isEmpty())
+				return forWasteType;
 		}
-		return matchedType;
+
+		// finally, the 'matches all' fractions
+		return fractions.stream()
+			.filter(f -> matchesAll(f.wasteType()))
+			.collect(Collectors.toList());
 	}
 
 	private Numeric combine(String prefix, Numeric numeric) {
@@ -188,5 +168,22 @@ class WasteScenarios {
 			wasValid = false;
 		}
 		return buffer.toString();
+	}
+
+	/**
+	 * Returns true if the given waste type matches all other waste types. This
+	 * means, a treatment of a fraction tagged with this type can handle all
+	 * materials. On the other side, a material tagged with this type has no
+	 * specific waste type and cannot be separated by fractions tagged with a
+	 * specific waste type.
+	 */
+	private boolean matchesAll(String wasteType) {
+		if (Strings.nullOrEmpty(wasteType))
+			return true;
+		var wt = wasteType.strip().toLowerCase();
+		return wt.isEmpty()
+			|| wt.equals("not defined")
+			|| wt.equals("unspecified")
+			|| wt.equals("all waste types");
 	}
 }
