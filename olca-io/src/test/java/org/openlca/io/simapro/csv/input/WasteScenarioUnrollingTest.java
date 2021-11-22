@@ -156,7 +156,6 @@ public class WasteScenarioUnrollingTest {
 
 		// write the file
 		var file = Files.createTempFile("_olca_", ".csv").toFile();
-		System.out.println(file);
 		dataSet.write(file);
 
 		new SimaProCsvImport(db, file)
@@ -177,5 +176,7 @@ public class WasteScenarioUnrollingTest {
 		var co2Result = inventory.get(0);
 		assertEquals("Carbon dioxide", co2Result.flow.name);
 		assertEquals(4.0, co2Result.value, 1e-10);
+
+		assertTrue(file.delete());
 	}
 }
