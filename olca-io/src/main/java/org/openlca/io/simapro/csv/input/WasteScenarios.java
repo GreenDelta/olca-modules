@@ -99,7 +99,7 @@ class WasteScenarios {
 
 			// remaining fractions
 			double remainingTotal = 1.0 - separatedTotal;
-			if (remainingTotal < 0.01)
+			if (remainingTotal < 1e-9)
 				continue;
 			var remaining = getFractions(material, scenario.remainingWaste());
 			for (var rem : remaining) {
