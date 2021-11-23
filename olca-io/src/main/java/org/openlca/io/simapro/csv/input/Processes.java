@@ -86,6 +86,9 @@ class Processes implements ProcessMapper {
 			? org.openlca.core.model.ProcessType.LCI_RESULT
 			: org.openlca.core.model.ProcessType.UNIT_PROCESS;
 		process.name = nameOf(block);
+		if (block.category() != null) {
+			process.tags = block.category().toString();
+		}
 		process.defaultAllocationMethod = AllocationMethod.PHYSICAL;
 		ProcessDocs.map(context.refData(), block, process);
 		formulaScope = createFormulaScope();

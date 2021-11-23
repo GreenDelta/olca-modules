@@ -9,8 +9,8 @@ public class FlowResult {
 	public FlowDescriptor flow;
 
 	/**
-	 * Contains a location in case of a regionalized flow result.
-	 * Otherwise this field may be zero
+	 * Contains a location in case of a regionalized flow result. Otherwise, this
+	 * field may be zero
 	 */
 	public LocationDescriptor location;
 
@@ -26,5 +26,7 @@ public class FlowResult {
 		this.input = flow.isInput();
 		this.value = value;
 	}
+
+
 
 }
