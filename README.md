@@ -37,7 +37,6 @@ mvn install -DskipTests=true
 * olca-ilcd: an API for reading and writing ILCD data sets with an
   implementation of the ILCD network interface
 * olca-io: the import-export API of openLCA
-* olca-simapro-csv: an API for reading and writing SimaPro CSV files.
 
 
 ## License
