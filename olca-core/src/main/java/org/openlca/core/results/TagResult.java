@@ -6,13 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.openlca.core.database.Derby;
-import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.model.CalculationSetup;
-import org.openlca.core.model.ImpactMethod;
-import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.util.Strings;
 
