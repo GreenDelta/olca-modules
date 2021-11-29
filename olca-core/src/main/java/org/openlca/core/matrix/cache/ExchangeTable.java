@@ -1,16 +1,21 @@
 package org.openlca.core.matrix.cache;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
+import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.UncertaintyType;
-
-import gnu.trove.map.hash.TLongObjectHashMap;
 
 public class ExchangeTable {
 
@@ -136,6 +141,77 @@ public class ExchangeTable {
 		if (propertyFactor == 0)
 			return 0;
 		return unitFactor / propertyFactor;
+	}
+
+	public List<Linkable> linkablesOf(Set<Long> processIds) {
+		if (processIds == null || processIds.isEmpty())
+			return Collections.emptyList();
+		var query = Linkable.query + " where f_owner in ("
+			+ processIds.stream().map(id -> Long.toString(id))
+			.collect(Collectors.joining(","))
+			+ ")";
+		var linkables = new ArrayList<Linkable>();
+		NativeSql.on(db).query(query, r -> {
+			var linkable = Linkable.next(this, r);
+			if (linkable != null) {
+				linkables.add(linkable);
+			}
+			return true;
+		});
+		return linkables;
+	}
+
+	/**
+	 * A {@code Linkable} describes a product input or waste output of a process
+	 * that can be linked to a provider.
+	 */
+	public record Linkable(
+		long exchangeId,
+		long processId,
+		long flowId,
+		boolean isInput,
+		boolean isAvoided,
+		long providerId,
+		long locationId,
+		FlowType flowType
+	) {
+
+		private static final String query = "SELECT"
+			+ /* 1 */ " id,"
+			+ /* 2 */ " f_owner,"
+			+ /* 3 */ " f_flow,"
+			+ /* 4 */ " is_input,"
+			+ /* 5 */ " avoided_product,"
+			+ /* 6 */ " f_default_provider,"
+			+ /* 7 */ " f_location"
+			+ " FROM tbl_exchanges";
+
+		private static Linkable next(ExchangeTable table, ResultSet rs) {
+			try {
+				long flowId = rs.getLong(3);
+				var flowType = table.flowTypes.get(flowId);
+				boolean isInput = rs.getBoolean(4);
+				if (!isLinkable(flowType, isInput))
+					return null;
+				return new Linkable(
+					rs.getLong(1),
+					rs.getLong(2),
+					flowId,
+					isInput,
+					rs.getBoolean(5),
+					rs.getLong(6),
+					rs.getLong(7),
+					flowType
+				);
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		private static boolean isLinkable(FlowType type, boolean isInput) {
+			return (type == FlowType.WASTE_FLOW && isInput)
+				|| (type == FlowType.PRODUCT_FLOW && !isInput);
+		}
 	}
 
 }

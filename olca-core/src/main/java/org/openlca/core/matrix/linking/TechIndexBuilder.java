@@ -12,7 +12,6 @@ import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
