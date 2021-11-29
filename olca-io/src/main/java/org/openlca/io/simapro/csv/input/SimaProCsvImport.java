@@ -1,8 +1,13 @@
 package org.openlca.io.simapro.csv.input;
 
 import java.io.File;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.function.Function;
 
+import com.google.common.eventbus.EventBus;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.ProductSystemBuilder;
 import org.openlca.core.matrix.cache.MatrixCache;
@@ -21,8 +26,6 @@ import org.openlca.simapro.csv.process.ProductStageBlock;
 import org.openlca.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.eventbus.EventBus;
 
 public class SimaProCsvImport implements FileImport {
 
@@ -130,8 +133,8 @@ public class SimaProCsvImport implements FileImport {
 						lifeCycles.add(Pair.of(stage, process.get()));
 					}
 				}
-				for (var pair : lifeCycles) {
-					createSystemOf(pair.first, pair.second);
+				if (!lifeCycles.isEmpty()) {
+					createSystemsOf(lifeCycles);
 				}
 
 				// impact methods
@@ -144,7 +147,41 @@ public class SimaProCsvImport implements FileImport {
 		}
 	}
 
-	private void createSystemOf(ProductStageBlock block, Process process) {
+	private void createSystemsOf(List<Pair<ProductStageBlock, Process>> list) {
+
+		Function<ProductStageBlock, String> keyFn = stage ->
+			stage.products().isEmpty()
+				? ""
+				: stage.products().get(0).name();
+
+
+		// we need to make sure that we create sub-systems first
+		var deferred = new HashSet<String>();
+		var created = new HashSet<String>();
+		var queue = new ArrayDeque<>(list);
+		while (!queue.isEmpty()) {
+			var next = queue.pop();
+			var stage = next.first;
+			var process = next.second;
+
+			// first check that all dependencies are created
+			// if this is not the case we move it to the end
+			// of the queue once, this should fix it; if not,
+			// we have cycles between the life-cycles
+			var key = keyFn.apply(stage);
+			if (!deferred.contains(key)) {
+
+				for (var sub : stage.additionalLifeCycles()) {
+					if (!created.contains(sub.name()))
+						continue;
+					deferred.add(key);
+
+				}
+			}
+
+		}
+
+
 		var linkingConfig = new LinkingConfig()
 			.providerLinking(ProviderLinking.PREFER_DEFAULTS)
 			.preferredType(ProcessType.LCI_RESULT);
