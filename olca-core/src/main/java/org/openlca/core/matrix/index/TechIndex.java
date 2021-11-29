@@ -262,10 +262,10 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 			return existing;
 		int pos = index.size();
 		index.put(provider, pos);
-		var list = processProviders.get(provider.processId());
+		var list = processProviders.get(provider.providerId());
 		if (list == null) {
 			list = new ArrayList<>();
-			processProviders.put(provider.processId(), list);
+			processProviders.put(provider.providerId(), list);
 		}
 		list.add(provider);
 		providers.add(provider);
@@ -359,7 +359,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 	public Set<Long> getProcessIds() {
 		HashSet<Long> set = new HashSet<>();
 		for (TechFlow p : providers) {
-			set.add(p.processId());
+			set.add(p.providerId());
 		}
 		return set;
 	}

@@ -87,7 +87,7 @@ public class ResultItemView {
 			return processes;
 		var set = new HashSet<CategorizedDescriptor>();
 		for (var techFlow : techFlows()) {
-			set.add(techFlow.process());
+			set.add(techFlow.provider());
 		}
 		processes = new ArrayList<>(set);
 		return processes;

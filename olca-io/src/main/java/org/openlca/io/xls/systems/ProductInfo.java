@@ -38,7 +38,7 @@ class ProductInfo implements Comparable<ProductInfo> {
 		List<ProductInfo> infos = new ArrayList<>(index.size() + 2);
 		for (int i = 0; i < index.size(); i++) {
 			TechFlow pair = index.at(i);
-			CategorizedDescriptor process = pair.process();
+			CategorizedDescriptor process = pair.provider();
 			FlowDescriptor product = pair.flow();
 			ProductInfo info = new ProductInfo();
 			info.provider = pair;

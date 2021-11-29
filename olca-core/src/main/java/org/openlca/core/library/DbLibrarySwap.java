@@ -55,7 +55,7 @@ public class DbLibrarySwap implements Runnable {
 
 			var replacedProcesses = new TLongHashSet();
 			for (var techFlow : replacedTechFlows) {
-				replacedProcesses.add(techFlow.processId());
+				replacedProcesses.add(techFlow.providerId());
 			}
 
 			db.clearCache();

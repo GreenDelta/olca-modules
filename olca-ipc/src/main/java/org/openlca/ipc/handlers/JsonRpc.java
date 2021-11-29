@@ -103,7 +103,7 @@ class JsonRpc {
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@type", "ContributionItem");
 		obj.add("item", Json.asRef(n.provider.flow(), cache));
-		obj.add("owner", Json.asRef(n.provider.process(), cache));
+		obj.add("owner", Json.asRef(n.provider.provider(), cache));
 		obj.addProperty("amount", n.result);
 		obj.addProperty("share", total != 0 ? n.result / total : 0);
 		modifier.accept(obj);
@@ -117,7 +117,7 @@ class JsonRpc {
 				continue;
 			var product = index.at(i);
 			JsonObject obj = new JsonObject();
-			obj.add("process", Json.asRef(product.process(), cache));
+			obj.add("process", Json.asRef(product.provider(), cache));
 			obj.add("product", Json.asRef(product.flow(), cache));
 			obj.addProperty("amount", totalRequirements[i]);
 			if (costs != null) {

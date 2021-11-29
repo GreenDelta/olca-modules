@@ -69,9 +69,9 @@ final class Results {
       ? proto.getProduct().getId()
       : proto.getWaste().getId();
     for (var p : result.techIndex()) {
-      if (p.process() == null || p.flow() == null)
+      if (p.provider() == null || p.flow() == null)
         continue;
-      if (Strings.nullOrEqual(p.process().refId, processId)
+      if (Strings.nullOrEqual(p.provider().refId, processId)
         && Strings.nullOrEqual(p.flow().refId, flowId))
         return p;
     }
@@ -104,8 +104,8 @@ final class Results {
     var proto = ProtoTechFlow.newBuilder();
     if (product == null)
       return proto.build();
-    if (product.process() != null) {
-      proto.setProcess(Refs.refOf(product.process(), refData));
+    if (product.provider() != null) {
+      proto.setProcess(Refs.refOf(product.provider(), refData));
     }
     if (product.flow() != null) {
       if (product.isWaste()) {

@@ -127,7 +127,7 @@ public class TagResult {
 	}
 
 	private static Set<String> tagsOf(TechFlow techFlow) {
-		var p = techFlow.process();
+		var p = techFlow.provider();
 		if (p == null || Strings.nullOrEmpty(p.tags))
 			return Collections.emptySet();
 		var set = new HashSet<String>();

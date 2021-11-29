@@ -46,8 +46,8 @@ public class SimpleResultProviderTest {
 	public void testTechIndex() {
 		var techIndex = result.techIndex();
 		assertEquals(2, techIndex.size());
-		assertEquals("p1", techIndex.at(0).process().name);
-		assertEquals("p2", techIndex.at(1).process().name);
+		assertEquals("p1", techIndex.at(0).provider().name);
+		assertEquals("p2", techIndex.at(1).provider().name);
 	}
 
 	@Test

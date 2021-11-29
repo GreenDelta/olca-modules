@@ -148,10 +148,10 @@ public class SimulationResultExport {
 		row = 0;
 
 		String label = "Contributions of: ";
-		if (pp.process() != null) {
-			label += pp.process().name;
-			if (pp.process() instanceof ProcessDescriptor) {
-				ProcessDescriptor p = (ProcessDescriptor) pp.process();
+		if (pp.provider() != null) {
+			label += pp.provider().name;
+			if (pp.provider() instanceof ProcessDescriptor) {
+				ProcessDescriptor p = (ProcessDescriptor) pp.provider();
 				if (p.location != null) {
 					Location loc = cache.get(Location.class, p.location);
 					if (loc != null) {

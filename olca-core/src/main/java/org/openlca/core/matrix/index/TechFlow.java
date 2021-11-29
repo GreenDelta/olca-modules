@@ -1,7 +1,5 @@
 package org.openlca.core.matrix.index;
 
-import java.util.Objects;
-
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
@@ -21,7 +19,7 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
  * in these systems with their quantitative reference as product).
  */
 public record TechFlow(
-	CategorizedDescriptor process, FlowDescriptor flow) {
+	CategorizedDescriptor provider, FlowDescriptor flow) {
 
 	public static TechFlow of(CategorizedDescriptor process, FlowDescriptor flow) {
 		return new TechFlow(process, flow);
@@ -64,8 +62,8 @@ public record TechFlow(
 	 * etc.).
 	 */
 	@Override
-	public CategorizedDescriptor process() {
-		return process;
+	public CategorizedDescriptor provider() {
+		return provider;
 	}
 
 	/**
@@ -78,28 +76,12 @@ public record TechFlow(
 		return flow;
 	}
 
-	@Override
-	public int hashCode() {
-		return process().hashCode() * 31 + flow().hashCode();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null || this.getClass() != obj.getClass())
-			return false;
-		var other = (TechFlow) obj;
-		return Objects.equals(this.process(), other.process())
-				&& Objects.equals(this.flow(), other.flow());
-	}
-
 	/**
 	 * Returns true if the given process and flow ID are the same as of the process
 	 * or product system and product or waste flow of this process product.
 	 */
 	public boolean matches(long processId, long flowId) {
-		return processId == processId() && flowId == flowId();
+		return processId == providerId() && flowId == flowId();
 	}
 
 	public long flowId() {
@@ -109,17 +91,17 @@ public record TechFlow(
 	/**
 	 * Returns the ID of the underlying process or product system of this provider.
 	 */
-	public long processId() {
-		return process().id;
+	public long providerId() {
+		return provider().id;
 	}
 
 	public LongPair pair() {
-		return LongPair.of(processId(), flowId());
+		return LongPair.of(providerId(), flowId());
 	}
 
 	public Long locationId() {
-		if (process() instanceof ProcessDescriptor)
-			return ((ProcessDescriptor) process()).location;
+		if (provider() instanceof ProcessDescriptor)
+			return ((ProcessDescriptor) provider()).location;
 		return null;
 	}
 
@@ -136,7 +118,7 @@ public record TechFlow(
 	 * Returns true if the underlying process of this product is from a library.
 	 */
 	public boolean isFromLibrary() {
-		return process().isFromLibrary();
+		return provider().isFromLibrary();
 	}
 
 	/**
@@ -144,6 +126,6 @@ public record TechFlow(
 	 * otherwise `null` is returned.
 	 */
 	public String library() {
-		return process().library;
+		return provider().library;
 	}
 }

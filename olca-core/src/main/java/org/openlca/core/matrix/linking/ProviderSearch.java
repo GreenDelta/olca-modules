@@ -32,7 +32,7 @@ public record ProviderSearch(ProcessTable processTable, LinkingConfig config) {
 		// when there are multiple options.
 		if (config.providerLinking() != ProviderLinking.IGNORE_DEFAULTS) {
 			for (TechFlow provider : providers) {
-				if (provider.processId() == e.defaultProviderId)
+				if (provider.providerId() == e.defaultProviderId)
 					return provider;
 			}
 			if (config.providerLinking() == ProviderLinking.ONLY_DEFAULTS)
@@ -65,13 +65,13 @@ public record ProviderSearch(ProcessTable processTable, LinkingConfig config) {
 		if (newOption == null)
 			return false;
 		if (config.providerLinking() != ProviderLinking.IGNORE_DEFAULTS) {
-			if (old.processId() == e.defaultProviderId)
+			if (old.providerId() == e.defaultProviderId)
 				return false;
-			if (newOption.processId() == e.defaultProviderId)
+			if (newOption.providerId() == e.defaultProviderId)
 				return true;
 		}
-		ProcessType oldType = processTable.getType(old.processId());
-		ProcessType newType = processTable.getType(newOption.processId());
+		ProcessType oldType = processTable.getType(old.providerId());
+		ProcessType newType = processTable.getType(newOption.providerId());
 		if (oldType == config.preferredType()
 			&& newType != config.preferredType())
 			return false;

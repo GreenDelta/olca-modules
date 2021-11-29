@@ -184,7 +184,7 @@ public class Simulator {
 		if (node.subSystems != null) {
 			for (TechFlow subLink : node.subSystems) {
 				// add the LCI result of the sub-system
-				Node sub = nodeIndex.get(subLink.processId());
+				Node sub = nodeIndex.get(subLink.providerId());
 				if (sub == null)
 					continue;
 				if (sub.lastResult == null
@@ -376,9 +376,9 @@ public class Simulator {
 			// parameters
 			var paramContexts = new HashSet<Long>();
 			data.techIndex.each((i, p) -> {
-				if (p.process() != null
-					&& p.process().type == ModelType.PROCESS) {
-					paramContexts.add(p.processId());
+				if (p.provider() != null
+					&& p.provider().type == ModelType.PROCESS) {
+					paramContexts.add(p.providerId());
 				}
 			});
 			var impactMethod = setup.impactMethod();

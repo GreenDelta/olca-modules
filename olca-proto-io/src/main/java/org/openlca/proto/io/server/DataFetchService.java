@@ -305,7 +305,7 @@ class DataFetchService extends
     ProcessTable.create(db)
       .getProviders(flow.id)
       .stream()
-      .map(TechFlow::process)
+      .map(TechFlow::provider)
       .filter(p -> p instanceof ProcessDescriptor)
       .map(p -> (ProcessDescriptor) p)
       .forEach(p -> resp.onNext(Refs.refOf(p, refData).build()));
@@ -320,7 +320,7 @@ class DataFetchService extends
 
 		Function<TechFlow, ProtoTechFlow> mapper = techFlow -> {
 			var flow = techFlow.flow();
-			var process = techFlow.process();
+			var process = techFlow.provider();
 			if (flow == null || process == null)
 				return null;
 			var proto = ProtoTechFlow.newBuilder()

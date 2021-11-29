@@ -156,7 +156,7 @@ public class ModelHandler {
 		var array = new JsonArray();
 		var cache = EntityCache.create(db);
 		providers.stream()
-				.map(TechFlow::process)
+				.map(TechFlow::provider)
 				.filter(p -> p instanceof ProcessDescriptor)
 				.map(p -> Json.asDescriptor(p, cache))
 				.forEach(array::add);

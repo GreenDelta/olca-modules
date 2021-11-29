@@ -80,7 +80,7 @@ public class SystemCalculator {
 		// calculate the LCI results of the sub-systems
 		var subResults = new HashMap<TechFlow, SimpleResult>();
 		for (var pp : subSystems) {
-			var subSystem = sysDao.getForId(pp.processId());
+			var subSystem = sysDao.getForId(pp.providerId());
 			if (subSystem == null)
 				continue;
 			var subSetup = CalculationSetup.simple(subSystem)

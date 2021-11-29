@@ -213,8 +213,8 @@ public abstract class EnviIndex implements MatrixIndex<EnviFlow> {
 			loc = locations.get(e.locationId);
 		}
 		if (loc == null) {
-			if (product.process() instanceof ProcessDescriptor) {
-				var d = (ProcessDescriptor) product.process();
+			if (product.provider() instanceof ProcessDescriptor) {
+				var d = (ProcessDescriptor) product.provider();
 				if (d.location != null) {
 					loc = locations.get(d.location);
 				}

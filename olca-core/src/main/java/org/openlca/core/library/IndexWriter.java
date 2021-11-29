@@ -54,7 +54,7 @@ class IndexWriter implements Runnable {
 		data.techIndex.each((index, product) -> {
 			var entry = Proto.ProductEntry.newBuilder();
 			entry.setIndex(index);
-			entry.setProcess(process(product.process()));
+			entry.setProcess(process(product.provider()));
 			entry.setProduct(flow(product.flow()));
 			products.addProduct(entry.build());
 		});

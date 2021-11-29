@@ -20,7 +20,7 @@ class LibIndex {
 		var entry = Proto.ProductEntry.newBuilder();
 		entry.setIndex(index);
 		entry.setProduct(protoFlow(product.flow()));
-		entry.setProcess(protoProcess(product.process()));
+		entry.setProcess(protoProcess(product.provider()));
 		return entry.build();
 	}
 

@@ -38,7 +38,7 @@ public class CostHandler {
 					continue;
 				var product = techIdx.at(i);
 				var obj = new JsonObject();
-				obj.add("process", Json.asRef(product.process(), cache));
+				obj.add("process", Json.asRef(product.provider(), cache));
 				obj.add("product", Json.asRef(product.flow(), cache));
 				obj.addProperty("amount", tr);
 				obj.addProperty("costs", result.getDirectCostResult(product));

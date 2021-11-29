@@ -114,7 +114,7 @@ public class ForegroundSystemGenerator implements Runnable {
 				var exchange = flow.flowType == FlowType.WASTE_FLOW
 						? recipient.output(flow, rand.nextInt(5) + 5)
 						: recipient.input(flow, rand.nextInt(5) + 5);
-				exchange.defaultProviderId = provider.processId();
+				exchange.defaultProviderId = provider.providerId();
 			}
 		}
 

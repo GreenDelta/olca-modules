@@ -198,7 +198,7 @@ public class UpstreamTreeHandler {
 			if (node == null || node.provider == null)
 				return null;
 			var json = new JsonObject();
-			var process = Json.asRef(node.provider.process(), cache);
+			var process = Json.asRef(node.provider.provider(), cache);
 			var flow = Json.asRef(node.provider.flow(), cache);
 			var product = new JsonObject();
 			product.add("process", process);

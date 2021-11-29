@@ -102,7 +102,7 @@ public class ProductSystemBuilder {
 			var provider = index.getLinkedProvider(exchange);
 			if (provider == null)
 				continue;
-			system.processes.add(provider.processId());
+			system.processes.add(provider.providerId());
 			system.processes.add(exchange.first());
 			long exchangeId = exchange.second();
 			if (linkIds.add(exchangeId)) {
@@ -110,7 +110,7 @@ public class ProductSystemBuilder {
 				link.exchangeId = exchangeId;
 				link.flowId = provider.flowId();
 				link.processId = exchange.first();
-				link.providerId = provider.processId();
+				link.providerId = provider.providerId();
 				system.processLinks.add(link);
 			}
 		}
