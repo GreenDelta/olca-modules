@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import gnu.trove.iterator.TLongObjectIterator;
+import gnu.trove.list.array.TLongArrayList;
+import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
@@ -14,10 +17,6 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.slf4j.LoggerFactory;
-
-import gnu.trove.iterator.TLongObjectIterator;
-import gnu.trove.list.array.TLongArrayList;
-import gnu.trove.map.hash.TLongObjectHashMap;
 
 public class ProcessTable {
 
@@ -54,33 +53,31 @@ public class ProcessTable {
 
 		// index flow -> process relations
 		String query = "select f_owner, f_flow, is_input from tbl_exchanges";
-		try {
-			NativeSql.on(db).query(query, r -> {
-				long processId = r.getLong(1);
-				long flowId = r.getLong(2);
-				boolean isInput = r.getBoolean(3);
-				FlowDescriptor flow = flows.get(flowId);
-				if (flow == null)
-					return true;
-				FlowType t = flow.flowType;
-				if ((isInput && t == FlowType.WASTE_FLOW)
-						|| (!isInput && t == FlowType.PRODUCT_FLOW)) {
-					TLongArrayList list = flowProviders.get(flowId);
-					if (list == null) {
-						list = new TLongArrayList();
-						flowProviders.put(flowId, list);
-					}
-					list.add(processId);
-				}
+		NativeSql.on(db).query(query, r -> {
+			long processId = r.getLong(1);
+			long flowId = r.getLong(2);
+			boolean isInput = r.getBoolean(3);
+			FlowDescriptor flow = flows.get(flowId);
+			if (flow == null)
 				return true;
-			});
-			log.trace("{} providers mapped", processes.size());
-		} catch (Exception e) {
-			log.error("failed to load process products", e);
-		}
+			FlowType t = flow.flowType;
+			if ((isInput && t == FlowType.WASTE_FLOW)
+				|| (!isInput && t == FlowType.PRODUCT_FLOW)) {
+				TLongArrayList list = flowProviders.get(flowId);
+				if (list == null) {
+					list = new TLongArrayList();
+					flowProviders.put(flowId, list);
+				}
+				list.add(processId);
+			}
+			return true;
+		});
+		log.trace("{} providers mapped", processes.size());
 	}
 
-	/** Returns the process type for the given process-ID. */
+	/**
+	 * Returns the process type for the given process-ID.
+	 */
 	public ProcessType getType(long processId) {
 		ProcessDescriptor d = processes.get(processId);
 		return d == null ? null : d.processType;
@@ -117,7 +114,9 @@ public class ProcessTable {
 		return providers;
 	}
 
-	/** Get all product or waste treatment providers from the database. */
+	/**
+	 * Get all product or waste treatment providers from the database.
+	 */
 	public List<TechFlow> getProviders() {
 		List<TechFlow> list = new ArrayList<>();
 		TLongObjectIterator<TLongArrayList> it = flowProviders.iterator();
