@@ -1,5 +1,7 @@
 package org.openlca.core.database;
 
+import java.io.StringWriter;
+import java.sql.Clob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,6 +21,16 @@ public final class NativeSql {
 
 	private NativeSql(IDatabase db) {
 		this.db = db;
+	}
+
+	public static String stringOf(Clob clob) {
+		if (clob == null)
+			return null;
+		try {
+			return clob.getSubString(1, (int) clob.length());
+		} catch (SQLException e) {
+			throw new RuntimeException("failed to read string from Clob", e);
+		}
 	}
 
 	public void query(String query, QueryResultHandler handler) {

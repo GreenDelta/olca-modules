@@ -113,11 +113,12 @@ public class RootEntityDao<T extends RootEntity, V extends Descriptor> extends B
 	 * of the respective descriptors.
 	 */
 	public TLongObjectHashMap<V> descriptorMap() {
-		TLongObjectHashMap<V> m = new TLongObjectHashMap<>();
-		for (V d : getDescriptors()) {
-			m.put(d.id, d);
+		var descriptors = getDescriptors();
+		var map = new TLongObjectHashMap<V>(descriptors.size());
+		for (var d : descriptors) {
+			map.put(d.id, d);
 		}
-		return m;
+		return map;
 	}
 
 	protected final String getDescriptorQuery() {

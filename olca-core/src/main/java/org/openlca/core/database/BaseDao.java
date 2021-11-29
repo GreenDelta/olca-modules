@@ -337,8 +337,12 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 		ResultSet resultSet = statement.executeQuery();
 		while (resultSet.next()) {
 			Object[] result = new Object[fields.length];
-			for (int i = 0; i < fields.length; i++)
-				result[i] = getValue(resultSet, fields[i]);
+			for (int i = 0; i < fields.length; i++) {
+				var value = resultSet.getObject(fields[i]);
+				result[i] = value instanceof Clob clob
+					? NativeSql.stringOf(clob)
+					: value;
+			}
 			results.add(result);
 			if (single)
 				break;
@@ -346,15 +350,6 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 		resultSet.close();
 		statement.close();
 		return results;
-	}
-
-	private Object getValue(ResultSet resultSet, String field)
-			throws SQLException {
-		Object value = resultSet.getObject(field);
-		if (value instanceof Clob)
-			value = ((Clob) value).getSubString(1,
-					(int) ((Clob) value).length());
-		return value;
 	}
 
 	public void detach(T val) {
