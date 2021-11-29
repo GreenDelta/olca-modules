@@ -2,6 +2,7 @@ package org.openlca.core.matrix.index;
 
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
@@ -127,5 +128,13 @@ public record TechFlow(
 	 */
 	public String library() {
 		return provider().library;
+	}
+
+	public boolean isProductSystem() {
+		return provider.type == ModelType.PRODUCT_SYSTEM;
+	}
+
+	public boolean isProcess() {
+		return provider.type == ModelType.PROCESS;
 	}
 }

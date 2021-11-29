@@ -3,7 +3,6 @@ package org.openlca.core.matrix.index;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.FlowDao;
@@ -12,7 +11,6 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.FlowType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
@@ -23,7 +21,7 @@ public abstract class ProviderIndex {
 	protected final TLongObjectHashMap<ProcessDescriptor> processes;
 	protected final TLongObjectHashMap<ProductSystemDescriptor> systems;
 	protected final TLongObjectHashMap<FlowDescriptor> flows;
-	protected final TLongObjectHashMap<List<CategorizedDescriptor>> providers;
+	protected final TLongObjectHashMap<List<TechFlow>> providers;
 
 	private ProviderIndex(IDatabase db) {
 		this.db = db;
@@ -82,20 +80,20 @@ public abstract class ProviderIndex {
 				return Collections.emptyList();
 			var ps = providers.get(flowId);
 			if (ps != null)
-				return ps.stream()
-					.map(p -> TechFlow.of(p, flow))
-					.collect(Collectors.toList());
+				return ps;
 
 			// select from processes
 			var sql = NativeSql.on(db);
-			var flowProviders = new ArrayList<CategorizedDescriptor>();
-			boolean forInputs = flow.flowType == FlowType.WASTE_FLOW;
+			var flowProviders = new ArrayList<TechFlow>();
+			var forInputs = flow.flowType == FlowType.WASTE_FLOW
+				? 1
+				: 0;
 			var processQuery = "select f_owner from tbl_exchanges where "
 				+ " f_flow = " + flowId + " and is_input = " + forInputs;
 			sql.query(processQuery, r -> {
 				var process = processes.get(r.getLong(1));
 				if (process != null) {
-					flowProviders.add(process);
+					flowProviders.add(TechFlow.of(process, flow));
 				}
 				return true;
 			});
@@ -104,21 +102,18 @@ public abstract class ProviderIndex {
 			var systemQuery = "select s.id from tbl_product_systems s "
 				+ "inner join tbl_exchanges e "
 				+ "on s.f_reference_exchange = e.id "
-				+ "where e.f_flow = " + flowId ;
+				+ "where e.f_flow = " + flowId;
 
 			sql.query(systemQuery, r -> {
 				var system = systems.get(r.getLong(1));
 				if (system != null) {
-					flowProviders.add(system);
+					flowProviders.add(TechFlow.of(system, flow));
 				}
 				return true;
 			});
 
 			providers.put(flowId, flowProviders);
-
-			return flowProviders.stream()
-				.map(p -> TechFlow.of(p, flow))
-				.collect(Collectors.toList());
+			return flowProviders;
 		}
 	}
 
@@ -132,9 +127,7 @@ public abstract class ProviderIndex {
 			var processQuery = "select f_owner, f_flow, is_input from tbl_exchanges";
 			sql.query(processQuery, r -> {
 				var flowId = r.getLong(2);
-				var isInput = r.getBoolean(3);
-				if (!isProviderFlow(flowId, isInput))
-					return true;
+				var flow = providerFlow(flowId, r.getBoolean(3));
 				var process = processes.get(r.getLong(1));
 				if (process == null)
 					return true;
@@ -143,7 +136,7 @@ public abstract class ProviderIndex {
 					ps = new ArrayList<>();
 					providers.put(flowId, ps);
 				}
-				ps.add(process);
+				ps.add(TechFlow.of(process, flow));
 				return true;
 			});
 
@@ -154,25 +147,27 @@ public abstract class ProviderIndex {
 						on s.f_reference_exchange = e.id
 				""";
 			sql.query(systemQuery, r -> {
-				var flowId = r.getLong(1);
+				var flowId = r.getLong(2);
+				var flow = flows.get(flowId);
 				var ps = providers.get(flowId);
-				if (ps == null) // must exist if the database correct
+				if (ps == null || flow == null) // must exist if the database correct
 					return true;
 				var system = systems.get(r.getLong(1));
 				if (system != null) {
-					ps.add(system);
+					ps.add(TechFlow.of(system, flow));
 				}
 				return true;
 			});
-
 		}
 
-		protected boolean isProviderFlow(long flowId, boolean isInput) {
+		protected FlowDescriptor providerFlow(long flowId, boolean isInput) {
 			var flow = flows.get(flowId);
 			if (flow == null)
-				return false;
+				return null;
 			return (isInput && flow.flowType == FlowType.WASTE_FLOW)
-				|| (!isInput && flow.flowType == FlowType.PRODUCT_FLOW);
+				|| (!isInput && flow.flowType == FlowType.PRODUCT_FLOW)
+				? flow
+				: null;
 		}
 
 		@Override
@@ -181,12 +176,9 @@ public abstract class ProviderIndex {
 			if (flow == null)
 				return Collections.emptyList();
 			var ps = providers.get(flowId);
-			if (ps == null)
-				return Collections.emptyList();
-			return ps.stream().map(p -> TechFlow.of(p, flow))
-				.collect(Collectors.toList());
+			return ps == null
+				? Collections.emptyList()
+				: ps;
 		}
 	}
-
-
 }
