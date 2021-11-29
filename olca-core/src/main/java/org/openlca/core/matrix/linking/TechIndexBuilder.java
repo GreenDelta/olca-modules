@@ -40,7 +40,7 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 		block.add(refFlow);
 		HashSet<TechFlow> handled = new HashSet<>();
 		while (!block.isEmpty()) {
-			List<TechFlow> nextBlock = new ArrayList<>();
+			var nextBlock = new ArrayList<TechFlow>();
 			log.trace("fetch next block with {} entries", block.size());
 			Map<Long, List<CalcExchange>> exchanges = fetchExchanges(block);
 			for (TechFlow recipient : block) {
