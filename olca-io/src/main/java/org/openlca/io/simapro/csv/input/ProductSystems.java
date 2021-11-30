@@ -73,7 +73,7 @@ class ProductSystems {
 				continue;
 
 			var redef = ParameterRedef.of(global);
-			// redef.isProtected = true;
+			redef.isProtected = true;
 			redef.value = Strings.nullOrEqual(param, redef.name)
 				? 1.0
 				: 0.0;

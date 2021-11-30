@@ -306,12 +306,11 @@ public class Simulator {
 				// create node for LCI and LCC data simulation
 				// do *not* copy the LCIA method here
 				var dao = new ProductSystemDao(db);
-				var sub = dao.getForId(system);
-				_setup = CalculationSetup.monteCarlo(sub, setup.numberOfRuns())
-					.withParameters(setup.parameters())
+				var subSystem = dao.getForId(system);
+				_setup = CalculationSetup.monteCarlo(subSystem, setup.numberOfRuns())
+					.withParameters(ParameterRedefs.join(setup, subSystem))
 					.withCosts(setup.hasCosts())
 					.withAllocation(setup.allocation());
-				ParameterRedefs.addTo(_setup, sub);
 			}
 
 			Node node = new Node(_setup, db, subResults);

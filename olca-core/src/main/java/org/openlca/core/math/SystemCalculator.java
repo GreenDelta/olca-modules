@@ -83,12 +83,12 @@ public class SystemCalculator {
 			var subSystem = sysDao.getForId(pp.providerId());
 			if (subSystem == null)
 				continue;
+
 			var subSetup = CalculationSetup.simple(subSystem)
-				.withParameters(setup.parameters())
+				.withParameters(ParameterRedefs.join(setup, subSystem))
 				.withCosts(setup.hasCosts())
 				.withRegionalization(setup.hasRegionalization())
 				.withAllocation(setup.allocation());
-			ParameterRedefs.addTo(subSetup, subSystem);
 			var subResult = calculateSimple(subSetup);
 			subResults.put(pp, subResult);
 		}
