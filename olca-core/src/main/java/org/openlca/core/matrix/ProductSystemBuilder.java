@@ -74,8 +74,8 @@ public class ProductSystemBuilder {
 	 */
 	public void autoComplete(ProductSystem system) {
 		if (system == null
-				|| system.referenceExchange == null
-				|| system.referenceProcess == null)
+			|| system.referenceExchange == null
+			|| system.referenceProcess == null)
 			return;
 		Process refProcess = system.referenceProcess;
 		Flow refProduct = system.referenceExchange.flow;
@@ -108,7 +108,7 @@ public class ProductSystemBuilder {
 	}
 
 	private void addLinksAndProcesses(ProductSystem system, TechIndex index) {
-		TLongHashSet linkIds = new TLongHashSet(Constants.DEFAULT_CAPACITY,
+		var linkIds = new TLongHashSet(Constants.DEFAULT_CAPACITY,
 			Constants.DEFAULT_LOAD_FACTOR, -1);
 		for (ProcessLink link : system.processLinks) {
 			linkIds.add(link.exchangeId);
@@ -121,11 +121,12 @@ public class ProductSystemBuilder {
 			system.processes.add(exchange.first());
 			long exchangeId = exchange.second();
 			if (linkIds.add(exchangeId)) {
-				ProcessLink link = new ProcessLink();
+				var link = new ProcessLink();
 				link.exchangeId = exchangeId;
 				link.flowId = provider.flowId();
 				link.processId = exchange.first();
 				link.providerId = provider.providerId();
+				link.isSystemLink = provider.isProductSystem();
 				system.processLinks.add(link);
 			}
 		}
@@ -154,25 +155,29 @@ public class ProductSystemBuilder {
 
 	private static void cleanTables(IDatabase db, long systemId) {
 		String sql = "delete from tbl_process_links where "
-								 + "f_product_system = " + systemId;
+			+ "f_product_system = " + systemId;
 		NativeSql.on(db).runUpdate(sql);
 		sql = "delete from tbl_product_system_processes where "
-					+ "f_product_system = " + systemId;
+			+ "f_product_system = " + systemId;
 		NativeSql.on(db).runUpdate(sql);
 	}
 
 	private static void insertLinks(IDatabase db, ProductSystem system) {
 		List<ProcessLink> links = system.processLinks;
-		String stmt = "insert into tbl_process_links(f_product_system, "
-									+ "f_provider, f_process, f_flow, f_exchange) "
-									+ "values (?, ?, ?, ?, ?)";
-		NativeSql.on(db).batchInsert(stmt, links.size(), (i, statement) -> {
+		String sql = """
+			insert into tbl_process_links
+				(f_product_system, f_provider, f_process, f_flow, f_exchange,
+				 is_system_link)
+				values (?, ?, ?, ?, ?, ?)
+			""";
+		NativeSql.on(db).batchInsert(sql, links.size(), (i, stmt) -> {
 			var link = links.get(i);
-			statement.setLong(1, system.id);
-			statement.setLong(2, link.providerId);
-			statement.setLong(3, link.processId);
-			statement.setLong(4, link.flowId);
-			statement.setLong(5, link.exchangeId);
+			stmt.setLong(1, system.id);
+			stmt.setLong(2, link.providerId);
+			stmt.setLong(3, link.processId);
+			stmt.setLong(4, link.flowId);
+			stmt.setLong(5, link.exchangeId);
+			stmt.setBoolean(6, link.isSystemLink);
 			return true;
 		});
 	}
@@ -181,7 +186,7 @@ public class ProductSystemBuilder {
 		long[] ids = system.processes.stream()
 			.mapToLong(Long::longValue).toArray();
 		String stmt = "insert into tbl_product_system_processes("
-									+ "f_product_system, f_process) values (?, ?)";
+			+ "f_product_system, f_process) values (?, ?)";
 		NativeSql.on(db).batchInsert(stmt, ids.length, (i, statement) -> {
 			statement.setLong(1, system.id);
 			statement.setLong(2, ids[i]);
