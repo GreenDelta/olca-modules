@@ -1,23 +1,11 @@
 package org.openlca.io.simapro.csv.input;
 
 import java.io.File;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.function.Function;
 
 import com.google.common.eventbus.EventBus;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.ProductSystemBuilder;
-import org.openlca.core.matrix.cache.MatrixCache;
-import org.openlca.core.matrix.linking.LinkingConfig;
-import org.openlca.core.matrix.linking.ProviderLinking;
-import org.openlca.core.model.Parameter;
-import org.openlca.core.model.ParameterRedef;
-import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessType;
 import org.openlca.io.FileImport;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.simapro.csv.SimaProCsv;
@@ -133,9 +121,7 @@ public class SimaProCsvImport implements FileImport {
 						lifeCycles.add(Pair.of(stage, process.get()));
 					}
 				}
-				if (!lifeCycles.isEmpty()) {
-					createSystemsOf(lifeCycles);
-				}
+				ProductSystems.map(db, lifeCycles);
 
 				// impact methods
 				for (var method : dataSet.methods()) {
@@ -147,70 +133,4 @@ public class SimaProCsvImport implements FileImport {
 		}
 	}
 
-	private void createSystemsOf(List<Pair<ProductStageBlock, Process>> list) {
-
-		Function<ProductStageBlock, String> keyFn = stage ->
-			stage.products().isEmpty()
-				? ""
-				: stage.products().get(0).name();
-
-
-		// we need to make sure that we create sub-systems first
-		var deferred = new HashSet<String>();
-		var created = new HashSet<String>();
-		var queue = new ArrayDeque<>(list);
-		while (!queue.isEmpty()) {
-			var next = queue.pop();
-			var stage = next.first;
-			var process = next.second;
-
-			// first check that all dependencies are created
-			// if this is not the case we move it to the end
-			// of the queue once, this should fix it; if not,
-			// we have cycles between the life-cycles
-			var key = keyFn.apply(stage);
-			if (!deferred.contains(key)) {
-
-				for (var sub : stage.additionalLifeCycles()) {
-					if (!created.contains(sub.name()))
-						continue;
-					deferred.add(key);
-
-				}
-			}
-
-		}
-
-
-		var linkingConfig = new LinkingConfig()
-			.providerLinking(ProviderLinking.PREFER_DEFAULTS)
-			.preferredType(ProcessType.LCI_RESULT);
-		var system = new ProductSystemBuilder(
-			MatrixCache.createLazy(db), linkingConfig).build(process);
-		var params = wasteScenarioParamOf(block);
-		if (params != null) {
-			system.parameterSets.add(params);
-		}
-		db.insert(system);
-	}
-
-	private ParameterRedefSet wasteScenarioParamOf(ProductStageBlock block) {
-		var ws = block.wasteOrDisposalScenario();
-		if (ws == null)
-			return null;
-		var param = WasteScenarios.parameterOf(ws.name());
-		var global = db.forName(Parameter.class, param);
-		if (global == null)
-			return null;
-		var paramSet = new ParameterRedefSet();
-		paramSet.name = "Parameters";
-		paramSet.isBaseline = true;
-		var redef = new ParameterRedef();
-		redef.name = param;
-		redef.value = 1;
-		redef.description = "Set to 1 to enable waste scenario '"
-			+ ws.name() + "'. Set it to 0 to disable it.";
-		paramSet.parameters.add(redef);
-		return paramSet;
-	}
 }

@@ -18,6 +18,7 @@ import org.openlca.util.Strings;
 
 class WasteScenarios {
 
+	static final String PARAMETER_PREFIX = "ws_";
 	private final CsvDataSet dataSet;
 
 	private WasteScenarios(CsvDataSet dataSet) {
@@ -154,7 +155,7 @@ class WasteScenarios {
 	}
 
 	static String parameterOf(String scenarioName) {
-		var buffer = new StringBuilder("ws_");
+		var buffer = new StringBuilder(PARAMETER_PREFIX);
 		boolean wasValid = true;
 		for (char c : scenarioName.toLowerCase().toCharArray()) {
 			if (Character.isJavaIdentifierPart(c)) {

@@ -19,13 +19,14 @@ public final class TopoSort {
 
 	/**
 	 * Creates a topological order of the given relations. Each relation is
-	 * encoded in a pair of IDs `(first, second)` where the (element with the)
-	 * `second` ID depends on the (element with the) `first` ID. The IDs are
-	 * returned in a list with increasing dependency order. As a topological
-	 * order can be only created on relations that form an acyclic graph, the
-	 * first element of the returned list has no dependencies. When there are
-	 * cycles in the relations, this method returns `null` which means that a
-	 * topological order cannot be created.
+	 * encoded as a pair of IDs {@code (first, second)} where the (element with
+	 * the) {@code second} ID depends on the (element with the) {@code first} ID;
+	 * e.g. {@code (1, 2)} means that 2 depends on 1. The IDs are returned in a
+	 * list with increasing dependency order. As a topological order can be only
+	 * created on relations that form an acyclic graph, the first element of the
+	 * returned list has no dependencies. When there are cycles in the relations,
+	 * this method returns {@code null} which means that a topological order
+	 * cannot be created.
 	 */
 	public static List<Long> of(Iterable<LongPair> pairs) {
 
@@ -43,11 +44,8 @@ public final class TopoSort {
 			if (nodes.add(pair.second())) {
 				inDegrees.put(pair.second(), 0);
 			}
-			List<Long> succ = successors.get(pair.first());
-			if (succ == null) {
-				succ = new ArrayList<>();
-				successors.put(pair.first(), succ);
-			}
+			List<Long> succ = successors.computeIfAbsent(
+				pair.first(), k -> new ArrayList<>());
 			succ.add(pair.second());
 			inDegrees.put(pair.second(), inDegrees.get(pair.second()) + 1);
 		}
