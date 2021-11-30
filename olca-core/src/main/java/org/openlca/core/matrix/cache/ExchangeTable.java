@@ -209,8 +209,8 @@ public class ExchangeTable {
 		}
 
 		private static boolean isLinkable(FlowType type, boolean isInput) {
-			return (type == FlowType.WASTE_FLOW && isInput)
-				|| (type == FlowType.PRODUCT_FLOW && !isInput);
+			return (type == FlowType.PRODUCT_FLOW && isInput)
+				|| (type == FlowType.WASTE_FLOW && !isInput);
 		}
 	}
 
