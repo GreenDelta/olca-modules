@@ -559,6 +559,7 @@ CREATE TABLE tbl_parameter_redefs (
     f_owner             BIGINT,
     f_context           BIGINT,
     context_type        VARCHAR(255),
+    is_protected        SMALLINT default 0,
     value               DOUBLE,
 
     distribution_type   INTEGER default 0,

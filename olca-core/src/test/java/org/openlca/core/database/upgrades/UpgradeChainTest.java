@@ -62,6 +62,7 @@ public class UpgradeChainTest {
 		u.dropTable("tbl_result_flows");
 		u.dropTable("tbl_result_impacts");
 		u.dropTable("tbl_calculation_setups");
+		u.dropColumn("tbl_parameter_redefs", "is_protected");
 
 		// roll back Upgrade9 & Upgrade10
 		u.dropTable("tbl_parameter_redef_sets");
@@ -180,6 +181,7 @@ public class UpgradeChainTest {
 		assertTrue(u.tableExists("tbl_result_flows"));
 		assertTrue(u.tableExists("tbl_result_impacts"));
 		assertTrue(u.tableExists("tbl_calculation_setups"));
+		assertTrue(u.columnExists("tbl_parameter_redefs", "is_protected"));
 
 		// finally, check that we now have the current database version
 		assertEquals(IDatabase.CURRENT_VERSION, db.getVersion());

@@ -18,6 +18,8 @@ public class Upgrade11 implements IUpgrade {
 	public void exec(IDatabase db) {
 		var u = new DbUtil(db);
 
+		u.createColumn("tbl_parameter_redefs", "is_protected SMALLINT default 0");
+
 		u.createTable(
 			"tbl_results",
 			"CREATE TABLE tbl_results (" +

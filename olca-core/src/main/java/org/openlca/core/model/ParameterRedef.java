@@ -49,6 +49,13 @@ public class ParameterRedef extends AbstractEntity
 	@Embedded
 	public Uncertainty uncertainty;
 
+	/**
+	 * Indicates that this parameter redefinition is protected. A protected
+	 * redefinition cannot be overwritten by in a calculation.
+	 */
+	@Column(name = "is_protected")
+	public boolean isProtected;
+
 	public static ParameterRedef of(Parameter param) {
 		return of(param, null);
 	}
@@ -83,6 +90,7 @@ public class ParameterRedef extends AbstractEntity
 		clone.contextId = contextId;
 		clone.contextType = contextType;
 		clone.value = value;
+		clone.isProtected = isProtected;
 		if (uncertainty != null) {
 			clone.uncertainty = uncertainty.copy();
 		}
