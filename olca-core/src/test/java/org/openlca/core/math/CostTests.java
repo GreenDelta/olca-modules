@@ -36,7 +36,7 @@ public class CostTests {
 		ProductSystem system = TestSystem.of(p1).get();
 		FullResult r = TestSystem.calculate(system);
 
-		Assert.assertEquals(3, r.totalCosts, 1e-10);
+		Assert.assertEquals(3, r.totalCosts(), 1e-10);
 		ProcessDescriptor d1 = Descriptor.of(p1);
 		Assert.assertEquals(3, r.getUpstreamCostResult(d1), 1e-10);
 		Assert.assertEquals(3, r.getDirectCostResult(d1), 1e-10);
@@ -62,7 +62,7 @@ public class CostTests {
 				.get();
 		ProductSystem system = TestSystem.of(p1).get();
 		ContributionResult r = TestSystem.contributions(system);
-		Assert.assertEquals(3, r.totalCosts, 1e-10);
+		Assert.assertEquals(3, r.totalCosts(), 1e-10);
 	}
 
 	@Test
@@ -84,7 +84,7 @@ public class CostTests {
 
 		ProcessDescriptor d1 = Descriptor.of(p1);
 		ProcessDescriptor d2 = Descriptor.of(p2);
-		Assert.assertEquals(5, r.totalCosts, 1e-10);
+		Assert.assertEquals(5, r.totalCosts(), 1e-10);
 		Assert.assertEquals(6, r.getDirectCostResult(d1), 1e-10);
 		Assert.assertEquals(-1, r.getDirectCostResult(d2), 1e-10);
 		Assert.assertEquals(6, r.getUpstreamCostResult(d1), 1e-10);
@@ -121,7 +121,7 @@ public class CostTests {
 		system = db.update(system);
 
 		FullResult r = TestSystem.calculate(system);
-		Assert.assertEquals(-1.2, r.totalCosts, 1e-10);
+		Assert.assertEquals(-1.2, r.totalCosts(), 1e-10);
 	}
 
 	@Test
@@ -171,7 +171,7 @@ public class CostTests {
 
 		// TODO: test something here
 		FullResult result = TestSystem.calculate(system);
-		System.out.println(result.totalCosts);
+		System.out.println(result.totalCosts());
 
 	}
 

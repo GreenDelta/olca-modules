@@ -44,7 +44,7 @@ public class SimulatorTest {
 		// check the simulation results
 		for (int i = 0; i < 100; i++) {
 			SimpleResult r = simulator.nextRun();
-			double[] impacts = r.totalImpactResults;
+			double[] impacts = r.totalImpactResults();
 			Assert.assertEquals(1, impacts.length);
 			double val = impacts[0];
 			Assert.assertTrue(val >= 22 && val <= 26);

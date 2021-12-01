@@ -28,26 +28,8 @@ public class SimpleResult extends BaseResult {
 	protected final double[] scalingVector;
 	protected final double[] totalRequirements;
 	protected final double[] totalFlowResults;
-
-	/**
-	 * The LCIA result $\mathbf{h}$ of a product system:
-	 * <p>
-	 * $$\mathbf{h} = \mathbf{C} \ \mathbf{g}$$
-	 * <p>
-	 * Where $\mathbf{C}$ is a flow * LCIA category matrix with the
-	 * characterization factors and $\mathbf{g}$ the inventory result.
-	 */
-	public final double[] totalImpactResults;
-
-	/**
-	 * The total net-costs $k_t$ of the LCC result:
-	 * <p>
-	 * $$k_t = \mathbf{k} \cdot \mathbf{s}$$
-	 * <p>
-	 * Where $\mathbf{k}_j$ are the net-costs of process $j$ and $\mathbf{s}_j$
-	 * is the scaling factor of that process.
-	 */
-	public final double totalCosts;
+	protected final double[] totalImpactResults;
+	protected final double totalCosts;
 
 	public SimpleResult(ResultProvider p) {
 		this.provider = Objects.requireNonNull(p);
@@ -135,6 +117,29 @@ public class SimpleResult extends BaseResult {
 	 */
 	public double[] totalFlowResults() {
 		return totalFlowResults;
+	}
+
+	/**
+	 * Returns the total impact assessment result vector of a product system.
+	 *
+	 * The total impact assessment result {@code h} can be calculated via: {@code
+	 * h = C * g} where {@code C} is a {@code flow * impact category} matrix that
+	 * contains the characterization factors and {@code g} the total inventory
+	 * result of the system.
+	 */
+	public double[] totalImpactResults() {
+		return totalImpactResults;
+	}
+
+	/**
+	 * Returns the total net-life-cycle-costs of a product system.
+	 *
+	 * These costs {@code k_t} can be calculated via {@code k_t = k ° s} where
+	 * {@code k_j} are the net-costs of process {@code j} and {@code s_j} is the
+	 * scaling factor of that process.
+	 */
+	public double totalCosts() {
+		return totalCosts;
 	}
 
 	/**
