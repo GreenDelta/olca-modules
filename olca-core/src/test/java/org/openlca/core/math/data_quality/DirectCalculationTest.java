@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.DQIndicator;
@@ -41,11 +42,22 @@ public class DirectCalculationTest {
 		var dqSetup = DQCalculationSetup.of(setup);
 		var dqResult = DQResult.of(db, dqSetup, result);
 
-		// check the result
-		var dq = dqResult.get(result.enviIndex().at(0));
-		Assert.assertArrayEquals(new int[]{1,2,3,4,5}, dq);
+		// check the result; note that there could be some
+		// artifact flows from other tests in the result;
+		// this we first find the entry for CO2 in the
+		// result index
+		EnviFlow co2IdxFlow = null;
+		for (var f : result.enviIndex()) {
+			if (f.flow().id == co2.id) {
+				co2IdxFlow = f;
+				break;
+			}
+		}
+		var dq = dqResult.get(co2IdxFlow);
+		Assert.assertArrayEquals(new int[]{1, 2, 3, 4, 5}, dq);
 
-		db.clear();
+		// delete artifacts
+		db.delete(process, process.exchangeDqSystem, co2, steel, mass, units);
 	}
 
 	private DQSystem dqSystem() {

@@ -31,21 +31,6 @@ public class ContributionResult extends SimpleResult {
 		return new ContributionResult(provider);
 	}
 
-	@Override
-	public boolean hasEnviFlows() {
-		return provider.hasFlows();
-	}
-
-	@Override
-	public boolean hasImpacts() {
-		return provider.hasImpacts();
-	}
-
-	@Override
-	public boolean hasCosts() {
-		return provider.hasCosts();
-	}
-
 	/**
 	 * Get the direct contribution of the given process-product pair $j$ to the
 	 * inventory result of elementary flow $i$: $\mathbf{G}[i,j]$.

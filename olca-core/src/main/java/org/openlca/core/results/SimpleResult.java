@@ -109,6 +109,21 @@ public class SimpleResult extends BaseResult {
 		return provider.impactIndex();
 	}
 
+	@Override
+	public boolean hasEnviFlows() {
+		return provider.hasFlows();
+	}
+
+	@Override
+	public boolean hasImpacts() {
+		return provider.hasImpacts();
+	}
+
+	@Override
+	public boolean hasCosts() {
+		return provider.hasCosts();
+	}
+
 	/**
 	 * Get the scaling factor $\mathbf{s}_j$ of the given process-product pair
 	 * $j$.
@@ -190,8 +205,4 @@ public class SimpleResult extends BaseResult {
 		return results;
 	}
 
-	@Override
-	public boolean hasCosts() {
-		return totalCosts != 0;
-	}
 }
