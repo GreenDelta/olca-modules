@@ -241,6 +241,10 @@ public class SimpleResult extends BaseResult {
 		return subResults.get(product);
 	}
 
+	public Map<TechFlow, SimpleResult> subResults() {
+		return new HashMap<>(subResults);
+	}
+
 	public void addSubResult(TechFlow product, SimpleResult result) {
 		subResults.put(product, result);
 	}
