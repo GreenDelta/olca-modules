@@ -26,29 +26,8 @@ public class SimpleResult extends BaseResult {
 
 	protected final ResultProvider provider;
 	protected final double[] scalingVector;
-
-	/**
-	 * The total requirements of the products to fulfill the demand of the
-	 * product system. As our technology matrix $\mathbf{A}$ is indexed
-	 * symmetrically (means rows and columns refer to the same process-product
-	 * pair) our product amounts are on the diagonal of the technology matrix
-	 * $\mathbf{A}$ and the total requirements can be calculated by the
-	 * following equation where $\mathbf{s}$ is the scaling vector ($\odot$
-	 * denotes element-wise multiplication):
-	 * <p>
-	 * $$\mathbf{t} = \text{diag}(\mathbf{A}) \odot \mathbf{s}$$
-	 */
-	public final double[] totalRequirements;
-
-	/**
-	 * The inventory result $\mathbf{g}$ of a product system:
-	 * <p>
-	 * $$\mathbf{g} = \mathbf{B} \ \mathbf{s}$$
-	 * <p>
-	 * Where $\mathbf{B}$ is the intervention matrix and $\mathbf{s}$ the
-	 * scaling vector. Note that inputs have negative values in this vector.
-	 */
-	public final double[] totalFlowResults;
+	protected final double[] totalRequirements;
+	protected final double[] totalFlowResults;
 
 	/**
 	 * The LCIA result $\mathbf{h}$ of a product system:
@@ -133,6 +112,32 @@ public class SimpleResult extends BaseResult {
 	}
 
 	/**
+	 * Returns the total requirements vector.
+	 *
+	 * The total requirements are the respective product amounts fulfill the
+	 * demand of the product system. As our technology matrix {@code A} is indexed
+	 * symmetrically (means rows and columns refer to the same process-product
+	 * pair) our product amounts are on the diagonal of the technology matrix
+	 * {@code A} and the total requirements can be calculated by the following
+	 * equation where {@code s} is the scaling vector ({@code °} denotes
+	 * element-wise multiplication): {@code t = diag(A) ° s}
+	 */
+	public double[] totalRequirements() {
+		return totalRequirements;
+	}
+
+	/**
+	 * Returns the total flow / inventory result of a product system.
+	 *
+	 * The total inventory result {@code g} can be calculated via {@code g = B *
+	 * s} where {@code B} is the intervention matrix and {@code s} the scaling
+	 * vector. Note that inputs have negative values in this vector.
+	 */
+	public double[] totalFlowResults() {
+		return totalFlowResults;
+	}
+
+	/**
 	 * Get the scaling factor $\mathbf{s}_j$ of the given process-product pair
 	 * $j$.
 	 */
@@ -178,7 +183,7 @@ public class SimpleResult extends BaseResult {
 			return Collections.emptyList();
 		List<FlowResult> results = new ArrayList<>(flowIndex.size());
 		flowIndex.each((i, f) -> results.add(
-				new FlowResult(f, getTotalFlowResult(f))));
+			new FlowResult(f, getTotalFlowResult(f))));
 		return results;
 	}
 

@@ -7,12 +7,12 @@ import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 import org.openlca.core.Tests;
-import org.openlca.core.matrix.index.EnviIndex;
-import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.format.Matrix;
+import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.SimpleResult;
@@ -83,7 +83,7 @@ public class SolverTest {
 
 		var result = SimpleResult.of(Tests.getDb(), data);
 		Assert.assertArrayEquals(new double[] { 0, 1, 2, 3 },
-				result.totalFlowResults, 1e-14);
+				result.totalFlowResults(), 1e-14);
 	}
 
 	@Theory

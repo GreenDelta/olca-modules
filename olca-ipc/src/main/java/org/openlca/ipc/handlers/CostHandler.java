@@ -33,7 +33,7 @@ public class CostHandler {
 			JsonArray items = new JsonArray();
 			var techIdx = result.techIndex();
 			for (int i = 0; i < techIdx.size(); i++) {
-				var tr = result.totalRequirements[i];
+				var tr = result.totalRequirements()[i];
 				if (tr == 0)
 					continue;
 				var product = techIdx.at(i);

@@ -188,13 +188,13 @@ public class Simulator {
 				if (sub == null)
 					continue;
 				if (sub.lastResult == null
-					|| sub.lastResult.totalFlowResults == null)
+					|| sub.lastResult.totalFlowResults() == null)
 					continue; // should not happen
 				int col = node.data.techIndex.of(subLink);
 				if (col < 0)
 					continue;
 				sub.lastResult.enviIndex().each((i, f) -> {
-					double val = sub.lastResult.totalFlowResults[i];
+					double val = sub.lastResult.totalFlowResults()[i];
 					int row = node.data.enviIndex.of(f);
 					if (row >= 0) {
 						var fm = node.data.enviMatrix.asMutable();

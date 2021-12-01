@@ -40,7 +40,7 @@ public class SelfLoopAnalysisTest {
 
 	@Test
 	public void testTotalRequirements() {
-		double[] tr = result.totalRequirements;
+		double[] tr = result.totalRequirements();
 		Assert.assertEquals(4, tr[0], 1e-10);
 		Assert.assertEquals(4, tr[1], 1e-10);
 	}
