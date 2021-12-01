@@ -182,7 +182,7 @@ public class ImpactHandler {
 			ImpactDescriptor impact, EnviFlow flow) {
 		int impactIdx = result.impactIndex().of(impact);
 		int flowIdx = result.enviIndex().of(flow);
-		double value = result.provider.impactFactorOf(impactIdx, flowIdx);
+		double value = result.provider().impactFactorOf(impactIdx, flowIdx);
 		if (value == 0)
 			return 0; // avoid -0
 		if (flow.isInput()) {

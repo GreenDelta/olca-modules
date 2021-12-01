@@ -24,18 +24,8 @@ import org.openlca.core.results.providers.ResultProviders;
  */
 public class SimpleResult extends BaseResult {
 
-	public final ResultProvider provider;
-
-	/**
-	 * The scaling vector $\mathbf{s}$ which is calculated by solving the
-	 * equation
-	 * <p>
-	 * $$\mathbf{A} \ \mathbf{s} = \mathbf{f}$$
-	 * <p>
-	 * where $\mathbf{A}$ is the technology matrix and $\mathbf{f}$ the final
-	 * demand vector of the product system.
-	 */
-	public final double[] scalingVector;
+	protected final ResultProvider provider;
+	protected final double[] scalingVector;
 
 	/**
 	 * The total requirements of the products to fulfill the demand of the
@@ -94,6 +84,13 @@ public class SimpleResult extends BaseResult {
 		return new SimpleResult(provider);
 	}
 
+	/**
+	 * Returns the underlying result provider of this result.
+	 */
+	public ResultProvider provider() {
+		return provider;
+	}
+
 	@Override
 	public TechIndex techIndex() {
 		return provider.techIndex();
@@ -122,6 +119,17 @@ public class SimpleResult extends BaseResult {
 	@Override
 	public boolean hasCosts() {
 		return provider.hasCosts();
+	}
+
+	/**
+	 * Returns the scaling vector of the result.
+	 *
+	 * The scaling vector {@code s} is calculated by solving the equation {@code A
+	 * * s = f} where {@code A} is the technology matrix and {@code f} the final
+	 * demand vector of the product system.
+	 */
+	public double[] scalingVector() {
+		return scalingVector;
 	}
 
 	/**

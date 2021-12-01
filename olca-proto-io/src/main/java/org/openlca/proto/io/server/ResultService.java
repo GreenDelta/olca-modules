@@ -266,17 +266,17 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
       .ifImpact((result, product, impact) -> {
         var productIdx = result.techIndex().of(product);
         var impactIdx = result.impactIndex().of(impact);
-        return result.provider.totalImpactOfOne(impactIdx, productIdx);
+        return result.provider().totalImpactOfOne(impactIdx, productIdx);
       })
       .ifFlow((result, product, flow) -> {
         var productIdx = result.techIndex().of(product);
         var flowIdx = result.enviIndex().of(flow);
-        var value = result.provider.totalFlowOfOne(flowIdx, productIdx);
+        var value = result.provider().totalFlowOfOne(flowIdx, productIdx);
         return result.adopt(flow, value);
       })
       .ifCosts((result, product) -> {
         var productIdx = result.techIndex().of(product);
-        return result.provider.totalCostsOfOne(productIdx);
+        return result.provider().totalCostsOfOne(productIdx);
       })
       .close();
   }

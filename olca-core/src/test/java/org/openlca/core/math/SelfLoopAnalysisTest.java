@@ -47,7 +47,7 @@ public class SelfLoopAnalysisTest {
 
 	@Test
 	public void testScalingVector() {
-		double[] s = result.scalingVector;
+		double[] s = result.scalingVector();
 		Assert.assertEquals(4, s[0], 1e-10);
 		Assert.assertEquals(4, s[1], 1e-10);
 	}

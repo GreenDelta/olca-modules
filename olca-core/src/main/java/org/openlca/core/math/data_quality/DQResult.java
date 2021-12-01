@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
+import org.openlca.core.matrix.format.DenseByteMatrix;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.format.DenseByteMatrix;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.ContributionResult;
@@ -339,7 +339,7 @@ public class DQResult {
 			for (int flow = 0; flow < m; flow++) {
 				byte[] dqs = b.getRow(flow);
 				for (int product = 0; product < n; product++) {
-					flowContributions[product] = result.provider
+					flowContributions[product] = result.provider()
 						.directFlowOf(flow, product);
 				}
 				flowResult.set(indicator, flow, acc.get(dqs, flowContributions));
@@ -352,11 +352,11 @@ public class DQResult {
 			|| exchangeData == null
 			|| !result.hasImpacts())
 			return;
-		var provider = result.provider;
-		if (!provider.hasImpacts())
+		if (!result.hasImpacts())
 			return;
 
 		// initialize the results
+		var provider = result.provider();
 		var system = setup.exchangeSystem;
 		int k = system.indicators.size();
 		int m = result.enviIndex().size();
