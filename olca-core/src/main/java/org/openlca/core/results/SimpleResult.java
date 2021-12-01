@@ -2,7 +2,9 @@ package org.openlca.core.results;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
@@ -30,6 +32,7 @@ public class SimpleResult extends BaseResult {
 	protected final double[] totalFlowResults;
 	protected final double[] totalImpactResults;
 	protected final double totalCosts;
+	protected final Map<TechFlow, SimpleResult> subResults;
 
 	public SimpleResult(ResultProvider p) {
 		this.provider = Objects.requireNonNull(p);
@@ -38,6 +41,7 @@ public class SimpleResult extends BaseResult {
 		this.totalFlowResults = p.totalFlows();
 		this.totalImpactResults = p.totalImpacts();
 		this.totalCosts = p.totalCosts();
+		this.subResults = new HashMap<>();
 	}
 
 	public static SimpleResult of(IDatabase db, MatrixData data) {
@@ -221,6 +225,24 @@ public class SimpleResult extends BaseResult {
 			results.add(r);
 		});
 		return results;
+	}
+
+	/**
+	 * Returns the sub-result for the given product. Sub-results are typically
+	 * available for sub-systems of a product system.
+	 *
+	 * @param product the product for which the sub-result is requested
+	 * @return the sub-result of the product. This is {@code null} if there is
+	 * no such sub-result available in this result. Also, the returned result
+	 * can be a more specific result (e.g. contribution result) depending on how
+	 * the result was calculated.
+	 */
+	public SimpleResult subResultOf(TechFlow product) {
+		return subResults.get(product);
+	}
+
+	public void addSubResult(TechFlow product, SimpleResult result) {
+		subResults.put(product, result);
 	}
 
 }

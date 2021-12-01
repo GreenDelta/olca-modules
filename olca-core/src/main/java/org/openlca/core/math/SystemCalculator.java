@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
@@ -13,15 +14,17 @@ import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
+import org.openlca.core.results.IResult;
 import org.openlca.core.results.SimpleResult;
+import org.openlca.core.results.providers.ResultProviders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Calculates the results of a calculation setup or project. The same calculator
- * can be used for different setups. The product systems of the setups may
- * contain sub-systems. The calculator does not check if there are obvious
- * errors like sub-system cycles etc.
+ * Calculates the results of a calculation setup. The product systems of the
+ * setups may contain sub-systems which are calculated recursively. The
+ * calculator does not check if there are obvious errors like sub-system cycles
+ * etc.
  */
 public class SystemCalculator {
 
@@ -32,27 +35,58 @@ public class SystemCalculator {
 		this.db = db;
 	}
 
+	/**
+	 * Calculates the given calculation setup. It performs the calculation type as
+	 * defined in the given setup.
+	 *
+	 * @param setup the calculation setup that should be used
+	 * @return the result of the respective calculation
+	 */
+	public IResult calculate(CalculationSetup setup) {
+		if (setup.type() == null)
+			return calculateSimple(setup);
+		return switch (setup.type()) {
+			case SIMPLE_CALCULATION -> calculateSimple(setup);
+			case CONTRIBUTION_ANALYSIS -> calculateContributions(setup);
+			case UPSTREAM_ANALYSIS -> calculateFull(setup);
+			case MONTE_CARLO_SIMULATION -> {
+				var simulator = Simulator.create(setup, db, ResultProviders.getSolver());
+				for (int i = 0; i < setup.numberOfRuns(); i++) {
+					simulator.nextRun();
+				}
+				yield simulator.getResult();
+			}
+		};
+	}
+
 	public SimpleResult calculateSimple(CalculationSetup setup) {
-		var subs = calculateSubSystems(setup);
-		var data = MatrixData.of(db, setup, subs);
-		return SimpleResult.of(db, data);
+		return with(setup, matrixData -> SimpleResult.of(db, matrixData));
 	}
 
 	public ContributionResult calculateContributions(CalculationSetup setup) {
-		var subs = calculateSubSystems(setup);
-		var data = MatrixData.of(db, setup, subs);
-		return ContributionResult.of(db, data);
+		return with(setup, matrixData -> ContributionResult.of(db, matrixData));
 	}
 
 	public FullResult calculateFull(CalculationSetup setup) {
+		return with(setup, matrixData -> FullResult.of(db, matrixData));
+	}
+
+	private <T extends SimpleResult> T with(
+		CalculationSetup setup, Function<MatrixData, T> fn) {
 		var subs = calculateSubSystems(setup);
 		var data = MatrixData.of(db, setup, subs);
-		return FullResult.of(db, data);
+		T result = fn.apply(data);
+		for (var sub : subs.entrySet()) {
+			result.addSubResult(sub.getKey(), sub.getValue());
+		}
+		return result;
 	}
 
 	/**
 	 * Calculates (recursively) the sub-systems of the product system of the
-	 * given setup. It returns an empty map when there are no subsystems.
+	 * given setup. It returns an empty map when there are no subsystems. For
+	 * the sub-results, the same calculation type is performed as defined in
+	 * the original calculation setup.
 	 */
 	private Map<TechFlow, SimpleResult> calculateSubSystems(
 		CalculationSetup setup) {
@@ -84,13 +118,17 @@ public class SystemCalculator {
 			if (subSystem == null)
 				continue;
 
-			var subSetup = CalculationSetup.simple(subSystem)
+			var subSetup = new CalculationSetup(setup.type(), subSystem)
 				.withParameters(ParameterRedefs.join(setup, subSystem))
 				.withCosts(setup.hasCosts())
 				.withRegionalization(setup.hasRegionalization())
-				.withAllocation(setup.allocation());
-			var subResult = calculateSimple(subSetup);
-			subResults.put(pp, subResult);
+				.withAllocation(setup.allocation())
+				.withImpactMethod(setup.impactMethod())
+				.withNwSet(setup.nwSet());
+			var subResult = calculate(subSetup);
+			if (subResult instanceof SimpleResult simple) {
+				subResults.put(pp, simple);
+			}
 		}
 		return subResults;
 	}
