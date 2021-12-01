@@ -93,6 +93,28 @@ public class TagResult {
 		}
 	}
 
+	private void addSubResult(double scaling, TagResult subResults) {
+		if (hasInventoryResults() && subResults.hasInventoryResults()) {
+			subResults.result.enviIndex().each((i, flow) -> {
+				int idx = result.enviIndex().of(flow);
+				if (idx >= 0) {
+					inventory[idx] += scaling * subResults.inventory[i];
+				}
+			});
+		}
+		if (hasImpactResults() && subResults.hasImpactResults()) {
+			subResults.result.impactIndex().each((i, impact) -> {
+				int idx = result.impactIndex().of(impact);
+				if (idx >= 0) {
+					impacts[idx] += scaling * subResults.impacts[i];
+				}
+			});
+		}
+		if (hasCosts) {
+			costs += scaling * subResults.costs;
+		}
+	}
+
 	public static Collection<TagResult> allOf(ContributionResult result) {
 		if (result == null)
 			return Collections.emptyList();
@@ -109,6 +131,19 @@ public class TagResult {
 	public static TagResult of(String tag, ContributionResult result) {
 		var tagResult = new TagResult(tag, result);
 		for (var techFlow : result.techIndex()) {
+
+			// add tag results of sub-systems recursively
+			if (techFlow.isProductSystem()) {
+				var subResult = result.subResultOf(techFlow);
+				if (subResult instanceof ContributionResult subContributions) {
+					var subTags = TagResult.of(tag, subContributions);
+					var scaling = result.getScalingFactor(techFlow);
+					tagResult.addSubResult(scaling, subTags);
+				}
+				continue;
+			}
+
+			// add process results
 			if (tagsOf(techFlow).contains(tag)) {
 				tagResult.addResultsOf(techFlow);
 			}
@@ -121,6 +156,16 @@ public class TagResult {
 			return Collections.emptySet();
 		var tags = new HashSet<String>();
 		for (var techFlow : result.techIndex()) {
+			// add tags of sub-systems recursively
+			if (techFlow.isProductSystem()) {
+				var subResult = result.subResultOf(techFlow);
+				if (subResult instanceof ContributionResult subCons) {
+					tags.addAll(allTagsOf(subCons));
+				}
+				continue;
+			}
+
+			// add tags of process
 			tags.addAll(tagsOf(techFlow));
 		}
 		return tags;
@@ -138,5 +183,18 @@ public class TagResult {
 			}
 		}
 		return set;
+	}
+
+	@Override
+	public String toString() {
+		var techIdx = result.techIndex();
+		if (techIdx == null)
+			return super.toString();
+		var demand = techIdx.getDemand();
+		var provider = result.techIndex()
+			.getRefFlow()
+			.provider().name;
+		return String.format(
+			"TagResult '%s' for %.2f ref. units from '%s'", tag, demand, provider);
 	}
 }

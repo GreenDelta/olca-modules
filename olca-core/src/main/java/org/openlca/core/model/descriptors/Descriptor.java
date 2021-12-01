@@ -115,6 +115,7 @@ public class Descriptor {
 			d.category = e.category.id;
 		}
 		d.library = e.library;
+		d.tags = e.tags;
 		return d;
 	}
 
