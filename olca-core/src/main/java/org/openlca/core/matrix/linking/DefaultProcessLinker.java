@@ -15,10 +15,17 @@ public class DefaultProcessLinker implements ITechIndexBuilder {
 	private final ProviderIndex providers;
 	private final ExchangeTable exchanges;
 
-	public DefaultProcessLinker(IDatabase db) {
-		var linking = LinkingInfo.of(db);
-		providers = ProviderIndex.of(linking);
-		exchanges = new ExchangeTable(db);
+	private DefaultProcessLinker(LinkingInfo linking) {
+		this.providers = ProviderIndex.of(linking);
+		this.exchanges = new ExchangeTable(linking.db());
+	}
+
+	public static DefaultProcessLinker of(IDatabase db) {
+		return new DefaultProcessLinker(LinkingInfo.of(db));
+	}
+
+	public static DefaultProcessLinker of(LinkingInfo linking) {
+		return new DefaultProcessLinker(linking);
 	}
 
 	@Override

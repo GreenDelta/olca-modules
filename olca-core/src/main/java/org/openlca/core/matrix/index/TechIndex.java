@@ -18,6 +18,8 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.math.ReferenceAmount;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.TechLinker;
+import org.openlca.core.matrix.linking.DefaultProcessLinker;
+import org.openlca.core.matrix.linking.LinkingInfo;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProductSystem;
@@ -101,13 +103,29 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 		var process = Objects.requireNonNull(setup.process());
 		var flow = Objects.requireNonNull(setup.flow());
 		var refFlow = TechFlow.of(process, flow);
+
+		if (setup.hasProductSystem()) {
+			var index = new TechIndex(refFlow);
+			index.setDemand(setup.demand());
+			index.fillFrom(db, setup.productSystem());
+			return index;
+		}
+
+		// try to decide if we should just link the complete database
+		// (e.g. in case of unit process databases) or just link
+		// required things
+		var linking = LinkingInfo.of(db);
+		if (linking.preferLazy()) {
+			var linker = DefaultProcessLinker.of(linking);
+			var index = linker.build(refFlow);
+			index.setDemand(setup.demand());
+			return index;
+		}
+
+		// include all providers from the database
 		var index = new TechIndex(refFlow);
 		index.setDemand(setup.demand());
-		if (setup.hasProductSystem()) {
-			index.fillFrom(db, setup.productSystem());
-		} else {
-			eachProviderOf(db, index::add);
-		}
+		eachProviderOf(db, index::add);
 		return index;
 	}
 
