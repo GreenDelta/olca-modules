@@ -5,7 +5,6 @@ import java.util.HashSet;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.cache.ExchangeTable;
 import org.openlca.core.matrix.index.LongPair;
-import org.openlca.core.matrix.index.ProviderIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.ProcessType;

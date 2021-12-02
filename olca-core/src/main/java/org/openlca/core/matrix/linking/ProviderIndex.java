@@ -1,4 +1,4 @@
-package org.openlca.core.matrix.index;
+package org.openlca.core.matrix.linking;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,6 +10,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -23,9 +24,10 @@ public abstract class ProviderIndex {
 	protected final TLongObjectHashMap<FlowDescriptor> flows;
 	protected final TLongObjectHashMap<List<TechFlow>> providers;
 
-	private ProviderIndex(IDatabase db) {
+	private ProviderIndex(
+		IDatabase db, TLongObjectHashMap<ProcessDescriptor> processes) {
 		this.db = db;
-		processes = new ProcessDao(db).descriptorMap();
+		this.processes = processes;
 		systems = new ProductSystemDao(db).descriptorMap();
 		var flowDescriptors = new FlowDao(db).getDescriptors(
 			FlowType.PRODUCT_FLOW, FlowType.WASTE_FLOW);
@@ -36,12 +38,23 @@ public abstract class ProviderIndex {
 		providers = new TLongObjectHashMap<>();
 	}
 
+	public static ProviderIndex of(LinkingInfo info) {
+		var processes = new TLongObjectHashMap<ProcessDescriptor>(
+			info.processes().size());
+		for (var d : info.processes()) {
+			processes.put(d.id, d);
+		}
+		return info.preferLazy()
+			? new LazyIndex(info.db(), processes)
+			: new EagerIndex(info.db(), processes);
+	}
+
 	public static ProviderIndex eager(IDatabase db) {
-		return new EagerIndex(db);
+		return new EagerIndex(db, new ProcessDao(db).descriptorMap());
 	}
 
 	public static ProviderIndex lazy(IDatabase db) {
-		return new LazyIndex(db);
+		return new LazyIndex(db, new ProcessDao(db).descriptorMap());
 	}
 
 	/**
@@ -69,8 +82,8 @@ public abstract class ProviderIndex {
 
 	private static class LazyIndex extends ProviderIndex {
 
-		LazyIndex(IDatabase db) {
-			super(db);
+		LazyIndex(IDatabase db, TLongObjectHashMap<ProcessDescriptor> processes) {
+			super(db, processes);
 		}
 
 		@Override
@@ -119,8 +132,8 @@ public abstract class ProviderIndex {
 
 	private static class EagerIndex extends ProviderIndex {
 
-		EagerIndex(IDatabase db) {
-			super(db);
+		EagerIndex(IDatabase db, TLongObjectHashMap<ProcessDescriptor> processes) {
+			super(db, processes);
 			var sql = NativeSql.on(db);
 
 			// select from processes
