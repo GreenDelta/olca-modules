@@ -13,6 +13,7 @@ import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.core.matrix.linking.ProviderIndex;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
@@ -302,8 +303,8 @@ class DataFetchService extends
 
     var refData = Refs.dataOf(db);
 
-    ProcessTable.create(db)
-      .getProviders(flow.id)
+		ProviderIndex.lazy(db)
+			.getProvidersOf(flow.id)
       .stream()
       .map(TechFlow::provider)
       .filter(p -> p instanceof ProcessDescriptor)
