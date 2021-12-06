@@ -91,7 +91,7 @@ class JsonRpc {
 	static <T extends Descriptor> JsonArray encode(Collection<UpstreamNode> l, UpstreamTree tree, EntityCache cache, Consumer<JsonObject> modifier) {
 		if (l == null)
 			return null;
-		return encode(l, node -> encode(node, tree.root.result, cache, json -> {
+		return encode(l, node -> encode(node, tree.root.result(), cache, json -> {
 			json.addProperty("hasChildren", !tree.childs(node).isEmpty());
 			modifier.accept(json);
 		}));
@@ -102,10 +102,10 @@ class JsonRpc {
 			return null;
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@type", "ContributionItem");
-		obj.add("item", Json.asRef(n.provider.flow(), cache));
-		obj.add("owner", Json.asRef(n.provider.provider(), cache));
-		obj.addProperty("amount", n.result);
-		obj.addProperty("share", total != 0 ? n.result / total : 0);
+		obj.add("item", Json.asRef(n.provider().flow(), cache));
+		obj.add("owner", Json.asRef(n.provider().provider(), cache));
+		obj.addProperty("amount", n.result());
+		obj.addProperty("share", total != 0 ? n.result() / total : 0);
 		modifier.accept(obj);
 		return obj;
 	}

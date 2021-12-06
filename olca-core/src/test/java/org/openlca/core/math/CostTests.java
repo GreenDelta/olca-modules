@@ -43,7 +43,7 @@ public class CostTests {
 		UpstreamTree tree = r.getCostTree();
 		UpstreamNode root = tree.root;
 		Assert.assertTrue(tree.childs(root).isEmpty());
-		Assert.assertEquals(3, root.result, 1e-10);
+		Assert.assertEquals(3, root.result(), 1e-10);
 		List<Contribution<CategorizedDescriptor>> contributions = r
 				.getProcessCostContributions();
 		Assert.assertEquals(1, contributions.size());

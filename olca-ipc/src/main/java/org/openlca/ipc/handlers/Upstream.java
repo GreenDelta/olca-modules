@@ -17,9 +17,9 @@ class Upstream {
 		pathLoop: while (!path.isEmpty()) {
 			StringPair next = path.pop();
 			for (UpstreamNode result : results) {
-				if (!result.provider.provider().refId.equals(next.first))
+				if (!result.provider().provider().refId.equals(next.first))
 					continue;
-				if (!result.provider.flow().refId.equals(next.second))
+				if (!result.provider().flow().refId.equals(next.second))
 					continue;
 				results = tree.childs(result);
 				continue pathLoop;
@@ -28,7 +28,7 @@ class Upstream {
 		}
 		return results;
 	}
-	
+
 	static class StringPair {
 
 		final String first;
@@ -38,7 +38,7 @@ class Upstream {
 			this.first = first;
 			this.second = second;
 		}
-	
+
 	}
-	
+
 }

@@ -32,11 +32,10 @@ public class UpstreamTree {
 		this.r = r;
 		this.intensity = intensity;
 
-		root = new UpstreamNode();
 		var techIndex = r.techIndex();
-		root.provider = techIndex.getRefFlow();
-		root.index = techIndex.of(root.provider);
+		root = UpstreamNode.rootOf(techIndex);
 		root.scaling = r.scalingVector[root.index];
+		setRequiredAmount(root, techIndex.getDemand());
 		root.result = total;
 	}
 
@@ -55,12 +54,14 @@ public class UpstreamTree {
 			if (aij == 0)
 				continue;
 			aij *= parent.scaling;
-			UpstreamNode child = new UpstreamNode();
-			double refVal = r.provider.techColumnOf(i)[i];
-			child.scaling = -aij / refVal;
-			child.index = i;
-			child.provider = r.techIndex().at(i);
-			child.result = adopt(intensity.applyAsDouble(i) * refVal * child.scaling);
+			double aii = r.provider.techValueOf(i, i);
+			double scaling = -aij / aii;
+			double amount = aii * scaling;
+
+			var child = UpstreamNode.of(i, r.techIndex());
+			child.scaling = scaling;
+			setRequiredAmount(child, amount);
+			child.result = adopt(intensity.applyAsDouble(i) * amount);
 			parent.childs.add(child);
 		}
 
@@ -73,9 +74,18 @@ public class UpstreamTree {
 	 * switch the sign of it.
 	 */
 	private double adopt(double value) {
-		if (!(ref instanceof EnviFlow))
-			return value;
-		return r.adopt((EnviFlow) ref, value);
+		if (value == 0)
+			return 0;
+		return ref instanceof EnviFlow flow
+			? r.adopt(flow, value)
+			: value;
 	}
 
+	private void setRequiredAmount(UpstreamNode child, double value) {
+		if (value == 0)
+			return;
+		child.requiredAmount = child.provider.isWaste()
+			? -value
+			: value;
+	}
 }

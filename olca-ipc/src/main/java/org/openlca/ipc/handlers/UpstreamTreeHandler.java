@@ -162,21 +162,21 @@ public class UpstreamTreeHandler {
 		private void expand(JsonObject parent, UpstreamTree tree, Path path) {
 
 			var node = path.node;
-			double result = path.node.result;
+			double result = path.node.result();
 
 			// first check if we need to cut the path here
 			if (result == 0)
 				return;
 			if (maxDepth > 0 && path.length > maxDepth)
 				return;
-			var totalResult = tree.root.result;
+			var totalResult = tree.root.result();
 			if (minContribution > 0 && totalResult != 0) {
 				double c = Math.abs(result / totalResult);
 				if (c < minContribution)
 					return;
 			}
 			if (maxDepth < 0) {
-				int count = path.count(node.provider);
+				int count = path.count(node.provider());
 				if (count > maxRecursionDepth) {
 					return;
 				}
@@ -195,16 +195,16 @@ public class UpstreamTreeHandler {
 		}
 
 		private JsonObject initJsonOf(UpstreamNode node) {
-			if (node == null || node.provider == null)
+			if (node == null || node.provider() == null)
 				return null;
 			var json = new JsonObject();
-			var process = Json.asRef(node.provider.provider(), cache);
-			var flow = Json.asRef(node.provider.flow(), cache);
+			var process = Json.asRef(node.provider().provider(), cache);
+			var flow = Json.asRef(node.provider().flow(), cache);
 			var product = new JsonObject();
 			product.add("process", process);
 			product.add("flow", flow);
 			json.add("product", product);
-			json.addProperty("result", node.result);
+			json.addProperty("result", node.result());
 			return json;
 		}
 	}
@@ -231,7 +231,7 @@ public class UpstreamTreeHandler {
 		}
 
 		int count(TechFlow product) {
-			int c = Objects.equals(product, node.provider) ? 1 : 0;
+			int c = Objects.equals(product, node.provider()) ? 1 : 0;
 			return prefix != null ? c + prefix.count(product) : c;
 		}
 	}
