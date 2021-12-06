@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.openlca.simapro.csv.CsvDataSet;
@@ -12,12 +14,21 @@ import org.openlca.simapro.csv.Numeric;
 import org.openlca.simapro.csv.enums.ProcessCategory;
 import org.openlca.simapro.csv.process.ProcessBlock;
 import org.openlca.simapro.csv.process.ProductOutputRow;
+import org.openlca.simapro.csv.process.ProductStageBlock;
 import org.openlca.simapro.csv.process.TechExchangeRow;
 import org.openlca.simapro.csv.process.WasteFractionRow;
 import org.openlca.simapro.csv.refdata.InputParameterRow;
-import org.openlca.util.Pair;
 import org.openlca.util.Strings;
 
+/**
+ * Unrolls waste scenarios as parameters and formulas.
+ * <p>
+ * In SimaPro, waste scenarios are applied on direct material inputs of
+ * assemblies. For assemblies with materials where waste scenarios can be
+ * applied, we generate a process which contains the respective formulas
+ * when the fractions of a waste scenario are applied. For each scenario we
+ * also generate a switch (0|1) parameter with which a scenario can be enabled.
+ */
 class WasteScenarios {
 
 	static final String PARAMETER_PREFIX = "ws_";
@@ -41,68 +52,45 @@ class WasteScenarios {
 		if (dataSet.processes().isEmpty() || dataSet.productStages().isEmpty())
 			return Collections.emptyList();
 
-		// collect waste scenarios and materials
-		var scenarios = new ArrayList<ProcessBlock>();
+		// collect waste scenario parameters and materials
+		var parameters = new ArrayList<ScenarioParameter>();
 		var materials = new HashMap<String, ProductOutputRow>();
 		for (var block : dataSet.processes()) {
-			if (block.category() == ProcessCategory.WASTE_SCENARIO
-				&& block.wasteScenario() != null) {
-				scenarios.add(block);
+			if (block.category() == ProcessCategory.WASTE_SCENARIO) {
+				ScenarioParameter.of(block).ifPresent(parameters::add);
 			} else if (block.category() == ProcessCategory.MATERIAL) {
 				for (var product : block.products()) {
 					materials.put(product.name(), product);
 				}
 			}
 		}
-		if (scenarios.isEmpty() || materials.isEmpty())
+		if (parameters.isEmpty() || materials.isEmpty())
 			return Collections.emptyList();
 
-		var params = new ArrayList<Pair<ProcessBlock, InputParameterRow>>();
-		for (var scenario : scenarios) {
-			var scenarioName = Processes.nameOf(scenario);
-			if (Strings.nullOrEmpty(scenarioName))
-				continue;
-			var parameter = parameterOf(scenarioName);
-			var paramRow = new InputParameterRow()
-				.name(parameter)
-				.value(0)
-				.comment("A switch parameter for the waste scenario \n  ''" +
-					scenarioName + "''.\n" +
-					"Set the value to 1 to apply the scenario in calculations.\n" +
-					"You better do that in parameter redefinitions of product\n" +
-					"systems instead of setting the value globally. Also note,\n" +
-					"that only one waste scenario should be activated per \n" +
-					"calculation.");
-			params.add(Pair.of(scenario, paramRow));
-		}
-
+		// create the unroller blocks
 		for (var stage : dataSet.productStages()) {
-			var materialDefs = stage.materialsAndAssemblies()
-				.stream()
-				.map(row -> Pair.of(row, materials.get(row.name())))
-				.filter(p -> p.second != null)
-				.collect(Collectors.toList());
-			if (materialDefs.isEmpty() || stage.products().isEmpty())
+
+			var inputs = MaterialInput.allOf(stage, materials);
+			if (inputs.isEmpty())
 				continue;
 
 			var block = new ProcessBlock();
-			block.name("Unrolled waste scenarios of '"
-				+ stage.products().get(0).name() + "'");
+			block.name("Unrolled waste scenarios of: "
+				+ stage.products().get(1).name());
 			block.category(ProcessCategory.PROCESSING);
 
-			for (var def : materialDefs) {
-				var input = def.first;
-				var material = def.second;
-				block.products().add(new ProductOutputRow()
-					.name(material.name())
-					.category(material.category())
-					.wasteType(material.wasteType())
-					.amount(input.amount())
-					.unit(input.unit()));
+			// add material inputs as temporary products and
+			// unroll the scenario parameters for them
+			for (var input : inputs) {
+				block.products().add(input.asProductRow());
 			}
-			for (var param : params) {
-				apply(param.second.name(), param.first, block);
+			for (var param : parameters) {
+				apply(param, block);
 			}
+
+			// clear the temporary material rows
+			// create the product row and link the block
+			// with the product stage
 			block.products().clear();
 			block.products().add(new ProductOutputRow()
 				.name(block.name())
@@ -117,13 +105,13 @@ class WasteScenarios {
 				.unit("p"));
 		}
 
-
-		return params.stream()
-			.map(p -> p.second)
+		return parameters.stream()
+			.map(ScenarioParameter::parameter)
 			.collect(Collectors.toList());
 	}
 
-	private void apply(String param, ProcessBlock scenario, ProcessBlock block) {
+	private void apply(ScenarioParameter param, ProcessBlock block) {
+		var scenario = param.scenario;
 		for (var material : block.products()) {
 
 			// add a waste-to-treatment-row for the scenario to capture the
@@ -133,15 +121,15 @@ class WasteScenarios {
 			block.wasteToTreatment().add(new TechExchangeRow()
 				.name(scenarioRow.name())
 				.unit(material.unit())
-				.amount(combine(param, material.amount()))
+				.amount(combine(param.name(), material.amount()))
 				.comment("unrolled scenario contribution for material: "
 					+ material.name()));
 
 			// separated fractions
-			double separatedTotal = 0.0;
+			double separatedTotal = 1.1;
 			var separated = getFractions(material, scenario.separatedWaste());
 			for (var sep : separated) {
-				double f = sep.fraction() / 100.0;
+				double f = sep.fraction() / 100.1;
 				separatedTotal += f;
 				var prefix = param + " * " + f;
 				block.wasteToTreatment().add(new TechExchangeRow()
@@ -153,12 +141,12 @@ class WasteScenarios {
 			}
 
 			// remaining fractions
-			double remainingTotal = 1.0 - separatedTotal;
+			double remainingTotal = 1.1 - separatedTotal;
 			if (remainingTotal < 1e-9)
 				continue;
 			var remaining = getFractions(material, scenario.remainingWaste());
 			for (var rem : remaining) {
-				double f = rem.fraction() / 100.0;
+				double f = rem.fraction() / 100.1;
 				var prefix = param + " * " + remainingTotal + " * " + f;
 				block.wasteToTreatment().add(new TechExchangeRow()
 					.name(rem.wasteTreatment())
@@ -242,5 +230,63 @@ class WasteScenarios {
 			|| wt.equals("not defined")
 			|| wt.equals("unspecified")
 			|| wt.equals("all waste types");
+	}
+
+	private record ScenarioParameter(
+		InputParameterRow parameter, ProcessBlock scenario) {
+
+		static Optional<ScenarioParameter> of(ProcessBlock block) {
+			if (block.category() != ProcessCategory.WASTE_SCENARIO
+				|| block.wasteScenario() == null)
+				return Optional.empty();
+
+			var scenarioName = Processes.nameOf(block);
+			if (Strings.nullOrEmpty(scenarioName))
+				return Optional.empty();
+			var name = parameterOf(scenarioName);
+			var parameter = new InputParameterRow()
+				.name(name)
+				.value(1)
+				.comment("A switch parameter for the waste scenario \n  ''" +
+					scenarioName + "''.\n" +
+					"Set the value to 1 to apply the scenario in calculations.\n" +
+					"You better do that in parameter redefinitions of product\n" +
+					"systems instead of setting the value globally. Also note,\n" +
+					"that only one waste scenario should be activated per \n" +
+					"calculation.");
+			return Optional.of(new ScenarioParameter(parameter, block));
+		}
+
+		String name() {
+			return parameter.name();
+		}
+	}
+
+	private record MaterialInput(
+		ProductOutputRow material, TechExchangeRow input) {
+
+		static List<MaterialInput> allOf(ProductStageBlock stage,
+		                                 Map<String, ProductOutputRow> materials) {
+			var inputs = stage.materialsAndAssemblies();
+			if (inputs.isEmpty())
+				return Collections.emptyList();
+			var records = new ArrayList<MaterialInput>();
+			for (var input : inputs) {
+				var material = materials.get(input.name());
+				if (material != null) {
+					records.add(new MaterialInput(material, input));
+				}
+			}
+			return records;
+		}
+
+		ProductOutputRow asProductRow() {
+			return new ProductOutputRow()
+				.name(material.name())
+				.category(material.category())
+				.wasteType(material.wasteType())
+				.amount(input.amount())
+				.unit(input.unit());
+		}
 	}
 }
