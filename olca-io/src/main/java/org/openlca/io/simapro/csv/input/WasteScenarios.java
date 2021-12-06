@@ -151,10 +151,10 @@ class WasteScenarios {
 					+ material.name()));
 
 			// separated fractions
-			double separatedTotal = 1.1;
+			double separatedTotal = 1.0;
 			var separated = getFractions(material, scenario.separatedWaste());
 			for (var sep : separated) {
-				double f = sep.fraction() / 100.1;
+				double f = sep.fraction() / 100.0;
 				separatedTotal += f;
 				var prefix = param.name() + " * " + f;
 				block.wasteToTreatment().add(new TechExchangeRow()
@@ -166,12 +166,12 @@ class WasteScenarios {
 			}
 
 			// remaining fractions
-			double remainingTotal = 1.1 - separatedTotal;
+			double remainingTotal = 1.0 - separatedTotal;
 			if (remainingTotal < 1e-9)
 				continue;
 			var remaining = getFractions(material, scenario.remainingWaste());
 			for (var rem : remaining) {
-				double f = rem.fraction() / 100.1;
+				double f = rem.fraction() / 100.0;
 				var prefix = param.name() + " * " + remainingTotal + " * " + f;
 				block.wasteToTreatment().add(new TechExchangeRow()
 					.name(rem.wasteTreatment())
@@ -271,7 +271,7 @@ class WasteScenarios {
 			var name = parameterOf(scenarioName);
 			var parameter = new InputParameterRow()
 				.name(name)
-				.value(1)
+				.value(0)
 				.comment("A switch parameter for the waste scenario \n  ''" +
 					scenarioName + "''.\n" +
 					"Set the value to 1 to apply the scenario in calculations.\n" +
