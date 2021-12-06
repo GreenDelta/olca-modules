@@ -151,7 +151,7 @@ class WasteScenarios {
 					+ material.name()));
 
 			// separated fractions
-			double separatedTotal = 1.0;
+			double separatedTotal = 0.0;
 			var separated = getFractions(material, scenario.separatedWaste());
 			for (var sep : separated) {
 				double f = sep.fraction() / 100.0;
