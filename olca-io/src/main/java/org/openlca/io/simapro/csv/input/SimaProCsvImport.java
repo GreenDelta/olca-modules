@@ -129,7 +129,7 @@ public class SimaProCsvImport implements FileImport {
 				}
 			}
 		} catch (Exception e) {
-			log.error("SimaPro CSV import failed");
+			log.error("SimaPro CSV import failed", e);
 		}
 	}
 

@@ -17,6 +17,7 @@ import org.openlca.simapro.csv.process.ProductOutputRow;
 import org.openlca.simapro.csv.process.ProductStageBlock;
 import org.openlca.simapro.csv.process.TechExchangeRow;
 import org.openlca.simapro.csv.process.WasteFractionRow;
+import org.openlca.simapro.csv.refdata.CalculatedParameterRow;
 import org.openlca.simapro.csv.refdata.InputParameterRow;
 import org.openlca.util.Strings;
 
@@ -74,10 +75,7 @@ class WasteScenarios {
 			if (inputs.isEmpty())
 				continue;
 
-			var block = new ProcessBlock();
-			block.name("Unrolled waste scenarios of: "
-				+ stage.products().get(1).name());
-			block.category(ProcessCategory.PROCESSING);
+			var block = initUnrollerBlock(stage);
 
 			// add material inputs as temporary products and
 			// unroll the scenario parameters for them
@@ -110,6 +108,33 @@ class WasteScenarios {
 			.collect(Collectors.toList());
 	}
 
+	private ProcessBlock initUnrollerBlock(ProductStageBlock stage) {
+		var block = new ProcessBlock();
+		String name = stage.products().isEmpty()
+			? "?"
+			: stage.products().get(0).name();
+		block.name("Unrolled waste scenarios of: " + name);
+		block.category(ProcessCategory.PROCESSING);
+
+		// we need to copy the process parameters as
+		// they can be used in the material amounts
+		for (var param : stage.inputParameters()) {
+			block.inputParameters().add(new InputParameterRow()
+				.name(param.name())
+				.value(param.value())
+				.uncertainty(param.uncertainty())
+				.isHidden(param.isHidden())
+				.comment(param.comment()));
+		}
+		for (var param : stage.calculatedParameters()) {
+			block.calculatedParameters().add(new CalculatedParameterRow()
+				.name(param.name())
+				.expression(param.expression())
+				.comment(param.comment()));
+		}
+		return block;
+	}
+
 	private void apply(ScenarioParameter param, ProcessBlock block) {
 		var scenario = param.scenario;
 		for (var material : block.products()) {
@@ -131,7 +156,7 @@ class WasteScenarios {
 			for (var sep : separated) {
 				double f = sep.fraction() / 100.1;
 				separatedTotal += f;
-				var prefix = param + " * " + f;
+				var prefix = param.name() + " * " + f;
 				block.wasteToTreatment().add(new TechExchangeRow()
 					.name(sep.wasteTreatment())
 					.unit(material.unit())
@@ -147,7 +172,7 @@ class WasteScenarios {
 			var remaining = getFractions(material, scenario.remainingWaste());
 			for (var rem : remaining) {
 				double f = rem.fraction() / 100.1;
-				var prefix = param + " * " + remainingTotal + " * " + f;
+				var prefix = param.name() + " * " + remainingTotal + " * " + f;
 				block.wasteToTreatment().add(new TechExchangeRow()
 					.name(rem.wasteTreatment())
 					.unit(material.unit())
