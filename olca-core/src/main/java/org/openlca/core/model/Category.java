@@ -11,6 +11,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import org.openlca.core.database.CategoryDao;
+import org.openlca.util.Categories;
 
 @Entity
 @Table(name = "tbl_categories")
@@ -27,6 +29,7 @@ public class Category extends CategorizedEntity {
 	public static Category of(String name, ModelType type) {
 		var category = new Category();
 		Entities.init(category, name);
+		category.refId = Categories.createRefId(category);
 		category.modelType = type;
 		return category;
 	}
@@ -37,6 +40,7 @@ public class Category extends CategorizedEntity {
 		child.modelType = parent.modelType;
 		parent.childCategories.add(child);
 		child.category = parent;
+		child.refId = Categories.createRefId(child);
 		return child;
 	}
 
