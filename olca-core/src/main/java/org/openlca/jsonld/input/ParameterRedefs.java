@@ -18,18 +18,19 @@ class ParameterRedefs {
 	static List<ParameterRedef> read(JsonArray array, ImportConfig conf) {
 		if (array == null || array.size() == 0)
 			return Collections.emptyList();
-		List<ParameterRedef> redefs = new ArrayList<>();
-		for (JsonElement elem : array) {
+		var redefs = new ArrayList<ParameterRedef>();
+		for (var elem : array) {
 			if (!elem.isJsonObject())
 				continue;
-			JsonObject ref = elem.getAsJsonObject();
-			ParameterRedef p = new ParameterRedef();
-			p.name = Json.getString(ref, "name");
-			p.description = Json.getString(ref, "description");
-			p.value = Json.getDouble(ref, "value", 0);
+			var object = elem.getAsJsonObject();
+			var p = new ParameterRedef();
+			p.name = Json.getString(object, "name");
+			p.description = Json.getString(object, "description");
+			p.value = Json.getDouble(object, "value", 0);
 			p.uncertainty = Uncertainties.read(Json
-					.getObject(ref, "uncertainty"));
-			JsonObject context = Json.getObject(ref, "context");
+					.getObject(object, "uncertainty"));
+			p.isProtected = Json.getBool(object, "isProtected", false);
+			var context = Json.getObject(object, "context");
 			boolean valid = setContext(context, p, conf);
 			if (valid) {
 				redefs.add(p);
@@ -42,8 +43,8 @@ class ParameterRedefs {
 			JsonObject context, ParameterRedef p, ImportConfig conf) {
 		if (context == null)
 			return true;
-		String type = Json.getString(context, "@type");
-		String refId = Json.getString(context, "@id");
+		var type = Json.getString(context, "@type");
+		var refId = Json.getString(context, "@id");
 		RootEntity model = null;
 		if ("Process".equals(type)) {
 			p.contextType = ModelType.PROCESS;

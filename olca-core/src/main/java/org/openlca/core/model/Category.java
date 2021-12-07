@@ -11,7 +11,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import org.openlca.core.database.CategoryDao;
 import org.openlca.util.Categories;
 
 @Entity

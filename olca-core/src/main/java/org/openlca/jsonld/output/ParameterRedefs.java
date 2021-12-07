@@ -25,6 +25,7 @@ class ParameterRedefs {
 			Out.put(obj, "value", p.value);
 			Out.put(obj, "uncertainty",
 					Uncertainties.map(p.uncertainty));
+			Out.put(obj, "isProtected", p.isProtected);
 			if (p.contextType != null) {
 				boolean exportIt = p.contextType == ModelType.IMPACT_CATEGORY;
 				JsonObject ref = References.create(
