@@ -1,10 +1,7 @@
 package org.openlca.io.ilcd.input;
 
-import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
 import org.openlca.util.KeyGen;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 final class Locations {
 
@@ -16,17 +13,10 @@ final class Locations {
 	 * not exists in the database.
 	 */
 	public static Location get(String code, ImportConfig config) {
-		if (code == null || config.db == null)
+		if (code == null || config.db() == null)
 			return null;
-		try {
-			String refId = KeyGen.get(code);
-			LocationDao dao = new LocationDao(config.db);
-			return dao.getForRefId(refId);
-		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(Locations.class);
-			log.error("failed to get location: " + code, e);
-			return null;
-		}
+		String refId = KeyGen.get(code);
+		return config.db().get(Location.class, refId);
 	}
 
 	/**
@@ -34,23 +24,16 @@ final class Locations {
 	 * new one if it not yet exists.
 	 */
 	public static Location getOrCreate(String code, ImportConfig config) {
-		if (code == null || config.db == null)
+		if (code == null || config.db() == null)
 			return null;
 		Location location = get(code, config);
 		if (location != null)
 			return location;
-		try {
-			String refId = KeyGen.get(code);
-			LocationDao dao = new LocationDao(config.db);
-			location = new Location();
-			location.code = code;
-			location.refId = refId;
-			location.name = code;
-			return dao.insert(location);
-		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(Locations.class);
-			log.error("failed to insert location: " + code, e);
-			return null;
-		}
+		String refId = KeyGen.get(code);
+		location = new Location();
+		location.code = code;
+		location.refId = refId;
+		location.name = code;
+		return config.db().insert(location);
 	}
 }

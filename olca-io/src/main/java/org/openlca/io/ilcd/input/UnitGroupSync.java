@@ -17,25 +17,25 @@ import org.slf4j.LoggerFactory;
  * Synchronisation of an existing unit group in the database with an imported
  * unit group data set. A synchronisation is only done if the openLCA extensions
  * are available in the ILCD data set (which is basically only the unit ID).
- * 
+ *
  * The synchronisation adds new units to a unit-group data set in openLCA if it
  * is not yet contained in the database. If there is a new unit there are two
  * possible cases:
- * 
+ *
  * <li>The reference unit in the openLCA data set is the same as for the ILCD
  * data set. Then the new unit just needs to be added.
- * 
+ *
  * <li>The reference unit in the openLCA data set is NOT the same as for the
  * ILCD data set. Then a conversion factor needs to be applied for the factor of
  * the new unit: <code>f_olca = f_olca_ref/f_ilcd_ref * f_ilcd</code>
- * 
+ *
  */
 class UnitGroupSync {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-	private UnitGroup olcaGroup;
-	private UnitGroupBag ilcdGroup;
-	private ImportConfig config;
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final UnitGroup olcaGroup;
+	private final UnitGroupBag ilcdGroup;
+	private final ImportConfig config;
 
 	public UnitGroupSync(UnitGroup olcaGroup, UnitGroupBag ilcdGroup,
 			ImportConfig config) {
@@ -86,8 +86,7 @@ class UnitGroupSync {
 			unit.refId = id;
 			unit.name = ilcdUnit.name;
 			unit.conversionFactor = factor * ilcdUnit.factor;
-			unit.description = LangString.getFirst(ilcdUnit.comment,
-			config.langs);
+			unit.description = config.str(ilcdUnit.comment);
 			olcaGroup.units.add(unit);
 			changed = true;
 		}

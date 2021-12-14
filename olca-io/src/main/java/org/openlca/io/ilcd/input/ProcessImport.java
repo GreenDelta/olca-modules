@@ -40,7 +40,7 @@ public class ProcessImport {
 			: createNew();
 	}
 
-	static Process get(ImportConfig config, String id) {
+	public static Process get(ImportConfig config, String id) {
 		var process = config.db().get(Process.class, id);
 		if (process != null)
 			return process;

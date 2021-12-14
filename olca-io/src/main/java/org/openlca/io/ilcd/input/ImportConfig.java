@@ -67,7 +67,7 @@ public class ImportConfig {
 		return store;
 	}
 
-	IDatabase db() {
+	public IDatabase db() {
 		return db;
 	}
 

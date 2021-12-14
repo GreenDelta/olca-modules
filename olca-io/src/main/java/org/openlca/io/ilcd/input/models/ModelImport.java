@@ -9,7 +9,6 @@ import java.util.UUID;
 
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowDao;
-import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -27,14 +26,11 @@ import org.openlca.ilcd.models.DownstreamLink;
 import org.openlca.ilcd.models.Model;
 import org.openlca.ilcd.models.Parameter;
 import org.openlca.ilcd.models.ProcessInstance;
-import org.openlca.ilcd.models.QuantitativeReference;
 import org.openlca.ilcd.models.Technology;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.Models;
 import org.openlca.io.ilcd.input.ImportConfig;
-import org.openlca.io.ilcd.input.ImportException;
 import org.openlca.io.ilcd.input.ProcessImport;
-import org.openlca.io.ilcd.input.ProviderLinker;
 import org.openlca.util.Strings;
 
 /**
@@ -50,34 +46,30 @@ public class ModelImport {
 		this.config = config;
 	}
 
-	public ProductSystem run(Model model) throws ImportException {
+	public ProductSystem run(Model model) {
 		if (model == null)
 			return null;
-		try {
-			ProductSystemDao dao = new ProductSystemDao(config.db);
-			system = dao.getForRefId(model.getUUID());
-			if (system != null)
-				return system;
-			String origin = Models.getOrigin(model);
-			if (Strings.nullOrEqual("openLCA", origin)) {
-				system = new ProductSystem();
-				IO.mapMetaData(model, system);
-				String[] cpath = Categories.getPath(model);
-				system.category = new CategoryDao(config.db)
-						.sync(ModelType.PRODUCT_SYSTEM, cpath);
-				mapModel(model);
-				return dao.insert(system);
-			} else {
-				Graph g = Graph.build(model, config.db);
-				g = Transformation.on(g);
-				return new GraphSync(config.db).sync(model, g);
-			}
-		} catch (Exception e) {
-			throw new ImportException("Failed to get/create product system", e);
+		var dao = new ProductSystemDao(config.db());
+		system = dao.getForRefId(model.getUUID());
+		if (system != null)
+			return system;
+		String origin = Models.getOrigin(model);
+		if (Strings.nullOrEqual("openLCA", origin)) {
+			system = new ProductSystem();
+			IO.mapMetaData(model, system);
+			String[] path = Categories.getPath(model);
+			system.category = new CategoryDao(config.db())
+				.sync(ModelType.PRODUCT_SYSTEM, path);
+			mapModel(model);
+			return dao.insert(system);
+		} else {
+			Graph g = Graph.build(model, config.db());
+			g = Transformation.on(g);
+			return new GraphSync(config.db()).sync(model, g);
 		}
 	}
 
-	private void mapModel(Model m) throws ImportException {
+	private void mapModel(Model m) {
 		Technology tech = Models.getTechnology(m);
 		if (tech == null)
 			return;
@@ -108,27 +100,26 @@ public class ModelImport {
 		}
 	}
 
-	private Map<Integer, Process> insertProcesses(Model m, Technology tech)
-			throws ImportException {
-		QuantitativeReference qRef = Models.getQuantitativeReference(m);
+	private Map<Integer, Process> insertProcesses(Model m, Technology tech) {
+		var qRef = Models.getQuantitativeReference(m);
 		int refProcess = -1;
-		if (qRef != null && qRef.refProcess != null)
-			refProcess = qRef.refProcess.intValue();
+		if (qRef != null && qRef.refProcess != null) {
+			refProcess = qRef.refProcess;
+		}
 		Map<Integer, Process> map = new HashMap<>();
-		ProviderLinker linker = new ProviderLinker();
-		for (ProcessInstance pi : tech.processes) {
+		for (var pi : tech.processes) {
 			if (pi.process == null)
 				continue;
-			ProcessImport pImport = new ProcessImport(config, linker);
-			Process p = pImport.run(pi.process.uuid);
+			var process = ProcessImport.get(config, pi.process.uuid);
+			if (process == null)
+				continue;
 			if (refProcess == pi.id) {
-				mapRefProcess(pi, p);
+				mapRefProcess(pi, process);
 			}
-			addParameterRedefs(pi, p);
-			system.processes.add(p.id);
-			map.put(pi.id, p);
+			addParameterRedefs(pi, process);
+			system.processes.add(process.id);
+			map.put(pi.id, process);
 		}
-		linker.createLinks(config.db);
 		return map;
 	}
 
@@ -136,7 +127,7 @@ public class ModelImport {
 		for (Parameter param : pi.parameters) {
 			if (param.name == null || param.value == null)
 				continue;
-			ParameterRedef redef = new ParameterRedef();
+			var redef = new ParameterRedef();
 			redef.contextId = p.id;
 			redef.contextType = ModelType.PROCESS;
 			redef.name = param.name;
@@ -172,7 +163,7 @@ public class ModelImport {
 				}
 			}
 		}
-		FlowDao dao = new FlowDao(config.db);
+		FlowDao dao = new FlowDao(config.db());
 		Map<String, Flow> m = new HashMap<>();
 		for (Flow f : dao.getForRefIds(usedFlows)) {
 			m.put(f.refId, f);
@@ -181,7 +172,7 @@ public class ModelImport {
 	}
 
 	private void addLink(Process out, Process in, Flow flow,
-			Integer exchangeId) {
+	                     Integer exchangeId) {
 		boolean isWaste = flow.flowType == FlowType.WASTE_FLOW;
 		ProcessLink link = new ProcessLink();
 		link.flowId = flow.id;
@@ -222,8 +213,7 @@ public class ModelImport {
 		} else {
 			p.quantitativeReference = output;
 		}
-		ProcessDao dao = new ProcessDao(config.db);
-		p = dao.insert(p);
+		p = config.db().insert(p);
 		system.processes.add(p.id);
 		return p;
 	}

@@ -6,7 +6,6 @@ import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
-import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.util.ParameterExtension;
 import org.openlca.ilcd.util.ProcessBag;
 import org.openlca.util.Strings;
@@ -20,15 +19,15 @@ import org.slf4j.LoggerFactory;
  */
 class ProcessParameterConversion {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-	private Process olcaProcess;
-	private ParameterDao dao;
-	private ImportConfig config;
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final Process olcaProcess;
+	private final ParameterDao dao;
+	private final ImportConfig config;
 
 	public ProcessParameterConversion(Process olcaProcess, ImportConfig config) {
 		this.olcaProcess = olcaProcess;
 		this.config = config;
-		this.dao = new ParameterDao(config.db);
+		this.dao = new ParameterDao(config.db());
 	}
 
 	public void run(ProcessBag ilcdProcess) {
@@ -51,7 +50,7 @@ class ProcessParameterConversion {
 		Parameter param = new Parameter();
 		param.scope = scope;
 		param.name = iParameter.name;
-		param.description = LangString.getFirst(iParameter.comment, config.langs);
+		param.description = config.str(iParameter.comment);
 		Double mean = iParameter.mean;
 		if (mean != null)
 			param.value = mean;

@@ -1,16 +1,14 @@
 package org.openlca.io.ilcd;
 
 import java.io.File;
-import java.io.InputStream;
 import java.nio.file.Files;
 
+import jakarta.xml.bind.JAXB;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import org.openlca.core.model.Actor;
 import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.flowproperties.FlowProperty;
@@ -26,7 +24,6 @@ import org.openlca.io.ilcd.input.FlowImport;
 import org.openlca.io.ilcd.input.FlowPropertyImport;
 import org.openlca.io.ilcd.input.ImportConfig;
 import org.openlca.io.ilcd.input.ProcessImport;
-import org.openlca.io.ilcd.input.ProviderLinker;
 import org.openlca.io.ilcd.input.SourceImport;
 import org.openlca.io.ilcd.input.UnitGroupImport;
 import org.openlca.io.ilcd.output.ActorExport;
@@ -37,7 +34,7 @@ import org.openlca.io.ilcd.output.ProcessExport;
 import org.openlca.io.ilcd.output.SourceExport;
 import org.openlca.io.ilcd.output.UnitGroupExport;
 
-import jakarta.xml.bind.JAXB;
+import static org.junit.Assert.*;
 
 /**
  * In order to run the tests the reference data must be contained in the
@@ -46,114 +43,100 @@ import jakarta.xml.bind.JAXB;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ILCDImportExportTest {
 
-	private static ImportConfig importConfig;
-	private static ExportConfig exportConfig;
+	private static ImportConfig importConf;
+	private static ExportConfig exportConf;
 	private static File zip;
 
 	@BeforeClass
 	public static void setUp() throws Exception {
 		zip = Files.createTempFile("_olca_ilcd_export_test", ".zip").toFile();
-		zip.delete();
+		assertTrue(zip.delete());
 		ZipStore store = new ZipStore(zip);
-		importConfig = new ImportConfig(new MemDataStore(), Tests.getDb());
-		exportConfig = new ExportConfig(Tests.getDb(), store);
-		put("contact.xml", "177ca340-ffa2-11da-92e3-0800200c9a66",
-				Contact.class);
-		put("source.xml", "2c699413-f88b-4cb5-a56d-98cb4068472f", Source.class);
-		put("unit.xml", "93a60a57-a4c8-11da-a746-0800200c9a66",
-				UnitGroup.class);
-		put("flowproperty.xml", "93a60a56-a3c8-11da-a746-0800200b9a66",
-				FlowProperty.class);
-		put("flow.xml", "0d7a3ad1-6556-11dd-ad8b-0800200c9a66", Flow.class);
-		put("process.xml", "76d6aaa4-37e2-40b2-994c-03292b600074",
-				Process.class);
+		importConf = new ImportConfig(new MemDataStore(), Tests.getDb());
+		exportConf = new ExportConfig(Tests.getDb(), store);
+		put("contact.xml",
+			Contact.class);
+		put("source.xml", Source.class);
+		put("unit.xml",
+			UnitGroup.class);
+		put("flowproperty.xml",
+			FlowProperty.class);
+		put("flow.xml", Flow.class);
+		put("process.xml",
+			Process.class);
 	}
 
 	@AfterClass
 	public static void tearDown() throws Exception {
-		exportConfig.store.close();
-		zip.delete();
+		exportConf.store.close();
+		assertTrue(zip.delete());
 	}
 
-	private static <T extends IDataSet> void put(String file, String id,
-			Class<T> clazz)
-			throws Exception {
-		InputStream in = ILCDImportExportTest.class.getResourceAsStream(file);
+	private static <T extends IDataSet> void put(String file, Class<T> clazz) {
+		var in = ILCDImportExportTest.class.getResourceAsStream(file);
+		assertNotNull(in);
 		T obj = JAXB.unmarshal(in, clazz);
-		importConfig.store.put(obj);
+		importConf.store().put(obj);
 	}
 
 	@Test
-	public void testA_Contact() throws Exception {
-		String id = "177ca340-ffa2-11da-92e3-0800200c9a66";
-		ContactImport contactImport = new ContactImport(importConfig);
-		Actor actor = contactImport.run(importConfig.store.get(Contact.class,
-				id));
-		Assert.assertEquals(id, actor.refId);
-		ActorExport export = new ActorExport(exportConfig);
-		export.run(actor);
-		Assert.assertTrue(exportConfig.store.contains(Contact.class, id));
+	public void testA_Contact() {
+		var id = "177ca340-ffa2-11da-92e3-0800200c9a66";
+		var contact = importConf.store().get(Contact.class, id);
+		var actor = new ContactImport(importConf).run(contact);
+		assertEquals(id, actor.refId);
+		new ActorExport(exportConf).run(actor);
+		assertTrue(exportConf.store.contains(Contact.class, id));
 	}
 
 	@Test
-	public void testB_Source() throws Exception {
-		String id = "2c699413-f88b-4cb5-a56d-98cb4068472f";
-		SourceImport sourceImport = new SourceImport(importConfig);
-		org.openlca.core.model.Source source = sourceImport
-				.run(importConfig.store.get(Source.class, id));
-		Assert.assertEquals(id, source.refId);
-		SourceExport export = new SourceExport(exportConfig);
-		export.run(source);
-		Assert.assertTrue(exportConfig.store.contains(Source.class, id));
+	public void testB_Source() {
+		var id = "2c699413-f88b-4cb5-a56d-98cb4068472f";
+		var dataSet = importConf.store().get(Source.class, id);
+		var source = new SourceImport(importConf).run(dataSet);
+		assertEquals(id, source.refId);
+		new SourceExport(exportConf).run(source);
+		assertTrue(exportConf.store.contains(Source.class, id));
 	}
 
 	@Test
-	public void testC_Units() throws Exception {
+	public void testC_Units() {
 		String id = "93a60a57-a4c8-11da-a746-0800200c9a66";
-		UnitGroupImport unitImport = new UnitGroupImport(importConfig);
-		org.openlca.core.model.UnitGroup group = unitImport
-				.run(importConfig.store.get(UnitGroup.class, id));
-		Assert.assertEquals(id, group.refId);
-		UnitGroupExport export = new UnitGroupExport(exportConfig);
-		export.run(group);
-		Assert.assertTrue(exportConfig.store.contains(UnitGroup.class, id));
+		var dataSet = importConf.store().get(UnitGroup.class, id);
+		var group = new UnitGroupImport(importConf).run(dataSet);
+		assertEquals(id, group.refId);
+		new UnitGroupExport(exportConf).run(group);
+		assertTrue(exportConf.store.contains(UnitGroup.class, id));
 	}
 
 	@Test
-	public void testD_FlowProp() throws Exception {
+	public void testD_FlowProp() {
 		String id = "93a60a56-a3c8-11da-a746-0800200b9a66";
-		FlowPropertyImport propImport = new FlowPropertyImport(importConfig);
-		org.openlca.core.model.FlowProperty prop = propImport
-				.run(importConfig.store.get(FlowProperty.class, id));
-		Assert.assertEquals(id, prop.refId);
-		FlowPropertyExport export = new FlowPropertyExport(exportConfig);
-		export.run(prop);
-		Assert.assertTrue(exportConfig.store.contains(FlowProperty.class, id));
+		var dataSet = importConf.store().get(FlowProperty.class, id);
+		var prop = new FlowPropertyImport(importConf).run(dataSet);
+		assertEquals(id, prop.refId);
+		new FlowPropertyExport(exportConf).run(prop);
+		assertTrue(exportConf.store.contains(FlowProperty.class, id));
 	}
 
 	@Test
-	public void testE_Flow() throws Exception {
+	public void testE_Flow() {
 		String id = "0d7a3ad1-6556-11dd-ad8b-0800200c9a66";
-		FlowImport flowImport = new FlowImport(importConfig);
-		org.openlca.core.model.Flow flow = flowImport.run(importConfig.store
-				.get(Flow.class, id));
-		Assert.assertEquals(id, flow.refId);
-		FlowExport export = new FlowExport(exportConfig);
-		export.run(flow);
-		Assert.assertTrue(exportConfig.store.contains(Flow.class, id));
+		var dataSet = importConf.store().get(Flow.class, id);
+		var flow = new FlowImport(importConf).run(dataSet);
+		assertEquals(id, flow.refId);
+		new FlowExport(exportConf).run(flow);
+		assertTrue(exportConf.store.contains(Flow.class, id));
 	}
 
 	@Test
-	public void testF_Process() throws Exception {
+	public void testF_Process() {
 		String id = "76d6aaa4-37e2-40b2-994c-03292b600074";
-		ProcessImport processImport = new ProcessImport(importConfig,
-				new ProviderLinker());
-		org.openlca.core.model.Process process = processImport
-				.run(importConfig.store.get(Process.class, id));
-		Assert.assertEquals(id, process.refId);
-		ProcessExport export = new ProcessExport(exportConfig);
-		export.run(process);
-		Assert.assertTrue(exportConfig.store.contains(Process.class, id));
+		var dataSet = importConf.store().get(Process.class, id);
+		var process = new ProcessImport(importConf).run(dataSet);
+		assertEquals(id, process.refId);
+		new ProcessExport(exportConf).run(process);
+		assertTrue(exportConf.store.contains(Process.class, id));
 	}
 
 }
