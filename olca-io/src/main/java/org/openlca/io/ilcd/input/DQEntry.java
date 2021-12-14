@@ -37,42 +37,27 @@ class DQEntry {
 	private static int pos(QualityIndicator indicator) {
 		if (indicator == null)
 			return -1;
-		switch (indicator) {
-		case TECHNOLOGICAL_REPRESENTATIVENESS:
-			return 1;
-		case TIME_REPRESENTATIVENESS:
-			return 2;
-		case GEOGRAPHICAL_REPRESENTATIVENESS:
-			return 3;
-		case COMPLETENESS:
-			return 4;
-		case PRECISION:
-			return 5;
-		case METHODOLOGICAL_APPROPRIATENESS_AND_CONSISTENCY:
-			return 6;
-		case OVERALL_QUALITY:
-			return 7;
-		default:
-			return -1;
-		}
+		return switch (indicator) {
+			case TECHNOLOGICAL_REPRESENTATIVENESS -> 1;
+			case TIME_REPRESENTATIVENESS -> 2;
+			case GEOGRAPHICAL_REPRESENTATIVENESS -> 3;
+			case COMPLETENESS -> 4;
+			case PRECISION -> 5;
+			case METHODOLOGICAL_APPROPRIATENESS_AND_CONSISTENCY -> 6;
+			case OVERALL_QUALITY -> 7;
+		};
 	}
 
 	private static String val(Quality v) {
 		if (v == null)
 			return "n.a.";
-		switch (v) {
-		case VERY_GOOD:
-			return "1";
-		case GOOD:
-			return "2";
-		case FAIR:
-			return "3";
-		case POOR:
-			return "4";
-		case VERY_POOR:
-			return "5";
-		default:
-			return "n.a.";
-		}
+		return switch (v) {
+			case VERY_GOOD -> "1";
+			case GOOD -> "2";
+			case FAIR -> "3";
+			case POOR -> "4";
+			case VERY_POOR -> "5";
+			default -> "n.a.";
+		};
 	}
 }

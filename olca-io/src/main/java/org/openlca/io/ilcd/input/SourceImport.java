@@ -2,14 +2,11 @@ package org.openlca.io.ilcd.input;
 
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FileStore;
-import org.openlca.core.database.SourceDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.SourceBag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +15,8 @@ import java.nio.file.Files;
 import java.util.Date;
 import java.util.List;
 
-public class SourceImport {
+public class SourceImport implements
+	Import<org.openlca.ilcd.sources.Source, Source> {
 
 	private final ImportConfig config;
 	private SourceBag ilcdSource;
@@ -28,59 +26,37 @@ public class SourceImport {
 		this.config = config;
 	}
 
-	public Source run(org.openlca.ilcd.sources.Source source)
-			throws ImportException {
-		this.ilcdSource = new SourceBag(source, config.langs);
-		Source oSource = findExisting(ilcdSource.getId());
-		if (oSource != null)
-			return oSource;
-		return createNew();
+	@Override
+	public Source run(org.openlca.ilcd.sources.Source dataSet) {
+		this.ilcdSource = new SourceBag(dataSet, config.langOrder());
+		var source = config.db().get(Source.class, dataSet.getUUID());
+		return source != null
+			? source
+			: createNew();
 	}
 
-	public Source run(String sourceId) throws ImportException {
-		Source source = findExisting(sourceId);
+	static Source get(ImportConfig config, String sourceId) {
+		var source = config.db().get(Source.class, sourceId);
 		if (source != null)
 			return source;
-		org.openlca.ilcd.sources.Source iSource = tryGetSource(sourceId);
-		ilcdSource = new SourceBag(iSource, config.langs);
-		return createNew();
-	}
-
-	private Source findExisting(String sourceId) throws ImportException {
-		try {
-			SourceDao dao = new SourceDao(config.db);
-			return dao.getForRefId(sourceId);
-		} catch (Exception e) {
-			String message = String.format("Search for source %s failed.",
-					sourceId);
-			throw new ImportException(message, e);
+		var dataSet = config.store().get(
+			org.openlca.ilcd.sources.Source.class, sourceId);
+		if (dataSet == null) {
+			config.log().error("invalid reference in ILCD data set:" +
+				" source '" + sourceId + "' does not exist");
+			return null;
 		}
+		return new SourceImport(config).run(dataSet);
 	}
 
-	private Source createNew() throws ImportException {
+	private Source createNew() {
 		source = new Source();
-		String[] cpath = Categories.getPath(ilcdSource.getValue());
-		source.category = new CategoryDao(config.db)
-				.sync(ModelType.SOURCE, cpath);
+		String[] path = Categories.getPath(ilcdSource.getValue());
+		source.category = new CategoryDao(config.db())
+				.sync(ModelType.SOURCE, path);
 		setDescriptionAttributes();
 		importExternalFile();
-		saveInDatabase();
-		return source;
-	}
-
-	private org.openlca.ilcd.sources.Source tryGetSource(String sourceId)
-			throws ImportException {
-		try {
-			org.openlca.ilcd.sources.Source iSource = config.store.get(
-					org.openlca.ilcd.sources.Source.class, sourceId);
-			if (iSource == null) {
-				throw new ImportException("No ILCD source for ID " + sourceId
-						+ " found");
-			}
-			return iSource;
-		} catch (Exception e) {
-			throw new ImportException(e.getMessage(), e);
-		}
+		return config.db().insert(source);
 	}
 
 	private void setDescriptionAttributes() {
@@ -97,15 +73,15 @@ public class SourceImport {
 
 	private void importExternalFile() {
 		List<String> uris = ilcdSource.getExternalFileURIs();
-		File dbDir = config.db.getFileStorageLocation();
+		File dbDir = config.db().getFileStorageLocation();
 		if (uris.isEmpty() || dbDir == null)
 			return;
 		String uri = uris.get(0);
 		try {
 			copyFile(dbDir, uri);
 		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(getClass());
-			log.warn("failed to import external file " + uri, e);
+			config.log().warn("failed to import external file "
+				+ uri + ": " + e.getMessage());
 		}
 	}
 
@@ -121,7 +97,7 @@ public class SourceImport {
 		File dbFile = new File(docDir, fileName);
 		if (dbFile.exists())
 			return;
-		try (InputStream in = config.store.getExternalDocument(
+		try (InputStream in = config.store().getExternalDocument(
 				ilcdSource.getId(), fileName)) {
 			if (in == null)
 				return;
@@ -130,13 +106,4 @@ public class SourceImport {
 		}
 	}
 
-	private void saveInDatabase() throws ImportException {
-		try {
-			new SourceDao(config.db).insert(source);
-		} catch (Exception e) {
-			String message = String.format(
-					"Cannot save source %s in database.", source.refId);
-			throw new ImportException(message, e);
-		}
-	}
 }

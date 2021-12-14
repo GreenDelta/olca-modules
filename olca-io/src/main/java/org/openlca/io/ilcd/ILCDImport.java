@@ -2,7 +2,6 @@ package org.openlca.io.ilcd;
 
 import java.util.Iterator;
 
-import org.apache.poi.ss.formula.functions.T;
 import org.openlca.core.database.FlowDao;
 import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.contacts.Contact;
@@ -14,7 +13,6 @@ import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
 import org.openlca.io.ilcd.input.ContactImport;
-import org.openlca.io.ilcd.input.Import;
 import org.openlca.io.ilcd.input.FlowImport;
 import org.openlca.io.ilcd.input.FlowPropertyImport;
 import org.openlca.io.ilcd.input.ImportConfig;
@@ -44,8 +42,7 @@ public class ILCDImport implements Runnable {
 		if (canceled)
 			return;
 		importAll(Contact.class);
-
-		tryImportSources();
+		importAll(Source.class);
 		tryImportUnits();
 		tryImportFlowProperties();
 		if (config.withAllFlows()) {
@@ -201,6 +198,8 @@ public class ILCDImport implements Runnable {
 		try {
 			if (dataSet instanceof Contact contact) {
 				new ContactImport(config).run(contact);
+			} else if (dataSet instanceof Source source) {
+				new SourceImport(config).run(source);
 			}
 		} catch (Exception e) {
 			config.log().error("Import of " + dataSet + " failed", e);
