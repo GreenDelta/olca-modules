@@ -2,7 +2,6 @@ package org.openlca.io.ilcd.input;
 
 import java.util.Date;
 
-import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.ModelType;
@@ -14,65 +13,43 @@ import org.openlca.ilcd.util.ContactBag;
 public class ContactImport implements Import<Contact, Actor> {
 
 	private final ImportConfig config;
-	private final ActorDao dao;
 	private ContactBag ilcdContact;
 	private Actor actor;
 
 	public ContactImport(ImportConfig config) {
 		this.config = config;
-		this.dao = new ActorDao(config.db);
 	}
 
 	@Override
 	public Actor run(Contact contact) {
-		this.ilcdContact = new ContactBag(contact, config.langs);
-		Actor actor = findExisting(ilcdContact.getId());
-		if (actor != null)
-			return actor;
-		return createNew();
+		this.ilcdContact = new ContactBag(contact, config.langOrder());
+		var actor = config.db().get(Actor.class, ilcdContact.getId());
+		return actor != null
+			? actor
+			: createNew();
 	}
 
-	public Actor run(String contactId) throws ImportException {
-		Actor actor = findExisting(contactId);
+	static Actor get(ImportConfig config, String contactId) {
+		var actor = config.db().get(Actor.class, contactId);
 		if (actor != null)
 			return actor;
-		Contact contact = tryGetContact(contactId);
-		ilcdContact = new ContactBag(contact, config.langs);
-		return createNew();
-	}
-
-	private Actor findExisting(String contactId) throws ImportException {
-		try {
-			return dao.getForRefId(contactId);
-		} catch (Exception e) {
-			String message = String.format("Search for actor %s failed.",
-					contactId);
-			throw new ImportException(message, e);
+		var contact = config.store().get(Contact.class, contactId);
+		if (contact == null) {
+			config.log().error("invalid reference in ILCD data set:" +
+				" contact '" + contactId + "' does not exist");
+			return null;
 		}
+		return new ContactImport(config).run(contact);
 	}
 
-	private Actor createNew() throws ImportException {
+	private Actor createNew() {
 		actor = new Actor();
-		String[] cpath = Categories.getPath(ilcdContact.getValue());
-		actor.category = new CategoryDao(config.db)
-				.sync(ModelType.ACTOR, cpath);
+		var path = Categories.getPath(ilcdContact.getValue());
+		actor.category = new CategoryDao(config.db())
+				.sync(ModelType.ACTOR, path);
 		setDescriptionAttributes();
 		setVersionTime();
-		saveInDatabase();
-		return actor;
-	}
-
-	private Contact tryGetContact(String contactId) throws ImportException {
-		try {
-			Contact contact = config.store.get(Contact.class, contactId);
-			if (contact == null) {
-				throw new ImportException("No ILCD contact for ID " + contactId
-						+ " found");
-			}
-			return contact;
-		} catch (Exception e) {
-			throw new ImportException(e.getMessage(), e);
-		}
+		return config.db().insert(actor);
 	}
 
 	private void setDescriptionAttributes() {
@@ -96,15 +73,4 @@ public class ContactImport implements Import<Contact, Actor> {
 		if (time != null)
 			actor.lastChange = time.getTime();
 	}
-
-	private void saveInDatabase() throws ImportException {
-		try {
-			dao.insert(actor);
-		} catch (Exception e) {
-			String message = String.format("Cannot save actor %s in database.",
-					actor.refId);
-			throw new ImportException(message, e);
-		}
-	}
-
 }

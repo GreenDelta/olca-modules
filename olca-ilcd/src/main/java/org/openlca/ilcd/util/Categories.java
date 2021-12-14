@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -48,11 +49,11 @@ public final class Categories {
 					.forEach(add);
 		}
 		if (path.size() > 0)
-			return path.toArray(new String[path.size()]);
+			return path.toArray(new String[0]);
 		sorted(ds).stream()
 				.map(c -> c.value)
 				.forEach(add);
-		return path.toArray(new String[path.size()]);
+		return path.toArray(new String[0]);
 	}
 
 	private static List<Category> sorted(IDataSet ds) {
@@ -63,7 +64,7 @@ public final class Categories {
 			return Collections.emptyList();
 		Classification classification = list.get(0);
 		List<org.openlca.ilcd.commons.Category> classes = classification.categories;
-		Collections.sort(classes, (c1, c2) -> c1.level - c2.level);
+		classes.sort(Comparator.comparingInt(c -> c.level));
 		return classes;
 	}
 
@@ -76,8 +77,7 @@ public final class Categories {
 			return Collections.emptyList();
 		CompartmentList system = cinfo.compartmentLists.get(0);
 		List<Compartment> compartments = system.compartments;
-		Collections.sort(compartments,
-				(c1, c2) -> c1.level - c2.level);
+		compartments.sort(Comparator.comparingInt(c -> c.level));
 		return compartments;
 	}
 

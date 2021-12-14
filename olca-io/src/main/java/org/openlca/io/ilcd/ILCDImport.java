@@ -45,7 +45,6 @@ public class ILCDImport implements Runnable {
 			return;
 		importAll(Contact.class);
 
-		tryImportContacts();
 		tryImportSources();
 		tryImportUnits();
 		tryImportFlowProperties();
@@ -57,23 +56,6 @@ public class ILCDImport implements Runnable {
 		tryImportModels();
 	}
 
-
-
-	private void tryImportSources() {
-		if (canceled)
-			return;
-		try {
-			var it = config.store().iterator(Source.class);
-			while (it.hasNext() && !canceled) {
-				var source = it.next();
-				if (source == null)
-					continue;
-				new SourceImport(config).run(source);
-			}
-		} catch (Exception e) {
-			log.error("Source import failed", e);
-		}
-	}
 
 	private void tryImportUnits() {
 		if (canceled)
