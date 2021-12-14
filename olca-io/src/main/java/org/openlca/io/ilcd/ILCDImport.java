@@ -46,28 +46,11 @@ public class ILCDImport implements Runnable {
 		importAll(UnitGroup.class);
 		importAll(FlowProperty.class);
 		if (config.withAllFlows()) {
-			tryImportFlows();
+			importAll(Flow.class);
 		}
 		tryImportProcesses();
 		tryImportMethods();
 		tryImportModels();
-	}
-
-	private void tryImportFlows() {
-		if (canceled)
-			return;
-		try {
-			Iterator<Flow> it = config.store.iterator(Flow.class);
-			while (it.hasNext() && !canceled) {
-				Flow flow = it.next();
-				if (flow == null || isMapped(flow))
-					continue;
-				FlowImport flowImport = new FlowImport(config);
-				flowImport.run(flow);
-			}
-		} catch (Exception e) {
-			log.error("Flow import failed", e);
-		}
 	}
 
 	private boolean isMapped(Flow flow) {
@@ -165,6 +148,8 @@ public class ILCDImport implements Runnable {
 				new UnitGroupImport(config).run(group);
 			} else if (dataSet instanceof FlowProperty prop) {
 				new FlowPropertyImport(config).run(prop);
+			} else if (dataSet instanceof Flow flow) {
+				new FlowImport(config).run(flow);
 			}
 		} catch (Exception e) {
 			config.log().error("Import of " + dataSet + " failed", e);

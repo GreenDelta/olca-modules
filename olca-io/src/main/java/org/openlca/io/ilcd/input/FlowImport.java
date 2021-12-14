@@ -1,29 +1,25 @@
 package org.openlca.io.ilcd.input;
 
+import java.util.Date;
+import java.util.List;
+
 import org.openlca.core.database.CategoryDao;
-import org.openlca.core.database.FlowDao;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
-import org.openlca.ilcd.commons.LangString;
-import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.flows.FlowPropertyRef;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.FlowBag;
 import org.openlca.ilcd.util.Flows;
 import org.openlca.util.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-import java.util.List;
-
+// TODO: the flow mapping of the config is currently not
+// applied in the flow import!!
 public class FlowImport {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
 	private final ImportConfig config;
 	private FlowBag ilcdFlow;
 	private Flow flow;
@@ -32,94 +28,73 @@ public class FlowImport {
 		this.config = config;
 	}
 
-	public Flow run(org.openlca.ilcd.flows.Flow flow) throws ImportException {
-		this.ilcdFlow = new FlowBag(flow, config.langs);
-		Flow oFlow = findExisting(ilcdFlow.getId());
-		if (oFlow != null)
-			return oFlow;
-		return createNew();
+	public Flow run(org.openlca.ilcd.flows.Flow dataSet) {
+		this.ilcdFlow = new FlowBag(dataSet, config.langOrder());
+		var flow = config.db().get(Flow.class, dataSet.getUUID());
+		return flow != null
+			? flow
+			: createNew();
 	}
 
-	public Flow run(String flowId) throws ImportException {
-		Flow flow = findExisting(flowId);
+	static Flow get(ImportConfig config, String id) {
+		var flow = config.db().get(Flow.class, id);
 		if (flow != null)
 			return flow;
-		org.openlca.ilcd.flows.Flow iFlow = tryGetFlow(flowId);
-		ilcdFlow = new FlowBag(iFlow, config.langs);
-		return createNew();
-	}
-
-	private Flow findExisting(String flowId) throws ImportException {
-		try {
-			FlowDao dao = new FlowDao(config.db);
-			return dao.getForRefId(flowId);
-		} catch (Exception e) {
-			String message = String
-					.format("Search for flow %s failed.", flowId);
-			throw new ImportException(message, e);
+		var dataSet = config.store().get(
+			org.openlca.ilcd.flows.Flow.class, id);
+		if (dataSet == null) {
+			config.log().error("invalid reference in ILCD data set:" +
+				" flow '" + id + "' does not exist");
+			return null;
 		}
+		return new FlowImport(config).run(dataSet);
 	}
 
-	private Flow createNew() throws ImportException {
+	private Flow createNew() {
 		flow = new Flow();
 		String[] cpath = Categories.getPath(ilcdFlow.flow);
-		flow.category = new CategoryDao(config.db)
-				.sync(ModelType.FLOW, cpath);
+		flow.category = new CategoryDao(config.db())
+			.sync(ModelType.FLOW, cpath);
 		createAndMapContent();
-		saveInDatabase(flow);
-		return flow;
-	}
-
-	private org.openlca.ilcd.flows.Flow tryGetFlow(String flowId)
-			throws ImportException {
-		try {
-			org.openlca.ilcd.flows.Flow iFlow = config.store.get(
-					org.openlca.ilcd.flows.Flow.class, flowId);
-			if (iFlow == null) {
-				throw new ImportException("No ILCD flow for ID " + flowId
-						+ " found");
-			}
-			return iFlow;
-		} catch (Exception e) {
-			throw new ImportException(e.getMessage(), e);
+		if (flow.referenceFlowProperty == null) {
+			config.log().error("Could not import flow "
+				+ flow.refId + " because the "
+				+ "reference flow property of this flow "
+				+ "could not be imported.");
+			return null;
 		}
+		return config.db().insert(flow);
 	}
 
-	private void createAndMapContent() throws ImportException {
-		validateInput();
+	private void createAndMapContent() {
 		setFlowType();
 		flow.refId = ilcdFlow.getId();
 		flow.name = Strings.cut(
-				Flows.getFullName(ilcdFlow.flow, ilcdFlow.langs), 2048);
+			Flows.getFullName(ilcdFlow.flow, ilcdFlow.langs), 2048);
 		flow.description = ilcdFlow.getComment();
 		flow.casNumber = ilcdFlow.getCasNumber();
 		flow.synonyms = ilcdFlow.getSynonyms();
 		flow.formula = ilcdFlow.getSumFormula();
 		flow.version = Version.fromString(
-				ilcdFlow.flow.version).getValue();
+			ilcdFlow.flow.version).getValue();
 		Date time = ilcdFlow.getTimeStamp();
 		if (time != null)
 			flow.lastChange = time.getTime();
 		addFlowProperties();
-		if (flow.referenceFlowProperty == null)
-			throw new ImportException("Could not import flow "
-					+ flow.refId + " because the "
-					+ "reference flow property of this flow "
-					+ "could not be imported.");
 		mapLocation();
 	}
 
 	private void mapLocation() {
 		if (ilcdFlow == null || flow == null)
 			return;
-		String code = LangString.getFirst(ilcdFlow.getLocation(), config.langs);
+		String code = config.str(ilcdFlow.getLocation());
 		flow.location = Locations.get(code, config);
 	}
 
 	private void addFlowProperties() {
 		Integer refID = Flows.getReferenceFlowPropertyID(ilcdFlow.flow);
 		List<FlowPropertyRef> refs = Flows
-				.getFlowProperties(ilcdFlow.flow);
+			.getFlowProperties(ilcdFlow.flow);
 		for (FlowPropertyRef ref : refs) {
 			FlowProperty property = importProperty(ref);
 			if (property == null)
@@ -137,61 +112,21 @@ public class FlowImport {
 	}
 
 	private FlowProperty importProperty(FlowPropertyRef ref) {
-		if (ref == null)
+		if (ref == null || ref.flowProperty == null)
 			return null;
-		try {
-			FlowPropertyImport propImport = new FlowPropertyImport(config);
-			return propImport.run(ref.flowProperty.uuid);
-		} catch (Exception e) {
-			log.warn("failed to get flow property " + ref.flowProperty, e);
-			return null;
-		}
+		return FlowPropertyImport.get(config, ref.flowProperty.uuid);
 	}
 
 	private void setFlowType() {
-		org.openlca.ilcd.commons.FlowType t = Flows.getType(ilcdFlow.flow);
+		var t = Flows.getType(ilcdFlow.flow);
 		if (t == null) {
 			flow.flowType = FlowType.ELEMENTARY_FLOW;
 			return;
 		}
-		switch (t) {
-			case ELEMENTARY_FLOW:
-				flow.flowType = FlowType.ELEMENTARY_FLOW;
-				break;
-			case WASTE_FLOW:
-				flow.flowType = FlowType.WASTE_FLOW;
-				break;
-			default:
-				flow.flowType = FlowType.PRODUCT_FLOW;
-				break;
-		}
+		flow.flowType = switch (t) {
+			case WASTE_FLOW -> FlowType.WASTE_FLOW;
+			case PRODUCT_FLOW -> FlowType.PRODUCT_FLOW;
+			default -> FlowType.ELEMENTARY_FLOW;
+		};
 	}
-
-	private void validateInput() throws ImportException {
-		FlowPropertyRef refProp = Flows.getReferenceFlowProperty(ilcdFlow.flow);
-		if (refProp == null || refProp.flowProperty == null) {
-			String message = "Invalid flow data set: no ref. flow property, flow "
-					+ ilcdFlow.getId();
-			throw new ImportException(message);
-		}
-		Ref propRef = refProp.flowProperty;
-		if (propRef.uri != null) {
-			if (!propRef.uri.contains(propRef.uuid)) {
-				String message = "Flow data set {} -> reference to flow"
-						+ " property {}: the UUID is not contained in the URI";
-				log.warn(message, ilcdFlow.getId(), propRef.uuid);
-			}
-		}
-	}
-
-	private void saveInDatabase(Flow obj) throws ImportException {
-		try {
-			new FlowDao(config.db).insert(obj);
-		} catch (Exception e) {
-			String message = String.format("Save operation failed in flow %s.",
-					flow.refId);
-			throw new ImportException(message, e);
-		}
-	}
-
 }
