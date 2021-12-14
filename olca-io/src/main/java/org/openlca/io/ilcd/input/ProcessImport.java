@@ -240,19 +240,14 @@ public class ProcessImport {
 	}
 
 	private void mapRepresentativeness(ProcessDocumentation doc) {
-		Representativeness repr = ilcdProcess.getRepresentativeness();
-		if (repr == null)
+		var r = ilcdProcess.getRepresentativeness();
+		if (r == null)
 			return;
-		doc.completeness = LangString.getFirst(
-			repr.completeness, config.langs);
-		doc.dataSelection = LangString.getFirst(
-			repr.dataSelection, config.langs);
-		doc.dataTreatment = LangString.getFirst(
-			repr.dataTreatment, config.langs);
-		doc.sampling = LangString.getFirst(repr.samplingProcedure,
-			config.langs);
-		doc.dataCollectionPeriod = LangString.getFirst(
-			repr.dataCollectionPeriod, config.langs);
+		doc.completeness = config.str(r.completeness);
+		doc.dataSelection = config.str(r.dataSelection);
+		doc.dataTreatment = config.str(r.dataTreatment);
+		doc.sampling = config.str(r.samplingProcedure);
+		doc.dataCollectionPeriod = config.str(r.dataCollectionPeriod);
 	}
 
 	private void addSources(ProcessDocumentation doc) {

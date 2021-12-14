@@ -2,10 +2,12 @@ package org.openlca.io.ilcd.input;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Flow;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.io.DataStore;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.util.Strings;
@@ -84,5 +86,9 @@ public class ImportConfig {
 			flowMap = FlowMap.empty();
 		}
 		return flowMap;
+	}
+
+	String str(List<LangString> list) {
+		return LangString.getFirst(list, langOrder);
 	}
 }

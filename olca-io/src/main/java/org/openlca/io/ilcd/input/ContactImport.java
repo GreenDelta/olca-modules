@@ -11,7 +11,7 @@ import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.ContactBag;
 
-public class ContactImport {
+public class ContactImport implements Import<Contact, Actor> {
 
 	private final ImportConfig config;
 	private final ActorDao dao;
@@ -23,7 +23,8 @@ public class ContactImport {
 		this.dao = new ActorDao(config.db);
 	}
 
-	public Actor run(Contact contact) throws ImportException {
+	@Override
+	public Actor run(Contact contact) {
 		this.ilcdContact = new ContactBag(contact, config.langs);
 		Actor actor = findExisting(ilcdContact.getId());
 		if (actor != null)
