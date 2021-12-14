@@ -44,34 +44,13 @@ public class ILCDImport implements Runnable {
 		importAll(Contact.class);
 		importAll(Source.class);
 		importAll(UnitGroup.class);
-		tryImportUnits();
-		tryImportFlowProperties();
+		importAll(FlowProperty.class);
 		if (config.withAllFlows()) {
 			tryImportFlows();
 		}
 		tryImportProcesses();
 		tryImportMethods();
 		tryImportModels();
-	}
-
-	private void tryImportFlowProperties() {
-		if (canceled)
-			return;
-		try {
-			Iterator<FlowProperty> it = config.store
-					.iterator(FlowProperty.class);
-			while (it.hasNext() && !canceled) {
-				FlowProperty property = it.next();
-				if (property == null)
-					continue;
-				fireEvent(property);
-				FlowPropertyImport propertyImport = new FlowPropertyImport(
-						config);
-				propertyImport.run(property);
-			}
-		} catch (Exception e) {
-			log.error("Flow property import failed", e);
-		}
 	}
 
 	private void tryImportFlows() {
@@ -184,6 +163,8 @@ public class ILCDImport implements Runnable {
 				new SourceImport(config).run(source);
 			} else if (dataSet instanceof UnitGroup group) {
 				new UnitGroupImport(config).run(group);
+			} else if (dataSet instanceof FlowProperty prop) {
+				new FlowPropertyImport(config).run(prop);
 			}
 		} catch (Exception e) {
 			config.log().error("Import of " + dataSet + " failed", e);

@@ -17,20 +17,12 @@ class UncertaintyConverter {
 				|| iExchange.uncertaintyDistribution == UncertaintyDistribution.UNDEFINED)
 			return;
 		switch (iExchange.uncertaintyDistribution) {
-		case LOG_NORMAL:
-			mapLogNormal(iExchange, oExchange);
-			break;
-		case NORMAL:
-			mapNormal(iExchange, oExchange);
-			break;
-		case TRIANGULAR:
-			mapTriangular(iExchange, oExchange);
-			break;
-		case UNIFORM:
-			mapUniform(iExchange, oExchange);
-			break;
-		default:
-			break;
+			case LOG_NORMAL -> mapLogNormal(iExchange, oExchange);
+			case NORMAL -> mapNormal(iExchange, oExchange);
+			case TRIANGULAR -> mapTriangular(iExchange, oExchange);
+			case UNIFORM -> mapUniform(iExchange, oExchange);
+			default -> {
+			}
 		}
 	}
 
@@ -40,20 +32,12 @@ class UncertaintyConverter {
 				|| iParameter.distribution == UncertaintyDistribution.UNDEFINED)
 			return;
 		switch (iParameter.distribution) {
-		case LOG_NORMAL:
-			mapLogNormal(iParameter, oParameter);
-			break;
-		case NORMAL:
-			mapNormal(iParameter, oParameter);
-			break;
-		case TRIANGULAR:
-			mapTriangular(iParameter, oParameter);
-			break;
-		case UNIFORM:
-			mapUniform(iParameter, oParameter);
-			break;
-		default:
-			break;
+			case LOG_NORMAL -> mapLogNormal(iParameter, oParameter);
+			case NORMAL -> mapNormal(iParameter, oParameter);
+			case TRIANGULAR -> mapTriangular(iParameter, oParameter);
+			case UNIFORM -> mapUniform(iParameter, oParameter);
+			default -> {
+			}
 		}
 	}
 
