@@ -191,7 +191,7 @@ public class MethodImport {
 				// first, try to get the flow from a mapping
 				Flow flow = null;
 				boolean mapped = false;
-				FlowMapEntry e = config.getFlowMap().getEntry(flowId);
+				FlowMapEntry e = config.flowMap().getEntry(flowId);
 				if (e != null) {
 					flow = getFlow(e.targetFlowID(), false);
 					if (flow != null) {

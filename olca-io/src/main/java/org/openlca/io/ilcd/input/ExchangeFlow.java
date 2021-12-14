@@ -95,7 +95,7 @@ class ExchangeFlow {
 	}
 
 	private Flow fetchFromFlowMap(String flowId) {
-		FlowMap flowMap = config.getFlowMap();
+		FlowMap flowMap = config.flowMap();
 		FlowMapEntry e = flowMap.getEntry(flowId);
 		if (e == null)
 			return null;

@@ -171,7 +171,7 @@ public class ILCDImport implements FileImport {
 		if (flow == null)
 			return false;
 		String uuid = flow.getUUID();
-		FlowMapEntry me = config.getFlowMap().getEntry(uuid);
+		FlowMapEntry me = config.flowMap().getEntry(uuid);
 		if (me == null)
 			return false;
 		FlowDao dao = new FlowDao(config.db);

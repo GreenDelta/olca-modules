@@ -14,7 +14,7 @@ import org.openlca.ilcd.util.ContactBag;
 public class ContactImport {
 
 	private final ImportConfig config;
-	private ActorDao dao;
+	private final ActorDao dao;
 	private ContactBag ilcdContact;
 	private Actor actor;
 
