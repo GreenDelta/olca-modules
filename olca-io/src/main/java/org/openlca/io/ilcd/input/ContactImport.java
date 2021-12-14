@@ -21,8 +21,8 @@ public class ContactImport implements Import<Contact, Actor> {
 	}
 
 	@Override
-	public Actor run(Contact contact) {
-		this.ilcdContact = new ContactBag(contact, config.langOrder());
+	public Actor run(Contact dataSet) {
+		this.ilcdContact = new ContactBag(dataSet, config.langOrder());
 		var actor = config.db().get(Actor.class, ilcdContact.getId());
 		return actor != null
 			? actor
@@ -33,13 +33,13 @@ public class ContactImport implements Import<Contact, Actor> {
 		var actor = config.db().get(Actor.class, id);
 		if (actor != null)
 			return actor;
-		var contact = config.store().get(Contact.class, id);
-		if (contact == null) {
+		var dataSet = config.store().get(Contact.class, id);
+		if (dataSet == null) {
 			config.log().error("invalid reference in ILCD data set:" +
 				" contact '" + id + "' does not exist");
 			return null;
 		}
-		return new ContactImport(config).run(contact);
+		return new ContactImport(config).run(dataSet);
 	}
 
 	private Actor createNew() {

@@ -22,8 +22,11 @@ import java.util.Map;
  * currently does not check and assure that the given provider indeed provides
  * the flow of the respective exchange (however, wrong providers should not
  * taken into account in the openLCA linking algorithms).
+ *
+ * @deprecated use {@link org.openlca.core.io.ExchangeProviderQueue}
  */
-public class ProviderLinker {
+@Deprecated
+class ProviderLinker {
 
 	/** Describes a provider link. */
 	private static class Link {

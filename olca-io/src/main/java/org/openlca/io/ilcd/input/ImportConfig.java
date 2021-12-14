@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.io.ExchangeProviderQueue;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Flow;
 import org.openlca.ilcd.commons.LangString;
@@ -22,6 +23,7 @@ public class ImportConfig {
 	private String[] langOrder = { "en" };
 	private HashMap<String, Flow> flowCache = new HashMap<>();
 	private FlowMap flowMap;
+	private ExchangeProviderQueue providers;
 
 	public ImportConfig(DataStore store, IDatabase database) {
 		this.store = store;
@@ -86,6 +88,13 @@ public class ImportConfig {
 			flowMap = FlowMap.empty();
 		}
 		return flowMap;
+	}
+
+	public ExchangeProviderQueue providers() {
+		if (providers == null) {
+			providers = ExchangeProviderQueue.create(db);
+		}
+		return providers;
 	}
 
 	String str(List<LangString> list) {

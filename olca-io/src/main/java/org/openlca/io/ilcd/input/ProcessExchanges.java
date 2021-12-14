@@ -10,7 +10,6 @@ import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
 import org.openlca.ilcd.commons.ExchangeDirection;
-import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.processes.AllocationFactor;
 import org.openlca.ilcd.util.ExchangeExtension;
 import org.openlca.ilcd.util.ProcessBag;
@@ -27,21 +26,18 @@ class ProcessExchanges {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final ImportConfig config;
-	private final ProviderLinker providerLinker;
-	private List<MappedPair> mappedPairs = new ArrayList<>();
+	private final List<MappedPair> mappedPairs = new ArrayList<>();
 
-	ProcessExchanges(ImportConfig config, ProviderLinker providerLinker) {
+	ProcessExchanges(ImportConfig config) {
 		this.config = config;
-		this.providerLinker = providerLinker;
 	}
 
 	void map(ProcessBag iProcess, Process process) {
 		mappedPairs.clear();
 		int maxID = 0;
-		for (org.openlca.ilcd.processes.Exchange iExchange : iProcess
-				.getExchanges()) {
-			ExchangeFlow flow = new ExchangeFlow(iExchange);
-			ExchangeExtension ext = new ExchangeExtension(iExchange);
+		for (var iExchange : iProcess.getExchanges()) {
+			var flow = new ExchangeFlow(iExchange);
+			var ext = new ExchangeExtension(iExchange);
 
 			flow.findOrImport(config);
 
@@ -61,10 +57,9 @@ class ProcessExchanges {
 
 			// add a possible mapped provider
 			if (flow.getMappedProvider() != null) {
-				String provider = flow.getMappedProvider().refId;
+				var provider = flow.getMappedProvider().refId;
 				if (provider != null) {
-					providerLinker.addLink(
-							process.refId, e.internalId, provider);
+					config.providers().add(provider, e);
 				}
 			}
 
@@ -77,11 +72,10 @@ class ProcessExchanges {
 					e.isInput = !e.isInput;
 					e.isAvoided = true;
 				}
-				String provider = ext.getDefaultProvider();
+				var provider = ext.getDefaultProvider();
 				if (provider != null
 						&& flow.getMappedProvider() == null) {
-					providerLinker.addLink(
-							process.refId, e.internalId, provider);
+					config.providers().add(provider, e);
 				}
 			}
 
@@ -113,7 +107,7 @@ class ProcessExchanges {
 				? process.add(Exchange.of(flow.flow, flow.flowProperty, flow.unit))
 				: process.add(Exchange.of(flow.flow));
 		e.isInput = iExchange.direction == ExchangeDirection.INPUT;
-		e.description = LangString.getFirst(iExchange.comment, config.langs);
+		e.description = config.str(iExchange.comment);
 		// set the default value for the exchange which may is overwritten
 		// later by applying flow mappings, formulas, etc.
 		e.amount = iExchange.resultingAmount != null
@@ -155,9 +149,9 @@ class ProcessExchanges {
 		if (!ext.isValid())
 			return;
 		try {
-			UnitDao unitDao = new UnitDao(config.db);
+			var unitDao = new UnitDao(config.db());
 			flow.unit = unitDao.getForRefId(ext.getUnitId());
-			FlowPropertyDao propDao = new FlowPropertyDao(config.db);
+			FlowPropertyDao propDao = new FlowPropertyDao(config.db());
 			flow.flowProperty = propDao.getForRefId(ext.getPropertyId());
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(this.getClass());

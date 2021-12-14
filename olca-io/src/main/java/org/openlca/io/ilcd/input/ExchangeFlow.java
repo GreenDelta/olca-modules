@@ -18,7 +18,7 @@ class ExchangeFlow {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private ImportConfig config;
-	private Exchange iExchange;
+	private final Exchange iExchange;
 
 	Flow flow;
 	FlowMapEntry mapEntry;
@@ -63,7 +63,7 @@ class ExchangeFlow {
 	}
 
 	private Flow fetch(String uuid) {
-		Flow flow = config.flowCache.get(uuid);
+		Flow flow = config.flowCache().get(uuid);
 		if (flow != null)
 			return flow;
 		flow = fetchFromFlowMap(uuid);
@@ -76,17 +76,17 @@ class ExchangeFlow {
 		}
 		flow = fetchFromDatabase(uuid);
 		if (flow != null) {
-			config.flowCache.put(uuid, flow);
+			config.flowCache().put(uuid, flow);
 			return flow;
 		}
 		flow = fetchFromImport(uuid);
-		config.flowCache.put(uuid, flow);
+		config.flowCache().put(uuid, flow);
 		return flow;
 	}
 
 	private Flow fetchFromDatabase(String flowId) {
 		try {
-			FlowDao dao = new FlowDao(config.db);
+			FlowDao dao = new FlowDao(config.db());
 			return dao.getForRefId(flowId);
 		} catch (Exception e) {
 			log.error("Cannot get flow", e);
@@ -100,10 +100,10 @@ class ExchangeFlow {
 		if (e == null)
 			return null;
 		String targetID = e.targetFlowID();
-		Flow f = config.flowCache.get(targetID);
+		Flow f = config.flowCache().get(targetID);
 		if (f == null) {
 			f = fetchFromDatabase(targetID);
-			config.flowCache.put(targetID, f);
+			config.flowCache().put(targetID, f);
 		}
 		if (f != null) {
 			mapEntry = e;
