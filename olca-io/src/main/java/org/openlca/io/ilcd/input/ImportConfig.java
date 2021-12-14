@@ -59,7 +59,7 @@ public class ImportConfig {
 		return log;
 	}
 
-	DataStore store() {
+	public DataStore store() {
 		return store;
 	}
 
@@ -67,7 +67,7 @@ public class ImportConfig {
 		return db;
 	}
 
-	boolean allFlows() {
+	public boolean withAllFlows() {
 		return allFlows;
 	}
 

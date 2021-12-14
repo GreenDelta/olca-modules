@@ -1,7 +1,10 @@
 package org.openlca.core.io;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.function.Consumer;
 
 import org.openlca.core.model.descriptors.Descriptor;
 
@@ -12,6 +15,13 @@ public final class ImportLog {
 
 	// using a set internally to avoid duplicate messages
 	private final HashSet<Message> messages = new HashSet<>();
+	private final List<Consumer<Message>> listeners = new ArrayList<>();
+
+	public void listen(Consumer<Message> fn) {
+		if (fn != null) {
+			listeners.add(fn);
+		}
+	}
 
 	public Collection<Message> messages() {
 		return messages;
@@ -32,11 +42,11 @@ public final class ImportLog {
 		add(Type.OK, message, descriptor);
 	}
 
-	public void warning(String message) {
+	public void warn(String message) {
 		add(Type.WARNING, message, null);
 	}
 
-	public void warning(String message, Descriptor descriptor) {
+	public void warn(String message, Descriptor descriptor) {
 		add(Type.WARNING, message, descriptor);
 	}
 
@@ -48,10 +58,19 @@ public final class ImportLog {
 		add(Type.ERROR, message, descriptor);
 	}
 
+	public void error(String message, Throwable err) {
+		add(Type.ERROR, message + ": " + err.getMessage(), null);
+	}
+
 	private void add(Type type, String message, Descriptor descriptor) {
 		if (message == null && descriptor == null)
 			return;
-		messages.add(new Message(type, message, descriptor));
+		var m = new Message(type, message, descriptor);
+		if (messages.add(m)) {
+			for (var listener : listeners) {
+				listener.accept(m);
+			}
+		}
 	}
 
 	public enum Type {

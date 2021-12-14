@@ -3,8 +3,6 @@ package org.openlca.io.ilcd;
 import java.util.Iterator;
 
 import org.openlca.core.database.FlowDao;
-import org.openlca.ilcd.commons.IDataSet;
-import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flows.Flow;
@@ -13,8 +11,6 @@ import org.openlca.ilcd.models.Model;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
-import org.openlca.io.FileImport;
-import org.openlca.io.ImportEvent;
 import org.openlca.io.ilcd.input.ContactImport;
 import org.openlca.io.ilcd.input.FlowImport;
 import org.openlca.io.ilcd.input.FlowPropertyImport;
@@ -26,28 +22,16 @@ import org.openlca.io.ilcd.input.SourceImport;
 import org.openlca.io.ilcd.input.UnitGroupImport;
 import org.openlca.io.ilcd.input.models.ModelImport;
 import org.openlca.io.maps.FlowMapEntry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.google.common.eventbus.EventBus;
+public class ILCDImport implements Runnable {
 
-public class ILCDImport implements FileImport {
-
-	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private boolean canceled = false;
-	private EventBus eventBus;
 	private final ImportConfig config;
 
 	public ILCDImport(ImportConfig config) {
 		this.config = config;
 	}
 
-	@Override
-	public void setEventBus(EventBus eventBus) {
-		this.eventBus = eventBus;
-	}
-
-	@Override
 	public void cancel() {
 		this.canceled = true;
 	}
@@ -60,7 +44,7 @@ public class ILCDImport implements FileImport {
 		tryImportSources();
 		tryImportUnits();
 		tryImportFlowProperties();
-		if (config.importFlows) {
+		if (config.withAllFlows()) {
 			tryImportFlows();
 		}
 		tryImportProcesses();
@@ -69,28 +53,19 @@ public class ILCDImport implements FileImport {
 		tryCloseStore();
 	}
 
-	private void tryCloseStore() {
-		try {
-			config.store.close();
-		} catch (Exception e) {
-			log.warn("Could not close zip file", e);
-		}
-	}
-
 	private void tryImportContacts() {
 		if (canceled)
 			return;
 		try {
-			Iterator<Contact> it = config.store.iterator(Contact.class);
+			var it = config.store().iterator(Contact.class);
 			while (it.hasNext() && !canceled) {
-				Contact contact = it.next();
+				var contact = it.next();
 				if (contact == null)
 					continue;
-				ContactImport contactImport = new ContactImport(config);
-				contactImport.run(contact);
+				new ContactImport(config).run(contact);
 			}
 		} catch (Exception e) {
-			log.error("Contact import failed", e);
+			config.log().error("Contact import failed", e);
 		}
 	}
 
@@ -98,9 +73,9 @@ public class ILCDImport implements FileImport {
 		if (canceled)
 			return;
 		try {
-			Iterator<Source> it = config.store.iterator(Source.class);
+			var it = config.store().iterator(Source.class);
 			while (it.hasNext() && !canceled) {
-				Source source = it.next();
+				var source = it.next();
 				if (source == null)
 					continue;
 				fireEvent(source);
@@ -234,18 +209,6 @@ public class ILCDImport implements FileImport {
 		} catch (Exception e) {
 			log.error("Product model import failed", e);
 		}
-	}
-
-	private void fireEvent(IDataSet ds) {
-		if (ds == null)
-			return;
-		String name = LangString.getFirst(ds.getName(), config.langs);
-		String info = ds.getDataSetType().toString() + " " + name + " "
-				+ ds.getUUID();
-		log.trace("import {}", info);
-		if (eventBus == null)
-			return;
-		eventBus.post(new ImportEvent(info));
 	}
 
 }
