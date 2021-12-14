@@ -39,7 +39,7 @@ class ExchangeFlow {
 	 */
 	ProcessDescriptor getMappedProvider() {
 		if (flow == null
-				|| flow.flowType == FlowType.ELEMENTARY_FLOW)
+			|| flow.flowType == FlowType.ELEMENTARY_FLOW)
 			return null;
 		if (mapEntry == null)
 			return null;
@@ -79,7 +79,7 @@ class ExchangeFlow {
 			config.flowCache().put(uuid, flow);
 			return flow;
 		}
-		flow = fetchFromImport(uuid);
+		flow = FlowImport.get(config, uuid);
 		config.flowCache().put(uuid, flow);
 		return flow;
 	}
@@ -111,16 +111,6 @@ class ExchangeFlow {
 		return f;
 	}
 
-	private Flow fetchFromImport(String flowId) {
-		try {
-			FlowImport flowImport = new FlowImport(config);
-			return flowImport.run(flowId);
-		} catch (Exception e) {
-			log.error("Cannot get flow", e);
-			return null;
-		}
-	}
-
 	boolean isValid() {
 		if (flow == null)
 			return false;
@@ -134,14 +124,14 @@ class ExchangeFlow {
 		if (group == null)
 			return false;
 		return (unit != null && group.getUnit(unit.name) != null)
-				|| group.referenceUnit != null;
+			|| group.referenceUnit != null;
 	}
 
 	@Override
 	public String toString() {
 		return "Exchange [flow=" + flow
-				+ ", flowProperty=" + flowProperty
-				+ ", unit=" + unit + "]";
+			+ ", flowProperty=" + flowProperty
+			+ ", unit=" + unit + "]";
 	}
 
 }

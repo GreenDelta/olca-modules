@@ -1,8 +1,5 @@
 package org.openlca.io.ilcd;
 
-import java.util.Iterator;
-
-import org.openlca.core.database.FlowDao;
 import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.flowproperties.FlowProperty;
@@ -18,11 +15,9 @@ import org.openlca.io.ilcd.input.FlowPropertyImport;
 import org.openlca.io.ilcd.input.ImportConfig;
 import org.openlca.io.ilcd.input.MethodImport;
 import org.openlca.io.ilcd.input.ProcessImport;
-import org.openlca.io.ilcd.input.ProviderLinker;
 import org.openlca.io.ilcd.input.SourceImport;
 import org.openlca.io.ilcd.input.UnitGroupImport;
 import org.openlca.io.ilcd.input.models.ModelImport;
-import org.openlca.io.maps.FlowMapEntry;
 
 public class ILCDImport implements Runnable {
 
@@ -48,78 +43,9 @@ public class ILCDImport implements Runnable {
 		if (config.withAllFlows()) {
 			importAll(Flow.class);
 		}
-		tryImportProcesses();
-		tryImportMethods();
-		tryImportModels();
-	}
-
-	private boolean isMapped(Flow flow) {
-		if (flow == null)
-			return false;
-		String uuid = flow.getUUID();
-		FlowMapEntry me = config.flowMap().getEntry(uuid);
-		if (me == null)
-			return false;
-		FlowDao dao = new FlowDao(config.db);
-		// TODO: we should cache the flow for later but
-		// we cannot do this currently: see ExchangeFlow
-		return dao.getForRefId(me.targetFlowID()) != null;
-	}
-
-	private void tryImportProcesses() {
-		if (canceled)
-			return;
-		try {
-			Iterator<Process> it = config.store.iterator(Process.class);
-			ProviderLinker linker = new ProviderLinker();
-			ProcessImport imp = new ProcessImport(config, linker);
-			while (it.hasNext() && !canceled) {
-				Process p = it.next();
-				if (p == null)
-					continue;
-				fireEvent(p);
-				imp.run(p);
-			}
-			linker.createLinks(config.db);
-		} catch (Exception e) {
-			log.error("Process import failed", e);
-		}
-	}
-
-	private void tryImportMethods() {
-		if (canceled)
-			return;
-		try {
-			Iterator<LCIAMethod> it = config.store.iterator(LCIAMethod.class);
-			while (it.hasNext() && !canceled) {
-				LCIAMethod method = it.next();
-				if (method == null)
-					continue;
-				fireEvent(method);
-				MethodImport methodImport = new MethodImport(config);
-				methodImport.run(method);
-			}
-		} catch (Exception e) {
-			log.error("Impact category import failed", e);
-		}
-	}
-
-	private void tryImportModels() {
-		if (canceled)
-			return;
-		try {
-			Iterator<Model> it = config.store.iterator(Model.class);
-			while (it.hasNext() && !canceled) {
-				Model m = it.next();
-				if (m == null)
-					continue;
-				fireEvent(m);
-				ModelImport si = new ModelImport(config);
-				si.run(m);
-			}
-		} catch (Exception e) {
-			log.error("Product model import failed", e);
-		}
+		importAll(Process.class);
+		importAll(LCIAMethod.class);
+		importAll(Model.class);
 	}
 
 	private <T extends IDataSet> void importAll(Class<T> type) {
@@ -150,6 +76,15 @@ public class ILCDImport implements Runnable {
 				new FlowPropertyImport(config).run(prop);
 			} else if (dataSet instanceof Flow flow) {
 				new FlowImport(config).run(flow);
+			} else if (dataSet instanceof Process process) {
+				new ProcessImport(config).run(process);
+			} else if (dataSet instanceof LCIAMethod method) {
+				new MethodImport(config).run(method);
+			} else if (dataSet instanceof  Model model) {
+				new ModelImport(config).run(model);
+			} else {
+				config.log().error("No matching import for data set "
+					+ dataSet + " available");
 			}
 		} catch (Exception e) {
 			config.log().error("Import of " + dataSet + " failed", e);

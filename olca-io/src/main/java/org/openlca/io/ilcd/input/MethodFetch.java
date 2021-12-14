@@ -28,15 +28,14 @@ final class MethodFetch {
 	private final LCIAMethod ilcdMethod;
 
 	private MethodFetch(ImportConfig config, LCIAMethod ilcdMethod) {
-		this.dao = new ImpactMethodDao(config.db);
+		this.dao = new ImpactMethodDao(config.db());
 		this.ilcdMethod = ilcdMethod;
 	}
 
-	public static List<ImpactMethod> get(LCIAMethod ilcdMethod, ImportConfig config) {
-		if (ilcdMethod == null || config.db == null)
-			return Collections.emptyList();
-		else
-			return new MethodFetch(config, ilcdMethod).run();
+	public static List<ImpactMethod> get(LCIAMethod dataSet, ImportConfig config) {
+		return dataSet == null
+			? Collections.emptyList()
+			: new MethodFetch(config, dataSet).run();
 	}
 
 	private List<ImpactMethod> run() {

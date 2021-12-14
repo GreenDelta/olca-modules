@@ -8,22 +8,18 @@ import java.util.UUID;
 
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.ImpactCategoryDao;
-import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
-import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.Version;
-import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.methods.DataSetInfo;
 import org.openlca.ilcd.methods.Factor;
 import org.openlca.ilcd.methods.FactorList;
 import org.openlca.ilcd.methods.LCIAMethod;
 import org.openlca.ilcd.methods.MethodInfo;
 import org.openlca.ilcd.methods.Publication;
-import org.openlca.ilcd.methods.QuantitativeReference;
 import org.openlca.ilcd.util.Methods;
 import org.openlca.io.maps.FlowMapEntry;
 import org.openlca.util.Strings;
@@ -45,19 +41,19 @@ public class MethodImport {
 
 	}
 
-	public void run(LCIAMethod iMethod) {
-		if (iMethod == null)
+	public void run(LCIAMethod dataSet) {
+		if (dataSet == null)
 			return;
-		if (exists(iMethod))
+		if (exists(dataSet))
 			return;
-		ImpactCategory indicator = makeCategory(iMethod);
+		var indicator = makeCategory(dataSet);
 
 		// add the indicator to possible LCIA methods
-		for (ImpactMethod oMethod : MethodFetch.get(iMethod, config)) {
+		for (var method : MethodFetch.get(dataSet, config)) {
 
 			// add the indicator only if it does not exist yet in the method
 			boolean exists = false;
-			for (ImpactCategory other : oMethod.impactCategories) {
+			for (var other : method.impactCategories) {
 				if (Objects.equals(indicator.refId, other.refId)) {
 					exists = true;
 					break;
@@ -66,10 +62,10 @@ public class MethodImport {
 			if (exists)
 				continue;
 
-			oMethod.impactCategories.add(indicator);
-			Version.incUpdate(oMethod);
-			oMethod.lastChange = Calendar.getInstance().getTimeInMillis();
-			new ImpactMethodDao(config.db).update(oMethod);
+			method.impactCategories.add(indicator);
+			Version.incUpdate(method);
+			method.lastChange = Calendar.getInstance().getTimeInMillis();
+			config.db().update(method);
 		}
 	}
 
@@ -78,11 +74,11 @@ public class MethodImport {
 		if (uuid == null)
 			return false;
 		try {
-			var dao = new ImpactCategoryDao(config.db);
+			var dao = new ImpactCategoryDao(config.db());
 			ImpactCategory category = dao.getForRefId(uuid);
 			if (category != null) {
 				log.info("LCIA category {} not imported because it "
-						+ "already exists in the database", uuid);
+					+ "already exists in the database", uuid);
 				return true;
 			}
 			log.trace("import LCIA category {}", uuid);
@@ -95,7 +91,7 @@ public class MethodImport {
 
 	private ImpactCategory makeCategory(LCIAMethod iMethod) {
 
-		ImpactCategory impact = new ImpactCategory();
+		var impact = new ImpactCategory();
 		String refId = getUUID(iMethod);
 		impact.refId = refId != null ? refId : UUID.randomUUID().toString();
 		impact.name = getName(iMethod);
@@ -106,7 +102,7 @@ public class MethodImport {
 		var entry = Methods.getDataEntry(iMethod);
 		if (entry != null && entry.timeStamp != null) {
 			impact.lastChange = entry.timeStamp
-					.toGregorianCalendar().getTimeInMillis();
+				.toGregorianCalendar().getTimeInMillis();
 		} else {
 			impact.lastChange = new Date().getTime();
 		}
@@ -119,9 +115,8 @@ public class MethodImport {
 
 		// add LCIA factors and save it
 		addFactors(iMethod, impact);
-		ImpactCategoryDao dao = new ImpactCategoryDao(config.db);
 
-		return dao.insert(impact);
+		return config.db().insert(impact);
 	}
 
 	private String getName(LCIAMethod iMethod) {
@@ -131,7 +126,7 @@ public class MethodImport {
 		DataSetInfo dataInfo = info.dataSetInfo;
 
 		// try to find a name
-		String name = LangString.getFirst(dataInfo.name, config.langs);
+		String name = config.str(dataInfo.name);
 		if (name == null) {
 			List<String> names = dataInfo.impactCategories;
 			if (!names.isEmpty()) {
@@ -158,21 +153,20 @@ public class MethodImport {
 	}
 
 	private String getReferenceUnit(LCIAMethod iMethod) {
-		MethodInfo info = iMethod.methodInfo;
+		var info = iMethod.methodInfo;
 		if (info == null || info.quantitativeReference == null)
 			return null;
-		QuantitativeReference qRef = info.quantitativeReference;
-		if (qRef.quantity == null)
-			return null;
-		return LangString.getFirst(qRef.quantity.name, config.langs);
+		var qRef = info.quantitativeReference;
+		return qRef.quantity == null
+			? null
+			: config.str(qRef.quantity.name);
 	}
 
 	private String getDescription(LCIAMethod iMethod) {
-		MethodInfo info = iMethod.methodInfo;
-		if (info == null || info.dataSetInfo == null)
-			return null;
-		return LangString.getFirst(
-				info.dataSetInfo.comment, config.langs);
+		var info = iMethod.methodInfo;
+		return info == null || info.dataSetInfo == null
+			? null
+			: config.str(info.dataSetInfo.comment);
 	}
 
 	private void addFactors(LCIAMethod iMethod, ImpactCategory category) {
@@ -220,7 +214,7 @@ public class MethodImport {
 				}
 				if (Strings.notEmpty(factor.location)) {
 					f.location = Locations.getOrCreate(
-							factor.location, config);
+						factor.location, config);
 				}
 
 				category.impactFactors.add(f);
@@ -232,7 +226,7 @@ public class MethodImport {
 
 		if (errors > 0) {
 			log.warn("there were flow errors in {} factors of LCIA category {}",
-					errors, category.name);
+				errors, category.name);
 		}
 	}
 
@@ -240,35 +234,35 @@ public class MethodImport {
 		if (prop == null)
 			return null;
 		return prop.unitGroup != null
-				? prop.unitGroup.referenceUnit
-				: null;
+			? prop.unitGroup.referenceUnit
+			: null;
 	}
 
 	private Flow getFlow(String uuid, boolean canImport) {
 
 		// check the cache
-		Flow flow = config.flowCache.get(uuid);
+		Flow flow = config.flowCache().get(uuid);
 		if (flow != null)
 			return flow;
 
 		// check the database
-		FlowDao dao = new FlowDao(config.db);
+		FlowDao dao = new FlowDao(config.db());
 		flow = dao.getForRefId(uuid);
 		if (flow != null) {
-			config.flowCache.put(uuid, flow);
+			config.flowCache().put(uuid, flow);
 			return flow;
 		}
 
 		// run the import
 		if (canImport) {
 			try {
-				flow = new FlowImport(config).run(uuid);
-				config.flowCache.put(uuid, flow);
+				flow = FlowImport.get(config, uuid);
+				config.flowCache().put(uuid, flow);
 				return flow;
 			} catch (Exception e) {
 				log.error("failed to import flow " + uuid, e);
 			}
 		}
-		return	null;
+		return null;
 	}
 }
