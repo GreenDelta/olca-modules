@@ -29,14 +29,14 @@ public class ContactImport implements Import<Contact, Actor> {
 			: createNew();
 	}
 
-	static Actor get(ImportConfig config, String contactId) {
-		var actor = config.db().get(Actor.class, contactId);
+	static Actor get(ImportConfig config, String id) {
+		var actor = config.db().get(Actor.class, id);
 		if (actor != null)
 			return actor;
-		var contact = config.store().get(Contact.class, contactId);
+		var contact = config.store().get(Contact.class, id);
 		if (contact == null) {
 			config.log().error("invalid reference in ILCD data set:" +
-				" contact '" + contactId + "' does not exist");
+				" contact '" + id + "' does not exist");
 			return null;
 		}
 		return new ContactImport(config).run(contact);

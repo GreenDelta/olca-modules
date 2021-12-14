@@ -43,6 +43,7 @@ public class ILCDImport implements Runnable {
 			return;
 		importAll(Contact.class);
 		importAll(Source.class);
+		importAll(UnitGroup.class);
 		tryImportUnits();
 		tryImportFlowProperties();
 		if (config.withAllFlows()) {
@@ -51,25 +52,6 @@ public class ILCDImport implements Runnable {
 		tryImportProcesses();
 		tryImportMethods();
 		tryImportModels();
-	}
-
-
-	private void tryImportUnits() {
-		if (canceled)
-			return;
-		try {
-			Iterator<UnitGroup> it = config.store.iterator(UnitGroup.class);
-			while (it.hasNext() && !canceled) {
-				UnitGroup group = it.next();
-				if (group == null)
-					continue;
-				fireEvent(group);
-				UnitGroupImport groupImport = new UnitGroupImport(config);
-				groupImport.run(group);
-			}
-		} catch (Exception e) {
-			log.error("Unit group import failed", e);
-		}
 	}
 
 	private void tryImportFlowProperties() {
@@ -200,6 +182,8 @@ public class ILCDImport implements Runnable {
 				new ContactImport(config).run(contact);
 			} else if (dataSet instanceof Source source) {
 				new SourceImport(config).run(source);
+			} else if (dataSet instanceof UnitGroup group) {
+				new UnitGroupImport(config).run(group);
 			}
 		} catch (Exception e) {
 			config.log().error("Import of " + dataSet + " failed", e);
