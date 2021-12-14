@@ -17,15 +17,15 @@ public class ResultFlow  extends AbstractExchange
 
 	@Override
 	public ResultFlow copy() {
-		var clone = new ResultFlow();
-		clone.amount = amount;
-		clone.flow = flow;
-		clone.flowPropertyFactor = flowPropertyFactor;
-		clone.isInput = isInput;
-		clone.unit = unit;
-		clone.description = description;
-		clone.location = location;
-		clone.origin = origin;
-		return clone;
+		var copy = new ResultFlow();
+		copy.amount = amount;
+		copy.flow = flow;
+		copy.flowPropertyFactor = flowPropertyFactor;
+		copy.isInput = isInput;
+		copy.unit = unit;
+		copy.description = description;
+		copy.location = location;
+		copy.origin = origin;
+		return copy;
 	}
 }

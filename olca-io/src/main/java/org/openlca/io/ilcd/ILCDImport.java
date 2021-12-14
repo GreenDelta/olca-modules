@@ -33,7 +33,7 @@ import com.google.common.eventbus.EventBus;
 
 public class ILCDImport implements FileImport {
 
-	private Logger log = LoggerFactory.getLogger(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private boolean canceled = false;
 	private EventBus eventBus;
 	private final ImportConfig config;

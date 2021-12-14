@@ -29,7 +29,7 @@ import org.openlca.core.model.Version;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.input.UpdateMode;
 import org.openlca.proto.io.ProtoReader;
-import org.openlca.util.ExchangeProviderQueue;
+import org.openlca.core.io.ExchangeProviderQueue;
 import org.openlca.util.Strings;
 
 public class ProtoImport implements Runnable {

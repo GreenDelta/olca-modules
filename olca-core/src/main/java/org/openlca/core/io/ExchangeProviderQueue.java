@@ -1,4 +1,4 @@
-package org.openlca.util;
+package org.openlca.core.io;
 
 import java.util.ArrayList;
 import java.util.HashMap;
