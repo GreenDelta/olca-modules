@@ -13,4 +13,14 @@ public class FlowDescriptor extends CategorizedDescriptor {
 		this.type = ModelType.FLOW;
 	}
 
+	@Override
+	public FlowDescriptor copy() {
+		var copy = new FlowDescriptor();
+		copyFields(this, copy);
+		copy.location = location;
+		copy.flowType = flowType;
+		copy.refFlowPropertyId = refFlowPropertyId;
+		return copy;
+	}
+
 }

@@ -8,4 +8,11 @@ public class SourceDescriptor extends CategorizedDescriptor {
 		this.type = ModelType.SOURCE;
 	}
 
+	@Override
+	public SourceDescriptor copy() {
+		var copy = new SourceDescriptor();
+		copyFields(this, copy);
+		return copy;
+	}
+
 }

@@ -8,4 +8,11 @@ public class UnitDescriptor extends Descriptor {
 		this.type = ModelType.UNIT;
 	}
 
+	@Override
+	public UnitDescriptor copy() {
+		var copy = new UnitDescriptor();
+		copyFields(this, copy);
+		return copy;
+	}
+
 }

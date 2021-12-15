@@ -10,4 +10,12 @@ public class LocationDescriptor extends CategorizedDescriptor {
 		this.type = ModelType.LOCATION;
 	}
 
+	@Override
+	public LocationDescriptor copy() {
+		var copy = new LocationDescriptor();
+		copyFields(this, copy);
+		copy.code = code;
+		return copy;
+	}
+
 }

@@ -8,4 +8,11 @@ public class UnitGroupDescriptor extends CategorizedDescriptor {
 		this.type = ModelType.UNIT_GROUP;
 	}
 
+	@Override
+	public UnitGroupDescriptor copy() {
+		var copy = new UnitGroupDescriptor();
+		copyFields(this, copy);
+		return copy;
+	}
+
 }

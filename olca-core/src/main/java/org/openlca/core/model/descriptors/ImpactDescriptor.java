@@ -13,4 +13,12 @@ public class ImpactDescriptor extends CategorizedDescriptor {
 		this.type = ModelType.IMPACT_CATEGORY;
 	}
 
+	@Override
+	public ImpactDescriptor copy() {
+		var copy = new ImpactDescriptor();
+		copyFields(this, copy);
+		copy.referenceUnit = referenceUnit;
+		return copy;
+	}
+
 }

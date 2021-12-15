@@ -8,4 +8,11 @@ public class DQSystemDescriptor extends CategorizedDescriptor {
 		this.type = ModelType.DQ_SYSTEM;
 	}
 
+	@Override
+	public DQSystemDescriptor copy() {
+		var copy = new DQSystemDescriptor();
+		copyFields(this, copy);
+		return copy;
+	}
+
 }

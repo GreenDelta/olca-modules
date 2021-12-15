@@ -8,4 +8,11 @@ public class ParameterDescriptor extends CategorizedDescriptor {
 		this.type = ModelType.PARAMETER;
 	}
 
+	@Override
+	public ParameterDescriptor copy() {
+		var copy = new ParameterDescriptor();
+		copyFields(this, copy);
+		return copy;
+	}
+
 }

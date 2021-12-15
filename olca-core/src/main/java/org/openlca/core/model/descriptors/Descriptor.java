@@ -3,6 +3,7 @@ package org.openlca.core.model.descriptors;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.Copyable;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Flow;
@@ -30,7 +31,7 @@ import org.openlca.core.model.UnitGroup;
  * Therefore, the respective DAO classes should provide specific methods for
  * getting such descriptors.
  */
-public class Descriptor {
+public class Descriptor implements Copyable<Descriptor> {
 
 	public String refId;
 	public long id;
@@ -255,40 +256,40 @@ public class Descriptor {
 	public static CategorizedDescriptor of(CategorizedEntity entity) {
 		if (entity == null)
 			return null;
-		if (entity instanceof Project)
-			return of((Project) entity);
-		if (entity instanceof ImpactCategory)
-			return of((ImpactCategory) entity);
-		if (entity instanceof ImpactMethod)
-			return of((ImpactMethod) entity);
-		if (entity instanceof ProductSystem)
-			return of((ProductSystem) entity);
-		if (entity instanceof Process)
-			return of((Process) entity);
-		if (entity instanceof Flow)
-			return of((Flow) entity);
-		if (entity instanceof FlowProperty)
-			return of((FlowProperty) entity);
-		if (entity instanceof UnitGroup)
-			return of((UnitGroup) entity);
-		if (entity instanceof Actor)
-			return of((Actor) entity);
-		if (entity instanceof Source)
-			return of((Source) entity);
-		if (entity instanceof SocialIndicator)
-			return of((SocialIndicator) entity);
-		if (entity instanceof Currency)
-			return of((Currency) entity);
-		if (entity instanceof Location)
-			return of((Location) entity);
-		if (entity instanceof Parameter)
-			return of((Parameter) entity);
-		if (entity instanceof Category)
-			return of((Category) entity);
-		if (entity instanceof DQSystem)
-			return of((DQSystem) entity);
-		if (entity instanceof ResultModel)
-			return of((ResultModel) entity);
+		if (entity instanceof Project project)
+			return of(project);
+		if (entity instanceof ImpactCategory impact)
+			return of(impact);
+		if (entity instanceof ImpactMethod method)
+			return of(method);
+		if (entity instanceof ProductSystem system)
+			return of(system);
+		if (entity instanceof Process process)
+			return of(process);
+		if (entity instanceof Flow flow)
+			return of(flow);
+		if (entity instanceof FlowProperty property)
+			return of(property);
+		if (entity instanceof UnitGroup group)
+			return of(group);
+		if (entity instanceof Actor actor)
+			return of(actor);
+		if (entity instanceof Source source)
+			return of(source);
+		if (entity instanceof SocialIndicator indicator)
+			return of(indicator);
+		if (entity instanceof Currency currency)
+			return of(currency);
+		if (entity instanceof Location location)
+			return of(location);
+		if (entity instanceof Parameter parameter)
+			return of(parameter);
+		if (entity instanceof Category category)
+			return of(category);
+		if (entity instanceof DQSystem dqs)
+			return of(dqs);
+		if (entity instanceof ResultModel result)
+			return of(result);
 		return createUnknownDescriptor(entity);
 	}
 
@@ -302,6 +303,31 @@ public class Descriptor {
 		if (entity instanceof Unit)
 			return of((Unit) entity);
 		return createUnknownDescriptor(entity);
+	}
+
+	@Override
+	public Descriptor copy() {
+		var copy = new Descriptor();
+		copyFields(this, copy);
+		return copy;
+	}
+
+	static void copyFields(Descriptor from, Descriptor to) {
+		if (from == null || to == null)
+			return;
+		to.description = from.description;
+		to.id = from.id;
+		to.lastChange = from.lastChange;
+		to.name = from.name;
+		to.refId = from.refId;
+		to.type = from.type;
+		to.version = from.version;
+		to.library = from.library;
+		to.tags = from.tags;
+		if (from instanceof CategorizedDescriptor fromCat
+			&& to instanceof CategorizedDescriptor toCat) {
+			toCat.category = fromCat.category;
+		}
 	}
 
 }

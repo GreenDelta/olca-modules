@@ -11,4 +11,11 @@ public class ImpactMethodDescriptor extends CategorizedDescriptor {
 		this.type = ModelType.IMPACT_METHOD;
 	}
 
+	@Override
+	public ImpactMethodDescriptor copy() {
+		var copy = new ImpactMethodDescriptor();
+		copyFields(this, copy);
+		return copy;
+	}
+
 }

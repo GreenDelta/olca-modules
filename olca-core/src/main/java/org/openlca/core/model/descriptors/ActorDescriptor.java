@@ -8,4 +8,10 @@ public class ActorDescriptor extends CategorizedDescriptor {
 		this.type = ModelType.ACTOR;
 	}
 
+	@Override
+	public ActorDescriptor copy() {
+		var copy = new ActorDescriptor();
+		copyFields(this, copy);
+		return copy;
+	}
 }

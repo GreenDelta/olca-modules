@@ -10,4 +10,12 @@ public class CategoryDescriptor extends CategorizedDescriptor {
 		this.type = ModelType.CATEGORY;
 	}
 
+	@Override
+	public CategoryDescriptor copy() {
+		var copy = new CategoryDescriptor();
+		copyFields(this, copy);
+		copy.categoryType = categoryType;
+		return copy;
+	}
+
 }

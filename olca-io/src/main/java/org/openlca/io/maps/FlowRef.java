@@ -119,8 +119,7 @@ public class FlowRef {
 			clone.type = d.type;
 			clone.version = d.version;
 
-			if (d instanceof FlowDescriptor) {
-				var fd = (FlowDescriptor) d;
+			if (d instanceof FlowDescriptor fd) {
 				var fclone = (FlowDescriptor) clone;
 				fclone.category = fd.category;
 				fclone.flowType = fd.flowType;
@@ -128,8 +127,7 @@ public class FlowRef {
 				fclone.refFlowPropertyId = fd.refFlowPropertyId;
 			}
 
-			if (d instanceof ProcessDescriptor) {
-				var pd = (ProcessDescriptor) d;
+			if (d instanceof ProcessDescriptor pd) {
 				var pclone = (ProcessDescriptor) clone;
 				pclone.category = pd.category;
 				pclone.infrastructureProcess = pd.infrastructureProcess;

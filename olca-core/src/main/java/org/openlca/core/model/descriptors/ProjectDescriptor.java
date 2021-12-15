@@ -8,4 +8,11 @@ public class ProjectDescriptor extends CategorizedDescriptor {
 		this.type = ModelType.PROJECT;
 	}
 
+	@Override
+	public ProjectDescriptor copy() {
+		var copy = new ProjectDescriptor();
+		copyFields(this, copy);
+		return copy;
+	}
+
 }

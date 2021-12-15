@@ -8,4 +8,11 @@ public class SocialIndicatorDescriptor extends CategorizedDescriptor {
 		this.type = ModelType.SOCIAL_INDICATOR;
 	}
 
+	@Override
+	public SocialIndicatorDescriptor copy() {
+		var copy = new SocialIndicatorDescriptor();
+		copyFields(this, copy);
+		return copy;
+	}
+
 }

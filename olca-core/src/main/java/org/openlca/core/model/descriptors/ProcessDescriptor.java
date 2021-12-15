@@ -14,4 +14,15 @@ public class ProcessDescriptor extends CategorizedDescriptor {
 		this.type = ModelType.PROCESS;
 	}
 
+	@Override
+	public ProcessDescriptor copy() {
+		var copy = new ProcessDescriptor();
+		copyFields(this, copy);
+		copy.processType = processType;
+		copy.infrastructureProcess = infrastructureProcess;
+		copy.location = location;
+		copy.quantitativeReference = quantitativeReference;
+		return copy;
+	}
+
 }
