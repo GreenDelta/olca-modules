@@ -15,4 +15,13 @@ public class UnitGroupDescriptor extends CategorizedDescriptor {
 		return copy;
 	}
 
+	public static Builder create() {
+		return new Builder(new UnitGroupDescriptor());
+	}
+
+	public static class Builder extends DescriptorBuilder<UnitGroupDescriptor> {
+		private Builder(UnitGroupDescriptor descriptor) {
+			super(descriptor);
+		}
+	}
 }

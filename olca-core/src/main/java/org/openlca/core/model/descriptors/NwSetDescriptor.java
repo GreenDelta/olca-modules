@@ -18,4 +18,13 @@ public class NwSetDescriptor extends Descriptor {
 		return copy;
 	}
 
+	public static Builder create() {
+		return new Builder(new NwSetDescriptor());
+	}
+
+	public static class Builder extends DescriptorBuilder<NwSetDescriptor> {
+		private Builder(NwSetDescriptor descriptor) {
+			super(descriptor);
+		}
+	}
 }

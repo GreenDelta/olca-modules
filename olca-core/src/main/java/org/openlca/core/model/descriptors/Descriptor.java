@@ -120,6 +120,8 @@ public class Descriptor implements Copyable<Descriptor> {
 		return d;
 	}
 
+	// region factory methods
+
 	public static DQSystemDescriptor of(DQSystem system) {
 		return system == null
 			? null
@@ -304,6 +306,8 @@ public class Descriptor implements Copyable<Descriptor> {
 			return of((Unit) entity);
 		return createUnknownDescriptor(entity);
 	}
+
+	// endregion
 
 	@Override
 	public Descriptor copy() {

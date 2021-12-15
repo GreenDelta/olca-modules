@@ -172,20 +172,20 @@ public class HSCSim {
 		 */
 		private Optional<Exchange> fromMapped(FlowMapEntry fme) {
 			if (fme == null
-					|| fme.targetFlow == null
-					|| fme.targetFlow.flow == null)
+					|| fme.targetFlow() == null
+					|| fme.targetFlow().flow == null)
 				return Optional.empty();
 
 			var flow = new FlowDao(db).getForRefId(
-					fme.targetFlow.flow.refId);
+					fme.targetFlow().flow.refId);
 			if (flow == null)
 				return Optional.empty();
 
 			// get the flow property
 			FlowProperty property = null;
-			if (fme.targetFlow.property != null) {
+			if (fme.targetFlow().property != null) {
 				property = new FlowPropertyDao(db).getForRefId(
-						fme.targetFlow.property.refId);
+						fme.targetFlow().property.refId);
 			}
 			if (property == null) {
 				property = flow.referenceFlowProperty;
@@ -193,16 +193,16 @@ public class HSCSim {
 
 			// get the unit
 			Unit unit = null;
-			if (fme.targetFlow.unit != null) {
+			if (fme.targetFlow().unit != null) {
 				unit = new UnitDao(db).getForRefId(
-						fme.targetFlow.unit.refId);
+						fme.targetFlow().unit.refId);
 			}
 			if (unit == null) {
 				unit = flow.getReferenceUnit();
 			}
 
 			var exchange = Exchange.of(flow, property, unit);
-			exchange.amount = fme.factor;
+			exchange.amount = fme.factor();
 			return Optional.empty();
 		}
 

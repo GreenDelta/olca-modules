@@ -25,4 +25,34 @@ public class ProcessDescriptor extends CategorizedDescriptor {
 		return copy;
 	}
 
+	public static Builder create() {
+		return new Builder(new ProcessDescriptor());
+	}
+
+	public static class Builder extends DescriptorBuilder<ProcessDescriptor> {
+
+		private Builder(ProcessDescriptor descriptor) {
+			super(descriptor);
+		}
+
+		public Builder processType(ProcessType processType) {
+			descriptor.processType = processType;
+			return this;
+		}
+
+		public Builder infrastructureProcess(boolean infrastructureProcess) {
+			descriptor.infrastructureProcess = infrastructureProcess;
+			return this;
+		}
+
+		public Builder location(Long location) {
+			descriptor.location = location;
+			return this;
+		}
+
+		public Builder quantitativeReference(Long quantitativeReference) {
+			descriptor.quantitativeReference = quantitativeReference;
+			return this;
+		}
+	}
 }

@@ -134,7 +134,7 @@ public class ProcessWriter {
 			// 2) check if we have a mapped flow
 			FlowMapEntry mapEntry = mappedFlow(e.flow);
 			if (mapEntry != null) {
-				c = Compartment.fromPath(mapEntry.targetFlow.flowCategory);
+				c = Compartment.fromPath(mapEntry.targetFlow().flowCategory);
 				if (c != null) {
 					flowCompartments.put(e.flow, c);
 					continue;
@@ -225,9 +225,9 @@ public class ProcessWriter {
 				FlowMapEntry mapEntry = mappedFlow(flow);
 				if (mapEntry != null) {
 					// handle mapped flows
-					name = mapEntry.targetFlow.flow.name;
-					if (mapEntry.targetFlow.unit != null) {
-						unit = unit(mapEntry.targetFlow.unit.name);
+					name = mapEntry.targetFlow().flow.name;
+					if (mapEntry.targetFlow().unit != null) {
+						unit = unit(mapEntry.targetFlow().unit.name);
 					}
 				} else {
 					// handle unmapped flows
@@ -446,15 +446,15 @@ public class ProcessWriter {
 			}
 
 			// handle a mapped flow
-			FlowRef target = mapEntry.targetFlow;
+			FlowRef target = mapEntry.targetFlow();
 			String unit = target.unit != null
 					? unit(target.unit.name)
 					: SimaProUnit.kg.symbol;
-			var u = uncertainty(e.amount, e.uncertainty, mapEntry.factor);
+			var u = uncertainty(e.amount, e.uncertainty, mapEntry.factor());
 			writeln(target.flow.name,
 					comp.sub().toString(),
 					unit,
-					e.amount * mapEntry.factor,
+					e.amount * mapEntry.factor(),
 					u[0], u[1], u[2], u[3],
 					e.description);
 		}

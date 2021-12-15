@@ -15,4 +15,13 @@ public class SourceDescriptor extends CategorizedDescriptor {
 		return copy;
 	}
 
+	public static Builder create() {
+		return new Builder(new SourceDescriptor());
+	}
+
+	public static class Builder extends DescriptorBuilder<SourceDescriptor> {
+		private Builder(SourceDescriptor descriptor) {
+			super(descriptor);
+		}
+	}
 }

@@ -18,4 +18,14 @@ public class LocationDescriptor extends CategorizedDescriptor {
 		return copy;
 	}
 
+	public static Builder create() {
+		return new Builder(new LocationDescriptor());
+	}
+
+	public static class Builder extends DescriptorBuilder<LocationDescriptor> {
+		private Builder(LocationDescriptor descriptor) {
+			super(descriptor);
+		}
+	}
+
 }

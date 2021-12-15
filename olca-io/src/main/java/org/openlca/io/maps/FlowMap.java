@@ -73,7 +73,7 @@ public class FlowMap extends Descriptor {
 		if (index == null) {
 			index = new HashMap<>();
 			for (var e : entries) {
-				var sid = e.sourceFlowID();
+				var sid = e.sourceFlowId();
 				if (sid != null) {
 					index.put(sid, e);
 				}
@@ -99,19 +99,22 @@ public class FlowMap extends Descriptor {
 			var dbIDs = new HashSet<>();
 			new FlowDao(db).getDescriptors().forEach(d -> dbIDs.add(d.refId));
 			Maps.readAll(map, db, null, null, new ParseDouble()).forEach(r -> {
-				String sourceID = Maps.getString(r, 0);
-				String targetID = Maps.getString(r, 1);
-				if (targetID == null || !dbIDs.contains(targetID))
+				var sourceId = Maps.getString(r, 0);
+				var targetId = Maps.getString(r, 1);
+				if (targetId == null || !dbIDs.contains(targetId))
 					return;
-				FlowMapEntry e = new FlowMapEntry();
-				e.sourceFlow = new FlowRef();
-				e.sourceFlow.flow = new FlowDescriptor();
-				e.sourceFlow.flow.refId = sourceID;
-				e.targetFlow = new FlowRef();
-				e.targetFlow.flow = new FlowDescriptor();
-				e.targetFlow.flow.refId = targetID;
-				e.factor = Maps.getDouble(r, 2);
-				m.entries.add(e);
+
+				var sourceFlow = new FlowRef();
+				sourceFlow.flow = new FlowDescriptor();
+				sourceFlow.flow.refId = sourceId;
+
+				var targetFlow = new FlowRef();
+				targetFlow.flow = new FlowDescriptor();
+				targetFlow.flow.refId = targetId;
+
+				var factor = Maps.getDouble(r, 2);
+
+				m.entries.add(new FlowMapEntry(sourceFlow, targetFlow, factor));
 			});
 		} catch (Exception e) {
 			log.error("Error while reading mapping file", e);
@@ -148,86 +151,96 @@ public class FlowMap extends Descriptor {
 			return fm;
 		Maps.each(stream, row -> {
 
-			FlowMapEntry e = new FlowMapEntry();
-			fm.entries.add(e);
-			e.factor = Maps.getDouble(row, 2);
-
 			// source flow
+			FlowRef sourceFlow = null;
 			String sid = Maps.getString(row, 0);
 			if (Strings.notEmpty(sid)) {
-				e.sourceFlow = new FlowRef();
-				e.sourceFlow.flow = new FlowDescriptor();
-				e.sourceFlow.flow.refId = sid;
-				e.sourceFlow.flow.name = Maps.getString(row, 3);
-				e.sourceFlow.flowCategory = Maps.getString(row, 4);
-				e.sourceFlow.flowLocation = Maps.getString(row, 5);
+				sourceFlow = new FlowRef();
+				sourceFlow.flow = FlowDescriptor.create()
+					.refId(sid)
+					.name(Maps.getString(row, 3))
+					.get();
+				sourceFlow.flowCategory = Maps.getString(row, 4);
+				sourceFlow.flowLocation = Maps.getString(row, 5);
 
 				// flow property
 				String sprop = Maps.getString(row, 9);
 				if (Strings.notEmpty(sprop)) {
-					e.sourceFlow.property = new FlowPropertyDescriptor();
-					e.sourceFlow.property.refId = sprop;
-					e.sourceFlow.property.name = Maps.getString(row, 10);
+					sourceFlow.property = FlowPropertyDescriptor.create()
+						.refId(sprop)
+						.name(Maps.getString(row, 10))
+						.get();
 				}
 
 				// unit
 				String sunitID = Maps.getString(row, 13);
 				String sunitName = Maps.getString(row, 14);
 				if (Strings.notEmpty(sunitID) || Strings.notEmpty(sunitName)) {
-					e.sourceFlow.unit = new UnitDescriptor();
-					e.sourceFlow.unit.refId = sunitID;
-					e.sourceFlow.unit.name = sunitName;
+					sourceFlow.unit = UnitDescriptor.create()
+						.refId(sunitID)
+						.name(sunitName)
+						.get();
 				}
 
 				// status
 				String sstatus = Maps.getString(row, 21);
 				if (Strings.notEmpty(sstatus)) {
-					e.sourceFlow.status = Status.fromString(sstatus);
+					sourceFlow.status = MappingStatus.fromString(sstatus);
 				}
 			}
 
 			// target flow
+			FlowRef targetFlow = null;
 			String tid = Maps.getString(row, 1);
 			if (Strings.notEmpty(tid)) {
-				e.targetFlow = new FlowRef();
-				e.targetFlow.flow = new FlowDescriptor();
-				e.targetFlow.flow.refId = tid;
-				e.targetFlow.flow.name = Maps.getString(row, 6);
-				e.targetFlow.flowCategory = Maps.getString(row, 7);
-				e.targetFlow.flowLocation = Maps.getString(row, 8);
+				targetFlow = new FlowRef();
+				targetFlow.flow = FlowDescriptor.create()
+					.refId(tid)
+					.name(Maps.getString(row, 6))
+					.get();
+				targetFlow.flowCategory = Maps.getString(row, 7);
+				targetFlow.flowLocation = Maps.getString(row, 8);
 
 				// flow property
 				String tprop = Maps.getString(row, 11);
 				if (Strings.notEmpty(tprop)) {
-					e.targetFlow.property = new FlowPropertyDescriptor();
-					e.targetFlow.property.refId = tprop;
-					e.targetFlow.property.name = Maps.getString(row, 12);
+					targetFlow.property = FlowPropertyDescriptor.create()
+						.refId(tprop)
+						.name(Maps.getString(row, 12))
+						.get();
 				}
 
 				// unit
 				String tunitID = Maps.getString(row, 15);
 				String tunitName = Maps.getString(row, 16);
 				if (Strings.notEmpty(tunitID) || Strings.notEmpty(tunitName)) {
-					e.targetFlow.unit = new UnitDescriptor();
-					e.targetFlow.unit.refId = tunitID;
-					e.targetFlow.unit.name = tunitName;
+					targetFlow.unit = UnitDescriptor.create()
+						.refId(tunitID)
+						.name(tunitName)
+						.get();
 				}
 
 				// provider
 				String prov = Maps.getString(row, 17);
 				if (Strings.notEmpty(prov)) {
-					e.targetFlow.provider = new ProcessDescriptor();
-					e.targetFlow.provider.refId = prov;
-					e.targetFlow.provider.name = Maps.getString(row, 18);
-					e.targetFlow.providerCategory = Maps.getString(row, 19);
-					e.targetFlow.providerLocation = Maps.getString(row, 20);
+					targetFlow.provider = ProcessDescriptor.create()
+						.refId(prov)
+						.name(Maps.getString(row, 18))
+						.get();
+					targetFlow.providerCategory = Maps.getString(row, 19);
+					targetFlow.providerLocation = Maps.getString(row, 20);
 				}
 
 				// status
 				String tstatus = Maps.getString(row, 22);
 				if (Strings.notEmpty(tstatus)) {
-					e.targetFlow.status = Status.fromString(tstatus);
+					targetFlow.status = MappingStatus.fromString(tstatus);
 				}
+			}
+
+			if (sourceFlow != null || targetFlow != null) {
+				var factor = Maps.getDouble(row, 2);
+				fm.entries.add(new FlowMapEntry(sourceFlow, targetFlow, factor));
 			}
 		});
 		return fm;
@@ -280,10 +293,10 @@ public class FlowMap extends Descriptor {
 			return;
 		Maps.write(stream, fm.entries.stream().map(e -> {
 			Object[] row = new Object[23];
-			row[2] = e.factor;
+			row[2] = e.factor();
 
 			// source flow
-			FlowRef s = e.sourceFlow;
+			FlowRef s = e.sourceFlow();
 			if (s != null) {
 
 				// flow
@@ -314,7 +327,7 @@ public class FlowMap extends Descriptor {
 			}
 
 			// target flow
-			FlowRef t = e.targetFlow;
+			FlowRef t = e.targetFlow();
 			if (t != null) {
 
 				// flow
@@ -364,20 +377,16 @@ public class FlowMap extends Descriptor {
 		map.target = new Descriptor();
 		mapDescriptor(Json.getObject(obj, "target"), map.target);
 
-		JsonArray array = Json.getArray(obj, "mappings");
+		var array = Json.getArray(obj, "mappings");
 		if (array != null) {
 			for (JsonElement e : array) {
 				if (!e.isJsonObject())
 					continue;
-				JsonObject eObj = e.getAsJsonObject();
-				FlowMapEntry entry = new FlowMapEntry();
-				entry.sourceFlow = asFlowRef(
-						Json.getObject(eObj, "from"));
-				entry.targetFlow = asFlowRef(
-						Json.getObject(eObj, "to"));
-				entry.factor = Json.getDouble(
-						eObj, "conversionFactor", 1.0);
-				map.entries.add(entry);
+				var eObj = e.getAsJsonObject();
+				var sourceFlow = asFlowRef(Json.getObject(eObj, "from"));
+				var targetFlow = asFlowRef(Json.getObject(eObj, "to"));
+				var factor = Json.getDouble(eObj, "conversionFactor", 1.0);
+				map.entries.add(new FlowMapEntry(sourceFlow, targetFlow, factor));
 			}
 		}
 		return map;
@@ -415,8 +424,7 @@ public class FlowMap extends Descriptor {
 		d.name = Json.getString(obj, "name");
 		d.description = Json.getString(obj, "description");
 		d.refId = Json.getString(obj, "@id");
-		if (d instanceof FlowDescriptor) {
-			FlowDescriptor fd = (FlowDescriptor) d;
+		if (d instanceof FlowDescriptor fd) {
 			fd.flowType = Json.getEnum(obj, "flowType", FlowType.class);
 			if (fd.flowType == null) {
 				fd.flowType = FlowType.ELEMENTARY_FLOW;

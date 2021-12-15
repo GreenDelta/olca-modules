@@ -15,4 +15,13 @@ public class CurrencyDescriptor extends CategorizedDescriptor {
 		return copy;
 	}
 
+	public static Builder create() {
+		return new Builder(new CurrencyDescriptor());
+	}
+
+	public static class Builder extends DescriptorBuilder<CurrencyDescriptor> {
+		private Builder(CurrencyDescriptor descriptor) {
+			super(descriptor);
+		}
+	}
 }

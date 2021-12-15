@@ -254,10 +254,10 @@ class FlowSync {
 		var mapEntry = flowMap.getEntry(mappingKey);
 		if (mapEntry == null)
 			return null;
-		var flow = mapEntry.targetFlow.getMatchingFlow(db);
+		var flow = mapEntry.targetFlow().getMatchingFlow(db);
 		if (flow == null)
 			return null;
-		var syncFlow = SyncFlow.ofMapped(flow, mapEntry.factor);
+		var syncFlow = SyncFlow.ofMapped(flow, mapEntry.factor());
 		mappedFlows.put(mappingKey, syncFlow);
 		return syncFlow;
 	}

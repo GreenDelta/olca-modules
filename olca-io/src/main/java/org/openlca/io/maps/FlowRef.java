@@ -1,6 +1,7 @@
 package org.openlca.io.maps;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.Copyable;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Unit;
@@ -13,7 +14,7 @@ import org.openlca.util.Strings;
  * A FlowRef contains the associated reference data of a source or target flow
  * in a flow mapping.
  */
-public class FlowRef {
+public class FlowRef implements Copyable<FlowRef> {
 
 	/**
 	 * The reference information of a flow data set. This information is
@@ -63,7 +64,7 @@ public class FlowRef {
 	 * Describes a synchronization result of this flow mapping with a data
 	 * source.
 	 */
-	public Status status;
+	public MappingStatus status;
 
 	/**
 	 * Creates an unique identifier of this flow reference which is a
@@ -87,59 +88,28 @@ public class FlowRef {
 	}
 
 	@Override
-	public FlowRef clone() {
+	public FlowRef copy() {
 		var clone = new FlowRef();
-		clone.flow = copy(flow);
+		clone.flow = flow != null
+			? flow.copy()
+			: null;
 		clone.flowCategory = flowCategory;
 		clone.flowLocation = flowLocation;
-		clone.property = copy(property);
-		clone.unit = copy(unit);
-		clone.provider = copy(provider);
+		clone.property = property != null
+			? property.copy()
+			: null;
+		clone.unit = unit != null
+			? unit.copy()
+			: null;
+		clone.provider = provider != null
+			? provider.copy()
+			: null;
 		clone.providerLocation = providerLocation;
 		clone.providerCategory = providerCategory;
-		if (status != null) {
-			clone.status = status.clone();
-		}
+		clone.status = status != null
+			? status.copy()
+			: null;
 		return clone;
-	}
-
-	@SuppressWarnings("unchecked")
-	private <T extends Descriptor> T copy(T d) {
-		if (d == null)
-			return null;
-		try {
-			T clone = (T) d.getClass()
-					.getConstructor()
-					.newInstance();
-			clone.description = d.description;
-			clone.id = d.id;
-			clone.lastChange = d.lastChange;
-			clone.name = d.name;
-			clone.refId = d.refId;
-			clone.type = d.type;
-			clone.version = d.version;
-
-			if (d instanceof FlowDescriptor fd) {
-				var fclone = (FlowDescriptor) clone;
-				fclone.category = fd.category;
-				fclone.flowType = fd.flowType;
-				fclone.location = fd.location;
-				fclone.refFlowPropertyId = fd.refFlowPropertyId;
-			}
-
-			if (d instanceof ProcessDescriptor pd) {
-				var pclone = (ProcessDescriptor) clone;
-				pclone.category = pd.category;
-				pclone.infrastructureProcess = pd.infrastructureProcess;
-				pclone.location = pd.location;
-				pclone.processType = pd.processType;
-				pclone.quantitativeReference = pd.quantitativeReference;
-			}
-
-			return clone;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	/**

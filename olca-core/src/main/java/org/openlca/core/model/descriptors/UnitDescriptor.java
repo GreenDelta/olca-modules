@@ -15,4 +15,13 @@ public class UnitDescriptor extends Descriptor {
 		return copy;
 	}
 
+	public static Builder create() {
+		return new Builder(new UnitDescriptor());
+	}
+
+	public static class Builder extends DescriptorBuilder<UnitDescriptor> {
+		private Builder(UnitDescriptor descriptor) {
+			super(descriptor);
+		}
+	}
 }

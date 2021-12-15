@@ -15,4 +15,13 @@ public class SocialIndicatorDescriptor extends CategorizedDescriptor {
 		return copy;
 	}
 
+	public static Builder create() {
+		return new Builder(new SocialIndicatorDescriptor());
+	}
+
+	public static class Builder extends DescriptorBuilder<SocialIndicatorDescriptor> {
+		private Builder(SocialIndicatorDescriptor descriptor) {
+			super(descriptor);
+		}
+	}
 }

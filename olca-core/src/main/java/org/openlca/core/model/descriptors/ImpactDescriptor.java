@@ -21,4 +21,19 @@ public class ImpactDescriptor extends CategorizedDescriptor {
 		return copy;
 	}
 
+	public static Builder create() {
+		return new Builder(new ImpactDescriptor());
+	}
+
+	public static class Builder extends DescriptorBuilder<ImpactDescriptor> {
+
+		private Builder(ImpactDescriptor descriptor) {
+			super(descriptor);
+		}
+
+		public Builder referenceUnit(String referenceUnit) {
+			descriptor.referenceUnit = referenceUnit;
+			return this;
+		}
+	}
 }

@@ -187,7 +187,7 @@ public class MethodImport {
 				boolean mapped = false;
 				FlowMapEntry e = config.flowMap().getEntry(flowId);
 				if (e != null) {
-					flow = getFlow(e.targetFlowID(), false);
+					flow = getFlow(e.targetFlowId(), false);
 					if (flow != null) {
 						mapped = true;
 					}
@@ -208,9 +208,9 @@ public class MethodImport {
 				f.flowPropertyFactor = flow.getReferenceFactor();
 				f.unit = getReferenceUnit(flow.referenceFlowProperty);
 				f.value = factor.meanValue;
-				if (mapped && e.factor != 1.0 & e.factor != 0.0) {
+				if (mapped && e.factor() != 1.0 & e.factor() != 0.0) {
 					// apply the conversion factor from the mapping
-					f.value /= e.factor;
+					f.value /= e.factor();
 				}
 				if (Strings.notEmpty(factor.location)) {
 					f.location = Locations.getOrCreate(

@@ -249,10 +249,10 @@ class RefDataImport {
 		FlowMapEntry entry = config.getFlowMap().getEntry(extId);
 		if (entry == null)
 			return null;
-		flow = flowDao.getForRefId(entry.targetFlowID());
+		flow = flowDao.getForRefId(entry.targetFlowId());
 		if (flow == null)
 			return null;
-		index.putMappedFlow(extId, entry.factor);
+		index.putMappedFlow(extId, entry.factor());
 		return flow;
 	}
 

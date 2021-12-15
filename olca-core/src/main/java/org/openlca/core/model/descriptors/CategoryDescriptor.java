@@ -18,4 +18,13 @@ public class CategoryDescriptor extends CategorizedDescriptor {
 		return copy;
 	}
 
+	public static Builder create() {
+		return new Builder(new CategoryDescriptor());
+	}
+
+	public static class Builder extends DescriptorBuilder<CategoryDescriptor> {
+		private Builder(CategoryDescriptor descriptor) {
+			super(descriptor);
+		}
+	}
 }

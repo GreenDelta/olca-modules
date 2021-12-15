@@ -15,4 +15,13 @@ public class ParameterDescriptor extends CategorizedDescriptor {
 		return copy;
 	}
 
+	public static Builder create() {
+		return new Builder(new ParameterDescriptor());
+	}
+
+	public static class Builder extends DescriptorBuilder<ParameterDescriptor> {
+		private Builder(ParameterDescriptor descriptor) {
+			super(descriptor);
+		}
+	}
 }

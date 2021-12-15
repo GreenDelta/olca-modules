@@ -18,4 +18,13 @@ public class ImpactMethodDescriptor extends CategorizedDescriptor {
 		return copy;
 	}
 
+	public static Builder create() {
+		return new Builder(new ImpactMethodDescriptor());
+	}
+
+	public static class Builder extends DescriptorBuilder<ImpactMethodDescriptor> {
+		private Builder(ImpactMethodDescriptor descriptor) {
+			super(descriptor);
+		}
+	}
 }

@@ -15,4 +15,13 @@ public class ResultDescriptor extends CategorizedDescriptor {
 		return copy;
 	}
 
+	public static Builder create() {
+		return new Builder(new ResultDescriptor());
+	}
+
+	public static class Builder extends DescriptorBuilder<ResultDescriptor> {
+		private Builder(ResultDescriptor descriptor) {
+			super(descriptor);
+		}
+	}
 }

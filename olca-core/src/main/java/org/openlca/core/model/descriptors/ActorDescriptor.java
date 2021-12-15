@@ -14,4 +14,14 @@ public class ActorDescriptor extends CategorizedDescriptor {
 		copyFields(this, copy);
 		return copy;
 	}
+
+	public static Builder create() {
+		return new Builder(new ActorDescriptor());
+	}
+
+	public static class Builder extends DescriptorBuilder<ActorDescriptor> {
+		private Builder(ActorDescriptor descriptor) {
+			super(descriptor);
+		}
+	}
 }

@@ -14,4 +14,15 @@ public class ProductSystemDescriptor extends CategorizedDescriptor {
 		copyFields(this, copy);
 		return copy;
 	}
+
+	public static Builder create() {
+		return new Builder(new ProductSystemDescriptor());
+	}
+
+	public static class Builder extends DescriptorBuilder<ProductSystemDescriptor> {
+		private Builder(ProductSystemDescriptor descriptor) {
+			super(descriptor);
+		}
+	}
+
 }

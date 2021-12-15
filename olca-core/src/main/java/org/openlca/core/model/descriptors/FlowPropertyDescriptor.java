@@ -15,4 +15,13 @@ public class FlowPropertyDescriptor extends CategorizedDescriptor {
 		return copy;
 	}
 
+	public static Builder create() {
+		return new Builder(new FlowPropertyDescriptor());
+	}
+
+	public static class Builder extends DescriptorBuilder<FlowPropertyDescriptor> {
+		private Builder(FlowPropertyDescriptor descriptor) {
+			super(descriptor);
+		}
+	}
 }

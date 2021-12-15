@@ -15,4 +15,14 @@ public class DQSystemDescriptor extends CategorizedDescriptor {
 		return copy;
 	}
 
+	public static Builder create() {
+		return new Builder(new DQSystemDescriptor());
+	}
+
+	public static class Builder extends DescriptorBuilder<DQSystemDescriptor> {
+
+		private Builder(DQSystemDescriptor descriptor) {
+			super(descriptor);
+		}
+	}
 }

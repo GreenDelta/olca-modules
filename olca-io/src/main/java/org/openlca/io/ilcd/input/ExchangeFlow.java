@@ -43,9 +43,9 @@ class ExchangeFlow {
 			return null;
 		if (mapEntry == null)
 			return null;
-		if (mapEntry.targetFlow == null)
+		if (mapEntry.targetFlow() == null)
 			return null;
-		return mapEntry.targetFlow.provider;
+		return mapEntry.targetFlow().provider;
 	}
 
 	void findOrImport(ImportConfig config) {
@@ -99,7 +99,7 @@ class ExchangeFlow {
 		FlowMapEntry e = flowMap.getEntry(flowId);
 		if (e == null)
 			return null;
-		String targetID = e.targetFlowID();
+		String targetID = e.targetFlowId();
 		Flow f = config.flowCache().get(targetID);
 		if (f == null) {
 			f = fetchFromDatabase(targetID);

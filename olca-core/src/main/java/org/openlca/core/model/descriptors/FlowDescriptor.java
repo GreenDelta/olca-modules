@@ -23,4 +23,30 @@ public class FlowDescriptor extends CategorizedDescriptor {
 		return copy;
 	}
 
+	public static Builder create() {
+		return new Builder(new FlowDescriptor());
+	}
+
+	public static class Builder extends DescriptorBuilder<FlowDescriptor> {
+
+		private Builder(FlowDescriptor descriptor) {
+			super(descriptor);
+		}
+
+		public Builder location(Long location) {
+			descriptor.location = location;
+			return this;
+		}
+
+		public Builder flowType(FlowType flowType) {
+			descriptor.flowType = flowType;
+			return this;
+		}
+
+		public Builder refFlowPropertyId(long refFlowPropertyId) {
+			descriptor.refFlowPropertyId = refFlowPropertyId;
+			return this;
+		}
+	}
+
 }

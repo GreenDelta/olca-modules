@@ -15,4 +15,13 @@ public class ProjectDescriptor extends CategorizedDescriptor {
 		return copy;
 	}
 
+	public static Builder create() {
+		return new Builder(new ProjectDescriptor());
+	}
+
+	public static class Builder extends DescriptorBuilder<ProjectDescriptor> {
+		private Builder(ProjectDescriptor descriptor) {
+			super(descriptor);
+		}
+	}
 }

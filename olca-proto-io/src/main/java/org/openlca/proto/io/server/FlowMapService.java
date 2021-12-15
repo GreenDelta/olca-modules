@@ -139,11 +139,10 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
     flowMap.description = proto.getDescription();
     flowMap.refId = proto.getId();
     for (var protoEntry : proto.getMappingsList()) {
-      var entry = new FlowMapEntry();
-      entry.factor = protoEntry.getConversionFactor();
-      entry.sourceFlow = toModelRef(protoEntry.getFrom());
-      entry.targetFlow = toModelRef(protoEntry.getTo());
-      flowMap.entries.add(entry);
+      var source = toModelRef(protoEntry.getFrom());
+      var target = toModelRef(protoEntry.getTo());
+      var factor = protoEntry.getConversionFactor();
+      flowMap.entries.add(new FlowMapEntry(source, target, factor));
     }
     return flowMap;
   }
@@ -205,12 +204,12 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
 
     for (var entry : model.entries) {
       var protoEntry = ProtoFlowMapEntry.newBuilder();
-      protoEntry.setConversionFactor(entry.factor);
-      if (entry.sourceFlow != null) {
-        protoEntry.setFrom(toProtoRef(entry.sourceFlow));
+      protoEntry.setConversionFactor(entry.factor());
+      if (entry.sourceFlow() != null) {
+        protoEntry.setFrom(toProtoRef(entry.sourceFlow()));
       }
-      if (entry.targetFlow != null) {
-        protoEntry.setTo(toProtoRef(entry.targetFlow));
+      if (entry.targetFlow() != null) {
+        protoEntry.setTo(toProtoRef(entry.targetFlow()));
       }
       proto.addMappings(protoEntry);
     }

@@ -136,12 +136,11 @@ class ProcessExchanges {
 	}
 
 	private void applyConversionFactor(Exchange e, FlowMapEntry entry) {
-		if (entry == null || entry.factor == 1.0)
+		if (entry == null || entry.factor() == 1.0)
 			return;
-		e.amount *= entry.factor;
+		e.amount *= entry.factor();
 		if (Strings.notEmpty(e.formula)) {
-			e.formula = "(" + e.formula + ") * "
-					+ entry.factor;
+			e.formula = "(" + e.formula + ") * " + entry.factor();
 		}
 	}
 

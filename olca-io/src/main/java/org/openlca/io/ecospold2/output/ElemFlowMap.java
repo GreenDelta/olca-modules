@@ -40,11 +40,11 @@ class ElemFlowMap {
 
 	private boolean isValid(FlowMapEntry mapping, Exchange exchange) {
 		if (mapping == null
-				|| mapping.sourceFlow == null
-				|| mapping.targetFlow == null)
+				|| mapping.sourceFlow() == null
+				|| mapping.targetFlow() == null)
 			return false;
-		var source = mapping.sourceFlow;
-		var target = mapping.targetFlow;
+		var source = mapping.sourceFlow();
+		var target = mapping.targetFlow();
 		if (source.property == null
 				|| source.unit == null
 				|| target.flow == null
@@ -68,16 +68,16 @@ class ElemFlowMap {
 			exchange.outputGroup = 4;
 		}
 
-		var target = mapping.targetFlow;
+		var target = mapping.targetFlow();
 		exchange.id = new UUID(olca.id, 0L).toString();
 		exchange.flowId = target.flow.refId;
 		exchange.name = Strings.cut(target.flow.name, 120);
 		exchange.compartment = createCompartment(target.flowCategory);
 		exchange.unit = target.unit.name;
 		exchange.unitId = target.unit.refId;
-		exchange.amount = mapping.factor * olca.amount;
+		exchange.amount = mapping.factor() * olca.amount;
 		if (olca.formula != null) {
-			exchange.mathematicalRelation = mapping.factor + " * ("
+			exchange.mathematicalRelation = mapping.factor() + " * ("
 					+ olca.formula + ")";
 		}
 		// TODO: convert uncertainty information
