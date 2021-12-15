@@ -12,6 +12,7 @@ import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.Scope;
+import org.openlca.io.maps.SyncFlow;
 import org.openlca.simapro.csv.Numeric;
 import org.openlca.simapro.csv.process.ExchangeRow;
 import org.openlca.simapro.csv.refdata.CalculatedParameterRow;

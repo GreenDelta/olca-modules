@@ -6,6 +6,8 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
@@ -18,6 +20,8 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.FlowMap;
+import org.openlca.io.maps.FlowSync;
+import org.openlca.io.maps.SyncFlow;
 import org.openlca.io.simapro.csv.Compartment;
 import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
@@ -33,23 +37,22 @@ import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class FlowSync {
+class CsvFlowSync {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final IDatabase db;
 	private final RefData refData;
-	private final FlowMap flowMap;
+	private final FlowSync flowSync;
 
 	private final HashMap<String, SyncFlow> techFlows = new HashMap<>();
 	private final HashMap<String, SyncFlow> elemFlows = new HashMap<>();
-	private final HashMap<String, SyncFlow> mappedFlows = new HashMap<>();
 
 	private final EnumMap<ElementaryFlowType, HashMap<String, ElementaryFlowRow>> flowInfos;
 
-	FlowSync(IDatabase db, RefData refData, FlowMap flowMap) {
+	CsvFlowSync(IDatabase db, RefData refData, FlowMap flowMap) {
 		this.db = db;
 		this.refData = refData;
-		this.flowMap = flowMap;
+		this.flowSync = FlowSync.of(db, flowMap);
 		flowInfos = new EnumMap<>(ElementaryFlowType.class);
 	}
 
@@ -114,18 +117,20 @@ class FlowSync {
 
 	private SyncFlow elemFlow(Compartment comp, String name, String unit) {
 
-		var mappingKey = SyncFlow.mappingKeyOf(comp, name, unit);
-		var mappedFlow = getMappedFlow(mappingKey);
-		if (mappedFlow != null)
-			return mappedFlow;
-
 		var quantity = refData.quantityOf(unit);
 		if (quantity == null) {
 			log.error("unknown unit {} in flow {}", unit, name);
 			return SyncFlow.empty();
 		}
 
-		var refId = SyncFlow.refIdOf(comp, name, quantity);
+		var mappingKey = mappingKeyOf(comp, name, unit);
+		var mappedFlow = getMappedFlow(mappingKey);
+		if (mappedFlow != null)
+			return mappedFlow;
+
+
+
+		var refId = refIdOf(comp, name, quantity);
 		var syncFlow = elemFlows.get(refId);
 		if (syncFlow != null)
 			return syncFlow;
@@ -247,21 +252,6 @@ class FlowSync {
 		return syncFlow;
 	}
 
-	private SyncFlow getMappedFlow(String mappingKey) {
-		var mappedFlow = mappedFlows.get(mappingKey);
-		if (mappedFlow != null)
-			return mappedFlow;
-		var mapEntry = flowMap.getEntry(mappingKey);
-		if (mapEntry == null)
-			return null;
-		var flow = mapEntry.targetFlow().getMatchingFlow(db);
-		if (flow == null)
-			return null;
-		var syncFlow = SyncFlow.ofMapped(flow, mapEntry.factor());
-		mappedFlows.put(mappingKey, syncFlow);
-		return syncFlow;
-	}
-
 	private Location getProductLocation(ExchangeRow row) {
 		if (row.name() == null)
 			return null;
@@ -283,5 +273,29 @@ class FlowSync {
 		factor.conversionFactor = 1;
 		factor.flowProperty = unitEntry.flowProperty;
 		flow.flowPropertyFactors.add(factor);
+	}
+
+	private String refIdOf(
+		Compartment compartment, String name, UnitMappingEntry unit) {
+		var groupId = unit.unitGroup != null
+			? unit.unitGroup.refId
+			: "";
+		var path = mappingKeyOf(compartment, name, groupId);
+		return KeyGen.get(path);
+	}
+
+	private String mappingKeyOf(
+		Compartment compartment, String name, String unit) {
+
+		var top = compartment.type() != null
+			? compartment.type().exchangeHeader()
+			: "";
+		var sub = compartment.sub() != null
+			? compartment.sub().toString()
+			: SubCompartment.UNSPECIFIED.toString();
+		return Stream.of(top, sub, name, unit)
+			.map(Strings::orEmpty)
+			.map(s -> s.trim().toLowerCase())
+			.collect(Collectors.joining("/"));
 	}
 }

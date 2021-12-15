@@ -4,6 +4,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Source;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.FlowMap;
+import org.openlca.io.maps.SyncFlow;
 import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.method.ImpactFactorRow;
@@ -14,14 +15,14 @@ class RefData {
 
 	private final UnitSync unitSync;
 	private final SourceSync sourceSync;
-	private final FlowSync flowSync;
+	private final CsvFlowSync flowSync;
 	private final GlobalParameterSync parameterSync;
 
 	RefData(IDatabase db, FlowMap flowMap) {
 		this.unitSync = new UnitSync(db);
 		this.sourceSync = new SourceSync(db);
 		this.parameterSync = new GlobalParameterSync(db);
-		this.flowSync = new FlowSync(db, this, flowMap);
+		this.flowSync = new CsvFlowSync(db, this, flowMap);
 	}
 
 	void sync(CsvDataSet dataSet) {
