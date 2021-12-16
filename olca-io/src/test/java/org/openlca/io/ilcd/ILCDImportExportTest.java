@@ -123,9 +123,9 @@ public class ILCDImportExportTest {
 	public void testE_Flow() {
 		String id = "0d7a3ad1-6556-11dd-ad8b-0800200c9a66";
 		var dataSet = importConf.store().get(Flow.class, id);
-		var flow = new FlowImport(importConf).run(dataSet);
-		assertEquals(id, flow.refId);
-		new FlowExport(exportConf).run(flow);
+		var syncFlow = new FlowImport(importConf).run(dataSet);
+		assertEquals(id, syncFlow.flow().refId);
+		new FlowExport(exportConf).run(syncFlow.flow());
 		assertTrue(exportConf.store.contains(Flow.class, id));
 	}
 

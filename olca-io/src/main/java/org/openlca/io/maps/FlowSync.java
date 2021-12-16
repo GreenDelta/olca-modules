@@ -35,6 +35,8 @@ public class FlowSync {
 	}
 
 	public SyncFlow get(String key) {
+		if (key == null)
+			return SyncFlow.empty();
 
 		var cached = cache.get(key);
 		if (cached != null)

@@ -1,9 +1,9 @@
 package org.openlca.io.ilcd.input;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
@@ -69,12 +69,12 @@ class ProcessExchanges {
 		process.lastInternalId = maxID;
 		mapAllocation(process, mappedExchanges);
 
-
-
-		RefFlow.map(iProcess, process, mappedExchanges.stream().collect(
-			Collectors.toMap(
-				e -> e.origin().id,
-				MappedExchange::exchange)));
+		// map the reference flow of the process
+		var mappedIndex = new HashMap<Integer, Exchange>();
+		for(var m : mappedExchanges) {
+			mappedIndex.put(m.origin().id, m.exchange());
+		}
+		RefFlow.map(iProcess, process, mappedIndex);
 	}
 
 
@@ -84,6 +84,8 @@ class ProcessExchanges {
 			if (factors == null)
 				continue;
 			for (var f : factors) {
+
+				// find the product ID of the factor
 				var productId = mapped.stream()
 					.filter(e -> e.origin().id == f.productExchangeId)
 					.map(e -> e.exchange().flow)
@@ -92,6 +94,8 @@ class ProcessExchanges {
 					.findAny();
 				if (productId.isEmpty())
 					continue;
+
+				// create the allocation factor
 				createAllocationFactor(
 					m.exchange(), productId.getAsLong(), f.fraction, process);
 			}

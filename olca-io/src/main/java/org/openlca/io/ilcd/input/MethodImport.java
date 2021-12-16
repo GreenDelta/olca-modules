@@ -6,22 +6,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.ImpactCategoryDao;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
-import org.openlca.core.model.Unit;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.methods.DataSetInfo;
-import org.openlca.ilcd.methods.Factor;
-import org.openlca.ilcd.methods.FactorList;
 import org.openlca.ilcd.methods.LCIAMethod;
 import org.openlca.ilcd.methods.MethodInfo;
 import org.openlca.ilcd.methods.Publication;
 import org.openlca.ilcd.util.Methods;
-import org.openlca.io.maps.FlowMapEntry;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -169,100 +162,38 @@ public class MethodImport {
 			: config.str(info.dataSetInfo.comment);
 	}
 
-	private void addFactors(LCIAMethod iMethod, ImpactCategory category) {
-		FactorList list = iMethod.characterisationFactors;
+	private void addFactors(LCIAMethod m, ImpactCategory impact) {
+		var list = m.characterisationFactors;
 		if (list == null)
 			return;
-		int errors = 0;
-		for (Factor factor : list.factors) {
-			try {
-				if (factor.flow == null) {
-					errors++;
-					continue;
-				}
-				String flowId = factor.flow.uuid;
+		for (var factor : list.factors) {
+			if (factor.flow == null)
+				continue;
 
-				// first, try to get the flow from a mapping
-				Flow flow = null;
-				boolean mapped = false;
-				FlowMapEntry e = config.flowMap().getEntry(flowId);
-				if (e != null) {
-					flow = getFlow(e.targetFlowId(), false);
-					if (flow != null) {
-						mapped = true;
-					}
-				}
+			var syncFlow = FlowImport.get(config, factor.flow.uuid);
+			if (syncFlow.isEmpty())
+				continue;
 
-				// otherwise, get the flow from the database or import it
-				if (flow == null) {
-					flow = getFlow(flowId, true);
-				}
-				if (flow == null) {
-					log.trace("Could not import flow {}", flowId);
-					errors++;
-					continue;
-				}
-
-				ImpactFactor f = new ImpactFactor();
-				f.flow = flow;
-				f.flowPropertyFactor = flow.getReferenceFactor();
-				f.unit = getReferenceUnit(flow.referenceFlowProperty);
+			ImpactFactor f = new ImpactFactor();
+			f.flow = syncFlow.flow();
+			f.flowPropertyFactor = syncFlow.property();
+			f.unit = syncFlow.unit();
+			if (syncFlow.isMapped()) {
+				var cf = syncFlow.mapFactor();
+				f.value = cf != 1 && cf != 0
+					? factor.meanValue / cf
+					: factor.meanValue;
+			} else {
 				f.value = factor.meanValue;
-				if (mapped && e.factor() != 1.0 & e.factor() != 0.0) {
-					// apply the conversion factor from the mapping
-					f.value /= e.factor();
-				}
-				if (Strings.notEmpty(factor.location)) {
-					f.location = Locations.getOrCreate(
-						factor.location, config);
-				}
-
-				category.impactFactors.add(f);
-			} catch (Exception e) {
-				log.trace("Failed to add factor " + factor, e);
-				errors++;
 			}
+
+			if (Strings.notEmpty(factor.location)) {
+				f.location = Locations.getOrCreate(
+					factor.location, config);
+			}
+
+			impact.impactFactors.add(f);
 		} // for
-
-		if (errors > 0) {
-			log.warn("there were flow errors in {} factors of LCIA category {}",
-				errors, category.name);
-		}
 	}
 
-	private Unit getReferenceUnit(FlowProperty prop) {
-		if (prop == null)
-			return null;
-		return prop.unitGroup != null
-			? prop.unitGroup.referenceUnit
-			: null;
-	}
-
-	private Flow getFlow(String uuid, boolean canImport) {
-
-		// check the cache
-		Flow flow = config.flowCache().get(uuid);
-		if (flow != null)
-			return flow;
-
-		// check the database
-		FlowDao dao = new FlowDao(config.db());
-		flow = dao.getForRefId(uuid);
-		if (flow != null) {
-			config.flowCache().put(uuid, flow);
-			return flow;
-		}
-
-		// run the import
-		if (canImport) {
-			try {
-				flow = FlowImport.get(config, uuid);
-				config.flowCache().put(uuid, flow);
-				return flow;
-			} catch (Exception e) {
-				log.error("failed to import flow " + uuid, e);
-			}
-		}
-		return null;
-	}
 }

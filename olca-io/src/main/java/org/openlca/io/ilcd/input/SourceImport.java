@@ -15,8 +15,7 @@ import java.nio.file.Files;
 import java.util.Date;
 import java.util.List;
 
-public class SourceImport implements
-	Import<org.openlca.ilcd.sources.Source, Source> {
+public class SourceImport {
 
 	private final ImportConfig config;
 	private SourceBag ilcdSource;
@@ -26,7 +25,6 @@ public class SourceImport implements
 		this.config = config;
 	}
 
-	@Override
 	public Source run(org.openlca.ilcd.sources.Source dataSet) {
 		this.ilcdSource = new SourceBag(dataSet, config.langOrder());
 		var source = config.db().get(Source.class, dataSet.getUUID());
