@@ -4,10 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
@@ -15,7 +12,6 @@ import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
-import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.io.UnitMappingEntry;
@@ -43,10 +39,6 @@ class CsvFlowSync {
 	private final IDatabase db;
 	private final RefData refData;
 	private final FlowSync flowSync;
-
-	private final HashMap<String, SyncFlow> techFlows = new HashMap<>();
-	private final HashMap<String, SyncFlow> elemFlows = new HashMap<>();
-
 	private final EnumMap<ElementaryFlowType, HashMap<String, ElementaryFlowRow>> flowInfos;
 
 	CsvFlowSync(IDatabase db, RefData refData, FlowMap flowMap) {
@@ -117,55 +109,34 @@ class CsvFlowSync {
 
 	private SyncFlow elemFlow(Compartment comp, String name, String unit) {
 
+		// calculate the key
 		var quantity = refData.quantityOf(unit);
 		if (quantity == null) {
 			log.error("unknown unit {} in flow {}", unit, name);
 			return SyncFlow.empty();
 		}
+		var key = FlowKey.elementary(comp, name, quantity);
 
-		var mappingKey = mappingKeyOf(comp, name, unit);
-		var mappedFlow = getMappedFlow(mappingKey);
-		if (mappedFlow != null)
-			return mappedFlow;
+		// get or create the flow
+		return key.getOrCreate(flowSync, () -> {
+			var flow = initFlow(key, name, quantity);
+			flow.category = categoryOf(comp);
 
-
-
-		var refId = refIdOf(comp, name, quantity);
-		var syncFlow = elemFlows.get(refId);
-		if (syncFlow != null)
-			return syncFlow;
-
-		var flow = db.get(Flow.class, refId);
-		if (flow != null) {
-			syncFlow = SyncFlow.of(flow);
-			elemFlows.put(refId, syncFlow);
-			return syncFlow;
-		}
-
-		flow = new Flow();
-		flow.flowType = FlowType.ELEMENTARY_FLOW;
-		flow.name = name;
-		flow.category = categoryOf(comp);
-		setFlowProperty(quantity, flow);
-
-		var infos = flowInfos.get(comp.type());
-		if (infos != null) {
-			var key = Strings.orEmpty(name)
-				.trim()
-				.toLowerCase();
-			var info = infos.get(key);
-			if (info != null) {
-				flow.casNumber = info.cas();
-				// TODO: we could parse the chemical formula, synonyms, and
-				// location from the comment string
-				flow.description = info.comment();
+			var infos = flowInfos.get(comp.type());
+			if (infos != null) {
+				var infoKey = Strings.orEmpty(name)
+					.trim()
+					.toLowerCase();
+				var info = infos.get(infoKey);
+				if (info != null) {
+					flow.casNumber = info.cas();
+					// TODO: we could parse the chemical formula, synonyms, and
+					// location from the comment string
+					flow.description = info.comment();
+				}
 			}
-		}
-
-		flow = db.insert(flow);
-		syncFlow = SyncFlow.of(flow);
-		elemFlows.put(refId, syncFlow);
-		return syncFlow;
+			return db.insert(flow);
+		});
 	}
 
 	private Category categoryOf(Compartment comp) {
@@ -189,113 +160,76 @@ class CsvFlowSync {
 	private SyncFlow techFlow(
 		ExchangeRow row, String topCategory, boolean isWaste) {
 
-		var mappingKey = KeyGen.toPath(row.name(), row.unit());
-		var mappedFlow = getMappedFlow(mappingKey);
-		if (mappedFlow != null)
-			return mappedFlow;
-
+		// calculate the key
 		var quantity = refData.quantityOf(row.unit());
 		if (quantity == null) {
 			log.error("unknown unit {} in flow {}", row.unit(), row.name());
 			return SyncFlow.empty();
 		}
-		var refId = KeyGen.get(row.name(), quantity.unitGroup.refId);
-		var syncFlow = techFlows.get(refId);
-		if (syncFlow != null)
-			return syncFlow;
+		var key = isWaste
+			? FlowKey.waste(row.name(), quantity)
+			:FlowKey.product(row.name(), quantity);
 
-		var flow = db.get(Flow.class, refId);
-		if(flow != null) {
-			syncFlow = SyncFlow.of(flow);
-			techFlows.put(refId, syncFlow);
-			return syncFlow;
-		}
+		// get or create the flow
+		return key.getOrCreate(flowSync, () -> {
 
-		flow = new Flow();
-		flow.flowType = isWaste
-			? FlowType.WASTE_FLOW
-			: FlowType.PRODUCT_FLOW;
-		flow.refId = refId;
-		flow.name = row.name();
-		flow.location = getProductLocation(row);
-		setFlowProperty(quantity, flow);
+			var flow = initFlow(key, row.name(), quantity);
+			flow.location = getProductLocation(row);
 
-		// create the flow category
-		var categoryPath = new ArrayList<String>();
-		if (Strings.notEmpty(topCategory)) {
-			categoryPath.add(topCategory);
-		}
-		if (row instanceof RefExchangeRow refRow) {
-			if (Strings.notEmpty(refRow.category())) {
-				var segments = refRow.category().split("\\\\");
-				categoryPath.addAll(Arrays.asList(segments));
+			// create the flow category
+			var categoryPath = new ArrayList<String>();
+			if (Strings.notEmpty(topCategory)) {
+				categoryPath.add(topCategory);
 			}
-		}
-		if (!categoryPath.isEmpty()) {
-			flow.category = CategoryDao.sync(
-				db, ModelType.FLOW, categoryPath.toArray(String[]::new));
-		}
-
-		// description and tags
-		if (row instanceof RefExchangeRow) {
-			flow.description = row.comment();
-			if (row instanceof ProductOutputRow productRow) {
-				if (Strings.notEmpty(productRow.wasteType())) {
-					flow.tags = productRow.wasteType();
+			if (row instanceof RefExchangeRow refRow) {
+				if (Strings.notEmpty(refRow.category())) {
+					var segments = refRow.category().split("\\\\");
+					categoryPath.addAll(Arrays.asList(segments));
 				}
 			}
-		}
+			if (!categoryPath.isEmpty()) {
+				flow.category = CategoryDao.sync(
+					db, ModelType.FLOW, categoryPath.toArray(String[]::new));
+			}
 
-		flow = db.insert(flow);
-		syncFlow = SyncFlow.of(flow);
-		techFlows.put(refId, syncFlow);
-		return syncFlow;
+			// description and tags
+			if (row instanceof RefExchangeRow) {
+				flow.description = row.comment();
+				if (row instanceof ProductOutputRow productRow) {
+					if (Strings.notEmpty(productRow.wasteType())) {
+						flow.tags = productRow.wasteType();
+					}
+				}
+			}
+
+			return db.insert(flow);
+		});
 	}
 
 	private Location getProductLocation(ExchangeRow row) {
 		if (row.name() == null)
 			return null;
-		// get a 2 letter or 3 letter location code from the product name
-		String codePattern = "\\{(([A-Z]{2})|([A-Z]{3}))\\}";
-		Matcher matcher = Pattern.compile(codePattern).matcher(row.name());
+		var matcher = Pattern.compile("\\{([A-Za-z]+)}").matcher(row.name());
 		if (!matcher.find())
 			return null;
-		String code = matcher.group();
+		var code = matcher.group();
 		code = code.substring(1, code.length() - 1);
-		String refId = KeyGen.get(code);
+		var refId = KeyGen.get(code);
 		LocationDao dao = new LocationDao(db);
 		return dao.getForRefId(refId);
 	}
 
-	private void setFlowProperty(UnitMappingEntry unitEntry, Flow flow) {
-		flow.referenceFlowProperty = unitEntry.flowProperty;
+	private Flow initFlow(FlowKey key, String name, UnitMappingEntry q) {
+		var flow = new Flow();
+		flow.flowType = key.type();
+		flow.refId = key.refId();
+		flow.name = name;
+		flow.referenceFlowProperty = q.flowProperty;
 		var factor = new FlowPropertyFactor();
 		factor.conversionFactor = 1;
-		factor.flowProperty = unitEntry.flowProperty;
+		factor.flowProperty = q.flowProperty;
 		flow.flowPropertyFactors.add(factor);
+		return flow;
 	}
 
-	private String refIdOf(
-		Compartment compartment, String name, UnitMappingEntry unit) {
-		var groupId = unit.unitGroup != null
-			? unit.unitGroup.refId
-			: "";
-		var path = mappingKeyOf(compartment, name, groupId);
-		return KeyGen.get(path);
-	}
-
-	private String mappingKeyOf(
-		Compartment compartment, String name, String unit) {
-
-		var top = compartment.type() != null
-			? compartment.type().exchangeHeader()
-			: "";
-		var sub = compartment.sub() != null
-			? compartment.sub().toString()
-			: SubCompartment.UNSPECIFIED.toString();
-		return Stream.of(top, sub, name, unit)
-			.map(Strings::orEmpty)
-			.map(s -> s.trim().toLowerCase())
-			.collect(Collectors.joining("/"));
-	}
 }

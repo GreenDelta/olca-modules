@@ -68,8 +68,8 @@ public class FlowSync {
 		cache.put(flow.refId, SyncFlow.of(flow));
 	}
 
-	public void put(String key, Flow flow) {
-		cache.put(key, SyncFlow.of(flow));
+	public void put(String key, SyncFlow flow) {
+		cache.put(key, flow);
 	}
 
 	public SyncFlow createIfAbsent(String key, Supplier<Flow> fn) {
