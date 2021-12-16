@@ -3,8 +3,11 @@ package org.openlca.ilcd.util;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.openlca.ilcd.commons.CommissionerAndGoal;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.Time;
 import org.openlca.ilcd.processes.AdminInfo;
@@ -34,13 +37,27 @@ public final class Processes {
 	private Processes() {
 	}
 
+	public static String fullName(Process p, String... langs) {
+		var name = getProcessName(p);
+		if (name == null)
+			return "";
+		return Stream.of(
+			name.name,
+			name.mixAndLocation,
+			name.technicalDetails,
+			name.flowProperties)
+			.map(list -> LangString.getFirst(list, langs))
+			.filter(s -> s != null && !s.trim().isEmpty())
+			.collect(Collectors.joining(", "));
+	}
+
 	public static ProcessInfo getProcessInfo(Process p) {
 		if (p == null)
 			return null;
 		return p.processInfo;
 	}
 
-	public static ProcessInfo processInfo(Process p) {
+	public static ProcessInfo forceProcessInfo(Process p) {
 		if (p.processInfo == null)
 			p.processInfo = new ProcessInfo();
 		return p.processInfo;
@@ -53,8 +70,8 @@ public final class Processes {
 		return info.dataSetInfo;
 	}
 
-	public static DataSetInfo dataSetInfo(Process p) {
-		var info = processInfo(p);
+	public static DataSetInfo forceDataSetInfo(Process p) {
+		var info = forceProcessInfo(p);
 		if (info.dataSetInfo == null)
 			info.dataSetInfo = new DataSetInfo();
 		return info.dataSetInfo;
@@ -67,8 +84,8 @@ public final class Processes {
 		return info.name;
 	}
 
-	public static ProcessName processName(Process p) {
-		var info = dataSetInfo(p);
+	public static ProcessName forceProcessName(Process p) {
+		var info = forceDataSetInfo(p);
 		if (info.name == null)
 			info.name = new ProcessName();
 		return info.name;
@@ -81,8 +98,8 @@ public final class Processes {
 		return info.geography;
 	}
 
-	public static Geography geography(Process p) {
-		var info = processInfo(p);
+	public static Geography forceGeography(Process p) {
+		var info = forceProcessInfo(p);
 		if (info.geography == null)
 			info.geography = new Geography();
 		return info.geography;
@@ -95,8 +112,8 @@ public final class Processes {
 		return geo.location;
 	}
 
-	public static Location location(Process p) {
-		var geo = geography(p);
+	public static Location forceLocation(Process p) {
+		var geo = forceGeography(p);
 		if (geo.location == null)
 			geo.location = new Location();
 		return geo.location;
@@ -109,8 +126,8 @@ public final class Processes {
 		return info.quantitativeReference;
 	}
 
-	public static QuantitativeReference quantitativeReference(Process p) {
-		var info = processInfo(p);
+	public static QuantitativeReference forceQuantitativeReference(Process p) {
+		var info = forceProcessInfo(p);
 		if (info.quantitativeReference == null)
 			info.quantitativeReference = new QuantitativeReference();
 		return info.quantitativeReference;
@@ -123,8 +140,8 @@ public final class Processes {
 		return info.technology;
 	}
 
-	public static Technology technology(Process p) {
-		var info = processInfo(p);
+	public static Technology forceTechnology(Process p) {
+		var info = forceProcessInfo(p);
 		if (info.technology == null)
 			info.technology = new Technology();
 		return info.technology;
@@ -137,8 +154,8 @@ public final class Processes {
 		return info.time;
 	}
 
-	public static Time time(Process p) {
-		var info = processInfo(p);
+	public static Time forceTime(Process p) {
+		var info = forceProcessInfo(p);
 		if (info.time == null)
 			info.time = new Time();
 		return info.time;
@@ -151,8 +168,8 @@ public final class Processes {
 		return info.parameters.parameters;
 	}
 
-	public static List<Parameter> parameters(Process p) {
-		var info = processInfo(p);
+	public static List<Parameter> forceParameters(Process p) {
+		var info = forceProcessInfo(p);
 		if (info.parameters == null) {
 			info.parameters = new ParameterSection();
 		}
@@ -165,7 +182,7 @@ public final class Processes {
 		return p.modelling;
 	}
 
-	public static Modelling modelling(Process p) {
+	public static Modelling forceModelling(Process p) {
 		if (p.modelling == null)
 			p.modelling = new Modelling();
 		return p.modelling;
@@ -178,8 +195,8 @@ public final class Processes {
 		return modelling.method;
 	}
 
-	public static Method method(Process p) {
-		var modelling = modelling(p);
+	public static Method forceMethod(Process p) {
+		var modelling = forceModelling(p);
 		if (modelling.method == null)
 			modelling.method = new Method();
 		return modelling.method;
@@ -192,8 +209,8 @@ public final class Processes {
 		return modelling.representativeness;
 	}
 
-	public static Representativeness representativeness(Process p) {
-		var modelling = modelling(p);
+	public static Representativeness forceRepresentativeness(Process p) {
+		var modelling = forceModelling(p);
 		if (modelling.representativeness == null)
 			modelling.representativeness = new Representativeness();
 		return modelling.representativeness;
@@ -206,8 +223,8 @@ public final class Processes {
 		return modelling.validation;
 	}
 
-	public static Validation validation(Process p) {
-		var modelling = modelling(p);
+	public static Validation forceValidation(Process p) {
+		var modelling = forceModelling(p);
 		if (modelling.validation == null)
 			modelling.validation = new Validation();
 		return modelling.validation;
@@ -219,7 +236,7 @@ public final class Processes {
 		return p.adminInfo;
 	}
 
-	public static AdminInfo adminInfo(Process p) {
+	public static AdminInfo forceAdminInfo(Process p) {
 		if (p.adminInfo == null) {
 			p.adminInfo = new AdminInfo();
 		}
@@ -233,8 +250,8 @@ public final class Processes {
 				: info.commissionerAndGoal;
 	}
 
-	public static CommissionerAndGoal commissionerAndGoal(Process p) {
-		var info = adminInfo(p);
+	public static CommissionerAndGoal forceCommissionerAndGoal(Process p) {
+		var info = forceAdminInfo(p);
 		if (info.commissionerAndGoal == null) {
 			info.commissionerAndGoal = new CommissionerAndGoal();
 		}
@@ -248,8 +265,8 @@ public final class Processes {
 		return info.publication;
 	}
 
-	public static Publication publication(Process p) {
-		var info = adminInfo(p);
+	public static Publication forcePublication(Process p) {
+		var info = forceAdminInfo(p);
 		if (info.publication == null) {
 			info.publication = new Publication();
 		}
@@ -263,8 +280,8 @@ public final class Processes {
 				: info.dataEntry;
 	}
 
-	public static DataEntry dataEntry(Process p) {
-		AdminInfo ai = adminInfo(p);
+	public static DataEntry forceDataEntry(Process p) {
+		AdminInfo ai = forceAdminInfo(p);
 		if (ai.dataEntry == null)
 			ai.dataEntry = new DataEntry();
 		return ai.dataEntry;
@@ -277,14 +294,14 @@ public final class Processes {
 		return ai.dataGenerator;
 	}
 
-	public static DataGenerator dataGenerator(Process p) {
-		AdminInfo ai = adminInfo(p);
+	public static DataGenerator forceDataGenerator(Process p) {
+		AdminInfo ai = forceAdminInfo(p);
 		if (ai.dataGenerator == null)
 			ai.dataGenerator = new DataGenerator();
 		return ai.dataGenerator;
 	}
 
-	public static Exchange exchange(Process p) {
+	public static Exchange createExchange(Process p) {
 		Exchange e = new Exchange();
 		p.exchanges.add(e);
 		return e;
@@ -298,7 +315,7 @@ public final class Processes {
 		return p.modelling.complianceDeclarations.entries;
 	}
 
-	public static List<ComplianceDeclaration> complianceDeclarations(
+	public static List<ComplianceDeclaration> forceComplianceDeclarations(
 			Process p) {
 		if (p.modelling == null)
 			p.modelling = new Modelling();
@@ -307,8 +324,8 @@ public final class Processes {
 		return p.modelling.complianceDeclarations.entries;
 	}
 
-	public static ComplianceDeclaration complianceDeclaration(Process p) {
-		List<ComplianceDeclaration> list = complianceDeclarations(p);
+	public static ComplianceDeclaration createComplianceDeclaration(Process p) {
+		List<ComplianceDeclaration> list = forceComplianceDeclarations(p);
 		ComplianceDeclaration cd = new ComplianceDeclaration();
 		list.add(cd);
 		return cd;

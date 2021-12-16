@@ -15,6 +15,7 @@ import org.openlca.ilcd.processes.Geography;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.ProcessBag;
+import org.openlca.ilcd.util.Processes;
 
 public class ProcessBagTest {
 
@@ -38,7 +39,8 @@ public class ProcessBagTest {
 	@Test
 	public void testGetName() {
 		assertEquals("Acrylonitrile-Butadiene-Styrene granulate "
-				+ "(ABS), production mix, at plant", bag.getName());
+				+ "(ABS), production mix, at plant", 
+				Processes.fullName(bag.getValue(), "en"));
 	}
 
 	@Test

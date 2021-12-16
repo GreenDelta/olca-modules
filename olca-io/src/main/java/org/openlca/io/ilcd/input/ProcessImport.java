@@ -17,6 +17,7 @@ import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.Method;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.ProcessBag;
+import org.openlca.ilcd.util.Processes;
 import org.openlca.util.DQSystems;
 import org.openlca.util.Strings;
 
@@ -66,10 +67,17 @@ public class ProcessImport {
 	}
 
 	private void createAndMapContent() {
-		process.refId = ilcdProcess.getId();
-		process.name = Strings.cut(ilcdProcess.getName(), 2024);
-		process.description = ilcdProcess.getComment();
+		var dataSet = ilcdProcess.getValue();
+		process.refId = dataSet.getUUID();
+		process.name = Strings.cut(
+			Processes.fullName(dataSet, config.langOrder()), 2024);
+		var info = Processes.getDataSetInfo(dataSet);
+		if (info != null) {
+			process.description = config.str(info.comment);
+		}
+
 		process.documentation = mapDocumentation();
+
 		new ProcessParameterConversion(process, config)
 			.run(ilcdProcess);
 		exchanges.map(ilcdProcess, process);
@@ -84,8 +92,8 @@ public class ProcessImport {
 	}
 
 	private ProcessDocumentation mapDocumentation() {
-		ProcessDocumentation doc = new ProcessDocumentation();
-		ProcessTime processTime = new ProcessTime(ilcdProcess.getTime(), config);
+		var doc = new ProcessDocumentation();
+		var processTime = new ProcessTime(ilcdProcess.getTime(), config);
 		processTime.map(doc);
 		mapGeography(doc);
 		mapTechnology(doc);

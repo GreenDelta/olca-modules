@@ -21,7 +21,6 @@ import org.openlca.ilcd.processes.Parameter;
 import org.openlca.ilcd.processes.ParameterSection;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.ProcessInfo;
-import org.openlca.ilcd.processes.ProcessName;
 import org.openlca.ilcd.processes.Publication;
 import org.openlca.ilcd.processes.QuantitativeReference;
 import org.openlca.ilcd.processes.Representativeness;
@@ -29,10 +28,14 @@ import org.openlca.ilcd.processes.Review;
 import org.openlca.ilcd.processes.Technology;
 import org.openlca.ilcd.processes.Validation;
 
+/**
+ * @deprecated Processes should be used instead
+ */
+@Deprecated
 public class ProcessBag implements IBag<Process> {
 
-	private Process process;
-	private String[] langs;
+	private final Process process;
+	private final String[] langs;
 
 	public ProcessBag(Process process, String... langs) {
 		this.process = process;
@@ -47,33 +50,6 @@ public class ProcessBag implements IBag<Process> {
 	@Override
 	public String getId() {
 		return process == null ? null : process.getUUID();
-	}
-
-	public String getName() {
-		DataSetInfo info = getDataSetInformation();
-		if (info == null || info.name == null)
-			return null;
-		ProcessName processName = info.name;
-		StringBuilder builder = new StringBuilder();
-		appendNamePart(processName.name, builder, null);
-		appendNamePart(processName.mixAndLocation, builder, ", ");
-		appendNamePart(processName.technicalDetails, builder, ", ");
-		appendNamePart(processName.flowProperties, builder,
-				", ");
-		return builder.toString();
-	}
-
-	private void appendNamePart(List<LangString> parts, StringBuilder builder,
-			String prefix) {
-		if (parts != null) {
-			String part = LangString.getFirst(parts, langs);
-			if (part != null) {
-				if (prefix != null) {
-					builder.append(prefix);
-				}
-				builder.append(part);
-			}
-		}
 	}
 
 	public String getSynonyms() {
@@ -126,7 +102,7 @@ public class ProcessBag implements IBag<Process> {
 		ProcessInfo info = process.processInfo;
 		if (info != null) {
 			ParameterSection list = info.parameters;
-			if (list != null && list.parameters != null) {
+			if (list != null) {
 				return list.parameters;
 			}
 		}
@@ -161,7 +137,7 @@ public class ProcessBag implements IBag<Process> {
 		Modelling mav = process.modelling;
 		if (mav != null) {
 			Validation validation = mav.validation;
-			if (validation != null && validation.reviews != null) {
+			if (validation != null) {
 				return validation.reviews;
 			}
 		}
