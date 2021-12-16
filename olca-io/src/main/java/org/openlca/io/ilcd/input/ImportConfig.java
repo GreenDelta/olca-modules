@@ -1,39 +1,41 @@
 package org.openlca.io.ilcd.input;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ExchangeProviderQueue;
 import org.openlca.core.io.ImportLog;
-import org.openlca.core.model.Flow;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.io.DataStore;
 import org.openlca.io.maps.FlowMap;
+import org.openlca.io.maps.FlowSync;
 import org.openlca.util.Strings;
 
 public class ImportConfig {
 
 	private final DataStore store;
 	private final IDatabase db;
+	private final FlowSync flowSync;
 	private final ImportLog log;
 
 	private boolean allFlows;
 	private String[] langOrder = { "en" };
-	private HashMap<String, Flow> flowCache = new HashMap<>();
-	private FlowMap flowMap;
 	private ExchangeProviderQueue providers;
 
-	public ImportConfig(DataStore store, IDatabase database) {
-		this.store = store;
-		this.db = database;
-		this.log = new ImportLog();
+	public ImportConfig(DataStore store, IDatabase db) {
+		this(store, db, null);
 	}
 
-	public ImportConfig withFlowMap(FlowMap flowMap) {
-		this.flowMap = flowMap;
-		return this;
+	public ImportConfig(DataStore store, IDatabase db, FlowMap flowMap) {
+		this.store = Objects.requireNonNull(store);
+		this.db = Objects.requireNonNull(db);
+		log = new ImportLog();
+		flowSync = flowMap == null
+			? FlowSync.of(db, FlowMap.empty())
+			: FlowSync.of(db, flowMap);
+		flowSync.withLog(log);
 	}
 
 	public ImportConfig withAllFlows(boolean b) {
@@ -79,15 +81,8 @@ public class ImportConfig {
 		return langOrder;
 	}
 
-	HashMap<String, Flow> flowCache() {
-		return flowCache;
-	}
-
-	FlowMap flowMap() {
-		if (flowMap == null) {
-			flowMap = FlowMap.empty();
-		}
-		return flowMap;
+	public FlowSync flowSync() {
+		return flowSync;
 	}
 
 	public ExchangeProviderQueue providers() {

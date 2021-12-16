@@ -16,9 +16,9 @@ import org.openlca.ilcd.util.ProcessBag;
  */
 class RefFlow {
 
-	private ProcessBag iProcess;
-	private Process oProcess;
-	private Map<Integer, Exchange> map;
+	private final ProcessBag iProcess;
+	private final Process oProcess;
+	private final Map<Integer, Exchange> map;
 
 	/**
 	 * Map the reference flows. The given map (int -> Exchange) maps the ILCD

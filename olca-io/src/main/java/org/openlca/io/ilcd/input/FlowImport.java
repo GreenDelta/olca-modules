@@ -14,10 +14,9 @@ import org.openlca.ilcd.flows.FlowPropertyRef;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.FlowBag;
 import org.openlca.ilcd.util.Flows;
+import org.openlca.io.maps.SyncFlow;
 import org.openlca.util.Strings;
 
-// TODO: the flow mapping of the config is currently not
-// applied in the flow import!!
 public class FlowImport {
 
 	private final ImportConfig config;
@@ -28,33 +27,33 @@ public class FlowImport {
 		this.config = config;
 	}
 
-	public Flow run(org.openlca.ilcd.flows.Flow dataSet) {
-		this.ilcdFlow = new FlowBag(dataSet, config.langOrder());
-		var flow = config.db().get(Flow.class, dataSet.getUUID());
-		return flow != null
-			? flow
-			: createNew();
+	public SyncFlow run(org.openlca.ilcd.flows.Flow dataSet) {
+		var syncFlow = config.flowSync().get(dataSet.getUUID());
+		return syncFlow.isEmpty()
+			? createNew(dataSet)
+			: syncFlow;
 	}
 
-	static Flow get(ImportConfig config, String id) {
-		var flow = config.db().get(Flow.class, id);
-		if (flow != null)
-			return flow;
+	static SyncFlow get(ImportConfig config, String id) {
+		var syncFlow = config.flowSync().get(id);
+		if (!syncFlow.isEmpty())
+			return syncFlow;
 		var dataSet = config.store().get(
 			org.openlca.ilcd.flows.Flow.class, id);
 		if (dataSet == null) {
 			config.log().error("invalid reference in ILCD data set:" +
 				" flow '" + id + "' does not exist");
-			return null;
+			return SyncFlow.empty();
 		}
-		return new FlowImport(config).run(dataSet);
+		return new FlowImport(config).createNew(dataSet);
 	}
 
-	private Flow createNew() {
+	private SyncFlow createNew(org.openlca.ilcd.flows.Flow dataSet) {
+		this.ilcdFlow = new FlowBag(dataSet, config.langOrder());
 		flow = new Flow();
-		String[] cpath = Categories.getPath(ilcdFlow.flow);
+		String[] path = Categories.getPath(ilcdFlow.flow);
 		flow.category = new CategoryDao(config.db())
-			.sync(ModelType.FLOW, cpath);
+			.sync(ModelType.FLOW, path);
 		createAndMapContent();
 		if (flow.referenceFlowProperty == null) {
 			config.log().error("Could not import flow "
@@ -63,7 +62,7 @@ public class FlowImport {
 				+ "could not be imported.");
 			return null;
 		}
-		return config.db().insert(flow);
+		return SyncFlow.of(config.db().insert(flow));
 	}
 
 	private void createAndMapContent() {

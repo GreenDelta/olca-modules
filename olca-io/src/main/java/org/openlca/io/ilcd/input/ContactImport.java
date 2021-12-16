@@ -10,7 +10,7 @@ import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.ContactBag;
 
-public class ContactImport implements Import<Contact, Actor> {
+public class ContactImport {
 
 	private final ImportConfig config;
 	private ContactBag ilcdContact;
@@ -20,7 +20,6 @@ public class ContactImport implements Import<Contact, Actor> {
 		this.config = config;
 	}
 
-	@Override
 	public Actor run(Contact dataSet) {
 		this.ilcdContact = new ContactBag(dataSet, config.langOrder());
 		var actor = config.db().get(Actor.class, ilcdContact.getId());
