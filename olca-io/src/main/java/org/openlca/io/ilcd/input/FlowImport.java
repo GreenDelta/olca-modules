@@ -32,7 +32,7 @@ public class FlowImport {
 			: syncFlow;
 	}
 
-	static SyncFlow get(ImportConfig config, String id) {
+	public static SyncFlow get(ImportConfig config, String id) {
 		var syncFlow = config.flowSync().get(id);
 		if (!syncFlow.isEmpty())
 			return syncFlow;

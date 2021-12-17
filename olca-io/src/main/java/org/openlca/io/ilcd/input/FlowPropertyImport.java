@@ -30,7 +30,7 @@ public class FlowPropertyImport {
 			: createNew();
 	}
 
-	static FlowProperty get(ImportConfig config, String id) {
+	public static FlowProperty get(ImportConfig config, String id) {
 		var property = config.db().get(FlowProperty.class, id);
 		if (property != null)
 			return property;

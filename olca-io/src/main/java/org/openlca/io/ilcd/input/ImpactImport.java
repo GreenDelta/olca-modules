@@ -14,7 +14,7 @@ import org.openlca.util.Strings;
 
 public record ImpactImport(ImportConfig config, LCIAMethod dataSet) {
 
-	static ImpactCategory get(ImportConfig config, String id) {
+	public static ImpactCategory get(ImportConfig config, String id) {
 		var impact = config.db().get(ImpactCategory.class, id);
 		if (impact != null)
 			return impact;

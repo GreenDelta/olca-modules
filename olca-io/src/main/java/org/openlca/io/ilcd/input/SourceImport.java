@@ -33,7 +33,7 @@ public class SourceImport {
 			: createNew();
 	}
 
-	static Source get(ImportConfig config, String sourceId) {
+	public static Source get(ImportConfig config, String sourceId) {
 		var source = config.db().get(Source.class, sourceId);
 		if (source != null)
 			return source;

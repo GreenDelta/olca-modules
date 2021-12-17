@@ -28,7 +28,7 @@ public class ContactImport {
 			: createNew();
 	}
 
-	static Actor get(ImportConfig config, String id) {
+	public static Actor get(ImportConfig config, String id) {
 		var actor = config.db().get(Actor.class, id);
 		if (actor != null)
 			return actor;

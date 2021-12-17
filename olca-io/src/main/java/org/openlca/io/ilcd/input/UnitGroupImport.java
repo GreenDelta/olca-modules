@@ -32,7 +32,7 @@ public class UnitGroupImport {
 		return createNew();
 	}
 
-	static UnitGroup get(ImportConfig config, String id) {
+	public static UnitGroup get(ImportConfig config, String id) {
 		var group = config.db().get(UnitGroup.class, id);
 		if (group != null)
 			// TODO: check if reference unit is in database!
