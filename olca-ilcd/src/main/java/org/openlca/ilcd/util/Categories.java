@@ -16,10 +16,7 @@ import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.flows.Compartment;
-import org.openlca.ilcd.flows.CompartmentList;
-import org.openlca.ilcd.flows.DataSetInfo;
 import org.openlca.ilcd.flows.Flow;
-import org.openlca.ilcd.flows.FlowCategoryInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +31,7 @@ public final class Categories {
 	 * category path of the compartments correspondingly.
 	 */
 	public static String[] getPath(IDataSet ds) {
-		List<String> path = new ArrayList<>();
+		var path = new ArrayList<String>();
 		Consumer<String> add = val -> {
 			if (val == null)
 				return;
@@ -43,13 +40,14 @@ public final class Categories {
 				return;
 			path.add(val);
 		};
-		if (ds instanceof Flow) {
-			compartments((Flow) ds).stream()
+
+		if (ds instanceof Flow flow) {
+			compartments(flow).stream()
 					.map(c -> c.value)
 					.forEach(add);
+			if (path.size() > 0)
+				return path.toArray(new String[0]);
 		}
-		if (path.size() > 0)
-			return path.toArray(new String[0]);
 		sorted(ds).stream()
 				.map(c -> c.value)
 				.forEach(add);
@@ -59,24 +57,23 @@ public final class Categories {
 	private static List<Category> sorted(IDataSet ds) {
 		if (ds == null)
 			return Collections.emptyList();
-		List<Classification> list = ds.getClassifications();
+		var list = ds.getClassifications();
 		if (list.isEmpty())
 			return Collections.emptyList();
-		Classification classification = list.get(0);
-		List<org.openlca.ilcd.commons.Category> classes = classification.categories;
+		var classes = list.get(0).categories;
 		classes.sort(Comparator.comparingInt(c -> c.level));
 		return classes;
 	}
 
 	private static List<Compartment> compartments(Flow flow) {
-		DataSetInfo info = Flows.getDataSetInfo(flow);
+		var info = Flows.getDataSetInfo(flow);
 		if (info == null)
 			return Collections.emptyList();
-		FlowCategoryInfo cinfo = info.classificationInformation;
-		if (cinfo == null || cinfo.compartmentLists.isEmpty())
+		var ci = info.classificationInformation;
+		if (ci == null || ci.compartmentLists.isEmpty())
 			return Collections.emptyList();
-		CompartmentList system = cinfo.compartmentLists.get(0);
-		List<Compartment> compartments = system.compartments;
+		var system = ci.compartmentLists.get(0);
+		var compartments = system.compartments;
 		compartments.sort(Comparator.comparingInt(c -> c.level));
 		return compartments;
 	}

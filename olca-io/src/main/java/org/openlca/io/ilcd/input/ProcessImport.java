@@ -109,14 +109,11 @@ public class ProcessImport {
 	}
 
 	private void mapGeography(ProcessDocumentation doc) {
-		var iGeo = ilcdProcess.getGeography();
-		if (iGeo == null || iGeo.location == null)
+		var loc = Processes.getLocation(ilcdProcess.getValue());
+		if (loc == null)
 			return;
-		doc.geography = config.str(iGeo.location.description);
-		if (iGeo.location.code == null)
-			return;
-		String code = iGeo.location.code;
-		process.location = Locations.getOrCreate(code, config);
+		doc.geography = config.str(loc.description);
+		process.location = config.locationOf(loc.code);
 	}
 
 	private void mapTechnology(ProcessDocumentation doc) {

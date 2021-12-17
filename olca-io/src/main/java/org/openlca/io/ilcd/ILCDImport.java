@@ -15,8 +15,8 @@ import org.openlca.io.ilcd.input.ContactImport;
 import org.openlca.io.ilcd.input.EpdImport;
 import org.openlca.io.ilcd.input.FlowImport;
 import org.openlca.io.ilcd.input.FlowPropertyImport;
+import org.openlca.io.ilcd.input.ImpactImport;
 import org.openlca.io.ilcd.input.ImportConfig;
-import org.openlca.io.ilcd.input.MethodImport;
 import org.openlca.io.ilcd.input.ProcessImport;
 import org.openlca.io.ilcd.input.SourceImport;
 import org.openlca.io.ilcd.input.UnitGroupImport;
@@ -86,8 +86,8 @@ public class ILCDImport implements Runnable {
 				} else {
 					new ProcessImport(config).run(process);
 				}
-			} else if (dataSet instanceof LCIAMethod method) {
-				new MethodImport(config).run(method);
+			} else if (dataSet instanceof LCIAMethod impact) {
+				new ImpactImport(config, impact).run();
 			} else if (dataSet instanceof  Model model) {
 				new ModelImport(config).run(model);
 			} else {

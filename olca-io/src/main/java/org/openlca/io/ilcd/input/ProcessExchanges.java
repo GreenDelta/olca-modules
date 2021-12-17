@@ -49,6 +49,7 @@ class ProcessExchanges {
 
 			var exchange = mapped.exchange();
 			exchange.description = config.str(origin.comment);
+			exchange.location = config.locationOf(origin.location);
 
 			// we take the internal IDs from ILCD
 			maxID = Math.max(maxID, exchange.internalId);
@@ -57,10 +58,6 @@ class ProcessExchanges {
 			var providerId = mapped.providerId();
 			if (providerId != null) {
 				config.providers().add(providerId, exchange);
-			}
-
-			if (Strings.notEmpty(origin.location)) {
-				exchange.location = Locations.getOrCreate(origin.location, config);
 			}
 
 			process.exchanges.add(exchange);

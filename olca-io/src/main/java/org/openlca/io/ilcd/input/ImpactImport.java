@@ -1,11 +1,14 @@
 package org.openlca.io.ilcd.input;
 
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.ilcd.methods.LCIAMethod;
+import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.Methods;
 import org.openlca.util.Strings;
 
@@ -35,6 +38,8 @@ public record ImpactImport(ImportConfig config, LCIAMethod dataSet) {
 		var impact = new ImpactCategory();
 		impact.refId = dataSet.getUUID();
 		impact.name = name();
+		impact.category = new CategoryDao(config.db())
+			.sync(ModelType.IMPACT_CATEGORY, Categories.getPath(dataSet));
 
 		var info = Methods.getDataSetInfo(dataSet);
 		if (info != null) {
