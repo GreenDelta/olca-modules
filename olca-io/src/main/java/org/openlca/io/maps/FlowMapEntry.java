@@ -12,25 +12,60 @@ import org.openlca.core.model.Copyable;
  *                   amounts of the target flow (in the respective flow
  *                   properties and units); defaults to 1.0
  */
-public record FlowMapEntry(
-	FlowRef sourceFlow,
-	FlowRef targetFlow,
-	double factor
-) implements Copyable<FlowMapEntry> {
+public class FlowMapEntry implements Copyable<FlowMapEntry> {
+
+	private FlowRef sourceFlow;
+	private FlowRef targetFlow;
+	private double factor;
 
 	public FlowMapEntry(FlowRef sourceFlow, FlowRef targetFlow) {
 		this(sourceFlow, targetFlow, 1);
+	}
+
+	public FlowMapEntry(FlowRef sourceFlow, FlowRef targetFlow, double factor) {
+		this.sourceFlow = sourceFlow;
+		this.targetFlow = targetFlow;
+		this.factor = factor;
+	}
+
+	public FlowMapEntry sourceFlow(FlowRef sourceFlow) {
+		this.sourceFlow = sourceFlow;
+		return this;
+	}
+
+	public FlowRef sourceFlow() {
+		return sourceFlow;
+	}
+
+	public FlowMapEntry targetFlow(FlowRef targetFlow) {
+		this.targetFlow = targetFlow;
+		return this;
+	}
+
+	public FlowRef targetFlow() {
+		return targetFlow;
+	}
+
+	public FlowMapEntry factor(double factor) {
+		this.factor = factor;
+		return this;
+	}
+
+	public double factor() {
+		return factor;
 	}
 
 	/**
 	 * Swap the source and target flow reference in this entry and inverts the
 	 * conversion factor.
 	 */
-	public FlowMapEntry swap() {
-		var inv = factor == 0 || factor == 1
-			? factor
-			: 1 / factor;
-		return new FlowMapEntry(targetFlow, sourceFlow, inv);
+	public void swap() {
+		if (factor != 0 && factor != 1) {
+			factor = 1 / factor;
+		}
+		var s = sourceFlow;
+		sourceFlow = targetFlow;
+		targetFlow = s;
 	}
 
 	public String sourceFlowId() {
