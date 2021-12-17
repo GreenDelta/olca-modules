@@ -6,11 +6,9 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ResultFlow;
 import org.openlca.core.model.ResultModel;
-import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.util.Processes;
-import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
 
 public record EpdImport(ImportConfig config, Process dataSet) {
@@ -67,27 +65,4 @@ public record EpdImport(ImportConfig config, Process dataSet) {
 
 		return config.db().insert(result);
 	}
-
-	private Location locationOf(String code, HashMap<String, Location> locations) {
-		if (Strings.nullOrEmpty(code))
-			return null;
-		if (locations.isEmpty()) {
-			config.db().allOf(Location.class).forEach(
-				loc -> locations.put(loc.code, loc));
-		}
-		var cached = locations.get(code);
-		if (cached != null)
-			return cached;
-		var loc = new Location();
-		loc.refId = KeyGen.get(code);
-		loc.code = code;
-		loc.name = code;
-		config.db().insert(loc);
-		locations.put(code, loc);
-		config.log().ok("created new location for unknown code: '"
-			+ code + "'", Descriptor.of(loc));
-		return loc;
-	}
-
-
 }

@@ -11,6 +11,8 @@ import org.openlca.ilcd.methods.FactorList;
 import org.openlca.ilcd.methods.LCIAMethod;
 import org.openlca.ilcd.methods.MethodInfo;
 import org.openlca.ilcd.methods.Publication;
+import org.openlca.ilcd.methods.QuantitativeReference;
+import org.openlca.ilcd.methods.Time;
 
 public final class Methods {
 
@@ -23,7 +25,21 @@ public final class Methods {
 		return m.methodInfo;
 	}
 
-	public static MethodInfo methodInfo(LCIAMethod m) {
+	public static Time getTime(LCIAMethod m) {
+		var info = getMethodInfo(m);
+		return info == null
+			? null
+			: info.time;
+	}
+
+	public static QuantitativeReference getQuantitativeReference(LCIAMethod m) {
+		var info = getMethodInfo(m);
+		return info == null
+			? null
+			: info.quantitativeReference;
+	}
+
+	public static MethodInfo forceMethodInfo(LCIAMethod m) {
 		if (m.methodInfo == null)
 			m.methodInfo = new MethodInfo();
 		return m.methodInfo;
@@ -36,8 +52,8 @@ public final class Methods {
 		return mi.dataSetInfo;
 	}
 
-	public static DataSetInfo dataSetInfo(LCIAMethod m) {
-		MethodInfo mi = methodInfo(m);
+	public static DataSetInfo forceDataSetInfo(LCIAMethod m) {
+		MethodInfo mi = forceMethodInfo(m);
 		if (mi.dataSetInfo == null)
 			mi.dataSetInfo = new DataSetInfo();
 		return mi.dataSetInfo;
@@ -49,7 +65,7 @@ public final class Methods {
 		return m.adminInfo;
 	}
 
-	public static AdminInfo adminInfo(LCIAMethod m) {
+	public static AdminInfo forceAdminInfo(LCIAMethod m) {
 		if (m.adminInfo == null)
 			m.adminInfo = new AdminInfo();
 		return m.adminInfo;
@@ -62,8 +78,8 @@ public final class Methods {
 		return ai.dataEntry;
 	}
 
-	public static DataEntry dataEntry(LCIAMethod m) {
-		AdminInfo ai = adminInfo(m);
+	public static DataEntry forceDataEntry(LCIAMethod m) {
+		AdminInfo ai = forceAdminInfo(m);
 		if (ai.dataEntry == null)
 			ai.dataEntry = new DataEntry();
 		return ai.dataEntry;
@@ -76,20 +92,20 @@ public final class Methods {
 		return ai.publication;
 	}
 
-	public static Publication publication(LCIAMethod m) {
-		AdminInfo ai = adminInfo(m);
+	public static Publication forcePublication(LCIAMethod m) {
+		AdminInfo ai = forceAdminInfo(m);
 		if (ai.publication == null)
 			ai.publication = new Publication();
 		return ai.publication;
 	}
 
 	public static List<Factor> getFactors(LCIAMethod m) {
-		if (m == null || m.characterisationFactors == null)
-			return Collections.emptyList();
-		return m.characterisationFactors.factors;
+		return m == null || m.characterisationFactors == null
+			? Collections.emptyList()
+			: m.characterisationFactors.factors;
 	}
 
-	public static List<Factor> factors(LCIAMethod m) {
+	public static List<Factor> forceFactors(LCIAMethod m) {
 		if (m.characterisationFactors == null)
 			m.characterisationFactors = new FactorList();
 		return m.characterisationFactors.factors;

@@ -1,6 +1,7 @@
 package org.openlca.io.ilcd.input;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -8,11 +9,14 @@ import java.util.Objects;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ExchangeProviderQueue;
 import org.openlca.core.io.ImportLog;
+import org.openlca.core.model.Location;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.io.DataStore;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowSync;
+import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
 
 public class ImportConfig {
@@ -26,6 +30,7 @@ public class ImportConfig {
 	private String[] langOrder = {"en"};
 	private ExchangeProviderQueue providers;
 	private HashSet<ImpactMethodDescriptor> createdMethods;
+	private HashMap<String, Location> locations;
 
 	public ImportConfig(DataStore store, IDatabase db) {
 		this(store, db, null);
@@ -109,5 +114,27 @@ public class ImportConfig {
 	 */
 	HashSet<ImpactMethodDescriptor> createdMethods() {
 		return createdMethods;
+	}
+
+	Location locationOf(String code) {
+		if (Strings.nullOrEmpty(code))
+			return null;
+		if (locations == null) {
+			locations = new HashMap<>();
+			db.allOf(Location.class).forEach(
+				loc -> locations.put(loc.code, loc));
+		}
+		var cached = locations.get(code);
+		if (cached != null)
+			return cached;
+		var loc = new Location();
+		loc.refId = KeyGen.get(code);
+		loc.code = code;
+		loc.name = code;
+		db.insert(loc);
+		locations.put(code, loc);
+		log.ok("created new location for unknown code: '"
+			+ code + "'", Descriptor.of(loc));
+		return loc;
 	}
 }

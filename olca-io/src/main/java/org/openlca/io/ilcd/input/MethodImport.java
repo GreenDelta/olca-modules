@@ -113,10 +113,10 @@ public class MethodImport {
 	}
 
 	private String getName(LCIAMethod iMethod) {
-		MethodInfo info = iMethod.methodInfo;
+		var info = iMethod.methodInfo;
 		if (info == null || info.dataSetInfo == null)
 			return null;
-		DataSetInfo dataInfo = info.dataSetInfo;
+		var dataInfo = info.dataSetInfo;
 
 		// try to find a name
 		String name = config.str(dataInfo.name);
