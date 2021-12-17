@@ -1,12 +1,14 @@
 package org.openlca.io.ilcd.input;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ExchangeProviderQueue;
 import org.openlca.core.io.ImportLog;
+import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.io.DataStore;
 import org.openlca.io.maps.FlowMap;
@@ -21,8 +23,9 @@ public class ImportConfig {
 	private final ImportLog log;
 
 	private boolean allFlows;
-	private String[] langOrder = { "en" };
+	private String[] langOrder = {"en"};
 	private ExchangeProviderQueue providers;
+	private HashSet<ImpactMethodDescriptor> createdMethods;
 
 	public ImportConfig(DataStore store, IDatabase db) {
 		this(store, db, null);
@@ -48,7 +51,7 @@ public class ImportConfig {
 	 * first checks if there is a string for the first language of this list, then
 	 * the second, etc.
 	 */
-	public ImportConfig withLanguageOrder(String ... codes) {
+	public ImportConfig withLanguageOrder(String... codes) {
 		if (codes != null && codes.length > 0) {
 			var filtered = Arrays.stream(codes)
 				.filter(Strings::notEmpty)
@@ -94,5 +97,17 @@ public class ImportConfig {
 
 	String str(List<LangString> list) {
 		return LangString.getFirst(list, langOrder);
+	}
+
+	/**
+	 * Returns the impact methods that were created during the import. As impact
+	 * methods do not have UUIDs in ILCD (in fact "ILCD LCIA methods" are
+	 * impact categories or indicators) we need to identify them by name. If an
+	 * impact category is newly created in an import, and it has one or more
+	 * LCIA method references (by name) we also create the LCIA methods then
+	 * (also if there is a method with the same name already in openLCA).
+	 */
+	HashSet<ImpactMethodDescriptor> createdMethods() {
+		return createdMethods;
 	}
 }

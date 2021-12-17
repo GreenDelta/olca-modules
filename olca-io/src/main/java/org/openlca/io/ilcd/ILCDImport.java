@@ -1,6 +1,7 @@
 package org.openlca.io.ilcd;
 
 import org.openlca.ilcd.commons.IDataSet;
+import org.openlca.ilcd.commons.ProcessType;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flows.Flow;
@@ -9,7 +10,9 @@ import org.openlca.ilcd.models.Model;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
+import org.openlca.ilcd.util.Processes;
 import org.openlca.io.ilcd.input.ContactImport;
+import org.openlca.io.ilcd.input.EpdImport;
 import org.openlca.io.ilcd.input.FlowImport;
 import org.openlca.io.ilcd.input.FlowPropertyImport;
 import org.openlca.io.ilcd.input.ImportConfig;
@@ -77,7 +80,12 @@ public class ILCDImport implements Runnable {
 			} else if (dataSet instanceof Flow flow) {
 				new FlowImport(config).run(flow);
 			} else if (dataSet instanceof Process process) {
-				new ProcessImport(config).run(process);
+				var method = Processes.getMethod(process);
+				if (method != null && method.processType == ProcessType.EPD) {
+					new EpdImport(config, process).run();
+				} else {
+					new ProcessImport(config).run(process);
+				}
 			} else if (dataSet instanceof LCIAMethod method) {
 				new MethodImport(config).run(method);
 			} else if (dataSet instanceof  Model model) {
