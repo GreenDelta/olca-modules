@@ -1,11 +1,9 @@
 package org.openlca.io.ilcd.input;
 
-import java.util.Date;
 import java.util.List;
 
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
@@ -66,28 +64,23 @@ public class FlowImport {
 	}
 
 	private void createAndMapContent() {
-		setFlowType();
 		flow.refId = ilcdFlow.getId();
 		flow.name = Strings.cut(
 			Flows.getFullName(ilcdFlow.flow, ilcdFlow.langs), 2048);
+		flow.flowType = flowType();
 		flow.description = ilcdFlow.getComment();
 		flow.casNumber = ilcdFlow.getCasNumber();
 		flow.synonyms = ilcdFlow.getSynonyms();
 		flow.formula = ilcdFlow.getSumFormula();
 		flow.version = Version.fromString(
 			ilcdFlow.flow.version).getValue();
-		Date time = ilcdFlow.getTimeStamp();
-		if (time != null)
-			flow.lastChange = time.getTime();
+		var time = ilcdFlow.getTimeStamp();
+		flow.lastChange = time != null
+			? time.getTime()
+			: System.currentTimeMillis();
+		var locationCode = config.str(ilcdFlow.getLocation());
+		flow.location = config.locationOf(locationCode);
 		addFlowProperties();
-		mapLocation();
-	}
-
-	private void mapLocation() {
-		if (ilcdFlow == null || flow == null)
-			return;
-		String code = config.str(ilcdFlow.getLocation());
-		flow.location = Locations.get(code, config);
 	}
 
 	private void addFlowProperties() {
@@ -95,10 +88,12 @@ public class FlowImport {
 		List<FlowPropertyRef> refs = Flows
 			.getFlowProperties(ilcdFlow.flow);
 		for (FlowPropertyRef ref : refs) {
-			FlowProperty property = importProperty(ref);
+			if (ref == null || ref.flowProperty == null)
+				continue;
+			var property = FlowPropertyImport.get(config, ref.flowProperty.uuid);
 			if (property == null)
 				continue;
-			FlowPropertyFactor factor = new FlowPropertyFactor();
+			var factor = new FlowPropertyFactor();
 			factor.flowProperty = property;
 			factor.conversionFactor = ref.meanValue;
 			flow.flowPropertyFactors.add(factor);
@@ -110,19 +105,11 @@ public class FlowImport {
 		}
 	}
 
-	private FlowProperty importProperty(FlowPropertyRef ref) {
-		if (ref == null || ref.flowProperty == null)
-			return null;
-		return FlowPropertyImport.get(config, ref.flowProperty.uuid);
-	}
-
-	private void setFlowType() {
-		var t = Flows.getType(ilcdFlow.flow);
-		if (t == null) {
-			flow.flowType = FlowType.ELEMENTARY_FLOW;
-			return;
-		}
-		flow.flowType = switch (t) {
+	private FlowType flowType() {
+		var type = Flows.getType(ilcdFlow.flow);
+		if (type == null)
+			return FlowType.ELEMENTARY_FLOW;
+		return switch (type) {
 			case WASTE_FLOW -> FlowType.WASTE_FLOW;
 			case PRODUCT_FLOW -> FlowType.PRODUCT_FLOW;
 			default -> FlowType.ELEMENTARY_FLOW;

@@ -50,7 +50,7 @@ public record EpdImport(ImportConfig config, Process dataSet) {
 				: e.resultingAmount;
 			resultFlow.isInput = e.direction == ExchangeDirection.INPUT;
 			resultFlow.description =config.str(e.comment);
-			resultFlow.location = locationOf(e.location, locations);
+			resultFlow.location = config.locationOf(e.location);
 			result.inventory.add(resultFlow);
 			index.put(e.id, resultFlow);
 		}

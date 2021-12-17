@@ -2,6 +2,7 @@ package org.openlca.io.ilcd.input;
 
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.ilcd.methods.LCIAMethod;
@@ -59,12 +60,9 @@ public record ImpactImport(ImportConfig config, LCIAMethod dataSet) {
 			impact.version = Version.fromString(pub.version).getValue();
 		}
 
-		addFactors(iMethod, impact);
-
+		appendFactors(impact);
 		config.db().insert(impact);
-
-		// TODO: add method
-
+		appendToMethods(impact);
 		config.log().ok(Descriptor.of(impact));
 		return impact;
 	}
@@ -96,7 +94,7 @@ public record ImpactImport(ImportConfig config, LCIAMethod dataSet) {
 		return name;
 	}
 
-	private void addFactors(ImpactCategory impact) {
+	private void appendFactors(ImpactCategory impact) {
 		for (var factor : Methods.getFactors(dataSet)) {
 			if (factor.flow == null)
 				continue;
@@ -109,6 +107,7 @@ public record ImpactImport(ImportConfig config, LCIAMethod dataSet) {
 			f.flow = syncFlow.flow();
 			f.flowPropertyFactor = syncFlow.property();
 			f.unit = syncFlow.unit();
+			f.location = config.locationOf(factor.location);
 			if (syncFlow.isMapped()) {
 				var cf = syncFlow.mapFactor();
 				f.value = cf != 1 && cf != 0
@@ -118,14 +117,25 @@ public record ImpactImport(ImportConfig config, LCIAMethod dataSet) {
 				f.value = factor.meanValue;
 			}
 
-			if (Strings.notEmpty(factor.location)) {
-				f.location = Locations.getOrCreate(
-					factor.location, config);
-			}
-
 			impact.impactFactors.add(f);
 		}
 	}
 
-
+	private void appendToMethods(ImpactCategory impact) {
+		var info = Methods.getDataSetInfo(dataSet);
+		if (info == null)
+			return;
+		for (var name : info.methods) {
+			var m = config.impactMethodOf(name);
+			if (m == null)
+				continue;
+			var method = config.db().get(ImpactMethod.class, m.id);
+			if (method == null) {
+				config.log().error("could not load created method", m);
+				continue;
+			}
+			method.impactCategories.add(impact);
+			config.db().update(method);
+		}
+	}
 }

@@ -2,13 +2,14 @@ package org.openlca.io.ilcd.input;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ExchangeProviderQueue;
 import org.openlca.core.io.ImportLog;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
@@ -29,8 +30,8 @@ public class ImportConfig {
 	private boolean allFlows;
 	private String[] langOrder = {"en"};
 	private ExchangeProviderQueue providers;
-	private HashSet<ImpactMethodDescriptor> createdMethods;
-	private HashMap<String, Location> locations;
+	private Map<String, ImpactMethodDescriptor> methods;
+	private Map<String, Location> locations;
 
 	public ImportConfig(DataStore store, IDatabase db) {
 		this(store, db, null);
@@ -105,15 +106,30 @@ public class ImportConfig {
 	}
 
 	/**
-	 * Returns the impact methods that were created during the import. As impact
-	 * methods do not have UUIDs in ILCD (in fact "ILCD LCIA methods" are
-	 * impact categories or indicators) we need to identify them by name. If an
-	 * impact category is newly created in an import, and it has one or more
-	 * LCIA method references (by name) we also create the LCIA methods then
-	 * (also if there is a method with the same name already in openLCA).
+	 * Returns the impact method of the given name that was created during the
+	 * import. As impact methods do not have UUIDs in ILCD (in fact "ILCD LCIA
+	 * methods" are impact categories or indicators) we need to identify them by
+	 * name. If an impact category is newly created in an import, and it has one
+	 * or more LCIA method references (by name) we also create the LCIA methods
+	 * then (also if there is a method with the same name already in openLCA).
 	 */
-	HashSet<ImpactMethodDescriptor> createdMethods() {
-		return createdMethods;
+	ImpactMethodDescriptor impactMethodOf(String name) {
+		if (Strings.nullOrEmpty(name))
+			return null;
+		if (methods == null) {
+			methods = new HashMap<>();
+		}
+		var key = name.trim().toLowerCase();
+		var descriptor = methods.get(key);
+		if (descriptor != null) {
+			return descriptor;
+		}
+		var method = ImpactMethod.of(name);
+		db.insert(method);
+		methods.put(key, Descriptor.of(method));
+		descriptor = Descriptor.of(method);
+		log.ok(descriptor);
+		return descriptor;
 	}
 
 	Location locationOf(String code) {
