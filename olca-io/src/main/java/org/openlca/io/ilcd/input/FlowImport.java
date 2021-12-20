@@ -26,27 +26,23 @@ public class FlowImport {
 	}
 
 	public SyncFlow run(org.openlca.ilcd.flows.Flow dataSet) {
-		var syncFlow = config.flowSync().get(dataSet.getUUID());
-		return syncFlow.isEmpty()
-			? createNew(dataSet)
-			: syncFlow;
+		return config.flowSync().createIfAbsent(
+			dataSet.getUUID(), () -> createNew(dataSet));
 	}
 
 	public static SyncFlow get(ImportConfig config, String id) {
-		var syncFlow = config.flowSync().get(id);
-		if (!syncFlow.isEmpty())
-			return syncFlow;
-		var dataSet = config.store().get(
-			org.openlca.ilcd.flows.Flow.class, id);
-		if (dataSet == null) {
-			config.log().error("invalid reference in ILCD data set:" +
-				" flow '" + id + "' does not exist");
-			return SyncFlow.empty();
-		}
-		return new FlowImport(config).createNew(dataSet);
+		return config.flowSync().createIfAbsent(id, () -> {
+			var dataSet = config.store().get(org.openlca.ilcd.flows.Flow.class, id);
+			if (dataSet == null) {
+				config.log().error("invalid reference in ILCD data set:" +
+					" flow '" + id + "' does not exist");
+				return null;
+			}
+			return new FlowImport(config).createNew(dataSet);
+		});
 	}
 
-	private SyncFlow createNew(org.openlca.ilcd.flows.Flow dataSet) {
+	private Flow createNew(org.openlca.ilcd.flows.Flow dataSet) {
 		this.ilcdFlow = new FlowBag(dataSet, config.langOrder());
 		flow = new Flow();
 		String[] path = Categories.getPath(ilcdFlow.flow);
@@ -61,7 +57,7 @@ public class FlowImport {
 				+ "could not be imported.");
 			return null;
 		}
-		return SyncFlow.of(config.db().insert(flow));
+		return config.db().insert(flow);
 	}
 
 	private void createAndMapContent() {
