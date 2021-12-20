@@ -29,6 +29,7 @@ public record EpdImport(ImportConfig config, Process dataSet) {
 		result.refId = dataSet.getUUID();
 		result.name = Strings.cut(
 			Processes.fullName(dataSet, config.langOrder()), 2024);
+		config.log().info("import EPD: " + result.name);
 		result.category = new CategoryDao(config.db())
 			.sync(ModelType.RESULT, Categories.getPath(dataSet));
 

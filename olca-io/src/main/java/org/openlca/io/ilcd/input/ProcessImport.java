@@ -61,6 +61,7 @@ public class ProcessImport {
 		process.category = new CategoryDao(config.db())
 			.sync(ModelType.PROCESS, path);
 		createAndMapContent();
+		config.log().info("import process: " + process.name);
 		config.db().insert(process);
 		config.providers().pop(process);
 		return process;

@@ -47,6 +47,7 @@ public class ContactImport {
 		actor.category = new CategoryDao(config.db())
 				.sync(ModelType.ACTOR, path);
 		setDescriptionAttributes();
+		config.log().info("import contact: " + actor.name);
 		setVersionTime();
 		return config.db().insert(actor);
 	}

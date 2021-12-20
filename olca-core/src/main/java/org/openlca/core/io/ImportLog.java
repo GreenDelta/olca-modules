@@ -28,6 +28,19 @@ public final class ImportLog {
 	}
 
 	/**
+	 * Info messages created via this method are not added to the log but are
+	 * just passed to listeners that are attached to this log.
+	 */
+	public void info(String message) {
+		if (listeners.isEmpty())
+			return;
+		var m = new Message(Type.INFO, message, null);
+		for (var listener : listeners) {
+			listener.accept(m);
+		}
+	}
+
+	/**
 	 * Creates an 'imported' message for the given descriptor.
 	 */
 	public void ok(Descriptor descriptor) {
@@ -77,6 +90,7 @@ public final class ImportLog {
 		OK,
 		WARNING,
 		ERROR,
+		INFO,
 	}
 
 	public record Message(

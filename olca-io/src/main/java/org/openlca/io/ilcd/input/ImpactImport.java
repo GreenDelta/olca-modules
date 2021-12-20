@@ -38,6 +38,7 @@ public record ImpactImport(ImportConfig config, LCIAMethod dataSet) {
 		var impact = new ImpactCategory();
 		impact.refId = dataSet.getUUID();
 		impact.name = name();
+		config.log().info("import impact category: " + impact.name);
 		impact.category = new CategoryDao(config.db())
 			.sync(ModelType.IMPACT_CATEGORY, Categories.getPath(dataSet));
 
