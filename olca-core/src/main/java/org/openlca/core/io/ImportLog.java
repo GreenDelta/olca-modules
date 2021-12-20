@@ -105,6 +105,21 @@ public final class ImportLog {
 		public boolean hasDescriptor() {
 			return descriptor != null;
 		}
-	}
 
+		public boolean isOk() {
+			return type == Type.OK;
+		}
+
+		public boolean isWarning() {
+			return type == Type.WARNING;
+		}
+
+		public boolean isError() {
+			return type == Type.ERROR;
+		}
+
+		public boolean isInfo() {
+			return type == Type.INFO;
+		}
+	}
 }

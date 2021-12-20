@@ -1,5 +1,6 @@
 package org.openlca.io.ilcd;
 
+import org.openlca.core.io.Cancelable;
 import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.commons.ProcessType;
 import org.openlca.ilcd.contacts.Contact;
@@ -22,17 +23,24 @@ import org.openlca.io.ilcd.input.SourceImport;
 import org.openlca.io.ilcd.input.UnitGroupImport;
 import org.openlca.io.ilcd.input.models.ModelImport;
 
-public class ILCDImport implements Runnable {
+public class ILCDImport implements Cancelable {
 
-	private boolean canceled = false;
+	private volatile boolean canceled = false;
 	private final ImportConfig config;
 
 	public ILCDImport(ImportConfig config) {
 		this.config = config;
 	}
 
+	@Override
 	public void cancel() {
 		this.canceled = true;
+		config.log().info("cancel import");
+	}
+
+	@Override
+	public boolean isCanceled() {
+		return canceled;
 	}
 
 	@Override
@@ -88,7 +96,7 @@ public class ILCDImport implements Runnable {
 				}
 			} else if (dataSet instanceof LCIAMethod impact) {
 				new ImpactImport(config, impact).run();
-			} else if (dataSet instanceof  Model model) {
+			} else if (dataSet instanceof Model model) {
 				new ModelImport(config).run(model);
 			} else {
 				config.log().error("No matching import for data set "
