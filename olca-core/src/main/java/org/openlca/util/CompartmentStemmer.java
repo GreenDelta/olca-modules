@@ -34,13 +34,24 @@ public class CompartmentStemmer {
 			"to",
 			"and",
 			"or",
-			"unspecified"
+			"unspecified",
+			"density",
+			"issues"
 		);
 		filter.addAll(filterWords);
 
 		replacements = new HashMap<>();
 		replacements.put("resources", "resource");
 		replacements.put("emissions", "emission");
+		replacements.put("population", "pop");
+		replacements.put("fossilwater", "fossil");
+		replacements.put("groundwater", "ground");
+		replacements.put("waterborne", "water");
+		replacements.put("airborne", "air");
+		replacements.put("raw", "resource");
+		replacements.put("raw materials", "resource");
+		replacements.put("final waste flows", "waste");
+		replacements.put("non mat.", "non material");
 	}
 
 	public String[] stem(String path) {
@@ -74,6 +85,8 @@ public class CompartmentStemmer {
 	private void append(List<Segment> prefix, String next) {
 		if (Strings.nullOrEmpty(next))
 			return;
+		var feed = next.toLowerCase().trim();
+		feed = replacements.getOrDefault(feed, feed);
 		var words = new HashSet<String>();
 		var word = new StringBuilder();
 
@@ -92,7 +105,7 @@ public class CompartmentStemmer {
 			words.add(s);
 		};
 
-		for (var c : next.toCharArray()) {
+		for (var c : feed.toCharArray()) {
 			if (Character.isAlphabetic(c)) {
 				word.append(c);
 				continue;
