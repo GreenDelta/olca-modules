@@ -77,36 +77,33 @@ public class CompartmentStemmer {
 		var words = new HashSet<String>();
 		var word = new StringBuilder();
 
-
+		Runnable handleNext = () -> {
+			if (word.length() == 0)
+				return;
+			var s = word.toString().toLowerCase();
+			word.setLength(0);
+			s = replacements.getOrDefault(s, s);
+			if (filter.contains(s))
+				return;
+			for (var previous : prefix) {
+				if (previous.words.contains(s))
+					return;
+			}
+			words.add(s);
+		};
 
 		for (var c : next.toCharArray()) {
 			if (Character.isAlphabetic(c)) {
 				word.append(c);
 				continue;
 			}
-			if (word.length() > 0) {
-				var s = word.toString().toLowerCase();
-				word.setLength(0);
-				s = replacements.getOrDefault(s, s);
-				if (filter.contains(s)) {
-					continue;
-				}
-				boolean alreadyInPath = false;
-				for (var previous : prefix) {
-					if(previous.words.contains(s)) {
-						alreadyInPath = true;
-						break;
-					}
-				}
-				if (!alreadyInPath) {
-					words.add(s);
-				}
-			}
+			handleNext.run();
 		}
+		handleNext.run();
 
-		if (words.isEmpty())
-			return;
-		prefix.add(new Segment(words));
+		if (!words.isEmpty()) {
+			prefix.add(new Segment(words));
+		}
 	}
 
 	private record Key(String[] content) {
