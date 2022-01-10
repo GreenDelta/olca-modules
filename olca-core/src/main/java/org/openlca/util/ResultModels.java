@@ -47,12 +47,20 @@ public class ResultModels {
 			m.refId = UUID.randomUUID().toString();
 			m.lastChange = System.currentTimeMillis();
 			m.calculationTime = m.lastChange;
-			var calcRef = setup.hasProductSystem()
-				? setup.productSystem()
-				: setup.process();
-			m.name = calcRef != null
-				? calcRef.name
-				: "-unknown-";
+
+			// name and URN
+			if (setup.hasProductSystem()) {
+				m.name = setup.productSystem().name;
+				m.urn = "openLCA:model:" + setup.productSystem().refId;
+			} else {
+				var process = setup.process();
+				if (process != null) {
+					m.name = process.name;
+					m.urn = "openLCA:process:" +process.refId;
+				} else {
+					m.name = "-unknown-";
+				}
+			}
 
 			var refFlow = referenceFlowOf(setup);
 			if (refFlow != null) {
