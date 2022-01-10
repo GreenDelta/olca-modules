@@ -15,6 +15,7 @@ class ImpactMethodWriter extends Writer<ImpactMethod> {
 		var obj = super.write(method);
 		if (obj == null)
 			return null;
+		Out.put(obj, "source", method.source, conf);
 		Out.put(obj, "impactCategories", method.impactCategories,
 				conf, Out.FORCE_EXPORT);
 		mapNwSets(obj, method);

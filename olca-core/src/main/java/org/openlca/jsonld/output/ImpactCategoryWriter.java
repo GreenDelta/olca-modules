@@ -15,22 +15,23 @@ class ImpactCategoryWriter extends Writer<ImpactCategory> {
 	}
 
 	@Override
-	JsonObject write(ImpactCategory category) {
-		JsonObject obj = super.write(category);
+	JsonObject write(ImpactCategory impact) {
+		JsonObject obj = super.write(impact);
 		if (obj == null)
 			return null;
-		Out.put(obj, "referenceUnitName", category.referenceUnit);
-		mapImpactFactors(category, obj);
-		mapParameters(obj, category);
-		GlobalParameters.sync(category, conf);
+		Out.put(obj, "referenceUnitName", impact.referenceUnit);
+		Out.put(obj, "source", impact.source, conf);
+		mapImpactFactors(impact, obj);
+		mapParameters(obj, impact);
+		GlobalParameters.sync(impact, conf);
 		return obj;
 	}
 
-	private void mapImpactFactors(ImpactCategory category, JsonObject json) {
-		if (category.impactFactors.isEmpty())
+	private void mapImpactFactors(ImpactCategory impact, JsonObject json) {
+		if (impact.impactFactors.isEmpty())
 			return;
 		var array = new JsonArray();
-		for (var f : category.impactFactors) {
+		for (var f : impact.impactFactors) {
 			var obj = new JsonObject();
 			Out.put(obj, "@type", ImpactFactor.class.getSimpleName());
 			Out.put(obj, "value", f.value);

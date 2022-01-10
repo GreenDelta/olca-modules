@@ -10,6 +10,7 @@ import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.openlca.util.Strings;
 
 class ImpactMethodImport extends BaseImport<ImpactMethod> {
 
@@ -25,15 +26,19 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 	ImpactMethod map(JsonObject json, long id) {
 		if (json == null)
 			return null;
-		ImpactMethod m = new ImpactMethod();
-		In.mapAtts(json, m, id, conf);
+		var method = new ImpactMethod();
+		In.mapAtts(json, method, id, conf);
+		var sourceId = Json.getString(json, "source");
+		if (Strings.nullOrEmpty(sourceId)) {
+			method.source = SourceImport.run(sourceId, conf);
+		}
 		// first map categories, nw sets will reference them
-		mapCategories(json, m);
-		mapNwSets(json, m);
-		return conf.db.put(m);
+		mapCategories(json, method);
+		mapNwSets(json, method);
+		return conf.db.put(method);
 	}
 
-	private void mapCategories(JsonObject json, ImpactMethod m) {
+	private void mapCategories(JsonObject json, ImpactMethod method) {
 		var array = Json.getArray(json, "impactCategories");
 		if (array == null || array.size() == 0)
 			return;
@@ -43,7 +48,7 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 			var catId = Json.getString(e.getAsJsonObject(), "@id");
 			var impact = ImpactCategoryImport.run(catId, conf);
 			if (impact != null) {
-				m.impactCategories.add(impact);
+				method.impactCategories.add(impact);
 			}
 		}
 	}

@@ -32,10 +32,14 @@ class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 	ImpactCategory map(JsonObject json, long id) {
 		if (json == null)
 			return null;
-		ImpactCategory cat = new ImpactCategory();
-		In.mapAtts(json, cat, id, conf);
-		cat.referenceUnit = Json.getString(json, "referenceUnitName");
-		mapParameters(json, cat);
+		var impact = new ImpactCategory();
+		In.mapAtts(json, impact, id, conf);
+		impact.referenceUnit = Json.getString(json, "referenceUnitName");
+		var sourceId = Json.getString(json, "source");
+		if (Strings.nullOrEmpty(sourceId)) {
+			impact.source = SourceImport.run(sourceId, conf);
+		}
+		mapParameters(json, impact);
 		JsonArray factors = Json.getArray(json, "impactFactors");
 		if (factors != null) {
 			for (var e : factors) {
@@ -44,10 +48,10 @@ class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 				var factor = mapFactor(e.getAsJsonObject(), conf);
 				if (factor == null)
 					continue;
-				cat.impactFactors.add(factor);
+				impact.impactFactors.add(factor);
 			}
 		}
-		return conf.db.put(cat);
+		return conf.db.put(impact);
 	}
 
 	private ImpactFactor mapFactor(JsonObject json, ImportConfig conf) {
@@ -55,7 +59,7 @@ class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 			return null;
 
 		ImpactFactor factor = new ImpactFactor();
-		
+
 		// flow
 		String flowId = Json.getRefId(json, "flow");
 		Flow flow = FlowImport.run(flowId, conf);
@@ -73,7 +77,7 @@ class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 			factor.uncertainty = Uncertainties.read(
 					uncertainty.getAsJsonObject());
 		}
-		
+
 		// location
 		var locID = Json.getRefId(json, "location");
 		if (Strings.notEmpty(locID)) {
