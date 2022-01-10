@@ -25,26 +25,9 @@ public class ImpactMethod extends CategorizedEntity {
 	@JoinColumn(name = "f_impact_method")
 	public final List<NwSet> nwSets = new ArrayList<>();
 
-	/**
-	 * The original author of the method.
-	 */
 	@OneToOne
-	@JoinColumn(name = "f_author")
-	public Actor author;
-
-	/**
-	 * The person/organization that adapted/converted the method into this
-	 * machine readable format.
-	 */
-	@OneToOne
-	@JoinColumn(name = "f_generator")
-	public Actor generator;
-
-	@OneToMany
-	@JoinTable(name = "tbl_source_links", joinColumns = {
-			@JoinColumn(name = "f_owner")}, inverseJoinColumns = {
-			@JoinColumn(name = "f_source")})
-	public final List<Source> sources = new ArrayList<>();
+	@JoinColumn(name = "f_source")
+	public Source source;
 
 	public static ImpactMethod of(String name) {
 		var method = new ImpactMethod();
@@ -68,16 +51,14 @@ public class ImpactMethod extends CategorizedEntity {
 
 	@Override
 	public ImpactMethod copy() {
-		var clone = new ImpactMethod();
-		Entities.copyFields(this, clone);
-		clone.impactCategories.addAll(impactCategories);
-		clone.author = author;
-		clone.generator = generator;
-		clone.sources.addAll(sources);
-		for (NwSet nwSet : nwSets) {
-			clone.nwSets.add(nwSet.copy());
+		var copy = new ImpactMethod();
+		Entities.copyFields(this, copy);
+		copy.impactCategories.addAll(impactCategories);
+		copy.source = source;
+		for (var nwSet : nwSets) {
+			copy.nwSets.add(nwSet.copy());
 		}
-		return clone;
+		return copy;
 	}
 
 }

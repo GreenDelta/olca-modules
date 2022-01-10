@@ -8,6 +8,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -20,6 +21,10 @@ public class ImpactCategory extends ParameterizedEntity {
 
 	@Column(name = "reference_unit")
 	public String referenceUnit;
+
+	@OneToOne
+	@JoinColumn(name = "f_source")
+	public Source source;
 
 	public static ImpactCategory of(String name) {
 		return of(name, null);
@@ -34,16 +39,17 @@ public class ImpactCategory extends ParameterizedEntity {
 
 	@Override
 	public ImpactCategory copy() {
-		var clone = new ImpactCategory();
-		Entities.copyFields(this, clone);
-		clone.referenceUnit = referenceUnit;
-		for (ImpactFactor f : impactFactors) {
-			clone.impactFactors.add(f.copy());
+		var copy = new ImpactCategory();
+		Entities.copyFields(this, copy);
+		copy.referenceUnit = referenceUnit;
+		copy.source = source;
+		for (var f : impactFactors) {
+			copy.impactFactors.add(f.copy());
 		}
-		for (Parameter p : parameters) {
-			clone.parameters.add(p.copy());
+		for (var p : parameters) {
+			copy.parameters.add(p.copy());
 		}
-		return clone;
+		return copy;
 	}
 
 	public ImpactFactor getFactor(Flow flow) {

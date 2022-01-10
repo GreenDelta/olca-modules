@@ -44,6 +44,12 @@ public class ResultModel extends CategorizedEntity {
 	@Column(name = "calculation_time")
 	public long calculationTime;
 
+	/**
+	 * A URN that points to the origin of the result.
+	 */
+	@Column(name = "urn")
+	public String urn;
+
 	public static ResultModel of(String name) {
 		var result = new ResultModel();
 		Entities.init(result, name);
@@ -54,6 +60,7 @@ public class ResultModel extends CategorizedEntity {
 	public ResultModel copy() {
 		var clone = new ResultModel();
 		Entities.copyRootFields(this, clone);
+		clone.urn = urn;
 		if (setup != null) {
 			clone.setup = setup.copy();
 		}

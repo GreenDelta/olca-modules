@@ -432,8 +432,7 @@ CREATE TABLE tbl_impact_methods (
     library       VARCHAR(255),
     description   CLOB(64 K),
 
-    f_author      BIGINT,
-    f_generator   BIGINT,
+    f_source      BIGINT,
 
     PRIMARY KEY (id)
 
@@ -452,6 +451,7 @@ CREATE TABLE tbl_impact_categories (
     library         VARCHAR(255),
     description     CLOB(64 K),
 
+    f_source        BIGINT,
     reference_unit  VARCHAR(255),
 
     PRIMARY KEY (id)
@@ -739,6 +739,7 @@ CREATE TABLE tbl_results (
     library              VARCHAR(255),
     description          CLOB(64 K),
 
+    urn                  VARCHAR(2048),
     f_calculation_setup  BIGINT,
     f_reference_flow     BIGINT,
     calculation_time     BIGINT,

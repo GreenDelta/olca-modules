@@ -22,23 +22,25 @@ public class SourceUseSearch extends BaseUseSearch<SourceDescriptor> {
 
 	@Override
 	public List<CategorizedDescriptor> findUses(Set<Long> ids) {
-		Set<Long> docsWithSources = new HashSet<>();
-		Set<Long> methodsWithSources = new HashSet<>();
-		docsWithSources.addAll(queryForIds("id", "tbl_process_docs", ids, "f_publication"));
+		Set<Long> methods = queryForIds(
+			"id", "tbl_impact_methods", ids, "f_source");
+		Set<Long> impacts = queryForIds(
+			"id", "tbl_impact_categories", ids, "f_source");
+		Set<Long> docsWithSources = new HashSet<>(
+			queryForIds("id", "tbl_process_docs", ids, "f_publication"));
 		Set<Long> docIds = getIds("tbl_process_docs");
-		Set<Long> methodIds = getIds("tbl_impact_methods");
-		Set<Long> sourceOwnerIds = queryForIds("f_owner", "tbl_source_links", ids, "f_source");
+		Set<Long> sourceOwnerIds = queryForIds(
+			"f_owner", "tbl_source_links", ids, "f_source");
 		for (long id : sourceOwnerIds) {
 			if (docIds.contains(id)) {
 				docsWithSources.add(id);
-			} else if (methodIds.contains(id)) {
-				methodsWithSources.add(id);
 			}
 		}
 		Set<CategorizedDescriptor> result = new HashSet<>();
 		result.addAll(queryFor(ModelType.PROCESS, docsWithSources, "f_process_doc"));
 		result.addAll(queryFor(ModelType.DQ_SYSTEM, ids, "f_source"));
-		result.addAll(loadDescriptors(ModelType.IMPACT_METHOD, methodsWithSources));
+		result.addAll(loadDescriptors(ModelType.IMPACT_METHOD, methods));
+		result.addAll(loadDescriptors(ModelType.IMPACT_CATEGORY, impacts));
 		return new ArrayList<>(result);
 	}
 }

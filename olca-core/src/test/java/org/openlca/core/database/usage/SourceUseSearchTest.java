@@ -13,6 +13,7 @@ import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.model.DQSystem;
+import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
@@ -24,7 +25,7 @@ import org.openlca.core.model.descriptors.SourceDescriptor;
 
 public class SourceUseSearchTest {
 
-	private IDatabase database = Tests.getDb();
+	private final IDatabase db = Tests.getDb();
 	private IUseSearch<SourceDescriptor> search;
 	private Source source;
 	private Process process;
@@ -36,22 +37,21 @@ public class SourceUseSearchTest {
 
 	@Before
 	public void setUp() {
-		this.search = IUseSearch.FACTORY.createFor(ModelType.SOURCE, database);
-		SourceDao sourceDao = new SourceDao(database);
+		this.search = IUseSearch.FACTORY.createFor(ModelType.SOURCE, db);
+		SourceDao sourceDao = new SourceDao(db);
 		Source source = new Source();
 		source.name = "test source";
 		this.source = sourceDao.insert(source);
-		processDao = new ProcessDao(database);
+		processDao = new ProcessDao(db);
 		Process process = new Process();
 		process.name = "test process";
-		ProcessDocumentation doc = new ProcessDocumentation();
-		process.documentation = doc;
+		process.documentation = new ProcessDocumentation();
 		this.process = processDao.insert(process);
-		methodDao = new ImpactMethodDao(database);
+		methodDao = new ImpactMethodDao(db);
 		ImpactMethod method = new ImpactMethod();
 		method.name = "test method";
 		this.method = methodDao.insert(method);
-		dqSystemDao = new DQSystemDao(database);
+		dqSystemDao = new DQSystemDao(db);
 		DQSystem system = new DQSystem();
 		this.dqSystem = dqSystemDao.insert(system);
 	}
@@ -60,14 +60,13 @@ public class SourceUseSearchTest {
 	public void tearDown() {
 		processDao.delete(process);
 		dqSystemDao.delete(dqSystem);
-		SourceDao sourceDao = new SourceDao(database);
+		SourceDao sourceDao = new SourceDao(db);
 		sourceDao.delete(source);
 	}
 
 	@Test
 	public void testFindNoUsage() {
-		List<CategorizedDescriptor> models = search.findUses(Descriptor
-				.of(source));
+		var models = search.findUses(Descriptor.of(source));
 		Assert.assertNotNull(models);
 		Assert.assertTrue(models.isEmpty());
 	}
@@ -76,8 +75,7 @@ public class SourceUseSearchTest {
 	public void testFindInProcessPublication() {
 		process.documentation.publication = source;
 		process = processDao.update(process);
-		List<CategorizedDescriptor> models = search.findUses(Descriptor
-				.of(source));
+		var models = search.findUses(Descriptor.of(source));
 		Assert.assertEquals(1, models.size());
 		Assert.assertEquals(Descriptor.of(process), models.get(0));
 	}
@@ -86,22 +84,31 @@ public class SourceUseSearchTest {
 	public void testFindInProcessSources() {
 		process.documentation.sources.add(source);
 		process = processDao.update(process);
-		List<CategorizedDescriptor> models = search.findUses(Descriptor
-				.of(source));
+		var models = search.findUses(Descriptor.of(source));
 		Assert.assertEquals(1, models.size());
 		Assert.assertEquals(Descriptor.of(process), models.get(0));
 	}
 
 	@Test
-	public void testFindInMethodSources() {
-		method.sources.add(source);
+	public void testFindInImpactMethod() {
+		method.source = source;
 		method = methodDao.update(method);
-		List<CategorizedDescriptor> models = search.findUses(Descriptor
-				.of(source));
+		var models = search.findUses(Descriptor.of(source));
 		Assert.assertEquals(1, models.size());
 		Assert.assertEquals(Descriptor.of(method), models.get(0));
 	}
-	
+
+	@Test
+	public void testFindInImpactCategory() {
+		var impact = ImpactCategory.of("impact");
+		impact.source = source;
+		db.insert(impact);
+		var models = search.findUses(Descriptor.of(source));
+		Assert.assertEquals(1, models.size());
+		Assert.assertEquals(Descriptor.of(impact), models.get(0));
+		db.delete(impact);
+	}
+
 	@Test
 	public void testFindInDQSystem() {
 		dqSystem.source = source;

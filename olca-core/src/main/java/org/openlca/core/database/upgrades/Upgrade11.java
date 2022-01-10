@@ -19,6 +19,8 @@ public class Upgrade11 implements IUpgrade {
 		var u = new DbUtil(db);
 
 		u.createColumn("tbl_parameter_redefs", "is_protected SMALLINT default 0");
+		u.createColumn("tbl_impact_methods", "f_source BIGINT");
+		u.createColumn("tbl_impact_categories", "f_source BIGINT");
 
 		u.createTable(
 			"tbl_results",
@@ -32,6 +34,7 @@ public class Upgrade11 implements IUpgrade {
 				"    tags                 VARCHAR(255)," +
 				"    library              VARCHAR(255)," +
 				"    description          CLOB(64 K)," +
+				"    urn                  VARCHAR(2048)," +
 			  "    f_calculation_setup  BIGINT," +
 				"    f_reference_flow     BIGINT," +
 				"    calculation_time     BIGINT," +

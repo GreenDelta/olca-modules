@@ -1,4 +1,4 @@
-package org.openlca.core.database;
+package org.openlca.core.database.upgrades;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -6,6 +6,12 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.openlca.core.Tests;
+import org.openlca.core.database.Daos;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactMethodDao;
+import org.openlca.core.database.ProcessDao;
+import org.openlca.core.database.ProductSystemDao;
+import org.openlca.core.database.ProjectDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
@@ -21,31 +27,17 @@ import org.openlca.core.model.Source;
  */
 public class Update8Test {
 
-	private IDatabase db = Tests.getDb();
+	private final IDatabase db = Tests.getDb();
 
 	@Test
 	public void testImpactMethods() {
-		Actor actor = new Actor();
-		actor.name = "actor";
-		Daos.base(db, Actor.class).insert(actor);
-		Source source = new Source();
-		source.name = "source";
-		Daos.base(db, Source.class).insert(source);
-
-		ImpactMethod method = new ImpactMethod();
-		method.author = actor;
-		method.generator = actor;
-		method.sources.add(source);
-		ImpactMethodDao dao = new ImpactMethodDao(db);
-		dao.insert(method);
-		method = dao.getForId(method.id);
-		assertEquals("actor", method.author.name);
-		assertEquals("actor", method.generator.name);
-		assertEquals("source", method.sources.get(0).name);
-
-		dao.delete(method);
-		Daos.base(db, Actor.class).delete(actor);
-		Daos.base(db, Source.class).delete(source);
+		var source = Source.of("source");
+		var method = new ImpactMethod();
+		method.source = source;
+		db.insert(source, method);
+		var clone = db.get(ImpactMethod.class, method.id);
+		assertEquals("source", clone.source.name);
+		db.delete(method, source);
 	}
 
 	@Test
