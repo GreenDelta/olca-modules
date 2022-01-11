@@ -15,6 +15,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
+import org.openlca.core.database.ResultDao;
 import org.openlca.core.math.ReferenceAmount;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.TechLinker;
@@ -132,15 +133,21 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 	private void fillFrom(IDatabase db, ProductSystem system) {
 		var systems = new ProductSystemDao(db).descriptorMap();
 		var processes = new ProcessDao(db).descriptorMap();
+		var results = new ResultDao(db).descriptorMap();
+
 		var flows = new FlowDao(db).descriptorMap();
 
 		for (var link : system.processLinks) {
 			CategorizedDescriptor p = processes.get(link.providerId);
 			if (p == null) {
 				p = systems.get(link.providerId);
-				if (p == null)
-					continue;
+				if (p == null) {
+					p = results.get(link.providerId);
+				}
 			}
+			if (p == null)
+				continue;
+
 			var flow = flows.get(link.flowId);
 			if (flow == null)
 				continue;

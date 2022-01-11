@@ -2,22 +2,41 @@ package org.openlca.core.matrix.index;
 
 import java.util.Objects;
 
+import org.openlca.core.model.AbstractExchange;
+import org.openlca.core.model.Location;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 
 /**
  * Describes the mapping of flow information to a matrix index.
+ *
+ * @param flow     the flow descriptor which is never {@code null}
+ * @param location the location descriptor which is {@code null} for
+ *                 non-regionalized indices
+ * @param isInput  {@code true} when this flow is an input flow, otherwise
+ *                 * {@code false}
  */
-public class EnviFlow {
+public record EnviFlow(
+	FlowDescriptor flow, LocationDescriptor location, boolean isInput) {
 
-	private final FlowDescriptor flow;
-	private final LocationDescriptor location;
-	private final boolean isInput;
-
-	EnviFlow(FlowDescriptor flow, LocationDescriptor location, boolean isInput) {
+	public EnviFlow(
+		FlowDescriptor flow, LocationDescriptor location, boolean isInput) {
 		this.flow = Objects.requireNonNull(flow);
 		this.location = location;
 		this.isInput = isInput;
+	}
+
+	public static EnviFlow of(AbstractExchange e) {
+		if (e == null || e.flow == null)
+			return null;
+		var flow = Descriptor.of(e.flow);
+		if (e.location == null)
+			return e.isInput ? inputOf(flow) : outputOf(flow);
+		var location = Descriptor.of(e.location);
+		return e.isInput
+			? inputOf(flow, location)
+			: outputOf(flow, location);
 	}
 
 	public static EnviFlow inputOf(FlowDescriptor flow) {
@@ -36,29 +55,6 @@ public class EnviFlow {
 		return new EnviFlow(flow, loc, false);
 	}
 
-	/**
-	 * Returns the flow descriptor which is never {@code null}.
-	 */
-	public FlowDescriptor flow() {
-		return flow;
-	}
-
-	/**
-	 * Returns the location descriptor. This returns {@code null} fo
-	 * non-regionalized indices.
-	 */
-	public LocationDescriptor location() {
-		return location;
-	}
-
-	/**
-	 * Returns {@code true} when this flow is an input flow, otherwise
-	 * {@code false}.
-	 */
-	public boolean isInput() {
-		return isInput;
-	}
-
 	long flowId() {
 		return flow.id;
 	}
@@ -68,7 +64,6 @@ public class EnviFlow {
 		return LongPair.of(flow.id, locID);
 	}
 
-
 	@Override
 	public boolean equals(Object o) {
 		if (this == o)
@@ -77,8 +72,8 @@ public class EnviFlow {
 			return false;
 		var other = (EnviFlow) o;
 		return Objects.equals(flow, other.flow)
-				&& Objects.equals(location, other.location)
-				&& isInput == other.isInput;
+			&& Objects.equals(location, other.location)
+			&& isInput == other.isInput;
 	}
 
 	@Override

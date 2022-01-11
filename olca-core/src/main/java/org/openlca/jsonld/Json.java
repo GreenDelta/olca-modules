@@ -239,21 +239,20 @@ public class Json {
 		}
 		put(obj, "@id", d.refId);
 		put(obj, "name", d.name);
-		if (d instanceof CategorizedDescriptor) {
-			putCategoryPath(obj, (CategorizedDescriptor) d, cache);
+		if (d instanceof CategorizedDescriptor cd) {
+			putCategoryPath(obj, cd, cache);
 		}
-		if (d instanceof CategoryDescriptor) {
-			putCategoryMetaData(obj, (CategoryDescriptor) d);
+		if (d instanceof CategoryDescriptor category) {
+			putCategoryMetaData(obj, category);
 		}
-		if (d instanceof FlowDescriptor) {
-			putFlowMetaData(obj, (FlowDescriptor) d, cache);
+		if (d instanceof FlowDescriptor flow) {
+			putFlowMetaData(obj, flow, cache);
 		}
-		if (d instanceof ProcessDescriptor) {
-			putProcessMetaData(obj, (ProcessDescriptor) d, cache);
+		if (d instanceof ProcessDescriptor process) {
+			putProcessMetaData(obj, process, cache);
 		}
-		if (d instanceof ImpactDescriptor) {
-			ImpactDescriptor icd = (ImpactDescriptor) d;
-			obj.addProperty("refUnit", icd.referenceUnit);
+		if (d instanceof ImpactDescriptor impact) {
+			obj.addProperty("refUnit", impact.referenceUnit);
 		}
 		return obj;
 	}

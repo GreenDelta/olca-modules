@@ -1,8 +1,9 @@
 package org.openlca.core.math;
 
-import org.openlca.core.model.Exchange;
+import org.openlca.core.model.AbstractExchange;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.ResultModel;
 import org.openlca.core.model.Unit;
 
 /**
@@ -23,23 +24,27 @@ public final class ReferenceAmount {
 		if (system == null)
 			return 0;
 		return get(system.targetAmount,
-				system.targetUnit,
-				system.targetFlowPropertyFactor);
+			system.targetUnit,
+			system.targetFlowPropertyFactor);
+	}
+
+	public static double get(ResultModel result) {
+		return result == null
+			? 0
+			: get(result.referenceFlow);
 	}
 
 	/**
 	 * Get the reference amount of the given exchange.
 	 */
-	public static double get(Exchange e) {
+	public static double get(AbstractExchange e) {
 		if (e == null)
 			return 0;
-		return get(e.amount,
-				e.unit,
-				e.flowPropertyFactor);
+		return get(e.amount, e.unit, e.flowPropertyFactor);
 	}
 
 	public static double get(double amount, Unit unit,
-			FlowPropertyFactor factor) {
+		FlowPropertyFactor factor) {
 		double refAmount = amount;
 		if (unit != null) {
 			refAmount = refAmount * unit.conversionFactor;

@@ -6,7 +6,7 @@ import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.OneToOne;
 
 @MappedSuperclass
-class AbstractExchange extends AbstractEntity{
+public class AbstractExchange extends AbstractEntity {
 
 	/**
 	 * Indicates whether the exchange is an input (= true) or output (= false).
