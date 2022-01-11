@@ -5,9 +5,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.results.FullResult;
-import org.openlca.core.results.providers.ResultProviders;
 import org.openlca.proto.ProtoCalculationSetup;
 import org.openlca.proto.ProtoRef;
 import org.openlca.proto.grpc.ImpactFactorRequest;
@@ -47,10 +46,8 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
       return;
     }
 
-    var data = MatrixData.of(db, setup);
-    var provider = ResultProviders.lazyOf(db, data);
-    var result = new FullResult(provider);
-
+    var result = new SystemCalculator(db)
+    		.calculateFull(setup);
     var key = UUID.randomUUID().toString();
     results.put(key, result);
     var r = ProtoResultRef.newBuilder()

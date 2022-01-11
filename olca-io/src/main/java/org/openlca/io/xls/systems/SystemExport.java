@@ -13,15 +13,15 @@ import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.openlca.core.model.CalculationSetup;
-import org.openlca.core.matrix.index.EnviIndex;
-import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.ImpactIndex;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.AllocationMethod;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.io.xls.Excel;
 import org.openlca.util.Strings;
@@ -44,7 +44,10 @@ class SystemExport {
 			.withParameters(conf.system.parameterRedefs)
 			.withAllocation(conf.allocationMethod);
 		// setup.impactMethod = conf.impactMethod;
-		data = MatrixData.of(conf.database, setup);
+		var techIndex = TechIndex.of(conf.database,  setup);
+		data = MatrixData.of(conf.database, techIndex)
+				.withSetup(setup)
+				.build();
 
 		File subDir = new File(dir, conf.system.name.trim());
 		if (!subDir.exists())

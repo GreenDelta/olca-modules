@@ -6,12 +6,12 @@ import java.io.Writer;
 import java.util.HashMap;
 
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.AllocationMethod;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.io.CategoryPair;
 import org.openlca.io.DisplayValues;
@@ -50,7 +50,10 @@ class CsvMatrixExport implements Runnable {
 		var setup = CalculationSetup.simple(conf.productSystem)
 			.withParameters(conf.productSystem.parameterRedefs)
 			.withAllocation(AllocationMethod.NONE);
-		var data = MatrixData.of(conf.db, setup);
+		var techIndex = TechIndex.of(conf.db, setup);
+		var data = MatrixData.of(conf.db, techIndex)
+			.withSetup(setup)
+			.build();
 
 		log.trace("Write technology matrix");
 		try (FileWriter writer = new FileWriter(conf.technologyFile);

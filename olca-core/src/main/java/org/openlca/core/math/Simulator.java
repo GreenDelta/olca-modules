@@ -370,7 +370,10 @@ public class Simulator {
 				? setup.productSystem().id
 				: setup.process().id;
 			product = TechFlow.of(setup.process(), setup.flow());
-			data = MatrixData.of(db, setup, subResults);
+			data = MatrixData.of(db, TechIndex.of(db, setup))
+				.withSetup(setup)
+				.withSubResults(subResults)
+				.build();
 
 			// parameters
 			var paramContexts = new HashSet<Long>();

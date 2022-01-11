@@ -11,6 +11,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
@@ -73,8 +74,12 @@ public class SystemCalculator {
 
 	private <T extends SimpleResult> T with(
 		CalculationSetup setup, Function<MatrixData, T> fn) {
+		var techIndex = TechIndex.of(db, setup);
 		var subs = calculateSubSystems(setup);
-		var data = MatrixData.of(db, setup, subs);
+		var data = MatrixData.of(db, techIndex)
+			.withSetup(setup)
+			.withSubResults(subs)
+			.build();
 		T result = fn.apply(data);
 		for (var sub : subs.entrySet()) {
 			result.addSubResult(sub.getKey(), sub.getValue());

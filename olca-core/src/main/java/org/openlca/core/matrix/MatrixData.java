@@ -1,23 +1,18 @@
 package org.openlca.core.matrix;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.uncertainties.UMatrix;
-import org.openlca.core.results.SimpleResult;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.util.Copy;
 
@@ -90,27 +85,6 @@ public class MatrixData {
 	public UMatrix impactUncertainties;
 
 	private Boolean _hasLibraryLinks;
-
-	/**
-	 * Create the matrix data for the given calculation setup.
-	 */
-	public static MatrixData of(IDatabase db, CalculationSetup setup) {
-		return of(db, setup, Collections.emptyMap());
-	}
-
-	/**
-	 * Create the matrix data for the given calculation setup and sub-results. The
-	 * sub-results will be integrated into the resulting matrices.
-	 */
-	public static MatrixData of(
-		IDatabase db, CalculationSetup setup,
-		Map<TechFlow, SimpleResult> subResults) {
-		var techIndex = TechIndex.of(db, setup);
-		return MatrixConfig.of(db, techIndex)
-			.withSetup(setup)
-			.withSubResults(subResults)
-			.build();
-	}
 
 	public static MatrixConfig.Builder of(IDatabase db, TechIndex techIndex) {
 		return MatrixConfig.of(db, techIndex);

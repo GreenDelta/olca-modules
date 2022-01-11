@@ -17,10 +17,11 @@ import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.UnitGroupDao;
-import org.openlca.core.matrix.index.EnviIndex;
-import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -274,7 +275,9 @@ public class RegionalizedCalculationTest {
 		p1 = setLoc(p1, loc1);
 		p2 = setLoc(p2, loc2);
 		var setup = calcSetup().withRegionalization(true);
-		var data = MatrixData.of(db, setup);
+		var data = MatrixData.of(db, TechIndex.of(db, setup))
+			.withSetup(setup)
+			.build();
 		var result = FullResult.of(db, data);
 		checkRegionalizedResults(result);
 	}
@@ -410,7 +413,7 @@ public class RegionalizedCalculationTest {
 	}
 
 	private double orZero(Flow flow, Location location, EnviIndex index,
-												ToDoubleFunction<EnviFlow> fn) {
+		ToDoubleFunction<EnviFlow> fn) {
 		if (flow == null)
 			return 0;
 		int idx = index.of(flow.id, location != null ? location.id : 0L);
