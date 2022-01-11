@@ -199,7 +199,7 @@ public interface ResultProvider {
 	}
 
 	/**
-	 * Get the the direct result of the given flow and product related to the
+	 * Get the direct result of the given flow and product related to the
 	 * final demand of the system. This is basically the element $g_{ij}$
 	 * of the column-wise scaled intervention matrix $B$:
 	 * <p>
