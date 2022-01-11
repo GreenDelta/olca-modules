@@ -6,6 +6,8 @@ import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.model.FlowType;
+import org.openlca.core.model.ResultFlow;
 import org.openlca.core.model.ResultModel;
 import org.openlca.core.model.descriptors.Descriptor;
 
@@ -20,36 +22,23 @@ public class ResultModelProvider implements ResultProvider {
 	private final double[] flowResults;
 	private final double[] impactResults;
 
+	public static ResultModelProvider of(ResultModel result) {
+		return new ResultModelProvider(result);
+	}
+
 	private ResultModelProvider(ResultModel model) {
 		var refFlow = TechFlow.of(model);
 		techIndex = new TechIndex(refFlow);
 		techIndex.setDemand(ReferenceAmount.get(model));
 
-		// create the flow index and results
-		if (model.inventory.isEmpty()) {
-			flowIndex = null;
+		// flow results
+		flowIndex = flowIndexOf(model);
+		if (flowIndex == null) {
 			flowResults = null;
 		} else {
-
-			// fill the flow index
-			boolean isRegionalized = false;
-			for (var f : model.inventory) {
-				if (f.location != null) {
-					isRegionalized = true;
-					break;
-				}
-			}
-			flowIndex = isRegionalized
-				? EnviIndex.createRegionalized()
-				: EnviIndex.create();
-			for (var f : model.inventory) {
-				flowIndex.add(EnviFlow.of(f));
-			}
-
-			// fill the results
 			flowResults = new double[flowIndex.size()];
 			for (var f : model.inventory) {
-				if (f.flow == null)
+				if (isNonEnvi(f))
 					continue;
 				var idx = f.location == null
 					? flowIndex.of(f.flow.id)
@@ -85,6 +74,39 @@ public class ResultModelProvider implements ResultProvider {
 				}
 			}
 		}
+	}
+
+	private static EnviIndex flowIndexOf(ResultModel model) {
+		if (model.inventory.isEmpty())
+			return null;
+
+		// fill the flow index
+		boolean isRegionalized = false;
+		for (var f : model.inventory) {
+			if (isNonEnvi(f))
+				continue;
+			if (f.location != null) {
+				isRegionalized = true;
+				break;
+			}
+		}
+
+		var flowIndex = isRegionalized
+			? EnviIndex.createRegionalized()
+			: EnviIndex.create();
+		for (var f : model.inventory) {
+			if (isNonEnvi(f))
+				continue;
+			flowIndex.add(EnviFlow.of(f));
+		}
+
+		return flowIndex.isEmpty() ? null : flowIndex;
+	}
+
+	private static boolean isNonEnvi(ResultFlow f) {
+		return f == null
+			|| f.flow == null
+			|| f.flow.flowType != FlowType.ELEMENTARY_FLOW;
 	}
 
 	@Override

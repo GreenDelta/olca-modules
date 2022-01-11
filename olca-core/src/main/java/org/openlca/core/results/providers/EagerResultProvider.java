@@ -214,9 +214,12 @@ public class EagerResultProvider implements ResultProvider {
 
 	@Override
 	public double[] totalFlows() {
-		return totalFlows == null
-				? EMPTY_VECTOR
-				: totalFlows;
+		if (totalFlows != null)
+			return totalFlows;
+		if (!hasFlows())
+			return EMPTY_VECTOR;
+		totalFlows = new double[flowIndex().size()];
+		return totalFlows;
 	}
 
 	@Override
@@ -282,9 +285,12 @@ public class EagerResultProvider implements ResultProvider {
 
 	@Override
 	public double[] totalImpacts() {
-		return totalImpacts == null
-				? EMPTY_VECTOR
-				: totalImpacts;
+		if (totalImpacts != null)
+			return totalImpacts;
+		if (!hasImpacts())
+			return EMPTY_VECTOR;
+		totalImpacts = new double[impactIndex().size()];
+		return totalImpacts;
 	}
 
 	@Override

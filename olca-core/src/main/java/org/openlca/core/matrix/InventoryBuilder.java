@@ -10,7 +10,6 @@ import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.uncertainties.UMatrix;
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
@@ -98,58 +97,56 @@ public class InventoryBuilder {
 	}
 
 	private void fillMatrices() {
-			// fill the matrices with process data
-			var exchanges = new ExchangeTable(conf.db);
-			exchanges.each(techIndex, exchange -> {
-				var products = techIndex.getProviders(exchange.processId);
-				for (TechFlow product : products) {
-					putExchangeValue(product, exchange);
-				}
-			});
-
-			// now put the entries of the sub-system into the matrices
-			var subSystems = new HashSet<TechFlow>();
-			techIndex.each((i, p) -> {
-				if (p.provider() == null)
-					return;
-				if (p.provider().type == ModelType.PRODUCT_SYSTEM) {
-					subSystems.add(p);
-				}
-			});
-			if (subSystems.isEmpty())
-				return;
-
-			// use the MatrixBuilder.set method here because there may are stored LCI
-			// results in the database (!) that were mapped to the same columns above
-			for (TechFlow sub : subSystems) {
-
-				int col = techIndex.of(sub);
-				var result = conf.subResults.get(sub);
-				if (result == null) {
-					// TODO: log this error
-					continue;
-				}
-
-				// add the link in the technology matrix
-				double a = result.techIndex().getDemand();
-				techBuilder.set(col, col, a);
-
-				// add the LCI result
-				if (result.enviIndex() != null) {
-					result.enviIndex().each((i, f) -> {
-						double b = result.getTotalFlowResult(f);
-						if (f.isInput()) {
-							b = -b;
-						}
-						enviBuilder.set(flowIndex.of(f), col, b);
-					});
-				}
-
-				// add costs
-				if (conf.withCosts) {
-					costs[col] = result.totalCosts();
-				}
+		// fill the matrices with process data
+		var exchanges = new ExchangeTable(conf.db);
+		exchanges.each(techIndex, exchange -> {
+			var products = techIndex.getProviders(exchange.processId);
+			for (TechFlow product : products) {
+				putExchangeValue(product, exchange);
 			}
+		});
+
+		// now put the entries of the sub-system into the matrices
+		var subSystems = new HashSet<TechFlow>();
+		techIndex.each((i, p) -> {
+			if (p.provider() == null || p.isProcess())
+				return;
+			subSystems.add(p);
+		});
+		if (subSystems.isEmpty())
+			return;
+
+		// use the MatrixBuilder.set method here because there may are stored LCI
+		// results in the database (!) that were mapped to the same columns above
+		for (TechFlow sub : subSystems) {
+
+			int col = techIndex.of(sub);
+			var result = conf.subResults.get(sub);
+			if (result == null) {
+				// TODO: log this error
+				continue;
+			}
+
+			// add the link in the technology matrix
+			double a = result.techIndex().getDemand();
+			techBuilder.set(col, col, a);
+
+			// add the LCI result
+			if (result.enviIndex() != null) {
+				result.enviIndex().each((i, f) -> {
+					double b = result.getTotalFlowResult(f);
+					if (f.isInput()) {
+						b = -b;
+					}
+					enviBuilder.set(flowIndex.of(f), col, b);
+				});
+			}
+
+			// add costs
+			if (conf.withCosts) {
+				costs[col] = result.totalCosts();
+			}
+		}
 	}
 
 	private void putExchangeValue(TechFlow provider, CalcExchange e) {
@@ -191,18 +188,18 @@ public class InventoryBuilder {
 	}
 
 	private void add(int row, TechFlow provider, MatrixBuilder matrix,
-			CalcExchange exchange) {
+		CalcExchange exchange) {
 
 		int col = techIndex.of(provider);
 		if (row < 0 || col < 0)
 			return;
 
 		var allocationFactor = allocationIndex != null && exchange.isAllocatable()
-				? allocationIndex.getFactor(provider, exchange.exchangeId)
-				: null;
+			? allocationIndex.getFactor(provider, exchange.exchangeId)
+			: null;
 		var af = allocationFactor != null
-				? allocationFactor.get(conf.interpreter)
-				: 1;
+			? allocationFactor.get(conf.interpreter)
+			: 1;
 
 		double value = exchange.matrixValue(conf.interpreter, af);
 		matrix.add(row, col, value);

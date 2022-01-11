@@ -6,20 +6,19 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.CalculationSetup;
+import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.ResultModel;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.IResult;
 import org.openlca.core.results.SimpleResult;
+import org.openlca.core.results.providers.ResultModelProvider;
 import org.openlca.core.results.providers.ResultProviders;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Calculates the results of a calculation setup. The product systems of the
@@ -27,14 +26,7 @@ import org.slf4j.LoggerFactory;
  * calculator does not check if there are obvious errors like sub-system cycles
  * etc.
  */
-public class SystemCalculator {
-
-	private final Logger log = LoggerFactory.getLogger(getClass());
-	private final IDatabase db;
-
-	public SystemCalculator(IDatabase db) {
-		this.db = db;
-	}
+public record SystemCalculator(IDatabase db) {
 
 	/**
 	 * Calculates the given calculation setup. It performs the calculation type as
@@ -75,15 +67,35 @@ public class SystemCalculator {
 	private <T extends SimpleResult> T with(
 		CalculationSetup setup, Function<MatrixData, T> fn) {
 		var techIndex = TechIndex.of(db, setup);
-		var subs = calculateSubSystems(setup);
+		var subs = solveSubSystems(setup, techIndex);
 		var data = MatrixData.of(db, techIndex)
 			.withSetup(setup)
 			.withSubResults(subs)
 			.build();
+
 		T result = fn.apply(data);
+
 		for (var sub : subs.entrySet()) {
-			result.addSubResult(sub.getKey(), sub.getValue());
+			var provider = sub.getKey();
+			var subResult = sub.getValue();
+			result.addSubResult(provider, subResult);
+
+			if (provider.isResult()
+				&& result.hasImpacts()
+				&& subResult.hasImpacts()
+				&& !subResult.hasEnviFlows()) {
+
+				var totals = result.totalImpactResults();
+				result.impactIndex().each((i, impact) -> {
+					var subAmount = subResult.getTotalImpactResult(impact);
+					if (subAmount != 0) {
+						totals[i] += subAmount;
+					}
+				});
+			}
+
 		}
+
 		return result;
 	}
 
@@ -93,33 +105,41 @@ public class SystemCalculator {
 	 * the sub-results, the same calculation type is performed as defined in
 	 * the original calculation setup.
 	 */
-	private Map<TechFlow, SimpleResult> calculateSubSystems(
-		CalculationSetup setup) {
+	private Map<TechFlow, SimpleResult> solveSubSystems(
+		CalculationSetup setup, TechIndex techIndex) {
 		if (setup == null || !setup.hasProductSystem())
 			return Collections.emptyMap();
 
-		// collect the sub-systems
+		var subResults = new HashMap<TechFlow, SimpleResult>();
+
 		var subSystems = new HashSet<TechFlow>();
-		var sysDao = new ProductSystemDao(db);
-		var flowDao = new FlowDao(db);
 		for (var link : setup.productSystem().processLinks) {
 			if (!link.isSystemLink)
 				continue;
-			var sys = sysDao.getDescriptor(link.providerId);
-			var flow = flowDao.getDescriptor(link.flowId);
-			if (sys == null || flow == null) {
-				log.error("could not load descriptors of system link {}", link);
+			var provider = techIndex.getProvider(link.providerId, link.flowId);
+			if (provider == null || provider.isProcess())
+				continue;
+			if (provider.isProductSystem()) {
+				subSystems.add(provider);
 				continue;
 			}
-			subSystems.add(TechFlow.of(sys, flow));
+
+			// add a result
+			if (provider.isResult()) {
+				var result = db.get(ResultModel.class, provider.providerId());
+				if (result != null) {
+					subResults.put(
+						provider, new SimpleResult(ResultModelProvider.of(result)));
+				}
+			}
 		}
 		if (subSystems.isEmpty())
-			return Collections.emptyMap();
+			return subResults;
 
 		// calculate the LCI results of the sub-systems
-		var subResults = new HashMap<TechFlow, SimpleResult>();
+
 		for (var pp : subSystems) {
-			var subSystem = sysDao.getForId(pp.providerId());
+			var subSystem = db.get(ProductSystem.class, pp.providerId());
 			if (subSystem == null)
 				continue;
 
