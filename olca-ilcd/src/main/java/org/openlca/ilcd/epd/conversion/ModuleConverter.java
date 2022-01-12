@@ -5,11 +5,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import epd.model.EpdDataSet;
-import epd.model.EpdProfile;
-import epd.model.ModuleEntry;
-import epd.util.Strings;
 import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.epd.model.EpdDataSet;
+import org.openlca.ilcd.epd.model.EpdProfile;
+import org.openlca.ilcd.epd.model.ModuleEntry;
+import org.openlca.ilcd.epd.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -24,9 +24,8 @@ class ModuleConverter {
 		if (other == null)
 			return Collections.emptyList();
 		for (Object any : other.any) {
-			if (!(any instanceof Element))
+			if (!(any instanceof Element element))
 				continue;
-			Element element = (Element) any;
 			if (!isValid(element))
 				continue;
 			return fromElement(element, profile);

@@ -4,17 +4,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import app.App;
-import epd.model.Amount;
-import epd.model.EpdDataSet;
-import epd.model.EpdProfile;
-import epd.model.Indicator;
-import epd.model.Indicator.Type;
-import epd.model.IndicatorResult;
 import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.commons.ExchangeFunction;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.Ref;
+import org.openlca.ilcd.epd.model.Amount;
+import org.openlca.ilcd.epd.model.EpdDataSet;
+import org.openlca.ilcd.epd.model.EpdProfile;
+import org.openlca.ilcd.epd.model.Indicator;
+import org.openlca.ilcd.epd.model.IndicatorResult;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.processes.LCIAResult;
 import org.openlca.ilcd.processes.Process;
@@ -82,7 +80,7 @@ class ResultConverter {
 			var indicator = result.indicator;
 			if (indicator == null)
 				continue;
-			var other = indicator.type == Type.LCI
+			var other = indicator.type == Indicator.Type.LCI
 				? initFlow(epd.process, indicator)
 				: initImpact(epd.process, indicator);
 			AmountConverter.writeAmounts(result.amounts, other, doc);
@@ -123,9 +121,7 @@ class ResultConverter {
 	private static Ref refOf(Indicator indicator) {
 		if (indicator == null)
 			return null;
-		var ref = indicator.getRef(App.lang());
-		var indexRef = App.index().find(ref);
-		return indexRef != null ? indexRef : ref;
+		return indicator.getRef("en");
 	}
 
 	private static void addUnitRef(

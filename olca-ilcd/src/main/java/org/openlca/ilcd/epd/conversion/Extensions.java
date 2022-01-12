@@ -1,7 +1,7 @@
 package org.openlca.ilcd.epd.conversion;
 
-import epd.model.EpdDataSet;
-import epd.model.EpdProfile;
+import org.openlca.ilcd.epd.model.EpdDataSet;
+import org.openlca.ilcd.epd.model.EpdProfile;
 import org.openlca.ilcd.processes.Process;
 
 public class Extensions {

@@ -9,9 +9,9 @@ import java.util.function.Consumer;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import epd.util.Strings;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.epd.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -128,9 +128,8 @@ public final class Dom {
 		if (other == null || name == null)
 			return null;
 		for (Object any : other.any) {
-			if (!(any instanceof Element))
+			if (!(any instanceof Element e))
 				continue;
-			Element e = (Element) any;
 			if (matches(e, name, ns))
 				return e;
 		}
@@ -177,7 +176,7 @@ public final class Dom {
 		if (e == null)
 			return null;
 		NodeList nl = e.getChildNodes();
-		if (nl == null || nl.getLength() == 0)
+		if (nl.getLength() == 0)
 			return null;
 		StringBuilder s = new StringBuilder();
 		for (int i = 0; i < nl.getLength(); i++) {
@@ -193,9 +192,8 @@ public final class Dom {
 		if (extension == null || tagName == null)
 			return null;
 		for (var any : extension.any) {
-			if (!(any instanceof Element))
+			if (!(any instanceof Element e))
 				continue;
-			var e = (Element) any;
 			if (Objects.equals(tagName, e.getLocalName()))
 				return e;
 		}
@@ -210,9 +208,8 @@ public final class Dom {
 			return;
 		List<Element> matches = new ArrayList<>();
 		for (Object any : extension.any) {
-			if (!(any instanceof Element))
+			if (!(any instanceof Element e))
 				continue;
-			Element e = (Element) any;
 			if (Objects.equals(tagName, e.getLocalName()))
 				matches.add(e);
 		}
@@ -223,7 +220,7 @@ public final class Dom {
 	 * Returns true if the given extension element is null or empty.
 	 */
 	static boolean isEmpty(Other ext) {
-		if (ext == null || ext.any == null)
+		if (ext == null)
 			return true;
 		if (ext.any.isEmpty())
 			return true;
@@ -242,14 +239,13 @@ public final class Dom {
 			if (element == null)
 				return null;
 			NodeList list = element.getChildNodes();
-			if (list == null || list.getLength() == 0)
+			if (list.getLength() == 0)
 				return null;
 			element = null;
 			for (int i = 0; i < list.getLength(); i++) {
 				Node node = list.item(i);
-				if (!(node instanceof Element))
+				if (!(node instanceof Element child))
 					continue;
-				Element child = (Element) node;
 				if (Objects.equals(child.getLocalName(), tagName)) {
 					element = child;
 					break;
@@ -263,7 +259,7 @@ public final class Dom {
 		if (parent == null || fn == null)
 			return;
 		NodeList childs = parent.getChildNodes();
-		if (childs == null || childs.getLength() == 0)
+		if (childs.getLength() == 0)
 			return;
 		for (int i = 0; i < childs.getLength(); i++) {
 			Node node = childs.item(i);

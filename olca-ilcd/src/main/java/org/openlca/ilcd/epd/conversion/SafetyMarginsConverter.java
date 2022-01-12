@@ -2,12 +2,11 @@ package org.openlca.ilcd.epd.conversion;
 
 import java.util.Objects;
 
-import app.App;
-import epd.model.EpdDataSet;
-import epd.model.SafetyMargins;
-import epd.util.Strings;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.epd.model.EpdDataSet;
+import org.openlca.ilcd.epd.model.SafetyMargins;
+import org.openlca.ilcd.epd.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -21,9 +20,8 @@ class SafetyMarginsConverter {
 		if (other == null)
 			return null;
 		for (Object any : other.any) {
-			if (!(any instanceof Element))
+			if (!(any instanceof Element element))
 				continue;
-			Element element = (Element) any;
 			if (!isValid(element))
 				continue;
 			return fromElement(element);
@@ -45,8 +43,6 @@ class SafetyMarginsConverter {
 				e, "margins", Vocab.NS_EPD));
 		NodeList nodes = e.getElementsByTagNameNS(
 				Vocab.NS_EPD, "description");
-		if (nodes == null)
-			return margins;
 		for (int i = 0; i < nodes.getLength(); i++) {
 			Node n = nodes.item(i);
 			if (!(n instanceof Element))
@@ -54,10 +50,9 @@ class SafetyMarginsConverter {
 			String text = n.getTextContent();
 			if (Strings.nullOrEmpty(text))
 				continue;
-			String lang = ((Element) n).getAttributeNS(
-					Vocab.NS_XML, "lang");
+			String lang = ((Element) n).getAttributeNS(Vocab.NS_XML, "lang");
 			if (Strings.nullOrEmpty(lang)) {
-				lang = App.lang();
+				lang = "en";
 			}
 			margins.description.add(LangString.of(text, lang));
 		}

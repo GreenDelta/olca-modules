@@ -2,11 +2,11 @@ package org.openlca.ilcd.epd.conversion;
 
 import java.util.stream.Collectors;
 
-import epd.model.EpdDataSet;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.Ref;
+import org.openlca.ilcd.epd.model.EpdDataSet;
 import org.openlca.ilcd.util.Processes;
 
 @XmlRootElement(name = "referenceToPublisher", namespace = Vocab.NS_EPDv2)
@@ -39,7 +39,7 @@ final class PublisherRef extends Ref {
 			return;
 		}
 
-		var pub = Processes.publication(epd.process);
+		var pub = Processes.forcePublication(epd.process);
 		if (pub.other == null) {
 			pub.other = new Other();
 		}

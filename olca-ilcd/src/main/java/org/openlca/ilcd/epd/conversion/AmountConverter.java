@@ -5,10 +5,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import com.google.common.base.Strings;
-import epd.model.Amount;
-import epd.model.EpdProfile;
 import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.epd.model.Amount;
+import org.openlca.ilcd.epd.model.EpdProfile;
+import org.openlca.ilcd.epd.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -22,10 +22,9 @@ class AmountConverter {
 			return Collections.emptyList();
 		List<Amount> amounts = new ArrayList<>();
 		for (Object any : other.any) {
-			if (!(any instanceof Element)) {
+			if (!(any instanceof Element element)) {
 				continue;
 			}
-			Element element = (Element) any;
 			if (!isValid(element))
 				continue;
 			amounts.add(fromElement(element, profile));
@@ -59,7 +58,7 @@ class AmountConverter {
 
 	private static Double getValue(Element element) {
 		String text = element.getTextContent();
-		if (Strings.isNullOrEmpty(text))
+		if (Strings.nullOrEmpty(text))
 			return null;
 		try {
 			return Double.parseDouble(text);

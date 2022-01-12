@@ -5,10 +5,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import epd.model.EpdDataSet;
-import epd.model.Scenario;
-import epd.util.Strings;
 import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.epd.model.EpdDataSet;
+import org.openlca.ilcd.epd.model.Scenario;
+import org.openlca.ilcd.epd.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -23,9 +23,8 @@ class ScenarioConverter {
 		if (other == null)
 			return Collections.emptyList();
 		for (Object any : other.any) {
-			if (!(any instanceof Element))
+			if (!(any instanceof Element element))
 				continue;
-			Element element = (Element) any;
 			if (!isValid(element))
 				continue;
 			return fromElement(element);
@@ -39,10 +38,7 @@ class ScenarioConverter {
 		String nsUri = element.getNamespaceURI();
 		if (!Objects.equals(nsUri, Vocab.NS_EPD))
 			return false;
-		if (!Objects.equals(element.getLocalName(), "scenarios"))
-			return false;
-		else
-			return true;
+		return Objects.equals(element.getLocalName(), "scenarios");
 	}
 
 	private static List<Scenario> fromElement(Element element) {
@@ -73,7 +69,7 @@ class ScenarioConverter {
 		case "default":
 			try {
 				scenario.defaultScenario = Boolean.parseBoolean(attVal);
-			} catch (Exception e) {
+			} catch (Exception ignored) {
 			}
 			break;
 		case "group":

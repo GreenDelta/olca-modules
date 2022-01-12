@@ -5,17 +5,17 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 
-import epd.model.Amount;
-import epd.model.EpdDataSet;
-import epd.model.EpdProfile;
-import epd.model.IndicatorResult;
-import epd.model.ModuleEntry;
-import epd.model.Scenario;
-import epd.model.SubType;
-import epd.model.content.ContentDeclaration;
-import epd.model.qmeta.QMetaData;
-import epd.util.Strings;
 import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.epd.model.Amount;
+import org.openlca.ilcd.epd.model.EpdDataSet;
+import org.openlca.ilcd.epd.model.EpdProfile;
+import org.openlca.ilcd.epd.model.IndicatorResult;
+import org.openlca.ilcd.epd.model.ModuleEntry;
+import org.openlca.ilcd.epd.model.Scenario;
+import org.openlca.ilcd.epd.model.SubType;
+import org.openlca.ilcd.epd.model.content.ContentDeclaration;
+import org.openlca.ilcd.epd.model.qmeta.QMetaData;
+import org.openlca.ilcd.epd.util.Strings;
 import org.openlca.ilcd.processes.Method;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.util.Processes;
@@ -98,8 +98,7 @@ class EPDExtensionReader {
 	}
 
 	private void mapResults(EpdDataSet dataSet) {
-		List<IndicatorResult> results = ResultConverter.readResults(
-			process, profile);
+		var results = ResultConverter.readResults(process, profile);
 		dataSet.results.addAll(results);
 		// data sets may not have the module-entry extension, thus we have to
 		// find the module entries for such data sets from the results

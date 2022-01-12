@@ -2,11 +2,11 @@ package org.openlca.ilcd.epd.conversion;
 
 import java.util.stream.Collectors;
 
-import epd.model.EpdDataSet;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.Ref;
+import org.openlca.ilcd.epd.model.EpdDataSet;
 import org.openlca.ilcd.util.Processes;
 
 @XmlRootElement(name = "referenceToOriginalEPD", namespace = Vocab.NS_EPDv2)
@@ -35,7 +35,7 @@ class OriginalEPDRef extends Ref {
 			return;
 		}
 
-		var rep = Processes.representativeness(epd.process);
+		var rep = Processes.forceRepresentativeness(epd.process);
 		if (rep.other == null) {
 			rep.other = new Other();
 		}

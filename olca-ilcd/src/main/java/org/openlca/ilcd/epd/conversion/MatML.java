@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import epd.model.MaterialProperty;
-import epd.model.MaterialPropertyValue;
 import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.epd.model.MaterialProperty;
+import org.openlca.ilcd.epd.model.MaterialPropertyValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -21,9 +21,9 @@ class MatML {
 
 	private static final String NS = "http://www.matml.org/";
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private Other extension;
+	private final Other extension;
 	private Document doc;
 	private Element bulkDetails;
 	private Element metaData;
@@ -130,9 +130,8 @@ class MatML {
 		NodeList list = bulkDetails.getElementsByTagNameNS(NS, "PropertyData");
 		for (int i = 0; i < list.getLength(); i++) {
 			Node node = list.item(i);
-			if (!(node instanceof Element))
+			if (!(node instanceof Element dataElement))
 				continue;
-			Element dataElement = (Element) node;
 			Double val = Dom.getDouble(Dom.getChild(dataElement, "Data", NS));
 			String propertyId = dataElement.getAttribute("property");
 			map.put(propertyId, val);
@@ -146,13 +145,11 @@ class MatML {
 		NodeList list = metadata.getElementsByTagNameNS(NS, "PropertyDetails");
 		for (int i = 0; i < list.getLength(); i++) {
 			Node node = list.item(i);
-			if (!(node instanceof Element))
+			if (!(node instanceof Element e))
 				continue;
 			MaterialProperty p = new MaterialProperty();
-			Element e = (Element) node;
 			p.id = e.getAttribute("id");
-			String name = Dom.getText(Dom.getChild(e, "Name", NS));
-			p.name = name;
+			p.name = Dom.getText(Dom.getChild(e, "Name", NS));
 			Element unit = Dom.findChild(e, "Units");
 			if (unit == null)
 				continue;
@@ -167,9 +164,8 @@ class MatML {
 		if (extension == null)
 			return null;
 		for (Object any : extension.any) {
-			if (!(any instanceof Element))
+			if (!(any instanceof Element element))
 				continue;
-			Element element = (Element) any;
 			if (Objects.equals("MatML_Doc", element.getLocalName()))
 				return element;
 		}

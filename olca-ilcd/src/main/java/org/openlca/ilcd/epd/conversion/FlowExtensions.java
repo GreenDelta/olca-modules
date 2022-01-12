@@ -2,10 +2,10 @@ package org.openlca.ilcd.epd.conversion;
 
 import java.util.List;
 
-import epd.model.EpdProduct;
-import epd.model.MaterialPropertyValue;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.epd.model.EpdProduct;
+import org.openlca.ilcd.epd.model.MaterialPropertyValue;
 import org.openlca.ilcd.flows.DataSetInfo;
 import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.flows.FlowInfo;

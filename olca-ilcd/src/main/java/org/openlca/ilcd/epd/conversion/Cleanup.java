@@ -1,10 +1,10 @@
 package org.openlca.ilcd.epd.conversion;
 
-import com.google.common.base.Strings;
-import epd.model.EpdDataSet;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.Time;
+import org.openlca.ilcd.epd.model.EpdDataSet;
+import org.openlca.ilcd.epd.util.Strings;
 import org.openlca.ilcd.processes.DataGenerator;
 import org.openlca.ilcd.processes.Geography;
 import org.openlca.ilcd.processes.Location;
@@ -88,7 +88,7 @@ class Cleanup {
 	private static boolean isEmpty(Location location) {
 		if (location == null)
 			return true;
-		return Strings.isNullOrEmpty(location.code)
+		return Strings.nullOrEmpty(location.code)
 					 && location.description.isEmpty()
 					 && isEmpty(location.other);
 	}

@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import epd.util.Strings;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Unmarshaller;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.Ref;
+import org.openlca.ilcd.epd.util.Strings;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
@@ -64,9 +64,8 @@ final class JaxbRefs {
 			var list = new ArrayList<Ref>();
 			Unmarshaller unmarshaller = null;
 			for (var obj : ext.any) {
-				if (!(obj instanceof Element))
+				if (!(obj instanceof Element elem))
 					continue;
-				var elem = (Element) obj;
 				if (!Strings.nullOrEqual(elem.getLocalName(), rootDef.name()))
 					continue;
 				if (unmarshaller == null) {
