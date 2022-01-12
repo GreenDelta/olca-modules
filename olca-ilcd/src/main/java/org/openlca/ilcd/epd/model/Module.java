@@ -2,7 +2,7 @@ package org.openlca.ilcd.epd.model;
 
 import java.util.Objects;
 
-import epd.util.Strings;
+import org.openlca.ilcd.epd.util.Strings;
 
 public class Module implements Comparable<Module> {
 
@@ -33,9 +33,8 @@ public class Module implements Comparable<Module> {
 			return false;
 		if (obj == this)
 			return true;
-		if (!(obj instanceof Module))
+		if (!(obj instanceof Module other))
 			return false;
-		Module other = (Module) obj;
 		return Strings.nullOrEqual(this.name, other.name);
 	}
 

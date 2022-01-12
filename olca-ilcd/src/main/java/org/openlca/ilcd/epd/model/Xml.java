@@ -20,9 +20,8 @@ public class Xml {
 			Date date = new Date();
 			GregorianCalendar cal = new GregorianCalendar();
 			cal.setTime(date);
-			XMLGregorianCalendar xml = DatatypeFactory.newInstance()
-					.newXMLGregorianCalendar(cal);
-			return xml;
+			return DatatypeFactory.newInstance()
+				.newXMLGregorianCalendar(cal);
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(Xml.class);
 			log.error("failed to create XMLGregorianCalendar", e);

@@ -85,9 +85,8 @@ public final class Indicator {
 			return true;
 		if (obj == null)
 			return false;
-		if (!(obj instanceof Indicator))
+		if (!(obj instanceof Indicator other))
 			return false;
-		var other = (Indicator) obj;
 		return Objects.equals(this.uuid, other.uuid);
 	}
 

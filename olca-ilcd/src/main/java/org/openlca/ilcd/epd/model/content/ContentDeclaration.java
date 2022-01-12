@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import epd.io.conversion.Dom;
-import epd.io.conversion.Vocab;
 import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.epd.conversion.Dom;
+import org.openlca.ilcd.epd.conversion.Vocab;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -35,9 +35,8 @@ public class ContentDeclaration {
 		// find the root element
 		Element root = null;
 		for (Object any : other.any) {
-			if (!(any instanceof Element))
+			if (!(any instanceof Element e))
 				continue;
-			Element e = (Element) any;
 			if (Objects.equals(Vocab.NS_EPDv2, e.getNamespaceURI())
 					&& Objects.equals("contentDeclaration", e.getLocalName())) {
 				root = e;
@@ -81,16 +80,12 @@ public class ContentDeclaration {
 			return null;
 		if (!Objects.equals(Vocab.NS_EPDv2, elem.getNamespaceURI()))
 			return null;
-		switch (elem.getLocalName()) {
-		case "component":
-			return new Component().read(elem);
-		case "material":
-			return new Material().read(elem);
-		case "substance":
-			return new Substance().read(elem);
-		default:
-			return null;
-		}
+		return switch (elem.getLocalName()) {
+			case "component" -> new Component().read(elem);
+			case "material" -> new Material().read(elem);
+			case "substance" -> new Substance().read(elem);
+			default -> null;
+		};
 	}
 
 	static void writeElement(Element parent, ContentElement celem) {

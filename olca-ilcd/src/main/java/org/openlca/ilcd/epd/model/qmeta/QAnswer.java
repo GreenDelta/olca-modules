@@ -1,7 +1,7 @@
 package org.openlca.ilcd.epd.model.qmeta;
 
-import epd.io.conversion.Dom;
-import epd.io.conversion.Vocab;
+import org.openlca.ilcd.epd.conversion.Dom;
+import org.openlca.ilcd.epd.conversion.Vocab;
 import org.w3c.dom.Element;
 
 public class QAnswer {
@@ -24,7 +24,6 @@ public class QAnswer {
 			Dom.addChild(elem,
 					"norreq:QuestionListText", Vocab.SBE_ILCD)
 					.setTextContent(listText);
-			return;
 		}
 	}
 

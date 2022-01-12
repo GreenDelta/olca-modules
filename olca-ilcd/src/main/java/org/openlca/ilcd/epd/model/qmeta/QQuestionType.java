@@ -14,6 +14,6 @@ public enum QQuestionType {
 	 * Allows to answer a question in a group with `yes` or `no`. Multiple
 	 * answers can be selected in this group.
 	 */
-	BOOLEAN;
+	BOOLEAN
 
 }

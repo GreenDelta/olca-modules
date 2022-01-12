@@ -3,7 +3,7 @@ package org.openlca.ilcd.epd.model.content;
 import java.util.ArrayList;
 import java.util.List;
 
-import epd.io.conversion.Dom;
+import org.openlca.ilcd.epd.conversion.Dom;
 import org.w3c.dom.Element;
 
 /**

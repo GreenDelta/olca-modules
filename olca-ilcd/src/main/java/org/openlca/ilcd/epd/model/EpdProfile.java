@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import epd.util.Strings;
+import org.openlca.ilcd.epd.util.Strings;
+
 
 public class EpdProfile {
 
@@ -43,9 +44,8 @@ public class EpdProfile {
 			return false;
 		if (obj == this)
 			return true;
-		if (!(obj instanceof EpdProfile))
+		if (!(obj instanceof EpdProfile other))
 			return false;
-		EpdProfile other = (EpdProfile) obj;
 		return Objects.equals(this.id, other.id);
 	}
 

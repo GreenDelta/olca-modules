@@ -131,17 +131,11 @@ public class Version implements Comparable<Version> {
 			Version version) {
 		short p = Short.parseShort(parts[i]);
 		switch (i) {
-		case 0:
-			version.setMajor(p);
-			break;
-		case 1:
-			version.setMinor(p);
-			break;
-		case 2:
-			version.setUpdate(p);
-			break;
-		default:
-			break;
+			case 0 -> version.setMajor(p);
+			case 1 -> version.setMinor(p);
+			case 2 -> version.setUpdate(p);
+			default -> {
+			}
 		}
 	}
 

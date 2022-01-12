@@ -15,9 +15,8 @@ public final class MaterialProperty implements Cloneable {
 			return false;
 		if (obj == this)
 			return true;
-		if (!(obj instanceof MaterialProperty))
+		if (!(obj instanceof MaterialProperty other))
 			return false;
-		var other = (MaterialProperty) obj;
 		return Objects.equals(this.id, other.id);
 	}
 

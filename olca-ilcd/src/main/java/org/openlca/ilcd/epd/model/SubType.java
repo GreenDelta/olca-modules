@@ -14,7 +14,7 @@ public enum SubType {
 
 	private final String label;
 
-	private SubType(String label) {
+	SubType(String label) {
 		this.label = label;
 	}
 

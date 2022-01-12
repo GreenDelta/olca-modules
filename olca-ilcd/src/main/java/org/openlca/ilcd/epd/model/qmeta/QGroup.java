@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +39,7 @@ public class QGroup {
 	 * Reads a list of question groups from the given JSON file. It returns an
 	 * empty list when this failed.
 	 */
+	/*
 	static public List<QGroup> fromFile(File file) {
 		try (FileInputStream fis = new FileInputStream(file);
 				BufferedInputStream buf = new BufferedInputStream(fis)) {
@@ -48,11 +48,14 @@ public class QGroup {
 			return Collections.emptyList();
 		}
 	}
+	*/
+
 
 	/**
 	 * Read a list of question groups from a JSON configuration file. It assumes
 	 * that the questions and groups are sorted in that configuration.
 	 */
+	/*
 	@SuppressWarnings("unchecked")
 	static public List<QGroup> fromJson(InputStream is) {
 		if (is == null)
@@ -88,6 +91,8 @@ public class QGroup {
 		}
 	}
 
+	 */
+
 	private static QQuestion readQuestion(Map<String, ?> q) {
 		if (q == null)
 			return null;
@@ -110,14 +115,11 @@ public class QGroup {
 	private static QQuestionType readType(String s) {
 		if (s == null)
 			return null;
-		switch (s) {
-		case "OneInList":
-			return QQuestionType.ONE_IN_LIST;
-		case "Boolean":
-			return QQuestionType.BOOLEAN;
-		default:
-			return null;
-		}
+		return switch (s) {
+			case "OneInList" -> QQuestionType.ONE_IN_LIST;
+			case "Boolean" -> QQuestionType.BOOLEAN;
+			default -> null;
+		};
 	}
 
 }

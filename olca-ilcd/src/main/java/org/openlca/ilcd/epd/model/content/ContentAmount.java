@@ -1,16 +1,21 @@
 package org.openlca.ilcd.epd.model.content;
 
 import org.openlca.ilcd.epd.conversion.Vocab;
+import org.openlca.ilcd.epd.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 public class ContentAmount {
 
-	/** For specifying a discrete value: the value. */
+	/**
+	 * For specifying a discrete value: the value.
+	 */
 	public Double value;
 
-	/** For specifying a range of values: the lower value of the range. */
+	/**
+	 * For specifying a range of values: the lower value of the range.
+	 */
 	public Double lowerValue;
 
 	/**
@@ -49,15 +54,15 @@ public class ContentAmount {
 			return;
 		if (value != null) {
 			e.setAttributeNS(
-					Vocab.NS_EPDv2, "epd2:value", value.toString());
+				Vocab.NS_EPDv2, "epd2:value", value.toString());
 		}
 		if (lowerValue != null) {
 			e.setAttributeNS(
-					Vocab.NS_EPDv2, "epd2:lowerValue", lowerValue.toString());
+				Vocab.NS_EPDv2, "epd2:lowerValue", lowerValue.toString());
 		}
 		if (upperValue != null) {
 			e.setAttributeNS(
-					Vocab.NS_EPDv2, "epd2:upperValue", upperValue.toString());
+				Vocab.NS_EPDv2, "epd2:upperValue", upperValue.toString());
 		}
 	}
 
@@ -65,14 +70,12 @@ public class ContentAmount {
 	public String toString() {
 		if (value != null)
 			return Double.toString(value);
-		if (lowerValue != null && upperValue != null) {
-			return Double.toString(lowerValue) + " - "
-					+ Double.toString(upperValue);
-		}
+		if (lowerValue != null && upperValue != null)
+			return lowerValue + " - " + upperValue;
 		if (upperValue != null)
-			return "< " + Double.toString(upperValue);
+			return "< " + upperValue;
 		if (lowerValue != null)
-			return "> " + Double.toString(lowerValue);
+			return "> " + lowerValue;
 		return "?";
 	}
 
