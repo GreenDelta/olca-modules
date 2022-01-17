@@ -19,11 +19,11 @@ import org.openlca.ilcd.processes.Process;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-class ResultConverter {
+class Results {
 
 	static List<IndicatorResult> readResults(
 		Process process, EpdProfile profile) {
-		if (process == null || profile == null)
+		if (process == null)
 			return Collections.emptyList();
 		List<IndicatorResult> results = new ArrayList<>();
 		results.addAll(readLciResults(process, profile));
@@ -66,7 +66,7 @@ class ResultConverter {
 			return null;
 		IndicatorResult result = new IndicatorResult();
 		result.indicator = indicator;
-		List<Amount> amounts = AmountConverter.readAmounts(
+		List<Amount> amounts = Amounts.readAmounts(
 			extension, profile);
 		result.amounts.addAll(amounts);
 		return result;
@@ -83,7 +83,7 @@ class ResultConverter {
 			var other = indicator.type == Indicator.Type.LCI
 				? initFlow(epd.process, indicator)
 				: initImpact(epd.process, indicator);
-			AmountConverter.writeAmounts(result.amounts, other, doc);
+			Amounts.writeAmounts(result.amounts, other, doc);
 			addUnitRef(other, indicator, doc);
 		}
 	}

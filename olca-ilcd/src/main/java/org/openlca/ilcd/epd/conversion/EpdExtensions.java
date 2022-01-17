@@ -4,9 +4,13 @@ import org.openlca.ilcd.epd.model.EpdDataSet;
 import org.openlca.ilcd.epd.model.EpdProfile;
 import org.openlca.ilcd.processes.Process;
 
-public class Extensions {
+public class EpdExtensions {
 
-	private Extensions() {
+	private EpdExtensions() {
+	}
+
+	public static EpdDataSet read(Process process) {
+		return read(process, EpdProfile.create());
 	}
 
 	/**
@@ -14,7 +18,7 @@ public class Extensions {
 	 * The given process data set will be wrapped by the EPD data set.
 	 */
 	public static EpdDataSet read(Process process, EpdProfile profile) {
-		return EPDExtensionReader.read(process, profile);
+		return EpdExtensionReader.read(process, profile);
 	}
 
 	/**
@@ -22,6 +26,6 @@ public class Extensions {
 	 * given EPD.
 	 */
 	public static void write(EpdDataSet epd) {
-		EPDExtensionWriter.write(epd);
+		EpdExtensionWriter.write(epd);
 	}
 }

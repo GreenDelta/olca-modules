@@ -3,6 +3,7 @@ package org.openlca.ilcd.epd.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.openlca.ilcd.epd.util.Strings;
 
@@ -16,7 +17,15 @@ public class EpdProfile {
 	public final List<Indicator> indicators = new ArrayList<>();
 	public final List<Module> modules = new ArrayList<>();
 
-	/** Get the indicator with the given ID from the this profile. */
+	public static EpdProfile create() {
+		var profile = new EpdProfile();
+		profile.id  = UUID.randomUUID().toString();
+		return profile;
+	}
+
+	/**
+	 * Get the indicator with the given ID from this profile.
+	 */
 	public Indicator indicator(String uuid) {
 		if (uuid == null)
 			return null;
@@ -27,15 +36,20 @@ public class EpdProfile {
 		return null;
 	}
 
-	/** Get the module for the given name from the profile. */
+	/**
+	 * Get the module for the given name from the profile. Adds a new module
+	 * with the given name if there is no such module in this profile.
+	 */
 	public Module module(String name) {
-		if (name == null)
-			return null;
-		for (Module module : modules) {
+		for (var module : modules) {
 			if (Strings.nullOrEqual(name, module.name))
 				return module;
 		}
-		return null;
+		var module = new Module();
+		module.name = name;
+		module.index = modules.size();
+		modules.add(module);
+		return module;
 	}
 
 	@Override

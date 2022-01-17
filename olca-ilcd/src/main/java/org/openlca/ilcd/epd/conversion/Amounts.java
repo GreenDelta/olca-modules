@@ -15,7 +15,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 
-class AmountConverter {
+class Amounts {
 
 	static List<Amount> readAmounts(Other other, EpdProfile profile) {
 		if (other == null)
@@ -63,7 +63,7 @@ class AmountConverter {
 		try {
 			return Double.parseDouble(text);
 		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(AmountConverter.class);
+			Logger log = LoggerFactory.getLogger(Amounts.class);
 			log.warn("amount {} is not numeric", text);
 			return null;
 		}
@@ -95,7 +95,7 @@ class AmountConverter {
 				element.setTextContent(amount.value.toString());
 			return element;
 		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(AmountConverter.class);
+			Logger log = LoggerFactory.getLogger(Amounts.class);
 			log.error("failed to convert amount to DOM element", e);
 			return null;
 		}

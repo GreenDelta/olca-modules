@@ -10,12 +10,18 @@ import org.openlca.core.model.ResultImpact;
 import org.openlca.core.model.ResultModel;
 import org.openlca.core.model.ResultOrigin;
 import org.openlca.ilcd.commons.ExchangeDirection;
+import org.openlca.ilcd.epd.conversion.EpdExtensions;
+import org.openlca.ilcd.epd.model.EpdDataSet;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.Processes;
 import org.openlca.util.Strings;
 
-public record EpdImport(ImportConfig config, Process dataSet) {
+public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
+
+	public EpdImport (ImportConfig config, Process dataSet) {
+		this(config, dataSet, EpdExtensions.read(dataSet, null));
+	}
 
 	public ResultModel run() {
 		var result = config.db().get(ResultModel.class, dataSet.getUUID());
