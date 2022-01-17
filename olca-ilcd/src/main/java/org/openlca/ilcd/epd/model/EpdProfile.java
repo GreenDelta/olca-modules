@@ -4,12 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.commons.LangString;
+import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.epd.conversion.RefExtension;
 import org.openlca.ilcd.epd.util.Strings;
 import org.openlca.ilcd.processes.Exchange;
+import org.openlca.ilcd.processes.LCIAResult;
 
 public class EpdProfile {
 
@@ -26,33 +30,36 @@ public class EpdProfile {
 		return profile;
 	}
 
-	/**
-	 * Get the indicator with the given ID from this profile.
-	 */
-	public Indicator indicator(Exchange exchange) {
-		if (exchange == null)
+	public Indicator indicatorOf(Exchange exchange) {
+		if (exchange == null || exchange.flow == null)
 			return null;
-		var flowRef = exchange.flow;
-		if (flowRef == null)
+		return indicator(exchange.flow, exchange.other, newIndicator -> {
+			newIndicator.type = Indicator.Type.LCI;
+			newIndicator.isInput = exchange.direction == ExchangeDirection.INPUT;
+		});
+	}
+
+	public Indicator indicatorOf(LCIAResult result) {
+		if (result == null || result.method == null)
 			return null;
-		var uuid = flowRef.uuid;
+		return indicator(result.method, result.other,
+			newIndicator -> newIndicator.type = Indicator.Type.LCIA);
+	}
+
+	private Indicator indicator(Ref ref, Other ext, Consumer<Indicator> ifNew) {
 		for (var i : indicators) {
-			if (Objects.equals(i.uuid, uuid))
+			if (Objects.equals(i.uuid, ref.uuid))
 				return i;
 		}
-
 		var indicator = new Indicator();
-		indicator.type = Indicator.Type.LCI;
-		indicator.isInput = exchange.direction == ExchangeDirection.INPUT;
-		indicator.uuid = uuid;
-		indicator.name = LangString.getFirst(flowRef.name, "en");
-
-		RefExtension.readFrom(exchange.other, "referenceToUnitGroupDataSet")
-			.ifPresent(ref -> {
-				indicator.group = ref.uuid;
-				indicator.unit = LangString.getFirst(ref.name, "en");
+		ifNew.accept(indicator);
+		indicator.uuid = ref.uuid;
+		indicator.name = LangString.getFirst(ref.name, "en");
+		RefExtension.readFrom(ext, "referenceToUnitGroupDataSet")
+			.ifPresent(groupRef -> {
+				indicator.group = groupRef.uuid;
+				indicator.unit = LangString.getFirst(groupRef.name, "en");
 			});
-
 		indicators.add(indicator);
 		return indicator;
 	}
@@ -86,8 +93,8 @@ public class EpdProfile {
 
 	@Override
 	public int hashCode() {
-		if (id == null)
-			return super.hashCode();
-		return id.hashCode();
+		return id == null
+			? super.hashCode()
+			: id.hashCode();
 	}
 }

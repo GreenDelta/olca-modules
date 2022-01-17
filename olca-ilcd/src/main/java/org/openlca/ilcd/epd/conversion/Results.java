@@ -8,7 +8,6 @@ import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.commons.ExchangeFunction;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.Ref;
-import org.openlca.ilcd.epd.model.Amount;
 import org.openlca.ilcd.epd.model.EpdDataSet;
 import org.openlca.ilcd.epd.model.EpdProfile;
 import org.openlca.ilcd.epd.model.Indicator;
@@ -23,53 +22,36 @@ class Results {
 
 	static List<IndicatorResult> readResults(
 		Process process, EpdProfile profile) {
-		if (process == null)
+		if (process == null || profile == null)
 			return Collections.emptyList();
-		List<IndicatorResult> results = new ArrayList<>();
-		results.addAll(readLciResults(process, profile));
-		results.addAll(readLciaResults(process, profile));
-		return results;
-	}
 
-	private static List<IndicatorResult> readLciResults(
-		Process process, EpdProfile profile) {
 		List<IndicatorResult> results = new ArrayList<>();
-		for (Exchange exchange : process.exchanges) {
-			IndicatorResult result = readResult(exchange.flow,
-				exchange.other, profile);
-			if (result != null)
-				results.add(result);
+
+		// LCI indicator results
+		for (var e : process.exchanges) {
+			if (e.exchangeFunction != ExchangeFunction.GENERAL_REMINDER_FLOW)
+				continue;
+			var indicator = profile.indicatorOf(e);
+			if (indicator == null)
+				continue;
+			var result = new IndicatorResult();
+			result.indicator = indicator;
+			result.amounts.addAll(Amounts.readFrom(e.other, profile));
+			results.add(result);
 		}
-		return results;
-	}
 
-	private static List<IndicatorResult> readLciaResults(
-		Process process, EpdProfile profile) {
-		List<IndicatorResult> results = new ArrayList<>();
-		if (process.lciaResults == null)
-			return results;
-		for (LCIAResult element : process.lciaResults) {
-			IndicatorResult result = readResult(element.method,
-				element.other, profile);
-			if (result != null)
-				results.add(result);
+		// LCIA indicator results
+		for (var impact : process.lciaResults) {
+			var indicator = profile.indicatorOf(impact);
+			if (indicator == null)
+				continue;
+			var result = new IndicatorResult();
+			result.indicator = indicator;
+			result.amounts.addAll(Amounts.readFrom(impact.other, profile));
+			results.add(result);
 		}
-		return results;
-	}
 
-	private static IndicatorResult readResult(
-		Ref ref, Other extension, EpdProfile profile) {
-		if (ref == null)
-			return null;
-		Indicator indicator = profile.indicator(ref.uuid);
-		if (indicator == null)
-			return null;
-		IndicatorResult result = new IndicatorResult();
-		result.indicator = indicator;
-		List<Amount> amounts = Amounts.readAmounts(
-			extension, profile);
-		result.amounts.addAll(amounts);
-		return result;
+		return results;
 	}
 
 	static void writeResults(EpdDataSet epd) {

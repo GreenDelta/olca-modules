@@ -13,14 +13,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 
 class Amounts {
 
-	static List<Amount> readAmounts(Other other, EpdProfile profile) {
-		if (other == null)
+	static List<Amount> readFrom(Other other, EpdProfile profile) {
+		if (other == null || profile == null)
 			return Collections.emptyList();
-		List<Amount> amounts = new ArrayList<>();
+		var amounts = new ArrayList<Amount>();
 		for (Object any : other.any) {
 			if (!(any instanceof Element element)) {
 				continue;
@@ -42,9 +41,9 @@ class Amounts {
 	}
 
 	static Amount fromElement(Element element, EpdProfile profile) {
-		Amount amount = new Amount();
+		var amount = new Amount();
 		amount.value = getValue(element);
-		NamedNodeMap attributes = element.getAttributes();
+		var attributes = element.getAttributes();
 		for (int m = 0; m < attributes.getLength(); m++) {
 			String attName = attributes.item(m).getLocalName();
 			String attVal = attributes.item(m).getNodeValue();
