@@ -1,9 +1,12 @@
 package org.openlca.io.ilcd.input;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
 import org.openlca.core.database.CategoryDao;
+import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ResultFlow;
 import org.openlca.core.model.ResultImpact;
@@ -11,44 +14,88 @@ import org.openlca.core.model.ResultModel;
 import org.openlca.core.model.ResultOrigin;
 import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.epd.conversion.EpdExtensions;
+import org.openlca.ilcd.epd.model.Amount;
 import org.openlca.ilcd.epd.model.EpdDataSet;
+import org.openlca.ilcd.epd.model.Indicator;
+import org.openlca.ilcd.epd.model.IndicatorResult;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.Processes;
+import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
 
 public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 
-	public EpdImport (ImportConfig config, Process dataSet) {
-		this(config, dataSet, EpdExtensions.read(dataSet, null));
+	public EpdImport(ImportConfig config, Process dataSet) {
+		this(config, dataSet, EpdExtensions.read(dataSet));
 	}
 
-	public ResultModel run() {
-		var result = config.db().get(ResultModel.class, dataSet.getUUID());
-		return result != null
-			? result
-			: createNew();
-	}
+	public void run() {
+		for (var scope : Scope.allOf(epd)) {
+			var suffix = scope.toString();
 
-	private ResultModel createNew() {
-		var result = new ResultModel();
-		result.refId = dataSet.getUUID();
-		result.name = Strings.cut(
-			Processes.fullName(dataSet, config.langOrder()), 2024);
-		config.log().info("import EPD: " + result.name);
-		result.category = new CategoryDao(config.db())
-			.sync(ModelType.RESULT, Categories.getPath(dataSet));
+			var refId = KeyGen.get(dataSet.getUUID(), suffix);
+			var result = config.db().get(ResultModel.class, refId);
+			if (result != null)
+				continue;
+			result = new ResultModel();
+			result.refId = refId;
+			result.urn = "ilcd:epd:" + dataSet.getUUID();
 
-		var info = Processes.getDataSetInfo(dataSet);
-		if (info != null) {
-			result.description = config.str(info.comment);
+			result.name = Strings.cut(
+				Processes.fullName(dataSet, config.langOrder()),
+				2044 - suffix.length()) + " - " + suffix;
+			config.log().info("import EPD result: " + result.name);
+			result.category = new CategoryDao(config.db())
+				.sync(ModelType.RESULT, Categories.getPath(dataSet));
+			var info = Processes.getDataSetInfo(dataSet);
+			if (info != null) {
+				result.description = config.str(info.comment);
+			}
+
+			addResultsOf(scope, result);
+			config.db().insert(result);
 		}
 
-		mapFlows(result);
-		mapImpacts(result);
-
-		return config.db().insert(result);
 	}
+
+	private void addResultsOf(Scope scope, ResultModel result) {
+		for (var r : epd.results) {
+			if (r.indicator == null)
+				continue;
+			var amount = scope.amountOf(r);
+			if (amount == null || amount.value == null)
+				continue;
+			var impact = impactOf(r);
+			if (impact == null)
+				continue;
+			var ir = new ResultImpact();
+			ir.origin = ResultOrigin.IMPORTED;
+			ir.indicator = impact;
+			ir.amount = amount.value;
+			result.impacts.add(ir);
+
+
+
+
+			if (r.indicator.type == Indicator.Type.LCI) {
+				var flow = FlowImport.get(config, r.indicator.uuid);
+				if (flow == null)
+					continue;
+				var impact = impactOf(flow);
+
+			}
+
+
+			if (r.indicator)
+
+		}
+	}
+
+	private ImpactCategory impactOf(IndicatorResult r) {
+
+	}
+
 
 	private void mapFlows(ResultModel result) {
 		var index = new TIntObjectHashMap<ResultFlow>();
@@ -107,6 +154,44 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 			resultImpact.description = config().str(r.comment);
 			resultImpact.origin = ResultOrigin.IMPORTED;
 			result.impacts.add(resultImpact);
+		}
+	}
+
+	private record Scope(String module, String scenario) {
+
+		static Set<Scope> allOf(EpdDataSet epd) {
+			var scopes = new HashSet<Scope>();
+			for (var result : epd.results) {
+				for (var amount : result.amounts) {
+					if (amount.module == null || amount.module.name == null)
+						continue;
+					scopes.add(new Scope(amount.module.name, amount.scenario));
+				}
+			}
+			return scopes;
+		}
+
+		Amount amountOf(IndicatorResult result) {
+			if (result == null)
+				return null;
+			for (var a : result.amounts) {
+				if (a.module == null)
+					continue;
+				if (Objects.equals(a.module.name, module)
+					&& Objects.equals(a.scenario, scenario)) {
+					return a;
+				}
+			}
+			return null;
+		}
+
+		@Override
+		public String toString() {
+			if (module == null)
+				return "";
+			return scenario != null
+				? module + " - " + scenario
+				: module;
 		}
 	}
 }
