@@ -5,8 +5,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.openlca.ilcd.commons.ExchangeDirection;
+import org.openlca.ilcd.commons.LangString;
+import org.openlca.ilcd.epd.conversion.RefExtension;
 import org.openlca.ilcd.epd.util.Strings;
-
+import org.openlca.ilcd.processes.Exchange;
 
 public class EpdProfile {
 
@@ -19,21 +22,39 @@ public class EpdProfile {
 
 	public static EpdProfile create() {
 		var profile = new EpdProfile();
-		profile.id  = UUID.randomUUID().toString();
+		profile.id = UUID.randomUUID().toString();
 		return profile;
 	}
 
 	/**
 	 * Get the indicator with the given ID from this profile.
 	 */
-	public Indicator indicator(String uuid) {
-		if (uuid == null)
+	public Indicator indicator(Exchange exchange) {
+		if (exchange == null)
 			return null;
-		for (Indicator i : indicators) {
-			if (Objects.equals(uuid, i.uuid))
+		var flowRef = exchange.flow;
+		if (flowRef == null)
+			return null;
+		var uuid = flowRef.uuid;
+		for (var i : indicators) {
+			if (Objects.equals(i.uuid, uuid))
 				return i;
 		}
-		return null;
+
+		var indicator = new Indicator();
+		indicator.type = Indicator.Type.LCI;
+		indicator.isInput = exchange.direction == ExchangeDirection.INPUT;
+		indicator.uuid = uuid;
+		indicator.name = LangString.getFirst(flowRef.name, "en");
+
+		RefExtension.readFrom(exchange.other, "referenceToUnitGroupDataSet")
+			.ifPresent(ref -> {
+				indicator.group = ref.uuid;
+				indicator.unit = LangString.getFirst(ref.name, "en");
+			});
+
+		indicators.add(indicator);
+		return indicator;
 	}
 
 	/**

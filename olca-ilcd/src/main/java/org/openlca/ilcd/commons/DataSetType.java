@@ -47,12 +47,16 @@ public enum DataSetType {
 	}
 
 	public static DataSetType fromValue(String v) {
-		for (DataSetType c : DataSetType.values()) {
-			if (c.value.equals(v)) {
-				return c;
+		for (var type : DataSetType.values()) {
+			if (type.value.equals(v)) {
+				return type;
 			}
 		}
-		throw new IllegalArgumentException(v);
+		return null;
 	}
 
+	@Override
+	public String toString() {
+		return value;
+	}
 }

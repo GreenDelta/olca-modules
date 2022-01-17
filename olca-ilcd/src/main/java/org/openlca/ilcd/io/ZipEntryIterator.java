@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
 class ZipEntryIterator<T> implements Iterator<T> {
 
 	private final ZipStore zipStore;
-	private Iterator<Path> it;
-	private Class<T> clazz;
+	private final Iterator<Path> it;
+	private final Class<T> clazz;
 
 	public ZipEntryIterator(ZipStore zipStore, Class<T> clazz) {
 		this.zipStore = zipStore;

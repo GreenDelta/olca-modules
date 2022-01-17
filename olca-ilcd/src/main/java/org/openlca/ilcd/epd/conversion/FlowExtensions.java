@@ -34,7 +34,7 @@ public class FlowExtensions {
 		MatML matML = new MatML(extension);
 		List<MaterialPropertyValue> values = matML.readValues();
 		p.properties.addAll(values);
-		p.genericFlow = DataSetRefExtension.readFlow("isA", extension);
+		p.genericFlow = RefExtension.readFrom(extension, "isA").orElse(null);
 	}
 
 	private static void readMethodExtension(EpdProduct p) {
@@ -51,10 +51,10 @@ public class FlowExtensions {
 				log.error("vendorSpecificProduct contains not a boolean", e);
 			}
 		}
-		p.vendor = DataSetRefExtension.readActor(
-			"referenceToVendor", extension);
-		p.documentation = DataSetRefExtension.readSource(
-			"referenceToSource", extension);
+		p.vendor = RefExtension.readFrom(
+			extension, "referenceToVendor").orElse(null);
+		p.documentation = RefExtension.readFrom(
+			extension, "referenceToSource").orElse(null);
 	}
 
 	/**
@@ -87,7 +87,7 @@ public class FlowExtensions {
 		}
 
 		Other ext = getInfoExtension(p.flow, true);
-		DataSetRefExtension.write(p.genericFlow, "isA", ext);
+		RefExtension.writeTo(ext, "isA", p.genericFlow);
 		MatML matML = new MatML(ext);
 		if (p.properties.isEmpty()) {
 			matML.clear();
@@ -100,12 +100,10 @@ public class FlowExtensions {
 	}
 
 	private static void writeMethodExtension(EpdProduct p) {
-		Other extension = getMethodExtension(p.flow, true);
+		var extension = getMethodExtension(p.flow, true);
 		writeVendorSpecificTag(p, extension);
-		DataSetRefExtension.write(
-			p.vendor, "referenceToVendor", extension);
-		DataSetRefExtension.write(
-			p.documentation, "referenceToSource", extension);
+		RefExtension.writeTo(extension, "referenceToVendor", p.vendor);
+		RefExtension.writeTo(extension, "referenceToSource", p.documentation);
 	}
 
 	private static void writeVendorSpecificTag(EpdProduct p, Other ext) {

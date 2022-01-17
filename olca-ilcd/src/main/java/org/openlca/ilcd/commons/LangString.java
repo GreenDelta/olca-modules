@@ -57,9 +57,8 @@ public final class LangString implements Serializable {
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
-		if (!(o instanceof LangString))
+		if (!(o instanceof LangString other))
 			return false;
-		var other = (LangString) o;
 		return Objects.equals(value, other.value)
 					 && Objects.equals(lang, other.lang);
 	}
