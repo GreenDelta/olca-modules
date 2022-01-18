@@ -41,6 +41,8 @@ class Results {
 		}
 
 		// LCIA indicator results
+		if (process.lciaResults == null)
+			return results;
 		for (var impact : process.lciaResults) {
 			var indicator = profile.indicatorOf(impact);
 			if (indicator == null)

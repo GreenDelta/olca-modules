@@ -113,21 +113,43 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 	private ImpactCategory impactOf(Indicator indicator) {
 		if (indicator == null)
 			return null;
-		if (indicator.type == Indicator.Type.LCIA)
-			return ImpactImport.get(config, indicator.uuid);
+
+		// handle LCIA indicators
+		if (indicator.type == Indicator.Type.LCIA) {
+			var impact = ImpactImport.get(config, indicator.uuid);
+
+			// found an impact
+			if (impact != null) {
+				if (Strings.nullOrEmpty(impact.referenceUnit)
+					&& Strings.notEmpty(indicator.unit)) {
+					// indicator units are sometimes missing in
+					// LCIA data sets of ILCD packages
+					impact.referenceUnit = indicator.unit;
+					config.db().update(impact);
+				}
+				return impact;
+			}
+
+			// create a new impact category
+			impact = ImpactCategory.of(indicator.name, indicator.unit);
+			impact.refId = indicator.uuid;
+			return config.db().insert(impact);
+		}
 
 		// handle LCI indicators
 		var refId = KeyGen.get("impact", indicator.uuid);
 		var impact = config.db().get(ImpactCategory.class, refId);
 		if (impact != null)
 			return impact;
-		var f = FlowImport.get(config, indicator.uuid);
-		if (f.isEmpty())
-			return null;
-
-		// create an impact category for the LCI indicator
-		impact = ImpactCategory.of(f.flow().name, indicator.unit);
+		impact = ImpactCategory.of(indicator.name, indicator.unit);
 		impact.refId = refId;
+		var f = FlowImport.get(config, indicator.uuid);
+		if (f.isEmpty()) {
+			return config.db().insert(impact);
+		}
+
+		// add a factor for the ILCD+EPD flow
+		impact.name = f.flow().name;
 		impact.description = f.flow().description;
 		double value = f.isMapped() && f.mapFactor() != 0
 			? 1 / f.mapFactor()
