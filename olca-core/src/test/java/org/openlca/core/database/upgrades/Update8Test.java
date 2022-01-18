@@ -8,11 +8,9 @@ import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.ProjectDao;
-import org.openlca.core.model.Actor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
@@ -83,12 +81,12 @@ public class Update8Test {
 		ProductSystemDao dao = new ProductSystemDao(db);
 		ProductSystem system = new ProductSystem();
 		ProcessLink link = new ProcessLink();
-		link.isSystemLink = true;
+		link.providerType = ProcessLink.ProviderType.SUB_SYSTEM;
 		system.processLinks.add(link);
 		dao.insert(system);
 
 		system = dao.getForId(system.id);
-		assertTrue(system.processLinks.get(0).isSystemLink);
+		assertTrue(system.processLinks.get(0).hasSubSystemProvider());
 		dao.delete(system);
 	}
 }

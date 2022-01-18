@@ -1,6 +1,9 @@
 package org.openlca.core.database.upgrades;
 
+import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
+import org.openlca.core.model.ProcessLink;
 
 public class Upgrade11 implements IUpgrade {
 
@@ -17,6 +20,8 @@ public class Upgrade11 implements IUpgrade {
 	@Override
 	public void exec(IDatabase db) {
 		var u = new DbUtil(db);
+
+		setLinkProviderTypes(u);
 
 		u.createColumn("tbl_parameter_redefs", "is_protected SMALLINT default 0");
 		u.createColumn("tbl_impact_methods", "f_source BIGINT");
@@ -35,7 +40,7 @@ public class Upgrade11 implements IUpgrade {
 				"    library              VARCHAR(255)," +
 				"    description          CLOB(64 K)," +
 				"    urn                  VARCHAR(2048)," +
-			  "    f_calculation_setup  BIGINT," +
+				"    f_calculation_setup  BIGINT," +
 				"    f_reference_flow     BIGINT," +
 				"    calculation_time     BIGINT," +
 				"    PRIMARY KEY (id)" +
@@ -73,23 +78,54 @@ public class Upgrade11 implements IUpgrade {
 		u.createTable(
 			"tbl_calculation_setups",
 			"CREATE TABLE tbl_calculation_setups (" +
-			"    id                     BIGINT NOT NULL," +
-			"    calculation_type       VARCHAR(255)," +
-			"    f_product_system       BIGINT," +
-			"    f_process              BIGINT," +
-			"    f_impact_method        BIGINT," +
-			"    f_nw_set               BIGINT," +
-			"    allocation             VARCHAR(255)," +
-			"    with_costs             SMALLINT default 0," +
-			"    with_regionalization   SMALLINT default 0," +
-			"    with_uncertainties     SMALLINT default 0," +
-			"    f_unit                 BIGINT," +
-			"    f_flow_property_factor BIGINT," +
-			"    amount                 DOUBLE," +
-			"    number_of_runs         INTEGER," +
-			"    PRIMARY KEY (id)" +
-			")"
+				"    id                     BIGINT NOT NULL," +
+				"    calculation_type       VARCHAR(255)," +
+				"    f_product_system       BIGINT," +
+				"    f_process              BIGINT," +
+				"    f_impact_method        BIGINT," +
+				"    f_nw_set               BIGINT," +
+				"    allocation             VARCHAR(255)," +
+				"    with_costs             SMALLINT default 0," +
+				"    with_regionalization   SMALLINT default 0," +
+				"    with_uncertainties     SMALLINT default 0," +
+				"    f_unit                 BIGINT," +
+				"    f_flow_property_factor BIGINT," +
+				"    amount                 DOUBLE," +
+				"    number_of_runs         INTEGER," +
+				"    PRIMARY KEY (id)" +
+				")"
 		);
+
+	}
+
+	/**
+	 * Create the new column {@code provider_type} in table
+	 * {@code tbl_process_links} and set its values.
+	 */
+	private void setLinkProviderTypes(DbUtil u) {
+
+		u.createColumn("tbl_process_links", "provider_type SMALLINT default 0");
+
+		// collect system IDs; we do not have result providers prior this update
+		var sql = NativeSql.on(u.db);
+		var systemIds = new TLongHashSet();
+		sql.query("select id from tbl_product_systems", r -> {
+			systemIds.add(r.getLong(1));
+			return true;
+		});
+
+		// set the provider types
+		sql.updateRows(
+			"select f_provider, provider_type from tbl_process_links",
+			r -> {
+				long providerId = r.getLong(1);
+				byte type = systemIds.contains(providerId)
+					? ProcessLink.ProviderType.SUB_SYSTEM
+					: ProcessLink.ProviderType.PROCESS;
+				r.updateByte(2, type);
+				r.updateRow();
+				return true;
+			});
 
 	}
 }

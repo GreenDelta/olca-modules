@@ -94,7 +94,6 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 			JsonObject provider = References
 					.create(processMap.get(link.providerId), conf);
 			Out.put(obj, "provider", provider, Out.REQUIRED_FIELD);
-			Out.put(obj, "isSystemLink", link.isSystemLink);
 			Out.put(obj, "flow",
 					References.create(flows.get(link.flowId), conf),
 					Out.REQUIRED_FIELD);

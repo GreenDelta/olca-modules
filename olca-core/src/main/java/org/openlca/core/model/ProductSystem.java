@@ -110,7 +110,7 @@ public class ProductSystem extends CategorizedEntity implements CalculationTarge
 					continue;
 				var link = new ProcessLink();
 				link.flowId = output.flow.id;
-				link.isSystemLink = false;
+				link.providerType = ProcessLink.ProviderType.PROCESS;
 				if (output.flow.flowType == FlowType.WASTE_FLOW) {
 					link.processId = provider.id;
 					link.exchangeId = output.id;

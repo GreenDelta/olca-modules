@@ -24,6 +24,7 @@ import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.ProcessLink;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.core.results.SimulationResult;
 import org.openlca.core.results.providers.ResultProviders;
@@ -222,7 +223,7 @@ public class Simulator {
 		// the sub-system relations
 		boolean hasSubSystems = false;
 		for (var link : setup.productSystem().processLinks) {
-			if (link.isSystemLink) {
+			if (link.hasSubSystemProvider()) {
 				hasSubSystems = true;
 				break;
 			}

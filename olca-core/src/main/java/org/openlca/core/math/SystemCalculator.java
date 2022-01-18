@@ -114,7 +114,7 @@ public record SystemCalculator(IDatabase db) {
 
 		var subSystems = new HashSet<TechFlow>();
 		for (var link : setup.productSystem().processLinks) {
-			if (!link.isSystemLink)
+			if (link.hasProcessProvider())
 				continue;
 			var provider = techIndex.getProvider(link.providerId, link.flowId);
 			if (provider == null || provider.isProcess())

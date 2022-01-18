@@ -8,9 +8,11 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.ResultModel;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.Json;
@@ -74,15 +76,30 @@ class ProductSystemLinks {
 		for (JsonElement element : array) {
 			JsonObject obj = element.getAsJsonObject();
 			ProcessLink link = new ProcessLink();
-			link.isSystemLink = Json.getBool(obj, "isSystemLink", false);
-			if (link.isSystemLink) {
-				link.providerId = getId(obj, "provider", ProductSystem.class);
-			} else {
-				link.providerId = getId(obj, "provider", Process.class);
+
+			// the provider; todo: this is not the final solution
+			var providerType = Json.getEnum(obj, "providerType", ModelType.class);
+			if (providerType == null) {
+				providerType = ModelType.PROCESS;
 			}
+			switch (providerType) {
+				case PRODUCT_SYSTEM -> {
+					link.providerType = ProcessLink.ProviderType.SUB_SYSTEM;
+					link.providerId = getId(obj, "provider", ProductSystem.class);
+				}
+				case RESULT -> {
+					link.providerType = ProcessLink.ProviderType.RESULT;
+					link.providerId = getId(obj, "provider", ResultModel.class);
+				}
+				default -> {
+					link.providerType = ProcessLink.ProviderType.PROCESS;
+					link.providerId = getId(obj, "provider", Process.class);
+				}
+			}
+
 			link.processId = getId(obj, "process", Process.class);
 			link.flowId = getId(obj, "flow", Flow.class);
-			JsonObject exchange = Json.getObject(obj, "exchange");
+			var exchange = Json.getObject(obj, "exchange");
 			int internalId = Json.getInt(exchange, "internalId", 0);
 			link.exchangeId = findExchangeId(link.processId, internalId);
 
@@ -104,8 +121,7 @@ class ProductSystemLinks {
 		int internalId = Json.getInt(refJson, "internalId", 0);
 		if (internalId <= 0)
 			return;
-		Exchange refExchange = refProcess.getExchange(internalId);
-		system.referenceExchange = refExchange;
+		system.referenceExchange = refProcess.getExchange(internalId);
 		system.targetFlowPropertyFactor = findFactor(json, system);
 		system.targetUnit = findUnit(json, system);
 	}

@@ -126,10 +126,18 @@ public class ProductSystemBuilder {
 				link.flowId = provider.flowId();
 				link.processId = exchange.first();
 				link.providerId = provider.providerId();
-				link.isSystemLink = provider.isProductSystem();
+				link.providerType = providerTypeOf(provider);
 				system.processLinks.add(link);
 			}
 		}
+	}
+
+	private byte providerTypeOf(TechFlow provider) {
+		if (provider.isProductSystem())
+			return ProcessLink.ProviderType.SUB_SYSTEM;
+		if (provider.isResult())
+			return ProcessLink.ProviderType.RESULT;
+		return ProcessLink.ProviderType.PROCESS;
 	}
 
 	/**
@@ -167,7 +175,7 @@ public class ProductSystemBuilder {
 		String sql = """
 			insert into tbl_process_links
 				(f_product_system, f_provider, f_process, f_flow, f_exchange,
-				 is_system_link)
+				 provider_type)
 				values (?, ?, ?, ?, ?, ?)
 			""";
 		NativeSql.on(db).batchInsert(sql, links.size(), (i, stmt) -> {
@@ -177,7 +185,7 @@ public class ProductSystemBuilder {
 			stmt.setLong(3, link.processId);
 			stmt.setLong(4, link.flowId);
 			stmt.setLong(5, link.exchangeId);
-			stmt.setBoolean(6, link.isSystemLink);
+			stmt.setByte(6, link.providerType);
 			return true;
 		});
 	}

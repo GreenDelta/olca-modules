@@ -45,10 +45,11 @@ public class ProcessLink implements Copyable<ProcessLink> {
 	public long exchangeId;
 
 	/**
-	 * When true, the provider of this link is a product system.
+	 * The type of the provider of this link. This can be a process (0),
+	 * sub-system (1), or result (2).
 	 */
-	@Column(name = "is_system_link")
-	public boolean isSystemLink;
+	@Column(name = "provider_type")
+	public byte providerType;
 
 	@Override
 	public ProcessLink copy() {
@@ -57,8 +58,20 @@ public class ProcessLink implements Copyable<ProcessLink> {
 		clone.providerId = providerId;
 		clone.processId = processId;
 		clone.exchangeId = exchangeId;
-		clone.isSystemLink = isSystemLink;
+		clone.providerType = providerType;
 		return clone;
+	}
+
+	public boolean hasProcessProvider() {
+		return providerType == ProviderType.PROCESS;
+	}
+
+	public boolean hasSubSystemProvider() {
+		return providerType == ProviderType.SUB_SYSTEM;
+	}
+
+	public boolean hasResultProvider() {
+		return providerType == ProviderType.RESULT;
 	}
 
 	@Override
@@ -83,6 +96,12 @@ public class ProcessLink implements Copyable<ProcessLink> {
 				this.providerId,
 				this.processId,
 				this.exchangeId);
+	}
+
+	public interface ProviderType {
+		byte PROCESS = 0;
+		byte SUB_SYSTEM = 1;
+		byte RESULT = 2;
 	}
 
 }

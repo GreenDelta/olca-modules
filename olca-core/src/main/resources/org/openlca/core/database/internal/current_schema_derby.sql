@@ -22,7 +22,7 @@ CREATE TABLE openlca_version (
     version SMALLINT
 
 );
-INSERT INTO openlca_version (version) VALUES (10);
+INSERT INTO openlca_version (version) VALUES (11);
 
 
 CREATE TABLE tbl_libraries (
@@ -402,7 +402,7 @@ CREATE TABLE tbl_process_links (
     f_flow            BIGINT,
     f_process         BIGINT,
     f_exchange        BIGINT,
-    is_system_link    SMALLINT default 0
+    provider_type     SMALLINT default 0
 );
 CREATE INDEX idx_process_link_system ON tbl_process_links(f_product_system);
 

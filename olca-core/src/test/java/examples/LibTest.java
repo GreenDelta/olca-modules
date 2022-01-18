@@ -2,6 +2,7 @@ package examples;
 
 import java.io.File;
 
+import org.openlca.core.DataDir;
 import org.openlca.core.database.Derby;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.model.CalculationSetup;
@@ -13,36 +14,8 @@ import org.openlca.julia.Julia;
 public class LibTest {
 
 	public static void main(String[] args) throws Exception {
+		DataDir.setRoot(new File("C:/Users/ms/Desktop/libs"));
 		Julia.load();
-		var workspace = "C:/Users/Win10/openLCA-data-1.4";
-		var db = new Derby(new File(
-				workspace + "/databases/methods"));
-		var libDir = new LibraryDir(new File(
-				workspace + "/libraries"));
-
-
-		// var sysID = "12398baf-cb24-4017-a9db-47761f9688c6";
-		// var system = db.get(ProductSystem.class, sysID);
-		var process = db.get(Process.class,
-				"e78c028d-dc1d-39d3-838e-955a60f05c9e");
-		var method = db.get(ImpactMethod.class,
-			"effb055a-ad78-39bd-8dc0-341411db4ae7");
-
-		var setup = CalculationSetup.fullAnalysis(process)
-			.withImpactMethod(method);
-
-		var start =  System.currentTimeMillis();
-		var result = new SystemCalculator(db)
-				.calculateFull(setup);
-		var end = System.currentTimeMillis();
-		System.out.printf("Calculation done in %d ms %n", (end - start));
-
-		result.impactIndex().each((i, impact) -> {
-			System.out.printf("%s : %.4f\n",
-					impact.name, + result.getTotalImpactResult(impact));
-		});
-
-		db.close();
 	}
 
 }
