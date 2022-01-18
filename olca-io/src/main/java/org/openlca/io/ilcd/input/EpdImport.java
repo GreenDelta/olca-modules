@@ -4,15 +4,14 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import gnu.trove.map.hash.TIntObjectHashMap;
 import org.openlca.core.database.CategoryDao;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ResultFlow;
 import org.openlca.core.model.ResultImpact;
 import org.openlca.core.model.ResultModel;
 import org.openlca.core.model.ResultOrigin;
-import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.epd.conversion.EpdExtensions;
 import org.openlca.ilcd.epd.model.Amount;
 import org.openlca.ilcd.epd.model.EpdDataSet;
@@ -42,6 +41,7 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 			result.refId = refId;
 			result.urn = "ilcd:epd:" + dataSet.getUUID();
 
+			// meta-data
 			result.name = Strings.cut(
 				Processes.fullName(dataSet, config.langOrder()),
 				2044 - suffix.length()) + " - " + suffix;
@@ -53,10 +53,43 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 				result.description = config.str(info.comment);
 			}
 
+			addRefFlow(result);
 			addResultsOf(scope, result);
 			config.db().insert(result);
 		}
+	}
 
+	private void addRefFlow(ResultModel result) {
+		var qRef = Processes.getQuantitativeReference(dataSet);
+		if (qRef == null || qRef.referenceFlows.isEmpty())
+			return;
+
+		var exchange = dataSet.exchanges.stream()
+			.filter(e -> qRef.referenceFlows.contains(e.id))
+			.findAny()
+			.orElse(null);
+		if (exchange == null || exchange.flow == null)
+			return;
+		var f = FlowImport.get(config, exchange.flow.uuid);
+		if (f.isEmpty())
+			return;
+
+		var resultFlow = new ResultFlow();
+		resultFlow.flow = f.flow();
+		resultFlow.isInput = f.flow().flowType == FlowType.WASTE_FLOW;
+		resultFlow.flowPropertyFactor = f.property();
+		resultFlow.unit = f.unit();
+		resultFlow.origin = ResultOrigin.IMPORTED;
+
+		double amount = exchange.resultingAmount != null
+			? exchange.resultingAmount
+			: exchange.meanAmount;
+		if (f.isMapped() && f.mapFactor() != 0) {
+			amount *= f.mapFactor();
+		}
+		resultFlow.amount = amount;
+		result.inventory.add(resultFlow);
+		result.referenceFlow = resultFlow;
 	}
 
 	private void addResultsOf(Scope scope, ResultModel result) {
@@ -66,7 +99,7 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 			var amount = scope.amountOf(r);
 			if (amount == null || amount.value == null)
 				continue;
-			var impact = impactOf(r);
+			var impact = impactOf(r.indicator);
 			if (impact == null)
 				continue;
 			var ir = new ResultImpact();
@@ -74,87 +107,35 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 			ir.indicator = impact;
 			ir.amount = amount.value;
 			result.impacts.add(ir);
-
-
-
-
-			if (r.indicator.type == Indicator.Type.LCI) {
-				var flow = FlowImport.get(config, r.indicator.uuid);
-				if (flow == null)
-					continue;
-				var impact = impactOf(flow);
-
-			}
-
-
-			if (r.indicator)
-
 		}
 	}
 
-	private ImpactCategory impactOf(IndicatorResult r) {
+	private ImpactCategory impactOf(Indicator indicator) {
+		if (indicator == null)
+			return null;
+		if (indicator.type == Indicator.Type.LCIA)
+			return ImpactImport.get(config, indicator.uuid);
 
-	}
+		// handle LCI indicators
+		var refId = KeyGen.get("impact", indicator.uuid);
+		var impact = config.db().get(ImpactCategory.class, refId);
+		if (impact != null)
+			return impact;
+		var f = FlowImport.get(config, indicator.uuid);
+		if (f.isEmpty())
+			return null;
 
-
-	private void mapFlows(ResultModel result) {
-		var index = new TIntObjectHashMap<ResultFlow>();
-		for (var e : dataSet.exchanges) {
-			if (e.flow == null || e.flow.uuid == null)
-				continue;
-			var syncFlow = FlowImport.get(config, e.flow.uuid);
-			if (syncFlow.isEmpty()) {
-				config.log().warn("EPD '" + result.refId
-					+ "' contains invalid flow references");
-				continue;
-			}
-
-			var resultFlow = new ResultFlow();
-			resultFlow.flow = syncFlow.flow();
-			resultFlow.flowPropertyFactor = syncFlow.property();
-			resultFlow.unit = syncFlow.unit();
-			resultFlow.amount = e.resultingAmount == null
-				? e.meanAmount
-				: e.resultingAmount;
-			resultFlow.isInput = e.direction == ExchangeDirection.INPUT;
-			resultFlow.description = config.str(e.comment);
-			resultFlow.location = config.locationOf(e.location);
-			resultFlow.origin = ResultOrigin.IMPORTED;
-			result.inventory.add(resultFlow);
-			index.put(e.id, resultFlow);
-		}
-
-		var qRef = Processes.getQuantitativeReference(dataSet);
-		if (qRef != null) {
-			result.referenceFlow = qRef.referenceFlows.stream()
-				.filter(Objects::nonNull)
-				.map(index::get)
-				.filter(Objects::nonNull)
-				.findAny()
-				.orElse(null);
-		}
-	}
-
-	private void mapImpacts(ResultModel result) {
-		if (dataSet.lciaResults == null)
-			return;
-		for (var r : dataSet.lciaResults) {
-			if (r.method == null || r.method.uuid == null)
-				continue;
-			var impact = ImpactImport.get(config, r.method.uuid);
-			if (impact == null) {
-				config.log().warn("EPD '" + result.refId
-					+ "' contains invalid impact category references");
-				continue;
-			}
-
-			var resultImpact = new ResultImpact();
-			resultImpact.indicator = impact;
-			resultImpact.amount = r.amount;
-			resultImpact.description = config().str(r.comment);
-			resultImpact.origin = ResultOrigin.IMPORTED;
-			result.impacts.add(resultImpact);
-		}
+		// create an impact category for the LCI indicator
+		impact = ImpactCategory.of(f.flow().name, indicator.unit);
+		impact.refId = refId;
+		impact.description = f.flow().description;
+		double value = f.isMapped() && f.mapFactor() != 0
+			? 1 / f.mapFactor()
+			: 1;
+		var factor = impact.factor(f.flow(), value);
+		factor.flowPropertyFactor = f.property();
+		factor.unit = f.unit();
+		return config.db().insert(impact);
 	}
 
 	private record Scope(String module, String scenario) {
