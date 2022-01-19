@@ -8,8 +8,8 @@ import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.ResultFlow;
-import org.openlca.core.model.ResultImpact;
+import org.openlca.core.model.FlowResult;
+import org.openlca.core.model.ImpactResult;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.ResultOrigin;
 import org.openlca.ilcd.epd.conversion.EpdExtensions;
@@ -74,7 +74,7 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 		if (f.isEmpty())
 			return;
 
-		var resultFlow = new ResultFlow();
+		var resultFlow = new FlowResult();
 		resultFlow.flow = f.flow();
 		resultFlow.isInput = f.flow().flowType == FlowType.WASTE_FLOW;
 		resultFlow.flowPropertyFactor = f.property();
@@ -102,7 +102,7 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 			var impact = impactOf(r.indicator);
 			if (impact == null)
 				continue;
-			var ir = new ResultImpact();
+			var ir = new ImpactResult();
 			ir.origin = ResultOrigin.IMPORTED;
 			ir.indicator = impact;
 			ir.amount = amount.value;

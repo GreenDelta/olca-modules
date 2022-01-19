@@ -21,11 +21,11 @@ public class Result extends CategorizedEntity {
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_result")
-	public final List<ResultFlow> inventory = new ArrayList<>();
+	public final List<FlowResult> inventory = new ArrayList<>();
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_result")
-	public final List<ResultImpact> impacts = new ArrayList<>();
+	public final List<ImpactResult> impacts = new ArrayList<>();
 
 	/**
 	 * The reference flow or quantitative reference of this result. This can be a
@@ -35,7 +35,7 @@ public class Result extends CategorizedEntity {
 	 */
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_reference_flow")
-	public ResultFlow referenceFlow;
+	public FlowResult referenceFlow;
 
 	/**
 	 * The timestamp when this result was calculated. A value of {@code <= 0}

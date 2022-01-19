@@ -7,17 +7,17 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "tbl_result_flows")
-public class ResultFlow  extends AbstractExchange
-	implements Copyable<ResultFlow> {
+@Table(name = "tbl_flow_results")
+public class FlowResult  extends AbstractExchange
+	implements Copyable<FlowResult> {
 
 	@Column(name = "origin")
 	@Enumerated(EnumType.STRING)
 	public ResultOrigin origin;
 
 	@Override
-	public ResultFlow copy() {
-		var copy = new ResultFlow();
+	public FlowResult copy() {
+		var copy = new FlowResult();
 		copy.amount = amount;
 		copy.flow = flow;
 		copy.flowPropertyFactor = flowPropertyFactor;

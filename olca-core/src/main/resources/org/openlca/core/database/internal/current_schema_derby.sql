@@ -747,7 +747,7 @@ CREATE TABLE tbl_results (
     PRIMARY KEY (id)
 );
 
-CREATE TABLE tbl_result_flows (
+CREATE TABLE tbl_flow_results (
 
     id                        BIGINT NOT NULL,
     f_result                  BIGINT,
@@ -763,7 +763,7 @@ CREATE TABLE tbl_result_flows (
     PRIMARY KEY (id)
 );
 
-CREATE TABLE tbl_result_impacts (
+CREATE TABLE tbl_impact_results (
 
     id                 BIGINT NOT NULL,
     f_result           BIGINT,

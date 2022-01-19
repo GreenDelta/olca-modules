@@ -9,9 +9,9 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "tbl_result_impacts")
-public class ResultImpact extends AbstractEntity
-	implements Copyable<ResultImpact> {
+@Table(name = "tbl_impact_results")
+public class ImpactResult extends AbstractEntity
+	implements Copyable<ImpactResult> {
 
 	@OneToOne
 	@JoinColumn(name = "f_impact_category")
@@ -28,8 +28,8 @@ public class ResultImpact extends AbstractEntity
 	public ResultOrigin origin;
 
 	@Override
-	public ResultImpact copy() {
-		var clone = new ResultImpact();
+	public ImpactResult copy() {
+		var clone = new ImpactResult();
 		clone.indicator = indicator;
 		clone.amount = amount;
 		clone.description = description;

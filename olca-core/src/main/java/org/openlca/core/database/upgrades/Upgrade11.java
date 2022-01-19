@@ -47,8 +47,8 @@ public class Upgrade11 implements IUpgrade {
 				")");
 
 		u.createTable(
-			"tbl_result_flows",
-			"CREATE TABLE tbl_result_flows (" +
+			"tbl_flow_results",
+			"CREATE TABLE tbl_flow_results (" +
 				"    id                        BIGINT NOT NULL," +
 				"    f_result                  BIGINT," +
 				"    f_flow                    BIGINT," +
@@ -64,8 +64,8 @@ public class Upgrade11 implements IUpgrade {
 		);
 
 		u.createTable(
-			"tbl_result_impacts",
-			"CREATE TABLE tbl_result_impacts (" +
+			"tbl_impact_results",
+			"CREATE TABLE tbl_impact_results (" +
 				"    id                 BIGINT NOT NULL," +
 				"    f_result           BIGINT," +
 				"    f_impact_category  BIGINT," +

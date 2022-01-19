@@ -39,9 +39,9 @@
 		<class>org.openlca.core.model.DQIndicator</class>
 		<class>org.openlca.core.model.DQScore</class>
 		<class>org.openlca.core.model.MappingFile</class>
-		<class>org.openlca.core.model.ResultModel</class>
-		<class>org.openlca.core.model.ResultFlow</class>
-		<class>org.openlca.core.model.ResultImpact</class>
+		<class>org.openlca.core.model.Result</class>
+		<class>org.openlca.core.model.FlowResult</class>
+		<class>org.openlca.core.model.ImpactResult</class>
 		<class>org.openlca.core.model.CalculationSetup</class>
 
 		<shared-cache-mode>ALL</shared-cache-mode>

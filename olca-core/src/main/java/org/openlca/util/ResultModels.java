@@ -11,8 +11,8 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Location;
-import org.openlca.core.model.ResultFlow;
-import org.openlca.core.model.ResultImpact;
+import org.openlca.core.model.FlowResult;
+import org.openlca.core.model.ImpactResult;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.ResultOrigin;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
@@ -96,11 +96,11 @@ public class ResultModels {
 			return m;
 		}
 
-		private ResultFlow flowOf(EnviFlow enviFlow) {
+		private FlowResult flowOf(EnviFlow enviFlow) {
 			var flow = em.find(Flow.class, enviFlow.flow().id);
 			if (flow == null)
 				return null;
-			var r = new ResultFlow();
+			var r = new FlowResult();
 			r.origin = ResultOrigin.CALCULATED;
 			r.flow = flow;
 			r.flowPropertyFactor = flow.getReferenceFactor();
@@ -114,18 +114,18 @@ public class ResultModels {
 			return r;
 		}
 
-		private ResultImpact impactOf(ImpactDescriptor d) {
+		private ImpactResult impactOf(ImpactDescriptor d) {
 			var impact = em.find(ImpactCategory.class, d.id);
 			if (impact == null)
 				return null;
-			var r = new ResultImpact();
+			var r = new ImpactResult();
 			r.origin = ResultOrigin.CALCULATED;
 			r.indicator = impact;
 			r.amount = result.getTotalImpactResult(d);
 			return r;
 		}
 
-		private ResultFlow referenceFlowOf(CalculationSetup setup) {
+		private FlowResult referenceFlowOf(CalculationSetup setup) {
 			if (setup == null)
 				return null;
 			var flow = setup.flow();
@@ -133,7 +133,7 @@ public class ResultModels {
 			var unit = setup.unit();
 			if (flow == null || factor == null || unit == null)
 				return null;
-			var r = new ResultFlow();
+			var r = new FlowResult();
 			r.amount = setup.amount();
 			r.flow = flow;
 			r.flowPropertyFactor = factor;

@@ -7,7 +7,7 @@ import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.FlowType;
-import org.openlca.core.model.ResultFlow;
+import org.openlca.core.model.FlowResult;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.descriptors.Descriptor;
 
@@ -103,7 +103,7 @@ public class ResultModelProvider implements ResultProvider {
 		return flowIndex.isEmpty() ? null : flowIndex;
 	}
 
-	private static boolean isNonEnvi(ResultFlow f) {
+	private static boolean isNonEnvi(FlowResult f) {
 		return f == null
 			|| f.flow == null
 			|| f.flow.flowType != FlowType.ELEMENTARY_FLOW;
