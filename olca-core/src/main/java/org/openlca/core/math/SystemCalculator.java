@@ -86,10 +86,11 @@ public record SystemCalculator(IDatabase db) {
 				&& !subResult.hasEnviFlows()) {
 
 				var totals = result.totalImpactResults();
+				var scaling = result.getScalingFactor(provider);
 				result.impactIndex().each((i, impact) -> {
 					var subAmount = subResult.getTotalImpactResult(impact);
 					if (subAmount != 0) {
-						totals[i] += subAmount;
+						totals[i] += scaling * subAmount;
 					}
 				});
 			}
