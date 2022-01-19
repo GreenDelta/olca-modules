@@ -15,9 +15,9 @@ import jakarta.persistence.Table;
 @Table(name = "tbl_results")
 public class Result extends CategorizedEntity {
 
-	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "f_calculation_setup")
-	public CalculationSetup setup;
+	@OneToOne
+	@JoinColumn(name = "f_impact_method")
+	public ImpactMethod impactMethod;
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_result")
@@ -38,13 +38,6 @@ public class Result extends CategorizedEntity {
 	public FlowResult referenceFlow;
 
 	/**
-	 * The timestamp when this result was calculated. A value of {@code <= 0}
-	 * means that there is not such timestamp.
-	 */
-	@Column(name = "calculation_time")
-	public long calculationTime;
-
-	/**
 	 * A URN that points to the origin of the result.
 	 */
 	@Column(name = "urn")
@@ -61,9 +54,7 @@ public class Result extends CategorizedEntity {
 		var clone = new Result();
 		Entities.copyRootFields(this, clone);
 		clone.urn = urn;
-		if (setup != null) {
-			clone.setup = setup.copy();
-		}
+		clone.impactMethod = impactMethod;
 		if (referenceFlow != null) {
 			clone.referenceFlow = referenceFlow.copy();
 		}
@@ -73,7 +64,6 @@ public class Result extends CategorizedEntity {
 		for (var impact : impacts) {
 			clone.impacts.add(impact.copy());
 		}
-		clone.calculationTime = calculationTime;
 		return clone;
 	}
 }

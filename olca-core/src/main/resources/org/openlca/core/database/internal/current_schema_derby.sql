@@ -740,7 +740,7 @@ CREATE TABLE tbl_results (
     description          CLOB(64 K),
 
     urn                  VARCHAR(2048),
-    f_calculation_setup  BIGINT,
+    f_impact_method      BIGINT,
     f_reference_flow     BIGINT,
     calculation_time     BIGINT,
 
@@ -774,25 +774,3 @@ CREATE TABLE tbl_impact_results (
 
     PRIMARY KEY (id)
 );
-
-CREATE TABLE tbl_calculation_setups (
-
-    id                     BIGINT NOT NULL,
-    calculation_type       VARCHAR(255),
-    f_product_system       BIGINT,
-    f_process              BIGINT,
-    f_impact_method        BIGINT,
-    f_nw_set               BIGINT,
-
-    allocation             VARCHAR(255),
-    with_costs             SMALLINT default 0,
-    with_regionalization   SMALLINT default 0,
-
-    f_unit                 BIGINT,
-    f_flow_property_factor BIGINT,
-    amount                 DOUBLE,
-    number_of_runs         INTEGER,
-
-    PRIMARY KEY (id)
-);
-

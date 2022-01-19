@@ -42,7 +42,6 @@
 		<class>org.openlca.core.model.Result</class>
 		<class>org.openlca.core.model.FlowResult</class>
 		<class>org.openlca.core.model.ImpactResult</class>
-		<class>org.openlca.core.model.CalculationSetup</class>
 
 		<shared-cache-mode>ALL</shared-cache-mode>
 

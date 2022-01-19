@@ -7,84 +7,31 @@ import java.util.Objects;
 
 import org.openlca.core.math.ReferenceAmount;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-
 /**
  * A calculation for a process or product system. In case of a process,
  * we construct the calculation matrices for all processes in the database
- * and link the processes as best as we can for the information in these
+ * and link the processes as good as we can for the information in these
  * processes. In case of product systems, only the processes of that
  * system are added to the calculation matrices and are linked as defined
  * in the product system.
  */
-@Entity
-@Table(name = "tbl_calculation_setups")
 public class CalculationSetup extends AbstractEntity
 	implements Copyable<CalculationSetup> {
 
-	@Column(name = "calculation_type")
-	@Enumerated(EnumType.STRING)
 	private CalculationType type;
-
-	@OneToOne
-	@JoinColumn(name = "f_product_system")
 	private ProductSystem system;
-
-	@OneToOne
-	@JoinColumn(name = "f_process")
 	private Process process;
 
-	@OneToOne
-	@JoinColumn(name = "f_impact_method")
 	private ImpactMethod impactMethod;
-
-	@OneToOne
-	@JoinColumn(name = "f_nw_set")
 	private NwSet nwSet;
-
-	@JoinColumn(name = "f_owner")
-	@OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
 	private List<ParameterRedef> parameters;
-
-	@Column(name = "allocation")
-	@Enumerated(EnumType.STRING)
 	private AllocationMethod allocation = AllocationMethod.NONE;
-
-	@Column(name = "with_costs")
 	private boolean withCosts = false;
-
-	@Column(name = "with_regionalization")
 	private boolean withRegionalization = false;
-
-	@OneToOne
-	@JoinColumn(name = "f_unit")
 	private Unit unit;
-
-	@OneToOne
-	@JoinColumn(name = "f_flow_property_factor")
 	private FlowPropertyFactor flowPropertyFactor;
-
-	@Column(name = "amount")
 	private Double amount;
-
-	@Column(name = "number_of_runs")
 	private int numberOfRuns = -1;
-
-	/**
-	 * The default constructor which is required for our persistence framework.
-	 * You should use one of the factory methods in application code instead.
-	 */
-	public CalculationSetup() {
-		type = CalculationType.CONTRIBUTION_ANALYSIS;
-	}
 
 	/**
 	 * Creates a new calculation setup for the given type and calculation target
@@ -96,8 +43,10 @@ public class CalculationSetup extends AbstractEntity
 		this.type = Objects.requireNonNull(type);
 		if (target.isProcess()) {
 			this.process = target.asProcess();
+			this.system = null;
 		} else if (target.isProductSystem()) {
 			this.system = target.asProductSystem();
+			this.process = null;
 		} else {
 			throw new IllegalArgumentException(
 				"Unexpected calculation target: " + target
@@ -395,7 +344,8 @@ public class CalculationSetup extends AbstractEntity
 
 	@Override
 	public CalculationSetup copy() {
-		var clone = new CalculationSetup();
+		var target = system != null ? system : process;
+		var clone = new CalculationSetup(type, target);
 		clone.type = type;
 		clone.system = system;
 		clone.process = process;

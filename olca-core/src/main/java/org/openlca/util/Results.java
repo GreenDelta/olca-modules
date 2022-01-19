@@ -3,24 +3,25 @@ package org.openlca.util;
 import java.util.Objects;
 import java.util.UUID;
 
-import jakarta.persistence.EntityManager;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowResult;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.Location;
-import org.openlca.core.model.FlowResult;
 import org.openlca.core.model.ImpactResult;
+import org.openlca.core.model.Location;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.ResultOrigin;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.SimpleResult;
 
-public class ResultModels {
+import jakarta.persistence.EntityManager;
 
-	private ResultModels() {
+public class Results {
+
+	private Results() {
 	}
 
 	public static Result createFrom(IDatabase db,
@@ -43,10 +44,9 @@ public class ResultModels {
 
 		Result generate() {
 			var m = new Result();
-			m.setup = setup;
+			m.impactMethod = setup.impactMethod();
 			m.refId = UUID.randomUUID().toString();
 			m.lastChange = System.currentTimeMillis();
-			m.calculationTime = m.lastChange;
 
 			// name and URN
 			if (setup.hasProductSystem()) {

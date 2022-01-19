@@ -61,7 +61,6 @@ public class UpgradeChainTest {
 		u.dropTable("tbl_results");
 		u.dropTable("tbl_flow_results");
 		u.dropTable("tbl_impact_results");
-		u.dropTable("tbl_calculation_setups");
 		u.dropColumn("tbl_parameter_redefs", "is_protected");
 		u.dropColumn("tbl_impact_methods", "f_source");
 		u.dropColumn("tbl_impact_categories", "f_source");
@@ -183,7 +182,6 @@ public class UpgradeChainTest {
 		assertTrue(u.tableExists("tbl_results"));
 		assertTrue(u.tableExists("tbl_flow_results"));
 		assertTrue(u.tableExists("tbl_impact_results"));
-		assertTrue(u.tableExists("tbl_calculation_setups"));
 		assertTrue(u.columnExists("tbl_parameter_redefs", "is_protected"));
 		assertTrue(u.columnExists("tbl_impact_methods", "f_source"));
 		assertTrue(u.columnExists("tbl_impact_categories", "f_source"));
