@@ -108,15 +108,7 @@ record ProductSystemImport(ProtoImport imp) implements Import<ProductSystem> {
 			if (provider == null)
 				continue;
 			link.providerId = provider.id;
-			if (provider.type == null) {
-				link.providerType = ProcessLink.ProviderType.PROCESS;
-			} else {
-				link.providerType = switch (provider.type) {
-					case PRODUCT_SYSTEM -> ProcessLink.ProviderType.SUB_SYSTEM;
-					case RESULT -> ProcessLink.ProviderType.RESULT;
-					default -> ProcessLink.ProviderType.PROCESS;
-				};
-			}
+			link.setProviderType(provider.type);
 
 			// flow
 			var flow = flows.get(protoLink.getFlow().getId());

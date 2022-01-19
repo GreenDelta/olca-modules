@@ -74,6 +74,18 @@ public class ProcessLink implements Copyable<ProcessLink> {
 		return providerType == ProviderType.RESULT;
 	}
 
+	public void setProviderType(ModelType type) {
+		if (type == null) {
+			providerType = ProviderType.PROCESS;
+		} else {
+			providerType = switch (type) {
+				case PRODUCT_SYSTEM -> ProviderType.SUB_SYSTEM;
+				case RESULT -> ProviderType.RESULT;
+				default -> ProviderType.PROCESS;
+			};
+		}
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null)
