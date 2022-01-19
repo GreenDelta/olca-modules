@@ -63,8 +63,8 @@ class JsonRpc {
 			return null;
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@type", "ImpactResult");
-		obj.add("impactCategory", Json.asRef(r.impact, cache));
-		obj.addProperty("value", r.value);
+		obj.add("impactCategory", Json.asRef(r.impact(), cache));
+		obj.addProperty("value", r.value());
 		return obj;
 	}
 

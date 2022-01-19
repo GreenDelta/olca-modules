@@ -8,10 +8,10 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.EnviFlow;
-import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
@@ -219,10 +219,8 @@ public class SimpleResult extends BaseResult {
 			return Collections.emptyList();
 		var results = new ArrayList<ImpactValue>();
 		impactIndex.each((i, d) -> {
-			var r = new ImpactValue();
-			r.impact = d;
-			r.value = getTotalImpactResult(d);
-			results.add(r);
+			double amount = getTotalImpactResult(d);
+			results.add(new ImpactValue(d, amount));
 		});
 		return results;
 	}

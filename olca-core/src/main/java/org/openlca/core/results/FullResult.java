@@ -5,11 +5,11 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
-import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
@@ -128,10 +128,8 @@ public class FullResult extends ContributionResult {
 		if (!hasImpacts())
 			return results;
 		impactIndex().each((i, impact) -> {
-			var r = new ImpactValue();
-			r.impact = impact;
-			r.value = getUpstreamImpactResult(process, impact);
-			results.add(r);
+			double amount = getUpstreamImpactResult(process, impact);
+			results.add(new ImpactValue(impact, amount));
 		});
 		return results;
 	}

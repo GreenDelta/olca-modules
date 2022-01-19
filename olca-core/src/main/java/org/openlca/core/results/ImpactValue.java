@@ -1,17 +1,13 @@
 package org.openlca.core.results;
 
+import java.util.Objects;
+
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 
-public class ImpactValue {
+public record ImpactValue(ImpactDescriptor impact, double value) {
 
-	public ImpactDescriptor impact;
-	public double value;
-
-	public ImpactValue() {
-	}
-	
 	public ImpactValue(ImpactDescriptor impact, double value) {
-		this.impact = impact;
+		this.impact = Objects.requireNonNull(impact);
 		this.value = value;
 	}
 

@@ -131,10 +131,10 @@ public class NwSetTable {
 		return results == null
 				? Collections.emptyList()
 				: results.stream()
-						.filter(r -> r.impact != null)
+						.filter(r -> r.impact() != null)
 						.map(r -> {
-							double f = getFactor(type, r.impact.id);
-							return ImpactValue.of(r.impact, f * r.value);
+							double f = getFactor(type, r.impact().id);
+							return ImpactValue.of(r.impact(), f * r.value());
 						})
 						.collect(Collectors.toList());
 	}

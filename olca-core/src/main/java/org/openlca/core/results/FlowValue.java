@@ -13,6 +13,10 @@ public record FlowValue(EnviFlow indexFlow, double value) {
 		this.value = value;
 	}
 
+	public static FlowValue of(EnviFlow indexFlow, double value) {
+		return new FlowValue(indexFlow, value);
+	}
+
 	public boolean isInput() {
 		return indexFlow.isInput();
 	}

@@ -36,7 +36,7 @@ public class ImpactHandler {
 	public RpcResponse getImpacts(RpcRequest req) {
 		return utils.simple(req, (result, cache) -> {
 			List<ImpactValue> impacts = result.getTotalImpactResults();
-			impacts = utils.filter(impacts, impact -> impact.value != 0);
+			impacts = utils.filter(impacts, impact -> impact.value() != 0);
 			return JsonRpc.encode(impacts, r -> JsonRpc.encode(r, cache));
 		});
 	}

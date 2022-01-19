@@ -53,17 +53,17 @@ public class NwResultTest {
 			.withNwSet(nwSet);
 		var result = FullResult.of(db, setup);
 		var impacts = result.getTotalImpactResults();
-		assertEquals(4, impacts.get(0).value, 1e-10);
+		assertEquals(4, impacts.get(0).value(), 1e-10);
 
 		// check nw results
 		var factors = NwSetTable.of(db, nwSet);
 		var normalized = factors.normalize(impacts);
 		assertTrue(factors.hasNormalization());
-		assertEquals(8, normalized.get(0).value, 1e-10);
+		assertEquals(8, normalized.get(0).value(), 1e-10);
 		assertTrue(factors.hasWeighting());
 		var weighted = factors.weight(impacts);
-		assertEquals(12, weighted.get(0).value, 1e-10);
+		assertEquals(12, weighted.get(0).value(), 1e-10);
 		var both = factors.apply(impacts);
-		assertEquals(24, both.get(0).value, 1e-10);
+		assertEquals(24, both.get(0).value(), 1e-10);
 	}
 }

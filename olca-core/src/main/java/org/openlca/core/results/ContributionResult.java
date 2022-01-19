@@ -125,10 +125,8 @@ public class ContributionResult extends SimpleResult {
 			CategoryDescriptor process) {
 		var results = new ArrayList<ImpactValue>();
 		impactIndex().each((i, impact) -> {
-			ImpactValue r = new ImpactValue();
-			r.impact = impact;
-			r.value = getDirectImpactResult(process, impact);
-			results.add(r);
+			var amount = getDirectImpactResult(process, impact);
+			results.add(new ImpactValue(impact, amount));
 		});
 		return results;
 	}
