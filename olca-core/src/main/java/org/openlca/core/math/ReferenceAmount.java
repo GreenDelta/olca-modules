@@ -3,7 +3,7 @@ package org.openlca.core.math;
 import org.openlca.core.model.AbstractExchange;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.ResultModel;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.Unit;
 
 /**
@@ -28,7 +28,7 @@ public final class ReferenceAmount {
 			system.targetFlowPropertyFactor);
 	}
 
-	public static double get(ResultModel result) {
+	public static double get(Result result) {
 		return result == null
 			? 0
 			: get(result.referenceFlow);

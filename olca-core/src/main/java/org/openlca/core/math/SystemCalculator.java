@@ -12,7 +12,7 @@ import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.ResultModel;
+import org.openlca.core.model.Result;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.IResult;
@@ -126,7 +126,7 @@ public record SystemCalculator(IDatabase db) {
 
 			// add a result
 			if (provider.isResult()) {
-				var result = db.get(ResultModel.class, provider.providerId());
+				var result = db.get(Result.class, provider.providerId());
 				if (result != null) {
 					subResults.put(
 						provider, new SimpleResult(ResultModelProvider.of(result)));

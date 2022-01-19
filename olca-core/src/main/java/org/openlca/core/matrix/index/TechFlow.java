@@ -5,7 +5,7 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.ResultModel;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -56,7 +56,7 @@ public record TechFlow(
 		return of(Descriptor.of(process), Descriptor.of(flow));
 	}
 
-	public static TechFlow of(ResultModel result) {
+	public static TechFlow of(Result result) {
 		var flow = result.referenceFlow != null
 			? result.referenceFlow.flow
 			: null;

@@ -13,7 +13,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_results")
-public class ResultModel extends CategorizedEntity {
+public class Result extends CategorizedEntity {
 
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_calculation_setup")
@@ -50,15 +50,15 @@ public class ResultModel extends CategorizedEntity {
 	@Column(name = "urn")
 	public String urn;
 
-	public static ResultModel of(String name) {
-		var result = new ResultModel();
+	public static Result of(String name) {
+		var result = new Result();
 		Entities.init(result, name);
 		return result;
 	}
 
 	@Override
-	public ResultModel copy() {
-		var clone = new ResultModel();
+	public Result copy() {
+		var clone = new Result();
 		Entities.copyRootFields(this, clone);
 		clone.urn = urn;
 		if (setup != null) {

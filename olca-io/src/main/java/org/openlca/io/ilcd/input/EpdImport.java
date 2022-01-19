@@ -10,7 +10,7 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ResultFlow;
 import org.openlca.core.model.ResultImpact;
-import org.openlca.core.model.ResultModel;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.ResultOrigin;
 import org.openlca.ilcd.epd.conversion.EpdExtensions;
 import org.openlca.ilcd.epd.model.Amount;
@@ -34,10 +34,10 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 			var suffix = scope.toString();
 
 			var refId = KeyGen.get(dataSet.getUUID(), suffix);
-			var result = config.db().get(ResultModel.class, refId);
+			var result = config.db().get(Result.class, refId);
 			if (result != null)
 				continue;
-			result = new ResultModel();
+			result = new Result();
 			result.refId = refId;
 			result.urn = "ilcd:epd:" + dataSet.getUUID();
 
@@ -59,7 +59,7 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 		}
 	}
 
-	private void addRefFlow(ResultModel result) {
+	private void addRefFlow(Result result) {
 		var qRef = Processes.getQuantitativeReference(dataSet);
 		if (qRef == null || qRef.referenceFlows.isEmpty())
 			return;
@@ -92,7 +92,7 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 		result.referenceFlow = resultFlow;
 	}
 
-	private void addResultsOf(Scope scope, ResultModel result) {
+	private void addResultsOf(Scope scope, Result result) {
 		for (var r : epd.results) {
 			if (r.indicator == null)
 				continue;

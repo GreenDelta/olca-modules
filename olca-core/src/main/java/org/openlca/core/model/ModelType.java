@@ -44,7 +44,7 @@ public enum ModelType {
 
 	DQ_SYSTEM(DQSystem.class),
 
-	RESULT(ResultModel.class);
+	RESULT(Result.class);
 
 	final Class<? extends RootEntity> modelClass;
 

@@ -64,14 +64,14 @@ public class ContributionResult extends SimpleResult {
 	 * Get the direct contributions of the given process $j$ to the inventory result
 	 * of all elementary flows in the product system.
 	 */
-	public List<FlowResult> getFlowContributions(
+	public List<FlowValue> getFlowContributions(
 			CategorizedDescriptor process) {
 		if (!hasEnviFlows())
 			return Collections.emptyList();
-		var results = new ArrayList<FlowResult>();
+		var results = new ArrayList<FlowValue>();
 		enviIndex().each((i, flow) -> {
 			double value = getDirectFlowResult(process, flow);
-			results.add(new FlowResult(flow, value));
+			results.add(new FlowValue(flow, value));
 		});
 		return results;
 	}
@@ -121,11 +121,11 @@ public class ContributionResult extends SimpleResult {
 	 * Get the direct contributions of the given process $j$ to the LCIA category
 	 * results.
 	 */
-	public List<ImpactResult> getImpactContributions(
+	public List<ImpactValue> getImpactContributions(
 			CategoryDescriptor process) {
-		var results = new ArrayList<ImpactResult>();
+		var results = new ArrayList<ImpactValue>();
 		impactIndex().each((i, impact) -> {
-			ImpactResult r = new ImpactResult();
+			ImpactValue r = new ImpactValue();
 			r.impact = impact;
 			r.value = getDirectImpactResult(process, impact);
 			results.add(r);
@@ -196,12 +196,12 @@ public class ContributionResult extends SimpleResult {
 	/**
 	 * Get the contributions of all elementary flows to the given LCA category.
 	 */
-	public List<FlowResult> getFlowContributions(
+	public List<FlowValue> getFlowContributions(
 			ImpactDescriptor impact) {
-		var results = new ArrayList<FlowResult>();
+		var results = new ArrayList<FlowValue>();
 		enviIndex().each((i, flow) -> {
 			double value = getDirectFlowImpact(flow, impact);
-			results.add(new FlowResult(flow, value));
+			results.add(new FlowValue(flow, value));
 		});
 		return results;
 	}

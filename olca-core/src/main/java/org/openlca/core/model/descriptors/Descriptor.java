@@ -17,7 +17,7 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
-import org.openlca.core.model.ResultModel;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
@@ -249,7 +249,7 @@ public class Descriptor implements Copyable<Descriptor> {
 		return d;
 	}
 
-	public static ResultDescriptor of(ResultModel result) {
+	public static ResultDescriptor of(Result result) {
 		return result == null
 			? null
 			: setBaseValues(result, new ResultDescriptor());
@@ -290,7 +290,7 @@ public class Descriptor implements Copyable<Descriptor> {
 			return of(category);
 		if (entity instanceof DQSystem dqs)
 			return of(dqs);
-		if (entity instanceof ResultModel result)
+		if (entity instanceof Result result)
 			return of(result);
 		return createUnknownDescriptor(entity);
 	}

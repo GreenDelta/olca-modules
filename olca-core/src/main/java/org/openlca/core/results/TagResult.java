@@ -48,24 +48,24 @@ public class TagResult {
 		return hasCosts;
 	}
 
-	public FlowResult inventoryResultOf(EnviFlow flow) {
+	public FlowValue inventoryResultOf(EnviFlow flow) {
 		if (!hasInventoryResults())
-			return new FlowResult(flow, 0);
+			return new FlowValue(flow, 0);
 		var idx = result.enviIndex().of(flow);
 		double value = idx < 0
 			? 0
 			: result.adopt(flow, inventory[idx]);
-		return new FlowResult(flow, value);
+		return new FlowValue(flow, value);
 	}
 
-	public ImpactResult impactResultOf(ImpactDescriptor impact) {
+	public ImpactValue impactResultOf(ImpactDescriptor impact) {
 		if (!hasImpactResults())
-			return new ImpactResult(impact, 0);
+			return new ImpactValue(impact, 0);
 		var idx = result.impactIndex().of(impact);
 		var value = idx < 0
 			? 0
 			: impacts[idx];
-		return new ImpactResult(impact, value);
+		return new ImpactValue(impact, value);
 	}
 
 	public double costs() {

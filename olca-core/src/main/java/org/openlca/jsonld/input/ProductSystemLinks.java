@@ -12,7 +12,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.ResultModel;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.Json;
@@ -89,7 +89,7 @@ class ProductSystemLinks {
 				}
 				case RESULT -> {
 					link.providerType = ProcessLink.ProviderType.RESULT;
-					link.providerId = getId(obj, "provider", ResultModel.class);
+					link.providerId = getId(obj, "provider", Result.class);
 				}
 				default -> {
 					link.providerType = ProcessLink.ProviderType.PROCESS;

@@ -24,7 +24,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
-import org.openlca.core.model.ResultModel;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
@@ -359,7 +359,7 @@ public final class Out {
     if (e instanceof Process) return ProtoType.Process;
     if (e instanceof ProductSystem) return ProtoType.ProductSystem;
     if (e instanceof Project) return ProtoType.Project;
-    if (e instanceof ResultModel) return ProtoType.Result;
+    if (e instanceof Result) return ProtoType.Result;
     if (e instanceof SocialIndicator) return ProtoType.SocialIndicator;
     if (e instanceof Source) return ProtoType.Source;
     if (e instanceof Unit) return ProtoType.Unit;

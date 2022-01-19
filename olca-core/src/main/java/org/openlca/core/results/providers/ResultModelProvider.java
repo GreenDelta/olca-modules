@@ -8,7 +8,7 @@ import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ResultFlow;
-import org.openlca.core.model.ResultModel;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.descriptors.Descriptor;
 
 /**
@@ -22,11 +22,11 @@ public class ResultModelProvider implements ResultProvider {
 	private final double[] flowResults;
 	private final double[] impactResults;
 
-	public static ResultModelProvider of(ResultModel result) {
+	public static ResultModelProvider of(Result result) {
 		return new ResultModelProvider(result);
 	}
 
-	private ResultModelProvider(ResultModel model) {
+	private ResultModelProvider(Result model) {
 		var refFlow = TechFlow.of(model);
 		techIndex = new TechIndex(refFlow);
 		techIndex.setDemand(ReferenceAmount.get(model));
@@ -76,7 +76,7 @@ public class ResultModelProvider implements ResultProvider {
 		}
 	}
 
-	private static EnviIndex flowIndexOf(ResultModel model) {
+	private static EnviIndex flowIndexOf(Result model) {
 		if (model.inventory.isEmpty())
 			return null;
 

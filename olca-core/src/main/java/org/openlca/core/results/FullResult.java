@@ -76,15 +76,15 @@ public class FullResult extends ContributionResult {
 	 * Get the upstream contributions of the given process $j$ to the inventory
 	 * result of all elementary flows in the product system.
 	 */
-	public List<FlowResult> getUpstreamFlowResults(
+	public List<FlowValue> getUpstreamFlowResults(
 		CategorizedDescriptor process) {
 		var flowIndex = enviIndex();
 		if (flowIndex == null)
 			return Collections.emptyList();
-		var results = new ArrayList<FlowResult>();
+		var results = new ArrayList<FlowValue>();
 		flowIndex.each((i, flow) -> {
 			double value = getUpstreamFlowResult(process, flow);
-			results.add(new FlowResult(flow, value));
+			results.add(new FlowValue(flow, value));
 		});
 		return results;
 	}
@@ -122,13 +122,13 @@ public class FullResult extends ContributionResult {
 	 * Get the upstream contributions of the given process $j$ to the LCIA category
 	 * results.
 	 */
-	public List<ImpactResult> getUpstreamImpactResults(
+	public List<ImpactValue> getUpstreamImpactResults(
 		CategorizedDescriptor process) {
-		var results = new ArrayList<ImpactResult>();
+		var results = new ArrayList<ImpactValue>();
 		if (!hasImpacts())
 			return results;
 		impactIndex().each((i, impact) -> {
-			var r = new ImpactResult();
+			var r = new ImpactValue();
 			r.impact = impact;
 			r.value = getUpstreamImpactResult(process, impact);
 			results.add(r);

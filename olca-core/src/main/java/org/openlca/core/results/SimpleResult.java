@@ -186,13 +186,13 @@ public class SimpleResult extends BaseResult {
 	/**
 	 * Returns the flow results of the inventory result $\mathbf{g}$.
 	 */
-	public List<FlowResult> getTotalFlowResults() {
+	public List<FlowValue> getTotalFlowResults() {
 		var flowIndex = enviIndex();
 		if (flowIndex == null)
 			return Collections.emptyList();
-		List<FlowResult> results = new ArrayList<>(flowIndex.size());
+		List<FlowValue> results = new ArrayList<>(flowIndex.size());
 		flowIndex.each((i, f) -> results.add(
-			new FlowResult(f, getTotalFlowResult(f))));
+			new FlowValue(f, getTotalFlowResult(f))));
 		return results;
 	}
 
@@ -213,13 +213,13 @@ public class SimpleResult extends BaseResult {
 	/**
 	 * Returns the impact category results for the given result.
 	 */
-	public List<ImpactResult> getTotalImpactResults() {
+	public List<ImpactValue> getTotalImpactResults() {
 		var impactIndex = impactIndex();
 		if (impactIndex == null)
 			return Collections.emptyList();
-		var results = new ArrayList<ImpactResult>();
+		var results = new ArrayList<ImpactValue>();
 		impactIndex.each((i, d) -> {
-			var r = new ImpactResult();
+			var r = new ImpactValue();
 			r.impact = d;
 			r.value = getTotalImpactResult(d);
 			results.add(r);

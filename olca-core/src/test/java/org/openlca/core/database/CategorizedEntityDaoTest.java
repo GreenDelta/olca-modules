@@ -19,7 +19,7 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
-import org.openlca.core.model.ResultModel;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
@@ -50,7 +50,7 @@ public class CategorizedEntityDaoTest {
 		run(Project.class, new ProjectDao(db));
 		run(Currency.class, new CurrencyDao(db));
 		run(SocialIndicator.class, new SocialIndicatorDao(db));
-		run(ResultModel.class, new ResultDao(db));
+		run(Result.class, new ResultDao(db));
 	}
 
 	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void run(

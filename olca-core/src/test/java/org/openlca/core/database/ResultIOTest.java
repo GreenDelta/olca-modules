@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.model.ResultModel;
+import org.openlca.core.model.Result;
 
 public class ResultIOTest {
 
@@ -12,10 +12,10 @@ public class ResultIOTest {
 
 	@Test
 	public void testSimpleIO() {
-		var r = ResultModel.of("result");
+		var r = Result.of("result");
 		db.insert(r);
 		db.clearCache();
-		var clone = db.get(ResultModel.class, r.id);
+		var clone = db.get(Result.class, r.id);
 		assertEquals(r, clone);
 		var dao = new ResultDao(db);
 		var all = dao.getAll();

@@ -4,7 +4,7 @@ import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 
-public class FlowResult {
+public class FlowValue {
 
 	public FlowDescriptor flow;
 
@@ -17,10 +17,10 @@ public class FlowResult {
 	public boolean input;
 	public double value;
 
-	public FlowResult() {
+	public FlowValue() {
 	}
 
-	public FlowResult(EnviFlow flow, double value) {
+	public FlowValue(EnviFlow flow, double value) {
 		this.flow = flow.flow();
 		this.location = flow.location();
 		this.input = flow.isInput();

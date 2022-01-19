@@ -13,7 +13,7 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ResultFlow;
 import org.openlca.core.model.ResultImpact;
-import org.openlca.core.model.ResultModel;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.ResultOrigin;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.SimpleResult;
@@ -23,7 +23,7 @@ public class ResultModels {
 	private ResultModels() {
 	}
 
-	public static ResultModel createFrom(IDatabase db,
+	public static Result createFrom(IDatabase db,
 		CalculationSetup setup, SimpleResult result) {
 		return new Generator(db, setup, result).generate();
 	}
@@ -41,8 +41,8 @@ public class ResultModels {
 			this.em	 = db.newEntityManager();
 		}
 
-		ResultModel generate() {
-			var m = new ResultModel();
+		Result generate() {
+			var m = new Result();
 			m.setup = setup;
 			m.refId = UUID.randomUUID().toString();
 			m.lastChange = System.currentTimeMillis();

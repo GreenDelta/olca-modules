@@ -8,7 +8,7 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.Contribution;
-import org.openlca.core.results.FlowResult;
+import org.openlca.core.results.FlowValue;
 import org.openlca.core.results.LocationResult;
 import org.openlca.core.results.UpstreamNode;
 import org.openlca.core.results.UpstreamTree;
@@ -39,7 +39,7 @@ public class InventoryHandler {
 
 	private RpcResponse getInventory(RpcRequest req, boolean input) {
 		return utils.simple(req, (result, cache) -> {
-			List<FlowResult> data = new ArrayList<>();
+			List<FlowValue> data = new ArrayList<>();
 			result.getTotalFlowResults().forEach(r -> {
 				if (r.input == input && r.value != 0) {
 					data.add(r);

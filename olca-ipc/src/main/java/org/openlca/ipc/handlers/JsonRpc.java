@@ -9,8 +9,8 @@ import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.results.Contribution;
-import org.openlca.core.results.FlowResult;
-import org.openlca.core.results.ImpactResult;
+import org.openlca.core.results.FlowValue;
+import org.openlca.core.results.ImpactValue;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.core.results.UpstreamNode;
 import org.openlca.core.results.UpstreamTree;
@@ -47,7 +47,7 @@ class JsonRpc {
 		return obj;
 	}
 
-	static JsonObject encode(FlowResult r, EntityCache cache) {
+	static JsonObject encode(FlowValue r, EntityCache cache) {
 		if (r == null)
 			return null;
 		JsonObject obj = new JsonObject();
@@ -58,7 +58,7 @@ class JsonRpc {
 		return obj;
 	}
 
-	static JsonObject encode(ImpactResult r, EntityCache cache) {
+	static JsonObject encode(ImpactValue r, EntityCache cache) {
 		if (r == null)
 			return null;
 		JsonObject obj = new JsonObject();

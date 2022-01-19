@@ -27,7 +27,7 @@ import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessGroupSet;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
-import org.openlca.core.model.ResultModel;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
@@ -70,7 +70,7 @@ public class BaseDaoTest {
 		Source.class,
 		Unit.class,
 		UnitGroup.class,
-		ResultModel.class,
+		Result.class,
 	};
 
 	@Test

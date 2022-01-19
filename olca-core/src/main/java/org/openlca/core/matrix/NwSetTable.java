@@ -10,7 +10,7 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.NwSet;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.NwSetDescriptor;
-import org.openlca.core.results.ImpactResult;
+import org.openlca.core.results.ImpactValue;
 
 /**
  * Stores the factors of a normalization and weighting set.
@@ -98,7 +98,7 @@ public class NwSetTable {
 	 * Returns a normalized result for each result item in the given list. The given
 	 * list is not modified.
 	 */
-	public List<ImpactResult> normalize(List<ImpactResult> results) {
+	public List<ImpactValue> normalize(List<ImpactValue> results) {
 		return apply(results, 0);
 	}
 
@@ -107,7 +107,7 @@ public class NwSetTable {
 	 * a weighted result for each result item in the given list. The given list is
 	 * not modified.
 	 */
-	public List<ImpactResult> weight(List<ImpactResult> results) {
+	public List<ImpactValue> weight(List<ImpactValue> results) {
 		return apply(results, 1);
 	}
 
@@ -116,7 +116,7 @@ public class NwSetTable {
 	 * assessment result. Returns a normalized and weighted result for each result
 	 * item in the given list. The given list is not modified.
 	 */
-	public List<ImpactResult> apply(List<ImpactResult> results) {
+	public List<ImpactValue> apply(List<ImpactValue> results) {
 		return apply(results, 2);
 	}
 
@@ -127,14 +127,14 @@ public class NwSetTable {
 	 * <li>1: weighting
 	 * <li>2: both
 	 */
-	private List<ImpactResult> apply(List<ImpactResult> results, int type) {
+	private List<ImpactValue> apply(List<ImpactValue> results, int type) {
 		return results == null
 				? Collections.emptyList()
 				: results.stream()
 						.filter(r -> r.impact != null)
 						.map(r -> {
 							double f = getFactor(type, r.impact.id);
-							return ImpactResult.of(r.impact, f * r.value);
+							return ImpactValue.of(r.impact, f * r.value);
 						})
 						.collect(Collectors.toList());
 	}
