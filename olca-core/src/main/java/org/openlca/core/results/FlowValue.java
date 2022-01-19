@@ -1,32 +1,31 @@
 package org.openlca.core.results;
 
+import java.util.Objects;
+
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 
-public class FlowValue {
+public record FlowValue(EnviFlow indexFlow, double value) {
 
-	public FlowDescriptor flow;
-
-	/**
-	 * Contains a location in case of a regionalized flow result. Otherwise, this
-	 * field may be zero
-	 */
-	public LocationDescriptor location;
-
-	public boolean input;
-	public double value;
-
-	public FlowValue() {
-	}
-
-	public FlowValue(EnviFlow flow, double value) {
-		this.flow = flow.flow();
-		this.location = flow.location();
-		this.input = flow.isInput();
+	public FlowValue(EnviFlow indexFlow, double value) {
+		this.indexFlow = Objects.requireNonNull(indexFlow);
 		this.value = value;
 	}
 
+	public boolean isInput() {
+		return indexFlow.isInput();
+	}
 
+	public FlowDescriptor flow() {
+		return indexFlow.flow();
+	}
 
+	public LocationDescriptor location() {
+		return indexFlow.location();
+	}
+
+	public boolean hasLocation() {
+		return indexFlow.location() != null;
+	}
 }

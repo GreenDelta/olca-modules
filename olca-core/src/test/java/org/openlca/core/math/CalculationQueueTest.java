@@ -1,6 +1,7 @@
 package org.openlca.core.math;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.HashSet;
 
@@ -73,7 +74,7 @@ public class CalculationQueueTest {
 				assertTrue(state.isReady());
 				finished.add(id);
 				var result = (SimpleResult) state.result();
-				assertEquals(2, result.getTotalFlowResults().get(0).value, 1e-10);
+				assertEquals(2, result.getTotalFlowResults().get(0).value(), 1e-10);
 			}
 
 			ids.removeAll(finished);

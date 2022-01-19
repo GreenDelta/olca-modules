@@ -1,6 +1,6 @@
 package org.openlca.core.math;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.After;
 import org.junit.Before;
@@ -56,7 +56,7 @@ public class WasteCalculationTest {
 				.link(p, w);
 		var setup = CalculationSetup.fullAnalysis(system);
 		var result = new SystemCalculator(db).calculateFull(setup);
-		assertEquals(4.0, result.getTotalFlowResults().get(0).value, 1e-10);
+		assertEquals(4.0, result.getTotalFlowResults().get(0).value(), 1e-10);
 	}
 
 	@Test
@@ -71,7 +71,7 @@ public class WasteCalculationTest {
 				.link(p, w);
 		var setup = CalculationSetup.fullAnalysis(system);
 		var result = new SystemCalculator(db).calculateFull(setup);
-		assertEquals(4.0, result.getTotalFlowResults().get(0).value, 1e-10);
+		assertEquals(4.0, result.getTotalFlowResults().get(0).value(), 1e-10);
 	}
 
 }

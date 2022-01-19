@@ -52,9 +52,9 @@ class JsonRpc {
 			return null;
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@type", "FlowResult");
-		obj.add("flow", Json.asRef(r.flow, cache));
-		obj.addProperty("input", r.input);
-		obj.addProperty("value", r.value);
+		obj.add("flow", Json.asRef(r.flow(), cache));
+		obj.addProperty("input", r.isInput());
+		obj.addProperty("value", r.value());
 		return obj;
 	}
 

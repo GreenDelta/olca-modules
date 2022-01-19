@@ -1,6 +1,7 @@
 package org.openlca.io.simapro.csv.input;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.nio.file.Files;
 
@@ -174,8 +175,8 @@ public class WasteScenarioUnrollingTest {
 		var inventory = result.getTotalFlowResults();
 		assertEquals(1, inventory.size());
 		var co2Result = inventory.get(0);
-		assertEquals("Carbon dioxide", co2Result.flow.name);
-		assertEquals(4.0, co2Result.value, 1e-10);
+		assertEquals("Carbon dioxide", co2Result.flow().name);
+		assertEquals(4.0, co2Result.value(), 1e-10);
 
 		assertTrue(file.delete());
 	}

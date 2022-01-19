@@ -41,7 +41,7 @@ public class InventoryHandler {
 		return utils.simple(req, (result, cache) -> {
 			List<FlowValue> data = new ArrayList<>();
 			result.getTotalFlowResults().forEach(r -> {
-				if (r.input == input && r.value != 0) {
+				if (r.isInput() == input && r.value() != 0) {
 					data.add(r);
 				}
 			});
