@@ -64,11 +64,11 @@
 	</developers>
 
 	<modules>
-		<module>olca-cloud</module>
 		<module>olca-core</module>
 		<module>olca-ecospold-1</module>
 		<module>olca-ecospold-2</module>
 		<module>olca-formula</module>
+		<module>olca-git</module>
 		<module>olca-ilcd</module>
 		<module>olca-io</module>
 		<module>olca-ipc</module>

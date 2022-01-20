@@ -24,9 +24,14 @@ class FlowPropertyImport extends BaseImport<FlowProperty> {
 		FlowProperty p = new FlowProperty();
 		In.mapAtts(json, p, id, conf);
 		p.flowPropertyType = Json.getEnum(json, "flowPropertyType",
-		FlowPropertyType.class);
+				FlowPropertyType.class);
 		String unitGroupId = Json.getRefId(json, "unitGroup");
 		p.unitGroup = UnitGroupImport.run(unitGroupId, conf);
+		// check if the flow property was inserted during UnitGroupImport,
+		// cyclic dependencies can otherwise cause duplicate entries
+		var defaultProperty = p.unitGroup != null ? p.unitGroup.defaultFlowProperty : null;
+		if (defaultProperty != null && p.refId != null && p.refId.equals(defaultProperty.refId))
+			return defaultProperty;
 		return conf.db.put(p);
 	}
 

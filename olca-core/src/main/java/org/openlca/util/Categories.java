@@ -5,12 +5,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import com.google.common.collect.Lists;
-import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
+
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
  * Utility functions for openLCA categories.
@@ -74,6 +74,25 @@ public class Categories {
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
+		}
+
+		public void update(Category category) {
+			if (category == null)
+				return;
+			var previousName = names.put(category.id, category.name);
+			if (category.category != null) {
+				parents.put(category.id, category.category.id);
+			}
+			if (previousName != null && !previousName.equals(category.name)) {
+				for (var child : category.childCategories) {
+					update(child);
+				}
+			}
+		}
+
+		public void remove(long id) {
+			names.remove(id);
+			parents.remove(id);
 		}
 
 		/**

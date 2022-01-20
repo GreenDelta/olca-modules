@@ -3,8 +3,10 @@ package org.openlca.jsonld.output;
 import java.util.Collection;
 import java.util.List;
 
+import org.openlca.core.model.Category;
 import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.Enums;
+import org.openlca.util.Categories;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +37,9 @@ class Out {
 		if (!checkValidInput(json, property, value, flags))
 			return;
 		JsonObject ref = References.create(value, conf, is(flags, FORCE_EXPORT));
+		if (value instanceof Category) {
+			ref.addProperty("refId", Categories.createRefId((Category) value));
+		}
 		json.add(property, ref);
 	}
 
