@@ -3,7 +3,9 @@ package org.openlca.core.model;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Enumeration of the basic types in the openLCA domain model. */
+/**
+ * Enumeration of the basic types in the openLCA domain model.
+ */
 public enum ModelType {
 
 	UNKNOWN(null),
@@ -88,6 +90,26 @@ public enum ModelType {
 			categorized.add(type);
 		}
 		return categorized.toArray(new ModelType[0]);
+	}
+
+	/**
+	 * Get the model type of the given entity.
+	 *
+	 * @param e a root entity; maybe {@code null}
+	 * @return the model type of the entity or {@code UNKNOWN} if the type could
+	 * not be determined or the entity was null.
+	 */
+	public static ModelType of(RootEntity e) {
+		if (e == null)
+			return UNKNOWN;
+		for (var v : values()) {
+			if (v.modelClass == null)
+				continue;
+			if (e.getClass().equals(v.modelClass)) {
+				return v;
+			}
+		}
+		return UNKNOWN;
 	}
 
 }

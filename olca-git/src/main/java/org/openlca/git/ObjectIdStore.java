@@ -6,9 +6,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.openlca.core.model.CategorizedEntity;
@@ -56,7 +56,7 @@ public class ObjectIdStore {
 
 	public void save() throws IOException {
 		if (!file.getParentFile().exists()) {
-			file.getParentFile().mkdirs();
+			Files.createDirectories(file.getParentFile().toPath());
 		}
 		try (var fos = new FileOutputStream(file);
 				var oos = new ObjectOutputStream(fos)) {
@@ -160,7 +160,7 @@ public class ObjectIdStore {
 		}
 		store.put(path, getBytes(id));
 	}
-	
+
 	public void invalidateRoot() {
 		invalidate("");
 	}
@@ -169,7 +169,7 @@ public class ObjectIdStore {
 		var path = getPath(type);
 		invalidate(path);
 	}
-	
+
 	public void invalidate(CategorizedEntity e) {
 		var path = getPath(e);
 		invalidate(path);
@@ -200,7 +200,7 @@ public class ObjectIdStore {
 	}
 
 	public String getPath(CategorizedEntity e) {
-		var path = Categories.path(e.category).stream().collect(Collectors.joining("/"));
+		var path = String.join("/", Categories.path(e.category));
 		if (e instanceof Category)
 			return getPath(((Category) e).modelType, path, e.name);
 		return getPath(ModelType.forModelClass(e.getClass()), path, e.refId + (asProto ? ".proto" : ".json"));

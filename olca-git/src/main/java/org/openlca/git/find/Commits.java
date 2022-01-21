@@ -93,7 +93,7 @@ public class Commits {
 		private ModelType type;
 		private String refId;
 		private String path;
-		private List<String> branches = Arrays.asList("HEAD");
+		private List<String> branches = List.of("HEAD");
 
 		public Find from(String from) {
 			this.includeStart = true;

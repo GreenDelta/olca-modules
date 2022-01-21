@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 
 public class GitUtil {
 
-	private static Map<String, String> encodings = new HashMap<>();
+	private static final Map<String, String> encodings = new HashMap<>();
 
 	static {
 		encodings.put("<", "%3C");

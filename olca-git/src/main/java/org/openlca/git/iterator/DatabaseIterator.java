@@ -1,12 +1,10 @@
 package org.openlca.git.iterator;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.openlca.core.database.CategoryDao;
@@ -31,15 +29,14 @@ public class DatabaseIterator extends EntryIterator {
 	}
 
 	private static List<TreeEntry> init(Config config) {
-		return Arrays.asList(ModelType.categorized())
-				.stream().filter(type -> {
+		return Arrays.stream(ModelType.categorized()).filter(type -> {
 					var dao = new CategoryDao(config.database);
 					if (type == ModelType.CATEGORY)
 						return false;
 					if (!dao.getRootCategories(type).isEmpty())
 						return true;
 					return !Daos.categorized(config.database, type).getDescriptors(Optional.empty()).isEmpty();
-				}).map(type -> new TreeEntry(type))
+				}).map(TreeEntry::new)
 				.toList();
 	}
 
@@ -57,7 +54,7 @@ public class DatabaseIterator extends EntryIterator {
 
 	private static List<TreeEntry> init(Config config, ModelType type) {
 		var entries = new CategoryDao(config.database).getRootCategories(type)
-				.stream().map(c -> new TreeEntry(c))
+				.stream().map(TreeEntry::new)
 				.collect(Collectors.toList());
 		entries.addAll(Daos.categorized(config.database, type).getDescriptors(Optional.empty())
 				.stream().map(d -> new TreeEntry(d, config.asProto))
@@ -85,7 +82,7 @@ public class DatabaseIterator extends EntryIterator {
 
 	private static List<TreeEntry> init(Config config, Category category) {
 		var entries = category.childCategories
-				.stream().map(c -> new TreeEntry(c))
+				.stream().map(TreeEntry::new)
 				.collect(Collectors.toList());
 		entries.addAll(Daos.categorized(config.database, category.modelType).getDescriptors(Optional.of(category))
 				.stream().map(d -> new TreeEntry(d, config.asProto))
@@ -119,8 +116,7 @@ public class DatabaseIterator extends EntryIterator {
 	}
 
 	@Override
-	public AbstractTreeIterator createSubtreeIterator(ObjectReader reader)
-			throws IncorrectObjectTypeException, IOException {
+	public AbstractTreeIterator createSubtreeIterator(ObjectReader reader) {
 		var entry = getEntry();
 		if (entry.data instanceof ModelType)
 			return new DatabaseIterator(this, config, (ModelType) entry.data);
