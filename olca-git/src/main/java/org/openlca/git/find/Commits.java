@@ -195,12 +195,12 @@ public class Commits {
 						var id = ref.getObjectId();
 						if (startId != null && startId.equals(id))
 							continue;
-						walk.markStart(repo.parseCommit(id));
+						walk.markStart(walk.parseCommit(id));
 					}
 				}
 			}
 			if (startId != null) {
-				walk.markUninteresting(walk.lookupCommit(startId));
+				walk.markUninteresting(walk.parseCommit(startId));
 			}
 			TreeFilter filter = null;
 			if (!Strings.nullOrEmpty(path)) {
