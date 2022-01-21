@@ -1,9 +1,10 @@
 package org.openlca.core.database.upgrades;
 
-import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ProcessLink;
+
+import gnu.trove.set.hash.TLongHashSet;
 
 public class Upgrade11 implements IUpgrade {
 
@@ -58,7 +59,6 @@ public class Upgrade11 implements IUpgrade {
 				"    resulting_amount_value    DOUBLE," +
 				"    f_location                BIGINT," +
 				"    description               CLOB(64 K)," +
-				"    origin                    VARCHAR(255)," +
 				"    PRIMARY KEY (id)" +
 				")"
 		);
@@ -71,7 +71,6 @@ public class Upgrade11 implements IUpgrade {
 				"    f_impact_category  BIGINT," +
 				"    amount             DOUBLE," +
 				"    description        CLOB(64 K)," +
-				"    origin             VARCHAR(255)," +
 				"    PRIMARY KEY (id)" + ")"
 		);
 	}

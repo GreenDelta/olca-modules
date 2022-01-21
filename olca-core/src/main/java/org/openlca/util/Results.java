@@ -13,7 +13,6 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactResult;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Result;
-import org.openlca.core.model.ResultOrigin;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.SimpleResult;
 
@@ -101,7 +100,6 @@ public class Results {
 			if (flow == null)
 				return null;
 			var r = new FlowResult();
-			r.origin = ResultOrigin.CALCULATED;
 			r.flow = flow;
 			r.flowPropertyFactor = flow.getReferenceFactor();
 			r.unit = flow.getReferenceUnit();
@@ -119,7 +117,6 @@ public class Results {
 			if (impact == null)
 				return null;
 			var r = new ImpactResult();
-			r.origin = ResultOrigin.CALCULATED;
 			r.indicator = impact;
 			r.amount = result.getTotalImpactResult(d);
 			return r;
@@ -138,7 +135,6 @@ public class Results {
 			r.flow = flow;
 			r.flowPropertyFactor = factor;
 			r.unit = unit;
-			r.origin = ResultOrigin.CALCULATED;
 			r.isInput = flow.flowType == FlowType.WASTE_FLOW;
 			var refProcess = setup.process();
 			if (refProcess != null) {

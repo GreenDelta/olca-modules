@@ -5,13 +5,12 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.openlca.core.database.CategoryDao;
+import org.openlca.core.model.FlowResult;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.ModelType;
-import org.openlca.core.model.FlowResult;
 import org.openlca.core.model.ImpactResult;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Result;
-import org.openlca.core.model.ResultOrigin;
 import org.openlca.ilcd.epd.conversion.EpdExtensions;
 import org.openlca.ilcd.epd.model.Amount;
 import org.openlca.ilcd.epd.model.EpdDataSet;
@@ -79,7 +78,6 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 		resultFlow.isInput = f.flow().flowType == FlowType.WASTE_FLOW;
 		resultFlow.flowPropertyFactor = f.property();
 		resultFlow.unit = f.unit();
-		resultFlow.origin = ResultOrigin.IMPORTED;
 
 		double amount = exchange.resultingAmount != null
 			? exchange.resultingAmount
@@ -103,7 +101,6 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 			if (impact == null)
 				continue;
 			var ir = new ImpactResult();
-			ir.origin = ResultOrigin.IMPORTED;
 			ir.indicator = impact;
 			ir.amount = amount.value;
 			result.impacts.add(ir);

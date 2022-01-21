@@ -758,7 +758,6 @@ CREATE TABLE tbl_flow_results (
     resulting_amount_value    DOUBLE,
     f_location                BIGINT,
     description               CLOB(64 K),
-    origin                    VARCHAR(255),
 
     PRIMARY KEY (id)
 );
@@ -770,7 +769,6 @@ CREATE TABLE tbl_impact_results (
     f_impact_category  BIGINT,
     amount             DOUBLE,
     description        CLOB(64 K),
-    origin             VARCHAR(255),
 
     PRIMARY KEY (id)
 );
