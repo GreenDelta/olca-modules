@@ -45,7 +45,7 @@ final class In {
 	}
 
 	static void mapAtts(JsonObject obj, CategorizedEntity entity, long id,
-						ImportConfig conf) {
+						JsonImport conf) {
 		if (obj == null || entity == null)
 			return;
 		mapAtts(obj, entity, id);

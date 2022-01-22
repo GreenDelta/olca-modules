@@ -17,11 +17,11 @@ import com.google.gson.JsonObject;
 
 class ProjectImport extends BaseImport<Project> {
 
-	private ProjectImport(String refId, ImportConfig conf) {
+	private ProjectImport(String refId, JsonImport conf) {
 		super(ModelType.PROJECT, refId, conf);
 	}
 
-	static Project run(String refId, ImportConfig conf) {
+	static Project run(String refId, JsonImport conf) {
 		return new ProjectImport(refId, conf).run();
 	}
 

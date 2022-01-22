@@ -11,11 +11,11 @@ import com.google.gson.JsonObject;
 
 class FlowImport extends BaseImport<Flow> {
 
-	private FlowImport(String refId, ImportConfig conf) {
+	private FlowImport(String refId, JsonImport conf) {
 		super(ModelType.FLOW, refId, conf);
 	}
 
-	static Flow run(String refId, ImportConfig conf) {
+	static Flow run(String refId, JsonImport conf) {
 		return new FlowImport(refId, conf).run();
 	}
 

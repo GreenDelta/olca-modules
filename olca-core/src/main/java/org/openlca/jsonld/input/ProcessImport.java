@@ -24,11 +24,11 @@ class ProcessImport extends BaseImport<Process> {
 
 	private final Map<Integer, Exchange> exchangeMap = new HashMap<>();
 
-	private ProcessImport(String refId, ImportConfig conf) {
+	private ProcessImport(String refId, JsonImport conf) {
 		super(ModelType.PROCESS, refId, conf);
 	}
 
-	static Process run(String refId, ImportConfig conf) {
+	static Process run(String refId, JsonImport conf) {
 		return new ProcessImport(refId, conf).run();
 	}
 

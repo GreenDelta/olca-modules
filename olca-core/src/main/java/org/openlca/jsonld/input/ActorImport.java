@@ -8,11 +8,11 @@ import com.google.gson.JsonObject;
 
 class ActorImport extends BaseImport<Actor> {
 
-	private ActorImport(String refId, ImportConfig conf) {
+	private ActorImport(String refId, JsonImport conf) {
 		super(ModelType.ACTOR, refId, conf);
 	}
 
-	static Actor run(String refId, ImportConfig conf) {
+	static Actor run(String refId, JsonImport conf) {
 		return new ActorImport(refId, conf).run();
 	}
 

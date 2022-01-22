@@ -9,11 +9,11 @@ import com.google.gson.JsonObject;
 
 class SourceImport extends BaseImport<Source> {
 
-	private SourceImport(String refId, ImportConfig conf) {
+	private SourceImport(String refId, JsonImport conf) {
 		super(ModelType.SOURCE, refId, conf);
 	}
 
-	static Source run(String refId, ImportConfig conf) {
+	static Source run(String refId, JsonImport conf) {
 		return new SourceImport(refId, conf).run();
 	}
 

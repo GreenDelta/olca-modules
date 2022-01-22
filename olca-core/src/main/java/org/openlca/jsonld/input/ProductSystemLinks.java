@@ -30,7 +30,6 @@ import com.google.gson.JsonObject;
  */
 class ProductSystemLinks {
 
-	private final IDatabase db;
 	private final RefIdMap<String, Long> refIds;
 
 	/**
@@ -39,10 +38,10 @@ class ProductSystemLinks {
 	 */
 	private final Map<Long, Map<Integer, Long>> exchangeIds;
 
-	private ProductSystemLinks(ImportConfig conf) {
-		db = conf.db.getDatabase();
+	private ProductSystemLinks(JsonImport conf) {
+		IDatabase db = conf.db.getDatabase();
 		refIds = RefIdMap.refToInternal(
-				db, ProductSystem.class, Process.class,
+			db, ProductSystem.class, Process.class,
 				Flow.class, Unit.class);
 		exchangeIds = new HashMap<>();
 		// TODO: this currently add *ALL* exchanges from the database
@@ -62,7 +61,7 @@ class ProductSystemLinks {
 		});
 	}
 
-	static void map(JsonObject json, ImportConfig conf, ProductSystem system) {
+	static void map(JsonObject json, JsonImport conf, ProductSystem system) {
 		new ProductSystemLinks(conf).map(json, system);
 	}
 

@@ -10,14 +10,14 @@ import com.google.gson.JsonObject;
 
 class ProcessDocReader {
 
-	private ImportConfig conf;
+	private final JsonImport conf;
 	private JsonObject json;
 
-	private ProcessDocReader(ImportConfig conf) {
+	private ProcessDocReader(JsonImport conf) {
 		this.conf = conf;
 	}
 
-	static ProcessDocumentation read(JsonObject json, ImportConfig conf) {
+	static ProcessDocumentation read(JsonObject json, JsonImport conf) {
 		return new ProcessDocReader(conf).read(json);
 	}
 

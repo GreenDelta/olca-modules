@@ -17,9 +17,9 @@ abstract class BaseImport<T extends RootEntity> {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final ModelType modelType;
 	String refId;
-	ImportConfig conf;
+	JsonImport conf;
 
-	BaseImport(ModelType modelType, String refId, ImportConfig conf) {
+	BaseImport(ModelType modelType, String refId, JsonImport conf) {
 		this.refId = refId;
 		this.conf = conf;
 		this.modelType = modelType;

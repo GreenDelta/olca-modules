@@ -12,11 +12,11 @@ import com.google.gson.JsonObject;
 
 class CategoryImport extends BaseImport<Category> {
 
-	private CategoryImport(String refId, ImportConfig conf) {
+	private CategoryImport(String refId, JsonImport conf) {
 		super(ModelType.CATEGORY, refId, conf);
 	}
 
-	static Category run(String refId, ImportConfig conf) {
+	static Category run(String refId, JsonImport conf) {
 		return new CategoryImport(refId, conf).run();
 	}
 

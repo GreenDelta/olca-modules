@@ -10,12 +10,11 @@ import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 class ParameterRedefs {
 
-	static List<ParameterRedef> read(JsonArray array, ImportConfig conf) {
+	static List<ParameterRedef> read(JsonArray array, JsonImport conf) {
 		if (array == null || array.size() == 0)
 			return Collections.emptyList();
 		var redefs = new ArrayList<ParameterRedef>();
@@ -40,7 +39,7 @@ class ParameterRedefs {
 	}
 
 	private static boolean setContext(
-			JsonObject context, ParameterRedef p, ImportConfig conf) {
+			JsonObject context, ParameterRedef p, JsonImport conf) {
 		if (context == null)
 			return true;
 		var type = Json.getString(context, "@type");

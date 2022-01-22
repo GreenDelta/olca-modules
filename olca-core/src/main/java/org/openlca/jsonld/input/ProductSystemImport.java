@@ -12,11 +12,11 @@ import com.google.gson.JsonObject;
 
 public class ProductSystemImport extends BaseImport<ProductSystem> {
 
-	private ProductSystemImport(String refId, ImportConfig conf) {
+	private ProductSystemImport(String refId, JsonImport conf) {
 		super(ModelType.PRODUCT_SYSTEM, refId, conf);
 	}
 
-	static ProductSystem run(String refId, ImportConfig conf) {
+	static ProductSystem run(String refId, JsonImport conf) {
 		return new ProductSystemImport(refId, conf).run();
 	}
 

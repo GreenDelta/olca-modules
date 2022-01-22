@@ -9,11 +9,11 @@ import com.google.gson.JsonObject;
 
 class ParameterImport extends BaseImport<Parameter> {
 
-	ParameterImport(String refId, ImportConfig conf) {
+	ParameterImport(String refId, JsonImport conf) {
 		super(ModelType.PARAMETER, refId, conf);
 	}
 
-	static Parameter run(String refId, ImportConfig conf) {
+	static Parameter run(String refId, JsonImport conf) {
 		return new ParameterImport(refId, conf).run();
 	}
 

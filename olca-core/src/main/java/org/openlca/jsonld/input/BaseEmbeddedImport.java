@@ -21,11 +21,11 @@ import com.google.gson.JsonObject;
  */
 abstract class BaseEmbeddedImport<T extends AbstractEntity, P extends RootEntity> {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-	private P parent;
-	ImportConfig conf;
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final P parent;
+	JsonImport conf;
 
-	BaseEmbeddedImport(ModelType parentType, String parentRefId, ImportConfig conf) {
+	BaseEmbeddedImport(ModelType parentType, String parentRefId, JsonImport conf) {
 		this.conf = conf;
 		this.parent = conf.db.get(parentType, parentRefId);
 	}

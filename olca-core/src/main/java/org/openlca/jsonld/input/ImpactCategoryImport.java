@@ -20,11 +20,11 @@ import com.google.gson.JsonObject;
 
 class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 
-	private ImpactCategoryImport(String refID, ImportConfig conf) {
+	private ImpactCategoryImport(String refID, JsonImport conf) {
 		super(ModelType.IMPACT_CATEGORY, refID, conf);
 	}
 
-	static ImpactCategory run (String refID, ImportConfig conf) {
+	static ImpactCategory run (String refID, JsonImport conf) {
 		return new ImpactCategoryImport(refID, conf).run();
 	}
 
@@ -54,7 +54,7 @@ class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 		return conf.db.put(impact);
 	}
 
-	private ImpactFactor mapFactor(JsonObject json, ImportConfig conf) {
+	private ImpactFactor mapFactor(JsonObject json, JsonImport conf) {
 		if (json == null || conf == null)
 			return null;
 
@@ -65,7 +65,7 @@ class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 		Flow flow = FlowImport.run(flowId, conf);
 		factor.flow = flow;
 		if (flow == null) {
-			conf.log.warn("invalid flow {}; LCIA factor not imported", flowId);
+			// TODO: log this error
 			return null;
 		}
 

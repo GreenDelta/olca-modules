@@ -12,11 +12,11 @@ import com.google.gson.JsonObject;
 
 class DQSystemImport extends BaseImport<DQSystem> {
 
-	private DQSystemImport(String refId, ImportConfig conf) {
+	private DQSystemImport(String refId, JsonImport conf) {
 		super(ModelType.DQ_SYSTEM, refId, conf);
 	}
 
-	static DQSystem run(String refId, ImportConfig conf) {
+	static DQSystem run(String refId, JsonImport conf) {
 		return new DQSystemImport(refId, conf).run();
 	}
 
