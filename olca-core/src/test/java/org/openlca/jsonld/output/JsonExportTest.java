@@ -46,8 +46,8 @@ public class JsonExportTest {
 			count.incrementAndGet();
 		});
 		Assert.assertEquals(2, count.get());
-		Assert.assertTrue(store.contains(ModelType.ACTOR, actor.refId));
-		Assert.assertTrue(store.contains(ModelType.CATEGORY, cat.refId));
+		Assert.assertNotNull(store.get(ModelType.ACTOR, actor.refId));
+		Assert.assertNotNull(store.get(ModelType.CATEGORY, cat.refId));
 		store.close();
 		Dirs.delete(tempdir);
 	}

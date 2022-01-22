@@ -21,8 +21,7 @@ public class UnitGroupImportTest {
 	public void testUpdateUnit() {
 
 		// create and export the unit group
-		var group = db.insert(
-				UnitGroup.of("Mass units", Unit.of("kg")));
+		var group = db.insert(UnitGroup.of("Mass units", Unit.of("kg")));
 		var store = new MemStore();
 		new JsonExport(db, store).write(group);
 

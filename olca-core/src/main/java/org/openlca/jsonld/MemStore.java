@@ -53,7 +53,7 @@ public class MemStore implements JsonStoreReader, JsonStoreWriter {
 	public void put(ModelType type, JsonObject obj) {
 		if (type == null || obj == null)
 			return;
-		var refId = Json.getRefId(obj, "@id");
+		var refId = Json.getString(obj, "@id");
 		var path = ModelPath.jsonOf(type, refId);
 		jsonData.put(path, obj);
 	}

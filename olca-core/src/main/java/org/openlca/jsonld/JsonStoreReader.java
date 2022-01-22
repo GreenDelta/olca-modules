@@ -2,6 +2,7 @@ package org.openlca.jsonld;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -36,6 +37,13 @@ public interface JsonStoreReader {
 		return json != null && json.isJsonObject()
 			? json.getAsJsonObject()
 			: null;
+	}
+
+	default List<JsonObject> getAll(ModelType type) {
+		return getRefIds(type).stream()
+			.map(refId -> get(type, refId))
+			.filter(Objects::nonNull)
+			.toList();
 	}
 
 	/**

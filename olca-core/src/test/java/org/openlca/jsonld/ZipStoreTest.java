@@ -13,28 +13,23 @@ import com.google.gson.JsonObject;
 
 public class ZipStoreTest extends AbstractZipTest {
 
-	private ModelType[] types = {
-			ModelType.CATEGORY, ModelType.LOCATION, ModelType.ACTOR,
-			ModelType.SOURCE, ModelType.UNIT_GROUP, ModelType.FLOW_PROPERTY,
-			ModelType.FLOW, ModelType.PROCESS, ModelType.IMPACT_METHOD,
-			ModelType.IMPACT_CATEGORY, ModelType.NW_SET, ModelType.PARAMETER,
-			ModelType.SOCIAL_INDICATOR
-	};
-
 	@Test
-	public void testWriteModels() throws Exception {
+	public void testWriteModels() {
 		Map<ModelType, String> entries = writeModels();
 		with(zip -> {
-			for (ModelType type : entries.keySet())
-				Assert.assertTrue(zip.contains(type, entries.get(type)));
+			for (ModelType type : entries.keySet()) {
+				var refId = entries.get(type);
+				var json = zip.get(type, refId);
+				Assert.assertNotNull(json);
+			}
 		});
 	}
 
 	@Test
-	public void testReadIds() throws Exception {
+	public void testReadIds() {
 		Map<ModelType, String> entries = writeModels();
 		with(zip -> {
-			for (ModelType type : types) {
+			for (var type : entries.keySet()) {
 				List<String> list = zip.getRefIds(type);
 				Assert.assertEquals(1, list.size());
 				Assert.assertEquals(entries.get(type), list.get(0));
@@ -43,7 +38,7 @@ public class ZipStoreTest extends AbstractZipTest {
 	}
 
 	@Test
-	public void testReadModels() throws Exception {
+	public void testReadModels() {
 		Map<ModelType, String> entries = writeModels();
 		with(zip -> {
 			for (ModelType type : entries.keySet()) {
@@ -55,10 +50,12 @@ public class ZipStoreTest extends AbstractZipTest {
 		});
 	}
 
-	private Map<ModelType, String> writeModels() throws Exception {
+	private Map<ModelType, String> writeModels() {
 		Map<ModelType, String> entries = new HashMap<>();
 		with(zip -> {
-			for (ModelType type : types) {
+			for (var type : ModelType.values()) {
+				if (!type.isCategorized())
+					continue;
 				String refId = UUID.randomUUID().toString();
 				entries.put(type, refId);
 				JsonObject obj = new JsonObject();
@@ -71,33 +68,33 @@ public class ZipStoreTest extends AbstractZipTest {
 	}
 
 	@Test
-	public void testReadWriteData() throws Exception {
+	public void testReadWriteData() {
 		with(zip -> {
 			String path = "my/super/file.txt";
 			byte[] first = "first".getBytes();
 			zip.put(path, first);
-			Assert.assertArrayEquals(first, zip.get(path));
+			Assert.assertArrayEquals(first, zip.getBytes(path));
 			byte[] second = "second".getBytes();
 			zip.put(path, second);
-			Assert.assertArrayEquals(second, zip.get(path));
+			Assert.assertArrayEquals(second, zip.getBytes(path));
 		});
 	}
 
 	@Test
-	public void testReadWriteDataWinStyle() throws Exception {
+	public void testReadWriteDataWinStyle() {
 		with(zip -> {
 			String path = "my\\super\\file.txt";
 			byte[] first = "first".getBytes();
 			zip.put(path, first);
-			Assert.assertArrayEquals(first, zip.get(path));
+			Assert.assertArrayEquals(first, zip.getBytes(path));
 			byte[] second = "second".getBytes();
 			zip.put(path, second);
-			Assert.assertArrayEquals(second, zip.get(path));
+			Assert.assertArrayEquals(second, zip.getBytes(path));
 		});
 	}
 
 	@Test
-	public void testGetBinFiles() throws Exception {
+	public void testGetBinFiles() {
 		with(zip -> {
 			for (int i = 0; i < 10; i++) {
 				String path = "bin/flows/abc/file_" + i + ".txt";
@@ -107,11 +104,12 @@ public class ZipStoreTest extends AbstractZipTest {
 			List<String> paths = zip.getBinFiles(ModelType.FLOW, "abc");
 			Assert.assertEquals(10, paths.size());
 			for (String path : paths) {
-				byte[] data = zip.get(path);
+				byte[] data = zip.getBytes(path);
 				String s = new String(data);
 				Assert.assertEquals("Content of file", s);
 			}
 		});
 	}
+
 
 }

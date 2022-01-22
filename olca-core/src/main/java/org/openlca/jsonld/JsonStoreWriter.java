@@ -15,7 +15,7 @@ public interface JsonStoreWriter {
 	default void put(ModelType type, JsonObject object) {
 		if (type == null || object == null)
 			return;
-		var refId = Json.getRefId(object, "@id");
+		var refId = Json.getString(object, "@id");
 		var path = ModelPath.jsonOf(type, refId);
 		String json = new Gson().toJson(object);
 		byte[] data = json.getBytes(StandardCharsets.UTF_8);

@@ -42,13 +42,13 @@ public class FlowPropertyFactorSyncTest {
 	}
 
 	@Test
-	public void initialDataValidates() throws IOException {
+	public void initialDataValidates() {
 		SyncTestUtils.doImport(allData, db);
 		Assert.assertTrue(validate());
 	}
 
 	@Test
-	public void flowPropertyFactorsSync() throws IOException {
+	public void flowPropertyFactorsSync() {
 		SyncTestUtils.doImport(allData, db);
 		SyncTestUtils.doImport(flowData, db);
 		Assert.assertTrue(validate());

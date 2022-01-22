@@ -1,7 +1,7 @@
 package org.openlca.jsonld.output;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -39,8 +39,8 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		with((store) -> {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(p2);
-			assertTrue(store.contains(ModelType.PARAMETER, p1.refId));
-			assertTrue(store.contains(ModelType.PARAMETER, p2.refId));
+			assertNotNull(store.get(ModelType.PARAMETER, p1.refId));
+			assertNotNull(store.get(ModelType.PARAMETER, p2.refId));
 		});
 	}
 
@@ -55,10 +55,10 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		with((store) -> {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(p4);
-			assertTrue(store.contains(ModelType.PARAMETER, p1.refId));
-			assertTrue(store.contains(ModelType.PARAMETER, p2.refId));
-			assertFalse(store.contains(ModelType.PARAMETER, p3.refId));
-			assertTrue(store.contains(ModelType.PARAMETER, p4.refId));
+			assertNotNull(store.get(ModelType.PARAMETER, p1.refId));
+			assertNotNull(store.get(ModelType.PARAMETER, p2.refId));
+			assertNull(store.get(ModelType.PARAMETER, p3.refId));
+			assertNotNull(store.get(ModelType.PARAMETER, p4.refId));
 		});
 	}
 
@@ -75,11 +75,10 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		with((store) -> {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(process);
-			assertTrue(store.contains(ModelType.PROCESS, process.refId));
-			assertFalse(store.contains(ModelType.PARAMETER, p1.refId));
-			assertFalse(store
-					.contains(ModelType.PARAMETER, p1Intern.refId));
-			assertTrue(store.contains(ModelType.PARAMETER, p2.refId));
+			assertNotNull(store.get(ModelType.PROCESS, process.refId));
+			assertNull(store.get(ModelType.PARAMETER, p1.refId));
+			assertNull(store.get(ModelType.PARAMETER, p1Intern.refId));
+			assertNotNull(store.get(ModelType.PARAMETER, p2.refId));
 		});
 	}
 
@@ -98,11 +97,10 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		with((store) -> {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(process);
-			assertTrue(store.contains(ModelType.PROCESS, process.refId));
-			assertFalse(store.contains(ModelType.PARAMETER, p1.refId));
-			assertFalse(store
-					.contains(ModelType.PARAMETER, p1Intern.refId));
-			assertTrue(store.contains(ModelType.PARAMETER, p2.refId));
+			assertNotNull(store.get(ModelType.PROCESS, process.refId));
+			assertNull(store.get(ModelType.PARAMETER, p1.refId));
+			assertNull(store.get(ModelType.PARAMETER, p1Intern.refId));
+			assertNotNull(store.get(ModelType.PARAMETER, p2.refId));
 		});
 	}
 
@@ -119,13 +117,12 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		with((store) -> {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(process);
-			assertTrue(store.contains(ModelType.PROCESS, process.refId));
-			assertFalse(store.contains(ModelType.PARAMETER, p1.refId));
-			assertFalse(store
-					.contains(ModelType.PARAMETER, p1Global.refId));
-			assertFalse(store.contains(ModelType.PARAMETER, p2.refId));
-			assertTrue(store.contains(ModelType.PARAMETER, p3Global.refId));
-			assertTrue(store.contains(ModelType.PARAMETER, p4Global.refId));
+			assertNotNull(store.get(ModelType.PROCESS, process.refId));
+			assertNull(store.get(ModelType.PARAMETER, p1.refId));
+			assertNull(store.get(ModelType.PARAMETER, p1Global.refId));
+			assertNull(store.get(ModelType.PARAMETER, p2.refId));
+			assertNotNull(store.get(ModelType.PARAMETER, p3Global.refId));
+			assertNotNull(store.get(ModelType.PARAMETER, p4Global.refId));
 		});
 	}
 
@@ -145,14 +142,12 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		with((store) -> {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(process);
-			assertTrue(store.contains(ModelType.PROCESS, process.refId));
-			assertFalse(store.contains(ModelType.PARAMETER, p1.refId));
-			assertFalse(store
-					.contains(ModelType.PARAMETER, p1Intern.refId));
-			assertFalse(store.contains(ModelType.PARAMETER, p2.refId));
-			assertFalse(store
-					.contains(ModelType.PARAMETER, p2Intern.refId));
-			assertTrue(store.contains(ModelType.PARAMETER, p3.refId));
+			assertNotNull(store.get(ModelType.PROCESS, process.refId));
+			assertNull(store.get(ModelType.PARAMETER, p1.refId));
+			assertNull(store.get(ModelType.PARAMETER, p1Intern.refId));
+			assertNull(store.get(ModelType.PARAMETER, p2.refId));
+			assertNull(store.get(ModelType.PARAMETER, p2Intern.refId));
+			assertNotNull(store.get(ModelType.PARAMETER, p3.refId));
 		});
 	}
 
@@ -169,10 +164,10 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		with((store) -> {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(impact);
-			assertTrue(store.contains(ModelType.IMPACT_CATEGORY, impact.refId));
-			assertFalse(store.contains(ModelType.PARAMETER, p1.refId));
-			assertFalse(store.contains(ModelType.PARAMETER, p1Intern.refId));
-			assertTrue(store.contains(ModelType.PARAMETER, p2.refId));
+			assertNotNull(store.get(ModelType.IMPACT_CATEGORY, impact.refId));
+			assertNull(store.get(ModelType.PARAMETER, p1.refId));
+			assertNull(store.get(ModelType.PARAMETER, p1Intern.refId));
+			assertNotNull(store.get(ModelType.PARAMETER, p2.refId));
 		});
 	}
 
@@ -191,10 +186,10 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		with((store) -> {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(impact);
-			assertTrue(store.contains(ModelType.IMPACT_CATEGORY, impact.refId));
-			assertFalse(store.contains(ModelType.PARAMETER, p1.refId));
-			assertFalse(store.contains(ModelType.PARAMETER, p1Intern.refId));
-			assertTrue(store.contains(ModelType.PARAMETER, p2.refId));
+			assertNotNull(store.get(ModelType.IMPACT_CATEGORY, impact.refId));
+			assertNull(store.get(ModelType.PARAMETER, p1.refId));
+			assertNull(store.get(ModelType.PARAMETER, p1Intern.refId));
+			assertNotNull(store.get(ModelType.PARAMETER, p2.refId));
 		});
 	}
 
@@ -210,12 +205,12 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		with((store) -> {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(impact);
-			assertTrue(store.contains(ModelType.IMPACT_CATEGORY, impact.refId));
-			assertFalse(store.contains(ModelType.PARAMETER, p1.refId));
-			assertFalse(store.contains(ModelType.PARAMETER, p1Global.refId));
-			assertFalse(store.contains(ModelType.PARAMETER, p2.refId));
-			assertTrue(store.contains(ModelType.PARAMETER, p3Global.refId));
-			assertTrue(store.contains(ModelType.PARAMETER, p4Global.refId));
+			assertNotNull(store.get(ModelType.IMPACT_CATEGORY, impact.refId));
+			assertNull(store.get(ModelType.PARAMETER, p1.refId));
+			assertNull(store.get(ModelType.PARAMETER, p1Global.refId));
+			assertNull(store.get(ModelType.PARAMETER, p2.refId));
+			assertNotNull(store.get(ModelType.PARAMETER, p3Global.refId));
+			assertNotNull(store.get(ModelType.PARAMETER, p4Global.refId));
 		});
 	}
 
@@ -235,12 +230,12 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		with((store) -> {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(impact);
-			assertTrue(store.contains(ModelType.IMPACT_CATEGORY, impact.refId));
-			assertFalse(store.contains(ModelType.PARAMETER, p1.refId));
-			assertFalse(store.contains(ModelType.PARAMETER, p1Intern.refId));
-			assertFalse(store.contains(ModelType.PARAMETER, p2.refId));
-			assertFalse(store.contains(ModelType.PARAMETER, p2Intern.refId));
-			assertTrue(store.contains(ModelType.PARAMETER, p3.refId));
+			assertNotNull(store.get(ModelType.IMPACT_CATEGORY, impact.refId));
+			assertNull(store.get(ModelType.PARAMETER, p1.refId));
+			assertNull(store.get(ModelType.PARAMETER, p1Intern.refId));
+			assertNull(store.get(ModelType.PARAMETER, p2.refId));
+			assertNull(store.get(ModelType.PARAMETER, p2Intern.refId));
+			assertNotNull(store.get(ModelType.PARAMETER, p3.refId));
 		});
 	}
 
@@ -254,10 +249,10 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		with((store) -> {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(system);
-			assertTrue(store.contains(ModelType.PRODUCT_SYSTEM,
+			assertNotNull(store.get(ModelType.PRODUCT_SYSTEM,
 					system.refId));
-			assertTrue(store.contains(ModelType.PARAMETER, p1.refId));
-			assertFalse(store.contains(ModelType.PARAMETER, p2.refId));
+			assertNotNull(store.get(ModelType.PARAMETER, p1.refId));
+			assertNull(store.get(ModelType.PARAMETER, p2.refId));
 		});
 	}
 
@@ -271,9 +266,9 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		with((store) -> {
 			JsonExport export = new JsonExport(Tests.getDb(), store);
 			export.write(project);
-			assertTrue(store.contains(ModelType.PROJECT, project.refId));
-			assertTrue(store.contains(ModelType.PARAMETER, p1.refId));
-			assertFalse(store.contains(ModelType.PARAMETER, p2.refId));
+			assertNotNull(store.get(ModelType.PROJECT, project.refId));
+			assertNotNull(store.get(ModelType.PARAMETER, p1.refId));
+			assertNull(store.get(ModelType.PARAMETER, p2.refId));
 		});
 	}
 
