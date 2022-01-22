@@ -16,24 +16,20 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.jsonld.EntityStore;
-import org.openlca.jsonld.Schema;
-import org.openlca.jsonld.Schema.UnsupportedSchemaException;
+import org.openlca.jsonld.JsonStoreReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.gson.JsonObject;
 
 public class JsonImport implements Runnable {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final IDatabase database;
-	private final EntityStore store;
+	private final JsonStoreReader reader;
 	private UpdateMode updateMode = UpdateMode.NEVER;
 	private Consumer<RootEntity> callback;
 
-	public JsonImport(EntityStore store, IDatabase db) {
-		this.store = store;
+	public JsonImport(JsonStoreReader reader, IDatabase db) {
+		this.reader = reader;
 		this.database = db;
 	}
 
@@ -48,105 +44,73 @@ public class JsonImport implements Runnable {
 	}
 
 	public void run(ModelType type, String id) {
-		checkSchemaSupported();
 		if (type == null || id == null)
 			return;
 		ImportConfig conf = ImportConfig.create(
-				new Db(database), store, updateMode, callback);
+				new Db(database), reader, updateMode, callback);
 		switch (type) {
-		case CATEGORY:
-			CategoryImport.run(id, conf);
-			break;
-		case DQ_SYSTEM:
-			DQSystemImport.run(id, conf);
-			break;
-		case LOCATION:
-			LocationImport.run(id, conf);
-			break;
-		case ACTOR:
-			ActorImport.run(id, conf);
-			break;
-		case SOURCE:
-			SourceImport.run(id, conf);
-			break;
-		case PARAMETER:
-			ParameterImport.run(id, conf);
-			break;
-		case UNIT_GROUP:
-			UnitGroupImport.run(id, conf);
-			break;
-		case FLOW_PROPERTY:
-			FlowPropertyImport.run(id, conf);
-			break;
-		case CURRENCY:
-			CurrencyImport.run(id, conf);
-			break;
-		case FLOW:
-			FlowImport.run(id, conf);
-			break;
-		case IMPACT_METHOD:
-			ImpactMethodImport.run(id, conf);
-			break;
-		case IMPACT_CATEGORY:
-			ImpactCategoryImport.run(id, conf);
-			break;
-		case SOCIAL_INDICATOR:
-			SocialIndicatorImport.run(id, conf);
-			break;
-		case PROCESS:
-			ProcessImport.run(id, conf);
-			try {
-				setProviders(conf);
-			} catch (SQLException e) {
-				log.error("Error setting providers", e);
+			case CATEGORY -> CategoryImport.run(id, conf);
+			case DQ_SYSTEM -> DQSystemImport.run(id, conf);
+			case LOCATION -> LocationImport.run(id, conf);
+			case ACTOR -> ActorImport.run(id, conf);
+			case SOURCE -> SourceImport.run(id, conf);
+			case PARAMETER -> ParameterImport.run(id, conf);
+			case UNIT_GROUP -> UnitGroupImport.run(id, conf);
+			case FLOW_PROPERTY -> FlowPropertyImport.run(id, conf);
+			case CURRENCY -> CurrencyImport.run(id, conf);
+			case FLOW -> FlowImport.run(id, conf);
+			case IMPACT_METHOD -> ImpactMethodImport.run(id, conf);
+			case IMPACT_CATEGORY -> ImpactCategoryImport.run(id, conf);
+			case SOCIAL_INDICATOR -> SocialIndicatorImport.run(id, conf);
+			case PROCESS -> {
+				ProcessImport.run(id, conf);
+				try {
+					setProviders(conf);
+				} catch (SQLException e) {
+					log.error("Error setting providers", e);
+				}
 			}
-			break;
-		case PRODUCT_SYSTEM:
-			ProductSystemImport.run(id, conf);
-			break;
-		case PROJECT:
-			ProjectImport.run(id, conf);
-			break;
-		default:
-			break;
+			case PRODUCT_SYSTEM -> ProductSystemImport.run(id, conf);
+			case PROJECT -> ProjectImport.run(id, conf);
+			default -> {
+			}
 		}
 	}
 
 	@Override
 	public void run() {
-		checkSchemaSupported();
-		ImportConfig conf = ImportConfig.create(new Db(database), store, updateMode, callback);
-		for (String catId : store.getRefIds(ModelType.CATEGORY))
+		var conf = ImportConfig.create(new Db(database), reader, updateMode, callback);
+		for (String catId : reader.getRefIds(ModelType.CATEGORY))
 			CategoryImport.run(catId, conf);
-		for (String sysId : store.getRefIds(ModelType.DQ_SYSTEM))
+		for (String sysId : reader.getRefIds(ModelType.DQ_SYSTEM))
 			DQSystemImport.run(sysId, conf);
-		for (String locId : store.getRefIds(ModelType.LOCATION))
+		for (String locId : reader.getRefIds(ModelType.LOCATION))
 			LocationImport.run(locId, conf);
-		for (String actorId : store.getRefIds(ModelType.ACTOR))
+		for (String actorId : reader.getRefIds(ModelType.ACTOR))
 			ActorImport.run(actorId, conf);
-		for (String sourceId : store.getRefIds(ModelType.SOURCE))
+		for (String sourceId : reader.getRefIds(ModelType.SOURCE))
 			SourceImport.run(sourceId, conf);
-		for (String paramId : store.getRefIds(ModelType.PARAMETER))
+		for (String paramId : reader.getRefIds(ModelType.PARAMETER))
 			ParameterImport.run(paramId, conf);
-		for (String groupId : store.getRefIds(ModelType.UNIT_GROUP))
+		for (String groupId : reader.getRefIds(ModelType.UNIT_GROUP))
 			UnitGroupImport.run(groupId, conf);
-		for (String propId : store.getRefIds(ModelType.FLOW_PROPERTY))
+		for (String propId : reader.getRefIds(ModelType.FLOW_PROPERTY))
 			FlowPropertyImport.run(propId, conf);
-		for (String currId : store.getRefIds(ModelType.CURRENCY))
+		for (String currId : reader.getRefIds(ModelType.CURRENCY))
 			CurrencyImport.run(currId, conf);
-		for (String flowId : store.getRefIds(ModelType.FLOW))
+		for (String flowId : reader.getRefIds(ModelType.FLOW))
 			FlowImport.run(flowId, conf);
-		for (String id : store.getRefIds(ModelType.IMPACT_CATEGORY))
+		for (String id : reader.getRefIds(ModelType.IMPACT_CATEGORY))
 			ImpactCategoryImport.run(id, conf);
-		for (String methodId : store.getRefIds(ModelType.IMPACT_METHOD))
+		for (String methodId : reader.getRefIds(ModelType.IMPACT_METHOD))
 			ImpactMethodImport.run(methodId, conf);
-		for (String indicatorId : store.getRefIds(ModelType.SOCIAL_INDICATOR))
+		for (String indicatorId : reader.getRefIds(ModelType.SOCIAL_INDICATOR))
 			SocialIndicatorImport.run(indicatorId, conf);
-		for (String processId : store.getRefIds(ModelType.PROCESS))
+		for (String processId : reader.getRefIds(ModelType.PROCESS))
 			ProcessImport.run(processId, conf);
-		for (String systemId : store.getRefIds(ModelType.PRODUCT_SYSTEM))
+		for (String systemId : reader.getRefIds(ModelType.PRODUCT_SYSTEM))
 			ProductSystemImport.run(systemId, conf);
-		for (String projectId : store.getRefIds(ModelType.PROJECT))
+		for (String projectId : reader.getRefIds(ModelType.PROJECT))
 			ProjectImport.run(projectId, conf);
 		try {
 			setProviders(conf);
@@ -226,12 +190,4 @@ public class JsonImport implements Runnable {
 		}
 		return query + ")";
 	}
-
-	private void checkSchemaSupported() {
-		JsonObject context = store.getContext();
-		String schema = Schema.parseUri(context);
-		if (!Schema.isSupportedSchema(schema))
-			throw new UnsupportedSchemaException(schema);
-	}
-
 }

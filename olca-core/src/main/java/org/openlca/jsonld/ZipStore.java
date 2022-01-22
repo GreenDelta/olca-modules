@@ -3,7 +3,6 @@ package org.openlca.jsonld;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -19,19 +18,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.model.ModelType;
-import org.openlca.jsonld.output.Context;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+public class ZipStore implements JsonStoreWriter, JsonStoreReader, AutoCloseable {
 
-public class ZipStore implements EntityStore {
-
-	private final static String META_INFO_PATH = "meta.info";
-	private final static String CONTEXT_PATH = "context.json";
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final FileSystem zip;
 
@@ -46,24 +38,6 @@ public class ZipStore implements EntityStore {
 		if (!zipFile.exists())
 			options.put("create", "true");
 		zip = FileSystems.newFileSystem(uri, options);
-		putContext();
-	}
-
-	@Override
-	public void putContext() {
-		put(CONTEXT_PATH, Context.write(Schema.URI));
-	}
-
-	@Override
-	public void putMetaInfo(JsonObject info) {
-		put(META_INFO_PATH, info);
-	}
-
-	@Override
-	public void putBin(ModelType type, String refId, String filename,
-			byte[] data) {
-		String path = ModelPath.binFolderOf(type, refId) + "/" + filename;
-		put(path, data);
 	}
 
 	@Override
@@ -82,62 +56,7 @@ public class ZipStore implements EntityStore {
 	}
 
 	@Override
-	public void put(ModelType type, JsonObject object) {
-		String refId = getRefId(object);
-		if (type == null || refId == null)
-			return;
-		put(ModelPath.jsonOf(type, refId), object);
-	}
-
-	private void put(String path, JsonObject object) {
-		if (object == null)
-			return;
-		try {
-			String json = new Gson().toJson(object);
-			byte[] data = json.getBytes(StandardCharsets.UTF_8);
-			put(path, data);
-		} catch (Exception e) {
-			log.error("failed to add " + path, e);
-		}
-	}
-
-	private String getRefId(JsonObject obj) {
-		if (obj == null)
-			return null;
-		JsonElement elem = obj.get("@id");
-		if (elem == null || !elem.isJsonPrimitive())
-			return null;
-		else
-			return elem.getAsString();
-	}
-
-	@Override
-	public boolean contains(ModelType type, String refId) {
-		if (type == null || refId == null)
-			return false;
-		String dirName = ModelPath.folderOf(type);
-		Path dir = zip.getPath(dirName);
-		if (!Files.exists(dir))
-			return false;
-		Path path = zip.getPath(dirName + "/" + refId + ".json");
-		return Files.exists(path);
-	}
-
-	@Override
-	public JsonObject getContext() {
-		byte[] data = get(CONTEXT_PATH);
-		if (data == null)
-			return null;
-		try {
-			return toJsonObject(data);
-		} catch (Exception e) {
-			log.error("failed to read json object " + CONTEXT_PATH, e);
-			return null;
-		}
-	}
-
-	@Override
-	public byte[] get(String path) {
+	public byte[] getBytes(String path) {
 		if (Strings.nullOrEmpty(path))
 			return null;
 		try {
@@ -149,28 +68,6 @@ public class ZipStore implements EntityStore {
 			log.error("failed to get file " + path, e);
 			return null;
 		}
-	}
-
-	@Override
-	public JsonObject get(ModelType type, String refId) {
-		if (!contains(type, refId))
-			return null;
-		String path = ModelPath.jsonOf(type, refId);
-		byte[] data = get(path);
-		if (data == null)
-			return null;
-		try {
-			return toJsonObject(data);
-		} catch (Exception e) {
-			log.error("failed to read json object " + type + "/" + refId, e);
-			return null;
-		}
-	}
-
-	private JsonObject toJsonObject(byte[] data) {
-		String json = new String(data, StandardCharsets.UTF_8);
-		JsonElement e = new Gson().fromJson(json, JsonElement.class);
-		return e.isJsonObject() ? e.getAsJsonObject() : null;
 	}
 
 	@Override

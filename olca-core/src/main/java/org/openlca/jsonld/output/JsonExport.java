@@ -31,7 +31,7 @@ import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.jsonld.EntityStore;
+import org.openlca.jsonld.JsonStoreWriter;
 
 import com.google.gson.JsonObject;
 
@@ -43,7 +43,7 @@ public class JsonExport {
 
 	private final ExportConfig conf;
 
-	public JsonExport(IDatabase database, EntityStore store) {
+	public JsonExport(IDatabase database, JsonStoreWriter store) {
 		conf = ExportConfig.create(database, store);
 	}
 
@@ -168,12 +168,6 @@ public class JsonExport {
 
 	public void setExportReferences(boolean value) {
 		conf.exportReferences = value;
-	}
-
-	public void setClientInfo(String value) {
-		conf.clientInfo = value;
-		JsonObject obj = new MetaInfoWriter(conf).write();
-		conf.store.putMetaInfo(obj);
 	}
 
 	private class Copy extends SimpleFileVisitor<Path> {

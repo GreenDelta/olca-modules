@@ -11,11 +11,11 @@ import org.openlca.core.model.ModelType;
 import com.google.gson.JsonObject;
 
 /**
- * A simple implementation of the {@link EntityStore} interface that stores the
+ * A simple implementation of the {@link JsonStoreWriter} interface that stores the
  * JSON objects in memory. Not all features of a real file based entity store
  * are supported.
  */
-public class MemStore implements EntityStore {
+public class MemStore implements JsonStoreWriter {
 
 	private HashMap<ModelType, List<JsonObject>> data = new HashMap<>();
 

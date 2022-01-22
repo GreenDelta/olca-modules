@@ -20,6 +20,14 @@ public interface JsonStoreReader {
 	List<String> getRefIds(ModelType type);
 
 	/**
+	 * Returns a list of paths to linked binary files for a model with the given
+	 * type and ID. The returned paths should be directly resolvable so that a
+	 * call {@code getBytes(path)} returns the binary data of this file. If there
+	 * are no external files available an empty list should be returned.
+	 */
+	List<String> getBinFiles(ModelType type, String refId);
+
+	/**
 	 * Get the JSON object of the data set of the given type and ID.
 	 */
 	default JsonObject get(ModelType type, String refId) {
