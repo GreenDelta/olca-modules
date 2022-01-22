@@ -7,17 +7,28 @@ public final class ModelPath {
 	private ModelPath() {
 	}
 
-	public static String getBin(ModelType type, String refId) {
-		return "bin/" + ModelPath.get(type) + "/" + refId;
+	/**
+	 * Returns the folder where the linked binary files of the data set of the
+	 * given type and ID are stored.
+	 */
+	public static String binFolderOf(ModelType type, String refId) {
+		return "bin/" + ModelPath.folderOf(type) + "/" + refId;
 	}
 
-	public static String get(ModelType type, String refId) {
-		return ModelPath.get(type) + "/" + refId + ".json";
+	/**
+	 * Returns the full path of a Json file that contains a model of the given
+	 * type and ID.
+	 */
+	public static String jsonOf(ModelType type, String refId) {
+		return ModelPath.folderOf(type) + "/" + refId + ".json";
 	}
 
-	public static String get(ModelType type) {
+	/**
+	 * Returns the name of the folder that contains data sets of the given type.
+	 */
+	public static String folderOf(ModelType type) {
 		if (type == null)
-			return "";
+			return "unknown";
 		return switch (type) {
 			case CATEGORY -> "categories";
 			case CURRENCY -> "currencies";
@@ -37,7 +48,8 @@ public final class ModelPath {
 			case UNIT -> "units";
 			case UNIT_GROUP -> "unit_groups";
 			case DQ_SYSTEM -> "dq_systems";
-			default -> "unknown";
+			case RESULT -> "results";
+			case UNKNOWN -> "unknown";
 		};
 	}
 

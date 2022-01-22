@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
@@ -78,13 +77,13 @@ public class FileStore implements EntityStore {
 		var id = Json.getString(object, "@id");
 		if (id == null)
 			return;
-		var path = ModelPath.get(type) + "/" + id + ".json";
+		var path = ModelPath.folderOf(type) + "/" + id + ".json";
 		put(path, object);
 	}
 
 	@Override
 	public void putBin(ModelType type, String refId, String filename, byte[] data) {
-		String path = ModelPath.getBin(type, refId) + "/" + filename;
+		String path = ModelPath.binFolderOf(type, refId) + "/" + filename;
 		put(path, data);
 	}
 
@@ -110,14 +109,9 @@ public class FileStore implements EntityStore {
 	private void put(String path, JsonObject object) {
 		if (object == null)
 			return;
-		try {
-			var json = new Gson().toJson(object);
-			byte[] data = json.getBytes("utf-8");
-			put(path, data);
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(
-					"failed to encode JSON object @" + path, e);
-		}
+		var json = new Gson().toJson(object);
+		byte[] data = json.getBytes(StandardCharsets.UTF_8);
+		put(path, data);
 	}
 
 	@Override
@@ -153,7 +147,7 @@ public class FileStore implements EntityStore {
 	public List<String> getRefIds(ModelType type) {
 		if (type == null)
 			return Collections.emptyList();
-		var dir = new File(root, ModelPath.get(type));
+		var dir = new File(root, ModelPath.folderOf(type));
 		if (!dir.exists())
 			return Collections.emptyList();
 
@@ -174,7 +168,7 @@ public class FileStore implements EntityStore {
 
 	@Override
 	public List<String> getBinFiles(ModelType type, String refId) {
-		var modelPath = ModelPath.getBin(type, refId);
+		var modelPath = ModelPath.binFolderOf(type, refId);
 		var dir = new File(root, modelPath);
 		return !dir.exists()
 				? Collections.emptyList()
@@ -186,7 +180,7 @@ public class FileStore implements EntityStore {
 	private Optional<File> find(ModelType type, String refID) {
 		if (type == null || refID == null)
 			return Optional.empty();
-		var dir = new File(root, ModelPath.get(type));
+		var dir = new File(root, ModelPath.folderOf(type));
 		if (!dir.exists())
 			return Optional.empty();
 

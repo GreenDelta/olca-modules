@@ -53,7 +53,8 @@ public interface EntityResolver {
 		}
 
 		@Override
-		public <T extends RootEntity> Descriptor getDescriptor(Class<T> type, String refId) {
+		public <T extends RootEntity> Descriptor getDescriptor(
+			Class<T> type, String refId) {
 			return null;
 		}
 	};

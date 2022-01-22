@@ -3,6 +3,7 @@ package org.openlca.jsonld;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -32,7 +33,7 @@ public class ZipStore implements EntityStore {
 	private final static String META_INFO_PATH = "meta.info";
 	private final static String CONTEXT_PATH = "context.json";
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private FileSystem zip;
+	private final FileSystem zip;
 
 	public static ZipStore open(File zipFile) throws IOException {
 		return new ZipStore(zipFile);
@@ -61,7 +62,7 @@ public class ZipStore implements EntityStore {
 	@Override
 	public void putBin(ModelType type, String refId, String filename,
 			byte[] data) {
-		String path = ModelPath.getBin(type, refId) + "/" + filename;
+		String path = ModelPath.binFolderOf(type, refId) + "/" + filename;
 		put(path, data);
 	}
 
@@ -85,7 +86,7 @@ public class ZipStore implements EntityStore {
 		String refId = getRefId(object);
 		if (type == null || refId == null)
 			return;
-		put(ModelPath.get(type, refId), object);
+		put(ModelPath.jsonOf(type, refId), object);
 	}
 
 	private void put(String path, JsonObject object) {
@@ -93,7 +94,7 @@ public class ZipStore implements EntityStore {
 			return;
 		try {
 			String json = new Gson().toJson(object);
-			byte[] data = json.getBytes("utf-8");
+			byte[] data = json.getBytes(StandardCharsets.UTF_8);
 			put(path, data);
 		} catch (Exception e) {
 			log.error("failed to add " + path, e);
@@ -114,7 +115,7 @@ public class ZipStore implements EntityStore {
 	public boolean contains(ModelType type, String refId) {
 		if (type == null || refId == null)
 			return false;
-		String dirName = ModelPath.get(type);
+		String dirName = ModelPath.folderOf(type);
 		Path dir = zip.getPath(dirName);
 		if (!Files.exists(dir))
 			return false;
@@ -154,7 +155,7 @@ public class ZipStore implements EntityStore {
 	public JsonObject get(ModelType type, String refId) {
 		if (!contains(type, refId))
 			return null;
-		String path = ModelPath.get(type, refId);
+		String path = ModelPath.jsonOf(type, refId);
 		byte[] data = get(path);
 		if (data == null)
 			return null;
@@ -166,15 +167,15 @@ public class ZipStore implements EntityStore {
 		}
 	}
 
-	private JsonObject toJsonObject(byte[] data) throws Exception {
-		String json = new String(data, "utf-8");
+	private JsonObject toJsonObject(byte[] data) {
+		String json = new String(data, StandardCharsets.UTF_8);
 		JsonElement e = new Gson().fromJson(json, JsonElement.class);
 		return e.isJsonObject() ? e.getAsJsonObject() : null;
 	}
 
 	@Override
 	public List<String> getRefIds(ModelType type) {
-		String dirName = ModelPath.get(type);
+		String dirName = ModelPath.folderOf(type);
 		Path dir = zip.getPath(dirName);
 		if (!Files.exists(dir))
 			return Collections.emptyList();
@@ -191,7 +192,7 @@ public class ZipStore implements EntityStore {
 	public List<String> getBinFiles(ModelType type, String refId) {
 		if (type == null || refId == null)
 			return Collections.emptyList();
-		Path dir = zip.getPath(ModelPath.getBin(type, refId));
+		Path dir = zip.getPath(ModelPath.binFolderOf(type, refId));
 		if (!Files.exists(dir))
 			return Collections.emptyList();
 		FilePathCollector collector = new FilePathCollector();
@@ -221,10 +222,9 @@ public class ZipStore implements EntityStore {
 			return Collections.emptyList();
 		List<String> paths = new ArrayList<>();
 		try {
-			Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
+			Files.walkFileTree(dir, new SimpleFileVisitor<>() {
 				@Override
-				public FileVisitResult visitFile(Path file,
-						BasicFileAttributes attrs) {
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
 					paths.add(file.toAbsolutePath().toString());
 					return FileVisitResult.CONTINUE;
 				}
@@ -235,9 +235,9 @@ public class ZipStore implements EntityStore {
 		return paths;
 	}
 
-	private class RefIdCollector extends SimpleFileVisitor<Path> {
+	private static class RefIdCollector extends SimpleFileVisitor<Path> {
 
-		private List<String> ids = new ArrayList<>();
+		private final List<String> ids = new ArrayList<>();
 
 		@Override
 		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
@@ -250,9 +250,9 @@ public class ZipStore implements EntityStore {
 		}
 	}
 
-	private class FilePathCollector extends SimpleFileVisitor<Path> {
+	private static class FilePathCollector extends SimpleFileVisitor<Path> {
 
-		private List<String> paths = new ArrayList<>();
+		private final List<String> paths = new ArrayList<>();
 
 		@Override
 		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
