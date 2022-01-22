@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import org.openlca.core.io.ExchangeProviderQueue;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.JsonStoreReader;
@@ -18,19 +19,21 @@ class ImportConfig {
 	final JsonStoreReader reader;
 	final UpdateMode updateMode;
 	final Logger log = LoggerFactory.getLogger(getClass());
-	// processRefId => exchangeIinternalId => providerRefId
-	final Map<String, Map<Integer, String>> providerInfo = new HashMap<>();
+	private final ExchangeProviderQueue providers;
 	private final Map<ModelType, Set<String>> visited = new HashMap<>();
 	private final Consumer<RootEntity> callback;
 
-	private ImportConfig(Db db, JsonStoreReader store, UpdateMode updateMode, Consumer<RootEntity> callback) {
+	private ImportConfig(Db db, JsonStoreReader store,
+	                     UpdateMode updateMode, Consumer<RootEntity> callback) {
 		this.db = db;
 		this.reader = store;
 		this.updateMode = updateMode;
 		this.callback = callback;
+		this.providers = ExchangeProviderQueue.create(db.getDatabase());
 	}
 
-	static ImportConfig create(Db db, JsonStoreReader reader, UpdateMode updateMode, Consumer<RootEntity> callback) {
+	static ImportConfig create(Db db, JsonStoreReader reader,
+	                           UpdateMode updateMode, Consumer<RootEntity> callback) {
 		return new ImportConfig(db, reader, updateMode, callback);
 	}
 
@@ -39,9 +42,8 @@ class ImportConfig {
 		set.add(refId);
 	}
 
-	void putProviderInfo(String processRefId, int exchangeInternalId, String providerRefId) {
-		var info = providerInfo.computeIfAbsent(processRefId, k -> new HashMap<>());
-		info.put(exchangeInternalId, providerRefId);
+	public ExchangeProviderQueue providers() {
+		return providers;
 	}
 
 	void imported(RootEntity entity) {
@@ -54,6 +56,5 @@ class ImportConfig {
 		Set<String> set = visited.get(type);
 		return set != null && set.contains(refId);
 	}
-
 
 }

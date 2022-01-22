@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import com.google.gson.JsonObject;
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.EntityResolver;
+import org.openlca.core.io.EntityResolver;
 import org.openlca.jsonld.Json;
 
 public class ActorReader implements EntityReader<Actor> {

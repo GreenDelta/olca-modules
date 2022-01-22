@@ -60,27 +60,12 @@ class ProcessImport extends BaseImport<Process> {
 			p.socialDqSystem = DQSystemImport.run(socialDqSystemId, conf);
 
 		addParameters(json, p);
-		// avoid cyclic reference problems
-		if (hasDefaultProviders(json))
-			p = conf.db.put(p);
 		addExchanges(json, p);
 		addSocialAspects(json, p);
 		addAllocationFactors(json, p);
-		return conf.db.put(p);
-	}
-
-	private boolean hasDefaultProviders(JsonObject json) {
-		JsonArray exchanges = Json.getArray(json, "exchanges");
-		if (exchanges == null || exchanges.size() == 0)
-			return false;
-		for (JsonElement e : exchanges) {
-			if (!e.isJsonObject())
-				continue;
-			String providerRefId = Json.getRefId(e.getAsJsonObject(), "defaultProvider");
-			if (providerRefId != null)
-				return true;
-		}
-		return false;
+		p = conf.db.put(p);
+		conf.providers().pop(p);
+		return p;
 	}
 
 	private ProcessType getType(JsonObject json) {
@@ -121,7 +106,7 @@ class ProcessImport extends BaseImport<Process> {
 			exchangeMap.put(ex.internalId, ex);
 			String providerRefId = Json.getRefId(o, "defaultProvider");
 			if (providerRefId != null) {
-				conf.putProviderInfo(p.refId, ex.internalId, providerRefId);
+				conf.providers().add(providerRefId, ex);
 			}
 			p.exchanges.add(ex);
 			boolean isRef = Json.getBool(o, "quantitativeReference", false);

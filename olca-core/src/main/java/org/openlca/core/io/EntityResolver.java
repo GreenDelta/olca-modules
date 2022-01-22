@@ -1,5 +1,6 @@
-package org.openlca.core.model;
+package org.openlca.core.io;
 
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 
 /**

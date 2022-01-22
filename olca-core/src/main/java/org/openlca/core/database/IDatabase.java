@@ -14,7 +14,7 @@ import gnu.trove.set.TLongSet;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import org.openlca.core.model.AbstractEntity;
-import org.openlca.core.model.EntityResolver;
+import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
