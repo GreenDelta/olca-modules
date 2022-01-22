@@ -37,7 +37,7 @@ public class ResultModelProvider implements ResultProvider {
 			flowResults = null;
 		} else {
 			flowResults = new double[flowIndex.size()];
-			for (var f : model.inventory) {
+			for (var f : model.flowResults) {
 				if (isNonEnvi(f))
 					continue;
 				var idx = f.location == null
@@ -56,16 +56,16 @@ public class ResultModelProvider implements ResultProvider {
 		}
 
 		// create the impact index and results
-		if (model.impacts.isEmpty()) {
+		if (model.impactResults.isEmpty()) {
 			impactIndex = null;
 			impactResults = null;
 		} else {
 			impactIndex = new ImpactIndex();
-			for (var imp : model.impacts) {
+			for (var imp : model.impactResults) {
 				impactIndex.add(Descriptor.of(imp.indicator));
 			}
 			impactResults = new double[impactIndex.size()];
-			for (var imp : model.impacts) {
+			for (var imp : model.impactResults) {
 				if (imp.indicator == null)
 					continue;
 				var idx = impactIndex.of(imp.indicator.id);
@@ -77,12 +77,12 @@ public class ResultModelProvider implements ResultProvider {
 	}
 
 	private static EnviIndex flowIndexOf(Result model) {
-		if (model.inventory.isEmpty())
+		if (model.flowResults.isEmpty())
 			return null;
 
 		// fill the flow index
 		boolean isRegionalized = false;
-		for (var f : model.inventory) {
+		for (var f : model.flowResults) {
 			if (isNonEnvi(f))
 				continue;
 			if (f.location != null) {
@@ -94,7 +94,7 @@ public class ResultModelProvider implements ResultProvider {
 		var flowIndex = isRegionalized
 			? EnviIndex.createRegionalized()
 			: EnviIndex.create();
-		for (var f : model.inventory) {
+		for (var f : model.flowResults) {
 			if (isNonEnvi(f))
 				continue;
 			flowIndex.add(EnviFlow.of(f));

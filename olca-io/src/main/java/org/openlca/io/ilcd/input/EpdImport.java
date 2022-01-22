@@ -86,7 +86,7 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 			amount *= f.mapFactor();
 		}
 		resultFlow.amount = amount;
-		result.inventory.add(resultFlow);
+		result.flowResults.add(resultFlow);
 		result.referenceFlow = resultFlow;
 	}
 
@@ -103,7 +103,7 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 			var ir = new ImpactResult();
 			ir.indicator = impact;
 			ir.amount = amount.value;
-			result.impacts.add(ir);
+			result.impactResults.add(ir);
 		}
 	}
 

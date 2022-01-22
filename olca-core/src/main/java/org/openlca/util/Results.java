@@ -63,7 +63,7 @@ public class Results {
 
 			var refFlow = referenceFlowOf(setup);
 			if (refFlow != null) {
-				m.inventory.add(refFlow);
+				m.flowResults.add(refFlow);
 				m.referenceFlow = refFlow;
 			}
 
@@ -74,7 +74,7 @@ public class Results {
 					result.enviIndex().each((_i, enviFlow) -> {
 						var flow = flowOf(enviFlow);
 						if (flow != null) {
-							m.inventory.add(flow);
+							m.flowResults.add(flow);
 						}
 					});
 				}
@@ -84,7 +84,7 @@ public class Results {
 					result.impactIndex().each((_i, indicator) -> {
 						var impact = impactOf(indicator);
 						if (impact != null) {
-							m.impacts.add(impact);
+							m.impactResults.add(impact);
 						}
 					});
 				}

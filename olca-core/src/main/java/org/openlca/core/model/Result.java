@@ -21,11 +21,11 @@ public class Result extends CategorizedEntity {
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_result")
-	public final List<FlowResult> inventory = new ArrayList<>();
+	public final List<FlowResult> flowResults = new ArrayList<>();
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_result")
-	public final List<ImpactResult> impacts = new ArrayList<>();
+	public final List<ImpactResult> impactResults = new ArrayList<>();
 
 	/**
 	 * The reference flow or quantitative reference of this result. This can be a
@@ -58,11 +58,11 @@ public class Result extends CategorizedEntity {
 		if (referenceFlow != null) {
 			clone.referenceFlow = referenceFlow.copy();
 		}
-		for (var flow : inventory) {
-			clone.inventory.add(flow.copy());
+		for (var flow : flowResults) {
+			clone.flowResults.add(flow.copy());
 		}
-		for (var impact : impacts) {
-			clone.impacts.add(impact.copy());
+		for (var impact : impactResults) {
+			clone.impactResults.add(impact.copy());
 		}
 		return clone;
 	}
