@@ -21,11 +21,11 @@ class EagerLibraryProvider implements ResultProvider {
 
 	private final MatrixData fullData;
 
-	private EagerLibraryProvider(IDatabase db, MatrixData dbData) {
-		this.db = db;
-		this.libDir = DataDir.getLibraryDir();
-		this.solver = MatrixSolver.Instance.getNew();
-		this.dbData = dbData;
+	private EagerLibraryProvider(SolverContext context) {
+		this.db = context.db();
+		this.libDir = context.libraryDir();
+		this.solver = context.solver();
+		this.dbData = context.matrixData();
 
 		fullData = new MatrixData();
 		fullData.impactMatrix = dbData.impactMatrix;

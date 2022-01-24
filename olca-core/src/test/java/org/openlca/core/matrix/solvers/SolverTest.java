@@ -16,6 +16,7 @@ import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.SimpleResult;
+import org.openlca.core.results.providers.SolverContext;
 import org.openlca.julia.Julia;
 import org.openlca.julia.JuliaSolver;
 import org.slf4j.Logger;

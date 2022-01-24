@@ -18,6 +18,7 @@ import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.providers.ResultProvider;
 import org.openlca.core.results.providers.ResultProviders;
+import org.openlca.core.results.providers.SolverContext;
 
 /**
  * The simplest kind of result of a calculated product system. This result type
@@ -45,7 +46,11 @@ public class SimpleResult extends BaseResult {
 	}
 
 	public static SimpleResult of(IDatabase db, MatrixData data) {
-		var provider = ResultProviders.lazyOf(db, data);
+		return of(SolverContext.of(db, data));
+	}
+
+	public static SimpleResult of(SolverContext context) {
+		var provider = ResultProviders.lazyOf(context);
 		return new SimpleResult(provider);
 	}
 

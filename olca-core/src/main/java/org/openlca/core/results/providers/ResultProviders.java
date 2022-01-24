@@ -1,7 +1,5 @@
 package org.openlca.core.results.providers;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.julia.Julia;
@@ -12,11 +10,12 @@ public final class ResultProviders {
 	private ResultProviders() {
 	}
 
-	public static ResultProvider eagerOf(IDatabase db, MatrixData data) {
+	public static ResultProvider eagerOf(SolverContext context) {
 		var solver = getSolver();
-		if (data.hasLibraryLinks())
-			return LazyLibraryProvider.of(db, data);
+		if (context.hasLibraryLinks())
+			return LazyLibraryProvider.of(context);
 
+		var data = context.matrixData();
 		var isSmall = data.techMatrix != null
 			&& data.techMatrix.rows() < 3000;
 		if (isSmall)
@@ -26,10 +25,12 @@ public final class ResultProviders {
 			: EagerResultProvider.create(data);
 	}
 
-	public static ResultProvider lazyOf(IDatabase db, MatrixData data) {
+	public static ResultProvider lazyOf(SolverContext context) {
 		var solver = getSolver();
-		if (data.hasLibraryLinks())
-			return LazyLibraryProvider.of(db, data);
+		if (context.hasLibraryLinks())
+			return LazyLibraryProvider.of(context);
+
+		var data = context.matrixData();
 		return data.isSparse() && solver.hasSparseSupport()
 			? LazyResultProvider.create(data)
 			: EagerResultProvider.create(data);

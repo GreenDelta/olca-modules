@@ -3,6 +3,7 @@ package org.openlca.core.matrix.index;
 import java.util.Objects;
 
 import org.openlca.core.model.AbstractExchange;
+import org.openlca.core.model.Flow;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;

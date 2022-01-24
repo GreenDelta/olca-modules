@@ -40,7 +40,7 @@ public final class LibTechIndex {
 				index.build().writeTo(buffer);
 			} catch (Exception e) {
 				Exceptions.unchecked(
-					"failed to writed tech-index to " + file, e);
+					"failed to write tech-index to " + file, e);
 			}
 		}
 	}

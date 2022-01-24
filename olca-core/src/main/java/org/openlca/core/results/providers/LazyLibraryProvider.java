@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
 
-import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.LibraryDir;
@@ -58,13 +57,11 @@ public class LazyLibraryProvider implements ResultProvider {
 	private final HashMap<String, TechIndex> libTechIndices = new HashMap<>();
 	private final HashMap<String, EnviIndex> libFlowIndices = new HashMap<>();
 
-	private LazyLibraryProvider(
-			IDatabase db,
-			MatrixData foregroundData) {
-		this.db = db;
-		this.libDir = DataDir.getLibraryDir();
-		this.solver = MatrixSolver.Instance.getNew();
-		this.foregroundData = foregroundData;
+	private LazyLibraryProvider(SolverContext context) {
+		this.db = context.db();
+		this.libDir = context.libraryDir();
+		this.solver = context.solver();
+		this.foregroundData = context.matrixData();
 		this.foregroundSolution = EagerResultProvider.create(foregroundData);
 		this.fullData = new MatrixData();
 		this.fullData.impactIndex = foregroundData.impactIndex;
@@ -82,10 +79,9 @@ public class LazyLibraryProvider implements ResultProvider {
 		return v;
 	}
 
-	public static LazyLibraryProvider of(
-		IDatabase db, MatrixData foregroundData) {
+	public static LazyLibraryProvider of(SolverContext context) {
 
-		var provider = new LazyLibraryProvider(db, foregroundData);
+		var provider = new LazyLibraryProvider(context);
 		provider.initTechIndex();
 		provider.initFlowIndex();
 

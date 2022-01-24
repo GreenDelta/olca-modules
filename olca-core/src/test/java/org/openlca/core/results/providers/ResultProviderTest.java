@@ -115,7 +115,7 @@ public class ResultProviderTest {
 		return List.of(
 				EagerResultProvider.create(data),
 				LazyResultProvider.create(data),
-				LazyLibraryProvider.of(db, foreground)
+				LazyLibraryProvider.of(SolverContext.of(db, data))
 		);
 	}
 

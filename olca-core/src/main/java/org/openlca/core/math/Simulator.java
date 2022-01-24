@@ -14,6 +14,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProductSystemDao;
+import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.index.EnviIndex;
@@ -24,11 +25,11 @@ import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.ProcessLink;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.core.results.SimulationResult;
 import org.openlca.core.results.providers.ResultProviders;
 import org.openlca.core.results.providers.SimpleResultProvider;
+import org.openlca.core.results.providers.SolverContext;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.util.TopoSort;
 import org.slf4j.Logger;
@@ -97,18 +98,27 @@ public class Simulator {
 	private final Map<Long, Node> nodeIndex = new HashMap<>();
 
 	private SimulationResult result;
+	private LibraryDir libraryDir;
+	private MatrixSolver solver;
 
 	private Simulator(IDatabase db) {
 		this.db = db;
 	}
 
-	public static Simulator create(
-		CalculationSetup setup,
-		IDatabase db,
-		MatrixSolver solver) {
+	public static Simulator create(CalculationSetup setup, IDatabase db) {
 		Simulator g = new Simulator(db);
 		g.init(db, setup);
 		return g;
+	}
+
+	public Simulator withSolver(MatrixSolver solver) {
+		this.solver = solver;
+		return this;
+	}
+
+	public Simulator withLibraryDir(LibraryDir libraryDir) {
+		this.libraryDir = libraryDir;
+		return this;
 	}
 
 	/**
@@ -146,10 +156,10 @@ public class Simulator {
 			// generate the numbers and calculate the overall result
 			for (var sub : subNodes) {
 				generateData(sub);
-				sub.lastResult = SimpleResult.of(db, sub.data);
+				sub.lastResult = SimpleResult.of(contextOf(sub.data));
 			}
 			generateData(root);
-			var provider = ResultProviders.lazyOf(db, root.data);
+			var provider = ResultProviders.lazyOf(contextOf(root.data));
 			var next = new SimpleResult(provider);
 			var result = getResult();
 			result.append(next);
@@ -176,6 +186,12 @@ public class Simulator {
 			log.trace("simulation run failed", e);
 			return null;
 		}
+	}
+
+	private SolverContext contextOf(MatrixData data) {
+		return SolverContext.of(db, data)
+			.solver(solver)
+			.libraryDir(libraryDir);
 	}
 
 	private void generateData(Node node) {
