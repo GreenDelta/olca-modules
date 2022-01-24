@@ -51,6 +51,14 @@ public class Library {
 	}
 
 	/**
+	 * Creates an empty library in the given library folder.
+	 */
+	public static Library create(LibraryDir dir, String name, Version version) {
+		var fullName = name + "_" + version;
+
+	}
+
+	/**
 	 * Creates a new library by writing the given matrix data into the given
 	 * folder. It will try to derive the name and version of the library from
 	 * the name of the given folder which should follow the pattern

@@ -19,31 +19,33 @@ public class LibraryInfo {
 	/**
 	 * like https://docs.npmjs.com/files/package.json#name
 	 */
-	public String name;
+	private final String name;
 
 	/**
 	 * like https://docs.npmjs.com/files/package.json#version
 	 */
-	public String version;
+	private final String version;
 
 	/**
 	 * like https://docs.npmjs.com/files/package.json#description-1
 	 */
-	public String description;
+	private String description;
 
 	/**
 	 * Indicates whether this library is regionalized or not. In case of a
 	 * regionalized library each element in the elementary flow index can be
 	 * a flow-location pair.
 	 */
-	public boolean isRegionalized;
+	private boolean isRegionalized;
 
 	/**
 	 * A list of library IDs this library depends on.
 	 * <p>
 	 * like https://docs.npmjs.com/files/package.json#dependencies
 	 */
-	public final List<String> dependencies = new ArrayList<>();
+	private final List<String> dependencies = new ArrayList<>();
+
+
 
 	public static LibraryInfo of(String name, String version) {
 		var info = new LibraryInfo();
