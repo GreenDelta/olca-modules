@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
-import org.openlca.core.library.LibraryMatrix;
+import org.openlca.core.library.MatrixName;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.index.ImpactIndex;
@@ -63,7 +63,7 @@ public class LibImpactMatrix {
 				continue;
 
 			// load the matrix and impact index
-			var libMatrix = lib.getMatrix(LibraryMatrix.C);
+			var libMatrix = lib.getMatrix(MatrixName.C);
 			if (libMatrix.isEmpty())
 				continue;
 			var libImpacts = lib.syncImpacts(db);

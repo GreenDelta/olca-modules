@@ -1,6 +1,6 @@
 package org.openlca.core.library;
 
-public enum LibraryMatrix {
+public enum MatrixName {
 
 	/**
 	 * The technology matrix A.

@@ -42,7 +42,7 @@ class ImpactFactors {
 			return Collections.emptyList();
 
 		// get the values
-		var m = lib.getMatrix(LibraryMatrix.C).orElse(null);
+		var m = lib.getMatrix(MatrixName.C).orElse(null);
 		if (m == null || m.rows() <= row)
 			return Collections.emptyList();
 		var values = m.getRow(row);

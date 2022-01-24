@@ -1,6 +1,8 @@
 package org.openlca.core.libraries;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.nio.file.Files;
 
@@ -41,7 +43,7 @@ public class LibraryPackageTest {
 		// check the zip
 		var packInfo = LibraryPackage.getInfo(zipFile);
 		assertEquals(libInfo, packInfo);
-		assertTrue(packInfo.dependencies.contains(dep.id()));
+		assertTrue(packInfo.dependencies().contains(dep.id()));
 
 		// extract the zip
 		dir = Files.createTempDirectory("_olca_lib_test").toFile();

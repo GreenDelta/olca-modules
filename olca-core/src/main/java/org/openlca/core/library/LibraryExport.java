@@ -6,11 +6,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.ImpactBuilder;
-import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.MatrixConfig;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.io.MatrixExport;
 import org.openlca.core.model.AllocationMethod;
@@ -37,9 +37,7 @@ public class LibraryExport implements Runnable {
 	public LibraryExport(IDatabase db, File folder) {
 		this.db = db;
 		this.folder = folder;
-		this.info = new LibraryInfo();
-		info.name = db.getName();
-		info.version = "0.0.1";
+		this.info = LibraryInfo.of(db.getName(), "0.0.1");
 	}
 
 	public LibraryExport withAllocation(AllocationMethod method) {
@@ -60,12 +58,12 @@ public class LibraryExport implements Runnable {
 	public LibraryExport withConfig(LibraryInfo info) {
 		if (info == null)
 			return this;
-		this.info.name = info.name;
-		this.info.version = info.version;
-		this.info.isRegionalized = info.isRegionalized;
-		this.info.description = info.description;
-		this.info.dependencies.clear();
-		this.info.dependencies.addAll(info.dependencies);
+		this.info.name(info.name())
+			.version(info.version())
+			.isRegionalized(info.isRegionalized())
+			.description(info.description());
+		this.info.dependencies().clear();
+		this.info.dependencies().addAll(info.dependencies());
 		return this;
 	}
 
@@ -76,10 +74,10 @@ public class LibraryExport implements Runnable {
 		withInventory = data.techIndex != null;
 		withImpacts = data.impactIndex != null;
 		withUncertainties = data.techUncertainties != null
-												|| data.enviUncertainties != null
-												|| data.impactUncertainties != null;
-		info.isRegionalized = data.enviIndex != null
-													&& data.enviIndex.isRegionalized();
+			|| data.enviUncertainties != null
+			|| data.impactUncertainties != null;
+		info.isRegionalized(
+			data.enviIndex != null && data.enviIndex.isRegionalized());
 		return this;
 	}
 
@@ -147,7 +145,7 @@ public class LibraryExport implements Runnable {
 		// check if we only need impact matrices
 		if (!withInventory) {
 			var impacts = ImpactIndex.of(db);
-			var flowIndex = info.isRegionalized
+			var flowIndex = info.isRegionalized()
 				? EnviIndex.createRegionalized(db, impacts)
 				: EnviIndex.create(db, impacts);
 			var data = new MatrixData();
@@ -164,7 +162,7 @@ public class LibraryExport implements Runnable {
 		var techIndex = TechIndex.of(db);
 		var config = MatrixConfig.of(db, techIndex)
 			.withUncertainties(withUncertainties)
-			.withRegionalization(info.isRegionalized)
+			.withRegionalization(info.isRegionalized())
 			.withAllocation(allocation);
 		if (withImpacts) {
 			config.withImpacts(ImpactIndex.of(db));
