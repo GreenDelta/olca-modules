@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.library.LibEnviIndex;
@@ -27,11 +28,16 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.util.Dirs;
 
 public class NoForegroundElemFlowsTest {
 
 	@Test
 	public void test() throws IOException {
+		// init the library
+		var tmpDir = Files.createTempDirectory("_olca_tests");
+		var libDir = LibraryDir.of(tmpDir.toFile());
+		var lib = Library.create(libDir, LibraryInfo.of("testlib", Version.of(1)));
 		var db = Tests.getDb();
 
 		// create the reference data
@@ -50,7 +56,7 @@ public class NoForegroundElemFlowsTest {
 		for (int i = 1; i < 4; i++) {
 			var product = db.insert(Flow.product("p" + i, mass));
 			var process = Process.of("p" + i, product);
-			process.library = "testlib";
+			process.library = lib.id();
 			db.insert(process);
 			libProviders.add(TechFlow.of(process));
 			if (i == 2) {
@@ -72,9 +78,7 @@ public class NoForegroundElemFlowsTest {
 		db.insert(system);
 
 		// create library resources
-		var tmpDir = Files.createTempDirectory("_olca_tests");
-		var libDir = LibraryDir.of(tmpDir.toFile());
-		var lib = Library.create(libDir, LibraryInfo.of("testlib", Version.of(1)));
+
 		LibTechIndex.write(lib, db, techIdx);
 		LibEnviIndex.write(lib, db, enviIndex);
 
@@ -96,13 +100,21 @@ public class NoForegroundElemFlowsTest {
 		LibMatrix.INV.write(lib, inv);
 		LibMatrix.M.write(lib, matrixM);
 
+		// calculate the results
 		var setup = CalculationSetup.fullAnalysis(system);
 		var result = new SystemCalculator(db)
 			.withLibraryDir(libDir)
 			.calculateFull(setup);
 
-		System.out.println(lib.folder);
+		// check the result
+		var expected = matrixM.getColumn(1);
+		var totals = result.totalFlowResults();
+		for (int i = 0; i < expected.length; i++) {
+			Assert.assertEquals(expected[i], totals[i], 1e-16);
+		}
+
 		db.clear();
+		Dirs.delete(libDir.dir);
 	}
 
 }
