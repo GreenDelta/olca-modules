@@ -46,7 +46,7 @@ class Exchanges {
 
 	private void addTechFlows(
 		List<Exchange> exchanges, TechIndex index, int column) {
-		var col = lib.getColumn(MatrixName.A, column).orElse(null);
+		var col = lib.getColumn(LibMatrix.A, column).orElse(null);
 		if (col == null)
 			return;
 		var flowDao = new FlowDao(db);
@@ -69,7 +69,7 @@ class Exchanges {
 	}
 
 	private void addEnviFlows(List<Exchange> exchanges, int column) {
-		var colB = lib.getColumn(MatrixName.B, column).orElse(null);
+		var colB = lib.getColumn(LibMatrix.B, column).orElse(null);
 		if (colB == null)
 			return;
 		var iFlows = lib.syncElementaryFlows(db).orElse(null);

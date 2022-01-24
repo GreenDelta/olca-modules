@@ -3,7 +3,7 @@ package examples;
 import java.io.File;
 
 import org.openlca.core.library.Library;
-import org.openlca.core.library.MatrixName;
+import org.openlca.core.library.LibMatrix;
 import org.openlca.julia.Julia;
 import org.openlca.julia.JuliaSolver;
 
@@ -34,13 +34,13 @@ public class FactorizedCalculation {
 		demand[refProduct.getIndex()] = 1.0;
 
 		// calculate the scaling vector
-		var techMatrix = lib.getMatrix(MatrixName.A)
+		var techMatrix = lib.getMatrix(LibMatrix.A)
 				.orElseThrow();
 		var factorization = solver.factorize(techMatrix);
 		var scaling = factorization.solve(demand);
 
 		// calculate the LCI result
-		var enviMatrix = lib.getMatrix(MatrixName.B)
+		var enviMatrix = lib.getMatrix(LibMatrix.B)
 				.orElseThrow();
 		var inventory = solver.multiply(enviMatrix, scaling);
 

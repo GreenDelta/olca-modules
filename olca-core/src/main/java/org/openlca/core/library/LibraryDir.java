@@ -103,7 +103,7 @@ public class LibraryDir {
 		}
 	}
 
-	public Optional<MatrixReader> getMatrix(String libID, MatrixName matrix) {
+	public Optional<MatrixReader> getMatrix(String libID, LibMatrix matrix) {
 		var lib = get(libID);
 		if (lib.isEmpty())
 			return Optional.empty();

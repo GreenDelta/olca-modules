@@ -3,7 +3,7 @@ package org.openlca.core.results.providers;
 import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
-import org.openlca.core.library.MatrixName;
+import org.openlca.core.library.LibMatrix;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.IndexedMatrix;
@@ -42,7 +42,7 @@ class EagerLibraryProvider implements ResultProvider {
 		var techBuilder = IndexedMatrix.build(fullData.techIndex)
 			.put(IndexedMatrix.of(dbData.techIndex, dbData.techMatrix));
 		libTechIndices
-			.forEach((libID, techIdx) -> libDir.getMatrix(libID, MatrixName.A)
+			.forEach((libID, techIdx) -> libDir.getMatrix(libID, LibMatrix.A)
 				.ifPresent(m -> techBuilder.put(IndexedMatrix.of(techIdx, m))));
 		fullData.techMatrix = techBuilder.finish().data();
 
@@ -56,7 +56,7 @@ class EagerLibraryProvider implements ResultProvider {
 				dbData.enviMatrix));
 		}
 		libFlowIndices.forEach((libID, flowIdx) ->
-			libDir.getMatrix(libID, MatrixName.B).ifPresent(m -> {
+			libDir.getMatrix(libID, LibMatrix.B).ifPresent(m -> {
 				var techIdx = libTechIndices.get(libID);
 				if (techIdx == null)
 					return;

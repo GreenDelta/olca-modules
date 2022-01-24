@@ -47,7 +47,7 @@ public class Library {
 	public final File folder;
 	private LibraryInfo _info;
 
-	private final Map<MatrixName, MatrixReader> matrixCache = new HashMap<>();
+	private final Map<LibMatrix, MatrixReader> matrixCache = new HashMap<>();
 
 	public Library(File folder) {
 		this.folder = folder;
@@ -318,7 +318,7 @@ public class Library {
 				(d1, d2) -> d1));
 	}
 
-	public boolean hasMatrix(MatrixName m) {
+	public boolean hasMatrix(LibMatrix m) {
 		var npy = new File(folder, m.name() + ".npy");
 		if (npy.exists())
 			return true;
@@ -326,7 +326,7 @@ public class Library {
 		return npz.exists();
 	}
 
-	public Optional<MatrixReader> getMatrix(MatrixName m) {
+	public Optional<MatrixReader> getMatrix(LibMatrix m) {
 		var matrix = matrixCache.get(m);
 		if (matrix != null)
 			return Optional.of(matrix);
@@ -355,7 +355,7 @@ public class Library {
 		}
 	}
 
-	public Optional<double[]> getColumn(MatrixName m, int column) {
+	public Optional<double[]> getColumn(LibMatrix m, int column) {
 		var matrix = matrixCache.get(m);
 		if (matrix != null)
 			return Optional.of(matrix.getColumn(column));
@@ -386,7 +386,7 @@ public class Library {
 	/**
 	 * Get the diagonal of the given library matrix.
 	 */
-	public Optional<double[]> getDiagonal(MatrixName m) {
+	public Optional<double[]> getDiagonal(LibMatrix m) {
 		var matrix = matrixCache.get(m);
 		if (matrix != null)
 			return Optional.of(matrix.diag());

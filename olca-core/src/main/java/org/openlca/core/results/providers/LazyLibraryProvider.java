@@ -11,7 +11,7 @@ import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.LibraryDir;
-import org.openlca.core.library.MatrixName;
+import org.openlca.core.library.LibMatrix;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.index.ImpactIndex;
@@ -247,7 +247,7 @@ public class LazyLibraryProvider implements ResultProvider {
 			var indexB = libTechIndices.get(libID);
 			if (lib == null || indexB == null)
 				continue;
-			var libDiag = lib.getDiagonal(MatrixName.A).orElse(null);
+			var libDiag = lib.getDiagonal(LibMatrix.A).orElse(null);
 			if (libDiag == null)
 				continue;
 			for (int iB = 0; iB < libDiag.length; iB++) {
@@ -305,7 +305,7 @@ public class LazyLibraryProvider implements ResultProvider {
 		if (lib == null || indexLib == null)
 			return column;
 		int jLib = indexLib.of(product);
-		var columnLib = lib.getColumn(MatrixName.A, jLib)
+		var columnLib = lib.getColumn(LibMatrix.A, jLib)
 				.orElse(null);
 		if (columnLib == null)
 			return column;
@@ -375,7 +375,7 @@ public class LazyLibraryProvider implements ResultProvider {
 				continue;
 			int column = libIndex.of(p);
 			var libSolution = lib.getColumn(
-					MatrixName.INV, column)
+					LibMatrix.INV, column)
 					.orElse(null);
 			if (libSolution == null)
 				continue;
@@ -443,7 +443,7 @@ public class LazyLibraryProvider implements ResultProvider {
 		if (lib == null || flowIdxB == null || techIdxB == null)
 			return put(j, flowColumns, column);
 		var jB = techIdxB.of(product);
-		var colB = lib.getColumn(MatrixName.B, jB)
+		var colB = lib.getColumn(LibMatrix.B, jB)
 				.orElse(null);
 		if (colB == null)
 			return put(j, flowColumns, column);
@@ -526,7 +526,7 @@ public class LazyLibraryProvider implements ResultProvider {
 				continue;
 
 			// calculate the scaled library result
-			var matrixB = lib.getMatrix(MatrixName.B).orElse(null);
+			var matrixB = lib.getMatrix(LibMatrix.B).orElse(null);
 			if (matrixB == null)
 				continue;
 			var sB = new double[techIdxB.size()];
@@ -627,7 +627,7 @@ public class LazyLibraryProvider implements ResultProvider {
 			var libImpactIdx = lib.syncImpacts(db).orElse(null);
 			if (libImpactIdx == null)
 				continue;
-			var libMatrix = lib.getMatrix(MatrixName.C)
+			var libMatrix = lib.getMatrix(LibMatrix.C)
 					.orElse(null);
 			if (libMatrix == null)
 				continue;
