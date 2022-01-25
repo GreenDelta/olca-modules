@@ -183,12 +183,15 @@ class Processes implements ProcessMapper {
 
 		// product inputs & waste outputs
 		for (var type : ProductType.values()) {
+			boolean isWaste = type == ProductType.WASTE_TO_TREATMENT;
 			for (var row : block.exchangesOf(type)) {
-				var flow = refData.productOf(row);
+				var flow = isWaste
+					? refData.wasteFlowOf(row)
+					: refData.productOf(row);
 				var e = exchangeOf(flow, row);
 				if (e == null)
 					continue;
-				e.isInput = type != ProductType.WASTE_TO_TREATMENT;
+				e.isInput = !isWaste;
 				e.isAvoided = type == ProductType.AVOIDED_PRODUCTS;
 			}
 		}

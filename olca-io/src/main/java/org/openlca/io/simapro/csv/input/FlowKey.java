@@ -36,7 +36,7 @@ record FlowKey (String path, String refId, FlowType type) {
 
 	static FlowKey waste(String name, UnitMappingEntry quantity) {
 		var path = "waste::" + String.join("/", norm(name), norm(quantity));
-		return new FlowKey(path, KeyGen.toPath(), FlowType.WASTE_FLOW);
+		return new FlowKey(path, KeyGen.get(path), FlowType.WASTE_FLOW);
 	}
 
 	private static String norm(UnitMappingEntry q) {
