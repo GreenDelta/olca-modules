@@ -36,14 +36,9 @@ import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.util.Dirs;
 
 @RunWith(Parameterized.class)
-public class ResultProviderTest {
+public record ResultProviderTest(ResultProvider provider) {
 
-	private final ResultProvider provider;
 	private static File libDir;
-
-	public ResultProviderTest(ResultProvider provider) {
-		this.provider = provider;
-	}
 
 	@Parameterized.Parameters
 	public static Collection<ResultProvider> setup() throws Exception {
@@ -108,14 +103,14 @@ public class ResultProviderTest {
 		var foreground = new MatrixData();
 		foreground.techIndex = new TechIndex(data.techIndex.getRefFlow());
 		foreground.techIndex.setDemand(1.0);
-		foreground.techMatrix = JavaMatrix.of(new double[][]{{0.5}});
+		foreground.techMatrix = JavaMatrix.of(new double[][]{{1}});
 		foreground.impactIndex = data.impactIndex;
 
 		// create the result providers
 		return List.of(
 				EagerResultProvider.create(data),
 				LazyResultProvider.create(data),
-				LazyLibraryProvider.of(SolverContext.of(db, data))
+				LazyLibraryProvider.of(SolverContext.of(db, foreground))
 		);
 	}
 
