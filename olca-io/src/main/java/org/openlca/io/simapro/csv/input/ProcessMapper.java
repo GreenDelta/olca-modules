@@ -161,7 +161,6 @@ interface ProcessMapper {
 				var formula = formulaOf(row.amount().formula());
 				e.formula = factor + " * (" + formula + ")";
 			}
-			// TODO: SyncFlow should store the mapped unit and flow property
 			e.flowPropertyFactor = f.flow().getReferenceFactor();
 			e.unit = f.flow().getReferenceUnit();
 

@@ -24,18 +24,18 @@ record FlowKey (String path, String refId, FlowType type) {
 		var sub = compartment.sub() != null
 			? compartment.sub().toString()
 			: SubCompartment.UNSPECIFIED.toString();
-		var path = "elementary::" + String.join(
-			"/", top, sub, norm(name), norm(quantity));
+		var path = String.join("/", "elementary flow",
+			top, sub, norm(name), norm(quantity));
 		return new FlowKey(path, KeyGen.get(path), FlowType.ELEMENTARY_FLOW);
 	}
 
 	static FlowKey product(String name, UnitMappingEntry quantity) {
-		var path = "product::" + String.join("/", norm(name), norm(quantity));
+		var path = String.join("/", "product", norm(name), norm(quantity));
 		return new FlowKey(path, KeyGen.get(path), FlowType.PRODUCT_FLOW);
 	}
 
 	static FlowKey waste(String name, UnitMappingEntry quantity) {
-		var path = "waste::" + String.join("/", norm(name), norm(quantity));
+		var path = String.join("/", "waste", norm(name), norm(quantity));
 		return new FlowKey(path, KeyGen.get(path), FlowType.WASTE_FLOW);
 	}
 
