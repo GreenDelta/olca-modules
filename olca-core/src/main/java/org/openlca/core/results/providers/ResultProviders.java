@@ -13,11 +13,11 @@ public final class ResultProviders {
 		var isSmall = data.techMatrix != null
 			&& data.techMatrix.rows() < 3000;
 		if (isSmall)
-			return EagerResultProvider.create(data);
+			return EagerResultProvider.create(context);
 		var solver = context.solver();
 		return data.isSparse() && solver.hasSparseSupport()
-			? LazyResultProvider.create(data)
-			: EagerResultProvider.create(data);
+			? LazyResultProvider.create(context)
+			: EagerResultProvider.create(context);
 	}
 
 	public static ResultProvider lazyOf(SolverContext context) {
@@ -27,7 +27,7 @@ public final class ResultProviders {
 		var solver = context.solver();
 		var data = context.matrixData();
 		return data.isSparse() && solver.hasSparseSupport()
-			? LazyResultProvider.create(data)
-			: EagerResultProvider.create(data);
+			? LazyResultProvider.create(context)
+			: EagerResultProvider.create(context);
 	}
 }

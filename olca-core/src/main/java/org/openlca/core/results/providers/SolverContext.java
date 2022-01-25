@@ -25,6 +25,19 @@ public class SolverContext {
 		return new SolverContext(db, matrixData);
 	}
 
+	/**
+	 * Creates a solver context without a database. Note that a calculation with
+	 * such a context can fail when data from a database are required (e.g. to
+	 * resolve resources from linked libraries).
+	 */
+	public static SolverContext of(MatrixData matrixData) {
+		return new SolverContext(null, matrixData);
+	}
+
+	public boolean hasDb() {
+		return db != null;
+	}
+
 	public IDatabase db() {
 		return db;
 	}

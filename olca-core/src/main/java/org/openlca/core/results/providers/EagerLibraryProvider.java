@@ -1,15 +1,13 @@
 package org.openlca.core.results.providers;
 
-import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.LibMatrix;
-import org.openlca.core.matrix.index.EnviIndex;
-import org.openlca.core.matrix.index.ImpactIndex;
+import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.IndexedMatrix;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.matrix.solvers.MatrixSolver;
 
 // currently under development; do not use this for now
 class EagerLibraryProvider implements ResultProvider {
@@ -17,14 +15,11 @@ class EagerLibraryProvider implements ResultProvider {
 	private final IDatabase db;
 	private final MatrixData dbData;
 	private final LibraryDir libDir;
-	private final MatrixSolver solver;
-
 	private final MatrixData fullData;
 
 	private EagerLibraryProvider(SolverContext context) {
 		this.db = context.db();
 		this.libDir = context.libraryDir();
-		this.solver = context.solver();
 		this.dbData = context.matrixData();
 
 		fullData = new MatrixData();

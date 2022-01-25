@@ -17,13 +17,13 @@ import org.junit.runners.Parameterized;
 import org.openlca.core.DataDir;
 import org.openlca.core.Tests;
 import org.openlca.core.library.Library;
+import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.format.JavaMatrix;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.EnviFlow;
-import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.matrix.format.JavaMatrix;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
@@ -108,8 +108,8 @@ public record ResultProviderTest(ResultProvider provider) {
 
 		// create the result providers
 		return List.of(
-				EagerResultProvider.create(data),
-				LazyResultProvider.create(data),
+				EagerResultProvider.create(SolverContext.of(data)),
+				LazyResultProvider.create(SolverContext.of(data)),
 				LazyLibraryProvider.of(SolverContext.of(db, foreground))
 		);
 	}

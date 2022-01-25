@@ -8,19 +8,19 @@ import java.util.HashSet;
 import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.library.LibMatrix;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.LibraryDir;
-import org.openlca.core.library.LibMatrix;
-import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.ImpactBuilder;
-import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
-import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixBuilder;
 import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.ImpactIndex;
+import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.util.Pair;
 
@@ -62,7 +62,7 @@ public class LazyLibraryProvider implements ResultProvider {
 		this.libDir = context.libraryDir();
 		this.solver = context.solver();
 		this.foregroundData = context.matrixData();
-		this.foregroundSolution = EagerResultProvider.create(foregroundData);
+		this.foregroundSolution = EagerResultProvider.create(context);
 		this.fullData = new MatrixData();
 		this.fullData.impactIndex = foregroundData.impactIndex;
 	}

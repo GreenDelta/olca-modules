@@ -3,14 +3,15 @@ package org.openlca.core.results;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.providers.LazyResultProvider;
+import org.openlca.core.results.providers.SolverContext;
 
 public class LinkContributionsTest {
 
@@ -47,8 +48,8 @@ public class LinkContributionsTest {
 		data.techMatrix = techMatrix;
 		data.techIndex = index;
 
-		var solution = LazyResultProvider.create(data);
-		FullResult r = new FullResult(solution);
+		var solution = LazyResultProvider.create(SolverContext.of(data));
+		var r = new FullResult(solution);
 
 		Assert.assertEquals(0, r.getLinkShare(link(4, 4, 1)), 1e-16);
 		Assert.assertEquals(1, r.getLinkShare(link(2, 2, 1)), 1e-16);
@@ -84,8 +85,8 @@ public class LinkContributionsTest {
 		var data = new MatrixData();
 		data.techIndex = index;
 		data.techMatrix = techMatrix;
-		var solutions = LazyResultProvider.create(data);
-		FullResult r = new FullResult(solutions);
+		var solutions = LazyResultProvider.create(SolverContext.of(data));
+		var r = new FullResult(solutions);
 
 		for (int i = 0; i < size; i++) {
 			if (i < (size - 1)) {

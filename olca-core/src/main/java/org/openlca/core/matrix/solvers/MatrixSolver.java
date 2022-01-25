@@ -2,8 +2,6 @@ package org.openlca.core.matrix.solvers;
 
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixReader;
-import org.openlca.julia.Julia;
-import org.openlca.julia.JuliaSolver;
 
 /**
  * Interface for linear algebra and matrix problems that we need to solve in
@@ -88,15 +86,4 @@ public interface MatrixSolver {
 
 	Factorization factorize(MatrixReader matrix);
 
-	final class Instance {
-
-		private Instance () {
-		}
-
-		public static MatrixSolver getNew() {
-			return Julia.isLoaded()
-				? new JuliaSolver()
-				: new JavaSolver();
-		}
-	}
 }

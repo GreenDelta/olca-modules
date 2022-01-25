@@ -1,10 +1,10 @@
 package org.openlca.core.results.providers;
 
+import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.solvers.Factorization;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 
@@ -31,9 +31,9 @@ public class LazyResultProvider implements ResultProvider {
 	private final double[] directCosts;
 	private final double totalCosts;
 
-	private LazyResultProvider(MatrixData data) {
-		this.data = data;
-		this.solver = MatrixSolver.Instance.getNew();
+	private LazyResultProvider(SolverContext context) {
+		this.data = context.matrixData();
+		this.solver = context.solver();
 		this.factorization = solver.factorize(data.techMatrix);
 
 		solutions = new TIntObjectHashMap<>();
@@ -78,8 +78,8 @@ public class LazyResultProvider implements ResultProvider {
 		}
 	}
 
-	public static LazyResultProvider create(MatrixData data) {
-		return new LazyResultProvider(data);
+	public static LazyResultProvider create(SolverContext context) {
+		return new LazyResultProvider(context);
 	}
 
 	@Override
