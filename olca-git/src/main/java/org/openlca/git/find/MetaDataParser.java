@@ -33,8 +33,17 @@ class MetaDataParser {
 			var parents = new ArrayList<String>();
 			var map = new HashMap<String, Object>();
 			String fieldName = null;
-			while (matched < fields.size() && !parser.isClosed()) {
+			var arrayDepth = 0;
+			while ((matched < fields.size() || arrayDepth > 0) && !parser.isClosed()) {
 				var jsonToken = parser.nextToken();
+				if (JsonToken.START_ARRAY.equals(jsonToken)) {
+					arrayDepth++;
+					continue;
+				}
+				if (JsonToken.END_ARRAY.equals(jsonToken)) {
+					arrayDepth--;
+					continue;
+				}
 				if (JsonToken.START_OBJECT.equals(jsonToken)) {
 					if (fieldName != null) {
 						parents.add(fieldName);
@@ -53,7 +62,13 @@ class MetaDataParser {
 				var match = findMatch(fields, parents, fieldName);
 				if (match != null) {
 					jsonToken = parser.nextToken();
-					map.put(match.name, match.parser.apply(parser.getValueAsString()));
+					if (arrayDepth > 0) {
+						@SuppressWarnings("unchecked")
+						var list = (List<String>) map.computeIfAbsent(match.name, n -> new ArrayList<String>());
+						list.add(parser.getValueAsString());
+					} else {
+						map.put(match.name, match.parser.apply(parser.getValueAsString()));
+					}
 					matched++;
 				}
 			}
