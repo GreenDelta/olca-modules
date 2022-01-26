@@ -13,7 +13,7 @@ import org.openlca.util.KeyGen;
 /**
  * Defines how we identify SimaPro CSV flows.
  */
-record FlowKey (String path, String refId, FlowType type) {
+record FlowKey(String path, String refId, FlowType type) {
 
 	static FlowKey elementary(
 		Compartment compartment, String name, String quantity) {
@@ -23,25 +23,18 @@ record FlowKey (String path, String refId, FlowType type) {
 		var sub = compartment.sub() != null
 			? compartment.sub().toString()
 			: SubCompartment.UNSPECIFIED.toString();
-		var path = String.join("/", "elementary flow",
-			top, sub, norm(name), norm(quantity));
+		var path = KeyGen.toPath("elementary flow", top, sub, name, quantity);
 		return new FlowKey(path, KeyGen.get(path), FlowType.ELEMENTARY_FLOW);
 	}
 
 	static FlowKey product(String name, String quantity) {
-		var path = String.join("/", "product", norm(name), norm(quantity));
+		var path = KeyGen.toPath("product", name, quantity);
 		return new FlowKey(path, KeyGen.get(path), FlowType.PRODUCT_FLOW);
 	}
 
 	static FlowKey waste(String name, String quantity) {
-		var path = String.join("/", "waste", norm(name), norm(quantity));
+		var path = KeyGen.toPath("waste", name, quantity);
 		return new FlowKey(path, KeyGen.get(path), FlowType.WASTE_FLOW);
-	}
-
-	private static String norm(String s) {
-		return s == null
-			? ""
-			: s.trim().toLowerCase();
 	}
 
 	SyncFlow getOrCreate(FlowSync sync, Supplier<Flow> fn) {
