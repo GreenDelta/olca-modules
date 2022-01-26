@@ -45,7 +45,8 @@ public class FlowMapTest {
 		assertTrue(tmpFile.delete());
 
 		// check it
-		var e = map.getEntry("06d4812b-6937-4d64-8517-b69aabce3648");
+		var index = map.index();
+		var e = index.get("06d4812b-6937-4d64-8517-b69aabce3648");
 		assertEquals("3f7e0b7e-aefd-4efd-a946-7bdad142fd50",
 				e.targetFlow().flow.refId);
 		assertEquals(1000.0, e.factor(), 1e-16);

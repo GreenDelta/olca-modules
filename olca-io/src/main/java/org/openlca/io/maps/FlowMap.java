@@ -36,15 +36,17 @@ import com.google.gson.JsonObject;
 
 public class FlowMap extends Descriptor {
 
-	/** Description of the source system. */
+	/**
+	 * Description of the source system.
+	 */
 	public Descriptor source;
 
-	/** Description of the target system. */
+	/**
+	 * Description of the target system.
+	 */
 	public Descriptor target;
 
 	public final List<FlowMapEntry> entries = new ArrayList<>();
-
-	private Map<String, FlowMapEntry> index;
 
 	public static FlowMap empty() {
 		return new FlowMap();
@@ -67,19 +69,20 @@ public class FlowMap extends Descriptor {
 	}
 
 	/**
-	 * Get the mapping entry for the source flow with the given ID.
+	 * Creates an index of the entries in this flow map.
+	 *
+	 * @return a map where the IDs of the source flows are mapped to the
+	 * respective mapping entries.
 	 */
-	public FlowMapEntry getEntry(String sourceFlowID) {
-		if (index == null) {
-			index = new HashMap<>();
-			for (var e : entries) {
-				var sid = e.sourceFlowId();
-				if (sid != null) {
-					index.put(sid, e);
-				}
+	public Map<String, FlowMapEntry> index() {
+		var index = new HashMap<String, FlowMapEntry>();
+		for (var e : entries) {
+			var sourceId = e.sourceFlowId();
+			if (sourceId != null) {
+				index.put(sourceId, e);
 			}
 		}
-		return index.get(sourceFlowID);
+		return index;
 	}
 
 	/**
@@ -87,7 +90,7 @@ public class FlowMap extends Descriptor {
 	 * given database.
 	 *
 	 * @deprecated we should remove implicit mappings that are loaded from this
-	 *             package and also loading mappings from the database
+	 * package and also loading mappings from the database
 	 */
 	@Deprecated
 	public static FlowMap of(String map, IDatabase db) {
@@ -126,8 +129,8 @@ public class FlowMap extends Descriptor {
 		if (bytes == null)
 			return new FlowMap();
 		var data = BinUtils.isGzip(bytes)
-				? BinUtils.gunzip(bytes)
-				: bytes;
+			? BinUtils.gunzip(bytes)
+			: bytes;
 		var stream = new ByteArrayInputStream(data);
 		return fromCsv(stream);
 	}
@@ -141,7 +144,7 @@ public class FlowMap extends Descriptor {
 			return map;
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to " +
-					"read flow map from " + file, e);
+				"read flow map from " + file, e);
 		}
 	}
 
@@ -265,8 +268,8 @@ public class FlowMap extends Descriptor {
 			return;
 		var content = toCsv(this);
 		mapping.content = content.length == 0
-				? null
-				: BinUtils.gzip(content);
+			? null
+			: BinUtils.gzip(content);
 	}
 
 	public static byte[] toCsv(FlowMap fm) {
@@ -284,7 +287,7 @@ public class FlowMap extends Descriptor {
 			toCsv(fm, stream);
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to " +
-					"write mapping to file " + file, e);
+				"write mapping to file " + file, e);
 		}
 	}
 

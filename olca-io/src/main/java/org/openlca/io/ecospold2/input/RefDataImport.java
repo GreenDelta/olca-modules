@@ -1,7 +1,6 @@
 package org.openlca.io.ecospold2.input;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.Objects;
@@ -45,13 +44,13 @@ import spold2.Spold2;
  */
 class RefDataImport {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final ImportConfig config;
-	private CategoryDao categoryDao;
-	private FlowDao flowDao;
-	private LocationDao locationDao;
-	private RefDataIndex index;
+	private final CategoryDao categoryDao;
+	private final FlowDao flowDao;
+	private final LocationDao locationDao;
+	private final RefDataIndex index;
 
 	public RefDataImport(ImportConfig config) {
 		this.config = config;
@@ -71,22 +70,25 @@ class RefDataImport {
 	}
 
 	private void loadUnitMaps(IDatabase database) throws Exception {
-		InputStream is = getClass().getResourceAsStream("ei3_unit_map.csv");
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-		String line;
-		while ((line = reader.readLine()) != null) {
-			String[] args = line.split(",");
-			String eiUnitKey = args[0];
-			UnitDao unitDao = new UnitDao(database);
-			Unit unit = unitDao.getForRefId(args[1]);
-			FlowPropertyDao propDao = new FlowPropertyDao(database);
-			FlowProperty prop = propDao.getForRefId(args[2]);
-			if (unit == null || prop == null)
-				log.warn("no unit or property found for {} in database, "
+		var is = getClass().getResourceAsStream("ei3_unit_map.csv");
+		if (is == null)
+			return;
+		try (var reader = new BufferedReader(new InputStreamReader(is))) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				String[] args = line.split(",");
+				String eiUnitKey = args[0];
+				UnitDao unitDao = new UnitDao(database);
+				Unit unit = unitDao.getForRefId(args[1]);
+				FlowPropertyDao propDao = new FlowPropertyDao(database);
+				FlowProperty prop = propDao.getForRefId(args[2]);
+				if (unit == null || prop == null)
+					log.warn("no unit or property found for {} in database, "
 						+ "no reference data?", eiUnitKey);
-			else {
-				index.putUnit(eiUnitKey, unit);
-				index.putFlowProperty(eiUnitKey, prop);
+				else {
+					index.putUnit(eiUnitKey, unit);
+					index.putFlowProperty(eiUnitKey, prop);
+				}
 			}
 		}
 	}
@@ -246,7 +248,7 @@ class RefDataImport {
 		Flow flow = flowDao.getForRefId(extId);
 		if (flow != null)
 			return flow;
-		FlowMapEntry entry = config.getFlowMap().getEntry(extId);
+		FlowMapEntry entry = config.getFlowMap().get(extId);
 		if (entry == null)
 			return null;
 		flow = flowDao.getForRefId(entry.targetFlowId());
@@ -291,15 +293,13 @@ class RefDataImport {
 		Classification clazz = findClassification(dataSet);
 		if (clazz == null || clazz.value == null)
 			return null;
-		Category cat = Categories.findOrCreateRoot(config.db, ModelType.FLOW,
-				clazz.value);
-		return cat;
+		return Categories.findOrCreateRoot(config.db, ModelType.FLOW, clazz.value);
 	}
 
 	/**
 	 * For units that are not found in the mapping file, we try to find the
 	 * corresponding unit and flow property pair from the database. First, we
-	 * check if their is a unit with the given ID defined. If this is not the
+	 * check if there is a unit with the given ID defined. If this is not the
 	 * case we search for a unit with the given name (or synonym). When we find
 	 * such a unit, we try to find also the default flow property and when there
 	 * is no such flow property some other flow property with that unit in the

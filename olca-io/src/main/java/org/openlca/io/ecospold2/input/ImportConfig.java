@@ -1,7 +1,11 @@
 package org.openlca.io.ecospold2.input;
 
+import java.util.Collections;
+import java.util.Map;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.io.maps.FlowMap;
+import org.openlca.io.maps.FlowMapEntry;
 
 /**
  * Import configuration for EcoSpold 02 data sets.
@@ -33,22 +37,22 @@ public class ImportConfig {
 
 	public final IDatabase db;
 
-	private FlowMap flowMap;
+	private Map<String, FlowMapEntry> flowMap;
 
 	public ImportConfig(IDatabase db) {
 		this.db = db;
 	}
 
-	public FlowMap getFlowMap() {
-		if (flowMap == null) {
-			// flowMap = FlowMap.of(Maps.ES2_FLOW_IMPORT, db);
-			flowMap = new FlowMap();
+	public void setFlowMap(FlowMap flowMap) {
+		if (flowMap != null) {
+			this.flowMap = flowMap.index();
 		}
-		return flowMap;
 	}
 
-	public void setFlowMap(FlowMap flowMap) {
-		this.flowMap = flowMap;
+	Map<String, FlowMapEntry> getFlowMap() {
+		return flowMap == null
+			? Collections.emptyMap()
+			: flowMap;
 	}
 
 }

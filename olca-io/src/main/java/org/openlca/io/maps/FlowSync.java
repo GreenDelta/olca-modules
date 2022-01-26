@@ -1,5 +1,6 @@
 package org.openlca.io.maps;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -12,7 +13,7 @@ import org.openlca.core.model.Flow;
 public class FlowSync {
 
 	private final IDatabase db;
-	private final FlowMap flowMap;
+	private final Map<String, FlowMapEntry> flowMap;
 	private final Map<String, SyncFlow> cache;
 
 	private ImportLog log;
@@ -20,8 +21,8 @@ public class FlowSync {
 	private FlowSync(IDatabase db, FlowMap flowMap) {
 		this.db = Objects.requireNonNull(db);
 		this.flowMap = flowMap == null
-			? FlowMap.empty()
-			: flowMap;
+			? Collections.emptyMap()
+			: flowMap.index();
 		cache = new HashMap<>();
 	}
 
@@ -43,7 +44,7 @@ public class FlowSync {
 			return cached;
 
 		// try to load a mapped flow first
-		var entry = flowMap.getEntry(key);
+		var entry = flowMap.get(key);
 		if (entry != null && entry.targetFlow() != null) {
 			var mapped = SyncFlow.mapped(entry, db);
 			if (!mapped.isEmpty()) {

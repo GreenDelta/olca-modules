@@ -53,7 +53,7 @@ public class ProcessWriter {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final IDatabase db;
-	private FlowMap flowMap;
+	private Map<String, FlowMapEntry> flowMap;
 	private BufferedWriter writer;
 
 	private final Map<String, SimaProUnit> units = new HashMap<>();
@@ -74,7 +74,9 @@ public class ProcessWriter {
 	}
 
 	public void setFlowMap(FlowMap flowMap) {
-		this.flowMap = flowMap;
+		if (flowMap != null) {
+			this.flowMap = flowMap.index();
+		}
 	}
 
 	public void write(Collection<ProcessDescriptor> processes, File file) {
@@ -774,7 +776,7 @@ public class ProcessWriter {
 	private FlowMapEntry mappedFlow(Flow flow) {
 		if (flowMap == null || flow == null)
 			return null;
-		return flowMap.getEntry(flow.refId);
+		return flowMap.get(flow.refId);
 	}
 
 	/**
