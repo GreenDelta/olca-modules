@@ -1,10 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://eplca.jrc.ec.europa.eu/ILCD/LifeCycleModel/2017"
-   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:common="http://lca.jrc.it/ILCD/Common" xmlns="http://eplca.jrc.ec.europa.eu/ILCD/LifeCycleModel/2017"
-   xmlns:lcm="http://eplca.jrc.ec.europa.eu/ILCD/LifeCycleModel/2017">
-   <xs:import namespace="http://lca.jrc.it/ILCD/Common" schemaLocation="ILCD_Common_Groups.xsd"/>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:common="http://lca.jrc.it/ILCD/Common"
+           xmlns:ilcd="http://lca.jrc.it/ILCD"
+           xmlns:lcm="http://eplca.jrc.ec.europa.eu/ILCD/LifeCycleModel/2017"
+           xmlns="http://eplca.jrc.ec.europa.eu/ILCD/LifeCycleModel/2017"
+           elementFormDefault="qualified"
+           targetNamespace="http://eplca.jrc.ec.europa.eu/ILCD/LifeCycleModel/2017">
+   <xs:import namespace="http://lca.jrc.it/ILCD/Common"
+              schemaLocation="ILCD_Common_Groups.xsd"/>
    <xs:import namespace="http://www.w3.org/XML/1998/namespace"/>
    <xs:element name="lifeCycleModelDataSet" type="LifeCycleModelDataSetType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e4" name="lifeCycleModelDataSet"/>
+            <ilcd:display-name>Life cycle model data set</ilcd:display-name>
+            <ilcd:field-requirement>m</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>System of interconnected processes that jointly represent the full or partial life cycle of a product system, with the final process step ('Reference process instance') being referenced from this life cycle model data set, which connects and stepwise scales all other process instances via the connecting product and waste exchanges.</xs:documentation>
+      </xs:annotation>
       <xs:key name="processInstanceInternalID">
          <xs:selector xpath="lcm:lifeCycleModelInformation/lcm:technology/lcm:processes/lcm:processInstance"/>
          <xs:field xpath="@dataSetInternalID"/>
@@ -14,8 +28,7 @@
          <xs:field xpath="."/>
       </xs:keyref>
       <xs:keyref name="referenceToDownStreamProcess" refer="processInstanceInternalID">
-         <xs:selector
-            xpath="lcm:lifeCycleModelInformation/lcm:technology/lcm:processes/lcm:processInstance/lcm:connections/lcm:outputExchange/lcm:downstreamProcess"/>
+         <xs:selector xpath="lcm:lifeCycleModelInformation/lcm:technology/lcm:processes/lcm:processInstance/lcm:connections/lcm:outputExchange/lcm:downstreamProcess"/>
          <xs:field xpath="@id"/>
       </xs:keyref>
       <xs:key name="groupID">
@@ -27,71 +40,381 @@
          <xs:field xpath="@groupId"/>
       </xs:keyref>
    </xs:element>
-   <xs:element name="lifeCycleModelInformation" type="LifeCycleModelInformationType"/>
-   <xs:element name="dataSetInformation" type="DataSetInformationType"/>
-   <xs:element name="modellingAndValidation" type="ModellingAndValidationType"/>
-   <xs:element name="referenceToExternalDocumentation" type="common:GlobalReferenceType">
+   <xs:element name="lifeCycleModelInformation" type="LifeCycleModelInformationType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e20" name="lifeCycleModelInformation"/>
+            <ilcd:display-name>Life cycle model information</ilcd:display-name>
+            <ilcd:field-requirement>m</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>This section comprises the following sub-sections: 1) "Key data set information", 2) "Quantitative reference", 3) "Technology".</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="dataSetInformation" type="DataSetInformationType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e21" name="dataSetInformation"/>
+            <ilcd:display-name>Key data set information</ilcd:display-name>
+            <ilcd:field-requirement>m</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>General data set information, to identify the life cycle model, document a general comment about it, and to reference resulting aggregated process data sets that are based on this ife cycle model and to reference a potential background report.</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="modellingAndValidation" type="ModellingAndValidationType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e22" name="modellingAndValidation"/>
+            <ilcd:display-name>Modelling and validation</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>This section covers the following sub-sections: 1) "Data sources, treatment and representativeness", 2) "Validation", and 3) "Compliance".</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="referenceToExternalDocumentation"
+               type="common:GlobalReferenceType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e23" name="referenceToExternalDocumentation"/>
+            <ilcd:display-name>Data set report, background info</ilcd:display-name>
+            <ilcd:field-requirement>o</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>"Source data set(s)" of detailed LCI or LCA study or other study on the process or product represented by this data set, as well as documents / files with overarching documentative information on technology, geographical and / or time aspects etc. on the level of the life cycle model. (Note: can indirectly reference to electronic and online files.)</xs:documentation>
+      </xs:annotation>
       <xs:unique name="referenceToExternalDocumentationShortDescriptionLangUniqueConstraint">
          <xs:selector xpath="common:shortDescription"/>
          <xs:field xpath="@xml:lang"/>
       </xs:unique>
    </xs:element>
    <xs:element name="referenceToResultingProcess" type="common:GlobalReferenceType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e27" name="referenceToResultingProcess"/>
+            <ilcd:display-name>Resulting (partly) aggregated process data set</ilcd:display-name>
+            <ilcd:field-requirement>o</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>Reference to the LCI result or partly terminated system process data set(s) that is/are generated from this model.</xs:documentation>
+      </xs:annotation>
       <xs:unique name="referenceToResultingProcessShortDescriptionLangUniqueConstraint">
          <xs:selector xpath="common:shortDescription"/>
          <xs:field xpath="@xml:lang"/>
       </xs:unique>
    </xs:element>
-   <xs:element name="classificationInformation" type="common:ClassificationInformationType"/>
-   <xs:element name="quantitativeReference" type="QuantitativeReferenceType"/>
-   <xs:element name="referenceToReferenceProcess" type="xs:integer"/>
-   <xs:element name="technology" type="TechnologyType"/>
-   <xs:element name="groupDeclarations" type="GroupDeclarationsType"/>
+   <xs:element name="classificationInformation"
+               type="common:ClassificationInformationType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e31" name="classificationInformation"/>
+            <ilcd:display-name>Classification information</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>Hierarchical or flat classification of the good, service or function that is provided by this life cycle model; typically used to structure database contents in LCA software, among other purposes. (Note: This entry is NOT required for the identification of a Life cycle model, but it should nevertheless be avoided to use identical names for Life cycle model data sets in the same class. The ILCD classifications are defined in the ILCDClassifications.xml file, for common use.)</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="quantitativeReference" type="QuantitativeReferenceType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e32" name="quantitativeReference"/>
+            <ilcd:display-name>Quantitative reference</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>This section names the quantitative reference of this data set, i.e. the reference to which the inputs and outputs of all process instances of the life cycle model quantitatively relate.</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="referenceToReferenceProcess" type="xs:integer">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e33" name="referenceToReferenceProcess"/>
+            <ilcd:display-name>Reference process instance</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>Process instance that scales the life cycle model and thereby all directly and indirectly connected process instances of the model; it is often a process instance at the "end" of the life cycle model chain, or the process that provides the delivered good, service or function of the model.</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="technology" type="TechnologyType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e35" name="technology"/>
+            <ilcd:display-name>Technological representativeness</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>Provides information about the technological representativeness of the data set.</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="groupDeclarations" type="GroupDeclarationsType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e36" name="groupDeclarations"/>
+            <ilcd:display-name>Groups for declarations</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>Section to define groups to which process instances can declare to belong to, in the context of this Life cycle model data set. Groups are user-defined and could be e.g. life cycle stages, foreground/background, ...</xs:documentation>
+      </xs:annotation>
+   </xs:element>
    <xs:element name="group" type="GroupType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e37" name="group"/>
+            <ilcd:display-name>Groups</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>Definition for each group.</xs:documentation>
+      </xs:annotation>
       <xs:unique name="groupNameLangUniqueConstraint">
          <xs:selector xpath="lcm:groupName"/>
          <xs:field xpath="@xml:lang"/>
       </xs:unique>
    </xs:element>
-   <xs:element name="groupName" type="common:StringMultiLang"/>
-   <xs:element name="processes" type="ProcessesType"/>
-   <xs:element name="processInstance" type="ProcessInstanceType"/>
+   <xs:element name="groupName" type="common:StringMultiLang">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e41" name="groupName"/>
+            <ilcd:display-name>Group name</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>Name of the group.</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="processes" type="ProcessesType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e42" name="processes"/>
+            <ilcd:display-name>Included process data sets</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>"Process data set(s)" included in this life cycle model as separate data set(s).</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="processInstance" type="ProcessInstanceType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e43" name="processInstance"/>
+            <ilcd:display-name>Process instances of this process data set</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>Instances (occurrences) of the same process data set in this life cycle model. Each process data set may occur in different places within the model, with different parameter settings and connected to different other process instances.</xs:documentation>
+      </xs:annotation>
+   </xs:element>
    <xs:element name="referenceToProcess" type="common:GlobalReferenceType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e44" name="referenceToProcess"/>
+            <ilcd:display-name>Reference to process data set</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>Reference to the process data set and (optional) identifying its version, that is included in the eILCD archive of the Life cycle model and/or accessible at a remote location, i.e. an URI or URL.</xs:documentation>
+      </xs:annotation>
       <xs:unique name="referenceToProcessShortDescriptionLangUniqueConstraint">
          <xs:selector xpath="common:shortDescription"/>
          <xs:field xpath="@xml:lang"/>
       </xs:unique>
    </xs:element>
-   <xs:element name="scalingFactor" type="common:Real"/>
-   <xs:element name="groups" type="GroupsType"/>
-   <xs:element name="memberOf" type="MemberOfType"/>
-   <xs:element name="parameters" type="ParametersType"/>
-   <xs:element name="parameter" type="ParameterType"/>
-   <xs:element name="connections" type="ConnectionsType"/>
-   <xs:element name="outputExchange" type="OutputExchangeType"/>
-   <xs:element name="downstreamProcess" type="DownstreamProcessType"/>
+   <xs:element name="scalingFactor" type="common:Real">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e48" name="scalingFactor"/>
+            <ilcd:display-name>Scaling factor of process instance</ilcd:display-name>
+            <ilcd:field-requirement>o</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>A multiplicative scaling factor for the entire inventory of this process instance, used e.g. to scale the "Reference process" to the aimed-at amount of product (and thereby indirectly the entire inventory of the life cycle model). Note: Care is to be taken that models are not over- or under-specified - note that each process instance scaling is reducing the model's degree of freedom by one.</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="groups" type="GroupsType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e49" name="groups"/>
+            <ilcd:display-name>Groups of process instance</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>Group(s) to which this process instance belongs.</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="memberOf" type="MemberOfType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e50" name="memberOf"/>
+            <ilcd:display-name>Belongs to group</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>Refers to one user-definable group, to which this process instance belongs.</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="parameters" type="ParametersType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e51" name="parameters"/>
+            <ilcd:display-name>Parameter settings of process instance</ilcd:display-name>
+            <ilcd:field-requirement>o</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>Set of parameters of this process instance with parameter values (changed or unchanged from those in the underlying process data set).</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="parameter" type="ParameterType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e53" name="parameter"/>
+            <ilcd:display-name>Parameter name and value</ilcd:display-name>
+            <ilcd:field-requirement>o</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>Value of the parameter.</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="connections" type="ConnectionsType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e54" name="connections"/>
+            <ilcd:display-name>Process instance connections</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>Connection information among process instances, via connecting product or waste flow exchanges.</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="outputExchange" type="OutputExchangeType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e55" name="outputExchange"/>
+            <ilcd:display-name>Connecting output exchange</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>Reference to process data set UUID of one of the connecting output product or waste flow exchanges of this process instance. I.e. which (flow) exchange on output side of this process instance is to be connected to another process instance's input product or waste (flow) exchange?</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="downstreamProcess" type="DownstreamProcessType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e56" name="downstreamProcess"/>
+            <ilcd:display-name>Connected downstream process instance</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>Process instance that is connected downstream with this process instance, with its connected input product or waste (flow) exchange internal ID, the flow UUID and optionally the exchange's "location" (if any). Finally, the dominant flow exchange may be identified, where two different flow data sets are connected, in support e.g. of graphical model display.</xs:documentation>
+      </xs:annotation>
+   </xs:element>
    <xs:element name="referenceToDiagram" type="common:GlobalReferenceType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e57" name="referenceToDiagram"/>
+            <ilcd:display-name>Life cycle model diagramm(s) or screenshot(s)</ilcd:display-name>
+            <ilcd:field-requirement>o</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>"Source data set" of the flow diagramm(s), and/or screenshot(s) of the life cycle model represented by this data set. For clearer illustration and documentation of the model. Note: The source data set references the actual picture as jpd or png file or as e.g. pdf file with several pictures.</xs:documentation>
+      </xs:annotation>
       <xs:unique name="referenceToDiagramShortDescriptionLangUniqueConstraint">
          <xs:selector xpath="common:shortDescription"/>
          <xs:field xpath="@xml:lang"/>
       </xs:unique>
    </xs:element>
-   <xs:element name="dataSourcesTreatmentEtc" type="DataSourcesTreatmentEtcType"/>
-   <xs:element name="useAdviceForDataSet" type="common:FTMultiLang"/>
-   <xs:element name="validation" type="ValidationType"/>
-   <xs:element name="review" type="ReviewType"/>
-   <xs:element name="complianceDeclarations" type="ComplianceDeclarationsType"/>
-   <xs:element name="compliance" type="ComplianceType"/>
-   <xs:element name="administrativeInformation" type="AdministrativeInformationType"/>
-   <xs:element name="dataGenerator" type="DataGeneratorType"/>
-   <xs:element name="dataEntryBy" type="DataEntryByType"/>
+   <xs:element name="dataSourcesTreatmentEtc" type="DataSourcesTreatmentEtcType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e61" name="dataSourcesTreatmentEtc"/>
+            <ilcd:display-name>Data sources, treatment, and representativeness</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>Data selection, completeness, and treatment principles and procedures, data sources and market coverage information.</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="useAdviceForDataSet" type="common:FTMultiLang">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e62" name="useAdviceForDataSet"/>
+            <ilcd:display-name>Use advice for data set</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>Specific methodological advice for data set users that requires attention. E.g. on inclusion/exclusion of whole life cycle stages, specific use phase behavior to be modelled, and other methodological advices.</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="validation" type="ValidationType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e63" name="validation"/>
+            <ilcd:display-name>Validation</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>Review / validation information on data set.</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="review" type="ReviewType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e64" name="review"/>
+            <ilcd:display-name>Review(s)</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>Review information on this life cycle model data set</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="complianceDeclarations" type="ComplianceDeclarationsType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e65" name="complianceDeclarations"/>
+            <ilcd:display-name>Compliance declaration(s)</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>One or more declarations of compliance to selected standards, schemes and other references, e.g. ISO 14040, ISO 14044, ILCD, EF, EN 15804, ...</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="compliance" type="ComplianceType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e66" name="compliance"/>
+            <ilcd:display-name>Compliance system name</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>"Source data set" of the "Compliance system" that is declared to be met by the data set.</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="administrativeInformation" type="AdministrativeInformationType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e68" name="administrativeInformation"/>
+            <ilcd:display-name>Administrative information</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>Information on data set management, ownership, use rights, and administration</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="dataGenerator" type="DataGeneratorType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e69" name="dataGenerator"/>
+            <ilcd:display-name>Data set generator / modeller</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>"Contact data set" of the person(s), working group(s), organisation(s) or database network, that generated the data set, i.e. being technically responsible for its correctness regarding methods, inventory, and documentative information.</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:element name="dataEntryBy" type="DataEntryByType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e70" name="dataEntryBy"/>
+            <ilcd:display-name>Data entry by:</ilcd:display-name>
+            <ilcd:field-requirement>o</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>"Contact data set" of the responsible person or entity that has documented this data set, i.e. entered the data and the descriptive information.</xs:documentation>
+      </xs:annotation>
+   </xs:element>
    <xs:element name="publicationAndOwnership" type="PublicationAndOwnershipType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e71" name="publicationAndOwnership"/>
+            <ilcd:display-name>Publication and ownership</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>Information related to publication and version management of the data set including copyright and access restrictions.</xs:documentation>
+      </xs:annotation>
       <xs:unique name="accessRestrictionsLangUniqueConstraint">
          <xs:selector xpath="common:accessRestrictions"/>
          <xs:field xpath="@xml:lang"/>
       </xs:unique>
    </xs:element>
    <xs:element name="name" type="NameType">
+      <xs:annotation>
+         <xs:appinfo>
+            <ilcd:element id="7-d1e75" name="name"/>
+            <ilcd:display-name>Name</ilcd:display-name>
+            <ilcd:field-requirement>r</ilcd:field-requirement>
+         </xs:appinfo>
+         <xs:documentation>General descriptive, specifying, structured name of the Life cycle model data set. Note: Ensure proper name structuring and observe restriction to 100 characters for each of the four name fields.</xs:documentation>
+      </xs:annotation>
       <xs:unique name="baseNameLangUniqueConstraint">
          <xs:selector xpath="lcm:baseName"/>
          <xs:field xpath="@xml:lang"/>
@@ -110,7 +433,16 @@
       </xs:unique>
    </xs:element>
    <xs:attributeGroup name="dominantGroup">
-      <xs:attribute name="dominant" type="xs:boolean" use="optional"/>
+      <xs:attribute name="dominant" type="xs:boolean" use="optional">
+         <xs:annotation>
+            <xs:appinfo>
+               <ilcd:element id="7-d1e413" name="dominant"/>
+               <ilcd:display-name>Dominant exchange</ilcd:display-name>
+               <ilcd:field-requirement>o</ilcd:field-requirement>
+            </xs:appinfo>
+             <xs:documentation>If the connected exchanges are based on different flow data sets, one of these can be marked as dominant. Dominant means that in cases where the connection itself carries properties (e.g. a flow name that may be used in graphical model display), the properties of the dominant flow object are used.</xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
    </xs:attributeGroup>
    <xs:complexType name="LifeCycleModelDataSetType">
       <xs:sequence>
@@ -119,8 +451,26 @@
          <xs:element ref="administrativeInformation"/>
          <xs:element ref="common:other" minOccurs="0" maxOccurs="1"/>
       </xs:sequence>
-      <xs:attribute name="version" type="common:SchemaVersion" use="required"/>
-      <xs:attribute name="locations" type="common:String" use="required"/>
+      <xs:attribute name="version" type="common:SchemaVersion" use="required">
+         <xs:annotation>
+            <xs:appinfo>
+               <ilcd:element id="7-d1e420" name="version"/>
+               <ilcd:display-name>Schema version</ilcd:display-name>
+               <ilcd:field-requirement>m</ilcd:field-requirement>
+            </xs:appinfo>
+            <xs:documentation>Version of the ILCD data format schema.</xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="locations" type="common:String" use="required">
+         <xs:annotation>
+            <xs:appinfo>
+               <ilcd:element id="7-d1e421" name="locations"/>
+               <ilcd:display-name>Locations list</ilcd:display-name>
+               <ilcd:field-requirement>m</ilcd:field-requirement>
+            </xs:appinfo>
+            <xs:documentation>Contains reference to used "location" table for this data set.</xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
       <xs:anyAttribute namespace="##other" processContents="lax"/>
    </xs:complexType>
    <xs:complexType name="LifeCycleModelInformationType">
@@ -133,12 +483,35 @@
    </xs:complexType>
    <xs:complexType name="DataSetInformationType">
       <xs:sequence>
-         <xs:element ref="common:UUID"/>
+         <xs:element ref="common:UUID">
+            <xs:annotation>
+               <xs:appinfo>
+                  <ilcd:element id="7" name="UUID"/>
+                  <ilcd:display-name>UUID of Life Cycle Model data set</ilcd:display-name>
+                  <ilcd:field-requirement>m</ilcd:field-requirement>
+               </xs:appinfo>
+               <xs:documentation>Automatically generated Universally Unique Identifier of this data set. Together with the "Data set version", the UUID uniquely identifies each data
+                  set.</xs:documentation>
+            </xs:annotation>
+         </xs:element>
          <xs:element ref="name" minOccurs="0"/>
          <xs:element ref="classificationInformation" minOccurs="0"/>
-         <xs:element ref="referenceToResultingProcess" minOccurs="0" maxOccurs="unbounded"/>
-         <xs:element ref="common:generalComment" minOccurs="0"/>
-         <xs:element ref="referenceToExternalDocumentation" minOccurs="0" maxOccurs="unbounded"/>
+         <xs:element ref="referenceToResultingProcess"
+                     minOccurs="0"
+                     maxOccurs="unbounded"/>
+         <xs:element ref="common:generalComment" minOccurs="0">
+            <xs:annotation>
+               <xs:appinfo>
+                  <ilcd:element id="7" name="UUID"/>
+                  <ilcd:display-name>General comment</ilcd:display-name>
+                  <ilcd:field-requirement>o</ilcd:field-requirement>
+               </xs:appinfo>
+               <xs:documentation>General information about the data set.</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element ref="referenceToExternalDocumentation"
+                     minOccurs="0"
+                     maxOccurs="unbounded"/>
          <xs:element ref="common:other" minOccurs="0"/>
       </xs:sequence>
       <xs:anyAttribute namespace="##other" processContents="lax"/>
@@ -178,7 +551,16 @@
       <xs:sequence>
          <xs:element ref="groupName" minOccurs="0" maxOccurs="100"/>
       </xs:sequence>
-      <xs:attribute name="id" use="required" type="xs:integer"/>
+      <xs:attribute name="id" use="required" type="xs:integer">
+         <xs:annotation>
+            <xs:appinfo>
+               <ilcd:element id="7-d1e466" name="id"/>
+               <ilcd:display-name>Group id</ilcd:display-name>
+               <ilcd:field-requirement>m</ilcd:field-requirement>
+            </xs:appinfo>
+            <xs:documentation>Data set internal id of the group.</xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
       <xs:anyAttribute namespace="##other" processContents="lax"/>
    </xs:complexType>
    <xs:complexType name="ProcessesType">
@@ -196,8 +578,27 @@
          <xs:element ref="connections" minOccurs="0"/>
          <xs:element ref="common:other" minOccurs="0" maxOccurs="1"/>
       </xs:sequence>
-      <xs:attribute name="dataSetInternalID" use="required" type="xs:integer"/>
-      <xs:anyAttribute namespace="##other" processContents="lax"/>
+      <xs:attribute name="dataSetInternalID" use="required" type="xs:integer">
+         <xs:annotation>
+            <xs:appinfo>
+               <ilcd:element id="7-d1e480" name="dataSetInternalID"/>
+               <ilcd:display-name>ID of the process instance</ilcd:display-name>
+               <ilcd:field-requirement>m</ilcd:field-requirement>
+            </xs:appinfo>
+            <xs:documentation>Data set internal id of the process instance. Used to refer to individual instances in the other sections of the life cyce model data set.</xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+       <xs:attribute name="multiplicationFactor" use="required" type="xs:double">
+           <xs:annotation>
+               <xs:appinfo>
+                   <ilcd:element id="7-d1e481" name="multiplicationFactor"/>
+                   <ilcd:display-name>Multiplication factor</ilcd:display-name>
+                   <ilcd:field-requirement>m</ilcd:field-requirement>
+               </xs:appinfo>
+               <xs:documentation>The multiplication factor corresponds to the amount of output product from the process instance that is needed over the full life cycle. In practice, the Life Cycle Inventory of a specific process instance shall be multiplied by the multiplication factor to calculate the exact amount needed over the full life cycle.</xs:documentation>
+           </xs:annotation>
+       </xs:attribute>
+       <xs:anyAttribute namespace="##other" processContents="lax"/>
    </xs:complexType>
    <xs:complexType name="GroupsType">
       <xs:sequence>
@@ -206,7 +607,16 @@
       <xs:anyAttribute namespace="##other" processContents="lax"/>
    </xs:complexType>
    <xs:complexType name="MemberOfType">
-      <xs:attribute name="groupId" use="required" type="xs:integer"/>
+      <xs:attribute name="groupId" use="required" type="xs:integer">
+         <xs:annotation>
+            <xs:appinfo>
+               <ilcd:element id="7-d1e487" name="groupId"/>
+               <ilcd:display-name>ID of group</ilcd:display-name>
+               <ilcd:field-requirement>m</ilcd:field-requirement>
+            </xs:appinfo>
+            <xs:documentation>Data set internal ID of the group.</xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
       <xs:anyAttribute namespace="##other" processContents="lax"/>
    </xs:complexType>
    <xs:complexType name="ParametersType">
@@ -218,7 +628,16 @@
    <xs:complexType name="ParameterType">
       <xs:simpleContent>
          <xs:extension base="common:Real">
-            <xs:attribute name="name" use="required" type="common:MatV"/>
+            <xs:attribute name="name" use="required" type="common:MatV">
+               <xs:annotation>
+                  <xs:appinfo>
+                     <ilcd:element id="7-d1e496" name="name"/>
+                     <ilcd:display-name>Parameter name</ilcd:display-name>
+                     <ilcd:field-requirement>m</ilcd:field-requirement>
+                  </xs:appinfo>
+                  <xs:documentation>Name of free parameter</xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
             <xs:anyAttribute namespace="##other" processContents="lax"/>
          </xs:extension>
       </xs:simpleContent>
@@ -234,13 +653,49 @@
          <xs:element ref="downstreamProcess" minOccurs="0" maxOccurs="unbounded"/>
       </xs:sequence>
       <xs:attributeGroup ref="dominantGroup"/>
-      <xs:attribute name="flowUUID" use="required"/>
+      <xs:attribute name="flowUUID" use="required">
+         <xs:annotation>
+            <xs:appinfo>
+               <ilcd:element id="7-d1e506" name="flowUUID"/>
+               <ilcd:display-name>UUID of exchange</ilcd:display-name>
+               <ilcd:field-requirement>m</ilcd:field-requirement>
+            </xs:appinfo>
+            <xs:documentation>UUID of the connected flow exchange in the input of the downstream process instance.</xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
       <xs:anyAttribute namespace="##other" processContents="lax"/>
    </xs:complexType>
    <xs:complexType name="DownstreamProcessType">
-      <xs:attribute name="flowUUID" use="required"/>
-      <xs:attribute name="id" use="required" type="xs:integer"/>
-      <xs:attribute name="location" use="optional" type="xs:string"/>
+      <xs:attribute name="flowUUID" use="required">
+         <xs:annotation>
+            <xs:appinfo>
+               <ilcd:element id="7-d1e510" name="flowUUID"/>
+               <ilcd:display-name>UUID of exchange</ilcd:display-name>
+               <ilcd:field-requirement>m</ilcd:field-requirement>
+            </xs:appinfo>
+            <xs:documentation>UUID of the connecting flow exchange in the output of the upstream process instance.</xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="id" use="required" type="xs:integer">
+         <xs:annotation>
+            <xs:appinfo>
+               <ilcd:element id="7-d1e511" name="id"/>
+               <ilcd:display-name>ID of connected process instance</ilcd:display-name>
+               <ilcd:field-requirement>m</ilcd:field-requirement>
+            </xs:appinfo>
+            <xs:documentation>Internal ID of the process instance in this model which is to be connected to this output exchange.</xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="location" use="optional" type="xs:string">
+         <xs:annotation>
+            <xs:appinfo>
+               <ilcd:element id="7-d1e512" name="location"/>
+               <ilcd:display-name>Exchange location</ilcd:display-name>
+               <ilcd:field-requirement>o</ilcd:field-requirement>
+            </xs:appinfo>
+            <xs:documentation>Location, e.g. country code, of the connected flow exchange in downstream process, if any.</xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
       <xs:attributeGroup ref="dominantGroup"/>
       <xs:anyAttribute namespace="##other" processContents="lax"/>
    </xs:complexType>
@@ -286,7 +741,10 @@
    </xs:complexType>
    <xs:complexType name="AdministrativeInformationType">
       <xs:sequence>
-         <xs:element ref="common:commissionerAndGoal" minOccurs="0" maxOccurs="unbounded"/>
+         <xs:element ref="common:commissionerAndGoal"
+                     minOccurs="0"
+                     maxOccurs="1">
+         </xs:element>
          <xs:element ref="dataGenerator" minOccurs="0"/>
          <xs:element ref="dataEntryBy" minOccurs="0"/>
          <xs:element ref="publicationAndOwnership" minOccurs="0"/>
@@ -295,7 +753,9 @@
    </xs:complexType>
    <xs:complexType name="DataGeneratorType">
       <xs:sequence>
-         <xs:element ref="common:referenceToPersonOrEntityGeneratingTheDataSet" minOccurs="0" maxOccurs="unbounded"/>
+         <xs:element ref="common:referenceToPersonOrEntityGeneratingTheDataSet"
+                     minOccurs="0"
+                     maxOccurs="unbounded"/>
          <xs:element ref="common:other" minOccurs="0" maxOccurs="1"/>
       </xs:sequence>
    </xs:complexType>
@@ -316,10 +776,58 @@
    </xs:complexType>
    <xs:complexType name="NameType">
       <xs:sequence>
-         <xs:element name="baseName" type="common:StringMultiLang" minOccurs="0" maxOccurs="100"/>
-         <xs:element name="treatmentStandardsRoutes" type="common:StringMultiLang" minOccurs="0" maxOccurs="100"/>
-         <xs:element name="mixAndLocationTypes" type="common:StringMultiLang" minOccurs="0" maxOccurs="100"/>
-         <xs:element name="functionalUnitFlowProperties" type="common:StringMultiLang" minOccurs="0" maxOccurs="100"/>
+         <xs:element name="baseName"
+                     type="common:StringMultiLang"
+                     minOccurs="0"
+                     maxOccurs="100">
+            <xs:annotation>
+               <xs:appinfo>
+                  <ilcd:element id="7-d1e245" name="baseName"/>
+                  <ilcd:display-name>Base name</ilcd:display-name>
+                  <ilcd:field-requirement>r</ilcd:field-requirement>
+               </xs:appinfo>
+               <xs:documentation>General descriptive name of the life cycle model and/or its main good(s), service(s) and/or functions delivered.</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="treatmentStandardsRoutes"
+                     type="common:StringMultiLang"
+                     minOccurs="0"
+                     maxOccurs="100">
+            <xs:annotation>
+               <xs:appinfo>
+                  <ilcd:element id="7-d1e246" name="treatmentStandardsRoutes"/>
+                  <ilcd:display-name>Treatment, standards, routes</ilcd:display-name>
+                  <ilcd:field-requirement>r</ilcd:field-requirement>
+               </xs:appinfo>
+               <xs:documentation>Specifying information on the good, service, or function delivered by the life cycle model in technical term(s): treatment received, standard fulfilled, product quality, use information, production route name, educt name, primary / secondary etc. Separated by commata.</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="mixAndLocationTypes"
+                     type="common:StringMultiLang"
+                     minOccurs="0"
+                     maxOccurs="100">
+            <xs:annotation>
+               <xs:appinfo>
+                  <ilcd:element id="7-d1e247" name="mixAndLocationTypes"/>
+                  <ilcd:display-name>Mix and location types</ilcd:display-name>
+                  <ilcd:field-requirement>r</ilcd:field-requirement>
+               </xs:appinfo>
+               <xs:documentation>Specifying information on the good, service, or function, whether being a production mix or consumption mix, location type of availability (such as e.g. "to consumer" or "at plant"). Separated by commata. May include information of excluded life cycle stages, if any.</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="functionalUnitFlowProperties"
+                     type="common:StringMultiLang"
+                     minOccurs="0"
+                     maxOccurs="100">
+            <xs:annotation>
+               <xs:appinfo>
+                  <ilcd:element id="7-d1e248" name="functionalUnitFlowProperties"/>
+                  <ilcd:display-name>Quantitative product or process properties</ilcd:display-name>
+                  <ilcd:field-requirement>r</ilcd:field-requirement>
+               </xs:appinfo>
+               <xs:documentation>Further, quantitative specifying information on the good, service or function in technical term(s): qualifying constituent(s)-content and / or energy-content per unit etc. as appropriate. Separated by commata. (Note: non-qualifying flow properties, CAS No, Synonyms, Chemical formulas etc. are to be documented exclusively in the "Flow data set" of the reference flow of this life cycle model.)</xs:documentation>
+            </xs:annotation>
+         </xs:element>
          <xs:element ref="common:other" minOccurs="0" maxOccurs="1"/>
       </xs:sequence>
       <xs:anyAttribute namespace="##other" processContents="lax"/>
