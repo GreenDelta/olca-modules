@@ -20,8 +20,8 @@ class TreeEntry implements Comparable<TreeEntry> {
 		this(GitUtil.encode(category.name), FileMode.TREE, category);
 	}
 
-	TreeEntry(CategorizedDescriptor descriptor, boolean asProto) {
-		this(descriptor.refId + (asProto ? ".proto" : ".json"), FileMode.REGULAR_FILE, descriptor);
+	TreeEntry(CategorizedDescriptor descriptor) {
+		this(descriptor.refId + ".json", FileMode.REGULAR_FILE, descriptor);
 	}
 
 	TreeEntry(String name, FileMode fileMode) {

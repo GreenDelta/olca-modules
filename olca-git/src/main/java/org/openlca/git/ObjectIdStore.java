@@ -22,22 +22,14 @@ import org.openlca.util.Categories.PathBuilder;
 public class ObjectIdStore {
 
 	private final File file;
-	private final boolean asProto;
 	private Map<String, byte[]> store = new HashMap<>();
 
-	private ObjectIdStore(File storeFile, boolean asProto) {
+	private ObjectIdStore(File storeFile) {
 		this.file = storeFile;
-		this.asProto = asProto;
 	}
 
-	public static ObjectIdStore openProto(File storeFile) throws IOException {
-		var store = new ObjectIdStore(storeFile, true);
-		store.load();
-		return store;
-	}
-
-	public static ObjectIdStore openJson(File storeFile) throws IOException {
-		var store = new ObjectIdStore(storeFile, false);
+	public static ObjectIdStore open(File storeFile) throws IOException {
+		var store = new ObjectIdStore(storeFile);
 		store.load();
 		return store;
 	}
@@ -203,14 +195,14 @@ public class ObjectIdStore {
 		var path = String.join("/", Categories.path(e.category));
 		if (e instanceof Category)
 			return getPath(((Category) e).modelType, path, e.name);
-		return getPath(ModelType.forModelClass(e.getClass()), path, e.refId + (asProto ? ".proto" : ".json"));
+		return getPath(ModelType.forModelClass(e.getClass()), path, e.refId + ".json");
 	}
 
 	public String getPath(PathBuilder categoryPath, CategorizedDescriptor d) {
 		var path = categoryPath.pathOf(d.category);
 		if (d.type == ModelType.CATEGORY)
 			return getPath(((CategoryDescriptor) d).categoryType, path, d.name);
-		return getPath(d.type, path, d.refId + (asProto ? ".proto" : ".json"));
+		return getPath(d.type, path, d.refId + ".json");
 	}
 
 	private String getPath(ModelType type, String path, String name) {

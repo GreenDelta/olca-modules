@@ -37,8 +37,8 @@ public class Main {
 		try (var database = new Derby(tmp);
 				var repo = new FileRepository(repoDir)) {
 			var storeFile = new File(tmp, "object-id.store");
-			var store = ObjectIdStore.openJson(storeFile);
-			var config = Config.newJsonConfig(database, store, repo, committer);
+			var store = ObjectIdStore.open(storeFile);
+			var config = new Config(database, store, repo, committer);
 			config.checkExisting = false;
 			var writer = new DbWriter(config);
 

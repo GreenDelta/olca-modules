@@ -57,7 +57,7 @@ public class DatabaseIterator extends EntryIterator {
 				.stream().map(TreeEntry::new)
 				.collect(Collectors.toList());
 		entries.addAll(Daos.categorized(config.database, type).getDescriptors(Optional.empty())
-				.stream().map(d -> new TreeEntry(d, config.asProto))
+				.stream().map(d -> new TreeEntry(d))
 				.toList());
 		return entries;
 	}
@@ -85,7 +85,7 @@ public class DatabaseIterator extends EntryIterator {
 				.stream().map(TreeEntry::new)
 				.collect(Collectors.toList());
 		entries.addAll(Daos.categorized(config.database, category.modelType).getDescriptors(Optional.of(category))
-				.stream().map(d -> new TreeEntry(d, config.asProto))
+				.stream().map(d -> new TreeEntry(d))
 				.toList());
 		return entries;
 	}

@@ -41,25 +41,14 @@ import org.openlca.proto.io.output.WriterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class ProtoWriter {
+final class JsonWriter {
 
-	private static final Logger log = LoggerFactory.getLogger(ProtoWriter.class);
+	private static final Logger log = LoggerFactory.getLogger(JsonWriter.class);
 
-	private ProtoWriter() {
+	private JsonWriter() {
 	}
 
 	static byte[] convert(RootEntity entity, Config config) {
-		return config.asProto ? toProto(entity, config) : toJson(entity, config);
-	}
-
-	private static byte[] toProto(RootEntity entity, Config config) {
-		if (entity == null)
-			return null;
-		var message = toMessage(entity, config.database);
-		return message == null ? null : message.toByteArray();
-	}
-
-	private static byte[] toJson(RootEntity entity, Config config) {
 		if (entity == null)
 			return null;
 		try {
