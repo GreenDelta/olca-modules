@@ -29,14 +29,11 @@ public class Strings {
 		if (str.length() <= length)
 			return str;
 
-		switch (length) {
-			case 1:
-				return ".";
-			case 2:
-				return "..";
-			default:
-				return str.substring(0, length - 3).concat("...");
-		}
+		return switch (length) {
+			case 1 -> ".";
+			case 2 -> "..";
+			default -> str.substring(0, length - 3).concat("...");
+		};
 	}
 
 	public static String cutLeft(String s, int len) {
@@ -47,14 +44,31 @@ public class Strings {
 		if (str.length() <= len)
 			return str;
 
-		switch (len) {
-			case 1:
-				return ".";
-			case 2:
-				return "..";
-			default:
-				return "...".concat(str.substring(str.length() - len + 3));
-		}
+		return switch (len) {
+			case 1 -> ".";
+			case 2 -> "..";
+			default -> "...".concat(str.substring(str.length() - len + 3));
+		};
+	}
+
+	public static String cutMid(String s, int maxLen) {
+		if (s == null || maxLen <= 0)
+			return "";
+		if (s.length() < maxLen)
+			return s;
+		if (maxLen < 4)
+			return "...";
+
+		double half = (maxLen - 3.0) / 2.0;
+		int prefixLen = (int) Math.ceil(half);
+		int suffixLen = maxLen - prefixLen - 3;
+
+		var r = prefixLen > 0
+			? s.substring(0, prefixLen) + "..."
+			: "...";
+		return suffixLen > 0 && suffixLen < s.length()
+			? r + s.substring(s.length() - suffixLen)
+			: r;
 	}
 
 	public static String[] readLines(InputStream is) throws IOException {
