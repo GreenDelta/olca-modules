@@ -20,11 +20,11 @@ class ModelFilter extends TreeFilter {
 	}
 
 	@Override
-	public boolean include(TreeWalk tw)
+	public boolean include(TreeWalk walk)
 			throws MissingObjectException, IncorrectObjectTypeException, IOException {
-		if (tw.getFileMode() == FileMode.TREE)
-			return tw.getPathString().startsWith(type.name());
-		var name = tw.getNameString();
+		if (walk.getFileMode() == FileMode.TREE)
+			return walk.getPathString().startsWith(type.name());
+		var name = walk.getNameString();
 		return name.equals(refId + ".proto") || name.equals(refId + ".json");
 	}
 

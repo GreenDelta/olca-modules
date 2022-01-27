@@ -22,7 +22,7 @@ import com.google.common.io.Files;
 
 public class Main {
 
-	private static final String db = "ecoinvent_36_cutoff_lci_20200206";
+	private static final String db = "ecoinvent_371_apos_unit_20201221";
 	// private static final String db = "ecoinvent_36_cutoff_unit_20200512";
 	private static final PersonIdent committer = new PersonIdent("greve", "greve@greendelta.com");
 	private static final File repoDir = new File("C:/Users/Sebastian/test/olca-git/" + db);

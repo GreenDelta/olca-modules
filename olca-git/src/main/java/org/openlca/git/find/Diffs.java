@@ -8,7 +8,9 @@ import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
+import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.model.Diff;
 import org.openlca.git.util.GitUtil;
@@ -66,8 +68,9 @@ public class Diffs {
 				addCommitTree(walk, leftRev);
 				addCommitTree(walk, rightRev);
 				walk.setRecursive(true);
+				TreeFilter filter = NotBinaryFilter.create();
 				if (path != null) {
-					walk.setFilter(PathFilter.create(path));
+					filter = addFilter(filter, PathFilter.create(path));
 				}
 				return DiffEntry.scan(walk).stream()
 						.map(d -> new Diff(d, leftCommitId, rightCommitId))
@@ -86,6 +89,10 @@ public class Diffs {
 			walk.addTree(commit.getTree());
 		}
 
+		private TreeFilter addFilter(TreeFilter current, TreeFilter newFilter) {
+			return current != null ? AndTreeFilter.create(current, newFilter) : newFilter;
+		}
+		
 	}
 
 }

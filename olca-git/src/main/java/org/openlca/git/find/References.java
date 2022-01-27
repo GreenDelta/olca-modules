@@ -34,6 +34,29 @@ public class References {
 		return refs.get(0);
 	}
 
+	public List<String> getBinaries(Reference ref) {
+		if (ref == null)
+			return new ArrayList<>();
+		try {
+			var commit = new Commits(repo).getRev(ref.commitId);
+			if (commit == null)
+				return new ArrayList<>();
+			try (var walk = new TreeWalk(repo)) {
+				var paths = new ArrayList<String>();
+				walk.addTree(commit.getTree());
+				walk.setFilter(PathFilter.create(ref.getBinariesPath()));
+				walk.setRecursive(true);
+				while (walk.next()) {
+					paths.add(walk.getNameString());
+				}
+				return paths;
+			}
+		} catch (IOException e) {
+			log.error("Error getting binaries", e);
+			return null;
+		}
+	}
+
 	public Find find() {
 		return new Find();
 	}
@@ -121,7 +144,7 @@ public class References {
 					}
 					walk.addTree(commit.getTree());
 					walk.setRecursive(true);
-					TreeFilter filter = null;
+					TreeFilter filter = NotBinaryFilter.create();
 					if (path != null) {
 						filter = addFilter(filter, PathFilter.create(path));
 					}
@@ -134,7 +157,6 @@ public class References {
 					if (filter != null) {
 						walk.setFilter(filter);
 					}
-					// TODO filter binaries
 					while (walk.next()) {
 						if (countOnly) {
 							refs.add(null);

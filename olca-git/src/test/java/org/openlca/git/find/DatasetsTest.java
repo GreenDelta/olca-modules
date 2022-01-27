@@ -24,7 +24,7 @@ public class DatasetsTest extends AbstractRepoTest {
 	public void testGet() {
 		Reference ref = references.get(ModelType.FLOW, "00c3eaf0-7c2f-3f63-a756-37ffbd4f2b21", commitIds[5]);
 		Assert.assertNotNull(ref);
-		String data = datasets.get(ref.objectId);
+		String data = datasets.get(ref);
 		Assert.assertNotNull(data);
 	}
 

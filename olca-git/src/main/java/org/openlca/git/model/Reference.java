@@ -3,6 +3,7 @@ package org.openlca.git.model;
 import org.eclipse.jgit.lib.ObjectId;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.util.GitUtil;
+import org.openlca.util.Strings;
 
 public class Reference {
 
@@ -34,5 +35,13 @@ public class Reference {
 		var ref = (Reference) obj;
 		return ref.objectId.equals(objectId);
 	}
-	
+
+	public String getBinariesPath() {
+		var path = type.name();
+		if (!Strings.nullOrEmpty(category)) {
+			path += "/" + category;
+		}
+		return path + "/" + refId + "_bin";
+	}
+
 }

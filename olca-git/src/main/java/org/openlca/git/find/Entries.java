@@ -54,7 +54,7 @@ public class Entries {
 				try (var walk = new TreeWalk(repo)) {
 					walk.addTree(treeId);
 					walk.setRecursive(false);
-					// TODO filter binaries
+					walk.setFilter(NotBinaryFilter.create());
 					while (walk.next()) {
 						entries.add(new Entry(path, commitId, walk.getNameString(), walk.getObjectId(0)));
 					}

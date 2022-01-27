@@ -1,7 +1,6 @@
 package org.openlca.git.find;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +8,6 @@ import java.util.Map;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectStream;
-import org.openlca.git.model.Binary;
 import org.openlca.git.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +63,12 @@ public class Datasets {
 		}
 	}
 
+	public String get(Reference ref) {
+		if (ref == null)
+			return null;
+		return get(ref.objectId);
+	}
+
 	public String get(ObjectId id) {
 		var data = getBytes(id);
 		if (data == null)
@@ -77,25 +81,11 @@ public class Datasets {
 		}
 	}
 
-	public List<String> getBinaryPaths(Reference ref) {
-		if (ref == null)
-			return new ArrayList<>();
-		// TODO read binary data from git
-		return new ArrayList<>();
-	}
-
-	public Binary getBinary(Reference ref, String fileName) {
-		if (ref == null || fileName == null || fileName.isEmpty())
+	public byte[] getBinary(Reference ref, String filepath) {
+		if (ref == null || filepath == null || filepath.isEmpty())
 			return null;
-		// TODO read binary data from git
-		return null;
-	}
-
-	public List<Binary> getBinaries(Reference ref) {
-		if (ref == null)
-			return new ArrayList<>();
-		// TODO read binary data from git
-		return new ArrayList<>();
+		var id = new Ids(repo).get(ref.getBinariesPath() + "/" + filepath, ref.commitId);
+		return getBytes(id);
 	}
 
 }
