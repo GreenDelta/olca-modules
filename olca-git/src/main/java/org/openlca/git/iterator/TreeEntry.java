@@ -24,7 +24,7 @@ class TreeEntry implements Comparable<TreeEntry> {
 	}
 
 	TreeEntry(CategorizedDescriptor descriptor) {
-		this(descriptor.refId + ".json", FileMode.REGULAR_FILE, descriptor);
+		this(descriptor.refId + GitUtil.DATASET_SUFFIX, FileMode.REGULAR_FILE, descriptor);
 	}
 
 	TreeEntry(String name, FileMode fileMode) {

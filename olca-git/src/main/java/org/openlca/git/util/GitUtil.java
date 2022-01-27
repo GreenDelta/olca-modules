@@ -8,6 +8,8 @@ import java.util.Map.Entry;
 
 public class GitUtil {
 
+	public static final String BIN_DIR_SUFFIX = "_bin";
+	public static final String DATASET_SUFFIX = ".json";
 	private static final List<Character> hexChars = Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a',
 			'b', 'c', 'd', 'e', 'f');
 	private static final Map<String, String> encodings = new HashMap<>();
@@ -41,9 +43,20 @@ public class GitUtil {
 		return name;
 	}
 
+	public static String findBinDir(String path) {
+		String binDir = null;
+		while (path.contains(BIN_DIR_SUFFIX + "/")) {
+			path = path.substring(0, path.lastIndexOf(BIN_DIR_SUFFIX + "/") + BIN_DIR_SUFFIX.length());
+			if (isBinDir(path)) {
+				binDir = path;
+			}
+		}
+		return binDir;
+	}
+
 	public static boolean isBinDir(String path) {
 		path = path.toLowerCase();
-		if (!path.endsWith("_bin"))
+		if (!path.endsWith(BIN_DIR_SUFFIX))
 			return false;
 		if (path.contains("/")) {
 			path = path.substring(path.lastIndexOf("/") + 1);

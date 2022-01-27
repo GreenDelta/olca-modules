@@ -22,6 +22,7 @@ import org.openlca.git.Config;
 import org.openlca.git.iterator.DiffIterator;
 import org.openlca.git.model.Diff;
 import org.openlca.git.model.DiffType;
+import org.openlca.git.util.GitUtil;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,7 +144,7 @@ public class CommitWriter {
 			return false;
 		if (file == null)
 			return path.equals(diff.path());
-		return path.startsWith(diff.path().substring(0, diff.path().lastIndexOf(".json")));
+		return path.startsWith(diff.path().substring(0, diff.path().lastIndexOf(GitUtil.DATASET_SUFFIX)));
 	}
 
 	private ObjectId getPreviousCommitTreeId() {

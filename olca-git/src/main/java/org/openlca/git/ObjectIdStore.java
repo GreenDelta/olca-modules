@@ -16,6 +16,7 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
+import org.openlca.git.util.GitUtil;
 import org.openlca.util.Categories;
 import org.openlca.util.Categories.PathBuilder;
 
@@ -195,14 +196,14 @@ public class ObjectIdStore {
 		var path = String.join("/", Categories.path(e.category));
 		if (e instanceof Category)
 			return getPath(((Category) e).modelType, path, e.name);
-		return getPath(ModelType.forModelClass(e.getClass()), path, e.refId + ".json");
+		return getPath(ModelType.forModelClass(e.getClass()), path, e.refId + GitUtil.DATASET_SUFFIX);
 	}
 
 	public String getPath(PathBuilder categoryPath, CategorizedDescriptor d) {
 		var path = categoryPath.pathOf(d.category);
 		if (d.type == ModelType.CATEGORY)
 			return getPath(((CategoryDescriptor) d).categoryType, path, d.name);
-		return getPath(d.type, path, d.refId + ".json");
+		return getPath(d.type, path, d.refId + GitUtil.DATASET_SUFFIX);
 	}
 
 	private String getPath(ModelType type, String path, String name) {

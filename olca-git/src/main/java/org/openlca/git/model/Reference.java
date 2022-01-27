@@ -41,7 +41,7 @@ public class Reference {
 		if (!Strings.nullOrEmpty(category)) {
 			path += "/" + category;
 		}
-		return path + "/" + refId + "_bin";
+		return path + "/" + refId + GitUtil.BIN_DIR_SUFFIX;
 	}
 
 }

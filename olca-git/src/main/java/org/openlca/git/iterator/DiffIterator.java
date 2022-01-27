@@ -11,6 +11,7 @@ import org.eclipse.jgit.lib.ObjectReader;
 import org.openlca.core.database.FileStore;
 import org.openlca.git.Config;
 import org.openlca.git.model.Diff;
+import org.openlca.git.util.GitUtil;
 import org.openlca.util.Strings;
 
 public class DiffIterator extends EntryIterator {
@@ -58,7 +59,7 @@ public class DiffIterator extends EntryIterator {
 				list.add(new TreeEntry(name, FileMode.REGULAR_FILE, d));
 				var binaryDir = getBinaryDir(config, d);
 				if (binaryDir != null) {
-					var bin = name.substring(0, name.indexOf(".json")) + "_bin";
+					var bin = name.substring(0, name.indexOf(GitUtil.DATASET_SUFFIX)) + GitUtil.BIN_DIR_SUFFIX;
 					list.add(new TreeEntry(bin, FileMode.TREE, d, binaryDir));
 				}
 			}
