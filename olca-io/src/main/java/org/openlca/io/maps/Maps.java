@@ -17,12 +17,7 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.ByteOrderMark;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.MappingFileDao;
-import org.openlca.core.model.MappingFile;
-import org.openlca.util.BinUtils;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,29 +36,6 @@ import org.supercsv.prefs.CsvPreference;
 public class Maps {
 
 	private Maps() {
-	}
-
-	/**
-	 * Stores the given mapping file in the database. If there is already a
-	 * mapping file with the given name in the database, this file will be
-	 * updated by this method. The given must be the raw CSV stream. The content
-	 * of this stream will be compressed before storing it in the database.
-	 */
-	public static void store(String name, InputStream stream, IDatabase db) {
-		try {
-			var dao = new MappingFileDao(db);
-			var oldFile = dao.getForName(name);
-			if (oldFile != null) {
-				dao.delete(oldFile);
-			}
-			byte[] bytes = IOUtils.toByteArray(stream);
-			var file = new MappingFile();
-			file.content = BinUtils.gzip(bytes);
-			file.name = name;
-			dao.insert(file);
-		} catch (Exception e) {
-			throw new RuntimeException("Failed to save mapping file " + name, e);
-		}
 	}
 
 	public static String getString(List<?> values, int i) {
