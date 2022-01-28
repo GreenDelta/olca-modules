@@ -1,22 +1,24 @@
 package org.openlca.io.refdata;
 
+import java.io.IOException;
+
+import org.apache.commons.csv.CSVPrinter;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
-import org.supercsv.io.CsvListWriter;
 
 class FlowPropertyFactorExport extends AbstractExport {
 
 	@Override
-	protected void doIt(CsvListWriter writer, IDatabase database) throws Exception {
+	protected void doIt(CSVPrinter printer, IDatabase db) throws IOException {
 		log.trace("write flow property factors");
-		FlowDao dao = new FlowDao(database);
+		FlowDao dao = new FlowDao(db);
 		int count = 0;
 		for (Flow flow : dao.getAll()) {
 			for (FlowPropertyFactor factor : flow.flowPropertyFactors) {
 				Object[] line = createLine(flow, factor);
-				writer.write(line);
+				printer.printRecord(line);
 				count++;
 			}
 		}

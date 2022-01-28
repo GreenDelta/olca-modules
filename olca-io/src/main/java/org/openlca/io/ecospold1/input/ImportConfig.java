@@ -3,7 +3,6 @@ package org.openlca.io.ecospold1.input;
 import org.openlca.core.database.IDatabase;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.maps.FlowMap;
-import org.openlca.io.maps.Maps;
 
 public class ImportConfig {
 

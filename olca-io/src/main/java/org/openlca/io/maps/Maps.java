@@ -1,7 +1,5 @@
 package org.openlca.io.maps;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,14 +14,13 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import org.apache.commons.io.ByteOrderMark;
-import org.apache.commons.io.input.BOMInputStream;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.supercsv.io.CsvListReader;
-import org.supercsv.io.CsvListWriter;
-import org.supercsv.prefs.CsvPreference;
 
 /**
  * A helper class for using import / export maps. We store the mappings in CSV
@@ -38,13 +35,23 @@ public class Maps {
 	private Maps() {
 	}
 
+	public static CSVFormat format() {
+		return CSVFormat.Builder.create()
+			.setDelimiter(';')
+			.setTrim(true)
+			.setIgnoreEmptyLines(true)
+			.setQuote('"')
+			.setIgnoreSurroundingSpaces(true)
+			.build();
+	}
+
 	public static String getString(List<?> values, int i) {
 		if (values == null || i >= values.size())
 			return null;
 		var val = values.get(i);
 		return val == null
-				? null
-				: val.toString();
+			? null
+			: val.toString();
 	}
 
 	public static Double getOptionalDouble(List<?> values, int i) {
@@ -106,12 +113,12 @@ public class Maps {
 	/**
 	 * Iterates over each row in the given mapping file.
 	 */
-	public static void each(File file, Consumer<List<String>> fn) {
+	public static void each(File file, Consumer<CSVRecord> fn) {
 		if (file == null || fn == null)
 			return;
-		try (var stream = new FileInputStream(file)){
-		 	each(stream, fn);
-		} catch (IOException e) {
+		try (var stream = new FileInputStream(file)) {
+			each(stream, fn);
+		} catch (Exception e) {
 			throw new RuntimeException("failed to read mapping file " + file, e);
 		}
 	}
@@ -119,22 +126,18 @@ public class Maps {
 	/**
 	 * Iterates over each row in the given mapping file.
 	 */
-	public static void each(InputStream stream, Consumer<List<String>> fn) {
+	public static void each(InputStream stream, Consumer<CSVRecord> fn) {
 		if (stream == null || fn == null)
 			return;
-		var prefs = new CsvPreference.Builder('"', ';', "\n").build();
-		try (var bom = new BOMInputStream(stream, false, ByteOrderMark.UTF_8);
-			 var r = new InputStreamReader(bom, StandardCharsets.UTF_8);
-			 var buf = new BufferedReader(r);
-			 var reader = new CsvListReader(buf, prefs)) {
-			List<String> row;
-			while ((row = reader.read()) != null) {
-				if (row.isEmpty())
+		try (var reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
+				 var parser = new CSVParser(reader, format())) {
+			for (var row : parser) {
+				if (row.size() == 0)
 					continue;
 				fn.accept(row);
 			}
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException("failed to read CSV stream", e);
 		}
 	}
 
@@ -171,15 +174,13 @@ public class Maps {
 	public static void write(OutputStream out, Stream<Object[]> rows) {
 		if (out == null || rows == null)
 			return;
-		var prefs = new CsvPreference.Builder('"', ';', "\n").build();
-		try (var w = new OutputStreamWriter(out, StandardCharsets.UTF_8);
-			 var buf = new BufferedWriter(w);
-			 var writer = new CsvListWriter(buf, prefs)) {
+		try (var writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
+				 var printer = new CSVPrinter(writer, format())) {
 			rows.forEach(row -> {
 				if (row == null)
 					return;
 				try {
-					writer.write(row);
+					printer.printRecord(row);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}

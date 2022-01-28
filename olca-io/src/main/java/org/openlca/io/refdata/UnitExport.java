@@ -1,22 +1,24 @@
 package org.openlca.io.refdata;
 
+import java.io.IOException;
+
+import org.apache.commons.csv.CSVPrinter;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.supercsv.io.CsvListWriter;
 
 class UnitExport extends AbstractExport {
 
 	@Override
-	protected void doIt(CsvListWriter writer, IDatabase database) throws Exception {
+	protected void doIt(CSVPrinter printer, IDatabase db) throws IOException {
 		log.trace("write units");
-		UnitGroupDao dao = new UnitGroupDao(database);
+		UnitGroupDao dao = new UnitGroupDao(db);
 		int count = 0;
 		for (UnitGroup unitGroup : dao.getAll()) {
 			for (Unit unit : unitGroup.units) {
 				Object[] line = createLine(unitGroup, unit);
-				writer.write(line);
+				printer.printRecord(line);
 			}
 			count++;
 		}
