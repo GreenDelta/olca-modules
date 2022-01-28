@@ -45,13 +45,10 @@ public class Maps {
 			.build();
 	}
 
-	public static String getString(List<?> values, int i) {
-		if (values == null || i >= values.size())
-			return null;
-		var val = values.get(i);
-		return val == null
+	public static String getString(CSVRecord values, int i) {
+		return values == null || i >= values.size()
 			? null
-			: val.toString();
+			: values.get(i);
 	}
 
 	public static Double getOptionalDouble(List<?> values, int i) {
@@ -74,40 +71,32 @@ public class Maps {
 		return null;
 	}
 
-	public static double getDouble(List<?> values, int i) {
-		if (values == null || i >= values.size())
+	public static double getDouble(CSVRecord row, int i) {
+		if (row == null || i >= row.size())
 			return 0;
-		Object val = values.get(i);
-		if (val instanceof Number)
-			return ((Number) val).doubleValue();
-		if (val instanceof String) {
-			try {
-				return Double.parseDouble((String) val);
-			} catch (Exception e) {
-				Logger log = LoggerFactory.getLogger(Maps.class);
-				log.error("{} is not a number; default to 0.0", val);
-				return 0;
-			}
+		var s = getString(row, i);
+		if (s == null)
+			return 0;
+		try {
+			return Double.parseDouble(s);
+		} catch (Exception e) {
+			Logger log = LoggerFactory.getLogger(Maps.class);
+			log.error("{} is not a number; default to 0.0", s);
+			return 0;
 		}
-		return 0;
 	}
 
-	public static int getInt(List<?> values, int i) {
-		if (values == null || i >= values.size())
+	public static int getInt(CSVRecord row, int i) {
+		var s = getString(row, i);
+		if (s == null)
 			return 0;
-		Object val = values.get(i);
-		if (val instanceof Number)
-			return ((Number) val).intValue();
-		if (val instanceof String) {
-			try {
-				return Integer.parseInt((String) val);
-			} catch (Exception e) {
-				Logger log = LoggerFactory.getLogger(Maps.class);
-				log.error("{} is not a number; default to 0", val);
-				return 0;
-			}
+		try {
+			return Integer.parseInt(s);
+		} catch (Exception e) {
+			Logger log = LoggerFactory.getLogger(Maps.class);
+			log.error("{} is not a number; default to 0", s);
+			return 0;
 		}
-		return 0;
 	}
 
 	/**

@@ -76,9 +76,7 @@ class Seq {
 	}
 
 	public boolean isInDatabase(ModelType type, String refId) {
-		if (refId == null)
-			return false;
-		return inDatabase[type.ordinal()].contains(refId);
+		return refId != null && inDatabase[type.ordinal()].contains(refId);
 	}
 
 	/**
