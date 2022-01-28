@@ -1,7 +1,6 @@
 package org.openlca.io.refdata;
 
 import java.sql.PreparedStatement;
-import java.sql.Types;
 
 import org.apache.commons.csv.CSVRecord;
 import org.openlca.core.model.ModelType;
@@ -33,16 +32,13 @@ public class CurrencyImport extends AbstractImport {
 		stmt.setString(2, refId);
 		stmt.setString(3, Maps.getString(row, 1));
 		stmt.setString(4, Maps.getString(row, 2));
-		String catId = Maps.getString(row, 3);
-		if (catId == null)
-			stmt.setNull(5, Types.BIGINT);
-		else
-			stmt.setLong(5, seq.get(ModelType.CATEGORY, catId));
-		String refCurrencyId = Maps.getString(row, 4);
-		if (Strings.nullOrEqual(refId, refCurrencyId))
+		setRef(stmt, 5, ModelType.CATEGORY, Maps.getString(row, 3));
+		var refCurrencyId = Maps.getString(row, 4);
+		if (Strings.nullOrEqual(refId, refCurrencyId)) {
 			stmt.setLong(6, id);
-		else
-			stmt.setLong(6, seq.get(ModelType.CURRENCY, refCurrencyId));
+		} else {
+			setRef(stmt, 6, ModelType.CURRENCY, refCurrencyId);
+		}
 		stmt.setString(7, Maps.getString(row, 5));
 		stmt.setDouble(8, Maps.getDouble(row, 6));
 	}

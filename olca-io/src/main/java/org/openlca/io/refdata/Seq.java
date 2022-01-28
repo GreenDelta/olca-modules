@@ -5,12 +5,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicLong;
 
-import jakarta.persistence.Table;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.persistence.Table;
 
 class Seq {
 
@@ -84,8 +86,8 @@ class Seq {
 	 * such ID a new one is allocated.
 	 */
 	public long get(ModelType type, String refId) {
-		if (refId == null)
-			return next();
+		if (Strings.nullOrEmpty(refId))
+			return 0;
 		HashMap<String, Long> map = sequences[type.ordinal()];
 		Long i = map.get(refId);
 		if (i != null)

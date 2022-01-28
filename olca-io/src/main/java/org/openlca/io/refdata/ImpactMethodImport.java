@@ -1,7 +1,6 @@
 package org.openlca.io.refdata;
 
 import java.sql.PreparedStatement;
-import java.sql.Types;
 
 import org.apache.commons.csv.CSVRecord;
 import org.openlca.core.model.ModelType;
@@ -32,10 +31,6 @@ class ImpactMethodImport extends AbstractImport {
 		stmt.setString(2, refId);
 		stmt.setString(3, Maps.getString(row, 1));
 		stmt.setString(4, Maps.getString(row, 2));
-		String catRefId = Maps.getString(row, 3);
-		if (catRefId == null)
-			stmt.setNull(5, Types.BIGINT);
-		else
-			stmt.setLong(5, seq.get(ModelType.CATEGORY, catRefId));
+		setRef(stmt, 5, ModelType.CATEGORY, Maps.getString(row, 3));
 	}
 }

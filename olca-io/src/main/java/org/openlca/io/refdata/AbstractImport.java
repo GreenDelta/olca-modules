@@ -4,13 +4,16 @@ import java.io.File;
 import java.io.FileReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.base.Strings;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
+import org.openlca.core.model.ModelType;
 import org.openlca.io.maps.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +60,20 @@ abstract class AbstractImport {
 
 	protected abstract void setValues(
 		PreparedStatement statement, CSVRecord values) throws Exception;
+
+	protected void setRef(PreparedStatement stmt, int field, ModelType type,
+		String refId) throws Exception {
+		if (Strings.isNullOrEmpty(refId)) {
+			stmt.setNull(field, Types.BIGINT);
+			return;
+		}
+		long id = seq.get(type, refId);
+		if (id != 0) {
+			stmt.setLong(field, id);
+		} else {
+			stmt.setNull(field, Types.BIGINT);
+		}
+	}
 
 	private class BatchHandler implements NativeSql.BatchUpdateHandler {
 		@Override

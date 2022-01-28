@@ -1,7 +1,6 @@
 package org.openlca.io.refdata;
 
 import java.sql.PreparedStatement;
-import java.sql.Types;
 
 import org.apache.commons.csv.CSVRecord;
 import org.openlca.core.model.ModelType;
@@ -26,21 +25,13 @@ class CategoryImport extends AbstractImport {
 	@Override
 	protected void setValues(PreparedStatement stmt, CSVRecord row)
 		throws Exception {
-		String refId = Maps.getString(row, 0);
-		long id = seq.get(ModelType.CATEGORY, refId);
-		String parentRefId = Maps.getString(row, 4);
-		Long parentId = parentRefId != null
-			? seq.get(ModelType.CATEGORY, parentRefId)
-			: null;
-		stmt.setLong(1, id); // id
+		var refId = Maps.getString(row, 0);
+		stmt.setLong(1, seq.get(ModelType.CATEGORY, refId)); // id
 		stmt.setString(2, refId); // refId
 		stmt.setString(3, Maps.getString(row, 1)); // name
 		stmt.setString(4, Maps.getString(row, 2)); // description
 		stmt.setString(5, Maps.getString(row, 3)); // model type
-		if (parentId != null)
-			stmt.setLong(6, parentId);
-		else
-			stmt.setNull(6, Types.BIGINT);
+		setRef(stmt, 6, ModelType.CATEGORY, Maps.getString(row, 4)); // parent
 	}
 
 }

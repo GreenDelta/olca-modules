@@ -11,7 +11,7 @@ class FlowPropertyFactorImport extends AbstractImport {
 	@Override
 	protected String getStatement() {
 		return "insert into tbl_flow_property_factors (id, f_flow, "
-				+ "f_flow_property, conversion_factor) values (?, ?, ?, ?)";
+			+ "f_flow_property, conversion_factor) values (?, ?, ?, ?)";
 	}
 
 	@Override
@@ -21,10 +21,10 @@ class FlowPropertyFactorImport extends AbstractImport {
 
 	@Override
 	protected void setValues(PreparedStatement stmt, CSVRecord row)
-			throws Exception {
+		throws Exception {
 		stmt.setLong(1, seq.next());
-		stmt.setLong(2, seq.get(ModelType.FLOW, Maps.getString(row, 0)));
-		stmt.setLong(3, seq.get(ModelType.FLOW_PROPERTY, Maps.getString(row, 1)));
+		setRef(stmt, 2, ModelType.FLOW, Maps.getString(row, 0));
+		setRef(stmt, 3, ModelType.FLOW_PROPERTY, Maps.getString(row, 1));
 		stmt.setDouble(4, Maps.getDouble(row, 2));
 	}
 }

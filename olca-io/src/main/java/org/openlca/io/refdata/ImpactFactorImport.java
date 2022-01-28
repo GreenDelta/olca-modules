@@ -12,7 +12,7 @@ import org.openlca.io.maps.Maps;
 class ImpactFactorImport extends AbstractImport {
 
 	/**
-	 * Maps tupels of (flowId, flowPropertyId) to the IDs of the respective flow
+	 * Maps tuples of (flowId, flowPropertyId) to the IDs of the respective flow
 	 * property factors.
 	 */
 	private HashMap<LongPair, Long> propertyTable;

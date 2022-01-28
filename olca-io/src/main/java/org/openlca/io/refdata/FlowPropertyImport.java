@@ -1,7 +1,6 @@
 package org.openlca.io.refdata;
 
 import java.sql.PreparedStatement;
-import java.sql.Types;
 
 import org.apache.commons.csv.CSVRecord;
 import org.openlca.core.model.ModelType;
@@ -32,14 +31,9 @@ public class FlowPropertyImport extends AbstractImport {
 		stmt.setLong(1, id);
 		stmt.setString(2, refId);
 		stmt.setString(3, Maps.getString(row, 1));
-		String catRefId = Maps.getString(row, 3);
-		if (catRefId == null)
-			stmt.setNull(4, Types.BIGINT);
-		else
-			stmt.setLong(4, seq.get(ModelType.CATEGORY, catRefId));
+		setRef(stmt, 4, ModelType.CATEGORY, Maps.getString(row, 3));
 		stmt.setString(5, Maps.getString(row, 2));
 		stmt.setInt(6, Maps.getInt(row, 5));
-		stmt.setLong(7,
-			seq.get(ModelType.UNIT_GROUP, Maps.getString(row, 4)));
+		setRef(stmt, 7, ModelType.UNIT_GROUP, Maps.getString(row, 4));
 	}
 }

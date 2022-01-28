@@ -27,7 +27,7 @@ class NwSetImport extends AbstractImport {
 		stmt.setString(2, refId);
 		stmt.setString(3, Maps.getString(row, 2));
 		stmt.setString(4, Maps.getString(row, 1));
-		stmt.setLong(5, seq.get(ModelType.IMPACT_METHOD, Maps.getString(row, 4)));
+		setRef(stmt, 5, ModelType.IMPACT_METHOD, Maps.getString(row, 4));
 		stmt.setString(6, Maps.getString(row, 3));
 	}
 

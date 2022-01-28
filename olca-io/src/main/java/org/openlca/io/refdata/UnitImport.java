@@ -34,7 +34,6 @@ class UnitImport extends AbstractImport {
 		stmt.setString(4, Maps.getString(row, 2)); // description
 		stmt.setString(5, Maps.getString(row, 1)); // name
 		stmt.setString(6, Maps.getString(row, 4)); // synonyms
-		long groupId = seq.get(ModelType.UNIT_GROUP, Maps.getString(row, 5));
-		stmt.setLong(7, groupId);
+		setRef(stmt, 7, ModelType.UNIT_GROUP, Maps.getString(row, 5));
 	}
 }

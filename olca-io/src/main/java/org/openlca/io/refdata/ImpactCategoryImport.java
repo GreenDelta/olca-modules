@@ -33,6 +33,6 @@ class ImpactCategoryImport extends AbstractImport {
 		stmt.setString(3, Maps.getString(row, 1));
 		stmt.setString(4, Maps.getString(row, 2));
 		stmt.setString(5, Maps.getString(row, 3));
-		stmt.setLong(6, seq.get(ModelType.IMPACT_METHOD, Maps.getString(row, 4)));
+		setRef(stmt, 6, ModelType.IMPACT_METHOD, Maps.getString(row, 4));
 	}
 }
