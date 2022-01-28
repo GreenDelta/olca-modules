@@ -1,5 +1,6 @@
 package org.openlca.validation;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
@@ -11,6 +12,11 @@ import org.openlca.core.model.Source;
 public class ImpactMethodTest {
 
 	private final IDatabase db = Tests.getDb();
+
+	@After
+	public void cleanup() {
+		db.clear();
+	}
 
 	@Test
 	public void testMissingSource() {
