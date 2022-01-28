@@ -10,7 +10,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -45,30 +44,23 @@ public class Maps {
 			.build();
 	}
 
-	public static String getString(CSVRecord values, int i) {
-		return values == null || i >= values.size()
+	public static String getString(CSVRecord row, int i) {
+		return row == null || i >= row.size()
 			? null
-			: values.get(i);
+			: row.get(i);
 	}
 
-	public static Double getOptionalDouble(List<?> values, int i) {
-		if (values == null || i >= values.size())
+	public static Double getOptionalDouble(CSVRecord row, int i) {
+		var s = getString(row, i);
+		if (Strings.nullOrEmpty(s))
 			return null;
-		Object val = values.get(i);
-		if (val instanceof Number)
-			return ((Number) val).doubleValue();
-		if (val instanceof String) {
-			if (Strings.nullOrEmpty((String) val))
-				return null;
-			try {
-				return Double.parseDouble((String) val);
-			} catch (Exception e) {
-				Logger log = LoggerFactory.getLogger(Maps.class);
-				log.error("{} is not a number; default to null", val);
-				return null;
-			}
+		try {
+			return Double.parseDouble(s);
+		} catch (Exception e) {
+			Logger log = LoggerFactory.getLogger(Maps.class);
+			log.error("{} is not a number; default to null", s);
+			return null;
 		}
-		return null;
 	}
 
 	public static double getDouble(CSVRecord row, int i) {
