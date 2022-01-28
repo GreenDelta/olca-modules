@@ -3,7 +3,6 @@ package org.openlca.io.maps;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.UUID;
 
 import org.junit.After;
@@ -15,10 +14,6 @@ import org.openlca.core.database.MappingFileDao;
 import org.openlca.core.model.MappingFile;
 import org.openlca.io.Tests;
 import org.openlca.util.BinUtils;
-import org.supercsv.cellprocessor.Optional;
-import org.supercsv.cellprocessor.ParseDouble;
-import org.supercsv.cellprocessor.ParseInt;
-import org.supercsv.cellprocessor.ift.CellProcessor;
 
 public class MapsTest {
 
@@ -47,22 +42,6 @@ public class MapsTest {
 		var file = dao.getForName(FILE_NAME);
 		var t = new String(BinUtils.gunzip(file.content), StandardCharsets.UTF_8);
 		Assert.assertEquals(CONTENT, t);
-	}
-
-	@Test
-	public void testCellReader() throws Exception {
-		CellProcessor[] processors = {
-				null,
-				new ParseDouble(),
-				new ParseInt(),
-				new Optional() };
-		var results = Maps.readAll(FILE_NAME, database, processors);
-		Assert.assertEquals(1, results.size());
-		List<Object> row = results.get(0);
-		Assert.assertEquals("aString", Maps.getString(row, 0));
-		Assert.assertEquals(42.42, Maps.getDouble(row, 1), 1e-16);
-		Assert.assertEquals(42, Maps.getInt(row, 2));
-		Assert.assertNull(Maps.getString(row, 3));
 	}
 
 }

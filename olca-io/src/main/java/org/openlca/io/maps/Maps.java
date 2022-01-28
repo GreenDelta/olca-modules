@@ -2,7 +2,6 @@ package org.openlca.io.maps;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,7 +12,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -28,7 +26,6 @@ import org.openlca.util.BinUtils;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
@@ -44,57 +41,6 @@ import org.supercsv.prefs.CsvPreference;
 public class Maps {
 
 	private Maps() {
-	}
-
-	/**
-	 * Reads all mappings from the given file using the given cell processors.
-	 * It first tries to load the file from the database. If it does not exist
-	 * it loads the mappings from the jar-internal resource file.
-	 */
-	public static List<List<Object>> readAll(String fileName,
-			IDatabase database, CellProcessor... cellProcessors)
-			throws Exception {
-		try (CsvListReader reader = open(fileName, database)) {
-			List<List<Object>> results = new ArrayList<>();
-			List<Object> nextRow;
-			while ((nextRow = reader.read(cellProcessors)) != null) {
-				results.add(nextRow);
-			}
-			return results;
-		}
-	}
-
-	/**
-	 * Opens a CSV reader for the given. It first tries to load the file from
-	 * the database. If it does not exist it loads the mapping from the
-	 * jar-internal resource file.
-	 */
-	private static CsvListReader open(String fileName, IDatabase database) {
-		CsvListReader reader = fromDatabase(fileName, database);
-		return reader != null
-				? reader
-				: createReader(Maps.class.getResourceAsStream(fileName));
-	}
-
-	private static CsvListReader fromDatabase(String fileName, IDatabase db) {
-		if (db == null)
-			return null;
-		MappingFileDao dao = new MappingFileDao(db);
-		MappingFile file = dao.getForName(fileName);
-		if (file == null || file.content == null)
-			return null;
-		byte[] bytes = BinUtils.gunzip(file.content);
-		ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
-		return createReader(stream);
-	}
-
-	private static CsvListReader createReader(InputStream stream) {
-		var pref = new CsvPreference.Builder('"', ';', "\n").build();
-		// exclude the byte order mark, if there is any
-		var bom = new BOMInputStream(stream, false, ByteOrderMark.UTF_8);
-		var reader = new InputStreamReader(bom, StandardCharsets.UTF_8);
-		var buffer = new BufferedReader(reader);
-		return new CsvListReader(buffer, pref);
 	}
 
 	/**
