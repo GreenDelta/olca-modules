@@ -16,6 +16,7 @@ class ImpactCategoryCheck implements Runnable {
 	public void run() {
 		try {
 			checkFactors();
+			checkDocRefs();
 			if (!foundErrors && !v.wasCanceled()) {
 				v.ok("checked impact categories");
 			}
@@ -73,6 +74,24 @@ class ImpactCategoryCheck implements Runnable {
 				foundErrors = true;
 			}
 
+			return !v.wasCanceled();
+		});
+	}
+
+	private void checkDocRefs() {
+		if (v.wasCanceled())
+			return;
+		var sql = "select " +
+			/* 1 */ "id, " +
+			/* 2 */ "f_source from tbl_impact_categories";
+		NativeSql.on(v.db).query(sql, r -> {
+			var id = r.getLong(1);
+			var source = r.getLong(2);
+			if (source != 0 && !v.ids.contains(ModelType.SOURCE, source)) {
+				v.warning(id, ModelType.IMPACT_CATEGORY,
+					"invalid reference to source @" + source);
+				foundErrors = true;
+			}
 			return !v.wasCanceled();
 		});
 	}
