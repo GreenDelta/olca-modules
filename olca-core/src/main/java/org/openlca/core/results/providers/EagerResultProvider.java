@@ -1,10 +1,13 @@
 package org.openlca.core.results.providers;
 
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.results.SimpleResult;
 
 public class EagerResultProvider implements ResultProvider {
 
@@ -50,8 +53,8 @@ public class EagerResultProvider implements ResultProvider {
 			var ii = inverse.get(i, i);
 			var f = aii * ii;
 			loopFactors[i] = f == 0
-					? 1.0
-					: 1 / f;
+				? 1.0
+				: 1 / f;
 		}
 
 		if (data.enviMatrix != null) {
@@ -70,11 +73,11 @@ public class EagerResultProvider implements ResultProvider {
 			if (data.impactMatrix != null) {
 
 				directImpacts = solver.multiply(
-						data.impactMatrix,
-						directFlows);
+					data.impactMatrix,
+					directFlows);
 				totalImpactsOfOne = solver.multiply(
-						data.impactMatrix,
-						totalFlowsOfOne);
+					data.impactMatrix,
+					totalFlowsOfOne);
 				totalImpacts = totalImpactsOfOne(refIdx);
 				for (int i = 0; i < totalImpacts.length; i++) {
 					totalImpacts[i] *= demand;
@@ -164,43 +167,43 @@ public class EagerResultProvider implements ResultProvider {
 	@Override
 	public double[] unscaledFlowsOf(int j) {
 		return data.enviMatrix == null
-				? EMPTY_VECTOR
-				: data.enviMatrix.getColumn(j);
+			? EMPTY_VECTOR
+			: data.enviMatrix.getColumn(j);
 	}
 
 	@Override
 	public double unscaledFlowOf(int flow, int product) {
 		return data.enviMatrix == null
-				? 0
-				: data.enviMatrix.get(flow, product);
+			? 0
+			: data.enviMatrix.get(flow, product);
 	}
 
 	@Override
 	public double[] directFlowsOf(int product) {
 		return directFlows == null
-				? EMPTY_VECTOR
-				: directFlows.getColumn(product);
+			? EMPTY_VECTOR
+			: directFlows.getColumn(product);
 	}
 
 	@Override
 	public double directFlowOf(int flow, int product) {
 		return directFlows == null
-				? 0
-				: directFlows.get(flow, product);
+			? 0
+			: directFlows.get(flow, product);
 	}
 
 	@Override
 	public double[] totalFlowsOfOne(int product) {
 		return totalFlowsOfOne == null
-				? EMPTY_VECTOR
-				: totalFlowsOfOne.getColumn(product);
+			? EMPTY_VECTOR
+			: totalFlowsOfOne.getColumn(product);
 	}
 
 	@Override
 	public double totalFlowOfOne(int flow, int product) {
 		return totalFlowsOfOne == null
-				? 0
-				: totalFlowsOfOne.get(flow, product);
+			? 0
+			: totalFlowsOfOne.get(flow, product);
 	}
 
 	@Override
@@ -223,22 +226,22 @@ public class EagerResultProvider implements ResultProvider {
 
 	@Override
 	public double[] impactFactorsOf(int flow) {
-		return data.impactMatrix == null
-				? EMPTY_VECTOR
-				: data.impactMatrix.getColumn(flow);
+		return data.impactMatrix != null
+			? data.impactMatrix.getColumn(flow)
+			: new double[impactIndex().size()];
 	}
 
 	@Override
 	public double impactFactorOf(int indicator, int flow) {
 		return data.impactMatrix == null
-				? 0
-				: data.impactMatrix.get(indicator, flow);
+			? 0
+			: data.impactMatrix.get(indicator, flow);
 	}
 
 	@Override
 	public double[] flowImpactsOf(int flow) {
 		if (totalFlows == null)
-			return EMPTY_VECTOR;
+			return new double[impactIndex().size()];
 		var total = totalFlows[flow];
 		var impacts = impactFactorsOf(flow);
 		scaleInPlace(impacts, total);
@@ -255,31 +258,31 @@ public class EagerResultProvider implements ResultProvider {
 
 	@Override
 	public double[] directImpactsOf(int product) {
-		return directImpacts == null
-				? EMPTY_VECTOR
-				: directImpacts.getColumn(product);
+		return directImpacts != null
+			? directImpacts.getColumn(product)
+			: new double[impactIndex().size()];
 	}
 
 	@Override
 	public double directImpactOf(int indicator, int product) {
 		return directImpacts == null
-				? 0
-				: directImpacts.get(indicator, product);
+			? 0
+			: directImpacts.get(indicator, product);
 	}
 
 
 	@Override
 	public double[] totalImpactsOfOne(int product) {
-		return totalImpactsOfOne == null
-				? EMPTY_VECTOR
-				: totalImpactsOfOne.getColumn(product);
+		return totalImpactsOfOne != null
+			? totalImpactsOfOne.getColumn(product)
+			: new double[impactIndex().size()];
 	}
 
 	@Override
 	public double totalImpactOfOne(int indicator, int product) {
 		return totalImpactsOfOne == null
-				? 0
-				: totalImpactsOfOne.get(indicator, product);
+			? 0
+			: totalImpactsOfOne.get(indicator, product);
 	}
 
 	@Override
@@ -295,19 +298,66 @@ public class EagerResultProvider implements ResultProvider {
 	@Override
 	public double directCostsOf(int product) {
 		return directCosts == null
-				? 0
-				: directCosts[product];
+			? 0
+			: directCosts[product];
 	}
 
 	@Override
 	public double totalCostsOfOne(int product) {
 		return totalCostsOfOne == null
-				? 0
-				: totalCostsOfOne[product];
+			? 0
+			: totalCostsOfOne[product];
 	}
 
 	@Override
 	public double totalCosts() {
 		return totalCosts;
+	}
+
+	@Override
+	public void addResultImpacts(TechFlow techFlow, SimpleResult result) {
+		var impactIndex = impactIndex();
+		if (impactIndex == null
+			|| impactIndex.isEmpty()
+			|| techFlow == null
+			|| !techFlow.isResult()
+			|| result == null
+			|| !result.hasImpacts())
+			return;
+
+		var techIndex = techIndex();
+		var techPos = techIndex.of(techFlow);
+		if (techPos < 0)
+			return;
+		var scaling = scalingVector[techPos];
+		if (scaling == 0)
+			return;
+		double ref = Math.abs(techValueOf(techPos, techPos));
+		double scaleToOne = ref == 1
+			? ref
+			: 1 / ref;
+
+		int m = impactIndex.size();
+		int n = techIndex.size();
+		if (directImpacts == null) {
+			directImpacts = new DenseMatrix(m, n);
+		}
+		if (totalImpactsOfOne == null) {
+			totalImpactsOfOne = new DenseMatrix(m, n);
+		}
+
+		var totals = totalImpacts();
+		var resultIdx = result.impactIndex();
+		impactIndex.each((i, impact) -> {
+			if (!resultIdx.contains(impact))
+				return;
+			double amount = result.getTotalImpactResult(impact);
+			if (amount == 0)
+				return;
+			double scaledAmount = scaling * amount;
+			totals[i] += scaledAmount;
+			directImpacts.set(i, techPos, scaledAmount);
+			totalImpactsOfOne.set(i, techPos, scaleToOne * amount);
+		});
 	}
 }
