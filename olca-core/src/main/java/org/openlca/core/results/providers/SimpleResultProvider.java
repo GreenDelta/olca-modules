@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.results.SimpleResult;
 
@@ -135,9 +136,10 @@ public class SimpleResultProvider implements ResultProvider {
 	public double[] totalFlows() {
 		if (totalFlows != null)
 			return totalFlows;
-		return flowIndex == null
-			? EMPTY_VECTOR
-			: new double[flowIndex.size()];
+		if (flowIndex == null)
+			return EMPTY_VECTOR;
+		totalFlows = new double[flowIndex.size()];
+		return totalFlows;
 	}
 
 	@Override
@@ -159,9 +161,11 @@ public class SimpleResultProvider implements ResultProvider {
 	public double[] totalImpacts() {
 		if (totalImpacts != null)
 			return totalImpacts;
-		return impactIndex == null
-			? EMPTY_VECTOR
-			: new double[impactIndex.size()];
+		if (impactIndex == null) {
+			return EMPTY_VECTOR;
+		}
+		totalImpacts = new double[impactIndex.size()];
+		return totalImpacts;
 	}
 
 	@Override
@@ -177,5 +181,34 @@ public class SimpleResultProvider implements ResultProvider {
 	@Override
 	public double totalCosts() {
 		return 0;
+	}
+
+	@Override
+	public void addResultImpacts(TechFlow techFlow, SimpleResult result) {
+		if (impactIndex == null
+			|| impactIndex.isEmpty()
+			|| techFlow == null
+			|| !techFlow.isResult()
+			|| result == null
+			|| !result.hasImpacts())
+			return;
+
+		var techPos = techIndex.of(techFlow);
+		if (techPos < 0)
+			return;
+		var scaling = scalingVector[techPos];
+		if (scaling == 0)
+			return;
+
+		var totals = totalImpacts();
+		var resultIdx = result.impactIndex();
+		impactIndex.each((i, impact) -> {
+			if (!resultIdx.contains(impact))
+				return;
+			var amount = result.getTotalImpactResult(impact);
+			if (amount == 0)
+				return;
+			totals[i] += scaling * amount;
+		});
 	}
 }
