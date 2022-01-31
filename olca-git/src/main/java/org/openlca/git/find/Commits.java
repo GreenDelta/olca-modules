@@ -28,7 +28,11 @@ public class Commits {
 	private static final Logger log = LoggerFactory.getLogger(Commits.class);
 	private final FileRepository repo;
 
-	public Commits(FileRepository repo) {
+	public static Commits of(FileRepository repo) {
+		return new Commits(repo);
+	}
+
+	private Commits(FileRepository repo) {
 		this.repo = repo;
 	}
 

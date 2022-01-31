@@ -17,7 +17,11 @@ public class Datasets {
 	private static final Logger log = LoggerFactory.getLogger(Datasets.class);
 	private final FileRepository repo;
 
-	public Datasets(FileRepository repo) {
+	public static Datasets of(FileRepository repo) {
+		return new Datasets(repo);
+	}
+
+	private Datasets(FileRepository repo) {
 		this.repo = repo;
 	}
 
@@ -84,7 +88,7 @@ public class Datasets {
 	public byte[] getBinary(Reference ref, String filepath) {
 		if (ref == null || filepath == null || filepath.isEmpty())
 			return null;
-		var id = new Ids(repo).get(ref.getBinariesPath() + "/" + filepath, ref.commitId);
+		var id = Ids.of(repo).get(ref.getBinariesPath() + "/" + filepath, ref.commitId);
 		return getBytes(id);
 	}
 

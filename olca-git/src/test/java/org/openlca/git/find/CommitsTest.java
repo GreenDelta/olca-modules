@@ -14,7 +14,7 @@ public class CommitsTest extends AbstractRepoTest {
 
 	@Before
 	public void before() {
-		commits = new Commits(repo);
+		commits = Commits.of(repo);
 	}
 
 	@Test

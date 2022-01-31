@@ -21,7 +21,11 @@ public class References {
 	static final Logger log = LoggerFactory.getLogger(References.class);
 	private final FileRepository repo;
 
-	public References(FileRepository repo) {
+	public static References of(FileRepository repo) {
+		return new References(repo);
+	}
+	
+	private References(FileRepository repo) {
 		this.repo = repo;
 	}
 
@@ -38,7 +42,7 @@ public class References {
 		if (ref == null)
 			return new ArrayList<>();
 		try {
-			var commit = new Commits(repo).getRev(ref.commitId);
+			var commit = Commits.of(repo).getRev(ref.commitId);
 			if (commit == null)
 				return new ArrayList<>();
 			try (var walk = new TreeWalk(repo)) {
@@ -126,7 +130,7 @@ public class References {
 
 		private List<Reference> get(boolean countOnly) {
 			try {
-				var commits = new Commits(repo);
+				var commits = Commits.of(repo);
 				var commit = commits.getRev(commitId);
 				if (commit == null)
 					return new ArrayList<>();

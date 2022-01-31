@@ -17,7 +17,11 @@ public class Entries {
 	private static final Logger log = LoggerFactory.getLogger(Entries.class);
 	private final FileRepository repo;
 
-	public Entries(FileRepository repo) {
+	public static Entries of(FileRepository repo) {
+		return new Entries(repo);
+	}
+	
+	private Entries(FileRepository repo) {
 		this.repo = repo;
 	}
 
@@ -43,8 +47,8 @@ public class Entries {
 		public List<Entry> all() {
 			var entries = new ArrayList<Entry>();
 			try {
-				var commits = new Commits(repo);
-				var ids = new Ids(repo);
+				var commits = Commits.of(repo);
+				var ids = Ids.of(repo);
 				var commit = commits.getRev(commitId);
 				if (commit == null)
 					return entries;

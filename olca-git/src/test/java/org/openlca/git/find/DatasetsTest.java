@@ -16,8 +16,8 @@ public class DatasetsTest extends AbstractRepoTest {
 
 	@Before
 	public void before() throws IOException, GitAPIException {
-		references = new References(repo);
-		datasets = new Datasets(repo);
+		references = References.of(repo);
+		datasets = Datasets.of(repo);
 	}
 
 	@Test
