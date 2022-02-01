@@ -21,6 +21,13 @@ public class ImpactResult extends AbstractEntity
 	@Column(name = "description")
 	public String description;
 
+	public static ImpactResult of(ImpactCategory indicator, double amount) {
+		var impact = new ImpactResult();
+		impact.indicator = indicator;
+		impact.amount = amount;
+		return impact;
+	}
+
 	@Override
 	public ImpactResult copy() {
 		var clone = new ImpactResult();

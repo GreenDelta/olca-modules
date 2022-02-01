@@ -22,6 +22,7 @@ import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
+import org.openlca.core.results.SimpleResult;
 import org.openlca.util.Pair;
 
 import gnu.trove.impl.Constants;
@@ -739,5 +740,10 @@ public class LazyLibraryProvider implements ResultProvider {
 	@Override
 	public double totalCosts() {
 		return 0;
+	}
+
+	@Override
+	public void addResultImpacts(TechFlow techFlow, SimpleResult result) {
+		foregroundSolution.addResultImpacts(techFlow, result);
 	}
 }

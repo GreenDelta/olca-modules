@@ -8,6 +8,27 @@ import jakarta.persistence.Table;
 public class FlowResult  extends AbstractExchange
 	implements Copyable<FlowResult> {
 
+	public static FlowResult outputOf(Flow flow, double amount) {
+		return of(flow, amount, false);
+	}
+
+	public static FlowResult inputOf(Flow flow, double amount) {
+		return of(flow, amount, true);
+	}
+
+	private static FlowResult of(
+		Flow flow, double amount, boolean isInput) {
+		var result = new FlowResult();
+		result.amount = amount;
+		result.isInput = isInput;
+		if (flow != null) {
+			result.flow = flow;
+			result.flowPropertyFactor = flow.getReferenceFactor();
+			result.unit = flow.getReferenceUnit();
+		}
+		return result;
+	}
+
 	@Override
 	public FlowResult copy() {
 		var copy = new FlowResult();

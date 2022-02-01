@@ -7,7 +7,9 @@ import org.openlca.core.matrix.IndexedMatrix;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.results.SimpleResult;
 
 // currently under development; do not use this for now
 class EagerLibraryProvider implements ResultProvider {
@@ -156,5 +158,10 @@ class EagerLibraryProvider implements ResultProvider {
 	@Override
 	public double totalCosts() {
 		return 0;
+	}
+
+	@Override
+	public void addResultImpacts(TechFlow techFlow, SimpleResult result) {
+		// TODO not yet implemented
 	}
 }
