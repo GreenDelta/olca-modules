@@ -2,12 +2,14 @@ package examples;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowType;
@@ -43,7 +45,7 @@ public class SubResultTree {
 			.filter(r -> method.equals(r.impactMethod))
 			.toList();
 
-		int depth = 10;
+		int depth = 5;
 
 		int processCount = 1;
 		var root = newProcess(db, mass, processCount);
@@ -61,14 +63,16 @@ public class SubResultTree {
 				// link to parent
 				int parentIdx = rand.nextInt(0, previousLevel.length);
 				var parent = previousLevel[parentIdx];
-				var e = parent.input(child.quantitativeReference.flow, rand.nextInt(1, 5));
-				previousLevel[parentIdx] = db.update(parent);
+				var linkFlow = child.quantitativeReference.flow;
+				parent.input(linkFlow, rand.nextInt(1, 5));
+				parent = db.update(parent);
+				previousLevel[parentIdx] =parent;
 				var  parentLink= new ProcessLink();
 				parentLink.setProviderType(ModelType.PROCESS);
 				parentLink.providerId = child.id;
 				parentLink.processId = parent.id;
-				parentLink.exchangeId = e.id;
-				parentLink.flowId = e.flow.id;
+				parentLink.exchangeId = findExchangeOf(parent, linkFlow).id;
+				parentLink.flowId = linkFlow.id;
 				system.processLinks.add(parentLink);
 
 				// add results
@@ -79,16 +83,17 @@ public class SubResultTree {
 					var result = results.get(resultIdx);
 					if (addedResults.contains(result.id))
 						continue;
-					var exchange = child.input(
-						result.referenceFlow.flow, rand.nextInt(1, 5));
-					nextLevel[j] = db.update(child);
+					var resultFlow = result.referenceFlow.flow;
+					child.input(resultFlow, rand.nextInt(1, 5));
+					child = db.update(child);
+					nextLevel[j] = child;
 					system.processes.add(result.id);
 					var link = new ProcessLink();
 					link.setProviderType(ModelType.RESULT);
 					link.providerId = result.id;
 					link.processId = child.id;
-					link.exchangeId = exchange.id;
-					link.flowId = exchange.flow.id;
+					link.exchangeId = findExchangeOf(child, resultFlow).id;
+					link.flowId = resultFlow.id;
 					system.processLinks.add(link);
 				}
 			}
@@ -106,6 +111,13 @@ public class SubResultTree {
 		db.insert(product);
 		var process = Process.of("process " + i, product);
 		return db.insert(process);
+	}
+
+	private static Exchange findExchangeOf(Process process, Flow flow) {
+		return process.exchanges.stream()
+			.filter(e -> Objects.equals(e.flow, flow))
+			.findAny()
+			.orElse(null);
 	}
 
 
