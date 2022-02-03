@@ -22,15 +22,14 @@ import org.slf4j.LoggerFactory;
 public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private IDatabase database;
 
 	public ParameterUseSearch(IDatabase database) {
 		super(database);
-		this.database = database;
 	}
 
 	@Override
 	public List<CategorizedDescriptor> findUses(Set<Long> ids) {
+
 		Set<String> names = getParameterNames(ids);
 		if (names.isEmpty())
 			return Collections.emptyList();
@@ -47,7 +46,7 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 		Set<Long> processes = new HashSet<>();
 		Set<Long> impacts = new HashSet<>();
 		for (ParameterRef ref : refs) {
-			if (ref.ownerId == 0l)
+			if (ref.ownerId == 0L)
 				globals.add(ref.id);
 			else if (!hasDefinedLocalParameter(ref)) {
 				if (ref.scope == ParameterScope.PROCESS)
@@ -66,7 +65,7 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 		String query = "SELECT count(id) FROM tbl_parameters WHERE f_owner = "
 				+ ref.ownerId + " AND lower(name) = '" + ref.name.toLowerCase() + "'";
 		Set<Boolean> value = new HashSet<>();
-		NativeSql.on(database).query(query, (result) -> {
+		NativeSql.on(db).query(query, (result) -> {
 			value.add(result.getInt(1) != 0);
 			return false;
 		});
@@ -76,13 +75,13 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 	private List<ParameterRef> findReferencing(Set<String> names) {
 		String query = "SELECT scope, lower(formula), id, f_owner FROM tbl_parameters";
 		List<ParameterRef> refs = new ArrayList<>();
-		NativeSql.on(database).query(query, (result) -> {
-			ParameterScope scope = getScope(result.getString(1));
-			String formula = result.getString(2);
-			long id = result.getLong(3);
-			long ownerId = result.getLong(4);
+		NativeSql.on(db).query(query, row -> {
+			var scope = getScope(row.getString(1));
+			String formula = row.getString(2);
+			long id = row.getLong(3);
+			long ownerId = row.getLong(4);
 			try {
-				Set<String> variables = Formula.getVariables(formula);
+				var variables = Formula.getVariables(formula);
 				for (String name : names)
 					if (variables.contains(name))
 						refs.add(new ParameterRef(id, ownerId, name, scope));
@@ -106,13 +105,13 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 				+ "context_type IS NULL AND lower(name) IN "
 				+ Search.asSqlList(names.toArray());
 		Set<Long> ids = new HashSet<>();
-		NativeSql.on(database).query(query, (result) -> {
+		NativeSql.on(db).query(query, (result) -> {
 			ids.add(result.getLong(1));
 			return true;
 		});
-		List<CategorizedDescriptor> results = new ArrayList<>();
-		results.addAll(loadDescriptors(ModelType.PRODUCT_SYSTEM, ids));
-		Set<Long> projectIds = queryForIds("f_project", "tbl_project_variants", ids, "id");
+		var systemIds = queryForIds("f_product_system", "tbl_parameter_redef_sets", ids, "id");
+		var results = new ArrayList<>(loadDescriptors(ModelType.PRODUCT_SYSTEM, systemIds));
+		var projectIds = queryForIds("f_project", "tbl_project_variants", ids, "id");
 		results.addAll(loadDescriptors(ModelType.PROJECT, projectIds));
 		return results;
 	}
@@ -120,7 +119,7 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 	private List<ParameterRef> findInExchanges(Set<String> names) {
 		String query = "SELECT lower(resulting_amount_formula), lower(cost_formula), f_owner FROM tbl_exchanges";
 		List<ParameterRef> refs = new ArrayList<>();
-		NativeSql.on(database).query(query, (result) -> {
+		NativeSql.on(db).query(query, (result) -> {
 			String amountFormula = result.getString(1);
 			String costFormula = result.getString(2);
 			long ownerId = result.getLong(3);
@@ -152,7 +151,7 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 			return new HashSet<>();
 		String query = "SELECT lower(name) FROM tbl_parameters WHERE id IN " + Search.asSqlList(ids);
 		Set<String> names = new HashSet<>();
-		NativeSql.on(database).query(query, (result) -> {
+		NativeSql.on(db).query(query, (result) -> {
 			String name = result.getString(1);
 			if (name != null)
 				names.add(name);
@@ -161,18 +160,11 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 		return names;
 	}
 
-	private class ParameterRef {
-		private long id;
-		private long ownerId;
-		private String name;
-		private ParameterScope scope;
-
-		private ParameterRef(long id, long ownerId, String name, ParameterScope scope) {
-			this.id = id;
-			this.ownerId = ownerId;
-			this.name = name;
-			this.scope = scope;
-		}
+	private record ParameterRef(
+		long id,
+		long ownerId,
+		String name,
+		ParameterScope scope) {
 
 	}
 

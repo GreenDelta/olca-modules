@@ -145,6 +145,7 @@ public class ParameterUseSearchTest {
 		var models = search.findUses(Descriptor.of(param));
 		db.delete(param);
 		db.delete(system);
+
 		Assert.assertEquals(1, models.size());
 		var expected = Descriptor.of(system);
 		Assert.assertEquals(expected, models.get(0));

@@ -159,22 +159,15 @@ public class ParameterUsageTree {
 		private static int typeOrder(ModelType type) {
 			if (type == null)
 				return -1;
-			switch (type) {
-				case PARAMETER:
-					return 0;
-				case PROJECT:
-					return 1;
-				case PRODUCT_SYSTEM:
-					return 2;
-				case PROCESS:
-					return 3;
-				case IMPACT_CATEGORY:
-					return 4;
-				case FLOW:
-					return 5;
-				default:
-					return 99;
-			}
+			return switch (type) {
+				case PARAMETER -> 0;
+				case PROJECT -> 1;
+				case PRODUCT_SYSTEM -> 2;
+				case PROCESS -> 3;
+				case IMPACT_CATEGORY -> 4;
+				case FLOW -> 5;
+				default -> 99;
+			};
 		}
 	}
 
@@ -471,14 +464,11 @@ public class ParameterUsageTree {
 		private Node parent(Parameter param, long ownerID) {
 			if (param.scope == null)
 				return null;
-			switch (param.scope) {
-				case PROCESS:
-					return root(ownerID, ProcessDescriptor.class);
-				case IMPACT:
-					return root(ownerID, ImpactDescriptor.class);
-				default:
-					return null;
-			}
+			return switch (param.scope) {
+				case PROCESS -> root(ownerID, ProcessDescriptor.class);
+				case IMPACT -> root(ownerID, ImpactDescriptor.class);
+				default -> null;
+			};
 		}
 	}
 }
