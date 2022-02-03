@@ -1,16 +1,15 @@
 package org.openlca.jsonld.input;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
-import org.openlca.jsonld.Tests;
 
 /**
  * When a unit group is updated/overwritten during import, the units need to be
@@ -43,17 +42,17 @@ public class UnitSyncTest {
 	public void after() {
 		SyncTestUtils.delete(unitGroupData);
 		SyncTestUtils.delete(allData);
-		Tests.clearDb();
+		db.clear();
 	}
 
 	@Test
-	public void initialDataValidates() throws IOException {
+	public void initialDataValidates() {
 		SyncTestUtils.doImport(allData, db);
 		Assert.assertTrue(validate());
 	}
 
 	@Test
-	public void unitsSync() throws IOException {
+	public void unitsSync() {
 		SyncTestUtils.doImport(allData, db);
 		SyncTestUtils.doImport(unitGroupData, db);
 		Assert.assertTrue(validate());

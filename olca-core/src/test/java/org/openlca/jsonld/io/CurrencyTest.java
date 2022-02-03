@@ -4,17 +4,17 @@ import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.Tests;
 import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.model.Currency;
 import org.openlca.jsonld.AbstractZipTest;
-import org.openlca.jsonld.Tests;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.output.JsonExport;
 
 public class CurrencyTest extends AbstractZipTest {
 
 	@Test
-	public void testCurrency() throws Exception {
+	public void testCurrency() {
 		CurrencyDao dao = new CurrencyDao(Tests.getDb());
 		Currency currency = createModel(dao);
 		doExport(currency, dao);

@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Test;
+import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Exchange;
@@ -23,13 +24,14 @@ import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.jsonld.AbstractZipTest;
-import org.openlca.jsonld.Tests;
 
 public class ParameterReferencesTest extends AbstractZipTest {
 
+	private final IDatabase db = Tests.getDb();
+
 	@After
 	public void clearDb() {
-		Tests.clearDb();
+		db.clear();
 	}
 
 	@Test
@@ -37,7 +39,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		Parameter p1 = createParameter("p1", "2*2", null, null);
 		Parameter p2 = createParameter("p2", "2*p1", null, null);
 		with((store) -> {
-			JsonExport export = new JsonExport(Tests.getDb(), store);
+			JsonExport export = new JsonExport(db, store);
 			export.write(p2);
 			assertNotNull(store.get(ModelType.PARAMETER, p1.refId));
 			assertNotNull(store.get(ModelType.PARAMETER, p2.refId));
@@ -53,7 +55,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		Parameter p3 = createParameter("p3", null, null, null);
 		Parameter p4 = createParameter("p4", "2*2", null, u4);
 		with((store) -> {
-			JsonExport export = new JsonExport(Tests.getDb(), store);
+			JsonExport export = new JsonExport(db, store);
 			export.write(p4);
 			assertNotNull(store.get(ModelType.PARAMETER, p1.refId));
 			assertNotNull(store.get(ModelType.PARAMETER, p2.refId));
@@ -73,7 +75,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		Process process = createProcess(new Exchange[] { e1, e2 },
 				new Parameter[] { p1Intern });
 		with((store) -> {
-			JsonExport export = new JsonExport(Tests.getDb(), store);
+			JsonExport export = new JsonExport(db, store);
 			export.write(process);
 			assertNotNull(store.get(ModelType.PROCESS, process.refId));
 			assertNull(store.get(ModelType.PARAMETER, p1.refId));
@@ -95,7 +97,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		Process process = createProcess(new Exchange[] { e1, e2 },
 				new Parameter[] { p1Intern });
 		with((store) -> {
-			JsonExport export = new JsonExport(Tests.getDb(), store);
+			JsonExport export = new JsonExport(db, store);
 			export.write(process);
 			assertNotNull(store.get(ModelType.PROCESS, process.refId));
 			assertNull(store.get(ModelType.PARAMETER, p1.refId));
@@ -115,7 +117,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		Parameter p4Global = createParameter("p4", "2", null, null);
 		Process process = createProcess(null, new Parameter[] { p1, p2 });
 		with((store) -> {
-			JsonExport export = new JsonExport(Tests.getDb(), store);
+			JsonExport export = new JsonExport(db, store);
 			export.write(process);
 			assertNotNull(store.get(ModelType.PROCESS, process.refId));
 			assertNull(store.get(ModelType.PARAMETER, p1.refId));
@@ -140,7 +142,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		Process process = createProcess(null, new Parameter[] { p1Intern,
 				p2Intern });
 		with((store) -> {
-			JsonExport export = new JsonExport(Tests.getDb(), store);
+			JsonExport export = new JsonExport(db, store);
 			export.write(process);
 			assertNotNull(store.get(ModelType.PROCESS, process.refId));
 			assertNull(store.get(ModelType.PARAMETER, p1.refId));
@@ -162,7 +164,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		ImpactCategory impact = createImpactCategory(
 				new ImpactFactor[] { f1, f2 }, new Parameter[] { p1Intern });
 		with((store) -> {
-			JsonExport export = new JsonExport(Tests.getDb(), store);
+			JsonExport export = new JsonExport(db, store);
 			export.write(impact);
 			assertNotNull(store.get(ModelType.IMPACT_CATEGORY, impact.refId));
 			assertNull(store.get(ModelType.PARAMETER, p1.refId));
@@ -184,7 +186,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		ImpactCategory impact = createImpactCategory(
 				new ImpactFactor[] { f1, f2 }, new Parameter[] { p1Intern });
 		with((store) -> {
-			JsonExport export = new JsonExport(Tests.getDb(), store);
+			JsonExport export = new JsonExport(db, store);
 			export.write(impact);
 			assertNotNull(store.get(ModelType.IMPACT_CATEGORY, impact.refId));
 			assertNull(store.get(ModelType.PARAMETER, p1.refId));
@@ -203,7 +205,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		ImpactCategory impact = createImpactCategory(
 				null, new Parameter[] { p1, p2 });
 		with((store) -> {
-			JsonExport export = new JsonExport(Tests.getDb(), store);
+			JsonExport export = new JsonExport(db, store);
 			export.write(impact);
 			assertNotNull(store.get(ModelType.IMPACT_CATEGORY, impact.refId));
 			assertNull(store.get(ModelType.PARAMETER, p1.refId));
@@ -228,7 +230,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		ImpactCategory impact = createImpactCategory(null, new Parameter[] {
 				p1Intern, p2Intern });
 		with((store) -> {
-			JsonExport export = new JsonExport(Tests.getDb(), store);
+			JsonExport export = new JsonExport(db, store);
 			export.write(impact);
 			assertNotNull(store.get(ModelType.IMPACT_CATEGORY, impact.refId));
 			assertNull(store.get(ModelType.PARAMETER, p1.refId));
@@ -247,7 +249,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		ParameterRedef redef2 = createRedef(p2, null);
 		ProductSystem system = createSystem(redef1, redef2);
 		with((store) -> {
-			JsonExport export = new JsonExport(Tests.getDb(), store);
+			JsonExport export = new JsonExport(db, store);
 			export.write(system);
 			assertNotNull(store.get(ModelType.PRODUCT_SYSTEM,
 					system.refId));
@@ -264,7 +266,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		ParameterRedef redef2 = createRedef(p2, null);
 		Project project = createProject(redef1, redef2);
 		with((store) -> {
-			JsonExport export = new JsonExport(Tests.getDb(), store);
+			JsonExport export = new JsonExport(db, store);
 			export.write(project);
 			assertNotNull(store.get(ModelType.PROJECT, project.refId));
 			assertNotNull(store.get(ModelType.PARAMETER, p1.refId));
@@ -290,7 +292,6 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		p.uncertainty = u;
 		if (p.scope != ParameterScope.GLOBAL)
 			return p;
-		IDatabase db = Tests.getDb();
 		return new ParameterDao(db).insert(p);
 	}
 

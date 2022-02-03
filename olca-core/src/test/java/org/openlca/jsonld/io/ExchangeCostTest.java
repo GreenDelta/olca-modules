@@ -4,20 +4,20 @@ import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.Tests;
 import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
 import org.openlca.jsonld.AbstractZipTest;
-import org.openlca.jsonld.Tests;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.output.JsonExport;
 
 public class ExchangeCostTest extends AbstractZipTest {
 
-	private ProcessDao processDao = new ProcessDao(Tests.getDb());
-	private CurrencyDao currencyDao = new CurrencyDao(Tests.getDb());
+	private final ProcessDao processDao = new ProcessDao(Tests.getDb());
+	private final CurrencyDao currencyDao = new CurrencyDao(Tests.getDb());
 
 	@Test
 	public void testCostAttributes() {

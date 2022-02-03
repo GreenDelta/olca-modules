@@ -7,12 +7,12 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openlca.core.Tests;
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ModelType;
-import org.openlca.jsonld.Tests;
 
 /**
  * When a flow is updated/overwritten during import, the flow property factors
@@ -27,15 +27,14 @@ public class FlowPropertyFactorSyncTest {
 	private static final ModelType[] modelTypes = new ModelType[] {
 		ModelType.IMPACT_METHOD, ModelType.PRODUCT_SYSTEM, ModelType.PROCESS
 	};
-	private IDatabase db;
+	private final IDatabase db = Tests.getDb();
 	private BaseDao<FlowPropertyFactor> dao;
 	private File allData;
 	private File flowData;
 
 	@Before
 	public void before() throws IOException {
-		db = Tests.getDb();
-		Tests.clearDb();
+		db.clear();
 		dao = Daos.base(db, FlowPropertyFactor.class);
 		allData = SyncTestUtils.copyToTemp("flow_property_factor_sync-all.zip");
 		flowData = SyncTestUtils.copyToTemp("flow_property_factor_sync-flow.zip");
@@ -65,7 +64,7 @@ public class FlowPropertyFactorSyncTest {
 	public void after() throws IOException {
 		SyncTestUtils.delete(flowData);
 		SyncTestUtils.delete(allData);
-		Tests.clearDb();
+		db.clear();
 	}
 
 }

@@ -4,12 +4,12 @@ import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.Tests;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Location;
 import org.openlca.jsonld.AbstractZipTest;
-import org.openlca.jsonld.Tests;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.output.JsonExport;
 
@@ -18,7 +18,7 @@ public class FlowTest extends AbstractZipTest {
 	FlowDao dao = new FlowDao(Tests.getDb());
 
 	@Test
-	public void testFlow() throws Exception {
+	public void testFlow() {
 		Flow flow = dao.insert(createModel());
 		exportAndDelete(flow, dao);
 		doImport(dao, flow);
@@ -26,7 +26,7 @@ public class FlowTest extends AbstractZipTest {
 	}
 
 	@Test
-	public void testWithLocation() throws Exception {
+	public void testWithLocation() {
 		Location loc = new Location();
 		loc.code = "ABC";
 		loc.refId = UUID.randomUUID().toString();

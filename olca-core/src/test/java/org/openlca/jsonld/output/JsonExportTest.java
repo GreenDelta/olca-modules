@@ -7,10 +7,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.Tests;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
-import org.openlca.jsonld.Tests;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.util.Dirs;
 

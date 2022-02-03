@@ -4,17 +4,17 @@ import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.Tests;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.jsonld.AbstractZipTest;
-import org.openlca.jsonld.Tests;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.output.JsonExport;
 
 public class FlowPropertyTest extends AbstractZipTest {
 
 	@Test
-	public void testFlowProperty() throws Exception {
+	public void testFlowProperty() {
 		FlowPropertyDao dao = new FlowPropertyDao(Tests.getDb());
 		FlowProperty property = createModel(dao);
 		doExport(property, dao);

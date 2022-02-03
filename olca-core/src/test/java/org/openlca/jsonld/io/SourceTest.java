@@ -4,17 +4,17 @@ import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.Tests;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.model.Source;
 import org.openlca.jsonld.AbstractZipTest;
-import org.openlca.jsonld.Tests;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.output.JsonExport;
 
 public class SourceTest extends AbstractZipTest {
 
 	@Test
-	public void testSource() throws Exception {
+	public void testSource() {
 		SourceDao dao = new SourceDao(Tests.getDb());
 		Source source = createModel(dao);
 		doExport(source, dao);

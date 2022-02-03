@@ -6,6 +6,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProductSystemDao;
@@ -14,7 +15,6 @@ import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.jsonld.AbstractZipTest;
-import org.openlca.jsonld.Tests;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.output.JsonExport;
 
@@ -46,7 +46,7 @@ public class ParameterRedefTest extends AbstractZipTest {
 
 	@After
 	public void tearDown() {
-		Tests.clearDb();
+		db.clear();
 	}
 
 	@Test
@@ -60,8 +60,8 @@ public class ParameterRedefTest extends AbstractZipTest {
 		dao.insert(sys);
 
 		// write and clear DB
-		with(zip -> new JsonExport(Tests.getDb(), zip).write(sys));
-		Tests.clearDb();
+		with(zip -> new JsonExport(db, zip).write(sys));
+		db.clear();
 		Assert.assertNull(dao.getForRefId(sys.refId));
 		Assert.assertNull(paramDao.getForRefId(globalParam.refId));
 
@@ -89,7 +89,7 @@ public class ParameterRedefTest extends AbstractZipTest {
 
 		// write and clear DB
 		with(zip -> new JsonExport(Tests.getDb(), zip).write(sys));
-		Tests.clearDb();
+		db.clear();
 		Assert.assertNull(dao.getForRefId(sys.refId));
 		Assert.assertNull(paramDao.getForRefId(globalParam.refId));
 
