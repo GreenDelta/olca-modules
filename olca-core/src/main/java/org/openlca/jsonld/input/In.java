@@ -51,6 +51,7 @@ final class In {
 		mapAtts(obj, entity, id);
 		var catId = Json.getRefId(obj, "category");
 		entity.category = CategoryImport.run(catId, conf);
+		entity.library = Json.getString(obj, "library");
 
 		// read tags
 		var tagArray = Json.getArray(obj, "tags");

@@ -26,9 +26,9 @@ class Writer<T extends RootEntity> {
 		// cyclic references
 		conf.visited(entity);
 		addBasicAttributes(entity, obj);
-		if (entity instanceof CategorizedEntity) {
-			var ce = (CategorizedEntity) entity;
+		if (entity instanceof CategorizedEntity ce) {
 			Out.put(obj, "category", ce.category, conf);
+			Out.put(obj, "library", ce.library);
 
 			// write tags
 			if (!Strings.nullOrEmpty(ce.tags)) {
