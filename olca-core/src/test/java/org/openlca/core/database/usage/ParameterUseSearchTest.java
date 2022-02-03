@@ -11,6 +11,7 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
+import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
@@ -136,27 +137,25 @@ public class ParameterUseSearchTest {
 
 	@Test
 	public void testFindProductSystemRedef() {
-		Parameter parameter = createParameter("p1", 5d, ParameterScope.GLOBAL);
-		db.insert(parameter);
-		ProductSystem system = new ProductSystem();
-		system.parameterRedefs.add(createParameterRedef("p1"));
+		var param = db.insert(Parameter.global("p1", 5d));
+		var system = new ProductSystem();
+		system.parameterSets.add(
+			ParameterRedefSet.of("baseline", ParameterRedef.of(param, 5)));
 		db.insert(system);
-		List<CategorizedDescriptor> models = search.findUses(Descriptor
-				.of(parameter));
-		db.delete(parameter);
+		var models = search.findUses(Descriptor.of(param));
+		db.delete(param);
 		db.delete(system);
-		Descriptor expected = Descriptor.of(system);
 		Assert.assertEquals(1, models.size());
+		var expected = Descriptor.of(system);
 		Assert.assertEquals(expected, models.get(0));
 	}
 
 	@Test
 	public void testFindProjectRedef() {
-		Parameter parameter = createParameter("p1", 5d, ParameterScope.GLOBAL);
-		db.insert(parameter);
-		Project project = new Project();
-		ProjectVariant variant = new ProjectVariant();
-		variant.parameterRedefs.add(createParameterRedef("p1"));
+		var parameter = db.insert(Parameter.global("p1", 5d));
+		var project = Project.of("project");
+		var variant = new ProjectVariant();
+		variant.parameterRedefs.add(ParameterRedef.of(parameter));
 		project.variants.add(variant);
 		db.insert(project);
 		List<CategorizedDescriptor> models = search.findUses(Descriptor
@@ -180,13 +179,6 @@ public class ParameterUseSearchTest {
 			parameter.value = (double) value;
 		parameter.scope = scope;
 		return parameter;
-	}
-
-	private ParameterRedef createParameterRedef(String name) {
-		ParameterRedef redef = new ParameterRedef();
-		redef.name = name;
-		redef.value = 5d;
-		return redef;
 	}
 
 }

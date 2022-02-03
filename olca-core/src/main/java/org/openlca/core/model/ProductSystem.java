@@ -20,14 +20,6 @@ import jakarta.persistence.Table;
 @Table(name = "tbl_product_systems")
 public class ProductSystem extends CategorizedEntity implements CalculationTarget {
 
-	/**
-	 * @deprecated parameter redefinitions are now organized in parameter sets
-	 */
-	@Deprecated
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "f_owner")
-	public final List<ParameterRedef> parameterRedefs = new ArrayList<>();
-
 	@ElementCollection
 	@CollectionTable(name = "tbl_process_links",
 			joinColumns = @JoinColumn(name = "f_product_system"))
@@ -128,24 +120,21 @@ public class ProductSystem extends CategorizedEntity implements CalculationTarge
 
 	@Override
 	public ProductSystem copy() {
-		var clone = new ProductSystem();
-		Entities.copyFields(this, clone);
-		clone.referenceExchange = referenceExchange;
-		clone.referenceProcess = referenceProcess;
-		clone.targetAmount = targetAmount;
-		clone.processes.addAll(processes);
+		var copy = new ProductSystem();
+		Entities.copyFields(this, copy);
+		copy.referenceExchange = referenceExchange;
+		copy.referenceProcess = referenceProcess;
+		copy.targetAmount = targetAmount;
+		copy.processes.addAll(processes);
 		for (ProcessLink link : processLinks) {
-			clone.processLinks.add(link.copy());
-		}
-		for (ParameterRedef p : parameterRedefs) {
-			clone.parameterRedefs.add(p.copy());
+			copy.processLinks.add(link.copy());
 		}
 		for (ParameterRedefSet s : parameterSets) {
-			clone.parameterSets.add(s.copy());
+			copy.parameterSets.add(s.copy());
 		}
-		clone.targetFlowPropertyFactor = targetFlowPropertyFactor;
-		clone.targetUnit = targetUnit;
-		return clone;
+		copy.targetFlowPropertyFactor = targetFlowPropertyFactor;
+		copy.targetUnit = targetUnit;
+		return copy;
 	}
 
 }

@@ -36,14 +36,6 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 		addParameterSets(json, s);
 		importLinkRefs(json, s);
 		ProductSystemLinks.map(json, conf, s);
-
-		// add parameter redefinitions
-		JsonArray redefs = Json.getArray(json, "parameterRedefs");
-		if (redefs != null) {
-			s.parameterRedefs.addAll(
-					ParameterRedefs.read(redefs, conf));
-		}
-
 		return conf.db.put(s);
 	}
 

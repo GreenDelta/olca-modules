@@ -56,8 +56,19 @@ public class ParameterRedef extends AbstractEntity
 	@Column(name = "is_protected")
 	public boolean isProtected;
 
+	public static ParameterRedef of(Parameter param, double value) {
+		return of(param, null, value);
+	}
+
 	public static ParameterRedef of(Parameter param) {
 		return of(param, null);
+	}
+
+	public static ParameterRedef of(
+		Parameter param, ParameterizedEntity owner, double value) {
+		var p = of(param, owner);
+		p.value = value;
+		return p;
 	}
 
 	public static ParameterRedef of(Parameter param, ParameterizedEntity owner) {

@@ -17,6 +17,7 @@ import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
+import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
@@ -245,8 +246,8 @@ public class ParameterReferencesTest extends AbstractZipTest {
 	public void testProductSystemRedef() {
 		Parameter p1 = createParameter("p1", "3", null, null);
 		Parameter p2 = createParameter("p2", "3", ParameterScope.PROCESS, null);
-		ParameterRedef redef1 = createRedef(p1, null);
-		ParameterRedef redef2 = createRedef(p2, null);
+		ParameterRedef redef1 = createRedef(p1);
+		ParameterRedef redef2 = createRedef(p2);
 		ProductSystem system = createSystem(redef1, redef2);
 		with((store) -> {
 			JsonExport export = new JsonExport(db, store);
@@ -262,8 +263,8 @@ public class ParameterReferencesTest extends AbstractZipTest {
 	public void testProjectRedef() {
 		Parameter p1 = createParameter("p1", "3", null, null);
 		Parameter p2 = createParameter("p2", "3", ParameterScope.PROCESS, null);
-		ParameterRedef redef1 = createRedef(p1, null);
-		ParameterRedef redef2 = createRedef(p2, null);
+		ParameterRedef redef1 = createRedef(p1);
+		ParameterRedef redef2 = createRedef(p2);
 		Project project = createProject(redef1, redef2);
 		with((store) -> {
 			JsonExport export = new JsonExport(db, store);
@@ -346,7 +347,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		return c;
 	}
 
-	private ParameterRedef createRedef(Parameter p, Uncertainty u) {
+	private ParameterRedef createRedef(Parameter p) {
 		ParameterRedef redef = new ParameterRedef();
 		redef.name = p.name;
 		if (p.scope == ParameterScope.PROCESS)
@@ -356,15 +357,14 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		if (p.scope != ParameterScope.GLOBAL)
 			redef.contextId = 1L;
 		redef.value = 1;
-		redef.uncertainty = u;
 		return redef;
 	}
 
 	private ProductSystem createSystem(ParameterRedef... redefs) {
-		ProductSystem s = new ProductSystem();
-		s.refId = UUID.randomUUID().toString();
-		s.parameterRedefs.addAll(Arrays.asList(redefs));
-		return s;
+		var system = new ProductSystem();
+		system.refId = UUID.randomUUID().toString();
+		system.parameterSets.add(ParameterRedefSet.of("baseline", redefs));
+		return system;
 	}
 
 	private Project createProject(ParameterRedef... redefs) {

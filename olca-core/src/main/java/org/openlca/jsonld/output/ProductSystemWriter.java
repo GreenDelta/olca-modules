@@ -67,14 +67,9 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		Out.put(obj, "targetUnit", system.targetUnit, conf, Out.REQUIRED_FIELD);
 		Out.put(obj, "targetAmount", system.targetAmount);
 
-		putParameterSets(obj, system.parameterSets);
-
 		// map the parameter redefinitions
 		GlobalParameters.sync(system, conf);
-		if (!system.parameterRedefs.isEmpty()) {
-			JsonArray redefs = ParameterRedefs.map(system.parameterRedefs, conf);
-			Out.put(obj, "parameterRedefs", redefs);
-		}
+		putParameterSets(obj, system.parameterSets);
 
 		if (conf.db == null)
 			return obj;
@@ -178,19 +173,19 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 	private void putParameterSets(JsonObject obj, List<ParameterRedefSet> sets) {
 		if (sets.isEmpty())
 			return;
-		JsonArray array = new JsonArray();
-		for (ParameterRedefSet s : sets) {
-			JsonObject paramSet = new JsonObject();
-			array.add(paramSet);
-			Out.put(paramSet, "name", s.name);
-			Out.put(paramSet, "description", s.description);
-			Out.put(paramSet, "isBaseline", s.isBaseline);
-			if (s.parameters.isEmpty())
-				continue;
-			JsonArray params = ParameterRedefs.map(s.parameters, conf);
-			Out.put(paramSet, "parameters", params);
+		var jsonSets = new JsonArray();
+		for (var set : sets) {
+			var jsonSet = new JsonObject();
+			jsonSets.add(jsonSet);
+			Out.put(jsonSet, "name", set.name);
+			Out.put(jsonSet, "description", set.description);
+			Out.put(jsonSet, "isBaseline", set.isBaseline);
+			if (!set.parameters.isEmpty()) {
+				var params = ParameterRedefs.map(set.parameters, conf);
+				Out.put(jsonSet, "parameters", params);
+			}
 		}
-		Out.put(obj, "parameterSets", array);
+		Out.put(obj, "parameterSets", jsonSets);
 	}
 
 	@Override

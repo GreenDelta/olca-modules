@@ -13,7 +13,6 @@ import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
-import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
@@ -51,9 +50,8 @@ class GlobalParameters {
 		if (skipSync(conf))
 			return;
 		Set<String> names = new HashSet<>();
-		names.addAll(getGlobals(sys.parameterRedefs));
-		for (ParameterRedefSet s : sys.parameterSets) {
-			names.addAll(getGlobals(s.parameters));
+		for (var set : sys.parameterSets) {
+			names.addAll(getGlobals(set.parameters));
 		}
 		writeGlobals(names, conf);
 	}
