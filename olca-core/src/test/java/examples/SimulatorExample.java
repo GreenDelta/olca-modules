@@ -2,9 +2,6 @@ package examples;
 
 import java.io.File;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ImpactMethodDao;
-import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.Derby;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.math.Simulator;
@@ -12,10 +9,8 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.julia.Julia;
-import org.openlca.julia.JuliaSolver;
 
 public class SimulatorExample {
 
@@ -24,7 +19,7 @@ public class SimulatorExample {
 		var system = db.get(ProductSystem.class,
 			"53f9b9db-139f-4617-bf2b-8fc715b3cd16");
 		var method = db.get(ImpactMethod.class,
-			"207ffac9-aaa8-401d-ac90-874defd3751a");;
+			"207ffac9-aaa8-401d-ac90-874defd3751a");
 		var setup = CalculationSetup.monteCarlo(system, 200)
 			.withImpactMethod(method);
 		ImpactDescriptor gwp = null;
@@ -38,9 +33,8 @@ public class SimulatorExample {
 
 		String juliaLibPath = "C:/Users/ms/Projects/openLCA/eclipse";
 		Julia.loadFromDir(new File(juliaLibPath));
-		JuliaSolver solver = new JuliaSolver();
 
-		Simulator simulator = Simulator.create(setup, db, solver);
+		Simulator simulator = Simulator.create(setup, db);
 
 		double min = 0;
 		double max = 0;

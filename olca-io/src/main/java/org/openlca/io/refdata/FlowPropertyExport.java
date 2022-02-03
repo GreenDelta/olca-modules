@@ -1,22 +1,23 @@
 package org.openlca.io.refdata;
 
+import java.io.IOException;
 import java.util.List;
 
+import org.apache.commons.csv.CSVPrinter;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.FlowProperty;
-import org.supercsv.io.CsvListWriter;
 
 class FlowPropertyExport extends AbstractExport {
 
 	@Override
-	protected void doIt(CsvListWriter writer, IDatabase database) throws Exception {
+	protected void doIt(CSVPrinter printer, IDatabase db) throws IOException {
 		log.trace("write flow properties");
-		FlowPropertyDao dao = new FlowPropertyDao(database);
+		FlowPropertyDao dao = new FlowPropertyDao(db);
 		List<FlowProperty> properties = dao.getAll();
 		for (FlowProperty property : properties) {
 			Object[] line = createLine(property);
-			writer.write(line);
+			printer.printRecord(line);
 		}
 		log.trace("{} flow properties written", properties.size());
 	}

@@ -8,6 +8,7 @@ import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.openlca.core.model.ModelType;
+import org.openlca.git.util.GitUtil;
 
 class ModelFilter extends TreeFilter {
 
@@ -20,12 +21,12 @@ class ModelFilter extends TreeFilter {
 	}
 
 	@Override
-	public boolean include(TreeWalk tw)
+	public boolean include(TreeWalk walk)
 			throws MissingObjectException, IncorrectObjectTypeException, IOException {
-		if (tw.getFileMode() == FileMode.TREE)
-			return tw.getPathString().startsWith(type.name());
-		var name = tw.getNameString();
-		return name.equals(refId + ".proto") || name.equals(refId + ".json");
+		if (walk.getFileMode() == FileMode.TREE)
+			return walk.getPathString().startsWith(type.name());
+		var name = walk.getNameString();
+		return name.equals(refId + GitUtil.DATASET_SUFFIX);
 	}
 
 	@Override

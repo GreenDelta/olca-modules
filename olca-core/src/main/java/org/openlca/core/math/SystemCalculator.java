@@ -7,9 +7,11 @@ import java.util.Map;
 import java.util.function.Function;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Result;
@@ -18,7 +20,7 @@ import org.openlca.core.results.FullResult;
 import org.openlca.core.results.IResult;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.core.results.providers.ResultModelProvider;
-import org.openlca.core.results.providers.ResultProviders;
+import org.openlca.core.results.providers.SolverContext;
 
 /**
  * Calculates the results of a calculation setup. The product systems of the
@@ -26,7 +28,25 @@ import org.openlca.core.results.providers.ResultProviders;
  * calculator does not check if there are obvious errors like sub-system cycles
  * etc.
  */
-public record SystemCalculator(IDatabase db) {
+public class SystemCalculator {
+
+	private final IDatabase db;
+	private LibraryDir libraryDir;
+	private MatrixSolver solver;
+
+	public SystemCalculator(IDatabase db) {
+		this.db = db;
+	}
+
+	public SystemCalculator withLibraryDir(LibraryDir libraryDir) {
+		this.libraryDir = libraryDir;
+		return this;
+	}
+
+	public SystemCalculator withSolver(MatrixSolver solver) {
+		this.solver = solver;
+		return this;
+	}
 
 	/**
 	 * Calculates the given calculation setup. It performs the calculation type as
@@ -43,7 +63,7 @@ public record SystemCalculator(IDatabase db) {
 			case CONTRIBUTION_ANALYSIS -> calculateContributions(setup);
 			case UPSTREAM_ANALYSIS -> calculateFull(setup);
 			case MONTE_CARLO_SIMULATION -> {
-				var simulator = Simulator.create(setup, db, ResultProviders.getSolver());
+				var simulator = Simulator.create(setup, db);
 				for (int i = 0; i < setup.numberOfRuns(); i++) {
 					simulator.nextRun();
 				}
@@ -53,48 +73,49 @@ public record SystemCalculator(IDatabase db) {
 	}
 
 	public SimpleResult calculateSimple(CalculationSetup setup) {
-		return with(setup, matrixData -> SimpleResult.of(db, matrixData));
+		return with(setup, SimpleResult::of);
 	}
 
 	public ContributionResult calculateContributions(CalculationSetup setup) {
-		return with(setup, matrixData -> ContributionResult.of(db, matrixData));
+		return with(setup, ContributionResult::of);
 	}
 
 	public FullResult calculateFull(CalculationSetup setup) {
-		return with(setup, matrixData -> FullResult.of(db, matrixData));
+		return with(setup, FullResult::of);
 	}
 
 	private <T extends SimpleResult> T with(
-		CalculationSetup setup, Function<MatrixData, T> fn) {
+		CalculationSetup setup, Function<SolverContext, T> fn) {
 		var techIndex = TechIndex.of(db, setup);
 		var subs = solveSubSystems(setup, techIndex);
 		var data = MatrixData.of(db, techIndex)
 			.withSetup(setup)
 			.withSubResults(subs)
 			.build();
+		var context = SolverContext.of(db, data)
+			.libraryDir(libraryDir)
+			.solver(solver);
 
-		T result = fn.apply(data);
+		T result = fn.apply(context);
 
 		for (var sub : subs.entrySet()) {
-			var provider = sub.getKey();
+			var techFlow = sub.getKey();
 			var subResult = sub.getValue();
-			result.addSubResult(provider, subResult);
 
-			if (provider.isResult()
+			// for sub-systems add the sub-result
+			if (techFlow.isProductSystem()) {
+				result.addSubResult(techFlow, subResult);
+				continue;
+			}
+
+			// add impact assessment results of result providers
+			// that have no inventory result
+			if (techFlow.isResult()
 				&& result.hasImpacts()
 				&& subResult.hasImpacts()
 				&& !subResult.hasEnviFlows()) {
-
-				var totals = result.totalImpactResults();
-				var scaling = result.getScalingFactor(provider);
-				result.impactIndex().each((i, impact) -> {
-					var subAmount = subResult.getTotalImpactResult(impact);
-					if (subAmount != 0) {
-						totals[i] += scaling * subAmount;
-					}
-				});
+				result.provider().addResultImpacts(techFlow, subResult);
 			}
-
 		}
 
 		return result;

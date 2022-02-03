@@ -1,5 +1,6 @@
 package org.openlca.io.ecospold1.input;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,7 +17,6 @@ import org.openlca.ecospold.IReferenceFunction;
 import org.openlca.ecospold.io.DataSet;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.UnitMappingEntry;
-import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
 import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
@@ -33,13 +33,15 @@ class FlowImport {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final DB db;
 	private final UnitMapping unitMapping;
-	private final FlowMap flowMap;
+	private final Map<String, FlowMapEntry> flowMap;
 	private final Map<String, FlowBucket> cache = new HashMap<>();
 
 	public FlowImport(DB db, ImportConfig config) {
 		this.db = db;
 		this.unitMapping = config.getUnitMapping();
-		this.flowMap = config.getFlowMap();
+		this.flowMap = config.getFlowMap() == null
+			? Collections.emptyMap()
+			: config.getFlowMap().index();
 	}
 
 	/** Import a flow from a process import or export. */
@@ -115,7 +117,7 @@ class FlowImport {
 
 	/** Try to find a flow from the mapping tables. */
 	private FlowBucket getMappedFlow(String genKey) {
-		FlowMapEntry entry = flowMap.getEntry(genKey);
+		var entry = flowMap.get(genKey);
 		if (entry == null)
 			return null;
 		Flow flow = db.get(Flow.class, entry.targetFlowId());

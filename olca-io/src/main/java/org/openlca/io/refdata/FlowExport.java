@@ -1,22 +1,23 @@
 package org.openlca.io.refdata;
 
+import java.io.IOException;
 import java.util.List;
 
+import org.apache.commons.csv.CSVPrinter;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
-import org.supercsv.io.CsvListWriter;
 
 class FlowExport extends AbstractExport {
 
 	@Override
-	protected void doIt(CsvListWriter writer, IDatabase database) throws Exception {
+	protected void doIt(CSVPrinter printer, IDatabase db) throws IOException {
 		log.trace("write flows");
-		FlowDao dao = new FlowDao(database);
+		FlowDao dao = new FlowDao(db);
 		List<Flow> flows = dao.getAll();
 		for (Flow flow : flows) {
 			Object[] line = createLine(flow);
-			writer.write(line);
+			printer.printRecord(line);
 		}
 		log.trace("{} flows written", flows.size());
 	}

@@ -76,7 +76,7 @@ class Converter {
 		var refId = name.substring(0, name.indexOf('.'));
 		try {
 			var model = config.database.get(type, refId);
-			var data = ProtoWriter.convert(model, config);
+			var data = JsonWriter.convert(model, config);
 			offer(path, data);
 		} catch (Exception e) {
 			log.error("failed to convert data set " + diff, e);

@@ -46,23 +46,21 @@ public class SankeyTest {
 			visited.incrementAndGet();
 
 			switch (node.index) {
-				case 0:
+				case 0 -> {
 					Assert.assertEquals(1.0, node.direct, 1e-10);
 					Assert.assertEquals(11.0, node.total, 1e-10);
 					Assert.assertEquals(1.0, node.share, 1e-10);
-					break;
-
-				case 1:
+				}
+				case 1 -> {
 					Assert.assertEquals(2.5, node.direct, 1e-10);
 					Assert.assertEquals(10, node.total, 1e-10);
 					Assert.assertEquals(10.0 / 11.0, node.share, 1e-10);
-					break;
-
-				case 2:
+				}
+				case 2 -> {
 					Assert.assertEquals(7.5, node.direct, 1e-10);
 					Assert.assertEquals(8.0, node.total, 1e-10);
 					Assert.assertEquals(8.0 / 11.0, node.share, 1e-10);
-					break;
+				}
 			}
 		});
 		Assert.assertEquals(3, visited.get());

@@ -39,7 +39,8 @@ public class SimulatorTest {
 		// create the simulator
 		var setup = CalculationSetup.monteCarlo(s, 100)
 			.withImpactMethod(m);
-		var simulator = Simulator.create(setup, db, new JavaSolver());
+		var simulator = Simulator.create(setup, db)
+			.withSolver(new JavaSolver());
 
 		// check the simulation results
 		for (int i = 0; i < 100; i++) {

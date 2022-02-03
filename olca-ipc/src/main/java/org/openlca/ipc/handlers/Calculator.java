@@ -8,11 +8,11 @@ import java.util.function.Function;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.model.CalculationSetup;
-import org.openlca.core.model.CalculationType;
 import org.openlca.core.math.Simulator;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.AllocationMethod;
+import org.openlca.core.model.CalculationSetup;
+import org.openlca.core.model.CalculationType;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ParameterRedef;
@@ -50,7 +50,8 @@ public class Calculator {
 		if (p.second != null)
 			return p.second;
 		var setup = p.first;
-		var simulator = Simulator.create(setup, db, context.solver);
+		var simulator = Simulator.create(setup, db)
+			.withSolver(context.solver);
 		var id = UUID.randomUUID().toString();
 		var obj = new JsonObject();
 		obj.addProperty("@id", id);

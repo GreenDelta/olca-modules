@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- ILCD Format Version 1.1 Schemas Build 983 -->
-<!--
-Copyright (c) 1995-2009, European Commission. All rights reserved.
-
-This file is part of the ILCD data format. The license conditions for the ILCD data format can be
-found in the file ILCD_format_and_editor_license.txt included in this distribution. The license is
-also available at http://lca.jrc.ec.europa.eu/eplca/doc/ILCD_format_and_editor_license.txt.
--->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns="http://lca.jrc.it/ILCD/Categories"
            xmlns:categories="http://lca.jrc.it/ILCD/Categories"
@@ -33,7 +26,7 @@ also available at http://lca.jrc.ec.europa.eu/eplca/doc/ILCD_format_and_editor_l
    <xs:complexType name="CategorySystemType">
       <xs:sequence>
          <xs:element name="referenceToSource" type="common:GlobalReferenceType" minOccurs="0"/>
-         <xs:element name="categories" type="categories:CategoriesType" maxOccurs="7"/>
+         <xs:element name="categories" type="categories:CategoriesType" maxOccurs="8"/>
       </xs:sequence>
       <xs:attribute name="name" type="xs:string"/>
    </xs:complexType>
@@ -47,6 +40,7 @@ also available at http://lca.jrc.ec.europa.eu/eplca/doc/ILCD_format_and_editor_l
          <xs:enumeration value="UnitGroup"/>
          <xs:enumeration value="Source"/>
          <xs:enumeration value="Contact"/>
+         <xs:enumeration value="LifeCycleModel"/>
       </xs:restriction>
    </xs:simpleType>
 </xs:schema>

@@ -1,5 +1,6 @@
 package org.openlca.git.iterator;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -103,12 +104,12 @@ abstract class EntryIterator extends AbstractTreeIterator {
 		mode = entry.fileMode.getBits();
 	}
 
-	protected TreeEntry getEntry() {
+	public TreeEntry getEntry() {
 		if (eof())
 			return null;
 		return entries.get(index);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public <T> T getEntryData() {
 		if (eof())
@@ -116,4 +117,9 @@ abstract class EntryIterator extends AbstractTreeIterator {
 		return (T) getEntry().data;
 	}
 
+	public File getEntryFile() {
+		if (eof())
+			return null;
+		return getEntry().file;
+	}
 }

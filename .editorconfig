@@ -12,3 +12,5 @@ indent_size = 2
 [*.{java, xml}]
 indent_style = tab
 indent_size = 2
+tab_width = 2
+

@@ -11,8 +11,7 @@ public class Entry extends Reference {
 	public final EntryType typeOfEntry;
 
 	public Entry(String path, String commitId, String name, ObjectId objectId) {
-		super(getModelType(path, name), getRefId(name), commitId, Strings.nullOrEmpty(path) ? name : path + "/" + name,
-				objectId);
+		super(getModelType(path, name), getRefId(name), commitId, getFullPath(path, name), objectId);
 		this.name = this.refId == null ? GitUtil.decode(name) : name;
 		if (Strings.nullOrEmpty(path)) {
 			typeOfEntry = EntryType.MODEL_TYPE;
@@ -37,11 +36,17 @@ public class Entry extends Reference {
 		return name.substring(0, name.indexOf("."));
 	}
 
+	private static String getFullPath(String path, String name) {
+		if (Strings.nullOrEmpty(path))
+			return name;
+		return path + "/" + name;
+	}
+
 	public static enum EntryType {
 
 		MODEL_TYPE,
 		CATEGORY,
-		DATASET
+		DATASET;
 
 	}
 }

@@ -4,7 +4,9 @@ import java.util.Arrays;
 
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.results.SimpleResult;
 
 /**
  * Defines the general interface of a `ResultProvider`. The documentation is
@@ -402,4 +404,18 @@ public interface ResultProvider {
 			return EMPTY_VECTOR;
 		return Arrays.copyOf(values, values.length);
 	}
+
+	/**
+	 * Add an impact assessment results to the internal data structures of this
+	 * result provider. This is a step that is only required and useful when
+	 * there are sub-results used in a product system and only, if these
+	 * sub-results do not have inventory results.
+	 *
+	 * @param techFlow the corresponding provider flow that represents the result
+	 *                 in the underlying data structures of this provider
+	 * @param result   the result that contains the impact assessment results
+	 *                 related to the amount of the provider flow used in the
+	 *                 tech-matrix of this provider.
+	 */
+	void addResultImpacts(TechFlow techFlow, SimpleResult result);
 }

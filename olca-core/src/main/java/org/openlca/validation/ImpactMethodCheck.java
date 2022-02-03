@@ -90,28 +90,17 @@ class ImpactMethodCheck implements Runnable {
 	private void checkDocRefs() {
 		if (v.wasCanceled())
 			return;
-
 		var sql = "select " +
 			/* 1 */ "id, " +
-			/* 2 */ "f_author, " +
-			/* 3 */ "f_generator from tbl_impact_methods";
+			/* 2 */ "f_source from tbl_impact_methods";
 		NativeSql.on(v.db).query(sql, r -> {
 			var id = r.getLong(1);
-
-			var author = r.getLong(2);
-			if (author != 0 && !v.ids.contains(ModelType.ACTOR, author)) {
+			var source = r.getLong(2);
+			if (source != 0 && !v.ids.contains(ModelType.SOURCE, source)) {
 				v.warning(id, ModelType.IMPACT_METHOD,
-					"invalid reference to author @" + author);
+					"invalid reference to source @" + source);
 				foundErrors = true;
 			}
-
-			var generator = r.getLong(3);
-			if (generator != 0 && !v.ids.contains(ModelType.ACTOR, generator)) {
-				v.warning(id, ModelType.ACTOR,
-					"invalid reference to generator @" + generator);
-				foundErrors = true;
-			}
-
 			return !v.wasCanceled();
 		});
 	}

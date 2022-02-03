@@ -1,7 +1,9 @@
 package org.openlca.git.writer;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -20,7 +22,7 @@ import org.openlca.git.Config;
 import org.openlca.git.iterator.DiffIterator;
 import org.openlca.git.model.Diff;
 import org.openlca.git.model.DiffType;
-import org.openlca.git.util.ObjectIds;
+import org.openlca.git.util.GitUtil;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +51,7 @@ public class CommitWriter {
 					.filter(d -> d.type != DiffType.DELETED)
 					.toList());
 			var previousCommitTreeId = getPreviousCommitTreeId();
-			var treeId = syncTree("", previousCommitTreeId, new DiffIterator(diffs));
+			var treeId = syncTree("", previousCommitTreeId, new DiffIterator(config, diffs));
 			config.store.save();
 			var commitId = commit(treeId, message);
 			return commitId.name();
@@ -76,7 +78,7 @@ public class CommitWriter {
 				} else if (mode == FileMode.REGULAR_FILE) {
 					id = handleFile(walk);
 				}
-				if (ObjectIds.isNullOrZero(id))
+				if (id == null || id.equals(ObjectId.zeroId()))
 					continue;
 				tree.append(name, mode, id);
 				appended = true;
@@ -120,18 +122,29 @@ public class CommitWriter {
 		if (walk.getFileMode(1) == FileMode.MISSING)
 			return blobId;
 		var path = walk.getPathString();
-		Diff diff = walk.getTree(1, DiffIterator.class).getEntryData();
-		boolean matchesPath = diff != null && diff.path().equals(path);
-		if (matchesPath && diff.type == DiffType.DELETED) {
-			config.store.invalidate(path);
+		var iterator = walk.getTree(1, DiffIterator.class);
+		Diff diff = iterator.getEntryData();
+		var file = iterator.getEntryFile();
+		if (diff.type == DiffType.DELETED && matches(path, diff, file)) {
+			if (file == null) {
+				config.store.invalidate(path);
+			}
 			return null;
 		}
+		if (file != null)
+			return inserter.insert(Constants.OBJ_BLOB, Files.readAllBytes(file.toPath()));
 		var data = converter.take(path);
-		if (diff.type == DiffType.MODIFIED && ObjectIds.equal(data, blobId))
-			return blobId;
 		blobId = inserter.insert(Constants.OBJ_BLOB, data);
 		config.store.put(path, blobId);
 		return blobId;
+	}
+
+	private boolean matches(String path, Diff diff, File file) {
+		if (diff == null)
+			return false;
+		if (file == null)
+			return path.equals(diff.path());
+		return path.startsWith(diff.path().substring(0, diff.path().lastIndexOf(GitUtil.DATASET_SUFFIX)));
 	}
 
 	private ObjectId getPreviousCommitTreeId() {

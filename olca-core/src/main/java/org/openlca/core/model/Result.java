@@ -44,8 +44,19 @@ public class Result extends CategorizedEntity {
 	public String urn;
 
 	public static Result of(String name) {
+		return of(name, null);
+	}
+
+	public static Result of(String name, Flow refFlow) {
 		var result = new Result();
 		Entities.init(result, name);
+		if (refFlow != null) {
+			var qRef = refFlow.flowType == FlowType.WASTE_FLOW
+				? FlowResult.inputOf(refFlow, 1)
+				: FlowResult.outputOf(refFlow, 1);
+			result.referenceFlow = qRef;
+			result.flowResults.add(qRef);
+		}
 		return result;
 	}
 

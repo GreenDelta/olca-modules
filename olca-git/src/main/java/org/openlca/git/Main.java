@@ -22,7 +22,7 @@ import com.google.common.io.Files;
 
 public class Main {
 
-	private static final String db = "ecoinvent_36_cutoff_lci_20200206";
+	private static final String db = "ecoinvent_371_apos_unit_20201221";
 	// private static final String db = "ecoinvent_36_cutoff_unit_20200512";
 	private static final PersonIdent committer = new PersonIdent("greve", "greve@greendelta.com");
 	private static final File repoDir = new File("C:/Users/Sebastian/test/olca-git/" + db);
@@ -37,8 +37,8 @@ public class Main {
 		try (var database = new Derby(tmp);
 				var repo = new FileRepository(repoDir)) {
 			var storeFile = new File(tmp, "object-id.store");
-			var store = ObjectIdStore.openJson(storeFile);
-			var config = Config.newJsonConfig(database, store, repo, committer);
+			var store = ObjectIdStore.open(storeFile);
+			var config = new Config(database, store, repo, committer);
 			config.checkExisting = false;
 			var writer = new DbWriter(config);
 

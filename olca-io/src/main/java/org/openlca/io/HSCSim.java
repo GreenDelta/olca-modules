@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.RandomAccessFile;
 import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -39,10 +41,10 @@ import com.google.gson.JsonObject;
 public class HSCSim {
 
 	public static Optional<Process> importProcess(
-			IDatabase db, File file, FlowMap flowMap) {
+		IDatabase db, File file, FlowMap flowMap) {
 		try (var raf = new RandomAccessFile(file, "r");
-			 var chan = raf.getChannel();
-			 var buff = Channels.newReader(chan, StandardCharsets.UTF_8)) {
+				 var chan = raf.getChannel();
+				 var buff = Channels.newReader(chan, StandardCharsets.UTF_8)) {
 			var gson = new Gson();
 			var json = gson.fromJson(buff, JsonObject.class);
 			return importProcess(db, json, flowMap);
@@ -54,19 +56,21 @@ public class HSCSim {
 	}
 
 	public static Optional<Process> importProcess(
-			IDatabase db, JsonObject obj, FlowMap flowMap) {
+		IDatabase db, JsonObject obj, FlowMap flowMap) {
 		return new Import(db, flowMap).of(obj);
 	}
 
 	private static class Import {
 
 		private final IDatabase db;
-		private final FlowMap map;
+		private final Map<String, FlowMapEntry> map;
 		private UnitMapping units;
 
 		Import(IDatabase db, FlowMap map) {
 			this.db = db;
-			this.map = map;
+			this.map = map == null
+				? Collections.emptyMap()
+				: map.index();
 		}
 
 		Optional<Process> of(JsonObject obj) {
@@ -96,12 +100,12 @@ public class HSCSim {
 			}
 			process.processType = ProcessType.LCI_RESULT;
 			process.category = new CategoryDao(db)
-					.sync(ModelType.PROCESS, "HSC Flow Sheets");
+				.sync(ModelType.PROCESS, "HSC Flow Sheets");
 			return process;
 		}
 
 		private void addExchanges(
-				Process process, JsonArray streams, boolean asInputs) {
+			Process process, JsonArray streams, boolean asInputs) {
 			if (streams == null)
 				return;
 			for (var elem : streams) {
@@ -141,7 +145,7 @@ public class HSCSim {
 				return Optional.of(fromExisting(flow, unit(stream)));
 
 			// create an exchange from a mapped flow
-			var mapEntry = map.getEntry(id);
+			var mapEntry = map.get(id);
 			if (mapEntry != null) {
 				var e = fromMapped(mapEntry);
 				if (e.isPresent())
@@ -154,9 +158,9 @@ public class HSCSim {
 			if (name == null)
 				return Optional.empty();
 			flow = flowDao.insert(
-					Flow.product(name, u.flowProperty));
+				Flow.product(name, u.flowProperty));
 			var exchange = Exchange.of(
-					flow, u.flowProperty, u.unit);
+				flow, u.flowProperty, u.unit);
 			exchange.amount = 1.0;
 			return Optional.of(exchange);
 		}
@@ -172,12 +176,12 @@ public class HSCSim {
 		 */
 		private Optional<Exchange> fromMapped(FlowMapEntry fme) {
 			if (fme == null
-					|| fme.targetFlow() == null
-					|| fme.targetFlow().flow == null)
+				|| fme.targetFlow() == null
+				|| fme.targetFlow().flow == null)
 				return Optional.empty();
 
 			var flow = new FlowDao(db).getForRefId(
-					fme.targetFlow().flow.refId);
+				fme.targetFlow().flow.refId);
 			if (flow == null)
 				return Optional.empty();
 
@@ -185,7 +189,7 @@ public class HSCSim {
 			FlowProperty property = null;
 			if (fme.targetFlow().property != null) {
 				property = new FlowPropertyDao(db).getForRefId(
-						fme.targetFlow().property.refId);
+					fme.targetFlow().property.refId);
 			}
 			if (property == null) {
 				property = flow.referenceFlowProperty;
@@ -195,7 +199,7 @@ public class HSCSim {
 			Unit unit = null;
 			if (fme.targetFlow().unit != null) {
 				unit = new UnitDao(db).getForRefId(
-						fme.targetFlow().unit.refId);
+					fme.targetFlow().unit.refId);
 			}
 			if (unit == null) {
 				unit = flow.getReferenceUnit();
@@ -211,7 +215,7 @@ public class HSCSim {
 			Unit u = null;
 			for (var f : flow.flowPropertyFactors) {
 				if (f.flowProperty == null
-						|| f.flowProperty.unitGroup == null)
+					|| f.flowProperty.unitGroup == null)
 					continue;
 				u = f.flowProperty.unitGroup.getUnit(unit);
 				if (u != null) {
@@ -220,8 +224,8 @@ public class HSCSim {
 				}
 			}
 			var exchange = prop == null
-					? Exchange.of(flow)
-					: Exchange.of(flow, prop, u);
+				? Exchange.of(flow)
+				: Exchange.of(flow, prop, u);
 			exchange.amount = 1.0;
 			return exchange;
 		}
@@ -232,8 +236,8 @@ public class HSCSim {
 				return "unit";
 			unit = unit.trim();
 			return unit.endsWith("/h")
-					? unit.substring(0, unit.length() - 2)
-					: unit + "h";
+				? unit.substring(0, unit.length() - 2)
+				: unit + "h";
 		}
 
 		private UnitMappingEntry mappedUnit(JsonObject stream) {
@@ -248,9 +252,9 @@ public class HSCSim {
 			// for the unknown unit
 			var unit = Unit.of(symbol);
 			var group = new UnitGroupDao(db).insert(
-					UnitGroup.of("Unit " + symbol, unit));
+				UnitGroup.of("Unit " + symbol, unit));
 			var flowProp = new FlowPropertyDao(db).insert(
-					FlowProperty.of("Quantity of " + symbol, group));
+				FlowProperty.of("Quantity of " + symbol, group));
 			entry = new UnitMappingEntry();
 			entry.factor = 1.0;
 			entry.flowProperty = flowProp;

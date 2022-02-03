@@ -2,6 +2,8 @@ package org.openlca.core.library;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,6 +36,7 @@ import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.jsonld.Json;
 import org.openlca.npy.Array2d;
+import org.openlca.util.Exceptions;
 import org.slf4j.LoggerFactory;
 
 public class Library {
@@ -44,10 +47,27 @@ public class Library {
 	public final File folder;
 	private LibraryInfo _info;
 
-	private final Map<LibraryMatrix, MatrixReader> matrixCache = new HashMap<>();
+	private final Map<LibMatrix, MatrixReader> matrixCache = new HashMap<>();
 
 	public Library(File folder) {
 		this.folder = folder;
+	}
+
+	/**
+	 * Creates an empty library in the given library folder.
+	 */
+	public static Library create(LibraryDir dir, LibraryInfo info) {
+		var libDir = dir.getFolder(info);
+		if (!libDir.exists()) {
+			try {
+				Files.createDirectories(libDir.toPath());
+			} catch (IOException e) {
+				Exceptions.unchecked("failed to create library folder " + libDir, e);
+			}
+		}
+		var lib = new Library(libDir);
+		info.writeTo(lib);
+		return lib;
 	}
 
 	/**
@@ -74,11 +94,10 @@ public class Library {
 			version = Version.format(versionPart);
 		}
 
-		var info = new LibraryInfo();
-		info.name = name;
-		info.version = version;
-		info.isRegionalized = data.enviIndex != null
+		var regionalized = data.enviIndex != null
 			&& data.enviIndex.isRegionalized();
+		var info = LibraryInfo.of(name, version)
+			.isRegionalized(regionalized);
 		new LibraryExport(db, folder)
 			.withConfig(info)
 			.withData(data)
@@ -107,7 +126,7 @@ public class Library {
 	 */
 	public Set<Library> getDependencies() {
 		var info = getInfo();
-		if (info.dependencies.isEmpty())
+		if (info.dependencies().isEmpty())
 			return Collections.emptySet();
 		var libDir = new LibraryDir(folder.getParentFile());
 
@@ -117,7 +136,7 @@ public class Library {
 		while (!queue.isEmpty()) {
 			queue.poll()
 				.getInfo()
-				.dependencies.stream()
+				.dependencies().stream()
 				.map(libDir::get)
 				.filter(Optional::isPresent)
 				.map(Optional::get)
@@ -136,9 +155,9 @@ public class Library {
 			return;
 		var info = getInfo();
 		var depID = dependency.id();
-		if (info.dependencies.contains(depID))
+		if (info.dependencies().contains(depID))
 			return;
-		info.dependencies.add(depID);
+		info.dependencies().add(depID);
 		info.writeTo(this);
 	}
 
@@ -227,7 +246,7 @@ public class Library {
 			return Optional.empty();
 
 		var info = getInfo();
-		var index = info.isRegionalized
+		var index = info.isRegionalized()
 			? EnviIndex.createRegionalized()
 			: EnviIndex.create();
 
@@ -299,7 +318,7 @@ public class Library {
 				(d1, d2) -> d1));
 	}
 
-	public boolean hasMatrix(LibraryMatrix m) {
+	public boolean hasMatrix(LibMatrix m) {
 		var npy = new File(folder, m.name() + ".npy");
 		if (npy.exists())
 			return true;
@@ -307,7 +326,7 @@ public class Library {
 		return npz.exists();
 	}
 
-	public Optional<MatrixReader> getMatrix(LibraryMatrix m) {
+	public Optional<MatrixReader> getMatrix(LibMatrix m) {
 		var matrix = matrixCache.get(m);
 		if (matrix != null)
 			return Optional.of(matrix);
@@ -336,7 +355,7 @@ public class Library {
 		}
 	}
 
-	public Optional<double[]> getColumn(LibraryMatrix m, int column) {
+	public Optional<double[]> getColumn(LibMatrix m, int column) {
 		var matrix = matrixCache.get(m);
 		if (matrix != null)
 			return Optional.of(matrix.getColumn(column));
@@ -367,7 +386,7 @@ public class Library {
 	/**
 	 * Get the diagonal of the given library matrix.
 	 */
-	public Optional<double[]> getDiagonal(LibraryMatrix m) {
+	public Optional<double[]> getDiagonal(LibMatrix m) {
 		var matrix = matrixCache.get(m);
 		if (matrix != null)
 			return Optional.of(matrix.diag());

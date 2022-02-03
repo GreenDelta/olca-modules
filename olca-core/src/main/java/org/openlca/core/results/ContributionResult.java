@@ -13,6 +13,7 @@ import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.providers.ResultProvider;
 import org.openlca.core.results.providers.ResultProviders;
+import org.openlca.core.results.providers.SolverContext;
 
 /**
  * The `ContributionResult` extends the `SimpleResult` type. It also contains
@@ -27,7 +28,11 @@ public class ContributionResult extends SimpleResult {
 	}
 
 	public static ContributionResult of(IDatabase db, MatrixData data) {
-		var provider = ResultProviders.lazyOf(db, data);
+		return of(SolverContext.of(db, data));
+	}
+
+	public static ContributionResult of(SolverContext context) {
+		var provider = ResultProviders.lazyOf(context);
 		return new ContributionResult(provider);
 	}
 
@@ -52,7 +57,7 @@ public class ContributionResult extends SimpleResult {
 	 * of the contributions of all of these process-product pairs.
 	 */
 	public double getDirectFlowResult(
-			CategorizedDescriptor process, EnviFlow flow) {
+		CategorizedDescriptor process, EnviFlow flow) {
 		double total = 0;
 		for (var p : techIndex().getProviders(process)) {
 			total += getDirectFlowResult(p, flow);
@@ -65,7 +70,7 @@ public class ContributionResult extends SimpleResult {
 	 * of all elementary flows in the product system.
 	 */
 	public List<FlowValue> getFlowContributions(
-			CategorizedDescriptor process) {
+		CategorizedDescriptor process) {
 		if (!hasEnviFlows())
 			return Collections.emptyList();
 		var results = new ArrayList<FlowValue>();
@@ -81,11 +86,11 @@ public class ContributionResult extends SimpleResult {
 	 * result of the given flow.
 	 */
 	public List<Contribution<CategorizedDescriptor>> getProcessContributions(
-			EnviFlow flow) {
+		EnviFlow flow) {
 		return Contributions.calculate(
-				getProcesses(),
-				getTotalFlowResult(flow),
-				d -> getDirectFlowResult(d, flow));
+			getProcesses(),
+			getTotalFlowResult(flow),
+			d -> getDirectFlowResult(d, flow));
 	}
 
 	/**
@@ -93,14 +98,14 @@ public class ContributionResult extends SimpleResult {
 	 * category result $j$: $\mathbf{D}[i,j]$.
 	 */
 	public double getDirectImpactResult(
-			TechFlow product, ImpactDescriptor impact) {
+		TechFlow product, ImpactDescriptor impact) {
 		if (!hasImpacts())
 			return 0;
 		int impactIdx = impactIndex().of(impact);
 		int productIdx = techIndex().of(product);
 		return impactIdx < 0 || productIdx < 0
-				? 0
-				: provider.directImpactOf(impactIdx, productIdx);
+			? 0
+			: provider.directImpactOf(impactIdx, productIdx);
 	}
 
 	/**
@@ -109,7 +114,7 @@ public class ContributionResult extends SimpleResult {
 	 * contributions of all of these process-product pairs.
 	 */
 	public double getDirectImpactResult(
-			CategorizedDescriptor process, ImpactDescriptor impact) {
+		CategorizedDescriptor process, ImpactDescriptor impact) {
 		double total = 0;
 		for (var p : techIndex().getProviders(process)) {
 			total += getDirectImpactResult(p, impact);
@@ -122,7 +127,7 @@ public class ContributionResult extends SimpleResult {
 	 * results.
 	 */
 	public List<ImpactValue> getImpactContributions(
-			CategoryDescriptor process) {
+		CategoryDescriptor process) {
 		var results = new ArrayList<ImpactValue>();
 		impactIndex().each((i, impact) -> {
 			var amount = getDirectImpactResult(process, impact);
@@ -136,11 +141,11 @@ public class ContributionResult extends SimpleResult {
 	 * result of the given LCIA category.
 	 */
 	public List<Contribution<CategorizedDescriptor>> getProcessContributions(
-			ImpactDescriptor impact) {
+		ImpactDescriptor impact) {
 		return Contributions.calculate(
-				getProcesses(),
-				getTotalImpactResult(impact),
-				d -> getDirectImpactResult(d, impact));
+			getProcesses(),
+			getTotalImpactResult(impact),
+			d -> getDirectImpactResult(d, impact));
 	}
 
 	/**
@@ -150,8 +155,8 @@ public class ContributionResult extends SimpleResult {
 	public double getDirectCostResult(TechFlow product) {
 		int col = techIndex().of(product);
 		return col < 0
-				? 0
-				: provider.directCostsOf(col);
+			? 0
+			: provider.directCostsOf(col);
 	}
 
 	/**
@@ -172,9 +177,9 @@ public class ContributionResult extends SimpleResult {
 	 */
 	public List<Contribution<CategorizedDescriptor>> getProcessCostContributions() {
 		return Contributions.calculate(
-				getProcesses(),
-				totalCosts,
-				this::getDirectCostResult);
+			getProcesses(),
+			totalCosts,
+			this::getDirectCostResult);
 	}
 
 	/**
@@ -187,15 +192,15 @@ public class ContributionResult extends SimpleResult {
 		int impactIdx = impactIndex().of(impact);
 		int flowIdx = enviIndex().of(flow);
 		return impactIdx < 0 || flowIdx < 0
-				? 0
-				: provider.flowImpactOf(impactIdx, flowIdx);
+			? 0
+			: provider.flowImpactOf(impactIdx, flowIdx);
 	}
 
 	/**
 	 * Get the contributions of all elementary flows to the given LCA category.
 	 */
 	public List<FlowValue> getFlowContributions(
-			ImpactDescriptor impact) {
+		ImpactDescriptor impact) {
 		var results = new ArrayList<FlowValue>();
 		enviIndex().each((i, flow) -> {
 			double value = getDirectFlowImpact(flow, impact);
@@ -209,12 +214,12 @@ public class ContributionResult extends SimpleResult {
 	 * regionalized result).
 	 */
 	public double getImpactFactor(
-			ImpactDescriptor impact, EnviFlow flow) {
+		ImpactDescriptor impact, EnviFlow flow) {
 		if (!hasImpacts())
 			return 0;
 		int impactIdx = impactIndex().of(impact);
 		int flowIdx = enviIndex().of(flow);
-		if (impactIdx < 0 || flowIdx < 0 )
+		if (impactIdx < 0 || flowIdx < 0)
 			return 0;
 
 		double value = provider.impactFactorOf(impactIdx, flowIdx);
@@ -225,7 +230,7 @@ public class ContributionResult extends SimpleResult {
 		// matrix. A simple abs() is not correct because the original
 		// characterization factor maybe was already negative (-(-(f))).
 		return value == 0
-				? 0 // avoid -0
-				: -value;
+			? 0 // avoid -0
+			: -value;
 	}
 }

@@ -36,6 +36,18 @@ public class Version {
 		setParts(major, minor, update);
 	}
 
+	public static Version of(int major) {
+		return new Version(major, 0, 0);
+	}
+
+	public static Version of(int major, int minor) {
+		return new Version(major, minor, 0);
+	}
+
+	public static Version of(int major, int minor, int update) {
+		return new Version(major, minor, update);
+	}
+
 	public static long valueOf(int major, int minor, int update) {
 		return new Version(major, minor, update).value;
 	}

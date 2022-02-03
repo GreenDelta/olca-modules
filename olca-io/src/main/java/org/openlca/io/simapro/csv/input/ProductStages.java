@@ -2,11 +2,13 @@ package org.openlca.io.simapro.csv.input;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
+import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.expressions.Scope;
+import org.openlca.simapro.csv.enums.ProductStageCategory;
 import org.openlca.simapro.csv.process.ProductStageBlock;
 import org.openlca.simapro.csv.process.TechExchangeRow;
 import org.openlca.simapro.csv.refdata.CalculatedParameterRow;
@@ -114,14 +116,15 @@ class ProductStages implements ProcessMapper {
 		}
 
 		// product inputs
-		Consumer<TechExchangeRow> input = row -> {
+		Function<TechExchangeRow, Exchange> input = row -> {
 			if (row == null)
-				return;
+				return null;
 			var flow = refData.productOf(row);
 			var exchange = exchangeOf(flow, row);
 			if (exchange == null)
-				return;
+				return null;
 			exchange.isInput = true;
+			return exchange;
 		};
 		var inputLists = List.of(
 			block.materialsAndAssemblies(),
@@ -131,9 +134,18 @@ class ProductStages implements ProcessMapper {
 			block.additionalLifeCycles());
 		for (var list : inputLists) {
 			for (var row : list) {
-				input.accept(row);
+				input.apply(row);
 			}
 		}
-		input.accept(block.assembly());
+		input.apply(block.assembly());
+
+		// map reuse of products as avoided product
+		if (block.category() == ProductStageCategory.REUSE) {
+			var exchange = input.apply(block.referenceAssembly());
+			if (exchange != null) {
+				exchange.isAvoided = true;
+			}
+		}
+
 	}
 }

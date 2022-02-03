@@ -17,13 +17,13 @@ import org.junit.runners.Parameterized;
 import org.openlca.core.DataDir;
 import org.openlca.core.Tests;
 import org.openlca.core.library.Library;
+import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.format.JavaMatrix;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.EnviFlow;
-import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.matrix.format.JavaMatrix;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
@@ -36,14 +36,9 @@ import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.util.Dirs;
 
 @RunWith(Parameterized.class)
-public class ResultProviderTest {
+public record ResultProviderTest(ResultProvider provider) {
 
-	private final ResultProvider provider;
 	private static File libDir;
-
-	public ResultProviderTest(ResultProvider provider) {
-		this.provider = provider;
-	}
 
 	@Parameterized.Parameters
 	public static Collection<ResultProvider> setup() throws Exception {
@@ -108,14 +103,14 @@ public class ResultProviderTest {
 		var foreground = new MatrixData();
 		foreground.techIndex = new TechIndex(data.techIndex.getRefFlow());
 		foreground.techIndex.setDemand(1.0);
-		foreground.techMatrix = JavaMatrix.of(new double[][]{{0.5}});
+		foreground.techMatrix = JavaMatrix.of(new double[][]{{1}});
 		foreground.impactIndex = data.impactIndex;
 
 		// create the result providers
 		return List.of(
-				EagerResultProvider.create(data),
-				LazyResultProvider.create(data),
-				LazyLibraryProvider.of(db, foreground)
+				EagerResultProvider.create(SolverContext.of(data)),
+				LazyResultProvider.create(SolverContext.of(data)),
+				LazyLibraryProvider.of(SolverContext.of(db, foreground))
 		);
 	}
 

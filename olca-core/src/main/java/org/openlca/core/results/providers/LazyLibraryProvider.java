@@ -7,22 +7,22 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
 
-import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.library.LibMatrix;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.LibraryDir;
-import org.openlca.core.library.LibraryMatrix;
-import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.ImpactBuilder;
-import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
-import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixBuilder;
 import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.ImpactIndex;
+import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
+import org.openlca.core.results.SimpleResult;
 import org.openlca.util.Pair;
 
 import gnu.trove.impl.Constants;
@@ -58,14 +58,12 @@ public class LazyLibraryProvider implements ResultProvider {
 	private final HashMap<String, TechIndex> libTechIndices = new HashMap<>();
 	private final HashMap<String, EnviIndex> libFlowIndices = new HashMap<>();
 
-	private LazyLibraryProvider(
-			IDatabase db,
-			MatrixData foregroundData) {
-		this.db = db;
-		this.libDir = DataDir.getLibraryDir();
-		this.solver = MatrixSolver.Instance.getNew();
-		this.foregroundData = foregroundData;
-		this.foregroundSolution = EagerResultProvider.create(foregroundData);
+	private LazyLibraryProvider(SolverContext context) {
+		this.db = context.db();
+		this.libDir = context.libraryDir();
+		this.solver = context.solver();
+		this.foregroundData = context.matrixData();
+		this.foregroundSolution = EagerResultProvider.create(context);
 		this.fullData = new MatrixData();
 		this.fullData.impactIndex = foregroundData.impactIndex;
 	}
@@ -82,10 +80,9 @@ public class LazyLibraryProvider implements ResultProvider {
 		return v;
 	}
 
-	public static LazyLibraryProvider of(
-		IDatabase db, MatrixData foregroundData) {
+	public static LazyLibraryProvider of(SolverContext context) {
 
-		var provider = new LazyLibraryProvider(db, foregroundData);
+		var provider = new LazyLibraryProvider(context);
 		provider.initTechIndex();
 		provider.initFlowIndex();
 
@@ -247,7 +244,7 @@ public class LazyLibraryProvider implements ResultProvider {
 			var indexB = libTechIndices.get(libID);
 			if (lib == null || indexB == null)
 				continue;
-			var libDiag = lib.getDiagonal(LibraryMatrix.A).orElse(null);
+			var libDiag = lib.getDiagonal(LibMatrix.A).orElse(null);
 			if (libDiag == null)
 				continue;
 			for (int iB = 0; iB < libDiag.length; iB++) {
@@ -305,7 +302,7 @@ public class LazyLibraryProvider implements ResultProvider {
 		if (lib == null || indexLib == null)
 			return column;
 		int jLib = indexLib.of(product);
-		var columnLib = lib.getColumn(LibraryMatrix.A, jLib)
+		var columnLib = lib.getColumn(LibMatrix.A, jLib)
 				.orElse(null);
 		if (columnLib == null)
 			return column;
@@ -375,7 +372,7 @@ public class LazyLibraryProvider implements ResultProvider {
 				continue;
 			int column = libIndex.of(p);
 			var libSolution = lib.getColumn(
-					LibraryMatrix.INV, column)
+					LibMatrix.INV, column)
 					.orElse(null);
 			if (libSolution == null)
 				continue;
@@ -443,7 +440,7 @@ public class LazyLibraryProvider implements ResultProvider {
 		if (lib == null || flowIdxB == null || techIdxB == null)
 			return put(j, flowColumns, column);
 		var jB = techIdxB.of(product);
-		var colB = lib.getColumn(LibraryMatrix.B, jB)
+		var colB = lib.getColumn(LibMatrix.B, jB)
 				.orElse(null);
 		if (colB == null)
 			return put(j, flowColumns, column);
@@ -526,7 +523,7 @@ public class LazyLibraryProvider implements ResultProvider {
 				continue;
 
 			// calculate the scaled library result
-			var matrixB = lib.getMatrix(LibraryMatrix.B).orElse(null);
+			var matrixB = lib.getMatrix(LibMatrix.B).orElse(null);
 			if (matrixB == null)
 				continue;
 			var sB = new double[techIdxB.size()];
@@ -627,7 +624,7 @@ public class LazyLibraryProvider implements ResultProvider {
 			var libImpactIdx = lib.syncImpacts(db).orElse(null);
 			if (libImpactIdx == null)
 				continue;
-			var libMatrix = lib.getMatrix(LibraryMatrix.C)
+			var libMatrix = lib.getMatrix(LibMatrix.C)
 					.orElse(null);
 			if (libMatrix == null)
 				continue;
@@ -743,5 +740,10 @@ public class LazyLibraryProvider implements ResultProvider {
 	@Override
 	public double totalCosts() {
 		return 0;
+	}
+
+	@Override
+	public void addResultImpacts(TechFlow techFlow, SimpleResult result) {
+		foregroundSolution.addResultImpacts(techFlow, result);
 	}
 }

@@ -21,7 +21,11 @@ public class References {
 	static final Logger log = LoggerFactory.getLogger(References.class);
 	private final FileRepository repo;
 
-	public References(FileRepository repo) {
+	public static References of(FileRepository repo) {
+		return new References(repo);
+	}
+	
+	private References(FileRepository repo) {
 		this.repo = repo;
 	}
 
@@ -32,6 +36,29 @@ public class References {
 		if (refs.isEmpty())
 			return null;
 		return refs.get(0);
+	}
+
+	public List<String> getBinaries(Reference ref) {
+		if (ref == null)
+			return new ArrayList<>();
+		try {
+			var commit = Commits.of(repo).getRev(ref.commitId);
+			if (commit == null)
+				return new ArrayList<>();
+			try (var walk = new TreeWalk(repo)) {
+				var paths = new ArrayList<String>();
+				walk.addTree(commit.getTree());
+				walk.setFilter(PathFilter.create(ref.getBinariesPath()));
+				walk.setRecursive(true);
+				while (walk.next()) {
+					paths.add(walk.getNameString());
+				}
+				return paths;
+			}
+		} catch (IOException e) {
+			log.error("Error getting binaries", e);
+			return null;
+		}
 	}
 
 	public Find find() {
@@ -103,7 +130,7 @@ public class References {
 
 		private List<Reference> get(boolean countOnly) {
 			try {
-				var commits = new Commits(repo);
+				var commits = Commits.of(repo);
 				var commit = commits.getRev(commitId);
 				if (commit == null)
 					return new ArrayList<>();
@@ -121,7 +148,7 @@ public class References {
 					}
 					walk.addTree(commit.getTree());
 					walk.setRecursive(true);
-					TreeFilter filter = null;
+					TreeFilter filter = NotBinaryFilter.create();
 					if (path != null) {
 						filter = addFilter(filter, PathFilter.create(path));
 					}
@@ -134,7 +161,6 @@ public class References {
 					if (filter != null) {
 						walk.setFilter(filter);
 					}
-					// TODO filter binaries
 					while (walk.next()) {
 						if (countOnly) {
 							refs.add(null);

@@ -111,7 +111,7 @@ public class LibraryPackage {
 			return;
 
 		// collect the dependencies that we need to copy
-		var deps = info.dependencies.stream()
+		var deps = info.dependencies().stream()
 			.filter(dep -> libDir.get(dep).isEmpty())
 			.collect(Collectors.toSet());
 

@@ -16,7 +16,7 @@ public class ReferencesTest extends AbstractRepoTest {
 
 	@Before
 	public void before() throws IOException, GitAPIException {
-		references = new References(repo);
+		references = References.of(repo);
 	}
 
 	@Test

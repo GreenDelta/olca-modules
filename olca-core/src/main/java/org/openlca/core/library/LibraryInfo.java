@@ -19,37 +19,44 @@ public class LibraryInfo {
 	/**
 	 * like https://docs.npmjs.com/files/package.json#name
 	 */
-	public String name;
+	private String name;
 
 	/**
 	 * like https://docs.npmjs.com/files/package.json#version
 	 */
-	public String version;
+	private String version;
 
 	/**
 	 * like https://docs.npmjs.com/files/package.json#description-1
 	 */
-	public String description;
+	private String description;
 
 	/**
 	 * Indicates whether this library is regionalized or not. In case of a
 	 * regionalized library each element in the elementary flow index can be
 	 * a flow-location pair.
 	 */
-	public boolean isRegionalized;
+	private boolean isRegionalized;
 
 	/**
 	 * A list of library IDs this library depends on.
 	 * <p>
 	 * like https://docs.npmjs.com/files/package.json#dependencies
 	 */
-	public final List<String> dependencies = new ArrayList<>();
+	private final List<String> dependencies = new ArrayList<>();
+
+	private LibraryInfo(String name, String version) {
+		this.name = name;
+		this.version = version;
+	}
 
 	public static LibraryInfo of(String name, String version) {
-		var info = new LibraryInfo();
-		info.name = name;
-		info.version = version;
-		return info;
+		return of(name, Version.fromString(version));
+	}
+
+	public static LibraryInfo of(String name, Version version) {
+		var n = name.trim();
+		return new LibraryInfo(n, version.toString());
 	}
 
 	/**
@@ -61,6 +68,46 @@ public class LibraryInfo {
 	 */
 	public String id() {
 		return (name + "_" + Version.format(version)).trim().toLowerCase();
+	}
+
+	public LibraryInfo name(String name) {
+		this.name = name.trim();
+		return this;
+	}
+
+	public String name() {
+		return name;
+	}
+
+	public LibraryInfo version(String version) {
+		this.version = Version.format(version);
+		return this;
+	}
+
+	public String version() {
+		return version;
+	}
+
+	public LibraryInfo description(String description) {
+		this.description = description;
+		return this;
+	}
+
+	public String description() {
+		return description;
+	}
+
+	public List<String> dependencies() {
+		return dependencies;
+	}
+
+	public LibraryInfo isRegionalized(boolean b) {
+		this.isRegionalized = b;
+		return this;
+	}
+
+	public boolean isRegionalized() {
+		return isRegionalized;
 	}
 
 	public void writeTo(Library library) {
@@ -86,9 +133,9 @@ public class LibraryInfo {
 	}
 
 	static LibraryInfo fromJson(JsonObject obj) {
-		var info = new LibraryInfo();
-		info.name = Json.getString(obj, "name");
-		info.version = Version.format(Json.getString(obj, "version"));
+		var name = Json.getString(obj, "name");
+		var version = Json.getString(obj, "version");
+		var info = LibraryInfo.of(name, version);
 		info.isRegionalized = Json.getBool(obj, "isRegionalized", false);
 		var deps = Json.getArray(obj, "dependencies");
 		if (deps != null) {

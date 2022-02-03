@@ -1,15 +1,15 @@
 package org.openlca.core.results.providers;
 
-import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.library.LibMatrix;
 import org.openlca.core.library.LibraryDir;
-import org.openlca.core.library.LibraryMatrix;
-import org.openlca.core.matrix.index.EnviIndex;
-import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.IndexedMatrix;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.ImpactIndex;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.matrix.solvers.MatrixSolver;
+import org.openlca.core.results.SimpleResult;
 
 // currently under development; do not use this for now
 class EagerLibraryProvider implements ResultProvider {
@@ -17,15 +17,12 @@ class EagerLibraryProvider implements ResultProvider {
 	private final IDatabase db;
 	private final MatrixData dbData;
 	private final LibraryDir libDir;
-	private final MatrixSolver solver;
-
 	private final MatrixData fullData;
 
-	private EagerLibraryProvider(IDatabase db, MatrixData dbData) {
-		this.db = db;
-		this.libDir = DataDir.getLibraryDir();
-		this.solver = MatrixSolver.Instance.getNew();
-		this.dbData = dbData;
+	private EagerLibraryProvider(SolverContext context) {
+		this.db = context.db();
+		this.libDir = context.libraryDir();
+		this.dbData = context.matrixData();
 
 		fullData = new MatrixData();
 		fullData.impactMatrix = dbData.impactMatrix;
@@ -42,7 +39,7 @@ class EagerLibraryProvider implements ResultProvider {
 		var techBuilder = IndexedMatrix.build(fullData.techIndex)
 			.put(IndexedMatrix.of(dbData.techIndex, dbData.techMatrix));
 		libTechIndices
-			.forEach((libID, techIdx) -> libDir.getMatrix(libID, LibraryMatrix.A)
+			.forEach((libID, techIdx) -> libDir.getMatrix(libID, LibMatrix.A)
 				.ifPresent(m -> techBuilder.put(IndexedMatrix.of(techIdx, m))));
 		fullData.techMatrix = techBuilder.finish().data();
 
@@ -56,7 +53,7 @@ class EagerLibraryProvider implements ResultProvider {
 				dbData.enviMatrix));
 		}
 		libFlowIndices.forEach((libID, flowIdx) ->
-			libDir.getMatrix(libID, LibraryMatrix.B).ifPresent(m -> {
+			libDir.getMatrix(libID, LibMatrix.B).ifPresent(m -> {
 				var techIdx = libTechIndices.get(libID);
 				if (techIdx == null)
 					return;
@@ -161,5 +158,10 @@ class EagerLibraryProvider implements ResultProvider {
 	@Override
 	public double totalCosts() {
 		return 0;
+	}
+
+	@Override
+	public void addResultImpacts(TechFlow techFlow, SimpleResult result) {
+		// TODO not yet implemented
 	}
 }

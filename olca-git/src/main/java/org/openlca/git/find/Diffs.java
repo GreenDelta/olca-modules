@@ -8,7 +8,9 @@ import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
+import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.model.Diff;
 import org.openlca.git.util.GitUtil;
@@ -20,7 +22,11 @@ public class Diffs {
 	static final Logger log = LoggerFactory.getLogger(References.class);
 	private final FileRepository repo;
 
-	public Diffs(FileRepository repo) {
+	public static Diffs of(FileRepository repo) {
+		return new Diffs(repo);
+	}
+	
+	private Diffs(FileRepository repo) {
 		this.repo = repo;
 	}
 
@@ -35,7 +41,7 @@ public class Diffs {
 		private String path;
 
 		public Find withPrevious(String commitId) {
-			var commits = new Commits(repo);
+			var commits = Commits.of(repo);
 			var left = commitId != null ? commits.find().before(commitId).latest() : null;
 			leftCommitId = left != null ? left.id : null;
 			rightCommitId = commitId;
@@ -60,14 +66,15 @@ public class Diffs {
 
 		public List<Diff> all() {
 			try (var walk = new TreeWalk(repo)) {
-				var commits = new Commits(repo);
+				var commits = Commits.of(repo);
 				var leftRev = leftCommitId != null ? commits.getRev(leftCommitId) : null;
 				var rightRev = rightCommitId != null ? commits.getRev(rightCommitId) : null;
 				addCommitTree(walk, leftRev);
 				addCommitTree(walk, rightRev);
 				walk.setRecursive(true);
+				TreeFilter filter = NotBinaryFilter.create();
 				if (path != null) {
-					walk.setFilter(PathFilter.create(path));
+					filter = addFilter(filter, PathFilter.create(path));
 				}
 				return DiffEntry.scan(walk).stream()
 						.map(d -> new Diff(d, leftCommitId, rightCommitId))
@@ -86,6 +93,10 @@ public class Diffs {
 			walk.addTree(commit.getTree());
 		}
 
+		private TreeFilter addFilter(TreeFilter current, TreeFilter newFilter) {
+			return current != null ? AndTreeFilter.create(current, newFilter) : newFilter;
+		}
+		
 	}
 
 }
