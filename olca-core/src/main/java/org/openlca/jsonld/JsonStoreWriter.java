@@ -17,7 +17,13 @@ public interface JsonStoreWriter {
 			return;
 		var refId = Json.getString(object, "@id");
 		var path = ModelPath.jsonOf(type, refId);
-		String json = new Gson().toJson(object);
+		put(path, object);
+	}
+
+	default void put(String path, JsonObject object) {
+		if (path == null || object == null)
+			return;
+		var json = new Gson().toJson(object);
 		byte[] data = json.getBytes(StandardCharsets.UTF_8);
 		put(path, data);
 	}

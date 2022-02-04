@@ -49,7 +49,7 @@ class ProcessWriter extends Writer<Process> {
 	private void mapParameters(JsonObject json) {
 		JsonArray parameters = new JsonArray();
 		for (Parameter p : process.parameters) {
-			JsonObject obj = Writer.initJson();
+			var obj = new JsonObject();
 			ParameterWriter.mapAttr(obj, p);
 			parameters.add(obj);
 		}

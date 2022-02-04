@@ -7,7 +7,6 @@ import com.google.gson.JsonArray;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
-import org.openlca.jsonld.Schema;
 
 import com.google.gson.JsonObject;
 import org.openlca.util.Strings;
@@ -21,7 +20,7 @@ class Writer<T extends RootEntity> {
 	}
 
 	JsonObject write(T entity) {
-		JsonObject obj = initJson();
+		var obj = new JsonObject();
 		// mark entity directly as visited to avoid endless cyclic exports for
 		// cyclic references
 		conf.visited(entity);
@@ -43,12 +42,6 @@ class Writer<T extends RootEntity> {
 			}
 		}
 		return obj;
-	}
-
-	static JsonObject initJson() {
-		JsonObject object = new JsonObject();
-		Out.put(object, "@context", Schema.CONTEXT_URI);
-		return object;
 	}
 
 	static void addBasicAttributes(RootEntity entity, JsonObject obj) {

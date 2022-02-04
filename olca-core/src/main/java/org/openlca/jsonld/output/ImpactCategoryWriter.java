@@ -56,7 +56,7 @@ class ImpactCategoryWriter extends Writer<ImpactCategory> {
 	private void mapParameters(JsonObject json, ImpactCategory impact) {
 		JsonArray parameters = new JsonArray();
 		for (Parameter p : impact.parameters) {
-			JsonObject obj = Writer.initJson();
+			var obj = new JsonObject();
 			ParameterWriter.mapAttr(obj, p);
 			parameters.add(obj);
 		}
