@@ -7,10 +7,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.AllocationFactor;
+import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.NwFactor;
+import org.openlca.core.model.NwSet;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ParameterRedefSet;
@@ -46,7 +51,7 @@ public class JsonNewFieldsV2Test {
 	@Test
 	public void testLibraryAndTags() {
 		process.library = "some-lib";
-		process.tags="some,tags";
+		process.tags = "some,tags";
 		db.update(process);
 		var store = withExport(export -> export.write(process));
 		db.delete(process);
@@ -54,13 +59,6 @@ public class JsonNewFieldsV2Test {
 		var copy = db.get(Process.class, process.refId);
 		assertEquals("some-lib", copy.library);
 		assertEquals("some,tags", copy.tags);
-	}
-
-	private MemStore withExport(Consumer<JsonExport> fn) {
-		var store = new MemStore();
-		var export = new JsonExport(db, store);
-		fn.accept(export);
-		return store;
 	}
 
 	@Test
@@ -102,6 +100,87 @@ public class JsonNewFieldsV2Test {
 	}
 
 	@Test
+	public void testAllocationFormula() {
+		var product = process.quantitativeReference.flow;
+		var economic = AllocationFactor.economic(product, 1);
+		economic.formula = "1 + 0";
+		process.allocationFactors.add(economic);
+		var physical = AllocationFactor.physical(product, 1);
+		physical.formula = "1 * 1";
+		process.allocationFactors.add(physical);
+		process = db.update(process);
+
+		var store = withExport(export -> export.write(process));
+		db.delete(process);
+		new JsonImport(store, db).run();
+
+		var processCopy = db.get(Process.class, process.refId);
+		var formula1 = processCopy.allocationFactors.stream()
+			.filter(a -> a.method == AllocationMethod.ECONOMIC)
+			.findFirst()
+			.orElseThrow()
+			.formula;
+		assertEquals("1 + 0", formula1);
+
+		var formula2 = processCopy.allocationFactors.stream()
+			.filter(a -> a.method == AllocationMethod.PHYSICAL)
+			.findFirst()
+			.orElseThrow()
+			.formula;
+		assertEquals("1 * 1", formula2);
+	}
+
+	@Test
+	public void testInlinedNwSets() {
+		var impact = db.insert(ImpactCategory.of("impact"));
+		var method = ImpactMethod.of("method");
+		method.impactCategories.add(impact);
+		var nwSet = NwSet.of("nw-set");
+		nwSet.factors.add(NwFactor.of(impact, 100, 0.01));
+		method.add(nwSet);
+		db.insert(method);
+
+		var store = withExport(export -> export.write(method));
+		db.clear();
+		new JsonImport(store, db).run();
+
+		var methodCopy = db.get(ImpactMethod.class, method.refId);
+		var nwSetCopy = methodCopy.nwSets.get(0);
+		assertEquals("nw-set", nwSetCopy.name);
+		var factor = nwSetCopy.factors.get(0);
+		assertEquals(impact.refId, factor.impactCategory.refId);
+		assertEquals(100, factor.normalisationFactor, 1e-10);
+		assertEquals(0.01, factor.weightingFactor, 1e-10);
+	}
+
+	@Test
+	public void testStandAloneImpacts() {
+		var impact = db.insert(ImpactCategory.of("impact"));
+		var method1 = ImpactMethod.of("method1");
+		method1.impactCategories.add(impact);
+		db.insert(method1);
+		var method2 = ImpactMethod.of("method2");
+		method2.impactCategories.add(impact);
+		db.insert(method2);
+
+		var store = withExport(export -> {
+			export.write(method1);
+			export.write(method2);
+		});
+		db.clear();
+		new JsonImport(store, db).run();
+
+		var m1 = db.get(ImpactMethod.class, method1.refId);
+		var i1 = m1.impactCategories.get(0);
+		var m2 = db.get(ImpactMethod.class, method2.refId);
+		var i2 = m2.impactCategories.get(0);
+
+		assertEquals(i1, i2);
+		assertEquals(i1.id, i2.id);
+		assertEquals(impact.refId, i1.refId);
+	}
+
+	@Test
 	public void testParameterRedefSets() {
 
 		// create a product system with parameter sets
@@ -119,9 +198,7 @@ public class JsonNewFieldsV2Test {
 		db.insert(system);
 
 		// export and import the system
-		var store = new MemStore();
-		var export = new JsonExport(db, store);
-		export.write(system);
+		var store = withExport(export -> export.write(system));
 		db.clear();
 		assertNull(db.get(ProductSystem.class, system.refId));
 		new JsonImport(store, db).run();
@@ -149,5 +226,12 @@ public class JsonNewFieldsV2Test {
 		var rd2 = s2.parameters.get(0);
 		assertEquals("global", rd2.name);
 		assertEquals(21, rd2.value, 1e-10);
+	}
+
+	private MemStore withExport(Consumer<JsonExport> fn) {
+		var store = new MemStore();
+		var export = new JsonExport(db, store);
+		fn.accept(export);
+		return store;
 	}
 }
