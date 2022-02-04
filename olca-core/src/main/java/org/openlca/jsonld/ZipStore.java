@@ -13,7 +13,6 @@ import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,10 +33,13 @@ public class ZipStore implements JsonStoreWriter, JsonStoreReader, AutoCloseable
 	private ZipStore(File zipFile) throws IOException {
 		String uriStr = zipFile.toURI().toASCIIString();
 		URI uri = URI.create("jar:" + uriStr);
-		Map<String, String> options = new HashMap<>();
-		if (!zipFile.exists())
-			options.put("create", "true");
-		zip = FileSystems.newFileSystem(uri, options);
+		boolean create = !zipFile.exists();
+		zip = create
+			? FileSystems.newFileSystem(uri, Map.of("create", "true"))
+			: FileSystems.newFileSystem(uri, Map.of());
+		if (create) {
+			SchemaVersion.current().writeTo(this);
+		}
 	}
 
 	@Override

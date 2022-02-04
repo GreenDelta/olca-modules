@@ -18,6 +18,10 @@ public class MemStore implements JsonStoreReader, JsonStoreWriter {
 	private final Map<String, JsonElement> jsonData = new HashMap<>();
 	private final Map<String, byte[]> byteData = new HashMap<>();
 
+	public MemStore() {
+		SchemaVersion.current().writeTo(this);
+	}
+
 	@Override
 	public List<String> getRefIds(ModelType type) {
 		var prefix = ModelPath.folderOf(type) + '/';
@@ -50,12 +54,8 @@ public class MemStore implements JsonStoreReader, JsonStoreWriter {
 	}
 
 	@Override
-	public void put(ModelType type, JsonObject obj) {
-		if (type == null || obj == null)
-			return;
-		var refId = Json.getString(obj, "@id");
-		var path = ModelPath.jsonOf(type, refId);
-		jsonData.put(path, obj);
+	public void put(String path, JsonObject object) {
+		jsonData.put(path, object);
 	}
 
 	@Override
