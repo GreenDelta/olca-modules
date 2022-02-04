@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
@@ -46,6 +45,13 @@ abstract class ExchangeImport<P extends RootEntity> extends BaseEmbeddedImport<E
 		addAttributes(json, e);
 		addCostEntries(json, e, conf);
 		addExchangeRefs(json, e, conf);
+
+		// exchange location
+		var locationId = Json.getRefId(json, "location");
+		if (Strings.notEmpty(locationId)) {
+			e.location = LocationImport.run(locationId, conf);
+		}
+
 		return e;
 	}
 
@@ -58,9 +64,9 @@ abstract class ExchangeImport<P extends RootEntity> extends BaseEmbeddedImport<E
 		e.dqEntry = Json.getString(json, "dqEntry");
 		e.description = Json.getString(json, "description");
 		e.internalId = Json.getInt(json, "internalId", 0);
-		JsonElement u = json.get("uncertainty");
-		if (u != null && u.isJsonObject()) {
-			e.uncertainty = Uncertainties.read(u.getAsJsonObject());
+		var u = Json.getObject(json, "uncertainty");
+		if (u != null) {
+			e.uncertainty = Uncertainties.read(u);
 		}
 	}
 

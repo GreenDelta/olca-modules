@@ -24,6 +24,7 @@ class Exchanges {
 		Out.put(obj, "costValue", e.costs);
 		Out.put(obj, "currency", e.currency, conf);
 		Out.put(obj, "internalId", e.internalId);
+		Out.put(obj, "location", e.location, conf);
 		mapRefs(e, obj, conf);
 		return true;
 	}
