@@ -26,6 +26,7 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
@@ -54,7 +55,7 @@ public class JsonExport {
 	public <T extends RootEntity> void write(T entity, Callback cb) {
 		if (entity == null)
 			return;
-		ModelType type = ModelType.forModelClass(entity.getClass());
+		var type = ModelType.forModelClass(entity.getClass());
 		if (type == null || entity.refId == null) {
 			warn(cb, "no refId, or type is unknown", entity);
 			return;
@@ -145,6 +146,8 @@ public class JsonExport {
 			return (Writer<T>) new ParameterWriter(conf);
 		if (entity instanceof Process)
 			return (Writer<T>) new ProcessWriter(conf);
+		if (entity instanceof Result)
+			return (Writer<T>) new ResultWriter(conf);
 		if (entity instanceof Source)
 			return (Writer<T>) new SourceWriter(conf);
 		if (entity instanceof UnitGroup)
