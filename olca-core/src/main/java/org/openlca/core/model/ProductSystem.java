@@ -128,7 +128,7 @@ public class ProductSystem extends CategorizedEntity implements CalculationTarge
 		for (var e : process.exchanges) {
 			if (e.flow == null || e.flow.id != provider.flowId())
 				continue;
-			if (e.isInput != isWaste)
+			if (e.isInput == isWaste)
 				continue;
 			var link = new ProcessLink();
 			link.processId = process.id;

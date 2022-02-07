@@ -220,12 +220,35 @@ public class JsonNewFieldsV2Test {
 		assertNotNull(prodC);
 
 		// reload providers
-		procA = db.get(Process.class,  procA.refId);
+		procA = db.get(Process.class, procA.refId);
 		assertNotNull(procA);
 		sysB = db.get(ProductSystem.class, sysB.refId);
-		assertNotNull(sysB );
+		assertNotNull(sysB);
 		resC = db.get(Result.class, resC.refId);
-		assertNotNull(resC );
+		assertNotNull(resC);
+
+		var systemCopy = db.get(ProductSystem.class, system.refId);
+
+		// check providers in system
+		boolean[] providerOk = {false, false, false};
+		for (var provider : systemCopy.processes) {
+			providerOk[0] = providerOk[0] || provider == procA.id;
+			providerOk[1] = providerOk[1] || provider == sysB.id;
+			providerOk[2] = providerOk[2] || provider == resC.id;
+		}
+		assertArrayEquals(new boolean[]{true, true, true}, providerOk);
+
+		// check provider links
+		boolean[] linksOk = {false, false, false};
+		for (var link : systemCopy.processLinks) {
+			linksOk[0] = linksOk[0] || (link.providerId == procA.id
+				&& link.flowId == prodA.id && link.providerType == 0);
+			linksOk[1] = linksOk[1] || (link.providerId == sysB.id
+				&& link.flowId == prodB.id && link.providerType == 1);
+			linksOk[2] = linksOk[2] || (link.providerId == resC.id
+				&& link.flowId == prodC.id && link.providerType == 2);
+		}
+		assertArrayEquals(new boolean[]{true, true, true}, linksOk);
 
 	}
 
