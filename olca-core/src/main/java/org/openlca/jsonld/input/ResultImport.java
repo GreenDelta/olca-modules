@@ -33,7 +33,7 @@ class ResultImport extends BaseImport<Result> {
 		}
 		readImpactResults(json, result);
 		readFlowResults(json, result);
-		return result;
+		return conf.db.put(result);
 
 	}
 

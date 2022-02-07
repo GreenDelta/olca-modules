@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Flow;
@@ -21,6 +22,7 @@ import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.MemStore;
 import org.openlca.jsonld.input.JsonImport;
@@ -178,6 +180,53 @@ public class JsonNewFieldsV2Test {
 		assertEquals(i1, i2);
 		assertEquals(i1.id, i2.id);
 		assertEquals(impact.refId, i1.refId);
+	}
+
+	@Test
+	public void testProviderTypes() {
+		var mass = process.quantitativeReference.flow.referenceFlowProperty;
+
+		// products and inputs
+		var prodA = db.insert(Flow.product("product a", mass));
+		var prodB = db.insert(Flow.product("product b", mass));
+		var prodC = db.insert(Flow.product("product c", mass));
+		process.input(prodA, 1);
+		process.input(prodB, 2);
+		process.input(prodC, 3);
+		process = db.update(process);
+
+		// provider types
+		var procA = db.insert(Process.of("process a", prodA));
+		var procB = db.insert(Process.of("process b", prodB));
+		var sysB = db.insert(ProductSystem.of("system b", procB));
+		var resC = db.insert(Result.of("result c", prodC));
+
+		// linked system
+		var system = ProductSystem.of(process);
+		system.link(TechFlow.of(procA), process);
+		system.link(TechFlow.of(sysB), process);
+		system.link(TechFlow.of(resC), process);
+
+		var store = withExport(export -> export.write(system));
+		db.clear();
+		new JsonImport(store, db).run();
+
+		// load products
+		prodA = db.get(Flow.class, prodA.refId);
+		assertNotNull(prodA);
+		prodB = db.get(Flow.class, prodB.refId);
+		assertNotNull(prodB);
+		prodC = db.get(Flow.class, prodC.refId);
+		assertNotNull(prodC);
+
+		// reload providers
+		procA = db.get(Process.class,  procA.refId);
+		assertNotNull(procA);
+		sysB = db.get(ProductSystem.class, sysB.refId);
+		assertNotNull(sysB );
+		resC = db.get(Result.class, resC.refId);
+		assertNotNull(resC );
+
 	}
 
 	@Test

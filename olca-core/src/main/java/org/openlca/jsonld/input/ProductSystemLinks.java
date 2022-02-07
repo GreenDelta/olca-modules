@@ -69,18 +69,21 @@ class ProductSystemLinks {
 		if (json == null || system == null)
 			return;
 		setReferenceExchange(json, system);
-		JsonArray array = Json.getArray(json, "processLinks");
+		var array = Json.getArray(json, "processLinks");
 		if (array == null || array.size() == 0)
 			return;
-		for (JsonElement element : array) {
-			JsonObject obj = element.getAsJsonObject();
-			ProcessLink link = new ProcessLink();
+		for (var elem : array) {
+			if (!elem.isJsonObject())
+				continue;
+			var obj = elem.getAsJsonObject();
+			var link = new ProcessLink();
 
 			// the provider; todo: this is not the final solution
 			var providerType = Json.getEnum(obj, "providerType", ModelType.class);
 			if (providerType == null) {
 				providerType = ModelType.PROCESS;
 			}
+
 			switch (providerType) {
 				case PRODUCT_SYSTEM -> {
 					link.providerType = ProcessLink.ProviderType.SUB_SYSTEM;

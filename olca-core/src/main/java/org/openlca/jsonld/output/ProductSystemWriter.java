@@ -10,6 +10,7 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
+import org.openlca.core.database.ResultDao;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ProcessLink;
@@ -120,17 +121,22 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 	private Map<Long, CategorizedDescriptor> mapProcesses(JsonObject json) {
 		var processes = processDao.descriptorMap();
 		var systems = new ProductSystemDao(conf.db).descriptorMap();
-		Map<Long, CategorizedDescriptor> map = new HashMap<>();
+		var results = new ResultDao(conf.db).descriptorMap();
+
+		var map = new HashMap<Long, CategorizedDescriptor>();
 		var array = new JsonArray();
 		for (var id : system.processes) {
 			CategorizedDescriptor d = processes.get(id);
 			if (d == null) {
 				d = systems.get(id);
+				if (d == null) {
+					d = results.get(id);
+				}
 			}
 			if (d == null)
 				continue;
 			map.put(id, d);
-			JsonObject ref = conf.exportReferences
+			var ref = conf.exportReferences
 				? References.create(d.type, d.id, conf, false)
 				: References.create(d, conf);
 			if (ref == null)

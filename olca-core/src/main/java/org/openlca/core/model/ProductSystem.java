@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import org.openlca.core.matrix.index.TechFlow;
 
 @Entity
 @Table(name = "tbl_product_systems")
@@ -22,7 +23,7 @@ public class ProductSystem extends CategorizedEntity implements CalculationTarge
 
 	@ElementCollection
 	@CollectionTable(name = "tbl_process_links",
-			joinColumns = @JoinColumn(name = "f_product_system"))
+		joinColumns = @JoinColumn(name = "f_product_system"))
 	public final List<ProcessLink> processLinks = new ArrayList<>();
 
 	@OneToOne
@@ -47,7 +48,7 @@ public class ProductSystem extends CategorizedEntity implements CalculationTarge
 	@ElementCollection
 	@Column(name = "f_process")
 	@CollectionTable(name = "tbl_product_system_processes", joinColumns = {
-			@JoinColumn(name = "f_product_system")})
+		@JoinColumn(name = "f_product_system")})
 	public final Set<Long> processes = new HashSet<>();
 
 	@Column
@@ -93,12 +94,12 @@ public class ProductSystem extends CategorizedEntity implements CalculationTarge
 		processes.add(recipient.id);
 		for (var output : provider.exchanges) {
 			if (output.isInput
-					|| output.flow == null
-					|| output.flow.flowType == FlowType.ELEMENTARY_FLOW)
+				|| output.flow == null
+				|| output.flow.flowType == FlowType.ELEMENTARY_FLOW)
 				continue;
 			for (var input : recipient.exchanges) {
 				if (!input.isInput
-						|| !Objects.equals(output.flow, input.flow))
+					|| !Objects.equals(output.flow, input.flow))
 					continue;
 				var link = new ProcessLink();
 				link.flowId = output.flow.id;
@@ -114,6 +115,28 @@ public class ProductSystem extends CategorizedEntity implements CalculationTarge
 				}
 				processLinks.add(link);
 			}
+		}
+		return this;
+	}
+
+	public ProductSystem link(TechFlow provider, Process process) {
+		if (provider == null || process == null)
+			return this;
+		processes.add(provider.providerId());
+		processes.add(process.id);
+		boolean isWaste = provider.isWaste();
+		for (var e : process.exchanges) {
+			if (e.flow == null || e.flow.id != provider.flowId())
+				continue;
+			if (e.isInput != isWaste)
+				continue;
+			var link = new ProcessLink();
+			link.processId = process.id;
+			link.flowId = e.flow.id;
+			link.exchangeId = e.id;
+			link.setProviderType(provider.provider().type);
+			link.providerId = provider.providerId();
+			processLinks.add(link);
 		}
 		return this;
 	}

@@ -58,11 +58,10 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 		RootEntity p;
 		if ("ProductSystem".equals(type)) {
 			p = ProductSystemImport.run(refId, conf);
+		}else if ("Result".equals(type)) {
+			p = ResultImport.run(refId, conf);
 		} else {
 			p = ProcessImport.run(refId, conf);
-			if (p == null) {
-				p = ProductSystemImport.run(refId, conf);
-			}
 		}
 		if (p != null) {
 			s.processes.add(p.id);
