@@ -12,28 +12,11 @@ import java.util.stream.Collectors;
 import org.openlca.core.model.ModelType;
 import org.openlca.util.Strings;
 
-/**
- * An implementation of the EntityStore interface that maps data sets to files
- * in a folder.
- */
-public record FileStore(File root) implements JsonStoreReader, JsonStoreWriter {
 
-	@Override
-	public void put(String path, byte[] data) {
-		if (Strings.nullOrEmpty(path) || data == null)
-			return;
-		try {
-			var file = new File(root, path);
-			var dir = file.getParentFile();
-			if (!dir.exists()) {
-				Files.createDirectories(dir.toPath());
-			}
-			Files.write(file.toPath(), data);
-		} catch (IOException e) {
-			throw new RuntimeException(
-				"failed to write file " + path, e);
-		}
-	}
+/**
+ * Reads JSON data sets from files in a folder structure.
+ */
+public record FileStoreReader(File root) implements JsonStoreReader {
 
 	@Override
 	public byte[] getBytes(String path) {

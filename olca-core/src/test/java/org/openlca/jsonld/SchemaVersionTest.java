@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import com.google.gson.JsonObject;
 import org.junit.Test;
 import org.openlca.core.model.ModelType;
+import org.openlca.util.Dirs;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,6 +30,16 @@ public class SchemaVersionTest {
 		var store = new MemStore();
 		init(store);
 		check(store);
+	}
+
+	@Test
+	public void testCurrentFileStore() throws IOException {
+		var dir = Files.createTempDirectory("_olca").toFile();
+		var writer = new FileStoreWriter(dir);
+		init(writer);
+		var reader = new FileStoreReader(dir);
+		check(reader);
+		Dirs.delete(dir);
 	}
 
 	private void init(JsonStoreWriter store) {

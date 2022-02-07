@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 
 public record SchemaVersion(int value) {
 
+	public static final String FILE_NAME = "olca-schema.json";
 	private static final int FALLBACK = 1;
 	private static final int CURRENT = 2;
 
@@ -27,11 +28,11 @@ public record SchemaVersion(int value) {
 	public void writeTo(JsonStoreWriter writer) {
 		var json = new JsonObject();
 		json.addProperty("version", value);
-		writer.put("olca-schema.json", json);
+		writer.put(FILE_NAME, json);
 	}
 
 	public static SchemaVersion of(JsonStoreReader reader) {
-		var json = reader.getJson("olca-schema.json");
+		var json = reader.getJson(FILE_NAME);
 		var value =  json != null && json.isJsonObject()
 			? Json.getInt(json.getAsJsonObject(), "version", FALLBACK)
 			: FALLBACK;
