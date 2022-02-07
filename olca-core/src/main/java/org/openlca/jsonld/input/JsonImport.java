@@ -73,12 +73,13 @@ public class JsonImport implements Runnable {
 			case FLOW_PROPERTY -> FlowPropertyImport.run(id, this);
 			case CURRENCY -> CurrencyImport.run(id, this);
 			case FLOW -> FlowImport.run(id, this);
-			case IMPACT_METHOD -> ImpactMethodImport.run(id, this);
 			case IMPACT_CATEGORY -> ImpactCategoryImport.run(id, this);
+			case IMPACT_METHOD -> ImpactMethodImport.run(id, this);
 			case SOCIAL_INDICATOR -> SocialIndicatorImport.run(id, this);
 			case PROCESS -> ProcessImport.run(id, this);
 			case PRODUCT_SYSTEM -> ProductSystemImport.run(id, this);
 			case PROJECT -> ProjectImport.run(id, this);
+			case RESULT -> ResultImport.run(id, this);
 			default -> {
 			}
 		}
@@ -86,38 +87,30 @@ public class JsonImport implements Runnable {
 
 	@Override
 	public void run() {
-		for (String catId : reader.getRefIds(ModelType.CATEGORY))
-			CategoryImport.run(catId, this);
-		for (String sysId : reader.getRefIds(ModelType.DQ_SYSTEM))
-			DQSystemImport.run(sysId, this);
-		for (String locId : reader.getRefIds(ModelType.LOCATION))
-			LocationImport.run(locId, this);
-		for (String actorId : reader.getRefIds(ModelType.ACTOR))
-			ActorImport.run(actorId, this);
-		for (String sourceId : reader.getRefIds(ModelType.SOURCE))
-			SourceImport.run(sourceId, this);
-		for (String paramId : reader.getRefIds(ModelType.PARAMETER))
-			ParameterImport.run(paramId, this);
-		for (String groupId : reader.getRefIds(ModelType.UNIT_GROUP))
-			UnitGroupImport.run(groupId, this);
-		for (String propId : reader.getRefIds(ModelType.FLOW_PROPERTY))
-			FlowPropertyImport.run(propId, this);
-		for (String currId : reader.getRefIds(ModelType.CURRENCY))
-			CurrencyImport.run(currId, this);
-		for (String flowId : reader.getRefIds(ModelType.FLOW))
-			FlowImport.run(flowId, this);
-		for (String id : reader.getRefIds(ModelType.IMPACT_CATEGORY))
-			ImpactCategoryImport.run(id, this);
-		for (String methodId : reader.getRefIds(ModelType.IMPACT_METHOD))
-			ImpactMethodImport.run(methodId, this);
-		for (String indicatorId : reader.getRefIds(ModelType.SOCIAL_INDICATOR))
-			SocialIndicatorImport.run(indicatorId, this);
-		for (String processId : reader.getRefIds(ModelType.PROCESS))
-			ProcessImport.run(processId, this);
-		for (String systemId : reader.getRefIds(ModelType.PRODUCT_SYSTEM))
-			ProductSystemImport.run(systemId, this);
-		for (String projectId : reader.getRefIds(ModelType.PROJECT))
-			ProjectImport.run(projectId, this);
+		var typeOrder = new ModelType[] {
+			ModelType.CATEGORY,
+			ModelType.DQ_SYSTEM,
+			ModelType.LOCATION,
+			ModelType.ACTOR,
+			ModelType.SOURCE,
+			ModelType.PARAMETER,
+			ModelType.UNIT_GROUP,
+			ModelType.FLOW_PROPERTY,
+			ModelType.CURRENCY,
+			ModelType.FLOW,
+			ModelType.IMPACT_CATEGORY,
+			ModelType.IMPACT_METHOD,
+			ModelType.SOCIAL_INDICATOR,
+			ModelType.PROCESS,
+			ModelType.PRODUCT_SYSTEM,
+			ModelType.PROJECT,
+			ModelType.RESULT
+		};
+		for (var type : typeOrder) {
+			for (var id : reader.getRefIds(type)) {
+				run(type, id);
+			}
+		}
 	}
 
 
