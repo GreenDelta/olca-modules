@@ -124,7 +124,7 @@ public class ModelImport {
 	}
 
 	private void addParameterRedefs(ProcessInstance pi, Process p) {
-		for (Parameter param : pi.parameters) {
+		for (var param : pi.parameters) {
 			if (param.name == null || param.value == null)
 				continue;
 			var redef = new ParameterRedef();
@@ -132,7 +132,7 @@ public class ModelImport {
 			redef.contextType = ModelType.PROCESS;
 			redef.name = param.name;
 			redef.value = param.value;
-			system.parameterRedefs.add(redef);
+			IO.parametersSetOf(system).add(redef);
 		}
 	}
 

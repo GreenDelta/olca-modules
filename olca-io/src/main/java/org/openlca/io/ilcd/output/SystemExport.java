@@ -10,7 +10,6 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.FlowType;
-import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Version;
@@ -41,10 +40,10 @@ public class SystemExport {
 	private final ExportConfig config;
 	private ProductSystem system;
 
-	private Map<Long, Integer> processIDs = new HashMap<>();
-	private Map<Long, Integer> exchangeIDs = new HashMap<>();
-	private Map<Long, ProcessDescriptor> processes = new HashMap<>();
-	private Map<Long, FlowDescriptor> flows = new HashMap<>();
+	private final Map<Long, Integer> processIDs = new HashMap<>();
+	private final Map<Long, Integer> exchangeIDs = new HashMap<>();
+	private final Map<Long, ProcessDescriptor> processes = new HashMap<>();
+	private final Map<Long, FlowDescriptor> flows = new HashMap<>();
 
 	public SystemExport(ExportConfig config) {
 		this.config = config;
@@ -145,19 +144,27 @@ public class SystemExport {
 	}
 
 	private ProcessInstance initProcessInstance(long id) {
-		ProcessInstance pi = new ProcessInstance();
+		var pi = new ProcessInstance();
 		pi.id = processIDs.getOrDefault(id, -1);
-		ProcessDescriptor d = processes.get(id);
+		var d = processes.get(id);
 		if (!config.store.contains(Process.class, d.refId)) {
-			ProcessDao dao = new ProcessDao(config.db);
+			var dao = new ProcessDao(config.db);
 			Export.of(dao.getForId(d.id), config);
 		}
 		pi.process = toRef(d);
-		for (ParameterRedef redef : system.parameterRedefs) {
+
+		// process parameters
+		if (system.parameterSets.isEmpty())
+			return pi;
+		var set = system.parameterSets.stream()
+			.filter(s -> s.isBaseline)
+			.findAny()
+			.orElse(system.parameterSets.get(0));
+		for (var redef : set.parameters) {
 			Long context = redef.contextId;
 			if (redef.contextId == null || context != id)
 				continue;
-			Parameter param = new Parameter();
+			var param = new Parameter();
 			param.name = redef.name;
 			param.value = redef.value;
 			pi.parameters.add(param);

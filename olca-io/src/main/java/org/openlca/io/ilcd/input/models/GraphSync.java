@@ -3,6 +3,7 @@ package org.openlca.io.ilcd.input.models;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
@@ -15,45 +16,35 @@ import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedef;
-import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.ilcd.models.Model;
-import org.openlca.io.Categories;
 
 /**
  * Synchronizes a transformed graph with a database. It assumes that all
  * processes and link flows are created new.
  */
-class GraphSync {
-
-	private final IDatabase db;
-
-	GraphSync(IDatabase db) {
-		this.db = db;
-	}
+record GraphSync(IDatabase db) {
 
 	ProductSystem sync(Model model, Graph g) {
 
 		// first, create and link the reference flow
-		Process refProc = g.root.process;
+		var refProc = g.root.process;
 		Exchange qRef = refProc.quantitativeReference;
 		if (qRef != null && qRef.flow != null) {
 			Flow flow = qRef.flow;
 			flow.refId = UUID.randomUUID().toString();
 			category(flow);
 			qRef.flow = new FlowDao(db).insert(flow);
-			FlowPropertyFactor factor = flow.getReferenceFactor();
-			qRef.flowPropertyFactor = factor;
+			qRef.flowPropertyFactor = flow.getReferenceFactor();
 		}
 
 		g.eachLink(this::syncFlows);
 		syncProcesses(g);
 		ProductSystem system = new ProductSystem();
 		IO.mapMetaData(model, system);
-		Category c = Categories.findOrCreateRoot(db,
+		system.category = new CategoryDao(db).sync(
 				ModelType.PRODUCT_SYSTEM, "eILCD models");
-		system.category = c;
 		mapGraph(g, system);
 		mapQRef(g, system);
 		mapParams(g, system);
@@ -64,10 +55,10 @@ class GraphSync {
 	private void syncProcesses(Graph g) {
 		ProcessDao dao = new ProcessDao(db);
 		g.eachNode(node -> {
-			Process p = node.process;
-			p.refId = UUID.randomUUID().toString();
-			category(p);
-			node.process = dao.insert(p);
+			var process = node.process;
+			process.refId = UUID.randomUUID().toString();
+			category(process);
+			node.process = dao.insert(process);
 		});
 	}
 
@@ -100,8 +91,8 @@ class GraphSync {
 			c = c.category;
 		}
 		names.add(0, "eILCD models");
-		String[] path = names.toArray(new String[names.size()]);
-		c = Categories.findOrAdd(db, type, path);
+		String[] path = names.toArray(new String[0]);
+		c = new CategoryDao(db).sync(type, path);
 		e.category = c;
 	}
 
@@ -126,7 +117,7 @@ class GraphSync {
 	}
 
 	private void mapQRef(Graph g, ProductSystem system) {
-		Process refProc = g.root.process;
+		var refProc = g.root.process;
 		system.referenceProcess = refProc;
 		Exchange qRef = refProc.quantitativeReference;
 		system.referenceExchange = qRef;
@@ -142,18 +133,16 @@ class GraphSync {
 	}
 
 	private void mapParams(Graph g, ProductSystem system) {
-		g.eachNode(node -> {
-			node.params.forEach((name, value) -> {
-				if (name == null || value == null) {
-					return;
-				}
-				ParameterRedef redef = new ParameterRedef();
-				redef.name = name;
-				redef.value = value;
-				redef.contextId = node.process.id;
-				redef.contextType = ModelType.PROCESS;
-				system.parameterRedefs.add(redef);
-			});
-		});
+		g.eachNode(node -> node.params.forEach((name, value) -> {
+			if (name == null || value == null) {
+				return;
+			}
+			var redef = new ParameterRedef();
+			redef.name = name;
+			redef.value = value;
+			redef.contextId = node.process.id;
+			redef.contextType = ModelType.PROCESS;
+			IO.parametersSetOf(system).add(redef);
+		}));
 	}
 }

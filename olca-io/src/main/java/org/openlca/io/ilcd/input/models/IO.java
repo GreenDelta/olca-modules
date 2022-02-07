@@ -1,7 +1,10 @@
 package org.openlca.io.ilcd.input.models;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.openlca.core.model.ParameterRedef;
+import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.LangString;
@@ -17,6 +20,18 @@ import org.openlca.util.Strings;
 class IO {
 
 	private IO() {
+	}
+
+	static List<ParameterRedef> parametersSetOf(ProductSystem system ) {
+		if (system == null)
+			return new ArrayList<>();
+		if (!system.parameterSets.isEmpty())
+			return system.parameterSets.get(0).parameters;
+		var s = new ParameterRedefSet();
+		s.name = "Baseline";
+		s.isBaseline = true;
+		system.parameterSets.add(s);
+		return s.parameters;
 	}
 
 	static void mapMetaData(Model model, ProductSystem system) {
