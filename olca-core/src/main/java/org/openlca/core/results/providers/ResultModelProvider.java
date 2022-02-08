@@ -1,5 +1,7 @@
 package org.openlca.core.results.providers;
 
+import gnu.trove.list.array.TDoubleArrayList;
+import gnu.trove.list.array.TLongArrayList;
 import org.openlca.core.math.ReferenceAmount;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.EnviIndex;
@@ -95,6 +97,7 @@ public class ResultModelProvider implements ResultProvider {
 			}
 		}
 
+		// no flow results => create an index with virtual flows
 		if (!hasFlowResults) {
 
 		}
@@ -252,4 +255,43 @@ public class ResultModelProvider implements ResultProvider {
 	@Override
 	public void addResultImpacts(TechFlow techFlow, SimpleResult result) {
 	}
+
+	private record FlowResults(EnviIndex index, double[] results) {
+
+		static FlowResults of(Result model) {
+
+			// determine the index characteristics
+			boolean hasFlowResults = false;
+			boolean isRegionalized = false;
+			for (var f : model.flowResults) {
+				if (isNonEnvi(f))
+					continue;
+				hasFlowResults = true;
+				if (f.location != null) {
+					isRegionalized = true;
+					break;
+				}
+			}
+
+			// no flow results => virtual impact flows
+			if (!hasFlowResults) {
+				var index = EnviIndex.create();
+				var results = new TDoubleArrayList();
+				for (var impact : model.impactResults) {
+					if (impact.indicator == null)
+						continue;
+					var indicator = Descriptor.of(impact.indicator);
+					var virtualFlow = EnviFlow.virtualOf(indicator);
+					var idx = index.add(virtualFlow);
+					results.add(idx, impact.amount);
+				}
+				return index.isEmpty()
+					? new FlowResults(null, EMPTY_VECTOR)
+					: new FlowResults(index, results.toArray());
+			}
+
+		}
+
+	}
+
 }
