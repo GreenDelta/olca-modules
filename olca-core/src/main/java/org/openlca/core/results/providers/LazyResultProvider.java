@@ -1,17 +1,14 @@
 package org.openlca.core.results.providers;
 
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.Factorization;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
-import org.openlca.core.results.SimpleResult;
 
 public class LazyResultProvider implements ResultProvider {
 
@@ -325,51 +322,5 @@ public class LazyResultProvider implements ResultProvider {
 	@Override
 	public double totalCosts() {
 		return totalCosts;
-	}
-
-	@Override
-	public void addResultImpacts(TechFlow techFlow, SimpleResult result) {
-		var impactIndex = impactIndex();
-		if (impactIndex == null
-			|| impactIndex.isEmpty()
-			|| techFlow == null
-			|| !techFlow.isResult()
-			|| result == null
-			|| !result.hasImpacts())
-			return;
-
-		var techIndex = techIndex();
-		var techPos = techIndex.of(techFlow);
-		if (techPos < 0)
-			return;
-		var scaling = scalingVector[techPos];
-		if (scaling == 0)
-			return;
-		double ref = Math.abs(techValueOf(techPos, techPos));
-		double scaleToOne = ref == 1
-			? ref
-			: 1 / ref;
-
-		int m = impactIndex.size();
-		int n = techIndex.size();
-		if (directImpacts == null) {
-			directImpacts = new DenseMatrix(m, n);
-		}
-
-		var totals = totalImpacts();
-		var totalsOfOne = new double[m];
-		var resultIdx = result.impactIndex();
-		impactIndex.each((i, impact) -> {
-			if (!resultIdx.contains(impact))
-				return;
-			double amount = result.getTotalImpactResult(impact);
-			if (amount == 0)
-				return;
-			double scaledAmount = scaling * amount;
-			totals[i] += scaledAmount;
-			directImpacts.set(i, techPos, scaledAmount);
-			totalsOfOne[i] = scaleToOne * amount;
-		});
-		totalImpactsOfOne.put(techPos, totalsOfOne);
 	}
 }

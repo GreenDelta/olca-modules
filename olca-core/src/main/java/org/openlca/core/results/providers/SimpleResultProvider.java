@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.results.SimpleResult;
 
@@ -181,34 +180,5 @@ public class SimpleResultProvider implements ResultProvider {
 	@Override
 	public double totalCosts() {
 		return 0;
-	}
-
-	@Override
-	public void addResultImpacts(TechFlow techFlow, SimpleResult result) {
-		if (impactIndex == null
-			|| impactIndex.isEmpty()
-			|| techFlow == null
-			|| !techFlow.isResult()
-			|| result == null
-			|| !result.hasImpacts())
-			return;
-
-		var techPos = techIndex.of(techFlow);
-		if (techPos < 0)
-			return;
-		var scaling = scalingVector[techPos];
-		if (scaling == 0)
-			return;
-
-		var totals = totalImpacts();
-		var resultIdx = result.impactIndex();
-		impactIndex.each((i, impact) -> {
-			if (!resultIdx.contains(impact))
-				return;
-			var amount = result.getTotalImpactResult(impact);
-			if (amount == 0)
-				return;
-			totals[i] += scaling * amount;
-		});
 	}
 }

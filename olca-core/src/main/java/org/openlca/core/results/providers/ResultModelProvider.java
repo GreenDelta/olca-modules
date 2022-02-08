@@ -11,7 +11,6 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.FlowResult;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.results.SimpleResult;
 
 /**
  * Provides a result provider view on a stored result model.
@@ -189,10 +188,6 @@ public class ResultModelProvider implements ResultProvider {
 	public double totalCosts() {
 		// TODO: not yet implemented
 		return 0;
-	}
-
-	@Override
-	public void addResultImpacts(TechFlow techFlow, SimpleResult result) {
 	}
 
 	private record FlowResults(EnviIndex index, double[] results) {

@@ -101,20 +101,9 @@ public class SystemCalculator {
 		for (var sub : subs.entrySet()) {
 			var techFlow = sub.getKey();
 			var subResult = sub.getValue();
-
 			// for sub-systems add the sub-result
 			if (techFlow.isProductSystem()) {
 				result.addSubResult(techFlow, subResult);
-				continue;
-			}
-
-			// add impact assessment results of result providers
-			// that have no inventory result
-			if (techFlow.isResult()
-				&& result.hasImpacts()
-				&& subResult.hasImpacts()
-				&& !subResult.hasEnviFlows()) {
-				result.provider().addResultImpacts(techFlow, subResult);
 			}
 		}
 
