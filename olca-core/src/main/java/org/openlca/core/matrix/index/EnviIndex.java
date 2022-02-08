@@ -205,16 +205,14 @@ public abstract class EnviIndex implements MatrixIndex<EnviFlow> {
 				: add(EnviFlow.outputOf(flow));
 		}
 
-		// take the location from the exchange
-		// if the exchange does not have a location
-		// the take it from the flow.
+		// Take the location from the exchange. If the exchange does not have a
+		// location, then take it from the process.
 		LocationDescriptor loc = null;
 		if (e.locationId > 0) {
 			loc = locations.get(e.locationId);
 		}
 		if (loc == null) {
-			if (product.provider() instanceof ProcessDescriptor) {
-				var d = (ProcessDescriptor) product.provider();
+			if (product.provider() instanceof ProcessDescriptor d) {
 				if (d.location != null) {
 					loc = locations.get(d.location);
 				}

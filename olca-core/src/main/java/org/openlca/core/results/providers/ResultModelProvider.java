@@ -78,18 +78,25 @@ public class ResultModelProvider implements ResultProvider {
 	}
 
 	private static EnviIndex flowIndexOf(Result model) {
-		if (model.flowResults.isEmpty())
+
+		if (model.flowResults.isEmpty() && model.impactResults.isEmpty())
 			return null;
 
-		// fill the flow index
+		// determine index characteristics
+		boolean hasFlowResults = false;
 		boolean isRegionalized = false;
 		for (var f : model.flowResults) {
 			if (isNonEnvi(f))
 				continue;
+			hasFlowResults = true;
 			if (f.location != null) {
 				isRegionalized = true;
 				break;
 			}
+		}
+
+		if (!hasFlowResults) {
+
 		}
 
 		var flowIndex = isRegionalized

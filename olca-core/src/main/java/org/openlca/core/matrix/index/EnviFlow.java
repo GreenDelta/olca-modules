@@ -11,28 +11,29 @@ import org.openlca.core.model.descriptors.LocationDescriptor;
 /**
  * Describes the mapping of flow information to a matrix index.
  *
- * @param flow      the flow descriptor which is never {@code null}
- * @param location  the location descriptor which is {@code null} for
- *                  non-regionalized indices
- * @param isInput   {@code true} when this flow is an input flow, otherwise
- *                  {@code false}
- * @param isVirtual indicates whether this flow is a virtual flow or not
+ * @param flow     the flow descriptor which is never {@code null}
+ * @param location the location descriptor which is {@code null} for
+ *                 non-regionalized indices
+ * @param isInput  {@code true} when this flow is an input flow, otherwise
+ *                 {@code false}
+ * @param wrapped  if this flow is a virtual flow, this field contains the
+ *                 descriptor of the wrapped content of this flow.
  */
 public record EnviFlow(
 	FlowDescriptor flow,
 	LocationDescriptor location,
 	boolean isInput,
-	boolean isVirtual) {
+	Descriptor wrapped) {
 
 	public EnviFlow(
 		FlowDescriptor flow,
 		LocationDescriptor location,
 		boolean isInput,
-		boolean isVirtual) {
+		Descriptor wrapped) {
 		this.flow = Objects.requireNonNull(flow);
 		this.location = location;
 		this.isInput = isInput;
-		this.isVirtual = isVirtual;
+		this.wrapped = wrapped;
 	}
 
 	public static EnviFlow of(AbstractExchange e) {
@@ -52,7 +53,7 @@ public record EnviFlow(
 	}
 
 	public static EnviFlow inputOf(FlowDescriptor flow, LocationDescriptor loc) {
-		return new EnviFlow(flow, loc, true, false);
+		return new EnviFlow(flow, loc, true, null);
 	}
 
 	public static EnviFlow outputOf(FlowDescriptor flow) {
@@ -60,7 +61,7 @@ public record EnviFlow(
 	}
 
 	public static EnviFlow outputOf(FlowDescriptor flow, LocationDescriptor loc) {
-		return new EnviFlow(flow, loc, false, false);
+		return new EnviFlow(flow, loc, false, null);
 	}
 
 	/**
@@ -88,7 +89,11 @@ public record EnviFlow(
 				flow.category = cd.category;
 			}
 		}
-		return new EnviFlow(flow, null, false, true);
+		return new EnviFlow(flow, null, false, d);
+	}
+
+	public boolean isVirtual() {
+		return wrapped != null;
 	}
 
 	long flowId() {
