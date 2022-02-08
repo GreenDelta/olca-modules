@@ -26,9 +26,7 @@ public record SchemaVersion(int value) {
 	 * Writes the current schema version as a meta-data file to the given writer.
 	 */
 	public void writeTo(JsonStoreWriter writer) {
-		var json = new JsonObject();
-		json.addProperty("version", value);
-		writer.put(FILE_NAME, json);
+		writer.put(FILE_NAME, toJson());
 	}
 
 	public static SchemaVersion of(JsonStoreReader reader) {
@@ -51,4 +49,9 @@ public record SchemaVersion(int value) {
 		return value > CURRENT;
 	}
 
+	public JsonObject toJson() {
+		var json = new JsonObject();
+		json.addProperty("version", value);
+		return json;
+	}
 }
