@@ -28,6 +28,19 @@ public class CalculationQueue {
 	}
 
 	/**
+	 * Calls {@code shutdown} on the underlying thread-pool of this calculation
+	 * and returns that thread-pool.
+	 *
+	 * @return the underlying thread-pool of this calculation so that it is
+	 * possible to call additional methods like {@code awaitTermination} on that
+	 * thread-pool.
+	 */
+	public ExecutorService shutdown() {
+		threads.shutdown();
+		return threads;
+	}
+
+	/**
 	 * Get the state of the calculation with the given ID.
 	 */
 	public State get(String id) {

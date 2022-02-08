@@ -3,8 +3,7 @@ package org.openlca.core.matrix.index;
 import java.util.Objects;
 
 import org.openlca.core.model.AbstractExchange;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.Location;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
@@ -12,20 +11,28 @@ import org.openlca.core.model.descriptors.LocationDescriptor;
 /**
  * Describes the mapping of flow information to a matrix index.
  *
- * @param flow     the flow descriptor which is never {@code null}
- * @param location the location descriptor which is {@code null} for
- *                 non-regionalized indices
- * @param isInput  {@code true} when this flow is an input flow, otherwise
- *                 * {@code false}
+ * @param flow      the flow descriptor which is never {@code null}
+ * @param location  the location descriptor which is {@code null} for
+ *                  non-regionalized indices
+ * @param isInput   {@code true} when this flow is an input flow, otherwise
+ *                  {@code false}
+ * @param isVirtual indicates whether this flow is a virtual flow or not
  */
 public record EnviFlow(
-	FlowDescriptor flow, LocationDescriptor location, boolean isInput) {
+	FlowDescriptor flow,
+	LocationDescriptor location,
+	boolean isInput,
+	boolean isVirtual) {
 
 	public EnviFlow(
-		FlowDescriptor flow, LocationDescriptor location, boolean isInput) {
+		FlowDescriptor flow,
+		LocationDescriptor location,
+		boolean isInput,
+		boolean isVirtual) {
 		this.flow = Objects.requireNonNull(flow);
 		this.location = location;
 		this.isInput = isInput;
+		this.isVirtual = isVirtual;
 	}
 
 	public static EnviFlow of(AbstractExchange e) {
@@ -41,19 +48,47 @@ public record EnviFlow(
 	}
 
 	public static EnviFlow inputOf(FlowDescriptor flow) {
-		return new EnviFlow(flow, null, true);
+		return inputOf(flow, null);
 	}
 
 	public static EnviFlow inputOf(FlowDescriptor flow, LocationDescriptor loc) {
-		return new EnviFlow(flow, loc, true);
+		return new EnviFlow(flow, loc, true, false);
 	}
 
 	public static EnviFlow outputOf(FlowDescriptor flow) {
-		return new EnviFlow(flow, null, false);
+		return outputOf(flow, null);
 	}
 
 	public static EnviFlow outputOf(FlowDescriptor flow, LocationDescriptor loc) {
-		return new EnviFlow(flow, loc, false);
+		return new EnviFlow(flow, loc, false, false);
+	}
+
+	/**
+	 * Creates a virtual flow for the given descriptor. The descriptor is
+	 * converted to a FlowDescriptor with the ID of that descriptor. Thus, it
+	 * is important, that this ID is not used for any other flow. Virtual flows
+	 * are added to the inventory to include values in the calculation just like
+	 * for normal flows. This can be the case for calculations with LCIA results
+	 * or social indicators.
+	 *
+	 * @param d the descriptor that should be wrapped as a virtual flow
+	 * @return a new instance that is tagged as virtual flow
+	 */
+	public static EnviFlow virtualOf(Descriptor d) {
+		FlowDescriptor flow;
+		if (d instanceof FlowDescriptor fd) {
+			flow = fd;
+		} else {
+			flow = new FlowDescriptor();
+			flow.id = d.id;
+			flow.name = d.name;
+			flow.description = d.description;
+			flow.refId = d.refId;
+			if (d instanceof CategorizedDescriptor cd) {
+				flow.category = cd.category;
+			}
+		}
+		return new EnviFlow(flow, null, false, true);
 	}
 
 	long flowId() {
