@@ -1,5 +1,6 @@
 package org.openlca.jsonld;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public record SchemaVersion(int value) {
@@ -23,17 +24,21 @@ public record SchemaVersion(int value) {
 	}
 
 	/**
-	 * Writes the current schema version as a meta-data file to the given writer.
+	 * Writes the current schema version as a meta-data file to the given
+	 * writer.
 	 */
 	public void writeTo(JsonStoreWriter writer) {
 		writer.put(FILE_NAME, toJson());
 	}
 
 	public static SchemaVersion of(JsonStoreReader reader) {
-		var json = reader.getJson(FILE_NAME);
-		var value =  json != null && json.isJsonObject()
-			? Json.getInt(json.getAsJsonObject(), "version", FALLBACK)
-			: FALLBACK;
+		return of(reader.getJson(FILE_NAME));
+	}
+
+	public static SchemaVersion of(JsonElement json) {
+		var value = json != null && json.isJsonObject()
+				? Json.getInt(json.getAsJsonObject(), "version", FALLBACK)
+				: FALLBACK;
 		return new SchemaVersion(value);
 	}
 
@@ -54,4 +59,5 @@ public record SchemaVersion(int value) {
 		json.addProperty("version", value);
 		return json;
 	}
+
 }
