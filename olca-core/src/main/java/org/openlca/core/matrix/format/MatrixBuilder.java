@@ -62,7 +62,7 @@ public class MatrixBuilder {
 			// double casts to avoid integer overflows
 			double n = (double) sparse.rows * (double) sparse.cols
 					- (double) denseRows * (double) denseCols;
-			double fr = (double) sparseEntries / n;
+			double fr = sparseEntries / n;
 			if (fr > maxSparseFileRate) {
 				mapDense();
 			}
@@ -98,7 +98,7 @@ public class MatrixBuilder {
 		}
 		// double casts to avoid integer overflows
 		double n = (double) sparse.rows * (double) sparse.cols;
-		double fr = (double) sparseEntries / n;
+		double fr = sparseEntries / n;
 		log.trace("Fill rate = {}", fr);
 		if (fr > maxSparseFileRate) {
 			mapDense();
@@ -113,12 +113,16 @@ public class MatrixBuilder {
 
 	private void mapDense() {
 		if (dense == null) {
-			dense = new DenseMatrix(
-					sparse.rows, sparse.cols);
+			dense = new DenseMatrix(sparse.rows, sparse.cols);
 		} else if (dense.rows < sparse.rows
 				|| dense.columns < sparse.cols) {
-			DenseMatrix next = new DenseMatrix(
-					sparse.rows, sparse.cols);
+
+			// allocate a new dense block
+			int nextRows = Math.max(sparse.rows, dense.rows);
+			int nextCols = Math.max(sparse.cols, dense.columns);
+			DenseMatrix next = new DenseMatrix(nextRows, nextCols);
+
+			// copy the old dense block into the new one
 			for (int col = 0; col < dense.columns; col++) {
 				int oldIdx = col * dense.rows;
 				int nextIdx = col * next.rows;
