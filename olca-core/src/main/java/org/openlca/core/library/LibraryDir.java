@@ -18,7 +18,7 @@ import org.openlca.core.DataDir;
  * library, which is the combination of name and version, is used as the folder
  * name of a library.
  */
-public record LibraryDir(File dir) {
+public record LibraryDir(File folder) {
 
 	public static LibraryDir getDefault() {
 		return new LibraryDir(DataDir.libraries());
@@ -29,21 +29,22 @@ public record LibraryDir(File dir) {
 	}
 
 	public LibraryDir {
-		if (!dir.exists()) {
-			if (!dir.mkdirs()) {
-				throw new RuntimeException("the folder " + dir
+		if (!folder.exists()) {
+			try {
+				Files.createDirectories(folder.toPath());
+			} catch (IOException e) {
+				throw new RuntimeException("the folder " + folder
 					+ " does not exist and could not be created");
 			}
 		}
 	}
 
 	public List<Library> getLibraries() {
-		var files = dir.listFiles();
+		var files = folder.listFiles();
 		if (files == null)
 			return Collections.emptyList();
 		return Arrays.stream(files)
-				.filter(dir -> dir.isDirectory()
-						&& new File(dir, "library.json").exists())
+				.filter(File::isDirectory)
 				.map(Library::new)
 				.collect(Collectors.toList());
 	}
@@ -54,13 +55,10 @@ public record LibraryDir(File dir) {
 	public Optional<Library> get(String id) {
 		if (id == null)
 			return Optional.empty();
-		var folder = new File(dir, id);
-		if (!folder.exists())
-			return Optional.empty();
-		var meta = new File(folder, "library.json");
-		return meta.exists()
-				? Optional.of(new Library(folder))
-				: Optional.empty();
+		var folder = new File(folder(), id);
+		return folder.exists()
+			? Optional.of(new Library(folder))
+			: Optional.empty();
 	}
 
 	/**
@@ -68,7 +66,7 @@ public record LibraryDir(File dir) {
 	 * directory. This folder may not exist yet.
 	 */
 	public File getFolder(LibraryInfo info) {
-		return new File(dir, info.id());
+		return new File(folder, info.id());
 	}
 
 	/**

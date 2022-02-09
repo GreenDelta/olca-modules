@@ -3,14 +3,11 @@ package org.openlca.core.results.providers;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibMatrix;
-import org.openlca.core.library.Library;
-import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
@@ -30,7 +27,8 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 public class LazyLibraryProvider implements ResultProvider {
 
 	private final IDatabase db;
-	private final LibraryDir libDir;
+	private final LibCache libs;
+	private final HashSet<String> usedLibs = new HashSet<>();
 	private final MatrixSolver solver;
 
 	private final MatrixData foregroundData;
@@ -52,14 +50,9 @@ public class LazyLibraryProvider implements ResultProvider {
 	private final TIntObjectHashMap<double[]> directImpacts = newCache();
 	private final TIntObjectHashMap<double[]> totalImpactsOfOne = newCache();
 
-	// library maps: libID -> T
-	private final HashMap<String, Library> libraries = new HashMap<>();
-	private final HashMap<String, TechIndex> libTechIndices = new HashMap<>();
-	private final HashMap<String, EnviIndex> libFlowIndices = new HashMap<>();
-
 	private LazyLibraryProvider(SolverContext context) {
 		this.db = context.db();
-		this.libDir = context.libraryDir();
+		this.libs = LibCache.of(context);
 		this.solver = context.solver();
 		this.foregroundData = context.matrixData();
 		this.foregroundSolution = EagerResultProvider.create(context);
@@ -82,8 +75,7 @@ public class LazyLibraryProvider implements ResultProvider {
 	public static LazyLibraryProvider of(SolverContext context) {
 
 		var provider = new LazyLibraryProvider(context);
-		provider.initTechIndex();
-		provider.initFlowIndex();
+		provider.initIndices();
 
 		// calculate the scaling vector
 		var s = provider.solutionOfOne(0);
@@ -97,91 +89,68 @@ public class LazyLibraryProvider implements ResultProvider {
 		return provider;
 	}
 
-	/**
-	 * Creates the combined tech. index. It recursively loads the tech. indices of
-	 * the linked libraries first (recursively, because a library can link another
-	 * library. Then it creates a combined index where the first part of that index
-	 * is identical to the tech. index of the foreground system.
-	 */
-	private void initTechIndex() {
+	private void initIndices() {
 
 		// initialize the combined index with the index
-		// of the foreground system indexF
-		var indexF = foregroundData.techIndex;
-		var index = new TechIndex(indexF.getRefFlow());
-		index.setDemand(indexF.getDemand());
-		var libs = new ArrayDeque<String>();
-		indexF.each((pos, product) -> {
-			index.add(product);
-			var lib = product.library();
-			if(lib != null && !libs.contains(lib)) {
-				libs.add(lib);
+		// of the foreground system
+		var foregroundTechIndex = foregroundData.techIndex;
+		var techIndex = new TechIndex(foregroundTechIndex.getRefFlow());
+		techIndex.setDemand(foregroundTechIndex.getDemand());
+		var libQueue = new ArrayDeque<String>();
+		for (var techFlow : foregroundTechIndex) {
+			techIndex.add(techFlow);
+			var lib = techFlow.library();
+			if(lib != null && !libQueue.contains(lib)) {
+				libQueue.add(lib);
 			}
-		});
+		}
 
 		// recursively add the indices of the used libraries
-		while (!libs.isEmpty()) {
-			var libID = libs.poll();
-			var lib = libDir.get(libID).orElseThrow(
-					() -> new RuntimeException(
-							"Failed to load library: " + libID));
-			libraries.put(libID, lib);
-			var indexB = lib.syncProducts(db).orElseThrow(
-					() -> new RuntimeException(
-							"Could not load product index of " + libID));
-			libTechIndices.put(libID, indexB);
-			indexB.each((_pos, product) -> {
-				index.add(product);
-				var nextLibID = product.library();
-				if (nextLibID == null
-						|| libID.equals(nextLibID)
-						|| libraries.containsKey(nextLibID)
-						|| libs.contains(nextLibID))
-					return;
-				libs.add(nextLibID);
-			});
+		while (!libQueue.isEmpty()) {
+			var libId = libQueue.poll();
+			usedLibs.add(libId);
+			var libIndex = libs.techIndexOf(libId);
+			if (libIndex == null)
+				continue;
+			for (var techFlow : libIndex) {
+				techIndex.add(techFlow);
+				var nextLibId = techFlow.library();
+				if (nextLibId == null
+					|| libId.equals(nextLibId)
+					|| usedLibs.contains(nextLibId)
+					|| libQueue.contains(nextLibId))
+					continue;
+				libQueue.add(nextLibId);
+			}
 		}
 
-		fullData.techIndex = index;
-	}
-
-	/**
-	 * Creates the combined elem. flow index. This method needs to be called after
-	 * the tech. indices of the libraries were loaded. If the foreground system and
-	 * all libraries do not have a flow index, the flow index of the combined system
-	 * is just null.
-	 */
-	private void initFlowIndex() {
 		// initialize the flow index with the foreground
 		// index if present
-		EnviIndex index = null;
-		var indexF = foregroundData.enviIndex;
-		if (indexF != null) {
-			index = indexF.isRegionalized()
-					? EnviIndex.createRegionalized()
-					: EnviIndex.create();
-			index.addAll(indexF);
+		EnviIndex enviIndex = null;
+		if (foregroundData.enviIndex != null) {
+			enviIndex = foregroundData.enviIndex.isRegionalized()
+				? EnviIndex.createRegionalized()
+				: EnviIndex.create();
+			enviIndex.addAll(foregroundData.enviIndex);
 		}
-
 		// extend the flow index with the flow indices
 		// of used libraries.
-		for (var entry : libraries.entrySet()) {
-			var libID = entry.getKey();
-			var lib = entry.getValue();
-			var libIdx = lib.syncElementaryFlows(db).orElse(null);
+		for (var libId : usedLibs) {
+			var libIdx =libs.enviIndexOf(libId);
 			if (libIdx == null)
 				continue;
-			if (index == null) {
-				index = libIdx.isRegionalized()
-						? EnviIndex.createRegionalized()
-						: EnviIndex.create();
+			if (enviIndex == null) {
+				enviIndex = libIdx.isRegionalized()
+					? EnviIndex.createRegionalized()
+					: EnviIndex.create();
 			}
-			index.addAll(libIdx);
-			libFlowIndices.put(libID, libIdx);
+			enviIndex.addAll(libIdx);
 		}
 
-		fullData.enviIndex = index;
+		fullData.techIndex = techIndex;
+		fullData.enviIndex = enviIndex;
 	}
+
 
 	@Override
 	public TechIndex techIndex() {
@@ -237,19 +206,17 @@ public class LazyLibraryProvider implements ResultProvider {
 		}
 
 		// handle the libraries
-		for (var e : libraries.entrySet()) {
-			var libID = e.getKey();
-			var lib = e.getValue();
-			var indexB = libTechIndices.get(libID);
-			if (lib == null || indexB == null)
+		for (var libId : usedLibs) {
+			var indexB = libs.techIndexOf(libId);
+			if (indexB == null)
 				continue;
-			var libDiag = lib.getDiagonal(LibMatrix.A).orElse(null);
+			var libDiag = libs.diagonalOf(libId, LibMatrix.A);
 			if (libDiag == null)
 				continue;
 			for (int iB = 0; iB < libDiag.length; iB++) {
 				var product = indexB.at(iB);
 				var productLib = product.library();
-				if (!Objects.equals(productLib, libID))
+				if (!Objects.equals(productLib, libId))
 					continue;
 
 				var i = index.of(product);
@@ -296,13 +263,11 @@ public class LazyLibraryProvider implements ResultProvider {
 
 		// in case of a library product, we need to map
 		// the column entries
-		var lib = libraries.get(libID);
-		var indexLib = libTechIndices.get(libID);
-		if (lib == null || indexLib == null)
+		var indexLib = libs.techIndexOf(libID);
+		if (indexLib == null)
 			return column;
 		int jLib = indexLib.of(product);
-		var columnLib = lib.getColumn(LibMatrix.A, jLib)
-				.orElse(null);
+		var columnLib = libs.columnOf(libID, LibMatrix.A, jLib);
 		if (columnLib == null)
 			return column;
 		for (int iLib = 0; iLib < columnLib.length; iLib++) {
@@ -362,17 +327,14 @@ public class LazyLibraryProvider implements ResultProvider {
 			var pair = queue.pop();
 			var p = pair.first;
 			double factor = pair.second;
-			var libID = p.library();
-			if (libID == null)
+			var libId = p.library();
+			if (libId == null)
 				continue;
-			var lib = libraries.get(libID);
-			var libIndex = libTechIndices.get(libID);
-			if (lib == null || libIndex == null)
+			var libIndex = libs.techIndexOf(libId);
+			if (libIndex == null)
 				continue;
 			int column = libIndex.of(p);
-			var libSolution = lib.getColumn(
-					LibMatrix.INV, column)
-					.orElse(null);
+			var libSolution = libs.columnOf(libId,LibMatrix.INV, column);
 			if (libSolution == null)
 				continue;
 			for (int i = 0; i < libSolution.length; i++) {
@@ -381,7 +343,7 @@ public class LazyLibraryProvider implements ResultProvider {
 					continue;
 				var provider = libIndex.at(i);
 				var subLibID = provider.library();
-				if (Objects.equals(libID, subLibID)) {
+				if (Objects.equals(libId, subLibID)) {
 					int index = techIndex.of(provider);
 					solution[index] += factor * value;
 				} else {
@@ -415,14 +377,14 @@ public class LazyLibraryProvider implements ResultProvider {
 
 		column = new double[flowIdx.size()];
 		var product = fullData.techIndex.at(j);
-		var libID = product.library();
+		var libId = product.library();
 
 		// in case of a foreground product, we just need
 		// to copy the column of the foreground system
 		// into the first part of the result column as
 		// the flow index of the foreground system is
 		// exactly the first part of the combined index
-		if (libID == null) {
+		if (libId == null) {
 			var flowMatrixF = foregroundData.enviMatrix;
 			if (flowMatrixF != null) {
 				var colF = flowMatrixF.getColumn(j);
@@ -433,14 +395,12 @@ public class LazyLibraryProvider implements ResultProvider {
 
 		// in case of a library product, we need to map
 		// the column entries
-		var lib = libraries.get(libID);
-		var flowIdxB = libFlowIndices.get(libID);
-		var techIdxB = libTechIndices.get(libID);
-		if (lib == null || flowIdxB == null || techIdxB == null)
+		var flowIdxB = libs.enviIndexOf(libId);
+		var techIdxB = libs.techIndexOf(libId);
+		if (flowIdxB == null || techIdxB == null)
 			return put(j, flowColumns, column);
 		var jB = techIdxB.of(product);
-		var colB = lib.getColumn(LibMatrix.B, jB)
-				.orElse(null);
+		var colB = libs.columnOf(libId, LibMatrix.B, jB);
 		if (colB == null)
 			return put(j, flowColumns, column);
 
@@ -511,18 +471,16 @@ public class LazyLibraryProvider implements ResultProvider {
 		}
 
 		var techIdx = techIndex();
-		for (var e : libraries.entrySet()) {
-			var libID = e.getKey();
-			var lib = e.getValue();
-			var flowIdxB = libFlowIndices.get(libID);
-			var techIdxB = libTechIndices.get(libID);
-			if (lib == null || flowIdxB == null || techIdxB == null)
+		for (var libId : usedLibs) {
+			var flowIdxB = libs.enviIndexOf(libId);
+			var techIdxB = libs.techIndexOf(libId);
+			if (flowIdxB == null || techIdxB == null)
 				continue;
 			if (flowIdxB.size() == 0)
 				continue;
 
 			// calculate the scaled library result
-			var matrixB = lib.getMatrix(LibMatrix.B).orElse(null);
+			var matrixB = libs.matrixOf(libId, LibMatrix.B);
 			if (matrixB == null)
 				continue;
 			var sB = new double[techIdxB.size()];
@@ -615,16 +573,14 @@ public class LazyLibraryProvider implements ResultProvider {
 				usedLibs.add(impact.library);
 			}
 		});
-		for (var libID : usedLibs) {
-			var lib = libraries.get(libID);
-			var libFlowIdx = libFlowIndices.get(libID);
-			if (lib == null || libFlowIdx == null)
+		for (var libId : usedLibs) {
+			var libFlowIdx = libs.enviIndexOf(libId);
+			if (libFlowIdx == null)
 				continue;
-			var libImpactIdx = lib.syncImpacts(db).orElse(null);
+			var libImpactIdx = libs.impactIndexOf(libId);
 			if (libImpactIdx == null)
 				continue;
-			var libMatrix = lib.getMatrix(LibMatrix.C)
-					.orElse(null);
+			var libMatrix = libs.matrixOf(libId, LibMatrix.C);
 			if (libMatrix == null)
 				continue;
 			libMatrix.iterate((rowB, colB, val) -> {
