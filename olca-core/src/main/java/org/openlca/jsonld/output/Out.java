@@ -38,7 +38,7 @@ class Out {
 			return;
 		JsonObject ref = References.create(value, conf, is(flags, FORCE_EXPORT));
 		if (value instanceof Category) {
-			ref.addProperty("refId", Categories.createRefId((Category) value));
+			ref.addProperty("@id", Categories.createRefId((Category) value));
 		}
 		json.add(property, ref);
 	}
