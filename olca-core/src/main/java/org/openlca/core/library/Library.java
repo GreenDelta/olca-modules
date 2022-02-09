@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayDeque;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -28,14 +27,12 @@ import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.format.MatrixReader;
-import org.openlca.core.matrix.io.NpyMatrix;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.jsonld.Json;
-import org.openlca.npy.Array2d;
 import org.openlca.util.Exceptions;
 import org.slf4j.LoggerFactory;
 
@@ -46,8 +43,6 @@ public class Library {
 	 */
 	public final File folder;
 	private LibraryInfo _info;
-
-	private final Map<LibMatrix, MatrixReader> matrixCache = new HashMap<>();
 
 	public Library(File folder) {
 		this.folder = folder;
@@ -319,98 +314,22 @@ public class Library {
 	}
 
 	public boolean hasMatrix(LibMatrix m) {
-		var npy = new File(folder, m.name() + ".npy");
-		if (npy.exists())
-			return true;
-		var npz = new File(folder, m.name() + ".npz");
-		return npz.exists();
+		return m.isPresentIn(this);
 	}
 
 	public Optional<MatrixReader> getMatrix(LibMatrix m) {
-		var matrix = matrixCache.get(m);
-		if (matrix != null)
-			return Optional.of(matrix);
-
-		try {
-			var npy = new File(folder, m.name() + ".npy");
-			if (npy.exists()) {
-				matrix = NpyMatrix.read(npy);
-				matrixCache.put(m, matrix);
-				return Optional.of(matrix);
-			}
-
-			var npz = new File(folder, m.name() + ".npz");
-			if (npz.exists()) {
-				matrix = NpyMatrix.read(npz);
-				matrixCache.put(m, matrix);
-				return Optional.of(matrix);
-			}
-
-			return Optional.empty();
-
-		} catch (Exception e) {
-			var log = LoggerFactory.getLogger(getClass());
-			log.error("failed to read matrix from " + folder, e);
-			return Optional.empty();
-		}
+		return m.readFrom(this);
 	}
 
 	public Optional<double[]> getColumn(LibMatrix m, int column) {
-		var matrix = matrixCache.get(m);
-		if (matrix != null)
-			return Optional.of(matrix.getColumn(column));
-
-		try {
-
-			// do not cache dense matrices
-			var npy = new File(folder, m.name() + ".npy");
-			if (npy.exists()) {
-				var col = Array2d.readColumn(npy, column).asDoubleArray();
-				return Optional.of(col.data());
-			}
-
-			// force caching of sparse matrices
-			matrix = getMatrix(m).orElse(null);
-			return matrix == null
-				? Optional.empty()
-				: Optional.of(matrix.getColumn(column));
-
-		} catch (Exception e) {
-			var log = LoggerFactory.getLogger(getClass());
-			log.error("failed to read matrix column "
-				+ column + " from " + m + " in " + folder, e);
-			return Optional.empty();
-		}
+		return m.readColumnFrom(this, column);
 	}
 
 	/**
 	 * Get the diagonal of the given library matrix.
 	 */
 	public Optional<double[]> getDiagonal(LibMatrix m) {
-		var matrix = matrixCache.get(m);
-		if (matrix != null)
-			return Optional.of(matrix.diag());
-
-		try {
-			// do not cache dense matrices
-			var npy = new File(folder, m.name() + ".npy");
-			if (npy.exists()) {
-				var diag = Array2d.readDiag(npy).asDoubleArray();
-				return Optional.of(diag.data());
-			}
-
-			// force caching of sparse matrices
-			matrix = getMatrix(m).orElse(null);
-			return matrix == null
-				? Optional.empty()
-				: Optional.of(matrix.diag());
-
-		} catch (Exception e) {
-			var log = LoggerFactory.getLogger(getClass());
-			log.error("failed to read matrix diagonal"
-				+ " from " + m + " in " + folder, e);
-			return Optional.empty();
-		}
+		return m.readDiagonalFrom(this);
 	}
 
 	/**

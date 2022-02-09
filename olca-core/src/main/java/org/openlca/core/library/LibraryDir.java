@@ -6,12 +6,10 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.openlca.core.DataDir;
-import org.openlca.core.matrix.format.MatrixReader;
 
 /**
  * A library directory is a specific folder where each sub-folder is a library.
@@ -20,9 +18,7 @@ import org.openlca.core.matrix.format.MatrixReader;
  * library, which is the combination of name and version, is used as the folder
  * name of a library.
  */
-public class LibraryDir {
-
-	public final File dir;
+public record LibraryDir(File dir) {
 
 	public static LibraryDir getDefault() {
 		return new LibraryDir(DataDir.libraries());
@@ -32,14 +28,13 @@ public class LibraryDir {
 		return new LibraryDir(dir);
 	}
 
-	public LibraryDir(File dir) {
+	public LibraryDir {
 		if (!dir.exists()) {
 			if (!dir.mkdirs()) {
 				throw new RuntimeException("the folder " + dir
-						+ " does not exist and could not be created");
+					+ " does not exist and could not be created");
 			}
 		}
-		this.dir = dir;
 	}
 
 	public List<Library> getLibraries() {
@@ -103,25 +98,4 @@ public class LibraryDir {
 		}
 	}
 
-	public Optional<MatrixReader> getMatrix(String libID, LibMatrix matrix) {
-		var lib = get(libID);
-		if (lib.isEmpty())
-			return Optional.empty();
-		return lib.get().getMatrix(matrix);
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (o == null || getClass() != o.getClass())
-			return false;
-		var other = (LibraryDir) o;
-		return Objects.equals(dir, other.dir);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(dir);
-	}
 }
