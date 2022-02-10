@@ -1,6 +1,7 @@
 package org.openlca.git.util;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jgit.diff.DiffEntry;
@@ -41,6 +42,9 @@ public class DiffEntries {
 
 		}
 		walk.addTree(new DatabaseIterator(config));
+		if (paths == null) {
+			paths = new ArrayList<>();
+		}
 		walk.setFilter(getPathsFilter(paths.stream().distinct().toList()));
 		walk.setRecursive(true);
 		return DiffEntry.scan(walk);
