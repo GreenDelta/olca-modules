@@ -56,6 +56,7 @@ class UnitSync {
 		if (dataSet == null)
 			return;
 		try {
+			log.info("check units");
 			var mapping = UnitMapping.createDefault(db);
 			var unknownUnits = new ArrayList<String>();
 			for (var unit : collectUnitsOf(dataSet)) {
@@ -103,14 +104,13 @@ class UnitSync {
 			}
 
 			if (quantityRow == null) {
-				log.warn("unit " + unit + " found but with no quantity; create default "
+				log.warn("unit " + unit + " found but without quantity; create default "
 					+ "unit, unit group, and flow property");
 				createStandalone(unit, mapping);
 				continue;
 			}
 
-			log.warn("unknown unit " + unit
-				+ "; import quantity " + quantityRow.name());
+			log.warn("unknown unit " + unit + "; import quantity " + quantityRow.name());
 			var group = createForQuantity(dataSet, quantityRow, mapping);
 			for (var u : group.units) {
 				unknownUnits.remove(u.name);
@@ -138,7 +138,7 @@ class UnitSync {
 		group.lastChange = System.currentTimeMillis();
 		Version.incUpdate(group);
 		group = db.update(group);
-		log.("added new unit " + newUnit.name + " to group ", newUnit, group);
+		log.updated(group);
 
 		// reload object references in the mapping entries so that
 		// we can use them directly in the JPA persistence
@@ -189,7 +189,9 @@ class UnitSync {
 		group = db.insert(group);
 		group.defaultFlowProperty = db.insert(
 			FlowProperty.of(quantity.name(), group));
+		log.imported(group.defaultFlowProperty);
 		group = db.update(group);
+		log.imported(group);
 
 		// create the mapping entries
 		for (Unit unit : group.units) {
@@ -213,7 +215,9 @@ class UnitSync {
 		db.insert(group);
 		var property = FlowProperty.of("Property for " + unit, group);
 		group.defaultFlowProperty = db.insert(property);
+		log.imported(group.defaultFlowProperty);
 		group = db.update(group);
+		log.imported(group);
 		var e = new UnitMappingEntry();
 		e.unitGroup = group;
 		e.unit = group.referenceUnit;

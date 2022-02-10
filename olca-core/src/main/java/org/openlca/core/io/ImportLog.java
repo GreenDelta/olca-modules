@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
@@ -19,10 +20,9 @@ public final class ImportLog {
 
 	private final int MAX_SIZE;
 
-	private final TLongObjectHashMap<Descriptor> logs = new TLongObjectHashMap<>();
-
-	// using a set internally to avoid duplicate messages
-	private final HashSet<Message> messages = new HashSet<>();
+	private final TLongObjectHashMap<Message> logs = new TLongObjectHashMap<>();
+	private final HashSet<Message> errors = new HashSet<>();
+	private final HashSet<Message> warnings = new HashSet<>();
 	private final List<Consumer<Message>> listeners = new ArrayList<>();
 
 	public ImportLog () {
@@ -44,13 +44,21 @@ public final class ImportLog {
 	}
 
 	public void updated(CategorizedEntity entity) {
-		updated(Descriptor.of(entity));
+		add(State.UPDATED, entity);
 	}
 
-	public void updated(CategorizedDescriptor d) {
-		if (d == null || d.id == 0)
-			return;
+	public void imported(CategorizedEntity entity) {
+		add(State.IMPORTED, entity);
+	}
 
+	private void add(State state, CategorizedEntity e) {
+		if (e == null || e.id == 0)
+			return;
+		var current = logs.get(e.id);
+		if (current != null && current.priority() >= state.priority())
+			return;
+		var message = new Message(state, null, Descriptor.of(e));
+		add(message);
 	}
 
 	/**
@@ -58,6 +66,9 @@ public final class ImportLog {
 	 * just passed to listeners that are attached to this log.
 	 */
 	public void info(String message) {
+		if (message == null)
+			return;
+		add(new Message(State.INFO, message, null));
 		if (listeners.isEmpty())
 			return;
 		var m = new Message(State.INFO, message, null);
@@ -66,24 +77,8 @@ public final class ImportLog {
 		}
 	}
 
-
-	/**
-	 * Creates an 'imported' message for the given descriptor.
-	 */
-	public void ok(Descriptor descriptor) {
-		add(State.OK, "imported", descriptor);
-	}
-
-	public void ok(String message) {
-		add(State.OK, message, null);
-	}
-
-	public void ok(String message, Descriptor descriptor) {
-		add(State.OK, message, descriptor);
-	}
-
 	public void warn(String message) {
-		add(State.WARNING, message, null);
+		add(new Message(State.WARNING, message, null));
 	}
 
 	public void warn(String message, Descriptor descriptor) {
@@ -102,10 +97,10 @@ public final class ImportLog {
 		add(State.ERROR, message + ": " + err.getMessage(), null);
 	}
 
-	private void add(State type, String message, Descriptor descriptor) {
-		if (message == null && descriptor == null)
-			return;
-		var m = new Message(type, message, descriptor);
+	private void add(Message message) {
+		if (message.descriptor != null && logs.size() < MAX_SIZE) {
+			logs.put(message.descriptor.id, message);
+		}
 		if (messages.add(m)) {
 			for (var listener : listeners) {
 				listener.accept(m);
@@ -119,13 +114,32 @@ public final class ImportLog {
 		SKIPPED,
 		ERROR,
 		WARNING,
-		INFO,
+		INFO;
+
+		private int priority() {
+			return switch (this) {
+				case INFO -> 1;
+				case SKIPPED -> 2;
+				case UPDATED -> 3;
+				case IMPORTED -> 4;
+				case WARNING -> 5;
+				case ERROR -> 6;
+			};
+		}
 	}
 
 	public record Message(
 		State state,
 		String message,
-		Descriptor descriptor) {
+		CategorizedDescriptor descriptor) {
+
+		private Message(State state, String message) {
+			this(state, message, null);
+		}
+
+		private Message(State state, CategorizedDescriptor descriptor) {
+			this(state, null, descriptor);
+		}
 
 		public boolean hasMessage() {
 			return message != null;
@@ -153,17 +167,16 @@ public final class ImportLog {
 		}
 
 		private int priority() {
-			if (state == null)
-				return 0;
-			return switch (state) {
-				case INFO -> 1;
-				case SKIPPED -> 2;
-				case UPDATED -> 3;
-				case IMPORTED -> 4;
-				case WARNING -> 5;
-				case ERROR -> 6;
-			};
+			return state != null
+				? state.priority()
+				: 0;
 		}
 
+		@Override
+		public int hashCode() {
+			return 31 * (31 * Objects.hashCode(state)
+				* Objects.hashCode(message))
+				* Objects.hashCode(descriptor);
+		}
 	}
 }
