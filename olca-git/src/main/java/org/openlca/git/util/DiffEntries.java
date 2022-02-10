@@ -14,6 +14,7 @@ import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.openlca.git.Config;
 import org.openlca.git.iterator.DatabaseIterator;
 import org.openlca.git.model.Commit;
+import org.openlca.jsonld.SchemaVersion;
 import org.openlca.util.Strings;
 
 public class DiffEntries {
@@ -40,22 +41,19 @@ public class DiffEntries {
 
 		}
 		walk.addTree(new DatabaseIterator(config));
-		if (paths != null) {
-			walk.setFilter(getPathsFilter(paths.stream().distinct().toList()));
-		}
+		walk.setFilter(getPathsFilter(paths.stream().distinct().toList()));
 		walk.setRecursive(true);
 		return DiffEntry.scan(walk);
 	}
 
 	private static TreeFilter getPathsFilter(List<String> paths) {
+		var filter = PathFilter.create(SchemaVersion.FILE_NAME).negate();
 		if (paths.isEmpty())
-			return null;
-		TreeFilter filter = null;
+			return filter;
 		for (var path : paths) {
 			if (Strings.nullOrEmpty(path))
 				continue;
-			var newFilter = PathFilter.create(path);
-			filter = filter != null ? AndTreeFilter.create(filter, newFilter) : newFilter;
+			filter = AndTreeFilter.create(filter, PathFilter.create(path));
 		}
 		return filter;
 	}
