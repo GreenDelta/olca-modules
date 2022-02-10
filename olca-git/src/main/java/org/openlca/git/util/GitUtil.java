@@ -63,7 +63,12 @@ public class GitUtil {
 		}
 		if (path.length() != 40)
 			return false;
-		for (int i = 0; i < path.length() - 4; i++) {
+		path = path.substring(0, 36);
+		return isUUID(path);
+	}
+
+	public static boolean isUUID(String path) {
+		for (int i = 0; i < path.length(); i++) {
 			var c = path.charAt(i);
 			if (i == 8 || i == 13 || i == 18 || i == 23) {
 				if (c != '-')
@@ -75,5 +80,5 @@ public class GitUtil {
 		}
 		return true;
 	}
-
+	
 }
