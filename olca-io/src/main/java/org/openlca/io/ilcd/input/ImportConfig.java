@@ -124,11 +124,10 @@ public class ImportConfig {
 		if (descriptor != null) {
 			return descriptor;
 		}
-		var method = ImpactMethod.of(name);
-		db.insert(method);
-		methods.put(key, Descriptor.of(method));
+		var method = db.insert(ImpactMethod.of(name));
+		log.imported(method);
 		descriptor = Descriptor.of(method);
-		log.ok(descriptor);
+		methods.put(key, descriptor);
 		return descriptor;
 	}
 
@@ -148,9 +147,8 @@ public class ImportConfig {
 		loc.code = code;
 		loc.name = code;
 		db.insert(loc);
+		log.imported(loc);
 		locations.put(code, loc);
-		log.ok("created new location for unknown code: '"
-			+ code + "'", Descriptor.of(loc));
 		return loc;
 	}
 }
