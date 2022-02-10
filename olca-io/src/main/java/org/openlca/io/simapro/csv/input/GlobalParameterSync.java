@@ -8,13 +8,12 @@ import java.util.stream.Stream;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
+import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.util.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Imports the project and database parameters from SimaPro as openLCA database
@@ -22,19 +21,19 @@ import org.slf4j.LoggerFactory;
  */
 class GlobalParameterSync {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
-
 	private final IDatabase db;
+	private final ImportLog log;
 	private final Map<String, Parameter> globals = new HashMap<>();
 
-	GlobalParameterSync(IDatabase db) {
+	GlobalParameterSync(IDatabase db, ImportLog log) {
 		this.db = db;
+		this.log = log;
 		new ParameterDao(db).getGlobalParameters()
 			.forEach(param -> globals.put(keyOf(param.name), param));
 	}
 
 	void sync(CsvDataSet dataSet) {
-		log.trace("sync project and database parameters");
+		log.info("sync project and database parameters");
 
 		// global input parameters
 		Stream.concat(
@@ -45,7 +44,8 @@ class GlobalParameterSync {
 				if (globals.containsKey(key))
 					return;
 				var param = Parameters.create(row, ParameterScope.GLOBAL);
-				db.insert(param);
+				param = db.insert(param);
+				log.imported(param);
 				globals.put(key, param);
 			});
 
@@ -85,11 +85,12 @@ class GlobalParameterSync {
 				param.value = interpreter.eval(param.formula);
 			} catch (Exception e) {
 				log.warn("failed to evaluate formula for global parameter "
-					+ param.name + ": set value to 1.0", e);
+					+ param.name + ": " + param.formula);
 				param.isInputParameter = true;
 				param.value = 1.0;
 			}
-			db.insert(param);
+			param = db.insert(param);
+			log.imported(param);
 		}
 	}
 
