@@ -20,13 +20,7 @@ import org.openlca.util.Pair;
 import org.openlca.util.Strings;
 import org.openlca.util.TopoSort;
 
-class ProductSystems {
-
-	private final IDatabase db;
-
-	private ProductSystems(IDatabase db) {
-		this.db = db;
-	}
+record ProductSystems(IDatabase db) {
 
 	static void map(IDatabase db, List<Pair<ProductStageBlock, Process>> pairs) {
 		if (pairs.isEmpty())

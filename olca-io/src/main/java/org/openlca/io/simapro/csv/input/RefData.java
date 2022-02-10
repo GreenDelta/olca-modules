@@ -1,6 +1,7 @@
 package org.openlca.io.simapro.csv.input;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Source;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.FlowMap;
@@ -17,12 +18,14 @@ class RefData {
 	private final SourceSync sourceSync;
 	private final CsvFlowSync flowSync;
 	private final GlobalParameterSync parameterSync;
+	private final ImportLog log;
 
-	RefData(IDatabase db, FlowMap flowMap) {
+	RefData(IDatabase db, FlowMap flowMap, ImportLog log) {
 		this.unitSync = new UnitSync(db);
 		this.sourceSync = new SourceSync(db);
 		this.parameterSync = new GlobalParameterSync(db);
 		this.flowSync = new CsvFlowSync(db, this, flowMap);
+		this.log = log;
 	}
 
 	void sync(CsvDataSet dataSet) {
