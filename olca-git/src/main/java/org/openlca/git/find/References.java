@@ -12,6 +12,7 @@ import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.model.Reference;
 import org.openlca.git.util.GitUtil;
+import org.openlca.jsonld.SchemaVersion;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,7 @@ public class References {
 	public static References of(FileRepository repo) {
 		return new References(repo);
 	}
-	
+
 	private References(FileRepository repo) {
 		this.repo = repo;
 	}
@@ -148,15 +149,17 @@ public class References {
 					}
 					walk.addTree(commit.getTree());
 					walk.setRecursive(true);
-					TreeFilter filter = NotBinaryFilter.create();
+					var filter = AndTreeFilter.create(
+							NotBinaryFilter.create(),
+							PathFilter.create(SchemaVersion.FILE_NAME).negate());
 					if (path != null) {
-						filter = addFilter(filter, PathFilter.create(path));
+						filter = AndTreeFilter.create(filter, PathFilter.create(path));
 					}
 					if (type != null && refId != null) {
-						filter = addFilter(filter, new ModelFilter(type, refId));
+						filter = AndTreeFilter.create(filter, new ModelFilter(type, refId));
 					}
 					if (onlyChanged) {
-						filter = addFilter(filter, TreeFilter.ANY_DIFF);
+						filter = AndTreeFilter.create(filter, TreeFilter.ANY_DIFF);
 					}
 					if (filter != null) {
 						walk.setFilter(filter);
@@ -175,10 +178,6 @@ public class References {
 						+ ", path: " + path, e);
 				return new ArrayList<>();
 			}
-		}
-
-		private TreeFilter addFilter(TreeFilter current, TreeFilter newFilter) {
-			return current != null ? AndTreeFilter.create(current, newFilter) : newFilter;
 		}
 
 	}
