@@ -161,9 +161,7 @@ public class References {
 					if (onlyChanged) {
 						filter = AndTreeFilter.create(filter, TreeFilter.ANY_DIFF);
 					}
-					if (filter != null) {
-						walk.setFilter(filter);
-					}
+					walk.setFilter(filter);
 					while (walk.next()) {
 						if (countOnly) {
 							refs.add(null);
