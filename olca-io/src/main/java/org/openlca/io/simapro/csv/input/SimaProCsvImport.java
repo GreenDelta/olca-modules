@@ -126,7 +126,7 @@ public class SimaProCsvImport implements FileImport {
 
 				// impact methods
 				for (var method : dataSet.methods()) {
-					ImpactMethods.map(db, context.refData(), method);
+					ImpactMethods.map(context, method);
 				}
 			}
 		} catch (Exception e) {
