@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
@@ -15,14 +16,12 @@ import org.openlca.simapro.csv.refdata.CalculatedParameterRow;
 import org.openlca.simapro.csv.refdata.InputParameterRow;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class ProductStages implements ProcessMapper {
 
-	private final Logger log = LoggerFactory.getLogger(ProductStages.class);
 	private final ImportContext context;
 	private final RefData refData;
+	private final ImportLog log;
 	private final ProductStageBlock block;
 
 	private Process process;
@@ -31,6 +30,7 @@ class ProductStages implements ProcessMapper {
 	private ProductStages(ImportContext context, ProductStageBlock block) {
 		this.context = context;
 		this.refData = context.refData();
+		this.log = context.log();
 		this.block = block;
 	}
 
@@ -83,7 +83,7 @@ class ProductStages implements ProcessMapper {
 
 		process = context.db().get(Process.class, refId);
 		if (process != null) {
-			log.warn("A process with id={} already exists", refId);
+			log.warn("A process with id='" + refId + "' already exists; skipped");
 			return null;
 		}
 
@@ -99,7 +99,7 @@ class ProductStages implements ProcessMapper {
 
 		mapExchanges();
 		inferCategoryAndLocation();
-		return context.db().insert(process);
+		return context.insert(process);
 	}
 
 	private void mapExchanges() {

@@ -23,7 +23,7 @@ class RefData {
 		this.unitSync = new UnitSync(db, log);
 		this.sourceSync = new SourceSync(db, log);
 		this.parameterSync = new GlobalParameterSync(db, log);
-		this.flowSync = new CsvFlowSync(db, this, flowMap);
+		this.flowSync = new CsvFlowSync(db, this, flowMap, log);
 	}
 
 	void sync(CsvDataSet dataSet) {

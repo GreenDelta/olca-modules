@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Process;
@@ -17,15 +18,13 @@ import org.openlca.simapro.csv.refdata.CalculatedParameterRow;
 import org.openlca.simapro.csv.refdata.InputParameterRow;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class Processes implements ProcessMapper {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final ImportContext context;
 	private final RefData refData;
+	private final ImportLog log;
 	private final ProcessBlock block;
 
 	private Process process;
@@ -34,6 +33,7 @@ class Processes implements ProcessMapper {
 	private Processes(ImportContext context, ProcessBlock block) {
 		this.context = context;
 		this.refData = context.refData();
+		this.log = context.log();
 		this.block = block;
 	}
 
@@ -74,12 +74,11 @@ class Processes implements ProcessMapper {
 			: UUID.randomUUID().toString();
 		process = context.db().get(Process.class, refId);
 		if (process != null) {
-			log.warn("a process with the identifier {} is already in the "
-				+ "database and was not imported", refId);
+			log.warn("a process with the identifier '" + refId +
+				"' is already in the database and was not imported");
 			return;
 		}
 
-		log.trace("import process {}", refId);
 		process = new Process();
 		process.refId = refId;
 		process.processType = block.processType() == ProcessType.SYSTEM
@@ -96,7 +95,7 @@ class Processes implements ProcessMapper {
 		mapExchanges();
 		mapAllocation();
 		inferCategoryAndLocation();
-		context.db().insert(process);
+		context.insert(process);
 	}
 
 	static String nameOf(ProcessBlock block) {
@@ -179,7 +178,6 @@ class Processes implements ProcessMapper {
 		};
 		waste.accept(block.wasteTreatment());
 		waste.accept(block.wasteScenario());
-
 
 		// product inputs & waste outputs
 		for (var type : ProductType.values()) {
