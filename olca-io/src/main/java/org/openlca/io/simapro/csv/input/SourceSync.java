@@ -5,23 +5,23 @@ import java.util.Map;
 
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Source;
 import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.simapro.csv.refdata.LiteratureReferenceBlock;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class SourceSync {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final IDatabase db;
+	private final ImportLog log;
 	private final Map<String, Source> sources = new HashMap<>();
 
-	SourceSync(IDatabase db) {
+	SourceSync(IDatabase db, ImportLog log) {
 		this.db = db;
+		this.log = log;
 	}
 
 	public Map<String, Source> sources() {
@@ -29,18 +29,17 @@ class SourceSync {
 	}
 
 	void sync(CsvDataSet dataSet) {
-		log.trace("synchronize sources with database");
+		log.info("synchronize sources with database");
 		try {
 			for (var block : dataSet.literatureReferences()) {
 				var source = sync(block);
 				if (source == null) {
-					log.warn("could not synchronize {} with DB", block);
 					continue;
 				}
 				sources.put(block.name(), source);
 			}
 		} catch (Exception e) {
-			log.error("failed to synchronize sources with database");
+			log.error("failed to synchronize sources with database", e);
 		}
 	}
 
@@ -63,6 +62,8 @@ class SourceSync {
 			: CategoryDao.sync(db, ModelType.SOURCE, block.category());
 		source.description = block.description();
 		source.url = block.documentationLink();
-		return db.insert(source);
+		source = db.insert(source);
+		log.imported(source);
+		return source;
 	}
 }

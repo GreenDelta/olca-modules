@@ -18,14 +18,12 @@ class RefData {
 	private final SourceSync sourceSync;
 	private final CsvFlowSync flowSync;
 	private final GlobalParameterSync parameterSync;
-	private final ImportLog log;
 
 	RefData(IDatabase db, FlowMap flowMap, ImportLog log) {
-		this.unitSync = new UnitSync(db);
-		this.sourceSync = new SourceSync(db);
-		this.parameterSync = new GlobalParameterSync(db);
+		this.unitSync = new UnitSync(db, log);
+		this.sourceSync = new SourceSync(db, log);
+		this.parameterSync = new GlobalParameterSync(db, log);
 		this.flowSync = new CsvFlowSync(db, this, flowMap);
-		this.log = log;
 	}
 
 	void sync(CsvDataSet dataSet) {

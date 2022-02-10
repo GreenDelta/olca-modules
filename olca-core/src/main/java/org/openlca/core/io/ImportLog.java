@@ -1,7 +1,6 @@
 package org.openlca.core.io;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -9,7 +8,6 @@ import java.util.function.Consumer;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.model.CategorizedEntity;
-import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 
@@ -25,7 +23,7 @@ public final class ImportLog {
 	private final HashSet<Message> warnings = new HashSet<>();
 	private final List<Consumer<Message>> listeners = new ArrayList<>();
 
-	public ImportLog () {
+	public ImportLog() {
 		this(10_000);
 	}
 
@@ -57,8 +55,7 @@ public final class ImportLog {
 		var current = logs.get(e.id);
 		if (current != null && current.priority() >= state.priority())
 			return;
-		var message = new Message(state, null, Descriptor.of(e));
-		add(message);
+		add(new Message(state, Descriptor.of(e)));
 	}
 
 	/**
@@ -68,43 +65,35 @@ public final class ImportLog {
 	public void info(String message) {
 		if (message == null)
 			return;
-		add(new Message(State.INFO, message, null));
-		if (listeners.isEmpty())
-			return;
-		var m = new Message(State.INFO, message, null);
-		for (var listener : listeners) {
-			listener.accept(m);
-		}
+		add(new Message(State.INFO, message));
 	}
 
 	public void warn(String message) {
-		add(new Message(State.WARNING, message, null));
-	}
-
-	public void warn(String message, Descriptor descriptor) {
-		add(State.WARNING, message, descriptor);
+		if (message == null)
+			return;
+		add(new Message(State.WARNING, message));
 	}
 
 	public void error(String message) {
-		add(State.ERROR, message, null);
-	}
-
-	public void error(String message, Descriptor descriptor) {
-		add(State.ERROR, message, descriptor);
+		if (message == null)
+			return;
+		add(new Message(State.ERROR, message, null));
 	}
 
 	public void error(String message, Throwable err) {
-		add(State.ERROR, message + ": " + err.getMessage(), null);
+		error(message + ": " + err.getMessage());
 	}
 
 	private void add(Message message) {
 		if (message.descriptor != null && logs.size() < MAX_SIZE) {
 			logs.put(message.descriptor.id, message);
+		} else if (message.isError() && errors.size() < MAX_SIZE) {
+			errors.add(message);
+		} else if (message.isWarning() && warnings.size() < MAX_SIZE) {
+			warnings.add(message);
 		}
-		if (messages.add(m)) {
-			for (var listener : listeners) {
-				listener.accept(m);
-			}
+		for (var listener : listeners) {
+			listener.accept(message);
 		}
 	}
 

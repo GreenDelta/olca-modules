@@ -23,8 +23,6 @@ import org.openlca.simapro.csv.process.ExchangeRow;
 import org.openlca.simapro.csv.refdata.QuantityRow;
 import org.openlca.simapro.csv.refdata.UnitRow;
 import org.openlca.util.KeyGen;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Synchronizes the used unit names found in a SimaPro CSV file with the units
