@@ -49,6 +49,10 @@ public final class ImportLog {
 		add(State.IMPORTED, entity);
 	}
 
+	public void skipped(CategorizedEntity entity) {
+		add(State.SKIPPED, entity);
+	}
+
 	private void add(State state, CategorizedEntity e) {
 		if (e == null || e.id == 0)
 			return;

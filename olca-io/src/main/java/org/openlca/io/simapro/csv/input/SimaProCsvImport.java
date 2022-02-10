@@ -22,7 +22,7 @@ public class SimaProCsvImport implements FileImport {
 	private final File[] files;
 
 	private FlowMap flowMap;
-	private ImportLog log;
+	private ImportLog _log;
 	private boolean canceled = false;
 	private boolean unrollWasteScenarios;
 	private boolean expandImpactFactors;
@@ -41,7 +41,7 @@ public class SimaProCsvImport implements FileImport {
 	}
 
 	public SimaProCsvImport withLog(ImportLog log) {
-		this.log = log;
+		_log = log;
 		return this;
 	}
 
@@ -69,6 +69,14 @@ public class SimaProCsvImport implements FileImport {
 	}
 
 	@Override
+	public ImportLog log() {
+		if (_log == null) {
+			_log = new ImportLog();
+		}
+		return _log;
+	}
+
+	@Override
 	public void cancel() {
 		this.canceled = true;
 	}
@@ -83,14 +91,11 @@ public class SimaProCsvImport implements FileImport {
 		var flowMap = this.flowMap == null
 			? FlowMap.empty()
 			: this.flowMap;
-		var log = this.log == null
-			? new ImportLog()
-			: this.log;
-		var contexts = ImportContext.of(db, flowMap, log);
+		var contexts = ImportContext.of(db, flowMap, log());
 
 		try {
 			for (File file : files) {
-				log.info("import SimaPro CSV file: " + file.getName());
+				log().info("import SimaPro CSV file: " + file.getName());
 
 				var dataSet = SimaProCsv.read(file);
 				if (unrollWasteScenarios) {
@@ -122,7 +127,7 @@ public class SimaProCsvImport implements FileImport {
 						lifeCycles.add(Pair.of(stage, process.get()));
 					}
 				}
-				ProductSystems.map(db, lifeCycles);
+				ProductSystems.map(context, lifeCycles);
 
 				// impact methods
 				for (var method : dataSet.methods()) {
@@ -130,7 +135,7 @@ public class SimaProCsvImport implements FileImport {
 				}
 			}
 		} catch (Exception e) {
-			log.error("SimaPro CSV import failed", e);
+			log().error("SimaPro CSV import failed", e);
 		}
 	}
 
