@@ -1,12 +1,8 @@
 package org.openlca.io.ecospold2.input;
 
-import com.google.common.eventbus.EventBus;
+import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.ModelType;
 import org.openlca.io.FileImport;
-import org.openlca.io.ImportEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import spold2.DataSet;
 
 import java.io.File;
 
@@ -17,14 +13,14 @@ import java.io.File;
  */
 public class EcoSpold2Import implements FileImport {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
-	private EventBus eventBus;
 	private boolean canceled = false;
 	private File[] files;
 	private final ImportConfig config;
+	private  final ImportLog log;
 
 	public EcoSpold2Import(ImportConfig config) {
 		this.config = config;
+		this.log = config.log();
 	}
 
 	public void setFiles(File[] files) {
@@ -37,8 +33,8 @@ public class EcoSpold2Import implements FileImport {
 	}
 
 	@Override
-	public void setEventBus(EventBus eventBus) {
-		this.eventBus = eventBus;
+	public ImportLog log() {
+		return log;
 	}
 
 	@Override
@@ -47,7 +43,6 @@ public class EcoSpold2Import implements FileImport {
 			log.info("files is null, nothing to do");
 			return;
 		}
-		log.trace("run import with: {}", config);
 		RefDataIndex index = importRefData(files);
 		importProcesses(files, index);
 
@@ -62,14 +57,12 @@ public class EcoSpold2Import implements FileImport {
 	}
 
 	private RefDataIndex importRefData(File[] files) {
-		log.trace("import reference data");
-		RefDataImport imp = new RefDataImport(config);
-		if (eventBus != null)
-			eventBus.post(new ImportEvent("reference data"));
-		try (DataSetIterator it = new DataSetIterator(files)) {
+		log.info("import reference data");
+		var imp = new RefDataImport(config);
+		try (var it = new DataSetIterator(files)) {
 			while (!canceled && it.hasNext()) {
-				DataSet ds = it.next();
-				imp.importDataSet(ds);
+				var dataSet = it.next();
+				imp.importDataSet(dataSet);
 			}
 		} catch (Exception e) {
 			log.error("reference data import failed", e);
@@ -78,24 +71,15 @@ public class EcoSpold2Import implements FileImport {
 	}
 
 	private void importProcesses(File[] files, RefDataIndex index) {
-		log.trace("import processes");
-		ProcessImport imp = new ProcessImport(index, config);
-		try (DataSetIterator it = new DataSetIterator(files)) {
+		log.info("import processes");
+		var imp = new ProcessImport(index, config);
+		try (var it = new DataSetIterator(files)) {
 			while (!canceled && it.hasNext()) {
-				DataSet ds = it.next();
-				fireEvent(ds);
-				imp.importDataSet(ds);
+				var dataSet = it.next();
+				imp.importDataSet(dataSet);
 			}
 		} catch (Exception e) {
 			log.error("process import failed", e);
 		}
-	}
-
-	private void fireEvent(DataSet dataSet) {
-		if (eventBus == null
-				|| dataSet.description == null
-				|| dataSet.description.activity == null)
-			return;
-		eventBus.post(new ImportEvent(dataSet.description.activity.name));
 	}
 }

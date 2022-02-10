@@ -220,7 +220,7 @@ public class RootEntityDao<T extends RootEntity, V extends Descriptor> extends B
 	public boolean contains(String refId) {
 		try (Connection con = getDatabase().createConnection()) {
 			String query = "select count(*) from " + getEntityTable() + " where ref_id = ?";
-			PreparedStatement stmt = con.prepareStatement(query);
+			var stmt = con.prepareStatement(query);
 			stmt.setString(1, refId);
 			ResultSet rs = stmt.executeQuery();
 			rs.next();

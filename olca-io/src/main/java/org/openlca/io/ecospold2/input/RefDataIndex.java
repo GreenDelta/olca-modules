@@ -14,15 +14,15 @@ import org.openlca.core.model.Unit;
  */
 class RefDataIndex {
 
-	private Map<String, Long> processIds = new HashMap<>();
-	private Map<String, Category> processCategories = new HashMap<>();
-	private Map<String, Category> compartments = new HashMap<>();
-	private Map<String, Location> locations = new HashMap<>();
-	private Map<String, Unit> units = new HashMap<>();
-	private Map<String, FlowProperty> flowProperties = new HashMap<>();
-	private Map<String, Flow> flows = new HashMap<>();
-	private Map<String, Boolean> mappedFlow = new HashMap<>();
-	private Map<String, Double> flowFactor = new HashMap<>();
+	private final Map<String, Long> processIds = new HashMap<>();
+	private final Map<String, Category> processCategories = new HashMap<>();
+	private final Map<String, Category> compartments = new HashMap<>();
+	private final Map<String, Location> locations = new HashMap<>();
+	private final Map<String, Unit> units = new HashMap<>();
+	private final Map<String, FlowProperty> flowProperties = new HashMap<>();
+	private final Map<String, Flow> flows = new HashMap<>();
+	private final Map<String, Boolean> mappedFlow = new HashMap<>();
+	private final Map<String, Double> flowFactor = new HashMap<>();
 
 	public Category getProcessCategory(String key) {
 		return processCategories.get(key);
