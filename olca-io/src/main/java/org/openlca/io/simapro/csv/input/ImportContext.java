@@ -1,6 +1,7 @@
 package org.openlca.io.simapro.csv.input;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.io.ImportLog;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.simapro.csv.CsvDataSet;
 
@@ -28,7 +29,7 @@ class ImportContext {
 		return dataSet;
 	}
 
-	static Builder of(IDatabase db, FlowMap flowMap) {
+	static Builder of(IDatabase db, FlowMap flowMap, ImportLog log) {
 		var refData = new RefData(db, flowMap);
 		return new Builder(db, refData);
 	}

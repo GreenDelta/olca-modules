@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
@@ -33,12 +34,13 @@ import org.slf4j.LoggerFactory;
  */
 class UnitSync {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final ImportLog log;
 	private final IDatabase db;
 	private final UnitMapping mapping;
 
-	UnitSync(IDatabase db) {
+	UnitSync(IDatabase db, ImportLog log) {
 		this.db = db;
+		this.log = log;
 		this.mapping = UnitMapping.createDefault(db);
 	}
 
@@ -60,8 +62,6 @@ class UnitSync {
 				var entry = mapping.getEntry(unit);
 				if (entry == null) {
 					unknownUnits.add(unit);
-				} else {
-					log.trace("{} is a known unit", unit);
 				}
 			}
 			if (!unknownUnits.isEmpty()) {
@@ -103,13 +103,14 @@ class UnitSync {
 			}
 
 			if (quantityRow == null) {
-				log.warn("unit {} found but with no quantity; create default "
-					+ "unit, unit group, and flow property", unit);
+				log.warn("unit " + unit + " found but with no quantity; create default "
+					+ "unit, unit group, and flow property");
 				createStandalone(unit, mapping);
 				continue;
 			}
 
-			log.warn("unknown unit {}, import quantity {}", unit, quantityRow);
+			log.warn("unknown unit " + unit
+				+ "; import quantity " + quantityRow.name());
 			var group = createForQuantity(dataSet, quantityRow, mapping);
 			for (var u : group.units) {
 				unknownUnits.remove(u.name);
@@ -137,7 +138,7 @@ class UnitSync {
 		group.lastChange = System.currentTimeMillis();
 		Version.incUpdate(group);
 		group = db.update(group);
-		log.info("added new unit {} to group {}", newUnit, group);
+		log.("added new unit " + newUnit.name + " to group ", newUnit, group);
 
 		// reload object references in the mapping entries so that
 		// we can use them directly in the JPA persistence
@@ -150,7 +151,7 @@ class UnitSync {
 				continue;
 			var unit = group.getUnit(entry.unit.name);
 			if (unit == null) {
-				log.error("Could not find {} in {}", u, group);
+				log.error("Could not find " + u + " in " + group.name);
 				continue;
 			}
 			entry.unitGroup = group;

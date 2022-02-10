@@ -21,7 +21,6 @@ public class SimaProCsvImport implements FileImport {
 	private boolean canceled = false;
 	private final IDatabase db;
 	private final File[] files;
-	private EventBus eventBus;
 	private FlowMap flowMap;
 	private boolean unrollWasteScenarios;
 	private boolean expandImpactFactors;
@@ -57,10 +56,6 @@ public class SimaProCsvImport implements FileImport {
 		return this;
 	}
 
-	public EventBus getEventBus() {
-		return eventBus;
-	}
-
 	public boolean isCanceled() {
 		return canceled;
 	}
@@ -70,10 +65,6 @@ public class SimaProCsvImport implements FileImport {
 		this.canceled = true;
 	}
 
-	@Override
-	public void setEventBus(EventBus eventBus) {
-		this.eventBus = eventBus;
-	}
 	// endregion
 
 	@Override
