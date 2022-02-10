@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import com.google.common.eventbus.EventBus;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Process;
 import org.openlca.io.FileImport;
 import org.openlca.io.maps.FlowMap;
@@ -17,11 +18,12 @@ import org.slf4j.LoggerFactory;
 
 public class SimaProCsvImport implements FileImport {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
-	private boolean canceled = false;
 	private final IDatabase db;
 	private final File[] files;
+
 	private FlowMap flowMap;
+	private ImportLog log;
+	private boolean canceled = false;
 	private boolean unrollWasteScenarios;
 	private boolean expandImpactFactors;
 	private boolean generateLifeCycleSystems;
@@ -32,8 +34,14 @@ public class SimaProCsvImport implements FileImport {
 	}
 
 	// region config
+
 	public SimaProCsvImport withFlowMap(FlowMap flowMap) {
 		this.flowMap = flowMap;
+		return this;
+	}
+
+	public SimaProCsvImport withLog(ImportLog log) {
+		this.log = log;
 		return this;
 	}
 
@@ -75,12 +83,14 @@ public class SimaProCsvImport implements FileImport {
 		var flowMap = this.flowMap == null
 			? FlowMap.empty()
 			: this.flowMap;
-		var contexts = ImportContext.of(db, flowMap);
+		var log = this.log == null
+			? new ImportLog()
+			: this.log;
+		var contexts = ImportContext.of(db, flowMap, log);
 
 		try {
 			for (File file : files) {
-				log.trace("import SimaPro CSV file {}", file);
-				log.trace("extract reference data");
+				log.info("import SimaPro CSV file: " + file.getName());
 
 				var dataSet = SimaProCsv.read(file);
 				if (unrollWasteScenarios) {
