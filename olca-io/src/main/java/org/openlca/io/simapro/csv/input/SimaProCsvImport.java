@@ -3,20 +3,17 @@ package org.openlca.io.simapro.csv.input;
 import java.io.File;
 import java.util.ArrayList;
 
-import com.google.common.eventbus.EventBus;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Process;
-import org.openlca.io.FileImport;
+import org.openlca.io.Import;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.simapro.csv.SimaProCsv;
 import org.openlca.simapro.csv.enums.ProductStageCategory;
 import org.openlca.simapro.csv.process.ProductStageBlock;
 import org.openlca.util.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class SimaProCsvImport implements FileImport {
+public class SimaProCsvImport implements Import {
 
 	private final IDatabase db;
 	private final File[] files;

@@ -36,7 +36,7 @@ import org.openlca.ecospold.ISource;
 import org.openlca.ecospold.io.DataSet;
 import org.openlca.ecospold.io.DataSetType;
 import org.openlca.ecospold.io.EcoSpold;
-import org.openlca.io.FileImport;
+import org.openlca.io.Import;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
 
@@ -44,7 +44,7 @@ import org.openlca.util.Strings;
  * Parses EcoSpold01 xml files and creates openLCA objects and inserts them into
  * the database
  */
-public class EcoSpold01Import implements FileImport {
+public class EcoSpold01Import implements Import {
 
 	private Category processCategory;
 	private final HashMap<Integer, Exchange> localExchangeCache = new HashMap<>();
@@ -73,6 +73,10 @@ public class EcoSpold01Import implements FileImport {
 		canceled = true;
 	}
 
+	@Override
+	public boolean isCanceled() {
+		return canceled;
+	}
 
 	/**
 	 * Set an optional root category for the new processes.

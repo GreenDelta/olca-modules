@@ -2,7 +2,7 @@ package org.openlca.io.ecospold2.input;
 
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.ModelType;
-import org.openlca.io.FileImport;
+import org.openlca.io.Import;
 
 import java.io.File;
 
@@ -11,7 +11,7 @@ import java.io.File;
  * of SPOLD files in the EcoSpold v2 format or ZIP files which contain such
  * files.
  */
-public class EcoSpold2Import implements FileImport {
+public class EcoSpold2Import implements Import {
 
 	private boolean canceled = false;
 	private File[] files;
@@ -30,6 +30,11 @@ public class EcoSpold2Import implements FileImport {
 	@Override
 	public void cancel() {
 		canceled = true;
+	}
+
+	@Override
+	public boolean isCanceled() {
+		return canceled;
 	}
 
 	@Override
