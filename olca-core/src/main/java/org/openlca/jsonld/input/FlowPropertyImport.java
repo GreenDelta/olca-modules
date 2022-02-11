@@ -29,8 +29,12 @@ class FlowPropertyImport extends BaseImport<FlowProperty> {
 		p.unitGroup = UnitGroupImport.run(unitGroupId, conf);
 		// check if the flow property was inserted during UnitGroupImport,
 		// cyclic dependencies can otherwise cause duplicate entries
-		var defaultProperty = p.unitGroup != null ? p.unitGroup.defaultFlowProperty : null;
-		if (defaultProperty != null && p.refId != null && p.refId.equals(defaultProperty.refId))
+		var defaultProperty = p.unitGroup != null
+			? p.unitGroup.defaultFlowProperty
+			: null;
+		if (defaultProperty != null
+			&& p.refId != null
+			&& p.refId.equals(defaultProperty.refId))
 			return defaultProperty;
 		return conf.db.put(p);
 	}

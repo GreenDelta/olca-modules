@@ -54,5 +54,8 @@ class Util {
         ? String.join(",", tags)
         : null;
     }
+
+		// library
+		ce.library = Json.getString(obj, "library");
   }
 }
