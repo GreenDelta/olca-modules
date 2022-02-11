@@ -65,7 +65,7 @@ public class MatrixBuilder {
 		if (sparseEntries % checkpoint == 0) {
 			// double casts to avoid integer overflows
 			double n = (double) sparse.rows * (double) sparse.cols
-					- (double) denseRows * (double) denseCols;
+				- (double) denseRows * (double) denseCols;
 			double fr = sparseEntries / n;
 			if (fr > maxSparseFileRate) {
 				mapDense();
@@ -94,7 +94,7 @@ public class MatrixBuilder {
 		if (dense != null) {
 			mapDense();
 			log.trace("Finish matrix builder with "
-					+ "dense {}*{} matrix", denseRows, denseCols);
+				+ "dense {}*{} matrix", denseRows, denseCols);
 			return dense;
 		}
 		// double casts to avoid integer overflows
@@ -104,18 +104,18 @@ public class MatrixBuilder {
 		if (fr > maxSparseFileRate) {
 			mapDense();
 			log.trace("Finish matrix builder with "
-					+ "dense {}*{} matrix", denseRows, denseCols);
+				+ "dense {}*{} matrix", denseRows, denseCols);
 			return dense;
 		}
 		log.trace("Finish matrix builder with "
-				+ "sparse {}*{} matrix", sparse.rows, sparse.cols);
+			+ "sparse {}*{} matrix", sparse.rows, sparse.cols);
 		return sparse;
 	}
 
 	private void mapDense() {
 		if (dense == null) {
 			dense = new DenseMatrix(sparse.rows, sparse.cols);
-		} else if (dense.rows < sparse.rows|| dense.columns < sparse.cols) {
+		} else if (dense.rows < sparse.rows || dense.columns < sparse.cols) {
 
 			// allocate a larger dense block
 			int nextRows = Math.max(dense.rows, sparse.rows);
@@ -133,9 +133,9 @@ public class MatrixBuilder {
 		denseRows = dense.rows;
 		denseCols = dense.columns;
 		log.trace("Allocated a {}*{} dense matrix; {} new entries",
-				denseRows, denseCols, sparseEntries);
+			denseRows, denseCols, sparseEntries);
 		sparse.iterate(
-				(row, col, val) -> dense.set(row, col, val));
+			(row, col, val) -> dense.set(row, col, val));
 		sparse.clear();
 		sparseEntries = 0;
 	}

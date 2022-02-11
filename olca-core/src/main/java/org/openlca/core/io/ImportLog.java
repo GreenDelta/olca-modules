@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.model.CategorizedEntity;
@@ -38,6 +40,69 @@ public final class ImportLog {
 	public void listen(Consumer<Message> fn) {
 		if (fn != null) {
 			listeners.add(fn);
+		}
+	}
+
+	public int countOf(State state) {
+		if (state == null)
+			return 0;
+		var count = new Object() {
+			int value = 0;
+		};
+		if (state == State.ERROR) {
+			count.value += errors.size();
+		} else if (state == State.WARNING) {
+			count.value += warnings.size();
+		}
+		eachInLog(message -> {
+			if (message.state == state) {
+				count.value++;
+			}
+		});
+		return count.value;
+	}
+
+	public Set<Message> messages() {
+		var all = new HashSet<>(errors);
+		all.addAll(warnings);
+		eachInLog(all::add);
+		return all;
+	}
+
+	public Set<Message> messagesOf(State state, State... more) {
+		Predicate<State> matches = s -> {
+			if (s == state)
+				return true;
+			if (more == null)
+				return false;
+			for (var si : more) {
+				if (si == s)
+					return true;
+			}
+			return false;
+		};
+
+		var matched = new HashSet<Message>();
+		if (matches.test(State.ERROR)) {
+			matched.addAll(errors);
+		}
+		if (matches.test(State.WARNING)) {
+			matched.addAll(warnings);
+		}
+		eachInLog(message -> {
+			if (matches.test(message.state)) {
+				matched.add(message);
+			}
+		});
+		return matched;
+	}
+
+	private void eachInLog(Consumer<Message> fn) {
+		var it = logs.iterator();
+		while (it.hasNext()) {
+			it.advance();
+			var message = it.value();
+			fn.accept(message);
 		}
 	}
 
