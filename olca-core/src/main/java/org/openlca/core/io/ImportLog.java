@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.model.CategorizedEntity;
@@ -20,9 +19,12 @@ public final class ImportLog {
 
 	private final int MAX_SIZE;
 
-	private final TLongObjectHashMap<Message> logs = new TLongObjectHashMap<>();
-	private final HashSet<Message> errors = new HashSet<>();
-	private final HashSet<Message> warnings = new HashSet<>();
+	// We only keep the most important message per data set (i.e. to not have
+	// multiple update messages for the same data set) and index the data set
+	// messages by the database internal ID of the imported data set.
+	private final TLongObjectHashMap<Message> dataSetLogs = new TLongObjectHashMap<>();
+	private final HashSet<Message> otherLogs = new HashSet<>();
+
 	private final List<Consumer<Message>> listeners = new ArrayList<>();
 
 	public ImportLog() {
@@ -43,62 +45,55 @@ public final class ImportLog {
 		}
 	}
 
+	public int size() {
+		return dataSetLogs.size() + otherLogs.size();
+	}
+
 	public int countOf(State state) {
 		if (state == null)
 			return 0;
 		var count = new Object() {
 			int value = 0;
 		};
-		if (state == State.ERROR) {
-			count.value += errors.size();
-		} else if (state == State.WARNING) {
-			count.value += warnings.size();
-		}
-		eachInLog(message -> {
+		Consumer<Message> filter = message -> {
 			if (message.state == state) {
 				count.value++;
 			}
-		});
+		};
+		eachWithDataSet(filter);
+		otherLogs.forEach(filter);
 		return count.value;
 	}
 
 	public Set<Message> messages() {
-		var all = new HashSet<>(errors);
-		all.addAll(warnings);
-		eachInLog(all::add);
+		var all = new HashSet<>(otherLogs);
+		eachWithDataSet(all::add);
 		return all;
 	}
 
 	public Set<Message> messagesOf(State state, State... more) {
-		Predicate<State> matches = s -> {
-			if (s == state)
-				return true;
-			if (more == null)
-				return false;
-			for (var si : more) {
-				if (si == s)
-					return true;
-			}
-			return false;
-		};
-
 		var matched = new HashSet<Message>();
-		if (matches.test(State.ERROR)) {
-			matched.addAll(errors);
-		}
-		if (matches.test(State.WARNING)) {
-			matched.addAll(warnings);
-		}
-		eachInLog(message -> {
-			if (matches.test(message.state)) {
+		Consumer<Message> filter = message -> {
+			if (state == message.state) {
 				matched.add(message);
+				return;
 			}
-		});
+			if (more == null)
+				return;
+			for (var si : more) {
+				if (si == message.state) {
+					matched.add(message);
+					return;
+				}
+			}
+		};
+		eachWithDataSet(filter);
+		otherLogs.forEach(filter);
 		return matched;
 	}
 
-	private void eachInLog(Consumer<Message> fn) {
-		var it = logs.iterator();
+	private void eachWithDataSet(Consumer<Message> fn) {
+		var it = dataSetLogs.iterator();
 		while (it.hasNext()) {
 			it.advance();
 			var message = it.value();
@@ -121,7 +116,7 @@ public final class ImportLog {
 	private void add(State state, CategorizedEntity e) {
 		if (e == null || e.id == 0)
 			return;
-		var current = logs.get(e.id);
+		var current = dataSetLogs.get(e.id);
 		if (current != null && current.priority() >= state.priority())
 			return;
 		add(new Message(state, Descriptor.of(e)));
@@ -154,12 +149,12 @@ public final class ImportLog {
 	}
 
 	private void add(Message message) {
-		if (message.descriptor != null && logs.size() < MAX_SIZE) {
-			logs.put(message.descriptor.id, message);
-		} else if (message.isError() && errors.size() < MAX_SIZE) {
-			errors.add(message);
-		} else if (message.isWarning() && warnings.size() < MAX_SIZE) {
-			warnings.add(message);
+		if(size() >= MAX_SIZE)
+			return;
+		if (message.hasDescriptor()) {
+			dataSetLogs.put(message.descriptor.id, message);
+		} else {
+			otherLogs.add(message);
 		}
 		for (var listener : listeners) {
 			listener.accept(message);
