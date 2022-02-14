@@ -299,6 +299,8 @@ public class Descriptor implements Copyable<Descriptor> {
 			return of(dqs);
 		if (entity instanceof Result result)
 			return of(result);
+		if (entity instanceof Epd epd)
+			return of(epd);
 		return createUnknownDescriptor(entity);
 	}
 
