@@ -7,16 +7,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Location;
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Source;
-import org.openlca.core.model.Unit;
-import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
 
@@ -86,6 +81,9 @@ public record ImpactCategoryReader(EntityResolver resolver)
 		if (flow == null) {
 			return null;
 		}
+		var quantity = Quantity.of(flow, json);
+		factor.unit = quantity.unit();
+		factor.flowPropertyFactor = quantity.factor();
 
 		// amount fields
 		factor.value = Json.getDouble(json, "value", 0);
@@ -102,54 +100,6 @@ public record ImpactCategoryReader(EntityResolver resolver)
 			factor.location = resolver.get(Location.class, locID);
 		}
 
-		// set the flow property and unit; if we cannot find them
-		// we will choose the reference data from the flow
-		// when we cannot find consistent information we return
-		// a factor where the unit or flow property factor may
-		// is absent.
-		Unit unit = conf.db.get(ModelType.UNIT, Json.getRefId(json, "unit"));
-		FlowPropertyFactor propFac = getPropertyFactor(json, flow);
-		if (unit != null && propFac != null) {
-			factor.unit = unit;
-			factor.flowPropertyFactor = propFac;
-			return factor;
-		}
-
-		if (propFac == null) {
-			propFac = flow.getReferenceFactor();
-			if (propFac == null || propFac.flowProperty == null)
-				return factor;
-		}
-		factor.flowPropertyFactor = propFac;
-
-		UnitGroup ug = propFac.flowProperty.unitGroup;
-		if (ug == null)
-			return factor;
-
-		if (unit == null) {
-			factor.unit = ug.referenceUnit;
-		} else {
-			for (Unit u : ug.units) {
-				if (Objects.equals(u, unit)) {
-					factor.unit = u;
-				}
-			}
-		}
 		return factor;
-	}
-
-	private FlowPropertyFactor getPropertyFactor(JsonObject json,
-		Flow flow) {
-		if (json == null || flow == null)
-			return null;
-		String propId = Json.getRefId(json, "flowProperty");
-		for (FlowPropertyFactor fac : flow.flowPropertyFactors) {
-			FlowProperty prop = fac.flowProperty;
-			if (prop == null)
-				continue;
-			if (Objects.equals(propId, prop.refId))
-				return fac;
-		}
-		return null;
 	}
 }
