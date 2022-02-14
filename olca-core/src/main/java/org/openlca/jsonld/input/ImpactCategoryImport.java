@@ -1,16 +1,10 @@
 package org.openlca.jsonld.input;
 
-import java.util.Objects;
-
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
-import org.openlca.core.model.Unit;
-import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
 
@@ -24,7 +18,7 @@ class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 		super(ModelType.IMPACT_CATEGORY, refID, conf);
 	}
 
-	static ImpactCategory run (String refID, JsonImport conf) {
+	static ImpactCategory run(String refID, JsonImport conf) {
 		return new ImpactCategoryImport(refID, conf).run();
 	}
 
@@ -36,7 +30,7 @@ class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 		In.mapAtts(json, impact, id, conf);
 		impact.referenceUnit = Json.getString(json, "referenceUnitName");
 		var sourceId = Json.getString(json, "source");
-		if (Strings.nullOrEmpty(sourceId)) {
+		if (Strings.notEmpty(sourceId)) {
 			impact.source = SourceImport.run(sourceId, conf);
 		}
 		mapParameters(json, impact);
@@ -68,6 +62,9 @@ class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 			// TODO: log this error
 			return null;
 		}
+		var quantity = Quantity.of(flow, json);
+		factor.flowPropertyFactor = quantity.factor();
+		factor.unit = quantity.unit();
 
 		// amount fields
 		factor.value = Json.getDouble(json, "value", 0);
@@ -75,7 +72,7 @@ class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 		JsonElement uncertainty = json.get("uncertainty");
 		if (uncertainty != null && uncertainty.isJsonObject()) {
 			factor.uncertainty = Uncertainties.read(
-					uncertainty.getAsJsonObject());
+				uncertainty.getAsJsonObject());
 		}
 
 		// location
@@ -83,56 +80,7 @@ class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 		if (Strings.notEmpty(locID)) {
 			factor.location = LocationImport.run(locID, conf);
 		}
-
-		// set the flow property and unit; if we cannot find them
-		// we will choose the reference data from the flow
-		// when we cannot find consistent information we return
-		// a factor where the unit or flow property factor may
-		// is absent.
-		Unit unit = conf.db.get(ModelType.UNIT, Json.getRefId(json, "unit"));
-		FlowPropertyFactor propFac = getPropertyFactor(json, flow);
-		if (unit != null && propFac != null) {
-			factor.unit = unit;
-			factor.flowPropertyFactor = propFac;
-			return factor;
-		}
-
-		if (propFac == null) {
-			propFac = flow.getReferenceFactor();
-			if (propFac == null || propFac.flowProperty == null)
-				return factor;
-		}
-		factor.flowPropertyFactor = propFac;
-
-		UnitGroup ug = propFac.flowProperty.unitGroup;
-		if (ug == null)
-			return factor;
-
-		if (unit == null) {
-			factor.unit = ug.referenceUnit;
-		} else {
-			for (Unit u : ug.units) {
-				if (Objects.equals(u, unit)) {
-					factor.unit = u;
-				}
-			}
-		}
 		return factor;
-	}
-
-	private FlowPropertyFactor getPropertyFactor(JsonObject json,
-			Flow flow) {
-		if (json == null || flow == null)
-			return null;
-		String propId = Json.getRefId(json, "flowProperty");
-		for (FlowPropertyFactor fac : flow.flowPropertyFactors) {
-			FlowProperty prop = fac.flowProperty;
-			if (prop == null)
-				continue;
-			if (Objects.equals(propId, prop.refId))
-				return fac;
-		}
-		return null;
 	}
 
 	private void mapParameters(JsonObject json, ImpactCategory impact) {

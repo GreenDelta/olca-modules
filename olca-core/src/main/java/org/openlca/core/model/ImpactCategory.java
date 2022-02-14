@@ -15,12 +15,19 @@ import jakarta.persistence.Table;
 @Table(name = "tbl_impact_categories")
 public class ImpactCategory extends ParameterizedEntity {
 
-	@OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
-	@JoinColumn(name = "f_impact_category")
-	public final List<ImpactFactor> impactFactors = new ArrayList<>();
+	/**
+	 * A code, short name, or abbreviation that identifies this impact category
+	 * (like 'GWP' for global warming potential).
+	 */
+	@Column(name = "code")
+	public String code;
 
 	@Column(name = "reference_unit")
 	public String referenceUnit;
+
+	@OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
+	@JoinColumn(name = "f_impact_category")
+	public final List<ImpactFactor> impactFactors = new ArrayList<>();
 
 	@OneToOne
 	@JoinColumn(name = "f_source")
@@ -41,6 +48,7 @@ public class ImpactCategory extends ParameterizedEntity {
 	public ImpactCategory copy() {
 		var copy = new ImpactCategory();
 		Entities.copyFields(this, copy);
+		copy.code = code;
 		copy.referenceUnit = referenceUnit;
 		copy.source = source;
 		for (var f : impactFactors) {

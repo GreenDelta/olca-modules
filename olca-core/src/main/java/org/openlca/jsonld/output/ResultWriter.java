@@ -20,7 +20,7 @@ class ResultWriter extends Writer<Result> {
 		var json = super.write(result);
 		if (json == null)
 			return null;
-		Out.put(json, "urn", result.urn);
+		Out.put(json, "productSystem", result.productSystem, conf);
 		Out.put(json, "impactMethod", result.impactMethod, conf);
 		writeImpactResults(result, json);
 		writeFlowResults(result, json);

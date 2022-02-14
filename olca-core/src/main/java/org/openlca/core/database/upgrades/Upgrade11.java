@@ -26,52 +26,107 @@ public class Upgrade11 implements IUpgrade {
 
 		u.createColumn("tbl_parameter_redefs", "is_protected SMALLINT default 0");
 		u.createColumn("tbl_impact_methods", "f_source BIGINT");
+		u.createColumn("tbl_impact_methods", "code VARCHAR(255)");
 		u.createColumn("tbl_impact_categories", "f_source BIGINT");
+		u.createColumn("tbl_impact_categories", "code VARCHAR(255)");
 
 		u.createTable(
 			"tbl_results",
-			"CREATE TABLE tbl_results (" +
-				"    id                   BIGINT NOT NULL," +
-				"    ref_id               VARCHAR(36)," +
-				"    name                 VARCHAR(2048)," +
-				"    version              BIGINT," +
-				"    last_change          BIGINT," +
-				"    f_category           BIGINT," +
-				"    tags                 VARCHAR(255)," +
-				"    library              VARCHAR(255)," +
-				"    description          CLOB(64 K)," +
-				"    urn                  VARCHAR(2048)," +
-				"    f_impact_method      BIGINT," +
-				"    f_reference_flow     BIGINT," +
-				"    calculation_time     BIGINT," +
-				"    PRIMARY KEY (id)" +
-				")");
+			"""
+				CREATE TABLE tbl_results (
+
+				    id                   BIGINT NOT NULL,
+				    ref_id               VARCHAR(36),
+				    name                 VARCHAR(2048),
+				    version              BIGINT,
+				    last_change          BIGINT,
+				    f_category           BIGINT,
+				    tags                 VARCHAR(255),
+				    library              VARCHAR(255),
+				    description          CLOB(64 K),
+
+				    f_product_system     BIGINT,
+				    f_impact_method      BIGINT,
+				    f_reference_flow     BIGINT,
+
+				    PRIMARY KEY (id)
+				)"""
+		);
 
 		u.createTable(
 			"tbl_flow_results",
-			"CREATE TABLE tbl_flow_results (" +
-				"    id                        BIGINT NOT NULL," +
-				"    f_result                  BIGINT," +
-				"    f_flow                    BIGINT," +
-				"    f_unit                    BIGINT," +
-				"    is_input                  SMALLINT default 0," +
-				"    f_flow_property_factor    BIGINT," +
-				"    resulting_amount_value    DOUBLE," +
-				"    f_location                BIGINT," +
-				"    description               CLOB(64 K)," +
-				"    PRIMARY KEY (id)" +
-				")"
+			"""
+				CREATE TABLE tbl_flow_results (
+
+				    id                        BIGINT NOT NULL,
+				    f_result                  BIGINT,
+				    f_flow                    BIGINT,
+				    f_unit                    BIGINT,
+				    is_input                  SMALLINT default 0,
+				    f_flow_property_factor    BIGINT,
+				    resulting_amount_value    DOUBLE,
+				    f_location                BIGINT,
+				    description               CLOB(64 K),
+
+				    PRIMARY KEY (id)
+				)"""
 		);
 
 		u.createTable(
 			"tbl_impact_results",
-			"CREATE TABLE tbl_impact_results (" +
-				"    id                 BIGINT NOT NULL," +
-				"    f_result           BIGINT," +
-				"    f_impact_category  BIGINT," +
-				"    amount             DOUBLE," +
-				"    description        CLOB(64 K)," +
-				"    PRIMARY KEY (id)" + ")"
+			"""
+				CREATE TABLE tbl_impact_results (
+
+				     id                 BIGINT NOT NULL,
+				     f_result           BIGINT,
+				     f_impact_category  BIGINT,
+				     amount             DOUBLE,
+				     description        CLOB(64 K),
+
+				     PRIMARY KEY (id)
+				 )"""
+		);
+
+		u.createTable(
+			"tbl_epds",
+			"""
+				CREATE TABLE tbl_epds (
+
+				    id                   BIGINT NOT NULL,
+				    ref_id               VARCHAR(36),
+				    name                 VARCHAR(2048),
+				    version              BIGINT,
+				    last_change          BIGINT,
+				    f_category           BIGINT,
+				    tags                 VARCHAR(255),
+				    library              VARCHAR(255),
+				    description          CLOB(64 K),
+
+				    f_flow               BIGINT,
+				    f_flow_property      BIGINT,
+				    f_unit               BIGINT,
+				    amount               DOUBLE,
+
+				    urn                  VARCHAR(2048),
+				    f_manufacturer       BIGINT,
+				    f_verifier           BIGINT,
+				    f_pcr                BIGINT,
+				    f_program_operator   BIGINT,
+
+				    PRIMARY KEY (id)
+				)"""
+		);
+
+		u.createTable(
+			"tbl_epd_modules",
+			"""
+				CREATE TABLE tbl_epd_modules (
+
+				    id         BIGINT NOT NULL,
+				    f_epd      BIGINT,
+				    name       VARCHAR(2048),
+				    f_result   BIGINT
+				)"""
 		);
 	}
 

@@ -1,6 +1,6 @@
 package org.openlca.io.simapro.csv.input;
 
-import org.openlca.core.database.IDatabase;
+import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
@@ -8,24 +8,23 @@ import org.openlca.core.model.Version;
 import org.openlca.simapro.csv.method.ImpactCategoryBlock;
 import org.openlca.simapro.csv.method.ImpactMethodBlock;
 import org.openlca.util.KeyGen;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class ImpactMethods {
 
-	private final Logger log = LoggerFactory.getLogger(ImpactMethods.class);
-	private final IDatabase db;
+	private final ImportContext context;
 	private final RefData refData;
+	private final ImportLog log;
 	private final ImpactMethodBlock block;
 
-	ImpactMethods(IDatabase db, RefData refData, ImpactMethodBlock block) {
-		this.db = db;
-		this.refData = refData;
+	private ImpactMethods(ImportContext context, ImpactMethodBlock block) {
+		this.context = context;
+		this.refData = context.refData();
+		this.log = context.log();
 		this.block = block;
 	}
 
-	static void map(IDatabase db, RefData refData, ImpactMethodBlock block) {
-		new ImpactMethods(db, refData, block).exec();
+	static void map(ImportContext context, ImpactMethodBlock block) {
+		new ImpactMethods(context, block).exec();
 	}
 
 	private void exec() {
@@ -34,9 +33,9 @@ class ImpactMethods {
 			? new Version(block.version().major(), block.version().minor(), 0)
 			: new Version(0, 0, 0);
 		var refId = KeyGen.get("SimaPro CSV", block.name(), version.toString());
-		var method = db.get(ImpactMethod.class, refId);
+		var method = context.db().get(ImpactMethod.class, refId);
 		if (method != null) {
-			log.warn("an LCIA method refId={} already exists; skipped", refId);
+			log.warn("an LCIA method refId='"+ refId + "' already exists; skipped");
 			return;
 		}
 
@@ -59,10 +58,10 @@ class ImpactMethods {
 			impact.name = csvImpact.info().name();
 			impact.referenceUnit = csvImpact.info().unit();
 			addFactors(csvImpact, impact);
-			db.insert(impact);
+			impact = context.insert(impact);
 			method.impactCategories.add(impact);
 		}
-		db.insert(method);
+		context.insert(method);
 	}
 
 	private void addFactors(ImpactCategoryBlock block, ImpactCategory impact) {
@@ -74,9 +73,8 @@ class ImpactMethods {
 			factor.flow = sync.flow();
 			if (sync.isMapped()) {
 				factor.value = sync.mapFactor() * row.factor();
-				// TODO: also include unit and flow property of possible mappings
-				factor.unit = sync.flow().getReferenceUnit();
-				factor.flowPropertyFactor = sync.flow().getReferenceFactor();
+				factor.unit = sync.unit();
+				factor.flowPropertyFactor = sync.property();
 			} else {
 				factor.value = row.factor();
 				var quantity = refData.quantityOf(row.unit());

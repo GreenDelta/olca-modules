@@ -18,10 +18,9 @@ import spold2.SourceList;
  */
 public class SourceUpdate implements Runnable {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-
-	private SourceDao dao;
-	private File sourceFile;
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final SourceDao dao;
+	private final File sourceFile;
 
 	public SourceUpdate(IDatabase database, File sourceFile) {
 		this.dao = new SourceDao(database);

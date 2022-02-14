@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.matrix.ProductSystemBuilder;
 import org.openlca.core.matrix.index.LongPair;
@@ -20,21 +19,16 @@ import org.openlca.util.Pair;
 import org.openlca.util.Strings;
 import org.openlca.util.TopoSort;
 
-class ProductSystems {
+record ProductSystems(ImportContext context) {
 
-	private final IDatabase db;
-
-	private ProductSystems(IDatabase db) {
-		this.db = db;
-	}
-
-	static void map(IDatabase db, List<Pair<ProductStageBlock, Process>> pairs) {
+	static void map(
+		ImportContext context, List<Pair<ProductStageBlock, Process>> pairs) {
 		if (pairs.isEmpty())
 			return;
 		var entries = pairs.stream()
 			.map(pair -> new Entry(pair.first, pair.second))
 			.collect(Collectors.toList());
-		new ProductSystems(db).map(entries);
+		new ProductSystems(context).map(entries);
 	}
 
 	private void map(List<Entry> entries) {
@@ -46,13 +40,13 @@ class ProductSystems {
 
 		// create the product systems
 		for (var e : sorted) {
-			var linker = new SubSystemLinker(db);
+			var linker = new SubSystemLinker(context.db());
 			var system = new ProductSystemBuilder(linker).build(e.process);
 			var params = wasteScenarioParametersOf(e.block);
 			if (params != null) {
 				system.parameterSets.add(params);
 			}
-			db.insert(system);
+			context.insert(system);
 		}
 	}
 
@@ -65,7 +59,7 @@ class ProductSystems {
 		paramSet.name = "Parameters";
 		paramSet.isBaseline = true;
 
-		for (var global : new ParameterDao(db).getGlobalParameters()) {
+		for (var global : new ParameterDao(context.db()).getGlobalParameters()) {
 			if (!global.isInputParameter
 				|| global.name == null
 				|| !global.name.startsWith(WasteScenarios.PARAMETER_PREFIX)

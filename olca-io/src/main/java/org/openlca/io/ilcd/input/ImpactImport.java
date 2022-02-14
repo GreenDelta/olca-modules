@@ -6,7 +6,6 @@ import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
-import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.ilcd.methods.LCIAMethod;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.Methods;
@@ -69,7 +68,7 @@ public record ImpactImport(ImportConfig config, LCIAMethod dataSet) {
 		appendFactors(impact);
 		config.db().insert(impact);
 		appendToMethods(impact);
-		config.log().ok(Descriptor.of(impact));
+		config.log().imported(impact);
 		return impact;
 	}
 
@@ -137,7 +136,7 @@ public record ImpactImport(ImportConfig config, LCIAMethod dataSet) {
 				continue;
 			var method = config.db().get(ImpactMethod.class, m.id);
 			if (method == null) {
-				config.log().error("could not load created method", m);
+				config.log().error("could not load created method: " + m.refId);
 				continue;
 			}
 			method.impactCategories.add(impact);

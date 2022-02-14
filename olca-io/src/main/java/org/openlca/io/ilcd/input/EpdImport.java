@@ -38,7 +38,6 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 				continue;
 			result = new Result();
 			result.refId = refId;
-			result.urn = "ilcd:epd:" + dataSet.getUUID();
 
 			// meta-data
 			result.name = Strings.cut(

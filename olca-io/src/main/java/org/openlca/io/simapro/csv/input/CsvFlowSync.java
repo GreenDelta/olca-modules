@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
+import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
@@ -31,22 +32,21 @@ import org.openlca.simapro.csv.process.RefExchangeRow;
 import org.openlca.simapro.csv.refdata.ElementaryFlowRow;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class CsvFlowSync {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final IDatabase db;
 	private final RefData refData;
 	private final FlowSync flowSync;
+	private final ImportLog log;
 	private final EnumMap<ElementaryFlowType, HashMap<String, ElementaryFlowRow>> flowInfos;
 	private final Map<String, String> csvUnitQuantities;
 
-	CsvFlowSync(IDatabase db, RefData refData, FlowMap flowMap) {
+	CsvFlowSync(IDatabase db, RefData refData, FlowMap flowMap, ImportLog log) {
 		this.db = db;
 		this.refData = refData;
 		this.flowSync = FlowSync.of(db, flowMap);
+		this.log = log;
 		flowInfos = new EnumMap<>(ElementaryFlowType.class);
 		csvUnitQuantities = new HashMap<>();
 	}
@@ -105,7 +105,7 @@ class CsvFlowSync {
 	SyncFlow elemFlow(ImpactFactorRow row) {
 		var type = ElementaryFlowType.of(row.compartment());
 		if (type == null) {
-			log.error("failed to detect compartment: '{}'", row.compartment());
+			log.error("failed to detect compartment: " + row.compartment());
 		}
 		var subComp = SubCompartment.of(row.subCompartment());
 		return elemFlow(Compartment.of(type, subComp), row.flow(), row.unit());
@@ -121,7 +121,7 @@ class CsvFlowSync {
 		// calculate the key
 		var quantity = refData.quantityOf(unit);
 		if (quantity == null) {
-			log.error("unknown unit {} in flow {}", unit, name);
+			log.error("unknown unit '" + unit + "' in flow: " +  name);
 			return SyncFlow.empty();
 		}
 		var key = FlowKey.elementary(comp, name, csvUnitQuantities.get(unit));
@@ -144,7 +144,9 @@ class CsvFlowSync {
 					flow.description = info.comment();
 				}
 			}
-			return db.insert(flow);
+			flow =  db.insert(flow);
+			log.imported(flow);
+			return flow;
 		});
 	}
 
@@ -172,7 +174,7 @@ class CsvFlowSync {
 		// calculate the key
 		var quantity = refData.quantityOf(row.unit());
 		if (quantity == null) {
-			log.error("unknown unit {} in flow {}", row.unit(), row.name());
+			log.error("unknown unit '"+ row.unit() + "' in flow: " + row.name());
 			return SyncFlow.empty();
 		}
 		var key = isWaste
@@ -211,7 +213,9 @@ class CsvFlowSync {
 				}
 			}
 
-			return db.insert(flow);
+			flow =  db.insert(flow);
+			log.imported(flow);
+			return flow;
 		});
 	}
 
@@ -224,8 +228,7 @@ class CsvFlowSync {
 		var code = matcher.group();
 		code = code.substring(1, code.length() - 1);
 		var refId = KeyGen.get(code);
-		LocationDao dao = new LocationDao(db);
-		return dao.getForRefId(refId);
+		return db.get(Location.class, refId);
 	}
 
 	private Flow initFlow(FlowKey key, String name, UnitMappingEntry q) {

@@ -1,6 +1,6 @@
 package org.openlca.io.ilcd;
 
-import org.openlca.core.io.Cancelable;
+import org.openlca.core.io.ImportLog;
 import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.commons.ProcessType;
 import org.openlca.ilcd.contacts.Contact;
@@ -12,6 +12,7 @@ import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
 import org.openlca.ilcd.util.Processes;
+import org.openlca.io.Import;
 import org.openlca.io.ilcd.input.ContactImport;
 import org.openlca.io.ilcd.input.EpdImport;
 import org.openlca.io.ilcd.input.FlowImport;
@@ -23,7 +24,7 @@ import org.openlca.io.ilcd.input.SourceImport;
 import org.openlca.io.ilcd.input.UnitGroupImport;
 import org.openlca.io.ilcd.input.models.ModelImport;
 
-public class ILCDImport implements Cancelable {
+public class ILCDImport implements Import {
 
 	private volatile boolean canceled = false;
 	private final ImportConfig config;
@@ -41,6 +42,11 @@ public class ILCDImport implements Cancelable {
 	@Override
 	public boolean isCanceled() {
 		return canceled;
+	}
+
+	@Override
+	public ImportLog log() {
+		return config.log();
 	}
 
 	@Override

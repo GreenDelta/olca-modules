@@ -176,21 +176,18 @@ public class WasteFlows {
 				if (!rs.wasNull()) {
 					UncertaintyType u = UncertaintyType.values()[utype];
 					switch (u) {
-						case NORMAL:
-						case LOG_NORMAL:
-							rs.updateDouble(6, -rs.getDouble(6));
-							break;
-						case UNIFORM:
+						case NORMAL, LOG_NORMAL -> rs.updateDouble(6, -rs.getDouble(6));
+						case UNIFORM -> {
 							rs.updateDouble(6, -rs.getDouble(6));
 							rs.updateDouble(7, -rs.getDouble(7));
-							break;
-						case TRIANGLE:
+						}
+						case TRIANGLE -> {
 							rs.updateDouble(6, -rs.getDouble(6));
 							rs.updateDouble(7, -rs.getDouble(7));
 							rs.updateDouble(8, -rs.getDouble(8));
-							break;
-					default:
-						break;
+						}
+						default -> {
+						}
 					}
 				}
 				rs.updateRow();

@@ -46,7 +46,9 @@ public enum ModelType {
 
 	DQ_SYSTEM(DQSystem.class),
 
-	RESULT(Result.class);
+	RESULT(Result.class),
+
+	EPD(Epd.class);
 
 	final Class<? extends RootEntity> modelClass;
 

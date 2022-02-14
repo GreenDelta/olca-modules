@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.io.ImportLog;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
 
@@ -36,7 +37,7 @@ public class ImportConfig {
 	public boolean checkFormulas = false;
 
 	public final IDatabase db;
-
+	private final ImportLog log = new ImportLog();
 	private Map<String, FlowMapEntry> flowMap;
 
 	public ImportConfig(IDatabase db) {
@@ -55,4 +56,7 @@ public class ImportConfig {
 			: flowMap;
 	}
 
+	ImportLog log() {
+		return log;
+	}
 }
