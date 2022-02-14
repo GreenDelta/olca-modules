@@ -30,19 +30,19 @@ public class Epd extends CategorizedEntity {
 	public final List<EpdModule> modules = new ArrayList<>();
 
 	@OneToOne
-	@Column(name = "f_manufacturer")
+	@JoinColumn(name = "f_manufacturer")
 	public Actor manufacturer;
 
 	@OneToOne
-	@Column(name = "f_verifier")
+	@JoinColumn(name = "f_verifier")
 	public Actor verifier;
 
 	@OneToOne
-	@Column(name = "f_pcr")
+	@JoinColumn(name = "f_pcr")
 	public Source pcr;
 
 	@OneToOne
-	@Column(name = "f_program_operator")
+	@JoinColumn(name = "f_program_operator")
 	public Actor programOperator;
 
 	@Override

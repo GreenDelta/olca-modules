@@ -123,6 +123,7 @@ public class Upgrade11 implements IUpgrade {
 				CREATE TABLE tbl_epd_modules (
 
 				    id         BIGINT NOT NULL,
+				    f_epd      BIGINT,
 				    name       VARCHAR(2048),
 				    f_result   BIGINT
 				)"""

@@ -2,6 +2,7 @@ package org.openlca.core.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 
 /**
@@ -11,15 +12,15 @@ import jakarta.persistence.OneToOne;
 public class EpdProduct implements Copyable<EpdProduct> {
 
 	@OneToOne
-	@Column(name = "f_flow")
+	@JoinColumn(name = "f_flow")
 	public Flow flow;
 
 	@OneToOne
-	@Column(name = "f_flow_property")
+	@JoinColumn(name = "f_flow_property")
 	public FlowProperty property;
 
 	@OneToOne
-	@Column(name = "f_unit")
+	@JoinColumn(name = "f_unit")
 	public Unit unit;
 
 	@Column(name = "amount")

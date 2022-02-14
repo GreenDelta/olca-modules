@@ -2,6 +2,7 @@ package org.openlca.core.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
@@ -13,7 +14,7 @@ public class EpdModule extends AbstractEntity implements Copyable<EpdModule> {
 	public String name;
 
 	@OneToOne
-	@Column(name = "f_result")
+	@JoinColumn(name = "f_result")
 	public Result result;
 
 	public static EpdModule of(String name, Result result) {
