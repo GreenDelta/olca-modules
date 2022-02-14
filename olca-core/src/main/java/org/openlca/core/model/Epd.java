@@ -6,6 +6,7 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 import java.util.ArrayList;
@@ -28,6 +29,22 @@ public class Epd extends CategorizedEntity {
 	@JoinColumn(name = "f_epd")
 	public final List<EpdModule> modules = new ArrayList<>();
 
+	@OneToOne
+	@Column(name = "f_manufacturer")
+	public Actor manufacturer;
+
+	@OneToOne
+	@Column(name = "f_verifier")
+	public Actor verifier;
+
+	@OneToOne
+	@Column(name = "f_pcr")
+	public Source pcr;
+
+	@OneToOne
+	@Column(name = "f_program_operator")
+	public Actor programOperator;
+
 	@Override
 	public Epd copy() {
 		var copy = new Epd();
@@ -39,6 +56,10 @@ public class Epd extends CategorizedEntity {
 		for (var module : modules) {
 			copy.modules.add(module.copy());
 		}
+		copy.manufacturer = manufacturer;
+		copy.verifier = verifier;
+		copy.pcr = pcr;
+		copy.programOperator = programOperator;
 		return copy;
 	}
 

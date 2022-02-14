@@ -739,10 +739,9 @@ CREATE TABLE tbl_results (
     library              VARCHAR(255),
     description          CLOB(64 K),
 
-    urn                  VARCHAR(2048),
+    f_product_system     BIGINT,
     f_impact_method      BIGINT,
     f_reference_flow     BIGINT,
-    calculation_time     BIGINT,
 
     PRIMARY KEY (id)
 );
@@ -771,4 +770,37 @@ CREATE TABLE tbl_impact_results (
     description        CLOB(64 K),
 
     PRIMARY KEY (id)
+);
+
+CREATE TABLE tbl_epds (
+
+    id                   BIGINT NOT NULL,
+    ref_id               VARCHAR(36),
+    name                 VARCHAR(2048),
+    version              BIGINT,
+    last_change          BIGINT,
+    f_category           BIGINT,
+    tags                 VARCHAR(255),
+    library              VARCHAR(255),
+    description          CLOB(64 K),
+
+    f_flow               BIGINT,
+    f_flow_property      BIGINT,
+    f_unit               BIGINT,
+    amount               DOUBLE,
+
+    urn                  VARCHAR(2048),
+    f_manufacturer       BIGINT,
+    f_verifier           BIGINT,
+    f_pcr                BIGINT,
+    f_program_operator   BIGINT,
+
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE tbl_epd_modules (
+
+    id         BIGINT NOT NULL,
+    name       VARCHAR(2048),
+    f_result   BIGINT
 );

@@ -24,13 +24,19 @@ class ResultImport extends BaseImport<Result> {
 			return null;
 		var result = new Result();
 		In.mapAtts(json, result, id, conf);
-		result.urn = Json.getString(json, "urn");
+
+		var systemId = Json.getRefId(json, "productSystem");
+		if (Strings.notEmpty(systemId)) {
+			result.productSystem = ProductSystemImport.run(systemId, conf);
+		}
 		var methodId = Json.getRefId(json, "impactMethod");
 		if (Strings.notEmpty(methodId)) {
 			result.impactMethod = ImpactMethodImport.run(refId, conf);
 		}
+
 		readImpactResults(json, result);
 		readFlowResults(json, result);
+
 		return conf.db.put(result);
 
 	}

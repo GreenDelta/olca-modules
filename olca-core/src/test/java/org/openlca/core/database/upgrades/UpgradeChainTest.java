@@ -58,6 +58,8 @@ public class UpgradeChainTest {
 		};
 
 		// roll back Upgrade11
+		u.dropTable("tbl_epds");
+		u.dropTable("tbl_epd_modules");
 		u.dropTable("tbl_results");
 		u.dropTable("tbl_flow_results");
 		u.dropTable("tbl_impact_results");
@@ -179,6 +181,8 @@ public class UpgradeChainTest {
 		}
 
 		// check Upgrade11
+		assertTrue(u.tableExists("tbl_epds"));
+		assertTrue(u.tableExists("tbl_epd_modules"));
 		assertTrue(u.tableExists("tbl_results"));
 		assertTrue(u.tableExists("tbl_flow_results"));
 		assertTrue(u.tableExists("tbl_impact_results"));
