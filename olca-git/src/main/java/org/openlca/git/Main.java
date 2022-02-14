@@ -45,11 +45,7 @@ public class Main {
 			if (repoDir.exists()) {
 				delete(repoDir);
 			}
-			var olcaRepoDir = new File(database.getFileStorageLocation(),
-					repoDir.getName());
-			if (olcaRepoDir.exists()) {
-				delete(olcaRepoDir);
-			}
+
 			repo.create(true);
 			writer.refData(false);
 
