@@ -26,7 +26,9 @@ public class Upgrade11 implements IUpgrade {
 
 		u.createColumn("tbl_parameter_redefs", "is_protected SMALLINT default 0");
 		u.createColumn("tbl_impact_methods", "f_source BIGINT");
+		u.createColumn("tbl_impact_methods", "code VARCHAR(255)");
 		u.createColumn("tbl_impact_categories", "f_source BIGINT");
+		u.createColumn("tbl_impact_categories", "code VARCHAR(255)");
 
 		u.createTable(
 			"tbl_results",

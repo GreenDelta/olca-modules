@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -14,6 +15,13 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "tbl_impact_methods")
 public class ImpactMethod extends CategorizedEntity {
+
+	/**
+	 * A code, short name, or abbreviation that identifies this impact assessment
+	 * method (like 'EF 3.0' for environmental footprint 3.0).
+	 */
+	@Column(name = "code")
+	public String code;
 
 	@OneToMany
 	@JoinTable(name = "tbl_impact_links",
@@ -53,6 +61,7 @@ public class ImpactMethod extends CategorizedEntity {
 	public ImpactMethod copy() {
 		var copy = new ImpactMethod();
 		Entities.copyFields(this, copy);
+		copy.code = code;
 		copy.impactCategories.addAll(impactCategories);
 		copy.source = source;
 		for (var nwSet : nwSets) {
