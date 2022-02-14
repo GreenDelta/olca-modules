@@ -6,6 +6,7 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.Copyable;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
+import org.openlca.core.model.Epd;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
@@ -253,6 +254,12 @@ public class Descriptor implements Copyable<Descriptor> {
 		return result == null
 			? null
 			: setBaseValues(result, new ResultDescriptor());
+	}
+
+	public static EpdDescriptor of(Epd epd) {
+		return epd != null
+			? setBaseValues(epd, new EpdDescriptor())
+			: null;
 	}
 
 	public static CategorizedDescriptor of(CategorizedEntity entity) {

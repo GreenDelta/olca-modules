@@ -58,6 +58,7 @@ public class Daos {
 			case SOURCE -> new SourceDao(db);
 			case UNIT_GROUP -> new UnitGroupDao(db);
 			case RESULT -> new ResultDao(db);
+			case EPD -> new EpdDao(db);
 			default -> null;
 		};
 	}
