@@ -19,7 +19,7 @@ final class JsonWriter {
 		if (entity == null)
 			return null;
 		try {
-			var json = JsonExport.toJson(entity);
+			var json = JsonExport.toJson(entity, config.database);
 			return json.toString().getBytes(StandardCharsets.UTF_8);
 		} catch (Exception e) {
 			log.error("failed to serialize " + entity, e);
