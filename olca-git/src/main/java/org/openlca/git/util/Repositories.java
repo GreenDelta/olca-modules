@@ -66,9 +66,13 @@ public final class Repositories {
 	
 	public static RevCommit headCommitOf(FileRepository repo) {
 		try (var walk = new RevWalk(repo)) {
-			var head = repo.resolve("refs/heads/master");
-			if (head == null)
+			var head = repo.resolve("HEAD");
+			if (head == null) {
+				head = repo.resolve("refs/heads/master");
+			}
+			if (head == null) {
 				return null;
+			}
 			var commit = walk.parseCommit(head);
 			if (commit == null)
 				return null;

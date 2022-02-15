@@ -176,13 +176,12 @@ public class CommitWriter {
 			commit.setMessage(message);
 			commit.setEncoding(StandardCharsets.UTF_8);
 			commit.setTreeId(treeId);
-			var head = config.repo.findRef("HEAD");
-			var previousCommitId = head.getObjectId();
-			if (previousCommitId != null) {
-				commit.addParentId(previousCommitId);
+			var previousCommit = Repositories.headCommitOf(config.repo);
+			if (previousCommit != null) {
+				commit.addParentId(previousCommit.getId());
 			}
 			var commitId = insert(i -> i.insert(commit));
-			var update = config.repo.updateRef(head.getName());
+			var update = config.repo.updateRef("HEAD");
 			update.setNewObjectId(commitId);
 			update.update();
 			return commitId;
