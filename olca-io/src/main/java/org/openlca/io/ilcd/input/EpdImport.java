@@ -5,6 +5,9 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.openlca.core.database.CategoryDao;
+import org.openlca.core.model.Epd;
+import org.openlca.core.model.EpdModule;
+import org.openlca.core.model.EpdProduct;
 import org.openlca.core.model.FlowResult;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ImpactCategory;
@@ -29,13 +32,50 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 	}
 
 	public void run() {
+		var oEpd = config.db().get(Epd.class, dataSet.getUUID());
+		if (oEpd != null) {
+			config.log().skipped(oEpd);
+			return;
+		}
+
+		oEpd = new Epd();
+		oEpd.urn = "ilcd:epd:" + dataSet.getUUID();
+		oEpd.refId = dataSet.getUUID();
+		oEpd.lastChange = System.currentTimeMillis();
+		oEpd.name = Strings.cut(
+			Processes.fullName(dataSet, config.langOrder()), 2048);
+		var path = Categories.getPath(dataSet);
+		oEpd.category = new CategoryDao(config.db()).sync(ModelType.EPD, path);
+
+		var info = Processes.getDataSetInfo(dataSet);
+		if (info != null) {
+			oEpd.description = config.str(info.comment);
+		}
+
+		// declared product
+		var refFlow = getRefFlow();
+		if (refFlow != null) {
+			oEpd.product = new EpdProduct();
+			oEpd.product.flow = refFlow.flow;
+			oEpd.product.property = refFlow.flowPropertyFactor != null
+				? refFlow.flowPropertyFactor.flowProperty
+				: null;
+			oEpd.product.unit = refFlow.unit;
+			oEpd.product.amount = refFlow.amount;
+		}
+
 		for (var scope : Scope.allOf(epd)) {
 			var suffix = scope.toString();
 
 			var refId = KeyGen.get(dataSet.getUUID(), suffix);
 			var result = config.db().get(Result.class, refId);
-			if (result != null)
+			if (result != null) {
+				var module = EpdModule.of(scope.toString(), result);
+				oEpd.modules.add(module);
+				config.log().skipped(result);
 				continue;
+			}
+
 			result = new Result();
 			result.refId = refId;
 
@@ -45,38 +85,42 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 				2044 - suffix.length()) + " - " + suffix;
 			config.log().info("import EPD result: " + result.name);
 			result.category = new CategoryDao(config.db())
-				.sync(ModelType.RESULT, Categories.getPath(dataSet));
-			var info = Processes.getDataSetInfo(dataSet);
-			if (info != null) {
-				result.description = config.str(info.comment);
+				.sync(ModelType.RESULT, path);
+
+			if (refFlow != null) {
+				var resultRef = refFlow.copy();
+				result.referenceFlow = resultRef;
+				result.flowResults.add(resultRef);
 			}
 
-			addRefFlow(result);
 			addResultsOf(scope, result);
-			config.db().insert(result);
+			result = config.db().insert(result);
+			oEpd.modules.add(EpdModule.of(scope.toString(), result));
 		}
+
+		config.db().insert(oEpd);
 	}
 
-	private void addRefFlow(Result result) {
+	private FlowResult getRefFlow() {
 		var qRef = Processes.getQuantitativeReference(dataSet);
 		if (qRef == null || qRef.referenceFlows.isEmpty())
-			return;
+			return null;
 
 		var exchange = dataSet.exchanges.stream()
 			.filter(e -> qRef.referenceFlows.contains(e.id))
 			.findAny()
 			.orElse(null);
 		if (exchange == null || exchange.flow == null)
-			return;
+			return null;
 		var f = FlowImport.get(config, exchange.flow.uuid);
 		if (f.isEmpty())
-			return;
+			return null;
 
-		var resultFlow = new FlowResult();
-		resultFlow.flow = f.flow();
-		resultFlow.isInput = f.flow().flowType == FlowType.WASTE_FLOW;
-		resultFlow.flowPropertyFactor = f.property();
-		resultFlow.unit = f.unit();
+		var ref = new FlowResult();
+		ref.flow = f.flow();
+		ref.isInput = f.flow().flowType == FlowType.WASTE_FLOW;
+		ref.flowPropertyFactor = f.property();
+		ref.unit = f.unit();
 
 		double amount = exchange.resultingAmount != null
 			? exchange.resultingAmount
@@ -84,9 +128,9 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 		if (f.isMapped() && f.mapFactor() != 0) {
 			amount *= f.mapFactor();
 		}
-		resultFlow.amount = amount;
-		result.flowResults.add(resultFlow);
-		result.referenceFlow = resultFlow;
+		ref.amount = amount;
+
+		return ref;
 	}
 
 	private void addResultsOf(Scope scope, Result result) {
