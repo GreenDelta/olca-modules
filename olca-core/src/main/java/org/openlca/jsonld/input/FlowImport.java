@@ -31,8 +31,6 @@ class FlowImport extends BaseImport<Flow> {
 	}
 
 	private void mapFlowAtts(JsonObject json, Flow flow) {
-		String catId = Json.getRefId(json, "category");
-		flow.category = CategoryImport.run(catId, conf);
 		flow.flowType = Json.getEnum(json, "flowType", FlowType.class);
 		flow.casNumber = Json.getString(json, "cas");
 		flow.synonyms = Json.getString(json, "synonyms");

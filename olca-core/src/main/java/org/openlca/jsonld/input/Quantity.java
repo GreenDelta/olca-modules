@@ -2,6 +2,7 @@ package org.openlca.jsonld.input;
 
 import com.google.gson.JsonObject;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Unit;
 import org.openlca.jsonld.Json;
@@ -53,5 +54,9 @@ record Quantity(Flow flow, FlowPropertyFactor factor, Unit unit) {
 				return unit;
 		}
 		return null;
+	}
+
+	public FlowProperty property() {
+		return factor != null ? factor.flowProperty : null;
 	}
 }
