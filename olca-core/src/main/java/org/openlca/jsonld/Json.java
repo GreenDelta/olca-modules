@@ -18,6 +18,7 @@ import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -31,6 +32,7 @@ import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.util.Categories;
@@ -41,7 +43,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
 /**
  * Utility functions for reading and writing Json data.
@@ -100,7 +101,7 @@ public class Json {
 	 * Return the double value of the given property.
 	 */
 	public static double getDouble(JsonObject obj,
-								   String property, double defaultVal) {
+			String property, double defaultVal) {
 		if (obj == null || property == null)
 			return defaultVal;
 		JsonElement elem = obj.get(property);
@@ -131,8 +132,8 @@ public class Json {
 			return defaultVal;
 		var prim = elem.getAsJsonPrimitive();
 		return prim.isNumber()
-			? prim.getAsLong()
-			: defaultVal;
+				? prim.getAsLong()
+				: defaultVal;
 	}
 
 	/**
@@ -150,12 +151,12 @@ public class Json {
 			return Optional.empty();
 		JsonElement elem = obj.get(property);
 		return elem == null || !elem.isJsonPrimitive()
-			? Optional.empty()
-			: Optional.of(elem.getAsDouble());
+				? Optional.empty()
+				: Optional.of(elem.getAsDouble());
 	}
 
 	public static boolean getBool(JsonObject obj,
-								  String property, boolean defaultVal) {
+			String property, boolean defaultVal) {
 		if (obj == null || property == null)
 			return defaultVal;
 		JsonElement elem = obj.get(property);
@@ -200,16 +201,16 @@ public class Json {
 	}
 
 	public static <T extends Enum<T>> T getEnum(JsonObject obj,
-												String property, Class<T> enumClass) {
+			String property, Class<T> enumClass) {
 		String value = getString(obj, property);
 		return Enums.getValue(value, enumClass);
 	}
 
 	/**
-	 * Returns the value of the `@id` field of the entity reference with the given
-	 * name. For example, the given object could be an exchange and the given
-	 * reference name could be `flow`, then, this method would return the reference
-	 * ID of the flow.
+	 * Returns the value of the `@id` field of the entity reference with the
+	 * given name. For example, the given object could be an exchange and the
+	 * given reference name could be `flow`, then, this method would return the
+	 * reference ID of the flow.
 	 */
 	public static String getRefId(JsonObject obj, String refName) {
 		JsonObject ref = getObject(obj, refName);
@@ -225,8 +226,8 @@ public class Json {
 	}
 
 	/**
-	 * Generates a `Ref` type as defined in olca-schema. For some types (e.g. flows
-	 * or processes) a more specific `Ref` type is used (e.g. `FlowRef` or
+	 * Generates a `Ref` type as defined in olca-schema. For some types (e.g.
+	 * flows or processes) a more specific `Ref` type is used (e.g. `FlowRef` or
 	 * `ProcessRef`) that contains additional meta-data.
 	 */
 	public static JsonObject asRef(Descriptor d, EntityCache cache) {
@@ -248,6 +249,9 @@ public class Json {
 		if (d instanceof FlowDescriptor flow) {
 			putFlowMetaData(obj, flow, cache);
 		}
+		if (d instanceof FlowPropertyDescriptor property) {
+			putFlowPropertyMetaData(obj, property, cache);
+		}
 		if (d instanceof ProcessDescriptor process) {
 			putProcessMetaData(obj, process, cache);
 		}
@@ -258,8 +262,8 @@ public class Json {
 	}
 
 	/**
-	 * Generates a `Ref` type as defined in olca-schema. For some types (e.g. flows
-	 * or processes) a more specific `Ref` type is used (e.g. `FlowRef` or
+	 * Generates a `Ref` type as defined in olca-schema. For some types (e.g.
+	 * flows or processes) a more specific `Ref` type is used (e.g. `FlowRef` or
 	 * `ProcessRef`) that contains additional meta-data.
 	 */
 	public static JsonObject asDescriptor(Descriptor d, EntityCache cache) {
@@ -274,23 +278,19 @@ public class Json {
 	}
 
 	private static void putCategoryPath(JsonObject ref,
-										CategorizedDescriptor d, EntityCache cache) {
+			CategorizedDescriptor d, EntityCache cache) {
 		if (ref == null || d == null || cache == null
-			|| d.category == null)
+				|| d.category == null)
 			return;
 		Category cat = cache.get(Category.class, d.category);
 		if (cat == null)
 			return;
 		List<String> path = Categories.path(cat);
-		JsonArray array = new JsonArray();
-		for (String p : path) {
-			array.add(new JsonPrimitive(p));
-		}
-		ref.add("categoryPath", array);
+		ref.addProperty("category", path.stream().collect(Collectors.joining("/")));
 	}
 
 	private static void putCategoryMetaData(JsonObject ref,
-											CategoryDescriptor d) {
+			CategoryDescriptor d) {
 		if (ref == null || d == null)
 			return;
 		if (d.categoryType != null) {
@@ -300,7 +300,7 @@ public class Json {
 	}
 
 	private static void putFlowMetaData(JsonObject ref,
-										FlowDescriptor d, EntityCache cache) {
+			FlowDescriptor d, EntityCache cache) {
 		if (ref == null || d == null)
 			return;
 		if (d.flowType != null) {
@@ -323,8 +323,23 @@ public class Json {
 		}
 	}
 
+	private static void putFlowPropertyMetaData(JsonObject ref,
+			FlowPropertyDescriptor d, EntityCache cache) {
+		if (ref == null || d == null)
+			return;
+		if (cache == null)
+			return;
+		FlowProperty prop = cache.get(FlowProperty.class, d.id);
+		if (prop != null && prop.unitGroup != null) {
+			Unit unit = prop.unitGroup.referenceUnit;
+			if (unit != null) {
+				ref.addProperty("refUnit", unit.name);
+			}
+		}
+	}
+
 	private static void putProcessMetaData(JsonObject ref,
-										   ProcessDescriptor d, EntityCache cache) {
+			ProcessDescriptor d, EntityCache cache) {
 		if (ref == null || d == null)
 			return;
 		if (d.processType != null) {
@@ -346,8 +361,8 @@ public class Json {
 		if (json == null)
 			return;
 		try (var stream = new FileOutputStream(file);
-			 var writer = new OutputStreamWriter(stream, StandardCharsets.UTF_8);
-			 var buffer = new BufferedWriter(writer)) {
+				var writer = new OutputStreamWriter(stream, StandardCharsets.UTF_8);
+				var buffer = new BufferedWriter(writer)) {
 			new Gson().toJson(json, buffer);
 		} catch (Exception e) {
 			throw new RuntimeException("failed to write JSON file " + file, e);
@@ -384,7 +399,7 @@ public class Json {
 
 	private static <T> Optional<T> read(InputStream stream, Class<T> type) {
 		try (var reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
-			 var buffer = new BufferedReader(reader)) {
+				var buffer = new BufferedReader(reader)) {
 			var obj = new Gson().fromJson(buffer, type);
 			return Optional.of(obj);
 		} catch (Exception e) {
