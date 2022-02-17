@@ -57,6 +57,8 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 			Out.put(eObj, "@type", "Exchange");
 			Out.put(eObj, "internalId", exchangeIDs.get(
 					system.referenceExchange.id));
+			Out.put(eObj, "flow", system.referenceExchange.flow, 
+					conf, Out.REQUIRED_FIELD);
 			Out.put(obj, "referenceExchange", eObj,
 					Out.REQUIRED_FIELD);
 		}
@@ -137,8 +139,8 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 				continue;
 			map.put(id, d);
 			var ref = conf.exportReferences
-				? References.create(d.type, d.id, conf, false)
-				: References.create(d, conf);
+					? References.create(d.type, d.id, conf, false)
+					: References.create(d, conf);
 			if (ref == null)
 				continue;
 			array.add(ref);
