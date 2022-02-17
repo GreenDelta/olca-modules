@@ -286,7 +286,7 @@ public class Json {
 		if (cat == null)
 			return;
 		List<String> path = Categories.path(cat);
-		ref.addProperty("category", path.stream().collect(Collectors.joining("/")));
+		ref.addProperty("category", String.join("/", path));
 	}
 
 	private static void putCategoryMetaData(JsonObject ref,
