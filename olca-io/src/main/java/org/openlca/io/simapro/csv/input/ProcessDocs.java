@@ -75,5 +75,12 @@ record ProcessDocs(RefData refData, ProcessBlock block, Process process) {
 				return of(header, value);
 			return new Text(this.value + "\n" + header + ": " + value);
 		}
+
+		@Override
+		public String value() {
+			return value != null
+				? Strings.cut(value, 64 * 1024)
+				: null;
+		}
 	}
 }
