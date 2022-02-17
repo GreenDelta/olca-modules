@@ -28,13 +28,18 @@ public final class ImportLog {
 	private final List<Consumer<Message>> listeners = new ArrayList<>();
 
 	public ImportLog() {
-		this(10_000);
+		this(100_000);
 	}
 
 	private ImportLog(int size) {
 		MAX_SIZE = size;
 	}
 
+	/**
+	 * Creates an import log with of the given size.
+	 *
+	 * @param size the maximum number of messages that the log can store.
+	 */
 	public static ImportLog ofSize(int size) {
 		return new ImportLog(size);
 	}
@@ -149,7 +154,7 @@ public final class ImportLog {
 	}
 
 	private void add(Message message) {
-		if(size() >= MAX_SIZE)
+		if (size() >= MAX_SIZE)
 			return;
 		if (message.hasDescriptor()) {
 			dataSetLogs.put(message.descriptor.id, message);
