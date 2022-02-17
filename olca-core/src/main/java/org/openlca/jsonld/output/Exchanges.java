@@ -38,10 +38,6 @@ class Exchanges {
 			p = References.create(new ProcessDao(conf.db).getDescriptor(pId), conf);
 		Out.put(obj, "defaultProvider", p);
 		Out.put(obj, "flow", e.flow, conf, Out.REQUIRED_FIELD);
-		if (e.flow != null) {
-			JsonObject flow = obj.get("flow").getAsJsonObject();
-			Out.put(flow, "flowType", e.flow.flowType);
-		}
 		Out.put(obj, "unit", e.unit, conf, Out.REQUIRED_FIELD);
 		FlowProperty property = null;
 		if (e.flowPropertyFactor != null)

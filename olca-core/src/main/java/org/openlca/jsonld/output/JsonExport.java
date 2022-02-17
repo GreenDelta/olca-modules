@@ -16,6 +16,7 @@ import org.openlca.core.model.Callback.Message;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
+import org.openlca.core.model.Epd;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
@@ -88,10 +89,10 @@ public class JsonExport {
 	}
 
 	private void writeExternalFiles(RootEntity entity, ModelType type,
-			Callback cb) {
+																	Callback cb) {
 		if (entity == null || conf.db == null
-				|| conf.db.getFileStorageLocation() == null
-				|| conf.store == null)
+			|| conf.db.getFileStorageLocation() == null
+			|| conf.store == null)
 			return;
 		FileStore fs = new FileStore(conf.db.getFileStorageLocation());
 		File dir = fs.getFolder(entity);
@@ -107,7 +108,7 @@ public class JsonExport {
 	}
 
 	public static <T extends RootEntity> JsonObject toJson(T entity,
-			IDatabase database) {
+																												 IDatabase database) {
 		if (entity == null)
 			return new JsonObject();
 		Writer<T> writer = getWriter(entity, ExportConfig.create(database));
@@ -122,8 +123,8 @@ public class JsonExport {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T extends RootEntity> Writer<T> getWriter(T entity,
-			ExportConfig conf) {
+	private static <T extends RootEntity> Writer<T> getWriter(
+		T entity, ExportConfig conf) {
 		if (entity == null)
 			return null;
 		if (entity instanceof Actor)
@@ -132,6 +133,8 @@ public class JsonExport {
 			return (Writer<T>) new CategoryWriter(conf);
 		if (entity instanceof Currency)
 			return (Writer<T>) new CurrencyWriter(conf);
+		if (entity instanceof Epd)
+			return (Writer<T>) new EpdWriter(conf);
 		if (entity instanceof FlowProperty)
 			return (Writer<T>) new FlowPropertyWriter(conf);
 		if (entity instanceof Flow)
@@ -187,7 +190,7 @@ public class JsonExport {
 
 		@Override
 		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-				throws IOException {
+			throws IOException {
 			String path = dbDir.relativize(file).toString().replace('\\', '/');
 			byte[] data = Files.readAllBytes(file);
 			conf.store.putBin(type, refId, path, data);
