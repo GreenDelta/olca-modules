@@ -6,7 +6,7 @@ import org.openlca.util.Categories;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
 
-class Upgrade6 implements IUpgrade {
+class Upgrade06 implements IUpgrade {
 
 	@Override
 	public int[] getInitialVersions() {

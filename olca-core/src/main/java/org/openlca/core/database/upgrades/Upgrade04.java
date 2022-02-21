@@ -13,7 +13,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.NativeSql.QueryResultHandler;
 
-class Upgrade4 implements IUpgrade {
+class Upgrade04 implements IUpgrade {
 
 	private IDatabase database;
 	private DbUtil util;
@@ -46,7 +46,7 @@ class Upgrade4 implements IUpgrade {
 				"f_category BIGINT");
 		util.createColumn("tbl_exchanges", "description " + util.getTextType());
 		util.createColumn("tbl_flows", "synonyms VARCHAR(32672)");
-		Upgrade4Files.apply(database);
+		Upgrade04Files.apply(database);
 	}
 
 	/**
@@ -112,7 +112,7 @@ class Upgrade4 implements IUpgrade {
 			NativeSql.on(database).query("select id from tbl_parameters", (r) -> {
 				long id = r.getLong(1);
 				String update = "update tbl_parameters set ref_id = '"
-						+ UUID.randomUUID().toString() + "' where id = "
+						+ UUID.randomUUID() + "' where id = "
 						+ id;
 				updates.add(update);
 				return true;

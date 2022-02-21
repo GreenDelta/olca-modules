@@ -10,7 +10,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.Derby;
 
-class Upgrade3 implements IUpgrade {
+class Upgrade03 implements IUpgrade {
 
 	private DbUtil util;
 	private IDatabase database;
@@ -97,7 +97,7 @@ class Upgrade3 implements IUpgrade {
 		}
 	}
 
-	private void copyNwSet(ResultSet result) throws SQLException {
+	private void copyNwSet(ResultSet result) {
 		String stmt = "insert into tbl_nw_sets (id, ref_id, name, "
 				+ "f_impact_method, weighted_score_unit) values (?, ?, ?, ?, ?)";
 		NativeSql.on(database).batchInsert(stmt, 1,
@@ -137,7 +137,7 @@ class Upgrade3 implements IUpgrade {
 		}
 	}
 
-	private void copyNwFactor(ResultSet result) throws SQLException {
+	private void copyNwFactor(ResultSet result) {
 		String stmt = "insert into tbl_nw_factors(id, weighting_factor, "
 				+ "normalisation_factor, f_impact_category, f_nw_set) "
 				+ "values (?, ?, ?, ?, ?)";

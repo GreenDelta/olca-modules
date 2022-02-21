@@ -7,7 +7,7 @@ import java.sql.Statement;
 
 import org.openlca.core.database.IDatabase;
 
-class Upgrade8 implements IUpgrade {
+class Upgrade08 implements IUpgrade {
 
 	@Override
 	public int[] getInitialVersions() {

@@ -15,7 +15,7 @@ import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TObjectLongHashMap;
 
 /** Upgrades the database to version 5. */
-class Upgrade5 implements IUpgrade {
+class Upgrade05 implements IUpgrade {
 
 	@Override
 	public int[] getInitialVersions() {

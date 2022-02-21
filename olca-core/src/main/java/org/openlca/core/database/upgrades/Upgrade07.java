@@ -8,7 +8,7 @@ import org.openlca.core.database.IDatabase;
 
 import gnu.trove.map.hash.TLongIntHashMap;
 
-class Upgrade7 implements IUpgrade {
+class Upgrade07 implements IUpgrade {
 
 	@Override
 	public int[] getInitialVersions() {
