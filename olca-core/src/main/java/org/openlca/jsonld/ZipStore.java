@@ -88,22 +88,6 @@ public class ZipStore implements JsonStoreWriter, JsonStoreReader, AutoCloseable
 	}
 
 	@Override
-	public List<String> getBinFiles(ModelType type, String refId) {
-		if (type == null || refId == null)
-			return Collections.emptyList();
-		Path dir = zip.getPath(ModelPath.binFolderOf(type, refId));
-		if (!Files.exists(dir))
-			return Collections.emptyList();
-		FilePathCollector collector = new FilePathCollector();
-		try {
-			Files.walkFileTree(dir, collector);
-		} catch (Exception e) {
-			log.error("failed to get bin files for " + type + ": " + refId, e);
-		}
-		return collector.paths;
-	}
-
-	@Override
 	public void close() throws IOException {
 		zip.close();
 	}
@@ -113,6 +97,7 @@ public class ZipStore implements JsonStoreWriter, JsonStoreReader, AutoCloseable
 	 * returned paths are absolute to the root of the underlying zip file. Thus, you
 	 * can get the content of such a path `p` by using the method `get(p)`.
 	 */
+	@Override
 	public List<String> getFiles(String folder) {
 		if (folder == null)
 			return Collections.emptyList();
@@ -149,17 +134,4 @@ public class ZipStore implements JsonStoreWriter, JsonStoreReader, AutoCloseable
 		}
 	}
 
-	private static class FilePathCollector extends SimpleFileVisitor<Path> {
-
-		private final List<String> paths = new ArrayList<>();
-
-		@Override
-		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-			if (file == null)
-				return FileVisitResult.CONTINUE;
-			paths.add(file.toAbsolutePath().toString());
-			return FileVisitResult.CONTINUE;
-		}
-
-	}
 }

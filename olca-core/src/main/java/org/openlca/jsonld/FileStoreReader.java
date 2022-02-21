@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.openlca.core.model.ModelType;
 import org.openlca.util.Strings;
@@ -53,16 +52,16 @@ public record FileStoreReader(File root) implements JsonStoreReader {
 	}
 
 	@Override
-	public List<String> getBinFiles(ModelType type, String refId) {
-		var modelPath = ModelPath.binFolderOf(type, refId);
-		var dir = new File(root, modelPath);
-		if (!dir.exists())
+	public List<String> getFiles(String dir) {
+		var folder = new File(root, dir);
+		if (!folder.exists())
 			return Collections.emptyList();
-		var files = dir.list();
-		return files == null
-			? Collections.emptyList()
-			: Arrays.stream(files)
-			.map(file -> modelPath + "/" + file)
-			.collect(Collectors.toList());
+		var files = folder.listFiles();
+		if (files == null)
+			return Collections.emptyList();
+		return Arrays.stream(files)
+			.filter(File::isFile)
+			.map(File::getAbsolutePath)
+			.toList();
 	}
 }

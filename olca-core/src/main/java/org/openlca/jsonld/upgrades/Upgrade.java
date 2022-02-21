@@ -28,8 +28,8 @@ abstract class Upgrade implements JsonStoreReader {
 	}
 
 	@Override
-	public List<String> getBinFiles(ModelType type, String refId) {
-		return reader.getBinFiles(type, refId);
+	public List<String> getFiles(String dir) {
+		return reader.getFiles(dir);
 	}
 
 	@Override
