@@ -18,10 +18,6 @@ abstract class Upgrade implements JsonStoreReader {
 		this.reader = reader;
 	}
 
-	abstract int[] fromVersions();
-
-	abstract int toVersion();
-
 	@Override
 	public List<String> getRefIds(ModelType type) {
 		return reader.getRefIds(type);

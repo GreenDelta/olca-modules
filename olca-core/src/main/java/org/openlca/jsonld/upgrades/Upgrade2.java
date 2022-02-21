@@ -7,25 +7,17 @@ import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.JsonStoreReader;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
 class Upgrade2 extends Upgrade {
 
 	private List<JsonObject> _rawImpactMethods;
+	private List<JsonObject> _rawNwSets;
 
 	Upgrade2(JsonStoreReader reader) {
 		super(reader);
-	}
-
-	@Override
-	public int[] fromVersions() {
-		return new int[]{0, 1};
-	}
-
-	@Override
-	public int toVersion() {
-		return 2;
 	}
 
 	@Override
@@ -33,10 +25,52 @@ class Upgrade2 extends Upgrade {
 		var object = super.get(type, refId);
 		if (object == null)
 			return null;
+		if (type == ModelType.IMPACT_METHOD) {
+			inlineNwSets(object);
+		}
 		if (type == ModelType.IMPACT_CATEGORY) {
 			addImpactCategoryParams(object);
 		}
 		return object;
+	}
+
+	private void inlineNwSets(JsonObject methodObj) {
+		if (methodObj == null)
+			return;
+
+		var nwRefs = Json.getArray(methodObj, "nwSets");
+		if (nwRefs == null || nwRefs.isEmpty())
+			return;
+
+		if (_rawNwSets == null) {
+			_rawNwSets = super.getFiles("nw_sets").stream()
+				.map(super::getJson)
+				.filter(Objects::nonNull)
+				.filter(JsonElement::isJsonObject)
+				.map(JsonElement::getAsJsonObject)
+				.toList();
+		}
+
+		var idx = new HashMap<String, JsonObject>();
+		for (var nwSet : _rawNwSets) {
+			var id = Json.getString(nwSet, "@id");
+			if (id == null)
+				continue;
+			idx.put(id, nwSet);
+		}
+		if (idx.isEmpty())
+			return;
+
+		var nwSets = new JsonArray();
+		Json.stream(nwRefs)
+			.filter(JsonElement::isJsonObject)
+			.map(ref -> Json.getString(ref.getAsJsonObject(), "@id"))
+			.filter(Objects::nonNull)
+			.map(idx::get)
+			.filter(Objects::nonNull)
+			.map(JsonObject::deepCopy)
+			.forEach(nwSets::add);
+		methodObj.add("nwSets", nwSets);
 	}
 
 	private void addImpactCategoryParams(JsonObject object) {
