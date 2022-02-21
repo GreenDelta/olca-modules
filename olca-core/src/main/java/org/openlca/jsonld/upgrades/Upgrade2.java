@@ -31,6 +31,9 @@ class Upgrade2 extends Upgrade {
 		if (type == ModelType.IMPACT_CATEGORY) {
 			addImpactCategoryParams(object);
 		}
+		if (type == ModelType.PRODUCT_SYSTEM) {
+			addRedefSets(object);
+		}
 		return object;
 	}
 
@@ -124,4 +127,30 @@ class Upgrade2 extends Upgrade {
 		return null;
 	}
 
+	private void addRedefSets(JsonObject systemObj) {
+
+		// check of there are already paramater sets
+		var currentSets = Json.getArray(systemObj, "parameterSets");
+		if (currentSets != null)
+			return;
+
+		var params = Json.getArray(systemObj, "parameters");
+		if (params == null)
+			return;
+
+		var set = new JsonObject();
+		set.addProperty("name", "Baseline");
+		set.addProperty("isBaseline", true);
+		var redefs = new JsonArray();
+		Json.stream(params)
+				.filter(JsonElement::isJsonObject)
+			.map(JsonElement::getAsJsonObject)
+			.map(JsonObject::deepCopy)
+			.forEach(redefs::add);
+		set.add("parameters", redefs);
+
+		var redefSets = new JsonArray();
+		redefSets.add(set);
+		systemObj.add("parameterSets", set);
+	}
 }
