@@ -12,6 +12,7 @@ import org.openlca.core.io.ExchangeProviderQueue;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.JsonStoreReader;
+import org.openlca.jsonld.upgrades.Upgrades;
 
 public class JsonImport implements Runnable {
 
@@ -25,7 +26,7 @@ public class JsonImport implements Runnable {
 	private final Map<ModelType, Set<String>> visited = new HashMap<>();
 
 	public JsonImport(JsonStoreReader reader, IDatabase db) {
-		this.reader = reader;
+		this.reader = Upgrades.chain(reader);
 		this.db = new Db(db);
 		this.providers = ExchangeProviderQueue.create(db);
 	}
