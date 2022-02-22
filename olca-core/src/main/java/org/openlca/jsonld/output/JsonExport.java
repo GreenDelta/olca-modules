@@ -219,15 +219,15 @@ public class JsonExport {
 		if (entity instanceof Parameter)
 			return (Writer<T>) new ParameterWriter(this);
 		if (entity instanceof Process)
-			return (Writer<T>) new ProcessWriter(conf);
+			return (Writer<T>) new ProcessWriter(this);
 		if (entity instanceof Result)
-			return (Writer<T>) new ResultWriter(conf);
+			return (Writer<T>) new ResultWriter(this);
 		if (entity instanceof Source)
-			return (Writer<T>) new SourceWriter(conf);
+			return (Writer<T>) new SourceWriter(this);
 		if (entity instanceof UnitGroup)
-			return (Writer<T>) new UnitGroupWriter(conf);
+			return (Writer<T>) new UnitGroupWriter(this);
 		if (entity instanceof SocialIndicator)
-			return (Writer<T>) new SocialIndicatorWriter(conf);
+			return (Writer<T>) new SocialIndicatorWriter(this);
 		if (entity instanceof ProductSystem)
 			return (Writer<T>) new ProductSystemWriter(conf);
 		if (entity instanceof Project)

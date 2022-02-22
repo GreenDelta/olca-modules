@@ -6,13 +6,14 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowResult;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.Unit;
+import org.openlca.jsonld.Json;
 
 import java.util.Objects;
 
 class ResultWriter extends Writer<Result> {
 
-	ResultWriter(ExportConfig config) {
-		super(config);
+	ResultWriter(JsonExport exp) {
+		super(exp);
 	}
 
 	@Override
@@ -20,8 +21,8 @@ class ResultWriter extends Writer<Result> {
 		var json = super.write(result);
 		if (json == null)
 			return null;
-		Out.put(json, "productSystem", result.productSystem, conf);
-		Out.put(json, "impactMethod", result.impactMethod, conf);
+		Json.put(json, "productSystem", exp.handleRef(result.productSystem));
+		Json.put(json, "impactMethod", exp.handleRef(result.impactMethod));
 		writeImpactResults(result, json);
 		writeFlowResults(result, json);
 		return json;
@@ -33,9 +34,9 @@ class ResultWriter extends Writer<Result> {
 		var array = new JsonArray();
 		for (var r : result.impactResults) {
 			var obj = new JsonObject();
-			Out.put(obj, "indicator", r.indicator, conf);
-			Out.put(obj, "amount", r.amount);
-			Out.put(obj, "description", r.description);
+			Json.put(obj, "indicator", exp.handleRef(r.indicator));
+			Json.put(obj, "amount", r.amount);
+			Json.put(obj, "description", r.description);
 			array.add(obj);
 		}
 		json.add("impactResults", array);
@@ -49,18 +50,18 @@ class ResultWriter extends Writer<Result> {
 			var obj = new JsonObject();
 
 			// object references
-			Out.put(obj, "flow", r.flow, conf);
-			Out.put(obj, "flowProperty", propertyOf(r), conf);
-			Out.put(obj, "unit", unitOf(r), conf);
-			Out.put(obj, "location", r.location, conf);
+			Json.put(obj, "flow", exp.handleRef(r.flow));
+			Json.put(obj, "flowProperty", exp.handleRef(propertyOf(r)));
+			Json.put(obj, "unit",Json.asRef(unitOf(r)));
+			Json.put(obj, "location", exp.handleRef(r.location));
 
 			// other attributes
-			Out.put(obj, "isInput", r.isInput);
+			Json.put(obj, "isInput", r.isInput);
 			if (Objects.equals(r, result.referenceFlow)) {
-				Out.put(obj, "isReferenceFlow", true);
+				Json.put(obj, "isReferenceFlow", true);
 			}
-			Out.put(obj, "amount", r.amount);
-			Out.put(obj, "description", r.description);
+			Json.put(obj, "amount", r.amount);
+			Json.put(obj, "description", r.description);
 
 			array.add(obj);
 		}

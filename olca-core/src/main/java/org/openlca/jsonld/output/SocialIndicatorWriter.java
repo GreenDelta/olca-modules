@@ -1,16 +1,14 @@
 package org.openlca.jsonld.output;
 
-import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.SocialIndicator;
-import org.openlca.core.model.Unit;
-import org.openlca.core.model.UnitGroup;
 
 import com.google.gson.JsonObject;
+import org.openlca.jsonld.Json;
 
 class SocialIndicatorWriter extends Writer<SocialIndicator> {
 
-	SocialIndicatorWriter(ExportConfig conf) {
-		super(conf);
+	SocialIndicatorWriter(JsonExport exp) {
+		super(exp);
 	}
 
 	@Override
@@ -18,23 +16,21 @@ class SocialIndicatorWriter extends Writer<SocialIndicator> {
 		JsonObject obj = super.write(i);
 		if (obj == null)
 			return null;
-		Out.put(obj, "activityVariable", i.activityVariable);
-		Out.put(obj, "activityQuantity", i.activityQuantity, conf);
-		Out.put(obj, "unitOfMeasurement", i.unitOfMeasurement);
-		Out.put(obj, "evaluationScheme", i.evaluationScheme);
+		Json.put(obj, "activityVariable", i.activityVariable);
+		Json.put(obj, "unitOfMeasurement", i.unitOfMeasurement);
+		Json.put(obj, "evaluationScheme", i.evaluationScheme);
+		Json.put(obj, "activityQuantity", exp.handleRef(i.activityQuantity));
 		mapActivityUnit(i, obj);
 		return obj;
 	}
 
 	private void mapActivityUnit(SocialIndicator i, JsonObject obj) {
-		FlowProperty quantity = i.activityQuantity;
-		if (quantity == null || quantity.unitGroup == null)
+		var unit = i.activityUnit == null && i.activityQuantity != null
+			? i.activityQuantity.getReferenceUnit()
+			: i.activityUnit;
+		if (unit == null)
 			return;
-		UnitGroup group = quantity.unitGroup;
-		if (group == null || group.referenceUnit == null)
-			return;
-		Unit unit = group.referenceUnit;
-		Out.put(obj, "activityUnit", unit, conf);
+		Json.put(obj, "activityUnit", Json.asRef(unit));
 	}
 
 }
