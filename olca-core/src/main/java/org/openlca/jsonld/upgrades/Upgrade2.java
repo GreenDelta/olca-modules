@@ -135,7 +135,7 @@ class Upgrade2 extends Upgrade {
 		if (currentSets != null)
 			return;
 
-		var params = Json.getArray(systemObj, "parameters");
+		var params = Json.getArray(systemObj, "parameterRedefs");
 		if (params == null)
 			return;
 
@@ -152,6 +152,6 @@ class Upgrade2 extends Upgrade {
 
 		var redefSets = new JsonArray();
 		redefSets.add(set);
-		systemObj.add("parameterSets", set);
+		systemObj.add("parameterSets", redefSets);
 	}
 }

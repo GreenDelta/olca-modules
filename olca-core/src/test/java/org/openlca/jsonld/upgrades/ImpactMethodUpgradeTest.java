@@ -78,7 +78,6 @@ public class ImpactMethodUpgradeTest {
 
 	@Test
 	public void testCopyParameters() {
-
 		Consumer<String> check = id -> {
 			var impact = db.get(ImpactCategory.class, id);
 			assertNotNull(impact);
@@ -88,7 +87,6 @@ public class ImpactMethodUpgradeTest {
 			assertEquals(38, param.value, 0);
 			assertTrue(param.isInputParameter);
 		};
-
 		check.accept("i1");
 		check.accept("i2");
 	}

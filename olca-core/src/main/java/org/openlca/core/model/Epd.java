@@ -45,6 +45,13 @@ public class Epd extends CategorizedEntity {
 	@JoinColumn(name = "f_program_operator")
 	public Actor programOperator;
 
+	public static Epd of(String name, Flow product) {
+		var epd = new Epd();
+		Entities.init(epd, name);
+		epd.product = EpdProduct.of(product, 1.0);
+		return epd;
+	}
+
 	@Override
 	public Epd copy() {
 		var copy = new Epd();
