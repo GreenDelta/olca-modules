@@ -99,6 +99,7 @@ class Upgrade2 extends Upgrade {
 					.map(JsonObject::deepCopy)
 					.forEach(impactParams::add);
 			}
+			object.add("parameters", impactParams);
 		}
 	}
 

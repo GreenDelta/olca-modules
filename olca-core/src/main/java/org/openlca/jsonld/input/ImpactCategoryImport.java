@@ -5,6 +5,7 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
+import org.openlca.core.model.ParameterScope;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
 
@@ -93,6 +94,7 @@ class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 			var o = e.getAsJsonObject();
 			var parameter = new Parameter();
 			ParameterImport.mapFields(o, parameter);
+			parameter.scope = ParameterScope.IMPACT;
 			impact.parameters.add(parameter);
 		}
 	}

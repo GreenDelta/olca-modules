@@ -85,4 +85,9 @@ public class MemStore implements JsonStoreReader, JsonStoreWriter {
 	public void put(String path, byte[] bytes) {
 		byteData.put(path, bytes);
 	}
+
+	public void clear() {
+		jsonData.clear();
+		byteData.clear();
+	}
 }

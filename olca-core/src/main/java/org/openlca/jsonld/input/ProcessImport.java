@@ -9,6 +9,7 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
+import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.RiskLevel;
@@ -85,6 +86,7 @@ class ProcessImport extends BaseImport<Process> {
 			JsonObject o = e.getAsJsonObject();
 			Parameter parameter = new Parameter();
 			ParameterImport.mapFields(o, parameter);
+			parameter.scope = ParameterScope.PROCESS;
 			p.parameters.add(parameter);
 		}
 	}
@@ -99,7 +101,7 @@ class ProcessImport extends BaseImport<Process> {
 				continue;
 			JsonObject o = e.getAsJsonObject();
 			Exchange ex = ExchangeImport.run(ModelType.PROCESS, p.refId, o, conf,
-					(Process process) -> process.exchanges);
+				(Process process) -> process.exchanges);
 			if (ex.internalId == 0) {
 				ex.internalId = ++p.lastInternalId;
 			}
@@ -174,7 +176,7 @@ class ProcessImport extends BaseImport<Process> {
 			factor.formula = formula;
 		}
 		factor.method = Json.getEnum(
-				json, "allocationType", AllocationMethod.class);
+			json, "allocationType", AllocationMethod.class);
 		return factor;
 	}
 
