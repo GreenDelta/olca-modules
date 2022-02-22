@@ -36,12 +36,12 @@ class ImpactCategoryWriter extends Writer<ImpactCategory> {
 			Out.put(obj, "@type", ImpactFactor.class.getSimpleName());
 			Out.put(obj, "value", f.value);
 			Out.put(obj, "formula", f.formula);
-			Out.put(obj, "flow", f.flow, conf, Out.REQUIRED_FIELD);
-			Out.put(obj, "unit", f.unit, conf, Out.REQUIRED_FIELD);
+			Out.put(obj, "flow", f.flow, conf);
+			Out.put(obj, "unit", f.unit, conf);
 			FlowProperty property = null;
 			if (f.flowPropertyFactor != null)
 				property = f.flowPropertyFactor.flowProperty;
-			Out.put(obj, "flowProperty", property, conf, Out.REQUIRED_FIELD);
+			Out.put(obj, "flowProperty", property, conf);
 			Out.put(obj, "uncertainty", Uncertainties.map(f.uncertainty));
 			Out.put(obj, "location", f.location, conf);
 			array.add(obj);

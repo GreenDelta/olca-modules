@@ -37,12 +37,12 @@ class Exchanges {
 		else if (conf.db != null)
 			p = References.create(new ProcessDao(conf.db).getDescriptor(pId), conf);
 		Out.put(obj, "defaultProvider", p);
-		Out.put(obj, "flow", e.flow, conf, Out.REQUIRED_FIELD);
-		Out.put(obj, "unit", e.unit, conf, Out.REQUIRED_FIELD);
+		Out.put(obj, "flow", e.flow, conf);
+		Out.put(obj, "unit", e.unit, conf);
 		FlowProperty property = null;
 		if (e.flowPropertyFactor != null)
 			property = e.flowPropertyFactor.flowProperty;
-		Out.put(obj, "flowProperty", property, conf, Out.REQUIRED_FIELD);
+		Out.put(obj, "flowProperty", property, conf);
 		Out.put(obj, "uncertainty", Uncertainties.map(e.uncertainty));
 	}
 }

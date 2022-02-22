@@ -49,7 +49,7 @@ class Writer<T extends RootEntity> {
 			return;
 		var type = entity.getClass().getSimpleName();
 		Out.put(obj, "@type", type);
-		Out.put(obj, "@id", entity.refId, Out.REQUIRED_FIELD);
+		Out.put(obj, "@id", entity.refId);
 		Out.put(obj, "name", entity.name);
 		Out.put(obj, "description", entity.description);
 		Out.put(obj, "version", Version.asString(entity.version));

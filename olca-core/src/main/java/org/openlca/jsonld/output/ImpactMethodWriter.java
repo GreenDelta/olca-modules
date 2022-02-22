@@ -16,8 +16,7 @@ class ImpactMethodWriter extends Writer<ImpactMethod> {
 		if (obj == null)
 			return null;
 		Out.put(obj, "source", method.source, conf);
-		Out.put(obj, "impactCategories", method.impactCategories,
-				conf, Out.FORCE_EXPORT);
+		Out.put(obj, "impactCategories", method.impactCategories, conf);
 		mapNwSets(obj, method);
 		return obj;
 	}
@@ -35,12 +34,9 @@ class ImpactMethodWriter extends Writer<ImpactMethod> {
 					.map(f -> {
 						var factor = new JsonObject();
 						Out.put(factor, "@type", "NwFactor");
-						Out.put(factor, "impactCategory",
-								f.impactCategory, conf, Out.REQUIRED_FIELD);
-						Out.put(factor, "normalisationFactor",
-								f.normalisationFactor);
-						Out.put(factor, "weightingFactor",
-								f.weightingFactor);
+						Out.put(factor, "impactCategory",f.impactCategory, conf);
+						Out.put(factor, "normalisationFactor", f.normalisationFactor);
+						Out.put(factor, "weightingFactor", f.weightingFactor);
 						return factor;
 					})
 					.forEach(factors::add);

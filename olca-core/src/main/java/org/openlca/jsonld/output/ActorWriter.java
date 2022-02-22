@@ -3,6 +3,7 @@ package org.openlca.jsonld.output;
 import org.openlca.core.model.Actor;
 
 import com.google.gson.JsonObject;
+import org.openlca.jsonld.Json;
 
 class ActorWriter extends Writer<Actor> {
 
@@ -20,13 +21,13 @@ class ActorWriter extends Writer<Actor> {
 	}
 
 	private void map(Actor actor, JsonObject obj) {
-		Out.put(obj, "address", actor.address);
-		Out.put(obj, "city", actor.city);
-		Out.put(obj, "country", actor.country);
-		Out.put(obj, "email", actor.email);
-		Out.put(obj, "telefax", actor.telefax);
-		Out.put(obj, "telephone", actor.telephone);
-		Out.put(obj, "website", actor.website);
-		Out.put(obj, "zipCode", actor.zipCode);
+		Json.put(obj, "address", actor.address);
+		Json.put(obj, "city", actor.city);
+		Json.put(obj, "country", actor.country);
+		Json.put(obj, "email", actor.email);
+		Json.put(obj, "telefax", actor.telefax);
+		Json.put(obj, "telephone", actor.telephone);
+		Json.put(obj, "website", actor.website);
+		Json.put(obj, "zipCode", actor.zipCode);
 	}
 }

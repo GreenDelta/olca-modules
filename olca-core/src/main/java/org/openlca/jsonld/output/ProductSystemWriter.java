@@ -49,7 +49,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		TLongLongHashMap exchangeIDs = exchangeIDs(system);
 
 		Out.put(obj, "referenceProcess", system.referenceProcess,
-				conf, Out.REQUIRED_FIELD);
+				conf);
 
 		// the reference exchange
 		if (system.referenceExchange != null) {
@@ -57,17 +57,15 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 			Out.put(eObj, "@type", "Exchange");
 			Out.put(eObj, "internalId", exchangeIDs.get(
 					system.referenceExchange.id));
-			Out.put(eObj, "flow", system.referenceExchange.flow, 
-					conf, Out.REQUIRED_FIELD);
-			Out.put(obj, "referenceExchange", eObj,
-					Out.REQUIRED_FIELD);
+			Out.put(eObj, "flow", system.referenceExchange.flow, conf);
+			Out.put(obj, "referenceExchange", eObj);
 		}
 
 		FlowProperty property = null;
 		if (system.targetFlowPropertyFactor != null)
 			property = system.targetFlowPropertyFactor.flowProperty;
-		Out.put(obj, "targetFlowProperty", property, conf, Out.REQUIRED_FIELD);
-		Out.put(obj, "targetUnit", system.targetUnit, conf, Out.REQUIRED_FIELD);
+		Out.put(obj, "targetFlowProperty", property, conf);
+		Out.put(obj, "targetUnit", system.targetUnit, conf);
 		Out.put(obj, "targetAmount", system.targetAmount);
 
 		// map the parameter redefinitions
@@ -91,17 +89,16 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 			Out.put(obj, "@type", "ProcessLink");
 			JsonObject provider = References
 					.create(processMap.get(link.providerId), conf);
-			Out.put(obj, "provider", provider, Out.REQUIRED_FIELD);
+			Out.put(obj, "provider", provider);
 			Out.put(obj, "flow",
-					References.create(flows.get(link.flowId), conf),
-					Out.REQUIRED_FIELD);
+					References.create(flows.get(link.flowId), conf));
 			JsonObject process = References
 					.create(processMap.get(link.processId), conf);
-			Out.put(obj, "process", process, Out.REQUIRED_FIELD);
+			Out.put(obj, "process", process);
 			JsonObject eObj = new JsonObject();
 			Out.put(eObj, "@type", "Exchange");
 			Out.put(eObj, "internalId", exchangeIDs.get(link.exchangeId));
-			Out.put(obj, "exchange", eObj, Out.REQUIRED_FIELD);
+			Out.put(obj, "exchange", eObj);
 			links.add(obj);
 		}
 		Out.put(json, "processLinks", links);

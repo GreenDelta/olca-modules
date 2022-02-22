@@ -27,7 +27,6 @@ class ExportConfig {
 	Consumer<RootEntity> refFn;
 	boolean exportReferences = true;
 	boolean exportProviders = false;
-	String clientInfo;
 	private final Map<ModelType, Set<Long>> visited = new HashMap<>();
 
 	private ExportConfig(IDatabase db, JsonStoreWriter store) {

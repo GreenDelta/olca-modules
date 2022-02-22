@@ -17,20 +17,12 @@ class Uncertainties {
 		Out.put(obj, "@type", Uncertainty.class.getSimpleName());
 		Out.put(obj, "distributionType", type);
 		switch (type) {
-		case UNIFORM:
-			mapUniform(uncertainty, obj);
-			break;
-		case TRIANGLE:
-			mapTriangle(uncertainty, obj);
-			break;
-		case NORMAL:
-			mapNormal(uncertainty, obj);
-			break;
-		case LOG_NORMAL:
-			mapLogNormal(uncertainty, obj);
-			break;
-		default:
-			break;
+			case UNIFORM -> mapUniform(uncertainty, obj);
+			case TRIANGLE -> mapTriangle(uncertainty, obj);
+			case NORMAL -> mapNormal(uncertainty, obj);
+			case LOG_NORMAL -> mapLogNormal(uncertainty, obj);
+			default -> {
+			}
 		}
 		return obj;
 	}

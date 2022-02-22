@@ -28,7 +28,7 @@ class ProcessWriter extends Writer<Process> {
 			return null;
 		this.process = p;
 		// AllocationCleanup.on(p);
-		Out.put(obj, "processType", p.processType, Out.REQUIRED_FIELD);
+		Out.put(obj, "processType", p.processType);
 		Out.put(obj, "defaultAllocationMethod", p.defaultAllocationMethod);
 		Out.put(obj, "infrastructureProcess", p.infrastructureProcess);
 		Out.put(obj, "location", p.location, conf);
@@ -75,7 +75,7 @@ class ProcessWriter extends Writer<Process> {
 		for (SocialAspect a : process.socialAspects) {
 			JsonObject obj = new JsonObject();
 			Out.put(obj, "@type", SocialAspect.class.getSimpleName());
-			Out.put(obj, "socialIndicator", a.indicator, conf, Out.REQUIRED_FIELD);
+			Out.put(obj, "socialIndicator", a.indicator, conf);
 			Out.put(obj, "comment", a.comment);
 			Out.put(obj, "quality", a.quality);
 			Out.put(obj, "rawAmount", a.rawAmount);
@@ -92,11 +92,11 @@ class ProcessWriter extends Writer<Process> {
 		for (AllocationFactor f : process.allocationFactors) {
 			JsonObject obj = new JsonObject();
 			Out.put(obj, "@type", AllocationFactor.class.getSimpleName());
-			Out.put(obj, "allocationType", f.method, Out.REQUIRED_FIELD);
+			Out.put(obj, "allocationType", f.method);
 			if (f.method == AllocationMethod.CAUSAL) {
-				Out.put(obj, "exchange", createExchangeRef(f.exchange), Out.REQUIRED_FIELD);
+				Out.put(obj, "exchange", createExchangeRef(f.exchange));
 			}
-			Out.put(obj, "product", findProduct(f.productId), conf, Out.REQUIRED_FIELD);
+			Out.put(obj, "product", findProduct(f.productId), conf);
 			Out.put(obj, "value", f.value);
 			Out.put(obj, "formula", f.formula);
 			factors.add(obj);

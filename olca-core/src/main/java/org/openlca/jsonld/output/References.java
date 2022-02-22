@@ -11,16 +11,6 @@ import com.google.gson.JsonObject;
 
 class References {
 
-	static JsonObject create(RootEntity ref, ExportConfig conf, boolean forceExport) {
-		JsonObject obj = create(ref, conf);
-		if (obj == null)
-			return null;
-		ModelType type = ModelType.forModelClass(ref.getClass());
-		if (doExportReferences(type, ref.id, conf, forceExport))
-			conf.refFn.accept(ref);
-		return obj;
-	}
-
 	static JsonObject create(ModelType type, Long id, ExportConfig conf, boolean forceExport) {
 		if (id == null || id == 0)
 			return null;

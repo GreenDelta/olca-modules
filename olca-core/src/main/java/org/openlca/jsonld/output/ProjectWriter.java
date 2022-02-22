@@ -37,16 +37,16 @@ class ProjectWriter extends Writer<Project> {
 			JsonObject obj = new JsonObject();
 			array.add(obj);
 			Out.put(obj, "name", v.name);
-			Out.put(obj, "productSystem", v.productSystem, conf, Out.REQUIRED_FIELD);
+			Out.put(obj, "productSystem", v.productSystem, conf);
 			Out.put(obj, "amount", v.amount);
-			Out.put(obj, "unit", v.unit, conf, Out.REQUIRED_FIELD);
+			Out.put(obj, "unit", v.unit, conf);
 			Out.put(obj, "allocationMethod", v.allocationMethod);
 			Out.put(obj, "description", v.description);
 			Out.put(obj, "isDisabled", v.isDisabled);
 			var prop = v.flowPropertyFactor != null
 				? v.flowPropertyFactor.flowProperty
 				: null;
-			Out.put(obj, "flowProperty", prop, conf, Out.REQUIRED_FIELD);
+			Out.put(obj, "flowProperty", prop, conf);
 			if (!v.parameterRedefs.isEmpty()) {
 				var redefs = ParameterRedefs.map(v.parameterRedefs, conf);
 				Out.put(obj, "parameterRedefs", redefs);
