@@ -12,6 +12,7 @@ import org.openlca.git.find.Commits;
 import org.openlca.git.model.Diff;
 import org.openlca.git.util.DiffEntries;
 import org.openlca.git.writer.CommitWriter;
+import org.openlca.util.Strings;
 
 public class GitCommit {
 
@@ -55,13 +56,15 @@ public class GitCommit {
 		return this;
 	}
 
-	public void run() throws IOException {
+	public String run() throws IOException {
+		if (git == null || database == null || Strings.nullOrEmpty(message)) 
+			throw new IllegalStateException("Git repository, database and message must be set");
 		var config = new GitConfig(database, workspaceIds, git, committer);
 		if (diffs == null) {
 			diffs = getWorkspaceDiffs(config);
 		}
 		var writer = new CommitWriter(config);
-		writer.commit(message, diffs);
+		return writer.commit(message, diffs);
 	}
 
 	private List<Diff> getWorkspaceDiffs(GitConfig config) throws IOException {

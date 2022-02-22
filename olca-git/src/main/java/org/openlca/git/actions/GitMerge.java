@@ -66,6 +66,8 @@ public class GitMerge {
 	}
 
 	public List<Reference> run() throws IOException {
+		if (git == null || database == null) 
+			throw new IllegalStateException("Git repository and database must be set");
 		var commits = Commits.of(git);
 		var localCommitId = commits.resolve(Constants.LOCAL_BRANCH);
 		var remoteCommitId = commits.resolve(Constants.REMOTE_BRANCH);

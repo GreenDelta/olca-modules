@@ -28,6 +28,8 @@ public class GitPush extends GitRemoteAction<PushResponse> {
 
 	@Override
 	public PushResponse run() throws GitAPIException {
+		if (git == null) 
+			throw new IllegalStateException("Git repository must be set");
 		var commits = Commits.of(git);
 		var localCommitId = commits.resolve(Constants.LOCAL_BRANCH);
 		var remoteCommitId = commits.resolve(Constants.REMOTE_BRANCH);

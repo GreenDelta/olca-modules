@@ -27,6 +27,8 @@ public class GitFetch extends GitRemoteAction<List<Commit>> {
 
 	@Override
 	public List<Commit> run() throws GitAPIException {
+		if (git == null) 
+			throw new IllegalStateException("Git repository must be set");
 		var commits = Commits.of(git);
 		var lastId = commits.find()
 				.refs(Constants.REMOTE_REF)
