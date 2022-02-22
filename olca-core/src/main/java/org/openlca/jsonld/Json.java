@@ -22,9 +22,12 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.openlca.core.database.EntityCache;
+import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
@@ -99,7 +102,7 @@ public class Json {
 	 * Return the double value of the given property.
 	 */
 	public static double getDouble(JsonObject obj,
-			String property, double defaultVal) {
+		String property, double defaultVal) {
 		if (obj == null || property == null)
 			return defaultVal;
 		JsonElement elem = obj.get(property);
@@ -130,8 +133,8 @@ public class Json {
 			return defaultVal;
 		var prim = elem.getAsJsonPrimitive();
 		return prim.isNumber()
-				? prim.getAsLong()
-				: defaultVal;
+			? prim.getAsLong()
+			: defaultVal;
 	}
 
 	/**
@@ -149,12 +152,12 @@ public class Json {
 			return Optional.empty();
 		JsonElement elem = obj.get(property);
 		return elem == null || !elem.isJsonPrimitive()
-				? Optional.empty()
-				: Optional.of(elem.getAsDouble());
+			? Optional.empty()
+			: Optional.of(elem.getAsDouble());
 	}
 
 	public static boolean getBool(JsonObject obj,
-			String property, boolean defaultVal) {
+		String property, boolean defaultVal) {
 		if (obj == null || property == null)
 			return defaultVal;
 		JsonElement elem = obj.get(property);
@@ -199,7 +202,7 @@ public class Json {
 	}
 
 	public static <T extends Enum<T>> T getEnum(JsonObject obj,
-			String property, Class<T> enumClass) {
+		String property, Class<T> enumClass) {
 		String value = getString(obj, property);
 		return Enums.getValue(value, enumClass);
 	}
@@ -221,6 +224,48 @@ public class Json {
 		if (obj == null || val == null)
 			return;
 		obj.addProperty(prop, val);
+	}
+
+	public static JsonObject asRef(CategorizedEntity e) {
+		if (e == null)
+			return null;
+		var obj = new JsonObject();
+		put(obj, "@type", e.getClass().getSimpleName());
+		put(obj, "@id", e.refId);
+		put(obj, "name", e.name);
+		if (e.category != null) {
+			put(obj, "category", e.category.toPath());
+		}
+
+		// process
+		if (e instanceof Process process) {
+			put(obj, "processType", Enums.getLabel(process.processType));
+			if (process.location != null) {
+				put(obj, "location", process.location.code);
+			}
+		}
+
+		// flows
+		if (e instanceof Flow flow) {
+			put(obj, "flowType", Enums.getLabel(flow.flowType));
+			if (flow.location != null) {
+				put(obj, "location", flow.location.code);
+			}
+			var refUnit = flow.getReferenceUnit();
+			if (refUnit != null) {
+				put(obj, "refUnit", refUnit.name);
+			}
+		}
+
+		// flow properties
+		if (e instanceof FlowProperty property) {
+			var refUnit = property.getReferenceUnit();
+			if (refUnit != null) {
+				put(obj, "refUnit", refUnit.name);
+			}
+		}
+
+		return obj;
 	}
 
 	/**
@@ -261,9 +306,9 @@ public class Json {
 	}
 
 	private static void putCategoryPath(JsonObject ref,
-			CategorizedDescriptor d, EntityCache cache) {
+		CategorizedDescriptor d, EntityCache cache) {
 		if (ref == null || d == null || cache == null
-				|| d.category == null)
+			|| d.category == null)
 			return;
 		Category cat = cache.get(Category.class, d.category);
 		if (cat == null)
@@ -273,7 +318,7 @@ public class Json {
 	}
 
 	private static void putCategoryMetaData(JsonObject ref,
-			CategoryDescriptor d) {
+		CategoryDescriptor d) {
 		if (ref == null || d == null)
 			return;
 		if (d.categoryType != null) {
@@ -283,7 +328,7 @@ public class Json {
 	}
 
 	private static void putFlowMetaData(JsonObject ref,
-			FlowDescriptor d, EntityCache cache) {
+		FlowDescriptor d, EntityCache cache) {
 		if (ref == null || d == null)
 			return;
 		if (d.flowType != null) {
@@ -307,7 +352,7 @@ public class Json {
 	}
 
 	private static void putFlowPropertyMetaData(JsonObject ref,
-			FlowPropertyDescriptor d, EntityCache cache) {
+		FlowPropertyDescriptor d, EntityCache cache) {
 		if (ref == null || d == null)
 			return;
 		if (cache == null)
@@ -322,7 +367,7 @@ public class Json {
 	}
 
 	private static void putProcessMetaData(JsonObject ref,
-			ProcessDescriptor d, EntityCache cache) {
+		ProcessDescriptor d, EntityCache cache) {
 		if (ref == null || d == null)
 			return;
 		if (d.processType != null) {
@@ -344,8 +389,8 @@ public class Json {
 		if (json == null)
 			return;
 		try (var stream = new FileOutputStream(file);
-				var writer = new OutputStreamWriter(stream, StandardCharsets.UTF_8);
-				var buffer = new BufferedWriter(writer)) {
+				 var writer = new OutputStreamWriter(stream, StandardCharsets.UTF_8);
+				 var buffer = new BufferedWriter(writer)) {
 			new Gson().toJson(json, buffer);
 		} catch (Exception e) {
 			throw new RuntimeException("failed to write JSON file " + file, e);
@@ -382,7 +427,7 @@ public class Json {
 
 	private static <T> Optional<T> read(InputStream stream, Class<T> type) {
 		try (var reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
-				var buffer = new BufferedReader(reader)) {
+				 var buffer = new BufferedReader(reader)) {
 			var obj = new Gson().fromJson(buffer, type);
 			return Optional.of(obj);
 		} catch (Exception e) {

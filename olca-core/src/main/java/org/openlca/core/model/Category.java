@@ -17,7 +17,7 @@ import org.openlca.util.Categories;
 @Table(name = "tbl_categories")
 public class Category extends CategorizedEntity {
 
-	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
+	@OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
 	@JoinColumn(name = "f_category")
 	public final List<Category> childCategories = new ArrayList<>();
 
@@ -59,7 +59,16 @@ public class Category extends CategorizedEntity {
 	@Override
 	public String toString() {
 		return String.format("Category {modelType=%s, refId=%s, name=%s}",
-				modelType, refId, name);
+			modelType, refId, name);
+	}
+
+	public String toPath() {
+		if (category == null)
+			return name != null ? name : "";
+		var prefix = category.toPath();
+		return name != null
+			? prefix + "/" + name
+			: prefix;
 	}
 
 }
