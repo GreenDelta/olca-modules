@@ -18,7 +18,6 @@ import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -27,7 +26,6 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Unit;
-import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -240,6 +238,7 @@ public class Json {
 		}
 		put(obj, "@id", d.refId);
 		put(obj, "name", d.name);
+
 		if (d instanceof CategorizedDescriptor cd) {
 			putCategoryPath(obj, cd, cache);
 		}
@@ -258,22 +257,6 @@ public class Json {
 		if (d instanceof ImpactDescriptor impact) {
 			obj.addProperty("refUnit", impact.referenceUnit);
 		}
-		return obj;
-	}
-
-	/**
-	 * Generates a `Ref` type as defined in olca-schema. For some types (e.g.
-	 * flows or processes) a more specific `Ref` type is used (e.g. `FlowRef` or
-	 * `ProcessRef`) that contains additional meta-data.
-	 */
-	public static JsonObject asDescriptor(Descriptor d, EntityCache cache) {
-		if (d == null)
-			return null;
-		JsonObject obj = asRef(d, cache);
-		if (obj == null)
-			return null;
-		put(obj, "description", d.description);
-		put(obj, "version", Version.asString(d.version));
 		return obj;
 	}
 

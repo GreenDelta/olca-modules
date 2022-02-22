@@ -158,7 +158,11 @@ public class ModelHandler {
 		providers.stream()
 				.map(TechFlow::provider)
 				.filter(p -> p instanceof ProcessDescriptor)
-				.map(p -> Json.asDescriptor(p, cache))
+				.map(p -> {
+					var ref = Json.asRef(p, cache);
+					ref.addProperty("description", p.description);
+					return ref;
+				})
 				.forEach(array::add);
 		return Responses.ok(array, req);
 	}
