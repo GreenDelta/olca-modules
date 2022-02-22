@@ -8,16 +8,12 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 import com.google.gson.JsonArray;
-import gnu.trove.set.TLongSet;
-import gnu.trove.set.hash.TLongHashSet;
+import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
@@ -49,7 +45,6 @@ import org.openlca.jsonld.JsonStoreWriter;
 
 import com.google.gson.JsonObject;
 import org.openlca.jsonld.MemStore;
-import org.openlca.util.Copy;
 
 /**
  * Writes entities to an entity store (e.g. a document or zip file). It also
@@ -61,7 +56,8 @@ public class JsonExport {
 	final JsonStoreWriter writer;
 	boolean exportReferences = true;
 	boolean exportProviders = false;
-	private final Map<ModelType, TLongSet> visited = new EnumMap<>(ModelType.class);
+
+	private final Map<ModelType, TLongObjectHashMap<JsonObject>> visited = new EnumMap<>(ModelType.class);
 
 	public JsonExport(IDatabase db, JsonStoreWriter writer) {
 		this.db = db;
@@ -78,22 +74,36 @@ public class JsonExport {
 		return this;
 	}
 
-	void setVisited(RootEntity entity) {
+	void setVisited(CategorizedEntity entity) {
 		if (entity == null)
 			return;
 		var type = ModelType.of(entity);
-		var set = visited.computeIfAbsent(type, k -> new TLongHashSet());
-		set.add(entity.id);
+		if (type == null)
+			return;
+		var ref = Json.asRef(entity);
+		var set = visited.computeIfAbsent(type, k -> new TLongObjectHashMap<>());
+		set.put(entity.id, ref);
 	}
 
 	boolean hasVisited(ModelType type, long id) {
-		var set = visited.get(type);
-		if (set == null)
+		var map = visited.get(type);
+		if (map == null)
 			return false;
-		return set.contains(id);
+		return map.contains(id);
 	}
 
 	JsonObject handleRef(ModelType type, long id) {
+		var map = visited.get(type);
+		if (map != null) {
+			var ref = map.get(id);
+			if (ref != null) {
+				return ref.deepCopy();
+			}
+		}
+		if (exportReferences) {
+
+		}
+
 		if (hasVisited(type, id)) {
 			var d = db.getDescriptor()
 
@@ -181,7 +191,9 @@ public class JsonExport {
 		T entity, IDatabase db) {
 		if (entity == null)
 			return new JsonObject();
-		Writer<T> writer = getWriter(entity, ExportConfig.create(database));
+		var exp = new JsonExport(db, new MemStore())
+			.withReferences(false);
+		var writer = exp.getWriter(entity);
 		return writer.write(entity);
 	}
 
@@ -241,7 +253,7 @@ public class JsonExport {
 
 
 
-	private static class Copy extends SimpleFileVisitor<Path> {
+	private class Copy extends SimpleFileVisitor<Path> {
 
 		private final String refId;
 		private final ModelType type;
@@ -258,7 +270,7 @@ public class JsonExport {
 			throws IOException {
 			String path = dbDir.relativize(file).toString().replace('\\', '/');
 			byte[] data = Files.readAllBytes(file);
-			conf.store.putBin(type, refId, path, data);
+			writer.putBin(type, refId, path, data);
 			return FileVisitResult.CONTINUE;
 		}
 

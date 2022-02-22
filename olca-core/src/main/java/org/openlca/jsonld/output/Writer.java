@@ -24,7 +24,9 @@ class Writer<T extends RootEntity> {
 		var obj = new JsonObject();
 		// mark entity directly as visited to avoid endless cyclic exports for
 		// cyclic references
-		exp.setVisited(entity);
+		if (entity instanceof CategorizedEntity ce) {
+			exp.setVisited(ce);
+		}
 		addBasicAttributes(entity, obj);
 		if (entity instanceof CategorizedEntity ce) {
 			Json.put(obj, "category", exp.handleRef(ce.category));
