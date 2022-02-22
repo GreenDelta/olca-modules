@@ -1,15 +1,14 @@
 package org.openlca.jsonld.output;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.openlca.core.model.Epd;
 import org.openlca.jsonld.Json;
 
 class EpdWriter extends Writer<Epd> {
 
-	EpdWriter(JsonExport export) {
-		super(export);
+	EpdWriter(JsonExport exp) {
+		super(exp);
 	}
 
 	@Override
@@ -19,17 +18,17 @@ class EpdWriter extends Writer<Epd> {
 			return null;
 
 		Json.put(json, "urn", epd.urn);
-		Json.put(json, "manufacturer", epd.manufacturer, conf);
-		Json.put(json, "verifier", epd.verifier, conf);
-		Json.put(json, "programOperator", epd.programOperator, conf);
-		Json.put(json, "pcr", epd.pcr, conf);
+		Json.put(json, "manufacturer", exp.handleRef(epd.manufacturer));
+		Json.put(json, "verifier", exp.handleRef(epd.verifier));
+		Json.put(json, "programOperator", exp.handleRef(epd.programOperator));
+		Json.put(json, "pcr", exp.handleRef(epd.pcr));
 
 		if (epd.product != null) {
 			var productJson = new JsonObject();
-			Out.put(productJson, "flow", epd.product.flow, conf);
-			Out.put(productJson, "flowProperty", epd.product.property, conf);
-			Out.put(productJson, "unit", epd.product.unit, conf);
-			Out.put(productJson, "amount", epd.product.amount);
+			Json.put(productJson, "flow", exp.handleRef(epd.product.flow));
+			Json.put(productJson, "flowProperty", exp.handleRef(epd.product.property));
+			Json.put(productJson, "unit", Json.asRef(epd.product.unit));
+			Json.put(productJson, "amount", epd.product.amount);
 			json.add("product", productJson);
 		}
 
@@ -37,8 +36,8 @@ class EpdWriter extends Writer<Epd> {
 			var modsJson = new JsonArray();
 			for (var mod : epd.modules) {
 				var modObj = new JsonObject();
-				Out.put(modObj, "name", mod.name);
-				Out.put(modObj, "result", mod.result, conf);
+				Json.put(modObj, "name", mod.name);
+				Json.put(modObj, "result", exp.handleRef(mod.result));
 				modsJson.add(modObj);
 			}
 			json.add("modules", modsJson);

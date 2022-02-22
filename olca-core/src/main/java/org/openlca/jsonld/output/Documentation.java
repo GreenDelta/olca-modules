@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 
+import com.google.gson.JsonArray;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 
@@ -12,48 +13,47 @@ import org.openlca.jsonld.Json;
 
 class Documentation {
 
-	static JsonObject create(Process process, ExportConfig conf) {
+	static JsonObject create(Process process, JsonExport exp) {
 		ProcessDocumentation d = process.documentation;
 		if (d == null)
 			return null;
 		JsonObject o = new JsonObject();
-		Out.put(o, "@type", ProcessDocumentation.class.getSimpleName());
 		mapSimpleDocFields(d, o);
-		Out.put(o, "reviewer", d.reviewer, conf);
-		Out.put(o, "dataDocumentor", d.dataDocumentor, conf);
-		Out.put(o, "dataGenerator", d.dataGenerator, conf);
-		Out.put(o, "dataSetOwner", d.dataSetOwner, conf);
-		Out.put(o, "publication", d.publication, conf);
-		Out.put(o, "sources", d.sources, conf);
+		Json.put(o, "reviewer", exp.handleRef(d.reviewer));
+		Json.put(o, "dataDocumentor", exp.handleRef(d.dataDocumentor));
+		Json.put(o, "dataGenerator", exp.handleRef(d.dataGenerator));
+		Json.put(o, "dataSetOwner", exp.handleRef(d.dataSetOwner));
+		Json.put(o, "publication", exp.handleRef(d.publication));
+		Json.put(o, "sources", exp.handleRefs(d.sources));
 		return o;
 	}
 
 	private static void mapSimpleDocFields(ProcessDocumentation d, JsonObject o) {
-		Out.put(o, "timeDescription", d.time);
-		Out.put(o, "technologyDescription", d.technology);
-		Out.put(o, "dataCollectionDescription", d.dataCollectionPeriod);
-		Out.put(o, "completenessDescription", d.completeness);
-		Out.put(o, "dataSelectionDescription", d.dataSelection);
-		Out.put(o, "reviewDetails", d.reviewDetails);
-		Out.put(o, "dataTreatmentDescription", d.dataTreatment);
-		Out.put(o, "inventoryMethodDescription", d.inventoryMethod);
-		Out.put(o, "modelingConstantsDescription", d.modelingConstants);
-		Out.put(o, "samplingDescription", d.sampling);
-		Out.put(o, "restrictionsDescription", d.restrictions);
-		Out.put(o, "copyright", d.copyright);
-		Out.put(o, "intendedApplication", d.intendedApplication);
-		Out.put(o, "projectDescription", d.project);
-		Out.put(o, "geographyDescription", d.geography);
+		Json.put(o, "timeDescription", d.time);
+		Json.put(o, "technologyDescription", d.technology);
+		Json.put(o, "dataCollectionDescription", d.dataCollectionPeriod);
+		Json.put(o, "completenessDescription", d.completeness);
+		Json.put(o, "dataSelectionDescription", d.dataSelection);
+		Json.put(o, "reviewDetails", d.reviewDetails);
+		Json.put(o, "dataTreatmentDescription", d.dataTreatment);
+		Json.put(o, "inventoryMethodDescription", d.inventoryMethod);
+		Json.put(o, "modelingConstantsDescription", d.modelingConstants);
+		Json.put(o, "samplingDescription", d.sampling);
+		Json.put(o, "restrictionsDescription", d.restrictions);
+		Json.put(o, "copyright", d.copyright);
+		Json.put(o, "intendedApplication", d.intendedApplication);
+		Json.put(o, "projectDescription", d.project);
+		Json.put(o, "geographyDescription", d.geography);
 
 		// time stamps
 		if (d.creationDate != null) {
 			Json.put(o, "creationDate", d.creationDate);
 		}
 		if (d.validFrom != null) {
-			Out.put(o, "validFrom", date(d.validFrom));
+			Json.put(o, "validFrom", date(d.validFrom));
 		}
 		if (d.validUntil != null) {
-			Out.put(o, "validUntil", date(d.validUntil));
+			Json.put(o, "validUntil", date(d.validUntil));
 		}
 	}
 

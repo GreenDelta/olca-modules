@@ -10,7 +10,6 @@ import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
@@ -34,26 +33,26 @@ class GlobalParameters {
 	/**
 	 * Export redefined global parameters if necessary.
 	 */
-	public static void sync(Project p, ExportConfig conf) {
-		if (skipSync(conf))
+	public static void sync(Project p, JsonExport exp) {
+		if (skipSync(exp))
 			return;
 		Set<String> names = new HashSet<>();
 		for (ProjectVariant v : p.variants)
 			names.addAll(getGlobals(v.parameterRedefs));
-		writeGlobals(names, conf);
+		writeGlobals(names, exp);
 	}
 
 	/**
 	 * Export redefined global parameters if necessary.
 	 */
-	public static void sync(ProductSystem sys, ExportConfig conf) {
-		if (skipSync(conf))
+	public static void sync(ProductSystem sys, JsonExport exp) {
+		if (skipSync(exp))
 			return;
 		Set<String> names = new HashSet<>();
 		for (var set : sys.parameterSets) {
 			names.addAll(getGlobals(set.parameters));
 		}
-		writeGlobals(names, conf);
+		writeGlobals(names, exp);
 	}
 
 	/**
@@ -70,8 +69,8 @@ class GlobalParameters {
 	 * Exports global parameters that are referenced from the formulas in the given
 	 * process if necessary.
 	 */
-	public static void sync(Process p, ExportConfig conf) {
-		if (skipSync(conf))
+	public static void sync(Process p, JsonExport exp) {
+		if (skipSync(exp))
 			return;
 		Set<String> names = new HashSet<>();
 		for (Exchange e : p.exchanges) {
@@ -81,15 +80,15 @@ class GlobalParameters {
 		}
 		names.addAll(getFormulaVariables(p.parameters));
 		filterLocals(names, p.parameters);
-		writeGlobals(names, conf);
+		writeGlobals(names, exp);
 	}
 
 	/**
 	 * Exports global parameters that are referenced from the formulas in the given
 	 * impact category if necessary.
 	 */
-	public static void sync(ImpactCategory impact, ExportConfig conf) {
-		if (skipSync(conf))
+	public static void sync(ImpactCategory impact, JsonExport exp) {
+		if (skipSync(exp))
 			return;
 		Set<String> names = new HashSet<>();
 		for (ImpactFactor f : impact.impactFactors) {
@@ -98,22 +97,22 @@ class GlobalParameters {
 		}
 		names.addAll(getFormulaVariables(impact.parameters));
 		filterLocals(names, impact.parameters);
-		writeGlobals(names, conf);
+		writeGlobals(names, exp);
 	}
 
 	/**
 	 * Exports global parameters that are referenced from the formula of the given
 	 * parameter if necessary.
 	 */
-	public static void sync(Parameter p, ExportConfig conf) {
-		if (skipSync(conf))
+	public static void sync(Parameter p, JsonExport exp) {
+		if (skipSync(exp))
 			return;
 		Set<String> names = new HashSet<>();
 		if (p.isInputParameter)
 			return;
 		names.addAll(Formula.getVariables(p.formula));
 		names.addAll(getFormulaVariables(p.uncertainty));
-		writeGlobals(names, conf);
+		writeGlobals(names, exp);
 	}
 
 	private static Set<String> getFormulaVariables(List<Parameter> params) {
@@ -156,12 +155,12 @@ class GlobalParameters {
 		return names;
 	}
 
-	private static void writeGlobals(Set<String> names, ExportConfig conf) {
+	private static void writeGlobals(Set<String> names, JsonExport exp) {
 		if (names.isEmpty())
 			return;
 
 		// load all global parameters
-		Map<String, Parameter> globals = new ParameterDao(conf.db)
+		Map<String, Parameter> globals = new ParameterDao(exp.db)
 				.getGlobalParameters()
 				.stream()
 				.filter(p -> p.name != null)
@@ -170,22 +169,19 @@ class GlobalParameters {
 						p -> p));
 
 		for (String name : names) {
-			Parameter g = globals.get(name.trim().toLowerCase());
+			var g = globals.get(name.trim().toLowerCase());
 			if (g == null)
 				continue;
-			if (conf.hasVisited(ModelType.PARAMETER, g.id))
-				continue;
-			conf.refFn.accept(g);
+			exp.write(g);
 			// the global parameter could have again a formula
 			// that contains references to other global parameters.
-			sync(g, conf);
+			sync(g, exp);
 		}
 	}
 
-	private static boolean skipSync(ExportConfig conf) {
-		return conf == null
-				|| !conf.exportReferences
-				|| conf.refFn == null
-				|| conf.db == null;
+	private static boolean skipSync(JsonExport exp) {
+		return exp == null
+				|| !exp.exportReferences
+				|| exp.db == null;
 	}
 }

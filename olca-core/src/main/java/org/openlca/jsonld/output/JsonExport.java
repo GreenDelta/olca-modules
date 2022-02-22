@@ -10,9 +10,12 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
+import com.google.gson.JsonArray;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.FileStore;
@@ -90,7 +93,27 @@ public class JsonExport {
 		return set.contains(id);
 	}
 
+	JsonObject handleRef(ModelType type, long id) {
+		if (hasVisited(type, id)) {
+			var d = db.getDescriptor()
+
+		}
+	}
+
+	JsonArray handleRefs(List<? extends CategorizedEntity> list) {
+		if (list == null || list.isEmpty())
+			return null;
+		var array = new JsonArray();
+		list.stream()
+			.map(this::handleRef)
+			.filter(Objects::nonNull)
+			.forEach(array::add);
+		return array;
+	}
+
 	JsonObject handleRef(CategorizedEntity e) {
+		if (e == null)
+			return null;
 		if (exportReferences) {
 			write(e);
 		}
@@ -182,19 +205,19 @@ public class JsonExport {
 		if (entity instanceof Currency)
 			return (Writer<T>) new CurrencyWriter(this);
 		if (entity instanceof Epd)
-			return (Writer<T>) new EpdWriter(conf);
+			return (Writer<T>) new EpdWriter(this);
 		if (entity instanceof FlowProperty)
-			return (Writer<T>) new FlowPropertyWriter(conf);
+			return (Writer<T>) new FlowPropertyWriter(this);
 		if (entity instanceof Flow)
-			return (Writer<T>) new FlowWriter(conf);
+			return (Writer<T>) new FlowWriter(this);
 		if (entity instanceof ImpactCategory)
-			return (Writer<T>) new ImpactCategoryWriter(conf);
+			return (Writer<T>) new ImpactCategoryWriter(this);
 		if (entity instanceof ImpactMethod)
-			return (Writer<T>) new ImpactMethodWriter(conf);
+			return (Writer<T>) new ImpactMethodWriter(this);
 		if (entity instanceof Location)
-			return (Writer<T>) new LocationWriter(conf);
+			return (Writer<T>) new LocationWriter(this);
 		if (entity instanceof Parameter)
-			return (Writer<T>) new ParameterWriter(conf);
+			return (Writer<T>) new ParameterWriter(this);
 		if (entity instanceof Process)
 			return (Writer<T>) new ProcessWriter(conf);
 		if (entity instanceof Result)

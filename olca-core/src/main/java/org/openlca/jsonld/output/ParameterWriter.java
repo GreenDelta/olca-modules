@@ -3,11 +3,12 @@ package org.openlca.jsonld.output;
 import org.openlca.core.model.Parameter;
 
 import com.google.gson.JsonObject;
+import org.openlca.jsonld.Json;
 
 class ParameterWriter extends Writer<Parameter> {
 
-	ParameterWriter(ExportConfig conf) {
-		super(conf);
+	ParameterWriter(JsonExport exp) {
+		super(exp);
 	}
 
 	@Override
@@ -16,17 +17,17 @@ class ParameterWriter extends Writer<Parameter> {
 		if (obj == null)
 			return null;
 		mapAttr(obj, param);
-		GlobalParameters.sync(param, conf);
+		GlobalParameters.sync(param, exp);
 		return obj;
 	}
 
 	static void mapAttr(JsonObject json, Parameter param) {
 		addBasicAttributes(param, json);
-		Out.put(json, "parameterScope", param.scope);
-		Out.put(json, "inputParameter", param.isInputParameter);
-		Out.put(json, "value", param.value);
-		Out.put(json, "formula", param.formula);
-		Out.put(json, "uncertainty", Uncertainties.map(param.uncertainty));
+		Json.put(json, "parameterScope", param.scope);
+		Json.put(json, "inputParameter", param.isInputParameter);
+		Json.put(json, "value", param.value);
+		Json.put(json, "formula", param.formula);
+		Json.put(json, "uncertainty", Uncertainties.map(param.uncertainty));
 	}
 
 }

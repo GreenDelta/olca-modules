@@ -28,6 +28,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
@@ -147,14 +148,15 @@ public class Json {
 		put(json, property, str);
 	}
 
-	public static void put(JsonObject json, String property, Number value) {
+	public static void put(JsonObject json, String property, Boolean value) {
 		if (json == null || property == null || value == null)
 			return;
 		json.addProperty(property, value);
 	}
 
-	public static void put(JsonObject json, String property, double value) {
-		if (json == null || property == null)
+
+	public static void put(JsonObject json, String property, Number value) {
+		if (json == null || property == null || value == null)
 			return;
 		json.addProperty(property, value);
 	}
@@ -251,15 +253,17 @@ public class Json {
 		obj.addProperty(prop, val);
 	}
 
-	public static JsonObject asRef(CategorizedEntity e) {
+	public static JsonObject asRef(RootEntity e) {
 		if (e == null)
 			return null;
 		var obj = new JsonObject();
 		put(obj, "@type", e.getClass().getSimpleName());
 		put(obj, "@id", e.refId);
 		put(obj, "name", e.name);
-		if (e.category != null) {
-			put(obj, "category", e.category.toPath());
+
+		if (e instanceof CategorizedEntity ce
+			&& ce.category != null) {
+			put(obj, "category", ce.category.toPath());
 		}
 
 		// process
@@ -290,6 +294,19 @@ public class Json {
 			}
 		}
 
+		return obj;
+	}
+
+	public static JsonObject asRef(Descriptor d) {
+		if (d == null)
+			return null;
+		var obj = new JsonObject();
+		if (d.type != null) {
+			String type = d.type.getModelClass().getSimpleName();
+			put(obj, "@type", type);
+		}
+		put(obj, "@id", d.refId);
+		put(obj, "name", d.name);
 		return obj;
 	}
 
