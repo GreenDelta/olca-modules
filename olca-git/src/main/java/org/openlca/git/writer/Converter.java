@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openlca.core.model.ModelType;
-import org.openlca.git.Config;
+import org.openlca.git.GitConfig;
 import org.openlca.git.model.Diff;
 import org.openlca.git.model.DiffType;
 import org.slf4j.Logger;
@@ -32,13 +32,13 @@ import org.thavam.util.concurrent.blockingMap.BlockingMap;
 class Converter {
 
 	private static final Logger log = LoggerFactory.getLogger(Converter.class);
-	private final Config config;
+	private final GitConfig config;
 	private final BlockingMap<String, byte[]> queue = new BlockingHashMap<>();
 	private final ExecutorService threads;
 	private Deque<Diff> diffs;
 	private final AtomicInteger queueSize = new AtomicInteger();
 
-	Converter(Config config, ExecutorService threads) {
+	Converter(GitConfig config, ExecutorService threads) {
 		this.config = config;
 		this.threads = threads;
 	}

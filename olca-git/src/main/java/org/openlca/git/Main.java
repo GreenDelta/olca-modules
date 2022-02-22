@@ -38,7 +38,7 @@ public class Main {
 				var repo = new FileRepository(repoDir)) {
 			var storeFile = new File(tmp, "object-id.store");
 			var store = ObjectIdStore.open(storeFile);
-			var config = new Config(database, store, repo, committer);
+			var config = new GitConfig(database, store, repo, committer);
 			config.checkExisting = false;
 			var writer = new DbWriter(config);
 
@@ -89,10 +89,10 @@ public class Main {
 				ModelType.IMPACT_CATEGORY,
 				ModelType.IMPACT_METHOD
 		};
-		private final Config config;
+		private final GitConfig config;
 		private final CommitWriter writer;
 
-		private DbWriter(Config config) {
+		private DbWriter(GitConfig config) {
 			this.config = config;
 			this.writer = new CommitWriter(config);
 		}
