@@ -3,11 +3,12 @@ package org.openlca.jsonld.output;
 import org.openlca.core.model.Currency;
 
 import com.google.gson.JsonObject;
+import org.openlca.jsonld.Json;
 
 class CurrencyWriter extends Writer<Currency> {
 
-	CurrencyWriter(ExportConfig conf) {
-		super(conf);
+	CurrencyWriter(JsonExport export) {
+		super(export);
 	}
 
 	@Override
@@ -15,9 +16,9 @@ class CurrencyWriter extends Writer<Currency> {
 		JsonObject obj = super.write(c);
 		if (obj == null)
 			return null;
-		Out.put(obj, "code", c.code);
-		Out.put(obj, "conversionFactor", c.conversionFactor);
-		Out.put(obj, "referenceCurrency", c.referenceCurrency, conf);
+		Json.put(obj, "code", c.code);
+		Json.put(obj, "conversionFactor", c.conversionFactor);
+		Json.put(obj, "referenceCurrency", exp.handleRef(c.referenceCurrency));
 		return obj;
 	}
 }

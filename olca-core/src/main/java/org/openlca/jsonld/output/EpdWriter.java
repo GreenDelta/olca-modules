@@ -1,13 +1,15 @@
 package org.openlca.jsonld.output;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.openlca.core.model.Epd;
+import org.openlca.jsonld.Json;
 
 class EpdWriter extends Writer<Epd> {
 
-	EpdWriter(ExportConfig config) {
-		super(config);
+	EpdWriter(JsonExport export) {
+		super(export);
 	}
 
 	@Override
@@ -16,11 +18,11 @@ class EpdWriter extends Writer<Epd> {
 		if (json == null)
 			return null;
 
-		Out.put(json, "urn", epd.urn);
-		Out.put(json, "manufacturer", epd.manufacturer, conf);
-		Out.put(json, "verifier", epd.verifier, conf);
-		Out.put(json, "programOperator", epd.programOperator, conf);
-		Out.put(json, "pcr", epd.pcr, conf);
+		Json.put(json, "urn", epd.urn);
+		Json.put(json, "manufacturer", epd.manufacturer, conf);
+		Json.put(json, "verifier", epd.verifier, conf);
+		Json.put(json, "programOperator", epd.programOperator, conf);
+		Json.put(json, "pcr", epd.pcr, conf);
 
 		if (epd.product != null) {
 			var productJson = new JsonObject();

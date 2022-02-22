@@ -8,8 +8,8 @@ import com.google.gson.JsonObject;
 
 class CategoryWriter extends Writer<Category> {
 
-	CategoryWriter(ExportConfig conf) {
-		super(conf);
+	CategoryWriter(JsonExport exp) {
+		super(exp);
 	}
 
 	@Override
@@ -19,7 +19,7 @@ class CategoryWriter extends Writer<Category> {
 			return null;
 		Json.put(obj, "@id", Categories.createRefId(category));
 		Json.put(obj, "modelType", category.modelType);
-		Json.put(obj, "category", category.category, conf);
+		Json.put(obj, "category", exp.handleRef(category.category));
 		return obj;
 	}
 

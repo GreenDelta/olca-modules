@@ -147,6 +147,31 @@ public class Json {
 		put(json, property, str);
 	}
 
+	public static void put(JsonObject json, String property, Number value) {
+		if (json == null || property == null || value == null)
+			return;
+		json.addProperty(property, value);
+	}
+
+	public static void put(JsonObject json, String property, double value) {
+		if (json == null || property == null)
+			return;
+		json.addProperty(property, value);
+	}
+
+	public static void put(JsonObject json, String property, JsonElement elem) {
+		if (json == null || property == null || elem == null)
+			return;
+		json.add(property, elem);
+	}
+
+	public static <T extends Enum<T>> void put(
+		JsonObject json, String property, Enum<T> value) {
+		if (value == null)
+			return;
+		put(json, property, Enums.getLabel(value));
+	}
+
 	public static Optional<Double> getDouble(JsonObject obj, String property) {
 		if (obj == null || property == null)
 			return Optional.empty();

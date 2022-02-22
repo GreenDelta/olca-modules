@@ -7,12 +7,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
+import gnu.trove.set.TLongSet;
+import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Callback;
 import org.openlca.core.model.Callback.Message;
+import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
@@ -33,9 +41,12 @@ import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.jsonld.Json;
 import org.openlca.jsonld.JsonStoreWriter;
 
 import com.google.gson.JsonObject;
+import org.openlca.jsonld.MemStore;
+import org.openlca.util.Copy;
 
 /**
  * Writes entities to an entity store (e.g. a document or zip file). It also
@@ -43,10 +54,47 @@ import com.google.gson.JsonObject;
  */
 public class JsonExport {
 
-	private final ExportConfig conf;
+	final IDatabase db;
+	final JsonStoreWriter writer;
+	boolean exportReferences = true;
+	boolean exportProviders = false;
+	private final Map<ModelType, TLongSet> visited = new EnumMap<>(ModelType.class);
 
-	public JsonExport(IDatabase database, JsonStoreWriter store) {
-		conf = ExportConfig.create(database, store);
+	public JsonExport(IDatabase db, JsonStoreWriter writer) {
+		this.db = db;
+		this.writer = writer;
+	}
+
+	public JsonExport withDefaultProviders(boolean value) {
+		exportProviders = value;
+		return this;
+	}
+
+	public JsonExport withReferences(boolean value) {
+		exportReferences = value;
+		return this;
+	}
+
+	void setVisited(RootEntity entity) {
+		if (entity == null)
+			return;
+		var type = ModelType.of(entity);
+		var set = visited.computeIfAbsent(type, k -> new TLongHashSet());
+		set.add(entity.id);
+	}
+
+	boolean hasVisited(ModelType type, long id) {
+		var set = visited.get(type);
+		if (set == null)
+			return false;
+		return set.contains(id);
+	}
+
+	JsonObject handleRef(CategorizedEntity e) {
+		if (exportReferences) {
+			write(e);
+		}
+		return Json.asRef(e);
 	}
 
 	public <T extends RootEntity> void write(T entity) {
@@ -56,23 +104,22 @@ public class JsonExport {
 	public <T extends RootEntity> void write(T entity, Callback cb) {
 		if (entity == null)
 			return;
-		var type = ModelType.forModelClass(entity.getClass());
+		var type = ModelType.of(entity);
 		if (type == null || entity.refId == null) {
-			warn(cb, "no refId, or type is unknown", entity);
+			warn(cb, "no refId; or type is unknown", entity);
 			return;
 		}
-		if (conf.hasVisited(type, entity.id))
+		if (hasVisited(type, entity.id))
 			return;
-		Writer<T> writer = getWriter(entity, conf);
-		if (writer == null) {
+		Writer<T> w = getWriter(entity);
+		if (w == null) {
 			warn(cb, "no writer found for type " + type, entity);
 			return;
 		}
 		try {
-			conf.refFn = ref -> write(ref, cb);
-			JsonObject obj = writer.write(entity);
-			conf.store.put(type, obj);
-			if (writer.isExportExternalFiles())
+			var obj = w.write(entity);
+			writer.put(type, obj);
+			if (w.isExportExternalFiles())
 				writeExternalFiles(entity, type, cb);
 			if (cb != null)
 				cb.apply(Message.info("data set exported"), entity);
@@ -88,13 +135,13 @@ public class JsonExport {
 		cb.apply(Message.warn(message), entity);
 	}
 
-	private void writeExternalFiles(RootEntity entity, ModelType type,
-																	Callback cb) {
-		if (entity == null || conf.db == null
-			|| conf.db.getFileStorageLocation() == null
-			|| conf.store == null)
+	private void writeExternalFiles(
+		RootEntity entity, ModelType type, Callback cb) {
+		if (entity == null || db == null
+			|| db.getFileStorageLocation() == null
+			|| writer == null)
 			return;
-		FileStore fs = new FileStore(conf.db.getFileStorageLocation());
+		FileStore fs = new FileStore(db.getFileStorageLocation());
 		File dir = fs.getFolder(entity);
 		if (dir == null || !dir.exists())
 			return;
@@ -107,8 +154,8 @@ public class JsonExport {
 		}
 	}
 
-	public static <T extends RootEntity> JsonObject toJson(T entity,
-																												 IDatabase database) {
+	public static <T extends RootEntity> JsonObject toJson(
+		T entity, IDatabase db) {
 		if (entity == null)
 			return new JsonObject();
 		Writer<T> writer = getWriter(entity, ExportConfig.create(database));
@@ -118,21 +165,22 @@ public class JsonExport {
 	public static <T extends RootEntity> JsonObject toJson(T entity) {
 		if (entity == null)
 			return new JsonObject();
-		Writer<T> writer = getWriter(entity, ExportConfig.create());
+		var exp = new JsonExport(null,new MemStore() )
+			.withReferences(false);
+		Writer<T> writer = exp.getWriter(entity);
 		return writer.write(entity);
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T extends RootEntity> Writer<T> getWriter(
-		T entity, ExportConfig conf) {
+	private <T extends RootEntity> Writer<T> getWriter(T entity) {
 		if (entity == null)
 			return null;
 		if (entity instanceof Actor)
-			return (Writer<T>) new ActorWriter(conf);
+			return (Writer<T>) new ActorWriter(this);
 		if (entity instanceof Category)
-			return (Writer<T>) new CategoryWriter(conf);
+			return (Writer<T>) new CategoryWriter(this);
 		if (entity instanceof Currency)
-			return (Writer<T>) new CurrencyWriter(conf);
+			return (Writer<T>) new CurrencyWriter(this);
 		if (entity instanceof Epd)
 			return (Writer<T>) new EpdWriter(conf);
 		if (entity instanceof FlowProperty)
@@ -168,15 +216,9 @@ public class JsonExport {
 		return null;
 	}
 
-	public void setExportDefaultProviders(boolean value) {
-		conf.exportProviders = value;
-	}
 
-	public void setExportReferences(boolean value) {
-		conf.exportReferences = value;
-	}
 
-	private class Copy extends SimpleFileVisitor<Path> {
+	private static class Copy extends SimpleFileVisitor<Path> {
 
 		private final String refId;
 		private final ModelType type;

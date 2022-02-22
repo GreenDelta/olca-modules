@@ -7,8 +7,8 @@ import org.openlca.jsonld.Json;
 
 class ActorWriter extends Writer<Actor> {
 
-	ActorWriter(ExportConfig conf) {
-		super(conf);
+	ActorWriter(JsonExport export) {
+		super(export);
 	}
 
 	@Override
