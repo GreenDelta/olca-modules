@@ -19,7 +19,7 @@ import org.openlca.git.model.Entry.EntryType;
 import org.openlca.git.model.Reference;
 import org.openlca.git.util.Constants;
 import org.openlca.git.util.DiffEntries;
-import org.openlca.git.util.JsonGitReader;
+import org.openlca.git.util.GitStoreReader;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
 
@@ -95,7 +95,7 @@ public class GitMerge {
 
 	private List<Reference> runImport(String localCommitId, String remoteCommitId) throws IOException {
 		var imported = new ArrayList<Reference>();
-		var jsonStore = new JsonGitReader(git, localCommitId, remoteCommitId);
+		var jsonStore = new GitStoreReader(git, localCommitId, remoteCommitId);
 		var jsonImport = new JsonImport(jsonStore, database);
 		jsonImport.setUpdateMode(UpdateMode.ALWAYS);
 		for (var type : typeOrder) {

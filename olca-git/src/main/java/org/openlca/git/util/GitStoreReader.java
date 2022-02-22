@@ -15,7 +15,7 @@ import org.openlca.util.Strings;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-public class JsonGitReader implements JsonStoreReader {
+public class GitStoreReader implements JsonStoreReader {
 
 	private static final Gson gson = new Gson();
 	private static final JsonObject defaultContext;
@@ -30,7 +30,7 @@ public class JsonGitReader implements JsonStoreReader {
 		defaultContext.addProperty("@vocab", "http://openlca.org/schema/v1.1/");
 	}
 
-	public JsonGitReader(FileRepository repo, String headCommitId, String remoteCommitId) {
+	public GitStoreReader(FileRepository repo, String headCommitId, String remoteCommitId) {
 		this.categories = Categories.of(Entries.of(repo), remoteCommitId);
 		this.references = References.of(repo);
 		this.datasets = Datasets.of(repo);
