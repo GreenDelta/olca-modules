@@ -12,11 +12,13 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.ResultDao;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.jsonld.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,11 +33,11 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 	private FlowDao flowDao;
 	private ProductSystem system;
 
-	ProductSystemWriter(ExportConfig conf) {
-		super(conf);
-		if (conf.db != null) {
-			processDao = new ProcessDao(conf.db);
-			flowDao = new FlowDao(conf.db);
+	ProductSystemWriter(JsonExport exp) {
+		super(exp);
+		if (exp.db != null) {
+			processDao = new ProcessDao(exp.db);
+			flowDao = new FlowDao(exp.db);
 		}
 	}
 
@@ -48,31 +50,29 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		this.system = system;
 		TLongLongHashMap exchangeIDs = exchangeIDs(system);
 
-		Out.put(obj, "referenceProcess", system.referenceProcess,
-				conf);
+		Json.put(obj, "referenceProcess", exp.handleRef(system.referenceProcess));
 
 		// the reference exchange
 		if (system.referenceExchange != null) {
-			JsonObject eObj = new JsonObject();
-			Out.put(eObj, "@type", "Exchange");
-			Out.put(eObj, "internalId", exchangeIDs.get(
-					system.referenceExchange.id));
-			Out.put(eObj, "flow", system.referenceExchange.flow, conf);
-			Out.put(obj, "referenceExchange", eObj);
+			var eObj = new JsonObject();
+			Json.put(eObj, "@type", "Exchange");
+			Json.put(eObj, "internalId", exchangeIDs.get(system.referenceExchange.id));
+			Json.put(eObj, "flow", exp.handleRef(system.referenceExchange.flow));
+			Json.put(obj, "referenceExchange", eObj);
 		}
 
 		FlowProperty property = null;
 		if (system.targetFlowPropertyFactor != null)
 			property = system.targetFlowPropertyFactor.flowProperty;
-		Out.put(obj, "targetFlowProperty", property, conf);
-		Out.put(obj, "targetUnit", system.targetUnit, conf);
-		Out.put(obj, "targetAmount", system.targetAmount);
+		Json.put(obj, "targetFlowProperty", exp.handleRef(property));
+		Json.put(obj, "targetUnit", Json.asRef(system.targetUnit));
+		Json.put(obj, "targetAmount", system.targetAmount);
 
 		// map the parameter redefinitions
-		GlobalParameters.sync(system, conf);
+		GlobalParameters.sync(system, exp);
 		putParameterSets(obj, system.parameterSets);
 
-		if (conf.db == null)
+		if (exp.db == null)
 			return obj;
 		Map<Long, CategorizedDescriptor> processMap = mapProcesses(obj);
 		mapLinks(obj, processMap, exchangeIDs);
@@ -86,19 +86,18 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		Map<Long, FlowDescriptor> flows = getFlows();
 		for (ProcessLink link : system.processLinks) {
 			JsonObject obj = new JsonObject();
-			Out.put(obj, "@type", "ProcessLink");
-			JsonObject provider = References
-					.create(processMap.get(link.providerId), conf);
-			Out.put(obj, "provider", provider);
-			Out.put(obj, "flow",
-					References.create(flows.get(link.flowId), conf));
+			link.
+
+			Json.put(obj, "provider", exp.handleRef(ModelType.PROCESS, link.providerId));
+			Json.put(obj, "flow",
+				exp.handleRef(ModelType.FLOW, flows.get(link.flowId), conf));
 			JsonObject process = References
 					.create(processMap.get(link.processId), conf);
-			Out.put(obj, "process", process);
+			Json.put(obj, "process", process);
 			JsonObject eObj = new JsonObject();
-			Out.put(eObj, "@type", "Exchange");
-			Out.put(eObj, "internalId", exchangeIDs.get(link.exchangeId));
-			Out.put(obj, "exchange", eObj);
+			Json.put(eObj, "@type", "Exchange");
+			Json.put(eObj, "internalId", exchangeIDs.get(link.exchangeId));
+			Json.put(obj, "exchange", eObj);
 			links.add(obj);
 		}
 		Out.put(json, "processLinks", links);
@@ -182,15 +181,16 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		for (var set : sets) {
 			var jsonSet = new JsonObject();
 			jsonSets.add(jsonSet);
-			Out.put(jsonSet, "name", set.name);
-			Out.put(jsonSet, "description", set.description);
-			Out.put(jsonSet, "isBaseline", set.isBaseline);
+			Json.put(jsonSet, "name", set.name);
+			Json.put(jsonSet, "description", set.description);
+			Json.put(jsonSet, "isBaseline", set.isBaseline);
 			if (!set.parameters.isEmpty()) {
-				var params = ParameterRedefs.map(set.parameters, conf);
+				var params = ParameterRedefs.map(set.parameters, exp);
+
 				Out.put(jsonSet, "parameters", params);
 			}
 		}
-		Out.put(obj, "parameterSets", jsonSets);
+		Json.put(obj, "parameterSets", jsonSets);
 	}
 
 	@Override

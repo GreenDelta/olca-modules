@@ -229,13 +229,13 @@ public class JsonExport {
 		if (entity instanceof SocialIndicator)
 			return (Writer<T>) new SocialIndicatorWriter(this);
 		if (entity instanceof ProductSystem)
-			return (Writer<T>) new ProductSystemWriter(conf);
+			return (Writer<T>) new ProductSystemWriter(this);
 		if (entity instanceof Project)
-			return (Writer<T>) new ProjectWriter(conf);
+			return (Writer<T>) new ProjectWriter(this);
 		if (entity instanceof DQSystem)
-			return (Writer<T>) new DQSystemWriter(conf);
+			return (Writer<T>) new DQSystemWriter(this);
 		if (entity instanceof Unit)
-			return (Writer<T>) new UnitWriter(conf);
+			return (Writer<T>) new UnitWriter(this);
 		return null;
 	}
 
