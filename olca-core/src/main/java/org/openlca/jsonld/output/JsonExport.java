@@ -20,7 +20,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Callback;
 import org.openlca.core.model.Callback.Message;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
@@ -88,7 +88,7 @@ public class JsonExport {
 		return this;
 	}
 
-	void setVisited(CategorizedEntity entity) {
+	void setVisited(RootEntity entity) {
 		if (entity == null)
 			return;
 		var type = ModelType.of(entity);
@@ -104,12 +104,12 @@ public class JsonExport {
 	}
 
 	JsonObject handleRef(ModelType type, long id) {
-		if (type == null || !type.isCategorized() || db == null)
+		if (type == null || !type.isRoot() || db == null)
 			return null;
 		if (hasVisited(type, id) || !exportReferences)
 			return refs.get(type, id);
 
-		var dao = Daos.categorized(db, type);
+		var dao = Daos.root(db, type);
 		if (dao == null)
 			return null;
 		var entity = dao.getForId(id);
@@ -119,7 +119,7 @@ public class JsonExport {
 		return Json.asRef(entity);
 	}
 
-	JsonArray handleRefs(List<? extends CategorizedEntity> list) {
+	JsonArray handleRefs(List<? extends RootEntity> list) {
 		if (list == null || list.isEmpty())
 			return null;
 		var array = new JsonArray();
@@ -130,7 +130,7 @@ public class JsonExport {
 		return array;
 	}
 
-	JsonObject handleRef(CategorizedEntity e) {
+	JsonObject handleRef(RootEntity e) {
 		if (e == null)
 			return null;
 		if (exportReferences) {

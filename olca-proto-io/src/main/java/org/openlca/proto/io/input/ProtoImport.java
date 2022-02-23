@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
@@ -103,7 +103,7 @@ public class ProtoImport implements Runnable {
    * entity is also marked as handled so there is no need to call the
    * `putHandled` method again after this call.
    */
-  boolean skipUpdate(CategorizedEntity existing, ProtoWrap incoming) {
+  boolean skipUpdate(RootEntity existing, ProtoWrap incoming) {
     if (existing == null)
       return true;
     if (updateMode == UpdateMode.ALWAYS)
@@ -174,21 +174,21 @@ public class ProtoImport implements Runnable {
       return Daos.base(db, type).getForId(id);
 
     // try to load it with the refID
-    var dao = Daos.root(db, ModelType.forModelClass(type));
+    var dao = Daos.refDao(db, ModelType.forModelClass(type));
     return dao != null
       ? (T) dao.getForRefId(refID)
       : null;
   }
 
   @SuppressWarnings("unchecked")
-  public <T extends CategorizedEntity> Import<T> getImport(ModelType type) {
-    if (type == null || !type.isCategorized())
+  public <T extends RootEntity> Import<T> getImport(ModelType type) {
+    if (type == null || !type.isRoot())
       return null;
     return getImport((Class<T>) type.getModelClass());
   }
 
   @SuppressWarnings("unchecked")
-  public <T extends CategorizedEntity> Import<T> getImport(Class<T> type) {
+  public <T extends RootEntity> Import<T> getImport(Class<T> type) {
     // the comparisons are sorted by typical frequencies to minimize
     // comparisons
     // see https://gist.github.com/msrocka/b6a18064fbb76c8a8c3f1204839dd614

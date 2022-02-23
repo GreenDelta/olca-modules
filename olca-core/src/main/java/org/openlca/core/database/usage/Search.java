@@ -14,7 +14,7 @@ import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 class Search {
 
@@ -39,26 +39,26 @@ class Search {
 		this.database = database;
 	}
 
-	List<CategorizedDescriptor> queryFor(ModelType type, Set<Long> toFind,
-			String... inFields) {
+	List<RootDescriptor> queryFor(ModelType type, Set<Long> toFind,
+                                  String... inFields) {
 		return queryFor(type, "id", tableNames.get(type), toFind, inFields);
 	}
 
-	List<CategorizedDescriptor> queryFor(ModelType type, String idField,
-			String table, Set<Long> toFind, String... inFields) {
+	List<RootDescriptor> queryFor(ModelType type, String idField,
+                                  String table, Set<Long> toFind, String... inFields) {
 		Set<Long> ids = queryForIds(idField, table, toFind, inFields);
 		return loadDescriptors(type, ids);
 	}
 
-	List<CategorizedDescriptor> queryFor(ModelType type, String query) {
+	List<RootDescriptor> queryFor(ModelType type, String query) {
 		Set<Long> ids = queryForIds(query);
 		return loadDescriptors(type, ids);
 	}
 
-	List<CategorizedDescriptor> loadDescriptors(ModelType type, Set<Long> ids) {
+	List<RootDescriptor> loadDescriptors(ModelType type, Set<Long> ids) {
 		if (ids.isEmpty())
 			return Collections.emptyList();
-		return new ArrayList<>(Daos.categorized(database, type).getDescriptors(ids));
+		return new ArrayList<>(Daos.root(database, type).getDescriptors(ids));
 	}
 
 	Set<Long> queryForIds(ModelType type, Set<Long> toFind, String... inFields) {

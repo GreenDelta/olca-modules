@@ -1,8 +1,7 @@
 package org.openlca.proto.io.input;
 
 import com.google.protobuf.ProtocolStringList;
-import org.openlca.core.model.CategorizedEntity;
-import org.openlca.proto.Proto;
+import org.openlca.core.model.RootEntity;
 import org.openlca.proto.ProtoActor;
 import org.openlca.proto.ProtoCategory;
 import org.openlca.proto.ProtoCurrency;
@@ -40,7 +39,7 @@ abstract class ProtoWrap {
 
   abstract String library();
 
-  void mapTo(CategorizedEntity e, ProtoImport config) {
+  void mapTo(RootEntity e, ProtoImport config) {
     if (e == null)
       return;
 

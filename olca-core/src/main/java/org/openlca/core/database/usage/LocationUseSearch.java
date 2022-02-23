@@ -6,7 +6,7 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 
 /**
@@ -20,8 +20,8 @@ public class LocationUseSearch extends BaseUseSearch<LocationDescriptor> {
 	}
 
 	@Override
-	public List<CategorizedDescriptor> findUses(Set<Long> ids) {
-		List<CategorizedDescriptor> results = new ArrayList<>();
+	public List<RootDescriptor> findUses(Set<Long> ids) {
+		List<RootDescriptor> results = new ArrayList<>();
 		results.addAll(queryFor(ModelType.FLOW, ids, "f_location"));
 		results.addAll(queryFor(ModelType.PROCESS, ids, "f_location"));
 		return results;

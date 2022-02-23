@@ -16,7 +16,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_flows")
-public class Flow extends CategorizedEntity {
+public class Flow extends RootEntity {
 
 	@Column(name = "flow_type")
 	@Enumerated(EnumType.STRING)

@@ -8,7 +8,7 @@ import java.util.UUID;
 
 import org.junit.Test;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
 import org.openlca.proto.grpc.DataFetchServiceGrpc;
@@ -40,7 +40,7 @@ public class DataUpdateTest {
 					// the ID of categories is calculated from the category
 					// name; we do not test this behaviour here
 					// TODO: support results
-					if (!type.isCategorized()
+					if (!type.isRoot()
 							|| type == ModelType.CATEGORY
 							|| type == ModelType.RESULT)
 						continue;
@@ -52,7 +52,7 @@ public class DataUpdateTest {
 					assertTrue(Messages.isEmpty(dataSet));
 
 					// create an instance and insert it
-					var instance = (CategorizedEntity) type.getModelClass()
+					var instance = (RootEntity) type.getModelClass()
 							.getConstructor()
 							.newInstance();
 					instance.refId = id;

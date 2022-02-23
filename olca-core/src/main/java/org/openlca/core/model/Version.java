@@ -56,15 +56,15 @@ public class Version {
 		return new Version(version).toString();
 	}
 
-	public static void incMajor(CategorizedEntity entity) {
+	public static void incMajor(RootEntity entity) {
 		inc(entity, Version::incMajor);
 	}
 
-	public static void incMinor(CategorizedEntity entity) {
+	public static void incMinor(RootEntity entity) {
 		inc(entity, Version::incMinor);
 	}
 
-	public static void incUpdate(CategorizedEntity entity) {
+	public static void incUpdate(RootEntity entity) {
 		inc(entity, Version::incUpdate);
 	}
 
@@ -73,7 +73,7 @@ public class Version {
 		return v.toString();
 	}
 
-	private static void inc(CategorizedEntity entity, Consumer<Version> inc) {
+	private static void inc(RootEntity entity, Consumer<Version> inc) {
 		var v = new Version(entity.version);
 		inc.accept(v);
 		entity.version = v.getValue();

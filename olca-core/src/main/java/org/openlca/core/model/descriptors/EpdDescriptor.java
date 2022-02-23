@@ -2,7 +2,7 @@ package org.openlca.core.model.descriptors;
 
 import org.openlca.core.model.ModelType;
 
-public class EpdDescriptor extends CategorizedDescriptor {
+public class EpdDescriptor extends RootDescriptor {
 
 	public EpdDescriptor() {
 		this.type = ModelType.EPD;

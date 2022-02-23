@@ -10,7 +10,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.results.FullResult;
 
 public class SelfLoopAnalysisTest {
@@ -86,8 +86,8 @@ public class SelfLoopAnalysisTest {
 		return null;
 	}
 
-	private CategorizedDescriptor process(String name) {
-		for (CategorizedDescriptor p : result.getProcesses()) {
+	private RootDescriptor process(String name) {
+		for (RootDescriptor p : result.getProcesses()) {
 			if (name.equals(p.name))
 				return p;
 		}

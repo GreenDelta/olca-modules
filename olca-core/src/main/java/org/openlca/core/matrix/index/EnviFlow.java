@@ -3,7 +3,7 @@ package org.openlca.core.matrix.index;
 import java.util.Objects;
 
 import org.openlca.core.model.AbstractExchange;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
@@ -85,7 +85,7 @@ public record EnviFlow(
 			flow.name = d.name;
 			flow.description = d.description;
 			flow.refId = d.refId;
-			if (d instanceof CategorizedDescriptor cd) {
+			if (d instanceof RootDescriptor cd) {
 				flow.category = cd.category;
 			}
 		}

@@ -151,7 +151,7 @@ public class Main {
 		private void delete() throws IOException {
 			var categoryPath = Categories.pathsOf(config.database);
 			for (var type : REF_DATA_TYPES) {
-				for (var d : Daos.categorized(config.database, type).getDescriptors()) {
+				for (var d : Daos.root(config.database, type).getDescriptors()) {
 					config.store.invalidate(categoryPath, d);
 				}
 				if (type == ModelType.CURRENCY) {
@@ -163,7 +163,7 @@ public class Main {
 					}
 					dao.deleteAll();
 				} else {
-					Daos.categorized(config.database, type).deleteAll();
+					Daos.root(config.database, type).deleteAll();
 				}
 			}
 			config.store.save();

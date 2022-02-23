@@ -6,7 +6,7 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
 
 /**
@@ -22,8 +22,8 @@ public class FlowPropertyUseSearch extends
 	}
 
 	@Override
-	public List<CategorizedDescriptor> findUses(Set<Long> ids) {
-		List<CategorizedDescriptor> results = new ArrayList<>();
+	public List<RootDescriptor> findUses(Set<Long> ids) {
+		List<RootDescriptor> results = new ArrayList<>();
 		results.addAll(queryFor(ModelType.FLOW, "f_flow",
 				"tbl_flow_property_factors", ids, "f_flow_property"));
 		results.addAll(queryFor(ModelType.UNIT_GROUP, ids,

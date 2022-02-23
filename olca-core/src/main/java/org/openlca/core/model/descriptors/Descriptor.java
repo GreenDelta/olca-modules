@@ -1,7 +1,7 @@
 package org.openlca.core.model.descriptors;
 
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Copyable;
 import org.openlca.core.model.Currency;
@@ -96,8 +96,8 @@ public class Descriptor implements Copyable<Descriptor> {
 		return d;
 	}
 
-	static CategorizedDescriptor createUnknownDescriptor(CategorizedEntity e) {
-		return setBaseValues(e, new CategorizedDescriptor());
+	static RootDescriptor createUnknownDescriptor(RootEntity e) {
+		return setBaseValues(e, new RootDescriptor());
 	}
 
 	static <T extends Descriptor> T setBaseValues(RefEntity e, T d) {
@@ -108,8 +108,8 @@ public class Descriptor implements Copyable<Descriptor> {
 		return d;
 	}
 
-	static <T extends CategorizedDescriptor> T setBaseValues(
-		CategorizedEntity e, T d) {
+	static <T extends RootDescriptor> T setBaseValues(
+		RootEntity e, T d) {
 		Descriptor.setBaseValues((RefEntity) e, d);
 		if (e.category != null) {
 			d.category = e.category.id;
@@ -262,7 +262,7 @@ public class Descriptor implements Copyable<Descriptor> {
 			: null;
 	}
 
-	public static CategorizedDescriptor of(CategorizedEntity entity) {
+	public static RootDescriptor of(RootEntity entity) {
 		if (entity == null)
 			return null;
 		if (entity instanceof Project project)
@@ -307,8 +307,8 @@ public class Descriptor implements Copyable<Descriptor> {
 	public static Descriptor of(RefEntity entity) {
 		if (entity == null)
 			return null;
-		if (entity instanceof CategorizedEntity)
-			return of((CategorizedEntity) entity);
+		if (entity instanceof RootEntity)
+			return of((RootEntity) entity);
 		if (entity instanceof NwSet)
 			return of((NwSet) entity);
 		if (entity instanceof Unit)
@@ -337,8 +337,8 @@ public class Descriptor implements Copyable<Descriptor> {
 		to.version = from.version;
 		to.library = from.library;
 		to.tags = from.tags;
-		if (from instanceof CategorizedDescriptor fromCat
-			&& to instanceof CategorizedDescriptor toCat) {
+		if (from instanceof RootDescriptor fromCat
+			&& to instanceof RootDescriptor toCat) {
 			toCat.category = fromCat.category;
 		}
 	}

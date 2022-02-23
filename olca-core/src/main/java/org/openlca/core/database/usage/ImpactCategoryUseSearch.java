@@ -7,7 +7,7 @@ import java.util.Set;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 public class ImpactCategoryUseSearch extends BaseUseSearch<ImpactDescriptor> {
@@ -17,7 +17,7 @@ public class ImpactCategoryUseSearch extends BaseUseSearch<ImpactDescriptor> {
 	}
 
 	@Override
-	public List<CategorizedDescriptor> findUses(Set<Long> impactIDs) {
+	public List<RootDescriptor> findUses(Set<Long> impactIDs) {
 		var query = "select f_impact_method, " +
 				"f_impact_category from tbl_impact_links";
 		var methodIDs = new HashSet<Long>();

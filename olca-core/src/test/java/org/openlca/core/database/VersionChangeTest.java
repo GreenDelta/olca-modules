@@ -4,7 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactMethod;
@@ -25,13 +25,13 @@ public class VersionChangeTest {
 	@Test
 	public void testUpdate() throws Exception {
 		for (Class<?> clazz : classes) {
-			CategorizedEntity entity = (CategorizedEntity) clazz.newInstance();
+			RootEntity entity = (RootEntity) clazz.newInstance();
 			testUpdate(entity);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends CategorizedEntity> void testUpdate(T instance)
+	private <T extends RootEntity> void testUpdate(T instance)
 			throws Exception {
 		BaseDao<T> dao = (BaseDao<T>) Daos.base(db, instance.getClass());
 		instance = dao.insert(instance);

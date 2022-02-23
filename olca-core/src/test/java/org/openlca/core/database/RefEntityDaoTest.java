@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.openlca.core.ListUtils;
 import org.openlca.core.Tests;
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.Flow;
@@ -23,7 +23,7 @@ import org.openlca.core.model.Result;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class CategorizedEntityDaoTest {
+public class RefEntityDaoTest {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -53,8 +53,8 @@ public class CategorizedEntityDaoTest {
 		run(Result.class, new ResultDao(db));
 	}
 
-	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void run(
-			Class<T> clazz, CategorizedEntityDao<T, V> dao) throws Exception {
+	private <T extends RootEntity, V extends RootDescriptor> void run(
+			Class<T> clazz, RootEntityDao<T, V> dao) throws Exception {
 		log.trace("run category entity tests for {}", clazz);
 		T instance = makeNew(clazz);
 		dao.insert(instance);
@@ -69,16 +69,16 @@ public class CategorizedEntityDaoTest {
 	}
 
 
-	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void testFindForNullCategory(
-			CategorizedEntityDao<T, V> dao, T instance) {
+	private <T extends RootEntity, V extends RootDescriptor> void testFindForNullCategory(
+		RootEntityDao<T, V> dao, T instance) {
 		List<V> descriptors = dao.getDescriptors(Optional.empty());
 		Descriptor descriptor = ListUtils.findDescriptor(instance.id,
 				descriptors);
 		Assert.assertNotNull(descriptor);
 	}
 
-	private <T extends CategorizedEntity, V extends CategorizedDescriptor> Category addCategory(
-			Class<T> clazz, CategorizedEntityDao<T, V> dao, T instance) {
+	private <T extends RootEntity, V extends RootDescriptor> Category addCategory(
+		Class<T> clazz, RootEntityDao<T, V> dao, T instance) {
 		Category category = new Category();
 		category.refId = UUID.randomUUID().toString();
 		category.name = "test_category";
@@ -90,8 +90,8 @@ public class CategorizedEntityDaoTest {
 		return category;
 	}
 
-	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void testGetDescriptorsForCategory(
-			CategorizedEntityDao<T, V> dao, T instance, Category category) {
+	private <T extends RootEntity, V extends RootDescriptor> void testGetDescriptorsForCategory(
+		RootEntityDao<T, V> dao, T instance, Category category) {
 		List<V> descriptors = dao.getDescriptors(Optional.ofNullable(category));
 		Descriptor descriptor = ListUtils.findDescriptor(instance.id,
 				descriptors);
@@ -99,7 +99,7 @@ public class CategorizedEntityDaoTest {
 		new CategoryDao(Tests.getDb()).delete(category);
 	}
 
-	private <T extends CategorizedEntity> T makeNew(Class<T> clazz)
+	private <T extends RootEntity> T makeNew(Class<T> clazz)
 			throws Exception {
 		T instance = clazz.getDeclaredConstructor().newInstance();
 		instance.description = "description";

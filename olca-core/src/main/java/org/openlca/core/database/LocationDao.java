@@ -8,7 +8,7 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 
 public class LocationDao
-		extends CategorizedEntityDao<Location, LocationDescriptor> {
+		extends RootEntityDao<Location, LocationDescriptor> {
 
 	public LocationDao(IDatabase db) {
 		super(Location.class, LocationDescriptor.class, db);

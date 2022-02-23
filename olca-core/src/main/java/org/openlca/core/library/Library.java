@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.openlca.core.database.CategorizedEntityDao;
+import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
@@ -30,7 +30,7 @@ import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Version;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Exceptions;
@@ -303,8 +303,8 @@ public class Library {
 		return Optional.of(index);
 	}
 
-	private <T extends CategorizedDescriptor> Map<String, T> descriptors(
-		CategorizedEntityDao<?, T> dao) {
+	private <T extends RootDescriptor> Map<String, T> descriptors(
+		RootEntityDao<?, T> dao) {
 		return dao.getDescriptors()
 			.stream()
 			.collect(Collectors.toMap(

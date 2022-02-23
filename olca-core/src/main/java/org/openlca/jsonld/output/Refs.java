@@ -6,7 +6,7 @@ import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.jsonld.Json;
@@ -20,7 +20,7 @@ class Refs {
 
 	private final IDatabase db;
 	private final PathBuilder categories;
-	private final Map<ModelType, TLongObjectHashMap<? extends CategorizedDescriptor>> cache;
+	private final Map<ModelType, TLongObjectHashMap<? extends RootDescriptor>> cache;
 	private Map<Long, String> _locationCodes;
 
 	private Refs(IDatabase db) {
@@ -38,7 +38,7 @@ class Refs {
 		return get(descriptor);
 	}
 
-	JsonObject get(CategorizedDescriptor d) {
+	JsonObject get(RootDescriptor d) {
 		if (d == null)
 			return null;
 		var ref = new JsonObject();
@@ -69,11 +69,11 @@ class Refs {
 		return ref;
 	}
 
-	CategorizedDescriptor descriptorOf(ModelType type, long id) {
-		if (type == null || !type.isCategorized())
+	RootDescriptor descriptorOf(ModelType type, long id) {
+		if (type == null || !type.isRoot())
 			return null;
 		var map = cache.computeIfAbsent(
-			type, _type -> Daos.categorized(db, type).descriptorMap());
+			type, _type -> Daos.root(db, type).descriptorMap());
 		return map.get(id);
 	}
 

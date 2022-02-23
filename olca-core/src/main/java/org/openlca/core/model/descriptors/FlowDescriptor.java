@@ -3,7 +3,7 @@ package org.openlca.core.model.descriptors;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
 
-public class FlowDescriptor extends CategorizedDescriptor {
+public class FlowDescriptor extends RootDescriptor {
 
 	public Long location;
 	public FlowType flowType;

@@ -134,7 +134,7 @@ public class EntityCache {
 		private final Logger log = LoggerFactory.getLogger(getClass());
 		private final IDatabase db;
 		private final HashMap<Class<?>, BaseDao<?>> daos = new HashMap<>();
-		private final HashMap<Class<?>, RootEntityDao<?, ?>> descriptorDaos = new HashMap<>();
+		private final HashMap<Class<?>, RefEntityDao<?, ?>> descriptorDaos = new HashMap<>();
 
 		public Loader(IDatabase db) {
 			this.db = db;
@@ -143,7 +143,7 @@ public class EntityCache {
 			for (var modelType : ModelType.values()) {
 				if (modelType.getModelClass() == null)
 					continue;
-				var dao = Daos.root(db, modelType);
+				var dao = Daos.refDao(db, modelType);
 				if (dao != null) {
 					descriptorDaos.put(dao.getDescriptorType(), dao);
 				}
@@ -187,7 +187,7 @@ public class EntityCache {
 
 		private void loadDescriptors(Class<?> clazz, Collection<Long> ids,
 				HashMap<Key, Object> result) {
-			RootEntityDao<?, ?> dao = descriptorDaos.get(clazz);
+			RefEntityDao<?, ?> dao = descriptorDaos.get(clazz);
 			if (dao == null) {
 				log.error("unknown descriptor class {}, returning null", clazz);
 				return;
@@ -211,7 +211,7 @@ public class EntityCache {
 		}
 
 		private Object loadDescriptor(Key key) {
-			RootEntityDao<?, ?> dao = descriptorDaos.get(key.clazz);
+			RefEntityDao<?, ?> dao = descriptorDaos.get(key.clazz);
 			if (dao == null) {
 				log.error("unknown descriptor class {}, returning null",
 						key.clazz);

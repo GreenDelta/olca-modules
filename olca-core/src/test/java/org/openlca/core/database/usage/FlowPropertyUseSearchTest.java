@@ -17,7 +17,7 @@ import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 public class FlowPropertyUseSearchTest {
 
@@ -58,18 +58,18 @@ public class FlowPropertyUseSearchTest {
 
 	@Test
 	public void testUnused() {
-		IUseSearch<CategorizedDescriptor> search = IUseSearch.FACTORY.createFor(
+		IUseSearch<RootDescriptor> search = IUseSearch.FACTORY.createFor(
 				ModelType.FLOW_PROPERTY, db);
-		List<CategorizedDescriptor> list = search.findUses(
+		List<RootDescriptor> list = search.findUses(
 				Descriptor.of(unused));
 		Assert.assertTrue(list.isEmpty());
 	}
 
 	@Test
 	public void testUsed() {
-		IUseSearch<CategorizedDescriptor> search = IUseSearch.FACTORY.createFor(
+		IUseSearch<RootDescriptor> search = IUseSearch.FACTORY.createFor(
 				ModelType.FLOW_PROPERTY, db);
-		List<CategorizedDescriptor> list = search.findUses(
+		List<RootDescriptor> list = search.findUses(
 				Descriptor.of(used));
 		Assert.assertEquals(2, list.size());
 		for (Descriptor d : list) {

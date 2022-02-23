@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
@@ -92,7 +92,7 @@ class DataUtil {
       : null;
     if (modelType == null
         || modelClass == null
-        || !CategorizedEntity.class.isAssignableFrom(modelClass)) {
+        || !RootEntity.class.isAssignableFrom(modelClass)) {
       Response.invalidArg(resp, "Not a categorized type: " + modelType);
       return null;
     }

@@ -15,7 +15,7 @@ import org.openlca.core.database.ProjectDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Project;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 
@@ -32,7 +32,7 @@ public class CategoryUseSearchTest {
 	@Test
 	public void testFindNoUsage() {
 		Category category = createCategory();
-		List<CategorizedDescriptor> models = search.findUses(Descriptor
+		List<RootDescriptor> models = search.findUses(Descriptor
 				.of(category));
 		assertNotNull(models);
 		assertTrue(models.isEmpty());
@@ -46,7 +46,7 @@ public class CategoryUseSearchTest {
 		project.name = "project";
 		project.category = category;
 		new ProjectDao(db).insert(project);
-		List<CategorizedDescriptor> results = search.findUses(Descriptor
+		List<RootDescriptor> results = search.findUses(Descriptor
 				.of(category));
 		new ProjectDao(db).delete(project);
 		new CategoryDao(db).delete(category);

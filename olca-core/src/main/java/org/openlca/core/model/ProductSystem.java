@@ -19,7 +19,7 @@ import org.openlca.core.matrix.index.TechFlow;
 
 @Entity
 @Table(name = "tbl_product_systems")
-public class ProductSystem extends CategorizedEntity implements CalculationTarget {
+public class ProductSystem extends RootEntity implements CalculationTarget {
 
 	@ElementCollection
 	@CollectionTable(name = "tbl_process_links",

@@ -13,14 +13,14 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Version;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.util.Categories;
 import org.openlca.util.Strings;
 
 public class CategoryDao
-	extends CategorizedEntityDao<Category, CategoryDescriptor> {
+	extends RootEntityDao<Category, CategoryDescriptor> {
 
 	private static Map<ModelType, String> tables;
 
@@ -156,19 +156,19 @@ public class CategoryDao
 				if (type.getModelClass() == null || !RefEntity.class
 					.isAssignableFrom(type.getModelClass()))
 					continue;
-				String table = Daos.root(db, type).getEntityTable();
+				String table = Daos.refDao(db, type).getEntityTable();
 				tables.put(type, table);
 			}
 		}
 		return tables.get(modelType);
 	}
 
-	private List<? extends CategorizedDescriptor> getDescriptors(
+	private List<? extends RootDescriptor> getDescriptors(
 		ModelType type,
 		Optional<Category> category) {
-		if (type == null || !type.isCategorized())
+		if (type == null || !type.isRoot())
 			return new ArrayList<>();
-		return Daos.categorized(getDatabase(), type).getDescriptors(category);
+		return Daos.root(getDatabase(), type).getDescriptors(category);
 	}
 
 	public static Category sync(IDatabase db, ModelType type, String... path) {

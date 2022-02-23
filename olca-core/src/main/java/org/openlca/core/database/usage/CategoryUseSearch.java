@@ -6,7 +6,7 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.CurrencyDescriptor;
 
 /**
@@ -20,10 +20,10 @@ public class CategoryUseSearch extends BaseUseSearch<CurrencyDescriptor> {
 	}
 
 	@Override
-	public List<CategorizedDescriptor> findUses(Set<Long> ids) {
-		List<CategorizedDescriptor> results = new ArrayList<>();
+	public List<RootDescriptor> findUses(Set<Long> ids) {
+		List<RootDescriptor> results = new ArrayList<>();
 		for (ModelType type : ModelType.values())
-			if (type.isCategorized())
+			if (type.isRoot())
 				results.addAll(queryFor(type, ids, "f_category"));
 		return results;
 	}

@@ -18,7 +18,7 @@ class Entities {
 			return;
 		entity.refId = UUID.randomUUID().toString();
 		entity.name = name;
-		if (entity instanceof CategorizedEntity e) {
+		if (entity instanceof RootEntity e) {
 			e.lastChange = System.currentTimeMillis();
 		}
 	}
@@ -29,7 +29,7 @@ class Entities {
 		to.description = from.description;
 	}
 
-	static void copyFields(CategorizedEntity from, CategorizedEntity to) {
+	static void copyFields(RootEntity from, RootEntity to) {
 		copyRefFields(from, to);
 		to.category = from.category;
 		to.tags = from.tags;

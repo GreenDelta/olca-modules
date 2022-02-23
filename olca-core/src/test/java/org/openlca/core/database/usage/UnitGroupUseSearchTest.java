@@ -14,7 +14,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 
 public class UnitGroupUseSearchTest {
@@ -38,7 +38,7 @@ public class UnitGroupUseSearchTest {
 
 	@Test
 	public void testFindNoUsage() {
-		List<CategorizedDescriptor> models = search.findUses(Descriptor
+		List<RootDescriptor> models = search.findUses(Descriptor
 				.of(group));
 		Assert.assertNotNull(models);
 		Assert.assertTrue(models.isEmpty());
@@ -47,7 +47,7 @@ public class UnitGroupUseSearchTest {
 	@Test
 	public void testFindInFlowProperties() {
 		FlowProperty property = createFlowProperty();
-		List<CategorizedDescriptor> results = search.findUses(Descriptor
+		List<RootDescriptor> results = search.findUses(Descriptor
 				.of(group));
 		new FlowPropertyDao(database).delete(property);
 		Descriptor expected = Descriptor.of(property);

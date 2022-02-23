@@ -5,29 +5,29 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 /** Search of entities where another entity is used. */
-public interface IUseSearch<T extends CategorizedDescriptor> {
+public interface IUseSearch<T extends RootDescriptor> {
 
 	/**
 	 * Returns a list of descriptors of entities where the given entity id is
 	 * used.
 	 */
-	List<CategorizedDescriptor> findUses(long id);
+	List<RootDescriptor> findUses(long id);
 
-	List<CategorizedDescriptor> findUses(T entity);
+	List<RootDescriptor> findUses(T entity);
 
-	List<CategorizedDescriptor> findUses(List<T> entity);
+	List<RootDescriptor> findUses(List<T> entity);
 
-	List<CategorizedDescriptor> findUses(Set<Long> entity);
+	List<RootDescriptor> findUses(Set<Long> entity);
 
 	Factory FACTORY = new Factory();
 
 	class Factory {
 
 		@SuppressWarnings("unchecked")
-		public <T extends CategorizedDescriptor> IUseSearch<T> createFor(
+		public <T extends RootDescriptor> IUseSearch<T> createFor(
 				ModelType type, IDatabase db) {
 			return switch (type) {
 				case ACTOR -> (IUseSearch<T>) new ActorUseSearch(db);

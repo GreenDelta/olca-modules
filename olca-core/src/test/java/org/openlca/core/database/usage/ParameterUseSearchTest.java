@@ -18,7 +18,7 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ParameterDescriptor;
 
 public class ParameterUseSearchTest {
@@ -36,7 +36,7 @@ public class ParameterUseSearchTest {
 		Parameter parameter = new Parameter();
 		parameter.name = "testNoUsage";
 		db.insert(parameter);
-		List<CategorizedDescriptor> models = search.findUses(Descriptor
+		List<RootDescriptor> models = search.findUses(Descriptor
 				.of(parameter));
 		Assert.assertNotNull(models);
 		Assert.assertTrue(models.isEmpty());
@@ -53,7 +53,7 @@ public class ParameterUseSearchTest {
 		db.insert(p2);
 		db.insert(p3);
 		db.insert(p4);
-		List<CategorizedDescriptor> models = search.findUses(Descriptor
+		List<RootDescriptor> models = search.findUses(Descriptor
 				.of(p1));
 		db.delete(p1);
 		db.delete(p2);
@@ -72,7 +72,7 @@ public class ParameterUseSearchTest {
 		process.parameters.add(p2);
 		db.insert(p1);
 		db.insert(process);
-		List<CategorizedDescriptor> models = search.findUses(Descriptor
+		List<RootDescriptor> models = search.findUses(Descriptor
 				.of(p1));
 		db.delete(p1);
 		db.delete(process);
@@ -91,7 +91,7 @@ public class ParameterUseSearchTest {
 		impact.parameters.add(p2);
 		db.insert(p1);
 		db.insert(impact);
-		List<CategorizedDescriptor> models = search.findUses(Descriptor
+		List<RootDescriptor> models = search.findUses(Descriptor
 				.of(p1));
 		db.delete(p1);
 		db.delete(impact);
@@ -110,7 +110,7 @@ public class ParameterUseSearchTest {
 		process.parameters.add(p2);
 		db.insert(p);
 		db.insert(process);
-		List<CategorizedDescriptor> models = search.findUses(Descriptor
+		List<RootDescriptor> models = search.findUses(Descriptor
 				.of(p));
 		db.delete(p);
 		db.delete(process);
@@ -128,7 +128,7 @@ public class ParameterUseSearchTest {
 		impact.parameters.add(p2);
 		db.insert(p);
 		db.insert(impact);
-		List<CategorizedDescriptor> models = search.findUses(Descriptor
+		List<RootDescriptor> models = search.findUses(Descriptor
 				.of(p));
 		db.delete(p);
 		db.delete(impact);
@@ -159,7 +159,7 @@ public class ParameterUseSearchTest {
 		variant.parameterRedefs.add(ParameterRedef.of(parameter));
 		project.variants.add(variant);
 		db.insert(project);
-		List<CategorizedDescriptor> models = search.findUses(Descriptor
+		List<RootDescriptor> models = search.findUses(Descriptor
 				.of(parameter));
 		db.delete(parameter);
 		db.delete(project);

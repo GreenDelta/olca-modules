@@ -2,7 +2,7 @@ package org.openlca.core.library;
 
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
@@ -42,7 +42,7 @@ class LibIndex {
 		return entry.build();
 	}
 
-	static Proto.Process protoProcess(CategorizedDescriptor d) {
+	static Proto.Process protoProcess(RootDescriptor d) {
 		var proto = Proto.Process.newBuilder();
 		if (d == null)
 			return proto.build();

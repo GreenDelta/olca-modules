@@ -78,9 +78,9 @@ public class BaseDaoTest {
 	private <T extends AbstractEntity> void testUsage(T instance) {
 		log.trace("test simple usage tests with {}", instance);
 		var clazz = instance.getClass();
-		if (!CategorizedEntity.class.isAssignableFrom(clazz))
+		if (!RootEntity.class.isAssignableFrom(clazz))
 			return;
-		var entity = (CategorizedEntity) instance;
+		var entity = (RootEntity) instance;
 		var type = ModelType.forModelClass(clazz);
 		var descriptors = IUseSearch.FACTORY
 			.createFor(type, Tests.getDb())

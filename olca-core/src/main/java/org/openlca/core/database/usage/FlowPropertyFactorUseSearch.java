@@ -8,7 +8,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 /**
  * Searches for the usage of flow property factors of a given flow in other
@@ -24,10 +24,10 @@ public class FlowPropertyFactorUseSearch {
 		this.database = database;
 	}
 
-	public List<CategorizedDescriptor> findUses(FlowPropertyFactor factor) {
+	public List<RootDescriptor> findUses(FlowPropertyFactor factor) {
 		if (flow == null || factor == null || database == null)
 			return Collections.emptyList();
-		List<CategorizedDescriptor> results = new ArrayList<>();
+		List<RootDescriptor> results = new ArrayList<>();
 		// only exchange and impact factor are relevant, because all others can
 		// only refer to units that are used in one of them
 		results.addAll(Search.on(database).queryFor(ModelType.IMPACT_CATEGORY,

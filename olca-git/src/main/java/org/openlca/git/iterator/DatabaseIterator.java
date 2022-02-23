@@ -11,7 +11,7 @@ import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.GitConfig;
 import org.openlca.util.Categories;
 import org.openlca.util.Categories.PathBuilder;
@@ -38,13 +38,13 @@ public class DatabaseIterator extends EntryIterator {
 	}
 
 	private static List<TreeEntry> init(GitConfig config) {
-		return Arrays.stream(ModelType.categorized()).filter(type -> {
+		return Arrays.stream(ModelType.rootTypes()).filter(type -> {
 			var dao = new CategoryDao(config.database);
 			if (type == ModelType.CATEGORY)
 				return false;
 			if (!dao.getRootCategories(type).isEmpty())
 				return true;
-			return !Daos.categorized(config.database, type).getDescriptors(Optional.empty()).isEmpty();
+			return !Daos.root(config.database, type).getDescriptors(Optional.empty()).isEmpty();
 		}).map(TreeEntry::new)
 				.toList();
 	}
@@ -53,7 +53,7 @@ public class DatabaseIterator extends EntryIterator {
 		var entries = new CategoryDao(config.database).getRootCategories(type)
 				.stream().map(TreeEntry::new)
 				.collect(Collectors.toList());
-		entries.addAll(Daos.categorized(config.database, type).getDescriptors(Optional.empty())
+		entries.addAll(Daos.root(config.database, type).getDescriptors(Optional.empty())
 				.stream().map(d -> new TreeEntry(d))
 				.toList());
 		return entries;
@@ -63,7 +63,7 @@ public class DatabaseIterator extends EntryIterator {
 		var entries = category.childCategories
 				.stream().map(TreeEntry::new)
 				.collect(Collectors.toList());
-		entries.addAll(Daos.categorized(config.database, category.modelType).getDescriptors(Optional.of(category))
+		entries.addAll(Daos.root(config.database, category.modelType).getDescriptors(Optional.of(category))
 				.stream().map(d -> new TreeEntry(d))
 				.toList());
 		return entries;
@@ -76,7 +76,7 @@ public class DatabaseIterator extends EntryIterator {
 			return config.store.has((ModelType) e.data);
 		if (e.data instanceof Category)
 			return config.store.has((Category) e.data);
-		return config.store.has(categoryPaths, (CategorizedDescriptor) e.data);
+		return config.store.has(categoryPaths, (RootDescriptor) e.data);
 	}
 
 	@Override
@@ -86,7 +86,7 @@ public class DatabaseIterator extends EntryIterator {
 			return config.store.getRaw((ModelType) e.data);
 		if (e.data instanceof Category)
 			return config.store.getRaw((Category) e.data);
-		return config.store.getRaw(categoryPaths, (CategorizedDescriptor) e.data);
+		return config.store.getRaw(categoryPaths, (RootDescriptor) e.data);
 	}
 
 	@Override

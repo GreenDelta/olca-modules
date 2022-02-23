@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
@@ -249,7 +249,7 @@ public class Json {
 		put(obj, "@id", e.refId);
 		put(obj, "name", e.name);
 
-		if (e instanceof CategorizedEntity ce
+		if (e instanceof RootEntity ce
 			&& ce.category != null) {
 			put(obj, "category", ce.category.toPath());
 		}

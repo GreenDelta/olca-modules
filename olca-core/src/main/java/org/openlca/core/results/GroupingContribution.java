@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.matrix.index.EnviFlow;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 /**
@@ -30,7 +30,7 @@ public class GroupingContribution {
 		double total = result.getTotalFlowResult(flow);
 		return Contributions.calculate(groupings, total, grouping -> {
 			double amount = 0;
-			for (CategorizedDescriptor p : grouping.processes) {
+			for (RootDescriptor p : grouping.processes) {
 				amount += result.getDirectFlowResult(p, flow);
 			}
 			return amount;
@@ -45,7 +45,7 @@ public class GroupingContribution {
 		double total = result.getTotalImpactResult(impact);
 		return Contributions.calculate(groupings, total, grouping -> {
 			double amount = 0;
-			for (CategorizedDescriptor p : grouping.processes) {
+			for (RootDescriptor p : grouping.processes) {
 				amount += result.getDirectImpactResult(p, impact);
 			}
 			return amount;

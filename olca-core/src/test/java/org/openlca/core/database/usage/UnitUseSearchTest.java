@@ -20,7 +20,7 @@ import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 public class UnitUseSearchTest {
 
@@ -48,7 +48,7 @@ public class UnitUseSearchTest {
 
 	@Test
 	public void testFindNoUsage() {
-		List<CategorizedDescriptor> models = search.findUses(unit);
+		List<RootDescriptor> models = search.findUses(unit);
 		Assert.assertNotNull(models);
 		Assert.assertTrue(models.isEmpty());
 	}
@@ -60,7 +60,7 @@ public class UnitUseSearchTest {
 		ImpactCategory category = new ImpactCategory();
 		category.impactFactors.add(iFactor);
 		new ImpactCategoryDao(database).insert(category);
-		List<CategorizedDescriptor> results = search.findUses(unit);
+		List<RootDescriptor> results = search.findUses(unit);
 		new ImpactCategoryDao(database).delete(category);
 		Descriptor expected = Descriptor.of(category);
 		Assert.assertEquals(1, results.size());
@@ -70,7 +70,7 @@ public class UnitUseSearchTest {
 	@Test
 	public void testFindInProcesses() {
 		Process process = createProcess();
-		List<CategorizedDescriptor> results = search.findUses(unit);
+		List<RootDescriptor> results = search.findUses(unit);
 		new ProcessDao(database).delete(process);
 		Descriptor expected = Descriptor.of(process);
 		Assert.assertEquals(1, results.size());
@@ -89,7 +89,7 @@ public class UnitUseSearchTest {
 	@Test
 	public void testFindInSocialIndicator() {
 		SocialIndicator indicator = createSocialIndicator();
-		List<CategorizedDescriptor> results = search.findUses(unit);
+		List<RootDescriptor> results = search.findUses(unit);
 		new SocialIndicatorDao(database).delete(indicator);
 		Descriptor expected = Descriptor.of(indicator);
 		Assert.assertEquals(1, results.size());

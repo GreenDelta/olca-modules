@@ -12,7 +12,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_results")
-public class Result extends CategorizedEntity {
+public class Result extends RootEntity {
 
 	@OneToOne
 	@JoinColumn(name = "f_product_system")

@@ -19,7 +19,7 @@ import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.ParameterizedEntity;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Version;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.InterpreterException;
 import org.openlca.formula.Formulas;
@@ -111,7 +111,7 @@ public class Parameters {
 	 * renaming of a local parameter will change other entities (projects or product
 	 * systems) where this parameter is redefined.
 	 */
-	public static List<CategorizedDescriptor> findRedefOwners(
+	public static List<RootDescriptor> findRedefOwners(
 			Parameter param, ParameterizedEntity owner, IDatabase db) {
 
 		var sql = "select f_owner, name, f_context from tbl_parameter_redefs";

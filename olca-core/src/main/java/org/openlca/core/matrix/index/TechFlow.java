@@ -6,7 +6,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Result;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -21,9 +21,9 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
  * in these systems with their quantitative reference as product).
  */
 public record TechFlow(
-	CategorizedDescriptor provider, FlowDescriptor flow) {
+        RootDescriptor provider, FlowDescriptor flow) {
 
-	public static TechFlow of(CategorizedDescriptor process, FlowDescriptor flow) {
+	public static TechFlow of(RootDescriptor process, FlowDescriptor flow) {
 		return new TechFlow(process, flow);
 	}
 
@@ -71,7 +71,7 @@ public record TechFlow(
 	 * etc.).
 	 */
 	@Override
-	public CategorizedDescriptor provider() {
+	public RootDescriptor provider() {
 		return provider;
 	}
 

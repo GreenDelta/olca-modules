@@ -5,7 +5,7 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 /**
  * A reference search is the inverse of a usage search: while a usage search
@@ -14,7 +14,7 @@ import org.openlca.core.model.descriptors.CategorizedDescriptor;
  * to non-existing entities (when something is not correct with the database) and
  * it is one goal of the reference search to find such cases.
  */
-public interface IReferenceSearch<T extends CategorizedDescriptor> {
+public interface IReferenceSearch<T extends RootDescriptor> {
 
 	List<Reference> findReferences();
 
@@ -35,8 +35,8 @@ public interface IReferenceSearch<T extends CategorizedDescriptor> {
 	class Factory {
 
 		@SuppressWarnings("unchecked")
-		public <T extends CategorizedDescriptor> IReferenceSearch<T> createFor(ModelType type, IDatabase db,
-																			   boolean includeOptional) {
+		public <T extends RootDescriptor> IReferenceSearch<T> createFor(ModelType type, IDatabase db,
+                                                                        boolean includeOptional) {
 			switch (type) {
 				case UNIT_GROUP:
 					return (IReferenceSearch<T>) new UnitGroupReferenceSearch(db, includeOptional);

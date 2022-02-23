@@ -2,9 +2,9 @@ package org.openlca.proto.io.input;
 
 import java.util.Objects;
 
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 
-public record ImportStatus<T extends CategorizedEntity>(
+public record ImportStatus<T extends RootEntity>(
 	T model, Status status, String error) {
 
 	public enum Status {
@@ -17,19 +17,19 @@ public record ImportStatus<T extends CategorizedEntity>(
 		this.error = error;
 	}
 
-	public static <T extends CategorizedEntity> ImportStatus<T> created(T model) {
+	public static <T extends RootEntity> ImportStatus<T> created(T model) {
 		return new ImportStatus<>(model, Status.CREATED, null);
 	}
 
-	public static <T extends CategorizedEntity> ImportStatus<T> updated(T model) {
+	public static <T extends RootEntity> ImportStatus<T> updated(T model) {
 		return new ImportStatus<>(model, Status.UPDATED, null);
 	}
 
-	public static <T extends CategorizedEntity> ImportStatus<T> skipped(T model) {
+	public static <T extends RootEntity> ImportStatus<T> skipped(T model) {
 		return new ImportStatus<>(model, Status.SKIPPED, null);
 	}
 
-	public static <T extends CategorizedEntity> ImportStatus<T> error(String error) {
+	public static <T extends RootEntity> ImportStatus<T> error(String error) {
 		return new ImportStatus<>(null, Status.ERROR, error);
 	}
 

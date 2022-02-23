@@ -14,7 +14,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.descriptors.ActorDescriptor;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 
 public class ActorUseSearchTest {
@@ -30,7 +30,7 @@ public class ActorUseSearchTest {
 	@Test
 	public void testFindNoUsage() {
 		Actor actor = createActor();
-		List<CategorizedDescriptor> models = search.findUses(Descriptor
+		List<RootDescriptor> models = search.findUses(Descriptor
 				.of(actor));
 		Assert.assertNotNull(models);
 		Assert.assertTrue(models.isEmpty());
@@ -47,7 +47,7 @@ public class ActorUseSearchTest {
 	public void testFindInProcesses() {
 		Actor actor = createActor();
 		Process process = createProcess(actor);
-		List<CategorizedDescriptor> results = search.findUses(Descriptor
+		List<RootDescriptor> results = search.findUses(Descriptor
 				.of(actor));
 		new ProcessDao(database).delete(process);
 		new ActorDao(database).delete(actor);

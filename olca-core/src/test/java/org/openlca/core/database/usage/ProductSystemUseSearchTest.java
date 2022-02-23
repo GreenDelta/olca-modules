@@ -15,7 +15,7 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 
 public class ProductSystemUseSearchTest {
@@ -40,7 +40,7 @@ public class ProductSystemUseSearchTest {
 
 	@Test
 	public void testFindNoUsage() {
-		List<CategorizedDescriptor> models = search.findUses(Descriptor
+		List<RootDescriptor> models = search.findUses(Descriptor
 				.of(system));
 		Assert.assertNotNull(models);
 		Assert.assertTrue(models.isEmpty());
@@ -49,7 +49,7 @@ public class ProductSystemUseSearchTest {
 	@Test
 	public void testFindInProjects() {
 		Project project = createProject();
-		List<CategorizedDescriptor> results = search.findUses(Descriptor
+		List<RootDescriptor> results = search.findUses(Descriptor
 				.of(system));
 		new ProjectDao(database).delete(project);
 		Descriptor expected = Descriptor.of(project);

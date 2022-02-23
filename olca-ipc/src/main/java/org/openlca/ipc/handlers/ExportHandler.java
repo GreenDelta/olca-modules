@@ -102,7 +102,7 @@ public class ExportHandler {
 			var export = new JsonExport(context.db, store);
 			for (ModelType type : toExport.keySet()) {
 				for (String refId : toExport.get(type)) {
-					export.write(Daos.categorized(context.db, type).getForRefId(refId));
+					export.write(Daos.root(context.db, type).getForRefId(refId));
 				}
 			}
 			store.close();

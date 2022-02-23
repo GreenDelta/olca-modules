@@ -16,7 +16,7 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 
 public class LocationUseSearchTest {
@@ -40,7 +40,7 @@ public class LocationUseSearchTest {
 
 	@Test
 	public void testFindNoUsage() {
-		List<CategorizedDescriptor> models = search.findUses(Descriptor
+		List<RootDescriptor> models = search.findUses(Descriptor
 				.of(location));
 		Assert.assertNotNull(models);
 		Assert.assertTrue(models.isEmpty());
@@ -49,7 +49,7 @@ public class LocationUseSearchTest {
 	@Test
 	public void testFindInFlows() {
 		Flow flow = createFlow();
-		List<CategorizedDescriptor> results = search.findUses(Descriptor
+		List<RootDescriptor> results = search.findUses(Descriptor
 				.of(location));
 		new FlowDao(database).delete(flow);
 		Descriptor expected = Descriptor.of(flow);
@@ -67,7 +67,7 @@ public class LocationUseSearchTest {
 	@Test
 	public void testFindInProcesses() {
 		Process process = createProcess();
-		List<CategorizedDescriptor> results = search.findUses(Descriptor
+		List<RootDescriptor> results = search.findUses(Descriptor
 				.of(location));
 		new ProcessDao(database).delete(process);
 		Descriptor expected = Descriptor.of(process);

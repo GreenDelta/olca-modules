@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.Arrays;
 
 import com.google.gson.JsonArray;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Version;
 
@@ -24,11 +24,11 @@ class Writer<T extends RefEntity> {
 		var obj = new JsonObject();
 		// mark entity directly as visited to avoid endless cyclic exports for
 		// cyclic references
-		if (entity instanceof CategorizedEntity ce) {
+		if (entity instanceof RootEntity ce) {
 			exp.setVisited(ce);
 		}
 		addBasicAttributes(entity, obj);
-		if (entity instanceof CategorizedEntity ce) {
+		if (entity instanceof RootEntity ce) {
 			Json.put(obj, "category", exp.handleRef(ce.category));
 			Json.put(obj, "library", ce.library);
 
@@ -55,7 +55,7 @@ class Writer<T extends RefEntity> {
 		Json.put(obj, "@id", entity.refId);
 		Json.put(obj, "name", entity.name);
 		Json.put(obj, "description", entity.description);
-		if (entity instanceof CategorizedEntity ce) {
+		if (entity instanceof RootEntity ce) {
 			Json.put(obj, "version", Version.asString(ce.version));
 			if (ce.lastChange != 0) {
 				var instant = Instant.ofEpochMilli(ce.lastChange);

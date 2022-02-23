@@ -14,7 +14,7 @@ public class Daos {
 			return null;
 		var type = ModelType.forModelClass(clazz);
 		if (type != null)
-			return (BaseDao<T>) root(db, type);
+			return (BaseDao<T>) refDao(db, type);
 		if (clazz == Exchange.class)
 			return (BaseDao<T>) new ExchangeDao(db);
 		if (clazz == MappingFile.class)
@@ -24,11 +24,11 @@ public class Daos {
 		return new BaseDao<>(clazz, db);
 	}
 
-	public static RootEntityDao<?, ?> root(IDatabase db, ModelType type) {
+	public static RefEntityDao<?, ?> refDao(IDatabase db, ModelType type) {
 		if (db == null | type == null)
 			return null;
-		if (type.isCategorized())
-			return categorized(db, type);
+		if (type.isRoot())
+			return root(db, type);
 		if (type == ModelType.NW_SET)
 			return new NwSetDao(db);
 		if (type == ModelType.UNIT)
@@ -36,9 +36,9 @@ public class Daos {
 		return null;
 	}
 
-	public static CategorizedEntityDao<?, ?> categorized(
+	public static RootEntityDao<?, ?> root(
 		IDatabase db, ModelType type) {
-		if (db == null || type == null || !type.isCategorized())
+		if (db == null || type == null || !type.isRoot())
 			return null;
 		return switch (type) {
 			case ACTOR -> new ActorDao(db);

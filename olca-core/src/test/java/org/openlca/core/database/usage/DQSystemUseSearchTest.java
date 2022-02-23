@@ -13,7 +13,7 @@ import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.DQSystemDescriptor;
 
 public class DQSystemUseSearchTest {
@@ -29,7 +29,7 @@ public class DQSystemUseSearchTest {
 	@Test
 	public void testFindNoUsage() {
 		DQSystem system = createDqSystem();
-		List<CategorizedDescriptor> models = search.findUses(Descriptor
+		List<RootDescriptor> models = search.findUses(Descriptor
 				.of(system));
 		Assert.assertNotNull(models);
 		Assert.assertTrue(models.isEmpty());
@@ -49,7 +49,7 @@ public class DQSystemUseSearchTest {
 		Process process = new Process();
 		process.dqSystem = system;
 		new ProcessDao(database).insert(process);
-		List<CategorizedDescriptor> results = search.findUses(Descriptor
+		List<RootDescriptor> results = search.findUses(Descriptor
 				.of(system));
 		new ProcessDao(database).delete(process);
 		new DQSystemDao(database).delete(system);
@@ -64,7 +64,7 @@ public class DQSystemUseSearchTest {
 		Process process = new Process();
 		process.exchangeDqSystem = system;
 		new ProcessDao(database).insert(process);
-		List<CategorizedDescriptor> results = search.findUses(Descriptor
+		List<RootDescriptor> results = search.findUses(Descriptor
 				.of(system));
 		new ProcessDao(database).delete(process);
 		new DQSystemDao(database).delete(system);
@@ -79,7 +79,7 @@ public class DQSystemUseSearchTest {
 		Process process = new Process();
 		process.socialDqSystem = system;
 		new ProcessDao(database).insert(process);
-		List<CategorizedDescriptor> results = search.findUses(Descriptor
+		List<RootDescriptor> results = search.findUses(Descriptor
 				.of(system));
 		new ProcessDao(database).delete(process);
 		new DQSystemDao(database).delete(system);

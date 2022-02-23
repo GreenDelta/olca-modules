@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.SourceDescriptor;
 
 /**
@@ -21,7 +21,7 @@ public class SourceUseSearch extends BaseUseSearch<SourceDescriptor> {
 	}
 
 	@Override
-	public List<CategorizedDescriptor> findUses(Set<Long> ids) {
+	public List<RootDescriptor> findUses(Set<Long> ids) {
 		Set<Long> methods = queryForIds(
 			"id", "tbl_impact_methods", ids, "f_source");
 		Set<Long> impacts = queryForIds(
@@ -36,7 +36,7 @@ public class SourceUseSearch extends BaseUseSearch<SourceDescriptor> {
 				docsWithSources.add(id);
 			}
 		}
-		Set<CategorizedDescriptor> result = new HashSet<>();
+		Set<RootDescriptor> result = new HashSet<>();
 		result.addAll(queryFor(ModelType.PROCESS, docsWithSources, "f_process_doc"));
 		result.addAll(queryFor(ModelType.DQ_SYSTEM, ids, "f_source"));
 		result.addAll(loadDescriptors(ModelType.IMPACT_METHOD, methods));

@@ -4,7 +4,7 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 public class ImpactCategoryDao extends
-		CategorizedEntityDao<ImpactCategory, ImpactDescriptor> {
+        RootEntityDao<ImpactCategory, ImpactDescriptor> {
 
 	public ImpactCategoryDao(IDatabase database) {
 		super(ImpactCategory.class, ImpactDescriptor.class, database);

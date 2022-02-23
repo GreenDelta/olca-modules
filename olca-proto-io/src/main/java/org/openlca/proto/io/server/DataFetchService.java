@@ -18,7 +18,7 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.RefEntity;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.proto.ProtoRef;
@@ -154,7 +154,7 @@ class DataFetchService extends
     var modelType = DataUtil.forceRootTypeOf(req.getType(), resp);
     if (modelType == null)
       return;
-    var dao = Daos.root(db, modelType);
+    var dao = Daos.refDao(db, modelType);
     if (dao == null) {
       resp.onCompleted();
       return;
@@ -181,13 +181,13 @@ class DataFetchService extends
       : null;
     if (Strings.notEmpty(catId)) {
       stream = stream.filter(
-        d -> d instanceof CategorizedDescriptor);
+        d -> d instanceof RootDescriptor);
 
       // "/" identifies the root category or no
       // specific category
       if (catId.equals("/")) {
         stream = stream.filter(d -> {
-          var cd = (CategorizedDescriptor) d;
+          var cd = (RootDescriptor) d;
           return cd.category == null;
         });
       } else {
@@ -198,7 +198,7 @@ class DataFetchService extends
           return;
         }
         stream = stream.filter(d -> {
-          var cd = (CategorizedDescriptor) d;
+          var cd = (RootDescriptor) d;
           return cd.category != null
                  && cd.category == category.id;
         });
@@ -256,7 +256,7 @@ class DataFetchService extends
       category = Optional.of(cat);
     }
 
-    var dao = Daos.categorized(db, modelType);
+    var dao = Daos.root(db, modelType);
     for (var d : dao.getDescriptors(category)) {
       resp.onNext(Refs.refOf(d).build());
     }

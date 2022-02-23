@@ -1,7 +1,7 @@
 package org.openlca.io.xls.process.output;
 
 import org.apache.poi.ss.usermodel.Sheet;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
@@ -71,7 +71,7 @@ class ModelingSheet {
 		}
 	}
 
-	private void pair(String header, CategorizedEntity entity) {
+	private void pair(String header, RootEntity entity) {
 		if (entity == null) {
 			Excel.cell(sheet, row++, 0, header);
 			return;

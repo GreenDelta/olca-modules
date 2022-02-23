@@ -5,14 +5,14 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.openlca.core.database.FileStore;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.ModelType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
-abstract class BaseImport<T extends CategorizedEntity> {
+abstract class BaseImport<T extends RootEntity> {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final ModelType modelType;

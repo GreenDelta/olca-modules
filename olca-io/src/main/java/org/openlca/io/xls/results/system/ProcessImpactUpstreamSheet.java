@@ -2,13 +2,13 @@ package org.openlca.io.xls.results.system;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.FullResult;
 import org.openlca.io.xls.results.CellWriter;
 
 class ProcessImpactUpstreamSheet extends
-		ContributionSheet<CategorizedDescriptor, ImpactDescriptor> {
+		ContributionSheet<RootDescriptor, ImpactDescriptor> {
 
 	private final CellWriter writer;
 	private final FullResult r;
@@ -33,14 +33,14 @@ class ProcessImpactUpstreamSheet extends
 	}
 
 	@Override
-	protected double getValue(CategorizedDescriptor process,
-			ImpactDescriptor impact) {
+	protected double getValue(RootDescriptor process,
+                              ImpactDescriptor impact) {
 		return r.getUpstreamImpactResult(process, impact);
 	}
 
 	@Override
-	protected void subHeaderCol(CategorizedDescriptor process, Sheet sheet,
-			int col) {
+	protected void subHeaderCol(RootDescriptor process, Sheet sheet,
+                                int col) {
 		writer.processCol(sheet, 1, col, process);
 	}
 

@@ -5,19 +5,19 @@ import java.util.function.Function;
 
 import com.google.gson.JsonObject;
 
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
 
-abstract class ExchangeImport<P extends CategorizedEntity> extends BaseEmbeddedImport<Exchange, P> {
+abstract class ExchangeImport<P extends RootEntity> extends BaseEmbeddedImport<Exchange, P> {
 
 	private ExchangeImport(ModelType parentType, String parentRefId, JsonImport conf) {
 		super(parentType, parentRefId, conf);
 	}
 
-	static <AP extends CategorizedEntity> Exchange run(
+	static <AP extends RootEntity> Exchange run(
 		ModelType parentType, String parentRefId, JsonObject json,
 		JsonImport conf, Function<AP, List<Exchange>> getExchanges) {
 		return new ExchangeImport<AP>(parentType, parentRefId, conf) {

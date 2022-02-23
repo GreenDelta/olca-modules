@@ -5,7 +5,7 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.CurrencyDescriptor;
 
 /**
@@ -19,7 +19,7 @@ public class SocialIndicatorUseSearch extends BaseUseSearch<CurrencyDescriptor> 
 	}
 
 	@Override
-	public List<CategorizedDescriptor> findUses(Set<Long> ids) {
+	public List<RootDescriptor> findUses(Set<Long> ids) {
 		return queryFor(ModelType.PROCESS, "f_process", "tbl_social_aspects",
 				ids, "f_indicator");
 	}

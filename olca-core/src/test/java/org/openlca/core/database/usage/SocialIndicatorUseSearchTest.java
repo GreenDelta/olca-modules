@@ -15,7 +15,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.SocialAspect;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.SocialIndicatorDescriptor;
 
 public class SocialIndicatorUseSearchTest {
@@ -40,7 +40,7 @@ public class SocialIndicatorUseSearchTest {
 
 	@Test
 	public void testFindNoUsage() {
-		List<CategorizedDescriptor> models = search.findUses(Descriptor
+		List<RootDescriptor> models = search.findUses(Descriptor
 				.of(indicator));
 		Assert.assertNotNull(models);
 		Assert.assertTrue(models.isEmpty());
@@ -49,7 +49,7 @@ public class SocialIndicatorUseSearchTest {
 	@Test
 	public void testFindInProcesses() {
 		Process process = createProcess();
-		List<CategorizedDescriptor> results = search.findUses(Descriptor
+		List<RootDescriptor> results = search.findUses(Descriptor
 				.of(indicator));
 		new ProcessDao(database).delete(process);
 		Descriptor expected = Descriptor.of(process);

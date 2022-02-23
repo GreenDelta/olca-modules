@@ -32,7 +32,7 @@ public class ContainsTest {
 	}
 
 	private <T extends RefEntity> void test(Class<T> clazz,
-                                            RootEntityDao<T, ?> dao) throws Exception {
+                                            RefEntityDao<T, ?> dao) throws Exception {
 		String refId = UUID.randomUUID().toString();
 		Assert.assertFalse(dao.contains(refId));
 		T entity = clazz.newInstance();

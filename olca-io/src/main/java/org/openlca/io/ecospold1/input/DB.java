@@ -169,7 +169,7 @@ class DB {
 	public <T extends RefEntity> T get(Class<T> type, String id) {
 		try {
 			ModelType modelType = ModelType.forModelClass(type);
-			return (T) Daos.root(database, modelType).getForRefId(id);
+			return (T) Daos.refDao(database, modelType).getForRefId(id);
 		} catch (Exception e) {
 			log.error("Failed to query database for " + type + " id=" + id, e);
 			return null;

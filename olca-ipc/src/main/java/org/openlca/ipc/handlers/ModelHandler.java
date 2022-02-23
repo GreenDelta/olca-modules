@@ -74,7 +74,7 @@ public class ModelHandler {
 		try {
 			var store = new MemStore();
 			var exp = new JsonExport(db, store).withReferences(false);
-			Daos.root(db, type).getAll().forEach(exp::write);
+			Daos.refDao(db, type).getAll().forEach(exp::write);
 			var array = new JsonArray();
 			store.getAll(type).forEach(array::add);
 			return Responses.ok(array, req);
@@ -95,7 +95,7 @@ public class ModelHandler {
 		try {
 			var array = new JsonArray();
 			var cache = EntityCache.create(db);
-			Daos.root(db, type).getDescriptors().forEach(d -> {
+			Daos.refDao(db, type).getDescriptors().forEach(d -> {
 				JsonObject obj = JsonRef.of(d, cache);
 				array.add(obj);
 			});

@@ -6,7 +6,7 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 
 /**
@@ -20,8 +20,8 @@ public class FlowUseSearch extends BaseUseSearch<FlowDescriptor> {
 	}
 
 	@Override
-	public List<CategorizedDescriptor> findUses(Set<Long> ids) {
-		List<CategorizedDescriptor> results = new ArrayList<>();
+	public List<RootDescriptor> findUses(Set<Long> ids) {
+		List<RootDescriptor> results = new ArrayList<>();
 		results.addAll(queryFor(ModelType.IMPACT_CATEGORY, "f_impact_category",
 				"tbl_impact_factors", ids, "f_flow"));
 		results.addAll(queryFor(ModelType.PROCESS, "f_owner", "tbl_exchanges",

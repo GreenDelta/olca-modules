@@ -13,7 +13,7 @@ import org.openlca.core.model.Currency;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.CurrencyDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 
@@ -30,7 +30,7 @@ public class CurrencyUseSearchTest {
 	@Test
 	public void testFindNoUsage() {
 		Currency currency = createCurrency();
-		List<CategorizedDescriptor> models = search.findUses(Descriptor
+		List<RootDescriptor> models = search.findUses(Descriptor
 				.of(currency));
 		Assert.assertNotNull(models);
 		Assert.assertTrue(models.isEmpty());
@@ -43,7 +43,7 @@ public class CurrencyUseSearchTest {
 		Currency other = createCurrency();
 		other.referenceCurrency = currency;
 		new CurrencyDao(database).update(other);
-		List<CategorizedDescriptor> results = search.findUses(Descriptor
+		List<RootDescriptor> results = search.findUses(Descriptor
 				.of(currency));
 		new CurrencyDao(database).delete(currency);
 		new CurrencyDao(database).delete(other);
@@ -56,7 +56,7 @@ public class CurrencyUseSearchTest {
 	public void testFindInExchanges() {
 		Currency currency = createCurrency();
 		Process process = createProcess(currency);
-		List<CategorizedDescriptor> results = search.findUses(Descriptor
+		List<RootDescriptor> results = search.findUses(Descriptor
 				.of(currency));
 		new ProcessDao(database).delete(process);
 		new CurrencyDao(database).delete(currency);

@@ -14,7 +14,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 
@@ -49,7 +49,7 @@ public class SystemUseSearchTest {
 	@Test
 	public void testNoUsage() {
 		ProductSystemDescriptor d = Descriptor.of(system);
-		List<CategorizedDescriptor> descriptors = search.findUses(d);
+		List<RootDescriptor> descriptors = search.findUses(d);
 		Assert.assertNotNull(descriptors);
 		Assert.assertTrue(descriptors.isEmpty());
 	}
@@ -61,7 +61,7 @@ public class SystemUseSearchTest {
 		project.variants.add(variant);
 		project = projectDao.update(project);
 		ProductSystemDescriptor d = Descriptor.of(system);
-		List<CategorizedDescriptor> descriptors = search.findUses(d);
+		List<RootDescriptor> descriptors = search.findUses(d);
 		Assert.assertEquals(1, descriptors.size());
 		Assert.assertEquals(Descriptor.of(project),
 				descriptors.get(0));

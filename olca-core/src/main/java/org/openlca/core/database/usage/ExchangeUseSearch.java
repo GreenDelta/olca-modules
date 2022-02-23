@@ -12,7 +12,7 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 /**
  * Searches for the use of process exchanges in other entities. Exchanges of a
@@ -29,13 +29,13 @@ public class ExchangeUseSearch {
 		this.process = process;
 	}
 
-	public List<CategorizedDescriptor> findUses(Exchange exchange) {
+	public List<RootDescriptor> findUses(Exchange exchange) {
 		if (exchange == null)
 			return Collections.emptyList();
 		return findUses(Arrays.asList(exchange));
 	}
 
-	public List<CategorizedDescriptor> findUses(List<Exchange> exchanges) {
+	public List<RootDescriptor> findUses(List<Exchange> exchanges) {
 		if (exchanges == null || exchanges.isEmpty())
 			return Collections.emptyList();
 		Set<Long> ids = new HashSet<>();

@@ -19,7 +19,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Source;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.SourceDescriptor;
 
@@ -113,7 +113,7 @@ public class SourceUseSearchTest {
 	public void testFindInDQSystem() {
 		dqSystem.source = source;
 		dqSystem = dqSystemDao.update(dqSystem);
-		List<CategorizedDescriptor> models = search.findUses(Descriptor
+		List<RootDescriptor> models = search.findUses(Descriptor
 				.of(source));
 		Assert.assertEquals(1, models.size());
 		Assert.assertEquals(Descriptor.of(dqSystem), models.get(0));

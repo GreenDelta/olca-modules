@@ -6,7 +6,7 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Unit;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -35,7 +35,7 @@ final class JsonRef {
 		Json.put(obj, "@id", d.refId);
 		Json.put(obj, "name", d.name);
 
-		if (d instanceof CategorizedDescriptor cd) {
+		if (d instanceof RootDescriptor cd) {
 			putCategoryPath(obj, cd, cache);
 		}
 		if (d instanceof CategoryDescriptor category) {
@@ -57,7 +57,7 @@ final class JsonRef {
 	}
 
 	private static void putCategoryPath(
-		JsonObject ref, CategorizedDescriptor d, EntityCache cache) {
+		JsonObject ref, RootDescriptor d, EntityCache cache) {
 		if (ref == null || d == null || cache == null
 			|| d.category == null)
 			return;

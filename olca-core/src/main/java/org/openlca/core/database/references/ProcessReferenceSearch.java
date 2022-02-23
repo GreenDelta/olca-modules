@@ -8,7 +8,7 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Exchange;
@@ -67,7 +67,7 @@ public class ProcessReferenceSearch
 	public List<Reference> findReferences(Set<Long> ids) {
 		List<Reference> mixed = findReferences("tbl_processes", "id", ids, references);
 		List<Reference> results = new ArrayList<>();
-		results.addAll(filter(CategorizedEntity.class, mixed));
+		results.addAll(filter(RootEntity.class, mixed));
 		Map<Long, Long> docIds = toIdMap(filter(ProcessDocumentation.class, mixed));
 		results.addAll(findExchangeReferences(ids));
 		results.addAll(findSocialAspectReferences(ids));
@@ -77,7 +77,7 @@ public class ProcessReferenceSearch
 	}
 
 	private List<Reference> findExchangeReferences(Set<Long> ids) {
-		Map<Long, Long> exchanges = toIdMap(findReferences("tbl_exchanges", "f_owner", ids, 
+		Map<Long, Long> exchanges = toIdMap(findReferences("tbl_exchanges", "f_owner", ids,
 				new Ref[] { new Ref(Exchange.class, "id", "id") }));
 		List<Reference> references = findReferences("tbl_exchanges", "id", exchanges.keySet(), exchanges, exchangeReferences);
 		List<Reference> factors = new ArrayList<>();

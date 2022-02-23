@@ -8,8 +8,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
-import org.openlca.core.model.CategorizedEntity;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 
 /**
@@ -106,19 +106,19 @@ public final class ImportLog {
 		}
 	}
 
-	public void updated(CategorizedEntity entity) {
+	public void updated(RootEntity entity) {
 		add(State.UPDATED, entity);
 	}
 
-	public void imported(CategorizedEntity entity) {
+	public void imported(RootEntity entity) {
 		add(State.IMPORTED, entity);
 	}
 
-	public void skipped(CategorizedEntity entity) {
+	public void skipped(RootEntity entity) {
 		add(State.SKIPPED, entity);
 	}
 
-	private void add(State state, CategorizedEntity e) {
+	private void add(State state, RootEntity e) {
 		if (e == null || e.id == 0)
 			return;
 		var current = dataSetLogs.get(e.id);
@@ -189,13 +189,13 @@ public final class ImportLog {
 	public record Message(
 		State state,
 		String message,
-		CategorizedDescriptor descriptor) {
+		RootDescriptor descriptor) {
 
 		private Message(State state, String message) {
 			this(state, message, null);
 		}
 
-		private Message(State state, CategorizedDescriptor descriptor) {
+		private Message(State state, RootDescriptor descriptor) {
 			this(state, null, descriptor);
 		}
 

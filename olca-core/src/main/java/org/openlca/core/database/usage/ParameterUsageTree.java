@@ -13,11 +13,11 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.ProjectDao;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
@@ -66,7 +66,7 @@ public class ParameterUsageTree {
 	}
 
 	public static ParameterUsageTree of(
-			Parameter param, CategorizedDescriptor owner, IDatabase db) {
+		Parameter param, RootDescriptor owner, IDatabase db) {
 		if (param == null
 				|| Strings.nullOrEmpty(param.name)
 				|| db == null)
@@ -88,7 +88,7 @@ public class ParameterUsageTree {
 
 		public final long id;
 		public final String name;
-		public final CategorizedDescriptor model;
+		public final RootDescriptor model;
 
 		public UsageType usageType;
 		public String usage;
@@ -102,11 +102,11 @@ public class ParameterUsageTree {
 			this.model = null;
 		}
 
-		Node(CategorizedEntity e) {
+		Node(RootEntity e) {
 			this(Descriptor.of(e));
 		}
 
-		Node(CategorizedDescriptor model) {
+		Node(RootDescriptor model) {
 			this.id = model.id;
 			this.name = model.name;
 			this.model = model;
@@ -179,7 +179,7 @@ public class ParameterUsageTree {
 
 		// optional parameter context
 		private Parameter param;
-		private CategorizedDescriptor owner;
+		private RootDescriptor owner;
 
 		private final HashMap<Long, Node> roots = new HashMap<>();
 
@@ -199,7 +199,7 @@ public class ParameterUsageTree {
 			this.cache = EntityCache.create(db);
 		}
 
-		Search(Parameter param, CategorizedDescriptor owner, IDatabase db) {
+		Search(Parameter param, RootDescriptor owner, IDatabase db) {
 			this(param.name, db);
 			this.param = param;
 			this.owner = owner;
@@ -450,7 +450,7 @@ public class ParameterUsageTree {
 			return true;
 		}
 
-		private Node root(long id, Class<? extends CategorizedDescriptor> clazz) {
+		private Node root(long id, Class<? extends RootDescriptor> clazz) {
 			if (owner != null && owner.id == id)
 				return roots.computeIfAbsent(id, _id -> new Node(owner));
 			return roots.computeIfAbsent(id, _id -> {

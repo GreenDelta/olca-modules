@@ -16,7 +16,7 @@ import jakarta.persistence.OneToMany;
  * their own scope.
  */
 @MappedSuperclass
-public abstract class ParameterizedEntity extends CategorizedEntity {
+public abstract class ParameterizedEntity extends RootEntity {
 
 	/**
 	 * The parameters that are owned by this model and that are only valid in the

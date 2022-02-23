@@ -15,7 +15,7 @@ import org.openlca.util.Categories;
 
 @Entity
 @Table(name = "tbl_categories")
-public class Category extends CategorizedEntity {
+public class Category extends RootEntity {
 
 	@OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
 	@JoinColumn(name = "f_category")

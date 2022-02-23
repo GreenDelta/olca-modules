@@ -10,7 +10,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterScope;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ParameterDescriptor;
 import org.openlca.util.Formula;
 import org.slf4j.Logger;
@@ -28,19 +28,19 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 	}
 
 	@Override
-	public List<CategorizedDescriptor> findUses(Set<Long> ids) {
+	public List<RootDescriptor> findUses(Set<Long> ids) {
 
 		Set<String> names = getParameterNames(ids);
 		if (names.isEmpty())
 			return Collections.emptyList();
-		List<CategorizedDescriptor> results = new ArrayList<>();
+		List<RootDescriptor> results = new ArrayList<>();
 		results.addAll(findInRedefs(names));
 		results.addAll(findInParameters(names));
 		return results;
 	}
 
-	private List<CategorizedDescriptor> findInParameters(Set<String> names) {
-		List<CategorizedDescriptor> results = new ArrayList<>();
+	private List<RootDescriptor> findInParameters(Set<String> names) {
+		List<RootDescriptor> results = new ArrayList<>();
 		List<ParameterRef> refs = findReferencing(names);
 		Set<Long> globals = new HashSet<>();
 		Set<Long> processes = new HashSet<>();
@@ -100,7 +100,7 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 		return ParameterScope.valueOf(value);
 	}
 
-	private List<CategorizedDescriptor> findInRedefs(Set<String> names) {
+	private List<RootDescriptor> findInRedefs(Set<String> names) {
 		String query = "SELECT f_owner FROM tbl_parameter_redefs WHERE "
 				+ "context_type IS NULL AND lower(name) IN "
 				+ Search.asSqlList(names.toArray());

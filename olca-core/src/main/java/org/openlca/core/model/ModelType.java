@@ -60,9 +60,9 @@ public enum ModelType {
 		return modelClass;
 	}
 
-	public boolean isCategorized() {
+	public boolean isRoot() {
 		return modelClass != null
-			&& CategorizedEntity.class.isAssignableFrom(modelClass);
+			&& RootEntity.class.isAssignableFrom(modelClass);
 	}
 
 	public boolean isOneOf(ModelType... types) {
@@ -84,14 +84,14 @@ public enum ModelType {
 		return null;
 	}
 
-	public static ModelType[] categorized() {
-		List<ModelType> categorized = new ArrayList<>();
+	public static ModelType[] rootTypes() {
+		List<ModelType> list = new ArrayList<>();
 		for (ModelType type : values()) {
-			if (!type.isCategorized())
+			if (!type.isRoot())
 				continue;
-			categorized.add(type);
+			list.add(type);
 		}
-		return categorized.toArray(new ModelType[0]);
+		return list.toArray(new ModelType[0]);
 	}
 
 	/**

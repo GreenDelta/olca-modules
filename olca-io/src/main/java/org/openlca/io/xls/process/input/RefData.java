@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.RootEntityDao;
+import org.openlca.core.database.RefEntityDao;
 import org.openlca.core.database.UnitDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Actor;
@@ -37,7 +37,7 @@ class RefData {
 		load(new FlowPropertyDao(database), flowProperties);
 	}
 
-	private <T extends RefEntity> void load(RootEntityDao<T, ?> dao,
+	private <T extends RefEntity> void load(RefEntityDao<T, ?> dao,
                                             HashMap<String, T> map) throws Exception {
 		for (T entity : dao.getAll()) {
 			map.put(entity.name, entity);

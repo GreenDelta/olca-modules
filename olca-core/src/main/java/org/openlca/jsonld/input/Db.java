@@ -17,7 +17,7 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.ProjectDao;
 import org.openlca.core.database.ResultDao;
-import org.openlca.core.database.RootEntityDao;
+import org.openlca.core.database.RefEntityDao;
 import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitDao;
@@ -166,7 +166,7 @@ class Db {
 	}
 
 	private <T extends RefEntity> T get(
-		RootEntityDao<T, ?> dao, String refId, Map<String, Long> idCache) {
+            RefEntityDao<T, ?> dao, String refId, Map<String, Long> idCache) {
 		Long id = idCache.get(refId);
 		if (id != null)
 			return dao.getForId(id);
@@ -178,7 +178,7 @@ class Db {
 	}
 
 	private <T extends RefEntity> T put(
-		RootEntityDao<T, ?> dao, T entity, Map<String, Long> idCache) {
+            RefEntityDao<T, ?> dao, T entity, Map<String, Long> idCache) {
 		if (entity == null)
 			return null;
 		if (entity.id == 0L)

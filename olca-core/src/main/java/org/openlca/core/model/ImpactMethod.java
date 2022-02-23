@@ -14,7 +14,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_impact_methods")
-public class ImpactMethod extends CategorizedEntity {
+public class ImpactMethod extends RootEntity {
 
 	/**
 	 * A code, short name, or abbreviation that identifies this impact assessment

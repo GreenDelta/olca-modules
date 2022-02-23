@@ -23,7 +23,7 @@ public class EntityTypeTest {
   public void testWriteToModels() throws Exception {
     // TODO: results are currently not supported but fix this test when they are
     for (var modelType : ModelType.values()) {
-      if (!modelType.isCategorized() || modelType == ModelType.RESULT)
+      if (!modelType.isRoot() || modelType == ModelType.RESULT)
         continue;
       var id = UUID.randomUUID().toString();
       var instance = modelType.getModelClass()
@@ -52,7 +52,7 @@ public class EntityTypeTest {
 
     for (var modelType : ModelType.values()) {
       // TODO: support results
-      if (!modelType.isCategorized() || modelType == ModelType.RESULT)
+      if (!modelType.isRoot() || modelType == ModelType.RESULT)
         continue;
       var id = UUID.randomUUID().toString();
       var instance = modelType.getModelClass()

@@ -14,7 +14,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "tbl_epds")
-public class Epd extends CategorizedEntity {
+public class Epd extends RootEntity {
 
 	/**
 	 * A URN that points to the origin of the EPD.

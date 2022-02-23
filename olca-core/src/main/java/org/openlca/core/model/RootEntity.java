@@ -9,7 +9,7 @@ import jakarta.persistence.OneToOne;
  * A categorized entity is a root entity with a category.
  */
 @MappedSuperclass
-public abstract class CategorizedEntity	extends RefEntity {
+public abstract class RootEntity extends RefEntity {
 
 	// @Version
 	@Column(name = "version")

@@ -8,7 +8,7 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -80,7 +80,7 @@ record GraphSync(IDatabase db) {
 	 * Creates a copy of the category of the given entity under the `eILCD
 	 * models` tree.
 	 */
-	private void category(CategorizedEntity e) {
+	private void category(RootEntity e) {
 		if (e == null || e.category == null)
 			return;
 		Category c = e.category;

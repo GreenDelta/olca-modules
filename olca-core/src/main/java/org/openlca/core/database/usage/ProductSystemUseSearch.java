@@ -5,7 +5,7 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 
 public class ProductSystemUseSearch extends
@@ -16,7 +16,7 @@ public class ProductSystemUseSearch extends
 	}
 
 	@Override
-	public List<CategorizedDescriptor> findUses(Set<Long> ids) {
+	public List<RootDescriptor> findUses(Set<Long> ids) {
 		return queryFor(ModelType.PROJECT, "f_project", "tbl_project_variants",
 				ids, "f_product_system");
 	}

@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
@@ -92,25 +92,25 @@ public final class Out {
 					set(proto, field, e.description);
 					break;
 				case "version":
-					if (e instanceof CategorizedEntity ce && ce.version != 0) {
+					if (e instanceof RootEntity ce && ce.version != 0) {
 						set(proto, field, Version.asString(ce.version));
 					}
 					break;
 				case "last_change":
-					if (e instanceof CategorizedEntity ce && ce.lastChange != 0) {
+					if (e instanceof RootEntity ce && ce.lastChange != 0) {
 						set(proto, field, dateTimeOf(ce.lastChange));
 					}
 					break;
 
 				case "library":
-					if (e instanceof CategorizedEntity ce) {
+					if (e instanceof RootEntity ce) {
 						set(proto, field, ce.library);
 					}
 					break;
 
 				case "category":
 					if (field.getJavaType() == Descriptors.FieldDescriptor.JavaType.MESSAGE) {
-						if (e instanceof CategorizedEntity ce) {
+						if (e instanceof RootEntity ce) {
 							if (ce.category != null) {
 								var catRef = Refs.refOf(ce.category);
 								proto.setField(field, catRef.build());
@@ -120,7 +120,7 @@ public final class Out {
 					break;
 
 				case "tags":
-					if (e instanceof CategorizedEntity ce) {
+					if (e instanceof RootEntity ce) {
 						if (Strings.notEmpty(ce.tags)) {
 							var tags = Arrays.stream(ce.tags.split(","))
 								.filter(Strings::notEmpty)
@@ -131,7 +131,7 @@ public final class Out {
 					break;
 
 				case "category_path":
-					if (e instanceof CategorizedEntity ce && ce.category != null) {
+					if (e instanceof RootEntity ce && ce.category != null) {
 						var path = Categories.path(ce.category);
 						setRepeated(proto, field, path);
 					}

@@ -191,7 +191,7 @@ public interface IDatabase extends Closeable, INotifiable, EntityResolver {
 		var modelType = ModelType.forModelClass(type);
 		if (modelType == null)
 			return null;
-		var dao = Daos.root(this, modelType);
+		var dao = Daos.refDao(this, modelType);
 		return dao == null
 			? null
 			: (T) dao.getForRefId(refId);
@@ -203,7 +203,7 @@ public interface IDatabase extends Closeable, INotifiable, EntityResolver {
 	default <T extends RefEntity> Descriptor getDescriptor(
 		Class<T> type, long id) {
 		var modelType = ModelType.forModelClass(type);
-		var dao = Daos.root(this, modelType);
+		var dao = Daos.refDao(this, modelType);
 		return dao == null
 			? null
 			: dao.getDescriptor(id);
@@ -218,7 +218,7 @@ public interface IDatabase extends Closeable, INotifiable, EntityResolver {
 		if (refID == null)
 			return null;
 		var modelType = ModelType.forModelClass(type);
-		var dao = Daos.root(this, modelType);
+		var dao = Daos.refDao(this, modelType);
 		return dao == null
 			? null
 			: dao.getDescriptorForRefId(refID);
@@ -232,7 +232,7 @@ public interface IDatabase extends Closeable, INotifiable, EntityResolver {
 		var modelType = ModelType.forModelClass(type);
 		if (modelType == null)
 			return Collections.emptyList();
-		var dao = Daos.root(this, modelType);
+		var dao = Daos.refDao(this, modelType);
 		return dao == null
 			? Collections.emptyList()
 			: (List<T>) dao.getAll();
@@ -244,7 +244,7 @@ public interface IDatabase extends Closeable, INotifiable, EntityResolver {
 	default <T extends RefEntity> List<? extends Descriptor> allDescriptorsOf(
 		Class<T> type) {
 		var modelType = ModelType.forModelClass(type);
-		var dao = Daos.root(this, modelType);
+		var dao = Daos.refDao(this, modelType);
 		return dao == null
 			? Collections.emptyList()
 			: dao.getDescriptors();
@@ -259,7 +259,7 @@ public interface IDatabase extends Closeable, INotifiable, EntityResolver {
 		var modelType = ModelType.forModelClass(type);
 		if (modelType == null)
 			return null;
-		var dao = Daos.root(this, modelType);
+		var dao = Daos.refDao(this, modelType);
 		if (dao == null)
 			return null;
 		var candidates = dao.getForName(name);

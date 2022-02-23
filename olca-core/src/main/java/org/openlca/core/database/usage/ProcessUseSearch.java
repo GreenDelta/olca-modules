@@ -5,7 +5,7 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 /**
@@ -19,7 +19,7 @@ public class ProcessUseSearch extends BaseUseSearch<ProcessDescriptor> {
 	}
 
 	@Override
-	public List<CategorizedDescriptor> findUses(Set<Long> ids) {
+	public List<RootDescriptor> findUses(Set<Long> ids) {
 		return queryFor(ModelType.PRODUCT_SYSTEM, "f_product_system",
 				"tbl_product_system_processes", ids, "f_process");
 	}

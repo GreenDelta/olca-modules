@@ -2,7 +2,7 @@ package org.openlca.jsonld.input;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.RefEntity;
@@ -21,9 +21,9 @@ class Util {
     e.name = Json.getString(obj, "name");
     e.description = Json.getString(obj, "description");
 
-    if (!(e instanceof CategorizedEntity ce))
+    if (!(e instanceof RootEntity ce))
       return;
-    
+
     // version
     var version = Json.getString(obj, "version");
     ce.version = version != null

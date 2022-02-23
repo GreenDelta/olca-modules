@@ -1,7 +1,7 @@
 package org.openlca.jsonld.input;
 
 import com.google.gson.JsonElement;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.Json;
@@ -42,8 +42,8 @@ final class In {
 		entity.refId = Json.getString(obj, "@id");
 	}
 
-	static void mapAtts(JsonObject obj, CategorizedEntity entity, long id,
-						JsonImport conf) {
+	static void mapAtts(JsonObject obj, RootEntity entity, long id,
+											JsonImport conf) {
 		if (obj == null || entity == null)
 			return;
 		mapAtts(obj, entity, id);
@@ -52,7 +52,7 @@ final class In {
 		entity.library = Json.getString(obj, "library");
 		entity.version = getVersion(obj);
 		entity.lastChange = getLastChange(obj);
-		
+
 		// read tags
 		var tagArray = Json.getArray(obj, "tags");
 		if (tagArray != null) {
@@ -67,7 +67,7 @@ final class In {
 		}
 	}
 
-	static boolean isNewer(JsonObject json, CategorizedEntity model) {
+	static boolean isNewer(JsonObject json, RootEntity model) {
 		long jsonVersion = getVersion(json);
 		long jsonDate = getLastChange(json);
 		if (jsonVersion < model.version)
