@@ -96,7 +96,7 @@ public class ModelHandler {
 			var array = new JsonArray();
 			var cache = EntityCache.create(db);
 			Daos.root(db, type).getDescriptors().forEach(d -> {
-				JsonObject obj = Json.asRef(d, cache);
+				JsonObject obj = JsonRef.of(d, cache);
 				array.add(obj);
 			});
 			return Responses.ok(array, req);
@@ -111,7 +111,7 @@ public class ModelHandler {
 		if (p.second != null)
 			return p.second;
 		var d = Descriptor.of(p.first);
-		var json = Json.asRef(d, EntityCache.create(db));
+		var json = JsonRef.of(d, EntityCache.create(db));
 		return Responses.ok(json, req);
 	}
 
@@ -158,7 +158,7 @@ public class ModelHandler {
 				.map(TechFlow::provider)
 				.filter(p -> p instanceof ProcessDescriptor)
 				.map(p -> {
-					var ref = Json.asRef(p, cache);
+					var ref = JsonRef.of(p, cache);
 					ref.addProperty("description", p.description);
 					return ref;
 				})
