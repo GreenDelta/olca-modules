@@ -155,7 +155,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 			Json.put(jsonSet, "description", set.description);
 			Json.put(jsonSet, "isBaseline", set.isBaseline);
 			if (!set.parameters.isEmpty()) {
-				var params = ParameterRedefs.map(set.parameters, exp);
+				var params = Util.mapRedefs(set.parameters, exp);
 				Json.put(jsonSet, "parameters", params);
 			}
 		}

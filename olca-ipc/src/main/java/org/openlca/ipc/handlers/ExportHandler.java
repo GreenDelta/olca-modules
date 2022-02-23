@@ -98,9 +98,8 @@ public class ExportHandler {
 		if (toExport == null)
 			return Responses.badRequest("No `models` given", req);
 		try {
-			ZipStore store = ZipStore.open(new File(path));
-			JsonExport export = new JsonExport(context.db, store);
-			export.setExportReferences(true);
+			var store = ZipStore.open(new File(path));
+			var export = new JsonExport(context.db, store);
 			for (ModelType type : toExport.keySet()) {
 				for (String refId : toExport.get(type)) {
 					export.write(Daos.categorized(context.db, type).getForRefId(refId));

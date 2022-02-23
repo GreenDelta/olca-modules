@@ -35,7 +35,7 @@ class ProcessWriter extends Writer<Process> {
 		Json.put(obj, "defaultAllocationMethod", p.defaultAllocationMethod);
 		Json.put(obj, "infrastructureProcess", p.infrastructureProcess);
 		Json.put(obj, "location", exp.handleRef(p.location));
-		Json.put(obj, "processDocumentation", Documentation.create(p, exp));
+		Json.put(obj, "processDocumentation", Util.mapDocOf(p, exp));
 		Json.put(obj, "dqSystem", exp.handleRef(p.dqSystem));
 		Json.put(obj, "dqEntry", p.dqEntry);
 		Json.put(obj, "exchangeDqSystem", exp.handleRef(p.exchangeDqSystem));

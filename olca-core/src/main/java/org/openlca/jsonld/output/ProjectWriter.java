@@ -44,7 +44,7 @@ class ProjectWriter extends Writer<Project> {
 				: null;
 			Json.put(obj, "flowProperty", exp.handleRef(prop));
 			if (!v.parameterRedefs.isEmpty()) {
-				var redefs = ParameterRedefs.map(v.parameterRedefs, exp);
+				var redefs = Util.mapRedefs(v.parameterRedefs, exp);
 				Json.put(obj, "parameterRedefs", redefs);
 			}
 		}

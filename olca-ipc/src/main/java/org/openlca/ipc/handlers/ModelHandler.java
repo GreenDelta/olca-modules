@@ -49,9 +49,9 @@ public class ModelHandler {
 				return p.second;
 			var model = p.first;
 			var store = new MemStore();
-			var exp = new JsonExport(db, store);
-			exp.setExportReferences(false);
-			exp.write(model);
+			new JsonExport(db, store)
+					.withReferences(false)
+					.write(model);
 			var modelType = ModelType.forModelClass(model.getClass());
 			var obj = store.get(modelType, model.refId);
 			if (obj == null)
@@ -73,8 +73,7 @@ public class ModelHandler {
 					+ " valid @type attribute", req);
 		try {
 			var store = new MemStore();
-			var exp = new JsonExport(db, store);
-			exp.setExportReferences(false);
+			var exp = new JsonExport(db, store).withReferences(false);
 			Daos.root(db, type).getAll().forEach(exp::write);
 			var array = new JsonArray();
 			store.getAll(type).forEach(array::add);
