@@ -3,15 +3,11 @@ package org.openlca.jsonld.output;
 import java.util.List;
 
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.database.ProcessDao;
-import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.database.ResultDao;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.jsonld.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,21 +89,27 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 	}
 
 	private void mapProcesses(JsonObject json) {
-		var processes = new ProcessDao(exp.db).descriptorMap();
-		var systems = new ProductSystemDao(exp.db).descriptorMap();
-		var results = new ResultDao(exp.db).descriptorMap();
+		var refs = exp.refs;
+		if (refs == null)
+			return;
 		var array = new JsonArray();
+		var types = new ModelType[]{
+			ModelType.PROCESS, ModelType.PRODUCT_SYSTEM, ModelType.RESULT};
+
 		for (var id : system.processes) {
-			CategorizedDescriptor d = processes.get(id);
-			if (d == null) {
-				d = systems.get(id);
-				if (d == null) {
-					d = results.get(id);
+			if (id == null)
+				continue;
+			long unboxedId = id;
+			ModelType type = null;
+			for (var t : types) {
+				if (refs.descriptorOf(t, unboxedId) != null) {
+					type = t;
+					break;
 				}
 			}
-			if (d == null)
+			if (type == null)
 				continue;
-			var ref = exp.handleRef(d.type, d.id);
+			var ref = exp.handleRef(type, unboxedId);
 			if (ref == null)
 				continue;
 			array.add(ref);

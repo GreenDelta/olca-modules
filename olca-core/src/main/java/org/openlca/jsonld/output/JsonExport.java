@@ -13,7 +13,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.google.gson.JsonArray;
-import gnu.trove.map.hash.TLongObjectHashMap;
+import gnu.trove.set.hash.TLongHashSet;
+import org.openlca.core.database.Daos;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
@@ -57,11 +58,24 @@ public class JsonExport {
 	boolean exportReferences = true;
 	boolean exportProviders = false;
 
-	private final Map<ModelType, TLongObjectHashMap<JsonObject>> visited = new EnumMap<>(ModelType.class);
+	private final Map<ModelType, TLongHashSet> visited = new EnumMap<>(ModelType.class);
+	final Refs refs;
+
+	/**
+	 * Creates an export without database. This can be useful to convert specific
+	 * objects into JSON but some data may not be convertible with such an export
+	 * (e.g. process links).
+	 */
+	public JsonExport(JsonStoreWriter writer) {
+		this(null, writer);
+	}
 
 	public JsonExport(IDatabase db, JsonStoreWriter writer) {
 		this.db = db;
-		this.writer = writer;
+		this.writer = Objects.requireNonNull(writer);
+		this.refs = db != null
+			? Refs.of(db)
+			: null;
 	}
 
 	public JsonExport withDefaultProviders(boolean value) {
@@ -80,34 +94,29 @@ public class JsonExport {
 		var type = ModelType.of(entity);
 		if (type == null)
 			return;
-		var ref = Json.asRef(entity);
-		var set = visited.computeIfAbsent(type, k -> new TLongObjectHashMap<>());
-		set.put(entity.id, ref);
+		var set = visited.computeIfAbsent(type, k -> new TLongHashSet());
+		set.add(entity.id);
 	}
 
 	boolean hasVisited(ModelType type, long id) {
-		var map = visited.get(type);
-		if (map == null)
-			return false;
-		return map.contains(id);
+		var set = visited.get(type);
+		return set != null && set.contains(id);
 	}
 
 	JsonObject handleRef(ModelType type, long id) {
-		var map = visited.get(type);
-		if (map != null) {
-			var ref = map.get(id);
-			if (ref != null) {
-				return ref.deepCopy();
-			}
-		}
-		if (exportReferences) {
+		if (type == null || !type.isCategorized() || db == null)
+			return null;
+		if (hasVisited(type, id) || !exportReferences)
+			return refs.get(type, id);
 
-		}
-
-		if (hasVisited(type, id)) {
-			var d = db.getDescriptor()
-
-		}
+		var dao = Daos.categorized(db, type);
+		if (dao == null)
+			return null;
+		var entity = dao.getForId(id);
+		if (entity == null)
+			return null;
+		write(entity);
+		return Json.asRef(entity);
 	}
 
 	JsonArray handleRefs(List<? extends CategorizedEntity> list) {
@@ -200,7 +209,7 @@ public class JsonExport {
 	public static <T extends RootEntity> JsonObject toJson(T entity) {
 		if (entity == null)
 			return new JsonObject();
-		var exp = new JsonExport(null,new MemStore() )
+		var exp = new JsonExport(null, new MemStore())
 			.withReferences(false);
 		Writer<T> writer = exp.getWriter(entity);
 		return writer.write(entity);
@@ -250,7 +259,6 @@ public class JsonExport {
 			return (Writer<T>) new UnitWriter(this);
 		return null;
 	}
-
 
 
 	private class Copy extends SimpleFileVisitor<Path> {
