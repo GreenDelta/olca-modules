@@ -11,7 +11,7 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
-import org.openlca.git.Config;
+import org.openlca.git.GitConfig;
 import org.openlca.git.find.NotBinaryFilter;
 import org.openlca.git.iterator.DatabaseIterator;
 import org.openlca.git.model.Commit;
@@ -20,15 +20,15 @@ import org.openlca.util.Strings;
 
 public class DiffEntries {
 
-	public static List<DiffEntry> workspace(Config config) throws IOException {
+	public static List<DiffEntry> workspace(GitConfig config) throws IOException {
 		return workspace(config, null, null);
 	}
 
-	public static List<DiffEntry> workspace(Config config, Commit commit) throws IOException {
+	public static List<DiffEntry> workspace(GitConfig config, Commit commit) throws IOException {
 		return workspace(config, commit, null);
 	}
 
-	public static List<DiffEntry> workspace(Config config, Commit commit, List<String> paths) throws IOException {
+	public static List<DiffEntry> workspace(GitConfig config, Commit commit, List<String> paths) throws IOException {
 		var walk = new TreeWalk(config.repo);
 		var commitOid = commit != null ? ObjectId.fromString(commit.id) : null;
 		var revCommit = commitOid != null ? config.repo.parseCommit(commitOid) : Repositories.headCommitOf(config.repo);

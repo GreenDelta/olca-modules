@@ -12,32 +12,32 @@ import org.openlca.core.database.Daos;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.git.Config;
+import org.openlca.git.GitConfig;
 import org.openlca.util.Categories;
 import org.openlca.util.Categories.PathBuilder;
 
 public class DatabaseIterator extends EntryIterator {
 
-	private final Config config;
+	private final GitConfig config;
 	private final PathBuilder categoryPaths;
 
-	public DatabaseIterator(Config config) {
+	public DatabaseIterator(GitConfig config) {
 		this(config, init(config));
 	}
 
-	private DatabaseIterator(Config config, List<TreeEntry> entries) {
+	private DatabaseIterator(GitConfig config, List<TreeEntry> entries) {
 		super(entries);
 		this.config = config;
 		this.categoryPaths = Categories.pathsOf(config.database);
 	}
 
-	private DatabaseIterator(DatabaseIterator parent, Config config, List<TreeEntry> entries) {
+	private DatabaseIterator(DatabaseIterator parent, GitConfig config, List<TreeEntry> entries) {
 		super(parent, entries);
 		this.config = config;
 		this.categoryPaths = Categories.pathsOf(config.database);
 	}
 
-	private static List<TreeEntry> init(Config config) {
+	private static List<TreeEntry> init(GitConfig config) {
 		return Arrays.stream(ModelType.categorized()).filter(type -> {
 			var dao = new CategoryDao(config.database);
 			if (type == ModelType.CATEGORY)
@@ -49,7 +49,7 @@ public class DatabaseIterator extends EntryIterator {
 				.toList();
 	}
 
-	private static List<TreeEntry> init(Config config, ModelType type) {
+	private static List<TreeEntry> init(GitConfig config, ModelType type) {
 		var entries = new CategoryDao(config.database).getRootCategories(type)
 				.stream().map(TreeEntry::new)
 				.collect(Collectors.toList());
@@ -59,7 +59,7 @@ public class DatabaseIterator extends EntryIterator {
 		return entries;
 	}
 
-	private static List<TreeEntry> init(Config config, Category category) {
+	private static List<TreeEntry> init(GitConfig config, Category category) {
 		var entries = category.childCategories
 				.stream().map(TreeEntry::new)
 				.collect(Collectors.toList());

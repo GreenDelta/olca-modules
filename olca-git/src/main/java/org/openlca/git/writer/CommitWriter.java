@@ -17,7 +17,7 @@ import org.eclipse.jgit.lib.TreeFormatter;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
-import org.openlca.git.Config;
+import org.openlca.git.GitConfig;
 import org.openlca.git.iterator.DiffIterator;
 import org.openlca.git.model.Diff;
 import org.openlca.git.model.DiffType;
@@ -32,11 +32,11 @@ import org.slf4j.LoggerFactory;
 public class CommitWriter {
 
 	private static final Logger log = LoggerFactory.getLogger(CommitWriter.class);
-	private final Config config;
+	private final GitConfig config;
 	private PackInserter inserter;
 	private Converter converter;
 
-	public CommitWriter(Config config) {
+	public CommitWriter(GitConfig config) {
 		this.config = config;
 	}
 

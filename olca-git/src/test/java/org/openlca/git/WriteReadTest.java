@@ -66,7 +66,7 @@ public class WriteReadTest {
 		temp.delete();
 	}
 
-	private record TempConfig(Config config, File dir) {
+	private record TempConfig(GitConfig config, File dir) {
 
 		static TempConfig create() {
 			try {
@@ -74,7 +74,7 @@ public class WriteReadTest {
 				var repo = Repositories.open(new File(dir, "repo"));
 				var idStore = ObjectIdStore.open(new File(dir, "id-store"));
 				var committer = new PersonIdent("user", "user@example.com");
-				var config = new Config(Tests.db(), idStore, repo, committer);
+				var config = new GitConfig(Tests.db(), idStore, repo, committer);
 				return new TempConfig(config, dir);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
