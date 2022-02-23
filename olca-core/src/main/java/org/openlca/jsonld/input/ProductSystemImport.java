@@ -3,7 +3,7 @@ package org.openlca.jsonld.input;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
@@ -55,7 +55,7 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 			return;
 		String refId = Json.getString(ref, "@id");
 		String type = Json.getString(ref, "@type");
-		RootEntity p;
+		RefEntity p;
 		if ("ProductSystem".equals(type)) {
 			p = ProductSystemImport.run(refId, conf);
 		}else if ("Result".equals(type)) {

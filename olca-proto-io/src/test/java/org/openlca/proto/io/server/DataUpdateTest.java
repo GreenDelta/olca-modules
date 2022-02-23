@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import org.junit.Test;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
 import org.openlca.proto.grpc.DataFetchServiceGrpc;
@@ -51,7 +52,7 @@ public class DataUpdateTest {
 					assertTrue(Messages.isEmpty(dataSet));
 
 					// create an instance and insert it
-					var instance = type.getModelClass()
+					var instance = (CategorizedEntity) type.getModelClass()
 							.getConstructor()
 							.newInstance();
 					instance.refId = id;

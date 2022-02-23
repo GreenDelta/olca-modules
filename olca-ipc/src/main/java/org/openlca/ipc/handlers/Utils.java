@@ -12,7 +12,7 @@ import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -74,7 +74,7 @@ class Utils {
 	}
 
 	@SuppressWarnings("unchecked")
-	<T1 extends RootEntity, T2 extends Descriptor> List<Contribution<T2>> toDescriptors(
+	<T1 extends RefEntity, T2 extends Descriptor> List<Contribution<T2>> toDescriptors(
 			List<Contribution<T1>> items) {
 		List<Contribution<T2>> contributions = new ArrayList<>();
 		items.forEach(i -> {

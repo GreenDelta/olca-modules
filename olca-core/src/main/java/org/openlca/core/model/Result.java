@@ -60,7 +60,7 @@ public class Result extends CategorizedEntity {
 	@Override
 	public Result copy() {
 		var copy = new Result();
-		Entities.copyRootFields(this, copy);
+		Entities.copyRefFields(this, copy);
 		copy.productSystem = productSystem;
 		copy.impactMethod = impactMethod;
 		if (referenceFlow != null) {

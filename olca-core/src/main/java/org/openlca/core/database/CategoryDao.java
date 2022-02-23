@@ -11,7 +11,7 @@ import java.util.Optional;
 
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
@@ -153,7 +153,7 @@ public class CategoryDao
 		if (tables == null) {
 			tables = new HashMap<>();
 			for (ModelType type : ModelType.values()) {
-				if (type.getModelClass() == null || !RootEntity.class
+				if (type.getModelClass() == null || !RefEntity.class
 					.isAssignableFrom(type.getModelClass()))
 					continue;
 				String table = Daos.root(db, type).getEntityTable();

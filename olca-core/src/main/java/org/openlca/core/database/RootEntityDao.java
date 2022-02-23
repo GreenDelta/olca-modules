@@ -1,7 +1,6 @@
 package org.openlca.core.database;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,13 +11,13 @@ import java.util.Set;
 
 import jakarta.persistence.Table;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.util.Strings;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 
-public class RootEntityDao<T extends RootEntity, V extends Descriptor> extends BaseDao<T> {
+public class RootEntityDao<T extends RefEntity, V extends Descriptor> extends BaseDao<T> {
 
 	private final Class<V> descriptorType;
 	private String entityTable;

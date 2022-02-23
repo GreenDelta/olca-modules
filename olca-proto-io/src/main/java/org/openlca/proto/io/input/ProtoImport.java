@@ -21,7 +21,7 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
@@ -84,7 +84,7 @@ public class ProtoImport implements Runnable {
    * Returns true if the given existing entity should be updated. If this is
    * not the case, we mark it as handled.
    */
-  boolean shouldUpdate(RootEntity entity) {
+  boolean shouldUpdate(RefEntity entity) {
     if (entity == null)
       return false;
     if (isHandled(entity))
@@ -103,7 +103,7 @@ public class ProtoImport implements Runnable {
    * entity is also marked as handled so there is no need to call the
    * `putHandled` method again after this call.
    */
-  boolean skipUpdate(RootEntity existing, ProtoWrap incoming) {
+  boolean skipUpdate(CategorizedEntity existing, ProtoWrap incoming) {
     if (existing == null)
       return true;
     if (updateMode == UpdateMode.ALWAYS)
@@ -134,7 +134,7 @@ public class ProtoImport implements Runnable {
     return false;
   }
 
-  void putHandled(RootEntity e) {
+  void putHandled(RefEntity e) {
     if (e == null || e.refId == null)
       return;
 		if (e instanceof Process p) {
@@ -145,7 +145,7 @@ public class ProtoImport implements Runnable {
     map.put(e.refId, e.id);
   }
 
-  boolean isHandled(RootEntity e) {
+  boolean isHandled(RefEntity e) {
     if (e == null || e.refId == null)
       return false;
     var map = handled.get(e.getClass());
@@ -163,7 +163,7 @@ public class ProtoImport implements Runnable {
    * a matching ref. ID.
    */
   @SuppressWarnings("unchecked")
-  <T extends RootEntity> T get(Class<T> type, String refID) {
+  <T extends RefEntity> T get(Class<T> type, String refID) {
 
     // try to use a cached ID first
     var map = handled.get(type);

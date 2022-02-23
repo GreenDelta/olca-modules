@@ -50,13 +50,13 @@ public enum ModelType {
 
 	EPD(Epd.class);
 
-	final Class<? extends RootEntity> modelClass;
+	final Class<? extends RefEntity> modelClass;
 
-	ModelType(Class<? extends RootEntity> clazz) {
+	ModelType(Class<? extends RefEntity> clazz) {
 		this.modelClass = clazz;
 	}
 
-	public Class<? extends RootEntity> getModelClass() {
+	public Class<? extends RefEntity> getModelClass() {
 		return modelClass;
 	}
 
@@ -101,7 +101,7 @@ public enum ModelType {
 	 * @return the model type of the entity or {@code UNKNOWN} if the type could
 	 * not be determined or the entity was null.
 	 */
-	public static ModelType of(RootEntity e) {
+	public static ModelType of(RefEntity e) {
 		if (e == null)
 			return UNKNOWN;
 		for (var v : values()) {

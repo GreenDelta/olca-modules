@@ -17,7 +17,7 @@ import org.openlca.core.model.descriptors.ImpactDescriptor;
  */
 @Entity
 @Table(name = "tbl_nw_sets")
-public class NwSet extends RootEntity {
+public class NwSet extends RefEntity {
 
 	@JoinColumn(name = "f_nw_set")
 	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
@@ -42,7 +42,7 @@ public class NwSet extends RootEntity {
 	@Override
 	public NwSet copy() {
 		var clone = new NwSet();
-		Entities.copyRootFields(this, clone);
+		Entities.copyRefFields(this, clone);
 		clone.weightedScoreUnit = weightedScoreUnit;
 		for (var factor : factors) {
 			clone.factors.add(factor.copy());

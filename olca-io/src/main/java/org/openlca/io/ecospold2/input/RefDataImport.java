@@ -344,8 +344,6 @@ class RefDataImport {
 			unit.name = name;
 			unit.refId = refID;
 			unit.conversionFactor = 1.0;
-			unit.lastChange = new Date().getTime();
-			unit.version = Version.valueOf(1, 0, 0);
 
 			group = new UnitGroup();
 			group.name = "Unit group for " + name;

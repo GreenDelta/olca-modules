@@ -20,7 +20,7 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
@@ -99,7 +99,7 @@ class DataUtil {
     return modelType;
   }
 
-  static ProtoDataSet.Builder toDataSet(IDatabase db, RootEntity e) {
+  static ProtoDataSet.Builder toDataSet(IDatabase db, RefEntity e) {
     var ds = ProtoDataSet.newBuilder();
     var conf = WriterConfig.of(db);
 
@@ -211,12 +211,12 @@ class DataUtil {
   }
 
 
-  static <T extends RootEntity> ModelQuery<T> model(
+  static <T extends RefEntity> ModelQuery<T> model(
 		IDatabase db, Class<T> type) {
     return new ModelQuery<>(db, type);
   }
 
-  static class ModelQuery<T extends RootEntity> {
+  static class ModelQuery<T extends RefEntity> {
 
     private final IDatabase db;
     private final Class<T> type;

@@ -5,7 +5,7 @@ import java.util.Date;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.ecospold.IExchange;
 import org.openlca.ecospold.io.DataSet;
 import org.openlca.io.Xml;
@@ -31,7 +31,7 @@ class Util {
 		}
 	}
 
-	static void setDataSetAttributes(DataSet dataSet, RootEntity model) {
+	static void setDataSetAttributes(DataSet dataSet, RefEntity model) {
 		if (model != null)
 			dataSet.setNumber((int) model.id);
 		dataSet.setGenerator("openLCA");

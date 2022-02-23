@@ -3,7 +3,7 @@ package org.openlca.core.database;
 import java.io.File;
 
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.util.Dirs;
 import org.slf4j.Logger;
@@ -36,7 +36,7 @@ public class FileStore {
 			return getFolder(d.type, d.refId);
 	}
 
-	public File getFolder(RootEntity e) {
+	public File getFolder(RefEntity e) {
 		if (e == null)
 			return new File(root, "null");
 		ModelType type = ModelType.forModelClass(e.getClass());
@@ -51,7 +51,7 @@ public class FileStore {
 		return new File(dir, subPath);
 	}
 
-	public void copyFolder(RootEntity from, RootEntity to) {
+	public void copyFolder(RefEntity from, RefEntity to) {
 		if (from == null || to == null)
 			return;
 		ModelType type = ModelType.forModelClass(from.getClass());
@@ -85,7 +85,7 @@ public class FileStore {
 		deleteFolder(d.type, d.refId);
 	}
 
-	public void deleteFolder(RootEntity e) {
+	public void deleteFolder(RefEntity e) {
 		if (e == null)
 			return;
 		ModelType type = ModelType.forModelClass(e.getClass());
@@ -148,7 +148,7 @@ public class FileStore {
 			return "unknown";
 		}
 	}
-	
+
 	public static String getPath(ModelType type, String refId) {
 		return getPath(type) + File.separator + refId;
 	}

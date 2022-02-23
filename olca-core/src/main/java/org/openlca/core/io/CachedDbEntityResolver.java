@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.CategorizedEntity;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 
 public class CachedDbEntityResolver implements EntityResolver {
@@ -24,7 +24,7 @@ public class CachedDbEntityResolver implements EntityResolver {
 	}
 
 	@Override
-	public <T extends RootEntity> T get(Class<T> type, String refId) {
+	public <T extends RefEntity> T get(Class<T> type, String refId) {
 		return null;
 	}
 
@@ -39,7 +39,7 @@ public class CachedDbEntityResolver implements EntityResolver {
 	}
 
 	@Override
-	public <T extends RootEntity> Descriptor getDescriptor(
+	public <T extends RefEntity> Descriptor getDescriptor(
 		Class<T> type, String refId) {
 
 		return EntityResolver.super.getDescriptor(type, refId);

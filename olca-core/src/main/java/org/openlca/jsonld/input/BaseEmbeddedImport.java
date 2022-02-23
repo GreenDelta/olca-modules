@@ -1,8 +1,8 @@
 package org.openlca.jsonld.input;
 
 import org.openlca.core.model.AbstractEntity;
+import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.RootEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +19,7 @@ import com.google.gson.JsonObject;
  * @param <P>
  *            the type where it is embedded, e.g. a Process
  */
-abstract class BaseEmbeddedImport<T extends AbstractEntity, P extends RootEntity> {
+abstract class BaseEmbeddedImport<T extends AbstractEntity, P extends CategorizedEntity> {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final P parent;
@@ -55,9 +55,9 @@ abstract class BaseEmbeddedImport<T extends AbstractEntity, P extends RootEntity
 			return false;
 		if (conf.updateMode == UpdateMode.ALWAYS)
 			return true;
-		if (!(model instanceof RootEntity))
+		if (!(model instanceof CategorizedEntity))
 			return true;
-		return In.isNewer(json, (RootEntity) model);
+		return In.isNewer(json, (CategorizedEntity) model);
 	}
 
 	/**

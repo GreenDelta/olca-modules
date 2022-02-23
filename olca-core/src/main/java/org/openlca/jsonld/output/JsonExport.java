@@ -36,7 +36,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.Result;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
@@ -139,11 +139,11 @@ public class JsonExport {
 		return Json.asRef(e);
 	}
 
-	public <T extends RootEntity> void write(T entity) {
+	public <T extends RefEntity> void write(T entity) {
 		write(entity, null);
 	}
 
-	public <T extends RootEntity> void write(T entity, Callback cb) {
+	public <T extends RefEntity> void write(T entity, Callback cb) {
 		if (entity == null)
 			return;
 		var type = ModelType.of(entity);
@@ -171,14 +171,14 @@ public class JsonExport {
 		}
 	}
 
-	private void warn(Callback cb, String message, RootEntity entity) {
+	private void warn(Callback cb, String message, RefEntity entity) {
 		if (cb == null)
 			return;
 		cb.apply(Message.warn(message), entity);
 	}
 
 	private void writeExternalFiles(
-		RootEntity entity, ModelType type, Callback cb) {
+		RefEntity entity, ModelType type, Callback cb) {
 		if (entity == null || db == null
 			|| db.getFileStorageLocation() == null
 			|| writer == null)
@@ -196,7 +196,7 @@ public class JsonExport {
 		}
 	}
 
-	public static <T extends RootEntity> JsonObject toJson(
+	public static <T extends RefEntity> JsonObject toJson(
 		T entity, IDatabase db) {
 		if (entity == null)
 			return new JsonObject();
@@ -206,7 +206,7 @@ public class JsonExport {
 		return writer.write(entity);
 	}
 
-	public static <T extends RootEntity> JsonObject toJson(T entity) {
+	public static <T extends RefEntity> JsonObject toJson(T entity) {
 		if (entity == null)
 			return new JsonObject();
 		var exp = new JsonExport(null, new MemStore())
@@ -216,7 +216,7 @@ public class JsonExport {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends RootEntity> Writer<T> getWriter(T entity) {
+	private <T extends RefEntity> Writer<T> getWriter(T entity) {
 		if (entity == null)
 			return null;
 		if (entity instanceof Actor)

@@ -38,7 +38,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.Result;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
@@ -82,7 +82,7 @@ class Db {
 	}
 
 	@SuppressWarnings("unchecked")
-	<T extends RootEntity> T get(ModelType modelType, String refId) {
+	<T extends RefEntity> T get(ModelType modelType, String refId) {
 		return switch (modelType) {
 			case PROJECT -> (T) get(new ProjectDao(db), refId, projectIds);
 			case PRODUCT_SYSTEM -> (T) get(new ProductSystemDao(db), refId, systemIds);
@@ -109,7 +109,7 @@ class Db {
 	}
 
 	@SuppressWarnings("unchecked")
-	<T extends RootEntity> T put(T entity) {
+	<T extends RefEntity> T put(T entity) {
 		if (entity == null)
 			return null;
 		var modelType = ModelType.forModelClass(entity.getClass());
@@ -165,7 +165,7 @@ class Db {
 		return new UnitGroupDao(db).update(group);
 	}
 
-	private <T extends RootEntity> T get(
+	private <T extends RefEntity> T get(
 		RootEntityDao<T, ?> dao, String refId, Map<String, Long> idCache) {
 		Long id = idCache.get(refId);
 		if (id != null)
@@ -177,7 +177,7 @@ class Db {
 		return entity;
 	}
 
-	private <T extends RootEntity> T put(
+	private <T extends RefEntity> T put(
 		RootEntityDao<T, ?> dao, T entity, Map<String, Long> idCache) {
 		if (entity == null)
 			return null;

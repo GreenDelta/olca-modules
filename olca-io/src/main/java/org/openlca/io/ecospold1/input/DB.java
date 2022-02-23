@@ -13,7 +13,7 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Source;
 import org.openlca.ecospold.IExchange;
 import org.openlca.ecospold.IPerson;
@@ -154,8 +154,8 @@ class DB {
 		return flow;
 	}
 
-	private <T extends RootEntity> T get(Class<T> type, Map<String, T> cache,
-			String genKey) {
+	private <T extends RefEntity> T get(Class<T> type, Map<String, T> cache,
+                                        String genKey) {
 		T entity = cache.get(genKey);
 		if (entity != null)
 			return entity;
@@ -166,7 +166,7 @@ class DB {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends RootEntity> T get(Class<T> type, String id) {
+	public <T extends RefEntity> T get(Class<T> type, String id) {
 		try {
 			ModelType modelType = ModelType.forModelClass(type);
 			return (T) Daos.root(database, modelType).getForRefId(id);

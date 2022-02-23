@@ -31,7 +31,7 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.NwSet;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
@@ -150,7 +150,7 @@ class RefSwitcher {
 		return switchRef(seq.NW_SET, new NwSetDao(dest), srcNwSet);
 	}
 
-	private <T extends RootEntity> T switchRef(
+	private <T extends RefEntity> T switchRef(
 			int type, RootEntityDao<T, ?> dao, T srcEntity) {
 		if (srcEntity == null)
 			return null;

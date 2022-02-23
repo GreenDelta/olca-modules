@@ -10,7 +10,7 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -43,7 +43,7 @@ public final class Refs {
     return proto;
   }
 
-  public static ProtoRef.Builder refOf(RootEntity e) {
+  public static ProtoRef.Builder refOf(RefEntity e) {
     var proto = ProtoRef.newBuilder();
     if (e == null)
       return proto;

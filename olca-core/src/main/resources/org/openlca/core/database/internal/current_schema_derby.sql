@@ -137,8 +137,6 @@ CREATE TABLE tbl_units (
     ref_id             VARCHAR(36),
     name               VARCHAR(2048),
     description        CLOB(64 K),
-    version            BIGINT,
-    last_change        BIGINT,
 
     conversion_factor  DOUBLE,
     synonyms           VARCHAR(255),
@@ -498,8 +496,6 @@ CREATE TABLE tbl_nw_sets (
     ref_id               VARCHAR(36),
     name                 VARCHAR(2048),
     description          CLOB(64 K),
-    version              BIGINT,
-    last_change          BIGINT,
 
     f_impact_method      BIGINT,
     weighted_score_unit  VARCHAR(255),

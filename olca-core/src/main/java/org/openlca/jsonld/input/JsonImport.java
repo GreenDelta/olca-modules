@@ -6,11 +6,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.eclipse.persistence.internal.jpa.deployment.PersistenceUnitProcessor.Mode;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ExchangeProviderQueue;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.jsonld.JsonStoreReader;
 import org.openlca.jsonld.upgrades.Upgrades;
 
@@ -18,7 +17,7 @@ public class JsonImport implements Runnable {
 
 	final JsonStoreReader reader;
 	UpdateMode updateMode = UpdateMode.NEVER;
-	private Consumer<RootEntity> callback;
+	private Consumer<RefEntity> callback;
 
 	@Deprecated
 	final Db db;
@@ -36,7 +35,7 @@ public class JsonImport implements Runnable {
 		return this;
 	}
 
-	public JsonImport setCallback(Consumer<RootEntity> callback) {
+	public JsonImport setCallback(Consumer<RefEntity> callback) {
 		this.callback = callback;
 		return this;
 	}
@@ -50,7 +49,7 @@ public class JsonImport implements Runnable {
 		return providers;
 	}
 
-	void imported(RootEntity entity) {
+	void imported(RefEntity entity) {
 		if (callback == null)
 			return;
 		callback.accept(entity);

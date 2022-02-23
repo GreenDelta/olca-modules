@@ -55,7 +55,7 @@ public class Epd extends CategorizedEntity {
 	@Override
 	public Epd copy() {
 		var copy = new Epd();
-		Entities.copyRootFields(this, copy);
+		Entities.copyRefFields(this, copy);
 		copy.urn = urn;
 		if (product != null) {
 			copy.product = product.copy();

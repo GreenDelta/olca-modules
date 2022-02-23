@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.io.EntityResolver;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
@@ -15,26 +15,26 @@ class Util {
   private Util() {
   }
 
-  static void mapBase(RootEntity e, JsonObject obj, EntityResolver resolver) {
+  static void mapBase(RefEntity e, JsonObject obj, EntityResolver resolver) {
 
     e.refId = Json.getString(obj, "@id");
     e.name = Json.getString(obj, "name");
     e.description = Json.getString(obj, "description");
 
+    if (!(e instanceof CategorizedEntity ce))
+      return;
+    
     // version
     var version = Json.getString(obj, "version");
-    e.version = version != null
+    ce.version = version != null
       ? Version.fromString(version).getValue()
       : 0L;
 
     // last change
     var lastChange = Json.getDate(obj, "lastChange");
-    e.lastChange = lastChange != null
+    ce.lastChange = lastChange != null
       ? lastChange.getTime()
       : 0L;
-
-    if (!(e instanceof CategorizedEntity ce))
-      return;
 
 	  // category
     var catId = Json.getRefId(obj, "category");

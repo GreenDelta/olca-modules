@@ -17,7 +17,7 @@ import org.openlca.core.matrix.linking.ProviderIndex;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -80,7 +80,7 @@ class DataFetchService extends
       return;
     var type = modelType.getModelClass();
 
-    Consumer<RootEntity> onSuccess = model -> {
+    Consumer<RefEntity> onSuccess = model -> {
       resp.onNext(model == null
         ? ProtoDataSet.newBuilder().build()
         : DataUtil.toDataSet(db, model).build());

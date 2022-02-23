@@ -15,7 +15,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.ipc.Responses;
@@ -220,7 +220,7 @@ public class ModelHandler {
 		}
 	}
 
-	private Pair<RootEntity, RpcResponse> getModelOrError(RpcRequest req) {
+	private Pair<RefEntity, RpcResponse> getModelOrError(RpcRequest req) {
 		var d = descriptorOf(req);
 		if (d == null || d.type == null) {
 			var err = Responses.invalidParams(

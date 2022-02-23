@@ -24,7 +24,7 @@ import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.util.Strings;
 import org.slf4j.LoggerFactory;
@@ -241,7 +241,7 @@ public class Json {
 		obj.addProperty(prop, val);
 	}
 
-	public static JsonObject asRef(RootEntity e) {
+	public static JsonObject asRef(RefEntity e) {
 		if (e == null)
 			return null;
 		var obj = new JsonObject();

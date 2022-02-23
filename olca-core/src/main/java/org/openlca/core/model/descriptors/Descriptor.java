@@ -19,7 +19,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.Result;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
@@ -90,7 +90,7 @@ public class Descriptor implements Copyable<Descriptor> {
 		return library != null;
 	}
 
-	static Descriptor createUnknownDescriptor(RootEntity e) {
+	static Descriptor createUnknownDescriptor(RefEntity e) {
 		var d = new Descriptor();
 		setBaseValues(e, d);
 		return d;
@@ -100,24 +100,24 @@ public class Descriptor implements Copyable<Descriptor> {
 		return setBaseValues(e, new CategorizedDescriptor());
 	}
 
-	static <T extends Descriptor> T setBaseValues(RootEntity e, T d) {
-		d.refId = e.refId;
-		d.description = e.description;
+	static <T extends Descriptor> T setBaseValues(RefEntity e, T d) {
 		d.id = e.id;
+		d.refId = e.refId;
 		d.name = e.name;
-		d.lastChange = e.lastChange;
-		d.version = e.version;
+		d.description = e.description;
 		return d;
 	}
 
 	static <T extends CategorizedDescriptor> T setBaseValues(
 		CategorizedEntity e, T d) {
-		Descriptor.setBaseValues((RootEntity) e, d);
+		Descriptor.setBaseValues((RefEntity) e, d);
 		if (e.category != null) {
 			d.category = e.category.id;
 		}
 		d.library = e.library;
 		d.tags = e.tags;
+		d.lastChange = e.lastChange;
+		d.version = e.version;
 		return d;
 	}
 
@@ -304,7 +304,7 @@ public class Descriptor implements Copyable<Descriptor> {
 		return createUnknownDescriptor(entity);
 	}
 
-	public static Descriptor of(RootEntity entity) {
+	public static Descriptor of(RefEntity entity) {
 		if (entity == null)
 			return null;
 		if (entity instanceof CategorizedEntity)

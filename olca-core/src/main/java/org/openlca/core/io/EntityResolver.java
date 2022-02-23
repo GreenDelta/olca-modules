@@ -1,6 +1,6 @@
 package org.openlca.core.io;
 
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 
 /**
@@ -20,7 +20,7 @@ public interface EntityResolver {
 	 * @return the requested entity if it could be resolved or {@code null}
 	 * otherwise
 	 */
-	<T extends RootEntity> T get(Class<T> type, String refId);
+	<T extends RefEntity> T get(Class<T> type, String refId);
 
 	/**
 	 * Tries to resolve the descriptor of the entity with the given type and ID.
@@ -34,7 +34,7 @@ public interface EntityResolver {
 	 * @return the requested descriptor if it could be resolved or {@code null}
 	 * otherwise.
 	 */
-	default <T extends RootEntity> Descriptor getDescriptor(
+	default <T extends RefEntity> Descriptor getDescriptor(
 		Class<T> type, String refId) {
 
 		var t = get(type, refId);
@@ -49,12 +49,12 @@ public interface EntityResolver {
 	 */
 	EntityResolver NULL = new EntityResolver() {
 		@Override
-		public <T extends RootEntity> T get(Class<T> type, String refId) {
+		public <T extends RefEntity> T get(Class<T> type, String refId) {
 			return null;
 		}
 
 		@Override
-		public <T extends RootEntity> Descriptor getDescriptor(
+		public <T extends RefEntity> Descriptor getDescriptor(
 			Class<T> type, String refId) {
 			return null;
 		}

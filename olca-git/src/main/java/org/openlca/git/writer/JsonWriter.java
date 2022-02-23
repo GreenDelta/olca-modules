@@ -2,7 +2,7 @@ package org.openlca.git.writer;
 
 import java.nio.charset.StandardCharsets;
 
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.git.GitConfig;
 import org.openlca.jsonld.output.JsonExport;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ final class JsonWriter {
 	private JsonWriter() {
 	}
 
-	static byte[] convert(RootEntity entity, GitConfig config) {
+	static byte[] convert(RefEntity entity, GitConfig config) {
 		if (entity == null)
 			return null;
 		try {

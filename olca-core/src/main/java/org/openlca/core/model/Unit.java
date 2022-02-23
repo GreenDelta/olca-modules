@@ -6,7 +6,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_units")
-public class Unit extends RootEntity {
+public class Unit extends RefEntity {
 
 	@Column(name = "conversion_factor")
 	public double conversionFactor = 1d;
@@ -36,7 +36,7 @@ public class Unit extends RootEntity {
 	@Override
 	public Unit copy() {
 		var unit = new Unit();
-		Entities.copyRootFields(this, unit);
+		Entities.copyRefFields(this, unit);
 		unit.conversionFactor = conversionFactor;
 		unit.synonyms = synonyms;
 		return unit;
