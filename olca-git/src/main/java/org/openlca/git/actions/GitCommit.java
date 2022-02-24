@@ -63,6 +63,8 @@ public class GitCommit {
 			throw new IllegalStateException("Git repository, database and message must be set");
 		var config = new GitConfig(database, workspaceIds, git, committer);
 		if (diffs == null) {
+			if (workspaceIds == null)
+				throw new IllegalStateException("ObjectIdStore must be set when no diffs are specified");
 			diffs = getWorkspaceDiffs(config);
 		}
 		var writer = new CommitWriter(config);
