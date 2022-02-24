@@ -17,9 +17,11 @@ import org.openlca.git.util.Constants;
 public class GitPush extends GitRemoteAction<PushResponse> {
 
 	private final FileRepository git;
-
+	private final Commits commits;
+	
 	private GitPush(FileRepository git) {
 		this.git = git;
+		this.commits = Commits.of(git);
 	}
 
 	public static GitPush to(FileRepository git) {
@@ -30,7 +32,6 @@ public class GitPush extends GitRemoteAction<PushResponse> {
 	public PushResponse run() throws GitAPIException {
 		if (git == null) 
 			throw new IllegalStateException("Git repository must be set");
-		var commits = Commits.of(git);
 		var localCommitId = commits.resolve(Constants.LOCAL_BRANCH);
 		var remoteCommitId = commits.resolve(Constants.REMOTE_BRANCH);
 		var newCommits = commits.find()

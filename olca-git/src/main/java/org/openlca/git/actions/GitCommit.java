@@ -16,28 +16,30 @@ import org.openlca.util.Strings;
 
 public class GitCommit {
 
-	private final FileRepository git;
-	private IDatabase database;
+	private final IDatabase database;
+	private FileRepository git;
+	private Commits commits;
 	private List<Diff> diffs;
 	private String message;
 	private ObjectIdStore workspaceIds;
 	private PersonIdent committer;
 
-	private GitCommit(FileRepository git) {
-		this.git = git;
+	private GitCommit(IDatabase database) {
+		this.database = database;
 	}
 
-	public static GitCommit to(FileRepository git) {
-		return new GitCommit(git);
+	public static GitCommit from(IDatabase database) {
+		return new GitCommit(database);
+	}
+
+	public GitCommit to(FileRepository git) {
+		this.git = git;
+		this.commits = Commits.of(git);
+		return this;
 	}
 
 	public GitCommit diffs(List<Diff> diffs) {
 		this.diffs = diffs;
-		return this;
-	}
-
-	public GitCommit diffs(IDatabase database) {
-		this.database = database;
 		return this;
 	}
 
@@ -57,7 +59,7 @@ public class GitCommit {
 	}
 
 	public String run() throws IOException {
-		if (git == null || database == null || Strings.nullOrEmpty(message)) 
+		if (git == null || database == null || Strings.nullOrEmpty(message))
 			throw new IllegalStateException("Git repository, database and message must be set");
 		var config = new GitConfig(database, workspaceIds, git, committer);
 		if (diffs == null) {
@@ -68,7 +70,7 @@ public class GitCommit {
 	}
 
 	private List<Diff> getWorkspaceDiffs(GitConfig config) throws IOException {
-		var commit = Commits.of(git).head();
+		var commit = commits.head();
 		var leftCommitId = commit != null ? commit.id : null;
 		return DiffEntries.workspace(config, commit).stream()
 				.map(e -> new Diff(e, leftCommitId, null))

@@ -7,7 +7,6 @@ import java.util.List;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
-import org.eclipse.jgit.transport.CredentialsProvider;
 import org.openlca.git.find.Commits;
 import org.openlca.git.model.Commit;
 import org.openlca.git.util.Constants;
@@ -15,10 +14,11 @@ import org.openlca.git.util.Constants;
 public class GitFetch extends GitRemoteAction<List<Commit>> {
 
 	private final FileRepository git;
-	private CredentialsProvider credentialsProvider;
+	private final Commits commits;
 
 	private GitFetch(FileRepository git) {
 		this.git = git;
+		this.commits = Commits.of(git);
 	}
 
 	public static GitFetch from(FileRepository git) {
@@ -29,7 +29,6 @@ public class GitFetch extends GitRemoteAction<List<Commit>> {
 	public List<Commit> run() throws GitAPIException {
 		if (git == null) 
 			throw new IllegalStateException("Git repository must be set");
-		var commits = Commits.of(git);
 		var lastId = commits.find()
 				.refs(Constants.REMOTE_REF)
 				.latestId();

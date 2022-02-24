@@ -32,9 +32,11 @@ class FlowPropertyImport extends BaseImport<FlowProperty> {
 		var defaultProperty = p.unitGroup != null
 			? p.unitGroup.defaultFlowProperty
 			: null;
+		
 		if (defaultProperty != null
 			&& p.refId != null
-			&& p.refId.equals(defaultProperty.refId))
+			&& p.refId.equals(defaultProperty.refId)
+			&& conf.hasVisited(ModelType.UNIT_GROUP, unitGroupId))
 			return defaultProperty;
 		return conf.db.put(p);
 	}
