@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
@@ -30,14 +31,7 @@ public class DiffEntries {
 
 	public static List<DiffEntry> workspace(GitConfig config, Commit commit, List<String> paths) throws IOException {
 		var walk = new TreeWalk(config.repo);
-		var commitOid = commit != null ? ObjectId.fromString(commit.id) : null;
-		var revCommit = commitOid != null ? config.repo.parseCommit(commitOid) : Repositories.headCommitOf(config.repo);
-		if (commit == null) {
-			walk.addTree(new EmptyTreeIterator());
-		} else {
-			walk.addTree(revCommit.getTree().getId());
-
-		}
+		addTree(config.repo, walk, commit, true);
 		walk.addTree(new DatabaseIterator(config));
 		if (paths == null) {
 			paths = new ArrayList<>();
@@ -45,6 +39,32 @@ public class DiffEntries {
 		walk.setFilter(getPathsFilter(paths.stream().distinct().toList()));
 		walk.setRecursive(true);
 		return DiffEntry.scan(walk);
+	}
+
+	public static List<DiffEntry> between(FileRepository repo, Commit left, Commit right) throws IOException {
+		var walk = new TreeWalk(repo);
+		addTree(repo, walk, left, true);
+		addTree(repo, walk, right, true);
+		walk.setFilter(getPathsFilter(new ArrayList<>()));
+		walk.setRecursive(true);
+		return DiffEntry.scan(walk);
+	}
+
+	private static void addTree(FileRepository repo, TreeWalk walk, Commit commit, boolean useHeadAsDefault)
+			throws IOException {
+		var commitOid = commit != null
+				? ObjectId.fromString(commit.id)
+				: null;
+		var revCommit = commitOid != null
+				? repo.parseCommit(commitOid)
+				: useHeadAsDefault
+						? Repositories.headCommitOf(repo)
+						: null;
+		if (commit == null) {
+			walk.addTree(new EmptyTreeIterator());
+		} else {
+			walk.addTree(revCommit.getTree().getId());
+		}
 	}
 
 	private static TreeFilter getPathsFilter(List<String> paths) {

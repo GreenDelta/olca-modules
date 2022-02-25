@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.openlca.core.database.CategoryDao;
@@ -13,6 +14,7 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.GitConfig;
+import org.openlca.git.util.GitUtil;
 import org.openlca.util.Categories;
 import org.openlca.util.Categories.PathBuilder;
 
@@ -71,6 +73,8 @@ public class DatabaseIterator extends EntryIterator {
 
 	@Override
 	public boolean hasId() {
+		if (config.store == null)
+			return false;
 		var e = getEntry();
 		if (e.data instanceof ModelType)
 			return config.store.has((ModelType) e.data);
@@ -81,6 +85,8 @@ public class DatabaseIterator extends EntryIterator {
 
 	@Override
 	public byte[] idBuffer() {
+		if (config.store == null)
+			return GitUtil.getBytes(ObjectId.zeroId());
 		var e = getEntry();
 		if (e.data instanceof ModelType)
 			return config.store.getRaw((ModelType) e.data);

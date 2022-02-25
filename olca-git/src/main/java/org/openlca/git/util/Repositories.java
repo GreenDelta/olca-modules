@@ -70,11 +70,8 @@ public final class Repositories {
 			if (head == null) {
 				head = repo.resolve("refs/heads/master");
 			}
-			if (head == null) {
-				for (var ref : repo.getRefDatabase().getRefs())
-					System.out.println(ref);
+			if (head == null)
 				return null;
-			}
 			var commit = walk.parseCommit(head);
 			if (commit == null)
 				return null;

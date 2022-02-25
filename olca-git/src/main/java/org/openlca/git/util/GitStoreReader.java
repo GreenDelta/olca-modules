@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.openlca.core.model.ModelType;
+import org.openlca.git.actions.ConflictResolver;
+import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
 import org.openlca.git.find.Datasets;
 import org.openlca.git.find.Entries;
 import org.openlca.git.find.References;
@@ -15,27 +17,35 @@ import org.openlca.util.Strings;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-public class JsonGitReader implements JsonStoreReader {
+// TODO how to handle deletions
+public class GitStoreReader implements JsonStoreReader {
 
 	private static final Gson gson = new Gson();
-	private static final JsonObject defaultContext;
 	private final References references;
 	private final Datasets datasets;
-	private final String headCommitId;
 	private final String remoteCommitId;
 	private final Categories categories;
+	private final List<Reference> remoteChanges;
+	private List<Reference> localChanges;
+	private ConflictResolver conflictResolver;
 
-	static {
-		defaultContext = new JsonObject();
-		defaultContext.addProperty("@vocab", "http://openlca.org/schema/v1.1/");
-	}
-
-	public JsonGitReader(FileRepository repo, String headCommitId, String remoteCommitId) {
+	public GitStoreReader(FileRepository repo, String localCommitId, String remoteCommitId) {
 		this.categories = Categories.of(Entries.of(repo), remoteCommitId);
 		this.references = References.of(repo);
 		this.datasets = Datasets.of(repo);
-		this.headCommitId = headCommitId;
 		this.remoteCommitId = remoteCommitId;
+		this.remoteChanges = references.find()
+				.commit(remoteCommitId)
+				.changedSince(localCommitId)
+				.all();
+	}
+
+	public void setLocalChanges(List<Reference> localChanges) {
+		this.localChanges = localChanges;
+	}
+
+	public void setConflictResolver(ConflictResolver conflictResolver) {
+		this.conflictResolver = conflictResolver;
 	}
 
 	public boolean contains(ModelType type, String refId) {
@@ -83,10 +93,20 @@ public class JsonGitReader implements JsonStoreReader {
 		if (type == ModelType.CATEGORY)
 			return categories.getForRefId(refId);
 		var ref = references.get(type, refId, remoteCommitId);
-		if (ref == null)
+		if (ref == null || !hasChanged(ref))
 			return null;
 		var data = datasets.get(ref.objectId);
-		return parse(data);
+		var remote = parse(data);
+		if (conflictResolver == null)
+			return remote;
+		if (!conflictResolver.isConflict(ref))
+			return remote;
+		var resolution = conflictResolver.resolveConflict(ref, remote);
+		if (resolution.type == ConflictResolutionType.OVERWRITE_LOCAL) {
+			localChanges.removeIf(r -> r.type == type && r.refId.equals(refId));
+			return remote;
+		}
+		return resolution.data;
 	}
 
 	@Override
@@ -100,11 +120,10 @@ public class JsonGitReader implements JsonStoreReader {
 				.map(binary -> ref.getBinariesPath() + "/" + binary)
 				.toList();
 	}
-	
+
 	@Override
 	public List<String> getFiles(String dir) {
-		// TODO think about if this makes ever sense for this type of store
-		return Collections.emptyList();
+		throw new UnsupportedOperationException("Not supported by this implementation");
 	}
 
 	@Override
@@ -117,11 +136,14 @@ public class JsonGitReader implements JsonStoreReader {
 	public List<Reference> getChanges(ModelType type) {
 		if (type == ModelType.CATEGORY)
 			return Collections.emptyList();
-		return references.find()
-				.type(type)
-				.commit(remoteCommitId)
-				.changedSince(headCommitId)
-				.all();
+		return remoteChanges.stream()
+				.filter(ref -> ref.type == type)
+				.toList();
+	}
+
+	private boolean hasChanged(Reference ref) {
+		return remoteChanges.stream()
+				.anyMatch(r -> r.type == ref.type && r.refId.equals(ref.refId));
 	}
 
 	private JsonObject parse(String data) {

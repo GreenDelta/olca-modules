@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.jgit.lib.ObjectId;
+
 public class GitUtil {
 
 	public static final String BIN_DIR_SUFFIX = "_bin";
@@ -79,6 +81,12 @@ public class GitUtil {
 				return false;
 		}
 		return true;
+	}
+	
+	public static byte[] getBytes(ObjectId id) {
+		var bytes = new byte[40];
+		id.copyRawTo(bytes, 0);
+		return bytes;
 	}
 	
 }

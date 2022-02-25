@@ -98,7 +98,7 @@ public class ObjectIdStore {
 	public byte[] getRaw(String path) {
 		var v = store.get(path);
 		if (v == null)
-			return getBytes(ObjectId.zeroId());
+			return GitUtil.getBytes(ObjectId.zeroId());
 		return v;
 	}
 
@@ -151,7 +151,7 @@ public class ObjectIdStore {
 		if (path.startsWith("/")) {
 			path = path.substring(1);
 		}
-		store.put(path, getBytes(id));
+		store.put(path, GitUtil.getBytes(id));
 	}
 
 	public void invalidateRoot() {
@@ -218,12 +218,6 @@ public class ObjectIdStore {
 			fullPath += "/" + name;
 		}
 		return fullPath;
-	}
-
-	private byte[] getBytes(ObjectId id) {
-		var bytes = new byte[40];
-		id.copyRawTo(bytes, 0);
-		return bytes;
 	}
 
 }

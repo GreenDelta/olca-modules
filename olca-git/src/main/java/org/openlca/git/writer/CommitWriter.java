@@ -56,7 +56,9 @@ public class CommitWriter {
 					.toList());
 			var commitTreeId = previousCommit != null ? previousCommit.getTree().getId() : null;
 			var treeId = syncTree("", commitTreeId, new DiffIterator(config, diffs));
-			config.store.save();
+			if (config.store != null) {
+				config.store.save();
+			}
 			var commitId = commit(treeId, message);
 			return commitId.name();
 		} finally {
@@ -93,14 +95,18 @@ public class CommitWriter {
 			log.error("Error walking tree " + treeId, e);
 		}
 		if (!appended && !Strings.nullOrEmpty(prefix)) {
-			config.store.invalidate(prefix);
+			if (config.store != null) {
+				config.store.invalidate(prefix);
+			}
 			return null;
 		}
 		if (Strings.nullOrEmpty(prefix) && (treeId == null || treeId.equals(ObjectId.zeroId()))) {
 			appendSchemaVersion(tree);
 		}
 		var newId = insert(i -> i.insert(tree));
-		config.store.put(prefix, newId);
+		if (config.store != null) {
+			config.store.put(prefix, newId);
+		}
 		return newId;
 	}
 
@@ -135,7 +141,7 @@ public class CommitWriter {
 		Diff diff = iterator.getEntryData();
 		var file = iterator.getEntryFile();
 		if (diff.type == DiffType.DELETED && matches(path, diff, file)) {
-			if (file == null) {
+			if (file == null && config.store != null) {
 				config.store.invalidate(path);
 			}
 			return null;
@@ -144,7 +150,9 @@ public class CommitWriter {
 			return inserter.insert(Constants.OBJ_BLOB, Files.readAllBytes(file.toPath()));
 		var data = converter.take(path);
 		blobId = inserter.insert(Constants.OBJ_BLOB, data);
-		config.store.put(path, blobId);
+		if (config.store != null) {
+			config.store.put(path, blobId);
+		}
 		return blobId;
 	}
 

@@ -140,9 +140,9 @@ public class References {
 					var refs = new ArrayList<Reference>();
 					var onlyChanged = changedSince != null;
 					if (changedSince != null) {
-						var previous = commits.find().from(changedSince).before(commitId).latest();
+						var previous = commits.getRev(changedSince);
 						if (previous != null) {
-							walk.addTree(commits.getRev(previous.id).getTree());
+							walk.addTree(previous.getTree());
 						} else {
 							onlyChanged = false;
 						}
