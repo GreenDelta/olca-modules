@@ -8,12 +8,12 @@ import java.util.stream.Collectors;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.ObjectId;
-import org.openlca.core.database.CategorizedEntityDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.GitConfig;
 import org.openlca.git.ObjectIdStore;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
@@ -46,7 +46,8 @@ public class GitMerge {
 			ModelType.PROCESS,
 			ModelType.PRODUCT_SYSTEM,
 			ModelType.PROJECT,
-			ModelType.RESULT
+			ModelType.RESULT,
+			ModelType.EPD
 	};
 	private final FileRepository git;
 	private final Commits commits;
@@ -117,7 +118,7 @@ public class GitMerge {
 	}
 
 	private List<Reference> merge(String localCommitId, String remoteCommitId, List<Reference> localChanges,
-			List<Reference> remoteDeletions) throws IOException {
+			List<Reference> remoteDeletions) {
 		var gitStore = new GitStoreReader(git, localCommitId, remoteCommitId);
 		gitStore.setLocalChanges(localChanges);
 		gitStore.setConflictResolver(conflictResolver);
@@ -139,12 +140,12 @@ public class GitMerge {
 					continue;
 				}
 			}
-			delete(Daos.categorized(database, ref.type), ref.refId);
+			delete(Daos.root(database, ref.type), ref.refId);
 		}
 		return imported;
 	}
 
-	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void delete(CategorizedEntityDao<T, V> dao,
+	private <T extends RootEntity, V extends RootDescriptor> void delete(RootEntityDao<T, V> dao,
 			String refId) {
 		if (!dao.contains(refId))
 			return;
