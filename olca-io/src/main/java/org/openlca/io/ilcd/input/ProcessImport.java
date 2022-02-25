@@ -12,7 +12,6 @@ import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
-import org.openlca.ilcd.commons.ModellingApproach;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.Method;
 import org.openlca.ilcd.util.Categories;
@@ -203,22 +202,19 @@ public class ProcessImport {
 	}
 
 	private AllocationMethod getAllocation(Method iMethod) {
-		List<ModellingApproach> approaches = iMethod.approaches;
+		var approaches = iMethod.approaches;
 		if (approaches.isEmpty())
 			return null;
-		for (ModellingApproach app : approaches) {
-			switch (app) {
-				case ALLOCATION_OTHER_EXPLICIT_ASSIGNMENT:
-					return AllocationMethod.CAUSAL;
-				case ALLOCATION_MARKET_VALUE:
-					return AllocationMethod.ECONOMIC;
-				case ALLOCATION_PHYSICAL_CAUSALITY:
-					return AllocationMethod.PHYSICAL;
-				default:
-					break;
-			}
-		}
-		return null;
+		var first = approaches.get(0);
+		return switch (first) {
+			case ALLOCATION_OTHER_EXPLICIT_ASSIGNMENT,
+				ALLOCATION_MARGINAL_CAUSALITY,
+				ALLOCATION_ABILITY_TO_BEAR,
+				ALLOCATION_ELEMENT_CONTENT -> AllocationMethod.CAUSAL;
+			case ALLOCATION_MARKET_VALUE,
+				SUBSTITUTION_AVERAGE_MARKET_PRICE_CORRECTION -> AllocationMethod.ECONOMIC;
+			default -> AllocationMethod.PHYSICAL;
+		};
 	}
 
 	private void mapRepresentativeness(ProcessDocumentation doc) {
