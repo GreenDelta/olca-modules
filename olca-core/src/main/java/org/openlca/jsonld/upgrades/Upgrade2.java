@@ -9,15 +9,18 @@ import org.openlca.jsonld.JsonStoreReader;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 class Upgrade2 extends Upgrade {
 
 	private List<JsonObject> _rawImpactMethods;
 	private List<JsonObject> _rawNwSets;
+	private final PathBuilder categories;
 
 	Upgrade2(JsonStoreReader reader) {
 		super(reader);
+		categories = PathBuilder.of(reader);
 	}
 
 	@Override
@@ -25,6 +28,14 @@ class Upgrade2 extends Upgrade {
 		var object = super.get(type, refId);
 		if (object == null)
 			return null;
+
+		// replace category references with paths
+		var categoryId = Json.getRefId(object, "category");
+		if (categoryId != null) {
+			var path = categories.getPath(categoryId);
+			Json.put(object, "category", path);
+		}
+
 		if (type == ModelType.IMPACT_METHOD) {
 			inlineNwSets(object);
 		}
@@ -153,5 +164,59 @@ class Upgrade2 extends Upgrade {
 		var redefSets = new JsonArray();
 		redefSets.add(set);
 		systemObj.add("parameterSets", redefSets);
+	}
+
+	private record PathBuilder (
+		Map<String, String> names,
+		Map<String, String> parents,
+		Map<String, String> paths ) {
+
+		static PathBuilder of(JsonStoreReader reader) {
+			var names = new HashMap<String, String>();
+			var parents = new HashMap<String, String>();
+			for (var file : reader.getFiles("categories")) {
+				var json = reader.getJson(file);
+				if (json == null || !json.isJsonObject())
+					continue;
+				var obj = json.getAsJsonObject();
+				var id = Json.getString(obj, "@id");
+				if (id == null)
+					continue;
+				var name = Json.getString(obj, "name");
+				if (name != null) {
+					names.put(id, name);
+				}
+				var parentId = Json.getRefId(obj, "category");
+				if (parentId != null) {
+					parents.put(id, parentId);
+				}
+			}
+			var paths = new HashMap<String, String>();
+			return new PathBuilder(names, parents, paths);
+		}
+
+		String getPath(String categoryId) {
+			if (categoryId == null)
+				return null;
+			var cached = paths.get(categoryId);
+			if (cached != null)
+				return cached;
+			var buffer = new StringBuilder();
+			var nextId = categoryId;
+			do {
+				var name = names.get(nextId);
+				if (buffer.length() > 0) {
+					buffer.insert(0, name + "/");
+				} else {
+					buffer.append(name);
+				}
+				nextId = parents.get(nextId);
+			} while (nextId != null);
+			if (buffer.isEmpty())
+				return null;
+			var path = buffer.toString();
+			paths.put(categoryId, path);
+			return path;
+		}
 	}
 }
