@@ -91,7 +91,7 @@ class UnitGroupImport extends BaseImport<UnitGroup> {
 						.orElse(null);
 			}
 
-			boolean refUnit = Json.getBool(unitJson, "referenceUnit", false);
+			boolean refUnit = Json.getBool(unitJson, "isReferenceUnit", false);
 			if (refUnit) {
 				group.referenceUnit = unit;
 			}
