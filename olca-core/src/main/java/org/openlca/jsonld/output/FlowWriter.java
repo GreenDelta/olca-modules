@@ -24,7 +24,7 @@ class FlowWriter extends Writer<Flow> {
 		Json.put(obj, "cas", flow.casNumber);
 		Json.put(obj, "formula", flow.formula);
 		Json.put(obj, "synonyms", flow.synonyms);
-		Json.put(obj, "infrastructureFlow", flow.infrastructureFlow);
+		Json.put(obj, "isInfrastructureFlow", flow.infrastructureFlow);
 		Json.put(obj, "location", exp.handleRef(flow.location));
 		addFactors(flow, obj);
 		return obj;

@@ -33,7 +33,7 @@ public record FlowReader(EntityResolver resolver)
 		flow.casNumber = Json.getString(json, "cas");
 		flow.synonyms = Json.getString(json, "synonyms");
 		flow.formula = Json.getString(json, "formula");
-		flow.infrastructureFlow = Json.getBool(json, "infrastructureFlow", false);
+		flow.infrastructureFlow = Json.getBool(json, "isInfrastructureFlow", false);
 		var locId = Json.getRefId(json, "location");
 		if (locId != null) {
 			flow.location = resolver.get(Location.class, locId);

@@ -33,7 +33,7 @@ class ProcessWriter extends Writer<Process> {
 		// AllocationCleanup.on(p);
 		Json.put(obj, "processType", p.processType);
 		Json.put(obj, "defaultAllocationMethod", p.defaultAllocationMethod);
-		Json.put(obj, "infrastructureProcess", p.infrastructureProcess);
+		Json.put(obj, "isInfrastructureProcess", p.infrastructureProcess);
 		Json.put(obj, "location", exp.handleRef(p.location));
 		Json.put(obj, "processDocumentation", Util.mapDocOf(p, exp));
 		Json.put(obj, "dqSystem", exp.handleRef(p.dqSystem));
@@ -65,7 +65,7 @@ class ProcessWriter extends Writer<Process> {
 			var obj = new JsonObject();
 			map(e, obj);
 			if (Objects.equals(process.quantitativeReference, e)) {
-				Json.put(obj, "quantitativeReference", true);
+				Json.put(obj, "isQuantitativeReference", true);
 			}
 			array.add(obj);
 		}
@@ -124,8 +124,8 @@ class ProcessWriter extends Writer<Process> {
 	private void map(Exchange e, JsonObject obj) {
 
 		Json.put(obj, "@type", Exchange.class.getSimpleName());
-		Json.put(obj, "avoidedProduct", e.isAvoided);
-		Json.put(obj, "input", e.isInput);
+		Json.put(obj, "isAvoidedProduct", e.isAvoided);
+		Json.put(obj, "isInput", e.isInput);
 		Json.put(obj, "baseUncertainty", e.baseUncertainty);
 		Json.put(obj, "amount", e.amount);
 		Json.put(obj, "amountFormula", e.formula);

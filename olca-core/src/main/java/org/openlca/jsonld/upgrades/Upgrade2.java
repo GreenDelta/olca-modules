@@ -45,6 +45,13 @@ class Upgrade2 extends Upgrade {
 		if (type == ModelType.PRODUCT_SYSTEM) {
 			addRedefSets(object);
 		}
+		if (type == ModelType.PROCESS) {
+			renameBool(object, "infrastructureProcess" ,"isInfrastructureProcess");
+			fixExchanges(object);
+		}
+		if (type == ModelType.FLOW) {
+			renameBool(object, "infrastructureFlow" ,"isInfrastructureFlow");
+		}
 		return object;
 	}
 
@@ -155,7 +162,7 @@ class Upgrade2 extends Upgrade {
 		set.addProperty("isBaseline", true);
 		var redefs = new JsonArray();
 		Json.stream(params)
-				.filter(JsonElement::isJsonObject)
+			.filter(JsonElement::isJsonObject)
 			.map(JsonElement::getAsJsonObject)
 			.map(JsonObject::deepCopy)
 			.forEach(redefs::add);
@@ -166,10 +173,33 @@ class Upgrade2 extends Upgrade {
 		systemObj.add("parameterSets", redefSets);
 	}
 
-	private record PathBuilder (
+	private void fixExchanges(JsonObject object) {
+		var array = Json.getArray(object, "exchanges");
+		if (array == null)
+			return;
+		for (var elem : array) {
+			if (!elem.isJsonObject())
+				continue;
+			var exchange = elem.getAsJsonObject();
+			renameBool(exchange, "avoidedProduct", "isAvoidedProduct");
+			renameBool(exchange, "input", "isInput");
+			renameBool(exchange, "quantitativeReference", "isQuantitativeReference");
+		}
+	}
+
+	private void renameBool(JsonObject obj, String oldName, String newName) {
+		var newVal = Json.getBool(obj, newName, false);
+		if (newVal)
+			return; // the new field is already set to true
+		var val = Json.getBool(obj, oldName, false);
+		Json.put(obj, newName, val);
+	}
+
+	private record PathBuilder(
 		Map<String, String> names,
 		Map<String, String> parents,
-		Map<String, String> paths ) {
+		Map<String, String> paths) {
+
 
 		static PathBuilder of(JsonStoreReader reader) {
 			var names = new HashMap<String, String>();

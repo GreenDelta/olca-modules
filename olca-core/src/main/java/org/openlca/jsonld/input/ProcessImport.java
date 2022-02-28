@@ -41,7 +41,7 @@ class ProcessImport extends BaseImport<Process> {
 		In.mapAtts(json, p, id, conf);
 
 		p.processType = getType(json);
-		p.infrastructureProcess = Json.getBool(json, "infrastructureProcess", false);
+		p.infrastructureProcess = Json.getBool(json, "isInfrastructureProcess", false);
 		p.defaultAllocationMethod = Json.getEnum(json, "defaultAllocationMethod", AllocationMethod.class);
 		p.documentation = ProcessDocReader.read(json, conf);
 		String locId = Json.getRefId(json, "location");
@@ -111,7 +111,7 @@ class ProcessImport extends BaseImport<Process> {
 				conf.providers().add(providerRefId, ex);
 			}
 			p.exchanges.add(ex);
-			boolean isRef = Json.getBool(o, "quantitativeReference", false);
+			boolean isRef = Json.getBool(o, "isQuantitativeReference", false);
 			if (isRef)
 				p.quantitativeReference = ex;
 		}
@@ -172,7 +172,7 @@ class ProcessImport extends BaseImport<Process> {
 			factor.exchange = exchangeMap.get(exchangeId);
 		factor.value = Json.getDouble(json, "value", 1);
 		var formula = Json.getString(json, "formula");
-		if (!Strings.nullOrEmpty(formula)) {
+		if (Strings.notEmpty(formula)) {
 			factor.formula = formula;
 		}
 		factor.method = Json.getEnum(

@@ -53,10 +53,10 @@ abstract class ExchangeImport<P extends RootEntity> extends BaseEmbeddedImport<E
 
 		// general attributes
 		e.internalId = Json.getInt(json, "internalId", 0);
-		e.isInput = Json.getBool(json, "input", false);
+		e.isInput = Json.getBool(json, "isInput", false);
 		e.amount = Json.getDouble(json, "amount", 0);
 		e.formula = Json.getString(json, "amountFormula");
-		e.isAvoided = Json.getBool(json, "avoidedProduct", false);
+		e.isAvoided = Json.getBool(json, "isAvoidedProduct", false);
 		e.baseUncertainty = Json.getDouble(json, "baseUncertainty").orElse(null);
 		e.dqEntry = Json.getString(json, "dqEntry");
 		e.description = Json.getString(json, "description");
