@@ -1,5 +1,7 @@
 package org.openlca.core.io;
 
+import org.openlca.core.model.Category;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 
@@ -44,6 +46,14 @@ public interface EntityResolver {
 	}
 
 	/**
+	 * Get a category for the given model type and path.
+	 *
+	 * @param type the type of the category
+	 * @param path the full path of the category
+	 */
+	Category getCategory(ModelType type, String path);
+
+	/**
 	 * A simple default implementation that just returns {@code null} for every
 	 * request.
 	 */
@@ -56,6 +66,11 @@ public interface EntityResolver {
 		@Override
 		public <T extends RefEntity> Descriptor getDescriptor(
 			Class<T> type, String refId) {
+			return null;
+		}
+
+		@Override
+		public Category getCategory(ModelType type, String path) {
 			return null;
 		}
 	};

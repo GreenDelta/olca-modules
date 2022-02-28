@@ -17,6 +17,7 @@ import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.util.Categories;
+import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
 
 public class CategoryDao
@@ -234,6 +235,14 @@ public class CategoryDao
 	public Category getForPath(ModelType type, String path) {
 		if (type == null || path == null)
 			return null;
+
+		// first try via the refId
+		var refId = KeyGen.get(path);
+		var withRefId = getForRefId(refId);
+		if (withRefId != null)
+			return withRefId;
+
+		// traverse the tree
 		var parts = path.split("/");
 		var next = getRootCategories(type);
 		Category category = null;

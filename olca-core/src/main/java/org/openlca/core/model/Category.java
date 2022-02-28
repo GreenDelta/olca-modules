@@ -64,10 +64,10 @@ public class Category extends RootEntity {
 
 	public String toPath() {
 		if (category == null)
-			return name != null ? name : "";
+			return name != null ? name.trim() : "";
 		var prefix = category.toPath();
 		return name != null
-			? prefix + "/" + name
+			? prefix + "/" + name.trim()
 			: prefix;
 	}
 
