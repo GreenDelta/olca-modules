@@ -29,7 +29,7 @@ class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 			return null;
 		var impact = new ImpactCategory();
 		In.mapAtts(json, impact, id, conf);
-		impact.referenceUnit = Json.getString(json, "referenceUnitName");
+		impact.referenceUnit = Json.getString(json, "refUnit");
 		var sourceId = Json.getString(json, "source");
 		if (Strings.notEmpty(sourceId)) {
 			impact.source = SourceImport.run(sourceId, conf);

@@ -24,7 +24,7 @@ class ParameterWriter extends Writer<Parameter> {
 	static void mapAttr(JsonObject json, Parameter param) {
 		addBasicAttributes(param, json);
 		Json.put(json, "parameterScope", param.scope);
-		Json.put(json, "inputParameter", param.isInputParameter);
+		Json.put(json, "isInputParameter", param.isInputParameter);
 		Json.put(json, "value", param.value);
 		Json.put(json, "formula", param.formula);
 		Json.put(json, "uncertainty", Uncertainties.map(param.uncertainty));

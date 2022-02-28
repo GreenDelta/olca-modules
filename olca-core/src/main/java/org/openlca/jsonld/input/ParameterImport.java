@@ -31,7 +31,7 @@ class ParameterImport extends BaseImport<Parameter> {
 	static void mapFields(JsonObject json, Parameter p) {
 		In.mapAtts(json, p, p.id); // TODO <- mapAtts
 		p.scope = Json.getEnum(json, "parameterScope", ParameterScope.class);
-		p.isInputParameter = Json.getBool(json, "inputParameter", true);
+		p.isInputParameter = Json.getBool(json, "isInputParameter", true);
 		p.value = Json.getDouble(json, "value", 0);
 		p.formula = Json.getString(json, "formula");
 		p.uncertainty = Uncertainties.read(Json.getObject(json, "uncertainty"));

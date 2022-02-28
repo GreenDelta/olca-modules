@@ -30,7 +30,7 @@ public record ParameterReader(EntityResolver resolver)
 
 	static void mapFields(Parameter param, JsonObject json) {
 		param.scope = Json.getEnum(json, "parameterScope", ParameterScope.class);
-		param.isInputParameter = Json.getBool(json, "inputParameter", true);
+		param.isInputParameter = Json.getBool(json, "isInputParameter", true);
 		param.value = Json.getDouble(json, "value", 0);
 		param.formula = Json.getString(json, "formula");
 		param.uncertainty = Uncertainties.read(Json.getObject(json, "uncertainty"));

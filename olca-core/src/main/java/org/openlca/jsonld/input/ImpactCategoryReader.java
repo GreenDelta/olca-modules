@@ -33,7 +33,7 @@ public record ImpactCategoryReader(EntityResolver resolver)
 	public void update(ImpactCategory impact, JsonObject json) {
 		Util.mapBase(impact, json, resolver);
 
-		impact.referenceUnit = Json.getString(json, "referenceUnitName");
+		impact.referenceUnit = Json.getString(json, "refUnit");
 		var sourceId = Json.getString(json, "source");
 		if (Strings.notEmpty(sourceId)) {
 			impact.source = resolver.get(Source.class, sourceId);

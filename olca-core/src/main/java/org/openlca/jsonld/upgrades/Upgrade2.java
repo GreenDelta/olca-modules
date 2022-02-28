@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.JsonStoreReader;
+import org.openlca.util.Strings;
 
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +41,7 @@ class Upgrade2 extends Upgrade {
 			inlineNwSets(object);
 		}
 		if (type == ModelType.IMPACT_CATEGORY) {
+			renameStr(object, "referenceUnitName", "refUnit");
 			addImpactCategoryParams(object);
 		}
 		if (type == ModelType.PRODUCT_SYSTEM) {
@@ -50,9 +52,25 @@ class Upgrade2 extends Upgrade {
 			fixExchanges(object);
 		}
 		if (type == ModelType.FLOW) {
-			renameBool(object, "infrastructureFlow" ,"isInfrastructureFlow");
+			ugradeFlow(object);
+		}
+		if (type == ModelType.PARAMETER) {
+			renameBool(object, "inputParameter", "isInputParameter");
 		}
 		return object;
+	}
+
+	private void ugradeFlow(JsonObject object) {
+		renameBool(object, "infrastructureFlow" ,"isInfrastructureFlow");
+		var props = Json.getArray(object, "flowProperties");
+		if (props != null) {
+			for (var e : props) {
+				if (!e.isJsonObject())
+					continue;
+				var factor = e.getAsJsonObject();
+				renameBool(factor, "referenceFlowProperty", "isReferenceFlowProperty");
+			}
+		}
 	}
 
 	private void inlineNwSets(JsonObject methodObj) {
@@ -110,12 +128,14 @@ class Upgrade2 extends Upgrade {
 			var methodParams = Json.getArray(methodObj, "parameters");
 			var impactParams = new JsonArray();
 			if (methodParams != null) {
-				// TODO: maybe update the parameters
 				Json.stream(methodParams)
 					.filter(JsonElement::isJsonObject)
 					.map(JsonElement::getAsJsonObject)
 					.map(JsonObject::deepCopy)
-					.forEach(impactParams::add);
+					.forEach(param -> {
+						renameBool(param, "inputParameter", "isIputParameter");
+						impactParams.add(param);
+					});
 			}
 			object.add("parameters", impactParams);
 		}
@@ -192,6 +212,14 @@ class Upgrade2 extends Upgrade {
 		if (newVal)
 			return; // the new field is already set to true
 		var val = Json.getBool(obj, oldName, false);
+		Json.put(obj, newName, val);
+	}
+
+	private void renameStr(JsonObject obj, String oldName, String newName) {
+		var newVal = Json.getString(obj, newName);
+		if (Strings.notEmpty(newVal))
+			return;
+		var val = Json.getString(obj, oldName);
 		Json.put(obj, newName, val);
 	}
 
