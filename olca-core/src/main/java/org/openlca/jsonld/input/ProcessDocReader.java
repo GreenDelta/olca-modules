@@ -62,7 +62,7 @@ class ProcessDocReader {
 		doc.intendedApplication = Json.getString(json, "intendedApplication");
 		doc.project = Json.getString(json, "projectDescription");
 		doc.geography = Json.getString(json, "geographyDescription");
-		doc.copyright = Json.getBool(json, "copyright", false);
+		doc.copyright = Json.getBool(json, "hasCopyright", false);
 		doc.validFrom = Json.getDate(json, "validFrom");
 		doc.validUntil = Json.getDate(json, "validUntil");
 		doc.creationDate = Json.getDate(json, "creationDate");

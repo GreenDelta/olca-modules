@@ -48,8 +48,7 @@ class Upgrade2 extends Upgrade {
 			addRedefSets(object);
 		}
 		if (type == ModelType.PROCESS) {
-			renameBool(object, "infrastructureProcess" ,"isInfrastructureProcess");
-			fixExchanges(object);
+			upgradeProcess(object);
 		}
 		if (type == ModelType.FLOW) {
 			ugradeFlow(object);
@@ -57,7 +56,29 @@ class Upgrade2 extends Upgrade {
 		if (type == ModelType.PARAMETER) {
 			renameBool(object, "inputParameter", "isInputParameter");
 		}
+		if (type == ModelType.UNIT_GROUP) {
+			upgradeUnitGroup(object);
+		}
 		return object;
+	}
+
+	private void upgradeProcess(JsonObject object) {
+		renameBool(object, "infrastructureProcess" ,"isInfrastructureProcess");
+		var doc = Json.getObject(object, "processDocumentation");
+		if (doc != null) {
+			renameBool(doc, "copyright", "hasCopyright");
+		}
+		var exchanges = Json.getArray(object, "exchanges");
+		if (exchanges != null) {
+			for (var elem : exchanges) {
+				if (!elem.isJsonObject())
+					continue;
+				var exchange = elem.getAsJsonObject();
+				renameBool(exchange, "avoidedProduct", "isAvoidedProduct");
+				renameBool(exchange, "input", "isInput");
+				renameBool(exchange, "quantitativeReference", "isQuantitativeReference");
+			}
+		}
 	}
 
 	private void ugradeFlow(JsonObject object) {
@@ -69,6 +90,18 @@ class Upgrade2 extends Upgrade {
 					continue;
 				var factor = e.getAsJsonObject();
 				renameBool(factor, "referenceFlowProperty", "isReferenceFlowProperty");
+			}
+		}
+	}
+
+	private void upgradeUnitGroup(JsonObject object) {
+		var units = Json.getArray(object, "units");
+		if (units != null) {
+			for (var e : units ) {
+				if (!e.isJsonObject())
+					continue;
+				var u = e.getAsJsonObject();
+				renameBool(u, "referenceUnit", "isReferenceUnit");
 			}
 		}
 	}
@@ -191,20 +224,6 @@ class Upgrade2 extends Upgrade {
 		var redefSets = new JsonArray();
 		redefSets.add(set);
 		systemObj.add("parameterSets", redefSets);
-	}
-
-	private void fixExchanges(JsonObject object) {
-		var array = Json.getArray(object, "exchanges");
-		if (array == null)
-			return;
-		for (var elem : array) {
-			if (!elem.isJsonObject())
-				continue;
-			var exchange = elem.getAsJsonObject();
-			renameBool(exchange, "avoidedProduct", "isAvoidedProduct");
-			renameBool(exchange, "input", "isInput");
-			renameBool(exchange, "quantitativeReference", "isQuantitativeReference");
-		}
 	}
 
 	private void renameBool(JsonObject obj, String oldName, String newName) {

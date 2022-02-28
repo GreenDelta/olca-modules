@@ -30,7 +30,7 @@ class UnitGroupWriter extends Writer<UnitGroup> {
 			var obj = new JsonObject();
 			UnitWriter.map(unit, obj);
 			if (Objects.equals(unit, group.referenceUnit)) {
-				Json.put(obj, "referenceUnit", true);
+				Json.put(obj, "isReferenceUnit", true);
 			}
 			units.add(obj);
 		}
