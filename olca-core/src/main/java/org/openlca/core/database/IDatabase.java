@@ -14,7 +14,6 @@ import gnu.trove.set.TLongSet;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import org.openlca.core.model.AbstractEntity;
-import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -22,7 +21,7 @@ import org.openlca.core.model.descriptors.Descriptor;
 /**
  * The common interface for openLCA databases.
  */
-public interface IDatabase extends Closeable, INotifiable, EntityResolver {
+public interface IDatabase extends Closeable, INotifiable {
 
 	/**
 	 * The current database schema version of this package. Together with the
@@ -184,7 +183,6 @@ public interface IDatabase extends Closeable, INotifiable, EntityResolver {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
 	default <T extends RefEntity> T get(Class<T> type, String refId) {
 		if (type == null || refId == null)
 			return null;
@@ -212,7 +210,6 @@ public interface IDatabase extends Closeable, INotifiable, EntityResolver {
 	/**
 	 * Get the descriptor of the entity of the given type and reference ID.
 	 */
-	@Override
 	default <T extends RefEntity> Descriptor getDescriptor(
 		Class<T> type, String refID) {
 		if (refID == null)

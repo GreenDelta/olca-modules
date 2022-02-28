@@ -2,6 +2,7 @@ package org.openlca.jsonld.input;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.io.EntityResolver;
@@ -21,25 +22,26 @@ class Util {
     e.name = Json.getString(obj, "name");
     e.description = Json.getString(obj, "description");
 
-    if (!(e instanceof RootEntity ce))
+    if (!(e instanceof RootEntity re))
       return;
 
     // version
     var version = Json.getString(obj, "version");
-    ce.version = version != null
+    re.version = version != null
       ? Version.fromString(version).getValue()
       : 0L;
 
     // last change
     var lastChange = Json.getDate(obj, "lastChange");
-    ce.lastChange = lastChange != null
+    re.lastChange = lastChange != null
       ? lastChange.getTime()
       : 0L;
 
 	  // category
-    var catId = Json.getRefId(obj, "category");
-    if (catId != null) {
-      ce.category = resolver.get(Category.class, catId);
+    var path = Json.getRefId(obj, "category");
+    if (path != null) {
+			var type = ModelType.of(re);
+      re.category = resolver.getCategory(type, path);
     }
 
     // tags
@@ -50,12 +52,12 @@ class Util {
         .map(JsonElement::getAsString)
         .filter(tag -> !Strings.nullOrEmpty(tag))
         .toArray(String[]::new);
-      ce.tags = tags.length > 0
+      re.tags = tags.length > 0
         ? String.join(",", tags)
         : null;
     }
 
 		// library
-		ce.library = Json.getString(obj, "library");
+		re.library = Json.getString(obj, "library");
   }
 }

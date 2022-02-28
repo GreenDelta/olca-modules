@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.io.CategorySync;
 import org.openlca.core.io.ExchangeProviderQueue;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RefEntity;
@@ -18,6 +19,7 @@ public class JsonImport implements Runnable {
 	final JsonStoreReader reader;
 	UpdateMode updateMode = UpdateMode.NEVER;
 	private Consumer<RefEntity> callback;
+	final CategorySync categories;
 
 	@Deprecated
 	final Db db;
@@ -28,6 +30,7 @@ public class JsonImport implements Runnable {
 		this.reader = Upgrades.chain(reader);
 		this.db = new Db(db);
 		this.providers = ExchangeProviderQueue.create(db);
+		this.categories = CategorySync.of(db);
 	}
 
 	public JsonImport setUpdateMode(UpdateMode updateMode) {

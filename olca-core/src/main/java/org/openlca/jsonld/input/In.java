@@ -1,6 +1,7 @@
 package org.openlca.jsonld.input;
 
 import com.google.gson.JsonElement;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Version;
@@ -47,8 +48,14 @@ final class In {
 		if (obj == null || entity == null)
 			return;
 		mapAtts(obj, entity, id);
-		var catId = Json.getRefId(obj, "category");
-		entity.category = CategoryImport.run(catId, conf);
+
+		// category
+		var path = Json.getRefId(obj, "category");
+		if (path != null) {
+			var type = ModelType.of(entity);
+			entity.category = conf.categories.get(type, path);
+		}
+
 		entity.library = Json.getString(obj, "library");
 		entity.version = getVersion(obj);
 		entity.lastChange = getLastChange(obj);

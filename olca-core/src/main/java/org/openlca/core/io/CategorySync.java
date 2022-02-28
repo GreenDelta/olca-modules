@@ -18,8 +18,10 @@ public class CategorySync {
 		this.db = db;
 		cache = new EnumMap<>(ModelType.class);
 		for (var category : db.allOf(Category.class)) {
+			if (category.modelType == null)
+				continue;
 			var path = category.toPath();
-			if (path == null)
+			if (path == null || path.isEmpty())
 				continue;
 			var map = cache.computeIfAbsent(
 				category.modelType, type -> new HashMap<>());
