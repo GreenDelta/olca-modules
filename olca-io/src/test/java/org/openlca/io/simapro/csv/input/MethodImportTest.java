@@ -29,9 +29,9 @@ public class MethodImportTest {
 
 	@Test
 	public void testMethodImport() {
-		assertTrue(db.allOf(ImpactMethod.class).isEmpty());
+		assertTrue(db.getAll(ImpactMethod.class).isEmpty());
 		new SimaProCsvImport(db, file).run();
-		var method = db.allOf(ImpactMethod.class).get(0);
+		var method = db.getAll(ImpactMethod.class).get(0);
 		assertEquals("EN 15804:2012", method.name);
 		assertEquals(2, method.impactCategories.size());
 	}

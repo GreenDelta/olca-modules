@@ -243,7 +243,7 @@ public class ModelHandler {
 
 			// get by name
 			if (Strings.notEmpty(d.name)) {
-				var e = db.forName(type, d.name);
+				var e = db.getForName(type, d.name);
 				if (e == null) {
 					var err = Responses.error(404, "No " + type
 							+ " with name='" + d.name + "' found", req);

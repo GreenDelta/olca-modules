@@ -270,7 +270,7 @@ class DataUtil {
         return Optional.empty();
       }
 
-      var e = db.forName(type, name);
+      var e = db.getForName(type, name);
       if (e == null) {
         Response.notFound(errorResponse,
           "Could not find " + type + " with name=" + name);

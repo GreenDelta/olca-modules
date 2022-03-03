@@ -95,7 +95,7 @@ class DataFetchService extends
 
     var name = req.getName();
     onSuccess.accept(Strings.notEmpty(name)
-      ? db.forName(type, name)
+      ? db.getForName(type, name)
       : null);
   }
 
@@ -109,7 +109,7 @@ class DataFetchService extends
     // first get all descriptors and sort them by ID so that
     // we have a defined order for the pages
     var type = modelType.getModelClass();
-    var all = db.allDescriptorsOf(type);
+    var all = db.getDescriptors(type);
     all.sort(Comparator.comparingLong(d -> d.id));
     var totalCount = all.size();
     var response = GetAllResponse.newBuilder()

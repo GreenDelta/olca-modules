@@ -39,7 +39,7 @@ public class SubResultTree {
 
 		// var methodId = "eb4db92d-97ac-41a7-9573-05566a319b06";
 		// var method = db.get(ImpactMethod.class, methodId);
-		var results = db.allOf(Result.class)
+		var results = db.getAll(Result.class)
 			.stream()
 			.filter(r -> method.equals(r.impactMethod))
 			.toList();
@@ -121,7 +121,7 @@ public class SubResultTree {
 
 
 	private static Method tagWithMethods(IDatabase db) {
-		var allResults = db.allOf(Result.class);
+		var allResults = db.getAll(Result.class);
 
 
 		var methods = new ArrayList<Method>();

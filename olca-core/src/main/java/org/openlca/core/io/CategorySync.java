@@ -17,7 +17,7 @@ public class CategorySync {
 	private CategorySync(IDatabase db) {
 		this.db = db;
 		cache = new EnumMap<>(ModelType.class);
-		for (var category : db.allOf(Category.class)) {
+		for (var category : db.getAll(Category.class)) {
 			if (category.modelType == null)
 				continue;
 			var path = category.toPath();

@@ -136,7 +136,7 @@ public class ImportConfig {
 			return null;
 		if (locations == null) {
 			locations = new HashMap<>();
-			db.allOf(Location.class).forEach(
+			db.getAll(Location.class).forEach(
 				loc -> locations.put(loc.code, loc));
 		}
 		var cached = locations.get(code);
