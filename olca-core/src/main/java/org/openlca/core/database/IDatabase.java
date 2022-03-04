@@ -16,7 +16,9 @@ import jakarta.persistence.EntityManagerFactory;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 /**
  * The common interface for openLCA databases.
@@ -225,7 +227,7 @@ public interface IDatabase extends Closeable, INotifiable {
 	 * Get all entities of the given type from this database.
 	 */
 	@SuppressWarnings("unchecked")
-	default <T extends RefEntity> List<T> allOf(Class<T> type) {
+	default <T extends RefEntity> List<T> getAll(Class<T> type) {
 		var modelType = ModelType.forModelClass(type);
 		if (modelType == null)
 			return Collections.emptyList();
@@ -238,7 +240,7 @@ public interface IDatabase extends Closeable, INotifiable {
 	/**
 	 * Get the descriptors of all entities of the given type from this database.
 	 */
-	default <T extends RefEntity> List<? extends Descriptor> allDescriptorsOf(
+	default <T extends RefEntity> List<? extends Descriptor> getDescriptors(
 		Class<T> type) {
 		var modelType = ModelType.forModelClass(type);
 		var dao = Daos.refDao(this, modelType);
@@ -247,12 +249,21 @@ public interface IDatabase extends Closeable, INotifiable {
 			: dao.getDescriptors();
 	}
 
+	default <T extends RootEntity> List<? extends RootDescriptor> getDescriptors(
+		Class<T> type, HashSet<Long> ids) {
+		var modelType = ModelType.forModelClass(type);
+		var dao = Daos.root(this, modelType);
+		return dao != null
+			? dao.getDescriptors(ids)
+			: Collections.emptyList();
+	}
+
 	/**
 	 * Get the first entity of the given type and with the given name from the
 	 * database. It returns `null` if no entity with the given name exists.
 	 */
 	@SuppressWarnings("unchecked")
-	default <T extends RefEntity> T forName(Class<T> type, String name) {
+	default <T extends RefEntity> T getForName(Class<T> type, String name) {
 		var modelType = ModelType.forModelClass(type);
 		if (modelType == null)
 			return null;

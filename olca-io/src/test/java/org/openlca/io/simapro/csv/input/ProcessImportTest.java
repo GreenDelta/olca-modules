@@ -28,9 +28,9 @@ public class ProcessImportTest {
 
 	@Test
 	public void testProcessImport() {
-		assertTrue(db.allOf(Process.class).isEmpty());
+		assertTrue(db.getAll(Process.class).isEmpty());
 		new SimaProCsvImport(db, file).run();
-		var process = db.allOf(Process.class).get(0);
+		var process = db.getAll(Process.class).get(0);
 		assertEquals("Test", process.name);
 		assertEquals(6, process.exchanges.size());
 	}

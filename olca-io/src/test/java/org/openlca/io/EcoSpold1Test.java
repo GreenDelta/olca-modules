@@ -41,7 +41,7 @@ public class EcoSpold1Test {
 		io(export -> export.export(process));
 
 		// check the import
-		var processes = db.allOf(Process.class);
+		var processes = db.getAll(Process.class);
 		assertEquals(1, processes.size());
 		var p = processes.get(0);
 		assertEquals(2, p.exchanges.size());
@@ -87,7 +87,7 @@ public class EcoSpold1Test {
 			export.export(method2);
 		});
 
-		var methods = db.allOf(ImpactMethod.class);
+		var methods = db.getAll(ImpactMethod.class);
 		assertEquals(2, methods.size());
 		for (var method : methods) {
 			assertTrue(method.name.equals("Method 1")

@@ -164,7 +164,7 @@ public class WasteScenarioUnrollingTest {
 			.unrollWasteScenarios(true)
 			.run();
 
-		var systems = db.allOf(ProductSystem.class);
+		var systems = db.getAll(ProductSystem.class);
 		assertEquals(1, systems.size());
 		var system = systems.get(0);
 		assertEquals(1, system.parameterSets.size());

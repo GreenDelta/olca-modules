@@ -68,7 +68,7 @@ public class DataFetchTest {
 	public void testGetAll() {
 
 		// create and call the deleteAll function
-		Runnable deleteAll = () -> db.allDescriptorsOf(Actor.class)
+		Runnable deleteAll = () -> db.getDescriptors(Actor.class)
 			.forEach(d -> {
 				var actor = db.get(Actor.class, d.id);
 				db.delete(actor);

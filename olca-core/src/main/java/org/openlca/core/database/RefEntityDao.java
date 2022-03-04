@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import gnu.trove.set.hash.TLongHashSet;
 import jakarta.persistence.Table;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RefEntity;
