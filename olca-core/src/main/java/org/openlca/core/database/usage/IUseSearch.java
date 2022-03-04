@@ -10,11 +10,9 @@ import org.openlca.core.model.descriptors.RootDescriptor;
 /** Search of entities where another entity is used. */
 public interface IUseSearch<T extends RootDescriptor> {
 
-	/**
-	 * Returns a list of descriptors of entities where the given entity id is
-	 * used.
-	 */
-	List<RootDescriptor> findUses(long id);
+	default List<RootDescriptor> findUses(long id) {
+		TLongSe
+	}
 
 	List<RootDescriptor> findUses(T entity);
 

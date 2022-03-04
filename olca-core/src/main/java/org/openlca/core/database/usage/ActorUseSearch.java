@@ -13,7 +13,7 @@ import org.openlca.core.model.descriptors.RootDescriptor;
  * Searches for the use of actors in other entities. Actors can be used in
  * processes and projects.
  */
-public class ActorUseSearch extends BaseUseSearch<ActorDescriptor> {
+public class ActorUseSearch implements IUseSearch<ActorDescriptor> {
 
 	public ActorUseSearch(IDatabase database) {
 		super(database);
