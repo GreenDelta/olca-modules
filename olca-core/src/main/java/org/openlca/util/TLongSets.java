@@ -35,6 +35,27 @@ public final class TLongSets {
 		return set;
 	}
 
+	public static String join(String separator, TLongSet set) {
+		if (set == null || separator == null || set.isEmpty())
+			return "";
+		var buff = new StringBuilder();
+		var it = set.iterator();
+		while (it.hasNext()) {
+			var next = it.next();
+			if (!buff.isEmpty()) {
+				buff.append(separator);
+			}
+			buff.append(next);
+		}
+		return buff.toString();
+	}
+
+	public static long first(TLongSet set) {
+		return set.isEmpty()
+			? set.getNoEntryValue()
+			: set.iterator().next();
+	}
+
 	private record SingletonSet(long value) implements TLongSet {
 
 		@Override

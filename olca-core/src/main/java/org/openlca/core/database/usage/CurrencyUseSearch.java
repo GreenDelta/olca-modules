@@ -4,19 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import gnu.trove.set.TLongSet;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.CurrencyDescriptor;
 
 /**
- * Searches for the use of currencies in other entities. Currencies can be used
- * in processes and other currencies.
+ * Searches for the use of currencies in other entities.
  */
-public class CurrencyUseSearch extends BaseUseSearch<CurrencyDescriptor> {
+public record CurrencyUseSearch(IDatabase db) implements IUseSearch {
 
-	public CurrencyUseSearch(IDatabase database) {
-		super(database);
+	@Override
+	public List<? extends RootDescriptor> find(TLongSet ids) {
+
+		var processQuery
+
+		return null;
 	}
 
 	@Override

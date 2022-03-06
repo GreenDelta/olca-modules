@@ -20,7 +20,7 @@ import org.openlca.core.model.descriptors.RootDescriptor;
 public record ActorUseSearch(IDatabase db) implements IUseSearch {
 
 	@Override
-	public List<RootDescriptor> find(TLongSet ids) {
+	public List<? extends RootDescriptor> find(TLongSet ids) {
 		try {
 			var exec = Executors.newFixedThreadPool(2);
 			var results = List.of(

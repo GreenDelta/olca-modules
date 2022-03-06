@@ -1,8 +1,6 @@
 package org.openlca.core.database.usage;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import gnu.trove.set.TLongSet;
 import org.openlca.core.database.IDatabase;
@@ -12,11 +10,11 @@ import org.openlca.util.TLongSets;
 
 public interface IUseSearch {
 
-	default List<RootDescriptor> find(long id) {
+	default List<? extends RootDescriptor> find(long id) {
 		return find(TLongSets.singleton(id));
 	}
 
-	List<RootDescriptor> find(TLongSet ids);
+	List<? extends RootDescriptor> find(TLongSet ids);
 
 	static IUseSearch of(ModelType type, IDatabase db) {
 		if (type == null)

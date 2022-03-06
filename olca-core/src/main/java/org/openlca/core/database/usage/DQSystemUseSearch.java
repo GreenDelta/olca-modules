@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import gnu.trove.set.TLongSet;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.RootDescriptor;
@@ -13,10 +14,12 @@ import org.openlca.core.model.descriptors.DQSystemDescriptor;
  * Searches for the use of data quality systems in other entities. DQSystems can
  * be used in processes.
  */
-public class DQSystemUseSearch extends BaseUseSearch<DQSystemDescriptor> {
+public record DQSystemUseSearch(IDatabase db) implements IUseSearch {
 
-	public DQSystemUseSearch(IDatabase database) {
-		super(database);
+	@Override
+	public List<? extends RootDescriptor> find(TLongSet ids) {
+		var q = "select id, "
+		return null;
 	}
 
 	@Override
