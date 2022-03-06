@@ -2,7 +2,8 @@ package org.openlca.core.database.usage;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
@@ -28,21 +29,21 @@ public class CategoryUseSearch implements IUseSearch{
 	}
 
 	@Override
-	public List<? extends RootDescriptor> find(TLongSet ids) {
+	public Set<? extends RootDescriptor> find(TLongSet ids) {
 		if (ids.isEmpty())
-			return Collections.emptyList();
+			return Collections.emptySet();
 		if (type != null)
 			return query(type, ids);
 		try {
 			var exec = Executors.newFixedThreadPool(4);
-			var calls = new ArrayList<Future<List<? extends RootDescriptor>>>();
+			var calls = new ArrayList<Future<Set<? extends RootDescriptor>>>();
 			for (var type : ModelType.values()) {
 				if (!type.isRoot())
 					continue;
 				calls.add(exec.submit(() -> query(type, ids)));
 			}
 			exec.shutdown();
-			var descriptors = new ArrayList<RootDescriptor>();
+			var descriptors = new HashSet<RootDescriptor>();
 			for (var call : calls) {
 				descriptors.addAll(call.get());
 			}
@@ -53,13 +54,13 @@ public class CategoryUseSearch implements IUseSearch{
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<? extends RootDescriptor> query(ModelType type, TLongSet ids) {
+	private Set<? extends RootDescriptor> query(ModelType type, TLongSet ids) {
 		if (!type.isRoot())
-			return Collections.emptyList();
+			return Collections.emptySet();
 		var clazz = (Class<? extends RootEntity>) type.getModelClass();
 		var table = clazz.getAnnotation(Table.class);
 		if (table == null)
-			return Collections.emptyList();
+			return Collections.emptySet();
 		var q = "select id from " + table + " where f_category " + Search.eqIn(ids);
 		return Search.collect(db, q, clazz);
 	}

@@ -5,23 +5,27 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import gnu.trove.set.TLongSet;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.SourceDescriptor;
 
-/**
- * Searches for the use of sources in other entities. Sources can be used in
- * processes.
- */
-public class SourceUseSearch extends BaseUseSearch<SourceDescriptor> {
+public record SourceUseSearch(IDatabase db) implements IUseSearch {
 
-	public SourceUseSearch(IDatabase database) {
-		super(database);
+	@Override
+	public List<? extends RootDescriptor> find(TLongSet ids) {
+		var q = "select p.id from tbl_processes p inner join " +
+			"tbl_process_docs doc on p.f_process_doc = doc.id " +
+			"inner join tbl_source_links s on doc.id = s.f_owner " +
+			"where s.f_source " + Search.eqIn(ids);
+
+		return null;
 	}
 
 	@Override
 	public List<RootDescriptor> findUses(Set<Long> ids) {
+
 		Set<Long> methods = queryForIds(
 			"id", "tbl_impact_methods", ids, "f_source");
 		Set<Long> impacts = queryForIds(

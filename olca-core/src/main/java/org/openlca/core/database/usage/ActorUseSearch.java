@@ -1,9 +1,9 @@
 package org.openlca.core.database.usage;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executors;
 
 import gnu.trove.set.TLongSet;
@@ -20,14 +20,14 @@ import org.openlca.core.model.descriptors.RootDescriptor;
 public record ActorUseSearch(IDatabase db) implements IUseSearch {
 
 	@Override
-	public List<? extends RootDescriptor> find(TLongSet ids) {
+	public Set<? extends RootDescriptor> find(TLongSet ids) {
 		try {
 			var exec = Executors.newFixedThreadPool(2);
 			var results = List.of(
 				exec.submit(() -> findInProcessDocs(ids)),
 				exec.submit(() -> findInEpds(ids)));
 			exec.shutdown();
-			var descriptors = new ArrayList<RootDescriptor>();
+			var descriptors = new HashSet<RootDescriptor>();
 			for (var r : results) {
 				descriptors.addAll(r.get());
 			}

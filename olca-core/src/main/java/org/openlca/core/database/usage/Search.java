@@ -139,14 +139,14 @@ class Search {
 	 * Executes the given query, collects the IDs from the first field of the
 	 * cursor, and returns the descriptors of the given type for these IDs.
 	 */
-	static <T extends RootEntity> List<? extends RootDescriptor> collect(
+	static <T extends RootEntity> Set<? extends RootDescriptor> collect(
 		IDatabase db, String query, Class<T> type) {
 		var ids = new HashSet<Long>();
 		NativeSql.on(db).query(query, r -> {
 			ids.add(r.getLong(1));
 			return true;
 		});
-		return db.getDescriptors(type, ids);
+		return new HashSet<>(db.getDescriptors(type, ids));
 	}
 
 	static String eqIn(TLongSet ids) {
