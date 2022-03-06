@@ -1,33 +1,29 @@
 package org.openlca.core.database.usage;
 
-import java.util.HashSet;
-import java.util.List;
+import java.util.Collections;
 import java.util.Set;
 
+import gnu.trove.set.TLongSet;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.NativeSql;
-import org.openlca.core.model.ModelType;
+import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.core.model.descriptors.ImpactDescriptor;
 
-public class ImpactCategoryUseSearch extends BaseUseSearch<ImpactDescriptor> {
-
-	ImpactCategoryUseSearch(IDatabase db) {
-		super(db);
-	}
+public record ImpactCategoryUseSearch(IDatabase db) implements IUseSearch {
 
 	@Override
-	public List<RootDescriptor> findUses(Set<Long> impactIDs) {
-		var query = "select f_impact_method, " +
-				"f_impact_category from tbl_impact_links";
-		var methodIDs = new HashSet<Long>();
-		NativeSql.on(db).query(query, r -> {
-			var impact = r.getLong(2);
-			if (impactIDs.contains(impact)) {
-				methodIDs.add(r.getLong(1));
-			}
-			return true;
-		});
-		return loadDescriptors(ModelType.IMPACT_METHOD, methodIDs);
+	public Set<? extends RootDescriptor> find(TLongSet ids) {
+		if (ids.isEmpty())
+			return Collections.emptySet();
+		var suffix = Search.eqIn(ids);
+		return QueryPlan.of(db)
+			.submit(ImpactMethod.class,
+				"select f_impact_method from tbl_impact_links " +
+					"where f_impact_category " + suffix)
+			.submit(Result.class,
+				"select f_result from tbl_impact_results " +
+					"where f_impact_category " + suffix)
+			.exec();
 	}
+
 }

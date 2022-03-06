@@ -18,6 +18,11 @@ record Query<T extends RootEntity>(
 	IDatabase db, Class<T> type, String query)
 	implements Callable<Set<? extends RootDescriptor>> {
 
+	static <T extends RootEntity> Query<T> of(
+		IDatabase db, Class<T> type, String query) {
+		return new Query<>(db, type,query);
+	}
+
 	@Override
 	public Set<? extends RootDescriptor> call() {
 		var ids = new HashSet<Long>();

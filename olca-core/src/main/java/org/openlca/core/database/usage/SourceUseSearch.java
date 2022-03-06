@@ -28,6 +28,9 @@ public record SourceUseSearch(IDatabase db) implements IUseSearch {
 				"select p.id from tbl_processes p inner join " +
 					"tbl_process_docs doc on p.f_process_doc = doc.id " +
 					"where doc.f_publication " + suffix)
+			.submit(Process.class,
+				"select f_process from tbl_social_aspects " +
+					"where f_source " + suffix)
 			.submit(ImpactMethod.class,
 				"select id from tbl_impact_methods where f_source " + suffix)
 			.submit(ImpactCategory.class,
