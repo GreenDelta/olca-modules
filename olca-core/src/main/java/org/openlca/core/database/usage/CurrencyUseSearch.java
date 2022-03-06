@@ -1,14 +1,13 @@
 package org.openlca.core.database.usage;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 import java.util.Set;
 
 import gnu.trove.set.TLongSet;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Currency;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.core.model.descriptors.CurrencyDescriptor;
 
 /**
  * Searches for the use of currencies in other entities.
@@ -16,20 +15,15 @@ import org.openlca.core.model.descriptors.CurrencyDescriptor;
 public record CurrencyUseSearch(IDatabase db) implements IUseSearch {
 
 	@Override
-	public List<? extends RootDescriptor> find(TLongSet ids) {
-
-		var processQuery
-
-		return null;
+	public Set<? extends RootDescriptor> find(TLongSet ids) {
+		if (ids.isEmpty())
+			return Collections.emptySet();
+		var suffix = Search.eqIn(ids);
+		return QueryPlan.of(db)
+			.submit(Process.class,
+				"select f_owner from tbl_exchanges where f_currency " + suffix)
+			.submit(Currency.class,
+				"select id from tbl_currencies where f_reference_currency " + suffix)
+			.exec();
 	}
-
-	@Override
-	public List<RootDescriptor> findUses(Set<Long> ids) {
-		var results = new ArrayList<RootDescriptor>();
-		var processIds = queryForIds("f_owner", "tbl_exchanges", ids, "f_currency");
-		results.addAll(queryFor(ModelType.PROCESS, processIds, "id"));
-		results.addAll(queryFor(ModelType.CURRENCY, ids, "f_reference_currency"));
-		return results;
-	}
-
 }

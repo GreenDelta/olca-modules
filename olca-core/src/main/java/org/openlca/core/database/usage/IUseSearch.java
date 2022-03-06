@@ -1,6 +1,5 @@
 package org.openlca.core.database.usage;
 
-import java.util.List;
 import java.util.Set;
 
 import gnu.trove.set.TLongSet;
@@ -37,7 +36,7 @@ public interface IUseSearch {
 			case CATEGORY -> new CategoryUseSearch(db);
 			case PARAMETER -> new ParameterUseSearch(db);
 			case DQ_SYSTEM -> new DQSystemUseSearch(db);
-			case RESULT -> new EmptyUseSearch(); // TODO
+			case RESULT -> new ResultUsageSearch(db);
 			case EPD, PROJECT, UNIT, NW_SET, UNKNOWN -> new EmptyUseSearch(); // TODO
 		};
 	}
