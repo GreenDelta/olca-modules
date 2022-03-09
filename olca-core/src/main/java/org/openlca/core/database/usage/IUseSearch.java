@@ -1,10 +1,12 @@
 package org.openlca.core.database.usage;
 
+import java.util.Collections;
 import java.util.Set;
 
 import gnu.trove.set.TLongSet;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.util.TLongSets;
 
@@ -15,6 +17,13 @@ public interface IUseSearch {
 	}
 
 	Set<? extends RootDescriptor> find(TLongSet ids);
+
+	static Set<? extends RootDescriptor> find(IDatabase db, RootEntity e) {
+		if (e == null || db == null)
+			return Collections.emptySet();
+		var search = of(ModelType.of(e), db);
+		return search.find(e.id);
+	}
 
 	static IUseSearch of(ModelType type, IDatabase db) {
 		if (type == null)
