@@ -14,7 +14,7 @@ import org.openlca.core.model.descriptors.Descriptor;
 public class ImpactMethodUseSearchTest {
 
 	private final IDatabase db = Tests.getDb();
-	private final IUseSearch search = IUseSearch.of(ModelType.IMPACT_METHOD, db);
+	private final UsageSearch search = UsageSearch.of(ModelType.IMPACT_METHOD, db);
 	private Project project;
 	private ImpactMethod method;
 

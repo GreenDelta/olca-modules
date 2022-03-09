@@ -8,7 +8,7 @@ import org.openlca.core.model.descriptors.RootDescriptor;
 import java.util.Collections;
 import java.util.Set;
 
-public record ResultUsageSearch(IDatabase db) implements IUseSearch {
+public record ResultUsageSearch(IDatabase db) implements UsageSearch {
 
 	@Override
 	public Set<? extends RootDescriptor> find(TLongSet ids) {

@@ -3,7 +3,7 @@ package org.openlca.core.database;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.database.usage.IUseSearch;
+import org.openlca.core.database.usage.UsageSearch;
 import org.openlca.core.model.*;
 import org.openlca.core.model.Process;
 import org.slf4j.Logger;
@@ -81,7 +81,7 @@ public class BaseDaoTest {
 			return;
 		var entity = (RootEntity) instance;
 		var type = ModelType.forModelClass(clazz);
-		var dependents = IUseSearch.of(type, Tests.getDb())
+		var dependents = UsageSearch.of(type, Tests.getDb())
 			.find(entity.id);
 		Assert.assertTrue(dependents.isEmpty());
 	}

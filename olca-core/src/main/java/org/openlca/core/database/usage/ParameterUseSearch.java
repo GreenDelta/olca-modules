@@ -31,7 +31,7 @@ import org.openlca.util.Strings;
  * contrast to other usage searches it searches for the names of parameters in
  * formulas and parameter redefinitions.
  */
-public record ParameterUseSearch(IDatabase db) implements IUseSearch {
+public record ParameterUseSearch(IDatabase db) implements UsageSearch {
 
 	public Set<? extends RootDescriptor> find(String name) {
 		return find(Collections.singleton(name));

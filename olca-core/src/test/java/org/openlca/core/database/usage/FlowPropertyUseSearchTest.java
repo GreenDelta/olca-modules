@@ -42,14 +42,14 @@ public class FlowPropertyUseSearchTest {
 
 	@Test
 	public void testUnused() {
-		var search = IUseSearch.of(ModelType.FLOW_PROPERTY, db);
+		var search = UsageSearch.of(ModelType.FLOW_PROPERTY, db);
 		var deps = search.find(unused.id);
 		Assert.assertTrue(deps.isEmpty());
 	}
 
 	@Test
 	public void testUsed() {
-		var search = IUseSearch.of(ModelType.FLOW_PROPERTY, db);
+		var search = UsageSearch.of(ModelType.FLOW_PROPERTY, db);
 		var deps = search.find(used.id);
 		Assert.assertEquals(2, deps.size());
 		for (var dep : deps) {

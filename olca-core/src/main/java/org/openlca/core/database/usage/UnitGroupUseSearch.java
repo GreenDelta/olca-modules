@@ -8,7 +8,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.descriptors.RootDescriptor;
 
-public record UnitGroupUseSearch(IDatabase db) implements IUseSearch {
+public record UnitGroupUseSearch(IDatabase db) implements UsageSearch {
 
 	@Override
 	public Set<? extends RootDescriptor> find(TLongSet ids) {

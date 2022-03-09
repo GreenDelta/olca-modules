@@ -10,7 +10,7 @@ import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.RootDescriptor;
 
-public record FlowPropertyUseSearch(IDatabase db) implements IUseSearch {
+public record FlowPropertyUseSearch(IDatabase db) implements UsageSearch {
 
 	@Override
 	public Set<? extends RootDescriptor> find(TLongSet ids) {

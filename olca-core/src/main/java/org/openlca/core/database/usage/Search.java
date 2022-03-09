@@ -42,17 +42,6 @@ class Search {
 		this.database = database;
 	}
 
-	List<RootDescriptor> queryFor(ModelType type, Set<Long> toFind,
-                                  String... inFields) {
-		return queryFor(type, "id", tableNames.get(type), toFind, inFields);
-	}
-
-	List<RootDescriptor> queryFor(ModelType type, String idField,
-                                  String table, Set<Long> toFind, String... inFields) {
-		Set<Long> ids = queryForIds(idField, table, toFind, inFields);
-		return loadDescriptors(type, ids);
-	}
-
 	List<RootDescriptor> queryFor(ModelType type, String query) {
 		Set<Long> ids = queryForIds(query);
 		return loadDescriptors(type, ids);
@@ -85,10 +74,6 @@ class Search {
 		return ids;
 	}
 
-	protected Set<Long> getIds(String table) {
-		return queryForIds("SELECT id FROM " + table);
-	}
-
 	private String createQuery(String idField, String table, Set<Long> toFind,
 			String... fields) {
 		StringBuilder query = new StringBuilder();
@@ -117,19 +102,6 @@ class Search {
 			builder.append(next);
 			if (it.hasNext())
 				builder.append(',');
-		}
-		builder.append(')');
-		return builder.toString();
-	}
-
-	static String asSqlList(Object[] values) {
-		StringBuilder builder = new StringBuilder();
-		builder.append('(');
-		for (int i = 0; i < values.length; i++) {
-			if (i != 0)
-				builder.append(",");
-			String next = values[i].toString();
-			builder.append("'" + next + "'");
 		}
 		builder.append(')');
 		return builder.toString();

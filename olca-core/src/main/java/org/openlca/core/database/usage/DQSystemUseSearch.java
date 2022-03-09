@@ -14,7 +14,7 @@ import org.openlca.core.model.descriptors.RootDescriptor;
  * Searches for the use of data quality systems in other entities. DQSystems can
  * be used in processes.
  */
-public record DQSystemUseSearch(IDatabase db) implements IUseSearch {
+public record DQSystemUseSearch(IDatabase db) implements UsageSearch {
 
 	@Override
 	public Set<? extends RootDescriptor> find(TLongSet ids) {

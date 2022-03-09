@@ -14,7 +14,7 @@ import org.openlca.core.model.descriptors.Descriptor;
 public class DQSystemUseSearchTest {
 
 	private final IDatabase db = Tests.getDb();
-	private final IUseSearch search = IUseSearch.of(ModelType.DQ_SYSTEM, db);
+	private final UsageSearch search = UsageSearch.of(ModelType.DQ_SYSTEM, db);
 
 	@Test
 	public void testFindNoUsage() {

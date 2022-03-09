@@ -32,7 +32,7 @@ public class ImpactCategoryUseSearchTest {
 
 	@Test
 	public void testNoUsage() {
-		var r = IUseSearch.of(ModelType.IMPACT_CATEGORY, db).find(impact.id);
+		var r = UsageSearch.of(ModelType.IMPACT_CATEGORY, db).find(impact.id);
 		assertTrue(r.isEmpty());
 	}
 
@@ -40,7 +40,7 @@ public class ImpactCategoryUseSearchTest {
 	public void testUsage() {
 		method.impactCategories.add(impact);
 		method = db.update(method);
-		var r = IUseSearch.of(ModelType.IMPACT_CATEGORY, db).find(impact.id);
+		var r = UsageSearch.of(ModelType.IMPACT_CATEGORY, db).find(impact.id);
 		assertEquals(1, r.size());
 		assertEquals(Descriptor.of(method), r.iterator().next());
 	}
@@ -53,7 +53,7 @@ public class ImpactCategoryUseSearchTest {
 		method2.impactCategories.add(impact);
 		db.insert(method1, method2);
 
-		var r = IUseSearch.of(ModelType.IMPACT_CATEGORY, db).find(impact.id);
+		var r = UsageSearch.of(ModelType.IMPACT_CATEGORY, db).find(impact.id);
 		assertEquals(2, r.size());
 		assertTrue(r.contains(Descriptor.of(method1)));
 		assertTrue(r.contains(Descriptor.of(method2)));

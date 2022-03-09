@@ -12,7 +12,7 @@ import org.openlca.core.model.descriptors.RootDescriptor;
 /**
  * Searches for the use of currencies in other entities.
  */
-public record CurrencyUseSearch(IDatabase db) implements IUseSearch {
+public record CurrencyUseSearch(IDatabase db) implements UsageSearch {
 
 	@Override
 	public Set<? extends RootDescriptor> find(TLongSet ids) {

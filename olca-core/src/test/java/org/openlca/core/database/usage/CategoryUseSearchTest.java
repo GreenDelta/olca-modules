@@ -15,7 +15,7 @@ import org.openlca.core.model.descriptors.Descriptor;
 public class CategoryUseSearchTest {
 
 	private final IDatabase db = Tests.getDb();
-	private final IUseSearch search = IUseSearch.of(ModelType.CATEGORY, db);
+	private final UsageSearch search = UsageSearch.of(ModelType.CATEGORY, db);
 
 	@Test
 	public void testFindNoUsage() {

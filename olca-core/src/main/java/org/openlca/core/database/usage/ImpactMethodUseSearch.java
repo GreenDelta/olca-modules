@@ -9,7 +9,7 @@ import org.openlca.core.model.Project;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.descriptors.RootDescriptor;
 
-public record ImpactMethodUseSearch(IDatabase db) implements IUseSearch {
+public record ImpactMethodUseSearch(IDatabase db) implements UsageSearch {
 
 	@Override
 	public Set<? extends RootDescriptor> find(TLongSet ids) {

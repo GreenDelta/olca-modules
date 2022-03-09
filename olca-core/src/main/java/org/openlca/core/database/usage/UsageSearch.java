@@ -10,7 +10,7 @@ import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.util.TLongSets;
 
-public interface IUseSearch {
+public interface UsageSearch {
 
 	default Set<? extends RootDescriptor> find(long id) {
 		return find(TLongSets.singleton(id));
@@ -25,7 +25,14 @@ public interface IUseSearch {
 		return search.find(e.id);
 	}
 
-	static IUseSearch of(ModelType type, IDatabase db) {
+	static Set<? extends RootDescriptor> find(IDatabase db, RootDescriptor d) {
+		if (d == null || d.type == null || db == null)
+			return Collections.emptySet();
+		var search = of(d.type, db);
+		return search.find(d.id);
+	}
+
+	static UsageSearch of(ModelType type, IDatabase db) {
 		if (type == null)
 			return new EmptyUseSearch();
 

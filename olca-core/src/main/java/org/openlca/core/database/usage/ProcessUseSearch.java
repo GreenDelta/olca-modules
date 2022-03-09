@@ -9,7 +9,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.RootDescriptor;
 
-public record ProcessUseSearch(IDatabase db) implements IUseSearch {
+public record ProcessUseSearch(IDatabase db) implements UsageSearch {
 
 	@Override
 	public Set<? extends RootDescriptor> find(TLongSet ids) {

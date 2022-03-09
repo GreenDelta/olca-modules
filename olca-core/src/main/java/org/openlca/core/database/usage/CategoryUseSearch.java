@@ -14,7 +14,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.RootDescriptor;
 
-public class CategoryUseSearch implements IUseSearch{
+public class CategoryUseSearch implements UsageSearch {
 
 	private final IDatabase db;
 	private ModelType type;

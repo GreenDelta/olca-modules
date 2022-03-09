@@ -17,7 +17,7 @@ import org.openlca.core.model.descriptors.Descriptor;
 public class FlowUseSearchTest {
 
 	private final IDatabase db = Tests.getDb();
-	private final IUseSearch search = IUseSearch.of(ModelType.FLOW, db);
+	private final UsageSearch search = UsageSearch.of(ModelType.FLOW, db);
 	private Flow flow;
 
 	@Before
