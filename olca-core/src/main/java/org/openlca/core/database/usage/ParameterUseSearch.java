@@ -39,6 +39,8 @@ public record ParameterUseSearch(IDatabase db) implements IUseSearch {
 
 	@Override
 	public Set<? extends RootDescriptor> find(TLongSet ids) {
+		if (ids.isEmpty())
+			return Collections.emptySet();
 		var names = new HashSet<String>();
 		var sql = "select name from tbl_parameters where id " + Search.eqIn(ids);
 		NativeSql.on(db).query(sql, r -> {

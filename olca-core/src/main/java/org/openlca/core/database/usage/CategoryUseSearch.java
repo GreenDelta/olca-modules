@@ -61,7 +61,7 @@ public class CategoryUseSearch implements IUseSearch{
 		var table = clazz.getAnnotation(Table.class);
 		if (table == null)
 			return Collections.emptySet();
-		var q = "select id from " + table + " where f_category " + Search.eqIn(ids);
+		var q = "select id from " + table.name() + " where f_category " + Search.eqIn(ids);
 		return Search.collect(db, q, clazz);
 	}
 }

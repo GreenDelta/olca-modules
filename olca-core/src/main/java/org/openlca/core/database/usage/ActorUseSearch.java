@@ -21,6 +21,8 @@ public record ActorUseSearch(IDatabase db) implements IUseSearch {
 
 	@Override
 	public Set<? extends RootDescriptor> find(TLongSet ids) {
+		if (ids.isEmpty())
+			return Collections.emptySet();
 		try {
 			var exec = Executors.newFixedThreadPool(2);
 			var results = List.of(

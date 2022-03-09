@@ -6,7 +6,6 @@ import org.openlca.core.Tests;
 import org.openlca.core.database.usage.IUseSearch;
 import org.openlca.core.model.*;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.descriptors.Descriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,9 +81,8 @@ public class BaseDaoTest {
 			return;
 		var entity = (RootEntity) instance;
 		var type = ModelType.forModelClass(clazz);
-		var descriptors = IUseSearch.FACTORY
-			.createFor(type, Tests.getDb())
-			.findUses(Descriptor.of(entity));
-		Assert.assertTrue(descriptors.isEmpty());
+		var dependents = IUseSearch.of(type, Tests.getDb())
+			.find(entity.id);
+		Assert.assertTrue(dependents.isEmpty());
 	}
 }

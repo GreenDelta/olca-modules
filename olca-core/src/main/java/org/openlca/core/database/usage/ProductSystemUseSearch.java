@@ -1,5 +1,6 @@
 package org.openlca.core.database.usage;
 
+import java.util.Collections;
 import java.util.Set;
 
 import gnu.trove.set.TLongSet;
@@ -12,6 +13,8 @@ public record ProductSystemUseSearch(IDatabase db) implements IUseSearch {
 
 	@Override
 	public Set<? extends RootDescriptor> find(TLongSet ids) {
+		if (ids.isEmpty())
+			return Collections.emptySet();
 		var suffix = Search.eqIn(ids);
 		return QueryPlan.of(db)
 			.submit(Result.class,
