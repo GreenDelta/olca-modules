@@ -4,75 +4,52 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
-
-import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ProjectDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Project;
-import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 
 public class CategoryUseSearchTest {
 
-	private IDatabase db = Tests.getDb();
-	private IUseSearch<CategoryDescriptor> search;
-
-	@Before
-	public void setup() {
-		search = IUseSearch.FACTORY.createFor(ModelType.CATEGORY, db);
-	}
+	private final IDatabase db = Tests.getDb();
+	private final IUseSearch search = IUseSearch.of(ModelType.CATEGORY, db);
 
 	@Test
 	public void testFindNoUsage() {
-		Category category = createCategory();
-		List<RootDescriptor> models = search.findUses(Descriptor
-				.of(category));
+		var category = db.insert(Category.of("c", ModelType.ACTOR));
+		var models = search.find(category.id);
 		assertNotNull(models);
 		assertTrue(models.isEmpty());
-		new CategoryDao(db).delete(category);
+		db.delete(category);
 	}
 
 	@Test
 	public void testFindInModel() {
-		Category category = createCategory();
-		Project project = new Project();
+		var category = db.insert(Category.of("c", ModelType.PROJECT));
+		var project = new Project();
 		project.name = "project";
 		project.category = category;
-		new ProjectDao(db).insert(project);
-		List<RootDescriptor> results = search.findUses(Descriptor
-				.of(category));
-		new ProjectDao(db).delete(project);
-		new CategoryDao(db).delete(category);
-		Descriptor expected = Descriptor.of(project);
+		db.insert(project);
+		var results = search.find(category.id);
+		db.delete(project, category);
+		var expected = Descriptor.of(project);
 		assertEquals(1, results.size());
-		assertEquals(expected, results.get(0));
-	}
-
-	private Category createCategory() {
-		var category = new Category();
-		category.name = "category";
-		category.modelType = ModelType.PROCESS;
-		return new CategoryDao(db).insert(category);
+		assertEquals(expected, results.iterator().next());
 	}
 
 	@Test
 	public void testFindInCategory() {
-		var dao= new CategoryDao(db);
-		var category = createCategory();
-		var parent = createCategory();
+		var category = db.insert(Category.of("c1", ModelType.PROJECT));
+		var parent = db.insert(Category.of("c0", ModelType.PROJECT));
 		parent.category = category;
-		dao.update(parent);
-		var results = search.findUses(Descriptor.of(category));
-		dao.delete(category);
-		dao.delete(parent);
+		db.update(parent);
+		var results = search.find(category.id);
+		db.delete(parent, category);
 		assertEquals(1, results.size());
-		assertEquals(Descriptor.of(parent), results.get(0));
+		assertEquals(Descriptor.of(parent), results.iterator().next());
 	}
+
 }
