@@ -5,6 +5,7 @@ import java.util.Set;
 
 import gnu.trove.set.TLongSet;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Epd;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
@@ -37,6 +38,8 @@ public record SourceUseSearch(IDatabase db) implements IUseSearch {
 				"select id from tbl_impact_categories where f_source " + suffix)
 			.submit(Epd.class,
 				"select id from tbl_epds where f_pcr " + suffix)
+			.submit(DQSystem.class,
+				"select id from tbl_dq_systems where f_source " + suffix)
 			.exec();
 	}
 }
