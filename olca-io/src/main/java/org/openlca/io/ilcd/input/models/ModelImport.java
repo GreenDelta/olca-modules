@@ -60,11 +60,13 @@ public class ModelImport {
 			system.category = new CategoryDao(config.db())
 				.sync(ModelType.PRODUCT_SYSTEM, path);
 			mapModel(model);
-			return dao.insert(system);
+			system = dao.insert(system);
+			config.log().imported(system);
+			return system;
 		} else {
 			Graph g = Graph.build(model, config.db());
 			g = Transformation.on(g);
-			return new GraphSync(config.db()).sync(model, g);
+			return new GraphSync(config).sync(model, g);
 		}
 	}
 

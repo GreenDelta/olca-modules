@@ -94,11 +94,11 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 			}
 
 			addResultsOf(scope, result);
-			result = config.db().insert(result);
+			result = config.insert(result);
 			oEpd.modules.add(EpdModule.of(scope.toString(), result));
 		}
 
-		config.db().insert(oEpd);
+		config.insert(oEpd);
 	}
 
 	private FlowResult getRefFlow() {

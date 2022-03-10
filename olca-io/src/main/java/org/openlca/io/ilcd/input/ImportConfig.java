@@ -11,6 +11,7 @@ import org.openlca.core.io.ExchangeProviderQueue;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.ilcd.commons.LangString;
@@ -150,5 +151,11 @@ public class ImportConfig {
 		log.imported(loc);
 		locations.put(code, loc);
 		return loc;
+	}
+
+	<T extends RootEntity> T insert(T e) {
+		var r = db.insert(e);
+		log.imported(r);
+		return r;
 	}
 }

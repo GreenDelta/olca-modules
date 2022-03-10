@@ -49,7 +49,6 @@ public class FlowImport {
 		flow.category = new CategoryDao(config.db())
 			.sync(ModelType.FLOW, path);
 		createAndMapContent();
-		config.log().info("import flow: " + flow.name);
 		if (flow.referenceFlowProperty == null) {
 			config.log().error("Could not import flow "
 				+ flow.refId + " because the "
@@ -57,7 +56,7 @@ public class FlowImport {
 				+ "could not be imported.");
 			return null;
 		}
-		return config.db().insert(flow);
+		return config.insert(flow);
 	}
 
 	private void createAndMapContent() {

@@ -11,6 +11,7 @@ import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
+import org.slf4j.LoggerFactory;
 
 /**
  * Contains log messages of a data import.
@@ -143,6 +144,12 @@ public final class ImportLog {
 		add(new Message(State.WARNING, message));
 	}
 
+	public void warn( RootEntity e, String message) {
+		if (e == null && message == null)
+			return;
+		add(new Message(State.WARNING, message, Descriptor.of(e)));
+	}
+
 	public void error(String message) {
 		if (message == null)
 			return;
@@ -228,6 +235,50 @@ public final class ImportLog {
 			return state != null
 				? state.priority()
 				: 0;
+		}
+
+		public void log() {
+			if (state == null || (message == null && descriptor == null))
+				return;
+			var log = LoggerFactory.getLogger(Message.class);
+			switch (state) {
+				case ERROR -> {
+					if (descriptor == null) {
+						log.error(message);
+					} else if (message == null) {
+						log.error("import failed for {}", descriptor);
+					} else {
+						log.error("{}: {}", message, descriptor);
+					}
+				}
+				case WARNING -> {
+					if (descriptor == null) {
+						log.warn(message);
+					} else if (message == null) {
+						log.warn("import warning for {}", descriptor);
+					} else {
+						log.warn("{}: {}", message, descriptor);
+					}
+				}
+				case INFO -> {
+					if (descriptor == null) {
+						log.info(message);
+					} else if (message == null) {
+						log.info("import info for {}", descriptor);
+					} else {
+						log.info("{}: {}", message, descriptor);
+					}
+				}
+				default -> {
+					if (descriptor == null) {
+						log.info("{}, {}", message, state);
+					} else if (message == null) {
+						log.info("{}, {}", descriptor, state);
+					} else {
+						log.info("{}: {}, {}", message, descriptor, state);
+					}
+				}
+			}
 		}
 
 		@Override
