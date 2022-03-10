@@ -12,7 +12,7 @@ import com.google.gson.JsonPrimitive;
 
 public class ModelTest {
 
-	private static AtomicInteger nextID = new AtomicInteger(0);
+	private static final AtomicInteger nextID = new AtomicInteger(0);
 
 	@Test
 	@Ignore
