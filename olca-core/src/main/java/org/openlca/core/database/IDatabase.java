@@ -250,7 +250,9 @@ public interface IDatabase extends Closeable, INotifiable {
 	}
 
 	default <T extends RootEntity> List<? extends RootDescriptor> getDescriptors(
-		Class<T> type, HashSet<Long> ids) {
+		Class<T> type, Set<Long> ids) {
+		if (type == null || ids.isEmpty())
+			return Collections.emptyList();
 		var modelType = ModelType.forModelClass(type);
 		var dao = Daos.root(this, modelType);
 		return dao != null

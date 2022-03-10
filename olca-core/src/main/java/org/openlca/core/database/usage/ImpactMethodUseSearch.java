@@ -1,27 +1,26 @@
 package org.openlca.core.database.usage;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.Set;
 
+import gnu.trove.set.TLongSet;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Project;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 
-/**
- * Searches for the use of impact methods in other entities. Impact methods can
- * be used in projects.
- */
-public class ImpactMethodUseSearch extends
-		BaseUseSearch<ImpactMethodDescriptor> {
-
-	public ImpactMethodUseSearch(IDatabase database) {
-		super(database);
-	}
+public record ImpactMethodUseSearch(IDatabase db) implements UsageSearch {
 
 	@Override
-	public List<RootDescriptor> findUses(Set<Long> ids) {
-		return queryFor(ModelType.PROJECT, ids, "f_impact_method");
+	public Set<? extends RootDescriptor> find(TLongSet ids) {
+		if (ids.isEmpty())
+			return Collections.emptySet();
+		var suffix = Search.eqIn(ids);
+		return QueryPlan.of(db)
+			.submit(Project.class,
+				"select id from tbl_projects where f_impact_method " + suffix)
+			.submit(Result.class,
+				"select id from tbl_results where f_impact_method " + suffix)
+			.exec();
 	}
-
 }

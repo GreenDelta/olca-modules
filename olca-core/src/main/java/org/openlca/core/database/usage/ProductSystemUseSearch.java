@@ -1,24 +1,28 @@
 package org.openlca.core.database.usage;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.Set;
 
+import gnu.trove.set.TLongSet;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Project;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 
-public class ProductSystemUseSearch extends
-		BaseUseSearch<ProductSystemDescriptor> {
-
-	public ProductSystemUseSearch(IDatabase database) {
-		super(database);
-	}
+public record ProductSystemUseSearch(IDatabase db) implements UsageSearch {
 
 	@Override
-	public List<RootDescriptor> findUses(Set<Long> ids) {
-		return queryFor(ModelType.PROJECT, "f_project", "tbl_project_variants",
-				ids, "f_product_system");
+	public Set<? extends RootDescriptor> find(TLongSet ids) {
+		if (ids.isEmpty())
+			return Collections.emptySet();
+		var suffix = Search.eqIn(ids);
+		return QueryPlan.of(db)
+			.submit(Result.class,
+				"select id from tbl_results where f_product_system "
+					+ suffix)
+			.submit(Project.class,
+				"select f_project from tbl_project_variants where f_product_system "
+					+ suffix)
+			.exec();
 	}
-
 }

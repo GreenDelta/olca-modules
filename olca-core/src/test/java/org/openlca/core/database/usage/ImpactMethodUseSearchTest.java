@@ -1,54 +1,37 @@
 package org.openlca.core.database.usage;
 
-import java.util.List;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ImpactMethodDao;
-import org.openlca.core.database.ProjectDao;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Project;
-import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 
 public class ImpactMethodUseSearchTest {
 
-	private IDatabase db = Tests.getDb();
-	private IUseSearch<ImpactMethodDescriptor> search;
-	private ProjectDao projectDao;
+	private final IDatabase db = Tests.getDb();
+	private final UsageSearch search = UsageSearch.of(ModelType.IMPACT_METHOD, db);
 	private Project project;
-	private ImpactMethodDao impactDao;
 	private ImpactMethod method;
 
 	@Before
 	public void setUp() {
-		search = IUseSearch.FACTORY.createFor(ModelType.IMPACT_METHOD, db);
-		projectDao = new ProjectDao(db);
-		project = new Project();
-		project.name = "test project";
-		project = projectDao.insert(project);
-		impactDao = new ImpactMethodDao(db);
-		method = new ImpactMethod();
-		method.name = "test method";
-		method = impactDao.insert(method);
+		project = db.insert(Project.of("test project"));
+		method = db.insert(ImpactMethod.of("test method"));
 	}
 
 	@After
 	public void tearDown() {
-		projectDao.delete(project);
-		impactDao.delete(method);
+		db.delete(project, method);
 	}
 
 	@Test
 	public void testNoUsage() {
-		ImpactMethodDescriptor d = Descriptor.of(method);
-		List<RootDescriptor> descriptors = search.findUses(d);
+		var descriptors = search.find(method.id);
 		Assert.assertNotNull(descriptors);
 		Assert.assertTrue(descriptors.isEmpty());
 	}
@@ -56,12 +39,10 @@ public class ImpactMethodUseSearchTest {
 	@Test
 	public void testFindInProject() {
 		project.impactMethod = method;
-		project = projectDao.update(project);
-		ImpactMethodDescriptor d = Descriptor.of(method);
-		List<RootDescriptor> descriptors = search.findUses(d);
+		project = db.update(project);
+		var descriptors = search.find(method.id);
 		Assert.assertEquals(1, descriptors.size());
-		Assert.assertEquals(Descriptor.of(project),
-				descriptors.get(0));
+		Assert.assertEquals(Descriptor.of(project), descriptors.iterator().next());
 	}
 
 }

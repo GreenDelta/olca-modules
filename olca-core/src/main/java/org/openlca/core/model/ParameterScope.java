@@ -12,6 +12,22 @@ public enum ParameterScope {
 
 	IMPACT,
 
-	GLOBAL
+	GLOBAL;
+
+	/**
+	 * Same as valueOf but it returns {@code null} instead of throwing an
+	 * exception when the given string does not match a constant of this
+	 * enumeration. Also, lower case constant names are allowed.
+	 */
+	public static ParameterScope fromString(String s) {
+		if (s == null || s.isBlank())
+			return null;
+		for (var v : values()) {
+			if (s.equalsIgnoreCase(v.name()))
+				return v;
+		}
+		return null;
+	}
+
 
 }

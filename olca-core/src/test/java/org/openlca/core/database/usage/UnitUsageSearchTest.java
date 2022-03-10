@@ -8,9 +8,13 @@ import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Exchange;
+import org.openlca.core.model.FlowResult;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.Project;
+import org.openlca.core.model.ProjectVariant;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Unit;
@@ -62,11 +66,29 @@ public class UnitUsageSearchTest {
 	}
 
 	@Test
+	public void testFindInResult() {
+		var result = new Result();
+		var flowResult = new FlowResult();
+		flowResult.unit = unit;
+		result.flowResults.add(flowResult);
+		check(result);
+	}
+
+	@Test
 	public void testFindInSocialIndicator() {
 		var indicator = new SocialIndicator();
 		indicator.name = "indicator";
 		indicator.activityUnit = unit;
 		check(indicator);
+	}
+
+	@Test
+	public void testFindInProject() {
+		var project = new Project();
+		var variant = new ProjectVariant();
+		variant.unit = unit;
+		project.variants.add(variant);
+		check(project);
 	}
 
 	private void check(RootEntity e) {

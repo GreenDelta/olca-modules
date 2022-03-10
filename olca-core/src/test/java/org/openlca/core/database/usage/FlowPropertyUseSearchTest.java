@@ -1,27 +1,20 @@
 package org.openlca.core.database.usage;
 
-import java.util.List;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.database.FlowDao;
-import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.model.descriptors.RootDescriptor;
 
 public class FlowPropertyUseSearchTest {
 
-	private IDatabase db = Tests.getDb();
+	private final IDatabase db = Tests.getDb();
 
 	private FlowProperty unused;
 	private FlowProperty used;
@@ -30,54 +23,41 @@ public class FlowPropertyUseSearchTest {
 
 	@Before
 	public void setUp() {
-		UnitGroupDao groupDao = new UnitGroupDao(db);
-		FlowPropertyDao propDao = new FlowPropertyDao(db);
-		FlowDao flowDao = new FlowDao(db);
-		unused = propDao.insert(new FlowProperty());
-		used = propDao.insert(new FlowProperty());
+		unused = db.insert(new FlowProperty());
+		used = db.insert(new FlowProperty());
 		unitGroup = new UnitGroup();
 		unitGroup.defaultFlowProperty = used;
-		unitGroup = groupDao.insert(unitGroup);
+		unitGroup = db.insert(unitGroup);
 		flow = new Flow();
-		FlowPropertyFactor fac = new FlowPropertyFactor();
+		var fac = new FlowPropertyFactor();
 		fac.flowProperty = used;
 		flow.flowPropertyFactors.add(fac);
-		flow = flowDao.insert(flow);
+		flow = db.insert(flow);
 	}
 
 	@After
 	public void tearDown() {
-		UnitGroupDao groupDao = new UnitGroupDao(db);
-		FlowPropertyDao propDao = new FlowPropertyDao(db);
-		FlowDao flowDao = new FlowDao(db);
-		flowDao.delete(flow);
-		groupDao.delete(unitGroup);
-		propDao.delete(unused);
-		propDao.delete(used);
+		db.delete(flow, unitGroup, unused, used);
 	}
 
 	@Test
 	public void testUnused() {
-		IUseSearch<RootDescriptor> search = IUseSearch.FACTORY.createFor(
-				ModelType.FLOW_PROPERTY, db);
-		List<RootDescriptor> list = search.findUses(
-				Descriptor.of(unused));
-		Assert.assertTrue(list.isEmpty());
+		var search = UsageSearch.of(ModelType.FLOW_PROPERTY, db);
+		var deps = search.find(unused.id);
+		Assert.assertTrue(deps.isEmpty());
 	}
 
 	@Test
 	public void testUsed() {
-		IUseSearch<RootDescriptor> search = IUseSearch.FACTORY.createFor(
-				ModelType.FLOW_PROPERTY, db);
-		List<RootDescriptor> list = search.findUses(
-				Descriptor.of(used));
-		Assert.assertEquals(2, list.size());
-		for (Descriptor d : list) {
-			if (d.type != ModelType.UNIT_GROUP) {
-				Assert.assertEquals(ModelType.FLOW, d.type);
-				Assert.assertEquals(flow.id, d.id);
+		var search = UsageSearch.of(ModelType.FLOW_PROPERTY, db);
+		var deps = search.find(used.id);
+		Assert.assertEquals(2, deps.size());
+		for (var dep : deps) {
+			if (dep.type != ModelType.UNIT_GROUP) {
+				Assert.assertEquals(ModelType.FLOW, dep.type);
+				Assert.assertEquals(flow.id, dep.id);
 			} else {
-				Assert.assertEquals(unitGroup.id, d.id);
+				Assert.assertEquals(unitGroup.id, dep.id);
 			}
 		}
 	}

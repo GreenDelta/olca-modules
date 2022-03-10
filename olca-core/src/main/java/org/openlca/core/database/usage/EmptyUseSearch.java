@@ -1,25 +1,14 @@
 package org.openlca.core.database.usage;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
+import gnu.trove.set.TLongSet;
 import org.openlca.core.model.descriptors.RootDescriptor;
 
-/**
- * Default implementation of the usage search that returns always an empty list.
- * This is useful for model types like projects that cannot be used in other
- * entities.
- */
-class EmptyUseSearch<T extends RootDescriptor> extends BaseUseSearch<T> {
-
-	EmptyUseSearch() {
-		super(null);
-	}
-
+record EmptyUseSearch() implements UsageSearch {
 	@Override
-	public List<RootDescriptor> findUses(Set<Long> ids) {
-		return Collections.emptyList();
+	public Set<? extends RootDescriptor> find(TLongSet ids) {
+		return Collections.emptySet();
 	}
-
 }

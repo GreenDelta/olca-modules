@@ -1,26 +1,22 @@
 package org.openlca.core.database.usage;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.Set;
 
+import gnu.trove.set.TLongSet;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.core.model.descriptors.CurrencyDescriptor;
 
-/**
- * Searches for the use of currencies in other entities. Currencies can be used
- * in processes.
- */
-public class SocialIndicatorUseSearch extends BaseUseSearch<CurrencyDescriptor> {
-
-	public SocialIndicatorUseSearch(IDatabase database) {
-		super(database);
-	}
+public record SocialIndicatorUseSearch(IDatabase db) implements UsageSearch {
 
 	@Override
-	public List<RootDescriptor> findUses(Set<Long> ids) {
-		return queryFor(ModelType.PROCESS, "f_process", "tbl_social_aspects",
-				ids, "f_indicator");
+	public Set<? extends RootDescriptor> find(TLongSet ids) {
+		if (ids.isEmpty())
+			return Collections.emptySet();
+		return Query.of(db, Process.class,
+			"select f_process from tbl_social_aspects where f_indicator "
+				+ Search.eqIn(ids))
+			.call();
 	}
 }
