@@ -24,7 +24,6 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.ilcd.models.Connection;
 import org.openlca.ilcd.models.DownstreamLink;
 import org.openlca.ilcd.models.Model;
-import org.openlca.ilcd.models.Parameter;
 import org.openlca.ilcd.models.ProcessInstance;
 import org.openlca.ilcd.models.Technology;
 import org.openlca.ilcd.util.Categories;

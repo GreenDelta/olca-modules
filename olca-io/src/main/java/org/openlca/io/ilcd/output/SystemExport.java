@@ -96,9 +96,9 @@ public class SystemExport {
 		Models.setOrigin(model, "openLCA");
 		model.version = "1.1";
 		model.locations = "../ILCDLocations.xml";
-		DataSetInfo info = Models.dataSetInfo(model);
+		DataSetInfo info = Models.forceDataSetInfo(model);
 		info.uuid = system.refId;
-		ModelName name = Models.modelName(model);
+		ModelName name = Models.forceModelName(model);
 		name.name.add(LangString.of(system.name, config.lang));
 		if (system.description != null) {
 			info.comment
@@ -107,20 +107,20 @@ public class SystemExport {
 		CategoryConverter conv = new CategoryConverter();
 		Classification c = conv.getClassification(system.category);
 		if (c != null)
-			Models.classifications(model).add(c);
+			Models.forceClassifications(model).add(c);
 		if (system.referenceProcess != null) {
 			long refId = system.referenceProcess.id;
-			QuantitativeReference qRef = Models.quantitativeReference(model);
+			QuantitativeReference qRef = Models.forceQuantitativeReference(model);
 			qRef.refProcess = processIDs.getOrDefault(refId, -1);
 		}
-		Models.publication(model).version = Version
+		Models.forcePublication(model).version = Version
 				.asString(system.version);
 		model.modelling = new Modelling();
 		return model;
 	}
 
 	private void mapLinks(Model model) {
-		Technology tech = Models.technology(model);
+		Technology tech = Models.forceTechnology(model);
 		Map<Long, ProcessInstance> instances = new HashMap<>();
 		for (Long id : system.processes) {
 			if (id == null)
