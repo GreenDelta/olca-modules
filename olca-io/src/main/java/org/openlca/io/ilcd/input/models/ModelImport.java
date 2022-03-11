@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
 import org.openlca.core.database.CategoryDao;
@@ -53,7 +52,8 @@ public class ModelImport {
 		if (system != null)
 			return system;
 		String origin = Models.getOrigin(model);
-		if (Strings.nullOrEqual("openLCA", origin)) {
+		if (Strings.nullOrEqual("openLCA", origin)
+			|| !config.hasGabiGraphSupport()) {
 			system = new ProductSystem();
 			IO.mapMetaData(model, system);
 			String[] path = Categories.getPath(model);
@@ -74,7 +74,7 @@ public class ModelImport {
 		Technology tech = Models.getTechnology(m);
 		if (tech == null)
 			return;
-		Map<Integer, Process> processes = insertProcesses(m, tech);
+		var processes = insertProcesses(m, tech);
 		Map<String, Flow> flows = collectFlows(tech);
 		for (ProcessInstance pi : tech.processes) {
 			Process out = processes.get(pi.id);
@@ -107,7 +107,7 @@ public class ModelImport {
 		if (qRef != null && qRef.refProcess != null) {
 			refProcess = qRef.refProcess;
 		}
-		Map<Integer, Process> map = new HashMap<>();
+		var map = new HashMap<Integer, Process>();
 		for (var pi : tech.processes) {
 			if (pi.process == null)
 				continue;
@@ -141,7 +141,7 @@ public class ModelImport {
 		if (pi == null || process == null)
 			return;
 		system.referenceProcess = process;
-		Exchange qRef = process.quantitativeReference;
+		var qRef = process.quantitativeReference;
 		if (qRef == null)
 			return;
 		system.referenceExchange = qRef;
@@ -155,21 +155,21 @@ public class ModelImport {
 	 * be called after all processes are imported.
 	 */
 	private Map<String, Flow> collectFlows(Technology tech) {
-		Set<String> usedFlows = new HashSet<>();
-		for (ProcessInstance pi : tech.processes) {
-			for (Connection con : pi.connections) {
+		var usedFlows = new HashSet<String>();
+		for (var pi : tech.processes) {
+			for (var con : pi.connections) {
 				usedFlows.add(con.outputFlow);
-				for (DownstreamLink link : con.downstreamLinks) {
+				for (var link : con.downstreamLinks) {
 					usedFlows.add(link.inputFlow);
 				}
 			}
 		}
-		FlowDao dao = new FlowDao(config.db());
-		Map<String, Flow> m = new HashMap<>();
-		for (Flow f : dao.getForRefIds(usedFlows)) {
-			m.put(f.refId, f);
+		var dao = new FlowDao(config.db());
+		var map = new HashMap<String, Flow>();
+		for (var flow : dao.getForRefIds(usedFlows)) {
+			map.put(flow.refId, flow);
 		}
-		return m;
+		return map;
 	}
 
 	private void addLink(Process out, Process in, Flow flow,

@@ -29,6 +29,7 @@ public class ImportConfig {
 	private final ImportLog log;
 
 	private boolean allFlows;
+	private boolean withGabiGraphs = true;
 	private String[] langOrder = {"en"};
 	private ExchangeProviderQueue providers;
 	private Map<String, ImpactMethodDescriptor> methods;
@@ -51,6 +52,25 @@ public class ImportConfig {
 	public ImportConfig withAllFlows(boolean b) {
 		allFlows = b;
 		return this;
+	}
+
+	/**
+	 * Set if Gabi graphs are supported in eILCD model imports or not. Gabi has
+	 * some specific model features: processes can be connected by different flows
+	 * (e.g. a material can be connected with a transport flow); the same process
+	 * can occur with different scaling factors in the same graph; processes can
+	 * be connected by arbitrary flow types (not only wastes and products), and
+	 * more. When Gabi graph support is enabled and an eILCD model of unknown
+	 * origin is imported, copies of the processes in the system are created and
+	 * linked in order to make it computable in openLCA.
+	 */
+	public ImportConfig withGabiGraphSupport(boolean b) {
+		withGabiGraphs = b;
+		return this;
+	}
+
+	public boolean hasGabiGraphSupport() {
+		return withGabiGraphs;
 	}
 
 	/**
