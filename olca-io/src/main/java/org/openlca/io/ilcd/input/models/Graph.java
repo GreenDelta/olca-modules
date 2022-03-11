@@ -6,20 +6,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
-import org.openlca.ilcd.models.Connection;
-import org.openlca.ilcd.models.DownstreamLink;
 import org.openlca.ilcd.models.Group;
-import org.openlca.ilcd.models.GroupRef;
 import org.openlca.ilcd.models.Model;
-import org.openlca.ilcd.models.ProcessInstance;
-import org.openlca.ilcd.models.QuantitativeReference;
 import org.openlca.ilcd.models.Technology;
+import org.openlca.ilcd.util.Models;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,8 +21,8 @@ class Graph {
 
 	Node root;
 
-	private final List<Node> nodes = new ArrayList<>();
-	private final Map<Integer, Integer> nodeIndex = new HashMap<>();
+	// private final List<> nodes = new ArrayList<>();
+	private final Map<Integer, Node> nodes = new HashMap<>();
 
 	private final List<Link> links = new ArrayList<>();
 	private final Map<Integer, List<Integer>> inLinks = new HashMap<>();
@@ -55,34 +49,32 @@ class Graph {
 			return g;
 		}
 
-		Map<Integer, Group> groups = tech.groups.stream()
-				.collect(Collectors.toMap(
-						group -> group.id,
-						group -> group));
+		var groups = new HashMap<Integer, Group>();
+		for (var group : tech.groups) {
+			groups.put(group.id, group);
+		}
 
-		ProcessDao dao = new ProcessDao(db);
-		for (ProcessInstance pi : tech.processes) {
+		for (var pi : tech.processes) {
 			if (pi.process == null || pi.process.uuid == null) {
 				log.warn("Invalid process reference node={}", pi.id);
 				continue;
 			}
-			String refID = pi.process.uuid;
-			Process process = dao.getForRefId(refID);
+			var process = db.get(Process.class, pi.process.uuid);
 			if (process == null) {
-				log.warn("Could not find process {}; skip node {}", refID,
-						pi.id);
+				log.warn("Could not find process {}; skip node {}",
+					pi.process.uuid, pi.id);
 				continue;
 			}
-			Node n = Node.init(pi, process);
+			var node = Node.init(pi, process);
 			if (!pi.groupRefs.isEmpty()) {
-				GroupRef gr = pi.groupRefs.get(0);
-				n.group = groups.get(gr.groupID);
+				var gr = pi.groupRefs.get(0);
+				node.group = groups.get(gr.groupID);
 			}
-			g.putNode(n);
+			g.putNode(node);
 		}
 		buildLinks(g, model);
 
-		QuantitativeReference qRef = model.info.quantitativeReference;
+		var qRef = model.info.quantitativeReference;
 		if (qRef != null && qRef.refProcess != null) {
 			g.root = g.getNode(qRef.refProcess);
 		}
@@ -95,11 +87,11 @@ class Graph {
 		// direction. However, in some implementations downstream and output
 		// means upstream and input (especially for waste flows). We try to
 		// also support such things here...
-		for (ProcessInstance pi : model.info.technology.processes) {
-			Node refNode = g.getNode(pi.id);
+		for (var pi : Models.getProcesses(model)) {
+			var refNode = g.getNode(pi.id);
 			if (refNode == null)
 				continue;
-			for (Connection con : pi.connections) {
+			for (var con : pi.connections) {
 				Exchange output = refNode.findOutput(con.outputFlow);
 				Exchange input = null;
 				if (output == null) {
@@ -107,21 +99,21 @@ class Graph {
 					if (input == null)
 						continue;
 				}
-				for (DownstreamLink dlink : con.downstreamLinks) {
-					Node provider = null;
-					Node recipient = null;
+				for (var dLink : con.downstreamLinks) {
+					Node provider;
+					Node recipient;
 					if (output != null) {
 						provider = refNode;
-						recipient = g.getNode(dlink.process);
+						recipient = g.getNode(dLink.process);
 						if (recipient == null)
 							continue;
-						input = recipient.findInput(dlink.inputFlow);
-					} else if (input != null) {
+						input = recipient.findInput(dLink.inputFlow);
+					} else {
 						recipient = refNode;
-						provider = g.getNode(dlink.process);
+						provider = g.getNode(dLink.process);
 						if (provider == null)
 							continue;
-						output = provider.findOutput(dlink.inputFlow);
+						output = provider.findOutput(dLink.inputFlow);
 					}
 					if (input == null || output == null)
 						continue;
@@ -137,27 +129,17 @@ class Graph {
 	}
 
 	void putNode(Node n) {
-		int i = nodes.size();
-		nodes.add(n);
-		nodeIndex.put(n.modelID, i);
+		nodes.put(n.id, n);
 	}
 
 	void putLink(Link link) {
 		link.id = links.size();
 		links.add(link);
-		int recipientID = link.recipient.modelID;
-		List<Integer> inList = inLinks.get(recipientID);
-		if (inList == null) {
-			inList = new ArrayList<>();
-			inLinks.put(recipientID, inList);
-		}
+		int recipientID = link.recipient.id;
+		var inList = inLinks.computeIfAbsent(recipientID, k -> new ArrayList<>());
 		inList.add(link.id);
-		int providerID = link.provider.modelID;
-		List<Integer> outList = outLinks.get(providerID);
-		if (outList == null) {
-			outList = new ArrayList<>();
-			outLinks.put(providerID, outList);
-		}
+		int providerID = link.provider.id;
+		var outList = outLinks.computeIfAbsent(providerID, k -> new ArrayList<>());
 		outList.add(link.id);
 	}
 
@@ -165,17 +147,14 @@ class Graph {
 	 * Returns the node for the ID as used in the eILCD model.
 	 */
 	Node getNode(int modelID) {
-		Integer i = nodeIndex.get(modelID);
-		if (i == null)
-			return null;
-		return nodes.get(i);
+		return nodes.get(modelID);
 	}
 
 	void eachNode(Consumer<Node> fn) {
 		if (fn == null)
 			return;
-		for (Node n : nodes) {
-			fn.accept(n);
+		for (var node : nodes.values()) {
+			fn.accept(node);
 		}
 	}
 

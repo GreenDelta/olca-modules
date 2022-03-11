@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 class Node implements Copyable<Node> {
 
 	/** This is the same ID as in the eILCD data set. */
-	int modelID;
+	final int id;
 
 	/** The corresponding openLCA process. */
 	Process process;
@@ -39,9 +39,12 @@ class Node implements Copyable<Node> {
 	 */
 	Group group;
 
+	private Node(int id) {
+		this.id = id;
+	}
+
 	static Node init(ProcessInstance pi, Process process) {
-		Node n = new Node();
-		n.modelID = pi.id;
+		Node n = new Node(pi.id);
 		n.process = process;
 		n.scalingFactor = pi.scalingFactor;
 		for (Parameter param : pi.parameters) {
@@ -61,8 +64,8 @@ class Node implements Copyable<Node> {
 	private Exchange findExchange(String flowID, boolean isInput) {
 		if (process == null || flowID == null)
 			return null;
-		ArrayList<Exchange> matches = new ArrayList<>(1);
-		for (Exchange e : process.exchanges) {
+		var matches = new ArrayList<Exchange>(1);
+		for (var e : process.exchanges) {
 			if (e.isInput != isInput || e.flow == null)
 				continue;
 			if (Objects.equals(flowID, e.flow.refId)) {
@@ -85,8 +88,7 @@ class Node implements Copyable<Node> {
 
 	@Override
 	public Node copy() {
-		Node clone = new Node();
-		clone.modelID = modelID;
+		var clone = new Node(id);
 		if (process != null) {
 			clone.process = process.copy();
 		}
@@ -102,9 +104,8 @@ class Node implements Copyable<Node> {
 			return false;
 		if (obj == this)
 			return true;
-		if (!(obj instanceof Node))
+		if (!(obj instanceof Node other))
 			return false;
-		Node other = (Node) obj;
-		return other.modelID == this.modelID;
+		return other.id == this.id;
 	}
 }
