@@ -106,9 +106,9 @@ public class FlowImport {
 		if (type == null)
 			return FlowType.ELEMENTARY_FLOW;
 		return switch (type) {
+			case ELEMENTARY_FLOW -> FlowType.ELEMENTARY_FLOW;
+			case PRODUCT_FLOW, OTHER_FLOW -> FlowType.PRODUCT_FLOW;
 			case WASTE_FLOW -> FlowType.WASTE_FLOW;
-			case PRODUCT_FLOW -> FlowType.PRODUCT_FLOW;
-			default -> FlowType.ELEMENTARY_FLOW;
 		};
 	}
 }

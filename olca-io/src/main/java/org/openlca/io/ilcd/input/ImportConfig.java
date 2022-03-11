@@ -29,7 +29,7 @@ public class ImportConfig {
 	private final ImportLog log;
 
 	private boolean allFlows;
-	private boolean withGabiGraphs = true;
+	private boolean withGabiGraphs = false;
 	private String[] langOrder = {"en"};
 	private ExchangeProviderQueue providers;
 	private Map<String, ImpactMethodDescriptor> methods;
