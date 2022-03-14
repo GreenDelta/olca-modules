@@ -50,8 +50,8 @@ final class In {
 		mapAtts(obj, entity, id);
 
 		// category
-		var path = Json.getRefId(obj, "category");
-		if (path != null) {
+		var path = Json.getString(obj, "category");
+		if (Strings.notEmpty(path)) {
 			var type = ModelType.of(entity);
 			entity.category = conf.categories.get(type, path);
 		}
