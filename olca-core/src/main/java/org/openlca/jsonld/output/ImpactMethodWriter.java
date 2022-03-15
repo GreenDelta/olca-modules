@@ -16,6 +16,7 @@ class ImpactMethodWriter extends Writer<ImpactMethod> {
 		var obj = super.write(method);
 		if (obj == null)
 			return null;
+		Json.put(obj, "code", method.code);
 		Json.put(obj, "source", exp.handleRef(method.source));
 		Json.put(obj, "impactCategories", exp.handleRefs(method.impactCategories));
 		mapNwSets(obj, method);

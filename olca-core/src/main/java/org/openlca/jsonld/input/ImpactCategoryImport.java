@@ -1,6 +1,5 @@
 package org.openlca.jsonld.input;
 
-import org.openlca.core.model.Flow;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ModelType;
@@ -9,7 +8,6 @@ import org.openlca.core.model.ParameterScope;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -29,22 +27,19 @@ class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 			return null;
 		var impact = new ImpactCategory();
 		In.mapAtts(json, impact, id, conf);
+		impact.code = Json.getString(json, "code");
 		impact.referenceUnit = Json.getString(json, "refUnit");
 		var sourceId = Json.getString(json, "source");
 		if (Strings.notEmpty(sourceId)) {
 			impact.source = SourceImport.run(sourceId, conf);
 		}
 		mapParameters(json, impact);
-		JsonArray factors = Json.getArray(json, "impactFactors");
+		var factors = Json.getArray(json, "impactFactors");
 		if (factors != null) {
-			for (var e : factors) {
-				if (!e.isJsonObject())
-					continue;
-				var factor = mapFactor(e.getAsJsonObject(), conf);
-				if (factor == null)
-					continue;
-				impact.impactFactors.add(factor);
-			}
+			Json.stream(factors)
+				.filter(JsonElement::isJsonObject)
+				.map(e -> mapFactor(e.getAsJsonObject(), conf))
+				.forEach(impact.impactFactors::add);
 		}
 		return conf.db.put(impact);
 	}
@@ -53,11 +48,11 @@ class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 		if (json == null || conf == null)
 			return null;
 
-		ImpactFactor factor = new ImpactFactor();
+		var factor = new ImpactFactor();
 
 		// flow
 		String flowId = Json.getRefId(json, "flow");
-		Flow flow = FlowImport.run(flowId, conf);
+		var flow = FlowImport.run(flowId, conf);
 		factor.flow = flow;
 		if (flow == null) {
 			// TODO: log this error
@@ -70,10 +65,9 @@ class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 		// amount fields
 		factor.value = Json.getDouble(json, "value", 0);
 		factor.formula = Json.getString(json, "formula");
-		JsonElement uncertainty = json.get("uncertainty");
-		if (uncertainty != null && uncertainty.isJsonObject()) {
-			factor.uncertainty = Uncertainties.read(
-				uncertainty.getAsJsonObject());
+		var uncertainty = Json.getObject(json, "uncertainty");
+		if (uncertainty != null) {
+			factor.uncertainty = Uncertainties.read(uncertainty);
 		}
 
 		// location

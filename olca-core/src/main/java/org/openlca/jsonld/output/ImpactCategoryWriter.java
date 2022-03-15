@@ -19,6 +19,7 @@ class ImpactCategoryWriter extends Writer<ImpactCategory> {
 		JsonObject obj = super.write(impact);
 		if (obj == null)
 			return null;
+		Json.put(obj, "code", impact.code);
 		Json.put(obj, "refUnit", impact.referenceUnit);
 		Json.put(obj, "source", exp.handleRef(impact.source));
 		mapImpactFactors(impact, obj);
