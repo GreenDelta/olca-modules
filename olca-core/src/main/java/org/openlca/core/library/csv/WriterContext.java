@@ -8,11 +8,11 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.library.Library;
 import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.util.Categories;
 
 public class WriterContext {
@@ -65,14 +65,14 @@ public class WriterContext {
 		return _locationCodes;
 	}
 
-	LibFlowInfo toLibFlow(FlowDescriptor d) {
+	LibFlow toLibFlow(FlowDescriptor d) {
 		if (d == null)
-			return LibFlowInfo.empty();
+			return LibFlow.empty();
 		var property = quantities().get(d.refFlowPropertyId);
 		var unit = property != null
 				? property.getReferenceUnit()
 				: null;
-		return new LibFlowInfo(
+		return new LibFlow(
 				d.refId,
 				d.name,
 				categories().pathOf(d.category),
@@ -80,7 +80,7 @@ public class WriterContext {
 				d.flowType);
 	}
 
-	LibProcessInfo toLibProcess(CategorizedDescriptor d) {
+	LibProcessInfo toLibProcess(RootDescriptor d) {
 		if (d == null)
 			return LibProcessInfo.empty();
 		String location = d instanceof ProcessDescriptor p && p.location != null

@@ -85,8 +85,8 @@ public final class LibTechIndex {
 						e.process(), LibProcessInfo.empty());
 				process.writeTo(buffer);
 				var flow = Objects.requireNonNullElse(
-						e.flow(), LibFlowInfo.empty());
-				flow.writeTo(buffer);
+						e.flow(), LibFlow.empty());
+				flow.toCsv(buffer);
 				printer.printRecord(buffer);
 				buffer.clear();
 			}
