@@ -6,7 +6,7 @@ import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 /**
@@ -70,7 +70,7 @@ public interface IResult {
 	 * system contains other product systems, these sub-systems are also handled
 	 * like processes and returned.
 	 */
-	List<CategorizedDescriptor> getProcesses();
+	List<RootDescriptor> getProcesses();
 
 	/**
 	 * Returns the list of flows that are mapped to the row index of the

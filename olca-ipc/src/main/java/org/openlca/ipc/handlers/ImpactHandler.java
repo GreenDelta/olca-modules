@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.matrix.index.EnviFlow;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
@@ -106,9 +106,9 @@ public class ImpactHandler {
 	public RpcResponse getProcessContributions(RpcRequest req) {
 		return utils.contributionImpact(req, (result, impact, cache) -> {
 			double total = result.getTotalImpactResult(impact);
-			Map<String, Contribution<CategorizedDescriptor>> contributions = new HashMap<>();
+			Map<String, Contribution<RootDescriptor>> contributions = new HashMap<>();
 			result.getProcesses().forEach(process -> {
-				Contribution<CategorizedDescriptor> c = new Contribution<>();
+				Contribution<RootDescriptor> c = new Contribution<>();
 				c.item = process;
 				c.amount = result.getDirectImpactResult(process, impact);
 				c.share = c.amount / total;

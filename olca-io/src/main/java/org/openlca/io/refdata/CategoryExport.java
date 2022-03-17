@@ -2,22 +2,22 @@ package org.openlca.io.refdata;
 
 import java.util.List;
 
+import org.apache.commons.csv.CSVPrinter;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
-import org.supercsv.io.CsvListWriter;
 
 class CategoryExport extends AbstractExport {
 
 	@Override
-	protected void doIt(CsvListWriter writer, IDatabase database)
+	protected void doIt(CSVPrinter writer, IDatabase database)
 			throws Exception {
 		log.trace("write categories");
 		CategoryDao dao = new CategoryDao(database);
 		List<Category> categories = dao.getAll();
 		for (Category category : categories) {
 			Object[] line = createLine(category);
-			writer.write(line);
+			writer.printRecord(line);
 		}
 		log.trace("{} categories written", categories.size());
 

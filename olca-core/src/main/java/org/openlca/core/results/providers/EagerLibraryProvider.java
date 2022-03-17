@@ -2,7 +2,6 @@ package org.openlca.core.results.providers;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibMatrix;
-import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.IndexedMatrix;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.EnviIndex;
@@ -14,31 +13,34 @@ class EagerLibraryProvider implements ResultProvider {
 
 	private final IDatabase db;
 	private final MatrixData dbData;
-	private final LibraryDir libDir;
+	private final LibCache libs;
 	private final MatrixData fullData;
 
 	private EagerLibraryProvider(SolverContext context) {
 		this.db = context.db();
-		this.libDir = context.libraryDir();
+		this.libs = LibCache.of(context);
 		this.dbData = context.matrixData();
 
 		fullData = new MatrixData();
 		fullData.impactMatrix = dbData.impactMatrix;
 		var libTechIndices = LibUtil.loadTechIndicesOf(
-			dbData.techIndex, libDir, db);
+			dbData.techIndex, context.libraryDir(), db);
 		fullData.techIndex = LibUtil.combinedTechIndexOf(
 			dbData.techIndex, libTechIndices.values());
 		var libFlowIndices = LibUtil.loadFlowIndicesOf(
-			libTechIndices.keySet(), libDir, db);
+			libTechIndices.keySet(), context.libraryDir(), db);
 		fullData.enviIndex = LibUtil.combinedFlowIndexOf(
 			dbData.enviIndex, libFlowIndices.values());
 
 		// build the combined tech-matrix
 		var techBuilder = IndexedMatrix.build(fullData.techIndex)
 			.put(IndexedMatrix.of(dbData.techIndex, dbData.techMatrix));
-		libTechIndices
-			.forEach((libID, techIdx) -> libDir.getMatrix(libID, LibMatrix.A)
-				.ifPresent(m -> techBuilder.put(IndexedMatrix.of(techIdx, m))));
+		libTechIndices.forEach((libID, techIdx) -> {
+			var m = libs.matrixOf(libID, LibMatrix.A);
+			if (m != null) {
+				techBuilder.put(IndexedMatrix.of(techIdx, m));
+			}
+		});
 		fullData.techMatrix = techBuilder.finish().data();
 
 		// build the combined intervention matrix
@@ -50,21 +52,23 @@ class EagerLibraryProvider implements ResultProvider {
 				dbData.techIndex,
 				dbData.enviMatrix));
 		}
-		libFlowIndices.forEach((libID, flowIdx) ->
-			libDir.getMatrix(libID, LibMatrix.B).ifPresent(m -> {
+		libFlowIndices.forEach((libID, flowIdx) -> {
+			var m = libs.matrixOf(libID, LibMatrix.B);
+			if (m != null) {
 				var techIdx = libTechIndices.get(libID);
 				if (techIdx == null)
 					return;
 				flowBuilder.put(IndexedMatrix.of(flowIdx, techIdx, m));
-			}));
+			}
+		});
 
 		// add possible impact data
 		if (dbData.impactIndex != null) {
 			fullData.impactIndex = dbData.impactIndex;
 			fullData.impactMatrix = LibImpactMatrix.of(
-				dbData.impactIndex, fullData.enviIndex)
+					dbData.impactIndex, fullData.enviIndex)
 				.withLibraryFlowIndices(libFlowIndices)
-				.build(db, libDir);
+				.build(db, context.libraryDir());
 		}
 	}
 

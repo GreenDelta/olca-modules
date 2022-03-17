@@ -5,65 +5,67 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.git.Config;
+import org.openlca.core.model.descriptors.RootDescriptor;
+import org.openlca.git.GitConfig;
+import org.openlca.git.util.GitUtil;
 import org.openlca.util.Categories;
 import org.openlca.util.Categories.PathBuilder;
 
 public class DatabaseIterator extends EntryIterator {
 
-	private final Config config;
+	private final GitConfig config;
 	private final PathBuilder categoryPaths;
 
-	public DatabaseIterator(Config config) {
+	public DatabaseIterator(GitConfig config) {
 		this(config, init(config));
 	}
 
-	private DatabaseIterator(Config config, List<TreeEntry> entries) {
+	private DatabaseIterator(GitConfig config, List<TreeEntry> entries) {
 		super(entries);
 		this.config = config;
 		this.categoryPaths = Categories.pathsOf(config.database);
 	}
 
-	private DatabaseIterator(DatabaseIterator parent, Config config, List<TreeEntry> entries) {
+	private DatabaseIterator(DatabaseIterator parent, GitConfig config, List<TreeEntry> entries) {
 		super(parent, entries);
 		this.config = config;
 		this.categoryPaths = Categories.pathsOf(config.database);
 	}
 
-	private static List<TreeEntry> init(Config config) {
-		return Arrays.stream(ModelType.categorized()).filter(type -> {
+	private static List<TreeEntry> init(GitConfig config) {
+		return Arrays.stream(ModelType.rootTypes()).filter(type -> {
 			var dao = new CategoryDao(config.database);
 			if (type == ModelType.CATEGORY)
 				return false;
 			if (!dao.getRootCategories(type).isEmpty())
 				return true;
-			return !Daos.categorized(config.database, type).getDescriptors(Optional.empty()).isEmpty();
+			return !Daos.root(config.database, type).getDescriptors(Optional.empty()).isEmpty();
 		}).map(TreeEntry::new)
 				.toList();
 	}
 
-	private static List<TreeEntry> init(Config config, ModelType type) {
+	private static List<TreeEntry> init(GitConfig config, ModelType type) {
 		var entries = new CategoryDao(config.database).getRootCategories(type)
 				.stream().map(TreeEntry::new)
 				.collect(Collectors.toList());
-		entries.addAll(Daos.categorized(config.database, type).getDescriptors(Optional.empty())
+		entries.addAll(Daos.root(config.database, type).getDescriptors(Optional.empty())
 				.stream().map(d -> new TreeEntry(d))
 				.toList());
 		return entries;
 	}
 
-	private static List<TreeEntry> init(Config config, Category category) {
+	private static List<TreeEntry> init(GitConfig config, Category category) {
 		var entries = category.childCategories
 				.stream().map(TreeEntry::new)
 				.collect(Collectors.toList());
-		entries.addAll(Daos.categorized(config.database, category.modelType).getDescriptors(Optional.of(category))
+		entries.addAll(Daos.root(config.database, category.modelType).getDescriptors(Optional.of(category))
 				.stream().map(d -> new TreeEntry(d))
 				.toList());
 		return entries;
@@ -71,22 +73,26 @@ public class DatabaseIterator extends EntryIterator {
 
 	@Override
 	public boolean hasId() {
+		if (config.store == null)
+			return false;
 		var e = getEntry();
 		if (e.data instanceof ModelType)
 			return config.store.has((ModelType) e.data);
 		if (e.data instanceof Category)
 			return config.store.has((Category) e.data);
-		return config.store.has(categoryPaths, (CategorizedDescriptor) e.data);
+		return config.store.has(categoryPaths, (RootDescriptor) e.data);
 	}
 
 	@Override
 	public byte[] idBuffer() {
+		if (config.store == null)
+			return GitUtil.getBytes(ObjectId.zeroId());
 		var e = getEntry();
 		if (e.data instanceof ModelType)
 			return config.store.getRaw((ModelType) e.data);
 		if (e.data instanceof Category)
 			return config.store.getRaw((Category) e.data);
-		return config.store.getRaw(categoryPaths, (CategorizedDescriptor) e.data);
+		return config.store.getRaw(categoryPaths, (RootDescriptor) e.data);
 	}
 
 	@Override

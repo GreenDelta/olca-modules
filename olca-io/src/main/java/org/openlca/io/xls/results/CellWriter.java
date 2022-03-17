@@ -17,7 +17,7 @@ import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.NwFactor;
 import org.openlca.core.model.NwSet;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -45,7 +45,7 @@ public class CellWriter {
 	 * Writes the process information into the given row, starting in column col
 	 */
 	public void processCol(Sheet sheet, int row, int col,
-			CategorizedDescriptor process) {
+			RootDescriptor process) {
 		cell(sheet, row++, col, process.refId, false);
 		cell(sheet, row++, col, process.name, false);
 		if (!(process instanceof ProcessDescriptor))

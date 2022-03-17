@@ -6,6 +6,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.openlca.core.database.EntityCache;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.results.Contribution;
@@ -14,7 +15,6 @@ import org.openlca.core.results.ImpactValue;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.core.results.UpstreamNode;
 import org.openlca.core.results.UpstreamTree;
-import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -35,7 +35,7 @@ class JsonRpc {
 		obj.addProperty("@type", r.getClass().getSimpleName());
 		obj.add("flows", encode(
 				r.getFlows().stream()
-						.map(f -> f.flow())
+						.map(EnviFlow::flow)
 						.collect(Collectors.toSet()),
 				cache));
 		obj.add("processes", encode(r.getProcesses(), cache));
@@ -52,7 +52,7 @@ class JsonRpc {
 			return null;
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@type", "FlowResult");
-		obj.add("flow", Json.asRef(r.flow(), cache));
+		obj.add("flow", JsonRef.of(r.flow(), cache));
 		obj.addProperty("input", r.isInput());
 		obj.addProperty("value", r.value());
 		return obj;
@@ -63,7 +63,7 @@ class JsonRpc {
 			return null;
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@type", "ImpactResult");
-		obj.add("impactCategory", Json.asRef(r.impact(), cache));
+		obj.add("impactCategory", JsonRef.of(r.impact(), cache));
 		obj.addProperty("value", r.value());
 		return obj;
 	}
@@ -80,7 +80,7 @@ class JsonRpc {
 			return null;
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@type", "ContributionItem");
-		obj.add("item", Json.asRef(i.item, cache));
+		obj.add("item", JsonRef.of(i.item, cache));
 		obj.addProperty("amount", i.amount);
 		obj.addProperty("share", i.share);
 		obj.addProperty("rest", i.isRest);
@@ -102,8 +102,8 @@ class JsonRpc {
 			return null;
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@type", "ContributionItem");
-		obj.add("item", Json.asRef(n.provider().flow(), cache));
-		obj.add("owner", Json.asRef(n.provider().provider(), cache));
+		obj.add("item", JsonRef.of(n.provider().flow(), cache));
+		obj.add("owner", JsonRef.of(n.provider().provider(), cache));
 		obj.addProperty("amount", n.result());
 		obj.addProperty("share", total != 0 ? n.result() / total : 0);
 		modifier.accept(obj);
@@ -117,8 +117,8 @@ class JsonRpc {
 				continue;
 			var product = index.at(i);
 			JsonObject obj = new JsonObject();
-			obj.add("process", Json.asRef(product.provider(), cache));
-			obj.add("product", Json.asRef(product.flow(), cache));
+			obj.add("process", JsonRef.of(product.provider(), cache));
+			obj.add("product", JsonRef.of(product.flow(), cache));
 			obj.addProperty("amount", totalRequirements[i]);
 			if (costs != null) {
 				obj.addProperty("costs", costs[i]);
@@ -129,7 +129,7 @@ class JsonRpc {
 	}
 
 	static JsonArray encode(Collection<? extends Descriptor> descriptors, EntityCache cache) {
-		return encode(descriptors, d -> Json.asRef(d, cache));
+		return encode(descriptors, d -> JsonRef.of(d, cache));
 	}
 
 	static <T> JsonArray encode(Collection<T> l, Function<T, JsonObject> encoder) {

@@ -4,17 +4,17 @@ import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.Tests;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.AbstractZipTest;
-import org.openlca.jsonld.Tests;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.output.JsonExport;
 
 public class UnitGroupTest extends AbstractZipTest {
 
 	@Test
-	public void testUnitGroup() throws Exception {
+	public void testUnitGroup() {
 		UnitGroupDao dao = new UnitGroupDao(Tests.getDb());
 		UnitGroup group = createModel(dao);
 		doExport(group, dao);

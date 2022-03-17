@@ -4,17 +4,17 @@ import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.Tests;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
 import org.openlca.jsonld.AbstractZipTest;
-import org.openlca.jsonld.Tests;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.output.JsonExport;
 
 public class LocationTest extends AbstractZipTest {
 
 	@Test
-	public void testLocation() throws Exception {
+	public void testLocation() {
 		LocationDao dao = new LocationDao(Tests.getDb());
 		Location location = createModel(dao);
 		doExport(location, dao);

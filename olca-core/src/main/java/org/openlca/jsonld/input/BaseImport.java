@@ -5,8 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.openlca.core.database.FileStore;
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.ModelType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,9 +17,9 @@ abstract class BaseImport<T extends RootEntity> {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final ModelType modelType;
 	String refId;
-	ImportConfig conf;
+	JsonImport conf;
 
-	BaseImport(ModelType modelType, String refId, ImportConfig conf) {
+	BaseImport(ModelType modelType, String refId, JsonImport conf) {
 		this.refId = refId;
 		this.conf = conf;
 		this.modelType = modelType;
@@ -39,7 +39,7 @@ abstract class BaseImport<T extends RootEntity> {
 						|| conf.hasVisited(modelType, refId))
 					return model;
 			}
-			var json = conf.store.get(modelType, refId);
+			var json = conf.reader.get(modelType, refId);
 			if (json == null)
 				return model;
 			if (!doImport(model, json))
@@ -87,8 +87,8 @@ abstract class BaseImport<T extends RootEntity> {
 		var fs = new FileStore(db.getFileStorageLocation());
 		try {
 			var dir = fs.getFolder(modelType, refId);
-			for (var path : conf.store.getBinFiles(modelType, refId)) {
-				byte[] data = conf.store.get(path);
+			for (var path : conf.reader.getBinFiles(modelType, refId)) {
+				byte[] data = conf.reader.getBytes(path);
 				if (data == null)
 					return;
 				var name = Paths.get(path).getFileName().toString();

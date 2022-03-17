@@ -9,8 +9,8 @@ import java.util.function.Consumer;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.RootEntity;
-import org.openlca.jsonld.EntityStore;
+import org.openlca.core.model.RefEntity;
+import org.openlca.jsonld.JsonStoreWriter;
 
 class ExportConfig {
 
@@ -23,14 +23,13 @@ class ExportConfig {
 	 */
 	final EntityCache cache;
 
-	final EntityStore store;
-	Consumer<RootEntity> refFn;
+	final JsonStoreWriter store;
+	Consumer<RefEntity> refFn;
 	boolean exportReferences = true;
 	boolean exportProviders = false;
-	String clientInfo;
 	private final Map<ModelType, Set<Long>> visited = new HashMap<>();
 
-	private ExportConfig(IDatabase db, EntityStore store) {
+	private ExportConfig(IDatabase db, JsonStoreWriter store) {
 		this.db = db;
 		this.cache = db != null ? EntityCache.create(db) : null;
 		this.store = store;
@@ -44,11 +43,11 @@ class ExportConfig {
 		return new ExportConfig(db, null);
 	}
 
-	static ExportConfig create(IDatabase db, EntityStore store) {
+	static ExportConfig create(IDatabase db, JsonStoreWriter store) {
 		return new ExportConfig(db, store);
 	}
 
-	void visited(RootEntity entity) {
+	void visited(RefEntity entity) {
 		if (entity == null)
 			return;
 		ModelType type = ModelType.forModelClass(entity.getClass());

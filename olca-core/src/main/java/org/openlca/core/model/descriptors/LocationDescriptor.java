@@ -2,7 +2,7 @@ package org.openlca.core.model.descriptors;
 
 import org.openlca.core.model.ModelType;
 
-public class LocationDescriptor extends CategorizedDescriptor {
+public class LocationDescriptor extends RootDescriptor {
 
 	public String code;
 

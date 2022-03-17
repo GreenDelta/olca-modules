@@ -8,6 +8,7 @@ import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.openlca.core.model.ModelType;
+import org.openlca.git.util.GitUtil;
 
 class ModelFilter extends TreeFilter {
 
@@ -25,7 +26,7 @@ class ModelFilter extends TreeFilter {
 		if (walk.getFileMode() == FileMode.TREE)
 			return walk.getPathString().startsWith(type.name());
 		var name = walk.getNameString();
-		return name.equals(refId + ".proto") || name.equals(refId + ".json");
+		return name.equals(refId + GitUtil.DATASET_SUFFIX);
 	}
 
 	@Override

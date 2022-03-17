@@ -2,7 +2,7 @@ package org.openlca.core.model.descriptors;
 
 import org.openlca.core.model.ModelType;
 
-public class CategoryDescriptor extends CategorizedDescriptor {
+public class CategoryDescriptor extends RootDescriptor {
 
 	public ModelType categoryType;
 

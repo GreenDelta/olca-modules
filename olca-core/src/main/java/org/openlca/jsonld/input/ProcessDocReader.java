@@ -10,14 +10,14 @@ import com.google.gson.JsonObject;
 
 class ProcessDocReader {
 
-	private ImportConfig conf;
+	private final JsonImport conf;
 	private JsonObject json;
 
-	private ProcessDocReader(ImportConfig conf) {
+	private ProcessDocReader(JsonImport conf) {
 		this.conf = conf;
 	}
 
-	static ProcessDocumentation read(JsonObject json, ImportConfig conf) {
+	static ProcessDocumentation read(JsonObject json, JsonImport conf) {
 		return new ProcessDocReader(conf).read(json);
 	}
 
@@ -62,7 +62,7 @@ class ProcessDocReader {
 		doc.intendedApplication = Json.getString(json, "intendedApplication");
 		doc.project = Json.getString(json, "projectDescription");
 		doc.geography = Json.getString(json, "geographyDescription");
-		doc.copyright = Json.getBool(json, "copyright", false);
+		doc.copyright = Json.getBool(json, "hasCopyright", false);
 		doc.validFrom = Json.getDate(json, "validFrom");
 		doc.validUntil = Json.getDate(json, "validUntil");
 		doc.creationDate = Json.getDate(json, "creationDate");

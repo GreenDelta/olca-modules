@@ -10,11 +10,11 @@ import com.google.gson.JsonObject;
 
 class FlowPropertyFactorImport extends BaseEmbeddedImport<FlowPropertyFactor, Flow> {
 
-	private FlowPropertyFactorImport(String flowRefId, ImportConfig conf) {
+	private FlowPropertyFactorImport(String flowRefId, JsonImport conf) {
 		super(ModelType.FLOW, flowRefId, conf);
 	}
 
-	static FlowPropertyFactor run(String flowRefId, JsonObject json, ImportConfig conf) {
+	static FlowPropertyFactor run(String flowRefId, JsonObject json, JsonImport conf) {
 		return new FlowPropertyFactorImport(flowRefId, conf).run(json);
 	}
 
@@ -23,8 +23,7 @@ class FlowPropertyFactorImport extends BaseEmbeddedImport<FlowPropertyFactor, Fl
 		FlowPropertyFactor f = new FlowPropertyFactor();
 		f.id = id;
 		String propId = Json.getRefId(json, "flowProperty");
-		FlowProperty property = FlowPropertyImport.run(propId, conf);
-		f.flowProperty = property;
+		f.flowProperty = FlowPropertyImport.run(propId, conf);
 		f.conversionFactor = Json.getDouble(json, "conversionFactor", 1.0);
 		return f;
 	}

@@ -55,18 +55,18 @@ public class WriteReadTest {
 
 		// get the data set from the repo
 		var id = temp.ids().get(unitGroup);
-		var string = new Datasets(temp.repo()).get(id);
+		var string = Datasets.of(temp.repo()).get(id);
 		var jsonObj = new Gson().fromJson(string, JsonObject.class);
 		assertEquals(unitGroup.refId, Json.getString(jsonObj, "@id"));
 
 		// make sure that we can find the commit
-		var commit = new Commits(temp.repo()).get(commitId);
+		var commit = Commits.of(temp.repo()).get(commitId);
 		assertEquals("initial commit", commit.message);
 
 		temp.delete();
 	}
 
-	private record TempConfig(Config config, File dir) {
+	private record TempConfig(GitConfig config, File dir) {
 
 		static TempConfig create() {
 			try {
@@ -74,7 +74,7 @@ public class WriteReadTest {
 				var repo = Repositories.open(new File(dir, "repo"));
 				var idStore = ObjectIdStore.open(new File(dir, "id-store"));
 				var committer = new PersonIdent("user", "user@example.com");
-				var config = new Config(Tests.db(), idStore, repo, committer);
+				var config = new GitConfig(Tests.db(), idStore, repo, committer);
 				return new TempConfig(config, dir);
 			} catch (Exception e) {
 				throw new RuntimeException(e);

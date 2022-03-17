@@ -7,7 +7,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_sources")
-public class Source extends CategorizedEntity {
+public class Source extends RootEntity {
 
 	@Column(name = "url")
 	public String url;

@@ -135,9 +135,10 @@ public class SimpleResultProvider implements ResultProvider {
 	public double[] totalFlows() {
 		if (totalFlows != null)
 			return totalFlows;
-		return flowIndex == null
-			? EMPTY_VECTOR
-			: new double[flowIndex.size()];
+		if (flowIndex == null)
+			return EMPTY_VECTOR;
+		totalFlows = new double[flowIndex.size()];
+		return totalFlows;
 	}
 
 	@Override
@@ -159,9 +160,11 @@ public class SimpleResultProvider implements ResultProvider {
 	public double[] totalImpacts() {
 		if (totalImpacts != null)
 			return totalImpacts;
-		return impactIndex == null
-			? EMPTY_VECTOR
-			: new double[impactIndex.size()];
+		if (impactIndex == null) {
+			return EMPTY_VECTOR;
+		}
+		totalImpacts = new double[impactIndex.size()];
+		return totalImpacts;
 	}
 
 	@Override

@@ -14,11 +14,11 @@ import org.openlca.util.Strings;
 
 class ImpactMethodImport extends BaseImport<ImpactMethod> {
 
-	private ImpactMethodImport(String refId, ImportConfig conf) {
+	private ImpactMethodImport(String refId, JsonImport conf) {
 		super(ModelType.IMPACT_METHOD, refId, conf);
 	}
 
-	static ImpactMethod run(String refId, ImportConfig conf) {
+	static ImpactMethod run(String refId, JsonImport conf) {
 		return new ImpactMethodImport(refId, conf).run();
 	}
 
@@ -28,6 +28,7 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 			return null;
 		var method = new ImpactMethod();
 		In.mapAtts(json, method, id, conf);
+		method.code = Json.getString(json, "code");
 		var sourceId = Json.getString(json, "source");
 		if (Strings.nullOrEmpty(sourceId)) {
 			method.source = SourceImport.run(sourceId, conf);

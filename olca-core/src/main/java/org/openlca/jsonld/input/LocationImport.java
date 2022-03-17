@@ -12,11 +12,11 @@ import com.google.gson.JsonObject;
 
 class LocationImport extends BaseImport<Location> {
 
-	private LocationImport(String refId, ImportConfig conf) {
+	private LocationImport(String refId, JsonImport conf) {
 		super(ModelType.LOCATION, refId, conf);
 	}
 
-	static Location run(String refId, ImportConfig conf) {
+	static Location run(String refId, JsonImport conf) {
 		return new LocationImport(refId, conf).run();
 	}
 

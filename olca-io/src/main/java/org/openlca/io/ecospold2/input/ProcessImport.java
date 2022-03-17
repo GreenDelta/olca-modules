@@ -4,10 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.openlca.core.database.ExchangeDao;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Exchange;
@@ -22,10 +26,6 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.openlca.util.DQSystems;
 import org.openlca.util.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Joiner;
 
 import spold2.Activity;
 import spold2.Classification;
@@ -39,17 +39,20 @@ import spold2.Spold2;
 
 class ProcessImport {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final ImportLog log;
 	private final RefDataIndex index;
 	private final ProcessDao dao;
 	private final PriceMapper prices;
 	private final ImportConfig config;
 	private final DQSystem dqSystem;
 
-	/** Exchanges that wait for a default provider: provider-id -> exchanges. */
+	/**
+	 * Exchanges that wait for a default provider: provider-id -> exchanges.
+	 */
 	private final HashMap<String, List<Exchange>> linkQueue = new HashMap<>();
 
 	ProcessImport(RefDataIndex index, ImportConfig config) {
+		this.log = config.log();
 		this.index = index;
 		this.config = config;
 		dao = new ProcessDao(config.db);
@@ -79,11 +82,10 @@ class ProcessImport {
 			String refId = RefId.forProcess(ds);
 			boolean contains = dao.contains(refId);
 			if (contains) {
-				log.trace("process {} is already in the database",
-						activity.id);
+				log.info("process '" + activity.id + "' is already in the database");
 				return;
 			}
-			log.trace("import process {}", activity.name);
+			log.info("import process: " + activity.name);
 			runImport(ds, refId);
 		} catch (Exception e) {
 			log.error("Failed to import process", e);
@@ -101,7 +103,7 @@ class ProcessImport {
 			if (techFlow.outputGroup != 0)
 				continue;
 			if (techFlow.amount == null ||
-					techFlow.amount == 0)
+				techFlow.amount == 0)
 				continue;
 			refFlow = techFlow;
 			break;
@@ -117,13 +119,15 @@ class ProcessImport {
 		p.refId = refId;
 		p.name = getProcessName(ds);
 		p.processType = activity.type == 2
-				? ProcessType.LCI_RESULT
-				: ProcessType.UNIT_PROCESS;
-		p.description = Joiner.on(" ").skipNulls().join(
+			? ProcessType.LCI_RESULT
+			: ProcessType.UNIT_PROCESS;
+		p.description = Stream.of(
 				RichText.join(activity.generalComment),
 				activity.includedActivitiesStart,
 				activity.includedActivitiesEnd,
-				RichText.join(activity.allocationComment));
+				RichText.join(activity.allocationComment))
+			.filter(Objects::nonNull)
+			.collect(Collectors.joining("\n\n"));
 
 		// map the process category
 		Category category = null;
@@ -199,8 +203,7 @@ class ProcessImport {
 			String refId = e.flowId;
 			Flow flow = index.getFlow(refId);
 			if (flow == null) {
-				log.warn("could not create flow for {}",
-						e.flowId);
+				log.warn("could not create flow for: " + e.flowId);
 			}
 			createExchange(e, refId, flow, process);
 		}
@@ -211,11 +214,11 @@ class ProcessImport {
 			if (ie.amount == 0 && config.skipNullExchanges)
 				continue;
 			boolean isRefFlow = ie.outputGroup != null
-					&& ie.outputGroup == 0;
+				&& ie.outputGroup == 0;
 			String refId = ie.flowId;
 			Flow flow = index.getFlow(refId);
 			if (flow == null) {
-				log.warn("could not get flow for {}", refId);
+				log.warn("could not get flow for: " + refId);
 				continue;
 			}
 			Exchange e = createExchange(ie, refId, flow, p);
@@ -234,7 +237,7 @@ class ProcessImport {
 		}
 		if (p.quantitativeReference == null) {
 			log.warn("could not set a quantitative"
-					+ " reference for process {}", p.refId);
+				+ " reference for process" + p.refId);
 		}
 	}
 
@@ -248,7 +251,7 @@ class ProcessImport {
 	}
 
 	private Exchange createExchange(spold2.Exchange es2,
-			String flowRefId, Flow flow, Process process) {
+																	String flowRefId, Flow flow, Process process) {
 		if (flow == null || flow.referenceFlowProperty == null)
 			return null;
 		Unit unit = getFlowUnit(es2, flowRefId, flow);
@@ -276,12 +279,12 @@ class ProcessImport {
 		if (pm == null)
 			return null;
 		return dqSystem.toString(pm.reliability, pm.completeness,
-				pm.temporalCorrelation,
-				pm.geographicalCorrelation, pm.technologyCorrelation);
+			pm.temporalCorrelation,
+			pm.geographicalCorrelation, pm.technologyCorrelation);
 	}
 
 	private Unit getFlowUnit(spold2.Exchange original,
-			String flowRefId, Flow flow) {
+													 String flowRefId, Flow flow) {
 		if (!index.isMappedFlow(flowRefId))
 			return index.getUnit(original.unitId);
 		FlowProperty refProp = flow.referenceFlowProperty;
@@ -294,11 +297,11 @@ class ProcessImport {
 	}
 
 	private void mapFormula(spold2.Exchange original, Process process,
-			Exchange exchange, double factor) {
+													Exchange exchange, double factor) {
 		String formula = null;
 		String var = original.variableName;
 		if (Strings.notEmpty(var)
-				&& Parameters.contains(var, process.parameters)) {
+			&& Parameters.contains(var, process.parameters)) {
 			formula = var;
 		} else if (Parameters.isValid(original.mathematicalRelation, config)) {
 			formula = original.mathematicalRelation;
@@ -313,7 +316,7 @@ class ProcessImport {
 	}
 
 	private void addActivityLink(IntermediateExchange input,
-			Exchange exchange) {
+															 Exchange exchange) {
 		String refId = RefId.linkID(input);
 		Long processId = index.getProcessId(refId);
 		if (processId != null) {
@@ -330,9 +333,9 @@ class ProcessImport {
 
 	/**
 	 * The name of the process has the following pattern:
-	 *
+	 * <p>
 	 * <process name> | <product name> | <system model>, <process type>
-	 *
+	 * <p>
 	 * Where <system model> is a mnemonic like "APOS" or "Cutoff" and the process
 	 * type is "U" when it is a unit process or "S" when it is a LCI result
 	 */
@@ -357,7 +360,7 @@ class ProcessImport {
 			if (sys.contains("consequential")) {
 				model = "Consequential";
 			} else if (sys.contains("apos") ||
-					sys.contains("allocation at the point of substitution")) {
+				sys.contains("allocation at the point of substitution")) {
 				model = "APOS";
 			} else if (sys.contains("cut-off") || sys.contains("cutoff")) {
 				model = "Cutoff";

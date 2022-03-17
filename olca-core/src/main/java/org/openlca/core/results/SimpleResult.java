@@ -14,7 +14,7 @@ import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.providers.ResultProvider;
 import org.openlca.core.results.providers.ResultProviders;
@@ -167,7 +167,7 @@ public class SimpleResult extends BaseResult {
 	 * process has multiple products in the system it returns the sum of the
 	 * scaling factors of all of these process-product pairs.
 	 */
-	public double getScalingFactor(CategorizedDescriptor process) {
+	public double getScalingFactor(RootDescriptor process) {
 		double factor = 0;
 		for (TechFlow p : techIndex().getProviders(process)) {
 			factor += getScalingFactor(p);

@@ -1,7 +1,7 @@
 package org.openlca.io.ilcd;
 
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactMethod;
@@ -35,7 +35,7 @@ public class ILCDExport {
 		this.config = config;
 	}
 
-	public void export(CategorizedEntity component) {
+	public void export(RootEntity component) {
 		if (component == null || config.db == null)
 			throw new IllegalArgumentException(
 					"Component and database cannot be NULL.");
@@ -49,7 +49,7 @@ public class ILCDExport {
 		}
 	}
 
-	private void tryExport(CategorizedEntity component) throws Exception {
+	private void tryExport(RootEntity component) throws Exception {
 		if (component instanceof ImpactMethod) {
 			ImpactMethodExport export = new ImpactMethodExport(config);
 			export.run((ImpactMethod) component);

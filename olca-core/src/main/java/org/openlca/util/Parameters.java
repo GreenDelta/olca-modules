@@ -19,7 +19,7 @@ import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.ParameterizedEntity;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Version;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.InterpreterException;
 import org.openlca.formula.Formulas;
@@ -82,8 +82,7 @@ public class Parameters {
 		}
 
 		// search in process formulas
-		if (owner instanceof Process) {
-			var process = (Process) owner;
+		if (owner instanceof Process process) {
 			for (var e : process.exchanges) {
 				if (hasVariable(e.formula, param.name))
 					return true;
@@ -96,8 +95,7 @@ public class Parameters {
 		}
 
 		// search in impact formulas
-		if (owner instanceof ImpactCategory) {
-			var impact = (ImpactCategory) owner;
+		if (owner instanceof ImpactCategory impact) {
 			for (var factor : impact.impactFactors) {
 				if (hasVariable(factor.formula, param.name))
 					return true;
@@ -113,7 +111,7 @@ public class Parameters {
 	 * renaming of a local parameter will change other entities (projects or product
 	 * systems) where this parameter is redefined.
 	 */
-	public static List<CategorizedDescriptor> findRedefOwners(
+	public static List<RootDescriptor> findRedefOwners(
 			Parameter param, ParameterizedEntity owner, IDatabase db) {
 
 		var sql = "select f_owner, name, f_context from tbl_parameter_redefs";
@@ -193,8 +191,7 @@ public class Parameters {
 		}
 
 		// rename in other process formulas
-		if (owner instanceof Process) {
-			var process = (Process) owner;
+		if (owner instanceof Process process) {
 			for (var e : process.exchanges) {
 				if (e.formula != null) {
 					e.formula = Formulas.renameVariable(
@@ -215,8 +212,7 @@ public class Parameters {
 		}
 
 		// rename in impact formulas
-		if (owner instanceof ImpactCategory) {
-			var impact = (ImpactCategory) owner;
+		if (owner instanceof ImpactCategory impact) {
 			for (var f : impact.impactFactors) {
 				if (f.formula != null) {
 					f.formula = Formulas.renameVariable(

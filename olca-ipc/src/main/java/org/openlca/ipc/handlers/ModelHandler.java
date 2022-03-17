@@ -15,7 +15,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.ipc.Responses;
@@ -49,9 +49,9 @@ public class ModelHandler {
 				return p.second;
 			var model = p.first;
 			var store = new MemStore();
-			var exp = new JsonExport(db, store);
-			exp.setExportReferences(false);
-			exp.write(model);
+			new JsonExport(db, store)
+					.withReferences(false)
+					.write(model);
 			var modelType = ModelType.forModelClass(model.getClass());
 			var obj = store.get(modelType, model.refId);
 			if (obj == null)
@@ -73,9 +73,8 @@ public class ModelHandler {
 					+ " valid @type attribute", req);
 		try {
 			var store = new MemStore();
-			var exp = new JsonExport(db, store);
-			exp.setExportReferences(false);
-			Daos.root(db, type).getAll().forEach(exp::write);
+			var exp = new JsonExport(db, store).withReferences(false);
+			Daos.refDao(db, type).getAll().forEach(exp::write);
 			var array = new JsonArray();
 			store.getAll(type).forEach(array::add);
 			return Responses.ok(array, req);
@@ -96,8 +95,8 @@ public class ModelHandler {
 		try {
 			var array = new JsonArray();
 			var cache = EntityCache.create(db);
-			Daos.root(db, type).getDescriptors().forEach(d -> {
-				JsonObject obj = Json.asRef(d, cache);
+			Daos.refDao(db, type).getDescriptors().forEach(d -> {
+				JsonObject obj = JsonRef.of(d, cache);
 				array.add(obj);
 			});
 			return Responses.ok(array, req);
@@ -112,7 +111,7 @@ public class ModelHandler {
 		if (p.second != null)
 			return p.second;
 		var d = Descriptor.of(p.first);
-		var json = Json.asRef(d, EntityCache.create(db));
+		var json = JsonRef.of(d, EntityCache.create(db));
 		return Responses.ok(json, req);
 	}
 
@@ -158,7 +157,11 @@ public class ModelHandler {
 		providers.stream()
 				.map(TechFlow::provider)
 				.filter(p -> p instanceof ProcessDescriptor)
-				.map(p -> Json.asDescriptor(p, cache))
+				.map(p -> {
+					var ref = JsonRef.of(p, cache);
+					ref.addProperty("description", p.description);
+					return ref;
+				})
 				.forEach(array::add);
 		return Responses.ok(array, req);
 	}
@@ -217,7 +220,7 @@ public class ModelHandler {
 		}
 	}
 
-	private Pair<RootEntity, RpcResponse> getModelOrError(RpcRequest req) {
+	private Pair<RefEntity, RpcResponse> getModelOrError(RpcRequest req) {
 		var d = descriptorOf(req);
 		if (d == null || d.type == null) {
 			var err = Responses.invalidParams(
@@ -240,7 +243,7 @@ public class ModelHandler {
 
 			// get by name
 			if (Strings.notEmpty(d.name)) {
-				var e = db.forName(type, d.name);
+				var e = db.getForName(type, d.name);
 				if (e == null) {
 					var err = Responses.error(404, "No " + type
 							+ " with name='" + d.name + "' found", req);

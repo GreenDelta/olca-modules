@@ -10,8 +10,9 @@ import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.ModelType;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.input.UpdateMode;
 import org.openlca.proto.ProtoActor;
@@ -48,7 +49,7 @@ public class ImportStatusTest {
 	public void testNullId() {
 		for (var type : ModelType.values()) {
 			// TODO: support results
-			if (!type.isCategorized() || type == ModelType.RESULT)
+			if (!type.isRoot() || type == ModelType.RESULT)
 				continue;
 			var imp = protoImport.getImport(type);
 			var status = imp.of(null);
@@ -63,7 +64,7 @@ public class ImportStatusTest {
 	public void testUnknownId() {
 		for (var type : ModelType.values()) {
 			// TODO: support results
-			if (!type.isCategorized() || type == ModelType.RESULT)
+			if (!type.isRoot() || type == ModelType.RESULT)
 				continue;
 			var imp = protoImport.getImport(type);
 			var status = imp.of(UUID.randomUUID().toString());
@@ -79,14 +80,14 @@ public class ImportStatusTest {
 		int i = 0;
 		for (var type : ModelType.values()) {
 			// TODO: support results
-			if (!type.isCategorized()
+			if (!type.isRoot()
 				|| type == ModelType.CATEGORY
 				|| type == ModelType.RESULT)
 				continue;
 			i++;
 
 			var id = UUID.randomUUID().toString();
-			var instance = type.getModelClass()
+			var instance = (RootEntity) type.getModelClass()
 				.getConstructor()
 				.newInstance();
 			instance.refId = id;
@@ -116,7 +117,7 @@ public class ImportStatusTest {
 		assertEquals(15, i);
 	}
 
-	private ImportStatus<?> put(ModelType type, RootEntity entity) {
+	private ImportStatus<?> put(ModelType type, RefEntity entity) {
 
 		var store = InMemoryProtoStore.create();
 		var proto = Out.toProto(db, entity);

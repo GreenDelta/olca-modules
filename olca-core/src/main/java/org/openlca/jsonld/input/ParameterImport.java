@@ -9,11 +9,11 @@ import com.google.gson.JsonObject;
 
 class ParameterImport extends BaseImport<Parameter> {
 
-	ParameterImport(String refId, ImportConfig conf) {
+	ParameterImport(String refId, JsonImport conf) {
 		super(ModelType.PARAMETER, refId, conf);
 	}
 
-	static Parameter run(String refId, ImportConfig conf) {
+	static Parameter run(String refId, JsonImport conf) {
 		return new ParameterImport(refId, conf).run();
 	}
 
@@ -31,7 +31,7 @@ class ParameterImport extends BaseImport<Parameter> {
 	static void mapFields(JsonObject json, Parameter p) {
 		In.mapAtts(json, p, p.id); // TODO <- mapAtts
 		p.scope = Json.getEnum(json, "parameterScope", ParameterScope.class);
-		p.isInputParameter = Json.getBool(json, "inputParameter", true);
+		p.isInputParameter = Json.getBool(json, "isInputParameter", true);
 		p.value = Json.getDouble(json, "value", 0);
 		p.formula = Json.getString(json, "formula");
 		p.uncertainty = Uncertainties.read(Json.getObject(json, "uncertainty"));

@@ -7,12 +7,12 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openlca.core.Tests;
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
-import org.openlca.jsonld.Tests;
 
 /**
  * When a process is updated/overwritten during import, the exchanges
@@ -27,6 +27,7 @@ public class ExchangeSyncTest {
 	private static final ModelType[] modelTypes = new ModelType[] {
 		ModelType.PRODUCT_SYSTEM
 	};
+
 	private IDatabase db;
 	private BaseDao<Exchange> dao;
 	private File allData;
@@ -35,20 +36,20 @@ public class ExchangeSyncTest {
 	@Before
 	public void before() throws IOException {
 		db = Tests.getDb();
-		Tests.clearDb();
+		db.clear();
 		dao = Daos.base(db, Exchange.class);
 		allData = SyncTestUtils.copyToTemp("exchange_sync-all.zip");
 		processData = SyncTestUtils.copyToTemp("exchange_sync-process.zip");
 	}
 
 	@Test
-	public void initialDataValidates() throws IOException {
+	public void initialDataValidates() {
 		SyncTestUtils.doImport(allData, db);
 		Assert.assertTrue(validate());
 	}
 
 	@Test
-	public void exchangesSync() throws IOException {
+	public void exchangesSync() {
 		SyncTestUtils.doImport(allData, db);
 		SyncTestUtils.doImport(processData, db);
 		Assert.assertTrue(validate());
@@ -61,11 +62,12 @@ public class ExchangeSyncTest {
 			return true;
 		});
 	}
+
 	@After
 	public void after() throws IOException {
 		SyncTestUtils.delete(processData);
 		SyncTestUtils.delete(allData);
-		Tests.clearDb();
+		db.clear();
 	}
 
 }

@@ -101,7 +101,7 @@ public class CalculationSetup extends AbstractEntity
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends CategorizedEntity & CalculationTarget> T target() {
+	public <T extends RootEntity & CalculationTarget> T target() {
 		return (T) (system != null
 			? system
 			: process);

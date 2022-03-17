@@ -8,7 +8,7 @@ import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Location;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.io.CategoryPair;
@@ -38,7 +38,7 @@ class ProductInfo implements Comparable<ProductInfo> {
 		List<ProductInfo> infos = new ArrayList<>(index.size() + 2);
 		for (int i = 0; i < index.size(); i++) {
 			TechFlow pair = index.at(i);
-			CategorizedDescriptor process = pair.provider();
+			RootDescriptor process = pair.provider();
 			FlowDescriptor product = pair.flow();
 			ProductInfo info = new ProductInfo();
 			info.provider = pair;

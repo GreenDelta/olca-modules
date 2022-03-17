@@ -8,11 +8,11 @@ import com.google.gson.JsonObject;
 
 class SocialIndicatorImport extends BaseImport<SocialIndicator> {
 
-	private SocialIndicatorImport(String refId, ImportConfig conf) {
+	private SocialIndicatorImport(String refId, JsonImport conf) {
 		super(ModelType.SOCIAL_INDICATOR, refId, conf);
 	}
 
-	static SocialIndicator run(String refId, ImportConfig conf) {
+	static SocialIndicator run(String refId, JsonImport conf) {
 		return new SocialIndicatorImport(refId, conf).run();
 	}
 

@@ -46,21 +46,23 @@ public enum ModelType {
 
 	DQ_SYSTEM(DQSystem.class),
 
-	RESULT(Result.class);
+	RESULT(Result.class),
 
-	final Class<? extends RootEntity> modelClass;
+	EPD(Epd.class);
 
-	ModelType(Class<? extends RootEntity> clazz) {
+	final Class<? extends RefEntity> modelClass;
+
+	ModelType(Class<? extends RefEntity> clazz) {
 		this.modelClass = clazz;
 	}
 
-	public Class<? extends RootEntity> getModelClass() {
+	public Class<? extends RefEntity> getModelClass() {
 		return modelClass;
 	}
 
-	public boolean isCategorized() {
+	public boolean isRoot() {
 		return modelClass != null
-			&& CategorizedEntity.class.isAssignableFrom(modelClass);
+			&& RootEntity.class.isAssignableFrom(modelClass);
 	}
 
 	public boolean isOneOf(ModelType... types) {
@@ -82,14 +84,14 @@ public enum ModelType {
 		return null;
 	}
 
-	public static ModelType[] categorized() {
-		List<ModelType> categorized = new ArrayList<>();
+	public static ModelType[] rootTypes() {
+		List<ModelType> list = new ArrayList<>();
 		for (ModelType type : values()) {
-			if (!type.isCategorized())
+			if (!type.isRoot())
 				continue;
-			categorized.add(type);
+			list.add(type);
 		}
-		return categorized.toArray(new ModelType[0]);
+		return list.toArray(new ModelType[0]);
 	}
 
 	/**
@@ -99,7 +101,7 @@ public enum ModelType {
 	 * @return the model type of the entity or {@code UNKNOWN} if the type could
 	 * not be determined or the entity was null.
 	 */
-	public static ModelType of(RootEntity e) {
+	public static ModelType of(RefEntity e) {
 		if (e == null)
 			return UNKNOWN;
 		for (var v : values()) {

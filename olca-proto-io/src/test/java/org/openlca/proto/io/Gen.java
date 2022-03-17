@@ -2,7 +2,7 @@ package org.openlca.proto.io;
 
 import java.util.Arrays;
 
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.util.Strings;
 
@@ -40,7 +40,7 @@ public class Gen {
             "if (%s.%s != null) {%n  %s(%s.%s);%n}%n",
             varName, field, setter, varName, field);
 
-        } else if (RootEntity.class.isAssignableFrom(type)) {
+        } else if (RefEntity.class.isAssignableFrom(type)) {
           System.out.printf(
             "if (%s.%s != null) {%n  %s(Refs.toRef(%s.%s, config));%n}%n",
             varName, field, setter, varName, field);

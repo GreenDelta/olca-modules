@@ -1,7 +1,7 @@
 package org.openlca.io.ilcd.output;
 
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
@@ -26,7 +26,7 @@ class Export {
 	 * Runs an export of the given model to the ILCD data store and returns the
 	 * data set reference to the exported model in the store.
 	 */
-	public static Ref of(CategorizedEntity model, ExportConfig config) {
+	public static Ref of(RootEntity model, ExportConfig config) {
 		if (model instanceof Source)
 			return source((Source) model, config);
 		if (model instanceof Actor)

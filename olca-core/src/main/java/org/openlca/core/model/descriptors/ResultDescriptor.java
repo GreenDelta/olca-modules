@@ -2,7 +2,7 @@ package org.openlca.core.model.descriptors;
 
 import org.openlca.core.model.ModelType;
 
-public class ResultDescriptor extends CategorizedDescriptor {
+public class ResultDescriptor extends RootDescriptor {
 
 	public ResultDescriptor() {
 		this.type = ModelType.RESULT;

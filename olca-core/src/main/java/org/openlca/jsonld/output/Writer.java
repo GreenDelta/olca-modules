@@ -4,39 +4,41 @@ import java.time.Instant;
 import java.util.Arrays;
 
 import com.google.gson.JsonArray;
-import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Version;
-import org.openlca.jsonld.Schema;
 
 import com.google.gson.JsonObject;
+import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
 
-class Writer<T extends RootEntity> {
+class Writer<T extends RefEntity> {
 
-	ExportConfig conf;
+	final JsonExport exp;
 
-	protected Writer(ExportConfig conf) {
-		this.conf = conf;
+	protected Writer(JsonExport exp) {
+		this.exp = exp;
 	}
 
 	JsonObject write(T entity) {
-		JsonObject obj = initJson();
+		var obj = new JsonObject();
 		// mark entity directly as visited to avoid endless cyclic exports for
 		// cyclic references
-		conf.visited(entity);
+		if (entity instanceof RootEntity ce) {
+			exp.setVisited(ce);
+		}
 		addBasicAttributes(entity, obj);
-		if (entity instanceof CategorizedEntity) {
-			var ce = (CategorizedEntity) entity;
-			Out.put(obj, "category", ce.category, conf);
+		if (entity instanceof RootEntity ce) {
+			Json.put(obj, "category", exp.handleRef(ce.category));
+			Json.put(obj, "library", ce.library);
 
 			// write tags
 			if (!Strings.nullOrEmpty(ce.tags)) {
 				var tags = new JsonArray();
 				Arrays.stream(ce.tags.split(","))
-						.map(String::trim)
-						.filter(tag -> !Strings.nullOrEmpty(tag))
-						.forEach(tags::add);
+					.map(String::trim)
+					.filter(tag -> !Strings.nullOrEmpty(tag))
+					.forEach(tags::add);
 				if (tags.size() > 0) {
 					obj.add("tags", tags);
 				}
@@ -45,24 +47,20 @@ class Writer<T extends RootEntity> {
 		return obj;
 	}
 
-	static JsonObject initJson() {
-		JsonObject object = new JsonObject();
-		Out.put(object, "@context", Schema.CONTEXT_URI);
-		return object;
-	}
-
-	static void addBasicAttributes(RootEntity entity, JsonObject obj) {
+	static void addBasicAttributes(RefEntity entity, JsonObject obj) {
 		if (entity == null || obj == null)
 			return;
 		var type = entity.getClass().getSimpleName();
-		Out.put(obj, "@type", type);
-		Out.put(obj, "@id", entity.refId, Out.REQUIRED_FIELD);
-		Out.put(obj, "name", entity.name);
-		Out.put(obj, "description", entity.description);
-		Out.put(obj, "version", Version.asString(entity.version));
-		if (entity.lastChange != 0) {
-			var instant = Instant.ofEpochMilli(entity.lastChange);
-			Out.put(obj, "lastChange", instant.toString());
+		Json.put(obj, "@type", type);
+		Json.put(obj, "@id", entity.refId);
+		Json.put(obj, "name", entity.name);
+		Json.put(obj, "description", entity.description);
+		if (entity instanceof RootEntity ce) {
+			Json.put(obj, "version", Version.asString(ce.version));
+			if (ce.lastChange != 0) {
+				var instant = Instant.ofEpochMilli(ce.lastChange);
+				Json.put(obj, "lastChange", instant.toString());
+			}
 		}
 	}
 

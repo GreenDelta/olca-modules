@@ -12,7 +12,7 @@ public interface Callback {
 	 * pattern as known from Node.js but with a message object except of plain
 	 * error.
 	 */
-	void apply(Message message, RootEntity data);
+	void apply(Message message, RefEntity data);
 
 	class Message {
 

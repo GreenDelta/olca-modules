@@ -37,11 +37,13 @@ public class Reference {
 	}
 
 	public String getBinariesPath() {
+		if (refId == null)
+			return null;
 		var path = type.name();
 		if (!Strings.nullOrEmpty(category)) {
 			path += "/" + category;
 		}
-		return path + "/" + refId + "_bin";
+		return path + "/" + refId + GitUtil.BIN_DIR_SUFFIX;
 	}
 
 }

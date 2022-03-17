@@ -12,9 +12,9 @@ import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Unit;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
@@ -74,7 +74,7 @@ class Utils {
 	}
 
 	@SuppressWarnings("unchecked")
-	<T1 extends RootEntity, T2 extends Descriptor> List<Contribution<T2>> toDescriptors(
+	<T1 extends RefEntity, T2 extends Descriptor> List<Contribution<T2>> toDescriptors(
 			List<Contribution<T1>> items) {
 		List<Contribution<T2>> contributions = new ArrayList<>();
 		items.forEach(i -> {
@@ -264,16 +264,16 @@ class Utils {
 		return null;
 	}
 
-	private <T extends CategorizedDescriptor> T get(ModelType type, JsonObject json) {
+	private <T extends RootDescriptor> T get(ModelType type, JsonObject json) {
 		return get(type, json, null);
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends CategorizedDescriptor> T get(ModelType type, JsonObject json, Set<Long> allowed) {
+	private <T extends RootDescriptor> T get(ModelType type, JsonObject json, Set<Long> allowed) {
 		String flowID = Json.getRefId(json, type.name().toLowerCase());
 		if (flowID == null)
 			return null;
-		T descriptor = (T) Daos.categorized(ctx.db, type).getDescriptorForRefId(flowID);
+		T descriptor = (T) Daos.root(ctx.db, type).getDescriptorForRefId(flowID);
 		if (allowed != null && !allowed.contains(descriptor.id))
 			return null;
 		return descriptor;

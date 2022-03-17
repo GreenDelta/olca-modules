@@ -10,7 +10,6 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.FlowType;
-import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Version;
@@ -41,10 +40,10 @@ public class SystemExport {
 	private final ExportConfig config;
 	private ProductSystem system;
 
-	private Map<Long, Integer> processIDs = new HashMap<>();
-	private Map<Long, Integer> exchangeIDs = new HashMap<>();
-	private Map<Long, ProcessDescriptor> processes = new HashMap<>();
-	private Map<Long, FlowDescriptor> flows = new HashMap<>();
+	private final Map<Long, Integer> processIDs = new HashMap<>();
+	private final Map<Long, Integer> exchangeIDs = new HashMap<>();
+	private final Map<Long, ProcessDescriptor> processes = new HashMap<>();
+	private final Map<Long, FlowDescriptor> flows = new HashMap<>();
 
 	public SystemExport(ExportConfig config) {
 		this.config = config;
@@ -97,9 +96,9 @@ public class SystemExport {
 		Models.setOrigin(model, "openLCA");
 		model.version = "1.1";
 		model.locations = "../ILCDLocations.xml";
-		DataSetInfo info = Models.dataSetInfo(model);
+		DataSetInfo info = Models.forceDataSetInfo(model);
 		info.uuid = system.refId;
-		ModelName name = Models.modelName(model);
+		ModelName name = Models.forceModelName(model);
 		name.name.add(LangString.of(system.name, config.lang));
 		if (system.description != null) {
 			info.comment
@@ -108,20 +107,20 @@ public class SystemExport {
 		CategoryConverter conv = new CategoryConverter();
 		Classification c = conv.getClassification(system.category);
 		if (c != null)
-			Models.classifications(model).add(c);
+			Models.forceClassifications(model).add(c);
 		if (system.referenceProcess != null) {
 			long refId = system.referenceProcess.id;
-			QuantitativeReference qRef = Models.quantitativeReference(model);
+			QuantitativeReference qRef = Models.forceQuantitativeReference(model);
 			qRef.refProcess = processIDs.getOrDefault(refId, -1);
 		}
-		Models.publication(model).version = Version
+		Models.forcePublication(model).version = Version
 				.asString(system.version);
 		model.modelling = new Modelling();
 		return model;
 	}
 
 	private void mapLinks(Model model) {
-		Technology tech = Models.technology(model);
+		Technology tech = Models.forceTechnology(model);
 		Map<Long, ProcessInstance> instances = new HashMap<>();
 		for (Long id : system.processes) {
 			if (id == null)
@@ -145,19 +144,27 @@ public class SystemExport {
 	}
 
 	private ProcessInstance initProcessInstance(long id) {
-		ProcessInstance pi = new ProcessInstance();
+		var pi = new ProcessInstance();
 		pi.id = processIDs.getOrDefault(id, -1);
-		ProcessDescriptor d = processes.get(id);
+		var d = processes.get(id);
 		if (!config.store.contains(Process.class, d.refId)) {
-			ProcessDao dao = new ProcessDao(config.db);
+			var dao = new ProcessDao(config.db);
 			Export.of(dao.getForId(d.id), config);
 		}
 		pi.process = toRef(d);
-		for (ParameterRedef redef : system.parameterRedefs) {
+
+		// process parameters
+		if (system.parameterSets.isEmpty())
+			return pi;
+		var set = system.parameterSets.stream()
+			.filter(s -> s.isBaseline)
+			.findAny()
+			.orElse(system.parameterSets.get(0));
+		for (var redef : set.parameters) {
 			Long context = redef.contextId;
 			if (redef.contextId == null || context != id)
 				continue;
-			Parameter param = new Parameter();
+			var param = new Parameter();
 			param.name = redef.name;
 			param.value = redef.value;
 			pi.parameters.add(param);

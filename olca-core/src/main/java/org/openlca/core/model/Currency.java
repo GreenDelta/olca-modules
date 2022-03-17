@@ -8,7 +8,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_currencies")
-public class Currency extends CategorizedEntity {
+public class Currency extends RootEntity {
 
 	@Column(name = "code")
 	public String code;

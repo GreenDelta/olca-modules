@@ -6,6 +6,7 @@ import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.openlca.git.util.GitUtil;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,11 @@ public class Ids {
 	static final Logger log = LoggerFactory.getLogger(References.class);
 	private final FileRepository repo;
 
-	public Ids(FileRepository repo) {
+	public static Ids of(FileRepository repo) {
+		return new Ids(repo);
+	}
+	
+	private Ids(FileRepository repo) {
 		this.repo = repo;
 	}
 
@@ -25,7 +30,8 @@ public class Ids {
 
 	public ObjectId get(String path, String commitId) {
 		try {
-			var commits = new Commits(repo);
+			path = GitUtil.encode(path);
+			var commits = Commits.of(repo);
 			var commit = commits.getRev(commitId);
 			if (commit == null)
 				return ObjectId.zeroId();

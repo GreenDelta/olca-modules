@@ -5,7 +5,6 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
@@ -100,14 +99,16 @@ class ProductSystemImport {
 	}
 
 	private void switchParameterRedefs(ProductSystem destSystem) {
-		for (ParameterRedef redef : destSystem.parameterRedefs) {
-			Long contextId = redef.contextId;
-			if (contextId == null)
-				continue;
-			if (redef.contextType == ModelType.IMPACT_METHOD) {
-				redef.contextId = refs.getDestImpactMethodId(contextId);
-			} else {
-				redef.contextId = refs.getDestProcessId(contextId);
+		for (var set : destSystem.parameterSets) {
+			for (var redef : set.parameters) {
+				Long contextId = redef.contextId;
+				if (contextId == null)
+					continue;
+				if (redef.contextType == ModelType.IMPACT_METHOD) {
+					redef.contextId = refs.getDestImpactMethodId(contextId);
+				} else {
+					redef.contextId = refs.getDestProcessId(contextId);
+				}
 			}
 		}
 	}

@@ -1,7 +1,5 @@
 package org.openlca.io.maps;
 
-import java.util.Objects;
-
 import org.openlca.core.model.Copyable;
 import org.openlca.util.Strings;
 

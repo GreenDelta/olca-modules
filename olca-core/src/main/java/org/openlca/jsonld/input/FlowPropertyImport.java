@@ -9,11 +9,11 @@ import com.google.gson.JsonObject;
 
 class FlowPropertyImport extends BaseImport<FlowProperty> {
 
-	private FlowPropertyImport(String refId, ImportConfig conf) {
+	private FlowPropertyImport(String refId, JsonImport conf) {
 		super(ModelType.FLOW_PROPERTY, refId, conf);
 	}
 
-	static FlowProperty run(String refId, ImportConfig conf) {
+	static FlowProperty run(String refId, JsonImport conf) {
 		return new FlowPropertyImport(refId, conf).run();
 	}
 
@@ -29,8 +29,14 @@ class FlowPropertyImport extends BaseImport<FlowProperty> {
 		p.unitGroup = UnitGroupImport.run(unitGroupId, conf);
 		// check if the flow property was inserted during UnitGroupImport,
 		// cyclic dependencies can otherwise cause duplicate entries
-		var defaultProperty = p.unitGroup != null ? p.unitGroup.defaultFlowProperty : null;
-		if (defaultProperty != null && p.refId != null && p.refId.equals(defaultProperty.refId))
+		var defaultProperty = p.unitGroup != null
+			? p.unitGroup.defaultFlowProperty
+			: null;
+		
+		if (defaultProperty != null
+			&& p.refId != null
+			&& p.refId.equals(defaultProperty.refId)
+			&& conf.hasVisited(ModelType.UNIT_GROUP, unitGroupId))
 			return defaultProperty;
 		return conf.db.put(p);
 	}

@@ -12,6 +12,7 @@ import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.model.Reference;
 import org.openlca.git.util.GitUtil;
+import org.openlca.jsonld.SchemaVersion;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +22,11 @@ public class References {
 	static final Logger log = LoggerFactory.getLogger(References.class);
 	private final FileRepository repo;
 
-	public References(FileRepository repo) {
+	public static References of(FileRepository repo) {
+		return new References(repo);
+	}
+
+	private References(FileRepository repo) {
 		this.repo = repo;
 	}
 
@@ -38,7 +43,7 @@ public class References {
 		if (ref == null)
 			return new ArrayList<>();
 		try {
-			var commit = new Commits(repo).getRev(ref.commitId);
+			var commit = Commits.of(repo).getRev(ref.commitId);
 			if (commit == null)
 				return new ArrayList<>();
 			try (var walk = new TreeWalk(repo)) {
@@ -126,7 +131,7 @@ public class References {
 
 		private List<Reference> get(boolean countOnly) {
 			try {
-				var commits = new Commits(repo);
+				var commits = Commits.of(repo);
 				var commit = commits.getRev(commitId);
 				if (commit == null)
 					return new ArrayList<>();
@@ -135,28 +140,28 @@ public class References {
 					var refs = new ArrayList<Reference>();
 					var onlyChanged = changedSince != null;
 					if (changedSince != null) {
-						var previous = commits.find().from(changedSince).before(commitId).latest();
+						var previous = commits.getRev(changedSince);
 						if (previous != null) {
-							walk.addTree(commits.getRev(previous.id).getTree());
+							walk.addTree(previous.getTree());
 						} else {
 							onlyChanged = false;
 						}
 					}
 					walk.addTree(commit.getTree());
 					walk.setRecursive(true);
-					TreeFilter filter = NotBinaryFilter.create();
+					var filter = AndTreeFilter.create(
+							NotBinaryFilter.create(),
+							PathFilter.create(SchemaVersion.FILE_NAME).negate());
 					if (path != null) {
-						filter = addFilter(filter, PathFilter.create(path));
+						filter = AndTreeFilter.create(filter, PathFilter.create(path));
 					}
 					if (type != null && refId != null) {
-						filter = addFilter(filter, new ModelFilter(type, refId));
+						filter = AndTreeFilter.create(filter, new ModelFilter(type, refId));
 					}
 					if (onlyChanged) {
-						filter = addFilter(filter, TreeFilter.ANY_DIFF);
+						filter = AndTreeFilter.create(filter, TreeFilter.ANY_DIFF);
 					}
-					if (filter != null) {
-						walk.setFilter(filter);
-					}
+					walk.setFilter(filter);
 					while (walk.next()) {
 						if (countOnly) {
 							refs.add(null);
@@ -171,10 +176,6 @@ public class References {
 						+ ", path: " + path, e);
 				return new ArrayList<>();
 			}
-		}
-
-		private TreeFilter addFilter(TreeFilter current, TreeFilter newFilter) {
-			return current != null ? AndTreeFilter.create(current, newFilter) : newFilter;
 		}
 
 	}

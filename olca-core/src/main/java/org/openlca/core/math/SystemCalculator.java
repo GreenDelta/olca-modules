@@ -99,25 +99,12 @@ public class SystemCalculator {
 		T result = fn.apply(context);
 
 		for (var sub : subs.entrySet()) {
-			var provider = sub.getKey();
+			var techFlow = sub.getKey();
 			var subResult = sub.getValue();
-			result.addSubResult(provider, subResult);
-
-			if (provider.isResult()
-				&& result.hasImpacts()
-				&& subResult.hasImpacts()
-				&& !subResult.hasEnviFlows()) {
-
-				var totals = result.totalImpactResults();
-				var scaling = result.getScalingFactor(provider);
-				result.impactIndex().each((i, impact) -> {
-					var subAmount = subResult.getTotalImpactResult(impact);
-					if (subAmount != 0) {
-						totals[i] += scaling * subAmount;
-					}
-				});
+			// for sub-systems add the sub-result
+			if (techFlow.isProductSystem()) {
+				result.addSubResult(techFlow, subResult);
 			}
-
 		}
 
 		return result;

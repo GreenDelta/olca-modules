@@ -135,9 +135,9 @@ interface ProcessMapper {
 
 	default Exchange exchangeOf(SyncFlow f, ExchangeRow row) {
 		if (f == null || f.flow() == null) {
-			var log = LoggerFactory.getLogger(Exchanges.class);
-			log.error(
-				"could not create exchange as there was now flow found for {}", row);
+			var log = context().log();
+			log.error("could not create exchange " +
+				"as there was now flow found for: "+  row.name());
 			return null;
 		}
 

@@ -20,7 +20,7 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 public class FlowPropertyFactorUseSearchTest {
 
@@ -53,7 +53,7 @@ public class FlowPropertyFactorUseSearchTest {
 
 	@Test
 	public void testFindNoUsage() {
-		List<CategorizedDescriptor> models = search.findUses(factor);
+		List<RootDescriptor> models = search.findUses(factor);
 		Assert.assertNotNull(models);
 		Assert.assertTrue(models.isEmpty());
 	}
@@ -67,7 +67,7 @@ public class FlowPropertyFactorUseSearchTest {
 		category.impactFactors.add(iFactor);
 		ImpactCategoryDao dao = new ImpactCategoryDao(database);
 		dao.insert(category);
-		List<CategorizedDescriptor> results = search.findUses(factor);
+		List<RootDescriptor> results = search.findUses(factor);
 		dao.delete(category);
 		Assert.assertEquals(1, results.size());
 		Descriptor expected = Descriptor.of(category);
@@ -77,7 +77,7 @@ public class FlowPropertyFactorUseSearchTest {
 	@Test
 	public void testFindInProcesses() {
 		Process process = createProcess();
-		List<CategorizedDescriptor> results = search.findUses(factor);
+		List<RootDescriptor> results = search.findUses(factor);
 		new ProcessDao(database).delete(process);
 		Descriptor expected = Descriptor.of(process);
 		Assert.assertEquals(1, results.size());

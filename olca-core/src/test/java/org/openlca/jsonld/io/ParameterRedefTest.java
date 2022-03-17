@@ -6,6 +6,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProductSystemDao;
@@ -14,12 +15,11 @@ import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.jsonld.AbstractZipTest;
-import org.openlca.jsonld.Tests;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.output.JsonExport;
 
 /**
- * Make sure that a globale redefined parameter is exported and imported again.
+ * Make sure that a global redefined parameter is exported and imported again.
  */
 public class ParameterRedefTest extends AbstractZipTest {
 
@@ -46,29 +46,29 @@ public class ParameterRedefTest extends AbstractZipTest {
 
 	@After
 	public void tearDown() {
-		Tests.clearDb();
+		db.clear();
 	}
 
 	@Test
 	public void testInProductSystem() {
 
 		// create the model
-		ProductSystemDao dao = new ProductSystemDao(db);
-		ProductSystem sys = new ProductSystem();
+		var sys = new ProductSystem();
 		sys.refId = UUID.randomUUID().toString();
-		sys.parameterRedefs.add(redef);
-		dao.insert(sys);
+		sys.parameterSets.add(ParameterRedefSet.of("baseline", redef));
+		db.insert(sys);
 
 		// write and clear DB
-		with(zip -> new JsonExport(Tests.getDb(), zip).write(sys));
-		Tests.clearDb();
-		Assert.assertNull(dao.getForRefId(sys.refId));
+		with(zip -> new JsonExport(db, zip).write(sys));
+		db.clear();
+		Assert.assertNull(db.get(ProductSystem.class, sys.refId));
 		Assert.assertNull(paramDao.getForRefId(globalParam.refId));
 
 		// import and check
 		with(zip -> new JsonImport(zip, db).run());
-		ProductSystem sys2 = dao.getForRefId(sys.refId);
-		Assert.assertEquals("R", sys2.parameterRedefs.get(0).name);
+		var copy = db.get(ProductSystem.class, sys.refId);
+		Assert.assertEquals("R",
+			copy.parameterSets.get(0).parameters.get(0).name);
 		Parameter p = paramDao.getForRefId(globalParam.refId);
 		Assert.assertEquals("R", p.name);
 	}
@@ -89,7 +89,7 @@ public class ParameterRedefTest extends AbstractZipTest {
 
 		// write and clear DB
 		with(zip -> new JsonExport(Tests.getDb(), zip).write(sys));
-		Tests.clearDb();
+		db.clear();
 		Assert.assertNull(dao.getForRefId(sys.refId));
 		Assert.assertNull(paramDao.getForRefId(globalParam.refId));
 

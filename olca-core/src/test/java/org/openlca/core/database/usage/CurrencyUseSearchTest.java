@@ -1,84 +1,59 @@
 package org.openlca.core.database.usage;
 
-import java.util.List;
-
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.CurrencyDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 
 public class CurrencyUseSearchTest {
 
-	private IDatabase database = Tests.getDb();
-	private IUseSearch<CurrencyDescriptor> search;
-
-	@Before
-	public void setup() {
-		search = IUseSearch.FACTORY.createFor(ModelType.CURRENCY, database);
-	}
+	private final IDatabase db = Tests.getDb();
+	private final UsageSearch search = UsageSearch.of(ModelType.CURRENCY, db);
 
 	@Test
 	public void testFindNoUsage() {
-		Currency currency = createCurrency();
-		List<CategorizedDescriptor> models = search.findUses(Descriptor
-				.of(currency));
+		var currency = db.insert(Currency.of("EUR"));
+		var models = search.find(currency.id);
 		Assert.assertNotNull(models);
 		Assert.assertTrue(models.isEmpty());
-		new CurrencyDao(database).delete(currency);
+		db.delete(currency);
 	}
 
 	@Test
 	public void testFindInCurrency() {
-		Currency currency = createCurrency();
-		Currency other = createCurrency();
+		var currency = db.insert(Currency.of("EUR"));
+		var other = db.insert(Currency.of("USD"));
 		other.referenceCurrency = currency;
-		new CurrencyDao(database).update(other);
-		List<CategorizedDescriptor> results = search.findUses(Descriptor
-				.of(currency));
-		new CurrencyDao(database).delete(currency);
-		new CurrencyDao(database).delete(other);
-		Descriptor expected = Descriptor.of(other);
+		db.update(other);
+		var results = search.find(currency.id);
+		db.delete(currency, other);
+		var expected = Descriptor.of(other);
 		Assert.assertEquals(1, results.size());
-		Assert.assertEquals(expected, results.get(0));
+		Assert.assertEquals(expected, results.iterator().next());
 	}
 
 	@Test
 	public void testFindInExchanges() {
-		Currency currency = createCurrency();
-		Process process = createProcess(currency);
-		List<CategorizedDescriptor> results = search.findUses(Descriptor
-				.of(currency));
-		new ProcessDao(database).delete(process);
-		new CurrencyDao(database).delete(currency);
-		Descriptor expected = Descriptor.of(process);
+		var currency = db.insert(Currency.of("EUR"));
+		var process = createProcess(currency);
+		var results = search.find(currency.id);
+		db.delete(process, currency);
+		var expected = Descriptor.of(process);
 		Assert.assertEquals(1, results.size());
-		Assert.assertEquals(expected, results.get(0));
-	}
-
-	private Currency createCurrency() {
-		Currency currency = new Currency();
-		currency.name = "currency";
-		new CurrencyDao(database).insert(currency);
-		return currency;
+		Assert.assertEquals(expected, results.iterator().next());
 	}
 
 	private Process createProcess(Currency currency) {
-		Process process = new Process();
+		var process = new Process();
 		process.name = "process";
-		Exchange exchange = new Exchange();
+		var exchange = new Exchange();
 		exchange.currency = currency;
 		process.exchanges.add(exchange);
-		new ProcessDao(database).insert(process);
-		return process;
+		return db.insert(process);
 	}
 }

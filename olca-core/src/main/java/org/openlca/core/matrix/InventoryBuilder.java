@@ -177,7 +177,7 @@ public class InventoryBuilder {
 		}
 
 		if (!conf.hasAllocation()) {
-			// non allocated output products or waste inputs
+			// non-allocated output products or waste inputs
 			addIntervention(provider, e);
 		}
 	}

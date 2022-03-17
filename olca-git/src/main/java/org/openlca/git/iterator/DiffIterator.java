@@ -9,16 +9,17 @@ import java.util.List;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.openlca.core.database.FileStore;
-import org.openlca.git.Config;
+import org.openlca.git.GitConfig;
 import org.openlca.git.model.Diff;
+import org.openlca.git.util.GitUtil;
 import org.openlca.util.Strings;
 
 public class DiffIterator extends EntryIterator {
 
-	private final Config config;
+	private final GitConfig config;
 	private final List<Diff> diffs;
 
-	public DiffIterator(Config config, List<Diff> diffs) {
+	public DiffIterator(GitConfig config, List<Diff> diffs) {
 		super(initialize(null, config, diffs));
 		this.config = config;
 		this.diffs = diffs;
@@ -41,7 +42,7 @@ public class DiffIterator extends EntryIterator {
 		this.diffs = new ArrayList<>();
 	}
 
-	private static List<TreeEntry> initialize(String prefix, Config config, List<Diff> diffs) {
+	private static List<TreeEntry> initialize(String prefix, GitConfig config, List<Diff> diffs) {
 		var list = new ArrayList<TreeEntry>();
 		var added = new HashSet<String>();
 		diffs.forEach(d -> {
@@ -58,7 +59,7 @@ public class DiffIterator extends EntryIterator {
 				list.add(new TreeEntry(name, FileMode.REGULAR_FILE, d));
 				var binaryDir = getBinaryDir(config, d);
 				if (binaryDir != null) {
-					var bin = name.substring(0, name.indexOf(".json")) + "_bin";
+					var bin = name.substring(0, name.indexOf(GitUtil.DATASET_SUFFIX)) + GitUtil.BIN_DIR_SUFFIX;
 					list.add(new TreeEntry(bin, FileMode.TREE, d, binaryDir));
 				}
 			}
@@ -67,7 +68,7 @@ public class DiffIterator extends EntryIterator {
 		return list;
 	}
 
-	private static File getBinaryDir(Config config, Diff diff) {
+	private static File getBinaryDir(GitConfig config, Diff diff) {
 		var filestore = new FileStore(config.database);
 		var ref = diff.ref();
 		var folder = filestore.getFolder(ref.type, ref.refId);

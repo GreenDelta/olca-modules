@@ -7,8 +7,11 @@ import java.util.List;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
+import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.openlca.git.model.Entry;
 import org.openlca.git.util.GitUtil;
+import org.openlca.jsonld.SchemaVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +20,11 @@ public class Entries {
 	private static final Logger log = LoggerFactory.getLogger(Entries.class);
 	private final FileRepository repo;
 
-	public Entries(FileRepository repo) {
+	public static Entries of(FileRepository repo) {
+		return new Entries(repo);
+	}
+
+	private Entries(FileRepository repo) {
 		this.repo = repo;
 	}
 
@@ -43,8 +50,8 @@ public class Entries {
 		public List<Entry> all() {
 			var entries = new ArrayList<Entry>();
 			try {
-				var commits = new Commits(repo);
-				var ids = new Ids(repo);
+				var commits = Commits.of(repo);
+				var ids = Ids.of(repo);
 				var commit = commits.getRev(commitId);
 				if (commit == null)
 					return entries;
@@ -54,7 +61,10 @@ public class Entries {
 				try (var walk = new TreeWalk(repo)) {
 					walk.addTree(treeId);
 					walk.setRecursive(false);
-					walk.setFilter(NotBinaryFilter.create());
+					var filter = AndTreeFilter.create(
+							NotBinaryFilter.create(),
+							PathFilter.create(SchemaVersion.FILE_NAME).negate());
+					walk.setFilter(filter);
 					while (walk.next()) {
 						entries.add(new Entry(path, commitId, walk.getNameString(), walk.getObjectId(0)));
 					}

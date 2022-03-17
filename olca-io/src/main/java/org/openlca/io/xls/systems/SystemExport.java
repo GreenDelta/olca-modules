@@ -41,7 +41,7 @@ class SystemExport {
 
 	public void exportTo(File dir) throws IOException {
 		var setup = CalculationSetup.simple(conf.system)
-			.withParameters(conf.system.parameterRedefs)
+			// TODO: .withParameters(conf.system.parameterRedefs)
 			.withAllocation(conf.allocationMethod);
 		// setup.impactMethod = conf.impactMethod;
 		var techIndex = TechIndex.of(conf.database,  setup);

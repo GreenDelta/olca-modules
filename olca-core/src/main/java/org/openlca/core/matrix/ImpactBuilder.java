@@ -88,7 +88,19 @@ public final class ImpactBuilder {
 			fill();
 		}
 
-		ImpactData data = new ImpactData();
+		// add factors for virtual impact flows
+		flowIndex.each((flowIdx, enviFlow) -> {
+			if (!enviFlow.isVirtual())
+				return;
+			if (enviFlow.wrapped() instanceof ImpactDescriptor impact) {
+				int impactIdx = impactIndex.of(impact);
+				if (impactIdx >= 0) {
+					matrix.set(impactIdx, flowIdx, 1);
+				}
+			}
+		});
+
+		var data = new ImpactData();
 		data.flowIndex = flowIndex;
 		data.impactIndex = impactIndex;
 		data.impactMatrix = matrix.finish();
@@ -118,7 +130,7 @@ public final class ImpactBuilder {
 					return true;
 
 				// create the factor instance
-				CalcImpactFactor f = new CalcImpactFactor();
+				var f = new CalcImpactFactor();
 				f.imactCategoryId = impactID;
 				f.flowId = flowID;
 				f.amount = r.getDouble(3);
@@ -182,7 +194,7 @@ public final class ImpactBuilder {
 				}
 
 				// create the factor instance
-				CalcImpactFactor f = new CalcImpactFactor();
+				var f = new CalcImpactFactor();
 				f.imactCategoryId = impactID;
 				f.flowId = flowID;
 				f.amount = r.getDouble(3);

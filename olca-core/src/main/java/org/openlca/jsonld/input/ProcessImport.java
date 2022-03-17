@@ -9,6 +9,7 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
+import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.RiskLevel;
@@ -24,11 +25,11 @@ class ProcessImport extends BaseImport<Process> {
 
 	private final Map<Integer, Exchange> exchangeMap = new HashMap<>();
 
-	private ProcessImport(String refId, ImportConfig conf) {
+	private ProcessImport(String refId, JsonImport conf) {
 		super(ModelType.PROCESS, refId, conf);
 	}
 
-	static Process run(String refId, ImportConfig conf) {
+	static Process run(String refId, JsonImport conf) {
 		return new ProcessImport(refId, conf).run();
 	}
 
@@ -40,7 +41,7 @@ class ProcessImport extends BaseImport<Process> {
 		In.mapAtts(json, p, id, conf);
 
 		p.processType = getType(json);
-		p.infrastructureProcess = Json.getBool(json, "infrastructureProcess", false);
+		p.infrastructureProcess = Json.getBool(json, "isInfrastructureProcess", false);
 		p.defaultAllocationMethod = Json.getEnum(json, "defaultAllocationMethod", AllocationMethod.class);
 		p.documentation = ProcessDocReader.read(json, conf);
 		String locId = Json.getRefId(json, "location");
@@ -60,27 +61,12 @@ class ProcessImport extends BaseImport<Process> {
 			p.socialDqSystem = DQSystemImport.run(socialDqSystemId, conf);
 
 		addParameters(json, p);
-		// avoid cyclic reference problems
-		if (hasDefaultProviders(json))
-			p = conf.db.put(p);
 		addExchanges(json, p);
 		addSocialAspects(json, p);
 		addAllocationFactors(json, p);
-		return conf.db.put(p);
-	}
-
-	private boolean hasDefaultProviders(JsonObject json) {
-		JsonArray exchanges = Json.getArray(json, "exchanges");
-		if (exchanges == null || exchanges.size() == 0)
-			return false;
-		for (JsonElement e : exchanges) {
-			if (!e.isJsonObject())
-				continue;
-			String providerRefId = Json.getRefId(e.getAsJsonObject(), "defaultProvider");
-			if (providerRefId != null)
-				return true;
-		}
-		return false;
+		p = conf.db.put(p);
+		conf.providers().pop(p);
+		return p;
 	}
 
 	private ProcessType getType(JsonObject json) {
@@ -100,6 +86,7 @@ class ProcessImport extends BaseImport<Process> {
 			JsonObject o = e.getAsJsonObject();
 			Parameter parameter = new Parameter();
 			ParameterImport.mapFields(o, parameter);
+			parameter.scope = ParameterScope.PROCESS;
 			p.parameters.add(parameter);
 		}
 	}
@@ -114,17 +101,17 @@ class ProcessImport extends BaseImport<Process> {
 				continue;
 			JsonObject o = e.getAsJsonObject();
 			Exchange ex = ExchangeImport.run(ModelType.PROCESS, p.refId, o, conf,
-					(Process process) -> process.exchanges);
+				(Process process) -> process.exchanges);
 			if (ex.internalId == 0) {
 				ex.internalId = ++p.lastInternalId;
 			}
 			exchangeMap.put(ex.internalId, ex);
 			String providerRefId = Json.getRefId(o, "defaultProvider");
 			if (providerRefId != null) {
-				conf.putProviderInfo(p.refId, ex.internalId, providerRefId);
+				conf.providers().add(providerRefId, ex);
 			}
 			p.exchanges.add(ex);
-			boolean isRef = Json.getBool(o, "quantitativeReference", false);
+			boolean isRef = Json.getBool(o, "isQuantitativeReference", false);
 			if (isRef)
 				p.quantitativeReference = ex;
 		}
@@ -185,11 +172,11 @@ class ProcessImport extends BaseImport<Process> {
 			factor.exchange = exchangeMap.get(exchangeId);
 		factor.value = Json.getDouble(json, "value", 1);
 		var formula = Json.getString(json, "formula");
-		if (!Strings.nullOrEmpty(formula)) {
+		if (Strings.notEmpty(formula)) {
 			factor.formula = formula;
 		}
 		factor.method = Json.getEnum(
-				json, "allocationType", AllocationMethod.class);
+			json, "allocationType", AllocationMethod.class);
 		return factor;
 	}
 

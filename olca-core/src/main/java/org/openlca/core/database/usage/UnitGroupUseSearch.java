@@ -1,26 +1,23 @@
 package org.openlca.core.database.usage;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.Set;
 
+import gnu.trove.set.TLongSet;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.UnitGroupDescriptor;
+import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
-/**
- * Searches for the use of unit groups in other entities. Unit groups can be
- * used in flow properties.
- */
-public class UnitGroupUseSearch extends BaseUseSearch<UnitGroupDescriptor> {
-
-	public UnitGroupUseSearch(IDatabase database) {
-		super(database);
-	}
+public record UnitGroupUseSearch(IDatabase db) implements UsageSearch {
 
 	@Override
-	public List<CategorizedDescriptor> findUses(Set<Long> ids) {
-		return queryFor(ModelType.FLOW_PROPERTY, ids, "f_unit_group");
+	public Set<? extends RootDescriptor> find(TLongSet ids) {
+		if (ids.isEmpty())
+			return Collections.emptySet();
+		return Query.of(db, FlowProperty.class,
+				"select id from tbl_flow_properties " +
+					"where f_unit_group " + Search.eqIn(ids))
+			.call();
 	}
 
 }

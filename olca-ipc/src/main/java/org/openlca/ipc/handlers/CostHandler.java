@@ -12,7 +12,6 @@ import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
 import org.openlca.ipc.handlers.Upstream.StringPair;
-import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -38,8 +37,8 @@ public class CostHandler {
 					continue;
 				var product = techIdx.at(i);
 				var obj = new JsonObject();
-				obj.add("process", Json.asRef(product.provider(), cache));
-				obj.add("product", Json.asRef(product.flow(), cache));
+				obj.add("process", JsonRef.of(product.provider(), cache));
+				obj.add("product", JsonRef.of(product.flow(), cache));
 				obj.addProperty("amount", tr);
 				obj.addProperty("costs", result.getDirectCostResult(product));
 				items.add(obj);

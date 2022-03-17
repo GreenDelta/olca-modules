@@ -14,14 +14,16 @@ import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectInserter;
 import org.eclipse.jgit.lib.TreeFormatter;
-import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
-import org.openlca.git.Config;
+import org.openlca.git.GitConfig;
 import org.openlca.git.iterator.DiffIterator;
 import org.openlca.git.model.Diff;
 import org.openlca.git.model.DiffType;
+import org.openlca.git.util.GitUtil;
+import org.openlca.git.util.Repositories;
+import org.openlca.jsonld.SchemaVersion;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +32,11 @@ import org.slf4j.LoggerFactory;
 public class CommitWriter {
 
 	private static final Logger log = LoggerFactory.getLogger(CommitWriter.class);
-	private final Config config;
+	private final GitConfig config;
 	private PackInserter inserter;
 	private Converter converter;
 
-	public CommitWriter(Config config) {
+	public CommitWriter(GitConfig config) {
 		this.config = config;
 	}
 
@@ -43,15 +45,20 @@ public class CommitWriter {
 			return null;
 		var threads = Executors.newCachedThreadPool();
 		try {
+			var previousCommit = Repositories.headCommitOf(config.repo);
+			if (previousCommit != null && !isCurrentSchemaVersion())
+				throw new IOException("Git repo is not in current schema version");
 			inserter = config.repo.getObjectDatabase().newPackInserter();
 			inserter.checkExisting(config.checkExisting);
 			converter = new Converter(config, threads);
 			converter.start(diffs.stream()
 					.filter(d -> d.type != DiffType.DELETED)
 					.toList());
-			var previousCommitTreeId = getPreviousCommitTreeId();
-			var treeId = syncTree("", previousCommitTreeId, new DiffIterator(config, diffs));
-			config.store.save();
+			var commitTreeId = previousCommit != null ? previousCommit.getTree().getId() : null;
+			var treeId = syncTree("", commitTreeId, new DiffIterator(config, diffs));
+			if (config.store != null) {
+				config.store.save();
+			}
 			var commitId = commit(treeId, message);
 			return commitId.name();
 		} finally {
@@ -59,7 +66,9 @@ public class CommitWriter {
 				inserter.flush();
 				inserter.close();
 			}
-			converter.clear();
+			if (converter != null) {
+				converter.clear();
+			}
 			threads.shutdown();
 		}
 	}
@@ -86,11 +95,18 @@ public class CommitWriter {
 			log.error("Error walking tree " + treeId, e);
 		}
 		if (!appended && !Strings.nullOrEmpty(prefix)) {
-			config.store.invalidate(prefix);
+			if (config.store != null) {
+				config.store.invalidate(prefix);
+			}
 			return null;
 		}
+		if (Strings.nullOrEmpty(prefix) && (treeId == null || treeId.equals(ObjectId.zeroId()))) {
+			appendSchemaVersion(tree);
+		}
 		var newId = insert(i -> i.insert(tree));
-		config.store.put(prefix, newId);
+		if (config.store != null) {
+			config.store.put(prefix, newId);
+		}
 		return newId;
 	}
 
@@ -125,7 +141,7 @@ public class CommitWriter {
 		Diff diff = iterator.getEntryData();
 		var file = iterator.getEntryFile();
 		if (diff.type == DiffType.DELETED && matches(path, diff, file)) {
-			if (file == null) {
+			if (file == null && config.store != null) {
 				config.store.invalidate(path);
 			}
 			return null;
@@ -134,8 +150,22 @@ public class CommitWriter {
 			return inserter.insert(Constants.OBJ_BLOB, Files.readAllBytes(file.toPath()));
 		var data = converter.take(path);
 		blobId = inserter.insert(Constants.OBJ_BLOB, data);
-		config.store.put(path, blobId);
+		if (config.store != null) {
+			config.store.put(path, blobId);
+		}
 		return blobId;
+	}
+
+	private void appendSchemaVersion(TreeFormatter tree) {
+		try {
+			var schemaBytes = SchemaVersion.current().toJson().toString().getBytes(StandardCharsets.UTF_8);
+			var blobId = inserter.insert(Constants.OBJ_BLOB, schemaBytes);
+			if (blobId != null) {
+				tree.append(SchemaVersion.FILE_NAME, FileMode.REGULAR_FILE, blobId);
+			}
+		} catch (Exception e) {
+			log.error("Error inserting schema version", e);
+		}
 	}
 
 	private boolean matches(String path, Diff diff, File file) {
@@ -143,22 +173,7 @@ public class CommitWriter {
 			return false;
 		if (file == null)
 			return path.equals(diff.path());
-		return path.startsWith(diff.path().substring(0, diff.path().lastIndexOf(".json")));
-	}
-
-	private ObjectId getPreviousCommitTreeId() {
-		try (var walk = new RevWalk(config.repo)) {
-			var head = config.repo.resolve("refs/heads/master");
-			if (head == null)
-				return null;
-			var commit = walk.parseCommit(head);
-			if (commit == null)
-				return null;
-			return commit.getTree().getId();
-		} catch (IOException e) {
-			log.error("Error reading commit tree", e);
-			return null;
-		}
+		return path.startsWith(diff.path().substring(0, diff.path().lastIndexOf(GitUtil.DATASET_SUFFIX)));
 	}
 
 	private ObjectId commit(ObjectId treeId, String message) {
@@ -192,6 +207,11 @@ public class CommitWriter {
 			log.error("failed to insert", e);
 			return null;
 		}
+	}
+
+	private boolean isCurrentSchemaVersion() {
+		var schema = Repositories.versionOf(config.repo);
+		return schema.isCurrent();
 	}
 
 	private interface Insert {

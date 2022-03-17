@@ -4,102 +4,90 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.openlca.core.model.ModelType;
 
-import com.google.gson.JsonObject;
-
 /**
- * A simple implementation of the {@link EntityStore} interface that stores the
- * JSON objects in memory. Not all features of a real file based entity store
- * are supported.
+ * A simple implementation of the {@link JsonStoreReader} and
+ * {@link JsonStoreWriter} interfaces that stores data in memory.
  */
-public class MemStore implements EntityStore {
+public class MemStore implements JsonStoreReader, JsonStoreWriter {
 
-	private HashMap<ModelType, List<JsonObject>> data = new HashMap<>();
+	private final Map<String, JsonElement> jsonData = new HashMap<>();
+	private final Map<String, byte[]> byteData = new HashMap<>();
 
-	@Override
-	public void put(ModelType type, JsonObject obj) {
-		if (type == null || obj == null)
-			return;
-		List<JsonObject> list = data.computeIfAbsent(type,
-				t -> new ArrayList<>(1));
-		list.add(obj);
-	}
-
-	@Override
-	public boolean contains(ModelType type, String id) {
-		return get(type, id) != null;
+	public MemStore() {
+		SchemaVersion.current().writeTo(this);
 	}
 
 	@Override
 	public List<String> getRefIds(ModelType type) {
-		List<JsonObject> models = data.get(type);
-		if (models == null)
-			return Collections.emptyList();
-		List<String> ids = new ArrayList<>(models.size());
-		for (JsonObject obj : models) {
-			String id = Json.getString(obj, "@id");
-			if (id != null) {
-				ids.add(id);
-			}
+		var prefix = ModelPath.folderOf(type) + '/';
+		var ids = new ArrayList<String>();
+		for (var path : jsonData.keySet()) {
+			if (!path.startsWith(prefix) || !path.endsWith(".json"))
+				continue;
+			var id = path.substring(prefix.length(), path.length() - 5);
+			ids.add(id);
 		}
 		return ids;
 	}
 
 	@Override
-	public JsonObject get(ModelType type, String id) {
-		List<JsonObject> models = data.get(type);
-		if (models == null)
-			return null;
-		for (JsonObject obj : models) {
-			String objId = Json.getString(obj, "@id");
-			if (Objects.equals(id, objId))
-				return obj;
-		}
-		return null;
-	}
+	public List<String> getFiles(String dir) {
+		if (dir == null)
+			return Collections.emptyList();
+		var prefix = !dir.endsWith("/")
+			? dir + "/"
+			: dir;
 
-	public List<JsonObject> getAll(ModelType type) {
-		List<JsonObject> models = data.get(type);
-		return models == null ? Collections.emptyList() : models;
+		// first try Json objects
+		var list = jsonData.keySet()
+			.stream()
+			.filter(path -> path.startsWith(prefix))
+			.toList();
+		if (!list.isEmpty())
+			return list;
+
+		// then try binary objects
+		return byteData.keySet().stream()
+			.filter(path -> path.startsWith(prefix))
+			.toList();
 	}
 
 	@Override
-	public void putBin(ModelType type, String s, String s1, byte[] bytes) {
+	public List<String> getBinFiles(ModelType type, String refId) {
+		var prefix = ModelPath.binFolderOf(type, refId) + '/';
+		return byteData.keySet().stream()
+			.filter(p -> p.startsWith(prefix))
+			.toList();
+	}
+
+	@Override
+	public JsonElement getJson(String path) {
+		return jsonData.get(path);
+	}
+
+	@Override
+	public byte[] getBytes(String path) {
+		return byteData.get(path);
+	}
+
+	@Override
+	public void put(String path, JsonObject object) {
+		jsonData.put(path, object);
 	}
 
 	@Override
 	public void put(String path, byte[] bytes) {
+		byteData.put(path, bytes);
 	}
 
-	@Override
-	public byte[] get(String path) {
-		return new byte[0];
-	}
-
-	@Override
-	public void putContext() {
-	}
-
-	@Override
-	public void putMetaInfo(JsonObject info) {
-	}
-
-	@Override
-	public JsonObject getContext() {
-		JsonObject obj = new JsonObject();
-		obj.addProperty("@vocab", "http://openlca.org/schema/v1.1/");
-		return obj;
-	}
-
-	@Override
-	public List<String> getBinFiles(ModelType type, String id) {
-		return Collections.emptyList();
-	}
-
-	@Override
-	public void close() {
+	public void clear() {
+		jsonData.clear();
+		byteData.clear();
 	}
 }

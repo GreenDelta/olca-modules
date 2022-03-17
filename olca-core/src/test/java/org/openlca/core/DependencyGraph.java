@@ -19,7 +19,7 @@ import java.util.Set;
 
 import jakarta.persistence.Embeddable;
 import org.openlca.core.model.AbstractEntity;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 
 /**
  * Calculates and prints a dependency graph of the openLCA core model. The graph
@@ -143,7 +143,7 @@ public class DependencyGraph {
 		String color = "white";
 		if (node.isAnnotationPresent(Embeddable.class))
 			color = "grey";
-		else if (RootEntity.class.isAssignableFrom(node))
+		else if (RefEntity.class.isAssignableFrom(node))
 			color = "plum";
 		else if (AbstractEntity.class.isAssignableFrom(node))
 			color = "wheat";

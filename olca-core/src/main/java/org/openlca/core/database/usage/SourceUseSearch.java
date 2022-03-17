@@ -1,46 +1,45 @@
 package org.openlca.core.database.usage;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.Collections;
 import java.util.Set;
 
+import gnu.trove.set.TLongSet;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.SourceDescriptor;
+import org.openlca.core.model.DQSystem;
+import org.openlca.core.model.Epd;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.Process;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
-/**
- * Searches for the use of sources in other entities. Sources can be used in
- * processes.
- */
-public class SourceUseSearch extends BaseUseSearch<SourceDescriptor> {
-
-	public SourceUseSearch(IDatabase database) {
-		super(database);
-	}
+public record SourceUseSearch(IDatabase db) implements UsageSearch {
 
 	@Override
-	public List<CategorizedDescriptor> findUses(Set<Long> ids) {
-		Set<Long> methods = queryForIds(
-			"id", "tbl_impact_methods", ids, "f_source");
-		Set<Long> impacts = queryForIds(
-			"id", "tbl_impact_categories", ids, "f_source");
-		Set<Long> docsWithSources = new HashSet<>(
-			queryForIds("id", "tbl_process_docs", ids, "f_publication"));
-		Set<Long> docIds = getIds("tbl_process_docs");
-		Set<Long> sourceOwnerIds = queryForIds(
-			"f_owner", "tbl_source_links", ids, "f_source");
-		for (long id : sourceOwnerIds) {
-			if (docIds.contains(id)) {
-				docsWithSources.add(id);
-			}
-		}
-		Set<CategorizedDescriptor> result = new HashSet<>();
-		result.addAll(queryFor(ModelType.PROCESS, docsWithSources, "f_process_doc"));
-		result.addAll(queryFor(ModelType.DQ_SYSTEM, ids, "f_source"));
-		result.addAll(loadDescriptors(ModelType.IMPACT_METHOD, methods));
-		result.addAll(loadDescriptors(ModelType.IMPACT_CATEGORY, impacts));
-		return new ArrayList<>(result);
+	public Set<? extends RootDescriptor> find(TLongSet ids) {
+		if (ids.isEmpty())
+			return Collections.emptySet();
+		var suffix = Search.eqIn(ids);
+		return QueryPlan.of(db)
+			.submit(Process.class,
+				"select p.id from tbl_processes p inner join " +
+					"tbl_process_docs doc on p.f_process_doc = doc.id " +
+					"inner join tbl_source_links s on doc.id = s.f_owner " +
+					"where s.f_source " + suffix)
+			.submit(Process.class,
+				"select p.id from tbl_processes p inner join " +
+					"tbl_process_docs doc on p.f_process_doc = doc.id " +
+					"where doc.f_publication " + suffix)
+			.submit(Process.class,
+				"select f_process from tbl_social_aspects " +
+					"where f_source " + suffix)
+			.submit(ImpactMethod.class,
+				"select id from tbl_impact_methods where f_source " + suffix)
+			.submit(ImpactCategory.class,
+				"select id from tbl_impact_categories where f_source " + suffix)
+			.submit(Epd.class,
+				"select id from tbl_epds where f_pcr " + suffix)
+			.submit(DQSystem.class,
+				"select id from tbl_dq_systems where f_source " + suffix)
+			.exec();
 	}
 }

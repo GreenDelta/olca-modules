@@ -43,7 +43,7 @@ class SyncTestUtils {
 	static boolean validate(ModelType[] modelTypes, Predicate<Reference> isValid) {
 		var db = Tests.getDb();
 		for (ModelType type : modelTypes) {
-			var ids = db.allOf(type.getModelClass())
+			var ids = db.getAll(type.getModelClass())
 					.stream()
 					.map(e -> e.id)
 					.collect(Collectors.toSet());

@@ -16,7 +16,7 @@ import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.AbstractEntity;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.ModelType;
 import org.openlca.util.Strings;
 
@@ -127,12 +127,12 @@ public abstract class BaseReferenceSearchTest {
 		return search.findReferences(ids);
 	}
 
-	protected final <T extends CategorizedEntity> T insertAndAddExpected(String property, T entity) {
+	protected final <T extends RootEntity> T insertAndAddExpected(String property, T entity) {
 		return insertAndAddExpected(property, entity, null, null, 0);
 	}
 
-	protected final <T extends CategorizedEntity> T insertAndAddExpected(String property, T entity,
-			String nestedProperty, Class<? extends AbstractEntity> nestedOwnerType, long nestedOwnerId) {
+	protected final <T extends RootEntity> T insertAndAddExpected(String property, T entity,
+                                                                  String nestedProperty, Class<? extends AbstractEntity> nestedOwnerType, long nestedOwnerId) {
 		entity = db.insert(entity);
 		expectedReferences.add(new Reference(property, entity.getClass(), entity.id, getModelClass(), 0,
 				nestedProperty, nestedOwnerType, nestedOwnerId, false));

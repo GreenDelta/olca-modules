@@ -13,7 +13,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.util.Categories;
@@ -92,7 +92,7 @@ class IndexWriter implements Runnable {
 		write("index_C.bin", out -> impacts.build().writeTo(out));
 	}
 
-	private Proto.Process process(CategorizedDescriptor d) {
+	private Proto.Process process(RootDescriptor d) {
 		var proto = Proto.Process.newBuilder();
 		if (d == null)
 			return proto.build();

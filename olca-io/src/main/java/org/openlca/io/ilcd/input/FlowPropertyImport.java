@@ -50,12 +50,11 @@ public class FlowPropertyImport {
 		property.category = new CategoryDao(config.db())
 				.sync(ModelType.FLOW_PROPERTY, path);
 		mapDescriptionAttributes();
-		config.log().info("import flow property: " + property.name);
 		Ref unitGroupRef = ilcdProperty.getUnitGroupReference();
 		if (unitGroupRef != null) {
 			property.unitGroup = UnitGroupImport.get(config, unitGroupRef.uuid);
 		}
-		return config.db().insert(property);
+		return config.insert(property);
 	}
 
 	private void mapDescriptionAttributes() {

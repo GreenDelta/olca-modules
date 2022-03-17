@@ -74,10 +74,9 @@ public class UpstreamTreeHandler {
 		var obj = context.cache.get(resultId);
 		if (obj instanceof FullResult)
 			return (FullResult) obj;
-		if (obj instanceof CachedResult) {
-			var cachedResult = (CachedResult<?>) obj;
-			if (cachedResult.result instanceof FullResult)
-				return (FullResult) cachedResult.result;
+		if (obj instanceof CachedResult<?> cachedResult) {
+			if (cachedResult.result instanceof FullResult r)
+				return r;
 		}
 		return null;
 	}
@@ -147,11 +146,10 @@ public class UpstreamTreeHandler {
 
 		JsonObject expand(UpstreamTree tree) {
 			var treeObj = new JsonObject();
-			if (tree.ref instanceof EnviFlow) {
-				var flow = ((EnviFlow) tree.ref).flow();
-				treeObj.add("ref", Json.asRef(flow, cache));
-			} else if (tree.ref instanceof Descriptor) {
-				treeObj.add("ref", Json.asRef((Descriptor) tree.ref, cache));
+			if (tree.ref instanceof EnviFlow ef) {
+				treeObj.add("ref", JsonRef.of(ef.flow(), cache));
+			} else if (tree.ref instanceof Descriptor d) {
+				treeObj.add("ref", JsonRef.of(d, cache));
 			}
 			var root = initJsonOf(tree.root);
 			expand(root, tree, new Path(tree.root));
@@ -198,8 +196,8 @@ public class UpstreamTreeHandler {
 			if (node == null || node.provider() == null)
 				return null;
 			var json = new JsonObject();
-			var process = Json.asRef(node.provider().provider(), cache);
-			var flow = Json.asRef(node.provider().flow(), cache);
+			var process = JsonRef.of(node.provider().provider(), cache);
+			var flow = JsonRef.of(node.provider().flow(), cache);
 			var product = new JsonObject();
 			product.add("process", process);
 			product.add("flow", flow);

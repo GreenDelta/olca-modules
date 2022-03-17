@@ -6,19 +6,20 @@ import org.openlca.core.model.UnitGroup;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.openlca.jsonld.Json;
 
 class UnitGroupWriter extends Writer<UnitGroup> {
 
-	UnitGroupWriter(ExportConfig conf) {
-		super(conf);
+	UnitGroupWriter(JsonExport exp) {
+		super(exp);
 	}
 
 	@Override
 	JsonObject write(UnitGroup ug) {
-		JsonObject obj = super.write(ug);
+		var obj = super.write(ug);
 		if (obj == null)
 			return null;
-		Out.put(obj, "defaultFlowProperty", ug.defaultFlowProperty, conf);
+		Json.put(obj, "defaultFlowProperty", exp.handleRef(ug.defaultFlowProperty));
 		mapUnits(ug, obj);
 		return obj;
 	}
@@ -29,11 +30,11 @@ class UnitGroupWriter extends Writer<UnitGroup> {
 			var obj = new JsonObject();
 			UnitWriter.map(unit, obj);
 			if (Objects.equals(unit, group.referenceUnit)) {
-				Out.put(obj, "referenceUnit", true);
+				Json.put(obj, "isReferenceUnit", true);
 			}
 			units.add(obj);
 		}
-		Out.put(json, "units", units);
+		Json.put(json, "units", units);
 	}
 
 }

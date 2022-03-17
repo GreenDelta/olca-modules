@@ -9,12 +9,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import gnu.trove.set.TLongSet;
 import jakarta.persistence.Table;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.descriptors.RootDescriptor;
+import org.openlca.util.TLongSets;
 
 class Search {
 
@@ -39,26 +42,15 @@ class Search {
 		this.database = database;
 	}
 
-	List<CategorizedDescriptor> queryFor(ModelType type, Set<Long> toFind,
-			String... inFields) {
-		return queryFor(type, "id", tableNames.get(type), toFind, inFields);
-	}
-
-	List<CategorizedDescriptor> queryFor(ModelType type, String idField,
-			String table, Set<Long> toFind, String... inFields) {
-		Set<Long> ids = queryForIds(idField, table, toFind, inFields);
-		return loadDescriptors(type, ids);
-	}
-
-	List<CategorizedDescriptor> queryFor(ModelType type, String query) {
+	List<RootDescriptor> queryFor(ModelType type, String query) {
 		Set<Long> ids = queryForIds(query);
 		return loadDescriptors(type, ids);
 	}
 
-	List<CategorizedDescriptor> loadDescriptors(ModelType type, Set<Long> ids) {
+	List<RootDescriptor> loadDescriptors(ModelType type, Set<Long> ids) {
 		if (ids.isEmpty())
 			return Collections.emptyList();
-		return new ArrayList<>(Daos.categorized(database, type).getDescriptors(ids));
+		return new ArrayList<>(Daos.root(database, type).getDescriptors(ids));
 	}
 
 	Set<Long> queryForIds(ModelType type, Set<Long> toFind, String... inFields) {
@@ -80,10 +72,6 @@ class Search {
 			return result.next();
 		});
 		return ids;
-	}
-
-	protected Set<Long> getIds(String table) {
-		return queryForIds("SELECT id FROM " + table);
 	}
 
 	private String createQuery(String idField, String table, Set<Long> toFind,
@@ -119,17 +107,23 @@ class Search {
 		return builder.toString();
 	}
 
-	static String asSqlList(Object[] values) {
-		StringBuilder builder = new StringBuilder();
-		builder.append('(');
-		for (int i = 0; i < values.length; i++) {
-			if (i != 0)
-				builder.append(",");
-			String next = values[i].toString();
-			builder.append("'" + next + "'");
-		}
-		builder.append(')');
-		return builder.toString();
+	/**
+	 * Executes the given query, collects the IDs from the first field of the
+	 * cursor, and returns the descriptors of the given type for these IDs.
+	 */
+	static <T extends RootEntity> Set<? extends RootDescriptor> collect(
+		IDatabase db, String query, Class<T> type) {
+		var ids = new HashSet<Long>();
+		NativeSql.on(db).query(query, r -> {
+			ids.add(r.getLong(1));
+			return true;
+		});
+		return new HashSet<>(db.getDescriptors(type, ids));
 	}
 
+	static String eqIn(TLongSet ids) {
+		return ids.size() == 1
+			? " = " + TLongSets.first(ids)
+			: " in (" + TLongSets.join(", ", ids) + ")";
+	}
 }

@@ -120,7 +120,7 @@ public class LibraryPackage {
 			// create the target folders
 			var lib = libDir.init(info);
 			for (var dep : deps) {
-				var depDir = new File(libDir.dir, dep);
+				var depDir = new File(libDir.folder(), dep);
 				Files.createDirectories(depDir.toPath());
 			}
 
@@ -142,7 +142,7 @@ public class LibraryPackage {
 					var dep = path[1];
 					if (!deps.contains(dep))
 						continue;
-					target = new File(libDir.dir, dep + "/" + path[2]);
+					target = new File(libDir.folder(), dep + "/" + path[2]);
 				} else {
 					// a root library file
 					target = new File(lib.folder, path[0]);

@@ -8,7 +8,6 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
@@ -18,8 +17,6 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.Json;
 import org.openlca.util.RefIdMap;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 /**
@@ -30,7 +27,6 @@ import com.google.gson.JsonObject;
  */
 class ProductSystemLinks {
 
-	private final IDatabase db;
 	private final RefIdMap<String, Long> refIds;
 
 	/**
@@ -39,11 +35,10 @@ class ProductSystemLinks {
 	 */
 	private final Map<Long, Map<Integer, Long>> exchangeIds;
 
-	private ProductSystemLinks(ImportConfig conf) {
-		db = conf.db.getDatabase();
+	private ProductSystemLinks(JsonImport conf) {
+		IDatabase db = conf.db.getDatabase();
 		refIds = RefIdMap.refToInternal(
-				db, ProductSystem.class, Process.class,
-				Flow.class, Unit.class);
+			db, ProductSystem.class, Process.class, Result.class, Flow.class, Unit.class);
 		exchangeIds = new HashMap<>();
 		// TODO: this currently add *ALL* exchanges from the database
 		// to the ID map but we could reduce this to add only exchanges
@@ -62,7 +57,7 @@ class ProductSystemLinks {
 		});
 	}
 
-	static void map(JsonObject json, ImportConfig conf, ProductSystem system) {
+	static void map(JsonObject json, JsonImport conf, ProductSystem system) {
 		new ProductSystemLinks(conf).map(json, system);
 	}
 
@@ -70,24 +65,28 @@ class ProductSystemLinks {
 		if (json == null || system == null)
 			return;
 		setReferenceExchange(json, system);
-		JsonArray array = Json.getArray(json, "processLinks");
+		var array = Json.getArray(json, "processLinks");
 		if (array == null || array.size() == 0)
 			return;
-		for (JsonElement element : array) {
-			JsonObject obj = element.getAsJsonObject();
-			ProcessLink link = new ProcessLink();
+		for (var elem : array) {
+			if (!elem.isJsonObject())
+				continue;
+			var obj = elem.getAsJsonObject();
+			var link = new ProcessLink();
 
-			// the provider; todo: this is not the final solution
-			var providerType = Json.getEnum(obj, "providerType", ModelType.class);
-			if (providerType == null) {
-				providerType = ModelType.PROCESS;
-			}
+			var providerRef = Json.getObject(obj, "provider");
+			if (providerRef == null)
+				continue;
+			var providerType = Json.getString(providerRef, "@type");
+			if (providerType == null)
+				continue;
+
 			switch (providerType) {
-				case PRODUCT_SYSTEM -> {
+				case "ProductSystem" -> {
 					link.providerType = ProcessLink.ProviderType.SUB_SYSTEM;
 					link.providerId = getId(obj, "provider", ProductSystem.class);
 				}
-				case RESULT -> {
+				case "Result" -> {
 					link.providerType = ProcessLink.ProviderType.RESULT;
 					link.providerId = getId(obj, "provider", Result.class);
 				}
@@ -150,10 +149,10 @@ class ProductSystemLinks {
 	}
 
 	private long getId(JsonObject json, String key, Class<?> type) {
-		JsonObject refObj = Json.getObject(json, key);
+		var refObj = Json.getObject(json, key);
 		if (refObj == null)
 			return 0;
-		String refId = Json.getString(refObj, "@id");
+		var refId = Json.getString(refObj, "@id");
 		Long id = refIds.get(type, refId);
 		return id == null ? 0 : id;
 	}

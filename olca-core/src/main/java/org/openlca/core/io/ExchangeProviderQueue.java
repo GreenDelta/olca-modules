@@ -36,7 +36,7 @@ public class ExchangeProviderQueue {
 
 	private ExchangeProviderQueue(IDatabase db) {
 		this.db = Objects.requireNonNull(db);
-		db.allDescriptorsOf(Process.class)
+		db.getDescriptors(Process.class)
 			.forEach(d -> processIds.put(d.refId, d.id));
 	}
 

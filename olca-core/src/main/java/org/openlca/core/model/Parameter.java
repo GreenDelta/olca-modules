@@ -21,7 +21,7 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name = "tbl_parameters")
-public class Parameter extends CategorizedEntity {
+public class Parameter extends RootEntity {
 
 	/**
 	 * The scope of the parameter (global, process, LCIA method).

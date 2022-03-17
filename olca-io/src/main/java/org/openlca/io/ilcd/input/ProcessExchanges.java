@@ -103,15 +103,21 @@ class ProcessExchanges {
 		double fraction, Process process) {
 		if (exchange.flow == null)
 			return;
-		var f = new AllocationFactor();
-		f.productId = productId;
-		f.value = fraction / 100;
-		if (exchange.flow.id == productId)
-			f.method = AllocationMethod.PHYSICAL;
-		else {
-			f.method = AllocationMethod.CAUSAL;
-			f.exchange = exchange;
+		var factor = new AllocationFactor();
+		factor.productId = productId;
+		factor.value = fraction / 100;
+		if (exchange.flow.id == productId) {
+			// create a physical and economic factor
+			factor.method = AllocationMethod.PHYSICAL;
+			process.allocationFactors.add(factor);
+			var economic = factor.copy();
+			economic.method = AllocationMethod.ECONOMIC;
+			process.allocationFactors.add(economic);
+		}	else {
+			factor.method = AllocationMethod.CAUSAL;
+			factor.exchange = exchange;
+			process.allocationFactors.add(factor);
 		}
-		process.allocationFactors.add(f);
+
 	}
 }

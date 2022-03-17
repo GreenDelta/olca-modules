@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
@@ -36,40 +36,32 @@ import org.openlca.ecospold.ISource;
 import org.openlca.ecospold.io.DataSet;
 import org.openlca.ecospold.io.DataSetType;
 import org.openlca.ecospold.io.EcoSpold;
-import org.openlca.io.FileImport;
-import org.openlca.io.ImportEvent;
-import org.openlca.io.ImportInfo;
+import org.openlca.io.Import;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.eventbus.EventBus;
 
 /**
  * Parses EcoSpold01 xml files and creates openLCA objects and inserts them into
  * the database
  */
-public class EcoSpold01Import implements FileImport {
+public class EcoSpold01Import implements Import {
 
-	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private Category processCategory;
 	private final HashMap<Integer, Exchange> localExchangeCache = new HashMap<>();
 	private final DB db;
 	private final FlowImport flowImport;
-	private EventBus eventBus;
 	private boolean canceled = false;
 	private File[] files;
-
-	private final ImportInfo.Collector infos = new ImportInfo.Collector();
+	private final ImportLog log = new ImportLog();
 
 	public EcoSpold01Import(ImportConfig config) {
 		this.db = new DB(config.db);
 		this.flowImport = new FlowImport(db, config);
 	}
 
-	public List<ImportInfo> getInfos() {
-		return infos.get();
+	@Override
+	public ImportLog log() {
+		return log;
 	}
 
 	public void setFiles(File[] files) {
@@ -82,8 +74,8 @@ public class EcoSpold01Import implements FileImport {
 	}
 
 	@Override
-	public void setEventBus(EventBus eventBus) {
-		this.eventBus = eventBus;
+	public boolean isCanceled() {
+		return canceled;
 	}
 
 	/**
@@ -112,18 +104,18 @@ public class EcoSpold01Import implements FileImport {
 			else if (fileName.endsWith(".zip"))
 				importZip(file);
 			else
-				log.warn("unexpected file for import {}", file);
+				log.warn("unexpected file for import: " + file);
 		}
 	}
 
 	private void importXml(File file) {
 		var type = EcoSpold.typeOf(file);
 		if (type.isEmpty()) {
-			log.warn("could not detect ecoSpold type of {}", file);
+			log.warn("could not detect ecoSpold type of: " + file);
 			return;
 		}
 		try (var stream = new FileInputStream(file)) {
-			fireEvent(file.getName());
+			log.info("import file " + file.getName());
 			run(stream, type.get());
 		} catch (Exception e) {
 			log.error("failed to import XML file " + file, e);
@@ -140,7 +132,7 @@ public class EcoSpold01Import implements FileImport {
 				String name = entry.getName().toLowerCase();
 				if (!name.endsWith(".xml"))
 					continue;
-				fireEvent(name);
+				log.info("import file: " + name);
 				var type = EcoSpold.typeOf(zip.getInputStream(entry));
 				if (type.isEmpty())
 					continue;
@@ -149,13 +141,6 @@ public class EcoSpold01Import implements FileImport {
 		} catch (Exception e) {
 			log.error("failed to import ZIP file " + file, e);
 		}
-	}
-
-	private void fireEvent(String dataSetName) {
-		log.trace("import data set {}", dataSetName);
-		if (eventBus == null)
-			return;
-		eventBus.post(new ImportEvent(dataSetName));
 	}
 
 	public void run(InputStream is, DataSetType type) {
@@ -188,14 +173,14 @@ public class EcoSpold01Import implements FileImport {
 			String id = ES1KeyGen.forPerson(person);
 			Actor actor = db.findActor(person, id);
 			if (actor != null) {
-				infos.ignored(actor);
+				log.skipped(actor);
 				continue;
 			}
 			actor = new Actor();
 			actor.refId = id;
 			Mapper.mapPerson(person, actor);
 			db.put(actor, id);
-			infos.imported(actor);
+			log.imported(actor);
 		}
 	}
 
@@ -204,14 +189,14 @@ public class EcoSpold01Import implements FileImport {
 			String id = ES1KeyGen.forSource(eSource);
 			Source oSource = db.findSource(eSource, id);
 			if (oSource != null) {
-				infos.ignored(oSource);
+				log.skipped(oSource);
 				continue;
 			}
 			oSource = new Source();
 			oSource.refId = id;
 			Mapper.mapSource(eSource, oSource);
 			db.put(oSource, id);
-			infos.imported(oSource);
+			log.imported(oSource);
 		}
 	}
 
@@ -230,7 +215,7 @@ public class EcoSpold01Import implements FileImport {
 			String id = KeyGen.get(code);
 			Location loc = db.findLocation(code, id);
 			if (loc != null) {
-				infos.ignored(loc);
+				log.skipped(loc);
 				continue;
 			}
 			loc = new Location();
@@ -238,7 +223,7 @@ public class EcoSpold01Import implements FileImport {
 			loc.name = code;
 			loc.code = code;
 			db.put(loc, id);
-			infos.imported(loc);
+			log.imported(loc);
 		}
 	}
 
@@ -246,8 +231,7 @@ public class EcoSpold01Import implements FileImport {
 		String id = ES1KeyGen.forProcess(ds);
 		Process p = db.get(Process.class, id);
 		if (p != null) {
-			log.trace("Process {} already exists, not imported", id);
-			infos.ignored(p);
+			log.skipped(p);
 			return;
 		}
 
@@ -264,9 +248,9 @@ public class EcoSpold01Import implements FileImport {
 		mapTimeAndGeography(ds, p, doc);
 
 		if (ds.getTechnology() != null
-				&& ds.getTechnology().getText() != null) {
+			&& ds.getTechnology().getText() != null) {
 			doc.technology = Strings.cut(
-					(ds.getTechnology().getText()), 65500);
+				(ds.getTechnology().getText()), 65500);
 		}
 
 		mapExchanges(ds.getExchanges(), p);
@@ -274,7 +258,7 @@ public class EcoSpold01Import implements FileImport {
 			createProductFromRefFun(ds, p);
 
 		if (ds.getAllocations() != null
-				&& ds.getAllocations().size() > 0) {
+			&& ds.getAllocations().size() > 0) {
 			mapAllocations(p, ds.getAllocations());
 			p.defaultAllocationMethod = AllocationMethod.CAUSAL;
 		}
@@ -286,11 +270,11 @@ public class EcoSpold01Import implements FileImport {
 
 		db.put(p, id);
 		localExchangeCache.clear();
-		infos.imported(p);
+		log.imported(p);
 	}
 
 	private void mapTimeAndGeography(DataSet ds, Process p,
-									 ProcessDocumentation doc) {
+																	 ProcessDocumentation doc) {
 		ProcessTime time = new ProcessTime(ds.getTimePeriod());
 		time.map(doc);
 		if (ds.getGeography() != null) {
@@ -312,27 +296,27 @@ public class EcoSpold01Import implements FileImport {
 		}
 		if (ds.getDataGeneratorAndPublication() != null)
 			doc.dataGenerator = actors.get(ds
-					.getDataGeneratorAndPublication().getPerson());
+				.getDataGeneratorAndPublication().getPerson());
 		if (ds.getValidation() != null)
 			doc.reviewer = actors.get(ds.getValidation()
-					.getProofReadingValidator());
+				.getProofReadingValidator());
 		if (ds.getDataEntryBy() != null)
 			doc.dataDocumentor = actors.get(ds.getDataEntryBy()
-					.getPerson());
+				.getPerson());
 	}
 
 	private void mapAllocations(Process process,
-								List<IAllocation> allocations) {
+															List<IAllocation> allocations) {
 		for (IAllocation allocation : allocations) {
 			double factor = Math.round(allocation.getFraction() * 10000d)
-					/ 1000000d;
+				/ 1000000d;
 			Exchange product = localExchangeCache.get(allocation
-					.getReferenceToCoProduct());
+				.getReferenceToCoProduct());
 			for (Integer i : allocation.getReferenceToInputOutput()) {
 				Exchange e = localExchangeCache.get(i);
 				if (e == null) {
 					log.warn("allocation factor points to an exchange that "
-							+ "does not exist: {}", i);
+						+ "does not exist: " + i);
 					continue;
 				}
 				AllocationFactor af = new AllocationFactor();
@@ -349,32 +333,32 @@ public class EcoSpold01Import implements FileImport {
 		for (IExchange inExchange : inExchanges) {
 			FlowBucket flow = flowImport.handleProcessExchange(inExchange);
 			if (flow == null || !flow.isValid()) {
-				log.error("Could not import flow {}", inExchange);
+				log.error("Could not import flow: " + inExchange);
 				continue;
 			}
 			Exchange outExchange = ioProcess.add(Exchange.of(flow.flow,
-					flow.flowProperty, flow.unit));
+				flow.flowProperty, flow.unit));
 			outExchange.isInput = inExchange.getInputGroup() != null;
 			ExchangeAmount exchangeAmount = new ExchangeAmount(outExchange,
-					inExchange);
+				inExchange);
 			outExchange.description = inExchange.getGeneralComment();
 			exchangeAmount.map(flow.conversionFactor);
 			localExchangeCache.put(inExchange.getNumber(), outExchange);
 			if (ioProcess.quantitativeReference == null
-					&& inExchange.getOutputGroup() != null
-					&& (inExchange.getOutputGroup() == 0
-					|| inExchange.getOutputGroup() == 2)) {
+				&& inExchange.getOutputGroup() != null
+				&& (inExchange.getOutputGroup() == 0
+				|| inExchange.getOutputGroup() == 2)) {
 				ioProcess.quantitativeReference = outExchange;
 			}
 		}
 	}
 
 	private void mapFactors(List<IExchange> inFactors,
-							ImpactCategory ioCategory) {
+													ImpactCategory ioCategory) {
 		for (IExchange inFactor : inFactors) {
 			FlowBucket flow = flowImport.handleImpactFactor(inFactor);
 			if (flow == null || !flow.isValid()) {
-				log.error("Could not import flow {}", inFactor);
+				log.error("Could not import flow: " + inFactor);
 				continue;
 			}
 			ImpactFactor factor = new ImpactFactor();
@@ -393,39 +377,39 @@ public class EcoSpold01Import implements FileImport {
 		String topCategory = refFun.getCategory();
 		String subCategory = refFun.getSubCategory();
 		ioProcess.category = processCategory != null
-				? db.getPutCategory(processCategory, topCategory, subCategory)
-				: db.getPutCategory(ModelType.PROCESS, topCategory, subCategory);
+			? db.getPutCategory(processCategory, topCategory, subCategory)
+			: db.getPutCategory(ModelType.PROCESS, topCategory, subCategory);
 	}
 
-	private void createProductFromRefFun(DataSet dataSet, Process ioProcess) {
+	private void createProductFromRefFun(DataSet dataSet, Process process) {
 		FlowBucket flow = flowImport.handleProcessProduct(dataSet);
 		if (flow == null || !flow.isValid()) {
-			log.warn("Could not create reference flow {}", dataSet);
+			log.warn("Could not create reference flow: "  + dataSet);
 			return;
 		}
-		Exchange outExchange = ioProcess.add(
-				Exchange.of(flow.flow, flow.flowProperty, flow.unit));
-		outExchange.isInput = false;
-		outExchange.amount = dataSet.getReferenceFunction().getAmount()
-				* flow.conversionFactor;
-		ioProcess.quantitativeReference = outExchange;
+		var exchange = process.add(
+			Exchange.of(flow.flow, flow.flowProperty, flow.unit));
+		exchange.isInput = false;
+		exchange.amount = dataSet.getReferenceFunction().getAmount()
+			* flow.conversionFactor;
+		process.quantitativeReference = exchange;
 	}
 
-	private void mapSources(ProcessDocumentation doc, DataSet adapter) {
+	private void mapSources(ProcessDocumentation doc, DataSet dataSet) {
 		Map<Integer, Source> sources = new HashMap<>();
-		for (ISource source : adapter.getSources()) {
+		for (ISource source : dataSet.getSources()) {
 			Source s = db.findSource(source, ES1KeyGen.forSource(source));
 			if (s != null) {
 				sources.put(source.getNumber(), s);
 				doc.sources.add(s);
 			}
 		}
-		if (adapter.getDataGeneratorAndPublication() != null
-				&& adapter.getDataGeneratorAndPublication()
-				.getReferenceToPublishedSource() != null)
-			doc.publication = sources.get(adapter
-					.getDataGeneratorAndPublication()
-					.getReferenceToPublishedSource());
+		if (dataSet.getDataGeneratorAndPublication() != null
+			&& dataSet.getDataGeneratorAndPublication()
+			.getReferenceToPublishedSource() != null)
+			doc.publication = sources.get(dataSet
+				.getDataGeneratorAndPublication()
+				.getReferenceToPublishedSource());
 	}
 
 	private void importImpacts(IEcoSpold es) {
@@ -434,7 +418,7 @@ public class EcoSpold01Import implements FileImport {
 		var db = this.db.database;
 		for (var ds : es.getDataset()) {
 			var wrap = new DataSet(
-					ds, DataSetType.IMPACT_METHOD.getFactory());
+				ds, DataSetType.IMPACT_METHOD.getFactory());
 			var ref = wrap.getReferenceFunction();
 			if (ref == null)
 				continue;
@@ -451,7 +435,7 @@ public class EcoSpold01Import implements FileImport {
 				impact.refId = impactID;
 				mapFactors(wrap.getExchanges(), impact);
 				impact = db.insert(impact);
-				infos.imported(impact);
+				log.imported(impact);
 			}
 
 			// get or create the method
@@ -465,7 +449,7 @@ public class EcoSpold01Import implements FileImport {
 			}
 
 			var alreadyExists = method.impactCategories.stream()
-					.anyMatch(i -> Objects.equals(i.refId, impactID));
+				.anyMatch(i -> Objects.equals(i.refId, impactID));
 			if (alreadyExists)
 				continue;
 			method.impactCategories.add(impact);

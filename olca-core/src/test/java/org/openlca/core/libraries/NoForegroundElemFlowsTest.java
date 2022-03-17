@@ -114,7 +114,7 @@ public class NoForegroundElemFlowsTest {
 		}
 
 		db.clear();
-		Dirs.delete(libDir.dir);
+		Dirs.delete(libDir.folder());
 	}
 
 }

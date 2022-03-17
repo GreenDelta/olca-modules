@@ -44,7 +44,7 @@ import org.openlca.util.Strings;
  */
 @Entity
 @Table(name = "tbl_dq_systems")
-public class DQSystem extends CategorizedEntity {
+public class DQSystem extends RootEntity {
 
 	@Column(name = "has_uncertainties")
 	public boolean hasUncertainties;

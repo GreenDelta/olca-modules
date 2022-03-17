@@ -13,11 +13,11 @@ import org.openlca.jsonld.Json;
 
 class UnitGroupImport extends BaseImport<UnitGroup> {
 
-	private UnitGroupImport(String refId, ImportConfig conf) {
+	private UnitGroupImport(String refId, JsonImport conf) {
 		super(ModelType.UNIT_GROUP, refId, conf);
 	}
 
-	static UnitGroup run(String refId, ImportConfig conf) {
+	static UnitGroup run(String refId, JsonImport conf) {
 		return new UnitGroupImport(refId, conf).run();
 	}
 
@@ -91,7 +91,7 @@ class UnitGroupImport extends BaseImport<UnitGroup> {
 						.orElse(null);
 			}
 
-			boolean refUnit = Json.getBool(unitJson, "referenceUnit", false);
+			boolean refUnit = Json.getBool(unitJson, "isReferenceUnit", false);
 			if (refUnit) {
 				group.referenceUnit = unit;
 			}

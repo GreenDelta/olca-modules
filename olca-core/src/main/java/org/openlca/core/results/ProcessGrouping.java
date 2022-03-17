@@ -8,7 +8,7 @@ import java.util.Objects;
 
 import org.openlca.core.model.ProcessGroup;
 import org.openlca.core.model.ProcessGroupSet;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 public class ProcessGrouping {
 
 	public String name;
-	public final List<CategorizedDescriptor> processes = new ArrayList<>();
+	public final List<RootDescriptor> processes = new ArrayList<>();
 	public boolean rest;
 
 	@Override
@@ -47,19 +47,19 @@ public class ProcessGrouping {
 	 * processes is created using the given parameter restName.
 	 */
 	public static List<ProcessGrouping> applyOn(
-			Collection<CategorizedDescriptor> processes,
+			Collection<RootDescriptor> processes,
 			ProcessGroupSet groupSet,
 			String restName) {
 		if (processes == null)
 			return Collections.emptyList();
 		List<ProcessGroup> groups = getGroups(groupSet);
 		List<ProcessGrouping> groupings = new ArrayList<>();
-		List<CategorizedDescriptor> rest = new ArrayList<>(processes);
+		List<RootDescriptor> rest = new ArrayList<>(processes);
 		for (ProcessGroup group : groups) {
 			ProcessGrouping grouping = new ProcessGrouping();
 			grouping.name = group.name;
 			grouping.rest = false;
-			List<CategorizedDescriptor> matches = split(group.processIds,
+			List<RootDescriptor> matches = split(group.processIds,
 					rest);
 			grouping.processes.addAll(matches);
 			groupings.add(grouping);
@@ -86,11 +86,11 @@ public class ProcessGrouping {
 		}
 	}
 
-	private static List<CategorizedDescriptor> split(List<String> processIds,
-			List<CategorizedDescriptor> processes) {
-		List<CategorizedDescriptor> matches = new ArrayList<>();
+	private static List<RootDescriptor> split(List<String> processIds,
+                                              List<RootDescriptor> processes) {
+		List<RootDescriptor> matches = new ArrayList<>();
 		for (String id : processIds) {
-			for (CategorizedDescriptor p : processes) {
+			for (RootDescriptor p : processes) {
 				if (p.refId != null && p.refId.equals(id))
 					matches.add(p);
 			}

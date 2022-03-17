@@ -14,9 +14,9 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.FlowType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
@@ -44,8 +44,8 @@ public class DbLibrarySwap implements Runnable {
 				var imp = new JsonImport(store, db);
 				imp.setUpdateMode(UpdateMode.ALWAYS);
 				imp.setCallback(e -> {
-					if (e instanceof CategorizedEntity) {
-						var ce = (CategorizedEntity) e;
+					if (e instanceof RootEntity) {
+						var ce = (RootEntity) e;
 						ce.library = libId;
 						db.update(ce);
 					}
@@ -133,7 +133,7 @@ public class DbLibrarySwap implements Runnable {
 	}
 
 
-	private <T extends CategorizedDescriptor> Collector<T, ?, Map<String, T>> map() {
+	private <T extends RootDescriptor> Collector<T, ?, Map<String, T>> map() {
 		return Collectors.toMap((T d) -> d.refId, (T d) -> d, (T d1, T d2) -> d1);
 	}
 

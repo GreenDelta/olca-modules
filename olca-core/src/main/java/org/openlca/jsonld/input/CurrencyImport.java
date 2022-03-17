@@ -10,11 +10,11 @@ import com.google.gson.JsonObject;
 
 class CurrencyImport extends BaseImport<Currency> {
 
-	private CurrencyImport(String refId, ImportConfig conf) {
+	private CurrencyImport(String refId, JsonImport conf) {
 		super(ModelType.CURRENCY, refId, conf);
 	}
 
-	static Currency run(String refId, ImportConfig conf) {
+	static Currency run(String refId, JsonImport conf) {
 		return new CurrencyImport(refId, conf).run();
 	}
 

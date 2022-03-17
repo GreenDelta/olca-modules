@@ -17,7 +17,7 @@ import org.openlca.core.database.NwSetDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.ProjectDao;
-import org.openlca.core.database.RootEntityDao;
+import org.openlca.core.database.RefEntityDao;
 import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitDao;
@@ -84,7 +84,7 @@ class Sequence {
 		index(SOCIAL_INDICATOR, new SocialIndicatorDao(db));
 	}
 
-	private void index(int type, RootEntityDao<?, ?> dao) {
+	private void index(int type, RefEntityDao<?, ?> dao) {
 		List<? extends Descriptor> descriptors = dao.getDescriptors();
 		for (Descriptor d : descriptors) {
 			if (d.refId == null) {

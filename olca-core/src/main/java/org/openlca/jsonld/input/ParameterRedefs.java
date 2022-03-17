@@ -6,16 +6,15 @@ import java.util.List;
 
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedef;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 class ParameterRedefs {
 
-	static List<ParameterRedef> read(JsonArray array, ImportConfig conf) {
+	static List<ParameterRedef> read(JsonArray array, JsonImport conf) {
 		if (array == null || array.size() == 0)
 			return Collections.emptyList();
 		var redefs = new ArrayList<ParameterRedef>();
@@ -40,12 +39,12 @@ class ParameterRedefs {
 	}
 
 	private static boolean setContext(
-			JsonObject context, ParameterRedef p, ImportConfig conf) {
+			JsonObject context, ParameterRedef p, JsonImport conf) {
 		if (context == null)
 			return true;
 		var type = Json.getString(context, "@type");
 		var refId = Json.getString(context, "@id");
-		RootEntity model = null;
+		RefEntity model = null;
 		if ("Process".equals(type)) {
 			p.contextType = ModelType.PROCESS;
 			model = ProcessImport.run(refId, conf);

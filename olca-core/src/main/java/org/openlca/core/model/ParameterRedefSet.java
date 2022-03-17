@@ -1,6 +1,7 @@
 package org.openlca.core.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -32,17 +33,26 @@ public class ParameterRedefSet extends AbstractEntity
 	@OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
 	public final List<ParameterRedef> parameters = new ArrayList<>();
 
+	public static ParameterRedefSet of(String name, ParameterRedef... params) {
+		var set = new ParameterRedefSet();
+		set.name = name;
+		if (params != null) {
+			set.parameters.addAll(Arrays.asList(params));
+		}
+		return set;
+	}
+
 	@Override
 	public ParameterRedefSet copy() {
-		ParameterRedefSet clone = new ParameterRedefSet();
-		clone.name = name;
-		clone.description = description;
-		clone.isBaseline = isBaseline;
-		for (ParameterRedef p : parameters) {
+		var copy = new ParameterRedefSet();
+		copy.name = name;
+		copy.description = description;
+		copy.isBaseline = isBaseline;
+		for (var p : parameters) {
 			if (p == null)
 				continue;
-			clone.parameters.add(p.copy());
+			copy.parameters.add(p.copy());
 		}
-		return clone;
+		return copy;
 	}
 }

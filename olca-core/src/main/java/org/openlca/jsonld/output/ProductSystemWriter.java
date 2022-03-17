@@ -1,21 +1,14 @@
 package org.openlca.jsonld.output;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.database.ProcessDao;
-import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.jsonld.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,16 +19,10 @@ import gnu.trove.map.hash.TLongLongHashMap;
 
 class ProductSystemWriter extends Writer<ProductSystem> {
 
-	private ProcessDao processDao;
-	private FlowDao flowDao;
 	private ProductSystem system;
 
-	ProductSystemWriter(ExportConfig conf) {
-		super(conf);
-		if (conf.db != null) {
-			processDao = new ProcessDao(conf.db);
-			flowDao = new FlowDao(conf.db);
-		}
+	ProductSystemWriter(JsonExport exp) {
+		super(exp);
 	}
 
 	@Override
@@ -47,103 +34,87 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		this.system = system;
 		TLongLongHashMap exchangeIDs = exchangeIDs(system);
 
-		Out.put(obj, "referenceProcess", system.referenceProcess,
-				conf, Out.REQUIRED_FIELD);
+		Json.put(obj, "referenceProcess", exp.handleRef(system.referenceProcess));
 
 		// the reference exchange
 		if (system.referenceExchange != null) {
-			JsonObject eObj = new JsonObject();
-			Out.put(eObj, "@type", "Exchange");
-			Out.put(eObj, "internalId", exchangeIDs.get(
-					system.referenceExchange.id));
-			Out.put(obj, "referenceExchange", eObj,
-					Out.REQUIRED_FIELD);
+			var eObj = new JsonObject();
+			Json.put(eObj, "@type", "Exchange");
+			Json.put(eObj, "internalId", exchangeIDs.get(system.referenceExchange.id));
+			Json.put(eObj, "flow", exp.handleRef(system.referenceExchange.flow));
+			Json.put(obj, "referenceExchange", eObj);
 		}
 
 		FlowProperty property = null;
 		if (system.targetFlowPropertyFactor != null)
 			property = system.targetFlowPropertyFactor.flowProperty;
-		Out.put(obj, "targetFlowProperty", property, conf, Out.REQUIRED_FIELD);
-		Out.put(obj, "targetUnit", system.targetUnit, conf, Out.REQUIRED_FIELD);
-		Out.put(obj, "targetAmount", system.targetAmount);
-
-		putParameterSets(obj, system.parameterSets);
+		Json.put(obj, "targetFlowProperty", exp.handleRef(property));
+		Json.put(obj, "targetUnit", Json.asRef(system.targetUnit));
+		Json.put(obj, "targetAmount", system.targetAmount);
 
 		// map the parameter redefinitions
-		GlobalParameters.sync(system, conf);
-		if (!system.parameterRedefs.isEmpty()) {
-			JsonArray redefs = ParameterRedefs.map(system.parameterRedefs, conf);
-			Out.put(obj, "parameterRedefs", redefs);
-		}
+		GlobalParameters.sync(system, exp);
+		putParameterSets(obj, system.parameterSets);
 
-		if (conf.db == null)
+		if (exp.db == null)
 			return obj;
-		Map<Long, CategorizedDescriptor> processMap = mapProcesses(obj);
-		mapLinks(obj, processMap, exchangeIDs);
+		mapProcesses(obj);
+		mapLinks(obj, exchangeIDs);
 		return obj;
 	}
 
-	private void mapLinks(JsonObject json,
-			Map<Long, CategorizedDescriptor> processMap,
-			TLongLongHashMap exchangeIDs) {
-		JsonArray links = new JsonArray();
-		Map<Long, FlowDescriptor> flows = getFlows();
-		for (ProcessLink link : system.processLinks) {
-			JsonObject obj = new JsonObject();
-			Out.put(obj, "@type", "ProcessLink");
-			JsonObject provider = References
-					.create(processMap.get(link.providerId), conf);
-			Out.put(obj, "provider", provider, Out.REQUIRED_FIELD);
-			Out.put(obj, "flow",
-					References.create(flows.get(link.flowId), conf),
-					Out.REQUIRED_FIELD);
-			JsonObject process = References
-					.create(processMap.get(link.processId), conf);
-			Out.put(obj, "process", process, Out.REQUIRED_FIELD);
-			JsonObject eObj = new JsonObject();
-			Out.put(eObj, "@type", "Exchange");
-			Out.put(eObj, "internalId", exchangeIDs.get(link.exchangeId));
-			Out.put(obj, "exchange", eObj, Out.REQUIRED_FIELD);
-			links.add(obj);
-		}
-		Out.put(json, "processLinks", links);
-	}
-
-	private Map<Long, FlowDescriptor> getFlows() {
-		Set<Long> flowIds = new HashSet<>();
-		for (ProcessLink link : system.processLinks) {
-			flowIds.add(link.flowId);
-		}
-		List<FlowDescriptor> flows = flowDao.getDescriptors(flowIds);
-		Map<Long, FlowDescriptor> flowMap = new HashMap<>();
-		for (FlowDescriptor f : flows) {
-			flowMap.put(f.id, f);
-		}
-		return flowMap;
-	}
-
-	private Map<Long, CategorizedDescriptor> mapProcesses(JsonObject json) {
-		var processes = processDao.descriptorMap();
-		var systems = new ProductSystemDao(conf.db).descriptorMap();
-		Map<Long, CategorizedDescriptor> map = new HashMap<>();
+	private void mapLinks(JsonObject json, TLongLongHashMap exchangeIDs) {
 		var array = new JsonArray();
+		for (var link : system.processLinks) {
+			var obj = new JsonObject();
+			var providerType = providerTypeOf(link);
+			Json.put(obj, "provider", exp.handleRef(providerType, link.providerId));
+			Json.put(obj, "flow",	exp.handleRef(ModelType.FLOW, link.flowId));
+			Json.put(obj, "process", exp.handleRef(ModelType.PROCESS, link.processId));
+			var eObj = new JsonObject();
+			Json.put(eObj, "@type", "Exchange");
+			Json.put(eObj, "internalId", exchangeIDs.get(link.exchangeId));
+			Json.put(obj, "exchange", eObj);
+			array.add(obj);
+		}
+		Json.put(json, "processLinks", array);
+	}
+
+	private ModelType providerTypeOf(ProcessLink link) {
+		if (link.hasSubSystemProvider())
+			return ModelType.PRODUCT_SYSTEM;
+		if (link.hasResultProvider())
+			return ModelType.RESULT;
+		return ModelType.PROCESS;
+	}
+
+	private void mapProcesses(JsonObject json) {
+		var refs = exp.refs;
+		if (refs == null)
+			return;
+		var array = new JsonArray();
+		var types = new ModelType[]{
+			ModelType.PROCESS, ModelType.PRODUCT_SYSTEM, ModelType.RESULT};
+
 		for (var id : system.processes) {
-			CategorizedDescriptor d = processes.get(id);
-			if (d == null) {
-				d = systems.get(id);
-			}
-			if (d == null)
+			if (id == null)
 				continue;
-			map.put(id, d);
-			JsonObject ref = conf.exportReferences
-				? References.create(d.type, d.id, conf, false)
-				: References.create(d, conf);
+			long unboxedId = id;
+			ModelType type = null;
+			for (var t : types) {
+				if (refs.descriptorOf(t, unboxedId) != null) {
+					type = t;
+					break;
+				}
+			}
+			if (type == null)
+				continue;
+			var ref = exp.handleRef(type, unboxedId);
 			if (ref == null)
 				continue;
 			array.add(ref);
 		}
-		Out.put(json, "processes", array);
-		return map;
+		Json.put(json, "processes", array);
 	}
 
 	/**
@@ -151,20 +122,20 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 	 * product system links.
 	 */
 	private TLongLongHashMap exchangeIDs(ProductSystem system) {
-		TLongLongHashMap m = new TLongLongHashMap();
+		var map = new TLongLongHashMap();
 		if (system.referenceExchange != null) {
-			m.put(system.referenceExchange.id, -1);
+			map.put(system.referenceExchange.id, -1);
 		}
 		for (ProcessLink link : system.processLinks) {
-			m.put(link.exchangeId, -1L);
+			map.put(link.exchangeId, -1L);
 		}
 		try {
 			String sql = "select id, internal_id from tbl_exchanges";
-			NativeSql.on(conf.db).query(sql, r -> {
+			NativeSql.on(exp.db).query(sql, r -> {
 				long id = r.getLong(1);
 				long internal = r.getLong(2);
-				if (m.containsKey(id)) {
-					m.put(id, internal);
+				if (map.containsKey(id)) {
+					map.put(id, internal);
 				}
 				return true;
 			});
@@ -172,25 +143,25 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 			Logger log = LoggerFactory.getLogger(getClass());
 			log.error("Failed to query exchange IDs", e);
 		}
-		return m;
+		return map;
 	}
 
 	private void putParameterSets(JsonObject obj, List<ParameterRedefSet> sets) {
 		if (sets.isEmpty())
 			return;
-		JsonArray array = new JsonArray();
-		for (ParameterRedefSet s : sets) {
-			JsonObject paramSet = new JsonObject();
-			array.add(paramSet);
-			Out.put(paramSet, "name", s.name);
-			Out.put(paramSet, "description", s.description);
-			Out.put(paramSet, "isBaseline", s.isBaseline);
-			if (s.parameters.isEmpty())
-				continue;
-			JsonArray params = ParameterRedefs.map(s.parameters, conf);
-			Out.put(paramSet, "parameters", params);
+		var jsonSets = new JsonArray();
+		for (var set : sets) {
+			var jsonSet = new JsonObject();
+			jsonSets.add(jsonSet);
+			Json.put(jsonSet, "name", set.name);
+			Json.put(jsonSet, "description", set.description);
+			Json.put(jsonSet, "isBaseline", set.isBaseline);
+			if (!set.parameters.isEmpty()) {
+				var params = Util.mapRedefs(set.parameters, exp);
+				Json.put(jsonSet, "parameters", params);
+			}
 		}
-		Out.put(obj, "parameterSets", array);
+		Json.put(obj, "parameterSets", jsonSets);
 	}
 
 	@Override

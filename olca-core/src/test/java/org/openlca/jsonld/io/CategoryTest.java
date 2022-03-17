@@ -4,17 +4,17 @@ import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.Tests;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.Category;
 import org.openlca.jsonld.AbstractZipTest;
-import org.openlca.jsonld.Tests;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.output.JsonExport;
 
 public class CategoryTest extends AbstractZipTest {
 
 	@Test
-	public void testCategory() throws Exception {
+	public void testCategory() {
 		CategoryDao dao = new CategoryDao(Tests.getDb());
 		Category category = createModel(dao);
 		doExport(category, dao);

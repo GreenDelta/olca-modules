@@ -10,21 +10,21 @@ import java.util.Set;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.AbstractEntity;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ParameterScope;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ParameterDescriptor;
 import org.openlca.util.Formula;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract class BaseParametrizedReferenceSearch<T extends CategorizedDescriptor> extends BaseReferenceSearch<T> {
+abstract class BaseParametrizedReferenceSearch<T extends RootDescriptor> extends BaseReferenceSearch<T> {
 
 	private final static Logger log = LoggerFactory.getLogger(BaseReferenceSearch.class);
 
-	BaseParametrizedReferenceSearch(IDatabase database, Class<? extends CategorizedEntity> type, boolean includeOptional) {
+	BaseParametrizedReferenceSearch(IDatabase database, Class<? extends RootEntity> type, boolean includeOptional) {
 		super(database, type, includeOptional);
 	}
 

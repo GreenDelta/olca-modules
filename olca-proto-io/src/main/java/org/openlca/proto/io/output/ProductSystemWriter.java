@@ -15,7 +15,7 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.proto.ProtoExchangeRef;
 import org.openlca.proto.ProtoParameterRedef;
 import org.openlca.proto.ProtoParameterRedefSet;
@@ -77,13 +77,13 @@ public class ProductSystemWriter {
     proto.setTargetAmount(system.targetAmount);
   }
 
-  private Map<Long, CategorizedDescriptor> mapProcesses(
+  private Map<Long, RootDescriptor> mapProcesses(
     ProductSystem system, ProtoProductSystem.Builder proto) {
     var processes = new ProcessDao(config.db).descriptorMap();
     var systems = new ProductSystemDao(config.db).descriptorMap();
-    Map<Long, CategorizedDescriptor> map = new HashMap<>();
+    Map<Long, RootDescriptor> map = new HashMap<>();
     for (var id : system.processes) {
-      CategorizedDescriptor d = processes.get(id);
+      RootDescriptor d = processes.get(id);
       if (d == null) {
         d = systems.get(id);
       }
@@ -98,7 +98,7 @@ public class ProductSystemWriter {
 
   private void mapLinks(ProductSystem system,
     ProtoProductSystem.Builder proto,
-    Map<Long, CategorizedDescriptor> processes) {
+    Map<Long, RootDescriptor> processes) {
 
     // collect the used flows
     var flowIDs = new HashSet<Long>();

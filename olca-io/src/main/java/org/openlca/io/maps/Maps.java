@@ -1,8 +1,5 @@
 package org.openlca.io.maps;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,25 +10,16 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import org.apache.commons.io.ByteOrderMark;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.BOMInputStream;
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.MappingFileDao;
-import org.openlca.core.model.MappingFile;
-import org.openlca.util.BinUtils;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.supercsv.cellprocessor.ift.CellProcessor;
-import org.supercsv.io.CsvListReader;
-import org.supercsv.io.CsvListWriter;
-import org.supercsv.prefs.CsvPreference;
 
 /**
  * A helper class for using import / export maps. We store the mappings in CSV
@@ -46,154 +34,72 @@ public class Maps {
 	private Maps() {
 	}
 
-	/**
-	 * Reads all mappings from the given file using the given cell processors.
-	 * It first tries to load the file from the database. If it does not exist
-	 * it loads the mappings from the jar-internal resource file.
-	 */
-	public static List<List<Object>> readAll(String fileName,
-			IDatabase database, CellProcessor... cellProcessors)
-			throws Exception {
-		try (CsvListReader reader = open(fileName, database)) {
-			List<List<Object>> results = new ArrayList<>();
-			List<Object> nextRow;
-			while ((nextRow = reader.read(cellProcessors)) != null) {
-				results.add(nextRow);
-			}
-			return results;
-		}
+	public static CSVFormat format() {
+		return CSVFormat.Builder.create()
+			.setDelimiter(';')
+			.setTrim(true)
+			.setIgnoreEmptyLines(true)
+			.setQuote('"')
+			.setIgnoreSurroundingSpaces(true)
+			.build();
 	}
 
-	/**
-	 * Opens a CSV reader for the given. It first tries to load the file from
-	 * the database. If it does not exist it loads the mapping from the
-	 * jar-internal resource file.
-	 */
-	private static CsvListReader open(String fileName, IDatabase database) {
-		CsvListReader reader = fromDatabase(fileName, database);
-		return reader != null
-				? reader
-				: createReader(Maps.class.getResourceAsStream(fileName));
+	public static String getString(CSVRecord row, int i) {
+		return row == null || i >= row.size()
+			? null
+			: row.get(i);
 	}
 
-	private static CsvListReader fromDatabase(String fileName, IDatabase db) {
-		if (db == null)
+	public static Double getOptionalDouble(CSVRecord row, int i) {
+		var s = getString(row, i);
+		if (Strings.nullOrEmpty(s))
 			return null;
-		MappingFileDao dao = new MappingFileDao(db);
-		MappingFile file = dao.getForName(fileName);
-		if (file == null || file.content == null)
-			return null;
-		byte[] bytes = BinUtils.gunzip(file.content);
-		ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
-		return createReader(stream);
-	}
-
-	private static CsvListReader createReader(InputStream stream) {
-		var pref = new CsvPreference.Builder('"', ';', "\n").build();
-		// exclude the byte order mark, if there is any
-		var bom = new BOMInputStream(stream, false, ByteOrderMark.UTF_8);
-		var reader = new InputStreamReader(bom, StandardCharsets.UTF_8);
-		var buffer = new BufferedReader(reader);
-		return new CsvListReader(buffer, pref);
-	}
-
-	/**
-	 * Stores the given mapping file in the database. If there is already a
-	 * mapping file with the given name in the database, this file will be
-	 * updated by this method. The given must be the raw CSV stream. The content
-	 * of this stream will be compressed before storing it in the database.
-	 */
-	public static void store(String name, InputStream stream, IDatabase db) {
 		try {
-			var dao = new MappingFileDao(db);
-			var oldFile = dao.getForName(name);
-			if (oldFile != null) {
-				dao.delete(oldFile);
-			}
-			byte[] bytes = IOUtils.toByteArray(stream);
-			var file = new MappingFile();
-			file.content = BinUtils.gzip(bytes);
-			file.name = name;
-			dao.insert(file);
+			return Double.parseDouble(s);
 		} catch (Exception e) {
-			throw new RuntimeException("Failed to save mapping file " + name, e);
-		}
-	}
-
-	public static String getString(List<?> values, int i) {
-		if (values == null || i >= values.size())
+			Logger log = LoggerFactory.getLogger(Maps.class);
+			log.error("{} is not a number; default to null", s);
 			return null;
-		var val = values.get(i);
-		return val == null
-				? null
-				: val.toString();
-	}
-
-	public static Double getOptionalDouble(List<?> values, int i) {
-		if (values == null || i >= values.size())
-			return null;
-		Object val = values.get(i);
-		if (val instanceof Number)
-			return ((Number) val).doubleValue();
-		if (val instanceof String) {
-			if (Strings.nullOrEmpty((String) val))
-				return null;
-			try {
-				return Double.parseDouble((String) val);
-			} catch (Exception e) {
-				Logger log = LoggerFactory.getLogger(Maps.class);
-				log.error("{} is not a number; default to null", val);
-				return null;
-			}
 		}
-		return null;
 	}
 
-	public static double getDouble(List<?> values, int i) {
-		if (values == null || i >= values.size())
+	public static double getDouble(CSVRecord row, int i) {
+		if (row == null || i >= row.size())
 			return 0;
-		Object val = values.get(i);
-		if (val instanceof Number)
-			return ((Number) val).doubleValue();
-		if (val instanceof String) {
-			try {
-				return Double.parseDouble((String) val);
-			} catch (Exception e) {
-				Logger log = LoggerFactory.getLogger(Maps.class);
-				log.error("{} is not a number; default to 0.0", val);
-				return 0;
-			}
+		var s = getString(row, i);
+		if (s == null)
+			return 0;
+		try {
+			return Double.parseDouble(s);
+		} catch (Exception e) {
+			Logger log = LoggerFactory.getLogger(Maps.class);
+			log.error("{} is not a number; default to 0.0", s);
+			return 0;
 		}
-		return 0;
 	}
 
-	public static int getInt(List<?> values, int i) {
-		if (values == null || i >= values.size())
+	public static int getInt(CSVRecord row, int i) {
+		var s = getString(row, i);
+		if (s == null)
 			return 0;
-		Object val = values.get(i);
-		if (val instanceof Number)
-			return ((Number) val).intValue();
-		if (val instanceof String) {
-			try {
-				return Integer.parseInt((String) val);
-			} catch (Exception e) {
-				Logger log = LoggerFactory.getLogger(Maps.class);
-				log.error("{} is not a number; default to 0", val);
-				return 0;
-			}
+		try {
+			return Integer.parseInt(s);
+		} catch (Exception e) {
+			Logger log = LoggerFactory.getLogger(Maps.class);
+			log.error("{} is not a number; default to 0", s);
+			return 0;
 		}
-		return 0;
 	}
 
 	/**
 	 * Iterates over each row in the given mapping file.
 	 */
-	public static void each(File file, Consumer<List<String>> fn) {
+	public static void each(File file, Consumer<CSVRecord> fn) {
 		if (file == null || fn == null)
 			return;
-		try (var stream = new FileInputStream(file)){
-		 	each(stream, fn);
-		} catch (IOException e) {
+		try (var stream = new FileInputStream(file)) {
+			each(stream, fn);
+		} catch (Exception e) {
 			throw new RuntimeException("failed to read mapping file " + file, e);
 		}
 	}
@@ -201,22 +107,18 @@ public class Maps {
 	/**
 	 * Iterates over each row in the given mapping file.
 	 */
-	public static void each(InputStream stream, Consumer<List<String>> fn) {
+	public static void each(InputStream stream, Consumer<CSVRecord> fn) {
 		if (stream == null || fn == null)
 			return;
-		var prefs = new CsvPreference.Builder('"', ';', "\n").build();
-		try (var bom = new BOMInputStream(stream, false, ByteOrderMark.UTF_8);
-			 var r = new InputStreamReader(bom, StandardCharsets.UTF_8);
-			 var buf = new BufferedReader(r);
-			 var reader = new CsvListReader(buf, prefs)) {
-			List<String> row;
-			while ((row = reader.read()) != null) {
-				if (row.isEmpty())
+		try (var reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
+				 var parser = new CSVParser(reader, format())) {
+			for (var row : parser) {
+				if (row.size() == 0)
 					continue;
 				fn.accept(row);
 			}
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException("failed to read CSV stream", e);
 		}
 	}
 
@@ -253,15 +155,13 @@ public class Maps {
 	public static void write(OutputStream out, Stream<Object[]> rows) {
 		if (out == null || rows == null)
 			return;
-		var prefs = new CsvPreference.Builder('"', ';', "\n").build();
-		try (var w = new OutputStreamWriter(out, StandardCharsets.UTF_8);
-			 var buf = new BufferedWriter(w);
-			 var writer = new CsvListWriter(buf, prefs)) {
+		try (var writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
+				 var printer = new CSVPrinter(writer, format())) {
 			rows.forEach(row -> {
 				if (row == null)
 					return;
 				try {
-					writer.write(row);
+					printer.printRecord(row);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}

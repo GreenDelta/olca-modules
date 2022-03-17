@@ -12,6 +12,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.UnitDao;
 import org.openlca.core.database.UnitGroupDao;
+import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -26,8 +27,6 @@ import org.openlca.core.model.Version;
 import org.openlca.io.Categories;
 import org.openlca.io.maps.FlowMapEntry;
 import org.openlca.util.KeyGen;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import spold2.Classification;
 import spold2.Compartment;
@@ -44,9 +43,9 @@ import spold2.Spold2;
  */
 class RefDataImport {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final ImportConfig config;
+	private final ImportLog log;
 	private final CategoryDao categoryDao;
 	private final FlowDao flowDao;
 	private final LocationDao locationDao;
@@ -54,6 +53,7 @@ class RefDataImport {
 
 	public RefDataImport(ImportConfig config) {
 		this.config = config;
+		this.log = config.log();
 		this.index = new RefDataIndex();
 		this.categoryDao = new CategoryDao(config.db);
 		this.locationDao = new LocationDao(config.db);
@@ -83,8 +83,8 @@ class RefDataImport {
 				FlowPropertyDao propDao = new FlowPropertyDao(database);
 				FlowProperty prop = propDao.getForRefId(args[2]);
 				if (unit == null || prop == null)
-					log.warn("no unit or property found for {} in database, "
-						+ "no reference data?", eiUnitKey);
+					log.warn("no unit or property found for '" +
+						eiUnitKey + "' in database, no reference data?");
 				else {
 					index.putUnit(eiUnitKey, unit);
 					index.putFlowProperty(eiUnitKey, prop);
@@ -145,7 +145,7 @@ class RefDataImport {
 	private void geography(DataSet ds) {
 		Geography geography = Spold2.getGeography(ds);
 		if (geography == null || geography.id == null
-				|| geography.shortName == null)
+			|| geography.shortName == null)
 			return;
 		String refId = geography.id;
 		Location location = index.getLocation(refId);
@@ -166,15 +166,15 @@ class RefDataImport {
 
 	private void compartment(Compartment comp) {
 		if (comp == null || comp.id == null
-				|| comp.subCompartment == null
-				|| comp.compartment == null)
+			|| comp.subCompartment == null
+			|| comp.compartment == null)
 			return;
 		String refId = comp.id;
 		Category category = index.getCompartment(refId);
 		if (category != null)
 			return;
 		category = categoryDao.sync(
-				ModelType.FLOW, comp.compartment, comp.subCompartment);
+			ModelType.FLOW, comp.compartment, comp.subCompartment);
 		index.putCompartment(refId, category);
 	}
 
@@ -203,7 +203,7 @@ class RefDataImport {
 		flow = new Flow();
 		flow.refId = refId;
 		flow.description = "EcoSpold 2 intermediate exchange, ID = "
-				+ exchange.flowId;
+			+ exchange.flowId;
 		// in ecoinvent 3 negative values indicate waste flows
 		// see also the exchange handling in the process input
 		// to be on the save side, we declare all intermediate flows as
@@ -234,7 +234,7 @@ class RefDataImport {
 		flow.refId = refId;
 		flow.category = category;
 		flow.description = "EcoSpold 2 elementary exchange, ID = "
-				+ exchange.flowId;
+			+ exchange.flowId;
 		flow.flowType = FlowType.ELEMENTARY_FLOW;
 		createFlow(exchange, flow);
 	}
@@ -264,7 +264,7 @@ class RefDataImport {
 		if (prop == null) {
 			prop = syncUnit(exchange.unitId, exchange.unit);
 			if (prop == null) {
-				log.warn("failed to create unit {}", exchange.unit);
+				log.warn("failed to create unit: " + exchange.unit);
 				return;
 			}
 		}
@@ -285,8 +285,7 @@ class RefDataImport {
 	 * Returns only a value if the given exchange is the reference product of
 	 * the data set.
 	 */
-	private Category getProductCategory(DataSet dataSet,
-			IntermediateExchange e) {
+	private Category getProductCategory(DataSet dataSet, IntermediateExchange e) {
 		Integer og = e.outputGroup;
 		if (og == null || og != 0)
 			return null;
@@ -323,8 +322,7 @@ class RefDataImport {
 				if (Objects.equals(u.name, name)) {
 					if (unit != null) {
 						log.warn("There are multiple possible" +
-								" definitions for unit {} in the database",
-								name);
+							" definitions for unit " + name + " in the database");
 					}
 					unit = u;
 					group = ug;
@@ -337,17 +335,15 @@ class RefDataImport {
 
 		// create the unit and unit group if necessary
 		if (unit != null) {
-			log.info("mapped unit '{}' id='{}' by {}",
-					name, refID, byID ? "ID" : "name");
+			log.info("mapped unit '" + name + "' id='" + refID + "' by "
+				+ (byID ? "ID" : "name"));
 		} else {
-			log.info("create new unit {}", name);
+			log.info("create new unit: " + name);
 
 			unit = new Unit();
 			unit.name = name;
 			unit.refId = refID;
 			unit.conversionFactor = 1.0;
-			unit.lastChange = new Date().getTime();
-			unit.version = Version.valueOf(1, 0, 0);
 
 			group = new UnitGroup();
 			group.name = "Unit group for " + name;
@@ -358,6 +354,7 @@ class RefDataImport {
 			group.version = Version.valueOf(1, 0, 0);
 			group = new UnitGroupDao(config.db).insert(group);
 			unit = group.referenceUnit; // JPA synced
+			log.imported(group);
 		}
 
 		// try to find a matching flow property
@@ -382,6 +379,7 @@ class RefDataImport {
 			prop.lastChange = new Date().getTime();
 			prop.version = Version.valueOf(1, 0, 0);
 			prop = propDao.insert(prop);
+			log.imported(prop);
 			group.defaultFlowProperty = prop;
 			group = new UnitGroupDao(config.db).update(group);
 			unit = group.referenceUnit; // JPA synced

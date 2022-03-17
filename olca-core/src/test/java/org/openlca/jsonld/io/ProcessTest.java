@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.Tests;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
@@ -20,16 +21,17 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.AbstractZipTest;
-import org.openlca.jsonld.Tests;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
 import org.openlca.jsonld.output.JsonExport;
 
 public class ProcessTest extends AbstractZipTest {
 
+	private final IDatabase db = Tests.getDb();
+
 	@Test
 	public void testProcess() throws Exception {
-		ProcessDao dao = new ProcessDao(Tests.getDb());
+		ProcessDao dao = new ProcessDao(db);
 		Process process = createSimpleModel(dao);
 		doExport(process);
 		dao.delete(process);
@@ -54,7 +56,7 @@ public class ProcessTest extends AbstractZipTest {
 	}
 
 	@Test
-	public void testCyclicProvider() throws Exception {
+	public void testCyclicProvider() {
 		IDatabase db = Tests.getDb();
 		ProcessDao dao = new ProcessDao(db);
 		Process[] processes = createCyclicModel(db);
@@ -78,9 +80,12 @@ public class ProcessTest extends AbstractZipTest {
 			clones.add(i, clone);
 		}
 		Exchange in = null;
-		for (Exchange e : clones.get(1).exchanges)
-			if (e.isInput)
+		for (Exchange e : clones.get(1).exchanges) {
+			if (e.isInput) {
 				in = e;
+			}
+		}
+		Assert.assertNotNull(in);
 		Assert.assertEquals(clones.get(0).id, in.defaultProviderId);
 		for (Exchange e : clones.get(0).exchanges)
 			if (e.isInput)
@@ -159,9 +164,9 @@ public class ProcessTest extends AbstractZipTest {
 
 	private void doExport(Process process) {
 		with(zip -> {
-			JsonExport export = new JsonExport(Tests.getDb(), zip);
-			export.setExportDefaultProviders(true);
-			export.write(process);
+			new JsonExport(Tests.getDb(), zip)
+				.withDefaultProviders(true)
+				.write(process);
 		});
 	}
 

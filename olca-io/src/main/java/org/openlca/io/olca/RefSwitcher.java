@@ -13,7 +13,7 @@ import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.NwSetDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.database.RootEntityDao;
+import org.openlca.core.database.RefEntityDao;
 import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitDao;
@@ -31,7 +31,7 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.NwSet;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
@@ -150,8 +150,8 @@ class RefSwitcher {
 		return switchRef(seq.NW_SET, new NwSetDao(dest), srcNwSet);
 	}
 
-	private <T extends RootEntity> T switchRef(
-			int type, RootEntityDao<T, ?> dao, T srcEntity) {
+	private <T extends RefEntity> T switchRef(
+            int type, RefEntityDao<T, ?> dao, T srcEntity) {
 		if (srcEntity == null)
 			return null;
 		long id = seq.get(type, srcEntity.refId);

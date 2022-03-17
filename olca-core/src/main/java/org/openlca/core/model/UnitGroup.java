@@ -22,7 +22,7 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name = "tbl_unit_groups")
-public class UnitGroup extends CategorizedEntity {
+public class UnitGroup extends RootEntity {
 
 	@OneToOne
 	@JoinColumn(name = "f_default_flow_property")

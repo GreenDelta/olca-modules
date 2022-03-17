@@ -7,11 +7,11 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NwSetDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.NwSet;
-import org.openlca.jsonld.Tests;
 
 /**
  * When an impact method is updated/overwritten during import, the nw sets need
@@ -23,28 +23,27 @@ import org.openlca.jsonld.Tests;
 public class NwSetSyncTest {
 
 	private static final ModelType[] modelTypes = new ModelType[] { ModelType.PROJECT };
-	private IDatabase db;
+	private final IDatabase db = Tests.getDb();
 	private NwSetDao dao;
 	private File allData;
 	private File nwSetData;
 
 	@Before
 	public void before() throws IOException {
-		db = Tests.getDb();
-		Tests.clearDb();
+		db.clear();
 		dao = new NwSetDao(db);
 		allData = SyncTestUtils.copyToTemp("nw_set_sync-all.zip");
 		nwSetData = SyncTestUtils.copyToTemp("nw_set_sync-impact_method.zip");
 	}
 
 	@Test
-	public void initialDataValidates() throws IOException {
+	public void initialDataValidates() {
 		SyncTestUtils.doImport(allData, db);
 		Assert.assertTrue(validate());
 	}
 
 	@Test
-	public void nwSetSync() throws IOException {
+	public void nwSetSync() {
 		SyncTestUtils.doImport(allData, db);
 		SyncTestUtils.doImport(nwSetData, db);
 		Assert.assertTrue(validate());
@@ -62,7 +61,7 @@ public class NwSetSyncTest {
 	public void after() throws IOException {
 		SyncTestUtils.delete(nwSetData);
 		SyncTestUtils.delete(allData);
-		Tests.clearDb();
+		db.clear();
 	}
 
 }

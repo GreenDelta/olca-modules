@@ -189,16 +189,12 @@ public class ProcessExport {
 	private ModellingApproach getAllocationMethod() {
 		if (process.defaultAllocationMethod == null)
 			return null;
-		switch (process.defaultAllocationMethod) {
-		case CAUSAL:
-			return ModellingApproach.ALLOCATION_OTHER_EXPLICIT_ASSIGNMENT;
-		case ECONOMIC:
-			return ModellingApproach.ALLOCATION_MARKET_VALUE;
-		case PHYSICAL:
-			return ModellingApproach.ALLOCATION_PHYSICAL_CAUSALITY;
-		default:
-			return null;
-		}
+		return switch (process.defaultAllocationMethod) {
+			case CAUSAL -> ModellingApproach.ALLOCATION_OTHER_EXPLICIT_ASSIGNMENT;
+			case ECONOMIC -> ModellingApproach.ALLOCATION_MARKET_VALUE;
+			case PHYSICAL -> ModellingApproach.ALLOCATION_PHYSICAL_CAUSALITY;
+			default -> null;
+		};
 	}
 
 	private Representativeness makeRepresentativeness() {

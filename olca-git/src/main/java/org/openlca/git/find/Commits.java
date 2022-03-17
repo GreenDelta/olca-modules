@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
@@ -19,6 +18,7 @@ import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.model.Commit;
 import org.openlca.git.util.GitUtil;
+import org.openlca.git.util.Repositories;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,11 @@ public class Commits {
 	private static final Logger log = LoggerFactory.getLogger(Commits.class);
 	private final FileRepository repo;
 
-	public Commits(FileRepository repo) {
+	public static Commits of(FileRepository repo) {
+		return new Commits(repo);
+	}
+
+	private Commits(FileRepository repo) {
 		this.repo = repo;
 	}
 
@@ -57,27 +61,16 @@ public class Commits {
 	}
 
 	public Commit head() {
-		try {
-			var id = repo.resolve(Constants.HEAD);
-			if (id == null)
-				return null;
-			var commit = repo.parseCommit(id);
-			if (commit == null)
-				return null;
-			return new Commit(commit);
-		} catch (IOException e) {
-			log.error("Error accessing history", e);
+		var commit = Repositories.headCommitOf(repo);
+		if (commit == null)
 			return null;
-		}
+		return new Commit(commit);
 	}
 
 	RevCommit getRev(String commitId) throws IOException {
 		if (commitId != null)
 			return repo.parseCommit(ObjectId.fromString(commitId));
-		var id = repo.resolve(Constants.HEAD);
-		if (id == null)
-			return null;
-		return repo.parseCommit(id);
+		return Repositories.headCommitOf(repo);
 	}
 
 	public Find find() {
@@ -93,7 +86,7 @@ public class Commits {
 		private ModelType type;
 		private String refId;
 		private String path;
-		private List<String> branches = List.of("HEAD");
+		private List<String> branches = List.of("HEAD", "refs/heads/master");
 
 		public Find from(String from) {
 			this.includeStart = true;

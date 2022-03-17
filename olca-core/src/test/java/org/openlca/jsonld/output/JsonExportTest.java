@@ -7,10 +7,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.Tests;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
-import org.openlca.jsonld.Tests;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.util.Dirs;
 
@@ -46,8 +46,8 @@ public class JsonExportTest {
 			count.incrementAndGet();
 		});
 		Assert.assertEquals(2, count.get());
-		Assert.assertTrue(store.contains(ModelType.ACTOR, actor.refId));
-		Assert.assertTrue(store.contains(ModelType.CATEGORY, cat.refId));
+		Assert.assertNotNull(store.get(ModelType.ACTOR, actor.refId));
+		Assert.assertNotNull(store.get(ModelType.CATEGORY, cat.refId));
 		store.close();
 		Dirs.delete(tempdir);
 	}

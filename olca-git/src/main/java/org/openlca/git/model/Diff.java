@@ -23,6 +23,12 @@ public class Diff {
 		this.right = toCommitReference(rightCommitId, entry, Side.NEW);
 	}
 
+	public Diff(DiffType type, Reference left, Reference right) {
+		this.type = type;
+		this.left = left;
+		this.right = right;
+	}
+
 	private Reference toCommitReference(String commitId, DiffEntry entry, Side side) {
 		if (entry.getMode(side) == FileMode.MISSING)
 			return null;

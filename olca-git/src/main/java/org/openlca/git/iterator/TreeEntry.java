@@ -5,7 +5,7 @@ import java.io.File;
 import org.eclipse.jgit.lib.FileMode;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.util.GitUtil;
 
 class TreeEntry implements Comparable<TreeEntry> {
@@ -23,8 +23,8 @@ class TreeEntry implements Comparable<TreeEntry> {
 		this(GitUtil.encode(category.name), FileMode.TREE, category);
 	}
 
-	TreeEntry(CategorizedDescriptor descriptor) {
-		this(descriptor.refId + ".json", FileMode.REGULAR_FILE, descriptor);
+	TreeEntry(RootDescriptor descriptor) {
+		this(descriptor.refId + GitUtil.DATASET_SUFFIX, FileMode.REGULAR_FILE, descriptor);
 	}
 
 	TreeEntry(String name, FileMode fileMode) {

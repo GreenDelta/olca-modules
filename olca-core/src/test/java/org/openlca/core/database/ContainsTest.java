@@ -11,7 +11,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 
@@ -31,8 +31,8 @@ public class ContainsTest {
 		test(Location.class, new LocationDao(db));
 	}
 
-	private <T extends RootEntity> void test(Class<T> clazz,
-			RootEntityDao<T, ?> dao) throws Exception {
+	private <T extends RefEntity> void test(Class<T> clazz,
+                                            RefEntityDao<T, ?> dao) throws Exception {
 		String refId = UUID.randomUUID().toString();
 		Assert.assertFalse(dao.contains(refId));
 		T entity = clazz.newInstance();

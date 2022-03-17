@@ -13,7 +13,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 
-public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
+public class FlowDao extends RootEntityDao<Flow, FlowDescriptor> {
 
 	public FlowDao(IDatabase database) {
 		super(Flow.class, FlowDescriptor.class, database);

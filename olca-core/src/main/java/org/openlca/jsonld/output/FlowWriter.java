@@ -7,11 +7,12 @@ import org.openlca.core.model.FlowPropertyFactor;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.openlca.jsonld.Json;
 
 class FlowWriter extends Writer<Flow> {
 
-	FlowWriter(ExportConfig conf) {
-		super(conf);
+	FlowWriter(JsonExport exp) {
+		super(exp);
 	}
 
 	@Override
@@ -19,28 +20,29 @@ class FlowWriter extends Writer<Flow> {
 		JsonObject obj = super.write(flow);
 		if (obj == null)
 			return null;
-		Out.put(obj, "flowType", flow.flowType, Out.REQUIRED_FIELD);
-		Out.put(obj, "cas", flow.casNumber);
-		Out.put(obj, "formula", flow.formula);
-		Out.put(obj, "synonyms", flow.synonyms);
-		Out.put(obj, "infrastructureFlow", flow.infrastructureFlow);
-		Out.put(obj, "location", flow.location, conf);
+		Json.put(obj, "flowType", flow.flowType);
+		Json.put(obj, "cas", flow.casNumber);
+		Json.put(obj, "formula", flow.formula);
+		Json.put(obj, "synonyms", flow.synonyms);
+		Json.put(obj, "isInfrastructureFlow", flow.infrastructureFlow);
+		Json.put(obj, "location", exp.handleRef(flow.location));
 		addFactors(flow, obj);
 		return obj;
 	}
 
 	private void addFactors(Flow flow, JsonObject obj) {
-		JsonArray factorArray = new JsonArray();
-		for (FlowPropertyFactor fac : flow.flowPropertyFactors) {
-			JsonObject facObj = new JsonObject();
-			Out.put(facObj, "@type", FlowPropertyFactor.class.getSimpleName());
-			if (Objects.equals(fac, flow.getReferenceFactor()))
-				Out.put(facObj, "referenceFlowProperty", true);
-			Out.put(facObj, "flowProperty", fac.flowProperty, conf, Out.REQUIRED_FIELD);
-			Out.put(facObj, "conversionFactor", fac.conversionFactor);
-			factorArray.add(facObj);
+		var array = new JsonArray();
+		for (var factor : flow.flowPropertyFactors) {
+			var facObj = new JsonObject();
+			Json.put(facObj, "@type", FlowPropertyFactor.class.getSimpleName());
+			if (Objects.equals(factor, flow.getReferenceFactor())) {
+				Json.put(facObj, "referenceFlowProperty", true);
+			}
+			Json.put(facObj, "flowProperty", exp.handleRef(factor.flowProperty));
+			Json.put(facObj, "conversionFactor", factor.conversionFactor);
+			array.add(facObj);
 		}
-		Out.put(obj, "flowProperties", factorArray);
+		Json.put(obj, "flowProperties", array);
 	}
 
 }

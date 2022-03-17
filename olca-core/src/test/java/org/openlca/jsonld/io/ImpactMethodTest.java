@@ -3,11 +3,11 @@ package org.openlca.jsonld.io;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.jsonld.AbstractZipTest;
-import org.openlca.jsonld.Tests;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.output.JsonExport;
 
@@ -21,7 +21,7 @@ public class ImpactMethodTest extends AbstractZipTest {
 		with(zip -> new JsonExport(db, zip).write(method));
 		db.delete(method);
 		assertNull(db.get(ImpactMethod.class, method.refId));
-		with(zip -> new JsonImport(zip, Tests.getDb()).run());
+		with(zip -> new JsonImport(zip, db).run());
 		var clone = db.get(ImpactMethod.class, method.refId);
 		assertEquals(method.name, clone.name);
 		db.delete(method);

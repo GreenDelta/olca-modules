@@ -1,6 +1,6 @@
 package org.openlca.proto.io.input;
 
-import org.openlca.core.model.EntityResolver;
+import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedef;

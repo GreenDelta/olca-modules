@@ -1,8 +1,9 @@
 package org.openlca.jsonld.input;
 
 import com.google.gson.JsonElement;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.Json;
 
@@ -33,24 +34,31 @@ final class In {
 				: date.getTime();
 	}
 
-	static void mapAtts(JsonObject obj, RootEntity entity, long id) {
+	static void mapAtts(JsonObject obj, RefEntity entity, long id) {
 		if (obj == null || entity == null)
 			return;
 		entity.id = id;
 		entity.name = Json.getString(obj, "name");
 		entity.description = Json.getString(obj, "description");
 		entity.refId = Json.getString(obj, "@id");
-		entity.version = getVersion(obj);
-		entity.lastChange = getLastChange(obj);
 	}
 
-	static void mapAtts(JsonObject obj, CategorizedEntity entity, long id,
-						ImportConfig conf) {
+	static void mapAtts(JsonObject obj, RootEntity entity, long id,
+											JsonImport conf) {
 		if (obj == null || entity == null)
 			return;
 		mapAtts(obj, entity, id);
-		var catId = Json.getRefId(obj, "category");
-		entity.category = CategoryImport.run(catId, conf);
+
+		// category
+		var path = Json.getString(obj, "category");
+		if (Strings.notEmpty(path)) {
+			var type = ModelType.of(entity);
+			entity.category = conf.categories.get(type, path);
+		}
+
+		entity.library = Json.getString(obj, "library");
+		entity.version = getVersion(obj);
+		entity.lastChange = getLastChange(obj);
 
 		// read tags
 		var tagArray = Json.getArray(obj, "tags");

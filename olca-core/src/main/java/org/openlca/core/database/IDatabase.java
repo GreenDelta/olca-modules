@@ -14,15 +14,16 @@ import gnu.trove.set.TLongSet;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import org.openlca.core.model.AbstractEntity;
-import org.openlca.core.model.EntityResolver;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 /**
  * The common interface for openLCA databases.
  */
-public interface IDatabase extends Closeable, INotifiable, EntityResolver {
+public interface IDatabase extends Closeable, INotifiable {
 
 	/**
 	 * The current database schema version of this package. Together with the
@@ -184,14 +185,13 @@ public interface IDatabase extends Closeable, INotifiable, EntityResolver {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
-	default <T extends RootEntity> T get(Class<T> type, String refId) {
+	default <T extends RefEntity> T get(Class<T> type, String refId) {
 		if (type == null || refId == null)
 			return null;
 		var modelType = ModelType.forModelClass(type);
 		if (modelType == null)
 			return null;
-		var dao = Daos.root(this, modelType);
+		var dao = Daos.refDao(this, modelType);
 		return dao == null
 			? null
 			: (T) dao.getForRefId(refId);
@@ -200,10 +200,10 @@ public interface IDatabase extends Closeable, INotifiable, EntityResolver {
 	/**
 	 * Get the descriptor of the entity of the given type and ID.
 	 */
-	default <T extends RootEntity> Descriptor getDescriptor(
+	default <T extends RefEntity> Descriptor getDescriptor(
 		Class<T> type, long id) {
 		var modelType = ModelType.forModelClass(type);
-		var dao = Daos.root(this, modelType);
+		var dao = Daos.refDao(this, modelType);
 		return dao == null
 			? null
 			: dao.getDescriptor(id);
@@ -212,13 +212,12 @@ public interface IDatabase extends Closeable, INotifiable, EntityResolver {
 	/**
 	 * Get the descriptor of the entity of the given type and reference ID.
 	 */
-	@Override
-	default <T extends RootEntity> Descriptor getDescriptor(
+	default <T extends RefEntity> Descriptor getDescriptor(
 		Class<T> type, String refID) {
 		if (refID == null)
 			return null;
 		var modelType = ModelType.forModelClass(type);
-		var dao = Daos.root(this, modelType);
+		var dao = Daos.refDao(this, modelType);
 		return dao == null
 			? null
 			: dao.getDescriptorForRefId(refID);
@@ -228,11 +227,11 @@ public interface IDatabase extends Closeable, INotifiable, EntityResolver {
 	 * Get all entities of the given type from this database.
 	 */
 	@SuppressWarnings("unchecked")
-	default <T extends RootEntity> List<T> allOf(Class<T> type) {
+	default <T extends RefEntity> List<T> getAll(Class<T> type) {
 		var modelType = ModelType.forModelClass(type);
 		if (modelType == null)
 			return Collections.emptyList();
-		var dao = Daos.root(this, modelType);
+		var dao = Daos.refDao(this, modelType);
 		return dao == null
 			? Collections.emptyList()
 			: (List<T>) dao.getAll();
@@ -241,13 +240,24 @@ public interface IDatabase extends Closeable, INotifiable, EntityResolver {
 	/**
 	 * Get the descriptors of all entities of the given type from this database.
 	 */
-	default <T extends RootEntity> List<? extends Descriptor> allDescriptorsOf(
+	default <T extends RefEntity> List<? extends Descriptor> getDescriptors(
 		Class<T> type) {
 		var modelType = ModelType.forModelClass(type);
-		var dao = Daos.root(this, modelType);
+		var dao = Daos.refDao(this, modelType);
 		return dao == null
 			? Collections.emptyList()
 			: dao.getDescriptors();
+	}
+
+	default <T extends RootEntity> List<? extends RootDescriptor> getDescriptors(
+		Class<T> type, Set<Long> ids) {
+		if (type == null || ids.isEmpty())
+			return Collections.emptyList();
+		var modelType = ModelType.forModelClass(type);
+		var dao = Daos.root(this, modelType);
+		return dao != null
+			? dao.getDescriptors(ids)
+			: Collections.emptyList();
 	}
 
 	/**
@@ -255,11 +265,11 @@ public interface IDatabase extends Closeable, INotifiable, EntityResolver {
 	 * database. It returns `null` if no entity with the given name exists.
 	 */
 	@SuppressWarnings("unchecked")
-	default <T extends RootEntity> T forName(Class<T> type, String name) {
+	default <T extends RefEntity> T getForName(Class<T> type, String name) {
 		var modelType = ModelType.forModelClass(type);
 		if (modelType == null)
 			return null;
-		var dao = Daos.root(this, modelType);
+		var dao = Daos.refDao(this, modelType);
 		if (dao == null)
 			return null;
 		var candidates = dao.getForName(name);

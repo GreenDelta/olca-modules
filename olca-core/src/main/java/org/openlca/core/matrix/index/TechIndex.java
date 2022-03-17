@@ -24,7 +24,7 @@ import org.openlca.core.matrix.linking.LinkingInfo;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 
@@ -138,7 +138,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 		var flows = new FlowDao(db).descriptorMap();
 
 		for (var link : system.processLinks) {
-			CategorizedDescriptor p = processes.get(link.providerId);
+			RootDescriptor p = processes.get(link.providerId);
 			if (p == null) {
 				p = systems.get(link.providerId);
 				if (p == null) {
@@ -309,7 +309,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 	 * Get all providers with the given descriptor of a process or product system as
 	 * entity.
 	 */
-	public List<TechFlow> getProviders(CategorizedDescriptor d) {
+	public List<TechFlow> getProviders(RootDescriptor d) {
 		return d == null
 			? Collections.emptyList()
 			: getProviders(d.id);

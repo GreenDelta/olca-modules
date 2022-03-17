@@ -1,39 +1,34 @@
 package org.openlca.io.simapro.csv.input;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.io.ImportLog;
+import org.openlca.core.model.RootEntity;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.simapro.csv.CsvDataSet;
 
-class ImportContext {
+record ImportContext(
+	IDatabase db,
+	RefData refData,
+	ImportLog log,
+	CsvDataSet dataSet
+) {
 
-	private final IDatabase db;
-	private final RefData refData;
-	private final CsvDataSet dataSet;
-
-	private ImportContext(Builder builder, CsvDataSet dataSet) {
-		this.db = builder.db;
-		this.refData = builder.refData;
-		this.dataSet = dataSet;
+	ImportContext(Builder b, CsvDataSet dataSet) {
+		this(b.db, b.refData, b.log, dataSet);
 	}
 
-	IDatabase db() {
-		return db;
+	public <T extends RootEntity> T insert(T entity) {
+		var e = db.insert(entity);
+		log.imported(e);
+		return e;
 	}
 
-	RefData refData() {
-		return refData;
+	static Builder of(IDatabase db, FlowMap flowMap, ImportLog log) {
+		var refData = new RefData(db, flowMap, log);
+		return new Builder(db, refData, log);
 	}
 
-	public CsvDataSet dataSet() {
-		return dataSet;
-	}
-
-	static Builder of(IDatabase db, FlowMap flowMap) {
-		var refData = new RefData(db, flowMap);
-		return new Builder(db, refData);
-	}
-
-	record Builder (IDatabase db, RefData refData) {
+	record Builder(IDatabase db, RefData refData, ImportLog log) {
 
 		ImportContext next(CsvDataSet dataSet) {
 			refData.sync(dataSet);

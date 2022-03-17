@@ -76,25 +76,6 @@ public class Categories {
 			}
 		}
 
-		public void update(Category category) {
-			if (category == null)
-				return;
-			var previousName = names.put(category.id, category.name);
-			if (category.category != null) {
-				parents.put(category.id, category.category.id);
-			}
-			if (previousName != null && !previousName.equals(category.name)) {
-				for (var child : category.childCategories) {
-					update(child);
-				}
-			}
-		}
-
-		public void remove(long id) {
-			names.remove(id);
-			parents.remove(id);
-		}
-
 		/**
 		 * Returns the category path for the given ID. Passing `null` into this
 		 * function is allowed. It will return also `null` in this case as well as

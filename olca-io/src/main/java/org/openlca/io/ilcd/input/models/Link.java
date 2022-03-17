@@ -20,8 +20,8 @@ class Link {
 
 	@Override
 	public String toString() {
-		int from = provider != null ? provider.modelID : -1;
-		int to = recipient != null ? recipient.modelID : -1;
+		int from = provider != null ? provider.id : -1;
+		int to = recipient != null ? recipient.id : -1;
 		return "Link [ id=" + id + " : node[" + from
 				+ "] -> node[" + to + "] ]";
 	}

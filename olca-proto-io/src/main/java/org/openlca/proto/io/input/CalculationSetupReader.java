@@ -6,12 +6,11 @@ import java.util.Objects;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.CalculationTarget;
 import org.openlca.core.model.CalculationType;
-import org.openlca.core.model.EntityResolver;
+import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.proto.Proto;
 import org.openlca.proto.ProtoCalculationSetup;
 import org.openlca.util.Strings;
 
