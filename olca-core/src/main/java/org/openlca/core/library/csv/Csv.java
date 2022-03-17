@@ -7,7 +7,8 @@ class Csv {
 
 	// Number of columns that the respective types take in an CSV index.
 	static final int FLOW_COLS = 5;
-	static final int LOCATION_COLS = 5;
+	static final int PROCESS_COLS = 4;
+	static final int LOCATION_COLS = 3;
 
 	private Csv() {
 	}

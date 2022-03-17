@@ -80,13 +80,13 @@ public class WriterContext {
 				d.flowType);
 	}
 
-	LibProcessInfo toLibProcess(RootDescriptor d) {
+	LibProcess toLibProcess(RootDescriptor d) {
 		if (d == null)
-			return LibProcessInfo.empty();
+			return LibProcess.empty();
 		String location = d instanceof ProcessDescriptor p && p.location != null
 				? locationCodes().get(p.location)
 				: null;
-		return new LibProcessInfo(
+		return new LibProcess(
 				d.refId,
 				d.name,
 				categories().pathOf(d.category),

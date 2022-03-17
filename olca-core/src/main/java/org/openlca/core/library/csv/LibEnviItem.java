@@ -5,6 +5,9 @@ import org.openlca.core.library.Proto;
 
 import java.util.List;
 
+/**
+ * An item of a library's intervention index.
+ */
 public record LibEnviItem(
 	int index,
 	LibFlow flow,

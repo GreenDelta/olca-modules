@@ -19,9 +19,9 @@ public final class LibTechIndex {
 	private LibTechIndex() {
 	}
 
-	public static List<LibTechEntry> read(Library library) {
+	public static List<LibTechItem> read(Library library) {
 		var file = new File(library.folder, "index_A.csv");
-		var entries = new ArrayList<LibTechEntry>();
+		var entries = new ArrayList<LibTechItem>();
 		try (var reader = new FileReader(file, StandardCharsets.UTF_8);
 				var parser = new CSVParser(reader, Csv.format());) {
 
@@ -33,7 +33,7 @@ public final class LibTechIndex {
 					isHeader = false;
 					continue;
 				}
-				var entry = LibTechEntry.read(record);
+				var entry = LibTechItem.fromCsv(record);
 				sorted = sorted && entry.index() == i;
 				entries.add(entry);
 				i++;
@@ -52,16 +52,16 @@ public final class LibTechIndex {
 	public static void write(WriterContext cxt, TechIndex index) {
 		if (cxt == null || index == null)
 			return;
-		var entries = new ArrayList<LibTechEntry>(index.size());
+		var entries = new ArrayList<LibTechItem>(index.size());
 		index.each((i, techFlow) -> {
 			var process = cxt.toLibProcess(techFlow.provider());
 			var flow = cxt.toLibFlow(techFlow.flow());
-			entries.add(new LibTechEntry(i, process, flow));
+			entries.add(new LibTechItem(i, process, flow));
 		});
 		write(cxt, entries);
 	}
 
-	public static void write(WriterContext cxt, Iterable<LibTechEntry> entries) {
+	public static void write(WriterContext cxt, Iterable<LibTechItem> entries) {
 		var file = new File(cxt.library().folder, "index_A.csv");
 		try (var writer = new FileWriter(file, StandardCharsets.UTF_8);
 				var printer = new CSVPrinter(writer, Csv.format());) {
@@ -82,8 +82,8 @@ public final class LibTechIndex {
 			for (var e : entries) {
 				buffer.add(Integer.toString(e.index()));
 				var process = Objects.requireNonNullElse(
-						e.process(), LibProcessInfo.empty());
-				process.writeTo(buffer);
+						e.process(), LibProcess.empty());
+				process.toCsv(buffer);
 				var flow = Objects.requireNonNullElse(
 						e.flow(), LibFlow.empty());
 				flow.toCsv(buffer);
