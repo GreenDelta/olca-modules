@@ -3,6 +3,8 @@ package org.openlca.core.library;
 import java.util.List;
 
 import org.apache.commons.csv.CSVRecord;
+import org.openlca.core.model.Process;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.util.Strings;
 
 /**
@@ -17,12 +19,40 @@ public record LibProcess(
 	private static final LibProcess empty = new LibProcess(
 		null, null, null, null);
 
-	static LibProcess empty() {
+	public static LibProcess empty() {
 		return empty;
 	}
 
-	boolean isEmpty() {
+	public boolean isEmpty() {
 		return id == null || id.isBlank();
+	}
+
+	public static LibProcess of(Process process) {
+		if (process == null)
+			return empty;
+		return new LibProcess(
+			process.refId,
+			process.name,
+			process.category != null
+				? process.category.toPath()
+				: null,
+			process.location != null
+				? process.location.code
+				: null);
+	}
+
+	public static LibProcess of(ProcessDescriptor d, DbContext ctx) {
+		if (d == null)
+			return empty;
+		var category = ctx.categories().pathOf(d.category);
+		var loc = d.location != null
+			? ctx.locationCodes().get(d.location)
+			: null;
+		return new LibProcess(
+			d.refId,
+			d.name,
+			category,
+			loc);
 	}
 
 	Proto.Process toProto() {

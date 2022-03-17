@@ -21,15 +21,17 @@ public record LibFlow(
 	private static final LibFlow empty = new LibFlow(
 		null, null, null, null, null);
 
-	static LibFlow empty() {
+	public static LibFlow empty() {
 		return empty;
 	}
 
-	boolean isEmpty() {
+	public boolean isEmpty() {
 		return id == null || id.isBlank();
 	}
 
 	public static LibFlow of(Flow flow) {
+		if (flow == null)
+			return empty;
 		var unit = flow.getReferenceUnit();
 		return new LibFlow(
 			flow.refId,
@@ -42,6 +44,8 @@ public record LibFlow(
 	}
 
 	public static LibFlow of(FlowDescriptor d, DbContext ctx) {
+		if (d == null)
+			return empty;
 		var category = ctx.categories().pathOf(d.category);
 		var prop = ctx.quantities().get(d.refFlowPropertyId);
 		var unit = prop != null

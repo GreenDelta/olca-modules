@@ -1,24 +1,34 @@
 package org.openlca.core.library;
 
 import org.apache.commons.csv.CSVRecord;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.util.Strings;
 
 import java.util.List;
 
-public record LibImpact(
-	String id,
-	String name,
-	String unit) {
+public record LibImpact(String id, String name, String unit) {
 
-	private static final LibImpact empty = new LibImpact(
-		null, null, null);
+	private static final LibImpact empty = new LibImpact(null, null, null);
 
-	static LibImpact empty() {
+	public static LibImpact empty() {
 		return empty;
 	}
 
-	boolean isEmpty() {
+	public boolean isEmpty() {
 		return id == null || id.isBlank();
+	}
+
+	public static LibImpact of(ImpactCategory imp) {
+		return imp != null
+			? new LibImpact(imp.refId, imp.name, imp.referenceUnit)
+			: empty;
+	}
+
+	public static LibImpact of(ImpactDescriptor imp) {
+		return imp != null
+			? new LibImpact(imp.refId, imp.name, imp.referenceUnit)
+			: empty;
 	}
 
 	Proto.Impact toProto() {
