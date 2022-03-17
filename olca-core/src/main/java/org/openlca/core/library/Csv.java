@@ -1,9 +1,14 @@
 package org.openlca.core.library;
 
 import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
 
 class Csv {
 
@@ -44,5 +49,21 @@ class Csv {
 	static boolean isCsv(File file) {
 		return file != null && file.exists()
 			&& file.getName().toLowerCase().endsWith(".csv");
+	}
+
+	static void eachRowSkipFirst(File file, Consumer<CSVRecord> fn) {
+		try (var reader = new FileReader(file, StandardCharsets.UTF_8);
+				 var parser = new CSVParser(reader, Csv.format())) {
+			boolean isFirst = true;
+			for (var record : parser) {
+				if (isFirst) {
+					isFirst = false;
+					continue;
+				}
+				fn.accept(record);
+			}
+		} catch (IOException e) {
+			throw new RuntimeException("failed to read CSV file: " + file, e);
+		}
 	}
 }

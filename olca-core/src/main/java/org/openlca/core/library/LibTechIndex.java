@@ -4,7 +4,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -12,10 +11,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.util.Exceptions;
 
 public record LibTechIndex(List<LibTechItem> items) {
 
@@ -27,10 +24,8 @@ public record LibTechIndex(List<LibTechItem> items) {
 		if (idx == null || idx.size() == 0)
 			return empty();
 		var items = new ArrayList<LibTechItem>(idx.size());
-		idx.each((pos, techEntry) -> {
-			var item = LibTechItem.of(pos, techEntry, ctx);
-			items.add(item);
-		});
+		idx.each((pos, techEntry)
+			-> items.add(LibTechItem.of(pos, techEntry, ctx)));
 		return new LibTechIndex(items);
 	}
 
@@ -62,20 +57,9 @@ public record LibTechIndex(List<LibTechItem> items) {
 
 	private static LibTechIndex readCsv(File file) {
 		var items = new ArrayList<LibTechItem>();
-		try (var reader = new FileReader(file, StandardCharsets.UTF_8);
-				 var parser = new CSVParser(reader, Csv.format())) {
-			boolean isHeader = true;
-			for (var record : parser) {
-				if (isHeader) {
-					isHeader = false;
-					continue;
-				}
-				items.add(LibTechItem.fromCsv(record));
-			}
-			return new LibTechIndex(items);
-		} catch (IOException e) {
-			throw new RuntimeException("failed to read tech-index from " + file, e);
-		}
+		Csv.eachRowSkipFirst(file,
+			row -> items.add(LibTechItem.fromCsv(row)));
+		return new LibTechIndex(items);
 	}
 
 	private static LibTechIndex readProto(File file) {
@@ -88,7 +72,8 @@ public record LibTechIndex(List<LibTechItem> items) {
 			}
 			return new LibTechIndex(items);
 		} catch (IOException e) {
-			throw new RuntimeException("failed to read tech-index from " + file, e);
+			throw new RuntimeException(
+				"failed to read tech-index from " + file, e);
 		}
 	}
 
@@ -136,7 +121,7 @@ public record LibTechIndex(List<LibTechItem> items) {
 				 var buffer = new BufferedOutputStream(stream)) {
 			index.build().writeTo(buffer);
 		} catch (Exception e) {
-			Exceptions.unchecked(
+			throw new RuntimeException(
 				"failed to write tech-index to " + file, e);
 		}
 	}
