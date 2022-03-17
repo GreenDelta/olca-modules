@@ -6,15 +6,15 @@ import org.openlca.util.Strings;
 
 import java.util.List;
 
-/**
- * Contains the meta-data of a location stored in a library index.
- */
-public record LibLocation(String id, String name, String code) {
+public record LibImpact(
+	String id,
+	String name,
+	String unit) {
 
-	private static final LibLocation empty = new LibLocation(
+	private static final LibImpact empty = new LibImpact(
 		null, null, null);
 
-	static LibLocation empty() {
+	static LibImpact empty() {
 		return empty;
 	}
 
@@ -22,31 +22,32 @@ public record LibLocation(String id, String name, String code) {
 		return id == null || id.isBlank();
 	}
 
-	Proto.Location toProto() {
-		return Proto.Location.newBuilder()
+	Proto.Impact toProto() {
+		return Proto.Impact.newBuilder()
 			.setId(Strings.orEmpty(id))
 			.setName(Strings.orEmpty(name))
-			.setCode(Strings.orEmpty(code))
+			.setUnit(Strings.orEmpty(unit))
 			.build();
 	}
 
-	static LibLocation fromProto(Proto.Location proto) {
-		return new LibLocation(
+	static LibImpact fromProto(Proto.Impact proto) {
+		return new LibImpact(
 			proto.getId(),
 			proto.getName(),
-			proto.getCode());
+			proto.getUnit());
 	}
 
 	void toCsv(List<String> buffer) {
 		buffer.add(Csv.str(id));
 		buffer.add(Csv.str(name));
-		buffer.add(Csv.str(code));
+		buffer.add(Csv.str(unit));
 	}
 
-	static LibLocation fromCsv(CSVRecord row, int offset) {
-		return new LibLocation(
+	static LibImpact fromCsv(CSVRecord row, int offset) {
+		return new LibImpact(
 			Csv.read(row, offset),
 			Csv.read(row, offset + 1),
 			Csv.read(row, offset + 2));
 	}
+
 }
