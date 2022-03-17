@@ -3,15 +3,15 @@ package org.openlca.core.library;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.util.Exceptions;
 
-public final class LibEnviIndex {
+public record LibEnviIndex(List<LibEnviItem> items) {
 
-	private LibEnviIndex() {
-	}
+
 
 	public static void write(Library library, IDatabase db, EnviIndex index) {
 		var context = WriterContext.create(db, library);

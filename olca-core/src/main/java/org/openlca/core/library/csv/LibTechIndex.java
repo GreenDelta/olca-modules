@@ -11,6 +11,10 @@ import java.util.Objects;
 
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
+import org.openlca.core.library.Csv;
+import org.openlca.core.library.LibFlow;
+import org.openlca.core.library.LibProcess;
+import org.openlca.core.library.LibTechItem;
 import org.openlca.core.library.Library;
 import org.openlca.core.matrix.index.TechIndex;
 
@@ -23,7 +27,7 @@ public final class LibTechIndex {
 		var file = new File(library.folder, "index_A.csv");
 		var entries = new ArrayList<LibTechItem>();
 		try (var reader = new FileReader(file, StandardCharsets.UTF_8);
-				var parser = new CSVParser(reader, Csv.format());) {
+				 var parser = new CSVParser(reader, Csv.format());) {
 
 			boolean isHeader = true;
 			boolean sorted = true;

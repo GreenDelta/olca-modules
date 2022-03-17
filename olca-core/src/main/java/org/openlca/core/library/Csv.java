@@ -1,4 +1,4 @@
-package org.openlca.core.library.csv;
+package org.openlca.core.library;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;

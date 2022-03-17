@@ -1,10 +1,11 @@
-package org.openlca.core.library.csv;
+package org.openlca.core.library;
 
 import java.util.List;
 
 import org.apache.commons.csv.CSVRecord;
-import org.openlca.core.library.Proto;
+import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.util.Strings;
 
 /**
@@ -26,6 +27,32 @@ public record LibFlow(
 
 	boolean isEmpty() {
 		return id == null || id.isBlank();
+	}
+
+	public static LibFlow of(Flow flow) {
+		var unit = flow.getReferenceUnit();
+		return new LibFlow(
+			flow.refId,
+			flow.name,
+			flow.category != null
+				? flow.category.toPath()
+				: null,
+			unit != null ? unit.name : null,
+			flow.flowType);
+	}
+
+	public static LibFlow of(FlowDescriptor d, DbContext ctx) {
+		var category = ctx.categories().pathOf(d.category);
+		var prop = ctx.quantities().get(d.refFlowPropertyId);
+		var unit = prop != null
+			? prop.getReferenceUnit()
+			: null;
+		return new LibFlow(
+			d.refId,
+			d.name,
+			category,
+			unit != null ? unit.name : null,
+			d.flowType);
 	}
 
 	Proto.Flow toProto() {

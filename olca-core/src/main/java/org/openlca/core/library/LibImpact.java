@@ -1,7 +1,6 @@
-package org.openlca.core.library.csv;
+package org.openlca.core.library;
 
 import org.apache.commons.csv.CSVRecord;
-import org.openlca.core.library.Proto;
 import org.openlca.util.Strings;
 
 import java.util.List;
