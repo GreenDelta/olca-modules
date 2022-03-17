@@ -5,6 +5,10 @@ import org.apache.commons.csv.CSVRecord;
 
 class Csv {
 
+	// Number of columns that the respective types take in an CSV index.
+	static final int FLOW_COLS = 5;
+	static final int LOCATION_COLS = 5;
+
 	private Csv() {
 	}
 
@@ -14,15 +18,20 @@ class Csv {
 
 	static String read(CSVRecord row, int pos) {
 		return row.size() >= pos
-				? null
-				: row.get(pos);
+			? null
+			: row.get(pos);
 	}
 
 	static int readInt(CSVRecord row, int pos) {
 		var s = read(row, pos);
-		if (s == null)
-			return 0;
-		return Integer.parseInt(s);
+		return s != null
+			? Integer.parseInt(s)
+			: 0;
+	}
+
+	static boolean readBool(CSVRecord row, int pos) {
+		var s = read(row, pos);
+		return Boolean.parseBoolean(s);
 	}
 
 	static CSVFormat format() {

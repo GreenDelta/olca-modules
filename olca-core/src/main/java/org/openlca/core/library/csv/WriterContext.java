@@ -99,10 +99,10 @@ public class WriterContext {
 		return new LibImpactInfo(d.refId, d.name, d.referenceUnit);
 	}
 
-	LibLocationInfo toLibLocation(LocationDescriptor d) {
+	LibLocation toLibLocation(LocationDescriptor d) {
 		if (d == null)
-			return LibLocationInfo.empty();
-		return new LibLocationInfo(d.refId, d.name, d.code);
+			return LibLocation.empty();
+		return new LibLocation(d.refId, d.name, d.code);
 	}
 
 }

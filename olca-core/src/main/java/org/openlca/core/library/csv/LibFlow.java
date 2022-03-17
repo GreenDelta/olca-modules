@@ -50,12 +50,12 @@ public record LibFlow(
 		);
 	}
 
-	void toCsv(List<String> row) {
-		row.add(Csv.str(id));
-		row.add(Csv.str(name));
-		row.add(Csv.str(category));
-		row.add(Csv.str(unit));
-		row.add(toCsv(type));
+	void toCsv(List<String> buffer) {
+		buffer.add(Csv.str(id));
+		buffer.add(Csv.str(name));
+		buffer.add(Csv.str(category));
+		buffer.add(Csv.str(unit));
+		buffer.add(toCsv(type));
 	}
 
 	static LibFlow fromCsv(CSVRecord row, int offset) {
