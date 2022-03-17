@@ -11,6 +11,7 @@ import org.openlca.core.io.ExchangeProviderQueue;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.ilcd.commons.LangString;
@@ -28,6 +29,7 @@ public class ImportConfig {
 	private final ImportLog log;
 
 	private boolean allFlows;
+	private boolean withGabiGraphs = false;
 	private String[] langOrder = {"en"};
 	private ExchangeProviderQueue providers;
 	private Map<String, ImpactMethodDescriptor> methods;
@@ -50,6 +52,25 @@ public class ImportConfig {
 	public ImportConfig withAllFlows(boolean b) {
 		allFlows = b;
 		return this;
+	}
+
+	/**
+	 * Set if Gabi graphs are supported in eILCD model imports or not. Gabi has
+	 * some specific model features: processes can be connected by different flows
+	 * (e.g. a material can be connected with a transport flow); the same process
+	 * can occur with different scaling factors in the same graph; processes can
+	 * be connected by arbitrary flow types (not only wastes and products), and
+	 * more. When Gabi graph support is enabled and an eILCD model of unknown
+	 * origin is imported, copies of the processes in the system are created and
+	 * linked in order to make it computable in openLCA.
+	 */
+	public ImportConfig withGabiGraphSupport(boolean b) {
+		withGabiGraphs = b;
+		return this;
+	}
+
+	public boolean hasGabiGraphSupport() {
+		return withGabiGraphs;
 	}
 
 	/**
@@ -136,7 +157,7 @@ public class ImportConfig {
 			return null;
 		if (locations == null) {
 			locations = new HashMap<>();
-			db.allOf(Location.class).forEach(
+			db.getAll(Location.class).forEach(
 				loc -> locations.put(loc.code, loc));
 		}
 		var cached = locations.get(code);
@@ -150,5 +171,11 @@ public class ImportConfig {
 		log.imported(loc);
 		locations.put(code, loc);
 		return loc;
+	}
+
+	<T extends RootEntity> T insert(T e) {
+		var r = db.insert(e);
+		log.imported(r);
+		return r;
 	}
 }

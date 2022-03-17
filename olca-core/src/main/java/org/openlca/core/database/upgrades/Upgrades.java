@@ -11,13 +11,13 @@ import org.slf4j.LoggerFactory;
 public class Upgrades {
 
 	private final IUpgrade[] upgrades = {
-			new Upgrade3(),
-			new Upgrade4(),
-			new Upgrade5(),
-			new Upgrade6(),
-			new Upgrade7(),
-			new Upgrade8(),
-			new Upgrade9(),
+			new Upgrade03(),
+			new Upgrade04(),
+			new Upgrade05(),
+			new Upgrade06(),
+			new Upgrade07(),
+			new Upgrade08(),
+			new Upgrade09(),
 			new Upgrade10(),
 			new Upgrade11(),
 	};

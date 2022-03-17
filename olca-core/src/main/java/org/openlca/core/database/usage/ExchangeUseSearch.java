@@ -1,7 +1,6 @@
 package org.openlca.core.database.usage;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -12,30 +11,22 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 /**
  * Searches for the use of process exchanges in other entities. Exchanges of a
  * process can be used in product systems as quantitative reference or in
  * process links.
  */
-public class ExchangeUseSearch {
+public record ExchangeUseSearch(IDatabase database, Process process) {
 
-	private IDatabase database;
-	private Process process;
-
-	public ExchangeUseSearch(IDatabase database, Process process) {
-		this.database = database;
-		this.process = process;
-	}
-
-	public List<CategorizedDescriptor> findUses(Exchange exchange) {
+	public List<RootDescriptor> findUses(Exchange exchange) {
 		if (exchange == null)
 			return Collections.emptyList();
-		return findUses(Arrays.asList(exchange));
+		return findUses(List.of(exchange));
 	}
 
-	public List<CategorizedDescriptor> findUses(List<Exchange> exchanges) {
+	public List<RootDescriptor> findUses(List<Exchange> exchanges) {
 		if (exchanges == null || exchanges.isEmpty())
 			return Collections.emptyList();
 		Set<Long> ids = new HashSet<>();
@@ -46,18 +37,17 @@ public class ExchangeUseSearch {
 		}
 		Set<Long> systemIds = new HashSet<>();
 		systemIds.addAll(Search.on(database).queryForIds(
-				getProductSystemQuery(flowIds)));
+			getProductSystemQuery(flowIds)));
 		systemIds.addAll(Search.on(database).queryForIds(
-				ModelType.PRODUCT_SYSTEM, ids, "f_reference_exchange"));
+			ModelType.PRODUCT_SYSTEM, ids, "f_reference_exchange"));
 		return new ArrayList<>(
-				new ProductSystemDao(database).getDescriptors(systemIds));
+			new ProductSystemDao(database).getDescriptors(systemIds));
 	}
 
 	private String getProductSystemQuery(Set<Long> flowIds) {
-		String query = "SELECT DISTINCT f_product_system FROM tbl_process_links "
-				+ "WHERE (f_provider = " + process.id
-				+ " OR f_process = " + process.id + ")"
-				+ "AND f_flow IN " + Search.asSqlList(flowIds);
-		return query;
+		return "SELECT DISTINCT f_product_system FROM tbl_process_links "
+			+ "WHERE (f_provider = " + process.id
+			+ " OR f_process = " + process.id + ")"
+			+ "AND f_flow IN " + Search.asSqlList(flowIds);
 	}
 }

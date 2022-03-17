@@ -47,15 +47,14 @@ public class Results {
 			m.refId = UUID.randomUUID().toString();
 			m.lastChange = System.currentTimeMillis();
 
-			// name and URN
+			// name and system link
 			if (setup.hasProductSystem()) {
 				m.name = setup.productSystem().name;
-				m.urn = "openLCA:model:" + setup.productSystem().refId;
+				m.productSystem = setup.productSystem();
 			} else {
 				var process = setup.process();
 				if (process != null) {
 					m.name = process.name;
-					m.urn = "openLCA:process:" +process.refId;
 				} else {
 					m.name = "-unknown-";
 				}

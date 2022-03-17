@@ -5,8 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.openlca.core.database.FileStore;
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.ModelType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

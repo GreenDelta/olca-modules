@@ -2,16 +2,16 @@ package org.openlca.jsonld.output;
 
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Parameter;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.openlca.jsonld.Json;
 
 class ImpactCategoryWriter extends Writer<ImpactCategory> {
 
-	ImpactCategoryWriter(ExportConfig conf) {
-		super(conf);
+	ImpactCategoryWriter(JsonExport exp) {
+		super(exp);
 	}
 
 	@Override
@@ -19,11 +19,12 @@ class ImpactCategoryWriter extends Writer<ImpactCategory> {
 		JsonObject obj = super.write(impact);
 		if (obj == null)
 			return null;
-		Out.put(obj, "referenceUnitName", impact.referenceUnit);
-		Out.put(obj, "source", impact.source, conf);
+		Json.put(obj, "code", impact.code);
+		Json.put(obj, "refUnit", impact.referenceUnit);
+		Json.put(obj, "source", exp.handleRef(impact.source));
 		mapImpactFactors(impact, obj);
 		mapParameters(obj, impact);
-		GlobalParameters.sync(impact, conf);
+		GlobalParameters.sync(impact, exp);
 		return obj;
 	}
 
@@ -33,33 +34,28 @@ class ImpactCategoryWriter extends Writer<ImpactCategory> {
 		var array = new JsonArray();
 		for (var f : impact.impactFactors) {
 			var obj = new JsonObject();
-			Out.put(obj, "@type", ImpactFactor.class.getSimpleName());
-			Out.put(obj, "value", f.value);
-			Out.put(obj, "formula", f.formula);
-			Out.put(obj, "flow", f.flow, conf, Out.REQUIRED_FIELD);
-			if (f.flow != null) {
-				var flow = obj.get("flow").getAsJsonObject();
-				Out.put(flow, "flowType", f.flow.flowType);
-			}
-			Out.put(obj, "unit", f.unit, conf, Out.REQUIRED_FIELD);
+			Json.put(obj, "value", f.value);
+			Json.put(obj, "formula", f.formula);
+			Json.put(obj, "flow", exp.handleRef(f.flow));
+			Json.put(obj, "unit", Json.asRef(f.unit));
 			FlowProperty property = null;
 			if (f.flowPropertyFactor != null)
 				property = f.flowPropertyFactor.flowProperty;
-			Out.put(obj, "flowProperty", property, conf, Out.REQUIRED_FIELD);
-			Out.put(obj, "uncertainty", Uncertainties.map(f.uncertainty));
-			Out.put(obj, "location", f.location, conf);
+			Json.put(obj, "flowProperty", exp.handleRef(property));
+			Json.put(obj, "uncertainty", Uncertainties.map(f.uncertainty));
+			Json.put(obj, "location", exp.handleRef(f.location));
 			array.add(obj);
 		}
-		Out.put(json, "impactFactors", array);
+		Json.put(json, "impactFactors", array);
 	}
 
 	private void mapParameters(JsonObject json, ImpactCategory impact) {
-		JsonArray parameters = new JsonArray();
+		var parameters = new JsonArray();
 		for (Parameter p : impact.parameters) {
 			var obj = new JsonObject();
 			ParameterWriter.mapAttr(obj, p);
 			parameters.add(obj);
 		}
-		Out.put(json, "parameters", parameters);
+		Json.put(json, "parameters", parameters);
 	}
 }

@@ -9,14 +9,11 @@ import java.util.stream.Collectors;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.ImpactFactor;
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
-import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.util.Formula;
@@ -34,32 +31,33 @@ class GlobalParameters {
 	/**
 	 * Export redefined global parameters if necessary.
 	 */
-	public static void sync(Project p, ExportConfig conf) {
-		if (skipSync(conf))
+	public static void sync(Project p, JsonExport exp) {
+		if (skipSync(exp))
 			return;
-		Set<String> names = new HashSet<>();
-		for (ProjectVariant v : p.variants)
-			names.addAll(getGlobals(v.parameterRedefs));
-		writeGlobals(names, conf);
+		var names = new HashSet<String>();
+		for (var variant : p.variants) {
+			names.addAll(globalsOf(variant.parameterRedefs));
+		}
+		writeGlobals(names, exp);
 	}
 
 	/**
 	 * Export redefined global parameters if necessary.
 	 */
-	public static void sync(ProductSystem sys, ExportConfig conf) {
-		if (skipSync(conf))
+	public static void sync(ProductSystem sys, JsonExport exp) {
+		if (skipSync(exp))
 			return;
-		Set<String> names = new HashSet<>();
+		var names = new HashSet<String>();
 		for (var set : sys.parameterSets) {
-			names.addAll(getGlobals(set.parameters));
+			names.addAll(globalsOf(set.parameters));
 		}
-		writeGlobals(names, conf);
+		writeGlobals(names, exp);
 	}
 
 	/**
 	 * Get the names of global parameters from the given redefinitions.
 	 */
-	private static Set<String> getGlobals(List<ParameterRedef> redefs) {
+	private static Set<String> globalsOf(List<ParameterRedef> redefs) {
 		return redefs.stream()
 				.filter(p -> p.name != null && p.contextId == null)
 				.map(p -> p.name)
@@ -70,60 +68,58 @@ class GlobalParameters {
 	 * Exports global parameters that are referenced from the formulas in the given
 	 * process if necessary.
 	 */
-	public static void sync(Process p, ExportConfig conf) {
-		if (skipSync(conf))
+	public static void sync(Process p, JsonExport exp) {
+		if (skipSync(exp))
 			return;
-		Set<String> names = new HashSet<>();
+		var names = new HashSet<String>();
 		for (Exchange e : p.exchanges) {
 			names.addAll(Formula.getVariables(e.formula));
 			names.addAll(Formula.getVariables(e.costFormula));
-			names.addAll(getFormulaVariables(e.uncertainty));
+			names.addAll(variablesOf(e.uncertainty));
 		}
-		names.addAll(getFormulaVariables(p.parameters));
+		names.addAll(variablesOf(p.parameters));
 		filterLocals(names, p.parameters);
-		writeGlobals(names, conf);
+		writeGlobals(names, exp);
 	}
 
 	/**
 	 * Exports global parameters that are referenced from the formulas in the given
 	 * impact category if necessary.
 	 */
-	public static void sync(ImpactCategory impact, ExportConfig conf) {
-		if (skipSync(conf))
+	public static void sync(ImpactCategory impact, JsonExport exp) {
+		if (skipSync(exp))
 			return;
-		Set<String> names = new HashSet<>();
-		for (ImpactFactor f : impact.impactFactors) {
-			names.addAll(Formula.getVariables(f.formula));
-			names.addAll(getFormulaVariables(f.uncertainty));
+		var names = new HashSet<String>();
+		for (var factor : impact.impactFactors) {
+			names.addAll(Formula.getVariables(factor.formula));
+			names.addAll(variablesOf(factor.uncertainty));
 		}
-		names.addAll(getFormulaVariables(impact.parameters));
+		names.addAll(variablesOf(impact.parameters));
 		filterLocals(names, impact.parameters);
-		writeGlobals(names, conf);
+		writeGlobals(names, exp);
 	}
 
 	/**
 	 * Exports global parameters that are referenced from the formula of the given
 	 * parameter if necessary.
 	 */
-	public static void sync(Parameter p, ExportConfig conf) {
-		if (skipSync(conf))
+	public static void sync(Parameter p, JsonExport exp) {
+		if (skipSync(exp) || p.isInputParameter)
 			return;
-		Set<String> names = new HashSet<>();
-		if (p.isInputParameter)
-			return;
+		var names = new HashSet<String>();
 		names.addAll(Formula.getVariables(p.formula));
-		names.addAll(getFormulaVariables(p.uncertainty));
-		writeGlobals(names, conf);
+		names.addAll(variablesOf(p.uncertainty));
+		writeGlobals(names, exp);
 	}
 
-	private static Set<String> getFormulaVariables(List<Parameter> params) {
-		Set<String> names = new HashSet<>();
-		for (Parameter param : params) {
+	private static Set<String> variablesOf(List<Parameter> params) {
+		var names = new HashSet<String>();
+		for (var param : params) {
 			// no formulas in input parameters
 			if (param.isInputParameter)
 				continue;
 			names.addAll(Formula.getVariables(param.formula));
-			names.addAll(getFormulaVariables(param.uncertainty));
+			names.addAll(variablesOf(param.uncertainty));
 		}
 		return names;
 	}
@@ -133,7 +129,7 @@ class GlobalParameters {
 	 * parameter list.
 	 */
 	private static void filterLocals(Set<String> names, List<Parameter> locals) {
-		Set<String> localNames = locals.stream()
+		var localNames = locals.stream()
 				.filter(p -> p.name != null)
 				.map(p -> p.name.trim().toLowerCase())
 				.collect(Collectors.toSet());
@@ -141,7 +137,7 @@ class GlobalParameters {
 				name.trim().toLowerCase()));
 	}
 
-	private static Set<String> getFormulaVariables(Uncertainty u) {
+	private static Set<String> variablesOf(Uncertainty u) {
 		Set<String> names = new HashSet<>();
 		if (u == null)
 			return names;
@@ -151,17 +147,18 @@ class GlobalParameters {
 			return names;
 		names.addAll(Formula.getVariables(u.formula1));
 		names.addAll(Formula.getVariables(u.formula2));
-		if (u.distributionType == UncertaintyType.TRIANGLE)
+		if (u.distributionType == UncertaintyType.TRIANGLE) {
 			names.addAll(Formula.getVariables(u.formula3));
+		}
 		return names;
 	}
 
-	private static void writeGlobals(Set<String> names, ExportConfig conf) {
+	private static void writeGlobals(Set<String> names, JsonExport exp) {
 		if (names.isEmpty())
 			return;
 
 		// load all global parameters
-		Map<String, Parameter> globals = new ParameterDao(conf.db)
+		Map<String, Parameter> globals = new ParameterDao(exp.db)
 				.getGlobalParameters()
 				.stream()
 				.filter(p -> p.name != null)
@@ -170,22 +167,19 @@ class GlobalParameters {
 						p -> p));
 
 		for (String name : names) {
-			Parameter g = globals.get(name.trim().toLowerCase());
+			var g = globals.get(name.trim().toLowerCase());
 			if (g == null)
 				continue;
-			if (conf.hasVisited(ModelType.PARAMETER, g.id))
-				continue;
-			conf.refFn.accept(g);
+			exp.write(g);
 			// the global parameter could have again a formula
 			// that contains references to other global parameters.
-			sync(g, conf);
+			sync(g, exp);
 		}
 	}
 
-	private static boolean skipSync(ExportConfig conf) {
-		return conf == null
-				|| !conf.exportReferences
-				|| conf.refFn == null
-				|| conf.db == null;
+	private static boolean skipSync(JsonExport exp) {
+		return exp == null
+				|| !exp.exportReferences
+				|| exp.db == null;
 	}
 }

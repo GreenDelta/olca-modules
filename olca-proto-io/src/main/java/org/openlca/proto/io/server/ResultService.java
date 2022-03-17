@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.io.DbEntityResolver;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.results.FullResult;
 import org.openlca.proto.ProtoCalculationSetup;
@@ -38,7 +39,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
   public void calculate(
     ProtoCalculationSetup req, StreamObserver<ProtoResultRef> resp) {
 
-    var setup = CalculationSetupReader.read(db, req);
+    var setup = CalculationSetupReader.read(DbEntityResolver.of(db), req);
     if (setup == null) {
       resp.onError(Status.INVALID_ARGUMENT
         .withDescription("invalid calculation setup")

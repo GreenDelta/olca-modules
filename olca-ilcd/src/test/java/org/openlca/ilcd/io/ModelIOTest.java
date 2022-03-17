@@ -27,20 +27,20 @@ public class ModelIOTest {
 	@Test
 	public void testSimpleModel() throws Exception {
 		Model model = new Model();
-		Models.dataSetInfo(model).uuid = UUID.randomUUID().toString();
-		Models.modelName(model).name.add(LangString.of("Example model", "en"));
-		Models.publication(model).version = "01.00.000";
+		Models.forceDataSetInfo(model).uuid = UUID.randomUUID().toString();
+		Models.forceModelName(model).name.add(LangString.of("Example model", "en"));
+		Models.forcePublication(model).version = "01.00.000";
 
 		Classification classification = new Classification();
 		Category category = new Category();
 		category.level = 0;
 		category.value = "Life cycle models";
 		classification.categories.add(category);
-		Models.classifications(model).add(classification);
+		Models.forceClassifications(model).add(classification);
 
-		Models.quantitativeReference(model).refProcess = 42;
+		Models.forceQuantitativeReference(model).refProcess = 42;
 
-		Technology tech = Models.technology(model);
+		Technology tech = Models.forceTechnology(model);
 		Group group = new Group();
 		group.id = 42;
 		group.name.add(LangString.of("Use phase", "en"));

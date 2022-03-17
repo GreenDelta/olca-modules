@@ -9,7 +9,7 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 
 public class UnitGroupDao extends
-		CategorizedEntityDao<UnitGroup, UnitGroupDescriptor> {
+        RootEntityDao<UnitGroup, UnitGroupDescriptor> {
 
 	public UnitGroupDao(IDatabase database) {
 		super(UnitGroup.class, UnitGroupDescriptor.class, database);

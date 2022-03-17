@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.jgit.lib.ObjectId;
+
 public class GitUtil {
 
 	public static final String BIN_DIR_SUFFIX = "_bin";
@@ -63,7 +65,12 @@ public class GitUtil {
 		}
 		if (path.length() != 40)
 			return false;
-		for (int i = 0; i < path.length() - 4; i++) {
+		path = path.substring(0, 36);
+		return isUUID(path);
+	}
+
+	public static boolean isUUID(String path) {
+		for (int i = 0; i < path.length(); i++) {
 			var c = path.charAt(i);
 			if (i == 8 || i == 13 || i == 18 || i == 23) {
 				if (c != '-')
@@ -75,5 +82,11 @@ public class GitUtil {
 		}
 		return true;
 	}
-
+	
+	public static byte[] getBytes(ObjectId id) {
+		var bytes = new byte[40];
+		id.copyRawTo(bytes, 0);
+		return bytes;
+	}
+	
 }

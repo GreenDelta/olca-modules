@@ -49,7 +49,6 @@ public class FlowImport {
 		flow.category = new CategoryDao(config.db())
 			.sync(ModelType.FLOW, path);
 		createAndMapContent();
-		config.log().info("import flow: " + flow.name);
 		if (flow.referenceFlowProperty == null) {
 			config.log().error("Could not import flow "
 				+ flow.refId + " because the "
@@ -57,7 +56,7 @@ public class FlowImport {
 				+ "could not be imported.");
 			return null;
 		}
-		return config.db().insert(flow);
+		return config.insert(flow);
 	}
 
 	private void createAndMapContent() {
@@ -107,9 +106,9 @@ public class FlowImport {
 		if (type == null)
 			return FlowType.ELEMENTARY_FLOW;
 		return switch (type) {
+			case ELEMENTARY_FLOW -> FlowType.ELEMENTARY_FLOW;
+			case PRODUCT_FLOW, OTHER_FLOW -> FlowType.PRODUCT_FLOW;
 			case WASTE_FLOW -> FlowType.WASTE_FLOW;
-			case PRODUCT_FLOW -> FlowType.PRODUCT_FLOW;
-			default -> FlowType.ELEMENTARY_FLOW;
 		};
 	}
 }

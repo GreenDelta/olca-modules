@@ -23,7 +23,7 @@ class ExchangeConversion {
 
 	private final ExportConfig config;
 	private org.openlca.ilcd.processes.Process iProcess;
-	private Process process;
+	private final Process process;
 
 	public ExchangeConversion(Process process, ExportConfig config) {
 		this.process = process;
@@ -44,7 +44,7 @@ class ExchangeConversion {
 
 	private org.openlca.ilcd.processes.Exchange mapExchange(
 			Exchange oExchange) {
-		org.openlca.ilcd.processes.Exchange iExchange = new org.openlca.ilcd.processes.Exchange();
+		var iExchange = new org.openlca.ilcd.processes.Exchange();
 		iExchange.id = oExchange.internalId;
 		if (oExchange.description != null) {
 			LangString.set(iExchange.comment,

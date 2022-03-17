@@ -3,11 +3,12 @@ package org.openlca.jsonld.output;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.openlca.core.model.ImpactMethod;
+import org.openlca.jsonld.Json;
 
 class ImpactMethodWriter extends Writer<ImpactMethod> {
 
-	ImpactMethodWriter(ExportConfig conf) {
-		super(conf);
+	ImpactMethodWriter(JsonExport exp) {
+		super(exp);
 	}
 
 	@Override
@@ -15,9 +16,9 @@ class ImpactMethodWriter extends Writer<ImpactMethod> {
 		var obj = super.write(method);
 		if (obj == null)
 			return null;
-		Out.put(obj, "source", method.source, conf);
-		Out.put(obj, "impactCategories", method.impactCategories,
-				conf, Out.FORCE_EXPORT);
+		Json.put(obj, "code", method.code);
+		Json.put(obj, "source", exp.handleRef(method.source));
+		Json.put(obj, "impactCategories", exp.handleRefs(method.impactCategories));
 		mapNwSets(obj, method);
 		return obj;
 	}
@@ -29,21 +30,17 @@ class ImpactMethodWriter extends Writer<ImpactMethod> {
 		for (var nwSet : method.nwSets) {
 			var nwObj = new JsonObject();
 			Writer.addBasicAttributes(nwSet, nwObj);
-			Out.put(nwObj, "weightedScoreUnit", nwSet.weightedScoreUnit);
+			Json.put(nwObj, "weightedScoreUnit", nwSet.weightedScoreUnit);
 			var factors = new JsonArray();
 			nwSet.factors.stream()
-					.map(f -> {
-						var factor = new JsonObject();
-						Out.put(factor, "@type", "NwFactor");
-						Out.put(factor, "impactCategory",
-								f.impactCategory, conf, Out.REQUIRED_FIELD);
-						Out.put(factor, "normalisationFactor",
-								f.normalisationFactor);
-						Out.put(factor, "weightingFactor",
-								f.weightingFactor);
-						return factor;
-					})
-					.forEach(factors::add);
+				.map(f -> {
+					var factor = new JsonObject();
+					Json.put(factor, "impactCategory", exp.handleRef(f.impactCategory));
+					Json.put(factor, "normalisationFactor", f.normalisationFactor);
+					Json.put(factor, "weightingFactor", f.weightingFactor);
+					return factor;
+				})
+				.forEach(factors::add);
 			nwObj.add("factors", factors);
 			nwSets.add(nwObj);
 		}

@@ -3,12 +3,12 @@ package org.openlca.io.xls.results.system;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.matrix.index.EnviFlow;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.io.xls.results.CellWriter;
 
 class ProcessFlowContributionSheet
-		extends ContributionSheet<CategorizedDescriptor, EnviFlow> {
+		extends ContributionSheet<RootDescriptor, EnviFlow> {
 
 	private final CellWriter writer;
 	private final ContributionResult r;
@@ -34,13 +34,13 @@ class ProcessFlowContributionSheet
 	}
 
 	@Override
-	protected double getValue(CategorizedDescriptor process, EnviFlow flow) {
+	protected double getValue(RootDescriptor process, EnviFlow flow) {
 		return r.getDirectFlowResult(process, flow);
 	}
 
 	@Override
-	protected void subHeaderCol(CategorizedDescriptor process, Sheet sheet,
-			int col) {
+	protected void subHeaderCol(RootDescriptor process, Sheet sheet,
+                                int col) {
 		writer.processCol(sheet, 1, col, process);
 	}
 

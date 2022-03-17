@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 /**
@@ -31,7 +31,7 @@ public class ResultItemView {
 	private List<EnviFlow> enviFlows;
 	private List<ImpactDescriptor> impacts;
 	private List<TechFlow> techFlows;
-	private List<CategorizedDescriptor> processes;
+	private List<RootDescriptor> processes;
 
 	private ResultItemView(List<? extends IResult> results) {
 		this.results = results;
@@ -82,10 +82,10 @@ public class ResultItemView {
 		return techFlows;
 	}
 
-	public List<CategorizedDescriptor> processes() {
+	public List<RootDescriptor> processes() {
 		if (processes != null)
 			return processes;
-		var set = new HashSet<CategorizedDescriptor>();
+		var set = new HashSet<RootDescriptor>();
 		for (var techFlow : techFlows()) {
 			set.add(techFlow.provider());
 		}

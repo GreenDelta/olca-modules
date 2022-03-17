@@ -38,18 +38,14 @@ public class Main {
 				var repo = new FileRepository(repoDir)) {
 			var storeFile = new File(tmp, "object-id.store");
 			var store = ObjectIdStore.open(storeFile);
-			var config = new Config(database, store, repo, committer);
+			var config = new GitConfig(database, store, repo, committer);
 			config.checkExisting = false;
 			var writer = new DbWriter(config);
 
 			if (repoDir.exists()) {
 				delete(repoDir);
 			}
-			var olcaRepoDir = new File(database.getFileStorageLocation(),
-					repoDir.getName());
-			if (olcaRepoDir.exists()) {
-				delete(olcaRepoDir);
-			}
+
 			repo.create(true);
 			writer.refData(false);
 
@@ -93,10 +89,10 @@ public class Main {
 				ModelType.IMPACT_CATEGORY,
 				ModelType.IMPACT_METHOD
 		};
-		private final Config config;
+		private final GitConfig config;
 		private final CommitWriter writer;
 
-		private DbWriter(Config config) {
+		private DbWriter(GitConfig config) {
 			this.config = config;
 			this.writer = new CommitWriter(config);
 		}
@@ -155,7 +151,7 @@ public class Main {
 		private void delete() throws IOException {
 			var categoryPath = Categories.pathsOf(config.database);
 			for (var type : REF_DATA_TYPES) {
-				for (var d : Daos.categorized(config.database, type).getDescriptors()) {
+				for (var d : Daos.root(config.database, type).getDescriptors()) {
 					config.store.invalidate(categoryPath, d);
 				}
 				if (type == ModelType.CURRENCY) {
@@ -167,7 +163,7 @@ public class Main {
 					}
 					dao.deleteAll();
 				} else {
-					Daos.categorized(config.database, type).deleteAll();
+					Daos.root(config.database, type).deleteAll();
 				}
 			}
 			config.store.save();

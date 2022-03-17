@@ -1,7 +1,10 @@
 package org.openlca.core.io;
 
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.Category;
+import org.openlca.core.model.ModelType;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 
 /**
@@ -14,13 +17,19 @@ public record DbEntityResolver(IDatabase db) implements EntityResolver {
 	}
 
 	@Override
-	public <T extends RootEntity> T get(Class<T> type, String refId) {
+	public <T extends RefEntity> T get(Class<T> type, String refId) {
 		return db.get(type, refId);
 	}
 
 	@Override
-	public <T extends RootEntity> Descriptor getDescriptor(
+	public <T extends RefEntity> Descriptor getDescriptor(
 		Class<T> type, String refId) {
 		return db.getDescriptor(type, refId);
+	}
+
+	@Override
+	public Category getCategory(ModelType type, String path) {
+		var dao = new CategoryDao(db);
+		return dao.getForPath(type, path);
 	}
 }

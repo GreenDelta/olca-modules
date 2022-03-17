@@ -12,7 +12,7 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.Contribution;
@@ -44,10 +44,10 @@ public class CostTests {
 		UpstreamNode root = tree.root;
 		Assert.assertTrue(tree.childs(root).isEmpty());
 		Assert.assertEquals(3, root.result(), 1e-10);
-		List<Contribution<CategorizedDescriptor>> contributions = r
+		List<Contribution<RootDescriptor>> contributions = r
 				.getProcessCostContributions();
 		Assert.assertEquals(1, contributions.size());
-		Contribution<CategorizedDescriptor> item = contributions.get(0);
+		Contribution<RootDescriptor> item = contributions.get(0);
 		Assert.assertEquals(3, item.amount, 1e-10);
 		Assert.assertEquals(1, item.share, 1e-10);
 	}

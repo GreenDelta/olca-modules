@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
@@ -21,7 +21,7 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
@@ -84,7 +84,7 @@ public class ProtoImport implements Runnable {
    * Returns true if the given existing entity should be updated. If this is
    * not the case, we mark it as handled.
    */
-  boolean shouldUpdate(RootEntity entity) {
+  boolean shouldUpdate(RefEntity entity) {
     if (entity == null)
       return false;
     if (isHandled(entity))
@@ -134,7 +134,7 @@ public class ProtoImport implements Runnable {
     return false;
   }
 
-  void putHandled(RootEntity e) {
+  void putHandled(RefEntity e) {
     if (e == null || e.refId == null)
       return;
 		if (e instanceof Process p) {
@@ -145,7 +145,7 @@ public class ProtoImport implements Runnable {
     map.put(e.refId, e.id);
   }
 
-  boolean isHandled(RootEntity e) {
+  boolean isHandled(RefEntity e) {
     if (e == null || e.refId == null)
       return false;
     var map = handled.get(e.getClass());
@@ -163,7 +163,7 @@ public class ProtoImport implements Runnable {
    * a matching ref. ID.
    */
   @SuppressWarnings("unchecked")
-  <T extends RootEntity> T get(Class<T> type, String refID) {
+  <T extends RefEntity> T get(Class<T> type, String refID) {
 
     // try to use a cached ID first
     var map = handled.get(type);
@@ -174,21 +174,21 @@ public class ProtoImport implements Runnable {
       return Daos.base(db, type).getForId(id);
 
     // try to load it with the refID
-    var dao = Daos.root(db, ModelType.forModelClass(type));
+    var dao = Daos.refDao(db, ModelType.forModelClass(type));
     return dao != null
       ? (T) dao.getForRefId(refID)
       : null;
   }
 
   @SuppressWarnings("unchecked")
-  public <T extends CategorizedEntity> Import<T> getImport(ModelType type) {
-    if (type == null || !type.isCategorized())
+  public <T extends RootEntity> Import<T> getImport(ModelType type) {
+    if (type == null || !type.isRoot())
       return null;
     return getImport((Class<T>) type.getModelClass());
   }
 
   @SuppressWarnings("unchecked")
-  public <T extends CategorizedEntity> Import<T> getImport(Class<T> type) {
+  public <T extends RootEntity> Import<T> getImport(Class<T> type) {
     // the comparisons are sorted by typical frequencies to minimize
     // comparisons
     // see https://gist.github.com/msrocka/b6a18064fbb76c8a8c3f1204839dd614

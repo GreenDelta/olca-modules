@@ -53,9 +53,8 @@ public class SourceImport {
 		source.category = new CategoryDao(config.db())
 				.sync(ModelType.SOURCE, path);
 		setDescriptionAttributes();
-		config.log().info("import source: " + source.name);
 		importExternalFile();
-		return config.db().insert(source);
+		return config.insert(source);
 	}
 
 	private void setDescriptionAttributes() {

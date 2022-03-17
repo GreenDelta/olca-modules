@@ -4,6 +4,7 @@ import org.openlca.core.model.Location;
 import org.openlca.geo.geojson.Feature;
 import org.openlca.geo.geojson.FeatureCollection;
 import org.openlca.geo.geojson.GeoJSON;
+import org.openlca.jsonld.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,8 +12,8 @@ import com.google.gson.JsonObject;
 
 class LocationWriter extends Writer<Location> {
 
-	LocationWriter(ExportConfig conf) {
-		super(conf);
+	LocationWriter(JsonExport exp) {
+		super(exp);
 	}
 
 	@Override
@@ -20,9 +21,9 @@ class LocationWriter extends Writer<Location> {
 		JsonObject obj = super.write(location);
 		if (obj == null)
 			return null;
-		Out.put(obj, "code", location.code);
-		Out.put(obj, "latitude", location.latitude);
-		Out.put(obj, "longitude", location.longitude);
+		Json.put(obj, "code", location.code);
+		Json.put(obj, "latitude", location.latitude);
+		Json.put(obj, "longitude", location.longitude);
 		mapGeometry(location, obj);
 		return obj;
 	}
@@ -37,7 +38,7 @@ class LocationWriter extends Writer<Location> {
 			Feature f = coll.first();
 			if (f == null || f.geometry == null)
 				return;
-			Out.put(obj, "geometry", f.geometry.toJson());
+			Json.put(obj, "geometry", f.geometry.toJson());
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(getClass());
 			log.error("failed to convert KML to GeoJSON", e);

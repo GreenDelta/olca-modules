@@ -7,7 +7,7 @@ import java.util.Set;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.descriptors.DQSystemDescriptor;
 
-public class DQSystemDao extends CategorizedEntityDao<DQSystem, DQSystemDescriptor> {
+public class DQSystemDao extends RootEntityDao<DQSystem, DQSystemDescriptor> {
 
 	public DQSystemDao(IDatabase database) {
 		super(DQSystem.class, DQSystemDescriptor.class, database);

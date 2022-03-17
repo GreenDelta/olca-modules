@@ -10,9 +10,9 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Version;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
@@ -43,7 +43,7 @@ public final class Refs {
     return proto;
   }
 
-  public static ProtoRef.Builder refOf(RootEntity e) {
+  public static ProtoRef.Builder refOf(RefEntity e) {
     var proto = ProtoRef.newBuilder();
     if (e == null)
       return proto;
@@ -88,8 +88,8 @@ public final class Refs {
     if (d == null || refData == null)
       return proto;
 
-    if (d instanceof CategorizedDescriptor) {
-      var cd = (CategorizedDescriptor) d;
+    if (d instanceof RootDescriptor) {
+      var cd = (RootDescriptor) d;
       if (cd.category != null) {
         proto.addAllCategoryPath(
           refData.categoryPathOf(cd.category));

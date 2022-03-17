@@ -28,19 +28,18 @@ public class SubResultTree {
 		// in a random tree. To run the example, import Oekobaudat as
 		// ILCD+EPD results into a database.
 
-		var db = Derby.fromDataDir("oekobaudat_results");
+		var db = Derby.fromDataDir("oekobaudat");
 
 		// the Oekobaudat results have no methods; so first we tag the results with
 		// the same indicator set with the same method.
-		// var method = tagWithMethods(db);
-		// var methodId = method.entity.refId;
+		var method = tagWithMethods(db).entity;
 
 		var massId = "93a60a56-a3c8-11da-a746-0800200b9a66";
 		var mass = db.get(FlowProperty.class, massId);
 
-		var methodId = "eb4db92d-97ac-41a7-9573-05566a319b06";
-		var method = db.get(ImpactMethod.class, methodId);
-		var results = db.allOf(Result.class)
+		// var methodId = "eb4db92d-97ac-41a7-9573-05566a319b06";
+		// var method = db.get(ImpactMethod.class, methodId);
+		var results = db.getAll(Result.class)
 			.stream()
 			.filter(r -> method.equals(r.impactMethod))
 			.toList();
@@ -122,7 +121,7 @@ public class SubResultTree {
 
 
 	private static Method tagWithMethods(IDatabase db) {
-		var allResults = db.allOf(Result.class);
+		var allResults = db.getAll(Result.class);
 
 
 		var methods = new ArrayList<Method>();

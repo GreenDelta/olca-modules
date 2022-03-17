@@ -11,7 +11,7 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.ActorDescriptor;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.CurrencyDescriptor;
 import org.openlca.core.model.descriptors.DQSystemDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -172,7 +172,7 @@ public final class In {
   private static Descriptor initDescriptor(ProtoRef ref) {
     return switch (ref.getType()) {
       case Actor -> new ActorDescriptor();
-      case Category -> new CategorizedDescriptor();
+      case Category -> new RootDescriptor();
       case Currency -> new CurrencyDescriptor();
       case DQSystem -> new DQSystemDescriptor();
       case Flow -> new FlowDescriptor();

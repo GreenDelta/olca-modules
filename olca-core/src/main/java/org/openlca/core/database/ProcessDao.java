@@ -16,7 +16,7 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
-public class ProcessDao extends CategorizedEntityDao<Process, ProcessDescriptor> {
+public class ProcessDao extends RootEntityDao<Process, ProcessDescriptor> {
 
 	public ProcessDao(IDatabase database) {
 		super(Process.class, ProcessDescriptor.class, database);

@@ -9,8 +9,6 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.models.Model;
-import org.openlca.ilcd.models.ModelName;
-import org.openlca.ilcd.models.Publication;
 import org.openlca.ilcd.util.Models;
 import org.openlca.util.Strings;
 
@@ -22,7 +20,7 @@ class IO {
 	private IO() {
 	}
 
-	static List<ParameterRedef> parametersSetOf(ProductSystem system ) {
+	static List<ParameterRedef> parametersSetOf(ProductSystem system) {
 		if (system == null)
 			return new ArrayList<>();
 		if (!system.parameterSets.isEmpty())
@@ -39,33 +37,28 @@ class IO {
 			return;
 		system.refId = model.getUUID();
 		system.name = getName(model);
-		Publication pub = Models.getPublication(model);
+		var pub = Models.getPublication(model);
 		if (pub != null && pub.version != null) {
 			system.version = Version.fromString(pub.version).getValue();
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private static String getName(Model m) {
-		ModelName mn = Models.getModelName(m);
+		var mn = Models.getModelName(m);
 		if (mn == null)
 			return "";
-		List<?>[] parts = new List<?>[] {
-				mn.name,
-				mn.technicalDetails,
-				mn.mixAndLocation,
-				mn.flowProperties
-		};
-		String name = "";
-		for (List<?> part : parts) {
-			String s = LangString.getFirst((List<LangString>) part, "en");
+		var parts = List.of(
+			mn.name, mn.technicalDetails, mn.mixAndLocation, mn.flowProperties);
+		var name = new StringBuilder();
+		for (var part : parts) {
+			var s = LangString.getFirst(part, "en");
 			if (Strings.nullOrEmpty(s))
 				continue;
 			if (name.length() > 0)
-				name += "; ";
-			name += s.trim();
+				name.append("; ");
+			name.append(s.trim());
 		}
-		return name;
+		return name.toString();
 	}
 
 }

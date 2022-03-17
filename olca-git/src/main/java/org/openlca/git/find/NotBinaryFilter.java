@@ -9,7 +9,7 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.openlca.git.util.GitUtil;
 
-class NotBinaryFilter extends TreeFilter {
+public class NotBinaryFilter extends TreeFilter {
 
 	public static NotBinaryFilter create() {
 		return new NotBinaryFilter();

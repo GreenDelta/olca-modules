@@ -11,7 +11,7 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name = "tbl_flow_properties")
-public class FlowProperty extends CategorizedEntity {
+public class FlowProperty extends RootEntity {
 
 	@Column(name = "flow_property_type")
 	public FlowPropertyType flowPropertyType;

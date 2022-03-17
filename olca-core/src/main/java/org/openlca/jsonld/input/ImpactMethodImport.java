@@ -28,6 +28,7 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 			return null;
 		var method = new ImpactMethod();
 		In.mapAtts(json, method, id, conf);
+		method.code = Json.getString(json, "code");
 		var sourceId = Json.getString(json, "source");
 		if (Strings.nullOrEmpty(sourceId)) {
 			method.source = SourceImport.run(sourceId, conf);

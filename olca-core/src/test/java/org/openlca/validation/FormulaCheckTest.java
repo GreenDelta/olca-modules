@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.AllocationFactor;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
@@ -106,7 +106,7 @@ public class FormulaCheckTest {
 		db.delete(impact, flow);
 	}
 
-	private void check(CategorizedEntity model, String formula) {
+	private void check(RootEntity model, String formula) {
 		var validation = Validation.on(db);
 		validation.run();
 		boolean found = false;

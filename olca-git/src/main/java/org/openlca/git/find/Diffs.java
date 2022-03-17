@@ -78,6 +78,7 @@ public class Diffs {
 				if (path != null) {
 					filter = AndTreeFilter.create(filter, PathFilter.create(path));
 				}
+				walk.setFilter(filter);
 				return DiffEntry.scan(walk).stream()
 						.map(d -> new Diff(d, leftCommitId, rightCommitId))
 						.toList();

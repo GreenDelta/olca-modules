@@ -12,7 +12,7 @@ import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.providers.ResultProvider;
 import org.openlca.core.results.providers.ResultProviders;
@@ -69,7 +69,7 @@ public class FullResult extends ContributionResult {
 	 * the sum of the contributions of all of these process-product pairs.
 	 */
 	public double getUpstreamFlowResult(
-		CategorizedDescriptor process, EnviFlow flow) {
+            RootDescriptor process, EnviFlow flow) {
 		double total = 0;
 		for (var p : techIndex().getProviders(process)) {
 			total += getUpstreamFlowResult(p, flow);
@@ -82,7 +82,7 @@ public class FullResult extends ContributionResult {
 	 * result of all elementary flows in the product system.
 	 */
 	public List<FlowValue> getUpstreamFlowResults(
-		CategorizedDescriptor process) {
+		RootDescriptor process) {
 		var flowIndex = enviIndex();
 		if (flowIndex == null)
 			return Collections.emptyList();
@@ -115,7 +115,7 @@ public class FullResult extends ContributionResult {
 	 * contributions of all of these process-product pairs.
 	 */
 	public double getUpstreamImpactResult(
-		CategorizedDescriptor process, ImpactDescriptor impact) {
+            RootDescriptor process, ImpactDescriptor impact) {
 		double total = 0;
 		for (var p : techIndex().getProviders(process)) {
 			total += getUpstreamImpactResult(p, impact);
@@ -128,7 +128,7 @@ public class FullResult extends ContributionResult {
 	 * results.
 	 */
 	public List<ImpactValue> getUpstreamImpactResults(
-		CategorizedDescriptor process) {
+		RootDescriptor process) {
 		var results = new ArrayList<ImpactValue>();
 		if (!hasImpacts())
 			return results;
@@ -157,7 +157,7 @@ public class FullResult extends ContributionResult {
 	 * When the process has multiple products it is the sum of the contributions of
 	 * all of these process-product pairs.
 	 */
-	public double getUpstreamCostResult(CategorizedDescriptor process) {
+	public double getUpstreamCostResult(RootDescriptor process) {
 		double total = 0;
 		for (var p : techIndex().getProviders(process)) {
 			total += getUpstreamCostResult(p);

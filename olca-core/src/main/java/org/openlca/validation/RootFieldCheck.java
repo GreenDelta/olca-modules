@@ -6,7 +6,7 @@ import java.util.Set;
 
 import jakarta.persistence.Table;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.ModelType;
 import org.openlca.util.Strings;
 
@@ -29,7 +29,7 @@ class RootFieldCheck implements Runnable {
 				var clazz = type.getModelClass();
 				if (clazz == null)
 					continue;
-				if (CategorizedEntity.class.isAssignableFrom(clazz)) {
+				if (RootEntity.class.isAssignableFrom(clazz)) {
 					check(type);
 				}
 			}

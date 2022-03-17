@@ -3,78 +3,61 @@ package org.openlca.core.database.usage;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ImpactCategoryDao;
-import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 public class ImpactCategoryUseSearchTest {
 
 	private final IDatabase db = Tests.getDb();
 	private ImpactMethod method;
-	private ImpactCategory category;
+	private ImpactCategory impact;
 
 	@Before
 	public void setUp() {
-		method = new ImpactMethod();
-		new ImpactMethodDao(db).insert(method);
-		category = new ImpactCategory();
-		new ImpactCategoryDao(db).insert(category);
+		method = db.insert(new ImpactMethod());
+		impact = db.insert(new  ImpactCategory());
 	}
 
 	@After
 	public void tearDown() {
-		new ImpactMethodDao(db).delete(method);
-		new ImpactCategoryDao(db).delete(category);
+		db.delete(method, impact);
 	}
 
 	@Test
 	public void testNoUsage() {
-		assertTrue(doSearch().isEmpty());
+		var r = UsageSearch.of(ModelType.IMPACT_CATEGORY, db).find(impact.id);
+		assertTrue(r.isEmpty());
 	}
 
 	@Test
 	public void testUsage() {
-		method.impactCategories.add(category);
-		method = new ImpactMethodDao(db).update(method);
-		List<CategorizedDescriptor> r = doSearch();
+		method.impactCategories.add(impact);
+		method = db.update(method);
+		var r = UsageSearch.of(ModelType.IMPACT_CATEGORY, db).find(impact.id);
 		assertEquals(1, r.size());
-		assertEquals(Descriptor.of(method), r.get(0));
+		assertEquals(Descriptor.of(method), r.iterator().next());
 	}
 
 	@Test
 	public void testOneInTwo() {
-		var impact = ImpactCategory.of("GWP", "CO2 eq.");
 		var method1 = ImpactMethod.of("Method 1");
 		method1.impactCategories.add(impact);
 		var method2 = ImpactMethod.of("Method 2");
 		method2.impactCategories.add(impact);
-		var entities = List.of(impact, method1, method2);
-		entities.forEach(db::insert);
+		db.insert(method1, method2);
 
-		var results = IUseSearch.FACTORY
-				.createFor(ModelType.IMPACT_CATEGORY, db)
-				.findUses(Descriptor.of(impact));
-		assertEquals(2, results.size());
-		assertTrue(results.contains(Descriptor.of(method1)));
-		assertTrue(results.contains(Descriptor.of(method2)));
-		entities.forEach(db::delete);
+		var r = UsageSearch.of(ModelType.IMPACT_CATEGORY, db).find(impact.id);
+		assertEquals(2, r.size());
+		assertTrue(r.contains(Descriptor.of(method1)));
+		assertTrue(r.contains(Descriptor.of(method2)));
+		db.delete(method1, method2);
 	}
 
-	private List<CategorizedDescriptor> doSearch() {
-		ImpactDescriptor d = Descriptor.of(category);
-		return IUseSearch.FACTORY.createFor(
-				ModelType.IMPACT_CATEGORY, db).findUses(d);
-	}
 }

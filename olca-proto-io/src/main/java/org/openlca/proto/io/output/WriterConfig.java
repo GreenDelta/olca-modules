@@ -1,7 +1,7 @@
 package org.openlca.proto.io.output;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 
 public class WriterConfig {
@@ -21,7 +21,7 @@ public class WriterConfig {
   private static class DefaultHandler implements DependencyHandler {
 
     @Override
-    public void push(RootEntity dependency) {
+    public void push(RefEntity dependency) {
     }
 
     @Override

@@ -164,9 +164,9 @@ public class ProcessTest extends AbstractZipTest {
 
 	private void doExport(Process process) {
 		with(zip -> {
-			JsonExport export = new JsonExport(Tests.getDb(), zip);
-			export.setExportDefaultProviders(true);
-			export.write(process);
+			new JsonExport(Tests.getDb(), zip)
+				.withDefaultProviders(true)
+				.write(process);
 		});
 	}
 

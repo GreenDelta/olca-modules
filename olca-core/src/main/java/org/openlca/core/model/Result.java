@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
@@ -13,7 +12,11 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_results")
-public class Result extends CategorizedEntity {
+public class Result extends RootEntity {
+
+	@OneToOne
+	@JoinColumn(name = "f_product_system")
+	public ProductSystem productSystem;
 
 	@OneToOne
 	@JoinColumn(name = "f_impact_method")
@@ -37,12 +40,6 @@ public class Result extends CategorizedEntity {
 	@JoinColumn(name = "f_reference_flow")
 	public FlowResult referenceFlow;
 
-	/**
-	 * A URN that points to the origin of the result.
-	 */
-	@Column(name = "urn")
-	public String urn;
-
 	public static Result of(String name) {
 		return of(name, null);
 	}
@@ -62,19 +59,19 @@ public class Result extends CategorizedEntity {
 
 	@Override
 	public Result copy() {
-		var clone = new Result();
-		Entities.copyRootFields(this, clone);
-		clone.urn = urn;
-		clone.impactMethod = impactMethod;
+		var copy = new Result();
+		Entities.copyRefFields(this, copy);
+		copy.productSystem = productSystem;
+		copy.impactMethod = impactMethod;
 		if (referenceFlow != null) {
-			clone.referenceFlow = referenceFlow.copy();
+			copy.referenceFlow = referenceFlow.copy();
 		}
 		for (var flow : flowResults) {
-			clone.flowResults.add(flow.copy());
+			copy.flowResults.add(flow.copy());
 		}
 		for (var impact : impactResults) {
-			clone.impactResults.add(impact.copy());
+			copy.impactResults.add(impact.copy());
 		}
-		return clone;
+		return copy;
 	}
 }

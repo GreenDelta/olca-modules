@@ -9,7 +9,7 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name = "tbl_actors")
-public class Actor extends CategorizedEntity {
+public class Actor extends RootEntity {
 
 	@Column(name = "address")
 	public String address;

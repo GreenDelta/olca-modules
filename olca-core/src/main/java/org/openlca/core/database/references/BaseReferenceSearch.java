@@ -10,22 +10,22 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.AbstractEntity;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
-abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
+abstract class BaseReferenceSearch<T extends RootDescriptor> implements
 		IReferenceSearch<T> {
 
 	protected final IDatabase database;
-	protected final Class<? extends CategorizedEntity> type;
+	protected final Class<? extends RootEntity> type;
 	private final boolean includeOptional;
 
-	BaseReferenceSearch(IDatabase database, Class<? extends CategorizedEntity> type) {
+	BaseReferenceSearch(IDatabase database, Class<? extends RootEntity> type) {
 		this(database, type, false);
 	}
 
-	BaseReferenceSearch(IDatabase database, Class<? extends CategorizedEntity> type, boolean includeOptional) {
+	BaseReferenceSearch(IDatabase database, Class<? extends RootEntity> type, boolean includeOptional) {
 		this.database = database;
 		this.type = type;
 		this.includeOptional = includeOptional;

@@ -7,23 +7,23 @@ import java.util.List;
 import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 public final class References {
 
 	private References() {
 	}
 
-	public static <T extends CategorizedEntity> List<Reference> of(
+	public static <T extends RootEntity> List<Reference> of(
 			IDatabase db, T owner) {
 		return owner == null
 				? Collections.emptyList()
 				: of(db, owner.getClass(), owner.id);
 	}
 
-	public static <D extends CategorizedDescriptor> List<Reference> of(
+	public static <D extends RootDescriptor> List<Reference> of(
 			IDatabase db, Collection<D> owners) {
 		ModelType type = null;
 		var ids = new HashSet<Long>();
@@ -43,7 +43,7 @@ public final class References {
 				: of(db, type, ids);
 	}
 
-	public static <D extends CategorizedDescriptor> List<Reference> of(
+	public static <D extends RootDescriptor> List<Reference> of(
 			IDatabase db, D owner) {
 		return owner == null
 				? Collections.emptyList()

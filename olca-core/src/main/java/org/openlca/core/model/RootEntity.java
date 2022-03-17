@@ -1,36 +1,15 @@
 package org.openlca.core.model;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Lob;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.OneToOne;
 
 /**
- * A root entity is a stand alone entity in the application. It should have a
- * name, description, and an UUID (reference ID). A root entity can contain
- * other root entities via aggregation but the life cycle of the contained
- * entities is then not coupled to the life cycle of the respective container
- * (no cascade delete etc.). On the other side, the life cycle of non-root
- * entities contained in root entities is coupled to the life cycle of the
- * container.
- *
- * Root entities must provide an implementation of <code>clone</code> with flat
- * copies for contained root-entities and deep copies for contained non-root
- * entities.
- *
+ * A categorized entity is a root entity with a category.
  */
 @MappedSuperclass
-public abstract class RootEntity
-	extends AbstractEntity implements Copyable<RootEntity> {
-
-	@Column(name = "ref_id")
-	public String refId;
-
-	@Column(name = "name")
-	public String name;
-
-	@Lob
-	@Column(name = "description")
-	public String description;
+public abstract class RootEntity extends RefEntity {
 
 	// @Version
 	@Column(name = "version")
@@ -39,12 +18,28 @@ public abstract class RootEntity
 	@Column(name = "last_change")
 	public long lastChange;
 
-	@Override
-	public String toString() {
-		return "RootEntity [type="
-				+ getClass().getSimpleName()
-				+ ", refId=" + refId
-				+ ", name=" + name + "]";
-	}
+	@OneToOne
+	@JoinColumn(name = "f_category")
+	public Category category;
 
+	/**
+	 * Tags are stored in a single string separated by commas `,`.
+	 */
+	@Column(name = "tags")
+	public String tags;
+
+	/**
+	 * If a data set belongs to a library, this field must contain
+	 * the identifier (which is typically a combination of library
+	 * name and version, e.g. ecoinvent_apos_3.6).
+	 */
+	@Column(name = "library")
+	public String library;
+
+	/**
+	 * Returns true if this data set is from a library.
+	 */
+	public boolean isFromLibrary() {
+		return library != null;
+	}
 }

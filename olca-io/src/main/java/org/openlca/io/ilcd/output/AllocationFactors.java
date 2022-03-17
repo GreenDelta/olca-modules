@@ -10,13 +10,32 @@ import org.openlca.ilcd.processes.Exchange;
 
 class AllocationFactors {
 
-	private Process process;
-	private Map<org.openlca.core.model.Exchange, Exchange> exchangeMap;
+	private final Process process;
+	private final Map<org.openlca.core.model.Exchange, Exchange> exchangeMap;
+	private final AllocationMethod defaultMethod;
 
 	private AllocationFactors(Process process,
 			Map<org.openlca.core.model.Exchange, Exchange> exchangeMap) {
 		this.process = process;
 		this.exchangeMap = exchangeMap;
+
+		var method = process.defaultAllocationMethod;
+		if (method != AllocationMethod.PHYSICAL
+			&& method != AllocationMethod.ECONOMIC) {
+			defaultMethod = AllocationMethod.PHYSICAL;
+		} else {
+			boolean hasFactors = false;
+			for (var factor : process.allocationFactors) {
+				if (factor.method == method) {
+					hasFactors = true;
+					break;
+				}
+			}
+			defaultMethod = hasFactors
+				? method
+				: AllocationMethod.PHYSICAL;
+		}
+
 	}
 
 	public static void map(Process process,
@@ -28,7 +47,7 @@ class AllocationFactors {
 	}
 
 	private void map() {
-		for (AllocationFactor factor : process.allocationFactors) {
+		for (var factor : process.allocationFactors) {
 			if (factor.exchange != null)
 				addCausalFactor(factor);
 			else
@@ -47,7 +66,7 @@ class AllocationFactors {
 	}
 
 	private void addOtherFactor(AllocationFactor factor) {
-		if (factor.method != AllocationMethod.PHYSICAL)
+		if (factor.method != defaultMethod)
 			return;
 		Exchange product = findProduct(factor);
 		if (product == null)

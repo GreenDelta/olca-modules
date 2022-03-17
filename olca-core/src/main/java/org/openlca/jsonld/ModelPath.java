@@ -49,6 +49,7 @@ public final class ModelPath {
 			case UNIT_GROUP -> "unit_groups";
 			case DQ_SYSTEM -> "dq_systems";
 			case RESULT -> "results";
+			case EPD -> "epds";
 			case UNKNOWN -> "unknown";
 		};
 	}

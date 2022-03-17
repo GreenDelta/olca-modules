@@ -13,7 +13,7 @@ import org.openlca.core.model.descriptors.NwSetDescriptor;
 
 /** The DAO class for impact assessment methods. */
 public class ImpactMethodDao extends
-		CategorizedEntityDao<ImpactMethod, ImpactMethodDescriptor> {
+        RootEntityDao<ImpactMethod, ImpactMethodDescriptor> {
 
 	public ImpactMethodDao(IDatabase database) {
 		super(ImpactMethod.class, ImpactMethodDescriptor.class, database);

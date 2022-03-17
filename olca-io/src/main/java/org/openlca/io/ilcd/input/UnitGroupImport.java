@@ -53,9 +53,8 @@ public class UnitGroupImport {
 		unitGroup.category = new CategoryDao(config.db())
 				.sync(ModelType.UNIT_GROUP, path);
 		mapDescriptionAttributes();
-		config.log().info("import unit group: " + unitGroup.name);
 		createUnits();
-		return config.db().insert(unitGroup);
+		return config.insert(unitGroup);
 	}
 
 	private void mapDescriptionAttributes() {

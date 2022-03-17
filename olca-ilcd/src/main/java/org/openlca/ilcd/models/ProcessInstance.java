@@ -19,6 +19,9 @@ public class ProcessInstance {
 	@XmlAttribute(name = "dataSetInternalID")
 	public int id;
 
+	@XmlAttribute(name = "multiplicationFactor")
+	public double multiplicationFactor;
+
 	@XmlElement(name = "referenceToProcess")
 	public Ref process;
 

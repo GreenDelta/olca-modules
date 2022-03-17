@@ -3,7 +3,7 @@ package org.openlca.ipc.handlers;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -52,7 +52,7 @@ public class InventoryHandler {
 	@Rpc("get/inventory/contributions/processes")
 	public RpcResponse getProcessContributions(RpcRequest req) {
 		return utils.contributionFlow(req, (result, flow, cache) -> {
-			List<Contribution<CategorizedDescriptor>> contributions = result
+			List<Contribution<RootDescriptor>> contributions = result
 					.getProcessContributions(flow);
 			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
 			String unit = utils.getUnit(flow, cache);
@@ -76,7 +76,7 @@ public class InventoryHandler {
 	@Rpc("get/inventory/contributions/location/processes")
 	public RpcResponse getProcessContributionsForLocation(RpcRequest req) {
 		return utils.contributionFlowLocation(req, (result, flow, location, cache) -> {
-			List<Contribution<CategorizedDescriptor>> contributions = result
+			List<Contribution<RootDescriptor>> contributions = result
 					.getProcessContributions(flow);
 			contributions = utils.filter(contributions, contribution -> {
 				if (contribution.item instanceof ProcessDescriptor) {

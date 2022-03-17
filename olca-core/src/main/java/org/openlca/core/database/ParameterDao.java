@@ -14,7 +14,7 @@ import org.openlca.core.model.descriptors.ParameterDescriptor;
 import org.openlca.util.Strings;
 
 public class ParameterDao extends
-		CategorizedEntityDao<Parameter, ParameterDescriptor> {
+        RootEntityDao<Parameter, ParameterDescriptor> {
 
 	public ParameterDao(IDatabase database) {
 		super(Parameter.class, ParameterDescriptor.class, database);

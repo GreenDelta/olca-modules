@@ -7,13 +7,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.Unit;
+import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
 import org.slf4j.LoggerFactory;
 
 class UnitWriter extends Writer<Unit> {
 
-	UnitWriter(ExportConfig config) {
-		super(config);
+	UnitWriter(JsonExport exp) {
+		super(exp);
 	}
 
 	@Override
@@ -32,7 +33,7 @@ class UnitWriter extends Writer<Unit> {
 		var sql = "select count(*) from tbl_unit_groups " +
 				"where f_reference_unit = " + unit.id;
 		try {
-			NativeSql.on(conf.db).query(sql, r -> {
+			NativeSql.on(exp.db).query(sql, r -> {
 				var count = r.getInt(1);
 				if (count > 0) {
 					obj.addProperty("referenceUnit", true);
@@ -49,7 +50,7 @@ class UnitWriter extends Writer<Unit> {
 		if (unit == null || obj == null)
 			return;
 		addBasicAttributes(unit, obj);
-		Out.put(obj, "conversionFactor", unit.conversionFactor);
+		Json.put(obj, "conversionFactor", unit.conversionFactor);
 		var synonyms = unit.synonyms;
 		if (Strings.nullOrEmpty(synonyms))
 			return;
@@ -59,6 +60,6 @@ class UnitWriter extends Writer<Unit> {
 				.filter(Strings::notEmpty)
 				.map(JsonPrimitive::new)
 				.forEach(array::add);
-		Out.put(obj, "synonyms", array);
+		Json.put(obj, "synonyms", array);
 	}
 }

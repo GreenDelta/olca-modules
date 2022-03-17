@@ -7,7 +7,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_locations")
-public class Location extends CategorizedEntity {
+public class Location extends RootEntity {
 
 	@Column(name = "code")
 	public String code;

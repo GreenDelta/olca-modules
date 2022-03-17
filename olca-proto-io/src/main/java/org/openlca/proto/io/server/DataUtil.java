@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
@@ -20,7 +20,7 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
@@ -92,14 +92,14 @@ class DataUtil {
       : null;
     if (modelType == null
         || modelClass == null
-        || !CategorizedEntity.class.isAssignableFrom(modelClass)) {
+        || !RootEntity.class.isAssignableFrom(modelClass)) {
       Response.invalidArg(resp, "Not a categorized type: " + modelType);
       return null;
     }
     return modelType;
   }
 
-  static ProtoDataSet.Builder toDataSet(IDatabase db, RootEntity e) {
+  static ProtoDataSet.Builder toDataSet(IDatabase db, RefEntity e) {
     var ds = ProtoDataSet.newBuilder();
     var conf = WriterConfig.of(db);
 
@@ -211,12 +211,12 @@ class DataUtil {
   }
 
 
-  static <T extends RootEntity> ModelQuery<T> model(
+  static <T extends RefEntity> ModelQuery<T> model(
 		IDatabase db, Class<T> type) {
     return new ModelQuery<>(db, type);
   }
 
-  static class ModelQuery<T extends RootEntity> {
+  static class ModelQuery<T extends RefEntity> {
 
     private final IDatabase db;
     private final Class<T> type;
@@ -270,7 +270,7 @@ class DataUtil {
         return Optional.empty();
       }
 
-      var e = db.forName(type, name);
+      var e = db.getForName(type, name);
       if (e == null) {
         Response.notFound(errorResponse,
           "Could not find " + type + " with name=" + name);

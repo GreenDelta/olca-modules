@@ -2,7 +2,7 @@ package org.openlca.io.simapro.csv.input;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.simapro.csv.CsvDataSet;
 
@@ -17,7 +17,7 @@ record ImportContext(
 		this(b.db, b.refData, b.log, dataSet);
 	}
 
-	public <T extends CategorizedEntity> T insert(T entity) {
+	public <T extends RootEntity> T insert(T entity) {
 		var e = db.insert(entity);
 		log.imported(e);
 		return e;

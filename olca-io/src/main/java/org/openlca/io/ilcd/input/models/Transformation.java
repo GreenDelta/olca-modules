@@ -48,16 +48,16 @@ class Transformation {
 
 	/** Visits the given node which is already a node from the target graph. */
 	private void visit(Node n) {
-		if (visitedNodes.contains(n.modelID))
+		if (visitedNodes.contains(n.id))
 			return;
-		visitedNodes.add(n.modelID);
-		for (Link inLink : source.getInputLinks(n.modelID)) {
+		visitedNodes.add(n.id);
+		for (Link inLink : source.getInputLinks(n.id)) {
 			if (visitedLinks.contains(inLink.id))
 				continue;
 			visitedLinks.add(inLink.id);
 			linkProduct(n, inLink);
 		}
-		for (Link outLink : source.getOutputLinks(n.modelID)) {
+		for (Link outLink : source.getOutputLinks(n.id)) {
 			if (visitedLinks.contains(outLink.id))
 				continue;
 			visitedLinks.add(outLink.id);
@@ -132,7 +132,7 @@ class Transformation {
 	private Node forTarget(Node sourceNode) {
 		if (sourceNode == null)
 			return null;
-		Node n = target.getNode(sourceNode.modelID);
+		Node n = target.getNode(sourceNode.id);
 		if (n != null)
 			return n;
 		n = sourceNode.copy();

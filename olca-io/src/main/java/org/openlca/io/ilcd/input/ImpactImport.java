@@ -66,7 +66,7 @@ public record ImpactImport(ImportConfig config, LCIAMethod dataSet) {
 		}
 
 		appendFactors(impact);
-		config.db().insert(impact);
+		impact = config.insert(impact);
 		appendToMethods(impact);
 		config.log().imported(impact);
 		return impact;

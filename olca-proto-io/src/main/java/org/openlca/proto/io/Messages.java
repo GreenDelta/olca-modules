@@ -1,7 +1,7 @@
 package org.openlca.proto.io;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.proto.io.output.Out;
 
 import com.google.protobuf.MessageOrBuilder;
@@ -11,7 +11,7 @@ public final class Messages {
   private Messages() {
   }
 
-  public static byte[] toBinary(IDatabase db, RootEntity e) {
+  public static byte[] toBinary(IDatabase db, RefEntity e) {
     var proto = Out.toProto(db, e);
     return proto == null
       ? null

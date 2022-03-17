@@ -7,7 +7,7 @@ import jakarta.persistence.Table;
 import org.apache.commons.math3.util.Pair;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +21,7 @@ public class RefIdMap<From, To> {
 	private final HashMap<Class<?>, HashMap<From, To>> map = new HashMap<>();
 
 	@SafeVarargs
-	public static <T extends RootEntity> RefIdMap<Long, String> internalToRef(
+	public static <T extends RefEntity> RefIdMap<Long, String> internalToRef(
 			IDatabase db, Class<? extends T>... types) {
 		RefIdMap<Long, String> refMap = new RefIdMap<>();
 		for (Class<?> type : types) {
@@ -33,7 +33,7 @@ public class RefIdMap<From, To> {
 	}
 
 	@SafeVarargs
-	public static <T extends RootEntity> RefIdMap<String, Long> refToInternal(
+	public static <T extends RefEntity> RefIdMap<String, Long> refToInternal(
 			IDatabase db, Class<? extends T>... types) {
 		RefIdMap<String, Long> refMap = new RefIdMap<>();
 		for (Class<?> type : types) {

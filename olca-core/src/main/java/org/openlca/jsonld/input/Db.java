@@ -4,6 +4,7 @@ import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.DQSystemDao;
+import org.openlca.core.database.EpdDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
@@ -16,7 +17,7 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.ProjectDao;
 import org.openlca.core.database.ResultDao;
-import org.openlca.core.database.RootEntityDao;
+import org.openlca.core.database.RefEntityDao;
 import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitDao;
@@ -25,6 +26,7 @@ import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
+import org.openlca.core.model.Epd;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
@@ -36,7 +38,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.Result;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
@@ -66,6 +68,7 @@ class Db {
 	private final Map<String, Long> systemIds = new HashMap<>();
 	private final Map<String, Long> projectIds = new HashMap<>();
 	private final Map<String, Long> resultIds = new HashMap<>();
+	private final Map<String, Long> epdIds = new HashMap<>();
 	public Map<String, String> categoryRefIdMapping = new HashMap<>();
 
 	private final IDatabase db;
@@ -79,7 +82,7 @@ class Db {
 	}
 
 	@SuppressWarnings("unchecked")
-	<T extends RootEntity> T get(ModelType modelType, String refId) {
+	<T extends RefEntity> T get(ModelType modelType, String refId) {
 		return switch (modelType) {
 			case PROJECT -> (T) get(new ProjectDao(db), refId, projectIds);
 			case PRODUCT_SYSTEM -> (T) get(new ProductSystemDao(db), refId, systemIds);
@@ -100,12 +103,13 @@ class Db {
 			case LOCATION -> (T) get(new LocationDao(db), refId, locationIds);
 			case CATEGORY -> (T) get(new CategoryDao(db), refId, categoryIds);
 			case RESULT -> (T) get(new ResultDao(db), refId, resultIds);
+			case EPD -> (T) get(new EpdDao(db), refId, epdIds);
 			default -> throw new RuntimeException(modelType.name() + " not supported");
 		};
 	}
 
 	@SuppressWarnings("unchecked")
-	<T extends RootEntity> T put(T entity) {
+	<T extends RefEntity> T put(T entity) {
 		if (entity == null)
 			return null;
 		var modelType = ModelType.forModelClass(entity.getClass());
@@ -129,6 +133,7 @@ class Db {
 			case LOCATION -> (T) put(new LocationDao(db), (Location) entity, locationIds);
 			case CATEGORY -> (T) put(new CategoryDao(db), (Category) entity, categoryIds);
 			case RESULT -> (T) put(new ResultDao(db), (Result) entity, resultIds);
+			case EPD -> (T) put(new EpdDao(db), (Epd) entity, epdIds);
 			default -> throw new RuntimeException(modelType.name() + " not supported");
 		};
 	}
@@ -160,7 +165,8 @@ class Db {
 		return new UnitGroupDao(db).update(group);
 	}
 
-	private <T extends RootEntity> T get(RootEntityDao<T, ?> dao, String refId, Map<String, Long> idCache) {
+	private <T extends RefEntity> T get(
+            RefEntityDao<T, ?> dao, String refId, Map<String, Long> idCache) {
 		Long id = idCache.get(refId);
 		if (id != null)
 			return dao.getForId(id);
@@ -171,7 +177,8 @@ class Db {
 		return entity;
 	}
 
-	private <T extends RootEntity> T put(RootEntityDao<T, ?> dao, T entity, Map<String, Long> idCache) {
+	private <T extends RefEntity> T put(
+            RefEntityDao<T, ?> dao, T entity, Map<String, Long> idCache) {
 		if (entity == null)
 			return null;
 		if (entity.id == 0L)

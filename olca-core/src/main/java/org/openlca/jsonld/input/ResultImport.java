@@ -1,12 +1,10 @@
 package org.openlca.jsonld.input;
 
 import com.google.gson.JsonObject;
-import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowResult;
 import org.openlca.core.model.ImpactResult;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Result;
-import org.openlca.core.model.Unit;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
 
@@ -26,13 +24,19 @@ class ResultImport extends BaseImport<Result> {
 			return null;
 		var result = new Result();
 		In.mapAtts(json, result, id, conf);
-		result.urn = Json.getString(json, "urn");
+
+		var systemId = Json.getRefId(json, "productSystem");
+		if (Strings.notEmpty(systemId)) {
+			result.productSystem = ProductSystemImport.run(systemId, conf);
+		}
 		var methodId = Json.getRefId(json, "impactMethod");
 		if (Strings.notEmpty(methodId)) {
 			result.impactMethod = ImpactMethodImport.run(refId, conf);
 		}
+
 		readImpactResults(json, result);
 		readFlowResults(json, result);
+
 		return conf.db.put(result);
 
 	}
@@ -84,41 +88,14 @@ class ResultImport extends BaseImport<Result> {
 			if (Strings.nullOrEmpty(flowId))
 				continue;
 			r.flow = FlowImport.run(flowId, conf);
-			r.flowPropertyFactor = propertyOf(r, obj);
-			r.unit = unitOf(r, obj);
+			var quantity = Quantity.of(r.flow, obj);
+			r.flowPropertyFactor = quantity.factor();
+			r.unit = quantity.unit();
 		}
 	}
 
-	private FlowPropertyFactor propertyOf(FlowResult r, JsonObject obj) {
-		if (r.flow == null)
-			return null;
-		var propId = Json.getRefId(obj, "flowProperty");
-		if (Strings.nullOrEmpty(propId))
-			return r.flow.getReferenceFactor();
-		for (var factor : r.flow.flowPropertyFactors) {
-			var prop = factor.flowProperty;
-			if (prop != null && propId.equals(prop.refId))
-				return factor;
-		}
-		return null;
-	}
 
-	private Unit unitOf(FlowResult r, JsonObject obj) {
-		if (r.flow == null
-			|| r.flowPropertyFactor == null
-			|| r.flowPropertyFactor.flowProperty == null)
-			return null;
-		var prop = r.flowPropertyFactor.flowProperty;
-		var unitId = Json.getRefId(obj, "unit");
-		if (Strings.nullOrEmpty(unitId))
-			return prop.getReferenceUnit();
-		if (prop.unitGroup == null)
-			return null;
-		for (var unit : prop.unitGroup.units) {
-			if (unitId.equals(unit.refId))
-				return unit;
-		}
-		return null;
-	}
+
+
 
 }

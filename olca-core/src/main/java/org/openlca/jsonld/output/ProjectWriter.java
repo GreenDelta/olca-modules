@@ -1,16 +1,16 @@
 package org.openlca.jsonld.output;
 
-import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.openlca.jsonld.Json;
 
 class ProjectWriter extends Writer<Project> {
 
-	ProjectWriter(ExportConfig conf) {
-		super(conf);
+	ProjectWriter(JsonExport exp) {
+		super(exp);
 	}
 
 	@Override
@@ -18,39 +18,37 @@ class ProjectWriter extends Writer<Project> {
 		JsonObject obj = super.write(p);
 		if (obj == null)
 			return null;
-		if (p.impactMethod != null) {
-			Out.put(obj, "impactMethod", p.impactMethod, conf);
-		}
-		if (p.nwSet != null) {
-			Out.put(obj, "nwSet", p.nwSet, conf);
-		}
+		Json.put(obj, "isWithCosts", p.isWithCosts);
+		Json.put(obj, "isWithRegionalization", p.isWithRegionalization);
+		Json.put(obj, "impactMethod", exp.handleRef(p.impactMethod));
+		Json.put(obj, "nwSet", Json.asRef(p.nwSet));
 		mapVariants(obj, p);
-		GlobalParameters.sync(p, conf);
+		GlobalParameters.sync(p, exp);
 		return obj;
 	}
 
 	private void mapVariants(JsonObject json, Project p) {
-		JsonArray array = new JsonArray();
+		var array = new JsonArray();
 		for (ProjectVariant v : p.variants) {
-			JsonObject obj = new JsonObject();
+			var obj = new JsonObject();
 			array.add(obj);
-			Out.put(obj, "@type", ProjectVariant.class.getSimpleName());
-			Out.put(obj, "name", v.name);
-			Out.put(obj, "productSystem", v.productSystem, conf, Out.REQUIRED_FIELD);
-			Out.put(obj, "amount", v.amount);
-			Out.put(obj, "unit", v.unit, conf, Out.REQUIRED_FIELD);
-			Out.put(obj, "allocationMethod", v.allocationMethod);
-			FlowProperty prop = null;
-			if (v.flowPropertyFactor != null) {
-				prop = v.flowPropertyFactor.flowProperty;
-			}
-			Out.put(obj, "flowProperty", prop, conf, Out.REQUIRED_FIELD);
+			Json.put(obj, "name", v.name);
+			Json.put(obj, "productSystem", exp.handleRef(v.productSystem));
+			Json.put(obj, "amount", v.amount);
+			Json.put(obj, "unit", Json.asRef(v.unit));
+			Json.put(obj, "allocationMethod", v.allocationMethod);
+			Json.put(obj, "description", v.description);
+			Json.put(obj, "isDisabled", v.isDisabled);
+			var prop = v.flowPropertyFactor != null
+				? v.flowPropertyFactor.flowProperty
+				: null;
+			Json.put(obj, "flowProperty", exp.handleRef(prop));
 			if (!v.parameterRedefs.isEmpty()) {
-				JsonArray redefs = ParameterRedefs.map(v.parameterRedefs, conf);
-				Out.put(obj, "parameterRedefs", redefs);
+				var redefs = Util.mapRedefs(v.parameterRedefs, exp);
+				Json.put(obj, "parameterRedefs", redefs);
 			}
 		}
-		Out.put(json, "variants", array);
+		Json.put(json, "variants", array);
 	}
 
 }

@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 import gnu.trove.set.hash.TLongHashSet;
@@ -22,7 +22,7 @@ public abstract class BaseResult implements IResult {
 	private ArrayList<EnviFlow> _flows;
 	private ArrayList<ImpactDescriptor> _impacts;
 	private ArrayList<TechFlow> _products;
-	private ArrayList<CategorizedDescriptor> _processes;
+	private ArrayList<RootDescriptor> _processes;
 
 
 	@Override
@@ -67,7 +67,7 @@ public abstract class BaseResult implements IResult {
 	}
 
 	@Override
-	public final List<CategorizedDescriptor> getProcesses() {
+	public final List<RootDescriptor> getProcesses() {
 		if (_processes != null)
 			return _processes;
 		var techIndex = techIndex();
@@ -76,7 +76,7 @@ public abstract class BaseResult implements IResult {
 		_processes = new ArrayList<>();
 		TLongHashSet handled = new TLongHashSet();
 		for (TechFlow product : getProviders()) {
-			CategorizedDescriptor process = product.provider();
+			RootDescriptor process = product.provider();
 			if (process == null || handled.contains(process.id))
 				continue;
 			_processes.add(process);

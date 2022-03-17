@@ -25,7 +25,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 
 public class ParameterRenameTest {
 
@@ -324,7 +324,7 @@ public class ParameterRenameTest {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends RootEntity> void put(T e) {
+	private <T extends RefEntity> void put(T e) {
 		var dao = (BaseDao<T>) Daos.base(db, e.getClass());
 		if (e.id == 0) {
 			dao.insert(e);
@@ -334,13 +334,13 @@ public class ParameterRenameTest {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends RootEntity> T reload(T e) {
+	private <T extends RefEntity> T reload(T e) {
 		var dao = (BaseDao<T>) Daos.base(db, e.getClass());
 		return dao.getForId(e.id);
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends RootEntity> void drop(T e) {
+	private <T extends RefEntity> void drop(T e) {
 		var dao = (BaseDao<T>) Daos.base(db, e.getClass());
 		dao.delete(e);
 	}

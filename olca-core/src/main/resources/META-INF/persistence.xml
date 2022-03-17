@@ -42,6 +42,8 @@
 		<class>org.openlca.core.model.Result</class>
 		<class>org.openlca.core.model.FlowResult</class>
 		<class>org.openlca.core.model.ImpactResult</class>
+		<class>org.openlca.core.model.Epd</class>
+		<class>org.openlca.core.model.EpdModule</class>
 
 		<shared-cache-mode>ALL</shared-cache-mode>
 

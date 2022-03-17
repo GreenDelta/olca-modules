@@ -7,7 +7,7 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.format.DenseByteMatrix;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.ContributionResult;
 
@@ -97,7 +97,7 @@ public class DQResult {
 	 * @deprecated just added for compatibility reasons
 	 */
 	@Deprecated
-	public int[] get(CategorizedDescriptor process) {
+	public int[] get(RootDescriptor process) {
 		var products = result.techIndex().getProviders(process);
 		return products.isEmpty()
 			? null
@@ -120,7 +120,7 @@ public class DQResult {
 	 * @deprecated just added for compatibility reasons
 	 */
 	@Deprecated
-	public int[] get(CategorizedDescriptor process, EnviFlow flow) {
+	public int[] get(RootDescriptor process, EnviFlow flow) {
 		var products = result.techIndex().getProviders(process);
 		return products.isEmpty()
 			? null
@@ -187,7 +187,7 @@ public class DQResult {
 	 * @deprecated just added for compatibility reasons
 	 */
 	@Deprecated
-	public int[] get(ImpactDescriptor impact, CategorizedDescriptor process) {
+	public int[] get(ImpactDescriptor impact, RootDescriptor process) {
 		var products = result.techIndex().getProviders(process);
 		return products.isEmpty()
 			? null

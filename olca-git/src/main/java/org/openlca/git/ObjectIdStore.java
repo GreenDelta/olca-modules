@@ -11,10 +11,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.jgit.lib.ObjectId;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.git.util.GitUtil;
 import org.openlca.util.Categories;
@@ -62,12 +62,12 @@ public class ObjectIdStore {
 		return has(path);
 	}
 
-	public boolean has(CategorizedEntity e) {
+	public boolean has(RootEntity e) {
 		var path = getPath(e);
 		return has(path);
 	}
 
-	public boolean has(PathBuilder categoryPath, CategorizedDescriptor d) {
+	public boolean has(PathBuilder categoryPath, RootDescriptor d) {
 		var path = getPath(categoryPath, d);
 		return has(path);
 	}
@@ -85,12 +85,12 @@ public class ObjectIdStore {
 		return getRaw(path);
 	}
 
-	public byte[] getRaw(CategorizedEntity e) {
+	public byte[] getRaw(RootEntity e) {
 		var path = getPath(e);
 		return getRaw(path);
 	}
 
-	public byte[] getRaw(PathBuilder categoryPath, CategorizedDescriptor d) {
+	public byte[] getRaw(PathBuilder categoryPath, RootDescriptor d) {
 		var path = getPath(categoryPath, d);
 		return getRaw(path);
 	}
@@ -98,7 +98,7 @@ public class ObjectIdStore {
 	public byte[] getRaw(String path) {
 		var v = store.get(path);
 		if (v == null)
-			return getBytes(ObjectId.zeroId());
+			return GitUtil.getBytes(ObjectId.zeroId());
 		return v;
 	}
 
@@ -111,12 +111,12 @@ public class ObjectIdStore {
 		return get(path);
 	}
 
-	public ObjectId get(CategorizedEntity e) {
+	public ObjectId get(RootEntity e) {
 		var path = getPath(e);
 		return get(path);
 	}
 
-	public ObjectId get(PathBuilder categoryPath, CategorizedDescriptor d) {
+	public ObjectId get(PathBuilder categoryPath, RootDescriptor d) {
 		var path = getPath(categoryPath, d);
 		return get(path);
 	}
@@ -137,12 +137,12 @@ public class ObjectIdStore {
 		put(path, id);
 	}
 
-	public void put(CategorizedEntity e, ObjectId id) {
+	public void put(RootEntity e, ObjectId id) {
 		var path = getPath(e);
 		put(path, id);
 	}
 
-	public void put(PathBuilder categoryPath, CategorizedDescriptor d, ObjectId id) {
+	public void put(PathBuilder categoryPath, RootDescriptor d, ObjectId id) {
 		var path = getPath(categoryPath, d);
 		put(path, id);
 	}
@@ -151,7 +151,7 @@ public class ObjectIdStore {
 		if (path.startsWith("/")) {
 			path = path.substring(1);
 		}
-		store.put(path, getBytes(id));
+		store.put(path, GitUtil.getBytes(id));
 	}
 
 	public void invalidateRoot() {
@@ -163,12 +163,12 @@ public class ObjectIdStore {
 		invalidate(path);
 	}
 
-	public void invalidate(CategorizedEntity e) {
+	public void invalidate(RootEntity e) {
 		var path = getPath(e);
 		invalidate(path);
 	}
 
-	public void invalidate(PathBuilder categoryPath, CategorizedDescriptor d) {
+	public void invalidate(PathBuilder categoryPath, RootDescriptor d) {
 		var path = getPath(categoryPath, d);
 		invalidate(path);
 	}
@@ -192,14 +192,14 @@ public class ObjectIdStore {
 		return getPath(type, null, null);
 	}
 
-	public String getPath(CategorizedEntity e) {
+	public String getPath(RootEntity e) {
 		var path = String.join("/", Categories.path(e.category));
 		if (e instanceof Category)
 			return getPath(((Category) e).modelType, path, e.name);
 		return getPath(ModelType.forModelClass(e.getClass()), path, e.refId + GitUtil.DATASET_SUFFIX);
 	}
 
-	public String getPath(PathBuilder categoryPath, CategorizedDescriptor d) {
+	public String getPath(PathBuilder categoryPath, RootDescriptor d) {
 		var path = categoryPath.pathOf(d.category);
 		if (d.type == ModelType.CATEGORY)
 			return getPath(((CategoryDescriptor) d).categoryType, path, d.name);
@@ -218,12 +218,6 @@ public class ObjectIdStore {
 			fullPath += "/" + name;
 		}
 		return fullPath;
-	}
-
-	private byte[] getBytes(ObjectId id) {
-		var bytes = new byte[40];
-		id.copyRawTo(bytes, 0);
-		return bytes;
 	}
 
 }

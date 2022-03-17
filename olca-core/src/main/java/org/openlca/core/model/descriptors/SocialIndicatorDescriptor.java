@@ -2,7 +2,7 @@ package org.openlca.core.model.descriptors;
 
 import org.openlca.core.model.ModelType;
 
-public class SocialIndicatorDescriptor extends CategorizedDescriptor {
+public class SocialIndicatorDescriptor extends RootDescriptor {
 
 	public SocialIndicatorDescriptor() {
 		this.type = ModelType.SOCIAL_INDICATOR;

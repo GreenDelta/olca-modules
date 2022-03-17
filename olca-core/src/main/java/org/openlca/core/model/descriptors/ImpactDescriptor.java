@@ -5,7 +5,7 @@ import org.openlca.core.model.ModelType;
 /**
  * The descriptor class for impact assessment categories.
  */
-public class ImpactDescriptor extends CategorizedDescriptor {
+public class ImpactDescriptor extends RootDescriptor {
 
 	public String referenceUnit;
 

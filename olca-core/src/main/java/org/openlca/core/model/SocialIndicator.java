@@ -8,7 +8,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_social_indicators")
-public class SocialIndicator extends CategorizedEntity {
+public class SocialIndicator extends RootEntity {
 
 	/**
 	 * Name of the activity variable.

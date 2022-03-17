@@ -1,6 +1,7 @@
 package org.openlca.jsonld;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,28 @@ public class MemStore implements JsonStoreReader, JsonStoreWriter {
 	}
 
 	@Override
+	public List<String> getFiles(String dir) {
+		if (dir == null)
+			return Collections.emptyList();
+		var prefix = !dir.endsWith("/")
+			? dir + "/"
+			: dir;
+
+		// first try Json objects
+		var list = jsonData.keySet()
+			.stream()
+			.filter(path -> path.startsWith(prefix))
+			.toList();
+		if (!list.isEmpty())
+			return list;
+
+		// then try binary objects
+		return byteData.keySet().stream()
+			.filter(path -> path.startsWith(prefix))
+			.toList();
+	}
+
+	@Override
 	public List<String> getBinFiles(ModelType type, String refId) {
 		var prefix = ModelPath.binFolderOf(type, refId) + '/';
 		return byteData.keySet().stream()
@@ -61,5 +84,10 @@ public class MemStore implements JsonStoreReader, JsonStoreWriter {
 	@Override
 	public void put(String path, byte[] bytes) {
 		byteData.put(path, bytes);
+	}
+
+	public void clear() {
+		jsonData.clear();
+		byteData.clear();
 	}
 }

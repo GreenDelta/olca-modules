@@ -74,7 +74,7 @@ public class Version {
 	}
 
 	private static void inc(RootEntity entity, Consumer<Version> inc) {
-		Version v = new Version(entity.version);
+		var v = new Version(entity.version);
 		inc.accept(v);
 		entity.version = v.getValue();
 	}

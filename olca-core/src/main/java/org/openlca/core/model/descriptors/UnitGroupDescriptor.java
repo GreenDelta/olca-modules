@@ -2,7 +2,7 @@ package org.openlca.core.model.descriptors;
 
 import org.openlca.core.model.ModelType;
 
-public class UnitGroupDescriptor extends CategorizedDescriptor {
+public class UnitGroupDescriptor extends RootDescriptor {
 
 	public UnitGroupDescriptor() {
 		this.type = ModelType.UNIT_GROUP;

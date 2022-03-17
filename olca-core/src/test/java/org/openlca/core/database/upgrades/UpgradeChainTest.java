@@ -58,12 +58,16 @@ public class UpgradeChainTest {
 		};
 
 		// roll back Upgrade11
+		u.dropTable("tbl_epds");
+		u.dropTable("tbl_epd_modules");
 		u.dropTable("tbl_results");
 		u.dropTable("tbl_flow_results");
 		u.dropTable("tbl_impact_results");
 		u.dropColumn("tbl_parameter_redefs", "is_protected");
 		u.dropColumn("tbl_impact_methods", "f_source");
+		u.dropColumn("tbl_impact_methods", "code");
 		u.dropColumn("tbl_impact_categories", "f_source");
+		u.dropColumn("tbl_impact_categories", "code");
 		u.dropColumn("tbl_process_links", "provider_type");
 
 		// roll back Upgrade9 & Upgrade10
@@ -179,12 +183,16 @@ public class UpgradeChainTest {
 		}
 
 		// check Upgrade11
+		assertTrue(u.tableExists("tbl_epds"));
+		assertTrue(u.tableExists("tbl_epd_modules"));
 		assertTrue(u.tableExists("tbl_results"));
 		assertTrue(u.tableExists("tbl_flow_results"));
 		assertTrue(u.tableExists("tbl_impact_results"));
 		assertTrue(u.columnExists("tbl_parameter_redefs", "is_protected"));
 		assertTrue(u.columnExists("tbl_impact_methods", "f_source"));
+		assertTrue(u.columnExists("tbl_impact_methods", "code"));
 		assertTrue(u.columnExists("tbl_impact_categories", "f_source"));
+		assertTrue(u.columnExists("tbl_impact_categories", "code"));
 		assertTrue(u.columnExists("tbl_process_links", "provider_type"));
 
 		// finally, check that we now have the current database version

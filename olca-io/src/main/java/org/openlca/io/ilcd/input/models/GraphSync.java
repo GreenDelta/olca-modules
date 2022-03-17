@@ -4,27 +4,23 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import org.openlca.core.database.CategoryDao;
-import org.openlca.core.database.FlowDao;
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ProcessDao;
-import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.ilcd.models.Model;
+import org.openlca.io.ilcd.input.ImportConfig;
 
 /**
  * Synchronizes a transformed graph with a database. It assumes that all
  * processes and link flows are created new.
  */
-record GraphSync(IDatabase db) {
+record GraphSync(ImportConfig config) {
 
 	ProductSystem sync(Model model, Graph g) {
 
@@ -35,7 +31,7 @@ record GraphSync(IDatabase db) {
 			Flow flow = qRef.flow;
 			flow.refId = UUID.randomUUID().toString();
 			category(flow);
-			qRef.flow = new FlowDao(db).insert(flow);
+			qRef.flow = insert(flow);
 			qRef.flowPropertyFactor = flow.getReferenceFactor();
 		}
 
@@ -43,22 +39,20 @@ record GraphSync(IDatabase db) {
 		syncProcesses(g);
 		ProductSystem system = new ProductSystem();
 		IO.mapMetaData(model, system);
-		system.category = new CategoryDao(db).sync(
-				ModelType.PRODUCT_SYSTEM, "eILCD models");
+		system.category = new CategoryDao(config.db())
+			.sync(ModelType.PRODUCT_SYSTEM, "eILCD models");
 		mapGraph(g, system);
 		mapQRef(g, system);
 		mapParams(g, system);
-		ProductSystemDao dao = new ProductSystemDao(db);
-		return dao.insert(system);
+		return insert(system);
 	}
 
 	private void syncProcesses(Graph g) {
-		ProcessDao dao = new ProcessDao(db);
 		g.eachNode(node -> {
 			var process = node.process;
 			process.refId = UUID.randomUUID().toString();
 			category(process);
-			node.process = dao.insert(process);
+			node.process = insert(process);
 		});
 	}
 
@@ -66,10 +60,10 @@ record GraphSync(IDatabase db) {
 		Flow flow = link.input.flow;
 		flow.refId = UUID.randomUUID().toString();
 		category(flow);
-		flow = new FlowDao(db).insert(flow);
+		flow = insert(flow);
 		link.input.flow = flow;
 		link.output.flow = flow;
-		FlowPropertyFactor factor = flow.getReferenceFactor();
+		var factor = flow.getReferenceFactor();
 		if (factor == null)
 			return;
 		link.input.flowPropertyFactor = factor;
@@ -80,7 +74,7 @@ record GraphSync(IDatabase db) {
 	 * Creates a copy of the category of the given entity under the `eILCD
 	 * models` tree.
 	 */
-	private void category(CategorizedEntity e) {
+	private void category(RootEntity e) {
 		if (e == null || e.category == null)
 			return;
 		Category c = e.category;
@@ -92,7 +86,7 @@ record GraphSync(IDatabase db) {
 		}
 		names.add(0, "eILCD models");
 		String[] path = names.toArray(new String[0]);
-		c = new CategoryDao(db).sync(type, path);
+		c = new CategoryDao(config.db()).sync(type, path);
 		e.category = c;
 	}
 
@@ -144,5 +138,15 @@ record GraphSync(IDatabase db) {
 			redef.contextType = ModelType.PROCESS;
 			IO.parametersSetOf(system).add(redef);
 		}));
+	}
+
+	private <T extends RootEntity> T insert(T e) {
+		var r = config.db().insert(e);
+		if (r instanceof ProductSystem) {
+			config.log().imported(r);
+		} else {
+			config.log().warn(r, "created copy for eILCD model");
+		}
+		return r;
 	}
 }

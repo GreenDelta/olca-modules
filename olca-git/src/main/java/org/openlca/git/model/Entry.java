@@ -31,9 +31,12 @@ public class Entry extends Reference {
 	}
 
 	private static String getRefId(String name) {
-		if (!name.contains("."))
+		if (!name.contains(".json"))
 			return null;
-		return name.substring(0, name.indexOf("."));
+		var refId = name.substring(0, name.indexOf("."));
+		if (!GitUtil.isUUID(refId))
+			return null;
+		return refId;
 	}
 
 	private static String getFullPath(String path, String name) {

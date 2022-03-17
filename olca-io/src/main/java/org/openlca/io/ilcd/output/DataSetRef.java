@@ -1,7 +1,7 @@
 package org.openlca.io.ilcd.output;
 
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
@@ -16,8 +16,8 @@ class DataSetRef {
 	private DataSetRef() {
 	}
 
-	public static Ref makeRef(CategorizedEntity model,
-			ExportConfig config) {
+	public static Ref makeRef(RootEntity model,
+                              ExportConfig config) {
 		if (model == null) {
 			return new Ref();
 		}
@@ -32,8 +32,8 @@ class DataSetRef {
 		return ref;
 	}
 
-	private static void setUriAndType(CategorizedEntity iModel,
-			Ref ref) {
+	private static void setUriAndType(RootEntity iModel,
+                                      Ref ref) {
 		String uri = "../";
 		if (iModel instanceof Actor) {
 			ref.type = DataSetType.CONTACT;

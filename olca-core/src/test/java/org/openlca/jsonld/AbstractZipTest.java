@@ -7,7 +7,6 @@ import java.util.function.Consumer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.openlca.core.database.IDatabase;
 
 public class AbstractZipTest {
 

@@ -140,9 +140,9 @@ public class References {
 					var refs = new ArrayList<Reference>();
 					var onlyChanged = changedSince != null;
 					if (changedSince != null) {
-						var previous = commits.find().from(changedSince).before(commitId).latest();
+						var previous = commits.getRev(changedSince);
 						if (previous != null) {
-							walk.addTree(commits.getRev(previous.id).getTree());
+							walk.addTree(previous.getTree());
 						} else {
 							onlyChanged = false;
 						}
@@ -161,9 +161,7 @@ public class References {
 					if (onlyChanged) {
 						filter = AndTreeFilter.create(filter, TreeFilter.ANY_DIFF);
 					}
-					if (filter != null) {
-						walk.setFilter(filter);
-					}
+					walk.setFilter(filter);
 					while (walk.next()) {
 						if (countOnly) {
 							refs.add(null);

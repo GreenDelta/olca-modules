@@ -2,7 +2,7 @@ package org.openlca.core.model.descriptors;
 
 import org.openlca.core.model.ModelType;
 
-public class ParameterDescriptor extends CategorizedDescriptor {
+public class ParameterDescriptor extends RootDescriptor {
 
 	public ParameterDescriptor() {
 		this.type = ModelType.PARAMETER;

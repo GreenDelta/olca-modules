@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.input.JsonImport;
 
@@ -30,9 +30,9 @@ public class LibraryImport implements Runnable {
 			try (var store = ZipStore.open(meta)) {
 				var imp = new JsonImport(store, db);
 				imp.setCallback(e -> {
-					if (!(e instanceof CategorizedEntity))
+					if (!(e instanceof RootEntity))
 						return;
-					var ce = (CategorizedEntity) e;
+					var ce = (RootEntity) e;
 					update(ce, libID);
 				});
 				imp.run();
@@ -44,7 +44,7 @@ public class LibraryImport implements Runnable {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends CategorizedEntity> void update(T e, String library) {
+	private <T extends RootEntity> void update(T e, String library) {
 		e.library = library;
 		Daos.base(db, (Class<T>) e.getClass()).update(e);
 	}

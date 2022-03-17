@@ -3,7 +3,7 @@ package org.openlca.io.xls.process.output;
 import java.util.Date;
 
 import org.apache.poi.ss.usermodel.Sheet;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.io.CategoryPath;
 import org.openlca.io.xls.Excel;
@@ -42,7 +42,7 @@ class AdminInfoSheet {
 		sheet.setColumnWidth(1, 100 * 256);
 	}
 
-	private void pair(String header, CategorizedEntity entity) {
+	private void pair(String header, RootEntity entity) {
 		if (entity == null) {
 			Excel.cell(sheet, row++, 0, header);
 			return;

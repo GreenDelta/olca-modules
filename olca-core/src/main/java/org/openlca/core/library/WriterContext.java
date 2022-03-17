@@ -7,7 +7,7 @@ import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
@@ -86,7 +86,7 @@ public class WriterContext {
 		return proto.build();
 	}
 
-	Proto.Process toProtoProcess(CategorizedDescriptor d) {
+	Proto.Process toProtoProcess(RootDescriptor d) {
 		var proto = Proto.Process.newBuilder();
 		if (d == null)
 			return proto.build();

@@ -10,10 +10,10 @@ public class DescriptorsTest {
 	@Test
 	public void testToDescriptor() throws Exception {
 		for (ModelType t : ModelType.values()) {
-			Class<? extends RootEntity> clazz = t.modelClass;
+			Class<? extends RefEntity> clazz = t.modelClass;
 			if (clazz == null)
 				continue;
-			RootEntity e = clazz.newInstance();
+			RefEntity e = clazz.newInstance();
 			e.name = t.name();
 			e.refId = t.name();
 			Descriptor d = Descriptor.of(e);

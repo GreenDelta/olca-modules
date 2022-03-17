@@ -3,7 +3,7 @@ package org.openlca.jsonld.input;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.RefEntity;
 import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
@@ -55,7 +55,7 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 			return;
 		String refId = Json.getString(ref, "@id");
 		String type = Json.getString(ref, "@type");
-		RootEntity p;
+		RefEntity p;
 		if ("ProductSystem".equals(type)) {
 			p = ProductSystemImport.run(refId, conf);
 		}else if ("Result".equals(type)) {
@@ -82,21 +82,21 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 	}
 
 	private void addParameterSets(JsonObject json, ProductSystem sys) {
-		JsonArray array = Json.getArray(json, "parameterSets");
+		var array = Json.getArray(json, "parameterSets");
 		if (array == null || array.size() == 0)
 			return;
 		for (JsonElement elem : array) {
 			if (!elem.isJsonObject())
 				continue;
-			JsonObject obj = elem.getAsJsonObject();
-			ParameterRedefSet s = new ParameterRedefSet();
-			sys.parameterSets.add(s);
-			s.name = Json.getString(obj, "name");
-			s.description = Json.getString(obj, "description");
-			s.isBaseline = Json.getBool(obj, "isBaseline", false);
+			var obj = elem.getAsJsonObject();
+			var set = new ParameterRedefSet();
+			sys.parameterSets.add(set);
+			set.name = Json.getString(obj, "name");
+			set.description = Json.getString(obj, "description");
+			set.isBaseline = Json.getBool(obj, "isBaseline", false);
 			JsonArray redefs = Json.getArray(obj, "parameters");
 			if (redefs != null && redefs.size() > 0) {
-				s.parameters.addAll(
+				set.parameters.addAll(
 						ParameterRedefs.read(redefs, conf));
 			}
 		}
