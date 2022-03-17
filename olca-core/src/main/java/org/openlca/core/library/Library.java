@@ -33,19 +33,23 @@ import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.jsonld.Json;
-import org.openlca.util.Exceptions;
 import org.slf4j.LoggerFactory;
 
-public class Library {
+public record Library(File folder) {
 
-	/**
-	 * The folder where the library files are stored.
-	 */
-	public final File folder;
-	private LibraryInfo _info;
+	public Library {
+		if (!folder.exists()) {
+			try {
+				Files.createDirectories(folder.toPath());
+			} catch (IOException e) {
+				throw new RuntimeException(
+					"failed to create library folder: " + folder, e);
+			}
+		}
+	}
 
-	public Library(File folder) {
-		this.folder = folder;
+	public static Library of(File folder) {
+		return new Library(folder);
 	}
 
 	/**
@@ -53,13 +57,6 @@ public class Library {
 	 */
 	public static Library create(LibraryDir dir, LibraryInfo info) {
 		var libDir = dir.getFolder(info);
-		if (!libDir.exists()) {
-			try {
-				Files.createDirectories(libDir.toPath());
-			} catch (IOException e) {
-				Exceptions.unchecked("failed to create library folder " + libDir, e);
-			}
-		}
 		var lib = new Library(libDir);
 		info.writeTo(lib);
 		return lib;
@@ -101,18 +98,15 @@ public class Library {
 	}
 
 	public LibraryInfo getInfo() {
-		if (_info != null)
-			return _info;
 		var file = new File(folder, "library.json");
 		var obj = Json.readObject(file);
 		if (obj.isEmpty())
 			throw new RuntimeException("failed to read " + file);
-		_info = LibraryInfo.fromJson(obj.get());
-		return _info;
+		return LibraryInfo.fromJson(obj.get());
 	}
 
 	public String id() {
-		return getInfo().id();
+		return folder.getName();
 	}
 
 	/**

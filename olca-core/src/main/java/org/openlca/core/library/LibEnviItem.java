@@ -1,6 +1,7 @@
 package org.openlca.core.library;
 
 import org.apache.commons.csv.CSVRecord;
+import org.openlca.core.matrix.index.EnviFlow;
 
 import java.util.List;
 
@@ -13,6 +14,14 @@ public record LibEnviItem(
 	LibLocation location,
 	boolean isInput
 ) {
+
+	public static LibEnviItem of(int idx, EnviFlow item, DbContext ctx) {
+		return new LibEnviItem(
+			idx,
+			LibFlow.of(item.flow(), ctx),
+			LibLocation.of(item.location()),
+			item.isInput());
+	}
 
 	Proto.ElemFlowEntry toProto() {
 		var proto = Proto.ElemFlowEntry.newBuilder();

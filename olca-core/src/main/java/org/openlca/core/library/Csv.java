@@ -3,6 +3,8 @@ package org.openlca.core.library;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
+import java.io.File;
+
 class Csv {
 
 	// Number of columns that the respective types take in an CSV index.
@@ -39,4 +41,8 @@ class Csv {
 		return CSVFormat.RFC4180;
 	}
 
+	static boolean isCsv(File file) {
+		return file != null && file.exists()
+			&& file.getName().toLowerCase().endsWith(".csv");
+	}
 }

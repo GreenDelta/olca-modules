@@ -1,6 +1,8 @@
 package org.openlca.core.library;
 
 import org.apache.commons.csv.CSVRecord;
+import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 import java.util.List;
 
@@ -9,6 +11,18 @@ import java.util.List;
  */
 public record LibTechItem(
 	int index, LibProcess process, LibFlow flow) {
+
+	public static LibTechItem of(int idx, TechFlow item, DbContext ctx) {
+		if (!item.isProcess()) {
+			throw new IllegalArgumentException(
+				"only processes are supported in libraries; but received"
+					+ item.provider());
+		}
+		return new LibTechItem(
+			idx,
+			LibProcess.of((ProcessDescriptor) item.provider(), ctx),
+			LibFlow.of(item.flow(), ctx));
+	}
 
 	Proto.ProductEntry toProto() {
 		var proto = Proto.ProductEntry.newBuilder()

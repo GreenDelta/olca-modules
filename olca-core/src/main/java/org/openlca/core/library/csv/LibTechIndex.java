@@ -67,37 +67,7 @@ public final class LibTechIndex {
 
 	public static void write(WriterContext cxt, Iterable<LibTechItem> entries) {
 		var file = new File(cxt.library().folder, "index_A.csv");
-		try (var writer = new FileWriter(file, StandardCharsets.UTF_8);
-				var printer = new CSVPrinter(writer, Csv.format());) {
 
-			printer.printRecord(
-					"index",
-					"process ID",
-					"process name",
-					"process category",
-					"process location",
-					"flow ID",
-					"flow name",
-					"flow category",
-					"flow unit",
-					"flow type");
-
-			var buffer = new ArrayList<String>(10);
-			for (var e : entries) {
-				buffer.add(Integer.toString(e.index()));
-				var process = Objects.requireNonNullElse(
-						e.process(), LibProcess.empty());
-				process.toCsv(buffer);
-				var flow = Objects.requireNonNullElse(
-						e.flow(), LibFlow.empty());
-				flow.toCsv(buffer);
-				printer.printRecord(buffer);
-				buffer.clear();
-			}
-
-		} catch (Exception e) {
-			throw new RuntimeException("failed to write tech-index to " + file, e);
-		}
 	}
 
 }
