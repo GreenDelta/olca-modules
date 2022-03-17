@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.apache.commons.csv.CSVRecord;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.util.Strings;
 
 /**
@@ -27,7 +29,7 @@ public record LibProcess(
 		return id == null || id.isBlank();
 	}
 
-	public static LibProcess of(Process process) {
+	public static LibProcess of(RootEntity process) {
 		if (process == null)
 			return empty;
 		return new LibProcess(
@@ -36,17 +38,17 @@ public record LibProcess(
 			process.category != null
 				? process.category.toPath()
 				: null,
-			process.location != null
-				? process.location.code
+			process instanceof Process p && p.location != null
+				? p.location.code
 				: null);
 	}
 
-	public static LibProcess of(ProcessDescriptor d, DbContext ctx) {
+	public static LibProcess of(RootDescriptor d, DbContext ctx) {
 		if (d == null)
 			return empty;
 		var category = ctx.categories().pathOf(d.category);
-		var loc = d.location != null
-			? ctx.locationCodes().get(d.location)
+		var loc = d instanceof ProcessDescriptor p && p.location != null
+			? ctx.locationCodes().get(p.location)
 			: null;
 		return new LibProcess(
 			d.refId,
