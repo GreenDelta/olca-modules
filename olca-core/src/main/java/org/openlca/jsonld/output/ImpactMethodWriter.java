@@ -29,7 +29,7 @@ class ImpactMethodWriter extends Writer<ImpactMethod> {
 		var nwSets = new JsonArray();
 		for (var nwSet : method.nwSets) {
 			var nwObj = new JsonObject();
-			Writer.addBasicAttributes(nwSet, nwObj);
+			Writer.mapBasicAttributes(nwSet, nwObj);
 			Json.put(nwObj, "weightedScoreUnit", nwSet.weightedScoreUnit);
 			var factors = new JsonArray();
 			nwSet.factors.stream()

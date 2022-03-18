@@ -49,7 +49,7 @@ class UnitWriter extends Writer<Unit> {
 	static void map(Unit unit, JsonObject obj) {
 		if (unit == null || obj == null)
 			return;
-		addBasicAttributes(unit, obj);
+		mapBasicAttributes(unit, obj);
 		Json.put(obj, "conversionFactor", unit.conversionFactor);
 		var synonyms = unit.synonyms;
 		if (Strings.nullOrEmpty(synonyms))
