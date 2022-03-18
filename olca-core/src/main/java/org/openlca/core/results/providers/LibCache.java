@@ -3,8 +3,6 @@ package org.openlca.core.results.providers;
 import java.io.File;
 import java.util.HashMap;
 
-import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TIntObjectHashMap;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibMatrix;
 import org.openlca.core.library.LibraryDir;
@@ -14,6 +12,9 @@ import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.io.NpyMatrix;
 import org.openlca.npy.Array2d;
+
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 class LibCache {
 
@@ -165,12 +166,12 @@ class LibCache {
 			if (lib == null)
 				return new MatrixFile(null, false);
 
-			var npy = new File(lib.folder, matrix.name() + ".npy");
+			var npy = new File(lib.folder(), matrix.name() + ".npy");
 			if (npy.exists()) {
 				return new MatrixFile(npy, false);
 			}
 
-			var npz = new File(lib.folder, matrix.name() + ".npz");
+			var npz = new File(lib.folder(), matrix.name() + ".npz");
 			return npz.exists()
 				? new MatrixFile(npz, true)
 				: new MatrixFile(null, false);

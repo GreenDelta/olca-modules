@@ -16,6 +16,8 @@ import org.openlca.core.matrix.index.EnviIndex;
 
 public record LibEnviIndex(List<LibEnviItem> items) {
 
+	private static final String NAME = "index_B";
+
 	public static LibEnviIndex empty() {
 		return new LibEnviIndex(Collections.emptyList());
 	}
@@ -30,20 +32,20 @@ public record LibEnviIndex(List<LibEnviItem> items) {
 	}
 
 	public static LibEnviIndex readFrom(Library lib) {
-		var proto = new File(lib.folder(), "index_B.bin");
+		var proto = IndexFormat.PROTO.file(lib, NAME);
 		if (proto.exists())
 			return readProto(proto);
-		var csv = new File(lib.folder(), "index_B.csv");
+		var csv = IndexFormat.CSV.file(lib, NAME);
 		return csv.exists()
 			? readCsv(csv)
 			: empty();
 	}
 
 	public static boolean isPresentIn(Library lib) {
-		var proto = new File(lib.folder(), "index_B.bin");
+		var proto =  IndexFormat.PROTO.file(lib, NAME);
 		if (proto.exists())
 			return true;
-		var csv = new File(lib.folder(), "index_B.csv");
+		var csv = IndexFormat.CSV.file(lib, NAME);
 		return csv.exists();
 	}
 
@@ -83,6 +85,20 @@ public record LibEnviIndex(List<LibEnviItem> items) {
 
 	public boolean isEmpty() {
 		return items.isEmpty();
+	}
+
+	public void writeTo(Library lib) {
+		writeTo(lib, IndexFormat.PROTO);
+	}
+
+	public void writeTo(Library lib, IndexFormat format) {
+		if (format == IndexFormat.CSV) {
+			var file = IndexFormat.CSV.file(lib, NAME);
+			toCsv(file);
+		} else {
+			var file = IndexFormat.PROTO.file(lib, NAME);
+			toProto(file);
+		}
 	}
 
 	public void toCsv(File file) {

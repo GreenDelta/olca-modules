@@ -22,7 +22,7 @@ public class LibraryPackage {
 	 */
 	public static void zip(Library library, File zipFile) {
 		if (library == null
-			|| library.folder == null
+			|| library.folder() == null
 			|| zipFile == null)
 			return;
 
@@ -32,7 +32,7 @@ public class LibraryPackage {
 
 			// put the library files directly in the root of
 			// the zip
-			var libFiles = library.folder.listFiles();
+			var libFiles = library.folder().listFiles();
 			if (libFiles == null)
 				return;
 			for (var libFile : libFiles) {
@@ -48,7 +48,7 @@ public class LibraryPackage {
 			// sub-folder
 			for (var depLib : library.getDependencies()) {
 				var prefix = "dependencies/" + depLib.id() + "/";
-				var depFiles = depLib.folder.listFiles();
+				var depFiles = depLib.folder().listFiles();
 				if (depFiles == null)
 					continue;
 				for (var depFile : depFiles) {
@@ -145,7 +145,7 @@ public class LibraryPackage {
 					target = new File(libDir.folder(), dep + "/" + path[2]);
 				} else {
 					// a root library file
-					target = new File(lib.folder, path[0]);
+					target = new File(lib.folder(), path[0]);
 				}
 
 				// copy the content to the target file

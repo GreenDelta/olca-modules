@@ -5,11 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.openlca.core.model.Version;
+import org.openlca.jsonld.Json;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.openlca.core.model.Version;
-import org.openlca.jsonld.Json;
 
 /**
  * Contains the meta-data of a library.
@@ -113,7 +114,7 @@ public class LibraryInfo {
 	public void writeTo(Library library) {
 		if (library == null)
 			return;
-		Json.write(toJson(), new File(library.folder, "library.json"));
+		Json.write(toJson(), new File(library.folder(), "library.json"));
 	}
 
 	JsonObject toJson() {

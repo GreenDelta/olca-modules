@@ -26,7 +26,7 @@ public class LibraryImport implements Runnable {
 	public void run() {
 		try {
 			var libID = library.getInfo().id();
-			var meta = new File(library.folder, "meta.zip");
+			var meta = new File(library.folder(), "meta.zip");
 			try (var store = ZipStore.open(meta)) {
 				var imp = new JsonImport(store, db);
 				imp.setCallback(e -> {

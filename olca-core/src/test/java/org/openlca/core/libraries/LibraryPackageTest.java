@@ -31,8 +31,8 @@ public class LibraryPackageTest {
 
 		// put a tech. matrix into the libraries
 		var matrix = new DenseMatrix(10, 10);
-		NpyMatrix.write(lib.folder, "A", matrix);
-		NpyMatrix.write(dep.folder, "A", matrix);
+		NpyMatrix.write(lib.folder(), "A", matrix);
+		NpyMatrix.write(dep.folder(), "A", matrix);
 
 		// package the library and its dependency
 		var zipFile = Files.createTempFile("_olca_test", ".zip").toFile();

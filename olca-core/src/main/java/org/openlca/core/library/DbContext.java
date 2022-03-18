@@ -17,6 +17,14 @@ public final class DbContext {
 	private Categories.PathBuilder _categories;
 	private Map<Long, FlowProperty> _quantities;
 
+	private DbContext(IDatabase db) {
+		this.db = db;
+	}
+
+	public static DbContext of(IDatabase db) {
+		return new DbContext(db);
+	}
+
 	Categories.PathBuilder categories() {
 		if (_categories == null) {
 			_categories = Categories.pathsOf(db);
@@ -25,7 +33,7 @@ public final class DbContext {
 	}
 
 	Map<Long, FlowProperty> quantities() {
-		if(_quantities == null) {
+		if (_quantities == null) {
 			_quantities = new FlowPropertyDao(db)
 				.getAll()
 				.stream()

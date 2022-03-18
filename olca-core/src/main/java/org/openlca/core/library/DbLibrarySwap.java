@@ -7,19 +7,20 @@ import java.util.Map;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import gnu.trove.map.hash.TLongObjectHashMap;
-import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
+
+import gnu.trove.map.hash.TLongObjectHashMap;
+import gnu.trove.set.hash.TLongHashSet;
 
 /**
  * Tries to replace a background system of a database with a library.
@@ -39,7 +40,7 @@ public class DbLibrarySwap implements Runnable {
 		try {
 			var replacedTechFlows = techFlowsOf(db);
 			var libId = library.id();
-			var meta = new File(library.folder, "meta.zip");
+			var meta = new File(library.folder(), "meta.zip");
 			try (var store = ZipStore.open(meta)) {
 				var imp = new JsonImport(store, db);
 				imp.setUpdateMode(UpdateMode.ALWAYS);
