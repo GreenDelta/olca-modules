@@ -1,7 +1,6 @@
 package org.openlca.core.library;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -14,7 +13,6 @@ import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.io.MatrixExport;
 import org.openlca.core.model.AllocationMethod;
-import org.openlca.jsonld.Json;
 import org.openlca.julia.Julia;
 import org.openlca.julia.JuliaSolver;
 import org.slf4j.Logger;
@@ -89,14 +87,7 @@ public class LibraryExport implements Runnable {
 	@Override
 	public void run() {
 		log.info("start library export of database {}", db.getName());
-		// create the folder if it does not exist
-		if (!folder.exists()) {
-			try {
-				Files.createDirectories(folder.toPath());
-			} catch (Exception e) {
-				throw new RuntimeException("failed to create folder " + folder, e);
-			}
-		}
+		var lib = Library.of(folder);
 
 		// create a thread pool and start writing the meta-data
 		var threadPool = Executors.newFixedThreadPool(4);
@@ -117,14 +108,23 @@ public class LibraryExport implements Runnable {
 		// write the matrices
 		threadPool.execute(() -> {
 			log.info("write matrices");
-			MatrixExport.toNpy(db, folder, data)
-				.writeMatrices();
-			new IndexWriter(folder, data, db).run();
+			MatrixExport.toNpy(db, folder, data).writeMatrices();
+			log.info("write indices");
+			var ctx = DbContext.of(db);
+			if (data.techIndex != null) {
+				LibTechIndex.of(data.techIndex, ctx).writeTo(lib);
+			}
+			if (data.enviIndex != null) {
+				LibEnviIndex.of(data.enviIndex, ctx).writeTo(lib);
+			}
+			if (data.impactIndex != null) {
+				LibImpactIndex.of(data.impactIndex).writeTo(lib);
+			}
 		});
 		threadPool.execute(this::preCalculate);
 
 		// write library meta-data
-		Json.write(info.toJson(), new File(folder, "library.json"));
+		info.writeTo(lib);
 
 		try {
 			threadPool.shutdown();
