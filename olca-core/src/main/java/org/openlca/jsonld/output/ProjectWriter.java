@@ -7,17 +7,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.openlca.jsonld.Json;
 
-class ProjectWriter extends Writer<Project> {
-
-	ProjectWriter(JsonExport exp) {
-		super(exp);
-	}
+record ProjectWriter(JsonExport exp) implements Writer<Project> {
 
 	@Override
-	JsonObject write(Project p) {
-		JsonObject obj = super.write(p);
-		if (obj == null)
-			return null;
+	public JsonObject write(Project p) {
+		JsonObject obj = Writer.init(p);
 		Json.put(obj, "isWithCosts", p.isWithCosts);
 		Json.put(obj, "isWithRegionalization", p.isWithRegionalization);
 		Json.put(obj, "impactMethod", exp.handleRef(p.impactMethod));

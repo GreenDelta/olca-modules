@@ -10,17 +10,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
-class LocationWriter extends Writer<Location> {
-
-	LocationWriter(JsonExport exp) {
-		super(exp);
-	}
+record LocationWriter(JsonExport exp) implements Writer<Location> {
 
 	@Override
 	public JsonObject write(Location location) {
-		JsonObject obj = super.write(location);
-		if (obj == null)
-			return null;
+		var obj = Writer.init(location);
 		Json.put(obj, "code", location.code);
 		Json.put(obj, "latitude", location.latitude);
 		Json.put(obj, "longitude", location.longitude);

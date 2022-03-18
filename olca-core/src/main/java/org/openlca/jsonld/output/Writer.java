@@ -12,21 +12,12 @@ import com.google.gson.JsonObject;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
 
-class Writer<T extends RefEntity> {
+interface Writer<T extends RefEntity> {
 
-	final JsonExport exp;
+	JsonObject write(T entity);
 
-	protected Writer(JsonExport exp) {
-		this.exp = exp;
-	}
-
-	JsonObject write(T entity) {
+	static <T extends RootEntity> JsonObject init(T entity) {
 		var obj = new JsonObject();
-		// mark entity directly as visited to avoid endless cyclic exports for
-		// cyclic references
-		if (entity instanceof RootEntity ce) {
-			exp.setVisited(ce);
-		}
 		mapBasicAttributes(entity, obj);
 		return obj;
 	}
@@ -64,9 +55,4 @@ class Writer<T extends RefEntity> {
 			}
 		}
 	}
-
-	boolean isExportExternalFiles() {
-		return true;
-	}
-
 }

@@ -5,22 +5,11 @@ import org.openlca.core.model.Actor;
 import com.google.gson.JsonObject;
 import org.openlca.jsonld.Json;
 
-class ActorWriter extends Writer<Actor> {
-
-	ActorWriter(JsonExport exp) {
-		super(exp);
-	}
+record ActorWriter(JsonExport exp) implements Writer<Actor> {
 
 	@Override
-	JsonObject write(Actor actor) {
-		JsonObject obj = super.write(actor);
-		if (obj == null)
-			return null;
-		map(actor, obj);
-		return obj;
-	}
-
-	private void map(Actor actor, JsonObject obj) {
+	public JsonObject write(Actor actor) {
+		var obj = Writer.init(actor);
 		Json.put(obj, "address", actor.address);
 		Json.put(obj, "city", actor.city);
 		Json.put(obj, "country", actor.country);
@@ -29,5 +18,7 @@ class ActorWriter extends Writer<Actor> {
 		Json.put(obj, "telephone", actor.telephone);
 		Json.put(obj, "website", actor.website);
 		Json.put(obj, "zipCode", actor.zipCode);
+		return obj;
 	}
+
 }

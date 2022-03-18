@@ -5,17 +5,11 @@ import org.openlca.core.model.Currency;
 import com.google.gson.JsonObject;
 import org.openlca.jsonld.Json;
 
-class CurrencyWriter extends Writer<Currency> {
-
-	CurrencyWriter(JsonExport export) {
-		super(export);
-	}
+record CurrencyWriter(JsonExport exp) implements Writer<Currency> {
 
 	@Override
-	JsonObject write(Currency c) {
-		JsonObject obj = super.write(c);
-		if (obj == null)
-			return null;
+	public JsonObject write(Currency c) {
+		var obj = Writer.init(c);
 		Json.put(obj, "code", c.code);
 		Json.put(obj, "conversionFactor", c.conversionFactor);
 		Json.put(obj, "referenceCurrency", exp.handleRef(c.referenceCurrency));

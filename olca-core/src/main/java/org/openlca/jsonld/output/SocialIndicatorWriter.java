@@ -5,17 +5,11 @@ import org.openlca.core.model.SocialIndicator;
 import com.google.gson.JsonObject;
 import org.openlca.jsonld.Json;
 
-class SocialIndicatorWriter extends Writer<SocialIndicator> {
-
-	SocialIndicatorWriter(JsonExport exp) {
-		super(exp);
-	}
+record SocialIndicatorWriter(JsonExport exp) implements Writer<SocialIndicator> {
 
 	@Override
 	public JsonObject write(SocialIndicator i) {
-		JsonObject obj = super.write(i);
-		if (obj == null)
-			return null;
+		var obj = Writer.init(i);
 		Json.put(obj, "activityVariable", i.activityVariable);
 		Json.put(obj, "unitOfMeasurement", i.unitOfMeasurement);
 		Json.put(obj, "evaluationScheme", i.evaluationScheme);

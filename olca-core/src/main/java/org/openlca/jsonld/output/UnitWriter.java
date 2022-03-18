@@ -11,14 +11,10 @@ import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
 import org.slf4j.LoggerFactory;
 
-class UnitWriter extends Writer<Unit> {
-
-	UnitWriter(JsonExport exp) {
-		super(exp);
-	}
+record UnitWriter(JsonExport exp) implements Writer<Unit> {
 
 	@Override
-	JsonObject write(Unit unit) {
+	public JsonObject write(Unit unit) {
 		var json = new JsonObject();
 		map(unit, json);
 		tagRefUnit(unit, json);
@@ -49,7 +45,7 @@ class UnitWriter extends Writer<Unit> {
 	static void map(Unit unit, JsonObject obj) {
 		if (unit == null || obj == null)
 			return;
-		mapBasicAttributes(unit, obj);
+		Writer.mapBasicAttributes(unit, obj);
 		Json.put(obj, "conversionFactor", unit.conversionFactor);
 		var synonyms = unit.synonyms;
 		if (Strings.nullOrEmpty(synonyms))

@@ -5,24 +5,18 @@ import org.openlca.core.model.Parameter;
 import com.google.gson.JsonObject;
 import org.openlca.jsonld.Json;
 
-class ParameterWriter extends Writer<Parameter> {
-
-	ParameterWriter(JsonExport exp) {
-		super(exp);
-	}
+record ParameterWriter(JsonExport exp) implements Writer<Parameter> {
 
 	@Override
-	JsonObject write(Parameter param) {
-		JsonObject obj = super.write(param);
-		if (obj == null)
-			return null;
+	public JsonObject write(Parameter param) {
+		var obj = new JsonObject();
 		mapAttr(obj, param);
 		GlobalParameters.sync(param, exp);
 		return obj;
 	}
 
 	static void mapAttr(JsonObject json, Parameter param) {
-		mapBasicAttributes(param, json);
+		Writer.mapBasicAttributes(param, json);
 		Json.put(json, "parameterScope", param.scope);
 		Json.put(json, "isInputParameter", param.isInputParameter);
 		Json.put(json, "value", param.value);

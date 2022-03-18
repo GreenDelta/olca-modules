@@ -12,6 +12,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RefEntity;
 import org.openlca.jsonld.JsonStoreWriter;
 
+@Deprecated
 class ExportConfig {
 
 	/** The database from which data are exported. */
