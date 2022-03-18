@@ -12,27 +12,18 @@ import org.openlca.jsonld.input.JsonImport;
  * Mounts a library on a database. This imports the library meta-data into the
  * database and adds a link to the library in the database.
  */
-public class LibraryImport implements Runnable {
-
-	public final IDatabase db;
-	public final Library library;
-
-	public LibraryImport(IDatabase db, Library library) {
-		this.db = db;
-		this.library = library;
-	}
+public record LibraryImport(IDatabase db, Library library) implements Runnable {
 
 	@Override
 	public void run() {
 		try {
-			var libID = library.getInfo().id();
+			var libID = library.id();
 			var meta = new File(library.folder(), "meta.zip");
 			try (var store = ZipStore.open(meta)) {
 				var imp = new JsonImport(store, db);
 				imp.setCallback(e -> {
-					if (!(e instanceof RootEntity))
+					if (!(e instanceof RootEntity ce))
 						return;
-					var ce = (RootEntity) e;
 					update(ce, libID);
 				});
 				imp.run();

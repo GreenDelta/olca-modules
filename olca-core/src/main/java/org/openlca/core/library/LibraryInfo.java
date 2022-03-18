@@ -46,29 +46,10 @@ public class LibraryInfo {
 	 */
 	private final List<String> dependencies = new ArrayList<>();
 
-	private LibraryInfo(String name, String version) {
-		this.name = name;
-		this.version = version;
-	}
-
-	public static LibraryInfo of(String name, String version) {
-		return of(name, Version.fromString(version));
-	}
-
-	public static LibraryInfo of(String name, Version version) {
-		var n = name.trim();
-		return new LibraryInfo(n, version.toString());
-	}
-
-	/**
-	 * The identifier of a library is the combination of `[name]_[version]`.
-	 * The identifier of a library must be unique. It is up to the user to
-	 * find good library names (specifying the type of allocation,
-	 * regionalization etc.). However, there are restrictions on the name
-	 * as we also use them as folder names.
-	 */
-	public String id() {
-		return (name + "_" + Version.format(version)).trim().toLowerCase();
+	public static LibraryInfo of(String name) {
+		var info = new LibraryInfo();
+		info.name = name;
+		return info;
 	}
 
 	public LibraryInfo name(String name) {
@@ -135,8 +116,8 @@ public class LibraryInfo {
 
 	static LibraryInfo fromJson(JsonObject obj) {
 		var name = Json.getString(obj, "name");
-		var version = Json.getString(obj, "version");
-		var info = LibraryInfo.of(name, version);
+		var info = LibraryInfo.of(name);
+		info.version = Json.getString(obj, "version");
 		info.isRegionalized = Json.getBool(obj, "isRegionalized", false);
 		var deps = Json.getArray(obj, "dependencies");
 		if (deps != null) {
@@ -155,11 +136,12 @@ public class LibraryInfo {
 		if (o == null || getClass() != o.getClass())
 			return false;
 		var other = (LibraryInfo) o;
-		return Objects.equals(this.id(), other.id());
+		return Objects.equals(this.name, other.name)
+			&& Objects.equals(this.version, other.version);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id());
+		return Objects.hash(name, version);
 	}
 }

@@ -35,7 +35,7 @@ public class LibraryExport implements Runnable {
 	public LibraryExport(IDatabase db, File folder) {
 		this.db = db;
 		this.folder = folder;
-		this.info = LibraryInfo.of(db.getName(), "0.0.1");
+		this.info = LibraryInfo.of(db.getName());
 	}
 
 	public LibraryExport withAllocation(AllocationMethod method) {

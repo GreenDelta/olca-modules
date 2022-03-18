@@ -79,7 +79,7 @@ public record Library(File folder) {
 			: nameParts[nameParts.length - 1];
 
 		var name = fullName;
-		var version = "";
+		var version = "1.0";
 		if (versionPart != null) {
 			name = fullName.substring(0,
 				fullName.length() - versionPart.length() - 1);
@@ -88,7 +88,8 @@ public record Library(File folder) {
 
 		var regionalized = data.enviIndex != null
 			&& data.enviIndex.isRegionalized();
-		var info = LibraryInfo.of(name, version)
+		var info = LibraryInfo.of(name)
+			.version(version)
 			.isRegionalized(regionalized);
 		new LibraryExport(db, folder)
 			.withConfig(info)
@@ -99,9 +100,11 @@ public record Library(File folder) {
 
 	public LibraryInfo getInfo() {
 		var file = new File(folder, "library.json");
+		if (!file.exists())
+			return LibraryInfo.of(id());
 		var obj = Json.readObject(file);
 		if (obj.isEmpty())
-			throw new RuntimeException("failed to read " + file);
+			return LibraryInfo.of(id());
 		return LibraryInfo.fromJson(obj.get());
 	}
 
