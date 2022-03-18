@@ -17,59 +17,49 @@ import com.google.gson.JsonObject;
 
 import gnu.trove.map.hash.TLongLongHashMap;
 
-class ProductSystemWriter extends Writer<ProductSystem> {
-
-	private ProductSystem system;
-
-	ProductSystemWriter(JsonExport exp) {
-		super(exp);
-	}
+record ProductSystemWriter(JsonExport exp) implements Writer<ProductSystem> {
 
 	@Override
-	JsonObject write(ProductSystem system) {
-		JsonObject obj = super.write(system);
-		if (obj == null)
-			return null;
-
-		this.system = system;
-		TLongLongHashMap exchangeIDs = exchangeIDs(system);
-
-		Json.put(obj, "referenceProcess", exp.handleRef(system.referenceProcess));
+	public JsonObject write(ProductSystem sys) {
+		var obj = Writer.init(sys);
+		Json.put(obj, "referenceProcess", exp.handleRef(sys.referenceProcess));
 
 		// the reference exchange
-		if (system.referenceExchange != null) {
+		var exchangeIDs = exchangeIDs(sys);
+		if (sys.referenceExchange != null) {
 			var eObj = new JsonObject();
 			Json.put(eObj, "@type", "Exchange");
-			Json.put(eObj, "internalId", exchangeIDs.get(system.referenceExchange.id));
-			Json.put(eObj, "flow", exp.handleRef(system.referenceExchange.flow));
+			Json.put(eObj, "internalId", exchangeIDs.get(sys.referenceExchange.id));
+			Json.put(eObj, "flow", exp.handleRef(sys.referenceExchange.flow));
 			Json.put(obj, "referenceExchange", eObj);
 		}
 
 		FlowProperty property = null;
-		if (system.targetFlowPropertyFactor != null)
-			property = system.targetFlowPropertyFactor.flowProperty;
+		if (sys.targetFlowPropertyFactor != null)
+			property = sys.targetFlowPropertyFactor.flowProperty;
 		Json.put(obj, "targetFlowProperty", exp.handleRef(property));
-		Json.put(obj, "targetUnit", Json.asRef(system.targetUnit));
-		Json.put(obj, "targetAmount", system.targetAmount);
+		Json.put(obj, "targetUnit", Json.asRef(sys.targetUnit));
+		Json.put(obj, "targetAmount", sys.targetAmount);
 
 		// map the parameter redefinitions
-		GlobalParameters.sync(system, exp);
-		putParameterSets(obj, system.parameterSets);
+		GlobalParameters.sync(sys, exp);
+		putParameterSets(obj, sys.parameterSets);
 
 		if (exp.db == null)
 			return obj;
-		mapProcesses(obj);
-		mapLinks(obj, exchangeIDs);
+		mapProcesses(sys, obj);
+		mapLinks(sys, obj, exchangeIDs);
 		return obj;
 	}
 
-	private void mapLinks(JsonObject json, TLongLongHashMap exchangeIDs) {
+	private void mapLinks(
+		ProductSystem sys, JsonObject json, TLongLongHashMap exchangeIDs) {
 		var array = new JsonArray();
-		for (var link : system.processLinks) {
+		for (var link : sys.processLinks) {
 			var obj = new JsonObject();
 			var providerType = providerTypeOf(link);
 			Json.put(obj, "provider", exp.handleRef(providerType, link.providerId));
-			Json.put(obj, "flow",	exp.handleRef(ModelType.FLOW, link.flowId));
+			Json.put(obj, "flow", exp.handleRef(ModelType.FLOW, link.flowId));
 			Json.put(obj, "process", exp.handleRef(ModelType.PROCESS, link.processId));
 			var eObj = new JsonObject();
 			Json.put(eObj, "@type", "Exchange");
@@ -88,7 +78,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		return ModelType.PROCESS;
 	}
 
-	private void mapProcesses(JsonObject json) {
+	private void mapProcesses(ProductSystem sys, JsonObject json) {
 		var refs = exp.refs;
 		if (refs == null)
 			return;
@@ -96,7 +86,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		var types = new ModelType[]{
 			ModelType.PROCESS, ModelType.PRODUCT_SYSTEM, ModelType.RESULT};
 
-		for (var id : system.processes) {
+		for (var id : sys.processes) {
 			if (id == null)
 				continue;
 			long unboxedId = id;
@@ -121,12 +111,12 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 	 * Creates a map exchangeID -> internalID of the exchanges used in the
 	 * product system links.
 	 */
-	private TLongLongHashMap exchangeIDs(ProductSystem system) {
+	private TLongLongHashMap exchangeIDs(ProductSystem sys) {
 		var map = new TLongLongHashMap();
-		if (system.referenceExchange != null) {
-			map.put(system.referenceExchange.id, -1);
+		if (sys.referenceExchange != null) {
+			map.put(sys.referenceExchange.id, -1);
 		}
-		for (ProcessLink link : system.processLinks) {
+		for (ProcessLink link : sys.processLinks) {
 			map.put(link.exchangeId, -1L);
 		}
 		try {
@@ -163,12 +153,4 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		}
 		Json.put(obj, "parameterSets", jsonSets);
 	}
-
-	@Override
-	boolean isExportExternalFiles() {
-		// Product system files are using local ids, this must be changed first,
-		// otherwise this leads to problems after import
-		return false;
-	}
-
 }

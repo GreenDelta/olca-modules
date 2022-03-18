@@ -6,17 +6,11 @@ import org.openlca.util.Categories;
 
 import com.google.gson.JsonObject;
 
-class CategoryWriter extends Writer<Category> {
-
-	CategoryWriter(JsonExport exp) {
-		super(exp);
-	}
+record CategoryWriter(JsonExport exp) implements Writer<Category> {
 
 	@Override
-	JsonObject write(Category category) {
-		var obj = super.write(category);
-		if (obj == null)
-			return null;
+	public JsonObject write(Category category) {
+		var obj = Writer.init(category);
 		Json.put(obj, "@id", Categories.createRefId(category));
 		Json.put(obj, "modelType", category.modelType);
 		Json.put(obj, "category", exp.handleRef(category.category));

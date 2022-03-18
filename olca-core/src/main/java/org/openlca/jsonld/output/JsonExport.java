@@ -12,15 +12,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import com.google.gson.JsonArray;
-import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Callback;
 import org.openlca.core.model.Callback.Message;
-import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
@@ -35,17 +32,21 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
-import org.openlca.core.model.Result;
 import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.Result;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.JsonStoreWriter;
-
-import com.google.gson.JsonObject;
 import org.openlca.jsonld.MemStore;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
+import gnu.trove.set.hash.TLongHashSet;
 
 /**
  * Writes entities to an entity store (e.g. a document or zip file). It also
@@ -88,7 +89,7 @@ public class JsonExport {
 		return this;
 	}
 
-	void setVisited(RootEntity entity) {
+	private void setVisited(RefEntity entity) {
 		if (entity == null)
 			return;
 		var type = ModelType.of(entity);
@@ -98,7 +99,7 @@ public class JsonExport {
 		set.add(entity.id);
 	}
 
-	boolean hasVisited(ModelType type, long id) {
+	private boolean hasVisited(ModelType type, long id) {
 		var set = visited.get(type);
 		return set != null && set.contains(id);
 	}
@@ -153,6 +154,7 @@ public class JsonExport {
 		}
 		if (hasVisited(type, entity.id))
 			return;
+		setVisited(entity);
 		Writer<T> w = getWriter(entity);
 		if (w == null) {
 			warn(cb, "no writer found for type " + type, entity);
@@ -161,8 +163,7 @@ public class JsonExport {
 		try {
 			var obj = w.write(entity);
 			writer.put(type, obj);
-			if (w.isExportExternalFiles())
-				writeExternalFiles(entity, type, cb);
+			writeExternalFiles(entity, type, cb);
 			if (cb != null)
 				cb.apply(Message.info("data set exported"), entity);
 		} catch (Exception e) {

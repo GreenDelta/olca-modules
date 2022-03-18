@@ -3,33 +3,21 @@ package org.openlca.jsonld.output;
 import java.util.Objects;
 
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.SocialAspect;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.openlca.jsonld.Json;
 
-class ProcessWriter extends Writer<Process> {
-
-	private Process process;
-
-	ProcessWriter(JsonExport exp) {
-		super(exp);
-	}
+record ProcessWriter(JsonExport exp) implements Writer<Process> {
 
 	@Override
-	JsonObject write(Process p) {
-		JsonObject obj = super.write(p);
-		if (obj == null)
-			return null;
-		this.process = p;
+	public JsonObject write(Process p) {
+		var obj = Writer.init(p);
 		// AllocationCleanup.on(p);
 		Json.put(obj, "processType", p.processType);
 		Json.put(obj, "defaultAllocationMethod", p.defaultAllocationMethod);
@@ -41,30 +29,30 @@ class ProcessWriter extends Writer<Process> {
 		Json.put(obj, "exchangeDqSystem", exp.handleRef(p.exchangeDqSystem));
 		Json.put(obj, "socialDqSystem", exp.handleRef(p.socialDqSystem));
 		Json.put(obj, "lastInternalId", p.lastInternalId);
-		mapParameters(obj);
-		mapExchanges(obj);
-		mapSocialAspects(obj);
-		mapAllocationFactors(obj);
+		mapParameters(p, obj);
+		mapExchanges(p, obj);
+		mapSocialAspects(p, obj);
+		mapAllocationFactors(p, obj);
 		GlobalParameters.sync(p, exp);
 		return obj;
 	}
 
-	private void mapParameters(JsonObject json) {
-		JsonArray parameters = new JsonArray();
-		for (Parameter p : process.parameters) {
+	private void mapParameters(Process p, JsonObject json) {
+		var parameters = new JsonArray();
+		for (var param : p.parameters) {
 			var obj = new JsonObject();
-			ParameterWriter.mapAttr(obj, p);
+			ParameterWriter.mapAttr(obj, param);
 			parameters.add(obj);
 		}
 		Json.put(json, "parameters", parameters);
 	}
 
-	private void mapExchanges(JsonObject json) {
+	private void mapExchanges(Process p, JsonObject json) {
 		var array = new JsonArray();
-		for (var e : process.exchanges) {
+		for (var e : p.exchanges) {
 			var obj = new JsonObject();
 			map(e, obj);
-			if (Objects.equals(process.quantitativeReference, e)) {
+			if (Objects.equals(p.quantitativeReference, e)) {
 				Json.put(obj, "isQuantitativeReference", true);
 			}
 			array.add(obj);
@@ -72,10 +60,10 @@ class ProcessWriter extends Writer<Process> {
 		Json.put(json, "exchanges", array);
 	}
 
-	private void mapSocialAspects(JsonObject json) {
-		JsonArray aspects = new JsonArray();
-		for (SocialAspect a : process.socialAspects) {
-			JsonObject obj = new JsonObject();
+	private void mapSocialAspects(Process p, JsonObject json) {
+		var aspects = new JsonArray();
+		for (var a : p.socialAspects) {
+			var obj = new JsonObject();
 			Json.put(obj, "socialIndicator", exp.handleRef(a.indicator));
 			Json.put(obj, "comment", a.comment);
 			Json.put(obj, "quality", a.quality);
@@ -88,15 +76,15 @@ class ProcessWriter extends Writer<Process> {
 		Json.put(json, "socialAspects", aspects);
 	}
 
-	private void mapAllocationFactors(JsonObject json) {
-		JsonArray factors = new JsonArray();
-		for (AllocationFactor f : process.allocationFactors) {
+	private void mapAllocationFactors(Process p, JsonObject json) {
+		var factors = new JsonArray();
+		for (var f : p.allocationFactors) {
 			var obj = new JsonObject();
 			Json.put(obj, "allocationType", f.method);
 			if (f.method == AllocationMethod.CAUSAL) {
 				Json.put(obj, "exchange", createExchangeRef(f.exchange));
 			}
-			Json.put(obj, "product", exp.handleRef(findProduct(f.productId)));
+			Json.put(obj, "product", exp.handleRef(findProduct(p, f.productId)));
 			Json.put(obj, "value", f.value);
 			Json.put(obj, "formula", f.formula);
 			factors.add(obj);
@@ -104,10 +92,11 @@ class ProcessWriter extends Writer<Process> {
 		Json.put(json, "allocationFactors", factors);
 	}
 
-	private Flow findProduct(long id) {
-		for (Exchange e : process.exchanges)
+	private Flow findProduct(Process p, long id) {
+		for (Exchange e : p.exchanges) {
 			if (e.flow.id == id)
 				return e.flow;
+		}
 		return null;
 	}
 

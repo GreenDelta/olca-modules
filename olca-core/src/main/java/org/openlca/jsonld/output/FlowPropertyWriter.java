@@ -5,20 +5,13 @@ import org.openlca.core.model.FlowProperty;
 import com.google.gson.JsonObject;
 import org.openlca.jsonld.Json;
 
-class FlowPropertyWriter extends Writer<FlowProperty> {
-
-	FlowPropertyWriter(JsonExport exp) {
-		super(exp);
-	}
+record FlowPropertyWriter(JsonExport exp) implements Writer<FlowProperty> {
 
 	@Override
 	public JsonObject write(FlowProperty prop) {
-		var obj = super.write(prop);
-		if (obj == null)
-			return null;
+		var obj = Writer.init(prop);
 		Json.put(obj, "flowPropertyType", prop.flowPropertyType);
 		Json.put(obj, "unitGroup", exp.handleRef(prop.unitGroup));
 		return obj;
 	}
-
 }

@@ -12,30 +12,40 @@ import com.google.gson.JsonObject;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
 
-class Writer<T extends RefEntity> {
+interface Writer<T extends RefEntity> {
 
-	final JsonExport exp;
+	JsonObject write(T entity);
 
-	protected Writer(JsonExport exp) {
-		this.exp = exp;
+	static <T extends RootEntity> JsonObject init(T entity) {
+		var obj = new JsonObject();
+		mapBasicAttributes(entity, obj);
+		return obj;
 	}
 
-	JsonObject write(T entity) {
-		var obj = new JsonObject();
-		// mark entity directly as visited to avoid endless cyclic exports for
-		// cyclic references
-		if (entity instanceof RootEntity ce) {
-			exp.setVisited(ce);
-		}
-		addBasicAttributes(entity, obj);
-		if (entity instanceof RootEntity ce) {
-			Json.put(obj, "category", exp.handleRef(ce.category));
-			Json.put(obj, "library", ce.library);
+	static void mapBasicAttributes(RefEntity entity, JsonObject obj) {
+		if (entity == null || obj == null)
+			return;
+		var type = entity.getClass().getSimpleName();
+		Json.put(obj, "@type", type);
+		Json.put(obj, "@id", entity.refId);
+		Json.put(obj, "name", entity.name);
+		Json.put(obj, "description", entity.description);
+		if (entity instanceof RootEntity re) {
 
-			// write tags
-			if (!Strings.nullOrEmpty(ce.tags)) {
+			if (re.category != null) {
+				Json.put(obj, "category", re.category.toPath());
+			}
+			Json.put(obj, "library", re.library);
+			Json.put(obj, "version", Version.asString(re.version));
+			if (re.lastChange != 0) {
+				var instant = Instant.ofEpochMilli(re.lastChange);
+				Json.put(obj, "lastChange", instant.toString());
+			}
+
+			// tags
+			if (!Strings.nullOrEmpty(re.tags)) {
 				var tags = new JsonArray();
-				Arrays.stream(ce.tags.split(","))
+				Arrays.stream(re.tags.split(","))
 					.map(String::trim)
 					.filter(tag -> !Strings.nullOrEmpty(tag))
 					.forEach(tags::add);
@@ -44,28 +54,5 @@ class Writer<T extends RefEntity> {
 				}
 			}
 		}
-		return obj;
 	}
-
-	static void addBasicAttributes(RefEntity entity, JsonObject obj) {
-		if (entity == null || obj == null)
-			return;
-		var type = entity.getClass().getSimpleName();
-		Json.put(obj, "@type", type);
-		Json.put(obj, "@id", entity.refId);
-		Json.put(obj, "name", entity.name);
-		Json.put(obj, "description", entity.description);
-		if (entity instanceof RootEntity ce) {
-			Json.put(obj, "version", Version.asString(ce.version));
-			if (ce.lastChange != 0) {
-				var instant = Instant.ofEpochMilli(ce.lastChange);
-				Json.put(obj, "lastChange", instant.toString());
-			}
-		}
-	}
-
-	boolean isExportExternalFiles() {
-		return true;
-	}
-
 }
