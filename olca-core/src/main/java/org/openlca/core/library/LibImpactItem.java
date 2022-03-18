@@ -1,10 +1,15 @@
 package org.openlca.core.library;
 
 import org.apache.commons.csv.CSVRecord;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 import java.util.List;
 
 public record LibImpactItem(int index, LibImpact impact) {
+
+	public static LibImpactItem of(int idx, ImpactDescriptor impact) {
+		return new LibImpactItem(idx, LibImpact.of(impact));
+	}
 
 	Proto.ImpactEntry toProto() {
 		var proto = Proto.ImpactEntry.newBuilder()

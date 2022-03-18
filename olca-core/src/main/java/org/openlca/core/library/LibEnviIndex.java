@@ -22,7 +22,7 @@ public record LibEnviIndex(List<LibEnviItem> items) {
 		return new LibEnviIndex(Collections.emptyList());
 	}
 
-	public LibEnviIndex of(EnviIndex idx, DbContext ctx) {
+	public static LibEnviIndex of(EnviIndex idx, DbContext ctx) {
 		if (idx == null || idx.size() == 0)
 			return empty();
 		var items = new ArrayList<LibEnviItem>(idx.size());
@@ -42,11 +42,8 @@ public record LibEnviIndex(List<LibEnviItem> items) {
 	}
 
 	public static boolean isPresentIn(Library lib) {
-		var proto =  IndexFormat.PROTO.file(lib, NAME);
-		if (proto.exists())
-			return true;
-		var csv = IndexFormat.CSV.file(lib, NAME);
-		return csv.exists();
+		return IndexFormat.PROTO.file(lib, NAME).exists()
+			|| IndexFormat.CSV.file(lib, NAME).exists();
 	}
 
 	public static LibEnviIndex readFrom(File file) {
@@ -93,11 +90,9 @@ public record LibEnviIndex(List<LibEnviItem> items) {
 
 	public void writeTo(Library lib, IndexFormat format) {
 		if (format == IndexFormat.CSV) {
-			var file = IndexFormat.CSV.file(lib, NAME);
-			toCsv(file);
+			toCsv(IndexFormat.CSV.file(lib, NAME));
 		} else {
-			var file = IndexFormat.PROTO.file(lib, NAME);
-			toProto(file);
+			toProto(IndexFormat.PROTO.file(lib, NAME));
 		}
 	}
 
@@ -123,7 +118,7 @@ public record LibEnviIndex(List<LibEnviItem> items) {
 				buffer.clear();
 			}
 		} catch (IOException e) {
-			throw new RuntimeException("failed to write tech-index to " + file, e);
+			throw new RuntimeException("failed to write envi-index to " + file, e);
 		}
 	}
 
@@ -137,7 +132,7 @@ public record LibEnviIndex(List<LibEnviItem> items) {
 			index.build().writeTo(buffer);
 		} catch (Exception e) {
 			throw new RuntimeException(
-				"failed to write tech-index to " + file, e);
+				"failed to write envi-index to " + file, e);
 		}
 	}
 }

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
+import org.openlca.core.library.DbContext;
 import org.openlca.core.library.LibEnviIndex;
 import org.openlca.core.library.LibMatrix;
 import org.openlca.core.library.LibTechIndex;
@@ -79,8 +80,9 @@ public class NoForegroundElemFlowsTest {
 
 		// create library resources
 
-		LibTechIndex.write(lib, db, techIdx);
-		LibEnviIndex.write(lib, db, enviIndex);
+		var ctx = DbContext.of(db);
+		LibTechIndex.of(techIdx, ctx).writeTo(lib);
+		LibEnviIndex.of(enviIndex, ctx).writeTo(lib);
 
 		// write the library matrices
 		var matrixA = DenseMatrix.of(new double[][]{

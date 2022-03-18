@@ -12,26 +12,26 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.csv.CSVPrinter;
-import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.index.ImpactIndex;
 
-public record LibTechIndex(List<LibTechItem> items) {
+public record LibImpactIndex(List<LibImpactItem> items) {
 
-	private static final String NAME = "index_A";
+	private static final String NAME = "index_C";
 
-	public static LibTechIndex empty() {
-		return new LibTechIndex(Collections.emptyList());
+	public static LibImpactIndex empty() {
+		return new LibImpactIndex(Collections.emptyList());
 	}
 
-	public static LibTechIndex of(TechIndex idx, DbContext ctx) {
+	public static LibImpactIndex of(ImpactIndex idx) {
 		if (idx == null || idx.size() == 0)
 			return empty();
-		var items = new ArrayList<LibTechItem>(idx.size());
-		idx.each((pos, techEntry)
-			-> items.add(LibTechItem.of(pos, techEntry, ctx)));
-		return new LibTechIndex(items);
+		var items = new ArrayList<LibImpactItem>(idx.size());
+		idx.each((pos, impact)
+			-> items.add(LibImpactItem.of(pos, impact)));
+		return new LibImpactIndex(items);
 	}
 
-	public static LibTechIndex readFrom(Library lib) {
+	public static LibImpactIndex readFrom(Library lib) {
 		var proto = IndexFormat.PROTO.file(lib, NAME);
 		if (proto.exists())
 			return readProto(proto);
@@ -46,7 +46,7 @@ public record LibTechIndex(List<LibTechItem> items) {
 			|| IndexFormat.CSV.file(lib, NAME).exists();
 	}
 
-	public static LibTechIndex readFrom(File file) {
+	public static LibImpactIndex readFrom(File file) {
 		if (file == null || !file.exists())
 			return empty();
 		return Csv.isCsv(file)
@@ -54,25 +54,25 @@ public record LibTechIndex(List<LibTechItem> items) {
 			: readProto(file);
 	}
 
-	private static LibTechIndex readCsv(File file) {
-		var items = new ArrayList<LibTechItem>();
+	private static LibImpactIndex readCsv(File file) {
+		var items = new ArrayList<LibImpactItem>();
 		Csv.eachRowSkipFirst(file,
-			row -> items.add(LibTechItem.fromCsv(row)));
-		return new LibTechIndex(items);
+			row -> items.add(LibImpactItem.fromCsv(row)));
+		return new LibImpactIndex(items);
 	}
 
-	private static LibTechIndex readProto(File file) {
+	private static LibImpactIndex readProto(File file) {
 		try (var stream = new FileInputStream(file)) {
-			var items = new ArrayList<LibTechItem>();
-			var proto = Proto.ProductIndex.parseFrom(stream);
-			for (int i = 0; i < proto.getProductCount(); i++) {
-				var pi = proto.getProduct(i);
-				items.add(LibTechItem.fromProto(pi));
+			var items = new ArrayList<LibImpactItem>();
+			var proto = Proto.ImpactIndex.parseFrom(stream);
+			for (int i = 0; i < proto.getImpactCount(); i++) {
+				var impact = proto.getImpact(i);
+				items.add(LibImpactItem.fromProto(impact));
 			}
-			return new LibTechIndex(items);
+			return new LibImpactIndex(items);
 		} catch (IOException e) {
 			throw new RuntimeException(
-				"failed to read tech-index from " + file, e);
+				"failed to read impact-index from " + file, e);
 		}
 	}
 
@@ -102,38 +102,32 @@ public record LibTechIndex(List<LibTechItem> items) {
 
 			printer.printRecord(
 				"index",
-				"process ID",
-				"process name",
-				"process category",
-				"process location",
-				"flow ID",
-				"flow name",
-				"flow category",
-				"flow unit",
-				"flow type");
+				"impact ID",
+				"impact name",
+				"impact unit");
 
-			var buffer = new ArrayList<String>(10);
+			var buffer = new ArrayList<String>(9);
 			for (var item : items) {
 				item.toCsv(buffer);
 				printer.printRecord(buffer);
 				buffer.clear();
 			}
 		} catch (IOException e) {
-			throw new RuntimeException("failed to write tech-index to " + file, e);
+			throw new RuntimeException("failed to write impact-index to " + file, e);
 		}
 	}
 
 	public void toProto(File file) {
-		var index = Proto.ProductIndex.newBuilder();
+		var index = Proto.ImpactIndex.newBuilder();
 		for (var item : items) {
-			index.addProduct(item.toProto());
+			index.addImpact(item.toProto());
 		}
 		try (var stream = new FileOutputStream(file);
 				 var buffer = new BufferedOutputStream(stream)) {
 			index.build().writeTo(buffer);
 		} catch (Exception e) {
 			throw new RuntimeException(
-				"failed to write tech-index to " + file, e);
+				"failed to write impact-index to " + file, e);
 		}
 	}
 }
