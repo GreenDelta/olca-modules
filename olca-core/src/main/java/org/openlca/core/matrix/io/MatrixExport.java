@@ -191,8 +191,7 @@ public abstract class MatrixExport {
 			var row = new String[header.length];
 			row[0] = p.refId;
 			row[1] = p.name;
-			if (p instanceof ProcessDescriptor) {
-				var pd = (ProcessDescriptor) p;
+			if (p instanceof ProcessDescriptor pd) {
 				row[2] = pd.processType != null
 					? pd.processType.toString()
 					: ModelType.PROCESS.toString();

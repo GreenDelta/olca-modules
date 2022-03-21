@@ -24,8 +24,9 @@ public record LibEnviItem(
 	}
 
 	Proto.ElemFlowEntry toProto() {
-		var proto = Proto.ElemFlowEntry.newBuilder();
-		proto.setIndex(index);
+		var proto = Proto.ElemFlowEntry.newBuilder()
+			.setIndex(index)
+			.setIsInput(isInput);
 		if (flow != null) {
 			proto.setFlow(flow.toProto());
 		}
