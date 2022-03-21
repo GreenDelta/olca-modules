@@ -75,8 +75,7 @@ public record FlowReader(EntityResolver resolver)
 			flow.flowPropertyFactors.add(factor);
 
 			// check if it is the reference flow property
-			boolean isRef = Json.getBool(
-				factorJson, "referenceFlowProperty", false);
+			boolean isRef = Json.getBool(factorJson, "isRefFlowProperty", false);
 			if (isRef) {
 				flow.referenceFlowProperty = property;
 			}

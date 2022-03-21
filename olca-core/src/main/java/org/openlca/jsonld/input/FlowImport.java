@@ -49,7 +49,7 @@ class FlowImport extends BaseImport<Flow> {
 			var obj = e.getAsJsonObject();
 			var factor = FlowPropertyFactorImport.run(flow.refId, obj, conf);
 			flow.flowPropertyFactors.add(factor);
-			boolean isRef = Json.getBool(obj, "isReferenceFlowProperty", false);
+			boolean isRef = Json.getBool(obj, "isRefFlowProperty", false);
 			if (isRef)
 				flow.referenceFlowProperty = factor.flowProperty;
 		}

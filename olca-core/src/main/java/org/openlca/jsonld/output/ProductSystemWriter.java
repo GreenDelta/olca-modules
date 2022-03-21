@@ -22,7 +22,7 @@ record ProductSystemWriter(JsonExport exp) implements Writer<ProductSystem> {
 	@Override
 	public JsonObject write(ProductSystem sys) {
 		var obj = Writer.init(sys);
-		Json.put(obj, "referenceProcess", exp.handleRef(sys.referenceProcess));
+		Json.put(obj, "refProcess", exp.handleRef(sys.referenceProcess));
 
 		// the reference exchange
 		var exchangeIDs = exchangeIDs(sys);
@@ -31,7 +31,7 @@ record ProductSystemWriter(JsonExport exp) implements Writer<ProductSystem> {
 			Json.put(eObj, "@type", "Exchange");
 			Json.put(eObj, "internalId", exchangeIDs.get(sys.referenceExchange.id));
 			Json.put(eObj, "flow", exp.handleRef(sys.referenceExchange.flow));
-			Json.put(obj, "referenceExchange", eObj);
+			Json.put(obj, "refExchange", eObj);
 		}
 
 		FlowProperty property = null;

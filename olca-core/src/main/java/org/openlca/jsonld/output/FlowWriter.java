@@ -30,7 +30,7 @@ record FlowWriter(JsonExport exp) implements Writer<Flow> {
 			var facObj = new JsonObject();
 			Json.put(facObj, "@type", FlowPropertyFactor.class.getSimpleName());
 			if (Objects.equals(factor, flow.getReferenceFactor())) {
-				Json.put(facObj, "referenceFlowProperty", true);
+				Json.put(facObj, "isRefFlowProperty", true);
 			}
 			Json.put(facObj, "flowProperty", exp.handleRef(factor.flowProperty));
 			Json.put(facObj, "conversionFactor", factor.conversionFactor);

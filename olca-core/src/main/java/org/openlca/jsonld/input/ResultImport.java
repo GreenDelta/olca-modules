@@ -72,7 +72,7 @@ class ResultImport extends BaseImport<Result> {
 			result.flowResults.add(r);
 			r.amount = Json.getDouble(obj, "amount", 0);
 			r.isInput = Json.getBool(obj, "isInput", false);
-			boolean isRef = Json.getBool(obj, "isReferenceFlow", false);
+			boolean isRef = Json.getBool(obj, "isRefFlow", false);
 			if (isRef) {
 				result.referenceFlow = r;
 			}

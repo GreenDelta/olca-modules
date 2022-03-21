@@ -116,7 +116,7 @@ class ProductSystemLinks {
 		Process refProcess = system.referenceProcess;
 		if (refProcess == null)
 			return;
-		JsonObject refJson = Json.getObject(json, "referenceExchange");
+		JsonObject refJson = Json.getObject(json, "refExchange");
 		int internalId = Json.getInt(refJson, "internalId", 0);
 		if (internalId <= 0)
 			return;

@@ -27,7 +27,7 @@ public record CurrencyReader(EntityResolver resolver)
 		Util.mapBase(currency, json, resolver);
 		currency.code = Json.getString(json, "code");
 		currency.conversionFactor = Json.getDouble(json, "conversionFactor", 1.0);
-		var refCurrencyId = Json.getRefId(json, "referenceCurrency");
+		var refCurrencyId = Json.getRefId(json, "refCurrency");
 		if (Strings.notEmpty(refCurrencyId)) {
 			if (Objects.equals(refCurrencyId, currency.refId)) {
 				currency.referenceCurrency = currency;

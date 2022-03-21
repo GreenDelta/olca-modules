@@ -26,7 +26,7 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 			return null;
 		var s = new ProductSystem();
 		In.mapAtts(json, s, id, conf);
-		String processRefId = Json.getRefId(json, "referenceProcess");
+		String processRefId = Json.getRefId(json, "refProcess");
 		if (processRefId != null) {
 			s.referenceProcess = ProcessImport.run(processRefId, conf);
 		}

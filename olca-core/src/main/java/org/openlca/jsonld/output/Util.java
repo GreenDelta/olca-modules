@@ -52,7 +52,7 @@ class Util {
 		Json.put(o, "modelingConstantsDescription", d.modelingConstants);
 		Json.put(o, "samplingDescription", d.sampling);
 		Json.put(o, "restrictionsDescription", d.restrictions);
-		Json.put(o, "hasCopyright", d.copyright);
+		Json.put(o, "isCopyrightProtected", d.copyright);
 		Json.put(o, "intendedApplication", d.intendedApplication);
 		Json.put(o, "projectDescription", d.project);
 		Json.put(o, "geographyDescription", d.geography);

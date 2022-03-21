@@ -24,7 +24,7 @@ record UnitGroupWriter(JsonExport exp) implements Writer<UnitGroup> {
 			var obj = new JsonObject();
 			UnitWriter.map(unit, obj);
 			if (Objects.equals(unit, group.referenceUnit)) {
-				Json.put(obj, "isReferenceUnit", true);
+				Json.put(obj, "isRefUnit", true);
 			}
 			units.add(obj);
 		}

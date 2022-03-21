@@ -52,7 +52,7 @@ record ResultWriter(JsonExport exp) implements Writer<Result> {
 			// other attributes
 			Json.put(obj, "isInput", r.isInput);
 			if (Objects.equals(r, result.referenceFlow)) {
-				Json.put(obj, "isReferenceFlow", true);
+				Json.put(obj, "isRefFlow", true);
 			}
 			Json.put(obj, "amount", r.amount);
 			Json.put(obj, "description", r.description);

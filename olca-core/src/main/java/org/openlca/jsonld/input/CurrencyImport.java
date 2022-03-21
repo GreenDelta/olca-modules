@@ -26,7 +26,7 @@ class CurrencyImport extends BaseImport<Currency> {
 		In.mapAtts(json, c, id, conf);
 		c.code = Json.getString(json, "code");
 		c.conversionFactor = Json.getDouble(json, "conversionFactor", 1.0);
-		String refCurrencyId = Json.getRefId(json, "referenceCurrency");
+		String refCurrencyId = Json.getRefId(json, "refCurrency");
 		if (Objects.equals(refCurrencyId, refId))
 			c.referenceCurrency = c;
 		else

@@ -12,7 +12,7 @@ record CurrencyWriter(JsonExport exp) implements Writer<Currency> {
 		var obj = Writer.init(c);
 		Json.put(obj, "code", c.code);
 		Json.put(obj, "conversionFactor", c.conversionFactor);
-		Json.put(obj, "referenceCurrency", exp.handleRef(c.referenceCurrency));
+		Json.put(obj, "refCurrency", exp.handleRef(c.referenceCurrency));
 		return obj;
 	}
 }

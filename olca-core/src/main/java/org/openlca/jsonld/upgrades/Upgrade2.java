@@ -46,6 +46,8 @@ class Upgrade2 extends Upgrade {
 		}
 		if (type == ModelType.PRODUCT_SYSTEM) {
 			addRedefSets(object);
+			renameObj(object, "referenceProcess", "refProcess");
+			renameObj(object, "referenceExchange", "refExchange");
 		}
 		if (type == ModelType.PROCESS) {
 			upgradeProcess(object);
@@ -59,6 +61,9 @@ class Upgrade2 extends Upgrade {
 		if (type == ModelType.UNIT_GROUP) {
 			upgradeUnitGroup(object);
 		}
+		if (type == ModelType.CURRENCY) {
+			renameObj(object, "referenceCurrency", "refCurrency");
+		}
 		return object;
 	}
 
@@ -66,7 +71,7 @@ class Upgrade2 extends Upgrade {
 		renameBool(object, "infrastructureProcess" ,"isInfrastructureProcess");
 		var doc = Json.getObject(object, "processDocumentation");
 		if (doc != null) {
-			renameBool(doc, "copyright", "hasCopyright");
+			renameBool(doc, "copyright", "isCopyrightProtected");
 		}
 		var exchanges = Json.getArray(object, "exchanges");
 		if (exchanges != null) {
@@ -89,7 +94,7 @@ class Upgrade2 extends Upgrade {
 				if (!e.isJsonObject())
 					continue;
 				var factor = e.getAsJsonObject();
-				renameBool(factor, "referenceFlowProperty", "isReferenceFlowProperty");
+				renameBool(factor, "referenceFlowProperty", "isRefFlowProperty");
 			}
 		}
 	}
@@ -101,7 +106,7 @@ class Upgrade2 extends Upgrade {
 				if (!e.isJsonObject())
 					continue;
 				var u = e.getAsJsonObject();
-				renameBool(u, "referenceUnit", "isReferenceUnit");
+				renameBool(u, "referenceUnit", "isRefUnit");
 			}
 		}
 	}
@@ -240,6 +245,16 @@ class Upgrade2 extends Upgrade {
 			return;
 		var val = Json.getString(obj, oldName);
 		Json.put(obj, newName, val);
+	}
+
+	private void renameObj(JsonObject obj, String oldName, String newName) {
+		var newVal = Json.getObject(obj, newName);
+		if (newVal != null)
+			return;
+		var val = Json.getObject(obj, oldName);
+		if (val != null) {
+			Json.put(obj, newName, val);
+		}
 	}
 
 	private record PathBuilder(
