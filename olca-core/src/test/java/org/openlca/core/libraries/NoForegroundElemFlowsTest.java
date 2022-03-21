@@ -11,9 +11,7 @@ import org.openlca.core.library.DbContext;
 import org.openlca.core.library.LibEnviIndex;
 import org.openlca.core.library.LibMatrix;
 import org.openlca.core.library.LibTechIndex;
-import org.openlca.core.library.Library;
 import org.openlca.core.library.LibraryDir;
-import org.openlca.core.library.LibraryInfo;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.index.EnviFlow;
@@ -27,7 +25,6 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.util.Dirs;
 
@@ -38,7 +35,7 @@ public class NoForegroundElemFlowsTest {
 		// init the library
 		var tmpDir = Files.createTempDirectory("_olca_tests");
 		var libDir = LibraryDir.of(tmpDir.toFile());
-		var lib = Library.create(libDir, LibraryInfo.of("testlib", Version.of(1)));
+		var lib = libDir.initLibrary("testlib_1");
 		var db = Tests.getDb();
 
 		// create the reference data

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.openlca.core.model.Version;
 import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
@@ -62,7 +61,7 @@ public class LibraryInfo {
 	}
 
 	public LibraryInfo version(String version) {
-		this.version = Version.format(version);
+		this.version = version;
 		return this;
 	}
 
@@ -101,7 +100,7 @@ public class LibraryInfo {
 	JsonObject toJson() {
 		var obj = new JsonObject();
 		Json.put(obj, "name", name);
-		Json.put(obj, "version", Version.format(version));
+		Json.put(obj, "version", version);
 		Json.put(obj, "description", description);
 		obj.addProperty("isRegionalized", isRegionalized);
 		if (dependencies.isEmpty())
@@ -112,6 +111,23 @@ public class LibraryInfo {
 		}
 		obj.add("dependencies", deps);
 		return obj;
+	}
+
+	/**
+	 * Tries to extract the version from the ID and separate it from the name.
+	 */
+	static LibraryInfo fromId(String id) {
+		String name = id;
+		String version = null;
+		var sepIdx = id.lastIndexOf('_');
+		if (sepIdx > 0) {
+			var v = id.substring(sepIdx + 1);
+			if (v.matches("\\d?\\d(\\.\\d\\d?)?(\\.\\d\\d?\\d?)?")) {
+				name = id.substring(0, sepIdx);
+				version = v;
+			}
+		}
+		return LibraryInfo.of(name).version(version);
 	}
 
 	static LibraryInfo fromJson(JsonObject obj) {

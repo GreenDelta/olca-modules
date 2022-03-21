@@ -77,24 +77,8 @@ public record LibraryDir(File folder) {
 			return lib.get();
 
 		var newLib = Library.of(new File(folder, id));
-
-		// try to extract the version from the ID
-		String name = id;
-		String version = null;
-		var sepIdx = id.lastIndexOf('_');
-		if (sepIdx > 0) {
-			var v = id.substring(sepIdx + 1);
-			if (v.matches("\\d?\\d(\\.\\d\\d?)?(\\.\\d\\d?\\d?)?")) {
-				name = id.substring(0, sepIdx - 1);
-				version = v;
-			}
-		}
-
 		// write library info
-		LibraryInfo.of(name)
-			.version(version)
-			.writeTo(newLib);
-
+		LibraryInfo.fromId(id).writeTo(newLib);
 		return newLib;
 	}
 }

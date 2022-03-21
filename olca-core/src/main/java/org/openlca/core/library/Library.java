@@ -91,11 +91,10 @@ public record Library(File folder) {
 	public LibraryInfo getInfo() {
 		var file = new File(folder, "library.json");
 		if (!file.exists())
-			return LibraryInfo.of(id());
+			return LibraryInfo.fromId(id());
 		var obj = Json.readObject(file);
-		if (obj.isEmpty())
-			return LibraryInfo.of(id());
-		return LibraryInfo.fromJson(obj.get());
+		return obj.map(LibraryInfo::fromJson)
+			.orElseGet(() -> LibraryInfo.fromId(id()));
 	}
 
 	public String id() {

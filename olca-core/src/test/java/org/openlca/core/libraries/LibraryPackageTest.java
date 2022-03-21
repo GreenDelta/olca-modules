@@ -8,7 +8,6 @@ import java.nio.file.Files;
 
 import org.junit.Test;
 import org.openlca.core.library.LibraryDir;
-import org.openlca.core.library.LibraryInfo;
 import org.openlca.core.library.LibraryPackage;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.io.NpyMatrix;
@@ -23,10 +22,8 @@ public class LibraryPackageTest {
 
 		// create a library with one dependency
 		var libDir = LibraryDir.of(dir);
-		var libInfo = LibraryInfo.of("lib", "0.1");
-		var lib = libDir.init(libInfo);
-		var depInfo = LibraryInfo.of("dep", "0.1");
-		var dep = libDir.init(depInfo);
+		var lib = libDir.initLibrary("lib_0.1");
+		var dep = libDir.initLibrary("dep_0.1");
 		lib.addDependency(dep);
 
 		// put a tech. matrix into the libraries
@@ -42,15 +39,15 @@ public class LibraryPackageTest {
 
 		// check the zip
 		var packInfo = LibraryPackage.getInfo(zipFile);
-		assertEquals(libInfo, packInfo);
+		assertEquals("lib", packInfo.name());
 		assertTrue(packInfo.dependencies().contains(dep.id()));
 
 		// extract the zip
 		dir = Files.createTempDirectory("_olca_lib_test").toFile();
 		libDir = LibraryDir.of(dir);
 		LibraryPackage.unzip(zipFile, libDir);
-		assertTrue(libDir.exists(libInfo));
-		assertTrue(libDir.exists(depInfo));
+		assertTrue(libDir.hasLibrary("lib_0.1"));
+		assertTrue(libDir.hasLibrary("dep_0.1"));
 
 		Dirs.delete(dir);
 		assertTrue(zipFile.delete());

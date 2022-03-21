@@ -1,12 +1,12 @@
 package org.openlca.core.libraries;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.nio.file.Files;
 
 import org.junit.Test;
 import org.openlca.core.library.LibraryDir;
-import org.openlca.core.library.LibraryInfo;
 import org.openlca.util.Dirs;
 
 public class LibraryTest {
@@ -15,10 +15,9 @@ public class LibraryTest {
 	public void testInit() throws Exception {
 		var dir = Files.createTempDirectory("_olca_lib_test").toFile();
 		var libDir = LibraryDir.of(dir);
-		var libInfo = LibraryInfo.of("lib", "0.1");
-		assertFalse(libDir.exists(libInfo));
-		libDir.init(libInfo);
-		assertTrue(libDir.exists(libInfo));
+		assertFalse(libDir.hasLibrary("lib_0.1"));
+		libDir.initLibrary("lib_0.1");
+		assertTrue(libDir.hasLibrary("lib_0.1"));
 		Dirs.delete(dir);
 	}
 
@@ -26,11 +25,9 @@ public class LibraryTest {
 	public void testDependencies() throws Exception {
 		var dir = Files.createTempDirectory("_olca_lib_test").toFile();
 		var libDir = LibraryDir.of(dir);
-		var libInfo = LibraryInfo.of("lib", "0.1");
-		var lib = libDir.init(libInfo);
+		var lib = libDir.initLibrary("lib_0.1");
 		assertTrue(lib.getDependencies().isEmpty());
-		var depInfo = LibraryInfo.of("dep", "0.1");
-		var dep = libDir.init(depInfo);
+		var dep = libDir.initLibrary("dep_0.1");
 		lib.addDependency(dep);
 		assertTrue(lib.getDependencies().contains(dep));
 		Dirs.delete(dir);
