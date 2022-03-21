@@ -10,6 +10,7 @@ import org.openlca.jsonld.Json;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.openlca.util.Strings;
 
 /**
  * Contains the meta-data of a library.
@@ -119,7 +120,7 @@ public class LibraryInfo {
 	static LibraryInfo fromId(String id) {
 		String name = id;
 		String version = null;
-		var sepIdx = id.lastIndexOf('_');
+		var sepIdx = id.lastIndexOf(' ');
 		if (sepIdx > 0) {
 			var v = id.substring(sepIdx + 1);
 			if (v.matches("\\d?\\d(\\.\\d\\d?)?(\\.\\d\\d?\\d?)?")) {
@@ -145,6 +146,12 @@ public class LibraryInfo {
 		return info;
 	}
 
+	public String toId() {
+		return Strings.notEmpty(version)
+			? name + " " + version
+			: name;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o)
@@ -159,5 +166,10 @@ public class LibraryInfo {
 	@Override
 	public int hashCode() {
 		return Objects.hash(name, version);
+	}
+
+	@Override
+	public String toString() {
+		return toId();
 	}
 }

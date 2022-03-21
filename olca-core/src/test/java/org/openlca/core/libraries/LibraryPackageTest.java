@@ -22,8 +22,8 @@ public class LibraryPackageTest {
 
 		// create a library with one dependency
 		var libDir = LibraryDir.of(dir);
-		var lib = libDir.initLibrary("lib_0.1");
-		var dep = libDir.initLibrary("dep_0.1");
+		var lib = libDir.initLibrary("lib 0.1");
+		var dep = libDir.initLibrary("dep 0.1");
 		lib.addDependency(dep);
 
 		// put a tech. matrix into the libraries
@@ -46,8 +46,8 @@ public class LibraryPackageTest {
 		dir = Files.createTempDirectory("_olca_lib_test").toFile();
 		libDir = LibraryDir.of(dir);
 		LibraryPackage.unzip(zipFile, libDir);
-		assertTrue(libDir.hasLibrary("lib_0.1"));
-		assertTrue(libDir.hasLibrary("dep_0.1"));
+		assertTrue(libDir.hasLibrary("lib 0.1"));
+		assertTrue(libDir.hasLibrary("dep 0.1"));
 
 		Dirs.delete(dir);
 		assertTrue(zipFile.delete());

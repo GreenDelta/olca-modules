@@ -13,7 +13,6 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import org.openlca.jsonld.Json;
-import org.openlca.util.Strings;
 
 public class LibraryPackage {
 
@@ -107,11 +106,8 @@ public class LibraryPackage {
 			throw new IllegalArgumentException(
 				zipFile + " is not a library package");
 
-		var libId = Strings.notEmpty(info.version())
-				? info.name() + "_" + info.version()
-				: info.name();
-
 		// do nothing when the library already exists
+		var libId = info.toId();
 		if (libDir.hasLibrary(libId))
 			return;
 
