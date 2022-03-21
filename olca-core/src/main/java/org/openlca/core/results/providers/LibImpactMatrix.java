@@ -4,14 +4,14 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.LibMatrix;
-import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.ImpactBuilder;
-import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.IndexedMatrix;
 import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 public class LibImpactMatrix {
@@ -58,7 +58,7 @@ public class LibImpactMatrix {
 
 		// collect and add the library factors
 		for (var libID : libs) {
-			var lib = libDir.get(libID).orElse(null);
+			var lib = libDir.getLibrary(libID).orElse(null);
 			if (lib == null)
 				continue;
 

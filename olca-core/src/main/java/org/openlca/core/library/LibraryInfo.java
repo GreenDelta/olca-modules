@@ -34,8 +34,8 @@ public class LibraryInfo {
 
 	/**
 	 * Indicates whether this library is regionalized or not. In case of a
-	 * regionalized library each element in the elementary flow index can be
-	 * a flow-location pair.
+	 * regionalized library each element in the elementary flow index can be a
+	 * flow-location pair.
 	 */
 	private boolean isRegionalized;
 
@@ -137,7 +137,7 @@ public class LibraryInfo {
 			return false;
 		var other = (LibraryInfo) o;
 		return Objects.equals(this.name, other.name)
-			&& Objects.equals(this.version, other.version);
+				&& Objects.equals(this.version, other.version);
 	}
 
 	@Override

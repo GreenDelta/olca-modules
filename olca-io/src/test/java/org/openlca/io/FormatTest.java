@@ -11,7 +11,6 @@ import java.util.zip.ZipOutputStream;
 
 import org.junit.Test;
 import org.openlca.core.library.LibraryDir;
-import org.openlca.core.library.LibraryInfo;
 import org.openlca.core.library.LibraryPackage;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -193,7 +192,7 @@ public class FormatTest {
 	public void testDetectLibraryPackages() throws Exception {
 		var dir = Files.createTempDirectory("_olca_test").toFile();
 		var libDir = LibraryDir.of(dir);
-		var lib = libDir.init(LibraryInfo.of("lib", "0.1"));
+		var lib = libDir.initLibrary("lib_0.1");
 		var file = Files.createTempFile("_olca_test", ".zip").toFile();
 		LibraryPackage.zip(lib, file);
 		Dirs.delete(dir);

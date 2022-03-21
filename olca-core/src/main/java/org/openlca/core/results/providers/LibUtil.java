@@ -43,7 +43,7 @@ class LibUtil {
 
 			// load the tech-indices from these libraries
 			for (var libID : nextLibs) {
-				var lib = dir.get(libID);
+				var lib = dir.getLibrary(libID);
 				if (lib.isEmpty())
 					continue;
 				var next = lib.get()
@@ -79,7 +79,7 @@ class LibUtil {
 		Set<String> libraries, LibraryDir dir, IDatabase db) {
 		var map = new HashMap<String, EnviIndex>(libraries.size());
 		for (var libID : libraries) {
-			var lib = dir.get(libID).orElse(null);
+			var lib = dir.getLibrary(libID).orElse(null);
 			if (lib == null)
 				continue;
 			var flowIdx = lib.syncElementaryFlows(db)

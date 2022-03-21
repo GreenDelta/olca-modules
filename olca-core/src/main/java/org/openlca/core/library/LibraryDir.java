@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -15,8 +16,8 @@ import org.openlca.core.DataDir;
  * A library directory is a specific folder where each sub-folder is a library.
  * If a library A in that folder has a dependency to a library B there should be
  * a sub-folder with that library B in the same directory. The identifier of a
- * library, which is the combination of name and version, is used as the folder
- * name of a library.
+ * library, which is typically a combination of the library name and version, is
+ * used as the name of the folder of a library.
  */
 public record LibraryDir(File folder) {
 
@@ -44,15 +45,15 @@ public record LibraryDir(File folder) {
 		if (files == null)
 			return Collections.emptyList();
 		return Arrays.stream(files)
-				.filter(File::isDirectory)
-				.map(Library::new)
-				.collect(Collectors.toList());
+			.filter(File::isDirectory)
+			.map(Library::new)
+			.collect(Collectors.toList());
 	}
 
 	/**
 	 * Gets the library for the given ID if it exists in this library folder.
 	 */
-	public Optional<Library> get(String id) {
+	public Optional<Library> getLibrary(String id) {
 		if (id == null)
 			return Optional.empty();
 		var folder = new File(folder(), id);
@@ -61,39 +62,39 @@ public record LibraryDir(File folder) {
 			: Optional.empty();
 	}
 
-	/**
-	 * Get the folder of the library with the given meta-data in this library
-	 * directory. This folder may not exist yet.
-	 */
-	public File getFolder(LibraryInfo info) {
-		return new File(folder, info.id());
+	public boolean hasLibrary(String id) {
+		return getLibrary(id).isPresent();
 	}
 
 	/**
-	 * Returns true if a library with the given meta-data exists.
+	 * Initializes a new library with the given ID. If a library with this ID
+	 * already exists, it will return that library.
 	 */
-	public boolean exists(LibraryInfo info) {
-		return getFolder(info).exists();
-	}
+	public Library initLibrary(String id) {
+		Objects.requireNonNull(id);
+		var lib = getLibrary(id);
+		if (lib.isPresent())
+			return lib.get();
 
-	/**
-	 * Initializes a new library folder for the given library information. If
-	 * this library already exists, it returns that library.
-	 */
-	public Library init(LibraryInfo info) {
-		if (exists(info))
-			return get(info.id()).orElseThrow();
-		var dir = getFolder(info);
-		try {
-			if (!dir.exists()) {
-				Files.createDirectories(dir.toPath());
+		var newLib = Library.of(new File(folder, id));
+
+		// try to extract the version from the ID
+		String name = id;
+		String version = null;
+		var sepIdx = id.lastIndexOf('_');
+		if (sepIdx > 0) {
+			var v = id.substring(sepIdx + 1);
+			if (v.matches("\\d?\\d(\\.\\d\\d?)?(\\.\\d\\d?\\d?)?")) {
+				name = id.substring(0, sepIdx - 1);
+				version = v;
 			}
-			var lib = new Library(dir);
-			info.writeTo(lib);
-			return lib;
-		} catch (IOException e) {
-			throw new RuntimeException("Failed to create library folder", e);
 		}
-	}
 
+		// write library info
+		LibraryInfo.of(name)
+			.version(version)
+			.writeTo(newLib);
+
+		return newLib;
+	}
 }

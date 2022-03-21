@@ -74,7 +74,7 @@ public final class DataDir {
 
 	public static Library getLibrary(String id) {
 		var libDir = getLibraryDir();
-		return libDir.get(id).orElse(null);
+		return libDir.getLibrary(id).orElse(null);
 	}
 
 	private static File ensureExists(File dir) {

@@ -40,7 +40,7 @@ class LibCache {
 
 	public TechIndex techIndexOf(String libId) {
 		return techIndices.computeIfAbsent(libId, id -> {
-			var lib = dir.get(id);
+			var lib = dir.getLibrary(id);
 			if (lib.isEmpty())
 				return null;
 			var index = lib.get().syncProducts(db);
@@ -50,7 +50,7 @@ class LibCache {
 
 	public EnviIndex enviIndexOf(String libId) {
 		return enviIndices.computeIfAbsent(libId, id -> {
-			var lib = dir.get(id);
+			var lib = dir.getLibrary(id);
 			if (lib.isEmpty())
 				return null;
 			var index = lib.get().syncElementaryFlows(db);
@@ -60,7 +60,7 @@ class LibCache {
 
 	public ImpactIndex impactIndexOf(String libId) {
 		return impactIndices.computeIfAbsent(libId, id -> {
-			var lib = dir.get(id);
+			var lib = dir.getLibrary(id);
 			if (lib.isEmpty())
 				return null;
 			var index = lib.get().syncImpacts(db);
@@ -70,7 +70,7 @@ class LibCache {
 
 	public MatrixReader matrixOf(String libId, LibMatrix matrix) {
 		return matrices.computeIfAbsent(keyOf(libId, matrix), key -> {
-			var lib = dir.get(libId).orElse(null);
+			var lib = dir.getLibrary(libId).orElse(null);
 			if (lib == null)
 				return null;
 			return lib.getMatrix(matrix).orElse(null);
@@ -162,7 +162,7 @@ class LibCache {
 		static MatrixFile of(
 			LibraryDir dir, String libId, LibMatrix matrix) {
 
-			var lib = dir.get(libId).orElse(null);
+			var lib = dir.getLibrary(libId).orElse(null);
 			if (lib == null)
 				return new MatrixFile(null, false);
 

@@ -14,24 +14,24 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.database.RootEntityDao;
+import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.EnviFlow;
-import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Version;
-import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.jsonld.Json;
 import org.slf4j.LoggerFactory;
 
@@ -50,16 +50,6 @@ public record Library(File folder) {
 
 	public static Library of(File folder) {
 		return new Library(folder);
-	}
-
-	/**
-	 * Creates an empty library in the given library folder.
-	 */
-	public static Library create(LibraryDir dir, LibraryInfo info) {
-		var libDir = dir.getFolder(info);
-		var lib = new Library(libDir);
-		info.writeTo(lib);
-		return lib;
 	}
 
 	/**
@@ -129,7 +119,7 @@ public record Library(File folder) {
 			queue.poll()
 				.getInfo()
 				.dependencies().stream()
-				.map(libDir::get)
+				.map(libDir::getLibrary)
 				.filter(Optional::isPresent)
 				.map(Optional::get)
 				.forEach(dep -> {

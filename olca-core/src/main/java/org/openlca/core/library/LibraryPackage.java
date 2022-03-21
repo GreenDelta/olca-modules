@@ -12,6 +12,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
+import org.openlca.core.model.Version;
 import org.openlca.jsonld.Json;
 
 public class LibraryPackage {
@@ -106,19 +107,24 @@ public class LibraryPackage {
 			throw new IllegalArgumentException(
 				zipFile + " is not a library package");
 
+		var libId = info.version() != null
+				? info.name() + "_" + Version.format(info.version())
+				: info.name();
+
 		// do nothing when the library already exists
-		if (libDir.exists(info))
+		if (libDir.hasLibrary(libId))
 			return;
 
 		// collect the dependencies that we need to copy
 		var deps = info.dependencies().stream()
-			.filter(dep -> libDir.get(dep).isEmpty())
+			.filter(dep -> libDir.getLibrary(dep).isEmpty())
 			.collect(Collectors.toSet());
 
 		try (var zip = new ZipFile(zipFile)) {
 
 			// create the target folders
-			var lib = libDir.init(info);
+			var lib = libDir.initLibrary(libId);
+
 			for (var dep : deps) {
 				var depDir = new File(libDir.folder(), dep);
 				Files.createDirectories(depDir.toPath());
