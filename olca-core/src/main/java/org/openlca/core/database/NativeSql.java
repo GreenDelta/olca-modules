@@ -1,10 +1,10 @@
 package org.openlca.core.database;
 
-import java.io.StringWriter;
 import java.sql.Clob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +44,38 @@ public final class NativeSql {
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException("query failed: " + query, e);
+		}
+	}
+
+	/**
+	 * Executes the given query as prepared statement. It will set the string
+	 * parameters in the order as they are provided. You should always use this
+	 * function instead of the non-parameterized version when there is a chance
+	 * for SQL injection for some string values.
+	 *
+	 * @param sql a parameterized query
+	 * @param params the parameters of the values
+	 * @param fn the result handler
+	 */
+	public void query(String sql, List<String> params, QueryResultHandler fn) {
+		log.trace("execute parameterized query {}", sql);
+		try (var con = db.createConnection();
+				 var stmt = con.prepareStatement(sql)) {
+			int i = 1;
+			for (var param : params) {
+				stmt.setString(i, param);
+				i++;
+			}
+			if (!stmt.execute())
+				return;
+			try (var result = stmt.getResultSet()) {
+				while (result.next()) {
+					if (!fn.accept(result))
+						break;
+				}
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException("query failed: " + sql, e);
 		}
 	}
 
