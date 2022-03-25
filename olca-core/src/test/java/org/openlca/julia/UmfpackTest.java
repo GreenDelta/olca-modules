@@ -8,6 +8,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openlca.core.matrix.format.CSCMatrix;
+import org.openlca.core.matrix.solvers.Umfpack;
 
 public class UmfpackTest {
 

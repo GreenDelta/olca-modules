@@ -5,7 +5,7 @@ import java.io.File;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.LibMatrix;
 import org.openlca.julia.Julia;
-import org.openlca.julia.JuliaSolver;
+import org.openlca.core.matrix.solvers.JuliaSolver;
 
 public class FactorizedCalculation {
 

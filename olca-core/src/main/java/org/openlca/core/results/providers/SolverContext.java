@@ -7,7 +7,7 @@ import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.julia.Julia;
-import org.openlca.julia.JuliaSolver;
+import org.openlca.core.matrix.solvers.JuliaSolver;
 
 public class SolverContext {
 

@@ -9,6 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
+import org.openlca.core.matrix.solvers.JuliaSolver;
 
 public class BlasTest {
 

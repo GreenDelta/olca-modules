@@ -1,4 +1,4 @@
-package org.openlca.julia;
+package org.openlca.core.matrix.solvers;
 
 public class UmfFactorizedMatrix {
     final long pointer;

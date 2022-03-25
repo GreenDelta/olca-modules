@@ -1,6 +1,7 @@
-package org.openlca.julia;
+package org.openlca.core.matrix.solvers;
 
 import org.openlca.core.matrix.format.CSCMatrix;
+import org.openlca.julia.Julia;
 
 public class Umfpack {
 

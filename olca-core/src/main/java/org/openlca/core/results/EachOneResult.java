@@ -10,7 +10,7 @@ import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.results.providers.SimpleResultProvider;
 import org.openlca.julia.Julia;
-import org.openlca.julia.JuliaSolver;
+import org.openlca.core.matrix.solvers.JuliaSolver;
 import org.openlca.util.Pair;
 
 /**

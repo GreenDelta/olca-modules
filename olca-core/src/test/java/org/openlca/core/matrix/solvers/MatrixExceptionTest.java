@@ -17,7 +17,6 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.julia.Julia;
-import org.openlca.julia.JuliaSolver;
 
 public class MatrixExceptionTest {
 

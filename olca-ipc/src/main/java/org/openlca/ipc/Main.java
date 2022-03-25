@@ -8,7 +8,7 @@ import org.openlca.core.database.Derby;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.julia.Julia;
-import org.openlca.julia.JuliaSolver;
+import org.openlca.core.matrix.solvers.JuliaSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

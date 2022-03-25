@@ -1,4 +1,4 @@
-package org.openlca.julia;
+package org.openlca.core.matrix.solvers;
 
 import org.apache.commons.math3.exception.InsufficientDataException;
 import org.apache.commons.math3.linear.NonSquareMatrixException;
@@ -9,8 +9,6 @@ import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixConverter;
 import org.openlca.core.matrix.format.MatrixReader;
-import org.openlca.core.matrix.solvers.Factorization;
-import org.openlca.core.matrix.solvers.MatrixSolver;
 
 public class JuliaSolver implements MatrixSolver {
 
