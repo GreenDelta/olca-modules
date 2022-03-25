@@ -3,12 +3,12 @@ package org.openlca.ipc;
 import java.io.File;
 
 import org.openlca.core.DataDir;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Derby;
-import org.openlca.core.matrix.solvers.MatrixSolver;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.solvers.JavaSolver;
-import org.openlca.julia.Julia;
-import org.openlca.core.matrix.solvers.JuliaSolver;
+import org.openlca.core.matrix.solvers.MatrixSolver;
+import org.openlca.core.matrix.solvers.NativeSolver;
+import org.openlca.nativelib.NativeLib;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,12 +103,13 @@ public class Main {
 
 	private MatrixSolver initSolver() {
 		try {
-			var nativeLib = this.lib != null
-				? Julia.loadFromDir(new File(lib))
-				: Julia.load();
-			if (nativeLib && Julia.isLoaded()) {
+			var libDir = lib != null
+				? new File(lib)
+				: DataDir.root();
+			NativeLib.loadFrom(libDir);
+			if (NativeLib.isLoaded()) {
 				log.info("Loaded Julia libraries and solver");
-				return new JuliaSolver();
+				return new NativeSolver();
 			}
 			log.warn("Could not load a native library; use plain Java solver" +
 				"; this can be very slow");

@@ -21,7 +21,7 @@ public interface MatrixSolver {
 	 */
 	static MatrixSolver get() {
 		return NativeLib.isLoaded()
-			? new JuliaSolver()
+			? new NativeSolver()
 			: new JavaSolver();
 	}
 

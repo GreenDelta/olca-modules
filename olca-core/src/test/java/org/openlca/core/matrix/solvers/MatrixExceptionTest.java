@@ -1,24 +1,32 @@
 package org.openlca.core.matrix.solvers;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 import org.apache.commons.math3.linear.NonSquareMatrixException;
 import org.apache.commons.math3.linear.SingularMatrixException;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.openlca.core.DataDir;
 import org.openlca.core.Tests;
-import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.JavaMatrix;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.julia.Julia;
+import org.openlca.nativelib.NativeLib;
 
 public class MatrixExceptionTest {
+
+	@BeforeClass
+	public static void loadNativeLibs() {
+		NativeLib.loadFrom(DataDir.root());
+	}
 
 	@Test(expected = SingularMatrixException.class)
 	public void testJavaSolveSingular() {
@@ -41,44 +49,45 @@ public class MatrixExceptionTest {
 
 	@Test(expected = NonSquareMatrixException.class)
 	public void testNativeSolveNonSquare() {
+		assumeTrue(NativeLib.isLoaded());
 		var matrix = DenseMatrix.of(new double[][]{
 			{1.0, 0.0},
 			{-1.0, 2.0},
 			{-1.0, 0.0},
 		});
-		new JuliaSolver().solve(matrix, 1, 1.0);
+		new NativeSolver().solve(matrix, 1, 1.0);
 	}
 
 	@Test(expected = SingularMatrixException.class)
 	public void testBlasSolveSingular() {
-		assertTrue(Julia.load());
+		assumeTrue(NativeLib.isLoaded());
 		var matrix = DenseMatrix.of(new double[][]{
 			{1.0, -2.0},
 			{-1.0, 2.0},
 		});
-		new JuliaSolver().solve(matrix, 1, 1.0);
+		new NativeSolver().solve(matrix, 1, 1.0);
 	}
 
 	@Test(expected = SingularMatrixException.class)
 	public void testBlasInvertSingular() {
-		assertTrue(Julia.load());
+		assumeTrue(NativeLib.isLoaded());
 		var matrix = DenseMatrix.of(new double[][]{
 			{1.0, -2.0},
 			{-1.0, 2.0},
 		});
-		new JuliaSolver().invert(matrix);
+		new NativeSolver().invert(matrix);
 	}
 
 	// TODO: singularity checks are currently not supported for dense factorizations
 	@Ignore
 	@Test(expected = SingularMatrixException.class)
 	public void testBlasFactorizeSingular() {
-		assertTrue(Julia.load());
+		assumeTrue(NativeLib.isLoaded());
 		var matrix = DenseMatrix.of(new double[][]{
 			{1.0, -2.0},
 			{-1.0, 2.0},
 		});
-		new JuliaSolver().factorize(matrix);
+		new NativeSolver().factorize(matrix);
 	}
 
 	@Test
@@ -103,7 +112,7 @@ public class MatrixExceptionTest {
 		db.insert(sys);
 
 		boolean caughtIt = false;
-		assertTrue(Julia.load());
+		assumeTrue(NativeLib.isLoaded());
 		try {
 			var setup = CalculationSetup.simple(sys);
 			new SystemCalculator(db).calculateSimple(setup);

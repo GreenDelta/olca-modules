@@ -12,7 +12,7 @@ import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.io.MatrixExport;
-import org.openlca.core.matrix.solvers.JuliaSolver;
+import org.openlca.core.matrix.solvers.NativeSolver;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.nativelib.NativeLib;
 import org.slf4j.Logger;
@@ -217,7 +217,7 @@ public class LibraryExport implements Runnable {
 			return;
 		}
 		log.info("create matrix INV");
-		var solver = new JuliaSolver();
+		var solver = new NativeSolver();
 		var inv = solver.invert(data.techMatrix);
 		MatrixExport.toNpy(folder, inv, "INV");
 		if (data.enviMatrix == null)

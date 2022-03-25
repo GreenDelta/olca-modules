@@ -6,6 +6,7 @@ import org.junit.experimental.theories.DataPoint;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
+import org.openlca.core.DataDir;
 import org.openlca.core.Tests;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.Matrix;
@@ -16,7 +17,7 @@ import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.SimpleResult;
-import org.openlca.julia.Julia;
+import org.openlca.nativelib.NativeLib;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,13 +27,13 @@ public class SolverTest {
 
 	@BeforeClass
 	public static void setup() {
-		Julia.load();
+		NativeLib.loadFrom(DataDir.root());
 	}
 
 	private final Logger log = LoggerFactory.getLogger(SolverTest.class);
 
 	@DataPoint
-	public static MatrixSolver denseSolver = new JuliaSolver();
+	public static MatrixSolver denseSolver = new NativeSolver();
 
 	@DataPoint
 	public static MatrixSolver javaSolver = new JavaSolver();

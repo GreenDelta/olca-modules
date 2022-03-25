@@ -3,8 +3,6 @@ package examples;
 import java.io.File;
 
 import org.openlca.npy.Array2d;
-import org.openlca.npy.Npy;
-
 
 public class NpyExample {
 

@@ -13,9 +13,9 @@ import org.openlca.julia.Julia;
 import org.openlca.nativelib.Module;
 import org.openlca.nativelib.NativeLib;
 
-public class JuliaSolver implements MatrixSolver {
+public class NativeSolver implements MatrixSolver {
 
-	public JuliaSolver() {
+	public NativeSolver() {
 	}
 
 	@Override

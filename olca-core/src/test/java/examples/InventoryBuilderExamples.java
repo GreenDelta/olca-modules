@@ -1,25 +1,19 @@
 package examples;
 
-import java.io.File;
-
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ImpactMethodDao;
-import org.openlca.core.database.ProductSystemDao;
+import org.openlca.core.DataDir;
 import org.openlca.core.database.Derby;
-import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.results.ContributionResult;
-import org.openlca.julia.Julia;
+import org.openlca.nativelib.NativeLib;
 
 // TODO: just an example how to use the new inventory builder -> delete this
 // when we are ready
 public class InventoryBuilderExamples {
 
 	public static void main(String[] args) {
-		Julia.load();
+		NativeLib.loadFrom(DataDir.root());
 
 		try (var db = Derby.fromDataDir("e_3_3_er_database_es2050_v1_7_1")) {
 			var system = db.get(ProductSystem.class,

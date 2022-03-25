@@ -1,16 +1,15 @@
 package examples;
 
-import java.io.File;
-
+import org.openlca.core.DataDir;
 import org.openlca.core.database.Derby;
-import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.math.Simulator;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.SimpleResult;
-import org.openlca.julia.Julia;
+import org.openlca.nativelib.NativeLib;
 
 public class SimulatorExample {
 
@@ -31,8 +30,7 @@ public class SimulatorExample {
 		}
 		System.out.println("Tacking results of " + gwp.name);
 
-		String juliaLibPath = "C:/Users/ms/Projects/openLCA/eclipse";
-		Julia.loadFromDir(new File(juliaLibPath));
+		NativeLib.loadFrom(DataDir.root());
 
 		Simulator simulator = Simulator.create(setup, db);
 

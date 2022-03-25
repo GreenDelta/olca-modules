@@ -1,16 +1,17 @@
 package examples;
 
+import org.openlca.core.DataDir;
 import org.openlca.core.database.Derby;
 import org.openlca.core.database.ImpactMethodDao;
-import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.julia.Julia;
+import org.openlca.nativelib.NativeLib;
 
 public class CalculationExample {
 
 	public static void main(String[] args) {
-		Julia.load();
+		NativeLib.loadFrom(DataDir.root());
 		try (var db = Derby.fromDataDir("ei22")) {
 			var system = db.get(ProductSystem.class,
 				"7d1cbce0-b5b3-47ba-95b5-014ab3c7f569");

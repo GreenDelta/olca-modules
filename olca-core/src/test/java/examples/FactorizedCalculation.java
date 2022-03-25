@@ -4,8 +4,8 @@ import java.io.File;
 
 import org.openlca.core.library.Library;
 import org.openlca.core.library.LibMatrix;
-import org.openlca.julia.Julia;
-import org.openlca.core.matrix.solvers.JuliaSolver;
+import org.openlca.core.matrix.solvers.MatrixSolver;
+import org.openlca.nativelib.NativeLib;
 
 public class FactorizedCalculation {
 
@@ -13,8 +13,8 @@ public class FactorizedCalculation {
 
 		// initialize the solver
 		var libDir = "C:/Users/ms/Projects/openLCA/repos/olca-rust/bin";
-		Julia.loadFromDir(new File(libDir));
-		var solver = new JuliaSolver();
+		NativeLib.loadFrom(new File(libDir));
+		var solver = MatrixSolver.get();
 
 		var libPath = "C:/Users/ms/openLCA-data-1.4/libraries/" +
 				"ecoinvent_apos_37_up_20200908_1__00.00.001";

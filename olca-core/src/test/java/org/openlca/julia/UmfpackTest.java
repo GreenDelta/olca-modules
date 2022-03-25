@@ -7,22 +7,22 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.openlca.core.DataDir;
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.solvers.Umfpack;
+import org.openlca.nativelib.Module;
+import org.openlca.nativelib.NativeLib;
 
 public class UmfpackTest {
 
 	@BeforeClass
 	public static void setUp() {
-		Julia.load();
+		NativeLib.loadFrom(DataDir.root());
 	}
 
 	@Before
 	public void assumeLibsLoaded() {
-		// run the tests in this class only if the Julia libraries could be
-		// loaded
-		assumeTrue(Julia.isLoaded());
-		assumeTrue(Julia.hasSparseLibraries());
+		assumeTrue(NativeLib.isLoaded(Module.UMFPACK));
 	}
 
 	@Test

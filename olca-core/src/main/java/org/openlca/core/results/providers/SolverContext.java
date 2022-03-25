@@ -4,10 +4,7 @@ import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.matrix.solvers.MatrixSolver;
-import org.openlca.core.matrix.solvers.JuliaSolver;
-import org.openlca.nativelib.NativeLib;
 
 public class SolverContext {
 
@@ -67,13 +64,9 @@ public class SolverContext {
 	}
 
 	public MatrixSolver solver() {
-		if (solver != null)
-			return solver;
-		if (NativeLib.isLoaded()) {
-			solver = new JuliaSolver();
-			return solver;
+		if (solver == null) {
+			solver = MatrixSolver.get();
 		}
-		solver = new JavaSolver();
 		return solver;
 	}
 }
