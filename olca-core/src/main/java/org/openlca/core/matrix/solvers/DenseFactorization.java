@@ -6,6 +6,7 @@ import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixConverter;
 import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.julia.Julia;
 
 public class DenseFactorization implements Factorization {
 

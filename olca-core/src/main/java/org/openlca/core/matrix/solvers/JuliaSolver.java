@@ -9,18 +9,18 @@ import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixConverter;
 import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.julia.Julia;
+import org.openlca.nativelib.Module;
+import org.openlca.nativelib.NativeLib;
 
 public class JuliaSolver implements MatrixSolver {
 
 	public JuliaSolver() {
-		if (!Julia.isLoaded()) {
-			Julia.load();
-		}
 	}
 
 	@Override
 	public boolean hasSparseSupport() {
-		return Julia.hasSparseLibraries();
+		return NativeLib.isLoaded(Module.UMFPACK);
 	}
 
 	@Override
@@ -33,7 +33,7 @@ public class JuliaSolver implements MatrixSolver {
 		if (!a.isSquare())
 			throw new NonSquareMatrixException(a.rows(), a.columns());
 
-		if (Julia.hasSparseLibraries() &&
+		if (hasSparseSupport() &&
 				(a instanceof HashPointMatrix || a instanceof CSCMatrix)) {
 			var csc = CSCMatrix.of(a);
 			double[] f = new double[csc.rows];

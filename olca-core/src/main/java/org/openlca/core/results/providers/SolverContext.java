@@ -6,8 +6,8 @@ import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.matrix.solvers.MatrixSolver;
-import org.openlca.julia.Julia;
 import org.openlca.core.matrix.solvers.JuliaSolver;
+import org.openlca.nativelib.NativeLib;
 
 public class SolverContext {
 
@@ -69,7 +69,7 @@ public class SolverContext {
 	public MatrixSolver solver() {
 		if (solver != null)
 			return solver;
-		if (Julia.isLoaded() || Julia.load()) {
+		if (NativeLib.isLoaded()) {
 			solver = new JuliaSolver();
 			return solver;
 		}

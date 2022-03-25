@@ -8,9 +8,8 @@ import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.results.providers.SimpleResultProvider;
-import org.openlca.julia.Julia;
-import org.openlca.core.matrix.solvers.JuliaSolver;
 import org.openlca.util.Pair;
 
 /**
@@ -43,16 +42,13 @@ public class EachOneResult {
 	}
 
 	public Iterable<Pair<TechFlow, SimpleResult>> get() {
-		if (!Julia.isLoaded()) {
-			Julia.load();
-		}
 		if (data == null) {
 			var techIndex = TechIndex.of(db);
 			data = MatrixData.of(db, techIndex)
 				.withImpacts(ImpactIndex.of(db))
 				.build();
 		}
-		var solver = new JuliaSolver();
+		var solver = MatrixSolver.get();
 		inverse = solver.invert(data.techMatrix);
 		diagA = data.techMatrix.diag();
 		lci = solver.multiply(data.enviMatrix, inverse);

@@ -2,6 +2,7 @@ package org.openlca.core.matrix.solvers;
 
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.nativelib.NativeLib;
 
 /**
  * Interface for linear algebra and matrix problems that we need to solve in
@@ -10,6 +11,19 @@ import org.openlca.core.matrix.format.MatrixReader;
  * OpenBLAS.
  */
 public interface MatrixSolver {
+
+	/**
+	 * Returns the best available matrix solver. If a native libraries are loaded
+	 * it will create a solver using these libraries, otherwise it will fall back
+	 * to a pure Java implementation which can be very slow for large matrices.
+	 * Thus, you should try to always load native libraries before calling this
+	 * function.
+	 */
+	static MatrixSolver get() {
+		return NativeLib.isLoaded()
+			? new JuliaSolver()
+			: new JavaSolver();
+	}
 
 	/**
 	 * Returns true if the solver has specific support for solving sparse
@@ -28,14 +42,9 @@ public interface MatrixSolver {
 	 * to calculate the scaling factors of an inventory where the vector d has
 	 * just a single entry.
 	 *
-	 * @param a
-	 *            the technology matrix A
-	 * @param d
-	 *            the demand value (the entry in the vector d).
-	 *
-	 * @param idx
-	 *            the index of the entry in the demand vector.
-	 *
+	 * @param a   the technology matrix A
+	 * @param d   the demand value (the entry in the vector d).
+	 * @param idx the index of the entry in the demand vector.
 	 * @return the calculated scaling vector s
 	 */
 	double[] solve(MatrixReader a, int idx, double d);
@@ -85,5 +94,4 @@ public interface MatrixSolver {
 	}
 
 	Factorization factorize(MatrixReader matrix);
-
 }
