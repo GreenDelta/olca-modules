@@ -1,4 +1,4 @@
-package org.openlca.julia;
+package org.openlca.core.matrix.solvers;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
