@@ -19,7 +19,7 @@
 
 		<dependency>
 			<groupId>org.openlca</groupId>
-			<artifactId>olca-proto-io</artifactId>
+			<artifactId>olca-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
