@@ -75,7 +75,6 @@ public class Ec3Credentials {
 			c.epdUrl = Objects.requireNonNullElse(
 				Json.getString(json, "epdUrl"), c.epdUrl);
 			c.user = Json.getString(json, "user");
-			c.password = Json.getString(json, "password");
 			c.token = Json.getString(json, "token");
 			return c;
 		} catch (Exception e) {
@@ -91,10 +90,6 @@ public class Ec3Credentials {
 		json.addProperty("epdUrl", epdUrl);
 		json.addProperty("user", user);
 		json.addProperty("token", token);
-
-		// TODO: do not save the password
-		json.addProperty("password", password);
-
 		try {
 			Json.write(json, file);
 		} catch (Exception e) {
