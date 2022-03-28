@@ -1,7 +1,6 @@
 package org.openlca.io.openepd;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayDeque;
 import java.util.HashMap;
@@ -9,6 +8,7 @@ import java.util.Map;
 
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
+import org.slf4j.LoggerFactory;
 
 public class Ec3CategoryTree {
 
@@ -68,16 +68,17 @@ public class Ec3CategoryTree {
 	 * and the given file exists, it tries to delete the given file.
 	 */
 	public void save(File file) {
-		if (root != null) {
-			Json.write(root.toJson(), file);
-			return;
-		}
-		if (file.exists()) {
-			try {
-				Files.delete(file.toPath());
-			} catch (IOException e) {
-				throw new RuntimeException("failed to delete file: " + file);
+		try {
+			if (root != null) {
+				Json.write(root.toJson(), file);
+				return;
 			}
+			if (file.exists()) {
+				Files.delete(file.toPath());
+			}
+		} catch (Exception e) {
+			var log = LoggerFactory.getLogger(getClass());
+			log.error("failed to delete file: " + file, e);
 		}
 	}
 

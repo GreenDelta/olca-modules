@@ -314,6 +314,10 @@ public class Json {
 		}
 	}
 
+	public static Optional<JsonElement> read(File file) {
+		return read(file, JsonElement.class);
+	}
+
 	/**
 	 * Read the content of the given file as JSON object. If this fails an empty
 	 * result is returned instead of throwing an exception.
