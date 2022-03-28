@@ -148,8 +148,10 @@ public class EpdImport {
 				for (var scopeResult : indicatorResult.values()) {
 					if (scopeResult.value() == null)
 						continue;
-
 					var val = scopeResult.value();
+					if (val.mean() == null)
+						continue;
+
 					var key = new IndicatorKey(indicatorResult.indicator(), val.unit());
 					var indicatorMapping = methodMapping.getIndicatorMapping(key);
 					if (indicatorMapping.isEmpty()) {

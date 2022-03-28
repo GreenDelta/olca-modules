@@ -43,11 +43,9 @@ public record EpdMeasurement(
 	@Override
 	public JsonObject toJson() {
 		var obj = new JsonObject();
-		obj.addProperty("mean", mean);
+		Json.put(obj, "mean", mean);
 		Json.put(obj, "unit", unit);
-		if (rsd != null) {
-			obj.addProperty("rsd", rsd);
-		}
+		Json.put(obj, "rsd", rsd);
 		Json.put(obj, "dist", dist);
 		return obj;
 	}
