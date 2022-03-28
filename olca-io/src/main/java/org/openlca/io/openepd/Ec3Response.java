@@ -30,13 +30,15 @@ public class Ec3Response {
   }
 
   static Ec3Response of(HttpResponse<InputStream> resp) {
-    JsonElement json;
-    try (var stream = resp.body();
-         var reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
-      json = new Gson().fromJson(reader, JsonElement.class);
-    } catch (Exception e) {
-      json = null;
-    }
+    JsonElement json = null;
+		var body = resp.body();
+		if (body != null) {
+			try (var reader = new InputStreamReader(body, StandardCharsets.UTF_8)) {
+				json = new Gson().fromJson(reader, JsonElement.class);
+			} catch (Exception e) {
+				json = null;
+			}
+		}
     return new Ec3Response(resp, json);
   }
 
@@ -101,4 +103,12 @@ public class Ec3Response {
       return 0;
     }
   }
+
+	public boolean isOk() {
+		return status >= 200 && status < 300;
+	}
+
+	public boolean isError() {
+		return status >= 400;
+	}
 }

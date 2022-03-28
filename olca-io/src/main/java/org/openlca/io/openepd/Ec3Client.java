@@ -1,33 +1,34 @@
 package org.openlca.io.openepd;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
+import java.util.Optional;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
+import org.slf4j.LoggerFactory;
 
 public class Ec3Client {
 
 	private final String url;
-	private final String authKey;
 	private final String epdUrl;
+	private final String token;
 	private final HttpClient http;
 
-	private Ec3Client(Config config, String authKey) {
-		this.url = formatUrl(config.url);
-		this.epdUrl = config.epdUrl != null
-			? formatUrl(config.epdUrl)
+	private Ec3Client(HttpClient http, Ec3Credentials creds) {
+		this.http = http;
+		this.url = formatUrl(creds.ec3Url());
+		this.epdUrl = creds.epdUrl() != null
+			? formatUrl(creds.epdUrl())
 			: this.url;
-		this.authKey = authKey;
-		http = config.http;
+		this.token = creds.token();
 	}
 
 	private static String formatUrl(String url) {
@@ -36,12 +37,11 @@ public class Ec3Client {
 			: url;
 	}
 
-	public String authKey() {
-		return authKey;
-	}
-
-	public static Config of(String url) {
-		return new Config(formatUrl(url));
+	/**
+	 * Returns the access token of this client connection.
+	 */
+	public String token() {
+		return token;
 	}
 
 	/**
@@ -64,7 +64,7 @@ public class Ec3Client {
 		var req = HttpRequest.newBuilder()
 			.uri(URI.create(endpoint + p))
 			.header("Accept", "application/json")
-			.header("Authorization", "Bearer " + authKey)
+			.header("Authorization", "Bearer " + token)
 			.GET()
 			.build();
 		try {
@@ -85,7 +85,7 @@ public class Ec3Client {
 			var req = HttpRequest.newBuilder()
 				.uri(URI.create(epdUrl + p))
 				.header("Content-Type", "application/json")
-				.header("Authorization", "Bearer " + authKey)
+				.header("Authorization", "Bearer " + token)
 				.header("Accept", "application/json")
 				.POST(bodyStr)
 				.build();
@@ -99,7 +99,7 @@ public class Ec3Client {
 	public boolean logout() {
 		var req = HttpRequest.newBuilder()
 			.uri(URI.create(url + "rest-auth/logout"))
-			.header("Authorization", "Bearer " + authKey)
+			.header("Authorization", "Bearer " + token)
 			.POST(HttpRequest.BodyPublishers.noBody())
 			.build();
 		try {
@@ -110,32 +110,51 @@ public class Ec3Client {
 		}
 	}
 
-	public static class Config {
-
-		private final String url;
-		private final HttpClient http;
-		private String epdUrl;
-
-		private Config(String url) {
-			this.url = Objects.requireNonNull(url);
-			this.http = HttpClient.newBuilder()
-				.version(HttpClient.Version.HTTP_2)
-				.build();
+	/**
+	 * Tries to connect to the EC3 API using the token from the given credentials.
+	 * If this works an EC3 client connection is returned, otherwise the returned
+	 * option is empty.
+	 */
+	public static Optional<Ec3Client> tryToken(Ec3Credentials cred) {
+		if (cred == null
+			|| Strings.nullOrEmpty(cred.ec3Url())
+			|| Strings.nullOrEmpty(cred.token()))
+			return Optional.empty();
+		try {
+			var client = new Ec3Client(http(), cred);
+			var resp = client.get("users/me");
+			return resp.isOk() && resp.hasJson()
+				? Optional.of(client)
+				: Optional.empty();
+		} catch (Exception e) {
+			var log = LoggerFactory.getLogger(Ec3Client.class);
+			log.error("failed to connect to EC3 API @" + cred.epdUrl(), e);
+			return Optional.empty();
 		}
+	}
 
-		public Config withEpdUrl(String queryUrl) {
-			if (Strings.notEmpty(queryUrl)) {
-				this.epdUrl = queryUrl;
-			}
-			return this;
-		}
+	/**
+	 * Tries to connect to the EC3 API using the username and password from the
+	 * given credentials. If this works an EC3 client connection is returned,
+	 * otherwise the returned option is empty. The given credentials are updated
+	 * to contain a new access token.
+	 */
+	public static Optional<Ec3Client> tryLogin(Ec3Credentials cred) {
+		if (cred == null
+			|| Strings.nullOrEmpty(cred.ec3Url())
+			|| Strings.nullOrEmpty(cred.user())
+			|| Strings.nullOrEmpty(cred.password()))
+			return Optional.empty();
 
-		public Ec3Client login(String user, String password) {
+		var log = LoggerFactory.getLogger(Ec3Client.class);
+		try {
+
 			var obj = new JsonObject();
-			obj.addProperty("username", user);
-			obj.addProperty("password", password);
+			obj.addProperty("username", cred.user());
+			obj.addProperty("password", cred.password());
 			var json = new Gson().toJson(obj);
 
+			var url = formatUrl(cred.ec3Url());
 			var req = HttpRequest.newBuilder()
 				.uri(URI.create(url + "rest-auth/login"))
 				.header("Content-Type", "application/json")
@@ -143,24 +162,35 @@ public class Ec3Client {
 				.POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
 				.build();
 
-			try {
-				var resp = http.send(req, HttpResponse.BodyHandlers.ofInputStream());
-				try (var stream = resp.body();
-						 var reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
-					var jsonKey = new Gson().fromJson(reader, JsonObject.class);
-					var authKey = jsonKey.get("key");
-					if (authKey == null || !authKey.isJsonPrimitive())
-						throw new RuntimeException("login failed");
-					return new Ec3Client(this, authKey.getAsString());
-				}
-			} catch (InterruptedException | IOException e) {
-				throw new RuntimeException("login failed", e);
+			log.info("try to login {}@{}", cred.user(), cred.ec3Url());
+			var http = http();
+			var raw = http.send(req, HttpResponse.BodyHandlers.ofInputStream());
+			var resp = Ec3Response.of(raw);
+			if (resp.isError() || !resp.hasJson() || !resp.json().isJsonObject()) {
+				log.error("login error; status = {}", resp.status());
+				return Optional.empty();
 			}
-		}
 
-		public Ec3Client session(String authKey) {
-			return new Ec3Client(this, authKey);
-		}
+			var respObj = resp.json().getAsJsonObject();
+			var token = Json.getString(respObj, "key");
+			if (Strings.nullOrEmpty(token)) {
+				log.error("login ok but  received no token; status = {}", resp.status());
+				return Optional.empty();
+			}
 
+			cred.token(token);
+			return Optional.of(new Ec3Client(http, cred));
+
+		} catch (Exception e) {
+			log.error("failed to connect to EC3 API @" + cred.ec3Url(), e);
+			return Optional.empty();
+		}
 	}
+
+	private static HttpClient http() {
+		return HttpClient.newBuilder()
+			.version(HttpClient.Version.HTTP_2)
+			.build();
+	}
+
 }

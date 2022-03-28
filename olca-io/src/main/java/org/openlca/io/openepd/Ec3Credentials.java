@@ -2,7 +2,6 @@ package org.openlca.io.openepd;
 
 import java.io.File;
 import java.util.Objects;
-import java.util.Optional;
 
 import com.google.gson.JsonObject;
 import org.openlca.jsonld.Json;
@@ -13,6 +12,7 @@ public class Ec3Credentials {
 	private String ec3Url;
 	private String epdUrl;
 	private String user;
+	private String token;
 	private String password;
 
 	public String ec3Url() {
@@ -51,6 +51,14 @@ public class Ec3Credentials {
 		return this;
 	}
 
+	public String token() {
+		return token;
+	}
+
+	public Ec3Credentials token(String token) {
+		this.token = token;
+		return this;
+	}
 
 	public static Ec3Credentials getDefault(File file) {
 		var c = new Ec3Credentials();
@@ -68,6 +76,7 @@ public class Ec3Credentials {
 				Json.getString(json, "epdUrl"), c.epdUrl);
 			c.user = Json.getString(json, "user");
 			c.password = Json.getString(json, "password");
+			c.token = Json.getString(json, "token");
 			return c;
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(Ec3Credentials.class);
@@ -81,23 +90,16 @@ public class Ec3Credentials {
 		json.addProperty("ec3Url", ec3Url);
 		json.addProperty("epdUrl", epdUrl);
 		json.addProperty("user", user);
+		json.addProperty("token", token);
+
+		// TODO: do not save the password
 		json.addProperty("password", password);
+
 		try {
 			Json.write(json, file);
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(Ec3Credentials.class);
 			log.error("failed to write EC3 credentials to " + file, e);
-		}
-	}
-
-	public Optional<Ec3Client> login() {
-		try {
-			var client = Ec3Client.of(ec3Url)
-				.withEpdUrl(epdUrl)
-				.login(user, password);
-			return Optional.of(client);
-		} catch (Exception e) {
-			return Optional.empty();
 		}
 	}
 
