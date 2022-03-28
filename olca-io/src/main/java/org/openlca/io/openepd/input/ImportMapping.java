@@ -1,7 +1,6 @@
-package org.openlca.io.openepd;
+package org.openlca.io.openepd.input;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,15 +12,16 @@ import java.util.Set;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
+import org.openlca.io.openepd.EpdDoc;
 import org.openlca.util.Strings;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 
-record ImportMapping(
+public record ImportMapping(
 	Quantity quantity,
 	Map<String, MethodMapping> methodMappings) {
 
-	static ImportMapping init(EpdDoc epd, IDatabase db) {
+	public static ImportMapping init(EpdDoc epd, IDatabase db) {
 
 		// collect the method codes and related indicator keys
 		var codes = new HashMap<String, Set<IndicatorKey>>();
@@ -62,13 +62,13 @@ record ImportMapping(
 		return new ImportMapping(quantity, mappings);
 	}
 
-	static boolean sameCode(String code1, String code2) {
+	public static boolean sameCode(String code1, String code2) {
 		if (Strings.nullOrEmpty(code1) || Strings.nullOrEmpty(code2))
 			return false;
 		return code1.trim().equalsIgnoreCase(code2.trim());
 	}
 
-	MethodMapping getMethodMapping(String code) {
+	public MethodMapping getMethodMapping(String code) {
 		var mapping = methodMappings.get(code);
 		if (mapping != null)
 			return mapping;
@@ -77,19 +77,19 @@ record ImportMapping(
 		return empty;
 	}
 
-	IndicatorMapping getIndicatorMapping(String methodCode, IndicatorKey key) {
+	public IndicatorMapping getIndicatorMapping(String methodCode, IndicatorKey key) {
 		var m = getMethodMapping(methodCode);
 		return m.getIndicatorMapping(key);
 	}
 
-	List<String> methodCodes() {
+	public List<String> methodCodes() {
 		return methodMappings.keySet()
 			.stream()
 			.sorted()
 			.toList();
 	}
 
-	MethodMapping swapMethod(String code, ImpactMethod method) {
+	public MethodMapping swapMethod(String code, ImpactMethod method) {
 		var current = methodMappings.get(code);
 		List<IndicatorKey> keys = current != null
 			? current.keys()
@@ -101,7 +101,7 @@ record ImportMapping(
 		return next;
 	}
 
-	void swapIndicator(
+	public void swapIndicator(
 		String methodCode, IndicatorKey key, ImpactCategory impact) {
 		var methodMapping = getMethodMapping(methodCode);
 		if (methodMapping.isEmpty())
@@ -117,7 +117,7 @@ record ImportMapping(
 	/**
 	 * Returns true if this mapping contains empty method or indicator mappings.
 	 */
-	boolean hasEmptyMappings() {
+	public boolean hasEmptyMappings() {
 		for (var m : methodMappings.values()) {
 			if (m.isEmpty())
 				return true;
@@ -129,7 +129,7 @@ record ImportMapping(
 		return false;
 	}
 
-	void persistIn(IDatabase db) {
+	public void persistIn(IDatabase db) {
 		var persisted = new HashMap<String, MethodMapping>();
 		var updatedMethods = new TLongObjectHashMap<ImpactMethod>();
 		var updatedIndicators = new TLongObjectHashMap<ImpactCategory>();
@@ -189,80 +189,3 @@ record ImportMapping(
 
 }
 
-record MethodMapping(
-	String code,
-	ImpactMethod method,
-	List<IndicatorMapping> indicatorMappings) {
-
-	static MethodMapping emptyOf(String code, Collection<IndicatorKey> keys) {
-		var indicatorMappings = keys.stream()
-			.map(IndicatorMapping::emptyOf)
-			.toList();
-		return new MethodMapping(code, null, indicatorMappings);
-	}
-
-	static MethodMapping init(
-		String code, ImpactMethod method, Collection<IndicatorKey> keys) {
-		var mappings = new ArrayList<IndicatorMapping>();
-		for (var key : keys) {
-			ImpactCategory impact = null;
-			for (var i : method.impactCategories) {
-				if (ImportMapping.sameCode(key.code(), i.code)) {
-					impact = i;
-					break;
-				}
-			}
-			mappings.add(new IndicatorMapping(key, impact));
-		}
-		return new MethodMapping(code, method, mappings);
-	}
-
-	boolean isEmpty() {
-		return method == null;
-	}
-
-	List<IndicatorKey> keys() {
-		return indicatorMappings.stream()
-			.map(IndicatorMapping::key)
-			.sorted()
-			.toList();
-	}
-
-	IndicatorMapping getIndicatorMapping(IndicatorKey key) {
-		for (var i : indicatorMappings) {
-			if (Objects.equals(key, i.key()))
-				return i;
-		}
-		return IndicatorMapping.emptyOf(key);
-	}
-}
-
-record IndicatorMapping(IndicatorKey key, ImpactCategory indicator) {
-
-	static IndicatorMapping emptyOf(IndicatorKey key) {
-		return new IndicatorMapping(key, null);
-	}
-
-	boolean isEmpty() {
-		return indicator == null;
-	}
-
-	String code() {
-		return key.code();
-	}
-
-	String unit() {
-		return key.unit();
-	}
-}
-
-record IndicatorKey(String code, String unit)
-	implements Comparable<IndicatorKey> {
-
-	@Override
-	public int compareTo(IndicatorKey other) {
-		return other != null
-			? Strings.compare(this.code, other.code)
-			: 1;
-	}
-}

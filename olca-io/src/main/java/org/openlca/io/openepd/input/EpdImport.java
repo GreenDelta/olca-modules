@@ -1,7 +1,10 @@
-package org.openlca.io.openepd;
+package org.openlca.io.openepd.input;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Objects;
+import java.util.Optional;
 
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
@@ -19,6 +22,9 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
+import org.openlca.io.openepd.EpdDoc;
+import org.openlca.io.openepd.EpdOrg;
+import org.openlca.io.openepd.EpdPcr;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
 
@@ -31,12 +37,12 @@ public class EpdImport {
 	private final String[] categoryPath;
 	private final ImportLog log;
 
-	EpdImport(IDatabase db, EpdDoc epd, ImportMapping mapping) {
+	public EpdImport(IDatabase db, EpdDoc epd, ImportMapping mapping) {
 		this.db = db;
 		this.epd = epd;
 		this.mapping = mapping;
 		this.quantity = mapping.quantity();
-		this.categoryPath = Util.categoryOf(epd).orElse(null);
+		this.categoryPath = categoryOf(epd).orElse(null);
 		this.log = new ImportLog();
 	}
 
@@ -188,5 +194,46 @@ public class EpdImport {
 		result.referenceFlow = qRef;
 		result.flowResults.add(qRef);
 		return result;
+	}
+
+	public static Optional<String[]> categoryOf(EpdDoc epd) {
+		if (epd == null || epd.productClasses.isEmpty())
+			return Optional.empty();
+		String path = null;
+		for (var c : epd.productClasses) {
+			if (Objects.equals(c.first, "io.cqd.ec3")) {
+				path = c.second;
+				break;
+			}
+			if (path == null) {
+				path = c.second;
+			}
+		}
+		if (Strings.nullOrEmpty(path))
+			return Optional.empty();
+
+
+		var segments = new ArrayList<String>();
+		var word = new StringBuilder();
+		Runnable nextWord = () -> {
+			if (word.length() == 0)
+				return;
+			segments.add(word.toString());
+			word.setLength(0);
+		};
+
+		for (int i = 0; i < path.length(); i++) {
+			char c = path.charAt(i);
+			switch (c) {
+				case '/', '\\', '>', '<' -> nextWord.run();
+				default -> word.append(c);
+			}
+		}
+		nextWord.run();
+
+
+		return segments.size() > 0
+			? Optional.of(segments.toArray(String[]::new))
+			: Optional.empty();
 	}
 }

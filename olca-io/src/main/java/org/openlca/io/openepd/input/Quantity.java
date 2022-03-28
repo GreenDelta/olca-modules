@@ -1,4 +1,4 @@
-package org.openlca.io.openepd;
+package org.openlca.io.openepd.input;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.FlowProperty;
@@ -8,13 +8,13 @@ import org.openlca.io.openepd.EpdDoc;
 import org.openlca.io.openepd.EpdQuantity;
 import org.openlca.util.Strings;
 
-record Quantity(double amount, Unit unit, FlowProperty property) {
+public record Quantity(double amount, Unit unit, FlowProperty property) {
 
-	boolean hasUnit() {
+	public boolean hasUnit() {
 		return unit != null && property != null;
 	}
 
-	static Quantity detect(EpdDoc epd, IDatabase db) {
+	public static Quantity detect(EpdDoc epd, IDatabase db) {
 		var units = UnitMapping.createDefault(db);
 		var q = detect(epd.declaredUnit, units);
 		if (q != null && q.hasUnit())
