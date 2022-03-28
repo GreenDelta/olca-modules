@@ -66,11 +66,11 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 			method.nwSets.add(nwSet);
 			In.mapAtts(nwObj, nwSet, 0L);
 			nwSet.weightedScoreUnit = Json.getString(
-					json, "weightedScoreUnit");
+				json, "weightedScoreUnit");
 			Json.stream(Json.getArray(nwObj, "factors"))
-					.filter(JsonElement::isJsonObject)
-					.map(f -> nwFactor(f.getAsJsonObject(), method))
-					.forEach(nwSet.factors::add);
+				.filter(JsonElement::isJsonObject)
+				.map(f -> nwFactor(f.getAsJsonObject(), method))
+				.forEach(nwSet.factors::add);
 		}
 	}
 
@@ -78,13 +78,17 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 		var f = new NwFactor();
 		var impactID = Json.getRefId(json, "impactCategory");
 		f.impactCategory = method.impactCategories.stream()
-				.filter(i -> Objects.equals(i.refId, impactID))
-				.findAny()
-				.orElse(null);
-		f.normalisationFactor = Json.getDouble(json, "normalisationFactor")
-				.orElse(null);
-		f.weightingFactor = Json.getDouble(json, "weightingFactor")
-				.orElse(null);
+			.filter(i -> Objects.equals(i.refId, impactID))
+			.findAny()
+			.orElse(null);
+		var norm = Json.getDouble(json, "normalisationFactor");
+		f.normalisationFactor = norm.isPresent()
+			? norm.getAsDouble()
+			: null;
+		var weight = Json.getDouble(json, "weightingFactor");
+		f.weightingFactor = weight.isPresent()
+			? weight.getAsDouble()
+			: null;
 		return f;
 	}
 }

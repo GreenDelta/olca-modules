@@ -4,19 +4,19 @@ import org.openlca.core.model.ImpactCategory;
 
 public record IndicatorMapping(IndicatorKey key, ImpactCategory indicator) {
 
-	static IndicatorMapping emptyOf(IndicatorKey key) {
+	public static IndicatorMapping emptyOf(IndicatorKey key) {
 		return new IndicatorMapping(key, null);
 	}
 
-	boolean isEmpty() {
+	public boolean isEmpty() {
 		return indicator == null;
 	}
 
-	String code() {
+	public String code() {
 		return key.code();
 	}
 
-	String unit() {
+	public String unit() {
 		return key.unit();
 	}
 }

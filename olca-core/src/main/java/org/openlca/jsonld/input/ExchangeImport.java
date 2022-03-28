@@ -57,7 +57,10 @@ abstract class ExchangeImport<P extends RootEntity> extends BaseEmbeddedImport<E
 		e.amount = Json.getDouble(json, "amount", 0);
 		e.formula = Json.getString(json, "amountFormula");
 		e.isAvoided = Json.getBool(json, "isAvoidedProduct", false);
-		e.baseUncertainty = Json.getDouble(json, "baseUncertainty").orElse(null);
+		var baseUnc = Json.getDouble(json, "baseUncertainty");
+		e.baseUncertainty = baseUnc.isPresent()
+			? baseUnc.getAsDouble()
+			: null;
 		e.dqEntry = Json.getString(json, "dqEntry");
 		e.description = Json.getString(json, "description");
 		var u = Json.getObject(json, "uncertainty");
@@ -67,7 +70,8 @@ abstract class ExchangeImport<P extends RootEntity> extends BaseEmbeddedImport<E
 
 		// costs
 		e.costFormula = Json.getString(json, "costFormula");
-		e.costs = Json.getDouble(json, "costValue").orElse(null);
+		var costs = Json.getDouble(json, "costValue");
+		e.costs = costs.isPresent() ? costs.getAsDouble() : null;
 		var currencyId = Json.getRefId(json, "currency");
 		if (currencyId != null) {
 			e.currency = CurrencyImport.run(currencyId, conf);

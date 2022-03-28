@@ -17,6 +17,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -162,13 +163,13 @@ public class Json {
 		put(json, property, Enums.getLabel(value));
 	}
 
-	public static Optional<Double> getDouble(JsonObject obj, String property) {
+	public static OptionalDouble getDouble(JsonObject obj, String property) {
 		if (obj == null || property == null)
-			return Optional.empty();
-		JsonElement elem = obj.get(property);
+			return OptionalDouble.empty();
+		var elem = obj.get(property);
 		return elem == null || !elem.isJsonPrimitive()
-			? Optional.empty()
-			: Optional.of(elem.getAsDouble());
+			? OptionalDouble.empty()
+			: OptionalDouble.of(elem.getAsDouble());
 	}
 
 	public static boolean getBool(JsonObject obj,

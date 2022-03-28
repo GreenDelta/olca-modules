@@ -122,7 +122,7 @@ public class HSCSim {
 
 				// the exchange.amount field contains a possible
 				// conversion factor
-				exchange.amount *= amount.get();
+				exchange.amount *= amount.getAsDouble();
 				exchange.isInput = asInputs;
 
 				// set the quantitative reference

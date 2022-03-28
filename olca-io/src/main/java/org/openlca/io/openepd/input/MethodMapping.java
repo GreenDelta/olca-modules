@@ -13,14 +13,14 @@ public record MethodMapping(
 	ImpactMethod method,
 	List<IndicatorMapping> indicatorMappings) {
 
-	static MethodMapping emptyOf(String code, Collection<IndicatorKey> keys) {
+	public static MethodMapping emptyOf(String code, Collection<IndicatorKey> keys) {
 		var indicatorMappings = keys.stream()
 			.map(IndicatorMapping::emptyOf)
 			.toList();
 		return new MethodMapping(code, null, indicatorMappings);
 	}
 
-	static MethodMapping init(
+	public static MethodMapping init(
 		String code, ImpactMethod method, Collection<IndicatorKey> keys) {
 		var mappings = new ArrayList<IndicatorMapping>();
 		for (var key : keys) {
@@ -36,18 +36,18 @@ public record MethodMapping(
 		return new MethodMapping(code, method, mappings);
 	}
 
-	boolean isEmpty() {
+	public boolean isEmpty() {
 		return method == null;
 	}
 
-	List<IndicatorKey> keys() {
+	public List<IndicatorKey> keys() {
 		return indicatorMappings.stream()
 			.map(IndicatorMapping::key)
 			.sorted()
 			.toList();
 	}
 
-	IndicatorMapping getIndicatorMapping(IndicatorKey key) {
+	public IndicatorMapping getIndicatorMapping(IndicatorKey key) {
 		for (var i : indicatorMappings) {
 			if (Objects.equals(key, i.key()))
 				return i;

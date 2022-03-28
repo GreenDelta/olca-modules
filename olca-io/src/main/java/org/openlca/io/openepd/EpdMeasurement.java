@@ -15,7 +15,7 @@ import org.openlca.jsonld.Json;
  * @param dist statistical distribution of the measurement error
  */
 public record EpdMeasurement(
-	double mean,
+	Double mean,
 	String unit,
 	Double rsd,
 	String dist
@@ -29,10 +29,12 @@ public record EpdMeasurement(
 		if (elem == null || !elem.isJsonObject())
 			return Optional.empty();
 		var obj = elem.getAsJsonObject();
+		var mean = Json.getDouble(obj, "mean");
+		var rsd = Json.getDouble(obj, "rsd");
 		var m = new EpdMeasurement(
-			Json.getDouble(obj, "mean", 0),
+			mean.isPresent() ? mean.getAsDouble() : null,
 			Json.getString(obj, "unit"),
-			Json.getDouble(obj, "rsd").orElse(null),
+			rsd.isPresent() ? rsd.getAsDouble() : null,
 			Json.getString(obj, "dist")
 		);
 		return Optional.of(m);
