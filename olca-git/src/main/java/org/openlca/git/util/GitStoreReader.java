@@ -9,9 +9,11 @@ import org.openlca.git.actions.ConflictResolver;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
 import org.openlca.git.find.Datasets;
 import org.openlca.git.find.Entries;
+import org.openlca.git.find.Ids;
 import org.openlca.git.find.References;
 import org.openlca.git.model.Reference;
 import org.openlca.jsonld.JsonStoreReader;
+import org.openlca.jsonld.SchemaVersion;
 import org.openlca.util.Strings;
 
 import com.google.gson.Gson;
@@ -23,6 +25,7 @@ public class GitStoreReader implements JsonStoreReader {
 	private static final Gson gson = new Gson();
 	private final References references;
 	private final Datasets datasets;
+	private final Ids ids;
 	private final String remoteCommitId;
 	private final Categories categories;
 	private final List<Reference> remoteChanges;
@@ -33,6 +36,7 @@ public class GitStoreReader implements JsonStoreReader {
 		this.categories = Categories.of(Entries.of(repo), remoteCommitId);
 		this.references = References.of(repo);
 		this.datasets = Datasets.of(repo);
+		this.ids = Ids.of(repo);
 		this.remoteCommitId = remoteCommitId;
 		this.remoteChanges = references.find()
 				.commit(remoteCommitId)
@@ -56,6 +60,8 @@ public class GitStoreReader implements JsonStoreReader {
 
 	@Override
 	public byte[] getBytes(String path) {
+		if (SchemaVersion.FILE_NAME.equals(path))
+			return getSchema();
 		var binDir = GitUtil.findBinDir(path);
 		if (binDir == null && !path.endsWith(GitUtil.DATASET_SUFFIX))
 			return categories.getForPath(path);
@@ -64,6 +70,11 @@ public class GitStoreReader implements JsonStoreReader {
 		return getBinary(binDir, path);
 	}
 
+	private byte[] getSchema() {
+		var objectId = ids.get(SchemaVersion.FILE_NAME, remoteCommitId);
+		return datasets.getBytes(objectId);
+	}
+	
 	private byte[] getDataset(String path) {
 		var ref = getRef(path);
 		if (ref == null)

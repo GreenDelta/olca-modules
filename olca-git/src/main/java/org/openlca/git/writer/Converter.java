@@ -84,9 +84,9 @@ class Converter {
 		}
 	}
 
-	private void offer(String refId, byte[] data) {
+	private void offer(String path, byte[] data) {
 		try {
-			queue.offer(refId, data);
+			queue.offer(path, data);
 		} catch (InterruptedException e) {
 			log.error("failed to add element to data queue", e);
 		}
