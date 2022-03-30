@@ -9,7 +9,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
@@ -45,12 +44,12 @@ public class Ec3Client {
 	}
 
 	/**
-	 * Makes a http get request using the query URL. If there is no specific
-	 * query URL defined, this is the same as calling the `get` method of
+	 * Makes a http get request using the EPD URL. If there is no specific
+	 * EPD URL defined, this is the same as calling the `get` method of
 	 * this class.
 	 */
-	public Ec3Response getEpd(String path) {
-		return internalGet(path, epdUrl);
+	public Ec3Response getEpd(String id) {
+		return internalGet("epds/" + id, epdUrl);
 	}
 
 	public Ec3Response get(String path) {
@@ -75,15 +74,30 @@ public class Ec3Client {
 		}
 	}
 
-	public Ec3Response postEpd(String path, JsonElement body) {
-		var p = path.startsWith("/")
-			? path.substring(1)
-			: path;
+	public Ec3Response putEpd(String id, JsonObject epdDoc) {
 		try {
 			var bodyStr = HttpRequest.BodyPublishers.ofString(
-				new Gson().toJson(body), StandardCharsets.UTF_8);
+				new Gson().toJson(epdDoc), StandardCharsets.UTF_8);
 			var req = HttpRequest.newBuilder()
-				.uri(URI.create(epdUrl + p))
+				.uri(URI.create(epdUrl + "epds/" + id))
+				.header("Content-Type", "application/json")
+				.header("Authorization", "Bearer " + token)
+				.header("Accept", "application/json")
+				.PUT(bodyStr)
+				.build();
+			var resp = http.send(req, HttpResponse.BodyHandlers.ofInputStream());
+			return Ec3Response.of(resp);
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to post to EC3", e);
+		}
+	}
+
+	public Ec3Response postEpd(JsonObject epdDoc) {
+		try {
+			var bodyStr = HttpRequest.BodyPublishers.ofString(
+				new Gson().toJson(epdDoc), StandardCharsets.UTF_8);
+			var req = HttpRequest.newBuilder()
+				.uri(URI.create(epdUrl + "epds"))
 				.header("Content-Type", "application/json")
 				.header("Authorization", "Bearer " + token)
 				.header("Accept", "application/json")

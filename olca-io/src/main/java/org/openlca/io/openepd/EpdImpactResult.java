@@ -13,7 +13,7 @@ public record EpdImpactResult(
 		return new EpdImpactResult(method, new ArrayList<>());
 	}
 
-	public static JsonObject toJson(List<EpdImpactResult> results) {
+	public static JsonObject toJson(Iterable<EpdImpactResult> results) {
 		var json = new JsonObject();
 		if (results == null)
 			return json;

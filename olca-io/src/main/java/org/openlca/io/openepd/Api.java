@@ -19,7 +19,7 @@ public class Api {
 
 	public static Optional<JsonObject> getRawEpd(Ec3Client client, String id) {
 		try {
-			var r = client.getEpd("epds/" + id);
+			var r = client.getEpd(id);
 			if (!r.hasJson())
 				return Optional.empty();
 			var json = r.json();
