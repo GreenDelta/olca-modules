@@ -53,6 +53,7 @@ public class CommitWriter {
 			converter = new Converter(config, threads);
 			converter.start(diffs.stream()
 					.filter(d -> d.type != DiffType.DELETED)
+					.sorted((d1, d2) -> Strings.compare(d1.path(), d2.path()))
 					.toList());
 			var commitTreeId = previousCommit != null ? previousCommit.getTree().getId() : null;
 			var treeId = syncTree("", commitTreeId, new DiffIterator(config, diffs));
