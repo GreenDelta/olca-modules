@@ -104,7 +104,7 @@ public class GitMerge {
 		var commit = commits.get(localCommitId);
 		var config = new GitConfig(database, workspaceIds, git, null);
 		return DiffEntries.workspace(config, commit).stream()
-				.map(d -> new Diff(d).left)
+				.map(d -> new Diff(d).ref())
 				.collect(Collectors.toList());
 	}
 
