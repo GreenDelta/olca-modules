@@ -22,8 +22,8 @@ public class LibraryPackageTest {
 
 		// create a library with one dependency
 		var libDir = LibraryDir.of(dir);
-		var lib = libDir.initLibrary("lib 0.1");
-		var dep = libDir.initLibrary("dep 0.1");
+		var lib = libDir.create("lib 0.1");
+		var dep = libDir.create("dep 0.1");
 		lib.addDependency(dep);
 
 		// put a tech. matrix into the libraries

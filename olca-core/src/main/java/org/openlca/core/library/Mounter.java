@@ -1,6 +1,9 @@
 package org.openlca.core.library;
 
 import java.io.File;
+import java.util.ArrayDeque;
+import java.util.HashSet;
+import java.util.Stack;
 
 import gnu.trove.set.hash.TLongHashSet;
 import jakarta.persistence.Table;
@@ -15,27 +18,45 @@ import org.openlca.jsonld.input.JsonImport;
 import org.openlca.util.Strings;
 
 /**
- * Mounts a library on a database. This imports the library meta-data into the
- * database and adds a link to the library in the database.
+ * Mounts a library and its dependencies on a database.
  */
-public record LibraryImport(IDatabase db, Library library) implements Runnable {
+record Mounter(IDatabase db, Library library) implements Runnable {
 
 	@Override
 	public void run() {
+
+		// just a quick way to calculate the topological
+		// order of the dependencies
+		var stack = new Stack<Library>();
+		var queue = new ArrayDeque<Library>();
+		queue.add(library);
+		while (!queue.isEmpty()) {
+			var next = queue.poll();
+			stack.push(next);
+			queue.addAll(next.getDependencies());
+		}
+
 		try {
-			var libId = library.id();
-			var meta = new File(library.folder(), "meta.zip");
-			try (var store = ZipStore.open(meta)) {
-				var imp = new JsonImport(store, db);
-				imp.setCallback(e -> {
-					if (!(e instanceof RootEntity ce))
-						return;
-					update(ce, libId);
-				});
-				imp.run();
+			var mounted = new HashSet<>(db.getLibraries());
+			while (!stack.isEmpty()) {
+				var lib = stack.pop();
+				var libId = lib.id();
+				if (mounted.contains(libId))
+					continue;
+				var meta = new File(lib.folder(), "meta.zip");
+				try (var store = ZipStore.open(meta)) {
+					var imp = new JsonImport(store, db);
+					imp.setCallback(e -> {
+						if (!(e instanceof RootEntity ce))
+							return;
+						update(ce, libId);
+					});
+					imp.run();
+				}
+				db.addLibrary(libId);
+				new CategoryTagger(db, libId).run();
+				mounted.add(libId);
 			}
-			db.addLibrary(libId);
-			new CategoryTagger(db, libId).run();
 		} catch (Exception e) {
 			throw new RuntimeException("failed to import library", e);
 		}

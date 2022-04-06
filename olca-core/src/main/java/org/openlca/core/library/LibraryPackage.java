@@ -119,7 +119,7 @@ public class LibraryPackage {
 		try (var zip = new ZipFile(zipFile)) {
 
 			// create the target folders
-			var lib = libDir.initLibrary(libId);
+			var lib = libDir.create(libId);
 
 			for (var dep : deps) {
 				var depDir = new File(libDir.folder(), dep);

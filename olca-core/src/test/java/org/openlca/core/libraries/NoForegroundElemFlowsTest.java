@@ -35,7 +35,7 @@ public class NoForegroundElemFlowsTest {
 		// init the library
 		var tmpDir = Files.createTempDirectory("_olca_tests");
 		var libDir = LibraryDir.of(tmpDir.toFile());
-		var lib = libDir.initLibrary("testlib 1");
+		var lib = libDir.create("testlib 1");
 		var db = Tests.getDb();
 
 		// create the reference data

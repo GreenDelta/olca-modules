@@ -332,4 +332,11 @@ public record Library(File folder) {
 		ImpactDescriptor impact, IDatabase db) {
 		return ImpactFactors.join(this, db).getFor(impact);
 	}
+
+	/**
+	 * Mounts the library and its dependencies recursively to the given database.
+	 */
+	public void mountTo(IDatabase db) {
+		new Mounter(db, this).run();
+	}
 }

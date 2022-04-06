@@ -70,7 +70,7 @@ public record LibraryDir(File folder) {
 	 * Initializes a new library with the given ID. If a library with this ID
 	 * already exists, it will return that library.
 	 */
-	public Library initLibrary(String id) {
+	public Library create(String id) {
 		Objects.requireNonNull(id);
 		var lib = getLibrary(id);
 		if (lib.isPresent())

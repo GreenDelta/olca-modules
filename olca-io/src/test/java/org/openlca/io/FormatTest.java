@@ -192,7 +192,7 @@ public class FormatTest {
 	public void testDetectLibraryPackages() throws Exception {
 		var dir = Files.createTempDirectory("_olca_test").toFile();
 		var libDir = LibraryDir.of(dir);
-		var lib = libDir.initLibrary("lib_0.1");
+		var lib = libDir.create("lib_0.1");
 		var file = Files.createTempFile("_olca_test", ".zip").toFile();
 		LibraryPackage.zip(lib, file);
 		Dirs.delete(dir);
