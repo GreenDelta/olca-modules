@@ -13,7 +13,6 @@ import org.openlca.core.model.ModelType;
 import org.openlca.git.model.Reference;
 import org.openlca.git.util.GitUtil;
 import org.openlca.jsonld.SchemaVersion;
-import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,24 +66,7 @@ public class References {
 	}
 
 	private Reference createRef(String prefix, TreeWalk walk, String commitId, int tree) {
-		return new Reference(getType(prefix, walk), getRefId(walk), commitId, walk.getPathString(),
-				walk.getObjectId(tree));
-	}
-
-	private ModelType getType(String prefix, TreeWalk walk) {
-		var path = prefix;
-		if (Strings.nullOrEmpty(path)) {
-			path = walk.getPathString();
-		}
-		if (path.contains("/")) {
-			path = path.substring(0, path.indexOf("/"));
-		}
-		return ModelType.valueOf(path);
-	}
-
-	private String getRefId(TreeWalk walk) {
-		var name = walk.getNameString();
-		return name.substring(0, name.indexOf("."));
+		return new Reference(walk.getPathString(), commitId, walk.getObjectId(tree));
 	}
 
 	public class Find {

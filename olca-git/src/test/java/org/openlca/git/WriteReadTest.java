@@ -15,7 +15,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.git.find.Commits;
 import org.openlca.git.find.Datasets;
-import org.openlca.git.model.Diff;
+import org.openlca.git.model.Change;
 import org.openlca.git.util.DiffEntries;
 import org.openlca.git.util.Repositories;
 import org.openlca.git.writer.CommitWriter;
@@ -42,16 +42,16 @@ public class WriteReadTest {
 				db, ModelType.UNIT_GROUP, "Technical unit groups");
 		db.insert(unitGroup);
 
-		// should find 1 diff
-		var diffs = DiffEntries.workspace(temp.config)
+		// should find 1 change
+		var changes = DiffEntries.workspace(temp.config)
 				.stream()
-				.map(Diff::new)
+				.map(Change::new)
 				.toList();
-		assertEquals(1, diffs.size());
+		assertEquals(1, changes.size());
 
 		// commit it
 		var writer = new CommitWriter(temp.config);
-		var commitId = writer.commit("initial commit", diffs);
+		var commitId = writer.commit("initial commit", changes);
 
 		// get the data set from the repo
 		var id = temp.ids().get(unitGroup);

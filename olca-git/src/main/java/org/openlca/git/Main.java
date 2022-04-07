@@ -13,7 +13,7 @@ import org.openlca.core.database.Derby;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
-import org.openlca.git.model.Diff;
+import org.openlca.git.model.Change;
 import org.openlca.git.util.DiffEntries;
 import org.openlca.git.writer.CommitWriter;
 import org.openlca.util.Categories;
@@ -106,16 +106,16 @@ public class Main {
 		}
 
 		private void refDataSingleCommit() throws IOException {
-			var diffs = DiffEntries.workspace(config).stream().map(Diff::new).toList();
-			System.out.println(writer.commit("Added data", diffs));
+			var changes = DiffEntries.workspace(config).stream().map(Change::new).toList();
+			System.out.println(writer.commit("Added data", changes));
 		}
 
 		private void refDataSeparateCommits() throws IOException {
-			var diffs = DiffEntries.workspace(config).stream().map(Diff::new).toList();
+			var changes = DiffEntries.workspace(config).stream().map(Change::new).toList();
 			long time = 0;
 			for (ModelType type : REF_DATA_TYPES) {
-				var filtered = diffs.stream()
-						.filter(d -> d.right.fullPath.startsWith(type.name() + "/"))
+				var filtered = changes.stream()
+						.filter(d -> d.path.startsWith(type.name() + "/"))
 						.toList();
 				long t = System.currentTimeMillis();
 				System.out.println("Committing " + filtered.size() + " files");
@@ -143,9 +143,9 @@ public class Main {
 			dao.insert(newLoc);
 			config.store.save();
 
-			var diffs = DiffEntries.workspace(config).stream().map(Diff::new).toList();
+			var changes = DiffEntries.workspace(config).stream().map(Change::new).toList();
 			var writer = new CommitWriter(config);
-			System.out.println(writer.commit("Updated data", diffs));
+			System.out.println(writer.commit("Updated data", changes));
 		}
 
 		private void delete() throws IOException {
@@ -167,9 +167,9 @@ public class Main {
 				}
 			}
 			config.store.save();
-			var diffs = DiffEntries.workspace(config).stream().map(Diff::new).toList();
+			var changes = DiffEntries.workspace(config).stream().map(Change::new).toList();
 			var writer = new CommitWriter(config);
-			System.out.println(writer.commit("Deleted data", diffs));
+			System.out.println(writer.commit("Deleted data", changes));
 		}
 
 	}

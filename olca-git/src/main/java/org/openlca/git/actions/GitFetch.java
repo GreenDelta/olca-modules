@@ -39,7 +39,6 @@ public class GitFetch extends GitRemoteAction<List<Commit>> {
 				.call();
 		if (result == null)
 			return new ArrayList<>();
-		// TODO check if list is always correct
 		var newCommits = commits.find()
 				.refs(Constants.REMOTE_REF)
 				.after(lastId)

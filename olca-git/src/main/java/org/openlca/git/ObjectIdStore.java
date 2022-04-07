@@ -155,25 +155,25 @@ public class ObjectIdStore {
 	}
 
 	public void invalidateRoot() {
-		invalidate("");
+		remove("");
 	}
 
 	public void invalidate(ModelType type) {
 		var path = getPath(type);
-		invalidate(path);
+		remove(path);
 	}
 
 	public void invalidate(RootEntity e) {
 		var path = getPath(e);
-		invalidate(path);
+		remove(path);
 	}
 
 	public void invalidate(PathBuilder categoryPath, RootDescriptor d) {
 		var path = getPath(categoryPath, d);
-		invalidate(path);
+		remove(path);
 	}
 
-	public void invalidate(String path) {
+	public void remove(String path) {
 		var split = path.split("/");
 		for (var i = 0; i < split.length; i++) {
 			var k = "";

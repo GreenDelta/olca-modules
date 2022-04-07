@@ -7,6 +7,10 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.concurrent.Executors;
 
+import org.eclipse.jgit.diff.DiffEntry.ChangeType;
+import org.eclipse.jgit.errors.CorruptObjectException;
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.internal.storage.file.PackInserter;
 import org.eclipse.jgit.lib.CommitBuilder;
 import org.eclipse.jgit.lib.Constants;
@@ -18,9 +22,8 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.openlca.git.GitConfig;
-import org.openlca.git.iterator.DiffIterator;
-import org.openlca.git.model.Diff;
-import org.openlca.git.model.DiffType;
+import org.openlca.git.iterator.ChangeIterator;
+import org.openlca.git.model.Change;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.Repositories;
 import org.openlca.jsonld.SchemaVersion;
@@ -35,32 +38,48 @@ public class CommitWriter {
 	private final GitConfig config;
 	private PackInserter inserter;
 	private Converter converter;
+	private boolean isMergeCommit;
 
 	public CommitWriter(GitConfig config) {
 		this.config = config;
 	}
 
-	public String commit(String message, List<Diff> diffs) throws IOException {
-		if (diffs.isEmpty())
-			return null;
+	public String commit(String message, List<Change> changes) throws IOException {
+		return mergeCommit(message, changes, null, null);
+	}
+
+	public String mergeCommit(String message, List<Change> changes, String localCommitId, String remoteCommitId)
+			throws IOException {
 		var threads = Executors.newCachedThreadPool();
 		try {
 			var previousCommit = Repositories.headCommitOf(config.repo);
 			if (previousCommit != null && !isCurrentSchemaVersion())
 				throw new IOException("Git repo is not in current schema version");
+			if (changes.isEmpty() && (previousCommit == null || localCommitId == null || remoteCommitId == null))
+				return null;
+			isMergeCommit = remoteCommitId != null;
 			inserter = config.repo.getObjectDatabase().newPackInserter();
 			inserter.checkExisting(config.checkExisting);
 			converter = new Converter(config, threads);
-			converter.start(diffs.stream()
-					.filter(d -> d.type != DiffType.DELETED)
-					.sorted((d1, d2) -> Strings.compare(d1.path(), d2.path()))
+			converter.start(changes.stream()
+					.filter(c -> c.changeType != ChangeType.DELETE)
+					.sorted((c1, c2) -> Strings.compare(c1.path, c2.path))
 					.toList());
-			var commitTreeId = previousCommit != null ? previousCommit.getTree().getId() : null;
-			var treeId = syncTree("", commitTreeId, new DiffIterator(config, diffs));
+			var localCommitOid = localCommitId != null
+					? ObjectId.fromString(localCommitId)
+					: previousCommit != null
+							? previousCommit.getId()
+							: ObjectId.zeroId();
+			var remoteCommitOid = remoteCommitId != null
+					? ObjectId.fromString(remoteCommitId)
+					: ObjectId.zeroId();
+			var localTreeId = getCommitTreeId(localCommitOid);
+			var remoteTreeId = getCommitTreeId(remoteCommitOid);
+			var treeId = syncTree("", new ChangeIterator(config, changes), localTreeId, remoteTreeId);
 			if (config.store != null) {
 				config.store.save();
 			}
-			var commitId = commit(treeId, message);
+			var commitId = commit(message, treeId, localCommitOid, remoteCommitOid);
 			return commitId.name();
 		} finally {
 			if (inserter != null) {
@@ -74,16 +93,26 @@ public class CommitWriter {
 		}
 	}
 
-	private ObjectId syncTree(String prefix, ObjectId treeId, DiffIterator diffIterator) {
+	private ObjectId getCommitTreeId(ObjectId commitId) throws IOException {
+		if (commitId == null || commitId.equals(ObjectId.zeroId()))
+			return null;
+		var commit = config.repo.parseCommit(commitId);
+		if (commit == null)
+			return null;
+		return commit.getTree().getId();
+	}
+
+	private ObjectId syncTree(String prefix, ChangeIterator changeIterator, ObjectId localTreeId,
+			ObjectId remoteTreeId) {
 		boolean appended = false;
 		var tree = new TreeFormatter();
-		try (var walk = createWalk(prefix, treeId, diffIterator)) {
+		try (var walk = createWalk(prefix, changeIterator, localTreeId, remoteTreeId)) {
 			while (walk.next()) {
 				var mode = walk.getFileMode();
 				var name = walk.getNameString();
 				ObjectId id = null;
 				if (mode == FileMode.TREE) {
-					id = handleTree(walk, diffIterator);
+					id = handleTree(walk, changeIterator);
 				} else if (mode == FileMode.REGULAR_FILE) {
 					id = handleFile(walk);
 				}
@@ -93,15 +122,15 @@ public class CommitWriter {
 				appended = true;
 			}
 		} catch (Exception e) {
-			log.error("Error walking tree " + treeId, e);
+			log.error("Error walking tree", e);
 		}
 		if (!appended && !Strings.nullOrEmpty(prefix)) {
 			if (config.store != null) {
-				config.store.invalidate(prefix);
+				config.store.remove(prefix);
 			}
 			return null;
 		}
-		if (Strings.nullOrEmpty(prefix) && (treeId == null || treeId.equals(ObjectId.zeroId()))) {
+		if (Strings.nullOrEmpty(prefix) && localTreeId == null && remoteTreeId == null) {
 			appendSchemaVersion(tree);
 		}
 		var newId = insert(i -> i.insert(tree));
@@ -111,8 +140,21 @@ public class CommitWriter {
 		return newId;
 	}
 
-	private TreeWalk createWalk(String prefix, ObjectId treeId, DiffIterator diffIterator) throws IOException {
+	private TreeWalk createWalk(String prefix, ChangeIterator changeIterator, ObjectId localTreeId,
+			ObjectId remoteTreeId) throws IOException {
 		var walk = new TreeWalk(config.repo);
+		addTree(walk, prefix, localTreeId);
+		addTree(walk, prefix, remoteTreeId);
+		if (changeIterator != null) {
+			walk.addTree(changeIterator);
+		} else {
+			walk.addTree(new EmptyTreeIterator());
+		}
+		return walk;
+	}
+
+	private void addTree(TreeWalk walk, String prefix, ObjectId treeId)
+			throws MissingObjectException, IncorrectObjectTypeException, CorruptObjectException, IOException {
 		if (treeId == null || treeId.equals(ObjectId.zeroId())) {
 			walk.addTree(new EmptyTreeIterator());
 		} else if (Strings.nullOrEmpty(prefix)) {
@@ -120,41 +162,44 @@ public class CommitWriter {
 		} else {
 			walk.addTree(new CanonicalTreeParser(prefix.getBytes(), walk.getObjectReader(), treeId));
 		}
-		walk.addTree(diffIterator);
-		return walk;
 	}
 
-	private ObjectId handleTree(TreeWalk walk, DiffIterator diffIterator) {
-		var treeId = walk.getObjectId(0);
-		if (walk.getFileMode(1) == FileMode.MISSING)
-			return treeId;
+	private ObjectId handleTree(TreeWalk walk, ChangeIterator changeIterator) {
+		var localTreeId = walk.getFileMode(0) != FileMode.MISSING ? walk.getObjectId(0) : null;
+		var remoteTreeId = walk.getFileMode(1) != FileMode.MISSING ? walk.getObjectId(1) : null;
+		var iterator = walk.getFileMode(2) != FileMode.MISSING ? changeIterator.createSubtreeIterator() : null;
+		if (iterator == null && localTreeId == null)
+			return remoteTreeId;
+		if (iterator == null && remoteTreeId == null)
+			return localTreeId;
 		var prefix = walk.getPathString();
-		return syncTree(prefix, treeId, diffIterator.createSubtreeIterator());
+		return syncTree(prefix, iterator, localTreeId, remoteTreeId);
 	}
 
 	private ObjectId handleFile(TreeWalk walk)
 			throws IOException, InterruptedException {
-		var blobId = walk.getObjectId(0);
-		if (walk.getFileMode(1) == FileMode.MISSING)
-			return blobId;
+		var localBlobId = walk.getFileMode(0) != FileMode.MISSING ? walk.getObjectId(0) : null;
+		var remoteBlobId = walk.getFileMode(1) != FileMode.MISSING ? walk.getObjectId(1) : null;
+		if (walk.getFileMode(2) == FileMode.MISSING)
+			return isMergeCommit && remoteBlobId != null ? remoteBlobId : localBlobId;
 		var path = walk.getPathString();
-		var iterator = walk.getTree(1, DiffIterator.class);
-		Diff diff = iterator.getEntryData();
+		var iterator = walk.getTree(2, ChangeIterator.class);
+		Change change = iterator.getEntryData();
 		var file = iterator.getEntryFile();
-		if (diff.type == DiffType.DELETED && matches(path, diff, file)) {
+		if (change.changeType == ChangeType.DELETE && matches(path, change, file)) {
 			if (file == null && config.store != null) {
-				config.store.invalidate(path);
+				config.store.remove(path);
 			}
 			return null;
 		}
 		if (file != null)
 			return inserter.insert(Constants.OBJ_BLOB, Files.readAllBytes(file.toPath()));
 		var data = converter.take(path);
-		blobId = inserter.insert(Constants.OBJ_BLOB, data);
+		localBlobId = inserter.insert(Constants.OBJ_BLOB, data);
 		if (config.store != null) {
-			config.store.put(path, blobId);
+			config.store.put(path, localBlobId);
 		}
-		return blobId;
+		return localBlobId;
 	}
 
 	private void appendSchemaVersion(TreeFormatter tree) {
@@ -169,15 +214,15 @@ public class CommitWriter {
 		}
 	}
 
-	private boolean matches(String path, Diff diff, File file) {
-		if (diff == null)
+	private boolean matches(String path, Change change, File file) {
+		if (change == null)
 			return false;
 		if (file == null)
-			return path.equals(diff.path());
-		return path.startsWith(diff.path().substring(0, diff.path().lastIndexOf(GitUtil.DATASET_SUFFIX)));
+			return path.equals(change.path);
+		return path.startsWith(change.path.substring(0, change.path.lastIndexOf(GitUtil.DATASET_SUFFIX)));
 	}
 
-	private ObjectId commit(ObjectId treeId, String message) {
+	private ObjectId commit(String message, ObjectId treeId, ObjectId localCommitId, ObjectId remoteCommitId) {
 		try {
 			var commit = new CommitBuilder();
 			commit.setAuthor(config.committer);
@@ -186,9 +231,11 @@ public class CommitWriter {
 			commit.setEncoding(StandardCharsets.UTF_8);
 			commit.setTreeId(treeId);
 			var head = config.repo.findRef("HEAD");
-			var previousCommitId = head.getObjectId();
-			if (previousCommitId != null) {
-				commit.addParentId(previousCommitId);
+			if (localCommitId != null && !localCommitId.equals(ObjectId.zeroId())) {
+				commit.addParentId(localCommitId);
+			}
+			if (remoteCommitId != null && !remoteCommitId.equals(ObjectId.zeroId())) {
+				commit.addParentId(remoteCommitId);
 			}
 			var commitId = insert(i -> i.insert(commit));
 			var update = config.repo.updateRef(head.getName());

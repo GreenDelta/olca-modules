@@ -42,6 +42,7 @@ public class Diffs {
 
 		public Find withPrevious(String commitId) {
 			var commits = Commits.of(repo);
+			// TODO this is wrong for merge commits
 			var left = commitId != null ? commits.find().before(commitId).latest() : null;
 			leftCommitId = left != null ? left.id : null;
 			rightCommitId = commitId;

@@ -9,7 +9,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.git.GitConfig;
 import org.openlca.git.ObjectIdStore;
 import org.openlca.git.find.Commits;
-import org.openlca.git.model.Diff;
+import org.openlca.git.model.Change;
 import org.openlca.git.util.DiffEntries;
 import org.openlca.git.writer.CommitWriter;
 import org.openlca.util.Strings;
@@ -19,7 +19,7 @@ public class GitCommit {
 	private final IDatabase database;
 	private FileRepository git;
 	private Commits commits;
-	private List<Diff> diffs;
+	private List<Change> changes;
 	private String message;
 	private ObjectIdStore workspaceIds;
 	private PersonIdent committer;
@@ -38,8 +38,8 @@ public class GitCommit {
 		return this;
 	}
 
-	public GitCommit diffs(List<Diff> diffs) {
-		this.diffs = diffs;
+	public GitCommit changes(List<Change> changes) {
+		this.changes = changes;
 		return this;
 	}
 
@@ -62,20 +62,19 @@ public class GitCommit {
 		if (git == null || database == null || Strings.nullOrEmpty(message))
 			throw new IllegalStateException("Git repository, database and message must be set");
 		var config = new GitConfig(database, workspaceIds, git, committer);
-		if (diffs == null) {
+		if (changes == null) {
 			if (workspaceIds == null)
-				throw new IllegalStateException("ObjectIdStore must be set when no diffs are specified");
-			diffs = getWorkspaceDiffs(config);
+				throw new IllegalStateException("ObjectIdStore must be set when no changes are specified");
+			changes = getWorkspaceChanges(config);
 		}
 		var writer = new CommitWriter(config);
-		return writer.commit(message, diffs);
+		return writer.commit(message, changes);
 	}
 
-	private List<Diff> getWorkspaceDiffs(GitConfig config) throws IOException {
+	private List<Change> getWorkspaceChanges(GitConfig config) throws IOException {
 		var commit = commits.head();
-		var leftCommitId = commit != null ? commit.id : null;
 		return DiffEntries.workspace(config, commit).stream()
-				.map(e -> new Diff(e, leftCommitId, null))
+				.map(Change::new)
 				.toList();
 	}
 }

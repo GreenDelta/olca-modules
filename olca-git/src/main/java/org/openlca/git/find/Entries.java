@@ -12,6 +12,7 @@ import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.openlca.git.model.Entry;
 import org.openlca.git.util.GitUtil;
 import org.openlca.jsonld.SchemaVersion;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +67,9 @@ public class Entries {
 							PathFilter.create(SchemaVersion.FILE_NAME).negate());
 					walk.setFilter(filter);
 					while (walk.next()) {
-						entries.add(new Entry(path, commitId, walk.getNameString(), walk.getObjectId(0)));
+						var name = walk.getNameString();
+						var fullPath = Strings.nullOrEmpty(path) ? name : path + "/" + name;
+						entries.add(new Entry(fullPath, commitId, walk.getObjectId(0)));
 					}
 				}
 			} catch (IOException e) {

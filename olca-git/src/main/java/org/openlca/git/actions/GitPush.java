@@ -10,18 +10,18 @@ import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.RemoteRefUpdate.Status;
 import org.openlca.git.actions.GitPush.PushResponse;
-import org.openlca.git.find.Commits;
 import org.openlca.git.model.Commit;
 import org.openlca.git.util.Constants;
+import org.openlca.git.util.History;
 
 public class GitPush extends GitRemoteAction<PushResponse> {
 
 	private final FileRepository git;
-	private final Commits commits;
+	private final History history;
 	
 	private GitPush(FileRepository git) {
 		this.git = git;
-		this.commits = Commits.of(git);
+		this.history = History.of(git);
 	}
 
 	public static GitPush to(FileRepository git) {
@@ -32,12 +32,7 @@ public class GitPush extends GitRemoteAction<PushResponse> {
 	public PushResponse run() throws GitAPIException {
 		if (git == null) 
 			throw new IllegalStateException("Git repository must be set");
-		var localCommitId = commits.resolve(Constants.LOCAL_BRANCH);
-		var remoteCommitId = commits.resolve(Constants.REMOTE_BRANCH);
-		var newCommits = commits.find()
-				.after(remoteCommitId)
-				.until(localCommitId)
-				.all();
+		var newCommits = history.getAhead();
 		if (newCommits.isEmpty())
 			return new PushResponse(newCommits, Status.NOT_ATTEMPTED);
 		Git.wrap(git).gc().call();

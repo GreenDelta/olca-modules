@@ -5,7 +5,6 @@ import java.util.List;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.Side;
 import org.eclipse.jgit.lib.FileMode;
-import org.openlca.core.model.ModelType;
 
 public class Diff {
 
@@ -33,20 +32,18 @@ public class Diff {
 		if (entry.getMode(side) == FileMode.MISSING)
 			return null;
 		var path = entry.getPath(side);
-		var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
-		var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf("."));
 		var objectId = entry.getId(side).toObjectId();
-		return new Reference(type, refId, commitId, path, objectId);
+		return new Reference(path, commitId, objectId);
 	}
 
-	public Reference ref() {
+	public ModelRef ref() {
 		if (right != null)
 			return right;
 		return left;
 	}
 
 	public String path() {
-		return type == DiffType.DELETED ? left.fullPath : right.fullPath;
+		return type == DiffType.DELETED ? left.path : right.path;
 	}
 
 	public static List<Diff> filter(List<Diff> diffs, DiffType type) {

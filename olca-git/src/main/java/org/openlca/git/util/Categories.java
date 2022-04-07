@@ -34,16 +34,16 @@ class Categories {
 		entries.find().commit(commitId).path(path).all().forEach(entry -> {
 			if (entry.typeOfEntry == EntryType.DATASET)
 				return;
-			init(entries, commitId, entry.fullPath);
+			init(entries, commitId, entry.path);
 			if (entry.typeOfEntry != EntryType.CATEGORY)
 				return;
-			var refId = getRefId(entry.fullPath);
+			var refId = getRefId(entry.path);
 			refIdToName.put(refId, entry.name);
 			refIdToType.put(refId, entry.type);
 			if (!Strings.nullOrEmpty(entry.category)) {
 				refIdToParent.put(refId, getRefId(entry.type.name() + "/" + entry.category));
 			}
-			pathToRefId.put(entry.fullPath, refId);
+			pathToRefId.put(entry.path, refId);
 		});
 	}
 

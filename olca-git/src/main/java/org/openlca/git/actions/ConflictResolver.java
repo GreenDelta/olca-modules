@@ -6,9 +6,9 @@ import com.google.gson.JsonObject;
 
 public interface ConflictResolver {
 
-	boolean isConflict(Reference reference);
+	boolean isConflict(Reference ref);
 
-	ConflictResolution resolveConflict(Reference reference, JsonObject fromRemote);
+	ConflictResolution resolveConflict(Reference ref, JsonObject fromHistory);
 
 	public class ConflictResolution {
 
