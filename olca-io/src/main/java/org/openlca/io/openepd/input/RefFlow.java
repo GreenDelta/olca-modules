@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.EpdProduct;
 import org.openlca.core.model.Flow;
@@ -11,6 +12,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowResult;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.Version;
 import org.openlca.io.UnitMapping;
@@ -28,6 +30,8 @@ record RefFlow(EpdProduct product) {
 		flow.flowType = FlowType.PRODUCT_FLOW;
 		flow.description = doc.productDescription;
 		flow.version = Version.of(doc.version).getValue();
+		EpdImport.categoryOf(doc).ifPresent(
+			path -> flow.category = CategoryDao.sync(db, ModelType.FLOW, path));
 
 		var product = new EpdProduct();
 		Consumer<Quantity> refQ = q -> {

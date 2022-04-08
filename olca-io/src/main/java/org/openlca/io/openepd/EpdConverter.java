@@ -4,10 +4,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.OptionalDouble;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
 
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Epd;
+import org.openlca.core.model.EpdProduct;
+import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Source;
+import org.openlca.core.model.Unit;
 import org.openlca.util.Categories;
 import org.openlca.util.Pair;
 import org.openlca.util.Strings;
@@ -58,11 +65,18 @@ public final class EpdConverter {
 		doc.isPrivate = true;
 		doc.version = 1;
 		doc.productName = epd.name;
+		doc.lcaDiscussion = epd.description;
+
+		// declared unit
 		if (epd.product != null && epd.product.unit != null) {
 			doc.declaredUnit = new EpdQuantity(
 				epd.product.amount, epd.product.unit.name);
 		}
-		doc.lcaDiscussion = epd.description;
+		var mass = massInKgOf(epd.product);
+		if (mass.isPresent()) {
+			doc.kgPerDeclaredUnit = new EpdQuantity(
+				mass.getAsDouble(), "kg");
+		}
 
 		// category
 		if (epd.category != null) {
@@ -134,6 +148,65 @@ public final class EpdConverter {
 			}
 		}
 		return map.values();
+	}
+
+	/**
+	 * Tries to infer the mass in kilograms per declared unit.
+	 */
+	public static OptionalDouble massInKgOf(EpdProduct product) {
+		if (product == null
+			|| product.flow == null
+			|| product.property == null
+			|| product.unit == null)
+			return OptionalDouble.empty();
+
+		BiPredicate<String, RefEntity> matches = (name, entity) -> {
+			if (entity == null || entity.name == null)
+				return false;
+			var eName = entity.name.trim();
+			return eName.equalsIgnoreCase(name);
+		};
+
+		Function<FlowProperty, Unit> getKg = prop -> {
+			if (prop.unitGroup == null)
+				return null;
+			for (var unit : prop.unitGroup.units) {
+				if (matches.test("kg", unit))
+					return unit;
+			}
+			return null;
+		};
+
+		// the property of the product is mass
+		if (matches.test("Mass", product.property)) {
+			if (matches.test("kg", product.unit))
+				return OptionalDouble.of(product.amount);
+
+			var kg = getKg.apply(product.property);
+			if (kg == null)
+				return OptionalDouble.empty();
+
+			var amount = product.amount * product.unit.conversionFactor
+				/ kg.conversionFactor;
+			return OptionalDouble.of(amount);
+		}
+
+		// search for Mass and kg
+		var massFac = product.flow.flowPropertyFactors.stream()
+			.filter(f -> matches.test("Mass", f.flowProperty))
+			.findAny()
+			.orElse(null);
+		if (massFac == null || massFac.flowProperty == null)
+			return OptionalDouble.empty();
+		var kg = getKg.apply(massFac.flowProperty);
+		var propFac = product.flow.getFactor(product.property);
+		if (kg == null || propFac == null)
+			return OptionalDouble.empty();
+
+		var amount = product.amount * product.unit.conversionFactor
+			* massFac.conversionFactor
+			/ (product.unit.conversionFactor * propFac.conversionFactor);
+		return OptionalDouble.of(amount);
 	}
 
 	public record Validation(String error) {
