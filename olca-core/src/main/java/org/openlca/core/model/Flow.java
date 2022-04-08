@@ -63,9 +63,7 @@ public class Flow extends RootEntity {
 		Entities.init(flow, name);
 		flow.flowType = type;
 		flow.referenceFlowProperty = property;
-		var factor = new FlowPropertyFactor();
-		factor.conversionFactor = 1.0;
-		factor.flowProperty = property;
+		var factor = FlowPropertyFactor.of(property, 1.0);
 		flow.flowPropertyFactors.add(factor);
 		return flow;
 	}

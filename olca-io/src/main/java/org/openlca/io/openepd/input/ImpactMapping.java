@@ -17,11 +17,9 @@ import org.openlca.util.Strings;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 
-public record ImportMapping(
-	Quantity quantity,
-	Map<String, MethodMapping> methodMappings) {
+public record ImpactMapping(Map<String, MethodMapping> map) {
 
-	public static ImportMapping init(EpdDoc epd, IDatabase db) {
+	public static ImpactMapping init(EpdDoc epd, IDatabase db) {
 
 		// collect the method codes and related indicator keys
 		var codes = new HashMap<String, Set<IndicatorKey>>();
@@ -41,7 +39,7 @@ public record ImportMapping(
 
 		// initialize the method mappings
 		var methods = db.getAll(ImpactMethod.class);
-		var mappings = new HashMap<String, MethodMapping>();
+		var map = new HashMap<String, MethodMapping>();
 		for (var e : codes.entrySet()) {
 			var code = e.getKey();
 			var keys = e.getValue();
@@ -55,11 +53,10 @@ public record ImportMapping(
 			var mapping = method != null
 				? MethodMapping.init(code, method, keys)
 				: MethodMapping.emptyOf(code, keys);
-			mappings.put(code, mapping);
+			map.put(code, mapping);
 		}
 
-		var quantity = Quantity.detect(epd, db);
-		return new ImportMapping(quantity, mappings);
+		return new ImpactMapping(map);
 	}
 
 	public static boolean sameCode(String code1, String code2) {
@@ -69,11 +66,11 @@ public record ImportMapping(
 	}
 
 	public MethodMapping getMethodMapping(String code) {
-		var mapping = methodMappings.get(code);
+		var mapping = map.get(code);
 		if (mapping != null)
 			return mapping;
 		var empty = MethodMapping.emptyOf(code, Collections.emptySet());
-		methodMappings.put(code, empty);
+		map.put(code, empty);
 		return empty;
 	}
 
@@ -83,21 +80,21 @@ public record ImportMapping(
 	}
 
 	public List<String> methodCodes() {
-		return methodMappings.keySet()
+		return map.keySet()
 			.stream()
 			.sorted()
 			.toList();
 	}
 
 	public MethodMapping swapMethod(String code, ImpactMethod method) {
-		var current = methodMappings.get(code);
+		var current = map.get(code);
 		List<IndicatorKey> keys = current != null
 			? current.keys()
 			: Collections.emptyList();
 		var next = method == null
 			? MethodMapping.emptyOf(code, keys)
 			: MethodMapping.init(code, method, keys);
-		methodMappings.put(code, next);
+		map.put(code, next);
 		return next;
 	}
 
@@ -118,7 +115,7 @@ public record ImportMapping(
 	 * Returns true if this mapping contains empty method or indicator mappings.
 	 */
 	public boolean hasEmptyMappings() {
-		for (var m : methodMappings.values()) {
+		for (var m : map.values()) {
 			if (m.isEmpty())
 				return true;
 			for (var i : m.indicatorMappings()) {
@@ -134,7 +131,7 @@ public record ImportMapping(
 		var updatedMethods = new TLongObjectHashMap<ImpactMethod>();
 		var updatedIndicators = new TLongObjectHashMap<ImpactCategory>();
 
-		for (var e : methodMappings.entrySet()) {
+		for (var e : map.entrySet()) {
 			var code = e.getKey();
 			var mapping = e.getValue();
 			if (mapping.isEmpty()) {
@@ -183,8 +180,8 @@ public record ImportMapping(
 			persisted.put(code, new MethodMapping(code, method, indicatorMappings));
 		}
 
-		methodMappings.clear();
-		methodMappings.putAll(persisted);
+		map.clear();
+		map.putAll(persisted);
 	}
 
 }

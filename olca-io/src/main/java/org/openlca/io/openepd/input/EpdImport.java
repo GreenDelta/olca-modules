@@ -13,9 +13,6 @@ import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Epd;
 import org.openlca.core.model.EpdModule;
-import org.openlca.core.model.EpdProduct;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowResult;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ImpactResult;
 import org.openlca.core.model.ModelType;
@@ -32,16 +29,14 @@ public class EpdImport {
 
 	private final IDatabase db;
 	private final EpdDoc epd;
-	private final ImportMapping mapping;
-	private final Quantity quantity;
+	private final ImpactMapping mapping;
 	private final String[] categoryPath;
 	private final ImportLog log;
 
-	public EpdImport(IDatabase db, EpdDoc epd, ImportMapping mapping) {
+	public EpdImport(IDatabase db, EpdDoc epd, ImpactMapping mapping) {
 		this.db = db;
 		this.epd = epd;
 		this.mapping = mapping;
-		this.quantity = mapping.quantity();
 		this.categoryPath = categoryOf(epd).orElse(null);
 		this.log = new ImportLog();
 	}
@@ -52,19 +47,19 @@ public class EpdImport {
 
 	public Epd run() {
 
-		var refFlow = createRefFlow();
+		var refFlow = RefFlow.of(db, epd);
 		var modules = createModules(refFlow);
 
 		var e = new Epd();
 		e.name = epd.productName;
 		e.refId = epd.id;
+		e.product = refFlow.product();
 		e.description = epd.lcaDiscussion;
 		e.modules.addAll(modules);
 		e.urn = "openEPD:" + epd.id;
 		e.category = syncCategory(ModelType.EPD);
 		e.lastChange = System.currentTimeMillis();
-		e.product = EpdProduct.of(refFlow.flow, quantity.amount());
-		e.product.unit = quantity.unit();
+
 
 		e.manufacturer = getActor(epd.manufacturer);
 		e.verifier = getActor(epd.verifier);
@@ -80,19 +75,6 @@ public class EpdImport {
 		return categoryPath == null || categoryPath.length == 0
 			? null
 			: CategoryDao.sync(db, type, categoryPath);
-	}
-
-	private FlowResult createRefFlow() {
-		var product = Flow.product(epd.productName, quantity.property());
-		product.category = syncCategory(ModelType.FLOW);
-		product.description = epd.productDescription;
-		product = db.insert(product);
-		log.imported(product);
-		var refFlow = FlowResult.outputOf(product, quantity.amount());
-		if (quantity.hasUnit()) {
-			refFlow.unit = quantity.unit();
-		}
-		return refFlow;
 	}
 
 	private Actor getActor(EpdOrg org) {
@@ -134,7 +116,7 @@ public class EpdImport {
 		return source;
 	}
 
-	private Collection<EpdModule> createModules(FlowResult refFlow) {
+	private Collection<EpdModule> createModules(RefFlow refFlow) {
 		var modules = new HashMap<String, EpdModule>();
 		for (var result : epd.impactResults) {
 			var methodMapping = mapping.getMethodMapping(result.method());
@@ -161,7 +143,7 @@ public class EpdImport {
 					}
 
 					// get/init the module result
-					var fullName = refFlow.flow.name
+					var fullName = refFlow.name()
 						+ " - " + scopeResult.scope()
 						+ " - " + result.method();
 					var mod = modules.computeIfAbsent(fullName, _k -> {
@@ -186,9 +168,8 @@ public class EpdImport {
 		return modules.values();
 	}
 
-	private Result initResult(String name, FlowResult refFlow,
-		ImpactMethod method) {
-		var qRef = refFlow.copy();
+	private Result initResult(String name, RefFlow refFlow, ImpactMethod method) {
+		var qRef = refFlow.create();
 		var result = Result.of(name);
 		result.impactMethod = method;
 		result.description = "Imported from openEPD: " + epd.id;

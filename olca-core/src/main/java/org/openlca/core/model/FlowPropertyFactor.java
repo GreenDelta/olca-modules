@@ -15,18 +15,29 @@ public class FlowPropertyFactor extends AbstractEntity
 	implements Copyable<FlowPropertyFactor> {
 
 	@Column(name = "conversion_factor")
-	public double conversionFactor = 1d;
+	public double conversionFactor = 1.0;
 
 	@OneToOne
 	@JoinColumn(name = "f_flow_property")
 	public FlowProperty flowProperty;
 
+	public static FlowPropertyFactor of(FlowProperty prop) {
+		return of(prop, 1.0);
+	}
+
+	public static FlowPropertyFactor of(FlowProperty prop, double factor) {
+		var f = new FlowPropertyFactor();
+		f.flowProperty = prop;
+		f.conversionFactor = factor;
+		return f;
+	}
+
 	@Override
 	public FlowPropertyFactor copy() {
-		var factor = new FlowPropertyFactor();
-		factor.conversionFactor = conversionFactor;
-		factor.flowProperty = flowProperty;
-		return factor;
+		var copy = new FlowPropertyFactor();
+		copy.conversionFactor = conversionFactor;
+		copy.flowProperty = flowProperty;
+		return copy;
 	}
 
 }

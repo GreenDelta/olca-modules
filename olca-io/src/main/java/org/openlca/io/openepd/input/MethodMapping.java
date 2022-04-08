@@ -26,7 +26,7 @@ public record MethodMapping(
 		for (var key : keys) {
 			ImpactCategory impact = null;
 			for (var i : method.impactCategories) {
-				if (ImportMapping.sameCode(key.code(), i.code)) {
+				if (ImpactMapping.sameCode(key.code(), i.code)) {
 					impact = i;
 					break;
 				}
