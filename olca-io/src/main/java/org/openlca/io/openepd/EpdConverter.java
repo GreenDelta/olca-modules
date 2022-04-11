@@ -205,7 +205,7 @@ public final class EpdConverter {
 
 		var amount = product.amount * product.unit.conversionFactor
 			* massFac.conversionFactor
-			/ (product.unit.conversionFactor * propFac.conversionFactor);
+			/ (kg.conversionFactor * propFac.conversionFactor);
 		return OptionalDouble.of(amount);
 	}
 

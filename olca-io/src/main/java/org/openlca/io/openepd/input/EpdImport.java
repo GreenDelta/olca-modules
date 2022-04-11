@@ -60,7 +60,6 @@ public class EpdImport {
 		e.category = syncCategory(ModelType.EPD);
 		e.lastChange = System.currentTimeMillis();
 
-
 		e.manufacturer = getActor(epd.manufacturer);
 		e.verifier = getActor(epd.verifier);
 		e.programOperator = getActor(epd.programOperator);
