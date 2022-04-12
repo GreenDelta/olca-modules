@@ -38,7 +38,7 @@ public class Main {
 				var repo = new FileRepository(repoDir)) {
 			var storeFile = new File(tmp, "object-id.store");
 			var store = ObjectIdStore.open(storeFile);
-			var config = new GitConfig(database, store, repo, committer);
+			var config = new GitConfig(database, store, repo);
 			config.checkExisting = false;
 			var writer = new DbWriter(config);
 
@@ -94,7 +94,7 @@ public class Main {
 
 		private DbWriter(GitConfig config) {
 			this.config = config;
-			this.writer = new CommitWriter(config);
+			this.writer = new CommitWriter(config, committer);
 		}
 
 		private void refData(boolean singleCommit) throws IOException {
@@ -144,7 +144,7 @@ public class Main {
 			config.store.save();
 
 			var changes = DiffEntries.workspace(config).stream().map(Change::new).toList();
-			var writer = new CommitWriter(config);
+			var writer = new CommitWriter(config, committer);
 			System.out.println(writer.commit("Updated data", changes));
 		}
 
@@ -168,7 +168,7 @@ public class Main {
 			}
 			config.store.save();
 			var changes = DiffEntries.workspace(config).stream().map(Change::new).toList();
-			var writer = new CommitWriter(config);
+			var writer = new CommitWriter(config, committer);
 			System.out.println(writer.commit("Deleted data", changes));
 		}
 

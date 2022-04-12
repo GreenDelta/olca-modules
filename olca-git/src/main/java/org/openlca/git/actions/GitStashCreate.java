@@ -52,11 +52,11 @@ public class GitStashCreate {
 	public void run() throws IOException {
 		if (git == null || database == null)
 			throw new IllegalStateException("Git repository and database must be set");
-		var config = new GitConfig(database, workspaceIds, git, committer);
+		var config = new GitConfig(database, workspaceIds, git);
 		var changes = DiffEntries.workspace(config).stream().map(Change::new).toList();
 		if (changes.isEmpty())
 			throw new IllegalStateException("No changes found");
-		var writer = new CommitWriter(config);
+		var writer = new CommitWriter(config, committer);
 		writer.stashCommit("Stashed changes", changes);
 		var importHelper = new ImportHelper(git, database, workspaceIds);
 		var toDelete = changes.stream()

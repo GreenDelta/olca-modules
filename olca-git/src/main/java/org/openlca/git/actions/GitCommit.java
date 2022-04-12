@@ -58,13 +58,13 @@ public class GitCommit {
 	public String run() throws IOException {
 		if (git == null || database == null || Strings.nullOrEmpty(message))
 			throw new IllegalStateException("Git repository, database and message must be set");
-		var config = new GitConfig(database, workspaceIds, git, committer);
+		var config = new GitConfig(database, workspaceIds, git);
 		if (changes == null) {
 			if (workspaceIds == null)
 				throw new IllegalStateException("ObjectIdStore must be set when no changes are specified");
 			changes = DiffEntries.workspace(config).stream().map(Change::new).toList();
 		}
-		var writer = new CommitWriter(config);
+		var writer = new CommitWriter(config, committer);
 		return writer.commit(message, changes);
 	}
 

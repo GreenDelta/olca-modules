@@ -133,7 +133,7 @@ public class GitMerge {
 
 	private String createMergeCommit(Commit localCommit, Commit remoteCommit, ImportResult result)
 			throws IOException {
-		var config = new GitConfig(database, workspaceIds, git, committer);
+		var config = new GitConfig(database, workspaceIds, git);
 		var changes = result.merged().stream()
 				.map(r -> new Change(ChangeType.MODIFY, r.path))
 				.collect(Collectors.toList());
@@ -144,7 +144,7 @@ public class GitMerge {
 				changes.add(new Change(ChangeType.DELETE, r.path));
 			}
 		});
-		var commitWriter = new CommitWriter(config);
+		var commitWriter = new CommitWriter(config, committer);
 		var mergeMessage = "Merge remote-tracking branch origin/master";
 		return commitWriter.mergeCommit(mergeMessage, changes, localCommit.id, remoteCommit.id);
 	}

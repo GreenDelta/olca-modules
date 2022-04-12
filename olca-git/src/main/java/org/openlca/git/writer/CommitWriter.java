@@ -37,13 +37,15 @@ public class CommitWriter {
 
 	private static final Logger log = LoggerFactory.getLogger(CommitWriter.class);
 	private final GitConfig config;
+	private final PersonIdent committer;
 	private PackInserter inserter;
 	private Converter converter;
 	private boolean isMergeCommit;
 	private boolean isStashCommit;
 
-	public CommitWriter(GitConfig config) {
+	public CommitWriter(GitConfig config, PersonIdent committer) {
 		this.config = config;
+		this.committer = committer;
 	}
 
 	public String commit(String message, List<Change> changes) throws IOException {
@@ -241,8 +243,8 @@ public class CommitWriter {
 	private ObjectId commit(String message, ObjectId treeId, ObjectId localCommitId, ObjectId remoteCommitId) {
 		try {
 			var commit = new CommitBuilder();
-			commit.setAuthor(config.committer);
-			commit.setCommitter(config.committer);
+			commit.setAuthor(committer);
+			commit.setCommitter(committer);
 			commit.setMessage(message);
 			commit.setEncoding(StandardCharsets.UTF_8);
 			commit.setTreeId(treeId);
@@ -254,9 +256,9 @@ public class CommitWriter {
 			}
 			var commitId = insert(i -> i.insert(commit));
 			if (isStashCommit) {
-				updateRef(Constants.R_STASH, commitId);
+				updateRef(Constants.R_STASH, message, commitId);
 			} else {
-				updateRef(Constants.HEAD, commitId);
+				updateRef(Constants.HEAD, message, commitId);
 			}
 			return commitId;
 		} catch (IOException e) {
@@ -265,14 +267,14 @@ public class CommitWriter {
 		}
 	}
 
-	private void updateRef(String ref, ObjectId commitId) throws IOException {
+	private void updateRef(String ref, String message, ObjectId commitId) throws IOException {
 		var update = config.repo.updateRef(ref);
 		update.setNewObjectId(commitId);
 		if (!isStashCommit) {
 			update.update();
 		} else {
-			update.setRefLogIdent(new PersonIdent("local", "local@localhost"));
-			update.setRefLogMessage("Current stash", false);
+			update.setRefLogIdent(committer);
+			update.setRefLogMessage(message, false);
 			update.setForceRefLog(true);
 			update.forceUpdate();
 		}
