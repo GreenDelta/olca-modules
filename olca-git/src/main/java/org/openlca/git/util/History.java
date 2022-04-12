@@ -40,7 +40,7 @@ public class History {
 	}
 
 	public List<Commit> getBehind() {
-		return getAhead(Constants.REMOTE_REF);
+		return getBehind(Constants.REMOTE_REF);
 	}
 
 	public List<Commit> getBehind(String ref) {
