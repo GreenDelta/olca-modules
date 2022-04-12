@@ -130,12 +130,12 @@ public class Main {
 
 			var deleted = dao.getAll().get(5);
 			dao.delete(deleted);
-			config.store.invalidate(deleted);
+			config.store.remove(deleted);
 
 			var changed = dao.getAll().get(0);
 			changed.description = "changed " + Math.random();
 			dao.update(changed);
-			config.store.invalidate(changed);
+			config.store.remove(changed);
 
 			var newLoc = new Location();
 			newLoc.refId = UUID.randomUUID().toString();
@@ -152,7 +152,7 @@ public class Main {
 			var categoryPath = Categories.pathsOf(config.database);
 			for (var type : REF_DATA_TYPES) {
 				for (var d : Daos.root(config.database, type).getDescriptors()) {
-					config.store.invalidate(categoryPath, d);
+					config.store.remove(categoryPath, d);
 				}
 				if (type == ModelType.CURRENCY) {
 					var dao = new CurrencyDao(config.database);

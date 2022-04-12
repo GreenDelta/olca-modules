@@ -21,7 +21,7 @@ public class GitFetch extends GitRemoteAction<List<Commit>> {
 		this.commits = Commits.of(git);
 	}
 
-	public static GitFetch from(FileRepository git) {
+	public static GitFetch to(FileRepository git) {
 		return new GitFetch(git);
 	}
 

@@ -8,7 +8,6 @@ import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
-import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.model.Reference;
 import org.openlca.git.util.GitUtil;
@@ -30,8 +29,6 @@ public class References {
 	}
 
 	public Reference get(ModelType type, String refId, String commitId) {
-		// TODO check if all() or changed()
-		// TODO efficiency
 		var refs = find().model(type, refId).commit(commitId).all();
 		if (refs.isEmpty())
 			return null;
@@ -65,7 +62,7 @@ public class References {
 		return new Find();
 	}
 
-	private Reference createRef(String prefix, TreeWalk walk, String commitId, int tree) {
+	private Reference createRef(TreeWalk walk, String commitId, int tree) {
 		return new Reference(walk.getPathString(), commitId, walk.getObjectId(tree));
 	}
 
@@ -73,7 +70,6 @@ public class References {
 
 		private String path;
 		private String commitId;
-		private String changedSince;
 		private ModelType type;
 		private String refId;
 
@@ -84,11 +80,6 @@ public class References {
 
 		public Find commit(String commitId) {
 			this.commitId = commitId;
-			return this;
-		}
-
-		public Find changedSince(String commitId) {
-			this.changedSince = commitId;
 			return this;
 		}
 
@@ -120,15 +111,6 @@ public class References {
 				var commitId = commit.getId().name();
 				try (var walk = new TreeWalk(repo)) {
 					var refs = new ArrayList<Reference>();
-					var onlyChanged = changedSince != null;
-					if (changedSince != null) {
-						var previous = commits.getRev(changedSince);
-						if (previous != null) {
-							walk.addTree(previous.getTree());
-						} else {
-							onlyChanged = false;
-						}
-					}
 					walk.addTree(commit.getTree());
 					walk.setRecursive(true);
 					var filter = AndTreeFilter.create(
@@ -140,15 +122,12 @@ public class References {
 					if (type != null && refId != null) {
 						filter = AndTreeFilter.create(filter, new ModelFilter(type, refId));
 					}
-					if (onlyChanged) {
-						filter = AndTreeFilter.create(filter, TreeFilter.ANY_DIFF);
-					}
 					walk.setFilter(filter);
 					while (walk.next()) {
 						if (countOnly) {
 							refs.add(null);
 						} else {
-							refs.add(createRef(null, walk, commitId, onlyChanged ? 1 : 0));
+							refs.add(createRef(walk, commitId, 0));
 						}
 					}
 					return refs;

@@ -23,12 +23,28 @@ public class History {
 		return commits.find().refs(ref).all();
 	}
 
+	public boolean isAhead(Commit commit) {
+		return isAhead(commit, Constants.REMOTE_REF);
+	}
+
+	public boolean isAhead(Commit commit, String ref) {
+		return getAhead(ref).contains(commit);
+	}
+
 	public List<Commit> getAhead() {
-		return getAhead(of(Constants.LOCAL_REF), of(Constants.REMOTE_REF));
+		return getAhead(Constants.REMOTE_REF);
+	}
+
+	public List<Commit> getAhead(String ref) {
+		return getAhead(of(Constants.LOCAL_REF), of(ref));
 	}
 
 	public List<Commit> getBehind() {
-		return getAhead(of(Constants.REMOTE_REF), of(Constants.LOCAL_REF));
+		return getAhead(Constants.REMOTE_REF);
+	}
+
+	public List<Commit> getBehind(String ref) {
+		return getAhead(of(ref), of(Constants.LOCAL_REF));
 	}
 
 	private static List<Commit> getAhead(List<Commit> left, List<Commit> right) {

@@ -154,21 +154,21 @@ public class ObjectIdStore {
 		store.put(path, GitUtil.getBytes(id));
 	}
 
-	public void invalidateRoot() {
+	public void removeRoot() {
 		remove("");
 	}
 
-	public void invalidate(ModelType type) {
+	public void remove(ModelType type) {
 		var path = getPath(type);
 		remove(path);
 	}
 
-	public void invalidate(RootEntity e) {
+	public void remove(RootEntity e) {
 		var path = getPath(e);
 		remove(path);
 	}
 
-	public void invalidate(PathBuilder categoryPath, RootDescriptor d) {
+	public void remove(PathBuilder categoryPath, RootDescriptor d) {
 		var path = getPath(categoryPath, d);
 		remove(path);
 	}
@@ -188,6 +188,10 @@ public class ObjectIdStore {
 		store.remove("");
 	}
 
+	public void clear() {
+		store.clear();
+	}
+	
 	public String getPath(ModelType type) {
 		return getPath(type, null, null);
 	}
