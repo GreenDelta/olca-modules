@@ -40,11 +40,10 @@ public abstract class AbstractEntity {
 			return false;
 		var other = (AbstractEntity) obj;
 		if (this.id == 0L && other.id == 0L) {
-			if (this instanceof RefEntity) {
-				var thisRE = (RefEntity) this;
-				var otherRE = (RefEntity) other;
-				if (thisRE.refId != null)
-					return thisRE.refId.equals(otherRE.refId);
+			if (this instanceof RefEntity thisRef) {
+				var otherRef = (RefEntity) other;
+				if (thisRef.refId != null)
+					return thisRef.refId.equals(otherRef.refId);
 			}
 			return false;
 		}
@@ -55,13 +54,9 @@ public abstract class AbstractEntity {
 	public final int hashCode() {
 		if (id != 0)
 			return Long.hashCode(id);
-		if (this instanceof RefEntity) {
-			var re = (RefEntity) this;
-			if (re.refId != null) {
-				return re.refId.hashCode();
-			}
-		}
-		return super.hashCode();
+		return this instanceof RefEntity ref && ref.refId != null
+			? ref.refId.hashCode()
+			: super.hashCode();
 	}
 
 	@Override
