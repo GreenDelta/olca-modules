@@ -60,7 +60,7 @@ public class DiffEntries {
 				: useHeadAsDefault
 						? Repositories.headCommitOf(repo)
 						: null;
-		if (commit == null) {
+		if (revCommit == null) {
 			walk.addTree(new EmptyTreeIterator());
 		} else {
 			walk.addTree(revCommit.getTree().getId());
