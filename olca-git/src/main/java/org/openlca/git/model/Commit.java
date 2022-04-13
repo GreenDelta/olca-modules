@@ -1,6 +1,8 @@
 package org.openlca.git.model;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -10,7 +12,7 @@ public class Commit {
 	public final String message;
 	public final String user;
 	public final long timestamp;
-	public final String[] parentIds;
+	public final List<String> parentIds;
 
 	public Commit(RevCommit rev) {
 		this.id = rev.getId().getName();
@@ -19,7 +21,7 @@ public class Commit {
 		this.user = rev.getAuthorIdent().getName();
 		this.parentIds = Arrays.stream(rev.getParents())
 				.map(p -> p.getId().name())
-				.toArray(n -> new String[n]);
+				.collect(Collectors.toList());
 	}
 
 	@Override
