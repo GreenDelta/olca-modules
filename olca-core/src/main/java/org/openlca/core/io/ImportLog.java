@@ -1,6 +1,7 @@
 package org.openlca.core.io;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -71,9 +72,10 @@ public final class ImportLog {
 		return count.value;
 	}
 
-	public Set<Message> messages() {
-		var all = new HashSet<>(otherLogs);
-		eachWithDataSet(all::add);
+	public Collection<Message> messages() {
+		var all = new ArrayList<Message>(size());
+		all.addAll(otherLogs);
+		all.addAll(dataSetLogs.valueCollection());
 		return all;
 	}
 
