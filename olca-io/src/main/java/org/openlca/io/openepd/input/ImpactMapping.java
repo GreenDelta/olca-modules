@@ -49,6 +49,10 @@ public record ImpactMapping(Map<String, MethodMapping> map) {
 					method = m;
 					break;
 				}
+				if (sameCode(code, m.name)) {
+					// map by name alternatively but prefer codes
+					method = m;
+				}
 			}
 			var mapping = method != null
 				? MethodMapping.init(code, method, keys)

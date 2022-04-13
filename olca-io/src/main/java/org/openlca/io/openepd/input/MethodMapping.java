@@ -30,6 +30,10 @@ public record MethodMapping(
 					impact = i;
 					break;
 				}
+				if (ImpactMapping.sameCode(key.code(), i.name)) {
+					// map by name alternatively but prefer codes
+					impact = i;
+				}
 			}
 			mappings.add(new IndicatorMapping(key, impact));
 		}
