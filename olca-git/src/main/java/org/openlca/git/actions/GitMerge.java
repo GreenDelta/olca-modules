@@ -145,7 +145,7 @@ public class GitMerge {
 			}
 		});
 		var commitWriter = new CommitWriter(config, committer);
-		var mergeMessage = "Merge remote-tracking branch origin/master";
+		var mergeMessage = "Merge remote-tracking branch";
 		return commitWriter.mergeCommit(mergeMessage, changes, localCommit.id, remoteCommit.id);
 	}
 
