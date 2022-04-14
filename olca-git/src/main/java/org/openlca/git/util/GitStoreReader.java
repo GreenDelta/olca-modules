@@ -31,13 +31,17 @@ public class GitStoreReader implements JsonStoreReader {
 	private final Commit localCommit;
 	private final Commit remoteCommit;
 	private final Categories categories;
-	private final List<Reference> remoteChanges;
+	private final List<? extends ModelRef> remoteChanges;
 	private final ConflictResolver conflictResolver;
 	private final List<Reference> imported = new ArrayList<>();
 	private final List<Reference> merged = new ArrayList<>();
 	private final List<Reference> keepDeleted = new ArrayList<>();
 
-	public GitStoreReader(FileRepository repo, Commit localCommit, Commit remoteCommit,
+	public GitStoreReader(FileRepository repo, Commit remoteCommit, List<Reference> remoteChanges) {
+		this(repo, null, remoteCommit, remoteChanges, null);
+	}
+
+	public GitStoreReader(FileRepository repo, Commit localCommit, Commit remoteCommit, List<Reference> remoteChanges,
 			ConflictResolver conflictResolver) {
 		this.categories = Categories.of(Entries.of(repo), remoteCommit.id);
 		this.references = References.of(repo);
@@ -46,10 +50,7 @@ public class GitStoreReader implements JsonStoreReader {
 		this.localCommit = localCommit;
 		this.remoteCommit = remoteCommit;
 		this.conflictResolver = conflictResolver;
-		this.remoteChanges = references.find()
-				.commit(remoteCommit.id)
-				.changedSince(localCommit != null ? localCommit.id : null)
-				.all();
+		this.remoteChanges = remoteChanges;
 	}
 
 	public boolean contains(ModelType type, String refId) {
@@ -117,7 +118,7 @@ public class GitStoreReader implements JsonStoreReader {
 			imported.add(ref);
 			return remote;
 		}
-		if (resolution.type == ConflictResolutionType.KEEP_LOCAL) {
+		if (resolution.type == ConflictResolutionType.KEEP_LOCAL && localCommit != null) {
 			if (references.get(type, refId, localCommit.id) == null) {
 				keepDeleted.add(ref);
 			}
@@ -156,7 +157,7 @@ public class GitStoreReader implements JsonStoreReader {
 				.toList();
 	}
 
-	public List<Reference> getChanges(ModelType type) {
+	public List<? extends ModelRef> getChanges(ModelType type) {
 		if (type == ModelType.CATEGORY)
 			return Collections.emptyList();
 		return remoteChanges.stream()

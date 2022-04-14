@@ -156,7 +156,7 @@ public class Version {
 				setPartFromString(i, parts, version);
 			return version;
 		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(Version.class);
+			var log = LoggerFactory.getLogger(Version.class);
 			log.error("failed to parse version " + s, e);
 			return new Version(0);
 		}

@@ -1,14 +1,14 @@
 package org.openlca.git.actions;
 
-import org.openlca.git.model.Reference;
+import org.openlca.git.model.ModelRef;
 
 import com.google.gson.JsonObject;
 
 public interface ConflictResolver {
 
-	boolean isConflict(Reference ref);
+	boolean isConflict(ModelRef ref);
 
-	ConflictResolution resolveConflict(Reference ref, JsonObject fromHistory);
+	ConflictResolution resolveConflict(ModelRef ref, JsonObject fromHistory);
 
 	public class ConflictResolution {
 

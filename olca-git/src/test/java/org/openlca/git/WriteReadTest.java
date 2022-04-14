@@ -50,7 +50,7 @@ public class WriteReadTest {
 		assertEquals(1, changes.size());
 
 		// commit it
-		var writer = new CommitWriter(temp.config);
+		var writer = new CommitWriter(temp.config, temp.committer);
 		var commitId = writer.commit("initial commit", changes);
 
 		// get the data set from the repo
@@ -66,16 +66,15 @@ public class WriteReadTest {
 		temp.delete();
 	}
 
-	private record TempConfig(GitConfig config, File dir) {
+	private record TempConfig(GitConfig config, PersonIdent committer, File dir) {
 
 		static TempConfig create() {
 			try {
 				var dir = Files.createTempDirectory("olca-git-test").toFile();
 				var repo = Repositories.open(new File(dir, "repo"));
 				var idStore = ObjectIdStore.open(new File(dir, "id-store"));
-				var committer = new PersonIdent("user", "user@example.com");
-				var config = new GitConfig(Tests.db(), idStore, repo, committer);
-				return new TempConfig(config, dir);
+				var config = new GitConfig(Tests.db(), idStore, repo);
+				return new TempConfig(config, new PersonIdent("user", "user@example.com"), dir);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}

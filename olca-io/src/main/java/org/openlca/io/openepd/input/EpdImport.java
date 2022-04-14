@@ -18,7 +18,6 @@ import org.openlca.core.model.ImpactResult;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.Source;
-import org.openlca.core.model.Version;
 import org.openlca.io.openepd.EpdDoc;
 import org.openlca.io.openepd.EpdOrg;
 import org.openlca.io.openepd.EpdPcr;
@@ -60,7 +59,6 @@ public class EpdImport {
 		e.category = syncCategory(ModelType.EPD);
 		e.lastChange = System.currentTimeMillis();
 
-
 		e.manufacturer = getActor(epd.manufacturer);
 		e.verifier = getActor(epd.verifier);
 		e.programOperator = getActor(epd.programOperator);
@@ -89,7 +87,7 @@ public class EpdImport {
 		actor = Actor.of(org.name);
 		actor.refId = id;
 		actor.website = org.webDomain;
-		actor.address = org.ref;
+		actor.description = org.ref;
 		actor = db.insert(actor);
 		log.imported(actor);
 		return actor;
@@ -110,7 +108,6 @@ public class EpdImport {
 		source = Source.of(pcr.name);
 		source.refId = id;
 		source.url = pcr.ref;
-		source.version = Version.fromString(pcr.version).getValue();
 		source = db.insert(source);
 		log.imported(source);
 		return source;

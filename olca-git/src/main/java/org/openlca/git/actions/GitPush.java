@@ -24,7 +24,7 @@ public class GitPush extends GitRemoteAction<PushResponse> {
 		this.history = History.of(git);
 	}
 
-	public static GitPush to(FileRepository git) {
+	public static GitPush from(FileRepository git) {
 		return new GitPush(git);
 	}
 

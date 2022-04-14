@@ -20,7 +20,7 @@ import org.openlca.jsonld.SchemaVersion;
 import org.openlca.util.Strings;
 
 public class DiffEntries {
-
+	
 	public static List<DiffEntry> workspace(GitConfig config) throws IOException {
 		return workspace(config, null, null);
 	}
@@ -43,8 +43,8 @@ public class DiffEntries {
 
 	public static List<DiffEntry> between(FileRepository repo, Commit left, Commit right) throws IOException {
 		var walk = new TreeWalk(repo);
-		addTree(repo, walk, left, true);
-		addTree(repo, walk, right, true);
+		addTree(repo, walk, left, false);
+		addTree(repo, walk, right, false);
 		walk.setFilter(getPathsFilter(new ArrayList<>()));
 		walk.setRecursive(true);
 		return DiffEntry.scan(walk);
@@ -60,7 +60,7 @@ public class DiffEntries {
 				: useHeadAsDefault
 						? Repositories.headCommitOf(repo)
 						: null;
-		if (commit == null) {
+		if (revCommit == null) {
 			walk.addTree(new EmptyTreeIterator());
 		} else {
 			walk.addTree(revCommit.getTree().getId());

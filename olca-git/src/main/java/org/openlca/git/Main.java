@@ -38,7 +38,7 @@ public class Main {
 				var repo = new FileRepository(repoDir)) {
 			var storeFile = new File(tmp, "object-id.store");
 			var store = ObjectIdStore.open(storeFile);
-			var config = new GitConfig(database, store, repo, committer);
+			var config = new GitConfig(database, store, repo);
 			config.checkExisting = false;
 			var writer = new DbWriter(config);
 
@@ -94,7 +94,7 @@ public class Main {
 
 		private DbWriter(GitConfig config) {
 			this.config = config;
-			this.writer = new CommitWriter(config);
+			this.writer = new CommitWriter(config, committer);
 		}
 
 		private void refData(boolean singleCommit) throws IOException {
@@ -130,12 +130,12 @@ public class Main {
 
 			var deleted = dao.getAll().get(5);
 			dao.delete(deleted);
-			config.store.invalidate(deleted);
+			config.store.remove(deleted);
 
 			var changed = dao.getAll().get(0);
 			changed.description = "changed " + Math.random();
 			dao.update(changed);
-			config.store.invalidate(changed);
+			config.store.remove(changed);
 
 			var newLoc = new Location();
 			newLoc.refId = UUID.randomUUID().toString();
@@ -144,7 +144,7 @@ public class Main {
 			config.store.save();
 
 			var changes = DiffEntries.workspace(config).stream().map(Change::new).toList();
-			var writer = new CommitWriter(config);
+			var writer = new CommitWriter(config, committer);
 			System.out.println(writer.commit("Updated data", changes));
 		}
 
@@ -152,7 +152,7 @@ public class Main {
 			var categoryPath = Categories.pathsOf(config.database);
 			for (var type : REF_DATA_TYPES) {
 				for (var d : Daos.root(config.database, type).getDescriptors()) {
-					config.store.invalidate(categoryPath, d);
+					config.store.remove(categoryPath, d);
 				}
 				if (type == ModelType.CURRENCY) {
 					var dao = new CurrencyDao(config.database);
@@ -168,7 +168,7 @@ public class Main {
 			}
 			config.store.save();
 			var changes = DiffEntries.workspace(config).stream().map(Change::new).toList();
-			var writer = new CommitWriter(config);
+			var writer = new CommitWriter(config, committer);
 			System.out.println(writer.commit("Deleted data", changes));
 		}
 
