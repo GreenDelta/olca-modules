@@ -15,7 +15,7 @@ import org.openlca.core.model.descriptors.NwSetDescriptor;
 
 public class NwSetDescriptorTest {
 
-	private NwSetDao dao = new NwSetDao(Tests.getDb());
+	private final NwSetDao dao = new NwSetDao(Tests.getDb());
 	private NwSet nwSet;
 
 	@Before
@@ -35,21 +35,20 @@ public class NwSetDescriptorTest {
 
 	@Test
 	public void testToDescriptor() {
-		NwSetDescriptor descriptor = (NwSetDescriptor) Descriptor
-				.of(nwSet);
+		var descriptor = Descriptor.of(nwSet);
 		checkDescriptor(descriptor);
 	}
 
 	@Test
 	public void testGetForId() {
-		NwSetDescriptor descriptor = dao.getDescriptor(nwSet.id);
+		var descriptor = dao.getDescriptor(nwSet.id);
 		checkDescriptor(descriptor);
 	}
 
 	@Test
 	public void testGetFromAll() {
 		NwSetDescriptor descriptor = null;
-		for (NwSetDescriptor candidate : dao.getDescriptors()) {
+		for (var candidate : dao.getDescriptors()) {
 			if (candidate.id == nwSet.id)
 				descriptor = candidate;
 		}
@@ -59,8 +58,7 @@ public class NwSetDescriptorTest {
 	@Test
 	public void testGetForIdSet() {
 		NwSetDescriptor descriptor = null;
-		for (NwSetDescriptor candidate : dao.getDescriptors(Collections
-				.singleton(nwSet.id))) {
+		for (var candidate : dao.getDescriptors(Collections.singleton(nwSet.id))) {
 			if (candidate.id == nwSet.id)
 				descriptor = candidate;
 		}

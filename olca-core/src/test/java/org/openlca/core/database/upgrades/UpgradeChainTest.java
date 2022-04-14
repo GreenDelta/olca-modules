@@ -68,6 +68,7 @@ public class UpgradeChainTest {
 		u.dropColumn("tbl_impact_methods", "code");
 		u.dropColumn("tbl_impact_categories", "f_source");
 		u.dropColumn("tbl_impact_categories", "code");
+		u.dropColumn("tbl_impact_categories", "direction");
 		u.dropColumn("tbl_process_links", "provider_type");
 
 		// roll back Upgrade9 & Upgrade10
@@ -193,6 +194,7 @@ public class UpgradeChainTest {
 		assertTrue(u.columnExists("tbl_impact_methods", "code"));
 		assertTrue(u.columnExists("tbl_impact_categories", "f_source"));
 		assertTrue(u.columnExists("tbl_impact_categories", "code"));
+		assertTrue(u.columnExists("tbl_impact_categories", "direction"));
 		assertTrue(u.columnExists("tbl_process_links", "provider_type"));
 
 		// finally, check that we now have the current database version

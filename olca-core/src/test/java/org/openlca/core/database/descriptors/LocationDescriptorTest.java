@@ -12,14 +12,14 @@ public class LocationDescriptorTest {
 	@Test
 	public void test() {
 
-		Location loc = new Location();
+		var loc = new Location();
 		loc.name = "LOC";
 		loc.refId = "LOC";
 		loc.code = "LOC";
 
-		LocationDao dao = new LocationDao(Tests.getDb());
+		var dao = new LocationDao(Tests.getDb());
 		loc = dao.insert(loc);
-		LocationDescriptor d = dao.descriptorMap().get(loc.id);
+		var d = dao.descriptorMap().get(loc.id);
 		dao.delete(loc);
 
 		Assert.assertEquals(loc.name, d.name);

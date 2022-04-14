@@ -29,6 +29,7 @@ public class Upgrade11 implements IUpgrade {
 		u.createColumn("tbl_impact_methods", "code VARCHAR(255)");
 		u.createColumn("tbl_impact_categories", "f_source BIGINT");
 		u.createColumn("tbl_impact_categories", "code VARCHAR(255)");
+		u.createColumn("tbl_impact_categories", "direction VARCHAR(255)");
 
 		u.createTable(
 			"tbl_results",
@@ -122,10 +123,11 @@ public class Upgrade11 implements IUpgrade {
 			"""
 				CREATE TABLE tbl_epd_modules (
 
-				    id         BIGINT NOT NULL,
-				    f_epd      BIGINT,
-				    name       VARCHAR(2048),
-				    f_result   BIGINT
+				    id           BIGINT NOT NULL,
+				    f_epd        BIGINT,
+				    name         VARCHAR(2048),
+				    f_result     BIGINT,
+				    multiplier   DOUBLE
 				)"""
 		);
 	}

@@ -17,10 +17,18 @@ public class EpdModule extends AbstractEntity implements Copyable<EpdModule> {
 	@JoinColumn(name = "f_result")
 	public Result result;
 
+	/**
+	 * The multiplier for the linked result. This scales the result to the
+	 * required amount of this module.
+	 */
+	@Column(name = "multiplier")
+	public double multiplier = 1;
+
 	public static EpdModule of(String name, Result result) {
 		var module = new EpdModule();
 		module.name = name;
 		module.result = result;
+		module.multiplier = 1;
 		return module;
 	}
 
@@ -29,6 +37,7 @@ public class EpdModule extends AbstractEntity implements Copyable<EpdModule> {
 		var copy = new EpdModule();
 		copy.name = name;
 		copy.result = result;
+		copy.multiplier = multiplier;
 		return copy;
 	}
 }

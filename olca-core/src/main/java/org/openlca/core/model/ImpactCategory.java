@@ -6,6 +6,8 @@ import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -33,6 +35,17 @@ public class ImpactCategory extends ParameterizedEntity {
 	@JoinColumn(name = "f_source")
 	public Source source;
 
+	/**
+	 * The impact direction of this category. This field determines which signs
+	 * the factors of this category will get in the characterization matrix. If
+	 * this field is {@code null}, it will be inferred from the direction of the
+	 * flows but this can lead to problems, e.g. when resources are used on the
+	 * output side or emissions on the input side.
+	 */
+	@Column(name = "direction")
+	@Enumerated(EnumType.STRING)
+	public Direction direction;
+
 	public static ImpactCategory of(String name) {
 		return of(name, null);
 	}
@@ -48,6 +61,7 @@ public class ImpactCategory extends ParameterizedEntity {
 	public ImpactCategory copy() {
 		var copy = new ImpactCategory();
 		Entities.copyFields(this, copy);
+		copy.direction = direction;
 		copy.code = code;
 		copy.referenceUnit = referenceUnit;
 		copy.source = source;

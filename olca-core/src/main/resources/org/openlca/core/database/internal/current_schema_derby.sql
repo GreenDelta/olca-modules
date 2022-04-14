@@ -450,9 +450,10 @@ CREATE TABLE tbl_impact_categories (
     library         VARCHAR(255),
     description     CLOB(64 K),
 
-    code          VARCHAR(255),
-    f_source        BIGINT,
+    direction       VARCHAR(255),
+    code            VARCHAR(255),
     reference_unit  VARCHAR(255),
+    f_source        BIGINT,
 
     PRIMARY KEY (id)
 
@@ -798,8 +799,9 @@ CREATE TABLE tbl_epds (
 
 CREATE TABLE tbl_epd_modules (
 
-    id         BIGINT NOT NULL,
-    f_epd      BIGINT,
-    name       VARCHAR(2048),
-    f_result   BIGINT
+    id           BIGINT NOT NULL,
+    f_epd        BIGINT,
+    name         VARCHAR(2048),
+    f_result     BIGINT,
+    multiplier   DOUBLE
 );
