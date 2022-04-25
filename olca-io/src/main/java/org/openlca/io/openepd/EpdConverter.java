@@ -143,7 +143,8 @@ public final class EpdConverter {
 					docResult.indicatorResults().add(docImpact);
 				}
 				var value = EpdMeasurement.of(
-					impact.amount, impact.indicator.referenceUnit);
+					mod.multiplier * impact.amount,
+					impact.indicator.referenceUnit);
 				docImpact.values().add(new EpdScopeValue(mod.name, value));
 			}
 		}
