@@ -16,6 +16,7 @@ record ImpactCategoryWriter(JsonExport exp) implements Writer<ImpactCategory> {
 		Json.put(obj, "code", impact.code);
 		Json.put(obj, "refUnit", impact.referenceUnit);
 		Json.put(obj, "source", exp.handleRef(impact.source));
+		Json.put(obj, "direction", impact.direction);
 		mapImpactFactors(impact, obj);
 		mapParameters(obj, impact);
 		GlobalParameters.sync(impact, exp);

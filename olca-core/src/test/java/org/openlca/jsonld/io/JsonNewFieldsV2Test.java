@@ -59,8 +59,8 @@ public class JsonNewFieldsV2Test {
 		db.delete(process);
 		new JsonImport(store, db).run();
 		var copy = db.get(Process.class, process.refId);
-		assertEquals("some-lib", copy.library);
 		assertEquals("some,tags", copy.tags);
+		assertNull(copy.library);
 	}
 
 	@Test

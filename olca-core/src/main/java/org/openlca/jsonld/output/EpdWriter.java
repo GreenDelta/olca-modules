@@ -31,6 +31,7 @@ record EpdWriter(JsonExport exp) implements Writer<Epd> {
 			for (var mod : epd.modules) {
 				var modObj = new JsonObject();
 				Json.put(modObj, "name", mod.name);
+				Json.put(modObj, "multiplier", mod.multiplier);
 				Json.put(modObj, "result", exp.handleRef(mod.result));
 				modsJson.add(modObj);
 			}

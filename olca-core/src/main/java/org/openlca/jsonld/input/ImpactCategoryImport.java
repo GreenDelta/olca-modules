@@ -1,5 +1,6 @@
 package org.openlca.jsonld.input;
 
+import org.openlca.core.model.Direction;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ModelType;
@@ -29,6 +30,7 @@ class ImpactCategoryImport extends BaseImport<ImpactCategory> {
 		In.mapAtts(json, impact, id, conf);
 		impact.code = Json.getString(json, "code");
 		impact.referenceUnit = Json.getString(json, "refUnit");
+		impact.direction = Json.getEnum(json, "direction", Direction.class);
 		var sourceId = Json.getString(json, "source");
 		if (Strings.notEmpty(sourceId)) {
 			impact.source = SourceImport.run(sourceId, conf);

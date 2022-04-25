@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.openlca.core.io.EntityResolver;
+import org.openlca.core.model.Direction;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
@@ -34,6 +35,7 @@ public record ImpactCategoryReader(EntityResolver resolver)
 		Util.mapBase(impact, json, resolver);
 
 		impact.referenceUnit = Json.getString(json, "refUnit");
+		impact.direction = Json.getEnum(json, "direction", Direction.class);
 		impact.code = Json.getString(json, "code");
 		var sourceId = Json.getString(json, "source");
 		if (Strings.notEmpty(sourceId)) {

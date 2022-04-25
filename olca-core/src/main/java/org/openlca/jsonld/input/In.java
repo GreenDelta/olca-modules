@@ -56,7 +56,6 @@ final class In {
 			entity.category = conf.categories.get(type, path);
 		}
 
-		entity.library = Json.getString(obj, "library");
 		entity.version = getVersion(obj);
 		entity.lastChange = getLastChange(obj);
 

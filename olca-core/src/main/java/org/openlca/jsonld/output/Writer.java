@@ -35,7 +35,6 @@ interface Writer<T extends RefEntity> {
 			if (re.category != null) {
 				Json.put(obj, "category", re.category.toPath());
 			}
-			Json.put(obj, "library", re.library);
 			Json.put(obj, "version", Version.asString(re.version));
 			if (re.lastChange != 0) {
 				var instant = Instant.ofEpochMilli(re.lastChange);

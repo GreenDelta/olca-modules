@@ -78,6 +78,7 @@ class EpdImport extends BaseImport<Epd> {
 			var obj = elem.getAsJsonObject();
 			var module = new EpdModule();
 			module.name = Json.getString(obj, "name");
+			module.multiplier = Json.getDouble(obj, "multiplier", 1.0);
 			var resultId = Json.getRefId(obj, "result");
 			module.result = resultId != null
 				? ResultImport.run(resultId, conf)
