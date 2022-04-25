@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
@@ -76,8 +77,12 @@ public class Ec3Client {
 
 	public Ec3Response putEpd(String id, JsonObject epdDoc) {
 		try {
+			var json = new GsonBuilder()
+				.serializeNulls()
+				.create()
+				.toJson(epdDoc);
 			var bodyStr = HttpRequest.BodyPublishers.ofString(
-				new Gson().toJson(epdDoc), StandardCharsets.UTF_8);
+				json, StandardCharsets.UTF_8);
 			var req = HttpRequest.newBuilder()
 				.uri(URI.create(epdUrl + "epds/" + id))
 				.header("Content-Type", "application/json")
