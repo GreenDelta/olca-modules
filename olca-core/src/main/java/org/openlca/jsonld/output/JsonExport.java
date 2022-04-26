@@ -47,6 +47,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import gnu.trove.set.hash.TLongHashSet;
+import org.openlca.util.Strings;
 
 /**
  * Writes entities to an entity store (e.g. a document or zip file). It also
@@ -57,6 +58,7 @@ public class JsonExport {
 	final IDatabase db;
 	final JsonStoreWriter writer;
 	boolean exportReferences = true;
+	boolean skipLibraryData = true;
 	boolean exportProviders = false;
 
 	private final Map<ModelType, TLongHashSet> visited = new EnumMap<>(ModelType.class);
@@ -79,13 +81,18 @@ public class JsonExport {
 			: null;
 	}
 
-	public JsonExport withDefaultProviders(boolean value) {
-		exportProviders = value;
+	public JsonExport withDefaultProviders(boolean b) {
+		exportProviders = b;
 		return this;
 	}
 
-	public JsonExport withReferences(boolean value) {
-		exportReferences = value;
+	public JsonExport withReferences(boolean b) {
+		exportReferences = b;
+		return this;
+	}
+
+	public JsonExport skipLibraryData(boolean b) {
+		skipLibraryData = b;
 		return this;
 	}
 
@@ -109,15 +116,10 @@ public class JsonExport {
 			return null;
 		if (hasVisited(type, id) || !exportReferences)
 			return refs.get(type, id);
-
 		var dao = Daos.root(db, type);
-		if (dao == null)
-			return null;
-		var entity = dao.getForId(id);
-		if (entity == null)
-			return null;
-		write(entity);
-		return Json.asRef(entity);
+		return dao != null
+			? handleRef(dao.getForId(id))
+			: null;
 	}
 
 	JsonArray handleRefs(List<? extends RootEntity> list) {
@@ -155,6 +157,13 @@ public class JsonExport {
 		if (hasVisited(type, entity.id))
 			return;
 		setVisited(entity);
+
+		// check skip library data
+		if (skipLibraryData && entity instanceof RootEntity re
+			&& Strings.notEmpty(re.library)) {
+			return;
+		}
+
 		Writer<T> w = getWriter(entity);
 		if (w == null) {
 			warn(cb, "no writer found for type " + type, entity);

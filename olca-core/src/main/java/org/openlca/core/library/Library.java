@@ -33,6 +33,7 @@ import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.jsonld.Json;
+import org.openlca.jsonld.ZipStore;
 import org.slf4j.LoggerFactory;
 
 public record Library(File folder) {
@@ -338,5 +339,21 @@ public record Library(File folder) {
 	 */
 	public void mountTo(IDatabase db) {
 		new Mounter(db, this).run();
+	}
+
+	/**
+	 * Opens the zip-file that contains the JSON (meta-) data of this library.
+	 * This file is created if it does not exist yet.
+	 *
+	 * @return the opened meta-data store.
+	 */
+	public ZipStore openJsonZip() {
+		var zip = new File(folder, "meta.zip");
+		try {
+			return ZipStore.open(zip);
+		} catch (IOException e) {
+			throw new RuntimeException(
+				"failed to open library meta data zip: " + zip, e);
+		}
 	}
 }
