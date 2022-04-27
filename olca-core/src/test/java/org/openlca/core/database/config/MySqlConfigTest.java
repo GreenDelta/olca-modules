@@ -1,6 +1,6 @@
 package org.openlca.core.database.config;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -21,7 +21,7 @@ public class MySqlConfigTest {
 			.host("localhost")
 			.port(3306)
 			.user("root")
-			.connect(DataDir.databases());
+			.connect(DataDir.get().getDatabasesDir());
 		assertEquals(IDatabase.CURRENT_VERSION, db.getVersion());
 	}
 

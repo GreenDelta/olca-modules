@@ -10,8 +10,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.openlca.core.DataDir;
-
 /**
  * A library directory is a specific folder where each sub-folder is a library.
  * If a library A in that folder has a dependency to a library B there should be
@@ -20,10 +18,6 @@ import org.openlca.core.DataDir;
  * used as the name of the folder of a library.
  */
 public record LibraryDir(File folder) {
-
-	public static LibraryDir getDefault() {
-		return new LibraryDir(DataDir.libraries());
-	}
 
 	public static LibraryDir of(File dir) {
 		return new LibraryDir(dir);

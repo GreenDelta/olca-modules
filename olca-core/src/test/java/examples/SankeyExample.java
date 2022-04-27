@@ -1,7 +1,6 @@
 package examples;
 
 import org.openlca.core.DataDir;
-import org.openlca.core.database.Derby;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.FullResult;
@@ -10,8 +9,8 @@ import org.openlca.nativelib.NativeLib;
 
 public class SankeyExample {
 	public static void main(String[] args) {
-		NativeLib.loadFrom(DataDir.root());
-		var db = Derby.fromDataDir("ei37-apos");
+		NativeLib.loadFrom(DataDir.get().root());
+		var db = DataDir.get().openDatabase("ei37-apos");
 
 		var system = db.get(
 				ProductSystem.class,

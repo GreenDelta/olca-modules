@@ -75,7 +75,7 @@ public class Main {
 			}
 
 			// check if it is a folder in the openLCA data directory
-			dir = new File(DataDir.databases(), dbDir);
+			dir = new File(DataDir.get().getDatabasesDir(), dbDir);
 			if (dir.exists()) {
 				log.info("Connect to database in {}", dir);
 				return new Derby(dir);
@@ -105,7 +105,7 @@ public class Main {
 		try {
 			var libDir = lib != null
 				? new File(lib)
-				: DataDir.root();
+				: DataDir.get().root();
 			NativeLib.loadFrom(libDir);
 			if (NativeLib.isLoaded()) {
 				log.info("Loaded Julia libraries and solver");

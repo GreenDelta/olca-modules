@@ -25,7 +25,7 @@ public class MatrixExceptionTest {
 
 	@BeforeClass
 	public static void loadNativeLibs() {
-		NativeLib.loadFrom(DataDir.root());
+		NativeLib.loadFrom(DataDir.get().root());
 	}
 
 	@Test(expected = SingularMatrixException.class)

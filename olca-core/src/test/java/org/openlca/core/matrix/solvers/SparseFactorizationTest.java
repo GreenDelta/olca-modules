@@ -17,7 +17,7 @@ public class SparseFactorizationTest {
 
 	@BeforeClass
 	public static void setUp() {
-		NativeLib.loadFrom(DataDir.root());
+		NativeLib.loadFrom(DataDir.get().root());
 	}
 
 	@Before

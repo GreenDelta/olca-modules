@@ -5,9 +5,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
-import gnu.trove.set.hash.TLongHashSet;
+import org.openlca.core.DataDir;
 import org.openlca.core.database.CategoryDao;
-import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -20,6 +19,8 @@ import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Result;
 
+import gnu.trove.set.hash.TLongHashSet;
+
 public class SubResultTree {
 
 	public static void main(String[] args) {
@@ -28,7 +29,7 @@ public class SubResultTree {
 		// in a random tree. To run the example, import Oekobaudat as
 		// ILCD+EPD results into a database.
 
-		var db = Derby.fromDataDir("oekobaudat");
+		var db = DataDir.get().openDatabase("oekobaudat");
 
 		// the Oekobaudat results have no methods; so first we tag the results with
 		// the same indicator set with the same method.

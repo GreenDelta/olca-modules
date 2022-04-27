@@ -98,7 +98,7 @@ public record ResultProviderTest(ResultProvider provider) {
 
 		// write the matrix data as library and create a
 		// foreground system
-		libDir = new File(DataDir.libraries(), libID);
+		libDir = DataDir.get().getLibraryDir().folder();
 		Library.create(db, data.copy(), libDir);
 		var foreground = new MatrixData();
 		foreground.techIndex = new TechIndex(data.techIndex.getRefFlow());

@@ -1,5 +1,7 @@
 package org.openlca.core.matrix.solvers;
 
+import static org.junit.Assume.assumeTrue;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -9,15 +11,13 @@ import org.openlca.core.DataDir;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.nativelib.NativeLib;
 
-import static org.junit.Assume.assumeTrue;
-
 public class DenseFactorizationTest {
 
 	private DenseFactorization factorization;
 
 	@BeforeClass
 	public static void setup() {
-		NativeLib.loadFrom(DataDir.root());
+		NativeLib.loadFrom(DataDir.get().root());
 	}
 
 	@Before

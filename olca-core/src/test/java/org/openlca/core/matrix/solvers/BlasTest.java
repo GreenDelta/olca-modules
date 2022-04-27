@@ -1,5 +1,8 @@
 package org.openlca.core.matrix.solvers;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeTrue;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -10,14 +13,11 @@ import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.julia.Julia;
 import org.openlca.nativelib.NativeLib;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
-
 public class BlasTest {
 
 	@BeforeClass
 	public static void setup() {
-		NativeLib.loadFrom(DataDir.root());
+		NativeLib.loadFrom(DataDir.get().root());
 	}
 
 	@Before

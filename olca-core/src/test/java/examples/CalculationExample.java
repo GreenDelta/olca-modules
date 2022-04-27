@@ -1,7 +1,6 @@
 package examples;
 
 import org.openlca.core.DataDir;
-import org.openlca.core.database.Derby;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.CalculationSetup;
@@ -11,8 +10,8 @@ import org.openlca.nativelib.NativeLib;
 public class CalculationExample {
 
 	public static void main(String[] args) {
-		NativeLib.loadFrom(DataDir.root());
-		try (var db = Derby.fromDataDir("ei22")) {
+		NativeLib.loadFrom(DataDir.get().root());
+		try (var db = DataDir.get().openDatabase("ei22")) {
 			var system = db.get(ProductSystem.class,
 				"7d1cbce0-b5b3-47ba-95b5-014ab3c7f569");
 			var method = new ImpactMethodDao(db)

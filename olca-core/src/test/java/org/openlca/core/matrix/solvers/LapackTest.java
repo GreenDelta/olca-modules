@@ -1,5 +1,8 @@
 package org.openlca.core.matrix.solvers;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -8,14 +11,11 @@ import org.openlca.core.DataDir;
 import org.openlca.julia.Julia;
 import org.openlca.nativelib.NativeLib;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeTrue;
-
 public class LapackTest {
 
 	@BeforeClass
 	public static void setUp() {
-		NativeLib.loadFrom(DataDir.root());
+		NativeLib.loadFrom(DataDir.get().root());
 	}
 
 	@Before

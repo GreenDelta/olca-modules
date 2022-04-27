@@ -1,7 +1,6 @@
 package examples;
 
 import org.openlca.core.DataDir;
-import org.openlca.core.database.Derby;
 import org.openlca.core.math.Simulator;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ImpactMethod;
@@ -14,7 +13,7 @@ import org.openlca.nativelib.NativeLib;
 public class SimulatorExample {
 
 	public static void main(String[] args) {
-		var db = Derby.fromDataDir("ecoinvent_2_2_unit");
+		var db = DataDir.get().openDatabase("ecoinvent_2_2_unit");
 		var system = db.get(ProductSystem.class,
 			"53f9b9db-139f-4617-bf2b-8fc715b3cd16");
 		var method = db.get(ImpactMethod.class,
@@ -30,7 +29,7 @@ public class SimulatorExample {
 		}
 		System.out.println("Tacking results of " + gwp.name);
 
-		NativeLib.loadFrom(DataDir.root());
+		NativeLib.loadFrom(DataDir.get().root());
 
 		Simulator simulator = Simulator.create(setup, db);
 

@@ -9,7 +9,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.openlca.core.DataDir;
 import org.openlca.core.matrix.format.CSCMatrix;
-import org.openlca.core.matrix.solvers.Umfpack;
 import org.openlca.julia.Julia;
 import org.openlca.nativelib.Module;
 import org.openlca.nativelib.NativeLib;
@@ -18,7 +17,7 @@ public class UmfpackTest {
 
 	@BeforeClass
 	public static void setUp() {
-		NativeLib.loadFrom(DataDir.root());
+		NativeLib.loadFrom(DataDir.get().root());
 	}
 
 	@Before

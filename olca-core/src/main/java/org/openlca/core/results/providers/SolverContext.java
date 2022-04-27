@@ -54,7 +54,7 @@ public class SolverContext {
 
 	public LibraryDir libraryDir() {
 		return libraryDir == null
-			? DataDir.getLibraryDir()
+			? DataDir.get().getLibraryDir()
 			: libraryDir;
 	}
 

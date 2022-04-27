@@ -1,7 +1,6 @@
 package examples;
 
 import org.openlca.core.DataDir;
-import org.openlca.core.database.Derby;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.results.FullResult;
@@ -14,8 +13,8 @@ import org.openlca.nativelib.NativeLib;
 public class DBMatrixExample {
 
 	public static void main(String[] args) {
-		NativeLib.loadFrom(DataDir.root());
-		try (var db = Derby.fromDataDir("ei2")) {
+		NativeLib.loadFrom(DataDir.get().root());
+		try (var db = DataDir.get().openDatabase("ei2")) {
 			System.out.println("build it");
 			long start = System.currentTimeMillis();
 			var techIndex = TechIndex.of(db);

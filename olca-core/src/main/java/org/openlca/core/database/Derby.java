@@ -20,16 +20,17 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-import com.zaxxer.hikari.HikariDataSource;
-import jakarta.persistence.EntityManagerFactory;
 import org.eclipse.persistence.jpa.PersistenceProvider;
-import org.openlca.core.DataDir;
 import org.openlca.core.database.internal.Resource;
 import org.openlca.core.database.internal.ScriptRunner;
 import org.openlca.util.Dirs;
 import org.openlca.util.Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.zaxxer.hikari.HikariDataSource;
+
+import jakarta.persistence.EntityManagerFactory;
 
 public class Derby extends Notifiable implements IDatabase {
 
@@ -103,15 +104,6 @@ public class Derby extends Notifiable implements IDatabase {
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * Creates or opens a database with the given name in the default database
-	 * folder.
-	 */
-	public static Derby fromDataDir(String name) {
-		var dbDir = new File(DataDir.databases(), name);
-		return new Derby(dbDir);
 	}
 
 	private Derby(String name) {

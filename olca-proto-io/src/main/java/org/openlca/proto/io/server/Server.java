@@ -3,9 +3,9 @@ package org.openlca.proto.io.server;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.DataDir;
 import org.openlca.core.database.Derby;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.upgrades.Upgrades;
 import org.openlca.nativelib.NativeLib;
 import org.slf4j.LoggerFactory;
@@ -104,7 +104,7 @@ public class Server {
 
 			// try to load the native libraries
 			if (nativeArg == null) {
-				var deaultDir = DataDir.root();
+				var deaultDir = DataDir.get().root();
 				System.out.println("Load native libraries from " + deaultDir);
 				NativeLib.loadFrom(deaultDir);
 			} else {
@@ -126,7 +126,7 @@ public class Server {
 				System.out.println("Open default database " + defaultDb);
 				db = new Derby(defaultDb);
 			} else {
-				var dataDbDir = DataDir.getDatabaseDir(dbArg);
+				var dataDbDir = DataDir.get().getDatabaseDir(dbArg);
 				if (dataDbDir.exists()) {
 					System.out.println("Open database " + dataDbDir);
 					db = new Derby(dataDbDir);

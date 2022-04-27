@@ -1,14 +1,14 @@
 package examples;
 
+import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.Derby;
 import org.openlca.core.database.upgrades.Upgrades;
 import org.openlca.core.results.EachOneResult;
 
 public class EachOneResultExample {
 
 	public static void main(String[] args) {
-		try (var db = Derby.fromDataDir("ei22")) {
+		try (var db = DataDir.get().openDatabase("ei22")) {
 			if (db.getVersion() < IDatabase.CURRENT_VERSION) {
 				Upgrades.on(db);
 			}

@@ -21,8 +21,8 @@ public class LibraryDownloadTest {
 	@Ignore
 	public void testFetchSparseLibs() throws Exception {
 		assertFalse(NativeLib.isLoaded());
-		NativeLib.download(DataDir.root(), Module.UMFPACK);
-		NativeLib.loadFrom(DataDir.root());
+		NativeLib.download(DataDir.get().root(), Module.UMFPACK);
+		NativeLib.loadFrom(DataDir.get().root());
 		assertTrue(NativeLib.isLoaded());
 		assertTrue(NativeLib.isLoaded(Module.BLAS));
 		assertTrue(NativeLib.isLoaded(Module.UMFPACK));

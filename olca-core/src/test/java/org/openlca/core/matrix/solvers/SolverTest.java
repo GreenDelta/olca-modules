@@ -27,7 +27,7 @@ public class SolverTest {
 
 	@BeforeClass
 	public static void setup() {
-		NativeLib.loadFrom(DataDir.root());
+		NativeLib.loadFrom(DataDir.get().root());
 	}
 
 	private final Logger log = LoggerFactory.getLogger(SolverTest.class);

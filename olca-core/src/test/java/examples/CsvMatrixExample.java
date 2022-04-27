@@ -2,9 +2,9 @@ package examples;
 
 import java.io.File;
 
-import org.openlca.core.database.Derby;
-import org.openlca.core.matrix.index.ImpactIndex;
+import org.openlca.core.DataDir;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.io.MatrixExport;
 import org.openlca.core.model.ProductSystem;
@@ -18,7 +18,7 @@ public class CsvMatrixExample {
 
 	public static void main(String[] args) {
 
-		try (var db = Derby.fromDataDir("ei2")) {
+		try (var db = DataDir.get().openDatabase("ei2")) {
 
 			// build and calculate the system
 			var system = db.get(ProductSystem.class,
