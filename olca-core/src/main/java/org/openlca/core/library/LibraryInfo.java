@@ -17,19 +17,8 @@ import org.openlca.util.Strings;
  */
 public class LibraryInfo {
 
-	/**
-	 * like https://docs.npmjs.com/files/package.json#name
-	 */
 	private String name;
-
-	/**
-	 * like https://docs.npmjs.com/files/package.json#version
-	 */
 	private String version;
-
-	/**
-	 * like https://docs.npmjs.com/files/package.json#description-1
-	 */
 	private String description;
 
 	/**
@@ -41,8 +30,6 @@ public class LibraryInfo {
 
 	/**
 	 * A list of library IDs this library depends on.
-	 * <p>
-	 * like https://docs.npmjs.com/files/package.json#dependencies
 	 */
 	private final List<String> dependencies = new ArrayList<>();
 

@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
@@ -14,9 +15,9 @@ import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.openlca.core.DataDir;
 import org.openlca.core.Tests;
 import org.openlca.core.library.Library;
+import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.JavaMatrix;
 import org.openlca.core.matrix.index.EnviFlow;
@@ -38,13 +39,13 @@ import org.openlca.util.Dirs;
 @RunWith(Parameterized.class)
 public record ResultProviderTest(ResultProvider provider) {
 
-	private static File libDir;
+	private static LibraryDir libDir;
 
 	@Parameterized.Parameters
 	public static Collection<ResultProvider> setup() throws Exception {
 
 		var db = Tests.getDb();
-		var libID = "test_lib_01.00.000";
+		var libID = "test_lib 1.0";
 
 		var units = db.insert(UnitGroup.of("Mass units", Unit.of("kg")));
 		var mass = db.insert(FlowProperty.of("Mass", units));
@@ -62,8 +63,8 @@ public record ResultProviderTest(ResultProvider provider) {
 		data.techIndex.setDemand(1.0);
 		data.techIndex.add(product.apply(2));
 		data.techMatrix = JavaMatrix.of(new double[][]{
-				{0.5, -0.5},
-				{-0.5, 1.0},
+			{0.5, -0.5},
+			{-0.5, 1.0},
 		});
 
 		// env. flows
@@ -75,8 +76,8 @@ public record ResultProviderTest(ResultProvider provider) {
 		data.enviIndex.add(EnviFlow.outputOf(flow.apply(1)));
 		data.enviIndex.add(EnviFlow.inputOf(flow.apply(2)));
 		data.enviMatrix = JavaMatrix.of(new double[][]{
-				{1.0, 2.0},
-				{-3.0, -3.0},
+			{1.0, 2.0},
+			{-3.0, -3.0},
 		});
 
 		// impact factors
@@ -91,15 +92,17 @@ public record ResultProviderTest(ResultProvider provider) {
 		data.impactIndex.add(impact.apply(2));
 		data.impactIndex.add(impact.apply(3));
 		data.impactMatrix = JavaMatrix.of(new double[][]{
-				{1.0, 0.0},
-				{0.0, -1.0},
-				{2.0, -0.5},
+			{1.0, 0.0},
+			{0.0, -1.0},
+			{2.0, -0.5},
 		});
 
 		// write the matrix data as library and create a
 		// foreground system
-		libDir = DataDir.get().getLibraryDir().folder();
-		Library.create(db, data.copy(), libDir);
+		var libRoot = Files.createTempDirectory("_olca_lib").toFile();
+		libDir = LibraryDir.of(libRoot);
+
+		Library.create(db, data.copy(), new File(libRoot, libID));
 		var foreground = new MatrixData();
 		foreground.techIndex = new TechIndex(data.techIndex.getRefFlow());
 		foreground.techIndex.setDemand(1.0);
@@ -108,16 +111,18 @@ public record ResultProviderTest(ResultProvider provider) {
 
 		// create the result providers
 		return List.of(
-				EagerResultProvider.create(SolverContext.of(data)),
-				LazyResultProvider.create(SolverContext.of(data)),
-				LazyLibraryProvider.of(SolverContext.of(db, foreground))
+			EagerResultProvider.create(SolverContext.of(data)),
+			LazyResultProvider.create(SolverContext.of(data)),
+			LazyLibraryProvider.of(
+				SolverContext.of(db, foreground)
+					.libraryDir(libDir))
 		);
 	}
 
 	@AfterClass
 	public static void tearDown() {
 		Tests.getDb().clear();
-		Dirs.delete(libDir);
+		Dirs.delete(libDir.folder());
 	}
 
 	@Test
@@ -133,9 +138,9 @@ public record ResultProviderTest(ResultProvider provider) {
 	public void testScalingVector() {
 		assumeTrue(noLibrary());
 		assertArrayEquals(
-				d(4, 2),
-				provider.scalingVector(),
-				1e-10);
+			d(4, 2),
+			provider.scalingVector(),
+			1e-10);
 	}
 
 	@Test
@@ -148,9 +153,9 @@ public record ResultProviderTest(ResultProvider provider) {
 	@Test
 	public void testTotalRequirements() {
 		assertArrayEquals(
-				d(2, 2),
-				provider.totalRequirements(),
-				1e-10);
+			d(2, 2),
+			provider.totalRequirements(),
+			1e-10);
 	}
 
 	@Test
@@ -170,15 +175,15 @@ public record ResultProviderTest(ResultProvider provider) {
 	public void testTechValueOf() {
 		assumeTrue(noLibrary());
 		double[][] expected = {
-				{0.5, -0.5},
-				{-0.5, 1.0},
+			{0.5, -0.5},
+			{-0.5, 1.0},
 		};
 		for (int row = 0; row < expected.length; row++) {
 			for (int col = 0; col < expected[row].length; col++) {
 				assertEquals(
-						expected[row][col],
-						provider.techValueOf(row, col),
-						1e-10);
+					expected[row][col],
+					provider.techValueOf(row, col),
+					1e-10);
 			}
 		}
 	}
@@ -186,15 +191,15 @@ public record ResultProviderTest(ResultProvider provider) {
 	@Test
 	public void testScaledTechValueOf() {
 		double[][] expected = {
-				{2.0, -1.0},
-				{-2.0, 2.0},
+			{2.0, -1.0},
+			{-2.0, 2.0},
 		};
 		for (int row = 0; row < expected.length; row++) {
 			for (int col = 0; col < expected[row].length; col++) {
 				assertEquals(
-						expected[row][col],
-						provider.scaledTechValueOf(row, col),
-						1e-20);
+					expected[row][col],
+					provider.scaledTechValueOf(row, col),
+					1e-20);
 			}
 		}
 	}
@@ -230,15 +235,15 @@ public record ResultProviderTest(ResultProvider provider) {
 	public void testUnscaledFlowOf() {
 		assumeTrue(noLibrary());
 		double[][] expected = {
-				{1.0, 2.0},
-				{-3, -3.0}
+			{1.0, 2.0},
+			{-3, -3.0}
 		};
 		for (int flow = 0; flow < expected.length; flow++) {
 			for (int product = 0; product < expected[flow].length; product++) {
 				assertEquals(
-						expected[flow][product],
-						provider.unscaledFlowOf(flow, product),
-						1e-10);
+					expected[flow][product],
+					provider.unscaledFlowOf(flow, product),
+					1e-10);
 			}
 		}
 	}
@@ -252,15 +257,15 @@ public record ResultProviderTest(ResultProvider provider) {
 	@Test
 	public void testDirectFlowOf() {
 		double[][] expected = {
-				{4.0, 4.0},
-				{-12.0, -6.0}
+			{4.0, 4.0},
+			{-12.0, -6.0}
 		};
 		for (int flow = 0; flow < expected.length; flow++) {
 			for (int product = 0; product < expected[flow].length; product++) {
 				assertEquals(
-						expected[flow][product],
-						provider.directFlowOf(flow, product),
-						1e-10);
+					expected[flow][product],
+					provider.directFlowOf(flow, product),
+					1e-10);
 			}
 		}
 	}
@@ -274,15 +279,15 @@ public record ResultProviderTest(ResultProvider provider) {
 	@Test
 	public void testTotalFlowOfOne() {
 		double[][] expected = {
-				{8, 6},
-				{-18, -12}
+			{8, 6},
+			{-18, -12}
 		};
 		for (int flow = 0; flow < expected.length; flow++) {
 			for (int product = 0; product < expected[flow].length; product++) {
 				assertEquals(
-						expected[flow][product],
-						provider.totalFlowOfOne(flow, product),
-						1e-10);
+					expected[flow][product],
+					provider.totalFlowOfOne(flow, product),
+					1e-10);
 			}
 		}
 	}
@@ -296,15 +301,15 @@ public record ResultProviderTest(ResultProvider provider) {
 	@Test
 	public void totalFlowOf() {
 		double[][] expected = {
-				{8, 6},
-				{-18, -12}
+			{8, 6},
+			{-18, -12}
 		};
 		for (int flow = 0; flow < expected.length; flow++) {
 			for (int product = 0; product < expected[flow].length; product++) {
 				assertEquals(
-						expected[flow][product],
-						provider.totalFlowOf(flow, product),
-						1e-10);
+					expected[flow][product],
+					provider.totalFlowOf(flow, product),
+					1e-10);
 			}
 		}
 	}
@@ -312,36 +317,36 @@ public record ResultProviderTest(ResultProvider provider) {
 	@Test
 	public void testTotalFlows() {
 		assertArrayEquals(
-				d(8, -18),
-				provider.totalFlows(),
-				1e-10);
+			d(8, -18),
+			provider.totalFlows(),
+			1e-10);
 	}
 
 	@Test
 	public void testImpactFactorsOf() {
 		assertArrayEquals(
-				d(1, 0, 2),
-				provider.impactFactorsOf(0),
-				1e-10);
+			d(1, 0, 2),
+			provider.impactFactorsOf(0),
+			1e-10);
 		assertArrayEquals(
-				d(0, -1, -0.5),
-				provider.impactFactorsOf(1),
-				1e-10);
+			d(0, -1, -0.5),
+			provider.impactFactorsOf(1),
+			1e-10);
 	}
 
 	@Test
 	public void testImpactFactorOf() {
 		double[][] expected = {
-				{1.0, 0.0},
-				{0.0, -1.0},
-				{2.0, -0.5},
+			{1.0, 0.0},
+			{0.0, -1.0},
+			{2.0, -0.5},
 		};
 		for (int impact = 0; impact < expected.length; impact++) {
 			for (int flow = 0; flow < expected[impact].length; flow++) {
 				assertEquals(
-						expected[impact][flow],
-						provider.impactFactorOf(impact, flow),
-						1e-10);
+					expected[impact][flow],
+					provider.impactFactorOf(impact, flow),
+					1e-10);
 			}
 		}
 	}
@@ -349,24 +354,24 @@ public record ResultProviderTest(ResultProvider provider) {
 	@Test
 	public void testFlowImpactsOf() {
 		assertArrayEquals(
-				d(8, 0, 16), provider.flowImpactsOf(0), 1e-10);
+			d(8, 0, 16), provider.flowImpactsOf(0), 1e-10);
 		assertArrayEquals(
-				d(0, 18, 9), provider.flowImpactsOf(1), 1e-10);
+			d(0, 18, 9), provider.flowImpactsOf(1), 1e-10);
 	}
 
 	@Test
 	public void testFlowImpactOf() {
 		double[][] expected = new double[][]{
-				{8.0, 0.0},
-				{0.0, 18.0},
-				{16.0, 9.0},
+			{8.0, 0.0},
+			{0.0, 18.0},
+			{16.0, 9.0},
 		};
 		for (int impact = 0; impact < expected.length; impact++) {
 			for (int flow = 0; flow < expected[impact].length; flow++) {
 				assertEquals(
-						expected[impact][flow],
-						provider.flowImpactOf(impact, flow),
-						1e-10);
+					expected[impact][flow],
+					provider.flowImpactOf(impact, flow),
+					1e-10);
 			}
 		}
 	}
@@ -374,28 +379,28 @@ public record ResultProviderTest(ResultProvider provider) {
 	@Test
 	public void testDirectImpactsOf() {
 		assertArrayEquals(
-				d(4, 12, 14),
-				provider.directImpactsOf(0),
-				1e-10);
+			d(4, 12, 14),
+			provider.directImpactsOf(0),
+			1e-10);
 		assertArrayEquals(
-				d(4, 6, 11),
-				provider.directImpactsOf(1),
-				1e-10);
+			d(4, 6, 11),
+			provider.directImpactsOf(1),
+			1e-10);
 	}
 
 	@Test
 	public void testDirectImpactOf() {
 		double[][] expected = new double[][]{
-				{4.0, 4.0},
-				{12.0, 6.0},
-				{14.0, 11.0},
+			{4.0, 4.0},
+			{12.0, 6.0},
+			{14.0, 11.0},
 		};
 		for (int impact = 0; impact < expected.length; impact++) {
 			for (int product = 0; product < expected[impact].length; product++) {
 				assertEquals(
-						expected[impact][product],
-						provider.directImpactOf(impact, product),
-						1e-10);
+					expected[impact][product],
+					provider.directImpactOf(impact, product),
+					1e-10);
 			}
 		}
 	}
@@ -403,28 +408,28 @@ public record ResultProviderTest(ResultProvider provider) {
 	@Test
 	public void testTotalImpactsOfOne() {
 		assertArrayEquals(
-				d(8, 18, 25),
-				provider.totalImpactsOfOne(0),
-				1e-10);
+			d(8, 18, 25),
+			provider.totalImpactsOfOne(0),
+			1e-10);
 		assertArrayEquals(
-				d(6, 12, 18),
-				provider.totalImpactsOfOne(1),
-				1e-10);
+			d(6, 12, 18),
+			provider.totalImpactsOfOne(1),
+			1e-10);
 	}
 
 	@Test
 	public void testTotalImpactOfOne() {
 		double[][] expected = new double[][]{
-				{8.0, 6.0},
-				{18.0, 12.0},
-				{25.0, 18.0},
+			{8.0, 6.0},
+			{18.0, 12.0},
+			{25.0, 18.0},
 		};
 		for (int impact = 0; impact < expected.length; impact++) {
 			for (int product = 0; product < expected[impact].length; product++) {
 				assertEquals(
-						expected[impact][product],
-						provider.totalImpactOfOne(impact, product),
-						1e-10);
+					expected[impact][product],
+					provider.totalImpactOfOne(impact, product),
+					1e-10);
 			}
 		}
 	}
@@ -432,28 +437,28 @@ public record ResultProviderTest(ResultProvider provider) {
 	@Test
 	public void testTotalImpactsOf() {
 		assertArrayEquals(
-				d(8, 18, 25),
-				provider.totalImpactsOf(0),
-				1e-10);
+			d(8, 18, 25),
+			provider.totalImpactsOf(0),
+			1e-10);
 		assertArrayEquals(
-				d(6, 12, 18),
-				provider.totalImpactsOf(1),
-				1e-10);
+			d(6, 12, 18),
+			provider.totalImpactsOf(1),
+			1e-10);
 	}
 
 	@Test
 	public void testTotalImpactOf() {
 		double[][] expected = new double[][]{
-				{8.0, 6.0},
-				{18.0, 12.0},
-				{25.0, 18.0},
+			{8.0, 6.0},
+			{18.0, 12.0},
+			{25.0, 18.0},
 		};
 		for (int impact = 0; impact < expected.length; impact++) {
 			for (int product = 0; product < expected[impact].length; product++) {
 				assertEquals(
-						expected[impact][product],
-						provider.totalImpactOf(impact, product),
-						1e-10);
+					expected[impact][product],
+					provider.totalImpactOf(impact, product),
+					1e-10);
 			}
 		}
 	}
@@ -461,9 +466,9 @@ public record ResultProviderTest(ResultProvider provider) {
 	@Test
 	public void testTotalImpacts() {
 		assertArrayEquals(
-				d(8, 18, 25),
-				provider.totalImpacts(),
-				1e-10);
+			d(8, 18, 25),
+			provider.totalImpacts(),
+			1e-10);
 	}
 
 	private double[] d(double... values) {

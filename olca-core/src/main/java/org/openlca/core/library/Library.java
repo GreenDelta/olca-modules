@@ -64,7 +64,7 @@ public record Library(File folder) {
 	 */
 	public static Library create(IDatabase db, MatrixData data, File folder) {
 		var fullName = folder.getName();
-		var nameParts = fullName.split("_");
+		var nameParts = fullName.split(" ");
 		var versionPart = nameParts.length == 1
 			? null
 			: nameParts[nameParts.length - 1];
@@ -74,6 +74,7 @@ public record Library(File folder) {
 		if (versionPart != null) {
 			name = fullName.substring(0,
 				fullName.length() - versionPart.length() - 1);
+			// TODO: check that the version matches a dd.??.??? pattern
 			version = Version.format(versionPart);
 		}
 
