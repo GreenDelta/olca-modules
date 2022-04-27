@@ -65,6 +65,9 @@ public final class EpdConverter {
 		doc.isPrivate = true;
 		doc.version = 1;
 		doc.productName = epd.name;
+		if (epd.product != null && epd.product.flow != null) {
+			doc.productDescription = epd.product.flow.description;
+		}
 		doc.lcaDiscussion = epd.description;
 
 		// declared unit
