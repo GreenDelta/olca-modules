@@ -172,8 +172,8 @@ public class Json {
 			: OptionalDouble.of(elem.getAsDouble());
 	}
 
-	public static boolean getBool(JsonObject obj,
-																String property, boolean defaultVal) {
+	public static boolean getBool(
+		JsonObject obj, String property, boolean defaultVal) {
 		if (obj == null || property == null)
 			return defaultVal;
 		JsonElement elem = obj.get(property);
@@ -217,8 +217,8 @@ public class Json {
 		}
 	}
 
-	public static <T extends Enum<T>> T getEnum(JsonObject obj,
-																							String property, Class<T> enumClass) {
+	public static <T extends Enum<T>> T getEnum(
+		JsonObject obj, String property, Class<T> enumClass) {
 		String value = getString(obj, property);
 		return Enums.getValue(value, enumClass);
 	}
