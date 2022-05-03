@@ -29,7 +29,7 @@ public class Main {
 	private static final File tmp = new File("C:/Users/Sebastian/test/tmp");
 
 	public static void main(String[] args) throws IOException {
-		var dbDir = new File(DataDir.databases(), db);
+		var dbDir = DataDir.get().getDatabasesDir();
 		if (tmp.exists()) {
 			delete(tmp);
 		}
