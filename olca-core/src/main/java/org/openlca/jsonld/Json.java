@@ -92,7 +92,7 @@ public class Json {
 	 * Return the double value of the given property.
 	 */
 	public static double getDouble(JsonObject obj,
-		String property, double defaultVal) {
+																 String property, double defaultVal) {
 		if (obj == null || property == null)
 			return defaultVal;
 		JsonElement elem = obj.get(property);
@@ -173,7 +173,7 @@ public class Json {
 	}
 
 	public static boolean getBool(JsonObject obj,
-		String property, boolean defaultVal) {
+																String property, boolean defaultVal) {
 		if (obj == null || property == null)
 			return defaultVal;
 		JsonElement elem = obj.get(property);
@@ -218,7 +218,7 @@ public class Json {
 	}
 
 	public static <T extends Enum<T>> T getEnum(JsonObject obj,
-		String property, Class<T> enumClass) {
+																							String property, Class<T> enumClass) {
 		String value = getString(obj, property);
 		return Enums.getValue(value, enumClass);
 	}
@@ -286,6 +286,11 @@ public class Json {
 		return obj;
 	}
 
+	/**
+	 * This method creates a data set reference for the given descriptor. The
+	 * created reference will not contain some useful meta-data like `refUnit`
+	 * or `category`.
+	 */
 	public static JsonObject asRef(Descriptor d) {
 		if (d == null)
 			return null;
