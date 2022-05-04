@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.LocationDao;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;

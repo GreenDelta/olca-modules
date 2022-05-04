@@ -68,17 +68,7 @@ public final class Dirs {
 		if (dir == null)
 			return;
 		try (var stream = Files.newDirectoryStream(dir)) {
-			stream.forEach(p -> {
-				if (Files.isDirectory(p))
-					delete(p);
-				else {
-					try {
-						internalDelete(p);
-					} catch (IOException e) {
-						throw new RuntimeException("failed to delete " + p, e);
-					}
-				}
-			});
+			stream.forEach(Dirs::delete);
 		} catch (IOException e) {
 			throw new RuntimeException("failed to clean " + dir, e);
 		}
@@ -217,6 +207,7 @@ public final class Dirs {
 	}
 
 	private static class Delete extends SimpleFileVisitor<Path> {
+
 		@Override
 		public FileVisitResult visitFile(Path file, BasicFileAttributes atts)
 			throws IOException {
