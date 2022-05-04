@@ -2,6 +2,7 @@ package org.openlca.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,7 +33,7 @@ public final class Dirs {
 			return false;
 		if (!Files.isDirectory(path) || !Files.exists(path))
 			return false;
-		try (var stream = Files.newDirectoryStream(path)){
+		try (var stream = Files.newDirectoryStream(path)) {
 			return !stream.iterator().hasNext();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -70,14 +71,14 @@ public final class Dirs {
 			Files.newDirectoryStream(dir).forEach(p -> {
 				if (Files.isDirectory(p))
 					delete(p);
-					else {
-						try {
-							Files.delete(p);
-						} catch (IOException e) {
-							throw new RuntimeException("failed to delete " + p, e);
-						}
+				else {
+					try {
+						Files.delete(p);
+					} catch (IOException e) {
+						throw new RuntimeException("failed to delete " + p, e);
 					}
-				});
+				}
+			});
 		} catch (IOException e) {
 			throw new RuntimeException("failed to clean " + dir, e);
 		}
@@ -133,6 +134,13 @@ public final class Dirs {
 	public static void move(Path from, Path to) {
 		copy(from, to);
 		delete(from);
+	}
+
+	public static void main(String[] args) {
+		var p = new File(
+				"C:\\Users\\Sebastian\\openLCA-data-1.4\\repositories\\test\\objects\\pack\\pack-66969c7f5c49dc76095a2f6ba1dbd30660d13b49.idx")
+						.toPath();
+		delete(p);
 	}
 
 	/**
@@ -204,7 +212,16 @@ public final class Dirs {
 		@Override
 		public FileVisitResult visitFile(Path file, BasicFileAttributes atts)
 				throws IOException {
-			Files.delete(file);
+			try {
+				Files.delete(file);
+			} catch (AccessDeniedException e) {
+				// files on windows can be marked as read-only
+				var f = file.toFile();
+				if (!f.canWrite()) {
+					f.setWritable(true);
+					Files.delete(file);
+				}
+			}
 			return FileVisitResult.CONTINUE;
 		}
 
