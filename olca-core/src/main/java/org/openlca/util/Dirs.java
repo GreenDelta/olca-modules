@@ -67,13 +67,13 @@ public final class Dirs {
 	public static void clean(Path dir) {
 		if (dir == null)
 			return;
-		try {
-			Files.newDirectoryStream(dir).forEach(p -> {
+		try (var stream = Files.newDirectoryStream(dir)) {
+			stream.forEach(p -> {
 				if (Files.isDirectory(p))
 					delete(p);
 				else {
 					try {
-						Files.delete(p);
+						internalDelete(p);
 					} catch (IOException e) {
 						throw new RuntimeException("failed to delete " + p, e);
 					}
@@ -117,7 +117,11 @@ public final class Dirs {
 		if (dir == null || !Files.exists(dir))
 			return;
 		try {
-			Files.walkFileTree(dir, new Delete());
+			if (Files.isDirectory(dir)) {
+				Files.walkFileTree(dir, new Delete());
+			} else {
+				internalDelete(dir);
+			}
 		} catch (IOException e) {
 			throw new RuntimeException("failed to delete " + dir, e);
 		}
@@ -143,6 +147,22 @@ public final class Dirs {
 			return size.size;
 		} catch (IOException e) {
 			throw new RuntimeException("failed to determine size of directory " + dir, e);
+		}
+	}
+
+	private static void internalDelete(Path file) throws IOException {
+		try {
+			Files.delete(file);
+		} catch (AccessDeniedException e) {
+			// Files.delete fails for read-only files on Windows with an
+			// access-denied exception; thus, we try to set them writable
+			// here and delete again
+			var f = file.toFile();
+			if (!f.canWrite() && f.setWritable(true)) {
+				Files.delete(file);
+			} else {
+				throw e;
+			}
 		}
 	}
 
@@ -180,7 +200,7 @@ public final class Dirs {
 
 		@Override
 		public FileVisitResult preVisitDirectory(Path fromDir,
-				BasicFileAttributes attrs) throws IOException {
+			BasicFileAttributes attrs) throws IOException {
 			Path toDir = to.resolve(from.relativize(fromDir));
 			if (!Files.exists(toDir))
 				Files.createDirectory(toDir);
@@ -189,9 +209,9 @@ public final class Dirs {
 
 		@Override
 		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-				throws IOException {
+			throws IOException {
 			Files.copy(file, to.resolve(from.relativize(file)),
-					StandardCopyOption.REPLACE_EXISTING);
+				StandardCopyOption.REPLACE_EXISTING);
 			return FileVisitResult.CONTINUE;
 		}
 	}
@@ -199,26 +219,17 @@ public final class Dirs {
 	private static class Delete extends SimpleFileVisitor<Path> {
 		@Override
 		public FileVisitResult visitFile(Path file, BasicFileAttributes atts)
-				throws IOException {
-			try {
-				Files.delete(file);
-			} catch (AccessDeniedException e) {
-				// files on windows can be marked as read-only
-				var f = file.toFile();
-				if (!f.canWrite()) {
-					f.setWritable(true);
-					Files.delete(file);
-				}
-			}
+			throws IOException {
+			internalDelete(file);
 			return FileVisitResult.CONTINUE;
 		}
 
 		@Override
 		public FileVisitResult postVisitDirectory(Path dir, IOException exc)
-				throws IOException {
+			throws IOException {
 			if (exc != null)
 				throw exc;
-			Files.delete(dir);
+			internalDelete(dir);
 			return FileVisitResult.CONTINUE;
 		}
 	}

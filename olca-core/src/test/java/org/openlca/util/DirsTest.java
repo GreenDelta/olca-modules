@@ -1,5 +1,7 @@
 package org.openlca.util;
 
+import static org.junit.Assert.*;
+
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,6 +11,21 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class DirsTest {
+
+	@Test
+	public void testDeleteWithReadOnlyFile() throws Exception {
+		var dir = Files.createTempDirectory("_olca_tests").toFile();
+		var file = new File(dir, "file");
+		assertTrue(file.createNewFile());
+		assertTrue(file.setReadOnly());
+		assertTrue(file.exists());
+
+		// this would fail with an AccessDeniedException on Windows
+		// Files.delete(file.toPath());
+		Dirs.delete(dir);
+		assertFalse(dir.exists());
+		assertFalse(file.exists());
+	}
 
 	@Test
 	public void testIsEmpty() throws Exception {
