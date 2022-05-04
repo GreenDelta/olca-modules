@@ -100,11 +100,6 @@ public final class Dirs {
 	public static void delete(File dir) {
 		if (dir == null || !dir.exists())
 			return;
-		if (!dir.isDirectory()) {
-			if (!dir.delete()) {
-				dir.deleteOnExit();
-			}
-		}
 		delete(dir.toPath());
 	}
 
@@ -134,13 +129,6 @@ public final class Dirs {
 	public static void move(Path from, Path to) {
 		copy(from, to);
 		delete(from);
-	}
-
-	public static void main(String[] args) {
-		var p = new File(
-				"C:\\Users\\Sebastian\\openLCA-data-1.4\\repositories\\test\\objects\\pack\\pack-66969c7f5c49dc76095a2f6ba1dbd30660d13b49.idx")
-						.toPath();
-		delete(p);
 	}
 
 	/**
