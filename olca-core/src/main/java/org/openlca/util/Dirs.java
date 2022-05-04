@@ -107,11 +107,7 @@ public final class Dirs {
 		if (dir == null || !Files.exists(dir))
 			return;
 		try {
-			if (Files.isDirectory(dir)) {
-				Files.walkFileTree(dir, new Delete());
-			} else {
-				internalDelete(dir);
-			}
+			Files.walkFileTree(dir, new Delete());
 		} catch (IOException e) {
 			throw new RuntimeException("failed to delete " + dir, e);
 		}
