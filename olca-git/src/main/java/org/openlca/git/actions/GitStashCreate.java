@@ -5,8 +5,11 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.Category;
 import org.openlca.git.GitConfig;
 import org.openlca.git.ObjectIdStore;
 import org.openlca.git.actions.ImportHelper.ImportResult;
@@ -20,6 +23,7 @@ import org.openlca.git.writer.CommitWriter;
 public class GitStashCreate {
 
 	private final IDatabase database;
+	private final CategoryDao categoryDao;
 	private FileRepository git;
 	private Commits commits;
 	private ObjectIdStore workspaceIds;
@@ -27,6 +31,7 @@ public class GitStashCreate {
 
 	private GitStashCreate(IDatabase database) {
 		this.database = database;
+		this.categoryDao = new CategoryDao(database);
 	}
 
 	public static GitStashCreate from(IDatabase database) {
@@ -81,6 +86,27 @@ public class GitStashCreate {
 			importHelper.delete(toDelete);
 			importHelper.updateWorkspaceIds(headCommit, result, null);
 		}
+		for (var category : categoryDao.getRootCategories()) {
+			deleteIfAdded(category);
+		}
+	}
+
+	private void deleteIfAdded(Category category) {
+		var path = workspaceIds.getPath(category);
+		if (workspaceIds.get(path).equals(ObjectId.zeroId())) {
+			delete(category);
+		} else {
+			for (var child : category.childCategories) {
+				deleteIfAdded(child);
+			}
+		}
+	}
+
+	private void delete(Category category) {
+		for (var child : category.childCategories) {
+			delete(child);
+		}
+		categoryDao.delete(category);
 	}
 
 }
