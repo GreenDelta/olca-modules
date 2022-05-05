@@ -1,7 +1,6 @@
 package org.openlca.git.model;
 
 import org.eclipse.jgit.lib.ObjectId;
-import org.openlca.util.Strings;
 
 public class Entry extends Reference {
 
@@ -11,7 +10,7 @@ public class Entry extends Reference {
 	public Entry(String path, String commitId, ObjectId objectId) {
 		super(path, commitId, objectId);
 		this.name = this.path.contains("/") ? this.path.substring(this.path.lastIndexOf("/") + 1) : this.path;
-		if (Strings.nullOrEmpty(path)) {
+		if (!this.path.contains("/")) {
 			typeOfEntry = EntryType.MODEL_TYPE;
 		} else if (this.refId == null) {
 			typeOfEntry = EntryType.CATEGORY;
