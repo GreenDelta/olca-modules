@@ -107,7 +107,14 @@ public final class Dirs {
 		if (dir == null || !Files.exists(dir))
 			return;
 		try {
-			Files.walkFileTree(dir, new Delete());
+			// walkFileTree also works with single files, however, we may call
+			// this on many files, e.g. in `Dirs.clean`, and want to avoid
+			// unnecessary object allocations
+			if (Files.isDirectory(dir)) {
+				Files.walkFileTree(dir, Delete.instance);
+			} else {
+				internalDelete(dir);
+			}
 		} catch (IOException e) {
 			throw new RuntimeException("failed to delete " + dir, e);
 		}
@@ -203,6 +210,8 @@ public final class Dirs {
 	}
 
 	private static class Delete extends SimpleFileVisitor<Path> {
+
+		private static final Delete instance = new Delete();
 
 		@Override
 		public FileVisitResult visitFile(Path file, BasicFileAttributes atts)
