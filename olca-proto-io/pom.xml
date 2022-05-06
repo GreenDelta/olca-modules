@@ -12,9 +12,9 @@
   <packaging>jar</packaging>
 
   <properties>
-    <protobuf.version>3.18.0</protobuf.version>
-    <grpc.version>1.41.0</grpc.version>
-    <olca.proto.version>1.1.0</olca.proto.version>
+    <protobuf.version>3.20.1</protobuf.version>
+    <grpc.version>1.46.0</grpc.version>
+    <olca.proto.version>1.1.1</olca.proto.version>
   </properties>
 
   <dependencies>

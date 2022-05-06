@@ -42,7 +42,8 @@ public class DataUpdateTest {
 					// TODO: support results
 					if (!type.isRoot()
 							|| type == ModelType.CATEGORY
-							|| type == ModelType.RESULT)
+							|| type == ModelType.RESULT
+							|| type == ModelType.EPD)
 						continue;
 					i++;
 					var id = UUID.randomUUID().toString();

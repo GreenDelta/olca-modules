@@ -49,7 +49,9 @@ public class ImportStatusTest {
 	public void testNullId() {
 		for (var type : ModelType.values()) {
 			// TODO: support results
-			if (!type.isRoot() || type == ModelType.RESULT)
+			if (!type.isRoot()
+				|| type == ModelType.RESULT
+				|| type == ModelType.EPD)
 				continue;
 			var imp = protoImport.getImport(type);
 			var status = imp.of(null);
@@ -64,7 +66,9 @@ public class ImportStatusTest {
 	public void testUnknownId() {
 		for (var type : ModelType.values()) {
 			// TODO: support results
-			if (!type.isRoot() || type == ModelType.RESULT)
+			if (!type.isRoot()
+				|| type == ModelType.RESULT
+				|| type == ModelType.EPD)
 				continue;
 			var imp = protoImport.getImport(type);
 			var status = imp.of(UUID.randomUUID().toString());
@@ -82,7 +86,8 @@ public class ImportStatusTest {
 			// TODO: support results
 			if (!type.isRoot()
 				|| type == ModelType.CATEGORY
-				|| type == ModelType.RESULT)
+				|| type == ModelType.RESULT
+				|| type == ModelType.EPD)
 				continue;
 			i++;
 
