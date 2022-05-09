@@ -1,52 +1,17 @@
 package org.openlca.util;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
 
-public class AllocationCleanup {
+record AllocationCleanup(Process process) {
 
-	private final Process process;
-
-	private AllocationCleanup(Process process) {
-		this.process = process;
-	}
-
-	public static void on(Process process) {
-		new AllocationCleanup(process).run();
-	}
-
-	private List<Exchange> getProducts() {
-		var products = new ArrayList<Exchange>();
-		for (var exchange : process.exchanges) {
-			if (!isProduct(exchange))
-				continue;
-			products.add(exchange);
-		}
-		return products;
-	}
-
-	private boolean isProduct(Exchange e) {
-		if (e.flow == null)
-			return false;
-		var type = e.flow.flowType;
-		return (e.isInput && type == FlowType.WASTE_FLOW)
-				|| (!e.isInput && type == FlowType.PRODUCT_FLOW);
-	}
-
-	private boolean isQuantitativeReference(Exchange e) {
-		return e != null
-			&& Objects.equals(e, process.quantitativeReference);
-	}
-
-	private void run() {
-		var products = getProducts();
+	void run() {
+		var products = AllocationUtils.getProviderFlows(process);
 		if (products.size() < 2) {
 			process.allocationFactors.clear();
 			return;
@@ -60,18 +25,23 @@ public class AllocationCleanup {
 		}
 	}
 
+	private boolean isQuantitativeReference(Exchange e) {
+		return e != null
+			&& Objects.equals(e, process.quantitativeReference);
+	}
+
 	private void checkFactors(Exchange product) {
 		if (product == null)
 			return;
 		double defaultValue = 0;
 		if (process.allocationFactors.isEmpty()
-				&& isQuantitativeReference(product)) {
+			&& isQuantitativeReference(product)) {
 			defaultValue = 1; // initialize quant. ref. with 1
 		}
 		checkFactor(product, AllocationMethod.PHYSICAL, defaultValue);
 		checkFactor(product, AllocationMethod.ECONOMIC, defaultValue);
-		for (Exchange exchange : process.exchanges) {
-			if (isProduct(exchange))
+		for (var exchange : process.exchanges) {
+			if (Exchanges.isProviderFlow(exchange))
 				continue;
 			checkFactor(product, exchange, defaultValue);
 		}
@@ -134,7 +104,7 @@ public class AllocationCleanup {
 	}
 
 	private AllocationFactor findFactorFor(
-			Exchange product, Exchange exchange, AllocationMethod type) {
+		Exchange product, Exchange exchange, AllocationMethod type) {
 		if (type == AllocationMethod.CAUSAL && exchange == null)
 			return null;
 		for (var factor : process.allocationFactors) {

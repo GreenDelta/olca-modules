@@ -23,6 +23,7 @@ public class Currency extends RootEntity {
 	public static Currency of(String name) {
 		var currency = new Currency();
 		Entities.init(currency, name);
+		currency.conversionFactor = 1.0;
 		return currency;
 	}
 
