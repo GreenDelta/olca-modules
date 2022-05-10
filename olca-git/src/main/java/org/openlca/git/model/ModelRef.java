@@ -24,12 +24,13 @@ public class ModelRef {
 						: path);
 		path = path.substring(path.indexOf("/") + 1);
 		this.category = path.contains("/")
-				? path.substring(0, path.indexOf("/"))
+				? path.substring(0, path.lastIndexOf("/"))
 				: "";
-		this.refId = !path.endsWith(".json") ? null
-				: path.substring(path.contains("/")
+		this.refId = path.substring(
+				path.contains("/")
 						? path.lastIndexOf("/") + 1
-						: 0, path.lastIndexOf("."));
+						: 0,
+				path.lastIndexOf("."));
 	}
 
 	public ModelRef(ModelRef ref) {
