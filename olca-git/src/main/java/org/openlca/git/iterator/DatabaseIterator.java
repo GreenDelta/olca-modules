@@ -41,9 +41,9 @@ public class DatabaseIterator extends EntryIterator {
 
 	private static List<TreeEntry> init(GitConfig config) {
 		return Arrays.stream(ModelType.rootTypes()).filter(type -> {
-			var dao = new CategoryDao(config.database);
 			if (type == ModelType.CATEGORY)
 				return false;
+			var dao = new CategoryDao(config.database);
 			if (!dao.getRootCategories(type).isEmpty())
 				return true;
 			return !Daos.root(config.database, type).getDescriptors(Optional.empty()).isEmpty();
