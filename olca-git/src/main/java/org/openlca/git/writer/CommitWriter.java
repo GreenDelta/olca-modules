@@ -103,9 +103,11 @@ public class CommitWriter {
 			if (inserter != null) {
 				inserter.flush();
 				inserter.close();
+				inserter = null;
 			}
 			if (converter != null) {
 				converter.clear();
+				converter = null;
 			}
 			threads.shutdown();
 		}

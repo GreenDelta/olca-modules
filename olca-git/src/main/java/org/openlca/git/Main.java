@@ -22,14 +22,14 @@ import com.google.common.io.Files;
 
 public class Main {
 
-	private static final String db = "ecoinvent_371_apos_unit_20201221";
+	private static final String db = "test_elem";
 	// private static final String db = "ecoinvent_36_cutoff_unit_20200512";
 	private static final PersonIdent committer = new PersonIdent("greve", "greve@greendelta.com");
 	private static final File repoDir = new File("C:/Users/Sebastian/test/olca-git/" + db);
 	private static final File tmp = new File("C:/Users/Sebastian/test/tmp");
 
 	public static void main(String[] args) throws IOException {
-		var dbDir = DataDir.get().getDatabasesDir();
+		var dbDir = new File(DataDir.get().getDatabasesDir(), db);
 		if (tmp.exists()) {
 			delete(tmp);
 		}

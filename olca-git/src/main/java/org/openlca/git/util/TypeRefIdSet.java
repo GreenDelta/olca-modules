@@ -64,6 +64,10 @@ public class TypeRefIdSet {
 		return refIds;
 	}
 	
+	public Set<ModelType> types() {
+		return new HashSet<>(map.keySet());
+	}
+	
 	public ModelType getTypeFor(String refId) {
 		for (var type : map.keySet())
 			if (map.get(type) != null && map.get(type).contains(refId))

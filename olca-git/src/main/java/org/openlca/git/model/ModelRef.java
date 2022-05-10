@@ -1,5 +1,7 @@
 package org.openlca.git.model;
 
+import java.util.Objects;
+
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.openlca.core.model.ModelType;
@@ -24,12 +26,13 @@ public class ModelRef {
 						: path);
 		path = path.substring(path.indexOf("/") + 1);
 		this.category = path.contains("/")
-				? path.substring(0, path.indexOf("/"))
+				? path.substring(0, path.lastIndexOf("/"))
 				: "";
-		this.refId = !path.endsWith(".json") ? null
-				: path.substring(path.contains("/")
+		this.refId = path.substring(
+				path.contains("/")
 						? path.lastIndexOf("/") + 1
-						: 0, path.lastIndexOf("."));
+						: 0,
+				path.lastIndexOf("."));
 	}
 
 	public ModelRef(ModelRef ref) {
@@ -37,6 +40,21 @@ public class ModelRef {
 		this.type = ref.type;
 		this.refId = ref.refId;
 		this.category = ref.category;
+	}
+
+	@Override
+	public int hashCode() {
+		return path != null ? path.hashCode() : super.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (!(o instanceof ModelRef))
+			return false;
+		var other = (ModelRef) o;
+		return Objects.equals(path, other.path);
 	}
 
 }
