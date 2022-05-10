@@ -1,5 +1,7 @@
 package org.openlca.git.model;
 
+import java.util.Objects;
+
 import org.eclipse.jgit.lib.ObjectId;
 import org.openlca.git.util.GitUtil;
 import org.openlca.util.Strings;
@@ -16,11 +18,18 @@ public class Reference extends ModelRef {
 	}
 
 	@Override
+	public int hashCode() {
+		return objectId != null ? objectId.hashCode() : super.hashCode();
+	}
+
+	@Override
 	public boolean equals(Object obj) {
+		if (obj == this)
+			return true;
 		if (!(obj instanceof Reference))
 			return false;
 		var ref = (Reference) obj;
-		return ref.objectId.equals(objectId);
+		return Objects.equals(ref.objectId, objectId);
 	}
 
 	public String getBinariesPath() {

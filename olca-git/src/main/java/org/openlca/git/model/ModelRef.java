@@ -1,5 +1,7 @@
 package org.openlca.git.model;
 
+import java.util.Objects;
+
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.openlca.core.model.ModelType;
@@ -38,6 +40,21 @@ public class ModelRef {
 		this.type = ref.type;
 		this.refId = ref.refId;
 		this.category = ref.category;
+	}
+
+	@Override
+	public int hashCode() {
+		return path != null ? path.hashCode() : super.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (!(o instanceof ModelRef))
+			return false;
+		var other = (ModelRef) o;
+		return Objects.equals(path, other.path);
 	}
 
 }
