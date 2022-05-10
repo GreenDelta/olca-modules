@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Formula {
-	
+
 	public static Set<String> getVariables(String formula) {
 		if (Strings.nullOrEmpty(formula))
 			return Collections.emptySet();

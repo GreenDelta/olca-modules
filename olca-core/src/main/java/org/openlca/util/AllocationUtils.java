@@ -17,7 +17,9 @@ public final class AllocationUtils {
 	}
 
 	/**
-	 * Removes invalid allocation factors from the given process.
+	 * Removes invalid allocation factors from the given process. New allocation
+	 * factors are initialized with a default value if required. Values of
+	 * existing allocation factors are not changed.
 	 */
 	public static void cleanup(Process process) {
 		if (process == null)

@@ -96,12 +96,11 @@ public class Strings {
 	}
 
 	/**
-	 * Returns true if the given string value is null or empty.
+	 * Returns true if the given string value is {@code null} or empty. It also
+	 * returns true if the given string contains only whitespaces.
 	 */
 	public static boolean nullOrEmpty(String val) {
-		if (val == null)
-			return true;
-		return val.trim().length() == 0;
+		return val == null || val.isBlank();
 	}
 
 	/**
