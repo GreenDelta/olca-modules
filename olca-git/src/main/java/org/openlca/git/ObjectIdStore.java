@@ -7,15 +7,17 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jgit.lib.ObjectId;
-import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.RootDescriptor;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.util.GitUtil;
 import org.openlca.util.Categories;
 import org.openlca.util.Categories.PathBuilder;
@@ -23,7 +25,8 @@ import org.openlca.util.Categories.PathBuilder;
 public class ObjectIdStore {
 
 	private final File file;
-	private Map<String, byte[]> store = new HashMap<>();
+	private Map<String, byte[]> workspace = new HashMap<>();
+	private Map<String, byte[]> head = new HashMap<>();
 
 	private ObjectIdStore(File storeFile) {
 		this.file = storeFile;
@@ -41,7 +44,9 @@ public class ObjectIdStore {
 			return;
 		try (var fis = new FileInputStream(file);
 				var ois = new ObjectInputStream(fis)) {
-			store = (HashMap<String, byte[]>) ois.readObject();
+			var stores = (List<HashMap<String, byte[]>>) ois.readObject();
+			workspace = stores.get(0);
+			head = stores.get(1);
 		} catch (ClassNotFoundException e) {
 			throw new IOException(e);
 		}
@@ -53,7 +58,7 @@ public class ObjectIdStore {
 		}
 		try (var fos = new FileOutputStream(file);
 				var oos = new ObjectOutputStream(fos)) {
-			oos.writeObject(store);
+			oos.writeObject(Arrays.asList(workspace, head));
 		}
 	}
 
@@ -73,7 +78,7 @@ public class ObjectIdStore {
 	}
 
 	public boolean has(String path) {
-		return store.containsKey(path);
+		return workspace.containsKey(path);
 	}
 
 	public byte[] getRawRoot() {
@@ -96,7 +101,7 @@ public class ObjectIdStore {
 	}
 
 	public byte[] getRaw(String path) {
-		var v = store.get(path);
+		var v = workspace.get(path);
 		if (v == null)
 			return GitUtil.getBytes(ObjectId.zeroId());
 		return v;
@@ -122,10 +127,17 @@ public class ObjectIdStore {
 	}
 
 	public ObjectId get(String path) {
-		var id = store.get(path);
+		var id = workspace.get(path);
 		if (id == null)
 			return ObjectId.zeroId();
 		return ObjectId.fromRaw(id);
+	}
+	
+	public ObjectId getHead(String path) {
+		var id = head.get(path);
+		if (id == null)
+			return ObjectId.zeroId();
+		return ObjectId.fromRaw(id);		
 	}
 
 	public void putRoot(ObjectId id) {
@@ -151,7 +163,9 @@ public class ObjectIdStore {
 		if (path.startsWith("/")) {
 			path = path.substring(1);
 		}
-		store.put(path, GitUtil.getBytes(id));
+		var bytes = GitUtil.getBytes(id);
+		workspace.put(path, bytes);
+		head.put(path, bytes);
 	}
 
 	public void removeRoot() {
@@ -183,15 +197,15 @@ public class ObjectIdStore {
 					k += "/";
 				}
 			}
-			store.remove(k);
+			workspace.remove(k);
 		}
-		store.remove("");
+		workspace.remove("");
 	}
 
 	public void clear() {
-		store.clear();
+		workspace.clear();
 	}
-	
+
 	public String getPath(ModelType type) {
 		return getPath(type, null, null);
 	}
