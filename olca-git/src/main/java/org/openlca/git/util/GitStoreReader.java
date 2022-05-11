@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.ObjectId;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.actions.ConflictResolver;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
@@ -68,7 +69,10 @@ public class GitStoreReader implements JsonStoreReader {
 			return categories.getForPath(path);
 		if (binDir == null)
 			return getDataset(path);
-		return getBinary(binDir, path);
+		var objectId = ids.get(path, remoteCommit.id);
+		if (ObjectId.zeroId().equals(objectId))
+			return null;
+		return datasets.getBytes(objectId);
 	}
 
 	private byte[] getSchema() {
@@ -77,35 +81,24 @@ public class GitStoreReader implements JsonStoreReader {
 	}
 
 	private byte[] getDataset(String path) {
-		var ref = getRef(path);
-		if (ref == null)
+		var objectId = getObjectId(path);
+		if (ObjectId.zeroId().equals(objectId))
 			return null;
-		return datasets.getBytes(ref.objectId);
+		return datasets.getBytes(objectId);
 	}
 
-	private Reference getRef(String path) {
-		var refs = references.find().path(path).commit(remoteCommit.id).all();
-		if (refs.isEmpty())
-			return null;
-		if (refs.size() > 1)
-			throw new IllegalArgumentException("Ambigious path, returned more then 1 reference");
-		return refs.get(0);
-	}
-
-	private byte[] getBinary(String binDir, String path) {
-		var i = binDir.lastIndexOf(GitUtil.BIN_DIR_SUFFIX);
-		var refPath = binDir.substring(0, i) + GitUtil.DATASET_SUFFIX;
-		var filepath = path.substring(i + GitUtil.BIN_DIR_SUFFIX.length() + 1);
-		var ref = getRef(refPath);
-		return datasets.getBinary(ref, filepath);
+	private ObjectId getObjectId(String path) {
+		return ids.get(path, remoteCommit.id);
 	}
 
 	@Override
 	public JsonObject get(ModelType type, String refId) {
 		if (type == ModelType.CATEGORY)
 			return categories.getForRefId(refId);
+		if (!hasChanged(type, refId))
+			return null;
 		var ref = references.get(type, refId, remoteCommit.id);
-		if (ref == null || !hasChanged(ref))
+		if (ref == null)
 			return null;
 		var data = datasets.get(ref.objectId);
 		var remote = parse(data);
@@ -128,9 +121,9 @@ public class GitStoreReader implements JsonStoreReader {
 		return resolution.data;
 	}
 
-	private boolean hasChanged(ModelRef ref) {
+	private boolean hasChanged(ModelType type, String refId) {
 		return remoteChanges.stream()
-				.anyMatch(r -> r.type == ref.type && r.refId.equals(ref.refId));
+				.anyMatch(r -> r.type == type && r.refId.equals(refId));
 	}
 
 	@Override
