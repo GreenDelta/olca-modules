@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 import org.openlca.core.model.ModelType;
-import org.openlca.git.model.Reference;
+import org.openlca.git.model.ModelRef;
 
 public class TypeRefIdSet {
 
@@ -15,11 +15,11 @@ public class TypeRefIdSet {
 
 	public TypeRefIdSet() {
 	}
-	
-	public TypeRefIdSet(Collection<Reference> refs) {
+
+	public TypeRefIdSet(Collection<? extends ModelRef> refs) {
 		refs.forEach(r -> add(r.type, r.refId));
 	}
-	
+
 	public void add(ModelType type, String refId) {
 		map.computeIfAbsent(type, t -> new HashSet<>()).add(refId);
 	}
@@ -30,12 +30,12 @@ public class TypeRefIdSet {
 			return false;
 		return refIds.contains(refId);
 	}
-	
+
 	public void remove(ModelType type, String refId) {
 		var refIds = map.get(type);
 		if (refIds == null)
 			return;
-		refIds.remove(refId);		
+		refIds.remove(refId);
 	}
 
 	public void clear() {
@@ -63,11 +63,11 @@ public class TypeRefIdSet {
 		map.values().forEach(set -> refIds.addAll(set));
 		return refIds;
 	}
-	
+
 	public Set<ModelType> types() {
 		return new HashSet<>(map.keySet());
 	}
-	
+
 	public ModelType getTypeFor(String refId) {
 		for (var type : map.keySet())
 			if (map.get(type) != null && map.get(type).contains(refId))

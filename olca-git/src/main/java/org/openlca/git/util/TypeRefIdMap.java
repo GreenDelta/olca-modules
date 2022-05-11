@@ -1,7 +1,9 @@
 package org.openlca.git.util;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.model.ModelType;
@@ -26,6 +28,13 @@ public class TypeRefIdMap<T> {
 		if (refIds == null)
 			return null;
 		return refIds.get(refId);
+	}
+
+	public List<T> get(ModelType type) {
+		var refIds = map.get(type);
+		if (refIds == null)
+			return new ArrayList<>();
+		return new ArrayList<>(refIds.values());
 	}
 
 	public void clear() {

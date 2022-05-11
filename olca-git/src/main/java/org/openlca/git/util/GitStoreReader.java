@@ -28,11 +28,11 @@ public class GitStoreReader implements JsonStoreReader {
 	private static final Gson gson = new Gson();
 	private final References references;
 	private final Datasets datasets;
-	private final Ids ids;
+	 private final Ids ids;
 	private final Commit localCommit;
 	private final Commit remoteCommit;
 	private final Categories categories;
-	private final List<? extends ModelRef> remoteChanges;
+	private final TypeRefIdMap<Reference> remoteChanges;
 	private final ConflictResolver conflictResolver;
 	private final List<Reference> imported = new ArrayList<>();
 	private final List<Reference> merged = new ArrayList<>();
@@ -51,13 +51,14 @@ public class GitStoreReader implements JsonStoreReader {
 		this.localCommit = localCommit;
 		this.remoteCommit = remoteCommit;
 		this.conflictResolver = conflictResolver;
-		this.remoteChanges = remoteChanges;
+		this.remoteChanges = new TypeRefIdMap<>();
+		remoteChanges.forEach(r -> GitStoreReader.this.remoteChanges.put(r.type, r.refId, r));
 	}
 
 	public boolean contains(ModelType type, String refId) {
 		if (type == ModelType.CATEGORY)
 			return true;
-		return references.get(type, refId, remoteCommit.id) != null;
+		return remoteChanges.contains(type, refId);
 	}
 
 	@Override
@@ -81,14 +82,12 @@ public class GitStoreReader implements JsonStoreReader {
 	}
 
 	private byte[] getDataset(String path) {
-		var objectId = getObjectId(path);
-		if (ObjectId.zeroId().equals(objectId))
+		var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
+		var refId = path.substring(path.lastIndexOf("/")  + 1, path.lastIndexOf(".json"));
+		var ref = remoteChanges.get(type, refId);
+		if (ObjectId.zeroId().equals(ref.objectId))
 			return null;
-		return datasets.getBytes(objectId);
-	}
-
-	private ObjectId getObjectId(String path) {
-		return ids.get(path, remoteCommit.id);
+		return datasets.getBytes(ref.objectId);
 	}
 
 	@Override
@@ -97,7 +96,7 @@ public class GitStoreReader implements JsonStoreReader {
 			return categories.getForRefId(refId);
 		if (!hasChanged(type, refId))
 			return null;
-		var ref = references.get(type, refId, remoteCommit.id);
+		var ref = remoteChanges.get(type, refId);
 		if (ref == null)
 			return null;
 		var data = datasets.get(ref.objectId);
@@ -122,15 +121,14 @@ public class GitStoreReader implements JsonStoreReader {
 	}
 
 	private boolean hasChanged(ModelType type, String refId) {
-		return remoteChanges.stream()
-				.anyMatch(r -> r.type == type && r.refId.equals(refId));
+		return remoteChanges.contains(type, refId);
 	}
 
 	@Override
 	public List<String> getBinFiles(ModelType type, String refId) {
 		if (type == ModelType.CATEGORY)
 			return Collections.emptyList();
-		var ref = references.get(type, refId, remoteCommit.id);
+		var ref = remoteChanges.get(type, refId);
 		if (ref == null)
 			return Collections.emptyList();
 		return references.getBinaries(ref).stream()
@@ -153,9 +151,7 @@ public class GitStoreReader implements JsonStoreReader {
 	public List<? extends ModelRef> getChanges(ModelType type) {
 		if (type == ModelType.CATEGORY)
 			return Collections.emptyList();
-		return remoteChanges.stream()
-				.filter(ref -> ref.type == type)
-				.toList();
+		return remoteChanges.get(type);
 	}
 
 	private JsonObject parse(String data) {
