@@ -9,7 +9,7 @@ public abstract class GitRemoteAction<T> {
 	protected ProgressMonitor monitor;
 	protected CredentialsProvider credentialsProvider;
 
-	public GitRemoteAction<T> showProgressIn(ProgressMonitor monitor) {
+	public GitRemoteAction<T> withProgress(ProgressMonitor monitor) {
 		this.monitor = monitor;
 		return this;
 	}

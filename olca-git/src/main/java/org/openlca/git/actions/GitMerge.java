@@ -27,7 +27,7 @@ import org.openlca.git.util.GitStoreReader;
 import org.openlca.git.util.History;
 import org.openlca.git.writer.CommitWriter;
 
-public class GitMerge {
+public class GitMerge extends GitProgressAction<Boolean> {
 
 	private final FileRepository git;
 	private final History history;
@@ -68,12 +68,13 @@ public class GitMerge {
 		return this;
 	}
 
-	public GitMerge applyStash(boolean applyStash) {
+	GitMerge applyStash(boolean applyStash) {
 		this.applyStash = applyStash;
 		return this;
 	}
 
-	public boolean run() throws IOException, GitAPIException {
+	@Override
+	public Boolean run() throws IOException, GitAPIException {
 		if (git == null || database == null)
 			throw new IllegalStateException("Git repository, database and committer, must be set");
 		var behind = history.getBehind(getRef());
@@ -90,8 +91,11 @@ public class GitMerge {
 				.filter(e -> e.getChangeType() != ChangeType.DELETE)
 				.map(e -> new Reference(e.getNewPath(), remoteCommit.id, e.getNewId().toObjectId()))
 				.collect(Collectors.toList());
+		if (progressMonitor != null) {
+			progressMonitor.beginTask("Merging data", addedOrChanged.size() + deleted.size());
+		}
 		var gitStore = new GitStoreReader(git, localCommit, remoteCommit, addedOrChanged, conflictResolver);
-		var importHelper = new ImportHelper(git, database, workspaceIds);
+		var importHelper = new ImportHelper(git, database, workspaceIds, progressMonitor);
 		importHelper.conflictResolver = conflictResolver;
 		importHelper.runImport(gitStore);
 		importHelper.delete(deleted);

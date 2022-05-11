@@ -20,7 +20,7 @@ import org.openlca.git.util.DiffEntries;
 import org.openlca.git.util.GitStoreReader;
 import org.openlca.git.writer.CommitWriter;
 
-public class GitStashCreate {
+public class GitStashCreate extends GitProgressAction<Void> {
 
 	private final IDatabase database;
 	private final CategoryDao categoryDao;
@@ -53,17 +53,21 @@ public class GitStashCreate {
 		this.workspaceIds = workspaceIds;
 		return this;
 	}
-
-	public void run() throws IOException {
+	
+	@Override
+	public Void run() throws IOException {
 		if (git == null || database == null)
 			throw new IllegalStateException("Git repository and database must be set");
+		if (progressMonitor != null) {
+			progressMonitor.beginTask("Preparing to create stash", -1);
+		}
 		var config = new GitConfig(database, workspaceIds, git);
 		var changes = DiffEntries.workspace(config).stream().map(Change::new).toList();
 		if (changes.isEmpty())
 			throw new IllegalStateException("No changes found");
-		var writer = new CommitWriter(config, committer);
+		var writer = new CommitWriter(config, committer, progressMonitor);
 		writer.stashCommit("Stashed changes", changes);
-		var importHelper = new ImportHelper(git, database, workspaceIds);
+		var importHelper = new ImportHelper(git, database, workspaceIds, progressMonitor);
 		var toDelete = changes.stream()
 				.filter(change -> change.changeType == ChangeType.ADD)
 				.collect(Collectors.toList());
@@ -89,6 +93,7 @@ public class GitStashCreate {
 		for (var category : categoryDao.getRootCategories()) {
 			deleteIfAdded(category);
 		}
+		return null;
 	}
 
 	private void deleteIfAdded(Category category) {

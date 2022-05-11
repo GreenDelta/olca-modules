@@ -8,7 +8,7 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.openlca.core.database.IDatabase;
 import org.openlca.git.ObjectIdStore;
 
-public class GitStashApply {
+public class GitStashApply extends GitProgressAction<Void> {
 
 	private final FileRepository git;
 	private ObjectIdStore workspaceIds;
@@ -39,7 +39,8 @@ public class GitStashApply {
 		return this;
 	}
 
-	public void run() throws IOException, GitAPIException {
+	@Override
+	public Void run() throws IOException, GitAPIException {
 		if (git == null || database == null)
 			throw new IllegalStateException("Git repository and database must be set");
 		GitMerge.from(git)
@@ -48,8 +49,10 @@ public class GitStashApply {
 				.update(workspaceIds)
 				.resolveConflictsWith(conflictResolver)
 				.applyStash(true)
+				.withProgress(progressMonitor)
 				.run();
 		GitStashDrop.from(git).run();
+		return null;
 	}
 
 }

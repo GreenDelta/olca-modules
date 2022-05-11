@@ -56,7 +56,9 @@ public class Entries {
 				var commit = commits.getRev(commitId);
 				if (commit == null)
 					return entries;
-				var treeId = ids.get(commit.getTree().getId(), path);
+				var treeId = Strings.nullOrEmpty(path)
+						? commit.getTree().getId()
+						: ids.get(commit.getTree().getId(), path);
 				if (treeId.equals(ObjectId.zeroId()))
 					return entries;
 				try (var walk = new TreeWalk(repo)) {

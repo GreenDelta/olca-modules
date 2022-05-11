@@ -26,6 +26,7 @@ import org.openlca.git.GitConfig;
 import org.openlca.git.iterator.ChangeIterator;
 import org.openlca.git.model.Change;
 import org.openlca.git.util.GitUtil;
+import org.openlca.git.util.ProgressMonitor;
 import org.openlca.git.util.Repositories;
 import org.openlca.jsonld.SchemaVersion;
 import org.openlca.util.Strings;
@@ -38,14 +39,20 @@ public class CommitWriter {
 	private static final Logger log = LoggerFactory.getLogger(CommitWriter.class);
 	private final GitConfig config;
 	private final PersonIdent committer;
+	private final ProgressMonitor progressMonitor;
 	private PackInserter inserter;
 	private Converter converter;
 	private boolean isMergeCommit;
 	private boolean isStashCommit;
 
 	public CommitWriter(GitConfig config, PersonIdent committer) {
+		this(config, committer, null);
+	}
+
+	public CommitWriter(GitConfig config, PersonIdent committer, ProgressMonitor progressMonitor) {
 		this.config = config;
 		this.committer = committer;
+		this.progressMonitor = progressMonitor;
 	}
 
 	public String commit(String message, List<Change> changes) throws IOException {
@@ -76,6 +83,9 @@ public class CommitWriter {
 				throw new IOException("Git repo is not in current schema version");
 			if (changes.isEmpty() && (previousCommit == null || localCommitId == null || remoteCommitId == null))
 				return null;
+			if (progressMonitor != null) {
+				progressMonitor.beginTask("Writing commit", changes.size());
+			}
 			inserter = config.repo.getObjectDatabase().newPackInserter();
 			inserter.checkExisting(config.checkExisting);
 			converter = new Converter(config, threads);
@@ -214,10 +224,16 @@ public class CommitWriter {
 		}
 		if (file != null)
 			return inserter.insert(Constants.OBJ_BLOB, Files.readAllBytes(file.toPath()));
+		if (progressMonitor != null) {
+			progressMonitor.subTask("Writing", change);
+		}
 		var data = converter.take(path);
 		localBlobId = inserter.insert(Constants.OBJ_BLOB, data);
 		if (!isStashCommit && config.store != null) {
 			config.store.put(path, localBlobId);
+		}
+		if (progressMonitor != null) {
+			progressMonitor.worked(1);
 		}
 		return localBlobId;
 	}

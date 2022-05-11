@@ -13,7 +13,7 @@ import org.openlca.git.util.DiffEntries;
 import org.openlca.git.writer.CommitWriter;
 import org.openlca.util.Strings;
 
-public class GitCommit {
+public class GitCommit extends GitProgressAction<String> {
 
 	private final IDatabase database;
 	private FileRepository git;
@@ -21,7 +21,7 @@ public class GitCommit {
 	private String message;
 	private ObjectIdStore workspaceIds;
 	private PersonIdent committer;
-
+	
 	private GitCommit(IDatabase database) {
 		this.database = database;
 	}
@@ -55,6 +55,7 @@ public class GitCommit {
 		return this;
 	}
 
+	@Override
 	public String run() throws IOException {
 		if (git == null || database == null || Strings.nullOrEmpty(message))
 			throw new IllegalStateException("Git repository, database and message must be set");
@@ -64,8 +65,9 @@ public class GitCommit {
 				throw new IllegalStateException("ObjectIdStore must be set when no changes are specified");
 			changes = DiffEntries.workspace(config).stream().map(Change::new).toList();
 		}
-		var writer = new CommitWriter(config, committer);
-		return writer.commit(message, changes);
+		var writer = new CommitWriter(config, committer, progressMonitor);
+		var commitId = writer.commit(message, changes);
+		return commitId;
 	}
 
 }

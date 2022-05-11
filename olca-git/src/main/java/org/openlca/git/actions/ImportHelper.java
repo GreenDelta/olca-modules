@@ -20,6 +20,7 @@ import org.openlca.git.model.Entry.EntryType;
 import org.openlca.git.model.ModelRef;
 import org.openlca.git.model.Reference;
 import org.openlca.git.util.GitStoreReader;
+import org.openlca.git.util.ProgressMonitor;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
 
@@ -29,13 +30,15 @@ class ImportHelper {
 	final Entries entries;
 	final IDatabase database;
 	final ObjectIdStore workspaceIds;
+	final ProgressMonitor progressMonitor;
 	ConflictResolver conflictResolver;
 
-	ImportHelper(FileRepository git, IDatabase database, ObjectIdStore workspaceIds) {
+	ImportHelper(FileRepository git, IDatabase database, ObjectIdStore workspaceIds, ProgressMonitor progressMonitor) {
 		this.references = References.of(git);
 		this.entries = Entries.of(git);
 		this.database = database;
 		this.workspaceIds = workspaceIds;
+		this.progressMonitor = progressMonitor;
 	}
 
 	static final ModelType[] TYPE_ORDER = new ModelType[] {
@@ -64,7 +67,13 @@ class ImportHelper {
 		for (var type : ImportHelper.TYPE_ORDER) {
 			var changes = gitStore.getChanges(type);
 			for (var change : changes) {
+				if (progressMonitor != null) {
+					progressMonitor.subTask("Importing", change);
+				}
 				jsonImport.run(type, change.refId);
+				if (progressMonitor != null) {
+					progressMonitor.worked(1);
+				}
 			}
 		}
 	}
@@ -74,15 +83,24 @@ class ImportHelper {
 			if (conflictResolver != null && conflictResolver.isConflict(ref)) {
 				var resolution = conflictResolver.resolveConflict(ref, null);
 				if (resolution.type == ConflictResolutionType.KEEP_LOCAL) {
+					if (progressMonitor != null) {
+						progressMonitor.subTask("Deleting", ref);
+					}
 					remoteDeletions.remove(ref);
+					if (progressMonitor != null) {
+						progressMonitor.worked(1);
+					}
 					continue;
 				}
 			}
 			delete(Daos.root(database, ref.type), ref.refId);
+			if (progressMonitor != null) {
+				progressMonitor.worked(1);
+			}
 		}
 	}
 
-	<T extends RootEntity, V extends RootDescriptor> void delete(RootEntityDao<T, V> dao,
+	private <T extends RootEntity, V extends RootDescriptor> void delete(RootEntityDao<T, V> dao,
 			String refId) {
 		if (!dao.contains(refId))
 			return;
@@ -94,7 +112,7 @@ class ImportHelper {
 			return;
 		result.imported().forEach(ref -> {
 			if (applyStash) {
-				workspaceIds.remove(ref.path);				
+				workspaceIds.remove(ref.path);
 			} else {
 				workspaceIds.put(ref.path, ref.objectId);
 			}

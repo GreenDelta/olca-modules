@@ -18,7 +18,7 @@ public class Ids {
 	public static Ids of(FileRepository repo) {
 		return new Ids(repo);
 	}
-	
+
 	private Ids(FileRepository repo) {
 		this.repo = repo;
 	}
@@ -45,7 +45,10 @@ public class Ids {
 		if (Strings.nullOrEmpty(path))
 			return treeId;
 		try {
-			return TreeWalk.forPath(repo, path, treeId).getObjectId(0);
+			var walk = TreeWalk.forPath(repo, path, treeId);
+			if (walk == null)
+				return ObjectId.zeroId();
+			return walk.getObjectId(0);
 		} catch (IOException e) {
 			log.error("Error finding id for " + path);
 			return null;
