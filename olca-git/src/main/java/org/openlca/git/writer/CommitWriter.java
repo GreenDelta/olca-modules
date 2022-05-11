@@ -156,7 +156,7 @@ public class CommitWriter {
 		}
 		if (!appended && !Strings.nullOrEmpty(prefix)) {
 			if (!isStashCommit && config.store != null) {
-				config.store.remove(prefix);
+				config.store.remove(GitUtil.decode(prefix));
 			}
 			return null;
 		}
@@ -165,7 +165,7 @@ public class CommitWriter {
 		}
 		var newId = insert(i -> i.insert(tree));
 		if (!isStashCommit && config.store != null) {
-			config.store.put(prefix, newId);
+			config.store.put(GitUtil.decode(prefix), newId);
 		}
 		return newId;
 	}
@@ -218,7 +218,7 @@ public class CommitWriter {
 		var file = iterator.getEntryFile();
 		if (change.changeType == ChangeType.DELETE && matches(path, change, file)) {
 			if (file == null && !isStashCommit && config.store != null) {
-				config.store.remove(path);
+				config.store.remove(GitUtil.decode(path));
 			}
 			return null;
 		}
@@ -230,7 +230,7 @@ public class CommitWriter {
 		var data = converter.take(path);
 		localBlobId = inserter.insert(Constants.OBJ_BLOB, data);
 		if (!isStashCommit && config.store != null) {
-			config.store.put(path, localBlobId);
+			config.store.put(GitUtil.decode(path), localBlobId);
 		}
 		if (progressMonitor != null) {
 			progressMonitor.worked(1);
@@ -253,9 +253,10 @@ public class CommitWriter {
 	private boolean matches(String path, Change change, File file) {
 		if (change == null)
 			return false;
+		var p = GitUtil.encode(change.path);
 		if (file == null)
-			return path.equals(change.path);
-		return path.startsWith(change.path.substring(0, change.path.lastIndexOf(GitUtil.DATASET_SUFFIX)));
+			return path.equals(p);
+		return path.startsWith(p.substring(0, p.lastIndexOf(GitUtil.DATASET_SUFFIX)));
 	}
 
 	private ObjectId commit(String message, ObjectId treeId, ObjectId localCommitId, ObjectId remoteCommitId) {

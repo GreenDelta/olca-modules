@@ -19,7 +19,8 @@ public class ModelRef {
 	}
 
 	public ModelRef(String path) {
-		this.path = GitUtil.decode(path);
+		path = GitUtil.decode(path);
+		this.path = path;
 		this.type = ModelType.valueOf(
 				path.contains("/")
 						? path.substring(0, path.indexOf("/"))

@@ -20,7 +20,7 @@ class TreeEntry implements Comparable<TreeEntry> {
 	}
 
 	TreeEntry(Category category) {
-		this(GitUtil.encode(category.name), FileMode.TREE, category);
+		this(category.name, FileMode.TREE, category);
 	}
 
 	TreeEntry(RootDescriptor descriptor) {
@@ -36,7 +36,7 @@ class TreeEntry implements Comparable<TreeEntry> {
 	}
 
 	TreeEntry(String name, FileMode fileMode, Object data, File file) {
-		this.name = name;
+		this.name = GitUtil.encode(name);
 		this.fileMode = fileMode;
 		this.data = data;
 		this.file = file;

@@ -46,7 +46,7 @@ public class ChangeIterator extends EntryIterator {
 		var list = new ArrayList<TreeEntry>();
 		var added = new HashSet<String>();
 		changes.forEach(d -> {
-			var path = d.path;
+			var path = GitUtil.encode(d.path);
 			if (!Strings.nullOrEmpty(prefix)) {
 				path = path.substring(prefix.length() + 1);
 			}
@@ -87,7 +87,7 @@ public class ChangeIterator extends EntryIterator {
 			return new ChangeIterator(this, change, entry.file);
 		var path = getEntryPathString();
 		return new ChangeIterator(this, changes.stream()
-				.filter(d -> d.path.startsWith(path + "/"))
+				.filter(d -> d.path.startsWith(GitUtil.decode(path) + "/"))
 				.toList());
 	}
 
