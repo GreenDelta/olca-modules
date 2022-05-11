@@ -47,7 +47,7 @@ public class GitStashApply {
 				.as(committer)
 				.update(workspaceIds)
 				.resolveConflictsWith(conflictResolver)
-				.fromStash(true)
+				.applyStash(true)
 				.run();
 		GitStashDrop.from(git).run();
 	}

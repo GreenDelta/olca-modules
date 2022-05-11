@@ -16,7 +16,6 @@ import org.openlca.git.ObjectIdStore;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
 import org.openlca.git.find.Entries;
 import org.openlca.git.find.References;
-import org.openlca.git.model.Commit;
 import org.openlca.git.model.Entry.EntryType;
 import org.openlca.git.model.ModelRef;
 import org.openlca.git.model.Reference;
@@ -90,13 +89,19 @@ class ImportHelper {
 		dao.delete(dao.getForRefId(refId));
 	}
 
-	void updateWorkspaceIds(Commit remoteCommit, ImportResult result, String mergeCommitId) throws IOException {
+	void updateWorkspaceIds(String commitId, ImportResult result, boolean applyStash) throws IOException {
 		if (workspaceIds == null)
 			return;
-		result.imported().forEach(ref -> workspaceIds.put(ref.path, ref.objectId));
+		result.imported().forEach(ref -> {
+			if (applyStash) {
+				workspaceIds.remove(ref.path);				
+			} else {
+				workspaceIds.put(ref.path, ref.objectId);
+			}
+		});
 		result.deleted().forEach(ref -> workspaceIds.remove(ref.path));
-		updateCategoryIds(remoteCommit.id, "");
-		workspaceIds.putRoot(ObjectId.fromString(remoteCommit.id));
+		updateCategoryIds(commitId, "");
+		workspaceIds.putRoot(ObjectId.fromString(commitId));
 		workspaceIds.save();
 	}
 

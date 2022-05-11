@@ -36,7 +36,7 @@ public class GitMerge {
 	private ObjectIdStore workspaceIds;
 	private PersonIdent committer;
 	private ConflictResolver conflictResolver;
-	private boolean fromStash;
+	private boolean applyStash;
 
 	private GitMerge(FileRepository git) {
 		this.git = git;
@@ -68,8 +68,8 @@ public class GitMerge {
 		return this;
 	}
 
-	public GitMerge fromStash(boolean fromStash) {
-		this.fromStash = fromStash;
+	public GitMerge applyStash(boolean applyStash) {
+		this.applyStash = applyStash;
 		return this;
 	}
 
@@ -96,21 +96,21 @@ public class GitMerge {
 		importHelper.runImport(gitStore);
 		importHelper.delete(deleted);
 		var result = new ImportResult(gitStore.getImported(), gitStore.getMerged(), gitStore.getKeepDeleted(), deleted);
-		String mergeCommitId = null;
-		if (!fromStash) {
+		String commitId = remoteCommit.id;
+		if (!applyStash) {
 			var ahead = history.getAhead();
 			if (ahead.isEmpty()) {
 				updateHead(remoteCommit);
 			} else {
-				mergeCommitId = createMergeCommit(localCommit, remoteCommit, result);
+				commitId = createMergeCommit(localCommit, remoteCommit, result);
 			}
 		}
-		importHelper.updateWorkspaceIds(remoteCommit, result, mergeCommitId);
+		importHelper.updateWorkspaceIds(commitId, result, applyStash);
 		return result.count() > 0;
 	}
 
 	private Commit getRemoteCommit() throws GitAPIException {
-		if (!fromStash)
+		if (!applyStash)
 			return commits.get(commits.resolve(Constants.REMOTE_BRANCH));
 		var commits = Git.wrap(git).stashList().call();
 		if (commits == null || commits.isEmpty())
@@ -121,14 +121,17 @@ public class GitMerge {
 	private List<DiffEntry> getRemoteChanges(Commit remoteCommit) throws IOException {
 		var localHistory = commits.find().refs(Constants.LOCAL_REF).all();
 		var remoteHistory = commits.find().refs(getRef()).all();
-		var commonParent = remoteHistory.stream()
+		var commonHistory = remoteHistory.stream()
 				.filter(c -> localHistory.contains(c))
-				.findFirst().orElse(null);
+				.toList();
+		var commonParent = !commonHistory.isEmpty()
+				? commonHistory.get(commonHistory.size() - 1)
+				: null;
 		return DiffEntries.between(git, commonParent, remoteCommit);
 	}
 
 	private String getRef() {
-		return fromStash ? org.eclipse.jgit.lib.Constants.R_STASH : Constants.REMOTE_REF;
+		return applyStash ? org.eclipse.jgit.lib.Constants.R_STASH : Constants.REMOTE_REF;
 	}
 
 	private String createMergeCommit(Commit localCommit, Commit remoteCommit, ImportResult result)

@@ -84,7 +84,7 @@ public class GitStashCreate {
 			var result = new ImportResult(gitStore.getImported(), gitStore.getMerged(), gitStore.getKeepDeleted(),
 					toDelete);
 			importHelper.delete(toDelete);
-			importHelper.updateWorkspaceIds(headCommit, result, null);
+			importHelper.updateWorkspaceIds(headCommit.id, result, false);
 		}
 		for (var category : categoryDao.getRootCategories()) {
 			deleteIfAdded(category);
