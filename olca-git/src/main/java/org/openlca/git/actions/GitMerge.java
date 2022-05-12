@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.diff.DiffEntry.Side;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -15,6 +16,7 @@ import org.openlca.git.ObjectIdStore;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
 import org.openlca.git.actions.ImportHelper.ImportResult;
 import org.openlca.git.find.Commits;
+import org.openlca.git.model.Change;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.Diff;
 import org.openlca.git.model.DiffType;
@@ -81,12 +83,12 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		var remoteCommit = getRemoteCommit();
 		var diffs = getRemoteDiffs(remoteCommit);
 		var deleted = diffs.stream()
-				.filter(d -> d.type == DiffType.DELETED)
-				.map(d -> d.left)
+				.filter(d -> d.diffType == DiffType.DELETED)
+				.map(d -> d.toReference(Side.OLD))
 				.collect(Collectors.toList());
 		var addedOrChanged = diffs.stream()
-				.filter(d -> d.type != DiffType.DELETED)
-				.map(d -> d.right)
+				.filter(d -> d.diffType != DiffType.DELETED)
+				.map(d -> d.toReference(Side.NEW))
 				.collect(Collectors.toList());
 		if (progressMonitor != null) {
 			progressMonitor.beginTask("Merging data", addedOrChanged.size() + deleted.size());
@@ -139,13 +141,14 @@ public class GitMerge extends GitProgressAction<Boolean> {
 			throws IOException {
 		var config = new GitConfig(database, workspaceIds, git);
 		var diffs = result.merged().stream()
-				.map(r -> new Diff(DiffType.MODIFIED, r, null))
+				.map(r -> new Change(DiffType.MODIFIED, r))
 				.collect(Collectors.toList());
-		result.keepDeleted().forEach(r -> diffs.add(new Diff(DiffType.DELETED, r, null)));
+		result.keepDeleted()
+				.forEach(r -> diffs.add(new Change(DiffType.DELETED, r)));
 		result.deleted().forEach(r -> {
 			if (conflictResolver.isConflict(r)
 					&& conflictResolver.resolveConflict(r, null).type == ConflictResolutionType.OVERWRITE_LOCAL) {
-				diffs.add(new Diff(DiffType.DELETED, r, null));
+				diffs.add(new Change(DiffType.DELETED, r));
 			}
 		});
 		var commitWriter = new CommitWriter(config, committer);

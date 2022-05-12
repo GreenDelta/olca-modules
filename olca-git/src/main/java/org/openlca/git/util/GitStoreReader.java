@@ -35,8 +35,8 @@ public class GitStoreReader implements JsonStoreReader {
 	private final TypeRefIdMap<Reference> remoteChanges;
 	private final ConflictResolver conflictResolver;
 	private final List<Reference> imported = new ArrayList<>();
-	private final List<Reference> merged = new ArrayList<>();
-	private final List<Reference> keepDeleted = new ArrayList<>();
+	private final List<ModelRef> merged = new ArrayList<>();
+	private final List<ModelRef> keepDeleted = new ArrayList<>();
 
 	public GitStoreReader(FileRepository repo, Commit remoteCommit, List<Reference> remoteChanges) {
 		this(repo, null, remoteCommit, remoteChanges, null);
@@ -52,7 +52,7 @@ public class GitStoreReader implements JsonStoreReader {
 		this.remoteCommit = remoteCommit;
 		this.conflictResolver = conflictResolver;
 		this.remoteChanges = new TypeRefIdMap<>();
-		remoteChanges.forEach(r -> GitStoreReader.this.remoteChanges.put(r.type, r.refId, r));
+		remoteChanges.forEach(d -> GitStoreReader.this.remoteChanges.put(d.type, d.refId, d));
 	}
 
 	public boolean contains(ModelType type, String refId) {
@@ -85,7 +85,7 @@ public class GitStoreReader implements JsonStoreReader {
 		var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
 		var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(".json"));
 		var ref = remoteChanges.get(type, refId);
-		if (ObjectId.zeroId().equals(ref.objectId))
+		if (ObjectId.zeroId().equals(ref))
 			return null;
 		return datasets.getBytes(ref.objectId);
 	}
@@ -112,7 +112,7 @@ public class GitStoreReader implements JsonStoreReader {
 		}
 		if (resolution.type == ConflictResolutionType.KEEP_LOCAL && localCommit != null) {
 			if (references.get(type, refId, localCommit.id) == null) {
-				keepDeleted.add(ref);
+				keepDeleted.add(new ModelRef(ref));
 			}
 			return null;
 		}
@@ -164,11 +164,11 @@ public class GitStoreReader implements JsonStoreReader {
 		return imported;
 	}
 
-	public List<Reference> getMerged() {
+	public List<ModelRef> getMerged() {
 		return merged;
 	}
 
-	public List<Reference> getKeepDeleted() {
+	public List<ModelRef> getKeepDeleted() {
 		return keepDeleted;
 	}
 

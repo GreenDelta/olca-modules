@@ -17,6 +17,7 @@ import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
 import org.openlca.git.find.Entries;
 import org.openlca.git.find.References;
 import org.openlca.git.model.Entry.EntryType;
+import org.openlca.git.model.ModelRef;
 import org.openlca.git.model.Reference;
 import org.openlca.git.util.GitStoreReader;
 import org.openlca.git.util.ProgressMonitor;
@@ -77,7 +78,7 @@ class ImportHelper {
 		}
 	}
 
-	void delete(List<Reference> remoteDeletions) {
+	void delete(List<? extends ModelRef> remoteDeletions) {
 		for (var ref : new ArrayList<>(remoteDeletions)) {
 			if (conflictResolver != null && conflictResolver.isConflict(ref)) {
 				var resolution = conflictResolver.resolveConflict(ref, null);
@@ -131,8 +132,8 @@ class ImportHelper {
 		});
 	}
 
-	static record ImportResult(List<Reference> imported, List<Reference> merged,
-			List<Reference> keepDeleted, List<Reference> deleted) {
+	static record ImportResult(List<Reference> imported, List<ModelRef> merged,
+			List<ModelRef> keepDeleted, List<Reference> deleted) {
 
 		int count() {
 			return imported.size() + merged.size() + deleted.size() + keepDeleted.size();

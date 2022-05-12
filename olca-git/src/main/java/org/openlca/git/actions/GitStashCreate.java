@@ -3,6 +3,7 @@ package org.openlca.git.actions;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
+import org.eclipse.jgit.diff.DiffEntry.Side;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -13,6 +14,7 @@ import org.openlca.git.GitConfig;
 import org.openlca.git.ObjectIdStore;
 import org.openlca.git.actions.ImportHelper.ImportResult;
 import org.openlca.git.find.Commits;
+import org.openlca.git.model.Change;
 import org.openlca.git.model.DiffType;
 import org.openlca.git.util.Diffs;
 import org.openlca.git.util.GitStoreReader;
@@ -64,11 +66,11 @@ public class GitStashCreate extends GitProgressAction<Void> {
 		if (diffs.isEmpty())
 			throw new IllegalStateException("No diffs found");
 		var writer = new CommitWriter(config, committer, progressMonitor);
-		writer.stashCommit("Stashed changes", diffs);
+		writer.stashCommit("Stashed changes", diffs.stream().map(Change::new).collect(Collectors.toList()));
 		var importHelper = new ImportHelper(git, database, workspaceIds, progressMonitor);
 		var toDelete = diffs.stream()
-				.filter(diff -> diff.type == DiffType.ADDED)
-				.map(diff -> diff.right)
+				.filter(d -> d.diffType == DiffType.ADDED)
+				.map(d -> d.toReference(Side.NEW))
 				.collect(Collectors.toList());
 		var headCommit = commits.head();
 		if (headCommit == null) {
@@ -78,8 +80,8 @@ public class GitStashCreate extends GitProgressAction<Void> {
 			}
 		} else {
 			var toImport = diffs.stream()
-					.filter(diff -> diff.type != DiffType.ADDED)
-					.map(diff -> diff.left)
+					.filter(d -> d.diffType != DiffType.ADDED)
+					.map(d -> d.toReference(Side.OLD))
 					.collect(Collectors.toList());
 			var gitStore = new GitStoreReader(git, headCommit, toImport);
 			importHelper.runImport(gitStore);

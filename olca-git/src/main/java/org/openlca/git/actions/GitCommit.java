@@ -2,13 +2,14 @@ package org.openlca.git.actions;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.openlca.core.database.IDatabase;
 import org.openlca.git.GitConfig;
 import org.openlca.git.ObjectIdStore;
-import org.openlca.git.model.Diff;
+import org.openlca.git.model.Change;
 import org.openlca.git.util.Diffs;
 import org.openlca.git.writer.CommitWriter;
 import org.openlca.util.Strings;
@@ -17,7 +18,7 @@ public class GitCommit extends GitProgressAction<String> {
 
 	private final IDatabase database;
 	private FileRepository git;
-	private List<Diff> diffs;
+	private List<Change> changes;
 	private String message;
 	private ObjectIdStore workspaceIds;
 	private PersonIdent committer;
@@ -35,8 +36,8 @@ public class GitCommit extends GitProgressAction<String> {
 		return this;
 	}
 
-	public GitCommit diffs(List<Diff> diffs) {
-		this.diffs = diffs;
+	public GitCommit changes(List<Change> changes) {
+		this.changes = changes;
 		return this;
 	}
 
@@ -60,13 +61,13 @@ public class GitCommit extends GitProgressAction<String> {
 		if (git == null || database == null || Strings.nullOrEmpty(message))
 			throw new IllegalStateException("Git repository, database and message must be set");
 		var config = new GitConfig(database, workspaceIds, git);
-		if (diffs == null) {
+		if (changes == null) {
 			if (workspaceIds == null)
 				throw new IllegalStateException("ObjectIdStore must be set when no changes are specified");
-			diffs = Diffs.workspace(config);
+			changes = Diffs.workspace(config).stream().map(Change::new).collect(Collectors.toList());
 		}
 		var writer = new CommitWriter(config, committer, progressMonitor);
-		var commitId = writer.commit(message, diffs);
+		var commitId = writer.commit(message, changes);
 		return commitId;
 	}
 

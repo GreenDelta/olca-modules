@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RefEntity;
 import org.openlca.git.GitConfig;
-import org.openlca.git.model.Diff;
+import org.openlca.git.model.Change;
 import org.openlca.git.model.DiffType;
 import org.openlca.jsonld.output.JsonExport;
 import org.slf4j.Logger;
@@ -38,7 +38,7 @@ class Converter {
 	private final GitConfig config;
 	private final BlockingMap<String, byte[]> queue = new BlockingHashMap<>();
 	private final ExecutorService threads;
-	private Deque<Diff> diffs;
+	private Deque<Change> changes;
 	private final AtomicInteger queueSize = new AtomicInteger();
 
 	Converter(GitConfig config, ExecutorService threads) {
@@ -46,8 +46,8 @@ class Converter {
 		this.threads = threads;
 	}
 
-	void start(List<Diff> diffs) {
-		this.diffs = new LinkedList<>(diffs);
+	void start(List<Change> changes) {
+		this.changes = new LinkedList<>(changes);
 		for (var i = 0; i < config.converterThreads; i++) {
 			startNext();
 		}
@@ -59,10 +59,10 @@ class Converter {
 		if (queueSize.get() >= config.converterThreads)
 			return;
 		queueSize.incrementAndGet();
-		synchronized (diffs) {
-			if (diffs.isEmpty())
+		synchronized (changes) {
+			if (changes.isEmpty())
 				return;
-			var entry = diffs.pop();
+			var entry = changes.pop();
 			threads.submit(() -> {
 				convert(entry);
 				startNext();
@@ -70,10 +70,10 @@ class Converter {
 		}
 	}
 
-	private void convert(Diff diff) {
-		if (diff.type == DiffType.DELETED)
+	private void convert(Change change) {
+		if (change.diffType == DiffType.DELETED)
 			return;
-		var path = diff.path();
+		var path = change.path;
 		var type = ModelType.valueOf(path.substring(0, path.indexOf('/'))).getModelClass();
 		var name = path.substring(path.lastIndexOf('/') + 1);
 		var refId = name.substring(0, name.indexOf('.'));
@@ -82,7 +82,7 @@ class Converter {
 			var data = convert(model, config);
 			offer(path, data);
 		} catch (Exception e) {
-			log.error("failed to convert data set " + diff, e);
+			log.error("failed to convert data set " + change, e);
 			offer(path, new byte[0]);
 		}
 	}

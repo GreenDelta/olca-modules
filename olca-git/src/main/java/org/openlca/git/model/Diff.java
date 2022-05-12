@@ -2,26 +2,30 @@ package org.openlca.git.model;
 
 import java.util.List;
 
-public class Diff {
+import org.eclipse.jgit.diff.DiffEntry.Side;
+import org.eclipse.jgit.lib.ObjectId;
 
-	public final DiffType type;
-	public final Reference left;
-	public final Reference right;
+public class Diff extends ModelRef {
 
-	public Diff(DiffType type, Reference left, Reference right) {
-		this.type = type;
-		this.left = left;
-		this.right = right;
+	public final DiffType diffType;
+	public final String oldCommitId;
+	public final ObjectId oldObjectId;
+	public final String newCommitId;
+	public final ObjectId newObjectId;
+
+	public Diff(DiffType diffType, Reference oldRef, Reference newRef) {
+		super(diffType == DiffType.DELETED ? oldRef : newRef);
+		this.diffType = diffType;
+		this.oldCommitId = oldRef != null ? oldRef.commitId : null;
+		this.oldObjectId = oldRef != null ? oldRef.objectId : ObjectId.zeroId();
+		this.newCommitId = newRef != null ? newRef.commitId : null;
+		this.newObjectId = newRef != null ? newRef.objectId : ObjectId.zeroId();
 	}
-
-	public ModelRef ref() {
-		if (right != null)
-			return right;
-		return left;
-	}
-
-	public String path() {
-		return type == DiffType.DELETED ? left.path : right.path;
+	
+	public Reference toReference(Side side) {
+		if (side == Side.OLD)
+			return new Reference(path, oldCommitId, oldObjectId);
+		return new Reference(path, newCommitId, newObjectId);
 	}
 
 	public static List<Diff> filter(List<Diff> diffs, DiffType type) {
@@ -32,8 +36,8 @@ public class Diff {
 		if (types == null)
 			return diffs;
 		return diffs.stream().filter(d -> {
-			for (DiffType type : types)
-				if (d.type == type)
+			for (DiffType diffType : types)
+				if (d.diffType == diffType)
 					return true;
 			return false;
 		}).toList();

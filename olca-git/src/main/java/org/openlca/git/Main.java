@@ -3,6 +3,7 @@ package org.openlca.git;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -13,6 +14,7 @@ import org.openlca.core.database.Derby;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
+import org.openlca.git.model.Change;
 import org.openlca.git.util.Diffs;
 import org.openlca.git.writer.CommitWriter;
 import org.openlca.util.Categories;
@@ -105,16 +107,16 @@ public class Main {
 		}
 
 		private void refDataSingleCommit() throws IOException {
-			var diffs = Diffs.workspace(config);
-			System.out.println(writer.commit("Added data", diffs));
+			var changes = Diffs.workspace(config).stream().map(Change::new).collect(Collectors.toList());
+			System.out.println(writer.commit("Added data", changes));
 		}
 
 		private void refDataSeparateCommits() throws IOException {
-			var diffs = Diffs.workspace(config);
+			var changes = Diffs.workspace(config).stream().map(Change::new).collect(Collectors.toList());
 			long time = 0;
 			for (ModelType type : REF_DATA_TYPES) {
-				var filtered = diffs.stream()
-						.filter(d -> d.path().startsWith(type.name() + "/"))
+				var filtered = changes.stream()
+						.filter(d -> d.path.startsWith(type.name() + "/"))
 						.toList();
 				long t = System.currentTimeMillis();
 				System.out.println("Committing " + filtered.size() + " files");
@@ -142,9 +144,9 @@ public class Main {
 			dao.insert(newLoc);
 			config.store.save();
 
-			var diffs = Diffs.workspace(config);
+			var changes = Diffs.workspace(config).stream().map(Change::new).collect(Collectors.toList());
 			var writer = new CommitWriter(config, committer);
-			System.out.println(writer.commit("Updated data", diffs));
+			System.out.println(writer.commit("Updated data", changes));
 		}
 
 		private void delete() throws IOException {
@@ -166,9 +168,9 @@ public class Main {
 				}
 			}
 			config.store.save();
-			var diffs = Diffs.workspace(config);
+			var changes = Diffs.workspace(config).stream().map(Change::new).collect(Collectors.toList());
 			var writer = new CommitWriter(config, committer);
-			System.out.println(writer.commit("Deleted data", diffs));
+			System.out.println(writer.commit("Deleted data", changes));
 		}
 
 	}

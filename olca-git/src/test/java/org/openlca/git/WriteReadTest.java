@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.stream.Collectors;
 
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -15,6 +16,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.git.find.Commits;
 import org.openlca.git.find.Datasets;
+import org.openlca.git.model.Change;
 import org.openlca.git.util.Diffs;
 import org.openlca.git.util.Repositories;
 import org.openlca.git.writer.CommitWriter;
@@ -42,7 +44,7 @@ public class WriteReadTest {
 		db.insert(unitGroup);
 
 		// should find 1 diff
-		var diffs = Diffs.workspace(temp.config);
+		var diffs = Diffs.workspace(temp.config).stream().map(Change::new).collect(Collectors.toList());
 		assertEquals(1, diffs.size());
 
 		// commit it
