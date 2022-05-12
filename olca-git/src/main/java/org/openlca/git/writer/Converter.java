@@ -10,7 +10,6 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.GitConfig;
 import org.openlca.git.model.Change;
-import org.openlca.git.util.GitUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thavam.util.concurrent.blockingMap.BlockingHashMap;
@@ -71,7 +70,7 @@ class Converter {
 	private void convert(Change change) {
 		if (change.changeType == ChangeType.DELETE)
 			return;
-		var path = GitUtil.encode(change.path);
+		var path = change.path;
 		var type = ModelType.valueOf(path.substring(0, path.indexOf('/'))).getModelClass();
 		var name = path.substring(path.lastIndexOf('/') + 1);
 		var refId = name.substring(0, name.indexOf('.'));
@@ -93,8 +92,8 @@ class Converter {
 		}
 	}
 
-	byte[] take(String refId) throws InterruptedException {
-		byte[] data = queue.take(refId);
+	byte[] take(String path) throws InterruptedException {
+		byte[] data = queue.take(path);
 		queueSize.decrementAndGet();
 		startNext();
 		return data;

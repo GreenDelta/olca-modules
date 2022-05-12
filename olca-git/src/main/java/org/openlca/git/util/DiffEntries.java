@@ -75,7 +75,7 @@ public class DiffEntries {
 		for (var path : paths) {
 			if (Strings.nullOrEmpty(path))
 				continue;
-			filter = AndTreeFilter.create(filter, PathFilter.create(path));
+			filter = AndTreeFilter.create(filter, PathFilter.create(GitUtil.encode(path)));
 		}
 		return filter;
 	}

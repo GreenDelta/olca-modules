@@ -20,13 +20,13 @@ public class ChangeIterator extends EntryIterator {
 	private final List<Change> changes;
 
 	public ChangeIterator(GitConfig config, List<Change> changes) {
-		super(initialize(null, config, changes));
+		super(initialize("", config, changes));
 		this.config = config;
 		this.changes = changes;
 	}
 
 	private ChangeIterator(ChangeIterator parent, List<Change> changes) {
-		super(parent, initialize(parent.getEntryPathString(), parent.config, changes));
+		super(parent, initialize(GitUtil.decode(parent.getEntryPathString()), parent.config, changes));
 		this.config = parent.config;
 		this.changes = changes;
 	}
@@ -45,8 +45,8 @@ public class ChangeIterator extends EntryIterator {
 	private static List<TreeEntry> initialize(String prefix, GitConfig config, List<Change> changes) {
 		var list = new ArrayList<TreeEntry>();
 		var added = new HashSet<String>();
-		changes.forEach(d -> {
-			var path = GitUtil.encode(d.path);
+		changes.forEach(change -> {
+			var path = change.path;
 			if (!Strings.nullOrEmpty(prefix)) {
 				path = path.substring(prefix.length() + 1);
 			}
@@ -56,11 +56,11 @@ public class ChangeIterator extends EntryIterator {
 			if (path.contains("/")) {
 				list.add(new TreeEntry(name, FileMode.TREE));
 			} else {
-				list.add(new TreeEntry(name, FileMode.REGULAR_FILE, d));
-				var binaryDir = getBinaryDir(config, d);
+				list.add(new TreeEntry(name, FileMode.REGULAR_FILE, change));
+				var binaryDir = getBinaryDir(config, change);
 				if (binaryDir != null) {
 					var bin = name.substring(0, name.indexOf(GitUtil.DATASET_SUFFIX)) + GitUtil.BIN_DIR_SUFFIX;
-					list.add(new TreeEntry(bin, FileMode.TREE, d, binaryDir));
+					list.add(new TreeEntry(bin, FileMode.TREE, change, binaryDir));
 				}
 			}
 			added.add(name);
@@ -82,12 +82,13 @@ public class ChangeIterator extends EntryIterator {
 
 	@Override
 	public ChangeIterator createSubtreeIterator(ObjectReader reader) {
-		var entry = getEntry();
-		if (entry.data instanceof Change change && entry.file != null)
-			return new ChangeIterator(this, change, entry.file);
-		var path = getEntryPathString();
+		var data = getEntryData();
+		var file = getEntryFile();
+		if (data instanceof Change change && file != null)
+			return new ChangeIterator(this, change, file);
+		var path = GitUtil.decode(getEntryPathString());
 		return new ChangeIterator(this, changes.stream()
-				.filter(d -> d.path.startsWith(GitUtil.decode(path) + "/"))
+				.filter(d -> d.path.startsWith(path + "/"))
 				.toList());
 	}
 

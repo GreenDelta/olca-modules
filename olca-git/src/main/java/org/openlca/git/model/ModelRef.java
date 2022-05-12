@@ -5,7 +5,6 @@ import java.util.Objects;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.openlca.core.model.ModelType;
-import org.openlca.git.util.GitUtil;
 
 public class ModelRef {
 
@@ -19,7 +18,6 @@ public class ModelRef {
 	}
 
 	public ModelRef(String path) {
-		path = GitUtil.decode(path);
 		this.path = path;
 		this.type = ModelType.valueOf(
 				path.contains("/")

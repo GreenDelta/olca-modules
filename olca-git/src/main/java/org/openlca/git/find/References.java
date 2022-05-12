@@ -45,7 +45,7 @@ public class References {
 			try (var walk = new TreeWalk(repo)) {
 				var paths = new ArrayList<String>();
 				walk.addTree(commit.getTree());
-				walk.setFilter(PathFilter.create(GitUtil.encode(ref.getBinariesPath())));
+				walk.setFilter(PathFilter.create(ref.getBinariesPath()));
 				walk.setRecursive(true);
 				while (walk.next()) {
 					paths.add(walk.getNameString());
@@ -74,7 +74,7 @@ public class References {
 		private String refId;
 
 		public Find path(String path) {
-			this.path = GitUtil.encode(path);
+			this.path = path;
 			return this;
 		}
 
@@ -117,7 +117,7 @@ public class References {
 							NotBinaryFilter.create(),
 							PathFilter.create(SchemaVersion.FILE_NAME).negate());
 					if (path != null) {
-						filter = AndTreeFilter.create(filter, PathFilter.create(path));
+						filter = AndTreeFilter.create(filter, PathFilter.create(GitUtil.encode(path)));
 					}
 					if (type != null && refId != null) {
 						filter = AndTreeFilter.create(filter, new ModelFilter(type, refId));

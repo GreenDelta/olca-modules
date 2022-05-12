@@ -156,7 +156,7 @@ public class CommitWriter {
 		}
 		if (!appended && !Strings.nullOrEmpty(prefix)) {
 			if (!isStashCommit && config.store != null) {
-				config.store.remove(GitUtil.decode(prefix));
+				config.store.remove(prefix);
 			}
 			return null;
 		}
@@ -165,7 +165,7 @@ public class CommitWriter {
 		}
 		var newId = insert(i -> i.insert(tree));
 		if (!isStashCommit && config.store != null) {
-			config.store.put(GitUtil.decode(prefix), newId);
+			config.store.put(prefix, newId);
 		}
 		return newId;
 	}
@@ -190,7 +190,7 @@ public class CommitWriter {
 		} else if (Strings.nullOrEmpty(prefix)) {
 			walk.addTree(treeId);
 		} else {
-			walk.addTree(new CanonicalTreeParser(prefix.getBytes(), walk.getObjectReader(), treeId));
+			walk.addTree(new CanonicalTreeParser(GitUtil.encode(prefix).getBytes(), walk.getObjectReader(), treeId));
 		}
 	}
 
@@ -202,7 +202,7 @@ public class CommitWriter {
 			return remoteTreeId;
 		if (iterator == null && remoteTreeId == null)
 			return localTreeId;
-		var prefix = walk.getPathString();
+		var prefix = GitUtil.decode(walk.getPathString());
 		return syncTree(prefix, iterator, localTreeId, remoteTreeId);
 	}
 
@@ -212,13 +212,13 @@ public class CommitWriter {
 		var remoteBlobId = walk.getFileMode(1) != FileMode.MISSING ? walk.getObjectId(1) : null;
 		if (walk.getFileMode(2) == FileMode.MISSING)
 			return isMergeCommit && remoteBlobId != null ? remoteBlobId : localBlobId;
-		var path = walk.getPathString();
+		var path = GitUtil.decode(walk.getPathString());
 		var iterator = walk.getTree(2, ChangeIterator.class);
 		Change change = iterator.getEntryData();
 		var file = iterator.getEntryFile();
 		if (change.changeType == ChangeType.DELETE && matches(path, change, file)) {
 			if (file == null && !isStashCommit && config.store != null) {
-				config.store.remove(GitUtil.decode(path));
+				config.store.remove(path);
 			}
 			return null;
 		}
@@ -230,7 +230,7 @@ public class CommitWriter {
 		var data = converter.take(path);
 		localBlobId = inserter.insert(Constants.OBJ_BLOB, data);
 		if (!isStashCommit && config.store != null) {
-			config.store.put(GitUtil.decode(path), localBlobId);
+			config.store.put(path, localBlobId);
 		}
 		if (progressMonitor != null) {
 			progressMonitor.worked(1);
@@ -253,10 +253,9 @@ public class CommitWriter {
 	private boolean matches(String path, Change change, File file) {
 		if (change == null)
 			return false;
-		var p = GitUtil.encode(change.path);
 		if (file == null)
-			return path.equals(p);
-		return path.startsWith(p.substring(0, p.lastIndexOf(GitUtil.DATASET_SUFFIX)));
+			return path.equals(change.path);
+		return path.startsWith(change.path.substring(0, change.path.lastIndexOf(GitUtil.DATASET_SUFFIX)));
 	}
 
 	private ObjectId commit(String message, ObjectId treeId, ObjectId localCommitId, ObjectId remoteCommitId) {

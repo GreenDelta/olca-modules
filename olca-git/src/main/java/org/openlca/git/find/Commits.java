@@ -113,12 +113,12 @@ public class Commits {
 		}
 
 		public Find path(String path) {
-			this.path = GitUtil.encode(path);
+			this.path = path;
 			return this;
 		}
 
 		public Find type(ModelType type) {
-			this.path = type.name();
+			this.path = type != null ? type.name() : null;
 			return this;
 		}
 
@@ -197,7 +197,7 @@ public class Commits {
 			}
 			TreeFilter filter = null;
 			if (!Strings.nullOrEmpty(path)) {
-				filter = addFilter(filter, PathFilter.create(path));
+				filter = addFilter(filter, PathFilter.create(GitUtil.encode(path)));
 			}
 			if (type != null && !Strings.nullOrEmpty(refId)) {
 				filter = addFilter(filter, new ModelFilter(type, refId));

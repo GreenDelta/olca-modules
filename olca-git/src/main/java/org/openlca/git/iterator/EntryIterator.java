@@ -104,22 +104,17 @@ abstract class EntryIterator extends AbstractTreeIterator {
 		mode = entry.fileMode.getBits();
 	}
 
-	public TreeEntry getEntry() {
-		if (eof())
-			return null;
-		return entries.get(index);
-	}
-
 	@SuppressWarnings("unchecked")
 	public <T> T getEntryData() {
 		if (eof())
 			return null;
-		return (T) getEntry().data;
+		return (T) entries.get(index).data;
 	}
 
 	public File getEntryFile() {
 		if (eof())
 			return null;
-		return getEntry().file;
+		return entries.get(index).file;
 	}
+
 }

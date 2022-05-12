@@ -82,11 +82,11 @@ public class GitUtil {
 		}
 		return true;
 	}
-	
+
 	public static byte[] getBytes(ObjectId id) {
 		var bytes = new byte[40];
 		id.copyRawTo(bytes, 0);
 		return bytes;
 	}
-	
+
 }

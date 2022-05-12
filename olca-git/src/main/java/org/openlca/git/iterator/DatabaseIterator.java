@@ -75,24 +75,24 @@ public class DatabaseIterator extends EntryIterator {
 	public boolean hasId() {
 		if (config.store == null)
 			return false;
-		var e = getEntry();
-		if (e.data instanceof ModelType)
-			return config.store.has((ModelType) e.data);
-		if (e.data instanceof Category)
-			return config.store.has((Category) e.data);
-		return config.store.has(categoryPaths, (RootDescriptor) e.data);
+		var data = getEntryData();
+		if (data instanceof ModelType)
+			return config.store.has((ModelType) data);
+		if (data instanceof Category)
+			return config.store.has((Category) data);
+		return config.store.has(categoryPaths, (RootDescriptor) data);
 	}
 
 	@Override
 	public byte[] idBuffer() {
 		if (config.store == null)
 			return GitUtil.getBytes(ObjectId.zeroId());
-		var e = getEntry();
-		if (e.data instanceof ModelType)
-			return config.store.getRaw((ModelType) e.data);
-		if (e.data instanceof Category)
-			return config.store.getRaw((Category) e.data);
-		return config.store.getRaw(categoryPaths, (RootDescriptor) e.data);
+		var data = getEntryData();
+		if (data instanceof ModelType)
+			return config.store.getRaw((ModelType) data);
+		if (data instanceof Category)
+			return config.store.getRaw((Category) data);
+		return config.store.getRaw(categoryPaths, (RootDescriptor) data);
 	}
 
 	@Override
@@ -102,10 +102,10 @@ public class DatabaseIterator extends EntryIterator {
 
 	@Override
 	public AbstractTreeIterator createSubtreeIterator(ObjectReader reader) {
-		var entry = getEntry();
-		if (entry.data instanceof ModelType type)
+		var data = getEntryData();
+		if (data instanceof ModelType type)
 			return new DatabaseIterator(this, config, init(config, type));
-		if (entry.data instanceof Category category)
+		if (data instanceof Category category)
 			return new DatabaseIterator(this, config, init(config, category));
 		return null;
 	}

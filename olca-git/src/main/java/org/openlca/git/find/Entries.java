@@ -39,7 +39,7 @@ public class Entries {
 		private String commitId;
 
 		public Find path(String path) {
-			this.path = GitUtil.encode(path);
+			this.path = path;
 			return this;
 		}
 
@@ -69,7 +69,7 @@ public class Entries {
 							PathFilter.create(SchemaVersion.FILE_NAME).negate());
 					walk.setFilter(filter);
 					while (walk.next()) {
-						var name = walk.getNameString();
+						var name = GitUtil.decode(walk.getNameString());
 						var fullPath = Strings.nullOrEmpty(path) ? name : path + "/" + name;
 						entries.add(new Entry(fullPath, commitId, walk.getObjectId(0)));
 					}

@@ -56,7 +56,7 @@ public class Diffs {
 		}
 
 		public Find path(String path) {
-			this.path = GitUtil.encode(path);
+			this.path = path;
 			return this;
 		}
 
@@ -77,7 +77,7 @@ public class Diffs {
 						NotBinaryFilter.create(),
 						PathFilter.create(SchemaVersion.FILE_NAME).negate());
 				if (path != null) {
-					filter = AndTreeFilter.create(filter, PathFilter.create(path));
+					filter = AndTreeFilter.create(filter, PathFilter.create(GitUtil.encode(path)));
 				}
 				walk.setFilter(filter);
 				return DiffEntry.scan(walk).stream()

@@ -29,7 +29,6 @@ public class Ids {
 
 	public ObjectId get(String path, String commitId) {
 		try {
-			path = GitUtil.encode(path);
 			var commits = Commits.of(repo);
 			var commit = commits.getRev(commitId);
 			if (commit == null)
@@ -44,9 +43,8 @@ public class Ids {
 	ObjectId get(ObjectId treeId, String path) {
 		if (Strings.nullOrEmpty(path))
 			return treeId;
-		path = GitUtil.encode(path);
 		try {
-			var walk = TreeWalk.forPath(repo, path, treeId);
+			var walk = TreeWalk.forPath(repo, GitUtil.encode(path), treeId);
 			if (walk == null)
 				return ObjectId.zeroId();
 			return walk.getObjectId(0);
