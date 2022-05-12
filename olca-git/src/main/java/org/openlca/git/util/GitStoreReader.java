@@ -28,7 +28,7 @@ public class GitStoreReader implements JsonStoreReader {
 	private static final Gson gson = new Gson();
 	private final References references;
 	private final Datasets datasets;
-	 private final Ids ids;
+	private final Ids ids;
 	private final Commit localCommit;
 	private final Commit remoteCommit;
 	private final Categories categories;
@@ -83,7 +83,7 @@ public class GitStoreReader implements JsonStoreReader {
 
 	private byte[] getDataset(String path) {
 		var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
-		var refId = path.substring(path.lastIndexOf("/")  + 1, path.lastIndexOf(".json"));
+		var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(".json"));
 		var ref = remoteChanges.get(type, refId);
 		if (ObjectId.zeroId().equals(ref.objectId))
 			return null;

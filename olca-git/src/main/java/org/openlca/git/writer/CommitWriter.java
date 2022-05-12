@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -23,8 +22,9 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.openlca.git.GitConfig;
-import org.openlca.git.iterator.ChangeIterator;
-import org.openlca.git.model.Change;
+import org.openlca.git.iterator.DiffIterator;
+import org.openlca.git.model.Diff;
+import org.openlca.git.model.DiffType;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.ProgressMonitor;
 import org.openlca.git.util.Repositories;
@@ -55,43 +55,43 @@ public class CommitWriter {
 		this.progressMonitor = progressMonitor;
 	}
 
-	public String commit(String message, List<Change> changes) throws IOException {
+	public String commit(String message, List<Diff> diffs) throws IOException {
 		isMergeCommit = false;
 		isStashCommit = false;
-		return _commit(message, changes, null, null);
+		return _commit(message, diffs, null, null);
 	}
 
-	public String stashCommit(String message, List<Change> changes) throws IOException {
+	public String stashCommit(String message, List<Diff> diffs) throws IOException {
 		isMergeCommit = false;
 		isStashCommit = true;
-		return _commit(message, changes, null, null);
+		return _commit(message, diffs, null, null);
 	}
 
-	public String mergeCommit(String message, List<Change> changes, String localCommitId, String remoteCommitId)
+	public String mergeCommit(String message, List<Diff> diffs, String localCommitId, String remoteCommitId)
 			throws IOException {
 		isMergeCommit = true;
 		isStashCommit = false;
-		return _commit(message, changes, localCommitId, remoteCommitId);
+		return _commit(message, diffs, localCommitId, remoteCommitId);
 	}
 
-	public String _commit(String message, List<Change> changes, String localCommitId, String remoteCommitId)
+	public String _commit(String message, List<Diff> diffs, String localCommitId, String remoteCommitId)
 			throws IOException {
 		var threads = Executors.newCachedThreadPool();
 		try {
 			var previousCommit = Repositories.headCommitOf(config.repo);
 			if (previousCommit != null && !isCurrentSchemaVersion())
 				throw new IOException("Git repo is not in current schema version");
-			if (changes.isEmpty() && (previousCommit == null || localCommitId == null || remoteCommitId == null))
+			if (diffs.isEmpty() && (previousCommit == null || localCommitId == null || remoteCommitId == null))
 				return null;
 			if (progressMonitor != null) {
-				progressMonitor.beginTask("Writing commit", changes.size());
+				progressMonitor.beginTask("Writing commit", diffs.size());
 			}
 			inserter = config.repo.getObjectDatabase().newPackInserter();
 			inserter.checkExisting(config.checkExisting);
 			converter = new Converter(config, threads);
-			converter.start(changes.stream()
-					.filter(c -> c.changeType != ChangeType.DELETE)
-					.sorted((c1, c2) -> Strings.compare(c1.path, c2.path))
+			converter.start(diffs.stream()
+					.filter(d -> d.type != DiffType.DELETED)
+					.sorted((d1, d2) -> Strings.compare(d1.path(), d2.path()))
 					.toList());
 			var localCommitOid = localCommitId != null
 					? ObjectId.fromString(localCommitId)
@@ -103,7 +103,7 @@ public class CommitWriter {
 					: ObjectId.zeroId();
 			var localTreeId = getCommitTreeId(localCommitOid);
 			var remoteTreeId = getCommitTreeId(remoteCommitOid);
-			var treeId = syncTree("", new ChangeIterator(config, changes), localTreeId, remoteTreeId);
+			var treeId = syncTree("", new DiffIterator(config, diffs), localTreeId, remoteTreeId);
 			if (!isStashCommit && config.store != null) {
 				config.store.save();
 			}
@@ -132,17 +132,17 @@ public class CommitWriter {
 		return commit.getTree().getId();
 	}
 
-	private ObjectId syncTree(String prefix, ChangeIterator changeIterator, ObjectId localTreeId,
+	private ObjectId syncTree(String prefix, DiffIterator diffIterator, ObjectId localTreeId,
 			ObjectId remoteTreeId) {
 		boolean appended = false;
 		var tree = new TreeFormatter();
-		try (var walk = createWalk(prefix, changeIterator, localTreeId, remoteTreeId)) {
+		try (var walk = createWalk(prefix, diffIterator, localTreeId, remoteTreeId)) {
 			while (walk.next()) {
 				var mode = walk.getFileMode();
 				var name = walk.getNameString();
 				ObjectId id = null;
 				if (mode == FileMode.TREE) {
-					id = handleTree(walk, changeIterator);
+					id = handleTree(walk, diffIterator);
 				} else if (mode == FileMode.REGULAR_FILE) {
 					id = handleFile(walk);
 				}
@@ -170,13 +170,13 @@ public class CommitWriter {
 		return newId;
 	}
 
-	private TreeWalk createWalk(String prefix, ChangeIterator changeIterator, ObjectId localTreeId,
+	private TreeWalk createWalk(String prefix, DiffIterator diffIterator, ObjectId localTreeId,
 			ObjectId remoteTreeId) throws IOException {
 		var walk = new TreeWalk(config.repo);
 		addTree(walk, prefix, localTreeId);
 		addTree(walk, prefix, remoteTreeId);
-		if (changeIterator != null) {
-			walk.addTree(changeIterator);
+		if (diffIterator != null) {
+			walk.addTree(diffIterator);
 		} else {
 			walk.addTree(new EmptyTreeIterator());
 		}
@@ -194,10 +194,10 @@ public class CommitWriter {
 		}
 	}
 
-	private ObjectId handleTree(TreeWalk walk, ChangeIterator changeIterator) {
+	private ObjectId handleTree(TreeWalk walk, DiffIterator diffIterator) {
 		var localTreeId = walk.getFileMode(0) != FileMode.MISSING ? walk.getObjectId(0) : null;
 		var remoteTreeId = walk.getFileMode(1) != FileMode.MISSING ? walk.getObjectId(1) : null;
-		var iterator = walk.getFileMode(2) != FileMode.MISSING ? changeIterator.createSubtreeIterator() : null;
+		var iterator = walk.getFileMode(2) != FileMode.MISSING ? diffIterator.createSubtreeIterator() : null;
 		if (iterator == null && localTreeId == null)
 			return remoteTreeId;
 		if (iterator == null && remoteTreeId == null)
@@ -213,10 +213,10 @@ public class CommitWriter {
 		if (walk.getFileMode(2) == FileMode.MISSING)
 			return isMergeCommit && remoteBlobId != null ? remoteBlobId : localBlobId;
 		var path = GitUtil.decode(walk.getPathString());
-		var iterator = walk.getTree(2, ChangeIterator.class);
-		Change change = iterator.getEntryData();
+		var iterator = walk.getTree(2, DiffIterator.class);
+		Diff diff = iterator.getEntryData();
 		var file = iterator.getEntryFile();
-		if (change.changeType == ChangeType.DELETE && matches(path, change, file)) {
+		if (diff.type == DiffType.DELETED && matches(path, diff, file)) {
 			if (file == null && !isStashCommit && config.store != null) {
 				config.store.remove(path);
 			}
@@ -225,7 +225,7 @@ public class CommitWriter {
 		if (file != null)
 			return inserter.insert(Constants.OBJ_BLOB, Files.readAllBytes(file.toPath()));
 		if (progressMonitor != null) {
-			progressMonitor.subTask("Writing", change);
+			progressMonitor.subTask("Writing", diff.ref());
 		}
 		var data = converter.take(path);
 		localBlobId = inserter.insert(Constants.OBJ_BLOB, data);
@@ -250,12 +250,12 @@ public class CommitWriter {
 		}
 	}
 
-	private boolean matches(String path, Change change, File file) {
-		if (change == null)
+	private boolean matches(String path, Diff diff, File file) {
+		if (diff == null)
 			return false;
 		if (file == null)
-			return path.equals(change.path);
-		return path.startsWith(change.path.substring(0, change.path.lastIndexOf(GitUtil.DATASET_SUFFIX)));
+			return path.equals(diff.path());
+		return path.startsWith(diff.path().substring(0, diff.path().lastIndexOf(GitUtil.DATASET_SUFFIX)));
 	}
 
 	private ObjectId commit(String message, ObjectId treeId, ObjectId localCommitId, ObjectId remoteCommitId) {

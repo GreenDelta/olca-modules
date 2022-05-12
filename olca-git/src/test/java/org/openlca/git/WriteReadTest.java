@@ -15,8 +15,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.git.find.Commits;
 import org.openlca.git.find.Datasets;
-import org.openlca.git.model.Change;
-import org.openlca.git.util.DiffEntries;
+import org.openlca.git.util.Diffs;
 import org.openlca.git.util.Repositories;
 import org.openlca.git.writer.CommitWriter;
 import org.openlca.jsonld.Json;
@@ -34,7 +33,7 @@ public class WriteReadTest {
 		var temp = TempConfig.create();
 
 		// expect an empty database and repo
-		assertTrue(DiffEntries.workspace(temp.config).isEmpty());
+		assertTrue(Diffs.workspace(temp.config).isEmpty());
 
 		// insert model in database
 		var unitGroup = UnitGroup.of("Units of mass", "kg");
@@ -42,16 +41,13 @@ public class WriteReadTest {
 				db, ModelType.UNIT_GROUP, "Technical unit groups");
 		db.insert(unitGroup);
 
-		// should find 1 change
-		var changes = DiffEntries.workspace(temp.config)
-				.stream()
-				.map(Change::new)
-				.toList();
-		assertEquals(1, changes.size());
+		// should find 1 diff
+		var diffs = Diffs.workspace(temp.config);
+		assertEquals(1, diffs.size());
 
 		// commit it
 		var writer = new CommitWriter(temp.config, temp.committer);
-		var commitId = writer.commit("initial commit", changes);
+		var commitId = writer.commit("initial commit", diffs);
 
 		// get the data set from the repo
 		var id = temp.ids().get(unitGroup);

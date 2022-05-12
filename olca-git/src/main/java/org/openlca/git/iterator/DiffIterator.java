@@ -10,43 +10,43 @@ import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.openlca.core.database.FileStore;
 import org.openlca.git.GitConfig;
-import org.openlca.git.model.Change;
+import org.openlca.git.model.Diff;
 import org.openlca.git.util.GitUtil;
 import org.openlca.util.Strings;
 
-public class ChangeIterator extends EntryIterator {
+public class DiffIterator extends EntryIterator {
 
 	private final GitConfig config;
-	private final List<Change> changes;
+	private final List<Diff> diffs;
 
-	public ChangeIterator(GitConfig config, List<Change> changes) {
-		super(initialize("", config, changes));
+	public DiffIterator(GitConfig config, List<Diff> diffs) {
+		super(initialize("", config, diffs));
 		this.config = config;
-		this.changes = changes;
+		this.diffs = diffs;
 	}
 
-	private ChangeIterator(ChangeIterator parent, List<Change> changes) {
-		super(parent, initialize(GitUtil.decode(parent.getEntryPathString()), parent.config, changes));
+	private DiffIterator(DiffIterator parent, List<Diff> diffs) {
+		super(parent, initialize(GitUtil.decode(parent.getEntryPathString()), parent.config, diffs));
 		this.config = parent.config;
-		this.changes = changes;
+		this.diffs = diffs;
 	}
 
-	private ChangeIterator(ChangeIterator parent, Change change, File binDir) {
+	private DiffIterator(DiffIterator parent, Diff diff, File binDir) {
 		super(parent, Arrays.asList(binDir.listFiles()).stream()
 				.map(file -> {
 					var mode = file.isDirectory() ? FileMode.TREE : FileMode.REGULAR_FILE;
-					return new TreeEntry(file.getName(), mode, change, file);
+					return new TreeEntry(file.getName(), mode, diff, file);
 				})
 				.toList());
 		this.config = parent.config;
-		this.changes = new ArrayList<>();
+		this.diffs = new ArrayList<>();
 	}
 
-	private static List<TreeEntry> initialize(String prefix, GitConfig config, List<Change> changes) {
+	private static List<TreeEntry> initialize(String prefix, GitConfig config, List<Diff> diffs) {
 		var list = new ArrayList<TreeEntry>();
 		var added = new HashSet<String>();
-		changes.forEach(change -> {
-			var path = change.path;
+		diffs.forEach(diff -> {
+			var path = diff.path();
 			if (!Strings.nullOrEmpty(prefix)) {
 				path = path.substring(prefix.length() + 1);
 			}
@@ -56,11 +56,11 @@ public class ChangeIterator extends EntryIterator {
 			if (path.contains("/")) {
 				list.add(new TreeEntry(name, FileMode.TREE));
 			} else {
-				list.add(new TreeEntry(name, FileMode.REGULAR_FILE, change));
-				var binaryDir = getBinaryDir(config, change);
+				list.add(new TreeEntry(name, FileMode.REGULAR_FILE, diff));
+				var binaryDir = getBinaryDir(config, diff);
 				if (binaryDir != null) {
 					var bin = name.substring(0, name.indexOf(GitUtil.DATASET_SUFFIX)) + GitUtil.BIN_DIR_SUFFIX;
-					list.add(new TreeEntry(bin, FileMode.TREE, change, binaryDir));
+					list.add(new TreeEntry(bin, FileMode.TREE, diff, binaryDir));
 				}
 			}
 			added.add(name);
@@ -68,27 +68,28 @@ public class ChangeIterator extends EntryIterator {
 		return list;
 	}
 
-	private static File getBinaryDir(GitConfig config, Change change) {
+	private static File getBinaryDir(GitConfig config, Diff diff) {
+		var ref = diff.ref();
 		var filestore = new FileStore(config.database);
-		var folder = filestore.getFolder(change.type, change.refId);
+		var folder = filestore.getFolder(ref.type, ref.refId);
 		if (!folder.exists() || folder.listFiles().length == 0)
 			return null;
 		return folder;
 	}
 
-	public ChangeIterator createSubtreeIterator() {
+	public DiffIterator createSubtreeIterator() {
 		return createSubtreeIterator(null);
 	}
 
 	@Override
-	public ChangeIterator createSubtreeIterator(ObjectReader reader) {
+	public DiffIterator createSubtreeIterator(ObjectReader reader) {
 		var data = getEntryData();
 		var file = getEntryFile();
-		if (data instanceof Change change && file != null)
-			return new ChangeIterator(this, change, file);
+		if (data instanceof Diff diff && file != null)
+			return new DiffIterator(this, diff, file);
 		var path = GitUtil.decode(getEntryPathString());
-		return new ChangeIterator(this, changes.stream()
-				.filter(d -> d.path.startsWith(path + "/"))
+		return new DiffIterator(this, diffs.stream()
+				.filter(d -> d.path().startsWith(path + "/"))
 				.toList());
 	}
 

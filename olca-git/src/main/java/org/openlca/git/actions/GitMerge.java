@@ -6,8 +6,6 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -17,12 +15,11 @@ import org.openlca.git.ObjectIdStore;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
 import org.openlca.git.actions.ImportHelper.ImportResult;
 import org.openlca.git.find.Commits;
-import org.openlca.git.model.Change;
 import org.openlca.git.model.Commit;
-import org.openlca.git.model.ModelRef;
-import org.openlca.git.model.Reference;
+import org.openlca.git.model.Diff;
+import org.openlca.git.model.DiffType;
 import org.openlca.git.util.Constants;
-import org.openlca.git.util.DiffEntries;
+import org.openlca.git.util.Diffs;
 import org.openlca.git.util.GitStoreReader;
 import org.openlca.git.util.History;
 import org.openlca.git.writer.CommitWriter;
@@ -82,14 +79,14 @@ public class GitMerge extends GitProgressAction<Boolean> {
 			return false;
 		var localCommit = commits.get(commits.resolve(Constants.LOCAL_BRANCH));
 		var remoteCommit = getRemoteCommit();
-		var allChanges = getRemoteChanges(remoteCommit);
-		var deleted = allChanges.stream()
-				.filter(e -> e.getChangeType() == ChangeType.DELETE)
-				.map(e -> new ModelRef(e))
+		var diffs = getRemoteDiffs(remoteCommit);
+		var deleted = diffs.stream()
+				.filter(d -> d.type == DiffType.DELETED)
+				.map(d -> d.left)
 				.collect(Collectors.toList());
-		var addedOrChanged = allChanges.stream()
-				.filter(e -> e.getChangeType() != ChangeType.DELETE)
-				.map(e -> new Reference(e.getNewPath(), remoteCommit.id, e.getNewId().toObjectId()))
+		var addedOrChanged = diffs.stream()
+				.filter(d -> d.type != DiffType.DELETED)
+				.map(d -> d.right)
 				.collect(Collectors.toList());
 		if (progressMonitor != null) {
 			progressMonitor.beginTask("Merging data", addedOrChanged.size() + deleted.size());
@@ -122,7 +119,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		return new Commit(commits.iterator().next());
 	}
 
-	private List<DiffEntry> getRemoteChanges(Commit remoteCommit) throws IOException {
+	private List<Diff> getRemoteDiffs(Commit remoteCommit) throws IOException {
 		var localHistory = commits.find().refs(Constants.LOCAL_REF).all();
 		var remoteHistory = commits.find().refs(getRef()).all();
 		var commonHistory = remoteHistory.stream()
@@ -131,7 +128,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		var commonParent = !commonHistory.isEmpty()
 				? commonHistory.get(commonHistory.size() - 1)
 				: null;
-		return DiffEntries.between(git, commonParent, remoteCommit);
+		return Diffs.between(git, commonParent, remoteCommit);
 	}
 
 	private String getRef() {
@@ -141,19 +138,19 @@ public class GitMerge extends GitProgressAction<Boolean> {
 	private String createMergeCommit(Commit localCommit, Commit remoteCommit, ImportResult result)
 			throws IOException {
 		var config = new GitConfig(database, workspaceIds, git);
-		var changes = result.merged().stream()
-				.map(r -> new Change(ChangeType.MODIFY, r.path))
+		var diffs = result.merged().stream()
+				.map(r -> new Diff(DiffType.MODIFIED, r, null))
 				.collect(Collectors.toList());
-		result.keepDeleted().forEach(r -> changes.add(new Change(ChangeType.DELETE, r.path)));
+		result.keepDeleted().forEach(r -> diffs.add(new Diff(DiffType.DELETED, r, null)));
 		result.deleted().forEach(r -> {
 			if (conflictResolver.isConflict(r)
 					&& conflictResolver.resolveConflict(r, null).type == ConflictResolutionType.OVERWRITE_LOCAL) {
-				changes.add(new Change(ChangeType.DELETE, r.path));
+				diffs.add(new Diff(DiffType.DELETED, r, null));
 			}
 		});
 		var commitWriter = new CommitWriter(config, committer);
 		var mergeMessage = "Merge remote-tracking branch";
-		return commitWriter.mergeCommit(mergeMessage, changes, localCommit.id, remoteCommit.id);
+		return commitWriter.mergeCommit(mergeMessage, diffs, localCommit.id, remoteCommit.id);
 	}
 
 	private void updateHead(Commit commit) throws IOException {

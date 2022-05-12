@@ -13,8 +13,7 @@ import org.openlca.core.database.Derby;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
-import org.openlca.git.model.Change;
-import org.openlca.git.util.DiffEntries;
+import org.openlca.git.util.Diffs;
 import org.openlca.git.writer.CommitWriter;
 import org.openlca.util.Categories;
 
@@ -106,16 +105,16 @@ public class Main {
 		}
 
 		private void refDataSingleCommit() throws IOException {
-			var changes = DiffEntries.workspace(config).stream().map(Change::new).toList();
-			System.out.println(writer.commit("Added data", changes));
+			var diffs = Diffs.workspace(config);
+			System.out.println(writer.commit("Added data", diffs));
 		}
 
 		private void refDataSeparateCommits() throws IOException {
-			var changes = DiffEntries.workspace(config).stream().map(Change::new).toList();
+			var diffs = Diffs.workspace(config);
 			long time = 0;
 			for (ModelType type : REF_DATA_TYPES) {
-				var filtered = changes.stream()
-						.filter(d -> d.path.startsWith(type.name() + "/"))
+				var filtered = diffs.stream()
+						.filter(d -> d.path().startsWith(type.name() + "/"))
 						.toList();
 				long t = System.currentTimeMillis();
 				System.out.println("Committing " + filtered.size() + " files");
@@ -143,9 +142,9 @@ public class Main {
 			dao.insert(newLoc);
 			config.store.save();
 
-			var changes = DiffEntries.workspace(config).stream().map(Change::new).toList();
+			var diffs = Diffs.workspace(config);
 			var writer = new CommitWriter(config, committer);
-			System.out.println(writer.commit("Updated data", changes));
+			System.out.println(writer.commit("Updated data", diffs));
 		}
 
 		private void delete() throws IOException {
@@ -167,9 +166,9 @@ public class Main {
 				}
 			}
 			config.store.save();
-			var changes = DiffEntries.workspace(config).stream().map(Change::new).toList();
+			var diffs = Diffs.workspace(config);
 			var writer = new CommitWriter(config, committer);
-			System.out.println(writer.commit("Deleted data", changes));
+			System.out.println(writer.commit("Deleted data", diffs));
 		}
 
 	}

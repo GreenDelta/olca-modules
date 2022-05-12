@@ -2,8 +2,6 @@ package org.openlca.git.model;
 
 import java.util.Objects;
 
-import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.openlca.core.model.ModelType;
 
 public class ModelRef {
@@ -12,10 +10,6 @@ public class ModelRef {
 	public final ModelType type;
 	public final String refId;
 	public final String category;
-
-	public ModelRef(DiffEntry e) {
-		this(e.getChangeType() == ChangeType.DELETE ? e.getOldPath() : e.getNewPath());
-	}
 
 	public ModelRef(String path) {
 		this.path = path;
