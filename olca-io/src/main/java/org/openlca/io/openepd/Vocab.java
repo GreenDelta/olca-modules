@@ -11,6 +11,37 @@ import java.util.regex.Pattern;
  */
 public class Vocab {
 
+	public enum Method {
+
+			TRACI_2_1("TRACI 2.1", "(?i)\\W*traci\\W*2\\.1\\W*"),
+			EF_3_0("EF 3.0", "(?i)\\W*ef\\W*3\\.0\\W*"),
+			CML_2016("CML 2016", "(?i)\\W*cml\\W*2016\\W*"),
+			CML_2012("CML 2012", "(?i)\\W*cml\\W*2012\\W*"),
+			RECIPE_2016("ReCiPe 2016", "(?i)\\W*recipe\\W*2016\\W*"),
+			UNKNOWN_LCIA("Unknown LCIA", "");
+
+			private final String code;
+			private final Pattern pattern;
+
+			Method(String code, String pattern) {
+				this.code = code;
+				this.pattern = Pattern.compile(pattern);
+			}
+
+			public String code() {
+				return code;
+			}
+
+			public double matchScoreOf(String name) {
+				return scoreOf(pattern, name);
+			}
+
+		@Override
+		public String toString() {
+			return code;
+		}
+	}
+
   /**
    * The list of openEPD indicators.
    */
@@ -242,19 +273,11 @@ public class Vocab {
       return Optional.empty();
     }
 
-    private double scoreOf(Pattern pattern, String s) {
-      if (Strings.nullOrEmpty(s))
-        return 0;
-      var matcher = pattern.matcher(s);
-      if (matcher.matches())
-        return 1;
-      matcher.reset();
-      if (!matcher.find())
-        return 0;
-      var g = matcher.group();
-      return (double) g.length() / (double) s.length();
-    }
-  }
+		@Override
+		public String toString() {
+			return code;
+		}
+	}
 
   public record UnitMatch(
     String name, Pattern pattern, double factor) {
@@ -275,4 +298,17 @@ public class Vocab {
     }
 
   }
+
+	private static double scoreOf(Pattern pattern, String s) {
+		if (Strings.nullOrEmpty(s))
+			return 0;
+		var matcher = pattern.matcher(s);
+		if (matcher.matches())
+			return 1;
+		matcher.reset();
+		if (!matcher.find())
+			return 0;
+		var g = matcher.group();
+		return (double) g.length() / (double) s.length();
+	}
 }
