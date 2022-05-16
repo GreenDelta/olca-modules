@@ -43,5 +43,34 @@ public class VocabTest {
     }
 	}
 
+	@Test
+	public void testScopeMatching() {
+		var searches = new String[] {
+			"A1 - A3", "A1A2A3", " a1 to a3",
+			"A1", "a1", " A 1 ",
+			"B1", "B 2", " b 3 ",
+			"B2 - B7", "b2 to B7", " B2toB7 ",
+		};
+		var expected = new Vocab.Scope[] {
+			Vocab.Scope.A1toA3, Vocab.Scope.A1toA3, Vocab.Scope.A1toA3,
+			Vocab.Scope.A1, Vocab.Scope.A1, Vocab.Scope.A1,
+			Vocab.Scope.B1, Vocab.Scope.B2, Vocab.Scope.B3,
+			Vocab.Scope.B2toB7, Vocab.Scope.B2toB7, Vocab.Scope.B2toB7,
+		};
 
+		for (int i = 0; i < searches.length; i++) {
+			var found = Vocab.findScope(searches[i]);
+			assertTrue("could not find " + searches[i], found.isPresent());
+			assertEquals(expected[i], found.get());
+		}
+
+		for (var scope : Vocab.Scope.values()) {
+			var s = Vocab.findScope(scope.code()).orElseThrow();
+			assertEquals(scope, s);
+			s = Vocab.findScope(scope.name()).orElseThrow();
+			assertEquals(scope, s);
+			s = Vocab.findScope(scope.toString()).orElseThrow();
+			assertEquals(scope, s);
+		}
+	}
 }

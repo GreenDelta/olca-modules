@@ -39,24 +39,6 @@ public final class EpdConverter {
 			return Validation.error("The EPD has no declared unit");
 		if (epd.product.amount == 0)
 			return Validation.error("The product amount is 0.");
-
-		for (var module : epd.modules) {
-			var result = module.result;
-			if (result == null)
-				return Validation.error("The EPD contains modules without results.");
-			if (result.impactMethod == null)
-				return Validation.error(
-					"The EPD contains module results without links to LCIA methods.");
-			if (Strings.nullOrEmpty(result.impactMethod.code))
-				return Validation.error(
-					"The EPD contains links to LCIA methods without mapping codes.");
-			for (var impact : result.impactResults) {
-				if (impact.indicator == null
-					|| Strings.nullOrEmpty(impact.indicator.code))
-					return Validation.error(
-						"The EPD contains links to LCIA categories without mapping codes.");
-			}
-		}
 		return Validation.ok();
 	}
 
