@@ -227,7 +227,104 @@ public class Vocab {
 
 			UnitMatch.of("m3", "m3(?:FW)?")),
 
-		;
+
+		HWD(
+			"Hazardous waste disposed",
+			IndicatorType.LCI_OUT,
+			"hwd",
+			"kg",
+			"(?i)(?:^|\\W+)hwd(?:$|\\W+)",
+
+			UnitMatch.of("kg", "kg")
+		),
+
+
+		NHWD(
+			"Non-hazardous waste disposed",
+			IndicatorType.LCI_OUT,
+			"nhwd",
+			"kg",
+			"(?i)(?:^|\\W+)nhwd(?:$|\\W+)",
+
+			UnitMatch.of("kg", "kg")
+		),
+
+
+		HLRW(
+			"High-level radioactive waste, conditioned, to final repository",
+			IndicatorType.LCI_OUT,
+			"hlrw",
+			"kg",
+			"(?i)(?:^|\\W+)hlrw(?:$|\\W+)",
+
+			UnitMatch.of("kg", "kg")
+		),
+
+
+		ILLRW(
+			"Intermediate- and low-level radioactive waste, conditioned, to final repository",
+			IndicatorType.LCI_OUT,
+			"illrw",
+			"kg",
+			"(?i)(?:^|\\W+)illrw(?:$|\\W+)",
+
+			UnitMatch.of("kg", "kg")
+		),
+
+
+		CRU(
+			"Components for re-use",
+			IndicatorType.LCI_OUT,
+			"cru",
+			"kg",
+			"(?i)(?:^|\\W+)cru(?:$|\\W+)",
+
+			UnitMatch.of("kg", "kg")
+		),
+
+
+		MR(
+			"Materials for recycling",
+			IndicatorType.LCI_OUT,
+			"mr",
+			"kg",
+			"(?i)(?:^|\\W+)mr(?:$|\\W+)",
+
+			UnitMatch.of("kg", "kg")
+		),
+
+
+		MER(
+			"Materials for energy recovery",
+			IndicatorType.LCI_OUT,
+			"mer",
+			"kg",
+			"(?i)(?:^|\\W+)mer(?:$|\\W+)",
+
+			UnitMatch.of("kg", "kg")
+		),
+
+
+		EE(
+			"Recovered energy exported from the product system",
+			IndicatorType.LCI_OUT,
+			"ee",
+			"MJ",
+			"(?i)(?:^|\\W+)ee(?:$|\\W+)",
+
+			UnitMatch.of("MJ", "MJ")
+		),
+
+
+		EH(
+			"Recovered heat exported from the product system",
+			IndicatorType.LCI_OUT,
+			"eh",
+			"MJ",
+			"(?i)(?:^|\\W+)eh(?:$|\\W+)",
+
+			UnitMatch.of("MJ", "MJ")
+		);
 
 		private final String description;
 		private final IndicatorType type;
