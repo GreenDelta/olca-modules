@@ -42,6 +42,24 @@ public class Vocab {
 		}
 	}
 
+	public enum IndicatorType {
+
+		/**
+		 * Life cycle impact assessment indicators (e.g. global warming potential).
+		 */
+		LCIA,
+
+		/**
+		 * Life cycle inventory input indicators (e.g. resources).
+		 */
+		LCI_IN,
+
+		/**
+		 * Life cycle inventory output indicators (e.g. waste flows).
+		 */
+		LCI_OUT,
+	}
+
   /**
    * The list of openEPD indicators.
    */
@@ -49,7 +67,7 @@ public class Vocab {
 
     GWP(
       "Global climate change impact over 100 years",
-      true,
+      IndicatorType.LCIA,
       "gwp",
       "kgCO2e",
 
@@ -68,7 +86,7 @@ public class Vocab {
 
     AP(
       "Acidification potential in water or air",
-      true,
+			IndicatorType.LCIA,
       "ap",
       "kgSO2e",
 
@@ -82,7 +100,7 @@ public class Vocab {
 
     ODP(
       "Global ozone depletion potential",
-      true,
+			IndicatorType.LCIA,
       "odp",
       "kgCFC11e",
 
@@ -98,7 +116,7 @@ public class Vocab {
 
     EP(
       "Eutrophication potential in marine ecosystems",
-      true,
+			IndicatorType.LCIA,
       "ep",
       "kgNe",
 
@@ -113,7 +131,7 @@ public class Vocab {
 
     RPRE(
       "Renewable primary resources used as energy carrier (fuel)",
-      false,
+			IndicatorType.LCI_IN,
       "RPRe",
       "MJ",
 
@@ -124,7 +142,7 @@ public class Vocab {
 
     RPRM(
       "Renewable primary resources with energy content used as material",
-      false,
+			IndicatorType.LCI_IN,
       "RPRm",
       "MJ",
 
@@ -135,7 +153,7 @@ public class Vocab {
 
     NRPRE(
       "Non-renewable primary resources used as an energy carrier (fuel)",
-      false,
+			IndicatorType.LCI_IN,
       "NRPRe",
       "MJ",
 
@@ -146,7 +164,7 @@ public class Vocab {
 
     NRPRM(
       "Non-renewable primary resources with energy content used as material",
-      false,
+			IndicatorType.LCI_IN,
       "NRPRm",
       "MJ",
 
@@ -157,7 +175,9 @@ public class Vocab {
 
     SM(
       "Secondary materials: materials recycled from previous use or waste",
-      false, "sm", "kg",
+			IndicatorType.LCI_IN,
+			"sm",
+			"kg",
 
       "(?i)(?:^|\\W+)sm(?:$|\\W+)",
 
@@ -166,7 +186,7 @@ public class Vocab {
 
     RSF(
       "Renewable materials with energy content",
-      false,
+			IndicatorType.LCI_IN,
       "rsf",
       "MJ",
 
@@ -177,7 +197,7 @@ public class Vocab {
 
     NRSF(
       "Non-renewable secondary fuels",
-      false,
+			IndicatorType.LCI_IN,
       "nrsf",
       "MJ",
 
@@ -188,7 +208,7 @@ public class Vocab {
 
     RE(
       "Recovered energy",
-      false,
+			IndicatorType.LCI_IN,
       "re",
       "MJ",
 
@@ -199,7 +219,7 @@ public class Vocab {
 
     FW(
       "Use of net fresh water resources",
-      false,
+			IndicatorType.LCI_IN,
       "fw",
       "m3",
 
@@ -210,7 +230,7 @@ public class Vocab {
     ;
 
     private final String description;
-    private final boolean isLcia;
+    private final IndicatorType type;
     private final String code;
     private final String unit;
     private final Pattern pattern;
@@ -218,13 +238,13 @@ public class Vocab {
 
     Indicator(
       String description,
-      boolean isLcia,
+      IndicatorType type,
       String code,
       String unit,
       String pattern,
       UnitMatch...units) {
       this.description = description;
-      this.isLcia = isLcia;
+      this.type = type;
       this.code = code;
       this.unit = unit;
       this.pattern = Pattern.compile(pattern);
@@ -238,8 +258,8 @@ public class Vocab {
       return description;
     }
 
-    public boolean isInventoryIndicator() {
-      return !isLcia;
+    public IndicatorType type() {
+      return type;
     }
 
     /**
