@@ -123,7 +123,7 @@ public class EpdImport {
 				continue;
 			}
 
-			for (var indicatorResult : result.indicatorResults()) {
+			for (var indicatorResult : result.results()) {
 				for (var scopeResult : indicatorResult.values()) {
 					if (scopeResult.value() == null)
 						continue;

@@ -7,7 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public record EpdImpactResult(
-	String method, List<EpdIndicatorResult> indicatorResults) {
+	String method, List<EpdIndicatorResult> results) {
 
 	public static EpdImpactResult of(String method) {
 		return new EpdImpactResult(method, new ArrayList<>());
@@ -19,10 +19,10 @@ public record EpdImpactResult(
 			return json;
 		for (var result : results) {
 			if (result.method == null
-				|| result.indicatorResults == null
-				|| result.indicatorResults.isEmpty())
+				|| result.results == null
+				|| result.results.isEmpty())
 				continue;
-			var indicators = EpdIndicatorResult.toJson(result.indicatorResults);
+			var indicators = EpdIndicatorResult.toJson(result.results);
 			json.add(result.method, indicators);
 		}
 		return json;

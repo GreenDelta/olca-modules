@@ -37,6 +37,8 @@ public class EpdDoc {
 	public EpdPcr pcr;
 
 	public final List<EpdImpactResult> impactResults = new ArrayList<>();
+	public final List<EpdIndicatorResult> resourceUses = new ArrayList<>();
+	public final List<EpdIndicatorResult> outputFlows = new ArrayList<>();
 
 	public static Optional<EpdDoc> fromJson(JsonElement elem) {
 		if (elem == null || !elem.isJsonObject())
@@ -82,12 +84,14 @@ public class EpdDoc {
 			}
 		}
 
-		// impacts
-		var impactJson = Json.getObject(obj, "impacts");
-		if (impactJson != null) {
-			var impactResults = EpdImpactResult.fromJson(impactJson);
-			epd.impactResults.addAll(impactResults);
-		}
+		// results
+		epd.impactResults.addAll(
+			EpdImpactResult.fromJson(Json.getObject(obj, "impacts")));
+		epd.resourceUses.addAll(
+			EpdIndicatorResult.fromJson(Json.getObject(obj, "resource_uses")));
+		epd.outputFlows.addAll(
+			EpdIndicatorResult.fromJson(Json.getObject(obj, "output_flows")));
+
 
 		return Optional.of(epd);
 	}
@@ -124,10 +128,18 @@ public class EpdDoc {
 			Json.put(obj, "product_classes", classes);
 		}
 
-		// impact results
+		// results
 		var impactJson = EpdImpactResult.toJson(impactResults);
 		if (impactJson.size() > 0) {
 			obj.add("impacts", impactJson);
+		}
+		var resourceJson = EpdIndicatorResult.toJson(resourceUses);
+		if (resourceJson.size() > 0) {
+			obj.add("resource_uses", resourceJson);
+		}
+		var outputsJson = EpdIndicatorResult.toJson(outputFlows);
+		if (outputsJson.size() > 0) {
+			obj.add("output_flows", outputsJson);
 		}
 
 		return obj;

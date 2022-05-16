@@ -26,7 +26,7 @@ public record ImpactMapping(Map<String, MethodMapping> map) {
 		for (var result : epd.impactResults) {
 			var code = result.method();
 			var keys = codes.computeIfAbsent(code, _code -> new HashSet<>());
-			for (var i : result.indicatorResults()) {
+			for (var i : result.results()) {
 				var unit = i.values().stream()
 					.filter(v -> v.value() != null)
 					.map(v -> v.value().unit())

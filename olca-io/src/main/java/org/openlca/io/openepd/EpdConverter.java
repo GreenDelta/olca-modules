@@ -135,7 +135,7 @@ public final class EpdConverter {
 					continue;
 				var code = impact.indicator.code;
 				EpdIndicatorResult docImpact = null;
-				for (var i : docResult.indicatorResults()) {
+				for (var i : docResult.results()) {
 					if (Objects.equals(code, i.indicator())) {
 						docImpact = i;
 						break;
@@ -143,7 +143,7 @@ public final class EpdConverter {
 				}
 				if (docImpact == null) {
 					docImpact = new EpdIndicatorResult(code, new ArrayList<>());
-					docResult.indicatorResults().add(docImpact);
+					docResult.results().add(docImpact);
 				}
 				var value = EpdMeasurement.of(
 					mod.multiplier * impact.amount,
