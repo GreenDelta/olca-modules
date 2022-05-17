@@ -48,7 +48,7 @@ public class GitStashApply extends GitProgressAction<Void> {
 				.as(committer)
 				.update(workspaceIds)
 				.resolveConflictsWith(conflictResolver)
-				.applyStash(true)
+				.applyStash()
 				.withProgress(progressMonitor)
 				.run();
 		GitStashDrop.from(git).run();

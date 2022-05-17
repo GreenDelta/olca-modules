@@ -67,8 +67,8 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		return this;
 	}
 
-	GitMerge applyStash(boolean applyStash) {
-		this.applyStash = applyStash;
+	GitMerge applyStash() {
+		this.applyStash = true;
 		return this;
 	}
 
