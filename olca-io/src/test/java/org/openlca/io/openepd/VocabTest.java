@@ -113,6 +113,89 @@ public class VocabTest {
 	}
 
 	@Test
+	public void testOlcaIndicators() {
+		expectMatch(Indicator.AP, "Acidification");
+		expectMatch(Indicator.AP, "Acidification (fate not incl.)");
+		expectMatch(Indicator.AP,
+			"Acidification terrestrial and freshwater");
+		expectMatch(Indicator.AP,
+			"Aquatic acidification");
+
+		expectMatch(Indicator.EP,
+			"Aquatic eutrophication");
+		expectMatch(Indicator.EP,
+			"Aquatic eutrophication EP(N)");
+		expectMatch(Indicator.EP,
+			"Aquatic eutrophication EP(P)");
+
+		expectMatch(Indicator.GWP,
+			"Climate change");
+		expectMatch(Indicator.GWP_BIO,
+			"Climate change - biogenic");
+		expectMatch(Indicator.GWP_FOSSIL,
+			"Climate change - fossil");
+		expectMatch(Indicator.GWP_LAND,
+			"Climate change - land use and transform.");
+
+		expectMatch(Indicator.EP,
+			"Eutrophication");
+		expectMatch(Indicator.EP,
+			"Eutrophication (incl. fate)");
+		expectMatch(Indicator.EP_FRESH,
+			"Eutrophication freshwater");
+		expectMatch(Indicator.EP,
+			"Eutrophication marine");
+		expectMatch(Indicator.EP_TERR,
+			"Eutrophication terrestrial");
+		expectMatch(Indicator.EP_FRESH,
+			"Freshwater eutrophication");
+
+		expectMatch(Indicator.GWP,
+			"Global warming");
+		expectMatch(Indicator.GWP,
+			"Global warming (GWP100a)");
+		expectMatch(Indicator.GWP,
+			"Global warming 100a");
+		expectMatch(Indicator.GWP,
+			"Global warming 100a (incl. NMVOC av.)");
+		expectMatch(Indicator.GWP,
+			"IPCC GWP 100a");
+
+		expectMatch(Indicator.EP,
+			"Marine eutrophication");
+
+		expectMatch(Indicator.POCP,
+			"Ozone formation (Human)");
+		expectMatch(Indicator.POCP,
+			"Ozone formation (Vegetation)");
+		expectMatch(Indicator.POCP,
+			"Ozone formation, Human health");
+		expectMatch(Indicator.POCP,
+			"Ozone formation, Terrestrial ecosystems");
+
+		expectMatch(Indicator.ODP,
+			"Ozone layer depletion");
+		expectMatch(Indicator.ODP,
+			"Ozone layer depletion (ODP)");
+		expectMatch(Indicator.ODP,
+			"Ozone layer depletion (ODP) (optional)");
+		expectMatch(Indicator.ODP,
+			"Ozone layer depletion (incl. NMVOC av.)");
+		expectMatch(Indicator.ODP,
+			"Ozone layer depletion 10a");
+		expectMatch(Indicator.ODP,
+			"Ozone layer depletion 15a");
+
+		expectMatch(Indicator.POCP,
+			"Photochemical ozone formation");
+		expectMatch(Indicator.POCP,
+			"Photochemical ozone formation, HH");
+
+		expectMatch(Indicator.EP_TERR,
+			"Terrestrial eutrophication");
+	}
+
+	@Test
 	public void testMatchIndicatorCodes() {
 		for (var indicator : Indicator.values()) {
 			expectMatch(indicator, indicator.code());

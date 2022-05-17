@@ -186,7 +186,7 @@ public class Vocab {
 			"ep-fresh",
 			"kg PO4e",
 
-			"(?i)(?:\\W*eutrophication\\W*(?:potential)?\\W*(?:ep)?\\W*|\\W*ep\\W*)fresh",
+			"(?i)(?=.*fresh).*(?:\\beutrophication\\b|\\bep\\b).*",
 
 			UnitMatch.of(
 				"kg PO4e",
