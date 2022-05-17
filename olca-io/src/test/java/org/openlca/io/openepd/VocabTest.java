@@ -4,7 +4,10 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.openlca.io.openepd.Vocab.Indicator;
+import org.openlca.util.Pair;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 public class VocabTest {
@@ -44,6 +47,85 @@ public class VocabTest {
 	}
 
 	@Test
+	public void testOekoBaudatIndicators() {
+		expectMatch(Indicator.AP,
+			"Acidification potential, Accumulated Exceedance (AP) - 2017");
+		expectMatch(Indicator.AP,
+			"Acidification potential of soil and water (AP)");
+		expectMatch(Indicator.AP,
+			"Acidification potential, Accumulated Exceedance (AP) - 2017");
+		expectMatch(Indicator.CRU,
+			"Components for re-use (CRU)");
+		expectMatch(Indicator.ODP,
+			"Depletion potential of the stratospheric ozone layer (ODP)");
+		expectMatch(Indicator.ODP,
+			"Depletion potential of the stratospheric ozone layer (ODP) - 2017");
+		expectMatch(Indicator.EP,
+			"Eutrophication potential (EP)");
+		expectMatch(Indicator.EP_FRESH,
+			"Eutrophication potential - freshwater (EP-freshwater) - 2017");
+		expectMatch(Indicator.EP,
+			"Eutrophication potential - marine (EP-marine) - 2017");
+		expectMatch(Indicator.EP_TERR,
+			"Eutrophication potential - terrestrial (EP-terrestrial) - 2107");
+		expectMatch(Indicator.EE,
+			"Exported electrical energy (EEE)");
+		expectMatch(Indicator.EH,
+			"Exported thermal energy (EET)");
+		expectMatch(Indicator.POCP,
+			"Formation potential of tropospheric ozone (POCP)");
+		expectMatch(Indicator.GWP_BIO,
+			"Global Warming Potential - biogenic (GWP-biogenic) - 2017");
+		expectMatch(Indicator.GWP_FOSSIL,
+			"Global Warming Potential - fossil fuels (GWP-fossil) - 2017");
+		expectMatch(Indicator.GWP_LAND,
+			"Global Warming Potential - land use and land use change (GWP-luluc) - 2017");
+		expectMatch(Indicator.GWP,
+			"Global Warming Potential - total (GWP-total) - 2017");
+		expectMatch(Indicator.GWP,
+			"Global warming potential (GWP)");
+		expectMatch(Indicator.HWD,
+			"Hazardous waste disposed (HWD)");
+		expectMatch(Indicator.MER,
+			"Materials for energy recovery (MER)");
+		expectMatch(Indicator.MR,
+			"Materials for recycling (MFR)");
+		expectMatch(Indicator.NHWD,
+			"Non hazardous waste dispose (NHWD)");
+		expectMatch(Indicator.HLRW,
+			"Radioactive waste disposed (RWD)");
+		expectMatch(Indicator.FW,
+			"Use of net fresh water (FW)");
+		expectMatch(Indicator.NRPRE,
+			"Use of non renewable primary energy (PENRE)");
+		expectMatch(Indicator.NRPRM,
+			"Use of non renewable primary energy resources used as raw materials (PENRM)");
+		expectMatch(Indicator.NRSF,
+			"Use of non renewable secondary fuels (NRSF)");
+		expectMatch(Indicator.RPRE,
+			"Use of renewable primary energy (PERE)");
+		expectMatch(Indicator.RPRM,
+			"Use of renewable primary energy resources used as raw materials (PERM)");
+		expectMatch(Indicator.RSF,
+			"Use of renewable secondary fuels (RSF)");
+		expectMatch(Indicator.SM,
+			"Use of secondary material (SM)");
+	}
+
+	private void expectMatch(Indicator indicator, String name) {
+		var match = Arrays.stream(Indicator.values())
+			.map(i -> Pair.of(i, i.matchScoreOf(name)))
+			.filter(p -> p.second > 1e-4)
+			.sorted(Comparator.comparingDouble(p -> -p.second))
+			.map(p -> p.first)
+			.findFirst()
+			.orElse(null);
+		assertEquals(
+			String.format("expected indicator: %s for name: %s",
+				indicator.code(), name), indicator, match);
+	}
+
+	@Test
 	public void testScopeMatching() {
 		var searches = new String[] {
 			"A1 - A3", "A1A2A3", " a1 to a3",
@@ -73,4 +155,5 @@ public class VocabTest {
 			assertEquals(scope, s);
 		}
 	}
+
 }

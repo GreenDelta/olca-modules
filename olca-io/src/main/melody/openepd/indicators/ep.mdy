@@ -1,0 +1,65 @@
+let .ws = {
+  any of <whitespace>;
+}
+
+let .opt_parens_open = {
+  .ws;
+  option of "(";
+  .ws;
+}
+
+let .opt_parens_close = {
+  .ws;
+  option of ")";
+  .ws;
+}
+
+let .potential = {
+  .ws;
+  option of either {
+    "potential";
+    "pot.";
+  }
+  .ws;
+}
+
+let .marine = {
+  .ws;
+  option of either {
+    ",";
+    "-";
+  }
+  .ws;
+  option of "marine";
+  .ws;
+}
+
+let .ep = {
+  .opt_parens_open;
+  "ep";
+  .marine;
+  .opt_parens_close;
+}
+
+let .suffix = {
+  .potential;
+  .marine;
+  .opt_parens_open;
+  option of "ep";
+  .opt_parens_close;
+}
+
+let .eutrophication = {
+  .ws;
+  option of "aquatic";
+  .ws;
+  option of "marine";
+  .ws;
+  "eutrophication";
+  .suffix;
+}
+
+either {
+  .ep;
+  .eutrophication;
+}

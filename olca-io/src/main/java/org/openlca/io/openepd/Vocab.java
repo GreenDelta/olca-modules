@@ -66,7 +66,7 @@ public class Vocab {
 	public enum Indicator {
 
 		GWP(
-			"Global climate change impact over 100 years",
+			"Global warming potential",
 			IndicatorType.LCIA,
 			"gwp",
 			"kgCO2e",
@@ -81,11 +81,11 @@ public class Vocab {
 				+ "*\\(?\\s*(?:100)?\\s*a?\\s*\\)?\\s*)",
 
 			UnitMatch.of(
-				"kg CO2 eq.",
+				"kgCO2e",
 				"(?i)\\s*kg\\s*CO2\\s*\\-?\\s*(?:(?:eq?\\.?)|equivalents)?\\s*")),
 
 		AP(
-			"Acidification potential in water or air",
+			"Acidification potential",
 			IndicatorType.LCIA,
 			"ap",
 			"kgSO2e",
@@ -95,11 +95,11 @@ public class Vocab {
 				+ "*(?:,|\\-)?\\s*(?:total)?\\s*\\)?\\s*)",
 
 			UnitMatch.of(
-				"kg SO2 eq.",
+				"kgSO2e",
 				"(?i)\\s*kg\\s*SO2\\s*\\-?\\s*(?:(?:eq?\\.?)|equivalents)?\\s*")),
 
 		ODP(
-			"Global ozone depletion potential",
+			"Ozone depletion potential",
 			IndicatorType.LCIA,
 			"odp",
 			"kgCFC11e",
@@ -110,12 +110,12 @@ public class Vocab {
 				+ "total)?\\s*\\)?\\s*)",
 
 			UnitMatch.of(
-				"kg CFC11 eq.",
+				"kgCFC11e",
 				"(?i)\\s*kg\\s*CFC\\s*\\-?\\s*11\\s*\\-?\\s*(?:(?:eq?\\.?)|equival"
 					+ "ents)?\\s*")),
 
 		EP(
-			"Eutrophication potential in marine ecosystems",
+			"Eutrophication potential, marine",
 			IndicatorType.LCIA,
 			"ep",
 			"kgNe",
@@ -126,11 +126,90 @@ public class Vocab {
 				+ "s*\\)?\\s*)",
 
 			UnitMatch.of(
-				"kg N eq.",
+				"kgNe",
 				"(?i)\\s*kg\\s*N\\s*\\-?\\s*(?:(?:eq?\\.?)|equivalents)?\\s*")),
 
+		POCP(
+			"Photochemical ozone creation",
+			IndicatorType.LCIA,
+			"pocp",
+			"kgO3e",
+
+			"(?i)(?:formation.*ozone|(?:^|\\W+)pocp(?:$|\\W+))",
+			UnitMatch.of(
+				"kgO3e",
+				"(?i)")),
+
+		GWP_FOSSIL(
+			"Global warming potential, fossil sources",
+			IndicatorType.LCIA,
+			"gwp-fossil",
+			"kgCO2e",
+
+			"(?)(?:\\W*climate\\W*change\\W*(?:potential)?\\W*(?:gwp)?\\W*" +
+				"(?:100)?\\W*|\\W*global\\W*warming\\W*(?:potential)?\\W*" +
+				"(?:gwp)?\\W*(?:100)?\\W*|\\W*gwp\\W*(?:100)?\\W*)fossil\\W*",
+
+			UnitMatch.of(
+				"kgCO2e",
+				"(?i)\\s*kg\\s*CO2\\s*\\-?\\s*(?:(?:eq?\\.?)|equivalents)?\\s*")),
+
+		GWP_BIO(
+			"Global warming potential, biogenic sources",
+			IndicatorType.LCIA,
+			"gwp-biogenic",
+			"kgCO2e",
+
+			"(?)(?:\\W*climate\\W*change\\W*(?:potential)?\\W*(?:gwp)?\\W*" +
+				"(?:100)?\\W*|\\W*global\\W*warming\\W*(?:potential)?\\W*" +
+				"(?:gwp)?\\W*(?:100)?\\W*|\\W*gwp\\W*(?:100)?\\W*)biogenic\\W*",
+
+			UnitMatch.of(
+				"kgCO2e",
+				"(?i)\\s*kg\\s*CO2\\s*\\-?\\s*(?:(?:eq?\\.?)|equivalents)?\\s*")),
+
+		GWP_LAND(
+			"Global warming potential, land use",
+			IndicatorType.LCIA,
+			"gwp-luluc",
+			"kgCO2e",
+
+			"(?)(?:\\W*climate\\W*change\\W*(?:potential)?\\W*(?:gwp)?\\W*" +
+				"(?:100)?\\W*|\\W*global\\W*warming\\W*(?:potential)?\\W*" +
+				"(?:gwp)?\\W*(?:100)?\\W*|\\W*gwp\\W*(?:100)?\\W*)land\\W*",
+
+			UnitMatch.of(
+				"kgCO2e",
+				"(?i)\\s*kg\\s*CO2\\s*\\-?\\s*(?:(?:eq?\\.?)|equivalents)?\\s*")),
+
+		EP_FRESH(
+			"Eutrophication potential, fresh water",
+			IndicatorType.LCIA,
+			"ep-fresh",
+			"kg PO4e",
+
+			"(?i)(?:\\W*eutrophication\\W*(?:potential)?\\W*(?:ep)?\\W*|\\W*ep\\W*)fresh",
+
+			UnitMatch.of(
+				"kg PO4e",
+				"(?i)")
+		),
+
+		EP_TERR(
+			"Eutrophication potential, terrestrial",
+			IndicatorType.LCIA,
+			"ep-terr",
+			"molNe",
+
+			"(?i)(?:\\W*eutrophication\\W*(?:potential)?\\W*(?:ep)?\\W*|\\W*ep\\W*)terrestrial",
+
+			UnitMatch.of(
+				"molNe",
+				"(?i)")
+		),
+
 		RPRE(
-			"Renewable primary resources used as energy carrier (fuel)",
+			"Renewable primary resources, energy",
 			IndicatorType.LCI_IN,
 			"RPRe",
 			"MJ",
@@ -141,7 +220,7 @@ public class Vocab {
 
 
 		RPRM(
-			"Renewable primary resources with energy content used as material",
+			"Renewable primary resources, material",
 			IndicatorType.LCI_IN,
 			"RPRm",
 			"MJ",
@@ -152,7 +231,7 @@ public class Vocab {
 
 
 		NRPRE(
-			"Non-renewable primary resources used as an energy carrier (fuel)",
+			"Non-renewable primary resources, energy",
 			IndicatorType.LCI_IN,
 			"NRPRe",
 			"MJ",
@@ -163,7 +242,7 @@ public class Vocab {
 
 
 		NRPRM(
-			"Non-renewable primary resources with energy content used as material",
+			"Non-renewable primary resources, material",
 			IndicatorType.LCI_IN,
 			"NRPRm",
 			"MJ",
@@ -174,7 +253,7 @@ public class Vocab {
 
 
 		SM(
-			"Secondary materials: materials recycled from previous use or waste",
+			"Secondary materials",
 			IndicatorType.LCI_IN,
 			"sm",
 			"kg",
@@ -185,7 +264,7 @@ public class Vocab {
 
 
 		RSF(
-			"Renewable materials with energy content",
+			"Renewable materials, fuel input",
 			IndicatorType.LCI_IN,
 			"rsf",
 			"MJ",
@@ -218,7 +297,7 @@ public class Vocab {
 
 
 		FW(
-			"Use of net fresh water resources",
+			"Fresh water resources",
 			IndicatorType.LCI_IN,
 			"fw",
 			"m3",
@@ -229,7 +308,7 @@ public class Vocab {
 
 
 		HWD(
-			"Hazardous waste disposed",
+			"Hazardous waste, disposed",
 			IndicatorType.LCI_OUT,
 			"hwd",
 			"kg",
@@ -240,7 +319,7 @@ public class Vocab {
 
 
 		NHWD(
-			"Non-hazardous waste disposed",
+			"Non-hazardous waste, disposed",
 			IndicatorType.LCI_OUT,
 			"nhwd",
 			"kg",
@@ -251,7 +330,7 @@ public class Vocab {
 
 
 		HLRW(
-			"High-level radioactive waste, conditioned, to final repository",
+			"High-level radioactive waste",
 			IndicatorType.LCI_OUT,
 			"hlrw",
 			"kg",
@@ -262,7 +341,7 @@ public class Vocab {
 
 
 		ILLRW(
-			"Intermediate- and low-level radioactive waste, conditioned, to final repository",
+			"Intermediate- and low-level radioactive waste",
 			IndicatorType.LCI_OUT,
 			"illrw",
 			"kg",
@@ -306,22 +385,22 @@ public class Vocab {
 
 
 		EE(
-			"Recovered energy exported from the product system",
+			"Recovered energy, exported",
 			IndicatorType.LCI_OUT,
 			"ee",
 			"MJ",
-			"(?i)(?:^|\\W+)ee(?:$|\\W+)",
+			"(?i)(?:^|\\W+)eee?(?:$|\\W+)",
 
 			UnitMatch.of("MJ", "MJ")
 		),
 
 
 		EH(
-			"Recovered heat exported from the product system",
+			"Recovered heat, exported",
 			IndicatorType.LCI_OUT,
 			"eh",
 			"MJ",
-			"(?i)(?:^|\\W+)eh(?:$|\\W+)",
+			"(?i)(?:^|\\W+)(?:eh|eet)(?:$|\\W+)",
 
 			UnitMatch.of("MJ", "MJ")
 		);

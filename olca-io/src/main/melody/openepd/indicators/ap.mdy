@@ -1,0 +1,61 @@
+let .ws = {
+  any of <whitespace>;
+}
+
+let .opt_parens_open = {
+  .ws;
+  option of "(";
+  .ws;
+}
+
+let .opt_parens_close = {
+  .ws;
+  option of ")";
+  .ws;
+}
+
+let .potential = {
+  .ws;
+  option of either {
+    "potential";
+    "pot.";
+  }
+  .ws;
+}
+
+let .opt_total = {
+  .ws;
+  option of either {
+    ",";
+    "-";
+  }
+  .ws;
+  option of "total";
+  .ws;
+}
+
+let .ap = {
+  .opt_parens_open;
+  "ap";
+  .opt_total;
+  .opt_parens_close;
+}
+
+let .suffix = {
+  .potential;
+  .opt_parens_open;
+  option of "ap";
+  .opt_total;
+  .opt_parens_close;
+}
+
+let .acidification = {
+  .ws;
+  "acidification";
+  .suffix;
+}
+
+either {
+  .ap;
+  .acidification;
+}

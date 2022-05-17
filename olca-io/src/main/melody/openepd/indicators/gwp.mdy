@@ -1,0 +1,97 @@
+let .ws = {
+  any of <whitespace>;
+}
+
+let .opt_parens_open = {
+  .ws;
+  option of "(";
+  .ws;
+}
+
+let .opt_parens_close = {
+  .ws;
+  option of ")";
+  .ws;
+}
+
+let .potential = {
+  .ws;
+  option of either {
+    "potential";
+    "pot.";
+  }
+  .ws;
+}
+
+let .time = {
+  .opt_parens_open;
+  option of "100";
+  .ws;
+  option of "a";
+  .opt_parens_close;
+}
+
+let .opt_total = {
+  .ws;
+  option of either {
+    ",";
+    "-";
+  }
+  .ws;
+  option of "total";
+  .ws;
+}
+
+let .gwp = {
+  .opt_parens_open;
+  "gwp";
+  .opt_total;
+  .opt_parens_close;
+  .time;
+}
+
+let .suffix = {
+  .potential;
+  .opt_total;
+  .opt_parens_open;
+  option of "gwp";
+  .time;
+  .opt_total;
+  .opt_parens_close;
+}
+
+let .global_warming = {
+  .ws;
+  "global";
+  some of <whitespace>;
+  "warming";
+  .suffix;
+}
+
+let .climate_change = {
+  .ws;
+  "climate";
+  some of <whitespace>;
+  "change";
+  .suffix;
+}
+
+let .ippc = {
+  option of match {
+    .ws;
+    "IPCC";
+    .ws;
+    option of match {
+      "20";
+      2 of <digit>;
+    }
+    .ws;
+  }
+}
+
+.ippc;
+either {
+  .global_warming;
+  .climate_change;
+  .gwp;
+}

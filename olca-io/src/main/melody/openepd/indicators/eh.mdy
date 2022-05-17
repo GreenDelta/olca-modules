@@ -1,0 +1,14 @@
+either {
+  <start>;
+  some of not <word>;
+}
+
+either {
+  "eh";
+  "eet";
+}
+
+either {
+  <end>;
+  some of not <word>;
+}

@@ -1,0 +1,67 @@
+let .ws = {
+  any of <whitespace>;
+}
+
+let .opt_parens_open = {
+  .ws;
+  option of "(";
+  .ws;
+}
+
+let .opt_parens_close = {
+  .ws;
+  option of ")";
+  .ws;
+}
+
+let .potential = {
+  .ws;
+  option of either {
+    "potential";
+    "pot.";
+  }
+  .ws;
+}
+
+let .opt_total = {
+  .ws;
+  option of either {
+    ",";
+    "-";
+  }
+  .ws;
+  option of "total";
+  .ws;
+}
+
+let .odp = {
+  .opt_parens_open;
+  "odp";
+  .opt_total;
+  .opt_parens_close;
+}
+
+let .suffix = {
+  .potential;
+  .opt_parens_open;
+  option of "odp";
+  .opt_total;
+  .opt_parens_close;
+}
+
+let .full_name = {
+  .ws;
+  option of "stratospheric";
+  .ws;
+  "ozone";
+  .ws;
+  option of "layer";
+  .ws;
+  "depletion";
+  .suffix;
+}
+
+either {
+ .odp;
+ .full_name;
+}
