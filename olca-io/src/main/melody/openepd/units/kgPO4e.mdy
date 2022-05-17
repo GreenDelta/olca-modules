@@ -1,0 +1,26 @@
+
+let .eq = {
+  "e";
+  option of "q";
+  option of ".";
+  option of "quivalents";
+}
+
+either {
+  <start>;
+  any of not <word>;
+}
+
+"kg";
+any of not <word>;
+"PO4";
+any of not <word>;
+option of "3-";
+any of not <word>;
+.eq;
+any of not <word>;
+
+either {
+  <end>;
+  any of not <word>;
+}

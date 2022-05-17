@@ -217,6 +217,16 @@ public class VocabTest {
 	}
 
 	@Test
+	public void testUnitMatching() {
+		for (var indicator : Indicator.values()) {
+			var match = indicator.unitMatchOf(indicator.unit());
+			assertTrue(String.format("indicator: %s unit: %s",
+				indicator.code(), indicator.unit()), match.isPresent());
+			assertEquals(1.0, match.get().factor(), 1e-10);
+		}
+	}
+
+	@Test
 	public void testScopeMatching() {
 		var searches = new String[] {
 			"A1 - A3", "A1A2A3", " a1 to a3",

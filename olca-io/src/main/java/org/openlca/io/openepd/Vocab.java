@@ -138,7 +138,7 @@ public class Vocab {
 			"(?i)(?:(?=.*ozone)(?=.*(?:formation|creation)).*|(?:^|\\W+)pocp(?:$|\\W+))",
 			UnitMatch.of(
 				"kgO3e",
-				"(?i)")),
+				"(?i)(?:^|\\W*)kg\\W*O3\\W*eq?\\.?(?:quivalents)?(?:$|\\W*)")),
 
 		GWP_FOSSIL(
 			"Global warming potential, fossil sources",
@@ -190,7 +190,7 @@ public class Vocab {
 
 			UnitMatch.of(
 				"kg PO4e",
-				"(?i)")
+				"(?i)(?:^|\\W*)kg\\W*PO4\\W*(?:3\\-)?\\W*(?:(?:eq?\\.?)|equivalents)\\W*(?:$|\\W*)")
 		),
 
 		EP_TERR(
@@ -203,7 +203,7 @@ public class Vocab {
 
 			UnitMatch.of(
 				"molNe",
-				"(?i)")
+				"(?i)(?:^|\\W*)mol\\W*N\\W*eq?\\.?(?:quivalents)?(?:$|\\W*)")
 		),
 
 		RPRE(
@@ -258,7 +258,7 @@ public class Vocab {
 
 			"(?i)(?:^|\\W+)sm(?:$|\\W+)",
 
-			UnitMatch.of("MJ", "MJ")),
+			UnitMatch.of("kg", "kg")),
 
 
 		RSF(

@@ -1,0 +1,24 @@
+let .ws = {
+  any of <whitespace>;
+}
+
+let .eq = {
+  .ws;
+  option of "-";
+  .ws;
+  option of either {
+    match {
+      "e";
+      option of "q";
+      option of ".";
+    }
+    "equivalents";
+  }
+  .ws;
+}
+
+.ws;
+"kg";
+.ws;
+"SO2";
+.eq;
