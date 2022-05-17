@@ -135,7 +135,7 @@ public class Vocab {
 			"pocp",
 			"kgO3e",
 
-			"(?i)(?:formation.*ozone|(?:^|\\W+)pocp(?:$|\\W+))",
+			"(?i)(?:(?=.*ozone)(?=.*(?:formation|creation)).*|(?:^|\\W+)pocp(?:$|\\W+))",
 			UnitMatch.of(
 				"kgO3e",
 				"(?i)")),
@@ -174,7 +174,7 @@ public class Vocab {
 			"kgCO2e",
 
 			"(?i)(?:(?=.*climate)(?=.*change).*|(?=.*global)(?=.*warming).*" +
-				"|.*\\W*gwp\\W*.*)land",
+				"|.*(?:^|\\W+)gwp(?:$|\\W+).*)(?:land|luluc)",
 
 			UnitMatch.of(
 				"kgCO2e",
@@ -199,7 +199,8 @@ public class Vocab {
 			"ep-terr",
 			"molNe",
 
-			"(?i)(?:\\W*eutrophication\\W*(?:potential)?\\W*(?:ep)?\\W*|\\W*ep\\W*)terrestrial",
+			"(?i)(?:\\W*eutrophication\\W*(?:potential)?\\W*(?:ep)?\\W*" +
+				"|\\W*ep\\W*)terr(?:estrial)?",
 
 			UnitMatch.of(
 				"molNe",
@@ -212,7 +213,7 @@ public class Vocab {
 			"RPRe",
 			"MJ",
 
-			"(?i)(?:^|\\W+)pere(?:$|\\W+)",
+			"(?i)(?:^|\\W+)(?:pere|rpre)(?:$|\\W+)",
 
 			UnitMatch.of("MJ", "MJ")),
 
@@ -223,7 +224,7 @@ public class Vocab {
 			"RPRm",
 			"MJ",
 
-			"(?i)(?:^|\\W+)perm(?:$|\\W+)",
+			"(?i)(?:^|\\W+)(?:perm|rprm)(?:$|\\W+)",
 
 			UnitMatch.of("MJ", "MJ")),
 
@@ -234,7 +235,7 @@ public class Vocab {
 			"NRPRe",
 			"MJ",
 
-			"(?i)(?:^|\\W+)penre(?:$|\\W+)",
+			"(?i)(?:^|\\W+)(?:penre|nrpre)(?:$|\\W+)",
 
 			UnitMatch.of("MJ", "MJ")),
 
@@ -245,7 +246,7 @@ public class Vocab {
 			"NRPRm",
 			"MJ",
 
-			"(?i)(?:^|\\W+)penrm(?:$|\\W+)",
+			"(?i)(?:^|\\W+)(?:penrm|nrprm)(?:$|\\W+)",
 
 			UnitMatch.of("MJ", "MJ")),
 
@@ -321,6 +322,7 @@ public class Vocab {
 			IndicatorType.LCI_OUT,
 			"nhwd",
 			"kg",
+
 			"(?i)(?:^|\\W+)nhwd(?:$|\\W+)",
 
 			UnitMatch.of("kg", "kg")
@@ -332,7 +334,8 @@ public class Vocab {
 			IndicatorType.LCI_OUT,
 			"hlrw",
 			"kg",
-			"(?i)(?:^|\\W+)hlrw(?:$|\\W+)",
+
+			"(?i)(?:^|\\W+)(?:hlrw|rwd)(?:$|\\W+)",
 
 			UnitMatch.of("kg", "kg")
 		),
@@ -365,7 +368,7 @@ public class Vocab {
 			IndicatorType.LCI_OUT,
 			"mr",
 			"kg",
-			"(?i)(?:^|\\W+)mr(?:$|\\W+)",
+			"(?i)(?:^|\\W+)(?:mr|mfr)(?:$|\\W+)",
 
 			UnitMatch.of("kg", "kg")
 		),

@@ -112,6 +112,14 @@ public class VocabTest {
 			"Use of secondary material (SM)");
 	}
 
+	@Test
+	public void testMatchIndicatorCodes() {
+		for (var indicator : Indicator.values()) {
+			expectMatch(indicator, indicator.code());
+			// expectMatch(indicator, indicator.description());
+		}
+	}
+
 	private void expectMatch(Indicator indicator, String name) {
 		var match = Arrays.stream(Indicator.values())
 			.map(i -> Pair.of(i, i.matchScoreOf(name)))

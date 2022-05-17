@@ -1,0 +1,27 @@
+let .non_word = {
+  any of not <word>;
+}
+
+let .eutroph = {
+  .non_word;
+  "eutrophication";
+  .non_word;
+  option of "potential";
+  .non_word;
+  option of "ep";
+  .non_word;
+}
+
+let .ep = {
+  .non_word;
+  "ep";
+  .non_word;
+}
+
+either {
+  .eutroph;
+  .ep;
+}
+
+"terr";
+option of "estrial";

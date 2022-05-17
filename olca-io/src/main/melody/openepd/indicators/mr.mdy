@@ -1,0 +1,12 @@
+either {
+  <start>;
+  some of not <word>;
+}
+either {
+  "mr";
+  "mfr";
+}
+either {
+  <end>;
+  some of not <word>;
+}

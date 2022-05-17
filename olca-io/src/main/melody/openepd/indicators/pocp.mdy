@@ -12,17 +12,18 @@ let .code = {
 }
 
 let .formation = {
-  <start>;
   ahead {
       any of <char>;
       "ozone";
     }
   ahead {
     any of <char>;
-    "formation";
+    either {
+      "formation";
+      "creation";
+    }
   }
   any of <char>;
-  <end>;
 }
 
 either {
