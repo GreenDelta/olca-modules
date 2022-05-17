@@ -146,7 +146,7 @@ public class Vocab {
 			"gwp-fossil",
 			"kgCO2e",
 
-			"(?)(?:\\W*climate\\W*change\\W*(?:potential)?\\W*(?:gwp)?\\W*" +
+			"(?i)(?:\\W*climate\\W*change\\W*(?:potential)?\\W*(?:gwp)?\\W*" +
 				"(?:100)?\\W*|\\W*global\\W*warming\\W*(?:potential)?\\W*" +
 				"(?:gwp)?\\W*(?:100)?\\W*|\\W*gwp\\W*(?:100)?\\W*)fossil\\W*",
 
@@ -160,9 +160,8 @@ public class Vocab {
 			"gwp-biogenic",
 			"kgCO2e",
 
-			"(?)(?:\\W*climate\\W*change\\W*(?:potential)?\\W*(?:gwp)?\\W*" +
-				"(?:100)?\\W*|\\W*global\\W*warming\\W*(?:potential)?\\W*" +
-				"(?:gwp)?\\W*(?:100)?\\W*|\\W*gwp\\W*(?:100)?\\W*)biogenic\\W*",
+			"(?i)(?:(?=.*climate)(?=.*change).*|(?=.*global)(?=.*warming).*" +
+				"|.*gwp.*)biogenic",
 
 			UnitMatch.of(
 				"kgCO2e",
@@ -174,9 +173,8 @@ public class Vocab {
 			"gwp-luluc",
 			"kgCO2e",
 
-			"(?)(?:\\W*climate\\W*change\\W*(?:potential)?\\W*(?:gwp)?\\W*" +
-				"(?:100)?\\W*|\\W*global\\W*warming\\W*(?:potential)?\\W*" +
-				"(?:gwp)?\\W*(?:100)?\\W*|\\W*gwp\\W*(?:100)?\\W*)land\\W*",
+			"(?i)(?:(?=.*climate)(?=.*change).*|(?=.*global)(?=.*warming).*" +
+				"|.*\\W*gwp\\W*.*)land",
 
 			UnitMatch.of(
 				"kgCO2e",

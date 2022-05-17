@@ -25,7 +25,9 @@ let .global_warming = {
 
 let .gwp = {
   any of <char>;
+  any of not <word>;
   "gwp";
+  any of not <word>;
   any of <char>;
 }
 
@@ -34,4 +36,4 @@ either {
   .global_warming;
   .gwp;
 }
-"biogenic";
+"land";
