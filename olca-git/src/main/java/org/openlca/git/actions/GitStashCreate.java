@@ -28,6 +28,7 @@ public class GitStashCreate extends GitProgressAction<Void> {
 	private Commits commits;
 	private ObjectIdStore workspaceIds;
 	private PersonIdent committer;
+	private boolean discard;
 
 	private GitStashCreate(IDatabase database) {
 		this.database = database;
@@ -49,6 +50,11 @@ public class GitStashCreate extends GitProgressAction<Void> {
 		return this;
 	}
 
+	public GitStashCreate discard() {
+		this.discard = true;
+		return this;
+	}
+
 	public GitStashCreate update(ObjectIdStore workspaceIds) {
 		this.workspaceIds = workspaceIds;
 		return this;
@@ -56,8 +62,10 @@ public class GitStashCreate extends GitProgressAction<Void> {
 
 	@Override
 	public Void run() throws IOException {
-		if (git == null || database == null)
-			throw new IllegalStateException("Git repository and database must be set");
+		if (git == null || database == null || workspaceIds == null)
+			throw new IllegalStateException("Git repository, database and workspace ids must be set");
+		if (!discard && committer == null)
+			throw new IllegalStateException("Committer must be set");
 		if (progressMonitor != null) {
 			progressMonitor.beginTask("Preparing to create stash", -1);
 		}
@@ -65,8 +73,10 @@ public class GitStashCreate extends GitProgressAction<Void> {
 		var diffs = Diffs.workspace(config);
 		if (diffs.isEmpty())
 			throw new IllegalStateException("No diffs found");
-		var writer = new CommitWriter(config, committer, progressMonitor);
-		writer.stashCommit("Stashed changes", diffs.stream().map(Change::new).collect(Collectors.toList()));
+		if (!discard) {
+			var writer = new CommitWriter(config, committer, progressMonitor);
+			writer.stashCommit("Stashed changes", diffs.stream().map(Change::new).collect(Collectors.toList()));
+		}
 		var importHelper = new ImportHelper(git, database, workspaceIds, progressMonitor);
 		var toDelete = diffs.stream()
 				.filter(d -> d.diffType == DiffType.ADDED)
@@ -75,9 +85,7 @@ public class GitStashCreate extends GitProgressAction<Void> {
 		var headCommit = commits.head();
 		if (headCommit == null) {
 			importHelper.delete(toDelete);
-			if (workspaceIds != null) {
-				workspaceIds.clear();
-			}
+			workspaceIds.clear();
 		} else {
 			var toImport = diffs.stream()
 					.filter(d -> d.diffType != DiffType.ADDED)
