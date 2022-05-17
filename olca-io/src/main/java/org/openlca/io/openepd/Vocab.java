@@ -199,8 +199,7 @@ public class Vocab {
 			"ep-terr",
 			"molNe",
 
-			"(?i)(?:\\W*eutrophication\\W*(?:potential)?\\W*(?:ep)?\\W*" +
-				"|\\W*ep\\W*)terr(?:estrial)?",
+			"(?i)(?=.*terr(?:estrial)?).*(?:\\beutrophication\\b|\\bep\\b).*",
 
 			UnitMatch.of(
 				"molNe",
