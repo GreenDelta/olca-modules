@@ -43,20 +43,19 @@ public class Diffs {
 	}
 
 	public static List<Diff> workspace(GitConfig config, Commit commit, List<String> paths) {
-		var walk = new TreeWalk(config.repo);
-		try {
+		try (var walk = new TreeWalk(config.repo)) {
 			addTree(config.repo, walk, commit, true);
+			walk.addTree(new DatabaseIterator(config));
+			if (paths == null) {
+				paths = new ArrayList<>();
+			}
+			walk.setFilter(getPathsFilter(paths.stream().distinct().toList()));
+			walk.setRecursive(true);
+			return scan(walk, e -> map(e, commit, null));
 		} catch (IOException e) {
 			log.error("Error adding tree", e);
 			return new ArrayList<>();
 		}
-		walk.addTree(new DatabaseIterator(config));
-		if (paths == null) {
-			paths = new ArrayList<>();
-		}
-		walk.setFilter(getPathsFilter(paths.stream().distinct().toList()));
-		walk.setRecursive(true);
-		return scan(walk, e -> map(e, commit, null));
 	}
 
 	public static List<Diff> withPrevious(FileRepository repo, Commit commit) {
@@ -73,20 +72,19 @@ public class Diffs {
 	}
 
 	public static List<Diff> between(FileRepository repo, Commit left, Commit right, List<String> paths) {
-		var walk = new TreeWalk(repo);
-		try {
+		try (var walk = new TreeWalk(repo)) {
 			addTree(repo, walk, left, false);
 			addTree(repo, walk, right, false);
+			if (paths == null) {
+				paths = new ArrayList<>();
+			}
+			walk.setFilter(getPathsFilter(paths.stream().distinct().toList()));
+			walk.setRecursive(true);
+			return scan(walk, e -> map(e, left, right));
 		} catch (IOException e) {
 			log.error("Error adding tree", e);
 			return new ArrayList<>();
 		}
-		if (paths == null) {
-			paths = new ArrayList<>();
-		}
-		walk.setFilter(getPathsFilter(paths.stream().distinct().toList()));
-		walk.setRecursive(true);
-		return scan(walk, e -> map(e, left, right));
 	}
 
 	private static List<Diff> scan(TreeWalk walk, Function<DiffEntry, Diff> map) {

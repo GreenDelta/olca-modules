@@ -40,7 +40,8 @@ public class CommitWriter {
 	private final GitConfig config;
 	private final PersonIdent committer;
 	private final ProgressMonitor progressMonitor;
-	private PackInserter inserter;
+	private PackInserter packInserter;
+	private ObjectInserter objectInserter;
 	private Converter converter;
 	private boolean isMergeCommit;
 	private boolean isStashCommit;
@@ -86,8 +87,9 @@ public class CommitWriter {
 			if (progressMonitor != null) {
 				progressMonitor.beginTask("Writing commit", changes.size());
 			}
-			inserter = config.repo.getObjectDatabase().newPackInserter();
-			inserter.checkExisting(config.checkExisting);
+			packInserter = config.repo.getObjectDatabase().newPackInserter();
+			packInserter.checkExisting(config.checkExisting);
+			objectInserter = config.repo.newObjectInserter();
 			converter = new Converter(config, threads);
 			converter.start(changes.stream()
 					.filter(d -> d.diffType != DiffType.DELETED)
@@ -110,10 +112,15 @@ public class CommitWriter {
 			var commitId = commit(message, treeId, localCommitOid, remoteCommitOid);
 			return commitId.name();
 		} finally {
-			if (inserter != null) {
-				inserter.flush();
-				inserter.close();
-				inserter = null;
+			if (packInserter != null) {
+				packInserter.flush();
+				packInserter.close();
+				packInserter = null;
+			}
+			if (objectInserter != null) {
+				objectInserter.flush();
+				objectInserter.close();
+				objectInserter = null;
 			}
 			if (converter != null) {
 				converter.clear();
@@ -163,11 +170,16 @@ public class CommitWriter {
 		if (Strings.nullOrEmpty(prefix) && localTreeId == null && remoteTreeId == null) {
 			appendSchemaVersion(tree);
 		}
-		var newId = insert(i -> i.insert(tree));
-		if (!isStashCommit && config.store != null) {
-			config.store.put(prefix, newId);
+		try {
+			var newId = objectInserter.insert(tree);
+			if (!isStashCommit && config.store != null) {
+				config.store.put(prefix, newId);
+			}
+			return newId;
+		} catch (IOException e) {
+			log.error("Error inserting tree", e);
+			return null;
 		}
-		return newId;
 	}
 
 	private TreeWalk createWalk(String prefix, ChangeIterator diffIterator, ObjectId localTreeId,
@@ -223,12 +235,12 @@ public class CommitWriter {
 			return null;
 		}
 		if (file != null)
-			return inserter.insert(Constants.OBJ_BLOB, Files.readAllBytes(file.toPath()));
+			return packInserter.insert(Constants.OBJ_BLOB, Files.readAllBytes(file.toPath()));
 		if (progressMonitor != null) {
 			progressMonitor.subTask("Writing", change);
 		}
 		var data = converter.take(path);
-		localBlobId = inserter.insert(Constants.OBJ_BLOB, data);
+		localBlobId = packInserter.insert(Constants.OBJ_BLOB, data);
 		if (!isStashCommit && config.store != null) {
 			config.store.put(path, localBlobId);
 		}
@@ -241,7 +253,7 @@ public class CommitWriter {
 	private void appendSchemaVersion(TreeFormatter tree) {
 		try {
 			var schemaBytes = SchemaVersion.current().toJson().toString().getBytes(StandardCharsets.UTF_8);
-			var blobId = inserter.insert(Constants.OBJ_BLOB, schemaBytes);
+			var blobId = packInserter.insert(Constants.OBJ_BLOB, schemaBytes);
 			if (blobId != null) {
 				tree.append(SchemaVersion.FILE_NAME, FileMode.REGULAR_FILE, blobId);
 			}
@@ -272,7 +284,7 @@ public class CommitWriter {
 			if (remoteCommitId != null && !remoteCommitId.equals(ObjectId.zeroId())) {
 				commit.addParentId(remoteCommitId);
 			}
-			var commitId = insert(i -> i.insert(commit));
+			var commitId = objectInserter.insert(commit);
 			if (isStashCommit) {
 				updateRef(Constants.R_STASH, message, commitId);
 			} else {
@@ -298,24 +310,9 @@ public class CommitWriter {
 		}
 	}
 
-	private ObjectId insert(Insert insertion) {
-		try (var inserter = config.repo.newObjectInserter()) {
-			return insertion.insertInto(inserter);
-		} catch (IOException e) {
-			log.error("failed to insert", e);
-			return null;
-		}
-	}
-
 	private boolean isCurrentSchemaVersion() {
 		var schema = Repositories.versionOf(config.repo);
 		return schema.isCurrent();
-	}
-
-	private interface Insert {
-
-		ObjectId insertInto(ObjectInserter inserter) throws IOException;
-
 	}
 
 }
