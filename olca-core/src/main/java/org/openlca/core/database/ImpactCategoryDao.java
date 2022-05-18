@@ -1,5 +1,6 @@
 package org.openlca.core.database;
 
+import org.openlca.core.model.Direction;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 
@@ -23,6 +24,7 @@ public class ImpactCategoryDao extends
 				"library",
 				"tags",
 				"reference_unit",
+				"direction",
 		};
 	}
 
@@ -32,6 +34,9 @@ public class ImpactCategoryDao extends
 			return null;
 		var d = super.createDescriptor(record);
 		d.referenceUnit = (String) record[9];
+		if (record[10] instanceof String s) {
+			d.direction = Direction.from(s);
+		}
 		return d;
 	}
 }
