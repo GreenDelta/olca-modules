@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.ObjectId;
@@ -32,24 +33,19 @@ public class Datasets {
 	}
 
 	public Map<String, Object> parse(ObjectId id, String... fields) {
-		var stream = stream(id);
-		if (stream == null)
-			return new HashMap<>();
-		return MetaDataParser.parse(stream, fields);
+		return stream(id, new HashMap<>(), stream -> MetaDataParser.parse(stream, fields));
 	}
 
 	public Map<String, Object> parse(ObjectId id, List<FieldDefinition> defs) {
-		var stream = stream(id);
-		if (stream == null)
-			return new HashMap<>();
-		return MetaDataParser.parse(stream, defs);
+		return stream(id, new HashMap<>(), stream -> MetaDataParser.parse(stream, defs));
 	}
 
-	public ObjectStream stream(ObjectId id) {
+	private <T> T stream(ObjectId id, T defaultValue, Function<ObjectStream, T> consumer) {
 		if (id == null)
-			return null;
-		try {
-			return repo.getObjectDatabase().newReader().open(id).openStream();
+			return defaultValue;
+		try (var reader = repo.getObjectDatabase().newReader();
+				var stream = reader.open(id).openStream()) {
+			return consumer.apply(stream);
 		} catch (IOException e) {
 			log.error("Error loading " + id);
 			return null;
@@ -59,8 +55,8 @@ public class Datasets {
 	public byte[] getBytes(ObjectId id) {
 		if (id == null)
 			return null;
-		try {
-			return repo.getObjectDatabase().newReader().open(id).getBytes();
+		try (var reader = repo.getObjectDatabase().newReader()) {
+			return reader.open(id).getBytes();
 		} catch (IOException e) {
 			log.error("Error loading " + id);
 			return null;

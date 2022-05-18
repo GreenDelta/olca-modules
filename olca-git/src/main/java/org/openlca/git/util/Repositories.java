@@ -21,7 +21,7 @@ import com.google.gson.JsonElement;
 public final class Repositories {
 
 	private static final Logger log = LoggerFactory.getLogger(Repositories.class);
-	
+
 	private Repositories() {
 	}
 
@@ -63,7 +63,7 @@ public final class Repositories {
 			return null;
 		}
 	}
-	
+
 	public static RevCommit headCommitOf(FileRepository repo) {
 		try (var walk = new RevWalk(repo)) {
 			var head = repo.resolve("HEAD");
@@ -81,5 +81,5 @@ public final class Repositories {
 			return null;
 		}
 	}
-	
+
 }

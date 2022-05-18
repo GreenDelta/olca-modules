@@ -43,8 +43,7 @@ public class Ids {
 	ObjectId get(ObjectId treeId, String path) {
 		if (Strings.nullOrEmpty(path))
 			return treeId;
-		try {
-			var walk = TreeWalk.forPath(repo, GitUtil.encode(path), treeId);
+		try (var walk = TreeWalk.forPath(repo, GitUtil.encode(path), treeId)) {
 			if (walk == null)
 				return ObjectId.zeroId();
 			return walk.getObjectId(0);
