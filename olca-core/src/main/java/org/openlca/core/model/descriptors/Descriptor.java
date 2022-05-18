@@ -142,6 +142,7 @@ public class Descriptor implements Copyable<Descriptor> {
 			return null;
 		var d = setBaseValues(impact, new ImpactDescriptor());
 		d.referenceUnit = impact.referenceUnit;
+		d.direction = impact.direction;
 		return d;
 	}
 

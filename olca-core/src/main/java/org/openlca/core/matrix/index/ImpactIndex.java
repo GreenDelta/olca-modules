@@ -197,4 +197,11 @@ public class ImpactIndex implements MatrixIndex<ImpactDescriptor> {
 	public Iterator<ImpactDescriptor> iterator() {
 		return Collections.unmodifiableList(content).iterator();
 	}
+
+	public ImpactDescriptor getForId(long id) {
+		int pos = of(id);
+		return pos >= 0
+			? at(pos)
+			: null;
+	}
 }

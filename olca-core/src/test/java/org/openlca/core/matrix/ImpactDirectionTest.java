@@ -18,6 +18,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 public class ImpactDirectionTest {
 
@@ -40,6 +41,19 @@ public class ImpactDirectionTest {
 		var mass = flow.referenceFlowProperty;
 		var units = mass.unitGroup;
 		db.delete(impact, flow, mass, units);
+	}
+
+	@Test
+	public void testDescriptorDirection() {
+		var dirs = new Direction[]{
+			Direction.INPUT, Direction.OUTPUT, null};
+		for (var dir : dirs) {
+			impact.direction = dir;
+			db.update(impact);
+			var d = (ImpactDescriptor) db.getDescriptor(
+				ImpactCategory.class, impact.id);
+			assertEquals(dir, d.direction);
+		}
 	}
 
 	@Test

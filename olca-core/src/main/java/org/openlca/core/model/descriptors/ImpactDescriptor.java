@@ -1,5 +1,6 @@
 package org.openlca.core.model.descriptors;
 
+import org.openlca.core.model.Direction;
 import org.openlca.core.model.ModelType;
 
 /**
@@ -8,6 +9,7 @@ import org.openlca.core.model.ModelType;
 public class ImpactDescriptor extends RootDescriptor {
 
 	public String referenceUnit;
+	public Direction direction;
 
 	public ImpactDescriptor() {
 		this.type = ModelType.IMPACT_CATEGORY;
@@ -18,6 +20,7 @@ public class ImpactDescriptor extends RootDescriptor {
 		var copy = new ImpactDescriptor();
 		copyFields(this, copy);
 		copy.referenceUnit = referenceUnit;
+		copy.direction = direction;
 		return copy;
 	}
 
@@ -33,6 +36,11 @@ public class ImpactDescriptor extends RootDescriptor {
 
 		public Builder referenceUnit(String referenceUnit) {
 			descriptor.referenceUnit = referenceUnit;
+			return this;
+		}
+
+		public Builder direction(Direction direction) {
+			descriptor.direction = direction;
 			return this;
 		}
 	}

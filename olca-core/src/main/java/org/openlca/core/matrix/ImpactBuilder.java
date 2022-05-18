@@ -15,6 +15,7 @@ import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.uncertainties.UMatrix;
+import org.openlca.core.model.Direction;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
@@ -112,12 +113,12 @@ public final class ImpactBuilder {
 		try {
 			NativeSql.on(db).query(query(), r -> {
 
-				long impactID = r.getLong(1);
-				long flowID = r.getLong(2);
+				long impactId = r.getLong(1);
+				long flowId = r.getLong(2);
 				long locationID = r.getLong(11);
 
-				// check that the LCIA category
-				if (!impactIndex.contains(impactID))
+				var impact = impactIndex.getForId(impactId);
+				if (impact == null)
 					return true;
 
 				if (locationID > 0) {
@@ -126,21 +127,23 @@ public final class ImpactBuilder {
 					return true;
 				}
 
-				if (!flowIndex.contains(flowID))
+				if (!flowIndex.contains(flowId))
 					return true;
 
 				// create the factor instance
 				var f = new CalcImpactFactor();
-				f.imactCategoryId = impactID;
-				f.flowId = flowID;
+				f.imactCategoryId = impactId;
+				f.flowId = flowId;
 				f.amount = r.getDouble(3);
 				f.formula = r.getString(4);
 				f.conversionFactor = getConversionFactor(r);
-				f.isInput = flowIndex.isInput(flowID);
+				f.isInput = impact.direction != null
+					? impact.direction == Direction.INPUT
+					: flowIndex.isInput(flowId);
 
 				// set the matrix value
-				int row = impactIndex.of(impactID);
-				int col = flowIndex.of(flowID);
+				int row = impactIndex.of(impactId);
+				int col = flowIndex.of(flowId);
 				matrix.set(row, col, f.matrixValue(interpreter));
 
 				// set possible uncertainties
@@ -177,17 +180,17 @@ public final class ImpactBuilder {
 		try {
 			NativeSql.on(db).query(query(), r -> {
 
-				long impactID = r.getLong(1);
-				long flowID = r.getLong(2);
-				long locationID = r.getLong(11);
+				long impactId = r.getLong(1);
+				long flowId = r.getLong(2);
+				long locationId = r.getLong(11);
 
-				// check that the LCIA category
-				if (!impactIndex.contains(impactID))
+				var impact = impactIndex.getForId(impactId);
+				if (impact == null)
 					return true;
 
-				boolean isDefault = locationID == 0L;
+				boolean isDefault = locationId == 0L;
 				boolean addIt = true;
-				if (!flowIndex.contains(flowID, locationID)) {
+				if (!flowIndex.contains(flowId, locationId)) {
 					if (!isDefault)
 						return true;
 					addIt = false;
@@ -195,12 +198,14 @@ public final class ImpactBuilder {
 
 				// create the factor instance
 				var f = new CalcImpactFactor();
-				f.imactCategoryId = impactID;
-				f.flowId = flowID;
+				f.imactCategoryId = impactId;
+				f.flowId = flowId;
 				f.amount = r.getDouble(3);
 				f.formula = r.getString(4);
 				f.conversionFactor = getConversionFactor(r);
-				f.isInput = flowIndex.isInput(flowID, locationID);
+				f.isInput = impact.direction != null
+					? impact.direction == Direction.INPUT
+					: flowIndex.isInput(flowId, locationId);
 				if (uncertainties != null) {
 					int uType = r.getInt(7);
 					if (!r.wasNull()) {
@@ -211,17 +216,17 @@ public final class ImpactBuilder {
 					}
 				}
 
-				int row = impactIndex.of(impactID);
+				int row = impactIndex.of(impactId);
 				if (isDefault) {
-					defaults[row].put(flowID, f);
+					defaults[row].put(flowId, f);
 				}
 				if (addIt) {
-					int col = flowIndex.of(flowID, locationID);
+					int col = flowIndex.of(flowId, locationId);
 					matrix.set(row, col, f.matrixValue(interpreter));
 					if (uncertainties != null) {
 						uncertainties.add(row, col, f);
 					}
-					added.add(LongPair.of(flowID, locationID));
+					added.add(LongPair.of(flowId, locationId));
 				}
 				return true;
 			});
@@ -233,18 +238,21 @@ public final class ImpactBuilder {
 		// set default factors where necessary
 		if (added.size() == flowIndex.size())
 			return;
-		flowIndex.each((col, f) -> {
-			long flowID = f.flow().id;
-			long locationID = f.location() != null
-					? f.location().id
+		flowIndex.each((col, idxFlow) -> {
+			long flowId = idxFlow.flow().id;
+			long locationId = idxFlow.location() != null
+					? idxFlow.location().id
 					: 0L;
-			if (added.contains(LongPair.of(flowID, locationID)))
+			if (added.contains(LongPair.of(flowId, locationId)))
 				return;
 			for (int row = 0; row < defaults.length; row++) {
-				CalcImpactFactor factor = defaults[row].get(flowID);
+				var factor = defaults[row].get(flowId);
 				if (factor == null)
 					continue;
-				factor.isInput = f.isInput();
+				var impact = impactIndex.at(row);
+				factor.isInput = impact.direction !=null
+					? impact.direction == Direction.INPUT
+					: idxFlow.isInput();
 				matrix.set(row, col, factor.matrixValue(interpreter));
 				if (uncertainties != null) {
 					uncertainties.add(row, col, factor);
