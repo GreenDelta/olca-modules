@@ -312,6 +312,8 @@ public class CommitWriter {
 
 	private boolean isCurrentSchemaVersion() {
 		var schema = Repositories.versionOf(config.repo);
+		if (schema == null)
+			return false;
 		return schema.isCurrent();
 	}
 

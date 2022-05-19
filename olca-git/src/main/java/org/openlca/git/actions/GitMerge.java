@@ -81,6 +81,8 @@ public class GitMerge extends GitProgressAction<Boolean> {
 			return false;
 		var localCommit = commits.get(commits.resolve(Constants.LOCAL_BRANCH));
 		var remoteCommit = getRemoteCommit();
+		if (remoteCommit == null)
+			return false;
 		var diffs = getRemoteDiffs(remoteCommit);
 		var deleted = diffs.stream()
 				.filter(d -> d.diffType == DiffType.DELETED)

@@ -76,6 +76,8 @@ public class DatabaseIterator extends EntryIterator {
 		if (config.store == null)
 			return false;
 		var data = getEntryData();
+		if (data == null)
+			return false;
 		if (data instanceof ModelType)
 			return config.store.has((ModelType) data);
 		if (data instanceof Category)
@@ -88,6 +90,8 @@ public class DatabaseIterator extends EntryIterator {
 		if (config.store == null)
 			return GitUtil.getBytes(ObjectId.zeroId());
 		var data = getEntryData();
+		if (data == null)
+			return GitUtil.getBytes(ObjectId.zeroId());
 		if (data instanceof ModelType)
 			return config.store.getRaw((ModelType) data);
 		if (data instanceof Category)
