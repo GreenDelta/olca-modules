@@ -146,7 +146,8 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		result.keepDeleted()
 				.forEach(r -> diffs.add(new Change(DiffType.DELETED, r)));
 		result.deleted().forEach(r -> {
-			if (conflictResolver.isConflict(r)
+			if (conflictResolver != null
+					&& conflictResolver.isConflict(r)
 					&& conflictResolver.resolveConflict(r, null).type == ConflictResolutionType.OVERWRITE_LOCAL) {
 				diffs.add(new Change(DiffType.DELETED, r));
 			}
