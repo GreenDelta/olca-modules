@@ -53,7 +53,7 @@ public class Datasets {
 	}
 
 	public byte[] getBytes(ObjectId id) {
-		if (id == null)
+		if (id == null || id.equals(ObjectId.zeroId()))
 			return null;
 		try (var reader = repo.getObjectDatabase().newReader()) {
 			return reader.open(id).getBytes();

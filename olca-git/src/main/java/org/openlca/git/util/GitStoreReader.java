@@ -85,7 +85,7 @@ public class GitStoreReader implements JsonStoreReader {
 		var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
 		var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(".json"));
 		var ref = remoteChanges.get(type, refId);
-		if (ObjectId.zeroId().equals(ref))
+		if (ObjectId.zeroId().equals(ref.objectId))
 			return null;
 		return datasets.getBytes(ref.objectId);
 	}
