@@ -39,6 +39,7 @@ public class GitInit {
 				.setName(Constants.DEFAULT_REMOTE)
 				.setUri(new URIish(remoteUrl))
 				.call();
+		git.close();
 	}
 
 }
