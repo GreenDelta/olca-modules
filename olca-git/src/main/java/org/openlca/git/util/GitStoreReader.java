@@ -17,7 +17,7 @@ import org.openlca.git.model.Commit;
 import org.openlca.git.model.ModelRef;
 import org.openlca.git.model.Reference;
 import org.openlca.jsonld.JsonStoreReader;
-import org.openlca.jsonld.SchemaVersion;
+import org.openlca.jsonld.PackageInfo;
 import org.openlca.util.Strings;
 
 import com.google.gson.Gson;
@@ -63,8 +63,8 @@ public class GitStoreReader implements JsonStoreReader {
 
 	@Override
 	public byte[] getBytes(String path) {
-		if (SchemaVersion.FILE_NAME.equals(path))
-			return getSchema();
+		if (PackageInfo.FILE_NAME.equals(path))
+			return getPackInfo();
 		var binDir = GitUtil.findBinDir(path);
 		if (binDir == null && !path.endsWith(GitUtil.DATASET_SUFFIX))
 			return categories.getForPath(path);
@@ -76,8 +76,8 @@ public class GitStoreReader implements JsonStoreReader {
 		return datasets.getBytes(objectId);
 	}
 
-	private byte[] getSchema() {
-		var objectId = ids.get(SchemaVersion.FILE_NAME, remoteCommit.id);
+	private byte[] getPackInfo() {
+		var objectId = ids.get(PackageInfo.FILE_NAME, remoteCommit.id);
 		return datasets.getBytes(objectId);
 	}
 

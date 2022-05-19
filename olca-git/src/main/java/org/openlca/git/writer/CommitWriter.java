@@ -28,7 +28,7 @@ import org.openlca.git.model.DiffType;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.ProgressMonitor;
 import org.openlca.git.util.Repositories;
-import org.openlca.jsonld.SchemaVersion;
+import org.openlca.jsonld.PackageInfo;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -168,7 +168,7 @@ public class CommitWriter {
 			return null;
 		}
 		if (Strings.nullOrEmpty(prefix) && localTreeId == null && remoteTreeId == null) {
-			appendSchemaVersion(tree);
+			appendPackageInfo(tree);
 		}
 		try {
 			var newId = objectInserter.insert(tree);
@@ -250,12 +250,12 @@ public class CommitWriter {
 		return localBlobId;
 	}
 
-	private void appendSchemaVersion(TreeFormatter tree) {
+	private void appendPackageInfo(TreeFormatter tree) {
 		try {
-			var schemaBytes = SchemaVersion.current().toJson().toString().getBytes(StandardCharsets.UTF_8);
+			var schemaBytes = PackageInfo.create().json().toString().getBytes(StandardCharsets.UTF_8);
 			var blobId = packInserter.insert(Constants.OBJ_BLOB, schemaBytes);
 			if (blobId != null) {
-				tree.append(SchemaVersion.FILE_NAME, FileMode.REGULAR_FILE, blobId);
+				tree.append(PackageInfo.FILE_NAME, FileMode.REGULAR_FILE, blobId);
 			}
 		} catch (Exception e) {
 			log.error("Error inserting schema version", e);

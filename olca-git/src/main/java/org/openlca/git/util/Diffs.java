@@ -25,7 +25,7 @@ import org.openlca.git.model.Commit;
 import org.openlca.git.model.Diff;
 import org.openlca.git.model.DiffType;
 import org.openlca.git.model.Reference;
-import org.openlca.jsonld.SchemaVersion;
+import org.openlca.jsonld.PackageInfo;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,7 +139,7 @@ public class Diffs {
 	}
 
 	private static TreeFilter getPathsFilter(List<String> paths) {
-		var filter = PathFilter.create(SchemaVersion.FILE_NAME).negate();
+		var filter = PathFilter.create(PackageInfo.FILE_NAME).negate();
 		filter = AndTreeFilter.create(filter, NotBinaryFilter.create());
 		if (paths.isEmpty())
 			return filter;

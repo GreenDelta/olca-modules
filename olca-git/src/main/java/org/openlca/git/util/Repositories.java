@@ -11,6 +11,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
+import org.openlca.jsonld.PackageInfo;
 import org.openlca.jsonld.SchemaVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,13 +52,13 @@ public final class Repositories {
 				var reader = repo.getObjectDatabase().newReader()) {
 			walk.addTree(commit.getTree().getId());
 			walk.setRecursive(false);
-			walk.setFilter(PathFilter.create(SchemaVersion.FILE_NAME));
+			walk.setFilter(PathFilter.create(PackageInfo.FILE_NAME));
 			if (!walk.next())
 				return null;
 			var blobId = walk.getObjectId(0);
 			var bytes = reader.open(blobId).getBytes();
 			var json = new Gson().fromJson(new String(bytes, StandardCharsets.UTF_8), JsonElement.class);
-			return SchemaVersion.of(json);
+			return PackageInfo.of(json).schemaVersion();
 		} catch (IOException e) {
 			log.error("failed to read schema version", e);
 			return null;

@@ -11,6 +11,13 @@ public record PackageInfo(JsonObject json) {
 
 	public static final String FILE_NAME = "openlca.json";
 
+	public static PackageInfo of(JsonElement json) {
+		var obj = json != null && json.isJsonObject()
+			? json.getAsJsonObject()
+			: new JsonObject();
+		return new PackageInfo(obj);
+	}
+
 	public static PackageInfo create() {
 		var json = new JsonObject();
 		Json.put(json, "schemaVersion", SchemaVersion.CURRENT);
@@ -19,10 +26,7 @@ public record PackageInfo(JsonObject json) {
 
 	public static PackageInfo readFrom(JsonStoreReader reader) {
 		var elem = reader.getJson(FILE_NAME);
-		var json = elem != null && elem.isJsonObject()
-			? elem.getAsJsonObject()
-			: new JsonObject();
-		return new PackageInfo(json);
+		return of(elem);
 	}
 
 	public void writeTo(JsonStoreWriter writer) {

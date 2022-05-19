@@ -11,7 +11,7 @@ import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.model.Reference;
 import org.openlca.git.util.GitUtil;
-import org.openlca.jsonld.SchemaVersion;
+import org.openlca.jsonld.PackageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,7 +115,7 @@ public class References {
 					walk.setRecursive(true);
 					var filter = AndTreeFilter.create(
 							NotBinaryFilter.create(),
-							PathFilter.create(SchemaVersion.FILE_NAME).negate());
+							PathFilter.create(PackageInfo.FILE_NAME).negate());
 					if (path != null) {
 						filter = AndTreeFilter.create(filter, PathFilter.create(GitUtil.encode(path)));
 					}
