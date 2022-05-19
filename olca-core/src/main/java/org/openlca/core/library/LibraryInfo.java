@@ -1,9 +1,9 @@
 package org.openlca.core.library;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import org.openlca.jsonld.Json;
 
@@ -31,7 +31,7 @@ public class LibraryInfo {
 	/**
 	 * A list of library IDs this library depends on.
 	 */
-	private final List<String> dependencies = new ArrayList<>();
+	private final Set<String> dependencies = new HashSet<>();
 
 	public static LibraryInfo of(String name) {
 		var info = new LibraryInfo();
@@ -66,7 +66,7 @@ public class LibraryInfo {
 		return description;
 	}
 
-	public List<String> dependencies() {
+	public Set<String> dependencies() {
 		return dependencies;
 	}
 
