@@ -25,17 +25,11 @@ class MetaDataExport implements Runnable {
 
 	@Override
 	public void run() {
-		if (!export.withInventory && !export.withImpacts)
-			return;
 		try (var zip = ZipStore.open(new File(export.folder, "meta.zip"))) {
 			var exp = new JsonExport(db, zip);
-			if (export.withInventory) {
 				writeProcesses(exp);
-			}
-			if (export.withImpacts) {
 				writeImpactCategories(exp);
 				writeImpactMethods(exp);
-			}
 		} catch (Exception e) {
 			throw new RuntimeException(
 				"failed to write meta data in library export", e);

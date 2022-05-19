@@ -81,6 +81,17 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 		add(refFlow);
 	}
 
+	private TechIndex() {
+	}
+
+	public static TechIndex empty() {
+		return new TechIndex();
+	}
+
+	public boolean isEmpty() {
+		return index.isEmpty();
+	}
+
 	/**
 	 * Creates the index for the given product system. If the `withoutNetwork`
 	 * attribute of the system is set to true, it creates an unlinked index with all
@@ -168,7 +179,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 		var list = new ArrayList<TechFlow>();
 		eachProviderOf(db, list::add);
 		if (list.isEmpty())
-			throw new RuntimeException("no providers in database");
+			return empty();
 		var index = new TechIndex(list.get(0));
 		for (int i = 1; i < list.size(); i++) {
 			index.add(list.get(i));

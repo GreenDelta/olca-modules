@@ -1,10 +1,12 @@
 package org.openlca.core.library;
 
 import java.io.File;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.MatrixConfig;
 import org.openlca.core.matrix.MatrixData;
@@ -15,6 +17,7 @@ import org.openlca.core.matrix.io.MatrixExport;
 import org.openlca.core.matrix.solvers.NativeSolver;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.nativelib.NativeLib;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,11 +29,9 @@ public class LibraryExport implements Runnable {
 	final File folder;
 	final LibraryInfo info;
 
-	AllocationMethod allocation;
-	boolean withInventory = true;
-	boolean withImpacts;
-	boolean withUncertainties;
-	MatrixData data;
+	private AllocationMethod allocation;
+	private boolean withUncertainties;
+	private MatrixData data;
 
 	public LibraryExport(IDatabase db, File folder) {
 		this.db = db;
@@ -40,16 +41,6 @@ public class LibraryExport implements Runnable {
 
 	public LibraryExport withAllocation(AllocationMethod method) {
 		this.allocation = method;
-		return this;
-	}
-
-	public LibraryExport withInventory(boolean b) {
-		this.withInventory = b;
-		return this;
-	}
-
-	public LibraryExport withImpacts(boolean b) {
-		this.withImpacts = b;
 		return this;
 	}
 
@@ -69,8 +60,6 @@ public class LibraryExport implements Runnable {
 		if (data == null)
 			return this;
 		this.data = data;
-		withInventory = data.techIndex != null;
-		withImpacts = data.impactIndex != null;
 		withUncertainties = data.techUncertainties != null
 			|| data.enviUncertainties != null
 			|| data.impactUncertainties != null;
@@ -88,25 +77,32 @@ public class LibraryExport implements Runnable {
 	public void run() {
 		log.info("start library export of database {}", db.getName());
 		var lib = Library.of(folder);
-
 		// create a thread pool and start writing the meta-data
-		var threadPool = Executors.newFixedThreadPool(4);
-		threadPool.execute(new MetaDataExport(this));
-
-		// prepare the matrix data
-		if (data == null) {
-			data = buildMatrices();
+		var exec = Executors.newFixedThreadPool(4);
+		exec.execute(new MetaDataExport(this));
+		createMatrices(lib, exec);
+		try {
+			exec.shutdown();
+			while (true) {
+				var finished = exec.awaitTermination(1, TimeUnit.HOURS);
+				if (finished)
+					break;
+			}
+			// finally write the library info, note that information like library
+			// dependencies are collected during the export, so this should be the
+			// last step
+			info.writeTo(lib);
+		} catch (Exception e) {
+			throw new RuntimeException("failed to wait for export to finish", e);
 		}
-		if (data == null) {
-			log.warn("could not build matrices of database");
+	}
+
+	private void createMatrices(Library lib, ExecutorService exec) {
+		buildMatrices();
+		if (data == null)
 			return;
-		}
-		if (withInventory) {
-			normalizeInventory(data);
-		}
-
-		// write the matrices
-		threadPool.execute(() -> {
+		normalizeInventory();
+		exec.execute(() -> {
 			log.info("write matrices");
 			MatrixExport.toNpy(db, folder, data).writeMatrices();
 			log.info("write indices");
@@ -121,66 +117,61 @@ public class LibraryExport implements Runnable {
 				LibImpactIndex.of(data.impactIndex).writeTo(lib);
 			}
 		});
-		threadPool.execute(this::preCalculate);
-
-		// write library meta-data
-		info.writeTo(lib);
-
-		try {
-			threadPool.shutdown();
-			while (true) {
-				var finished = threadPool.awaitTermination(1, TimeUnit.HOURS);
-				if (finished)
-					break;
-			}
-		} catch (Exception e) {
-			throw new RuntimeException("failed to wait for export to finish", e);
-		}
+		exec.execute(this::preCalculate);
 	}
 
-	private MatrixData buildMatrices() {
-		if (!withInventory && !withImpacts)
-			return null;
+	private void buildMatrices() {
 
-		// check if we only need impact matrices
-		if (!withInventory) {
-			var impacts = ImpactIndex.of(db);
-			var flowIndex = info.isRegionalized()
-				? EnviIndex.createRegionalized(db, impacts)
-				: EnviIndex.create(db, impacts);
-			var data = new MatrixData();
-			data.impactIndex = impacts;
-			data.enviIndex = flowIndex;
-			ImpactBuilder.of(db, flowIndex)
+		// build inventory if possible
+		// This makes no sense if the processes in the database are linked to
+		// another library, but this should be caught before running an export.
+		// Calculation dependencies between libraries are not allowed.
+		var techIdx = TechIndex.of(db);
+		if (!techIdx.isEmpty()) {
+			data = MatrixConfig.of(db, techIdx)
 				.withUncertainties(withUncertainties)
-				.build()
-				.addTo(data);
-			return data;
+				.withRegionalization(info.isRegionalized())
+				.withAllocation(allocation)
+				.build();
 		}
 
-		// build matrices with inventory
-		var techIndex = TechIndex.of(db);
-		var config = MatrixConfig.of(db, techIndex)
-			.withUncertainties(withUncertainties)
-			.withRegionalization(info.isRegionalized())
-			.withAllocation(allocation);
-		if (withImpacts) {
-			config.withImpacts(ImpactIndex.of(db));
+		// here we filter out LCIA categories from other libraries; this is fine
+		var impacts = new ImpactCategoryDao(db).getDescriptors()
+			.stream()
+			.filter(d -> Strings.nullOrEmpty(d.library))
+			.toList();
+		if (impacts.isEmpty())
+			return;
+
+		var impactIdx = ImpactIndex.of(impacts);
+		if (data == null) {
+			data = new MatrixData();
 		}
-		return config.build();
+		data.impactIndex = impactIdx;
+		if (data.enviIndex == null) {
+			data.enviIndex = info.isRegionalized()
+				? EnviIndex.createRegionalized(db, impactIdx)
+				: EnviIndex.create(db, impactIdx);
+		}
+		ImpactBuilder.of(db, data.enviIndex)
+			.withUncertainties(withUncertainties)
+			.build()
+			.addTo(data);
 	}
 
 	/**
 	 * Normalize the columns of the technology matrix A and intervention matrix B to one
 	 * unit of output or input for each product or waste flow.
 	 */
-	private void normalizeInventory(MatrixData data) {
-		if (data.techMatrix == null)
+	private void normalizeInventory() {
+		if (data == null || data.techMatrix == null)
 			return;
 		log.info("normalize matrices to 1 | -1");
 		var matrixA = data.techMatrix.asMutable();
 		data.techMatrix = matrixA;
-		var matrixB = data.enviMatrix.asMutable();
+		var matrixB = data.enviMatrix != null
+			? data.enviMatrix.asMutable()
+			: null;
 		data.enviMatrix = matrixB;
 		int n = matrixA.columns();
 		for (int j = 0; j < n; j++) {
@@ -210,8 +201,6 @@ public class LibraryExport implements Runnable {
 	}
 
 	private void preCalculate() {
-		if (!withInventory || data.techMatrix == null)
-			return;
 		if (!NativeLib.isLoaded()) {
 			log.info("no native libraries loaded; skip matrix inversion");
 			return;
