@@ -49,7 +49,8 @@ public class SchemaVersionTest {
 	}
 
 	private void check(JsonStoreReader store) {
-		var version = SchemaVersion.of(store);
+		var version = PackageInfo.readFrom(store)
+			.schemaVersion();
 		assertTrue(version.isCurrent());
 		var actor = store.get(ModelType.ACTOR, "123");
 		assertEquals("123", Json.getString(actor, "@id"));

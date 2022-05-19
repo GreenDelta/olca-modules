@@ -18,9 +18,9 @@ public record FileStoreWriter(File root) implements JsonStoreWriter {
 				throw new RuntimeException("failed to create folder: " + root, e);
 			}
 		}
-		var versionFile = new File(root, SchemaVersion.FILE_NAME);
-		if (!versionFile.exists()) {
-			SchemaVersion.current().writeTo(this);
+		var infoFile = new File(root, PackageInfo.FILE_NAME);
+		if (!infoFile.exists()) {
+			PackageInfo.create().writeTo(this);
 		}
 	}
 

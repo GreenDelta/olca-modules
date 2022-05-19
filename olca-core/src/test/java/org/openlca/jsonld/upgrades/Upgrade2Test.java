@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.MemStore;
+import org.openlca.jsonld.PackageInfo;
 import org.openlca.jsonld.SchemaVersion;
 
 public class Upgrade2Test {
@@ -17,7 +18,9 @@ public class Upgrade2Test {
 
 	@Before
 	public void setup() {
-		SchemaVersion.fallback().writeTo(store);
+		PackageInfo.create()
+			.withSchemaVersion(SchemaVersion.fallback())
+			.writeTo(store);
 	}
 
 	@Test

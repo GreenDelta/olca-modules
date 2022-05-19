@@ -38,7 +38,7 @@ public class ZipStore implements JsonStoreWriter, JsonStoreReader, AutoCloseable
 			? FileSystems.newFileSystem(uri, Map.of("create", "true"))
 			: FileSystems.newFileSystem(uri, Map.of());
 		if (create) {
-			SchemaVersion.current().writeTo(this);
+			PackageInfo.create().writeTo(this);
 		}
 	}
 

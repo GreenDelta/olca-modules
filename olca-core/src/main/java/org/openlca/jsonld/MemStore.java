@@ -20,7 +20,7 @@ public class MemStore implements JsonStoreReader, JsonStoreWriter {
 	private final Map<String, byte[]> byteData = new HashMap<>();
 
 	public MemStore() {
-		SchemaVersion.current().writeTo(this);
+		PackageInfo.create().writeTo(this);
 	}
 
 	@Override

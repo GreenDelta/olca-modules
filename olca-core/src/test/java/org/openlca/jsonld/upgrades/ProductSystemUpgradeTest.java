@@ -10,6 +10,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.jsonld.MemStore;
+import org.openlca.jsonld.PackageInfo;
 import org.openlca.jsonld.SchemaVersion;
 import org.openlca.jsonld.input.JsonImport;
 
@@ -20,7 +21,11 @@ public class ProductSystemUpgradeTest {
 	@Test
 	public void testCreateParameterSets() {
 		var store = new MemStore();
-		store.put(SchemaVersion.FILE_NAME, new SchemaVersion(1).toJson());
+		store.put(PackageInfo.FILE_NAME,
+			PackageInfo.create()
+				.withSchemaVersion(SchemaVersion.fallback())
+				.json());
+
 		store.put(ModelType.PRODUCT_SYSTEM, json("""
 			{"@id": "sys1",
 			"parameterRedefs": [

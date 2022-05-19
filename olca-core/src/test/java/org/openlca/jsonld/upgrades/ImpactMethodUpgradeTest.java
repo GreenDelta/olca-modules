@@ -16,6 +16,7 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.jsonld.MemStore;
+import org.openlca.jsonld.PackageInfo;
 import org.openlca.jsonld.SchemaVersion;
 import org.openlca.jsonld.input.JsonImport;
 
@@ -26,7 +27,10 @@ public class ImpactMethodUpgradeTest {
 
 	@Before
 	public void setup() {
-		store.put(SchemaVersion.FILE_NAME, new SchemaVersion(1).toJson());
+		store.put(PackageInfo.FILE_NAME,
+			PackageInfo.create()
+				.withSchemaVersion(SchemaVersion.fallback())
+				.json());
 		store.put(ModelType.IMPACT_METHOD, json("""
 			{ "@id": "m1",
 			  "name": "Method1",
