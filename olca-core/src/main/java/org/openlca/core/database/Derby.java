@@ -9,7 +9,9 @@ import java.nio.file.StandardCopyOption;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Map;
@@ -280,6 +282,32 @@ public class Derby extends Notifiable implements IDatabase {
 	@Override
 	public int getVersion() {
 		return DbUtils.getVersion(this);
+	}
+
+	public void compress() {
+		var querySql = """
+			SELECT SCHEMANAME, TABLENAME FROM sys.sysschemas s, sys.systables t
+				WHERE s.schemaid = t.schemaid and t.tabletype = 'T'
+			""";
+		var callSql = """
+			CALL SYSCS_UTIL.SYSCS_COMPRESS_TABLE(?, ?, ?)
+			""";
+		try (var con = createConnection();
+				 var stmt = con.createStatement();
+				 var tables = stmt.executeQuery(querySql);
+				 var call = con.prepareCall(callSql)) {
+			while (tables.next()) {
+				var schema = tables.getString(1);
+				var name = tables.getString(2);
+				log.info("Compress table {}.{}", schema, name);
+				call.setString(1, schema);
+				call.setString(2, name);
+				call.setInt(3, 1);
+				call.execute();
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("Compression failed", e);
+		}
 	}
 
 	/**
