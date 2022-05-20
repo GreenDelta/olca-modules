@@ -104,31 +104,31 @@ public record Library(File folder) {
 	}
 
 	/**
-	 * Get the dependencies of this library (which includes dependencies of
-	 * dependencies etc.).
+	 * Get the direct dependencies of this library.
 	 */
-	public Set<Library> getDependencies() {
+	public Set<Library> getDirectDependencies() {
 		var info = getInfo();
 		if (info.dependencies().isEmpty())
 			return Collections.emptySet();
 		var libDir = new LibraryDir(folder.getParentFile());
+		return info.dependencies()
+			.stream()
+			.map(libDir::getLibrary)
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.collect(Collectors.toSet());
+	}
 
+	/**
+	 * Get all other libraries this library depends on.
+	 */
+	public Set<Library> getTransitiveDependencies() {
 		var deps = new HashSet<Library>();
-		var queue = new ArrayDeque<Library>();
-		queue.add(this);
+		var queue = new ArrayDeque<>(getDirectDependencies());
 		while (!queue.isEmpty()) {
-			queue.poll()
-				.getInfo()
-				.dependencies().stream()
-				.map(libDir::getLibrary)
-				.filter(Optional::isPresent)
-				.map(Optional::get)
-				.forEach(dep -> {
-					if (!deps.contains(dep)) {
-						deps.add(dep);
-						queue.add(dep);
-					}
-				});
+			var next = queue.pop();
+			deps.add(next);
+			queue.addAll(next.getDirectDependencies());
 		}
 		return deps;
 	}

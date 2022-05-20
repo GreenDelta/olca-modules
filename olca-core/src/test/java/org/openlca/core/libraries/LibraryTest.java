@@ -31,10 +31,10 @@ public class LibraryTest {
 		var dir = Files.createTempDirectory("_olca_lib_test").toFile();
 		var libDir = LibraryDir.of(dir);
 		var lib = libDir.create("lib 0.1");
-		assertTrue(lib.getDependencies().isEmpty());
+		assertTrue(lib.getDirectDependencies().isEmpty());
 		var dep = libDir.create("dep 0.1");
 		lib.addDependency(dep);
-		assertTrue(lib.getDependencies().contains(dep));
+		assertTrue(lib.getDirectDependencies().contains(dep));
 		Dirs.delete(dir);
 	}
 }

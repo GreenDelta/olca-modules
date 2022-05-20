@@ -46,7 +46,7 @@ public class LibraryPackage {
 
 			// put the dependent libraries into the "dependencies"
 			// sub-folder
-			for (var depLib : library.getDependencies()) {
+			for (var depLib : library.getTransitiveDependencies()) {
 				var prefix = "dependencies/" + depLib.id() + "/";
 				var depFiles = depLib.folder().listFiles();
 				if (depFiles == null)

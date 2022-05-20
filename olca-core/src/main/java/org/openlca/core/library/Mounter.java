@@ -1,12 +1,7 @@
 package org.openlca.core.library;
 
 import java.io.File;
-import java.util.ArrayDeque;
-import java.util.HashSet;
-import java.util.Stack;
 
-import gnu.trove.set.hash.TLongHashSet;
-import jakarta.persistence.Table;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
@@ -17,6 +12,9 @@ import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.util.Strings;
 
+import gnu.trove.set.hash.TLongHashSet;
+import jakarta.persistence.Table;
+
 /**
  * Mounts a library and its dependencies on a database.
  */
@@ -24,25 +22,9 @@ record Mounter(IDatabase db, Library library) implements Runnable {
 
 	@Override
 	public void run() {
-
-		// just a quick way to calculate the topological
-		// order of the dependencies
-		var stack = new Stack<Library>();
-		var queue = new ArrayDeque<Library>();
-		queue.add(library);
-		while (!queue.isEmpty()) {
-			var next = queue.poll();
-			stack.push(next);
-			queue.addAll(next.getDependencies());
-		}
-
 		try {
-			var mounted = new HashSet<>(db.getLibraries());
-			while (!stack.isEmpty()) {
-				var lib = stack.pop();
+			for (var lib : Libraries.dependencyOrderOf(library)) {
 				var libId = lib.id();
-				if (mounted.contains(libId))
-					continue;
 				var meta = new File(lib.folder(), "meta.zip");
 				try (var store = ZipStore.open(meta)) {
 					var imp = new JsonImport(store, db);
@@ -55,7 +37,6 @@ record Mounter(IDatabase db, Library library) implements Runnable {
 				}
 				db.addLibrary(libId);
 				new CategoryTagger(db, libId).run();
-				mounted.add(libId);
 			}
 		} catch (Exception e) {
 			throw new RuntimeException("failed to import library", e);
