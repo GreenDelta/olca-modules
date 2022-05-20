@@ -27,9 +27,8 @@ public class Upgrades {
 	private Upgrades() {
 	}
 
-	public static void on(IDatabase dbDatabase) {
-		Upgrades upgrades = new Upgrades();
-		upgrades.run(dbDatabase);
+	public static void on(IDatabase db) {
+		new Upgrades().run(db);
 	}
 
 	private void run(IDatabase db) {

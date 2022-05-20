@@ -22,6 +22,8 @@ import gnu.trove.map.hash.TLongLongHashMap;
 import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.geo.Kml2GeoJson;
 import org.openlca.geo.geojson.GeoJSON;
+import org.openlca.util.KeyGen;
+import org.openlca.util.Strings;
 import org.slf4j.LoggerFactory;
 
 class Upgrade10 implements IUpgrade {
@@ -43,8 +45,8 @@ class Upgrade10 implements IUpgrade {
 		// add new library table
 		u.createTable("tbl_libraries",
 			"CREATE TABLE tbl_libraries (" +
-			" id VARCHAR(255)," +
-			" PRIMARY KEY (id))");
+				" id VARCHAR(255)," +
+				" PRIMARY KEY (id))");
 
 		// add fields
 		String[] tables = {
@@ -92,11 +94,11 @@ class Upgrade10 implements IUpgrade {
 
 		u.createTable("tbl_parameter_redef_sets",
 			"CREATE TABLE tbl_parameter_redef_sets ("
-			+ " id BIGINT NOT NULL,"
-			+ " name VARCHAR(2048),"
-			+ " description CLOB(64 K),"
-			+ " is_baseline SMALLINT default 0,"
-			+ " f_product_system BIGINT)");
+				+ " id BIGINT NOT NULL,"
+				+ " name VARCHAR(2048),"
+				+ " description CLOB(64 K),"
+				+ " is_baseline SMALLINT default 0,"
+				+ " f_product_system BIGINT)");
 		u.createColumn("tbl_parameter_redefs", "description CLOB(64 K)");
 
 
@@ -138,9 +140,9 @@ class Upgrade10 implements IUpgrade {
 				long systemID = it.key();
 				long setID = it.value();
 				String stmt = "insert into tbl_parameter_redef_sets "
-											+ "(id, name, is_baseline, f_product_system) "
-											+ "values (" + setID + ", 'Baseline', 1, "
-											+ systemID + ")";
+					+ "(id, name, is_baseline, f_product_system) "
+					+ "values (" + setID + ", 'Baseline', 1, "
+					+ systemID + ")";
 				NativeSql.on(u.db).runUpdate(stmt);
 			}
 
@@ -164,14 +166,17 @@ class Upgrade10 implements IUpgrade {
 		}
 		u.createTable("tbl_impact_links",
 			"CREATE TABLE tbl_impact_links (" +
-			" f_impact_method    BIGINT," +
-			" f_impact_category  BIGINT)");
+				" f_impact_method    BIGINT," +
+				" f_impact_category  BIGINT)");
 		try {
 			NativeSql.on(db).runUpdate(
 				"INSERT INTO tbl_impact_links "
-				+ " (f_impact_method, f_impact_category) "
-				+ " select f_impact_method, id "
-				+ " from tbl_impact_categories");
+					+ " (f_impact_method, f_impact_category) "
+					+ " select f_impact_method, id "
+					+ " from tbl_impact_categories");
+			var groups = ImpactGroup.allOf(db);
+			var groupCats = ImpactGroup.createCategories(u, groups);
+			ImpactGroup.setCategories(db, groupCats);
 		} catch (Exception e) {
 			throw new RuntimeException("failed to copy impact links", e);
 		}
@@ -188,7 +193,7 @@ class Upgrade10 implements IUpgrade {
 			// collect the LCIA method -> LCIA category relations
 			HashMap<Long, List<Long>> methodImpacts = new HashMap<>();
 			String linkQuery = "select f_impact_method, " +
-												 "f_impact_category from tbl_impact_links";
+				"f_impact_category from tbl_impact_links";
 			NativeSql.on(db).query(linkQuery, r -> {
 				long methodID = r.getLong(1);
 				long impactID = r.getLong(2);
@@ -222,7 +227,7 @@ class Upgrade10 implements IUpgrade {
 				/* 21 */ "PARAMETER3_FORMULA ";
 
 			String query = "SELECT " + columns +
-										 " FROM tbl_parameters WHERE scope = 'IMPACT_METHOD'";
+				" FROM tbl_parameters WHERE scope = 'IMPACT_METHOD'";
 
 			List<String> inserts = new ArrayList<>();
 			NativeSql.on(db).query(query, r -> {
@@ -232,7 +237,7 @@ class Upgrade10 implements IUpgrade {
 					return true;
 				for (long impact : impacts) {
 					String insert = "INSERT INTO tbl_parameters ("
-													+ columns + ")" + "VALUES (";
+						+ columns + ")" + "VALUES (";
 					insert += nextID.incrementAndGet() + ", "; // ID
 					insert += "'" + UUID.randomUUID() + "', "; // refID
 					insert += _string(r, 3) + ", "; // name
@@ -261,7 +266,7 @@ class Upgrade10 implements IUpgrade {
 
 			// delete the old parameters and insert the new ones
 			NativeSql.on(db).runUpdate("DELETE FROM tbl_parameters " +
-																 "WHERE scope = 'IMPACT_METHOD'");
+				"WHERE scope = 'IMPACT_METHOD'");
 			if (inserts.isEmpty())
 				return;
 			NativeSql.on(db).batchUpdate(inserts);
@@ -319,8 +324,8 @@ class Upgrade10 implements IUpgrade {
 				if (blob == null)
 					return true;
 				try (var raw = blob.getBinaryStream();
-						var unzipped = new InflaterInputStream(raw);
-						var kml = new InputStreamReader(unzipped, StandardCharsets.UTF_8)) {
+						 var unzipped = new InflaterInputStream(raw);
+						 var kml = new InputStreamReader(unzipped, StandardCharsets.UTF_8)) {
 					var json = Kml2GeoJson.convert(kml);
 					if (json == null)
 						return true;
@@ -341,6 +346,71 @@ class Upgrade10 implements IUpgrade {
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(getClass());
 			log.error("failed to upgrade KML data", e);
+		}
+	}
+
+	/**
+	 * We have a lot of LCIA categories with the same name in openLCA 1. Thus, we
+	 * group them into categories with the respective method name after updating
+	 * them to stand-alone entities.
+	 */
+	private record ImpactGroup(long methodId, String name) {
+
+		static List<ImpactGroup> allOf(IDatabase db) {
+			var groups = new ArrayList<ImpactGroup>();
+			var query = """
+				select distinct m.id, m.name from tbl_impact_methods m
+				  inner join tbl_impact_categories i
+				  on m.id = i.f_impact_method
+				""";
+			NativeSql.on(db).query(query, r -> {
+				var name = r.getString(2);
+				if (Strings.nullOrEmpty(name))
+					return true;
+				groups.add(new ImpactGroup(r.getLong(1), name));
+				return true;
+			});
+			return groups;
+		}
+
+		static TLongLongHashMap createCategories(
+			DbUtil u, List<ImpactGroup> groups) {
+			var map = new TLongLongHashMap();
+			if (groups.isEmpty())
+				return map;
+
+			var query = """
+				insert into tbl_categories (id, ref_id, name, model_type)
+				  values (?, ?, ?, 'IMPACT_CATEGORY')
+				""";
+			var lastId = new AtomicLong(u.getLastID());
+			NativeSql.on(u.db).batchInsert(query, groups.size(), (i, stmt) -> {
+				var group = groups.get(i);
+				var catId = lastId.incrementAndGet();
+				var refId = KeyGen.get("IMPACT_CATEGORY", group.name.trim());
+				stmt.setLong(1, catId);
+				stmt.setString(2, refId);
+				stmt.setString(3, group.name);
+				map.put(group.methodId, catId);
+				return true;
+			});
+			u.setLastID(lastId.incrementAndGet());
+			return map;
+		}
+
+		static void setCategories(IDatabase db, TLongLongHashMap map) {
+			var query = """
+				select f_impact_method, f_category from tbl_impact_categories
+				""";
+			NativeSql.on(db).updateRows(query, r -> {
+				var methodId = r.getLong(1);
+				var catId = map.get(methodId);
+				if (catId == 0)
+					return true;
+				r.updateLong(2, catId);
+				r.updateRow();
+				return true;
+			});
 		}
 	}
 }

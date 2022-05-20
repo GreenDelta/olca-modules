@@ -221,8 +221,8 @@ class DbUtil {
 	 * Get the last ID that was stored in the database.
 	 */
 	long getLastID() {
-		AtomicLong seq = new AtomicLong(0L);
-		String query = "select seq_count from sequence";
+		var seq = new AtomicLong(0L);
+		var query = "select seq_count from sequence";
 		try {
 			NativeSql.on(db).query(query, result -> {
 				seq.set(result.getLong(1));
@@ -239,7 +239,7 @@ class DbUtil {
 	 * Set the last ID that was stored in the database.
 	 */
 	void setLastID(long id) {
-		String sql = "UPDATE sequence SET SEQ_COUNT = " + id;
+		var sql = "UPDATE sequence SET SEQ_COUNT = " + id;
 		try {
 			NativeSql.on(db).runUpdate(sql);
 		} catch (Exception e) {
