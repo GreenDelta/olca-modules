@@ -1,7 +1,6 @@
 package org.openlca.git.actions;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.jgit.api.Git;
@@ -18,7 +17,6 @@ import org.openlca.git.actions.ImportHelper.ImportResult;
 import org.openlca.git.find.Commits;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.Commit;
-import org.openlca.git.model.Diff;
 import org.openlca.git.model.DiffType;
 import org.openlca.git.util.Constants;
 import org.openlca.git.util.Diffs;
@@ -83,7 +81,8 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		var remoteCommit = getRemoteCommit();
 		if (remoteCommit == null)
 			return false;
-		var diffs = getRemoteDiffs(remoteCommit);
+		var commonParent = history.commonParentOf(Constants.LOCAL_REF, getRef());
+		var diffs = Diffs.between(git, commonParent, remoteCommit);
 		var deleted = diffs.stream()
 				.filter(d -> d.diffType == DiffType.DELETED)
 				.map(d -> d.toReference(Side.OLD))
@@ -121,18 +120,6 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		if (commits == null || commits.isEmpty())
 			return null;
 		return new Commit(commits.iterator().next());
-	}
-
-	private List<Diff> getRemoteDiffs(Commit remoteCommit) throws IOException {
-		var localHistory = commits.find().refs(Constants.LOCAL_REF).all();
-		var remoteHistory = commits.find().refs(getRef()).all();
-		var commonHistory = remoteHistory.stream()
-				.filter(c -> localHistory.contains(c))
-				.toList();
-		var commonParent = !commonHistory.isEmpty()
-				? commonHistory.get(commonHistory.size() - 1)
-				: null;
-		return Diffs.between(git, commonParent, remoteCommit);
 	}
 
 	private String getRef() {
