@@ -9,9 +9,7 @@ import java.nio.file.StandardCopyOption;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Map;
@@ -204,7 +202,7 @@ public class Derby extends Notifiable implements IDatabase {
 		Map<Object, Object> map = new HashMap<>();
 		map.put("jakarta.persistence.jdbc.url", url);
 		map.put("jakarta.persistence.jdbc.driver",
-			"org.apache.derby.jdbc.EmbeddedDriver");
+			"org.apache.derby.iapi.jdbc.AutoloadedDriver");
 		map.put("eclipselink.classloader", getClass().getClassLoader());
 		map.put("eclipselink.target-database", "Derby");
 		log.trace("Create entity factory");
@@ -212,6 +210,8 @@ public class Derby extends Notifiable implements IDatabase {
 			.createEntityManagerFactory("openLCA", map);
 		log.trace("Init connection pool");
 		connectionPool = new HikariDataSource();
+		connectionPool.setDriverClassName(
+			"org.apache.derby.iapi.jdbc.AutoloadedDriver");
 		connectionPool.setJdbcUrl(url);
 		connectionPool.setAutoCommit(false);
 	}
@@ -256,7 +256,7 @@ public class Derby extends Notifiable implements IDatabase {
 		log.trace("create connection: {}", url);
 		try {
 			if (connectionPool != null) {
-				Connection con = connectionPool.getConnection();
+				var con = connectionPool.getConnection();
 				con.setAutoCommit(false);
 				return con;
 			} else {
