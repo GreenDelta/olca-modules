@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import gnu.trove.set.hash.TLongHashSet;
 import jakarta.persistence.Table;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RefEntity;
@@ -132,21 +131,6 @@ public class RefEntityDao<T extends RefEntity, V extends Descriptor> extends Bas
 	}
 
 	/**
-	 * Returns all fields that should be queried by the descriptor query. Subclass
-	 * may override to provide more information. Use sql column names !
-	 */
-	protected String[] getDescriptorFields() {
-		return new String[]{
-			"id",
-			"ref_id",
-			"name",
-			"description",
-			"version",
-			"last_change"
-		};
-	}
-
-	/**
 	 * Creates a list of descriptors from a list of query results.
 	 */
 	protected List<V> createDescriptors(List<Object[]> results) {
@@ -159,6 +143,19 @@ public class RefEntityDao<T extends RefEntity, V extends Descriptor> extends Bas
 				descriptors.add(descriptor);
 		}
 		return descriptors;
+	}
+
+	/**
+	 * Returns all fields that should be queried by the descriptor query. Subclass
+	 * may override to provide more information. Use sql column names !
+	 */
+	protected String[] getDescriptorFields() {
+		return new String[]{
+			"id",
+			"ref_id",
+			"name",
+			"description"
+		};
 	}
 
 	/**
@@ -176,10 +173,6 @@ public class RefEntityDao<T extends RefEntity, V extends Descriptor> extends Bas
 			d.refId = (String) record[1];
 			d.name = (String) record[2];
 			d.description = (String) record[3];
-			if (record[4] != null)
-				d.version = (long) record[4];
-			if (record[5] != null)
-				d.lastChange = (long) record[5];
 			d.type = ModelType.forModelClass(entityType);
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(

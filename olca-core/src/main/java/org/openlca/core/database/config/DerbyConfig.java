@@ -67,4 +67,8 @@ public final class DerbyConfig implements DatabaseConfig {
 		return Objects.hash(name);
 	}
 
+	@Override
+	public String toString() {
+		return "DerbyConfig {name: " + name + "}";
+	}
 }

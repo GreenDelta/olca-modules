@@ -16,7 +16,7 @@ import org.openlca.core.model.descriptors.NwSetDescriptor;
 
 public class NwSetIOTest {
 
-	private IDatabase db = Tests.getDb();
+	private final IDatabase db = Tests.getDb();
 
 	private final int CATEGORY_COUNT = 5;
 	private final int NWSET_COUNT = 3;

@@ -99,4 +99,8 @@ public final class MySqlConfig implements DatabaseConfig {
 		return false;
 	}
 
+	@Override
+	public String toString() {
+		return "MySqlConfig {name: " + name + "}";
+	}
 }

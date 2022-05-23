@@ -38,7 +38,13 @@ public class RootEntityDao<T extends RootEntity, V extends RootDescriptor>
 	protected V createDescriptor(Object[] record) {
 		var d = super.createDescriptor(record);
 		if (d == null)
-			return d;
+			return null;
+		if (record[4] instanceof Number num) {
+			d.version = num.longValue();
+		}
+		if (record[5] instanceof Number num) {
+			d.lastChange = num.longValue();
+		}
 		if (record[6] != null) {
 			d.category = (Long) record[6];
 		}

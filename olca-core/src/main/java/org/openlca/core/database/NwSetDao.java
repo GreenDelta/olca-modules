@@ -36,8 +36,6 @@ public class NwSetDao extends RefEntityDao<NwSet, NwSetDescriptor> {
 				"ref_id",
 				"name",
 				"description",
-				"version",
-				"last_change",
 				"weighted_score_unit",
 		};
 	}
@@ -45,7 +43,7 @@ public class NwSetDao extends RefEntityDao<NwSet, NwSetDescriptor> {
 	@Override
 	protected NwSetDescriptor createDescriptor(Object[] record) {
 		var d = super.createDescriptor(record);
-		d.weightedScoreUnit = (String) record[6];
+		d.weightedScoreUnit = (String) record[4];
 		return d;
 	}
 
