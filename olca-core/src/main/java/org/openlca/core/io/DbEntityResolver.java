@@ -2,7 +2,9 @@ package org.openlca.core.io;
 
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -31,5 +33,11 @@ public record DbEntityResolver(IDatabase db) implements EntityResolver {
 	public Category getCategory(ModelType type, String path) {
 		var dao = new CategoryDao(db);
 		return dao.getForPath(type, path);
+	}
+
+	@Override
+	public void resolveProvider(String providerId, Exchange exchange) {
+		var d = new ProcessDao(db).getDescriptorForRefId(providerId);
+		exchange.defaultProviderId = d != null ? d.id : 0;
 	}
 }

@@ -1,6 +1,7 @@
 package org.openlca.core.io;
 
 import org.openlca.core.model.Category;
+import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -53,6 +54,8 @@ public interface EntityResolver {
 	 */
 	Category getCategory(ModelType type, String path);
 
+	void resolveProvider(String providerId, Exchange exchange);
+
 	/**
 	 * A simple default implementation that just returns {@code null} for every
 	 * request.
@@ -72,6 +75,13 @@ public interface EntityResolver {
 		@Override
 		public Category getCategory(ModelType type, String path) {
 			return null;
+		}
+
+		@Override
+		public void resolveProvider(String providerId, Exchange exchange) {
+			if (exchange != null) {
+				exchange.defaultProviderId = 0;
+			}
 		}
 	};
 }
