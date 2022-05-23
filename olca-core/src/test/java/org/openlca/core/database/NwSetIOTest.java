@@ -1,6 +1,5 @@
 package org.openlca.core.database;
 
-import java.util.List;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -12,7 +11,6 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.NwFactor;
 import org.openlca.core.model.NwSet;
-import org.openlca.core.model.descriptors.NwSetDescriptor;
 
 public class NwSetIOTest {
 
@@ -75,9 +73,8 @@ public class NwSetIOTest {
 	@Test
 	public void testGetDescriptors() {
 		NwSetDao dao = new NwSetDao(db);
-		List<NwSetDescriptor> all =  dao.getDescriptors();
-		List<NwSetDescriptor> forMethod = dao.getDescriptorsForMethod(
-				method.id);
+		var all =  dao.getAll();
+		var forMethod = dao.allOfMethod(method.id);
 		Assert.assertEquals(NWSET_COUNT, forMethod.size());
 		Assert.assertTrue(all.size() >= forMethod.size());
 		Assert.assertTrue(all.containsAll(forMethod));

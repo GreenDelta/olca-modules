@@ -13,16 +13,16 @@ public class NwSetDao extends RefEntityDao<NwSet, NwSetDescriptor> {
 		super(NwSet.class, NwSetDescriptor.class, database);
 	}
 
-	public List<NwSetDescriptor> getDescriptorsForMethod(long impactMethod) {
+	public List<NwSet> allOfMethod(long methodId) {
 		String query = "select id from tbl_nw_sets where f_impact_method = "
-				+ impactMethod;
+				+ methodId;
 		try {
 			var ids = new HashSet<Long>();
 			NativeSql.on(getDatabase()).query(query, result -> {
 				ids.add(result.getLong("id"));
 				return true;
 			});
-			return getDescriptors(ids);
+			return getForIds(ids);
 		} catch (Exception e) {
 			log.error("failed to get normalisation and weighting sets", e);
 			return Collections.emptyList();
