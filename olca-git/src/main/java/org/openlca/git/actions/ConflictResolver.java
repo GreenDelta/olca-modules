@@ -20,12 +20,12 @@ public interface ConflictResolver {
 			this.data = mergedData;
 		}
 
-		public static ConflictResolution overwriteLocal() {
-			return new ConflictResolution(ConflictResolutionType.OVERWRITE_LOCAL, null);
+		public static ConflictResolution overwrite() {
+			return new ConflictResolution(ConflictResolutionType.OVERWRITE, null);
 		}
 
-		public static ConflictResolution keepLocal() {
-			return new ConflictResolution(ConflictResolutionType.KEEP_LOCAL, null);
+		public static ConflictResolution keep() {
+			return new ConflictResolution(ConflictResolutionType.KEEP, null);
 		}
 
 		public static ConflictResolution merge(JsonObject mergedData) {
@@ -35,7 +35,7 @@ public interface ConflictResolver {
 	}
 
 	public enum ConflictResolutionType {
-		OVERWRITE_LOCAL, KEEP_LOCAL, MERGE;
+		OVERWRITE, KEEP, MERGE;
 	}
 
 }

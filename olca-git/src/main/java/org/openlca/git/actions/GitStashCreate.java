@@ -86,12 +86,23 @@ public class GitStashCreate extends GitProgressAction<Void> {
 			var writer = new CommitWriter(config, committer, progressMonitor);
 			writer.stashCommit("Stashed changes", changes);
 		}
+		runStash();
+		for (var category : categoryDao.getRootCategories()) {
+			deleteIfAdded(category);
+		}
+		return null;
+	}
+
+	private void runStash() throws IOException {
 		var importHelper = new ImportHelper(git, database, workspaceIds, progressMonitor);
 		var toDelete = changes.stream()
 				.filter(c -> c.diffType == DiffType.ADDED)
 				.collect(Collectors.toList());
 		var headCommit = commits.head();
 		if (headCommit == null) {
+			if (progressMonitor != null) {
+				progressMonitor.beginTask("Stashing data", toDelete.size());
+			}
 			importHelper.delete(toDelete);
 			workspaceIds.clear();
 		} else {
@@ -99,17 +110,15 @@ public class GitStashCreate extends GitProgressAction<Void> {
 					.filter(c -> c.diffType != DiffType.ADDED)
 					.map(c -> new Reference(c.path, headCommit.id, workspaceIds.getHead(c.path)))
 					.collect(Collectors.toList());
+			if (progressMonitor != null) {
+				progressMonitor.beginTask("Stashing data", toImport.size() + toDelete.size());
+			}
 			var gitStore = new GitStoreReader(git, headCommit, toImport);
 			importHelper.runImport(gitStore);
-			var result = new ImportResult(gitStore.getImported(), gitStore.getMerged(), gitStore.getKeepDeleted(),
-					toDelete);
 			importHelper.delete(toDelete);
+			var result = new ImportResult(gitStore, toDelete);
 			importHelper.updateWorkspaceIds(headCommit.id, result, false);
 		}
-		for (var category : categoryDao.getRootCategories()) {
-			deleteIfAdded(category);
-		}
-		return null;
 	}
 
 	private void deleteIfAdded(Category category) {

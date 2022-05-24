@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.eclipse.jgit.errors.CorruptObjectException;
@@ -43,6 +44,7 @@ public class CommitWriter {
 	private PackInserter packInserter;
 	private ObjectInserter objectInserter;
 	private Converter converter;
+	private ExecutorService threads;
 	private boolean isMergeCommit;
 	private boolean isStashCommit;
 
@@ -75,65 +77,50 @@ public class CommitWriter {
 		return _commit(message, changes, localCommitId, remoteCommitId);
 	}
 
-	public String _commit(String message, List<Change> changes, String localCommitId, String remoteCommitId)
+	private String _commit(String message, List<Change> changes, String localCommitId, String remoteCommitId)
 			throws IOException {
-		var threads = Executors.newCachedThreadPool();
 		try {
 			var previousCommit = Repositories.headCommitOf(config.repo);
 			if (previousCommit != null && !isCurrentSchemaVersion())
 				throw new IOException("Git repo is not in current schema version");
 			if (changes.isEmpty() && (previousCommit == null || localCommitId == null || remoteCommitId == null))
 				return null;
+			init(changes);
+			if (localCommitId == null && previousCommit != null) {
+				localCommitId = previousCommit.getId().toString();
+			}
+			var localTreeId = getCommitTreeId(localCommitId);
+			var remoteTreeId = getCommitTreeId(remoteCommitId);
 			if (progressMonitor != null) {
 				progressMonitor.beginTask("Writing commit", changes.size());
 			}
-			packInserter = config.repo.getObjectDatabase().newPackInserter();
-			packInserter.checkExisting(config.checkExisting);
-			objectInserter = config.repo.newObjectInserter();
-			converter = new Converter(config, threads);
-			converter.start(changes.stream()
-					.filter(d -> d.diffType != DiffType.DELETED)
-					.sorted((d1, d2) -> Strings.compare(d1.path, d2.path))
-					.toList());
-			var localCommitOid = localCommitId != null
-					? ObjectId.fromString(localCommitId)
-					: previousCommit != null
-							? previousCommit.getId()
-							: ObjectId.zeroId();
-			var remoteCommitOid = remoteCommitId != null
-					? ObjectId.fromString(remoteCommitId)
-					: ObjectId.zeroId();
-			var localTreeId = getCommitTreeId(localCommitOid);
-			var remoteTreeId = getCommitTreeId(remoteCommitOid);
 			var treeId = syncTree("", new ChangeIterator(config, changes), localTreeId, remoteTreeId);
 			if (!isStashCommit && config.store != null) {
 				config.store.save();
 			}
-			var commitId = commit(message, treeId, localCommitOid, remoteCommitOid);
+			var commitId = commit(message, treeId, localCommitId, remoteCommitId);
 			return commitId.name();
 		} finally {
-			if (packInserter != null) {
-				packInserter.flush();
-				packInserter.close();
-				packInserter = null;
-			}
-			if (objectInserter != null) {
-				objectInserter.flush();
-				objectInserter.close();
-				objectInserter = null;
-			}
-			if (converter != null) {
-				converter.clear();
-				converter = null;
-			}
-			threads.shutdown();
+			close();
 		}
 	}
 
-	private ObjectId getCommitTreeId(ObjectId commitId) throws IOException {
-		if (commitId == null || commitId.equals(ObjectId.zeroId()))
+	private void init(List<Change> changes) {
+		threads = Executors.newCachedThreadPool();
+		packInserter = config.repo.getObjectDatabase().newPackInserter();
+		packInserter.checkExisting(config.checkExisting);
+		objectInserter = config.repo.newObjectInserter();
+		converter = new Converter(config, threads);
+		converter.start(changes.stream()
+				.filter(d -> d.diffType != DiffType.DELETED)
+				.sorted((d1, d2) -> Strings.compare(d1.path, d2.path))
+				.toList());
+	}
+
+	private ObjectId getCommitTreeId(String commitId) throws IOException {
+		if (Strings.nullOrEmpty(commitId))
 			return null;
-		var commit = config.repo.parseCommit(commitId);
+		var commit = config.repo.parseCommit(ObjectId.fromString(commitId));
 		if (commit == null)
 			return null;
 		return commit.getTree().getId();
@@ -270,7 +257,7 @@ public class CommitWriter {
 		return path.startsWith(change.path.substring(0, change.path.lastIndexOf(GitUtil.DATASET_SUFFIX)));
 	}
 
-	private ObjectId commit(String message, ObjectId treeId, ObjectId localCommitId, ObjectId remoteCommitId) {
+	private ObjectId commit(String message, ObjectId treeId, String localCommitId, String remoteCommitId) {
 		try {
 			var commit = new CommitBuilder();
 			commit.setAuthor(committer);
@@ -278,11 +265,11 @@ public class CommitWriter {
 			commit.setMessage(message);
 			commit.setEncoding(StandardCharsets.UTF_8);
 			commit.setTreeId(treeId);
-			if (localCommitId != null && !localCommitId.equals(ObjectId.zeroId())) {
-				commit.addParentId(localCommitId);
+			if (!Strings.nullOrEmpty(localCommitId)) {
+				commit.addParentId(ObjectId.fromString(localCommitId));
 			}
-			if (remoteCommitId != null && !remoteCommitId.equals(ObjectId.zeroId())) {
-				commit.addParentId(remoteCommitId);
+			if (!Strings.nullOrEmpty(remoteCommitId)) {
+				commit.addParentId(ObjectId.fromString(remoteCommitId));
 			}
 			var commitId = objectInserter.insert(commit);
 			if (isStashCommit) {
@@ -315,6 +302,26 @@ public class CommitWriter {
 		if (schema == null)
 			return false;
 		return schema.isCurrent();
+	}
+
+	private void close() throws IOException {
+		if (packInserter != null) {
+			packInserter.flush();
+			packInserter.close();
+			packInserter = null;
+		}
+		if (objectInserter != null) {
+			objectInserter.flush();
+			objectInserter.close();
+			objectInserter = null;
+		}
+		if (converter != null) {
+			converter.clear();
+			converter = null;
+		}
+		if (threads != null) {
+			threads.shutdown();
+		}
 	}
 
 }

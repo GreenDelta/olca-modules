@@ -80,24 +80,25 @@ class ImportHelper {
 
 	void delete(List<? extends ModelRef> remoteDeletions) {
 		for (var ref : new ArrayList<>(remoteDeletions)) {
-			if (conflictResolver != null && conflictResolver.isConflict(ref)) {
-				var resolution = conflictResolver.resolveConflict(ref, null);
-				if (resolution.type == ConflictResolutionType.KEEP_LOCAL) {
-					if (progressMonitor != null) {
-						progressMonitor.subTask("Deleting", ref);
-					}
-					remoteDeletions.remove(ref);
-					if (progressMonitor != null) {
-						progressMonitor.worked(1);
-					}
-					continue;
-				}
+			if (progressMonitor != null) {
+				progressMonitor.subTask("Deleting", ref);
 			}
-			delete(Daos.root(database, ref.type), ref.refId);
+			if (keepLocal(ref)) {
+				remoteDeletions.remove(ref);
+			} else {
+				delete(Daos.root(database, ref.type), ref.refId);
+			}
 			if (progressMonitor != null) {
 				progressMonitor.worked(1);
 			}
 		}
+	}
+
+	private boolean keepLocal(ModelRef ref) {
+		if (conflictResolver == null || !conflictResolver.isConflict(ref))
+			return false;
+		var resolution = conflictResolver.resolveConflict(ref, null);
+		return resolution.type == ConflictResolutionType.KEEP;
 	}
 
 	private <T extends RootEntity, V extends RootDescriptor> void delete(RootEntityDao<T, V> dao,
@@ -135,6 +136,10 @@ class ImportHelper {
 	static record ImportResult(List<Reference> imported, List<ModelRef> merged,
 			List<ModelRef> keepDeleted, List<? extends ModelRef> deleted) {
 
+		ImportResult(GitStoreReader store, List<? extends ModelRef> deleted) {
+			this(store.getImported(), store.getMerged(), store.getKeepDeleted(), deleted);
+		}
+		
 		int count() {
 			return imported.size() + merged.size() + deleted.size() + keepDeleted.size();
 		}

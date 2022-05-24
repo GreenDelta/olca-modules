@@ -99,7 +99,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		importHelper.conflictResolver = conflictResolver;
 		importHelper.runImport(gitStore);
 		importHelper.delete(deleted);
-		var result = new ImportResult(gitStore.getImported(), gitStore.getMerged(), gitStore.getKeepDeleted(), deleted);
+		var result = new ImportResult(gitStore, deleted);
 		String commitId = remoteCommit.id;
 		if (!applyStash) {
 			var ahead = history.getAhead();
@@ -132,12 +132,11 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		var diffs = result.merged().stream()
 				.map(r -> new Change(DiffType.MODIFIED, r))
 				.collect(Collectors.toList());
-		result.keepDeleted()
-				.forEach(r -> diffs.add(new Change(DiffType.DELETED, r)));
+		result.keepDeleted().forEach(r -> diffs.add(new Change(DiffType.DELETED, r)));
 		result.deleted().forEach(r -> {
 			if (conflictResolver != null
 					&& conflictResolver.isConflict(r)
-					&& conflictResolver.resolveConflict(r, null).type == ConflictResolutionType.OVERWRITE_LOCAL) {
+					&& conflictResolver.resolveConflict(r, null).type == ConflictResolutionType.OVERWRITE) {
 				diffs.add(new Change(DiffType.DELETED, r));
 			}
 		});
