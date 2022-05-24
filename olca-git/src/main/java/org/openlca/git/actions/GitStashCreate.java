@@ -1,9 +1,9 @@
 package org.openlca.git.actions;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.stream.Collectors;
 
-import org.eclipse.jgit.diff.DiffEntry.Side;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -16,6 +16,7 @@ import org.openlca.git.actions.ImportHelper.ImportResult;
 import org.openlca.git.find.Commits;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.DiffType;
+import org.openlca.git.model.Reference;
 import org.openlca.git.util.Diffs;
 import org.openlca.git.util.GitStoreReader;
 import org.openlca.git.writer.CommitWriter;
@@ -24,6 +25,7 @@ public class GitStashCreate extends GitProgressAction<Void> {
 
 	private final IDatabase database;
 	private final CategoryDao categoryDao;
+	private List<Change> changes;
 	private FileRepository git;
 	private Commits commits;
 	private ObjectIdStore workspaceIds;
@@ -37,6 +39,11 @@ public class GitStashCreate extends GitProgressAction<Void> {
 
 	public static GitStashCreate from(IDatabase database) {
 		return new GitStashCreate(database);
+	}
+
+	public GitStashCreate changes(List<Change> changes) {
+		this.changes = changes;
+		return this;
 	}
 
 	public GitStashCreate to(FileRepository git) {
@@ -70,26 +77,27 @@ public class GitStashCreate extends GitProgressAction<Void> {
 			progressMonitor.beginTask("Preparing to create stash", -1);
 		}
 		var config = new GitConfig(database, workspaceIds, git);
-		var diffs = Diffs.workspace(config);
-		if (diffs.isEmpty())
-			throw new IllegalStateException("No diffs found");
+		if (changes == null) {
+			changes = Diffs.workspace(config).stream().map(Change::new).collect(Collectors.toList());
+		}
+		if (changes.isEmpty())
+			throw new IllegalStateException("No changes found");
 		if (!discard) {
 			var writer = new CommitWriter(config, committer, progressMonitor);
-			writer.stashCommit("Stashed changes", diffs.stream().map(Change::new).collect(Collectors.toList()));
+			writer.stashCommit("Stashed changes", changes);
 		}
 		var importHelper = new ImportHelper(git, database, workspaceIds, progressMonitor);
-		var toDelete = diffs.stream()
-				.filter(d -> d.diffType == DiffType.ADDED)
-				.map(d -> d.toReference(Side.NEW))
+		var toDelete = changes.stream()
+				.filter(c -> c.diffType == DiffType.ADDED)
 				.collect(Collectors.toList());
 		var headCommit = commits.head();
 		if (headCommit == null) {
 			importHelper.delete(toDelete);
 			workspaceIds.clear();
 		} else {
-			var toImport = diffs.stream()
-					.filter(d -> d.diffType != DiffType.ADDED)
-					.map(d -> d.toReference(Side.OLD))
+			var toImport = changes.stream()
+					.filter(c -> c.diffType != DiffType.ADDED)
+					.map(c -> new Reference(c.path, headCommit.id, workspaceIds.getHead(c.path)))
 					.collect(Collectors.toList());
 			var gitStore = new GitStoreReader(git, headCommit, toImport);
 			importHelper.runImport(gitStore);

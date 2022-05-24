@@ -133,7 +133,7 @@ class ImportHelper {
 	}
 
 	static record ImportResult(List<Reference> imported, List<ModelRef> merged,
-			List<ModelRef> keepDeleted, List<Reference> deleted) {
+			List<ModelRef> keepDeleted, List<? extends ModelRef> deleted) {
 
 		int count() {
 			return imported.size() + merged.size() + deleted.size() + keepDeleted.size();
