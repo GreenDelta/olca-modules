@@ -47,6 +47,21 @@ public class History {
 		return getAhead(of(ref), of(Constants.LOCAL_REF));
 	}
 
+	public Commit commonParentOf(String ref1, String ref2) {
+		var history1 = commits.find().refs(ref1).all();
+		if (history1.isEmpty())
+			return null;
+		var history2 = commits.find().refs(ref2).all();
+		if (history2.isEmpty())
+			return null;
+		var commonHistory = history2.stream()
+				.filter(c -> history1.contains(c))
+				.toList();
+		if (commonHistory.isEmpty())
+			return null;
+		return commonHistory.get(commonHistory.size() - 1);
+	}
+
 	private static List<Commit> getAhead(List<Commit> left, List<Commit> right) {
 		var diff = new ArrayList<Commit>();
 		for (var i = left.size() - 1; i >= 0; i--) {

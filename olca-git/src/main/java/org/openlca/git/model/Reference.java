@@ -13,13 +13,13 @@ public class Reference extends ModelRef {
 
 	public Reference(String path, String commitId, ObjectId objectId) {
 		super(path);
-		this.commitId = commitId;
-		this.objectId = objectId;
+		this.commitId = commitId != null ? commitId : "";
+		this.objectId = objectId != null ? objectId : ObjectId.zeroId();
 	}
 
 	@Override
 	public int hashCode() {
-		return objectId != null ? objectId.hashCode() : super.hashCode();
+		return (commitId + ":" + path).hashCode();
 	}
 
 	@Override
@@ -29,6 +29,10 @@ public class Reference extends ModelRef {
 		if (!(obj instanceof Reference))
 			return false;
 		var ref = (Reference) obj;
+		if (!super.equals(obj))
+			return false;
+		if (!ref.commitId.equals(commitId))
+			return false;
 		return Objects.equals(ref.objectId, objectId);
 	}
 
