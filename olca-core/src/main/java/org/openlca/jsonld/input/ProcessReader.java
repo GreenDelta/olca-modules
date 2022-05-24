@@ -1,6 +1,7 @@
 package org.openlca.jsonld.input;
 
 import org.openlca.core.io.EntityResolver;
+import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
@@ -11,11 +12,16 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
+import org.openlca.core.model.RiskLevel;
+import org.openlca.core.model.SocialAspect;
+import org.openlca.core.model.SocialIndicator;
+import org.openlca.core.model.Source;
 import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonObject;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
+import org.openlca.util.Strings;
 
 public class ProcessReader implements EntityReader<Process> {
 
@@ -55,8 +61,8 @@ public class ProcessReader implements EntityReader<Process> {
 
 		readParameters(json, p);
 		readExchanges(json, p);
-		addSocialAspects(json, p);
-		addAllocationFactors(json, p);
+		readSocialAspects(json, p);
+		readAllocationFactors(json, p);
 	}
 
 	private void readParameters(JsonObject json, Process p) {
@@ -75,7 +81,7 @@ public class ProcessReader implements EntityReader<Process> {
 		}
 	}
 
-	private void readExchanges(JsonObject _json, Process p) {
+	private void readExchanges(JsonObject json, Process p) {
 
 		var array = Json.getArray(json, "exchanges");
 		if (array == null || array.size() == 0) {
@@ -89,6 +95,7 @@ public class ProcessReader implements EntityReader<Process> {
 		for (var old : p.exchanges) {
 			oldIdx.put(old.internalId, old);
 		}
+		p.exchanges.clear();
 
 		p.lastInternalId = Json.getInt(json, "lastInternalId", 0);
 		for (var elem : array) {
@@ -148,8 +155,51 @@ public class ProcessReader implements EntityReader<Process> {
 
 			p.exchanges.add(e);
 			boolean isRef = Json.getBool(o, "isQuantitativeReference", false);
-			if (isRef)
+			if (isRef) {
 				p.quantitativeReference = e;
+			}
 		}
+	}
+
+	private void readSocialAspects(JsonObject json, Process p) {
+		p.socialAspects.clear();
+		Json.forEachObject(json, "socialAspects", obj -> {
+			var a = new SocialAspect();
+			var indicatorId = Json.getRefId(obj, "socialIndicator");
+			a.indicator = resolver.get(SocialIndicator.class, indicatorId);
+			a.comment = Json.getString(obj, "comment");
+			a.quality = Json.getString(obj, "quality");
+			a.rawAmount = Json.getString(obj, "rawAmount");
+			a.activityValue = Json.getDouble(obj, "activityValue", 0);
+			a.riskLevel = Json.getEnum(obj, "riskLevel", RiskLevel.class);
+			var sourceId = Json.getRefId(obj, "source");
+			a.source = resolver.get(Source.class, sourceId);
+			p.socialAspects.add(a);
+		});
+	}
+
+	private void readAllocationFactors(JsonObject json, Process p) {
+		p.allocationFactors.clear();
+		Json.forEachObject(json, "allocationFactors", obj -> {
+			var productId = Json.getRefId(obj, "product");
+			var product = resolver.get(Flow.class, productId);
+			if (product == null)
+				return;
+			var factor = new AllocationFactor();
+			factor.productId = product.id;
+			var exchange = Json.getObject(obj, "exchange");
+			if (exchange != null) {
+				int exchangeId = Json.getInt(exchange, "internalId", -1);
+				factor.exchange = exchanges.get(exchangeId);
+			}
+			factor.value = Json.getDouble(obj, "value", 1);
+			var formula = Json.getString(obj, "formula");
+			if (Strings.notEmpty(formula)) {
+				factor.formula = formula;
+			}
+			factor.method = Json.getEnum(
+				obj, "allocationType", AllocationMethod.class);
+			p.allocationFactors.add(factor);
+		});
 	}
 }

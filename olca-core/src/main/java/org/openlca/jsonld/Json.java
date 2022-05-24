@@ -18,6 +18,7 @@ import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Optional;
 import java.util.OptionalDouble;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -73,6 +74,18 @@ public class Json {
 		if (array == null)
 			return Stream.empty();
 		return StreamSupport.stream(array.spliterator(), false);
+	}
+
+	public static void forEachObject(
+		JsonObject obj, String property, Consumer<JsonObject> fn) {
+		var array = getArray(obj, property);
+		if (array == null)
+			return;
+		for (var elem : array) {
+			if (elem.isJsonObject()) {
+				fn.accept(elem.getAsJsonObject());
+			}
+		}
 	}
 
 	/**

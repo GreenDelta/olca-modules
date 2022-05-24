@@ -37,6 +37,8 @@ public record DbEntityResolver(IDatabase db) implements EntityResolver {
 
 	@Override
 	public void resolveProvider(String providerId, Exchange exchange) {
+		if (providerId == null || exchange == null)
+			return;
 		var d = new ProcessDao(db).getDescriptorForRefId(providerId);
 		exchange.defaultProviderId = d != null ? d.id : 0;
 	}
