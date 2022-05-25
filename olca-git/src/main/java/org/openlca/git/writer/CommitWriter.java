@@ -87,7 +87,7 @@ public class CommitWriter {
 				return null;
 			init(changes);
 			if (localCommitId == null && previousCommit != null) {
-				localCommitId = previousCommit.getId().toString();
+				localCommitId = previousCommit.getId().getName();
 			}
 			var localTreeId = getCommitTreeId(localCommitId);
 			var remoteTreeId = getCommitTreeId(remoteCommitId);

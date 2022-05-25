@@ -73,7 +73,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 	@Override
 	public Boolean run() throws IOException, GitAPIException {
 		if (git == null || database == null)
-			throw new IllegalStateException("Git repository, database and committer, must be set");
+			throw new IllegalStateException("Git repository and database must be set");
 		var behind = history.getBehind(getRef());
 		if (behind.isEmpty())
 			return false;
