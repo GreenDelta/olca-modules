@@ -52,21 +52,25 @@ public class DatabaseIterator extends EntryIterator {
 	}
 
 	private static List<TreeEntry> init(GitConfig config, ModelType type) {
-		var entries = new CategoryDao(config.database).getRootCategories(type)
-				.stream().map(TreeEntry::new)
+		var entries = new CategoryDao(config.database).getRootCategories(type).stream()
+				.filter(c -> !c.isFromLibrary())
+				.map(TreeEntry::new)
 				.collect(Collectors.toList());
-		entries.addAll(Daos.root(config.database, type).getDescriptors(Optional.empty())
-				.stream().map(d -> new TreeEntry(d))
+		entries.addAll(Daos.root(config.database, type).getDescriptors(Optional.empty()).stream()
+				.filter(d -> !d.isFromLibrary())
+				.map(TreeEntry::new)
 				.toList());
 		return entries;
 	}
 
 	private static List<TreeEntry> init(GitConfig config, Category category) {
-		var entries = category.childCategories
-				.stream().map(TreeEntry::new)
+		var entries = category.childCategories.stream()
+				.filter(c -> !c.isFromLibrary())
+				.map(TreeEntry::new)
 				.collect(Collectors.toList());
-		entries.addAll(Daos.root(config.database, category.modelType).getDescriptors(Optional.of(category))
-				.stream().map(d -> new TreeEntry(d))
+		entries.addAll(Daos.root(config.database, category.modelType).getDescriptors(Optional.of(category)).stream()
+				.filter(d -> !d.isFromLibrary())
+				.map(TreeEntry::new)
 				.toList());
 		return entries;
 	}
