@@ -300,7 +300,10 @@ public class CommitWriter {
 	}
 
 	private boolean isCurrentSchemaVersion() {
-		var schema = Repositories.versionOf(config.repo);
+		var info = Repositories.infoOf(config.repo);
+		if (info == null)
+			return false;
+		var schema = info.schemaVersion();
 		if (schema == null)
 			return false;
 		return schema.isCurrent();

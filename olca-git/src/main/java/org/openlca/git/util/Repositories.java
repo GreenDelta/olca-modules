@@ -12,7 +12,6 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.openlca.jsonld.PackageInfo;
-import org.openlca.jsonld.SchemaVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +43,7 @@ public final class Repositories {
 		}
 	}
 
-	public static SchemaVersion versionOf(FileRepository repo) {
+	public static PackageInfo infoOf(FileRepository repo) {
 		var commit = headCommitOf(repo);
 		if (commit == null)
 			return null;
@@ -58,7 +57,7 @@ public final class Repositories {
 			var blobId = walk.getObjectId(0);
 			var bytes = reader.open(blobId).getBytes();
 			var json = new Gson().fromJson(new String(bytes, StandardCharsets.UTF_8), JsonElement.class);
-			return PackageInfo.of(json).schemaVersion();
+			return PackageInfo.of(json);
 		} catch (IOException e) {
 			log.error("failed to read schema version", e);
 			return null;
