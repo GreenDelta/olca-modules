@@ -239,13 +239,15 @@ public class CommitWriter {
 
 	private void appendPackageInfo(TreeFormatter tree) {
 		try {
-			var schemaBytes = PackageInfo.create().json().toString().getBytes(StandardCharsets.UTF_8);
+			var schemaBytes = PackageInfo.create()
+					.withLibraries(config.database.getLibraries())
+					.json().toString().getBytes(StandardCharsets.UTF_8);
 			var blobId = packInserter.insert(Constants.OBJ_BLOB, schemaBytes);
 			if (blobId != null) {
 				tree.append(PackageInfo.FILE_NAME, FileMode.REGULAR_FILE, blobId);
 			}
 		} catch (Exception e) {
-			log.error("Error inserting schema version", e);
+			log.error("Error inserting package info", e);
 		}
 	}
 
