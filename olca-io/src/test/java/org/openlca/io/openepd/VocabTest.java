@@ -3,7 +3,8 @@ package org.openlca.io.openepd;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.openlca.io.openepd.Vocab.Indicator;
+import org.openlca.io.openepd.mapping.Vocab;
+import org.openlca.io.openepd.mapping.Vocab.Indicator;
 import org.openlca.util.Pair;
 
 import java.util.Arrays;

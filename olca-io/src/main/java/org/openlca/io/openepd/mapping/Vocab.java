@@ -1,4 +1,4 @@
-package org.openlca.io.openepd;
+package org.openlca.io.openepd.mapping;
 
 import org.openlca.util.Strings;
 
