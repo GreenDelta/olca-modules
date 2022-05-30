@@ -21,7 +21,7 @@ public class MountCheckTest {
 	private Library lib;
 
 	@Before
-	public void setup() throws Exception{
+	public void setup() throws Exception {
 		var dir = Files.createTempDirectory("_olca").toFile();
 		lib = Library.of(dir);
 	}
@@ -57,5 +57,12 @@ public class MountCheckTest {
 		assertFalse(state.isError());
 		assertNull(state.error());
 		db.delete(group);
+	}
+
+	@Test
+	public void testError() {
+		var state = MountCheck.check(db, null);
+		assertTrue(state.isError());
+		assertNotNull(state.error());
 	}
 }

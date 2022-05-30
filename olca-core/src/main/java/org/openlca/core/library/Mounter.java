@@ -1,15 +1,16 @@
 package org.openlca.core.library;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.input.JsonImport;
+import org.openlca.jsonld.input.UpdateMode;
 import org.openlca.util.Strings;
 
 import gnu.trove.set.hash.TLongHashSet;
@@ -26,14 +27,18 @@ record Mounter(IDatabase db, Library library) implements Runnable {
 			for (var lib : Libraries.dependencyOrderOf(library)) {
 				var libId = lib.id();
 				var meta = new File(lib.folder(), "meta.zip");
-				try (var store = ZipStore.open(meta)) {
-					var imp = new JsonImport(store, db);
-					imp.setCallback(e -> {
-						if (!(e instanceof RootEntity ce))
-							return;
-						update(ce, libId);
-					});
-					imp.run();
+				try (var zip = ZipStore.open(meta)) {
+					new JsonImport(zip, db)
+						.setUpdateMode(UpdateMode.ALWAYS)
+						.run();
+					for (var type : ModelType.values()) {
+						if (!type.isRoot())
+							continue;
+						var refIds = zip.getRefIds(type);
+						if (refIds.isEmpty())
+							continue;
+						tag(libId, type, new HashSet<>(refIds));
+					}
 				}
 				db.addLibrary(libId);
 				new CategoryTagger(db, libId).run();
@@ -43,10 +48,20 @@ record Mounter(IDatabase db, Library library) implements Runnable {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	private <T extends RootEntity> void update(T e, String library) {
-		e.library = library;
-		Daos.base(db, (Class<T>) e.getClass()).update(e);
+	private void tag(String libId, ModelType type, Set<String> refIds) {
+		var clazz = type.getModelClass();
+		if (clazz == null)
+			return;
+		var table = clazz.getAnnotation(Table.class);
+		var sql = "select ref_id, library from " + table.name();
+		NativeSql.on(db).updateRows(sql, r -> {
+			var id = r.getString(1);
+			if (refIds.contains(id)) {
+				r.updateString(2, libId);
+				r.updateRow();
+			}
+			return true;
+		});
 	}
 
 	/**
@@ -91,7 +106,7 @@ record Mounter(IDatabase db, Library library) implements Runnable {
 			}
 
 			// tag the categories and their parents
-			for (var it = libCategories.iterator(); it.hasNext();) {
+			for (var it = libCategories.iterator(); it.hasNext(); ) {
 				var libCat = db.get(Category.class, it.next());
 				while (libCat != null && !nonLibCategories.contains(libCat.id)) {
 					libCat.library = libId;

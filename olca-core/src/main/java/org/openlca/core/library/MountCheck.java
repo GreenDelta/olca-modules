@@ -55,11 +55,6 @@ public record MountCheck(IDatabase db, Library library)
 		public boolean isError() {
 			return true;
 		}
-
-		@Override
-		public String error() {
-			return error;
-		}
 	}
 
 	public static State check(IDatabase db, Library lib) {
