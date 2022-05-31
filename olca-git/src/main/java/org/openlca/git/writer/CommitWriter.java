@@ -91,9 +91,6 @@ public class CommitWriter {
 			}
 			var localTreeId = getCommitTreeId(localCommitId);
 			var remoteTreeId = getCommitTreeId(remoteCommitId);
-			if (progressMonitor != null) {
-				progressMonitor.beginTask("Writing commit", changes.size());
-			}
 			var treeId = syncTree("", new ChangeIterator(config, changes), localTreeId, remoteTreeId);
 			if (!isStashCommit && config.store != null) {
 				config.store.save();
