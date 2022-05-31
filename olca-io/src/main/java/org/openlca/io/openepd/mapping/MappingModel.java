@@ -20,5 +20,4 @@ public record MappingModel(List<MethodMapping> mappings) {
 	public static MappingModel initFrom(EpdDoc doc, IDatabase db) {
 		return ImportMapping.build(doc, db);
 	}
-
 }

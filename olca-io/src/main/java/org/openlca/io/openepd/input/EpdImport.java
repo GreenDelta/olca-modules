@@ -115,43 +115,36 @@ public class EpdImport {
 	}
 
 	private Collection<EpdModule> createModules(RefFlow refFlow) {
+
 		var modules = new HashMap<String, EpdModule>();
-		for (var result : epd.impactResults) {
-			var methodMapping = mapping.getMethodMapping(result.method());
-			if (methodMapping.isEmpty()) {
-				log.warn("No mapping for LCIA method '"
-					+ result.method() + "'; results skipped");
+		for (var m : mapping.mappings()) {
+			if (m.method() == null
+				|| m.epdMethod() == null
+				|| m.entries().isEmpty()) {
 				continue;
 			}
 
-			for (var indicatorResult : result.results()) {
-				for (var scopeResult : indicatorResult.values()) {
-					if (scopeResult.value() == null)
+			for (var entry : m.entries()) {
+				if (entry.indicator() == null)
+					continue;
+				for (var scope : m.scopes()) {
+					var value = entry.values().get(scope);
+					if (value == null)
 						continue;
-					var val = scopeResult.value();
-					if (val.mean() == null)
-						continue;
-
-					var key = new IndicatorKey(indicatorResult.indicator(), val.unit());
-					var indicatorMapping = methodMapping.getIndicatorMapping(key);
-					if (indicatorMapping.isEmpty()) {
-						log.warn("No mapping for LCIA category '"
-							+ key.code() + "'; results skipped");
-						continue;
-					}
 
 					// get/init the module result
 					var fullName = refFlow.name()
-						+ " - " + scopeResult.scope()
-						+ " - " + result.method();
+						+ " - " + scope
+						+ " - " + m.epdMethod().code();
 					var mod = modules.computeIfAbsent(fullName, _k -> {
 						var modResult = initResult(
-							fullName, refFlow, methodMapping.method());
-						return EpdModule.of(scopeResult.scope(), modResult);
+							fullName, refFlow, m.method());
+						return EpdModule.of(scope, modResult);
 					});
 
 					// add the result value
-					var impact = ImpactResult.of(indicatorMapping.indicator(), val.mean());
+					var impact = ImpactResult.of(
+						entry.indicator(), value * entry.factor());
 					mod.result.impactResults.add(impact);
 				}
 			}
