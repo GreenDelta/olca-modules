@@ -21,6 +21,7 @@ import org.openlca.core.model.Source;
 import org.openlca.io.openepd.EpdDoc;
 import org.openlca.io.openepd.EpdOrg;
 import org.openlca.io.openepd.EpdPcr;
+import org.openlca.io.openepd.mapping.MappingModel;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
 
@@ -28,11 +29,11 @@ public class EpdImport {
 
 	private final IDatabase db;
 	private final EpdDoc epd;
-	private final ImpactMapping mapping;
+	private final MappingModel mapping;
 	private final String[] categoryPath;
 	private final ImportLog log;
 
-	public EpdImport(IDatabase db, EpdDoc epd, ImpactMapping mapping) {
+	public EpdImport(IDatabase db, EpdDoc epd, MappingModel mapping) {
 		this.db = db;
 		this.epd = epd;
 		this.mapping = mapping;
