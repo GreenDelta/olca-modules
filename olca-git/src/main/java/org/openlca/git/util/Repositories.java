@@ -7,10 +7,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
+import org.openlca.git.model.Commit;
 import org.openlca.jsonld.PackageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,12 +46,16 @@ public final class Repositories {
 	}
 
 	public static PackageInfo infoOf(FileRepository repo) {
-		var commit = headCommitOf(repo);
-		if (commit == null)
-			return null;
+		return infoOf(repo, null);
+	}
+
+	public static PackageInfo infoOf(FileRepository repo, Commit commit) {
 		try (var walk = new TreeWalk(repo);
 				var reader = repo.getObjectDatabase().newReader()) {
-			walk.addTree(commit.getTree().getId());
+			var revCommit = commit != null
+					? repo.parseCommit(ObjectId.fromString(commit.id))
+					: headCommitOf(repo);
+			walk.addTree(revCommit.getTree().getId());
 			walk.setRecursive(false);
 			walk.setFilter(PathFilter.create(PackageInfo.FILE_NAME));
 			if (!walk.next())
@@ -77,7 +83,7 @@ public final class Repositories {
 				return null;
 			return commit;
 		} catch (IOException e) {
-			log.error("Error reading commit tree", e);
+			log.error("Error getting head commit", e);
 			return null;
 		}
 	}
