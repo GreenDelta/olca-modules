@@ -22,7 +22,7 @@ public record MappedExportResult(
 		if (models == null)
 			return result;
 		for (var model : models) {
-			for (var row : model.rows()) {
+			for (var row : model.entries()) {
 				var indicator = row.epdIndicator();
 				if (indicator == null)
 					continue;

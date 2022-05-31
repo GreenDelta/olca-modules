@@ -28,6 +28,14 @@ public class Vocab {
 			this.pattern = Pattern.compile(pattern);
 		}
 
+		static Optional<Method> of(String code) {
+			for (var method : values()) {
+				if (codesEqual(code, method.code()))
+					return Optional.of(method);
+			}
+			return Optional.empty();
+		}
+
 		public String code() {
 			return code;
 		}
@@ -40,6 +48,7 @@ public class Vocab {
 		public String toString() {
 			return code;
 		}
+
 	}
 
 	public enum IndicatorType {
@@ -427,6 +436,14 @@ public class Vocab {
 			this.units = units;
 		}
 
+		public static Optional<Indicator> of(String code) {
+			for (var indicator : values()) {
+				if (codesEqual(code, indicator.code))
+					return Optional.of(indicator);
+			}
+			return Optional.empty();
+		}
+
 		/**
 		 * Returns the indicator description.
 		 */
@@ -569,5 +586,10 @@ public class Vocab {
 				return Optional.of(scope);
 		}
 		return Optional.empty();
+	}
+
+	static boolean codesEqual(String code1, String code2) {
+		return code1 != null && code2 != null
+			&& code1.trim().equalsIgnoreCase(code2.trim());
 	}
 }

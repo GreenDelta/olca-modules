@@ -38,7 +38,7 @@ final class ExportMapping {
 		// sort & map
 		for (var model : mappings) {
 			model.scopes().sort(Strings::compare);
-			model.rows().sort((r1, r2) -> {
+			model.entries().sort((r1, r2) -> {
 				var i1 = r1.indicator();
 				var i2 = r2.indicator();
 				return i1 != null && i2 != null
@@ -85,12 +85,12 @@ final class ExportMapping {
 	}
 
 	private static IndicatorMapping rowOf(ImpactCategory indicator, MethodMapping model) {
-		for (var row : model.rows()) {
+		for (var row : model.entries()) {
 			if (Objects.equals(indicator, row.indicator()))
 				return row;
 		}
 		var row = new IndicatorMapping().indicator(indicator);
-		model.rows().add(row);
+		model.entries().add(row);
 		return row;
 	}
 
@@ -106,7 +106,7 @@ final class ExportMapping {
 		while (!queue.isEmpty()) {
 			var epdInd = next.get();
 			var match = Match.empty();
-			for (var row : model.rows()) {
+			for (var row : model.entries()) {
 				var nextMatch = Match.of(epdInd, row);
 				if (match.isBetterThan(nextMatch))
 					continue;
@@ -151,7 +151,7 @@ final class ExportMapping {
 				.orElse(null);
 			if (unitMatch == null)
 				return empty();
-			var score = Objects.equals(indicator.code(), row.indicator().code)
+			var score = Vocab.codesEqual(indicator.code(), row.indicator().code)
 				? 1.0
 				: indicator.matchScoreOf(row.indicator().name);
 			if (score < 1e-4)

@@ -1,6 +1,5 @@
 package org.openlca.io.openepd.mapping;
 
-import org.openlca.core.model.Epd;
 import org.openlca.core.model.ImpactMethod;
 
 import java.util.ArrayList;
@@ -12,7 +11,7 @@ public class MethodMapping {
 	private Vocab.Method epdMethod;
 
 	private final List<String> scopes = new ArrayList<>();
-	private final List<IndicatorMapping> rows = new ArrayList<>();
+	private final List<IndicatorMapping> entries = new ArrayList<>();
 
 	public ImpactMethod method() {
 		return method;
@@ -36,8 +35,8 @@ public class MethodMapping {
 		return scopes;
 	}
 
-	public List<IndicatorMapping> rows() {
-		return rows;
+	public List<IndicatorMapping> entries() {
+		return entries;
 	}
 
 }
