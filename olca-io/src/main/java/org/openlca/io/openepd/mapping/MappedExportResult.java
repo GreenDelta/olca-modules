@@ -10,14 +10,14 @@ import org.openlca.util.Strings;
 import java.util.ArrayList;
 import java.util.List;
 
-public record MappedResult(
+public record MappedExportResult(
 	List<EpdImpactResult> impacts,
 	List<EpdIndicatorResult> resources,
 	List<EpdIndicatorResult> outputs
 ) {
 
-	public static MappedResult of(List<MappingModel> models) {
-		var result = new MappedResult(
+	public static MappedExportResult of(List<MethodMapping> models) {
+		var result = new MappedExportResult(
 			new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 		if (models == null)
 			return result;

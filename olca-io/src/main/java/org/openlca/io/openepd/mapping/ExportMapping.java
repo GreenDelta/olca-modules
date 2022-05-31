@@ -6,22 +6,24 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.util.Strings;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-class MappingBuilder {
+final class ExportMapping {
 
-	static List<MappingModel> buildFrom(Epd epd) {
+	private ExportMapping() {
+	}
+
+	static MappingModel build(Epd epd) {
 		if (epd == null)
-			return Collections.emptyList();
+			return MappingModel.empty();
 
-		// create models and their rows
-		var models = new ArrayList<MappingModel>();
+		// init the mappings
+		var mappings = new ArrayList<MethodMapping>();
 		for (var mod : epd.modules) {
-			var model = of(mod, models);
+			var model = of(mod, mappings);
 			if (model == null)
 				continue;
 			for (var impact : mod.result.impactResults) {
@@ -34,7 +36,7 @@ class MappingBuilder {
 		}
 
 		// sort & map
-		for (var model : models) {
+		for (var model : mappings) {
 			model.scopes().sort(Strings::compare);
 			model.rows().sort((r1, r2) -> {
 				var i1 = r1.indicator();
@@ -45,17 +47,17 @@ class MappingBuilder {
 			});
 			initMappings(model);
 		}
-		return models;
+		return new MappingModel(mappings);
 	}
 
-	private static MappingModel of(EpdModule mod, List<MappingModel> models) {
+	private static MethodMapping of(EpdModule mod, List<MethodMapping> models) {
 		if (mod == null
 			|| Strings.nullOrEmpty(mod.name)
 			|| mod.result == null
 			|| mod.result.impactResults.isEmpty())
 			return null;
 		var method = mod.result.impactMethod;
-		MappingModel model = null;
+		MethodMapping model = null;
 		for (var existing : models) {
 			if (Objects.equals(method, existing.method())) {
 				model = existing;
@@ -63,7 +65,7 @@ class MappingBuilder {
 			}
 		}
 		if (model == null) {
-			model = new MappingModel().method(method);
+			model = new MethodMapping().method(method);
 			models.add(model);
 		}
 		var scope = scopeOf(mod);
@@ -82,17 +84,17 @@ class MappingBuilder {
 			: mod.name;
 	}
 
-	private static MappingRow rowOf(ImpactCategory indicator, MappingModel model) {
+	private static IndicatorMapping rowOf(ImpactCategory indicator, MethodMapping model) {
 		for (var row : model.rows()) {
 			if (Objects.equals(indicator, row.indicator()))
 				return row;
 		}
-		var row = new MappingRow().indicator(indicator);
+		var row = new IndicatorMapping().indicator(indicator);
 		model.rows().add(row);
 		return row;
 	}
 
-	private static void initMappings(MappingModel model) {
+	private static void initMappings(MethodMapping model) {
 
 		var queue = EnumSet.allOf(Vocab.Indicator.class);
 		Supplier<Vocab.Indicator> next = () -> {
@@ -127,7 +129,7 @@ class MappingBuilder {
 
 	private record Match(
 		Vocab.Indicator indicator,
-		MappingRow row,
+		IndicatorMapping row,
 		Vocab.UnitMatch unit,
 		double score) {
 
@@ -137,11 +139,11 @@ class MappingBuilder {
 			return _empty;
 		}
 
-		static Match of(MappingRow row) {
+		static Match of(IndicatorMapping row) {
 			return of(row.epdIndicator(), row);
 		}
 
-		static Match of(Vocab.Indicator indicator, MappingRow row) {
+		static Match of(Vocab.Indicator indicator, IndicatorMapping row) {
 			if (indicator == null || row == null || row.indicator() == null)
 				return empty();
 			var refUnit = row.indicator().referenceUnit;

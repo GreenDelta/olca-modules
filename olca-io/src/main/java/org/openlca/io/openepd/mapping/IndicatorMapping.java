@@ -5,7 +5,12 @@ import org.openlca.core.model.ImpactCategory;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MappingRow {
+/**
+ * A mapping between an openEPD and openLCA indicator. It also contains values
+ * of the respective EPD scopes / modules for that indicator and conversion
+ * factor that needs to be applied in an import or export.
+ */
+public class IndicatorMapping {
 
 	private final Map<String, Double> values = new HashMap<>();
 
@@ -18,7 +23,7 @@ public class MappingRow {
 		return indicator;
 	}
 
-	public MappingRow indicator(ImpactCategory indicator) {
+	public IndicatorMapping indicator(ImpactCategory indicator) {
 		this.indicator = indicator;
 		return this;
 	}
@@ -27,7 +32,7 @@ public class MappingRow {
 		return epdIndicator;
 	}
 
-	public MappingRow epdIndicator(Vocab.Indicator epdIndicator) {
+	public IndicatorMapping epdIndicator(Vocab.Indicator epdIndicator) {
 		this.epdIndicator = epdIndicator;
 		return this;
 	}
@@ -36,7 +41,7 @@ public class MappingRow {
 		return unit;
 	}
 
-	public MappingRow unit(Vocab.UnitMatch unitMatch) {
+	public IndicatorMapping unit(Vocab.UnitMatch unitMatch) {
 		this.unit = unitMatch;
 		return this;
 	}
@@ -49,7 +54,7 @@ public class MappingRow {
 		return factor;
 	}
 
-	public MappingRow factor(double factor) {
+	public IndicatorMapping factor(double factor) {
 		this.factor = factor;
 		return this;
 	}
