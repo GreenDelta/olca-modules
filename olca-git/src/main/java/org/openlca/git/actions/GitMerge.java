@@ -13,7 +13,6 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.Library;
-import org.openlca.core.library.LibraryReplacement;
 import org.openlca.git.GitConfig;
 import org.openlca.git.ObjectIdStore;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
@@ -200,13 +199,9 @@ public class GitMerge extends GitProgressAction<Boolean> {
 			throws IOException {
 		for (var newLib : newLibraries) {
 			if (progressMonitor != null) {
-				progressMonitor.subTask("Mounting library " + newLib);
+				progressMonitor.subTask("Mounting library " + newLib.id());
 			}
 			newLib.mountTo(database);
-			// TODO update when mounting changes:
-			// mounter does not set library tag on elements that already existed
-			// -> use LibraryReplacement to ensure this
-			LibraryReplacement.of(database).withTarget(newLib).run();
 			if (progressMonitor != null) {
 				progressMonitor.worked(1);
 			}
