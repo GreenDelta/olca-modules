@@ -184,12 +184,15 @@ public class GitMerge extends GitProgressAction<Boolean> {
 			return null;
 		var remoteLibs = info.libraries();
 		var localLibs = database.getLibraries();
-		var libs = remoteLibs.stream()
-				.filter(lib -> !localLibs.contains(lib))
-				.map(libraryResolver::resolve)
-				.collect(Collectors.toList());
-		if (libs.contains(null))
-			return null;
+		var libs = new ArrayList<Library>();
+		for (var newLib : remoteLibs) {
+			if (localLibs.contains(newLib))
+				continue;
+			var lib = libraryResolver.resolve(newLib);
+			if (lib == null)
+				return null;
+			libs.add(lib);
+		}
 		return libs;
 	}
 
