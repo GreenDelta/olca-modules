@@ -20,7 +20,6 @@ import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.RootEntityDao;
-import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.EnviIndex;
@@ -29,7 +28,6 @@ import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ImpactFactor;
-import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.jsonld.Json;
@@ -50,43 +48,6 @@ public record Library(File folder) {
 	}
 
 	public static Library of(File folder) {
-		return new Library(folder);
-	}
-
-	/**
-	 * Creates a new library by writing the given matrix data into the given
-	 * folder. It will try to derive the name and version of the library from
-	 * the name of the given folder which should follow the pattern
-	 * `<lib-name>_<version>`. Note that this method will modify the data of the
-	 * matrices A and B if these are not normalized 1 | -1. Thus, you should not
-	 * reuse the matrices after calling this method are provide a copy of the
-	 * data.
-	 */
-	public static Library create(IDatabase db, MatrixData data, File folder) {
-		var fullName = folder.getName();
-		var nameParts = fullName.split(" ");
-		var versionPart = nameParts.length == 1
-			? null
-			: nameParts[nameParts.length - 1];
-
-		var name = fullName;
-		var version = "1.0";
-		if (versionPart != null) {
-			name = fullName.substring(0,
-				fullName.length() - versionPart.length() - 1);
-			// TODO: check that the version matches a dd.??.??? pattern
-			version = Version.format(versionPart);
-		}
-
-		var regionalized = data.enviIndex != null
-			&& data.enviIndex.isRegionalized();
-		var info = LibraryInfo.of(name)
-			.version(version)
-			.isRegionalized(regionalized);
-		new LibraryExport(db, folder)
-			.withConfig(info)
-			.withData(data)
-			.run();
 		return new Library(folder);
 	}
 

@@ -16,8 +16,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.openlca.core.Tests;
-import org.openlca.core.library.Library;
 import org.openlca.core.library.LibraryDir;
+import org.openlca.core.library.LibraryExport;
+import org.openlca.core.library.LibraryInfo;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.JavaMatrix;
 import org.openlca.core.matrix.index.EnviFlow;
@@ -101,8 +102,11 @@ public record ResultProviderTest(ResultProvider provider) {
 		// foreground system
 		var libRoot = Files.createTempDirectory("_olca_lib").toFile();
 		libDir = LibraryDir.of(libRoot);
+		new LibraryExport(db, new File(libRoot, libID))
+			.withData(data)
+			.withConfig(LibraryInfo.of("test_lib").version("1.0"))
+			.run();
 
-		Library.create(db, data.copy(), new File(libRoot, libID));
 		var foreground = new MatrixData();
 		foreground.techIndex = new TechIndex(data.techIndex.getRefFlow());
 		foreground.techIndex.setDemand(1.0);

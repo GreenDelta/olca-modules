@@ -121,6 +121,8 @@ public class LibraryExport implements Runnable {
 	}
 
 	private void buildMatrices() {
+		if (data != null)
+			return;
 
 		// build inventory if possible
 		// This makes no sense if the processes in the database are linked to
