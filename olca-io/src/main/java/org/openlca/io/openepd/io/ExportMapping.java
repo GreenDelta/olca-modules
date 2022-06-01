@@ -23,14 +23,14 @@ final class ExportMapping {
 		// init the mappings
 		var mappings = new ArrayList<MethodMapping>();
 		for (var mod : epd.modules) {
-			var model = of(mod, mappings);
-			if (model == null)
+			var mapping = of(mod, mappings);
+			if (mapping == null)
 				continue;
 			for (var impact : mod.result.impactResults) {
 				var indicator = impact.indicator;
 				if (indicator == null)
 					continue;
-				var row = rowOf(indicator, model);
+				var row = rowOf(indicator, mapping);
 				row.values().put(scopeOf(mod), mod.multiplier * impact.amount);
 			}
 		}
@@ -57,22 +57,37 @@ final class ExportMapping {
 			|| mod.result.impactResults.isEmpty())
 			return null;
 		var method = mod.result.impactMethod;
-		MethodMapping model = null;
+		MethodMapping mapping = null;
 		for (var existing : models) {
 			if (Objects.equals(method, existing.method())) {
-				model = existing;
+				mapping = existing;
 				break;
 			}
 		}
-		if (model == null) {
-			model = new MethodMapping().method(method);
-			models.add(model);
+		if (mapping == null) {
+			mapping = new MethodMapping().method(method);
+			models.add(mapping);
 		}
 		var scope = scopeOf(mod);
-		if (!model.scopes().contains(scope)) {
-			model.scopes().add(scope);
+		if (!mapping.scopes().contains(scope)) {
+			mapping.scopes().add(scope);
 		}
-		return model;
+
+		// find an EPD method
+		if (method != null) {
+			Vocab.Method candidate = null;
+			double score = 0.0001;
+			for (var m : Vocab.Method.values()) {
+				var nextScore = m.matchScoreOf(method.name);
+				if (nextScore > score) {
+					candidate = m;
+					score = nextScore;
+				}
+			}
+			mapping.epdMethod(candidate);
+		}
+
+		return mapping;
 	}
 
 	private static String scopeOf(EpdModule mod) {
@@ -84,13 +99,14 @@ final class ExportMapping {
 			: mod.name;
 	}
 
-	private static IndicatorMapping rowOf(ImpactCategory indicator, MethodMapping model) {
-		for (var row : model.entries()) {
+	private static IndicatorMapping rowOf(
+		ImpactCategory indicator, MethodMapping mapping) {
+		for (var row : mapping.entries()) {
 			if (Objects.equals(indicator, row.indicator()))
 				return row;
 		}
 		var row = new IndicatorMapping().indicator(indicator);
-		model.entries().add(row);
+		mapping.entries().add(row);
 		return row;
 	}
 
