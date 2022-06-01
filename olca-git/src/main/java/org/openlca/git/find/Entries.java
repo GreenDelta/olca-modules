@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
@@ -50,10 +51,11 @@ public class Entries {
 
 		public List<Entry> all() {
 			var entries = new ArrayList<Entry>();
+			RevCommit commit = null;
 			try {
 				var commits = Commits.of(repo);
 				var ids = Ids.of(repo);
-				var commit = commits.getRev(commitId);
+				commit = commits.getRev(commitId);
 				if (commit == null)
 					return entries;
 				var treeId = Strings.nullOrEmpty(path)
@@ -71,11 +73,11 @@ public class Entries {
 					while (walk.next()) {
 						var name = GitUtil.decode(walk.getNameString());
 						var fullPath = Strings.nullOrEmpty(path) ? name : path + "/" + name;
-						entries.add(new Entry(fullPath, commitId, walk.getObjectId(0)));
+						entries.add(new Entry(fullPath, commit.getName(), walk.getObjectId(0)));
 					}
 				}
 			} catch (IOException e) {
-				log.error("Error walking commit + " + commitId);
+				log.error("Error walking commit " + commit != null ? commit.getName() : commitId);
 			}
 			return entries;
 		}
