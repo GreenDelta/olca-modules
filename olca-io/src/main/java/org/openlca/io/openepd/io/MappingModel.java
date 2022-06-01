@@ -1,4 +1,4 @@
-package org.openlca.io.openepd.mapping;
+package org.openlca.io.openepd.io;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Epd;

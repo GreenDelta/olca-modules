@@ -1,4 +1,4 @@
-package org.openlca.io.openepd.input;
+package org.openlca.io.openepd.io;
 
 import java.util.Objects;
 import java.util.UUID;

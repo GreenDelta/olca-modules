@@ -1,4 +1,4 @@
-package org.openlca.io.openepd.input;
+package org.openlca.io.openepd.io;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,7 +21,6 @@ import org.openlca.core.model.Source;
 import org.openlca.io.openepd.EpdDoc;
 import org.openlca.io.openepd.EpdOrg;
 import org.openlca.io.openepd.EpdPcr;
-import org.openlca.io.openepd.mapping.MappingModel;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
 

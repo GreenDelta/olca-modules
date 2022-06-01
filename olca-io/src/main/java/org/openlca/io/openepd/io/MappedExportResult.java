@@ -1,4 +1,4 @@
-package org.openlca.io.openepd.mapping;
+package org.openlca.io.openepd.io;
 
 import org.openlca.io.openepd.EpdDoc;
 import org.openlca.io.openepd.EpdImpactResult;
