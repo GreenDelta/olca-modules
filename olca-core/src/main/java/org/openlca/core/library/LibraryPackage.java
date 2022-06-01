@@ -120,6 +120,7 @@ public class LibraryPackage {
 
 			// create the target folders
 			var lib = libDir.create(libId);
+			info.writeTo(lib);
 
 			for (var dep : deps) {
 				var depDir = new File(libDir.folder(), dep);

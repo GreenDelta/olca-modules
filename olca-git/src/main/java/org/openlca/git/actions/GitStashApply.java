@@ -14,6 +14,7 @@ public class GitStashApply extends GitProgressAction<Void> {
 	private ObjectIdStore workspaceIds;
 	private PersonIdent committer;
 	private ConflictResolver conflictResolver;
+	private LibraryResolver libraryResolver;
 	private IDatabase database;
 
 	private GitStashApply(FileRepository git) {
@@ -39,6 +40,11 @@ public class GitStashApply extends GitProgressAction<Void> {
 		return this;
 	}
 
+	public GitStashApply resolveLibrariesWith(LibraryResolver libraryResolver) {
+		this.libraryResolver = libraryResolver;
+		return this;
+	}
+
 	@Override
 	public Void run() throws IOException, GitAPIException {
 		if (git == null || database == null)
@@ -48,6 +54,7 @@ public class GitStashApply extends GitProgressAction<Void> {
 				.as(committer)
 				.update(workspaceIds)
 				.resolveConflictsWith(conflictResolver)
+				.resolveLibrariesWith(libraryResolver)
 				.applyStash()
 				.withProgress(progressMonitor)
 				.run();

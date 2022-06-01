@@ -1,6 +1,7 @@
 package org.openlca.git.actions;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -73,52 +74,44 @@ public class GitStashCreate extends GitProgressAction<Void> {
 			throw new IllegalStateException("Git repository, database and workspace ids must be set");
 		if (!discard && committer == null)
 			throw new IllegalStateException("Committer must be set");
-		if (progressMonitor != null) {
-			progressMonitor.beginTask("Preparing to create stash", -1);
-		}
 		var config = new GitConfig(database, workspaceIds, git);
 		if (changes == null) {
 			changes = Diffs.workspace(config).stream().map(Change::new).collect(Collectors.toList());
 		}
 		if (changes.isEmpty())
 			throw new IllegalStateException("No changes found");
+		var headCommit = commits.head();
+		var toDelete = changes.stream()
+				.filter(c -> c.diffType == DiffType.ADDED)
+				.collect(Collectors.toList());
+		var toImport = headCommit != null
+				? changes.stream()
+						.filter(c -> c.diffType != DiffType.ADDED)
+						.map(c -> new Reference(c.path, headCommit.id, workspaceIds.getHead(c.path)))
+						.collect(Collectors.toList())
+				: new ArrayList<Reference>();
+		if (progressMonitor != null) {
+			progressMonitor.beginTask("Stashing data", changes.size() + toDelete.size() + toImport.size());
+		}
 		if (!discard) {
 			var writer = new CommitWriter(config, committer, progressMonitor);
 			writer.stashCommit("Stashed changes", changes);
 		}
-		runStash();
-		for (var category : categoryDao.getRootCategories()) {
-			deleteIfAdded(category);
-		}
-		return null;
-	}
-
-	private void runStash() throws IOException {
 		var importHelper = new ImportHelper(git, database, workspaceIds, progressMonitor);
-		var toDelete = changes.stream()
-				.filter(c -> c.diffType == DiffType.ADDED)
-				.collect(Collectors.toList());
-		var headCommit = commits.head();
 		if (headCommit == null) {
-			if (progressMonitor != null) {
-				progressMonitor.beginTask("Stashing data", toDelete.size());
-			}
 			importHelper.delete(toDelete);
 			workspaceIds.clear();
 		} else {
-			var toImport = changes.stream()
-					.filter(c -> c.diffType != DiffType.ADDED)
-					.map(c -> new Reference(c.path, headCommit.id, workspaceIds.getHead(c.path)))
-					.collect(Collectors.toList());
-			if (progressMonitor != null) {
-				progressMonitor.beginTask("Stashing data", toImport.size() + toDelete.size());
-			}
 			var gitStore = new GitStoreReader(git, headCommit, toImport);
 			importHelper.runImport(gitStore);
 			importHelper.delete(toDelete);
 			var result = new ImportResult(gitStore, toDelete);
 			importHelper.updateWorkspaceIds(headCommit.id, result, false);
 		}
+		for (var category : categoryDao.getRootCategories()) {
+			deleteIfAdded(category);
+		}
+		return null;
 	}
 
 	private void deleteIfAdded(Category category) {
