@@ -1,0 +1,37 @@
+
+let .full_name = {
+  ahead {
+    any of <char>;
+    <boundary>;
+    "environmental";
+    <boundary>;
+  }
+  ahead {
+    any of <char>;
+    <boundary>;
+    "footprint";
+    <boundary>;
+  }
+}
+
+let .code = {
+  ahead {
+    any of <char>;
+    <boundary>;
+    "ef";
+    <boundary>;
+  }
+}
+
+either {
+  .full_name;
+  .code;
+}
+ahead {
+  any of <char>;
+  <boundary>;
+  option of "v";
+  "3.0";
+  <boundary>;
+}
+any of <char>;

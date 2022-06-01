@@ -10,6 +10,7 @@ import org.openlca.util.Pair;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 
 public class VocabTest {
 
@@ -256,6 +257,36 @@ public class VocabTest {
 			s = Vocab.findScope(scope.toString()).orElseThrow();
 			assertEquals(scope, s);
 		}
+	}
+
+	@Test
+	public void testMethodMatching() {
+
+		Function<String, Vocab.Method> match = s -> {
+			Vocab.Method candidate = null;
+			double score = 0;
+			for (var m : Vocab.Method.values()) {
+				var nextScore = m.matchScoreOf(s);
+				if (nextScore > score) {
+					candidate = m;
+					score = nextScore;
+				}
+			}
+			return candidate;
+		};
+
+		// test method codes
+		for (var method : Vocab.Method.values()) {
+			assertEquals(method, match.apply(method.code()));
+			assertEquals(method, match.apply(method.code().toLowerCase()));
+		}
+
+		assertEquals(Vocab.Method.EF_3_0,
+			match.apply("ei - EF v3.0 EN15804"));
+		assertEquals(Vocab.Method.EF_3_0,
+			match.apply("environmental footprint; 3.0"));
+		assertEquals(Vocab.Method.TRACI_2_1,
+			match.apply("TRACI, v2.1"));
 	}
 
 }

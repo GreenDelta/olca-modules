@@ -1,0 +1,13 @@
+ahead {
+  any of <char>;
+  <boundary>;
+  "ipcc";
+  <boundary>;
+}
+ahead {
+  any of <char>;
+  <boundary>;
+  "ar5";
+  <boundary>;
+}
+any of <char>;

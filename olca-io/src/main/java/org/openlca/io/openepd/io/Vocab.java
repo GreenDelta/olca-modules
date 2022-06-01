@@ -13,12 +13,29 @@ public class Vocab {
 
 	public enum Method {
 
-		TRACI_2_1("TRACI 2.1", "(?i)\\W*traci\\W*2\\.1\\W*"),
-		EF_3_0("EF 3.0", "(?i)\\W*ef\\W*3\\.0\\W*"),
-		CML_2016("CML 2016", "(?i)\\W*cml\\W*2016\\W*"),
-		CML_2012("CML 2012", "(?i)\\W*cml\\W*2012\\W*"),
-		RECIPE_2016("ReCiPe 2016", "(?i)\\W*recipe\\W*2016\\W*"),
-		UNKNOWN_LCIA("Unknown LCIA", "");
+		TRACI_2_1("TRACI 2.1", "(?i)(?=.*\\btraci\\b)(?=.*\\bv?2\\.1\\b).*"),
+		TRACI_2_0("TRACI 2.0", "(?i)(?=.*\\btraci\\b)(?=.*\\bv?2\\.0\\b).*"),
+		TRACI_1_0("TRACI 1.0", "(?i)(?=.*\\btraci\\b)(?=.*\\bv?1\\.0\\b).*"),
+
+		EF_3_0("EF 3.0",
+			"(?i)(?:(?=.*\\benvironmental\\b)(?=.*\\bfootprint\\b)" +
+				"|(?=.*\\bef\\b))(?=.*\\bv?3\\.0\\b).*"),
+		EF_2_0("EF 2.0, 2018",
+			"(?i)(?:(?=.*\\benvironmental\\b)(?=.*\\bfootprint\\b)" +
+				"|(?=.*\\bef\\b))(?=.*\\bv?2\\.0\\b).*"),
+
+		IPCC_AR5("IPCC AR5", "(?i)(?=.*\\bipcc\\b)(?=.*\\bar5\\b).*"),
+
+		CML_2016("CML 2016", "(?i)(?=.*\\bcml\\b)(?=.*\\b2016\\b).*"),
+		CML_2012("CML 2012", "(?i)(?=.*\\bcml\\b)(?=.*\\b2012\\b).*"),
+		CML_2007("CML 2007", "(?i)(?=.*\\bcml\\b)(?=.*\\b2007\\b).*"),
+		CML_2001("CML 2001", "(?i)(?=.*\\bcml\\b)(?=.*\\b2001\\b).*"),
+		CML_1992("CML 1992", "(?i)(?=.*\\bcml\\b)(?=.*\\b1992\\b).*"),
+
+		RECIPE_2016("ReCiPe 2016", "(?i)(?=.*\\brecipe\\b)(?=.*\\b2016\\b).*"),
+		RECIPE_2008("ReCiPe 2008", "(?i)(?=.*\\brecipe\\b)(?=.*\\b2008\\b).*"),
+
+		UNKNOWN_LCIA("Unknown LCIA", "(?i)(?=.*\\bunknown\\b).*");
 
 		private final String code;
 		private final Pattern pattern;
