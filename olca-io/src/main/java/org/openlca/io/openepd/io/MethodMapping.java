@@ -39,4 +39,19 @@ public class MethodMapping {
 		return entries;
 	}
 
+	/**
+	 * Cleans up current indicator mappings and tries to remap them with the
+	 * indicators of the given method.
+	 */
+	public void remapWith(ImpactMethod method) {
+		// clear current mappings
+		for (var e : entries) {
+			e.indicator(null)
+				.unit(null)
+				.factor(1);
+		}
+		this.method = method;
+		ImportMapping.initMappings(this);
+	}
+
 }

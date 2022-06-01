@@ -71,7 +71,7 @@ final class ImportMapping {
 		initMappings(mapping);
 	}
 
-	private static void initMappings(MethodMapping mapping) {
+	static void initMappings(MethodMapping mapping) {
 		var method = mapping.method();
 		if (method == null)
 			return;
