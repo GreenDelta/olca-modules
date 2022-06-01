@@ -48,7 +48,6 @@ public class LibraryExport implements Runnable {
 		if (info == null)
 			return this;
 		this.info.name(info.name())
-			.version(info.version())
 			.isRegionalized(info.isRegionalized())
 			.description(info.description());
 		this.info.dependencies().clear();

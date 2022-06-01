@@ -61,18 +61,18 @@ public record LibraryDir(File folder) {
 	}
 
 	/**
-	 * Initializes a new library with the given ID. If a library with this ID
-	 * already exists, it will return that library.
+	 * Initializes a new library with the given name. If a library with this
+	 * name already exists, it will return that library.
 	 */
-	public Library create(String id) {
-		Objects.requireNonNull(id);
-		var lib = getLibrary(id);
+	public Library create(String name) {
+		Objects.requireNonNull(name);
+		var lib = getLibrary(name);
 		if (lib.isPresent())
 			return lib.get();
 
-		var newLib = Library.of(new File(folder, id));
+		var newLib = Library.of(new File(folder, name));
 		// write library info
-		LibraryInfo.fromId(id).writeTo(newLib);
+		LibraryInfo.of(name).writeTo(newLib);
 		return newLib;
 	}
 }

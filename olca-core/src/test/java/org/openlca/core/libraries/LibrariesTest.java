@@ -32,7 +32,7 @@ public class LibrariesTest {
 		var sorted = Libraries.dependencyOrderOf(e);
 		ToIntFunction<String> pos = s -> {
 			for (int i = 0; i < sorted.size(); i++) {
-				if (sorted.get(i).id().equals(s))
+				if (sorted.get(i).name().equals(s))
 					return i;
 			}
 			return -1;

@@ -47,7 +47,7 @@ public class LibraryPackage {
 			// put the dependent libraries into the "dependencies"
 			// sub-folder
 			for (var depLib : library.getTransitiveDependencies()) {
-				var prefix = "dependencies/" + depLib.id() + "/";
+				var prefix = "dependencies/" + depLib.name() + "/";
 				var depFiles = depLib.folder().listFiles();
 				if (depFiles == null)
 					continue;
@@ -107,7 +107,7 @@ public class LibraryPackage {
 				zipFile + " is not a library package");
 
 		// do nothing when the library already exists
-		var libId = info.toId();
+		var libId = info.name();
 		if (libDir.hasLibrary(libId))
 			return;
 

@@ -65,7 +65,7 @@ public class LibraryReplacement implements Runnable {
 		private BlankReplacer(IDatabase db, Library lib) {
 			this.db = db;
 			this.lib = lib;
-			this.libId = lib.id();
+			this.libId = lib.name();
 			hasDeleted = false;
 		}
 
@@ -89,7 +89,7 @@ public class LibraryReplacement implements Runnable {
 					};
 				}
 				if (total > 0) {
-					db.addLibrary(lib.id());
+					db.addLibrary(lib.name());
 				}
 			} catch (IOException e) {
 				throw new RuntimeException(e);

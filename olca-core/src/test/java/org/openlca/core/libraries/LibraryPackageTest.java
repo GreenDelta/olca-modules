@@ -46,7 +46,7 @@ public class LibraryPackageTest {
 		// check the zip
 		var packInfo = LibraryPackage.getInfo(zipFile);
 		assertEquals("lib", packInfo.name());
-		assertTrue(packInfo.dependencies().contains(dep.id()));
+		assertTrue(packInfo.dependencies().contains(dep.name()));
 
 		// extract the zip
 		dir = Files.createTempDirectory("_olca_lib_test").toFile();

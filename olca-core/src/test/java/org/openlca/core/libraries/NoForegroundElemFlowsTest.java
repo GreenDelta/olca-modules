@@ -54,7 +54,7 @@ public class NoForegroundElemFlowsTest {
 		for (int i = 1; i < 4; i++) {
 			var product = db.insert(Flow.product("p" + i, mass));
 			var process = Process.of("p" + i, product);
-			process.library = lib.id();
+			process.library = lib.name();
 			db.insert(process);
 			libProviders.add(TechFlow.of(process));
 			if (i == 2) {

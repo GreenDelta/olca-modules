@@ -21,8 +21,7 @@ public class LibraryTest {
 		assertTrue(libDir.hasLibrary("lib 0.1"));
 		var lib = libDir.getLibrary("lib 0.1").orElseThrow();
 		var info = lib.getInfo();
-		assertEquals("lib", info.name());
-		assertEquals("0.1", info.version());
+		assertEquals("lib 0.1", info.name());
 		Dirs.delete(dir);
 	}
 

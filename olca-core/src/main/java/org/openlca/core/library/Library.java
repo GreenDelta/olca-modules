@@ -54,13 +54,13 @@ public record Library(File folder) {
 	public LibraryInfo getInfo() {
 		var file = new File(folder, "library.json");
 		if (!file.exists())
-			return LibraryInfo.fromId(id());
+			return LibraryInfo.of(folder.getName());
 		var obj = Json.readObject(file);
 		return obj.map(LibraryInfo::fromJson)
-			.orElseGet(() -> LibraryInfo.fromId(id()));
+			.orElseGet(() -> LibraryInfo.of(folder.getName()));
 	}
 
-	public String id() {
+	public String name() {
 		return folder.getName();
 	}
 
@@ -98,7 +98,7 @@ public record Library(File folder) {
 		if (dependency == null)
 			return;
 		var info = getInfo();
-		var depID = dependency.id();
+		var depID = dependency.name();
 		if (info.dependencies().contains(depID))
 			return;
 		info.dependencies().add(depID);

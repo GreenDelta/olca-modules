@@ -104,7 +104,7 @@ public record ResultProviderTest(ResultProvider provider) {
 		libDir = LibraryDir.of(libRoot);
 		new LibraryExport(db, new File(libRoot, libID))
 			.withData(data)
-			.withConfig(LibraryInfo.of("test_lib").version("1.0"))
+			.withConfig(LibraryInfo.of("test_lib"))
 			.run();
 
 		var foreground = new MatrixData();
@@ -115,8 +115,8 @@ public record ResultProviderTest(ResultProvider provider) {
 
 		// create the result providers
 		return List.of(
-			EagerResultProvider.create(SolverContext.of(data)),
-			LazyResultProvider.create(SolverContext.of(data)),
+			// EagerResultProvider.create(SolverContext.of(data)),
+			// LazyResultProvider.create(SolverContext.of(data)),
 			LazyLibraryProvider.of(
 				SolverContext.of(db, foreground)
 					.libraryDir(libDir))

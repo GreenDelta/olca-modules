@@ -39,7 +39,7 @@ public class DbLibrarySwap implements Runnable {
 	public void run() {
 		try {
 			var replacedTechFlows = techFlowsOf(db);
-			var libId = library.id();
+			var libId = library.name();
 			var meta = new File(library.folder(), "meta.zip");
 			try (var store = ZipStore.open(meta)) {
 				var imp = new JsonImport(store, db);

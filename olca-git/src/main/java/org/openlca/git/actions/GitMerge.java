@@ -199,7 +199,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 			throws IOException {
 		for (var newLib : newLibraries) {
 			if (progressMonitor != null) {
-				progressMonitor.subTask("Mounting library " + newLib.id());
+				progressMonitor.subTask("Mounting library " + newLib.name());
 			}
 			newLib.mountTo(database);
 			if (progressMonitor != null) {

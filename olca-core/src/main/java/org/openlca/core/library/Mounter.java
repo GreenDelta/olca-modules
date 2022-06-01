@@ -25,7 +25,7 @@ record Mounter(IDatabase db, Library library) implements Runnable {
 	public void run() {
 		try {
 			for (var lib : Libraries.dependencyOrderOf(library)) {
-				var libId = lib.id();
+				var libId = lib.name();
 				var meta = new File(lib.folder(), "meta.zip");
 				try (var zip = ZipStore.open(meta)) {
 					new JsonImport(zip, db)
