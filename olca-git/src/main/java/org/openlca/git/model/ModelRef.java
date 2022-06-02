@@ -13,14 +13,11 @@ public class ModelRef {
 
 	public ModelRef(String path) {
 		this.path = path;
-		this.type = ModelType.valueOf(
-				path.contains("/")
-						? path.substring(0, path.indexOf("/"))
-						: path);
+		this.type = getModelType(path.contains("/")
+				? path.substring(0, path.indexOf("/"))
+				: path);
 		path = path.substring(path.indexOf("/") + 1);
-		this.category = path.contains("/")
-				? path.substring(0, path.lastIndexOf("/"))
-				: "";
+		this.category = path.contains("/") ? path.substring(0, path.lastIndexOf("/")) : "";
 		this.refId = path.endsWith(".json")
 				? path.substring(
 						path.contains("/")
@@ -50,6 +47,13 @@ public class ModelRef {
 			return false;
 		var other = (ModelRef) o;
 		return Objects.equals(path, other.path);
+	}
+
+	private static ModelType getModelType(String type) {
+		for (var modelType : ModelType.values())
+			if (modelType.name().equals(type))
+				return modelType;
+		return ModelType.UNKNOWN;
 	}
 
 }
