@@ -3,6 +3,7 @@ package org.openlca.git.model;
 import java.util.Objects;
 
 import org.openlca.core.model.ModelType;
+import org.openlca.git.util.GitUtil;
 
 public class ModelRef {
 
@@ -18,7 +19,7 @@ public class ModelRef {
 				: path);
 		path = path.substring(path.indexOf("/") + 1);
 		this.category = path.contains("/") ? path.substring(0, path.lastIndexOf("/")) : "";
-		this.refId = path.endsWith(".json")
+		this.refId = path.endsWith(GitUtil.DATASET_SUFFIX)
 				? path.substring(
 						path.contains("/")
 								? path.lastIndexOf("/") + 1
