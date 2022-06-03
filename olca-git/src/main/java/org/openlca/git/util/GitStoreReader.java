@@ -83,7 +83,7 @@ public class GitStoreReader implements JsonStoreReader {
 
 	private byte[] getDataset(String path) {
 		var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
-		var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(".json"));
+		var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(GitUtil.DATASET_SUFFIX));
 		var ref = changes.get(type, refId);
 		if (ObjectId.zeroId().equals(ref.objectId))
 			return null;
