@@ -1,14 +1,16 @@
 package org.openlca.core.library;
 
-import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
-import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
 import org.openlca.util.Strings;
@@ -19,32 +21,64 @@ import jakarta.persistence.Table;
 /**
  * Mounts a library and its dependencies on a database.
  */
-record Mounter(IDatabase db, Library library) implements Runnable {
+class Mounter implements Runnable {
+
+	private final IDatabase db;
+	private final Library library;
+	private final Map<Library, MountAction> actions = new HashMap<>();
+
+	public Mounter(IDatabase db, Library library) {
+		this.db = db;
+		this.library = library;
+	}
+
+	public Mounter with(Map<Library, MountAction> actions) {
+		if (actions != null) {
+			this.actions.putAll(actions);
+		}
+		return this;
+	}
 
 	@Override
 	public void run() {
 		try {
+			boolean shouldCompress = false;
 			for (var lib : Libraries.dependencyOrderOf(library)) {
 				var libId = lib.name();
-				var meta = new File(lib.folder(), "meta.zip");
-				try (var zip = ZipStore.open(meta)) {
-					new JsonImport(zip, db)
-						.setUpdateMode(UpdateMode.ALWAYS)
-						.run();
-					for (var type : ModelType.values()) {
-						if (!type.isRoot())
-							continue;
-						var refIds = zip.getRefIds(type);
-						if (refIds.isEmpty())
-							continue;
-						tag(libId, type, new HashSet<>(refIds));
-					}
+				var action = actions.getOrDefault(lib, MountAction.UPDATE);
+				if (action == MountAction.SKIP)
+					continue;
+				if (action == MountAction.RETAG) {
+					var retagger = Retagger.of(db, lib);
+					retagger.exec();
+					shouldCompress = retagger.hasDeleted();
+				} else {
+					update(lib, libId);
 				}
-				db.addLibrary(libId);
-				new CategoryTagger(db, libId).run();
+				new CategoryTagger(db, lib.name()).run();
+			}
+			db.addLibrary(library.name());
+			if (db instanceof Derby derby && shouldCompress) {
+				derby.compress();
 			}
 		} catch (Exception e) {
 			throw new RuntimeException("failed to import library", e);
+		}
+	}
+
+	private void update(Library lib, String libId) throws IOException {
+		try (var zip = lib.openJsonZip()) {
+			new JsonImport(zip, db)
+				.setUpdateMode(UpdateMode.ALWAYS)
+				.run();
+			for (var type : ModelType.values()) {
+				if (!type.isRoot())
+					continue;
+				var refIds = zip.getRefIds(type);
+				if (refIds.isEmpty())
+					continue;
+				tag(libId, type, new HashSet<>(refIds));
+			}
 		}
 	}
 
@@ -68,6 +102,7 @@ record Mounter(IDatabase db, Library library) implements Runnable {
 	 * Tags categories which are only used in a specific library with the ID of
 	 * that library.
 	 */
+	@Deprecated
 	private record CategoryTagger(IDatabase db, String libId)
 		implements Runnable {
 
