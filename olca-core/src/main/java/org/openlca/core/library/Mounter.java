@@ -21,21 +21,38 @@ import jakarta.persistence.Table;
 /**
  * Mounts a library and its dependencies on a database.
  */
-class Mounter implements Runnable {
+public class Mounter implements Runnable {
 
 	private final IDatabase db;
 	private final Library library;
 	private final Map<Library, MountAction> actions = new HashMap<>();
 
-	public Mounter(IDatabase db, Library library) {
+	private Mounter(IDatabase db, Library library) {
 		this.db = db;
 		this.library = library;
 	}
 
-	public Mounter with(Map<Library, MountAction> actions) {
+	public static Mounter of(IDatabase db, Library library) {
+		return new Mounter(db, library);
+	}
+
+	public Mounter apply(Map<Library, MountAction> actions) {
 		if (actions != null) {
 			this.actions.putAll(actions);
 		}
+		return this;
+	}
+
+	public Mounter apply(PreMountCheck.Result result) {
+		if (result == null || result.isError())
+			return this;
+		result.getStates().forEach(pair -> {
+			var lib = pair.first;
+			var state = pair.second;
+			if (state != null) {
+				actions.put(lib, state.defaultAction());
+			}
+		});
 		return this;
 	}
 
@@ -44,7 +61,6 @@ class Mounter implements Runnable {
 		try {
 			boolean shouldCompress = false;
 			for (var lib : Libraries.dependencyOrderOf(library)) {
-				var libId = lib.name();
 				var action = actions.getOrDefault(lib, MountAction.UPDATE);
 				if (action == MountAction.SKIP)
 					continue;
@@ -53,7 +69,7 @@ class Mounter implements Runnable {
 					retagger.exec();
 					shouldCompress = retagger.hasDeleted();
 				} else {
-					update(lib, libId);
+					update(lib);
 				}
 				new CategoryTagger(db, lib.name()).run();
 			}
@@ -61,12 +77,13 @@ class Mounter implements Runnable {
 			if (db instanceof Derby derby && shouldCompress) {
 				derby.compress();
 			}
+			db.clearCache();
 		} catch (Exception e) {
 			throw new RuntimeException("failed to import library", e);
 		}
 	}
 
-	private void update(Library lib, String libId) throws IOException {
+	private void update(Library lib) throws IOException {
 		try (var zip = lib.openJsonZip()) {
 			new JsonImport(zip, db)
 				.setUpdateMode(UpdateMode.ALWAYS)
@@ -77,7 +94,7 @@ class Mounter implements Runnable {
 				var refIds = zip.getRefIds(type);
 				if (refIds.isEmpty())
 					continue;
-				tag(libId, type, new HashSet<>(refIds));
+				tag(lib.name(), type, new HashSet<>(refIds));
 			}
 		}
 	}

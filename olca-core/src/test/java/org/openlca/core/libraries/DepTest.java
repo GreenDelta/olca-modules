@@ -1,6 +1,10 @@
 package org.openlca.core.libraries;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.nio.file.Files;
 
 import org.junit.After;
 import org.junit.Before;
@@ -8,14 +12,12 @@ import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
+import org.openlca.core.library.Mounter;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.output.JsonExport;
 import org.openlca.util.Dirs;
-
-import java.io.File;
-import java.nio.file.Files;
 
 public class DepTest {
 
@@ -48,15 +50,15 @@ public class DepTest {
 		propsLib.addDependency(unitLib);
 		var prop = FlowProperty.of("Mass", units);
 		try (var zip = ZipStore.open(new File(propsLib.folder(), "meta.zip"))) {
-			var exp = new JsonExport(zip);
+			var exp = new JsonExport(zip).withReferences(false);
 			exp.write(prop);
 		}
 
-		propsLib.mountTo(db);
-
-		assertTrue(db.getLibraries().contains("units 1.0"));
+		Mounter.of(db, propsLib).run();
 		assertTrue(db.getLibraries().contains("props 1.0"));
-
+		var dbUnits = db.get(UnitGroup.class, units.refId);
+		assertEquals(unitLib.name(), dbUnits.library);
+		var dbMass = db.get(FlowProperty.class, prop.refId);
+		assertEquals(propsLib.name(), dbMass.library);
 	}
-
 }

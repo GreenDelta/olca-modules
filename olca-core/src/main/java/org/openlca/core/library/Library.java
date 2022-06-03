@@ -297,13 +297,6 @@ public record Library(File folder) {
 	}
 
 	/**
-	 * Mounts the library and its dependencies recursively to the given database.
-	 */
-	public void mountTo(IDatabase db) {
-		new Mounter(db, this).run();
-	}
-
-	/**
 	 * Opens the zip-file that contains the JSON (meta-) data of this library.
 	 * This file is created if it does not exist yet.
 	 *
