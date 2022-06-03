@@ -59,4 +59,14 @@ public enum PreMountState {
 			};
 		};
 	}
+
+	PreMountState join(PreMountState other) {
+		if (other == null || this == other)
+			return this;
+		if (this == PreMountState.PRESENT && other == PreMountState.TAG_CONFLICT)
+			return PreMountState.TAG_CONFLICT;
+		if (this == PreMountState.TAG_CONFLICT && other == PreMountState.PRESENT)
+			return PreMountState.TAG_CONFLICT;
+		return PreMountState.CONFLICT;
+	}
 }

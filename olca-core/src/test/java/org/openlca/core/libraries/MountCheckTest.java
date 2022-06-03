@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.Library;
-import org.openlca.core.library.MountCheck;
+import org.openlca.core.library.PreMountCheck;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.output.JsonExport;
 import org.openlca.util.Dirs;
@@ -37,7 +37,7 @@ public class MountCheckTest {
 		try (var zip = lib.openJsonZip()) {
 			new JsonExport(zip).write(group);
 		}
-		var state = MountCheck.check(db, lib);
+		var state = PreMountCheck.check(db, lib);
 		assertTrue(state.isOk());
 		assertFalse(state.isUsed());
 		assertFalse(state.isError());
@@ -51,7 +51,7 @@ public class MountCheckTest {
 		try (var zip = lib.openJsonZip()) {
 			new JsonExport(zip).write(group);
 		}
-		var state = MountCheck.check(db, lib);
+		var state = PreMountCheck.check(db, lib);
 		assertFalse(state.isOk());
 		assertTrue(state.isUsed());
 		assertFalse(state.isError());
@@ -61,7 +61,7 @@ public class MountCheckTest {
 
 	@Test
 	public void testError() {
-		var state = MountCheck.check(db, null);
+		var state = PreMountCheck.check(db, null);
 		assertTrue(state.isError());
 		assertNotNull(state.error());
 	}
