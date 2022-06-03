@@ -5,13 +5,16 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.stream.IntStream;
 
 import jakarta.persistence.Table;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.ZipStore;
+import org.openlca.util.Pair;
 
 /**
  * Checks the state of a library and its dependencies before it is mounted to a
@@ -63,12 +66,22 @@ public record PreMountCheck(IDatabase db, Library library)
 		}
 	}
 
-	public record Result(
-		List<Library> libraries,
-		List<PreMountState> states,
-		String error) {
+	public static class Result {
 
-		public static Result error(String message) {
+		private final List<Library> libraries;
+		private final List<PreMountState> states;
+		private final String error;
+
+		private Result(
+			List<Library> libraries,
+			List<PreMountState> states,
+			String error) {
+			this.libraries = libraries;
+			this.states = states;
+			this.error = error;
+		}
+
+		static Result error(String message) {
 			return new Result(
 				Collections.emptyList(), Collections.emptyList(), message);
 		}
@@ -84,11 +97,29 @@ public record PreMountCheck(IDatabase db, Library library)
 			return error != null;
 		}
 
+		public String error() {
+			return error;
+		}
+
 		public boolean isEmpty() {
 			return libraries == null
 				|| libraries.isEmpty()
 				|| states == null
 				|| states.size() != libraries.size();
+		}
+
+		public Optional<PreMountState> getState(Library library) {
+			for (int i = 0; i < libraries.size(); i++) {
+				if (Objects.equals(library, libraries.get(i)))
+					return Optional.of(states.get(i));
+			}
+			return Optional.empty();
+		}
+
+		public List<Pair<Library, PreMountState>> getStates() {
+			return IntStream.range(0, libraries.size())
+				.mapToObj(i -> Pair.of(libraries.get(i), states.get(i)))
+				.toList();
 		}
 	}
 
