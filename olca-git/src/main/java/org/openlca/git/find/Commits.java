@@ -17,6 +17,7 @@ import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.model.Commit;
+import org.openlca.git.util.Constants;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.Repositories;
 import org.openlca.util.Strings;
@@ -86,7 +87,7 @@ public class Commits {
 		private ModelType type;
 		private String refId;
 		private String path;
-		private List<String> branches = List.of("HEAD", "refs/heads/master");
+		private List<String> branches = List.of(Constants.LOCAL_BRANCH, Constants.LOCAL_REF);
 
 		public Find from(String from) {
 			this.includeStart = true;

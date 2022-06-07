@@ -73,9 +73,9 @@ public final class Repositories {
 
 	public static RevCommit headCommitOf(Repository repo) {
 		try (var walk = new RevWalk(repo)) {
-			var head = repo.resolve("HEAD");
+			var head = repo.resolve(Constants.LOCAL_BRANCH);
 			if (head == null) {
-				head = repo.resolve("refs/heads/master");
+				head = repo.resolve(Constants.LOCAL_REF);
 			}
 			if (head == null)
 				return null;
