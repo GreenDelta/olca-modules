@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
@@ -18,13 +18,13 @@ import org.slf4j.LoggerFactory;
 public class References {
 
 	static final Logger log = LoggerFactory.getLogger(References.class);
-	private final FileRepository repo;
+	private final Repository repo;
 
-	public static References of(FileRepository repo) {
+	public static References of(Repository repo) {
 		return new References(repo);
 	}
 
-	private References(FileRepository repo) {
+	private References(Repository repo) {
 		this.repo = repo;
 	}
 

@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.internal.storage.file.PackInserter;
 import org.eclipse.jgit.lib.CommitBuilder;
 import org.eclipse.jgit.lib.Constants;
@@ -104,8 +105,10 @@ public class CommitWriter {
 
 	private void init(List<Change> changes) {
 		threads = Executors.newCachedThreadPool();
-		packInserter = config.repo.getObjectDatabase().newPackInserter();
-		packInserter.checkExisting(config.checkExisting);
+		if (config.repo instanceof FileRepository fileRepo) {
+			packInserter = fileRepo.getObjectDatabase().newPackInserter();
+			packInserter.checkExisting(config.checkExisting);
+		}
 		objectInserter = config.repo.newObjectInserter();
 		converter = new Converter(config, threads);
 		converter.start(changes.stream()
@@ -219,12 +222,12 @@ public class CommitWriter {
 			return null;
 		}
 		if (file != null)
-			return packInserter.insert(Constants.OBJ_BLOB, Files.readAllBytes(file.toPath()));
+			return insertBlob(Files.readAllBytes(file.toPath()));
 		if (progressMonitor != null) {
 			progressMonitor.subTask("Writing", change);
 		}
 		var data = converter.take(path);
-		localBlobId = packInserter.insert(Constants.OBJ_BLOB, data);
+		localBlobId = insertBlob(data);
 		if (!isStashCommit && config.store != null) {
 			config.store.put(path, localBlobId);
 		}
@@ -239,13 +242,19 @@ public class CommitWriter {
 			var schemaBytes = PackageInfo.create()
 					.withLibraries(config.database.getLibraries())
 					.json().toString().getBytes(StandardCharsets.UTF_8);
-			var blobId = packInserter.insert(Constants.OBJ_BLOB, schemaBytes);
+			var blobId = insertBlob(schemaBytes);
 			if (blobId != null) {
 				tree.append(PackageInfo.FILE_NAME, FileMode.REGULAR_FILE, blobId);
 			}
 		} catch (Exception e) {
 			log.error("Error inserting package info", e);
 		}
+	}
+
+	private ObjectId insertBlob(byte[] blob) throws IOException {
+		if (packInserter != null)
+			return packInserter.insert(Constants.OBJ_BLOB, blob);
+		return objectInserter.insert(Constants.OBJ_BLOB, blob);
 	}
 
 	private boolean matches(String path, Change change, File file) {

@@ -3,7 +3,7 @@ package org.openlca.git.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.Repository;
 import org.openlca.git.find.Commits;
 import org.openlca.git.model.Commit;
 
@@ -11,11 +11,11 @@ public class History {
 
 	private final Commits commits;
 
-	public static History of(FileRepository repo) {
+	public static History of(Repository repo) {
 		return new History(repo);
 	}
 
-	private History(FileRepository repo) {
+	private History(Repository repo) {
 		this.commits = Commits.of(repo);
 	}
 

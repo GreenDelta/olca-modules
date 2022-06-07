@@ -8,8 +8,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
@@ -26,13 +26,13 @@ import org.slf4j.LoggerFactory;
 public class Commits {
 
 	private static final Logger log = LoggerFactory.getLogger(Commits.class);
-	private final FileRepository repo;
+	private final Repository repo;
 
-	public static Commits of(FileRepository repo) {
+	public static Commits of(Repository repo) {
 		return new Commits(repo);
 	}
 
-	private Commits(FileRepository repo) {
+	private Commits(Repository repo) {
 		this.repo = repo;
 	}
 

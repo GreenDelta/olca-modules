@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectStream;
+import org.eclipse.jgit.lib.Repository;
 import org.openlca.git.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,13 +16,13 @@ import org.slf4j.LoggerFactory;
 public class Datasets {
 
 	private static final Logger log = LoggerFactory.getLogger(Datasets.class);
-	private final FileRepository repo;
+	private final Repository repo;
 
-	public static Datasets of(FileRepository repo) {
+	public static Datasets of(Repository repo) {
 		return new Datasets(repo);
 	}
 
-	private Datasets(FileRepository repo) {
+	private Datasets(Repository repo) {
 		this.repo = repo;
 	}
 

@@ -8,9 +8,9 @@ import java.util.stream.Collectors;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry.Side;
-import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.lib.Repository;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.Library;
 import org.openlca.git.GitConfig;
@@ -30,7 +30,7 @@ import org.openlca.git.writer.CommitWriter;
 
 public class GitMerge extends GitProgressAction<Boolean> {
 
-	private final FileRepository git;
+	private final Repository git;
 	private final History history;
 	private final Commits commits;
 	private IDatabase database;
@@ -40,13 +40,13 @@ public class GitMerge extends GitProgressAction<Boolean> {
 	private LibraryResolver libraryResolver;
 	private boolean applyStash;
 
-	private GitMerge(FileRepository git) {
+	private GitMerge(Repository git) {
 		this.git = git;
 		this.history = History.of(git);
 		this.commits = Commits.of(git);
 	}
 
-	public static GitMerge from(FileRepository git) {
+	public static GitMerge from(Repository git) {
 		return new GitMerge(git);
 	}
 

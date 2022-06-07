@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Repository;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.actions.ConflictResolver;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
@@ -38,11 +38,11 @@ public class GitStoreReader implements JsonStoreReader {
 	private final List<ModelRef> merged = new ArrayList<>();
 	private final List<ModelRef> keepDeleted = new ArrayList<>();
 
-	public GitStoreReader(FileRepository repo, Commit remoteCommit, List<Reference> remoteChanges) {
+	public GitStoreReader(Repository repo, Commit remoteCommit, List<Reference> remoteChanges) {
 		this(repo, null, remoteCommit, remoteChanges, null);
 	}
 
-	public GitStoreReader(FileRepository repo, Commit previousCommit, Commit commit, List<Reference> changes,
+	public GitStoreReader(Repository repo, Commit previousCommit, Commit commit, List<Reference> changes,
 			ConflictResolver conflictResolver) {
 		this.categories = Categories.of(Entries.of(repo), commit.id);
 		this.references = References.of(repo);

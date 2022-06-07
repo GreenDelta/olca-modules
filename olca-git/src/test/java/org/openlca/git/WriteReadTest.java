@@ -7,8 +7,8 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.stream.Collectors;
 
-import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.lib.Repository;
 import org.junit.Test;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
@@ -78,7 +78,7 @@ public class WriteReadTest {
 			}
 		}
 
-		FileRepository repo() {
+		Repository repo() {
 			return config.repo;
 		}
 

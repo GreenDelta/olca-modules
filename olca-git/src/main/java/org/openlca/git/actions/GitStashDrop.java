@@ -2,18 +2,18 @@ package org.openlca.git.actions;
 
 import java.io.IOException;
 
-import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.Repository;
 
 public class GitStashDrop {
 
-	private final FileRepository git;
+	private final Repository git;
 
-	private GitStashDrop(FileRepository git) {
+	private GitStashDrop(Repository git) {
 		this.git = git;
 	}
 
-	public static GitStashDrop from(FileRepository git) {
+	public static GitStashDrop from(Repository git) {
 		return new GitStashDrop(git);
 	}
 

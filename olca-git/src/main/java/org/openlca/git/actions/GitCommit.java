@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.lib.Repository;
 import org.openlca.core.database.IDatabase;
 import org.openlca.git.GitConfig;
 import org.openlca.git.ObjectIdStore;
@@ -17,7 +17,7 @@ import org.openlca.util.Strings;
 public class GitCommit extends GitProgressAction<String> {
 
 	private final IDatabase database;
-	private FileRepository git;
+	private Repository git;
 	private List<Change> changes;
 	private String message;
 	private ObjectIdStore workspaceIds;
@@ -31,7 +31,7 @@ public class GitCommit extends GitProgressAction<String> {
 		return new GitCommit(database);
 	}
 
-	public GitCommit to(FileRepository git) {
+	public GitCommit to(Repository git) {
 		this.git = git;
 		return this;
 	}

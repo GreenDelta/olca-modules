@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
@@ -16,15 +16,15 @@ import org.openlca.git.util.History;
 
 public class GitPush extends GitRemoteAction<PushResponse> {
 
-	private final FileRepository git;
+	private final Repository git;
 	private final History history;
 	
-	private GitPush(FileRepository git) {
+	private GitPush(Repository git) {
 		this.git = git;
 		this.history = History.of(git);
 	}
 
-	public static GitPush from(FileRepository git) {
+	public static GitPush from(Repository git) {
 		return new GitPush(git);
 	}
 
