@@ -20,8 +20,8 @@ import org.thavam.util.concurrent.blockingMap.BlockingMap;
 
 /**
  * Multithread data conversion. Starts {config.converterThreads} simultaneous
- * threads to convert data sets to json/proto and afterwards starts the next
- * thread. To avoid memory issues when conversion is faster than consummation
+ * threads to convert data sets to json and afterwards starts the next thread.
+ * To avoid memory issues when conversion is faster than consummation
  * "startNext" checks if the queueSize is reached and returns otherwise.
  * queueSize considers elements that are still in conversion as already part of
  * the queue. When elements are taken from the queue "startNext" is called again
@@ -29,8 +29,6 @@ import org.thavam.util.concurrent.blockingMap.BlockingMap;
  * 
  * Expects all entries that are converted also to be taken in the same order,
  * otherwise runs into deadlock.
- * 
- * TODO check error handling
  */
 class Converter {
 
@@ -87,7 +85,7 @@ class Converter {
 		}
 	}
 
-	static byte[] convert(RefEntity entity, GitConfig config) {
+	private byte[] convert(RefEntity entity, GitConfig config) {
 		if (entity == null)
 			return null;
 		try {

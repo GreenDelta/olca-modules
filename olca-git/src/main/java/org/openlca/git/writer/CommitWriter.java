@@ -113,7 +113,7 @@ public class CommitWriter {
 		converter = new Converter(config, threads);
 		converter.start(changes.stream()
 				.filter(d -> d.diffType != DiffType.DELETED)
-				.sorted((d1, d2) -> Strings.compare(d1.path, d2.path))
+				.sorted()
 				.toList());
 	}
 

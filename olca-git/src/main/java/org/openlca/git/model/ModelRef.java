@@ -1,11 +1,9 @@
 package org.openlca.git.model;
 
-import java.util.Objects;
-
 import org.openlca.core.model.ModelType;
 import org.openlca.git.util.GitUtil;
 
-public class ModelRef {
+public class ModelRef implements Comparable<ModelRef> {
 
 	public final String path;
 	public final ModelType type;
@@ -35,9 +33,16 @@ public class ModelRef {
 		this.category = ref.category;
 	}
 
+	private static ModelType getModelType(String type) {
+		for (var modelType : ModelType.values())
+			if (modelType.name().equals(type))
+				return modelType;
+		return ModelType.UNKNOWN;
+	}
+
 	@Override
 	public int hashCode() {
-		return path != null ? path.hashCode() : super.hashCode();
+		return path.hashCode();
 	}
 
 	@Override
@@ -47,14 +52,12 @@ public class ModelRef {
 		if (!(o instanceof ModelRef))
 			return false;
 		var other = (ModelRef) o;
-		return Objects.equals(path, other.path);
+		return path.equals(other.path);
 	}
 
-	private static ModelType getModelType(String type) {
-		for (var modelType : ModelType.values())
-			if (modelType.name().equals(type))
-				return modelType;
-		return ModelType.UNKNOWN;
+	@Override
+	public int compareTo(ModelRef o) {
+		return path.compareTo(o.path);
 	}
 
 }
