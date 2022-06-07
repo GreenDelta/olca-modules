@@ -70,7 +70,7 @@ public class WriteReadTest {
 			try {
 				var dir = Files.createTempDirectory("olca-git-test").toFile();
 				var repo = Repositories.open(new File(dir, "repo"));
-				var idStore = ObjectIdStore.open(new File(dir, "id-store"));
+				var idStore = ObjectIdStore.fromFile(new File(dir, "id-store"));
 				var config = new GitConfig(Tests.db(), idStore, repo);
 				return new TempConfig(config, new PersonIdent("user", "user@example.com"), dir);
 			} catch (Exception e) {
