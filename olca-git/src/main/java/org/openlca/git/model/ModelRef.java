@@ -37,7 +37,7 @@ public class ModelRef implements Comparable<ModelRef> {
 		for (var modelType : ModelType.values())
 			if (modelType.name().equals(type))
 				return modelType;
-		return ModelType.UNKNOWN;
+		return null;
 	}
 
 	@Override
