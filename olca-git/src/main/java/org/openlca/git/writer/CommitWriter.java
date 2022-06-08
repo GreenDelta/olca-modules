@@ -86,7 +86,7 @@ public class CommitWriter {
 				throw new IOException("Git repo is not in current schema version");
 			if (changes.isEmpty() && (previousCommit == null || localCommitId == null || remoteCommitId == null))
 				return null;
-			init(changes);
+			init(changes, previousCommit == null);
 			if (localCommitId == null && previousCommit != null) {
 				localCommitId = previousCommit.getId().getName();
 			}
@@ -103,11 +103,11 @@ public class CommitWriter {
 		}
 	}
 
-	private void init(List<Change> changes) {
+	private void init(List<Change> changes, boolean firstCommit) {
 		threads = Executors.newCachedThreadPool();
 		if (config.repo instanceof FileRepository fileRepo) {
 			packInserter = fileRepo.getObjectDatabase().newPackInserter();
-			packInserter.checkExisting(config.checkExisting);
+			packInserter.checkExisting(!firstCommit);
 		}
 		objectInserter = config.repo.newObjectInserter();
 		converter = new Converter(config, threads);
@@ -132,8 +132,10 @@ public class CommitWriter {
 		var tree = new TreeFormatter();
 		try (var walk = createWalk(prefix, diffIterator, localTreeId, remoteTreeId)) {
 			while (walk.next()) {
-				var mode = walk.getFileMode();
 				var name = walk.getNameString();
+				if (name.equals(PackageInfo.FILE_NAME))
+					continue;
+				var mode = walk.getFileMode();
 				ObjectId id = null;
 				if (mode == FileMode.TREE) {
 					id = handleTree(walk, diffIterator);
@@ -154,7 +156,7 @@ public class CommitWriter {
 			}
 			return null;
 		}
-		if (Strings.nullOrEmpty(prefix) && localTreeId == null && remoteTreeId == null) {
+		if (Strings.nullOrEmpty(prefix)) {
 			appendPackageInfo(tree);
 		}
 		try {

@@ -33,6 +33,7 @@ import org.thavam.util.concurrent.blockingMap.BlockingMap;
 class Converter {
 
 	private static final Logger log = LoggerFactory.getLogger(Converter.class);
+	private static final int CONVERTER_THREADS = 50;
 	private final GitConfig config;
 	private final BlockingMap<String, byte[]> queue = new BlockingHashMap<>();
 	private final ExecutorService threads;
@@ -46,7 +47,7 @@ class Converter {
 
 	void start(List<Change> changes) {
 		this.changes = new LinkedList<>(changes);
-		for (var i = 0; i < config.converterThreads; i++) {
+		for (var i = 0; i < CONVERTER_THREADS; i++) {
 			startNext();
 		}
 	}
@@ -54,7 +55,7 @@ class Converter {
 	private void startNext() {
 		// forgoing synchronizing get + incrementAndGet for better performance.
 		// might lead to temporarily slightly higher queueSize than specified
-		if (queueSize.get() >= config.converterThreads)
+		if (queueSize.get() >= CONVERTER_THREADS)
 			return;
 		queueSize.incrementAndGet();
 		synchronized (changes) {

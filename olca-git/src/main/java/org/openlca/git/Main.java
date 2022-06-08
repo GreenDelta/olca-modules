@@ -40,7 +40,6 @@ public class Main {
 			var storeFile = new File(tmp, "object-id.store");
 			var store = ObjectIdStore.fromFile(storeFile);
 			var config = new GitConfig(database, store, repo);
-			config.checkExisting = false;
 			var writer = new DbWriter(config);
 
 			if (repoDir.exists()) {

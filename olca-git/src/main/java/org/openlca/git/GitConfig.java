@@ -8,8 +8,6 @@ public class GitConfig {
 	public final IDatabase database;
 	public final ObjectIdStore store;
 	public final Repository repo;
-	public boolean checkExisting = true;
-	public int converterThreads = 50;
 
 	public GitConfig(IDatabase db, ObjectIdStore store, Repository repo) {
 		this.database = db;
