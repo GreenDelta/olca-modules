@@ -10,59 +10,57 @@ import org.openlca.git.model.Commit;
 public class History {
 
 	private final Commits commits;
+	private final String ref;
 
-	public static History of(Repository repo) {
-		return new History(repo);
+	public static History of(Repository repo, String ref) {
+		return new History(repo, ref);
 	}
 
-	private History(Repository repo) {
+	public static History localOf(Repository repo) {
+		return of(repo, Constants.LOCAL_REF);
+	}
+
+	public static History remoteOf(Repository repo) {
+		return of(repo, Constants.REMOTE_REF);
+	}
+
+	private History(Repository repo, String ref) {
 		this.commits = Commits.of(repo);
+		this.ref = ref;
 	}
 
 	public List<Commit> of(String ref) {
 		return commits.find().refs(ref).all();
 	}
 
-	public boolean isAhead(Commit commit) {
-		return isAhead(commit, Constants.REMOTE_REF);
+	public boolean isAheadOf(Commit commit, String ref) {
+		return getAheadOf(ref).contains(commit);
 	}
 
-	public boolean isAhead(Commit commit, String ref) {
-		return getAhead(ref).contains(commit);
+	public List<Commit> getAheadOf(String ref) {
+		return diffBetween(of(this.ref), of(ref));
 	}
 
-	public List<Commit> getAhead() {
-		return getAhead(Constants.REMOTE_REF);
+	public List<Commit> getBehindOf(String ref) {
+		return diffBetween(of(ref), of(this.ref));
 	}
 
-	public List<Commit> getAhead(String ref) {
-		return getAhead(of(Constants.LOCAL_REF), of(ref));
-	}
-
-	public List<Commit> getBehind() {
-		return getBehind(Constants.REMOTE_REF);
-	}
-
-	public List<Commit> getBehind(String ref) {
-		return getAhead(of(ref), of(Constants.LOCAL_REF));
-	}
-
-	public Commit commonParentOf(String ref1, String ref2) {
-		var history1 = commits.find().refs(ref1).all();
-		if (history1.isEmpty())
+	public Commit commonParentOf(String ref) {
+		var local = commits.find().refs(this.ref).all();
+		if (local.isEmpty())
 			return null;
-		var history2 = commits.find().refs(ref2).all();
-		if (history2.isEmpty())
+		var other = commits.find().refs(ref).all();
+		if (other.isEmpty())
 			return null;
-		var commonHistory = history2.stream()
-				.filter(c -> history1.contains(c))
+		var commonHistory = other.stream()
+				.filter(c -> local.contains(c))
 				.toList();
 		if (commonHistory.isEmpty())
 			return null;
 		return commonHistory.get(commonHistory.size() - 1);
 	}
 
-	private static List<Commit> getAhead(List<Commit> left, List<Commit> right) {
+	private List<Commit> diffBetween(List<Commit> left, List<Commit> right) {
 		var diff = new ArrayList<Commit>();
 		for (var i = left.size() - 1; i >= 0; i--) {
 			if (right.contains(left.get(i)))

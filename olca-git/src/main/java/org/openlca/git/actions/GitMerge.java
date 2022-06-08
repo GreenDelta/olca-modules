@@ -31,7 +31,7 @@ import org.openlca.git.writer.CommitWriter;
 public class GitMerge extends GitProgressAction<Boolean> {
 
 	private final Repository git;
-	private final History history;
+	private final History localHistory;
 	private final Commits commits;
 	private IDatabase database;
 	private ObjectIdStore workspaceIds;
@@ -42,7 +42,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 
 	private GitMerge(Repository git) {
 		this.git = git;
-		this.history = History.of(git);
+		this.localHistory = History.localOf(git);
 		this.commits = Commits.of(git);
 	}
 
@@ -84,7 +84,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 	public Boolean run() throws IOException, GitAPIException {
 		if (git == null || database == null)
 			throw new IllegalStateException("Git repository and database must be set");
-		var behind = history.getBehind(getRef());
+		var behind = localHistory.getBehindOf(getRef());
 		if (behind.isEmpty())
 			return false;
 		var localCommit = commits.get(commits.resolve(Constants.LOCAL_BRANCH));
@@ -94,7 +94,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		var toMount = resolveLibraries(remoteCommit);
 		if (toMount == null)
 			return null;
-		var commonParent = history.commonParentOf(Constants.LOCAL_REF, getRef());
+		var commonParent = localHistory.commonParentOf(getRef());
 		var diffs = Diffs.between(git, commonParent, remoteCommit);
 		var deleted = diffs.stream()
 				.filter(d -> d.diffType == DiffType.DELETED)
@@ -105,7 +105,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 				.map(d -> d.toReference(Side.NEW))
 				.collect(Collectors.toList());
 		var ahead = !applyStash
-				? history.getAhead()
+				? localHistory.getAheadOf(Constants.REMOTE_REF)
 				: new ArrayList<>();
 		if (progressMonitor != null) {
 			var work = toMount.size() + addedOrChanged.size() + deleted.size() + (!ahead.isEmpty() ? 1 : 0);
