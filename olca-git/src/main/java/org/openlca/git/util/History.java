@@ -29,8 +29,12 @@ public class History {
 		this.ref = ref;
 	}
 
-	public List<Commit> of(String ref) {
-		return commits.find().refs(ref).all();
+	public List<Commit> get() {
+		return of(ref);
+	}
+
+	public boolean contains(Commit commit) {
+		return get().contains(commit);
 	}
 
 	public boolean isAheadOf(Commit commit, String ref) {
@@ -58,6 +62,10 @@ public class History {
 		if (commonHistory.isEmpty())
 			return null;
 		return commonHistory.get(commonHistory.size() - 1);
+	}
+
+	private List<Commit> of(String ref) {
+		return commits.find().refs(ref).all();
 	}
 
 	private List<Commit> diffBetween(List<Commit> left, List<Commit> right) {
