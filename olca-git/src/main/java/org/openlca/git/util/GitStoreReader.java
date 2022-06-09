@@ -51,8 +51,7 @@ public class GitStoreReader implements JsonStoreReader {
 		this.previousCommit = previousCommit;
 		this.commit = commit;
 		this.conflictResolver = conflictResolver;
-		this.changes = new TypeRefIdMap<>();
-		changes.forEach(d -> GitStoreReader.this.changes.put(d.type, d.refId, d));
+		this.changes = TypeRefIdMap.of(changes);
 	}
 
 	public boolean contains(ModelType type, String refId) {

@@ -1,16 +1,24 @@
 package org.openlca.git.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.model.ModelType;
+import org.openlca.git.model.ModelRef;
 
 public class TypeRefIdMap<T> {
 
 	private final EnumMap<ModelType, Map<String, T>> map = new EnumMap<>(ModelType.class);
+
+	public static <R extends ModelRef> TypeRefIdMap<R> of(Collection<R> col) {
+		var map = new TypeRefIdMap<R>();
+		col.forEach(ref -> map.put(ref.type, ref.refId, ref));
+		return map;
+	}
 
 	public void put(ModelType type, String refId, T value) {
 		map.computeIfAbsent(type, t -> new HashMap<>()).put(refId, value);
