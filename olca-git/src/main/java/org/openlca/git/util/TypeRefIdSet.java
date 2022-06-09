@@ -5,9 +5,9 @@ import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import org.openlca.core.model.ModelType;
-import org.openlca.git.model.ModelRef;
 
 public class TypeRefIdSet {
 
@@ -16,12 +16,20 @@ public class TypeRefIdSet {
 	public TypeRefIdSet() {
 	}
 
-	public TypeRefIdSet(Collection<? extends ModelRef> refs) {
+	public TypeRefIdSet(Collection<? extends TypeRefIdPair> refs) {
 		refs.forEach(r -> add(r.type, r.refId));
+	}
+
+	public void add(TypeRefIdPair pair) {
+		add(pair.type, pair.refId);
 	}
 
 	public void add(ModelType type, String refId) {
 		map.computeIfAbsent(type, t -> new HashSet<>()).add(refId);
+	}
+
+	public boolean contains(TypeRefIdPair pair) {
+		return contains(pair.type, pair.refId);
 	}
 
 	public boolean contains(ModelType type, String refId) {
@@ -29,6 +37,10 @@ public class TypeRefIdSet {
 		if (refIds == null)
 			return false;
 		return refIds.contains(refId);
+	}
+
+	public void remove(TypeRefIdPair pair) {
+		remove(pair.type, pair.refId);
 	}
 
 	public void remove(ModelType type, String refId) {
@@ -40,6 +52,10 @@ public class TypeRefIdSet {
 
 	public void clear() {
 		map.clear();
+	}
+
+	public void forEach(Consumer<TypeRefIdPair> forEach) {
+		forEach((type, refId) -> forEach.accept(new TypeRefIdPair(type, refId)));
 	}
 
 	public void forEach(BiConsumer<ModelType, String> forEach) {
