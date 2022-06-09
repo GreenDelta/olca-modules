@@ -54,12 +54,6 @@ public class GitStoreReader implements JsonStoreReader {
 		this.changes = TypeRefIdMap.of(changes);
 	}
 
-	public boolean contains(ModelType type, String refId) {
-		if (type == ModelType.CATEGORY)
-			return true;
-		return changes.contains(type, refId);
-	}
-
 	@Override
 	public byte[] getBytes(String path) {
 		if (PackageInfo.FILE_NAME.equals(path))

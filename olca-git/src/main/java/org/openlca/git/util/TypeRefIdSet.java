@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.openlca.core.model.ModelType;
@@ -17,37 +16,25 @@ public class TypeRefIdSet {
 	}
 
 	public TypeRefIdSet(Collection<? extends TypeRefIdPair> refs) {
-		refs.forEach(r -> add(r.type, r.refId));
+		refs.forEach(this::add);
 	}
 
 	public void add(TypeRefIdPair pair) {
-		add(pair.type, pair.refId);
-	}
-
-	public void add(ModelType type, String refId) {
-		map.computeIfAbsent(type, t -> new HashSet<>()).add(refId);
+		map.computeIfAbsent(pair.type, t -> new HashSet<>()).add(pair.refId);
 	}
 
 	public boolean contains(TypeRefIdPair pair) {
-		return contains(pair.type, pair.refId);
-	}
-
-	public boolean contains(ModelType type, String refId) {
-		var refIds = map.get(type);
+		var refIds = map.get(pair.type);
 		if (refIds == null)
 			return false;
-		return refIds.contains(refId);
+		return refIds.contains(pair.refId);
 	}
 
 	public void remove(TypeRefIdPair pair) {
-		remove(pair.type, pair.refId);
-	}
-
-	public void remove(ModelType type, String refId) {
-		var refIds = map.get(type);
+		var refIds = map.get(pair.type);
 		if (refIds == null)
 			return;
-		refIds.remove(refId);
+		refIds.remove(pair.refId);
 	}
 
 	public void clear() {
@@ -55,15 +42,11 @@ public class TypeRefIdSet {
 	}
 
 	public void forEach(Consumer<TypeRefIdPair> forEach) {
-		forEach((type, refId) -> forEach.accept(new TypeRefIdPair(type, refId)));
-	}
-
-	public void forEach(BiConsumer<ModelType, String> forEach) {
 		map.keySet().forEach(type -> {
 			var refIds = map.get(type);
 			if (refIds == null)
 				return;
-			refIds.forEach(refId -> forEach.accept(type, refId));
+			refIds.forEach(refId -> forEach.accept(new TypeRefIdPair(type, refId)));
 		});
 	}
 
@@ -89,12 +72,6 @@ public class TypeRefIdSet {
 			if (map.get(type) != null && map.get(type).contains(refId))
 				return type;
 		return null;
-	}
-
-	public interface ForEach {
-
-		void apply(ModelType type, String refId);
-
 	}
 
 }

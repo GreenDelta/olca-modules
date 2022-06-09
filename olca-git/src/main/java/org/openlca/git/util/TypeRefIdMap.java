@@ -15,7 +15,7 @@ public class TypeRefIdMap<T> {
 
 	public static <R extends TypeRefIdPair> TypeRefIdMap<R> of(Collection<R> col) {
 		var map = new TypeRefIdMap<R>();
-		col.forEach(ref -> map.put(ref.type, ref.refId, ref));
+		col.forEach(ref -> map.put(ref, ref));
 		return map;
 	}
 
