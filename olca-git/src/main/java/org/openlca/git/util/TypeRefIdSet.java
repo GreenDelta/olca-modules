@@ -16,11 +16,15 @@ public class TypeRefIdSet {
 	}
 
 	public TypeRefIdSet(Collection<? extends TypeRefIdPair> refs) {
-		refs.forEach(this::add);
+		addAll(refs);
 	}
 
 	public void add(TypeRefIdPair pair) {
 		map.computeIfAbsent(pair.type, t -> new HashSet<>()).add(pair.refId);
+	}
+
+	public void addAll(Collection<? extends TypeRefIdPair> pairs) {
+		pairs.forEach(this::add);
 	}
 
 	public boolean contains(TypeRefIdPair pair) {

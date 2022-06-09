@@ -6,6 +6,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.openlca.core.model.ModelType;
 
@@ -54,6 +55,10 @@ public class TypeRefIdMap<T> {
 		if (refIds == null)
 			return new ArrayList<>();
 		return new ArrayList<>(refIds.values());
+	}
+
+	public List<T> values() {
+		return map.values().stream().map(Map::values).flatMap(Collection::stream).collect(Collectors.toList());
 	}
 
 	public T remove(TypeRefIdPair pair) {

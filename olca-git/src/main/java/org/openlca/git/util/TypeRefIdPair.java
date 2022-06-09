@@ -28,4 +28,9 @@ public class TypeRefIdPair {
 		return type == o.type && Strings.nullOrEqual(refId, o.refId);
 	}
 
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + "[type=" + type + ", refId=" + refId + "]";
+	}
+
 }
