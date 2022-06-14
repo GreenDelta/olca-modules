@@ -8,6 +8,7 @@ import java.nio.file.Path;
 
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
@@ -27,11 +28,11 @@ public final class Repositories {
 	private Repositories() {
 	}
 
-	public static FileRepository open(File dir) {
+	public static Repository open(File dir) {
 		return open(dir.toPath());
 	}
 
-	public static FileRepository open(Path dir) {
+	public static Repository open(Path dir) {
 		try {
 			var repo = new FileRepository(dir.toFile());
 			if (!Files.exists(dir)) {
@@ -45,11 +46,11 @@ public final class Repositories {
 		}
 	}
 
-	public static PackageInfo infoOf(FileRepository repo) {
+	public static PackageInfo infoOf(Repository repo) {
 		return infoOf(repo, null);
 	}
 
-	public static PackageInfo infoOf(FileRepository repo, Commit commit) {
+	public static PackageInfo infoOf(Repository repo, Commit commit) {
 		try (var walk = new TreeWalk(repo);
 				var reader = repo.getObjectDatabase().newReader()) {
 			var revCommit = commit != null
@@ -70,11 +71,11 @@ public final class Repositories {
 		}
 	}
 
-	public static RevCommit headCommitOf(FileRepository repo) {
+	public static RevCommit headCommitOf(Repository repo) {
 		try (var walk = new RevWalk(repo)) {
-			var head = repo.resolve("HEAD");
+			var head = repo.resolve(Constants.LOCAL_BRANCH);
 			if (head == null) {
-				head = repo.resolve("refs/heads/master");
+				head = repo.resolve(Constants.LOCAL_REF);
 			}
 			if (head == null)
 				return null;

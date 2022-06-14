@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Repository;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.RootEntityDao;
@@ -33,7 +33,7 @@ class ImportHelper {
 	final ProgressMonitor progressMonitor;
 	ConflictResolver conflictResolver;
 
-	ImportHelper(FileRepository git, IDatabase database, ObjectIdStore workspaceIds, ProgressMonitor progressMonitor) {
+	ImportHelper(Repository git, IDatabase database, ObjectIdStore workspaceIds, ProgressMonitor progressMonitor) {
 		this.references = References.of(git);
 		this.entries = Entries.of(git);
 		this.database = database;

@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.internal.storage.file.PackInserter;
 import org.eclipse.jgit.lib.CommitBuilder;
 import org.eclipse.jgit.lib.Constants;
@@ -85,7 +86,7 @@ public class CommitWriter {
 				throw new IOException("Git repo is not in current schema version");
 			if (changes.isEmpty() && (previousCommit == null || localCommitId == null || remoteCommitId == null))
 				return null;
-			init(changes);
+			init(changes, previousCommit == null);
 			if (localCommitId == null && previousCommit != null) {
 				localCommitId = previousCommit.getId().getName();
 			}
@@ -102,15 +103,17 @@ public class CommitWriter {
 		}
 	}
 
-	private void init(List<Change> changes) {
+	private void init(List<Change> changes, boolean firstCommit) {
 		threads = Executors.newCachedThreadPool();
-		packInserter = config.repo.getObjectDatabase().newPackInserter();
-		packInserter.checkExisting(config.checkExisting);
+		if (config.repo instanceof FileRepository fileRepo) {
+			packInserter = fileRepo.getObjectDatabase().newPackInserter();
+			packInserter.checkExisting(!firstCommit);
+		}
 		objectInserter = config.repo.newObjectInserter();
 		converter = new Converter(config, threads);
 		converter.start(changes.stream()
 				.filter(d -> d.diffType != DiffType.DELETED)
-				.sorted((d1, d2) -> Strings.compare(d1.path, d2.path))
+				.sorted()
 				.toList());
 	}
 
@@ -129,8 +132,10 @@ public class CommitWriter {
 		var tree = new TreeFormatter();
 		try (var walk = createWalk(prefix, diffIterator, localTreeId, remoteTreeId)) {
 			while (walk.next()) {
-				var mode = walk.getFileMode();
 				var name = walk.getNameString();
+				if (name.equals(PackageInfo.FILE_NAME))
+					continue;
+				var mode = walk.getFileMode();
 				ObjectId id = null;
 				if (mode == FileMode.TREE) {
 					id = handleTree(walk, diffIterator);
@@ -151,7 +156,7 @@ public class CommitWriter {
 			}
 			return null;
 		}
-		if (Strings.nullOrEmpty(prefix) && localTreeId == null && remoteTreeId == null) {
+		if (Strings.nullOrEmpty(prefix)) {
 			appendPackageInfo(tree);
 		}
 		try {
@@ -219,12 +224,12 @@ public class CommitWriter {
 			return null;
 		}
 		if (file != null)
-			return packInserter.insert(Constants.OBJ_BLOB, Files.readAllBytes(file.toPath()));
+			return insertBlob(Files.readAllBytes(file.toPath()));
 		if (progressMonitor != null) {
 			progressMonitor.subTask("Writing", change);
 		}
 		var data = converter.take(path);
-		localBlobId = packInserter.insert(Constants.OBJ_BLOB, data);
+		localBlobId = insertBlob(data);
 		if (!isStashCommit && config.store != null) {
 			config.store.put(path, localBlobId);
 		}
@@ -239,13 +244,19 @@ public class CommitWriter {
 			var schemaBytes = PackageInfo.create()
 					.withLibraries(config.database.getLibraries())
 					.json().toString().getBytes(StandardCharsets.UTF_8);
-			var blobId = packInserter.insert(Constants.OBJ_BLOB, schemaBytes);
+			var blobId = insertBlob(schemaBytes);
 			if (blobId != null) {
 				tree.append(PackageInfo.FILE_NAME, FileMode.REGULAR_FILE, blobId);
 			}
 		} catch (Exception e) {
 			log.error("Error inserting package info", e);
 		}
+	}
+
+	private ObjectId insertBlob(byte[] blob) throws IOException {
+		if (packInserter != null)
+			return packInserter.insert(Constants.OBJ_BLOB, blob);
+		return objectInserter.insert(Constants.OBJ_BLOB, blob);
 	}
 
 	private boolean matches(String path, Change change, File file) {

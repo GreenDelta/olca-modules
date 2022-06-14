@@ -32,15 +32,19 @@ public class ObjectIdStore {
 		this.file = storeFile;
 	}
 
-	public static ObjectIdStore open(File storeFile) throws IOException {
+	public static ObjectIdStore fromFile(File storeFile) throws IOException {
 		var store = new ObjectIdStore(storeFile);
 		store.load();
 		return store;
 	}
 
+	public static ObjectIdStore inMemory() {
+		return new ObjectIdStore(null);
+	}
+
 	@SuppressWarnings("unchecked")
 	private void load() throws IOException {
-		if (!file.exists())
+		if (file == null || !file.exists())
 			return;
 		try (var fis = new FileInputStream(file);
 				var ois = new ObjectInputStream(fis)) {
@@ -53,6 +57,8 @@ public class ObjectIdStore {
 	}
 
 	public void save() throws IOException {
+		if (file == null)
+			return;
 		if (!file.getParentFile().exists()) {
 			Files.createDirectories(file.getParentFile().toPath());
 		}
@@ -132,12 +138,12 @@ public class ObjectIdStore {
 			return ObjectId.zeroId();
 		return ObjectId.fromRaw(id);
 	}
-	
+
 	public ObjectId getHead(String path) {
 		var id = head.get(path);
 		if (id == null)
 			return ObjectId.zeroId();
-		return ObjectId.fromRaw(id);		
+		return ObjectId.fromRaw(id);
 	}
 
 	public void putRoot(ObjectId id) {

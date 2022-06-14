@@ -2,8 +2,8 @@ package org.openlca.git.find;
 
 import java.io.IOException;
 
-import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.openlca.git.util.GitUtil;
 import org.openlca.util.Strings;
@@ -13,13 +13,13 @@ import org.slf4j.LoggerFactory;
 public class Ids {
 
 	static final Logger log = LoggerFactory.getLogger(References.class);
-	private final FileRepository repo;
+	private final Repository repo;
 
-	public static Ids of(FileRepository repo) {
+	public static Ids of(Repository repo) {
 		return new Ids(repo);
 	}
 
-	private Ids(FileRepository repo) {
+	private Ids(Repository repo) {
 		this.repo = repo;
 	}
 

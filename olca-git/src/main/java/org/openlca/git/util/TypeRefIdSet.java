@@ -4,10 +4,9 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import org.openlca.core.model.ModelType;
-import org.openlca.git.model.ModelRef;
 
 public class TypeRefIdSet {
 
@@ -16,38 +15,42 @@ public class TypeRefIdSet {
 	public TypeRefIdSet() {
 	}
 
-	public TypeRefIdSet(Collection<? extends ModelRef> refs) {
-		refs.forEach(r -> add(r.type, r.refId));
+	public TypeRefIdSet(Collection<? extends TypeRefIdPair> refs) {
+		addAll(refs);
 	}
 
-	public void add(ModelType type, String refId) {
-		map.computeIfAbsent(type, t -> new HashSet<>()).add(refId);
+	public void add(TypeRefIdPair pair) {
+		map.computeIfAbsent(pair.type, t -> new HashSet<>()).add(pair.refId);
 	}
 
-	public boolean contains(ModelType type, String refId) {
-		var refIds = map.get(type);
+	public void addAll(Collection<? extends TypeRefIdPair> pairs) {
+		pairs.forEach(this::add);
+	}
+
+	public boolean contains(TypeRefIdPair pair) {
+		var refIds = map.get(pair.type);
 		if (refIds == null)
 			return false;
-		return refIds.contains(refId);
+		return refIds.contains(pair.refId);
 	}
 
-	public void remove(ModelType type, String refId) {
-		var refIds = map.get(type);
+	public void remove(TypeRefIdPair pair) {
+		var refIds = map.get(pair.type);
 		if (refIds == null)
 			return;
-		refIds.remove(refId);
+		refIds.remove(pair.refId);
 	}
 
 	public void clear() {
 		map.clear();
 	}
 
-	public void forEach(BiConsumer<ModelType, String> forEach) {
+	public void forEach(Consumer<TypeRefIdPair> forEach) {
 		map.keySet().forEach(type -> {
 			var refIds = map.get(type);
 			if (refIds == null)
 				return;
-			refIds.forEach(refId -> forEach.accept(type, refId));
+			refIds.forEach(refId -> forEach.accept(new TypeRefIdPair(type, refId)));
 		});
 	}
 
@@ -73,12 +76,6 @@ public class TypeRefIdSet {
 			if (map.get(type) != null && map.get(type).contains(refId))
 				return type;
 		return null;
-	}
-
-	public interface ForEach {
-
-		void apply(ModelType type, String refId);
-
 	}
 
 }

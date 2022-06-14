@@ -1,43 +1,52 @@
 package org.openlca.git.model;
 
-import java.util.Objects;
-
 import org.openlca.core.model.ModelType;
 import org.openlca.git.util.GitUtil;
+import org.openlca.git.util.TypeRefIdPair;
 
-public class ModelRef {
+public class ModelRef extends TypeRefIdPair implements Comparable<ModelRef> {
 
 	public final String path;
-	public final ModelType type;
-	public final String refId;
 	public final String category;
 
 	public ModelRef(String path) {
+		super(getModelType(path), getRefId(path));
 		this.path = path;
-		this.type = getModelType(path.contains("/")
-				? path.substring(0, path.indexOf("/"))
-				: path);
-		path = path.substring(path.indexOf("/") + 1);
-		this.category = path.contains("/") ? path.substring(0, path.lastIndexOf("/")) : "";
-		this.refId = path.endsWith(GitUtil.DATASET_SUFFIX)
-				? path.substring(
-						path.contains("/")
-								? path.lastIndexOf("/") + 1
-								: 0,
-						path.lastIndexOf("."))
-				: null;
+		this.category = getCategory(path);
 	}
 
 	public ModelRef(ModelRef ref) {
+		super(ref.type, ref.refId);
 		this.path = ref.path;
-		this.type = ref.type;
-		this.refId = ref.refId;
 		this.category = ref.category;
+	}
+
+	public static ModelType getModelType(String path) {
+		var type = path.contains("/") ? path.substring(0, path.indexOf("/")) : path;
+		for (var modelType : ModelType.values())
+			if (modelType.name().equals(type))
+				return modelType;
+		return null;
+	}
+
+	public static String getRefId(String path) {
+		path = path.substring(path.indexOf("/") + 1);
+		if (!path.endsWith(GitUtil.DATASET_SUFFIX))
+			return null;
+		var lastSlash = path.contains("/") ? path.lastIndexOf("/") + 1 : 0;
+		return path.substring(lastSlash, path.lastIndexOf("."));
+	}
+
+	public static String getCategory(String path) {
+		path = path.substring(path.indexOf("/") + 1);
+		if (!path.contains("/"))
+			return "";
+		return path.substring(0, path.lastIndexOf("/"));
 	}
 
 	@Override
 	public int hashCode() {
-		return path != null ? path.hashCode() : super.hashCode();
+		return path.hashCode();
 	}
 
 	@Override
@@ -47,14 +56,12 @@ public class ModelRef {
 		if (!(o instanceof ModelRef))
 			return false;
 		var other = (ModelRef) o;
-		return Objects.equals(path, other.path);
+		return path.equals(other.path);
 	}
 
-	private static ModelType getModelType(String type) {
-		for (var modelType : ModelType.values())
-			if (modelType.name().equals(type))
-				return modelType;
-		return ModelType.UNKNOWN;
+	@Override
+	public int compareTo(ModelRef o) {
+		return path.compareTo(o.path);
 	}
 
 }

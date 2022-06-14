@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.diff.DiffEntry.Side;
-import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
@@ -58,20 +58,20 @@ public class Diffs {
 		}
 	}
 
-	public static List<Diff> withPrevious(FileRepository repo, Commit commit) {
+	public static List<Diff> withPrevious(Repository repo, Commit commit) {
 		return withPrevious(repo, commit, null);
 	}
 
-	public static List<Diff> withPrevious(FileRepository repo, Commit commit, List<String> paths) {
+	public static List<Diff> withPrevious(Repository repo, Commit commit, List<String> paths) {
 		var previousCommit = Commits.of(repo).find().before(commit.id).latest();
 		return between(repo, previousCommit, commit);
 	}
 
-	public static List<Diff> between(FileRepository repo, Commit left, Commit right) {
+	public static List<Diff> between(Repository repo, Commit left, Commit right) {
 		return between(repo, left, right, null);
 	}
 
-	public static List<Diff> between(FileRepository repo, Commit left, Commit right, List<String> paths) {
+	public static List<Diff> between(Repository repo, Commit left, Commit right, List<String> paths) {
 		try (var walk = new TreeWalk(repo)) {
 			addTree(repo, walk, left, false);
 			addTree(repo, walk, right, false);
@@ -121,7 +121,7 @@ public class Diffs {
 		return new Reference(path, commitId, objectId);
 	}
 
-	private static void addTree(FileRepository repo, TreeWalk walk, Commit commit, boolean useHeadAsDefault)
+	private static void addTree(Repository repo, TreeWalk walk, Commit commit, boolean useHeadAsDefault)
 			throws IOException {
 		var commitOid = commit != null
 				? ObjectId.fromString(commit.id)

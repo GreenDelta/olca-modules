@@ -85,8 +85,8 @@ class UnitGroupImport extends BaseImport<UnitGroup> {
 			var synonyms = Json.getArray(unitJson, "synonyms");
 			if (synonyms != null) {
 				unit.synonyms = Json.stream(synonyms)
-						.filter(elem -> e.isJsonPrimitive())
-						.map((elem -> e.getAsString()))
+						.filter(JsonElement::isJsonPrimitive)
+						.map(JsonElement::getAsString)
 						.reduce((acc, syn) -> acc + ";" + syn)
 						.orElse(null);
 			}

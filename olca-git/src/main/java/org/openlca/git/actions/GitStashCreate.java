@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.lib.Repository;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
@@ -27,7 +27,7 @@ public class GitStashCreate extends GitProgressAction<Void> {
 	private final IDatabase database;
 	private final CategoryDao categoryDao;
 	private List<Change> changes;
-	private FileRepository git;
+	private Repository git;
 	private Commits commits;
 	private ObjectIdStore workspaceIds;
 	private PersonIdent committer;
@@ -47,7 +47,7 @@ public class GitStashCreate extends GitProgressAction<Void> {
 		return this;
 	}
 
-	public GitStashCreate to(FileRepository git) {
+	public GitStashCreate to(Repository git) {
 		this.git = git;
 		this.commits = Commits.of(git);
 		return this;

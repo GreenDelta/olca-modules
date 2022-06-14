@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
@@ -16,23 +16,23 @@ import org.openlca.git.util.History;
 
 public class GitPush extends GitRemoteAction<PushResponse> {
 
-	private final FileRepository git;
-	private final History history;
-	
-	private GitPush(FileRepository git) {
+	private final Repository git;
+	private final History localHistory;
+
+	private GitPush(Repository git) {
 		this.git = git;
-		this.history = History.of(git);
+		this.localHistory = History.localOf(git);
 	}
 
-	public static GitPush from(FileRepository git) {
+	public static GitPush from(Repository git) {
 		return new GitPush(git);
 	}
 
 	@Override
 	public PushResponse run() throws GitAPIException {
-		if (git == null) 
+		if (git == null)
 			throw new IllegalStateException("Git repository must be set");
-		var newCommits = history.getAhead();
+		var newCommits = localHistory.getAheadOf(Constants.REMOTE_REF);
 		if (newCommits.isEmpty())
 			return new PushResponse(newCommits, Status.NOT_ATTEMPTED);
 		Git.wrap(git).gc().call();

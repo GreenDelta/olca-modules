@@ -38,9 +38,8 @@ public class Main {
 		try (var database = new Derby(tmp);
 				var repo = new FileRepository(repoDir)) {
 			var storeFile = new File(tmp, "object-id.store");
-			var store = ObjectIdStore.open(storeFile);
+			var store = ObjectIdStore.fromFile(storeFile);
 			var config = new GitConfig(database, store, repo);
-			config.checkExisting = false;
 			var writer = new DbWriter(config);
 
 			if (repoDir.exists()) {
