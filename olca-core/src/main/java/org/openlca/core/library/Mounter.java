@@ -43,7 +43,7 @@ public class Mounter implements Runnable {
 		return this;
 	}
 
-	public Mounter apply(PreMountCheck.Result result) {
+	public Mounter applyDefaultsOf(PreMountCheck.Result result) {
 		if (result == null || result.isError())
 			return this;
 		result.getStates().forEach(pair -> {

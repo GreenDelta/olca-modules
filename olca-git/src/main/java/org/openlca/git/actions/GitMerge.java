@@ -1,7 +1,9 @@
 package org.openlca.git.actions;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,6 +15,8 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.Library;
+import org.openlca.core.library.Mounter;
+import org.openlca.core.library.PreMountCheck;
 import org.openlca.git.GitConfig;
 import org.openlca.git.ObjectIdStore;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
@@ -195,18 +199,36 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		return libs;
 	}
 
-	private boolean mountLibraries(List<Library> newLibraries)
-			throws IOException {
-		for (var newLib : newLibraries) {
+	private void mountLibraries(List<Library> newLibraries) {
+		var queue = new ArrayDeque<>(newLibraries);
+		var handled = new HashSet<Library>();
+		while (!queue.isEmpty()) {
+			var next = queue.poll();
 			if (progressMonitor != null) {
-				progressMonitor.subTask("Mounting library " + newLib.name());
+				progressMonitor.subTask("Mounting library " + next.name());
 			}
-			newLib.mountTo(database);
+			if (handled.contains(next)) {
+				if (progressMonitor != null) {
+					progressMonitor.worked(1);
+				}
+				continue;
+			}
+			handled.add(next);
+
+			// run a pre-mount check; transitive dependencies will
+			// be handled as well; we apply the default action
+			// related to the library states of the check result
+			// when mounting these libraries
+			var checkResult = PreMountCheck.check(database, next);
+			checkResult.getStates().forEach(p -> handled.add(p.first));
+			Mounter.of(database, next)
+				.applyDefaultsOf(checkResult)
+				.run();
 			if (progressMonitor != null) {
 				progressMonitor.worked(1);
 			}
 		}
-		return true;
+
 		// TODO remove libs that are not anymore in package info
 	}
 
