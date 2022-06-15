@@ -56,6 +56,8 @@ public final class Repositories {
 			var revCommit = commit != null
 					? repo.parseCommit(ObjectId.fromString(commit.id))
 					: headCommitOf(repo);
+			if (revCommit == null)
+				return null;
 			walk.addTree(revCommit.getTree().getId());
 			walk.setRecursive(false);
 			walk.setFilter(PathFilter.create(PackageInfo.FILE_NAME));
