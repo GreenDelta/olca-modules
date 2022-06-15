@@ -115,12 +115,14 @@ public class GitMerge extends GitProgressAction<Boolean> {
 			var work = toMount.size() + addedOrChanged.size() + deleted.size() + (!ahead.isEmpty() ? 1 : 0);
 			progressMonitor.beginTask("Merging data", work);
 		}
-		mountLibraries(toMount);
+		if (!mountLibraries(toMount))
+			throw new IOException("Could not mount libraries");
 		var gitStore = new GitStoreReader(git, localCommit, remoteCommit, addedOrChanged, conflictResolver);
 		var importHelper = new ImportHelper(git, database, workspaceIds, progressMonitor);
 		importHelper.conflictResolver = conflictResolver;
 		importHelper.runImport(gitStore);
 		importHelper.delete(deleted);
+		// TODO unmount libs removed from package info; not yet supported
 		var result = new ImportResult(gitStore, deleted);
 		String commitId = remoteCommit.id;
 		if (!applyStash) {
@@ -199,7 +201,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		return libs;
 	}
 
-	private void mountLibraries(List<Library> newLibraries) {
+	private boolean mountLibraries(List<Library> newLibraries) {
 		var queue = new ArrayDeque<>(newLibraries);
 		var handled = new HashSet<Library>();
 		while (!queue.isEmpty()) {
@@ -220,16 +222,17 @@ public class GitMerge extends GitProgressAction<Boolean> {
 			// related to the library states of the check result
 			// when mounting these libraries
 			var checkResult = PreMountCheck.check(database, next);
+			if (checkResult.isError())
+				return false; // might result in partly mounted library list
 			checkResult.getStates().forEach(p -> handled.add(p.first));
 			Mounter.of(database, next)
-				.applyDefaultsOf(checkResult)
-				.run();
+					.applyDefaultsOf(checkResult)
+					.run();
 			if (progressMonitor != null) {
 				progressMonitor.worked(1);
 			}
 		}
-
-		// TODO remove libs that are not anymore in package info
+		return true;
 	}
 
 }
