@@ -7,20 +7,20 @@ import org.eclipse.jgit.lib.Repository;
 
 public class GitStashDrop {
 
-	private final Repository git;
+	private final Repository repo;
 
-	private GitStashDrop(Repository git) {
-		this.git = git;
+	private GitStashDrop(Repository repo) {
+		this.repo = repo;
 	}
 
-	public static GitStashDrop from(Repository git) {
-		return new GitStashDrop(git);
+	public static GitStashDrop from(Repository repo) {
+		return new GitStashDrop(repo);
 	}
 
 	public void run() throws IOException {
-		if (git == null)
+		if (repo == null)
 			throw new IllegalStateException("Git repository must be set");
-		var update = git.updateRef(Constants.R_STASH);
+		var update = repo.updateRef(Constants.R_STASH);
 		update.disableRefLog();
 		update.setForceUpdate(true);
 		update.delete();

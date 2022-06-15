@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
-import org.openlca.git.GitConfig;
 import org.openlca.git.ObjectIdStore;
 import org.openlca.git.actions.ImportHelper.ImportResult;
 import org.openlca.git.find.Commits;
@@ -27,7 +27,7 @@ public class GitStashCreate extends GitProgressAction<Void> {
 	private final IDatabase database;
 	private final CategoryDao categoryDao;
 	private List<Change> changes;
-	private Repository git;
+	private Repository repo;
 	private Commits commits;
 	private ObjectIdStore workspaceIds;
 	private PersonIdent committer;
@@ -47,9 +47,9 @@ public class GitStashCreate extends GitProgressAction<Void> {
 		return this;
 	}
 
-	public GitStashCreate to(Repository git) {
-		this.git = git;
-		this.commits = Commits.of(git);
+	public GitStashCreate to(Repository repo) {
+		this.repo = repo;
+		this.commits = Commits.of(repo);
 		return this;
 	}
 
@@ -70,13 +70,14 @@ public class GitStashCreate extends GitProgressAction<Void> {
 
 	@Override
 	public Void run() throws IOException {
-		if (git == null || database == null || workspaceIds == null)
+		if (repo == null || database == null || workspaceIds == null)
 			throw new IllegalStateException("Git repository, database and workspace ids must be set");
 		if (!discard && committer == null)
 			throw new IllegalStateException("Committer must be set");
-		var config = new GitConfig(database, workspaceIds, git);
 		if (changes == null) {
-			changes = Diffs.workspace(config).stream().map(Change::new).collect(Collectors.toList());
+			changes = Diffs.of(repo).with(database, workspaceIds).stream()
+					.map(Change::new)
+					.collect(Collectors.toList());
 		}
 		if (changes.isEmpty())
 			throw new IllegalStateException("No changes found");
@@ -92,15 +93,19 @@ public class GitStashCreate extends GitProgressAction<Void> {
 				: new ArrayList<Reference>();
 		progressMonitor.beginTask("Stashing data", changes.size() + toDelete.size() + toImport.size());
 		if (!discard) {
-			var writer = new CommitWriter(config, committer, progressMonitor);
-			writer.stashCommit("Stashed changes", changes);
+			var writer = new CommitWriter(repo, database)
+					.ref(Constants.R_STASH)
+					.saveIdsIn(workspaceIds)
+					.as(committer)
+					.with(progressMonitor);
+			writer.write("Stashed changes", changes);
 		}
-		var importHelper = new ImportHelper(git, database, workspaceIds, progressMonitor);
+		var importHelper = new ImportHelper(repo, database, workspaceIds, progressMonitor);
 		if (headCommit == null) {
 			importHelper.delete(toDelete);
 			workspaceIds.clear();
 		} else {
-			var gitStore = new GitStoreReader(git, headCommit, toImport);
+			var gitStore = new GitStoreReader(repo, headCommit, toImport);
 			importHelper.runImport(gitStore);
 			importHelper.delete(toDelete);
 			var result = new ImportResult(gitStore, toDelete);

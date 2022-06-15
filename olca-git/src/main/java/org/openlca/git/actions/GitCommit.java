@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.openlca.core.database.IDatabase;
-import org.openlca.git.GitConfig;
 import org.openlca.git.ObjectIdStore;
 import org.openlca.git.model.Change;
 import org.openlca.git.util.Diffs;
@@ -17,7 +16,7 @@ import org.openlca.util.Strings;
 public class GitCommit extends GitProgressAction<String> {
 
 	private final IDatabase database;
-	private Repository git;
+	private Repository repo;
 	private List<Change> changes;
 	private String message;
 	private ObjectIdStore workspaceIds;
@@ -31,8 +30,8 @@ public class GitCommit extends GitProgressAction<String> {
 		return new GitCommit(database);
 	}
 
-	public GitCommit to(Repository git) {
-		this.git = git;
+	public GitCommit to(Repository repo) {
+		this.repo = repo;
 		return this;
 	}
 
@@ -58,17 +57,21 @@ public class GitCommit extends GitProgressAction<String> {
 
 	@Override
 	public String run() throws IOException {
-		if (git == null || database == null || Strings.nullOrEmpty(message))
+		if (repo == null || database == null || Strings.nullOrEmpty(message))
 			throw new IllegalStateException("Git repository, database and message must be set");
-		var config = new GitConfig(database, workspaceIds, git);
 		if (changes == null) {
 			if (workspaceIds == null)
 				throw new IllegalStateException("ObjectIdStore must be set when no changes are specified");
-			changes = Diffs.workspace(config).stream().map(Change::new).collect(Collectors.toList());
+			changes = Diffs.of(repo).with(database, workspaceIds).stream()
+					.map(Change::new)
+					.collect(Collectors.toList());
 		}
 		progressMonitor.beginTask("Writing commit", changes.size());
-		var writer = new CommitWriter(config, committer, progressMonitor);
-		var commitId = writer.commit(message, changes);
+		var writer = new CommitWriter(repo, database)
+				.saveIdsIn(workspaceIds)
+				.as(committer)
+				.with(progressMonitor);
+		var commitId = writer.write(message, changes);
 		return commitId;
 	}
 

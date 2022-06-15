@@ -10,19 +10,19 @@ import org.openlca.git.ObjectIdStore;
 
 public class GitStashApply extends GitProgressAction<Void> {
 
-	private final Repository git;
+	private final Repository repo;
 	private ObjectIdStore workspaceIds;
 	private PersonIdent committer;
 	private ConflictResolver conflictResolver;
 	private LibraryResolver libraryResolver;
 	private IDatabase database;
 
-	private GitStashApply(Repository git) {
-		this.git = git;
+	private GitStashApply(Repository repo) {
+		this.repo = repo;
 	}
 
-	public static GitStashApply from(Repository git) {
-		return new GitStashApply(git);
+	public static GitStashApply from(Repository repo) {
+		return new GitStashApply(repo);
 	}
 
 	public GitStashApply to(IDatabase database) {
@@ -47,9 +47,9 @@ public class GitStashApply extends GitProgressAction<Void> {
 
 	@Override
 	public Void run() throws IOException, GitAPIException {
-		if (git == null || database == null)
+		if (repo == null || database == null)
 			throw new IllegalStateException("Git repository and database must be set");
-		GitMerge.from(git)
+		GitMerge.from(repo)
 				.into(database)
 				.as(committer)
 				.update(workspaceIds)
@@ -58,7 +58,7 @@ public class GitStashApply extends GitProgressAction<Void> {
 				.applyStash()
 				.withProgress(progressMonitor)
 				.run();
-		GitStashDrop.from(git).run();
+		GitStashDrop.from(repo).run();
 		return null;
 	}
 

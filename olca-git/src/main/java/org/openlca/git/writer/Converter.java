@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RefEntity;
-import org.openlca.git.GitConfig;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.DiffType;
 import org.openlca.jsonld.output.JsonExport;
@@ -34,14 +34,14 @@ class Converter {
 
 	private static final Logger log = LoggerFactory.getLogger(Converter.class);
 	private static final int CONVERTER_THREADS = 50;
-	private final GitConfig config;
 	private final BlockingMap<String, byte[]> queue = new BlockingHashMap<>();
+	private final IDatabase database;
 	private final ExecutorService threads;
 	private Deque<Change> changes;
 	private final AtomicInteger queueSize = new AtomicInteger();
 
-	Converter(GitConfig config, ExecutorService threads) {
-		this.config = config;
+	Converter(IDatabase database, ExecutorService threads) {
+		this.database = database;
 		this.threads = threads;
 	}
 
@@ -77,8 +77,8 @@ class Converter {
 		var name = path.substring(path.lastIndexOf('/') + 1);
 		var refId = name.substring(0, name.indexOf('.'));
 		try {
-			var model = config.database.get(type, refId);
-			var data = convert(model, config);
+			var model = database.get(type, refId);
+			var data = convert(model);
 			offer(path, data);
 		} catch (Exception e) {
 			log.error("failed to convert data set " + change, e);
@@ -86,11 +86,11 @@ class Converter {
 		}
 	}
 
-	private byte[] convert(RefEntity entity, GitConfig config) {
+	private byte[] convert(RefEntity entity) {
 		if (entity == null)
 			return null;
 		try {
-			var json = JsonExport.toJson(entity, config.database);
+			var json = JsonExport.toJson(entity, database);
 			return json.toString().getBytes(StandardCharsets.UTF_8);
 		} catch (Exception e) {
 			log.error("failed to serialize " + entity, e);

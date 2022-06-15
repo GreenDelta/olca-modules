@@ -9,25 +9,25 @@ import java.util.List;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.openlca.core.database.FileStore;
-import org.openlca.git.GitConfig;
+import org.openlca.core.database.IDatabase;
 import org.openlca.git.model.Change;
 import org.openlca.git.util.GitUtil;
 import org.openlca.util.Strings;
 
 public class ChangeIterator extends EntryIterator {
 
-	private final GitConfig config;
+	private final IDatabase database;
 	private final List<Change> changes;
 
-	public ChangeIterator(GitConfig config, List<Change> changes) {
-		super(initialize("", config, changes));
-		this.config = config;
+	public ChangeIterator(IDatabase database, List<Change> changes) {
+		super(initialize("", database, changes));
+		this.database = database;
 		this.changes = changes;
 	}
 
 	private ChangeIterator(ChangeIterator parent, List<Change> changes) {
-		super(parent, initialize(GitUtil.decode(parent.getEntryPathString()), parent.config, changes));
-		this.config = parent.config;
+		super(parent, initialize(GitUtil.decode(parent.getEntryPathString()), parent.database, changes));
+		this.database = parent.database;
 		this.changes = changes;
 	}
 
@@ -38,11 +38,11 @@ public class ChangeIterator extends EntryIterator {
 					return new TreeEntry(file.getName(), mode, change, file);
 				})
 				.toList());
-		this.config = parent.config;
+		this.database = parent.database;
 		this.changes = new ArrayList<>();
 	}
 
-	private static List<TreeEntry> initialize(String prefix, GitConfig config, List<Change> changes) {
+	private static List<TreeEntry> initialize(String prefix, IDatabase database, List<Change> changes) {
 		var list = new ArrayList<TreeEntry>();
 		var added = new HashSet<String>();
 		changes.forEach(change -> {
@@ -57,7 +57,7 @@ public class ChangeIterator extends EntryIterator {
 				list.add(new TreeEntry(name, FileMode.TREE));
 			} else {
 				list.add(new TreeEntry(name, FileMode.REGULAR_FILE, change));
-				var binaryDir = getBinaryDir(config, change);
+				var binaryDir = getBinaryDir(database, change);
 				if (binaryDir != null) {
 					var bin = name.substring(0, name.indexOf(GitUtil.DATASET_SUFFIX)) + GitUtil.BIN_DIR_SUFFIX;
 					list.add(new TreeEntry(bin, FileMode.TREE, change, binaryDir));
@@ -68,8 +68,8 @@ public class ChangeIterator extends EntryIterator {
 		return list;
 	}
 
-	private static File getBinaryDir(GitConfig config, Change change) {
-		var filestore = new FileStore(config.database);
+	private static File getBinaryDir(IDatabase database, Change change) {
+		var filestore = new FileStore(database);
 		var folder = filestore.getFolder(change.type, change.refId);
 		if (!folder.exists() || folder.listFiles().length == 0)
 			return null;

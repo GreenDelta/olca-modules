@@ -32,10 +32,10 @@ public class WriteReadTest {
 
 	@Test
 	public void testSimpleDataSet() throws Exception {
-		var temp = TempConfig.create();
+		var tmp = TmpConfig.create();
 
 		// expect an empty database and repo
-		assertTrue(Diffs.workspace(temp.config).isEmpty());
+		assertTrue(Diffs.of(tmp.repo).with(tmp.database, tmp.idStore).isEmpty());
 
 		// insert model in database
 		var unitGroup = UnitGroup.of("Units of mass", "kg");
@@ -44,50 +44,44 @@ public class WriteReadTest {
 		db.insert(unitGroup);
 
 		// should find 1 diff
-		var diffs = Diffs.workspace(temp.config).stream().map(Change::new).collect(Collectors.toList());
+		var diffs = Diffs.of(tmp.repo).with(tmp.database, tmp.idStore).stream()
+				.map(Change::new)
+				.collect(Collectors.toList());
 		assertEquals(1, diffs.size());
 
 		// commit it
-		var writer = new CommitWriter(temp.config, temp.committer);
-		var commitId = writer.commit("initial commit", diffs);
+		var writer = new CommitWriter(tmp.repo, tmp.database).saveIdsIn(tmp.idStore).as(tmp.committer);
+		var commitId = writer.write("initial commit", diffs);
 
 		// get the data set from the repo
-		var id = temp.ids().get(unitGroup);
-		var string = Datasets.of(temp.repo()).get(id);
+		var id = tmp.idStore().get(unitGroup);
+		var string = Datasets.of(tmp.repo()).get(id);
 		var jsonObj = new Gson().fromJson(string, JsonObject.class);
 		assertEquals(unitGroup.refId, Json.getString(jsonObj, "@id"));
 
 		// make sure that we can find the commit
-		var commit = Commits.of(temp.repo()).get(commitId);
+		var commit = Commits.of(tmp.repo()).get(commitId);
 		assertEquals("initial commit", commit.message);
 
-		temp.delete();
+		tmp.delete();
 	}
 
-	private record TempConfig(GitConfig config, PersonIdent committer, File dir) {
+	private record TmpConfig(Repository repo, IDatabase database, ObjectIdStore idStore, PersonIdent committer,
+			File dir) {
 
-		static TempConfig create() {
+		static TmpConfig create() {
 			try {
 				var dir = Files.createTempDirectory("olca-git-test").toFile();
 				var repo = Repositories.open(new File(dir, "repo"));
 				var idStore = ObjectIdStore.fromFile(new File(dir, "id-store"));
-				var config = new GitConfig(Tests.db(), idStore, repo);
-				return new TempConfig(config, new PersonIdent("user", "user@example.com"), dir);
+				return new TmpConfig(repo, Tests.db(), idStore, new PersonIdent("user", "user@example.com"), dir);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
 		}
 
-		Repository repo() {
-			return config.repo;
-		}
-
-		ObjectIdStore ids() {
-			return config.store;
-		}
-
 		void delete() {
-			config.repo.close();
+			repo.close();
 			try {
 				Dirs.delete(dir);
 			} catch (Exception e) {

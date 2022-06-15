@@ -17,7 +17,8 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
-import org.openlca.git.GitConfig;
+import org.openlca.core.database.IDatabase;
+import org.openlca.git.ObjectIdStore;
 import org.openlca.git.find.Commits;
 import org.openlca.git.find.NotBinaryFilter;
 import org.openlca.git.iterator.DatabaseIterator;
@@ -33,19 +34,32 @@ import org.slf4j.LoggerFactory;
 public class Diffs {
 
 	private static Logger log = LoggerFactory.getLogger(Diffs.class);
+	private final Repository repo;
+	private final Commit commit;
+	private List<String> paths;
 
-	public static List<Diff> workspace(GitConfig config) {
-		return workspace(config, null, null);
+	private Diffs(Repository repo, Commit commit) {
+		this.repo = repo;
+		this.commit = commit;
 	}
 
-	public static List<Diff> workspace(GitConfig config, Commit commit) {
-		return workspace(config, commit, null);
+	public static Diffs of(Repository repo) {
+		return new Diffs(repo, null);
 	}
 
-	public static List<Diff> workspace(GitConfig config, Commit commit, List<String> paths) {
-		try (var walk = new TreeWalk(config.repo)) {
-			addTree(config.repo, walk, commit, true);
-			walk.addTree(new DatabaseIterator(config));
+	public static Diffs of(Repository repo, Commit commit) {
+		return new Diffs(repo, commit);
+	}
+
+	public Diffs filter(List<String> paths) {
+		this.paths = paths;
+		return this;
+	}
+
+	public List<Diff> with(IDatabase database, ObjectIdStore idStore) {
+		try (var walk = new TreeWalk(repo)) {
+			addTree(repo, walk, commit, true);
+			walk.addTree(new DatabaseIterator(database, idStore));
 			if (paths == null) {
 				paths = new ArrayList<>();
 			}
@@ -58,29 +72,21 @@ public class Diffs {
 		}
 	}
 
-	public static List<Diff> withPrevious(Repository repo, Commit commit) {
-		return withPrevious(repo, commit, null);
-	}
-
-	public static List<Diff> withPrevious(Repository repo, Commit commit, List<String> paths) {
+	public List<Diff> withPreviousCommit() {
 		var previousCommit = Commits.of(repo).find().before(commit.id).latest();
-		return between(repo, previousCommit, commit);
+		return with(previousCommit);
 	}
 
-	public static List<Diff> between(Repository repo, Commit left, Commit right) {
-		return between(repo, left, right, null);
-	}
-
-	public static List<Diff> between(Repository repo, Commit left, Commit right, List<String> paths) {
+	public List<Diff> with(Commit other) {
 		try (var walk = new TreeWalk(repo)) {
-			addTree(repo, walk, left, false);
-			addTree(repo, walk, right, false);
+			addTree(repo, walk, commit, false);
+			addTree(repo, walk, other, false);
 			if (paths == null) {
 				paths = new ArrayList<>();
 			}
 			walk.setFilter(getPathsFilter(paths.stream().distinct().toList()));
 			walk.setRecursive(true);
-			return scan(walk, e -> map(e, left, right));
+			return scan(walk, e -> map(e, commit, other));
 		} catch (IOException e) {
 			log.error("Error adding tree", e);
 			return new ArrayList<>();
@@ -103,7 +109,7 @@ public class Diffs {
 		return new Diff(type, left, right);
 	}
 
-	public static DiffType getDiffType(ChangeType type) {
+	private static DiffType getDiffType(ChangeType type) {
 		return switch (type) {
 			case ADD -> DiffType.ADDED;
 			case MODIFY -> DiffType.MODIFIED;

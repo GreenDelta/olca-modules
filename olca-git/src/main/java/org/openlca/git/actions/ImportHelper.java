@@ -33,9 +33,9 @@ class ImportHelper {
 	final ProgressMonitor progressMonitor;
 	ConflictResolver conflictResolver;
 
-	ImportHelper(Repository git, IDatabase database, ObjectIdStore workspaceIds, ProgressMonitor progressMonitor) {
-		this.references = References.of(git);
-		this.entries = Entries.of(git);
+	ImportHelper(Repository repo, IDatabase database, ObjectIdStore workspaceIds, ProgressMonitor progressMonitor) {
+		this.references = References.of(repo);
+		this.entries = Entries.of(repo);
 		this.database = database;
 		this.workspaceIds = workspaceIds;
 		this.progressMonitor = progressMonitor;
