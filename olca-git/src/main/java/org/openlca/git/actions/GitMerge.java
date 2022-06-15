@@ -111,10 +111,8 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		var ahead = !applyStash
 				? localHistory.getAheadOf(Constants.REMOTE_REF)
 				: new ArrayList<>();
-		if (progressMonitor != null) {
-			var work = toMount.size() + addedOrChanged.size() + deleted.size() + (!ahead.isEmpty() ? 1 : 0);
-			progressMonitor.beginTask("Merging data", work);
-		}
+		var work = toMount.size() + addedOrChanged.size() + deleted.size() + (!ahead.isEmpty() ? 1 : 0);
+		progressMonitor.beginTask("Merging data", work);
 		if (!mountLibraries(toMount))
 			throw new IOException("Could not mount libraries");
 		var gitStore = new GitStoreReader(git, localCommit, remoteCommit, addedOrChanged, conflictResolver);
@@ -163,15 +161,11 @@ public class GitMerge extends GitProgressAction<Boolean> {
 				diffs.add(new Change(DiffType.DELETED, r));
 			}
 		});
-		if (progressMonitor != null) {
-			progressMonitor.subTask("Writing merged changes");
-		}
+		progressMonitor.subTask("Writing merged changes");
 		var commitWriter = new CommitWriter(config, committer);
 		var mergeMessage = "Merge remote-tracking branch";
 		var commitId = commitWriter.mergeCommit(mergeMessage, diffs, localCommit.id, remoteCommit.id);
-		if (progressMonitor != null) {
-			progressMonitor.worked(1);
-		}
+		progressMonitor.worked(1);
 		return commitId;
 	}
 
@@ -206,13 +200,9 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		var handled = new HashSet<Library>();
 		while (!queue.isEmpty()) {
 			var next = queue.poll();
-			if (progressMonitor != null) {
-				progressMonitor.subTask("Mounting library " + next.name());
-			}
+			progressMonitor.subTask("Mounting library " + next.name());
 			if (handled.contains(next)) {
-				if (progressMonitor != null) {
-					progressMonitor.worked(1);
-				}
+				progressMonitor.worked(1);
 				continue;
 			}
 			handled.add(next);
@@ -228,9 +218,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 			Mounter.of(database, next)
 					.applyDefaultsOf(checkResult)
 					.run();
-			if (progressMonitor != null) {
-				progressMonitor.worked(1);
-			}
+			progressMonitor.worked(1);
 		}
 		return true;
 	}

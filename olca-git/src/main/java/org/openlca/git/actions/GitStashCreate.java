@@ -90,9 +90,7 @@ public class GitStashCreate extends GitProgressAction<Void> {
 						.map(c -> new Reference(c.path, headCommit.id, workspaceIds.getHead(c.path)))
 						.collect(Collectors.toList())
 				: new ArrayList<Reference>();
-		if (progressMonitor != null) {
-			progressMonitor.beginTask("Stashing data", changes.size() + toDelete.size() + toImport.size());
-		}
+		progressMonitor.beginTask("Stashing data", changes.size() + toDelete.size() + toImport.size());
 		if (!discard) {
 			var writer = new CommitWriter(config, committer, progressMonitor);
 			writer.stashCommit("Stashed changes", changes);

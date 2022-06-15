@@ -56,7 +56,7 @@ public class CommitWriter {
 	public CommitWriter(GitConfig config, PersonIdent committer, ProgressMonitor progressMonitor) {
 		this.config = config;
 		this.committer = committer;
-		this.progressMonitor = progressMonitor;
+		this.progressMonitor = progressMonitor != null ? progressMonitor : ProgressMonitor.NULL;
 	}
 
 	public String commit(String message, List<Change> changes) throws IOException {
@@ -225,17 +225,13 @@ public class CommitWriter {
 		}
 		if (file != null)
 			return insertBlob(Files.readAllBytes(file.toPath()));
-		if (progressMonitor != null) {
-			progressMonitor.subTask("Writing", change);
-		}
+		progressMonitor.subTask("Writing", change);
 		var data = converter.take(path);
 		localBlobId = insertBlob(data);
 		if (!isStashCommit && config.store != null) {
 			config.store.put(path, localBlobId);
 		}
-		if (progressMonitor != null) {
-			progressMonitor.worked(1);
-		}
+		progressMonitor.worked(1);
 		return localBlobId;
 	}
 

@@ -7,13 +7,13 @@ import org.openlca.git.util.ProgressMonitor;
 
 public abstract class GitProgressAction<T> {
 
-	protected ProgressMonitor progressMonitor;
+	protected ProgressMonitor progressMonitor = ProgressMonitor.NULL;
 
 	public GitProgressAction<T> withProgress(ProgressMonitor progressMonitor) {
-		this.progressMonitor = progressMonitor;
+		this.progressMonitor = progressMonitor != null ? progressMonitor : ProgressMonitor.NULL;
 		return this;
 	}
 
 	public abstract T run() throws IOException, GitAPIException;
-	
+
 }

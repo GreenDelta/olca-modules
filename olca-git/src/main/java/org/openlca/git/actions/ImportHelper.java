@@ -67,30 +67,22 @@ class ImportHelper {
 		for (var type : ImportHelper.TYPE_ORDER) {
 			var changes = gitStore.getChanges(type);
 			for (var change : changes) {
-				if (progressMonitor != null) {
-					progressMonitor.subTask("Importing", change);
-				}
+				progressMonitor.subTask("Importing", change);
 				jsonImport.run(type, change.refId);
-				if (progressMonitor != null) {
-					progressMonitor.worked(1);
-				}
+				progressMonitor.worked(1);
 			}
 		}
 	}
 
 	void delete(List<? extends ModelRef> remoteDeletions) {
 		for (var ref : new ArrayList<>(remoteDeletions)) {
-			if (progressMonitor != null) {
-				progressMonitor.subTask("Deleting", ref);
-			}
+			progressMonitor.subTask("Deleting", ref);
 			if (keepLocal(ref)) {
 				remoteDeletions.remove(ref);
 			} else {
 				delete(Daos.root(database, ref.type), ref.refId);
 			}
-			if (progressMonitor != null) {
-				progressMonitor.worked(1);
-			}
+			progressMonitor.worked(1);
 		}
 	}
 
@@ -139,7 +131,7 @@ class ImportHelper {
 		ImportResult(GitStoreReader store, List<? extends ModelRef> deleted) {
 			this(store.getImported(), store.getMerged(), store.getKeepDeleted(), deleted);
 		}
-		
+
 		int count() {
 			return imported.size() + merged.size() + deleted.size() + keepDeleted.size();
 		}

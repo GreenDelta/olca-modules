@@ -22,7 +22,7 @@ public class GitCommit extends GitProgressAction<String> {
 	private String message;
 	private ObjectIdStore workspaceIds;
 	private PersonIdent committer;
-	
+
 	private GitCommit(IDatabase database) {
 		this.database = database;
 	}
@@ -66,9 +66,7 @@ public class GitCommit extends GitProgressAction<String> {
 				throw new IllegalStateException("ObjectIdStore must be set when no changes are specified");
 			changes = Diffs.workspace(config).stream().map(Change::new).collect(Collectors.toList());
 		}
-		if (progressMonitor != null) {
-			progressMonitor.beginTask("Writing commit", changes.size());
-		}
+		progressMonitor.beginTask("Writing commit", changes.size());
 		var writer = new CommitWriter(config, committer, progressMonitor);
 		var commitId = writer.commit(message, changes);
 		return commitId;
