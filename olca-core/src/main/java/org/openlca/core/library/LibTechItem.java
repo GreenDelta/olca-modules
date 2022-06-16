@@ -2,6 +2,9 @@ package org.openlca.core.library;
 
 import org.apache.commons.csv.CSVRecord;
 import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.Process;
+import org.openlca.core.model.RootEntity;
 
 import java.util.List;
 
@@ -10,6 +13,10 @@ import java.util.List;
  */
 public record LibTechItem(
 	int index, LibProcess process, LibFlow flow) {
+
+	public static LibTechItem of(int idx, RootEntity provider, Flow flow) {
+		return new LibTechItem(idx, LibProcess.of(provider), LibFlow.of(flow));
+	}
 
 	public static LibTechItem of(int idx, TechFlow item, DbContext ctx) {
 		return new LibTechItem(

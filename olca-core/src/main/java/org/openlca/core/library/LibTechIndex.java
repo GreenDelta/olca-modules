@@ -22,6 +22,10 @@ public record LibTechIndex(List<LibTechItem> items) {
 		return new LibTechIndex(Collections.emptyList());
 	}
 
+	public static LibTechIndex of(LibTechItem... items) {
+		return new LibTechIndex(List.of(items));
+	}
+
 	public static LibTechIndex of(TechIndex idx, DbContext ctx) {
 		if (idx == null || idx.size() == 0)
 			return empty();
