@@ -92,13 +92,13 @@ public class DQSystem extends RootEntity {
 	public String getScoreLabel(int j) {
 		if (indicators.isEmpty())
 			return null;
-		for (DQScore score : indicators.get(0).scores) {
+		for (var score : indicators.get(0).scores) {
 			if (score.position == j)
 				return score.label == null
 						? Integer.toString(j)
 						: score.label;
 		}
-		return null;
+		return Integer.toString(j);
 	}
 
 	/**
@@ -137,19 +137,19 @@ public class DQSystem extends RootEntity {
 	public String toString(int... d) {
 		if (d == null || d.length == 0)
 			return null;
-		String s = "(";
+		var s = new StringBuilder("(");
 		int n = getScoreCount();
 		for (int i = 0; i < indicators.size(); i++) {
 			if (i > 0) {
-				s += ";";
+				s.append(";");
 			}
 			if (d.length <= i || d[i] <= 0 || d[i] > n) {
-				s += "n.a.";
+				s.append("n.a.");
 				continue;
 			}
-			s += d[i];
+			s.append(d[i]);
 		}
-		return s + ")";
+		return s.append(")").toString();
 	}
 
 	/**
@@ -193,17 +193,17 @@ public class DQSystem extends RootEntity {
 		int[] values = toValues(entry);
 		if (values == null || values.length == 0)
 			return "";
-		String s = "(";
+		var s = new StringBuilder("(");
 		for (int i = 0; i < values.length; i++) {
 			if (i > 0) {
-				s += "; ";
+				s.append("; ");
 			}
 			if (values[i] <= 0) {
-				s += "n.a.";
+				s.append("n.a.");
 				continue;
 			}
-			s += getScoreLabel(values[i]);
+			s.append(getScoreLabel(values[i]));
 		}
-		return s + ")";
+		return s.append(")").toString();
 	}
 }
