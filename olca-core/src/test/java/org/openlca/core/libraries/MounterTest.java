@@ -20,7 +20,7 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.output.JsonExport;
 import org.openlca.util.Dirs;
 
-public class DepTest {
+public class MounterTest {
 
 	private final IDatabase db = Tests.getDb();
 	private  LibraryDir libDir;
@@ -66,6 +66,18 @@ public class DepTest {
 	}
 
 	@Test
+	public void testRetag() {
+		Mounter.of(db, propsLib).run();
+		checkState();
+		Mounter.of(db, propsLib)
+			.apply(Map.of(
+				propsLib, MountAction.RETAG,
+				unitLib, MountAction.RETAG))
+			.run();
+		checkState();
+	}
+
+	@Test
 	public void testMountWithActions() {
 		Mounter.of(db, propsLib)
 			.apply(Map.of(
@@ -87,5 +99,8 @@ public class DepTest {
 		assertEquals(unitLib.name(), dbUnits.library);
 		var dbMass = db.get(FlowProperty.class, prop.refId);
 		assertEquals(propsLib.name(), dbMass.library);
+		var dbLibs = db.getLibraries();
+		assertTrue(dbLibs.contains(unitLib.name()));
+		assertTrue(dbLibs.contains(propsLib.name()));
 	}
 }
