@@ -43,7 +43,7 @@ class LibCache {
 			var lib = dir.getLibrary(id);
 			if (lib.isEmpty())
 				return null;
-			var index = lib.get().syncProducts(db);
+			var index = lib.get().syncTechIndex(db);
 			return index.orElse(null);
 		});
 	}
@@ -53,7 +53,7 @@ class LibCache {
 			var lib = dir.getLibrary(id);
 			if (lib.isEmpty())
 				return null;
-			var index = lib.get().syncElementaryFlows(db);
+			var index = lib.get().syncEnviIndex(db);
 			return index.orElse(null);
 		});
 	}
@@ -63,7 +63,7 @@ class LibCache {
 			var lib = dir.getLibrary(id);
 			if (lib.isEmpty())
 				return null;
-			var index = lib.get().syncImpacts(db);
+			var index = lib.get().syncImpactIndex(db);
 			return index.orElse(null);
 		});
 	}

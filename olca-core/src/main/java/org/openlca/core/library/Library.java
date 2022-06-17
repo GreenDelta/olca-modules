@@ -1,7 +1,6 @@
 package org.openlca.core.library;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayDeque;
@@ -29,10 +28,10 @@ import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
+import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.ZipStore;
-import org.slf4j.LoggerFactory;
 
 public record Library(File folder) {
 
@@ -121,36 +120,26 @@ public record Library(File folder) {
 	}
 
 	/**
-	 * Get the product index of this library.
+	 * Read the index of technosphere flows from this library. Note that this
+	 * method returns an empty index if this library hase no technosphere flows.
 	 */
-	public Proto.ProductIndex getProductIndex() {
-		var file = new File(folder, "index_A.bin");
-		if (!file.exists())
-			return Proto.ProductIndex.getDefaultInstance();
-		try (var stream = new FileInputStream(file)) {
-			return Proto.ProductIndex.parseFrom(stream);
-		} catch (Exception e) {
-			var log = LoggerFactory.getLogger(getClass());
-			log.error("failed to read product index from " + file, e);
-			return Proto.ProductIndex.getDefaultInstance();
-		}
+	public LibTechIndex readTechIndex() {
+		return LibTechIndex.readFrom(this);
 	}
 
 	/**
-	 * Returns the products of the library in matrix order. If this library has
-	 * no product index or if this index is not in sync with the database, an
-	 * empty option is returned.
+	 * Returns the index of technosphere flows in matrix order. If this library
+	 * has no technosphere flows or if this index is not in sync with the
+	 * database, an empty option is returned.
 	 */
-	public Optional<TechIndex> syncProducts(IDatabase db) {
+	public Optional<TechIndex> syncTechIndex(IDatabase db) {
 		var processes = descriptors(new ProcessDao(db));
 		var products = descriptors(new FlowDao(db));
 		TechIndex index = null;
-		var proto = getProductIndex();
-		int size = proto.getProductCount();
-		for (int i = 0; i < size; i++) {
-			var entry = proto.getProduct(i);
-			var process = processes.get(entry.getProcess().getId());
-			var product = products.get(entry.getProduct().getId());
+		var libIdx = readTechIndex();
+		for (var i : libIdx.items()) {
+			var process = processes.get(i.process().id());
+			var product = products.get(i.flow().id());
 			if (process == null || product == null)
 				return Optional.empty();
 			if (index == null) {
@@ -163,30 +152,21 @@ public record Library(File folder) {
 	}
 
 	/**
-	 * Get the elementary flow index of this library.
+	 * Read the index of environmental flows from this library. Note that this
+	 * method returns an empty index if this library has no such flows.
 	 */
-	public Proto.ElemFlowIndex getElemFlowIndex() {
-		var file = new File(folder, "index_B.bin");
-		if (!file.exists())
-			return Proto.ElemFlowIndex.getDefaultInstance();
-		try (var stream = new FileInputStream(file)) {
-			return Proto.ElemFlowIndex.parseFrom(stream);
-		} catch (Exception e) {
-			var log = LoggerFactory.getLogger(getClass());
-			log.error("failed to read elem. flow index from " + file, e);
-			return Proto.ElemFlowIndex.getDefaultInstance();
-		}
+	public LibEnviIndex readEnviIndex() {
+		return LibEnviIndex.readFrom(this);
 	}
 
 	/**
-	 * Returns the elementary flows of the library in matrix order. If this
-	 * information is not present or something went wrong while synchronizing
-	 * the flow index with the database, an empty option is returned.
+	 * Returns the index of environmental flows of the library in matrix order. If
+	 * this library has no environmental flows or if this index is not in sync
+	 * with the database, an empty option is returned.
 	 */
-	public Optional<EnviIndex> syncElementaryFlows(IDatabase db) {
-		var proto = getElemFlowIndex();
-		int size = proto.getFlowCount();
-		if (size == 0)
+	public Optional<EnviIndex> syncEnviIndex(IDatabase db) {
+		var libIdx = readEnviIndex();
+		if (libIdx.isEmpty())
 			return Optional.empty();
 
 		var info = getInfo();
@@ -195,56 +175,47 @@ public record Library(File folder) {
 			: EnviIndex.create();
 
 		var flows = descriptors(new FlowDao(db));
-		var locations = descriptors(new LocationDao(db));
-		for (int i = 0; i < size; i++) {
-			var entry = proto.getFlow(i);
-			var flow = flows.get(entry.getFlow().getId());
-			var location = locations.get(entry.getLocation().getId());
+		Map<String, LocationDescriptor> locations = info.isRegionalized()
+			? descriptors(new LocationDao(db))
+			: Collections.emptyMap();
+
+		for (var i : libIdx.items()) {
+			var flow = flows.get(i.flow().id());
 			if (flow == null)
 				return Optional.empty();
-			if (entry.getIsInput()) {
-				index.add(EnviFlow.inputOf(flow, location));
-			} else {
-				index.add(EnviFlow.outputOf(flow, location));
-			}
+			var location = info.isRegionalized() && !i.location().isEmpty()
+				? locations.get(i.location().id())
+				: null;
+			var enviFlow = i.isInput()
+				? EnviFlow.inputOf(flow, location)
+				: EnviFlow.outputOf(flow, location);
+			index.add(enviFlow);
 		}
 		return Optional.of(index);
 	}
 
 	/**
-	 * Get the impact category index of this library. Note that an
-	 * empty index instead of `null` is returned if this information
-	 * is not present in this library.
+	 * Read the index of impact indicators from this library. Note that this
+	 * method returns an empty index if this library has no such indicators.
 	 */
-	public Proto.ImpactIndex getImpactIndex() {
-		var file = new File(folder, "index_C.bin");
-		if (!file.exists())
-			return Proto.ImpactIndex.getDefaultInstance();
-		try (var stream = new FileInputStream(file)) {
-			return Proto.ImpactIndex.parseFrom(stream);
-		} catch (Exception e) {
-			var log = LoggerFactory.getLogger(getClass());
-			log.error("failed to read impact index from " + file, e);
-			return Proto.ImpactIndex.getDefaultInstance();
-		}
+	public LibImpactIndex readImpactIndex() {
+		return LibImpactIndex.readFrom(this);
 	}
 
 	/**
-	 * Returns the impact categories of the library in matrix order. If this
-	 * information is not present or something went wrong while synchronizing
-	 * the impact index with the database, an empty option is returned.
+	 * Returns the index of impact categories of this library in matrix order. If
+	 * this library has no impact categories or if this index is not in sync
+	 * with the database, an empty option is returned.
 	 */
-	public Optional<ImpactIndex> syncImpacts(IDatabase db) {
-		var proto = getImpactIndex();
-		int size = proto.getImpactCount();
-		if (size == 0)
+	public Optional<ImpactIndex> syncImpactIndex(IDatabase db) {
+		var libIdx = readImpactIndex();
+		if (libIdx.isEmpty())
 			return Optional.empty();
 
 		var index = new ImpactIndex();
 		var impacts = descriptors(new ImpactCategoryDao(db));
-		for (int i = 0; i < size; i++) {
-			var entry = proto.getImpact(i);
-			var impact = impacts.get(entry.getImpact().getId());
+		for (var i : libIdx.items()) {
+			var impact = impacts.get(i.impact().id());
 			if (impact == null)
 				return Optional.empty();
 			index.add(impact);

@@ -45,8 +45,7 @@ public class DbLibrarySwap implements Runnable {
 				var imp = new JsonImport(store, db);
 				imp.setUpdateMode(UpdateMode.ALWAYS);
 				imp.setCallback(e -> {
-					if (e instanceof RootEntity) {
-						var ce = (RootEntity) e;
+					if (e instanceof RootEntity ce) {
 						ce.library = libId;
 						db.update(ce);
 					}
@@ -120,12 +119,12 @@ public class DbLibrarySwap implements Runnable {
 			.stream()
 			.filter(d -> d.flowType != FlowType.ELEMENTARY_FLOW)
 			.collect(map());
-		var protoIndex = library.getProductIndex();
+
+		var libIdx = library.readTechIndex();
 		var list = new ArrayList<TechFlow>();
-		for (int i = 0; i < protoIndex.getProductCount(); i++) {
-			var protoEntry = protoIndex.getProduct(i);
-			var process = processes.get(protoEntry.getProcess().getId());
-			var flow = flows.get(protoEntry.getProduct().getId());
+		for (var i : libIdx.items()) {
+			var process = processes.get(i.process().id());
+			var flow = flows.get(i.flow().id());
 			if (process != null && flow != null) {
 				list.add(TechFlow.of(process, flow));
 			}

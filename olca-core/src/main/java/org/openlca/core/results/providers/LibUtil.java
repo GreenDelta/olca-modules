@@ -47,7 +47,7 @@ class LibUtil {
 				if (lib.isEmpty())
 					continue;
 				var next = lib.get()
-					.syncProducts(db)
+					.syncTechIndex(db)
 					.orElse(null);
 				if (next != null) {
 					map.put(libID, next);
@@ -82,7 +82,7 @@ class LibUtil {
 			var lib = dir.getLibrary(libID).orElse(null);
 			if (lib == null)
 				continue;
-			var flowIdx = lib.syncElementaryFlows(db)
+			var flowIdx = lib.syncEnviIndex(db)
 				.orElse(null);
 			map.put(libID, flowIdx);
 		}

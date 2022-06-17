@@ -66,7 +66,7 @@ public class LibImpactMatrix {
 			var libMatrix = lib.getMatrix(LibMatrix.C);
 			if (libMatrix.isEmpty())
 				continue;
-			var libImpacts = lib.syncImpacts(db);
+			var libImpacts = lib.syncImpactIndex(db);
 			if (libImpacts.isEmpty())
 				continue;
 
@@ -75,7 +75,7 @@ public class LibImpactMatrix {
 				?  libFlowIndices.get(libID)
 				: null;
 			if (libFlows == null) {
-				libFlows = lib.syncElementaryFlows(db)
+				libFlows = lib.syncEnviIndex(db)
 					.orElse(null);
 			}
 			if (libFlows == null)

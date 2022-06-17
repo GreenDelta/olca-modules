@@ -28,7 +28,7 @@ class Exchanges {
 	List<Exchange> getFor(TechFlow product) {
 		if (lib == null || db == null || product == null)
 			return Collections.emptyList();
-		var techIndex = lib.syncProducts(db).orElse(null);
+		var techIndex = lib.syncTechIndex(db).orElse(null);
 		if (techIndex == null)
 			return Collections.emptyList();
 
@@ -72,7 +72,7 @@ class Exchanges {
 		var colB = lib.getColumn(LibMatrix.B, column).orElse(null);
 		if (colB == null)
 			return;
-		var iFlows = lib.syncElementaryFlows(db).orElse(null);
+		var iFlows = lib.syncEnviIndex(db).orElse(null);
 		if (iFlows == null)
 			return;
 

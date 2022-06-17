@@ -29,7 +29,7 @@ class ImpactFactors {
 			return Collections.emptyList();
 
 		// get the row of the impact category
-		var impactIndex = lib.syncImpacts(db).orElse(null);
+		var impactIndex = lib.syncImpactIndex(db).orElse(null);
 		if (impactIndex == null)
 			return Collections.emptyList();
 		int row = impactIndex.of(impact);
@@ -37,7 +37,7 @@ class ImpactFactors {
 			return Collections.emptyList();
 
 		// sync the flows
-		var flowIndex = lib.syncElementaryFlows(db).orElse(null);
+		var flowIndex = lib.syncEnviIndex(db).orElse(null);
 		if (flowIndex == null)
 			return Collections.emptyList();
 
