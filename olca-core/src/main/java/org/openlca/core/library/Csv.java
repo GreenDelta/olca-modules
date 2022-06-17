@@ -25,7 +25,7 @@ class Csv {
 	}
 
 	static String read(CSVRecord row, int pos) {
-		return row.size() >= pos
+		return pos >= row.size()
 			? null
 			: row.get(pos);
 	}

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.function.ToIntFunction;
 
 import org.junit.After;
@@ -12,8 +13,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.library.IndexFormat;
+import org.openlca.core.library.LibTechIndex;
+import org.openlca.core.library.LibTechItem;
 import org.openlca.core.library.Libraries;
 import org.openlca.core.library.LibraryDir;
+import org.openlca.core.library.Mounter;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.Process;
+import org.openlca.core.model.UnitGroup;
+import org.openlca.jsonld.output.JsonExport;
 import org.openlca.util.Dirs;
 
 public class LibrariesTest {
@@ -41,6 +51,32 @@ public class LibrariesTest {
 		assertTrue(lib.syncTechIndex(db).isEmpty());
 		assertTrue(lib.syncEnviIndex(db).isEmpty());
 		assertTrue(lib.syncImpactIndex(db).isEmpty());
+	}
+
+	@Test
+	public void testSyncTechIndex() throws IOException {
+		var units = UnitGroup.of("Mass units", "kg");
+		var mass = FlowProperty.of("Mass", units);
+		var p = Flow.product("p", mass);
+		var P = Process.of("P", p);
+		var q = Flow.product("q", mass);
+		var Q = Process.of("Q", q);
+
+		var lib = libDir.create("lib");
+		try(var zip = lib.openJsonZip()) {
+			var exp = new JsonExport(zip);
+			List.of(units, mass, p, q, P, Q)
+				.forEach(exp::write);
+		}
+
+		var libIdx = LibTechIndex.of(
+			LibTechItem.of(0, P, p),
+			LibTechItem.of(1, Q, q));
+		libIdx.writeTo(lib, IndexFormat.CSV);
+
+		Mounter.of(db, lib).run();
+		var techIdx = lib.syncTechIndex(db).orElse(null);
+		assertNotNull(techIdx);
 	}
 
 	@Test
