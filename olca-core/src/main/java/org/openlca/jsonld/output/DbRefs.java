@@ -25,7 +25,7 @@ import java.util.Map;
  * references, {@code Json.asRef} should be used instead as this class maintains
  * an internal cache.
  */
-class Refs {
+class DbRefs {
 
 	private final IDatabase db;
 	private final PathBuilder categories;
@@ -33,22 +33,17 @@ class Refs {
 	private Map<Long, String> _locationCodes;
 	private Map<Long, String> _refUnits;
 
-	private Refs(IDatabase db) {
+	private DbRefs(IDatabase db) {
 		this.db = db;
 		this.categories = Categories.pathsOf(db);
 		this.cache = new EnumMap<>(ModelType.class);
 	}
 
-	static Refs of(IDatabase db) {
-		return new Refs(db);
+	static DbRefs of(IDatabase db) {
+		return new DbRefs(db);
 	}
 
-	JsonObject get(ModelType type, long id) {
-		var descriptor = descriptorOf(type, id);
-		return get(descriptor);
-	}
-
-	private JsonObject get(RootDescriptor d) {
+	JsonObject asRef(RootDescriptor d) {
 		if (d == null)
 			return null;
 		var ref = new JsonObject();

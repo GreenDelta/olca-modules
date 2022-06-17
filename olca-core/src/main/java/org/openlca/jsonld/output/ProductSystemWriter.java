@@ -79,7 +79,7 @@ record ProductSystemWriter(JsonExport exp) implements Writer<ProductSystem> {
 	}
 
 	private void mapProcesses(ProductSystem sys, JsonObject json) {
-		var refs = exp.refs;
+		var refs = exp.dbRefs;
 		if (refs == null)
 			return;
 		var array = new JsonArray();

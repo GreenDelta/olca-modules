@@ -8,9 +8,11 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.FileStore;
@@ -46,7 +48,6 @@ import org.openlca.jsonld.MemStore;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.util.Strings;
 
 /**
@@ -61,8 +62,8 @@ public class JsonExport {
 	boolean skipLibraryData = true;
 	boolean exportProviders = false;
 
-	private final Map<ModelType, TLongHashSet> visited = new EnumMap<>(ModelType.class);
-	final Refs refs;
+	private final Map<ModelType, Set<String>> visited = new EnumMap<>(ModelType.class);
+	final DbRefs dbRefs;
 
 	/**
 	 * Creates an export without database. This can be useful to convert specific
@@ -76,8 +77,8 @@ public class JsonExport {
 	public JsonExport(IDatabase db, JsonStoreWriter writer) {
 		this.db = db;
 		this.writer = Objects.requireNonNull(writer);
-		this.refs = db != null
-			? Refs.of(db)
+		this.dbRefs = db != null
+			? DbRefs.of(db)
 			: null;
 	}
 
@@ -97,25 +98,34 @@ public class JsonExport {
 	}
 
 	private void setVisited(RefEntity entity) {
-		if (entity == null)
+		if (entity == null || entity.refId == null)
 			return;
 		var type = ModelType.of(entity);
 		if (type == null)
 			return;
-		var set = visited.computeIfAbsent(type, k -> new TLongHashSet());
-		set.add(entity.id);
+		var set = visited.computeIfAbsent(type, k -> new HashSet<>());
+		set.add(entity.refId);
 	}
 
-	private boolean hasVisited(ModelType type, long id) {
+	private boolean hasVisited(ModelType type, String refId) {
 		var set = visited.get(type);
-		return set != null && set.contains(id);
+		return set != null && set.contains(refId);
 	}
 
+	/**
+	 * Creates a short reference for the entity with the given type and ID. This
+	 * method should be only used when nothing more than the ID and type of a
+	 * thing are available (e.g. for default providers in exchanges or processes
+	 * in process links).
+	 */
 	JsonObject handleRef(ModelType type, long id) {
-		if (type == null || !type.isRoot() || db == null)
+		if (type == null || !type.isRoot() || dbRefs == null)
 			return null;
-		if (hasVisited(type, id) || !exportReferences)
-			return refs.get(type, id);
+		var d = dbRefs.descriptorOf(type, id);
+		if (d == null)
+			return null;
+		if (hasVisited(type, d.refId) || !exportReferences)
+			return dbRefs.asRef(d);
 		var dao = Daos.root(db, type);
 		return dao != null
 			? handleRef(dao.getForId(id))
@@ -154,7 +164,7 @@ public class JsonExport {
 			warn(cb, "no refId; or type is unknown", entity);
 			return;
 		}
-		if (hasVisited(type, entity.id))
+		if (hasVisited(type, entity.refId))
 			return;
 		setVisited(entity);
 
