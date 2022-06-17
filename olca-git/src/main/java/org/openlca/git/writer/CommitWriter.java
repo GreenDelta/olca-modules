@@ -19,11 +19,13 @@ import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectInserter;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.TreeFormatter;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
-import org.openlca.git.GitConfig;
+import org.openlca.core.database.IDatabase;
+import org.openlca.git.ObjectIdStore;
 import org.openlca.git.iterator.ChangeIterator;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.DiffType;
@@ -39,49 +41,53 @@ import org.slf4j.LoggerFactory;
 public class CommitWriter {
 
 	private static final Logger log = LoggerFactory.getLogger(CommitWriter.class);
-	private final GitConfig config;
-	private final PersonIdent committer;
-	private final ProgressMonitor progressMonitor;
+	private final Repository repo;
+	private final IDatabase database;
+	private String ref = Constants.HEAD;
+	private PersonIdent committer = new PersonIdent("anonymous", "anonymous@anonymous.org");
+	private ObjectIdStore idStore;
+	private ProgressMonitor progressMonitor = ProgressMonitor.NULL;
+	private String localCommitId;
+	private String remoteCommitId;
 	private PackInserter packInserter;
 	private ObjectInserter objectInserter;
 	private Converter converter;
 	private ExecutorService threads;
-	private boolean isMergeCommit;
-	private boolean isStashCommit;
 
-	public CommitWriter(GitConfig config, PersonIdent committer) {
-		this(config, committer, null);
+	public CommitWriter(Repository repo, IDatabase database) {
+		this.repo = repo;
+		this.database = database;
 	}
 
-	public CommitWriter(GitConfig config, PersonIdent committer, ProgressMonitor progressMonitor) {
-		this.config = config;
-		this.committer = committer;
-		this.progressMonitor = progressMonitor;
+	public CommitWriter ref(String ref) {
+		this.ref = ref != null ? ref : Constants.HEAD;
+		return this;
 	}
 
-	public String commit(String message, List<Change> changes) throws IOException {
-		isMergeCommit = false;
-		isStashCommit = false;
-		return _commit(message, changes, null, null);
+	public CommitWriter as(PersonIdent committer) {
+		this.committer = committer != null ? committer : new PersonIdent("anonymous", "anonymous@anonymous.org");
+		return this;
 	}
 
-	public String stashCommit(String message, List<Change> changes) throws IOException {
-		isMergeCommit = false;
-		isStashCommit = true;
-		return _commit(message, changes, null, null);
+	public CommitWriter saveIdsIn(ObjectIdStore idStore) {
+		this.idStore = idStore;
+		return this;
 	}
 
-	public String mergeCommit(String message, List<Change> changes, String localCommitId, String remoteCommitId)
-			throws IOException {
-		isMergeCommit = true;
-		isStashCommit = false;
-		return _commit(message, changes, localCommitId, remoteCommitId);
+	public CommitWriter merge(String localCommitId, String remoteCommitId) {
+		this.localCommitId = localCommitId;
+		this.remoteCommitId = remoteCommitId;
+		return this;
 	}
 
-	private String _commit(String message, List<Change> changes, String localCommitId, String remoteCommitId)
-			throws IOException {
+	public CommitWriter with(ProgressMonitor progressMonitor) {
+		this.progressMonitor = progressMonitor != null ? progressMonitor : ProgressMonitor.NULL;
+		return this;
+	}
+
+	public String write(String message, List<Change> changes) throws IOException {
 		try {
-			var previousCommit = Repositories.headCommitOf(config.repo);
+			var previousCommit = Repositories.headCommitOf(repo);
 			if (previousCommit != null && !isCurrentSchemaVersion())
 				throw new IOException("Git repo is not in current schema version");
 			if (changes.isEmpty() && (previousCommit == null || localCommitId == null || remoteCommitId == null))
@@ -92,11 +98,11 @@ public class CommitWriter {
 			}
 			var localTreeId = getCommitTreeId(localCommitId);
 			var remoteTreeId = getCommitTreeId(remoteCommitId);
-			var treeId = syncTree("", new ChangeIterator(config, changes), localTreeId, remoteTreeId);
-			if (!isStashCommit && config.store != null) {
-				config.store.save();
+			var treeId = syncTree("", new ChangeIterator(database, changes), localTreeId, remoteTreeId);
+			if (idStore != null) {
+				idStore.save();
 			}
-			var commitId = commit(message, treeId, localCommitId, remoteCommitId);
+			var commitId = commit(message, treeId);
 			return commitId.name();
 		} finally {
 			close();
@@ -105,12 +111,12 @@ public class CommitWriter {
 
 	private void init(List<Change> changes, boolean firstCommit) {
 		threads = Executors.newCachedThreadPool();
-		if (config.repo instanceof FileRepository fileRepo) {
+		if (repo instanceof FileRepository fileRepo) {
 			packInserter = fileRepo.getObjectDatabase().newPackInserter();
 			packInserter.checkExisting(!firstCommit);
 		}
-		objectInserter = config.repo.newObjectInserter();
-		converter = new Converter(config, threads);
+		objectInserter = repo.newObjectInserter();
+		converter = new Converter(database, threads);
 		converter.start(changes.stream()
 				.filter(d -> d.diffType != DiffType.DELETED)
 				.sorted()
@@ -120,7 +126,7 @@ public class CommitWriter {
 	private ObjectId getCommitTreeId(String commitId) throws IOException {
 		if (Strings.nullOrEmpty(commitId))
 			return null;
-		var commit = config.repo.parseCommit(ObjectId.fromString(commitId));
+		var commit = repo.parseCommit(ObjectId.fromString(commitId));
 		if (commit == null)
 			return null;
 		return commit.getTree().getId();
@@ -151,8 +157,8 @@ public class CommitWriter {
 			log.error("Error walking tree", e);
 		}
 		if (!appended && !Strings.nullOrEmpty(prefix)) {
-			if (!isStashCommit && config.store != null) {
-				config.store.remove(prefix);
+			if (idStore != null) {
+				idStore.remove(prefix);
 			}
 			return null;
 		}
@@ -161,8 +167,8 @@ public class CommitWriter {
 		}
 		try {
 			var newId = objectInserter.insert(tree);
-			if (!isStashCommit && config.store != null) {
-				config.store.put(prefix, newId);
+			if (idStore != null) {
+				idStore.put(prefix, newId);
 			}
 			return newId;
 		} catch (IOException e) {
@@ -173,7 +179,7 @@ public class CommitWriter {
 
 	private TreeWalk createWalk(String prefix, ChangeIterator diffIterator, ObjectId localTreeId,
 			ObjectId remoteTreeId) throws IOException {
-		var walk = new TreeWalk(config.repo);
+		var walk = new TreeWalk(repo);
 		addTree(walk, prefix, localTreeId);
 		addTree(walk, prefix, remoteTreeId);
 		if (diffIterator != null) {
@@ -212,37 +218,33 @@ public class CommitWriter {
 		var localBlobId = walk.getFileMode(0) != FileMode.MISSING ? walk.getObjectId(0) : null;
 		var remoteBlobId = walk.getFileMode(1) != FileMode.MISSING ? walk.getObjectId(1) : null;
 		if (walk.getFileMode(2) == FileMode.MISSING)
-			return isMergeCommit && remoteBlobId != null ? remoteBlobId : localBlobId;
+			return remoteBlobId != null ? remoteBlobId : localBlobId;
 		var path = GitUtil.decode(walk.getPathString());
 		var iterator = walk.getTree(2, ChangeIterator.class);
 		Change change = iterator.getEntryData();
 		var file = iterator.getEntryFile();
 		if (change.diffType == DiffType.DELETED && matches(path, change, file)) {
-			if (file == null && !isStashCommit && config.store != null) {
-				config.store.remove(path);
+			if (file == null && idStore != null) {
+				idStore.remove(path);
 			}
 			return null;
 		}
 		if (file != null)
 			return insertBlob(Files.readAllBytes(file.toPath()));
-		if (progressMonitor != null) {
-			progressMonitor.subTask("Writing", change);
-		}
+		progressMonitor.subTask("Writing", change);
 		var data = converter.take(path);
 		localBlobId = insertBlob(data);
-		if (!isStashCommit && config.store != null) {
-			config.store.put(path, localBlobId);
+		if (idStore != null) {
+			idStore.put(path, localBlobId);
 		}
-		if (progressMonitor != null) {
-			progressMonitor.worked(1);
-		}
+		progressMonitor.worked(1);
 		return localBlobId;
 	}
 
 	private void appendPackageInfo(TreeFormatter tree) {
 		try {
 			var schemaBytes = PackageInfo.create()
-					.withLibraries(config.database.getLibraries())
+					.withLibraries(database.getLibraries())
 					.json().toString().getBytes(StandardCharsets.UTF_8);
 			var blobId = insertBlob(schemaBytes);
 			if (blobId != null) {
@@ -267,7 +269,7 @@ public class CommitWriter {
 		return path.startsWith(change.path.substring(0, change.path.lastIndexOf(GitUtil.DATASET_SUFFIX)));
 	}
 
-	private ObjectId commit(String message, ObjectId treeId, String localCommitId, String remoteCommitId) {
+	private ObjectId commit(String message, ObjectId treeId) {
 		try {
 			var commit = new CommitBuilder();
 			commit.setAuthor(committer);
@@ -282,11 +284,7 @@ public class CommitWriter {
 				commit.addParentId(ObjectId.fromString(remoteCommitId));
 			}
 			var commitId = objectInserter.insert(commit);
-			if (isStashCommit) {
-				updateRef(Constants.R_STASH, message, commitId);
-			} else {
-				updateRef(Constants.HEAD, message, commitId);
-			}
+			updateRef(message, commitId);
 			return commitId;
 		} catch (IOException e) {
 			log.error("failed to update head", e);
@@ -294,10 +292,10 @@ public class CommitWriter {
 		}
 	}
 
-	private void updateRef(String ref, String message, ObjectId commitId) throws IOException {
-		var update = config.repo.updateRef(ref);
+	private void updateRef(String message, ObjectId commitId) throws IOException {
+		var update = repo.updateRef(ref);
 		update.setNewObjectId(commitId);
-		if (!isStashCommit) {
+		if (!Constants.R_STASH.equals(ref)) {
 			update.update();
 		} else {
 			update.setRefLogIdent(committer);
@@ -308,7 +306,7 @@ public class CommitWriter {
 	}
 
 	private boolean isCurrentSchemaVersion() {
-		var info = Repositories.infoOf(config.repo);
+		var info = Repositories.infoOf(repo);
 		if (info == null)
 			return false;
 		var schema = info.schemaVersion();

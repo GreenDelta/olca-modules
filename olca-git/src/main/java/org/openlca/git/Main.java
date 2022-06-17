@@ -7,10 +7,12 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.lib.Repository;
 import org.openlca.core.DataDir;
 import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.Derby;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
@@ -38,9 +40,8 @@ public class Main {
 		try (var database = new Derby(tmp);
 				var repo = new FileRepository(repoDir)) {
 			var storeFile = new File(tmp, "object-id.store");
-			var store = ObjectIdStore.fromFile(storeFile);
-			var config = new GitConfig(database, store, repo);
-			var writer = new DbWriter(config);
+			var idStore = ObjectIdStore.fromFile(storeFile);
+			var writer = new DbWriter(repo, database, idStore);
 
 			if (repoDir.exists()) {
 				delete(repoDir);
@@ -89,12 +90,16 @@ public class Main {
 				ModelType.IMPACT_CATEGORY,
 				ModelType.IMPACT_METHOD
 		};
-		private final GitConfig config;
+		private final Repository repo;
+		private final IDatabase database;
+		private final ObjectIdStore idStore;
 		private final CommitWriter writer;
 
-		private DbWriter(GitConfig config) {
-			this.config = config;
-			this.writer = new CommitWriter(config, committer);
+		private DbWriter(Repository repo, IDatabase database, ObjectIdStore idStore) {
+			this.repo = repo;
+			this.database = database;
+			this.idStore = idStore;
+			this.writer = new CommitWriter(repo, database).as(committer).saveIdsIn(idStore);
 		}
 
 		private void refData(boolean singleCommit) throws IOException {
@@ -106,12 +111,15 @@ public class Main {
 		}
 
 		private void refDataSingleCommit() throws IOException {
-			var changes = Diffs.workspace(config).stream().map(Change::new).collect(Collectors.toList());
-			System.out.println(writer.commit("Added data", changes));
+			var changes = Diffs.of(repo).with(database, idStore).stream()
+					.map(Change::new)
+					.collect(Collectors.toList());
+			System.out.println(writer.write("Added data", changes));
 		}
 
 		private void refDataSeparateCommits() throws IOException {
-			var changes = Diffs.workspace(config).stream().map(Change::new).collect(Collectors.toList());
+			var changes = Diffs.of(repo).with(database, idStore).stream().map(Change::new)
+					.collect(Collectors.toList());
 			long time = 0;
 			for (ModelType type : REF_DATA_TYPES) {
 				var filtered = changes.stream()
@@ -119,43 +127,45 @@ public class Main {
 						.toList();
 				long t = System.currentTimeMillis();
 				System.out.println("Committing " + filtered.size() + " files");
-				System.out.println(writer.commit("Added data for type " + type.name(), filtered));
+				System.out.println(writer.write("Added data for type " + type.name(), filtered));
 				time += System.currentTimeMillis() - t;
 			}
 			System.out.println("Total time: " + time + "ms");
 		}
 
 		private void update() throws IOException {
-			var dao = new LocationDao(config.database);
+			var dao = new LocationDao(database);
 
 			var deleted = dao.getAll().get(5);
 			dao.delete(deleted);
-			config.store.remove(deleted);
+			idStore.remove(deleted);
 
 			var changed = dao.getAll().get(0);
 			changed.description = "changed " + Math.random();
 			dao.update(changed);
-			config.store.remove(changed);
+			idStore.remove(changed);
 
 			var newLoc = new Location();
 			newLoc.refId = UUID.randomUUID().toString();
 			newLoc.name = "new";
 			dao.insert(newLoc);
-			config.store.save();
+			idStore.save();
 
-			var changes = Diffs.workspace(config).stream().map(Change::new).collect(Collectors.toList());
-			var writer = new CommitWriter(config, committer);
-			System.out.println(writer.commit("Updated data", changes));
+			var changes = Diffs.of(repo).with(database, idStore).stream()
+					.map(Change::new)
+					.collect(Collectors.toList());
+			var writer = new CommitWriter(repo, database).as(committer).saveIdsIn(idStore);
+			System.out.println(writer.write("Updated data", changes));
 		}
 
 		private void delete() throws IOException {
-			var categoryPath = Categories.pathsOf(config.database);
+			var categoryPath = Categories.pathsOf(database);
 			for (var type : REF_DATA_TYPES) {
-				for (var d : Daos.root(config.database, type).getDescriptors()) {
-					config.store.remove(categoryPath, d);
+				for (var d : Daos.root(database, type).getDescriptors()) {
+					idStore.remove(categoryPath, d);
 				}
 				if (type == ModelType.CURRENCY) {
-					var dao = new CurrencyDao(config.database);
+					var dao = new CurrencyDao(database);
 					var currencies = dao.getAll();
 					for (var currency : currencies) {
 						currency.referenceCurrency = null;
@@ -163,13 +173,15 @@ public class Main {
 					}
 					dao.deleteAll();
 				} else {
-					Daos.root(config.database, type).deleteAll();
+					Daos.root(database, type).deleteAll();
 				}
 			}
-			config.store.save();
-			var changes = Diffs.workspace(config).stream().map(Change::new).collect(Collectors.toList());
-			var writer = new CommitWriter(config, committer);
-			System.out.println(writer.commit("Deleted data", changes));
+			idStore.save();
+			var changes = Diffs.of(repo).with(database, idStore).stream()
+					.map(Change::new)
+					.collect(Collectors.toList());
+			var writer = new CommitWriter(repo, database).as(committer).saveIdsIn(idStore);
+			System.out.println(writer.write("Deleted data", changes));
 		}
 
 	}

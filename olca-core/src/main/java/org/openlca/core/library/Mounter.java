@@ -69,11 +69,10 @@ public class Mounter implements Runnable {
 					retagger.exec();
 					shouldCompress = retagger.hasDeleted();
 				} else {
-					update(lib);
+					mount(lib);
 				}
 				new CategoryTagger(db, lib.name()).run();
 			}
-			db.addLibrary(library.name());
 			if (db instanceof Derby derby && shouldCompress) {
 				derby.compress();
 			}
@@ -83,7 +82,7 @@ public class Mounter implements Runnable {
 		}
 	}
 
-	private void update(Library lib) throws IOException {
+	private void mount(Library lib) throws IOException {
 		try (var zip = lib.openJsonZip()) {
 			new JsonImport(zip, db)
 				.setUpdateMode(UpdateMode.ALWAYS)
@@ -96,6 +95,7 @@ public class Mounter implements Runnable {
 					continue;
 				tag(lib.name(), type, new HashSet<>(refIds));
 			}
+			db.addLibrary(lib.name());
 		}
 	}
 

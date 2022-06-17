@@ -10,65 +10,70 @@ import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Daos;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.git.GitConfig;
+import org.openlca.git.ObjectIdStore;
 import org.openlca.git.util.GitUtil;
 import org.openlca.util.Categories;
 import org.openlca.util.Categories.PathBuilder;
 
 public class DatabaseIterator extends EntryIterator {
 
-	private final GitConfig config;
 	private final PathBuilder categoryPaths;
+	private final IDatabase database;
+	private final ObjectIdStore idStore;
 
-	public DatabaseIterator(GitConfig config) {
-		this(config, init(config));
+	public DatabaseIterator(IDatabase database, ObjectIdStore idStore) {
+		this(database, idStore, init(database));
 	}
 
-	private DatabaseIterator(GitConfig config, List<TreeEntry> entries) {
+	private DatabaseIterator(IDatabase database, ObjectIdStore idStore, List<TreeEntry> entries) {
 		super(entries);
-		this.config = config;
-		this.categoryPaths = Categories.pathsOf(config.database);
+		this.database = database;
+		this.idStore = idStore;
+		this.categoryPaths = Categories.pathsOf(database);
 	}
 
-	private DatabaseIterator(DatabaseIterator parent, GitConfig config, List<TreeEntry> entries) {
+	private DatabaseIterator(DatabaseIterator parent, IDatabase database, ObjectIdStore idStore,
+			List<TreeEntry> entries) {
 		super(parent, entries);
-		this.config = config;
-		this.categoryPaths = Categories.pathsOf(config.database);
+		this.database = database;
+		this.idStore = idStore;
+		this.categoryPaths = Categories.pathsOf(database);
 	}
 
-	private static List<TreeEntry> init(GitConfig config) {
+	private static List<TreeEntry> init(IDatabase database) {
 		return Arrays.stream(ModelType.rootTypes()).filter(type -> {
 			if (type == ModelType.CATEGORY)
 				return false;
-			var dao = new CategoryDao(config.database);
+			var dao = new CategoryDao(database);
 			if (!dao.getRootCategories(type).isEmpty())
 				return true;
-			return !Daos.root(config.database, type).getDescriptors(Optional.empty()).isEmpty();
+			return !Daos.root(database, type).getDescriptors(Optional.empty()).isEmpty();
 		}).map(TreeEntry::new)
 				.toList();
 	}
 
-	private static List<TreeEntry> init(GitConfig config, ModelType type) {
-		var entries = new CategoryDao(config.database).getRootCategories(type).stream()
+	private static List<TreeEntry> init(IDatabase database, ModelType type) {
+		var entries = new CategoryDao(database).getRootCategories(type).stream()
 				.filter(c -> !c.isFromLibrary())
 				.map(TreeEntry::new)
 				.collect(Collectors.toList());
-		entries.addAll(Daos.root(config.database, type).getDescriptors(Optional.empty()).stream()
+		entries.addAll(Daos.root(database, type).getDescriptors(Optional.empty()).stream()
 				.filter(d -> !d.isFromLibrary())
 				.map(TreeEntry::new)
 				.toList());
 		return entries;
 	}
 
-	private static List<TreeEntry> init(GitConfig config, Category category) {
+	private static List<TreeEntry> init(IDatabase database, Category category) {
 		var entries = category.childCategories.stream()
 				.filter(c -> !c.isFromLibrary())
 				.map(TreeEntry::new)
 				.collect(Collectors.toList());
-		entries.addAll(Daos.root(config.database, category.modelType).getDescriptors(Optional.of(category)).stream()
+		entries.addAll(Daos.root(database, category.modelType).getDescriptors(Optional.of(category)).stream()
 				.filter(d -> !d.isFromLibrary())
 				.map(TreeEntry::new)
 				.toList());
@@ -77,30 +82,30 @@ public class DatabaseIterator extends EntryIterator {
 
 	@Override
 	public boolean hasId() {
-		if (config.store == null)
+		if (idStore == null)
 			return false;
 		var data = getEntryData();
 		if (data == null)
 			return false;
 		if (data instanceof ModelType)
-			return config.store.has((ModelType) data);
+			return idStore.has((ModelType) data);
 		if (data instanceof Category)
-			return config.store.has((Category) data);
-		return config.store.has(categoryPaths, (RootDescriptor) data);
+			return idStore.has((Category) data);
+		return idStore.has(categoryPaths, (RootDescriptor) data);
 	}
 
 	@Override
 	public byte[] idBuffer() {
-		if (config.store == null)
+		if (idStore == null)
 			return GitUtil.getBytes(ObjectId.zeroId());
 		var data = getEntryData();
 		if (data == null)
 			return GitUtil.getBytes(ObjectId.zeroId());
 		if (data instanceof ModelType)
-			return config.store.getRaw((ModelType) data);
+			return idStore.getRaw((ModelType) data);
 		if (data instanceof Category)
-			return config.store.getRaw((Category) data);
-		return config.store.getRaw(categoryPaths, (RootDescriptor) data);
+			return idStore.getRaw((Category) data);
+		return idStore.getRaw(categoryPaths, (RootDescriptor) data);
 	}
 
 	@Override
@@ -112,9 +117,9 @@ public class DatabaseIterator extends EntryIterator {
 	public AbstractTreeIterator createSubtreeIterator(ObjectReader reader) {
 		var data = getEntryData();
 		if (data instanceof ModelType type)
-			return new DatabaseIterator(this, config, init(config, type));
+			return new DatabaseIterator(this, database, idStore, init(database, type));
 		if (data instanceof Category category)
-			return new DatabaseIterator(this, config, init(config, category));
+			return new DatabaseIterator(this, database, idStore, init(database, category));
 		return null;
 	}
 

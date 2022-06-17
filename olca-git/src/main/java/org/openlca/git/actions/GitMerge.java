@@ -17,7 +17,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.Mounter;
 import org.openlca.core.library.PreMountCheck;
-import org.openlca.git.GitConfig;
 import org.openlca.git.ObjectIdStore;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
 import org.openlca.git.actions.ImportHelper.ImportResult;
@@ -34,7 +33,7 @@ import org.openlca.git.writer.CommitWriter;
 
 public class GitMerge extends GitProgressAction<Boolean> {
 
-	private final Repository git;
+	private final Repository repo;
 	private final History localHistory;
 	private final Commits commits;
 	private IDatabase database;
@@ -44,14 +43,14 @@ public class GitMerge extends GitProgressAction<Boolean> {
 	private LibraryResolver libraryResolver;
 	private boolean applyStash;
 
-	private GitMerge(Repository git) {
-		this.git = git;
-		this.localHistory = History.localOf(git);
-		this.commits = Commits.of(git);
+	private GitMerge(Repository repo) {
+		this.repo = repo;
+		this.localHistory = History.localOf(repo);
+		this.commits = Commits.of(repo);
 	}
 
-	public static GitMerge from(Repository git) {
-		return new GitMerge(git);
+	public static GitMerge from(Repository repo) {
+		return new GitMerge(repo);
 	}
 
 	public GitMerge into(IDatabase database) {
@@ -86,7 +85,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 
 	@Override
 	public Boolean run() throws IOException, GitAPIException {
-		if (git == null || database == null)
+		if (repo == null || database == null)
 			throw new IllegalStateException("Git repository and database must be set");
 		var behind = localHistory.getBehindOf(getRef());
 		if (behind.isEmpty())
@@ -99,7 +98,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		if (toMount == null)
 			return null;
 		var commonParent = localHistory.commonParentOf(getRef());
-		var diffs = Diffs.between(git, commonParent, remoteCommit);
+		var diffs = Diffs.of(repo, commonParent).with(remoteCommit);
 		var deleted = diffs.stream()
 				.filter(d -> d.diffType == DiffType.DELETED)
 				.map(d -> d.toReference(Side.OLD))
@@ -111,16 +110,16 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		var ahead = !applyStash
 				? localHistory.getAheadOf(Constants.REMOTE_REF)
 				: new ArrayList<>();
-		if (progressMonitor != null) {
-			var work = toMount.size() + addedOrChanged.size() + deleted.size() + (!ahead.isEmpty() ? 1 : 0);
-			progressMonitor.beginTask("Merging data", work);
-		}
-		mountLibraries(toMount);
-		var gitStore = new GitStoreReader(git, localCommit, remoteCommit, addedOrChanged, conflictResolver);
-		var importHelper = new ImportHelper(git, database, workspaceIds, progressMonitor);
+		var work = toMount.size() + addedOrChanged.size() + deleted.size() + (!ahead.isEmpty() ? 1 : 0);
+		progressMonitor.beginTask("Merging data", work);
+		if (!mountLibraries(toMount))
+			throw new IOException("Could not mount libraries");
+		var gitStore = new GitStoreReader(repo, localCommit, remoteCommit, addedOrChanged, conflictResolver);
+		var importHelper = new ImportHelper(repo, database, workspaceIds, progressMonitor);
 		importHelper.conflictResolver = conflictResolver;
 		importHelper.runImport(gitStore);
 		importHelper.delete(deleted);
+		// TODO unmount libs removed from package info; not yet supported
 		var result = new ImportResult(gitStore, deleted);
 		String commitId = remoteCommit.id;
 		if (!applyStash) {
@@ -137,7 +136,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 	private Commit getRemoteCommit() throws GitAPIException {
 		if (!applyStash)
 			return commits.get(commits.resolve(Constants.REMOTE_BRANCH));
-		var commits = Git.wrap(git).stashList().call();
+		var commits = Git.wrap(repo).stashList().call();
 		if (commits == null || commits.isEmpty())
 			return null;
 		return new Commit(commits.iterator().next());
@@ -149,7 +148,6 @@ public class GitMerge extends GitProgressAction<Boolean> {
 
 	private String createMergeCommit(Commit localCommit, Commit remoteCommit, ImportResult result)
 			throws IOException {
-		var config = new GitConfig(database, workspaceIds, git);
 		var diffs = result.merged().stream()
 				.map(r -> new Change(DiffType.MODIFIED, r))
 				.collect(Collectors.toList());
@@ -161,26 +159,24 @@ public class GitMerge extends GitProgressAction<Boolean> {
 				diffs.add(new Change(DiffType.DELETED, r));
 			}
 		});
-		if (progressMonitor != null) {
-			progressMonitor.subTask("Writing merged changes");
-		}
-		var commitWriter = new CommitWriter(config, committer);
-		var mergeMessage = "Merge remote-tracking branch";
-		var commitId = commitWriter.mergeCommit(mergeMessage, diffs, localCommit.id, remoteCommit.id);
-		if (progressMonitor != null) {
-			progressMonitor.worked(1);
-		}
+		progressMonitor.subTask("Writing merged changes");
+		var writer = new CommitWriter(repo, database)
+				.saveIdsIn(workspaceIds)
+				.as(committer)
+				.merge(localCommit.id, remoteCommit.id);
+		var commitId = writer.write("Merge remote-tracking branch", diffs);
+		progressMonitor.worked(1);
 		return commitId;
 	}
 
 	private void updateHead(Commit commit) throws IOException {
-		var update = git.updateRef(Constants.LOCAL_BRANCH);
+		var update = repo.updateRef(Constants.LOCAL_BRANCH);
 		update.setNewObjectId(ObjectId.fromString(commit.id));
 		update.update();
 	}
 
 	private List<Library> resolveLibraries(Commit commit) {
-		var info = Repositories.infoOf(git, commit);
+		var info = Repositories.infoOf(repo, commit);
 		if (info == null)
 			return new ArrayList<>();
 		if (libraryResolver == null)
@@ -199,18 +195,14 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		return libs;
 	}
 
-	private void mountLibraries(List<Library> newLibraries) {
+	private boolean mountLibraries(List<Library> newLibraries) {
 		var queue = new ArrayDeque<>(newLibraries);
 		var handled = new HashSet<Library>();
 		while (!queue.isEmpty()) {
 			var next = queue.poll();
-			if (progressMonitor != null) {
-				progressMonitor.subTask("Mounting library " + next.name());
-			}
+			progressMonitor.subTask("Mounting library " + next.name());
 			if (handled.contains(next)) {
-				if (progressMonitor != null) {
-					progressMonitor.worked(1);
-				}
+				progressMonitor.worked(1);
 				continue;
 			}
 			handled.add(next);
@@ -220,16 +212,15 @@ public class GitMerge extends GitProgressAction<Boolean> {
 			// related to the library states of the check result
 			// when mounting these libraries
 			var checkResult = PreMountCheck.check(database, next);
+			if (checkResult.isError())
+				return false; // might result in partly mounted library list
 			checkResult.getStates().forEach(p -> handled.add(p.first));
 			Mounter.of(database, next)
-				.applyDefaultsOf(checkResult)
-				.run();
-			if (progressMonitor != null) {
-				progressMonitor.worked(1);
-			}
+					.applyDefaultsOf(checkResult)
+					.run();
+			progressMonitor.worked(1);
 		}
-
-		// TODO remove libs that are not anymore in package info
+		return true;
 	}
 
 }

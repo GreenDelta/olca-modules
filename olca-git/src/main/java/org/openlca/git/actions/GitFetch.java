@@ -13,26 +13,26 @@ import org.openlca.git.util.Constants;
 
 public class GitFetch extends GitRemoteAction<List<Commit>> {
 
-	private final Repository git;
+	private final Repository repo;
 	private final Commits commits;
 
-	private GitFetch(Repository git) {
-		this.git = git;
-		this.commits = Commits.of(git);
+	private GitFetch(Repository repo) {
+		this.repo = repo;
+		this.commits = Commits.of(repo);
 	}
 
-	public static GitFetch to(Repository git) {
-		return new GitFetch(git);
+	public static GitFetch to(Repository repo) {
+		return new GitFetch(repo);
 	}
 
 	@Override
 	public List<Commit> run() throws GitAPIException {
-		if (git == null) 
+		if (repo == null) 
 			throw new IllegalStateException("Git repository must be set");
 		var lastId = commits.find()
 				.refs(Constants.REMOTE_REF)
 				.latestId();
-		var result = Git.wrap(git).fetch()
+		var result = Git.wrap(repo).fetch()
 				.setCredentialsProvider(credentialsProvider)
 				.setRemote(Constants.DEFAULT_REMOTE)
 				.setRefSpecs(Constants.DEFAULT_FETCH_SPEC)

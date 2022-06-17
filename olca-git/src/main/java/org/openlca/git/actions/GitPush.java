@@ -16,27 +16,27 @@ import org.openlca.git.util.History;
 
 public class GitPush extends GitRemoteAction<PushResponse> {
 
-	private final Repository git;
+	private final Repository repo;
 	private final History localHistory;
 
-	private GitPush(Repository git) {
-		this.git = git;
-		this.localHistory = History.localOf(git);
+	private GitPush(Repository repo) {
+		this.repo = repo;
+		this.localHistory = History.localOf(repo);
 	}
 
-	public static GitPush from(Repository git) {
-		return new GitPush(git);
+	public static GitPush from(Repository repo) {
+		return new GitPush(repo);
 	}
 
 	@Override
 	public PushResponse run() throws GitAPIException {
-		if (git == null)
+		if (repo == null)
 			throw new IllegalStateException("Git repository must be set");
 		var newCommits = localHistory.getAheadOf(Constants.REMOTE_REF);
 		if (newCommits.isEmpty())
 			return new PushResponse(newCommits, Status.NOT_ATTEMPTED);
-		Git.wrap(git).gc().call();
-		var result = Git.wrap(git).push()
+		Git.wrap(repo).gc().call();
+		var result = Git.wrap(repo).push()
 				.setCredentialsProvider(credentialsProvider)
 				.setProgressMonitor(monitor)
 				.setRemote(Constants.DEFAULT_REMOTE)

@@ -9,16 +9,16 @@ public class DQSystemTest {
 	private DQSystem system;
 
 	@Before
-	public void prepare() {
+	public void setup() {
 		system = new DQSystem();
 		for (int i = 1; i <= 5; i++) {
-			DQIndicator indicator = new DQIndicator();
+			var indicator = new DQIndicator();
 			indicator.position = i;
 			system.indicators.add(indicator);
 			for (int j = 1; j <= 5; j++) {
-				DQScore score = new DQScore();
+				var score = new DQScore();
 				score.position = j;
-				score.label = new String(new char[] { (char) (64 + j) });
+				score.label = String.valueOf((char) (64 + j));
 				indicator.scores.add(score);
 			}
 		}
