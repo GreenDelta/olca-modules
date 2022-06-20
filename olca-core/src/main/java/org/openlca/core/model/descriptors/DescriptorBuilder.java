@@ -10,6 +10,11 @@ public class DescriptorBuilder<T extends Descriptor>{
 		this.descriptor = Objects.requireNonNull(descriptor);
 	}
 
+	public DescriptorBuilder<T> id(long id) {
+		descriptor.id = id;
+		return this;
+	}
+
 	public DescriptorBuilder<T> refId(String refId) {
 		descriptor.refId = refId;
 		return this;
