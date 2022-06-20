@@ -42,7 +42,7 @@ class ProductInfo implements Comparable<ProductInfo> {
 			FlowDescriptor product = pair.flow();
 			ProductInfo info = new ProductInfo();
 			info.provider = pair;
-			info.ref = pair.equals(index.getRefFlow());
+			// info.ref = pair.equals(index.getRefFlow()); TODO
 			info.process = process.name;
 			info.processId = process.refId;
 			info.product = product.name;

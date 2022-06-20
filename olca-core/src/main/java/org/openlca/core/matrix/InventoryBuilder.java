@@ -76,6 +76,7 @@ public class InventoryBuilder {
 
 		// create the matrix data
 		var data = new MatrixData();
+		data.demand = conf.demand;
 
 		// product data
 		data.techIndex = techIndex;

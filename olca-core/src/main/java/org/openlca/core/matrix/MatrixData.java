@@ -21,8 +21,12 @@ import org.openlca.util.Copy;
  */
 public class MatrixData {
 
+	/**
+	 * A demand value. This field is required when results should be calculated
+	 * from this data.
+	 */
 	public Demand demand;
-	
+
 	/**
 	 * The matrix index of the product and waste flows of the technosphere (i.e. the
 	 * row and column index of the technology matrix; the column index of the
@@ -117,7 +121,7 @@ public class MatrixData {
 
 	public boolean isSparse() {
 		return techMatrix instanceof HashPointMatrix
-					 || techMatrix instanceof CSCMatrix;
+			|| techMatrix instanceof CSCMatrix;
 	}
 
 	public boolean hasLibraryLinks() {

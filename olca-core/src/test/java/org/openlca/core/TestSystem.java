@@ -104,11 +104,9 @@ public class TestSystem {
 		return calc.calculateFull(setup);
 	}
 
-	public static ContributionResult contributions(
-			ProductSystem system) {
-		var setup = CalculationSetup.contributions(system)
-			.withCosts(true);
-		SystemCalculator calc = new SystemCalculator(Tests.getDb());
+	public static ContributionResult contributions(ProductSystem system) {
+		var setup = CalculationSetup.contributions(system).withCosts(true);
+		var calc = new SystemCalculator(Tests.getDb());
 		return calc.calculateContributions(setup);
 	}
 

@@ -56,10 +56,11 @@ public class LazyLibraryProvider implements ResultProvider {
 		this.db = context.db();
 		this.libs = LibCache.of(context);
 		this.solver = context.solver();
-		this.demand = context.data().demand;
+		this.demand = context.demand();
 		this.foregroundData = context.data();
 		this.foregroundSolution = EagerResultProvider.create(context);
 		this.fullData = new MatrixData();
+		this.fullData.demand = demand;
 		this.fullData.impactIndex = foregroundData.impactIndex;
 	}
 
@@ -83,7 +84,7 @@ public class LazyLibraryProvider implements ResultProvider {
 		// calculate the scaling vector
 		var s = provider.solutionOfOne(0);
 		var scalingVector = Arrays.copyOf(s, s.length);
-		var demand = provider.fullData.demand.value();
+		var demand = provider.demand.value();
 		for (int i = 0; i < scalingVector.length; i++) {
 			scalingVector[i] *= demand;
 		}

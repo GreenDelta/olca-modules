@@ -3,6 +3,7 @@ package org.openlca.core.results;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
+import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.index.TechFlow;
@@ -44,6 +45,7 @@ public class LinkContributionsTest {
 		index.putLink(LongPair.of(3, 4), provider(4, 4));
 
 		var data =new MatrixData();
+		data.demand = Demand.of(index.at(0), 1.0);
 		data.techMatrix = techMatrix;
 		data.techIndex = index;
 
@@ -81,6 +83,7 @@ public class LinkContributionsTest {
 		Assert.assertEquals(size - 1, index.getLinkedExchanges().size());
 
 		var data = new MatrixData();
+		data.demand = Demand.of(index.at(0), 1.0);
 		data.techIndex = index;
 		data.techMatrix = techMatrix;
 		var solutions = LazyResultProvider.create(SolverContext.of(data));

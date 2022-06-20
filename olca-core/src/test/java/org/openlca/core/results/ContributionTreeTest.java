@@ -3,6 +3,7 @@ package org.openlca.core.results;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
+import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.LongPair;
@@ -23,6 +24,7 @@ public class ContributionTreeTest {
 		techIndex.add(provider(3, 3));
 		techIndex.putLink(LongPair.of(1, 2), provider(2, 2));
 		techIndex.putLink(LongPair.of(1, 3), provider(3, 3));
+		data.demand = Demand.of(techIndex.at(0), 1.0);
 		data.techIndex = techIndex;
 
 		var enviIndex = EnviIndex.create();
