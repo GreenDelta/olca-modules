@@ -342,7 +342,7 @@ public class Simulator {
 				// be initialized with the correct matrix shapes (
 				// e.g. flows that only occur in a sub-system
 				// need a row in the respective host-systems)
-				var r = SimpleResultProvider.of(node.data.techIndex)
+				var r = SimpleResultProvider.of(node.data.demand, node.data.techIndex)
 					.withFlowIndex(node.data.enviIndex)
 					.withTotalFlows(new double[node.data.enviIndex.size()])
 					.toResult();

@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
@@ -19,8 +20,8 @@ public class SankeyTest {
 	@Test
 	public void testCycles() {
 		var data = new MatrixData();
+		data.demand = Demand.of(product(1), 1.0);
 		data.techIndex = new TechIndex(product(1));
-		data.techIndex.setDemand(1.0);
 		data.techIndex.add(product(2));
 		data.techIndex.add(product(3));
 		data.techMatrix = JavaMatrix.of(new double[][]{

@@ -3,6 +3,7 @@ package org.openlca.core.results;
 import java.util.Iterator;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
@@ -72,7 +73,8 @@ public class EachOneResult {
 		@Override
 		public Pair<TechFlow, SimpleResult> next() {
 
-			var p = SimpleResultProvider.of(data.techIndex)
+			var demand = Demand.of(data.techIndex.at(next), 1.0);
+			var p = SimpleResultProvider.of(demand, data.techIndex)
 				.withFlowIndex(data.enviIndex)
 				.withImpactIndex(data.impactIndex);
 

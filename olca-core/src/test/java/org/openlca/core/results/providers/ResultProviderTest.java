@@ -19,6 +19,7 @@ import org.openlca.core.Tests;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.LibraryExport;
 import org.openlca.core.library.LibraryInfo;
+import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.JavaMatrix;
 import org.openlca.core.matrix.index.EnviFlow;
@@ -61,7 +62,7 @@ public record ResultProviderTest(ResultProvider provider) {
 			return TechFlow.of(process, flow);
 		};
 		data.techIndex = new TechIndex(product.apply(1));
-		data.techIndex.setDemand(1.0);
+		data.demand = Demand.of(data.techIndex.at(0), 1.0);
 		data.techIndex.add(product.apply(2));
 		data.techMatrix = JavaMatrix.of(new double[][]{
 			{0.5, -0.5},
@@ -108,8 +109,8 @@ public record ResultProviderTest(ResultProvider provider) {
 			.run();
 
 		var foreground = new MatrixData();
-		foreground.techIndex = new TechIndex(data.techIndex.getRefFlow());
-		foreground.techIndex.setDemand(1.0);
+		foreground.techIndex = new TechIndex(data.techIndex.at(0));
+		foreground.demand = Demand.of(data.techIndex.at(0), 1.0);
 		foreground.techMatrix = JavaMatrix.of(new double[][]{{1}});
 		foreground.impactIndex = data.impactIndex;
 

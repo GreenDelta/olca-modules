@@ -2,6 +2,7 @@ package org.openlca.core.results.providers;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.index.TechFlow;
@@ -22,7 +23,7 @@ public class LazyProviderTest {
 		data.techIndex = new TechIndex(product(1));
 		data.techIndex.add(product(2));
 		data.techIndex.add(product(3));
-		data.techIndex.setDemand(1.0);
+		data.demand = Demand.of(data.techIndex.at(0), 1.0);
 
 		var provider = LazyResultProvider.create(SolverContext.of(data));
 		var scaling = provider.scalingVector();

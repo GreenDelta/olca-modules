@@ -23,6 +23,7 @@ public class MatrixConfig {
 	public final IDatabase db;
 	public final TechIndex techIndex;
 	public final TechLinker linker;
+	public final Demand demand;
 
 	public final boolean withUncertainties;
 	public final boolean withCosts;
@@ -38,6 +39,7 @@ public class MatrixConfig {
 
 	private MatrixConfig(Builder builder) {
 		this.db = builder.db;
+		this.demand = builder.demand;
 		this.techIndex = builder.techIndex;
 		linker = techIndex.hasLinks()
 			? techIndex
@@ -87,6 +89,7 @@ public class MatrixConfig {
 
 		private final IDatabase db;
 		private final TechIndex techIndex;
+		private Demand demand;
 		private ImpactIndex impacts;
 		private List<ParameterRedef> redefs;
 		private Map<TechFlow, SimpleResult> subResults;
@@ -104,6 +107,7 @@ public class MatrixConfig {
 		public Builder withSetup(CalculationSetup setup) {
 			if (setup == null)
 				return this;
+			demand = Demand.of(setup);
 			withCosts = setup.hasCosts();
 			withRegionalization = setup.hasRegionalization();
 			allocationMethod = setup.allocation();
@@ -113,6 +117,11 @@ public class MatrixConfig {
 			return impactMethod != null
 				? withImpacts(ImpactIndex.of(impactMethod))
 				: this;
+		}
+
+		public Builder withDemand(Demand demand) {
+			this.demand = demand;
+			return this;
 		}
 
 		public Builder withUncertainties(boolean b) {

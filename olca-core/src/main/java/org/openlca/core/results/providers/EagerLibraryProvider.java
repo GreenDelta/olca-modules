@@ -28,8 +28,9 @@ class EagerLibraryProvider implements ResultProvider {
 		fullData.impactMatrix = dbData.impactMatrix;
 		var libTechIndices = LibUtil.loadTechIndicesOf(
 			dbData.techIndex, context.libraryDir(), db);
-		fullData.techIndex = LibUtil.combinedTechIndexOf(
-			dbData.techIndex, libTechIndices.values());
+		// TODO: align index blocks
+		// fullData.techIndex = LibUtil.combinedTechIndexOf(
+		// 	dbData.techIndex, libTechIndices.values());
 		var libFlowIndices = LibUtil.loadFlowIndicesOf(
 			libTechIndices.keySet(), context.libraryDir(), db);
 		fullData.enviIndex = LibUtil.combinedFlowIndexOf(
@@ -74,7 +75,7 @@ class EagerLibraryProvider implements ResultProvider {
 				.build(db, context.libraryDir());
 		}
 	}
-	
+
 	@Override
 	public Demand demand() {
 		return demand;

@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
+import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
@@ -26,17 +27,18 @@ public class SimpleResultProviderTest {
 	@Before
 	public void setup() {
 		// create the indices
-		var techIndex = new TechIndex(product("p1"));
-		techIndex.add(product("p2"));
-		var flowIndex = EnviIndex.create();
-		flowIndex.add(EnviFlow.inputOf(flow("r")));
-		flowIndex.add(EnviFlow.outputOf(flow("e")));
+		var techIdx = new TechIndex(product("p1"));
+		techIdx.add(product("p2"));
+		var enviIdx = EnviIndex.create();
+		enviIdx.add(EnviFlow.inputOf(flow("r")));
+		enviIdx.add(EnviFlow.outputOf(flow("e")));
 		var impactIndex = new ImpactIndex();
 		impactIndex.add(impact("i1"));
 		impactIndex.add(impact("i2"));
 
-		result = SimpleResultProvider.of(techIndex)
-			.withFlowIndex(flowIndex)
+		var demand = Demand.of(techIdx.at(0), 1.0);
+		result = SimpleResultProvider.of(demand, techIdx)
+			.withFlowIndex(enviIdx)
 			.withImpactIndex(impactIndex)
 			.withScalingVector(new double[] {0.5, 0.25})
 			.toResult();

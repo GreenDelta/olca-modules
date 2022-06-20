@@ -1,6 +1,7 @@
 package org.openlca.core.matrix;
 
 import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.core.model.CalculationSetup;
 
 /**
  * The demand for which a result is calculated.
@@ -11,5 +12,15 @@ import org.openlca.core.matrix.index.TechFlow;
  */
 public record Demand(TechFlow techFlow, double value) {
 
+	public static Demand of(TechFlow techFlow, double value) {
+		return new Demand(techFlow, value);
+	}
+
+	public static Demand of(CalculationSetup setup) {
+		var process = setup.process();
+		var flow = setup.flow();
+		var techFlow = TechFlow.of(process, flow);
+		return new Demand(techFlow, setup.demand());
+	}
 
 }
