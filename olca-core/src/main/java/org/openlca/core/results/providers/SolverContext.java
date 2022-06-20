@@ -3,6 +3,7 @@ package org.openlca.core.results.providers;
 import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
+import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 
@@ -38,8 +39,12 @@ public class SolverContext {
 	public IDatabase db() {
 		return db;
 	}
+	
+	public Demand demand() {
+		return matrixData.demand;
+	}
 
-	public MatrixData matrixData() {
+	public MatrixData data() {
 		return matrixData;
 	}
 

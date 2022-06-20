@@ -2,6 +2,7 @@ package org.openlca.core.results.providers;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibMatrix;
+import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.IndexedMatrix;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.EnviIndex;
@@ -11,6 +12,7 @@ import org.openlca.core.matrix.index.TechIndex;
 // currently under development; do not use this for now
 class EagerLibraryProvider implements ResultProvider {
 
+	private final Demand demand;
 	private final IDatabase db;
 	private final MatrixData dbData;
 	private final LibCache libs;
@@ -19,7 +21,8 @@ class EagerLibraryProvider implements ResultProvider {
 	private EagerLibraryProvider(SolverContext context) {
 		this.db = context.db();
 		this.libs = LibCache.of(context);
-		this.dbData = context.matrixData();
+		this.demand = context.demand();
+		this.dbData = context.data();
 
 		fullData = new MatrixData();
 		fullData.impactMatrix = dbData.impactMatrix;
@@ -70,6 +73,11 @@ class EagerLibraryProvider implements ResultProvider {
 				.withLibraryFlowIndices(libFlowIndices)
 				.build(db, context.libraryDir());
 		}
+	}
+	
+	@Override
+	public Demand demand() {
+		return demand;
 	}
 
 	@Override

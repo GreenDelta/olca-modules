@@ -39,15 +39,10 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 
 	@Override
 	public TechIndex build(TechFlow refProduct) {
-		return build(refProduct, 1.0);
-	}
-
-	private TechIndex build(TechFlow refProduct, double demand) {
 		log.trace("build product index for {} with cutoff={}", refProduct, cutoff);
 		TechIndex index = new TechIndex(refProduct);
-		index.setDemand(demand);
 		addSystemLinks(index);
-		Graph g = new Graph(refProduct, demand);
+		Graph g = new Graph(refProduct, 1.0); // TODO: demand value could be != 1
 		while (!g.next.isEmpty())
 			g.handleNext();
 		fillIndex(g, index);

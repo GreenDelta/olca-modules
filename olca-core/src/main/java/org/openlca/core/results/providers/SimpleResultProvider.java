@@ -2,18 +2,20 @@ package org.openlca.core.results.providers;
 
 import java.util.Arrays;
 
+import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.results.SimpleResult;
 
 /**
- * A SimpleResultProvider just wraps a set of result data. It
- * should be just used with the SimpleResult view as the
- * detailed contributions are not provided.
+ * A SimpleResultProvider just wraps a set of result data. It should be just
+ * used with the SimpleResult view as the detailed contributions are not
+ * provided.
  */
 public class SimpleResultProvider implements ResultProvider {
 
+	private final Demand demand;
 	private final TechIndex techIndex;
 	private EnviIndex flowIndex;
 	private ImpactIndex impactIndex;
@@ -22,12 +24,13 @@ public class SimpleResultProvider implements ResultProvider {
 	private double[] totalImpacts;
 	private double[] totalRequirements;
 
-	private SimpleResultProvider(TechIndex techIndex) {
+	private SimpleResultProvider(Demand demand, TechIndex techIndex) {
+		this.demand = demand;
 		this.techIndex = techIndex;
 	}
 
-	public static SimpleResultProvider of(TechIndex techIndex) {
-		return new SimpleResultProvider(techIndex);
+	public static SimpleResultProvider of(Demand demand, TechIndex techIndex) {
+		return new SimpleResultProvider(demand, techIndex);
 	}
 
 	public SimpleResultProvider withFlowIndex(EnviIndex flowIndex) {
@@ -62,6 +65,11 @@ public class SimpleResultProvider implements ResultProvider {
 
 	public SimpleResult toResult() {
 		return new SimpleResult(this);
+	}
+
+	@Override
+	public Demand demand() {
+		return demand;
 	}
 
 	@Override

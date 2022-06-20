@@ -1,5 +1,6 @@
 package org.openlca.core.results.providers;
 
+import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.index.EnviIndex;
@@ -12,6 +13,7 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class LazyResultProvider implements ResultProvider {
 
+	private final Demand demand;
 	private final MatrixData data;
 	private final MatrixSolver solver;
 	private final Factorization factorization;
@@ -32,7 +34,8 @@ public class LazyResultProvider implements ResultProvider {
 	private final double totalCosts;
 
 	private LazyResultProvider(SolverContext context) {
-		this.data = context.matrixData();
+		this.demand = context.demand();
+		this.data = context.data();
 		this.solver = context.solver();
 		this.factorization = solver.factorize(data.techMatrix);
 
@@ -45,10 +48,9 @@ public class LazyResultProvider implements ResultProvider {
 			: null;
 
 		// calculate the scaling vector
-		var refIdx = data.techIndex.of(
-			data.techIndex.getRefFlow());
+		var refIdx = data.techIndex.of(demand.techFlow());
 		var s = solutionOfOne(refIdx);
-		var d = data.techIndex.getDemand();
+		var d = demand.value();
 		scalingVector = new double[s.length];
 		for (int i = 0; i < s.length; i++) {
 			scalingVector[i] = s[i] * d;
@@ -80,6 +82,11 @@ public class LazyResultProvider implements ResultProvider {
 
 	public static LazyResultProvider create(SolverContext context) {
 		return new LazyResultProvider(context);
+	}
+	
+	@Override
+	public Demand demand() {
+		return demand;
 	}
 
 	@Override

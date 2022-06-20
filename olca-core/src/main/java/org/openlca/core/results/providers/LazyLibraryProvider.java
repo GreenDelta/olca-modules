@@ -8,6 +8,7 @@ import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibMatrix;
+import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
@@ -31,6 +32,7 @@ public class LazyLibraryProvider implements ResultProvider {
 	private final HashSet<String> usedLibs = new HashSet<>();
 	private final MatrixSolver solver;
 
+	private final Demand demand;
 	private final MatrixData foregroundData;
 	private final ResultProvider foregroundSolution;
 	private final MatrixData fullData;
@@ -54,7 +56,8 @@ public class LazyLibraryProvider implements ResultProvider {
 		this.db = context.db();
 		this.libs = LibCache.of(context);
 		this.solver = context.solver();
-		this.foregroundData = context.matrixData();
+		this.demand = context.data().demand;
+		this.foregroundData = context.data();
 		this.foregroundSolution = EagerResultProvider.create(context);
 		this.fullData = new MatrixData();
 		this.fullData.impactIndex = foregroundData.impactIndex;
@@ -80,7 +83,7 @@ public class LazyLibraryProvider implements ResultProvider {
 		// calculate the scaling vector
 		var s = provider.solutionOfOne(0);
 		var scalingVector = Arrays.copyOf(s, s.length);
-		var demand = provider.fullData.techIndex.getDemand();
+		var demand = provider.fullData.demand.value();
 		for (int i = 0; i < scalingVector.length; i++) {
 			scalingVector[i] *= demand;
 		}
@@ -93,9 +96,9 @@ public class LazyLibraryProvider implements ResultProvider {
 
 		// initialize the combined index with the index
 		// of the foreground system
+		var demand = foregroundData.demand;
 		var foregroundTechIndex = foregroundData.techIndex;
-		var techIndex = new TechIndex(foregroundTechIndex.getRefFlow());
-		techIndex.setDemand(foregroundTechIndex.getDemand());
+		var techIndex = new TechIndex(demand.techFlow());
 		var libQueue = new ArrayDeque<String>();
 		for (var techFlow : foregroundTechIndex) {
 			techIndex.add(techFlow);
@@ -151,6 +154,10 @@ public class LazyLibraryProvider implements ResultProvider {
 		fullData.enviIndex = enviIndex;
 	}
 
+	@Override
+	public Demand demand() {
+		return demand;
+	}
 
 	@Override
 	public TechIndex techIndex() {
@@ -508,10 +515,10 @@ public class LazyLibraryProvider implements ResultProvider {
 		if (totalFlows != null)
 			return totalFlows;
 		var m = totalFlowsOfOne(0);
-		var demand = fullData.techIndex.getDemand();
+		var demandVal = demand.value();
 		var results = Arrays.copyOf(m, m.length);
 		for (int i = 0; i < m.length; i++) {
-			results[i] *= demand;
+			results[i] *= demandVal;
 		}
 		totalFlows = results;
 		return totalFlows;

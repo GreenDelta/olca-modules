@@ -128,7 +128,7 @@ public class InventoryBuilder {
 			}
 
 			// add the link in the technology matrix
-			double a = result.techIndex().getDemand();
+			double a = result.demand().value();
 			techBuilder.set(col, col, a);
 
 			// add the LCI result

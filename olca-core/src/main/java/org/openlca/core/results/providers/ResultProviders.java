@@ -9,7 +9,7 @@ public final class ResultProviders {
 		if (context.hasLibraryLinks())
 			return LazyLibraryProvider.of(context);
 
-		var data = context.matrixData();
+		var data = context.data();
 		var isSmall = data.techMatrix != null
 			&& data.techMatrix.rows() < 3000;
 		if (isSmall)
@@ -25,7 +25,7 @@ public final class ResultProviders {
 			return LazyLibraryProvider.of(context);
 
 		var solver = context.solver();
-		var data = context.matrixData();
+		var data = context.data();
 		return data.isSparse() && solver.hasSparseSupport()
 			? LazyResultProvider.create(context)
 			: EagerResultProvider.create(context);

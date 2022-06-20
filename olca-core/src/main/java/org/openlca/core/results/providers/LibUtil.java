@@ -60,19 +60,6 @@ class LibUtil {
 	}
 
 	/**
-	 * Creates the combined tech. index from the given tech-index
-	 * of the foreground system and the indices of the libraries.
-	 */
-	static TechIndex combinedTechIndexOf(
-		TechIndex index, Collection<TechIndex> libIndices) {
-		var fullIdx = new TechIndex(index.getRefFlow());
-		fullIdx.setDemand(index.getDemand());
-		fullIdx.addAll(index);
-		libIndices.forEach(fullIdx::addAll);
-		return fullIdx;
-	}
-
-	/**
 	 * Load the flow indices for the given libraries.
 	 */
 	static Map<String, EnviIndex> loadFlowIndicesOf(

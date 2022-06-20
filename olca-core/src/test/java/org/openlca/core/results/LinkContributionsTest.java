@@ -35,7 +35,6 @@ public class LinkContributionsTest {
 		});
 
 		var index = new TechIndex(provider(1, 1));
-		index.setDemand(1);
 		index.add(provider(2, 2));
 		index.add(provider(3, 3));
 		index.add(provider(4, 4));
@@ -70,7 +69,6 @@ public class LinkContributionsTest {
 		var solver = Tests.getDefaultSolver();
 		var techMatrix = solver.matrix(size, size);
 		var index = new TechIndex(provider(1, 1));
-		index.setDemand(1);
 		for (int i = 0; i < size; i++) {
 			index.add(provider(i + 1, i + 1));
 			techMatrix.set(i, i, 1.0);

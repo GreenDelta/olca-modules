@@ -1,5 +1,6 @@
 package org.openlca.core.results.providers;
 
+import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.index.EnviIndex;
@@ -28,15 +29,15 @@ public class EagerResultProvider implements ResultProvider {
 	private double[] totalCostsOfOne;
 
 	private EagerResultProvider(SolverContext context) {
-		this.data = context.matrixData();
+		this.data = context.data();
 
 		// product and waste flows
 		var techIdx = data.techIndex;
 		var solver = context.solver();
 		inverse = solver.invert(data.techMatrix);
-		var refIdx = techIdx.of(techIdx.getRefFlow());
+		var refIdx = techIdx.of(data.demand.techFlow());
 		scalingVector = inverse.getColumn(refIdx);
-		var demand = techIdx.getDemand();
+		var demand = data.demand.value();
 		for (int i = 0; i < scalingVector.length; i++) {
 			scalingVector[i] *= demand;
 		}
@@ -99,6 +100,11 @@ public class EagerResultProvider implements ResultProvider {
 
 	public static EagerResultProvider create(SolverContext context) {
 		return new EagerResultProvider(context);
+	}
+
+	@Override
+	public Demand demand() {
+		return data.demand;
 	}
 
 	@Override

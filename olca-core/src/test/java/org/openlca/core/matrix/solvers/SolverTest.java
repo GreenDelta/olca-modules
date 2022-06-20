@@ -8,6 +8,7 @@ import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 import org.openlca.core.DataDir;
 import org.openlca.core.Tests;
+import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.index.EnviFlow;
@@ -53,32 +54,31 @@ public class SolverTest {
 	public void testSolve1x1System(MatrixSolver solver) {
 		log.info("Test solve 1x1 matrix with {}", solver.getClass());
 
-		MatrixData data = new MatrixData();
-
-		FlowDescriptor flow = new FlowDescriptor();
+		var flow = new FlowDescriptor();
 		flow.id = 1;
-		ProcessDescriptor process = new ProcessDescriptor();
+		var process = new ProcessDescriptor();
 		process.id = 1;
-		TechFlow provider = TechFlow.of(process, flow);
+		var refFlow = TechFlow.of(process, flow);
+		
+		var data = new MatrixData();
+		data.demand = new Demand(refFlow, 1);
+		data.techIndex = new TechIndex(refFlow);
 
-		TechIndex techIndex = new TechIndex(provider);
-		techIndex.setDemand(1d);
-		data.techIndex = techIndex;
-
-		EnviIndex enviIndex = EnviIndex.create();
+		var enviIndex = EnviIndex.create();
 		enviIndex.add(EnviFlow.inputOf(flow(1)));
 		enviIndex.add(EnviFlow.inputOf(flow(2)));
 		enviIndex.add(EnviFlow.outputOf(flow(3)));
 		enviIndex.add(EnviFlow.outputOf(flow(4)));
 		data.enviIndex = enviIndex;
 
-		Matrix techMatrix = solver.matrix(1, 1);
+		var techMatrix = solver.matrix(1, 1);
 		techMatrix.set(0, 0, 1);
 		data.techMatrix = techMatrix;
 
-		Matrix enviMatrix = solver.matrix(4, 1);
-		for (int r = 0; r < 4; r++)
+		var enviMatrix = solver.matrix(4, 1);
+		for (int r = 0; r < 4; r++) {
 			enviMatrix.set(r, 0, r);
+		}
 		data.enviMatrix = enviMatrix;
 
 		var result = SimpleResult.of(Tests.getDb(), data);

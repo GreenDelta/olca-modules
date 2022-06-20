@@ -25,8 +25,7 @@ public class SubSystemLinker implements ITechIndexBuilder {
 
 	@Override
 	public TechIndex build(TechFlow refFlow) {
-		TechIndex index = new TechIndex(refFlow);
-		index.setDemand(1.0);
+		var index = new TechIndex(refFlow);
 
 		if (!refFlow.isProcess())
 			return index;

@@ -33,12 +33,11 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 	@Override
 	public TechIndex build(TechFlow refFlow) {
 		log.trace("build product index for {}", refFlow);
-		TechIndex index = new TechIndex(refFlow);
-		index.setDemand(1.0);
+		var index = new TechIndex(refFlow);
 		addSystemLinks(index);
 		List<TechFlow> block = new ArrayList<>();
 		block.add(refFlow);
-		HashSet<TechFlow> handled = new HashSet<>();
+		var handled = new HashSet<TechFlow>();
 		while (!block.isEmpty()) {
 			var nextBlock = new ArrayList<TechFlow>();
 			log.trace("fetch next block with {} entries", block.size());
