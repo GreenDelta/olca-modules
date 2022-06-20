@@ -83,6 +83,16 @@ public class DenseMatrix implements Matrix {
 	}
 
 	@Override
+	public void setColumn(int col, double[] values) {
+		System.arraycopy(values, 0, data, col * rows, values.length);
+	}
+
+	@Override
+	public void setColumnRange(int col, int offset, double[] values) {
+		System.arraycopy(values, 0, data, col * rows + offset, values.length);
+	}
+
+	@Override
 	public double[] getRow(int i) {
 		double[] row = new double[columns];
 		for (int c = 0; c < columns; c++) {
