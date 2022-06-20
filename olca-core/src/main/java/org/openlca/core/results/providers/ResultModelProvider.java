@@ -2,6 +2,7 @@ package org.openlca.core.results.providers;
 
 import gnu.trove.list.array.TDoubleArrayList;
 import org.openlca.core.math.ReferenceAmount;
+import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
@@ -17,6 +18,7 @@ import org.openlca.core.model.descriptors.Descriptor;
  */
 public class ResultModelProvider implements ResultProvider {
 
+	private final Demand demand;
 	private final TechIndex techIndex;
 	private final EnviIndex flowIndex;
 	private final ImpactIndex impactIndex;
@@ -29,8 +31,8 @@ public class ResultModelProvider implements ResultProvider {
 
 	private ResultModelProvider(Result model) {
 		var refFlow = TechFlow.of(model);
+		demand = new Demand(refFlow, ReferenceAmount.get(model));
 		techIndex = new TechIndex(refFlow);
-		techIndex.setDemand(ReferenceAmount.get(model));
 
 		// inventory results
 		var inventory = FlowResults.of(model);
@@ -56,6 +58,11 @@ public class ResultModelProvider implements ResultProvider {
 				}
 			}
 		}
+	}
+
+	@Override
+	public Demand demand() {
+		return demand;
 	}
 
 	@Override
@@ -88,17 +95,17 @@ public class ResultModelProvider implements ResultProvider {
 	public double[] techColumnOf(int product) {
 		if (product != 0)
 			throw new IndexOutOfBoundsException(product);
-		return new double[]{techIndex.getDemand()};
+		return new double[]{demand.value()};
 	}
 
 	@Override
 	public double[] solutionOfOne(int product) {
 		if (product != 0)
 			throw new IndexOutOfBoundsException(product);
-		var demand = techIndex.getDemand();
-		return demand == 0
+		var d = demand.value();
+		return d == 0
 			? new double[]{0}
-			: new double[]{1 / demand};
+			: new double[]{1 / d};
 	}
 
 	@Override
@@ -126,7 +133,7 @@ public class ResultModelProvider implements ResultProvider {
 	public double[] totalFlowsOfOne(int product) {
 		if (product != 0)
 			throw new IndexOutOfBoundsException(product);
-		var demand = techIndex.getDemand();
+		var demand = demand().value();
 		return demand == 0
 			? new double[flowIndex.size()]
 			: scale(flowResults, 1 / demand);
@@ -161,10 +168,10 @@ public class ResultModelProvider implements ResultProvider {
 	public double[] totalImpactsOfOne(int product) {
 		if (product != 0)
 			throw new IndexOutOfBoundsException(product);
-		var demand = techIndex.getDemand();
-		return demand == 0
+		var d = demand.value();
+		return d == 0
 			? new double[impactIndex.size()]
-			: scale(impactResults, 1 / demand);
+			: scale(impactResults, 1 / d);
 	}
 
 	@Override

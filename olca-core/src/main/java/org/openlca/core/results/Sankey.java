@@ -94,9 +94,8 @@ public class Sankey<T> {
 				return true;
 			if (o == null)
 				return false;
-			if (!(o instanceof Node))
+			if (!(o instanceof Node other))
 				return false;
-			var other = (Node) o;
 			return index == other.index;
 		}
 
@@ -254,7 +253,7 @@ public class Sankey<T> {
 			// create the root node of the reference product
 			var root = sankey.root;
 			var techIndex = result.techIndex();
-			root.product = techIndex.getRefFlow();
+			root.product = result.demand().techFlow();
 			root.index = techIndex.of(root.product);
 			root.total = getTotal(root.product);
 			root.direct = getDirect(root.product);

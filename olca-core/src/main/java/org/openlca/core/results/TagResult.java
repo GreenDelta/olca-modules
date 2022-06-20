@@ -187,14 +187,11 @@ public class TagResult {
 
 	@Override
 	public String toString() {
-		var techIdx = result.techIndex();
-		if (techIdx == null)
+		var demand = result.demand();
+		if (demand == null)
 			return super.toString();
-		var demand = techIdx.getDemand();
-		var provider = result.techIndex()
-			.getRefFlow()
-			.provider().name;
 		return String.format(
-			"TagResult '%s' for %.2f ref. units from '%s'", tag, demand, provider);
+			"TagResult '%s' for %.2f ref. units from '%s'",
+			tag, demand.value(), demand.techFlow().provider().name);
 	}
 }

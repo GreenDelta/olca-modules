@@ -2,6 +2,7 @@ package org.openlca.core.results.providers;
 
 import java.util.Arrays;
 
+import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.TechIndex;
@@ -19,6 +20,11 @@ import org.openlca.core.matrix.index.TechIndex;
 public interface ResultProvider {
 
 	double[] EMPTY_VECTOR = new double[0];
+
+	/**
+	 * The demand to which the result is related.
+	 */
+	Demand demand();
 
 	/**
 	 * The index $\mathit{Idx}_A$ of the technology matrix $\mathbf{A}$. It maps the

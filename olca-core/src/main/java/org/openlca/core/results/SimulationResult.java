@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.EnviFlow;
@@ -25,14 +26,21 @@ public class SimulationResult extends BaseResult {
 	private final List<double[]> impactResults = new ArrayList<>();
 	private final HashMap<TechFlow, PinnedContributions> pinned = new HashMap<>();
 
+	private final Demand demand;
 	private final TechIndex techIndex;
 	private final EnviIndex flowIndex;
 	private final ImpactIndex impactIndex;
 
 	public SimulationResult(MatrixData data) {
+		this.demand = data.demand;
 		this.techIndex = data.techIndex;
 		this.flowIndex = data.enviIndex;
 		this.impactIndex = data.impactIndex;
+	}
+
+	@Override
+	public Demand demand() {
+		return demand;
 	}
 
 	@Override

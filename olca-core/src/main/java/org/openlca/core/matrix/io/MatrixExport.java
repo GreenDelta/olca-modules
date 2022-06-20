@@ -88,14 +88,19 @@ public abstract class MatrixExport {
 		}
 
 		// write the demand vector in case of a linked tech. index
+		// TODO: it should be part of the configuration whether a
+		// demand vector should be written or not
 		var techIndex = data.techIndex;
-		if (techIndex != null && techIndex.hasLinks()) {
-			var demand = new double[techIndex.size()];
-			int refIdx = techIndex.of(techIndex.getRefFlow());
+		var demand = data.demand;
+		if (techIndex != null
+			&& demand != null
+			&& techIndex.hasLinks()) {
+			var vec = new double[techIndex.size()];
+			int refIdx = techIndex.of(demand.techFlow());
 			if (refIdx >= 0) {
-				demand[refIdx] = techIndex.getDemand();
+				vec[refIdx] = demand.value();
 			}
-			write(demand, "f");
+			write(vec, "f");
 		}
 
 		uncertainties(data.techMatrix, data.techUncertainties, "A");

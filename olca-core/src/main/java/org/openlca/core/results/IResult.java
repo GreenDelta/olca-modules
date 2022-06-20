@@ -2,6 +2,7 @@ package org.openlca.core.results;
 
 import java.util.List;
 
+import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.EnviFlow;
@@ -13,6 +14,11 @@ import org.openlca.core.model.descriptors.ImpactDescriptor;
  * The common protocol of all result types.
  */
 public interface IResult {
+
+	/**
+	 * Returns the demand for which this result was calculated.
+	 */
+	Demand demand();
 
 	/**
 	 * The index $\mathit{Idx}_A$ of the technology matrix $\mathbf{A}$. It maps the

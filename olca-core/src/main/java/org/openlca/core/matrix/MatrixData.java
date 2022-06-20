@@ -21,6 +21,8 @@ import org.openlca.util.Copy;
  */
 public class MatrixData {
 
+	public Demand demand;
+	
 	/**
 	 * The matrix index of the product and waste flows of the technosphere (i.e. the
 	 * row and column index of the technology matrix; the column index of the

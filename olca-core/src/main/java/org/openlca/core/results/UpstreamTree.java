@@ -27,15 +27,16 @@ public class UpstreamTree {
 		this(null, r, total, intensity);
 	}
 
-	public UpstreamTree(Object ref, FullResult r, double total, IntToDoubleFunction intensity) {
+	public UpstreamTree(
+		Object ref, FullResult r, double total, IntToDoubleFunction intensity) {
 		this.ref = ref;
 		this.r = r;
 		this.intensity = intensity;
 
 		var techIndex = r.techIndex();
-		root = UpstreamNode.rootOf(techIndex);
+		root = UpstreamNode.rootOf(techIndex, r.demand());
 		root.scaling = r.scalingVector[root.index];
-		setRequiredAmount(root, techIndex.getDemand());
+		setRequiredAmount(root, r.demand().value());
 		root.result = total;
 	}
 

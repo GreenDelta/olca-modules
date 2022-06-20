@@ -2,6 +2,7 @@ package org.openlca.core.results;
 
 import java.util.List;
 
+import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 
@@ -38,8 +39,8 @@ public class UpstreamNode {
 		this.index = index;
 	}
 
-	static UpstreamNode rootOf(TechIndex techIndex) {
-		var refFlow = techIndex.getRefFlow();
+	static UpstreamNode rootOf(TechIndex techIndex, Demand demand) {
+		var refFlow = demand.techFlow();
 		int index = techIndex.of(refFlow);
 		return new UpstreamNode(index, refFlow);
 	}

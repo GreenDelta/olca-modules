@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.EnviIndex;
@@ -59,6 +60,11 @@ public class SimpleResult extends BaseResult {
 	 */
 	public ResultProvider provider() {
 		return provider;
+	}
+
+	@Override
+	public Demand demand() {
+		return provider.demand();
 	}
 
 	@Override
