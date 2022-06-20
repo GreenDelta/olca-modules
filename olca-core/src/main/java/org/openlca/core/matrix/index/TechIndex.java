@@ -16,7 +16,6 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.ResultDao;
-import org.openlca.core.math.ReferenceAmount;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.TechLinker;
 import org.openlca.core.matrix.linking.DefaultProcessLinker;
@@ -29,15 +28,11 @@ import org.openlca.core.model.descriptors.RootDescriptor;
 import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
- * The index $\mathit{Idx}_A$ of the technology matrix $\mathbf{A}$ of a product
- * system. It maps the process-product pairs (or process-waste pairs)
- * $\mathit{P}$ of the product system to the respective $n$ rows and columns of
- * $\mathbf{A}$. If the product system contains other product systems as
- * sub-systems, these systems are handled like processes and are also mapped as
- * pair with their quantitative reference flow to that index (and also their
- * processes etc.).
- * <p>
- * $$\mathit{Idx}_A: \mathit{P} \mapsto [0 \dots n-1]$$
+ *
+ * The index of the technology matrix of a product system. It maps the
+ * product-outputs and waste-inputs of the respective processes, sub-systems,
+ * or results in the system as technosphere-flows to the respective rows and
+ * columns.
  */
 public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 
@@ -64,28 +59,11 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 	 */
 	private final TLongObjectHashMap<List<TechFlow>> processProviders = new TLongObjectHashMap<>();
 
-	/**
-	 * The demand value of the reference flow of the product system described by
-	 * this index. The value is given in the reference unit and quantity of the
-	 * respective flow.
-	 */
-	private double demand = 1d;
-
-	/**
-	 * Creates a new technosphere index of a product system.
-	 *
-	 * @param refFlow the reference product-output or waste-input as (processId,
-	 *                flowId) pair.
-	 */
-	public TechIndex(TechFlow refFlow) {
-		add(refFlow);
+	public TechIndex() {
 	}
 
-	private TechIndex() {
-	}
-
-	public static TechIndex empty() {
-		return new TechIndex();
+	public TechIndex(TechFlow first) {
+		add(first);
 	}
 
 	public boolean isEmpty() {
@@ -103,10 +81,6 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 		var refFlow = Objects.requireNonNull(refExchange.flow);
 		var refProcess = Objects.requireNonNull(system.referenceProcess);
 		var index = new TechIndex(TechFlow.of(refProcess, refFlow));
-		double demand = ReferenceAmount.get(system);
-		index.setDemand(refFlow.flowType == FlowType.WASTE_FLOW
-			? -demand
-			: demand);
 		index.fillFrom(db, system);
 		return index;
 	}
@@ -118,7 +92,6 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 
 		if (setup.hasProductSystem()) {
 			var index = new TechIndex(refFlow);
-			index.setDemand(setup.demand());
 			index.fillFrom(db, setup.productSystem());
 			return index;
 		}
@@ -129,14 +102,11 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 		var linking = LinkingInfo.of(db);
 		if (linking.preferLazy()) {
 			var linker = DefaultProcessLinker.of(linking);
-			var index = linker.build(refFlow);
-			index.setDemand(setup.demand());
-			return index;
+			return linker.build(refFlow);
 		}
 
 		// include all providers from the database
 		var index = new TechIndex(refFlow);
-		index.setDemand(setup.demand());
 		eachProviderOf(db, index::add);
 		return index;
 	}
@@ -178,11 +148,9 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 	public static TechIndex of(IDatabase db) {
 		var list = new ArrayList<TechFlow>();
 		eachProviderOf(db, list::add);
-		if (list.isEmpty())
-			return empty();
-		var index = new TechIndex(list.get(0));
-		for (int i = 1; i < list.size(); i++) {
-			index.add(list.get(i));
+		var index = new TechIndex();
+		for (var techFlow : list) {
+			index.add(techFlow);
 		}
 		return index;
 	}
@@ -215,30 +183,6 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 			fn.accept(TechFlow.of(process, flow));
 			return true;
 		});
-	}
-
-	/**
-	 * The demand value. This is the amount of the reference flow given in the
-	 * reference unit and flow property. The default value is 1.0.
-	 */
-	public void setDemand(double demand) {
-		this.demand = demand;
-	}
-
-	/**
-	 * Get the reference product-output or waste-input of the product system
-	 * described by this index.
-	 */
-	public TechFlow getRefFlow() {
-		return providers.get(0);
-	}
-
-	/**
-	 * The demand value. This is the amount of the reference flow given in the
-	 * reference unit and flow property. The default value is 1.0.
-	 */
-	public double getDemand() {
-		return demand;
 	}
 
 	/**
@@ -275,12 +219,12 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 		}
 	}
 
-	public TechFlow getProvider(long processID, long flowID) {
-		List<TechFlow> list = processProviders.get(processID);
+	public TechFlow getProvider(long processId, long flowId) {
+		List<TechFlow> list = processProviders.get(processId);
 		if (list == null)
 			return null;
 		for (TechFlow p : list) {
-			if (p.flowId() == flowID)
+			if (p.flowId() == flowId)
 				return p;
 		}
 		return null;
@@ -410,8 +354,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 
 	@Override
 	public TechIndex copy() {
-		var copy = new TechIndex(at(0));
-		copy.demand = demand;
+		var copy = new TechIndex();
 		for (var p : providers) {
 			copy.add(p);
 		}

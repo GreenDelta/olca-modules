@@ -31,7 +31,6 @@ public class DefaultProcessLinker implements ITechIndexBuilder {
 	@Override
 	public TechIndex build(TechFlow refFlow) {
 		TechIndex index = new TechIndex(refFlow);
-		index.setDemand(1.0);
 		if (!refFlow.isProcess())
 			return index;
 
