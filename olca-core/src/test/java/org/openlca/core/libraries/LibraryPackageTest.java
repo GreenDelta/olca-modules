@@ -45,7 +45,7 @@ public class LibraryPackageTest {
 
 		// check the zip
 		var packInfo = LibraryPackage.getInfo(zipFile);
-		assertEquals("lib", packInfo.name());
+		assertEquals("lib 0.1", packInfo.name());
 		assertTrue(packInfo.dependencies().contains(dep.name()));
 
 		// extract the zip

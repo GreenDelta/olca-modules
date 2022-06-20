@@ -51,4 +51,54 @@ public interface Matrix extends MatrixReader {
 		}
 	}
 
+	/**
+	 * Set the values of the given row.
+	 *
+	 * @param row    the index of the row
+	 * @param values the new row values
+	 */
+	default void setRow(int row, double[] values) {
+		for (int col = 0; col < values.length; col++) {
+			set(row, col, values[col]);
+		}
+	}
+
+	/**
+	 * Set the values of a range of the given row.
+	 *
+	 * @param row    the index of the row
+	 * @param offset the column offset of the range
+	 * @param values the values of the range
+	 */
+	default void setRowRange(int row, int offset, double[] values) {
+		for (int i = 0; i < values.length; i++) {
+			set(row, offset + i, values[i]);
+		}
+	}
+
+	/**
+	 * Set the values of the given column.
+	 *
+	 * @param col    the index of the column
+	 * @param values the new column values
+	 */
+	default void setColumn(int col, double[] values) {
+		for (int row = 0; row < values.length; row++) {
+			set(row, col, values[row]);
+		}
+	}
+
+	/**
+	 * Set the values of a range of the given column.
+	 *
+	 * @param col    the index of the column
+	 * @param offset the row offset of the range
+	 * @param values the values of the range
+	 */
+	default void setColumnRange(int col, int offset, double[] values) {
+		for (int i = 0; i < values.length; i++) {
+			set(offset + i, col, values[i]);
+		}
+	}
+
 }
