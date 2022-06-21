@@ -26,8 +26,7 @@ class EagerLibraryProvider implements ResultProvider {
 
 		fullData = new MatrixData();
 		fullData.impactMatrix = dbData.impactMatrix;
-		var libTechIndices = LibUtil.loadTechIndicesOf(
-			dbData.techIndex, context.libraryDir(), db);
+		var libTechIndices = libs.techIndicesOf(dbData.techIndex);
 		// TODO: align index blocks
 		// fullData.techIndex = LibUtil.combinedTechIndexOf(
 		// 	dbData.techIndex, libTechIndices.values());

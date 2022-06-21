@@ -2,6 +2,7 @@ package org.openlca.core.results.providers;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibMatrix;
@@ -15,8 +16,9 @@ import org.openlca.npy.Array2d;
 
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import org.openlca.util.Strings;
 
-class LibCache {
+public class LibCache {
 
 	private final IDatabase db;
 	private final LibraryDir dir;
@@ -36,6 +38,24 @@ class LibCache {
 
 	public static LibCache of(SolverContext context) {
 		return new LibCache(context.libraryDir(), context.db());
+	}
+
+	/**
+	 * Collects and synchronizes the linked technosphere indices of the given
+	 * foreground index.
+	 *
+	 * @param idx the foreground index with possible links to library processes
+	 * @return a map of the linked library indices
+	 */
+	public Map<String, TechIndex> techIndicesOf(TechIndex idx) {
+		var map = new HashMap<String, TechIndex>();
+		for (var techFlow : idx) {
+			var libId = techFlow.library();
+			if (Strings.nullOrEmpty(libId))
+				continue;
+			map.computeIfAbsent(libId, this::techIndexOf);
+		}
+		return map;
 	}
 
 	public TechIndex techIndexOf(String libId) {

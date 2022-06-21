@@ -95,41 +95,16 @@ public class LazyLibraryProvider implements ResultProvider {
 
 	private void initIndices() {
 
-		// initialize the combined index with the index
-		// of the foreground system
-		var demand = foregroundData.demand;
-		var foregroundTechIndex = foregroundData.techIndex;
-		var techIndex = new TechIndex(demand.techFlow());
-		var libQueue = new ArrayDeque<String>();
-		for (var techFlow : foregroundTechIndex) {
-			techIndex.add(techFlow);
-			var lib = techFlow.library();
-			if(lib != null && !libQueue.contains(lib)) {
-				libQueue.add(lib);
-			}
+		// create the combined tech-flow index
+		var fIdx = foregroundData.techIndex;
+		var techIndex = new TechIndex();
+		techIndex.addAll(fIdx);
+		for (var e : libs.techIndicesOf(fIdx).entrySet()) {
+			usedLibs.add(e.getKey());
+			techIndex.addAll(e.getValue());
 		}
 
-		// recursively add the indices of the used libraries
-		while (!libQueue.isEmpty()) {
-			var libId = libQueue.poll();
-			usedLibs.add(libId);
-			var libIndex = libs.techIndexOf(libId);
-			if (libIndex == null)
-				continue;
-			for (var techFlow : libIndex) {
-				techIndex.add(techFlow);
-				var nextLibId = techFlow.library();
-				if (nextLibId == null
-					|| libId.equals(nextLibId)
-					|| usedLibs.contains(nextLibId)
-					|| libQueue.contains(nextLibId))
-					continue;
-				libQueue.add(nextLibId);
-			}
-		}
-
-		// initialize the flow index with the foreground
-		// index if present
+		// create the combined envi-flow index
 		EnviIndex enviIndex = null;
 		if (foregroundData.enviIndex != null) {
 			enviIndex = foregroundData.enviIndex.isRegionalized()
@@ -137,8 +112,6 @@ public class LazyLibraryProvider implements ResultProvider {
 				: EnviIndex.create();
 			enviIndex.addAll(foregroundData.enviIndex);
 		}
-		// extend the flow index with the flow indices
-		// of used libraries.
 		for (var libId : usedLibs) {
 			var libIdx =libs.enviIndexOf(libId);
 			if (libIdx == null)
