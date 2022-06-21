@@ -57,22 +57,9 @@ public class Diffs {
 	}
 
 	public List<Diff> with(IDatabase database, ObjectIdStore idStore) {
-		return with(database, idStore, false);
-	}
-
-	public List<Diff> withReverse(IDatabase database, ObjectIdStore idStore) {
-		return with(database, idStore, true);
-	}
-
-	private List<Diff> with(IDatabase database, ObjectIdStore idStore, boolean commitIsNewer) {
 		try (var walk = new TreeWalk(repo)) {
-			if (commitIsNewer) {
-				walk.addTree(new DatabaseIterator(database, idStore));
-				addTree(repo, walk, commit, true);
-			} else {
-				addTree(repo, walk, commit, true);
-				walk.addTree(new DatabaseIterator(database, idStore));				
-			}
+			addTree(repo, walk, commit, true);
+			walk.addTree(new DatabaseIterator(database, idStore));
 			if (paths == null) {
 				paths = new ArrayList<>();
 			}
@@ -93,7 +80,7 @@ public class Diffs {
 	public List<Diff> with(Commit other) {
 		return diffOf(commit, other);
 	}
-	
+
 	private List<Diff> diffOf(Commit oldCommit, Commit newCommit) {
 		try (var walk = new TreeWalk(repo)) {
 			addTree(repo, walk, oldCommit, false);
