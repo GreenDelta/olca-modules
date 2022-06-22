@@ -48,9 +48,10 @@ class SingleLibraryResult {
 			data.impactIndex = f.impactIndex;
 		}
 
-		var solver =  InversionSolver.of(data)
+		return InversionSolver.of(context.solver(), data)
 			.withInverse(libs.matrixOf(lib, LibMatrix.INV))
-
+			.withInventoryIntensities(libs.matrixOf(lib, LibMatrix.M))
+			.calculate();
 	}
 
 }

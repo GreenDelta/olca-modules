@@ -14,7 +14,9 @@ public class InversionResult implements ResultProvider {
 
 	private final MatrixData data;
 
-	private InversionResult()
+	private InversionResult(InversionSolver solver) {
+		data = solver.
+	}
 
 	@Override
 	public Demand demand() {
