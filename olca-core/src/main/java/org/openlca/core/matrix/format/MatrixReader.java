@@ -124,4 +124,18 @@ public interface MatrixReader extends Copyable<MatrixReader> {
 	default boolean isDense() {
 		return !isSparse();
 	}
+
+	/**
+	 * Copies the content of this matrix to the given matrix. The given matrix can
+	 * be smaller or larger than this matrix.
+	 */
+	default void copyTo(Matrix matrix) {
+		int cols = Math.min(this.columns(), matrix.columns());
+		int rows = Math.min(this.rows(), matrix.rows());
+		for (int col = 0; col < cols; col++) {
+			for (int row = 0; row < rows; row++) {
+				matrix.set(row, col, this.get(row, col));
+			}
+		}
+	}
 }

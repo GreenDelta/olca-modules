@@ -54,7 +54,7 @@ public interface MatrixIndex<T> extends Copyable<MatrixIndex<T>>, Iterable<T> {
 	/**
 	 * Get the content of this index.
 	 */
-  Set<T> content();
+	Set<T> content();
 
 	/**
 	 * Iterates over this index calling the given function for each position
@@ -79,4 +79,18 @@ public interface MatrixIndex<T> extends Copyable<MatrixIndex<T>>, Iterable<T> {
 	 * Returns the number of elements of this index.
 	 */
 	int size();
+
+	/**
+	 * Creates a mapping array from the positions of the elements in this index to
+	 * the positions of the same elements in the other index.
+	 */
+	default int[] mapTo(MatrixIndex<T> other) {
+		int[] map = new int[size()];
+		for (int i = 0; i < map.length; i++) {
+			var elem = this.at(i);
+			map[i] = other.of(elem);
+		}
+		return map;
+	}
+
 }
