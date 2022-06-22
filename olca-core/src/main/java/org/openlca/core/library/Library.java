@@ -32,6 +32,7 @@ import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.ZipStore;
+import org.openlca.npy.Npy;
 
 public record Library(File folder) {
 
@@ -239,6 +240,14 @@ public record Library(File folder) {
 
 	public Optional<MatrixReader> getMatrix(LibMatrix m) {
 		return m.readFrom(this);
+	}
+
+	public Optional<double[]> getCosts() {
+		var file = new File(folder, "costs.npy");
+		if (!file.exists())
+			return Optional.empty();
+		var data = Npy.read(file).asDoubleArray().data();
+		return Optional.of(data);
 	}
 
 	public Optional<double[]> getColumn(LibMatrix m, int column) {

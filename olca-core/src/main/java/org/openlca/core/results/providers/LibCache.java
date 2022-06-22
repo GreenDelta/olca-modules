@@ -3,6 +3,7 @@ package org.openlca.core.results.providers;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibMatrix;
@@ -30,6 +31,7 @@ public class LibCache {
 	private final HashMap<String, MatrixReader> matrices = new HashMap<>();
 	private final HashMap<String, TIntObjectHashMap<double[]>> columns = new HashMap<>();
 	private final HashMap<String, double[]> diagonals = new HashMap<>();
+	private final HashMap<String, Optional<double[]>> costVectors = new HashMap<>();
 
 	private LibCache(LibraryDir dir, IDatabase db) {
 		this.dir = dir;
@@ -94,6 +96,15 @@ public class LibCache {
 			if (lib == null)
 				return null;
 			return lib.getMatrix(matrix).orElse(null);
+		});
+	}
+
+	public Optional<double[]> costsOf(String libId) {
+		return costVectors.computeIfAbsent(libId, key -> {
+			var lib = dir.getLibrary(libId).orElse(null);
+			return lib == null
+				? Optional.empty()
+				: lib.getCosts();
 		});
 	}
 

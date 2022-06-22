@@ -93,4 +93,11 @@ public interface MatrixIndex<T> extends Copyable<MatrixIndex<T>>, Iterable<T> {
 		return map;
 	}
 
+	/**
+	 * Returns true when the given index is not {@code null} and not empty.
+	 */
+	static boolean isPresent(MatrixIndex<?> index) {
+		return index != null && !index.isEmpty();
+	}
+
 }

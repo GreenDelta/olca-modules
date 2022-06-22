@@ -29,7 +29,7 @@ public class LibImpactMatrix {
 		return new LibImpactMatrix(impacts, flows);
 	}
 
-	public LibImpactMatrix withLibraryFlowIndices(
+	public LibImpactMatrix withLibraryEnviIndices(
 		Map<String, EnviIndex> indices) {
 		this.libFlowIndices = indices;
 		return this;
@@ -89,12 +89,10 @@ public class LibImpactMatrix {
 		return builder.finish().data();
 	}
 
-	private IndexedMatrix<ImpactDescriptor, EnviFlow> fromDB(
-		IDatabase db) {
-
+	private IndexedMatrix<ImpactDescriptor, EnviFlow> fromDB(IDatabase db) {
 		var dbIdx = new ImpactIndex();
 		impactIndex.each((i, impact) -> {
-			if (impact.library == null) {
+			if (!impact.isFromLibrary()) {
 				dbIdx.add(impact);
 			}
 		});

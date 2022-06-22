@@ -70,7 +70,7 @@ class EagerLibraryProvider implements ResultProvider {
 			fullData.impactIndex = dbData.impactIndex;
 			fullData.impactMatrix = LibImpactMatrix.of(
 					dbData.impactIndex, fullData.enviIndex)
-				.withLibraryFlowIndices(libFlowIndices)
+				.withLibraryEnviIndices(libFlowIndices)
 				.build(db, context.libraryDir());
 		}
 	}
