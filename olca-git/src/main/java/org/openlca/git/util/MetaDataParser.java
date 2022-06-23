@@ -1,4 +1,4 @@
-package org.openlca.git.find;
+package org.openlca.git.util;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,16 +14,16 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonToken;
 
-class MetaDataParser {
+public class MetaDataParser {
 
 	private static final Logger log = LoggerFactory.getLogger(MetaDataParser.class);
 
-	static Map<String, Object> parse(InputStream json, String... fields) {
+	public static Map<String, Object> parse(InputStream json, String... fields) {
 		var defs = Stream.of(fields).map(field -> new FieldDefinition(field)).toList();
 		return parse(json, defs);
 	}
 
-	static Map<String, Object> parse(InputStream json, List<FieldDefinition> fields) {
+	public static Map<String, Object> parse(InputStream json, List<FieldDefinition> fields) {
 		if (fields == null || fields.size() == 0)
 			return new HashMap<>();
 		var matched = 0;

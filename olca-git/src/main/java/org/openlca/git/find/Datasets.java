@@ -10,6 +10,8 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectStream;
 import org.eclipse.jgit.lib.Repository;
 import org.openlca.git.model.Reference;
+import org.openlca.git.util.FieldDefinition;
+import org.openlca.git.util.MetaDataParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
