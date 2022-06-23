@@ -138,4 +138,22 @@ public interface MatrixReader extends Copyable<MatrixReader> {
 			}
 		}
 	}
+
+	/**
+	 * Copies the content of this matrix to the given matrix. The given matrix can
+	 * be smaller or larger than this matrix.
+	 *
+	 * @param matrix    the target matrix
+	 * @param rowOffset the row offset in the target matrix
+	 * @param colOffset the column offset in the target matrix
+	 */
+	default void copyTo(Matrix matrix, int rowOffset, int colOffset) {
+		int cols = Math.min(matrix.columns() - colOffset, this.columns());
+		int rows = Math.min(matrix.rows() - rowOffset, this.rows());
+		for (int col = 0; col < cols; col++) {
+			for (int row = 0; row < rows; row++) {
+				matrix.set(row + rowOffset, col + colOffset, this.get(row, col));
+			}
+		}
+	}
 }
