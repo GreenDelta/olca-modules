@@ -10,7 +10,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.git.ObjectIdStore;
 import org.openlca.git.model.Change;
 import org.openlca.git.util.Diffs;
-import org.openlca.git.writer.CommitWriter;
+import org.openlca.git.writer.DbCommitWriter;
 import org.openlca.util.Strings;
 
 public class GitCommit extends GitProgressAction<String> {
@@ -67,7 +67,7 @@ public class GitCommit extends GitProgressAction<String> {
 					.collect(Collectors.toList());
 		}
 		progressMonitor.beginTask("Writing commit", changes.size());
-		var writer = new CommitWriter(repo, database)
+		var writer = new DbCommitWriter(repo, database)
 				.saveIdsIn(workspaceIds)
 				.as(committer)
 				.with(progressMonitor);

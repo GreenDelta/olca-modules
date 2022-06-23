@@ -19,7 +19,7 @@ import org.openlca.git.find.Datasets;
 import org.openlca.git.model.Change;
 import org.openlca.git.util.Diffs;
 import org.openlca.git.util.Repositories;
-import org.openlca.git.writer.CommitWriter;
+import org.openlca.git.writer.DbCommitWriter;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Dirs;
 
@@ -50,7 +50,7 @@ public class WriteReadTest {
 		assertEquals(1, diffs.size());
 
 		// commit it
-		var writer = new CommitWriter(tmp.repo, tmp.database).saveIdsIn(tmp.idStore).as(tmp.committer);
+		var writer = new DbCommitWriter(tmp.repo, tmp.database).saveIdsIn(tmp.idStore).as(tmp.committer);
 		var commitId = writer.write("initial commit", diffs);
 
 		// get the data set from the repo

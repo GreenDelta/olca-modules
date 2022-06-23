@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
@@ -114,7 +113,7 @@ public class DatabaseIterator extends EntryIterator {
 	}
 
 	@Override
-	public AbstractTreeIterator createSubtreeIterator(ObjectReader reader) {
+	public DatabaseIterator createSubtreeIterator(ObjectReader reader) {
 		var data = getEntryData();
 		if (data instanceof ModelType type)
 			return new DatabaseIterator(this, database, idStore, init(database, type));

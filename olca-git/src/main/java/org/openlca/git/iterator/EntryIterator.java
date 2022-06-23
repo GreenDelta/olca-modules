@@ -1,16 +1,13 @@
 package org.openlca.git.iterator;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import org.eclipse.jgit.errors.CorruptObjectException;
-import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 
-abstract class EntryIterator extends AbstractTreeIterator {
+public abstract class EntryIterator extends AbstractTreeIterator {
 
 	private List<TreeEntry> entries;
 	private int index;
@@ -54,8 +51,7 @@ abstract class EntryIterator extends AbstractTreeIterator {
 	}
 
 	@Override
-	public AbstractTreeIterator createSubtreeIterator(ObjectReader reader)
-			throws IncorrectObjectTypeException, IOException {
+	public EntryIterator createSubtreeIterator(ObjectReader reader) {
 		return null;
 	}
 
@@ -111,10 +107,10 @@ abstract class EntryIterator extends AbstractTreeIterator {
 		return (T) entries.get(index).data;
 	}
 
-	public File getEntryFile() {
+	public String getEntryFilePath() {
 		if (eof())
 			return null;
-		return entries.get(index).file;
+		return entries.get(index).filePath;
 	}
 
 }
