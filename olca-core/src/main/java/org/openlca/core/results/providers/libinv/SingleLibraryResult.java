@@ -3,7 +3,7 @@ package org.openlca.core.results.providers.libinv;
 import org.openlca.core.library.LibMatrix;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.MatrixIndex;
-import org.openlca.core.results.providers.InversionSolver;
+import org.openlca.core.results.providers.InversionResult;
 import org.openlca.core.results.providers.LibCache;
 import org.openlca.core.results.providers.LibImpactMatrix;
 import org.openlca.core.results.providers.ResultProvider;
@@ -48,7 +48,7 @@ class SingleLibraryResult {
 			data.impactIndex = f.impactIndex;
 		}
 
-		return InversionSolver.of(context.solver(), data)
+		return InversionResult.of(context.solver(), data)
 			.withInverse(libs.matrixOf(lib, LibMatrix.INV))
 			.withInventoryIntensities(libs.matrixOf(lib, LibMatrix.M))
 			.calculate();
