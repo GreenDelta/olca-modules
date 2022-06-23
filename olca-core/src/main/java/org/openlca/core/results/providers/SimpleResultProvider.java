@@ -78,7 +78,7 @@ public class SimpleResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public EnviIndex flowIndex() {
+	public EnviIndex enviIndex() {
 		return flowIndex;
 	}
 
@@ -115,27 +115,27 @@ public class SimpleResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public double[] techColumnOf(int product) {
+	public double[] techColumnOf(int techFlow) {
 		return EMPTY_VECTOR;
 	}
 
 	@Override
-	public double[] solutionOfOne(int product) {
+	public double[] solutionOfOne(int techFlow) {
 		return EMPTY_VECTOR;
 	}
 
 	@Override
-	public double loopFactorOf(int product) {
+	public double loopFactorOf(int techFlow) {
 		return 0;
 	}
 
 	@Override
-	public double[] unscaledFlowsOf(int product) {
+	public double[] unscaledFlowsOf(int techFlow) {
 		return EMPTY_VECTOR;
 	}
 
 	@Override
-	public double[] totalFlowsOfOne(int product) {
+	public double[] totalFlowsOfOne(int techFlow) {
 		return EMPTY_VECTOR;
 	}
 
@@ -155,12 +155,12 @@ public class SimpleResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public double[] directImpactsOf(int product) {
+	public double[] directImpactsOf(int techFlow) {
 		return EMPTY_VECTOR;
 	}
 
 	@Override
-	public double[] totalImpactsOfOne(int product) {
+	public double[] totalImpactsOfOne(int techFlow) {
 		return EMPTY_VECTOR;
 	}
 
@@ -176,12 +176,12 @@ public class SimpleResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public double directCostsOf(int product) {
+	public double directCostsOf(int techFlow) {
 		return 0;
 	}
 
 	@Override
-	public double totalCostsOfOne(int product) {
+	public double totalCostsOfOne(int techFlow) {
 		return 0;
 	}
 

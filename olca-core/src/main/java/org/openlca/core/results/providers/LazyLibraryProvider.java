@@ -139,7 +139,7 @@ public class LazyLibraryProvider implements ResultProvider {
 	}
 
 	@Override
-	public EnviIndex flowIndex() {
+	public EnviIndex enviIndex() {
 		return fullData.enviIndex;
 	}
 
@@ -215,19 +215,19 @@ public class LazyLibraryProvider implements ResultProvider {
 	}
 
 	@Override
-	public double totalRequirementsOf(int product) {
+	public double totalRequirementsOf(int techFlow) {
 		var t = totalRequirements();
-		return t[product];
+		return t[techFlow];
 	}
 
 	@Override
-	public double[] techColumnOf(int j) {
-		var column = techColumns.get(j);
+	public double[] techColumnOf(int techFlow) {
+		var column = techColumns.get(techFlow);
 		if (column != null)
 			return column;
 
 		var index = fullData.techIndex;
-		var product = index.at(j);
+		var product = index.at(techFlow);
 		column = new double[index.size()];
 		var libID = product.library();
 
@@ -237,9 +237,9 @@ public class LazyLibraryProvider implements ResultProvider {
 		// the tech. index of the foreground system is
 		// exactly the first part of the combined index
 		if (libID == null) {
-			var colF = foregroundData.techMatrix.getColumn(j);
+			var colF = foregroundData.techMatrix.getColumn(techFlow);
 			System.arraycopy(colF, 0, column, 0, colF.length);
-			return put(j, techColumns, column);
+			return put(techFlow, techColumns, column);
 		}
 
 		// in case of a library product, we need to map
@@ -261,12 +261,12 @@ public class LazyLibraryProvider implements ResultProvider {
 				continue;
 			column[i] = val;
 		}
-		return put(j, techColumns, column);
+		return put(techFlow, techColumns, column);
 	}
 
 	@Override
-	public double[] solutionOfOne(int product) {
-		var solution = solutions.get(product);
+	public double[] solutionOfOne(int techFlow) {
+		var solution = solutions.get(techFlow);
 		if (solution != null)
 			return solution;
 
@@ -276,7 +276,7 @@ public class LazyLibraryProvider implements ResultProvider {
 		// initialize a queue that is used for adding scaled
 		// sub-solutions of libraries recursively
 		var queue = new ArrayDeque<Pair<TechFlow, Double>>();
-		var start = fullData.techIndex.at(product);
+		var start = fullData.techIndex.at(techFlow);
 		if (start.isFromLibrary()) {
 			// start process is a library process
 			queue.push(Pair.of(start, 1.0));
@@ -333,13 +333,13 @@ public class LazyLibraryProvider implements ResultProvider {
 			}
 		}
 
-		return put(product, solutions, solution);
+		return put(techFlow, solutions, solution);
 	}
 
 	@Override
-	public double loopFactorOf(int product) {
-		var aii = techValueOf(product, product);
-		var ii = solutionOfOne(product)[product];
+	public double loopFactorOf(int techFlow) {
+		var aii = techValueOf(techFlow, techFlow);
+		var ii = solutionOfOne(techFlow)[techFlow];
 		var f = aii * ii;
 		return f == 0
 				? 0
@@ -347,8 +347,8 @@ public class LazyLibraryProvider implements ResultProvider {
 	}
 
 	@Override
-	public double[] unscaledFlowsOf(int j) {
-		var column = flowColumns.get(j);
+	public double[] unscaledFlowsOf(int techFlow) {
+		var column = flowColumns.get(techFlow);
 		if (column != null)
 			return column;
 
@@ -357,7 +357,7 @@ public class LazyLibraryProvider implements ResultProvider {
 			return EMPTY_VECTOR;
 
 		column = new double[flowIdx.size()];
-		var product = fullData.techIndex.at(j);
+		var product = fullData.techIndex.at(techFlow);
 		var libId = product.library();
 
 		// in case of a foreground product, we just need
@@ -368,10 +368,10 @@ public class LazyLibraryProvider implements ResultProvider {
 		if (libId == null) {
 			var flowMatrixF = foregroundData.enviMatrix;
 			if (flowMatrixF != null) {
-				var colF = flowMatrixF.getColumn(j);
+				var colF = flowMatrixF.getColumn(techFlow);
 				System.arraycopy(colF, 0, column, 0, colF.length);
 			}
-			return put(j, flowColumns, column);
+			return put(techFlow, flowColumns, column);
 		}
 
 		// in case of a library product, we need to map
@@ -379,11 +379,11 @@ public class LazyLibraryProvider implements ResultProvider {
 		var flowIdxB = libs.enviIndexOf(libId);
 		var techIdxB = libs.techIndexOf(libId);
 		if (flowIdxB == null || techIdxB == null)
-			return put(j, flowColumns, column);
+			return put(techFlow, flowColumns, column);
 		var jB = techIdxB.of(product);
 		var colB = libs.columnOf(libId, LibMatrix.B, jB);
 		if (colB == null)
-			return put(j, flowColumns, column);
+			return put(techFlow, flowColumns, column);
 
 		for (int iB = 0; iB < colB.length; iB++) {
 			double val = colB[iB];
@@ -396,7 +396,7 @@ public class LazyLibraryProvider implements ResultProvider {
 			column[i] = val;
 		}
 
-		return put(j, flowColumns, column);
+		return put(techFlow, flowColumns, column);
 	}
 
 	@Override
@@ -408,29 +408,29 @@ public class LazyLibraryProvider implements ResultProvider {
 	}
 
 	@Override
-	public double[] directFlowsOf(int product) {
-		var flows = directFlows.get(product);
+	public double[] directFlowsOf(int techFlow) {
+		var flows = directFlows.get(techFlow);
 		if (flows != null)
 			return flows;
-		var unscaled = unscaledFlowsOf(product);
+		var unscaled = unscaledFlowsOf(techFlow);
 		if (isEmpty(unscaled))
 			return EMPTY_VECTOR;
-		var factor = scalingFactorOf(product);
+		var factor = scalingFactorOf(techFlow);
 		flows = scale(unscaled, factor);
-		return put(product, directFlows, flows);
+		return put(techFlow, directFlows, flows);
 	}
 
 	@Override
-	public double directFlowOf(int flow, int product) {
-		var flows = directFlowsOf(product);
+	public double directFlowOf(int flow, int techFlow) {
+		var flows = directFlowsOf(techFlow);
 		return isEmpty(flows)
 				? 0
 				: flows[flow];
 	}
 
 	@Override
-	public double[] totalFlowsOfOne(int j) {
-		var totals = totalFlowsOfOne.get(j);
+	public double[] totalFlowsOfOne(int techFlow) {
+		var totals = totalFlowsOfOne.get(techFlow);
 		if (totals != null)
 			return totals;
 
@@ -439,7 +439,7 @@ public class LazyLibraryProvider implements ResultProvider {
 			return EMPTY_VECTOR;
 		}
 
-		var s = solutionOfOne(j);
+		var s = solutionOfOne(techFlow);
 		totals = new double[flowIndex.size()];
 
 		// add the foreground result
@@ -481,7 +481,7 @@ public class LazyLibraryProvider implements ResultProvider {
 				totals[i] += gB[iB];
 			}
 		}
-		return put(j, totalFlowsOfOne, totals);
+		return put(techFlow, totalFlowsOfOne, totals);
 	}
 
 	@Override
@@ -510,7 +510,7 @@ public class LazyLibraryProvider implements ResultProvider {
 
 		// allocate a Combined impact matrix C
 		var impactIndex = impactIndex();
-		var flowIndex = flowIndex();
+		var flowIndex = enviIndex();
 		var builder = new MatrixBuilder();
 		builder.minSize(impactIndex.size(), flowIndex.size());
 
@@ -625,29 +625,29 @@ public class LazyLibraryProvider implements ResultProvider {
 	}
 
 	@Override
-	public double[] directImpactsOf(int product) {
-		var impacts = directImpacts.get(product);
+	public double[] directImpactsOf(int techFlow) {
+		var impacts = directImpacts.get(techFlow);
 		if (impacts != null)
 			return impacts;
 		var factors = impactFactors();
-		var flows = directFlowsOf(product);
+		var flows = directFlowsOf(techFlow);
 		if (factors == null || isEmpty(flows))
 			return EMPTY_VECTOR;
 		impacts = solver.multiply(factors, flows);
-		return put(product, directImpacts, impacts);
+		return put(techFlow, directImpacts, impacts);
 	}
 
 	@Override
-	public double[] totalImpactsOfOne(int product) {
-		var impacts = totalImpactsOfOne.get(product);
+	public double[] totalImpactsOfOne(int techFlow) {
+		var impacts = totalImpactsOfOne.get(techFlow);
 		if (impacts != null)
 			return impacts;
 		var factors = impactFactors();
-		var flows = totalFlowsOfOne(product);
+		var flows = totalFlowsOfOne(techFlow);
 		if (factors == null || isEmpty(flows))
 			return EMPTY_VECTOR;
 		impacts = solver.multiply(factors, flows);
-		return put(product, totalImpactsOfOne, impacts);
+		return put(techFlow, totalImpactsOfOne, impacts);
 	}
 
 	@Override
@@ -663,13 +663,13 @@ public class LazyLibraryProvider implements ResultProvider {
 	}
 
 	@Override
-	public double directCostsOf(int product) {
+	public double directCostsOf(int techFlow) {
 		// TODO: not yet implemented
 		return 0;
 	}
 
 	@Override
-	public double totalCostsOfOne(int product) {
+	public double totalCostsOfOne(int techFlow) {
 		return 0;
 	}
 

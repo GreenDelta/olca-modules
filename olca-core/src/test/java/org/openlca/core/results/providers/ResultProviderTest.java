@@ -135,7 +135,7 @@ public record ResultProviderTest(ResultProvider provider) {
 		assertTrue(provider.hasFlows());
 		assertTrue(provider.hasImpacts());
 		assertEquals(2, provider.techIndex().size());
-		assertEquals(2, provider.flowIndex().size());
+		assertEquals(2, provider.enviIndex().size());
 		assertEquals(3, provider.impactIndex().size());
 	}
 

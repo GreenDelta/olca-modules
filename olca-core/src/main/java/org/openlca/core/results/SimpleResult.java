@@ -74,7 +74,7 @@ public class SimpleResult extends BaseResult {
 
 	@Override
 	public EnviIndex enviIndex() {
-		return provider.flowIndex();
+		return provider.enviIndex();
 	}
 
 	@Override

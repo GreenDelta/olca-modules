@@ -83,7 +83,7 @@ public class LazyResultProvider implements ResultProvider {
 	public static LazyResultProvider create(SolverContext context) {
 		return new LazyResultProvider(context);
 	}
-	
+
 	@Override
 	public Demand demand() {
 		return demand;
@@ -95,7 +95,7 @@ public class LazyResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public EnviIndex flowIndex() {
+	public EnviIndex enviIndex() {
 		return data.enviIndex;
 	}
 
@@ -132,13 +132,13 @@ public class LazyResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public double totalRequirementsOf(int product) {
-		return totalRequirements()[product];
+	public double totalRequirementsOf(int techFlow) {
+		return totalRequirements()[techFlow];
 	}
 
 	@Override
-	public double[] techColumnOf(int j) {
-		return data.techMatrix.getColumn(j);
+	public double[] techColumnOf(int techFlow) {
+		return data.techMatrix.getColumn(techFlow);
 	}
 
 	@Override
@@ -147,19 +147,19 @@ public class LazyResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public double[] solutionOfOne(int product) {
-		var s = solutions.get(product);
+	public double[] solutionOfOne(int techFlow) {
+		var s = solutions.get(techFlow);
 		if (s != null)
 			return s;
-		s = factorization.solve(product, 1.0);
-		solutions.put(product, s);
+		s = factorization.solve(techFlow, 1.0);
+		solutions.put(techFlow, s);
 		return s;
 	}
 
 	@Override
-	public double loopFactorOf(int product) {
-		var aii = data.techMatrix.get(product, product);
-		var eii = solutionOfOne(product)[product];
+	public double loopFactorOf(int techFlow) {
+		var aii = data.techMatrix.get(techFlow, techFlow);
+		var eii = solutionOfOne(techFlow)[techFlow];
 		var f = aii * eii;
 		return f == 0
 			? 0
@@ -167,8 +167,8 @@ public class LazyResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public double[] unscaledFlowsOf(int product) {
-		return data.enviMatrix.getColumn(product);
+	public double[] unscaledFlowsOf(int techFlow) {
+		return data.enviMatrix.getColumn(techFlow);
 	}
 
 	@Override
@@ -188,31 +188,31 @@ public class LazyResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public double[] directFlowsOf(int product) {
+	public double[] directFlowsOf(int techFlow) {
 		var m = directFlows();
 		return m != null
-			? m.getColumn(product)
-			: new double[flowIndex().size()];
+			? m.getColumn(techFlow)
+			: new double[enviIndex().size()];
 	}
 
 	@Override
-	public double directFlowOf(int flow, int product) {
+	public double directFlowOf(int flow, int techFlow) {
 		var m = directFlows();
 		return m != null
-			? m.get(flow, product)
+			? m.get(flow, techFlow)
 			: 0;
 	}
 
 	@Override
-	public double[] totalFlowsOfOne(int product) {
+	public double[] totalFlowsOfOne(int techFlow) {
 		if (totalFlowsOfOne == null)
 			return EMPTY_VECTOR;
-		var totals = totalFlowsOfOne.get(product);
+		var totals = totalFlowsOfOne.get(techFlow);
 		if (totals != null)
 			return totals;
-		var s = solutionOfOne(product);
+		var s = solutionOfOne(techFlow);
 		totals = solver.multiply(data.enviMatrix, s);
-		totalFlowsOfOne.put(product, totals);
+		totalFlowsOfOne.put(techFlow, totals);
 		return totals;
 	}
 
@@ -254,18 +254,18 @@ public class LazyResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public double[] directImpactsOf(int product) {
+	public double[] directImpactsOf(int techFlow) {
 		var impacts = directImpacts();
 		return impacts != null
-			? impacts.getColumn(product)
+			? impacts.getColumn(techFlow)
 			: new double[impactIndex().size()];
 	}
 
 	@Override
-	public double directImpactOf(int indicator, int product) {
+	public double directImpactOf(int indicator, int techFlow) {
 		var impacts = directImpacts();
 		return impacts != null
-			? impacts.get(indicator, product)
+			? impacts.get(indicator, techFlow)
 			: 0;
 	}
 
@@ -282,18 +282,18 @@ public class LazyResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public double[] totalImpactsOfOne(int product) {
+	public double[] totalImpactsOfOne(int techFlow) {
 		if (totalImpactsOfOne == null)
 			return EMPTY_VECTOR;
-		var h = totalImpactsOfOne.get(product);
+		var h = totalImpactsOfOne.get(techFlow);
 		if (h != null)
 			return h;
 		var impactFactors = data.impactMatrix;
-		var g = totalFlowsOfOne(product);
+		var g = totalFlowsOfOne(techFlow);
 		if (impactFactors == null || g.length == 0)
 			return new double[impactIndex().size()];
 		h = solver.multiply(impactFactors, g);
-		totalImpactsOfOne.put(product, h);
+		totalImpactsOfOne.put(techFlow, h);
 		return h;
 	}
 
@@ -308,17 +308,17 @@ public class LazyResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public double directCostsOf(int product) {
+	public double directCostsOf(int techFlow) {
 		return directCosts == null
 			? 0
-			: directCosts[product];
+			: directCosts[techFlow];
 	}
 
 	@Override
-	public double totalCostsOfOne(int product) {
+	public double totalCostsOfOne(int techFlow) {
 		if (data.costVector == null)
 			return 0;
-		var s = solutionOfOne(product);
+		var s = solutionOfOne(techFlow);
 		double c = 0.0;
 		for (int j = 0; j < s.length; j++) {
 			c += s[j] * data.costVector[j];

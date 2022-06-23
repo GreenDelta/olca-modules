@@ -113,7 +113,7 @@ public class EagerResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public EnviIndex flowIndex() {
+	public EnviIndex enviIndex() {
 		return data.enviIndex;
 	}
 
@@ -143,13 +143,13 @@ public class EagerResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public double totalRequirementsOf(int product) {
-		return totalRequirements[product];
+	public double totalRequirementsOf(int techFlow) {
+		return totalRequirements[techFlow];
 	}
 
 	@Override
-	public double[] techColumnOf(int j) {
-		return data.techMatrix.getColumn(j);
+	public double[] techColumnOf(int techFlow) {
+		return data.techMatrix.getColumn(techFlow);
 	}
 
 	@Override
@@ -158,20 +158,20 @@ public class EagerResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public double[] solutionOfOne(int product) {
-		return inverse.getColumn(product);
+	public double[] solutionOfOne(int techFlow) {
+		return inverse.getColumn(techFlow);
 	}
 
 	@Override
-	public double loopFactorOf(int product) {
-		return loopFactors[product];
+	public double loopFactorOf(int techFlow) {
+		return loopFactors[techFlow];
 	}
 
 	@Override
-	public double[] unscaledFlowsOf(int j) {
+	public double[] unscaledFlowsOf(int techFlow) {
 		return data.enviMatrix == null
 			? EMPTY_VECTOR
-			: data.enviMatrix.getColumn(j);
+			: data.enviMatrix.getColumn(techFlow);
 	}
 
 	@Override
@@ -182,37 +182,37 @@ public class EagerResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public double[] directFlowsOf(int product) {
+	public double[] directFlowsOf(int techFlow) {
 		return directFlows == null
 			? EMPTY_VECTOR
-			: directFlows.getColumn(product);
+			: directFlows.getColumn(techFlow);
 	}
 
 	@Override
-	public double directFlowOf(int flow, int product) {
+	public double directFlowOf(int flow, int techFlow) {
 		return directFlows == null
 			? 0
-			: directFlows.get(flow, product);
+			: directFlows.get(flow, techFlow);
 	}
 
 	@Override
-	public double[] totalFlowsOfOne(int product) {
+	public double[] totalFlowsOfOne(int techFlow) {
 		return totalFlowsOfOne == null
 			? EMPTY_VECTOR
-			: totalFlowsOfOne.getColumn(product);
+			: totalFlowsOfOne.getColumn(techFlow);
 	}
 
 	@Override
-	public double totalFlowOfOne(int flow, int product) {
+	public double totalFlowOfOne(int flow, int techFlow) {
 		return totalFlowsOfOne == null
 			? 0
-			: totalFlowsOfOne.get(flow, product);
+			: totalFlowsOfOne.get(flow, techFlow);
 	}
 
 	@Override
-	public double[] totalFlowsOf(int product) {
-		var factor = totalFactorOf(product);
-		var totals = totalFlowsOfOne(product);
+	public double[] totalFlowsOf(int techFlow) {
+		var factor = totalFactorOf(techFlow);
+		var totals = totalFlowsOfOne(techFlow);
 		scaleInPlace(totals, factor);
 		return totals;
 	}
@@ -223,7 +223,7 @@ public class EagerResultProvider implements ResultProvider {
 			return totalFlows;
 		if (!hasFlows())
 			return EMPTY_VECTOR;
-		totalFlows = new double[flowIndex().size()];
+		totalFlows = new double[enviIndex().size()];
 		return totalFlows;
 	}
 
@@ -260,32 +260,32 @@ public class EagerResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public double[] directImpactsOf(int product) {
+	public double[] directImpactsOf(int techFlow) {
 		return directImpacts != null
-			? directImpacts.getColumn(product)
+			? directImpacts.getColumn(techFlow)
 			: new double[impactIndex().size()];
 	}
 
 	@Override
-	public double directImpactOf(int indicator, int product) {
+	public double directImpactOf(int indicator, int techFlow) {
 		return directImpacts == null
 			? 0
-			: directImpacts.get(indicator, product);
+			: directImpacts.get(indicator, techFlow);
 	}
 
 
 	@Override
-	public double[] totalImpactsOfOne(int product) {
+	public double[] totalImpactsOfOne(int techFlow) {
 		return totalImpactsOfOne != null
-			? totalImpactsOfOne.getColumn(product)
+			? totalImpactsOfOne.getColumn(techFlow)
 			: new double[impactIndex().size()];
 	}
 
 	@Override
-	public double totalImpactOfOne(int indicator, int product) {
+	public double totalImpactOfOne(int indicator, int techFlow) {
 		return totalImpactsOfOne == null
 			? 0
-			: totalImpactsOfOne.get(indicator, product);
+			: totalImpactsOfOne.get(indicator, techFlow);
 	}
 
 	@Override
@@ -299,17 +299,17 @@ public class EagerResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public double directCostsOf(int product) {
+	public double directCostsOf(int techFlow) {
 		return directCosts == null
 			? 0
-			: directCosts[product];
+			: directCosts[techFlow];
 	}
 
 	@Override
-	public double totalCostsOfOne(int product) {
+	public double totalCostsOfOne(int techFlow) {
 		return totalCostsOfOne == null
 			? 0
-			: totalCostsOfOne[product];
+			: totalCostsOfOne[techFlow];
 	}
 
 	@Override

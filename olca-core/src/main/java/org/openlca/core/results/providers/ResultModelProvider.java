@@ -71,7 +71,7 @@ public class ResultModelProvider implements ResultProvider {
 	}
 
 	@Override
-	public EnviIndex flowIndex() {
+	public EnviIndex enviIndex() {
 		return flowIndex;
 	}
 
@@ -92,16 +92,16 @@ public class ResultModelProvider implements ResultProvider {
 	}
 
 	@Override
-	public double[] techColumnOf(int product) {
-		if (product != 0)
-			throw new IndexOutOfBoundsException(product);
+	public double[] techColumnOf(int techFlow) {
+		if (techFlow != 0)
+			throw new IndexOutOfBoundsException(techFlow);
 		return new double[]{demand.value()};
 	}
 
 	@Override
-	public double[] solutionOfOne(int product) {
-		if (product != 0)
-			throw new IndexOutOfBoundsException(product);
+	public double[] solutionOfOne(int techFlow) {
+		if (techFlow != 0)
+			throw new IndexOutOfBoundsException(techFlow);
 		var d = demand.value();
 		return d == 0
 			? new double[]{0}
@@ -109,30 +109,30 @@ public class ResultModelProvider implements ResultProvider {
 	}
 
 	@Override
-	public double loopFactorOf(int product) {
-		if (product != 0)
-			throw new IndexOutOfBoundsException(product);
+	public double loopFactorOf(int techFlow) {
+		if (techFlow != 0)
+			throw new IndexOutOfBoundsException(techFlow);
 		return 1;
 	}
 
 	@Override
-	public double[] unscaledFlowsOf(int product) {
-		if (product != 0)
-			throw new IndexOutOfBoundsException(product);
+	public double[] unscaledFlowsOf(int techFlow) {
+		if (techFlow != 0)
+			throw new IndexOutOfBoundsException(techFlow);
 		return flowResults;
 	}
 
 	@Override
-	public double[] directFlowsOf(int product) {
-		if (product != 0)
-			throw new IndexOutOfBoundsException(product);
+	public double[] directFlowsOf(int techFlow) {
+		if (techFlow != 0)
+			throw new IndexOutOfBoundsException(techFlow);
 		return flowResults;
 	}
 
 	@Override
-	public double[] totalFlowsOfOne(int product) {
-		if (product != 0)
-			throw new IndexOutOfBoundsException(product);
+	public double[] totalFlowsOfOne(int techFlow) {
+		if (techFlow != 0)
+			throw new IndexOutOfBoundsException(techFlow);
 		var demand = demand().value();
 		return demand == 0
 			? new double[flowIndex.size()]
@@ -140,9 +140,9 @@ public class ResultModelProvider implements ResultProvider {
 	}
 
 	@Override
-	public double[] totalFlowsOf(int product) {
-		if (product != 0)
-			throw new IndexOutOfBoundsException(product);
+	public double[] totalFlowsOf(int techFlow) {
+		if (techFlow != 0)
+			throw new IndexOutOfBoundsException(techFlow);
 		return flowResults;
 	}
 
@@ -158,16 +158,16 @@ public class ResultModelProvider implements ResultProvider {
 	}
 
 	@Override
-	public double[] directImpactsOf(int product) {
-		if (product != 0)
-			throw new IndexOutOfBoundsException(product);
+	public double[] directImpactsOf(int techFlow) {
+		if (techFlow != 0)
+			throw new IndexOutOfBoundsException(techFlow);
 		return impactResults;
 	}
 
 	@Override
-	public double[] totalImpactsOfOne(int product) {
-		if (product != 0)
-			throw new IndexOutOfBoundsException(product);
+	public double[] totalImpactsOfOne(int techFlow) {
+		if (techFlow != 0)
+			throw new IndexOutOfBoundsException(techFlow);
 		var d = demand.value();
 		return d == 0
 			? new double[impactIndex.size()]
@@ -180,13 +180,13 @@ public class ResultModelProvider implements ResultProvider {
 	}
 
 	@Override
-	public double directCostsOf(int product) {
+	public double directCostsOf(int techFlow) {
 		// TODO: not yet implemented
 		return 0;
 	}
 
 	@Override
-	public double totalCostsOfOne(int product) {
+	public double totalCostsOfOne(int techFlow) {
 		// TODO: not yet implemented
 		return 0;
 	}

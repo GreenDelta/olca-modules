@@ -1,7 +1,6 @@
 package org.openlca.core.results.providers;
 
 import org.openlca.core.matrix.Demand;
-import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechIndex;
@@ -24,226 +23,218 @@ public class InversionResultProvider implements ResultProvider {
 
 	@Override
 	public Demand demand() {
-		return null;
+		return r.data().demand;
 	}
 
 	@Override
 	public TechIndex techIndex() {
-		return null;
+		return r.data().techIndex;
 	}
 
 	@Override
-	public EnviIndex flowIndex() {
-		return null;
+	public EnviIndex enviIndex() {
+		return r.data().enviIndex;
 	}
 
 	@Override
 	public ImpactIndex impactIndex() {
-		return null;
-	}
-
-	@Override
-	public boolean hasFlows() {
-		return ResultProvider.super.hasFlows();
-	}
-
-	@Override
-	public boolean hasImpacts() {
-		return ResultProvider.super.hasImpacts();
+		return r.data().impactIndex;
 	}
 
 	@Override
 	public boolean hasCosts() {
-		return false;
+		return r.directCosts() != null;
 	}
 
 	@Override
 	public double[] scalingVector() {
-		return new double[0];
+		return r.scalingVector();
 	}
 
 	@Override
-	public double scalingFactorOf(int product) {
-		return ResultProvider.super.scalingFactorOf(product);
+	public double scalingFactorOf(int techFlow) {
+		return scalingVector()[techFlow];
 	}
 
 	@Override
 	public double[] totalRequirements() {
-		return ResultProvider.super.totalRequirements();
+		return r.totalRequirements();
 	}
 
 	@Override
-	public double totalRequirementsOf(int product) {
-		return ResultProvider.super.totalRequirementsOf(product);
+	public double totalRequirementsOf(int techFlow) {
+		return totalRequirements()[techFlow];
 	}
 
 	@Override
-	public double[] techColumnOf(int product) {
-		return new double[0];
+	public double[] techColumnOf(int techFlow) {
+		return r.data().techMatrix.getColumn(techFlow);
 	}
 
 	@Override
 	public double techValueOf(int row, int col) {
-		return ResultProvider.super.techValueOf(row, col);
+		return r.data().techMatrix.get(row, col);
 	}
 
 	@Override
-	public double scaledTechValueOf(int row, int col) {
-		return ResultProvider.super.scaledTechValueOf(row, col);
+	public double[] solutionOfOne(int techFlow) {
+		return r.inverse().getColumn(techFlow);
 	}
 
 	@Override
-	public double[] solutionOfOne(int product) {
-		return new double[0];
+	public double loopFactorOf(int techFlow) {
+		return r.loopFactors()[techFlow];
 	}
 
 	@Override
-	public double loopFactorOf(int product) {
-		return 0;
+	public double[] unscaledFlowsOf(int techFlow) {
+		return r.data().enviMatrix != null
+			? r.data().enviMatrix.getColumn(techFlow)
+			: EMPTY_VECTOR;
 	}
 
 	@Override
-	public double totalFactorOf(int product) {
-		return ResultProvider.super.totalFactorOf(product);
+	public double unscaledFlowOf(int flow, int techFlow) {
+		return r.data().enviMatrix != null
+			? r.data().enviMatrix.get(flow, techFlow)
+			: 0;
 	}
 
 	@Override
-	public double[] unscaledFlowsOf(int product) {
-		return new double[0];
+	public double[] directFlowsOf(int techFlow) {
+		return r.directInventories() != null
+			? r.directInventories().getColumn(techFlow)
+			: EMPTY_VECTOR;
 	}
 
 	@Override
-	public double unscaledFlowOf(int flow, int product) {
-		return ResultProvider.super.unscaledFlowOf(flow, product);
+	public double directFlowOf(int flow, int techFlow) {
+		return r.directInventories() != null
+			? r.directInventories().get(flow, techFlow)
+			: 0;
 	}
 
 	@Override
-	public double[] directFlowsOf(int product) {
-		return ResultProvider.super.directFlowsOf(product);
+	public double[] totalFlowsOfOne(int techFlow) {
+		return r.inventoryIntensities() != null
+			? r.inventoryIntensities().getColumn(techFlow)
+			: EMPTY_VECTOR;
 	}
 
 	@Override
-	public double directFlowOf(int flow, int product) {
-		return ResultProvider.super.directFlowOf(flow, product);
+	public double totalFlowOfOne(int flow, int techFlow) {
+		return r.inventoryIntensities() != null
+			? r.inventoryIntensities().get(flow, techFlow)
+			: 0;
 	}
 
 	@Override
-	public double[] totalFlowsOfOne(int product) {
-		return new double[0];
+	public double[] totalFlowsOf(int techFlow) {
+		var factor = totalFactorOf(techFlow);
+		var totals = totalFlowsOfOne(techFlow);
+		scaleInPlace(totals, factor);
+		return totals;
 	}
 
 	@Override
-	public double totalFlowOfOne(int flow, int product) {
-		return ResultProvider.super.totalFlowOfOne(flow, product);
-	}
-
-	@Override
-	public double[] totalFlowsOf(int product) {
-		return ResultProvider.super.totalFlowsOf(product);
-	}
-
-	@Override
-	public double totalFlowOf(int flow, int product) {
-		return ResultProvider.super.totalFlowOf(flow, product);
+	public double totalFlowOf(int flow, int techFlow) {
+		var factor = totalFactorOf(techFlow);
+		var intensity = totalFlowOfOne(flow, techFlow);
+		return factor * intensity;
 	}
 
 	@Override
 	public double[] totalFlows() {
-		return new double[0];
+		return r.totalInventory() != null
+			? r.totalInventory()
+			: EMPTY_VECTOR;
 	}
 
 	@Override
 	public double[] impactFactorsOf(int flow) {
-		return new double[0];
+		return r.data().impactMatrix != null
+			? r.data().impactMatrix.getColumn(flow)
+			: EMPTY_VECTOR;
 	}
 
 	@Override
 	public double impactFactorOf(int indicator, int flow) {
-		return ResultProvider.super.impactFactorOf(indicator, flow);
+		return r.data().impactMatrix != null
+			? r.data().impactMatrix.get(indicator, flow)
+			: 0;
 	}
 
 	@Override
 	public double[] flowImpactsOf(int flow) {
-		return ResultProvider.super.flowImpactsOf(flow);
+		var totalInterventions = r.totalInventory();
+		if (totalInterventions == null)
+			return EMPTY_VECTOR;
+		var impacts = impactFactorsOf(flow);
+		scaleInPlace(impacts, totalInterventions[flow]);
+		return impacts;
 	}
 
 	@Override
 	public double flowImpactOf(int indicator, int flow) {
-		return ResultProvider.super.flowImpactOf(indicator, flow);
+		var totalInterventions = r.totalInventory();
+		if (totalInterventions == null)
+			return 0;
+		var factor = impactFactorOf(indicator, flow);
+		return factor * totalInterventions[flow];
 	}
 
 	@Override
-	public double[] directImpactsOf(int product) {
-		return new double[0];
+	public double[] directImpactsOf(int techFlow) {
+		return r.directImpacts() != null
+			? r.directImpacts().getColumn(techFlow)
+			: EMPTY_VECTOR;
 	}
 
 	@Override
-	public double directImpactOf(int indicator, int product) {
-		return ResultProvider.super.directImpactOf(indicator, product);
+	public double directImpactOf(int indicator, int techFlow) {
+		return r.directImpacts() != null
+			? r.directImpacts().get(indicator, techFlow)
+			: 0;
 	}
 
 	@Override
-	public double[] totalImpactsOfOne(int product) {
-		return new double[0];
+	public double[] totalImpactsOfOne(int techFlow) {
+		return r.impactIntensities() != null
+			? r.impactIntensities().getColumn(techFlow)
+			: EMPTY_VECTOR;
 	}
 
 	@Override
-	public double totalImpactOfOne(int indicator, int product) {
-		return ResultProvider.super.totalImpactOfOne(indicator, product);
-	}
-
-	@Override
-	public double[] totalImpactsOf(int product) {
-		return ResultProvider.super.totalImpactsOf(product);
-	}
-
-	@Override
-	public double totalImpactOf(int indicator, int product) {
-		return ResultProvider.super.totalImpactOf(indicator, product);
+	public double totalImpactOfOne(int indicator, int techFlow) {
+		return r.impactIntensities() != null
+			? r.impactIntensities().get(indicator, techFlow)
+			: 0;
 	}
 
 	@Override
 	public double[] totalImpacts() {
-		return new double[0];
+		return r.totalImpacts() != null
+			? r.totalImpacts()
+			: EMPTY_VECTOR;
 	}
 
 	@Override
-	public double directCostsOf(int product) {
-		return 0;
+	public double directCostsOf(int techFlow) {
+		return r.directCosts() != null
+			? r.directCosts()[techFlow]
+			: 0;
 	}
 
 	@Override
-	public double totalCostsOfOne(int product) {
-		return 0;
-	}
-
-	@Override
-	public double totalCostsOf(int product) {
-		return ResultProvider.super.totalCostsOf(product);
+	public double totalCostsOfOne(int techFlow) {
+		return r.costIntensities() != null
+			? r.costIntensities()[techFlow]
+			: 0;
 	}
 
 	@Override
 	public double totalCosts() {
-		return 0;
+		return r.totalCosts();
 	}
 
-	@Override
-	public boolean isEmpty(double[] values) {
-		return ResultProvider.super.isEmpty(values);
-	}
-
-	@Override
-	public void scaleInPlace(double[] values, double factor) {
-		ResultProvider.super.scaleInPlace(values, factor);
-	}
-
-	@Override
-	public double[] scale(double[] values, double factor) {
-		return ResultProvider.super.scale(values, factor);
-	}
-
-	@Override
-	public double[] copy(double[] values) {
-		return ResultProvider.super.copy(values);
-	}
 }

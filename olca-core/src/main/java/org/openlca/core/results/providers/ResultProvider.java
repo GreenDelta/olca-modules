@@ -5,6 +5,7 @@ import java.util.Arrays;
 import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.MatrixIndex;
 import org.openlca.core.matrix.index.TechIndex;
 
 /**
@@ -49,7 +50,7 @@ public interface ResultProvider {
 	 * \mathit{Idx}_B: \mathit{F} \mapsto [0 \dots m-1]
 	 * $$
 	 */
-	EnviIndex flowIndex();
+	EnviIndex enviIndex();
 
 	/**
 	 * The row index $\mathit{Idx}_C$ of the matrix with the characterization
@@ -63,13 +64,11 @@ public interface ResultProvider {
 	ImpactIndex impactIndex();
 
 	default boolean hasFlows() {
-		var flowIdx = flowIndex();
-		return flowIdx != null && flowIdx.size() > 0;
+		return MatrixIndex.isPresent(enviIndex());
 	}
 
 	default boolean hasImpacts() {
-		var impactIdx = impactIndex();
-		return impactIdx != null && impactIdx.size() > 0;
+		return MatrixIndex.isPresent(impactIndex());
 	}
 
 	boolean hasCosts();
@@ -122,17 +121,17 @@ public interface ResultProvider {
 		return t;
 	}
 
-	default double totalRequirementsOf(int product) {
+	default double totalRequirementsOf(int techFlow) {
 		var t = totalRequirements();
 		return isEmpty(t)
 			? 0
-			: t[product];
+			: t[techFlow];
 	}
 
 	/**
 	 * Get the unscaled column $j$ from the technology matrix $A$.
 	 */
-	double[] techColumnOf(int product);
+	double[] techColumnOf(int techFlow);
 
 	/**
 	 * Get the unscaled value $a_{ij}$ from the technology matrix $A$.
@@ -155,7 +154,7 @@ public interface ResultProvider {
 	 * of product (waste flow) j. This is equivalent with the jth column of the
 	 * inverse technology matrix $A^{-1}[:,j]$ in case of full in-memory matrices.
 	 */
-	double[] solutionOfOne(int product);
+	double[] solutionOfOne(int techFlow);
 
 	/**
 	 * The loop factor $loop_j$ of a product $i$ is calculated via:
@@ -167,18 +166,18 @@ public interface ResultProvider {
 	 * It is $1.0$ if the process of the product is not in a loop. Otherwise
 	 * it describes ...
 	 */
-	double loopFactorOf(int product);
+	double loopFactorOf(int techFlow);
 
-	default double totalFactorOf(int product) {
-		var t = totalRequirementsOf(product);
-		var loop = loopFactorOf(product);
+	default double totalFactorOf(int techFlow) {
+		var t = totalRequirementsOf(techFlow);
+		var loop = loopFactorOf(techFlow);
 		return loop * t;
 	}
 
 	/**
 	 * Get the unscaled column $j$ from the intervention matrix $B$.
 	 */
-	double[] unscaledFlowsOf(int product);
+	double[] unscaledFlowsOf(int techFlow);
 
 	/**
 	 * Get the unscaled value $b_{ij}$ from the intervention matrix $B$.
@@ -193,15 +192,15 @@ public interface ResultProvider {
 	 * the scaled column {@code j} from the intervention matrix {@code B}
 	 * calculated via {@code s[j] * B[:, j]}.
 	 *
-	 * @param product the product index {@code j >= 0} for which the direct flow
+	 * @param techFlow the product index {@code j >= 0} for which the direct flow
 	 *                results should be returned.
 	 */
-	default double[] directFlowsOf(int product) {
-		var flows = unscaledFlowsOf(product);
+	default double[] directFlowsOf(int techFlow) {
+		var flows = unscaledFlowsOf(techFlow);
 		var s = scalingVector();
 		if (isEmpty(flows) || isEmpty(s))
 			return EMPTY_VECTOR;
-		return scale(flows, s[product]);
+		return scale(flows, s[techFlow]);
 	}
 
 	/**
@@ -211,8 +210,8 @@ public interface ResultProvider {
 	 * <p>
 	 * $$ G = B \text{diag}(s) $$
 	 */
-	default double directFlowOf(int flow, int product) {
-		return scalingFactorOf(product) * unscaledFlowOf(flow, product);
+	default double directFlowOf(int flow, int techFlow) {
+		return scalingFactorOf(techFlow) * unscaledFlowOf(flow, techFlow);
 	}
 
 	/**
@@ -222,22 +221,22 @@ public interface ResultProvider {
 	 * <p>
 	 * $$M = B * A^{-1}$$
 	 */
-	double[] totalFlowsOfOne(int product);
+	double[] totalFlowsOfOne(int techFlow);
 
 	/**
 	 * Returns the total result (direct + upstream) of the given flow related
 	 * to one unit of the given product in the system.
 	 */
-	default double totalFlowOfOne(int flow, int product) {
-		var totals = totalFlowsOfOne(product);
+	default double totalFlowOfOne(int flow, int techFlow) {
+		var totals = totalFlowsOfOne(techFlow);
 		return isEmpty(totals)
 			? 0
 			: totals[flow];
 	}
 
-	default double[] totalFlowsOf(int product) {
-		var factor = totalFactorOf(product);
-		var totals = totalFlowsOfOne(product);
+	default double[] totalFlowsOf(int techFlow) {
+		var factor = totalFactorOf(techFlow);
+		var totals = totalFlowsOfOne(techFlow);
 		return scale(totals, factor);
 	}
 
@@ -245,8 +244,8 @@ public interface ResultProvider {
 	 * Returns the total flow result (direct + upstream) of the given flow
 	 * and product related to the final demand of the system.
 	 */
-	default double totalFlowOf(int flow, int product) {
-		return totalFactorOf(product) * totalFlowOfOne(flow, product);
+	default double totalFlowOf(int flow, int techFlow) {
+		return totalFactorOf(techFlow) * totalFlowOfOne(flow, techFlow);
 	}
 
 	/**
@@ -317,32 +316,32 @@ public interface ResultProvider {
 	 * <p>
 	 * $$\mathbf{H} = \mathbf{C} \ \mathbf{G}$$
 	 */
-	double[] directImpactsOf(int product);
+	double[] directImpactsOf(int techFlow);
 
-	default double directImpactOf(int indicator, int product) {
-		var impacts = directImpactsOf(product);
+	default double directImpactOf(int indicator, int techFlow) {
+		var impacts = directImpactsOf(techFlow);
 		return isEmpty(impacts)
 			? 0
 			: impacts[indicator];
 	}
 
-	double[] totalImpactsOfOne(int product);
+	double[] totalImpactsOfOne(int techFlow);
 
-	default double totalImpactOfOne(int indicator, int product) {
-		var impacts = totalImpactsOfOne(product);
+	default double totalImpactOfOne(int indicator, int techFlow) {
+		var impacts = totalImpactsOfOne(techFlow);
 		return isEmpty(impacts)
 			? 0
 			: impacts[indicator];
 	}
 
-	default double[] totalImpactsOf(int product) {
-		var impacts = totalImpactsOfOne(product);
-		var factor = totalFactorOf(product);
+	default double[] totalImpactsOf(int techFlow) {
+		var impacts = totalImpactsOfOne(techFlow);
+		var factor = totalFactorOf(techFlow);
 		return scale(impacts, factor);
 	}
 
-	default double totalImpactOf(int indicator, int product) {
-		return totalFactorOf(product) * totalImpactOfOne(indicator, product);
+	default double totalImpactOf(int indicator, int techFlow) {
+		return totalFactorOf(techFlow) * totalImpactOfOne(indicator, techFlow);
 	}
 
 	double[] totalImpacts();
@@ -353,12 +352,12 @@ public interface ResultProvider {
 	 * <p>
 	 * $$\mathbf{k}_s = \mathbf{k} \odot \mathbf{s}$$
 	 */
-	double directCostsOf(int product);
+	double directCostsOf(int techFlow);
 
-	double totalCostsOfOne(int product);
+	double totalCostsOfOne(int techFlow);
 
-	default double totalCostsOf(int product) {
-		return totalFactorOf(product) * totalCostsOfOne(product);
+	default double totalCostsOf(int techFlow) {
+		return totalFactorOf(techFlow) * totalCostsOfOne(techFlow);
 	}
 
 	double totalCosts();
