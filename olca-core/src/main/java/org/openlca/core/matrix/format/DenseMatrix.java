@@ -101,6 +101,12 @@ public class DenseMatrix implements Matrix {
 		return row;
 	}
 
+	@Override
+	public void readColumn(int column, double[] buffer) {
+		int n = Math.min(buffer.length, rows);
+		System.arraycopy(data, column * rows, buffer, 0, n);
+	}
+
 	private int index(int row, int column) {
 		return row + rows * column;
 	}

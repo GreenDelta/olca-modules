@@ -156,4 +156,26 @@ public interface MatrixReader extends Copyable<MatrixReader> {
 			}
 		}
 	}
+
+	/**
+	 * Reads the data from the given row into the given buffer without additional
+	 * memory allocations.
+	 */
+	default void readRow(int row, double[] buffer) {
+		int cols = Math.min(columns(), buffer.length);
+		for (int col = 0; col < cols; col++) {
+			buffer[col] = get(row, col);
+		}
+	}
+
+	/**
+	 * Reads the data from the given column into the given buffer without
+	 * additional memory allocations.
+	 */
+	default void readColumn(int column, double[] buffer) {
+		int rows = Math.min(rows(), buffer.length);
+		for (int row = 0; row < rows; row++) {
+			buffer[row] = get(row, column);
+		}
+	}
 }

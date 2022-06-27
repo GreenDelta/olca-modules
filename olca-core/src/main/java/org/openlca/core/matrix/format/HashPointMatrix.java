@@ -1,6 +1,7 @@
 package org.openlca.core.matrix.format;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 
 import gnu.trove.impl.Constants;
@@ -140,6 +141,19 @@ public class HashPointMatrix implements Matrix {
 	}
 
 	@Override
+	public void readColumn(int column, double[] buffer) {
+		var columnData = data.get(column);
+		if (columnData == null) {
+			Arrays.fill(buffer, 0);
+			return;
+		}
+		int n = Math.min(buffer.length, rows);
+		for (int row = 0; row < n; row++) {
+			buffer[row] = columnData.get(row);
+		}
+	}
+
+	@Override
 	public HashPointMatrix copy() {
 		var copy = new HashPointMatrix();
 		copy.rows = rows;
@@ -194,7 +208,7 @@ public class HashPointMatrix implements Matrix {
 		double[] values = new double[nonZeros];
 
 		int pos = 0;
-		var entries = new ArrayList<CSCEntry>();
+		var entries = new ArrayList<CscEntry>();
 		for (int col = 0; col < cols; col++) {
 			columnPointers[col] = pos;
 			var column = data.get(col);
@@ -204,7 +218,7 @@ public class HashPointMatrix implements Matrix {
 			entries.clear();
 			while (iter.hasNext()) {
 				iter.advance();
-				entries.add(new CSCEntry(
+				entries.add(new CscEntry(
 						iter.key(), iter.value()));
 			}
 			entries.sort(Comparator.comparingInt(e -> e.row));
@@ -258,14 +272,7 @@ public class HashPointMatrix implements Matrix {
 		return builder.toString();
 	}
 
-	private static class CSCEntry {
-		final int row;
-		final double val;
-
-		CSCEntry(int row, double val) {
-			this.row = row;
-			this.val = val;
-		}
+	private record CscEntry(int row, double val) {
 	}
 
 }
