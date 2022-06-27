@@ -11,6 +11,7 @@ import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.MatrixIndex;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
@@ -105,6 +106,34 @@ public class LibBlockSolver {
 			y.copyTo(inverse, libOffset, 0);
 		}
 
+		var libEnviIndices = new HashMap<String, EnviIndex>();
+		EnviIndex firstEnviIndex = null;
+		String firstEnviLib = null;
+		for (var lib : libTechIndices.keySet()) {
+			var libEnviIndex = libs.enviIndexOf(lib);
+			if (libEnviIndex == null)
+				continue;
+			libEnviIndices.put(lib, libEnviIndex);
+			if (firstEnviIndex == null
+				|| firstEnviIndex.size() < libEnviIndex.size()) {
+				firstEnviIndex = libEnviIndex;
+				firstEnviLib = lib;
+			}
+		}
+
+		var enviIndex = firstEnviIndex != null
+			? firstEnviIndex.copy()
+			: f.enviIndex != null
+			? f.enviIndex.copy()
+			: null;
+		if (enviIndex != null) {
+			if (firstEnviLib != null && f.enviIndex != null) {
+				enviIndex.addAll(f.enviIndex);
+			}
+
+		}
+
+
 		var data = new MatrixData();
 		data.techMatrix = techMatrix;
 		data.techIndex = techIndex;
@@ -197,6 +226,13 @@ public class LibBlockSolver {
 				}
 			}
 			return m;
+		}
+	}
+
+	private class BlockEnviIndex {
+
+		BlockEnviIndex() {
+
 		}
 	}
 
