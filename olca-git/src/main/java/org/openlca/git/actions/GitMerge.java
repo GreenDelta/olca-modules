@@ -29,7 +29,7 @@ import org.openlca.git.util.Diffs;
 import org.openlca.git.util.GitStoreReader;
 import org.openlca.git.util.History;
 import org.openlca.git.util.Repositories;
-import org.openlca.git.writer.CommitWriter;
+import org.openlca.git.writer.DbCommitWriter;
 
 public class GitMerge extends GitProgressAction<Boolean> {
 
@@ -160,7 +160,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 			}
 		});
 		progressMonitor.subTask("Writing merged changes");
-		var writer = new CommitWriter(repo, database)
+		var writer = new DbCommitWriter(repo, database)
 				.saveIdsIn(workspaceIds)
 				.as(committer)
 				.merge(localCommit.id, remoteCommit.id);

@@ -2,6 +2,7 @@ package org.openlca.jsonld;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -35,8 +36,8 @@ public class ZipStore implements JsonStoreWriter, JsonStoreReader, AutoCloseable
 		URI uri = URI.create("jar:" + uriStr);
 		boolean create = !zipFile.exists();
 		zip = create
-			? FileSystems.newFileSystem(uri, Map.of("create", "true"))
-			: FileSystems.newFileSystem(uri, Map.of());
+				? FileSystems.newFileSystem(uri, Map.of("create", "true"))
+				: FileSystems.newFileSystem(uri, Map.of());
 		if (create) {
 			PackageInfo.create().writeTo(this);
 		}
@@ -72,6 +73,20 @@ public class ZipStore implements JsonStoreWriter, JsonStoreReader, AutoCloseable
 		}
 	}
 
+	public InputStream getStream(String path) {
+		if (Strings.nullOrEmpty(path))
+			return null;
+		Path file = zip.getPath(path);
+		if (!Files.exists(file))
+			return null;
+		try {
+			return Files.newInputStream(file);
+		} catch (Exception e) {
+			log.error("failed to open stream for path " + path, e);
+			return null;
+		}
+	}
+
 	@Override
 	public List<String> getRefIds(ModelType type) {
 		String dirName = ModelPath.folderOf(type);
@@ -93,9 +108,10 @@ public class ZipStore implements JsonStoreWriter, JsonStoreReader, AutoCloseable
 	}
 
 	/**
-	 * Returns the paths of the files that are located under the given folder. The
-	 * returned paths are absolute to the root of the underlying zip file. Thus, you
-	 * can get the content of such a path `p` by using the method `get(p)`.
+	 * Returns the paths of the files that are located under the given folder.
+	 * The returned paths are absolute to the root of the underlying zip file.
+	 * Thus, you can get the content of such a path `p` by using the method
+	 * `get(p)`.
 	 */
 	@Override
 	public List<String> getFiles(String folder) {

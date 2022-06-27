@@ -18,7 +18,7 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.model.Change;
 import org.openlca.git.util.Diffs;
-import org.openlca.git.writer.CommitWriter;
+import org.openlca.git.writer.DbCommitWriter;
 import org.openlca.util.Categories;
 
 import com.google.common.io.Files;
@@ -93,13 +93,13 @@ public class Main {
 		private final Repository repo;
 		private final IDatabase database;
 		private final ObjectIdStore idStore;
-		private final CommitWriter writer;
+		private final DbCommitWriter writer;
 
 		private DbWriter(Repository repo, IDatabase database, ObjectIdStore idStore) {
 			this.repo = repo;
 			this.database = database;
 			this.idStore = idStore;
-			this.writer = new CommitWriter(repo, database).as(committer).saveIdsIn(idStore);
+			this.writer = new DbCommitWriter(repo, database).as(committer).saveIdsIn(idStore);
 		}
 
 		private void refData(boolean singleCommit) throws IOException {
@@ -154,7 +154,7 @@ public class Main {
 			var changes = Diffs.of(repo).with(database, idStore).stream()
 					.map(Change::new)
 					.collect(Collectors.toList());
-			var writer = new CommitWriter(repo, database).as(committer).saveIdsIn(idStore);
+			var writer = new DbCommitWriter(repo, database).as(committer).saveIdsIn(idStore);
 			System.out.println(writer.write("Updated data", changes));
 		}
 
@@ -180,7 +180,7 @@ public class Main {
 			var changes = Diffs.of(repo).with(database, idStore).stream()
 					.map(Change::new)
 					.collect(Collectors.toList());
-			var writer = new CommitWriter(repo, database).as(committer).saveIdsIn(idStore);
+			var writer = new DbCommitWriter(repo, database).as(committer).saveIdsIn(idStore);
 			System.out.println(writer.write("Deleted data", changes));
 		}
 

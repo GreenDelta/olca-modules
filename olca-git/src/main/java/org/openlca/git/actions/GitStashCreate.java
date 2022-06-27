@@ -20,7 +20,7 @@ import org.openlca.git.model.DiffType;
 import org.openlca.git.model.Reference;
 import org.openlca.git.util.Diffs;
 import org.openlca.git.util.GitStoreReader;
-import org.openlca.git.writer.CommitWriter;
+import org.openlca.git.writer.DbCommitWriter;
 
 public class GitStashCreate extends GitProgressAction<Void> {
 
@@ -93,7 +93,7 @@ public class GitStashCreate extends GitProgressAction<Void> {
 				: new ArrayList<Reference>();
 		progressMonitor.beginTask("Stashing data", changes.size() + toDelete.size() + toImport.size());
 		if (!discard) {
-			var writer = new CommitWriter(repo, database)
+			var writer = new DbCommitWriter(repo, database)
 					.ref(Constants.R_STASH)
 					.saveIdsIn(workspaceIds)
 					.as(committer)

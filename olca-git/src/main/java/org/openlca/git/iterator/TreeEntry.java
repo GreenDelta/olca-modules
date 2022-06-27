@@ -1,7 +1,5 @@
 package org.openlca.git.iterator;
 
-import java.io.File;
-
 import org.eclipse.jgit.lib.FileMode;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
@@ -13,7 +11,7 @@ class TreeEntry implements Comparable<TreeEntry> {
 	public final String name;
 	public final FileMode fileMode;
 	public final Object data;
-	public final File file;
+	public final String filePath;
 
 	TreeEntry(ModelType type) {
 		this(type.name(), FileMode.TREE, type);
@@ -35,11 +33,11 @@ class TreeEntry implements Comparable<TreeEntry> {
 		this(name, fileMode, data, null);
 	}
 
-	TreeEntry(String name, FileMode fileMode, Object data, File file) {
+	TreeEntry(String name, FileMode fileMode, Object data, String filePath) {
 		this.name = GitUtil.encode(name);
 		this.fileMode = fileMode;
 		this.data = data;
-		this.file = file;
+		this.filePath = filePath;
 	}
 
 	@Override

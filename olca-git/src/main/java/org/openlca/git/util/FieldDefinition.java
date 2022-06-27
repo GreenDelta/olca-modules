@@ -1,4 +1,4 @@
-package org.openlca.git.find;
+package org.openlca.git.util;
 
 import java.util.function.Function;
 
