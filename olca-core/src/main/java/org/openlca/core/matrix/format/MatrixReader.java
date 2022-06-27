@@ -148,8 +148,36 @@ public interface MatrixReader extends Copyable<MatrixReader> {
 	 * @param colOffset the column offset in the target matrix
 	 */
 	default void copyTo(Matrix matrix, int rowOffset, int colOffset) {
+
 		int cols = Math.min(matrix.columns() - colOffset, this.columns());
 		int rows = Math.min(matrix.rows() - rowOffset, this.rows());
+
+		if (matrix instanceof DenseMatrix denseTarget) {
+
+			// using system-array-copy when both matrices are dense
+			if (this instanceof DenseMatrix denseSource) {
+				for (int col = 0; col < cols; col++) {
+					System.arraycopy(
+						denseSource.data, col * denseSource.rows,
+						denseTarget.data, ((col + colOffset) * denseTarget.rows) + rowOffset,
+						rows);
+				}
+				return;
+			}
+
+			// use a single buffer when the target is dense
+			var buffer = new double[rows];
+			for (int col = 0; col < cols; col++) {
+				this.readColumn(col, buffer);
+				System.arraycopy(
+					buffer, 0,
+					denseTarget.data, ((col + colOffset) * denseTarget.rows) + rowOffset,
+					rows);
+			}
+
+			return;
+		}
+
 		for (int col = 0; col < cols; col++) {
 			for (int row = 0; row < rows; row++) {
 				matrix.set(row + rowOffset, col + colOffset, this.get(row, col));
