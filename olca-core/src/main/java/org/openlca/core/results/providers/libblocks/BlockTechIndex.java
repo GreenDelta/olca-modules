@@ -46,6 +46,7 @@ public class BlockTechIndex {
 		for (var e : techIndices.entrySet()) {
 			var block = new Block(e.getKey(), e.getValue(), offset);
 			blocks.add(block);
+			index.addAll(block.index);
 			offset += block.size();
 		}
 

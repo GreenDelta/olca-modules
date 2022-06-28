@@ -17,6 +17,8 @@ import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.DenseMatrix;
+import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.Flow;
@@ -24,6 +26,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.results.providers.libblocks.BlockInversionSolver;
 import org.openlca.util.Dirs;
 
@@ -55,8 +58,9 @@ public class BlockInversionSolverTest {
 		var mass = withLib(FlowProperty.of("Mass", units));
 		var e = withLib(Flow.elementary("e", mass));
 		var p = withLib(Flow.product("p", mass));
-		var q = withLib(Flow.product("q", mass));
 		var pP = withLib(Process.of("P", p));
+		var q = db.insert(Flow.product("q", mass));
+		var qQ = db.insert(Process.of("Q", q));
 
 		// write library data
 		LibMatrix.A.write(lib, DenseMatrix.of(new double[][]{{1}}));
@@ -67,11 +71,12 @@ public class BlockInversionSolverTest {
 		LibEnviIndex.of(LibEnviItem.output(0, e)).writeTo(lib);
 
 		// the foreground data
-		var qQ = db.insert(Process.of("Q", q));
 		var data = new MatrixData();
-		data.demand = Demand.of(TechFlow.of(pP), 1);
+		data.demand = Demand.of(TechFlow.of(qQ), 1);
 		data.techIndex = TechIndex.of(
-			TechFlow.of(pP), TechFlow.of(qQ));
+			TechFlow.of(qQ), TechFlow.of(pP));
+		data.enviIndex = EnviIndex.create();
+		data.enviIndex.add(EnviFlow.outputOf(Descriptor.of(e)));
 		data.techMatrix = DenseMatrix.of(new double[][]{
 			{1, 0},
 			{-1, 1}
