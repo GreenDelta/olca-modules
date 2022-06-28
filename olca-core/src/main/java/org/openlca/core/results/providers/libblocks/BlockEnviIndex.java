@@ -62,6 +62,10 @@ class BlockEnviIndex {
 		}
 	}
 
+	int size() {
+		return index.size();
+	}
+
 	boolean isEmpty() {
 		return index == null || index.isEmpty();
 	}

@@ -114,6 +114,9 @@ public class BlockTechIndex {
 			System.out.printf("front size: %d%n", blockIdx.front.size());
 			System.out.printf("block 0: lib=%s%n", blockIdx.blocks.get(0));
 			System.out.printf("block 0: sparse=%s%n", blockIdx.isSparse);
+
+			var enviIdx = BlockEnviIndex.of(context, blockIdx);
+			System.out.printf("envi-size: %d%n", enviIdx.size());
 		}
 	}
 

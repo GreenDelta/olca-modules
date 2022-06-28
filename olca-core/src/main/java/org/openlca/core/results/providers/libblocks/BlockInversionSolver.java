@@ -22,17 +22,17 @@ import org.openlca.core.results.providers.LibImpactMatrix;
 import org.openlca.core.results.providers.ResultProvider;
 import org.openlca.core.results.providers.SolverContext;
 
-public class LibBlockSolver {
+public class BlockInversionSolver {
 
 	private final SolverContext context;
 	private final MatrixSolver solver;
 	private final LibraryCache libs;
 
 	public static ResultProvider solve(SolverContext context) {
-		return new LibBlockSolver(context).solve();
+		return new BlockInversionSolver(context).solve();
 	}
 
-	private LibBlockSolver(SolverContext context) {
+	private BlockInversionSolver(SolverContext context) {
 		this.context = context;
 		this.solver = context.solver();
 		this.libs = context.libraries();
