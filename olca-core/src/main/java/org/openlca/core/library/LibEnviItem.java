@@ -2,6 +2,7 @@ package org.openlca.core.library;
 
 import org.apache.commons.csv.CSVRecord;
 import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.model.Flow;
 
 import java.util.List;
 
@@ -21,6 +22,14 @@ public record LibEnviItem(
 			LibFlow.of(item.flow(), ctx),
 			LibLocation.of(item.location()),
 			item.isInput());
+	}
+
+	public static LibEnviItem output(int idx, Flow flow) {
+		return new LibEnviItem(idx, LibFlow.of(flow), null, false);
+	}
+
+	public static LibEnviItem input(int idx, Flow flow) {
+		return new LibEnviItem(idx, LibFlow.of(flow), null, true);
 	}
 
 	Proto.ElemFlowEntry toProto() {

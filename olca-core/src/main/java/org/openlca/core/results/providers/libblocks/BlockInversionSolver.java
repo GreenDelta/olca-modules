@@ -89,6 +89,7 @@ public class BlockInversionSolver {
 		addForegroundInterventions();
 
 		var data = new MatrixData();
+		data.demand = context.demand();
 		data.techMatrix = techMatrix;
 		data.techIndex = techIdx.index;
 		data.enviIndex = enviIdx.index;

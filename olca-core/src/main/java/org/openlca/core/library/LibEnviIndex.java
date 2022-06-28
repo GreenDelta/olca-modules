@@ -22,6 +22,10 @@ public record LibEnviIndex(List<LibEnviItem> items) {
 		return new LibEnviIndex(Collections.emptyList());
 	}
 
+	public static LibEnviIndex of(LibEnviItem... items) {
+		return new LibEnviIndex(List.of(items));
+	}
+
 	public static LibEnviIndex of(EnviIndex idx, DbContext ctx) {
 		if (idx == null || idx.size() == 0)
 			return empty();

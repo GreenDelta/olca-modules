@@ -1,11 +1,7 @@
 package org.openlca.core.results.providers.libblocks;
 
-import org.openlca.core.DataDir;
 import org.openlca.core.library.Library;
-import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.model.CalculationSetup;
-import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.providers.LibraryCache;
 import org.openlca.core.results.providers.SolverContext;
 
@@ -101,27 +97,4 @@ public class BlockTechIndex {
 			return "Block { library: " + library + ", size: " + size() + "}";
 		}
 	}
-
-	public static void main(String[] args) {
-		var dir = DataDir.get();
-		try (var db = dir.openDatabase("eiblock")) {
-			var system = db.get(
-				ProductSystem.class, "cce59bf1-09d5-405d-9b25-d709d914d6f6");
-			var setup = CalculationSetup.fullAnalysis(system);
-			var techIdx = TechIndex.of(db, setup);
-			var data = MatrixData.of(db, techIdx)
-				.withSetup(setup)
-				.build();
-			var context = SolverContext.of(db, data)
-				.libraryDir(dir.getLibraryDir());
-			var blockIdx = BlockTechIndex.of(context);
-			System.out.printf("front size: %d%n", blockIdx.front.size());
-			System.out.printf("block 0: lib=%s%n", blockIdx.blocks.get(0));
-			System.out.printf("block 0: sparse=%s%n", blockIdx.isSparse);
-
-			var enviIdx = BlockEnviIndex.of(context, blockIdx);
-			System.out.printf("envi-size: %d%n", enviIdx.size());
-		}
-	}
-
 }

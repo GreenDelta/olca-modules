@@ -70,6 +70,16 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 		return index.isEmpty();
 	}
 
+	public static TechIndex of(TechFlow... techFlows) {
+		var index = new TechIndex();
+		if (techFlows == null)
+			return index;
+		for (var techFlow : techFlows) {
+			index.add(techFlow);
+		}
+		return index;
+	}
+
 	/**
 	 * Creates the index for the given product system. If the `withoutNetwork`
 	 * attribute of the system is set to true, it creates an unlinked index with all
