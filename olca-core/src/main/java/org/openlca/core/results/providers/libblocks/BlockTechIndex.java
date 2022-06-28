@@ -78,6 +78,10 @@ public class BlockTechIndex {
 			|| (entries / Math.pow(total, 2.0)) < 0.4;
 	}
 
+	int size() {
+		return index.size();
+	}
+
 	record Block(String library, TechIndex index, int offset) {
 
 		int size() {

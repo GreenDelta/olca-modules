@@ -47,96 +47,53 @@ public class BlockInversionSolver {
 		if (demand.techFlow().isFromLibrary())
 			return buildSingleLibraryResult();
 
-		var techIndex = new TechIndex();
-		for (var techFlow : f.techIndex) {
-			if (techFlow.isFromLibrary())
-				continue;
-			techIndex.add(techFlow);
-		}
+		var techIdx = BlockTechIndex.of(context);
+		var enviIdx = BlockEnviIndex.of(context, techIdx);
 
-		var techIndexF = techIndex.copy();
-		var libTechIndices = libs.techIndicesOf(f.techIndex);
-
-		int offset = techIndexF.size();
-		var libOffsets = new HashMap<String, Integer>();
-		for (var e : libTechIndices.entrySet()) {
-			var lib = e.getKey();
-			var libIdx = e.getValue();
-			techIndex.addAll(libIdx);
-			libOffsets.put(lib, offset);
-			offset += libIdx.size();
-		}
-
-		var n = techIndex.size();
-		var sparse = isSparse(libTechIndices);
-		var techMatrix = sparse
+		var n = techIdx.size();
+		var techMatrix = techIdx.isSparse
 			? new HashPointMatrix(n, n)
 			: new DenseMatrix(n, n);
 		var inverse = new DenseMatrix(n, n);
 
-		int[] map = f.techIndex.mapTo(techIndex);
+		int[] map = f.techIndex.mapTo(techIdx.index);
 		f.techMatrix.iterate((row, col, value) -> {
 			var colFlow = f.techIndex.at(col);
 			if (colFlow.isFromLibrary())
 				return;
 			techMatrix.set(map[row], map[col], value);
 		});
-		var techMatrixF = new DenseMatrix(techIndexF.size(), techIndexF.size());
-		techMatrix.copyTo(techMatrixF);
-		var inverseF = solver.invert(techMatrixF);
-		inverseF.copyTo(inverse);
+		var frontA = new DenseMatrix(
+			techIdx.front.size(), techIdx.front.size());
+		techMatrix.copyTo(frontA);
+		var frontInv = solver.invert(frontA);
+		frontInv.copyTo(inverse);
 
-		for (var lib : libOffsets.keySet()) {
-			var libTechMatrix = libs.matrixOf(lib, LibMatrix.A);
-			var libOffset = libOffsets.get(lib);
-			if (libTechMatrix == null || libOffset == null)
+		// calculate the inversion blocks
+		for (var block : techIdx.blocks) {
+			int offset = block.offset();
+			var libA = libs.matrixOf(block.library(), LibMatrix.A);
+			if (libA == null)
 				continue;
-			libTechMatrix.copyTo(techMatrix, libOffset, libOffset);
-			var libInverse = libs.matrixOf(lib, LibMatrix.INV);
-			if (libInverse == null) {
-				libInverse = solver.invert(libTechMatrix);
+			libA.copyTo(techMatrix, offset, offset);
+			var libInv = libs.matrixOf(block.library(), LibMatrix.INV);
+			if (libInv == null) {
+				libInv = solver.invert(libA);
 			}
-			libInverse.copyTo(inverse, libOffset, libOffset);
+			libInv.copyTo(inverse, offset, offset);
 
-			var c = Range.of(
-					libOffset, libTechMatrix.rows(), 0, techIndexF.size())
+			// invert the front-library-link block
+			var c = Range.of(offset, libA.rows(), 0, techIdx.front.size())
 				.slice(techMatrix);
-			var y = solver.multiply(libInverse, solver.multiply(c, inverseF));
-			negate(y)				;
-			y.copyTo(inverse, libOffset, 0);
+			var y = solver.multiply(libInv, solver.multiply(c, frontInv));
+			negate(y);
+			y.copyTo(inverse, offset, 0);
 		}
-
-		var libEnviIndices = new HashMap<String, EnviIndex>();
-		EnviIndex firstEnviIndex = null;
-		String firstEnviLib = null;
-		for (var lib : libTechIndices.keySet()) {
-			var libEnviIndex = libs.enviIndexOf(lib);
-			if (libEnviIndex == null)
-				continue;
-			libEnviIndices.put(lib, libEnviIndex);
-			if (firstEnviIndex == null
-				|| firstEnviIndex.size() < libEnviIndex.size()) {
-				firstEnviIndex = libEnviIndex;
-				firstEnviLib = lib;
-			}
-		}
-
-		var enviIndex = firstEnviIndex != null
-			? firstEnviIndex.copy()
-			: f.enviIndex != null
-			? f.enviIndex.copy()
-			: null;
-		if (enviIndex != null) {
-			if (firstEnviLib != null && f.enviIndex != null) {
-				enviIndex.addAll(f.enviIndex);
-			}
-
-		}
-
 
 		var data = new MatrixData();
 		data.techMatrix = techMatrix;
-		data.techIndex = techIndex;
+		data.techIndex = techIdx.index;
+		data.enviIndex = enviIdx.index;
 
 
 		var result = InversionResult.of(context.solver(), data)
@@ -226,13 +183,6 @@ public class BlockInversionSolver {
 				}
 			}
 			return m;
-		}
-	}
-
-	private class BlockEnviIndex {
-
-		BlockEnviIndex() {
-
 		}
 	}
 
