@@ -28,7 +28,7 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 public class LazyLibraryProvider implements ResultProvider {
 
 	private final IDatabase db;
-	private final LibCache libs;
+	private final LibraryCache libs;
 	private final HashSet<String> usedLibs = new HashSet<>();
 	private final MatrixSolver solver;
 
@@ -54,7 +54,7 @@ public class LazyLibraryProvider implements ResultProvider {
 
 	private LazyLibraryProvider(SolverContext context) {
 		this.db = context.db();
-		this.libs = LibCache.of(context);
+		this.libs = context.libraries();
 		this.solver = context.solver();
 		this.demand = context.demand();
 		this.foregroundData = context.data();

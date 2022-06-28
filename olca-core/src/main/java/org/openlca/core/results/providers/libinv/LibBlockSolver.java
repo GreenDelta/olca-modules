@@ -17,7 +17,7 @@ import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.results.providers.InversionResult;
 import org.openlca.core.results.providers.InversionResultProvider;
-import org.openlca.core.results.providers.LibCache;
+import org.openlca.core.results.providers.LibraryCache;
 import org.openlca.core.results.providers.LibImpactMatrix;
 import org.openlca.core.results.providers.ResultProvider;
 import org.openlca.core.results.providers.SolverContext;
@@ -26,7 +26,7 @@ public class LibBlockSolver {
 
 	private final SolverContext context;
 	private final MatrixSolver solver;
-	private final LibCache libs;
+	private final LibraryCache libs;
 
 	public static ResultProvider solve(SolverContext context) {
 		return new LibBlockSolver(context).solve();
@@ -35,7 +35,7 @@ public class LibBlockSolver {
 	private LibBlockSolver(SolverContext context) {
 		this.context = context;
 		this.solver = context.solver();
-		this.libs = LibCache.of(context);
+		this.libs = context.libraries();
 	}
 
 	private ResultProvider solve() {
@@ -152,7 +152,7 @@ public class LibBlockSolver {
 		for (var e : indices.entrySet()) {
 			var lib = e.getKey();
 			var index = e.getValue();
-			var libDir = context.libraryDir()
+			var libDir = libs.dir()
 				.getLibrary(lib)
 				.map(Library::folder)
 				.orElse(null);
@@ -199,7 +199,7 @@ public class LibBlockSolver {
 			&& MatrixIndex.isPresent(f.impactIndex)) {
 			data.impactMatrix = LibImpactMatrix.of(f.impactIndex, data.enviIndex)
 				.withLibraryEnviIndices(Map.of(lib, data.enviIndex))
-				.build(context.db(), context.libraryDir());
+				.build(context.db(), libs.dir());
 			data.impactIndex = f.impactIndex;
 		}
 

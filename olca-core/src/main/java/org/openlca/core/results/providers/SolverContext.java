@@ -11,7 +11,8 @@ public class SolverContext {
 
 	private final IDatabase db;
 	private final MatrixData matrixData;
-	private LibraryDir libraryDir;
+	private LibraryDir libDir;
+	private LibraryCache libraries;
 	private MatrixSolver solver;
 
 	private SolverContext(IDatabase db, MatrixData matrixData) {
@@ -39,7 +40,7 @@ public class SolverContext {
 	public IDatabase db() {
 		return db;
 	}
-	
+
 	public Demand demand() {
 		return matrixData.demand;
 	}
@@ -52,15 +53,19 @@ public class SolverContext {
 		return matrixData.hasLibraryLinks();
 	}
 
-	public SolverContext libraryDir(LibraryDir libraryDir) {
-		this.libraryDir = libraryDir;
+	public SolverContext libraryDir(LibraryDir dir) {
+		this.libDir = dir;
 		return this;
 	}
 
-	public LibraryDir libraryDir() {
-		return libraryDir == null
-			? DataDir.get().getLibraryDir()
-			: libraryDir;
+	public LibraryCache libraries() {
+		if (libraries != null)
+			return libraries;
+		if (libDir == null) {
+			libDir = DataDir.get().getLibraryDir();
+		}
+		libraries = new LibraryCache(libDir, db);
+		return libraries;
 	}
 
 	public SolverContext solver(MatrixSolver solver) {

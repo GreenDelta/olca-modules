@@ -15,12 +15,12 @@ class EagerLibraryProvider implements ResultProvider {
 	private final Demand demand;
 	private final IDatabase db;
 	private final MatrixData dbData;
-	private final LibCache libs;
+	private final LibraryCache libs;
 	private final MatrixData fullData;
 
 	private EagerLibraryProvider(SolverContext context) {
 		this.db = context.db();
-		this.libs = LibCache.of(context);
+		this.libs = context.libraries();
 		this.demand = context.demand();
 		this.dbData = context.data();
 
@@ -31,7 +31,7 @@ class EagerLibraryProvider implements ResultProvider {
 		// fullData.techIndex = LibUtil.combinedTechIndexOf(
 		// 	dbData.techIndex, libTechIndices.values());
 		var libFlowIndices = LibUtil.loadFlowIndicesOf(
-			libTechIndices.keySet(), context.libraryDir(), db);
+			libTechIndices.keySet(), libs.dir(), db);
 		fullData.enviIndex = LibUtil.combinedFlowIndexOf(
 			dbData.enviIndex, libFlowIndices.values());
 
@@ -71,7 +71,7 @@ class EagerLibraryProvider implements ResultProvider {
 			fullData.impactMatrix = LibImpactMatrix.of(
 					dbData.impactIndex, fullData.enviIndex)
 				.withLibraryEnviIndices(libFlowIndices)
-				.build(db, context.libraryDir());
+				.build(db, libs.dir());
 		}
 	}
 

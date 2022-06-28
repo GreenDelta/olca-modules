@@ -19,7 +19,7 @@ import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import org.openlca.util.Strings;
 
-public class LibCache {
+public class LibraryCache {
 
 	private final IDatabase db;
 	private final LibraryDir dir;
@@ -33,13 +33,13 @@ public class LibCache {
 	private final HashMap<String, double[]> diagonals = new HashMap<>();
 	private final HashMap<String, Optional<double[]>> costVectors = new HashMap<>();
 
-	private LibCache(LibraryDir dir, IDatabase db) {
+	public LibraryCache(LibraryDir dir, IDatabase db) {
 		this.dir = dir;
 		this.db = db;
 	}
 
-	public static LibCache of(SolverContext context) {
-		return new LibCache(context.libraryDir(), context.db());
+	public LibraryDir dir() {
+		return dir;
 	}
 
 	/**
