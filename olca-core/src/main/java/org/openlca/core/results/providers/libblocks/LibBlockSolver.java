@@ -1,4 +1,4 @@
-package org.openlca.core.results.providers.libinv;
+package org.openlca.core.results.providers.libblocks;
 
 import java.io.File;
 import java.util.HashMap;

@@ -1,4 +1,4 @@
-package org.openlca.core.results.providers.libinv;
+package org.openlca.core.results.providers.libblocks;
 
 import org.openlca.core.DataDir;
 import org.openlca.core.library.Library;
@@ -22,20 +22,16 @@ import java.util.List;
  */
 public class BlockTechIndex {
 
-	private final SolverContext context;
+	final TechIndex index;
+	final TechIndex front;
+	final List<Block> blocks;
+	final boolean isSparse;
 
-	private final TechIndex index;
-	private final TechIndex front;
-	private final List<Block> blocks;
-	private final boolean isSparse;
-
-	public static BlockTechIndex createFrom(SolverContext context) {
+	public static BlockTechIndex of(SolverContext context) {
 		return new BlockTechIndex(context);
 	}
 
 	private BlockTechIndex(SolverContext context) {
-		this.context = context;
-
 		// the index front with foreground processes
 		index = new TechIndex();
 		front = new TechIndex();
@@ -57,10 +53,10 @@ public class BlockTechIndex {
 			offset += block.size();
 		}
 
-		isSparse = areSparse(blocks);
+		isSparse = areSparse(context, blocks);
 	}
 
-	private boolean areSparse(List<Block> blocks) {
+	private boolean areSparse(SolverContext context, List<Block> blocks) {
 		var libs = context.libraries();
 		if (blocks.size() == 1)
 			return blocks.get(0).isSparse(libs);
@@ -114,7 +110,7 @@ public class BlockTechIndex {
 				.build();
 			var context = SolverContext.of(db, data)
 				.libraryDir(dir.getLibraryDir());
-			var blockIdx = BlockTechIndex.createFrom(context);
+			var blockIdx = BlockTechIndex.of(context);
 			System.out.printf("front size: %d%n", blockIdx.front.size());
 			System.out.printf("block 0: lib=%s%n", blockIdx.blocks.get(0));
 			System.out.printf("block 0: sparse=%s%n", blockIdx.isSparse);
