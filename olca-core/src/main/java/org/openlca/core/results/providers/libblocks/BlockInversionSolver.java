@@ -1,19 +1,14 @@
 package org.openlca.core.results.providers.libblocks;
 
-import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.openlca.core.library.LibMatrix;
-import org.openlca.core.library.Library;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixReader;
-import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.MatrixIndex;
-import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.results.providers.InversionResult;
 import org.openlca.core.results.providers.InversionResultProvider;
@@ -50,11 +45,22 @@ public class BlockInversionSolver {
 		var techIdx = BlockTechIndex.of(context);
 		var enviIdx = BlockEnviIndex.of(context, techIdx);
 
-		var n = techIdx.size();
+		int n = techIdx.size();
 		var techMatrix = techIdx.isSparse
 			? new HashPointMatrix(n, n)
 			: new DenseMatrix(n, n);
 		var inverse = new DenseMatrix(n, n);
+		Matrix interventions = null;
+		Matrix intensities = null;
+		if (!enviIdx.isEmpty()) {
+			int m = enviIdx.size();
+			interventions = techIdx.isSparse
+				? new HashPointMatrix(m, n)
+				: new DenseMatrix(m, n);
+			intensities = new DenseMatrix(m, n);
+		}
+
+		// TODO: create a cost vector if costs are present
 
 		int[] map = f.techIndex.mapTo(techIdx.index);
 		f.techMatrix.iterate((row, col, value) -> {
@@ -72,11 +78,14 @@ public class BlockInversionSolver {
 		// calculate the inversion blocks
 		for (var block : techIdx.blocks) {
 			int offset = block.offset();
-			var libA = libs.matrixOf(block.library(), LibMatrix.A);
+			var lib = block.library();
+
+			// fill blocks of matrices A and INV
+			var libA = libs.matrixOf(lib, LibMatrix.A);
 			if (libA == null)
 				continue;
 			libA.copyTo(techMatrix, offset, offset);
-			var libInv = libs.matrixOf(block.library(), LibMatrix.INV);
+			var libInv = libs.matrixOf(lib, LibMatrix.INV);
 			if (libInv == null) {
 				libInv = solver.invert(libA);
 			}
@@ -88,6 +97,29 @@ public class BlockInversionSolver {
 			var y = solver.multiply(libInv, solver.multiply(c, frontInv));
 			negate(y);
 			y.copyTo(inverse, offset, 0);
+
+			// fill blocks of matrices B and M
+			if (intensities == null || !enviIdx.contains(lib))
+				continue;
+			var libB = libs.matrixOf(lib, LibMatrix.B);
+			if (libB == null)
+				continue;
+			var libM = libs.matrixOf(lib, LibMatrix.M);
+			if (libM == null) {
+				libM = solver.multiply(libB, libInv);
+			}
+
+			if (enviIdx.isFront(lib)) {
+				libB.copyTo(interventions, 0, offset);
+				libM.copyTo(intensities, 0, offset);
+			} else {
+				int[] rowMap = enviIdx.map(lib);
+				libB.iterate((row, col, value) ->
+					interventions.set(rowMap[row], col + offset, value));
+				libM.iterate((row, col, value) ->
+					intensities.set(rowMap[row], col + offset, value));
+			}
+
 		}
 
 		var data = new MatrixData();
@@ -101,28 +133,6 @@ public class BlockInversionSolver {
 			// .withInventoryIntensities(intensities)
 			.calculate();
 		return InversionResultProvider.of(result);
-	}
-
-	private boolean isSparse(Map<String, TechIndex> indices) {
-		double entries = 0;
-		double total = 0;
-		for (var e : indices.entrySet()) {
-			var lib = e.getKey();
-			var index = e.getValue();
-			var libDir = libs.dir()
-				.getLibrary(lib)
-				.map(Library::folder)
-				.orElse(null);
-			if (libDir == null)
-				continue;
-			total += index.size();
-			var sparse = new File(libDir, "A.npz").exists();
-			var f = sparse ? 0.25 : 0.75;
-			entries += f * Math.pow(index.size(), 2.0);
-		}
-		return entries == 0
-			|| total == 0
-			|| (entries / Math.pow(total, 2.0)) < 0.4;
 	}
 
 	private void negate(Matrix matrix) {

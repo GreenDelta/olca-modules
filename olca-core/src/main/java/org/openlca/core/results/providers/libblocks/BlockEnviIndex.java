@@ -5,6 +5,8 @@ import org.openlca.core.results.providers.SolverContext;
 import org.openlca.core.results.providers.libblocks.BlockTechIndex.Block;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -17,7 +19,8 @@ import java.util.Objects;
 class BlockEnviIndex {
 
 	final EnviIndex index;
-	final String frontLibrary;
+	private final String frontLib;
+	private final Map<String, EnviIndex> libIndices;
 
 	static BlockEnviIndex of(SolverContext context, BlockTechIndex techIdx) {
 		return new BlockEnviIndex(context, techIdx);
@@ -28,12 +31,14 @@ class BlockEnviIndex {
 		var libs = context.libraries();
 		var enviBlocks = new ArrayList<EnviBlock>();
 		EnviBlock front = null;
+		libIndices = new HashMap<>();
 		for (var block : techIdx.blocks) {
 			var enviIdx = libs.enviIndexOf(block.library());
 			if (enviIdx == null)
 				continue;
 			var enviBlock = new EnviBlock(block, enviIdx);
 			enviBlocks.add(enviBlock);
+			libIndices.put(block.library(), enviIdx);
 			if (front == null || enviBlock.size() > front.size()) {
 				front = enviBlock;
 			}
@@ -53,9 +58,9 @@ class BlockEnviIndex {
 		}
 
 		if (front == null) {
-			frontLibrary = null;
+			frontLib = null;
 		} else {
-			frontLibrary = front.block.library();
+			frontLib = front.block.library();
 			if (f.enviIndex != null) {
 				index.addAll(f.enviIndex);
 			}
@@ -70,8 +75,17 @@ class BlockEnviIndex {
 		return index == null || index.isEmpty();
 	}
 
-	boolean isFrontLibrary(String library) {
-		return Objects.equals(library, frontLibrary);
+	boolean isFront(String library) {
+		return Objects.equals(library, frontLib);
+	}
+
+	boolean contains(String library) {
+		return libIndices.containsKey(library);
+	}
+
+	int[] map(String library) {
+		var libIdx = libIndices.get(library);
+		return libIdx.mapTo(index);
 	}
 
 	private record EnviBlock(Block block, EnviIndex index) {
