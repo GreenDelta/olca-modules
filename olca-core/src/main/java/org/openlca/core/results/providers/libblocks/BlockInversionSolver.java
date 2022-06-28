@@ -6,12 +6,14 @@ import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.core.matrix.index.MatrixIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.results.providers.InversionResult;
 import org.openlca.core.results.providers.InversionResultProvider;
 import org.openlca.core.results.providers.LibraryCache;
 import org.openlca.core.results.providers.ResultProvider;
 import org.openlca.core.results.providers.SolverContext;
+import org.openlca.core.results.providers.libblocks.BlockTechIndex.Block;
 
 public class BlockInversionSolver {
 
@@ -61,25 +63,10 @@ public class BlockInversionSolver {
 	}
 
 	private ResultProvider solve() {
-		var f = context.data();
-
 
 		// TODO: create a cost vector if costs are present
+		var topInv = createTopInv();
 
-		int[] map = f.techIndex.mapTo(techIdx.index);
-		f.techMatrix.iterate((row, col, value) -> {
-			var colFlow = f.techIndex.at(col);
-			if (colFlow.isFromLibrary())
-				return;
-			techMatrix.set(map[row], map[col], value);
-		});
-		var frontA = new DenseMatrix(
-			techIdx.front.size(), techIdx.front.size());
-		techMatrix.copyTo(frontA);
-		var frontInv = solver.invert(frontA);
-		frontInv.copyTo(inverse);
-
-		// calculate the inversion blocks
 		for (var block : techIdx.blocks) {
 			int offset = block.offset();
 			var lib = block.library();
@@ -95,36 +82,11 @@ public class BlockInversionSolver {
 			}
 			libInv.copyTo(inverse, offset, offset);
 
-			// invert the front-library-link block
-			var c = Range.of(offset, libA.rows(), 0, techIdx.front.size())
-				.slice(techMatrix);
-			var y = solver.multiply(libInv, solver.multiply(c, frontInv));
-			negate(y);
-			y.copyTo(inverse, offset, 0);
-
-			// fill blocks of matrices B and M
-			if (intensities == null || !enviIdx.contains(lib))
-				continue;
-			var libB = libs.matrixOf(lib, LibMatrix.B);
-			if (libB == null)
-				continue;
-			var libM = libs.matrixOf(lib, LibMatrix.M);
-			if (libM == null) {
-				libM = solver.multiply(libB, libInv);
-			}
-
-			if (enviIdx.isFront(lib)) {
-				libB.copyTo(enviMatrix, 0, offset);
-				libM.copyTo(intensities, 0, offset);
-			} else {
-				int[] rowMap = enviIdx.map(lib);
-				libB.iterate((row, col, value) ->
-					enviMatrix.set(rowMap[row], col + offset, value));
-				libM.iterate((row, col, value) ->
-					intensities.set(rowMap[row], col + offset, value));
-			}
-
+			addLinkInversionOf(block, topInv, libInv);
+			addInterventionsOf(block, libInv);
 		}
+
+		addForegroundInterventions();
 
 		var data = new MatrixData();
 		data.techMatrix = techMatrix;
@@ -139,6 +101,49 @@ public class BlockInversionSolver {
 		return InversionResultProvider.of(result);
 	}
 
+	private void addInterventionsOf(Block block, MatrixReader libInv) {
+		var lib = block.library();
+		if (enviMatrix == null || !enviIdx.contains(lib))
+			return;
+		var libB = libs.matrixOf(lib, LibMatrix.B);
+		if (libB == null)
+			return;
+		var libM = libs.matrixOf(lib, LibMatrix.M);
+		if (libM == null) {
+			libM = solver.multiply(libB, libInv);
+		}
+
+		var offset = block.offset();
+		if (enviIdx.isFront(lib)) {
+			libB.copyTo(enviMatrix, 0, offset);
+			libM.copyTo(intensities, 0, offset);
+		} else {
+			int[] rowMap = enviIdx.map(lib);
+			libB.iterate((row, col, value) ->
+				enviMatrix.set(rowMap[row], col + offset, value));
+			libM.iterate((row, col, value) ->
+				intensities.set(rowMap[row], col + offset, value));
+		}
+	}
+
+	private void addLinkInversionOf(
+		Block block, Matrix topInv, MatrixReader libInv) {
+		int rows = libInv.rows();
+		int cols = topInv.columns();
+		var links = techMatrix.isSparse()
+			? new HashPointMatrix(rows, cols)
+			: new DenseMatrix(rows, cols);
+		for (int c = 0; c < cols; c++) {
+			for (int r = 0; r < rows; r++) {
+				double value = techMatrix.get(r + block.offset(), c);
+				links.set(r, c, value);
+			}
+		}
+		var inv = solver.multiply(libInv, solver.multiply(links, topInv));
+		negate(inv);
+		inv.copyTo(inverse, block.offset(), 0);
+	}
+
 	private void negate(Matrix matrix) {
 		for (int col = 0; col < matrix.columns(); col++) {
 			for (int row = 0; row < matrix.rows(); row++) {
@@ -150,23 +155,47 @@ public class BlockInversionSolver {
 		}
 	}
 
-	record Range(int row, int rowLen, int col, int colLen) {
-
-		static Range of(int row, int rowLen, int col, int colLen) {
-			return new Range(row, rowLen, col, colLen);
-		}
-
-		Matrix slice(MatrixReader matrix) {
-			var m = matrix.isSparse()
-				? new HashPointMatrix(rowLen, colLen)
-				: new DenseMatrix(rowLen, colLen);
-			for (int c = 0; c < colLen; c++) {
-				for (int r = 0; r < rowLen; r++) {
-					m.set(r, c, matrix.get(r + row, c + col));
-				}
-			}
-			return m;
-		}
+	/**
+	 * Fills the top-left corner of the matrices A and INV with the corresponding
+	 * foreground block. Returns that top-left block of the inverse.
+	 */
+	private Matrix createTopInv() {
+		var f = context.data();
+		int[] map = f.techIndex.mapTo(techIdx.index);
+		f.techMatrix.iterate((row, col, value) -> {
+			var colFlow = f.techIndex.at(col);
+			if (colFlow.isFromLibrary())
+				return;
+			techMatrix.set(map[row], map[col], value);
+		});
+		var blockA = new DenseMatrix(
+			techIdx.front.size(), techIdx.front.size());
+		techMatrix.copyTo(blockA);
+		var topInv = solver.invert(blockA);
+		topInv.copyTo(inverse);
+		return topInv;
 	}
 
+	private void addForegroundInterventions() {
+		var f = context.data();
+		if (intensities == null)
+			return;
+
+		// add the interventions of the foreground system
+		if (MatrixIndex.isPresent(f.enviIndex) && f.enviMatrix != null) {
+			int[] rowMap = f.enviIndex.mapTo(enviIdx.index);
+			int[] colMap = f.techIndex.mapTo(techIdx.index);
+			f.enviMatrix.iterate((row, col, value) -> {
+				var colFlow = f.techIndex.at(col);
+				if (colFlow.isFromLibrary())
+					return;
+				enviMatrix.set(rowMap[row], colMap[col], value);
+			});
+		}
+
+		var leftInv = new DenseMatrix(inverse.rows, techIdx.front.size());
+		inverse.copyTo(leftInv);
+		var leftIntensities = solver.multiply(enviMatrix, leftInv);
+		leftIntensities.copyTo(intensities);
+	}
 }
