@@ -1,19 +1,15 @@
 package org.openlca.core.results.providers.libblocks;
 
-import java.util.Map;
-
 import org.openlca.core.library.LibMatrix;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixReader;
-import org.openlca.core.matrix.index.MatrixIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.results.providers.InversionResult;
 import org.openlca.core.results.providers.InversionResultProvider;
 import org.openlca.core.results.providers.LibraryCache;
-import org.openlca.core.results.providers.LibImpactMatrix;
 import org.openlca.core.results.providers.ResultProvider;
 import org.openlca.core.results.providers.SolverContext;
 
@@ -23,7 +19,19 @@ public class BlockInversionSolver {
 	private final MatrixSolver solver;
 	private final LibraryCache libs;
 
+	private final BlockTechIndex techIdx;
+	private final BlockEnviIndex enviIdx;
+	private final Matrix techMatrix;
+	private final DenseMatrix inverse;
+	private final Matrix enviMatrix;
+	private final DenseMatrix intensities;
+
 	public static ResultProvider solve(SolverContext context) {
+		var demand = context.data().demand;
+		// if the reference flow comes already from a library, we can
+		// construct the result directly from the library matrices
+		if (demand.techFlow().isFromLibrary())
+			return SingleLibraryResult.of(context);
 		return new BlockInversionSolver(context).solve();
 	}
 
@@ -31,34 +39,30 @@ public class BlockInversionSolver {
 		this.context = context;
 		this.solver = context.solver();
 		this.libs = context.libraries();
-	}
-
-	private ResultProvider solve() {
-		var f = context.data();
-		var demand = f.demand;
-
-		// if the reference flow comes already from a library, we can
-		// construct the result directly from the library matrices
-		if (demand.techFlow().isFromLibrary())
-			return buildSingleLibraryResult();
-
-		var techIdx = BlockTechIndex.of(context);
-		var enviIdx = BlockEnviIndex.of(context, techIdx);
+		techIdx = BlockTechIndex.of(context);
+		enviIdx = BlockEnviIndex.of(context, techIdx);
 
 		int n = techIdx.size();
-		var techMatrix = techIdx.isSparse
+		techMatrix = techIdx.isSparse
 			? new HashPointMatrix(n, n)
 			: new DenseMatrix(n, n);
-		var inverse = new DenseMatrix(n, n);
-		Matrix interventions = null;
-		Matrix intensities = null;
-		if (!enviIdx.isEmpty()) {
+		inverse = new DenseMatrix(n, n);
+
+		if (enviIdx.isEmpty()) {
+			enviMatrix = null;
+			intensities = null;
+		} else {
 			int m = enviIdx.size();
-			interventions = techIdx.isSparse
+			enviMatrix = techIdx.isSparse
 				? new HashPointMatrix(m, n)
 				: new DenseMatrix(m, n);
 			intensities = new DenseMatrix(m, n);
 		}
+	}
+
+	private ResultProvider solve() {
+		var f = context.data();
+
 
 		// TODO: create a cost vector if costs are present
 
@@ -110,12 +114,12 @@ public class BlockInversionSolver {
 			}
 
 			if (enviIdx.isFront(lib)) {
-				libB.copyTo(interventions, 0, offset);
+				libB.copyTo(enviMatrix, 0, offset);
 				libM.copyTo(intensities, 0, offset);
 			} else {
 				int[] rowMap = enviIdx.map(lib);
 				libB.iterate((row, col, value) ->
-					interventions.set(rowMap[row], col + offset, value));
+					enviMatrix.set(rowMap[row], col + offset, value));
 				libM.iterate((row, col, value) ->
 					intensities.set(rowMap[row], col + offset, value));
 			}
@@ -126,11 +130,11 @@ public class BlockInversionSolver {
 		data.techMatrix = techMatrix;
 		data.techIndex = techIdx.index;
 		data.enviIndex = enviIdx.index;
-
+		data.enviMatrix = enviMatrix;
 
 		var result = InversionResult.of(context.solver(), data)
 			.withInverse(inverse)
-			// .withInventoryIntensities(intensities)
+			.withInventoryIntensities(intensities)
 			.calculate();
 		return InversionResultProvider.of(result);
 	}
@@ -146,38 +150,7 @@ public class BlockInversionSolver {
 		}
 	}
 
-
-	private ResultProvider buildSingleLibraryResult() {
-
-		var f = context.data();
-		var demand = context.demand();
-		var lib = demand.techFlow().library();
-
-		var data = new MatrixData();
-		data.demand = demand;
-		data.techIndex = libs.techIndexOf(lib);
-		data.techMatrix = libs.matrixOf(lib, LibMatrix.A);
-		data.enviIndex = libs.enviIndexOf(lib);
-		data.enviMatrix = libs.matrixOf(lib, LibMatrix.B);
-		data.costVector = libs.costsOf(lib).orElse(null);
-
-		// not that the LCIA data can be in another library or in the database
-		if (MatrixIndex.isPresent(data.enviIndex)
-			&& MatrixIndex.isPresent(f.impactIndex)) {
-			data.impactMatrix = LibImpactMatrix.of(f.impactIndex, data.enviIndex)
-				.withLibraryEnviIndices(Map.of(lib, data.enviIndex))
-				.build(context.db(), libs.dir());
-			data.impactIndex = f.impactIndex;
-		}
-
-		var result = InversionResult.of(context.solver(), data)
-			.withInverse(libs.matrixOf(lib, LibMatrix.INV))
-			.withInventoryIntensities(libs.matrixOf(lib, LibMatrix.M))
-			.calculate();
-		return InversionResultProvider.of(result);
-	}
-
-	private record Range(int row, int rowLen, int col, int colLen) {
+	record Range(int row, int rowLen, int col, int colLen) {
 
 		static Range of(int row, int rowLen, int col, int colLen) {
 			return new Range(row, rowLen, col, colLen);
