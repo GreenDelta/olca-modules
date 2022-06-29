@@ -19,8 +19,8 @@ import java.util.Objects;
 class BlockEnviIndex {
 
 	final EnviIndex index;
-	private final String frontLib;
-	private final Map<String, EnviIndex> libIndices;
+	final String frontLib;
+	final Map<String, EnviIndex> libIndices;
 
 	static BlockEnviIndex of(SolverContext context, BlockTechIndex techIdx) {
 		return new BlockEnviIndex(context, techIdx);

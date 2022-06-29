@@ -37,7 +37,7 @@ class SingleLibraryResult {
 		data.enviMatrix = libs.matrixOf(lib, LibMatrix.B);
 		data.costVector = libs.costsOf(lib).orElse(null);
 
-		// not that the LCIA data can be in another library or in the database
+		// note that the LCIA data can be in another library or in the database
 		if (MatrixIndex.isPresent(data.enviIndex)
 			&& MatrixIndex.isPresent(f.impactIndex)) {
 			data.impactMatrix = LibImpactMatrix.of(f.impactIndex, data.enviIndex)

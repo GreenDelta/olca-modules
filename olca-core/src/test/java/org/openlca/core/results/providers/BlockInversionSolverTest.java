@@ -19,10 +19,12 @@ import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
@@ -31,6 +33,7 @@ import org.openlca.core.results.providers.libblocks.BlockInversionSolver;
 import org.openlca.util.Dirs;
 
 import java.nio.file.Files;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -61,6 +64,9 @@ public class BlockInversionSolverTest {
 		var pP = withLib(Process.of("P", p));
 		var q = db.insert(Flow.product("q", mass));
 		var qQ = db.insert(Process.of("Q", q));
+		var impact = ImpactCategory.of("i", "eq.");
+		impact.factor(e, 0.5);
+		db.insert(impact);
 
 		// write library data
 		LibMatrix.A.write(lib, DenseMatrix.of(new double[][]{{1}}));
@@ -77,6 +83,7 @@ public class BlockInversionSolverTest {
 			TechFlow.of(qQ), TechFlow.of(pP));
 		data.enviIndex = EnviIndex.create();
 		data.enviIndex.add(EnviFlow.outputOf(Descriptor.of(e)));
+		data.impactIndex = ImpactIndex.of(List.of(Descriptor.of(impact)));
 		data.techMatrix = DenseMatrix.of(new double[][]{
 			{1, 0},
 			{-1, 1}
@@ -84,12 +91,18 @@ public class BlockInversionSolverTest {
 		data.enviMatrix = DenseMatrix.of(new double[][]{
 			{1, 0}
 		});
+		data.impactMatrix = DenseMatrix.of((new double[][]{{0.5}}));
 
 		var context = SolverContext.of(db, data)
 			.libraryDir(libDir);
 
 		var result = BlockInversionSolver.solve(context);
-		assertArrayEquals(new double[]{2}, result.totalFlows(), 1e-16);
+		check(result.scalingVector(), 1, 1);
+		check(result.totalRequirements(), 1, 1);
+		check(result.totalFlows(), 2);
+		check(result.totalImpacts(), 1);
+		check(result.directImpactsOf(0), 0.5);
+		check(result.flowImpactsOf(0), 1);
 
 		db.delete(qQ, pP, q, p, e, mass, units);
 	}
@@ -98,5 +111,10 @@ public class BlockInversionSolverTest {
 		entity.library = lib.name();
 		return db.insert(entity);
 	}
+
+	private void check(double[] result, double... expected) {
+		assertArrayEquals(expected, result, 1e-16);
+	}
+
 
 }

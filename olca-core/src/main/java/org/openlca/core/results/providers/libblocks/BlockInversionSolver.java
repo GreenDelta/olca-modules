@@ -10,6 +10,7 @@ import org.openlca.core.matrix.index.MatrixIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.results.providers.InversionResult;
 import org.openlca.core.results.providers.InversionResultProvider;
+import org.openlca.core.results.providers.LibImpactMatrix;
 import org.openlca.core.results.providers.LibraryCache;
 import org.openlca.core.results.providers.ResultProvider;
 import org.openlca.core.results.providers.SolverContext;
@@ -94,6 +95,16 @@ public class BlockInversionSolver {
 		data.techIndex = techIdx.index;
 		data.enviIndex = enviIdx.index;
 		data.enviMatrix = enviMatrix;
+
+		// add LCIA data
+		var f = context.data();
+		if (MatrixIndex.isPresent(data.enviIndex)
+			&& MatrixIndex.isPresent(f.impactIndex)) {
+			data.impactIndex = f.impactIndex;
+			data.impactMatrix = LibImpactMatrix.of(f.impactIndex, data.enviIndex)
+				.withLibraryEnviIndices(enviIdx.libIndices)
+				.build(context.db(), libs.dir());
+		}
 
 		var result = InversionResult.of(context.solver(), data)
 			.withInverse(inverse)
