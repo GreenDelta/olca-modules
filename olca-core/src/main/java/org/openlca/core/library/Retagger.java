@@ -120,6 +120,7 @@ class Retagger {
 			var impact = db.get(ImpactCategory.class, refId);
 			if (impact == null)
 				continue;
+			impact.library = libId;
 			impact.impactFactors.clear();
 			impact.parameters.clear();
 			db.update(impact);
