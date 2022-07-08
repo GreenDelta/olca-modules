@@ -9,13 +9,10 @@ import java.util.Set;
 import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
-import org.openlca.util.Strings;
 
-import gnu.trove.set.hash.TLongHashSet;
 import jakarta.persistence.Table;
 
 /**
@@ -71,7 +68,6 @@ public class Mounter implements Runnable {
 				} else {
 					mount(lib);
 				}
-				new CategoryTagger(db, lib.name()).run();
 			}
 			if (db instanceof Derby derby && shouldCompress) {
 				derby.compress();
@@ -113,58 +109,5 @@ public class Mounter implements Runnable {
 			}
 			return true;
 		});
-	}
-
-	/**
-	 * Tags categories which are only used in a specific library with the ID of
-	 * that library.
-	 */
-	@Deprecated
-	private record CategoryTagger(IDatabase db, String libId)
-		implements Runnable {
-
-		@Override
-		public void run() {
-
-			// collect the IDs of categories that are only used by the library and
-			// the IDs of categories that are also used by non-library data sets
-			var libCategories = new TLongHashSet();
-			var nonLibCategories = new TLongHashSet();
-			for (var type : ModelType.values()) {
-				if (!type.isRoot())
-					continue;
-				var table = type.getModelClass().getAnnotation(Table.class);
-				if (table == null)
-					continue;
-				var query = "select distinct f_category, library from " + table.name();
-				NativeSql.on(db).query(query, r -> {
-					var id = r.getLong(1);
-					if (id == 0)
-						return true;
-					var qLib = r.getString(2);
-
-					if (Strings.nullOrEqual(qLib, libId)) {
-						if (!nonLibCategories.contains(id)) {
-							libCategories.add(id);
-						}
-					} else {
-						if (libCategories.contains(id)) {
-							libCategories.remove(id);
-							nonLibCategories.add(id);
-						}
-					}
-					return true;
-				});
-			}
-
-			// tag the categories and their parents
-			for (var it = libCategories.iterator(); it.hasNext(); ) {
-				var libCat = db.get(Category.class, it.next());
-				while (libCat != null && !nonLibCategories.contains(libCat.id)) {
-					libCat.library = libId;
-					libCat = db.update(libCat).category;
-				}
-			}
-		}
 	}
 }
