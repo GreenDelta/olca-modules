@@ -32,11 +32,10 @@ public class UpstreamTree {
 		this.ref = ref;
 		this.r = r;
 		this.intensity = intensity;
-
-		var techIndex = r.techIndex();
-		root = UpstreamNode.rootOf(techIndex, r.demand());
-		root.scaling = r.scalingVector[root.index];
-		setRequiredAmount(root, r.demand().value());
+		root = UpstreamNode.rootOf( r.techIndex(), r.demand());
+		double demand = r.demand().value();
+		root.scaling = demand / r.provider.techValueOf(root.index, root.index);
+		setRequiredAmount(root, demand);
 		root.result = total;
 	}
 
