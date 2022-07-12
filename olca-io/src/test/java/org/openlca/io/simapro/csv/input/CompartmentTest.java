@@ -1,6 +1,6 @@
 package org.openlca.io.simapro.csv.input;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.openlca.io.simapro.csv.Compartment;
@@ -29,13 +29,13 @@ public class CompartmentTest {
 				ElementaryFlowType.of("Non mat."),
 				SubCompartment.of("")),
 			"Noise, aircraft, freight",
-			"Transport");
+			"tkm");
 		var impactKey = FlowKey.elementary(
 			Compartment.of(
 				ElementaryFlowType.of("Non mat."),
 				SubCompartment.of(("(unspecified)"))),
 			"Noise, aircraft, freight",
-			"Transport");
+			"tkm");
 
 		assertEquals(processKey.path(), impactKey.path());
 		assertEquals(processKey.refId(), impactKey.refId());

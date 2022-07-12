@@ -16,24 +16,24 @@ import org.openlca.util.KeyGen;
 record FlowKey(String path, String refId, FlowType type) {
 
 	static FlowKey elementary(
-		Compartment compartment, String name, String quantity) {
+		Compartment compartment, String name, String unit) {
 		var top = compartment.type() != null
 			? compartment.type().exchangeHeader()
 			: "";
 		var sub = compartment.sub() != null
 			? compartment.sub().toString()
 			: SubCompartment.UNSPECIFIED.toString();
-		var path = KeyGen.toPath("elementary flow", top, sub, name, quantity);
+		var path = KeyGen.toPath("elementary flow", top, sub, name, unit);
 		return new FlowKey(path, KeyGen.get(path), FlowType.ELEMENTARY_FLOW);
 	}
 
-	static FlowKey product(String name, String quantity) {
-		var path = KeyGen.toPath("product", name, quantity);
+	static FlowKey product(String name, String unit) {
+		var path = KeyGen.toPath("product", name, unit);
 		return new FlowKey(path, KeyGen.get(path), FlowType.PRODUCT_FLOW);
 	}
 
-	static FlowKey waste(String name, String quantity) {
-		var path = KeyGen.toPath("waste", name, quantity);
+	static FlowKey waste(String name, String unit) {
+		var path = KeyGen.toPath("waste", name, unit);
 		return new FlowKey(path, KeyGen.get(path), FlowType.WASTE_FLOW);
 	}
 

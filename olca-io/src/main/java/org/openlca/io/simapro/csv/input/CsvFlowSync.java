@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.openlca.core.database.CategoryDao;
@@ -39,7 +38,6 @@ class CsvFlowSync {
 	private final FlowSync flowSync;
 	private final ImportLog log;
 	private final EnumMap<ElementaryFlowType, HashMap<String, ElementaryFlowRow>> flowInfos;
-	private final Map<String, String> csvUnitQuantities;
 
 	CsvFlowSync(IDatabase db, RefData refData, FlowMap flowMap, ImportLog log) {
 		this.db = db;
@@ -47,17 +45,10 @@ class CsvFlowSync {
 		this.flowSync = FlowSync.of(db, flowMap);
 		this.log = log;
 		flowInfos = new EnumMap<>(ElementaryFlowType.class);
-		csvUnitQuantities = new HashMap<>();
 	}
 
 	void sync(CsvDataSet dataSet) {
 		try {
-
-			// collect the unit quantities (used for CSV flow identifiers)
-			for (var unit : dataSet.units()) {
-				csvUnitQuantities.computeIfAbsent(
-					unit.name(), u -> unit.quantity());
-			}
 
 			// collect elem. flow infos
 			for (var type : ElementaryFlowType.values()) {
@@ -123,7 +114,7 @@ class CsvFlowSync {
 			log.error("unknown unit '" + unit + "' in flow: " +  name);
 			return SyncFlow.empty();
 		}
-		var key = FlowKey.elementary(comp, name, csvUnitQuantities.get(unit));
+		var key = FlowKey.elementary(comp, name, unit);
 
 		// get or create the flow
 		return key.getOrCreate(flowSync, () -> {
@@ -177,8 +168,8 @@ class CsvFlowSync {
 			return SyncFlow.empty();
 		}
 		var key = isWaste
-			? FlowKey.waste(row.name(), csvUnitQuantities.get(row.unit()))
-			:FlowKey.product(row.name(), csvUnitQuantities.get(row.unit()));
+			? FlowKey.waste(row.name(), row.unit())
+			:FlowKey.product(row.name(), row.unit());
 
 		// get or create the flow
 		return key.getOrCreate(flowSync, () -> {
