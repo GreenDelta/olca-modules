@@ -72,7 +72,9 @@ class ImpactMethods {
 			var factor = new ImpactFactor();
 			factor.flow = sync.flow();
 			if (sync.isMapped()) {
-				factor.value = sync.mapFactor() * row.factor();
+				factor.value = sync.mapFactor() != 0
+					? row.factor() / sync.mapFactor()
+					: 0;
 				factor.unit = sync.unit();
 				factor.flowPropertyFactor = sync.property();
 			} else {
