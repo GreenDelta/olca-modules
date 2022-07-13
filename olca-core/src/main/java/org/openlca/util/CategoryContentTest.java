@@ -31,6 +31,12 @@ public class CategoryContentTest {
 		caches.clear();
 	}
 
+	public void clearCacheOf(ModelType type) {
+		if (type != null) {
+			caches.remove(type);
+		}
+	}
+
 	private Cache cacheOf(Category category) {
 		return category == null || category.modelType == null
 			? Cache.empty()
