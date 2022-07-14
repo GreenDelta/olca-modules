@@ -7,6 +7,7 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 
 /**
@@ -19,12 +20,12 @@ public record DbEntityResolver(IDatabase db) implements EntityResolver {
 	}
 
 	@Override
-	public <T extends RefEntity> T get(Class<T> type, String refId) {
+	public <T extends RootEntity> T get(Class<T> type, String refId) {
 		return db.get(type, refId);
 	}
 
 	@Override
-	public <T extends RefEntity> Descriptor getDescriptor(
+	public <T extends RootEntity> Descriptor getDescriptor(
 		Class<T> type, String refId) {
 		return db.getDescriptor(type, refId);
 	}

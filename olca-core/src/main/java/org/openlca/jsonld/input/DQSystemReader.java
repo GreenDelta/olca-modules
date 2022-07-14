@@ -36,6 +36,7 @@ public record DQSystemReader(EntityResolver resolver)
 	}
 
 	private void mapIndicators(DQSystem dqSystem, JsonObject json) {
+		dqSystem.indicators.clear();
 		var indicators = Json.getArray(json, "indicators");
 		if (indicators == null || indicators.size() == 0)
 			return;

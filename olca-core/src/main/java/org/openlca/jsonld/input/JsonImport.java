@@ -80,31 +80,14 @@ public class JsonImport implements Runnable, EntityResolver {
 		return set != null && set.contains(refId);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void run(ModelType type, String id) {
-		if (type == null || id == null)
+		if (type == null || !type.isRoot() ||id == null)
 			return;
-		switch (type) {
-			case ACTOR -> ActorImport.run(id, this);
-			case CATEGORY -> CategoryImport.run(id, this);
-			case CURRENCY -> CurrencyImport.run(id, this);
-			case DQ_SYSTEM -> DQSystemImport.run(id, this);
-			case EPD -> EpdImport.run(id, this);
-			case FLOW -> FlowImport.run(id, this);
-			case FLOW_PROPERTY -> FlowPropertyImport.run(id, this);
-			case IMPACT_CATEGORY -> ImpactCategoryImport.run(id, this);
-			case IMPACT_METHOD -> ImpactMethodImport.run(id, this);
-			case LOCATION -> LocationImport.run(id, this);
-			case PARAMETER -> ParameterImport.run(id, this);
-			case PROCESS -> ProcessImport.run(id, this);
-			case PRODUCT_SYSTEM -> ProductSystemImport.run(id, this);
-			case PROJECT -> ProjectImport.run(id, this);
-			case RESULT -> ResultImport.run(id, this);
-			case SOCIAL_INDICATOR -> SocialIndicatorImport.run(id, this);
-			case SOURCE -> SourceImport.run(id, this);
-			case UNIT_GROUP -> UnitGroupImport.run(id, this);
-			default -> {
-			}
-		}
+		var clazz = type.getModelClass();
+		if (clazz == null)
+			return;
+		get((Class<? extends RootEntity>) clazz, id);
 	}
 
 	@Override
@@ -173,6 +156,7 @@ public class JsonImport implements Runnable, EntityResolver {
 			db.update(model);
 		}
 
+		copyBinaryFilesOf(modelType, refId);
 		visited(modelType, refId);
 		imported(model);
 
