@@ -3,13 +3,10 @@ package org.openlca.jsonld.input;
 import java.io.File;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Unit;
 
 /**
  * When a unit group is updated/overwritten during import, the units need to be
@@ -20,12 +17,6 @@ import org.openlca.core.model.Unit;
  * validation should result in no errors.
  */
 public class UnitSyncTest {
-
-	private static final ModelType[] modelTypes = new ModelType[] {
-		ModelType.IMPACT_METHOD,
-		ModelType.PRODUCT_SYSTEM,
-		ModelType.PROCESS
-	};
 
 	private final IDatabase db = Tests.getDb();
 	private File allData;
@@ -48,22 +39,14 @@ public class UnitSyncTest {
 	@Test
 	public void initialDataValidates() {
 		SyncTestUtils.doImport(allData, db);
-		Assert.assertTrue(validate());
+		SyncTestUtils.validate(db);
 	}
 
 	@Test
 	public void unitsSync() {
 		SyncTestUtils.doImport(allData, db);
 		SyncTestUtils.doImport(unitGroupData, db);
-		Assert.assertTrue(validate());
-	}
-
-	private boolean validate() {
-		return SyncTestUtils.validate(modelTypes, ref -> {
-			if(!ref.type.equals(Unit.class.getCanonicalName()))
-				return true;
-			return db.get(Unit.class, ref.id) != null;
-		});
+		SyncTestUtils.validate(db);
 	}
 
 }

@@ -4,14 +4,10 @@ import java.io.File;
 import java.io.IOException;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.NwSetDao;
-import org.openlca.core.model.ModelType;
-import org.openlca.core.model.NwSet;
 
 /**
  * When an impact method is updated/overwritten during import, the nw sets need
@@ -22,39 +18,15 @@ import org.openlca.core.model.NwSet;
  */
 public class NwSetSyncTest {
 
-	private static final ModelType[] modelTypes = new ModelType[] { ModelType.PROJECT };
 	private final IDatabase db = Tests.getDb();
-	private NwSetDao dao;
 	private File allData;
 	private File nwSetData;
 
 	@Before
 	public void before() throws IOException {
 		db.clear();
-		dao = new NwSetDao(db);
 		allData = SyncTestUtils.copyToTemp("nw_set_sync-all.zip");
 		nwSetData = SyncTestUtils.copyToTemp("nw_set_sync-impact_method.zip");
-	}
-
-	@Test
-	public void initialDataValidates() {
-		SyncTestUtils.doImport(allData, db);
-		Assert.assertTrue(validate());
-	}
-
-	@Test
-	public void nwSetSync() {
-		SyncTestUtils.doImport(allData, db);
-		SyncTestUtils.doImport(nwSetData, db);
-		Assert.assertTrue(validate());
-	}
-
-	private boolean validate() {
-		return SyncTestUtils.validate(modelTypes, (reference) -> {
-			if (reference.type.equals(NwSet.class.getCanonicalName()))
-				return dao.getForId(reference.id) != null;
-			return true;
-		});
 	}
 
 	@After
@@ -63,5 +35,19 @@ public class NwSetSyncTest {
 		SyncTestUtils.delete(allData);
 		db.clear();
 	}
+
+	@Test
+	public void initialDataValidates() {
+		SyncTestUtils.doImport(allData, db);
+		SyncTestUtils.validate(db);
+	}
+
+	@Test
+	public void nwSetSync() {
+		SyncTestUtils.doImport(allData, db);
+		SyncTestUtils.doImport(nwSetData, db);
+		SyncTestUtils.validate(db);
+	}
+
 
 }

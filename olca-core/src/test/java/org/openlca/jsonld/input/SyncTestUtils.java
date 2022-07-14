@@ -2,27 +2,23 @@ package org.openlca.jsonld.input;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
-import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.references.IReferenceSearch;
-import org.openlca.core.database.references.Reference;
-import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.ZipStore;
+import org.openlca.validation.Validation;
+
+import static org.junit.Assert.assertTrue;
 
 class SyncTestUtils {
 
 	static File copyToTemp(String filename) {
 		try {
-			Path tmp = Files.createTempFile("olca-sync-test", ".zip");
-			Files.copy(
-					SyncTestUtils.class.getResourceAsStream(filename),
-					tmp,
-					StandardCopyOption.REPLACE_EXISTING);
+			var tmp = Files.createTempFile("olca-sync-test", ".zip");
+			var resource = Objects.requireNonNull(
+				SyncTestUtils.class.getResourceAsStream(filename));
+			Files.copy(resource, tmp, StandardCopyOption.REPLACE_EXISTING);
 			return tmp.toFile();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -40,22 +36,12 @@ class SyncTestUtils {
 		}
 	}
 
-	static boolean validate(ModelType[] modelTypes, Predicate<Reference> isValid) {
-		var db = Tests.getDb();
-		for (ModelType type : modelTypes) {
-			var ids = db.getAll(type.getModelClass())
-					.stream()
-					.map(e -> e.id)
-					.collect(Collectors.toSet());
-			var refs = IReferenceSearch.FACTORY
-					.createFor(type, db, true)
-					.findReferences(ids);
-			for (var ref : refs) {
-				if (!isValid.test(ref))
-					return false;
-			}
-		}
-		return true;
+	static void validate(IDatabase db) {
+		var validation = Validation.on(db)
+			.skipInfos(true)
+			.skipWarnings(true);
+		validation.run();
+		assertTrue(validation.items().isEmpty());
 	}
 
 	static void delete(File file) {

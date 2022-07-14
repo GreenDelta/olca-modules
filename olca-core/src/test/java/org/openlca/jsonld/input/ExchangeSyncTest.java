@@ -4,15 +4,10 @@ import java.io.File;
 import java.io.IOException;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.database.BaseDao;
-import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.Exchange;
-import org.openlca.core.model.ModelType;
 
 /**
  * When a process is updated/overwritten during import, the exchanges
@@ -24,12 +19,7 @@ import org.openlca.core.model.ModelType;
  */
 public class ExchangeSyncTest {
 
-	private static final ModelType[] modelTypes = new ModelType[] {
-		ModelType.PRODUCT_SYSTEM
-	};
-
 	private IDatabase db;
-	private BaseDao<Exchange> dao;
 	private File allData;
 	private File processData;
 
@@ -37,30 +27,8 @@ public class ExchangeSyncTest {
 	public void before() throws IOException {
 		db = Tests.getDb();
 		db.clear();
-		dao = Daos.base(db, Exchange.class);
 		allData = SyncTestUtils.copyToTemp("exchange_sync-all.zip");
 		processData = SyncTestUtils.copyToTemp("exchange_sync-process.zip");
-	}
-
-	@Test
-	public void initialDataValidates() {
-		SyncTestUtils.doImport(allData, db);
-		Assert.assertTrue(validate());
-	}
-
-	@Test
-	public void exchangesSync() {
-		SyncTestUtils.doImport(allData, db);
-		SyncTestUtils.doImport(processData, db);
-		Assert.assertTrue(validate());
-	}
-
-	private boolean validate() {
-		return SyncTestUtils.validate(modelTypes, (reference) -> {
-			if(reference.type.equals(Exchange.class.getCanonicalName()))
-				return dao.getForId(reference.id) != null;
-			return true;
-		});
 	}
 
 	@After
@@ -70,4 +38,16 @@ public class ExchangeSyncTest {
 		db.clear();
 	}
 
+	@Test
+	public void initialDataValidates() {
+		SyncTestUtils.doImport(allData, db);
+		SyncTestUtils.validate(db);
+	}
+
+	@Test
+	public void exchangesSync() {
+		SyncTestUtils.doImport(allData, db);
+		SyncTestUtils.doImport(processData, db);
+		SyncTestUtils.validate(db);
+	}
 }
