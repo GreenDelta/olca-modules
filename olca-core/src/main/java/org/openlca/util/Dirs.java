@@ -60,6 +60,12 @@ public final class Dirs {
 		}
 	}
 
+	public static void clean(File dir) {
+		if (dir == null || !dir.exists() || !dir.isDirectory())
+			return;
+		clean(dir.toPath());
+	}
+
 	/**
 	 * Deletes the content from the given directory but not the directory
 	 * itself.

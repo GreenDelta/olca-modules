@@ -1,6 +1,9 @@
 package org.openlca.jsonld.input;
 
+import java.io.File;
 import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -8,6 +11,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import com.google.gson.JsonObject;
+import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.CategorySync;
 import org.openlca.core.io.EntityResolver;
@@ -19,6 +23,8 @@ import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.JsonStoreReader;
 import org.openlca.jsonld.upgrades.Upgrades;
+import org.openlca.util.Dirs;
+import org.slf4j.LoggerFactory;
 
 public class JsonImport implements Runnable, EntityResolver {
 
@@ -132,6 +138,7 @@ public class JsonImport implements Runnable, EntityResolver {
 
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public <T extends RootEntity> T get(Class<T> type, String refId) {
 		// TODO: for small objects that are often used, we could
 		// maintain a cache here
@@ -152,10 +159,25 @@ public class JsonImport implements Runnable, EntityResolver {
 		}
 
 		var reader = (EntityReader<T>) readerFor(modelType);
+		if (reader == null)
+			return model;
+
+		// TODO: put the model on a "hot tray" to resolve cyclic dependencies
+		if (model == null) {
+			model = reader.read(json);
+			if (model == null)
+				return null;
+			db.insert(model);
+		} else {
+			reader.update(model, json);
+			db.update(model);
+		}
+
+		visited(modelType, refId);
+		imported(model);
 
 
-
-		return null;
+		return model;
 	}
 
 	private <T extends RefEntity> boolean skipImport(T model, JsonObject json) {
@@ -191,5 +213,32 @@ public class JsonImport implements Runnable, EntityResolver {
 			case IMPACT_CATEGORY -> new ImpactCategoryReader(this);
 			default -> null;
 		};
+	}
+
+	private void copyBinaryFilesOf(ModelType type, String refId) {
+		if (db == null || db.getFileStorageLocation() == null)
+			return;
+		var fs = new FileStore(db.getFileStorageLocation());
+		try {
+			var dir = fs.getFolder(type, refId);
+			if (dir.exists()) {
+				Dirs.clean(dir);
+			}
+
+			for (var path : reader.getBinFiles(type, refId)) {
+				byte[] data = reader.getBytes(path);
+				if (data == null)
+					return;
+				var name = Paths.get(path).getFileName().toString();
+				if (!dir.exists()) {
+					Files.createDirectories(dir.toPath());
+				}
+				File file = new File(dir, name);
+				Files.write(file.toPath(), data);
+			}
+		} catch (Exception e) {
+			var log = LoggerFactory.getLogger(getClass());
+			log.error("failed to import bin files for " + type + ":" + refId, e);
+		}
 	}
 }

@@ -47,8 +47,7 @@ public class FileStore {
 		if (type == null || id == null)
 			return new File(root, "null");
 		File dir = new File(root, getPath(type));
-		String subPath = id != null ? id : "null";
-		return new File(dir, subPath);
+		return new File(dir, id);
 	}
 
 	public void copyFolder(RefEntity from, RefEntity to) {
@@ -113,40 +112,29 @@ public class FileStore {
 	public static String getPath(ModelType type) {
 		if (type == null)
 			return "null";
-		switch (type) {
-		case CATEGORY:
-			return "categories";
-		case PROCESS:
-			return "processes";
-		case FLOW:
-			return "flows";
-		case FLOW_PROPERTY:
-			return "flow_properties";
-		case ACTOR:
-			return "actors";
-		case IMPACT_CATEGORY:
-			return "lcia_categories";
-		case IMPACT_METHOD:
-			return "lcia_methods";
-		case LOCATION:
-			return "locations";
-		case NW_SET:
-			return "nw_sets";
-		case PRODUCT_SYSTEM:
-			return "product_systems";
-		case PROJECT:
-			return "projects";
-		case SOCIAL_INDICATOR:
-			return "social_indicators";
-		case SOURCE:
-			return "sources";
-		case UNIT:
-			return "units";
-		case UNIT_GROUP:
-			return "unit_groups";
-		default:
-			return "unknown";
-		}
+		return switch (type) {
+			case CATEGORY -> "categories";
+			case PROCESS -> "processes";
+			case FLOW -> "flows";
+			case FLOW_PROPERTY -> "flow_properties";
+			case ACTOR -> "actors";
+			case IMPACT_CATEGORY -> "lcia_categories";
+			case IMPACT_METHOD -> "lcia_methods";
+			case LOCATION -> "locations";
+			case NW_SET -> "nw_sets";
+			case PRODUCT_SYSTEM -> "product_systems";
+			case PROJECT -> "projects";
+			case SOCIAL_INDICATOR -> "social_indicators";
+			case SOURCE -> "sources";
+			case UNIT -> "units";
+			case UNIT_GROUP -> "unit_groups";
+			case EPD -> "epds";
+			case RESULT -> "results";
+			case CURRENCY -> "currencies";
+			case DQ_SYSTEM -> "dq_systems";
+			case PARAMETER -> "parameters";
+			default -> "unknown";
+		};
 	}
 
 	public static String getPath(ModelType type, String refId) {
