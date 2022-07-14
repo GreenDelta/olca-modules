@@ -15,26 +15,26 @@ public class TypeRefIdSet {
 	public TypeRefIdSet() {
 	}
 
-	public TypeRefIdSet(Collection<? extends TypeRefIdPair> refs) {
+	public TypeRefIdSet(Collection<? extends TypedRefId> refs) {
 		addAll(refs);
 	}
 
-	public void add(TypeRefIdPair pair) {
+	public void add(TypedRefId pair) {
 		map.computeIfAbsent(pair.type, t -> new HashSet<>()).add(pair.refId);
 	}
 
-	public void addAll(Collection<? extends TypeRefIdPair> pairs) {
+	public void addAll(Collection<? extends TypedRefId> pairs) {
 		pairs.forEach(this::add);
 	}
 
-	public boolean contains(TypeRefIdPair pair) {
+	public boolean contains(TypedRefId pair) {
 		var refIds = map.get(pair.type);
 		if (refIds == null)
 			return false;
 		return refIds.contains(pair.refId);
 	}
 
-	public void remove(TypeRefIdPair pair) {
+	public void remove(TypedRefId pair) {
 		var refIds = map.get(pair.type);
 		if (refIds == null)
 			return;
@@ -45,12 +45,12 @@ public class TypeRefIdSet {
 		map.clear();
 	}
 
-	public void forEach(Consumer<TypeRefIdPair> forEach) {
+	public void forEach(Consumer<TypedRefId> forEach) {
 		map.keySet().forEach(type -> {
 			var refIds = map.get(type);
 			if (refIds == null)
 				return;
-			refIds.forEach(refId -> forEach.accept(new TypeRefIdPair(type, refId)));
+			refIds.forEach(refId -> forEach.accept(new TypedRefId(type, refId)));
 		});
 	}
 
