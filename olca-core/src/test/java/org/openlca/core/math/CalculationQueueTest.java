@@ -3,7 +3,9 @@ package org.openlca.core.math;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -14,6 +16,7 @@ import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.results.SimpleResult;
 
@@ -21,6 +24,7 @@ public class CalculationQueueTest {
 
 	private final IDatabase db = Tests.getDb();
 	private Process process;
+	private List<RootEntity> entities;
 
 	@Before
 	public void setup() {
@@ -30,21 +34,14 @@ public class CalculationQueueTest {
 		var steel = Flow.product("Steel", mass);
 		process = Process.of("Steel production", steel);
 		process.output(co2, 2);
+		entities = List.of(process, steel, co2, mass, units);
 		db.insert(units, mass, co2, steel, process);
 	}
 
 	@After
 	public void tearDown() {
-		db.delete(process);
-		boolean first = true;
-		for (var e : process.exchanges) {
-			db.delete(e.flow);
-			if (first) {
-				first = false;
-				continue;
-			}
-			db.delete(e.flow.referenceFlowProperty);
-			db.delete(e.flow.referenceFlowProperty.unitGroup);
+		for (var e : entities) {
+			db.delete(e);
 		}
 	}
 

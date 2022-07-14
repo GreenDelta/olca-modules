@@ -10,6 +10,7 @@ import org.openlca.jsonld.ZipStore;
 import org.openlca.validation.Validation;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 class SyncTestUtils {
 
@@ -26,9 +27,8 @@ class SyncTestUtils {
 	}
 
 	static void doImport(File file, IDatabase db) {
-		try {
-			ZipStore store = ZipStore.open(file);
-			JsonImport json = new JsonImport(store, db);
+		try (var store = ZipStore.open(file)) {
+			var json = new JsonImport(store, db);
 			json.setUpdateMode(UpdateMode.ALWAYS);
 			json.run();
 		} catch (Exception e) {
@@ -41,7 +41,10 @@ class SyncTestUtils {
 			.skipInfos(true)
 			.skipWarnings(true);
 		validation.run();
-		assertTrue(validation.items().isEmpty());
+		if (!validation.items().isEmpty()) {
+			fail("validation failed: "
+				+ validation.items().get(0).message());
+		}
 	}
 
 	static void delete(File file) {

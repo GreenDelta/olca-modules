@@ -16,7 +16,6 @@ public class ImpactLinkDeletionTest {
 	@Test
 	public void testDeleteLinks() {
 
-		db.clear();
 		var impact = ImpactCategory.of("GWP");
 		var method1 = ImpactMethod.of("M1");
 		method1.impactCategories.add(impact);

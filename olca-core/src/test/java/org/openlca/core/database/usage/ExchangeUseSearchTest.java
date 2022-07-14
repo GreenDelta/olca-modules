@@ -9,9 +9,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.database.BaseDao;
-import org.openlca.core.database.Daos;
-import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
@@ -36,29 +33,36 @@ public class ExchangeUseSearchTest {
 
 	private Process p;
 	private Process q;
-	private final Stack<RootEntity> modelStack = new Stack<>();
+	private final Stack<RootEntity> entities = new Stack<>();
 	private final IDatabase db = Tests.getDb();
 
 	@Before
 	public void setUp() {
-		db.clear();
 		p = new Process();
 		q = new Process();
 		addExchanges();
 		ProcessDao dao = new ProcessDao(db);
 		p = dao.insert(p);
 		q = dao.insert(q);
-		modelStack.push(p);
-		modelStack.push(q);
+		entities.push(p);
+		entities.push(q);
 		createSystem();
+	}
+
+	@After
+	public void tearDown() {
+		while (!entities.isEmpty()) {
+			var entity = entities.pop();
+			db.delete(entity);
+		}
 	}
 
 	private void addExchanges() {
 		for (int i = 1; i < 4; i++) {
 			Flow flow = new Flow();
 			flow.name = "flow_" + 1;
-			flow = new FlowDao(db).insert(flow);
-			modelStack.push(flow);
+			flow = db.insert(flow);
+			entities.push(flow);
 			Exchange ep = new Exchange();
 			ep.flow = flow;
 			ep.isInput = false;
@@ -81,18 +85,7 @@ public class ExchangeUseSearchTest {
 		link.flowId = linkFlow.id;
 		system.processLinks.add(link);
 		system = new ProductSystemDao(db).insert(system);
-		modelStack.push(system);
-	}
-
-	@After
-	public void tearDown() {
-		while (!modelStack.isEmpty()) {
-			RootEntity entity = modelStack.pop();
-			@SuppressWarnings("unchecked")
-			BaseDao<RootEntity> dao = (BaseDao<RootEntity>) Daos
-					.base(db, entity.getClass());
-			dao.delete(entity);
-		}
+		entities.push(system);
 	}
 
 	@Test
