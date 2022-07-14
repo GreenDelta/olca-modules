@@ -2,9 +2,9 @@ package org.openlca.git.model;
 
 import org.openlca.core.model.ModelType;
 import org.openlca.git.util.GitUtil;
-import org.openlca.git.util.TypeRefIdPair;
+import org.openlca.git.util.TypedRefId;
 
-public class ModelRef extends TypeRefIdPair implements Comparable<ModelRef> {
+public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 
 	public final String path;
 	public final String category;

@@ -14,13 +14,13 @@ public class TypeRefIdMap<T> {
 
 	private final EnumMap<ModelType, Map<String, T>> map = new EnumMap<>(ModelType.class);
 
-	public static <R extends TypeRefIdPair> TypeRefIdMap<R> of(Collection<R> col) {
+	public static <R extends TypedRefId> TypeRefIdMap<R> of(Collection<R> col) {
 		var map = new TypeRefIdMap<R>();
 		col.forEach(ref -> map.put(ref, ref));
 		return map;
 	}
 
-	public void put(TypeRefIdPair pair, T value) {
+	public void put(TypedRefId pair, T value) {
 		put(pair.type, pair.refId, value);
 	}
 
@@ -28,7 +28,7 @@ public class TypeRefIdMap<T> {
 		map.computeIfAbsent(type, t -> new HashMap<>()).put(refId, value);
 	}
 
-	public boolean contains(TypeRefIdPair pair) {
+	public boolean contains(TypedRefId pair) {
 		return contains(pair.type, pair.refId);
 	}
 
@@ -39,7 +39,7 @@ public class TypeRefIdMap<T> {
 		return refIds.containsKey(refId);
 	}
 
-	public T get(TypeRefIdPair pair) {
+	public T get(TypedRefId pair) {
 		return get(pair.type, pair.refId);
 	}
 
@@ -61,7 +61,7 @@ public class TypeRefIdMap<T> {
 		return map.values().stream().map(Map::values).flatMap(Collection::stream).collect(Collectors.toList());
 	}
 
-	public T remove(TypeRefIdPair pair) {
+	public T remove(TypedRefId pair) {
 		return remove(pair.type, pair.refId);
 	}
 

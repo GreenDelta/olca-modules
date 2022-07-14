@@ -5,12 +5,12 @@ import java.util.Objects;
 import org.openlca.core.model.ModelType;
 import org.openlca.util.Strings;
 
-public class TypeRefIdPair {
+public class TypedRefId {
 
 	public final ModelType type;
 	public final String refId;
 
-	public TypeRefIdPair(ModelType type, String refId) {
+	public TypedRefId(ModelType type, String refId) {
 		this.type = type;
 		this.refId = refId;
 	}
@@ -22,9 +22,9 @@ public class TypeRefIdPair {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof TypeRefIdPair))
+		if (!(obj instanceof TypedRefId))
 			return false;
-		var o = (TypeRefIdPair) obj;
+		var o = (TypedRefId) obj;
 		return type == o.type && Strings.nullOrEqual(refId, o.refId);
 	}
 
