@@ -1,36 +1,47 @@
 package org.openlca.jsonld.input;
 
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import com.google.gson.JsonObject;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.CategorySync;
+import org.openlca.core.io.EntityResolver;
 import org.openlca.core.io.ExchangeProviderQueue;
+import org.openlca.core.model.Category;
+import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.JsonStoreReader;
 import org.openlca.jsonld.upgrades.Upgrades;
 
-public class JsonImport implements Runnable {
+public class JsonImport implements Runnable, EntityResolver {
 
+	private final IDatabase db;
 	final JsonStoreReader reader;
 	UpdateMode updateMode = UpdateMode.NEVER;
 	private Consumer<RefEntity> callback;
 	final CategorySync categories;
 
-	@Deprecated
-	final Db db;
 	private final ExchangeProviderQueue providers;
+	private final Map<Class<?>, ModelType> types = new HashMap<>();
 	private final Map<ModelType, Set<String>> visited = new HashMap<>();
 
 	public JsonImport(JsonStoreReader reader, IDatabase db) {
+		this.db = db;
 		this.reader = Upgrades.chain(reader);
-		this.db = new Db(db);
 		this.providers = ExchangeProviderQueue.create(db);
 		this.categories = CategorySync.of(db);
+		for (var type : ModelType.values()) {
+			if (type.isRoot()) {
+				types.put(type.getModelClass(), type);
+			}
+		}
 	}
 
 	public JsonImport setUpdateMode(UpdateMode updateMode) {
@@ -120,4 +131,65 @@ public class JsonImport implements Runnable {
 	}
 
 
+	@Override
+	public <T extends RootEntity> T get(Class<T> type, String refId) {
+		// TODO: for small objects that are often used, we could
+		// maintain a cache here
+		var modelType = types.get(type);
+		if (modelType == null)
+			return null;
+		T model = db.get(type, refId);
+		if (model != null) {
+			if (updateMode == UpdateMode.NEVER || hasVisited(modelType, refId))
+				return model;
+		}
+		var json = reader.get(modelType, refId);
+		if (json == null)
+			return model;
+		if (skipImport(model, json)) {
+			visited(modelType, refId);
+			return model;
+		}
+
+		var reader = (EntityReader<T>) readerFor(modelType);
+
+
+
+		return null;
+	}
+
+	private <T extends RefEntity> boolean skipImport(T model, JsonObject json) {
+		if (model == null || updateMode == UpdateMode.ALWAYS)
+			return false;
+		if (!(model instanceof RootEntity root))
+			return false;
+		long jsonVersion = In.getVersion(json);
+		if (jsonVersion != root.version)
+			return jsonVersion < root.version;
+		long jsonDate = In.getLastChange(json);
+		return jsonDate <= root.lastChange;
+	}
+
+	@Override
+	public Category getCategory(ModelType type, String path) {
+		return categories.get(type, path);
+	}
+
+	@Override
+	public void resolveProvider(String providerId, Exchange exchange) {
+		providers.add(providerId, exchange);
+	}
+
+	private EntityReader<?> readerFor(ModelType type) {
+		// TODO EPD, Result, ImpactMethod ...
+		return switch (type) {
+			case ACTOR -> new ActorReader(this);
+			case CURRENCY -> new CurrencyReader(this);
+			case DQ_SYSTEM -> new DQSystemReader(this);
+			case FLOW -> new FlowReader(this);
+			case FLOW_PROPERTY -> new FlowPropertyReader(this);
+			case IMPACT_CATEGORY -> new ImpactCategoryReader(this);
+			default -> null;
+		};
+	}
 }
