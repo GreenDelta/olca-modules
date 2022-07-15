@@ -25,20 +25,12 @@ class Util {
     if (!(e instanceof RootEntity re))
       return;
 
-    // version
-    var version = Json.getString(obj, "version");
-    re.version = version != null
-      ? Version.fromString(version).getValue()
-      : 0L;
-
-    // last change
-    var lastChange = Json.getDate(obj, "lastChange");
-    re.lastChange = lastChange != null
-      ? lastChange.getTime()
-      : 0L;
+		// version & last change
+		re.version = getVersion(obj);
+    re.lastChange = getLastChange(obj);
 
 	  // category
-    var path = Json.getRefId(obj, "category");
+    var path = Json.getString(obj, "category");
     if (path != null) {
 			var type = ModelType.of(re);
       re.category = resolver.getCategory(type, path);
@@ -57,4 +49,23 @@ class Util {
         : null;
     }
   }
+
+	static long getVersion(JsonObject obj) {
+		if (obj == null)
+			return 0;
+		String version = Json.getString(obj, "version");
+		if (version != null)
+			return Version.fromString(version).getValue();
+		else
+			return 0;
+	}
+
+	static long getLastChange(JsonObject obj) {
+		if (obj == null)
+			return 0;
+		var date = Json.getDate(obj, "lastChange");
+		return date == null
+			? 0
+			: date.getTime();
+	}
 }

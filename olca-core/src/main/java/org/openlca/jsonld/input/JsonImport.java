@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -57,6 +58,11 @@ public class JsonImport implements Runnable, EntityResolver {
 	public JsonImport setCallback(Consumer<RefEntity> callback) {
 		this.callback = callback;
 		return this;
+	}
+
+	@Override
+	public Optional<IDatabase> db() {
+		return Optional.of(db);
 	}
 
 	void visited(ModelType type, String refId) {
@@ -169,10 +175,10 @@ public class JsonImport implements Runnable, EntityResolver {
 			return false;
 		if (!(model instanceof RootEntity root))
 			return false;
-		long jsonVersion = In.getVersion(json);
+		long jsonVersion = Util.getVersion(json);
 		if (jsonVersion != root.version)
 			return jsonVersion < root.version;
-		long jsonDate = In.getLastChange(json);
+		long jsonDate = Util.getLastChange(json);
 		return jsonDate <= root.lastChange;
 	}
 
