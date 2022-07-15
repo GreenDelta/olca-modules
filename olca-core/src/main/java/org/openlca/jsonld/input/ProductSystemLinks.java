@@ -49,10 +49,8 @@ class ProductSystemLinks {
 			long process = rs.getLong(1);
 			long exchange = rs.getLong(2);
 			int internalId = rs.getInt(3);
-			Map<Integer, Long> ofProcess = exchangeIds.get(process);
-			if (ofProcess == null) {
-				exchangeIds.put(process, ofProcess = new HashMap<>());
-			}
+			Map<Integer, Long> ofProcess = exchangeIds.computeIfAbsent(
+				process, p -> new HashMap<>());
 			ofProcess.put(internalId, exchange);
 			return true;
 		});
