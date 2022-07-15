@@ -75,7 +75,7 @@ public class ProcessReader implements EntityReader<Process> {
 				continue;
 			var o = e.getAsJsonObject();
 			var param = new Parameter();
-			ParameterReader.mapFields(param, o);
+			ParameterReader.mapFields(param, o, resolver);
 			param.scope = ParameterScope.PROCESS;
 			p.parameters.add(param);
 		}

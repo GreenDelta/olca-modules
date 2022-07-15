@@ -19,6 +19,7 @@ import org.openlca.core.io.ExchangeProviderQueue;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.JsonStoreReader;
@@ -160,6 +161,10 @@ public class JsonImport implements Runnable, EntityResolver {
 		} else {
 			reader.update(model, json);
 			db.update(model);
+		}
+
+		if (model instanceof Process p) {
+			providers.pop(p);
 		}
 
 		copyBinaryFilesOf(modelType, refId);

@@ -1,13 +1,12 @@
 package org.openlca.jsonld.io;
 
+import static org.junit.Assert.*;
+
 import java.util.UUID;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.database.ImpactCategoryDao;
-import org.openlca.core.database.ParameterDao;
-import org.openlca.core.database.ProcessDao;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
@@ -17,23 +16,21 @@ import org.openlca.jsonld.output.JsonExport;
 
 public class ParameterTest extends AbstractZipTest {
 
+	private final IDatabase db = Tests.getDb();
+
 	@Test
 	public void testGlobal() {
 		var param = Parameter.global("param", "1+1");
-		var dao = new ParameterDao(Tests.getDb());
-		dao.insert(param);
+		db.insert(param);
 		with(zip -> {
 			JsonExport export = new JsonExport(Tests.getDb(), zip);
 			export.write(param);
 		});
-		dao.delete(param);
-		Assert.assertFalse(dao.contains(param.refId));
-		with(zip -> {
-			JsonImport jImport = new JsonImport(zip, Tests.getDb());
-			jImport.run();
-		});
-		Assert.assertTrue(dao.contains(param.refId));
-		dao.delete(param);
+		db.delete(param);
+		with(zip -> new JsonImport(zip, db).run());
+		var copy = db.get(Parameter.class, param.refId);
+		assertEquals(param.refId, copy.refId);
+		db.delete(copy);
 	}
 
 	@Test
@@ -41,20 +38,13 @@ public class ParameterTest extends AbstractZipTest {
 		var process = new Process();
 		process.refId = UUID.randomUUID().toString();
 		var param = process.parameter("param", 42);
-		var dao = new ProcessDao(Tests.getDb());
-		dao.insert(process);
-		with(zip -> {
-			JsonExport export = new JsonExport(Tests.getDb(), zip);
-			export.write(process);
-		});
-		dao.delete(process);
-		with(zip -> {
-			JsonImport jImport = new JsonImport(zip, Tests.getDb());
-			jImport.run();
-		});
-		var clone = dao.getForRefId(process.refId);
-		Assert.assertEquals(param.refId,
-				clone.parameters.get(0).refId);
+		db.insert(process);
+		with(zip -> new JsonExport(db, zip).write(process));
+		db.delete(process);
+		with(zip -> new JsonImport(zip, db).run());
+		var clone = db.get(Process.class, process.refId);
+		assertEquals(param.refId, clone.parameters.get(0).refId);
+		db.delete(clone);
 	}
 
 	@Test
@@ -62,19 +52,12 @@ public class ParameterTest extends AbstractZipTest {
 		var impact = new ImpactCategory();
 		impact.refId = UUID.randomUUID().toString();
 		var param = impact.parameter("param", 42);
-		var dao = new ImpactCategoryDao(Tests.getDb());
-		dao.insert(impact);
-		with(zip -> {
-			JsonExport export = new JsonExport(Tests.getDb(), zip);
-			export.write(impact);
-		});
-		dao.delete(impact);
-		with(zip -> {
-			JsonImport jImport = new JsonImport(zip, Tests.getDb());
-			jImport.run();
-		});
-		ImpactCategory clone = dao.getForRefId(impact.refId);
-		Assert.assertEquals(param.refId,
-				clone.parameters.get(0).refId);
+		db.insert(impact);
+		with(zip ->  new JsonExport(Tests.getDb(), zip).write(impact));
+		db.delete(impact);
+		with(zip -> new JsonImport(zip, Tests.getDb()).run());
+		var clone = db.get(ImpactCategory.class, impact.refId);
+		assertEquals(param.refId, clone.parameters.get(0).refId);
+		db.delete(clone);
 	}
 }

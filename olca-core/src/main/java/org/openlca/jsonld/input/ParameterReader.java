@@ -24,11 +24,13 @@ public record ParameterReader(EntityResolver resolver)
 
 	@Override
 	public void update(Parameter param, JsonObject json) {
-		Util.mapBase(param, json, resolver);
-		mapFields(param, json);
+		mapFields(param, json, resolver);
 	}
 
-	static void mapFields(Parameter param, JsonObject json) {
+	static void mapFields(Parameter param, JsonObject json,
+		EntityResolver resolver) {
+
+		Util.mapBase(param, json, resolver);
 		param.scope = Json.getEnum(json, "parameterScope", ParameterScope.class);
 		param.isInputParameter = Json.getBool(json, "isInputParameter", true);
 		param.value = Json.getDouble(json, "value", 0);

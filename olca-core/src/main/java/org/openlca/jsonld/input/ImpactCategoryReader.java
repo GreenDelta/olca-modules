@@ -67,7 +67,7 @@ public record ImpactCategoryReader(EntityResolver resolver)
 				continue;
 			var o = e.getAsJsonObject();
 			var parameter = new Parameter();
-			ParameterReader.mapFields(parameter, o);
+			ParameterReader.mapFields(parameter, o, resolver);
 			impact.parameters.add(parameter);
 		}
 	}
