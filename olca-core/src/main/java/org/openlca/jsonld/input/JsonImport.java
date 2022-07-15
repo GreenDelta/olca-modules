@@ -198,6 +198,7 @@ public class JsonImport implements Runnable, EntityResolver {
 			case FLOW_PROPERTY -> new FlowPropertyReader(this);
 			case IMPACT_CATEGORY -> new ImpactCategoryReader(this);
 			case SOURCE -> new SourceReader(this);
+			case UNIT_GROUP -> new UnitGroupReader(this);
 			default -> null;
 		};
 	}
