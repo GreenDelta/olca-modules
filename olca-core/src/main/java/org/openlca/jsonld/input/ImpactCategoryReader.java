@@ -43,7 +43,9 @@ public record ImpactCategoryReader(EntityResolver resolver)
 		}
 		mapParameters(impact, json);
 
-		JsonArray factors = Json.getArray(json, "impactFactors");
+		// impact factors
+		impact.impactFactors.clear();
+		var factors = Json.getArray(json, "impactFactors");
 		if (factors != null) {
 			for (var e : factors) {
 				if (!e.isJsonObject())
@@ -54,10 +56,10 @@ public record ImpactCategoryReader(EntityResolver resolver)
 				impact.impactFactors.add(factor);
 			}
 		}
-
 	}
 
 	private void mapParameters(ImpactCategory impact, JsonObject json) {
+		impact.parameters.clear();
 		var parameters = Json.getArray(json, "parameters");
 		if (parameters == null || parameters.size() == 0)
 			return;
@@ -75,10 +77,12 @@ public record ImpactCategoryReader(EntityResolver resolver)
 		if (json == null)
 			return null;
 
-		ImpactFactor factor = new ImpactFactor();
+		var factor = new ImpactFactor();
 
 		// flow
 		var flowId = Json.getRefId(json, "flow");
+		if (flowId == null)
+			return null;
 		var flow = resolver.get(Flow.class, flowId);
 		factor.flow = flow;
 		if (flow == null) {
@@ -91,16 +95,15 @@ public record ImpactCategoryReader(EntityResolver resolver)
 		// amount fields
 		factor.value = Json.getDouble(json, "value", 0);
 		factor.formula = Json.getString(json, "formula");
-		JsonElement uncertainty = json.get("uncertainty");
-		if (uncertainty != null && uncertainty.isJsonObject()) {
-			factor.uncertainty = Uncertainties.read(
-				uncertainty.getAsJsonObject());
+		var uncertainty = Json.getObject(json, "uncertainty");
+		if (uncertainty != null ) {
+			factor.uncertainty = Uncertainties.read(uncertainty);
 		}
 
 		// location
-		var locID = Json.getRefId(json, "location");
-		if (Strings.notEmpty(locID)) {
-			factor.location = resolver.get(Location.class, locID);
+		var locId = Json.getRefId(json, "location");
+		if (Strings.notEmpty(locId)) {
+			factor.location = resolver.get(Location.class, locId);
 		}
 
 		return factor;

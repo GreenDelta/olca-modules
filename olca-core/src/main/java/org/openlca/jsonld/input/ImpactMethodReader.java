@@ -1,45 +1,46 @@
 package org.openlca.jsonld.input;
 
+import java.util.HashMap;
 import java.util.Objects;
-
-import org.openlca.core.model.ImpactMethod;
-import org.openlca.core.model.ModelType;
-import org.openlca.core.model.NwFactor;
-import org.openlca.core.model.NwSet;
-import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.openlca.core.io.EntityResolver;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.NwFactor;
+import org.openlca.core.model.NwSet;
+import org.openlca.core.model.Source;
+import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
 
-class ImpactMethodImport extends BaseImport<ImpactMethod> {
+public record ImpactMethodReader(EntityResolver resolver)
+	implements EntityReader<ImpactMethod> {
 
-	private ImpactMethodImport(String refId, JsonImport conf) {
-		super(ModelType.IMPACT_METHOD, refId, conf);
-	}
-
-	static ImpactMethod run(String refId, JsonImport conf) {
-		return new ImpactMethodImport(refId, conf).run();
+	public ImpactMethodReader(EntityResolver resolver) {
+		this.resolver = Objects.requireNonNull(resolver);
 	}
 
 	@Override
-	ImpactMethod map(JsonObject json, long id) {
-		if (json == null)
-			return null;
+	public ImpactMethod read(JsonObject json) {
 		var method = new ImpactMethod();
-		In.mapAtts(json, method, id, conf);
+		update(method, json);
+		return method;
+	}
+
+	@Override
+	public void update(ImpactMethod method, JsonObject json) {
+		Util.mapBase(method, json, resolver);
 		method.code = Json.getString(json, "code");
 		var sourceId = Json.getString(json, "source");
-		if (Strings.nullOrEmpty(sourceId)) {
-			method.source = SourceImport.run(sourceId, conf);
-		}
+		method.source = resolver.get(Source.class, sourceId);
 		// first map categories, nw sets will reference them
 		mapCategories(json, method);
 		mapNwSets(json, method);
-		return conf.db.put(method);
 	}
 
 	private void mapCategories(JsonObject json, ImpactMethod method) {
+		method.impactCategories.clear();
 		var array = Json.getArray(json, "impactCategories");
 		if (array == null || array.size() == 0)
 			return;
@@ -47,7 +48,7 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 			if (!e.isJsonObject())
 				continue;
 			var catId = Json.getString(e.getAsJsonObject(), "@id");
-			var impact = ImpactCategoryImport.run(catId, conf);
+			var impact = resolver.get(ImpactCategory.class, catId);
 			if (impact != null) {
 				method.impactCategories.add(impact);
 			}
@@ -55,18 +56,29 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 	}
 
 	private void mapNwSets(JsonObject json, ImpactMethod method) {
+
+		var nwSets = new HashMap<String, NwSet>();
+		for (var nwSet : method.nwSets) {
+			nwSets.put(nwSet.refId, nwSet);
+		}
+		method.nwSets.clear();
 		var array = Json.getArray(json, "nwSets");
 		if (array == null)
 			return;
+
 		for (JsonElement e : array) {
 			if (!e.isJsonObject())
 				continue;
 			var nwObj = e.getAsJsonObject();
-			var nwSet = new NwSet();
+			var refId = Json.getString(nwObj, "@id");
+			if (Strings.nullOrEmpty(refId))
+				continue;
+			var nwSet = nwSets.computeIfAbsent(refId, rid -> new NwSet());
 			method.nwSets.add(nwSet);
-			In.mapAtts(nwObj, nwSet, 0L);
+			Util.mapBase(nwSet, nwObj, resolver);
 			nwSet.weightedScoreUnit = Json.getString(
 				json, "weightedScoreUnit");
+			nwSet.factors.clear();
 			Json.stream(Json.getArray(nwObj, "factors"))
 				.filter(JsonElement::isJsonObject)
 				.map(f -> nwFactor(f.getAsJsonObject(), method))

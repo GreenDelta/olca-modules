@@ -94,23 +94,22 @@ public class JsonImport implements Runnable, EntityResolver {
 	public void run() {
 		var typeOrder = new ModelType[]{
 			ModelType.ACTOR,
-			ModelType.CATEGORY,
+			ModelType.SOURCE,
 			ModelType.CURRENCY,
 			ModelType.DQ_SYSTEM,
-			ModelType.EPD,
-			ModelType.FLOW,
+			ModelType.LOCATION,
+			ModelType.UNIT_GROUP,
 			ModelType.FLOW_PROPERTY,
+			ModelType.FLOW,
+			ModelType.SOCIAL_INDICATOR,
+			ModelType.PARAMETER,
 			ModelType.IMPACT_CATEGORY,
 			ModelType.IMPACT_METHOD,
-			ModelType.LOCATION,
-			ModelType.PARAMETER,
 			ModelType.PROCESS,
 			ModelType.PRODUCT_SYSTEM,
 			ModelType.PROJECT,
 			ModelType.RESULT,
-			ModelType.SOCIAL_INDICATOR,
-			ModelType.SOURCE,
-			ModelType.UNIT_GROUP,
+			ModelType.EPD,
 		};
 		for (var type : typeOrder) {
 			for (var id : reader.getRefIds(type)) {
@@ -189,19 +188,24 @@ public class JsonImport implements Runnable, EntityResolver {
 	}
 
 	private EntityReader<?> readerFor(ModelType type) {
-		// TODO EPD, Result, ImpactMethod ...
 		return switch (type) {
 			case ACTOR -> new ActorReader(this);
 			case CURRENCY -> new CurrencyReader(this);
 			case DQ_SYSTEM -> new DQSystemReader(this);
+			case EPD -> new EpdReader(this);
 			case FLOW -> new FlowReader(this);
 			case FLOW_PROPERTY -> new FlowPropertyReader(this);
 			case IMPACT_CATEGORY -> new ImpactCategoryReader(this);
-			case SOURCE -> new SourceReader(this);
-			case UNIT_GROUP -> new UnitGroupReader(this);
+			case IMPACT_METHOD -> new ImpactMethodReader(this);
 			case LOCATION -> new LocationReader(this);
 			case PARAMETER -> new ParameterReader(this);
+			case PROCESS -> new ProcessReader(this);
+			case PRODUCT_SYSTEM -> new ProductSystemReader(this);
+			case PROJECT -> new ProjectReader(this);
+			case RESULT -> new ResultReader(this);
 			case SOCIAL_INDICATOR -> new SocialIndicatorReader(this);
+			case SOURCE -> new SourceReader(this);
+			case UNIT_GROUP -> new UnitGroupReader(this);
 			default -> null;
 		};
 	}
