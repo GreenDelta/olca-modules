@@ -82,7 +82,7 @@ public class JsonImport implements Runnable, EntityResolver {
 
 	@SuppressWarnings("unchecked")
 	public void run(ModelType type, String id) {
-		if (type == null || !type.isRoot() ||id == null)
+		if (type == null || !type.isRoot() || id == null)
 			return;
 		var clazz = type.getModelClass();
 		if (clazz == null)
@@ -199,6 +199,9 @@ public class JsonImport implements Runnable, EntityResolver {
 			case IMPACT_CATEGORY -> new ImpactCategoryReader(this);
 			case SOURCE -> new SourceReader(this);
 			case UNIT_GROUP -> new UnitGroupReader(this);
+			case LOCATION -> new LocationReader(this);
+			case PARAMETER -> new ParameterReader(this);
+			case SOCIAL_INDICATOR -> new SocialIndicatorReader(this);
 			default -> null;
 		};
 	}
