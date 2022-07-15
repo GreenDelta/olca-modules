@@ -123,6 +123,8 @@ public class JsonImport implements Runnable, EntityResolver {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T extends RootEntity> T get(Class<T> type, String refId) {
+		if (type == null || refId == null)
+			return null;
 		// TODO: for small objects that are often used, we could
 		// maintain a cache here
 		var modelType = types.get(type);
@@ -195,6 +197,7 @@ public class JsonImport implements Runnable, EntityResolver {
 			case FLOW -> new FlowReader(this);
 			case FLOW_PROPERTY -> new FlowPropertyReader(this);
 			case IMPACT_CATEGORY -> new ImpactCategoryReader(this);
+			case SOURCE -> new SourceReader(this);
 			default -> null;
 		};
 	}
