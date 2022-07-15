@@ -1,47 +1,47 @@
 package org.openlca.jsonld.input;
 
+import java.util.Objects;
+
 import com.google.gson.JsonObject;
+import org.openlca.core.io.EntityResolver;
+import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowResult;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ImpactResult;
-import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Location;
+import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Result;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
 
-class ResultImport extends BaseImport<Result> {
+public record ResultReader(EntityResolver resolver)
+	implements EntityReader<Result> {
 
-	private ResultImport(String refId, JsonImport conf) {
-		super(ModelType.RESULT, refId, conf);
-	}
-
-	static Result run(String refId, JsonImport conf) {
-		return new ResultImport(refId, conf).run();
+	public ResultReader(EntityResolver resolver) {
+		this.resolver = Objects.requireNonNull(resolver);
 	}
 
 	@Override
-	Result map(JsonObject json, long id) {
-		if (json == null)
-			return null;
+	public Result read(JsonObject json) {
 		var result = new Result();
-		In.mapAtts(json, result, id, conf);
-
-		var systemId = Json.getRefId(json, "productSystem");
-		if (Strings.notEmpty(systemId)) {
-			result.productSystem = ProductSystemImport.run(systemId, conf);
-		}
-		var methodId = Json.getRefId(json, "impactMethod");
-		if (Strings.notEmpty(methodId)) {
-			result.impactMethod = ImpactMethodImport.run(refId, conf);
-		}
-
-		readImpactResults(json, result);
-		readFlowResults(json, result);
-
-		return conf.db.put(result);
-
+		update(result, json);
+		return result;
 	}
 
-	private void readImpactResults(JsonObject json, Result result) {
+	@Override
+	public void update(Result result, JsonObject json) {
+		Util.mapBase(result, json, resolver);
+		var systemId = Json.getRefId(json, "productSystem");
+		result.productSystem = resolver.get(ProductSystem.class, systemId);
+		var methodId = Json.getRefId(json, "impactMethod");
+		result.impactMethod = resolver.get(ImpactMethod.class, methodId);
+		mapImpactResuts(json, result);
+		mapFlowResults(json, result);
+	}
+
+	private void mapImpactResuts(JsonObject json, Result result) {
+		result.impactResults.clear();
 		var array = Json.getArray(json, "impactResults");
 		if (array == null)
 			return;
@@ -51,16 +51,15 @@ class ResultImport extends BaseImport<Result> {
 			var obj = e.getAsJsonObject();
 			var r = new ImpactResult();
 			var impactId = Json.getRefId(obj, "indicator");
-			if (Strings.notEmpty(impactId)) {
-				r.indicator = ImpactCategoryImport.run(impactId, conf);
-			}
+			r.indicator = resolver.get(ImpactCategory.class, impactId);
 			r.amount = Json.getDouble(obj, "amount", 0);
 			r.description = Json.getString(obj, "description");
 			result.impactResults.add(r);
 		}
 	}
 
-	private void readFlowResults(JsonObject json, Result result) {
+	private void mapFlowResults(JsonObject json, Result result) {
+		result.flowResults.clear();
 		var array = Json.getArray(json, "flowResults");
 		if (array == null)
 			return;
@@ -79,23 +78,17 @@ class ResultImport extends BaseImport<Result> {
 
 			// location
 			var locationId = Json.getRefId(obj, "location");
-			if (Strings.notEmpty(locationId)) {
-				r.location = LocationImport.run(refId, conf);
-			}
+			r.location = resolver.get(Location.class, locationId);
 
 			// flow and unit
 			var flowId = Json.getRefId(obj, "flow");
 			if (Strings.nullOrEmpty(flowId))
 				continue;
-			r.flow = FlowImport.run(flowId, conf);
+			r.flow = resolver.get(Flow.class, flowId);
 			var quantity = Quantity.of(r.flow, obj);
 			r.flowPropertyFactor = quantity.factor();
 			r.unit = quantity.unit();
 		}
 	}
-
-
-
-
 
 }
