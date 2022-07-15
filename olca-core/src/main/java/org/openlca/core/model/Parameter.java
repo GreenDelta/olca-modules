@@ -66,6 +66,10 @@ public class Parameter extends RootEntity {
 		return of(name, value, ParameterScope.PROCESS);
 	}
 
+	public static Parameter impact(String name, double value) {
+		return of(name, value, ParameterScope.IMPACT);
+	}
+
 	private static Parameter of(
 		String name, double value, ParameterScope scope) {
 		var param = new Parameter();
@@ -86,6 +90,10 @@ public class Parameter extends RootEntity {
 
 	public static Parameter process(String name, String formula) {
 		return of(name, formula, ParameterScope.PROCESS);
+	}
+
+	public static Parameter impact(String name, String formula) {
+		return of(name, formula, ParameterScope.IMPACT);
 	}
 
 	private static Parameter of(

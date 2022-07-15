@@ -106,9 +106,9 @@ public class ProcessReader implements EntityReader<Process> {
 			var e = oldIdx.get(internalId);
 			if (e == null) {
 				e = new Exchange();
-			}
-			if (e.internalId == 0) {
-				e.internalId = ++p.lastInternalId;
+				e.internalId = internalId == -1
+					?  ++p.lastInternalId
+				: internalId;
 			}
 			exchanges.put(e.internalId, e);
 
@@ -150,7 +150,7 @@ public class ProcessReader implements EntityReader<Process> {
 			e.currency = resolver.get(Currency.class, currencyId);
 
 			// location
-			var locationId = Json.getRefId(json, "location");
+			var locationId = Json.getRefId(o, "location");
 			e.location = resolver.get(Location.class, locationId);
 
 			p.exchanges.add(e);

@@ -99,6 +99,7 @@ public class JsonNewFieldsV2Test {
 			.findFirst()
 			.orElseThrow();
 		assertEquals("Loc", factorCopy.location.name);
+		db.clear();
 	}
 
 	@Test

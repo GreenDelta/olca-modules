@@ -9,6 +9,7 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Parameter;
+import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Source;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
@@ -68,6 +69,7 @@ public record ImpactCategoryReader(EntityResolver resolver)
 			var o = e.getAsJsonObject();
 			var parameter = new Parameter();
 			ParameterReader.mapFields(parameter, o, resolver);
+			parameter.scope = ParameterScope.IMPACT;
 			impact.parameters.add(parameter);
 		}
 	}

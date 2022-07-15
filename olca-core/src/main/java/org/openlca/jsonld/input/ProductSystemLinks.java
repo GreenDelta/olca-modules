@@ -3,7 +3,6 @@ package org.openlca.jsonld.input;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.Exchange;
@@ -37,7 +36,7 @@ class ProductSystemLinks {
 	private final Map<Long, Map<Integer, Long>> exchangeIds;
 
 	private ProductSystemLinks(EntityResolver resolver) {
-		IDatabase db = resolver.db().orElse(null);
+		var db = resolver.db().orElseThrow(); // TODO!
 		refIds = RefIdMap.refToInternal(
 			db, ProductSystem.class, Process.class, Result.class, Flow.class, Unit.class);
 		exchangeIds = new HashMap<>();
