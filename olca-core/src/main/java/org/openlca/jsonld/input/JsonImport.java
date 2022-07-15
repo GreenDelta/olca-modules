@@ -1,7 +1,6 @@
 package org.openlca.jsonld.input;
 
 import java.io.File;
-import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;

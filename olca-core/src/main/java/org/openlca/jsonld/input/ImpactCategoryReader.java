@@ -2,9 +2,6 @@ package org.openlca.jsonld.input;
 
 import java.util.Objects;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.Direction;
 import org.openlca.core.model.Flow;
@@ -15,6 +12,8 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Source;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
+
+import com.google.gson.JsonObject;
 
 public record ImpactCategoryReader(EntityResolver resolver)
 	implements EntityReader<ImpactCategory> {

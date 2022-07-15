@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.openlca.core.io.EntityResolver;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedef;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.RefEntity;
 import org.openlca.jsonld.Json;
 
@@ -14,7 +17,7 @@ import com.google.gson.JsonObject;
 
 class ParameterRedefs {
 
-	static List<ParameterRedef> read(JsonArray array, JsonImport conf) {
+	static List<ParameterRedef> read(JsonArray array, EntityResolver resolver) {
 		if (array == null || array.size() == 0)
 			return Collections.emptyList();
 		var redefs = new ArrayList<ParameterRedef>();
@@ -27,10 +30,10 @@ class ParameterRedefs {
 			p.description = Json.getString(object, "description");
 			p.value = Json.getDouble(object, "value", 0);
 			p.uncertainty = Uncertainties.read(Json
-					.getObject(object, "uncertainty"));
+				.getObject(object, "uncertainty"));
 			p.isProtected = Json.getBool(object, "isProtected", false);
 			var context = Json.getObject(object, "context");
-			boolean valid = setContext(context, p, conf);
+			boolean valid = setContext(context, p, resolver);
 			if (valid) {
 				redefs.add(p);
 			}
@@ -39,7 +42,7 @@ class ParameterRedefs {
 	}
 
 	private static boolean setContext(
-			JsonObject context, ParameterRedef p, JsonImport conf) {
+		JsonObject context, ParameterRedef p, EntityResolver resolver) {
 		if (context == null)
 			return true;
 		var type = Json.getString(context, "@type");
@@ -47,10 +50,10 @@ class ParameterRedefs {
 		RefEntity model = null;
 		if ("Process".equals(type)) {
 			p.contextType = ModelType.PROCESS;
-			model = ProcessImport.run(refId, conf);
+			model = resolver.get(Process.class, refId);
 		} else if ("ImpactMethod".equals(type)) {
 			p.contextType = ModelType.IMPACT_METHOD;
-			model = ImpactMethodImport.run(refId, conf);
+			model = resolver.get(ImpactMethod.class, refId);
 		}
 		if (model == null)
 			return false;

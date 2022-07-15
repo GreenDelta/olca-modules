@@ -1,49 +1,47 @@
 package org.openlca.jsonld.input;
 
+import java.util.Objects;
+
+import com.google.gson.JsonObject;
+import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.AllocationMethod;
-import org.openlca.core.model.ModelType;
+import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.jsonld.Json;
 
-import com.google.gson.JsonObject;
-import org.openlca.util.Strings;
+public record ProjectReader(EntityResolver resolver)
+	implements EntityReader<Project> {
 
-class ProjectImport extends BaseImport<Project> {
-
-	private ProjectImport(String refId, JsonImport conf) {
-		super(ModelType.PROJECT, refId, conf);
-	}
-
-	static Project run(String refId, JsonImport conf) {
-		return new ProjectImport(refId, conf).run();
+	public ProjectReader(EntityResolver resolver) {
+		this.resolver = Objects.requireNonNull(resolver);
 	}
 
 	@Override
-	Project map(JsonObject json, long id) {
-		if (json == null)
-			return null;
-		Project p = new Project();
-		In.mapAtts(json, p, id, conf);
-		mapAtts(json, p);
-		mapVariants(json, p);
-		return conf.db.put(p);
+	public Project read(JsonObject json) {
+		var project = new Project();
+		update(project, json);
+		return project;
 	}
 
-	private void mapAtts(JsonObject json, Project p) {
+	@Override
+	public void update(Project project, JsonObject json) {
+		Util.mapBase(project, json, resolver);
+		mapAttrs(json, project);
+		mapVariants(json, project);
+	}
+
+	private void mapAttrs(JsonObject json, Project p) {
 		p.isWithCosts = Json.getBool(json, "isWithCosts", false);
 		p.isWithRegionalization = Json.getBool(json, "isWithRegionalization", false);
-
-		// LCIA method and NW set
 		var methodId = Json.getRefId(json, "impactMethod");
-		if (methodId == null)
-			return;
-		p.impactMethod = ImpactMethodImport.run(methodId, conf);
-		if (p.impactMethod == null)
-			return;
+		p.impactMethod = resolver.get(ImpactMethod.class, methodId);
 		var nwSetId = Json.getRefId(json, "nwSet");
-		if (nwSetId == null)
+		if (p.impactMethod == null || nwSetId == null) {
+			p.nwSet = null;
 			return;
+		}
 		p.nwSet = p.impactMethod.nwSets.stream()
 			.filter(nwSet -> nwSetId.equals(nwSet.refId))
 			.findAny()
@@ -51,6 +49,7 @@ class ProjectImport extends BaseImport<Project> {
 	}
 
 	private void mapVariants(JsonObject json, Project p) {
+		p.variants.clear();
 		var array = Json.getArray(json, "variants");
 		if (array == null || array.size() == 0)
 			return;
@@ -60,7 +59,7 @@ class ProjectImport extends BaseImport<Project> {
 			var obj = e.getAsJsonObject();
 			var v = new ProjectVariant();
 			var systemRefId = Json.getRefId(obj, "productSystem");
-			var system = ProductSystemImport.run(systemRefId, conf);
+			var system = resolver.get(ProductSystem.class, systemRefId);
 			if (system == null)
 				continue;
 			v.productSystem = system;
@@ -85,7 +84,7 @@ class ProjectImport extends BaseImport<Project> {
 			// parameter redefinitions
 			var redefs = Json.getArray(obj, "parameterRedefs");
 			if (redefs != null && redefs.size() > 0) {
-				v.parameterRedefs.addAll(ParameterRedefs.read(redefs, conf));
+				v.parameterRedefs.addAll(ParameterRedefs.read(redefs, resolver));
 			}
 
 			p.variants.add(v);

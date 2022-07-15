@@ -1,22 +1,35 @@
 package org.openlca.core.io;
 
+import java.util.Objects;
+import java.util.Optional;
+
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 
 /**
  * An entity resolver that directly queries the database for each request.
  */
-public record DbEntityResolver(IDatabase db) implements EntityResolver {
+public class DbEntityResolver implements EntityResolver {
+
+	private final IDatabase db;
+
+	public DbEntityResolver(IDatabase db) {
+		this.db = Objects.requireNonNull(db);
+	}
 
 	public static DbEntityResolver of(IDatabase db) {
 		return new DbEntityResolver(db);
+	}
+
+	@Override
+	public Optional<IDatabase> db() {
+		return Optional.of(db);
 	}
 
 	@Override

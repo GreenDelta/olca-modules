@@ -1,5 +1,8 @@
 package org.openlca.core.io;
 
+import java.util.Optional;
+
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
@@ -12,6 +15,10 @@ import org.openlca.core.model.descriptors.Descriptor;
  * combinations of that.
  */
 public interface EntityResolver {
+
+	default Optional<IDatabase> db() {
+		return Optional.empty();
+	}
 
 	/**
 	 * Tries to resolve an entity of the given type and with the given reference

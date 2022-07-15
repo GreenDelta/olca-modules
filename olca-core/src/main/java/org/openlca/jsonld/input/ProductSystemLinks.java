@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
+import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
@@ -35,8 +36,8 @@ class ProductSystemLinks {
 	 */
 	private final Map<Long, Map<Integer, Long>> exchangeIds;
 
-	private ProductSystemLinks(JsonImport conf) {
-		IDatabase db = conf.db.getDatabase();
+	private ProductSystemLinks(EntityResolver resolver) {
+		IDatabase db = resolver.db().orElse(null);
 		refIds = RefIdMap.refToInternal(
 			db, ProductSystem.class, Process.class, Result.class, Flow.class, Unit.class);
 		exchangeIds = new HashMap<>();
@@ -57,7 +58,7 @@ class ProductSystemLinks {
 		});
 	}
 
-	static void map(JsonObject json, JsonImport conf, ProductSystem system) {
+	static void map(JsonObject json, EntityResolver conf, ProductSystem system) {
 		new ProductSystemLinks(conf).map(json, system);
 	}
 
