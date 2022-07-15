@@ -45,7 +45,7 @@ public class ProcessReader implements EntityReader<Process> {
 		p.processType = Json.getEnum(json, "processType", ProcessType.class);
 		p.infrastructureProcess = Json.getBool(json, "isInfrastructureProcess", false);
 		p.defaultAllocationMethod = Json.getEnum(json, "defaultAllocationMethod", AllocationMethod.class);
-		// TODO p.documentation = ProcessDocReader.read(json, conf);
+		p.documentation = ProcessDocs.read(json, resolver);
 
 		var locId = Json.getRefId(json, "location");
 		p.location = resolver.get(Location.class, locId);
@@ -59,13 +59,13 @@ public class ProcessReader implements EntityReader<Process> {
 		var socialDqSystemId = Json.getRefId(json, "socialDqSystem");
 		p.socialDqSystem = resolver.get(DQSystem.class, socialDqSystemId);
 
-		readParameters(json, p);
-		readExchanges(json, p);
-		readSocialAspects(json, p);
-		readAllocationFactors(json, p);
+		mapParameters(json, p);
+		mapExchanges(json, p);
+		mapSocialAspects(json, p);
+		mapAllocationFactors(json, p);
 	}
 
-	private void readParameters(JsonObject json, Process p) {
+	private void mapParameters(JsonObject json, Process p) {
 		p.parameters.clear();
 		var parameters = Json.getArray(json, "parameters");
 		if (parameters == null || parameters.size() == 0)
@@ -81,21 +81,19 @@ public class ProcessReader implements EntityReader<Process> {
 		}
 	}
 
-	private void readExchanges(JsonObject json, Process p) {
-
-		var array = Json.getArray(json, "exchanges");
-		if (array == null || array.size() == 0) {
-			p.exchanges.clear();
-			p.quantitativeReference = null;
-			return;
-		}
+	private void mapExchanges(JsonObject json, Process p) {
 
 		// index the old exchanges, that we may update
 		var oldIdx = new TIntObjectHashMap<Exchange>();
 		for (var old : p.exchanges) {
 			oldIdx.put(old.internalId, old);
 		}
+		p.quantitativeReference = null;
 		p.exchanges.clear();
+
+		var array = Json.getArray(json, "exchanges");
+		if (array == null || array.size() == 0)
+			return;
 
 		p.lastInternalId = Json.getInt(json, "lastInternalId", 0);
 		for (var elem : array) {
@@ -124,11 +122,9 @@ public class ProcessReader implements EntityReader<Process> {
 
 			// flow and quantity
 			e.flow = resolver.get(Flow.class, Json.getRefId(o, "flow"));
-			if (e.flow != null) {
-				var quantity = Quantity.of(e.flow, o);
-				e.flowPropertyFactor = quantity.factor();
-				e.unit = quantity.unit();
-			}
+			var quantity = Quantity.of(e.flow, o);
+			e.flowPropertyFactor = quantity.factor();
+			e.unit = quantity.unit();
 
 			// general attributes
 			e.isInput = Json.getBool(o, "isInput", false);
@@ -153,6 +149,10 @@ public class ProcessReader implements EntityReader<Process> {
 			var currencyId = Json.getRefId(o, "currency");
 			e.currency = resolver.get(Currency.class, currencyId);
 
+			// location
+			var locationId = Json.getRefId(json, "location");
+			e.location = resolver.get(Location.class, locationId);
+
 			p.exchanges.add(e);
 			boolean isRef = Json.getBool(o, "isQuantitativeReference", false);
 			if (isRef) {
@@ -161,7 +161,7 @@ public class ProcessReader implements EntityReader<Process> {
 		}
 	}
 
-	private void readSocialAspects(JsonObject json, Process p) {
+	private void mapSocialAspects(JsonObject json, Process p) {
 		p.socialAspects.clear();
 		Json.forEachObject(json, "socialAspects", obj -> {
 			var a = new SocialAspect();
@@ -178,7 +178,7 @@ public class ProcessReader implements EntityReader<Process> {
 		});
 	}
 
-	private void readAllocationFactors(JsonObject json, Process p) {
+	private void mapAllocationFactors(JsonObject json, Process p) {
 		p.allocationFactors.clear();
 		Json.forEachObject(json, "allocationFactors", obj -> {
 			var productId = Json.getRefId(obj, "product");
