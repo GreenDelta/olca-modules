@@ -35,9 +35,9 @@ public class JsonImport implements Runnable, EntityResolver {
 	UpdateMode updateMode = UpdateMode.NEVER;
 	private Consumer<RefEntity> callback;
 	final CategorySync categories;
+	final Map<Class<?>, ModelType> types = new HashMap<>();
 
 	private final ExchangeProviderQueue providers;
-	private final Map<Class<?>, ModelType> types = new HashMap<>();
 	private final Map<ModelType, Set<String>> visited = new HashMap<>();
 
 	public JsonImport(JsonStoreReader reader, IDatabase db) {
@@ -98,33 +98,39 @@ public class JsonImport implements Runnable, EntityResolver {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public void run() {
+		new UnitGroupImport(this).importAll();
 		var typeOrder = new ModelType[]{
 			ModelType.ACTOR,
 			ModelType.SOURCE,
 			ModelType.CURRENCY,
 			ModelType.DQ_SYSTEM,
 			ModelType.LOCATION,
-			ModelType.UNIT_GROUP,
 			ModelType.FLOW_PROPERTY,
 			ModelType.FLOW,
 			ModelType.SOCIAL_INDICATOR,
 			ModelType.PARAMETER,
+			ModelType.PROCESS,
 			ModelType.IMPACT_CATEGORY,
 			ModelType.IMPACT_METHOD,
-			ModelType.PROCESS,
 			ModelType.PRODUCT_SYSTEM,
 			ModelType.PROJECT,
 			ModelType.RESULT,
 			ModelType.EPD,
 		};
 		for (var type : typeOrder) {
-			for (var id : reader.getRefIds(type)) {
-				run(type, id);
+			var batchSize = BatchImport.batchSizeOf(type);
+			if (batchSize > 1) {
+				var clazz = (Class<? extends RootEntity>) type.getModelClass();
+				new BatchImport<>(this, clazz, batchSize).run();
+			} else {
+				for (var id : reader.getRefIds(type)) {
+					run(type, id);
+				}
 			}
 		}
 	}
-
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -223,7 +229,7 @@ public class JsonImport implements Runnable, EntityResolver {
 		providers.add(providerId, exchange);
 	}
 
-	private EntityReader<?> readerFor(ModelType type) {
+	EntityReader<?> readerFor(ModelType type) {
 		return switch (type) {
 			case ACTOR -> new ActorReader(this);
 			case CURRENCY -> new CurrencyReader(this);

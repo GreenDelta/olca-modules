@@ -20,6 +20,12 @@ class UnitGroupImport implements EntityResolver {
 		this.imp = Objects.requireNonNull(imp);
 	}
 
+	public void importAll() {
+		for (var refId : imp.reader.getRefIds(ModelType.UNIT_GROUP)) {
+			get(UnitGroup.class, refId);
+		}
+	}
+
 	@Override
 	public IDatabase db() {
 		return imp.db();
