@@ -1,7 +1,5 @@
 package org.openlca.core.io;
 
-import java.util.Optional;
-
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
@@ -16,8 +14,12 @@ import org.openlca.core.model.descriptors.Descriptor;
  */
 public interface EntityResolver {
 
-	default Optional<IDatabase> db() {
-		return Optional.empty();
+	/**
+	 * Optionally returns the database of the resolver. Note that this method
+	 * returns {@code null} if there is no database attached to this resilver.
+	 */
+	default IDatabase db() {
+		return null;
 	}
 
 	/**

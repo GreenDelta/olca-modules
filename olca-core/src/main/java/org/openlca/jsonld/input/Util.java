@@ -4,7 +4,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.Category;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Version;

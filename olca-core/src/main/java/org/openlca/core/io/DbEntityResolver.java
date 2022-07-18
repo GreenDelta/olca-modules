@@ -1,7 +1,6 @@
 package org.openlca.core.io;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
@@ -28,8 +27,8 @@ public class DbEntityResolver implements EntityResolver {
 	}
 
 	@Override
-	public Optional<IDatabase> db() {
-		return Optional.of(db);
+	public IDatabase db() {
+		return db;
 	}
 
 	@Override

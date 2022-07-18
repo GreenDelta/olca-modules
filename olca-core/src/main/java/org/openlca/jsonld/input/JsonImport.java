@@ -6,7 +6,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -62,8 +61,8 @@ public class JsonImport implements Runnable, EntityResolver {
 	}
 
 	@Override
-	public Optional<IDatabase> db() {
-		return Optional.of(db);
+	public IDatabase db() {
+		return db;
 	}
 
 	void visited(ModelType type, String refId) {
@@ -98,13 +97,13 @@ public class JsonImport implements Runnable, EntityResolver {
 
 	@Override
 	public void run() {
+		new UnitGroupImport(this).importAll();
 		var typeOrder = new ModelType[]{
 			ModelType.ACTOR,
 			ModelType.SOURCE,
 			ModelType.CURRENCY,
 			ModelType.DQ_SYSTEM,
 			ModelType.LOCATION,
-			ModelType.UNIT_GROUP,
 			ModelType.FLOW_PROPERTY,
 			ModelType.FLOW,
 			ModelType.SOCIAL_INDICATOR,
@@ -130,6 +129,7 @@ public class JsonImport implements Runnable, EntityResolver {
 	public <T extends RootEntity> T get(Class<T> type, String refId) {
 		if (type == null || refId == null)
 			return null;
+
 		// TODO: for small objects that are often used, we could
 		// maintain a cache here
 		var modelType = types.get(type);
@@ -152,7 +152,6 @@ public class JsonImport implements Runnable, EntityResolver {
 		if (reader == null)
 			return model;
 
-		// TODO: put the model on a "hot tray" to resolve cyclic dependencies
 		if (model == null) {
 			model = reader.read(json);
 			if (model == null)
@@ -173,6 +172,37 @@ public class JsonImport implements Runnable, EntityResolver {
 
 
 		return model;
+	}
+
+	public <T extends RootEntity> ImportItem<T> fetch(
+		Class<T> type, String refId) {
+		if (type == null || refId == null)
+			return ImportItem.error();
+		var modelType = types.get(type);
+		if (modelType == null)
+			return ImportItem.error();
+		T model = db.get(type, refId);
+		if (model != null) {
+			if (hasVisited(modelType, refId))
+				return ImportItem.visited(model);
+			if (updateMode == UpdateMode.NEVER) {
+				visited(modelType, refId);
+				return ImportItem.visited(model);
+			}
+		}
+		var json = reader.get(modelType, refId);
+		if (json == null)
+			return model == null
+				? ImportItem.error()
+				: ImportItem.visited(model);
+		if (skipImport(model, json)) {
+			visited(modelType, refId);
+			return ImportItem.visited(model);
+		}
+
+		return model == null
+			? ImportItem.newOf(json)
+			: ImportItem.update(json, model);
 	}
 
 	private <T extends RefEntity> boolean skipImport(T model, JsonObject json) {

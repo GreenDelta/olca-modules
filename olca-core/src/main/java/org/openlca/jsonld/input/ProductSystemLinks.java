@@ -36,7 +36,7 @@ class ProductSystemLinks {
 	private final Map<Long, Map<Integer, Long>> exchangeIds;
 
 	private ProductSystemLinks(EntityResolver resolver) {
-		var db = resolver.db().orElseThrow(); // TODO!
+		var db = resolver.db(); // TODO!
 		refIds = RefIdMap.refToInternal(
 			db, ProductSystem.class, Process.class, Result.class, Flow.class, Unit.class);
 		exchangeIds = new HashMap<>();
