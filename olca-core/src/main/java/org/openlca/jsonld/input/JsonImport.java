@@ -38,7 +38,7 @@ public class JsonImport implements Runnable, EntityResolver {
 	final Map<Class<?>, ModelType> types = new HashMap<>();
 
 	private final ExchangeProviderQueue providers;
-	private final Map<ModelType, Set<String>> visited = new HashMap<>();
+	private final Map<Class<?>, Set<String>> visited = new HashMap<>();
 
 	public JsonImport(JsonStoreReader reader, IDatabase db) {
 		this.db = db;
@@ -67,9 +67,15 @@ public class JsonImport implements Runnable, EntityResolver {
 		return db;
 	}
 
-	void visited(ModelType type, String refId) {
-		var set = visited.computeIfAbsent(type, k -> new HashSet<>());
-		set.add(refId);
+	void visited(RootEntity entity) {
+		if (entity == null)
+			return;
+		if (entity instanceof Process p) {
+			providers.pop(p);
+		}
+		var set = visited.computeIfAbsent(
+			entity.getClass(), k -> new HashSet<>());
+		set.add(entity.refId);
 	}
 
 	public ExchangeProviderQueue providers() {
@@ -82,9 +88,9 @@ public class JsonImport implements Runnable, EntityResolver {
 		callback.accept(entity);
 	}
 
-	boolean hasVisited(ModelType type, String refId) {
-		Set<String> set = visited.get(type);
-		return set != null && set.contains(refId);
+	private boolean hasVisited(Class<?> type, String refId) {
+		var ids = visited.get(type);
+		return ids != null && ids.contains(refId);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -163,12 +169,8 @@ public class JsonImport implements Runnable, EntityResolver {
 			db.update(model);
 		}
 
-		if (model instanceof Process p) {
-			providers.pop(p);
-		}
-
 		copyBinaryFilesOf(modelType, refId);
-		visited(modelType, refId);
+		visited(model);
 		imported(model);
 
 		return model;
@@ -183,10 +185,10 @@ public class JsonImport implements Runnable, EntityResolver {
 			return ImportItem.error();
 		T model = db.get(type, refId);
 		if (model != null) {
-			if (hasVisited(modelType, refId))
+			if (hasVisited(type, refId))
 				return ImportItem.visited(model);
 			if (updateMode == UpdateMode.NEVER) {
-				visited(modelType, refId);
+				visited(model);
 				return ImportItem.visited(model);
 			}
 		}
@@ -194,11 +196,11 @@ public class JsonImport implements Runnable, EntityResolver {
 		if (json == null) {
 			if (model == null)
 				return ImportItem.error();
-			visited(modelType, refId);
+			visited(model);
 			return ImportItem.visited(model);
 		}
 		if (skipImport(model, json)) {
-			visited(modelType, refId);
+			visited(model);
 			return ImportItem.visited(model);
 		}
 

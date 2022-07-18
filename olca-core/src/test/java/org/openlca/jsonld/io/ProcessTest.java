@@ -171,11 +171,9 @@ public class ProcessTest extends AbstractZipTest {
 	}
 
 	private void doImport() {
-		with(zip -> {
-			JsonImport jImport = new JsonImport(zip, Tests.getDb());
-			jImport.setUpdateMode(UpdateMode.ALWAYS);
-			jImport.run();
-		});
+		with(zip -> new JsonImport(zip, Tests.getDb())
+			.setUpdateMode(UpdateMode.ALWAYS)
+			.run());
 	}
 
 	private void delete(Process p, IDatabase db) {

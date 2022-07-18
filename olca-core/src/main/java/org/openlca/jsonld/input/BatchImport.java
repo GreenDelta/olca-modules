@@ -68,22 +68,14 @@ class BatchImport<T extends RootEntity> {
 	}
 
 	private void flushInserts() {
-		imp.db().transaction(em -> {
-			for (var e : inserts) {
-				em.persist(e);
-				imp.visited(type, e.refId);
-			}
-		});
+		imp.db().transaction(em -> inserts.forEach(em::persist));
+		inserts.forEach(imp::visited);
 		inserts.clear();
 	}
 
 	private void flushUpdates() {
-		imp.db().transaction(em -> {
-			for (var e : updates) {
-				var updated = em.merge(e);
-				imp.visited(type, updated.refId);
-			}
-		});
+		imp.db().transaction(em -> updates.replaceAll(em::merge));
+		updates.forEach(imp::visited);
 		updates.clear();
 	}
 

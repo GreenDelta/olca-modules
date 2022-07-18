@@ -58,7 +58,7 @@ class UnitGroupImport implements EntityResolver {
 		}
 		if (group == null)
 			return null;
-		imp.visited(ModelType.UNIT_GROUP, group.refId);
+		imp.visited(group);
 
 		// set a possible default flow property
 		var propId = Json.getRefId(item.json(), "defaultFlowProperty");
@@ -67,6 +67,7 @@ class UnitGroupImport implements EntityResolver {
 			if (prop != null) {
 				group.defaultFlowProperty = prop;
 				group = imp.db().update(group);
+				imp.visited(group);
 			}
 		}
 
