@@ -129,43 +129,31 @@ public class JsonImport implements Runnable, EntityResolver {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T extends RootEntity> T get(Class<T> type, String refId) {
-		if (type == null || refId == null)
-			return null;
-
 		// unit groups can have cyclic dependencies with flow properties
 		// thus, we handle them a bit differently than other types
 		if (Objects.equals(UnitGroup.class, type))
 			return new UnitGroupImport(this).get(type, refId);
 
-		// TODO: for small objects that are often used, we could
-		// maintain a cache here
-		var modelType = types.get(type);
-		if (modelType == null)
+		var item = fetch(type, refId);
+		if (item.isError())
 			return null;
-		T model = db.get(type, refId);
-		if (model != null) {
-			if (updateMode == UpdateMode.NEVER || hasVisited(modelType, refId))
-				return model;
-		}
-		var json = reader.get(modelType, refId);
-		if (json == null)
-			return model;
-		if (skipImport(model, json)) {
-			visited(modelType, refId);
-			return model;
-		}
+		if (item.isVisited())
+			return item.entity();
+
+		var model = item.entity();
+		var modelType = types.get(type);
 
 		var reader = (EntityReader<T>) readerFor(modelType);
 		if (reader == null)
 			return model;
 
 		if (model == null) {
-			model = reader.read(json);
+			model = reader.read(item.json());
 			if (model == null)
 				return null;
 			db.insert(model);
 		} else {
-			reader.update(model, json);
+			reader.update(model, item.json());
 			db.update(model);
 		}
 
@@ -176,7 +164,6 @@ public class JsonImport implements Runnable, EntityResolver {
 		copyBinaryFilesOf(modelType, refId);
 		visited(modelType, refId);
 		imported(model);
-
 
 		return model;
 	}
@@ -198,10 +185,12 @@ public class JsonImport implements Runnable, EntityResolver {
 			}
 		}
 		var json = reader.get(modelType, refId);
-		if (json == null)
-			return model == null
-				? ImportItem.error()
-				: ImportItem.visited(model);
+		if (json == null) {
+			if (model == null)
+				return ImportItem.error();
+			visited(modelType, refId);
+			return ImportItem.visited(model);
+		}
 		if (skipImport(model, json)) {
 			visited(modelType, refId);
 			return ImportItem.visited(model);
