@@ -30,4 +30,16 @@ record ImportItem<T extends RootEntity>(
 		return new ImportItem<>(null, null, State.ERROR);
 	}
 
+	boolean isError() {
+		return state == State.ERROR;
+	}
+
+	boolean isVisited() {
+		return state == State.VISITED;
+	}
+
+	boolean isNew() {
+		return state == State.NEW;
+	}
+
 }

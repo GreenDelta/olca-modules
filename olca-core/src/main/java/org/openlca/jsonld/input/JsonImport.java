@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -21,6 +22,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.JsonStoreReader;
 import org.openlca.jsonld.upgrades.Upgrades;
 import org.openlca.util.Dirs;
@@ -97,13 +99,13 @@ public class JsonImport implements Runnable, EntityResolver {
 
 	@Override
 	public void run() {
-		new UnitGroupImport(this).importAll();
 		var typeOrder = new ModelType[]{
 			ModelType.ACTOR,
 			ModelType.SOURCE,
 			ModelType.CURRENCY,
 			ModelType.DQ_SYSTEM,
 			ModelType.LOCATION,
+			ModelType.UNIT_GROUP,
 			ModelType.FLOW_PROPERTY,
 			ModelType.FLOW,
 			ModelType.SOCIAL_INDICATOR,
@@ -129,6 +131,11 @@ public class JsonImport implements Runnable, EntityResolver {
 	public <T extends RootEntity> T get(Class<T> type, String refId) {
 		if (type == null || refId == null)
 			return null;
+
+		// unit groups can have cyclic dependencies with flow properties
+		// thus, we handle them a bit differently than other types
+		if (Objects.equals(UnitGroup.class, type))
+			return new UnitGroupImport(this).get(type, refId);
 
 		// TODO: for small objects that are often used, we could
 		// maintain a cache here
