@@ -40,6 +40,11 @@ public class Mounter implements Runnable {
 		return this;
 	}
 
+	public Mounter apply(Library lib, MountAction action) {
+		actions.put(lib, action);
+		return this;
+	}
+
 	public Mounter applyDefaultsOf(PreMountCheck.Result result) {
 		if (result == null || result.isError())
 			return this;
