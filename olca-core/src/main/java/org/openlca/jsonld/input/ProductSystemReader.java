@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.openlca.core.io.EntityResolver;
+import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.Process;
@@ -30,13 +31,61 @@ public record ProductSystemReader(EntityResolver resolver)
 	@Override
 	public void update(ProductSystem system, JsonObject json) {
 		Util.mapBase(system, json, resolver);
-		var refProcessId = Json.getRefId(json, "refProcess");
-		system.referenceProcess = resolver.get(Process.class, refProcessId);
-		system.targetAmount = Json.getDouble(json, "targetAmount", 1d);
+		mapQRef(json, system);
+
 		addProcesses(json, system);
 		addParameterSets(json, system);
 		importLinkRefs(json, system);
 		ProductSystemLinks.map(json, resolver, system);
+	}
+
+	private void mapQRef(JsonObject json, ProductSystem system) {
+		var refProcessId = Json.getRefId(json, "refProcess");
+		system.targetAmount = Json.getDouble(json, "targetAmount", 1d);
+		system.referenceProcess = resolver.get(Process.class, refProcessId);
+
+		Runnable clearQRef = () -> {
+			system.referenceExchange = null;
+			system.targetFlowPropertyFactor = null;
+			system.targetUnit = null;
+		};
+
+		if (system.referenceProcess == null) {
+			clearQRef.run();
+			return;
+		}
+
+		Exchange qRef = null;
+		var exchangeRef = Json.getObject(json, "refExchange");
+		if (exchangeRef != null) {
+			var exchangeId = Json.getInt(exchangeRef, "internalId");
+			if (exchangeId.isEmpty()) {
+				clearQRef.run();
+				return;
+			}
+			var eid = exchangeId.getAsInt();
+			qRef = system.referenceProcess.exchanges.stream()
+				.filter(e -> e.internalId == eid)
+				.findAny()
+				.orElse(null);
+			if (qRef == null) {
+				clearQRef.run();
+				return;
+			}
+		}
+
+		system.referenceExchange = qRef == null
+			? system.referenceProcess.quantitativeReference
+			: null;
+		if (qRef == null || qRef.flow == null) {
+			clearQRef.run();
+			return;
+		}
+
+		var quantity = Quantity.of(
+			qRef.flow, json, "targetFlowProperty", "targetUnit");
+		system.targetFlowPropertyFactor = quantity.factor();
+		system.targetUnit = quantity.unit();
 	}
 
 	private void addProcesses(JsonObject json, ProductSystem s) {

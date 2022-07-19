@@ -18,6 +18,7 @@ import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Optional;
 import java.util.OptionalDouble;
+import java.util.OptionalInt;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -105,7 +106,7 @@ public class Json {
 	 * Return the double value of the given property.
 	 */
 	public static double getDouble(JsonObject obj,
-																 String property, double defaultVal) {
+		String property, double defaultVal) {
 		if (obj == null || property == null)
 			return defaultVal;
 		JsonElement elem = obj.get(property);
@@ -126,6 +127,19 @@ public class Json {
 			return defaultVal;
 		else
 			return elem.getAsInt();
+	}
+
+	public static OptionalInt getInt(JsonObject obj, String property) {
+		if (obj == null || property == null)
+			return OptionalInt.empty();
+		var elem = obj.get(property);
+		try {
+			return elem == null || !elem.isJsonPrimitive()
+				? OptionalInt.empty()
+				: OptionalInt.of(elem.getAsInt());
+		} catch (Exception e) {
+			return OptionalInt.empty();
+		}
 	}
 
 	public static long getLong(JsonObject obj, String property, long defaultVal) {

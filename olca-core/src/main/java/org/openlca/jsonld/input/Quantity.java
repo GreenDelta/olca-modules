@@ -17,18 +17,24 @@ import org.openlca.util.Strings;
 record Quantity(Flow flow, FlowPropertyFactor factor, Unit unit) {
 
 	static Quantity of(Flow flow, JsonObject obj) {
+		return of(flow, obj, "flowProperty", "unit");
+	}
+
+	static Quantity of(
+		Flow flow, JsonObject obj, String propertyField, String unitField) {
 		if (flow == null)
 			return new Quantity(null, null, null);
 		if (obj == null)
 			return new Quantity(
 				flow, flow.getReferenceFactor(), flow.getReferenceUnit());
-		var factor = propertyOf(flow, obj);
-		var unit = unitOf(flow, factor, obj);
+		var factor = propertyOf(flow, obj, propertyField);
+		var unit = unitOf(flow, factor, obj, unitField);
 		return new Quantity(flow, factor, unit);
 	}
 
-	private static FlowPropertyFactor propertyOf(Flow flow, JsonObject obj) {
-		var propId = Json.getRefId(obj, "flowProperty");
+	private static FlowPropertyFactor propertyOf(
+		Flow flow, JsonObject obj, String field) {
+		var propId = Json.getRefId(obj, field);
 		if (Strings.nullOrEmpty(propId))
 			return flow.getReferenceFactor();
 		for (var factor : flow.flowPropertyFactors) {
@@ -40,13 +46,13 @@ record Quantity(Flow flow, FlowPropertyFactor factor, Unit unit) {
 	}
 
 	private static Unit unitOf(
-		Flow flow, FlowPropertyFactor factor, JsonObject obj) {
+		Flow flow, FlowPropertyFactor factor, JsonObject obj, String field) {
 		var property = factor != null
 			? factor.flowProperty
 			: flow.referenceFlowProperty;
 		if (property == null || property.unitGroup == null)
 			return null;
-		var unitId = Json.getRefId(obj, "unit");
+		var unitId = Json.getRefId(obj, field);
 		if (Strings.nullOrEmpty(unitId))
 			return property.getReferenceUnit();
 		for (var unit : property.unitGroup.units) {
