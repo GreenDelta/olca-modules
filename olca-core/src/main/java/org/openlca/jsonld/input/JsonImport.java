@@ -4,13 +4,10 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Consumer;
 
-import com.google.gson.JsonObject;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.CategorySync;
@@ -23,6 +20,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.jsonld.JsonStoreReader;
 import org.openlca.jsonld.upgrades.Upgrades;
 import org.openlca.util.Dirs;
@@ -37,8 +35,8 @@ public class JsonImport implements Runnable, EntityResolver {
 	final CategorySync categories;
 	final Map<Class<?>, ModelType> types = new HashMap<>();
 
+	private final ImportCache cache = new ImportCache(this);
 	private final ExchangeProviderQueue providers;
-	private final Map<Class<?>, Set<String>> visited = new HashMap<>();
 
 	public JsonImport(JsonStoreReader reader, IDatabase db) {
 		this.db = db;
@@ -68,14 +66,10 @@ public class JsonImport implements Runnable, EntityResolver {
 	}
 
 	void visited(RootEntity entity) {
-		if (entity == null)
-			return;
 		if (entity instanceof Process p) {
 			providers.pop(p);
 		}
-		var set = visited.computeIfAbsent(
-			entity.getClass(), k -> new HashSet<>());
-		set.add(entity.refId);
+		cache.visited(entity);
 	}
 
 	public ExchangeProviderQueue providers() {
@@ -86,11 +80,6 @@ public class JsonImport implements Runnable, EntityResolver {
 		if (callback == null)
 			return;
 		callback.accept(entity);
-	}
-
-	private boolean hasVisited(Class<?> type, String refId) {
-		var ids = visited.get(type);
-		return ids != null && ids.contains(refId);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -146,7 +135,7 @@ public class JsonImport implements Runnable, EntityResolver {
 		if (Objects.equals(UnitGroup.class, type))
 			return new UnitGroupImport(this).get(type, refId);
 
-		var item = fetch(type, refId);
+		var item = cache.fetch(type, refId);
 		if (item.isError())
 			return null;
 		if (item.isVisited())
@@ -176,49 +165,20 @@ public class JsonImport implements Runnable, EntityResolver {
 		return model;
 	}
 
-	public <T extends RootEntity> ImportItem<T> fetch(
+	@Override
+	public <T extends RootEntity> Descriptor getDescriptor(
 		Class<T> type, String refId) {
-		if (type == null || refId == null)
-			return ImportItem.error();
-		var modelType = types.get(type);
-		if (modelType == null)
-			return ImportItem.error();
-		T model = db.get(type, refId);
-		if (model != null) {
-			if (hasVisited(type, refId))
-				return ImportItem.visited(model);
-			if (updateMode == UpdateMode.NEVER) {
-				visited(model);
-				return ImportItem.visited(model);
-			}
-		}
-		var json = reader.get(modelType, refId);
-		if (json == null) {
-			if (model == null)
-				return ImportItem.error();
-			visited(model);
-			return ImportItem.visited(model);
-		}
-		if (skipImport(model, json)) {
-			visited(model);
-			return ImportItem.visited(model);
-		}
-
-		return model == null
-			? ImportItem.newOf(json)
-			: ImportItem.update(json, model);
+		var d = cache.getDescriptor(type, refId);
+		if (d != null)
+			return d;
+		var model = get(type, refId);
+		return model != null
+			? Descriptor.of(model)
+			: null;
 	}
 
-	private <T extends RefEntity> boolean skipImport(T model, JsonObject json) {
-		if (model == null || updateMode == UpdateMode.ALWAYS)
-			return false;
-		if (!(model instanceof RootEntity root))
-			return false;
-		long jsonVersion = Util.getVersion(json);
-		if (jsonVersion != root.version)
-			return jsonVersion < root.version;
-		long jsonDate = Util.getLastChange(json);
-		return jsonDate <= root.lastChange;
+	<T extends RootEntity> ImportItem<T> fetch(Class<T> type, String refId) {
+		return cache.fetch(type, refId);
 	}
 
 	@Override
