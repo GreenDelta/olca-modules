@@ -7,6 +7,7 @@ import java.util.List;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
+import org.openlca.core.model.Direction;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 
@@ -61,6 +62,15 @@ class ImpactFactors {
 			var flow = flowDao.getForId(iFlow.flow().id);
 			if (flow == null)
 				continue;
+
+			if (impact.direction != null) {
+				if (impact.direction == Direction.INPUT) {
+					val = -val;
+				}
+			} else if (iFlow.isInput()) {
+				val = -val;
+			}
+
 			var factor = ImpactFactor.of(flow, val);
 			if (iFlow.location() != null) {
 				factor.location = locDao.getForId(iFlow.location().id);
