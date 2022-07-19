@@ -1,9 +1,9 @@
 package org.openlca.jsonld.input;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.Exchange;
@@ -12,10 +12,14 @@ import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Result;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.jsonld.Json;
 
-public record ProductSystemReader(EntityResolver resolver)
-	implements EntityReader<ProductSystem> {
+public class ProductSystemReader implements EntityReader<ProductSystem> {
+
+	private final EntityResolver resolver;
+	private final Map<String, Descriptor> processes = new HashMap<>();
+	private final Map<String, Descriptor> flows = new HashMap<>();
 
 	public ProductSystemReader(EntityResolver resolver) {
 		this.resolver = Objects.requireNonNull(resolver);
@@ -30,12 +34,32 @@ public record ProductSystemReader(EntityResolver resolver)
 
 	@Override
 	public void update(ProductSystem system, JsonObject json) {
+
+		// clear resources in case the reader is re-used
+		processes.clear();
+		flows.clear();
+
 		Util.mapBase(system, json, resolver);
 		mapQRef(json, system);
-
-		addProcesses(json, system);
 		addParameterSets(json, system);
-		importLinkRefs(json, system);
+
+		// add processes and cache them
+		system.processes.clear();
+		Json.forEachObject(
+			json, "processes", obj -> addProcess(system, obj));
+
+		// add link references and cache them
+		system.processLinks.clear();
+		Json.forEachObject(json, "processLinks", obj -> {
+			addProcess(system, Json.getObject(obj, "provider"));
+			addProcess(system, Json.getObject(obj, "process"));
+			String flowRefId = Json.getRefId(obj, "flow");
+			var flow = resolver.getDescriptor(Flow.class, flowRefId);
+			if (flow != null) {
+				flows.put(flowRefId, flow);
+			}
+		});
+
 		ProductSystemLinks.map(json, resolver, system);
 	}
 
@@ -88,70 +112,41 @@ public record ProductSystemReader(EntityResolver resolver)
 		system.targetUnit = quantity.unit();
 	}
 
-	private void addProcesses(JsonObject json, ProductSystem s) {
-		s.processes.clear();
-		var array = Json.getArray(json, "processes");
-		if (array == null || array.size() == 0)
-			return;
-		for (var e : array) {
-			if (e.isJsonObject()) {
-				addProcess(s, e.getAsJsonObject());
+	private void addParameterSets(JsonObject json, ProductSystem sys) {
+		sys.parameterSets.clear();
+		Json.forEachObject(json, "parameterSets", obj -> {
+			var set = new ParameterRedefSet();
+			sys.parameterSets.add(set);
+			set.name = Json.getString(obj, "name");
+			set.description = Json.getString(obj, "description");
+			set.isBaseline = Json.getBool(obj, "isBaseline", false);
+			var redefs = Json.getArray(obj, "parameters");
+			if (redefs != null && redefs.size() > 0) {
+				set.parameters.addAll(ParameterRedefs.read(redefs, resolver));
 			}
-		}
+		});
 	}
 
 	private void addProcess(ProductSystem s, JsonObject ref) {
 		if (ref == null)
 			return;
 		String refId = Json.getString(ref, "@id");
-		String type = Json.getString(ref, "@type");
-		if (refId == null || type == null)
+		if (refId == null || processes.containsKey(refId))
 			return;
-		var clazz = switch (type) {
+
+		String type = Json.getString(ref, "@type");
+		var clazz = type == null
+			? Process.class
+			: switch (type) {
 			case "ProductSystem" -> ProductSystem.class;
 			case "Result" -> Result.class;
 			default -> Process.class;
 		};
-		var p = resolver.get(clazz, refId);
+
+		var p = resolver.getDescriptor(clazz, refId);
 		if (p != null) {
+			processes.put(refId, p);
 			s.processes.add(p.id);
-		}
-	}
-
-	private void importLinkRefs(JsonObject json, ProductSystem s) {
-		s.processLinks.clear();
-		var array = Json.getArray(json, "processLinks");
-		if (array == null || array.size() == 0)
-			return;
-		for (var element : array) {
-			if (!element.isJsonObject())
-				continue;
-			var obj = element.getAsJsonObject();
-			String flowRefId = Json.getRefId(obj, "flow");
-			resolver.get(Flow.class, flowRefId);
-			addProcess(s, Json.getObject(obj, "provider"));
-			addProcess(s, Json.getObject(obj, "process"));
-		}
-	}
-
-	private void addParameterSets(JsonObject json, ProductSystem sys) {
-		sys.parameterSets.clear();
-		var array = Json.getArray(json, "parameterSets");
-		if (array == null || array.size() == 0)
-			return;
-		for (JsonElement elem : array) {
-			if (!elem.isJsonObject())
-				continue;
-			var obj = elem.getAsJsonObject();
-			var set = new ParameterRedefSet();
-			sys.parameterSets.add(set);
-			set.name = Json.getString(obj, "name");
-			set.description = Json.getString(obj, "description");
-			set.isBaseline = Json.getBool(obj, "isBaseline", false);
-			JsonArray redefs = Json.getArray(obj, "parameters");
-			if (redefs != null && redefs.size() > 0) {
-				set.parameters.addAll(ParameterRedefs.read(redefs, resolver));
-			}
 		}
 	}
 }
