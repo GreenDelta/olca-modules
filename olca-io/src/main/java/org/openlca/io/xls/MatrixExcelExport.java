@@ -91,9 +91,21 @@ public class MatrixExcelExport extends MatrixExport {
 		if (data.techIndex != null) {
 			var techIdx = IxTechIndex.of(data.techIndex, context);
 			sheetOf("index_A", sheet -> {
-				for (int i = 0; i < techIdx.size(); i++) {
+				header(sheet,
+					"Index",
+					"Process ID",
+					"Process name",
+					"Process category",
+					"Process location",
+					"Flow ID",
+					"Flow name",
+					"Flow category",
+					"Flow unit",
+					"Flow type");
+				var i = 0;
+				for (var item : techIdx.items()) {
+					i++;
 					var row = sheet.createRow(i);
-					var item = techIdx.items().get(i);
 					Excel.cell(row, 0, item.index());
 					next(item.provider(), row);
 					next(item.flow(), row, 5);
@@ -105,9 +117,20 @@ public class MatrixExcelExport extends MatrixExport {
 		if (data.enviIndex != null) {
 			var enviIdx = IxEnviIndex.of(data.enviIndex, context);
 			sheetOf("index_B", sheet -> {
-				for (int i = 0; i < enviIdx.size(); i++) {
+				header(sheet,
+					"Index",
+					"Flow ID",
+					"Flow name",
+					"Flow category",
+					"Flow unit",
+					"Flow type",
+					"Location ID",
+					"Location name",
+					"Location code");
+				int i = 0;
+				for (var item : enviIdx.items()) {
+					i++;
 					var row = sheet.createRow(i);
-					var item = enviIdx.items().get(i);
 					Excel.cell(row, 0, item.index());
 					next(item.flow(), row, 1);
 					next(item.location(), row);
@@ -119,9 +142,15 @@ public class MatrixExcelExport extends MatrixExport {
 		if (data.impactIndex != null) {
 			var impactIdx = IxImpactIndex.of(data.impactIndex);
 			sheetOf("index_C", sheet -> {
-				for (int i = 0; i < impactIdx.size(); i++) {
+				header(sheet,
+					"Index",
+					"Indicator ID",
+					"Indicator name",
+					"Indicator unit");
+				int i = 0;
+				for (var item : impactIdx.items()) {
+					i++;
 					var row = sheet.createRow(i);
-					var item = impactIdx.items().get(i);
 					Excel.cell(row, 0, item.index());
 					next(item.impact(), row);
 				}
@@ -141,6 +170,13 @@ public class MatrixExcelExport extends MatrixExport {
 		} catch (IOException e) {
 			throw new RuntimeException(
 				"failed to write matrix " + name, e);
+		}
+	}
+
+	private void header(Sheet sheet, String... h) {
+		var row = sheet.createRow(0);
+		for (int i = 0; i < h.length; i++) {
+			Excel.cell(row, i, h[i]);
 		}
 	}
 
