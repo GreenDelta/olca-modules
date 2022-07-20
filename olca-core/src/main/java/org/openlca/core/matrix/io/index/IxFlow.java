@@ -9,7 +9,7 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.util.Strings;
 
 /**
- * Contains the meta-data of a flow stored in a library index.
+ * Contains the meta-data of a flow stored in an index.
  */
 public record IxFlow(
 	String id,

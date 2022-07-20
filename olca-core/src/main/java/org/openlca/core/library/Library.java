@@ -128,7 +128,7 @@ public record Library(File folder) {
 	 * method returns an empty index if this library hase no technosphere flows.
 	 */
 	public IxTechIndex readTechIndex() {
-		return IxTechIndex.readFrom(this);
+		return IxTechIndex.readFromDir(this.folder);
 	}
 
 	/**
@@ -160,7 +160,7 @@ public record Library(File folder) {
 	 * method returns an empty index if this library has no such flows.
 	 */
 	public IxEnviIndex readEnviIndex() {
-		return IxEnviIndex.readFrom(this);
+		return IxEnviIndex.readFromDir(this.folder);
 	}
 
 	/**
@@ -203,7 +203,7 @@ public record Library(File folder) {
 	 * method returns an empty index if this library has no such indicators.
 	 */
 	public IxImpactIndex readImpactIndex() {
-		return IxImpactIndex.readFrom(this);
+		return IxImpactIndex.readFromDir(this.folder);
 	}
 
 	/**

@@ -1,9 +1,10 @@
 package org.openlca.core.matrix.io.index;
 
-import org.openlca.core.library.Library;
-
 import java.io.File;
 
+/**
+ * An enumeration of the standard formats in which a matrix index can be saved.
+ */
 public enum IxFormat {
 
 	CSV(".csv"),
@@ -20,8 +21,8 @@ public enum IxFormat {
 		return base + extension;
 	}
 
-	File file(Library lib, String base) {
-		return new File(lib.folder(), name(base));
+	File file(File folder, String base) {
+		return new File(folder, name(base));
 	}
 
 }

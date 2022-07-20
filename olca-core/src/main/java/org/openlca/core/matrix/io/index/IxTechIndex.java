@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.csv.CSVPrinter;
-import org.openlca.core.library.Library;
 import org.openlca.core.matrix.index.TechIndex;
 
 public record IxTechIndex(List<IxTechItem> items) {
@@ -36,19 +35,19 @@ public record IxTechIndex(List<IxTechItem> items) {
 		return new IxTechIndex(items);
 	}
 
-	public static IxTechIndex readFrom(Library lib) {
-		var proto = IxFormat.PROTO.file(lib, NAME);
+	public static IxTechIndex readFromDir(File dir) {
+		var proto = IxFormat.PROTO.file(dir, NAME);
 		if (proto.exists())
 			return readProto(proto);
-		var csv = IxFormat.CSV.file(lib, NAME);
+		var csv = IxFormat.CSV.file(dir, NAME);
 		return csv.exists()
 			? readCsv(csv)
 			: empty();
 	}
 
-	public static boolean isPresentIn(Library lib) {
-		return IxFormat.PROTO.file(lib, NAME).exists()
-			|| IxFormat.CSV.file(lib, NAME).exists();
+	public static boolean isPresentInDir(File dir) {
+		return IxFormat.PROTO.file(dir, NAME).exists()
+			|| IxFormat.CSV.file(dir, NAME).exists();
 	}
 
 	public static IxTechIndex readFrom(File file) {
@@ -89,15 +88,15 @@ public record IxTechIndex(List<IxTechItem> items) {
 		return items.isEmpty();
 	}
 
-	public void writeTo(Library lib) {
-		writeTo(lib, IxFormat.PROTO);
+	public void writeToDir(File dir) {
+		writeToDir(dir, IxFormat.PROTO);
 	}
 
-	public void writeTo(Library lib, IxFormat format) {
+	public void writeToDir(File dir, IxFormat format) {
 		if (format == IxFormat.CSV) {
-			toCsv(IxFormat.CSV.file(lib, NAME));
+			toCsv(IxFormat.CSV.file(dir, NAME));
 		} else {
-			toProto(IxFormat.PROTO.file(lib, NAME));
+			toProto(IxFormat.PROTO.file(dir, NAME));
 		}
 	}
 

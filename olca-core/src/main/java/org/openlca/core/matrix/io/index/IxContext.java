@@ -9,6 +9,10 @@ import org.openlca.util.Categories;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Provides a reusable database context that caches elements for faster index
+ * serialization.
+ */
 public final class IxContext {
 
 	private final IDatabase db;

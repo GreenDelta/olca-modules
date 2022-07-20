@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
+/**
+ * A utility class for serializing indices to CSV.
+ */
 class Csv {
 
 	// Number of columns that the respective types take in an CSV index.

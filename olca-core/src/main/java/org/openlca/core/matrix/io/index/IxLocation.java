@@ -8,7 +8,7 @@ import org.openlca.util.Strings;
 import java.util.List;
 
 /**
- * Contains the meta-data of a location stored in a library index.
+ * Contains the meta-data of a location stored in an index.
  */
 public record IxLocation(String id, String name, String code) {
 

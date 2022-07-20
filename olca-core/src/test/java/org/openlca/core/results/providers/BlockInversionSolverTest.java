@@ -73,8 +73,8 @@ public class BlockInversionSolverTest {
 		LibMatrix.INV.write(lib, DenseMatrix.of(new double[][]{{1}}));
 		LibMatrix.B.write(lib, DenseMatrix.of(new double[][]{{1}}));
 		LibMatrix.M.write(lib, DenseMatrix.of(new double[][]{{1}}));
-		IxTechIndex.of(IxTechItem.of(0, pP, p)).writeTo(lib);
-		IxEnviIndex.of(IxEnviItem.output(0, e)).writeTo(lib);
+		IxTechIndex.of(IxTechItem.of(0, pP, p)).writeToDir(lib.folder());
+		IxEnviIndex.of(IxEnviItem.output(0, e)).writeToDir(lib.folder());
 
 		// the foreground data
 		var data = new MatrixData();

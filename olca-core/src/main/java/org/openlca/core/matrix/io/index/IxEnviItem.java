@@ -8,7 +8,7 @@ import org.openlca.core.model.Flow;
 import java.util.List;
 
 /**
- * An item of a library's intervention index.
+ * An item of an intervention index.
  */
 public record IxEnviItem(
 	int index,

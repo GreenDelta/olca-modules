@@ -10,7 +10,7 @@ import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.util.Strings;
 
 /**
- * Contains the meta-data of a process stored in a library index.
+ * Contains the meta-data of a process stored in an index.
  */
 public record IxProcess(
 	String id,

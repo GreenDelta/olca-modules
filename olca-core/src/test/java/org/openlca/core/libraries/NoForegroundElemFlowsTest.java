@@ -78,8 +78,8 @@ public class NoForegroundElemFlowsTest {
 		// create library resources
 
 		var ctx = IxContext.of(db);
-		IxTechIndex.of(techIdx, ctx).writeTo(lib);
-		IxEnviIndex.of(enviIndex, ctx).writeTo(lib);
+		IxTechIndex.of(techIdx, ctx).writeToDir(lib.folder());
+		IxEnviIndex.of(enviIndex, ctx).writeToDir(lib.folder());
 
 		// write the library matrices
 		var matrixA = DenseMatrix.of(new double[][]{

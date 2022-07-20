@@ -110,14 +110,15 @@ public class LibraryExport implements Runnable {
 			MatrixExport.toNpy(db, folder, data).writeMatrices();
 			log.info("write indices");
 			var ctx = IxContext.of(db);
+			var target = lib.folder();
 			if (data.techIndex != null) {
-				IxTechIndex.of(data.techIndex, ctx).writeTo(lib);
+				IxTechIndex.of(data.techIndex, ctx).writeToDir(target);
 			}
 			if (data.enviIndex != null) {
-				IxEnviIndex.of(data.enviIndex, ctx).writeTo(lib);
+				IxEnviIndex.of(data.enviIndex, ctx).writeToDir(target);
 			}
 			if (data.impactIndex != null) {
-				IxImpactIndex.of(data.impactIndex).writeTo(lib);
+				IxImpactIndex.of(data.impactIndex).writeToDir(target);
 			}
 		});
 		exec.execute(this::preCalculate);

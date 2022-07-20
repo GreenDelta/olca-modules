@@ -72,7 +72,7 @@ public class LibrariesTest {
 		var libIdx = IxTechIndex.of(
 			IxTechItem.of(0, P, p),
 			IxTechItem.of(1, Q, q));
-		libIdx.writeTo(lib, IxFormat.CSV);
+		libIdx.writeToDir(lib.folder(), IxFormat.CSV);
 
 		Mounter.of(db, lib).run();
 		var techIdx = lib.syncTechIndex(db).orElse(null);
