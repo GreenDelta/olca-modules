@@ -34,15 +34,15 @@ public record IxLocation(String id, String name, String code) {
 			: empty;
 	}
 
-	Proto.Location toProto() {
-		return Proto.Location.newBuilder()
+	IxProto.Location toProto() {
+		return IxProto.Location.newBuilder()
 			.setId(Strings.orEmpty(id))
 			.setName(Strings.orEmpty(name))
 			.setCode(Strings.orEmpty(code))
 			.build();
 	}
 
-	static IxLocation fromProto(Proto.Location proto) {
+	static IxLocation fromProto(IxProto.Location proto) {
 		return new IxLocation(
 			proto.getId(),
 			proto.getName(),

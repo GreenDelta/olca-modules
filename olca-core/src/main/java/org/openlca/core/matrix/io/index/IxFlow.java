@@ -59,8 +59,8 @@ public record IxFlow(
 			d.flowType);
 	}
 
-	Proto.Flow toProto() {
-		var proto = Proto.Flow.newBuilder()
+	IxProto.Flow toProto() {
+		var proto = IxProto.Flow.newBuilder()
 			.setId(Strings.orEmpty(id))
 			.setName(Strings.orEmpty(name))
 			.setCategory(Strings.orEmpty(category))
@@ -71,7 +71,7 @@ public record IxFlow(
 		return proto.build();
 	}
 
-	static IxFlow fromProto(Proto.Flow proto) {
+	static IxFlow fromProto(IxProto.Flow proto) {
 		return new IxFlow(
 			proto.getId(),
 			proto.getName(),

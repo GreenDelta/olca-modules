@@ -1,7 +1,7 @@
 package org.openlca.core.matrix.io.index;
 
 import org.apache.commons.csv.CSVRecord;
-import org.openlca.core.matrix.io.index.Proto.ImpactEntry;
+import org.openlca.core.matrix.io.index.IxProto.ImpactEntry;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 import java.util.List;
@@ -13,7 +13,7 @@ public record IxImpactItem(int index, IxImpact impact) {
 	}
 
 	ImpactEntry toProto() {
-		var proto = Proto.ImpactEntry.newBuilder()
+		var proto = IxProto.ImpactEntry.newBuilder()
 			.setIndex(index);
 		if (impact != null) {
 			proto.setImpact(impact.toProto());
@@ -21,7 +21,7 @@ public record IxImpactItem(int index, IxImpact impact) {
 		return proto.build();
 	}
 
-	static IxImpactItem fromProto(Proto.ImpactEntry proto) {
+	static IxImpactItem fromProto(IxProto.ImpactEntry proto) {
 		return new IxImpactItem(
 			proto.getIndex(),
 			proto.hasImpact()

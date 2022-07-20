@@ -1,7 +1,7 @@
 package org.openlca.core.matrix.io.index;
 
 import org.apache.commons.csv.CSVRecord;
-import org.openlca.core.matrix.io.index.Proto.Impact;
+import org.openlca.core.matrix.io.index.IxProto.Impact;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.util.Strings;
@@ -33,14 +33,14 @@ public record IxImpact(String id, String name, String unit) {
 	}
 
 	Impact toProto() {
-		return Proto.Impact.newBuilder()
+		return IxProto.Impact.newBuilder()
 			.setId(Strings.orEmpty(id))
 			.setName(Strings.orEmpty(name))
 			.setUnit(Strings.orEmpty(unit))
 			.build();
 	}
 
-	static IxImpact fromProto(Proto.Impact proto) {
+	static IxImpact fromProto(IxProto.Impact proto) {
 		return new IxImpact(
 			proto.getId(),
 			proto.getName(),

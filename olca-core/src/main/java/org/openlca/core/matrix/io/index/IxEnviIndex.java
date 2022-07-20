@@ -69,7 +69,7 @@ public record IxEnviIndex(List<IxEnviItem> items) {
 	private static IxEnviIndex readProto(File file) {
 		try (var stream = new FileInputStream(file)) {
 			var items = new ArrayList<IxEnviItem>();
-			var proto = Proto.ElemFlowIndex.parseFrom(stream);
+			var proto = IxProto.ElemFlowIndex.parseFrom(stream);
 			for (int i = 0; i < proto.getFlowCount(); i++) {
 				var fi = proto.getFlow(i);
 				items.add(IxEnviItem.fromProto(fi));
@@ -128,7 +128,7 @@ public record IxEnviIndex(List<IxEnviItem> items) {
 	}
 
 	public void toProto(File file) {
-		var index = Proto.ElemFlowIndex.newBuilder();
+		var index = IxProto.ElemFlowIndex.newBuilder();
 		for (var item : items) {
 			index.addFlow(item.toProto());
 		}

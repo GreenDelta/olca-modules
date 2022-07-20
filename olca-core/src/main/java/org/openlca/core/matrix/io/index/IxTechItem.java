@@ -1,7 +1,7 @@
 package org.openlca.core.matrix.io.index;
 
 import org.apache.commons.csv.CSVRecord;
-import org.openlca.core.matrix.io.index.Proto.ProductEntry;
+import org.openlca.core.matrix.io.index.IxProto.ProductEntry;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.RootEntity;
@@ -26,7 +26,7 @@ public record IxTechItem(
 	}
 
 	ProductEntry toProto() {
-		var proto = Proto.ProductEntry.newBuilder()
+		var proto = IxProto.ProductEntry.newBuilder()
 			.setIndex(index);
 		if (process != null) {
 			proto.setProcess(process.toProto());
@@ -37,7 +37,7 @@ public record IxTechItem(
 		return proto.build();
 	}
 
-	static IxTechItem fromProto(Proto.ProductEntry proto) {
+	static IxTechItem fromProto(IxProto.ProductEntry proto) {
 		return new IxTechItem(
 			proto.getIndex(),
 			proto.hasProcess()

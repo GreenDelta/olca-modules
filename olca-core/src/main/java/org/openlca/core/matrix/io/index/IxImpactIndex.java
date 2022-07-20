@@ -65,7 +65,7 @@ public record IxImpactIndex(List<IxImpactItem> items) {
 	private static IxImpactIndex readProto(File file) {
 		try (var stream = new FileInputStream(file)) {
 			var items = new ArrayList<IxImpactItem>();
-			var proto = Proto.ImpactIndex.parseFrom(stream);
+			var proto = IxProto.ImpactIndex.parseFrom(stream);
 			for (int i = 0; i < proto.getImpactCount(); i++) {
 				var impact = proto.getImpact(i);
 				items.add(IxImpactItem.fromProto(impact));
@@ -119,7 +119,7 @@ public record IxImpactIndex(List<IxImpactItem> items) {
 	}
 
 	public void toProto(File file) {
-		var index = Proto.ImpactIndex.newBuilder();
+		var index = IxProto.ImpactIndex.newBuilder();
 		for (var item : items) {
 			index.addImpact(item.toProto());
 		}

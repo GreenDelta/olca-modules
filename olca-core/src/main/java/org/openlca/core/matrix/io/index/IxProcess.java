@@ -57,8 +57,8 @@ public record IxProcess(
 			loc);
 	}
 
-	Proto.Process toProto() {
-		return Proto.Process.newBuilder()
+	IxProto.Process toProto() {
+		return IxProto.Process.newBuilder()
 			.setId(Strings.orEmpty(id))
 			.setName(Strings.orEmpty(name))
 			.setCategory(Strings.orEmpty(category))
@@ -66,7 +66,7 @@ public record IxProcess(
 			.build();
 	}
 
-	static IxProcess fromProto(Proto.Process proto) {
+	static IxProcess fromProto(IxProto.Process proto) {
 		return new IxProcess(
 			proto.getId(),
 			proto.getName(),

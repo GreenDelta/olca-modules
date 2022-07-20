@@ -1,7 +1,7 @@
 package org.openlca.core.matrix.io.index;
 
 import org.apache.commons.csv.CSVRecord;
-import org.openlca.core.matrix.io.index.Proto.ElemFlowEntry;
+import org.openlca.core.matrix.io.index.IxProto.ElemFlowEntry;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.Flow;
 
@@ -34,7 +34,7 @@ public record IxEnviItem(
 	}
 
 	ElemFlowEntry toProto() {
-		var proto = Proto.ElemFlowEntry.newBuilder()
+		var proto = IxProto.ElemFlowEntry.newBuilder()
 			.setIndex(index)
 			.setIsInput(isInput);
 		if (flow != null) {
@@ -46,7 +46,7 @@ public record IxEnviItem(
 		return proto.build();
 	}
 
-	static IxEnviItem fromProto(Proto.ElemFlowEntry proto) {
+	static IxEnviItem fromProto(IxProto.ElemFlowEntry proto) {
 		return new IxEnviItem(
 			proto.getIndex(),
 			proto.hasFlow()

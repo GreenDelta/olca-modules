@@ -69,7 +69,7 @@ public record IxTechIndex(List<IxTechItem> items) {
 	private static IxTechIndex readProto(File file) {
 		try (var stream = new FileInputStream(file)) {
 			var items = new ArrayList<IxTechItem>();
-			var proto = Proto.ProductIndex.parseFrom(stream);
+			var proto = IxProto.ProductIndex.parseFrom(stream);
 			for (int i = 0; i < proto.getProductCount(); i++) {
 				var pi = proto.getProduct(i);
 				items.add(IxTechItem.fromProto(pi));
@@ -129,7 +129,7 @@ public record IxTechIndex(List<IxTechItem> items) {
 	}
 
 	public void toProto(File file) {
-		var index = Proto.ProductIndex.newBuilder();
+		var index = IxProto.ProductIndex.newBuilder();
 		for (var item : items) {
 			index.addProduct(item.toProto());
 		}

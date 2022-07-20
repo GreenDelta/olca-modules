@@ -3,8 +3,8 @@
 
 package org.openlca.core.matrix.io.index;
 
-public final class Proto {
-  private Proto() {}
+public final class IxProto {
+  private IxProto() {}
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistryLite registry) {
   }
@@ -164,15 +164,15 @@ public final class Proto {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return Proto.internal_static_olcalib_Process_descriptor;
+      return IxProto.internal_static_olcalib_Process_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return Proto.internal_static_olcalib_Process_fieldAccessorTable
+      return IxProto.internal_static_olcalib_Process_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              Proto.Process.class, Proto.Process.Builder.class);
+              IxProto.Process.class, IxProto.Process.Builder.class);
     }
 
     public static final int ID_FIELD_NUMBER = 1;
@@ -384,10 +384,10 @@ public final class Proto {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof Proto.Process)) {
+      if (!(obj instanceof IxProto.Process)) {
         return super.equals(obj);
       }
-      Proto.Process other = (Proto.Process) obj;
+      IxProto.Process other = (IxProto.Process) obj;
 
       if (!getId()
           .equals(other.getId())) return false;
@@ -421,69 +421,69 @@ public final class Proto {
       return hash;
     }
 
-    public static Proto.Process parseFrom(
+    public static IxProto.Process parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.Process parseFrom(
+    public static IxProto.Process parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.Process parseFrom(
+    public static IxProto.Process parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.Process parseFrom(
+    public static IxProto.Process parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.Process parseFrom(byte[] data)
+    public static IxProto.Process parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.Process parseFrom(
+    public static IxProto.Process parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.Process parseFrom(java.io.InputStream input)
+    public static IxProto.Process parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static Proto.Process parseFrom(
+    public static IxProto.Process parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static Proto.Process parseDelimitedFrom(java.io.InputStream input)
+    public static IxProto.Process parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static Proto.Process parseDelimitedFrom(
+    public static IxProto.Process parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static Proto.Process parseFrom(
+    public static IxProto.Process parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static Proto.Process parseFrom(
+    public static IxProto.Process parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -496,7 +496,7 @@ public final class Proto {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(Proto.Process prototype) {
+    public static Builder newBuilder(IxProto.Process prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     @java.lang.Override
@@ -521,18 +521,18 @@ public final class Proto {
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:olcalib.Process)
-        Proto.ProcessOrBuilder {
+        IxProto.ProcessOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return Proto.internal_static_olcalib_Process_descriptor;
+        return IxProto.internal_static_olcalib_Process_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return Proto.internal_static_olcalib_Process_fieldAccessorTable
+        return IxProto.internal_static_olcalib_Process_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                Proto.Process.class, Proto.Process.Builder.class);
+                IxProto.Process.class, IxProto.Process.Builder.class);
       }
 
       // Construct using org.openlca.core.library.Proto.Process.newBuilder()
@@ -567,17 +567,17 @@ public final class Proto {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return Proto.internal_static_olcalib_Process_descriptor;
+        return IxProto.internal_static_olcalib_Process_descriptor;
       }
 
       @java.lang.Override
-      public Proto.Process getDefaultInstanceForType() {
-        return Proto.Process.getDefaultInstance();
+      public IxProto.Process getDefaultInstanceForType() {
+        return IxProto.Process.getDefaultInstance();
       }
 
       @java.lang.Override
-      public Proto.Process build() {
-        Proto.Process result = buildPartial();
+      public IxProto.Process build() {
+        IxProto.Process result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
@@ -585,8 +585,8 @@ public final class Proto {
       }
 
       @java.lang.Override
-      public Proto.Process buildPartial() {
-        Proto.Process result = new Proto.Process(this);
+      public IxProto.Process buildPartial() {
+        IxProto.Process result = new IxProto.Process(this);
         result.id_ = id_;
         result.name_ = name_;
         result.category_ = category_;
@@ -629,16 +629,16 @@ public final class Proto {
       }
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof Proto.Process) {
-          return mergeFrom((Proto.Process)other);
+        if (other instanceof IxProto.Process) {
+          return mergeFrom((IxProto.Process)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(Proto.Process other) {
-        if (other == Proto.Process.getDefaultInstance()) return this;
+      public Builder mergeFrom(IxProto.Process other) {
+        if (other == IxProto.Process.getDefaultInstance()) return this;
         if (!other.getId().isEmpty()) {
           id_ = other.id_;
           onChanged();
@@ -670,11 +670,11 @@ public final class Proto {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        Proto.Process parsedMessage = null;
+        IxProto.Process parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (Proto.Process) e.getUnfinishedMessage();
+          parsedMessage = (IxProto.Process) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -1004,12 +1004,12 @@ public final class Proto {
     }
 
     // @@protoc_insertion_point(class_scope:olcalib.Process)
-    private static final Proto.Process DEFAULT_INSTANCE;
+    private static final IxProto.Process DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new Proto.Process();
+      DEFAULT_INSTANCE = new IxProto.Process();
     }
 
-    public static Proto.Process getDefaultInstance() {
+    public static IxProto.Process getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
@@ -1034,7 +1034,7 @@ public final class Proto {
     }
 
     @java.lang.Override
-    public Proto.Process getDefaultInstanceForType() {
+    public IxProto.Process getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -1209,15 +1209,15 @@ public final class Proto {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return Proto.internal_static_olcalib_Flow_descriptor;
+      return IxProto.internal_static_olcalib_Flow_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return Proto.internal_static_olcalib_Flow_fieldAccessorTable
+      return IxProto.internal_static_olcalib_Flow_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              Proto.Flow.class, Proto.Flow.Builder.class);
+              IxProto.Flow.class, IxProto.Flow.Builder.class);
     }
 
     public static final int ID_FIELD_NUMBER = 1;
@@ -1473,10 +1473,10 @@ public final class Proto {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof Proto.Flow)) {
+      if (!(obj instanceof IxProto.Flow)) {
         return super.equals(obj);
       }
-      Proto.Flow other = (Proto.Flow) obj;
+      IxProto.Flow other = (IxProto.Flow) obj;
 
       if (!getId()
           .equals(other.getId())) return false;
@@ -1514,69 +1514,69 @@ public final class Proto {
       return hash;
     }
 
-    public static Proto.Flow parseFrom(
+    public static IxProto.Flow parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.Flow parseFrom(
+    public static IxProto.Flow parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.Flow parseFrom(
+    public static IxProto.Flow parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.Flow parseFrom(
+    public static IxProto.Flow parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.Flow parseFrom(byte[] data)
+    public static IxProto.Flow parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.Flow parseFrom(
+    public static IxProto.Flow parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.Flow parseFrom(java.io.InputStream input)
+    public static IxProto.Flow parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static Proto.Flow parseFrom(
+    public static IxProto.Flow parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static Proto.Flow parseDelimitedFrom(java.io.InputStream input)
+    public static IxProto.Flow parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static Proto.Flow parseDelimitedFrom(
+    public static IxProto.Flow parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static Proto.Flow parseFrom(
+    public static IxProto.Flow parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static Proto.Flow parseFrom(
+    public static IxProto.Flow parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -1589,7 +1589,7 @@ public final class Proto {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(Proto.Flow prototype) {
+    public static Builder newBuilder(IxProto.Flow prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     @java.lang.Override
@@ -1614,18 +1614,18 @@ public final class Proto {
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:olcalib.Flow)
-        Proto.FlowOrBuilder {
+        IxProto.FlowOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return Proto.internal_static_olcalib_Flow_descriptor;
+        return IxProto.internal_static_olcalib_Flow_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return Proto.internal_static_olcalib_Flow_fieldAccessorTable
+        return IxProto.internal_static_olcalib_Flow_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                Proto.Flow.class, Proto.Flow.Builder.class);
+                IxProto.Flow.class, IxProto.Flow.Builder.class);
       }
 
       // Construct using org.openlca.core.library.Proto.Flow.newBuilder()
@@ -1662,17 +1662,17 @@ public final class Proto {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return Proto.internal_static_olcalib_Flow_descriptor;
+        return IxProto.internal_static_olcalib_Flow_descriptor;
       }
 
       @java.lang.Override
-      public Proto.Flow getDefaultInstanceForType() {
-        return Proto.Flow.getDefaultInstance();
+      public IxProto.Flow getDefaultInstanceForType() {
+        return IxProto.Flow.getDefaultInstance();
       }
 
       @java.lang.Override
-      public Proto.Flow build() {
-        Proto.Flow result = buildPartial();
+      public IxProto.Flow build() {
+        IxProto.Flow result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
@@ -1680,8 +1680,8 @@ public final class Proto {
       }
 
       @java.lang.Override
-      public Proto.Flow buildPartial() {
-        Proto.Flow result = new Proto.Flow(this);
+      public IxProto.Flow buildPartial() {
+        IxProto.Flow result = new IxProto.Flow(this);
         result.id_ = id_;
         result.name_ = name_;
         result.category_ = category_;
@@ -1725,16 +1725,16 @@ public final class Proto {
       }
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof Proto.Flow) {
-          return mergeFrom((Proto.Flow)other);
+        if (other instanceof IxProto.Flow) {
+          return mergeFrom((IxProto.Flow)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(Proto.Flow other) {
-        if (other == Proto.Flow.getDefaultInstance()) return this;
+      public Builder mergeFrom(IxProto.Flow other) {
+        if (other == IxProto.Flow.getDefaultInstance()) return this;
         if (!other.getId().isEmpty()) {
           id_ = other.id_;
           onChanged();
@@ -1770,11 +1770,11 @@ public final class Proto {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        Proto.Flow parsedMessage = null;
+        IxProto.Flow parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (Proto.Flow) e.getUnfinishedMessage();
+          parsedMessage = (IxProto.Flow) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -2180,12 +2180,12 @@ public final class Proto {
     }
 
     // @@protoc_insertion_point(class_scope:olcalib.Flow)
-    private static final Proto.Flow DEFAULT_INSTANCE;
+    private static final IxProto.Flow DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new Proto.Flow();
+      DEFAULT_INSTANCE = new IxProto.Flow();
     }
 
-    public static Proto.Flow getDefaultInstance() {
+    public static IxProto.Flow getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
@@ -2210,7 +2210,7 @@ public final class Proto {
     }
 
     @java.lang.Override
-    public Proto.Flow getDefaultInstanceForType() {
+    public IxProto.Flow getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -2347,15 +2347,15 @@ public final class Proto {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return Proto.internal_static_olcalib_Location_descriptor;
+      return IxProto.internal_static_olcalib_Location_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return Proto.internal_static_olcalib_Location_fieldAccessorTable
+      return IxProto.internal_static_olcalib_Location_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              Proto.Location.class, Proto.Location.Builder.class);
+              IxProto.Location.class, IxProto.Location.Builder.class);
     }
 
     public static final int ID_FIELD_NUMBER = 1;
@@ -2523,10 +2523,10 @@ public final class Proto {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof Proto.Location)) {
+      if (!(obj instanceof IxProto.Location)) {
         return super.equals(obj);
       }
-      Proto.Location other = (Proto.Location) obj;
+      IxProto.Location other = (IxProto.Location) obj;
 
       if (!getId()
           .equals(other.getId())) return false;
@@ -2556,69 +2556,69 @@ public final class Proto {
       return hash;
     }
 
-    public static Proto.Location parseFrom(
+    public static IxProto.Location parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.Location parseFrom(
+    public static IxProto.Location parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.Location parseFrom(
+    public static IxProto.Location parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.Location parseFrom(
+    public static IxProto.Location parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.Location parseFrom(byte[] data)
+    public static IxProto.Location parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.Location parseFrom(
+    public static IxProto.Location parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.Location parseFrom(java.io.InputStream input)
+    public static IxProto.Location parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static Proto.Location parseFrom(
+    public static IxProto.Location parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static Proto.Location parseDelimitedFrom(java.io.InputStream input)
+    public static IxProto.Location parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static Proto.Location parseDelimitedFrom(
+    public static IxProto.Location parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static Proto.Location parseFrom(
+    public static IxProto.Location parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static Proto.Location parseFrom(
+    public static IxProto.Location parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -2631,7 +2631,7 @@ public final class Proto {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(Proto.Location prototype) {
+    public static Builder newBuilder(IxProto.Location prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     @java.lang.Override
@@ -2656,18 +2656,18 @@ public final class Proto {
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:olcalib.Location)
-        Proto.LocationOrBuilder {
+        IxProto.LocationOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return Proto.internal_static_olcalib_Location_descriptor;
+        return IxProto.internal_static_olcalib_Location_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return Proto.internal_static_olcalib_Location_fieldAccessorTable
+        return IxProto.internal_static_olcalib_Location_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                Proto.Location.class, Proto.Location.Builder.class);
+                IxProto.Location.class, IxProto.Location.Builder.class);
       }
 
       // Construct using org.openlca.core.library.Proto.Location.newBuilder()
@@ -2700,17 +2700,17 @@ public final class Proto {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return Proto.internal_static_olcalib_Location_descriptor;
+        return IxProto.internal_static_olcalib_Location_descriptor;
       }
 
       @java.lang.Override
-      public Proto.Location getDefaultInstanceForType() {
-        return Proto.Location.getDefaultInstance();
+      public IxProto.Location getDefaultInstanceForType() {
+        return IxProto.Location.getDefaultInstance();
       }
 
       @java.lang.Override
-      public Proto.Location build() {
-        Proto.Location result = buildPartial();
+      public IxProto.Location build() {
+        IxProto.Location result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
@@ -2718,8 +2718,8 @@ public final class Proto {
       }
 
       @java.lang.Override
-      public Proto.Location buildPartial() {
-        Proto.Location result = new Proto.Location(this);
+      public IxProto.Location buildPartial() {
+        IxProto.Location result = new IxProto.Location(this);
         result.id_ = id_;
         result.name_ = name_;
         result.code_ = code_;
@@ -2761,16 +2761,16 @@ public final class Proto {
       }
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof Proto.Location) {
-          return mergeFrom((Proto.Location)other);
+        if (other instanceof IxProto.Location) {
+          return mergeFrom((IxProto.Location)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(Proto.Location other) {
-        if (other == Proto.Location.getDefaultInstance()) return this;
+      public Builder mergeFrom(IxProto.Location other) {
+        if (other == IxProto.Location.getDefaultInstance()) return this;
         if (!other.getId().isEmpty()) {
           id_ = other.id_;
           onChanged();
@@ -2798,11 +2798,11 @@ public final class Proto {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        Proto.Location parsedMessage = null;
+        IxProto.Location parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (Proto.Location) e.getUnfinishedMessage();
+          parsedMessage = (IxProto.Location) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -3056,12 +3056,12 @@ public final class Proto {
     }
 
     // @@protoc_insertion_point(class_scope:olcalib.Location)
-    private static final Proto.Location DEFAULT_INSTANCE;
+    private static final IxProto.Location DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new Proto.Location();
+      DEFAULT_INSTANCE = new IxProto.Location();
     }
 
-    public static Proto.Location getDefaultInstance() {
+    public static IxProto.Location getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
@@ -3086,7 +3086,7 @@ public final class Proto {
     }
 
     @java.lang.Override
-    public Proto.Location getDefaultInstanceForType() {
+    public IxProto.Location getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -3223,15 +3223,15 @@ public final class Proto {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return Proto.internal_static_olcalib_Impact_descriptor;
+      return IxProto.internal_static_olcalib_Impact_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return Proto.internal_static_olcalib_Impact_fieldAccessorTable
+      return IxProto.internal_static_olcalib_Impact_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              Proto.Impact.class, Proto.Impact.Builder.class);
+              IxProto.Impact.class, IxProto.Impact.Builder.class);
     }
 
     public static final int ID_FIELD_NUMBER = 1;
@@ -3399,10 +3399,10 @@ public final class Proto {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof Proto.Impact)) {
+      if (!(obj instanceof IxProto.Impact)) {
         return super.equals(obj);
       }
-      Proto.Impact other = (Proto.Impact) obj;
+      IxProto.Impact other = (IxProto.Impact) obj;
 
       if (!getId()
           .equals(other.getId())) return false;
@@ -3432,69 +3432,69 @@ public final class Proto {
       return hash;
     }
 
-    public static Proto.Impact parseFrom(
+    public static IxProto.Impact parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.Impact parseFrom(
+    public static IxProto.Impact parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.Impact parseFrom(
+    public static IxProto.Impact parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.Impact parseFrom(
+    public static IxProto.Impact parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.Impact parseFrom(byte[] data)
+    public static IxProto.Impact parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.Impact parseFrom(
+    public static IxProto.Impact parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.Impact parseFrom(java.io.InputStream input)
+    public static IxProto.Impact parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static Proto.Impact parseFrom(
+    public static IxProto.Impact parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static Proto.Impact parseDelimitedFrom(java.io.InputStream input)
+    public static IxProto.Impact parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static Proto.Impact parseDelimitedFrom(
+    public static IxProto.Impact parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static Proto.Impact parseFrom(
+    public static IxProto.Impact parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static Proto.Impact parseFrom(
+    public static IxProto.Impact parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -3507,7 +3507,7 @@ public final class Proto {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(Proto.Impact prototype) {
+    public static Builder newBuilder(IxProto.Impact prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     @java.lang.Override
@@ -3532,18 +3532,18 @@ public final class Proto {
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:olcalib.Impact)
-        Proto.ImpactOrBuilder {
+        IxProto.ImpactOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return Proto.internal_static_olcalib_Impact_descriptor;
+        return IxProto.internal_static_olcalib_Impact_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return Proto.internal_static_olcalib_Impact_fieldAccessorTable
+        return IxProto.internal_static_olcalib_Impact_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                Proto.Impact.class, Proto.Impact.Builder.class);
+                IxProto.Impact.class, IxProto.Impact.Builder.class);
       }
 
       // Construct using org.openlca.core.library.Proto.Impact.newBuilder()
@@ -3576,17 +3576,17 @@ public final class Proto {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return Proto.internal_static_olcalib_Impact_descriptor;
+        return IxProto.internal_static_olcalib_Impact_descriptor;
       }
 
       @java.lang.Override
-      public Proto.Impact getDefaultInstanceForType() {
-        return Proto.Impact.getDefaultInstance();
+      public IxProto.Impact getDefaultInstanceForType() {
+        return IxProto.Impact.getDefaultInstance();
       }
 
       @java.lang.Override
-      public Proto.Impact build() {
-        Proto.Impact result = buildPartial();
+      public IxProto.Impact build() {
+        IxProto.Impact result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
@@ -3594,8 +3594,8 @@ public final class Proto {
       }
 
       @java.lang.Override
-      public Proto.Impact buildPartial() {
-        Proto.Impact result = new Proto.Impact(this);
+      public IxProto.Impact buildPartial() {
+        IxProto.Impact result = new IxProto.Impact(this);
         result.id_ = id_;
         result.name_ = name_;
         result.unit_ = unit_;
@@ -3637,16 +3637,16 @@ public final class Proto {
       }
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof Proto.Impact) {
-          return mergeFrom((Proto.Impact)other);
+        if (other instanceof IxProto.Impact) {
+          return mergeFrom((IxProto.Impact)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(Proto.Impact other) {
-        if (other == Proto.Impact.getDefaultInstance()) return this;
+      public Builder mergeFrom(IxProto.Impact other) {
+        if (other == IxProto.Impact.getDefaultInstance()) return this;
         if (!other.getId().isEmpty()) {
           id_ = other.id_;
           onChanged();
@@ -3674,11 +3674,11 @@ public final class Proto {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        Proto.Impact parsedMessage = null;
+        IxProto.Impact parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (Proto.Impact) e.getUnfinishedMessage();
+          parsedMessage = (IxProto.Impact) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -3932,12 +3932,12 @@ public final class Proto {
     }
 
     // @@protoc_insertion_point(class_scope:olcalib.Impact)
-    private static final Proto.Impact DEFAULT_INSTANCE;
+    private static final IxProto.Impact DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new Proto.Impact();
+      DEFAULT_INSTANCE = new IxProto.Impact();
     }
 
-    public static Proto.Impact getDefaultInstance() {
+    public static IxProto.Impact getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
@@ -3962,7 +3962,7 @@ public final class Proto {
     }
 
     @java.lang.Override
-    public Proto.Impact getDefaultInstanceForType() {
+    public IxProto.Impact getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -3987,11 +3987,11 @@ public final class Proto {
      * <code>.olcalib.Process process = 2;</code>
      * @return The process.
      */
-    Proto.Process getProcess();
+    IxProto.Process getProcess();
     /**
      * <code>.olcalib.Process process = 2;</code>
      */
-    Proto.ProcessOrBuilder getProcessOrBuilder();
+    IxProto.ProcessOrBuilder getProcessOrBuilder();
 
     /**
      * <code>.olcalib.Flow product = 3;</code>
@@ -4002,11 +4002,11 @@ public final class Proto {
      * <code>.olcalib.Flow product = 3;</code>
      * @return The product.
      */
-    Proto.Flow getProduct();
+    IxProto.Flow getProduct();
     /**
      * <code>.olcalib.Flow product = 3;</code>
      */
-    Proto.FlowOrBuilder getProductOrBuilder();
+    IxProto.FlowOrBuilder getProductOrBuilder();
   }
   /**
    * <pre>
@@ -4063,11 +4063,11 @@ public final class Proto {
               break;
             }
             case 18: {
-              Proto.Process.Builder subBuilder = null;
+              IxProto.Process.Builder subBuilder = null;
               if (process_ != null) {
                 subBuilder = process_.toBuilder();
               }
-              process_ = input.readMessage(Proto.Process.parser(), extensionRegistry);
+              process_ = input.readMessage(IxProto.Process.parser(), extensionRegistry);
               if (subBuilder != null) {
                 subBuilder.mergeFrom(process_);
                 process_ = subBuilder.buildPartial();
@@ -4076,11 +4076,11 @@ public final class Proto {
               break;
             }
             case 26: {
-              Proto.Flow.Builder subBuilder = null;
+              IxProto.Flow.Builder subBuilder = null;
               if (product_ != null) {
                 subBuilder = product_.toBuilder();
               }
-              product_ = input.readMessage(Proto.Flow.parser(), extensionRegistry);
+              product_ = input.readMessage(IxProto.Flow.parser(), extensionRegistry);
               if (subBuilder != null) {
                 subBuilder.mergeFrom(product_);
                 product_ = subBuilder.buildPartial();
@@ -4109,15 +4109,15 @@ public final class Proto {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return Proto.internal_static_olcalib_ProductEntry_descriptor;
+      return IxProto.internal_static_olcalib_ProductEntry_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return Proto.internal_static_olcalib_ProductEntry_fieldAccessorTable
+      return IxProto.internal_static_olcalib_ProductEntry_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              Proto.ProductEntry.class, Proto.ProductEntry.Builder.class);
+              IxProto.ProductEntry.class, IxProto.ProductEntry.Builder.class);
     }
 
     public static final int INDEX_FIELD_NUMBER = 1;
@@ -4132,7 +4132,7 @@ public final class Proto {
     }
 
     public static final int PROCESS_FIELD_NUMBER = 2;
-    private Proto.Process process_;
+    private IxProto.Process process_;
     /**
      * <code>.olcalib.Process process = 2;</code>
      * @return Whether the process field is set.
@@ -4146,19 +4146,19 @@ public final class Proto {
      * @return The process.
      */
     @java.lang.Override
-    public Proto.Process getProcess() {
-      return process_ == null ? Proto.Process.getDefaultInstance() : process_;
+    public IxProto.Process getProcess() {
+      return process_ == null ? IxProto.Process.getDefaultInstance() : process_;
     }
     /**
      * <code>.olcalib.Process process = 2;</code>
      */
     @java.lang.Override
-    public Proto.ProcessOrBuilder getProcessOrBuilder() {
+    public IxProto.ProcessOrBuilder getProcessOrBuilder() {
       return getProcess();
     }
 
     public static final int PRODUCT_FIELD_NUMBER = 3;
-    private Proto.Flow product_;
+    private IxProto.Flow product_;
     /**
      * <code>.olcalib.Flow product = 3;</code>
      * @return Whether the product field is set.
@@ -4172,14 +4172,14 @@ public final class Proto {
      * @return The product.
      */
     @java.lang.Override
-    public Proto.Flow getProduct() {
-      return product_ == null ? Proto.Flow.getDefaultInstance() : product_;
+    public IxProto.Flow getProduct() {
+      return product_ == null ? IxProto.Flow.getDefaultInstance() : product_;
     }
     /**
      * <code>.olcalib.Flow product = 3;</code>
      */
     @java.lang.Override
-    public Proto.FlowOrBuilder getProductOrBuilder() {
+    public IxProto.FlowOrBuilder getProductOrBuilder() {
       return getProduct();
     }
 
@@ -4237,10 +4237,10 @@ public final class Proto {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof Proto.ProductEntry)) {
+      if (!(obj instanceof IxProto.ProductEntry)) {
         return super.equals(obj);
       }
-      Proto.ProductEntry other = (Proto.ProductEntry) obj;
+      IxProto.ProductEntry other = (IxProto.ProductEntry) obj;
 
       if (getIndex()
           != other.getIndex()) return false;
@@ -4280,69 +4280,69 @@ public final class Proto {
       return hash;
     }
 
-    public static Proto.ProductEntry parseFrom(
+    public static IxProto.ProductEntry parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.ProductEntry parseFrom(
+    public static IxProto.ProductEntry parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.ProductEntry parseFrom(
+    public static IxProto.ProductEntry parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.ProductEntry parseFrom(
+    public static IxProto.ProductEntry parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.ProductEntry parseFrom(byte[] data)
+    public static IxProto.ProductEntry parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.ProductEntry parseFrom(
+    public static IxProto.ProductEntry parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.ProductEntry parseFrom(java.io.InputStream input)
+    public static IxProto.ProductEntry parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static Proto.ProductEntry parseFrom(
+    public static IxProto.ProductEntry parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static Proto.ProductEntry parseDelimitedFrom(java.io.InputStream input)
+    public static IxProto.ProductEntry parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static Proto.ProductEntry parseDelimitedFrom(
+    public static IxProto.ProductEntry parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static Proto.ProductEntry parseFrom(
+    public static IxProto.ProductEntry parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static Proto.ProductEntry parseFrom(
+    public static IxProto.ProductEntry parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -4355,7 +4355,7 @@ public final class Proto {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(Proto.ProductEntry prototype) {
+    public static Builder newBuilder(IxProto.ProductEntry prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     @java.lang.Override
@@ -4380,18 +4380,18 @@ public final class Proto {
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:olcalib.ProductEntry)
-        Proto.ProductEntryOrBuilder {
+        IxProto.ProductEntryOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return Proto.internal_static_olcalib_ProductEntry_descriptor;
+        return IxProto.internal_static_olcalib_ProductEntry_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return Proto.internal_static_olcalib_ProductEntry_fieldAccessorTable
+        return IxProto.internal_static_olcalib_ProductEntry_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                Proto.ProductEntry.class, Proto.ProductEntry.Builder.class);
+                IxProto.ProductEntry.class, IxProto.ProductEntry.Builder.class);
       }
 
       // Construct using org.openlca.core.library.Proto.ProductEntry.newBuilder()
@@ -4432,17 +4432,17 @@ public final class Proto {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return Proto.internal_static_olcalib_ProductEntry_descriptor;
+        return IxProto.internal_static_olcalib_ProductEntry_descriptor;
       }
 
       @java.lang.Override
-      public Proto.ProductEntry getDefaultInstanceForType() {
-        return Proto.ProductEntry.getDefaultInstance();
+      public IxProto.ProductEntry getDefaultInstanceForType() {
+        return IxProto.ProductEntry.getDefaultInstance();
       }
 
       @java.lang.Override
-      public Proto.ProductEntry build() {
-        Proto.ProductEntry result = buildPartial();
+      public IxProto.ProductEntry build() {
+        IxProto.ProductEntry result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
@@ -4450,8 +4450,8 @@ public final class Proto {
       }
 
       @java.lang.Override
-      public Proto.ProductEntry buildPartial() {
-        Proto.ProductEntry result = new Proto.ProductEntry(this);
+      public IxProto.ProductEntry buildPartial() {
+        IxProto.ProductEntry result = new IxProto.ProductEntry(this);
         result.index_ = index_;
         if (processBuilder_ == null) {
           result.process_ = process_;
@@ -4501,16 +4501,16 @@ public final class Proto {
       }
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof Proto.ProductEntry) {
-          return mergeFrom((Proto.ProductEntry)other);
+        if (other instanceof IxProto.ProductEntry) {
+          return mergeFrom((IxProto.ProductEntry)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(Proto.ProductEntry other) {
-        if (other == Proto.ProductEntry.getDefaultInstance()) return this;
+      public Builder mergeFrom(IxProto.ProductEntry other) {
+        if (other == IxProto.ProductEntry.getDefaultInstance()) return this;
         if (other.getIndex() != 0) {
           setIndex(other.getIndex());
         }
@@ -4535,11 +4535,11 @@ public final class Proto {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        Proto.ProductEntry parsedMessage = null;
+        IxProto.ProductEntry parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (Proto.ProductEntry) e.getUnfinishedMessage();
+          parsedMessage = (IxProto.ProductEntry) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -4580,9 +4580,9 @@ public final class Proto {
         return this;
       }
 
-      private Proto.Process process_;
+      private IxProto.Process process_;
       private com.google.protobuf.SingleFieldBuilderV3<
-          Proto.Process, Proto.Process.Builder, Proto.ProcessOrBuilder> processBuilder_;
+          IxProto.Process, IxProto.Process.Builder, IxProto.ProcessOrBuilder> processBuilder_;
       /**
        * <code>.olcalib.Process process = 2;</code>
        * @return Whether the process field is set.
@@ -4594,9 +4594,9 @@ public final class Proto {
        * <code>.olcalib.Process process = 2;</code>
        * @return The process.
        */
-      public Proto.Process getProcess() {
+      public IxProto.Process getProcess() {
         if (processBuilder_ == null) {
-          return process_ == null ? Proto.Process.getDefaultInstance() : process_;
+          return process_ == null ? IxProto.Process.getDefaultInstance() : process_;
         } else {
           return processBuilder_.getMessage();
         }
@@ -4604,7 +4604,7 @@ public final class Proto {
       /**
        * <code>.olcalib.Process process = 2;</code>
        */
-      public Builder setProcess(Proto.Process value) {
+      public Builder setProcess(IxProto.Process value) {
         if (processBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -4621,7 +4621,7 @@ public final class Proto {
        * <code>.olcalib.Process process = 2;</code>
        */
       public Builder setProcess(
-          Proto.Process.Builder builderForValue) {
+          IxProto.Process.Builder builderForValue) {
         if (processBuilder_ == null) {
           process_ = builderForValue.build();
           onChanged();
@@ -4634,11 +4634,11 @@ public final class Proto {
       /**
        * <code>.olcalib.Process process = 2;</code>
        */
-      public Builder mergeProcess(Proto.Process value) {
+      public Builder mergeProcess(IxProto.Process value) {
         if (processBuilder_ == null) {
           if (process_ != null) {
             process_ =
-              Proto.Process.newBuilder(process_).mergeFrom(value).buildPartial();
+              IxProto.Process.newBuilder(process_).mergeFrom(value).buildPartial();
           } else {
             process_ = value;
           }
@@ -4666,7 +4666,7 @@ public final class Proto {
       /**
        * <code>.olcalib.Process process = 2;</code>
        */
-      public Proto.Process.Builder getProcessBuilder() {
+      public IxProto.Process.Builder getProcessBuilder() {
 
         onChanged();
         return getProcessFieldBuilder().getBuilder();
@@ -4674,23 +4674,23 @@ public final class Proto {
       /**
        * <code>.olcalib.Process process = 2;</code>
        */
-      public Proto.ProcessOrBuilder getProcessOrBuilder() {
+      public IxProto.ProcessOrBuilder getProcessOrBuilder() {
         if (processBuilder_ != null) {
           return processBuilder_.getMessageOrBuilder();
         } else {
           return process_ == null ?
-              Proto.Process.getDefaultInstance() : process_;
+              IxProto.Process.getDefaultInstance() : process_;
         }
       }
       /**
        * <code>.olcalib.Process process = 2;</code>
        */
       private com.google.protobuf.SingleFieldBuilderV3<
-          Proto.Process, Proto.Process.Builder, Proto.ProcessOrBuilder>
+          IxProto.Process, IxProto.Process.Builder, IxProto.ProcessOrBuilder>
           getProcessFieldBuilder() {
         if (processBuilder_ == null) {
           processBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              Proto.Process, Proto.Process.Builder, Proto.ProcessOrBuilder>(
+              IxProto.Process, IxProto.Process.Builder, IxProto.ProcessOrBuilder>(
                   getProcess(),
                   getParentForChildren(),
                   isClean());
@@ -4699,9 +4699,9 @@ public final class Proto {
         return processBuilder_;
       }
 
-      private Proto.Flow product_;
+      private IxProto.Flow product_;
       private com.google.protobuf.SingleFieldBuilderV3<
-          Proto.Flow, Proto.Flow.Builder, Proto.FlowOrBuilder> productBuilder_;
+          IxProto.Flow, IxProto.Flow.Builder, IxProto.FlowOrBuilder> productBuilder_;
       /**
        * <code>.olcalib.Flow product = 3;</code>
        * @return Whether the product field is set.
@@ -4713,9 +4713,9 @@ public final class Proto {
        * <code>.olcalib.Flow product = 3;</code>
        * @return The product.
        */
-      public Proto.Flow getProduct() {
+      public IxProto.Flow getProduct() {
         if (productBuilder_ == null) {
-          return product_ == null ? Proto.Flow.getDefaultInstance() : product_;
+          return product_ == null ? IxProto.Flow.getDefaultInstance() : product_;
         } else {
           return productBuilder_.getMessage();
         }
@@ -4723,7 +4723,7 @@ public final class Proto {
       /**
        * <code>.olcalib.Flow product = 3;</code>
        */
-      public Builder setProduct(Proto.Flow value) {
+      public Builder setProduct(IxProto.Flow value) {
         if (productBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -4740,7 +4740,7 @@ public final class Proto {
        * <code>.olcalib.Flow product = 3;</code>
        */
       public Builder setProduct(
-          Proto.Flow.Builder builderForValue) {
+          IxProto.Flow.Builder builderForValue) {
         if (productBuilder_ == null) {
           product_ = builderForValue.build();
           onChanged();
@@ -4753,11 +4753,11 @@ public final class Proto {
       /**
        * <code>.olcalib.Flow product = 3;</code>
        */
-      public Builder mergeProduct(Proto.Flow value) {
+      public Builder mergeProduct(IxProto.Flow value) {
         if (productBuilder_ == null) {
           if (product_ != null) {
             product_ =
-              Proto.Flow.newBuilder(product_).mergeFrom(value).buildPartial();
+              IxProto.Flow.newBuilder(product_).mergeFrom(value).buildPartial();
           } else {
             product_ = value;
           }
@@ -4785,7 +4785,7 @@ public final class Proto {
       /**
        * <code>.olcalib.Flow product = 3;</code>
        */
-      public Proto.Flow.Builder getProductBuilder() {
+      public IxProto.Flow.Builder getProductBuilder() {
 
         onChanged();
         return getProductFieldBuilder().getBuilder();
@@ -4793,23 +4793,23 @@ public final class Proto {
       /**
        * <code>.olcalib.Flow product = 3;</code>
        */
-      public Proto.FlowOrBuilder getProductOrBuilder() {
+      public IxProto.FlowOrBuilder getProductOrBuilder() {
         if (productBuilder_ != null) {
           return productBuilder_.getMessageOrBuilder();
         } else {
           return product_ == null ?
-              Proto.Flow.getDefaultInstance() : product_;
+              IxProto.Flow.getDefaultInstance() : product_;
         }
       }
       /**
        * <code>.olcalib.Flow product = 3;</code>
        */
       private com.google.protobuf.SingleFieldBuilderV3<
-          Proto.Flow, Proto.Flow.Builder, Proto.FlowOrBuilder>
+          IxProto.Flow, IxProto.Flow.Builder, IxProto.FlowOrBuilder>
           getProductFieldBuilder() {
         if (productBuilder_ == null) {
           productBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              Proto.Flow, Proto.Flow.Builder, Proto.FlowOrBuilder>(
+              IxProto.Flow, IxProto.Flow.Builder, IxProto.FlowOrBuilder>(
                   getProduct(),
                   getParentForChildren(),
                   isClean());
@@ -4834,12 +4834,12 @@ public final class Proto {
     }
 
     // @@protoc_insertion_point(class_scope:olcalib.ProductEntry)
-    private static final Proto.ProductEntry DEFAULT_INSTANCE;
+    private static final IxProto.ProductEntry DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new Proto.ProductEntry();
+      DEFAULT_INSTANCE = new IxProto.ProductEntry();
     }
 
-    public static Proto.ProductEntry getDefaultInstance() {
+    public static IxProto.ProductEntry getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
@@ -4864,7 +4864,7 @@ public final class Proto {
     }
 
     @java.lang.Override
-    public Proto.ProductEntry getDefaultInstanceForType() {
+    public IxProto.ProductEntry getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -4877,12 +4877,12 @@ public final class Proto {
     /**
      * <code>repeated .olcalib.ProductEntry product = 1;</code>
      */
-    java.util.List<Proto.ProductEntry>
+    java.util.List<IxProto.ProductEntry>
         getProductList();
     /**
      * <code>repeated .olcalib.ProductEntry product = 1;</code>
      */
-    Proto.ProductEntry getProduct(int index);
+    IxProto.ProductEntry getProduct(int index);
     /**
      * <code>repeated .olcalib.ProductEntry product = 1;</code>
      */
@@ -4890,12 +4890,12 @@ public final class Proto {
     /**
      * <code>repeated .olcalib.ProductEntry product = 1;</code>
      */
-    java.util.List<? extends Proto.ProductEntryOrBuilder>
+    java.util.List<? extends IxProto.ProductEntryOrBuilder>
         getProductOrBuilderList();
     /**
      * <code>repeated .olcalib.ProductEntry product = 1;</code>
      */
-    Proto.ProductEntryOrBuilder getProductOrBuilder(
+    IxProto.ProductEntryOrBuilder getProductOrBuilder(
         int index);
   }
   /**
@@ -4951,11 +4951,11 @@ public final class Proto {
               break;
             case 10: {
               if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                product_ = new java.util.ArrayList<Proto.ProductEntry>();
+                product_ = new java.util.ArrayList<IxProto.ProductEntry>();
                 mutable_bitField0_ |= 0x00000001;
               }
               product_.add(
-                  input.readMessage(Proto.ProductEntry.parser(), extensionRegistry));
+                  input.readMessage(IxProto.ProductEntry.parser(), extensionRegistry));
               break;
             }
             default: {
@@ -4982,31 +4982,31 @@ public final class Proto {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return Proto.internal_static_olcalib_ProductIndex_descriptor;
+      return IxProto.internal_static_olcalib_ProductIndex_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return Proto.internal_static_olcalib_ProductIndex_fieldAccessorTable
+      return IxProto.internal_static_olcalib_ProductIndex_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              Proto.ProductIndex.class, Proto.ProductIndex.Builder.class);
+              IxProto.ProductIndex.class, IxProto.ProductIndex.Builder.class);
     }
 
     public static final int PRODUCT_FIELD_NUMBER = 1;
-    private java.util.List<Proto.ProductEntry> product_;
+    private java.util.List<IxProto.ProductEntry> product_;
     /**
      * <code>repeated .olcalib.ProductEntry product = 1;</code>
      */
     @java.lang.Override
-    public java.util.List<Proto.ProductEntry> getProductList() {
+    public java.util.List<IxProto.ProductEntry> getProductList() {
       return product_;
     }
     /**
      * <code>repeated .olcalib.ProductEntry product = 1;</code>
      */
     @java.lang.Override
-    public java.util.List<? extends Proto.ProductEntryOrBuilder>
+    public java.util.List<? extends IxProto.ProductEntryOrBuilder>
         getProductOrBuilderList() {
       return product_;
     }
@@ -5021,14 +5021,14 @@ public final class Proto {
      * <code>repeated .olcalib.ProductEntry product = 1;</code>
      */
     @java.lang.Override
-    public Proto.ProductEntry getProduct(int index) {
+    public IxProto.ProductEntry getProduct(int index) {
       return product_.get(index);
     }
     /**
      * <code>repeated .olcalib.ProductEntry product = 1;</code>
      */
     @java.lang.Override
-    public Proto.ProductEntryOrBuilder getProductOrBuilder(
+    public IxProto.ProductEntryOrBuilder getProductOrBuilder(
         int index) {
       return product_.get(index);
     }
@@ -5073,10 +5073,10 @@ public final class Proto {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof Proto.ProductIndex)) {
+      if (!(obj instanceof IxProto.ProductIndex)) {
         return super.equals(obj);
       }
-      Proto.ProductIndex other = (Proto.ProductIndex) obj;
+      IxProto.ProductIndex other = (IxProto.ProductIndex) obj;
 
       if (!getProductList()
           .equals(other.getProductList())) return false;
@@ -5100,69 +5100,69 @@ public final class Proto {
       return hash;
     }
 
-    public static Proto.ProductIndex parseFrom(
+    public static IxProto.ProductIndex parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.ProductIndex parseFrom(
+    public static IxProto.ProductIndex parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.ProductIndex parseFrom(
+    public static IxProto.ProductIndex parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.ProductIndex parseFrom(
+    public static IxProto.ProductIndex parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.ProductIndex parseFrom(byte[] data)
+    public static IxProto.ProductIndex parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.ProductIndex parseFrom(
+    public static IxProto.ProductIndex parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.ProductIndex parseFrom(java.io.InputStream input)
+    public static IxProto.ProductIndex parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static Proto.ProductIndex parseFrom(
+    public static IxProto.ProductIndex parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static Proto.ProductIndex parseDelimitedFrom(java.io.InputStream input)
+    public static IxProto.ProductIndex parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static Proto.ProductIndex parseDelimitedFrom(
+    public static IxProto.ProductIndex parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static Proto.ProductIndex parseFrom(
+    public static IxProto.ProductIndex parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static Proto.ProductIndex parseFrom(
+    public static IxProto.ProductIndex parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -5175,7 +5175,7 @@ public final class Proto {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(Proto.ProductIndex prototype) {
+    public static Builder newBuilder(IxProto.ProductIndex prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     @java.lang.Override
@@ -5200,18 +5200,18 @@ public final class Proto {
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:olcalib.ProductIndex)
-        Proto.ProductIndexOrBuilder {
+        IxProto.ProductIndexOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return Proto.internal_static_olcalib_ProductIndex_descriptor;
+        return IxProto.internal_static_olcalib_ProductIndex_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return Proto.internal_static_olcalib_ProductIndex_fieldAccessorTable
+        return IxProto.internal_static_olcalib_ProductIndex_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                Proto.ProductIndex.class, Proto.ProductIndex.Builder.class);
+                IxProto.ProductIndex.class, IxProto.ProductIndex.Builder.class);
       }
 
       // Construct using org.openlca.core.library.Proto.ProductIndex.newBuilder()
@@ -5245,17 +5245,17 @@ public final class Proto {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return Proto.internal_static_olcalib_ProductIndex_descriptor;
+        return IxProto.internal_static_olcalib_ProductIndex_descriptor;
       }
 
       @java.lang.Override
-      public Proto.ProductIndex getDefaultInstanceForType() {
-        return Proto.ProductIndex.getDefaultInstance();
+      public IxProto.ProductIndex getDefaultInstanceForType() {
+        return IxProto.ProductIndex.getDefaultInstance();
       }
 
       @java.lang.Override
-      public Proto.ProductIndex build() {
-        Proto.ProductIndex result = buildPartial();
+      public IxProto.ProductIndex build() {
+        IxProto.ProductIndex result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
@@ -5263,8 +5263,8 @@ public final class Proto {
       }
 
       @java.lang.Override
-      public Proto.ProductIndex buildPartial() {
-        Proto.ProductIndex result = new Proto.ProductIndex(this);
+      public IxProto.ProductIndex buildPartial() {
+        IxProto.ProductIndex result = new IxProto.ProductIndex(this);
         int from_bitField0_ = bitField0_;
         if (productBuilder_ == null) {
           if (((bitField0_ & 0x00000001) != 0)) {
@@ -5313,16 +5313,16 @@ public final class Proto {
       }
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof Proto.ProductIndex) {
-          return mergeFrom((Proto.ProductIndex)other);
+        if (other instanceof IxProto.ProductIndex) {
+          return mergeFrom((IxProto.ProductIndex)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(Proto.ProductIndex other) {
-        if (other == Proto.ProductIndex.getDefaultInstance()) return this;
+      public Builder mergeFrom(IxProto.ProductIndex other) {
+        if (other == IxProto.ProductIndex.getDefaultInstance()) return this;
         if (productBuilder_ == null) {
           if (!other.product_.isEmpty()) {
             if (product_.isEmpty()) {
@@ -5364,11 +5364,11 @@ public final class Proto {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        Proto.ProductIndex parsedMessage = null;
+        IxProto.ProductIndex parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (Proto.ProductIndex) e.getUnfinishedMessage();
+          parsedMessage = (IxProto.ProductIndex) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -5379,22 +5379,22 @@ public final class Proto {
       }
       private int bitField0_;
 
-      private java.util.List<Proto.ProductEntry> product_ =
+      private java.util.List<IxProto.ProductEntry> product_ =
         java.util.Collections.emptyList();
       private void ensureProductIsMutable() {
         if (!((bitField0_ & 0x00000001) != 0)) {
-          product_ = new java.util.ArrayList<Proto.ProductEntry>(product_);
+          product_ = new java.util.ArrayList<IxProto.ProductEntry>(product_);
           bitField0_ |= 0x00000001;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          Proto.ProductEntry, Proto.ProductEntry.Builder, Proto.ProductEntryOrBuilder> productBuilder_;
+          IxProto.ProductEntry, IxProto.ProductEntry.Builder, IxProto.ProductEntryOrBuilder> productBuilder_;
 
       /**
        * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public java.util.List<Proto.ProductEntry> getProductList() {
+      public java.util.List<IxProto.ProductEntry> getProductList() {
         if (productBuilder_ == null) {
           return java.util.Collections.unmodifiableList(product_);
         } else {
@@ -5414,7 +5414,7 @@ public final class Proto {
       /**
        * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public Proto.ProductEntry getProduct(int index) {
+      public IxProto.ProductEntry getProduct(int index) {
         if (productBuilder_ == null) {
           return product_.get(index);
         } else {
@@ -5425,7 +5425,7 @@ public final class Proto {
        * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
       public Builder setProduct(
-          int index, Proto.ProductEntry value) {
+          int index, IxProto.ProductEntry value) {
         if (productBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -5442,7 +5442,7 @@ public final class Proto {
        * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
       public Builder setProduct(
-          int index, Proto.ProductEntry.Builder builderForValue) {
+          int index, IxProto.ProductEntry.Builder builderForValue) {
         if (productBuilder_ == null) {
           ensureProductIsMutable();
           product_.set(index, builderForValue.build());
@@ -5455,7 +5455,7 @@ public final class Proto {
       /**
        * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public Builder addProduct(Proto.ProductEntry value) {
+      public Builder addProduct(IxProto.ProductEntry value) {
         if (productBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -5472,7 +5472,7 @@ public final class Proto {
        * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
       public Builder addProduct(
-          int index, Proto.ProductEntry value) {
+          int index, IxProto.ProductEntry value) {
         if (productBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -5489,7 +5489,7 @@ public final class Proto {
        * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
       public Builder addProduct(
-          Proto.ProductEntry.Builder builderForValue) {
+          IxProto.ProductEntry.Builder builderForValue) {
         if (productBuilder_ == null) {
           ensureProductIsMutable();
           product_.add(builderForValue.build());
@@ -5503,7 +5503,7 @@ public final class Proto {
        * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
       public Builder addProduct(
-          int index, Proto.ProductEntry.Builder builderForValue) {
+          int index, IxProto.ProductEntry.Builder builderForValue) {
         if (productBuilder_ == null) {
           ensureProductIsMutable();
           product_.add(index, builderForValue.build());
@@ -5517,7 +5517,7 @@ public final class Proto {
        * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
       public Builder addAllProduct(
-          java.lang.Iterable<? extends Proto.ProductEntry> values) {
+          java.lang.Iterable<? extends IxProto.ProductEntry> values) {
         if (productBuilder_ == null) {
           ensureProductIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
@@ -5557,14 +5557,14 @@ public final class Proto {
       /**
        * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public Proto.ProductEntry.Builder getProductBuilder(
+      public IxProto.ProductEntry.Builder getProductBuilder(
           int index) {
         return getProductFieldBuilder().getBuilder(index);
       }
       /**
        * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public Proto.ProductEntryOrBuilder getProductOrBuilder(
+      public IxProto.ProductEntryOrBuilder getProductOrBuilder(
           int index) {
         if (productBuilder_ == null) {
           return product_.get(index);  } else {
@@ -5574,7 +5574,7 @@ public final class Proto {
       /**
        * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public java.util.List<? extends Proto.ProductEntryOrBuilder>
+      public java.util.List<? extends IxProto.ProductEntryOrBuilder>
            getProductOrBuilderList() {
         if (productBuilder_ != null) {
           return productBuilder_.getMessageOrBuilderList();
@@ -5585,31 +5585,31 @@ public final class Proto {
       /**
        * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public Proto.ProductEntry.Builder addProductBuilder() {
+      public IxProto.ProductEntry.Builder addProductBuilder() {
         return getProductFieldBuilder().addBuilder(
-            Proto.ProductEntry.getDefaultInstance());
+            IxProto.ProductEntry.getDefaultInstance());
       }
       /**
        * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public Proto.ProductEntry.Builder addProductBuilder(
+      public IxProto.ProductEntry.Builder addProductBuilder(
           int index) {
         return getProductFieldBuilder().addBuilder(
-            index, Proto.ProductEntry.getDefaultInstance());
+            index, IxProto.ProductEntry.getDefaultInstance());
       }
       /**
        * <code>repeated .olcalib.ProductEntry product = 1;</code>
        */
-      public java.util.List<Proto.ProductEntry.Builder>
+      public java.util.List<IxProto.ProductEntry.Builder>
            getProductBuilderList() {
         return getProductFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          Proto.ProductEntry, Proto.ProductEntry.Builder, Proto.ProductEntryOrBuilder>
+          IxProto.ProductEntry, IxProto.ProductEntry.Builder, IxProto.ProductEntryOrBuilder>
           getProductFieldBuilder() {
         if (productBuilder_ == null) {
           productBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
-              Proto.ProductEntry, Proto.ProductEntry.Builder, Proto.ProductEntryOrBuilder>(
+              IxProto.ProductEntry, IxProto.ProductEntry.Builder, IxProto.ProductEntryOrBuilder>(
                   product_,
                   ((bitField0_ & 0x00000001) != 0),
                   getParentForChildren(),
@@ -5635,12 +5635,12 @@ public final class Proto {
     }
 
     // @@protoc_insertion_point(class_scope:olcalib.ProductIndex)
-    private static final Proto.ProductIndex DEFAULT_INSTANCE;
+    private static final IxProto.ProductIndex DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new Proto.ProductIndex();
+      DEFAULT_INSTANCE = new IxProto.ProductIndex();
     }
 
-    public static Proto.ProductIndex getDefaultInstance() {
+    public static IxProto.ProductIndex getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
@@ -5665,7 +5665,7 @@ public final class Proto {
     }
 
     @java.lang.Override
-    public Proto.ProductIndex getDefaultInstanceForType() {
+    public IxProto.ProductIndex getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -5690,11 +5690,11 @@ public final class Proto {
      * <code>.olcalib.Flow flow = 2;</code>
      * @return The flow.
      */
-    Proto.Flow getFlow();
+    IxProto.Flow getFlow();
     /**
      * <code>.olcalib.Flow flow = 2;</code>
      */
-    Proto.FlowOrBuilder getFlowOrBuilder();
+    IxProto.FlowOrBuilder getFlowOrBuilder();
 
     /**
      * <code>.olcalib.Location location = 3;</code>
@@ -5705,11 +5705,11 @@ public final class Proto {
      * <code>.olcalib.Location location = 3;</code>
      * @return The location.
      */
-    Proto.Location getLocation();
+    IxProto.Location getLocation();
     /**
      * <code>.olcalib.Location location = 3;</code>
      */
-    Proto.LocationOrBuilder getLocationOrBuilder();
+    IxProto.LocationOrBuilder getLocationOrBuilder();
 
     /**
      * <code>bool is_input = 4;</code>
@@ -5772,11 +5772,11 @@ public final class Proto {
               break;
             }
             case 18: {
-              Proto.Flow.Builder subBuilder = null;
+              IxProto.Flow.Builder subBuilder = null;
               if (flow_ != null) {
                 subBuilder = flow_.toBuilder();
               }
-              flow_ = input.readMessage(Proto.Flow.parser(), extensionRegistry);
+              flow_ = input.readMessage(IxProto.Flow.parser(), extensionRegistry);
               if (subBuilder != null) {
                 subBuilder.mergeFrom(flow_);
                 flow_ = subBuilder.buildPartial();
@@ -5785,11 +5785,11 @@ public final class Proto {
               break;
             }
             case 26: {
-              Proto.Location.Builder subBuilder = null;
+              IxProto.Location.Builder subBuilder = null;
               if (location_ != null) {
                 subBuilder = location_.toBuilder();
               }
-              location_ = input.readMessage(Proto.Location.parser(), extensionRegistry);
+              location_ = input.readMessage(IxProto.Location.parser(), extensionRegistry);
               if (subBuilder != null) {
                 subBuilder.mergeFrom(location_);
                 location_ = subBuilder.buildPartial();
@@ -5823,15 +5823,15 @@ public final class Proto {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return Proto.internal_static_olcalib_ElemFlowEntry_descriptor;
+      return IxProto.internal_static_olcalib_ElemFlowEntry_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return Proto.internal_static_olcalib_ElemFlowEntry_fieldAccessorTable
+      return IxProto.internal_static_olcalib_ElemFlowEntry_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              Proto.ElemFlowEntry.class, Proto.ElemFlowEntry.Builder.class);
+              IxProto.ElemFlowEntry.class, IxProto.ElemFlowEntry.Builder.class);
     }
 
     public static final int INDEX_FIELD_NUMBER = 1;
@@ -5846,7 +5846,7 @@ public final class Proto {
     }
 
     public static final int FLOW_FIELD_NUMBER = 2;
-    private Proto.Flow flow_;
+    private IxProto.Flow flow_;
     /**
      * <code>.olcalib.Flow flow = 2;</code>
      * @return Whether the flow field is set.
@@ -5860,19 +5860,19 @@ public final class Proto {
      * @return The flow.
      */
     @java.lang.Override
-    public Proto.Flow getFlow() {
-      return flow_ == null ? Proto.Flow.getDefaultInstance() : flow_;
+    public IxProto.Flow getFlow() {
+      return flow_ == null ? IxProto.Flow.getDefaultInstance() : flow_;
     }
     /**
      * <code>.olcalib.Flow flow = 2;</code>
      */
     @java.lang.Override
-    public Proto.FlowOrBuilder getFlowOrBuilder() {
+    public IxProto.FlowOrBuilder getFlowOrBuilder() {
       return getFlow();
     }
 
     public static final int LOCATION_FIELD_NUMBER = 3;
-    private Proto.Location location_;
+    private IxProto.Location location_;
     /**
      * <code>.olcalib.Location location = 3;</code>
      * @return Whether the location field is set.
@@ -5886,14 +5886,14 @@ public final class Proto {
      * @return The location.
      */
     @java.lang.Override
-    public Proto.Location getLocation() {
-      return location_ == null ? Proto.Location.getDefaultInstance() : location_;
+    public IxProto.Location getLocation() {
+      return location_ == null ? IxProto.Location.getDefaultInstance() : location_;
     }
     /**
      * <code>.olcalib.Location location = 3;</code>
      */
     @java.lang.Override
-    public Proto.LocationOrBuilder getLocationOrBuilder() {
+    public IxProto.LocationOrBuilder getLocationOrBuilder() {
       return getLocation();
     }
 
@@ -5969,10 +5969,10 @@ public final class Proto {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof Proto.ElemFlowEntry)) {
+      if (!(obj instanceof IxProto.ElemFlowEntry)) {
         return super.equals(obj);
       }
-      Proto.ElemFlowEntry other = (Proto.ElemFlowEntry) obj;
+      IxProto.ElemFlowEntry other = (IxProto.ElemFlowEntry) obj;
 
       if (getIndex()
           != other.getIndex()) return false;
@@ -6017,69 +6017,69 @@ public final class Proto {
       return hash;
     }
 
-    public static Proto.ElemFlowEntry parseFrom(
+    public static IxProto.ElemFlowEntry parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.ElemFlowEntry parseFrom(
+    public static IxProto.ElemFlowEntry parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.ElemFlowEntry parseFrom(
+    public static IxProto.ElemFlowEntry parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.ElemFlowEntry parseFrom(
+    public static IxProto.ElemFlowEntry parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.ElemFlowEntry parseFrom(byte[] data)
+    public static IxProto.ElemFlowEntry parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.ElemFlowEntry parseFrom(
+    public static IxProto.ElemFlowEntry parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.ElemFlowEntry parseFrom(java.io.InputStream input)
+    public static IxProto.ElemFlowEntry parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static Proto.ElemFlowEntry parseFrom(
+    public static IxProto.ElemFlowEntry parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static Proto.ElemFlowEntry parseDelimitedFrom(java.io.InputStream input)
+    public static IxProto.ElemFlowEntry parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static Proto.ElemFlowEntry parseDelimitedFrom(
+    public static IxProto.ElemFlowEntry parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static Proto.ElemFlowEntry parseFrom(
+    public static IxProto.ElemFlowEntry parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static Proto.ElemFlowEntry parseFrom(
+    public static IxProto.ElemFlowEntry parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -6092,7 +6092,7 @@ public final class Proto {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(Proto.ElemFlowEntry prototype) {
+    public static Builder newBuilder(IxProto.ElemFlowEntry prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     @java.lang.Override
@@ -6117,18 +6117,18 @@ public final class Proto {
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:olcalib.ElemFlowEntry)
-        Proto.ElemFlowEntryOrBuilder {
+        IxProto.ElemFlowEntryOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return Proto.internal_static_olcalib_ElemFlowEntry_descriptor;
+        return IxProto.internal_static_olcalib_ElemFlowEntry_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return Proto.internal_static_olcalib_ElemFlowEntry_fieldAccessorTable
+        return IxProto.internal_static_olcalib_ElemFlowEntry_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                Proto.ElemFlowEntry.class, Proto.ElemFlowEntry.Builder.class);
+                IxProto.ElemFlowEntry.class, IxProto.ElemFlowEntry.Builder.class);
       }
 
       // Construct using org.openlca.core.library.Proto.ElemFlowEntry.newBuilder()
@@ -6171,17 +6171,17 @@ public final class Proto {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return Proto.internal_static_olcalib_ElemFlowEntry_descriptor;
+        return IxProto.internal_static_olcalib_ElemFlowEntry_descriptor;
       }
 
       @java.lang.Override
-      public Proto.ElemFlowEntry getDefaultInstanceForType() {
-        return Proto.ElemFlowEntry.getDefaultInstance();
+      public IxProto.ElemFlowEntry getDefaultInstanceForType() {
+        return IxProto.ElemFlowEntry.getDefaultInstance();
       }
 
       @java.lang.Override
-      public Proto.ElemFlowEntry build() {
-        Proto.ElemFlowEntry result = buildPartial();
+      public IxProto.ElemFlowEntry build() {
+        IxProto.ElemFlowEntry result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
@@ -6189,8 +6189,8 @@ public final class Proto {
       }
 
       @java.lang.Override
-      public Proto.ElemFlowEntry buildPartial() {
-        Proto.ElemFlowEntry result = new Proto.ElemFlowEntry(this);
+      public IxProto.ElemFlowEntry buildPartial() {
+        IxProto.ElemFlowEntry result = new IxProto.ElemFlowEntry(this);
         result.index_ = index_;
         if (flowBuilder_ == null) {
           result.flow_ = flow_;
@@ -6241,16 +6241,16 @@ public final class Proto {
       }
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof Proto.ElemFlowEntry) {
-          return mergeFrom((Proto.ElemFlowEntry)other);
+        if (other instanceof IxProto.ElemFlowEntry) {
+          return mergeFrom((IxProto.ElemFlowEntry)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(Proto.ElemFlowEntry other) {
-        if (other == Proto.ElemFlowEntry.getDefaultInstance()) return this;
+      public Builder mergeFrom(IxProto.ElemFlowEntry other) {
+        if (other == IxProto.ElemFlowEntry.getDefaultInstance()) return this;
         if (other.getIndex() != 0) {
           setIndex(other.getIndex());
         }
@@ -6278,11 +6278,11 @@ public final class Proto {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        Proto.ElemFlowEntry parsedMessage = null;
+        IxProto.ElemFlowEntry parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (Proto.ElemFlowEntry) e.getUnfinishedMessage();
+          parsedMessage = (IxProto.ElemFlowEntry) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -6323,9 +6323,9 @@ public final class Proto {
         return this;
       }
 
-      private Proto.Flow flow_;
+      private IxProto.Flow flow_;
       private com.google.protobuf.SingleFieldBuilderV3<
-          Proto.Flow, Proto.Flow.Builder, Proto.FlowOrBuilder> flowBuilder_;
+          IxProto.Flow, IxProto.Flow.Builder, IxProto.FlowOrBuilder> flowBuilder_;
       /**
        * <code>.olcalib.Flow flow = 2;</code>
        * @return Whether the flow field is set.
@@ -6337,9 +6337,9 @@ public final class Proto {
        * <code>.olcalib.Flow flow = 2;</code>
        * @return The flow.
        */
-      public Proto.Flow getFlow() {
+      public IxProto.Flow getFlow() {
         if (flowBuilder_ == null) {
-          return flow_ == null ? Proto.Flow.getDefaultInstance() : flow_;
+          return flow_ == null ? IxProto.Flow.getDefaultInstance() : flow_;
         } else {
           return flowBuilder_.getMessage();
         }
@@ -6347,7 +6347,7 @@ public final class Proto {
       /**
        * <code>.olcalib.Flow flow = 2;</code>
        */
-      public Builder setFlow(Proto.Flow value) {
+      public Builder setFlow(IxProto.Flow value) {
         if (flowBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -6364,7 +6364,7 @@ public final class Proto {
        * <code>.olcalib.Flow flow = 2;</code>
        */
       public Builder setFlow(
-          Proto.Flow.Builder builderForValue) {
+          IxProto.Flow.Builder builderForValue) {
         if (flowBuilder_ == null) {
           flow_ = builderForValue.build();
           onChanged();
@@ -6377,11 +6377,11 @@ public final class Proto {
       /**
        * <code>.olcalib.Flow flow = 2;</code>
        */
-      public Builder mergeFlow(Proto.Flow value) {
+      public Builder mergeFlow(IxProto.Flow value) {
         if (flowBuilder_ == null) {
           if (flow_ != null) {
             flow_ =
-              Proto.Flow.newBuilder(flow_).mergeFrom(value).buildPartial();
+              IxProto.Flow.newBuilder(flow_).mergeFrom(value).buildPartial();
           } else {
             flow_ = value;
           }
@@ -6409,7 +6409,7 @@ public final class Proto {
       /**
        * <code>.olcalib.Flow flow = 2;</code>
        */
-      public Proto.Flow.Builder getFlowBuilder() {
+      public IxProto.Flow.Builder getFlowBuilder() {
 
         onChanged();
         return getFlowFieldBuilder().getBuilder();
@@ -6417,23 +6417,23 @@ public final class Proto {
       /**
        * <code>.olcalib.Flow flow = 2;</code>
        */
-      public Proto.FlowOrBuilder getFlowOrBuilder() {
+      public IxProto.FlowOrBuilder getFlowOrBuilder() {
         if (flowBuilder_ != null) {
           return flowBuilder_.getMessageOrBuilder();
         } else {
           return flow_ == null ?
-              Proto.Flow.getDefaultInstance() : flow_;
+              IxProto.Flow.getDefaultInstance() : flow_;
         }
       }
       /**
        * <code>.olcalib.Flow flow = 2;</code>
        */
       private com.google.protobuf.SingleFieldBuilderV3<
-          Proto.Flow, Proto.Flow.Builder, Proto.FlowOrBuilder>
+          IxProto.Flow, IxProto.Flow.Builder, IxProto.FlowOrBuilder>
           getFlowFieldBuilder() {
         if (flowBuilder_ == null) {
           flowBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              Proto.Flow, Proto.Flow.Builder, Proto.FlowOrBuilder>(
+              IxProto.Flow, IxProto.Flow.Builder, IxProto.FlowOrBuilder>(
                   getFlow(),
                   getParentForChildren(),
                   isClean());
@@ -6442,9 +6442,9 @@ public final class Proto {
         return flowBuilder_;
       }
 
-      private Proto.Location location_;
+      private IxProto.Location location_;
       private com.google.protobuf.SingleFieldBuilderV3<
-          Proto.Location, Proto.Location.Builder, Proto.LocationOrBuilder> locationBuilder_;
+          IxProto.Location, IxProto.Location.Builder, IxProto.LocationOrBuilder> locationBuilder_;
       /**
        * <code>.olcalib.Location location = 3;</code>
        * @return Whether the location field is set.
@@ -6456,9 +6456,9 @@ public final class Proto {
        * <code>.olcalib.Location location = 3;</code>
        * @return The location.
        */
-      public Proto.Location getLocation() {
+      public IxProto.Location getLocation() {
         if (locationBuilder_ == null) {
-          return location_ == null ? Proto.Location.getDefaultInstance() : location_;
+          return location_ == null ? IxProto.Location.getDefaultInstance() : location_;
         } else {
           return locationBuilder_.getMessage();
         }
@@ -6466,7 +6466,7 @@ public final class Proto {
       /**
        * <code>.olcalib.Location location = 3;</code>
        */
-      public Builder setLocation(Proto.Location value) {
+      public Builder setLocation(IxProto.Location value) {
         if (locationBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -6483,7 +6483,7 @@ public final class Proto {
        * <code>.olcalib.Location location = 3;</code>
        */
       public Builder setLocation(
-          Proto.Location.Builder builderForValue) {
+          IxProto.Location.Builder builderForValue) {
         if (locationBuilder_ == null) {
           location_ = builderForValue.build();
           onChanged();
@@ -6496,11 +6496,11 @@ public final class Proto {
       /**
        * <code>.olcalib.Location location = 3;</code>
        */
-      public Builder mergeLocation(Proto.Location value) {
+      public Builder mergeLocation(IxProto.Location value) {
         if (locationBuilder_ == null) {
           if (location_ != null) {
             location_ =
-              Proto.Location.newBuilder(location_).mergeFrom(value).buildPartial();
+              IxProto.Location.newBuilder(location_).mergeFrom(value).buildPartial();
           } else {
             location_ = value;
           }
@@ -6528,7 +6528,7 @@ public final class Proto {
       /**
        * <code>.olcalib.Location location = 3;</code>
        */
-      public Proto.Location.Builder getLocationBuilder() {
+      public IxProto.Location.Builder getLocationBuilder() {
 
         onChanged();
         return getLocationFieldBuilder().getBuilder();
@@ -6536,23 +6536,23 @@ public final class Proto {
       /**
        * <code>.olcalib.Location location = 3;</code>
        */
-      public Proto.LocationOrBuilder getLocationOrBuilder() {
+      public IxProto.LocationOrBuilder getLocationOrBuilder() {
         if (locationBuilder_ != null) {
           return locationBuilder_.getMessageOrBuilder();
         } else {
           return location_ == null ?
-              Proto.Location.getDefaultInstance() : location_;
+              IxProto.Location.getDefaultInstance() : location_;
         }
       }
       /**
        * <code>.olcalib.Location location = 3;</code>
        */
       private com.google.protobuf.SingleFieldBuilderV3<
-          Proto.Location, Proto.Location.Builder, Proto.LocationOrBuilder>
+          IxProto.Location, IxProto.Location.Builder, IxProto.LocationOrBuilder>
           getLocationFieldBuilder() {
         if (locationBuilder_ == null) {
           locationBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              Proto.Location, Proto.Location.Builder, Proto.LocationOrBuilder>(
+              IxProto.Location, IxProto.Location.Builder, IxProto.LocationOrBuilder>(
                   getLocation(),
                   getParentForChildren(),
                   isClean());
@@ -6608,12 +6608,12 @@ public final class Proto {
     }
 
     // @@protoc_insertion_point(class_scope:olcalib.ElemFlowEntry)
-    private static final Proto.ElemFlowEntry DEFAULT_INSTANCE;
+    private static final IxProto.ElemFlowEntry DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new Proto.ElemFlowEntry();
+      DEFAULT_INSTANCE = new IxProto.ElemFlowEntry();
     }
 
-    public static Proto.ElemFlowEntry getDefaultInstance() {
+    public static IxProto.ElemFlowEntry getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
@@ -6638,7 +6638,7 @@ public final class Proto {
     }
 
     @java.lang.Override
-    public Proto.ElemFlowEntry getDefaultInstanceForType() {
+    public IxProto.ElemFlowEntry getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -6651,12 +6651,12 @@ public final class Proto {
     /**
      * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
      */
-    java.util.List<Proto.ElemFlowEntry>
+    java.util.List<IxProto.ElemFlowEntry>
         getFlowList();
     /**
      * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
      */
-    Proto.ElemFlowEntry getFlow(int index);
+    IxProto.ElemFlowEntry getFlow(int index);
     /**
      * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
      */
@@ -6664,12 +6664,12 @@ public final class Proto {
     /**
      * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
      */
-    java.util.List<? extends Proto.ElemFlowEntryOrBuilder>
+    java.util.List<? extends IxProto.ElemFlowEntryOrBuilder>
         getFlowOrBuilderList();
     /**
      * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
      */
-    Proto.ElemFlowEntryOrBuilder getFlowOrBuilder(
+    IxProto.ElemFlowEntryOrBuilder getFlowOrBuilder(
         int index);
   }
   /**
@@ -6725,11 +6725,11 @@ public final class Proto {
               break;
             case 10: {
               if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                flow_ = new java.util.ArrayList<Proto.ElemFlowEntry>();
+                flow_ = new java.util.ArrayList<IxProto.ElemFlowEntry>();
                 mutable_bitField0_ |= 0x00000001;
               }
               flow_.add(
-                  input.readMessage(Proto.ElemFlowEntry.parser(), extensionRegistry));
+                  input.readMessage(IxProto.ElemFlowEntry.parser(), extensionRegistry));
               break;
             }
             default: {
@@ -6756,31 +6756,31 @@ public final class Proto {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return Proto.internal_static_olcalib_ElemFlowIndex_descriptor;
+      return IxProto.internal_static_olcalib_ElemFlowIndex_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return Proto.internal_static_olcalib_ElemFlowIndex_fieldAccessorTable
+      return IxProto.internal_static_olcalib_ElemFlowIndex_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              Proto.ElemFlowIndex.class, Proto.ElemFlowIndex.Builder.class);
+              IxProto.ElemFlowIndex.class, IxProto.ElemFlowIndex.Builder.class);
     }
 
     public static final int FLOW_FIELD_NUMBER = 1;
-    private java.util.List<Proto.ElemFlowEntry> flow_;
+    private java.util.List<IxProto.ElemFlowEntry> flow_;
     /**
      * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
      */
     @java.lang.Override
-    public java.util.List<Proto.ElemFlowEntry> getFlowList() {
+    public java.util.List<IxProto.ElemFlowEntry> getFlowList() {
       return flow_;
     }
     /**
      * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
      */
     @java.lang.Override
-    public java.util.List<? extends Proto.ElemFlowEntryOrBuilder>
+    public java.util.List<? extends IxProto.ElemFlowEntryOrBuilder>
         getFlowOrBuilderList() {
       return flow_;
     }
@@ -6795,14 +6795,14 @@ public final class Proto {
      * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
      */
     @java.lang.Override
-    public Proto.ElemFlowEntry getFlow(int index) {
+    public IxProto.ElemFlowEntry getFlow(int index) {
       return flow_.get(index);
     }
     /**
      * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
      */
     @java.lang.Override
-    public Proto.ElemFlowEntryOrBuilder getFlowOrBuilder(
+    public IxProto.ElemFlowEntryOrBuilder getFlowOrBuilder(
         int index) {
       return flow_.get(index);
     }
@@ -6847,10 +6847,10 @@ public final class Proto {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof Proto.ElemFlowIndex)) {
+      if (!(obj instanceof IxProto.ElemFlowIndex)) {
         return super.equals(obj);
       }
-      Proto.ElemFlowIndex other = (Proto.ElemFlowIndex) obj;
+      IxProto.ElemFlowIndex other = (IxProto.ElemFlowIndex) obj;
 
       if (!getFlowList()
           .equals(other.getFlowList())) return false;
@@ -6874,69 +6874,69 @@ public final class Proto {
       return hash;
     }
 
-    public static Proto.ElemFlowIndex parseFrom(
+    public static IxProto.ElemFlowIndex parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.ElemFlowIndex parseFrom(
+    public static IxProto.ElemFlowIndex parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.ElemFlowIndex parseFrom(
+    public static IxProto.ElemFlowIndex parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.ElemFlowIndex parseFrom(
+    public static IxProto.ElemFlowIndex parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.ElemFlowIndex parseFrom(byte[] data)
+    public static IxProto.ElemFlowIndex parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.ElemFlowIndex parseFrom(
+    public static IxProto.ElemFlowIndex parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.ElemFlowIndex parseFrom(java.io.InputStream input)
+    public static IxProto.ElemFlowIndex parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static Proto.ElemFlowIndex parseFrom(
+    public static IxProto.ElemFlowIndex parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static Proto.ElemFlowIndex parseDelimitedFrom(java.io.InputStream input)
+    public static IxProto.ElemFlowIndex parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static Proto.ElemFlowIndex parseDelimitedFrom(
+    public static IxProto.ElemFlowIndex parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static Proto.ElemFlowIndex parseFrom(
+    public static IxProto.ElemFlowIndex parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static Proto.ElemFlowIndex parseFrom(
+    public static IxProto.ElemFlowIndex parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -6949,7 +6949,7 @@ public final class Proto {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(Proto.ElemFlowIndex prototype) {
+    public static Builder newBuilder(IxProto.ElemFlowIndex prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     @java.lang.Override
@@ -6974,18 +6974,18 @@ public final class Proto {
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:olcalib.ElemFlowIndex)
-        Proto.ElemFlowIndexOrBuilder {
+        IxProto.ElemFlowIndexOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return Proto.internal_static_olcalib_ElemFlowIndex_descriptor;
+        return IxProto.internal_static_olcalib_ElemFlowIndex_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return Proto.internal_static_olcalib_ElemFlowIndex_fieldAccessorTable
+        return IxProto.internal_static_olcalib_ElemFlowIndex_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                Proto.ElemFlowIndex.class, Proto.ElemFlowIndex.Builder.class);
+                IxProto.ElemFlowIndex.class, IxProto.ElemFlowIndex.Builder.class);
       }
 
       // Construct using org.openlca.core.library.Proto.ElemFlowIndex.newBuilder()
@@ -7019,17 +7019,17 @@ public final class Proto {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return Proto.internal_static_olcalib_ElemFlowIndex_descriptor;
+        return IxProto.internal_static_olcalib_ElemFlowIndex_descriptor;
       }
 
       @java.lang.Override
-      public Proto.ElemFlowIndex getDefaultInstanceForType() {
-        return Proto.ElemFlowIndex.getDefaultInstance();
+      public IxProto.ElemFlowIndex getDefaultInstanceForType() {
+        return IxProto.ElemFlowIndex.getDefaultInstance();
       }
 
       @java.lang.Override
-      public Proto.ElemFlowIndex build() {
-        Proto.ElemFlowIndex result = buildPartial();
+      public IxProto.ElemFlowIndex build() {
+        IxProto.ElemFlowIndex result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
@@ -7037,8 +7037,8 @@ public final class Proto {
       }
 
       @java.lang.Override
-      public Proto.ElemFlowIndex buildPartial() {
-        Proto.ElemFlowIndex result = new Proto.ElemFlowIndex(this);
+      public IxProto.ElemFlowIndex buildPartial() {
+        IxProto.ElemFlowIndex result = new IxProto.ElemFlowIndex(this);
         int from_bitField0_ = bitField0_;
         if (flowBuilder_ == null) {
           if (((bitField0_ & 0x00000001) != 0)) {
@@ -7087,16 +7087,16 @@ public final class Proto {
       }
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof Proto.ElemFlowIndex) {
-          return mergeFrom((Proto.ElemFlowIndex)other);
+        if (other instanceof IxProto.ElemFlowIndex) {
+          return mergeFrom((IxProto.ElemFlowIndex)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(Proto.ElemFlowIndex other) {
-        if (other == Proto.ElemFlowIndex.getDefaultInstance()) return this;
+      public Builder mergeFrom(IxProto.ElemFlowIndex other) {
+        if (other == IxProto.ElemFlowIndex.getDefaultInstance()) return this;
         if (flowBuilder_ == null) {
           if (!other.flow_.isEmpty()) {
             if (flow_.isEmpty()) {
@@ -7138,11 +7138,11 @@ public final class Proto {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        Proto.ElemFlowIndex parsedMessage = null;
+        IxProto.ElemFlowIndex parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (Proto.ElemFlowIndex) e.getUnfinishedMessage();
+          parsedMessage = (IxProto.ElemFlowIndex) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -7153,22 +7153,22 @@ public final class Proto {
       }
       private int bitField0_;
 
-      private java.util.List<Proto.ElemFlowEntry> flow_ =
+      private java.util.List<IxProto.ElemFlowEntry> flow_ =
         java.util.Collections.emptyList();
       private void ensureFlowIsMutable() {
         if (!((bitField0_ & 0x00000001) != 0)) {
-          flow_ = new java.util.ArrayList<Proto.ElemFlowEntry>(flow_);
+          flow_ = new java.util.ArrayList<IxProto.ElemFlowEntry>(flow_);
           bitField0_ |= 0x00000001;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          Proto.ElemFlowEntry, Proto.ElemFlowEntry.Builder, Proto.ElemFlowEntryOrBuilder> flowBuilder_;
+          IxProto.ElemFlowEntry, IxProto.ElemFlowEntry.Builder, IxProto.ElemFlowEntryOrBuilder> flowBuilder_;
 
       /**
        * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public java.util.List<Proto.ElemFlowEntry> getFlowList() {
+      public java.util.List<IxProto.ElemFlowEntry> getFlowList() {
         if (flowBuilder_ == null) {
           return java.util.Collections.unmodifiableList(flow_);
         } else {
@@ -7188,7 +7188,7 @@ public final class Proto {
       /**
        * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public Proto.ElemFlowEntry getFlow(int index) {
+      public IxProto.ElemFlowEntry getFlow(int index) {
         if (flowBuilder_ == null) {
           return flow_.get(index);
         } else {
@@ -7199,7 +7199,7 @@ public final class Proto {
        * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
       public Builder setFlow(
-          int index, Proto.ElemFlowEntry value) {
+          int index, IxProto.ElemFlowEntry value) {
         if (flowBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -7216,7 +7216,7 @@ public final class Proto {
        * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
       public Builder setFlow(
-          int index, Proto.ElemFlowEntry.Builder builderForValue) {
+          int index, IxProto.ElemFlowEntry.Builder builderForValue) {
         if (flowBuilder_ == null) {
           ensureFlowIsMutable();
           flow_.set(index, builderForValue.build());
@@ -7229,7 +7229,7 @@ public final class Proto {
       /**
        * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public Builder addFlow(Proto.ElemFlowEntry value) {
+      public Builder addFlow(IxProto.ElemFlowEntry value) {
         if (flowBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -7246,7 +7246,7 @@ public final class Proto {
        * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
       public Builder addFlow(
-          int index, Proto.ElemFlowEntry value) {
+          int index, IxProto.ElemFlowEntry value) {
         if (flowBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -7263,7 +7263,7 @@ public final class Proto {
        * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
       public Builder addFlow(
-          Proto.ElemFlowEntry.Builder builderForValue) {
+          IxProto.ElemFlowEntry.Builder builderForValue) {
         if (flowBuilder_ == null) {
           ensureFlowIsMutable();
           flow_.add(builderForValue.build());
@@ -7277,7 +7277,7 @@ public final class Proto {
        * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
       public Builder addFlow(
-          int index, Proto.ElemFlowEntry.Builder builderForValue) {
+          int index, IxProto.ElemFlowEntry.Builder builderForValue) {
         if (flowBuilder_ == null) {
           ensureFlowIsMutable();
           flow_.add(index, builderForValue.build());
@@ -7291,7 +7291,7 @@ public final class Proto {
        * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
       public Builder addAllFlow(
-          java.lang.Iterable<? extends Proto.ElemFlowEntry> values) {
+          java.lang.Iterable<? extends IxProto.ElemFlowEntry> values) {
         if (flowBuilder_ == null) {
           ensureFlowIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
@@ -7331,14 +7331,14 @@ public final class Proto {
       /**
        * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public Proto.ElemFlowEntry.Builder getFlowBuilder(
+      public IxProto.ElemFlowEntry.Builder getFlowBuilder(
           int index) {
         return getFlowFieldBuilder().getBuilder(index);
       }
       /**
        * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public Proto.ElemFlowEntryOrBuilder getFlowOrBuilder(
+      public IxProto.ElemFlowEntryOrBuilder getFlowOrBuilder(
           int index) {
         if (flowBuilder_ == null) {
           return flow_.get(index);  } else {
@@ -7348,7 +7348,7 @@ public final class Proto {
       /**
        * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public java.util.List<? extends Proto.ElemFlowEntryOrBuilder>
+      public java.util.List<? extends IxProto.ElemFlowEntryOrBuilder>
            getFlowOrBuilderList() {
         if (flowBuilder_ != null) {
           return flowBuilder_.getMessageOrBuilderList();
@@ -7359,31 +7359,31 @@ public final class Proto {
       /**
        * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public Proto.ElemFlowEntry.Builder addFlowBuilder() {
+      public IxProto.ElemFlowEntry.Builder addFlowBuilder() {
         return getFlowFieldBuilder().addBuilder(
-            Proto.ElemFlowEntry.getDefaultInstance());
+            IxProto.ElemFlowEntry.getDefaultInstance());
       }
       /**
        * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public Proto.ElemFlowEntry.Builder addFlowBuilder(
+      public IxProto.ElemFlowEntry.Builder addFlowBuilder(
           int index) {
         return getFlowFieldBuilder().addBuilder(
-            index, Proto.ElemFlowEntry.getDefaultInstance());
+            index, IxProto.ElemFlowEntry.getDefaultInstance());
       }
       /**
        * <code>repeated .olcalib.ElemFlowEntry flow = 1;</code>
        */
-      public java.util.List<Proto.ElemFlowEntry.Builder>
+      public java.util.List<IxProto.ElemFlowEntry.Builder>
            getFlowBuilderList() {
         return getFlowFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          Proto.ElemFlowEntry, Proto.ElemFlowEntry.Builder, Proto.ElemFlowEntryOrBuilder>
+          IxProto.ElemFlowEntry, IxProto.ElemFlowEntry.Builder, IxProto.ElemFlowEntryOrBuilder>
           getFlowFieldBuilder() {
         if (flowBuilder_ == null) {
           flowBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
-              Proto.ElemFlowEntry, Proto.ElemFlowEntry.Builder, Proto.ElemFlowEntryOrBuilder>(
+              IxProto.ElemFlowEntry, IxProto.ElemFlowEntry.Builder, IxProto.ElemFlowEntryOrBuilder>(
                   flow_,
                   ((bitField0_ & 0x00000001) != 0),
                   getParentForChildren(),
@@ -7409,12 +7409,12 @@ public final class Proto {
     }
 
     // @@protoc_insertion_point(class_scope:olcalib.ElemFlowIndex)
-    private static final Proto.ElemFlowIndex DEFAULT_INSTANCE;
+    private static final IxProto.ElemFlowIndex DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new Proto.ElemFlowIndex();
+      DEFAULT_INSTANCE = new IxProto.ElemFlowIndex();
     }
 
-    public static Proto.ElemFlowIndex getDefaultInstance() {
+    public static IxProto.ElemFlowIndex getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
@@ -7439,7 +7439,7 @@ public final class Proto {
     }
 
     @java.lang.Override
-    public Proto.ElemFlowIndex getDefaultInstanceForType() {
+    public IxProto.ElemFlowIndex getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -7464,11 +7464,11 @@ public final class Proto {
      * <code>.olcalib.Impact impact = 2;</code>
      * @return The impact.
      */
-    Proto.Impact getImpact();
+    IxProto.Impact getImpact();
     /**
      * <code>.olcalib.Impact impact = 2;</code>
      */
-    Proto.ImpactOrBuilder getImpactOrBuilder();
+    IxProto.ImpactOrBuilder getImpactOrBuilder();
   }
   /**
    * <pre>
@@ -7525,11 +7525,11 @@ public final class Proto {
               break;
             }
             case 18: {
-              Proto.Impact.Builder subBuilder = null;
+              IxProto.Impact.Builder subBuilder = null;
               if (impact_ != null) {
                 subBuilder = impact_.toBuilder();
               }
-              impact_ = input.readMessage(Proto.Impact.parser(), extensionRegistry);
+              impact_ = input.readMessage(IxProto.Impact.parser(), extensionRegistry);
               if (subBuilder != null) {
                 subBuilder.mergeFrom(impact_);
                 impact_ = subBuilder.buildPartial();
@@ -7558,15 +7558,15 @@ public final class Proto {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return Proto.internal_static_olcalib_ImpactEntry_descriptor;
+      return IxProto.internal_static_olcalib_ImpactEntry_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return Proto.internal_static_olcalib_ImpactEntry_fieldAccessorTable
+      return IxProto.internal_static_olcalib_ImpactEntry_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              Proto.ImpactEntry.class, Proto.ImpactEntry.Builder.class);
+              IxProto.ImpactEntry.class, IxProto.ImpactEntry.Builder.class);
     }
 
     public static final int INDEX_FIELD_NUMBER = 1;
@@ -7581,7 +7581,7 @@ public final class Proto {
     }
 
     public static final int IMPACT_FIELD_NUMBER = 2;
-    private Proto.Impact impact_;
+    private IxProto.Impact impact_;
     /**
      * <code>.olcalib.Impact impact = 2;</code>
      * @return Whether the impact field is set.
@@ -7595,14 +7595,14 @@ public final class Proto {
      * @return The impact.
      */
     @java.lang.Override
-    public Proto.Impact getImpact() {
-      return impact_ == null ? Proto.Impact.getDefaultInstance() : impact_;
+    public IxProto.Impact getImpact() {
+      return impact_ == null ? IxProto.Impact.getDefaultInstance() : impact_;
     }
     /**
      * <code>.olcalib.Impact impact = 2;</code>
      */
     @java.lang.Override
-    public Proto.ImpactOrBuilder getImpactOrBuilder() {
+    public IxProto.ImpactOrBuilder getImpactOrBuilder() {
       return getImpact();
     }
 
@@ -7653,10 +7653,10 @@ public final class Proto {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof Proto.ImpactEntry)) {
+      if (!(obj instanceof IxProto.ImpactEntry)) {
         return super.equals(obj);
       }
-      Proto.ImpactEntry other = (Proto.ImpactEntry) obj;
+      IxProto.ImpactEntry other = (IxProto.ImpactEntry) obj;
 
       if (getIndex()
           != other.getIndex()) return false;
@@ -7687,69 +7687,69 @@ public final class Proto {
       return hash;
     }
 
-    public static Proto.ImpactEntry parseFrom(
+    public static IxProto.ImpactEntry parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.ImpactEntry parseFrom(
+    public static IxProto.ImpactEntry parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.ImpactEntry parseFrom(
+    public static IxProto.ImpactEntry parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.ImpactEntry parseFrom(
+    public static IxProto.ImpactEntry parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.ImpactEntry parseFrom(byte[] data)
+    public static IxProto.ImpactEntry parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.ImpactEntry parseFrom(
+    public static IxProto.ImpactEntry parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.ImpactEntry parseFrom(java.io.InputStream input)
+    public static IxProto.ImpactEntry parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static Proto.ImpactEntry parseFrom(
+    public static IxProto.ImpactEntry parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static Proto.ImpactEntry parseDelimitedFrom(java.io.InputStream input)
+    public static IxProto.ImpactEntry parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static Proto.ImpactEntry parseDelimitedFrom(
+    public static IxProto.ImpactEntry parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static Proto.ImpactEntry parseFrom(
+    public static IxProto.ImpactEntry parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static Proto.ImpactEntry parseFrom(
+    public static IxProto.ImpactEntry parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -7762,7 +7762,7 @@ public final class Proto {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(Proto.ImpactEntry prototype) {
+    public static Builder newBuilder(IxProto.ImpactEntry prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     @java.lang.Override
@@ -7787,18 +7787,18 @@ public final class Proto {
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:olcalib.ImpactEntry)
-        Proto.ImpactEntryOrBuilder {
+        IxProto.ImpactEntryOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return Proto.internal_static_olcalib_ImpactEntry_descriptor;
+        return IxProto.internal_static_olcalib_ImpactEntry_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return Proto.internal_static_olcalib_ImpactEntry_fieldAccessorTable
+        return IxProto.internal_static_olcalib_ImpactEntry_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                Proto.ImpactEntry.class, Proto.ImpactEntry.Builder.class);
+                IxProto.ImpactEntry.class, IxProto.ImpactEntry.Builder.class);
       }
 
       // Construct using org.openlca.core.library.Proto.ImpactEntry.newBuilder()
@@ -7833,17 +7833,17 @@ public final class Proto {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return Proto.internal_static_olcalib_ImpactEntry_descriptor;
+        return IxProto.internal_static_olcalib_ImpactEntry_descriptor;
       }
 
       @java.lang.Override
-      public Proto.ImpactEntry getDefaultInstanceForType() {
-        return Proto.ImpactEntry.getDefaultInstance();
+      public IxProto.ImpactEntry getDefaultInstanceForType() {
+        return IxProto.ImpactEntry.getDefaultInstance();
       }
 
       @java.lang.Override
-      public Proto.ImpactEntry build() {
-        Proto.ImpactEntry result = buildPartial();
+      public IxProto.ImpactEntry build() {
+        IxProto.ImpactEntry result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
@@ -7851,8 +7851,8 @@ public final class Proto {
       }
 
       @java.lang.Override
-      public Proto.ImpactEntry buildPartial() {
-        Proto.ImpactEntry result = new Proto.ImpactEntry(this);
+      public IxProto.ImpactEntry buildPartial() {
+        IxProto.ImpactEntry result = new IxProto.ImpactEntry(this);
         result.index_ = index_;
         if (impactBuilder_ == null) {
           result.impact_ = impact_;
@@ -7897,16 +7897,16 @@ public final class Proto {
       }
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof Proto.ImpactEntry) {
-          return mergeFrom((Proto.ImpactEntry)other);
+        if (other instanceof IxProto.ImpactEntry) {
+          return mergeFrom((IxProto.ImpactEntry)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(Proto.ImpactEntry other) {
-        if (other == Proto.ImpactEntry.getDefaultInstance()) return this;
+      public Builder mergeFrom(IxProto.ImpactEntry other) {
+        if (other == IxProto.ImpactEntry.getDefaultInstance()) return this;
         if (other.getIndex() != 0) {
           setIndex(other.getIndex());
         }
@@ -7928,11 +7928,11 @@ public final class Proto {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        Proto.ImpactEntry parsedMessage = null;
+        IxProto.ImpactEntry parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (Proto.ImpactEntry) e.getUnfinishedMessage();
+          parsedMessage = (IxProto.ImpactEntry) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -7973,9 +7973,9 @@ public final class Proto {
         return this;
       }
 
-      private Proto.Impact impact_;
+      private IxProto.Impact impact_;
       private com.google.protobuf.SingleFieldBuilderV3<
-          Proto.Impact, Proto.Impact.Builder, Proto.ImpactOrBuilder> impactBuilder_;
+          IxProto.Impact, IxProto.Impact.Builder, IxProto.ImpactOrBuilder> impactBuilder_;
       /**
        * <code>.olcalib.Impact impact = 2;</code>
        * @return Whether the impact field is set.
@@ -7987,9 +7987,9 @@ public final class Proto {
        * <code>.olcalib.Impact impact = 2;</code>
        * @return The impact.
        */
-      public Proto.Impact getImpact() {
+      public IxProto.Impact getImpact() {
         if (impactBuilder_ == null) {
-          return impact_ == null ? Proto.Impact.getDefaultInstance() : impact_;
+          return impact_ == null ? IxProto.Impact.getDefaultInstance() : impact_;
         } else {
           return impactBuilder_.getMessage();
         }
@@ -7997,7 +7997,7 @@ public final class Proto {
       /**
        * <code>.olcalib.Impact impact = 2;</code>
        */
-      public Builder setImpact(Proto.Impact value) {
+      public Builder setImpact(IxProto.Impact value) {
         if (impactBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -8014,7 +8014,7 @@ public final class Proto {
        * <code>.olcalib.Impact impact = 2;</code>
        */
       public Builder setImpact(
-          Proto.Impact.Builder builderForValue) {
+          IxProto.Impact.Builder builderForValue) {
         if (impactBuilder_ == null) {
           impact_ = builderForValue.build();
           onChanged();
@@ -8027,11 +8027,11 @@ public final class Proto {
       /**
        * <code>.olcalib.Impact impact = 2;</code>
        */
-      public Builder mergeImpact(Proto.Impact value) {
+      public Builder mergeImpact(IxProto.Impact value) {
         if (impactBuilder_ == null) {
           if (impact_ != null) {
             impact_ =
-              Proto.Impact.newBuilder(impact_).mergeFrom(value).buildPartial();
+              IxProto.Impact.newBuilder(impact_).mergeFrom(value).buildPartial();
           } else {
             impact_ = value;
           }
@@ -8059,7 +8059,7 @@ public final class Proto {
       /**
        * <code>.olcalib.Impact impact = 2;</code>
        */
-      public Proto.Impact.Builder getImpactBuilder() {
+      public IxProto.Impact.Builder getImpactBuilder() {
 
         onChanged();
         return getImpactFieldBuilder().getBuilder();
@@ -8067,23 +8067,23 @@ public final class Proto {
       /**
        * <code>.olcalib.Impact impact = 2;</code>
        */
-      public Proto.ImpactOrBuilder getImpactOrBuilder() {
+      public IxProto.ImpactOrBuilder getImpactOrBuilder() {
         if (impactBuilder_ != null) {
           return impactBuilder_.getMessageOrBuilder();
         } else {
           return impact_ == null ?
-              Proto.Impact.getDefaultInstance() : impact_;
+              IxProto.Impact.getDefaultInstance() : impact_;
         }
       }
       /**
        * <code>.olcalib.Impact impact = 2;</code>
        */
       private com.google.protobuf.SingleFieldBuilderV3<
-          Proto.Impact, Proto.Impact.Builder, Proto.ImpactOrBuilder>
+          IxProto.Impact, IxProto.Impact.Builder, IxProto.ImpactOrBuilder>
           getImpactFieldBuilder() {
         if (impactBuilder_ == null) {
           impactBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              Proto.Impact, Proto.Impact.Builder, Proto.ImpactOrBuilder>(
+              IxProto.Impact, IxProto.Impact.Builder, IxProto.ImpactOrBuilder>(
                   getImpact(),
                   getParentForChildren(),
                   isClean());
@@ -8108,12 +8108,12 @@ public final class Proto {
     }
 
     // @@protoc_insertion_point(class_scope:olcalib.ImpactEntry)
-    private static final Proto.ImpactEntry DEFAULT_INSTANCE;
+    private static final IxProto.ImpactEntry DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new Proto.ImpactEntry();
+      DEFAULT_INSTANCE = new IxProto.ImpactEntry();
     }
 
-    public static Proto.ImpactEntry getDefaultInstance() {
+    public static IxProto.ImpactEntry getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
@@ -8138,7 +8138,7 @@ public final class Proto {
     }
 
     @java.lang.Override
-    public Proto.ImpactEntry getDefaultInstanceForType() {
+    public IxProto.ImpactEntry getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -8151,12 +8151,12 @@ public final class Proto {
     /**
      * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
      */
-    java.util.List<Proto.ImpactEntry>
+    java.util.List<IxProto.ImpactEntry>
         getImpactList();
     /**
      * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
      */
-    Proto.ImpactEntry getImpact(int index);
+    IxProto.ImpactEntry getImpact(int index);
     /**
      * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
      */
@@ -8164,12 +8164,12 @@ public final class Proto {
     /**
      * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
      */
-    java.util.List<? extends Proto.ImpactEntryOrBuilder>
+    java.util.List<? extends IxProto.ImpactEntryOrBuilder>
         getImpactOrBuilderList();
     /**
      * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
      */
-    Proto.ImpactEntryOrBuilder getImpactOrBuilder(
+    IxProto.ImpactEntryOrBuilder getImpactOrBuilder(
         int index);
   }
   /**
@@ -8225,11 +8225,11 @@ public final class Proto {
               break;
             case 10: {
               if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                impact_ = new java.util.ArrayList<Proto.ImpactEntry>();
+                impact_ = new java.util.ArrayList<IxProto.ImpactEntry>();
                 mutable_bitField0_ |= 0x00000001;
               }
               impact_.add(
-                  input.readMessage(Proto.ImpactEntry.parser(), extensionRegistry));
+                  input.readMessage(IxProto.ImpactEntry.parser(), extensionRegistry));
               break;
             }
             default: {
@@ -8256,31 +8256,31 @@ public final class Proto {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return Proto.internal_static_olcalib_ImpactIndex_descriptor;
+      return IxProto.internal_static_olcalib_ImpactIndex_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return Proto.internal_static_olcalib_ImpactIndex_fieldAccessorTable
+      return IxProto.internal_static_olcalib_ImpactIndex_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              Proto.ImpactIndex.class, Proto.ImpactIndex.Builder.class);
+              IxProto.ImpactIndex.class, IxProto.ImpactIndex.Builder.class);
     }
 
     public static final int IMPACT_FIELD_NUMBER = 1;
-    private java.util.List<Proto.ImpactEntry> impact_;
+    private java.util.List<IxProto.ImpactEntry> impact_;
     /**
      * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
      */
     @java.lang.Override
-    public java.util.List<Proto.ImpactEntry> getImpactList() {
+    public java.util.List<IxProto.ImpactEntry> getImpactList() {
       return impact_;
     }
     /**
      * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
      */
     @java.lang.Override
-    public java.util.List<? extends Proto.ImpactEntryOrBuilder>
+    public java.util.List<? extends IxProto.ImpactEntryOrBuilder>
         getImpactOrBuilderList() {
       return impact_;
     }
@@ -8295,14 +8295,14 @@ public final class Proto {
      * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
      */
     @java.lang.Override
-    public Proto.ImpactEntry getImpact(int index) {
+    public IxProto.ImpactEntry getImpact(int index) {
       return impact_.get(index);
     }
     /**
      * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
      */
     @java.lang.Override
-    public Proto.ImpactEntryOrBuilder getImpactOrBuilder(
+    public IxProto.ImpactEntryOrBuilder getImpactOrBuilder(
         int index) {
       return impact_.get(index);
     }
@@ -8347,10 +8347,10 @@ public final class Proto {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof Proto.ImpactIndex)) {
+      if (!(obj instanceof IxProto.ImpactIndex)) {
         return super.equals(obj);
       }
-      Proto.ImpactIndex other = (Proto.ImpactIndex) obj;
+      IxProto.ImpactIndex other = (IxProto.ImpactIndex) obj;
 
       if (!getImpactList()
           .equals(other.getImpactList())) return false;
@@ -8374,69 +8374,69 @@ public final class Proto {
       return hash;
     }
 
-    public static Proto.ImpactIndex parseFrom(
+    public static IxProto.ImpactIndex parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.ImpactIndex parseFrom(
+    public static IxProto.ImpactIndex parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.ImpactIndex parseFrom(
+    public static IxProto.ImpactIndex parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.ImpactIndex parseFrom(
+    public static IxProto.ImpactIndex parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.ImpactIndex parseFrom(byte[] data)
+    public static IxProto.ImpactIndex parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Proto.ImpactIndex parseFrom(
+    public static IxProto.ImpactIndex parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Proto.ImpactIndex parseFrom(java.io.InputStream input)
+    public static IxProto.ImpactIndex parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static Proto.ImpactIndex parseFrom(
+    public static IxProto.ImpactIndex parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static Proto.ImpactIndex parseDelimitedFrom(java.io.InputStream input)
+    public static IxProto.ImpactIndex parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static Proto.ImpactIndex parseDelimitedFrom(
+    public static IxProto.ImpactIndex parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static Proto.ImpactIndex parseFrom(
+    public static IxProto.ImpactIndex parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static Proto.ImpactIndex parseFrom(
+    public static IxProto.ImpactIndex parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -8449,7 +8449,7 @@ public final class Proto {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(Proto.ImpactIndex prototype) {
+    public static Builder newBuilder(IxProto.ImpactIndex prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     @java.lang.Override
@@ -8474,18 +8474,18 @@ public final class Proto {
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:olcalib.ImpactIndex)
-        Proto.ImpactIndexOrBuilder {
+        IxProto.ImpactIndexOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return Proto.internal_static_olcalib_ImpactIndex_descriptor;
+        return IxProto.internal_static_olcalib_ImpactIndex_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return Proto.internal_static_olcalib_ImpactIndex_fieldAccessorTable
+        return IxProto.internal_static_olcalib_ImpactIndex_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                Proto.ImpactIndex.class, Proto.ImpactIndex.Builder.class);
+                IxProto.ImpactIndex.class, IxProto.ImpactIndex.Builder.class);
       }
 
       // Construct using org.openlca.core.library.Proto.ImpactIndex.newBuilder()
@@ -8519,17 +8519,17 @@ public final class Proto {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return Proto.internal_static_olcalib_ImpactIndex_descriptor;
+        return IxProto.internal_static_olcalib_ImpactIndex_descriptor;
       }
 
       @java.lang.Override
-      public Proto.ImpactIndex getDefaultInstanceForType() {
-        return Proto.ImpactIndex.getDefaultInstance();
+      public IxProto.ImpactIndex getDefaultInstanceForType() {
+        return IxProto.ImpactIndex.getDefaultInstance();
       }
 
       @java.lang.Override
-      public Proto.ImpactIndex build() {
-        Proto.ImpactIndex result = buildPartial();
+      public IxProto.ImpactIndex build() {
+        IxProto.ImpactIndex result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
@@ -8537,8 +8537,8 @@ public final class Proto {
       }
 
       @java.lang.Override
-      public Proto.ImpactIndex buildPartial() {
-        Proto.ImpactIndex result = new Proto.ImpactIndex(this);
+      public IxProto.ImpactIndex buildPartial() {
+        IxProto.ImpactIndex result = new IxProto.ImpactIndex(this);
         int from_bitField0_ = bitField0_;
         if (impactBuilder_ == null) {
           if (((bitField0_ & 0x00000001) != 0)) {
@@ -8587,16 +8587,16 @@ public final class Proto {
       }
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof Proto.ImpactIndex) {
-          return mergeFrom((Proto.ImpactIndex)other);
+        if (other instanceof IxProto.ImpactIndex) {
+          return mergeFrom((IxProto.ImpactIndex)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(Proto.ImpactIndex other) {
-        if (other == Proto.ImpactIndex.getDefaultInstance()) return this;
+      public Builder mergeFrom(IxProto.ImpactIndex other) {
+        if (other == IxProto.ImpactIndex.getDefaultInstance()) return this;
         if (impactBuilder_ == null) {
           if (!other.impact_.isEmpty()) {
             if (impact_.isEmpty()) {
@@ -8638,11 +8638,11 @@ public final class Proto {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        Proto.ImpactIndex parsedMessage = null;
+        IxProto.ImpactIndex parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (Proto.ImpactIndex) e.getUnfinishedMessage();
+          parsedMessage = (IxProto.ImpactIndex) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -8653,22 +8653,22 @@ public final class Proto {
       }
       private int bitField0_;
 
-      private java.util.List<Proto.ImpactEntry> impact_ =
+      private java.util.List<IxProto.ImpactEntry> impact_ =
         java.util.Collections.emptyList();
       private void ensureImpactIsMutable() {
         if (!((bitField0_ & 0x00000001) != 0)) {
-          impact_ = new java.util.ArrayList<Proto.ImpactEntry>(impact_);
+          impact_ = new java.util.ArrayList<IxProto.ImpactEntry>(impact_);
           bitField0_ |= 0x00000001;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          Proto.ImpactEntry, Proto.ImpactEntry.Builder, Proto.ImpactEntryOrBuilder> impactBuilder_;
+          IxProto.ImpactEntry, IxProto.ImpactEntry.Builder, IxProto.ImpactEntryOrBuilder> impactBuilder_;
 
       /**
        * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public java.util.List<Proto.ImpactEntry> getImpactList() {
+      public java.util.List<IxProto.ImpactEntry> getImpactList() {
         if (impactBuilder_ == null) {
           return java.util.Collections.unmodifiableList(impact_);
         } else {
@@ -8688,7 +8688,7 @@ public final class Proto {
       /**
        * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public Proto.ImpactEntry getImpact(int index) {
+      public IxProto.ImpactEntry getImpact(int index) {
         if (impactBuilder_ == null) {
           return impact_.get(index);
         } else {
@@ -8699,7 +8699,7 @@ public final class Proto {
        * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
       public Builder setImpact(
-          int index, Proto.ImpactEntry value) {
+          int index, IxProto.ImpactEntry value) {
         if (impactBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -8716,7 +8716,7 @@ public final class Proto {
        * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
       public Builder setImpact(
-          int index, Proto.ImpactEntry.Builder builderForValue) {
+          int index, IxProto.ImpactEntry.Builder builderForValue) {
         if (impactBuilder_ == null) {
           ensureImpactIsMutable();
           impact_.set(index, builderForValue.build());
@@ -8729,7 +8729,7 @@ public final class Proto {
       /**
        * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public Builder addImpact(Proto.ImpactEntry value) {
+      public Builder addImpact(IxProto.ImpactEntry value) {
         if (impactBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -8746,7 +8746,7 @@ public final class Proto {
        * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
       public Builder addImpact(
-          int index, Proto.ImpactEntry value) {
+          int index, IxProto.ImpactEntry value) {
         if (impactBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -8763,7 +8763,7 @@ public final class Proto {
        * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
       public Builder addImpact(
-          Proto.ImpactEntry.Builder builderForValue) {
+          IxProto.ImpactEntry.Builder builderForValue) {
         if (impactBuilder_ == null) {
           ensureImpactIsMutable();
           impact_.add(builderForValue.build());
@@ -8777,7 +8777,7 @@ public final class Proto {
        * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
       public Builder addImpact(
-          int index, Proto.ImpactEntry.Builder builderForValue) {
+          int index, IxProto.ImpactEntry.Builder builderForValue) {
         if (impactBuilder_ == null) {
           ensureImpactIsMutable();
           impact_.add(index, builderForValue.build());
@@ -8791,7 +8791,7 @@ public final class Proto {
        * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
       public Builder addAllImpact(
-          java.lang.Iterable<? extends Proto.ImpactEntry> values) {
+          java.lang.Iterable<? extends IxProto.ImpactEntry> values) {
         if (impactBuilder_ == null) {
           ensureImpactIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
@@ -8831,14 +8831,14 @@ public final class Proto {
       /**
        * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public Proto.ImpactEntry.Builder getImpactBuilder(
+      public IxProto.ImpactEntry.Builder getImpactBuilder(
           int index) {
         return getImpactFieldBuilder().getBuilder(index);
       }
       /**
        * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public Proto.ImpactEntryOrBuilder getImpactOrBuilder(
+      public IxProto.ImpactEntryOrBuilder getImpactOrBuilder(
           int index) {
         if (impactBuilder_ == null) {
           return impact_.get(index);  } else {
@@ -8848,7 +8848,7 @@ public final class Proto {
       /**
        * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public java.util.List<? extends Proto.ImpactEntryOrBuilder>
+      public java.util.List<? extends IxProto.ImpactEntryOrBuilder>
            getImpactOrBuilderList() {
         if (impactBuilder_ != null) {
           return impactBuilder_.getMessageOrBuilderList();
@@ -8859,31 +8859,31 @@ public final class Proto {
       /**
        * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public Proto.ImpactEntry.Builder addImpactBuilder() {
+      public IxProto.ImpactEntry.Builder addImpactBuilder() {
         return getImpactFieldBuilder().addBuilder(
-            Proto.ImpactEntry.getDefaultInstance());
+            IxProto.ImpactEntry.getDefaultInstance());
       }
       /**
        * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public Proto.ImpactEntry.Builder addImpactBuilder(
+      public IxProto.ImpactEntry.Builder addImpactBuilder(
           int index) {
         return getImpactFieldBuilder().addBuilder(
-            index, Proto.ImpactEntry.getDefaultInstance());
+            index, IxProto.ImpactEntry.getDefaultInstance());
       }
       /**
        * <code>repeated .olcalib.ImpactEntry impact = 1;</code>
        */
-      public java.util.List<Proto.ImpactEntry.Builder>
+      public java.util.List<IxProto.ImpactEntry.Builder>
            getImpactBuilderList() {
         return getImpactFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          Proto.ImpactEntry, Proto.ImpactEntry.Builder, Proto.ImpactEntryOrBuilder>
+          IxProto.ImpactEntry, IxProto.ImpactEntry.Builder, IxProto.ImpactEntryOrBuilder>
           getImpactFieldBuilder() {
         if (impactBuilder_ == null) {
           impactBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
-              Proto.ImpactEntry, Proto.ImpactEntry.Builder, Proto.ImpactEntryOrBuilder>(
+              IxProto.ImpactEntry, IxProto.ImpactEntry.Builder, IxProto.ImpactEntryOrBuilder>(
                   impact_,
                   ((bitField0_ & 0x00000001) != 0),
                   getParentForChildren(),
@@ -8909,12 +8909,12 @@ public final class Proto {
     }
 
     // @@protoc_insertion_point(class_scope:olcalib.ImpactIndex)
-    private static final Proto.ImpactIndex DEFAULT_INSTANCE;
+    private static final IxProto.ImpactIndex DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new Proto.ImpactIndex();
+      DEFAULT_INSTANCE = new IxProto.ImpactIndex();
     }
 
-    public static Proto.ImpactIndex getDefaultInstance() {
+    public static IxProto.ImpactIndex getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
@@ -8939,7 +8939,7 @@ public final class Proto {
     }
 
     @java.lang.Override
-    public Proto.ImpactIndex getDefaultInstanceForType() {
+    public IxProto.ImpactIndex getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
