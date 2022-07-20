@@ -87,14 +87,10 @@ public abstract class MatrixExport {
 			write(data.costVector, "costs");
 		}
 
-		// write the demand vector in case of a linked tech. index
-		// TODO: it should be part of the configuration whether a
-		// demand vector should be written or not
+		// write the demand vector when available
 		var techIndex = data.techIndex;
 		var demand = data.demand;
-		if (techIndex != null
-			&& demand != null
-			&& techIndex.hasLinks()) {
+		if (techIndex != null && demand != null) {
 			var vec = new double[techIndex.size()];
 			int refIdx = techIndex.of(demand.techFlow());
 			if (refIdx >= 0) {
