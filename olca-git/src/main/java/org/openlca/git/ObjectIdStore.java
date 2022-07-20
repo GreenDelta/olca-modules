@@ -206,6 +206,7 @@ public class ObjectIdStore {
 			workspace.remove(k);
 		}
 		workspace.remove("");
+		head.remove(path);
 	}
 
 	public void clear() {

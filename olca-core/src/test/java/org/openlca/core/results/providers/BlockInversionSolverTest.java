@@ -7,11 +7,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.library.LibEnviIndex;
-import org.openlca.core.library.LibEnviItem;
+import org.openlca.core.matrix.io.index.IxEnviIndex;
+import org.openlca.core.matrix.io.index.IxEnviItem;
 import org.openlca.core.library.LibMatrix;
-import org.openlca.core.library.LibTechIndex;
-import org.openlca.core.library.LibTechItem;
+import org.openlca.core.matrix.io.index.IxTechIndex;
+import org.openlca.core.matrix.io.index.IxTechItem;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.Demand;
@@ -73,8 +73,8 @@ public class BlockInversionSolverTest {
 		LibMatrix.INV.write(lib, DenseMatrix.of(new double[][]{{1}}));
 		LibMatrix.B.write(lib, DenseMatrix.of(new double[][]{{1}}));
 		LibMatrix.M.write(lib, DenseMatrix.of(new double[][]{{1}}));
-		LibTechIndex.of(LibTechItem.of(0, pP, p)).writeTo(lib);
-		LibEnviIndex.of(LibEnviItem.output(0, e)).writeTo(lib);
+		IxTechIndex.of(IxTechItem.of(0, pP, p)).writeToDir(lib.folder());
+		IxEnviIndex.of(IxEnviItem.output(0, e)).writeToDir(lib.folder());
 
 		// the foreground data
 		var data = new MatrixData();

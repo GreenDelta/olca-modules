@@ -123,7 +123,7 @@ public class DbLibrarySwap implements Runnable {
 		var libIdx = library.readTechIndex();
 		var list = new ArrayList<TechFlow>();
 		for (var i : libIdx.items()) {
-			var process = processes.get(i.process().id());
+			var process = processes.get(i.provider().id());
 			var flow = flows.get(i.flow().id());
 			if (process != null && flow != null) {
 				list.add(TechFlow.of(process, flow));

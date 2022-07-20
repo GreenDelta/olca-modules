@@ -20,6 +20,7 @@ import org.openlca.npy.NpyCharArray;
 import org.openlca.npy.NpyDoubleArray;
 import org.openlca.npy.NpyIntArray;
 import org.openlca.npy.Npz;
+import org.openlca.util.Dirs;
 
 public class NpyMatrix {
 
@@ -118,6 +119,7 @@ public class NpyMatrix {
 	 * @param matrix the matrix that should be written to the file.
 	 */
 	public static File write(File folder, String name, MatrixReader matrix) {
+		Dirs.createIfAbsent(folder);
 
 		// write sparse matrices into the CSC format
 		var m = matrix instanceof HashPointMatrix
@@ -155,6 +157,7 @@ public class NpyMatrix {
 	}
 
 	public static File write(File folder, String name, ByteMatrixReader matrix) {
+		Dirs.createIfAbsent(folder);
 
 		// write sparse matrices into the CSC format
 		var m = matrix instanceof HashPointByteMatrix

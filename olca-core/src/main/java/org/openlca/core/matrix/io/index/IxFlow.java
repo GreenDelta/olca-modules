@@ -1,4 +1,4 @@
-package org.openlca.core.library;
+package org.openlca.core.matrix.io.index;
 
 import java.util.List;
 
@@ -9,19 +9,19 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.util.Strings;
 
 /**
- * Contains the meta-data of a flow stored in a library index.
+ * Contains the meta-data of a flow stored in an index.
  */
-public record LibFlow(
+public record IxFlow(
 	String id,
 	String name,
 	String category,
 	String unit,
 	FlowType type) {
 
-	private static final LibFlow empty = new LibFlow(
+	private static final IxFlow empty = new IxFlow(
 		null, null, null, null, null);
 
-	public static LibFlow empty() {
+	public static IxFlow empty() {
 		return empty;
 	}
 
@@ -29,11 +29,11 @@ public record LibFlow(
 		return id == null || id.isBlank();
 	}
 
-	public static LibFlow of(Flow flow) {
+	public static IxFlow of(Flow flow) {
 		if (flow == null)
 			return empty;
 		var unit = flow.getReferenceUnit();
-		return new LibFlow(
+		return new IxFlow(
 			flow.refId,
 			flow.name,
 			flow.category != null
@@ -43,7 +43,7 @@ public record LibFlow(
 			flow.flowType);
 	}
 
-	public static LibFlow of(FlowDescriptor d, DbContext ctx) {
+	public static IxFlow of(FlowDescriptor d, IxContext ctx) {
 		if (d == null)
 			return empty;
 		var category = ctx.categories().pathOf(d.category);
@@ -51,7 +51,7 @@ public record LibFlow(
 		var unit = prop != null
 			? prop.getReferenceUnit()
 			: null;
-		return new LibFlow(
+		return new IxFlow(
 			d.refId,
 			d.name,
 			category,
@@ -59,8 +59,8 @@ public record LibFlow(
 			d.flowType);
 	}
 
-	Proto.Flow toProto() {
-		var proto = Proto.Flow.newBuilder()
+	IxProto.Flow toProto() {
+		var proto = IxProto.Flow.newBuilder()
 			.setId(Strings.orEmpty(id))
 			.setName(Strings.orEmpty(name))
 			.setCategory(Strings.orEmpty(category))
@@ -71,8 +71,8 @@ public record LibFlow(
 		return proto.build();
 	}
 
-	static LibFlow fromProto(Proto.Flow proto) {
-		return new LibFlow(
+	static IxFlow fromProto(IxProto.Flow proto) {
+		return new IxFlow(
 			proto.getId(),
 			proto.getName(),
 			proto.getCategory(),
@@ -89,8 +89,8 @@ public record LibFlow(
 		buffer.add(toCsv(type));
 	}
 
-	static LibFlow fromCsv(CSVRecord row, int offset) {
-		return new LibFlow(
+	static IxFlow fromCsv(CSVRecord row, int offset) {
+		return new IxFlow(
 			Csv.read(row, offset),
 			Csv.read(row, offset + 1),
 			Csv.read(row, offset + 2),

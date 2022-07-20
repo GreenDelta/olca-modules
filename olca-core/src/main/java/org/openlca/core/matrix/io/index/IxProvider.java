@@ -1,4 +1,4 @@
-package org.openlca.core.library;
+package org.openlca.core.matrix.io.index;
 
 import java.util.List;
 
@@ -10,18 +10,21 @@ import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.util.Strings;
 
 /**
- * Contains the meta-data of a process stored in a library index.
+ * Contains the meta-data of a provider stored in an index. A provider is
+ * a process, product system, or result that provides a product output or
+ * waste input that can be linked to other processes or serve as the final
+ * demand of a product system.
  */
-public record LibProcess(
+public record IxProvider(
 	String id,
 	String name,
 	String category,
 	String locationCode) {
 
-	private static final LibProcess empty = new LibProcess(
+	private static final IxProvider empty = new IxProvider(
 		null, null, null, null);
 
-	public static LibProcess empty() {
+	public static IxProvider empty() {
 		return empty;
 	}
 
@@ -29,10 +32,10 @@ public record LibProcess(
 		return id == null || id.isBlank();
 	}
 
-	public static LibProcess of(RootEntity process) {
+	public static IxProvider of(RootEntity process) {
 		if (process == null)
 			return empty;
-		return new LibProcess(
+		return new IxProvider(
 			process.refId,
 			process.name,
 			process.category != null
@@ -43,22 +46,22 @@ public record LibProcess(
 				: null);
 	}
 
-	public static LibProcess of(RootDescriptor d, DbContext ctx) {
+	public static IxProvider of(RootDescriptor d, IxContext ctx) {
 		if (d == null)
 			return empty;
 		var category = ctx.categories().pathOf(d.category);
 		var loc = d instanceof ProcessDescriptor p && p.location != null
 			? ctx.locationCodes().get(p.location)
 			: null;
-		return new LibProcess(
+		return new IxProvider(
 			d.refId,
 			d.name,
 			category,
 			loc);
 	}
 
-	Proto.Process toProto() {
-		return Proto.Process.newBuilder()
+	IxProto.Process toProto() {
+		return IxProto.Process.newBuilder()
 			.setId(Strings.orEmpty(id))
 			.setName(Strings.orEmpty(name))
 			.setCategory(Strings.orEmpty(category))
@@ -66,8 +69,8 @@ public record LibProcess(
 			.build();
 	}
 
-	static LibProcess fromProto(Proto.Process proto) {
-		return new LibProcess(
+	static IxProvider fromProto(IxProto.Process proto) {
+		return new IxProvider(
 			proto.getId(),
 			proto.getName(),
 			proto.getCategory(),
@@ -81,8 +84,8 @@ public record LibProcess(
 		buffer.add(Csv.str(locationCode));
 	}
 
-	static LibProcess fromCsv(CSVRecord row, int offset) {
-		return new LibProcess(
+	static IxProvider fromCsv(CSVRecord row, int offset) {
+		return new IxProvider(
 			Csv.read(row, offset),
 			Csv.read(row, offset + 1),
 			Csv.read(row, offset + 2),

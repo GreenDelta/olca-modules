@@ -1,4 +1,4 @@
-package org.openlca.core.library;
+package org.openlca.core.matrix.io.index;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -14,43 +14,43 @@ import java.util.List;
 import org.apache.commons.csv.CSVPrinter;
 import org.openlca.core.matrix.index.EnviIndex;
 
-public record LibEnviIndex(List<LibEnviItem> items) {
+public record IxEnviIndex(List<IxEnviItem> items) {
 
 	private static final String NAME = "index_B";
 
-	public static LibEnviIndex empty() {
-		return new LibEnviIndex(Collections.emptyList());
+	public static IxEnviIndex empty() {
+		return new IxEnviIndex(Collections.emptyList());
 	}
 
-	public static LibEnviIndex of(LibEnviItem... items) {
-		return new LibEnviIndex(List.of(items));
+	public static IxEnviIndex of(IxEnviItem... items) {
+		return new IxEnviIndex(List.of(items));
 	}
 
-	public static LibEnviIndex of(EnviIndex idx, DbContext ctx) {
+	public static IxEnviIndex of(EnviIndex idx, IxContext ctx) {
 		if (idx == null || idx.size() == 0)
 			return empty();
-		var items = new ArrayList<LibEnviItem>(idx.size());
+		var items = new ArrayList<IxEnviItem>(idx.size());
 		idx.each((pos, enviEntry)
-			-> items.add(LibEnviItem.of(pos, enviEntry, ctx)));
-		return new LibEnviIndex(items);
+			-> items.add(IxEnviItem.of(pos, enviEntry, ctx)));
+		return new IxEnviIndex(items);
 	}
 
-	public static LibEnviIndex readFrom(Library lib) {
-		var proto = IndexFormat.PROTO.file(lib, NAME);
+	public static IxEnviIndex readFromDir(File dir) {
+		var proto = IxFormat.PROTO.file(dir, NAME);
 		if (proto.exists())
 			return readProto(proto);
-		var csv = IndexFormat.CSV.file(lib, NAME);
+		var csv = IxFormat.CSV.file(dir, NAME);
 		return csv.exists()
 			? readCsv(csv)
 			: empty();
 	}
 
-	public static boolean isPresentIn(Library lib) {
-		return IndexFormat.PROTO.file(lib, NAME).exists()
-			|| IndexFormat.CSV.file(lib, NAME).exists();
+	public static boolean isPresentInDir(File folder) {
+		return IxFormat.PROTO.file(folder, NAME).exists()
+			|| IxFormat.CSV.file(folder, NAME).exists();
 	}
 
-	public static LibEnviIndex readFrom(File file) {
+	public static IxEnviIndex readFrom(File file) {
 		if (file == null || !file.exists())
 			return empty();
 		return Csv.isCsv(file)
@@ -58,22 +58,22 @@ public record LibEnviIndex(List<LibEnviItem> items) {
 			: readProto(file);
 	}
 
-	private static LibEnviIndex readCsv(File file) {
-		var items = new ArrayList<LibEnviItem>();
+	private static IxEnviIndex readCsv(File file) {
+		var items = new ArrayList<IxEnviItem>();
 		Csv.eachRowSkipFirst(file,
-			row -> items.add(LibEnviItem.fromCsv(row)));
-		return new LibEnviIndex(items);
+			row -> items.add(IxEnviItem.fromCsv(row)));
+		return new IxEnviIndex(items);
 	}
 
-	private static LibEnviIndex readProto(File file) {
+	private static IxEnviIndex readProto(File file) {
 		try (var stream = new FileInputStream(file)) {
-			var items = new ArrayList<LibEnviItem>();
-			var proto = Proto.ElemFlowIndex.parseFrom(stream);
+			var items = new ArrayList<IxEnviItem>();
+			var proto = IxProto.ElemFlowIndex.parseFrom(stream);
 			for (int i = 0; i < proto.getFlowCount(); i++) {
 				var fi = proto.getFlow(i);
-				items.add(LibEnviItem.fromProto(fi));
+				items.add(IxEnviItem.fromProto(fi));
 			}
-			return new LibEnviIndex(items);
+			return new IxEnviIndex(items);
 		} catch (IOException e) {
 			throw new RuntimeException(
 				"failed to read envi-index from " + file, e);
@@ -88,15 +88,15 @@ public record LibEnviIndex(List<LibEnviItem> items) {
 		return items.isEmpty();
 	}
 
-	public void writeTo(Library lib) {
-		writeTo(lib, IndexFormat.PROTO);
+	public void writeToDir(File dir) {
+		writeToDir(dir, IxFormat.PROTO);
 	}
 
-	public void writeTo(Library lib, IndexFormat format) {
-		if (format == IndexFormat.CSV) {
-			toCsv(IndexFormat.CSV.file(lib, NAME));
+	public void writeToDir(File dir, IxFormat format) {
+		if (format == IxFormat.CSV) {
+			toCsv(IxFormat.CSV.file(dir, NAME));
 		} else {
-			toProto(IndexFormat.PROTO.file(lib, NAME));
+			toProto(IxFormat.PROTO.file(dir, NAME));
 		}
 	}
 
@@ -127,7 +127,7 @@ public record LibEnviIndex(List<LibEnviItem> items) {
 	}
 
 	public void toProto(File file) {
-		var index = Proto.ElemFlowIndex.newBuilder();
+		var index = IxProto.ElemFlowIndex.newBuilder();
 		for (var item : items) {
 			index.addFlow(item.toProto());
 		}

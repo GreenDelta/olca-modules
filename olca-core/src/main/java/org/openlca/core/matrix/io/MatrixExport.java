@@ -1,25 +1,16 @@
 package org.openlca.core.matrix.io;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Consumer;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.LocationDao;
-import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.ByteMatrixBuffer;
 import org.openlca.core.matrix.format.ByteMatrixReader;
 import org.openlca.core.matrix.format.MatrixBuilder;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.uncertainties.UMatrix;
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.UncertaintyType;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.util.Categories;
+import org.openlca.util.Dirs;
 
 public abstract class MatrixExport {
 
@@ -31,30 +22,11 @@ public abstract class MatrixExport {
 		this.db = db;
 		this.data = data;
 		this.folder = folder;
-		if (!folder.exists()) {
-			try {
-				Files.createDirectories(folder.toPath());
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
+		Dirs.createIfAbsent(folder);
 	}
 
 	public static MatrixExport toNpy(IDatabase db, File folder, MatrixData data) {
 		return new NpyExport(db, folder, data);
-	}
-
-	public static void toNpy(File folder, MatrixReader matrix, String name) {
-		if (folder == null || matrix == null)
-			return;
-		if (!folder.exists()) {
-			try {
-				Files.createDirectories(folder.toPath());
-			} catch (IOException e) {
-				throw new RuntimeException("failed to create folder " + folder, e);
-			}
-		}
-		NpyMatrix.write(folder, name, matrix);
 	}
 
 	public static CsvExport toCsv(IDatabase db, File folder, MatrixData data) {
@@ -87,14 +59,10 @@ public abstract class MatrixExport {
 			write(data.costVector, "costs");
 		}
 
-		// write the demand vector in case of a linked tech. index
-		// TODO: it should be part of the configuration whether a
-		// demand vector should be written or not
+		// write the demand vector when available
 		var techIndex = data.techIndex;
 		var demand = data.demand;
-		if (techIndex != null
-			&& demand != null
-			&& techIndex.hasLinks()) {
+		if (techIndex != null && demand != null) {
 			var vec = new double[techIndex.size()];
 			int refIdx = techIndex.of(demand.techFlow());
 			if (refIdx >= 0) {
@@ -167,149 +135,4 @@ public abstract class MatrixExport {
 	 */
 	public abstract void writeIndices();
 
-	protected void eachTechIndexRow(Consumer<String[]> fn) {
-		if (data.techIndex == null || fn == null)
-			return;
-
-		String[] header = {
-			"process ID",
-			"process name",
-			"process type",
-			"process location",
-			"process category",
-			"flow ID",
-			"flow name",
-			"flow type",
-			"flow location",
-			"flow category",
-			"flow unit",
-		};
-		fn.accept(header);
-
-		var categories = Categories.pathsOf(db);
-		var locations = new LocationDao(db).getCodes();
-		var units = propUnits();
-		for (int i = 0; i < data.techIndex.size(); i++) {
-			var product = data.techIndex.at(i);
-			var p = product.provider();
-			var f = product.flow();
-			var row = new String[header.length];
-			row[0] = p.refId;
-			row[1] = p.name;
-			if (p instanceof ProcessDescriptor pd) {
-				row[2] = pd.processType != null
-					? pd.processType.toString()
-					: ModelType.PROCESS.toString();
-				row[3] = locations.get(pd.location);
-			} else {
-				row[2] = ModelType.PRODUCT_SYSTEM.toString();
-				row[3] = "";
-			}
-			row[4] = categories.pathOf(p.category);
-			row[5] = f.refId;
-			row[6] = f.name;
-			row[7] = f.flowType != null
-				? f.flowType.toString()
-				: "";
-			row[8] = locations.get(f.location);
-			row[9] = categories.pathOf(f.category);
-			row[10] = units.get(f.refFlowPropertyId);
-
-			for (int j = 0; j < row.length; j++) {
-				if(row[j] == null) {
-					row[j] = "";
-				}
-			}
-			fn.accept(row);
-		}
-	}
-
-	protected void eachFlowIndexRow(Consumer<String[]> fn) {
-		if (data.enviIndex == null || fn == null)
-			return;
-		String[] header = {
-			"flow ID",
-			"flow name",
-			"flow type",
-			"flow category",
-			"flow unit",
-			"location"};
-		fn.accept(header);
-
-		var categories = Categories.pathsOf(db);
-		var units = propUnits();
-		for (int i = 0; i < data.enviIndex.size(); i++) {
-			var  iFlow = data.enviIndex.at(i);
-			var row = new String[header.length];
-			if (iFlow == null) {
-				fn.accept(row);
-				continue;
-			}
-			var flow = iFlow.flow();
-			row[0] = flow.refId;
-			row[1] = flow.name;
-			row[2] = flow.flowType != null
-				? flow.flowType.toString()
-				: "";
-			row[3] = categories.pathOf(flow.category);
-			row[4] = units.get(flow.refFlowPropertyId);
-			if (iFlow.location() != null) {
-				row[5] = iFlow.location().code;
-			}
-
-			for (int j = 0; j < row.length; j++) {
-				if(row[j] == null) {
-					row[j] = "";
-				}
-			}
-			fn.accept(row);
-		}
-	}
-
-	protected void eachImpactIndexRow(Consumer<String[]> fn) {
-		if (data.impactIndex == null || fn == null)
-			return;
-		String[] header = {
-			"impact ID",
-			"impact name",
-			"impact ref. unit" };
-		fn.accept(header);
-
-		for (int i = 0; i < data.impactIndex.size(); i++) {
-			var impact = data.impactIndex.at(i);
-			var row = new String[header.length];
-			row[0] = impact.refId;
-			row[1] = impact.name;
-			row[2] = impact.referenceUnit;
-
-			for (int j = 0; j < row.length; j++) {
-				if(row[j] == null) {
-					row[j] = "";
-				}
-			}
-			fn.accept(row);
-		}
-	}
-
-	/**
-	 * Returns a map `flow property ID -> reference unit name` for the flow
-	 * properties in the database.
-	 */
-	private Map<Long, String> propUnits() {
-		try {
-			String sql = "select fp.id, u.name from tbl_flow_properties as fp"
-									 + "  inner join tbl_unit_groups ug"
-									 + "  on fp.f_unit_group = ug.id"
-									 + "  inner join tbl_units u"
-									 + "  on ug.f_reference_unit = u.id";
-			var m = new HashMap<Long, String>();
-			NativeSql.on(db).query(sql, r -> {
-				m.put(r.getLong(1), r.getString(2));
-				return true;
-			});
-			return m;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
 }

@@ -6,6 +6,11 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.ByteMatrixReader;
 import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.core.matrix.io.index.IxContext;
+import org.openlca.core.matrix.io.index.IxEnviIndex;
+import org.openlca.core.matrix.io.index.IxFormat;
+import org.openlca.core.matrix.io.index.IxImpactIndex;
+import org.openlca.core.matrix.io.index.IxTechIndex;
 import org.openlca.npy.Npy;
 import org.openlca.npy.NpyDoubleArray;
 
@@ -17,8 +22,19 @@ class NpyExport extends MatrixExport {
 
 	@Override
 	public void writeIndices() {
-		// TODO: do the things that are currently done in the
-		// library export here
+		var context = IxContext.of(db);
+		if (data.techIndex != null) {
+			IxTechIndex.of(data.techIndex, context)
+				.writeToDir(folder, IxFormat.PROTO);
+		}
+		if (data.enviIndex != null) {
+			IxEnviIndex.of(data.enviIndex, context)
+				.writeToDir(folder, IxFormat.PROTO);
+		}
+		if (data.impactIndex != null) {
+			IxImpactIndex.of(data.impactIndex)
+				.writeToDir(folder, IxFormat.PROTO);
+		}
 	}
 
 	@Override
@@ -32,7 +48,7 @@ class NpyExport extends MatrixExport {
 
 	@Override
 	protected void write(MatrixReader matrix, String name) {
-		toNpy(folder, matrix, name);
+		NpyMatrix.write(folder, name, matrix);
 	}
 
 	@Override

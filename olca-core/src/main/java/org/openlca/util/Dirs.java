@@ -40,23 +40,25 @@ public final class Dirs {
 		}
 	}
 
-	/**
-	 * Creates a directory if it not yet exists.
-	 */
-	public static void make(String path) {
-		make(Paths.get(path));
+	public static void createIfAbsent(File dir) {
+		if (dir == null)
+			return;
+		createIfAbsent(dir.toPath());
 	}
 
-	/**
-	 * Creates a directory if it not yet exists.
-	 */
-	public static void make(Path dir) {
-		if (dir == null)
+	public static void createIfAbsent(String path) {
+		if (path == null)
+			return;
+		createIfAbsent(Paths.get(path));
+	}
+
+	public static void createIfAbsent(Path dir) {
+		if (dir == null || Files.exists(dir))
 			return;
 		try {
 			Files.createDirectories(dir);
 		} catch (IOException e) {
-			throw new RuntimeException("failed to create directories " + dir, e);
+			throw new RuntimeException("failed to create directory: " + dir, e);
 		}
 	}
 

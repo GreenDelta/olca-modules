@@ -1,13 +1,16 @@
 package org.openlca.core.matrix.io;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.util.function.BiConsumer;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.ByteMatrixReader;
 import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.core.matrix.io.index.IxContext;
+import org.openlca.core.matrix.io.index.IxEnviIndex;
+import org.openlca.core.matrix.io.index.IxFormat;
+import org.openlca.core.matrix.io.index.IxImpactIndex;
+import org.openlca.core.matrix.io.index.IxTechIndex;
 
 public class CsvExport extends MatrixExport {
 
@@ -26,35 +29,18 @@ public class CsvExport extends MatrixExport {
 
 	@Override
 	public void writeIndices() {
-		BiConsumer<BufferedWriter, String[]> writeln = (w, row) -> {
-			for (int i = 0; i < row.length; i++) {
-				row[i] = csv.quote(row[i]);
-			}
-			csv.writeln(w, csv.line(row));
-		};
-
-		// tech. index
+		var context = IxContext.of(db);
 		if (data.techIndex != null) {
-			var indexA = new File(folder, "index_A.csv");
-			csv.writer(
-				indexA,
-				w -> eachTechIndexRow(row -> writeln.accept(w, row)));
+			IxTechIndex.of(data.techIndex, context)
+				.writeToDir(folder, IxFormat.CSV);
 		}
-
-		// flow index
 		if (data.enviIndex != null) {
-			var indexB = new File(folder, "index_B.csv");
-			csv.writer(
-				indexB,
-				w -> eachFlowIndexRow(row -> writeln.accept(w, row)));
+			IxEnviIndex.of(data.enviIndex, context)
+				.writeToDir(folder, IxFormat.CSV);
 		}
-
-		// impact index
 		if (data.impactIndex != null) {
-			var indexC = new File(folder, "index_C.csv");
-			csv.writer(
-				indexC,
-				w -> eachImpactIndexRow(row -> writeln.accept(w, row)));
+			IxImpactIndex.of(data.impactIndex)
+				.writeToDir(folder, IxFormat.CSV);
 		}
 	}
 
