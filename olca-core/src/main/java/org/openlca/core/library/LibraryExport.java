@@ -14,6 +14,10 @@ import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.io.MatrixExport;
+import org.openlca.core.matrix.io.index.IxContext;
+import org.openlca.core.matrix.io.index.IxEnviIndex;
+import org.openlca.core.matrix.io.index.IxImpactIndex;
+import org.openlca.core.matrix.io.index.IxTechIndex;
 import org.openlca.core.matrix.solvers.NativeSolver;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.nativelib.NativeLib;
@@ -105,15 +109,15 @@ public class LibraryExport implements Runnable {
 			log.info("write matrices");
 			MatrixExport.toNpy(db, folder, data).writeMatrices();
 			log.info("write indices");
-			var ctx = DbContext.of(db);
+			var ctx = IxContext.of(db);
 			if (data.techIndex != null) {
-				LibTechIndex.of(data.techIndex, ctx).writeTo(lib);
+				IxTechIndex.of(data.techIndex, ctx).writeTo(lib);
 			}
 			if (data.enviIndex != null) {
-				LibEnviIndex.of(data.enviIndex, ctx).writeTo(lib);
+				IxEnviIndex.of(data.enviIndex, ctx).writeTo(lib);
 			}
 			if (data.impactIndex != null) {
-				LibImpactIndex.of(data.impactIndex).writeTo(lib);
+				IxImpactIndex.of(data.impactIndex).writeTo(lib);
 			}
 		});
 		exec.execute(this::preCalculate);

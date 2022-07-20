@@ -1,4 +1,4 @@
-package org.openlca.core.library;
+package org.openlca.core.matrix.io.index;
 
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
@@ -9,7 +9,7 @@ import org.openlca.util.Categories;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public final class DbContext {
+public final class IxContext {
 
 	private final IDatabase db;
 
@@ -17,12 +17,12 @@ public final class DbContext {
 	private Categories.PathBuilder _categories;
 	private Map<Long, FlowProperty> _quantities;
 
-	private DbContext(IDatabase db) {
+	private IxContext(IDatabase db) {
 		this.db = db;
 	}
 
-	public static DbContext of(IDatabase db) {
-		return new DbContext(db);
+	public static IxContext of(IDatabase db) {
+		return new IxContext(db);
 	}
 
 	Categories.PathBuilder categories() {

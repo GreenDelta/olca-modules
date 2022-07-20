@@ -14,8 +14,8 @@ import org.openlca.core.matrix.format.Matrix;
  */
 public class MarketFormatWriter {
 
-	private File file;
-	private Matrix matrix;
+	private final File file;
+	private final Matrix matrix;
 
 	public MarketFormatWriter(File file, Matrix matrix) {
 		this.file = file;

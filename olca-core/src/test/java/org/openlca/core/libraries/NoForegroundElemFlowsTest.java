@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.library.DbContext;
-import org.openlca.core.library.LibEnviIndex;
+import org.openlca.core.matrix.io.index.IxContext;
+import org.openlca.core.matrix.io.index.IxEnviIndex;
 import org.openlca.core.library.LibMatrix;
-import org.openlca.core.library.LibTechIndex;
+import org.openlca.core.matrix.io.index.IxTechIndex;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.format.DenseMatrix;
@@ -77,9 +77,9 @@ public class NoForegroundElemFlowsTest {
 
 		// create library resources
 
-		var ctx = DbContext.of(db);
-		LibTechIndex.of(techIdx, ctx).writeTo(lib);
-		LibEnviIndex.of(enviIndex, ctx).writeTo(lib);
+		var ctx = IxContext.of(db);
+		IxTechIndex.of(techIdx, ctx).writeTo(lib);
+		IxEnviIndex.of(enviIndex, ctx).writeTo(lib);
 
 		// write the library matrices
 		var matrixA = DenseMatrix.of(new double[][]{

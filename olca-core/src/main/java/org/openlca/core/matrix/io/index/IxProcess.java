@@ -1,4 +1,4 @@
-package org.openlca.core.library;
+package org.openlca.core.matrix.io.index;
 
 import java.util.List;
 
@@ -12,16 +12,16 @@ import org.openlca.util.Strings;
 /**
  * Contains the meta-data of a process stored in a library index.
  */
-public record LibProcess(
+public record IxProcess(
 	String id,
 	String name,
 	String category,
 	String locationCode) {
 
-	private static final LibProcess empty = new LibProcess(
+	private static final IxProcess empty = new IxProcess(
 		null, null, null, null);
 
-	public static LibProcess empty() {
+	public static IxProcess empty() {
 		return empty;
 	}
 
@@ -29,10 +29,10 @@ public record LibProcess(
 		return id == null || id.isBlank();
 	}
 
-	public static LibProcess of(RootEntity process) {
+	public static IxProcess of(RootEntity process) {
 		if (process == null)
 			return empty;
-		return new LibProcess(
+		return new IxProcess(
 			process.refId,
 			process.name,
 			process.category != null
@@ -43,14 +43,14 @@ public record LibProcess(
 				: null);
 	}
 
-	public static LibProcess of(RootDescriptor d, DbContext ctx) {
+	public static IxProcess of(RootDescriptor d, IxContext ctx) {
 		if (d == null)
 			return empty;
 		var category = ctx.categories().pathOf(d.category);
 		var loc = d instanceof ProcessDescriptor p && p.location != null
 			? ctx.locationCodes().get(p.location)
 			: null;
-		return new LibProcess(
+		return new IxProcess(
 			d.refId,
 			d.name,
 			category,
@@ -66,8 +66,8 @@ public record LibProcess(
 			.build();
 	}
 
-	static LibProcess fromProto(Proto.Process proto) {
-		return new LibProcess(
+	static IxProcess fromProto(Proto.Process proto) {
+		return new IxProcess(
 			proto.getId(),
 			proto.getName(),
 			proto.getCategory(),
@@ -81,8 +81,8 @@ public record LibProcess(
 		buffer.add(Csv.str(locationCode));
 	}
 
-	static LibProcess fromCsv(CSVRecord row, int offset) {
-		return new LibProcess(
+	static IxProcess fromCsv(CSVRecord row, int offset) {
+		return new IxProcess(
 			Csv.read(row, offset),
 			Csv.read(row, offset + 1),
 			Csv.read(row, offset + 2),

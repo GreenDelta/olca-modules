@@ -1,4 +1,4 @@
-package org.openlca.core.library;
+package org.openlca.core.matrix.io.index;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -12,45 +12,46 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.csv.CSVPrinter;
+import org.openlca.core.library.Library;
 import org.openlca.core.matrix.index.TechIndex;
 
-public record LibTechIndex(List<LibTechItem> items) {
+public record IxTechIndex(List<IxTechItem> items) {
 
 	private static final String NAME = "index_A";
 
-	public static LibTechIndex empty() {
-		return new LibTechIndex(Collections.emptyList());
+	public static IxTechIndex empty() {
+		return new IxTechIndex(Collections.emptyList());
 	}
 
-	public static LibTechIndex of(LibTechItem... items) {
-		return new LibTechIndex(List.of(items));
+	public static IxTechIndex of(IxTechItem... items) {
+		return new IxTechIndex(List.of(items));
 	}
 
-	public static LibTechIndex of(TechIndex idx, DbContext ctx) {
+	public static IxTechIndex of(TechIndex idx, IxContext ctx) {
 		if (idx == null || idx.size() == 0)
 			return empty();
-		var items = new ArrayList<LibTechItem>(idx.size());
+		var items = new ArrayList<IxTechItem>(idx.size());
 		idx.each((pos, techEntry)
-			-> items.add(LibTechItem.of(pos, techEntry, ctx)));
-		return new LibTechIndex(items);
+			-> items.add(IxTechItem.of(pos, techEntry, ctx)));
+		return new IxTechIndex(items);
 	}
 
-	public static LibTechIndex readFrom(Library lib) {
-		var proto = IndexFormat.PROTO.file(lib, NAME);
+	public static IxTechIndex readFrom(Library lib) {
+		var proto = IxFormat.PROTO.file(lib, NAME);
 		if (proto.exists())
 			return readProto(proto);
-		var csv = IndexFormat.CSV.file(lib, NAME);
+		var csv = IxFormat.CSV.file(lib, NAME);
 		return csv.exists()
 			? readCsv(csv)
 			: empty();
 	}
 
 	public static boolean isPresentIn(Library lib) {
-		return IndexFormat.PROTO.file(lib, NAME).exists()
-			|| IndexFormat.CSV.file(lib, NAME).exists();
+		return IxFormat.PROTO.file(lib, NAME).exists()
+			|| IxFormat.CSV.file(lib, NAME).exists();
 	}
 
-	public static LibTechIndex readFrom(File file) {
+	public static IxTechIndex readFrom(File file) {
 		if (file == null || !file.exists())
 			return empty();
 		return Csv.isCsv(file)
@@ -58,22 +59,22 @@ public record LibTechIndex(List<LibTechItem> items) {
 			: readProto(file);
 	}
 
-	private static LibTechIndex readCsv(File file) {
-		var items = new ArrayList<LibTechItem>();
+	private static IxTechIndex readCsv(File file) {
+		var items = new ArrayList<IxTechItem>();
 		Csv.eachRowSkipFirst(file,
-			row -> items.add(LibTechItem.fromCsv(row)));
-		return new LibTechIndex(items);
+			row -> items.add(IxTechItem.fromCsv(row)));
+		return new IxTechIndex(items);
 	}
 
-	private static LibTechIndex readProto(File file) {
+	private static IxTechIndex readProto(File file) {
 		try (var stream = new FileInputStream(file)) {
-			var items = new ArrayList<LibTechItem>();
+			var items = new ArrayList<IxTechItem>();
 			var proto = Proto.ProductIndex.parseFrom(stream);
 			for (int i = 0; i < proto.getProductCount(); i++) {
 				var pi = proto.getProduct(i);
-				items.add(LibTechItem.fromProto(pi));
+				items.add(IxTechItem.fromProto(pi));
 			}
-			return new LibTechIndex(items);
+			return new IxTechIndex(items);
 		} catch (IOException e) {
 			throw new RuntimeException(
 				"failed to read tech-index from " + file, e);
@@ -89,14 +90,14 @@ public record LibTechIndex(List<LibTechItem> items) {
 	}
 
 	public void writeTo(Library lib) {
-		writeTo(lib, IndexFormat.PROTO);
+		writeTo(lib, IxFormat.PROTO);
 	}
 
-	public void writeTo(Library lib, IndexFormat format) {
-		if (format == IndexFormat.CSV) {
-			toCsv(IndexFormat.CSV.file(lib, NAME));
+	public void writeTo(Library lib, IxFormat format) {
+		if (format == IxFormat.CSV) {
+			toCsv(IxFormat.CSV.file(lib, NAME));
 		} else {
-			toProto(IndexFormat.PROTO.file(lib, NAME));
+			toProto(IxFormat.PROTO.file(lib, NAME));
 		}
 	}
 

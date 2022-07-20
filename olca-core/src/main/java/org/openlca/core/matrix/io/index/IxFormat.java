@@ -1,8 +1,10 @@
-package org.openlca.core.library;
+package org.openlca.core.matrix.io.index;
+
+import org.openlca.core.library.Library;
 
 import java.io.File;
 
-public enum IndexFormat {
+public enum IxFormat {
 
 	CSV(".csv"),
 
@@ -10,7 +12,7 @@ public enum IndexFormat {
 
 	private final String extension;
 
-	IndexFormat(String extension) {
+	IxFormat(String extension) {
 		this.extension = extension;
 	}
 

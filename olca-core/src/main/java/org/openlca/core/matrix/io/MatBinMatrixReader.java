@@ -25,7 +25,7 @@ public class MatBinMatrixReader {
 	private final MatrixSolver solver;
 
 	private boolean useStreaming = false;
-	private ByteBuffer buffer;
+	private final ByteBuffer buffer;
 
 	public MatBinMatrixReader(File file, MatrixSolver solver) {
 		this.file = file;
@@ -85,7 +85,7 @@ public class MatBinMatrixReader {
 		checkFormat(dims, isSparse, size);
 	}
 
-	private void checkFormat(byte[] bytes) throws Exception {
+	private void checkFormat(byte[] bytes) {
 		int dims = (int) readNumber(0, bytes);
 		int isSparse = (int) readNumber(1, bytes);
 		int size = (int) readNumber(2, bytes);

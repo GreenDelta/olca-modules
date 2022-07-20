@@ -25,6 +25,9 @@ import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.io.index.IxEnviIndex;
+import org.openlca.core.matrix.io.index.IxImpactIndex;
+import org.openlca.core.matrix.io.index.IxTechIndex;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
@@ -124,8 +127,8 @@ public record Library(File folder) {
 	 * Read the index of technosphere flows from this library. Note that this
 	 * method returns an empty index if this library hase no technosphere flows.
 	 */
-	public LibTechIndex readTechIndex() {
-		return LibTechIndex.readFrom(this);
+	public IxTechIndex readTechIndex() {
+		return IxTechIndex.readFrom(this);
 	}
 
 	/**
@@ -156,8 +159,8 @@ public record Library(File folder) {
 	 * Read the index of environmental flows from this library. Note that this
 	 * method returns an empty index if this library has no such flows.
 	 */
-	public LibEnviIndex readEnviIndex() {
-		return LibEnviIndex.readFrom(this);
+	public IxEnviIndex readEnviIndex() {
+		return IxEnviIndex.readFrom(this);
 	}
 
 	/**
@@ -199,8 +202,8 @@ public record Library(File folder) {
 	 * Read the index of impact indicators from this library. Note that this
 	 * method returns an empty index if this library has no such indicators.
 	 */
-	public LibImpactIndex readImpactIndex() {
-		return LibImpactIndex.readFrom(this);
+	public IxImpactIndex readImpactIndex() {
+		return IxImpactIndex.readFrom(this);
 	}
 
 	/**

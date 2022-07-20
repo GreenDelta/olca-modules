@@ -1,17 +1,18 @@
-package org.openlca.core.library;
+package org.openlca.core.matrix.io.index;
 
 import org.apache.commons.csv.CSVRecord;
+import org.openlca.core.matrix.io.index.Proto.Impact;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.util.Strings;
 
 import java.util.List;
 
-public record LibImpact(String id, String name, String unit) {
+public record IxImpact(String id, String name, String unit) {
 
-	private static final LibImpact empty = new LibImpact(null, null, null);
+	private static final IxImpact empty = new IxImpact(null, null, null);
 
-	public static LibImpact empty() {
+	public static IxImpact empty() {
 		return empty;
 	}
 
@@ -19,19 +20,19 @@ public record LibImpact(String id, String name, String unit) {
 		return id == null || id.isBlank();
 	}
 
-	public static LibImpact of(ImpactCategory imp) {
+	public static IxImpact of(ImpactCategory imp) {
 		return imp != null
-			? new LibImpact(imp.refId, imp.name, imp.referenceUnit)
+			? new IxImpact(imp.refId, imp.name, imp.referenceUnit)
 			: empty;
 	}
 
-	public static LibImpact of(ImpactDescriptor imp) {
+	public static IxImpact of(ImpactDescriptor imp) {
 		return imp != null
-			? new LibImpact(imp.refId, imp.name, imp.referenceUnit)
+			? new IxImpact(imp.refId, imp.name, imp.referenceUnit)
 			: empty;
 	}
 
-	Proto.Impact toProto() {
+	Impact toProto() {
 		return Proto.Impact.newBuilder()
 			.setId(Strings.orEmpty(id))
 			.setName(Strings.orEmpty(name))
@@ -39,8 +40,8 @@ public record LibImpact(String id, String name, String unit) {
 			.build();
 	}
 
-	static LibImpact fromProto(Proto.Impact proto) {
-		return new LibImpact(
+	static IxImpact fromProto(Proto.Impact proto) {
+		return new IxImpact(
 			proto.getId(),
 			proto.getName(),
 			proto.getUnit());
@@ -52,8 +53,8 @@ public record LibImpact(String id, String name, String unit) {
 		buffer.add(Csv.str(unit));
 	}
 
-	static LibImpact fromCsv(CSVRecord row, int offset) {
-		return new LibImpact(
+	static IxImpact fromCsv(CSVRecord row, int offset) {
+		return new IxImpact(
 			Csv.read(row, offset),
 			Csv.read(row, offset + 1),
 			Csv.read(row, offset + 2));

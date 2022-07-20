@@ -1,4 +1,4 @@
-package org.openlca.core.library;
+package org.openlca.core.matrix.io.index;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -12,41 +12,42 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.csv.CSVPrinter;
+import org.openlca.core.library.Library;
 import org.openlca.core.matrix.index.ImpactIndex;
 
-public record LibImpactIndex(List<LibImpactItem> items) {
+public record IxImpactIndex(List<IxImpactItem> items) {
 
 	private static final String NAME = "index_C";
 
-	public static LibImpactIndex empty() {
-		return new LibImpactIndex(Collections.emptyList());
+	public static IxImpactIndex empty() {
+		return new IxImpactIndex(Collections.emptyList());
 	}
 
-	public static LibImpactIndex of(ImpactIndex idx) {
+	public static IxImpactIndex of(ImpactIndex idx) {
 		if (idx == null || idx.size() == 0)
 			return empty();
-		var items = new ArrayList<LibImpactItem>(idx.size());
+		var items = new ArrayList<IxImpactItem>(idx.size());
 		idx.each((pos, impact)
-			-> items.add(LibImpactItem.of(pos, impact)));
-		return new LibImpactIndex(items);
+			-> items.add(IxImpactItem.of(pos, impact)));
+		return new IxImpactIndex(items);
 	}
 
-	public static LibImpactIndex readFrom(Library lib) {
-		var proto = IndexFormat.PROTO.file(lib, NAME);
+	public static IxImpactIndex readFrom(Library lib) {
+		var proto = IxFormat.PROTO.file(lib, NAME);
 		if (proto.exists())
 			return readProto(proto);
-		var csv = IndexFormat.CSV.file(lib, NAME);
+		var csv = IxFormat.CSV.file(lib, NAME);
 		return csv.exists()
 			? readCsv(csv)
 			: empty();
 	}
 
 	public static boolean isPresentIn(Library lib) {
-		return IndexFormat.PROTO.file(lib, NAME).exists()
-			|| IndexFormat.CSV.file(lib, NAME).exists();
+		return IxFormat.PROTO.file(lib, NAME).exists()
+			|| IxFormat.CSV.file(lib, NAME).exists();
 	}
 
-	public static LibImpactIndex readFrom(File file) {
+	public static IxImpactIndex readFrom(File file) {
 		if (file == null || !file.exists())
 			return empty();
 		return Csv.isCsv(file)
@@ -54,22 +55,22 @@ public record LibImpactIndex(List<LibImpactItem> items) {
 			: readProto(file);
 	}
 
-	private static LibImpactIndex readCsv(File file) {
-		var items = new ArrayList<LibImpactItem>();
+	private static IxImpactIndex readCsv(File file) {
+		var items = new ArrayList<IxImpactItem>();
 		Csv.eachRowSkipFirst(file,
-			row -> items.add(LibImpactItem.fromCsv(row)));
-		return new LibImpactIndex(items);
+			row -> items.add(IxImpactItem.fromCsv(row)));
+		return new IxImpactIndex(items);
 	}
 
-	private static LibImpactIndex readProto(File file) {
+	private static IxImpactIndex readProto(File file) {
 		try (var stream = new FileInputStream(file)) {
-			var items = new ArrayList<LibImpactItem>();
+			var items = new ArrayList<IxImpactItem>();
 			var proto = Proto.ImpactIndex.parseFrom(stream);
 			for (int i = 0; i < proto.getImpactCount(); i++) {
 				var impact = proto.getImpact(i);
-				items.add(LibImpactItem.fromProto(impact));
+				items.add(IxImpactItem.fromProto(impact));
 			}
-			return new LibImpactIndex(items);
+			return new IxImpactIndex(items);
 		} catch (IOException e) {
 			throw new RuntimeException(
 				"failed to read impact-index from " + file, e);
@@ -85,14 +86,14 @@ public record LibImpactIndex(List<LibImpactItem> items) {
 	}
 
 	public void writeTo(Library lib) {
-		writeTo(lib, IndexFormat.PROTO);
+		writeTo(lib, IxFormat.PROTO);
 	}
 
-	public void writeTo(Library lib, IndexFormat format) {
-		if (format == IndexFormat.CSV) {
-			toCsv(IndexFormat.CSV.file(lib, NAME));
+	public void writeTo(Library lib, IxFormat format) {
+		if (format == IxFormat.CSV) {
+			toCsv(IxFormat.CSV.file(lib, NAME));
 		} else {
-			toProto(IndexFormat.PROTO.file(lib, NAME));
+			toProto(IxFormat.PROTO.file(lib, NAME));
 		}
 	}
 

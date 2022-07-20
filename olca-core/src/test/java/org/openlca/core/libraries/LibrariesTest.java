@@ -13,9 +13,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.library.IndexFormat;
-import org.openlca.core.library.LibTechIndex;
-import org.openlca.core.library.LibTechItem;
+import org.openlca.core.matrix.io.index.IxFormat;
+import org.openlca.core.matrix.io.index.IxTechIndex;
+import org.openlca.core.matrix.io.index.IxTechItem;
 import org.openlca.core.library.Libraries;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.Mounter;
@@ -69,10 +69,10 @@ public class LibrariesTest {
 				.forEach(exp::write);
 		}
 
-		var libIdx = LibTechIndex.of(
-			LibTechItem.of(0, P, p),
-			LibTechItem.of(1, Q, q));
-		libIdx.writeTo(lib, IndexFormat.CSV);
+		var libIdx = IxTechIndex.of(
+			IxTechItem.of(0, P, p),
+			IxTechItem.of(1, Q, q));
+		libIdx.writeTo(lib, IxFormat.CSV);
 
 		Mounter.of(db, lib).run();
 		var techIdx = lib.syncTechIndex(db).orElse(null);
