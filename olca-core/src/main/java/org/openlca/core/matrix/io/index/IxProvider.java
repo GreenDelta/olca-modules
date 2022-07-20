@@ -10,18 +10,21 @@ import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.util.Strings;
 
 /**
- * Contains the meta-data of a process stored in an index.
+ * Contains the meta-data of a provider stored in an index. A provider is
+ * a process, product system, or result that provides a product output or
+ * waste input that can be linked to other processes or serve as the final
+ * demand of a product system.
  */
-public record IxProcess(
+public record IxProvider(
 	String id,
 	String name,
 	String category,
 	String locationCode) {
 
-	private static final IxProcess empty = new IxProcess(
+	private static final IxProvider empty = new IxProvider(
 		null, null, null, null);
 
-	public static IxProcess empty() {
+	public static IxProvider empty() {
 		return empty;
 	}
 
@@ -29,10 +32,10 @@ public record IxProcess(
 		return id == null || id.isBlank();
 	}
 
-	public static IxProcess of(RootEntity process) {
+	public static IxProvider of(RootEntity process) {
 		if (process == null)
 			return empty;
-		return new IxProcess(
+		return new IxProvider(
 			process.refId,
 			process.name,
 			process.category != null
@@ -43,14 +46,14 @@ public record IxProcess(
 				: null);
 	}
 
-	public static IxProcess of(RootDescriptor d, IxContext ctx) {
+	public static IxProvider of(RootDescriptor d, IxContext ctx) {
 		if (d == null)
 			return empty;
 		var category = ctx.categories().pathOf(d.category);
 		var loc = d instanceof ProcessDescriptor p && p.location != null
 			? ctx.locationCodes().get(p.location)
 			: null;
-		return new IxProcess(
+		return new IxProvider(
 			d.refId,
 			d.name,
 			category,
@@ -66,8 +69,8 @@ public record IxProcess(
 			.build();
 	}
 
-	static IxProcess fromProto(IxProto.Process proto) {
-		return new IxProcess(
+	static IxProvider fromProto(IxProto.Process proto) {
+		return new IxProvider(
 			proto.getId(),
 			proto.getName(),
 			proto.getCategory(),
@@ -81,8 +84,8 @@ public record IxProcess(
 		buffer.add(Csv.str(locationCode));
 	}
 
-	static IxProcess fromCsv(CSVRecord row, int offset) {
-		return new IxProcess(
+	static IxProvider fromCsv(CSVRecord row, int offset) {
+		return new IxProvider(
 			Csv.read(row, offset),
 			Csv.read(row, offset + 1),
 			Csv.read(row, offset + 2),
