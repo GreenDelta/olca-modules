@@ -12,7 +12,7 @@ import java.util.List;
  * An item of a library's technosphere index.
  */
 public record IxTechItem(
-	int index, IxProvider process, IxFlow flow) {
+	int index, IxProvider provider, IxFlow flow) {
 
 	public static IxTechItem of(int idx, RootEntity provider, Flow flow) {
 		return new IxTechItem(idx, IxProvider.of(provider), IxFlow.of(flow));
@@ -28,8 +28,8 @@ public record IxTechItem(
 	ProductEntry toProto() {
 		var proto = IxProto.ProductEntry.newBuilder()
 			.setIndex(index);
-		if (process != null) {
-			proto.setProcess(process.toProto());
+		if (provider != null) {
+			proto.setProcess(provider.toProto());
 		}
 		if (flow != null) {
 			proto.setProduct(flow.toProto());
@@ -50,8 +50,8 @@ public record IxTechItem(
 
 	void toCsv(List<String> buffer) {
 		buffer.add(Integer.toString(index));
-		var p = process != null
-			? process
+		var p = provider != null
+			? provider
 			: IxProvider.empty();
 		p.toCsv(buffer);
 		var f = flow != null

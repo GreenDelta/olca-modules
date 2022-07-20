@@ -142,7 +142,7 @@ public record Library(File folder) {
 		TechIndex index = null;
 		var libIdx = readTechIndex();
 		for (var i : libIdx.items()) {
-			var process = processes.get(i.process().id());
+			var process = processes.get(i.provider().id());
 			var product = products.get(i.flow().id());
 			if (process == null || product == null)
 				return Optional.empty();
