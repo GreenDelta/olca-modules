@@ -1,8 +1,8 @@
 package org.openlca.core.library;
 
+import org.openlca.util.Dirs;
+
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -24,14 +24,7 @@ public record LibraryDir(File folder) {
 	}
 
 	public LibraryDir {
-		if (!folder.exists()) {
-			try {
-				Files.createDirectories(folder.toPath());
-			} catch (IOException e) {
-				throw new RuntimeException("the folder " + folder
-					+ " does not exist and could not be created");
-			}
-		}
+		Dirs.createIfAbsent(folder);
 	}
 
 	public List<Library> getLibraries() {

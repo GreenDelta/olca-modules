@@ -14,6 +14,7 @@ import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.io.MatrixExport;
+import org.openlca.core.matrix.io.NpyMatrix;
 import org.openlca.core.matrix.io.index.IxContext;
 import org.openlca.core.matrix.io.index.IxEnviIndex;
 import org.openlca.core.matrix.io.index.IxImpactIndex;
@@ -214,11 +215,11 @@ public class LibraryExport implements Runnable {
 		log.info("create matrix INV");
 		var solver = new NativeSolver();
 		var inv = solver.invert(data.techMatrix);
-		MatrixExport.toNpy(folder, inv, "INV");
+		NpyMatrix.write(folder, "INV", inv);
 		if (data.enviMatrix == null)
 			return;
 		log.info("create matrix M");
 		var m = solver.multiply(data.enviMatrix, inv);
-		MatrixExport.toNpy(folder, m, "M");
+		NpyMatrix.write(folder, "M", m);
 	}
 }

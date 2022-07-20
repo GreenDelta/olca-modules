@@ -48,7 +48,7 @@ class NpyExport extends MatrixExport {
 
 	@Override
 	protected void write(MatrixReader matrix, String name) {
-		toNpy(folder, matrix, name);
+		NpyMatrix.write(folder, name, matrix);
 	}
 
 	@Override

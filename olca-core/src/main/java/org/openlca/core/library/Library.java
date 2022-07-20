@@ -2,7 +2,6 @@ package org.openlca.core.library;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.HashSet;
@@ -36,18 +35,12 @@ import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.npy.Npy;
+import org.openlca.util.Dirs;
 
 public record Library(File folder) {
 
 	public Library {
-		if (!folder.exists()) {
-			try {
-				Files.createDirectories(folder.toPath());
-			} catch (IOException e) {
-				throw new RuntimeException(
-					"failed to create library folder: " + folder, e);
-			}
-		}
+		Dirs.createIfAbsent(folder);
 	}
 
 	public static Library of(File folder) {

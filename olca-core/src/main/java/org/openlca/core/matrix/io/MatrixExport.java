@@ -1,8 +1,6 @@
 package org.openlca.core.matrix.io;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.MatrixData;
@@ -12,6 +10,7 @@ import org.openlca.core.matrix.format.MatrixBuilder;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.uncertainties.UMatrix;
 import org.openlca.core.model.UncertaintyType;
+import org.openlca.util.Dirs;
 
 public abstract class MatrixExport {
 
@@ -23,30 +22,11 @@ public abstract class MatrixExport {
 		this.db = db;
 		this.data = data;
 		this.folder = folder;
-		if (!folder.exists()) {
-			try {
-				Files.createDirectories(folder.toPath());
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
+		Dirs.createIfAbsent(folder);
 	}
 
 	public static MatrixExport toNpy(IDatabase db, File folder, MatrixData data) {
 		return new NpyExport(db, folder, data);
-	}
-
-	public static void toNpy(File folder, MatrixReader matrix, String name) {
-		if (folder == null || matrix == null)
-			return;
-		if (!folder.exists()) {
-			try {
-				Files.createDirectories(folder.toPath());
-			} catch (IOException e) {
-				throw new RuntimeException("failed to create folder " + folder, e);
-			}
-		}
-		NpyMatrix.write(folder, name, matrix);
 	}
 
 	public static CsvExport toCsv(IDatabase db, File folder, MatrixData data) {
