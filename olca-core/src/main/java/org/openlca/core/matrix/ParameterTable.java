@@ -42,7 +42,7 @@ public class ParameterTable {
 	 * the given parameter redefinitions.
 	 */
 	public static FormulaInterpreter interpreter(IDatabase db,
-			Set<Long> contexts, Collection<ParameterRedef> redefs) {
+		Set<Long> contexts, Collection<ParameterRedef> redefs) {
 		var table = new ParameterTable();
 		try {
 			table.scan(db, contexts);
@@ -59,12 +59,12 @@ public class ParameterTable {
 	 * Monte Carlo simulation.
 	 */
 	public static ParameterTable forSimulation(IDatabase db,
-			Set<Long> contexts, Collection<ParameterRedef> redefs) {
+		Set<Long> contexts, Collection<ParameterRedef> redefs) {
 		var table = new ParameterTable();
 		table.numberGens = new TLongObjectHashMap<>(
-				Constants.DEFAULT_CAPACITY,
-				Constants.DEFAULT_LOAD_FACTOR,
-				-1L);
+			Constants.DEFAULT_CAPACITY,
+			Constants.DEFAULT_LOAD_FACTOR,
+			-1L);
 		try {
 			table.scan(db, contexts);
 		} catch (Exception e) {
@@ -89,8 +89,8 @@ public class ParameterTable {
 			long context = it.key();
 			var generators = it.value();
 			var scope = context == 0
-					? interpreter.getGlobalScope()
-					: interpreter.getScopeOrGlobal(context);
+				? interpreter.getGlobalScope()
+				: interpreter.getScopeOrGlobal(context);
 			if (generators == null || scope == null)
 				continue;
 			generators.forEach((name, gen) -> {
@@ -107,8 +107,8 @@ public class ParameterTable {
 			return;
 		for (var redef : redefs) {
 			var scope = redef.contextId == null
-					? interpreter.getGlobalScope()
-					: interpreter.getScopeOrGlobal(redef.contextId);
+				? interpreter.getGlobalScope()
+				: interpreter.getScopeOrGlobal(redef.contextId);
 			scope.bind(redef.name, redef.value);
 			if (numberGens == null)
 				continue;
@@ -122,7 +122,7 @@ public class ParameterTable {
 				numberGens.put(context, generators);
 			}
 			if (redef.uncertainty == null
-					|| redef.uncertainty.distributionType == UncertaintyType.NONE) {
+				|| redef.uncertainty.distributionType == UncertaintyType.NONE) {
 				generators.remove(redef.name);
 				continue;
 			}
@@ -132,10 +132,10 @@ public class ParameterTable {
 
 	private void scan(IDatabase db, Set<Long> contexts) {
 		String sql = "select scope, f_owner, name, is_input_param, "
-				+ "value, formula";
+			+ "value, formula";
 		if (numberGens != null) {
 			sql += ", distribution_type, parameter1_value, "
-					+ "parameter2_value, parameter3_value";
+				+ "parameter2_value, parameter3_value";
 		}
 		sql += " from tbl_parameters";
 		NativeSql.on(db).query(sql, r -> {
@@ -143,8 +143,8 @@ public class ParameterTable {
 			// parse the parameter scope
 			var _str = r.getString(1);
 			var paramScope = _str == null
-					? ParameterScope.GLOBAL
-					: ParameterScope.valueOf(_str);
+				? ParameterScope.GLOBAL
+				: ParameterScope.valueOf(_str);
 
 			// load the scope
 			long owner = r.getLong(2);
@@ -154,8 +154,8 @@ public class ParameterTable {
 				return true;
 			}
 			var scope = owner == 0
-					? interpreter.getGlobalScope()
-					: interpreter.getOrCreate(owner);
+				? interpreter.getGlobalScope()
+				: interpreter.getOrCreate(owner);
 
 			// bind the parameter value or formula
 			var name = r.getString(3);
@@ -187,28 +187,18 @@ public class ParameterTable {
 			int idx = r.getInt(7);
 			if (r.wasNull())
 				return null;
-			UncertaintyType type = UncertaintyType.values()[idx];
-			switch (type) {
-			case LOG_NORMAL:
-				return NumberGenerator.logNormal(
-						r.getDouble(8),
-						r.getDouble(9));
-			case NORMAL:
-				return NumberGenerator.normal(
-						r.getDouble(8),
-						r.getDouble(9));
-			case TRIANGLE:
-				return NumberGenerator.triangular(
-						r.getDouble(8),
-						r.getDouble(9),
-						r.getDouble(10));
-			case UNIFORM:
-				return NumberGenerator.uniform(
-						r.getDouble(8),
-						r.getDouble(9));
-			default:
-				return null;
-			}
+			var type = UncertaintyType.values()[idx];
+			return switch (type) {
+				case LOG_NORMAL -> NumberGenerator.logNormal(
+					r.getDouble(8), r.getDouble(9));
+				case NORMAL -> NumberGenerator.normal(
+					r.getDouble(8), r.getDouble(9));
+				case TRIANGLE -> NumberGenerator.triangular(
+					r.getDouble(8), r.getDouble(9), r.getDouble(10));
+				case UNIFORM -> NumberGenerator.uniform(
+					r.getDouble(8), r.getDouble(9));
+				default -> null;
+			};
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

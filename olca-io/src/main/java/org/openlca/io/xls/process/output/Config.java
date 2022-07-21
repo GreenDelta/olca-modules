@@ -60,66 +60,46 @@ class Config {
 
 	void pair(Sheet sheet, int row, String header, String value) {
 		Excel.cell(sheet, row, 0, header)
-				.ifPresent(c -> c.setCellStyle(pairHeader));
+			.ifPresent(c -> c.setCellStyle(pairHeader));
 		Excel.cell(sheet, row, 1, value)
-				.ifPresent(c -> c.setCellStyle(pairValue));
+			.ifPresent(c -> c.setCellStyle(pairValue));
 	}
 
-	void uncertainty(Sheet sheet, int row, int col, Uncertainty uncertainty) {
-		if (uncertainty == null
-				|| uncertainty.distributionType == UncertaintyType.NONE) {
+	void uncertainty(Sheet sheet, int row, int col, Uncertainty u) {
+		if (u == null || u.distributionType == UncertaintyType.NONE) {
 			Excel.cell(sheet, row, col, "undefined");
 			return;
 		}
-		switch (uncertainty.distributionType) {
-			case LOG_NORMAL:
+		switch (u.distributionType) {
+			case LOG_NORMAL -> {
 				Excel.cell(sheet, row, col, "log-normal");
-				param1(uncertainty, sheet, row, col + 1);
-				param2(uncertainty, sheet, row, col + 2);
-				break;
-			case NORMAL:
+				param(sheet, u.parameter1,  row, col + 1);
+				param(sheet, u.parameter2,  row, col + 2);
+			}
+			case NORMAL -> {
 				Excel.cell(sheet, row, col, "normal");
-				param1(uncertainty, sheet, row, col + 1);
-				param2(uncertainty, sheet, row, col + 2);
-				break;
-			case TRIANGLE:
+				param(sheet, u.parameter1,  row, col + 1);
+				param(sheet, u.parameter2,  row, col + 2);
+			}
+			case TRIANGLE -> {
 				Excel.cell(sheet, row, col, "triangular");
-				param1(uncertainty, sheet, row, col + 3);
-				param2(uncertainty, sheet, row, col + 1);
-				param3(uncertainty, sheet, row, col + 4);
-				break;
-			case UNIFORM:
+				param(sheet, u.parameter1,  row, col + 3);
+				param(sheet, u.parameter2,  row, col + 1);
+				param(sheet, u.parameter3,  row, col + 4);
+			}
+			case UNIFORM -> {
 				Excel.cell(sheet, row, col, "uniform");
-				param1(uncertainty, sheet, row, col + 3);
-				param2(uncertainty, sheet, row, col + 4);
-				break;
-			default:
-				break;
+				param(sheet, u.parameter1,  row, col + 3);
+				param(sheet, u.parameter2,  row, col + 4);
+			}
+			default -> {
+			}
 		}
 	}
 
-	private void param1(Uncertainty uncertainty, Sheet sheet, int row, int col) {
-		String formula = uncertainty.formula1;
-		Double value = uncertainty.parameter1;
-		param(formula, value, sheet, row, col);
-	}
-
-	private void param2(Uncertainty uncertainty, Sheet sheet, int row, int col) {
-		String formula = uncertainty.formula2;
-		Double value = uncertainty.parameter2;
-		param(formula, value, sheet, row, col);
-	}
-
-	private void param3(Uncertainty uncertainty, Sheet sheet, int row, int col) {
-		String formula = uncertainty.formula3;
-		Double value = uncertainty.parameter3;
-		param(formula, value, sheet, row, col);
-	}
-
-	private void param(String formula, Double value, Sheet sheet, int row, int col) {
-		if (formula != null)
-			Excel.cell(sheet, row, col, formula);
-		else if (value != null)
+	private void param(Sheet sheet, Double value, int row, int col) {
+		if (value != null) {
 			Excel.cell(sheet, row, col, value);
+		}
 	}
 }

@@ -56,6 +56,7 @@ public record ResultProviderTest(ResultProvider provider) {
 		}
 
 		var db = Tests.getDb();
+		db.clear();
 		var libID = "test_lib 1.0";
 
 		var units = db.insert(UnitGroup.of("Mass units", Unit.of("kg")));

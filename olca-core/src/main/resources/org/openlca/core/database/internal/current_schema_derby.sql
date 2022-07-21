@@ -328,11 +328,8 @@ CREATE TABLE tbl_exchanges (
 
     distribution_type         INTEGER default 0,
     parameter1_value          DOUBLE,
-    parameter1_formula        VARCHAR(1000),
     parameter2_value          DOUBLE,
-    parameter2_formula        VARCHAR(1000),
     parameter3_value          DOUBLE,
-    parameter3_formula        VARCHAR(1000),
 
     dq_entry                  VARCHAR(50),
     base_uncertainty          DOUBLE,

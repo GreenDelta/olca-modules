@@ -189,83 +189,47 @@ public final class Out {
 		// normal distribution
 		if (u.distributionType == UncertaintyType.NORMAL) {
 			proto.setDistributionType(ProtoUncertaintyType.NORMAL_DISTRIBUTION);
-
 			if (u.parameter1 != null) {
 				proto.setMean(u.parameter1);
 			}
-			if (u.formula1 != null) {
-				proto.setMeanFormula(u.formula1);
-			}
-
 			if (u.parameter2 != null) {
 				proto.setSd(u.parameter2);
-			}
-			if (u.formula2 != null) {
-				proto.setSdFormula(u.formula2);
 			}
 		}
 
 		// log-normal distribution
 		if (u.distributionType == UncertaintyType.LOG_NORMAL) {
 			proto.setDistributionType(ProtoUncertaintyType.LOG_NORMAL_DISTRIBUTION);
-
 			if (u.parameter1 != null) {
 				proto.setGeomMean(u.parameter1);
 			}
-			if (u.formula1 != null) {
-				proto.setGeomMeanFormula(u.formula1);
-			}
-
 			if (u.parameter2 != null) {
 				proto.setGeomSd(u.parameter2);
-			}
-			if (u.formula2 != null) {
-				proto.setGeomSdFormula(u.formula2);
 			}
 		}
 
 		// uniform distribution
 		if (u.distributionType == UncertaintyType.UNIFORM) {
 			proto.setDistributionType(ProtoUncertaintyType.UNIFORM_DISTRIBUTION);
-
 			if (u.parameter1 != null) {
 				proto.setMinimum(u.parameter1);
 			}
-			if (u.formula1 != null) {
-				proto.setMinimumFormula(u.formula1);
-			}
-
 			if (u.parameter2 != null) {
 				proto.setMaximum(u.parameter2);
-			}
-			if (u.formula2 != null) {
-				proto.setMaximumFormula(u.formula2);
 			}
 		}
 
 		// triangle distribution
 		if (u.distributionType == UncertaintyType.TRIANGLE) {
 			proto.setDistributionType(ProtoUncertaintyType.TRIANGLE_DISTRIBUTION);
-
 			if (u.parameter1 != null) {
 				proto.setMinimum(u.parameter1);
 			}
-			if (u.formula1 != null) {
-				proto.setMinimumFormula(u.formula1);
-			}
-
 			if (u.parameter2 != null) {
 				proto.setMode(u.parameter2);
 			}
-			if (u.formula2 != null) {
-				proto.setModeFormula(u.formula2);
-			}
-
 			if (u.parameter3 != null) {
 				proto.setMaximum(u.parameter3);
-			}
-			if (u.formula3 != null) {
-				proto.setMaximumFormula(u.formula3);
 			}
 		}
 		return proto.build();

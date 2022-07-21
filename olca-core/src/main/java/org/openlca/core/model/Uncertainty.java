@@ -37,12 +37,6 @@ public class Uncertainty implements Copyable<Uncertainty> {
 	public Double parameter1;
 
 	/**
-	 * A formula for the first distribution parameter {@link #parameter1}.
-	 */
-	@Column(name = "parameter1_formula")
-	public String formula1;
-
-	/**
 	 * The second parameter of the uncertainty distribution:
 	 * <ul>
 	 * <li>Normal distribution: arithmetic standard deviation
@@ -55,12 +49,6 @@ public class Uncertainty implements Copyable<Uncertainty> {
 	public Double parameter2;
 
 	/**
-	 * A formula for the second distribution parameter {@link #parameter2}.
-	 */
-	@Column(name = "parameter2_formula")
-	public String formula2;
-
-	/**
 	 * The third parameter of the uncertainty distribution:
 	 * <ul>
 	 * <li>Triangle distribution: max value
@@ -70,17 +58,11 @@ public class Uncertainty implements Copyable<Uncertainty> {
 	public Double parameter3;
 
 	/**
-	 * A formula for the third distribution parameter {@link #parameter3}.
-	 */
-	@Column(name = "parameter3_formula")
-	public String formula3;
-
-	/**
 	 * Creates default distribution with type set to NONE and the first
 	 * parameter set with the given mean value.
 	 */
 	public static Uncertainty none(double mean) {
-		Uncertainty uncertainty = new Uncertainty();
+		var uncertainty = new Uncertainty();
 		uncertainty.distributionType = UncertaintyType.NONE;
 		uncertainty.parameter1 = mean;
 		return uncertainty;
@@ -93,7 +75,7 @@ public class Uncertainty implements Copyable<Uncertainty> {
 	 * @param sd   the arithmetic standard deviation.
 	 */
 	public static Uncertainty normal(double mean, double sd) {
-		Uncertainty uncertainty = new Uncertainty();
+		var uncertainty = new Uncertainty();
 		uncertainty.distributionType = UncertaintyType.NORMAL;
 		uncertainty.parameter1 = mean;
 		uncertainty.parameter2 = sd;
@@ -107,7 +89,7 @@ public class Uncertainty implements Copyable<Uncertainty> {
 	 * @param gsd   the geometric standard deviation
 	 */
 	public static Uncertainty logNormal(double gmean, double gsd) {
-		Uncertainty uncertainty = new Uncertainty();
+		var uncertainty = new Uncertainty();
 		uncertainty.distributionType = UncertaintyType.LOG_NORMAL;
 		uncertainty.parameter1 = gmean;
 		uncertainty.parameter2 = gsd;
@@ -121,7 +103,7 @@ public class Uncertainty implements Copyable<Uncertainty> {
 	 * @param max the maximum.
 	 */
 	public static Uncertainty uniform(double min, double max) {
-		Uncertainty uncertainty = new Uncertainty();
+		var uncertainty = new Uncertainty();
 		uncertainty.distributionType = UncertaintyType.UNIFORM;
 		uncertainty.parameter1 = min;
 		uncertainty.parameter2 = max;
@@ -136,7 +118,7 @@ public class Uncertainty implements Copyable<Uncertainty> {
 	 * @param max  The maximum value.
 	 */
 	public static Uncertainty triangle(double min, double mode, double max) {
-		Uncertainty uncertainty = new Uncertainty();
+		var uncertainty = new Uncertainty();
 		uncertainty.distributionType = UncertaintyType.TRIANGLE;
 		uncertainty.parameter1 = min;
 		uncertainty.parameter2 = mode;
@@ -148,9 +130,6 @@ public class Uncertainty implements Copyable<Uncertainty> {
 	public Uncertainty copy() {
 		Uncertainty clone = new Uncertainty();
 		clone.distributionType = distributionType;
-		clone.formula1 = formula1;
-		clone.formula2 = formula2;
-		clone.formula3 = formula3;
 		clone.parameter1 = parameter1;
 		clone.parameter2 = parameter2;
 		clone.parameter3 = parameter3;
@@ -166,25 +145,17 @@ public class Uncertainty implements Copyable<Uncertainty> {
 	public void scale(double factor) {
 		if (parameter1 != null)
 			parameter1 = factor * parameter1;
-		if (formula1 != null)
-			formula1 = factor + " * (" + formula1 + ")";
 		if (distributionType != UncertaintyType.LOG_NORMAL) {
 			if (parameter2 != null)
 				parameter2 = factor * parameter2;
-			if (formula2 != null)
-				formula2 = factor + " * (" + formula2 + ")";
 		}
 		if (parameter3 != null)
 			parameter3 = factor * parameter3;
-		if (formula3 != null)
-			formula3 = factor + " * (" + formula3 + ")";
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(distributionType, formula1,
-			parameter1, formula2, parameter2,
-			formula3, parameter3);
+		return Objects.hash(distributionType, parameter1, parameter2, parameter3);
 	}
 
 	@Override
@@ -195,15 +166,12 @@ public class Uncertainty implements Copyable<Uncertainty> {
 			return false;
 		if (!Objects.equals(this.getClass(), obj.getClass()))
 			return false;
-		Uncertainty other = (Uncertainty) obj;
+		var other = (Uncertainty) obj;
 		if (this.distributionType != other.distributionType)
 			return false;
 		return Objects.equals(this.parameter1, other.parameter1)
-					 && Objects.equals(this.parameter2, other.parameter2)
-					 && Objects.equals(this.parameter3, other.parameter3)
-					 && Objects.equals(this.formula1, other.formula1)
-					 && Objects.equals(this.formula2, other.formula2)
-					 && Objects.equals(this.formula3, other.formula3);
+			&& Objects.equals(this.parameter2, other.parameter2)
+			&& Objects.equals(this.parameter3, other.parameter3);
 	}
 
 	@Override
@@ -262,7 +230,7 @@ public class Uncertainty implements Copyable<Uncertainty> {
 			"\\s*normal:\\s+mean=" + num + "\\s+sigma=" + num + "\\s*",
 			"\\s*uniform:\\s+min=" + num + "\\s+max=" + num + "\\s*",
 			"\\s*triangular:\\s+min=" + num + "\\s+mode=" + num + "\\s+max="
-			+ num + "\\s*"
+				+ num + "\\s*"
 		};
 		for (int i = 0; i < patterns.length; i++) {
 			Pattern p = Pattern.compile(patterns[i]);

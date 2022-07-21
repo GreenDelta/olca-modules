@@ -14,8 +14,6 @@ import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
-import org.openlca.core.model.Uncertainty;
-import org.openlca.core.model.UncertaintyType;
 import org.openlca.util.Formula;
 
 /**
@@ -75,7 +73,6 @@ class GlobalParameters {
 		for (Exchange e : p.exchanges) {
 			names.addAll(Formula.getVariables(e.formula));
 			names.addAll(Formula.getVariables(e.costFormula));
-			names.addAll(variablesOf(e.uncertainty));
 		}
 		names.addAll(variablesOf(p.parameters));
 		filterLocals(names, p.parameters);
@@ -92,7 +89,6 @@ class GlobalParameters {
 		var names = new HashSet<String>();
 		for (var factor : impact.impactFactors) {
 			names.addAll(Formula.getVariables(factor.formula));
-			names.addAll(variablesOf(factor.uncertainty));
 		}
 		names.addAll(variablesOf(impact.parameters));
 		filterLocals(names, impact.parameters);
@@ -108,7 +104,6 @@ class GlobalParameters {
 			return;
 		var names = new HashSet<String>();
 		names.addAll(Formula.getVariables(p.formula));
-		names.addAll(variablesOf(p.uncertainty));
 		writeGlobals(names, exp);
 	}
 
@@ -119,7 +114,6 @@ class GlobalParameters {
 			if (param.isInputParameter)
 				continue;
 			names.addAll(Formula.getVariables(param.formula));
-			names.addAll(variablesOf(param.uncertainty));
 		}
 		return names;
 	}
@@ -135,22 +129,6 @@ class GlobalParameters {
 				.collect(Collectors.toSet());
 		names.removeIf(name -> localNames.contains(
 				name.trim().toLowerCase()));
-	}
-
-	private static Set<String> variablesOf(Uncertainty u) {
-		Set<String> names = new HashSet<>();
-		if (u == null)
-			return names;
-		if (u.distributionType == null)
-			return names;
-		if (u.distributionType == UncertaintyType.NONE)
-			return names;
-		names.addAll(Formula.getVariables(u.formula1));
-		names.addAll(Formula.getVariables(u.formula2));
-		if (u.distributionType == UncertaintyType.TRIANGLE) {
-			names.addAll(Formula.getVariables(u.formula3));
-		}
-		return names;
 	}
 
 	private static void writeGlobals(Set<String> names, JsonExport exp) {
