@@ -41,7 +41,7 @@ public class LibraryExport implements Runnable {
 	public LibraryExport(IDatabase db, File folder) {
 		this.db = db;
 		this.folder = folder;
-		this.info = LibraryInfo.of(db.getName());
+		this.info = LibraryInfo.of(folder.getName());
 	}
 
 	public LibraryExport withAllocation(AllocationMethod method) {
