@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
@@ -23,6 +24,13 @@ import org.openlca.util.Dirs;
 public class ImpactRetaggingTest {
 
 	private final IDatabase db = Tests.getDb();
+
+	@Before
+	public void setup() {
+		// todo: this is currently necessary because other
+		// tests do not delete their data (but they should)
+		db.clear();
+	}
 
 	@Test
 	public void testImpactRetagging() throws IOException {

@@ -15,6 +15,18 @@ import org.openlca.geo.geojson.Polygon;
 
 public abstract class Projection {
 
+	public static Projection identity() {
+		return new Projection() {
+			@Override
+			protected void apply(Point point) {
+			}
+
+			@Override
+			protected void inverse(Point point) {
+			}
+		};
+	}
+
 	/**
 	 * Applies the projection on the given point.
 	 */
@@ -86,43 +98,37 @@ public abstract class Projection {
 			fn.accept((Point) g);
 			return;
 		}
-		if (g instanceof MultiPoint) {
-			MultiPoint mp = (MultiPoint) g;
+		if (g instanceof MultiPoint mp) {
 			for (Point point : mp.points) {
 				fn.accept(point);
 			}
 			return;
 		}
-		if (g instanceof LineString) {
-			LineString line = (LineString) g;
+		if (g instanceof LineString line) {
 			for (Point point : line.points) {
 				fn.accept(point);
 			}
 			return;
 		}
-		if (g instanceof MultiLineString) {
-			MultiLineString mls = (MultiLineString) g;
+		if (g instanceof MultiLineString mls) {
 			for (LineString line : mls.lineStrings) {
 				iterPoints(line, fn);
 			}
 			return;
 		}
-		if (g instanceof Polygon) {
-			Polygon polygon = (Polygon) g;
+		if (g instanceof Polygon polygon) {
 			for (LineString ring : polygon.rings) {
 				iterPoints(ring, fn);
 			}
 			return;
 		}
-		if (g instanceof MultiPolygon) {
-			MultiPolygon mp = (MultiPolygon) g;
+		if (g instanceof MultiPolygon mp) {
 			for (Polygon polygon : mp.polygons) {
 				iterPoints(polygon, fn);
 			}
 			return;
 		}
-		if (g instanceof GeometryCollection) {
-			GeometryCollection coll = (GeometryCollection) g;
+		if (g instanceof GeometryCollection coll) {
 			for (Geometry gg : coll.geometries) {
 				iterPoints(gg, fn);
 			}

@@ -102,8 +102,7 @@ public class IntersectionCalculator {
 	 * </ol>
 	 */
 	public List<Pair<Feature, Double>> shares(Geometry g) {
-		List<Pair<Feature, org.locationtech.jts.geom.Geometry>> s = jts(g)
-				.collect(Collectors.toList());
+		List<Pair<Feature, org.locationtech.jts.geom.Geometry>> s = jts(g).toList();
 
 		// get the maximum dimension
 		int maxDim = s.stream().reduce(0,
@@ -115,18 +114,12 @@ public class IntersectionCalculator {
 		List<Pair<Feature, Double>> shares = s
 				.parallelStream()
 				.map(p -> {
-					double a = 0;
-					switch (maxDim) {
-						case 0:
-							a = p.second.getNumGeometries();
-							break;
-						case 1:
-							a = p.second.getLength();
-							break;
-						case 2:
-							a = p.second.getArea();
-							break;
-					}
+					double a = switch (maxDim) {
+						case 0 -> p.second.getNumGeometries();
+						case 1 -> p.second.getLength();
+						case 2 -> p.second.getArea();
+						default -> 0;
+					};
 					return Pair.of(p.first, a);
 				})
 				.filter(p -> p.second != null && p.second > 0)

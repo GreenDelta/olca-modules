@@ -28,6 +28,10 @@ public class CalculationQueueTest {
 
 	@Before
 	public void setup() {
+		// todo: this is currently necessary because other
+		// tests do not delete their data (but they should)
+		db.clear();
+
 		var units = UnitGroup.of("Mass units", "kg");
 		var mass = FlowProperty.of("Mass", units);
 		var co2 = Flow.elementary("CO2", mass);

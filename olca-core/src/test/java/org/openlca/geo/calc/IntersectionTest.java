@@ -15,19 +15,21 @@ public class IntersectionTest {
 
 	@Test
 	public void testLineIntersection() {
-		LineString a = new LineString();
+		var a = new LineString();
 		a.points.add(new Point(0, 0));
 		a.points.add(new Point(10, 10));
-		LineString b = new LineString();
+		var b = new LineString();
 		b.points.add(new Point(0, 10));
 		b.points.add(new Point(10, 0));
-		IntersectionCalculator calc = IntersectionCalculator.on(
-				FeatureCollection.of(a));
-		List<Pair<Feature, Geometry>> r = calc.calculate(b);
-		Assert.assertEquals(1, r.size());
-		Geometry g = r.get(0).second;
-		Assert.assertTrue(g instanceof Point);
-		Point p = (Point) g;
+
+		var calc = IntersectionCalculator.on(
+			FeatureCollection.of(a), Projection.identity());
+		var intersections = calc.calculate(b);
+
+		Assert.assertEquals(1, intersections.size());
+		var geometry = intersections.get(0).second;
+		Assert.assertTrue(geometry instanceof Point);
+		var p = (Point) geometry;
 		Assert.assertEquals(5.0, p.x, 1e-16);
 		Assert.assertEquals(5.0, p.y, 1e-16);
 	}
@@ -58,7 +60,4 @@ public class IntersectionTest {
 		b.points.add(new Point(35, 60));
 		b.points.add(new Point(85, 40));
 	}
-
-
-
 }
