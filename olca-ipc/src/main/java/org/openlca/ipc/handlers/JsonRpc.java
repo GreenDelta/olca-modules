@@ -20,6 +20,7 @@ import org.openlca.core.results.UpstreamTree;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.openlca.jsonld.Json;
+import org.openlca.jsonld.output.DbRefs;
 
 /**
  * Some utility functions for en/decoding data in JSON-RPC.
@@ -29,7 +30,7 @@ class JsonRpc {
 	private JsonRpc() {
 	}
 
-	static JsonObject encode(SimpleResult r, String id, EntityCache cache) {
+	static JsonObject encode(SimpleResult r, String id, DbRefs refs) {
 		var obj = new JsonObject();
 		Json.put(obj, "@id", id);
 		obj.addProperty("@id", id);
@@ -38,7 +39,7 @@ class JsonRpc {
 		Json.put(obj, "@type", r.getClass().getSimpleName());
 
 		Json.put(obj, "providers",
-			arrayOf(r.techIndex(), techFlow -> encodeTechFlow(techFlow, cache)));
+			arrayOf(r.techIndex(), techFlow -> encodeTechFlow(techFlow, refs)));
 
 		// flows & flow results
 		if (!r.hasEnviFlows())
@@ -59,37 +60,37 @@ class JsonRpc {
 		return obj;
 	}
 
-	static JsonObject encodeEnviFlow(EnviFlow ef, EntityCache cache) {
+	static JsonObject encodeEnviFlow(EnviFlow ef, DbRefs refs) {
 		var obj = new JsonObject();
-		Json.put(obj, "flow", JsonRef.of(ef.flow(), cache));
-		Json.put(obj, "location", JsonRef.of(ef.location(), cache));
+		Json.put(obj, "flow", refs.asRef(ef.flow()));
+		Json.put(obj, "location", refs.asRef(ef.location()));
 		Json.put(obj, "isInput", ef.isInput());
 		return obj;
 	}
 
-	static JsonObject encodeTechFlow(TechFlow techFlow, EntityCache cache) {
+	static JsonObject encodeTechFlow(TechFlow techFlow, DbRefs refs) {
 		var obj = new JsonObject();
-		Json.put(obj, "provider", JsonRef.of(techFlow.provider(), cache));
-		Json.put(obj, "flow", JsonRef.of(techFlow.flow(), cache));
+		Json.put(obj, "provider", refs.asRef(techFlow.provider()));
+		Json.put(obj, "flow", refs.asRef(techFlow.flow()));
 		return obj;
 	}
 
-	static JsonObject encodeFlowValue(FlowValue r, EntityCache cache) {
+	static JsonObject encodeFlowValue(FlowValue r, DbRefs refs) {
 		if (r == null)
 			return null;
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@type", "FlowResult");
-		obj.add("flow", encodeEnviFlow(r.indexFlow(), cache));
+		obj.add("flow", encodeEnviFlow(r.indexFlow(), refs));
 		obj.addProperty("value", r.value());
 		return obj;
 	}
 
-	static JsonObject encodeImpactValue(ImpactValue r, EntityCache cache) {
+	static JsonObject encodeImpactValue(ImpactValue r, DbRefs refs) {
 		if (r == null)
 			return null;
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@type", "ImpactResult");
-		obj.add("impactCategory", JsonRef.of(r.impact(), cache));
+		obj.add("impactCategory", refs.asRef(r.impact()));
 		obj.addProperty("value", r.value());
 		return obj;
 	}

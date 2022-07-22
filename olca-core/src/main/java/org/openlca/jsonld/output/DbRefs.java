@@ -20,12 +20,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Refs helps to create data set references when there are only model-types and
- * IDs are available (e.g. in process or provider links). For full object
- * references, {@code Json.asRef} should be used instead as this class maintains
- * an internal cache.
+ * DbRefs helps to create data set references when no full-entities are
+ * available. An instance of this class maintains an internal cache and can be
+ * reused when multiple references should be created. For full-entities,
+ * {@code Json.asRef} should be used instead.
  */
-class DbRefs {
+public class DbRefs {
 
 	private final IDatabase db;
 	private final PathBuilder categories;
@@ -39,11 +39,11 @@ class DbRefs {
 		this.cache = new EnumMap<>(ModelType.class);
 	}
 
-	static DbRefs of(IDatabase db) {
+	public static DbRefs of(IDatabase db) {
 		return new DbRefs(db);
 	}
 
-	JsonObject asRef(RootDescriptor d) {
+	public JsonObject asRef(RootDescriptor d) {
 		if (d == null)
 			return null;
 		var ref = new JsonObject();
