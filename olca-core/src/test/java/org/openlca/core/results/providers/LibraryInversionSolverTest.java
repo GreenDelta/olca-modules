@@ -29,7 +29,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.results.providers.libblocks.BlockInversionSolver;
+import org.openlca.core.results.providers.libblocks.LibraryInversionSolver;
 import org.openlca.util.Dirs;
 
 import java.nio.file.Files;
@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.UUID;
 
 
-public class BlockInversionSolverTest {
+public class LibraryInversionSolverTest {
 
 	private final IDatabase db = Tests.getDb();
 	private LibraryDir libDir;
@@ -96,7 +96,7 @@ public class BlockInversionSolverTest {
 		var context = SolverContext.of(db, data)
 			.libraryDir(libDir);
 
-		var result = BlockInversionSolver.solve(context);
+		var result = LibraryInversionSolver.solve(context);
 		check(result.scalingVector(), 1, 1);
 		check(result.totalRequirements(), 1, 1);
 		check(result.totalFlows(), 2);

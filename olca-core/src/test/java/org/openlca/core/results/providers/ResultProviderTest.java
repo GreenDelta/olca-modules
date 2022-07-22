@@ -27,6 +27,7 @@ import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.solvers.NativeSolver;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
@@ -36,7 +37,7 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.results.providers.libblocks.BlockInversionSolver;
+import org.openlca.core.results.providers.libblocks.LibraryInversionSolver;
 import org.openlca.nativelib.NativeLib;
 import org.openlca.util.Dirs;
 
@@ -124,14 +125,17 @@ public record ResultProviderTest(ResultProvider provider) {
 		foreground.impactIndex = data.impactIndex;
 
 		// create the result providers
+		var solver = new NativeSolver();
 		var context = SolverContext.of(data);
-		var libContext = SolverContext.of(db, foreground).libraryDir(libDir);
+		var libContext = SolverContext.of(db, foreground)
+			.solver(solver)
+			.libraryDir(libDir);
 
 		return List.of(
-			EagerResultProvider.create(context),
-			LazyResultProvider.create(context),
-			LazyLibraryProvider.of(libContext),
-			BlockInversionSolver.solve(libContext)
+			InversionResult.of(context).calculate().provider(),
+			FactorizationSolver.solve(context),
+			LazyLibrarySolver.solve(libContext),
+			LibraryInversionSolver.solve(libContext)
 		);
 	}
 

@@ -159,7 +159,7 @@ public class Simulator {
 				sub.lastResult = SimpleResult.of(contextOf(sub.data));
 			}
 			generateData(root);
-			var provider = ResultProviders.lazyOf(contextOf(root.data));
+			var provider = ResultProviders.solveLazy(contextOf(root.data));
 			var next = new SimpleResult(provider);
 			var result = getResult();
 			result.append(next);

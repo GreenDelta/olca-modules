@@ -94,4 +94,12 @@ public interface MatrixSolver {
 	}
 
 	Factorization factorize(MatrixReader matrix);
+
+	/**
+	 * Returns true if this is a native solver. That is a solver linked to a
+	 * platform native high-performance math-library.
+	 */
+	default boolean isNative() {
+		return this instanceof NativeSolver;
+	}
 }

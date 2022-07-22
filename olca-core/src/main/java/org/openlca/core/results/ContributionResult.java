@@ -32,7 +32,7 @@ public class ContributionResult extends SimpleResult {
 	}
 
 	public static ContributionResult of(SolverContext context) {
-		var provider = ResultProviders.lazyOf(context);
+		var provider = ResultProviders.solveLazy(context);
 		return new ContributionResult(provider);
 	}
 

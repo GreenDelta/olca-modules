@@ -11,7 +11,7 @@ import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.providers.LazyResultProvider;
+import org.openlca.core.results.providers.FactorizationSolver;
 import org.openlca.core.results.providers.SolverContext;
 
 public class LinkContributionsTest {
@@ -49,7 +49,7 @@ public class LinkContributionsTest {
 		data.techMatrix = techMatrix;
 		data.techIndex = index;
 
-		var solution = LazyResultProvider.create(SolverContext.of(data));
+		var solution = FactorizationSolver.solve(SolverContext.of(data));
 		var r = new FullResult(solution);
 
 		Assert.assertEquals(0, r.getLinkShare(link(4, 4, 1)), 1e-16);
@@ -86,7 +86,7 @@ public class LinkContributionsTest {
 		data.demand = Demand.of(index.at(0), 1.0);
 		data.techIndex = index;
 		data.techMatrix = techMatrix;
-		var solutions = LazyResultProvider.create(SolverContext.of(data));
+		var solutions = FactorizationSolver.solve(SolverContext.of(data));
 		var r = new FullResult(solutions);
 
 		for (int i = 0; i < size; i++) {

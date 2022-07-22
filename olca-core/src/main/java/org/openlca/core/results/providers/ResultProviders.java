@@ -1,33 +1,51 @@
 package org.openlca.core.results.providers;
 
+import org.openlca.core.results.providers.libblocks.LibraryInversionSolver;
+
 public final class ResultProviders {
 
 	private ResultProviders() {
 	}
 
-	public static ResultProvider eagerOf(SolverContext context) {
+	/**
+	 * Solves the given context using the best matching solver.
+	 */
+	public static ResultProvider solve(SolverContext context) {
+
+		// solve library results on-demand
 		if (context.hasLibraryLinks())
-			return LazyLibraryProvider.of(context);
+			return LazyLibrarySolver.solve(context);
 
 		var data = context.data();
-		var isSmall = data.techMatrix != null
-			&& data.techMatrix.rows() < 3000;
-		if (isSmall)
-			return EagerResultProvider.create(context);
 		var solver = context.solver();
-		return data.isSparse() && solver.hasSparseSupport()
-			? LazyResultProvider.create(context)
-			: EagerResultProvider.create(context);
+
+		// small systems can be quickly calculated with full-matrix inversion
+		var smallLimit = solver.isNative()
+			? 5000
+			: 500;
+		if (data.techMatrix.rows() < smallLimit)
+			return InversionResult.of(context).calculate().provider();
+
+		// solve via factorization by default
+		return FactorizationSolver.solve(context);
 	}
 
-	public static ResultProvider lazyOf(SolverContext context) {
-		if (context.hasLibraryLinks())
-			return LazyLibraryProvider.of(context);
+	/**
+	 * Solves the context eagerly. This means it calculates all possible results
+	 * for a system. This typically includes a full matrix inversion.
+	 */
+	public static ResultProvider solveEager(SolverContext context) {
+		return context.hasLibraryLinks()
+			? LibraryInversionSolver.solve(context)
+			: InversionResult.of(context).calculate().provider();
+	}
 
-		var solver = context.solver();
-		var data = context.data();
-		return data.isSparse() && solver.hasSparseSupport()
-			? LazyResultProvider.create(context)
-			: EagerResultProvider.create(context);
+	/**
+	 * Returns a result provider that calculates results on demand.
+	 */
+	public static ResultProvider solveLazy(SolverContext context) {
+		return context.hasLibraryLinks()
+			? LazyLibrarySolver.solve(context)
+			: FactorizationSolver.solve(context);
 	}
 }

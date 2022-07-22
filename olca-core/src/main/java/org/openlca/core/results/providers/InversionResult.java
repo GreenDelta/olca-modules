@@ -26,6 +26,14 @@ public record InversionResult(
 		return new Calculator(solver, data);
 	}
 
+	public static Calculator of(SolverContext context) {
+		return new Calculator(context.solver(), context.data());
+	}
+
+	public ResultProvider provider() {
+		return InversionResultProvider.of(this);
+	}
+
 	public static class Calculator {
 		private final MatrixSolver solver;
 		private final MatrixData data;
@@ -79,7 +87,7 @@ public record InversionResult(
 					: 1 / f;
 			}
 
-			// inventory results
+			// flow results
 			Matrix directFlows = null;
 			MatrixReader flowIntensities = null;
 			double[] totalFlows = null;

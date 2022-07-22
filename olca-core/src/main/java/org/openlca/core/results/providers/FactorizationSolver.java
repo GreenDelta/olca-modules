@@ -11,7 +11,7 @@ import org.openlca.core.matrix.solvers.MatrixSolver;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
 
-public class LazyResultProvider implements ResultProvider {
+public class FactorizationSolver implements ResultProvider {
 
 	private final Demand demand;
 	private final MatrixData data;
@@ -33,7 +33,7 @@ public class LazyResultProvider implements ResultProvider {
 	private final double[] directCosts;
 	private final double totalCosts;
 
-	private LazyResultProvider(SolverContext context) {
+	private FactorizationSolver(SolverContext context) {
 		this.demand = context.demand();
 		this.data = context.data();
 		this.solver = context.solver();
@@ -80,8 +80,8 @@ public class LazyResultProvider implements ResultProvider {
 		}
 	}
 
-	public static LazyResultProvider create(SolverContext context) {
-		return new LazyResultProvider(context);
+	public static ResultProvider solve(SolverContext context) {
+		return new FactorizationSolver(context);
 	}
 
 	@Override

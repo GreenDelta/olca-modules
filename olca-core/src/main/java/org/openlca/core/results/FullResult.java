@@ -29,7 +29,7 @@ public class FullResult extends ContributionResult {
 	}
 
 	public static FullResult of(SolverContext context) {
-		var provider = ResultProviders.eagerOf(context);
+		var provider = ResultProviders.solveEager(context);
 		return new FullResult(provider);
 	}
 

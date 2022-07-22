@@ -16,7 +16,7 @@ import org.openlca.core.results.providers.ResultProvider;
 import org.openlca.core.results.providers.SolverContext;
 import org.openlca.core.results.providers.libblocks.BlockTechIndex.Block;
 
-public class BlockInversionSolver {
+public class LibraryInversionSolver {
 
 	private final SolverContext context;
 	private final MatrixSolver solver;
@@ -35,10 +35,10 @@ public class BlockInversionSolver {
 		// construct the result directly from the library matrices
 		if (demand.techFlow().isFromLibrary())
 			return SingleLibraryResult.of(context);
-		return new BlockInversionSolver(context).solve();
+		return new LibraryInversionSolver(context).solve();
 	}
 
-	private BlockInversionSolver(SolverContext context) {
+	private LibraryInversionSolver(SolverContext context) {
 		this.context = context;
 		this.solver = context.solver();
 		this.libs = context.libraries();

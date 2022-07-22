@@ -51,7 +51,7 @@ public class SimpleResult extends BaseResult {
 	}
 
 	public static SimpleResult of(SolverContext context) {
-		var provider = ResultProviders.lazyOf(context);
+		var provider = ResultProviders.solveLazy(context);
 		return new SimpleResult(provider);
 	}
 

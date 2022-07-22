@@ -25,7 +25,7 @@ import org.openlca.util.Pair;
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
-public class LazyLibraryProvider implements ResultProvider {
+public class LazyLibrarySolver implements ResultProvider {
 
 	private final IDatabase db;
 	private final LibraryCache libs;
@@ -52,16 +52,18 @@ public class LazyLibraryProvider implements ResultProvider {
 	private final TIntObjectHashMap<double[]> directImpacts = newCache();
 	private final TIntObjectHashMap<double[]> totalImpactsOfOne = newCache();
 
-	private LazyLibraryProvider(SolverContext context) {
+	private LazyLibrarySolver(SolverContext context) {
 		this.db = context.db();
 		this.libs = context.libraries();
 		this.solver = context.solver();
 		this.demand = context.demand();
 		this.foregroundData = context.data();
-		this.foregroundSolution = EagerResultProvider.create(context);
 		this.fullData = new MatrixData();
 		this.fullData.demand = demand;
 		this.fullData.impactIndex = foregroundData.impactIndex;
+		this.foregroundSolution = InversionResult.of(context)
+			.calculate()
+			.provider();
 	}
 
 	private static TIntObjectHashMap<double[]> newCache() {
@@ -76,9 +78,9 @@ public class LazyLibraryProvider implements ResultProvider {
 		return v;
 	}
 
-	public static LazyLibraryProvider of(SolverContext context) {
+	public static ResultProvider solve(SolverContext context) {
 
-		var provider = new LazyLibraryProvider(context);
+		var provider = new LazyLibrarySolver(context);
 		provider.initIndices();
 
 		// calculate the scaling vector

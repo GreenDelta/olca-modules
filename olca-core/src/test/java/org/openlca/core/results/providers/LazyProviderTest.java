@@ -25,7 +25,7 @@ public class LazyProviderTest {
 		data.techIndex.add(product(3));
 		data.demand = Demand.of(data.techIndex.at(0), 1.0);
 
-		var provider = LazyResultProvider.create(SolverContext.of(data));
+		var provider = FactorizationSolver.solve(SolverContext.of(data));
 		var scaling = provider.scalingVector();
 		Assert.assertArrayEquals(
 				new double[]{1.0, 1.0, 1.0}, scaling, 1e-10);
