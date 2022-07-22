@@ -93,7 +93,7 @@ public class LinkedResultTest {
 	@Test
 	public void testContributionResult() {
 		var calculator = new SystemCalculator(db);
-		var r = calculator.calculateContributions(setup);
+		var r = calculator.calculateFull(setup);
 		assertEquals(42.0, r.getTotalImpactResult(impact), 1e-10);
 		assertEquals(42.0, r.getDirectImpactResult(resultFlow, impact), 1e-10);
 	}

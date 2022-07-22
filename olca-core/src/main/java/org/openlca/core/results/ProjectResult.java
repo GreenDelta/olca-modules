@@ -19,7 +19,7 @@ import org.openlca.core.model.descriptors.ImpactDescriptor;
  */
 public class ProjectResult {
 
-	private final HashMap<ProjectVariant, ContributionResult> results = new HashMap<>();
+	private final HashMap<ProjectVariant, FullResult> results = new HashMap<>();
 
 	public static ProjectResult calculate(Project project, IDatabase db) {
 		var result = new ProjectResult();
@@ -39,7 +39,7 @@ public class ProjectResult {
 				.withParameters(v.parameterRedefs)
 				.withCosts(project.isWithCosts)
 				.withRegionalization(project.isWithRegionalization);
-			var variantResult = calculator.calculateContributions(setup);
+			var variantResult = calculator.calculateFull(setup);
 			result.results.put(v, variantResult);
 		}
 		return result;
@@ -49,19 +49,19 @@ public class ProjectResult {
 		return Collections.unmodifiableSet(results.keySet());
 	}
 
-	public ContributionResult getResult(ProjectVariant variant) {
+	public FullResult getResult(ProjectVariant variant) {
 		return results.get(variant);
 	}
 
 	public double getTotalFlowResult(ProjectVariant variant, EnviFlow flow) {
-		ContributionResult r = results.get(variant);
+		FullResult r = results.get(variant);
 		if (r == null)
 			return 0;
 		return r.getTotalFlowResult(flow);
 	}
 
 	public List<FlowValue> getTotalFlowResults(ProjectVariant variant) {
-		ContributionResult result = results.get(variant);
+		FullResult result = results.get(variant);
 		if (result == null)
 			return Collections.emptyList();
 		return result.getTotalFlowResults();
@@ -74,7 +74,7 @@ public class ProjectResult {
 
 	public double getTotalImpactResult(
 		ProjectVariant variant, ImpactDescriptor impact) {
-		ContributionResult result = results.get(variant);
+		FullResult result = results.get(variant);
 		if (result == null)
 			return 0;
 		return result.getTotalImpactResult(impact);

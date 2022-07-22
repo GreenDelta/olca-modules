@@ -12,7 +12,7 @@ import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.Contribution;
-import org.openlca.core.results.ContributionResult;
+import org.openlca.core.results.FullResult;
 import org.openlca.core.results.ImpactValue;
 import org.openlca.core.results.LocationResult;
 import org.openlca.core.results.UpstreamNode;
@@ -178,8 +178,8 @@ public class ImpactHandler {
 		});
 	}
 
-	private double getImpactFactor(ContributionResult result,
-			ImpactDescriptor impact, EnviFlow flow) {
+	private double getImpactFactor(FullResult result,
+	                               ImpactDescriptor impact, EnviFlow flow) {
 		int impactIdx = result.impactIndex().of(impact);
 		int flowIdx = result.enviIndex().of(flow);
 		double value = result.provider().impactFactorOf(impactIdx, flowIdx);

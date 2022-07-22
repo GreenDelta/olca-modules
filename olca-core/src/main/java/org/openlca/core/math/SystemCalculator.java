@@ -14,8 +14,6 @@ import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.Result;
-import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.IResult;
 import org.openlca.core.results.SimpleResult;
@@ -60,8 +58,7 @@ public class SystemCalculator {
 			return calculateSimple(setup);
 		return switch (setup.type()) {
 			case SIMPLE_CALCULATION -> calculateSimple(setup);
-			case CONTRIBUTION_ANALYSIS -> calculateContributions(setup);
-			case UPSTREAM_ANALYSIS -> calculateFull(setup);
+			case CONTRIBUTION_ANALYSIS, UPSTREAM_ANALYSIS -> calculateFull(setup);
 			case MONTE_CARLO_SIMULATION -> {
 				var simulator = Simulator.create(setup, db);
 				for (int i = 0; i < setup.numberOfRuns(); i++) {
@@ -74,10 +71,6 @@ public class SystemCalculator {
 
 	public SimpleResult calculateSimple(CalculationSetup setup) {
 		return with(setup, SimpleResult::of);
-	}
-
-	public ContributionResult calculateContributions(CalculationSetup setup) {
-		return with(setup, ContributionResult::of);
 	}
 
 	public FullResult calculateFull(CalculationSetup setup) {
@@ -137,7 +130,7 @@ public class SystemCalculator {
 
 			// add a result
 			if (provider.isResult()) {
-				var result = db.get(Result.class, provider.providerId());
+				var result = db.get(org.openlca.core.model.Result.class, provider.providerId());
 				if (result != null) {
 					subResults.put(
 						provider, new SimpleResult(ResultModelProvider.of(result)));

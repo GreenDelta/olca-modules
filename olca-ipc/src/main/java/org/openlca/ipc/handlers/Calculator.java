@@ -252,9 +252,8 @@ public class Calculator {
 		try {
 			var calc = new SystemCalculator(db);
 			SimpleResult r = switch (setup.type()) {
-				case CONTRIBUTION_ANALYSIS -> calc.calculateContributions(setup);
 				case SIMPLE_CALCULATION -> calc.calculateSimple(setup);
-				case UPSTREAM_ANALYSIS -> calc.calculateFull(setup);
+				case CONTRIBUTION_ANALYSIS, UPSTREAM_ANALYSIS -> calc.calculateFull(setup);
 				default -> null;
 			};
 			if (r == null) {

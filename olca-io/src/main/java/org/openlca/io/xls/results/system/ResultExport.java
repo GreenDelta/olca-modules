@@ -9,7 +9,6 @@ import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.math.data_quality.DQCalculationSetup;
 import org.openlca.core.math.data_quality.DQResult;
 import org.openlca.core.model.NwSet;
-import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.io.xls.results.CellWriter;
@@ -78,9 +77,9 @@ public class ResultExport implements Runnable {
 	}
 
 	private void writeContributionSheets() {
-		if (!(result instanceof ContributionResult))
+		if (!(result instanceof FullResult))
 			return;
-		ContributionResult cons = (ContributionResult) result;
+		FullResult cons = (FullResult) result;
 		ProcessFlowContributionSheet.write(this, cons);
 		if (cons.hasImpacts()) {
 			ProcessImpactContributionSheet.write(this, cons);
@@ -105,7 +104,7 @@ public class ResultExport implements Runnable {
 	private String getType() {
 		if (result instanceof FullResult)
 			return "Analysis result";
-		if (result instanceof ContributionResult)
+		if (result instanceof FullResult)
 			return "Contribution result";
 		return "Simple result";
 	}

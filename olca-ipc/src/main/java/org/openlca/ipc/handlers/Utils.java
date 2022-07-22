@@ -21,7 +21,6 @@ import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.BaseResult;
 import org.openlca.core.results.Contribution;
-import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.ipc.Responses;
@@ -101,7 +100,7 @@ class Utils {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
-		ContributionResult result = getResult(json);
+		FullResult result = getResult(json);
 		EntityCache cache = EntityCache.create(ctx.db);
 		return Responses.ok(handler.handle(result, cache), req);
 	}
@@ -110,7 +109,7 @@ class Utils {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
-		ContributionResult result = getResult(json);
+		FullResult result = getResult(json);
 		EnviFlow flow = get(result.enviIndex(), json);
 		if (flow == null)
 			return Responses.invalidParams("Missing or invalid flow parameter", req);
@@ -122,7 +121,7 @@ class Utils {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
-		ContributionResult result = getResult(json);
+		FullResult result = getResult(json);
 		EnviFlow flow = get(result.enviIndex(), json);
 		if (flow == null)
 			return Responses.invalidParams("Missing or invalid flow parameter", req);
@@ -137,7 +136,7 @@ class Utils {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
-		ContributionResult result = getResult(json);
+		FullResult result = getResult(json);
 		ImpactDescriptor impact = get(result.impactIndex(), json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
@@ -149,7 +148,7 @@ class Utils {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
-		ContributionResult result = getResult(json);
+		FullResult result = getResult(json);
 		ImpactDescriptor impact = get(result.impactIndex(), json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
@@ -164,7 +163,7 @@ class Utils {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
-		ContributionResult result = getResult(json);
+		FullResult result = getResult(json);
 		ImpactDescriptor impact = get(result.impactIndex(), json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
@@ -179,7 +178,7 @@ class Utils {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
-		ContributionResult result = getResult(json);
+		FullResult result = getResult(json);
 		ImpactDescriptor impact = get(result.impactIndex(), json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
@@ -315,47 +314,47 @@ class Utils {
 
 	interface ContributionHandler {
 
-		JsonElement handle(ContributionResult result, EntityCache cache);
+		JsonElement handle(FullResult result, EntityCache cache);
 
 	}
 
 	interface ContributionFlow {
 
-		JsonElement handle(ContributionResult result, EnviFlow flow, EntityCache cache);
+		JsonElement handle(FullResult result, EnviFlow flow, EntityCache cache);
 
 	}
 
 	interface ContributionFlowLocation {
 
-		JsonElement handle(ContributionResult result, EnviFlow flow, LocationDescriptor location,
-				EntityCache cache);
+		JsonElement handle(FullResult result, EnviFlow flow, LocationDescriptor location,
+		                   EntityCache cache);
 
 	}
 
 	interface ContributionImpact {
 
-		JsonElement handle(ContributionResult result, ImpactDescriptor impact, EntityCache cache);
+		JsonElement handle(FullResult result, ImpactDescriptor impact, EntityCache cache);
 
 	}
 
 	interface ContributionImpactProcess {
 
-		JsonElement handle(ContributionResult result, ImpactDescriptor impact, ProcessDescriptor process,
-				EntityCache cache);
+		JsonElement handle(FullResult result, ImpactDescriptor impact, ProcessDescriptor process,
+		                   EntityCache cache);
 
 	}
 
 	interface ContributionImpactLocation {
 
-		JsonElement handle(ContributionResult result, ImpactDescriptor impact, LocationDescriptor location,
-				EntityCache cache);
+		JsonElement handle(FullResult result, ImpactDescriptor impact, LocationDescriptor location,
+		                   EntityCache cache);
 
 	}
 
 	interface ContributionImpactLocationProcess {
 
-		JsonElement handle(ContributionResult result, ImpactDescriptor impact, LocationDescriptor location,
-				ProcessDescriptor process, EntityCache cache);
+		JsonElement handle(FullResult result, ImpactDescriptor impact, LocationDescriptor location,
+		                   ProcessDescriptor process, EntityCache cache);
 
 	}
 

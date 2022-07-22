@@ -17,10 +17,10 @@ public class TagResult {
 	private final double[] inventory;
 	private final double[] impacts;
 	private final boolean hasCosts;
-	private final ContributionResult result;
+	private final FullResult result;
 	private double costs;
 
-	private TagResult(String tag, ContributionResult result) {
+	private TagResult(String tag, FullResult result) {
 		this.tag = tag;
 		this.result = result;
 		inventory = result.hasEnviFlows()
@@ -115,7 +115,7 @@ public class TagResult {
 		}
 	}
 
-	public static Collection<TagResult> allOf(ContributionResult result) {
+	public static Collection<TagResult> allOf(FullResult result) {
 		if (result == null)
 			return Collections.emptyList();
 		var tags = allTagsOf(result);
@@ -128,14 +128,14 @@ public class TagResult {
 
 	}
 
-	public static TagResult of(String tag, ContributionResult result) {
+	public static TagResult of(String tag, FullResult result) {
 		var tagResult = new TagResult(tag, result);
 		for (var techFlow : result.techIndex()) {
 
 			// add tag results of sub-systems recursively
 			if (techFlow.isProductSystem()) {
 				var subResult = result.subResultOf(techFlow);
-				if (subResult instanceof ContributionResult subContributions) {
+				if (subResult instanceof FullResult subContributions) {
 					var subTags = TagResult.of(tag, subContributions);
 					var scaling = result.getScalingFactor(techFlow);
 					tagResult.addSubResult(scaling, subTags);
@@ -151,7 +151,7 @@ public class TagResult {
 		return tagResult;
 	}
 
-	private static Set<String> allTagsOf(ContributionResult result) {
+	private static Set<String> allTagsOf(FullResult result) {
 		if (result == null)
 			return Collections.emptySet();
 		var tags = new HashSet<String>();
@@ -159,7 +159,7 @@ public class TagResult {
 			// add tags of sub-systems recursively
 			if (techFlow.isProductSystem()) {
 				var subResult = result.subResultOf(techFlow);
-				if (subResult instanceof ContributionResult subCons) {
+				if (subResult instanceof FullResult subCons) {
 					tags.addAll(allTagsOf(subCons));
 				}
 				continue;

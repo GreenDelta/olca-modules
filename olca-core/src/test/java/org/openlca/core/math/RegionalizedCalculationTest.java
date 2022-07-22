@@ -177,7 +177,7 @@ public class RegionalizedCalculationTest {
 	public void checkNoLocations() {
 		CalculationSetup setup = calcSetup();
 		SystemCalculator calc = new SystemCalculator(db);
-		FullResult r = calc.calculateFull(setup);
+		var r = calc.calculateFull(setup);
 
 		// total results
 		checkTotalFlowResults(r, new Object[][]{

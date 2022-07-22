@@ -4,7 +4,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.results.ContributionResult;
+import org.openlca.core.results.FullResult;
 import org.openlca.io.xls.results.CellWriter;
 
 class ProcessImpactContributionSheet
@@ -12,15 +12,15 @@ class ProcessImpactContributionSheet
 		ContributionSheet<RootDescriptor, ImpactDescriptor> {
 
 	private final CellWriter writer;
-	private final ContributionResult r;
+	private final FullResult r;
 
-	static void write(ResultExport export, ContributionResult r) {
+	static void write(ResultExport export, FullResult r) {
 		new ProcessImpactContributionSheet(export, r)
 				.write(export.workbook);
 	}
 
 	private ProcessImpactContributionSheet(ResultExport export,
-			ContributionResult r) {
+			FullResult r) {
 		super(export.writer, ResultExport.PROCESS_HEADER,
 				ResultExport.IMPACT_HEADER);
 		this.writer = export.writer;

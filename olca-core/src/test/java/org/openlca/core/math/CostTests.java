@@ -16,7 +16,6 @@ import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.Contribution;
-import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.UpstreamNode;
 import org.openlca.core.results.UpstreamTree;
@@ -34,7 +33,7 @@ public class CostTests {
 				.addCosts("water", 5, "EUR")
 				.get();
 		ProductSystem system = TestSystem.of(p1).get();
-		FullResult r = TestSystem.calculate(system);
+		var r = TestSystem.calculate(system);
 
 		Assert.assertEquals(3, r.totalCosts(), 1e-10);
 		ProcessDescriptor d1 = Descriptor.of(p1);
@@ -61,7 +60,7 @@ public class CostTests {
 				.addCosts("water", 5, "EUR")
 				.get();
 		ProductSystem system = TestSystem.of(p1).get();
-		ContributionResult r = TestSystem.contributions(system);
+		FullResult r = TestSystem.contributions(system);
 		Assert.assertEquals(3, r.totalCosts(), 1e-10);
 	}
 
