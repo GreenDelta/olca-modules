@@ -3,10 +3,11 @@ package org.openlca.ipc.handlers;
 import java.util.Collection;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
+import com.google.gson.JsonElement;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.results.Contribution;
@@ -18,6 +19,7 @@ import org.openlca.core.results.UpstreamTree;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.openlca.jsonld.Json;
 
 /**
  * Some utility functions for en/decoding data in JSON-RPC.
@@ -28,37 +30,61 @@ class JsonRpc {
 	}
 
 	static JsonObject encode(SimpleResult r, String id, EntityCache cache) {
-		JsonObject obj = new JsonObject();
+		var obj = new JsonObject();
+		Json.put(obj, "@id", id);
 		obj.addProperty("@id", id);
 		if (r == null)
 			return obj;
-		obj.addProperty("@type", r.getClass().getSimpleName());
-		obj.add("flows", encode(
-				r.getFlows().stream()
-						.map(EnviFlow::flow)
-						.collect(Collectors.toSet()),
-				cache));
-		obj.add("processes", encode(r.getProcesses(), cache));
-		obj.add("flowResults", encode(r.getTotalFlowResults(), result -> encode(result, cache)));
+		Json.put(obj, "@type", r.getClass().getSimpleName());
+
+		Json.put(obj, "providers",
+			arrayOf(r.techIndex(), techFlow -> encodeTechFlow(techFlow, cache)));
+
+		// flows & flow results
+		if (!r.hasEnviFlows())
+			return obj;
+		Json.put(obj, "flows",
+			arrayOf(r.enviIndex(), enviFlow -> encodeEnviFlow(enviFlow, cache)));
+		obj.add("flowResults",
+			arrayOf(r.getTotalFlowResults(), v -> encodeFlowValue(v, cache)));
+
+		// impact categories and results
 		if (!r.hasImpacts())
 			return obj;
-		obj.add("impacts", encode(r.getImpacts(), cache));
-		obj.add("impactResults", encode(r.getTotalImpactResults(), result -> encode(result, cache)));
+		obj.add("impacts",
+			arrayOf(r.impactIndex(), e -> JsonRef.of(e, cache)));
+		obj.add("impactResults",
+			arrayOf(r.getTotalImpactResults(), v -> encodeImpactValue(v, cache)));
+
 		return obj;
 	}
 
-	static JsonObject encode(FlowValue r, EntityCache cache) {
+	static JsonObject encodeEnviFlow(EnviFlow ef, EntityCache cache) {
+		var obj = new JsonObject();
+		Json.put(obj, "flow", JsonRef.of(ef.flow(), cache));
+		Json.put(obj, "location", JsonRef.of(ef.location(), cache));
+		Json.put(obj, "isInput", ef.isInput());
+		return obj;
+	}
+
+	static JsonObject encodeTechFlow(TechFlow techFlow, EntityCache cache) {
+		var obj = new JsonObject();
+		Json.put(obj, "provider", JsonRef.of(techFlow.provider(), cache));
+		Json.put(obj, "flow", JsonRef.of(techFlow.flow(), cache));
+		return obj;
+	}
+
+	static JsonObject encodeFlowValue(FlowValue r, EntityCache cache) {
 		if (r == null)
 			return null;
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@type", "FlowResult");
-		obj.add("flow", JsonRef.of(r.flow(), cache));
-		obj.addProperty("input", r.isInput());
+		obj.add("flow", encodeEnviFlow(r.indexFlow(), cache));
 		obj.addProperty("value", r.value());
 		return obj;
 	}
 
-	static JsonObject encode(ImpactValue r, EntityCache cache) {
+	static JsonObject encodeImpactValue(ImpactValue r, EntityCache cache) {
 		if (r == null)
 			return null;
 		JsonObject obj = new JsonObject();
@@ -68,13 +94,14 @@ class JsonRpc {
 		return obj;
 	}
 
-	static <T extends Descriptor> JsonArray encode(Collection<Contribution<T>> l, EntityCache cache, Consumer<JsonObject> modifier) {
+	static <T extends Descriptor> JsonArray encode(
+		Collection<Contribution<T>> l, EntityCache cache, Consumer<JsonObject> modifier) {
 		if (l == null)
 			return null;
 		return encode(l, contribution -> encode(contribution, cache, modifier));
 	}
 
-	static <T extends Descriptor> JsonObject encode(Contribution<T> i, EntityCache cache,
+	static <T> JsonObject encode(Contribution<T> i,
 			Consumer<JsonObject> modifier) {
 		if (i == null)
 			return null;
@@ -86,6 +113,20 @@ class JsonRpc {
 		obj.addProperty("rest", i.isRest);
 		modifier.accept(obj);
 		return obj;
+	}
+
+	static <T> JsonArray arrayOf(
+		Iterable<T> elements, Function<T, ? extends JsonElement> fn) {
+		var array = new JsonArray();
+		if (elements == null || fn == null)
+			return array;
+		for (var elem : elements) {
+			var jsonElem = fn.apply(elem);
+			if (jsonElem != null) {
+				array.add(jsonElem);
+			}
+		}
+		return array;
 	}
 
 	static <T extends Descriptor> JsonArray encode(Collection<UpstreamNode> l, UpstreamTree tree, EntityCache cache, Consumer<JsonObject> modifier) {
@@ -126,21 +167,6 @@ class JsonRpc {
 			items.add(obj);
 		}
 		return items;
-	}
-
-	static JsonArray encode(Collection<? extends Descriptor> descriptors, EntityCache cache) {
-		return encode(descriptors, d -> JsonRef.of(d, cache));
-	}
-
-	static <T> JsonArray encode(Collection<T> l, Function<T, JsonObject> encoder) {
-		JsonArray array = new JsonArray();
-		for (T t : l) {
-			JsonObject item = encoder.apply(t);
-			if (item != null) {
-				array.add(item);
-			}
-		}
-		return array;
 	}
 
 }

@@ -3,6 +3,7 @@ package org.openlca.ipc.handlers;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
@@ -52,10 +53,10 @@ public class InventoryHandler {
 	@Rpc("get/inventory/contributions/processes")
 	public RpcResponse getProcessContributions(RpcRequest req) {
 		return utils.contributionFlow(req, (result, flow, cache) -> {
-			List<Contribution<RootDescriptor>> contributions = result
-					.getProcessContributions(flow);
+			var contributions = result.getProcessContributions(flow);
 			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
 			String unit = utils.getUnit(flow, cache);
+
 			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", unit));
 		});
 	}
@@ -76,15 +77,15 @@ public class InventoryHandler {
 	@Rpc("get/inventory/contributions/location/processes")
 	public RpcResponse getProcessContributionsForLocation(RpcRequest req) {
 		return utils.contributionFlowLocation(req, (result, flow, location, cache) -> {
-			List<Contribution<RootDescriptor>> contributions = result
-					.getProcessContributions(flow);
+			var contributions = result.getProcessContributions(flow);
 			contributions = utils.filter(contributions, contribution -> {
-				if (contribution.item instanceof ProcessDescriptor) {
-					if (((ProcessDescriptor) contribution.item).location != location.id) {
+				if (contribution.item.provider() instanceof ProcessDescriptor p) {
+					if (p.location != location.id) {
 						return false;
 					}
+					return contribution.amount != 0;
 				}
-				return contribution.amount != 0;
+				return false;
 			});
 			String unit = utils.getUnit(flow, cache);
 			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", unit));

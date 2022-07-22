@@ -1,6 +1,8 @@
 package org.openlca.core.matrix.index;
 
 import java.util.Set;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.openlca.core.model.Copyable;
 
@@ -93,11 +95,23 @@ public interface MatrixIndex<T> extends Copyable<MatrixIndex<T>>, Iterable<T> {
 		return map;
 	}
 
+	default Stream<T> stream() {
+		return StreamSupport.stream(spliterator(), false);
+	}
+
 	/**
-	 * Returns true when the given index is not {@code null} and not empty.
+	 * Returns {@code true} when the given index is not {@code null} and not
+	 * empty.
 	 */
 	static boolean isPresent(MatrixIndex<?> index) {
 		return index != null && !index.isEmpty();
+	}
+
+	/**
+	 * Returns {@code true} when the given index is {@code null} or empty.
+	 */
+	static boolean isAbsent(MatrixIndex<?> index) {
+		return index == null || index.isEmpty();
 	}
 
 }

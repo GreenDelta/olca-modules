@@ -8,12 +8,12 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.MatrixIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.providers.ResultProvider;
 import org.openlca.core.results.providers.ResultProviders;
@@ -71,7 +71,7 @@ public class FullResult extends SimpleResult {
 	 * of the contributions of all of these process-product pairs.
 	 */
 	public double getDirectFlowResult(
-            RootDescriptor process, EnviFlow flow) {
+		RootDescriptor process, EnviFlow flow) {
 		double total = 0;
 		for (var p : techIndex().getProviders(process)) {
 			total += getDirectFlowResult(p, flow);
@@ -99,10 +99,9 @@ public class FullResult extends SimpleResult {
 	 * Get the direct contributions of the processes in the system to the inventory
 	 * result of the given flow.
 	 */
-	public List<Contribution<RootDescriptor>> getProcessContributions(
-		EnviFlow flow, ResultItemView items) {
+	public List<Contribution<TechFlow>> getProcessContributions(EnviFlow flow) {
 		return Contributions.calculate(
-			items.processes(),
+			techIndex(),
 			getTotalFlowResult(flow),
 			d -> getDirectFlowResult(d, flow));
 	}
@@ -128,7 +127,7 @@ public class FullResult extends SimpleResult {
 	 * contributions of all of these process-product pairs.
 	 */
 	public double getDirectImpactResult(
-            RootDescriptor process, ImpactDescriptor impact) {
+		RootDescriptor process, ImpactDescriptor impact) {
 		double total = 0;
 		for (var p : techIndex().getProviders(process)) {
 			total += getDirectImpactResult(p, impact);
@@ -137,16 +136,18 @@ public class FullResult extends SimpleResult {
 	}
 
 	/**
-	 * Get the direct contributions of the given process $j$ to the LCIA category
+	 * Get the direct contributions of the given process to the LCIA category
 	 * results.
 	 */
-	public List<ImpactValue> getImpactContributions(
-		CategoryDescriptor process) {
+	public List<ImpactValue> getImpactContributions(RootDescriptor process) {
+		var impactIdx = impactIndex();
+		if (MatrixIndex.isAbsent(impactIdx))
+			return Collections.emptyList();
 		var results = new ArrayList<ImpactValue>();
-		impactIndex().each((i, impact) -> {
+		for (var impact : impactIdx) {
 			var amount = getDirectImpactResult(process, impact);
 			results.add(new ImpactValue(impact, amount));
-		});
+		}
 		return results;
 	}
 
@@ -154,10 +155,10 @@ public class FullResult extends SimpleResult {
 	 * Get the direct contributions of the processes in the system to the LCIA
 	 * result of the given LCIA category.
 	 */
-	public List<Contribution<RootDescriptor>> getProcessContributions(
-		ImpactDescriptor impact, ResultItemView items) {
+	public List<Contribution<TechFlow>> getProcessContributions(
+		ImpactDescriptor impact) {
 		return Contributions.calculate(
-			items.processes(),
+			techIndex(),
 			getTotalImpactResult(impact),
 			d -> getDirectImpactResult(d, impact));
 	}
@@ -189,10 +190,9 @@ public class FullResult extends SimpleResult {
 	/**
 	 * Get the direct contributions of all processes to the LCC result.
 	 */
-	public List<Contribution<RootDescriptor>> getProcessCostContributions(
-		ResultItemView items) {
+	public List<Contribution<TechFlow>> getProcessCostContributions() {
 		return Contributions.calculate(
-			items.processes(),
+			techIndex(),
 			totalCosts,
 			this::getDirectCostResult);
 	}

@@ -37,19 +37,20 @@ public final class Contributions {
 	 * </code> An contribution item is set as the "rest" item
 	 * (contributionItem.isRest = true) if the item in the collection is null).
 	 */
-	public static <T> List<Contribution<T>> calculate(Collection<T> items,
+	public static <T> List<Contribution<T>> calculate(Iterable<T> items,
 			double totalAmount, ToDoubleFunction<T> fn) {
-		List<Contribution<T>> contributions = new ArrayList<>();
+		var contributions = new ArrayList<Contribution<T>>();
 		double total = Math.abs(totalAmount);
 		for (T item : items) {
-			Contribution<T> contribution = new Contribution<>();
-			contribution.isRest = item == null;
-			contribution.item = item;
+			var c = new Contribution<T>();
+			c.isRest = item == null;
+			c.item = item;
 			double val = fn.applyAsDouble(item);
-			contribution.amount = val;
-			if (total != 0)
-				contribution.share = val / total;
-			contributions.add(contribution);
+			c.amount = val;
+			if (total != 0) {
+				c.share = val / total;
+			}
+			contributions.add(c);
 		}
 		return contributions;
 	}
