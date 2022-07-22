@@ -48,7 +48,7 @@ class SingleLibraryResult {
 
 		var result = InversionResult.of(context.solver(), data)
 			.withInverse(libs.matrixOf(lib, LibMatrix.INV))
-			.withInventoryIntensities(libs.matrixOf(lib, LibMatrix.M))
+			.withFlowIntensities(libs.matrixOf(lib, LibMatrix.M))
 			.calculate();
 		return InversionResultProvider.of(result);
 	}

@@ -102,29 +102,29 @@ public class InversionResultProvider implements ResultProvider {
 
 	@Override
 	public double[] directFlowsOf(int techFlow) {
-		return r.directInventories() != null
-			? r.directInventories().getColumn(techFlow)
+		return r.directFlows() != null
+			? r.directFlows().getColumn(techFlow)
 			: EMPTY_VECTOR;
 	}
 
 	@Override
 	public double directFlowOf(int flow, int techFlow) {
-		return r.directInventories() != null
-			? r.directInventories().get(flow, techFlow)
+		return r.directFlows() != null
+			? r.directFlows().get(flow, techFlow)
 			: 0;
 	}
 
 	@Override
 	public double[] totalFlowsOfOne(int techFlow) {
-		return r.inventoryIntensities() != null
-			? r.inventoryIntensities().getColumn(techFlow)
+		return r.flowIntensities() != null
+			? r.flowIntensities().getColumn(techFlow)
 			: EMPTY_VECTOR;
 	}
 
 	@Override
 	public double totalFlowOfOne(int flow, int techFlow) {
-		return r.inventoryIntensities() != null
-			? r.inventoryIntensities().get(flow, techFlow)
+		return r.flowIntensities() != null
+			? r.flowIntensities().get(flow, techFlow)
 			: 0;
 	}
 
@@ -145,8 +145,8 @@ public class InversionResultProvider implements ResultProvider {
 
 	@Override
 	public double[] totalFlows() {
-		return r.totalInventory() != null
-			? r.totalInventory()
+		return r.totalFlows() != null
+			? r.totalFlows()
 			: EMPTY_VECTOR;
 	}
 
@@ -166,7 +166,7 @@ public class InversionResultProvider implements ResultProvider {
 
 	@Override
 	public double[] flowImpactsOf(int flow) {
-		var totalInterventions = r.totalInventory();
+		var totalInterventions = r.totalFlows();
 		if (totalInterventions == null)
 			return EMPTY_VECTOR;
 		var impacts = impactFactorsOf(flow);
@@ -176,7 +176,7 @@ public class InversionResultProvider implements ResultProvider {
 
 	@Override
 	public double flowImpactOf(int indicator, int flow) {
-		var totalInterventions = r.totalInventory();
+		var totalInterventions = r.totalFlows();
 		if (totalInterventions == null)
 			return 0;
 		var factor = impactFactorOf(indicator, flow);

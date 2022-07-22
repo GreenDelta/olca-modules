@@ -11,9 +11,9 @@ public record InversionResult(
 	double[] scalingVector,
 	double[] totalRequirements,
 	double[] loopFactors,
-	double[] totalInventory,
-	Matrix directInventories,
-	MatrixReader inventoryIntensities,
+	double[] totalFlows,
+	Matrix directFlows,
+	MatrixReader flowIntensities,
 	double[] totalImpacts,
 	MatrixReader directImpacts,
 	MatrixReader impactIntensities,
@@ -30,7 +30,7 @@ public record InversionResult(
 		private final MatrixSolver solver;
 		private final MatrixData data;
 		private MatrixReader inverse;
-		private MatrixReader inventoryIntensities;
+		private MatrixReader flowIntensities;
 
 		private Calculator(MatrixSolver solver, MatrixData data) {
 			this.solver = solver;
@@ -42,8 +42,8 @@ public record InversionResult(
 			return this;
 		}
 
-		public Calculator withInventoryIntensities(MatrixReader m) {
-			this.inventoryIntensities = m;
+		public Calculator withFlowIntensities(MatrixReader m) {
+			this.flowIntensities = m;
 			return this;
 		}
 
@@ -80,20 +80,20 @@ public record InversionResult(
 			}
 
 			// inventory results
-			Matrix directInventories = null;
-			MatrixReader intensities = null;
-			double[] totalInventory = null;
+			Matrix directFlows = null;
+			MatrixReader flowIntensities = null;
+			double[] totalFlows = null;
 			if (data.enviMatrix != null) {
 
-				directInventories = data.enviMatrix.asMutableCopy();
-				directInventories.scaleColumns(scalingVector);
-				intensities = this.inventoryIntensities != null
-					? this.inventoryIntensities
+				directFlows = data.enviMatrix.asMutableCopy();
+				directFlows.scaleColumns(scalingVector);
+				flowIntensities = this.flowIntensities != null
+					? this.flowIntensities
 					: solver.multiply(data.enviMatrix, inverse);
 
-				totalInventory = intensities.getColumn(refIdx);
-				for (int i = 0; i < totalInventory.length; i++) {
-					totalInventory[i] *= demandValue;
+				totalFlows = flowIntensities.getColumn(refIdx);
+				for (int i = 0; i < totalFlows.length; i++) {
+					totalFlows[i] *= demandValue;
 				}
 			}
 
@@ -101,11 +101,11 @@ public record InversionResult(
 			Matrix directImpacts = null;
 			MatrixReader impactIntensities = null;
 			double[] totalImpacts = null;
-			if (data.impactMatrix != null && intensities != null) {
+			if (data.impactMatrix != null && flowIntensities != null) {
 				directImpacts = solver.multiply(
-					data.impactMatrix, directInventories);
+					data.impactMatrix, directFlows);
 				impactIntensities = solver.multiply(
-					data.impactMatrix, intensities);
+					data.impactMatrix, flowIntensities);
 				totalImpacts = impactIntensities.getColumn(refIdx);
 				for (int i = 0; i < totalImpacts.length; i++) {
 					totalImpacts[i] *= demandValue;
@@ -135,9 +135,9 @@ public record InversionResult(
 				scalingVector,
 				totalRequirements,
 				loopFactors,
-				totalInventory,
-				directInventories,
-				inventoryIntensities,
+				totalFlows,
+				directFlows,
+				flowIntensities,
 				totalImpacts,
 				directImpacts,
 				impactIntensities,

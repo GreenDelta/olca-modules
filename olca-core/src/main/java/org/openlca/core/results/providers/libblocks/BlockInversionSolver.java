@@ -108,7 +108,7 @@ public class BlockInversionSolver {
 
 		var result = InversionResult.of(context.solver(), data)
 			.withInverse(inverse)
-			.withInventoryIntensities(intensities)
+			.withFlowIntensities(intensities)
 			.calculate();
 		return InversionResultProvider.of(result);
 	}
