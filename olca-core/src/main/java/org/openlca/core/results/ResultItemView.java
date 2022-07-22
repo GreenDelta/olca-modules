@@ -12,14 +12,13 @@ import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 /**
- * A view on the elements in the indices of result. A result index maps elements
- * like processes, flows, or impact categories to the result matrices. An
- * instance of this class provides a view on these elements. It holds its own
- * lists which are directly returned in the respective methods. You can sort
- * these lists via {@code List.sort} or {@code Collections.sort} and they keep
- * sorted in the view, but except of this you should not modify the returned
- * lists or their elements. Also note, that an instance of this class is not
- * thread-safe.
+ * A view on the index elements of one ore more results. A result index maps
+ * elements like processes, flows, or impact categories to rows and columns
+ * of result matrices. An instance of this class provides a view on these
+ * elements. It holds its own lists which are directly returned from the
+ * respective methods. You can sort  these lists via {@code List.sort} or
+ * {@code Collections.sort} and they keep sorted in the view. Note, that an
+ * instance of this class is not thread-safe.
  */
 public class ResultItemView {
 

@@ -1,7 +1,5 @@
 package org.openlca.core.math;
 
-import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.TestProcess;
@@ -17,8 +15,7 @@ import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.Contribution;
 import org.openlca.core.results.FullResult;
-import org.openlca.core.results.UpstreamNode;
-import org.openlca.core.results.UpstreamTree;
+import org.openlca.core.results.ResultItemView;
 
 public class CostTests {
 
@@ -39,12 +36,11 @@ public class CostTests {
 		ProcessDescriptor d1 = Descriptor.of(p1);
 		Assert.assertEquals(3, r.getUpstreamCostResult(d1), 1e-10);
 		Assert.assertEquals(3, r.getDirectCostResult(d1), 1e-10);
-		UpstreamTree tree = r.getCostTree();
-		UpstreamNode root = tree.root;
+		var tree = r.getCostTree();
+		var root = tree.root;
 		Assert.assertTrue(tree.childs(root).isEmpty());
 		Assert.assertEquals(3, root.result(), 1e-10);
-		List<Contribution<RootDescriptor>> contributions = r
-				.getProcessCostContributions();
+		var contributions = r.getProcessCostContributions(ResultItemView.of(r));
 		Assert.assertEquals(1, contributions.size());
 		Contribution<RootDescriptor> item = contributions.get(0);
 		Assert.assertEquals(3, item.amount, 1e-10);

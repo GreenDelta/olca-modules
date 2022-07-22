@@ -1,14 +1,10 @@
 package org.openlca.core.results;
 
-import java.util.List;
-
 import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 /**
  * The common protocol of all result types.
@@ -70,27 +66,6 @@ public interface IResult {
 	 * Returns true when this result contains LCC results.
 	 */
 	boolean hasCosts();
-
-	/**
-	 * Get the descriptors of the processes of the inventory model. If a product
-	 * system contains other product systems, these sub-systems are also handled
-	 * like processes and returned.
-	 */
-	List<RootDescriptor> getProcesses();
-
-	/**
-	 * Returns the list of flows that are mapped to the row index of the
-	 * intervention matrix. Typically, these are the elementary flows of the LCA
-	 * model. The returned list is part of the result and should be never modified
-	 * but reordering via sorting is allowed.
-	 */
-	List<EnviFlow> getFlows();
-
-	/**
-	 * Get the LCIA categories of the LCIA result.
-	 */
-	List<ImpactDescriptor> getImpacts();
-
 
 	/**
 	 * Switches the sign for input-flows.

@@ -26,7 +26,7 @@ import org.openlca.core.results.providers.SolverContext;
  * is particularly suitable for Monte Carlo simulations or other quick
  * calculations.
  */
-public class SimpleResult extends BaseResult {
+public class SimpleResult implements IResult {
 
 	protected final ResultProvider provider;
 	protected final double[] scalingVector;

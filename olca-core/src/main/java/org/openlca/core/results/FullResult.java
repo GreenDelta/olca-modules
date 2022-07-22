@@ -100,9 +100,9 @@ public class FullResult extends SimpleResult {
 	 * result of the given flow.
 	 */
 	public List<Contribution<RootDescriptor>> getProcessContributions(
-		EnviFlow flow) {
+		EnviFlow flow, ResultItemView items) {
 		return Contributions.calculate(
-			getProcesses(),
+			items.processes(),
 			getTotalFlowResult(flow),
 			d -> getDirectFlowResult(d, flow));
 	}
@@ -155,9 +155,9 @@ public class FullResult extends SimpleResult {
 	 * result of the given LCIA category.
 	 */
 	public List<Contribution<RootDescriptor>> getProcessContributions(
-		ImpactDescriptor impact) {
+		ImpactDescriptor impact, ResultItemView items) {
 		return Contributions.calculate(
-			getProcesses(),
+			items.processes(),
 			getTotalImpactResult(impact),
 			d -> getDirectImpactResult(d, impact));
 	}
@@ -189,9 +189,10 @@ public class FullResult extends SimpleResult {
 	/**
 	 * Get the direct contributions of all processes to the LCC result.
 	 */
-	public List<Contribution<RootDescriptor>> getProcessCostContributions() {
+	public List<Contribution<RootDescriptor>> getProcessCostContributions(
+		ResultItemView items) {
 		return Contributions.calculate(
-			getProcesses(),
+			items.processes(),
 			totalCosts,
 			this::getDirectCostResult);
 	}

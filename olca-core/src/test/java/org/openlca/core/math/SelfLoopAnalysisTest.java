@@ -87,7 +87,8 @@ public class SelfLoopAnalysisTest {
 	}
 
 	private RootDescriptor process(String name) {
-		for (RootDescriptor p : result.getProcesses()) {
+		for (var techFlow : result.techIndex()) {
+			var p = techFlow.provider();
 			if (name.equals(p.name))
 				return p;
 		}

@@ -20,7 +20,7 @@ import org.openlca.core.model.descriptors.ImpactDescriptor;
  * category indices are mapped to the respective array rows and the result
  * values to the respective list entries.
  */
-public class SimulationResult extends BaseResult {
+public class SimulationResult implements IResult {
 
 	private final List<double[]> flowResults = new ArrayList<>();
 	private final List<double[]> impactResults = new ArrayList<>();

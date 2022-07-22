@@ -13,8 +13,8 @@ import org.openlca.core.model.descriptors.ImpactDescriptor;
  */
 public class GroupingContribution {
 
-	private FullResult result;
-	private List<ProcessGrouping> groupings;
+	private final FullResult result;
+	private final List<ProcessGrouping> groupings;
 
 	public GroupingContribution(FullResult result,
 	                            List<ProcessGrouping> groupings) {

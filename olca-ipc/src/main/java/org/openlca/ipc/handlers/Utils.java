@@ -19,7 +19,6 @@ import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.BaseResult;
 import org.openlca.core.results.Contribution;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.SimpleResult;
@@ -41,7 +40,7 @@ class Utils {
 		this.ctx = context;
 	}
 
-	<T extends BaseResult> T getResult(JsonObject json) {
+	<T extends SimpleResult> T getResult(JsonObject json) {
 		String resultID = Json.getString(json, "resultId");
 		if (resultID == null)
 			throw new IllegalArgumentException("No result ID");
