@@ -2,10 +2,8 @@ package org.openlca.ipc.handlers;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.function.Function;
 
-import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.math.Simulator;
@@ -17,7 +15,6 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
-import org.openlca.core.results.SimpleResult;
 import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
@@ -38,7 +35,7 @@ public class Calculator {
 
 	public Calculator(HandlerContext context) {
 		this.context = context;
-		this.db = context.db;
+		this.db = context.db();
 	}
 
 	/**
@@ -51,12 +48,11 @@ public class Calculator {
 			return p.second;
 		var setup = p.first;
 		var simulator = Simulator.create(setup, db)
-			.withSolver(context.solver);
-		var id = UUID.randomUUID().toString();
+			.withSolver(context.solver());
+		var id = context.cache(CachedResult.of(context, setup, simulator));
 		var obj = new JsonObject();
 		obj.addProperty("@id", id);
 		obj.addProperty("@type", "Simulator");
-		context.cache.put(id, CachedResult.of(setup, simulator));
 		return Responses.ok(obj, req);
 	}
 
@@ -71,23 +67,16 @@ public class Calculator {
 			return Responses.invalidParams("No simulator given", req);
 		String id = Json.getString(req.params.getAsJsonObject(), "@id");
 		if (id == null)
-			return Responses.invalidParams(
-				"No simulator with '@id' given", req);
-		Object obj = context.cache.get(id);
-		if (!(obj instanceof CachedResult))
-			return Responses.invalidParams(
-				"No cached simulator with @id=" + id, req);
-		obj = ((CachedResult<?>) obj).result;
-		if (!(obj instanceof Simulator))
-			return Responses.invalidParams(
-				"No cached simulator with @id=" + id, req);
-		Simulator simulator = (Simulator) obj;
-		SimpleResult r = simulator.nextRun();
-		if (r == null)
-			return Responses.internalServerError(
-				"Simulation failed", req);
-		JsonObject result = JsonRpc.encode(r, id, EntityCache.create(db));
-		return Responses.ok(result, req);
+			return Responses.invalidParams("No simulator with '@id' given", req);
+		var cached = context.getCached(CachedResult.class, id);
+		if (cached == null)
+			return Responses.invalidParams("No cached simulator with @id=" + id, req);
+		if (!(cached.result() instanceof Simulator simulator))
+			return Responses.invalidParams("No cached simulator with @id=" + id, req);
+		var next = simulator.nextRun();
+		if (next == null)
+			return Responses.internalServerError("Simulation failed", req);
+		return Responses.ok(JsonRpc.encodeResult(next, id, cached.refs()), req);
 	}
 
 	@Rpc("calculate")
@@ -251,7 +240,7 @@ public class Calculator {
 	private RpcResponse calculate(RpcRequest req, CalculationSetup setup) {
 		try {
 			var calc = new SystemCalculator(db);
-			SimpleResult r = switch (setup.type()) {
+			var r = switch (setup.type()) {
 				case SIMPLE_CALCULATION -> calc.calculateSimple(setup);
 				case CONTRIBUTION_ANALYSIS, UPSTREAM_ANALYSIS -> calc.calculateFull(setup);
 				default -> null;
@@ -260,11 +249,9 @@ public class Calculator {
 				return Responses.error(501,
 					"invalid calculation type: " + setup.type(), req);
 			}
-			var id = UUID.randomUUID().toString();
-			log.info("encode and cache result {}", id);
-			context.cache.put(id, CachedResult.of(setup, r));
-			var result = JsonRpc.encode(r, id, EntityCache.create(db));
-			return Responses.ok(result, req);
+			var cached = CachedResult.of(context, setup, r);
+			var id = context.cache(cached);
+			return Responses.ok(JsonRpc.encodeResult(r, id, cached.refs()), req);
 		} catch (Exception e) {
 			log.error("Calculation failed", e);
 			return Responses.serverError(e, req);

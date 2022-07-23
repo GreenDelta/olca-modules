@@ -30,7 +30,7 @@ class JsonRpc {
 	private JsonRpc() {
 	}
 
-	static JsonObject encode(SimpleResult r, String id, DbRefs refs) {
+	static JsonObject encodeResult(SimpleResult r, String id, DbRefs refs) {
 		var obj = new JsonObject();
 		Json.put(obj, "@id", id);
 		obj.addProperty("@id", id);

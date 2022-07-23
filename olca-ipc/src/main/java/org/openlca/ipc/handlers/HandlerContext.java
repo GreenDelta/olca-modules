@@ -24,12 +24,10 @@ public record HandlerContext(
 			: null;
 	}
 
-	public <T> T cache(T object) {
-		if (object != null) {
-			var id = UUID.randomUUID().toString();
-			cache.put(id, object);
-		}
-		return object;
+	public String cache(Object object) {
+		var id = UUID.randomUUID().toString();
+		cache.put(id, object);
+		return id;
 	}
 
 	public Object popCached(String id) {

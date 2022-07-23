@@ -56,7 +56,7 @@ public class ImpactHandler {
 					return;
 				contributions.add(c);
 			});
-			return JsonRpc.encode(contributions, cache,
+			return JsonRpc.encodeResult(contributions, cache,
 					json -> json.addProperty("unit", impact.referenceUnit));
 		});
 	}
@@ -77,7 +77,7 @@ public class ImpactHandler {
 					return;
 				contributions.add(c);
 			});
-			return JsonRpc.encode(contributions, cache,
+			return JsonRpc.encodeResult(contributions, cache,
 					json -> json.addProperty("unit", impact.referenceUnit));
 		});
 	}
@@ -88,7 +88,7 @@ public class ImpactHandler {
 			List<Contribution<ProcessDescriptor>> contributions = new ArrayList<>();
 			// TODO
 			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
-			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", impact.referenceUnit));
+			return JsonRpc.encodeResult(contributions, cache, json -> json.addProperty("unit", impact.referenceUnit));
 		});
 	}
 
@@ -98,7 +98,7 @@ public class ImpactHandler {
 			List<Contribution<ProcessDescriptor>> contributions = new ArrayList<>();
 			// TODO
 			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
-			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", impact.referenceUnit));
+			return JsonRpc.encodeResult(contributions, cache, json -> json.addProperty("unit", impact.referenceUnit));
 		});
 	}
 
@@ -116,7 +116,7 @@ public class ImpactHandler {
 					return;
 				contributions.put(process.refId, c);
 			});
-			return JsonRpc.encode(contributions.values(), cache,
+			return JsonRpc.encodeResult(contributions.values(), cache,
 					json -> json.addProperty("unit", impact.referenceUnit));
 		});
 	}
@@ -127,7 +127,7 @@ public class ImpactHandler {
 			List<Contribution<ProcessDescriptor>> contributions = new ArrayList<>();
 			// TODO
 			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
-			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", impact.referenceUnit));
+			return JsonRpc.encodeResult(contributions, cache, json -> json.addProperty("unit", impact.referenceUnit));
 		});
 	}
 
@@ -138,7 +138,7 @@ public class ImpactHandler {
 			List<Contribution<LocationDescriptor>> contributions = utils
 					.toDescriptors(r.getContributions(impact));
 			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
-			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", impact.referenceUnit));
+			return JsonRpc.encodeResult(contributions, cache, json -> json.addProperty("unit", impact.referenceUnit));
 		});
 	}
 
@@ -156,7 +156,7 @@ public class ImpactHandler {
 				c.share = c.amount / total;
 				if (c.amount == 0)
 					return;
-				contributions.add(JsonRpc.encode(c, cache, json -> {
+				contributions.add(JsonRpc.encodeResult(c, cache, json -> {
 					json.addProperty("unit", impact.referenceUnit);
 					json.addProperty("upstream", result.getUpstreamImpactResult(process, impact));
 				}));

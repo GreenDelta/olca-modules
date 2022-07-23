@@ -11,4 +11,6 @@ record CachedResult<T>(CalculationSetup setup, T result, DbRefs refs) {
 		return new CachedResult<T>(setup, result, refs);
 	}
 
+
+
 }

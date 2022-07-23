@@ -3,8 +3,6 @@ package org.openlca.ipc.handlers;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -68,7 +66,7 @@ public class InventoryHandler {
 					.toDescriptors(r.getContributions(flow.flow()));
 			cons = utils.filter(cons, c -> c.amount != 0);
 			String unit = utils.getUnit(flow, cache);
-			return JsonRpc.encode(cons, cache,
+			return JsonRpc.encodeResult(cons, cache,
 					json -> json.addProperty("unit", unit));
 		});
 	}
@@ -87,7 +85,7 @@ public class InventoryHandler {
 				return false;
 			});
 			String unit = utils.getUnit(flow, cache);
-			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", unit));
+			return JsonRpc.encodeResult(contributions, cache, json -> json.addProperty("unit", unit));
 		});
 	}
 
@@ -124,7 +122,7 @@ public class InventoryHandler {
 				if (c.amount == 0)
 					return;
 				String unit = utils.getUnit(f, cache);
-				contributions.add(JsonRpc.encode(c, cache, json -> {
+				contributions.add(JsonRpc.encodeResult(c, cache, json -> {
 					json.addProperty("unit", unit);
 					json.addProperty("upstream",
 							result.getUpstreamFlowResult(process, f));
