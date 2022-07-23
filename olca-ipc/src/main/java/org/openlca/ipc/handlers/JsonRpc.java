@@ -1,8 +1,13 @@
 package org.openlca.ipc.handlers;
 
 import java.util.Collection;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
 
 import com.google.gson.JsonElement;
 import org.openlca.core.database.EntityCache;
@@ -162,6 +167,48 @@ class JsonRpc {
 			items.add(obj);
 		}
 		return items;
+	}
+
+	public static JsonArrayCollector toArray() {
+		return new JsonArrayCollector();
+	}
+
+	static class JsonArrayCollector
+		implements Collector<JsonElement, JsonArray, JsonArray> {
+
+		@Override
+		public Supplier<JsonArray> supplier() {
+			return JsonArray::new;
+		}
+
+		@Override
+		public BiConsumer<JsonArray, JsonElement> accumulator() {
+			return (array, element) -> {
+				if (element != null) {
+					array.add(element);
+				}
+			};
+		}
+
+		@Override
+		public BinaryOperator<JsonArray> combiner() {
+			return (array1, array2) -> {
+				var combined = new JsonArray();
+				combined.addAll(array1);
+				combined.addAll(array2);
+				return combined;
+			};
+		}
+
+		@Override
+		public Function<JsonArray, JsonArray> finisher() {
+			return a -> a;
+		}
+
+		@Override
+		public Set<Characteristics> characteristics() {
+			return Set.of(Characteristics.IDENTITY_FINISH);
+		}
 	}
 
 }

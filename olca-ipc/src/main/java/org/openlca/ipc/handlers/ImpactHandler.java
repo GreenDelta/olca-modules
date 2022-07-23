@@ -26,19 +26,23 @@ import com.google.gson.JsonArray;
 
 public class ImpactHandler {
 
+	private final HandlerContext context;
 	private final Utils utils;
 
 	public ImpactHandler(HandlerContext context) {
+		this.context = context;
 		this.utils = new Utils(context);
 	}
 
 	@Rpc("get/impacts")
 	public RpcResponse getImpacts(RpcRequest req) {
-		return utils.simple(req, (result, cache) -> {
-			List<ImpactValue> impacts = result.getTotalImpactResults();
-			impacts = utils.filter(impacts, impact -> impact.value() != 0);
-			return JsonRpc.encode(impacts, r -> JsonRpc.encode(r, cache));
-		});
+		return context.requireResult(req, cachedResult ->
+			cachedResult.result()
+			.getTotalImpactResults()
+			.stream()
+			.filter(r -> r.value() != 0)
+			.map(r -> JsonRpc.encodeImpactValue(r, cachedResult.refs()))
+			.collect(JsonRpc.toArray()));
 	}
 
 	@Rpc("get/impacts/contributions/flows")
@@ -178,20 +182,5 @@ public class ImpactHandler {
 		});
 	}
 
-	private double getImpactFactor(FullResult result,
-	                               ImpactDescriptor impact, EnviFlow flow) {
-		int impactIdx = result.impactIndex().of(impact);
-		int flowIdx = result.enviIndex().of(flow);
-		double value = result.provider().impactFactorOf(impactIdx, flowIdx);
-		if (value == 0)
-			return 0; // avoid -0
-		if (flow.isInput()) {
-			// characterization factors for input flows are negative in the
-			// matrix. A simple abs() is not correct because the original
-			// characterization factor maybe was already negative (-(-(f))).
-			value = -value;
-		}
-		return value;
-	}
 
 }
