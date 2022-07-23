@@ -6,8 +6,10 @@ import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Currency;
+import org.openlca.core.results.FullResult;
 import org.openlca.core.results.UpstreamNode;
 import org.openlca.core.results.UpstreamTree;
+import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
@@ -18,33 +20,37 @@ import com.google.gson.JsonObject;
 
 public class CostHandler {
 
+	private final HandlerContext context;
 	private final Utils utils;
 	private final IDatabase db;
 
 	public CostHandler(HandlerContext context) {
+		this.context = context;
 		this.utils = new Utils(context);
-		this.db = context.db;
+		this.db = context.db();
 	}
 
-	@Rpc("get/costs/total_requirements")
+	@Rpc("get/costs/direct_contributions")
 	public RpcResponse getTotalRequirements(RpcRequest req) {
-		return utils.contribution(req, (result, cache) -> {
-			JsonArray items = new JsonArray();
-			var techIdx = result.techIndex();
-			for (int i = 0; i < techIdx.size(); i++) {
-				var tr = result.totalRequirements()[i];
-				if (tr == 0)
-					continue;
-				var product = techIdx.at(i);
-				var obj = new JsonObject();
-				obj.add("process", JsonRef.of(product.provider(), cache));
-				obj.add("product", JsonRef.of(product.flow(), cache));
-				obj.addProperty("amount", tr);
-				obj.addProperty("costs", result.getDirectCostResult(product));
-				items.add(obj);
-			}
-			return items;
-		});
+		var cached = context.getCachedResultOf(req);
+		if (cached.isError())
+			return cached.error();
+		var cachedResult= cached.value();
+		var r = cachedResult.require(FullResult.class, req);
+		if (r.isError())
+			return r.error();
+		var result = r.value();
+		var array = new JsonArray();
+		for (var techFlow : result.techIndex()) {
+			var tr = result.getTotalRequirementsOf(techFlow);
+			var obj = new JsonObject();
+			obj.add("provider",
+				JsonRpc.encodeTechFlow(techFlow, cachedResult.refs()));
+			obj.addProperty("amount", tr);
+			obj.addProperty("costs", result.getDirectCostResult(techFlow));
+			array.add(obj);
+		}
+		return Responses.ok(array, req);
 	}
 
 	@Rpc("get/costs/upstream/added_value")

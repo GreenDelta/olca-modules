@@ -99,8 +99,8 @@ class Utils {
 	RpcResponse contribution(RpcRequest req, ContributionHandler handler) {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("No parameter given", req);
-		JsonObject json = req.params.getAsJsonObject();
-		FullResult result = getResult(json);
+		var json = req.params.getAsJsonObject();
+		var result = getResult(json);
 		EntityCache cache = EntityCache.create(ctx.db);
 		return Responses.ok(handler.handle(result, cache), req);
 	}
@@ -314,7 +314,7 @@ class Utils {
 
 	interface ContributionHandler {
 
-		JsonElement handle(FullResult result, EntityCache cache);
+		JsonElement handle(CachedResult<FullResult> result);
 
 	}
 

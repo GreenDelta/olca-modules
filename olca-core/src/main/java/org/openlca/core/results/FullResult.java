@@ -50,6 +50,13 @@ public class FullResult extends SimpleResult {
 		return calculator.calculateFull(setup);
 	}
 
+	public double getTotalRequirementsOf(TechFlow techFlow) {
+		int idx = techIndex().of(techFlow);
+		return idx >= 0
+			? provider.totalRequirementsOf(idx)
+			: 0;
+	}
+
 	/**
 	 * Get the direct contribution of the given process-product pair $j$ to the
 	 * inventory result of elementary flow $i$: $\mathbf{G}[i,j]$.

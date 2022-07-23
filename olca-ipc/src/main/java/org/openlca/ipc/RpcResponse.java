@@ -6,7 +6,7 @@ import com.google.gson.JsonPrimitive;
 /**
  * When a rpc call is made, the Server MUST reply with a Response, except for in
  * the case of Notifications. The Response is expressed as a single JSON Object.
- * see: http://www.jsonrpc.org/specification
+ * see: <a href="http://www.jsonrpc.org/specification">...</a>
  */
 public class RpcResponse {
 

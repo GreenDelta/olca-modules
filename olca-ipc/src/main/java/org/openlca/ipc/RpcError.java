@@ -6,7 +6,7 @@ import com.google.gson.JsonElement;
  * When a rpc call encounters an error, the Response Object MUST contain the
  * error member with a value that is an Object.
  *
- * see: http://www.jsonrpc.org/specification
+ * see: <a href="http://www.jsonrpc.org/specification">...</a>
  */
 public class RpcError {
 

@@ -88,7 +88,14 @@ public class Responses {
 	public static RpcResponse invalidParams(String message, RpcRequest req) {
 		RpcError error = new RpcError();
 		error.code = -32602;
-		error.message = "Invalid params: " + message;
+		error.message = "Invalid parameters: " + message;
+		return response(error, req);
+	}
+
+	public static RpcResponse invalidParams(RpcRequest req) {
+		RpcError error = new RpcError();
+		error.code = -32602;
+		error.message = "Invalid parameters: the request has invalid parameters";
 		return response(error, req);
 	}
 
