@@ -137,7 +137,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		FullResult result = getResult(json);
-		ImpactDescriptor impact = get(result.impactIndex(), json);
+		ImpactDescriptor impact = getImpact(result.impactIndex(), json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
@@ -149,7 +149,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		FullResult result = getResult(json);
-		ImpactDescriptor impact = get(result.impactIndex(), json);
+		ImpactDescriptor impact = getImpact(result.impactIndex(), json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
 		ProcessDescriptor process = get(ModelType.PROCESS, json, result.techIndex().getProcessIds());
@@ -164,7 +164,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		FullResult result = getResult(json);
-		ImpactDescriptor impact = get(result.impactIndex(), json);
+		ImpactDescriptor impact = getImpact(result.impactIndex(), json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
 		LocationDescriptor location = get(ModelType.LOCATION, json);
@@ -179,7 +179,7 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		FullResult result = getResult(json);
-		ImpactDescriptor impact = get(result.impactIndex(), json);
+		ImpactDescriptor impact = getImpact(result.impactIndex(), json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
 		LocationDescriptor location = get(ModelType.LOCATION, json);
@@ -230,24 +230,32 @@ class Utils {
 			return Responses.invalidParams("No parameter given", req);
 		JsonObject json = req.params.getAsJsonObject();
 		FullResult result = getResult(json);
-		ImpactDescriptor impact = get(result.impactIndex(), json);
+		ImpactDescriptor impact = getImpact(result.impactIndex(), json);
 		if (impact == null)
 			return Responses.invalidParams("Missing or invalid impact category parameter", req);
 		EntityCache cache = EntityCache.create(ctx.db);
 		return Responses.ok(handler.handle(result, impact, cache), req);
 	}
 
-	private ImpactDescriptor get(ImpactIndex index, JsonObject json) {
-		if (index == null)
-			return null;
-		String refID = Json.getRefId(json, "impactCategory");
-		if (refID == null)
-			return null;
+	static Effect<ImpactDescriptor> getImpact(ImpactIndex index, RpcRequest req) {
+		var obj = parameterObjectOf(req);
+		if (obj.isError())
+			return Effect.error(obj.error());
+		var refId = Json.getRefId(obj.value(), "impactCategory");
+		if (refId == null)
+			return Effect.error(Responses.badRequest("no impact category given", req));
 		for (var d : index.content()) {
-			if (refID.equals(d.refId))
-				return d;
+			if (refId.equals(d.refId))
+				return Effect.ok(d);
 		}
-		return null;
+		return Effect.error(Responses.badRequest(
+			"no impact category with id=" + refId + " exists", req));
+	}
+
+	static Effect<JsonObject> parameterObjectOf(RpcRequest req) {
+		return req == null || req.params == null || !req.params.isJsonObject()
+			? Effect.error(Responses.invalidParams(req))
+			: Effect.ok(req.params.getAsJsonObject();
 	}
 
 	private EnviFlow get(EnviIndex idx, JsonObject json) {

@@ -17,6 +17,7 @@ import org.openlca.core.results.ImpactValue;
 import org.openlca.core.results.LocationResult;
 import org.openlca.core.results.UpstreamNode;
 import org.openlca.core.results.UpstreamTree;
+import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
@@ -36,17 +37,30 @@ public class ImpactHandler {
 
 	@Rpc("get/impacts")
 	public RpcResponse getImpacts(RpcRequest req) {
-		return context.requireResult(req, cachedResult ->
-			cachedResult.result()
-			.getTotalImpactResults()
-			.stream()
-			.filter(r -> r.value() != 0)
-			.map(r -> JsonRpc.encodeImpactValue(r, cachedResult.refs()))
-			.collect(JsonRpc.toArray()));
+		return context.requireResult(req, cachedResult -> {
+			var array = cachedResult.result()
+				.getTotalImpactResults()
+				.stream()
+				.filter(r -> r.value() != 0)
+				.map(r -> JsonRpc.encodeImpactValue(r, cachedResult.refs()))
+				.collect(JsonRpc.toArray());
+			return Responses.ok(array, req);
+		});
 	}
 
 	@Rpc("get/impacts/contributions/flows")
 	public RpcResponse getFlowContributions(RpcRequest req) {
+		return context.requireResult(req, cache -> {
+			var result = cache.result();
+
+			var q = Utils.getImpact(result.impactIndex(), req);
+			if (q.isError())
+				return q.error();
+
+			var impact = q.value();
+			result.enviIndex()
+		});
+
 		return utils.contributionImpact(req, (result, impact, cache) -> {
 			double total = result.getTotalImpactResult(impact);
 			List<Contribution<FlowDescriptor>> contributions = new ArrayList<>();
@@ -61,7 +75,7 @@ public class ImpactHandler {
 				contributions.add(c);
 			});
 			return JsonRpc.encodeResult(contributions, cache,
-					json -> json.addProperty("unit", impact.referenceUnit));
+				json -> json.addProperty("unit", impact.referenceUnit));
 		});
 	}
 
@@ -75,14 +89,14 @@ public class ImpactHandler {
 				var c = new Contribution<FlowDescriptor>();
 				c.item = f.flow();
 				c.amount = result.getDirectFlowResult(process, f)
-						* getImpactFactor(result, impact, f);
+					* getImpactFactor(result, impact, f);
 				c.share = c.amount / total;
 				if (c.amount == 0)
 					return;
 				contributions.add(c);
 			});
 			return JsonRpc.encodeResult(contributions, cache,
-					json -> json.addProperty("unit", impact.referenceUnit));
+				json -> json.addProperty("unit", impact.referenceUnit));
 		});
 	}
 
@@ -121,7 +135,7 @@ public class ImpactHandler {
 				contributions.put(process.refId, c);
 			});
 			return JsonRpc.encodeResult(contributions.values(), cache,
-					json -> json.addProperty("unit", impact.referenceUnit));
+				json -> json.addProperty("unit", impact.referenceUnit));
 		});
 	}
 
@@ -140,7 +154,7 @@ public class ImpactHandler {
 		return utils.contributionImpact(req, (result, impact, cache) -> {
 			LocationResult r = new LocationResult(result, cache.db);
 			List<Contribution<LocationDescriptor>> contributions = utils
-					.toDescriptors(r.getContributions(impact));
+				.toDescriptors(r.getContributions(impact));
 			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
 			return JsonRpc.encodeResult(contributions, cache, json -> json.addProperty("unit", impact.referenceUnit));
 		});

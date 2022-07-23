@@ -58,13 +58,13 @@ public record HandlerContext(
 
 	@SuppressWarnings("unchecked")
 	RpcResponse requireResult(
-		RpcRequest req, Function<CachedResult<FullResult>, JsonElement> handler) {
+		RpcRequest req, Function<CachedResult<FullResult>, RpcResponse> handler) {
 		var cached = getCachedResultOf(req);
 		if (cached.isError())
 			return cached.error();
 		var value = cached.value();
 		return value.result() instanceof FullResult
-			? Responses.ok(handler.apply((CachedResult<FullResult>) value), req)
+			? handler.apply((CachedResult<FullResult>) value)
 			: Responses.badRequest("the request requires a result object", req);
 	}
 

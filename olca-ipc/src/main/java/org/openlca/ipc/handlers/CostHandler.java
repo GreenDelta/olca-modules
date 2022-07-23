@@ -6,7 +6,6 @@ import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Currency;
-import org.openlca.core.results.FullResult;
 import org.openlca.core.results.UpstreamNode;
 import org.openlca.core.results.UpstreamTree;
 import org.openlca.ipc.Responses;
@@ -36,7 +35,7 @@ public class CostHandler {
 		if (cached.isError())
 			return cached.error();
 		var cachedResult= cached.value();
-		var r = cachedResult.require(FullResult.class, req);
+		var r = cachedResult.requireResult(req);
 		if (r.isError())
 			return r.error();
 		var result = r.value();
