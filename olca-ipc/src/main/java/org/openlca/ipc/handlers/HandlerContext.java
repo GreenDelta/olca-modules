@@ -5,22 +5,34 @@ import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.ipc.Cache;
 import org.openlca.ipc.Server;
 
-public class HandlerContext {
+import java.util.UUID;
 
-	public final Server server;
-	public final IDatabase db;
-	public final Cache cache;
-	public final MatrixSolver solver;
+public record HandlerContext(
+	Server server,
+	IDatabase db,
+	MatrixSolver solver,
+	Cache cache) {
 
-	public HandlerContext(
-		Server server,
-		IDatabase db,
-		MatrixSolver solver,
-		Cache cache) {
-		this.server = server;
-		this.db = db;
-		this.solver = solver;
-		this.cache = cache;
+	public Object getCached(String id) {
+		return cache.get(id);
 	}
 
+	public <T> T getCached(Class<T> clazz, String id) {
+		var obj = cache.get(id);
+		return clazz.isInstance(obj)
+			? clazz.cast(obj)
+			: null;
+	}
+
+	public <T> T cache(T object) {
+		if (object != null) {
+			var id = UUID.randomUUID().toString();
+			cache.put(id, object);
+		}
+		return object;
+	}
+
+	public Object popCached(String id) {
+		return cache.remove(id);
+	}
 }

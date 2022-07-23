@@ -1,16 +1,14 @@
 package org.openlca.ipc.handlers;
 
 import org.openlca.core.model.CalculationSetup;
+import org.openlca.jsonld.output.DbRefs;
 
-class CachedResult<T> {
+record CachedResult<T>(CalculationSetup setup, T result, DbRefs refs) {
 
-	CalculationSetup setup;
-	T result;
-
-	public static <T> CachedResult<T> of(CalculationSetup setup, T result) {
-		CachedResult<T> r = new CachedResult<T>();
-		r.setup = setup;
-		r.result = result;
-		return r;
+	public static <T> CachedResult<T> of(
+		HandlerContext context, CalculationSetup setup, T result) {
+		var refs = DbRefs.of(context.db());
+		return new CachedResult<T>(setup, result, refs);
 	}
+
 }

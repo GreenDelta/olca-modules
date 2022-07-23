@@ -12,7 +12,6 @@ import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.Simulator;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.results.SimpleResult;
-import org.openlca.core.results.SimulationResult;
 import org.openlca.io.xls.results.SimulationResultExport;
 import org.openlca.io.xls.results.system.ResultExport;
 import org.openlca.ipc.Responses;
@@ -23,8 +22,6 @@ import org.openlca.jsonld.Json;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.output.JsonExport;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class ExportHandler {
@@ -46,25 +43,25 @@ public class ExportHandler {
 		String path = Json.getString(obj, "path");
 		if (path == null)
 			return Responses.badRequest("No `path` given", req);
-		Object val = context.cache.get(id);
-		if (!(val instanceof CachedResult))
+		var r = context.getCached(CachedResult.class, id);
+		if (r == null)
 			return Responses.notImplemented("The Excel export is currently"
-					+ " only implemented for calculation results", req);
-		CachedResult<?> r = (CachedResult<?>) val;
-		if (r.result instanceof SimpleResult)
+				+ " only implemented for calculation results", req);
+		if (r.result() instanceof SimpleResult)
 			return exportSimpleResult(req, path, r);
-		if (r.result instanceof Simulator)
+		if (r.result() instanceof Simulator)
 			return exportSimulationResult(req, path, r);
 		return Responses.notImplemented("The Excel export is currently"
-				+ " only implemented for calculation results", req);
+			+ " only implemented for calculation results", req);
 	}
 
 	private RpcResponse exportSimpleResult(RpcRequest req, String path,
-			CachedResult<?> r) {
-		ResultExport export = new ResultExport(r.setup,
-				(SimpleResult) r.result,
-				new File(path),
-				EntityCache.create(context.db));
+	                                       CachedResult<?> r) {
+		var export = new ResultExport(
+			r.setup(),
+			(SimpleResult) r.result(),
+			new File(path),
+			EntityCache.create(context.db()));
 		export.run();
 		if (export.doneWithSuccess())
 			return Responses.ok("Exported to " + path, req);
@@ -73,11 +70,11 @@ public class ExportHandler {
 	}
 
 	private RpcResponse exportSimulationResult(RpcRequest req, String path,
-			CachedResult<?> r) {
-		Simulator simulator = (Simulator) r.result;
-		SimulationResult result = simulator.getResult();
-		SimulationResultExport export = new SimulationResultExport(
-				r.setup, result, EntityCache.create(context.db));
+	                                           CachedResult<?> r) {
+		var simulator = (Simulator) r.result();
+		var result = simulator.getResult();
+		var export = new SimulationResultExport(
+			r.setup(), result, EntityCache.create(context.db()));
 		try {
 			export.run(new File(path));
 			return Responses.ok("Exported to " + path, req);
@@ -90,19 +87,19 @@ public class ExportHandler {
 	public RpcResponse jsonLd(RpcRequest req) {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.badRequest("No @id given", req);
-		JsonObject obj = req.params.getAsJsonObject();
-		String path = Json.getString(obj, "path");
+		var obj = req.params.getAsJsonObject();
+		var path = Json.getString(obj, "path");
 		if (path == null)
 			return Responses.badRequest("No `path` given", req);
-		Map<ModelType, Set<String>> toExport = getModels(obj);
-		if (toExport == null)
+		var models = getModels(obj);
+		if (models.isEmpty())
 			return Responses.badRequest("No `models` given", req);
 		try {
 			var store = ZipStore.open(new File(path));
-			var export = new JsonExport(context.db, store);
-			for (ModelType type : toExport.keySet()) {
-				for (String refId : toExport.get(type)) {
-					export.write(Daos.root(context.db, type).getForRefId(refId));
+			var export = new JsonExport(context.db(), store);
+			for (var type : models.keySet()) {
+				for (var refId : models.get(type)) {
+					export.write(Daos.root(context.db(), type).getForRefId(refId));
 				}
 			}
 			store.close();
@@ -113,29 +110,20 @@ public class ExportHandler {
 	}
 
 	private Map<ModelType, Set<String>> getModels(JsonObject obj) {
-		JsonArray models = Json.getArray(obj, "models");
-		if (models == null)
-			return null;
-		Map<ModelType, Set<String>> map = new HashMap<>();
-		for (JsonElement e : models) {
-			if (!e.isJsonObject())
-				continue;
-			JsonObject model = e.getAsJsonObject();
+		var map = new HashMap<ModelType, Set<String>>();
+		Json.forEachObject(obj, "models", model -> {
 			String id = Json.getString(model, "@id");
 			String type = Json.getString(model, "@type");
 			if (id == null || type == null)
-				continue;
+				return;
 			for (ModelType t : ModelType.values()) {
-				if (t.getModelClass() != null && t.getModelClass().getSimpleName().equals(type)) {
-					Set<String> ids = map.get(t);
-					if (ids == null) {
-						ids = new HashSet<>();
-						map.put(t, ids);
-					}
+				var clazz = t.getModelClass();
+				if (clazz != null && clazz.getSimpleName().equals(type)) {
+					var ids = map.computeIfAbsent(t, k -> new HashSet<>());
 					ids.add(id);
 				}
 			}
-		}
+		});
 		return map;
 	}
 

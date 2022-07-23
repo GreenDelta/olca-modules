@@ -31,6 +31,7 @@ import org.openlca.jsonld.Json;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.openlca.jsonld.output.DbRefs;
 
 class Utils {
 
@@ -62,7 +63,7 @@ class Utils {
 		if (flow == null || flow.flow() == null)
 			return null;
 		FlowProperty prop = cache.get(
-				FlowProperty.class, flow.flow().refFlowPropertyId);
+			FlowProperty.class, flow.flow().refFlowPropertyId);
 		if (prop == null || prop.unitGroup == null)
 			return null;
 		Unit unit = prop.unitGroup.referenceUnit;
@@ -73,7 +74,7 @@ class Utils {
 
 	@SuppressWarnings("unchecked")
 	<T1 extends RefEntity, T2 extends Descriptor> List<Contribution<T2>> toDescriptors(
-			List<Contribution<T1>> items) {
+		List<Contribution<T1>> items) {
 		List<Contribution<T2>> contributions = new ArrayList<>();
 		items.forEach(i -> {
 			Contribution<T2> item = new Contribution<>();
@@ -317,10 +318,9 @@ class Utils {
 
 	}
 
+	@FunctionalInterface
 	interface ContributionFlow {
-
-		JsonElement handle(FullResult result, EnviFlow flow, EntityCache cache);
-
+		JsonElement handle(FullResult result, EnviFlow flow, DbRefs refs);
 	}
 
 	interface ContributionFlowLocation {

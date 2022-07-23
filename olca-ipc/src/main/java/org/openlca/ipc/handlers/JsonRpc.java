@@ -95,24 +95,18 @@ class JsonRpc {
 		return obj;
 	}
 
-	static <T extends Descriptor> JsonArray encode(
-		Collection<Contribution<T>> l, EntityCache cache, Consumer<JsonObject> modifier) {
-		if (l == null)
+	static <T> JsonObject encodeContribution(
+		Contribution<T> c, Function<T, JsonElement> fn) {
+		if (c == null)
 			return null;
-		return encode(l, contribution -> encode(contribution, cache, modifier));
-	}
-
-	static <T> JsonObject encode(Contribution<T> i,
-			Consumer<JsonObject> modifier) {
-		if (i == null)
-			return null;
-		JsonObject obj = new JsonObject();
-		obj.addProperty("@type", "ContributionItem");
-		obj.add("item", JsonRef.of(i.item, cache));
-		obj.addProperty("amount", i.amount);
-		obj.addProperty("share", i.share);
-		obj.addProperty("rest", i.isRest);
-		modifier.accept(obj);
+		var obj = new JsonObject();
+		obj.addProperty("@type", "Contribution");
+		if (c.item != null) {
+			obj.add("item", fn.apply(c.item));
+		}
+		obj.addProperty("amount", c.amount);
+		obj.addProperty("share", c.share);
+		obj.addProperty("rest", c.isRest);
 		return obj;
 	}
 

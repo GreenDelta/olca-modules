@@ -52,12 +52,11 @@ public class InventoryHandler {
 
 	@Rpc("get/inventory/contributions/processes")
 	public RpcResponse getProcessContributions(RpcRequest req) {
-		return utils.contributionFlow(req, (result, flow, cache) -> {
+		return utils.contributionFlow(req, (result, flow, refs) -> {
 			var contributions = result.getProcessContributions(flow);
-			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
-			String unit = utils.getUnit(flow, cache);
-
-			return JsonRpc.encode(contributions, cache, json -> json.addProperty("unit", unit));
+			contributions = utils.filter(contributions, c -> c.amount != 0);
+			return JsonRpc.arrayOf(contributions,
+				c -> JsonRpc.encodeContribution(c, t -> JsonRpc.encodeTechFlow(t, refs)));
 		});
 	}
 

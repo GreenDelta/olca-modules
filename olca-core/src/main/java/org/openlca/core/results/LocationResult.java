@@ -176,9 +176,8 @@ public class LocationResult {
 	}
 
 	private Location getLocation(TechFlow p) {
-		if (p == null || !(p.provider() instanceof ProcessDescriptor))
+		if (p == null || !(p.provider() instanceof ProcessDescriptor d))
 			return null;
-		ProcessDescriptor d = (ProcessDescriptor) p.provider();
 		return d.location == null
 				? null
 				: getLocation(d.location);
