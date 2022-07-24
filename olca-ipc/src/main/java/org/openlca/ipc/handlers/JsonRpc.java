@@ -43,24 +43,30 @@ class JsonRpc {
 			return obj;
 		Json.put(obj, "@type", r.getClass().getSimpleName());
 
-		Json.put(obj, "providers",
-			arrayOf(r.techIndex(), techFlow -> encodeTechFlow(techFlow, refs)));
+		// tech. index, providers
+		if (r.techIndex() != null) {
+			var providers = r.techIndex()
+					.stream()
+					.map(techFlow -> encodeTechFlow(techFlow, refs))
+					.collect(toArray());
+			Json.put(obj, "providers", providers);
+		}
 
 		// flows & flow results
-		if (!r.hasEnviFlows())
-			return obj;
-		Json.put(obj, "flows",
-			arrayOf(r.enviIndex(), enviFlow -> encodeEnviFlow(enviFlow, cache)));
-		obj.add("flowResults",
-			arrayOf(r.getTotalFlowResults(), v -> encodeFlowValue(v, cache)));
+		if (r.hasEnviFlows()) {
+			Json.put(obj, "flows", arrayOf(
+					r.enviIndex(),
+					enviFlow -> encodeEnviFlow(enviFlow, refs)));
+			obj.add("flowResults",
+					arrayOf(r.getTotalFlowResults(), v -> encodeFlowValue(v, refs)));
+		}
 
 		// impact categories and results
-		if (!r.hasImpacts())
-			return obj;
-		obj.add("impacts",
-			arrayOf(r.impactIndex(), e -> JsonRef.of(e, cache)));
-		obj.add("impactResults",
-			arrayOf(r.getTotalImpactResults(), v -> encodeImpactValue(v, cache)));
+		if (r.hasImpacts()) {
+			obj.add("impacts", arrayOf(r.impactIndex(), refs::asRef));
+			obj.add("impactResults", arrayOf(
+					r.getTotalImpactResults(), v -> encodeImpactValue(v, refs)));
+		}
 
 		return obj;
 	}
@@ -101,7 +107,7 @@ class JsonRpc {
 	}
 
 	static <T> JsonObject encodeContribution(
-		Contribution<T> c, Function<T, JsonElement> fn) {
+			Contribution<T> c, Function<T, JsonElement> fn) {
 		if (c == null)
 			return null;
 		var obj = new JsonObject();
@@ -116,7 +122,7 @@ class JsonRpc {
 	}
 
 	static <T> JsonArray arrayOf(
-		Iterable<T> elements, Function<T, ? extends JsonElement> fn) {
+			Iterable<T> elements, Function<T, ? extends JsonElement> fn) {
 		var array = new JsonArray();
 		if (elements == null || fn == null)
 			return array;
@@ -174,7 +180,7 @@ class JsonRpc {
 	}
 
 	static class JsonArrayCollector
-		implements Collector<JsonElement, JsonArray, JsonArray> {
+			implements Collector<JsonElement, JsonArray, JsonArray> {
 
 		@Override
 		public Supplier<JsonArray> supplier() {

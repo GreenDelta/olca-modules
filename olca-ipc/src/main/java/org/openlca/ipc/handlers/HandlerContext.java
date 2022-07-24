@@ -42,19 +42,7 @@ public record HandlerContext(
 		return cache.remove(id);
 	}
 
-	public Effect<CachedResult<?>> getCachedResultOf(RpcRequest req) {
-		if (req == null || req.params == null || !req.params.isJsonObject())
-			return Effect.error(Responses.invalidParams(req));
-		var param = req.params.getAsJsonObject();
-		var resultId = Json.getString(param, "resultId");
-		if (resultId == null)
-			return Effect.error(Responses.invalidParams("resultId is missing", req));
-		CachedResult<?> result = getCached(CachedResult.class, resultId);
-		return result != null
-			? Effect.ok(result)
-			: Effect.error(Responses.notFound(
-			"no such result exists; id=" + resultId, req));
-	}
+
 
 	@SuppressWarnings("unchecked")
 	RpcResponse requireResult(

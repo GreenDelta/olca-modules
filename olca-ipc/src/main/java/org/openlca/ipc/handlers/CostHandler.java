@@ -16,6 +16,7 @@ import org.openlca.ipc.handlers.Upstream.StringPair;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.openlca.jsonld.Json;
 
 public class CostHandler {
 
@@ -29,27 +30,19 @@ public class CostHandler {
 		this.db = context.db();
 	}
 
-	@Rpc("get/costs/direct_contributions")
+	@Rpc("get/costs/total_requirements")
 	public RpcResponse getTotalRequirements(RpcRequest req) {
-		var cached = context.getCachedResultOf(req);
-		if (cached.isError())
-			return cached.error();
-		var cachedResult= cached.value();
-		var r = cachedResult.requireResult(req);
-		if (r.isError())
-			return r.error();
-		var result = r.value();
-		var array = new JsonArray();
-		for (var techFlow : result.techIndex()) {
-			var tr = result.getTotalRequirementsOf(techFlow);
-			var obj = new JsonObject();
-			obj.add("provider",
-				JsonRpc.encodeTechFlow(techFlow, cachedResult.refs()));
-			obj.addProperty("amount", tr);
-			obj.addProperty("costs", result.getDirectCostResult(techFlow));
-			array.add(obj);
-		}
-		return Responses.ok(array, req);
+		return ResultRequest.of(req, context, rr -> {
+			var result = rr.result();
+			var array = JsonRpc.arrayOf(result.techIndex(), techFlow -> {
+				var obj = new JsonObject();
+				Json.put(obj, "provider", JsonRpc.encodeTechFlow(techFlow, rr.refs()));
+				Json.put(obj, "amount", result.getTotalRequirementsOf(techFlow));
+				Json.put(obj, "costs", result.getDirectCostResult(techFlow));
+				return obj;
+			});
+			return Responses.ok(array, req);
+		});
 	}
 
 	@Rpc("get/costs/upstream/added_value")

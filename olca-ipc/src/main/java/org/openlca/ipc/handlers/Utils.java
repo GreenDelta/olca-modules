@@ -237,40 +237,6 @@ class Utils {
 		return Responses.ok(handler.handle(result, impact, cache), req);
 	}
 
-	static Effect<ImpactDescriptor> getImpact(ImpactIndex index, RpcRequest req) {
-		var obj = parameterObjectOf(req);
-		if (obj.isError())
-			return Effect.error(obj.error());
-		var refId = Json.getRefId(obj.value(), "impactCategory");
-		if (refId == null)
-			return Effect.error(Responses.badRequest("no impact category given", req));
-		for (var d : index.content()) {
-			if (refId.equals(d.refId))
-				return Effect.ok(d);
-		}
-		return Effect.error(Responses.badRequest(
-			"no impact category with id=" + refId + " exists", req));
-	}
-
-	static Effect<JsonObject> parameterObjectOf(RpcRequest req) {
-		return req == null || req.params == null || !req.params.isJsonObject()
-			? Effect.error(Responses.invalidParams(req))
-			: Effect.ok(req.params.getAsJsonObject();
-	}
-
-	private EnviFlow get(EnviIndex idx, JsonObject json) {
-		if (idx == null)
-			return null;
-		String refID = Json.getRefId(json, "flow");
-		if (refID == null)
-			return null;
-		for (EnviFlow f : idx.content()) {
-			if (refID.equals(f.flow().refId))
-				return f;
-		}
-		return null;
-	}
-
 	private <T extends RootDescriptor> T get(ModelType type, JsonObject json) {
 		return get(type, json, null);
 	}
