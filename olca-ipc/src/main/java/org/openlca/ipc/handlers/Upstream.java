@@ -17,16 +17,18 @@ class Upstream {
 		var path = readPathOf(rr.requestParameter());
 		var array = nodesOf(tree, path)
 				.stream()
-				.map(node -> {
-					var obj = new JsonObject();
-					Json.put(obj, "@type", "UpstreamNode");
-					Json.put(obj, "provider", JsonRpc.encodeTechFlow(node.provider(), rr.refs()));
-					Json.put(obj, "result", node.result());
-					Json.put(obj, "requiredAmount", node.requiredAmount());
-					return obj;
-				})
+				.map(node -> encodeNode(rr, node))
 				.collect(JsonRpc.toArray());
 		return Responses.ok(array, rr.request());
+	}
+
+	static JsonObject encodeNode(ResultRequest rr, UpstreamNode node) {
+		var obj = new JsonObject();
+		Json.put(obj, "@type", "UpstreamNode");
+		Json.put(obj, "provider", JsonRpc.encodeTechFlow(node.provider(), rr.refs()));
+		Json.put(obj, "result", node.result());
+		Json.put(obj, "requiredAmount", node.requiredAmount());
+		return obj;
 	}
 
 	private static List<NodeId> readPathOf(JsonObject requestParam) {

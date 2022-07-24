@@ -2,12 +2,10 @@ package org.openlca.ipc.handlers;
 
 import java.util.Objects;
 
-import org.openlca.core.database.EntityCache;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.Descriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.UpstreamNode;
 import org.openlca.core.results.UpstreamTree;
@@ -31,54 +29,32 @@ public class UpstreamTreeHandler {
 
 	@Rpc("get/upstream/tree")
 	public RpcResponse getUpstreamTree(RpcRequest req) {
-		var params = req.params;
-		if (params == null || !params.isJsonObject())
-			return Responses.badRequest("invalid parameters", req);
+		return ResultRequest.of(req, context, rr -> {
+			var result = rr.result();
 
-		// get the result
-		var obj = params.getAsJsonObject();
-		var resultId = Json.getString(obj, "resultId");
-		if (resultId == null)
-			return Responses.badRequest("no result ID", req);
-		var result = resultOf(resultId);
-		if (result == null)
-			return Responses.badRequest(
-				"no full result cached for ID=" + resultId, req);
+			// get the result ref
+			// TODO: to also support regionalized flows the result reference in case
+			// of environmental flows should be an EnviFlow reference object
+			var refObj = Json.getObject(rr.requestParameter(), "ref");
+			if (refObj == null)
+				return Responses.badRequest("no result reference given", req);
+			var refId = Json.getRefId(refObj, "@id");
+			if (refId == null)
+				return Responses.badRequest("invalid result reference: no ID", req);
+			var refType = refType(refObj);
+			if (refType == null)
+				return Responses.badRequest("invalid result reference type", req);
+			var tree = refType == ModelType.IMPACT_CATEGORY
+					? impactTree(result, refId)
+					: flowTree(result, refId);
+			if (tree == null)
+				return Responses.badRequest(
+						"invalid result reference: does not exist", req);
 
-		// get the result ref
-		var refObj = Json.getObject(obj, "ref");
-		if (refObj == null)
-			return Responses.badRequest(
-				"no result reference given", req);
-		var refId = Json.getString(refObj, "@id");
-		if (refId == null)
-			return Responses.badRequest(
-				"invalid result reference: no ID", req);
-		var refType = refType(refObj);
-		if (refType == null)
-			return Responses.badRequest(
-				"invalid result reference type", req);
-		var tree = refType == ModelType.IMPACT_CATEGORY
-			? impactTree(result, refId)
-			: flowTree(result, refId);
-		if (tree == null)
-			return Responses.badRequest(
-				"invalid result reference: does not exist", req);
-
-		// expand the tree and return it
-		var jsonTree = Expansion.of(context.db(), obj).expand(tree);
-		return Responses.ok(jsonTree, req);
-	}
-
-	private FullResult resultOf(String resultId) {
-		var obj = context.cache.get(resultId);
-		if (obj instanceof FullResult)
-			return (FullResult) obj;
-		if (obj instanceof CachedResult<?> cachedResult) {
-			if (cachedResult.result instanceof FullResult r)
-				return r;
-		}
-		return null;
+			// expand the tree and return it
+			var jsonTree = Expansion.of(rr).expand(tree);
+			return Responses.ok(jsonTree, req);
+		});
 	}
 
 	private ModelType refType(JsonObject refObj) {
@@ -112,7 +88,7 @@ public class UpstreamTreeHandler {
 			return null;
 		for (int i = 0; i < flowIdx.size(); i++) {
 			var flow = flowIdx.at(i);
-			if (flow.location() != null)  // regionalization not supported here
+			if (flow.location() != null)  // TODO: regionalization not supported here
 				continue;
 			if (Strings.nullOrEqual(flow.flow().refId, flowID))
 				return result.getTree(flow);
@@ -122,36 +98,37 @@ public class UpstreamTreeHandler {
 
 	private static class Expansion {
 
-		final EntityCache cache;
+		final ResultRequest rr;
 		final int maxDepth;
 		final double minContribution;
 		final int maxRecursionDepth;
 
-		Expansion(IDatabase db,
-							int maxDepth,
-							double minContribution,
-							int maxRecursionDepth) {
-			this.cache = EntityCache.create(db);
+		Expansion(ResultRequest rr,
+				int maxDepth,
+				double minContribution,
+				int maxRecursionDepth) {
+			this.rr = rr;
 			this.maxDepth = maxDepth;
 			this.minContribution = minContribution;
 			this.maxRecursionDepth = maxRecursionDepth;
 		}
 
-		static Expansion of(IDatabase db, JsonObject obj) {
-			return new Expansion(db,
-				Json.getInt(obj, "maxDepth", 5),
-				Json.getDouble(obj, "minContribution", 0.1),
-				Json.getInt(obj, "maxRecursionDepth", 3));
+		static Expansion of(ResultRequest rr) {
+			var param = rr.requestParameter();
+			return new Expansion(rr,
+					Json.getInt(param, "maxDepth", 5),
+					Json.getDouble(param, "minContribution", 0.1),
+					Json.getInt(param, "maxRecursionDepth", 3));
 		}
 
 		JsonObject expand(UpstreamTree tree) {
 			var treeObj = new JsonObject();
 			if (tree.ref instanceof EnviFlow ef) {
-				treeObj.add("ref", JsonRef.of(ef.flow(), cache));
-			} else if (tree.ref instanceof Descriptor d) {
-				treeObj.add("ref", JsonRef.of(d, cache));
+				treeObj.add("ref", JsonRpc.encodeEnviFlow(ef, rr.refs()));
+			} else if (tree.ref instanceof RootDescriptor d) {
+				treeObj.add("ref", rr.refs().asRef(d));
 			}
-			var root = initJsonOf(tree.root);
+			var root = Upstream.encodeNode(rr, tree.root);
 			expand(root, tree, new Path(tree.root));
 			treeObj.add("root", root);
 			return treeObj;
@@ -183,7 +160,7 @@ public class UpstreamTreeHandler {
 			// expand the child nodes
 			var childArray = new JsonArray();
 			for (var child : tree.childs(node)) {
-				var childJson = initJsonOf(child);
+				var childJson = Upstream.encodeNode(rr, child);
 				expand(childJson, tree, path.append(child));
 				childArray.add(childJson);
 			}
@@ -192,19 +169,6 @@ public class UpstreamTreeHandler {
 			}
 		}
 
-		private JsonObject initJsonOf(UpstreamNode node) {
-			if (node == null || node.provider() == null)
-				return null;
-			var json = new JsonObject();
-			var process = JsonRef.of(node.provider().provider(), cache);
-			var flow = JsonRef.of(node.provider().flow(), cache);
-			var product = new JsonObject();
-			product.add("process", process);
-			product.add("flow", flow);
-			json.add("product", product);
-			json.addProperty("result", node.result());
-			return json;
-		}
 	}
 
 	private static class Path {
