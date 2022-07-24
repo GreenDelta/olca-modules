@@ -66,7 +66,7 @@ public class UpstreamTreeHandler {
 				"invalid result reference: does not exist", req);
 
 		// expand the tree and return it
-		var jsonTree = Expansion.of(context.db, obj).expand(tree);
+		var jsonTree = Expansion.of(context.db(), obj).expand(tree);
 		return Responses.ok(jsonTree, req);
 	}
 

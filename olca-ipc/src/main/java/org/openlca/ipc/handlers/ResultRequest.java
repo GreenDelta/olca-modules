@@ -48,7 +48,13 @@ record ResultRequest(
 				impactOf(result.impactIndex(), param),
 				null, // TODO: read location
 				cachedResult.refs());
+
 		return handler.apply(reqData);
+	}
+
+	RpcResponse providerMissing() {
+		return Responses.invalidParams(
+				"Missing or invalid provider parameter", req);
 	}
 
 	RpcResponse impactMissing() {

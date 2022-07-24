@@ -47,6 +47,9 @@ public class CostHandler {
 
 	@Rpc("get/costs/upstream/added_value")
 	public RpcResponse getUpstreamAddedValue(RpcRequest req) {
+		return ResultRequest.of(req, context, rr -> {
+
+		});
 		return utils.full(req, (result, cache) -> getUpstream(req, result.getAddedValueTree(), cache));
 	}
 

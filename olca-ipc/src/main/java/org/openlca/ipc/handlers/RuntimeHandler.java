@@ -20,8 +20,8 @@ public class RuntimeHandler {
 		Logger log = LoggerFactory.getLogger(getClass());
 		log.info("Shutdown server and close database");
 		try {
-			context.server.stop();
-			context.db.close();
+			context.server().stop();
+			context.db().close();
 			return Responses.ok(req);
 		} catch (Exception e) {
 			return Responses.serverError(e, req);

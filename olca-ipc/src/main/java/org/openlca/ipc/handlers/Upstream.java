@@ -29,16 +29,7 @@ class Upstream {
 		return results;
 	}
 
-	static class StringPair {
-
-		final String first;
-		final String second;
-
-		StringPair(String first, String second) {
-			this.first = first;
-			this.second = second;
-		}
-
+	record StringPair(String first, String second) {
 	}
 
 }

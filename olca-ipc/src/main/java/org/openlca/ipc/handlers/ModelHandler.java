@@ -1,7 +1,6 @@
 package org.openlca.ipc.handlers;
 
 import org.openlca.core.database.Daos;
-import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
@@ -17,7 +16,7 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
@@ -26,6 +25,7 @@ import org.openlca.jsonld.Json;
 import org.openlca.jsonld.MemStore;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
+import org.openlca.jsonld.output.DbRefs;
 import org.openlca.jsonld.output.JsonExport;
 import org.openlca.util.Pair;
 import org.openlca.util.Strings;
@@ -38,7 +38,7 @@ public class ModelHandler {
 	private final IDatabase db;
 
 	public ModelHandler(HandlerContext context) {
-		this.db = context.db;
+		this.db = context.db();
 	}
 
 	@Rpc("get/model")
@@ -89,16 +89,16 @@ public class ModelHandler {
 			return Responses.invalidParams("params must be an object with"
 					+ " valid @type attribute", req);
 		var type = getType(req.params.getAsJsonObject());
-		if (type == null)
+		if (type == null || !type.isRoot())
 			return Responses.invalidParams("params must be an object with"
 					+ " valid @type attribute", req);
 		try {
-			var array = new JsonArray();
-			var cache = EntityCache.create(db);
-			Daos.refDao(db, type).getDescriptors().forEach(d -> {
-				JsonObject obj = JsonRef.of(d, cache);
-				array.add(obj);
-			});
+			var refs = DbRefs.of(db);
+			var array = db.getDescriptors(type.getModelClass())
+					.stream()
+					.map(d -> (RootDescriptor) d)
+					.map(refs::asRef)
+					.collect(JsonRpc.toArray());
 			return Responses.ok(array, req);
 		} catch (Exception e) {
 			return Responses.serverError(e, req);
@@ -108,11 +108,9 @@ public class ModelHandler {
 	@Rpc("get/descriptor")
 	public RpcResponse getDescriptor(RpcRequest req) {
 		var p = getModelOrError(req);
-		if (p.second != null)
-			return p.second;
-		var d = Descriptor.of(p.first);
-		var json = JsonRef.of(d, EntityCache.create(db));
-		return Responses.ok(json, req);
+		return p.second == null
+				? Responses.ok(Json.asRef(p.first), req)
+				: p.second;
 	}
 
 	@Rpc("insert/model")
@@ -150,19 +148,12 @@ public class ModelHandler {
 			return Responses.notFound(
 					"No flow with @id='" + d.refId + "' exists", req);
 
-		var providers = ProcessTable.create(db)
-				.getProviders(flow.id);
-		var array = new JsonArray();
-		var cache = EntityCache.create(db);
-		providers.stream()
+		var providers = ProcessTable.create(db).getProviders(flow.id);
+		var refs = DbRefs.of(db);
+		var array = providers.stream()
 				.map(TechFlow::provider)
-				.filter(p -> p instanceof ProcessDescriptor)
-				.map(p -> {
-					var ref = JsonRef.of(p, cache);
-					ref.addProperty("description", p.description);
-					return ref;
-				})
-				.forEach(array::add);
+				.map(refs::asRef)
+				.collect(JsonRpc.toArray());
 		return Responses.ok(array, req);
 	}
 
@@ -182,7 +173,7 @@ public class ModelHandler {
 		var system = ProductSystem.of(refProcess);
 		system = new ProductSystemDao(db).insert(system);
 		var config = new LinkingConfig()
-			.preferredType(ProcessType.UNIT_PROCESS);
+				.preferredType(ProcessType.UNIT_PROCESS);
 		if (obj.has("preferredType") && obj.get("preferredType").getAsString().equalsIgnoreCase("lci_result")) {
 			config.preferredType(ProcessType.LCI_RESULT);
 		}

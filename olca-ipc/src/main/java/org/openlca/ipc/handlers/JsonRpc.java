@@ -8,6 +8,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.gson.JsonElement;
 import org.openlca.core.database.EntityCache;
@@ -106,18 +108,27 @@ class JsonRpc {
 		return obj;
 	}
 
-	static <T> JsonObject encodeContribution(
-			Contribution<T> c, Function<T, JsonElement> fn) {
+	static <T> JsonArray encodeContributions(
+			Collection<Contribution<T>> contributions,
+			Function<T, JsonElement> itemEncoder) {
+		return contributions.stream()
+				.map(c -> encodeContribution(c, itemEncoder))
+				.collect(toArray());
+	}
+
+	static <T> JsonObject encodeContribution(Contribution<T> c,
+			Function<T, JsonElement> itemEncoder) {
 		if (c == null)
 			return null;
 		var obj = new JsonObject();
-		obj.addProperty("@type", "Contribution");
+		Json.put(obj, "@type", "Contribution");
 		if (c.item != null) {
-			obj.add("item", fn.apply(c.item));
+			Json.put(obj, "item", itemEncoder.apply(c.item));
 		}
-		obj.addProperty("amount", c.amount);
-		obj.addProperty("share", c.share);
-		obj.addProperty("rest", c.isRest);
+		Json.put(obj, "amount", c.amount);
+		Json.put(obj, "share", c.share);
+		Json.put(obj, "unit", c.unit);
+		Json.put(obj, "rest", c.isRest);
 		return obj;
 	}
 
@@ -135,25 +146,24 @@ class JsonRpc {
 		return array;
 	}
 
-	static <T extends Descriptor> JsonArray encode(Collection<UpstreamNode> l, UpstreamTree tree, EntityCache cache, Consumer<JsonObject> modifier) {
-		if (l == null)
+	static <T extends Descriptor> JsonArray encode(
+			Collection<UpstreamNode> nodes, UpstreamTree tree, DbRefs refs, Consumer<JsonObject> modifier) {
+		if (nodes == null)
 			return null;
-		return encode(l, node -> encode(node, tree.root.result(), cache, json -> {
+		return encode(nodes, node -> encode(node, tree.root.result(), cache, json -> {
 			json.addProperty("hasChildren", !tree.childs(node).isEmpty());
 			modifier.accept(json);
 		}));
 	}
 
-	static <T> JsonObject encode(UpstreamNode n, double total, EntityCache cache, Consumer<JsonObject> modifier) {
+	static <T> JsonObject encode(UpstreamNode n, double total, DbRefs refs) {
 		if (n == null)
 			return null;
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@type", "ContributionItem");
-		obj.add("item", JsonRef.of(n.provider().flow(), cache));
-		obj.add("owner", JsonRef.of(n.provider().provider(), cache));
+		obj.add("owner", encodeTechFlow(n.provider(), refs));
 		obj.addProperty("amount", n.result());
 		obj.addProperty("share", total != 0 ? n.result() / total : 0);
-		modifier.accept(obj);
 		return obj;
 	}
 
