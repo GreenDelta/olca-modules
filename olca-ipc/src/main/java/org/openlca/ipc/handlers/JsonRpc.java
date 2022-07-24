@@ -8,8 +8,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.google.gson.JsonElement;
 import org.openlca.core.database.EntityCache;
