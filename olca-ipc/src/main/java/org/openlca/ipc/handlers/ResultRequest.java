@@ -172,6 +172,11 @@ class ResultRequest {
 				"Missing or invalid impact category parameter", req);
 	}
 
+	RpcResponse enviFlowMissing() {
+		return Responses.invalidParams(
+				"Missing or invalid flow parameter", req);
+	}
+
 	RpcResponse noCostResults() {
 		return Responses.badRequest(
 				"The result has no cost results", req);

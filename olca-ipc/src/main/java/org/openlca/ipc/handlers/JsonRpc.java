@@ -4,23 +4,17 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
 import com.google.gson.JsonElement;
-import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.results.Contribution;
 import org.openlca.core.results.FlowValue;
 import org.openlca.core.results.ImpactValue;
 import org.openlca.core.results.SimpleResult;
-import org.openlca.core.results.UpstreamNode;
-import org.openlca.core.results.UpstreamTree;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -142,45 +136,6 @@ class JsonRpc {
 			}
 		}
 		return array;
-	}
-
-	static <T extends Descriptor> JsonArray encode(
-			Collection<UpstreamNode> nodes, UpstreamTree tree, DbRefs refs, Consumer<JsonObject> modifier) {
-		if (nodes == null)
-			return null;
-		return encode(nodes, node -> encode(node, tree.root.result(), cache, json -> {
-			json.addProperty("hasChildren", !tree.childs(node).isEmpty());
-			modifier.accept(json);
-		}));
-	}
-
-	static <T> JsonObject encode(UpstreamNode n, double total, DbRefs refs) {
-		if (n == null)
-			return null;
-		JsonObject obj = new JsonObject();
-		obj.addProperty("@type", "ContributionItem");
-		obj.add("owner", encodeTechFlow(n.provider(), refs));
-		obj.addProperty("amount", n.result());
-		obj.addProperty("share", total != 0 ? n.result() / total : 0);
-		return obj;
-	}
-
-	static JsonArray encode(double[] totalRequirements, double[] costs, TechIndex index, EntityCache cache) {
-		JsonArray items = new JsonArray();
-		for (int i = 0; i < totalRequirements.length; i++) {
-			if (totalRequirements[i] == 0)
-				continue;
-			var product = index.at(i);
-			JsonObject obj = new JsonObject();
-			obj.add("process", JsonRef.of(product.provider(), cache));
-			obj.add("product", JsonRef.of(product.flow(), cache));
-			obj.addProperty("amount", totalRequirements[i]);
-			if (costs != null) {
-				obj.addProperty("costs", costs[i]);
-			}
-			items.add(obj);
-		}
-		return items;
 	}
 
 	public static JsonArrayCollector toArray() {
