@@ -252,23 +252,7 @@ class Utils {
 		return descriptor;
 	}
 
-	List<StringPair> parseProducts(RpcRequest req) {
-		JsonObject json = req.params.getAsJsonObject();
-		if (!json.has("path") || !json.get("path").isJsonArray())
-			return new ArrayList<>();
-		JsonArray path = json.get("path").getAsJsonArray();
-		List<StringPair> products = new ArrayList<>();
-		for (JsonElement element : path) {
-			if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isString())
-				continue;
-			String entry = element.getAsString();
-			String[] ids = entry.split("/");
-			if (ids.length != 2)
-				continue;
-			products.add(new StringPair(ids[0], ids[1]));
-		}
-		return products;
-	}
+
 
 	<T> List<T> filter(List<T> list, Function<T, Boolean> predicate) {
 		List<T> filtered = new ArrayList<>();

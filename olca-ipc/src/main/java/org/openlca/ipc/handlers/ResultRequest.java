@@ -2,12 +2,8 @@ package org.openlca.ipc.handlers;
 
 import com.google.gson.JsonObject;
 import org.openlca.core.matrix.index.EnviFlow;
-import org.openlca.core.matrix.index.EnviIndex;
-import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.results.FullResult;
 import org.openlca.ipc.Responses;
 import org.openlca.ipc.RpcRequest;
@@ -17,14 +13,27 @@ import org.openlca.jsonld.output.DbRefs;
 
 import java.util.function.Function;
 
-record ResultRequest(
-		RpcRequest req,
-		FullResult result,
-		TechFlow techFlow,
-		EnviFlow enviFlow,
-		ImpactDescriptor impact,
-		LocationDescriptor location,
-		DbRefs refs) {
+class ResultRequest {
+
+	private final RpcRequest req;
+	private final JsonObject reqParam;
+	private final FullResult result;
+	private final DbRefs refs;
+
+	private TechFlow _techFlow;
+	private EnviFlow _enviFlow;
+	private ImpactDescriptor _impact;
+
+	private ResultRequest(
+			RpcRequest req,
+			JsonObject reqParam,
+			FullResult result,
+			DbRefs refs) {
+		this.req = req;
+		this.reqParam = reqParam;
+		this.result = result;
+		this.refs = refs;
+	}
 
 	static RpcResponse of(RpcRequest req, HandlerContext context,
 			Function<ResultRequest, RpcResponse> handler) {
@@ -42,24 +51,10 @@ record ResultRequest(
 
 		var reqData = new ResultRequest(
 				req,
+				param,
 				result,
-				providerOf(result.techIndex(), param),
-				enviFlowOf(result.enviIndex(), param),
-				impactOf(result.impactIndex(), param),
-				null, // TODO: read location
 				cachedResult.refs());
-
 		return handler.apply(reqData);
-	}
-
-	RpcResponse providerMissing() {
-		return Responses.invalidParams(
-				"Missing or invalid provider parameter", req);
-	}
-
-	RpcResponse impactMissing() {
-		return Responses.invalidParams(
-				"Missing or invalid impact category parameter", req);
 	}
 
 	private static Effect<JsonObject> parameterOf(RpcRequest req) {
@@ -80,10 +75,29 @@ record ResultRequest(
 				"no such result exists; id=" + resultId, req));
 	}
 
-	private static EnviFlow enviFlowOf(EnviIndex idx, JsonObject param) {
+	RpcRequest request() {
+		return req;
+	}
+
+	DbRefs refs() {
+		return refs;
+	}
+
+	JsonObject requestParameter() {
+		return reqParam;
+	}
+
+	FullResult result() {
+		return result;
+	}
+
+	EnviFlow enviFlow() {
+		if (_enviFlow != null)
+			return _enviFlow;
+		var idx = result.enviIndex();
 		if (idx == null)
 			return null;
-		var flowObj = Json.getObject(param, "flow");
+		var flowObj = Json.getObject(reqParam, "flow");
 		if (flowObj == null)
 			return null;
 		var flowId = Json.getRefId(flowObj, "flow");
@@ -94,23 +108,26 @@ record ResultRequest(
 			if (!flowId.equals(enviFlow.flow().refId))
 				continue;
 			if (locId == null && enviFlow.location() == null)
-				return enviFlow;
+				return _enviFlow = enviFlow;
 			if (locId == null || enviFlow.location() == null)
 				continue;
 			if (locId.equals(enviFlow.location().refId))
-				return enviFlow;
+				return _enviFlow = enviFlow;
 		}
 		return null;
 	}
 
-	private static TechFlow providerOf(TechIndex idx, JsonObject param) {
+	TechFlow techFlow() {
+		if (_techFlow != null)
+			return _techFlow;
+		var idx = result.techIndex();
 		if (idx == null)
 			return null;
-		var providerObj = Json.getObject(param, "provider");
+		var providerObj = Json.getObject(reqParam, "provider");
 		if (providerObj == null)
 			return null;
-		var providerId = Json.getRefId(param, "provider");
-		var flowId = Json.getRefId(param, "flow");
+		var providerId = Json.getRefId(providerObj, "provider");
+		var flowId = Json.getRefId(providerObj, "flow");
 		if (providerId == null || flowId == null)
 			return null;
 		for (var techFlow : idx) {
@@ -118,23 +135,46 @@ record ResultRequest(
 			var flow = techFlow.flow();
 			if (provider == null || flow == null)
 				continue;
-			if (providerId.equals(provider.refId) && flowId.equals(flow.refId))
+			if (providerId.equals(provider.refId) && flowId.equals(flow.refId)) {
+				_techFlow = techFlow;
 				return techFlow;
+			}
 		}
 		return null;
 	}
 
-	private static ImpactDescriptor impactOf(ImpactIndex idx,  JsonObject param) {
+	ImpactDescriptor impact() {
+		if (_impact != null)
+			return _impact;
+		var idx = result.impactIndex();
 		if (idx == null)
 			return null;
-		var impactId = Json.getRefId(param, "impactCategory");
+		var impactId = Json.getRefId(reqParam, "impactCategory");
 		if (impactId == null)
 			return null;
 		for (var impact : idx) {
-			if (impactId.equals(impact.refId))
+			if (impactId.equals(impact.refId)) {
+				_impact = impact;
 				return impact;
+			}
 		}
 		return null;
+	}
+
+
+	RpcResponse providerMissing() {
+		return Responses.invalidParams(
+				"Missing or invalid provider parameter", req);
+	}
+
+	RpcResponse impactMissing() {
+		return Responses.invalidParams(
+				"Missing or invalid impact category parameter", req);
+	}
+
+	RpcResponse noCostResults() {
+		return Responses.badRequest(
+				"The result has no cost results", req);
 	}
 
 }
